@@ -16,6 +16,7 @@ using LingoEngine.Movies.Commands;
 using LingoEngine.Stages;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.UI;
+using LingoEngine.LGodot.Gfx;
 
 
 namespace LingoEngine.Director.LGodot.Movies;
@@ -42,6 +43,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
     private readonly ScrollContainer _scrollContainer = new ScrollContainer();
     private readonly SelectionBox _selectionBox = new SelectionBox();
     private readonly BoundingBoxesOverlay _boundingBoxes = new BoundingBoxesOverlay();
+    private readonly StageSpriteSummaryOverlay _spriteSummary;
 
     private LingoMovie? _movie;
     private ILingoFrameworkStage? _stage;
@@ -69,6 +71,11 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         _directorStageWindow = directorStageWindow;
 
         _mediator.Subscribe(this);
+        var lp = _player as LingoPlayer;
+        if (lp != null)
+            _spriteSummary = new StageSpriteSummaryOverlay(lp.Factory, _mediator);
+        else
+            _spriteSummary = new StageSpriteSummaryOverlay(((LingoPlayer)_player!).Factory, _mediator);
 
         
         
@@ -111,7 +118,9 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         _scrollContainer.AddChild(_stageContainer.Container);
         _stageContainer.Container.AddChild(_boundingBoxes);
         _stageContainer.Container.AddChild(_selectionBox);
+        _stageContainer.Container.AddChild(_spriteSummary.Canvas.Framework<LingoGodotGfxCanvas>());
         _boundingBoxes.ZIndex = 500;
+        _spriteSummary.Canvas.Framework<LingoGodotGfxCanvas>().ZIndex = 750;
         //_boundingBoxes.MouseFilter = MouseFilterEnum.Ignore; // ensure mouse clicks pass through
         _selectionBox.Visible = false;
         _selectionBox.ZIndex = 1000;
@@ -566,6 +575,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         }
         _player.ActiveMovieChanged -= OnActiveMovieChanged;
         _mediator.Unsubscribe(this);
+        _spriteSummary.Dispose();
         base.Dispose(disposing);
     }
 
