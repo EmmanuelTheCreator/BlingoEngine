@@ -11,6 +11,7 @@ class RaysScoreFrameParserV2:
     # When ``True`` the parser continues with the block parser and keyframe
     # linker. Disabled by default to allow partial parsing of unknown data.
     enable_full_parsing: bool = False
+    dump_score_hex: bool = False
 
     def __init__(self, logger=None):
         self.logger = logger
@@ -21,6 +22,9 @@ class RaysScoreFrameParserV2:
         ctx = RayScoreParseContext(self.logger)
         header = self.reader.read_main_header(stream)
         self.reader.read_all_intervals(header.entry_count, stream, ctx)
+        if self.dump_score_hex and ctx.frame_data_buffer_view is not None:
+            log_reader = ReadStream(ctx.frame_data_buffer_view, Endianness.BigEndian)
+            self.log_full_score_bytes(log_reader)
         if ctx.frame_data_buffer_view is None:
             return []
         new_reader = ReadStream(ctx.frame_data_buffer_view, Endianness.BigEndian)
@@ -53,8 +57,7 @@ class RaysScoreFrameParserV2:
     # ------------------------------------------------------------------
 
     def log_full_score_bytes(self, reader_source: ReadStream):
-        frame_bytes = reader_source.read_bytes(len(reader_source.data) - reader_source.pos)
-        frame_data = ReadStream(frame_bytes, reader_source.endianness)
+        frame_bytes = reader_source.data[reader_source.pos:]
         buf_view = BufferView(frame_bytes)
         hex_dump = buf_view.log_hex(len(frame_bytes))
         if self.logger:
