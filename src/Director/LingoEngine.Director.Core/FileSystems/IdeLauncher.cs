@@ -38,7 +38,7 @@ namespace LingoEngine.Director.Core.FileSystems
 #if USE_WINDOWS_FEATURES
                     OpenInVisualStudio(_directorSettings, lingoProjectSettings, filePath, line);
 #else
-                    OpenInVisualStudio(settings.VisualStudioPath, filePath, line);
+                    OpenInVisualStudio(_directorSettings.VisualStudioPath, filePath, line);
 #endif
                     break;
 
