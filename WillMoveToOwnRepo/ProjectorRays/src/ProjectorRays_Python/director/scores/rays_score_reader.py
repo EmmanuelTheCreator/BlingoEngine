@@ -144,6 +144,28 @@ class RaysScoreReader:
         desc.unknown8 = stream.read_int32()
         while stream.pos + 4 <= len(stream.data):
             desc.extra_values.append(stream.read_int32())
+        if self.logger:
+            self.logger.info(
+                "Item Desc. %d: Start=%d, End=%d, Channel=%d, U1=%d, "
+                "Flip=%s,%s,🔒=%s,Trails=%s,Editable=%s,Moveable=%s , "
+                "U3=%d, U4A=%d, U4B=%d, U5=%d, U6=%d",
+                index,
+                desc.start_frame,
+                desc.end_frame,
+                desc.channel,
+                desc.unknown1,
+                desc.flip_h,
+                desc.flip_v,
+                desc.is_locked,
+                desc.trails,
+                desc.editable,
+                desc.moveable,
+                desc.unknown_always_one,
+                desc.unkown_a,
+                desc.unkown_b,
+                desc.unknown_e1,
+                desc.unknown_fd,
+            )
         return desc
 
     def read_frame_descriptors(self, ctx):

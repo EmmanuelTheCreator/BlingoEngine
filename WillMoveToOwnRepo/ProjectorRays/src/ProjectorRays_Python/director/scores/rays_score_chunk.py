@@ -9,7 +9,8 @@ class RaysScoreChunk(RaysChunk):
         self.sprites = []
 
     def read(self, stream: ReadStream):
-        parser = RaysScoreFrameParserV2()
+        logger = getattr(self.dir, "_logger", None)
+        parser = RaysScoreFrameParserV2(logger)
         self.sprites = parser.parse_score(stream)
 
     def write_json(self, writer: RaysJSONWriter):
