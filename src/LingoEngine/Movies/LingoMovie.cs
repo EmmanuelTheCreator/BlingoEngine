@@ -280,6 +280,7 @@ namespace LingoEngine.Movies
         {
             _isPlaying = false;
             PlayStateChanged?.Invoke(false);
+            _environment.Sound.StopAll();
             _spriteManager.EndSprites();
             _EventMediator.RaiseStopMovie();
             // EndSprite
@@ -352,6 +353,7 @@ namespace LingoEngine.Movies
                 AdvanceFrame();
                 _isPlaying = false;
                 PlayStateChanged?.Invoke(false);
+                _environment.Sound.StopAll();
             }
         }
 
