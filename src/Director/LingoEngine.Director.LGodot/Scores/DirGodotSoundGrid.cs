@@ -5,6 +5,8 @@ using LingoEngine.Members;
 using LingoEngine.Sounds;
 using LingoEngine.Director.Core.Scores;
 using LingoEngine.FrameworkCommunication;
+using LingoEngine.Director.Core.Tools;
+using LingoEngine.Primitives;
 using LingoEngine.LGodot.Gfx;
 
 namespace LingoEngine.Director.LGodot.Scores;
@@ -24,11 +26,14 @@ internal partial class DirGodotSoundGrid : Control
     private readonly DirScoreGridPainter _gridCanvas;
     private readonly ILingoFrameworkFactory _factory;
     private readonly ClipCanvas _canvas;
+    private readonly IDirectorEventMediator _mediator;
+    private DirGodotScoreAudioClip? _selected;
 
-    public DirGodotSoundGrid(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory)
+    public DirGodotSoundGrid(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, IDirectorEventMediator mediator)
     {
         _gfxValues = gfxValues;
         _factory = factory;
+        _mediator = mediator;
         _gridCanvas = new DirScoreGridPainter(factory, gfxValues);
         _canvas = new ClipCanvas(this);
         AddChild(_gridCanvas.Canvas.Framework<LingoGodotGfxCanvas>());
@@ -66,6 +71,7 @@ internal partial class DirGodotSoundGrid : Control
             _movie.AudioClipListChanged -= OnClipsChanged;
         _movie = movie;
         _clips.Clear();
+        _selected = null;
         if (_movie != null)
         {
             foreach (var clip in _movie.GetAudioClips())
@@ -90,34 +96,74 @@ internal partial class DirGodotSoundGrid : Control
         QueueRedraw();
     }
 
-    public override bool _CanDropData(Vector2 atPosition, Variant data)
-    {
-        if (_movie == null || _collapsed) return false;
+    // Godot 4.5 introduced regressions with the built in drag-and-drop flow, so
+    // we use a custom singleton based handler via DirectorDragDropHolder. The
+    // old implementation is kept here for reference and future troubleshooting:
+    //
+    // public override bool _CanDropData(Vector2 atPosition, Variant data)
+    // {
+    //     if (_movie == null || _collapsed) return false;
+    //
+    //     var obj = data.Obj as LingoMemberSound;
+    //     if (obj == null) return false;
+    //
+    //     int channel = (int)(atPosition.Y / _gfxValues.ChannelHeight);
+    //     if (channel < 0 || channel >= 4) return false;
+    //
+    //     float frameX = atPosition.X + _scrollX;
+    //     if (frameX < 0) return false;
+    //
+    //     return true;
+    // }
+    public override bool _CanDropData(Vector2 atPosition, Variant data) => false;
 
-        var obj = data.Obj as LingoMemberSound;
-        if (obj == null) return false;
-
-        int channel = (int)(atPosition.Y / _gfxValues.ChannelHeight);
-        if (channel < 0 || channel >= 4) return false;
-
-        float frameX = atPosition.X + _scrollX;
-        if (frameX < 0) return false;
-
-        return true;
-    }
-
-    public override void _DropData(Vector2 atPosition, Variant data)
+    public override void _Input(InputEvent @event)
     {
         if (_movie == null || _collapsed) return;
 
-        var sound = data.Obj as LingoMemberSound;
-        if (sound == null) return;
-
-        int channel = (int)(atPosition.Y / _gfxValues.ChannelHeight);
-        float frameX = atPosition.X + _scrollX;
-        int frame = Mathf.Clamp(Mathf.RoundToInt(frameX / _gfxValues.FrameWidth) + 1, 1, _movie.FrameCount);
-        _movie.AddAudioClip(channel, frame, sound);
+        if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Left)
+        {
+            var pos = GetLocalMousePosition();
+            if (mb.Pressed)
+            {
+                var clip = GetClipAt(pos);
+                SelectClip(clip);
+            }
+            else if (DirectorDragDropHolder.IsDragging && DirectorDragDropHolder.Member != null)
+            {
+                if (DirectorDragDropUtils.TryHandleSoundDrop(
+                        _movie!,
+                        new LingoPoint(pos.X, pos.Y),
+                        _gfxValues.ChannelHeight,
+                        _gfxValues.FrameWidth,
+                        _scrollX,
+                        out int ch, out int frame, out var sound))
+                {
+                    _movie!.AddAudioClip(ch, frame, sound!);
+                }
+                DirectorDragDropHolder.EndDrag();
+            }
+        }
     }
+
+    // Legacy drop handler kept for documentation and possible rollback:
+    // public override void _DropData(Vector2 atPosition, Variant data)
+    // {
+    //     if (_movie == null || _collapsed) return;
+    //
+    //     var sound = data.Obj as LingoMemberSound;
+    //     if (sound == null) return;
+    //
+    //     int channel = (int)(atPosition.Y / _gfxValues.ChannelHeight);
+    //     float frameX = atPosition.X + _scrollX;
+    //     int frame = Mathf.Clamp(
+    //         Mathf.RoundToInt(frameX / _gfxValues.FrameWidth) + 1,
+    //         1,
+    //         _movie.FrameCount
+    //     );
+    //     _movie.AddAudioClip(channel, frame, sound);
+    // }
+    public override void _DropData(Vector2 atPosition, Variant data) { }
 
     public override void _Process(double delta)
     {
@@ -148,6 +194,34 @@ internal partial class DirGodotSoundGrid : Control
         _gridCanvas.Draw();
     }
 
+    private DirGodotScoreAudioClip? GetClipAt(Vector2 pos)
+    {
+        int channel = (int)(pos.Y / _gfxValues.ChannelHeight);
+        foreach (var clip in _clips)
+        {
+            if (clip.Clip.Channel != channel) continue;
+            float x = -_scrollX + (clip.Clip.BeginFrame - 1) * _gfxValues.FrameWidth;
+            float width = (clip.Clip.EndFrame - clip.Clip.BeginFrame + 1) * _gfxValues.FrameWidth;
+            if (pos.X >= x && pos.X <= x + width)
+                return clip;
+        }
+        return null;
+    }
+
+    private void SelectClip(DirGodotScoreAudioClip? clip)
+    {
+        if (_selected == clip) return;
+        if (_selected != null) _selected.Selected = false;
+        _selected = clip;
+        if (_selected != null)
+        {
+            _selected.Selected = true;
+            _mediator.RaiseMemberSelected(_selected.Clip.Sound);
+        }
+        _clipDirty = true;
+        _canvas.QueueRedraw();
+    }
+
     private partial class ClipCanvas : Control
     {
         private readonly DirGodotSoundGrid _owner;
@@ -163,6 +237,7 @@ internal partial class DirGodotSoundGrid : Control
                 float x = -_owner._scrollX + (clip.Clip.BeginFrame - 1) * _owner._gfxValues.FrameWidth;
                 float width = (clip.Clip.EndFrame - clip.Clip.BeginFrame + 1) * _owner._gfxValues.FrameWidth;
                 float y = ch * _owner._gfxValues.ChannelHeight;
+                clip.Selected = clip == _owner._selected;
                 clip.Draw(this, new Vector2(x, y), width, _owner._gfxValues.ChannelHeight, font);
             }
         }

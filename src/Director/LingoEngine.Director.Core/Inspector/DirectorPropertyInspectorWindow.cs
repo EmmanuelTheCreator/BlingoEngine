@@ -198,7 +198,7 @@ namespace LingoEngine.Director.Core.Inspector
                     AddBitmapTab(pic);
                     break;
                 case LingoMemberSound sound:
-                    AddTab("Sound", sound);
+                    AddSoundTab(sound);
                     break;
                 case LingoMemberFilmLoop film:
                     AddTab("FilmLoop", film);
@@ -331,6 +331,35 @@ namespace LingoEngine.Director.Core.Inspector
                    .AddNumericInput("BitmapRegPointY", "Y:", member, s => s.RegPoint.Y, inputSpan: 4, labelSpan: 1)
                    .Finalize()
                    ;
+        }
+
+        private void AddSoundTab(LingoMemberSound member)
+        {
+            var wrap = AddTab("Sound");
+            var btnPanel = _factory.CreateWrapPanel(LingoOrientation.Horizontal, "SoundButtons");
+            var playBtn = _factory.CreateButton("SoundPlay", "Play");
+            var stopBtn = _factory.CreateButton("SoundStop", "Stop");
+            playBtn.Pressed += () => _player.Sound.Channel(1).Play(member);
+            stopBtn.Pressed += () => _player.Sound.Channel(1).Stop();
+            btnPanel.AddItem(playBtn);
+            btnPanel.AddItem(stopBtn);
+            var panel = _factory.CreatePanel("SoundPanel");
+            wrap.AddItem(btnPanel);
+            wrap.AddItem(panel);
+
+            string duration = TimeSpan.FromSeconds(member.Length).ToString(@"hh\:mm\:ss\.fff");
+            panel.Compose(_factory)
+                .Columns(4)
+                .AddCheckBox("SoundLoop", "Loop:", member, m => m.Loop, 1, true, 2)
+                .AddLabel("SoundDuration", "Duration: ", 2)
+                .AddLabel("SoundDurationV", duration, 2)
+                .AddLabel("SoundSampleRate", "Sample rate: ", 2)
+                .AddLabel("SoundSampleRateV", _player.Sound.Channel(1).SampleRate + " Hz", 2)
+                .AddLabel("SoundBitDepth", "Bit Depth: ", 2)
+                .AddLabel("SoundBitDepthV", "16", 2)
+                .AddLabel("SoundChannels", "Channels: ", 2)
+                .AddLabel("SoundChannelsV", member.Stereo ? "Stereo" : "Mono", 2)
+                .Finalize();
         }
         private LingoGfxWrapPanel AddTab(string name)
         { 

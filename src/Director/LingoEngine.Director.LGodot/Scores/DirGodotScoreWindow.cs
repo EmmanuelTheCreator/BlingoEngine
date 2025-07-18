@@ -73,7 +73,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
 
         Size = new Vector2(width, height);
         CustomMinimumSize = Size;
-        _soundBar = new DirGodotSoundBar(_gfxValues, _player.Factory);
+        _soundBar = new DirGodotSoundBar(_gfxValues, _player.Factory, _mediator);
         _soundBar.Collapsed = true;
         _channelBar = new DirGodotScoreChannelBar(_gfxValues, _soundBar);
         _grid = new DirGodotScoreGrid(directorMediator, _gfxValues, commandManager, historyManager, _player.Factory);

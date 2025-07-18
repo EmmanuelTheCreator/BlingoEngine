@@ -3,6 +3,7 @@ using LingoEngine.Movies;
 using LingoEngine.Director.Core.Scores;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.LGodot.Gfx;
+using LingoEngine.Director.Core.Tools;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
@@ -14,11 +15,13 @@ internal partial class DirGodotSoundBar : Control
     private readonly DirGodotSoundHeader _header;
     private readonly DirGodotSoundGrid _grid;
     private readonly Control _gridClipper = new();
+    private readonly IDirectorEventMediator _mediator;
 
-    public DirGodotSoundBar(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory)
+    public DirGodotSoundBar(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, IDirectorEventMediator mediator)
     {
+        _mediator = mediator;
         _header = new DirGodotSoundHeader(gfxValues);
-        _grid = new DirGodotSoundGrid(gfxValues, factory);
+        _grid = new DirGodotSoundGrid(gfxValues, factory, mediator);
         _gridClipper.ClipContents = true;
         _gridClipper.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         AddChild(_header);
