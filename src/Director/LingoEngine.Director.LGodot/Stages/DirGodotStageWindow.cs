@@ -17,6 +17,7 @@ using LingoEngine.Stages;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.LGodot.Gfx;
+using LingoEngine.Inputs;
 
 
 namespace LingoEngine.Director.LGodot.Movies;
@@ -42,7 +43,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
     private readonly ColorPickerButton _colorPicker = new ColorPickerButton();
     private readonly ScrollContainer _scrollContainer = new ScrollContainer();
     private readonly SelectionBox _selectionBox = new SelectionBox();
-    private readonly BoundingBoxesOverlay _boundingBoxes = new BoundingBoxesOverlay();
+    private readonly StageBoundingBoxesOverlay _boundingBoxes;
     private readonly StageSpriteSummaryOverlay _spriteSummary;
 
     private LingoMovie? _movie;
@@ -73,9 +74,16 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         _mediator.Subscribe(this);
         var lp = _player as LingoPlayer;
         if (lp != null)
+        {
             _spriteSummary = new StageSpriteSummaryOverlay(lp.Factory, _mediator);
+            _boundingBoxes = new StageBoundingBoxesOverlay(lp.Factory, _mediator);
+        }
         else
-            _spriteSummary = new StageSpriteSummaryOverlay(((LingoPlayer)_player!).Factory, _mediator);
+        {
+            var p = (LingoPlayer)_player!;
+            _spriteSummary = new StageSpriteSummaryOverlay(p.Factory, _mediator);
+            _boundingBoxes = new StageBoundingBoxesOverlay(p.Factory, _mediator);
+        }
 
         
         
@@ -116,10 +124,10 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         _stageBgRect.SizeFlagsVertical = SizeFlags.ExpandFill;
         _scrollContainer.AddChild(_stageBgRect);
         _scrollContainer.AddChild(_stageContainer.Container);
-        _stageContainer.Container.AddChild(_boundingBoxes);
+        _stageContainer.Container.AddChild(_boundingBoxes.Canvas.Framework<LingoGodotGfxCanvas>());
         _stageContainer.Container.AddChild(_selectionBox);
         _stageContainer.Container.AddChild(_spriteSummary.Canvas.Framework<LingoGodotGfxCanvas>());
-        _boundingBoxes.ZIndex = 500;
+        _boundingBoxes.Canvas.Framework<LingoGodotGfxCanvas>().ZIndex = 500;
         _spriteSummary.Canvas.Framework<LingoGodotGfxCanvas>().ZIndex = 750;
         //_boundingBoxes.MouseFilter = MouseFilterEnum.Ignore; // ensure mouse clicks pass through
         _selectionBox.Visible = false;
@@ -245,6 +253,8 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         {
             _movie.PlayStateChanged += OnPlayStateChanged;
             _movie.SpriteListChanged += UpdateBoundingBoxes;
+            var env = _movie.GetEnvironment();
+            _boundingBoxes.SetInput(env.Mouse, env.Key);
         }
 
         UpdatePlayButton();
@@ -337,19 +347,9 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
             return;
         }
 
-        var rects = new List<Rect2>();
-        foreach (var sprite in _selectedSprites)
+        if (_selectedSprites.Count > 0)
         {
-            if (sprite.Member is LingoMemberText || sprite.Member is LingoMemberField)
-            {
-                var r = sprite.Rect;
-                rects.Add(new Rect2(r.Left, r.Top, r.Right - r.Left, r.Bottom - r.Top));
-            }
-        }
-
-        if (rects.Count > 0)
-        {
-            _boundingBoxes.SetRects(rects);
+            _boundingBoxes.SetSprites(_selectedSprites);
             _boundingBoxes.Visible = true;
         }
         else
@@ -598,25 +598,5 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         }
     }
 
-    private partial class BoundingBoxesOverlay : Node2D
-    {
-        public BoundingBoxesOverlay()
-        {
-            Name = "BoundingBoxesOverlay";
-        }
-        private readonly List<Rect2> _rects = new();
-        public void SetRects(IEnumerable<Rect2> rects)
-        {
-            _rects.Clear();
-            _rects.AddRange(rects);
-            QueueRedraw();
-        }
-
-        public override void _Draw()
-        {
-            foreach (var rect in _rects)
-                DrawRect(rect, Colors.Yellow, false, 1);
-        }
-    }
     
 }
