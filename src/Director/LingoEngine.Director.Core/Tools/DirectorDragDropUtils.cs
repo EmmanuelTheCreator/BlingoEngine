@@ -1,6 +1,7 @@
 ﻿using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Primitives;
+using LingoEngine.Sounds;
 using System;
 
 namespace LingoEngine.Director.Core.Tools
@@ -72,6 +73,37 @@ namespace LingoEngine.Director.Core.Tools
         private static bool RangesOverlap(int aStart, int aEnd, int bStart, int bEnd)
         {
             return aStart <= bEnd && bStart <= aEnd;
+        }
+
+        public static bool TryHandleSoundDrop(
+                                LingoMovie? movie,
+                                LingoPoint pos,
+                                float channelHeight,
+                                float frameWidth,
+                                float scrollX,
+                                out int channel,
+                                out int frame,
+                                out LingoMemberSound? sound
+                            )
+        {
+            channel = -1;
+            frame = 0;
+            sound = null;
+
+            if (movie == null || !DirectorDragDropHolder.IsDragging || DirectorDragDropHolder.Member is not LingoMemberSound s)
+                return false;
+
+            sound = s;
+            channel = (int)(pos.Y / channelHeight);
+            if (channel < 0 || channel >= 4)
+                return false;
+
+            float frameX = pos.X + scrollX;
+            if (frameX < 0)
+                return false;
+
+            frame = LingoMath.Clamp(LingoMath.RoundToInt(frameX / frameWidth) + 1, 1, movie.FrameCount);
+            return true;
         }
 
     }
