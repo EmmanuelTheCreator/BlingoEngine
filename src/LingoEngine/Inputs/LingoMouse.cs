@@ -85,6 +85,16 @@ namespace LingoEngine.Inputs
         bool LeftMouseDown { get; }
         bool MiddleMouseDown { get; }
         ILingoCursor Cursor { get; }
+
+        /// <summary>
+        /// Subscribe to mouse events.
+        /// </summary>
+        ILingoMouse Subscribe(ILingoMouseEventHandler handler);
+
+        /// <summary>
+        /// Unsubscribe from mouse events.
+        /// </summary>
+        ILingoMouse Unsubscribe(ILingoMouseEventHandler handler);
     }
 
 
@@ -142,13 +152,17 @@ namespace LingoEngine.Inputs
         /// <summary>
         /// Subscribe to mouse events
         /// </summary>
-        public LingoMouse Subscribe(ILingoMouseEventHandler handler)
+        public ILingoMouse Subscribe(ILingoMouseEventHandler handler)
         {
             if (_subscriptions.Contains(handler)) return this;
             _subscriptions.Add(handler);
             return this;
         }
-        public LingoMouse Unsubscribe(ILingoMouseEventHandler handler)
+
+        /// <summary>
+        /// Unsubscribe from mouse events
+        /// </summary>
+        public ILingoMouse Unsubscribe(ILingoMouseEventHandler handler)
         {
             _subscriptions.Remove(handler);
             return this;
