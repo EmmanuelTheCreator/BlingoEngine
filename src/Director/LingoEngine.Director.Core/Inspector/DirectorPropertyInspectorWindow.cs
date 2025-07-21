@@ -13,6 +13,7 @@ using LingoEngine.Sounds;
 using LingoEngine.Movies;
 using LingoEngine.Director.Core.Windowing.Commands;
 using System;
+using System.Collections.Generic;
 using LingoEngine.Director.Core.Events;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.Tools;
@@ -173,9 +174,11 @@ namespace LingoEngine.Director.Core.Inspector
             {
                 case LingoSprite sp2:
                     AddSpriteTab(sp2);
-                    //AddTab("Sprite", sp2);
                     if (sp2.Member != null)
                         AddMemberTabs(sp2.Member);
+                    break;
+                case LingoMovie movie:
+                    AddMovieTab(movie);
                     break;
                 case ILingoMember member2:
                     AddMemberTabs(member2);
@@ -360,6 +363,62 @@ namespace LingoEngine.Director.Core.Inspector
                 .AddLabel("SoundChannels", "Channels: ", 2)
                 .AddLabel("SoundChannelsV", member.Stereo ? "Stereo" : "Mono", 2)
                 .Finalize();
+        }
+
+        private void AddMovieTab(LingoMovie movie)
+        {
+            var wrap = AddTab("Movie");
+
+            var rowSize = _factory.CreateWrapPanel(LingoOrientation.Horizontal, "MovieStageSizeRow");
+            rowSize.Compose(_factory)
+                .AddLabel("Stage size:")
+                .AddNumericInput("MovieStageWidth", movie, m => m.StageWidth, 40)
+                .AddLabel("x")
+                .AddNumericInput("MovieStageHeight", movie, m => m.StageHeight, 40)
+                .AddItemList("MovieResolutions", new[]
+                {
+                    new KeyValuePair<string,string>("640x480","640x480"),
+                    new KeyValuePair<string,string>("800x600","800x600"),
+                    new KeyValuePair<string,string>("1024x768","1024x768"),
+                    new KeyValuePair<string,string>("1280x720","1280x720"),
+                    new KeyValuePair<string,string>("1920x1080","1920x1080")
+                }, 90, $"{movie.StageWidth}x{movie.StageHeight}", val =>
+                {
+                    if (!string.IsNullOrEmpty(val))
+                    {
+                        var p = val.Split('x');
+                        if (p.Length == 2 && int.TryParse(p[0], out var w) && int.TryParse(p[1], out var h))
+                        {
+                            movie.StageWidth = w;
+                            movie.StageHeight = h;
+                        }
+                    }
+                });
+            wrap.AddItem(rowSize);
+
+            var rowChannels = _factory.CreateWrapPanel(LingoOrientation.Horizontal, "MovieChannelsRow");
+            rowChannels.Compose(_factory)
+                .AddLabel("Channels:")
+                .AddNumericInput("MovieChannels", movie, m => m.MaxSpriteChannelCount, 60, 2, 1999);
+            wrap.AddItem(rowChannels);
+
+            var rowColor = _factory.CreateWrapPanel(LingoOrientation.Horizontal, "MovieColorRow");
+            rowColor.Compose(_factory)
+                .AddLabel("Color:")
+                .AddColorPicker("MovieColor", movie, m => m.StageColor, 20);
+            wrap.AddItem(rowColor);
+
+            var rowAbout = _factory.CreateWrapPanel(LingoOrientation.Horizontal, "MovieAboutRow");
+            rowAbout.Compose(_factory)
+                .AddLabel("About:")
+                .AddTextInput("MovieAbout", movie, m => m.About, 150);
+            wrap.AddItem(rowAbout);
+
+            var rowCopyright = _factory.CreateWrapPanel(LingoOrientation.Horizontal, "MovieCopyrightRow");
+            rowCopyright.Compose(_factory)
+                .AddLabel("Copyright:")
+                .AddTextInput("MovieCopyright", movie, m => m.Copyright, 150);
+            wrap.AddItem(rowCopyright);
         }
         private LingoGfxWrapPanel AddTab(string name)
         { 

@@ -53,6 +53,11 @@ public class JsonStateRepository
     {
         var movie = (LingoMovie)player.NewMovie(dto.Name);
         movie.Tempo = dto.Tempo;
+        movie.StageWidth = dto.StageWidth;
+        movie.StageHeight = dto.StageHeight;
+        movie.StageColor = FromDto(dto.StageColor);
+        movie.About = dto.About;
+        movie.Copyright = dto.Copyright;
 
         var castMap = new Dictionary<int, LingoCast>();
         var memberMap = new Dictionary<int, LingoMember>();
@@ -165,6 +170,11 @@ public class JsonStateRepository
             Number = movie.Number,
             Tempo = movie.Tempo,
             FrameCount = movie.FrameCount,
+            StageWidth = movie.StageWidth,
+            StageHeight = movie.StageHeight,
+            StageColor = ToDto(movie.StageColor),
+            About = movie.About,
+            Copyright = movie.Copyright,
             Casts = movie.CastLib.GetAll().Select(c => ToDto((LingoCast)c, dir)).ToList(),
             Sprites = GetAllSprites(movie).Select(ToDto).ToList()
         };

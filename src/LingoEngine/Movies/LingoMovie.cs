@@ -55,8 +55,14 @@ namespace LingoEngine.Movies
         public T Framework<T>() where T : class, ILingoFrameworkMovie => (T)_FrameworkMovie;
 
         public string Name { get; set; }
-       
+
         public int Number { get; private set; }
+
+        public int StageWidth { get; set; } = 640;
+        public int StageHeight { get; set; } = 480;
+        public LingoColor StageColor { get; set; } = LingoColorList.Black;
+        public string About { get; set; } = string.Empty;
+        public string Copyright { get; set; } = string.Empty;
 
         private readonly LingoEventMediator _EventMediator;
 
