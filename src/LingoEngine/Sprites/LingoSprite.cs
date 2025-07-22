@@ -1,9 +1,7 @@
-﻿using LingoEngine.Core;
-using LingoEngine.Events;
+﻿using LingoEngine.Events;
 using LingoEngine.Inputs;
 using LingoEngine.Primitives;
 using LingoEngine.Animations;
-using System.Linq;
 using LingoEngine.Members;
 using LingoEngine.Casts;
 using LingoEngine.Movies;
@@ -355,33 +353,34 @@ When a movie stops, events occur in the following order:
             return Rect.Contains(point);
         }
 
-        public void SetMember(string memberName, int? castLibNum = null)
+        public ILingoSprite SetMember(string memberName, int? castLibNum = null)
         {
             var member = _environment.GetMember<LingoMember>(memberName, castLibNum);
             _Member = member ?? throw new Exception(Name + ":Member not found with name " + memberName);
-            if (_Member != null)
-                RegPoint = _Member.RegPoint;
-
-            MemberHaschanged();
+            SetMember(member);
+            return this;
         }
 
 
-        public void SetMember(int memberNumber, int? castLibNum = null)
+        public ILingoSprite SetMember(int memberNumber, int? castLibNum = null)
         {
             var member = _environment.GetMember<LingoMember>(memberNumber, castLibNum);
             _Member = member ?? throw new Exception(Name + ":Member not found with number: " + memberNumber);
-            if (_Member != null)
-                RegPoint = _Member.RegPoint;
-
-            MemberHaschanged();
+            SetMember(member);
+            return this;
         }
-        public void SetMember(ILingoMember? member)
+        public ILingoSprite SetMember(ILingoMember? member)
         {
             _Member = member as LingoMember;
+
             if (_Member != null)
+            {
                 RegPoint = _Member.RegPoint;
+            }
+
 
             MemberHaschanged();
+            return this;
         }
 
         private void MemberHaschanged()

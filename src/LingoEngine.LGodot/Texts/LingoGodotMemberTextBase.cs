@@ -16,7 +16,7 @@ namespace LingoEngine.LGodot.Texts
         protected TLingoText _lingoMemberText;
         protected string _text = "";
         protected ILingoFontManager _fontManager;
-        private readonly ILogger _logger;
+        protected readonly ILogger _logger;
         protected LabelSettings _LabelSettings = new LabelSettings();
         protected readonly Label _labelNode;
         protected readonly CenterContainer _parentNode;
@@ -48,25 +48,31 @@ namespace LingoEngine.LGodot.Texts
             set
             {
                 _textStyle = value;
+                if (_textStyle != LingoTextStyle.None)
+                {
+                    // todo : implement a way for rtf
 
-                // todo : implement a way for rtf
+                    var rtl = new RichTextLabel();
+                    // Bold/Italic handled via FontStyle
+                    TextServer.FontStyle style = 0; // _LabelSettings.Font.GetFontStyle();
 
-                //var rtl = new RichTextLabel();
-                //// Bold/Italic handled via FontStyle
-                //TextServer.FontStyle style = TextServer.FontStyle.Normal;
+                    if (value.HasFlag(LingoTextStyle.Bold))
+                        style |= TextServer.FontStyle.Bold;
 
-                //if (value.HasFlag(LingoTextStyle.Bold))
-                //    style |= TextServer.FontStyle.Bold;
+                    if (value.HasFlag(LingoTextStyle.Italic))
+                        style |= TextServer.FontStyle.Italic;
+                    //_LabelSettings.Font.Styl();
 
-                //if (value.HasFlag(LingoTextStyle.Italic))
-                //    style |= TextServer.FontStyle.Italic;
 
-                //rtl.FontStyle = style;
+                    //rtl.FontStyle = style;
 
-                //// Underline handled separately
-                //_LabelSettings.UnderlineMode = value.HasFlag(LingoTextStyle.Underline)
-                //    ? UnderlineMode.Always
-                //    : UnderlineMode.Disabled;
+                    //// Underline handled separately
+                    //_LabelSettings.UnderlineMode = value.HasFlag(LingoTextStyle.Underline)
+                    //    ? UnderlineMode.Always
+                    //    : UnderlineMode.Disabled;
+                }
+
+                UpdateSize();
             }
         }
 
@@ -110,7 +116,8 @@ namespace LingoEngine.LGodot.Texts
         private LingoColor _lingoColor = LingoColor.FromRGB(0, 0, 0);
         public LingoColor TextColor
         {
-            get => _lingoColor; set
+            get => _lingoColor; 
+            set
             {
                 _lingoColor = value;
                 _LabelSettings.SetLingoColor(value);
@@ -118,10 +125,12 @@ namespace LingoEngine.LGodot.Texts
         }
         public int FontSize
         {
-            get => _LabelSettings.FontSize; set
+            get => _LabelSettings.FontSize; 
+            set
             {
 
                 _LabelSettings.SetLingoFontSize(value);
+                UpdateSize();
             }
         }
 
@@ -133,13 +142,52 @@ namespace LingoEngine.LGodot.Texts
             {
                 _fontName = value;
                 _LabelSettings.SetLingoFont(_fontManager, value);
+                UpdateSize();
             }
         }
 
 
         public bool IsLoaded { get; private set; }
         public LingoPoint Size { get; private set; }
+        private bool _widthSet;
+        public int Width { get => _widthSet? (int)_labelNode.CustomMinimumSize.X: (int)Size.X; 
+            set
+            {
+                _labelNode.CustomMinimumSize = new Vector2(value, _labelNode.CustomMinimumSize.Y);
+                _widthSet = true;
+            }
+        }
+        private bool _heightSet;
+        public int Height { get => _heightSet? (int)_labelNode.CustomMinimumSize.Y :(int)Size.Y;
+            set
+            {
+                _labelNode.CustomMinimumSize = new Vector2(_labelNode.CustomMinimumSize.X, value);
+                _heightSet = true;
+            }
+        }
         #endregion
+
+
+        protected Node CloneForSpriteDraw(LingoGodotMemberTextBase<TLingoText> copiedNode)
+        {
+            copiedNode._lingoMemberText = _lingoMemberText;
+            // Parse properties
+            copiedNode.WordWrap = WordWrap;
+            copiedNode.ScrollTop = ScrollTop;
+            copiedNode.FontStyle = FontStyle;
+            copiedNode.Margin = Margin;
+            copiedNode.Alignment = Alignment;
+            copiedNode.TextColor = TextColor;
+            copiedNode.FontSize = FontSize;
+            copiedNode.FontName = FontName;
+            copiedNode.Width = Width;
+            copiedNode.Height = Height;
+            // Set latest
+            copiedNode.Text = Text;
+            return copiedNode.Node2D;
+        }
+
+
 
 #pragma warning disable CS8618
         public LingoGodotMemberTextBase(ILingoFontManager lingoFontManager, ILogger logger)
@@ -198,7 +246,12 @@ namespace LingoEngine.LGodot.Texts
             if (_text == value) return;
             _text = value;
             _labelNode.Text = value;
-            Size = _fontManager.GetDefaultFont<Font>().GetStringSize(Text).ToLingoPoint();
+            UpdateSize();
+        }
+
+        private void UpdateSize()
+        {
+            Size = _labelNode != null? _labelNode.GetCombinedMinimumSize().ToLingoPoint() : (_LabelSettings.Font ?? _fontManager.GetDefaultFont<Font>()).GetMultilineStringSize(Text).ToLingoPoint();
             _lingoMemberText.Width = (int)Size.X;
             _lingoMemberText.Height = (int)Size.Y;
         }

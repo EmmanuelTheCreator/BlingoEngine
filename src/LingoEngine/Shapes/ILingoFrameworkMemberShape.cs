@@ -11,7 +11,10 @@ namespace LingoEngine.Shapes
         LingoColor EndColor { get; set; }
         LingoColor StrokeColor { get; set; }
         int StrokeWidth { get; set; }
+        float Width { get; set; }
+        float Height { get; set; }
         bool Closed { get; set; }
         bool AntiAlias { get; set; }
+
     }
 }

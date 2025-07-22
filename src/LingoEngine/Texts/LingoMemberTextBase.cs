@@ -140,6 +140,22 @@ namespace LingoEngine.Texts
         public LingoParagraphs Paragraph => _Paragraph;
         /// <inheritdoc/>
         public LingoChars Char => _char;
+        public override int Width
+        {
+            get => base.Width; 
+            set
+            {
+                base.Width = value;
+                _frameworkMember.Width = value;
+            }
+        }
+        public override int Height { get => base.Height; 
+            set
+            {
+                base.Height = value;
+                _frameworkMember.Height = value;
+            }
+        }
         #endregion
 
 
@@ -164,7 +180,7 @@ namespace LingoEngine.Texts
         public virtual void LoadFile()
         {
 #if DEBUG
-            if (FileName.Contains("blockT"))
+            if (FileName.Contains("HighScoresN"))
             {
             }
 #endif
@@ -177,7 +193,10 @@ namespace LingoEngine.Texts
                 {
                     if (rtfInfo.Size > 0) FontSize = rtfInfo.Size;
                     if (rtfInfo.Color != null) TextColor = rtfInfo.Color.Value;
+                    if (rtfInfo.Style != LingoTextStyle.None) FontStyle = rtfInfo.Style;
                     if (!string.IsNullOrWhiteSpace(rtfInfo.FontName)) Font = rtfInfo.FontName;
+                    if (string.IsNullOrWhiteSpace(Text)) Text = rtfInfo.Text;
+                    Alignment = rtfInfo.Alignment;
                 }
             }
         }

@@ -167,9 +167,9 @@ namespace LingoEngine.Sprites
 
         public bool Puppet { get => _sprite.Puppet; set => _sprite.Puppet = value; }
 
-        public void SetMember(int memberNumber, int? castLibNum = null) => _sprite.SetMember(memberNumber, castLibNum);
-        public void SetMember(string memberName, int? castLibNum = null) => _sprite.SetMember(memberName, castLibNum);
-        public void SetMember(ILingoMember? member) => _sprite.SetMember(member);
+        public ILingoSprite SetMember(int memberNumber, int? castLibNum = null) => _sprite.SetMember(memberNumber, castLibNum);
+        public ILingoSprite SetMember(string memberName, int? castLibNum = null) => _sprite.SetMember(memberName, castLibNum);
+        public ILingoSprite SetMember(ILingoMember? member) => _sprite.SetMember(member);
         public void SendToBack() => _sprite.SendToBack();
         public void BringToFront() => _sprite.BringToFront();
         public void MoveBackward() => _sprite.MoveBackward();

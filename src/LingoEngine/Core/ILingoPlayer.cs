@@ -159,6 +159,9 @@ namespace LingoEngine.Core
         /// </summary>
         /// <returns>True if the window is present; false otherwise.</returns>
         bool WindowPresent();
+
+        ILingoCast CastLib(int number);
+        ILingoCast CastLib(string name);
         ILingoPlayer LoadCastLibFromCsv(string castlibName, string pathAndFilenameToCsv);
         ILingoPlayer AddCastLib(string name, Action<ILingoCast>? configure = null);
     }

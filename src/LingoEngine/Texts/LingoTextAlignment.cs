@@ -13,7 +13,8 @@
         Center = 1,
 
         /// <summary>Right-aligned text (Lingo: 2)</summary>
-        Right = 2
+        Right = 2,
+        Justified = 3
     }
 
 }

@@ -233,9 +233,9 @@ namespace LingoEngine.Members
         /// <inheritdoc/>
         public int PurgePriority { get; set; }
         /// <inheritdoc/>
-        public int Width { get; set; }
+        public virtual int Width { get; set; }
         /// <inheritdoc/>
-        public int Height { get; set; }
+        public virtual int Height { get; set; }
         /// <inheritdoc/>
         public long Size { get; set; }
         /// <inheritdoc/>

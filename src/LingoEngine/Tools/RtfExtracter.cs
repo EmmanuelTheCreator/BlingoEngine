@@ -1,4 +1,5 @@
 ﻿using LingoEngine.Primitives;
+using LingoEngine.Texts;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -12,6 +13,8 @@ namespace LingoEngine.Tools
             public int Size{ get; set; }
             public LingoColor? Color{ get; set; }
             public string Text { get; set; } = "";
+            public LingoTextAlignment Alignment { get; set; } = LingoTextAlignment.Left;
+            public LingoTextStyle Style { get; set; } = LingoTextStyle.None;
         }
         public static RtfBasicInfo? Parse(string rtfContent)
         {
@@ -100,6 +103,29 @@ namespace LingoEngine.Tools
                 colorL = new LingoColor(-1, r, g, b);
             }
 
+            // Text alignment
+            var alignmentMatch = Regex.Match(rtfContent, @"\\q(l|r|j|c)\b");
+            LingoTextAlignment alignment = LingoTextAlignment.Left;
+            if (alignmentMatch.Success)
+            {
+                switch (alignmentMatch.Groups[1].Value)
+                {
+                    case "l": alignment = LingoTextAlignment.Left; break;
+                    case "r": alignment = LingoTextAlignment.Right; break;
+                    case "c": alignment = LingoTextAlignment.Center; break;
+                    case "j": alignment = LingoTextAlignment.Justified; break;
+                }
+            }
+
+            // Text style
+            LingoTextStyle style = LingoTextStyle.None;
+            if (Regex.IsMatch(rtfContent, @"\\b(?!0)"))
+                style |= LingoTextStyle.Bold;
+            if (Regex.IsMatch(rtfContent, @"\\i(?!0)"))
+                style |= LingoTextStyle.Italic;
+            if (Regex.IsMatch(rtfContent, @"\\ul(?!none|\d)"))
+                style |= LingoTextStyle.Underline;
+
             // --- Return result ---
             float pointSize = fontSizeHalfPoints / 2f;
 
@@ -109,7 +135,9 @@ namespace LingoEngine.Tools
                 FontName =  !string.IsNullOrWhiteSpace(fontName)? fontName.TrimEnd('*').Trim(): null,
                 Color = colorL,
                 Size = Convert.ToInt32(pointSize),
-                Text = textContent
+                Text = textContent,
+                Alignment = alignment,
+                Style = style
             };
             return result;
         }

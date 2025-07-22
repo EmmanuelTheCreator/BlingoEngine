@@ -52,6 +52,7 @@ namespace LingoEngine.Casts
         /// </summary>
         int FindEmpty();
         ILingoMember Add(LingoMemberType type, int numberInCast, string name, string fileName = "", LingoPoint regPoint = default);
+        T Add<T>(int numberInCast, string name, Action<T>? configure = null) where T: ILingoMember;
 
         IEnumerable<ILingoMember> GetAll();
     }

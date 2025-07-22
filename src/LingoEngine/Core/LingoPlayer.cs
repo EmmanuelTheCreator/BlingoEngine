@@ -45,6 +45,7 @@ namespace LingoEngine.Core
         public ILingoStage Stage => _Stage;
         /// <inheritdoc/>
         public ILingoCast ActiveCastLib => _castLibsContainer.ActiveCast;
+        
         /// <inheritdoc/>
         public ILingoSound Sound => _sound;
 
@@ -135,7 +136,8 @@ namespace LingoEngine.Core
         {
             return true;
         }
-
+        public ILingoCast CastLib(int number) => _castLibsContainer[number];
+        public ILingoCast CastLib(string name) => _castLibsContainer[name];
         public ILingoMovie NewMovie(string name, bool andActivate = true)
         {
             // Create the default cast
