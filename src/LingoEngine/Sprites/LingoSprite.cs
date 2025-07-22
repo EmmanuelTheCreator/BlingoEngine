@@ -64,6 +64,7 @@ namespace LingoEngine.Sprites
         public int SpritePropertiesOffset { get; set; }
         public int SpriteNum { get; private set; }
         private int _ink;
+        public LingoInkType InkType { get => (LingoInkType)_ink; set => Ink = (int)value; }
         public int Ink
         {
             get => _ink;

@@ -10,6 +10,7 @@ using LingoEngine.LGodot.Bitmaps;
 using LingoEngine.Texts.FrameworkCommunication;
 using LingoEngine.Shapes;
 using LingoEngine.LGodot.Shapes;
+using LingoEngine.LGodot.Primitives;
 
 namespace LingoEngine.LGodot.Sprites
 {
@@ -25,7 +26,7 @@ namespace LingoEngine.LGodot.Sprites
         private readonly LingoSprite _lingoSprite;
         private bool _wasShown;
 
-        private readonly CanvasItemMaterial _material = new();
+        private CanvasItemMaterial _material = new();
         private int _ink;
 
         internal LingoSprite LingoSprite => _lingoSprite;
@@ -130,18 +131,26 @@ namespace LingoEngine.LGodot.Sprites
 
         private void ApplyInk()
         {
-            CanvasItemMaterial.BlendModeEnum mode = _ink switch
+            if (_lingoSprite.InkType == LingoInkType.Matte)
             {
-                (int)LingoInkType.AddPin => CanvasItemMaterial.BlendModeEnum.Add,
-                (int)LingoInkType.Add => CanvasItemMaterial.BlendModeEnum.Add,
-                (int)LingoInkType.SubPin => CanvasItemMaterial.BlendModeEnum.Sub,
-                (int)LingoInkType.Sub => CanvasItemMaterial.BlendModeEnum.Sub,
-                (int)LingoInkType.Dark => CanvasItemMaterial.BlendModeEnum.Mul,
-                (int)LingoInkType.Light => CanvasItemMaterial.BlendModeEnum.Add,
-                _ => CanvasItemMaterial.BlendModeEnum.Mix,
-            };
-            _material.BlendMode = mode;
-            _Sprite2D.Material = _material;
+                var inkNumber = (int)_lingoSprite.InkType;
+                _Sprite2D.Material = InkShaderMaterial.Create(_lingoSprite.InkType, _lingoSprite.BackColor.ToGodotColor());
+            }
+            else
+            {
+                //CanvasItemMaterial.BlendModeEnum mode = _ink switch
+                //{
+                //    (int)LingoInkType.AddPin => CanvasItemMaterial.BlendModeEnum.Add,
+                //    (int)LingoInkType.Add => CanvasItemMaterial.BlendModeEnum.Add,
+                //    (int)LingoInkType.SubstractPin => CanvasItemMaterial.BlendModeEnum.Sub,
+                //    (int)LingoInkType.Substract => CanvasItemMaterial.BlendModeEnum.Sub,
+                //    (int)LingoInkType.Darken => CanvasItemMaterial.BlendModeEnum.Mul,
+                //    (int)LingoInkType.Lighten => CanvasItemMaterial.BlendModeEnum.Add,
+                //    _ => CanvasItemMaterial.BlendModeEnum.Mix,
+                //};
+                //_material.BlendMode = mode;
+                //_Sprite2D.Material = _material;
+            }
         }
 
 
@@ -307,20 +316,6 @@ namespace LingoEngine.LGodot.Sprites
         private ILingoMember? _previousChildElement;
         private Node? _previousChildElementNode;
         
-
-        //private void UpdateTextMember(ILingoMember member,ILingoFrameworkMemberTextBase godotElement, Node node)
-        //{
-        //    if (_previousChildElement == member) return;
-        //    RemoveLastChildElement();
-        //    godotElement.Preload();
-
-        //    var newNode = node.Duplicate(); // required to be able to draw multiple times the same member
-        //    _previousChildElementNode = newNode;
-        //    _Sprite2D.AddChild(newNode);
-        //    _previousChildElement = member;
-        //    _DesiredWidth = godotElement.Width;
-        //    _DesiredHeight = godotElement.Height;
-        //} 
         private void UpdateNodeMember(ILingoMember member, Node godotElement) // Clone required to be able to draw multiple times the same member
         {
             if (_previousChildElement == member) return;

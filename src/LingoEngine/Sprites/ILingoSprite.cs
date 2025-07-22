@@ -59,6 +59,7 @@ namespace LingoEngine.Sprites
         /// The ink effect applied to the sprite. Read-only.
         /// </summary>
         int Ink { get; set; }
+        LingoInkType InkType { get; set; }
 
         /// <summary>
         /// Returns TRUE if the sprite’s cast member is linked to an external file. Read-only.

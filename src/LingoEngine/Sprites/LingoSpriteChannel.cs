@@ -128,6 +128,7 @@ namespace LingoEngine.Sprites
         public LingoColor ForeColor { get => _sprite.ForeColor; set => _sprite.ForeColor = value; }
         public bool Hilite { get => _sprite.Hilite; set => _sprite.Hilite = value; }
         public int Ink { get => _sprite.Ink; set => _sprite.Ink = value; }
+        public LingoInkType InkType { get => _sprite.InkType; set => _sprite.InkType = value; }
         public bool Linked => _sprite.Linked;
         public bool Loaded => _sprite.Loaded;
         public byte[] Media { get => _sprite.Media; set => _sprite.Media = value; }

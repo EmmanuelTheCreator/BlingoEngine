@@ -19,6 +19,7 @@ using LingoEngine.Director.Core.UI;
 using LingoEngine.LGodot.Gfx;
 using LingoEngine.Inputs;
 using LingoEngine.Director.Core.Icons;
+using LingoEngine.Director.Core.Styles;
 
 namespace LingoEngine.Director.LGodot.Movies;
 
@@ -71,7 +72,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         _historyManager = historyManager;
         directorStageWindow.Init(this);
         _directorStageWindow = directorStageWindow;
-
+        BackgroundColor = DirectorColors.BG_WhiteMenus;
         _mediator.Subscribe(this);
         _stageChangedSubscription = _mediator.Subscribe(DirectorEventType.StagePropertiesChanged, StagePropertyChanged);
         var lp = _player as LingoPlayer;
@@ -87,9 +88,9 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
             _boundingBoxes = new StageBoundingBoxesOverlay(p.Factory, _mediator);
         }
 
-        
-        
-        Size = new Vector2(640 +10, 480+ TitleBarHeight);
+
+
+        Size = new Vector2(640 + 10, 480 + 5 + IconBarHeight + TitleBarHeight);
         CustomMinimumSize = Size;
         // Give all nodes clear names for easier debugging
         Name = "DirGodotStageWindow";
@@ -116,8 +117,8 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         _scrollContainer.OffsetLeft = 0;
         _scrollContainer.OffsetTop = 0;
         _scrollContainer.OffsetRight = -10;
-        _scrollContainer.OffsetBottom = -IconBarHeight - 5;
-        
+        _scrollContainer.OffsetBottom = -IconBarHeight - 5-50;
+
 
         _scrollContainer.Position = new Vector2(0, 20);
         _stageBgRect.Color = Colors.Black;
@@ -138,14 +139,22 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
 
         // bottom icon bar
         AddChild(_iconBar);
+        CreateBottomIconBar();
+
+        UpdatePlayButton();
+    }
+
+    private void CreateBottomIconBar()
+    {
         _iconBar.AnchorLeft = 0;
         _iconBar.AnchorRight = 1;
         _iconBar.AnchorTop = 1;
         _iconBar.AnchorBottom = 1;
         _iconBar.OffsetLeft = 0;
         _iconBar.OffsetRight = 0;
-        _iconBar.OffsetTop = -IconBarHeight;
+        _iconBar.OffsetTop = 0;// -IconBarHeight;
         _iconBar.OffsetBottom = 0;
+       
 
         _rewindButton.Text = "|<";
         _rewindButton.CustomMinimumSize = new Vector2(20, IconBarHeight);
@@ -213,11 +222,8 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
                 lp.Stage.RecordKeyframes = pressed;
         };
         _iconBar.AddChild(_recordButton);
-
-        UpdatePlayButton();
     }
 
-   
     protected override void OnResizing(Vector2 size)
     {
         base.OnResizing(size);

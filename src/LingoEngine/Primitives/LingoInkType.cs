@@ -3,6 +3,8 @@ namespace LingoEngine.Primitives
     public enum LingoInkType
     {
         Copy = 0,
+        Matte,
+        BackgroundTransparent,
         Transparent,
         Reverse,
         Ghost,
@@ -10,15 +12,15 @@ namespace LingoEngine.Primitives
         NotTransparent,
         NotReverse,
         NotGhost,
-        Matte,
         Mask,
         Blend = 32,
-        AddPin,
+        Darkest,
+        Lightest,
         Add,
-        SubPin,
-        BackgndTrans,
-        Light,
-        Sub,
-        Dark
+        AddPin,
+        Substract,
+        SubstractPin,
+        Darken,
+        Lighten,
     }
 }
