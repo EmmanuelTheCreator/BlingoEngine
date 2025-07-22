@@ -21,7 +21,7 @@ namespace LingoEngine.LGodot.Gfx
         public float Height { get => Size.Y; set => Size = new Vector2(Size.X, value); }
         public bool Visibility { get => Visible; set => Visible = value; }
         string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
-
+        public string SelectedTabName => GetTabTitle(CurrentTab);
         public object FrameworkNode => this;
 
 
@@ -57,7 +57,6 @@ namespace LingoEngine.LGodot.Gfx
         }
 
         
-       
 
         public void AddTab(ILingoFrameworkGfxTabItem tabItem)
         {
@@ -90,15 +89,20 @@ namespace LingoEngine.LGodot.Gfx
                 RemoveChild(child);
                 child.QueueFree();
             }
+            _nodes.Clear();
         }
 
         public new void Dispose()
         {
+            ClearTabs();
             QueueFree();
             base.Dispose();
         }
 
-        
+        public void SelectTabByName(string tabName)
+        {
+            CurrentTab = _nodes.FindIndex(x => x.Title == tabName);
+        }
     }
     public partial class LingoGodotTabItem : ILingoFrameworkGfxTabItem
     {

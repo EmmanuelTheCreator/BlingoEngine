@@ -24,6 +24,9 @@ namespace LingoEngine.Texts.FrameworkCommunication
         LingoColor TextColor { get; set; }
         LingoTextAlignment Alignment { get; set; }
         int Margin { get; set; }
+        LingoPoint Size { get; }
+
+
 
         /// <summary>
         /// Copies the current selection to the clipboard.

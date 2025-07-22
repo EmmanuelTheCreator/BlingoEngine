@@ -1,5 +1,6 @@
 ﻿using Godot;
 using LingoEngine.LGodot.Helpers;
+using LingoEngine.LGodot.Primitives;
 using LingoEngine.Primitives;
 using LingoEngine.Styles;
 using LingoEngine.Texts;
@@ -137,6 +138,7 @@ namespace LingoEngine.LGodot.Texts
 
 
         public bool IsLoaded { get; private set; }
+        public LingoPoint Size { get; private set; }
         #endregion
 
 #pragma warning disable CS8618
@@ -196,6 +198,9 @@ namespace LingoEngine.LGodot.Texts
             if (_text == value) return;
             _text = value;
             _labelNode.Text = value;
+            Size = _fontManager.GetDefaultFont<Font>().GetStringSize(Text).ToLingoPoint();
+            _lingoMemberText.Width = (int)Size.X;
+            _lingoMemberText.Height = (int)Size.Y;
         }
 
         public void Erase()

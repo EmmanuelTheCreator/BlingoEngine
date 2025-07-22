@@ -1,8 +1,5 @@
-using System;
-using System.IO;
 using Microsoft.Extensions.Logging.Abstractions;
 using ProjectorRays.Director;
-using ProjectorRays.IO;
 using ProjectorRays.Common;
 using LingoEngine.IO.Data.DTO;
 
@@ -15,7 +12,7 @@ namespace LingoEngine.Director.Core.Importer;
 /// </summary>
 public static class DirectorRaysImporter
 {
-    public static (LingoMovieDTO Movie, DirFilesContainerDTO Resources) ImportMovie(string filePath)
+    public static (LingoStageDTO Stage, LingoMovieDTO Movie, DirFilesContainerDTO Resources) ImportMovie(string filePath)
     {
         byte[] data = File.ReadAllBytes(filePath);
         var stream = new ReadStream(data, data.Length, Endianness.BigEndian);
@@ -24,7 +21,7 @@ public static class DirectorRaysImporter
             throw new Exception($"Failed to read Director file '{filePath}'");
 
         var resources = new DirFilesContainerDTO();
-        var movie = dir.ToDto(Path.GetFileNameWithoutExtension(filePath), resources);
-        return (movie, resources);
+        var importData = dir.ToDto(Path.GetFileNameWithoutExtension(filePath), resources);
+        return (importData.Stage, importData.Movie, resources);
     }
 }

@@ -83,7 +83,8 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _labelBar = new DirGodotScoreLabelsBar(_gfxValues, commandManager);
         _labelBar.HeaderCollapseChanged += OnHeaderCollapseChanged;
         _labelBar.HeaderCollapsed = _soundBar.Collapsed;
-        _collapseButton = new CollapseButton(_labelBar) { ZIndex = 1 };
+        _collapseButton = new CollapseButton(_labelBar);
+        //_collapseButton.ZIndex = 1;
         
 
         // The grid inside master scoller

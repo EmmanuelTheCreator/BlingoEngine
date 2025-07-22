@@ -60,6 +60,13 @@ namespace LingoEngine.Director.Core.UI
             return control;
         }
 
+        public static LingoGfxButton SetButtonAt(this LingoGfxPanel container, ILingoFrameworkFactory factory, string name, string text, float x, float y, Action onClick)
+        {
+            var control = factory.CreateButton(name, text);
+            control.Pressed += onClick;
+            container.AddItem(control, x, y);
+            return control;
+        } 
         public static LingoGfxStateButton SetStateButtonAt<T>(this LingoGfxPanel container, ILingoFrameworkFactory factory, T element, string name, float x, float y, Expression<Func<T,bool>> property, ILingoImageTexture? texture = null)
         {
             Action<T, bool> setter = property.CompileSetter();

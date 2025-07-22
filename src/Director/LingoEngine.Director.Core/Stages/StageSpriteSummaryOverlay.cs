@@ -25,6 +25,8 @@ public class StageSpriteSummaryOverlay : IHasSpriteSelectedEvent, IDisposable
 
     public LingoGfxCanvas Canvas => _canvas;
 
+    public bool Visible { get => Canvas.Visibility; set => Canvas.Visibility = value; }
+
     public StageSpriteSummaryOverlay(ILingoFrameworkFactory factory, IDirectorEventMediator mediator, IDirectorIconManager iconManager)
     {
         _mediator = mediator;
@@ -54,11 +56,12 @@ public class StageSpriteSummaryOverlay : IHasSpriteSelectedEvent, IDisposable
         var member = sp.Member;
         var behaviors = string.Join(", ", sp.Behaviors.Select(b => b.Name));
 
-        var line1 = $"{member.Name} ({sp.Cast?.Name}) {member.Type}";
-        var line2 = $"Sprite {sp.SpriteNum} ({(int)sp.LocH},{(int)sp.LocV},{(int)sp.Width}x{(int)sp.Height}) {(LingoInkType)sp.Ink} {(int)(sp.Blend * 100)}%";
-
-        const int fontSize = 10;
+        var line1 = $"{member.Name} ({sp.Member?.CastName}) {member.Type}";
+        var line2 = $"Sprite {sp.SpriteNum} ({(int)sp.LocH},{(int)sp.LocV},{(int)sp.Width}x{(int)sp.Height}) {(LingoInkType)sp.Ink} {(int)(sp.Blend)}%";
+        const int margin = 2;
+        const int fontSize = 9;
         const int iconSize = 16;
+
         var lines = new[] { line1, line2 };
         var icons = new[] { _infoIcon, _infoIcon };
         if (!string.IsNullOrEmpty(behaviors))
@@ -67,7 +70,7 @@ public class StageSpriteSummaryOverlay : IHasSpriteSelectedEvent, IDisposable
             icons = icons.Append(_behaviorIcon).ToArray();
         }
 
-        int height = lines.Length * (fontSize + 2) + 4;
+        int height = lines.Length * iconSize + (margin*2);
         int widthText = lines.Max(l => l.Length * 6);
         int width = Math.Max(120, widthText + iconSize + 8);
 
@@ -76,13 +79,14 @@ public class StageSpriteSummaryOverlay : IHasSpriteSelectedEvent, IDisposable
         _canvas.X = sp.Rect.Left;
         _canvas.Y = sp.Rect.Bottom;
 
-        _canvas.DrawRect(LingoRect.New(0, 0, width, height), LingoColorList.Gray, true);
+        _canvas.DrawRect(LingoRect.New(0, 0, width, height), LingoColorList.LightGray, true);
+        var bugFixGodotNotUnderstandY = 12;
 
         for (int i = 0; i < lines.Length; i++)
         {
-            int y = 2 + i * (fontSize + 2);
+            int y = i * iconSize + margin;
             _canvas.DrawPicture(icons[i], iconSize, iconSize, new LingoPoint(2, y));
-            _canvas.DrawText(new LingoPoint(iconSize + 4, y), lines[i], null, LingoColorList.White, fontSize);
+            _canvas.DrawText(new LingoPoint(iconSize + 4, y+ bugFixGodotNotUnderstandY), lines[i], null, LingoColorList.Black, fontSize);
         }
 
         _canvas.Visibility = true;

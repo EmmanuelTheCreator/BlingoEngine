@@ -15,7 +15,7 @@ namespace LingoEngine.Sprites
 {
 
 
-    public class LingoSprite : LingoScriptBase, ILingoSprite, ILingoMouseEventHandler
+    public class LingoSprite : ILingoSprite, ILingoMouseEventHandler
     {
         private readonly ILingoMovieEnvironment _environment;
         private readonly LingoEventMediator _eventMediator;
@@ -134,7 +134,7 @@ namespace LingoEngine.Sprites
 
 
 
-        public new ILingoMember? Member { get => _Member; set => SetMember(value); }
+        public ILingoMember? Member { get => _Member; set => SetMember(value); }
         public LingoCast? Cast { get; private set; }
 
         public int BeginFrame { get; set; }
@@ -154,7 +154,7 @@ namespace LingoEngine.Sprites
 
         public LingoColor Color { get; set; }
         
-        public new LingoRect Rect
+        public LingoRect Rect
         {
             get
             {
@@ -209,7 +209,6 @@ namespace LingoEngine.Sprites
 #pragma warning disable CS8618
         public LingoSprite(ILingoMovieEnvironment environment)
 #pragma warning restore CS8618
-            : base(environment)
         {
             _environment = environment;
             _eventMediator = (LingoEventMediator)_environment.Events;
@@ -416,7 +415,7 @@ When a movie stops, events occur in the following order:
 
         public void BringToFront()
         {
-            var maxZ = ((LingoMovie)_Movie).GetMaxLocZ();
+            var maxZ = ((LingoMovie)_environment.Movie).GetMaxLocZ();
             LocZ = maxZ + 1;
         }
 

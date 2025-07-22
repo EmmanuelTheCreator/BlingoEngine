@@ -2,6 +2,7 @@
 using LingoEngine.Casts;
 using LingoEngine.Movies;
 using LingoEngine.Sounds;
+using LingoEngine.Stages;
 
 namespace LingoEngine.Core
 {
@@ -111,6 +112,7 @@ namespace LingoEngine.Core
         /// Lingo: the alertHook
         /// </summary>
         Func<string> AlertHook { get; set; }
+        ILingoStage Stage { get; }
 
         /// <summary>
         /// Displays a system alert dialog.

@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
@@ -9,10 +6,6 @@ using LingoEngine.Sprites;
 using LingoEngine.Inputs;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Events;
-using LingoEngine.Texts;
-using LingoEngine.Events;
-using LingoEngine.Director.Core.Tools;
-using LingoEngine.Members;
 using LingoEngine.Texts;
 
 namespace LingoEngine.Director.Core.Stages;
@@ -40,6 +33,7 @@ public class StageBoundingBoxesOverlay : IHasSpriteSelectedEvent, ILingoMouseEve
         _key = null!;
         _canvas = factory.CreateGfxCanvas("BoundingBoxesCanvas", 640, 480);
         _mediator.Subscribe(this);
+        Visible = false;
     }
 
     public void SetInput(ILingoMouse mouse, ILingoKey key)
@@ -200,7 +194,7 @@ public class StageBoundingBoxesOverlay : IHasSpriteSelectedEvent, ILingoMouseEve
 
     private void Draw()
     {
-        _canvas.Clear(LingoColorList.Black);
+        _canvas.Clear(LingoColorList.Transparent);
         foreach (var sprite in _sprites)
         {
             if (sprite.Member is LingoMemberText || sprite.Member is LingoMemberField)

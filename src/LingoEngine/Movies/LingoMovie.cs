@@ -9,6 +9,7 @@ using LingoEngine.Sounds;
 using LingoEngine.Sprites;
 using LingoEngine.Stages;
 using LingoEngine.Projects;
+using LingoEngine.Primitives;
 
 namespace LingoEngine.Movies
 {
@@ -58,11 +59,11 @@ namespace LingoEngine.Movies
 
         public int Number { get; private set; }
 
-        public int StageWidth { get; set; } = 640;
-        public int StageHeight { get; set; } = 480;
-        public LingoColor StageColor { get; set; } = LingoColorList.Black;
+
         public string About { get; set; } = string.Empty;
         public string Copyright { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
+        public string CompanyName { get; set; } = string.Empty;
 
         private readonly LingoEventMediator _EventMediator;
 

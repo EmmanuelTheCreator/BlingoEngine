@@ -11,20 +11,24 @@
         public byte R { get; set; }
         public byte G { get; set; }
         public byte B { get; set; }
+        public byte A { get; set; } = 255;
 
-        public LingoColor(byte r, byte g, byte b)
+
+        public LingoColor(byte r, byte g, byte b,byte a = 255)
         {
             R = r;
             G = g;
             B = b;
+            A = a;
             Name = "";
         }
-        public LingoColor(int code, byte r, byte g, byte b, string name = "")
+        public LingoColor(int code, byte r, byte g, byte b, string name = "", byte a = 255)
         {
             Code = code;
             R = r;
             G = g;
             B = b;
+            A = a;
             Name = name;
         }
 
@@ -47,13 +51,13 @@
             byte r = (byte)(R + (255 - R) * factor);
             byte g = (byte)(G + (255 - G) * factor);
             byte b = (byte)(B + (255 - B) * factor);
-            return new LingoColor(Code, r, g, b, Name);
+            return new LingoColor(Code, r, g, b, Name,A);
         }
 
         /// <summary>
-        /// Converts the RGB color to a hex string, e.g., "#FF0000".
+        /// Converts the RGB color to a hex string, e.g., "#FF0000". or "#FF8800FF" if alpha is included.
         /// </summary>
-        public string ToHex() => $"#{R:X2}{G:X2}{B:X2}";
+        public string ToHex() => A < 255? $"#{R:X2}{G:X2}{B:X2}{A:X2}" : $"#{R:X2}{G:X2}{B:X2}";
 
         public override string ToString() => !string.IsNullOrWhiteSpace(Name) ? Name : ToHex();
 
@@ -67,19 +71,21 @@
 
             if (hex.Length != 6 && hex.Length != 8)
                 throw new FormatException("Hex string must be 6 or 8 characters long");
-
+            byte a = 255;
             byte r = Convert.ToByte(hex.Substring(0, 2), 16);
             byte g = Convert.ToByte(hex.Substring(2, 2), 16);
             byte b = Convert.ToByte(hex.Substring(4, 2), 16);
-
-            return new LingoColor(code, r, g, b, name);
+            if (hex.Length == 8)
+                a = Convert.ToByte(hex.Substring(6, 2), 16);
+            return new LingoColor(code, r, g, b, name,a);
         }
 
         /// <summary>
         /// Creates a LingoColor from an RGB tuple.
         /// </summary>
-        public static LingoColor FromRGB(byte r, byte g, byte b, int code = -1, string name = "")
-            => new LingoColor(code, r, g, b, name);
+        public static LingoColor FromRGB(byte r, byte g, byte b, int code = -1, string name = "", byte a = 255)
+            => new LingoColor(code, r, g, b, name, a);
+        public static LingoColor Transparent() => new LingoColor { A=0, Code = -1, R = 0, G = 0, B = 0, Name = "transparent" };
     }
 
 }

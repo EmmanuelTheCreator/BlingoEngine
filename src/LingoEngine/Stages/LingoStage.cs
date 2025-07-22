@@ -1,5 +1,6 @@
 ﻿using LingoEngine.Members;
 using LingoEngine.Movies;
+using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 
 namespace LingoEngine.Stages
@@ -7,10 +8,13 @@ namespace LingoEngine.Stages
     /// <summary>
     /// You have one stage for all movies
     /// </summary>
-    public class LingoStage
+    public class LingoStage : ILingoStage
     {
         private readonly ILingoFrameworkStage _lingoFrameworkMovieStage;
 
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public LingoColor BackgroundColor { get; set; }
         public bool RecordKeyframes { get; set; }
 
         public LingoMovie? ActiveMovie { get; private set; }
@@ -29,8 +33,12 @@ namespace LingoEngine.Stages
         public LingoStage(ILingoFrameworkStage godotInstance)
         {
             _lingoFrameworkMovieStage = godotInstance;
+            Width = 640;
+            Height = 480;
+            BackgroundColor = LingoColorList.Black;
         }
 
+       
         public void AddKeyFrame(LingoSprite sprite)
         {
             if (!RecordKeyframes || ActiveMovie == null)

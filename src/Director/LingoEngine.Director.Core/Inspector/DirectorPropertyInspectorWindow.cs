@@ -82,6 +82,8 @@ namespace LingoEngine.Director.Core.Inspector
             CreateHeaderElements();
             _tabs = _factory.CreateTabContainer("InspectorTabs");
             CreateBehaviorPanel();
+            
+            AddMovieTab(_player.ActiveMovie);
         }
 
       
@@ -147,6 +149,7 @@ namespace LingoEngine.Director.Core.Inspector
         {
             if (_tabs == null || _thumb == null)
                 return;
+            var lastSelectedTab = _tabs.SelectedTabName;
             _tabs.ClearTabs();
             ILingoMember? member = null;
             if (obj is LingoSprite sp)
@@ -177,9 +180,6 @@ namespace LingoEngine.Director.Core.Inspector
                     if (sp2.Member != null)
                         AddMemberTabs(sp2.Member);
                     break;
-                case LingoMovie movie:
-                    AddMovieTab(movie);
-                    break;
                 case ILingoMember member2:
                     AddMemberTabs(member2);
                     break;
@@ -187,6 +187,9 @@ namespace LingoEngine.Director.Core.Inspector
                     AddTab(obj.GetType().Name, obj);
                     break;
             }
+            if(_player.ActiveMovie != null)
+                AddMovieTab(_player.ActiveMovie);
+            _tabs.SelectTabByName(lastSelectedTab);
         }
 
         private void AddMemberTabs(ILingoMember member)
@@ -242,8 +245,8 @@ namespace LingoEngine.Director.Core.Inspector
                    .AddNumericInput("SpriteEndFrame", "End:", sprite, s => s.EndFrame, inputSpan: 1, labelSpan: 3)
                    .AddNumericInput("SpriteRotation", "Rotation:", sprite, s => s.Rotation, labelSpan: 3)
                    .AddNumericInput("SpriteSkew", "Skew:", sprite, s => s.Skew, inputSpan: 1, labelSpan: 3)
-                   .AddColorInput("SpriteForeColor", "Foreground:", sprite, s => s.ForeColor, inputSpan: 1, labelSpan: 3)
-                   .AddColorInput("SpriteBackColor", "Background:", sprite, s => s.BackColor, inputSpan: 1, labelSpan: 3)
+                   .AddColorPicker("SpriteForeColor", "Foreground:", sprite, s => s.ForeColor, inputSpan: 1, labelSpan: 3)
+                   .AddColorPicker("SpriteBackColor", "Background:", sprite, s => s.BackColor, inputSpan: 1, labelSpan: 3)
                    .Finalize();
                    ;
             var index = 0;
@@ -304,9 +307,9 @@ namespace LingoEngine.Director.Core.Inspector
                    .AddLabel("MemberSize","Size: ",2)
                    .AddLabel("MemberSizeV", CommonExtensions.BytesToShortString(member.Size),2)
                    .AddLabel("MemberCreationDate","Created: ",2)
-                   .AddLabel("MemberCreationDateV",member.CreationDate.ToString("dd/MM/yyyy hh:mm"),2)
+                   .AddLabel("MemberCreationDateV",member.CreationDate.ToString("dd/MM/yyyy HH:mm"),2)
                    .AddLabel("MemberModifyDate","Modified: ",2)
-                   .AddLabel("MemberModifyDateV",member.ModifiedDate.ToString("dd/MM/yyyy hh:mm"),2)
+                   .AddLabel("MemberModifyDateV",member.ModifiedDate.ToString("dd/MM/yyyy HH:mm"),2)
                    .Columns(4)
                    .AddTextInput("MemberFileName", "FileName:", member, s => s.FileName, inputSpan: 3)
                    .Columns(4)
@@ -338,12 +341,14 @@ namespace LingoEngine.Director.Core.Inspector
 
         private void AddSoundTab(LingoMemberSound member)
         {
+            var soundChannel = _player.Sound.Channel(1);
+            if (soundChannel == null) return;
             var wrap = AddTab("Sound");
             var btnPanel = _factory.CreateWrapPanel(LingoOrientation.Horizontal, "SoundButtons");
             var playBtn = _factory.CreateButton("SoundPlay", "Play");
             var stopBtn = _factory.CreateButton("SoundStop", "Stop");
-            playBtn.Pressed += () => _player.Sound.Channel(1).Play(member);
-            stopBtn.Pressed += () => _player.Sound.Channel(1).Stop();
+            playBtn.Pressed += () => soundChannel.Play(member);
+            stopBtn.Pressed += () => soundChannel.Stop();
             btnPanel.AddItem(playBtn);
             btnPanel.AddItem(stopBtn);
             var panel = _factory.CreatePanel("SoundPanel");
@@ -353,11 +358,11 @@ namespace LingoEngine.Director.Core.Inspector
             string duration = TimeSpan.FromSeconds(member.Length).ToString(@"hh\:mm\:ss\.fff");
             panel.Compose(_factory)
                 .Columns(4)
-                .AddCheckBox("SoundLoop", "Loop:", member, m => m.Loop, 1, true, 2)
+                .AddCheckBox("SoundLoop", "Loop:", member, m => m.Loop, 1, true, 3)
                 .AddLabel("SoundDuration", "Duration: ", 2)
                 .AddLabel("SoundDurationV", duration, 2)
                 .AddLabel("SoundSampleRate", "Sample rate: ", 2)
-                .AddLabel("SoundSampleRateV", _player.Sound.Channel(1).SampleRate + " Hz", 2)
+                .AddLabel("SoundSampleRateV", soundChannel.SampleRate + " Hz", 2)
                 .AddLabel("SoundBitDepth", "Bit Depth: ", 2)
                 .AddLabel("SoundBitDepthV", "16", 2)
                 .AddLabel("SoundChannels", "Channels: ", 2)
@@ -365,60 +370,71 @@ namespace LingoEngine.Director.Core.Inspector
                 .Finalize();
         }
 
-        private void AddMovieTab(LingoMovie movie)
+        private void AddMovieTab(ILingoMovie? movie)
         {
             var wrap = AddTab("Movie");
 
             var rowSize = _factory.CreateWrapPanel(LingoOrientation.Horizontal, "MovieStageSizeRow");
+            rowSize.Margin = new LingoMargin(5, 5, 5, 0);
             rowSize.Compose(_factory)
                 .AddLabel("Stage size:")
-                .AddNumericInput("MovieStageWidth", movie, m => m.StageWidth, 40)
+                .AddNumericInput("MovieStageWidth", _player.Stage, m => m.Width, 40)
                 .AddLabel("x")
-                .AddNumericInput("MovieStageHeight", movie, m => m.StageHeight, 40)
-                .AddItemList("MovieResolutions", new[]
+                .AddNumericInput("MovieStageHeight", _player.Stage, m => m.Height, 40)
+                .AddCombobox("MovieResolutions", new[]
                 {
                     new KeyValuePair<string,string>("640x480","640x480"),
                     new KeyValuePair<string,string>("800x600","800x600"),
                     new KeyValuePair<string,string>("1024x768","1024x768"),
                     new KeyValuePair<string,string>("1280x720","1280x720"),
                     new KeyValuePair<string,string>("1920x1080","1920x1080")
-                }, 90, $"{movie.StageWidth}x{movie.StageHeight}", val =>
+                }, 90, $"{_player.Stage.Width}x{_player.Stage.Height}", val =>
                 {
                     if (!string.IsNullOrEmpty(val))
                     {
                         var p = val.Split('x');
                         if (p.Length == 2 && int.TryParse(p[0], out var w) && int.TryParse(p[1], out var h))
                         {
-                            movie.StageWidth = w;
-                            movie.StageHeight = h;
+                            _player.Stage.Width = w;
+                            _player.Stage.Height = h;
                         }
                     }
-                });
+                })
+               .Finalize()
+                ;
             wrap.AddItem(rowSize);
 
-            var rowChannels = _factory.CreateWrapPanel(LingoOrientation.Horizontal, "MovieChannelsRow");
-            rowChannels.Compose(_factory)
-                .AddLabel("Channels:")
-                .AddNumericInput("MovieChannels", movie, m => m.MaxSpriteChannelCount, 60, 2, 1999);
-            wrap.AddItem(rowChannels);
+            if (movie != null)
+            {
+                var rowChannels = _factory.CreatePanel("MovieChannelsRow");
+                rowChannels.Compose(_factory)
+                    .Columns(4)
+                    .AddNumericInput("MovieChannels", "Channels:", movie, m => m.MaxSpriteChannelCount)
+                    .AddColorPicker("StageBgColor", "Color", _player.Stage, m => m.BackgroundColor)
+                    .Columns(2)
+                    .AddButton("MovieApplyBtn", "Apply", () =>
+                    {
+                        _mediator.Raise(DirectorEventType.StagePropertiesChanged);
+                        _mediator.Raise(DirectorEventType.CastPropertiesChanged);
+                    })
+                    .NextRow()
+                    //    .Finalize()
+                    //    ;
+                    //wrap.AddItem(rowChannels);
 
-            var rowColor = _factory.CreateWrapPanel(LingoOrientation.Horizontal, "MovieColorRow");
-            rowColor.Compose(_factory)
-                .AddLabel("Color:")
-                .AddColorPicker("MovieColor", movie, m => m.StageColor, 20);
-            wrap.AddItem(rowColor);
+                    //wrap.AddHLine(_factory,"HSplitterMovie");
 
-            var rowAbout = _factory.CreateWrapPanel(LingoOrientation.Horizontal, "MovieAboutRow");
-            rowAbout.Compose(_factory)
-                .AddLabel("About:")
-                .AddTextInput("MovieAbout", movie, m => m.About, 150);
-            wrap.AddItem(rowAbout);
-
-            var rowCopyright = _factory.CreateWrapPanel(LingoOrientation.Horizontal, "MovieCopyrightRow");
-            rowCopyright.Compose(_factory)
-                .AddLabel("Copyright:")
-                .AddTextInput("MovieCopyright", movie, m => m.Copyright, 150);
-            wrap.AddItem(rowCopyright);
+                    //var rowAbouts = _factory.CreatePanel("MovieAbouts");
+                    //rowAbouts.Compose(_factory)
+                    .Columns(1)
+                    .AddLabel("MovieAboutL", "About:")
+                    .AddTextInput("MovieAbout", "About", movie, m => m.About, 1, 0)
+                    .AddLabel("CopyrightL", "Copyright:")
+                    .AddTextInput("MovieCopyright", "Copyright", movie, m => m.Copyright, 1, 0)
+                    .Finalize()
+                   ;
+                wrap.AddItem(rowChannels);
+            }
         }
         private LingoGfxWrapPanel AddTab(string name)
         { 

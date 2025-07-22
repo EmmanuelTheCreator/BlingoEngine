@@ -20,7 +20,6 @@ using LingoEngine.LGodot.Gfx;
 using LingoEngine.Inputs;
 using LingoEngine.Director.Core.Icons;
 
-
 namespace LingoEngine.Director.LGodot.Movies;
 
 internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelectedEvent, IDirFrameworkStageWindow
@@ -46,6 +45,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
     private readonly SelectionBox _selectionBox = new SelectionBox();
     private readonly StageBoundingBoxesOverlay _boundingBoxes;
     private readonly StageSpriteSummaryOverlay _spriteSummary;
+    private readonly IDirectorEventSubscription _stageChangedSubscription;
 
     private LingoMovie? _movie;
     private ILingoFrameworkStage? _stage;
@@ -73,6 +73,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         _directorStageWindow = directorStageWindow;
 
         _mediator.Subscribe(this);
+        _stageChangedSubscription = _mediator.Subscribe(DirectorEventType.StagePropertiesChanged, StagePropertyChanged);
         var lp = _player as LingoPlayer;
         if (lp != null)
         {
@@ -128,11 +129,11 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         _stageContainer.Container.AddChild(_boundingBoxes.Canvas.Framework<LingoGodotGfxCanvas>());
         _stageContainer.Container.AddChild(_selectionBox);
         _stageContainer.Container.AddChild(_spriteSummary.Canvas.Framework<LingoGodotGfxCanvas>());
-        _boundingBoxes.Canvas.Framework<LingoGodotGfxCanvas>().ZIndex = 500;
-        _spriteSummary.Canvas.Framework<LingoGodotGfxCanvas>().ZIndex = 750;
+        //_boundingBoxes.Canvas.Framework<LingoGodotGfxCanvas>().ZIndex = 500;
+        //_spriteSummary.Canvas.Framework<LingoGodotGfxCanvas>().ZIndex = 750;
         //_boundingBoxes.MouseFilter = MouseFilterEnum.Ignore; // ensure mouse clicks pass through
         _selectionBox.Visible = false;
-        _selectionBox.ZIndex = 1000;
+        //_selectionBox.ZIndex = 1000;
         AddChild(_scrollContainer);
 
         // bottom icon bar
@@ -215,6 +216,8 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
 
         UpdatePlayButton();
     }
+
+   
     protected override void OnResizing(Vector2 size)
     {
         base.OnResizing(size);
@@ -272,7 +275,9 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         UpdatePlayButton();
         UpdateBoundingBoxes();
         if (isPlaying)
+        {
             _selectionBox.Visible = false;
+        }
         else if (_selectedSprites.Count > 0)
             UpdateSelectionBox();
     }
@@ -287,6 +292,13 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
     {
         _stageBgRect.Color = color;
         _colorDisplay.Color = color;
+        _player.Stage.BackgroundColor = color.ToLingoColor();
+    }
+    private bool StagePropertyChanged()
+    {
+        _stageBgRect.Color = _player.Stage.BackgroundColor.ToGodotColor();
+        _stageBgRect.CustomMinimumSize = new Vector2(_player.Stage.Width, _player.Stage.Height);
+        return true;
     }
 
     private void UpdateScaleDropdown(float value)
@@ -345,6 +357,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         if (_movie == null || _movie.IsPlaying)
         {
             _boundingBoxes.Visible = false;
+            _spriteSummary.Visible = false;
             return;
         }
 
@@ -352,10 +365,12 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         {
             _boundingBoxes.SetSprites(_selectedSprites);
             _boundingBoxes.Visible = true;
+            _spriteSummary.Visible = true;
         }
         else
         {
             _boundingBoxes.Visible = false;
+            _spriteSummary.Visible = false;
         }
     }
 
@@ -440,7 +455,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Left)
         {
             Vector2 localPos = _stageContainer.Container.ToLocal(mb.Position);
-
+            if (_movie == null) return;
             var sprite = _movie.GetSpriteAtPoint(localPos.X, localPos.Y, skipLockedSprites: true) as LingoSprite;
             if (mb.Pressed)
             {
@@ -574,6 +589,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
             _movie.PlayStateChanged -= OnPlayStateChanged;
             _movie.SpriteListChanged -= UpdateBoundingBoxes;
         }
+        _stageChangedSubscription.Release();
         _player.ActiveMovieChanged -= OnActiveMovieChanged;
         _mediator.Unsubscribe(this);
         _spriteSummary.Dispose();

@@ -121,7 +121,7 @@ namespace LingoEngine.LGodot.Gfx
             var arr = points.Select(p => p.ToVector2()).ToArray();
           
             if (filled)
-                _drawActions.Add(() => DrawPolygon(arr, new[] { color.ToGodotColor() }));
+                _drawActions.Add(() => DrawPolygon(arr, [color.ToGodotColor()]));
             else
                 _drawActions.Add(() => DrawPolyline(arr, color.ToGodotColor(), width, true));
             MarkDirty();

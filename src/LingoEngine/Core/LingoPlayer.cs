@@ -5,6 +5,7 @@ using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
 using LingoEngine.Movies;
 using LingoEngine.Movies.Commands;
+using LingoEngine.Primitives;
 using LingoEngine.Sounds;
 using LingoEngine.Stages;
 using LingoEngine.Tools;
@@ -41,7 +42,7 @@ namespace LingoEngine.Core
 
         public ILingoClock Clock => _clock;
         public LingoKey Key => _LingoKey;
-        public LingoStage Stage => _Stage;
+        public ILingoStage Stage => _Stage;
         /// <inheritdoc/>
         public ILingoCast ActiveCastLib => _castLibsContainer.ActiveCast;
         /// <inheritdoc/>
@@ -93,7 +94,12 @@ namespace LingoEngine.Core
             _Stage = Factory.CreateStage(this);
             _Mouse = Factory.CreateMouse(_Stage);
         }
-
+        public void LoadStage(int width, int height, LingoColor backgroundColor)
+        {
+            Stage.Width = width;
+            Stage.Height = height;
+            Stage.BackgroundColor = backgroundColor;
+        }
 
         /// <inheritdoc/>
         public void Alert(string message)
@@ -289,6 +295,8 @@ namespace LingoEngine.Core
             }
             return true;
         }
+
+       
         #endregion
     }
 }

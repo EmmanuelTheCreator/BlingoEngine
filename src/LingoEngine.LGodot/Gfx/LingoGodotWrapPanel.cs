@@ -1,6 +1,7 @@
 using Godot;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
+using System.Xml.Linq;
 
 namespace LingoEngine.LGodot.Gfx
 {
@@ -131,11 +132,13 @@ namespace LingoEngine.LGodot.Gfx
                 if (child != GetItem(0))
                     RemoveItem(child);
             }
+            _nodes.Clear();
         }
 
 
         public new void Dispose()
         {
+            RemoveAll();
             QueueFree();
             base.Dispose();
         }

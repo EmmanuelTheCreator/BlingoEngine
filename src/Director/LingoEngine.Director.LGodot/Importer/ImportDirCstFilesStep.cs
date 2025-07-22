@@ -113,7 +113,7 @@ internal partial class ImportDirCstFilesStep : VBoxContainer
 
             try
             {
-                var (movie, resources) = DirectorRaysImporter.ImportMovie(file);
+                var (stage, movie, resources) = DirectorRaysImporter.ImportMovie(file);
                 var tempDir = Path.Combine(Path.GetTempPath(), "lingo_import_" + Guid.NewGuid().ToString("N"));
                 Directory.CreateDirectory(tempDir);
                 foreach (var res in resources.Files)
@@ -121,7 +121,7 @@ internal partial class ImportDirCstFilesStep : VBoxContainer
                     var resPath = Path.Combine(tempDir, res.FileName);
                     File.WriteAllBytes(resPath, res.Bytes);
                 }
-                var loaded = _repo.Load(movie, _player, tempDir);
+                var loaded = _repo.Load(stage, movie, _player, tempDir);
                 _player.SetActiveMovie(loaded);
                 GD.Print($"Imported movie '{movie.Name}' into '{tempDir}' and loaded");
             }
