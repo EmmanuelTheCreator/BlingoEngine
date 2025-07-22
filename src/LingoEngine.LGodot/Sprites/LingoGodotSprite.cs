@@ -119,7 +119,7 @@ namespace LingoEngine.LGodot.Sprites
 
         private void ApplyZIndex()
         {
-            _Sprite2D.ZIndex = _directToStage ? 100000 + _zIndex : _zIndex;
+            _Container2D.ZIndex = _directToStage ? 100000 + _zIndex : _zIndex;
         }
 
         private void ApplyBlend()
