@@ -18,6 +18,7 @@ using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.LGodot.Gfx;
 using LingoEngine.Inputs;
+using LingoEngine.Director.Core.Icons;
 
 
 namespace LingoEngine.Director.LGodot.Movies;
@@ -59,7 +60,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
     private bool _panning;
     private float _scale = 1f;
 
-    public DirGodotStageWindow(ILingoFrameworkStageContainer stageContainer, IDirectorEventMediator directorEventMediator, ILingoCommandManager commandManager, IHistoryManager historyManager, ILingoPlayer player, DirectorStageWindow directorStageWindow, IDirGodotWindowManager windowManager)
+    public DirGodotStageWindow(ILingoFrameworkStageContainer stageContainer, IDirectorEventMediator directorEventMediator, ILingoCommandManager commandManager, IHistoryManager historyManager, ILingoPlayer player, DirectorStageWindow directorStageWindow, IDirGodotWindowManager windowManager, IDirectorIconManager iconManager)
         : base(DirectorMenuCodes.StageWindow, "Stage", windowManager)
     {
         _stageContainer = (LingoGodotStageContainer)stageContainer;
@@ -75,13 +76,13 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         var lp = _player as LingoPlayer;
         if (lp != null)
         {
-            _spriteSummary = new StageSpriteSummaryOverlay(lp.Factory, _mediator);
+            _spriteSummary = new StageSpriteSummaryOverlay(lp.Factory, _mediator, iconManager);
             _boundingBoxes = new StageBoundingBoxesOverlay(lp.Factory, _mediator);
         }
         else
         {
             var p = (LingoPlayer)_player!;
-            _spriteSummary = new StageSpriteSummaryOverlay(p.Factory, _mediator);
+            _spriteSummary = new StageSpriteSummaryOverlay(p.Factory, _mediator, iconManager);
             _boundingBoxes = new StageBoundingBoxesOverlay(p.Factory, _mediator);
         }
 
