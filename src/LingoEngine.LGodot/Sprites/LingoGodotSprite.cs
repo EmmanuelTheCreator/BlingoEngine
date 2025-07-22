@@ -131,25 +131,26 @@ namespace LingoEngine.LGodot.Sprites
 
         private void ApplyInk()
         {
-            if (_lingoSprite.InkType == LingoInkType.Matte)
+            if (_ink == 0) return;
+            CanvasItemMaterial.BlendModeEnum mode = _ink switch
             {
+                (int)LingoInkType.AddPin => CanvasItemMaterial.BlendModeEnum.Add,
+                (int)LingoInkType.Add => CanvasItemMaterial.BlendModeEnum.Add,
+                (int)LingoInkType.SubstractPin => CanvasItemMaterial.BlendModeEnum.Sub,
+                (int)LingoInkType.Substract => CanvasItemMaterial.BlendModeEnum.Sub,
+                (int)LingoInkType.Darken => CanvasItemMaterial.BlendModeEnum.Mul,
+                (int)LingoInkType.Lighten => CanvasItemMaterial.BlendModeEnum.Add,
+                _ => CanvasItemMaterial.BlendModeEnum.Mix,
+            };
+            if (mode == CanvasItemMaterial.BlendModeEnum.Mix)
+            { 
                 var inkNumber = (int)_lingoSprite.InkType;
                 _Sprite2D.Material = InkShaderMaterial.Create(_lingoSprite.InkType, _lingoSprite.BackColor.ToGodotColor());
             }
-            else
-            {
-                //CanvasItemMaterial.BlendModeEnum mode = _ink switch
-                //{
-                //    (int)LingoInkType.AddPin => CanvasItemMaterial.BlendModeEnum.Add,
-                //    (int)LingoInkType.Add => CanvasItemMaterial.BlendModeEnum.Add,
-                //    (int)LingoInkType.SubstractPin => CanvasItemMaterial.BlendModeEnum.Sub,
-                //    (int)LingoInkType.Substract => CanvasItemMaterial.BlendModeEnum.Sub,
-                //    (int)LingoInkType.Darken => CanvasItemMaterial.BlendModeEnum.Mul,
-                //    (int)LingoInkType.Lighten => CanvasItemMaterial.BlendModeEnum.Add,
-                //    _ => CanvasItemMaterial.BlendModeEnum.Mix,
-                //};
-                //_material.BlendMode = mode;
-                //_Sprite2D.Material = _material;
+            else 
+            { 
+                _material.BlendMode = mode;
+                _Sprite2D.Material = _material;
             }
         }
 
