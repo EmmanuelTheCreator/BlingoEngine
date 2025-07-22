@@ -74,6 +74,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
     private float _scale = 1f;
     private bool _spaceHeld;
     private bool _panning;
+    private bool _drawing;
 
     public DirGodotPictureMemberEditorWindow(IDirectorEventMediator mediator, ILingoPlayer player, IDirGodotWindowManager windowManager, DirectorBitmapEditWindow directorPictureEditWindow, IDirectorIconManager iconManager, ILingoCommandManager commandManager, IHistoryManager historyManager, ILingoFrameworkFactory factory)
         : base(DirectorMenuCodes.PictureEditWindow, "Picture Editor", windowManager)
@@ -517,7 +518,10 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
                     else if (_paintToolbar.SelectedTool == PainterToolType.SelectLasso)
                         StartLassoSelection();
                     else if (_painter != null && _imageRect.Texture != null)
+                    {
+                        _drawing = true;
                         DrawingPixels();
+                    }
                     GetViewport().SetInputAsHandled();
                     return;
                 }
@@ -530,6 +534,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
                         FinishLassoSelection(mb);
                     else
                         _panning = false;
+                    _drawing = false;
                     GetViewport().SetInputAsHandled();
                     return;
                 }
@@ -566,6 +571,12 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
                 _scrollContainer.ScrollHorizontal -= (int)motion.Relative.X;
                 _scrollContainer.ScrollVertical -= (int)motion.Relative.Y;
 
+                GetViewport().SetInputAsHandled();
+                return;
+            }
+            if (_drawing)
+            {
+                DrawingPixels();
                 GetViewport().SetInputAsHandled();
                 return;
             }
