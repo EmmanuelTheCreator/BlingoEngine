@@ -96,7 +96,9 @@ namespace LingoEngine.Movies
             {
                 c.BeginFrame = begin;
                 c.EndFrame = end;
-                c.LocH = x; c.LocV = y;
+                c.LocH = x; 
+                c.LocV = y;
+                c.LocZ = num;
                 configure?.Invoke(c);
             });
 
@@ -117,6 +119,7 @@ namespace LingoEngine.Movies
                 _spritesByName.Add(name, sprite);
             if (num > _maxSpriteNum)
                 _maxSpriteNum = num;
+            sprite.LocZ = num;
             configure?.Invoke(sprite);
             _raiseSpriteListChanged();
             return sprite;

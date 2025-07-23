@@ -118,13 +118,15 @@ namespace LingoEngine.Director.Core.Inspector
             Advance(widthSpan);
             return this;
         }
-        public GfxPanelBuilder AddNumericInput<T>(string name, string label, T target, Expression<Func<T, float>> property,int inputSpan = 1, bool showLabel = true, bool stretch = false, int labelSpan = 1)
+        public GfxPanelBuilder AddNumericInput<T>(string name, string label, T target, Expression<Func<T, float>> property,int inputSpan = 1, bool showLabel = true, bool stretch = false, int labelSpan = 1, Action<LingoGfxInputNumber>? configure = null)
         {
             var (xLabel, xInput, y) = Layout(showLabel?labelSpan:0, inputSpan);
             if (showLabel)
                 _panel.SetLabelAt(_factory, name + "Label", xLabel, y+ _labelYOffset, label);
-            _panel.SetInputNumberAt(_factory, target, name + "Input", xInput, y,
+            LingoGfxInputNumber numericInput = _panel.SetInputNumberAt(_factory, target, name + "Input", xInput, y,
                 (int)ComputeInputWidth(inputSpan, showLabel, stretch), property);
+            if (configure != null)
+                configure(numericInput);
             Advance((showLabel ? labelSpan : 0) + inputSpan);
             return this;
         } 
@@ -179,7 +181,7 @@ namespace LingoEngine.Director.Core.Inspector
             foreach (var value in Enum.GetValues(typeof(TEnum)))
             {
                 int key = Convert.ToInt32(value);
-                combo.AddItem(key.ToString(), value!.ToString());
+                combo.AddItem(key.ToString(), value!.ToString()!);
             }
             combo.SelectedKey = getter(target).ToString();
             combo.Width = (int)ComputeInputWidth(inputSpan, showLabel, stretch: true);

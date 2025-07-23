@@ -133,8 +133,10 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         //_boundingBoxes.Canvas.Framework<LingoGodotGfxCanvas>().ZIndex = 500;
         //_spriteSummary.Canvas.Framework<LingoGodotGfxCanvas>().ZIndex = 750;
         //_boundingBoxes.MouseFilter = MouseFilterEnum.Ignore; // ensure mouse clicks pass through
+        _spriteSummary.Canvas.Framework<LingoGodotGfxCanvas>().ZIndex = 100;
+        _boundingBoxes.Canvas.Framework<LingoGodotGfxCanvas>().ZIndex = 101;
+        _selectionBox.ZIndex = 102;
         _selectionBox.Visible = false;
-        //_selectionBox.ZIndex = 1000;
         AddChild(_scrollContainer);
 
         // bottom icon bar

@@ -20,6 +20,7 @@ namespace LingoEngine.LGodot.Texts
         protected LabelSettings _LabelSettings = new LabelSettings();
         protected readonly Label _labelNode;
         protected readonly CenterContainer _parentNode;
+        private bool _isCloning = false;
 
         public Node Node2D => _parentNode;
 
@@ -71,8 +72,8 @@ namespace LingoEngine.LGodot.Texts
                     //    ? UnderlineMode.Always
                     //    : UnderlineMode.Disabled;
                 }
-
-                UpdateSize();
+                
+                    UpdateSize();
             }
         }
 
@@ -170,6 +171,9 @@ namespace LingoEngine.LGodot.Texts
 
         protected Node CloneForSpriteDraw(LingoGodotMemberTextBase<TLingoText> copiedNode)
         {
+            _isCloning = true;
+            copiedNode._isCloning = true;
+
             copiedNode._lingoMemberText = _lingoMemberText;
             // Parse properties
             copiedNode.WordWrap = WordWrap;
@@ -182,6 +186,9 @@ namespace LingoEngine.LGodot.Texts
             copiedNode.FontName = FontName;
             copiedNode.Width = Width;
             copiedNode.Height = Height;
+
+            _isCloning = false;
+            copiedNode._isCloning = false;
             // Set latest
             copiedNode.Text = Text;
             return copiedNode.Node2D;
@@ -249,8 +256,11 @@ namespace LingoEngine.LGodot.Texts
             UpdateSize();
         }
 
+        
         private void UpdateSize()
         {
+            
+            if (_isCloning) return;
             Size = _labelNode != null? _labelNode.GetCombinedMinimumSize().ToLingoPoint() : (_LabelSettings.Font ?? _fontManager.GetDefaultFont<Font>()).GetMultilineStringSize(Text).ToLingoPoint();
             _lingoMemberText.Width = (int)Size.X;
             _lingoMemberText.Height = (int)Size.Y;

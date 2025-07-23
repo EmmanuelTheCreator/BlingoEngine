@@ -50,6 +50,8 @@ namespace LingoEngine.LGodot.Shapes
         public float Width { get => width; set { width = value; } }
         public float Height { get => height; set => height = value; }
         public (int TL, int TR, int BR, int BL) CornerRadius { get; set; }  = (5, 5, 5, 5);
+        public bool Filled { get; set; } = true;
+
         public virtual LingoGodotMemberShape CloneForSpriteDraw()
         {
             var clone = new LingoGodotMemberShape();
@@ -97,11 +99,11 @@ namespace LingoEngine.LGodot.Shapes
                     break;
 
                 case LingoShapeType.Rectangle:
-                    DrawRect(new Rect2(0,0, new Vector2(Width, Height)), fill, true);
+                    DrawRect(new Rect2(0,0, new Vector2(Width, Height)), fill, Filled);
                     break;
 
                 case LingoShapeType.Oval:
-                    DrawCircle(new Vector2(Width/2, Height/2),Width, fill, true);
+                    DrawCircle(new Vector2(Width/2, Height/2),Width, fill, Filled);
                     break;
 
                 case LingoShapeType.RoundRect:
@@ -109,7 +111,7 @@ namespace LingoEngine.LGodot.Shapes
 
                     var stylebox = new StyleBoxFlat
                     {
-                        BgColor = fill,
+                        BgColor = Filled?fill: Colors.Transparent,
                         CornerRadiusTopLeft = CornerRadius.TL,
                         CornerRadiusTopRight = CornerRadius.TR,
                         CornerRadiusBottomLeft = CornerRadius.BL,

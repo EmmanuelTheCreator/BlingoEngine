@@ -126,6 +126,7 @@ namespace LingoEngine.Members
         /// </summary>
         LingoMemberType Type { get; }
         string CastName { get; }
+        public ILingoCast Cast { get; }
 
         /// <summary>
         /// Copies the member’s data to the system clipboard.
@@ -246,6 +247,7 @@ namespace LingoEngine.Members
         public LingoMemberType Type { get; private set; }
         public int NumberInCast { get; internal set; }
         public string CastName { get => _cast.Name; }
+        public ILingoCast Cast { get => _cast; }
 
         /// <inheritdoc/>
         public LingoMember(ILingoFrameworkMember frameworkMember, LingoMemberType type, LingoCast cast, int numberInCast, string name = "", string fileName = "", LingoPoint regPoint = default)

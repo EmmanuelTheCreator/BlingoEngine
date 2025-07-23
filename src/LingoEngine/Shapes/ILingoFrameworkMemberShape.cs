@@ -15,6 +15,6 @@ namespace LingoEngine.Shapes
         float Height { get; set; }
         bool Closed { get; set; }
         bool AntiAlias { get; set; }
-
+        bool Filled { get; set; }
     }
 }
