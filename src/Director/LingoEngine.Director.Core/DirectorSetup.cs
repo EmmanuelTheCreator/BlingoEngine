@@ -12,6 +12,9 @@ using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Bitmaps;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Setup;
+using LingoEngine.Director.Core.Scripts;
+using LingoEngine.Commands;
+using LingoEngine.Director.Core.Scripts.Commands;
 
 namespace LingoEngine.Director.Core
 {
@@ -34,6 +37,9 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<IIdeLauncher, IdeLauncher>()
                     .AddSingleton<ProjectSettingsEditorState, ProjectSettingsEditorState>()
 
+                    .AddSingleton<DirectorScriptsManager>()
+                    .AddTransient(p => new Lazy<IDirectorScriptsManager>(() => p.GetRequiredService<DirectorScriptsManager>()))
+
                     // Windows
                     .AddSingleton<DirectorMainMenu>()
 
@@ -53,7 +59,6 @@ namespace LingoEngine.Director.Core
                 (serviceProvider) =>
                 {
                     serviceProvider.RegisterDirectorWindows();
-                   
                 });
             return engineRegistration;
         }

@@ -13,6 +13,8 @@ using LingoEngine.Director.Core.Styles;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Bitmaps;
+using LingoEngine.Scripts;
+using LingoEngine.Director.Core.Scripts.Commands;
 
 namespace LingoEngine.Director.LGodot.Casts
 {
@@ -242,11 +244,14 @@ namespace LingoEngine.Director.LGodot.Casts
             {
                 ILingoMemberTextBase => DirectorMenuCodes.TextEditWindow,
                 LingoMemberBitmap => DirectorMenuCodes.PictureEditWindow,
+                LingoMemberScript script => null,
                 _ => null
             };
 
             if (windowCode != null)
                 _commandManager.Handle(new OpenWindowCommand(windowCode));
+            else if(_lingoMember is LingoMemberScript script)
+                _commandManager.Handle(new OpenScriptCommand(script));
         }
 
         public void Init()

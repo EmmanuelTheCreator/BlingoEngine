@@ -7,6 +7,7 @@ public class LingoProjectSettings
 {
     public string ProjectName { get; set; } = string.Empty;
     public string ProjectFolder { get; set; } = string.Empty;
+    public string CodeFolder { get; set; } = string.Empty;
 
     public bool HasValidSettings =>
         !string.IsNullOrWhiteSpace(ProjectName) &&

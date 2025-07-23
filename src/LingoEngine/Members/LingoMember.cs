@@ -239,7 +239,7 @@ namespace LingoEngine.Members
         /// <inheritdoc/>
         public string Comments { get; set; }
         /// <inheritdoc/>
-        public string FileName { get; private set; }
+        public string FileName { get; set; }
         /// <inheritdoc/>
         public LingoMemberType Type { get; private set; }
         public int NumberInCast { get; internal set; }

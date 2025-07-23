@@ -17,6 +17,7 @@ namespace LingoEngine.Director.Core.UI
         public const string TextEditWindow = "TextEditWindow";
         public const string ShapeEditWindow = "ShapeEditWindow";
         public const string PictureEditWindow = "PictureEditWindow";
+        public const string ScriptEditWindow = "ScriptEditWindow";
         public const string ImportExportWindow = "ImportExportWindow";
     }
 }
