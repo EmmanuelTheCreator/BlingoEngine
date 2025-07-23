@@ -12,8 +12,8 @@ namespace LingoEngine.Stages
     {
         private readonly ILingoFrameworkStage _lingoFrameworkMovieStage;
 
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public int Width { get; set; } = 640;
+        public int Height { get; set; } = 480;
         public LingoColor BackgroundColor { get; set; }
         public bool RecordKeyframes { get; set; }
 
@@ -33,8 +33,6 @@ namespace LingoEngine.Stages
         public LingoStage(ILingoFrameworkStage godotInstance)
         {
             _lingoFrameworkMovieStage = godotInstance;
-            Width = 640;
-            Height = 480;
             BackgroundColor = LingoColorList.Black;
         }
 

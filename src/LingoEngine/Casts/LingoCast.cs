@@ -3,6 +3,7 @@ using LingoEngine.Core;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
+using LingoEngine.Scripts;
 using LingoEngine.Shapes;
 using LingoEngine.Sounds;
 using LingoEngine.Texts;
@@ -92,6 +93,7 @@ namespace LingoEngine.Casts
                 case LingoMemberType.Text: return _factory.CreateMemberText(this, numberInCast, name, fileName, regPoint);
                 case LingoMemberType.Field: return _factory.CreateMemberField(this, numberInCast, name, fileName, regPoint);
                 case LingoMemberType.Shape: return _factory.CreateMemberShape(this, numberInCast, name, fileName, regPoint);
+                case LingoMemberType.Script: return _factory.CreateScript(this, numberInCast, name, fileName, regPoint);
                 default:
                     return _factory.CreateEmpty(this, numberInCast, name, fileName, regPoint);
             }
@@ -117,6 +119,7 @@ namespace LingoEngine.Casts
                 case Type t when t == typeof(LingoMemberText):return LingoMemberType.Text;
                 case Type t when t == typeof(LingoMemberField):return LingoMemberType.Field;
                 case Type t when t == typeof(LingoMemberShape):return LingoMemberType.Shape;
+                case Type t when t == typeof(LingoMemberScript):return LingoMemberType.Script;
                 default:
                     return LingoMemberType.Unknown;
             }

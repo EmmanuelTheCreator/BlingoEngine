@@ -79,9 +79,18 @@ namespace LingoEngine.Director.LGodot
             DrawLine(new Vector2(Size.X - ResizeHandle, Size.Y), new Vector2(Size.X, Size.Y - ResizeHandle), Colors.DarkGray);
             DrawLine(new Vector2(Size.X - ResizeHandle/2f, Size.Y), new Vector2(Size.X, Size.Y - ResizeHandle/2f), Colors.DarkGray);
         }
-
-        public override void _GuiInput(InputEvent @event)
+        public override void _Input(InputEvent @event)
         {
+            base._Input(@event);
+            if (!_dragging && !_resizing && !GetGlobalRect().HasPoint(GetGlobalMousePosition()))
+                return;
+        //    if (@event is InputEventMouseButton mb)
+        //    {
+
+            //    }
+            //}
+            //public override void _GuiInput(InputEvent @event)
+            //{
             if (@event is InputEventMouseButton mb)
             {
                 var pressed = mb.Pressed;

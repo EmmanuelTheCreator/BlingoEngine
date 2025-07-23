@@ -23,6 +23,8 @@ using LingoEngine.Styles;
 using LingoEngine.SDL2.Stages;
 using LingoEngine.SDL2.Inputs;
 using LingoEngine.Bitmaps;
+using LingoEngine.Scripts;
+using LingoEngine.SDL2.Scripts;
 
 namespace LingoEngine.SDL2.Core;
 
@@ -120,6 +122,13 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
         impl.Init(member);
         _disposables.Add(impl);
         return member;
+    }
+    public LingoMember CreateScript(ILingoCast cast, int numberInCast, string name = "", string? fileName = null,
+           LingoPoint regPoint = default)
+    {
+        var godotInstance = new SdlFrameworkMemberScript();
+        var lingoInstance = new LingoMemberScript(godotInstance,(LingoCast)cast, numberInCast, name, fileName ?? "", regPoint);
+        return lingoInstance;
     }
     public LingoMember CreateEmpty(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
     {
