@@ -19,7 +19,7 @@ namespace LingoEngine.FilmLoops
         {
             _sprite = sprite;
             _mediator = env.Events;
-            _mediator.Subscribe(this);
+            _mediator.Subscribe(this, sprite.SpriteNum + 6);
         }
 
         private LingoMemberFilmLoop? FilmLoop => _sprite.Member as LingoMemberFilmLoop;

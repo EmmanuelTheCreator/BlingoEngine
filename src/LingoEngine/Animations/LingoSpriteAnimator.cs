@@ -27,7 +27,7 @@ namespace LingoEngine.Animations
             _sprite = sprite;
             _movie = env.Movie;
             _mediator = env.Events;
-            _mediator.Subscribe(this);
+            _mediator.Subscribe(this, sprite.SpriteNum + 6);
         }
 
         public void SetTweenOptions(bool positionEnabled, bool rotationEnabled, bool skewEnabled,
