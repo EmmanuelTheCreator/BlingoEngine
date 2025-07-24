@@ -126,7 +126,8 @@ namespace LingoEngine.LGodot.Sprites
         private void ApplyBlend()
         {
             var col = _Sprite2D.SelfModulate;
-            _Sprite2D.SelfModulate = new Color(col.R, col.G, col.B, _directToStage ? 1f : _blend);
+            float alpha = Mathf.Clamp(_blend / 100f, 0f, 1f);
+            _Sprite2D.SelfModulate = new Color(col.R, col.G, col.B, _directToStage ? 1f : alpha);
             IsDirty = true;
         }
 

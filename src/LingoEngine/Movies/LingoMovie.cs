@@ -199,6 +199,7 @@ namespace LingoEngine.Movies
         }
 
         public void GoTo(int frame) => Go(frame);
+
         public void Go(int frame)
         {
             if (frame <= 0)

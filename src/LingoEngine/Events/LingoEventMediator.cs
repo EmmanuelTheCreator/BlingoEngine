@@ -31,6 +31,7 @@ namespace LingoEngine.Events
 
         public void Subscribe(object ms)
         {
+            // todo : order by locZ
             if (ms is IHasPrepareMovieEvent prepareMovieEvent) _prepareMovies.Add(prepareMovieEvent);
             if (ms is IHasStartMovieEvent startMovieEvent) _startMovies.Add(startMovieEvent);
             if (ms is IHasStopMovieEvent stopMovieEvent) _stopMovies.Add(stopMovieEvent);

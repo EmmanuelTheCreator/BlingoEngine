@@ -36,7 +36,7 @@ namespace LingoEngine.Sprites
         private int? _previousCursor;
         private int _constraint;
         private bool _directToStage;
-        private float _blend = 1f;
+        private float _blend = 100f;
 
 
         #region Properties
