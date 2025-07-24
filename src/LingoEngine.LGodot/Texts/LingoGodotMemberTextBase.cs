@@ -22,23 +22,24 @@ namespace LingoEngine.LGodot.Texts
         protected readonly CenterContainer _parentNode;
         private bool _isCloning = false;
 
+        
         public Node Node2D => _parentNode;
 
 
         #region Properties
 
-        public string Text { get => _text; set => UpdateText(value); }
+        public string Text { get => _text; set{  UpdateText(value);IsLoaded = false;} }
 
         public bool WordWrap
         {
             get => _labelNode.AutowrapMode != TextServer.AutowrapMode.Off;
-            set => _labelNode.AutowrapMode = value ? TextServer.AutowrapMode.Word : TextServer.AutowrapMode.Off;
+            set { _labelNode.AutowrapMode = value ? TextServer.AutowrapMode.Word : TextServer.AutowrapMode.Off; IsLoaded = false; }
         }
 
         public int ScrollTop
         {
             get => _labelNode.LinesSkipped;
-            set => _labelNode.LinesSkipped = value;
+            set { _labelNode.LinesSkipped = value; IsLoaded = false; }
         }
 
         private LingoTextStyle _textStyle = LingoTextStyle.None;
@@ -71,6 +72,7 @@ namespace LingoEngine.LGodot.Texts
                     //_LabelSettings.UnderlineMode = value.HasFlag(LingoTextStyle.Underline)
                     //    ? UnderlineMode.Always
                     //    : UnderlineMode.Disabled;
+                    IsLoaded = false;
                 }
                 
                     UpdateSize();
@@ -88,6 +90,7 @@ namespace LingoEngine.LGodot.Texts
                 _labelNode.AddThemeConstantOverride("margin_right", value);
                 _labelNode.AddThemeConstantOverride("margin_top", value);
                 _labelNode.AddThemeConstantOverride("margin_bottom", value);
+                IsLoaded = false;
             }
         }
         public LingoTextAlignment Alignment
@@ -111,6 +114,7 @@ namespace LingoEngine.LGodot.Texts
                     LingoTextAlignment.Right => HorizontalAlignment.Right,
                     _ => HorizontalAlignment.Left // Default fallback
                 };
+                IsLoaded = false;
             }
         }
 
@@ -122,6 +126,7 @@ namespace LingoEngine.LGodot.Texts
             {
                 _lingoColor = value;
                 _LabelSettings.SetLingoColor(value);
+                IsLoaded = false;
             }
         }
         public int FontSize
@@ -132,6 +137,7 @@ namespace LingoEngine.LGodot.Texts
 
                 _LabelSettings.SetLingoFontSize(value);
                 UpdateSize();
+                IsLoaded = false;
             }
         }
 
@@ -144,6 +150,7 @@ namespace LingoEngine.LGodot.Texts
                 _fontName = value;
                 _LabelSettings.SetLingoFont(_fontManager, value);
                 UpdateSize();
+                IsLoaded = false;
             }
         }
 
@@ -254,6 +261,7 @@ namespace LingoEngine.LGodot.Texts
             _text = value;
             _labelNode.Text = value;
             UpdateSize();
+            
         }
 
         

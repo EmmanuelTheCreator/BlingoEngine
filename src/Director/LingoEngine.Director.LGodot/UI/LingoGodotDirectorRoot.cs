@@ -90,7 +90,7 @@ namespace LingoEngine.Director.LGodot.UI
             _binaryViewerV2.Position = new Vector2(20, 280);
             _importExportWindow.Position = new Vector2(120, 120);
             _projectSettingsWindow.Position = new Vector2(100, 100);
-            _textWindow.Position = new Vector2(20, 120);
+            _textWindow.Position = new Vector2(1200, 700);
             _picture.Position = new Vector2(20, 120);
         }
 

@@ -204,6 +204,7 @@ namespace LingoEngine.Members
         private readonly ILingoFrameworkMember _frameworkMember;
         public ILingoFrameworkMember FrameworkObj => _frameworkMember;
 
+
         /// <inheritdoc/>
         public string Name
         {
@@ -245,6 +246,7 @@ namespace LingoEngine.Members
         public int NumberInCast { get; internal set; }
         public string CastName { get => _cast.Name; }
         public ILingoCast Cast { get => _cast; }
+        public bool HasChanged { get; internal set; }
 
         /// <inheritdoc/>
         public LingoMember(ILingoFrameworkMember frameworkMember, LingoMemberType type, LingoCast cast, int numberInCast, string name = "", string fileName = "", LingoPoint regPoint = default)
@@ -257,7 +259,7 @@ namespace LingoEngine.Members
             _cast = cast;
             RegPoint = regPoint;
             CastLibNum = _cast.Number;
-            Number = _cast.GetUniqueNumber();
+            Number = _cast.GetUniqueNumber(NumberInCast);
             Type = type;
             CreationDate = DateTime.Now;
             ModifiedDate = DateTime.Now;
@@ -293,6 +295,8 @@ namespace LingoEngine.Members
             _cast.Add(clone);
             return clone;
         }
+
+        public virtual void ChangesHasBeenApplied() => HasChanged = false;
         protected virtual LingoMember OnDuplicate(int newNumber)
         {
             throw new NotImplementedException();

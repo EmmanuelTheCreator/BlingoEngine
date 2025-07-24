@@ -68,6 +68,10 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
     public DirGodotStageWindow(ILingoFrameworkStageContainer stageContainer, IDirectorEventMediator directorEventMediator, ILingoCommandManager commandManager, IHistoryManager historyManager, ILingoPlayer player, DirectorStageWindow directorStageWindow, IDirGodotWindowManager windowManager, IDirectorIconManager iconManager)
         : base(DirectorMenuCodes.StageWindow, "Stage", windowManager)
     {
+        // TempFix
+        base.DontUseInputInsteadOfGuiInput();
+
+
         _stageContainer = (LingoGodotStageContainer)stageContainer;
         _mediator = directorEventMediator;
         _player = player;
@@ -463,10 +467,9 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
             {
                 float delta = mb.ButtonIndex == MouseButton.WheelUp ? 0.1f : -0.1f;
                 float newScale = Mathf.Clamp(_scale + delta, (float)_zoomSlider.MinValue, (float)_zoomSlider.MaxValue);
-                _zoomSlider.Value = newScale;
-                _scale = newScale;
+                SetScale(newScale);
                 UpdateScaleDropdown(newScale);
-                _stageContainer.SetScale(newScale);
+                //_stageContainer.SetScale(newScale);
                 GetViewport().SetInputAsHandled();
                 return;
             }

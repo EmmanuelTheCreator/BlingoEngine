@@ -171,6 +171,7 @@ namespace LingoEngine.Sprites
         public ILingoSprite SetMember(int memberNumber, int? castLibNum = null) => _sprite.SetMember(memberNumber, castLibNum);
         public ILingoSprite SetMember(string memberName, int? castLibNum = null) => _sprite.SetMember(memberName, castLibNum);
         public ILingoSprite SetMember(ILingoMember? member) => _sprite.SetMember(member);
+        public ILingoSprite AddBehavior<T>() where T : LingoSpriteBehavior => _sprite.AddBehavior<T>();
         public void SendToBack() => _sprite.SendToBack();
         public void BringToFront() => _sprite.BringToFront();
         public void MoveBackward() => _sprite.MoveBackward();

@@ -74,7 +74,11 @@ namespace LingoEngine.Casts
         }
         /// <inheritdoc/>
         public int FindEmpty() => _MembersContainer.FindEmpty();
-        internal int GetUniqueNumber() => _castLibsContainer.GetNextMemberNumber();
+        internal int GetUniqueNumber(int numberInCast)
+        {
+            //if (Number == 1 ? ((member.CastLibNum - 1) * 131114 : numberInCast : _cast.GetUniqueNumber();
+            return _castLibsContainer.GetNextMemberNumber(Number, numberInCast);
+        }
 
         internal void RemoveAll()
         {

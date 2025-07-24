@@ -52,10 +52,12 @@ namespace LingoEngine.Sprites
         public string Name { get => _frameworkSprite.Name; set => _frameworkSprite.Name = value; }
         public int MemberNum
         {
-            get => Member?.Number ?? 0; set
+            get => Member?.NumberInCast ?? 0; 
+            set
             {
                 if (Member != null)
-                    Member = Member.GetMemberInCastByOffset(value);
+                    //Member = Member.GetMemberInCastByOffset(value);
+                    Member = Member.Cast.Member[value];
             }
         }
         /// <summary>Channel default cast member.</summary>
@@ -328,6 +330,15 @@ When a movie stops, events occur in the following order:
             BeginSprite();
         }
         protected virtual void BeginSprite() { }
+        internal virtual LingoMember? DoPreStepFrame()
+        {
+            if (_Member != null && _Member.HasChanged)
+            {
+                _frameworkSprite.ApplyMemberChanges();
+                return _Member;
+            }
+            return null;
+        }
         internal virtual void DoEndSprite()
         {
             _behaviors.ForEach(b =>
@@ -373,18 +384,17 @@ When a movie stops, events occur in the following order:
         public ILingoSprite SetMember(ILingoMember? member)
         {
             _Member = member as LingoMember;
-
             if (_Member != null)
             {
                 RegPoint = _Member.RegPoint;
             }
 
 
-            MemberHaschanged();
+            MemberHasChanged();
             return this;
         }
 
-        private void MemberHaschanged()
+        private void MemberHasChanged()
         {
             var existingPlayer = _spriteActors.OfType<LingoFilmLoopPlayer>().FirstOrDefault();
             if (_Member is LingoMemberFilmLoop)

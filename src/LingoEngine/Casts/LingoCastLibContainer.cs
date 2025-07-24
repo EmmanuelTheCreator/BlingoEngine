@@ -1,5 +1,6 @@
 ﻿using LingoEngine.FrameworkCommunication;
 using LingoEngine.Members;
+using System.Xml.Linq;
 
 namespace LingoEngine.Casts
 {
@@ -51,32 +52,34 @@ namespace LingoEngine.Casts
         }
 
         public ILingoCast this[int number] => _casts[number - 1];
-        public ILingoCast this[string name] => _castsByName[name];
+        public ILingoCast this[string name] => _castsByName[name.ToLower()];
         public string GetCastName(int number) => _casts[number - 1].Name;
         public ILingoCast GetCast(int number) => _casts[number - 1];
 
         public ILingoCast AddCast(string name)
         {
+            var nameL = name.ToLower();
             var cast = new LingoCast(this, _factory, name);
             _casts.Add(cast);
-            _castsByName.Add(name, cast);
+            _castsByName.Add(nameL, cast);
             if (ActiveCast == null)
                 ActiveCast = cast;
             return cast;
         }
         public ILingoCast RemoveCast(ILingoCast cast)
         {
+            var nameL = cast.Name.ToLower();
             var castTyped = (LingoCast)cast;
             castTyped.RemoveAll();
             _casts.Remove(castTyped);
-            _castsByName.Remove(cast.Name);
+            _castsByName.Remove(nameL);
             if (activeCast == cast && _casts.Count > 0)
                 activeCast = _casts[0];
 
             return cast;
         }
 
-        public int GetNextMemberNumber() => _allMembersContainer.GetNextNumber();
+        public int GetNextMemberNumber(int castNumber, int numberInCast) => _allMembersContainer.GetNextNumber(castNumber, numberInCast);
         public T? GetMember<T>(int number, int? castLibNum = null) where T : class, ILingoMember
             => !castLibNum.HasValue
              ? _allMembersContainer.Member<T>(number)
