@@ -9,6 +9,10 @@ namespace LingoEngine.Events
 
     public class LingoEventMediator : ILingoEventMediator, ILingoMouseEventHandler, ILingoKeyEventHandler, ILingoSpriteEventHandler
     {
+        private const int DefaultPriority = 5000;
+
+        private readonly Dictionary<object, int> _priorities = new();
+
         private readonly List<IHasPrepareMovieEvent> _prepareMovies = new();
         private readonly List<IHasStartMovieEvent> _startMovies = new();
         private readonly List<IHasStopMovieEvent> _stopMovies = new();
@@ -29,27 +33,38 @@ namespace LingoEngine.Events
         private readonly List<IHasKeyDownEvent> _keyDowns = new();
 
 
-        public void Subscribe(object ms)
+        private void Insert<T>(List<T> list, T item) where T : class
         {
-            // todo : order by locZ
-            if (ms is IHasPrepareMovieEvent prepareMovieEvent) _prepareMovies.Add(prepareMovieEvent);
-            if (ms is IHasStartMovieEvent startMovieEvent) _startMovies.Add(startMovieEvent);
-            if (ms is IHasStopMovieEvent stopMovieEvent) _stopMovies.Add(stopMovieEvent);
-            if (ms is IHasMouseDownEvent mouseDownEvent) _mouseDowns.Add(mouseDownEvent);
-            if (ms is IHasMouseUpEvent mouseUpEvent) _mouseUps.Add(mouseUpEvent);
-            if (ms is IHasMouseMoveEvent mouseMoveEvent) _mouseMoves.Add(mouseMoveEvent);
-            if (ms is IHasMouseEnterEvent mouseEnterEvent) _mouseEnters.Add(mouseEnterEvent);
-            if (ms is IHasMouseExitEvent mouseExitEvent) _mouseExits.Add(mouseExitEvent);
-            //if (ms is IHasBeginSpriteEvent beginSpriteEvent) _beginSprites.Add(beginSpriteEvent);
-            //if (ms is IHasEndSpriteEvent endSpriteEvent) _endSprites.Add(endSpriteEvent);
-            if (ms is IHasStepFrameEvent stepFrameEvent) _stepFrames.Add(stepFrameEvent);
-            if (ms is IHasPrepareFrameEvent prepareFrameEvent) _prepareFrames.Add(prepareFrameEvent);
-            if (ms is IHasEnterFrameEvent enterFrameEvent) _enterFrames.Add(enterFrameEvent);
-            if (ms is IHasExitFrameEvent exitFrameEvent) _exitFrames.Add(exitFrameEvent);
-            if (ms is IHasFocusEvent focusEvent) _focuss.Add(focusEvent);
-            if (ms is IHasBlurEvent blurEvent) _blurs.Add(blurEvent);
-            if (ms is IHasKeyUpEvent keyUpEvent) _keyUps.Add(keyUpEvent);
-            if (ms is IHasKeyDownEvent keyDownEvent) _keyDowns.Add(keyDownEvent);
+            var priority = _priorities[item!];
+            var index = list.FindIndex(e => _priorities[(object)e] > priority);
+            if (index < 0)
+                list.Add(item);
+            else
+                list.Insert(index, item);
+        }
+
+        public void Subscribe(object ms, int priority = DefaultPriority)
+        {
+            _priorities[ms] = priority;
+
+            if (ms is IHasPrepareMovieEvent prepareMovieEvent) Insert(_prepareMovies, prepareMovieEvent);
+            if (ms is IHasStartMovieEvent startMovieEvent) Insert(_startMovies, startMovieEvent);
+            if (ms is IHasStopMovieEvent stopMovieEvent) Insert(_stopMovies, stopMovieEvent);
+            if (ms is IHasMouseDownEvent mouseDownEvent) Insert(_mouseDowns, mouseDownEvent);
+            if (ms is IHasMouseUpEvent mouseUpEvent) Insert(_mouseUps, mouseUpEvent);
+            if (ms is IHasMouseMoveEvent mouseMoveEvent) Insert(_mouseMoves, mouseMoveEvent);
+            if (ms is IHasMouseEnterEvent mouseEnterEvent) Insert(_mouseEnters, mouseEnterEvent);
+            if (ms is IHasMouseExitEvent mouseExitEvent) Insert(_mouseExits, mouseExitEvent);
+            //if (ms is IHasBeginSpriteEvent beginSpriteEvent) Insert(_beginSprites, beginSpriteEvent);
+            //if (ms is IHasEndSpriteEvent endSpriteEvent) Insert(_endSprites, endSpriteEvent);
+            if (ms is IHasStepFrameEvent stepFrameEvent) Insert(_stepFrames, stepFrameEvent);
+            if (ms is IHasPrepareFrameEvent prepareFrameEvent) Insert(_prepareFrames, prepareFrameEvent);
+            if (ms is IHasEnterFrameEvent enterFrameEvent) Insert(_enterFrames, enterFrameEvent);
+            if (ms is IHasExitFrameEvent exitFrameEvent) Insert(_exitFrames, exitFrameEvent);
+            if (ms is IHasFocusEvent focusEvent) Insert(_focuss, focusEvent);
+            if (ms is IHasBlurEvent blurEvent) Insert(_blurs, blurEvent);
+            if (ms is IHasKeyUpEvent keyUpEvent) Insert(_keyUps, keyUpEvent);
+            if (ms is IHasKeyDownEvent keyDownEvent) Insert(_keyDowns, keyDownEvent);
         }
         public void Unsubscribe(object ms)
         {
@@ -71,6 +86,8 @@ namespace LingoEngine.Events
             if (ms is IHasBlurEvent blurEvent) _blurs.Remove(blurEvent);
             if (ms is IHasKeyUpEvent keyUpEvent) _keyUps.Remove(keyUpEvent);
             if (ms is IHasKeyDownEvent keyDownEvent) _keyDowns.Remove(keyDownEvent);
+
+            _priorities.Remove(ms);
         }
         internal void RaisePrepareMovie() => _prepareMovies.ForEach(x => x.PrepareMovie());
         internal void RaiseStartMovie() => _startMovies.ForEach(x => x.StartMovie());

@@ -317,13 +317,13 @@ When a movie stops, events occur in the following order:
             // Subscribe all actors
             foreach (var actor in _spriteActors)
             {
-                _eventMediator.Subscribe(actor);
+                _eventMediator.Subscribe(actor, SpriteNum + 6);
                 if (actor is IHasBeginSpriteEvent begin) begin.BeginSprite();
             }
             // Subscribe all behaviors
             _behaviors.ForEach(b =>
             {
-                _eventMediator.Subscribe(b);
+                _eventMediator.Subscribe(b, SpriteNum + 6);
                 if (b is IHasBeginSpriteEvent beginSpriteEvent) beginSpriteEvent.BeginSprite();
 
             });
@@ -635,7 +635,7 @@ When a movie stops, events occur in the following order:
             _spriteActors.Add(actor);
             if (IsActive)
             {
-                _eventMediator.Subscribe(actor);
+                _eventMediator.Subscribe(actor, SpriteNum + 6);
                 if (actor is IHasBeginSpriteEvent begin) begin.BeginSprite();
             }
         }
