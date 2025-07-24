@@ -1,5 +1,6 @@
 ﻿using LingoEngine.Casts;
 using LingoEngine.Primitives;
+using LingoEngine.Sprites;
 using System.Diagnostics;
 
 namespace LingoEngine.Members
@@ -307,6 +308,11 @@ namespace LingoEngine.Members
         public ILingoMember? GetMemberInCastByOffset(int numberOffset)
         {
             return _cast.Member[Number + numberOffset];
+        }
+
+        internal virtual void ReleaseFromSprite(LingoSprite lingoSprite)
+        {
+            FrameworkObj.ReleaseFromSprite(lingoSprite);
         }
     }
 }

@@ -4,6 +4,7 @@ using LingoEngine.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LingoEngine.Members;
 
 namespace LingoEngine.Movies
 {
@@ -328,6 +329,22 @@ namespace LingoEngine.Movies
             _currentFrameSprite?.DoBeginSprite();
         }
 
+        List<LingoMember> _changedMembers = new List<LingoMember>();
+        internal void PreStepFrame()
+        {
+            _changedMembers.Clear();
+            foreach (var sprite in _activeSprites.Values)
+            {
+                if (sprite.IsActive)
+                {
+                    var changedMember = sprite.DoPreStepFrame();
+                    if (changedMember != null)
+                        _changedMembers.Add(changedMember);
+                }
+            }
+            foreach (var item in _changedMembers)
+                item.ChangesHasBeenApplied();
+        }
         internal void EndSprites()
         {
             _currentFrameSprite?.DoEndSprite();

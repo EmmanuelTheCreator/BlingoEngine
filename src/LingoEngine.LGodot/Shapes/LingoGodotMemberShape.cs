@@ -2,6 +2,7 @@ using Godot;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.Primitives;
 using LingoEngine.Shapes;
+using LingoEngine.Sprites;
 
 namespace LingoEngine.LGodot.Shapes
 {
@@ -129,7 +130,7 @@ namespace LingoEngine.LGodot.Shapes
         }
 
 
-       
+        public void ReleaseFromSprite(LingoSprite lingoSprite) { }
 
         public void CopyToClipboard() { }
         public void Erase() { VertexList.Clear(); }

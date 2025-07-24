@@ -30,6 +30,11 @@ namespace LingoEngine.SDL2.Gfx
             throw new NotImplementedException();
         }
 
+        public void RemoveAll()
+        {
+            throw new NotImplementedException();
+        }
+
         public void RemoveItem(ILingoFrameworkGfxLayoutNode child)
         {
             throw new NotImplementedException();

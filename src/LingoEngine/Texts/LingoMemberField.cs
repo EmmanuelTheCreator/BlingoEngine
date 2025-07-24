@@ -35,6 +35,9 @@ namespace LingoEngine.Texts
             //clone.Text = Text;
             //return clone;
         }
+
+        
+
         /// <summary>
 
 

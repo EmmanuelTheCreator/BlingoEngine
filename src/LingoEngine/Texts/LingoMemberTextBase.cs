@@ -8,6 +8,7 @@ namespace LingoEngine.Texts
 {
     public interface ILingoMemberTextBaseInteral: ILingoMemberTextBase
     {
+       
         void LoadFile();
     }
     public abstract class LingoMemberTextBase<TFrameworkType> : LingoMember, ILingoMemberTextBase, ILingoMemberTextBaseInteral
@@ -25,6 +26,7 @@ namespace LingoEngine.Texts
 
         public T Framework<T>() where T : class, TFrameworkType => (T)_frameworkMember;
 
+        public bool TextChanged { get; private set; }
 
         #region Properties
 
@@ -36,46 +38,47 @@ namespace LingoEngine.Texts
             {
                 UpdateText(value);
                 _frameworkMember.Text = value;
+                
             }
         }
         /// <inheritdoc/>
         public int ScrollTop
         {
             get => _frameworkMember.ScrollTop;
-            set => _frameworkMember.ScrollTop = value;
-        }
+            set { _frameworkMember.ScrollTop = value;  }
+            }
         /// <inheritdoc/>
         public bool Editable { get; set; }
         /// <inheritdoc/>
         public bool WordWrap
         {
             get => _frameworkMember.WordWrap;
-            set => _frameworkMember.WordWrap = value;
-        }
+            set { _frameworkMember.WordWrap = value;  }
+            }
         /// <inheritdoc/>
         public string Font
         {
             get => _frameworkMember.FontName;
-            set => _frameworkMember.FontName = value;
-        }
+            set { _frameworkMember.FontName = value;  }
+            }
         /// <inheritdoc/>
         public int FontSize
         {
             get => _frameworkMember.FontSize;
-            set => _frameworkMember.FontSize = value;
+            set { _frameworkMember.FontSize = value;  }
         }
 
         /// <inheritdoc/>
         public LingoColor TextColor
         {
             get => _frameworkMember.TextColor;
-            set => _frameworkMember.TextColor = value;
+            set { _frameworkMember.TextColor = value;  }
         }
         /// <inheritdoc/>
         public LingoTextStyle FontStyle
         {
             get => _frameworkMember.FontStyle;
-            set => _frameworkMember.FontStyle = value;
+            set { _frameworkMember.FontStyle = value;  }
         }
         /// <inheritdoc/>
         public bool Bold
@@ -89,6 +92,7 @@ namespace LingoEngine.Texts
                 else
                     style &= ~LingoTextStyle.Bold;
                 _frameworkMember.FontStyle = style;
+                
             }
         }
         /// <inheritdoc/>
@@ -103,7 +107,8 @@ namespace LingoEngine.Texts
                 else
                     style &= ~LingoTextStyle.Italic;
                 _frameworkMember.FontStyle = style;
-            }
+                
+            }   
         }
         /// <inheritdoc/>
         public bool Underline
@@ -117,19 +122,20 @@ namespace LingoEngine.Texts
                 else
                     style &= ~LingoTextStyle.Underline;
                 _frameworkMember.FontStyle = style;
+                
             }
         }
         /// <inheritdoc/>
         public LingoTextAlignment Alignment
         {
             get => _frameworkMember.Alignment;
-            set => _frameworkMember.Alignment = value;
+            set { _frameworkMember.Alignment = value;  }
         }
         /// <inheritdoc/>
         public int Margin
         {
             get => _frameworkMember.Margin;
-            set => _frameworkMember.Margin = value;
+            set { _frameworkMember.Margin = value;  }
         }
 
         /// <inheritdoc/>
@@ -147,6 +153,7 @@ namespace LingoEngine.Texts
             {
                 base.Width = value;
                 _frameworkMember.Width = value;
+                
             }
         }
         public override int Height { get => base.Height; 
@@ -154,6 +161,7 @@ namespace LingoEngine.Texts
             {
                 base.Height = value;
                 _frameworkMember.Height = value;
+                
             }
         }
         #endregion
@@ -174,13 +182,18 @@ namespace LingoEngine.Texts
             _word.SetText(text);
             _Line.SetText(text);
             _Paragraph.SetText(text);
+            TextChanged = true;
         }
 
-
+        public override void ChangesHasBeenApplied()
+        {
+            TextChanged = false;
+            base.ChangesHasBeenApplied();
+        }
         public virtual void LoadFile()
         {
 #if DEBUG
-            if (FileName.Contains("HighScoresN"))
+            if (FileName.Contains("scoor"))
             {
             }
 #endif
@@ -201,6 +214,15 @@ namespace LingoEngine.Texts
             }
         }
 
+//        public void ApplyMemberChanges()
+//        {
+//#if DEBUG
+//            if (Name.Contains("scoor"))
+//            {
+//                _frameworkMember.ApplyMemberChanges();
+//            }
+//#endif
+//        }
 
         public virtual void Clear()
         {

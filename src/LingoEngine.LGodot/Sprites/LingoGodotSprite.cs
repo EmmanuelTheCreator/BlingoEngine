@@ -30,6 +30,7 @@ namespace LingoEngine.LGodot.Sprites
         private int _ink;
 
         internal LingoSprite LingoSprite => _lingoSprite;
+        internal Node? ChildMemberNode => _previousChildElementNode;
         internal bool IsDirty { get; set; } = true;
         internal bool IsDirtyMember { get; set; } = true;
         private float _x;
@@ -265,7 +266,7 @@ namespace LingoEngine.LGodot.Sprites
             
         }
 
-
+       
         private void UpdateMember()
         {
             if (!IsDirtyMember) return;
@@ -284,23 +285,40 @@ namespace LingoEngine.LGodot.Sprites
                     return;
                 case LingoMemberText textMember:
                     var godotElement = textMember.Framework<LingoGodotMemberText>();
-                    UpdateNodeMember(textMember, textMember.Framework<LingoGodotMemberText>().CloneForSpriteDraw());
+                    UpdateNodeMember(textMember, textMember.Framework<LingoGodotMemberText>().CreateForSpriteDraw());
                     break;
                 case LingoMemberField fieldMember:
                     var godotElementF = fieldMember.Framework<LingoGodotMemberField>();
-                    UpdateNodeMember(fieldMember, fieldMember.Framework<LingoGodotMemberField>().CloneForSpriteDraw());
+                    UpdateNodeMember(fieldMember, fieldMember.Framework<LingoGodotMemberField>().CreateForSpriteDraw());
                     break;
                 // all generice godot node base class members
                 case LingoMemberShape shape:
                     UpdateNodeMember(_lingoSprite.Member, (Node)shape.Framework<LingoGodotMemberShape>().CloneForSpriteDraw());
                     break;
             }
+            
             UpdateSprite2DName();
         }
-
+        public void ApplyMemberChanges()
+        {
+            switch (_lingoSprite.Member)
+            {
+                case LingoMemberBitmap pictureMember:
+                    return;
+                case LingoMemberText textMember:
+                    break;
+                case LingoMemberField fieldMember:
+                    //fieldMember.ApplyMemberChanges();
+                    break;
+                // all generice godot node base class members
+                case LingoMemberShape shape:
+                    break;
+            }
+        }
         private void RemoveLastChildElement()
         {
-            if (_previousChildElementNode != null) _Sprite2D.RemoveChild(_previousChildElementNode);
+            if (_previousChildElementNode != null) 
+                _Sprite2D.RemoveChild(_previousChildElementNode);
             _previousChildElementNode = null;
             _previousChildElement = null;
         }
@@ -308,7 +326,6 @@ namespace LingoEngine.LGodot.Sprites
         private void UpdateMemberPicture(LingoGodotMemberBitmap godotPicture)
         {
             godotPicture.Preload();
-
             // Set the texture using the ImageTexture from the picture member
             if (godotPicture.TextureGodot == null)
                 return;

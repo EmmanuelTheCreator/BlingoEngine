@@ -2,6 +2,7 @@ using System;
 using LingoEngine.Bitmaps;
 using LingoEngine.FilmLoops;
 using LingoEngine.SDL2.Inputs;
+using LingoEngine.Sprites;
 
 namespace LingoEngine.SDL2.Pictures;
 
@@ -17,7 +18,7 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
     {
         _member = member;
     }
-
+    public void ReleaseFromSprite(LingoSprite lingoSprite) { }
     public void Preload()
     {
         IsLoaded = true;

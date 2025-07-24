@@ -18,6 +18,13 @@ namespace LingoEngine.Tools
         }
         public static RtfBasicInfo? Parse(string rtfContent)
         {
+
+//#if DEBUG
+//            if (rtfContent.Contains("50"))
+//            {
+
+//            }
+//#endif
             string? fullText = null;
             // Match all inner blocks with font/color and text (non-nested, single-line format)
             var blockMatches = Regex.Matches(

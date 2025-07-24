@@ -1,10 +1,12 @@
 using LingoEngine.Members;
+using LingoEngine.Sprites;
 
 namespace LingoEngine.SDL2.Core;
 
 public class SdlFrameworkMemberEmpty : ILingoFrameworkMemberEmpty
 {
     public bool IsLoaded => true;
+    public void ReleaseFromSprite(LingoSprite lingoSprite) { }
     public void CopyToClipboard() { }
     public void Erase() { }
     public void ImportFileInto() { }

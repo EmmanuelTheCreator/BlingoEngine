@@ -1,6 +1,7 @@
 using Godot;
 using LingoEngine.Bitmaps;
 using LingoEngine.FilmLoops;
+using LingoEngine.Sprites;
 
 namespace LingoEngine.LGodot.Bitmaps
 {
@@ -23,7 +24,7 @@ namespace LingoEngine.LGodot.Bitmaps
         {
             _member = member;
         }
-
+        public void ReleaseFromSprite(LingoSprite lingoSprite) { }
         public void Preload()
         {
             IsLoaded = true;

@@ -352,6 +352,8 @@ When a movie stops, events occur in the following order:
                 if (actor is IHasEndSpriteEvent end) end.EndSprite();
                 _eventMediator.Unsubscribe(actor);
             }
+            // Release the old member link with this sprite
+            _Member?.ReleaseFromSprite(this);
             EndSprite();
         }
         protected virtual void EndSprite() { }
@@ -368,8 +370,8 @@ When a movie stops, events occur in the following order:
         public ILingoSprite SetMember(string memberName, int? castLibNum = null)
         {
             var member = _environment.GetMember<LingoMember>(memberName, castLibNum);
-            _Member = member ?? throw new Exception(Name + ":Member not found with name " + memberName);
-            SetMember(member);
+            var newMember = member ?? throw new Exception(Name + ":Member not found with name " + memberName);
+            SetMember(newMember);
             return this;
         }
 
@@ -377,12 +379,16 @@ When a movie stops, events occur in the following order:
         public ILingoSprite SetMember(int memberNumber, int? castLibNum = null)
         {
             var member = _environment.GetMember<LingoMember>(memberNumber, castLibNum);
-            _Member = member ?? throw new Exception(Name + ":Member not found with number: " + memberNumber);
-            SetMember(member);
+            
+            var newMember = member ?? throw new Exception(Name + ":Member not found with number: " + memberNumber);
+            SetMember(newMember);
             return this;
         }
         public ILingoSprite SetMember(ILingoMember? member)
         {
+            // Release the old member link with this sprite
+            if (member != _Member)
+                _Member?.ReleaseFromSprite(this);
             _Member = member as LingoMember;
             if (_Member != null)
             {
@@ -393,7 +399,7 @@ When a movie stops, events occur in the following order:
             MemberHasChanged();
             return this;
         }
-
+     
         private void MemberHasChanged()
         {
             var existingPlayer = _spriteActors.OfType<LingoFilmLoopPlayer>().FirstOrDefault();

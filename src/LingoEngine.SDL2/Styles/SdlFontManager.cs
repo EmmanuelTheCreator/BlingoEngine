@@ -30,4 +30,6 @@ internal class SdlFontManager : ILingoFontManager
     {
         throw new NotImplementedException();
     }
+
+    public IEnumerable<string> GetAllNames() => _loadedFonts.Keys;
 }

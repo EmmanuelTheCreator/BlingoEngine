@@ -13,7 +13,7 @@ namespace LingoEngine.LGodot.Texts
         public LingoGodotMemberField(ILingoFontManager lingoFontManager, ILogger<LingoGodotMemberField> logger) : base(lingoFontManager, logger)
         {
         }
-        internal Node CloneForSpriteDraw() => CloneForSpriteDraw(new LingoGodotMemberField(_fontManager, (ILogger<LingoGodotMemberField>)_logger));
+        internal Node CreateForSpriteDraw() => CreateForSpriteDraw(new LingoGodotMemberField(_fontManager, (ILogger<LingoGodotMemberField>)_logger));
 
 
     }

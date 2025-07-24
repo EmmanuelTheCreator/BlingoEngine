@@ -28,7 +28,6 @@ namespace LingoEngine.Texts.FrameworkCommunication
         int Height { get; set; }
 
 
-
         /// <summary>
         /// Copies the current selection to the clipboard.
         /// </summary>

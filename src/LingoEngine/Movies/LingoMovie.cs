@@ -245,7 +245,7 @@ namespace LingoEngine.Movies
                     _EventMediator.RaiseStartMovie();
 
                 _lingoMouse.UpdateMouseState();
-
+                _spriteManager.PreStepFrame();
                 _EventMediator.RaiseStepFrame();
                 _EventMediator.RaisePrepareFrame();
                 _EventMediator.RaiseEnterFrame();

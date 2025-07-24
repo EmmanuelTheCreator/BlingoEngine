@@ -11,6 +11,6 @@ namespace LingoEngine.LGodot.Texts
         public LingoGodotMemberText(ILingoFontManager lingoFontManager, ILogger<LingoGodotMemberText> logger) : base(lingoFontManager, logger)
         {
         }
-        internal Node CloneForSpriteDraw() => CloneForSpriteDraw(new LingoGodotMemberText(_fontManager, (ILogger<LingoGodotMemberText>)_logger));
+        internal Node CreateForSpriteDraw() => CreateForSpriteDraw(new LingoGodotMemberText(_fontManager, (ILogger<LingoGodotMemberText>)_logger));
     }
 }
