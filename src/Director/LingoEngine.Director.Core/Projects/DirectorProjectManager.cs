@@ -4,6 +4,10 @@ using LingoEngine.Movies;
 using LingoEngine.Projects;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
+using LingoEngine.Director.Core.Stages;
+using System.IO;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace LingoEngine.Director.Core.Projects;
 
@@ -16,12 +20,17 @@ public class DirectorProjectManager
     private readonly LingoPlayer _player;
     private readonly JsonStateRepository _repo = new();
     private readonly IDirectorWindowManager _windowManager;
+    private readonly DirectorProjectSettings _dirSettings;
+    private readonly DirectorStageGuides _guides;
+    private readonly DirectorProjectSettingsRepository _settingsRepo = new();
 
-    public DirectorProjectManager(LingoProjectSettings settings, LingoPlayer player, IDirectorWindowManager windowManager)
+    public DirectorProjectManager(LingoProjectSettings settings, LingoPlayer player, IDirectorWindowManager windowManager, DirectorProjectSettings dirSettings, DirectorStageGuides guides)
     {
         _settings = settings;
         _player = player;
         _windowManager = windowManager;
+        _dirSettings = dirSettings;
+        _guides = guides;
     }
 
     public void SaveMovie()
@@ -37,6 +46,8 @@ public class DirectorProjectManager
         Directory.CreateDirectory(_settings.ProjectFolder);
         var path = _settings.GetMoviePath(_settings.ProjectName);
         _repo.Save(path, movie);
+
+        SaveDirectorSettings();
     }
 
     public void LoadMovie()
@@ -52,5 +63,102 @@ public class DirectorProjectManager
 
         var movie = _repo.Load(path, _player);
         _player.SetActiveMovie(movie);
+
+        LoadDirectorSettings();
+    }
+
+    private void SaveDirectorSettings()
+    {
+        // Copy grid and guide settings
+        _dirSettings.GridColor = _guides.GridColor;
+        _dirSettings.GridVisible = _guides.GridVisible;
+        _dirSettings.GridSnap = _guides.GridSnap;
+        _dirSettings.GridWidth = _guides.GridWidth;
+        _dirSettings.GridHeight = _guides.GridHeight;
+
+        _dirSettings.GuidesColor = _guides.GuidesColor;
+        _dirSettings.GuidesVisible = _guides.GuidesVisible;
+        _dirSettings.GuidesSnap = _guides.GuidesSnap;
+        _dirSettings.GuidesLocked = _guides.GuidesLocked;
+
+        _dirSettings.VerticalGuides = _guides.VerticalGuides.ToList();
+        _dirSettings.HorizontalGuides = _guides.HorizontalGuides.ToList();
+
+        var states = new Dictionary<string, DirectorWindowState>();
+        if (_windowManager is DirectorWindowManager dm)
+        {
+            foreach (var (code, window) in dm.EnumerateRegistrations())
+            {
+                dynamic fw = window.FrameworkObj;
+                try
+                {
+                    int x = (int)fw.Position.X;
+                    int y = (int)fw.Position.Y;
+                    int w = (int)fw.Size.X;
+                    int h = (int)fw.Size.Y;
+                    states[code] = new DirectorWindowState { X = x, Y = y, Width = w, Height = h };
+                }
+                catch { }
+            }
+        }
+
+        _dirSettings.WindowStates = states;
+
+        var settingsPath = Path.Combine(_settings.ProjectFolder, _settings.ProjectName + ".director.json");
+        _settingsRepo.Save(settingsPath, _dirSettings);
+    }
+
+    private void LoadDirectorSettings()
+    {
+        var settingsPath = Path.Combine(_settings.ProjectFolder, _settings.ProjectName + ".director.json");
+        var loaded = _settingsRepo.Load(settingsPath);
+
+        // Copy into runtime settings object
+        _dirSettings.GuidesColor = loaded.GuidesColor;
+        _dirSettings.GuidesVisible = loaded.GuidesVisible;
+        _dirSettings.GuidesSnap = loaded.GuidesSnap;
+        _dirSettings.GuidesLocked = loaded.GuidesLocked;
+        _dirSettings.VerticalGuides = loaded.VerticalGuides.ToList();
+        _dirSettings.HorizontalGuides = loaded.HorizontalGuides.ToList();
+
+        _dirSettings.GridColor = loaded.GridColor;
+        _dirSettings.GridVisible = loaded.GridVisible;
+        _dirSettings.GridSnap = loaded.GridSnap;
+        _dirSettings.GridWidth = loaded.GridWidth;
+        _dirSettings.GridHeight = loaded.GridHeight;
+
+        _dirSettings.WindowStates = loaded.WindowStates;
+
+        // Apply to guides object
+        _guides.GridColor = _dirSettings.GridColor;
+        _guides.GridVisible = _dirSettings.GridVisible;
+        _guides.GridSnap = _dirSettings.GridSnap;
+        _guides.GridWidth = _dirSettings.GridWidth;
+        _guides.GridHeight = _dirSettings.GridHeight;
+
+        _guides.GuidesColor = _dirSettings.GuidesColor;
+        _guides.GuidesVisible = _dirSettings.GuidesVisible;
+        _guides.GuidesSnap = _dirSettings.GuidesSnap;
+        _guides.GuidesLocked = _dirSettings.GuidesLocked;
+
+        _guides.VerticalGuides.Clear();
+        foreach (var v in _dirSettings.VerticalGuides)
+            _guides.VerticalGuides.Add(v);
+        _guides.HorizontalGuides.Clear();
+        foreach (var h in _dirSettings.HorizontalGuides)
+            _guides.HorizontalGuides.Add(h);
+        _guides.Draw();
+
+        // Apply window states
+        if (_windowManager is DirectorWindowManager dm)
+        {
+            foreach (var (code, window) in dm.EnumerateRegistrations())
+            {
+                if (!_dirSettings.WindowStates.TryGetValue(code, out var st))
+                    continue;
+
+                window.SetPositionAndSize(st.X, st.Y, st.Width, st.Height);
+            }
+        }
     }
 }

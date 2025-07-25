@@ -215,6 +215,12 @@ namespace LingoEngine.Director.LGodot
         }
         public virtual void CloseWindow() => Visible = false;
         public virtual void MoveWindow(int x, int y) => Position = new Vector2(x, y);
+        public virtual void SetPositionAndSize(int x, int y, int width, int height)
+        {
+            Position = new Vector2(x, y);
+            Size = new Vector2(width, height);
+            CustomMinimumSize = Size;
+        }
 
         private void EnsureInBounds()
         {
