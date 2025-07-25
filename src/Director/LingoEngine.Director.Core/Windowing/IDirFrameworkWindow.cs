@@ -7,6 +7,7 @@ namespace LingoEngine.Director.Core.Windowing
         void OpenWindow();
         void CloseWindow();
         void MoveWindow(int x, int y);
+        void SetPositionAndSize(int x, int y, int width, int height);
 
     }
 }

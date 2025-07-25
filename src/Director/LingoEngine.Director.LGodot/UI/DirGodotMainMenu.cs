@@ -101,5 +101,10 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
     {
         // not allowed
     }
+
+    public void SetPositionAndSize(int x, int y, int width, int height)
+    {
+        // not allowed
+    }
     
 }

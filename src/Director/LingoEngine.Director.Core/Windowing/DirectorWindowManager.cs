@@ -97,6 +97,13 @@ namespace LingoEngine.Director.Core.Windowing
             SetActiveWindow(registration);
             return true;
         }
+
+        public IEnumerable<(string Code, IDirectorWindow Instance)> EnumerateRegistrations()
+        {
+            foreach (var kv in _windowRegistrations)
+                yield return (kv.Key, kv.Value.Instance);
+        }
+
         public bool CloseWindow(string windowCode)
         {
             if (!_windowRegistrations.TryGetValue(windowCode, out var registration)) return false;

@@ -17,6 +17,8 @@ namespace LingoEngine.Director.Core.Windowing
         public virtual void OpenWindow() => _Framework.OpenWindow();
         public virtual void CloseWindow() => _Framework.CloseWindow();
         public virtual void MoveWindow(int x, int y) => _Framework.MoveWindow(x, y);
+        public virtual void SetPositionAndSize(int x, int y, int width, int height)
+            => _Framework.SetPositionAndSize(x, y, width, height);
 
         public virtual void Dispose()
         {
