@@ -18,6 +18,7 @@ using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Tools;
 using LingoEngine.Director.Core.Windowing;
+using LingoEngine.Director.Core.Stages;
 using LingoEngine.Bitmaps;
 using static System.Net.Mime.MediaTypeNames;
 using LingoEngine.Casts;
@@ -33,6 +34,7 @@ namespace LingoEngine.Director.Core.Inspector
         {
             Movie,
             Sprite,
+            Guides,
             Behavior,
             Member,
             Bitmap,
@@ -58,6 +60,7 @@ namespace LingoEngine.Director.Core.Inspector
         private IDirectorEventMediator _mediator;
         private readonly IDirectorBehaviorDescriptionManager _descriptionManager;
         private readonly ILogger<DirectorPropertyInspectorWindow> _logger;
+        private readonly DirectorStageGuides _guides;
         private LingoGfxWrapPanel _behaviorPanel;
         private float _lastWidh;
         private float _lastHeight;
@@ -73,7 +76,7 @@ namespace LingoEngine.Director.Core.Inspector
 
         public record HeaderElements(LingoGfxPanel Panel, LingoGfxWrapPanel Header, DirectorMemberThumbnail Thumbnail);
 
-        public DirectorPropertyInspectorWindow(LingoPlayer player, ILingoCommandManager commandManager, ILingoFrameworkFactory factory, IDirectorIconManager iconManager, IDirectorEventMediator mediator, IDirectorBehaviorDescriptionManager descriptionManager, ILogger<DirectorPropertyInspectorWindow> logger)
+        public DirectorPropertyInspectorWindow(LingoPlayer player, ILingoCommandManager commandManager, ILingoFrameworkFactory factory, IDirectorIconManager iconManager, IDirectorEventMediator mediator, IDirectorBehaviorDescriptionManager descriptionManager, DirectorStageGuides guides, ILogger<DirectorPropertyInspectorWindow> logger)
         {
             _player = player;
             _commandManager = commandManager;
@@ -81,6 +84,7 @@ namespace LingoEngine.Director.Core.Inspector
             _iconManager = iconManager;
             _mediator = mediator;
             _descriptionManager = descriptionManager;
+            _guides = guides;
             _logger = logger;
             _mediator.Subscribe(this);
         }
@@ -196,6 +200,7 @@ namespace LingoEngine.Director.Core.Inspector
             {
                 case LingoSprite sp2:
                     AddSpriteTab(sp2);
+                    AddGuidesTab(_guides);
                     if (sp2.Member != null)
                         AddMemberTabs(sp2.Member);
                     if (_player.ActiveMovie != null)
@@ -531,6 +536,39 @@ namespace LingoEngine.Director.Core.Inspector
                    .Finalize();
             ;
             wrap.AddItem(rowChannels);
+        }
+
+        private void AddGuidesTab(DirectorStageGuides guides)
+        {
+            var wrap = AddTab(PropetyTabNames.Guides);
+            var guidesPanel = _factory.CreatePanel("GuidesPanel");
+            guidesPanel.Margin = new LingoMargin(5, 5, 0, 0);
+            guidesPanel.Compose(_factory)
+                   .Columns(4)
+                   .AddColorPicker("GuideColor", "Color:", guides, g => g.GuidesColor)
+                   .AddCheckBox("GuideVisible", "Visible:", guides, g => g.GuidesVisible)
+                   .AddCheckBox("GuideSnap", "SnapTo:", guides, g => g.GuidesSnap)
+                   .AddCheckBox("GuideLock", "Lock:", guides, g => g.GuidesLocked)
+                   .Finalize();
+            wrap.AddItem(guidesPanel);
+
+            var gridPanel = _factory.CreatePanel("GridPanel");
+            gridPanel.Margin = new LingoMargin(5, 5, 0, 0);
+            gridPanel.Compose(_factory)
+                   .Columns(4)
+                   .AddColorPicker("GridColor", "Color:", guides, g => g.GridColor)
+                   .AddCheckBox("GridVisible", "Visible:", guides, g => g.GridVisible)
+                   .AddCheckBox("GridSnap", "SnapTo:", guides, g => g.GridSnap)
+                   .NextRow()
+                   .AddButton("AddVerticalGuide", "Add vertical", () => guides.AddVertical(0), 2)
+                   .AddButton("AddHorizontalGuide", "Add horizontal", () => guides.AddHorizontal(0), 2)
+                   .NextRow()
+                   .AddButton("RemoveGuides", "Remove all", () => guides.RemoveAll(), 4)
+                   .NextRow()
+                   .AddNumericInput("GridWidth", "W:", guides, g => g.GridWidth)
+                   .AddNumericInput("GridHeight", "H:", guides, g => g.GridHeight)
+                   .Finalize();
+            wrap.AddItem(gridPanel);
         }
 
 
