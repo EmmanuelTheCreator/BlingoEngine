@@ -48,6 +48,7 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<DirectorCastWindow>()
                     .AddSingleton<DirectorScoreWindow>()
                     .AddSingleton<DirectorPropertyInspectorWindow>()
+                    .AddSingleton<DirectorStageGuides>()
                     .AddSingleton<DirectorBinaryViewerWindow>()
                     .AddSingleton<DirectorBinaryViewerWindowV2>()
                     .AddSingleton<DirectorStageWindow>()

@@ -49,6 +49,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
     private readonly SelectionBox _selectionBox = new SelectionBox();
     private readonly StageBoundingBoxesOverlay _boundingBoxes;
     private readonly StageSpriteSummaryOverlay _spriteSummary;
+    private readonly DirectorStageGuides _guides;
     private readonly IDirectorEventSubscription _stageChangedSubscription;
 
     private LingoMovie? _movie;
@@ -65,7 +66,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
     private bool _panning;
     private float _scale = 1f;
 
-    public DirGodotStageWindow(ILingoFrameworkStageContainer stageContainer, IDirectorEventMediator directorEventMediator, ILingoCommandManager commandManager, IHistoryManager historyManager, ILingoPlayer player, DirectorStageWindow directorStageWindow, IDirGodotWindowManager windowManager, IDirectorIconManager iconManager)
+    public DirGodotStageWindow(ILingoFrameworkStageContainer stageContainer, IDirectorEventMediator directorEventMediator, ILingoCommandManager commandManager, IHistoryManager historyManager, ILingoPlayer player, DirectorStageWindow directorStageWindow, DirectorStageGuides guides, IDirGodotWindowManager windowManager, IDirectorIconManager iconManager)
         : base(DirectorMenuCodes.StageWindow, "Stage", windowManager)
     {
         // TempFix
@@ -88,12 +89,16 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         {
             _spriteSummary = new StageSpriteSummaryOverlay(lp.Factory, _mediator, iconManager);
             _boundingBoxes = new StageBoundingBoxesOverlay(lp.Factory, _mediator);
+            _guides = guides;
+            _guides.Draw();
         }
         else
         {
             var p = (LingoPlayer)_player!;
             _spriteSummary = new StageSpriteSummaryOverlay(p.Factory, _mediator, iconManager);
             _boundingBoxes = new StageBoundingBoxesOverlay(p.Factory, _mediator);
+            _guides = guides;
+            _guides.Draw();
         }
 
 
@@ -136,8 +141,10 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
 
         var spriteSummaryCanvas = _spriteSummary.Canvas.Framework<LingoGodotGfxCanvas>();
         var boundingBoxesCanvas = _boundingBoxes.Canvas.Framework<LingoGodotGfxCanvas>();
+        var guidesCanvas = _guides.Canvas.Framework<LingoGodotGfxCanvas>();
         spriteSummaryCanvas.ZIndex = 1000;
         boundingBoxesCanvas.ZIndex = 1001;
+        guidesCanvas.ZIndex = 999;
         _selectionBox.ZIndex = 1002;
         _selectionBox.Visible = false;
         _stageContainer.Container.ZIndex = zIndexStageStart;
@@ -147,6 +154,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         _stageLayer.Name = "StageLayer";
         _stageLayer.AddChild(_stageBgRect);
         _stageLayer.AddChild(_stageContainer.Container);
+        _stageLayer.AddChild(guidesCanvas);
         _stageLayer.AddChild(spriteSummaryCanvas);
         _stageLayer.AddChild(_selectionBox);
 
