@@ -18,6 +18,7 @@ using LingoEngine.Director.LGodot.UI;
 using LingoEngine.LGodot.Gfx;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
+using static Godot.LinkButton;
 
 namespace LingoEngine.Director.LGodot.Casts;
 
@@ -224,10 +225,10 @@ internal partial class DirGodotTextableMemberWindow : BaseGodotWindow, IHasMembe
                 fs |= TextServer.FontStyle.Bold;
             if (_italicButton.IsOn)
                 fs |= TextServer.FontStyle.Italic;
-            variation.FontStyle = fs;
-            _textEdit.AddThemeFontOverride("font", variation);
+           // variation.FontStyle = fs;
+            //_textEdit.AddThemeFontOverride("font", variation);
         }
-        _textEdit.UnderlineMode = _underlineButton.IsOn ? UnderlineMode.Always : UnderlineMode.Disabled;
+        //_textEdit.UnderlineMode = _underlineButton.IsOn ? UnderlineMode.Always : UnderlineMode.Disabled;
     }
 
 

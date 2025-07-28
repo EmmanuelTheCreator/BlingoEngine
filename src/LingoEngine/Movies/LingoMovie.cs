@@ -240,6 +240,7 @@ namespace LingoEngine.Movies
                 }
 
                 _spriteManager.UpdateActiveSprites(_currentFrame, _lastFrame);
+                
                 _spriteManager.BeginSprites();
 
                 if (_needToRaiseStartMovie)
@@ -258,15 +259,13 @@ namespace LingoEngine.Movies
             finally
             {
                 _spriteManager.EndSprites();
+                
                 _isAdvancing = false;
             }
 
         }
 
-        private void DoEndSprite()
-        {
-            _spriteManager.EndSprites();
-        }
+     
 
         // Play the movie
         public void Play()
@@ -289,7 +288,7 @@ namespace LingoEngine.Movies
             _isPlaying = false;
             PlayStateChanged?.Invoke(false);
             _environment.Sound.StopAll();
-            _spriteManager.EndSprites();
+            //_spriteManager.EndSprites();
             _EventMediator.RaiseStopMovie();
             // EndSprite
             // StopMovie

@@ -1,6 +1,9 @@
 using System;
 using Microsoft.Extensions.Logging;
+using ProjectorRays.Common;
 using ProjectorRays.director;
+using ProjectorRays.director.Chunks;
+using ProjectorRays.Director;
 using ProjectorRays.IO;
 using Xunit;
 using Xunit.Abstractions;
