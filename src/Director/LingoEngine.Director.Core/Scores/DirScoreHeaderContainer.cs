@@ -66,7 +66,7 @@ namespace LingoEngine.Director.Core.Scores
         {
             var mouseX = mouse.MouseH - _position.X;
             var mouseY = mouse.MouseV - _position.Y;
-            Console.WriteLine("D:" + mouse.MouseH + "x" + mouse.MouseV + ":" + mouseX + "x" + mouseY);
+            //Console.WriteLine("D:" + mouse.MouseH + "x" + mouse.MouseV + ":" + mouseX + "x" + mouseY);
 
             if (mouseX >= _gfxValues.ChannelHeight + 2 || mouseY >= Height)
                 return;

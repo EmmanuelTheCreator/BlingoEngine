@@ -36,7 +36,7 @@ namespace LingoEngine.Movies
         private readonly LingoFrameManager _frameManager;
         private readonly LingoSprite2DManager _spriteManager;
         private bool _IsManualUpdateStage;
-        public event Action? SpriteListChanged;
+        public event Action? SpriteListChanged { add => _spriteManager.SpriteListChanged+=value;remove => _spriteManager.SpriteListChanged-=value; }
 
         private readonly LingoSpriteAudioManager _audioManager;
         private readonly LingoSpriteTransitionManager _transitionManager;

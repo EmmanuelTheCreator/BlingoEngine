@@ -29,11 +29,11 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
 
     private bool wasToggleKey;
     private LingoMovie? _movie;
-    private readonly ScrollContainer _vClipper = new ScrollContainer();
+    private readonly ScrollContainer _leftChannelsScollClipper = new();
     private readonly ScrollContainer _masterScroller = new ScrollContainer();
     private readonly Control _topStripContent = new Control();
     private readonly Control _scrollContent = new Control();
-    private ColorRect _hClipper;
+    private ColorRect _topHClipper;
     private LingoPlayer _player;
     private readonly DirScoreGfxValues _gfxValues = new();
     private readonly DirGodotScoreGrid _grid;
@@ -43,7 +43,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     private readonly DirGodotTopHeaderContainer _topHeaders;
     private readonly DirGodotTopGridContainer _topGrids;
     private readonly DirGodotScoreLabelsBar _labelBar;
-    private readonly DirGodotScoreChannelBar _channelBar;
+    private readonly DirGodotScoreLeftChannelHeaders _leftChannelsHeaders;
     private readonly CollapseButton _collapseButton;
     private readonly DirGodotScoreLeftForLabels _leftChannelForLabels;
     private readonly DirGodotScoreLeftForLabels _leftHeaderForFrames;
@@ -83,7 +83,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _topHeaders = new DirGodotTopHeaderContainer(_gfxValues, _player.Factory, Mouse,new Vector2(0, _gfxValues.ChannelHeight + 5));
         _topGrids = new DirGodotTopGridContainer(_gfxValues, _player.Factory, _mediator, commandManager);
         _topGrids.Visible = false;
-        _channelBar = new DirGodotScoreChannelBar(_gfxValues,_player.Factory,Mouse, new Vector2(0, _gfxValues.TopStripHeight - _footerMargin));
+        _leftChannelsHeaders = new DirGodotScoreLeftChannelHeaders(_gfxValues,_player.Factory,Mouse, new Vector2(0, _gfxValues.TopStripHeight - _footerMargin));
         _grid = new DirGodotScoreGrid(directorMediator, _gfxValues, commandManager, historyManager, _player.Factory);
         _mediator.Subscribe(_grid);
         _framesHeader = new DirGodotFrameHeader(_gfxValues);
@@ -113,7 +113,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _grid.Resized += UpdateScrollSize;
 
         // The top strip with clipper
-        _hClipper = new ColorRect
+        _topHClipper = new ColorRect
         {
             Color = new Color(0, 0, 0, 0),
             Size = new Vector2(Size.X - _gfxValues.ChannelInfoWidth, _gfxValues.TopStripHeight),
@@ -122,10 +122,10 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         };
         _topStripContent.SizeFlagsHorizontal = Control.SizeFlags.Fill;
         _topStripContent.SizeFlagsVertical = Control.SizeFlags.Fill;
-        _hClipper.AddChild(_topStripContent);
-        _hClipper.AddChild(_collapseButton);
-        _hClipper.AddChild(_topGrids);
-        _marginContainer.AddChild(_hClipper);
+        _topHClipper.AddChild(_topStripContent);
+        _topHClipper.AddChild(_collapseButton);
+        _topHClipper.AddChild(_topGrids);
+        _marginContainer.AddChild(_topHClipper);
         _marginContainer.AddChild(_topHeaders);
         _topStripContent.AddChild(_labelBar);
         _topStripContent.AddChild(_frameScripts);
@@ -135,12 +135,13 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
 
 
         // the vertical channel sprite numbers with visibility
-        _vClipper.HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled;
-        _vClipper.VerticalScrollMode = ScrollContainer.ScrollMode.ShowNever;
-        _vClipper.Size = new Vector2(_gfxValues.ChannelInfoWidth, Size.Y - _gfxValues.TopStripHeight - _footerMargin);
-        _vClipper.ClipContents = true;
-        _vClipper.AddChild(_channelBar);
-        _marginContainer.AddChild(_vClipper); 
+        _leftChannelsScollClipper.HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled;
+        _leftChannelsScollClipper.VerticalScrollMode = ScrollContainer.ScrollMode.ShowNever;
+        _leftChannelsScollClipper.Size = new Vector2(_gfxValues.ChannelInfoWidth, Size.Y - _gfxValues.TopStripHeight - _footerMargin);
+        _leftChannelsScollClipper.ClipContents = true;
+        _leftChannelsScollClipper.MouseFilter = MouseFilterEnum.Ignore;
+        _leftChannelsScollClipper.AddChild(_leftChannelsHeaders);
+        _marginContainer.AddChild(_leftChannelsScollClipper); 
 
        _topGrids.Position = new Vector2(0, _gfxValues.ChannelHeight + 5);
         OnHeaderCollapseChanged(false);
@@ -166,8 +167,8 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
 
         float topHeight = _framesHeader.Position.Y + 20;
         _masterScroller.Position = new Vector2(_gfxValues.ChannelInfoWidth, topHeight);
-        _vClipper.Position = new Vector2(0, topHeight);
-        _collapseButton.Position = new Vector2(_hClipper.Size.X - 16, 4);
+        _leftChannelsScollClipper.Position = new Vector2(0, topHeight);
+        _collapseButton.Position = new Vector2(_topHClipper.Size.X - 16, 4);
         _leftHeaderForFrames.Position = new Vector2(0, _framesHeader.Position.Y);
         _lastPosV = -1;
         UpdateScrollSize();
@@ -178,11 +179,38 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     {
         base._Process(delta);
         if (!Visible) return;
+        UpdatePositioScollPositionChanged();
+    }
+    public override void _UnhandledInput(InputEvent @event)
+    {
+        if (!IsActiveWindow) return;
+        if (@event is InputEventMouseButton mb && !mb.IsPressed())
+        {
+            if (mb.ButtonIndex is MouseButton.WheelUp or MouseButton.WheelDown)
+            {
+                var mousePos = GetGlobalMousePosition();
+                Rect2 bounds = new Rect2(new Vector2(_masterScroller.GlobalPosition.X- _gfxValues.ChannelInfoWidth, _masterScroller.GlobalPosition.Y), _masterScroller.Size);
+                if (bounds.HasPoint(mousePos))
+                {
+                    if (mb.ButtonIndex == MouseButton.WheelUp)
+                        _masterScroller.ScrollVertical -= 20;
+                    else
+                        _masterScroller.ScrollVertical += 20;
+                    _lastPosV = -1;
+                    UpdatePositioScollPositionChanged();
+                    GetViewport().SetInputAsHandled();
+                }
+            }
+        }
+    }
+    private void UpdatePositioScollPositionChanged()
+    {
         if (_lastPosV != _masterScroller.ScrollVertical)
         {
-            _lastPosV =_masterScroller.ScrollVertical;
+            _lastPosV = _masterScroller.ScrollVertical;
             var lastPos = new Vector2(0, -_masterScroller.ScrollVertical);
-            _channelBar.UpdatePosition(lastPos, _topHeight + _gfxValues.ChannelHeight);
+            _leftChannelsHeaders.UpdatePosition(lastPos, _topHeight + _gfxValues.ChannelHeight);
+            _leftChannelsScollClipper.ScrollVertical = _masterScroller.ScrollVertical;
         }
         _topStripContent.Position = new Vector2(-_masterScroller.ScrollHorizontal, _topStripContent.Position.Y);
         if (_topGrids.ScrollX != _masterScroller.ScrollHorizontal)
@@ -207,8 +235,8 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _scrollContent.CustomMinimumSize = new Vector2(gridWidth, gridHeight - _footerMargin);
         _topStripContent.CustomMinimumSize = new Vector2(gridWidth, topHeight + 20);
 
-        _vClipper.Size = new Vector2(_gfxValues.ChannelInfoWidth, Size.Y - topHeight - 20 - _footerMargin);
-        _hClipper.Size = new Vector2(Size.X - _gfxValues.ChannelInfoWidth, topHeight + 20);
+        _leftChannelsScollClipper.Size = new Vector2(_gfxValues.ChannelInfoWidth, Size.Y - topHeight - 20 - _footerMargin);
+        _topHClipper.Size = new Vector2(Size.X - _gfxValues.ChannelInfoWidth, topHeight + 20);
         _masterScroller.Size = new Vector2(Size.X - _gfxValues.ChannelInfoWidth, Size.Y - topHeight - 20 - _footerMargin);
     }
 
@@ -236,7 +264,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _frameScripts.SetMovie(movie);
         _topHeaders.SetMovie(movie);
         _topGrids.SetMovie(movie);
-        _channelBar.SetMovie(movie);
+        _leftChannelsHeaders.SetMovie(movie);
         _labelBar.SetMovie(movie);
         _labelBar.HeaderCollapsed = _topCollapsed;
         RepositionBars();
@@ -254,32 +282,13 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _topGrids.Dispose();
         _masterScroller.Dispose();
         //_hScroller.Dispose();
-        _channelBar.Dispose();
+        _leftChannelsHeaders.Dispose();
         _mediator.Unsubscribe(_grid);
         base.Dispose(disposing);
     }
 
-    public override void _UnhandledInput(InputEvent @event)
-    {
-        if (!IsActiveWindow) return;
-        if (@event is InputEventMouseButton mb && !mb.IsPressed())
-        {
-            if (mb.ButtonIndex is MouseButton.WheelUp or MouseButton.WheelDown)
-            {
-                var mousePos = GetGlobalMousePosition();
-                Rect2 bounds = new Rect2(_masterScroller.GlobalPosition, _masterScroller.Size);
-                if (bounds.HasPoint(mousePos))
-                {
-                    if (mb.ButtonIndex == MouseButton.WheelUp)
-                        _masterScroller.ScrollVertical -= 20;
-                    else
-                        _masterScroller.ScrollVertical += 20;
-                    _lastPosV = -1;
-                    GetViewport().SetInputAsHandled();
-                }
-            }
-        }
-    }
+
+    #region Commands
 
     public bool CanExecute(ChangeSpriteRangeCommand command) => true;
     public bool Handle(ChangeSpriteRangeCommand command)
@@ -344,9 +353,10 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         return true;
     }
 
- 
 
-   
+    #endregion
+
+
 
     internal partial class DirGodotScoreLeftForLabels : Control
     {
