@@ -1,3 +1,4 @@
+using LingoEngine.Events;
 using LingoEngine.Inputs;
 using LingoEngine.Inputs.Events;
 using LingoEngine.Movies;
@@ -35,7 +36,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             }
         }
 
-        public void MouseEnter(ILingoMouse mouse)
+        public void MouseEnter(LingoMouseEvent mouse)
         {
             if (!myLock)
             {
@@ -54,7 +55,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             }
         }
 
-        public void MouseLeave(ILingoMouse mouse)
+        public void MouseLeave(LingoMouseEvent mouse)
         {
             if (!myLock)
             {
@@ -73,7 +74,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             }
         }
 
-        public void MouseDown(ILingoMouse mouse)
+        public void MouseDown(LingoMouseEvent mouse)
         {
             if (!myLock && myEnableMouseClick)
             {

@@ -7,6 +7,7 @@ using LingoEngine.Primitives;
 using LingoEngine.SDL2.Primitives;
 using LingoEngine.SDL2.SDLL;
 using LingoEngine.Styles;
+using LingoEngine.Texts;
 
 namespace LingoEngine.SDL2.Gfx
 {
@@ -157,7 +158,7 @@ namespace LingoEngine.SDL2.Gfx
             });
         }
 
-        public void DrawText(LingoPoint position, string text, string? font = null, LingoColor? color = null, int fontSize = 12, int width = -1)
+        public void DrawText(LingoPoint position, string text, string? font = null, LingoColor? color = null, int fontSize = 12, int width = -1, LingoTextAlignment alignment = default)
         {
             UseTexture(() =>
             {

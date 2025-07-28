@@ -14,7 +14,7 @@ public sealed record AddSpriteCommand(
     int BeginFrame,
     int EndFrame) : ILingoCommand
 {
-    public Action ToUndo(LingoSprite sprite, Action refresh)
+    public Action ToUndo(LingoSprite2D sprite, Action refresh)
     {
         return () =>
         {

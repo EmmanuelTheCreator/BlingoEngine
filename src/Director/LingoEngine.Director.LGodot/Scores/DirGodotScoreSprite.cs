@@ -1,20 +1,18 @@
 using Godot;
 using LingoEngine.Sprites;
-using LingoEngine.Movies;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
-internal class DirGodotScoreSprite : DirGodotBaseSprite
+internal class DirGodotScoreSprite : DirGodotBaseSprite<LingoSprite2D>
 {
-    internal readonly LingoSprite Sprite;
-    internal readonly bool ShowLabel;
-    internal bool IsFrameBehaviour;
+    
+    internal bool ShowLabel { get;}
 
-    internal DirGodotScoreSprite(LingoSprite sprite, bool showLabel = true, bool isFrameBehaviour = false)
+    internal DirGodotScoreSprite(LingoSprite2D sprite, bool showLabel = true)
     {
-        Sprite = sprite;
+
         ShowLabel = showLabel;
-        IsFrameBehaviour = isFrameBehaviour;
+        Init(sprite);
     }
 
     internal override int BeginFrame { get => Sprite.BeginFrame; set => Sprite.BeginFrame = value; }
@@ -44,9 +42,5 @@ internal class DirGodotScoreSprite : DirGodotBaseSprite
         }
     }
 
-    internal override void DeleteFromMovie(LingoMovie movie)
-    {
-        // Removing a sprite removes it from movie timeline
-        Sprite.RemoveMe();
-    }
+    
 }

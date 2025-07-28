@@ -15,14 +15,14 @@ namespace LingoEngine.Stages
         bool RecordKeyframes { get; set; }
         int Width { get; set; }
 
-        void AddKeyFrame(LingoSprite sprite);
+        void AddKeyFrame(LingoSprite2D sprite);
         
         T Framework<T>() where T : class, ILingoFrameworkStage;
         ILingoFrameworkStage FrameworkObj();
-        LingoSpriteMotionPath? GetSpriteMotionPath(LingoSprite sprite);
-        LingoSprite? GetSpriteUnderMouse();
+        LingoSpriteMotionPath? GetSpriteMotionPath(LingoSprite2D sprite);
+        LingoSprite2D? GetSpriteUnderMouse();
         void SetActiveMovie(LingoMovie? lingoMovie);
-        void SetSpriteTweenOptions(LingoSprite sprite, bool positionEnabled, bool rotationEnabled, bool skewEnabled, bool foregroundColorEnabled, bool backgroundColorEnabled, bool blendEnabled, float curvature, bool continuousAtEnds, bool speedSmooth, float easeIn, float easeOut);
-        void UpdateKeyFrame(LingoSprite sprite);
+        void SetSpriteTweenOptions(LingoSprite2D sprite, bool positionEnabled, bool rotationEnabled, bool skewEnabled, bool foregroundColorEnabled, bool backgroundColorEnabled, bool blendEnabled, float curvature, bool continuousAtEnds, bool speedSmooth, float easeIn, float easeOut);
+        void UpdateKeyFrame(LingoSprite2D sprite);
     }
 }

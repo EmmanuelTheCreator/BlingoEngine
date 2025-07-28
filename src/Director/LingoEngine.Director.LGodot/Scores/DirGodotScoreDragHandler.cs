@@ -2,8 +2,6 @@
 using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Primitives;
-using LingoEngine.Director.Core.Stages;
-using System;
 using LingoEngine.Director.Core.Stages.Commands;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Sprites;
@@ -12,10 +10,21 @@ using LingoEngine.Director.Core.Scores;
 
 namespace LingoEngine.Director.LGodot.Scores
 {
-    internal sealed class DirGodotScoreDragHandler
+    internal interface IDirGodotScoreDragableZone<TSprite>
+         where TSprite : LingoSprite
+    {
+        bool HasDirtySprites { get; set; }
+
+        Vector2 GetLocalMousePosition();
+        void SelectSprite(DirGodotBaseSprite<TSprite>? sprite, bool raiseEvent = true);
+        void SpriteCanvasQueueRedraw();
+    }
+    internal sealed class DirGodotScoreDragHandler<TSprite, TSpriteGodot>
+        where TSprite : LingoSprite
+        where TSpriteGodot : DirGodotBaseSprite<TSprite>
     {
         private LingoMovie _movie;
-        private readonly DirGodotScoreGrid _grid;
+        private readonly IDirGodotScoreDragableZone<TSprite> _grid;
         private readonly ILingoCommandManager _commandManager;
         private bool _showPreview;
         private int _previewChannel;
@@ -25,12 +34,10 @@ namespace LingoEngine.Director.LGodot.Scores
         private Vector2 _dragStartPos;
         private Rect2? _spritePreviewRect;
         private int _previewBeginFrame = -1;
-        private ILingoSprite? _dragSprite;
+        private TSprite? _dragSprite;
         private bool _dragBegin;
         private bool _dragEnd;
         private bool _isSpriteDragMove = false;
-        private float _dragOffset = 0;
-        private float _dragStartY = 0;
         private const float DragThresholdSq = 16f;
         private int _previewBegin;
         private int _previewEnd;
@@ -41,7 +48,7 @@ namespace LingoEngine.Director.LGodot.Scores
 
         private ILingoMember? _previewMember;
         private readonly DirScoreGfxValues _gfxValues;
-        private readonly List<DirGodotScoreSprite> _sprites;
+        private readonly List<TSpriteGodot> _sprites;
 
         internal Rect2? SpritePreviewRect => _spritePreviewRect;
         internal bool ShowPreview => _showPreview;
@@ -50,7 +57,7 @@ namespace LingoEngine.Director.LGodot.Scores
         internal int PreviewEnd => _previewEnd;
 
 
-        public DirGodotScoreDragHandler(DirGodotScoreGrid grid, LingoMovie movie, DirScoreGfxValues gfxValues, List<DirGodotScoreSprite> sprites, ILingoCommandManager commandManager)
+        public DirGodotScoreDragHandler(IDirGodotScoreDragableZone<TSprite> grid, LingoMovie movie, DirScoreGfxValues gfxValues, List<TSpriteGodot> sprites, ILingoCommandManager commandManager)
         {
             _movie = movie;
             _grid = grid;
@@ -64,12 +71,8 @@ namespace LingoEngine.Director.LGodot.Scores
             _movie = movie;
         }
 
-        internal void HandleMouseButton(InputEventMouseButton mb)
+        internal void HandleMouseButton(InputEventMouseButton mb, Vector2 pos, int channel)
         {
-            Vector2 pos = _grid.GetLocalMousePosition();
-            int totalChannels = _movie!.MaxSpriteChannelCount;
-            int channel = (int)(pos.Y / _gfxValues.ChannelHeight);
-
             if (mb.ButtonIndex == MouseButton.Left)
             {
                 if (mb.Pressed)
@@ -83,10 +86,7 @@ namespace LingoEngine.Director.LGodot.Scores
                     _showPreview = false;
                 }
             }
-            else if (mb.ButtonIndex == MouseButton.Right && mb.Pressed)
-            {
-                _grid.TryOpenContextMenu(pos, channel);
-            }
+           
         }
         private void TryBeginInternalDrag(Vector2 pos, int channel)
         {
@@ -139,10 +139,9 @@ namespace LingoEngine.Director.LGodot.Scores
                     _isSpriteDragMove = true;
                     _isDraggingSprite = false;
                     _dragStartPos = pos;
-                    _dragStartY = pos.Y;
                     _dragStarted = false;
                     Input.SetDefaultCursorShape(Input.CursorShape.Drag);
-                    _grid.SpriteDirty = true;
+                    _grid.HasDirtySprites = true;
                 }
                 break;
             }
@@ -166,7 +165,7 @@ namespace LingoEngine.Director.LGodot.Scores
                     _dragSprite.EndFrame = newEnd;
                 }
                 if (originalChannel != newChannel || _origBegin != newBegin || _origEnd != newEnd)
-                    _commandManager.Handle(new ChangeSpriteRangeCommand(_movie, (LingoSprite)_dragSprite, _origChannel, _origBegin, _origEnd, newChannel, newBegin, newEnd));
+                    _commandManager.Handle(new ChangeSpriteRangeCommand(_movie, _dragSprite, _origChannel, _origBegin, _origEnd, newChannel, newBegin, newEnd));
             }
             else if ((_dragBegin || _dragEnd) && _dragSprite != null && _movie != null)
             {
@@ -174,7 +173,7 @@ namespace LingoEngine.Director.LGodot.Scores
                 int newBegin = _dragSprite.BeginFrame;
                 int newEnd = _dragSprite.EndFrame;
                 if (_origChannel != newChannel || _origBegin != newBegin || _origEnd != newEnd)
-                    _commandManager.Handle(new ChangeSpriteRangeCommand(_movie, (LingoSprite)_dragSprite, _origChannel, _origBegin, _origEnd, newChannel, newBegin, newEnd));
+                    _commandManager.Handle(new ChangeSpriteRangeCommand(_movie, _dragSprite, _origChannel, _origBegin, _origEnd, newChannel, newBegin, newEnd));
             }
 
             _dragSprite = null;
@@ -183,7 +182,7 @@ namespace LingoEngine.Director.LGodot.Scores
             _isDraggingSprite = false;
             _dragStarted = false;
             _spritePreviewRect = null;
-            _grid.SpriteDirty = true;
+            _grid.HasDirtySprites = true;
             Input.SetDefaultCursorShape(Input.CursorShape.Arrow);
         }
 
@@ -251,12 +250,12 @@ namespace LingoEngine.Director.LGodot.Scores
                     _previewEnd = end;
                     _previewMember = member;
                     _showPreview = true;
-                    _grid.SpriteDirty = true;
+                    _grid.HasDirtySprites = true;
                 }
                 else
                 {
                     _showPreview = false;
-                    _grid.SpriteDirty = true;
+                    _grid.HasDirtySprites = true;
                 }
             }
         }
@@ -278,7 +277,7 @@ namespace LingoEngine.Director.LGodot.Scores
                 _dragSprite.EndFrame = Math.Max(Math.Min(newFrame, maxEnd), _dragSprite.BeginFrame);
             }
 
-            _grid.SpriteDirty = true;
+            _grid.HasDirtySprites = true;
         }
 
         private void UpdateSpriteDragPreview()

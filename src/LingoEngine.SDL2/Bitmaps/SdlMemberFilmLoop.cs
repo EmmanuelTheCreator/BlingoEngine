@@ -18,7 +18,7 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
     {
         _member = member;
     }
-    public void ReleaseFromSprite(LingoSprite lingoSprite) { }
+    public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
     public void Preload()
     {
         IsLoaded = true;

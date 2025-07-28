@@ -34,7 +34,7 @@ namespace LingoEngine.Core
 
 
         private readonly LingoKey _LingoKey;
-        private readonly LingoMouse _Mouse;
+        private readonly LingoStageMouse _Mouse;
         private readonly LingoStage _Stage;
         private readonly LingoSystem _System;
         private readonly LingoClock _clock;
@@ -48,6 +48,7 @@ namespace LingoEngine.Core
         
         /// <inheritdoc/>
         public ILingoSound Sound => _sound;
+        public ILingoStageMouse Mouse => _Mouse;
 
 
         /// <inheritdoc/>

@@ -2,6 +2,7 @@
 using System.Net.NetworkInformation;
 using System.Numerics;
 using System;
+using System.Threading.Channels;
 
 namespace LingoEngine.Sounds
 {
@@ -73,7 +74,7 @@ namespace LingoEngine.Sounds
         int Volume { get; set; }
         /// <summary>
         /// Sound Channel method; causes the currently looping sound in channel soundChannelObjRef to stop looping and play through to its endTime.
-        /// If there is no current loop, this method has no effect
+        /// If there is no current loop, this method has no effect.  Values range from 0 to 255.
         /// </summary>
         void BreakLoop();
         /// <summary>
@@ -146,6 +147,7 @@ namespace LingoEngine.Sounds
     {
         private Queue<LingoPlayListSound> _playlist = new();
         private int _currentLoop;
+        private bool mute;
         private readonly ILingoFrameworkSoundChannel _frameworkSoundChannel;
         public T FrameworkObj<T>() where T : ILingoFrameworkSoundChannel => (T)_frameworkSoundChannel;
 
@@ -181,6 +183,13 @@ namespace LingoEngine.Sounds
         /// <inheritdoc/>
         public float PreloadTime { get; set; }
         public float CurrentTime { get => _frameworkSoundChannel.CurrentTime; set => _frameworkSoundChannel.CurrentTime = value; }
+        public bool Mute { get => mute;
+            set
+            {
+                mute = value;
+                Volume = !value ? 255 : 0;
+            }
+        }
 
         public LingoSoundChannel(ILingoFrameworkSoundChannel frameworkSoundChannel, int number)
         {

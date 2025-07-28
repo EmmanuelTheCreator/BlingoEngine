@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using LingoEngine.Casts;
+using LingoEngine.ColorPalettes;
 using LingoEngine.Core;
 using LingoEngine.Members;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
+using LingoEngine.Tempos;
+using LingoEngine.Transitions;
 
 namespace LingoEngine.Movies
 {
@@ -49,9 +52,12 @@ namespace LingoEngine.Movies
         string About { get; set; } 
         string Copyright { get; set; } 
         string UserName { get; set; } 
-        string CompanyName { get; set; } 
+        string CompanyName { get; set; }
 
-
+        ILingoSpriteAudioManager Audio {get;}
+        ILingoSpriteTransitionManager Transitions {get;}
+        ILingoSpriteTempoManager Tempos {get;}
+        ILingoSpriteColorPaletteManager ColorPalettes { get; }
 
         /// <summary>
         /// Occurs when the play state changes. Parameter indicates whether the movie is now playing.
@@ -185,21 +191,14 @@ namespace LingoEngine.Movies
         /// Adds a new sprite by name to the next available channel.
         /// Lingo: new sprite
         /// </summary>
-        LingoSprite AddSprite(string name, Action<LingoSprite>? configure = null);
+        LingoSprite2D AddSprite(string name, Action<LingoSprite2D>? configure = null);
 
         /// <summary>
         /// Adds a new sprite to a specific sprite channel number.
         /// </summary>
-        LingoSprite AddSprite(int num, Action<LingoSprite>? configure = null);
-        LingoSprite AddFrameBehavior<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour = null, Action<LingoSprite>? configure = null) where TBehaviour : LingoSpriteBehavior;
-        LingoSprite AddSprite(int num, int begin, int end, float x, float y, Action<LingoSprite>? configure = null);
-        /// <summary>
-        /// Adds a new sprite to a specific sprite channel number.
-        /// </summary>
-        T AddSprite<T>(int num, Action<LingoSprite>? configure = null) where T : LingoSprite;
-        T AddSprite<T>(string name, Action<LingoSprite>? configure = null) where T : LingoSprite;
-
-        public T AddSprite<T>(int num, string name, Action<LingoSprite>? configure = null) where T : LingoSprite;
+        LingoSprite2D AddSprite(int num, Action<LingoSprite2D>? configure = null);
+        LingoSprite2D AddFrameBehavior<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour = null, Action<LingoSprite2D>? configure = null) where TBehaviour : LingoSpriteBehavior;
+        LingoSprite2D AddSprite(int num, int begin, int end, float x, float y, Action<LingoSprite2D>? configure = null);
 
         /// <summary>
         /// Removes a sprite from the score by name.
@@ -215,12 +214,12 @@ namespace LingoEngine.Movies
         /// <summary>
         /// Tries to get a sprite by name.
         /// </summary>
-        bool TryGetAllTimeSprite(string name, out ILingoSprite? sprite);
+        bool TryGetAllTimeSprite(string name, out LingoSprite2D? sprite);
 
         /// <summary>
         /// Tries to get a sprite by number.
         /// </summary>
-        bool TryGetAllTimeSprite(int number, out ILingoSprite? sprite);
+        bool TryGetAllTimeSprite(int number, out LingoSprite2D? sprite);
 
         /// <summary>
         /// Sets the member of a sprite using the member's name.
@@ -287,8 +286,8 @@ namespace LingoEngine.Movies
         /// </summary>
         IReadOnlyDictionary<int, string> MarkerList { get; }
 
-        IEnumerable<LingoSprite> GetSpritesAtPoint(float x, float y, bool skipLockedSprites = false);
-        LingoSprite? GetSpriteAtPoint(float x, float y, bool skipLockedSprites = false);
+        IEnumerable<LingoSprite2D> GetSpritesAtPoint(float x, float y, bool skipLockedSprites = false);
+        LingoSprite2D? GetSpriteAtPoint(float x, float y, bool skipLockedSprites = false);
 
 
         void SendSprite(string name, Action<ILingoSpriteChannel> actionOnSprite);
@@ -327,32 +326,6 @@ namespace LingoEngine.Movies
         int GetNextSpriteStart(int channel, int frame);
         int GetPrevSpriteEnd(int channel, int frame);
 
-        // Audio clips support
-        event Action? AudioClipListChanged;
-        IReadOnlyList<LingoMovieAudioClip> GetAudioClips();
-        LingoMovieAudioClip AddAudioClip(int channel, int frame, LingoMemberSound sound);
-        void MoveAudioClip(LingoMovieAudioClip clip, int newFrame);
-        void RemoveAudioClip(LingoMovieAudioClip clip);
-
-        // Tempo keyframes support
-        event Action? TempoKeyframesChanged;
-        IReadOnlyList<LingoTempoKeyframe> GetTempoKeyframes();
-        LingoTempoKeyframe AddTempoKeyFrame(int frame, int fps);
-        void MoveTempoKeyframe(int previousFrame, int newFrame);
-        void RemoveTempoKeyframe(int frame);
-
-        // Color palette keyframes support
-        event Action? ColorPaletteKeyframesChanged;
-        IReadOnlyList<LingoColorPaletteKeyframe> GetColorPaletteKeyframes();
-        LingoColorPaletteKeyframe AddColorPaletteKeyFrame(int frame, int paletteId);
-        void MoveColorPaletteKeyframe(int previousFrame, int newFrame);
-        void RemoveColorPaletteKeyframe(int frame);
-
-        // Transition keyframes support
-        event Action? TransitionKeyframesChanged;
-        IReadOnlyList<LingoTransitionKeyframe> GetTransitionKeyframes();
-        LingoTransitionKeyframe AddTransitionKeyFrame(int frame, int transitionId);
-        void MoveTransitionKeyframe(int previousFrame, int newFrame);
-        void RemoveTransitionKeyframe(int frame);
+       
     }
 }

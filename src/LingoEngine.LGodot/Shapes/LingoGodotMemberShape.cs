@@ -130,7 +130,7 @@ namespace LingoEngine.LGodot.Shapes
         }
 
 
-        public void ReleaseFromSprite(LingoSprite lingoSprite) { }
+        public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
 
         public void CopyToClipboard() { }
         public void Erase() { VertexList.Clear(); }

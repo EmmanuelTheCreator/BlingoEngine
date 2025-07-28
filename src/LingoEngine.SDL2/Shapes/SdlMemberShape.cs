@@ -28,6 +28,6 @@ namespace LingoEngine.SDL2.Shapes
         public void Unload() { IsLoaded = false; }
         public void Dispose() { }
 
-        public void ReleaseFromSprite(LingoSprite lingoSprite) { }
+        public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
     }
 }

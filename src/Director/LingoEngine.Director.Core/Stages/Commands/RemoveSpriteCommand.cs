@@ -7,5 +7,5 @@ namespace LingoEngine.Director.Core.Stages.Commands;
 /// <summary>
 /// Command for deleting a sprite from the score.
 /// </summary>
-public sealed record RemoveSpriteCommand(LingoMovie Movie, LingoSprite Sprite) : ILingoCommand;
+public sealed record RemoveSpriteCommand(LingoMovie Movie, LingoSprite2D Sprite) : ILingoCommand;
 

@@ -310,7 +310,7 @@ namespace LingoEngine.Members
             return _cast.Member[Number + numberOffset];
         }
 
-        internal virtual void ReleaseFromSprite(LingoSprite lingoSprite)
+        internal virtual void ReleaseFromSprite(LingoSprite2D lingoSprite)
         {
             FrameworkObj.ReleaseFromSprite(lingoSprite);
         }

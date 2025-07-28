@@ -1,4 +1,6 @@
 ﻿using Godot;
+using LingoEngine.FrameworkCommunication;
+using LingoEngine.Inputs;
 
 namespace LingoEngine.LGodot
 {
@@ -12,5 +14,11 @@ namespace LingoEngine.LGodot
             RootNode = rootNode;
             WithStageInWindow = withStageInWindow;
         }
+        public ILingoFrameworkMouse GetStageMouseNode(Func<LingoMouse> getMouse)
+        {
+            var godotInstance = new LingoGodotMouseArea(RootNode, new Lazy<LingoMouse>(() => getMouse()));
+            return godotInstance;
+        }
+
     }
 }

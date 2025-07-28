@@ -30,6 +30,6 @@ namespace LingoEngine.LGodot.Core
         public void Unload()
         {
         }
-        public void ReleaseFromSprite(LingoSprite lingoSprite) { }
+        public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
     }
 }

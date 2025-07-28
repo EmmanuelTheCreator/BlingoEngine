@@ -2,11 +2,24 @@
 
 namespace LingoEngine.Events
 {
+    public class LingoMouseEvent
+    {
+        public LingoMouseEvent(LingoMouse lingoMouse)
+        {
+            Mouse = lingoMouse;
+        }
+
+        public LingoMouse Mouse { get; }
+        public bool ContinuePropation { get; set; } = true;
+        public float MouseH => Mouse.MouseH;
+        public float MouseV => Mouse.MouseV;
+    }
+
     public interface ILingoMouseEventHandler
     {
-        void RaiseMouseDown(LingoMouse mouse);
-        void RaiseMouseUp(LingoMouse mouse);
-        void RaiseMouseMove(LingoMouse mouse);
+        void RaiseMouseDown(LingoMouseEvent mouse);
+        void RaiseMouseUp(LingoMouseEvent mouse);
+        void RaiseMouseMove(LingoMouseEvent mouse);
     }
     public interface ILingoMouseEventSubscription
     {
@@ -24,9 +37,9 @@ namespace LingoEngine.Events
             _release = release;
         }
 
-        public void DoMouseDown(LingoMouse mouse) => _target.RaiseMouseDown(mouse);
-        public void DoMouseUp(LingoMouse mouse) => _target.RaiseMouseUp(mouse);
-        public void DoMouseMove(LingoMouse mouse) => _target.RaiseMouseMove(mouse);
+        public void DoMouseDown(LingoMouseEvent mouse) => _target.RaiseMouseDown(mouse);
+        public void DoMouseUp(LingoMouseEvent mouse) => _target.RaiseMouseUp(mouse);
+        public void DoMouseMove(LingoMouseEvent mouse) => _target.RaiseMouseMove(mouse);
 
         public void Release()
         {

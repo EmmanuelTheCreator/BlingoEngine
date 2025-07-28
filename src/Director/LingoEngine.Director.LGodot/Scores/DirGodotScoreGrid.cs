@@ -10,7 +10,7 @@ using LingoEngine.LGodot.Gfx;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
-internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent
+internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent, IDirGodotScoreDragableZone<LingoSprite2D>
 {
     private LingoMovie? _movie;
 
@@ -21,10 +21,9 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent
     /// <summary>
     /// Currently selected sprite, if any.
     /// </summary>
-    internal LingoSprite? SelectedSprite => _selected?.Sprite;
+    internal LingoSprite2D? SelectedSprite => _selected?.Sprite;
     private readonly IDirectorEventMediator _mediator;
     private readonly ILingoCommandManager _commandManager;
-    private readonly IHistoryManager _historyManager;
     private readonly PopupMenu _contextMenu = new();
     private DirGodotScoreSprite? _contextSprite;
     private readonly DirScoreGfxValues _gfxValues;
@@ -34,12 +33,12 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent
     private readonly TextureRect _gridTexture = new();
     private readonly TextureRect _spriteTexture = new();
     private readonly SpriteCanvas _spriteCanvas;
-    private readonly DirGodotScoreDragHandler _dragHandler;
-    private bool _spriteDirty = true;
+    private readonly DirGodotScoreDragHandler<LingoSprite2D, DirGodotScoreSprite> _dragHandler;
+    private bool _hasDirtySprites = true;
     private bool _spriteListDirty;
     private int _lastFrame = -1;
     internal bool SpriteListDirty { get  => _spriteListDirty; set => _spriteListDirty = value; }
-    internal bool SpriteDirty { get => _spriteDirty; set => _spriteDirty = value; }
+    bool IDirGodotScoreDragableZone<LingoSprite2D>.HasDirtySprites { get => _hasDirtySprites; set => _hasDirtySprites = value; }
     internal Rect2? SpritePreviewRect => _dragHandler.SpritePreviewRect;
     internal bool ShowPreview => _dragHandler.ShowPreview;
     internal int PreviewChannel => _dragHandler.PreviewChannel;
@@ -59,7 +58,6 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent
         _gfxValues = gfxValues;
         _mediator = mediator;
         _commandManager = commandManager;
-        _historyManager = historyManager;
         _factory = factory;
         AddChild(_contextMenu);
         _contextMenu.IdPressed += OnContextMenuItem;
@@ -94,7 +92,7 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent
         AddChild(_spriteViewport);
         AddChild(_gridTexture);
         AddChild(_spriteTexture);
-        _dragHandler = new DirGodotScoreDragHandler(this,_movie, _gfxValues,_sprites, _commandManager);
+        _dragHandler = new DirGodotScoreDragHandler<LingoSprite2D, DirGodotScoreSprite>(this,_movie, _gfxValues,_sprites, _commandManager);
     }
 
     public void SetMovie(LingoMovie? movie)
@@ -115,13 +113,13 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent
         }
 
         UpdateViewportSize();
-        _spriteDirty = true;
+        _hasDirtySprites = true;
     }
 
     private void OnSpritesChanged()
     {
         _spriteListDirty = true;
-        _spriteDirty = true;
+        _hasDirtySprites = true;
         RefreshSprites();
     }
 
@@ -133,7 +131,7 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent
             int idx = 1;
             while (_movie.TryGetAllTimeSprite(idx, out var sp))
             {
-                _sprites.Add(new DirGodotScoreSprite((LingoSprite)sp));
+                _sprites.Add(new DirGodotScoreSprite(sp));
                 idx++;
             }
         }
@@ -148,7 +146,7 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent
             BuildSpriteList();
             UpdateViewportSize();
             _spriteListDirty = false;
-            _spriteDirty = true;
+            _hasDirtySprites = true;
         }
     }
 
@@ -159,8 +157,9 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent
         _spriteViewport.RenderTargetUpdateMode = SubViewport.UpdateMode.Once;
     }
 
-
-    internal void SelectSprite(DirGodotScoreSprite? sprite, bool raiseEvent = true)
+    public void SelectSprite(DirGodotBaseSprite<LingoSprite2D>? sprite, bool raiseEvent = true)
+        => SelectSprite(sprite as DirGodotScoreSprite, raiseEvent);
+    public void SelectSprite(DirGodotScoreSprite? sprite, bool raiseEvent = true)
     {
         if (_selected == sprite) return;
         if (_selected != null) _selected.Selected = false;
@@ -171,7 +170,7 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent
             if (raiseEvent)
                 _mediator.RaiseSpriteSelected(_selected.Sprite);
         }
-        _spriteDirty = true;
+        _hasDirtySprites = true;
     }
 
 
@@ -180,14 +179,22 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent
         if (!Visible || _movie == null) return;
 
         if (@event is InputEventMouseButton mb)
-            _dragHandler.HandleMouseButton(mb);
+        {
+            Vector2 pos = GetLocalMousePosition();
+            int totalChannels = _movie!.MaxSpriteChannelCount;
+            int channel = (int)(pos.Y / _gfxValues.ChannelHeight);
+            _dragHandler.HandleMouseButton(mb, pos, channel);
+            if (mb.ButtonIndex == MouseButton.Right && mb.Pressed)
+                TryOpenContextMenu(pos, channel);
+        }
         else if (@event is InputEventMouseMotion)
             _dragHandler.HandleMouseMotion();
+        
     }
-    internal void SpriteCanvasQueueRedraw() => _spriteCanvas.QueueRedraw();
+    void IDirGodotScoreDragableZone<LingoSprite2D>.SpriteCanvasQueueRedraw() => _spriteCanvas.QueueRedraw();
     internal void MarkSpriteDirty()
     {
-        _spriteDirty = true;
+        _hasDirtySprites = true;
         _spriteCanvas.QueueRedraw();
     }
 
@@ -334,10 +341,10 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent
             RefreshSprites();
         if (!Visible) return;
         int cur = _movie?.CurrentFrame ?? -1;
-        if (_spriteDirty || cur != _lastFrame)
+        if (_hasDirtySprites || cur != _lastFrame)
         {
             ForceRefreshSpriteViewPort();
-            _spriteDirty = false;
+            _hasDirtySprites = false;
             _lastFrame = cur;
             _spriteCanvas.QueueRedraw();
         }
@@ -348,8 +355,9 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent
             _dragHandler.HandleMouseMotion();
     }
 
-    public void SpriteSelected(ILingoSprite sprite)
+    public void SpriteSelected(ILingoSpriteBase sprite)
     {
+        if (!(sprite is ILingoSprite)) return;
         var match = _sprites.FirstOrDefault(x => x.Sprite == sprite);
         SelectSprite(match, false);
     }
@@ -399,5 +407,6 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent
         _spriteCanvas.QueueRedraw();
     }
 
+  
 }
 

@@ -28,7 +28,7 @@ namespace LingoEngine
                    .AddTransient<ILingoWindow>(p => p.GetRequiredService<LingoWindow>())
                    .AddTransient<ILingoClock>(p => p.GetRequiredService<LingoClock>())
                    .AddTransient<ILingoSystem>(p => p.GetRequiredService<LingoSystem>())
-                   .AddTransient<LingoSprite>()
+                   .AddTransient<LingoSprite2D>()
                    .AddTransient<ILingoMemberFactory, LingoMemberFactory>()
                    .AddTransient(p => new Lazy<ILingoMemberFactory>(() => p.GetRequiredService<ILingoMemberFactory>()))
                    .AddScoped<ILingoMovieEnvironment, LingoMovieEnvironment>()

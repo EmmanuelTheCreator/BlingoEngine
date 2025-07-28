@@ -23,13 +23,13 @@ namespace LingoEngine.LGodot.Sprites
         private readonly Action<LingoGodotSprite> _showMethod;
         private readonly Action<LingoGodotSprite> _removeMethod;
         private readonly Action<LingoGodotSprite> _hideMethod;
-        private readonly LingoSprite _lingoSprite;
+        private readonly LingoSprite2D _lingoSprite;
         private bool _wasShown;
 
         private CanvasItemMaterial _material = new();
         private int _ink;
 
-        internal LingoSprite LingoSprite => _lingoSprite;
+        internal LingoSprite2D LingoSprite => _lingoSprite;
         internal Node? ChildMemberNode => _previousChildElementNode;
         internal bool IsDirty { get; set; } = true;
         internal bool IsDirtyMember { get; set; } = true;
@@ -158,7 +158,7 @@ namespace LingoEngine.LGodot.Sprites
 
 
 #pragma warning disable CS8618
-        public LingoGodotSprite(LingoSprite lingoSprite, Node2D parentNode, Action<LingoGodotSprite> showMethod, Action<LingoGodotSprite> hideMethod, Action<LingoGodotSprite> removeMethod)
+        public LingoGodotSprite(LingoSprite2D lingoSprite, Node2D parentNode, Action<LingoGodotSprite> showMethod, Action<LingoGodotSprite> hideMethod, Action<LingoGodotSprite> removeMethod)
 #pragma warning restore CS8618
         {
             _parentNode2D = parentNode;

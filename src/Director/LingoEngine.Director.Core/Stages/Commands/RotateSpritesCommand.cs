@@ -7,8 +7,8 @@ using LingoEngine.Sprites;
 namespace LingoEngine.Director.Core.Stages.Commands
 {
     public sealed record RotateSpritesCommand(
-        IReadOnlyDictionary<LingoSprite, float> StartRotations,
-        IReadOnlyDictionary<LingoSprite, float> EndRotations) : ILingoCommand
+        IReadOnlyDictionary<LingoSprite2D, float> StartRotations,
+        IReadOnlyDictionary<LingoSprite2D, float> EndRotations) : ILingoCommand
     {
         public Action ToUndo(Action updateSelectionBox)
         {

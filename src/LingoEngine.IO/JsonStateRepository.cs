@@ -112,7 +112,7 @@ public class JsonStateRepository
 
         foreach (var sDto in dto.Sprites)
         {
-            var sprite = movie.AddSprite<LingoSprite>(sDto.SpriteNum, sDto.Name, s =>
+            var sprite = movie.AddSprite(sDto.SpriteNum, sDto.Name, s =>
             {
                 s.Puppet = sDto.Puppet;
                 s.Lock = sDto.Lock;
@@ -142,7 +142,7 @@ public class JsonStateRepository
             if (sDto.Animator != null)
             {
                 var animator = new LingoSpriteAnimator(sprite, movie.GetEnvironment());
-                var addActor = typeof(LingoSprite).GetMethod("AddActor", BindingFlags.NonPublic | BindingFlags.Instance);
+                var addActor = typeof(LingoSprite2D).GetMethod("AddActor", BindingFlags.NonPublic | BindingFlags.Instance);
                 addActor?.Invoke(sprite, new object[] { animator });
 
                 ApplyOptions(animator.Position.Options, sDto.Animator.PositionOptions);
@@ -296,7 +296,7 @@ public class JsonStateRepository
         };
     }
 
-    private static LingoSpriteDTO ToDto(LingoSprite sprite)
+    private static LingoSpriteDTO ToDto(LingoSprite2D sprite)
     {
         var dto = new LingoSpriteDTO
         {
@@ -341,17 +341,17 @@ public class JsonStateRepository
         return dto;
     }
 
-    private static IEnumerable<LingoSprite> GetAllSprites(LingoMovie movie)
+    private static IEnumerable<LingoSprite2D> GetAllSprites(LingoMovie movie)
     {
         var field = typeof(LingoMovie).GetField("_allTimeSprites", BindingFlags.NonPublic | BindingFlags.Instance);
-        if (field?.GetValue(movie) is IEnumerable<LingoSprite> sprites)
+        if (field?.GetValue(movie) is IEnumerable<LingoSprite2D> sprites)
             return sprites;
-        return Enumerable.Empty<LingoSprite>();
+        return Enumerable.Empty<LingoSprite2D>();
     }
 
-    private static IEnumerable<object> GetSpriteActors(LingoSprite sprite)
+    private static IEnumerable<object> GetSpriteActors(LingoSprite2D sprite)
     {
-        var field = typeof(LingoSprite).GetField("_spriteActors", BindingFlags.NonPublic | BindingFlags.Instance);
+        var field = typeof(LingoSprite2D).GetField("_spriteActors", BindingFlags.NonPublic | BindingFlags.Instance);
         if (field?.GetValue(sprite) is IEnumerable<object> actors)
             return actors;
         return Enumerable.Empty<object>();

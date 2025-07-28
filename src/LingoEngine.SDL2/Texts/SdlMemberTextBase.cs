@@ -53,5 +53,5 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     public void Preload() { IsLoaded = true; }
     public void Unload() { IsLoaded = false; }
 
-    public void ReleaseFromSprite(LingoSprite lingoSprite) { }
+    public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
 }

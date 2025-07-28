@@ -20,9 +20,7 @@ using LingoEngine.Tools;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.Stages;
 using LingoEngine.Bitmaps;
-using static System.Net.Mime.MediaTypeNames;
 using LingoEngine.Casts;
-using System.ComponentModel;
 using LingoEngine.Shapes;
 using Microsoft.Extensions.Logging;
 
@@ -145,7 +143,7 @@ namespace LingoEngine.Director.Core.Inspector
        
 
 
-        public void SpriteSelected(ILingoSprite sprite) => ShowObject(sprite);
+        public void SpriteSelected(ILingoSpriteBase sprite) => ShowObject(sprite);
         public void MemberSelected(ILingoMember member) => ShowObject(member);
 
         public void OnResizing(float width, float height)
@@ -171,7 +169,7 @@ namespace LingoEngine.Director.Core.Inspector
             var lastSelectedTab = Enum.Parse<PropetyTabNames>(_tabs.SelectedTabName);
             _tabs.ClearTabs();
             ILingoMember? member = null;
-            if (obj is LingoSprite sp)
+            if (obj is LingoSprite2D sp)
             {
                 if (lastSelectedTab == PropetyTabNames.Movie || lastSelectedTab == PropetyTabNames.Cast)
                     lastSelectedTab = PropetyTabNames.Sprite;
@@ -198,7 +196,7 @@ namespace LingoEngine.Director.Core.Inspector
             }
             switch (obj)
             {
-                case LingoSprite sp2:
+                case LingoSprite2D sp2:
                     AddSpriteTab(sp2);
                     AddGuidesTab(_guides);
                     if (sp2.Member != null)
@@ -244,7 +242,7 @@ namespace LingoEngine.Director.Core.Inspector
             }
         }
 
-        private void AddSpriteTab(LingoSprite sprite)
+        private void AddSpriteTab(LingoSprite2D sprite)
         {
             CreateBehaviorPanel();
             var wrapContainer = AddTab(PropetyTabNames.Sprite);
@@ -272,7 +270,7 @@ namespace LingoEngine.Director.Core.Inspector
                    .AddNumericInput("SpriteBottom", "B:", sprite, s => s.Bottom)
                    .AddNumericInput("SpriteWidth", "W:", sprite, s => s.Width)
                    .AddNumericInput("SpriteHeight", "H:", sprite, s => s.Height, inputSpan: 5)
-                   .AddEnumInput<LingoSprite,LingoInkType>("SpriteInk", "Ink:", sprite, s => s.Ink, inputSpan: 6)
+                   .AddEnumInput<LingoSprite2D,LingoInkType>("SpriteInk", "Ink:", sprite, s => s.Ink, inputSpan: 6)
                    .AddNumericInput("SpriteBlend", "%", sprite, s => s.Blend, showLabel: false)
                    .AddNumericInput("SpriteBeginFrame", "StartFrame:", sprite, s => s.BeginFrame, labelSpan: 3)
                    .AddNumericInput("SpriteEndFrame", "End:", sprite, s => s.EndFrame, inputSpan: 1, labelSpan: 3)

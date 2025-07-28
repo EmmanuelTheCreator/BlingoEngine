@@ -1,19 +1,46 @@
 ﻿using LingoEngine.Casts;
 using LingoEngine.Members;
+using LingoEngine.Movies;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.Sprites
 {
     /// <summary>
-    /// Represents a sprite in the score with visual, timing, and behavioral properties.
+    /// Represents a base sprite in the score.
     /// Mirrors Lingo’s sprite object functionality.
     /// </summary>
-    public interface ILingoSprite
+    public interface ILingoSpriteBase
     {
         /// <summary>
         /// The frame number at which the sprite appears. Read/write.
         /// </summary>
         int BeginFrame { get; set; }
+        /// <summary>
+        /// The frame number at which the sprite stops displaying. Read/write.
+        /// </summary>
+        int EndFrame { get; set; }
+        /// <summary>
+        /// Returns or sets the name of the sprite.
+        /// </summary>
+        string Name { get; set; }
+
+        /// <summary>
+        /// The unique index number of the sprite in the score. Read-only.
+        /// </summary>
+        int SpriteNum { get; }
+
+        bool Puppet { get; set; }
+
+
+    }
+
+    /// <summary>
+    /// Represents a sprite in the score with visual, timing, and behavioral properties.
+    /// Mirrors Lingo’s sprite object functionality.
+    /// </summary>
+    public interface ILingoSprite : ILingoSpriteBase
+    {
+       
 
         /// <summary>
         /// Background color for the sprite. Read/write.
@@ -40,10 +67,7 @@ namespace LingoEngine.Sprites
         /// </summary>
         bool Editable { get; set; }
 
-        /// <summary>
-        /// The frame number at which the sprite stops displaying. Read/write.
-        /// </summary>
-        int EndFrame { get; set; }
+       
 
         /// <summary>
         /// Foreground color of the sprite, often used in text. Read/write.
@@ -96,11 +120,7 @@ namespace LingoEngine.Sprites
         /// </summary>
         string ModifiedBy { get; set; }
 
-        /// <summary>
-        /// Returns or sets the name of the sprite.
-        /// </summary>
-        string Name { get; set; }
-
+       
         /// <summary>
         /// The rectangular boundary of the sprite (top-left to bottom-right). Read/write.
         /// </summary>
@@ -189,10 +209,7 @@ namespace LingoEngine.Sprites
         /// </summary>
         int Size { get; }
 
-        /// <summary>
-        /// The unique index number of the sprite in the score. Read-only.
-        /// </summary>
-        int SpriteNum { get; }
+        
 
         /// <summary>
         /// Returns or sets a small thumbnail representation of the sprite’s media.
@@ -205,7 +222,7 @@ namespace LingoEngine.Sprites
         bool Visibility { get; set; }
         bool Lock { get; set; }
         int MemberNum { get; }
-        bool Puppet { get; set; }
+        
 
 
         /// <summary>

@@ -47,7 +47,7 @@ namespace LingoEngine.LGodot.Movies
                 godotSprite.Update();
         }
 
-        internal void CreateSprite<T>(T lingoSprite) where T : LingoSprite
+        internal void CreateSprite<T>(T lingoSprite) where T : LingoSprite2D
         {
             var godotSprite = new LingoGodotSprite(lingoSprite, _MovieNode2D, s =>
             {

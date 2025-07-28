@@ -58,7 +58,7 @@ namespace LingoEngine.FrameworkCommunication
         /// <summary>Creates a sound channel.</summary>
         LingoSoundChannel CreateSoundChannel(int number);
         /// <summary>Creates a mouse handler bound to the stage.</summary>
-        LingoMouse CreateMouse(LingoStage stage);
+        LingoStageMouse CreateMouse(LingoStage stage);
         /// <summary>Creates a keyboard handler.</summary>
         LingoKey CreateKey();
 
@@ -137,7 +137,7 @@ namespace LingoEngine.FrameworkCommunication
         #endregion
 
         /// <summary>Creates a sprite instance.</summary>
-        T CreateSprite<T>(ILingoMovie movie, Action<LingoSprite> onRemoveMe) where T : LingoSprite;
+        T CreateSprite<T>(ILingoMovie movie, Action<LingoSprite2D> onRemoveMe) where T : LingoSprite2D;
         /// <summary>Creates a sprite behaviour.</summary>
         T CreateBehavior<T>(LingoMovie lingoMovie) where T : LingoSpriteBehavior;
         /// <summary>Creates a movie script.</summary>

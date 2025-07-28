@@ -51,7 +51,7 @@ namespace LingoEngine.LGodot.Sounds
         public void PasteClipboardInto()
         {
         }
-        public void ReleaseFromSprite(LingoSprite lingoSprite) { }
+        public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
         public void Preload()
         {
             if (IsLoaded) return;

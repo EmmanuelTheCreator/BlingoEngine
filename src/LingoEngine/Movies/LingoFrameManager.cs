@@ -9,16 +9,14 @@ namespace LingoEngine.Movies
     {
         private readonly LingoMovieEnvironment _environment;
         private readonly LingoMovie _movie;
-        private readonly Action _raiseSpriteListChanged;
-        private readonly List<LingoSprite> _allTimeSprites;
+        private readonly List<LingoSprite2D> _allTimeSprites;
         private readonly Dictionary<string, int> _scoreLabels = new();
 
-        internal LingoFrameManager(LingoMovie movie, LingoMovieEnvironment environment, List<LingoSprite> allTimeSprites, Action raiseSpriteListChanged)
+        internal LingoFrameManager(LingoMovie movie, LingoMovieEnvironment environment, List<LingoSprite2D> allTimeSprites)
         {
             _movie = movie;
             _environment = environment;
             _allTimeSprites = allTimeSprites;
-            _raiseSpriteListChanged = raiseSpriteListChanged;
         }
 
         internal IReadOnlyDictionary<int, string> MarkerList =>

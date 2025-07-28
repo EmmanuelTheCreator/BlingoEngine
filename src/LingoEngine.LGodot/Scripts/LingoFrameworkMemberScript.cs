@@ -7,7 +7,7 @@ namespace LingoEngine.LGodot.Scripts
     internal class LingoFrameworkMemberScript : ILingoFrameworkMemberScript
     {
         public bool IsLoaded => true;
-        public void ReleaseFromSprite(LingoSprite lingoSprite) { }
+        public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
         public void CopyToClipboard()
         {
         }

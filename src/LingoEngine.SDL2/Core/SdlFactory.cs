@@ -156,7 +156,7 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
         return movie;
     }
 
-    public T CreateSprite<T>(ILingoMovie movie, Action<LingoSprite> onRemoveMe) where T : LingoSprite
+    public T CreateSprite<T>(ILingoMovie movie, Action<LingoSprite2D> onRemoveMe) where T : LingoSprite2D
     {
         var movieTyped = (LingoMovie)movie;
         var sprite = movieTyped.GetServiceProvider().GetRequiredService<T>();
@@ -171,10 +171,10 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
             d.Dispose();
     }
 
-    public LingoMouse CreateMouse(LingoStage stage)
+    public LingoStageMouse CreateMouse(LingoStage stage)
     {
         var mouseImpl = new SdlMouse(new Lazy<LingoMouse>(() => null!));
-        var mouse = new LingoMouse(stage, mouseImpl);
+        var mouse = new LingoStageMouse(stage, mouseImpl);
         mouseImpl.SetLingoMouse(mouse);
         return mouse;
     }

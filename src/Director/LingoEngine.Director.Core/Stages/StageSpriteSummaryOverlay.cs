@@ -39,15 +39,16 @@ public class StageSpriteSummaryOverlay : IHasSpriteSelectedEvent, IDisposable
     }
 
     /// <summary>Called when a sprite is selected.</summary>
-    public void SpriteSelected(ILingoSprite sprite)
+    public void SpriteSelected(ILingoSpriteBase sprite)
     {
-        DrawInfo(sprite);
+        if (sprite is ILingoSprite lingoSprite)
+            DrawInfo(lingoSprite);
     }
 
     private void DrawInfo(ILingoSprite sprite)
     {
         _canvas.Clear(LingoColorList.White);
-        if (sprite is not LingoSprite sp || sp.Member == null)
+        if (sprite is not LingoSprite2D sp || sp.Member == null)
         {
             _canvas.Visibility = false;
             return;

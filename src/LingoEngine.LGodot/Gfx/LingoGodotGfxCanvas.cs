@@ -5,6 +5,8 @@ using LingoEngine.LGodot.Primitives;
 using LingoEngine.Styles;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Bitmaps;
+using LingoEngine.Texts;
+using LingoEngine.LGodot.Texts;
 
 namespace LingoEngine.LGodot.Gfx
 {
@@ -29,7 +31,7 @@ namespace LingoEngine.LGodot.Gfx
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
         public float Y { get => Position.Y; set => Position = new Vector2(Position.X, value); }
         public float Width { get => Size.X; set => Size = new Vector2(value, Size.Y); }
-        public float Height { get => Size.Y; set => Size = new Vector2(Size.X, value); }
+        public float Height { get => Size.Y; set { Size = new Vector2(Size.X, value);CustomMinimumSize = Size; } }
         public bool Visibility { get => Visible; set => Visible = value; }
         public LingoMargin Margin
         {
@@ -127,7 +129,7 @@ namespace LingoEngine.LGodot.Gfx
             MarkDirty();
         }
 
-        public void DrawText(LingoPoint position, string text, string? font = null, LingoColor? color = null, int fontSize = 12, int width = -1)
+        public void DrawText(LingoPoint position, string text, string? font = null, LingoColor? color = null, int fontSize = 12, int width = -1, LingoTextAlignment alignment = LingoTextAlignment.Left)
         {
             Font fontGodot = _fontManager.Get<FontFile>(font ?? "") ?? ThemeDB.FallbackFont;
             Color col = color.HasValue ? color.Value.ToGodotColor() : Colors.Black;
@@ -135,7 +137,7 @@ namespace LingoEngine.LGodot.Gfx
             if (!text.Contains('\n'))
             {
                 int w = width >= 0 ? width : -1;
-                _drawActions.Add(() => DrawString(fontGodot, position.ToVector2(), text, HorizontalAlignment.Left, w, fontSize, col));
+                _drawActions.Add(() => DrawString(fontGodot, position.ToVector2(), text, alignment.ToGodot(), w, fontSize, col));
             }
             else
             {
@@ -147,7 +149,7 @@ namespace LingoEngine.LGodot.Gfx
                     {
                         Vector2 pos = new Vector2(position.X, position.Y + i * lineHeight);
                         int w = width >= 0 ? width : -1;
-                        DrawString(fontGodot, pos, lines[i], HorizontalAlignment.Left, w, fontSize, col);
+                        DrawString(fontGodot, pos, lines[i], alignment.ToGodot(), w, fontSize, col);
                     }
                 });
             }

@@ -8,11 +8,18 @@ namespace LingoEngine.FrameworkCommunication
     /// </summary>
     public interface ILingoFrameworkMouse
     {
+
         /// <summary>Shows or hides the mouse cursor.</summary>
         void HideMouse(bool state);
+
         /// <summary>Sets a custom cursor image.</summary>
         void SetCursor(LingoMemberBitmap image);
         /// <summary>Sets a predefined cursor shape.</summary>
         void SetCursor(LingoMouseCursor value);
+        /// <summary>
+        /// The framework object is beeing replaced , so release the old one.
+        /// </summary>
+        void Release();
+        void ReplaceMouseObj(LingoMouse lingoMouse);
     }
 }

@@ -1,4 +1,5 @@
 using System.Numerics;
+using LingoEngine.Events;
 using LingoEngine.Inputs;
 using LingoEngine.Inputs.Events;
 using LingoEngine.Movies;
@@ -26,7 +27,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             // Color handling is not implemented in the demo engine yet
         }
 
-        public void MouseDown(ILingoMouse mouse)
+        public void MouseDown(LingoMouseEvent mouse)
         {
             if (!myLock)
             {
@@ -35,7 +36,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             }
         }
 
-        public void MouseWithin(ILingoMouse mouse)
+        public void MouseWithin(LingoMouseEvent mouse)
         {
             if (!myLock)
             {
@@ -43,7 +44,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             }
         }
 
-        public void MouseExit(ILingoMouse mouse)
+        public void MouseExit(LingoMouseEvent mouse)
         {
             if (!myLock)
             {

@@ -54,13 +54,13 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
 
     private LingoMovie? _movie;
     private ILingoFrameworkStage? _stage;
-    private readonly List<LingoSprite> _selectedSprites = new();
+    private readonly List<LingoSprite2D> _selectedSprites = new();
     private readonly DirectorStageWindow _directorStageWindow;
     private readonly Node2D _stageLayer;
-    private LingoSprite? _primarySelectedSprite;
+    private LingoSprite2D? _primarySelectedSprite;
     private Vector2? _dragStart;
-    private Dictionary<LingoSprite, Primitives.LingoPoint>? _initialPositions;
-    private Dictionary<LingoSprite, float>? _initialRotations;
+    private Dictionary<LingoSprite2D, Primitives.LingoPoint>? _initialPositions;
+    private Dictionary<LingoSprite2D, float>? _initialRotations;
     private bool _rotating;
     private bool _spaceHeld;
     private bool _panning;
@@ -71,7 +71,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
     {
         // TempFix
         base.DontUseInputInsteadOfGuiInput();
-
+        
 
         _stageContainer = (LingoGodotStageContainer)stageContainer;
         _mediator = directorEventMediator;
@@ -84,24 +84,15 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         BackgroundColor = LingoColorList.Transparent;
         _mediator.Subscribe(this);
         _stageChangedSubscription = _mediator.Subscribe(DirectorEventType.StagePropertiesChanged, StagePropertyChanged);
-        var lp = _player as LingoPlayer;
-        if (lp != null)
-        {
-            _spriteSummary = new StageSpriteSummaryOverlay(lp.Factory, _mediator, iconManager);
-            _boundingBoxes = new StageBoundingBoxesOverlay(lp.Factory, _mediator);
-            _guides = guides;
-            _guides.Draw();
-        }
-        else
-        {
-            var p = (LingoPlayer)_player!;
-            _spriteSummary = new StageSpriteSummaryOverlay(p.Factory, _mediator, iconManager);
-            _boundingBoxes = new StageBoundingBoxesOverlay(p.Factory, _mediator);
-            _guides = guides;
-            _guides.Draw();
-        }
 
+        var lp = (LingoPlayer)_player;
+        ((LingoStageMouse)lp.Mouse).ReplaceFrameworkObj(_MouseFrameworkObj);
+        
 
+        _spriteSummary = new StageSpriteSummaryOverlay(lp.Factory, _mediator, iconManager);
+        _boundingBoxes = new StageBoundingBoxesOverlay(lp.Factory, _mediator);
+        _guides = guides;
+        _guides.Draw();
 
         Size = new Vector2(640 + 10, 480 + 5 + IconBarHeight + TitleBarHeight);
         CustomMinimumSize = Size;
@@ -391,10 +382,10 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         }
     }
 
-    public void SpriteSelected(ILingoSprite sprite)
+    public void SpriteSelected(ILingoSpriteBase sprite)
     {
         _selectedSprites.Clear();
-        if (!(sprite is LingoSprite ls))
+        if (!(sprite is LingoSprite2D ls))
             return;
         _selectedSprites.Add(ls);
         _primarySelectedSprite = ls;
@@ -521,7 +512,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         {
             Vector2 localPos = _stageContainer.Container.ToLocal(mb.Position);
             if (_movie == null) return;
-            var sprite = _movie.GetSpriteAtPoint(localPos.X, localPos.Y, skipLockedSprites: true) as LingoSprite;
+            var sprite = _movie.GetSpriteAtPoint(localPos.X, localPos.Y, skipLockedSprites: true) as LingoSprite2D;
             if (mb.Pressed)
             {
                 if (sprite != null)

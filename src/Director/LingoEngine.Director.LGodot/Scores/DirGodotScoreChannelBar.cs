@@ -1,66 +1,70 @@
-﻿using Godot;
+﻿using Godot;//
 using LingoEngine.Movies;
 using LingoEngine.Director.Core.Scores;
+using LingoEngine.FrameworkCommunication;
+using LingoEngine.Inputs;
+using LingoEngine.Primitives;
+using LingoEngine.Gfx;
+using LingoEngine.LGodot.Primitives;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
 internal partial class DirGodotScoreChannelBar : Control
 {
-
-    DirScoreGfxValues _gfxValues;
-
+    private DirScoreChannelsHeaderContainer _headerContainer;
+    private DirScoreGfxValues _gfxValues;
     private LingoMovie? _movie;
-    public DirGodotScoreChannelBar(DirScoreGfxValues gfxValues)
+
+
+    public DirGodotScoreChannelBar(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, ILingoMouse mouse, Vector2 position)
     {
+        Position = position;
         _gfxValues = gfxValues;
         ClipContents = true;
+        _headerContainer = new DirScoreChannelsHeaderContainer(gfxValues, factory, mouse, new LingoPoint(0, 0));
+        AddChild((Node)_headerContainer.FrameworkGfxNode.FrameworkNode);
     }
 
     public void SetMovie(LingoMovie? movie)
     {
         _movie = movie;
+        _headerContainer.SetMovie(movie);
+        Size = new Vector2(_gfxValues.ChannelInfoWidth, _headerContainer.Height);
+        CustomMinimumSize = new Vector2(_gfxValues.ChannelInfoWidth, _headerContainer.Height);
         QueueRedraw();
     }
 
     public override void _Draw()
     {
         if (_movie == null) return;
-
-        var font = ThemeDB.FallbackFont;
-        int channelCount = _movie.MaxSpriteChannelCount;
-
-        for (int c = 1; c < channelCount; c++)
-        {
-            float y = (c-1) * _gfxValues.ChannelHeight;
-            var ch = _movie.Channel(c);
-            Color vis = ch.Visibility ? Colors.LightGray : new Color(0.2f, 0.2f, 0.2f);
-
-            DrawRect(new Rect2(0, y, _gfxValues.ChannelInfoWidth, _gfxValues.ChannelHeight), new Color("#f0f0f0"));
-            DrawRect(new Rect2(2, y+2, _gfxValues.ChannelHeight-4, _gfxValues.ChannelHeight-4), vis);
-            DrawString(font, new Vector2(_gfxValues.ChannelHeight + 2, y + font.GetAscent() - 6),
-                (c ).ToString(), HorizontalAlignment.Left, -1, 11, new Color("#a0a0a0"));
-        }
+        _headerContainer.Draw();
     }
 
-    public override void _Process(double delta)
+    internal void UpdatePosition(Vector2 newPos, float topY)
     {
-        QueueRedraw();
+        Position = newPos;
+        _headerContainer.UpdatePosition(new LingoPoint(0, newPos.Y + topY));
     }
 
-    public override void _GuiInput(InputEvent @event)
-    {
-        if (_movie == null || !Visible) return;
+    //public override void _Process(double delta)
+    //{
+    //    QueueRedraw();
+    //}
 
-        if (@event is InputEventMouseButton mb && mb.Pressed && mb.ButtonIndex == MouseButton.Left)
-        {
-            Vector2 pos = GetLocalMousePosition()+ new Vector2(0, _gfxValues.ChannelHeight);
-            int channel = (int)(pos.Y / _gfxValues.ChannelHeight);
-            if (channel >= 0 && channel < _movie.MaxSpriteChannelCount && pos.X >= 0 && pos.X < _gfxValues.ChannelHeight)
-            {
-                var ch = _movie.Channel(channel);
-                ch.Visibility = !ch.Visibility;
-                QueueRedraw();
-            }
-        }
-    }
+    //public override void _GuiInput(InputEvent @event)
+    //{
+    //    if (_movie == null || !Visible) return;
+
+    //    if (@event is InputEventMouseButton mb && mb.Pressed && mb.ButtonIndex == MouseButton.Left)
+    //    {
+    //        Vector2 pos = GetLocalMousePosition()+ new Vector2(0, _gfxValues.ChannelHeight);
+    //        int channel = (int)(pos.Y / _gfxValues.ChannelHeight);
+    //        if (channel >= 0 && channel < _movie.MaxSpriteChannelCount && pos.X >= 0 && pos.X < _gfxValues.ChannelHeight)
+    //        {
+    //            var ch = _movie.Channel(channel);
+    //            ch.Visibility = !ch.Visibility;
+    //            QueueRedraw();
+    //        }
+    //    }
+    //}
 }

@@ -32,7 +32,7 @@ namespace LingoEngine.Core
 
         #region Global accessors
         protected ILingoPlayer _Player => _env.Player;
-        protected ILingoMouse _Mouse => _env.Mouse;
+        protected ILingoStageMouse _Mouse => _env.Mouse;
         protected ILingoKey _Key => _env.Key;
         protected ILingoSound _Sound => _env.Sound;
         /// <summary>

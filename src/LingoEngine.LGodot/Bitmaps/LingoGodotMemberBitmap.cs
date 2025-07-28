@@ -96,7 +96,7 @@ namespace LingoEngine.LGodot.Bitmaps
 
             UpdateImageData(_image);
         }
-        public void ReleaseFromSprite(LingoSprite lingoSprite) { }
+        public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
 
 
         private void UpdateImageData(Image image)

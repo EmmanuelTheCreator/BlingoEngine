@@ -92,11 +92,11 @@ namespace LingoEngine.Events
         internal void RaisePrepareMovie() => _prepareMovies.ForEach(x => x.PrepareMovie());
         internal void RaiseStartMovie() => _startMovies.ForEach(x => x.StartMovie());
         internal void RaiseStopMovie() => _stopMovies.ForEach(x => x.StopMovie());
-        public void RaiseMouseDown(LingoMouse mouse) => _mouseDowns.ForEach(x => x.MouseDown(mouse));
-        public void RaiseMouseUp(LingoMouse mouse) => _mouseUps.ForEach(x => x.MouseUp(mouse));
-        public void RaiseMouseMove(LingoMouse mouse) => _mouseMoves.ForEach(x => x.MouseMove(mouse));
-        internal void RaiseMouseEnter(ILingoMouse mouse) => _mouseEnters.ForEach(x => x.MouseEnter(mouse));
-        internal void RaiseMouseExit(ILingoMouse mouse) => _mouseExits.ForEach(x => x.MouseExit(mouse));
+        public void RaiseMouseDown(LingoMouseEvent mouse) => _mouseDowns.ForEach(x => x.MouseDown(mouse));
+        public void RaiseMouseUp(LingoMouseEvent mouse) => _mouseUps.ForEach(x => x.MouseUp(mouse));
+        public void RaiseMouseMove(LingoMouseEvent mouse) => _mouseMoves.ForEach(x => x.MouseMove(mouse));
+        internal void RaiseMouseEnter(LingoMouseEvent mouse) => _mouseEnters.ForEach(x => x.MouseEnter(mouse));
+        internal void RaiseMouseExit(LingoMouseEvent mouse) => _mouseExits.ForEach(x => x.MouseExit(mouse));
         //internal void RaiseBeginSprite() => _beginSprites.ForEach(x => x.BeginSprite());
         //internal void RaiseEndSprite() => _endSprites.ForEach(x => x.EndSprite());
         internal void RaiseStepFrame() => _stepFrames.ForEach(x => x.StepFrame());

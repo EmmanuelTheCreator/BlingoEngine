@@ -11,11 +11,11 @@ namespace LingoEngine.FilmLoops
     /// </summary>
     public class LingoFilmLoopPlayer : IPlayableActor
     {
-        private readonly LingoSprite _sprite;
+        private readonly LingoSprite2D _sprite;
         private readonly ILingoEventMediator _mediator;
         private int _currentIndex;
 
-        internal LingoFilmLoopPlayer(LingoSprite sprite, ILingoMovieEnvironment env)
+        internal LingoFilmLoopPlayer(LingoSprite2D sprite, ILingoMovieEnvironment env)
         {
             _sprite = sprite;
             _mediator = env.Events;

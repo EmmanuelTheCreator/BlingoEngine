@@ -1,14 +1,19 @@
 using Godot;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.LGodot.Windowing;
+using LingoEngine.Inputs;
+using LingoEngine.LGodot;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.Primitives;
+using System.Reflection.Metadata;
 
 namespace LingoEngine.Director.LGodot
 {
     public abstract partial class BaseGodotWindow : Panel
     {
+        protected LingoMouse Mouse { get; private set; }
         private readonly IDirGodotWindowManager _windowManager;
+        protected readonly LingoGodotMouse _MouseFrameworkObj;
         protected bool _dragging;
         protected bool _resizing;
         private readonly Label _label = new Label
@@ -36,7 +41,10 @@ namespace LingoEngine.Director.LGodot
             WindowName = name;
             WindowCode = windowCode;
             _windowManager = windowManager;
-            MouseFilter = MouseFilterEnum.Stop;
+            _MouseFrameworkObj = new LingoGodotMouse(new Lazy<LingoMouse>(() => Mouse!));
+            Mouse = new LingoMouse(_MouseFrameworkObj);
+            
+            //MouseFilter = MouseFilterEnum.Stop;
             FocusMode = FocusModeEnum.All;
             AddChild(_label);
             _label.Position = new Vector2(5, 1);
@@ -81,7 +89,7 @@ namespace LingoEngine.Director.LGodot
         }
 
 
-        private bool useGuiInput = true;
+        private bool useGuiInput = false;
         protected void DontUseInputInsteadOfGuiInput()
         {
             // todo : fix this
@@ -91,23 +99,40 @@ namespace LingoEngine.Director.LGodot
         public override void _Input(InputEvent @event)
         {
             base._Input(@event);
-            if (useGuiInput) return;
-            if (!_dragging && !_resizing && !GetGlobalRect().HasPoint(GetGlobalMousePosition()))
-                return;
-            HandleTheEvent(@event);
+            if (useGuiInput || !Visible) return;
+            //if (!_dragging && !_resizing && !GetGlobalRect().HasPoint(GetGlobalMousePosition()))
+            //    return;
+            OnHandleTheEvent(@event);
         }
         public override void _GuiInput(InputEvent @event)
         {
             base._GuiInput(@event);
-            if (!useGuiInput) return;
-            HandleTheEvent(@event);
+            if (!useGuiInput || !Visible) return;
+            OnHandleTheEvent(@event);
         }
-        private void HandleTheEvent(InputEvent @event)
-        { 
+        protected virtual void OnHandleTheEvent(InputEvent @event)
+        {
+            var isInsideRect = GetGlobalRect().HasPoint(GetGlobalMousePosition());
+            var mousePos = GetLocalMousePosition();
+            // Handle mouse button events (MouseDown and MouseUp)
+            if (@event is InputEventMouseButton mouseButtonEvent)
+            {
+                _MouseFrameworkObj.HandleMouseButtonEvent(mouseButtonEvent, isInsideRect, mousePos.X, mousePos.Y - TitleBarHeight);
+                //Console.WriteLine(Name + ":" + mousePos.X + "x" + mousePos.Y+":"+ isInsideRect);
+            }
+            // Handle Mouse Motion (MouseMove)
+            else if (@event is InputEventMouseMotion mouseMotionEvent)
+                _MouseFrameworkObj.HandleMouseMoveEvent(mouseMotionEvent, isInsideRect, mousePos.X, mousePos.Y - TitleBarHeight);
+            if (!_dragging && !_resizing)
+            {
+                if (!isInsideRect)
+                    return;
+            }
+
             if (@event is InputEventMouseButton mb)
             {
                 var pressed = mb.Pressed;
-                if (pressed)
+                if (pressed && isInsideRect)
                     _windowManager.SetActiveWindow(this);
                 else
                 {

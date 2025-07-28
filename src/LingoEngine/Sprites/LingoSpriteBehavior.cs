@@ -6,8 +6,8 @@ namespace LingoEngine.Sprites
 {
     public abstract class LingoSpriteBehavior : LingoScriptBase
     {
-        protected LingoSprite Me;
-        public LingoSprite GetSprite() => Me;
+        protected LingoSprite2D Me;
+        public LingoSprite2D GetSprite() => Me;
 
         /// <summary>
         /// Properties configured by the user via the property dialog.
@@ -22,7 +22,7 @@ namespace LingoEngine.Sprites
             Name = GetType().Name;
         }
 
-        internal void SetMe(LingoSprite sprite)
+        internal void SetMe(LingoSprite2D sprite)
         {
             Me = sprite;
         }

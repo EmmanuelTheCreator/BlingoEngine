@@ -18,10 +18,10 @@ public class StageBoundingBoxesOverlay : IHasSpriteSelectedEvent, ILingoMouseEve
 {
     private readonly LingoGfxCanvas _canvas;
     private readonly IDirectorEventMediator _mediator;
-    private ILingoMouse _mouse;
+    private ILingoStageMouse _mouse;
     private ILingoKey _key;
-    private readonly List<LingoSprite> _sprites = new();
-    private LingoSprite? _primary;
+    private readonly List<LingoSprite2D> _sprites = new();
+    private LingoSprite2D? _primary;
 
     public bool Visible { get => _canvas.Visibility; set => _canvas.Visibility = value; }
 
@@ -37,7 +37,7 @@ public class StageBoundingBoxesOverlay : IHasSpriteSelectedEvent, ILingoMouseEve
         Visible = false;
     }
 
-    public void SetInput(ILingoMouse mouse, ILingoKey key)
+    public void SetInput(ILingoStageMouse mouse, ILingoKey key)
     {
         if (_mouse != null)
             _mouse.Unsubscribe(this);
@@ -54,16 +54,16 @@ public class StageBoundingBoxesOverlay : IHasSpriteSelectedEvent, ILingoMouseEve
         _canvas.Dispose();
     }
 
-    public void SetSprites(IEnumerable<LingoSprite> sprites)
+    public void SetSprites(IEnumerable<LingoSprite2D> sprites)
     {
         _sprites.Clear();
         _sprites.AddRange(sprites);
         Draw();
     }
 
-    public void SpriteSelected(ILingoSprite sprite)
+    public void SpriteSelected(ILingoSpriteBase sprite)
     {
-        _primary = sprite as LingoSprite;
+        _primary = sprite as LingoSprite2D;
         if (_primary != null && !_sprites.Contains(_primary))
         {
             _sprites.Clear();
@@ -82,7 +82,7 @@ public class StageBoundingBoxesOverlay : IHasSpriteSelectedEvent, ILingoMouseEve
     private float _startLocH, _startLocV, _startWidth, _startHeight;
     private float _startMouseX, _startMouseY;
 
-    private void OnMouseDown(LingoMouse mouse)
+    private void OnMouseDown(LingoMouseEvent mouse)
     {
         if (_primary == null) return;
         var anchor = HitTest(mouse.MouseH, mouse.MouseV);
@@ -98,16 +98,16 @@ public class StageBoundingBoxesOverlay : IHasSpriteSelectedEvent, ILingoMouseEve
         }
     }
 
-    void ILingoMouseEventHandler.RaiseMouseDown(LingoMouse mouse) => OnMouseDown(mouse);
+    void ILingoMouseEventHandler.RaiseMouseDown(LingoMouseEvent mouse) => OnMouseDown(mouse);
 
-    private void OnMouseUp(LingoMouse mouse)
+    private void OnMouseUp(LingoMouseEvent mouse)
     {
         _dragAnchor = Anchor.None;
     }
 
-    void ILingoMouseEventHandler.RaiseMouseUp(LingoMouse mouse) => OnMouseUp(mouse);
+    void ILingoMouseEventHandler.RaiseMouseUp(LingoMouseEvent mouse) => OnMouseUp(mouse);
 
-    private void OnMouseMove(LingoMouse mouse)
+    private void OnMouseMove(LingoMouseEvent mouse)
     {
         if (_dragAnchor == Anchor.None || _primary == null) return;
         float dx = mouse.MouseH - _startMouseX;
@@ -165,7 +165,7 @@ public class StageBoundingBoxesOverlay : IHasSpriteSelectedEvent, ILingoMouseEve
         Draw();
     }
 
-    void ILingoMouseEventHandler.RaiseMouseMove(LingoMouse mouse) => OnMouseMove(mouse);
+    void ILingoMouseEventHandler.RaiseMouseMove(LingoMouseEvent mouse) => OnMouseMove(mouse);
 
     private Anchor HitTest(float x, float y)
     {

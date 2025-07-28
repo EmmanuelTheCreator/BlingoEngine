@@ -8,7 +8,7 @@ namespace LingoEngine.L3D.Core.Sprites;
 /// <summary>
 /// Sprite type that exposes basic 3D functionality.
 /// </summary>
-public class Lingo3DSprite : LingoSprite
+public class Lingo3DSprite : LingoSprite2D
 {
     private readonly List<LingoCamera> _cameras = new();
 

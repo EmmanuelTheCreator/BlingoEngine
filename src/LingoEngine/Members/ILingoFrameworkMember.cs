@@ -18,7 +18,7 @@ namespace LingoEngine.Members
         void ImportFileInto();
         void PasteClipboardInto();
         void Preload();
-        void ReleaseFromSprite(LingoSprite lingoSprite);
+        void ReleaseFromSprite(LingoSprite2D lingoSprite);
         void Unload();
     }
 }

@@ -45,9 +45,9 @@ namespace LingoEngine.Events
         void DoKeyUp(LingoKey key);
 
         // Mouse events
-        new void DoMouseDown(LingoMouse mouse);
-        new void DoMouseUp(LingoMouse mouse);
-        new void DoMouseMove(LingoMouse mouse);
+        new void DoMouseDown(LingoStageMouse mouse);
+        new void DoMouseUp(LingoStageMouse mouse);
+        new void DoMouseMove(LingoStageMouse mouse);
 
         // Movie Script Frame events
         void DoEnterFrame();
@@ -74,13 +74,13 @@ namespace LingoEngine.Events
         public void KeyUp(LingoKey key) => _subscriptions.ForEach(s => s.KeyUp(key));
 
         // Dispatch MouseDown event to all subscribers
-        public void MouseDown(LingoMouse mouse) => _subscriptions.ForEach(s => s.MouseDown(mouse));
+        public void MouseDown(LingoStageMouse mouse) => _subscriptions.ForEach(s => s.MouseDown(mouse));
 
         // Dispatch MouseUp event to all subscribers
-        public void MouseUp(LingoMouse mouse) => _subscriptions.ForEach(s => s.MouseUp(mouse));
+        public void MouseUp(LingoStageMouse mouse) => _subscriptions.ForEach(s => s.MouseUp(mouse));
 
         // Dispatch MouseMove event to all subscribers
-        public void MouseMove(LingoMouse mouse) => _subscriptions.ForEach(s => s.MouseMove(mouse));
+        public void MouseMove(LingoStageMouse mouse) => _subscriptions.ForEach(s => s.MouseMove(mouse));
 
         // Dispatch EnterFrame event to all subscribers
         public void EnterFrame() => _subscriptions.ForEach(s => s.EnterFrame());
@@ -99,9 +99,9 @@ namespace LingoEngine.Events
             }
             public void KeyDown(LingoKey key) => _target.DoKeyDown(key);
             public void KeyUp(LingoKey key) => _target.DoKeyUp(key);
-            public void MouseDown(LingoMouse mouse) => _target.DoMouseDown(mouse);
-            public void MouseUp(LingoMouse mouse) => _target.DoMouseUp(mouse);
-            public void MouseMove(LingoMouse mouse) => _target.DoMouseMove(mouse);
+            public void MouseDown(LingoStageMouse mouse) => _target.DoMouseDown(mouse);
+            public void MouseUp(LingoStageMouse mouse) => _target.DoMouseUp(mouse);
+            public void MouseMove(LingoStageMouse mouse) => _target.DoMouseMove(mouse);
             public void EnterFrame() => _target.DoEnterFrame();
             public void ExitFrame() => _target.DoExitFrame();
 

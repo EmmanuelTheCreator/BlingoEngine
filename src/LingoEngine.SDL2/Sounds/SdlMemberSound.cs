@@ -20,7 +20,7 @@ public class SdlMemberSound : ILingoFrameworkMemberSound, IDisposable
     }
     public void Dispose() { Unload(); }
 
-    public void ReleaseFromSprite(LingoSprite lingoSprite) { }
+    public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
     public void CopyToClipboard() { }
     public void Erase() { Unload(); }
     public void ImportFileInto() { }

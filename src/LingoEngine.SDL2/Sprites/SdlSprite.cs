@@ -14,14 +14,14 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
     private readonly Action<SdlSprite> _show;
     private readonly Action<SdlSprite> _hide;
     private readonly Action<SdlSprite> _remove;
-    private readonly LingoSprite _lingoSprite;
+    private readonly LingoSprite2D _lingoSprite;
     internal bool IsDirty { get; set; } = true;
     internal bool IsDirtyMember { get; set; } = true;
 
     private readonly nint _renderer;
     private nint _texture = nint.Zero;
 
-    public SdlSprite(LingoSprite sprite, nint renderer, Action<SdlSprite> show, Action<SdlSprite> hide, Action<SdlSprite> remove)
+    public SdlSprite(LingoSprite2D sprite, nint renderer, Action<SdlSprite> show, Action<SdlSprite> hide, Action<SdlSprite> remove)
     {
         _lingoSprite = sprite;
         _renderer = renderer;
@@ -218,10 +218,10 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
         {
             (int)LingoInkType.AddPin => SDL.SDL_BlendMode.SDL_BLENDMODE_ADD,
             (int)LingoInkType.Add => SDL.SDL_BlendMode.SDL_BLENDMODE_ADD,
-            (int)LingoInkType.SubPin => _subtractBlend,
-            (int)LingoInkType.Sub => _subtractBlend,
-            (int)LingoInkType.Dark => SDL.SDL_BlendMode.SDL_BLENDMODE_MOD,
-            (int)LingoInkType.Light => _lightBlend,
+            //(int)LingoInkType.SubPin => _subtractBlend,
+            //(int)LingoInkType.Sub => _subtractBlend,
+            //(int)LingoInkType.Dark => SDL.SDL_BlendMode.SDL_BLENDMODE_MOD,
+            //(int)LingoInkType.Light => _lightBlend,
             _ => SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND,
         };
         if (_texture != nint.Zero)

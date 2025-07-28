@@ -35,10 +35,12 @@ namespace LingoEngine.LGodot.Core
     {
         private readonly List<IDisposable> _disposables = new List<IDisposable>();
         private readonly IServiceProvider _serviceProvider;
+        private readonly LingoGodotRootNode _lingoRootNode;
         private Node _rootNode;
 
         public GodotFactory(IServiceProvider serviceProvider, LingoGodotRootNode rootNode)
         {
+            _lingoRootNode= rootNode;
             _rootNode = rootNode.RootNode;
             _serviceProvider = serviceProvider;
         }
@@ -167,7 +169,7 @@ namespace LingoEngine.LGodot.Core
         /// <summary>
         /// Dependant on movie, because the behaviors are scoped and movie related.
         /// </summary>
-        public T CreateSprite<T>(ILingoMovie movie, Action<LingoSprite> onRemoveMe) where T : LingoSprite
+        public T CreateSprite<T>(ILingoMovie movie, Action<LingoSprite2D> onRemoveMe) where T : LingoSprite2D
         {
             var movieTyped = (LingoMovie)movie;
             var lingoSprite = movieTyped.GetServiceProvider().GetRequiredService<T>();
@@ -182,11 +184,11 @@ namespace LingoEngine.LGodot.Core
                 disposable.Dispose();
         }
 
-        public LingoMouse CreateMouse(LingoStage stage)
+        public LingoStageMouse CreateMouse(LingoStage stage)
         {
-            LingoMouse? mouse = null;
-            var godotInstance = new LingoGodotMouse(_rootNode, new Lazy<LingoMouse>(() => mouse!));
-            mouse = new LingoMouse(stage, godotInstance);
+            LingoStageMouse? mouse = null;
+            var godotInstance = _lingoRootNode.GetStageMouseNode(() => mouse!);
+            mouse = new LingoStageMouse(stage, godotInstance);
             return mouse;
         }
 

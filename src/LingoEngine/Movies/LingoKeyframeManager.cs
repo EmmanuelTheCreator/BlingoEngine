@@ -1,25 +1,23 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using LingoEngine.Animations;
 
 namespace LingoEngine.Movies;
 
 /// <summary>
 /// Generic helper to manage lists of keyframes with integer frames and values.
 /// </summary>
-internal abstract class LingoKeyframeManager<TKeyframe, TValue>
-    where TKeyframe : ILingoKeyframe
+internal abstract class LingoKeyframeManager<TKeyFrame, TValue>
+    where TKeyFrame : LingoKeyframe
 {
-    private readonly List<TKeyframe> _keyframes = new();
+    private readonly List<TKeyFrame> _keyframes = new();
 
     public event Action? KeyframesChanged;
 
-    public IReadOnlyList<TKeyframe> Keyframes => _keyframes;
+    public IReadOnlyList<TKeyFrame> Keyframes => _keyframes;
 
-    protected abstract void SetValue(TKeyframe kf, TValue value);
-    protected abstract TKeyframe Create(int frame, TValue value);
+    protected abstract void SetValue(TKeyFrame kf, TValue value);
+    protected abstract TKeyFrame Create(int frame, TValue value);
 
-    public TKeyframe Add(int frame, TValue value)
+    public TKeyFrame Add(int frame, TValue value)
     {
         var kf = _keyframes.FirstOrDefault(k => k.Frame == frame);
         if (kf == null)

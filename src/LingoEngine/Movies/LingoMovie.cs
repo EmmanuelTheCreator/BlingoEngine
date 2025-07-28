@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using LingoEngine.Casts;
+﻿using LingoEngine.Casts;
 using LingoEngine.Core;
 using LingoEngine.Events;
 using LingoEngine.Inputs;
@@ -11,6 +8,9 @@ using LingoEngine.Sprites;
 using LingoEngine.Stages;
 using LingoEngine.Projects;
 using LingoEngine.Primitives;
+using LingoEngine.Transitions;
+using LingoEngine.Tempos;
+using LingoEngine.ColorPalettes;
 
 namespace LingoEngine.Movies
 {
@@ -24,44 +24,24 @@ namespace LingoEngine.Movies
         private readonly LingoStage _stage;
         private readonly LingoStage _movieStage;
         private readonly Action<LingoMovie> _onRemoveMe;
-        private readonly LingoMouse _lingoMouse;
+        private readonly LingoStageMouse _lingoMouse;
         private readonly LingoClock _lingoClock;
         private int _currentFrame = 0;
         private int _NextFrame = -1;
         private int _lastFrame = 0;
         private bool _isPlaying = false;
-        private int _tempo = 30;  // Default frame rate (FPS)
+        
         private bool _needToRaiseStartMovie = false;
         private LingoCastLibsContainer _castLibContainer;
         private readonly LingoFrameManager _frameManager;
-        private readonly LingoSpriteManager _spriteManager;
+        private readonly LingoSprite2DManager _spriteManager;
         private bool _IsManualUpdateStage;
         public event Action? SpriteListChanged;
-        public event Action? AudioClipListChanged;
-        public event Action? TempoKeyframesChanged
-        {
-            add => _tempoManager.KeyframesChanged += value;
-            remove => _tempoManager.KeyframesChanged -= value;
-        }
-        public event Action? ColorPaletteKeyframesChanged
-        {
-            add => _paletteManager.KeyframesChanged += value;
-            remove => _paletteManager.KeyframesChanged -= value;
-        }
-        public event Action? TransitionKeyframesChanged
-        {
-            add => _transitionManager.KeyframesChanged += value;
-            remove => _transitionManager.KeyframesChanged -= value;
-        }
-        private readonly List<LingoMovieAudioClip> _audioClips = new();
-        private readonly LingoTempoManager _tempoManager = new();
-        private readonly LingoColorPaletteManager _paletteManager = new();
-        private readonly LingoTransitionManager _transitionManager = new();
 
-        private void RaiseSpriteListChanged()
-            => SpriteListChanged?.Invoke();
-        private void RaiseAudioClipListChanged()
-            => AudioClipListChanged?.Invoke();
+        private readonly LingoSpriteAudioManager _audioManager;
+        private readonly LingoSpriteTransitionManager _transitionManager;
+        private readonly LingoSpriteTempoManager _tempoManager;
+        private readonly LingoSpriteColorPaletteManager _paletteManager;
 
         // Movie Script subscriptions
         private readonly ActorList _actorList = new ActorList();
@@ -72,6 +52,11 @@ namespace LingoEngine.Movies
 
         public ILingoFrameworkMovie FrameworkObj => _FrameworkMovie;
         public T Framework<T>() where T : class, ILingoFrameworkMovie => (T)_FrameworkMovie;
+
+        public ILingoSpriteAudioManager Audio => _audioManager;
+        public ILingoSpriteTransitionManager Transitions => _transitionManager;
+        public ILingoSpriteTempoManager Tempos => _tempoManager;
+        public ILingoSpriteColorPaletteManager ColorPalettes => _paletteManager;
 
         public string Name { get; set; }
 
@@ -98,12 +83,8 @@ namespace LingoEngine.Movies
         // Tempo (Frame Rate)
         public int Tempo
         {
-            get => _tempo;
-            set
-            {
-                if (value > 0)
-                    _tempo = value;
-            }
+            get => _tempoManager.Tempo;
+            set => _tempoManager.ChangeTempo(value);
         } 
         public int MaxSpriteChannelCount
         {
@@ -135,11 +116,15 @@ namespace LingoEngine.Movies
             Number = number;
             _EventMediator = mediator;
             _MovieScripts = new(environment, mediator);
-            _lingoMouse = (LingoMouse)environment.Mouse;
+            _lingoMouse = (LingoStageMouse)environment.Mouse;
             _lingoClock = (LingoClock)environment.Clock;
-            _spriteManager = new LingoSpriteManager(this, environment, RaiseSpriteListChanged);
+            _spriteManager = new LingoSprite2DManager(this, environment);
             MaxSpriteChannelCount = projectSettings.MaxSpriteChannelCount;
-            _frameManager = new LingoFrameManager(this, environment, _spriteManager.AllTimeSprites, RaiseSpriteListChanged);
+            _frameManager = new LingoFrameManager(this, environment, _spriteManager.AllTimeSprites);
+            _audioManager = new LingoSpriteAudioManager(this, environment);
+            _transitionManager = new LingoSpriteTransitionManager(this, environment);
+            _tempoManager = new LingoSpriteTempoManager(this, environment);
+            _paletteManager = new LingoSpriteColorPaletteManager(this, environment);
         }
         public void Init(ILingoFrameworkMovie frameworkMovie)
         {
@@ -173,18 +158,16 @@ namespace LingoEngine.Movies
         public ILingoSpriteChannel Channel(int channelNumber) => _spriteManager.Channel(channelNumber);
         public void PuppetSprite(int number, bool isPuppetSprite) => _spriteManager.PuppetSprite(number, isPuppetSprite);
         public ILingoSpriteChannel GetActiveSprite(int number) => _spriteManager.GetActiveSprite(number);
-        public LingoSprite AddSprite(string name, Action<LingoSprite>? configure = null) => _spriteManager.AddSprite(name, configure);
-        public T AddSprite<T>(string name, Action<LingoSprite>? configure = null) where T : LingoSprite => _spriteManager.AddSprite<T>(name, configure);
-        public LingoSprite AddSprite(int num, Action<LingoSprite>? configure = null) => _spriteManager.AddSprite(num, configure);
-        public LingoSprite AddFrameBehavior<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour = null, Action<LingoSprite>? configure = null) where TBehaviour : LingoSpriteBehavior
+        public LingoSprite2D AddSprite(string name, Action<LingoSprite2D>? configure = null) => _spriteManager.AddSprite(name, configure);
+        public LingoSprite2D AddSprite(int num, Action<LingoSprite2D>? configure = null) => _spriteManager.AddSprite(num, configure);
+        public LingoSprite2D AddFrameBehavior<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour = null, Action<LingoSprite2D>? configure = null) where TBehaviour : LingoSpriteBehavior
             => _spriteManager.AddFrameBehavior(frameNumber, configureBehaviour, configure);
-        public LingoSprite AddSprite(int num, int begin, int end, float x, float y, Action<LingoSprite>? configure = null)
+        public LingoSprite2D AddSprite(int num,string name, Action<LingoSprite2D>? configure = null) => _spriteManager.AddSprite(num,name, configure);
+        public LingoSprite2D AddSprite(int num, int begin, int end, float x, float y, Action<LingoSprite2D>? configure = null)
             => _spriteManager.AddSprite(num, begin, end, x, y, configure);
-        public T AddSprite<T>(int num, Action<LingoSprite>? configure = null) where T : LingoSprite => _spriteManager.AddSprite<T>(num, configure);
-        public T AddSprite<T>(int num, string name, Action<LingoSprite>? configure = null) where T : LingoSprite => _spriteManager.AddSprite<T>(num, name, configure);
         public bool RemoveSprite(string name) => _spriteManager.RemoveSprite(name);
-        public bool TryGetAllTimeSprite(string name, out ILingoSprite? sprite) => _spriteManager.TryGetAllTimeSprite(name, out sprite);
-        public bool TryGetAllTimeSprite(int number, out ILingoSprite? sprite) => _spriteManager.TryGetAllTimeSprite(number, out sprite);
+        public bool TryGetAllTimeSprite(string name, out LingoSprite2D? sprite) => _spriteManager.TryGetAllTimeSprite(name, out sprite);
+        public bool TryGetAllTimeSprite(int number, out LingoSprite2D? sprite) => _spriteManager.TryGetAllTimeSprite(number, out sprite);
         public void SetSpriteMember(int number, string memberName) => _spriteManager.SetSpriteMember(number, memberName);
         public void SetSpriteMember(int number, int memberNumber) => _spriteManager.SetSpriteMember(number, memberNumber);
         public void SendSprite<T>(int spriteNumber, Action<T> actionOnSpriteBehaviour) where T : LingoSpriteBehavior => _spriteManager.SendSprite(spriteNumber, actionOnSpriteBehaviour);
@@ -198,10 +181,14 @@ namespace LingoEngine.Movies
         public int RollOver() => _spriteManager.RollOver();
         public int ConstrainH(int spriteNumber, int pos) => _spriteManager.ConstrainH(spriteNumber, pos);
         public int ConstrainV(int spriteNumber, int pos) => _spriteManager.ConstrainV(spriteNumber, pos);
-        public LingoSprite? GetSpriteUnderMouse(bool skipLockedSprites = false) => _spriteManager.GetSpriteUnderMouse(skipLockedSprites);
-        public IEnumerable<LingoSprite> GetSpritesAtPoint(float x, float y, bool skipLockedSprites = false) => _spriteManager.GetSpritesAtPoint(x, y, skipLockedSprites);
-        public LingoSprite? GetSpriteAtPoint(float x, float y, bool skipLockedSprites = false) => _spriteManager.GetSpriteAtPoint(x, y, skipLockedSprites);
-        public void ChangeSpriteChannel(ILingoSprite sprite, int newChannel) => _spriteManager.ChangeSpriteChannel(sprite, newChannel);
+        public LingoSprite2D? GetSpriteUnderMouse(bool skipLockedSprites = false) => _spriteManager.GetSpriteUnderMouse(skipLockedSprites);
+        public IEnumerable<LingoSprite2D> GetSpritesAtPoint(float x, float y, bool skipLockedSprites = false) => _spriteManager.GetSpritesAtPoint(x, y, skipLockedSprites);
+        public LingoSprite2D? GetSpriteAtPoint(float x, float y, bool skipLockedSprites = false) => _spriteManager.GetSpriteAtPoint(x, y, skipLockedSprites);
+        public void ChangeSpriteChannel(LingoSprite sprite, int newChannel)
+        {
+            if (sprite is LingoSprite2D sprite2D)
+                _spriteManager.ChangeSpriteChannel(sprite2D, newChannel);
+        }
 
         #endregion
 
@@ -443,7 +430,7 @@ namespace LingoEngine.Movies
             => _frameManager.SetScoreLabel(frameNumber, name);
 
         public IReadOnlyDictionary<string, int> GetScoreLabels() => _frameManager.ScoreLabels;
-        public IReadOnlyDictionary<int, LingoSprite> GetFrameSpriteBehaviors() => _spriteManager.FrameSpriteBehaviors;
+        public IReadOnlyDictionary<int, LingoSprite2D> GetFrameSpriteBehaviors() => _spriteManager.FrameSpriteBehaviors;
 
         public void MoveFrameBehavior(int previousFrame, int newFrame)
             => _spriteManager.MoveFrameBehavior(previousFrame, newFrame);
@@ -457,62 +444,7 @@ namespace LingoEngine.Movies
         public int GetPrevSpriteEnd(int channel, int frame)
             => _frameManager.GetPrevSpriteEnd(channel, frame);
 
-        public IReadOnlyList<LingoMovieAudioClip> GetAudioClips() => _audioClips;
-
-        public LingoMovieAudioClip AddAudioClip(int channel, int frame, LingoMemberSound sound)
-        {
-            int lengthFrames = (int)Math.Ceiling(sound.Length * Tempo);
-            int end = Math.Clamp(frame + lengthFrames - 1, frame, FrameCount);
-            var clip = new LingoMovieAudioClip(channel, frame, end, sound);
-            _audioClips.Add(clip);
-            RaiseAudioClipListChanged();
-            return clip;
-        }
-
-        public void MoveAudioClip(LingoMovieAudioClip clip, int newFrame)
-        {
-            if (!_audioClips.Contains(clip)) return;
-            int lengthFrames = clip.EndFrame - clip.BeginFrame;
-            clip.BeginFrame = newFrame;
-            clip.EndFrame = Math.Clamp(newFrame + lengthFrames, newFrame, FrameCount);
-            RaiseAudioClipListChanged();
-        }
-
-        public void RemoveAudioClip(LingoMovieAudioClip clip)
-        {
-            if (_audioClips.Remove(clip))
-                RaiseAudioClipListChanged();
-        }
-
-        public IReadOnlyList<LingoTempoKeyframe> GetTempoKeyframes() => _tempoManager.Keyframes;
-
-        public LingoTempoKeyframe AddTempoKeyFrame(int frame, int fps)
-            => _tempoManager.Add(frame, fps);
-
-        public void MoveTempoKeyframe(int previousFrame, int newFrame)
-            => _tempoManager.Move(previousFrame, newFrame);
-
-        public void RemoveTempoKeyframe(int frame)
-            => _tempoManager.Remove(frame);
-
-        // Color palette keyframes
-        public IReadOnlyList<LingoColorPaletteKeyframe> GetColorPaletteKeyframes() => _paletteManager.Keyframes;
-        public LingoColorPaletteKeyframe AddColorPaletteKeyFrame(int frame, int paletteId)
-            => _paletteManager.Add(frame, paletteId);
-        public void MoveColorPaletteKeyframe(int previousFrame, int newFrame)
-            => _paletteManager.Move(previousFrame, newFrame);
-        public void RemoveColorPaletteKeyframe(int frame)
-            => _paletteManager.Remove(frame);
-
-        // Transition keyframes
-        public IReadOnlyList<LingoTransitionKeyframe> GetTransitionKeyframes() => _transitionManager.Keyframes;
-        public LingoTransitionKeyframe AddTransitionKeyFrame(int frame, int transitionId)
-            => _transitionManager.Add(frame, transitionId);
-        public void MoveTransitionKeyframe(int previousFrame, int newFrame)
-            => _transitionManager.Move(previousFrame, newFrame);
-        public void RemoveTransitionKeyframe(int frame)
-            => _transitionManager.Remove(frame);
-
+       
         public int GetMaxLocZ() => _spriteManager.GetMaxLocZ();
 
         public ILingoMemberFactory New => _memberFactory;
@@ -520,5 +452,9 @@ namespace LingoEngine.Movies
         public LingoMember? MouseMemberUnderMouse() // todo : implement
             => null;
 
+        public LingoSprite2D AddSprite(int spriteNum, string name, Action<object> value)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

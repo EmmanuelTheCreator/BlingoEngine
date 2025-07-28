@@ -15,7 +15,7 @@ namespace LingoEngine.Director.Core.Tools
         IDirectorEventSubscription Subscribe(DirectorEventType eventType, Func<bool> action);
         void Subscribe(object listener);
         void Unsubscribe(object listener);
-        void RaiseSpriteSelected(ILingoSprite sprite);
+        void RaiseSpriteSelected(ILingoSpriteBase sprite);
         void RaiseMemberSelected(ILingoMember member);
         void RaiseFindMember(ILingoMember member);
         void Raise(DirectorEventType eventType, object? userData = null);
@@ -69,7 +69,7 @@ namespace LingoEngine.Director.Core.Tools
                 _findMemberEvents.Remove(findMember);
         }
 
-        public void RaiseSpriteSelected(ILingoSprite sprite)
+        public void RaiseSpriteSelected(ILingoSpriteBase sprite)
             => _spriteSelected.ForEach(x => x.SpriteSelected(sprite));
 
         public void RaiseMemberSelected(ILingoMember member)

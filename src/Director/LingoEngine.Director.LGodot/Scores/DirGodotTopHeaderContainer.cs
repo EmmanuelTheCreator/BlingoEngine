@@ -1,52 +1,50 @@
-using Godot;
-using System.Linq;
+﻿using Godot;
 using LingoEngine.Director.Core.Scores;
+using LingoEngine.FrameworkCommunication;
+using LingoEngine.Inputs;
+using LingoEngine.LGodot.Primitives;
 using LingoEngine.Movies;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
-internal partial class DirGodotTopHeaderContainer : Control, IDirMovieNode, IDirCollapsibleHeader
+internal partial class DirGodotTopHeaderContainer : Control
 {
-    private readonly DirGodotTopChannelHeader[] _headers;
-    private readonly DirScoreGfxValues _gfxValues;
-    private bool _collapsed;
+    private readonly DirScoreTopHeaderContainer _lingoContainer;
 
-    public DirGodotTopHeaderContainer(DirScoreGfxValues gfxValues)
+
+    public DirGodotTopHeaderContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, ILingoMouse mouse, Vector2 position)
     {
-        _gfxValues = gfxValues;
-        _headers = new DirGodotTopChannelHeader[]
-        {
-            new DirGodotTempoHeader(gfxValues),
-            new DirGodotColorPaletteHeader(gfxValues),
-            new DirGodotTransitionHeader(gfxValues),
-            new DirGodotSoundHeader(0, gfxValues),
-            new DirGodotSoundHeader(1, gfxValues)
-        };
-        foreach (var (h, idx) in _headers.Select((h,i)=>(h,i)))
-        {
-            h.Position = new Vector2(0, idx * _gfxValues.ChannelHeight);
-            AddChild(h);
-        }
-        Size = new Vector2(_gfxValues.ChannelInfoWidth, _gfxValues.ChannelHeight * _headers.Length);
-        CustomMinimumSize = Size;
+        Position = position;
+        _lingoContainer = new DirScoreTopHeaderContainer(gfxValues, factory, mouse, Position.ToLingoPoint());
+        AddChild((Node)_lingoContainer.FrameworkGfxNode.FrameworkNode);
+        QueueRedraw();
+    }
+    protected override void Dispose(bool disposing)
+    {
+        RemoveChild((Node)_lingoContainer.FrameworkGfxNode.FrameworkNode);
+        base.Dispose(disposing);
     }
 
     public bool Collapsed
     {
-        get => _collapsed;
+        get => _lingoContainer.Collapsed;
         set
         {
-            _collapsed = value;
-            Visible = true; // headers always visible
-            foreach (var h in _headers)
-                if (h is IDirCollapsibleHeader c) c.Collapsed = value;
+            _lingoContainer.Collapsed = value;
+            QueueRedraw();
         }
     }
 
-    public void SetMovie(LingoMovie? movie)
+    public override void _Draw()
     {
-        foreach (var h in _headers) h.SetMovie(movie);
+        base._Draw();
+        Size = new Vector2(_lingoContainer.Width, _lingoContainer.Height);
+        CustomMinimumSize = Size;
+        _lingoContainer.Draw();
     }
 
-    public bool IsMuted(int channel) => ((DirGodotSoundHeader)_headers[3 + channel]).IsMuted;
+
+    public void SetMovie(LingoMovie? movie) => _lingoContainer.SetMovie(movie);
+
+
 }
