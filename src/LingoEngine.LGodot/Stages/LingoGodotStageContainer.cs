@@ -17,6 +17,7 @@ namespace LingoEngine.LGodot.Stages
         public LingoGodotStageContainer(LingoGodotRootNode lingoGodotRootNode)
         {
             _stageContainer.Name = "StageContainer";
+            _stageContainer.ZAsRelative = true;
             _Root = lingoGodotRootNode.RootNode;
             if (!lingoGodotRootNode.WithStageInWindow)
                 _Root.AddChild(_stageContainer);
@@ -26,7 +27,9 @@ namespace LingoEngine.LGodot.Stages
         public void SetStage(ILingoFrameworkStage stage)
         {
             _stage1 = stage as LingoGodotStage;
+            if (_stage1 == null) return;
             _stageContainer.AddChild(_stage1);
+            _stage1.ZAsRelative = true;
         }
 
         public void SetScale(float scale)

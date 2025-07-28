@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using LingoEngine.Bitmaps;
 using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.SDLL;
+using LingoEngine.Sprites;
 using LingoEngine.Tools;
 
 namespace LingoEngine.SDL2.Pictures;
@@ -25,7 +26,7 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
     {
         _member = member;
     }
-
+    public void ReleaseFromSprite(LingoSprite lingoSprite) { }
     public void Preload()
     {
         if (IsLoaded)

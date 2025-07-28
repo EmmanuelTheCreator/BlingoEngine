@@ -1,9 +1,7 @@
-﻿using LingoEngine.Core;
-using LingoEngine.Events;
+﻿using LingoEngine.Events;
 using LingoEngine.Inputs;
 using LingoEngine.Primitives;
 using LingoEngine.Animations;
-using System.Linq;
 using LingoEngine.Members;
 using LingoEngine.Casts;
 using LingoEngine.Movies;
@@ -15,7 +13,7 @@ namespace LingoEngine.Sprites
 {
 
 
-    public class LingoSprite : LingoScriptBase, ILingoSprite, ILingoMouseEventHandler
+    public class LingoSprite : ILingoSprite, ILingoMouseEventHandler
     {
         private readonly ILingoMovieEnvironment _environment;
         private readonly LingoEventMediator _eventMediator;
@@ -38,7 +36,7 @@ namespace LingoEngine.Sprites
         private int? _previousCursor;
         private int _constraint;
         private bool _directToStage;
-        private float _blend = 1f;
+        private float _blend = 100f;
 
 
         #region Properties
@@ -54,10 +52,12 @@ namespace LingoEngine.Sprites
         public string Name { get => _frameworkSprite.Name; set => _frameworkSprite.Name = value; }
         public int MemberNum
         {
-            get => Member?.Number ?? 0; set
+            get => Member?.NumberInCast ?? 0; 
+            set
             {
                 if (Member != null)
-                    Member = Member.GetMemberInCastByOffset(value);
+                    //Member = Member.GetMemberInCastByOffset(value);
+                    Member = Member.Cast.Member[value];
             }
         }
         /// <summary>Channel default cast member.</summary>
@@ -66,6 +66,7 @@ namespace LingoEngine.Sprites
         public int SpritePropertiesOffset { get; set; }
         public int SpriteNum { get; private set; }
         private int _ink;
+        public LingoInkType InkType { get => (LingoInkType)_ink; set => Ink = (int)value; }
         public int Ink
         {
             get => _ink;
@@ -134,7 +135,7 @@ namespace LingoEngine.Sprites
 
 
 
-        public new ILingoMember? Member { get => _Member; set => SetMember(value); }
+        public ILingoMember? Member { get => _Member; set => SetMember(value); }
         public LingoCast? Cast { get; private set; }
 
         public int BeginFrame { get; set; }
@@ -154,7 +155,7 @@ namespace LingoEngine.Sprites
 
         public LingoColor Color { get; set; }
         
-        public new LingoRect Rect
+        public LingoRect Rect
         {
             get
             {
@@ -209,7 +210,6 @@ namespace LingoEngine.Sprites
 #pragma warning disable CS8618
         public LingoSprite(ILingoMovieEnvironment environment)
 #pragma warning restore CS8618
-            : base(environment)
         {
             _environment = environment;
             _eventMediator = (LingoEventMediator)_environment.Events;
@@ -317,19 +317,28 @@ When a movie stops, events occur in the following order:
             // Subscribe all actors
             foreach (var actor in _spriteActors)
             {
-                _eventMediator.Subscribe(actor);
+                _eventMediator.Subscribe(actor, SpriteNum + 6);
                 if (actor is IHasBeginSpriteEvent begin) begin.BeginSprite();
             }
             // Subscribe all behaviors
             _behaviors.ForEach(b =>
             {
-                _eventMediator.Subscribe(b);
+                _eventMediator.Subscribe(b, SpriteNum + 6);
                 if (b is IHasBeginSpriteEvent beginSpriteEvent) beginSpriteEvent.BeginSprite();
 
             });
             BeginSprite();
         }
         protected virtual void BeginSprite() { }
+        internal virtual LingoMember? DoPreStepFrame()
+        {
+            if (_Member != null && _Member.HasChanged)
+            {
+                _frameworkSprite.ApplyMemberChanges();
+                return _Member;
+            }
+            return null;
+        }
         internal virtual void DoEndSprite()
         {
             _behaviors.ForEach(b =>
@@ -343,6 +352,8 @@ When a movie stops, events occur in the following order:
                 if (actor is IHasEndSpriteEvent end) end.EndSprite();
                 _eventMediator.Unsubscribe(actor);
             }
+            // Release the old member link with this sprite
+            _Member?.ReleaseFromSprite(this);
             EndSprite();
         }
         protected virtual void EndSprite() { }
@@ -356,36 +367,40 @@ When a movie stops, events occur in the following order:
             return Rect.Contains(point);
         }
 
-        public void SetMember(string memberName, int? castLibNum = null)
+        public ILingoSprite SetMember(string memberName, int? castLibNum = null)
         {
             var member = _environment.GetMember<LingoMember>(memberName, castLibNum);
-            _Member = member ?? throw new Exception(Name + ":Member not found with name " + memberName);
-            if (_Member != null)
-                RegPoint = _Member.RegPoint;
-
-            MemberHaschanged();
+            var newMember = member ?? throw new Exception(Name + ":Member not found with name " + memberName);
+            SetMember(newMember);
+            return this;
         }
 
 
-        public void SetMember(int memberNumber, int? castLibNum = null)
+        public ILingoSprite SetMember(int memberNumber, int? castLibNum = null)
         {
             var member = _environment.GetMember<LingoMember>(memberNumber, castLibNum);
-            _Member = member ?? throw new Exception(Name + ":Member not found with number: " + memberNumber);
-            if (_Member != null)
-                RegPoint = _Member.RegPoint;
-
-            MemberHaschanged();
+            
+            var newMember = member ?? throw new Exception(Name + ":Member not found with number: " + memberNumber);
+            SetMember(newMember);
+            return this;
         }
-        public void SetMember(ILingoMember? member)
+        public ILingoSprite SetMember(ILingoMember? member)
         {
+            // Release the old member link with this sprite
+            if (member != _Member)
+                _Member?.ReleaseFromSprite(this);
             _Member = member as LingoMember;
             if (_Member != null)
+            {
                 RegPoint = _Member.RegPoint;
+            }
 
-            MemberHaschanged();
+
+            MemberHasChanged();
+            return this;
         }
-
-        private void MemberHaschanged()
+     
+        private void MemberHasChanged()
         {
             var existingPlayer = _spriteActors.OfType<LingoFilmLoopPlayer>().FirstOrDefault();
             if (_Member is LingoMemberFilmLoop)
@@ -416,7 +431,7 @@ When a movie stops, events occur in the following order:
 
         public void BringToFront()
         {
-            var maxZ = ((LingoMovie)_Movie).GetMaxLocZ();
+            var maxZ = ((LingoMovie)_environment.Movie).GetMaxLocZ();
             LocZ = maxZ + 1;
         }
 
@@ -620,7 +635,7 @@ When a movie stops, events occur in the following order:
             _spriteActors.Add(actor);
             if (IsActive)
             {
-                _eventMediator.Subscribe(actor);
+                _eventMediator.Subscribe(actor, SpriteNum + 6);
                 if (actor is IHasBeginSpriteEvent begin) begin.BeginSprite();
             }
         }

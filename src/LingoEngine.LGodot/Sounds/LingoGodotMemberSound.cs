@@ -1,5 +1,6 @@
 ﻿using Godot;
 using LingoEngine.Sounds;
+using LingoEngine.Sprites;
 
 namespace LingoEngine.LGodot.Sounds
 {
@@ -50,7 +51,7 @@ namespace LingoEngine.LGodot.Sounds
         public void PasteClipboardInto()
         {
         }
-
+        public void ReleaseFromSprite(LingoSprite lingoSprite) { }
         public void Preload()
         {
             if (IsLoaded) return;

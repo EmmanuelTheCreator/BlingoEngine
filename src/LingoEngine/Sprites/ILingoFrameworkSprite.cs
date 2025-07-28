@@ -41,6 +41,7 @@ namespace LingoEngine.Sprites
         void Hide();
         /// <summary>Set the sprite position.</summary>
         void SetPosition(LingoPoint point);
+        void ApplyMemberChanges();
 
         /// <summary>
         /// Indicates whether the sprite is flipped horizontally.

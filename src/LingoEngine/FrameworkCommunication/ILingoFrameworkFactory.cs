@@ -45,14 +45,12 @@ namespace LingoEngine.FrameworkCommunication
         /// <summary>Creates a vector shape member.</summary>
         LingoMemberShape CreateMemberShape(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default);
         /// <summary>Creates a field member.</summary>
-        LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null,
-            LingoPoint regPoint = default);
+        LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default);
         /// <summary>Creates a text member.</summary>
-        LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null,
-            LingoPoint regPoint = default);
+        LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default);
+        LingoMember CreateScript(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default);
         /// <summary>Creates a placeholder member.</summary>
-        LingoMember CreateEmpty(ILingoCast cast, int numberInCast, string name = "", string? fileName = null,
-            LingoPoint regPoint = default);
+        LingoMember CreateEmpty(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default);
         #endregion
 
         /// <summary>Creates a sound instance.</summary>

@@ -10,6 +10,7 @@ using LingoEngine.Sounds;
 using LingoEngine.Sprites;
 using LingoEngine.Stages;
 using LingoEngine.Projects;
+using LingoEngine.Primitives;
 
 namespace LingoEngine.Movies
 {
@@ -73,8 +74,14 @@ namespace LingoEngine.Movies
         public T Framework<T>() where T : class, ILingoFrameworkMovie => (T)_FrameworkMovie;
 
         public string Name { get; set; }
-       
+
         public int Number { get; private set; }
+
+
+        public string About { get; set; } = string.Empty;
+        public string Copyright { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
+        public string CompanyName { get; set; } = string.Empty;
 
         private readonly LingoEventMediator _EventMediator;
 
@@ -210,6 +217,7 @@ namespace LingoEngine.Movies
         }
 
         public void GoTo(int frame) => Go(frame);
+
         public void Go(int frame)
         {
             if (frame <= 0)
@@ -250,13 +258,14 @@ namespace LingoEngine.Movies
                 }
 
                 _spriteManager.UpdateActiveSprites(_currentFrame, _lastFrame);
+                
                 _spriteManager.BeginSprites();
 
                 if (_needToRaiseStartMovie)
                     _EventMediator.RaiseStartMovie();
 
                 _lingoMouse.UpdateMouseState();
-
+                _spriteManager.PreStepFrame();
                 _EventMediator.RaiseStepFrame();
                 _EventMediator.RaisePrepareFrame();
                 _EventMediator.RaiseEnterFrame();
@@ -268,15 +277,13 @@ namespace LingoEngine.Movies
             finally
             {
                 _spriteManager.EndSprites();
+                
                 _isAdvancing = false;
             }
 
         }
 
-        private void DoEndSprite()
-        {
-            _spriteManager.EndSprites();
-        }
+     
 
         // Play the movie
         public void Play()
@@ -299,7 +306,7 @@ namespace LingoEngine.Movies
             _isPlaying = false;
             PlayStateChanged?.Invoke(false);
             _environment.Sound.StopAll();
-            _spriteManager.EndSprites();
+            //_spriteManager.EndSprites();
             _EventMediator.RaiseStopMovie();
             // EndSprite
             // StopMovie

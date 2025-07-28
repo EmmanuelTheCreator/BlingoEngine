@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Linq.Expressions;
+using System.Reflection.Emit;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
@@ -80,10 +81,14 @@ namespace LingoEngine.Director.Core.Inspector
         {
             _currentColumn += span;
             while (_currentColumn >= _columns)
-            {
-                _currentColumn = 0;
-                _currentRow++;
-            }
+                NextRow();
+        }
+        public GfxPanelBuilder NextRow()
+        {
+            _currentColumn = 0;
+            _currentColumn = 0;
+            _currentRow++;
+            return this;
         }
 
 
@@ -99,20 +104,29 @@ namespace LingoEngine.Director.Core.Inspector
             var setter = property.CompileSetter();
             var getter = property.CompileGetter();
             var (xLabel, xInput, y) = Layout(labelSpan, inputSpan);
-            _panel.SetLabelAt(_factory, name + "Label", xLabel, y+ _labelYOffset, label);
+            if (labelSpan> 0)
+                _panel.SetLabelAt(_factory, name + "Label", xLabel, y+ _labelYOffset, label);
             var input = _panel.SetInputTextAt(_factory, target, name + "Input", xInput, y, (int)ComputeInputWidth(inputSpan, true, stretch: true), property);
             input.Text = getter(target) ?? string.Empty;
             Advance(labelSpan + inputSpan);
             return this;
         }
-
-        public GfxPanelBuilder AddNumericInput<T>(string name, string label, T target, Expression<Func<T, float>> property,int inputSpan = 1, bool showLabel = true, bool stretch = false, int labelSpan = 1)
+        public GfxPanelBuilder AddButton(string name, string text, Action click, int widthSpan = 1)
+        {
+            var (xLabel, xInput, y) = Layout(widthSpan, 1);
+            var button = _panel.SetButtonAt(_factory, name, text, xLabel, y, click);
+            Advance(widthSpan);
+            return this;
+        }
+        public GfxPanelBuilder AddNumericInput<T>(string name, string label, T target, Expression<Func<T, float>> property,int inputSpan = 1, bool showLabel = true, bool stretch = false, int labelSpan = 1, Action<LingoGfxInputNumber>? configure = null)
         {
             var (xLabel, xInput, y) = Layout(showLabel?labelSpan:0, inputSpan);
             if (showLabel)
                 _panel.SetLabelAt(_factory, name + "Label", xLabel, y+ _labelYOffset, label);
-            _panel.SetInputNumberAt(_factory, target, name + "Input", xInput, y,
+            LingoGfxInputNumber numericInput = _panel.SetInputNumberAt(_factory, target, name + "Input", xInput, y,
                 (int)ComputeInputWidth(inputSpan, showLabel, stretch), property);
+            if (configure != null)
+                configure(numericInput);
             Advance((showLabel ? labelSpan : 0) + inputSpan);
             return this;
         } 
@@ -125,8 +139,19 @@ namespace LingoEngine.Director.Core.Inspector
             Advance((showLabel ? labelSpan : 0) + inputSpan);
             return this;
         }
-
-        public GfxPanelBuilder AddColorInput<T>(string name, string label, T target,Expression<Func<T, LingoColor>> property,int inputSpan = 1, int labelSpan = 1)
+        public GfxPanelBuilder AddCombobox(string name, IEnumerable<KeyValuePair<string, string>> items, int width = 100, string? selectedKey = null, Action<string?>? onChange = null)
+        {
+            var list = _factory.CreateInputCombobox(name, onChange);
+            foreach (var item in items)
+                list.AddItem(item.Key, item.Value);
+            if (selectedKey != null)
+                list.SelectedKey = selectedKey;
+            list.Width = width;
+            _panel.AddItem(list);
+            Advance(1);
+            return this;
+        }
+        public GfxPanelBuilder AddColorPicker<T>(string name, string label, T target,Expression<Func<T, LingoColor>> property,int inputSpan = 1, int labelSpan = 1)
         {
             var setter = property.CompileSetter();
             var getter = property.CompileGetter();
@@ -156,7 +181,7 @@ namespace LingoEngine.Director.Core.Inspector
             foreach (var value in Enum.GetValues(typeof(TEnum)))
             {
                 int key = Convert.ToInt32(value);
-                combo.AddItem(key.ToString(), value!.ToString());
+                combo.AddItem(key.ToString(), value!.ToString()!);
             }
             combo.SelectedKey = getter(target).ToString();
             combo.Width = (int)ComputeInputWidth(inputSpan, showLabel, stretch: true);

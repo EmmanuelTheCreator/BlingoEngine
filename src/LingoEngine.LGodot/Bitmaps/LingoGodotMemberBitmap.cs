@@ -1,6 +1,7 @@
 ﻿using Godot;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Helpers;
+using LingoEngine.Sprites;
 using LingoEngine.Tools;
 using Microsoft.Extensions.Logging;
 
@@ -95,7 +96,7 @@ namespace LingoEngine.LGodot.Bitmaps
 
             UpdateImageData(_image);
         }
-
+        public void ReleaseFromSprite(LingoSprite lingoSprite) { }
 
 
         private void UpdateImageData(Image image)

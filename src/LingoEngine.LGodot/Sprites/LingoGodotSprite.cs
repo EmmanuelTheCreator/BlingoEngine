@@ -7,6 +7,10 @@ using LingoEngine.Members;
 using LingoEngine.Sprites;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Bitmaps;
+using LingoEngine.Texts.FrameworkCommunication;
+using LingoEngine.Shapes;
+using LingoEngine.LGodot.Shapes;
+using LingoEngine.LGodot.Primitives;
 
 namespace LingoEngine.LGodot.Sprites
 {
@@ -22,16 +26,18 @@ namespace LingoEngine.LGodot.Sprites
         private readonly LingoSprite _lingoSprite;
         private bool _wasShown;
 
-        private readonly CanvasItemMaterial _material = new();
+        private CanvasItemMaterial _material = new();
         private int _ink;
 
         internal LingoSprite LingoSprite => _lingoSprite;
+        internal Node? ChildMemberNode => _previousChildElementNode;
         internal bool IsDirty { get; set; } = true;
         internal bool IsDirtyMember { get; set; } = true;
         private float _x;
         private float _y;
         public float X { get => _x; set { _x = value; IsDirty = true; } }
-        public float Y { get => _y; set { _y = value; IsDirty = true; } }
+        public float Y { get => _y; 
+            set { _y = value; IsDirty = true; } }
         private int _zIndex;
         public int ZIndex
         {
@@ -114,30 +120,40 @@ namespace LingoEngine.LGodot.Sprites
 
         private void ApplyZIndex()
         {
-            _Sprite2D.ZIndex = _directToStage ? 100000 + _zIndex : _zIndex;
+            _Container2D.ZIndex = _directToStage ? 100000 + _zIndex : _zIndex;
         }
 
         private void ApplyBlend()
         {
             var col = _Sprite2D.SelfModulate;
-            _Sprite2D.SelfModulate = new Color(col.R, col.G, col.B, _directToStage ? 1f : _blend);
+            float alpha = Mathf.Clamp(_blend / 100f, 0f, 1f);
+            _Sprite2D.SelfModulate = new Color(col.R, col.G, col.B, _directToStage ? 1f : alpha);
             IsDirty = true;
         }
 
         private void ApplyInk()
         {
+            if (_ink == 0) return;
             CanvasItemMaterial.BlendModeEnum mode = _ink switch
             {
                 (int)LingoInkType.AddPin => CanvasItemMaterial.BlendModeEnum.Add,
                 (int)LingoInkType.Add => CanvasItemMaterial.BlendModeEnum.Add,
-                (int)LingoInkType.SubPin => CanvasItemMaterial.BlendModeEnum.Sub,
-                (int)LingoInkType.Sub => CanvasItemMaterial.BlendModeEnum.Sub,
-                (int)LingoInkType.Dark => CanvasItemMaterial.BlendModeEnum.Mul,
-                (int)LingoInkType.Light => CanvasItemMaterial.BlendModeEnum.Add,
+                (int)LingoInkType.SubstractPin => CanvasItemMaterial.BlendModeEnum.Sub,
+                (int)LingoInkType.Substract => CanvasItemMaterial.BlendModeEnum.Sub,
+                (int)LingoInkType.Darken => CanvasItemMaterial.BlendModeEnum.Mul,
+                (int)LingoInkType.Lighten => CanvasItemMaterial.BlendModeEnum.Add,
                 _ => CanvasItemMaterial.BlendModeEnum.Mix,
             };
-            _material.BlendMode = mode;
-            _Sprite2D.Material = _material;
+            if (mode == CanvasItemMaterial.BlendModeEnum.Mix)
+            { 
+                var inkNumber = (int)_lingoSprite.InkType;
+                _Sprite2D.Material = InkShaderMaterial.Create(_lingoSprite.InkType, _lingoSprite.BackColor.ToGodotColor());
+            }
+            else 
+            { 
+                _material.BlendMode = mode;
+                _Sprite2D.Material = _material;
+            }
         }
 
 
@@ -207,6 +223,11 @@ namespace LingoEngine.LGodot.Sprites
 
         public void MemberChanged()
         {
+            if (LingoSprite.Member != null)
+            {
+                Width = LingoSprite.Member.Width;
+                Height = LingoSprite.Member.Height;
+            }
             IsDirtyMember = true;
         }
         private void UpdateSizeFromTexture()
@@ -240,11 +261,13 @@ namespace LingoEngine.LGodot.Sprites
                 }
                 IsDirty = false;
             }
+            // todo: move this 2 lines in IsDirty if test
             var offset = GetRegPointOffset();
             _Sprite2D.Position = new Vector2(_x - offset.X, _y - offset.Y);
+            
         }
 
-
+       
         private void UpdateMember()
         {
             if (!IsDirtyMember) return;
@@ -254,6 +277,7 @@ namespace LingoEngine.LGodot.Sprites
             switch (_lingoSprite.Member)
             {
                 case LingoMemberBitmap pictureMember:
+                    RemoveLastChildElement();
                     UpdateMemberPicture(pictureMember.Framework<LingoGodotMemberBitmap>());
                     UpdateSizeFromTexture();
                     if (_DesiredWidth == 0) _DesiredWidth = Width;
@@ -261,38 +285,68 @@ namespace LingoEngine.LGodot.Sprites
                     IsDirty = true;
                     return;
                 case LingoMemberText textMember:
-                    UpdateMemberText(textMember.Framework<LingoGodotMemberText>());
+                    var godotElement = textMember.Framework<LingoGodotMemberText>();
+                    UpdateNodeMember(textMember, textMember.Framework<LingoGodotMemberText>().CreateForSpriteDraw());
                     break;
                 case LingoMemberField fieldMember:
-                    UpdateMemberField(fieldMember.Framework<LingoGodotMemberField>());
+                    var godotElementF = fieldMember.Framework<LingoGodotMemberField>();
+                    UpdateNodeMember(fieldMember, fieldMember.Framework<LingoGodotMemberField>().CreateForSpriteDraw());
+                    break;
+                // all generice godot node base class members
+                case LingoMemberShape shape:
+                    UpdateNodeMember(_lingoSprite.Member, (Node)shape.Framework<LingoGodotMemberShape>().CloneForSpriteDraw());
                     break;
             }
+            
             UpdateSprite2DName();
+        }
+        public void ApplyMemberChanges()
+        {
+            switch (_lingoSprite.Member)
+            {
+                case LingoMemberBitmap pictureMember:
+                    return;
+                case LingoMemberText textMember:
+                    break;
+                case LingoMemberField fieldMember:
+                    //fieldMember.ApplyMemberChanges();
+                    break;
+                // all generice godot node base class members
+                case LingoMemberShape shape:
+                    break;
+            }
+        }
+        private void RemoveLastChildElement()
+        {
+            if (_previousChildElementNode != null) 
+                _Sprite2D.RemoveChild(_previousChildElementNode);
+            _previousChildElementNode = null;
+            _previousChildElement = null;
         }
 
         private void UpdateMemberPicture(LingoGodotMemberBitmap godotPicture)
         {
             godotPicture.Preload();
-
             // Set the texture using the ImageTexture from the picture member
             if (godotPicture.TextureGodot == null)
                 return;
             _Sprite2D.Texture = godotPicture.TextureGodot;
         }
-        private Node? _previousElement;
-        private void UpdateMemberText(LingoGodotMemberText godotElement)
+        private ILingoMember? _previousChildElement;
+        private Node? _previousChildElementNode;
+        
+        private void UpdateNodeMember(ILingoMember member, Node godotElement) // Clone required to be able to draw multiple times the same member
         {
-            if (_previousElement == godotElement.Node2D) return;
-            godotElement.Preload();
-            _Sprite2D.AddChild(godotElement.Node2D);
-            _previousElement = godotElement.Node2D;
-        }
-        private void UpdateMemberField(LingoGodotMemberField godotElement)
-        {
-            if (_previousElement == godotElement.Node2D) return;
-            godotElement.Preload();
-            _Sprite2D.AddChild(godotElement.Node2D);
-            _previousElement = godotElement.Node2D;
+            if (_previousChildElement == member) return;
+            RemoveLastChildElement();
+
+            member.Preload();
+
+            _Sprite2D.AddChild(godotElement);
+            _previousChildElementNode = godotElement;
+            _previousChildElement = member;
+            _DesiredWidth = member.Width;
+            _DesiredHeight = member.Height;
         }
 
         public void Resize(float targetWidth, float targetHeight)
@@ -306,7 +360,8 @@ namespace LingoEngine.LGodot.Sprites
 
         private LingoPoint GetRegPointOffset()
         {
-            if (_lingoSprite.Member is { } member)
+            if (_lingoSprite.Member == null) return new LingoPoint();
+            if (_lingoSprite.Member is LingoMemberBitmap member)
             {
                 var baseOffset = member.CenterOffsetFromRegPoint();
                 if (member.Width != 0 && member.Height != 0)
@@ -317,7 +372,7 @@ namespace LingoEngine.LGodot.Sprites
                 }
                 return baseOffset;
             }
-            return new LingoPoint();
+            return _lingoSprite.Member.RegPoint;
         }
     }
 }

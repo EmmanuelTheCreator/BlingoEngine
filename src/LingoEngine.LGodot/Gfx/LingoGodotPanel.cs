@@ -75,6 +75,15 @@ namespace LingoEngine.LGodot.Gfx
                 RemoveChild(node);
             _nodes.Remove(child);
         }
+        public void RemoveAll()
+        {
+            foreach (Node child in GetChildren())
+            {
+                RemoveChild(child);
+                child.QueueFree();
+            }
+            _nodes.Clear();
+        }
         public IEnumerable<ILingoFrameworkGfxLayoutNode> GetItems() => _nodes.ToArray();
         //public override void _Draw()
         //{
@@ -120,6 +129,7 @@ namespace LingoEngine.LGodot.Gfx
 
         public new void Dispose()
         {
+            RemoveAll();
             base.Dispose();
             QueueFree();
         }

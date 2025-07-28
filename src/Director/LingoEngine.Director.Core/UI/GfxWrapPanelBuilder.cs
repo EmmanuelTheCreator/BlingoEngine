@@ -19,6 +19,11 @@ namespace LingoEngine.Director.Core.UI
             _panel = panel;
             _factory = factory;
         }
+
+        public GfxWrapPanelBuilder Finalize()
+        {
+            return this;
+        }
         public GfxWrapPanelBuilder AddLabel(string text, int fontSize = 11)
         {
             var label = _factory.CreateLabel("Label_" + Guid.NewGuid(), text);
@@ -85,6 +90,17 @@ namespace LingoEngine.Director.Core.UI
             list.Width = width;
             _panel.AddItem(list);
             return this;
+        } 
+        public GfxWrapPanelBuilder AddCombobox(string name, IEnumerable<KeyValuePair<string,string>> items, int width = 100, string? selectedKey = null, Action<string?>? onChange = null)
+        {
+            var list = _factory.CreateInputCombobox(name, onChange);
+            foreach (var item in items)
+                list.AddItem(item.Key, item.Value);
+            if (selectedKey != null)
+                list.SelectedKey = selectedKey;
+            list.Width = width;
+            _panel.AddItem(list);
+            return this;
         }
 
         public GfxWrapPanelBuilder AddStateButton<T>(string name, T target, ILingoImageTexture texture, Expression<Func<T, bool>> property, string text = "", Action<LingoGfxStateButton>? configure = null)
@@ -94,6 +110,14 @@ namespace LingoEngine.Director.Core.UI
             LingoGfxStateButton button = _factory.CreateStateButton(name, texture, text, value => setter(target, value));
             button.IsOn = getter(target);
             _panel.AddItem(button);
+            configure?.Invoke(button);
+            return this;
+        } 
+        public GfxWrapPanelBuilder AddButton(string name, string text, Action click, Action<LingoGfxButton>? configure = null)
+        {
+            var button = _factory.CreateButton(name, text);
+            _panel.AddItem(button);
+            button.Pressed += () => click();
             configure?.Invoke(button);
             return this;
         }

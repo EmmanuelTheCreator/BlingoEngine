@@ -128,6 +128,7 @@ namespace LingoEngine.Sprites
         public LingoColor ForeColor { get => _sprite.ForeColor; set => _sprite.ForeColor = value; }
         public bool Hilite { get => _sprite.Hilite; set => _sprite.Hilite = value; }
         public int Ink { get => _sprite.Ink; set => _sprite.Ink = value; }
+        public LingoInkType InkType { get => _sprite.InkType; set => _sprite.InkType = value; }
         public bool Linked => _sprite.Linked;
         public bool Loaded => _sprite.Loaded;
         public byte[] Media { get => _sprite.Media; set => _sprite.Media = value; }
@@ -167,9 +168,10 @@ namespace LingoEngine.Sprites
 
         public bool Puppet { get => _sprite.Puppet; set => _sprite.Puppet = value; }
 
-        public void SetMember(int memberNumber, int? castLibNum = null) => _sprite.SetMember(memberNumber, castLibNum);
-        public void SetMember(string memberName, int? castLibNum = null) => _sprite.SetMember(memberName, castLibNum);
-        public void SetMember(ILingoMember? member) => _sprite.SetMember(member);
+        public ILingoSprite SetMember(int memberNumber, int? castLibNum = null) => _sprite.SetMember(memberNumber, castLibNum);
+        public ILingoSprite SetMember(string memberName, int? castLibNum = null) => _sprite.SetMember(memberName, castLibNum);
+        public ILingoSprite SetMember(ILingoMember? member) => _sprite.SetMember(member);
+        public ILingoSprite AddBehavior<T>() where T : LingoSpriteBehavior => _sprite.AddBehavior<T>();
         public void SendToBack() => _sprite.SendToBack();
         public void BringToFront() => _sprite.BringToFront();
         public void MoveBackward() => _sprite.MoveBackward();

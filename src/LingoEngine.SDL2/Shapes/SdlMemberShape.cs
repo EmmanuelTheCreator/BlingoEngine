@@ -1,6 +1,7 @@
 using System;
 using LingoEngine.Primitives;
 using LingoEngine.Shapes;
+using LingoEngine.Sprites;
 
 namespace LingoEngine.SDL2.Shapes
 {
@@ -15,6 +16,9 @@ namespace LingoEngine.SDL2.Shapes
         public int StrokeWidth { get; set; } = 1;
         public bool Closed { get; set; } = true;
         public bool AntiAlias { get; set; } = true;
+        public float Width {get;set;}
+        public float Height {get;set;}
+        public bool Filled {get;set;}
 
         public void CopyToClipboard() { }
         public void Erase() { VertexList.Clear(); }
@@ -23,5 +27,7 @@ namespace LingoEngine.SDL2.Shapes
         public void Preload() { IsLoaded = true; }
         public void Unload() { IsLoaded = false; }
         public void Dispose() { }
+
+        public void ReleaseFromSprite(LingoSprite lingoSprite) { }
     }
 }

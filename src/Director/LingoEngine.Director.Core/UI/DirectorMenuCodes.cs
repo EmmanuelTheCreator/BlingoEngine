@@ -15,7 +15,9 @@ namespace LingoEngine.Director.Core.UI
         public const string BinaryViewerWindow = "BinaryViewerWindow";
         public const string BinaryViewerWindowV2 = "BinaryViewerWindowV2";
         public const string TextEditWindow = "TextEditWindow";
+        public const string ShapeEditWindow = "ShapeEditWindow";
         public const string PictureEditWindow = "PictureEditWindow";
+        public const string ScriptEditWindow = "ScriptEditWindow";
         public const string ImportExportWindow = "ImportExportWindow";
     }
 }

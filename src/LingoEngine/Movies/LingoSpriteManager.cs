@@ -1,9 +1,6 @@
 using LingoEngine.Inputs;
 using LingoEngine.Sprites;
-using LingoEngine.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using LingoEngine.Members;
 
 namespace LingoEngine.Movies
 {
@@ -96,7 +93,9 @@ namespace LingoEngine.Movies
             {
                 c.BeginFrame = begin;
                 c.EndFrame = end;
-                c.LocH = x; c.LocV = y;
+                c.LocH = x; 
+                c.LocV = y;
+                c.LocZ = num;
                 configure?.Invoke(c);
             });
 
@@ -117,6 +116,7 @@ namespace LingoEngine.Movies
                 _spritesByName.Add(name, sprite);
             if (num > _maxSpriteNum)
                 _maxSpriteNum = num;
+            sprite.LocZ = num;
             configure?.Invoke(sprite);
             _raiseSpriteListChanged();
             return sprite;
@@ -308,7 +308,16 @@ namespace LingoEngine.Movies
                         _lingoMouse.Subscribe(sprite);
                 }
                 else if (wasActive && !isActive)
+                {
+                    // need to be done early to be able to create new active sprite on same spritenum
+                    _spriteChannels[sprite.SpriteNum].RemoveSprite();
+                    if (_lingoMouse.IsSubscribed(sprite))
+                        _lingoMouse.Unsubscribe(sprite);
+                    _activeSprites.Remove(sprite.SpriteNum);
                     _exitedSprites.Add(sprite);
+                    sprite.FrameworkObj.Hide();
+                    sprite.DoEndSprite();
+                }
             }
 
             if (_frameSpriteBehaviors.TryGetValue(currentFrame, out var frameSprite))
@@ -325,18 +334,31 @@ namespace LingoEngine.Movies
             _currentFrameSprite?.DoBeginSprite();
         }
 
+        List<LingoMember> _changedMembers = new List<LingoMember>();
+        internal void PreStepFrame()
+        {
+            _changedMembers.Clear();
+            foreach (var sprite in _activeSprites.Values)
+            {
+                if (sprite.IsActive)
+                {
+                    var changedMember = sprite.DoPreStepFrame();
+                    if (changedMember != null)
+                        _changedMembers.Add(changedMember);
+                }
+            }
+            foreach (var item in _changedMembers)
+                item.ChangesHasBeenApplied();
+        }
         internal void EndSprites()
         {
             _currentFrameSprite?.DoEndSprite();
-            foreach (var sprite in _exitedSprites)
-            {
-                sprite.FrameworkObj.Hide();
-                sprite.DoEndSprite();
-                _activeSprites.Remove(sprite.SpriteNum);
-                _spriteChannels[sprite.SpriteNum].RemoveSprite();
-                if (_lingoMouse.IsSubscribed(sprite))
-                    _lingoMouse.Unsubscribe(sprite);
-            }
+            //foreach (var sprite in _exitedSprites)
+            //{
+            //    sprite.FrameworkObj.Hide();
+            //    sprite.DoEndSprite();
+                
+            //}
         }
 
         internal int GetMaxLocZ() => _activeSprites.Values.Max(x => x.LocZ);

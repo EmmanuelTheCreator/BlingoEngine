@@ -70,5 +70,5 @@ public class RaySprite
     public List<RaysBehaviourRef> Behaviors { get; internal set; } = new();
     public List<RayScoreKeyFrame> Keyframes { get; internal set; } = new();
     public int LocZ { get; set; }
-    public List<int> ExtraValues { get; internal set; }
+    public List<int> ExtraValues { get; set; } = new();
 }

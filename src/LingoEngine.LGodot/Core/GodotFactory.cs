@@ -26,6 +26,8 @@ using System;
 using System.Xml.Linq;
 using LingoEngine.LGodot.Styles;
 using LingoEngine.LGodot.Bitmaps;
+using LingoEngine.LGodot.Scripts;
+using LingoEngine.Scripts;
 
 namespace LingoEngine.LGodot.Core
 {
@@ -123,6 +125,13 @@ namespace LingoEngine.LGodot.Core
             var lingoInstance = new LingoMemberText((LingoCast)cast, godotInstance, numberInCast, name, fileName ?? "", regPoint);
             godotInstance.Init(lingoInstance);
             _disposables.Add(godotInstance);
+            return lingoInstance;
+        }
+        public LingoMember CreateScript(ILingoCast cast, int numberInCast, string name = "", string? fileName = null,
+            LingoPoint regPoint = default)
+        {
+            var godotInstance = new LingoFrameworkMemberScript();
+            var lingoInstance = new LingoMemberScript(godotInstance, (LingoCast)cast, numberInCast, name, fileName ?? "", regPoint);
             return lingoInstance;
         }
         public LingoMember CreateEmpty(ILingoCast cast, int numberInCast, string name = "", string? fileName = null,

@@ -36,23 +36,39 @@ public class JsonStateRepository
             dir = Directory.GetCurrentDirectory();
 
         var json = File.ReadAllText(filePath);
-        var dto = JsonSerializer.Deserialize<LingoMovieDTO>(json) ?? throw new Exception("Invalid movie file");
+        var dto = JsonSerializer.Deserialize<LingoProjectDTO>(json) ?? throw new Exception("Invalid movie file");
 
         return Load(dto, player, dir);
     }
 
-    public LingoMovie Load(LingoMovieDTO dto, LingoPlayer player, string resourceDir)
+    public LingoMovie Load(LingoProjectDTO dto, LingoPlayer player, string resourceDir)
     {
         if (string.IsNullOrEmpty(resourceDir))
             resourceDir = Directory.GetCurrentDirectory();
-
-        return BuildMovieFromDto(dto, player, resourceDir);
+        BuildStageFromDto(dto.Stage, player, resourceDir);
+        return BuildMovieFromDto(dto.Movies.First(), player, resourceDir);
+    }
+    public LingoMovie Load(LingoStageDTO stageDto,LingoMovieDTO movieDto, LingoPlayer player, string resourceDir)
+    {
+        if (string.IsNullOrEmpty(resourceDir))
+            resourceDir = Directory.GetCurrentDirectory();
+        
+        BuildStageFromDto(stageDto, player, resourceDir);
+        return BuildMovieFromDto(movieDto, player, resourceDir);
     }
 
+    private static void BuildStageFromDto(LingoStageDTO dtoStage, LingoPlayer player, string resourceDir)
+    {
+        player.LoadStage(dtoStage.Width, dtoStage.Height, FromDto(dtoStage.BackgroundColor));
+    }
     private static LingoMovie BuildMovieFromDto(LingoMovieDTO dto, LingoPlayer player, string dir)
     {
         var movie = (LingoMovie)player.NewMovie(dto.Name);
         movie.Tempo = dto.Tempo;
+        movie.About = dto.About;
+        movie.Copyright = dto.Copyright;
+        movie.UserName = dto.UserName;
+        movie.CompanyName = dto.CompanyName;
 
         var castMap = new Dictionary<int, LingoCast>();
         var memberMap = new Dictionary<int, LingoMember>();
@@ -165,6 +181,10 @@ public class JsonStateRepository
             Number = movie.Number,
             Tempo = movie.Tempo,
             FrameCount = movie.FrameCount,
+            About = movie.About,
+            Copyright = movie.Copyright,
+            UserName = movie.UserName,
+            CompanyName = movie.CompanyName,
             Casts = movie.CastLib.GetAll().Select(c => ToDto((LingoCast)c, dir)).ToList(),
             Sprites = GetAllSprites(movie).Select(ToDto).ToList()
         };

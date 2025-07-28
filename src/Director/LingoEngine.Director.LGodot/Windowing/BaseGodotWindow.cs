@@ -80,8 +80,30 @@ namespace LingoEngine.Director.LGodot
             DrawLine(new Vector2(Size.X - ResizeHandle/2f, Size.Y), new Vector2(Size.X, Size.Y - ResizeHandle/2f), Colors.DarkGray);
         }
 
+
+        private bool useGuiInput = true;
+        protected void DontUseInputInsteadOfGuiInput()
+        {
+            // todo : fix this
+            useGuiInput = false;
+        }
+
+        public override void _Input(InputEvent @event)
+        {
+            base._Input(@event);
+            if (useGuiInput) return;
+            if (!_dragging && !_resizing && !GetGlobalRect().HasPoint(GetGlobalMousePosition()))
+                return;
+            HandleTheEvent(@event);
+        }
         public override void _GuiInput(InputEvent @event)
         {
+            base._GuiInput(@event);
+            if (!useGuiInput) return;
+            HandleTheEvent(@event);
+        }
+        private void HandleTheEvent(InputEvent @event)
+        { 
             if (@event is InputEventMouseButton mb)
             {
                 var pressed = mb.Pressed;
@@ -193,6 +215,12 @@ namespace LingoEngine.Director.LGodot
         }
         public virtual void CloseWindow() => Visible = false;
         public virtual void MoveWindow(int x, int y) => Position = new Vector2(x, y);
+        public virtual void SetPositionAndSize(int x, int y, int width, int height)
+        {
+            Position = new Vector2(x, y);
+            Size = new Vector2(width, height);
+            CustomMinimumSize = Size;
+        }
 
         private void EnsureInBounds()
         {

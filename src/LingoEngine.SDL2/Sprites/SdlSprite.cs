@@ -229,4 +229,9 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
     }
 
     public void Resize(float w, float h) { Width = w; Height = h; }
+
+    public void ApplyMemberChanges()
+    {
+        
+    }
 }

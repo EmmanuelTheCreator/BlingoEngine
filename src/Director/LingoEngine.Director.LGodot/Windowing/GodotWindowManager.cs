@@ -10,6 +10,7 @@ public interface IDirGodotWindowManager : IDirFrameworkWindowManager
 }
 internal class DirGodotWindowManager : IDirGodotWindowManager
 {
+    public const int ZIndexInactiveWindow = -4000;
     private IDirectorWindowManager _directorWindowManager;
     private readonly Dictionary<string, BaseGodotWindow> _godotWindows = new();
     public BaseGodotWindow? ActiveWindow { get; private set; }
@@ -22,6 +23,7 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
     public void Register(BaseGodotWindow godotWindow)
     {
         _godotWindows.Add(godotWindow.WindowCode, godotWindow);
+        godotWindow.ZIndex = ZIndexInactiveWindow;
     }
 
     public void SetActiveWindow(BaseGodotWindow window)
@@ -32,20 +34,26 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
             window.GrabFocus();
             return;
         }
-
-        ActiveWindow = window;
-        var parent = window.GetParent();
-        if (parent != null)
-            parent.MoveChild(window, parent.GetChildCount() - 1);
-        window.GrabFocus();
+        SetTheActiveWindow(window);
     }
+
+   
 
     public void SetActiveWindow(IDirectorWindowRegistration windowRegistration)
     {
         var window = _godotWindows[windowRegistration.WindowCode];
+        SetTheActiveWindow(window);
+    }
+
+    private void SetTheActiveWindow(BaseGodotWindow window)
+    {
+        if (ActiveWindow != null)
+            ActiveWindow.ZIndex = ZIndexInactiveWindow;
         ActiveWindow = window;
+        ActiveWindow.ZIndex = 0;
         var parent = window.GetParent();
         if (parent != null)
             parent.MoveChild(window, parent.GetChildCount() - 1);
+        window.GrabFocus();
     }
 }

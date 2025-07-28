@@ -20,7 +20,7 @@ namespace LingoEngine.SDL2.Gfx
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;
         public object FrameworkNode => this;
 
-
+        public string SelectedTabName => throw new NotImplementedException();
 
         public void Dispose() { }
 
@@ -41,6 +41,11 @@ namespace LingoEngine.SDL2.Gfx
         public void RemoveTab(ILingoFrameworkGfxTabItem content)
         {
             _children.Add(content);
+        }
+
+        public void SelectTabByName(string tabName)
+        {
+            throw new NotImplementedException();
         }
     }
     public partial class SdlGfxTabItem : ILingoFrameworkGfxTabItem

@@ -36,5 +36,7 @@ namespace LingoEngine.LGodot.Styles
         private Font _defaultStyle = ThemeDB.FallbackFont;
         public T GetDefaultFont<T>() where T : class => (_defaultStyle as T)!;
         public void SetDefaultFont<T>(T font) where T : class => _defaultStyle = (font as Font)!;
+
+        public IEnumerable<string> GetAllNames() => _loadedFonts.Keys;
     }
 }

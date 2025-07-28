@@ -120,7 +120,7 @@ namespace LingoEngine.Director.Core.FileSystems
 
             var slnFiles = Directory.GetFiles(projectFolder, "*.sln", SearchOption.TopDirectoryOnly);
             return slnFiles.Length > 0
-                ? Path.GetFileNameWithoutExtension(slnFiles[0]).ToLowerInvariant()
+                ? Path.GetFileNameWithoutExtension(slnFiles[0])//.ToLowerInvariant()
                 : null;
         }
         /// <summary>
@@ -133,7 +133,7 @@ namespace LingoEngine.Director.Core.FileSystems
                 RefreshOpenSolutions();
             }
 
-            var target = Path.GetFullPath(slnFullPath).ToLowerInvariant();
+            var target = Path.GetFullPath(slnFullPath);//.ToLowerInvariant();
             return _openSolutionPaths.Contains(target);
         }
         private void RefreshOpenSolutions()

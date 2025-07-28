@@ -45,6 +45,14 @@ namespace LingoEngine.Movies
         /// </summary>
         bool IsPlaying { get; }
 
+
+        string About { get; set; } 
+        string Copyright { get; set; } 
+        string UserName { get; set; } 
+        string CompanyName { get; set; } 
+
+
+
         /// <summary>
         /// Occurs when the play state changes. Parameter indicates whether the movie is now playing.
         /// </summary>
@@ -310,6 +318,8 @@ namespace LingoEngine.Movies
         void StartTimer();
 
         int Timer { get; }
+        int MaxSpriteChannelCount { get; }
+
         void SetScoreLabel(int frameNumber, string name);
         void PuppetSprite(int myNum, bool state);
 

@@ -22,6 +22,7 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
 
     internal SdlRootContext RootContext => _rootContext;
 
+    public LingoStage LingoStage => throw new NotImplementedException();
 
     internal void Init(LingoStage stage)
     {
@@ -47,4 +48,9 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
     }
 
     public void Dispose() { _movies.Clear(); }
+
+    public void ApplyPropertyChanges()
+    {
+        
+    }
 }

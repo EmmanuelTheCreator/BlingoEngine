@@ -59,6 +59,7 @@ namespace LingoEngine.Sprites
         /// The ink effect applied to the sprite. Read-only.
         /// </summary>
         int Ink { get; set; }
+        LingoInkType InkType { get; set; }
 
         /// <summary>
         /// Returns TRUE if the sprite’s cast member is linked to an external file. Read-only.
@@ -211,14 +212,16 @@ namespace LingoEngine.Sprites
         /// Changes the cast member displayed by this sprite using the cast member number.
         /// </summary>
         /// <param name="memberNumber">The index of the cast member.</param>
-        void SetMember(int memberNumber, int? castLibNum = null);
+        ILingoSprite SetMember(int memberNumber, int? castLibNum = null);
 
         /// <summary>
         /// Changes the cast member displayed by this sprite using the cast member name.
         /// </summary>
         /// <param name="memberName">The name of the cast member.</param>
-        void SetMember(string memberName, int? castLibNum = null);
-        void SetMember(ILingoMember? member);
+        ILingoSprite SetMember(string memberName, int? castLibNum = null);
+        ILingoSprite SetMember(ILingoMember? member);
+
+        ILingoSprite AddBehavior<T>() where T : LingoSpriteBehavior;
 
         /// <summary>
         /// Sends the sprite to the back of the display order (lowest layer).

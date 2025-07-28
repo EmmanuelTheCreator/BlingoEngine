@@ -7,6 +7,8 @@ namespace LingoEngine.Gfx
     /// </summary>
     public interface ILingoFrameworkGfxTabContainer : ILingoFrameworkGfxLayoutNode
     {
+        string SelectedTabName { get; }
+
         /// <summary>Adds a new tab containing the specified node.</summary>
         void AddTab(ILingoFrameworkGfxTabItem content);
         void RemoveTab(ILingoFrameworkGfxTabItem content);
@@ -14,6 +16,7 @@ namespace LingoEngine.Gfx
 
         /// <summary>Removes all tabs and their content.</summary>
         void ClearTabs();
+        void SelectTabByName(string tabName);
     }
     public interface ILingoFrameworkGfxTabItem : ILingoFrameworkGfxLayoutNode
     {

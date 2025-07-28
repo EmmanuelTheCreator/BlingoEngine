@@ -176,7 +176,8 @@ namespace LingoEngine.Core
         protected void SendSprite(int spriteNumber, Action<ILingoSpriteChannel> actionOnSprite) => _Movie.SendSprite(spriteNumber, actionOnSprite);
         protected void SendSprite<T>(int spriteNumber, Action<T> actionOnSprite) where T : LingoSpriteBehavior => _Movie.SendSprite(spriteNumber, actionOnSprite);
         protected TResult? SendSprite<T, TResult>(int spriteNumber, Func<T, TResult> actionOnSprite) where T : LingoSpriteBehavior => _Movie.SendSprite(spriteNumber, actionOnSprite);
-
+        protected void CallMovieScript<T>(Action<T> action) where T : LingoMovieScript => _Movie.CallMovieScript(action);
+        protected TResult? CallMovieScript<T, TResult>(Func<T, TResult> action) where T : LingoMovieScript => _Movie.CallMovieScript(action);
         protected LingoList<ILingoSpriteChannel> SpritesUnderPoint(LingoPoint point)
             => new LingoList<ILingoSpriteChannel>(_Movie.GetSpritesAtPoint(point.X, point.Y).Select(s => (ILingoSpriteChannel)s));
 

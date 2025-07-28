@@ -1,9 +1,7 @@
 ﻿using LingoEngine.Casts;
 using LingoEngine.Primitives;
-using LingoEngine.Texts;
+using LingoEngine.Sprites;
 using System.Diagnostics;
-using System.Security.Cryptography;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace LingoEngine.Members
 {
@@ -125,6 +123,8 @@ namespace LingoEngine.Members
         /// Lingo: the type of member
         /// </summary>
         LingoMemberType Type { get; }
+        string CastName { get; }
+        public ILingoCast Cast { get; }
 
         /// <summary>
         /// Copies the member’s data to the system clipboard.
@@ -205,6 +205,7 @@ namespace LingoEngine.Members
         private readonly ILingoFrameworkMember _frameworkMember;
         public ILingoFrameworkMember FrameworkObj => _frameworkMember;
 
+
         /// <inheritdoc/>
         public string Name
         {
@@ -232,18 +233,21 @@ namespace LingoEngine.Members
         /// <inheritdoc/>
         public int PurgePriority { get; set; }
         /// <inheritdoc/>
-        public int Width { get; set; }
+        public virtual int Width { get; set; }
         /// <inheritdoc/>
-        public int Height { get; set; }
+        public virtual int Height { get; set; }
         /// <inheritdoc/>
         public long Size { get; set; }
         /// <inheritdoc/>
         public string Comments { get; set; }
         /// <inheritdoc/>
-        public string FileName { get; private set; }
+        public string FileName { get; set; }
         /// <inheritdoc/>
         public LingoMemberType Type { get; private set; }
         public int NumberInCast { get; internal set; }
+        public string CastName { get => _cast.Name; }
+        public ILingoCast Cast { get => _cast; }
+        public bool HasChanged { get; internal set; }
 
         /// <inheritdoc/>
         public LingoMember(ILingoFrameworkMember frameworkMember, LingoMemberType type, LingoCast cast, int numberInCast, string name = "", string fileName = "", LingoPoint regPoint = default)
@@ -256,7 +260,7 @@ namespace LingoEngine.Members
             _cast = cast;
             RegPoint = regPoint;
             CastLibNum = _cast.Number;
-            Number = _cast.GetUniqueNumber();
+            Number = _cast.GetUniqueNumber(NumberInCast);
             Type = type;
             CreationDate = DateTime.Now;
             ModifiedDate = DateTime.Now;
@@ -292,6 +296,8 @@ namespace LingoEngine.Members
             _cast.Add(clone);
             return clone;
         }
+
+        public virtual void ChangesHasBeenApplied() => HasChanged = false;
         protected virtual LingoMember OnDuplicate(int newNumber)
         {
             throw new NotImplementedException();
@@ -302,6 +308,11 @@ namespace LingoEngine.Members
         public ILingoMember? GetMemberInCastByOffset(int numberOffset)
         {
             return _cast.Member[Number + numberOffset];
+        }
+
+        internal virtual void ReleaseFromSprite(LingoSprite lingoSprite)
+        {
+            FrameworkObj.ReleaseFromSprite(lingoSprite);
         }
     }
 }

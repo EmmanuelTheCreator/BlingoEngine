@@ -1,7 +1,12 @@
-﻿using LingoEngine.Core;
+﻿using LingoEngine.Bitmaps;
+using LingoEngine.Core;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
+using LingoEngine.Scripts;
+using LingoEngine.Shapes;
+using LingoEngine.Sounds;
+using LingoEngine.Texts;
 
 namespace LingoEngine.Casts
 {
@@ -69,7 +74,11 @@ namespace LingoEngine.Casts
         }
         /// <inheritdoc/>
         public int FindEmpty() => _MembersContainer.FindEmpty();
-        internal int GetUniqueNumber() => _castLibsContainer.GetNextMemberNumber();
+        internal int GetUniqueNumber(int numberInCast)
+        {
+            //if (Number == 1 ? ((member.CastLibNum - 1) * 131114 : numberInCast : _cast.GetUniqueNumber();
+            return _castLibsContainer.GetNextMemberNumber(Number, numberInCast);
+        }
 
         internal void RemoveAll()
         {
@@ -87,10 +96,37 @@ namespace LingoEngine.Casts
                 case LingoMemberType.FilmLoop: return _factory.CreateMemberFilmLoop(this, numberInCast, name, fileName, regPoint);
                 case LingoMemberType.Text: return _factory.CreateMemberText(this, numberInCast, name, fileName, regPoint);
                 case LingoMemberType.Field: return _factory.CreateMemberField(this, numberInCast, name, fileName, regPoint);
+                case LingoMemberType.Shape: return _factory.CreateMemberShape(this, numberInCast, name, fileName, regPoint);
+                case LingoMemberType.Script: return _factory.CreateScript(this, numberInCast, name, fileName, regPoint);
                 default:
                     return _factory.CreateEmpty(this, numberInCast, name, fileName, regPoint);
             }
 
+        }
+        public T Add<T>(int numberInCast, string name, Action<T>? configure = null) where T : ILingoMember
+        {
+            var member = (T)Add(GetByType<T>(), numberInCast, name, "", default);
+            if (configure != null)
+                configure(member);
+            
+            return member;
+        }
+
+        private static LingoMemberType GetByType<T>()
+            where T : ILingoMember
+        {
+            switch (typeof(T))
+            {
+                case Type t when t == typeof(LingoMemberBitmap):return LingoMemberType.Bitmap;
+                case Type t when t == typeof(LingoMemberSound):return LingoMemberType.Sound;
+                case Type t when t == typeof(LingoMemberFilmLoop):return LingoMemberType.FilmLoop;
+                case Type t when t == typeof(LingoMemberText):return LingoMemberType.Text;
+                case Type t when t == typeof(LingoMemberField):return LingoMemberType.Field;
+                case Type t when t == typeof(LingoMemberShape):return LingoMemberType.Shape;
+                case Type t when t == typeof(LingoMemberScript):return LingoMemberType.Script;
+                default:
+                    return LingoMemberType.Unknown;
+            }
         }
         public IEnumerable<ILingoMember> GetAll() => _MembersContainer.All;
     }
