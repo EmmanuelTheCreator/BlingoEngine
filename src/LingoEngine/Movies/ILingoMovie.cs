@@ -322,5 +322,27 @@ namespace LingoEngine.Movies
         IReadOnlyList<LingoMovieAudioClip> GetAudioClips();
         LingoMovieAudioClip AddAudioClip(int channel, int frame, LingoMemberSound sound);
         void MoveAudioClip(LingoMovieAudioClip clip, int newFrame);
+        void RemoveAudioClip(LingoMovieAudioClip clip);
+
+        // Tempo keyframes support
+        event Action? TempoKeyframesChanged;
+        IReadOnlyList<LingoTempoKeyframe> GetTempoKeyframes();
+        LingoTempoKeyframe AddTempoKeyFrame(int frame, int fps);
+        void MoveTempoKeyframe(int previousFrame, int newFrame);
+        void RemoveTempoKeyframe(int frame);
+
+        // Color palette keyframes support
+        event Action? ColorPaletteKeyframesChanged;
+        IReadOnlyList<LingoColorPaletteKeyframe> GetColorPaletteKeyframes();
+        LingoColorPaletteKeyframe AddColorPaletteKeyFrame(int frame, int paletteId);
+        void MoveColorPaletteKeyframe(int previousFrame, int newFrame);
+        void RemoveColorPaletteKeyframe(int frame);
+
+        // Transition keyframes support
+        event Action? TransitionKeyframesChanged;
+        IReadOnlyList<LingoTransitionKeyframe> GetTransitionKeyframes();
+        LingoTransitionKeyframe AddTransitionKeyFrame(int frame, int transitionId);
+        void MoveTransitionKeyframe(int previousFrame, int newFrame);
+        void RemoveTransitionKeyframe(int frame);
     }
 }

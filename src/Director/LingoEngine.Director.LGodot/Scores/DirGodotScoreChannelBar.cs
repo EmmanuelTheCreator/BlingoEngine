@@ -10,12 +10,9 @@ internal partial class DirGodotScoreChannelBar : Control
     DirScoreGfxValues _gfxValues;
 
     private LingoMovie? _movie;
-    private readonly DirGodotSoundBar _soundBar;
-
-    public DirGodotScoreChannelBar(DirScoreGfxValues gfxValues, DirGodotSoundBar soundBar)
+    public DirGodotScoreChannelBar(DirScoreGfxValues gfxValues)
     {
         _gfxValues = gfxValues;
-        _soundBar = soundBar;
         ClipContents = true;
     }
 

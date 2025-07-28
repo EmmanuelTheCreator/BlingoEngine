@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using LingoEngine.Casts;
 using LingoEngine.Core;
 using LingoEngine.Events;
@@ -36,8 +37,25 @@ namespace LingoEngine.Movies
         private bool _IsManualUpdateStage;
         public event Action? SpriteListChanged;
         public event Action? AudioClipListChanged;
-
+        public event Action? TempoKeyframesChanged
+        {
+            add => _tempoManager.KeyframesChanged += value;
+            remove => _tempoManager.KeyframesChanged -= value;
+        }
+        public event Action? ColorPaletteKeyframesChanged
+        {
+            add => _paletteManager.KeyframesChanged += value;
+            remove => _paletteManager.KeyframesChanged -= value;
+        }
+        public event Action? TransitionKeyframesChanged
+        {
+            add => _transitionManager.KeyframesChanged += value;
+            remove => _transitionManager.KeyframesChanged -= value;
+        }
         private readonly List<LingoMovieAudioClip> _audioClips = new();
+        private readonly LingoTempoManager _tempoManager = new();
+        private readonly LingoColorPaletteManager _paletteManager = new();
+        private readonly LingoTransitionManager _transitionManager = new();
 
         private void RaiseSpriteListChanged()
             => SpriteListChanged?.Invoke();
@@ -452,6 +470,41 @@ namespace LingoEngine.Movies
             clip.EndFrame = Math.Clamp(newFrame + lengthFrames, newFrame, FrameCount);
             RaiseAudioClipListChanged();
         }
+
+        public void RemoveAudioClip(LingoMovieAudioClip clip)
+        {
+            if (_audioClips.Remove(clip))
+                RaiseAudioClipListChanged();
+        }
+
+        public IReadOnlyList<LingoTempoKeyframe> GetTempoKeyframes() => _tempoManager.Keyframes;
+
+        public LingoTempoKeyframe AddTempoKeyFrame(int frame, int fps)
+            => _tempoManager.Add(frame, fps);
+
+        public void MoveTempoKeyframe(int previousFrame, int newFrame)
+            => _tempoManager.Move(previousFrame, newFrame);
+
+        public void RemoveTempoKeyframe(int frame)
+            => _tempoManager.Remove(frame);
+
+        // Color palette keyframes
+        public IReadOnlyList<LingoColorPaletteKeyframe> GetColorPaletteKeyframes() => _paletteManager.Keyframes;
+        public LingoColorPaletteKeyframe AddColorPaletteKeyFrame(int frame, int paletteId)
+            => _paletteManager.Add(frame, paletteId);
+        public void MoveColorPaletteKeyframe(int previousFrame, int newFrame)
+            => _paletteManager.Move(previousFrame, newFrame);
+        public void RemoveColorPaletteKeyframe(int frame)
+            => _paletteManager.Remove(frame);
+
+        // Transition keyframes
+        public IReadOnlyList<LingoTransitionKeyframe> GetTransitionKeyframes() => _transitionManager.Keyframes;
+        public LingoTransitionKeyframe AddTransitionKeyFrame(int frame, int transitionId)
+            => _transitionManager.Add(frame, transitionId);
+        public void MoveTransitionKeyframe(int previousFrame, int newFrame)
+            => _transitionManager.Move(previousFrame, newFrame);
+        public void RemoveTransitionKeyframe(int frame)
+            => _transitionManager.Remove(frame);
 
         public int GetMaxLocZ() => _spriteManager.GetMaxLocZ();
 

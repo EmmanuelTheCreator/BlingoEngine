@@ -1,12 +1,12 @@
 using Godot;
 using LingoEngine.Sprites;
+using LingoEngine.Movies;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
-internal class DirGodotScoreSprite
+internal class DirGodotScoreSprite : DirGodotBaseSprite
 {
     internal readonly LingoSprite Sprite;
-    internal bool Selected;
     internal readonly bool ShowLabel;
     internal bool IsFrameBehaviour;
 
@@ -17,7 +17,10 @@ internal class DirGodotScoreSprite
         IsFrameBehaviour = isFrameBehaviour;
     }
 
-    internal void Draw(CanvasItem canvas, Vector2 position, float width, float height, Font font)
+    internal override int BeginFrame { get => Sprite.BeginFrame; set => Sprite.BeginFrame = value; }
+    internal override int EndFrame { get => Sprite.EndFrame; set => Sprite.EndFrame = value; }
+
+    internal override void Draw(CanvasItem canvas, Vector2 position, float width, float height, Font font)
     {
         var baseColor = new Color("#ccccff");
         if (Sprite.Lock)
@@ -39,5 +42,11 @@ internal class DirGodotScoreSprite
             canvas.DrawString(font, new Vector2(position.X + 8, position.Y + font.GetAscent() - 6),
                 Sprite.Member.Name ?? string.Empty, HorizontalAlignment.Left, width - 8, 9, Colors.Black);
         }
+    }
+
+    internal override void DeleteFromMovie(LingoMovie movie)
+    {
+        // Removing a sprite removes it from movie timeline
+        Sprite.RemoveMe();
     }
 }
