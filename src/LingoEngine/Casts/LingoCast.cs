@@ -1,4 +1,5 @@
 ﻿using LingoEngine.Bitmaps;
+using LingoEngine.ColorPalettes;
 using LingoEngine.Core;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Members;
@@ -7,6 +8,7 @@ using LingoEngine.Scripts;
 using LingoEngine.Shapes;
 using LingoEngine.Sounds;
 using LingoEngine.Texts;
+using LingoEngine.Transitions;
 
 namespace LingoEngine.Casts
 {
@@ -98,6 +100,8 @@ namespace LingoEngine.Casts
                 case LingoMemberType.Field: return _factory.CreateMemberField(this, numberInCast, name, fileName, regPoint);
                 case LingoMemberType.Shape: return _factory.CreateMemberShape(this, numberInCast, name, fileName, regPoint);
                 case LingoMemberType.Script: return _factory.CreateScript(this, numberInCast, name, fileName, regPoint);
+                case LingoMemberType.Palette: return new LingoColorPaletteMember(this, numberInCast, name);
+                case LingoMemberType.Transition: return new LingoTransitionMember(this, numberInCast, name);
                 default:
                     return _factory.CreateEmpty(this, numberInCast, name, fileName, regPoint);
             }
@@ -124,6 +128,8 @@ namespace LingoEngine.Casts
                 case Type t when t == typeof(LingoMemberField):return LingoMemberType.Field;
                 case Type t when t == typeof(LingoMemberShape):return LingoMemberType.Shape;
                 case Type t when t == typeof(LingoMemberScript):return LingoMemberType.Script;
+                case Type t when t == typeof(LingoColorPaletteMember):return LingoMemberType.Palette;
+                case Type t when t == typeof(LingoTransitionMember):return LingoMemberType.Transition;
                 default:
                     return LingoMemberType.Unknown;
             }

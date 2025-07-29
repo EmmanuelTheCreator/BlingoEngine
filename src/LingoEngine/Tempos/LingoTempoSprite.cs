@@ -6,9 +6,17 @@ namespace LingoEngine.Tempos;
 public class LingoTempoSprite : LingoSprite
 {
     private readonly Action<LingoTempoSprite> _removeMe;
+    private int _tempo = 30;
 
     public int Frame { get; set; }
-    public int Tempo { get; set; } = 30;
+    public int Tempo
+    {
+        get => _tempo; set
+        {
+            _tempo = value;
+            Name = _tempo + "fps";
+        }
+    }
     public LingoTempoSprite(ILingoMovieEnvironment environment, Action<LingoTempoSprite> removeMe) : base(environment)
     {
         _removeMe = removeMe;

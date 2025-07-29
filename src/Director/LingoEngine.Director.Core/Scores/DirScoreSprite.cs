@@ -4,6 +4,8 @@ using LingoEngine.Primitives;
 using LingoEngine.Events;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Sounds;
+using LingoEngine.Director.Core.Tools;
+using System.Transactions;
 
 namespace LingoEngine.Director.Core.Scores
 {
@@ -36,6 +38,7 @@ namespace LingoEngine.Director.Core.Scores
             get => _isSelected; 
             set
             {
+                if (_isSelected == value) return;
                 _isSelected = value;
                 if (value)
                     _spritesManager.SelectSprite(Sprite);
@@ -61,6 +64,12 @@ namespace LingoEngine.Director.Core.Scores
             Sprite2D = sprite as LingoSprite2D;
             Sprite.AnimationChanged += OnAnimationChanged;
             _spritesManager.SpritesSelection.SelectionCleared += OnSelectionCleared;
+            spritesManager.Mediator.Subscribe<LingoSprite>(DirectorEventType.SpriteSelected, s =>
+            {
+                if (s == Sprite)
+                    IsSelected = true;
+                return true;
+            });
             IsSingleFrameSprite = sprite.IsSingleFrame;
         }
 

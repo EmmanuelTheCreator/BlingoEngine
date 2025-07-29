@@ -46,6 +46,7 @@ namespace LingoEngine.Director.Core.Sprites
             if (!Key.ControlDown && !Key.ShiftDown)
                 SpritesSelection.Clear();
             SpritesSelection.Add(sprite);
+            Mediator.RaiseSpriteSelected(sprite);
         }
         public void DeselectSprite(LingoSprite sprite)
         {

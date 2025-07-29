@@ -12,7 +12,7 @@ public class LingoSpriteFrameScript : LingoSprite
   
 
     public int Channel { get; protected set; }
-    public LingoMemberScript FrameScript { get; protected set; }
+    public LingoMemberScript Member { get; protected set; }
     public LingoSpriteBehavior? Behavior { get; private set; }
 
 
@@ -30,7 +30,7 @@ public class LingoSpriteFrameScript : LingoSprite
         SpriteNum = FrameScriptSpriteNum;// Tempo = 1, Colorpalette= 2, transition = 3, Audio1 = 4, Audio2 = 5, FrameScript = 6
         BeginFrame = beginFrame;
         EndFrame = endFrame;
-        FrameScript = frameScript;
+        Member = frameScript;
         Name = frameScript.Name ?? string.Empty;
     }
 

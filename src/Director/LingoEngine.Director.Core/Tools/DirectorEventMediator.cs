@@ -25,6 +25,8 @@ namespace LingoEngine.Director.Core.Tools
     {
         StagePropertiesChanged,
         CastPropertiesChanged,
+        SpriteSelected,
+        MemberSelected,
     }
     internal class DirectorEventMediator : IDirectorEventMediator
     {
@@ -70,10 +72,16 @@ namespace LingoEngine.Director.Core.Tools
         }
 
         public void RaiseSpriteSelected(ILingoSpriteBase sprite)
-            => _spriteSelected.ForEach(x => x.SpriteSelected(sprite));
+        {
+            _spriteSelected.ForEach(x => x.SpriteSelected(sprite));
+            Raise(DirectorEventType.SpriteSelected, sprite);
+        }
 
         public void RaiseMemberSelected(ILingoMember member)
-            => _membersSelected.ForEach(x => x.MemberSelected(member));
+        {
+            _membersSelected.ForEach(x => x.MemberSelected(member));
+            Raise(DirectorEventType.MemberSelected, member);
+        }
 
         public void RaiseFindMember(ILingoMember member)
             => _findMemberEvents.ForEach(x => x.FindMember(member));

@@ -23,6 +23,10 @@ using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
 using LingoEngine.Shapes;
 using Microsoft.Extensions.Logging;
+using LingoEngine.Tempos;
+using LingoEngine.ColorPalettes;
+using LingoEngine.Transitions;
+using LingoEngine.Scripts;
 
 namespace LingoEngine.Director.Core.Inspector
 {
@@ -201,20 +205,33 @@ namespace LingoEngine.Director.Core.Inspector
                     AddGuidesTab(_guides);
                     if (sp2.Member != null)
                         AddMemberTabs(sp2.Member);
-                    if (_player.ActiveMovie != null)
-                        AddMovieTab(_player.ActiveMovie);
+                    
                     break;
                 case ILingoMember member2:
                     AddMemberTabs(member2);
                     AddCastTab(member2.Cast);
                     break;
                 case ILingoCast cast:AddCastTab(cast);break;
+                case LingoSpriteSound sound:
+                    AddSpriteTab(sound);
+                    if (sound.Sound != null)
+                    {
+                        AddMemberTabs(sound.Sound);
+                        AddSoundTab(sound.Sound);
+                    }
+                    break;
+                case LingoTempoSprite tempo:AddSpriteTab(tempo);break;
+                case LingoColorPaletteSprite colorPalette:AddSpriteTab(colorPalette);if (colorPalette.Member != null) AddMemberTabs(colorPalette.Member); break;
+                case LingoTransitionSprite transition:AddSpriteTab(transition);if (transition.Member != null) AddMemberTabs(transition.Member); break;
+                case LingoSpriteFrameScript frameScript:AddSpriteTab(frameScript);if (frameScript.Member != null) AddMemberTabs(frameScript.Member); break;
 
                 default:
                     //AddTab(obj.GetType().Name, obj);
                     break;
             }
-
+            if (obj is LingoSprite && _player.ActiveMovie != null)
+                  AddMovieTab(_player.ActiveMovie);
+            
             try
             {
                 if (_tabs.GetChildren().Any(x => x.Name == lastSelectedTab.ToString()))
@@ -245,7 +262,7 @@ namespace LingoEngine.Director.Core.Inspector
 
 
         #region Sprite Tab
-        private void AddSpriteTab(LingoSprite2D sprite)
+        private void AddSpriteTab(LingoSprite sprite)
         {
             CreateBehaviorPanel();
             var wrapContainer = AddTab(PropetyTabNames.Sprite);
@@ -254,46 +271,63 @@ namespace LingoEngine.Director.Core.Inspector
 
 
             containerIcons.Margin = new LingoMargin(5, 5, 5, 5);
-            containerIcons.Compose(_factory)
+            var composer0 = containerIcons.Compose(_factory)
                 .AddStateButton("SpriteLock", sprite, _iconManager.Get(DirectorIcon.Lock), c => c.Lock)
-                .AddStateButton("SpriteFlipH", sprite, _iconManager.Get(DirectorIcon.FlipHorizontal), c => c.FlipH, "")
-                .AddStateButton("SpriteFlipV", sprite, _iconManager.Get(DirectorIcon.FlipVertical), c => c.FlipV)
                 ;
+            if (sprite is LingoSprite2D sprite2D0)
+                composer0
+                    .AddStateButton("SpriteFlipH", sprite2D0, _iconManager.Get(DirectorIcon.FlipHorizontal), c => c.FlipH, "")
+                    .AddStateButton("SpriteFlipV", sprite2D0, _iconManager.Get(DirectorIcon.FlipVertical), c => c.FlipV)
+                    ;
+            composer0.Finalize();
 
-            container.Compose(_factory)
+            var composer = container.Compose(_factory)
                    .Columns(4)
                    .AddTextInput("SpriteName", "Name:", sprite, s => s.Name, inputSpan: 3)
-                   .Columns(8)
-                   .AddNumericInputFloat("SpriteLocH", "X:", sprite, s => s.LocH)
-                   .AddNumericInputFloat("SpriteLocV", "Y:", sprite, s => s.LocV)
-                   .AddNumericInputFloat("SpriteLocZ", "Z:", sprite, s => s.LocZ, inputSpan: 3)
-                   .AddNumericInputFloat("SpriteLeft", "L:", sprite, s => s.Left)
-                   .AddNumericInputFloat("SpriteTop", "T:", sprite, s => s.Top)
-                   .AddNumericInputFloat("SpriteRight", "R:", sprite, s => s.Right)
-                   .AddNumericInputFloat("SpriteBottom", "B:", sprite, s => s.Bottom)
-                   .AddNumericInputFloat("SpriteWidth", "W:", sprite, s => s.Width)
-                   .AddNumericInputFloat("SpriteHeight", "H:", sprite, s => s.Height, inputSpan: 5)
-                   .AddEnumInput<LingoSprite2D, LingoInkType>("SpriteInk", "Ink:", sprite, s => s.Ink, inputSpan: 6)
-                   .AddNumericInputFloat("SpriteBlend", "%", sprite, s => s.Blend, showLabel: false)
+                   .Columns(8);
+            if (sprite is LingoSprite2D sprite2D)
+                composer
+                       .AddNumericInputFloat("SpriteLocH", "X:", sprite2D, s => s.LocH)
+                       .AddNumericInputFloat("SpriteLocV", "Y:", sprite2D, s => s.LocV)
+                       .AddNumericInputFloat("SpriteLocZ", "Z:", sprite2D, s => s.LocZ, inputSpan: 3)
+                       .AddNumericInputFloat("SpriteLeft", "L:", sprite2D, s => s.Left)
+                       .AddNumericInputFloat("SpriteTop", "T:",  sprite2D, s => s.Top)
+                       .AddNumericInputFloat("SpriteRight", "R:", sprite2D, s => s.Right)
+                       .AddNumericInputFloat("SpriteBottom", "B:", sprite2D, s => s.Bottom)
+                       .AddNumericInputFloat("SpriteWidth", "W:", sprite2D, s => s.Width)
+                       .AddNumericInputFloat("SpriteHeight", "H:", sprite2D, s => s.Height, inputSpan: 5)
+                       .AddEnumInput<LingoSprite2D, LingoInkType>("SpriteInk", "Ink:", sprite2D, s => s.Ink, inputSpan: 6)
+                       .AddNumericInputFloat("SpriteBlend", "%", sprite2D, s => s.Blend, showLabel: false)
+                       ;
+            composer
                    .AddNumericInputInt("SpriteBeginFrame", "StartFrame:", sprite, s => s.BeginFrame, labelSpan: 3)
                    .AddNumericInputInt("SpriteEndFrame", "End:", sprite, s => s.EndFrame, inputSpan: 1, labelSpan: 3)
-                   .AddNumericInputFloat("SpriteRotation", "Rotation:", sprite, s => s.Rotation, labelSpan: 3)
-                   .AddNumericInputFloat("SpriteSkew", "Skew:", sprite, s => s.Skew, inputSpan: 1, labelSpan: 3)
-                   .AddColorPicker("SpriteForeColor", "Foreground:", sprite, s => s.ForeColor, inputSpan: 1, labelSpan: 3)
-                   .AddColorPicker("SpriteBackColor", "Background:", sprite, s => s.BackColor, inputSpan: 1, labelSpan: 3)
-                   .Finalize();
-            ;
-            var index = 0;
-            _behaviors = sprite.Behaviors.ToDictionary(b =>
-            {
-                index++;
-                return index + "." + b.Name;
-            });
+                   ;
             _behaviorList.ClearItems();
+            _behaviors.Clear();
+            if (sprite is LingoSprite2D sprite2D1) {
+                composer
+                   .AddNumericInputFloat("SpriteRotation", "Rotation:", sprite2D1, s => s.Rotation, labelSpan: 3)
+                   .AddNumericInputFloat("SpriteSkew", "Skew:", sprite2D1, s => s.Skew, inputSpan: 1, labelSpan: 3)
+                   .AddColorPicker("SpriteForeColor", "Foreground:", sprite2D1, s => s.ForeColor, inputSpan: 1, labelSpan: 3)
+                   .AddColorPicker("SpriteBackColor", "Background:", sprite2D1, s => s.BackColor, inputSpan: 1, labelSpan: 3)
+                  
+                ;
+                var index = 0;
+                _behaviors = sprite2D1.Behaviors.ToDictionary(b =>
+                {
+                    index++;
+                    return index + "." + b.Name;
+                });
+            }
+            if (sprite is LingoSpriteFrameScript frameScript && frameScript.Behavior != null)
+                _behaviors.Add("1."+frameScript.Behavior.Name, frameScript.Behavior);
+            
             foreach (var item in _behaviors)
                 _behaviorList.AddItem(item.Key, item.Value.Name);
 
 
+            composer.Finalize();
             wrapContainer
                 .AddItem(containerIcons)
                 .AddHLine(_factory, "SpriteSplitterIconHLine", _lastWidh - 10, 5)
