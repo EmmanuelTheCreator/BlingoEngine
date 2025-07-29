@@ -4,14 +4,14 @@ using LingoEngine.Sprites;
 namespace LingoEngine.Tempos;
 
 
-public interface ILingoSpriteTempoManager : ILingoSpriteManager<LingoTempoSprite>
+public interface ILingoTempoSpriteManager : ILingoSpriteManager<LingoTempoSprite>
 {
     public int Tempo { get; }
     LingoTempoSprite Add(int frameNumber, int value);
     void ChangeTempo(LingoTempoSprite lingoTempoSprite);
    
 }
-internal class LingoSpriteTempoManager : LingoSpriteManager<LingoTempoSprite>, ILingoSpriteTempoManager
+internal class LingoTempoSpriteManager : LingoSpriteManager<LingoTempoSprite>, ILingoTempoSpriteManager
 {
     private int _tempo = 30;  // Default frame rate (FPS)
 
@@ -24,7 +24,7 @@ internal class LingoSpriteTempoManager : LingoSpriteManager<LingoTempoSprite>, I
                 _tempo = value;
         }
     }
-    public LingoSpriteTempoManager(LingoMovie movie, LingoMovieEnvironment environment) : base(movie, environment)
+    public LingoTempoSpriteManager(LingoMovie movie, LingoMovieEnvironment environment) : base(movie, environment)
     {
     }
 
@@ -32,13 +32,17 @@ internal class LingoSpriteTempoManager : LingoSpriteManager<LingoTempoSprite>, I
 
     public LingoTempoSprite Add(int frameNumber, int value)
     {
-        return AddSprite(1, "TempoChange_" + frameNumber,c => c.Tempo = value);
+        var sprite = AddSprite(1, "TempoChange_" + frameNumber,c => c.Tempo = value);
+        sprite.BeginFrame = frameNumber;
+        sprite.EndFrame = frameNumber;
+        return sprite;
     }
 
     public void ChangeTempo(int value)
     {
-        if (value > 0 && value < 120)
+        if (value > 0 && value < 60)
             _tempo = value;
+        _environment.Clock.FrameRate = _tempo;
     }
     public void ChangeTempo(LingoTempoSprite lingoTempoSprite) => ChangeTempo(lingoTempoSprite.Tempo);
 }

@@ -12,6 +12,7 @@ public class LingoTempoSprite : LingoSprite
     public LingoTempoSprite(ILingoMovieEnvironment environment, Action<LingoTempoSprite> removeMe) : base(environment)
     {
         _removeMe = removeMe;
+        IsSingleFrame = true;
     }
 
     protected override void BeginSprite()

@@ -1,6 +1,5 @@
 ﻿using LingoEngine.Core;
 using LingoEngine.Movies;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.Sprites
 {

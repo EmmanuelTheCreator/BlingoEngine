@@ -61,7 +61,7 @@ namespace LingoEngine.Director.Core.Scores
             Sprite2D = sprite as LingoSprite2D;
             Sprite.AnimationChanged += OnAnimationChanged;
             _spritesManager.SpritesSelection.SelectionCleared += OnSelectionCleared;
-            IsSingleFrameSprite = !(sprite is LingoSprite2D || sprite is LingoSpriteSound);
+            IsSingleFrameSprite = sprite.IsSingleFrame;
         }
 
         private void OnSelectionCleared()
@@ -84,13 +84,15 @@ namespace LingoEngine.Director.Core.Scores
             X = (Sprite.BeginFrame - 1) * frameWidth;
             Width = (Sprite.EndFrame - Sprite.BeginFrame + 1) * frameWidth;
             Height = channelHeight;
+            int labelLeft = 8;
+            var labelWidth = Width;
 
             // Draw Background
             canvas.DrawRect(new LingoRect(X, 0, X+ Width, channelHeight), GetBgColor());
 
             float radius = 3f;
-            string name = "";
-            if (!IsSingleFrameSprite)
+            string name = Sprite.Name;
+            if (Sprite.BeginFrame != Sprite.EndFrame)
             {
                 // Draw keyframes
                 var startCenter = new LingoPoint(X + 3f, OffsetY + Height / 2f);
@@ -99,15 +101,16 @@ namespace LingoEngine.Director.Core.Scores
                 canvas.DrawCircle(endCenter, radius, ColorCircle);
                 canvas.DrawArc(startCenter, radius, 0, 360, 8, ColorCircleBorder);
                 canvas.DrawArc(endCenter, radius, 0, 360, 8, ColorCircleBorder);
-                
-                name = GetName();
+                if (Sprite is LingoSprite2D)
+                    name = GetName();
+                labelWidth = Width - labelLeft - frameWidth;
             }
             else
             {
-                name = Sprite.Name;
+                labelLeft = 0;
             }
             // Draw name
-            canvas.DrawText(new LingoPoint(X + 8, 11), name, null, LingoColorList.Black, 9, (int)Width);
+            canvas.DrawText(new LingoPoint(X + labelLeft, 11), name, null, LingoColorList.Black, 9, (int)labelWidth);
         }
 
         public bool IsPointInsideSprite(float x, float y)
@@ -185,7 +188,8 @@ namespace LingoEngine.Director.Core.Scores
             if (!_isDragging) return;
             if (_isDraggingBegin)
             {
-                Sprite.BeginFrame = frameNumber;
+                if (frameNumber <= Sprite.EndFrame && frameNumber > 0)
+                    Sprite.BeginFrame = frameNumber;
                 return;
             } 
             if (_isDraggingMiddle)
@@ -197,7 +201,8 @@ namespace LingoEngine.Director.Core.Scores
             } 
             if (_isDraggingEnd)
             {
-                Sprite.EndFrame = frameNumber;
+                if (frameNumber >= Sprite.BeginFrame && frameNumber > 0)
+                    Sprite.EndFrame = frameNumber;
                 return;
             }
         }

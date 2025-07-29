@@ -5,7 +5,7 @@ using LingoEngine.Tempos;
 using LingoEngine.Director.Core.Sprites;
 
 namespace LingoEngine.Director.LGodot.Scores;
-internal partial class DirGodotTempoGridChannel : DirGodotTopGridChannel<ILingoSpriteTempoManager, DirGodotTempoSprite, LingoTempoSprite>
+internal partial class DirGodotTempoGridChannel : DirGodotTopGridChannel<ILingoTempoSpriteManager, DirGodotTempoSprite, LingoTempoSprite>
 {
     private readonly AcceptDialog _dialog = new();
     private readonly HSlider _slider = new();
@@ -24,7 +24,7 @@ internal partial class DirGodotTempoGridChannel : DirGodotTopGridChannel<ILingoS
 
     protected override DirGodotTempoSprite CreateUISprite(LingoTempoSprite sprite, IDirSpritesManager spritesManager) => new DirGodotTempoSprite(sprite, spritesManager);
 
-    protected override ILingoSpriteTempoManager GetManager(LingoMovie movie) => movie.Tempos;
+    protected override ILingoTempoSpriteManager GetManager(LingoMovie movie) => movie.Tempos;
 
    
 

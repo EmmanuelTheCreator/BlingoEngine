@@ -9,4 +9,6 @@ internal class DirGodotColorPaletteSprite : DirGodotTopSprite<LingoColorPaletteS
         SpritesManager = spritesManager;
         Init(sprite);
     }
+
+    internal LingoColorPaletteFrameSettings GetSettings() => Sprite.GetSettings();
 }

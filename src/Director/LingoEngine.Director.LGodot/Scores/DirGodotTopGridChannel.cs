@@ -1,12 +1,9 @@
 using Godot;
-using LingoEngine.Commands;
 using LingoEngine.Director.Core.Scores;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Events;
-using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
-using LingoEngine.LGodot.Gfx;
 using LingoEngine.Movies;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
@@ -218,50 +215,7 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
     }
 
     protected abstract TSpriteManager GetManager(LingoMovie movie);
-    //public override void _GuiInput(InputEvent @event)
-    //{
-    //    if (_movie == null) return;
-
-    //    if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Left)
-    //    {
-    //        if (mb.Pressed)
-    //        {
-    //            _mouseFrame = Mathf.RoundToInt((mb.Position.X + _scrollX - _gfxValues.LeftMargin) / _gfxValues.FrameWidth) + 1;
-    //            //var sprite = _sprites.FirstOrDefault(k => frame >= k.BeginFrame && frame <= k.EndFrame);
-    //            //if (mb.DoubleClick)
-    //            //{
-    //            //    OnDoubleClick(frame, sprite);
-    //            //}
-    //            //else if (sprite != null)
-    //            //{
-    //            //    foreach (var sp in _sprites)
-    //            //        sp.Selected = sp == sprite;
-    //            //    _dragSprite = sprite;
-    //            //    _dragFrame = frame;
-    //            //    OnSpriteClicked(sprite);
-    //            //    MarkDirty();
-    //            //}
-    //        }
-    //        else
-    //        {
-    //            //if (!HandleDrop(mb))
-    //            //    _dragSprite = null;
-    //        }
-    //    }
-    //    else if (@event is InputEventMouseMotion) // && _dragSprite != null)
-    //    {
-    //        float frameF = (GetLocalMousePosition().X + _scrollX - _gfxValues.LeftMargin) / _gfxValues.FrameWidth;
-    //        _mouseFrame = Math.Clamp(Mathf.RoundToInt(frameF) + 1, 1, _movie.FrameCount);
-    //        //if (newFrame != _dragFrame)
-    //        //{
-    //        //    MoveSprite(_dragSprite, _dragFrame, newFrame);
-    //        //    _dragSprite.MoveToFrame(newFrame);
-    //        //    _dragFrame = newFrame;
-    //        //    _dirty = true;
-    //        //}
-    //    }
-    //}
-
+  
     protected virtual void UpdateSize()
     {
         if (_movie == null) return;

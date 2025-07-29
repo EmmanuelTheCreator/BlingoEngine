@@ -6,4 +6,6 @@ internal class LingoTransitionKeyFrameManager : LingoKeyframeManager<LingoTransi
 {
     protected override void SetValue(LingoTransitionKeyFrame kf, int value) => kf.TransitionId = value;
     protected override LingoTransitionKeyFrame Create(int frame, int value) => new LingoTransitionKeyFrame(frame, value);
+
+ 
 }

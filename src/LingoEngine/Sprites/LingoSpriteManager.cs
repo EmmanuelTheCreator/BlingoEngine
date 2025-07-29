@@ -1,5 +1,4 @@
 using LingoEngine.Movies;
-using System.Collections.Generic;
 
 namespace LingoEngine.Sprites
 {
@@ -19,8 +18,10 @@ namespace LingoEngine.Sprites
         IEnumerable<TSprite> GetAllSpritesByChannel(int channel);
         void MoveSprite(TSprite sprite, int newFrame);
     }
-    internal abstract class LingoSpriteManager<TSprite> : ILingoSpriteManager
-        where TSprite : LingoSprite
+
+
+
+    internal abstract class LingoSpriteManager : ILingoSpriteManager
     {
         protected readonly LingoMovieEnvironment _environment;
         protected readonly LingoMovie _movie;
@@ -28,6 +29,32 @@ namespace LingoEngine.Sprites
 
         protected int _maxSpriteNum = 0;
         protected int _maxSpriteChannelCount;
+
+        public abstract int MaxSpriteChannelCount { get; set; }
+        public abstract int SpriteTotalCount { get; }
+        public abstract int SpriteMaxNumber { get; }
+
+        protected LingoSpriteManager(LingoMovie movie, LingoMovieEnvironment environment)
+        {
+            _movie = movie;
+            _environment = environment;
+        }
+
+        public abstract void MoveSprite(int number, int newFrame);
+        public abstract void MuteChannel(int channel, bool state);
+
+        internal abstract void UpdateActiveSprites(int currentFrame, int lastFrame);
+        internal abstract void BeginSprites();
+        //internal abstract void EndSprites();
+    }
+
+
+
+
+    internal abstract class LingoSpriteManager<TSprite> : LingoSpriteManager
+        where TSprite : LingoSprite
+    {
+       
         protected readonly Dictionary<int, LingoSpriteChannel> _spriteChannels = new();
         protected readonly Dictionary<string, TSprite> _spritesByName = new();
         protected readonly List<TSprite> _allTimeSprites = new();
@@ -35,20 +62,18 @@ namespace LingoEngine.Sprites
         protected readonly Dictionary<int, TSprite> _activeSprites = new();
         protected readonly List<TSprite> _enteredSprites = new();
         protected readonly List<TSprite> _exitedSprites = new();
-        protected TSprite? _currentFrameSprite;
 
         internal List<TSprite> AllTimeSprites => _allTimeSprites;
         public event Action? SpriteListChanged;
         protected void RaiseSpriteListChanged() => SpriteListChanged?.Invoke();
         public IEnumerable<TSprite> GetAllSprites() => _allTimeSprites.ToArray();
         public IEnumerable<TSprite> GetAllSpritesByChannel(int spriteNum) => _allTimeSprites.Where(x => x.SpriteNum == spriteNum).ToArray();
-        internal LingoSpriteManager(LingoMovie movie, LingoMovieEnvironment environment)
+        protected LingoSpriteManager(LingoMovie movie, LingoMovieEnvironment environment)
+            :base(movie, environment)
         {
-            _movie = movie;
-            _environment = environment;
         }
 
-        public int MaxSpriteChannelCount
+        public override int MaxSpriteChannelCount
         {
             get => _maxSpriteChannelCount;
             set
@@ -65,8 +90,8 @@ namespace LingoEngine.Sprites
             }
         }
 
-        public int SpriteTotalCount => _activeSprites.Count;
-        public int SpriteMaxNumber => _activeSprites.Keys.DefaultIfEmpty(0).Max();
+        public override int SpriteTotalCount => _activeSprites.Count;
+        public override int SpriteMaxNumber => _activeSprites.Keys.DefaultIfEmpty(0).Max();
 
 
         internal TSprite AddSprite(string name, Action<TSprite>? configure = null)
@@ -106,7 +131,7 @@ namespace LingoEngine.Sprites
 
         }
 
-        public void MoveSprite(int number, int newFrame)
+        public override void MoveSprite(int number, int newFrame)
         {
             if (number <= 0 || number > _movie.MaxSpriteChannelCount)
                 return;
@@ -174,30 +199,52 @@ namespace LingoEngine.Sprites
             if (sprite == null) return default;
             return spriteAction(sprite);
         }
+        internal override void UpdateActiveSprites(int currentFrame, int lastFrame)
+        {
+            _enteredSprites.Clear();
+            _exitedSprites.Clear();
+
+            foreach (var sprite in _allTimeSprites)
+            {
+                if (sprite == null) continue;
+                sprite.IsActive = sprite.BeginFrame <= currentFrame && sprite.EndFrame >= currentFrame;
+
+                bool wasActive = sprite.BeginFrame <= lastFrame && sprite.EndFrame >= lastFrame;
+                bool isActive = sprite.IsActive;
+
+                if (!wasActive && isActive)
+                {
+                    _enteredSprites.Add(sprite);
+                    if (_activeSprites.TryGetValue(sprite.SpriteNum, out var existingSprite))
+                        throw new Exception($"Operlapping sprites:{existingSprite.Name} and {sprite.Name}");
+                    //_spriteChannels[sprite.SpriteNum].SetSprite(sprite);
+                    _activeSprites.Add(sprite.SpriteNum, sprite);
+                }
+                else if (wasActive && !isActive)
+                {
+                    // need to be done early to be able to create new active sprite on same spritenum
+                    //_spriteChannels[sprite.SpriteNum].RemoveSprite();
+                    _activeSprites.Remove(sprite.SpriteNum);
+                    _exitedSprites.Add(sprite);
+                    sprite.DoEndSprite();
+                }
+            }
+        }
 
 
-
-        internal void BeginSprites()
+        internal override void BeginSprites()
         {
             foreach (var sprite in _enteredSprites)
                 sprite.DoBeginSprite();
-
-            _currentFrameSprite?.DoBeginSprite();
         }
+        
 
+        //internal override void EndSprites()
+        //{
+        //    // Needs to be done earlier when just changing frame
+        //}
 
-        internal void EndSprites()
-        {
-            _currentFrameSprite?.DoEndSprite();
-            //foreach (var sprite in _exitedSprites)
-            //{
-            //    sprite.FrameworkObj.Hide();
-            //    sprite.DoEndSprite();
-
-            //}
-        }
-
-        public virtual void MuteChannel(int channel,bool state)
+        public override void MuteChannel(int channel,bool state)
         {
             if(state)
             {

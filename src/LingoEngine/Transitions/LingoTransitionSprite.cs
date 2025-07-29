@@ -12,6 +12,7 @@ public class LingoTransitionSprite : LingoSprite
     public LingoTransitionSprite(ILingoMovieEnvironment environment, Action<LingoTransitionSprite> removeMe) : base(environment)
     {
         _removeMe = removeMe;
+        IsSingleFrame = true;
     }
 
     public override void RemoveMe()

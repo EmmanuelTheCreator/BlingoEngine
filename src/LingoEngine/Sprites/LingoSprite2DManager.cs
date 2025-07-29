@@ -6,34 +6,14 @@ namespace LingoEngine.Sprites
 {
     internal class LingoSprite2DManager : LingoSpriteManager<LingoSprite2D>
     {
-        protected readonly Dictionary<int, LingoSprite2D> _frameSpriteBehaviors = new();
+        //protected readonly Dictionary<int, LingoSprite2D> _frameSpriteBehaviors = new();
         protected readonly LingoStageMouse _lingoMouse;
         internal LingoSprite2DManager(LingoMovie movie, LingoMovieEnvironment environment) : base(movie, environment)
         {
             _lingoMouse = (LingoStageMouse)environment.Mouse;
         }
 
-        internal LingoSprite2D AddFrameBehavior<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour = null, Action<LingoSprite2D>? configure = null) where TBehaviour : LingoSpriteBehavior
-        {
-            var sprite = _environment.Factory.CreateSprite<LingoSprite2D>(_movie, s =>
-            {
-                _frameSpriteBehaviors.Remove(frameNumber);
-                RaiseSpriteListChanged();
-            });
-            sprite.Init(0, $"FrameSprite_{frameNumber}");
-            if (_frameSpriteBehaviors.ContainsKey(frameNumber))
-                _frameSpriteBehaviors[frameNumber] = sprite;
-            else
-                _frameSpriteBehaviors.Add(frameNumber, sprite);
-            sprite.BeginFrame = frameNumber;
-            sprite.EndFrame = frameNumber;
-
-            var behaviour = sprite.SetBehavior<TBehaviour>();
-            configureBehaviour?.Invoke(behaviour);
-            configure?.Invoke(sprite);
-            RaiseSpriteListChanged();
-            return sprite;
-        }
+      
         internal LingoSprite2D AddSprite(int num, int begin, int end, float x, float y, Action<LingoSprite2D>? configure = null)
            => AddSprite(num, c =>
            {
@@ -107,10 +87,10 @@ namespace LingoEngine.Sprites
                 }
             }
 
-            if (_frameSpriteBehaviors.TryGetValue(currentFrame, out var frameSprite))
-                _currentFrameSprite = frameSprite;
-            else
-                _currentFrameSprite = null;
+            //if (_frameSpriteBehaviors.TryGetValue(currentFrame, out var frameSprite))
+            //    _currentFrameSprite = frameSprite;
+            //else
+            //    _currentFrameSprite = null;
         }
 
         List<LingoMember> _changedMembers = new List<LingoMember>();
@@ -237,24 +217,6 @@ namespace LingoEngine.Sprites
        
         internal int GetMaxLocZ() => _activeSprites.Values.Max(x => x.LocZ);
 
-        internal IReadOnlyDictionary<int, LingoSprite2D> FrameSpriteBehaviors => _frameSpriteBehaviors;
 
-        internal void MoveFrameBehavior(int previousFrame, int newFrame)
-        {
-            if (previousFrame == newFrame) return;
-            if (!_frameSpriteBehaviors.TryGetValue(previousFrame, out var sprite))
-                return;
-
-            _frameSpriteBehaviors.Remove(previousFrame);
-
-            if (_frameSpriteBehaviors.TryGetValue(newFrame, out var existing))
-                existing.RemoveMe();
-
-            _frameSpriteBehaviors[newFrame] = sprite;
-            sprite.BeginFrame = newFrame;
-            sprite.EndFrame = newFrame;
-
-            RaiseSpriteListChanged();
-        }
     }
 }

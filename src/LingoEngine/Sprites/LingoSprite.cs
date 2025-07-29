@@ -16,7 +16,8 @@ namespace LingoEngine.Sprites
 
         public int BeginFrame
         {
-            get => _beginFrame; set
+            get => _beginFrame; 
+            set
             {
                 _beginFrame = value;
                 NotifyAnimationChanged();
@@ -24,7 +25,8 @@ namespace LingoEngine.Sprites
         }
         public int EndFrame
         {
-            get => _endFrame; set
+            get => _endFrame; 
+            set
             {
                 _endFrame = value;
                 NotifyAnimationChanged();
@@ -49,6 +51,7 @@ namespace LingoEngine.Sprites
         /// Whether this sprite is currently active (i.e., the playhead is within its frame span).
         /// </summary>
         public bool IsActive { get; internal set; }
+        public bool IsSingleFrame { get; protected set; }
         public bool Lock
         {
             get => _lock; set

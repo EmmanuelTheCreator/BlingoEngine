@@ -4,6 +4,7 @@ using LingoEngine.Casts;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Core;
 using LingoEngine.Members;
+using LingoEngine.Scripts;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
 using LingoEngine.Tempos;
@@ -56,8 +57,8 @@ namespace LingoEngine.Movies
 
         ILingoSpriteAudioManager Audio {get;}
         ILingoSpriteTransitionManager Transitions {get;}
-        ILingoSpriteTempoManager Tempos {get;}
-        ILingoSpriteColorPaletteManager ColorPalettes { get; }
+        ILingoTempoSpriteManager Tempos {get;}
+        ILingoSpriteColorPaletteSpriteManager ColorPalettes { get; }
 
         /// <summary>
         /// Occurs when the play state changes. Parameter indicates whether the movie is now playing.
@@ -197,7 +198,7 @@ namespace LingoEngine.Movies
         /// Adds a new sprite to a specific sprite channel number.
         /// </summary>
         LingoSprite2D AddSprite(int num, Action<LingoSprite2D>? configure = null);
-        LingoSprite2D AddFrameBehavior<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour = null, Action<LingoSprite2D>? configure = null) where TBehaviour : LingoSpriteBehavior;
+        LingoSpriteFrameScript AddFrameBehavior<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour = null, Action<LingoSpriteFrameScript>? configure = null) where TBehaviour : LingoSpriteBehavior;
         LingoSprite2D AddSprite(int num, int begin, int end, float x, float y, Action<LingoSprite2D>? configure = null);
 
         /// <summary>
