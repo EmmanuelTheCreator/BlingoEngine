@@ -349,6 +349,8 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
                     _lastSprite = null;
                     return false;
                 }
+                if (mouseEvent.Type == LingoMouseEventType.MouseDown)
+                    return false;
                 sprite = _lastSprite;
             }
             //Console.WriteLine("Handle Sprite:"+ mouseFrame+"\t:"+ sprite.Sprite.Name+"\t:"+ sprite.Sprite.BeginFrame+"->"+ sprite.Sprite.EndFrame);

@@ -1,16 +1,11 @@
 using Godot;
 using LingoEngine.Director.Core.Scores;
 using LingoEngine.Movies;
-using LingoEngine.FrameworkCommunication;
 using LingoEngine.LGodot.Gfx;
-using LingoEngine.Director.Core.Tools;
-using LingoEngine.Commands;
 using LingoEngine.Events;
-using System.Threading.Channels;
 using LingoEngine.Inputs;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Scripts;
-using System.Linq;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
@@ -43,6 +38,7 @@ internal partial class DirGodotTopGridContainer : Control
     }
     public DirGodotTopGridContainer(IDirSpritesManager spritesManager, LingoMouse mouse)
     {
+        Visible = true;
         _gfxValues = spritesManager.GfxValues;
         _mouse = mouse;
         _gridCanvas = new DirScoreGridPainter(spritesManager.Factory, spritesManager.GfxValues);
