@@ -8,4 +8,9 @@ namespace LingoEngine.Director.LGodot.Scores.Sounds;
 /// </summary>
 internal class DirGodotSoundSprite : DirGodotTopSprite<LingoSpriteSound>
 {
+    public DirGodotSoundSprite(LingoSpriteSound sprite, Core.Sprites.IDirSpritesManager spritesManager)
+    {
+        SpritesManager = spritesManager;
+        Init(sprite);
+    }
 }

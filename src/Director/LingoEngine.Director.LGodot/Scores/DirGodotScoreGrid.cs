@@ -46,6 +46,8 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent, IDi
     internal int PreviewBegin => _dragHandler.PreviewBegin;
     internal int PreviewEnd => _dragHandler.PreviewEnd;
 
+    public IDirSpritesManager SpritesManager { get; }
+
     private readonly HashSet<Vector2I> _selectedCells = new();
     private Vector2I? _lastSelectedCell = null;
 
@@ -53,12 +55,12 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent, IDi
     private readonly ILingoFrameworkFactory _factory;
     private readonly DirScoreGridPainter _gridCanvas;
 
-    public DirGodotScoreGrid(IDirectorEventMediator mediator, DirScoreGfxValues gfxValues, ILingoCommandManager commandManager, IHistoryManager historyManager, ILingoFrameworkFactory factory)
+    public DirGodotScoreGrid(IDirSpritesManager spritesManager, IHistoryManager historyManager)
     {
-        _gfxValues = gfxValues;
-        _mediator = mediator;
-        _commandManager = commandManager;
-        _factory = factory;
+        _gfxValues = spritesManager.GfxValues;
+        _mediator = spritesManager.Mediator;
+        _commandManager = spritesManager.CommandManager;
+        _factory = spritesManager.Factory;
         AddChild(_contextMenu);
         _contextMenu.IdPressed += OnContextMenuItem;
 
@@ -93,6 +95,7 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent, IDi
         AddChild(_gridTexture);
         AddChild(_spriteTexture);
         _dragHandler = new DirGodotScoreDragHandler<LingoSprite2D, DirGodotScoreSprite>(this,_movie, _gfxValues,_sprites, _commandManager);
+        SpritesManager = spritesManager;
     }
 
     public void SetMovie(LingoMovie? movie)
@@ -131,7 +134,7 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent, IDi
             int idx = 1;
             while (_movie.TryGetAllTimeSprite(idx, out var sp))
             {
-                _sprites.Add(new DirGodotScoreSprite(sp));
+                _sprites.Add(new DirGodotScoreSprite(sp,SpritesManager));
                 idx++;
             }
         }

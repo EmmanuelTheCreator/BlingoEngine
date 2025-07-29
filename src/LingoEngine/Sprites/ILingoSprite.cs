@@ -31,7 +31,7 @@ namespace LingoEngine.Sprites
 
         bool Puppet { get; set; }
 
-
+        bool Lock { get; set; }
     }
 
     /// <summary>
@@ -220,7 +220,6 @@ namespace LingoEngine.Sprites
         /// Controls whether the sprite is visible on the Stage. Read/write.
         /// </summary>
         bool Visibility { get; set; }
-        bool Lock { get; set; }
         int MemberNum { get; }
         
 

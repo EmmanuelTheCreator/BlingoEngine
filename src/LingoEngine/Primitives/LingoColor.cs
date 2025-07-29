@@ -53,7 +53,18 @@
             byte b = (byte)(B + (255 - B) * factor);
             return new LingoColor(Code, r, g, b, Name,A);
         }
-
+        /// <summary>
+        /// Creates a darker version of the color by blending towards black.
+        /// Factor should be between 0 (no change) and 1 (black).
+        /// </summary>
+        public LingoColor Darken(float factor)
+        {
+            factor = Math.Clamp(factor, 0f, 1f);
+            byte r = (byte)(R * (1f - factor));
+            byte g = (byte)(G * (1f - factor));
+            byte b = (byte)(B * (1f - factor));
+            return new LingoColor(Code, r, g, b, Name, A);
+        }
         /// <summary>
         /// Converts the RGB color to a hex string, e.g., "#FF0000". or "#FF8800FF" if alpha is included.
         /// </summary>

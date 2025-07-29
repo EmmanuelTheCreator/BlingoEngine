@@ -1,4 +1,6 @@
 using Godot;
+using LingoEngine.Director.Core.Scores;
+using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
 
@@ -38,6 +40,7 @@ internal abstract class DirGodotBaseSprite<TSprite> : DirGodotBaseSprite
 {
     protected TSprite _sprite;
     public TSprite Sprite => _sprite;
+    public DirScoreSprite SpriteUI { get; private set; }
     public string DrawLabel { get; set; }
     internal override int BeginFrame { get => _sprite.BeginFrame; set => _sprite.BeginFrame = value; }
     internal override int EndFrame { get => _sprite.EndFrame; set => _sprite.EndFrame = value; }
@@ -45,9 +48,12 @@ internal abstract class DirGodotBaseSprite<TSprite> : DirGodotBaseSprite
     public DirGodotBaseSprite()
 #pragma warning restore CS8618 
     { }
+
+    public IDirSpritesManager SpritesManager { get; set; }
     internal void Init(TSprite sprite)
     {
         _sprite = sprite;
+        SpriteUI = new DirScoreSprite(sprite, SpritesManager);
         DrawLabel = sprite.Name;
     }
     internal override void DeleteFromMovie(LingoMovie movie)

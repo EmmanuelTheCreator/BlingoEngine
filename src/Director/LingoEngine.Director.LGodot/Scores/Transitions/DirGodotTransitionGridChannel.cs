@@ -1,23 +1,18 @@
-using Godot;
-using System.Collections.Generic;
 using LingoEngine.Movies;
-using LingoEngine.Director.Core.Scores;
 using LingoEngine.Director.LGodot.Scores.Transitions;
 using LingoEngine.Transitions;
-using LingoEngine.Director.Core.Tools;
-using LingoEngine.FrameworkCommunication;
-using LingoEngine.Commands;
+using LingoEngine.Director.Core.Sprites;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
 internal partial class DirGodotTransitionGridChannel : DirGodotTopGridChannel<ILingoSpriteTransitionManager, DirGodotTransitionSprite, LingoTransitionSprite>
 {
-    public DirGodotTransitionGridChannel(DirScoreGfxValues gfxValues, IDirectorEventMediator mediator, ILingoFrameworkFactory factory, ILingoCommandManager commandManager) 
-        : base(gfxValues, mediator, factory, commandManager)
+    public DirGodotTransitionGridChannel(IDirSpritesManager spritesManager) 
+        : base(3, spritesManager)
     {
     }
 
-    protected override DirGodotTransitionSprite CreateUISprite(LingoTransitionSprite sprite) => new DirGodotTransitionSprite();
+    protected override DirGodotTransitionSprite CreateUISprite(LingoTransitionSprite sprite, Core.Sprites.IDirSpritesManager spritesManager) => new DirGodotTransitionSprite(sprite, spritesManager);
 
     protected override ILingoSpriteTransitionManager GetManager(LingoMovie movie) => movie.Transitions;
 }

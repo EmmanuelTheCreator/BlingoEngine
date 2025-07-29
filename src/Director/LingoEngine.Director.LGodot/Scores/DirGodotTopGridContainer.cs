@@ -5,12 +5,17 @@ using LingoEngine.FrameworkCommunication;
 using LingoEngine.LGodot.Gfx;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Commands;
+using LingoEngine.Events;
+using System.Threading.Channels;
+using LingoEngine.Inputs;
+using LingoEngine.Director.Core.Sprites;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
 internal partial class DirGodotTopGridContainer : Control
 {
     private readonly DirScoreGfxValues _gfxValues;
+    private readonly LingoMouse _mouse;
     private readonly DirScoreGridPainter _gridCanvas;
     private readonly SubViewport _viewport = new();
     private readonly TextureRect _texture = new();
@@ -19,6 +24,9 @@ internal partial class DirGodotTopGridContainer : Control
     private bool _collapsed;
     private LingoMovie? _movie;
     private float _scrollX;
+    private ILingoMouseSubscription _mouseSub;
+    private DirGodotTopGridChannelBase? _lastMouseChannel;
+
     public bool Collapsed
     {
         get => _collapsed;
@@ -29,10 +37,11 @@ internal partial class DirGodotTopGridContainer : Control
             QueueRedraw();
         }
     }
-    public DirGodotTopGridContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, IDirectorEventMediator mediator, ILingoCommandManager commandManager)
+    public DirGodotTopGridContainer(IDirSpritesManager spritesManager, LingoMouse mouse)
     {
-        _gfxValues = gfxValues;
-        _gridCanvas = new DirScoreGridPainter(factory, gfxValues);
+        _gfxValues = spritesManager.GfxValues;
+        _mouse = mouse;
+        _gridCanvas = new DirScoreGridPainter(spritesManager.Factory, spritesManager.GfxValues);
         
         _viewport.SetDisable3D(true);
         _viewport.TransparentBg = true;
@@ -48,11 +57,11 @@ internal partial class DirGodotTopGridContainer : Control
 
         _channels =
         [
-            new DirGodotTempoGridChannel(gfxValues,mediator,factory,commandManager),
-            new DirGodotColorPaletteGridChannel(gfxValues,mediator,factory,commandManager),
-            new DirGodotTransitionGridChannel(gfxValues,mediator,factory,commandManager),
-            new DirGodotAudioGridChannel(1, gfxValues, mediator,factory,commandManager),
-            new DirGodotAudioGridChannel(2, gfxValues, mediator,factory,commandManager)
+            new DirGodotTempoGridChannel(spritesManager),
+            new DirGodotColorPaletteGridChannel(spritesManager),
+            new DirGodotTransitionGridChannel(spritesManager),
+            new DirGodotAudioGridChannel(4, spritesManager),
+            new DirGodotAudioGridChannel(5, spritesManager),
         ];
 
         for (int i = 0; i < _channels.Length; i++)
@@ -61,9 +70,34 @@ internal partial class DirGodotTopGridContainer : Control
             _clipper.AddChild(_channels[i]);
         }
 
+        _mouseSub = _mouse.OnMouseEvent(HandleMouseEvent);
+
         UpdateSize();
     }
 
+    public void HandleMouseEvent(LingoMouseEvent mouseEvent)
+    {
+        if (_movie == null) return;
+        float frameF = (mouseEvent.MouseH + _scrollX - _gfxValues.ChannelInfoWidth - 3) / _gfxValues.FrameWidth;
+        var mouseFrame = Math.Clamp(Mathf.RoundToInt(frameF) + 1, 1, _movie.FrameCount);
+        var channel = Math.Clamp(Mathf.RoundToInt((mouseEvent.MouseV - Position.Y + 8) / _gfxValues.ChannelHeight), 1, 999);
+        //Console.WriteLine("Frame=" + mouseFrame + "\t:Channel="+ channel+" \t:" + mouseEvent.MouseH + "x" + mouseEvent.MouseV);
+        if (_lastMouseChannel == null)
+        { 
+            if (channel > _channels.Length || channel < 0) return;
+            _lastMouseChannel = _channels[channel - 1];
+        }
+        var result = _lastMouseChannel.HandleMouseEvent(mouseEvent, mouseFrame);
+        if (!result)
+        {
+            _lastMouseChannel = null;
+        }
+    }
+    protected override void Dispose(bool disposing)
+    {
+        _mouseSub.Release();
+        base.Dispose(disposing);
+    }
     public float ScrollX
     {
         get => _scrollX;
@@ -106,6 +140,8 @@ internal partial class DirGodotTopGridContainer : Control
                 c.CustomMinimumSize = new Vector2(width, _gfxValues.ChannelHeight);
     }
     private int _lastDrawnFrame = 0;
+
+
     public override void _Draw()
     {
         base._Draw();

@@ -1,11 +1,8 @@
 using Godot;
 using LingoEngine.Movies;
-using LingoEngine.Director.Core.Scores;
 using LingoEngine.Director.LGodot.Scores.Tempos;
 using LingoEngine.Tempos;
-using LingoEngine.Director.Core.Tools;
-using LingoEngine.Commands;
-using LingoEngine.FrameworkCommunication;
+using LingoEngine.Director.Core.Sprites;
 
 namespace LingoEngine.Director.LGodot.Scores;
 internal partial class DirGodotTempoGridChannel : DirGodotTopGridChannel<ILingoSpriteTempoManager, DirGodotTempoSprite, LingoTempoSprite>
@@ -13,8 +10,8 @@ internal partial class DirGodotTempoGridChannel : DirGodotTopGridChannel<ILingoS
     private readonly AcceptDialog _dialog = new();
     private readonly HSlider _slider = new();
     private int _editFrame;
-    public DirGodotTempoGridChannel(DirScoreGfxValues gfxValues, IDirectorEventMediator mediator, ILingoFrameworkFactory factory, ILingoCommandManager commandManager)
-        : base(gfxValues, mediator, factory, commandManager)
+    public DirGodotTempoGridChannel(IDirSpritesManager spritesManager)
+        : base(1, spritesManager)
     {
         _dialog.Title = "Tempo";
         _slider.MinValue = 1;
@@ -25,7 +22,7 @@ internal partial class DirGodotTempoGridChannel : DirGodotTopGridChannel<ILingoS
         AddChild(_dialog);
     }
 
-    protected override DirGodotTempoSprite CreateUISprite(LingoTempoSprite sprite) => new DirGodotTempoSprite();
+    protected override DirGodotTempoSprite CreateUISprite(LingoTempoSprite sprite, IDirSpritesManager spritesManager) => new DirGodotTempoSprite(sprite, spritesManager);
 
     protected override ILingoSpriteTempoManager GetManager(LingoMovie movie) => movie.Tempos;
 

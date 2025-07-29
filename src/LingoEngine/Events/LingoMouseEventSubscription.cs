@@ -2,17 +2,23 @@
 
 namespace LingoEngine.Events
 {
+    public enum LingoMouseEventType
+    {
+        MouseUp,MouseDown, MouseMove
+    }
     public class LingoMouseEvent
     {
-        public LingoMouseEvent(LingoMouse lingoMouse)
-        {
-            Mouse = lingoMouse;
-        }
-
         public LingoMouse Mouse { get; }
+        public LingoMouseEventType Type { get; }
         public bool ContinuePropation { get; set; } = true;
         public float MouseH => Mouse.MouseH;
         public float MouseV => Mouse.MouseV;
+
+        public LingoMouseEvent(LingoMouse lingoMouse, LingoMouseEventType type)
+        {
+            Mouse = lingoMouse;
+            Type = type;
+        }
     }
 
     public interface ILingoMouseEventHandler

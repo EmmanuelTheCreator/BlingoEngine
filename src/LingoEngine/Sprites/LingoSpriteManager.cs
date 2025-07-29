@@ -16,6 +16,7 @@ namespace LingoEngine.Sprites
     {
         event Action? SpriteListChanged;
         IEnumerable<TSprite> GetAllSprites();
+        IEnumerable<TSprite> GetAllSpritesByChannel(int channel);
         void MoveSprite(TSprite sprite, int newFrame);
     }
     internal abstract class LingoSpriteManager<TSprite> : ILingoSpriteManager
@@ -40,6 +41,7 @@ namespace LingoEngine.Sprites
         public event Action? SpriteListChanged;
         protected void RaiseSpriteListChanged() => SpriteListChanged?.Invoke();
         public IEnumerable<TSprite> GetAllSprites() => _allTimeSprites.ToArray();
+        public IEnumerable<TSprite> GetAllSpritesByChannel(int spriteNum) => _allTimeSprites.Where(x => x.SpriteNum == spriteNum).ToArray();
         internal LingoSpriteManager(LingoMovie movie, LingoMovieEnvironment environment)
         {
             _movie = movie;

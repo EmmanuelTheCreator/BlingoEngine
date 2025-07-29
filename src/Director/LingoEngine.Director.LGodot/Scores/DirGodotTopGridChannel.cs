@@ -1,10 +1,14 @@
 using Godot;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Scores;
+using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.Tools;
+using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
+using LingoEngine.Gfx;
 using LingoEngine.LGodot.Gfx;
 using LingoEngine.Movies;
+using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 
 namespace LingoEngine.Director.LGodot.Scores;
@@ -24,22 +28,23 @@ internal abstract partial class DirGodotTopGridChannelBase : Control, IDirGodotT
     protected bool _spriteDirty = true;
     protected bool _spriteListDirty;
     protected int _lastFrame = -1;
-   
-    
-
-    protected readonly ILingoFrameworkFactory _factory;
+    protected readonly IDirSpritesManager _spritesManager;
 
 
 
-    protected DirGodotTopGridChannelBase(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory)
+    protected DirGodotTopGridChannelBase(IDirSpritesManager spritesManager)
     {
-        _factory = factory;
-        _gfxValues = gfxValues;
+        _spritesManager = spritesManager;
+        _gfxValues = _spritesManager.GfxValues;
         MouseFilter = MouseFilterEnum.Stop;
         
     }
 
-    protected void MarkDirty() => _dirty = true;
+    protected void MarkDirty()
+    {
+        _dirty = true;
+        QueueRedraw();
+    }
 
     public virtual float ScrollX
     {
@@ -66,6 +71,10 @@ internal abstract partial class DirGodotTopGridChannelBase : Control, IDirGodotT
     protected virtual void UnsubscribeMovie(LingoMovie movie) { }
     protected virtual bool HandleDrop(InputEventMouseButton mb) => false;
 
+    public virtual bool HandleMouseEvent(LingoMouseEvent mouseEvent, int currentFrame)
+    {
+        return false;
+    }
 }
 
 
@@ -79,10 +88,14 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
     where TSprite : LingoSprite
 {
     protected readonly List<TSpriteUI> _sprites = new();
+
+
+    public int SpriteNum { get; }
+
     protected readonly IDirectorEventMediator _mediator;
     protected TSpriteManager? _manager;
     protected TSpriteUI? _dragSprite;
-    private readonly SpriteCanvas _canvas;
+    private readonly SpritesCanvas _canvas;
     private readonly DirGodotScoreDragHandler<TSprite, TSpriteUI> _dragHandler;
     protected TSpriteUI? _selected;
 
@@ -100,18 +113,6 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
     protected Vector2I? _lastSelectedCell = null;
     protected int _dragFrame;
 
-    protected DirGodotTopGridChannel(DirScoreGfxValues gfxValues, IDirectorEventMediator mediator, ILingoFrameworkFactory factory, ILingoCommandManager commandManager)
-        :base(gfxValues, factory)
-    {
-        _mediator = mediator;
-        _canvas = new SpriteCanvas(this);
-        AddChild(_canvas);
-        MouseFilter = MouseFilterEnum.Stop;
-        _dragHandler = new DirGodotScoreDragHandler<TSprite, TSpriteUI>(this, null, _gfxValues, _sprites, commandManager);
-    }
-
-    
-
     public override float ScrollX
     {
         set => base.ScrollX = value;
@@ -121,6 +122,27 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
             return base.ScrollX;
         }
     }
+
+    protected DirGodotTopGridChannel(int spriteNum, IDirSpritesManager spritesManager)
+        :base(spritesManager)
+    {
+        
+        SpriteNum = spriteNum;
+        _mediator = spritesManager.Mediator;
+        _canvas = new SpritesCanvas(this, spritesManager);
+        AddChild(_canvas);
+        MouseFilter = MouseFilterEnum.Stop;
+        _dragHandler = new DirGodotScoreDragHandler<TSprite, TSpriteUI>(this, null, _gfxValues, _sprites, spritesManager.CommandManager);
+    }
+
+
+    public override void _Draw()
+    {
+        base._Draw();
+        if (_hasDirtySprites)
+            RedrawAllSprites();
+    }
+
     protected virtual void MoveSprite(TSpriteUI sprite, int oldFrame, int newFrame)
     {
         if (_manager == null) return;
@@ -145,8 +167,13 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
         RedrawAllSprites();
         
     }
+    public override bool HandleMouseEvent(LingoMouseEvent mouseEvent, int currentFrame)
+    {
+        base.HandleMouseEvent(mouseEvent, currentFrame);
+        return _canvas.HandleMouseEvent(mouseEvent, currentFrame);
+    }
 
-    protected abstract TSpriteUI CreateUISprite(TSprite sprite);
+    protected abstract TSpriteUI CreateUISprite(TSprite sprite, IDirSpritesManager spritesManager);
     protected virtual void OnDoubleClick(int frame, TSpriteUI? sprite) { }
     protected virtual void OnSpriteClicked(TSpriteUI sprite)
     {
@@ -161,70 +188,79 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
         _sprites.Clear();
         if (_movie != null)
         {
+            if (_manager != null)
+                _manager.SpriteListChanged -= SpriteListChanged;
             _manager = GetManager(_movie);
+            _manager.SpriteListChanged += SpriteListChanged;
             _dragHandler.SetMovie(_movie);
             RedrawAllSprites();
         }
         UpdateSize();
     }
 
+    private void SpriteListChanged()
+    {
+        _hasDirtySprites = true;
+        MarkDirty();
+    }
+
     private void RedrawAllSprites()
     {
         _sprites.Clear();
         if (_manager == null) return;
-        var sprites = _manager.GetAllSprites();
+        var sprites = _manager.GetAllSpritesByChannel(SpriteNum);
         foreach (var s in sprites)
         {
-            var uiSprite = CreateUISprite(s);
+            var uiSprite = CreateUISprite(s, _spritesManager);
             _sprites.Add(uiSprite);
         }
         MarkDirty();
     }
 
     protected abstract TSpriteManager GetManager(LingoMovie movie);
-    public override void _GuiInput(InputEvent @event)
-    {
-        if (_movie == null) return;
+    //public override void _GuiInput(InputEvent @event)
+    //{
+    //    if (_movie == null) return;
 
-        if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Left)
-        {
-            if (mb.Pressed)
-            {
-                int frame = Mathf.RoundToInt((mb.Position.X + _scrollX - _gfxValues.LeftMargin) / _gfxValues.FrameWidth) + 1;
-                var sprite = _sprites.FirstOrDefault(k => frame >= k.BeginFrame && frame <= k.EndFrame);
-                if (mb.DoubleClick)
-                {
-                    OnDoubleClick(frame, sprite);
-                }
-                else if (sprite != null)
-                {
-                    foreach (var sp in _sprites)
-                        sp.Selected = sp == sprite;
-                    _dragSprite = sprite;
-                    _dragFrame = frame;
-                    OnSpriteClicked(sprite);
-                    MarkDirty();
-                }
-            }
-            else
-            {
-                if (!HandleDrop(mb))
-                    _dragSprite = null;
-            }
-        }
-        else if (@event is InputEventMouseMotion && _dragSprite != null)
-        {
-            float frameF = (GetLocalMousePosition().X + _scrollX - _gfxValues.LeftMargin) / _gfxValues.FrameWidth;
-            int newFrame = Math.Clamp(Mathf.RoundToInt(frameF) + 1, 1, _movie.FrameCount);
-            if (newFrame != _dragFrame)
-            {
-                MoveSprite(_dragSprite, _dragFrame, newFrame);
-                _dragSprite.MoveToFrame(newFrame);
-                _dragFrame = newFrame;
-                _dirty = true;
-            }
-        }
-    }
+    //    if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Left)
+    //    {
+    //        if (mb.Pressed)
+    //        {
+    //            _mouseFrame = Mathf.RoundToInt((mb.Position.X + _scrollX - _gfxValues.LeftMargin) / _gfxValues.FrameWidth) + 1;
+    //            //var sprite = _sprites.FirstOrDefault(k => frame >= k.BeginFrame && frame <= k.EndFrame);
+    //            //if (mb.DoubleClick)
+    //            //{
+    //            //    OnDoubleClick(frame, sprite);
+    //            //}
+    //            //else if (sprite != null)
+    //            //{
+    //            //    foreach (var sp in _sprites)
+    //            //        sp.Selected = sp == sprite;
+    //            //    _dragSprite = sprite;
+    //            //    _dragFrame = frame;
+    //            //    OnSpriteClicked(sprite);
+    //            //    MarkDirty();
+    //            //}
+    //        }
+    //        else
+    //        {
+    //            //if (!HandleDrop(mb))
+    //            //    _dragSprite = null;
+    //        }
+    //    }
+    //    else if (@event is InputEventMouseMotion) // && _dragSprite != null)
+    //    {
+    //        float frameF = (GetLocalMousePosition().X + _scrollX - _gfxValues.LeftMargin) / _gfxValues.FrameWidth;
+    //        _mouseFrame = Math.Clamp(Mathf.RoundToInt(frameF) + 1, 1, _movie.FrameCount);
+    //        //if (newFrame != _dragFrame)
+    //        //{
+    //        //    MoveSprite(_dragSprite, _dragFrame, newFrame);
+    //        //    _dragSprite.MoveToFrame(newFrame);
+    //        //    _dragFrame = newFrame;
+    //        //    _dirty = true;
+    //        //}
+    //    }
+    //}
 
     protected virtual void UpdateSize()
     {
@@ -232,6 +268,7 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
         float width = _gfxValues.LeftMargin + _movie.FrameCount * _gfxValues.FrameWidth;
         Size = new Vector2(width, _gfxValues.ChannelHeight);
         CustomMinimumSize = Size;
+        _canvas.UpdateSize(Size.X, Size.Y);
         //_canvas.QueueRedraw();
     }
     public void HandleSelection(Vector2I cell, bool ctrl, bool shift)
@@ -326,12 +363,53 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
         //_spriteCanvas.QueueRedraw();
     }
 
-    private partial class SpriteCanvas : Control
+    private partial class SpritesCanvas : Control
     {
         private readonly DirGodotTopGridChannel<TSpriteManager, TSpriteUI, TSprite> _owner;
-        public SpriteCanvas(DirGodotTopGridChannel<TSpriteManager, TSpriteUI, TSprite> owner) => _owner = owner;
+        private readonly LingoGfxCanvas _canvas;
+
+        public SpritesCanvas(DirGodotTopGridChannel<TSpriteManager, TSpriteUI, TSprite> owner, IDirSpritesManager spritesManager)
+        {
+            _owner = owner;
+            _canvas = spritesManager.Factory.CreateGfxCanvas("SpritesCanvas",30, owner._gfxValues.ChannelHeight);
+            AddChild(_canvas.FrameworkObj as Node);
+        }
+        internal void UpdateSize(float width, float height)
+        {
+            _canvas.Width = width;
+            Size = new Vector2(width, height);
+            CustomMinimumSize = Size;
+        }
+        private TSpriteUI? _lastSprite = null;
+        public bool HandleMouseEvent(LingoMouseEvent mouseEvent, int mouseFrame)
+        {
+            if (_owner._sprites.Count == 0) return false;
+            var sprite = _owner._sprites.FirstOrDefault(x => x.Sprite.BeginFrame <= mouseFrame && mouseFrame <= x.Sprite.EndFrame);
+            if (sprite == null)
+            {
+                if (_lastSprite == null)
+                    return false;
+                if (mouseEvent.Type == LingoMouseEventType.MouseUp)
+                {
+                    _lastSprite.SpriteUI.IsSelected = false;
+                    _lastSprite = null;
+                    return false;
+                }
+                sprite = _lastSprite;
+            }
+            //Console.WriteLine("Handle Sprite:"+ mouseFrame+"\t:"+ sprite.Sprite.Name+"\t:"+ sprite.Sprite.BeginFrame+"->"+ sprite.Sprite.EndFrame);
+            sprite.SpriteUI.HandleMouse(mouseEvent, mouseFrame);
+            _lastSprite = sprite;
+
+            if (sprite.SpriteUI.RequireToRedraw)
+                QueueRedraw();
+
+            return true;
+        }
         public override void _Draw()
         {
+            _canvas.Clear(LingoColorList.Transparent); 
+            
             if (_owner.SpritePreviewRect.HasValue)
             {
                 var rect = _owner.SpritePreviewRect.Value;
@@ -347,13 +425,7 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
 
             foreach (var sp in _owner._sprites)
             {
-                int ch = sp.Sprite.SpriteNum - 1;
-                if (ch < 0 || ch >= channelCount) continue;
-                float x = _owner._gfxValues.LeftMargin + (sp.Sprite.BeginFrame - 1) * _owner._gfxValues.FrameWidth;
-                float width = (sp.Sprite.EndFrame - sp.Sprite.BeginFrame + 1) * _owner._gfxValues.FrameWidth;
-                float y = ch * _owner._gfxValues.ChannelHeight;
-                sp.Selected = _owner.IsSpriteSelected(sp);
-                sp.Draw(this, new Vector2(x, y), width, _owner._gfxValues.ChannelHeight, font);
+                sp.SpriteUI.Draw(_canvas, _owner._gfxValues.FrameWidth, _owner._gfxValues.ChannelHeight);
             }
 
             int cur = movie.CurrentFrame - 1;
@@ -387,5 +459,7 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
                 }
             }
         }
+
+        
     }
 }

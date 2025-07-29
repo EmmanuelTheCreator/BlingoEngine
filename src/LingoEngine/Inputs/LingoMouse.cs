@@ -104,7 +104,7 @@ namespace LingoEngine.Inputs
       
         ILingoMouseSubscription OnMouseDown(Action<LingoMouseEvent> handler);
         ILingoMouseSubscription OnMouseUp(Action<LingoMouseEvent> handler);
-        ILingoMouseSubscription OnMouse(Action<LingoMouseEvent> handler);
+        ILingoMouseSubscription OnMouseMove(Action<LingoMouseEvent> handler);
     }
     public interface ILingoMouseSubscription
     {
@@ -165,6 +165,7 @@ namespace LingoEngine.Inputs
         private readonly List<LingoMouseSubscription> _mouseUps = new();
         private readonly List<LingoMouseSubscription> _mouseDowns = new();
         private readonly List<LingoMouseSubscription> _mouseMoves = new();
+        private readonly List<LingoMouseSubscription> _mouseEvents = new();
         
         
         private readonly LingoCursor _cursor;
@@ -207,16 +208,22 @@ namespace LingoEngine.Inputs
         /// <summary>
         /// Called from communiction framework mouse
         /// </summary>
-        public virtual void DoMouseUp() => DoOnAll(_mouseUps, (x, e) => x.RaiseMouseUp(e));
+        public virtual void DoMouseUp() => DoOnAll(_mouseUps, (x, e) => x.RaiseMouseUp(e), LingoMouseEventType.MouseUp);
 
-        public virtual void DoMouseDown() => DoOnAll(_mouseDowns, (x, e) => x.RaiseMouseDown(e));
+        public virtual void DoMouseDown() => DoOnAll(_mouseDowns, (x, e) => x.RaiseMouseDown(e), LingoMouseEventType.MouseDown);
 
-        public virtual void DoMouseMove() => DoOnAll(_mouseMoves, (x, e) => x.RaiseMouseMove(e));
+        public virtual void DoMouseMove() => DoOnAll(_mouseMoves, (x, e) => x.RaiseMouseMove(e), LingoMouseEventType.MouseMove);
+        
 
-        private void DoOnAll(List<LingoMouseSubscription> subscriptions, Action<ILingoMouseEventHandler, LingoMouseEvent> action)
+        private void DoOnAll(List<LingoMouseSubscription> subscriptions, Action<ILingoMouseEventHandler, LingoMouseEvent> action, LingoMouseEventType type)
         {
-            var eventMouse = new LingoMouseEvent(this);
+            var eventMouse = new LingoMouseEvent(this, type);
             foreach (var subscription in subscriptions)
+            {
+                subscription.Do(eventMouse);
+                if (!eventMouse.ContinuePropation) return;
+            } 
+            foreach (var subscription in _mouseEvents)
             {
                 subscription.Do(eventMouse);
                 if (!eventMouse.ContinuePropation) return;
@@ -237,7 +244,8 @@ namespace LingoEngine.Inputs
        
         public ILingoMouseSubscription OnMouseDown(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseDowns.Remove(s));_mouseDowns.Add(sub); return sub; }
         public ILingoMouseSubscription OnMouseUp(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s =>_mouseUps.Remove(s));_mouseUps.Add(sub); return sub; }
-        public ILingoMouseSubscription OnMouse(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseMoves.Remove(s)); _mouseMoves.Add(sub); return sub; }
+        public ILingoMouseSubscription OnMouseMove(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseMoves.Remove(s)); _mouseMoves.Add(sub); return sub; }
+        public ILingoMouseSubscription OnMouseEvent(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseEvents.Remove(s)); _mouseEvents.Add(sub); return sub; }
 
         private class LingoMouseSubscription : ILingoMouseSubscription
         {

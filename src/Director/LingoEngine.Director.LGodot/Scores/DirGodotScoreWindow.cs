@@ -11,6 +11,7 @@ using LingoEngine.Director.Core.Styles;
 using LingoEngine.Sprites;
 using LingoEngine.Director.Core.UI;
 using System.Net.Http.Headers;
+using LingoEngine.Director.Core.Sprites;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
@@ -35,7 +36,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     private readonly Control _scrollContent = new Control();
     private ColorRect _topHClipper;
     private LingoPlayer _player;
-    private readonly DirScoreGfxValues _gfxValues = new();
+    private readonly DirScoreGfxValues _gfxValues ;
     private readonly DirGodotScoreGrid _grid;
     internal LingoSprite2D? SelectedSprite => _grid.SelectedSprite;
     private readonly DirGodotFrameHeader _framesHeader;
@@ -54,7 +55,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     private readonly IHistoryManager _historyManager;
 
 
-    public DirGodotScoreWindow(IDirectorEventMediator directorMediator, ILingoCommandManager commandManager, IHistoryManager historyManager, DirectorScoreWindow directorScoreWindow, ILingoPlayer player, IDirGodotWindowManager windowManager)
+    public DirGodotScoreWindow(IDirectorEventMediator directorMediator, ILingoCommandManager commandManager, IHistoryManager historyManager, DirectorScoreWindow directorScoreWindow, ILingoPlayer player, IDirGodotWindowManager windowManager, IDirSpritesManager spritesManager)
         : base(DirectorMenuCodes.ScoreWindow, "Score", windowManager)
     {
         var _marginContainer = new Control();
@@ -67,7 +68,8 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         directorScoreWindow.Init(this);
         _player = (LingoPlayer) player;
         _player.ActiveMovieChanged += OnActiveMovieChanged;
-        
+        // todo : move them to IO
+        _gfxValues = spritesManager.GfxValues;
 
         var height = 400;
         var width = 800;
@@ -77,14 +79,13 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _marginContainer.AddChild(_leftChannelForLabels);
         _marginContainer.AddChild(_leftHeaderForFrames);
         
-
         Size = new Vector2(width, height);
         CustomMinimumSize = Size;
         _LeftTopContainer = new DirGodotScoreLeftTopContainer(_gfxValues, _player.Factory, Mouse,new Vector2(0, _gfxValues.ChannelHeight + 5),_mediator);
-        _topGrids = new DirGodotTopGridContainer(_gfxValues, _player.Factory, _mediator, commandManager);
+        _topGrids = new DirGodotTopGridContainer(spritesManager, Mouse);
         _topGrids.Visible = false;
         _LeftChannelsContainer = new DirGodotScoreLeftChannelsContainer(_gfxValues,_player.Factory,Mouse, new Vector2(0, _gfxValues.TopStripHeight - _footerMargin), _mediator);
-        _grid = new DirGodotScoreGrid(directorMediator, _gfxValues, commandManager, historyManager, _player.Factory);
+        _grid = new DirGodotScoreGrid(spritesManager, historyManager);
         _mediator.Subscribe(_grid);
         _framesHeader = new DirGodotFrameHeader(_gfxValues);
         _frameScripts = new DirGodotFrameScriptsBar(_gfxValues, _player.Factory);

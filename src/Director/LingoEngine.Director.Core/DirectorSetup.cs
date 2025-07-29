@@ -15,6 +15,7 @@ using LingoEngine.Setup;
 using LingoEngine.Director.Core.Scripts;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Scripts.Commands;
+using LingoEngine.Director.Core.Sprites;
 
 namespace LingoEngine.Director.Core
 {
@@ -55,6 +56,7 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<DirectorTextEditWindow>()
                     .AddSingleton<DirectorBitmapEditWindow>()
                     .AddSingleton<DirectorImportExportWindow>()
+                    .AddSingleton<IDirSpritesManager, DirSpritesManager>()
                     );
             engineRegistration.AddBuildAction(
                 (serviceProvider) =>

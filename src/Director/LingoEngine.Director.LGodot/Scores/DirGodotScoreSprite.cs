@@ -1,16 +1,16 @@
 using Godot;
+using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Sprites;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
 internal class DirGodotScoreSprite : DirGodotBaseSprite<LingoSprite2D>
 {
-    
     internal bool ShowLabel { get;}
 
-    internal DirGodotScoreSprite(LingoSprite2D sprite, bool showLabel = true)
+    internal DirGodotScoreSprite(LingoSprite2D sprite, IDirSpritesManager spritesManager, bool showLabel = true)
     {
-
+        SpritesManager = spritesManager;
         ShowLabel = showLabel;
         Init(sprite);
     }

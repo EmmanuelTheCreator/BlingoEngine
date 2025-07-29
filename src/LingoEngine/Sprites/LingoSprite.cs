@@ -9,11 +9,36 @@ namespace LingoEngine.Sprites
         protected readonly ILingoMovieEnvironment _environment;
         protected readonly LingoEventMediator _eventMediator;
         private readonly List<object> _spriteActors = new();
+        private bool _lock;
+        private int _beginFrame;
+        private int _endFrame;
+        private string _name = string.Empty;
 
-        public int BeginFrame { get; set; }
-        public int EndFrame { get; set; }
+        public int BeginFrame
+        {
+            get => _beginFrame; set
+            {
+                _beginFrame = value;
+                NotifyAnimationChanged();
+            }
+        }
+        public int EndFrame
+        {
+            get => _endFrame; set
+            {
+                _endFrame = value;
+                NotifyAnimationChanged();
+            }
+        }
 
-        public virtual string Name { get; set; } = string.Empty;
+        public virtual string Name
+        {
+            get => _name; set
+            {
+                _name = value;
+                NotifyAnimationChanged();
+            }
+        }        
         /// <summary>
         /// This represents the puppetsprite controlled by script.
         /// </summary>
@@ -24,6 +49,16 @@ namespace LingoEngine.Sprites
         /// Whether this sprite is currently active (i.e., the playhead is within its frame span).
         /// </summary>
         public bool IsActive { get; internal set; }
+        public bool Lock
+        {
+            get => _lock; set
+            {
+                _lock = value;
+                NotifyAnimationChanged();
+            }
+        }
+
+        public event Action? AnimationChanged;
 
         public LingoSprite(ILingoMovieEnvironment environment)
         {
@@ -103,5 +138,10 @@ namespace LingoEngine.Sprites
         public virtual string GetFullName() => $"{SpriteNum}.{Name}";
 
         public abstract void RemoveMe();
+
+        protected void NotifyAnimationChanged()
+        {
+            AnimationChanged?.Invoke();
+        }
     }
 }
