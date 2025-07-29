@@ -1,3 +1,4 @@
+/*
 ﻿using Godot;
 using LingoEngine.Movies;
 using LingoEngine.Director.Core.Scores;
@@ -52,3 +53,4 @@ internal partial class DirGodotFrameHeader : Control
         }
     }
 }
+*/

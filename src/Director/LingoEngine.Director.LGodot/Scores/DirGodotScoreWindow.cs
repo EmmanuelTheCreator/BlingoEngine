@@ -39,8 +39,8 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     private readonly DirScoreGfxValues _gfxValues ;
     private readonly DirGodotScoreGrid _grid;
     internal LingoSprite2D? SelectedSprite => _grid.SelectedSprite;
-    private readonly DirGodotFrameHeader _framesHeader;
-    private readonly DirGodotFrameScriptsBar _frameScripts;
+    //private readonly DirGodotFrameHeader _framesHeader;
+    //private readonly DirGodotFrameScriptsBar _frameScripts;
     private readonly DirGodotScoreLeftTopContainer _LeftTopContainer;
     private readonly DirGodotTopGridContainer _topGrids;
     private readonly DirGodotScoreLabelsBar _labelBar;
@@ -87,8 +87,8 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _LeftChannelsContainer = new DirGodotScoreLeftChannelsContainer(_gfxValues,_player.Factory,Mouse, new Vector2(0, _gfxValues.TopStripHeight - _footerMargin), _mediator);
         _grid = new DirGodotScoreGrid(spritesManager, historyManager);
         _mediator.Subscribe(_grid);
-        _framesHeader = new DirGodotFrameHeader(_gfxValues);
-        _frameScripts = new DirGodotFrameScriptsBar(_gfxValues, _player.Factory);
+        //_framesHeader = new DirGodotFrameHeader(_gfxValues);
+        //_frameScripts = new DirGodotFrameScriptsBar(_gfxValues, _player.Factory);
         _labelBar = new DirGodotScoreLabelsBar(_gfxValues, commandManager);
         _labelBar.HeaderCollapseChanged += OnHeaderCollapseChanged;
 
@@ -129,8 +129,8 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _marginContainer.AddChild(_topHClipper);
         _marginContainer.AddChild(_LeftTopContainer);
         _topStripContent.AddChild(_labelBar);
-        _topStripContent.AddChild(_frameScripts);
-        _topStripContent.AddChild(_framesHeader);
+        //_topStripContent.AddChild(_frameScripts);
+        //_topStripContent.AddChild(_framesHeader);
 
 
 
@@ -162,15 +162,17 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     {
         int ch = _gfxValues.ChannelHeight;
         float barsHeight = _topCollapsed ? 0 : ch * 5;
-        _frameScripts.Position = new Vector2(0, 20 + barsHeight);
-        _framesHeader.Position = new Vector2(0, _frameScripts.Position.Y + 20);
-        _topHeight = _frameScripts.Position.Y +20;
+        //_frameScripts.Position = new Vector2(0, 20 + barsHeight);
+        //_framesHeader.Position = new Vector2(0, _frameScripts.Position.Y + 20);
+        //_topHeight = _frameScripts.Position.Y +20;
 
-        float topHeight = _framesHeader.Position.Y + 20;
+        _topHeight = 0;
+        float topHeight = _gfxValues.ChannelFramesHeight;
+
         _masterScroller.Position = new Vector2(_gfxValues.ChannelInfoWidth, topHeight);
         _leftChannelsScollClipper.Position = new Vector2(0, topHeight);
         _collapseButton.Position = new Vector2(_topHClipper.Size.X - 16, 4);
-        _leftHeaderForFrames.Position = new Vector2(0, _framesHeader.Position.Y);
+        _leftHeaderForFrames.Position = new Vector2(0, 0);
         _lastPosV = -1;
         UpdateScrollSize();
     }
@@ -230,7 +232,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         float gridWidth = _gfxValues.ChannelInfoWidth + _movie.FrameCount * _gfxValues.FrameWidth + _gfxValues.ExtraMargin;
         float gridHeight = _movie.MaxSpriteChannelCount * _gfxValues.ChannelHeight + _gfxValues.ExtraMargin;
 
-        float topHeight = _framesHeader.Position.Y + 20;
+        float topHeight = _gfxValues.ChannelFramesHeight;
 
         //_channelBar.CustomMinimumSize = new Vector2(_gfxValues.ChannelInfoWidth, gridHeight - _footerMargin);
         _scrollContent.CustomMinimumSize = new Vector2(gridWidth, gridHeight - _footerMargin);
@@ -261,8 +263,8 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     {
         _movie = movie;
         _grid.SetMovie(movie);
-        _framesHeader.SetMovie(movie);
-        _frameScripts.SetMovie(movie);
+        //_framesHeader.SetMovie(movie);
+        //_frameScripts.SetMovie(movie);
         _LeftTopContainer.SetMovie(movie);
         _topGrids.SetMovie(movie);
         _LeftChannelsContainer.SetMovie(movie);
@@ -278,7 +280,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _player.ActiveMovieChanged -= OnActiveMovieChanged;
         _grid.Dispose();
         _labelBar.Dispose();
-        _frameScripts.Dispose();
+        //_frameScripts.Dispose();
         _LeftTopContainer.Dispose();
         _topGrids.Dispose();
         _masterScroller.Dispose();
