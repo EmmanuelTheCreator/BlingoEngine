@@ -45,12 +45,23 @@ namespace LingoEngine.Director.Core.UI
             return this;
         }
 
-        public GfxWrapPanelBuilder AddNumericInput<T>(string name, T target, Expression<Func<T, float>> property, int width = 40, float? min = null, float? max = null)
+        public GfxWrapPanelBuilder AddNumericInputFloat<T>(string name, T target, Expression<Func<T, float>> property, int width = 40, float? min = null, float? max = null)
         {
             var setter = property.CompileSetter();
             var getter = property.CompileGetter();
 
-            var input = _factory.CreateInputNumber(name, min, max, value => setter(target, value));
+            var input = _factory.CreateInputNumberFloat(name, min, max, value => setter(target, value));
+            input.Value = getter(target);
+            input.Width = width;
+            _panel.AddItem(input);
+            return this;
+        } 
+        public GfxWrapPanelBuilder AddNumericInputInt<T>(string name, T target, Expression<Func<T, int>> property, int width = 40, int? min = null, int? max = null)
+        {
+            var setter = property.CompileSetter();
+            var getter = property.CompileGetter();
+
+            var input = _factory.CreateInputNumberInt(name, min, max, value => setter(target, value));
             input.Value = getter(target);
             input.Width = width;
             _panel.AddItem(input);

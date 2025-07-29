@@ -169,25 +169,25 @@ namespace LingoEngine.Director.Core.Inspector
             return input;
         }
 
-        private LingoGfxInputNumber CreateInt(BehaviorPropertiesContainer properties, string key, object? propValue)
+        private LingoGfxInputNumber<int> CreateInt(BehaviorPropertiesContainer properties, string key, object? propValue)
         {
-            var input = _factory.CreateInputNumber($"PropInput_{key}");
+            var input = _factory.CreateInputNumberInt($"PropInput_{key}");
             input.Width = 70;
             input.NumberType = LingoNumberType.Integer;
             if (propValue is int i)
                 input.Value = i;
-            else if (propValue is float f)
-                input.Value = f;
-            else if (propValue != null && float.TryParse(propValue.ToString(), out var fv))
-                input.Value = fv;
+            //else if (propValue is float f)
+            //    input.Value = f;
+            //else if (propValue != null && float.TryParse(propValue.ToString(), out var fv))
+            //    input.Value = fv;
             input.ValueChanged += () => properties[key] = (int)input.Value;
             return input;
         } 
-        private LingoGfxInputNumber CreateFloat(BehaviorPropertiesContainer properties, string key, object? propValue)
+        private LingoGfxInputNumber<float> CreateFloat(BehaviorPropertiesContainer properties, string key, object? propValue)
         {
-            var input = _factory.CreateInputNumber($"PropInput_{key}");
+            var input = _factory.CreateInputNumberFloat($"PropInput_{key}");
             input.Width = 70;
-            input.NumberType = LingoNumberType.Integer;
+            input.NumberType = LingoNumberType.Float;
             if (propValue is int i)
                 input.Value = i;
             else if (propValue is float f)

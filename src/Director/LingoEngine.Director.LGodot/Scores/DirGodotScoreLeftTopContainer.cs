@@ -1,5 +1,6 @@
 ﻿using Godot;
 using LingoEngine.Director.Core.Scores;
+using LingoEngine.Director.Core.Tools;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
 using LingoEngine.LGodot.Primitives;
@@ -7,15 +8,16 @@ using LingoEngine.Movies;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
-internal partial class DirGodotTopHeaderContainer : Control
+internal partial class DirGodotScoreLeftTopContainer : Control
 {
-    private readonly DirScoreTopHeaderContainer _lingoContainer;
+    private readonly DirScoreLeftTopContainer _lingoContainer;
 
 
-    public DirGodotTopHeaderContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, ILingoMouse mouse, Vector2 position)
+    public DirGodotScoreLeftTopContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, ILingoMouse mouse, Vector2 position, IDirectorEventMediator mediator)
     {
         Position = position;
-        _lingoContainer = new DirScoreTopHeaderContainer(gfxValues, factory, mouse, Position.ToLingoPoint());
+        _lingoContainer = new DirScoreLeftTopContainer(gfxValues, factory, mouse, Position.ToLingoPoint(), mediator);
+        _lingoContainer.RequestRedraw = () => QueueRedraw();
         AddChild((Node)_lingoContainer.FrameworkGfxNode.FrameworkNode);
         QueueRedraw();
     }
@@ -38,9 +40,9 @@ internal partial class DirGodotTopHeaderContainer : Control
     public override void _Draw()
     {
         base._Draw();
+        _lingoContainer.Draw();
         Size = new Vector2(_lingoContainer.Width, _lingoContainer.Height);
         CustomMinimumSize = Size;
-        _lingoContainer.Draw();
     }
 
 

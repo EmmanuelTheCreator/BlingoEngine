@@ -1,4 +1,5 @@
-﻿using LingoEngine.FrameworkCommunication;
+﻿using LingoEngine.Director.Core.Tools;
+using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
 using LingoEngine.Movies;
 using LingoEngine.Primitives;
@@ -6,7 +7,7 @@ using LingoEngine.Primitives;
 
 namespace LingoEngine.Director.Core.Scores
 {
-    public class DirScoreTopHeaderContainer : DirScoreHeaderContainer
+    public class DirScoreLeftTopContainer : DirScoreLeftContainer
     {
         private float _frameScriptsTopOpen = 0;
         private readonly DirScoreChannelHeader[] _collapsableHeaders;
@@ -26,7 +27,7 @@ namespace LingoEngine.Director.Core.Scores
             }
         }
 
-        public DirScoreTopHeaderContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, ILingoMouse mouse, LingoPoint position) : base(gfxValues, factory, mouse, position,6)
+        public DirScoreLeftTopContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, ILingoMouse mouse, LingoPoint position, IDirectorEventMediator mediator) : base(gfxValues, factory, mouse, position,6, mediator)
         {
             
             _frameScript = new DirScoreChannelHeader("", "Scripts", gfxValues, (c, state) => { });

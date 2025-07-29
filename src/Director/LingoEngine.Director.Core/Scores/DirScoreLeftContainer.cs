@@ -1,4 +1,5 @@
 ﻿using LingoEngine.Director.Core.Styles;
+using LingoEngine.Director.Core.Tools;
 using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
@@ -8,17 +9,19 @@ using LingoEngine.Primitives;
 
 namespace LingoEngine.Director.Core.Scores
 {
-    public class DirScoreHeaderContainer : IDisposable
+    public class DirScoreLeftContainer : IDisposable
     {
 
         protected readonly DirScoreGfxValues _gfxValues;
         protected readonly ILingoMouse _mouse;
         protected LingoPoint _position;
+        private readonly IDirectorEventMediator _mediator;
         protected readonly LingoGfxCanvas _canvas;
-        
-        protected DirScoreChannelHeader[] _channels = new DirScoreChannelHeader[0];
+        private readonly IDirectorEventSubscription _mediatorSub;
+        protected DirScoreChannelHeader[] _channels = [];
         
         private ILingoMouseSubscription _mouseSub;
+        public Action? RequestRedraw { get; set; }
         
 
         public int Width { get; protected set; }
@@ -26,17 +29,26 @@ namespace LingoEngine.Director.Core.Scores
 
         public ILingoFrameworkGfxNode FrameworkGfxNode => _canvas.FrameworkObj;
 
-        public DirScoreHeaderContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, ILingoMouse mouse, LingoPoint position, int initialChannelCount)
+        public DirScoreLeftContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, ILingoMouse mouse, LingoPoint position, int initialChannelCount, IDirectorEventMediator mediator)
         {
             _gfxValues = gfxValues;
             _mouse = mouse;
             _position = position;
+            _mediator = mediator;
             Width = _gfxValues.ChannelInfoWidth;
             Height = _gfxValues.ChannelHeight * initialChannelCount;
             _mouseSub = _mouse.OnMouseDown(RaiseMouseDown);
             _canvas = factory.CreateGfxCanvas("ScoreTopHeaderContainer", Width, Height);
+            _mediatorSub = _mediator.Subscribe(DirectorEventType.StagePropertiesChanged, () =>
+            {
+                StagePropertiesChanged();
+                return true;
+            });
         }
-
+        protected virtual void StagePropertiesChanged()
+        {
+            RequestRedraw?.Invoke();
+        }
         public void SetChannels(DirScoreChannelHeader[] channels)
         {
             _channels = channels;
@@ -84,6 +96,7 @@ namespace LingoEngine.Director.Core.Scores
 
         public void Dispose()
         {
+            _mediatorSub.Release();
             _mouseSub.Release();
         }
     }

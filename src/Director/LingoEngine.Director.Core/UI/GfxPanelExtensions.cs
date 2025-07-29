@@ -34,10 +34,19 @@ namespace LingoEngine.Director.Core.UI
             container.AddItem(control, x, y);
             return control;
         }
-        public static LingoGfxInputNumber SetInputNumberAt<T>(this LingoGfxPanel container, ILingoFrameworkFactory factory, T element, string name, float x, float y, int width, Expression<Func<T,float>> property, float? min = null, float? max = null)
+        public static LingoGfxInputNumber<float> SetInputNumberAt<T>(this LingoGfxPanel container, ILingoFrameworkFactory factory, T element, string name, float x, float y, int width, Expression<Func<T,float>> property, float? min = null, float? max = null)
         {
             Action<T, float> setter = property.CompileSetter();
-            LingoGfxInputNumber control = factory.CreateInputNumber(name, min, max, x => setter(element, x));
+            var control = factory.CreateInputNumberFloat(name, min, max, x => setter(element, x));
+            control.Value = property.CompileGetter()(element);
+            control.Width = width;
+            container.AddItem(control, x, y);
+            return control;
+        }
+        public static LingoGfxInputNumber<int> SetInputNumberAt<T>(this LingoGfxPanel container, ILingoFrameworkFactory factory, T element, string name, float x, float y, int width, Expression<Func<T,int>> property, int? min = null, int? max = null)
+        {
+            Action<T, int> setter = property.CompileSetter();
+            var control = factory.CreateInputNumberInt(name, min, max, x => setter(element, x));
             control.Value = property.CompileGetter()(element);
             control.Width = width;
             container.AddItem(control, x, y);

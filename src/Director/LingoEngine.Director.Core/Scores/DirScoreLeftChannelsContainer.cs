@@ -1,16 +1,17 @@
-﻿using LingoEngine.FrameworkCommunication;
+﻿using LingoEngine.Director.Core.Tools;
+using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
 using LingoEngine.Movies;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.Director.Core.Scores
 {
-    public class DirScoreChannelsHeaderContainer : DirScoreHeaderContainer
+    public class DirScoreLeftChannelsContainer : DirScoreLeftContainer
     {
         protected LingoMovie? _movie;
    
 
-        public DirScoreChannelsHeaderContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, ILingoMouse mouse, LingoPoint position) : base(gfxValues, factory, mouse, position,10)
+        public DirScoreLeftChannelsContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, ILingoMouse mouse, LingoPoint position, IDirectorEventMediator mediator) : base(gfxValues, factory, mouse, position,10, mediator)
         {
         }
 
@@ -22,7 +23,12 @@ namespace LingoEngine.Director.Core.Scores
                 RegenerateChannels();
             }
         }
+        protected override void StagePropertiesChanged()
+        {
+            RegenerateChannels();
+            base.StagePropertiesChanged();
 
+        }
         private void RegenerateChannels()
         {
             if (_movie == null) return;

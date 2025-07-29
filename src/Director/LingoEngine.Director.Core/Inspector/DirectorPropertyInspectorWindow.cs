@@ -242,18 +242,21 @@ namespace LingoEngine.Director.Core.Inspector
             }
         }
 
+
+
+        #region Sprite Tab
         private void AddSpriteTab(LingoSprite2D sprite)
         {
             CreateBehaviorPanel();
             var wrapContainer = AddTab(PropetyTabNames.Sprite);
             var containerIcons = _factory.CreateWrapPanel(LingoOrientation.Horizontal, "SpriteDetailIcons");
             var container = _factory.CreatePanel("SpriteDetailPanel");
-            
+
 
             containerIcons.Margin = new LingoMargin(5, 5, 5, 5);
             containerIcons.Compose(_factory)
-                .AddStateButton("SpriteLock", sprite, _iconManager.Get(DirectorIcon.Lock),c => c.Lock)
-                .AddStateButton("SpriteFlipH", sprite, _iconManager.Get(DirectorIcon.FlipHorizontal), c => c.FlipH,"")
+                .AddStateButton("SpriteLock", sprite, _iconManager.Get(DirectorIcon.Lock), c => c.Lock)
+                .AddStateButton("SpriteFlipH", sprite, _iconManager.Get(DirectorIcon.FlipHorizontal), c => c.FlipH, "")
                 .AddStateButton("SpriteFlipV", sprite, _iconManager.Get(DirectorIcon.FlipVertical), c => c.FlipV)
                 ;
 
@@ -261,25 +264,25 @@ namespace LingoEngine.Director.Core.Inspector
                    .Columns(4)
                    .AddTextInput("SpriteName", "Name:", sprite, s => s.Name, inputSpan: 3)
                    .Columns(8)
-                   .AddNumericInput("SpriteLocH", "X:", sprite, s => s.LocH)
-                   .AddNumericInput("SpriteLocV", "Y:", sprite, s => s.LocV)
-                   .AddNumericInput("SpriteLocZ", "Z:", sprite, s => s.LocZ, inputSpan: 3)
-                   .AddNumericInput("SpriteLeft", "L:", sprite, s => s.Left)
-                   .AddNumericInput("SpriteTop", "T:", sprite, s => s.Top)
-                   .AddNumericInput("SpriteRight", "R:", sprite, s => s.Right)
-                   .AddNumericInput("SpriteBottom", "B:", sprite, s => s.Bottom)
-                   .AddNumericInput("SpriteWidth", "W:", sprite, s => s.Width)
-                   .AddNumericInput("SpriteHeight", "H:", sprite, s => s.Height, inputSpan: 5)
-                   .AddEnumInput<LingoSprite2D,LingoInkType>("SpriteInk", "Ink:", sprite, s => s.Ink, inputSpan: 6)
-                   .AddNumericInput("SpriteBlend", "%", sprite, s => s.Blend, showLabel: false)
-                   .AddNumericInput("SpriteBeginFrame", "StartFrame:", sprite, s => s.BeginFrame, labelSpan: 3)
-                   .AddNumericInput("SpriteEndFrame", "End:", sprite, s => s.EndFrame, inputSpan: 1, labelSpan: 3)
-                   .AddNumericInput("SpriteRotation", "Rotation:", sprite, s => s.Rotation, labelSpan: 3)
-                   .AddNumericInput("SpriteSkew", "Skew:", sprite, s => s.Skew, inputSpan: 1, labelSpan: 3)
+                   .AddNumericInputFloat("SpriteLocH", "X:", sprite, s => s.LocH)
+                   .AddNumericInputFloat("SpriteLocV", "Y:", sprite, s => s.LocV)
+                   .AddNumericInputFloat("SpriteLocZ", "Z:", sprite, s => s.LocZ, inputSpan: 3)
+                   .AddNumericInputFloat("SpriteLeft", "L:", sprite, s => s.Left)
+                   .AddNumericInputFloat("SpriteTop", "T:", sprite, s => s.Top)
+                   .AddNumericInputFloat("SpriteRight", "R:", sprite, s => s.Right)
+                   .AddNumericInputFloat("SpriteBottom", "B:", sprite, s => s.Bottom)
+                   .AddNumericInputFloat("SpriteWidth", "W:", sprite, s => s.Width)
+                   .AddNumericInputFloat("SpriteHeight", "H:", sprite, s => s.Height, inputSpan: 5)
+                   .AddEnumInput<LingoSprite2D, LingoInkType>("SpriteInk", "Ink:", sprite, s => s.Ink, inputSpan: 6)
+                   .AddNumericInputFloat("SpriteBlend", "%", sprite, s => s.Blend, showLabel: false)
+                   .AddNumericInputInt("SpriteBeginFrame", "StartFrame:", sprite, s => s.BeginFrame, labelSpan: 3)
+                   .AddNumericInputInt("SpriteEndFrame", "End:", sprite, s => s.EndFrame, inputSpan: 1, labelSpan: 3)
+                   .AddNumericInputFloat("SpriteRotation", "Rotation:", sprite, s => s.Rotation, labelSpan: 3)
+                   .AddNumericInputFloat("SpriteSkew", "Skew:", sprite, s => s.Skew, inputSpan: 1, labelSpan: 3)
                    .AddColorPicker("SpriteForeColor", "Foreground:", sprite, s => s.ForeColor, inputSpan: 1, labelSpan: 3)
                    .AddColorPicker("SpriteBackColor", "Background:", sprite, s => s.BackColor, inputSpan: 1, labelSpan: 3)
                    .Finalize();
-                   ;
+            ;
             var index = 0;
             _behaviors = sprite.Behaviors.ToDictionary(b =>
             {
@@ -289,7 +292,7 @@ namespace LingoEngine.Director.Core.Inspector
             _behaviorList.ClearItems();
             foreach (var item in _behaviors)
                 _behaviorList.AddItem(item.Key, item.Value.Name);
-            
+
 
             wrapContainer
                 .AddItem(containerIcons)
@@ -311,17 +314,23 @@ namespace LingoEngine.Director.Core.Inspector
             });
             _behaviorList.Height = 45;
             _behaviorList.Width = _lastWidh - 15;
-            _behaviorList.Margin = new LingoMargin(5,0,0,0);
+            _behaviorList.Margin = new LingoMargin(5, 0, 0, 0);
             _behaviorPanel.AddItem(_behaviorList);
 
         }
 
 
         public LingoGfxWindow? BuildBehaviorPopup(LingoSpriteBehavior behavior)
-            => _descriptionManager.BuildBehaviorPopup(behavior,() =>
+            => _descriptionManager.BuildBehaviorPopup(behavior, () =>
             {
                 _behaviorList.SelectedIndex = -1;
             });
+
+        #endregion
+
+
+
+        #region Memeber/Bitmap
 
         private void AddMemberTab(ILingoMember member)
         {
@@ -335,19 +344,19 @@ namespace LingoEngine.Director.Core.Inspector
                    .Columns(4)
                    .AddTextInput("MemberName", "Name:", member, s => s.Name, inputSpan: 3)
                    .Columns(4)
-                   .AddLabel("MemberSize","Size: ",2)
-                   .AddLabel("MemberSizeV", CommonExtensions.BytesToShortString(member.Size),2)
-                   .AddLabel("MemberCreationDate","Created: ",2)
-                   .AddLabel("MemberCreationDateV",member.CreationDate.ToString("dd/MM/yyyy HH:mm"),2)
-                   .AddLabel("MemberModifyDate","Modified: ",2)
-                   .AddLabel("MemberModifyDateV",member.ModifiedDate.ToString("dd/MM/yyyy HH:mm"),2)
+                   .AddLabel("MemberSize", "Size: ", 2)
+                   .AddLabel("MemberSizeV", CommonExtensions.BytesToShortString(member.Size), 2)
+                   .AddLabel("MemberCreationDate", "Created: ", 2)
+                   .AddLabel("MemberCreationDateV", member.CreationDate.ToString("dd/MM/yyyy HH:mm"), 2)
+                   .AddLabel("MemberModifyDate", "Modified: ", 2)
+                   .AddLabel("MemberModifyDateV", member.ModifiedDate.ToString("dd/MM/yyyy HH:mm"), 2)
                    .Columns(4)
                    .AddTextInput("MemberFileName", "FileName:", member, s => s.FileName, inputSpan: 3)
                    .Columns(4)
                    .AddTextInput("MemberComments", "Comments:", member, s => s.Comments, inputSpan: 3)
                    .Finalize()
                    ;
-        } 
+        }
         private void AddBitmapTab(LingoMemberBitmap member)
         {
             var wrapContainer = AddTab(PropetyTabNames.Bitmap);
@@ -358,17 +367,23 @@ namespace LingoEngine.Director.Core.Inspector
 
             container.Compose(_factory)
                    .Columns(4)
-                   .AddLabel("BitmapSize","Dimensions: ",2)
-                   .AddLabel("BitmapSizeV", member.Width + " x " + member.Height,2) 
-                   .AddCheckBox("BitmapHighLight", "Hightlight: ",member,x => x.Hilite,2,true,2)
+                   .AddLabel("BitmapSize", "Dimensions: ", 2)
+                   .AddLabel("BitmapSizeV", member.Width + " x " + member.Height, 2)
+                   .AddCheckBox("BitmapHighLight", "Hightlight: ", member, x => x.Hilite, 2, true, 2)
                    //.AddLabel("BitmapBitDepth", "BitDepth: ", 2)
                    //.AddLabel("BitmapBitDepthV", member.ColorDepth,2)
                    .Columns(8)
-                   .AddNumericInput("BitmapRegPointX", "RegPoint X:", member, s => s.RegPoint.X, inputSpan: 1, labelSpan: 3)
-                   .AddNumericInput("BitmapRegPointY", "Y:", member, s => s.RegPoint.Y, inputSpan: 4, labelSpan: 1)
+                   .AddNumericInputFloat("BitmapRegPointX", "RegPoint X:", member, s => s.RegPoint.X, inputSpan: 1, labelSpan: 3)
+                   .AddNumericInputFloat("BitmapRegPointY", "Y:", member, s => s.RegPoint.Y, inputSpan: 4, labelSpan: 1)
                    .Finalize()
                    ;
         }
+
+        #endregion
+
+
+
+        #region Sound
 
         private void AddSoundTab(LingoMemberSound member)
         {
@@ -401,6 +416,12 @@ namespace LingoEngine.Director.Core.Inspector
                 .Finalize();
         }
 
+        #endregion
+
+
+
+        #region Movie
+
         private void AddMovieTab(ILingoMovie? movie)
         {
             var wrap = AddTab(PropetyTabNames.Movie);
@@ -409,9 +430,9 @@ namespace LingoEngine.Director.Core.Inspector
             rowSize.Margin = new LingoMargin(5, 5, 5, 0);
             rowSize.Compose(_factory)
                 .AddLabel("Stage size:")
-                .AddNumericInput("MovieStageWidth", _player.Stage, m => m.Width, 40)
+                .AddNumericInputInt("MovieStageWidth", _player.Stage, m => m.Width, 40)
                 .AddLabel("x")
-                .AddNumericInput("MovieStageHeight", _player.Stage, m => m.Height, 40)
+                .AddNumericInputInt("MovieStageHeight", _player.Stage, m => m.Height, 40)
                 .AddCombobox("MovieResolutions", new[]
                 {
                     new KeyValuePair<string,string>("640x480","640x480"),
@@ -437,14 +458,17 @@ namespace LingoEngine.Director.Core.Inspector
 
             if (movie != null)
             {
+                // We create settings to not directly remove all sprites when changing the number, but only when pressed apply to not loose sprites to fast.
+                var settings = new DirMovieUISettings(movie);
                 var rowChannels = _factory.CreatePanel("MovieChannelsRow");
                 rowChannels.Compose(_factory)
                     .Columns(4)
-                    .AddNumericInput("MovieChannels", "Channels:", movie, m => m.MaxSpriteChannelCount)
+                    .AddNumericInputInt("MovieChannels", "Channels:", settings, m => settings.MaxSpriteChannelCount)
                     .AddColorPicker("StageBgColor", "Color", _player.Stage, m => m.BackgroundColor)
                     .Columns(2)
                     .AddButton("MovieApplyBtn", "Apply", () =>
                     {
+                        settings.Apply();
                         _mediator.Raise(DirectorEventType.StagePropertiesChanged);
                         _mediator.Raise(DirectorEventType.CastPropertiesChanged);
                     })
@@ -467,6 +491,27 @@ namespace LingoEngine.Director.Core.Inspector
                 wrap.AddItem(rowChannels);
             }
         }
+        private class DirMovieUISettings
+        {
+            private readonly ILingoMovie _movie;
+
+            public DirMovieUISettings(ILingoMovie movie)
+            {
+                MaxSpriteChannelCount = movie.MaxSpriteChannelCount;
+                _movie = movie;
+            }
+            public void Apply()
+            {
+                _movie.MaxSpriteChannelCount = MaxSpriteChannelCount;
+            }
+
+            public int MaxSpriteChannelCount { get; set; }
+        }
+
+
+        #endregion
+
+        #region CAST
 
         private void AddCastTab(ILingoCast cast)
         {
@@ -476,12 +521,16 @@ namespace LingoEngine.Director.Core.Inspector
             rowChannels.Compose(_factory)
                    .Columns(8)
                    .NextRow()
-                   .AddNumericInput("CastNumber", "Number:", cast, m => m.Number, 1, true, false, 2, c => c.Enabled = false)
+                   .AddNumericInputInt("CastNumber", "Number:", cast, m => m.Number, 1, true, false, 2, c => c.Enabled = false)
                    .AddTextInput("CastName", "Name:", cast, m => m.Name, 3, 2)
                    .Finalize();
             ;
             wrap.AddItem(rowChannels);
         }
+        #endregion
+
+
+        #region TEXT
         private void AddTextTab(ILingoMemberTextBase textMember)
         {
             var wrap = AddTab(PropetyTabNames.Text);
@@ -490,8 +539,8 @@ namespace LingoEngine.Director.Core.Inspector
             rowChannels.Compose(_factory)
                    .NextRow()
                    .Columns(8)
-                   .AddNumericInput("TextWidth", "W:", textMember, s => s.Width)
-                   .AddNumericInput("TextHeight", "H:", textMember, s => s.Height, inputSpan: 5)
+                   .AddNumericInputFloat("TextWidth", "W:", textMember, s => s.Width)
+                   .AddNumericInputFloat("TextHeight", "H:", textMember, s => s.Height, inputSpan: 5)
 
                    .NextRow()
                    .Columns(2)
@@ -503,7 +552,11 @@ namespace LingoEngine.Director.Core.Inspector
             ;
             wrap.AddItem(rowChannels);
         }
-         
+        #endregion
+
+
+        #region Shape
+
         private void AddShapeTab(LingoMemberShape member)
         {
             var wrap = AddTab(PropetyTabNames.Shape);
@@ -514,10 +567,10 @@ namespace LingoEngine.Director.Core.Inspector
                    .Columns(8)
                    .AddEnumInput<LingoMemberShape, LingoShapeType>("ShapeType", "Shape:", member, s => s.ShapeTypeInt, inputSpan: 6, labelSpan: 2)
                    .AddCheckBox("ShapeClosed", "Filled:", member, s => s.Filled, inputSpan: 1, true)
-                   
+
                    .NextRow()
-                   .AddNumericInput("ShapeWidth", "W:", member, s => s.Width)
-                   .AddNumericInput("ShapeHeight", "H:", member, s => s.Height, inputSpan: 5)
+                   .AddNumericInputInt("ShapeWidth", "W:", member, s => s.Width)
+                   .AddNumericInputInt("ShapeHeight", "H:", member, s => s.Height, inputSpan: 5)
                    ;
             if (member.ShapeType == LingoShapeType.Rectangle || member.ShapeType == LingoShapeType.Oval)
             {
@@ -536,6 +589,10 @@ namespace LingoEngine.Director.Core.Inspector
             wrap.AddItem(rowChannels);
         }
 
+        #endregion
+
+
+        #region Guides
         private void AddGuidesTab(DirectorStageGuides guides)
         {
             var wrap = AddTab(PropetyTabNames.Guides);
@@ -563,12 +620,16 @@ namespace LingoEngine.Director.Core.Inspector
                    .NextRow()
                    .AddButton("RemoveGuides", "Remove all", () => guides.RemoveAll(), 4)
                    .NextRow()
-                   .AddNumericInput("GridWidth", "W:", guides, g => g.GridWidth)
-                   .AddNumericInput("GridHeight", "H:", guides, g => g.GridHeight)
+                   .AddNumericInputFloat("GridWidth", "W:", guides, g => g.GridWidth)
+                   .AddNumericInputFloat("GridHeight", "H:", guides, g => g.GridHeight)
                    .Finalize();
             wrap.AddItem(gridPanel);
         }
 
+        #endregion
+
+
+        #region Common: AddTab
 
         private LingoGfxWrapPanel AddTab(PropetyTabNames tabName)
         {
@@ -619,8 +680,9 @@ namespace LingoEngine.Director.Core.Inspector
         }
 
 
+        #endregion
 
-      
+
 
 
         public override void OpenWindow()

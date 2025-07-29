@@ -317,7 +317,7 @@ namespace LingoEngine.Movies
         void StartTimer();
 
         int Timer { get; }
-        int MaxSpriteChannelCount { get; }
+        int MaxSpriteChannelCount { get; set; }
 
         void SetScoreLabel(int frameNumber, string name);
         void PuppetSprite(int myNum, bool state);

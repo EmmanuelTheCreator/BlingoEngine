@@ -4,25 +4,32 @@ using LingoEngine.Director.Core.Scores;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
 using LingoEngine.Primitives;
+using LingoEngine.Director.Core.Tools;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
-internal partial class DirGodotScoreLeftChannelHeaders : Control
+internal partial class DirGodotScoreLeftChannelsContainer : Control
 {
-    private DirScoreChannelsHeaderContainer _headerContainer;
+    private DirScoreLeftChannelsContainer _headerContainer;
     private DirScoreGfxValues _gfxValues;
     private LingoMovie? _movie;
 
 
-    public DirGodotScoreLeftChannelHeaders(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, ILingoMouse mouse, Vector2 position)
+    public DirGodotScoreLeftChannelsContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, ILingoMouse mouse, Vector2 position, IDirectorEventMediator mediator)
     {
         MouseFilter = MouseFilterEnum.Ignore;
         Position = position;
         _gfxValues = gfxValues;
         ClipContents = true;
-        _headerContainer = new DirScoreChannelsHeaderContainer(gfxValues, factory, mouse, new LingoPoint(0, 0));
+        _headerContainer = new DirScoreLeftChannelsContainer(gfxValues, factory, mouse, new LingoPoint(0, 0), mediator);
+        _headerContainer.RequestRedraw = RequestRedraw;
         var node = (Node)_headerContainer.FrameworkGfxNode.FrameworkNode;
         AddChild(node);
+    }
+
+    private void RequestRedraw()
+    {
+        UpdateSize();
     }
 
     public void SetMovie(LingoMovie? movie)
@@ -33,6 +40,11 @@ internal partial class DirGodotScoreLeftChannelHeaders : Control
         if (_movie != null)
             _movie.SpriteListChanged += OnSpriteListChanged;
         _headerContainer.SetMovie(movie);
+        UpdateSize();
+    }
+
+    private void UpdateSize()
+    {
         Size = new Vector2(_gfxValues.ChannelInfoWidth, _headerContainer.Height);
         CustomMinimumSize = new Vector2(_gfxValues.ChannelInfoWidth, _headerContainer.Height);
         QueueRedraw();
