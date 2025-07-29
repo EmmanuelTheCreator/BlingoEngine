@@ -1,3 +1,4 @@
+/*
 ﻿using Godot;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
@@ -196,3 +197,4 @@ internal partial class DirGodotFrameScriptsBar : Control
         base.Dispose(disposing);
     }
 }
+*/

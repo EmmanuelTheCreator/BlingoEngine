@@ -9,6 +9,8 @@ using LingoEngine.Events;
 using System.Threading.Channels;
 using LingoEngine.Inputs;
 using LingoEngine.Director.Core.Sprites;
+using LingoEngine.Scripts;
+using System.Linq;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
@@ -21,6 +23,7 @@ internal partial class DirGodotTopGridContainer : Control
     private readonly TextureRect _texture = new();
     private readonly Control _clipper = new();
     private readonly DirGodotTopGridChannelBase[] _channels;
+    private readonly int _frameScriptIndex;
     private bool _collapsed;
     private LingoMovie? _movie;
     private float _scrollX;
@@ -33,7 +36,8 @@ internal partial class DirGodotTopGridContainer : Control
         set
         {
             _collapsed = value;
-            Visible = !value;
+            UpdateChannelsVisibility();
+            UpdateSize();
             QueueRedraw();
         }
     }
@@ -62,7 +66,9 @@ internal partial class DirGodotTopGridContainer : Control
             new DirGodotTransitionGridChannel(spritesManager),
             new DirGodotAudioGridChannel(4, spritesManager),
             new DirGodotAudioGridChannel(5, spritesManager),
+            new DirGodotFrameScriptGridChannel(LingoSpriteFrameScript.FrameScriptSpriteNum, spritesManager),
         ];
+        _frameScriptIndex = _channels.Length - 1;
 
         for (int i = 0; i < _channels.Length; i++)
         {
@@ -70,9 +76,43 @@ internal partial class DirGodotTopGridContainer : Control
             _clipper.AddChild(_channels[i]);
         }
 
+        UpdateChannelsVisibility();
+
         _mouseSub = _mouse.OnMouseEvent(HandleMouseEvent);
 
         UpdateSize();
+    }
+
+    private void UpdateChannelsVisibility()
+    {
+        for (int i = 0; i < _channels.Length; i++)
+        {
+            _channels[i].Visible = i == _frameScriptIndex || !_collapsed;
+        }
+        UpdateChannelsPosition();
+    }
+
+    private void UpdateChannelsPosition()
+    {
+        float y = 0;
+        for (int i = 0; i < _channels.Length; i++)
+        {
+            var ch = _channels[i];
+            if (!ch.Visible) continue;
+            ch.Position = new Vector2(0, y);
+            y += _gfxValues.ChannelHeight;
+        }
+    }
+
+    private DirGodotTopGridChannelBase? GetChannelByDisplayIndex(int index)
+    {
+        for (int i = 0; i < _channels.Length; i++)
+        {
+            if (!_channels[i].Visible) continue;
+            if (index == 0) return _channels[i];
+            index--;
+        }
+        return null;
     }
 
     public void HandleMouseEvent(LingoMouseEvent mouseEvent)
@@ -80,12 +120,12 @@ internal partial class DirGodotTopGridContainer : Control
         if (_movie == null) return;
         float frameF = (mouseEvent.MouseH + _scrollX - _gfxValues.ChannelInfoWidth - 3) / _gfxValues.FrameWidth;
         var mouseFrame = Math.Clamp(Mathf.RoundToInt(frameF) + 1, 1, _movie.FrameCount);
-        var channel = Math.Clamp(Mathf.RoundToInt((mouseEvent.MouseV - Position.Y + 8) / _gfxValues.ChannelHeight), 1, 999);
-        //Console.WriteLine("Frame=" + mouseFrame + "\t:Channel="+ channel+" \t:" + mouseEvent.MouseH + "x" + mouseEvent.MouseV);
+        var displayIndex = Math.Clamp(Mathf.RoundToInt((mouseEvent.MouseV - Position.Y + 8) / _gfxValues.ChannelHeight), 0, 999);
         if (_lastMouseChannel == null)
-        { 
-            if (channel > _channels.Length || channel < 0) return;
-            _lastMouseChannel = _channels[channel - 1];
+        {
+            var ch = GetChannelByDisplayIndex(displayIndex);
+            if (ch == null) return;
+            _lastMouseChannel = ch;
         }
         var result = _lastMouseChannel.HandleMouseEvent(mouseEvent, mouseFrame);
         if (!result)
@@ -118,6 +158,7 @@ internal partial class DirGodotTopGridContainer : Control
         foreach (var ch in _channels)
             ch.SetMovie(movie);
         UpdateSize();
+        UpdateChannelsPosition();
     }
 
     private void UpdateSize()
@@ -125,7 +166,8 @@ internal partial class DirGodotTopGridContainer : Control
         if (_movie == null)
             return;
         float width = _gfxValues.LeftMargin + _movie.FrameCount * _gfxValues.FrameWidth;
-        float height = _channels.Length * _gfxValues.ChannelHeight;
+        int visibleCount = _channels.Count(ch => ch.Visible);
+        float height = visibleCount * _gfxValues.ChannelHeight;
         CustomMinimumSize = Size;
         Size = new Vector2(width, height);
         _clipper.CustomMinimumSize = Size;
@@ -133,11 +175,12 @@ internal partial class DirGodotTopGridContainer : Control
         _viewport.SetSize(new Vector2I((int)width, (int)height));
         _texture.CustomMinimumSize = new Vector2(width, height);
         _gridCanvas.FrameCount = _movie.FrameCount;
-        _gridCanvas.ChannelCount = _channels.Length;
+        _gridCanvas.ChannelCount = visibleCount;
         _gridCanvas.Draw();
         foreach (var ch in _channels)
             if (ch is Control c)
                 c.CustomMinimumSize = new Vector2(width, _gfxValues.ChannelHeight);
+        UpdateChannelsPosition();
     }
     private int _lastDrawnFrame = 0;
 
