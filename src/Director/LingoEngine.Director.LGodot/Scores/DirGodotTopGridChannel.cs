@@ -79,7 +79,7 @@ internal abstract partial class DirGodotTopGridChannelBase : Control, IDirGodotT
 
 
 
-internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI,TSprite> : DirGodotTopGridChannelBase, IDirGodotTopGridChannel, IDirGodotScoreDragableZone<TSprite>
+internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI,TSprite> : DirGodotTopGridChannelBase, IDirGodotTopGridChannel
     where TSpriteUI : DirGodotTopSprite<TSprite>
     where TSpriteManager : ILingoSpriteManager<TSprite>
     where TSprite : LingoSprite
@@ -91,20 +91,20 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
 
     protected readonly IDirectorEventMediator _mediator;
     protected TSpriteManager? _manager;
-    protected TSpriteUI? _dragSprite;
+    //protected TSpriteUI? _dragSprite;
     private readonly SpritesCanvas _canvas;
-    private readonly DirGodotScoreDragHandler<TSprite, TSpriteUI> _dragHandler;
+    //private readonly DirGodotScoreDragHandler<TSprite, TSpriteUI> _dragHandler;
     protected TSpriteUI? _selected;
 
     private bool _hasDirtySprites = true;
-    bool IDirGodotScoreDragableZone<TSprite>.HasDirtySprites { get => _hasDirtySprites; set => _hasDirtySprites = value; }
+    public bool HasDirtySprites { get => _hasDirtySprites; set => _hasDirtySprites = value; }
     internal bool SpriteListDirty { get => _spriteListDirty; set => _spriteListDirty = value; }
-    internal Rect2? SpritePreviewRect => _dragHandler.SpritePreviewRect;
-    internal bool ShowPreview => _dragHandler.ShowPreview;
-    internal int PreviewChannel => _dragHandler.PreviewChannel;
+    //internal Rect2? SpritePreviewRect => _dragHandler.SpritePreviewRect;
+    //internal bool ShowPreview => _dragHandler.ShowPreview;
+    //internal int PreviewChannel => _dragHandler.PreviewChannel;
 
-    internal int PreviewBegin => _dragHandler.PreviewBegin;
-    internal int PreviewEnd => _dragHandler.PreviewEnd;
+    //internal int PreviewBegin => _dragHandler.PreviewBegin;
+    //internal int PreviewEnd => _dragHandler.PreviewEnd;
 
     protected readonly HashSet<Vector2I> _selectedCells = new();
     protected Vector2I? _lastSelectedCell = null;
@@ -129,7 +129,7 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
         _canvas = new SpritesCanvas(this, spritesManager);
         AddChild(_canvas);
         MouseFilter = MouseFilterEnum.Stop;
-        _dragHandler = new DirGodotScoreDragHandler<TSprite, TSpriteUI>(this, null, _gfxValues, _sprites, spritesManager.CommandManager);
+        //_dragHandler = new DirGodotScoreDragHandler<TSprite, TSpriteUI>(this, null, _gfxValues, _sprites, spritesManager.CommandManager);
     }
 
 
@@ -189,7 +189,7 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
                 _manager.SpriteListChanged -= SpriteListChanged;
             _manager = GetManager(_movie);
             _manager.SpriteListChanged += SpriteListChanged;
-            _dragHandler.SetMovie(_movie);
+            //_dragHandler.SetMovie(_movie);
             RedrawAllSprites();
         }
         UpdateSize();
@@ -225,97 +225,102 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
         _canvas.UpdateSize(Size.X, Size.Y);
         //_canvas.QueueRedraw();
     }
-    public void HandleSelection(Vector2I cell, bool ctrl, bool shift)
-    {
-        if (shift && _lastSelectedCell.HasValue)
-        {
-            SelectRange(_lastSelectedCell.Value, cell);
-            _lastSelectedCell = cell;
-        }
-        else if (ctrl)
-        {
-            if (!_selectedCells.Add(cell))
-                _selectedCells.Remove(cell);
-            _lastSelectedCell = cell;
-        }
-        else
-        {
-            _selectedCells.Clear();
-            _selectedCells.Add(cell);
-            _lastSelectedCell = cell;
-        }
 
-        //_spriteCanvas.QueueRedraw();
-    }
-    private void SelectRange(Vector2I from, Vector2I to)
-    {
-        _selectedCells.Clear();
-        int minX = Mathf.Min(from.X, to.X);
-        int maxX = Mathf.Max(from.X, to.X);
-        int minY = Mathf.Min(from.Y, to.Y);
-        int maxY = Mathf.Max(from.Y, to.Y);
+    #region Old
+    //public void HandleSelection(Vector2I cell, bool ctrl, bool shift)
+    //{
+    //    if (shift && _lastSelectedCell.HasValue)
+    //    {
+    //        SelectRange(_lastSelectedCell.Value, cell);
+    //        _lastSelectedCell = cell;
+    //    }
+    //    else if (ctrl)
+    //    {
+    //        if (!_selectedCells.Add(cell))
+    //            _selectedCells.Remove(cell);
+    //        _lastSelectedCell = cell;
+    //    }
+    //    else
+    //    {
+    //        _selectedCells.Clear();
+    //        _selectedCells.Add(cell);
+    //        _lastSelectedCell = cell;
+    //    }
 
-        for (int y = minY; y <= maxY; y++)
-            for (int x = minX; x <= maxX; x++)
-                _selectedCells.Add(new Vector2I(x, y));
-    }
-    public void SelectSprite(DirGodotBaseSprite<TSprite>? sprite, bool raiseEvent = true)
-       => SelectSprite(sprite as TSpriteUI, raiseEvent);
-    public void SelectSprite(TSpriteUI? sprite, bool raiseEvent = true)
-    {
-        if (_selected == sprite) return;
-        if (_selected != null) _selected.Selected = false;
-        _selected = sprite;
-        if (_selected != null)
-        {
-            _selected.Selected = true;
-            if (raiseEvent)
-                _mediator.RaiseSpriteSelected(_selected.Sprite);
-        }
-        _hasDirtySprites = true;
-    }
-    public bool IsCellSelected(Vector2I cell) => _selectedCells.Contains(cell);
+    //    //_spriteCanvas.QueueRedraw();
+    //}
+    //private void SelectRange(Vector2I from, Vector2I to)
+    //{
+    //    _selectedCells.Clear();
+    //    int minX = Mathf.Min(from.X, to.X);
+    //    int maxX = Mathf.Max(from.X, to.X);
+    //    int minY = Mathf.Min(from.Y, to.Y);
+    //    int maxY = Mathf.Max(from.Y, to.Y);
 
-    public bool IsSpriteSelected(TSpriteUI sprite)
-    {
-        if (_selectedCells.Count == 0)
-            return _selected == sprite;
+    //    for (int y = minY; y <= maxY; y++)
+    //        for (int x = minX; x <= maxX; x++)
+    //            _selectedCells.Add(new Vector2I(x, y));
+    //}
+    //public void SelectSprite(DirGodotBaseSprite<TSprite>? sprite, bool raiseEvent = true)
+    //   => SelectSprite(sprite as TSpriteUI, raiseEvent);
+    //public void SelectSprite(TSpriteUI? sprite, bool raiseEvent = true)
+    //{
+    //    if (_selected == sprite) return;
+    //    if (_selected != null) _selected.Selected = false;
+    //    _selected = sprite;
+    //    if (_selected != null)
+    //    {
+    //        _selected.Selected = true;
+    //        if (raiseEvent)
+    //            _mediator.RaiseSpriteSelected(_selected.Sprite);
+    //    }
+    //    _hasDirtySprites = true;
+    //}
+    //public bool IsCellSelected(Vector2I cell) => _selectedCells.Contains(cell);
 
-        int row = sprite.Sprite.SpriteNum - 1;
-        for (int frame = sprite.Sprite.BeginFrame; frame <= sprite.Sprite.EndFrame; frame++)
-        {
-            if (_selectedCells.Contains(new Vector2I(frame - 1, row)))
-                return true;
-        }
-        return false;
-    }
+    //public bool IsSpriteSelected(TSpriteUI sprite)
+    //{
+    //    if (_selectedCells.Count == 0)
+    //        return _selected == sprite;
 
-    public void ClearSelection()
-    {
-        _selectedCells.Clear();
-        _lastSelectedCell = null;
-        //_spriteCanvas.QueueRedraw();
-    }
-    public Vector2I? GetCellFromPosition(Vector2 position)
-    {
-        if (_movie == null) return null;
-        // Replace with your actual cell size logic
-        const int CellWidth = 32;
-        const int CellHeight = 32;
+    //    int row = sprite.Sprite.SpriteNum - 1;
+    //    for (int frame = sprite.Sprite.BeginFrame; frame <= sprite.Sprite.EndFrame; frame++)
+    //    {
+    //        if (_selectedCells.Contains(new Vector2I(frame - 1, row)))
+    //            return true;
+    //    }
+    //    return false;
+    //}
 
-        int column = (int)(position.X / CellWidth);
-        int row = (int)(position.Y / CellHeight);
+    //public void ClearSelection()
+    //{
+    //    _selectedCells.Clear();
+    //    _lastSelectedCell = null;
+    //    //_spriteCanvas.QueueRedraw();
+    //}
+    //public Vector2I? GetCellFromPosition(Vector2 position)
+    //{
+    //    if (_movie == null) return null;
+    //    // Replace with your actual cell size logic
+    //    const int CellWidth = 32;
+    //    const int CellHeight = 32;
 
-        if (column < 0 || column >= _movie.MaxSpriteChannelCount || row < 0 || row >= _movie.FrameCount)
-            return null;
+    //    int column = (int)(position.X / CellWidth);
+    //    int row = (int)(position.Y / CellHeight);
 
-        return new Vector2I(column, row);
-    }
+    //    if (column < 0 || column >= _movie.MaxSpriteChannelCount || row < 0 || row >= _movie.FrameCount)
+    //        return null;
 
-    void IDirGodotScoreDragableZone<TSprite>.SpriteCanvasQueueRedraw()
-    {
-        //_spriteCanvas.QueueRedraw();
-    }
+    //    return new Vector2I(column, row);
+    //}
+
+    //void IDirGodotScoreDragableZone<TSprite>.SpriteCanvasQueueRedraw()
+    //{
+    //    //_spriteCanvas.QueueRedraw();
+    //}
+
+    #endregion
+
 
     private partial class SpritesCanvas : Control
     {
@@ -343,17 +348,15 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
             {
                 if (_lastSprite == null)
                     return false;
-                if (mouseEvent.Type == LingoMouseEventType.MouseUp)
+                if (mouseEvent.Type == LingoMouseEventType.MouseUp || mouseEvent.Type == LingoMouseEventType.MouseDown)
                 {
                     _lastSprite.SpriteUI.IsSelected = false;
                     _lastSprite = null;
                     return false;
                 }
-                if (mouseEvent.Type == LingoMouseEventType.MouseDown)
-                    return false;
                 sprite = _lastSprite;
             }
-            //Console.WriteLine("Handle Sprite:"+ mouseFrame+"\t:"+ sprite.Sprite.Name+"\t:"+ sprite.Sprite.BeginFrame+"->"+ sprite.Sprite.EndFrame);
+            Console.WriteLine("Handle frame:"+ mouseFrame+"\t:"+ sprite.Sprite.Name+"\t:"+ sprite.Sprite.BeginFrame+"->"+ sprite.Sprite.EndFrame);
             sprite.SpriteUI.HandleMouse(mouseEvent, mouseFrame);
             _lastSprite = sprite;
 
@@ -366,12 +369,12 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
         {
             _canvas.Clear(LingoColorList.Transparent); 
             
-            if (_owner.SpritePreviewRect.HasValue)
-            {
-                var rect = _owner.SpritePreviewRect.Value;
-                DrawRect(rect, new Color(1, 1, 1, 0.25f), filled: true);
-                DrawRect(rect, new Color(1, 1, 1, 1), filled: false, width: 1);
-            }
+            //if (_owner.SpritePreviewRect.HasValue)
+            //{
+            //    var rect = _owner.SpritePreviewRect.Value;
+            //    DrawRect(rect, new Color(1, 1, 1, 0.25f), filled: true);
+            //    DrawRect(rect, new Color(1, 1, 1, 1), filled: false, width: 1);
+            //}
 
             var movie = _owner._movie;
             if (movie == null) return;
@@ -389,32 +392,32 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
             float barX = _owner._gfxValues.LeftMargin + cur * _owner._gfxValues.FrameWidth + _owner._gfxValues.FrameWidth / 2f;
             DrawLine(new Vector2(barX, 0), new Vector2(barX, channelCount * _owner._gfxValues.ChannelHeight), Colors.Red, 2);
 
-            if (_owner.ShowPreview)
-            {
-                float px = _owner._gfxValues.LeftMargin + (_owner.PreviewBegin - 1) * _owner._gfxValues.FrameWidth;
-                float pw = (_owner.PreviewEnd - _owner.PreviewBegin + 1) * _owner._gfxValues.FrameWidth;
-                float py = _owner.PreviewChannel * _owner._gfxValues.ChannelHeight;
-                DrawRect(new Rect2(px, py, pw, _owner._gfxValues.ChannelHeight), new Color(0, 0, 1, 0.3f));
-            }
+            //if (_owner.ShowPreview)
+            //{
+            //    float px = _owner._gfxValues.LeftMargin + (_owner.PreviewBegin - 1) * _owner._gfxValues.FrameWidth;
+            //    float pw = (_owner.PreviewEnd - _owner.PreviewBegin + 1) * _owner._gfxValues.FrameWidth;
+            //    float py = _owner.PreviewChannel * _owner._gfxValues.ChannelHeight;
+            //    DrawRect(new Rect2(px, py, pw, _owner._gfxValues.ChannelHeight), new Color(0, 0, 1, 0.3f));
+            //}
 
         }
 
-        public override void _GuiInput(InputEvent @event)
-        {
-            if (@event is InputEventMouseButton mouseEvent && mouseEvent.Pressed && mouseEvent.ButtonIndex == MouseButton.Left)
-            {
-                var clickPos = mouseEvent.Position;
-                var cell = _owner.GetCellFromPosition(clickPos);
+        //public override void _GuiInput(InputEvent @event)
+        //{
+        //    if (@event is InputEventMouseButton mouseEvent && mouseEvent.Pressed && mouseEvent.ButtonIndex == MouseButton.Left)
+        //    {
+        //        var clickPos = mouseEvent.Position;
+        //        var cell = _owner.GetCellFromPosition(clickPos);
 
-                if (cell != null)
-                {
-                    var ctrl = Input.IsKeyPressed(Key.Ctrl);
-                    var shift = Input.IsKeyPressed(Key.Shift);
+        //        if (cell != null)
+        //        {
+        //            var ctrl = Input.IsKeyPressed(Key.Ctrl);
+        //            var shift = Input.IsKeyPressed(Key.Shift);
 
-                    _owner.HandleSelection(cell.Value, ctrl, shift);
-                }
-            }
-        }
+        //            _owner.HandleSelection(cell.Value, ctrl, shift);
+        //        }
+        //    }
+        //}
 
         
     }
