@@ -16,6 +16,7 @@ namespace LingoEngine.Director.Core.Sprites
         ILingoCommandManager CommandManager { get; }
         DirSpritesSelection SpritesSelection { get; }
         ILingoKey Key { get; }
+        DirScoreManager ScoreManager { get; }
 
         void SelectSprite(LingoSprite sprite);
         void DeselectSprite(LingoSprite sprite);
@@ -28,15 +29,18 @@ namespace LingoEngine.Director.Core.Sprites
         public ILingoFrameworkFactory Factory { get; }
         public ILingoCommandManager CommandManager { get; }
         public DirSpritesSelection SpritesSelection { get; } = new();
+        public DirScoreManager ScoreManager { get; }
 
         public ILingoKey Key { get; }
 
-        public DirSpritesManager(IDirectorEventMediator mediator, ILingoFrameworkFactory factory, ILingoCommandManager commandManager)
+        public DirSpritesManager(IDirectorEventMediator mediator, ILingoFrameworkFactory factory, ILingoCommandManager commandManager, DirScoreManager scoreManager)
         {
             Mediator = mediator;
             Factory = factory;
             CommandManager = commandManager;
             Key = factory.CreateKey();
+            ScoreManager = scoreManager;
+            ScoreManager.SetSpritesManager(this);
         }
 
         public void SelectSprite(LingoSprite sprite)
@@ -46,11 +50,13 @@ namespace LingoEngine.Director.Core.Sprites
             if (!Key.ControlDown && !Key.ShiftDown)
                 SpritesSelection.Clear();
             SpritesSelection.Add(sprite);
+            ScoreManager.SelectSprite(sprite);
             Mediator.RaiseSpriteSelected(sprite);
         }
         public void DeselectSprite(LingoSprite sprite)
         {
             SpritesSelection.Remove(sprite);
+            ScoreManager.DeselectSprite(sprite);
         }
     }
 }
