@@ -54,6 +54,7 @@ internal abstract class DirGodotBaseSprite<TSprite> : DirGodotBaseSprite
     {
         _sprite = sprite;
         SpriteUI = new DirScoreSprite(sprite, SpritesManager);
+        SpritesManager.ScoreManager.RegisterSprite(SpriteUI);
         DrawLabel = sprite.Name;
     }
     internal override void DeleteFromMovie(LingoMovie movie)

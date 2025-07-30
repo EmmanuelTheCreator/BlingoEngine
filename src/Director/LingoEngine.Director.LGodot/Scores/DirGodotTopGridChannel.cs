@@ -7,6 +7,7 @@ using LingoEngine.Gfx;
 using LingoEngine.Movies;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
+using System.Linq;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
@@ -339,30 +340,14 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
             Size = new Vector2(width, height);
             CustomMinimumSize = Size;
         }
-        private TSpriteUI? _lastSprite = null;
         public bool HandleMouseEvent(LingoMouseEvent mouseEvent, int mouseFrame)
         {
-            if (_owner._sprites.Count == 0) return false;
+            int channel = _owner.SpriteNum - 1;
             var sprite = _owner._sprites.FirstOrDefault(x => x.Sprite.BeginFrame <= mouseFrame && mouseFrame <= x.Sprite.EndFrame);
-            if (sprite == null)
-            {
-                if (_lastSprite == null)
-                    return false;
-                if (mouseEvent.Type == LingoMouseEventType.MouseUp || mouseEvent.Type == LingoMouseEventType.MouseDown)
-                {
-                    _lastSprite.SpriteUI.IsSelected = false;
-                    _lastSprite = null;
-                    return false;
-                }
-                sprite = _lastSprite;
-            }
-            Console.WriteLine("Handle frame:"+ mouseFrame+"\t:"+ sprite.Sprite.Name+"\t:"+ sprite.Sprite.BeginFrame+"->"+ sprite.Sprite.EndFrame);
-            sprite.SpriteUI.HandleMouse(mouseEvent, mouseFrame);
-            _lastSprite = sprite;
-
-            if (sprite.SpriteUI.RequireToRedraw)
-                QueueRedraw();
-
+            if (sprite != null)
+                Console.WriteLine("Handle frame:" + mouseFrame + "\t:" + sprite.Sprite.Name + "\t:" + sprite.Sprite.BeginFrame + "->" + sprite.Sprite.EndFrame);
+            _owner._spritesManager.ScoreManager.HandleMouse(mouseEvent, channel, mouseFrame);
+            QueueRedraw();
             return true;
         }
         public override void _Draw()

@@ -82,6 +82,20 @@ public class SdlMouse : ILingoFrameworkMouse
         SDL.SDL_SetCursor(_sdlCursor);
     }
 
+    public void Release()
+    {
+        if (_sdlCursor != nint.Zero)
+        {
+            SDL.SDL_FreeCursor(_sdlCursor);
+            _sdlCursor = nint.Zero;
+        }
+    }
+
+    public void ReplaceMouseObj(LingoMouse lingoMouse)
+    {
+        _lingoMouse = new Lazy<LingoMouse>(() => lingoMouse);
+    }
+
     ~SdlMouse()
     {
         if (_sdlCursor != nint.Zero)

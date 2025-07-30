@@ -1,11 +1,8 @@
 ﻿using LingoEngine.Gfx;
 using LingoEngine.Sprites;
 using LingoEngine.Primitives;
-using LingoEngine.Events;
 using LingoEngine.Director.Core.Sprites;
-using LingoEngine.Sounds;
 using LingoEngine.Director.Core.Tools;
-using System.Transactions;
 
 namespace LingoEngine.Director.Core.Scores
 {
@@ -22,11 +19,9 @@ namespace LingoEngine.Director.Core.Scores
     public class DirScoreSprite : IDisposable
     {
         private bool _isSelected;
-        private bool _isDragging;
-        private bool _isDraggingBegin;
-        private bool _isDraggingEnd;
-        private bool _isDraggingMiddle;
         private int _startDragFrameOffset = -1;
+        private int _startBeginFrame;
+        private int _startEndFrame;
         private readonly IDirSpritesManager _spritesManager;
 
         public bool IsSingleFrameSprite { get; }
@@ -84,7 +79,7 @@ namespace LingoEngine.Director.Core.Scores
 
         public void Draw(LingoGfxCanvas canvas, float frameWidth, float channelHeight, float yOffset = 0)
         {
-            if (!RequireToRedraw) return;
+            //if (!RequireToRedraw) return;
             RequireToRedraw = false;
 
             int ch = Sprite.SpriteNum - 1;
@@ -128,99 +123,40 @@ namespace LingoEngine.Director.Core.Scores
                 return false;
             return true;
         }
-        
-        public void HandleMouse(LingoMouseEvent mouseEvent, int frameNumber)
+
+        public void PrepareDragging(int startDragFrameOffset)
         {
-            if (mouseEvent.Type == LingoMouseEventType.MouseDown)
-            {
-                if (mouseEvent.Mouse.LeftMouseDown)
-                    HandleLeftMouseDown(mouseEvent,frameNumber);
-            }
-            else if (mouseEvent.Type == LingoMouseEventType.MouseUp)
-            {
-                StopDragging();
-            }
-            if (mouseEvent.Type == LingoMouseEventType.MouseMove)
-                HandleMouseMove(frameNumber);
+            _startDragFrameOffset = startDragFrameOffset;
+            _startBeginFrame = Sprite.BeginFrame;
+            _startEndFrame = Sprite.EndFrame;
         }
 
-       
-      
+        public void DragMoveBegin(int frameOffset)
+        {
+            int newBegin = _startBeginFrame + (frameOffset - _startDragFrameOffset);
+            if (newBegin <= Sprite.EndFrame && newBegin > 0)
+                Sprite.BeginFrame = newBegin;
+        }
 
-        private void HandleLeftMouseDown(LingoMouseEvent mouseEvent, int frameNumber)
+        public void DragMove(int frameOffset)
         {
-            // Single frame sprites
-            if (IsSingleFrameSprite)
-            {
-                if (IsSelected)
-                {
-                    _isDragging = true;
-                    _isDraggingMiddle = true;
-                    _startDragFrameOffset = frameNumber - Sprite.BeginFrame;
-                }
-                else
-                {
-                    IsSelected = true;
-                    StopDragging();
-                }
-                return;
-            }
-            // multi frame sprites
-            if (frameNumber == Sprite.BeginFrame)
-            {
-                _isDragging = true;
-                _isDraggingBegin = true;
-            }
-            else if (frameNumber == Sprite.EndFrame)
-            {
-                _isDragging = true;
-                _isDraggingEnd = true;
-            } 
-            else if (frameNumber > Sprite.BeginFrame && frameNumber < Sprite.EndFrame  && IsSelected)
-            {
-                _isDragging = true;
-                _isDraggingMiddle = true;
-                _startDragFrameOffset = frameNumber - Sprite.BeginFrame;
-            }
-            // Todo : keyframes
-            else
-            {
-                if (!IsSelected)
-                    IsSelected = true;
-                else
-                    IsSelected = false;
-                StopDragging();
-            }
+            int delta = frameOffset - _startDragFrameOffset;
+            Sprite.BeginFrame = _startBeginFrame + delta;
+            Sprite.EndFrame = _startEndFrame + delta;
         }
-        private void HandleMouseMove(int frameNumber)
+
+        public void DragMoveEnd(int frameOffset)
         {
-            if (!_isDragging) return;
-            if (_isDraggingBegin)
-            {
-                if (frameNumber <= Sprite.EndFrame && frameNumber > 0)
-                    Sprite.BeginFrame = frameNumber;
-                return;
-            } 
-            if (_isDraggingMiddle)
-            {
-                var duration = Sprite.EndFrame - Sprite.BeginFrame;
-                Sprite.BeginFrame = frameNumber - _startDragFrameOffset;
-                Sprite.EndFrame = Sprite.BeginFrame + duration;
-                return;
-            } 
-            if (_isDraggingEnd)
-            {
-                if (frameNumber >= Sprite.BeginFrame && frameNumber > 0)
-                    Sprite.EndFrame = frameNumber;
-                return;
-            }
+            int newEnd = _startEndFrame + (frameOffset - _startDragFrameOffset);
+            if (newEnd >= Sprite.BeginFrame && newEnd > 0)
+                Sprite.EndFrame = newEnd;
         }
+
         public void StopDragging()
         {
-            _isDragging = false;
-            _isDraggingBegin = false;
-            _isDraggingEnd = false;
-            _isDraggingMiddle = false;
+            _startDragFrameOffset = -1;
+            _startBeginFrame = Sprite.BeginFrame;
+            _startEndFrame = Sprite.EndFrame;
         }
 
 
