@@ -5,13 +5,12 @@ using LingoEngine.LGodot;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.Primitives;
 using LingoEngine.Inputs;
-using System.Reflection.Metadata;
 
 namespace LingoEngine.Director.LGodot
 {
     public abstract partial class BaseGodotWindow : Panel
     {
-        public LingoMouse Mouse { get; private set; }
+        public ILingoMouse Mouse { get; private set; }
         private readonly IDirGodotWindowManager _windowManager;
         protected readonly LingoGodotMouse _MouseFrameworkObj;
         protected bool _dragging;
@@ -41,7 +40,7 @@ namespace LingoEngine.Director.LGodot
             WindowName = name;
             WindowCode = windowCode;
             _windowManager = windowManager;
-            _MouseFrameworkObj = new LingoGodotMouse(new Lazy<LingoMouse>(() => Mouse!));
+            _MouseFrameworkObj = new LingoGodotMouse(new Lazy<LingoMouse>(() => (LingoMouse)Mouse!));
             Mouse = new LingoMouse(_MouseFrameworkObj);
             
             //MouseFilter = MouseFilterEnum.Stop;

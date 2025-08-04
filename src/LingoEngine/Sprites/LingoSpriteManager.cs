@@ -108,9 +108,12 @@ namespace LingoEngine.Sprites
             var sprite = OnCreateSprite(_movie, s =>
             {
                 var index = _allTimeSprites.IndexOf(s);
-                _allTimeSprites.RemoveAt(index);
-                _spritesByName.Remove(name);
-                RaiseSpriteListChanged();
+                if (index > -1)
+                {
+                    _allTimeSprites.RemoveAt(index);
+                    _spritesByName.Remove(name);
+                    RaiseSpriteListChanged();
+                }
             });
             sprite.Init(num, name);
             _allTimeSprites.Add(sprite);

@@ -53,7 +53,8 @@ namespace LingoEngine.Director.Core.Scores
 
         private void ClearSelection()
         {
-            foreach (var s in _selected)
+            var clone = _selected.ToList();
+            foreach (var s in clone)
                 s.IsSelected = false;
             _selected.Clear();
         }

@@ -1,6 +1,7 @@
 ﻿using Godot;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Helpers;
+using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Tools;
 using Microsoft.Extensions.Logging;
@@ -192,6 +193,9 @@ namespace LingoEngine.LGodot.Bitmaps
                 return tex;
 
             var img = GetImageCopy();
+            if (img.IsCompressed())
+                img.Decompress();
+            img.Convert(Image.Format.Rgba8);
             var data = InkPreRenderer.Apply(img.GetData(), ink, backColor);
             var newImg = Image.CreateFromData(img.GetWidth(), img.GetHeight(), false, Image.Format.Rgba8, data);
             tex = ImageTexture.CreateFromImage(newImg);

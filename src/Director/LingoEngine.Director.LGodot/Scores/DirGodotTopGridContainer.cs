@@ -12,7 +12,7 @@ namespace LingoEngine.Director.LGodot.Scores;
 internal partial class DirGodotTopGridContainer : Control
 {
     private readonly DirScoreGfxValues _gfxValues;
-    private readonly LingoMouse _mouse;
+    private readonly ILingoMouse _mouse;
     private readonly DirScoreGridPainter _gridCanvas;
     private readonly SubViewport _viewport = new();
     private readonly TextureRect _texture = new();
@@ -36,7 +36,7 @@ internal partial class DirGodotTopGridContainer : Control
             QueueRedraw();
         }
     }
-    public DirGodotTopGridContainer(IDirSpritesManager spritesManager, LingoMouse mouse)
+    public DirGodotTopGridContainer(IDirSpritesManager spritesManager, ILingoMouse mouse)
     {
         Visible = true;
         _gfxValues = spritesManager.GfxValues;

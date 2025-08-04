@@ -2,6 +2,7 @@ using LingoEngine.Movies;
 using LingoEngine.Sprites;
 using LingoEngine.Inputs.Events;
 using LingoEngine.Inputs;
+using LingoEngine.Events;
 
 namespace LingoEngine.Tempos;
 
@@ -81,7 +82,7 @@ public class LingoTempoSprite : LingoSprite
             case LingoTempoSpriteAction.WaitForUserInput:
                 _environment.Movie.WaitForInput();
                 _waitForInputSubscription = new WaitForInputSubscription(this);
-                _eventMediator.Subscribe(_waitForInputSubscription, SpriteNum + 6);
+                _eventMediator.Subscribe(_waitForInputSubscription, SpriteNum);
                 break;
             case LingoTempoSpriteAction.WaitForCuePoint:
                 _environment.Movie.WaitForCuePoint(CueChannel, CuePoint);

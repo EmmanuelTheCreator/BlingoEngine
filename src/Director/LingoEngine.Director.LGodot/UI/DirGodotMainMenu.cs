@@ -16,6 +16,8 @@ using LingoEngine.Director.LGodot.Casts;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Inputs;
 using System;
+using LingoEngine.FrameworkCommunication;
+using LingoEngine.LGodot;
 
 namespace LingoEngine.Director.LGodot;
 
@@ -31,8 +33,7 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
     private readonly LingoPlayer _player;
     public bool IsOpen => true;
     public bool IsActiveWindow => true;
-    public LingoMouse Mouse => _windowManager.ActiveWindow?.Mouse
-        ?? throw new InvalidOperationException("No active window");
+    public ILingoMouse Mouse { get; private set; }
 
     public DirGodotMainMenu(
         DirectorProjectManager projectManager,
@@ -41,11 +42,13 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
         IHistoryManager historyManager,
         IDirGodotWindowManager windowManager,
         ILingoCommandManager commandManager,
-        DirectorMainMenu directorMainMenu)
+        DirectorMainMenu directorMainMenu, ILingoFrameworkFactory factory)
     {
         _windowManager = windowManager;
         _commandManager = commandManager;
         _player = player;
+        var mouseFrameworkObj = new LingoGodotMouse(new Lazy<LingoMouse>(() => (LingoMouse)Mouse!));
+        Mouse = new LingoMouse(mouseFrameworkObj);
         directorMainMenu.Init(this);
 
         _menuBar = directorMainMenu.MenuBar.Framework<LingoGodotWrapPanel>();

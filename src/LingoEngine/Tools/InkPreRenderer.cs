@@ -37,12 +37,12 @@ namespace LingoEngine.Tools
         public static byte[] Apply(ReadOnlySpan<byte> rgba, LingoInkType ink, LingoColor transparentColor)
         {
             byte[] result = rgba.ToArray();
-
+            var maxLength = result.Length - 3;
             switch (ink)
             {
                 case LingoInkType.BackgroundTransparent:
                 case LingoInkType.Matte:
-                    for (int i = 0; i < result.Length; i += 4)
+                    for (int i = 0; i < maxLength; i += 4)
                     {
                         if (result[i] == transparentColor.R &&
                             result[i + 1] == transparentColor.G &&
@@ -53,7 +53,7 @@ namespace LingoEngine.Tools
                     }
                     break;
                 case LingoInkType.Blend:
-                    for (int i = 0; i < result.Length; i += 4)
+                    for (int i = 0; i < maxLength; i += 4)
                     {
                         byte a = result[i + 3];
                         result[i] = (byte)(result[i] * a / 255);
@@ -64,7 +64,7 @@ namespace LingoEngine.Tools
                 case LingoInkType.Reverse:
                 case LingoInkType.NotCopy:
                 case LingoInkType.NotReverse:
-                    for (int i = 0; i < result.Length; i += 4)
+                    for (int i = 0; i < maxLength; i += 4)
                     {
                         result[i] = (byte)(255 - result[i]);
                         result[i + 1] = (byte)(255 - result[i + 1]);
@@ -73,13 +73,13 @@ namespace LingoEngine.Tools
                     break;
                 case LingoInkType.Ghost:
                 case LingoInkType.NotGhost:
-                    for (int i = 0; i < result.Length; i += 4)
+                    for (int i = 0; i < maxLength; i += 4)
                     {
                         result[i + 3] = (byte)(result[i + 3] / 2);
                     }
                     break;
                 case LingoInkType.Mask:
-                    for (int i = 0; i < result.Length; i += 4)
+                    for (int i = 0; i < maxLength; i += 4)
                     {
                         result[i] = (byte)(255 - result[i]);
                         result[i + 1] = (byte)(255 - result[i + 1]);
@@ -88,7 +88,7 @@ namespace LingoEngine.Tools
                     }
                     break;
                 case LingoInkType.NotTransparent:
-                    for (int i = 0; i < result.Length; i += 4)
+                    for (int i = 0; i < maxLength; i += 4)
                     {
                         result[i + 3] = 255;
                     }

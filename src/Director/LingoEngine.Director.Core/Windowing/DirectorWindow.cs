@@ -9,12 +9,14 @@ public class DirectorWindow<TFrameworkWindow> : IDirectorWindow, IDisposable, IL
 #pragma warning disable CS8618
     private TFrameworkWindow _Framework;
     public TFrameworkWindow Framework => _Framework;
-    protected LingoMouse Mouse { get; private set; }
+    protected ILingoMouse Mouse { get; private set; }
 #pragma warning restore CS8618
 
     protected LingoKey LingoKey { get; }
 
+#pragma warning disable CS8618 
     public DirectorWindow(ILingoFrameworkFactory factory)
+#pragma warning restore CS8618 
     {
         LingoKey = factory.CreateKey();
         LingoKey.Subscribe(this);

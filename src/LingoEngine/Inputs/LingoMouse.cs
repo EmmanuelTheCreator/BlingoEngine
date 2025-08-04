@@ -29,6 +29,8 @@ namespace LingoEngine.Inputs
         /// Unsubscribe from mouse events.
         /// </summary>
         ILingoMouse Unsubscribe(ILingoMouseEventHandler handler);
+
+       
     }
     /// <summary>
     /// Provides access to a user’s mouse activity, including mouse movement and mouse clicks.
@@ -105,6 +107,7 @@ namespace LingoEngine.Inputs
         ILingoMouseSubscription OnMouseDown(Action<LingoMouseEvent> handler);
         ILingoMouseSubscription OnMouseUp(Action<LingoMouseEvent> handler);
         ILingoMouseSubscription OnMouseMove(Action<LingoMouseEvent> handler);
+        ILingoMouseSubscription OnMouseEvent(Action<LingoMouseEvent> handler);
     }
     public interface ILingoMouseSubscription
     {

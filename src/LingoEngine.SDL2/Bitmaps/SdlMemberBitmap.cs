@@ -5,6 +5,7 @@ using LingoEngine.SDL2.SDLL;
 using LingoEngine.Sprites;
 using LingoEngine.Tools;
 using System.Collections.Generic;
+using LingoEngine.Primitives;
 
 namespace LingoEngine.SDL2.Pictures;
 public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
