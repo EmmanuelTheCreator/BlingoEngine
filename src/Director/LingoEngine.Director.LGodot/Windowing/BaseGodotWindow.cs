@@ -1,17 +1,17 @@
 using Godot;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.LGodot.Windowing;
-using LingoEngine.Inputs;
 using LingoEngine.LGodot;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.Primitives;
+using LingoEngine.Inputs;
 using System.Reflection.Metadata;
 
 namespace LingoEngine.Director.LGodot
 {
     public abstract partial class BaseGodotWindow : Panel
     {
-        protected LingoMouse Mouse { get; private set; }
+        public LingoMouse Mouse { get; private set; }
         private readonly IDirGodotWindowManager _windowManager;
         protected readonly LingoGodotMouse _MouseFrameworkObj;
         protected bool _dragging;
@@ -231,7 +231,7 @@ namespace LingoEngine.Director.LGodot
         public bool IsOpen => Visible;
         public bool IsActiveWindow => _windowManager.ActiveWindow == this;
 
-        
+
 
         public virtual void OpenWindow()
         {
@@ -264,6 +264,11 @@ namespace LingoEngine.Director.LGodot
                 pos.Y = viewportRect.Position.Y + viewportRect.Size.Y - size.Y;
 
             Position = pos;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
         }
     }
 }

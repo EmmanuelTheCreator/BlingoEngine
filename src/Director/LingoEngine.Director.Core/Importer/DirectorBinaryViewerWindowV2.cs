@@ -6,6 +6,7 @@ using ProjectorRays.director.Scores;
 using ProjectorRays.Director;
 using System;
 using System.IO;
+using LingoEngine.FrameworkCommunication;
 
 namespace LingoEngine.Director.Core.Importer;
 
@@ -13,7 +14,7 @@ namespace LingoEngine.Director.Core.Importer;
 /// Experimental binary viewer window that parses test data and exposes stream annotations.
 /// </summary>
 public class DirectorBinaryViewerWindowV2 : DirectorWindow<IDirFrameworkBinaryViewerWindowV2>
-{
+{ 
     private readonly ILogger<DirectorBinaryViewerWindowV2> _logger;
 
     /// <summary>Annotations gathered from the parsed score chunk.</summary>
@@ -22,7 +23,7 @@ public class DirectorBinaryViewerWindowV2 : DirectorWindow<IDirFrameworkBinaryVi
     /// <summary>The raw bytes read from the test file.</summary>
     public byte[]? Data { get; private set; }
 
-    public DirectorBinaryViewerWindowV2(ILogger<DirectorBinaryViewerWindowV2> logger)
+    public DirectorBinaryViewerWindowV2(ILogger<DirectorBinaryViewerWindowV2> logger, ILingoFrameworkFactory factory) : base(factory)
     {
         _logger = logger;
         //LoadTestData();

@@ -7,6 +7,9 @@ using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.Scores;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.LGodot.Gfx;
+using LingoEngine.Director.Core.Windowing;
+using LingoEngine.Director.LGodot;
+using System.Linq;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
@@ -24,7 +27,7 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent, IDi
     internal LingoSprite2D? SelectedSprite => _selected?.Sprite;
     private readonly IDirectorEventMediator _mediator;
     private readonly ILingoCommandManager _commandManager;
-    private readonly PopupMenu _contextMenu = new();
+    private readonly DirContextMenu _contextMenu;
     private DirGodotScoreSprite? _contextSprite;
     private readonly DirScoreGfxValues _gfxValues;
 
@@ -55,14 +58,30 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent, IDi
     private readonly ILingoFrameworkFactory _factory;
     private readonly DirScoreGridPainter _gridCanvas;
 
-    public DirGodotScoreGrid(IDirSpritesManager spritesManager, IHistoryManager historyManager)
+    public DirGodotScoreGrid(BaseGodotWindow window, IDirSpritesManager spritesManager, IHistoryManager historyManager)
     {
         _gfxValues = spritesManager.GfxValues;
         _mediator = spritesManager.Mediator;
         _commandManager = spritesManager.CommandManager;
         _factory = spritesManager.Factory;
-        AddChild(_contextMenu);
-        _contextMenu.IdPressed += OnContextMenuItem;
+        _contextMenu = new DirContextMenu(window, _factory,
+            () =>
+            {
+                var gp = window.GetGlobalMousePosition();
+                return (gp.X, gp.Y);
+            },
+            () => window.IsActiveWindow);
+        _contextMenu.AddItem(string.Empty, "Find Cast Member", () => _contextSprite?.Sprite.Member != null, () =>
+        {
+            if (_contextSprite?.Sprite.Member != null)
+                _mediator.RaiseFindMember(_contextSprite.Sprite.Member);
+            _contextSprite = null;
+        });
+        _contextMenu.AddItem(string.Empty, "Delete", () => SpritesManager.SpritesSelection.Sprites.Any(), () =>
+        {
+            if (_movie != null)
+                SpritesManager.DeleteSelected(_movie);
+        });
 
         _gridViewport.SetDisable3D(true);
         _gridViewport.TransparentBg = true;
@@ -208,10 +227,7 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent, IDi
         if (sp == null || sp.Sprite.Member == null) return;
 
         _contextSprite = sp;
-        _contextMenu.Clear();
-        _contextMenu.AddItem("Find Cast Member", 1);
-        var gp = GetGlobalMousePosition();
-        _contextMenu.Popup(new Rect2I((int)gp.X, (int)gp.Y, 0, 0));
+        _contextMenu.Popup();
     }
     public void HandleSelection(Vector2I cell, bool ctrl, bool shift)
     {
@@ -379,15 +395,6 @@ internal partial class DirGodotScoreGrid : Control, IHasSpriteSelectedEvent, IDi
             }
         }
         return null;
-    }
-
-    private void OnContextMenuItem(long id)
-    {
-        if (id == 1 && _contextSprite?.Sprite.Member != null)
-        {
-            _mediator.RaiseFindMember(_contextSprite.Sprite.Member);
-        }
-        _contextSprite = null;
     }
 
     private void UpdateViewportSize()

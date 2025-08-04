@@ -8,6 +8,7 @@ using System.Linq;
 using System.Collections.Generic;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.Texts;
+using LingoEngine.FrameworkCommunication;
 using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.Director.Core.Stages.Commands;
 using LingoEngine.Director.Core.Tools;

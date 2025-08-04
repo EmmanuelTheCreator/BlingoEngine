@@ -1,9 +1,13 @@
 
+using LingoEngine.Inputs;
+
 namespace LingoEngine.Director.Core.Windowing
 {
     public interface IDirFrameworkWindow
     {
         bool IsOpen { get; }
+        bool IsActiveWindow { get; }
+        LingoMouse Mouse { get; }
         void OpenWindow();
         void CloseWindow();
         void MoveWindow(int x, int y);

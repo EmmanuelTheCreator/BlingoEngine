@@ -388,6 +388,14 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
         item.Init(impl);
         return item;
     }
+
+    /// <inheritdoc/>
+    public LingoGfxMenu CreateContextMenu(object window)
+    {
+        // SDL UI is not implemented yet, return a basic menu instance
+        var menu = CreateMenu("ContextMenu");
+        return menu;
+    }
     /// <inheritdoc/>
     public LingoGfxLayoutWrapper CreateLayoutWrapper(ILingoGfxNode content, float? x, float? y)
     {

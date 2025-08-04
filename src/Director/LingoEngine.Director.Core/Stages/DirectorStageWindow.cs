@@ -2,6 +2,7 @@ using LingoEngine.Commands;
 using LingoEngine.Director.Core.Stages.Commands;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Windowing;
+using LingoEngine.FrameworkCommunication;
 
 namespace LingoEngine.Director.Core.Stages
 {
@@ -15,7 +16,7 @@ namespace LingoEngine.Director.Core.Stages
         public StageTool SelectedTool { get; private set; }
 
 
-        public DirectorStageWindow(IHistoryManager historyManager)
+        public DirectorStageWindow(IHistoryManager historyManager, ILingoFrameworkFactory factory) : base(factory)
         {
             _historyManager = historyManager;
         }

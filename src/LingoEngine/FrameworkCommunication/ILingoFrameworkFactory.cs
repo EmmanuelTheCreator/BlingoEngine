@@ -127,6 +127,9 @@ namespace LingoEngine.FrameworkCommunication
         /// <summary>Creates a menu item.</summary>
         LingoGfxMenuItem CreateMenuItem(string name, string? shortcut = null);
 
+        /// <summary>Creates a context menu bound to the given window.</summary>
+        LingoGfxMenu CreateContextMenu(object window);
+
         /// <summary>Creates a horizontal line separator.</summary>
         LingoGfxHorizontalLineSeparator CreateHorizontalLineSeparator(string name);
 

@@ -426,6 +426,15 @@ namespace LingoEngine.LGodot.Core
         }
 
         /// <inheritdoc/>
+        public LingoGfxMenu CreateContextMenu(object window)
+        {
+            var menu = CreateMenu("ContextMenu");
+            if (window is Node node)
+                node.AddChild(menu.Framework<LingoGodotMenu>());
+            return menu;
+        }
+
+        /// <inheritdoc/>
         public LingoGfxHorizontalLineSeparator CreateHorizontalLineSeparator(string name)
         {
             var sep = new LingoGfxHorizontalLineSeparator();
