@@ -344,6 +344,7 @@ internal abstract partial class DirGodotTopGridChannel<TSpriteManager, TSpriteUI
         {
             int channel = _owner.SpriteNum - 1;
             var sprite = _owner._sprites.FirstOrDefault(x => x.Sprite.BeginFrame <= mouseFrame && mouseFrame <= x.Sprite.EndFrame);
+            Console.WriteLine("Handle frame:" + mouseFrame + "\t:");
             if (sprite != null)
                 Console.WriteLine("Handle frame:" + mouseFrame + "\t:" + sprite.Sprite.Name + "\t:" + sprite.Sprite.BeginFrame + "->" + sprite.Sprite.EndFrame);
             _owner._spritesManager.ScoreManager.HandleMouse(mouseEvent, channel, mouseFrame);

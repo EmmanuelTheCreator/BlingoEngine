@@ -109,7 +109,7 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
         root.AddChild(panel);
         panel.Position = new Vector2(root.Size.X - panel.CustomMinimumSize.X - 10, 10);
 
-        var timer = new Timer { WaitTime = 5, OneShot = true };
+        var timer = new Godot.Timer { WaitTime = 5, OneShot = true };
         timer.Timeout += () => panel.QueueFree();
         panel.AddChild(timer);
         timer.Start();
