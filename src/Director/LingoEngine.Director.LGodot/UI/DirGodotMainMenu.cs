@@ -14,6 +14,8 @@ using LingoEngine.Members;
 using LingoEngine.Director.LGodot.Scores;
 using LingoEngine.Director.LGodot.Casts;
 using LingoEngine.Director.Core.UI;
+using LingoEngine.Inputs;
+using System;
 
 namespace LingoEngine.Director.LGodot;
 
@@ -28,6 +30,9 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
     private readonly ILingoCommandManager _commandManager;
     private readonly LingoPlayer _player;
     public bool IsOpen => true;
+    public bool IsActiveWindow => true;
+    public LingoMouse Mouse => _windowManager.ActiveWindow?.Mouse
+        ?? throw new InvalidOperationException("No active window");
 
     public DirGodotMainMenu(
         DirectorProjectManager projectManager,

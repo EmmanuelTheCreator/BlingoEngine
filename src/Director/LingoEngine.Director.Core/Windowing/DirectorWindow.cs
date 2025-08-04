@@ -1,33 +1,59 @@
-namespace LingoEngine.Director.Core.Windowing
+using LingoEngine.FrameworkCommunication;
+using LingoEngine.Inputs;
+
+namespace LingoEngine.Director.Core.Windowing;
+
+public class DirectorWindow<TFrameworkWindow> : IDirectorWindow, IDisposable, ILingoKeyEventHandler
+    where TFrameworkWindow : IDirFrameworkWindow
 {
-    public class DirectorWindow<TFrameworkWindow> : IDirectorWindow, IDisposable
-        where TFrameworkWindow : IDirFrameworkWindow
+#pragma warning disable CS8618
+    private TFrameworkWindow _Framework;
+    public TFrameworkWindow Framework => _Framework;
+    protected LingoMouse Mouse { get; private set; }
+#pragma warning restore CS8618
+
+    protected LingoKey LingoKey { get; }
+
+    public DirectorWindow(ILingoFrameworkFactory factory)
     {
-#pragma warning disable CS8618 
-        private TFrameworkWindow _Framework;
-        public TFrameworkWindow Framework => _Framework;
-#pragma warning restore CS8618 
-
-        public virtual void Init(IDirFrameworkWindow frameworkWindow)
-        {
-            _Framework = (TFrameworkWindow)frameworkWindow;
-        }
-
-        public bool IsOpen => _Framework.IsOpen;
-        public virtual void OpenWindow() => _Framework.OpenWindow();
-        public virtual void CloseWindow() => _Framework.CloseWindow();
-        public virtual void MoveWindow(int x, int y) => _Framework.MoveWindow(x, y);
-        public virtual void SetPositionAndSize(int x, int y, int width, int height)
-            => _Framework.SetPositionAndSize(x, y, width, height);
-
-        public virtual void Dispose()
-        {
-
-        }
-
-        public IDirFrameworkWindow FrameworkObj => _Framework;
-
-
-
+        LingoKey = factory.CreateKey();
+        LingoKey.Subscribe(this);
     }
+
+    public virtual void Init(IDirFrameworkWindow frameworkWindow)
+    {
+        _Framework = (TFrameworkWindow)frameworkWindow;
+        Mouse = frameworkWindow.Mouse;
+    }
+
+    public bool IsOpen => _Framework.IsOpen;
+    public bool IsActiveWindow => _Framework.IsActiveWindow;
+    public virtual void OpenWindow() => _Framework.OpenWindow();
+    public virtual void CloseWindow() => _Framework.CloseWindow();
+    public virtual void MoveWindow(int x, int y) => _Framework.MoveWindow(x, y);
+    public virtual void SetPositionAndSize(int x, int y, int width, int height)
+        => _Framework.SetPositionAndSize(x, y, width, height);
+
+    public virtual void Dispose()
+    {
+        LingoKey.Unsubscribe(this);
+    }
+
+    public IDirFrameworkWindow FrameworkObj => _Framework;
+
+    public void RaiseKeyDown(LingoKey lingoKey)
+    {
+        if (IsActiveWindow)
+            OnRaiseKeyDown(lingoKey);
+    }
+
+    public void RaiseKeyUp(LingoKey lingoKey)
+    {
+        if (IsActiveWindow)
+            OnRaiseKeyUp(lingoKey);
+    }
+
+    protected virtual void OnRaiseKeyDown(LingoKey lingoKey) { }
+
+    protected virtual void OnRaiseKeyUp(LingoKey lingoKey) { }
 }

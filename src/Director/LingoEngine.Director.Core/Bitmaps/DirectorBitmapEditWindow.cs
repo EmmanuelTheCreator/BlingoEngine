@@ -2,6 +2,7 @@
 using LingoEngine.Director.Core.Bitmaps.Commands;
 using LingoEngine.Director.Core.Windowing;
 using System.Reflection;
+using LingoEngine.FrameworkCommunication;
 
 namespace LingoEngine.Director.Core.Bitmaps
 {
@@ -10,6 +11,7 @@ namespace LingoEngine.Director.Core.Bitmaps
             ICommandHandler<PainterDrawPixelCommand>,
             ICommandHandler<PainterFillCommand>
     {
+        public DirectorBitmapEditWindow(ILingoFrameworkFactory factory) : base(factory) { }
         public bool CanExecute(PainterToolSelectCommand command) => true;
 
         public bool Handle(PainterToolSelectCommand command) => Framework.SelectTheTool(command.Tool);

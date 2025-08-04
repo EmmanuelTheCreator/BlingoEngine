@@ -4,7 +4,10 @@ using LingoEngine.Director.Core.Tools;
 using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
+using LingoEngine.Movies;
 using LingoEngine.Sprites;
+using LingoEngine.Director.Core.Stages.Commands;
+using System.Linq;
 
 namespace LingoEngine.Director.Core.Sprites
 {
@@ -20,6 +23,7 @@ namespace LingoEngine.Director.Core.Sprites
 
         void SelectSprite(LingoSprite sprite);
         void DeselectSprite(LingoSprite sprite);
+        void DeleteSelected(LingoMovie movie);
     }
 
     public class DirSpritesManager : IDirSpritesManager
@@ -57,6 +61,13 @@ namespace LingoEngine.Director.Core.Sprites
         {
             SpritesSelection.Remove(sprite);
             ScoreManager.DeselectSprite(sprite);
+        }
+
+        public void DeleteSelected(LingoMovie movie)
+        {
+            var sprites = SpritesSelection.Sprites.OfType<LingoSprite2D>().ToArray();
+            foreach (var s in sprites)
+                CommandManager.Handle(new RemoveSpriteCommand(movie, s));
         }
     }
 }

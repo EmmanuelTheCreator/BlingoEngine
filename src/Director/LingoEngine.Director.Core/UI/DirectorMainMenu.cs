@@ -14,7 +14,7 @@ namespace LingoEngine.Director.Core.UI
     /// <summary>
     /// Framework independent implementation of the Director main menu.
     /// </summary>
-    public class DirectorMainMenu : DirectorWindow<IDirFrameworkMainMenuWindow>, ILingoKeyEventHandler
+    public class DirectorMainMenu : DirectorWindow<IDirFrameworkMainMenuWindow>
     {
         private readonly LingoGfxWrapPanel _menuBar;
         private readonly LingoGfxWrapPanel _iconBar;
@@ -51,7 +51,7 @@ namespace LingoEngine.Director.Core.UI
             LingoPlayer player,
             IDirectorShortCutManager shortCutManager,
             IHistoryManager historyManager,
-            ILingoFrameworkFactory factory)
+            ILingoFrameworkFactory factory) : base(factory)
         {
             _windowManager = windowManager;
             _projectManager = projectManager;
@@ -249,7 +249,7 @@ namespace LingoEngine.Director.Core.UI
             base.Dispose();
         }
 
-        public void RaiseKeyDown(LingoKey key)
+        protected override void OnRaiseKeyDown(LingoKey key)
         {
             var label = key.Key.ToUpperInvariant();
             bool ctrl = key.ControlDown;
@@ -267,6 +267,6 @@ namespace LingoEngine.Director.Core.UI
             }
         }
 
-        public void RaiseKeyUp(LingoKey key) { }
+        protected override void OnRaiseKeyUp(LingoKey key) { }
     }
 }

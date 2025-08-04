@@ -84,7 +84,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _LeftTopContainer = new DirGodotScoreLeftTopContainer(_gfxValues, _player.Factory, Mouse,new Vector2(0, _gfxValues.ChannelHeight + 5),_mediator);
         _topGrids = new DirGodotTopGridContainer(spritesManager, Mouse);
         _LeftChannelsContainer = new DirGodotScoreLeftChannelsContainer(_gfxValues,_player.Factory,Mouse, new Vector2(0, _gfxValues.TopStripHeight - _footerMargin), _mediator);
-        _grid = new DirGodotScoreGrid(spritesManager, historyManager);
+        _grid = new DirGodotScoreGrid(this, spritesManager, historyManager);
         _mediator.Subscribe(_grid);
         _framesHeader = new DirGodotFrameHeader(_gfxValues);
         //_frameScripts = new DirGodotFrameScriptsBar(_gfxValues, _player.Factory);
@@ -290,6 +290,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _mediator.Unsubscribe(_grid);
         base.Dispose(disposing);
     }
+
 
 
     #region Commands
