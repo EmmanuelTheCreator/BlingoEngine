@@ -10,8 +10,10 @@ namespace LingoEngine.Director.Core.Styles
         public static LingoColor BG_WhiteMenus = new LingoColor(240, 240, 240);       // Common window background
 
         // Windows
-        public static LingoColor Window_Title_Line_Under = new LingoColor(178, 180, 191); // THe line just beneath the title of the window 
-        public static LingoColor Window_Title_BG = LingoColor.FromHex("#d2e0ed"); // THe line just beneath the title of the window 
+        public static LingoColor Window_Title_Line_Under = new LingoColor(178, 180, 191); // The line just beneath the title of the window
+        public static LingoColor Window_Title_BG = LingoColor.FromHex("#d2e0ed"); // Base color of the window title bar
+        public static LingoColor Window_Title_BG_Active = Window_Title_BG.Darken(0.2f); // Darker when window is active
+        public static LingoColor Window_Title_BG_Inactive = Window_Title_BG.Lighten(0.2f); // Lighter when window is inactive
 
 
         // Thumbnail of a member

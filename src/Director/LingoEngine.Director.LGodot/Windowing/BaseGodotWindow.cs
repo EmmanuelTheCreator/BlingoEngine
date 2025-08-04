@@ -79,7 +79,8 @@ namespace LingoEngine.Director.LGodot
 
         public override void _Draw()
         {
-            DrawRect(new Rect2(0, 0, Size.X, TitleBarHeight), DirectorColors.Window_Title_BG.ToGodotColor());
+            var titleColor = IsActiveWindow ? DirectorColors.Window_Title_BG_Active : DirectorColors.Window_Title_BG_Inactive;
+            DrawRect(new Rect2(0, 0, Size.X, TitleBarHeight), titleColor.ToGodotColor());
             DrawLine(new Vector2(0, TitleBarHeight), new Vector2(Size.X, TitleBarHeight), DirectorColors.Window_Title_Line_Under.ToGodotColor());
             _closeButton.Position = new Vector2(Size.X - 18, 1);
             // draw resize handle
