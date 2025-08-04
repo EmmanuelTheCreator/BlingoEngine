@@ -7,6 +7,7 @@ using LingoEngine.Members;
 using LingoEngine.Sprites;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Bitmaps;
+using LingoEngine.Tools;
 using LingoEngine.Texts.FrameworkCommunication;
 using LingoEngine.Shapes;
 using LingoEngine.LGodot.Shapes;
@@ -134,6 +135,14 @@ namespace LingoEngine.LGodot.Sprites
         private void ApplyInk()
         {
             if (_ink == 0) return;
+
+            if (InkPreRenderer.CanHandle((LingoInkType)_ink))
+            {
+                _material.BlendMode = CanvasItemMaterial.BlendModeEnum.Mix;
+                _Sprite2D.Material = _material;
+                return;
+            }
+
             CanvasItemMaterial.BlendModeEnum mode = _ink switch
             {
                 (int)LingoInkType.AddPin => CanvasItemMaterial.BlendModeEnum.Add,
@@ -144,13 +153,15 @@ namespace LingoEngine.LGodot.Sprites
                 (int)LingoInkType.Lighten => CanvasItemMaterial.BlendModeEnum.Add,
                 _ => CanvasItemMaterial.BlendModeEnum.Mix,
             };
+
             if (mode == CanvasItemMaterial.BlendModeEnum.Mix)
-            { 
-                var inkNumber = (int)_lingoSprite.InkType;
-                _Sprite2D.Material = InkShaderMaterial.Create(_lingoSprite.InkType, _lingoSprite.BackColor.ToGodotColor());
+            {
+                _Sprite2D.Material = InkShaderMaterial.Create(
+                    _lingoSprite.InkType,
+                    _lingoSprite.BackColor.ToGodotColor());
             }
-            else 
-            { 
+            else
+            {
                 _material.BlendMode = mode;
                 _Sprite2D.Material = _material;
             }
@@ -327,10 +338,17 @@ namespace LingoEngine.LGodot.Sprites
         private void UpdateMemberPicture(LingoGodotMemberBitmap godotPicture)
         {
             godotPicture.Preload();
-            // Set the texture using the ImageTexture from the picture member
             if (godotPicture.TextureGodot == null)
                 return;
-            _Sprite2D.Texture = godotPicture.TextureGodot;
+
+            if (InkPreRenderer.CanHandle(_lingoSprite.InkType))
+            {
+                _Sprite2D.Texture = godotPicture.GetTextureForInk(_lingoSprite.InkType, _lingoSprite.BackColor);
+            }
+            else
+            {
+                _Sprite2D.Texture = godotPicture.TextureGodot;
+            }
         }
         private ILingoMember? _previousChildElement;
         private Node? _previousChildElementNode;

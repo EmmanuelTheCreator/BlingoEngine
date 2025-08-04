@@ -167,11 +167,21 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
 
                 if (p.Surface != nint.Zero)
                 {
-                    _texture = SDL.SDL_CreateTextureFromSurface(_renderer, p.Surface);
-                    if (_texture != nint.Zero)
+                    var tex = p.GetTextureForInk(_lingoSprite.InkType, _lingoSprite.BackColor, _renderer);
+                    if (tex != nint.Zero)
                     {
+                        _texture = tex;
                         Width = p.Width;
                         Height = p.Height;
+                    }
+                    else
+                    {
+                        _texture = SDL.SDL_CreateTextureFromSurface(_renderer, p.Surface);
+                        if (_texture != nint.Zero)
+                        {
+                            Width = p.Width;
+                            Height = p.Height;
+                        }
                     }
                 }
                 break;
