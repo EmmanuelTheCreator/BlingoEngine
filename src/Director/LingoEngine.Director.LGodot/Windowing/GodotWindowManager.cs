@@ -118,12 +118,16 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
     private void SetTheActiveWindow(BaseGodotWindow window)
     {
         if (ActiveWindow != null)
+        {
             ActiveWindow.ZIndex = ZIndexInactiveWindow;
+            ActiveWindow.QueueRedraw();
+        }
         ActiveWindow = window;
         ActiveWindow.ZIndex = 0;
         var parent = window.GetParent();
         if (parent != null)
             parent.MoveChild(window, parent.GetChildCount() - 1);
         window.GrabFocus();
+        window.QueueRedraw();
     }
 }
