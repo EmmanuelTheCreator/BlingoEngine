@@ -21,17 +21,7 @@ internal abstract class DirGodotBaseSprite
 
     /// <summary>Draw the sprite at the given position.</summary>
     internal abstract void Draw(CanvasItem canvas, Vector2 position, float width, float height, Font font);
-
-    /// <summary>Move the element so it starts at the given frame.</summary>
-    internal virtual void MoveToFrame(int frame)
-    {
-        int length = EndFrame - BeginFrame;
-        BeginFrame = frame;
-        EndFrame = frame + length;
-    }
-
-    /// <summary>Remove the element from the provided movie.</summary>
-    internal virtual void DeleteFromMovie(LingoMovie movie) { }
+   
 }
 
 
@@ -41,7 +31,6 @@ internal abstract class DirGodotBaseSprite<TSprite> : DirGodotBaseSprite
     protected TSprite _sprite;
     public TSprite Sprite => _sprite;
     public DirScoreSprite SpriteUI { get; private set; }
-    public string DrawLabel { get; set; }
     internal override int BeginFrame { get => _sprite.BeginFrame; set => _sprite.BeginFrame = value; }
     internal override int EndFrame { get => _sprite.EndFrame; set => _sprite.EndFrame = value; }
 #pragma warning disable CS8618
@@ -54,14 +43,9 @@ internal abstract class DirGodotBaseSprite<TSprite> : DirGodotBaseSprite
     {
         _sprite = sprite;
         SpriteUI = new DirScoreSprite(sprite, SpritesManager);
-        SpritesManager.ScoreManager.RegisterSprite(SpriteUI);
-        DrawLabel = sprite.Name;
+        //SpritesManager.ScoreManager.RegisterSprite(SpriteUI);
     }
-    internal override void DeleteFromMovie(LingoMovie movie)
-    {
-        // Removing a sprite removes it from movie timeline
-        Sprite.RemoveMe();
-    }
+   
 }
 
 

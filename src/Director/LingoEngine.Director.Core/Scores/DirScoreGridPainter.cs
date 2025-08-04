@@ -31,6 +31,7 @@ public class DirScoreGridPainter
         var colorLines = DirectorColors.ScoreGridLineDark;
         float width = _gfxValues.LeftMargin + FrameCount * _gfxValues.FrameWidth;
         float height = ChannelCount * _gfxValues.ChannelHeight;
+        Canvas.Clear(LingoColor.Transparent());
         Canvas.Width = width;
         Canvas.Height = height;
 

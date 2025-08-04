@@ -1,27 +1,25 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using LingoEngine.Events;
 using LingoEngine.Sprites;
-using LingoEngine.Inputs;
 using LingoEngine.Director.Core.Sprites;
 
 namespace LingoEngine.Director.Core.Scores
 {
-    public class DirScoreSpriteChannel
-    {
-        public List<DirScoreSprite> Sprites { get; } = new();
+    
 
-        public DirScoreSprite? GetSpriteAtFrame(int frame)
-        {
-            return Sprites.FirstOrDefault(s => s.Sprite.BeginFrame <= frame && frame <= s.Sprite.EndFrame);
-        }
+    public interface IDirScoreManager
+    {
+        IDirSpritesManager SpritesManager { get; }
+
+        void DeselectSprite(LingoSprite sprite);
+        void HandleMouse(LingoMouseEvent mouseEvent, int channelNumber, int frameNumber);
+        void SelectSprite(LingoSprite sprite);
+       
     }
 
-    public class DirScoreManager
+    public class DirScoreManager : IDirScoreManager
     {
         private IDirSpritesManager? _spritesManager;
-        private readonly Dictionary<int, DirScoreSpriteChannel> _channels = new();
+        private readonly Dictionary<int, DirScoreChannel> _channels = new();
         private readonly List<DirScoreSprite> _selected = new();
 
         private bool _dragging;
@@ -29,6 +27,8 @@ namespace LingoEngine.Director.Core.Scores
         private bool _dragEnd;
         private bool _dragMiddle;
         private int _mouseDownFrame = -1;
+
+        public IDirSpritesManager SpritesManager => _spritesManager!;
 
         public DirScoreManager()
         {
@@ -38,18 +38,19 @@ namespace LingoEngine.Director.Core.Scores
         {
             _spritesManager = manager;
         }
-
-        public void RegisterSprite(DirScoreSprite sprite)
+        public void RegisterChannel(DirScoreChannel channel)
         {
-            int ch = sprite.Sprite.SpriteNum - 1;
-            if (!_channels.TryGetValue(ch, out var channel))
-            {
-                channel = new DirScoreSpriteChannel();
-                _channels[ch] = channel;
-            }
-            if (!channel.Sprites.Contains(sprite))
-                channel.Sprites.Add(sprite);
+            if (_channels.ContainsKey(channel.SpriteNum))
+                throw new InvalidOperationException($"Channel with sprite number {channel.SpriteNum} already exists.");
+            _channels[channel.SpriteNum] = channel;
+        } 
+        public void UnregisterChannel(DirScoreChannel channel)
+        {
+            if (!_channels.ContainsKey(channel.SpriteNum))
+                return;
+            _channels.Remove(channel.SpriteNum);
         }
+
 
         private void ClearSelection()
         {
@@ -73,7 +74,8 @@ namespace LingoEngine.Director.Core.Scores
         {
             int ch = sprite.SpriteNum - 1;
             if (_channels.TryGetValue(ch, out var channel))
-                return channel.Sprites.FirstOrDefault(s => s.Sprite == sprite);
+                return channel.FindSprite(sprite);
+               
             return null;
         }
 
@@ -118,7 +120,7 @@ namespace LingoEngine.Director.Core.Scores
                     }
                     else
                     {
-                        foreach (var s in _selected)
+                        foreach (var s in _selected) 
                             s.PrepareDragging(frameNumber);
                         _dragMiddle = true;
                     }
@@ -126,6 +128,8 @@ namespace LingoEngine.Director.Core.Scores
                 }
                 else
                 {
+                    if (_selected.Count > 0)
+                        channel.RequireRedraw();
                     ClearSelection();
                 }
             }
@@ -162,5 +166,7 @@ namespace LingoEngine.Director.Core.Scores
                 _mouseDownFrame = -1;
             }
         }
+
+       
     }
 }

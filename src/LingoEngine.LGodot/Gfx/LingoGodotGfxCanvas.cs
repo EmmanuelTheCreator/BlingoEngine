@@ -17,7 +17,8 @@ namespace LingoEngine.LGodot.Gfx
     {
         private readonly ILingoFontManager _fontManager;
         private LingoMargin _margin = LingoMargin.Zero;
-
+        private float _desiredWidth = 0;
+        private float _desiredHeight = 0;
         private Color? _clearColor;
         private bool _dirty;
         private readonly List<Action> _drawActions = new();
@@ -30,8 +31,8 @@ namespace LingoEngine.LGodot.Gfx
 
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
         public float Y { get => Position.Y; set => Position = new Vector2(Position.X, value); }
-        public float Width { get => Size.X; set => Size = new Vector2(value, Size.Y); }
-        public float Height { get => Size.Y; set { Size = new Vector2(Size.X, value);CustomMinimumSize = Size; } }
+        public float Width { get => Size.X; set { Size = new Vector2(value, Size.Y); CustomMinimumSize = Size; _desiredWidth = value; } }
+        public float Height { get => Size.Y; set { Size = new Vector2(Size.X, value);CustomMinimumSize = Size; _desiredHeight = value; } }
         public bool Visibility { get => Visible; set => Visible = value; }
         public LingoMargin Margin
         {
@@ -60,8 +61,11 @@ namespace LingoEngine.LGodot.Gfx
         public override void _Draw()
         {
             if (_clearColor.HasValue)
-                DrawRect(new Rect2(0, 0, Size.X, Size.Y), _clearColor.Value, true);
-
+            {
+                DrawRect(new Rect2(0, 0, _desiredWidth, _desiredHeight), _clearColor.Value, true);
+                Size = new Vector2(_desiredWidth, _desiredHeight);
+                CustomMinimumSize = Size; // Set the minimum size to the desired size
+            }
             foreach (var drawAction in _drawActions)
                 drawAction();
 

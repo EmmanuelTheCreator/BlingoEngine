@@ -95,6 +95,7 @@ namespace LingoEngine.Movies
         public bool IsPlaying => _isPlaying;
 
         public event Action<bool>? PlayStateChanged;
+        public event Action<int>? CurrentFrameChanged;
 
         public ActorList ActorList => _actorList;
         public LingoTimeOutList TimeOutList { get; private set; } = new LingoTimeOutList();
@@ -243,6 +244,7 @@ namespace LingoEngine.Movies
         {
             if (_isAdvancing) return;
             _isAdvancing = true;
+            
             try
             {
                 var frameChanged = _currentFrame != _lastFrame;
@@ -271,6 +273,8 @@ namespace LingoEngine.Movies
                 _EventMediator.RaiseEnterFrame();
 
                 OnUpdateStage();
+                if (frameChanged)
+                    CurrentFrameChanged?.Invoke(_currentFrame);
 
                 _EventMediator.RaiseExitFrame();
             }
@@ -280,7 +284,7 @@ namespace LingoEngine.Movies
                 //_spriteManagers.ForEach(x => x.EndSprites());
                 _isAdvancing = false;
             }
-
+            
         }
 
      

@@ -16,6 +16,20 @@ namespace LingoEngine.Director.Core.Scores
         Blend,
         Extended,
     }
+    public class DirScoreSprite<TSprite> : DirScoreSprite
+        where TSprite : LingoSprite
+    {
+        public TSprite SpriteT { get; private set; }
+        
+
+#pragma warning disable CS8618 
+        public DirScoreSprite(TSprite sprite, IDirSpritesManager spritesManager) : base(sprite, spritesManager)
+#pragma warning restore CS8618 
+        {
+            SpriteT = sprite;
+        }
+
+    }
     public class DirScoreSprite : IDisposable
     {
         private bool _isSelected;
@@ -23,7 +37,7 @@ namespace LingoEngine.Director.Core.Scores
         private int _startBeginFrame;
         private int _startEndFrame;
         private readonly IDirSpritesManager _spritesManager;
-
+        internal DirScoreChannel? Channel { get; set; }
         public bool IsSingleFrameSprite { get; }
         public LingoSprite Sprite { get; }
         public LingoSprite2D? Sprite2D { get; }
@@ -75,7 +89,11 @@ namespace LingoEngine.Director.Core.Scores
         }
 
         private void OnAnimationChanged() => RequireRedraw();
-        private void RequireRedraw() => RequireToRedraw = true;
+        private void RequireRedraw()
+        {
+            RequireToRedraw = true;
+            Channel?.RequireRedraw();
+        }
 
         public void Draw(LingoGfxCanvas canvas, float frameWidth, float channelHeight, float yOffset = 0)
         {
