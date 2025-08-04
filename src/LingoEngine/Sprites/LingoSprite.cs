@@ -1,6 +1,7 @@
 ﻿using LingoEngine.Events;
 using LingoEngine.Movies;
 using LingoEngine.Sprites.Events;
+using System.Threading.Channels;
 
 namespace LingoEngine.Sprites
 {
@@ -47,6 +48,9 @@ namespace LingoEngine.Sprites
         public bool Puppet { get; set; }
 
         public int SpriteNum { get; protected set; }
+        public abstract int SpriteNumWithChannel { get; }
+
+
         /// <summary>
         /// Whether this sprite is currently active (i.e., the playhead is within its frame span).
         /// </summary>
@@ -54,12 +58,15 @@ namespace LingoEngine.Sprites
         public bool IsSingleFrame { get; protected set; }
         public bool Lock
         {
-            get => _lock; set
+            get => _lock; 
+            set
             {
                 _lock = value;
                 NotifyAnimationChanged();
             }
         }
+
+        public bool IsDeleted { get; private set; }
 
         public event Action? AnimationChanged;
 
@@ -140,7 +147,14 @@ namespace LingoEngine.Sprites
         protected virtual void EndSprite() { }
         public virtual string GetFullName() => $"{SpriteNum}.{Name}";
 
-        public abstract void RemoveMe();
+        public void RemoveMe()
+        {
+            if (IsDeleted) return;
+            IsDeleted = true;
+            OnRemoveMe();
+            NotifyAnimationChanged();
+        }
+        public abstract void OnRemoveMe();
 
         protected void NotifyAnimationChanged()
         {

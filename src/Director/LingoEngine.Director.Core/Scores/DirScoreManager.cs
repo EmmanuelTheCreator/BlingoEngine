@@ -1,6 +1,8 @@
 using LingoEngine.Events;
 using LingoEngine.Sprites;
 using LingoEngine.Director.Core.Sprites;
+using LingoEngine.FrameworkCommunication;
+using LingoEngine.Director.Core.Tools;
 
 namespace LingoEngine.Director.Core.Scores
 {
@@ -8,8 +10,9 @@ namespace LingoEngine.Director.Core.Scores
 
     public interface IDirScoreManager
     {
+        DirScoreGfxValues GfxValues { get; }
         IDirSpritesManager SpritesManager { get; }
-
+        ILingoFrameworkFactory Factory { get; }
         void DeselectSprite(LingoSprite sprite);
         void HandleMouse(LingoMouseEvent mouseEvent, int channelNumber, int frameNumber);
         void SelectSprite(LingoSprite sprite);
@@ -21,17 +24,20 @@ namespace LingoEngine.Director.Core.Scores
         private IDirSpritesManager? _spritesManager;
         private readonly Dictionary<int, DirScoreChannel> _channels = new();
         private readonly List<DirScoreSprite> _selected = new();
-
+        private readonly IDirectorEventMediator _directorEventMediator;
+        private DirScoreSprite? _lastAddedSprite;
         private bool _dragging;
         private bool _dragBegin;
         private bool _dragEnd;
         private bool _dragMiddle;
         private int _mouseDownFrame = -1;
-
+        public DirScoreGfxValues GfxValues { get; } = new();
         public IDirSpritesManager SpritesManager => _spritesManager!;
-
-        public DirScoreManager()
+        public ILingoFrameworkFactory Factory { get; }
+        public DirScoreManager(ILingoFrameworkFactory factory, IDirectorEventMediator directorEventMediator)
         {
+            Factory = factory;
+            _directorEventMediator = directorEventMediator;
         }
 
         internal void SetSpritesManager(IDirSpritesManager manager)
@@ -40,15 +46,15 @@ namespace LingoEngine.Director.Core.Scores
         }
         public void RegisterChannel(DirScoreChannel channel)
         {
-            if (_channels.ContainsKey(channel.SpriteNum))
-                throw new InvalidOperationException($"Channel with sprite number {channel.SpriteNum} already exists.");
-            _channels[channel.SpriteNum] = channel;
+            if (_channels.ContainsKey(channel.SpriteNumWithChannelNum))
+                throw new InvalidOperationException($"Channel with sprite number {channel.SpriteNumWithChannelNum} already exists.");
+            _channels[channel.SpriteNumWithChannelNum] = channel;
         } 
         public void UnregisterChannel(DirScoreChannel channel)
         {
-            if (!_channels.ContainsKey(channel.SpriteNum))
+            if (!_channels.ContainsKey(channel.SpriteNumWithChannelNum))
                 return;
-            _channels.Remove(channel.SpriteNum);
+            _channels.Remove(channel.SpriteNumWithChannelNum);
         }
 
 
@@ -62,12 +68,19 @@ namespace LingoEngine.Director.Core.Scores
 
         private void AddSelection(DirScoreSprite sprite)
         {
+            if (sprite.IsLocked) return;
             if (_selected.Contains(sprite))
+            {
+                if (_spritesManager != null && (_spritesManager.Key.ControlDown || _spritesManager.Key.ShiftDown))
+                {
+                    sprite.IsSelected = false;
+                    _selected.Remove(sprite);
+                }
                 return;
-            if (_spritesManager != null && !_spritesManager.Key.ControlDown && !_spritesManager.Key.ShiftDown)
-                ClearSelection();
-            _selected.Add(sprite);
+            }
             sprite.IsSelected = true;
+            _selected.Add(sprite);  
+            _lastAddedSprite = sprite;
         }
 
         private DirScoreSprite? FindSprite(LingoSprite sprite)
@@ -81,6 +94,7 @@ namespace LingoEngine.Director.Core.Scores
 
         public void SelectSprite(LingoSprite sprite)
         {
+            if (sprite.Lock) return;
             var scoreSprite = FindSprite(sprite);
             if (scoreSprite != null)
                 AddSelection(scoreSprite);
@@ -99,20 +113,27 @@ namespace LingoEngine.Director.Core.Scores
         {
             if (!_channels.TryGetValue(channelNumber, out var channel))
                 return;
-            var sprite = channel.GetSpriteAtFrame(frameNumber);
+            var spriteScore = channel.GetSpriteAtFrame(frameNumber);
 
             if (mouseEvent.Type == LingoMouseEventType.MouseDown && mouseEvent.Mouse.LeftMouseDown)
             {
-                if (sprite != null)
+                if (spriteScore != null)
                 {
-                    AddSelection(sprite);
-                    if (frameNumber == sprite.Sprite.BeginFrame)
+                    if (spriteScore.IsLocked)
+                    {
+                        mouseEvent.Mouse.SetCursor(Inputs.LingoMouseCursor.NotAllowed);
+                        _directorEventMediator.RaiseSpriteSelected(spriteScore.Sprite);
+                        _mouseDownFrame = -1;
+                        return;
+                    }
+                    AddSelection(spriteScore);
+                    if (frameNumber == spriteScore.Sprite.BeginFrame)
                     {
                         foreach (var s in _selected)
                             s.PrepareDragging(frameNumber);
                         _dragBegin = true;
                     }
-                    else if (frameNumber == sprite.Sprite.EndFrame)
+                    else if (frameNumber == spriteScore.Sprite.EndFrame)
                     {
                         foreach (var s in _selected)
                             s.PrepareDragging(frameNumber);
@@ -138,7 +159,10 @@ namespace LingoEngine.Director.Core.Scores
                 if (!_dragging)
                 {
                     if (_mouseDownFrame >= 0 && Math.Abs(frameNumber - _mouseDownFrame) >= 1)
+                    {
                         _dragging = true;
+                        mouseEvent.Mouse.SetCursor(Inputs.LingoMouseCursor.Drag);
+                    }
                     else
                         return;
                 }
@@ -160,10 +184,21 @@ namespace LingoEngine.Director.Core.Scores
             }
             else if (mouseEvent.Type == LingoMouseEventType.MouseUp)
             {
-                foreach (var s in _selected)
-                    s.StopDragging();
+                if (_spritesManager != null && !_dragging && !_spritesManager.Key.ControlDown && !_spritesManager.Key.ShiftDown && _lastAddedSprite == null)
+                    ClearSelection();
+                else
+                {
+                    foreach (var s in _selected)
+                    {
+                        s.StopDragging();
+                        if (s.Channel != null)
+                            s.Channel.RequireRedraw();
+                    }
+                }
                 _dragging = _dragBegin = _dragEnd = _dragMiddle = false;
                 _mouseDownFrame = -1;
+                _lastAddedSprite = null;
+                mouseEvent.Mouse.SetCursor(Inputs.LingoMouseCursor.Arrow);
             }
         }
 

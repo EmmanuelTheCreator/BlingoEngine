@@ -9,7 +9,7 @@ public interface ILingoSpriteColorPaletteSpriteManager : ILingoSpriteManager<Lin
 internal class LingoSpriteColorPaletteSpriteManager : LingoSpriteManager<LingoColorPaletteSprite>, ILingoSpriteColorPaletteSpriteManager
 {
 
-    public LingoSpriteColorPaletteSpriteManager(LingoMovie movie, LingoMovieEnvironment environment) : base(movie, environment)
+    public LingoSpriteColorPaletteSpriteManager(LingoMovie movie, LingoMovieEnvironment environment) : base(LingoColorPaletteSprite.SpriteNumOffset, movie, environment)
     {
     }
 

@@ -4,11 +4,11 @@ using LingoEngine.Movies;
 
 namespace LingoEngine.Sprites
 {
-    internal class LingoSprite2DManager : LingoSpriteManager<LingoSprite2D>
+    public class LingoSprite2DManager : LingoSpriteManager<LingoSprite2D> , ILingoSpriteManager<LingoSprite2D>
     {
         //protected readonly Dictionary<int, LingoSprite2D> _frameSpriteBehaviors = new();
         protected readonly LingoStageMouse _lingoMouse;
-        internal LingoSprite2DManager(LingoMovie movie, LingoMovieEnvironment environment) : base(movie, environment)
+        internal LingoSprite2DManager(LingoMovie movie, LingoMovieEnvironment environment) : base(LingoSprite2D.SpriteNumOffset, movie, environment)
         {
             _lingoMouse = (LingoStageMouse)environment.Mouse;
         }
@@ -47,10 +47,10 @@ namespace LingoEngine.Sprites
             _spriteChannels[newChannel].SetSprite(spriteTyped);
             _activeSprites[sprite.SpriteNum] = spriteTyped;
 
-            RaiseSpriteListChanged();
+            RaiseSpriteListChanged(sprite.SpriteNum+SpriteNumChannelOffset);
         }
 
-        internal void UpdateActiveSprites(int currentFrame, int lastFrame)
+        internal override void UpdateActiveSprites(int currentFrame, int lastFrame)
         {
             _enteredSprites.Clear();
             _exitedSprites.Clear();

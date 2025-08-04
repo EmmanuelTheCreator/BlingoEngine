@@ -12,7 +12,7 @@ namespace LingoEngine.Scripts
     internal class LingoFrameScriptSpriteManager : LingoSpriteManager<LingoSpriteFrameScript>, ILingoFrameScriptSpriteManager
     {
         
-        public LingoFrameScriptSpriteManager(LingoMovie movie, LingoMovieEnvironment environment) : base(movie, environment)
+        public LingoFrameScriptSpriteManager(LingoMovie movie, LingoMovieEnvironment environment) : base(LingoSpriteFrameScript.SpriteNumOffset, movie, environment)
         {
         }
 
@@ -22,7 +22,7 @@ namespace LingoEngine.Scripts
 
         public LingoSpriteFrameScript Add<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour, Action<LingoSpriteFrameScript>? configure) where TBehaviour : LingoSpriteBehavior
         {
-            var sprite = AddSprite(LingoSpriteFrameScript.FrameScriptSpriteNum, $"FrameSprite_{frameNumber}", configure);
+            var sprite = AddSprite(1, $"FrameSprite_{frameNumber}", configure);
             sprite.BeginFrame = frameNumber;
             sprite.EndFrame = frameNumber;
 

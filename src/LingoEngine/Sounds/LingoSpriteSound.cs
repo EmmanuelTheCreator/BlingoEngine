@@ -5,12 +5,13 @@ namespace LingoEngine.Sounds;
 
 public class LingoSpriteSound : LingoSprite
 {
-    public const int StartSpriteNumOffset = 3;
+    public const int SpriteNumOffset = 3;
     private Action<LingoSpriteSound> _onRemoveMe;
     private LingoSoundChannel? _soundChannel;
 
     public int Channel { get; protected set; }
     public LingoMemberSound? Sound { get; protected set; }
+    public override int SpriteNumWithChannel => SpriteNumOffset + Channel;
 
 
 #pragma warning disable CS8618 
@@ -22,8 +23,9 @@ public class LingoSpriteSound : LingoSprite
 
     internal void Init(int channel, int beginFrame, int endFrame, LingoMemberSound sound)
     {
+        // Tempo = 1, Colorpalette= 2, transition = 3, Sound = 4/5 , 6 Framescripts
         Channel = channel;
-        SpriteNum = StartSpriteNumOffset + channel;// Tempo = 1, Colorpalette= 2, transition = 3, Sound = 4
+        SpriteNum = channel;
         BeginFrame = beginFrame;
         EndFrame = endFrame;
         Sound = sound;
@@ -43,7 +45,7 @@ public class LingoSpriteSound : LingoSprite
         base.EndSprite();
     }
 
-    public override void RemoveMe()
+    public override void OnRemoveMe()
     {
         _onRemoveMe(this);
     }

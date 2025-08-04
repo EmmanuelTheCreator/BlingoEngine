@@ -13,15 +13,16 @@ namespace LingoEngine.Sprites
     }
     public interface ILingoSpriteManager<TSprite> : ILingoSpriteManager
     {
-        event Action? SpriteListChanged;
+        event Action<int>? SpriteListChanged;
         IEnumerable<TSprite> GetAllSprites();
         IEnumerable<TSprite> GetAllSpritesByChannel(int channel);
+        IEnumerable<TSprite> GetAllSpritesBySpriteNumAndChannel(int spriteNumAndChannel);
         void MoveSprite(TSprite sprite, int newFrame);
     }
 
 
 
-    internal abstract class LingoSpriteManager : ILingoSpriteManager
+    public abstract class LingoSpriteManager : ILingoSpriteManager
     {
         protected readonly LingoMovieEnvironment _environment;
         protected readonly LingoMovie _movie;
@@ -51,7 +52,7 @@ namespace LingoEngine.Sprites
 
 
 
-    internal abstract class LingoSpriteManager<TSprite> : LingoSpriteManager
+    public abstract class LingoSpriteManager<TSprite> : LingoSpriteManager
         where TSprite : LingoSprite
     {
        
@@ -64,14 +65,7 @@ namespace LingoEngine.Sprites
         protected readonly List<TSprite> _exitedSprites = new();
 
         internal List<TSprite> AllTimeSprites => _allTimeSprites;
-        public event Action? SpriteListChanged;
-        protected void RaiseSpriteListChanged() => SpriteListChanged?.Invoke();
-        public IEnumerable<TSprite> GetAllSprites() => _allTimeSprites.ToArray();
-        public IEnumerable<TSprite> GetAllSpritesByChannel(int spriteNum) => _allTimeSprites.Where(x => x.SpriteNum == spriteNum).ToArray();
-        protected LingoSpriteManager(LingoMovie movie, LingoMovieEnvironment environment)
-            :base(movie, environment)
-        {
-        }
+       
 
         public override int MaxSpriteChannelCount
         {
@@ -93,6 +87,21 @@ namespace LingoEngine.Sprites
         public override int SpriteTotalCount => _activeSprites.Count;
         public override int SpriteMaxNumber => _activeSprites.Keys.DefaultIfEmpty(0).Max();
 
+        public int SpriteNumChannelOffset { get; }
+
+        public event Action<int>? SpriteListChanged;
+        protected void RaiseSpriteListChanged(int spritenumChannel) => SpriteListChanged?.Invoke(spritenumChannel);
+
+
+        protected LingoSpriteManager(int spritenumChannelOffset, LingoMovie movie, LingoMovieEnvironment environment)
+           : base(movie, environment)
+        {
+            SpriteNumChannelOffset = spritenumChannelOffset;
+        }
+
+        public IEnumerable<TSprite> GetAllSprites() => _allTimeSprites.ToArray();
+        public IEnumerable<TSprite> GetAllSpritesByChannel(int spriteNum) => _allTimeSprites.Where(x => x.SpriteNum == spriteNum).ToArray();
+        public IEnumerable<TSprite> GetAllSpritesBySpriteNumAndChannel(int spriteNumAndChannel) => _allTimeSprites.Where(x => x.SpriteNumWithChannel == spriteNumAndChannel).ToArray();
 
         internal TSprite AddSprite(string name, Action<TSprite>? configure = null)
         {
@@ -112,7 +121,7 @@ namespace LingoEngine.Sprites
                 {
                     _allTimeSprites.RemoveAt(index);
                     _spritesByName.Remove(name);
-                    RaiseSpriteListChanged();
+                    RaiseSpriteListChanged(s.SpriteNumWithChannel);
                 }
             });
             sprite.Init(num, name);
@@ -124,7 +133,7 @@ namespace LingoEngine.Sprites
             SpriteJustCreated(sprite);
 
             configure?.Invoke(sprite);
-            RaiseSpriteListChanged();
+            RaiseSpriteListChanged(sprite.SpriteNumWithChannel);
             return sprite;
         }
         protected abstract TSprite OnCreateSprite(LingoMovie movie, Action<TSprite> onRemove);
@@ -149,7 +158,7 @@ namespace LingoEngine.Sprites
             var duration = sprite.EndFrame - sprite.BeginFrame;
             sprite.BeginFrame = newFrame;
             sprite.EndFrame = newFrame + duration;
-            RaiseSpriteListChanged();
+            RaiseSpriteListChanged(sprite.SpriteNumWithChannel);
         }
 
         internal bool RemoveSprite(string name)

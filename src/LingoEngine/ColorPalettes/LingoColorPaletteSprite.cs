@@ -1,4 +1,3 @@
-using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
 
@@ -23,11 +22,14 @@ public enum LingoColorPaletteCycleOption
 
 public class LingoColorPaletteSprite : LingoSprite
 {
+    public const int SpriteNumOffset = 1;
+
     private readonly Action<LingoColorPaletteSprite> _removeMe;
 
     public int Frame { get; set; }
   
     public LingoColorPaletteMember? Member { get; set; }
+    override public int SpriteNumWithChannel => SpriteNumOffset + SpriteNum;
 
     public LingoColorPaletteSprite(ILingoMovieEnvironment environment, Action<LingoColorPaletteSprite> removeMe) : base(environment)
     {
@@ -35,7 +37,7 @@ public class LingoColorPaletteSprite : LingoSprite
         IsSingleFrame = true;
     }
 
-    public override void RemoveMe()
+    public override void OnRemoveMe()
     {
         _removeMe(this);
     }

@@ -50,7 +50,7 @@ internal partial class DirGodotScoreLeftChannelsContainer : Control
         QueueRedraw();
     }
 
-    private void OnSpriteListChanged()
+    private void OnSpriteListChanged(int spriteNumWithChannelNum)
     {
         QueueRedraw();
     }

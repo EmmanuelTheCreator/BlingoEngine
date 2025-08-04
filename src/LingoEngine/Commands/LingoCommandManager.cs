@@ -5,7 +5,7 @@ namespace LingoEngine.Commands;
 internal sealed class LingoCommandManager : ILingoCommandManager
 {
     private readonly IServiceProvider _provider;
-    private readonly Dictionary<Type, Type> _handlers = new();
+    private readonly Dictionary<Type, List<Type>> _handlers = new();
 
     public LingoCommandManager(IServiceProvider provider) => _provider = provider;
 
@@ -20,24 +20,37 @@ internal sealed class LingoCommandManager : ILingoCommandManager
                      .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommandHandler<>)))
         {
             var cmdType = iface.GetGenericArguments()[0];
-            _handlers[cmdType] = handlerType;
+            if (_handlers.TryGetValue(cmdType, out var handlers))
+            {
+                if (handlers.Contains(handlerType))
+                    return; // Already registered
+                handlers.Add(handlerType);
+            }
+            else
+                _handlers[cmdType] = new List<Type> { handlerType };
         }
     }
 
     public bool Handle(ILingoCommand command)
     {
         var type = command.GetType();
-        if (_handlers.TryGetValue(type, out var handlerType))
+        var ok = false;
+        if (_handlers.TryGetValue(type, out var handlerTypes))
         {
-            var handlerObj = _provider.GetService(handlerType);// ?? ActivatorUtilities.CreateInstance(_provider, handlerType);
-            if (handlerObj == null)
-                throw new Exception("Handler not found for command: " + type.FullName);
-            dynamic h = handlerObj;
-            dynamic c = command;
-            if (h.CanExecute(c))
+            foreach (var handlerType in handlerTypes)
             {
-                return h.Handle(c);
+                var handlerObj = _provider.GetService(handlerType);// ?? ActivatorUtilities.CreateInstance(_provider, handlerType);
+                if (handlerObj == null)
+                    throw new Exception("Handler not found for command: " + type.FullName);
+                dynamic h = handlerObj;
+                dynamic c = command;
+                if (h.CanExecute(c))
+                {
+                    ok = h.Handle(c);
+                    if (!ok) return false;
+                }
             }
+            return ok;
         }
         return false;
     }

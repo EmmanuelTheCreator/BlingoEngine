@@ -7,7 +7,7 @@ namespace LingoEngine.Director.Core.Scores.Transitions;
 internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpriteTransitionManager, DirScoreTransitionSprite, LingoTransitionSprite>
 {
     public DirScoreTransitionGridChannel(IDirScoreManager scoreManager)
-        : base(DirScoreTransitionSprite.FrameScriptSpriteNum, scoreManager)
+        : base(LingoTransitionSprite.SpriteNumOffset+1, scoreManager)
     {
     }
 

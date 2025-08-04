@@ -12,7 +12,7 @@ internal partial class DirScoreFrameScriptGridChannel : DirScoreChannel<ILingoFr
     protected override ILingoFrameScriptSpriteManager GetManager(LingoMovie movie) => movie.FrameScripts;
 
     public DirScoreFrameScriptGridChannel(IDirScoreManager scoreManager)
-        : base(LingoSpriteFrameScript.FrameScriptSpriteNum, scoreManager)
+        : base(LingoSpriteFrameScript.SpriteNumOffset+1, scoreManager)
     {
     }
 

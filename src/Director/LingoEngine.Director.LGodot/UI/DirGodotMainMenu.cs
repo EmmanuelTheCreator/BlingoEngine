@@ -78,13 +78,7 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
         if (@event is InputEventKey key && key.Pressed && !key.Echo && key.Keycode == Key.Delete)
         {
             var active = _windowManager.ActiveWindow;
-            if (active is DirGodotScoreWindow scoreWin && _player.ActiveMovie is LingoMovie movie)
-            {
-                var sprite = scoreWin.SelectedSprite;
-                if (sprite != null)
-                    _commandManager.Handle(new RemoveSpriteCommand(movie, sprite));
-            }
-            else if (active is DirGodotCastWindow castWin && _player.ActiveMovie is LingoMovie movie2)
+            if (active is DirGodotCastWindow castWin && _player.ActiveMovie is LingoMovie movie2)
             {
                 var member = castWin.SelectedMember as LingoMember;
                 if (member != null)

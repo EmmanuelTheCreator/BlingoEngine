@@ -16,6 +16,7 @@ public enum LingoTempoSpriteAction
 
 public class LingoTempoSprite : LingoSprite
 {
+    public const int SpriteNumOffset = 0;
     private readonly Action<LingoTempoSprite> _removeMe;
     private int _tempo = 30;
 
@@ -26,7 +27,7 @@ public class LingoTempoSprite : LingoSprite
     /// Only one action can be active at a time.
     /// </summary>
     public LingoTempoSpriteAction Action { get; set; }
-
+    public override int SpriteNumWithChannel => SpriteNum + SpriteNumOffset;
     public int Tempo
     {
         get => _tempo; set
@@ -100,7 +101,7 @@ public class LingoTempoSprite : LingoSprite
         base.EndSprite();
     }
 
-    public override void RemoveMe()
+    public override void OnRemoveMe()
     {
         _removeMe(this);
     }

@@ -57,7 +57,9 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<DirectorBitmapEditWindow>()
                     .AddSingleton<DirectorImportExportWindow>()
                     .AddSingleton<DirScoreManager>()
-                    .AddSingleton<IDirSpritesManager, DirSpritesManager>()
+                    .AddSingleton<DirSpritesManager>()
+                    .AddTransient<IDirSpritesManager>(p => p.GetRequiredService<DirSpritesManager>())
+                    .AddTransient(p => new Lazy<IDirSpritesManager>(() => p.GetRequiredService<DirSpritesManager>()))
                     );
             engineRegistration.AddBuildAction(
                 (serviceProvider) =>

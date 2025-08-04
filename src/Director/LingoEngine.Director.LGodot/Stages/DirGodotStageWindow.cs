@@ -289,7 +289,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         if (_movie != null)
         {
             _movie.PlayStateChanged -= OnPlayStateChanged;
-            _movie.SpriteListChanged -= UpdateBoundingBoxes;
+            _movie.SpriteListChanged -= SpriteListChanged;
         }
 
         _stage?.SetActiveMovie(movie);
@@ -301,7 +301,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         if (_movie != null)
         {
             _movie.PlayStateChanged += OnPlayStateChanged;
-            _movie.SpriteListChanged += UpdateBoundingBoxes;
+            _movie.SpriteListChanged += SpriteListChanged;
             var env = _movie.GetEnvironment();
             _boundingBoxes.SetInput(env.Mouse, env.Key);
         }
@@ -410,6 +410,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         _selectionBox.Visible = true;
     }
 
+    public void SpriteListChanged(int spriteNumWithChannelNum) => UpdateBoundingBoxes();
     public void UpdateBoundingBoxes()
     {
         if (_movie == null || _movie.IsPlaying)
@@ -644,7 +645,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         if (_movie != null)
         {
             _movie.PlayStateChanged -= OnPlayStateChanged;
-            _movie.SpriteListChanged -= UpdateBoundingBoxes;
+            _movie.SpriteListChanged -= SpriteListChanged;
         }
         _stageChangedSubscription.Release();
         _player.ActiveMovieChanged -= OnActiveMovieChanged;

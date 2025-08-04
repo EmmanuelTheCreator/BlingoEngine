@@ -34,7 +34,7 @@ namespace LingoEngine.Movies
         private readonly LingoFrameManager _frameManager;
         private readonly LingoSprite2DManager _spriteManager;
         private bool _IsManualUpdateStage;
-        public event Action? SpriteListChanged { add => _spriteManager.SpriteListChanged+=value;remove => _spriteManager.SpriteListChanged-=value; }
+        public event Action<int>? SpriteListChanged { add => _spriteManager.SpriteListChanged+=value;remove => _spriteManager.SpriteListChanged-=value; }
 
         private readonly LingoSpriteAudioManager _audioManager;
         private readonly LingoSpriteTransitionManager _transitionManager;
@@ -58,6 +58,7 @@ namespace LingoEngine.Movies
         public ILingoTempoSpriteManager Tempos => _tempoManager;
         public ILingoSpriteColorPaletteSpriteManager ColorPalettes => _paletteManager;
         public ILingoFrameScriptSpriteManager FrameScripts => _frameScriptManager;
+        public LingoSprite2DManager Sprite2DManager => _spriteManager;
 
         public string Name { get; set; }
 

@@ -24,7 +24,7 @@ internal class LingoTempoSpriteManager : LingoSpriteManager<LingoTempoSprite>, I
                 _tempo = value;
         }
     }
-    public LingoTempoSpriteManager(LingoMovie movie, LingoMovieEnvironment environment) : base(movie, environment)
+    public LingoTempoSpriteManager(LingoMovie movie, LingoMovieEnvironment environment) : base(LingoTempoSprite.SpriteNumOffset, movie, environment)
     {
     }
 

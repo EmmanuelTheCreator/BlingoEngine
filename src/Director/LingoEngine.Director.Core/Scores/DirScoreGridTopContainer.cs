@@ -3,17 +3,11 @@ using LingoEngine.Director.Core.Scores.FrameScripts;
 using LingoEngine.Director.Core.Scores.Sounds;
 using LingoEngine.Director.Core.Scores.Tempos;
 using LingoEngine.Director.Core.Scores.Transitions;
-using LingoEngine.Inputs;
+
 
 namespace LingoEngine.Director.Core.Scores
 {
-    public interface IDirScoreFrameworkGridContainer
-    {
-        float CurrentFrameX { get; set; }
-        void RequireRedrawChannels();
-        void UpdateSize();
-    }
-    public class DirScoreTopGridContainer : DirScoreGridContainer
+    public class DirScoreGridTopContainer : DirScoreGridContainer
     {
         private readonly int _frameScriptIndex;
         private bool _collapsed;
@@ -29,10 +23,10 @@ namespace LingoEngine.Director.Core.Scores
         }
 
 
-        public DirScoreTopGridContainer(IDirScoreManager scoreManager, ILingoMouse mouse)
-            :base(scoreManager, mouse, 6) 
+        public DirScoreGridTopContainer(IDirScoreManager scoreManager)
+            :base(scoreManager, 6) 
         {
-            _channels =
+            SetChannels(
             [
                 new DirScoreTempoGridChannel(_scoreManager),
                 new DirScoreColorPaletteGridChannel(_scoreManager),
@@ -40,8 +34,8 @@ namespace LingoEngine.Director.Core.Scores
                 new DirScoreAudioGridChannel(1, _scoreManager),
                 new DirScoreAudioGridChannel(2, _scoreManager),
                 new DirScoreFrameScriptGridChannel(_scoreManager),
-            ];
-            _frameScriptIndex = _channels.Length - 1;
+            ]);
+            _frameScriptIndex = _channelsDic.Count - 1;
             UpdateChannelsVisibility();
             UpdateSize();
         }
@@ -49,7 +43,7 @@ namespace LingoEngine.Director.Core.Scores
 
         protected override DirScoreChannel? GetChannelByDisplayIndex(int index)
         {
-            if (_collapsed) return _channels[_frameScriptIndex];
+            if (_collapsed) return _channelsDic[_frameScriptIndex+1];
             return base.GetChannelByDisplayIndex(index);
         }
         protected void UpdateChannelsVisibility()
@@ -60,6 +54,8 @@ namespace LingoEngine.Director.Core.Scores
             }
             UpdateChannelsPosition();
         }
+
+        
     }
 
 }

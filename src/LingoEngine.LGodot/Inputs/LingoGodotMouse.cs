@@ -153,6 +153,7 @@ namespace LingoEngine.LGodot
                 LingoMouseCursor.Drag => DisplayServer.CursorShape.Drag,
                 LingoMouseCursor.Help => DisplayServer.CursorShape.Help,
                 LingoMouseCursor.Wait => DisplayServer.CursorShape.Busy,
+                LingoMouseCursor.NotAllowed => DisplayServer.CursorShape.Forbidden,
                 _ => DisplayServer.CursorShape.Arrow
             };
         }

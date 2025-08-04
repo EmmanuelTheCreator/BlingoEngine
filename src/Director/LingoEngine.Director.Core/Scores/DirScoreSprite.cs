@@ -65,6 +65,7 @@ namespace LingoEngine.Director.Core.Scores
         public float Height { get; private set; }
         public bool ShowLabel { get; set; } = true;
         public DirScoreSpriteLabelType LabelType { get; set; } = DirScoreSpriteLabelType.Member;
+        public bool IsLocked => Sprite.Lock;
 
         public DirScoreSprite(LingoSprite sprite, IDirSpritesManager spritesManager)
         {
@@ -92,7 +93,10 @@ namespace LingoEngine.Director.Core.Scores
         private void RequireRedraw()
         {
             RequireToRedraw = true;
-            Channel?.RequireRedraw();
+            //if (Sprite.IsDeleted)
+            //    Channel?.RequireFullRedraw();
+            //else
+                Channel?.RequireRedraw();
         }
 
         public void Draw(LingoGfxCanvas canvas, float frameWidth, float channelHeight, float yOffset = 0)
@@ -151,6 +155,12 @@ namespace LingoEngine.Director.Core.Scores
 
         public void DragMoveBegin(int frameOffset)
         {
+            if (Sprite.Lock) return;
+            if (Sprite.IsSingleFrame)
+            {
+                DragMove(frameOffset);
+                return;
+            }
             int newBegin = _startBeginFrame + (frameOffset - _startDragFrameOffset);
             if (newBegin <= Sprite.EndFrame && newBegin > 0)
                 Sprite.BeginFrame = newBegin;
@@ -158,6 +168,7 @@ namespace LingoEngine.Director.Core.Scores
 
         public void DragMove(int frameOffset)
         {
+            if (Sprite.Lock) return;
             int delta = frameOffset - _startDragFrameOffset;
             Sprite.BeginFrame = _startBeginFrame + delta;
             Sprite.EndFrame = _startEndFrame + delta;
@@ -165,6 +176,12 @@ namespace LingoEngine.Director.Core.Scores
 
         public void DragMoveEnd(int frameOffset)
         {
+            if (Sprite.Lock) return;
+            if (Sprite.IsSingleFrame)
+            {
+                DragMove(frameOffset);
+                return;
+            }
             int newEnd = _startEndFrame + (frameOffset - _startDragFrameOffset);
             if (newEnd >= Sprite.BeginFrame && newEnd > 0)
                 Sprite.EndFrame = newEnd;

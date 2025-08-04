@@ -72,6 +72,7 @@ public class SdlMouse : ILingoFrameworkMouse
             LingoMouseCursor.Drag => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZEALL,
             LingoMouseCursor.Help => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW,
             LingoMouseCursor.Wait => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_WAIT,
+            LingoMouseCursor.NotAllowed => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_NO,
             _ => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW
         };
 

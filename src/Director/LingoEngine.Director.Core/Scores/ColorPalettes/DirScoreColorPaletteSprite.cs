@@ -5,7 +5,7 @@ namespace LingoEngine.Director.Core.Scores.ColorPalettes;
 
 internal class DirScoreColorPaletteSprite : DirScoreSprite<LingoColorPaletteSprite>
 {
-    public const int FrameScriptSpriteNum = 2;
+    
     public DirScoreColorPaletteSprite(LingoColorPaletteSprite sprite, Sprites.IDirSpritesManager spritesManager)
         : base(sprite, spritesManager)
     {

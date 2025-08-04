@@ -9,7 +9,7 @@ namespace LingoEngine.Sounds
     }
     internal class LingoSpriteAudioManager : LingoSpriteManager<LingoSpriteSound>, ILingoSpriteAudioManager
     {
-        public LingoSpriteAudioManager(LingoMovie movie, LingoMovieEnvironment environment) : base(movie, environment)
+        public LingoSpriteAudioManager(LingoMovie movie, LingoMovieEnvironment environment) : base(LingoSpriteSound.SpriteNumOffset, movie, environment)
         {
         }
 
@@ -24,7 +24,7 @@ namespace LingoEngine.Sounds
         {
             int lengthFrames = (int)Math.Ceiling(sound.Length * _movie.Tempo);
             int end = Math.Clamp(startFrame + lengthFrames - 1, startFrame, _movie.FrameCount);
-            return AddSprite(channel + 3, "Audio "+channel, c =>
+            return AddSprite(channel, "Audio "+channel, c =>
             {
                 c.Init(channel, startFrame, end, sound);
             });

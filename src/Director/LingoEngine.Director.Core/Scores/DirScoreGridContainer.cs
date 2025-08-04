@@ -10,20 +10,27 @@ using LingoEngine.Primitives;
 
 namespace LingoEngine.Director.Core.Scores
 {
+    public interface IDirScoreFrameworkGridContainer
+    {
+        float CurrentFrameX { get; set; }
+        void RequireRedrawChannels();
+        void RequireRecreateChannels();
+        void UpdateSize();
+    }
     public abstract class DirScoreGridContainer : IDisposable
     {
-        protected IDirScoreFrameworkGridContainer _framework;
-        protected readonly IDirSpritesManager _spritesManager;
+        protected IDirScoreFrameworkGridContainer? _framework;
         protected readonly IDirScoreManager _scoreManager;
         protected readonly DirScoreGfxValues _gfxValues;
-        protected readonly ILingoMouse _mouse;
         protected readonly DirScoreGridPainter _gridCanvas;
         protected readonly LingoGfxCanvas _canvasCurrentFrame;
         protected LingoMovie? _movie;
-        protected ILingoMouseSubscription _mouseSub;
-        protected int _currentFrame;
-        protected DirScoreChannel[] _channels;
+        
+        protected int _currentFrame = -1;
+        protected Dictionary<int,DirScoreChannel> _channelsDic = new();
+        protected DirScoreChannel[] _channels = [];
 
+        public float CurrentFrameX { get; set; }
         public LingoPoint Position { get; set; }
         public LingoPoint Size { get; set; }
        
@@ -33,18 +40,13 @@ namespace LingoEngine.Director.Core.Scores
 
 
 
-#pragma warning disable CS8618 
-        public DirScoreGridContainer(IDirScoreManager scoreManager, ILingoMouse mouse, int channelCount)
-#pragma warning restore CS8618 
+        public DirScoreGridContainer(IDirScoreManager scoreManager,int channelCount)
         {
-            _spritesManager = scoreManager.SpritesManager;
             _scoreManager = scoreManager;
-            _gfxValues = _spritesManager.GfxValues;
-            _mouse = mouse;
-            _gridCanvas = new DirScoreGridPainter(_spritesManager.Factory, _spritesManager.GfxValues);
-            _mouseSub = _mouse.OnMouseEvent(HandleMouseEvent);
-            _canvasCurrentFrame = _spritesManager.Factory.CreateGfxCanvas("CurrentTimeLineTop" , 2, _spritesManager.GfxValues.ChannelHeight* channelCount);
-            _canvasCurrentFrame.DrawLine(new LingoPoint(0, 0), new LingoPoint(0, _canvasCurrentFrame.Height), LingoColorList.Red, 2);
+            _gfxValues = _scoreManager.GfxValues;
+            _gridCanvas = new DirScoreGridPainter(scoreManager.Factory, _gfxValues);
+            _canvasCurrentFrame = scoreManager.Factory.CreateGfxCanvas("CurrentTimeLineTop" , 2, _gfxValues.ChannelHeight* channelCount);
+            RedrawCurrentFrameVLine(channelCount);
         }
 
         public void Init(IDirScoreFrameworkGridContainer framework)
@@ -52,17 +54,31 @@ namespace LingoEngine.Director.Core.Scores
             _framework = framework;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             if (_movie != null)
                 _movie.CurrentFrameChanged -= CurrentFrameChanged;
-            _mouseSub.Release();
+           
             foreach (var channel in _channels)
                 channel.Dispose();
             _canvasCurrentFrame.Dispose();
         }
-
-       
+        private void RedrawCurrentFrameVLine(int channelCount)
+        {
+            _canvasCurrentFrame.Height = _scoreManager.GfxValues.ChannelHeight * channelCount;
+            _canvasCurrentFrame.DrawLine(new LingoPoint(0, 0), new LingoPoint(0, _canvasCurrentFrame.Height), LingoColorList.Red, 2);
+        }
+        protected void SetChannels(DirScoreChannel[] channels)
+        {
+            if (_channels.Length > 0)
+            {
+                foreach (var ch in _channels)
+                    ch.Dispose();
+            }
+            _channels = channels;
+            _channelsDic = _channels.ToDictionary(x => x.SpriteNumWithChannelNum);
+            _framework?.RequireRecreateChannels();
+        }
 
         protected void UpdateChannelsPosition()
         {
@@ -79,38 +95,46 @@ namespace LingoEngine.Director.Core.Scores
         protected virtual DirScoreChannel? GetChannelByDisplayIndex(int index)
         {
             if (index < 0 || index >= _channels.Length) return null;
-            return _channels[index];
+            return _channelsDic[index+1];
         }
 
-        public void HandleMouseEvent(LingoMouseEvent mouseEvent)
-        {
+        //public void HandleMouseEvent(LingoMouseEvent mouseEvent)
+        //{
             
-            if (_movie == null) return;
-            float frameF = (mouseEvent.MouseH + _gfxValues.ChannelInfoWidth - 3) / _gfxValues.FrameWidth;
-            var mouseFrame = Math.Clamp(MathL.RoundToInt(frameF) + 1, 1, _movie.FrameCount);
-            var displayIndex = Math.Clamp(MathL.RoundToInt((mouseEvent.MouseV - Position.Y + 4 - _gfxValues.ChannelHeight) / _gfxValues.ChannelHeight), 1, 999) -1;
-            var ch = GetChannelByDisplayIndex(displayIndex);
-            if (ch != null)
-                _spritesManager.ScoreManager.HandleMouse(mouseEvent, ch.SpriteNum, mouseFrame);
-        }
+        //    if (_movie == null) return;
+        //    float frameF = (mouseEvent.MouseH + _gfxValues.ChannelInfoWidth - 3) / _gfxValues.FrameWidth;
+        //    var mouseFrame = Math.Clamp(MathL.RoundToInt(frameF) + 1, 1, _movie.FrameCount);
+        //    var displayIndex = Math.Clamp(MathL.RoundToInt((mouseEvent.MouseV - Position.Y + 4 - _gfxValues.ChannelHeight) / _gfxValues.ChannelHeight), 1, 999) -1;
+        //    var ch = GetChannelByDisplayIndex(displayIndex);
+        //    if (ch != null)
+        //        _spritesManager.ScoreManager.HandleMouse(mouseEvent, ch.SpriteNumWithChannelNum, mouseFrame);
+        //}
 
-        public void SetMovie(LingoMovie? movie)
+        public virtual void SetMovie(LingoMovie? movie)
         {
             _movie = movie;
+            if (_currentFrame <= 0)
+                CurrentFrameChanged(1);
+            if (_channels == null || _channels.Length == 0)
+                return;
+            
             foreach (var ch in _channels)
                 ch.SetMovie(movie);
             UpdateSize();
             UpdateChannelsPosition();
-            if (_currentFrame <=0)
-                CurrentFrameChanged(1);
+            
         }
 
         public void CurrentFrameChanged(int currentFrame)
         {
-            _currentFrame = currentFrame;
             int cur = currentFrame - 1;
             if (cur < 0) cur = 0;
-            _framework.CurrentFrameX = _gfxValues.LeftMargin + cur * _gfxValues.FrameWidth + _gfxValues.FrameWidth / 2f -1;
+            CurrentFrameX = _gfxValues.LeftMargin + cur * _gfxValues.FrameWidth + _gfxValues.FrameWidth / 2f - 1; 
+            if (_framework != null)
+            {
+                _framework.CurrentFrameX = CurrentFrameX;
+                _currentFrame = currentFrame;
+            }
         }
 
         protected void UpdateSize()
@@ -127,8 +151,12 @@ namespace LingoEngine.Director.Core.Scores
             foreach (var ch in _channels)
                 ch.UpdateSize();
             UpdateChannelsPosition();
-            _framework.UpdateSize();
-            _framework.RequireRedrawChannels();
+            RedrawCurrentFrameVLine(_channels.Length);
+            if (_framework != null)
+            {
+                _framework.UpdateSize();
+                _framework.RequireRedrawChannels();
+            }
         }
     }
 

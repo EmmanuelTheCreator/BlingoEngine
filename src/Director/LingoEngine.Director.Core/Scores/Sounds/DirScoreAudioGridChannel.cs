@@ -12,7 +12,7 @@ internal partial class DirScoreAudioGridChannel : DirScoreChannel<ILingoSpriteAu
     protected override ILingoSpriteAudioManager GetManager(LingoMovie movie) => movie.Audio;
 
     public DirScoreAudioGridChannel(int spriteNum, IDirScoreManager scoreManager)
-        : base(spriteNum + DirScoreSoundSprite.FrameScriptSpriteNumOffset, scoreManager)
+        : base(spriteNum + LingoSpriteSound.SpriteNumOffset, scoreManager)
     {
     }
 

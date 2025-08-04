@@ -17,10 +17,7 @@ namespace LingoEngine.Director.LGodot.Scores;
 /// <summary>
 /// Simple timeline overlay showing the Score channels and frames.
 /// </summary>
-public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWindow,
-    ICommandHandler<ChangeSpriteRangeCommand>,
-    ICommandHandler<AddSpriteCommand>,
-    ICommandHandler<RemoveSpriteCommand>
+public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWindow
 {
    
     
@@ -34,10 +31,9 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     private readonly Control _scrollContent = new Control();
     private ColorRect _topHClipper;
     private readonly TopChannelsContainer _TopContainer;
+    private readonly Sprites2DChannelsContainer _Sprites2DContainer;
     private LingoPlayer _player;
     private readonly DirScoreGfxValues _gfxValues ;
-    private readonly DirGodotScoreGrid _grid;
-    internal LingoSprite2D? SelectedSprite => _grid.SelectedSprite;
     private readonly DirGodotFrameHeader _framesHeader;
     private readonly DirGodotScoreLeftTopContainer _LeftTopContainer;
     private readonly DirGodotScoreLabelsBar _labelBar;
@@ -50,7 +46,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     private readonly IDirectorEventMediator _mediator;
     private readonly ILingoCommandManager _commandManager;
     private readonly IHistoryManager _historyManager;
-
+    private readonly DirectorScoreWindow _directorScoreWindow;
 
     public DirGodotScoreWindow(IDirectorEventMediator directorMediator, ILingoCommandManager commandManager, IHistoryManager historyManager, DirectorScoreWindow directorScoreWindow, ILingoPlayer player, IDirGodotWindowManager windowManager, IDirSpritesManager spritesManager)
         : base(DirectorMenuCodes.ScoreWindow, "Score", windowManager)
@@ -62,12 +58,14 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _mediator = directorMediator;
         _commandManager = commandManager;
         _historyManager = historyManager;
+        _directorScoreWindow = directorScoreWindow;
         directorScoreWindow.Init(this);
         _TopContainer = new TopChannelsContainer(directorScoreWindow.TopContainer);
+        _Sprites2DContainer = new Sprites2DChannelsContainer(directorScoreWindow.Sprites2DContainer);
         _player = (LingoPlayer) player;
         _player.ActiveMovieChanged += OnActiveMovieChanged;
-        // todo : move them to IO
-        _gfxValues = spritesManager.GfxValues;
+        
+        _gfxValues = _directorScoreWindow.GfxValues;
 
         var height = 400;
         var width = 800;
@@ -81,8 +79,6 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         CustomMinimumSize = Size;
         _LeftTopContainer = new DirGodotScoreLeftTopContainer(_gfxValues, _player.Factory, Mouse,new Vector2(0, _gfxValues.ChannelHeight + 5),_mediator);
         _LeftChannelsContainer = new DirGodotScoreLeftChannelsContainer(_gfxValues,_player.Factory,Mouse, new Vector2(0, _gfxValues.TopStripHeight - _footerMargin), _mediator);
-        _grid = new DirGodotScoreGrid(this, spritesManager, historyManager);
-        _mediator.Subscribe(_grid);
         _framesHeader = new DirGodotFrameHeader(_gfxValues);
         _labelBar = new DirGodotScoreLabelsBar(_gfxValues, commandManager);
         _labelBar.HeaderCollapseChanged += OnHeaderCollapseChanged;
@@ -95,18 +91,14 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _masterScroller.HorizontalScrollMode = ScrollContainer.ScrollMode.ShowAlways;
         _masterScroller.VerticalScrollMode= ScrollContainer.ScrollMode.ShowAlways;
         _masterScroller.Size = new Vector2(Size.X - _gfxValues.ChannelInfoWidth, Size.Y - _gfxValues.TopStripHeight- _footerMargin);
-        
         _masterScroller.AddChild(_scrollContent);
         _marginContainer.AddChild(_masterScroller);
 
         _scrollContent.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         _scrollContent.SizeFlagsVertical = SizeFlags.ExpandFill;
         _scrollContent.MouseFilter = MouseFilterEnum.Ignore;
-        _scrollContent.AddChild(_grid);
+        _scrollContent.AddChild(_Sprites2DContainer);
 
-        _grid.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-        _grid.SizeFlagsVertical = SizeFlags.ExpandFill;
-        _grid.Resized += UpdateScrollSize;
 
         // The top strip with clipper
         _topHClipper = new ColorRect
@@ -120,12 +112,10 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _topStripContent.SizeFlagsVertical = Control.SizeFlags.Fill;
         _topHClipper.AddChild(_topStripContent);
         _topHClipper.AddChild(_collapseButton);
-        //_topHClipper.AddChild(_topGrids);
         _topHClipper.AddChild(_TopContainer);
         _marginContainer.AddChild(_topHClipper);
         _marginContainer.AddChild(_LeftTopContainer);
         _topStripContent.AddChild(_labelBar);
-        //_topStripContent.AddChild(_frameScripts);
         _topStripContent.AddChild(_framesHeader);
 
 
@@ -140,7 +130,6 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _leftChannelsScollClipper.AddChild(_LeftChannelsContainer);
         _marginContainer.AddChild(_leftChannelsScollClipper); 
 
-       //_topGrids.Position = new Vector2(0, _gfxValues.ChannelHeight + 5);
         _TopContainer.Position = new Vector2(0, _gfxValues.ChannelHeight + 5);
         OnHeaderCollapseChanged(false);
         RepositionBars();
@@ -212,6 +201,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
             _LeftChannelsContainer.UpdatePosition(lastPos, _topHeight + _gfxValues.ChannelHeight);
             _leftChannelsScollClipper.ScrollVertical = _masterScroller.ScrollVertical;
         }
+        _directorScoreWindow.ScollX = _masterScroller.ScrollHorizontal;
         _topStripContent.Position = new Vector2(-_masterScroller.ScrollHorizontal, _topStripContent.Position.Y);
         if (_TopContainer.ScrollX != _masterScroller.ScrollHorizontal)
             _TopContainer.ScrollX = _masterScroller.ScrollHorizontal;
@@ -219,7 +209,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
 
     private void RefreshGrid()
     {
-        _grid.MarkSpriteDirty();
+        //_grid.MarkSpriteDirty();
     }
 
     private void UpdateScrollSize()
@@ -260,7 +250,6 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     public void SetActiveMovie(LingoMovie? movie)
     {
         _movie = movie;
-        _grid.SetMovie(movie);
         _framesHeader.SetMovie(movie);
         //_frameScripts.SetMovie(movie);
         _LeftTopContainer.SetMovie(movie);
@@ -276,126 +265,82 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     protected override void Dispose(bool disposing)
     {
         _player.ActiveMovieChanged -= OnActiveMovieChanged;
-        _grid.Dispose();
         _labelBar.Dispose();
         _LeftTopContainer.Dispose();
         _TopContainer.Dispose();
         _masterScroller.Dispose();
         //_hScroller.Dispose();
         _LeftChannelsContainer.Dispose();
-        _mediator.Unsubscribe(_grid);
         base.Dispose(disposing);
     }
 
 
 
-    #region Commands
-
-    public bool CanExecute(ChangeSpriteRangeCommand command) => true;
-    public bool Handle(ChangeSpriteRangeCommand command)
-    {
-        if (command.EndChannel != command.Sprite.SpriteNum - 1)
-            command.Movie.ChangeSpriteChannel(command.Sprite, command.EndChannel);
-        command.Sprite.BeginFrame = command.EndBegin;
-        command.Sprite.EndFrame = command.EndEnd;
-        _historyManager.Push(command.ToUndo(RefreshGrid), command.ToRedo(RefreshGrid));
-        RefreshGrid();
-        return true;
-    }
-
-    public bool CanExecute(AddSpriteCommand command) => true;
-    public bool Handle(AddSpriteCommand command)
-    {
-        var sprite = command.Movie.AddSprite(command.Channel, command.BeginFrame, command.EndFrame, 0, 0,
-            s => s.SetMember(command.Member));
-        _historyManager.Push(command.ToUndo(sprite, RefreshGrid), command.ToRedo(RefreshGrid));
-        RefreshGrid();
-        return true;
-    }
-
-    public bool CanExecute(RemoveSpriteCommand command) => true;
-    public bool Handle(RemoveSpriteCommand command)
-    {
-        var movie = command.Movie;
-        var sprite = command.Sprite;
-
-        int channel = sprite.SpriteNum;
-        int begin = sprite.BeginFrame;
-        int end = sprite.EndFrame;
-        var member = sprite.Member;
-        string name = sprite.Name;
-        float x = sprite.LocH;
-        float y = sprite.LocV;
-
-        sprite.RemoveMe();
-
-        LingoSprite2D current = sprite;
-        void refresh() => RefreshGrid();
-
-        Action undo = () =>
-        {
-            current = movie.AddSprite(channel, begin, end, x, y, s =>
-            {
-                s.Name = name;
-                if (member != null)
-                    s.SetMember(member);
-            });
-            refresh();
-        };
-
-        Action redo = () =>
-        {
-            current.RemoveMe();
-            refresh();
-        };
-
-        _historyManager.Push(undo, redo);
-        RefreshGrid();
-        return true;
-    }
-
-
-    #endregion
+   
 
 
    
-    private partial class TopChannelsContainer : Control, IDirScoreFrameworkGridContainer
+    private partial class TopChannelsContainer : ChannelsContainer<DirScoreGridTopContainer>
     {
-        private DirScoreTopGridContainer _topDirContainer;
+        public TopChannelsContainer(DirScoreGridTopContainer topContainer) : base(topContainer)
+        {
+        }
+
+        internal void SetCollapsed(bool collapsed)
+        {
+            _DirScoreContainer.Collapsed = collapsed;
+        }
+    }
+    private partial class Sprites2DChannelsContainer : ChannelsContainer<DirScoreGridSprites2DContainer>
+    {
+        public Sprites2DChannelsContainer(DirScoreGridSprites2DContainer topContainer) : base(topContainer)
+        {
+        }
+    }
+    private abstract partial class ChannelsContainer<TDirScoreGridContainer> : Control, IDirScoreFrameworkGridContainer
+        where TDirScoreGridContainer : DirScoreGridContainer
+    {
+        protected TDirScoreGridContainer _DirScoreContainer;
         private float _scrollX;
         private readonly LingoGodotGfxCanvas _gridLines;
         private readonly LingoGodotGfxCanvas _currentFrame;
-        private List<TopContainerChannel> _channels = new List<TopContainerChannel>();
+        private List<ContainerChannel> _channels = new List<ContainerChannel>();
         public float CurrentFrameX { get => _currentFrame.Position.X; set => _currentFrame.Position = new Vector2(value, _currentFrame.Position.Y); }
 
-        public TopChannelsContainer(DirScoreTopGridContainer topContainer)
+        public ChannelsContainer(TDirScoreGridContainer topContainer)
         {
-            _topDirContainer = topContainer;
-            _topDirContainer.Init(this);
-            _gridLines = _topDirContainer.CanvasGridLines.Framework<LingoGodotGfxCanvas>();
-            _currentFrame = _topDirContainer.CanvasCurrentFrame.Framework<LingoGodotGfxCanvas>();
-            Position = _topDirContainer.Position.ToVector2();
-            Size = _topDirContainer.Size.ToVector2();
+            _DirScoreContainer = topContainer;
+            _DirScoreContainer.Init(this);
+            _gridLines = _DirScoreContainer.CanvasGridLines.Framework<LingoGodotGfxCanvas>();
+            _currentFrame = _DirScoreContainer.CanvasCurrentFrame.Framework<LingoGodotGfxCanvas>();
+            Position = _DirScoreContainer.Position.ToVector2();
+            Size = _DirScoreContainer.Size.ToVector2();
             CustomMinimumSize = Size;
             MouseFilter = MouseFilterEnum.Ignore;
 
             AddChild(_gridLines);
-            AddChild(_currentFrame);
             CreateChannels();
+            
         }
 
-
+        public void RequireRecreateChannels() => CreateChannels();
         public void CreateChannels()
         {
-            foreach (var channel in _channels)
-                channel.Dispose();
-            _channels.Clear();
-            foreach (var ch in _topDirContainer.Channels)
+            if (_channels.Count > 0)
             {
-                var channel = new TopContainerChannel(ch);
+                foreach (var channel in _channels)
+                    channel.Dispose();
+                _channels.Clear();
+            }
+            foreach (var ch in _DirScoreContainer.Channels)
+            {
+                var channel = new ContainerChannel(ch);
                 _channels.Add(channel);
                 AddChild(channel);
             }
+            if (_currentFrame.GetParent() != null)
+                RemoveChild(_currentFrame);
+            AddChild(_currentFrame);
         }
         protected override void Dispose(bool disposing)
         {
@@ -404,26 +349,25 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
             base.Dispose(disposing);
 
         }
+       
         public void RequireRedrawChannels() 
         {
             foreach (var ch in _channels)
                 ch.RequireSetPosAndSize();
+            CurrentFrameX = _DirScoreContainer.CurrentFrameX;
         }
 
-        internal void SetCollapsed(bool collapsed)
-        {
-            _topDirContainer.Collapsed = collapsed;
-        }
+       
 
         public void UpdateSize()
         {
-            if (_topDirContainer.Size.X == 0) return;
-            var size = _topDirContainer.Size.ToVector2();
+            if (_DirScoreContainer.Size.X == 0) return;
+            var size = _DirScoreContainer.Size.ToVector2();
             var width = size.X;
             var height = size.Y;
             CustomMinimumSize = size;
             Size = size;
-            
+            CurrentFrameX = _DirScoreContainer.CurrentFrameX;
         }
 
         public float ScrollX
@@ -437,11 +381,11 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         }
     }
 
-    private partial class TopContainerChannel : Control, IDirScoreChannelFramework
+    private partial class ContainerChannel : Control, IDirScoreChannelFramework
     {
         private readonly DirScoreChannel _directorChannel;
 
-        public TopContainerChannel(DirScoreChannel directorChannel)
+        public ContainerChannel(DirScoreChannel directorChannel)
         {
             _directorChannel = directorChannel;
             _directorChannel.Init(this);

@@ -11,7 +11,7 @@ internal partial class DirScoreTempoGridChannel : DirScoreChannel<ILingoTempoSpr
     //private readonly HSlider _slider = new();
     private int _editFrame;
     public DirScoreTempoGridChannel(IDirScoreManager scoreManager)
-        : base(DirScoreTempoSprite.FrameScriptSpriteNum, scoreManager)
+        : base(LingoTempoSprite.SpriteNumOffset+1, scoreManager)
     {
         //_dialog.Title = "Tempo";
         //_slider.MinValue = 1;

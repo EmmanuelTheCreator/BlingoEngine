@@ -10,7 +10,7 @@ public interface ILingoSpriteTransitionManager : ILingoSpriteManager<LingoTransi
 internal class LingoSpriteTransitionManager : LingoSpriteManager<LingoTransitionSprite>, ILingoSpriteTransitionManager
 {
  
-    public LingoSpriteTransitionManager(LingoMovie movie, LingoMovieEnvironment environment) : base(movie, environment)
+    public LingoSpriteTransitionManager(LingoMovie movie, LingoMovieEnvironment environment) : base(LingoTransitionSprite.SpriteNumOffset, movie, environment)
     {
     }
 

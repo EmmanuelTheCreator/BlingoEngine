@@ -102,8 +102,9 @@ namespace LingoEngine.Inputs
         bool LeftMouseDown { get; }
         bool MiddleMouseDown { get; }
         ILingoCursor Cursor { get; }
+        void SetCursor(LingoMouseCursor cursorType);
 
-      
+
         ILingoMouseSubscription OnMouseDown(Action<LingoMouseEvent> handler);
         ILingoMouseSubscription OnMouseUp(Action<LingoMouseEvent> handler);
         ILingoMouseSubscription OnMouseMove(Action<LingoMouseEvent> handler);
@@ -208,6 +209,12 @@ namespace LingoEngine.Inputs
             mouseFrameworkObj.ReplaceMouseObj(this);
         }
 
+        public void SetCursor(LingoMouseCursor cursorType)
+        {
+            if (_cursor.CursorType == cursorType) return;
+            _cursor.CursorType = cursorType;
+            _frameworkObj.SetCursor(cursorType);
+        }
         /// <summary>
         /// Called from communiction framework mouse
         /// </summary>

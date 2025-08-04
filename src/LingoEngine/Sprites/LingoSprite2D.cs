@@ -13,6 +13,7 @@ namespace LingoEngine.Sprites
 {
     public class LingoSprite2D : LingoSprite, ILingoMouseEventHandler, ILingoSprite
     {
+        public const int SpriteNumOffset = 6;
         private readonly List<LingoSpriteBehavior> _behaviors = new();
         public IReadOnlyList<LingoSpriteBehavior> Behaviors => _behaviors;
 
@@ -20,7 +21,6 @@ namespace LingoEngine.Sprites
         private bool isMouseInside = false;
         private bool isDragging = false;
         private bool isDraggable = false;  // A flag to control dragging behavior
-        private bool _lock = false;
         private LingoMember? _Member;
         private Action<LingoSprite2D>? _onRemoveMe;
         private bool _isFocus = false;
@@ -34,6 +34,7 @@ namespace LingoEngine.Sprites
 
 
         #region Properties
+        public override int SpriteNumWithChannel => SpriteNum + SpriteNumOffset;
         internal LingoSpriteChannel? SpriteChannel { get; set; }
         public ILingoFrameworkSprite FrameworkObj => _frameworkSprite;
         public T Framework<T>() where T : class, ILingoFrameworkSprite => (T)_frameworkSprite;
@@ -131,11 +132,7 @@ namespace LingoEngine.Sprites
 
       
         public bool Editable { get; set; }
-        public bool Lock
-        {
-            get => _lock;
-            set => _lock = value;
-        }
+       
         public bool IsDraggable
         {
             get => isDraggable;
@@ -588,7 +585,7 @@ When a movie stops, events occur in the following order:
 
         
 
-        public override void RemoveMe()
+        public override void OnRemoveMe()
         {
             _frameworkSprite.RemoveMe();
             if (_onRemoveMe != null)

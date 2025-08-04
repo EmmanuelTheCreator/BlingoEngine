@@ -13,7 +13,7 @@ internal partial class DirScoreColorPaletteGridChannel : DirScoreChannel<ILingoS
     private int _editFrame;
     private LingoColorPaletteFrameSettings? _currentSettings;
     public DirScoreColorPaletteGridChannel(IDirScoreManager scoreManager)
-        : base(DirScoreColorPaletteSprite.FrameScriptSpriteNum, scoreManager)
+        : base(LingoColorPaletteSprite.SpriteNumOffset+1, scoreManager)
     {
         //_dialog.Title = "Color palette";
         //_slider.MinValue = 1;

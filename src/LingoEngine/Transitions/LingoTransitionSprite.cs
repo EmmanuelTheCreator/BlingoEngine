@@ -5,12 +5,14 @@ namespace LingoEngine.Transitions;
 
 public class LingoTransitionSprite : LingoSprite
 {
+    public const int SpriteNumOffset = 2;
     private readonly Action<LingoTransitionSprite> _removeMe;
 
     public int Frame { get; set; }
     public int TransitionId { get; set; }
 
     public LingoTransitionMember? Member { get; set; }
+    public override int SpriteNumWithChannel => SpriteNumOffset + SpriteNum;
 
     public LingoTransitionSprite(ILingoMovieEnvironment environment, Action<LingoTransitionSprite> removeMe) : base(environment)
     {
@@ -18,7 +20,7 @@ public class LingoTransitionSprite : LingoSprite
         IsSingleFrame = true;
     }
 
-    public override void RemoveMe()
+    public override void OnRemoveMe()
     {
         _removeMe(this);
     }

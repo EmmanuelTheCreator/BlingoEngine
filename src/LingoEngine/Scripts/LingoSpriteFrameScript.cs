@@ -7,11 +7,12 @@ namespace LingoEngine.Scripts;
 
 public class LingoSpriteFrameScript : LingoSprite
 {
-    public const int FrameScriptSpriteNum = 6;
+    public const int SpriteNumOffset = 5;
     private Action<LingoSpriteFrameScript> _onRemoveMe;
   
 
     public int Channel { get; protected set; }
+    public override int SpriteNumWithChannel => SpriteNum + SpriteNumOffset;
     public LingoMemberScript Member { get; protected set; }
     public LingoSpriteBehavior? Behavior { get; private set; }
 
@@ -27,14 +28,14 @@ public class LingoSpriteFrameScript : LingoSprite
     internal void Init(int channel, int beginFrame, int endFrame, LingoMemberScript frameScript)
     {
         Channel = channel;
-        SpriteNum = FrameScriptSpriteNum;// Tempo = 1, Colorpalette= 2, transition = 3, Audio1 = 4, Audio2 = 5, FrameScript = 6
+        SpriteNum = 1;// Tempo = 1, Colorpalette= 2, transition = 3, Audio1 = 4, Audio2 = 5, FrameScript = 6
         BeginFrame = beginFrame;
         EndFrame = endFrame;
         Member = frameScript;
         Name = frameScript.Name ?? string.Empty;
     }
 
-    public override void RemoveMe()
+    public override void OnRemoveMe()
     {
         if (Behavior != null)
             _environment.Events.Unsubscribe(Behavior);
@@ -45,7 +46,7 @@ public class LingoSpriteFrameScript : LingoSprite
     {
         base.BeginSprite();
         if (Behavior == null) return;
-        _environment.Events.Subscribe(Behavior, FrameScriptSpriteNum);
+        _environment.Events.Subscribe(Behavior, SpriteNumOffset+ SpriteNum);
         if (Behavior is IHasBeginSpriteEvent beginSpriteEvent)
             beginSpriteEvent.BeginSprite();
     }
