@@ -224,6 +224,9 @@ namespace LingoEngine.Movies
         {
             if (_isPlaying)
             {
+                if (_waitingForInput || _waitingForCuePoint)
+                    return;
+
                 if (_delayTicks > 0)
                 {
                     _delayTicks--;
@@ -332,10 +335,37 @@ namespace LingoEngine.Movies
         }
 
         private int _delayTicks;
+        private bool _waitingForInput;
+        private bool _waitingForCuePoint;
+        private int _waitCueChannel;
+        private int _waitCuePoint;
         public void Delay(int ticks)
         {
             if (ticks <= 0) return;
             _delayTicks += ticks;
+        }
+
+        public void WaitForInput()
+        {
+            _waitingForInput = true;
+        }
+
+        public void ContinueAfterInput()
+        {
+            _waitingForInput = false;
+        }
+
+        public void WaitForCuePoint(int channel, int point)
+        {
+            _waitingForCuePoint = true;
+            _waitCueChannel = channel;
+            _waitCuePoint = point;
+        }
+
+        public void CuePointReached(int channel, int point)
+        {
+            if (_waitingForCuePoint && channel == _waitCueChannel && point == _waitCuePoint)
+                _waitingForCuePoint = false;
         }
 
         public void GoNext()

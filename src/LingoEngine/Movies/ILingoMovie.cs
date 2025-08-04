@@ -135,6 +135,21 @@ namespace LingoEngine.Movies
         void Delay(int ticks);
 
         /// <summary>
+        /// Pause playback until either a mouse button is clicked or a key is pressed.
+        /// </summary>
+        void WaitForInput();
+
+        /// <summary>
+        /// Resumes playback after <see cref="WaitForInput"/> was called.
+        /// </summary>
+        void ContinueAfterInput();
+
+        /// <summary>
+        /// Pause playback until the specified cue point on a sound or video channel is reached.
+        /// </summary>
+        void WaitForCuePoint(int channel, int point);
+
+        /// <summary>
         /// Sends the playhead to the next marker in the movie.
         /// Lingo: goNext
         /// </summary>
