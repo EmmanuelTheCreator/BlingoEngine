@@ -2,6 +2,7 @@
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Tools.Commands;
 using LingoEngine.Director.Core.Windowing.Commands;
+using LingoEngine.Gfx;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Director.Core.Windowing
@@ -9,6 +10,9 @@ namespace LingoEngine.Director.Core.Windowing
     public interface IDirFrameworkWindowManager
     {
         void SetActiveWindow(IDirectorWindowRegistration window);
+        void ShowConfirmDialog(string title, string message, Action<bool> onResult);
+        void ShowCustomDialog(string title, ILingoFrameworkGfxPanel panel);
+        void ShowNotification(string message);
     }
     public interface IDirectorWindowRegistration
     {
@@ -24,6 +28,9 @@ namespace LingoEngine.Director.Core.Windowing
         bool CloseWindow(string windowCode);
         void Init(IDirFrameworkWindowManager frameworkWindowManager);
         void SetActiveWindow(string windowCode);
+        void ShowConfirmDialog(string title, string message, Action<bool> onResult);
+        void ShowCustomDialog(string title, ILingoFrameworkGfxPanel panel);
+        void ShowNotification(string message);
     }
     public class DirectorWindowManager : IDirectorWindowManager,
         ICommandHandler<OpenWindowCommand>,
@@ -88,6 +95,15 @@ namespace LingoEngine.Director.Core.Windowing
             _ActiveWindow = window;
             _frameworkWindowManager.SetActiveWindow(registration);
         }
+
+        public void ShowConfirmDialog(string title, string message, Action<bool> onResult)
+            => _frameworkWindowManager.ShowConfirmDialog(title, message, onResult);
+
+        public void ShowCustomDialog(string title, ILingoFrameworkGfxPanel panel)
+            => _frameworkWindowManager.ShowCustomDialog(title, panel);
+
+        public void ShowNotification(string message)
+            => _frameworkWindowManager.ShowNotification(message);
 
 
         public bool OpenWindow(string windowCode)
