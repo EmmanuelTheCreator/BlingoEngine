@@ -14,9 +14,10 @@ namespace LingoEngine.Director.Core.Scores
         private readonly LingoPlayer _player;
         private LingoMovie? _movie;
 
-        public DirScoreTopGridContainer TopContainer { get; private set; }
+        public DirScoreGridTopContainer TopContainer { get; private set; }
+        public DirScoreGridSprites2DContainer Sprites2DContainer { get; private set; }
 
-#pragma warning disable CS8618 
+#pragma warning disable CS8618
         public DirectorScoreWindow(IDirSpritesManager spritesManager, ILingoPlayer player, ILingoFrameworkFactory factory, DirScoreManager scoreManager) : base(factory)
 #pragma warning restore CS8618 
         {
@@ -29,21 +30,35 @@ namespace LingoEngine.Director.Core.Scores
         public override void Init(IDirFrameworkWindow frameworkWindow)
         {
             base.Init(frameworkWindow);
-            TopContainer = new DirScoreTopGridContainer(_scoreManager, Mouse);
+            TopContainer = new DirScoreGridTopContainer(_scoreManager, Mouse);
+            Sprites2DContainer = new DirScoreGridSprites2DContainer(_scoreManager, Mouse);
         }
         private void OnActiveMovieChanged(ILingoMovie? movie)
         {
             if (_movie != null)
-                _movie.CurrentFrameChanged -= CurrentFrameChanged;
+            {
+                _movie.CurrentFrameChanged -= OnCurrentFrameChanged;
+                _movie.SpriteListChanged -= OnSpriteListChanged;
+            }
             _movie = movie as LingoMovie;
             if (_movie != null)
-                _movie.CurrentFrameChanged += CurrentFrameChanged;
+            {
+                _movie.CurrentFrameChanged += OnCurrentFrameChanged;
+                _movie.SpriteListChanged += OnSpriteListChanged;
+            }
             TopContainer.SetMovie(_movie);
+            Sprites2DContainer.SetMovie(_movie);
         }
 
-        public void CurrentFrameChanged(int currentFrame)
+        private void OnSpriteListChanged()
+        {
+            Sprites2DContainer.SpriteListChanged();
+        }
+
+        public void OnCurrentFrameChanged(int currentFrame)
         {
             TopContainer.CurrentFrameChanged(currentFrame);
+            Sprites2DContainer.CurrentFrameChanged(currentFrame);
         }
 
         protected override void OnRaiseKeyDown(LingoKey lingoKey)

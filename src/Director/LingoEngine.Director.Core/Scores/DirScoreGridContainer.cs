@@ -10,6 +10,12 @@ using LingoEngine.Primitives;
 
 namespace LingoEngine.Director.Core.Scores
 {
+    public interface IDirScoreFrameworkGridContainer
+    {
+        float CurrentFrameX { get; set; }
+        void RequireRedrawChannels();
+        void UpdateSize();
+    }
     public abstract class DirScoreGridContainer : IDisposable
     {
         protected IDirScoreFrameworkGridContainer _framework;
@@ -22,7 +28,8 @@ namespace LingoEngine.Director.Core.Scores
         protected LingoMovie? _movie;
         protected ILingoMouseSubscription _mouseSub;
         protected int _currentFrame;
-        protected DirScoreChannel[] _channels;
+        protected Dictionary<int,DirScoreChannel> _channelsDic = new();
+        protected DirScoreChannel[] _channels = [];
 
         public LingoPoint Position { get; set; }
         public LingoPoint Size { get; set; }
@@ -62,7 +69,11 @@ namespace LingoEngine.Director.Core.Scores
             _canvasCurrentFrame.Dispose();
         }
 
-       
+        protected void SetChannels(DirScoreChannel[] channels)
+        {
+            _channels = channels;
+            _channelsDic = _channels.ToDictionary(x => x.SpriteNum);
+        }
 
         protected void UpdateChannelsPosition()
         {
@@ -79,7 +90,7 @@ namespace LingoEngine.Director.Core.Scores
         protected virtual DirScoreChannel? GetChannelByDisplayIndex(int index)
         {
             if (index < 0 || index >= _channels.Length) return null;
-            return _channels[index];
+            return _channelsDic[index+1];
         }
 
         public void HandleMouseEvent(LingoMouseEvent mouseEvent)
@@ -94,9 +105,12 @@ namespace LingoEngine.Director.Core.Scores
                 _spritesManager.ScoreManager.HandleMouse(mouseEvent, ch.SpriteNum, mouseFrame);
         }
 
-        public void SetMovie(LingoMovie? movie)
+        public virtual void SetMovie(LingoMovie? movie)
         {
             _movie = movie;
+            if (_channels == null || _channels.Length == 0)
+                return;
+            
             foreach (var ch in _channels)
                 ch.SetMovie(movie);
             UpdateSize();

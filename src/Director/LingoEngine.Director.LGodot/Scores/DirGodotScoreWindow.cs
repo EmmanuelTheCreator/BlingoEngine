@@ -34,6 +34,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     private readonly Control _scrollContent = new Control();
     private ColorRect _topHClipper;
     private readonly TopChannelsContainer _TopContainer;
+    private readonly Sprites2DChannelsContainer _Sprites2DContainer;
     private LingoPlayer _player;
     private readonly DirScoreGfxValues _gfxValues ;
     private readonly DirGodotScoreGrid _grid;
@@ -64,6 +65,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _historyManager = historyManager;
         directorScoreWindow.Init(this);
         _TopContainer = new TopChannelsContainer(directorScoreWindow.TopContainer);
+        _Sprites2DContainer = new Sprites2DChannelsContainer(directorScoreWindow.Sprites2DContainer);
         _player = (LingoPlayer) player;
         _player.ActiveMovieChanged += OnActiveMovieChanged;
         // todo : move them to IO
@@ -95,6 +97,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _masterScroller.HorizontalScrollMode = ScrollContainer.ScrollMode.ShowAlways;
         _masterScroller.VerticalScrollMode= ScrollContainer.ScrollMode.ShowAlways;
         _masterScroller.Size = new Vector2(Size.X - _gfxValues.ChannelInfoWidth, Size.Y - _gfxValues.TopStripHeight- _footerMargin);
+        //_topHClipper.AddChild(_Sprites2DContainer);
         
         _masterScroller.AddChild(_scrollContent);
         _marginContainer.AddChild(_masterScroller);
@@ -102,7 +105,8 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _scrollContent.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         _scrollContent.SizeFlagsVertical = SizeFlags.ExpandFill;
         _scrollContent.MouseFilter = MouseFilterEnum.Ignore;
-        _scrollContent.AddChild(_grid);
+        //_scrollContent.AddChild(_grid);
+        _scrollContent.AddChild(_Sprites2DContainer);
 
         _grid.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         _grid.SizeFlagsVertical = SizeFlags.ExpandFill;
@@ -359,16 +363,34 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
 
 
    
-    private partial class TopChannelsContainer : Control, IDirScoreFrameworkGridContainer
+    private partial class TopChannelsContainer : ChannelsContainer<DirScoreGridTopContainer>
     {
-        private DirScoreTopGridContainer _topDirContainer;
+        public TopChannelsContainer(DirScoreGridTopContainer topContainer) : base(topContainer)
+        {
+        }
+
+        internal void SetCollapsed(bool collapsed)
+        {
+            _topDirContainer.Collapsed = collapsed;
+        }
+    }
+    private partial class Sprites2DChannelsContainer : ChannelsContainer<DirScoreGridSprites2DContainer>
+    {
+        public Sprites2DChannelsContainer(DirScoreGridSprites2DContainer topContainer) : base(topContainer)
+        {
+        }
+    }
+    private abstract partial class ChannelsContainer<TDirScoreGridContainer> : Control, IDirScoreFrameworkGridContainer
+        where TDirScoreGridContainer : DirScoreGridContainer
+    {
+        protected TDirScoreGridContainer _topDirContainer;
         private float _scrollX;
         private readonly LingoGodotGfxCanvas _gridLines;
         private readonly LingoGodotGfxCanvas _currentFrame;
         private List<TopContainerChannel> _channels = new List<TopContainerChannel>();
         public float CurrentFrameX { get => _currentFrame.Position.X; set => _currentFrame.Position = new Vector2(value, _currentFrame.Position.Y); }
 
-        public TopChannelsContainer(DirScoreTopGridContainer topContainer)
+        public ChannelsContainer(TDirScoreGridContainer topContainer)
         {
             _topDirContainer = topContainer;
             _topDirContainer.Init(this);
@@ -410,10 +432,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
                 ch.RequireSetPosAndSize();
         }
 
-        internal void SetCollapsed(bool collapsed)
-        {
-            _topDirContainer.Collapsed = collapsed;
-        }
+       
 
         public void UpdateSize()
         {

@@ -58,6 +58,7 @@ namespace LingoEngine.Movies
         public ILingoTempoSpriteManager Tempos => _tempoManager;
         public ILingoSpriteColorPaletteSpriteManager ColorPalettes => _paletteManager;
         public ILingoFrameScriptSpriteManager FrameScripts => _frameScriptManager;
+        public LingoSprite2DManager Sprite2DManager => _spriteManager;
 
         public string Name { get; set; }
 

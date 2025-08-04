@@ -21,7 +21,7 @@ namespace LingoEngine.Sprites
 
 
 
-    internal abstract class LingoSpriteManager : ILingoSpriteManager
+    public abstract class LingoSpriteManager : ILingoSpriteManager
     {
         protected readonly LingoMovieEnvironment _environment;
         protected readonly LingoMovie _movie;
@@ -51,7 +51,7 @@ namespace LingoEngine.Sprites
 
 
 
-    internal abstract class LingoSpriteManager<TSprite> : LingoSpriteManager
+    public abstract class LingoSpriteManager<TSprite> : LingoSpriteManager
         where TSprite : LingoSprite
     {
        

@@ -4,7 +4,7 @@ using LingoEngine.Movies;
 
 namespace LingoEngine.Sprites
 {
-    internal class LingoSprite2DManager : LingoSpriteManager<LingoSprite2D>
+    public class LingoSprite2DManager : LingoSpriteManager<LingoSprite2D> , ILingoSpriteManager<LingoSprite2D>
     {
         //protected readonly Dictionary<int, LingoSprite2D> _frameSpriteBehaviors = new();
         protected readonly LingoStageMouse _lingoMouse;
