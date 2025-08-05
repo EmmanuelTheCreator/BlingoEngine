@@ -1,10 +1,12 @@
 using Godot;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
-using System;
 using LingoEngine.Styles;
 using LingoEngine.LGodot.Primitives;
 using static Godot.TextServer;
+using LingoEngine.LGodot.Texts;
+using LingoEngine.Texts;
+
 
 namespace LingoEngine.LGodot.Gfx
 {
@@ -24,6 +26,7 @@ namespace LingoEngine.LGodot.Gfx
             label.Init(this);
             LabelSettings = new LabelSettings();
             AutowrapMode = TextServer.AutowrapMode.Off;
+            
         }
 
         //public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
@@ -32,6 +35,7 @@ namespace LingoEngine.LGodot.Gfx
         public float Height { get => Size.Y; set { Size = new Vector2(Size.X, value); CustomMinimumSize = new Vector2(Size.X, value); } }
     
         public bool Visibility { get => Visible; set => Visible = value; }
+        public LingoTextAlignment TextAlignment { get => HorizontalAlignment.ToLingo(); set => HorizontalAlignment = value.ToGodot(); }
         string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
 
         public LingoMargin Margin

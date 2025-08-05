@@ -7,6 +7,7 @@ using LingoEngine.Core;
 using LingoEngine.Events;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Gfx;
+using LingoEngine.ColorPalettes;
 
 
 namespace LingoEngine.Director.Core.Scores
@@ -16,6 +17,7 @@ namespace LingoEngine.Director.Core.Scores
         private readonly IDirSpritesManager _spritesManager;
         private readonly DirScoreManager _scoreManager;
         private readonly IDirectorWindowManager _windowManager;
+        private readonly ILingoColorPaletteDefinitions _paletteDefinitions;
         private readonly LingoPlayer _player;
         private LingoMovie? _movie;
         protected ILingoMouseSubscription _mouseSub;
@@ -25,12 +27,13 @@ namespace LingoEngine.Director.Core.Scores
         public float ScollX { get; set; }
 
 #pragma warning disable CS8618
-        public DirectorScoreWindow(IDirSpritesManager spritesManager, ILingoPlayer player, ILingoFrameworkFactory factory, DirScoreManager scoreManager, IDirectorWindowManager windowManager) : base(factory)
+        public DirectorScoreWindow(IDirSpritesManager spritesManager, ILingoPlayer player, ILingoFrameworkFactory factory, DirScoreManager scoreManager, IDirectorWindowManager windowManager, ILingoColorPaletteDefinitions paletteDefinitions) : base(factory)
 #pragma warning restore CS8618 
         {
             _spritesManager = spritesManager;
             _scoreManager = scoreManager;
             _windowManager = windowManager;
+            _paletteDefinitions = paletteDefinitions;
             _player = (LingoPlayer)player;
             _player.ActiveMovieChanged += OnActiveMovieChanged;
             
@@ -40,7 +43,7 @@ namespace LingoEngine.Director.Core.Scores
         {
             base.Init(frameworkWindow);
             _mouseSub = Mouse.OnMouseEvent(HandleMouseEvent);
-            TopContainer = new DirScoreGridTopContainer(_scoreManager, ShowConfirmDialog);
+            TopContainer = new DirScoreGridTopContainer(_scoreManager, _paletteDefinitions, ShowConfirmDialog);
             Sprites2DContainer = new DirScoreGridSprites2DContainer(_scoreManager, ShowConfirmDialog);
         }
         public override void Dispose()

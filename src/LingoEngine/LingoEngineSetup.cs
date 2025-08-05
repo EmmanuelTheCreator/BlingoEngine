@@ -8,6 +8,7 @@ using LingoEngine.Casts;
 using LingoEngine.Sprites;
 using LingoEngine.Commands;
 using LingoEngine.Projects;
+using LingoEngine.ColorPalettes;
 
 namespace LingoEngine
 {
@@ -23,6 +24,7 @@ namespace LingoEngine
                    .AddSingleton<LingoWindow>()
                    .AddSingleton<LingoClock>()
                    .AddSingleton<LingoSystem>()
+                   .AddSingleton<ILingoColorPaletteDefinitions, LingoColorPaletteDefinitions>()
                    .AddTransient<ILingoPlayer>(p => p.GetRequiredService<LingoPlayer>())
                    .AddTransient<ILingoCastLibsContainer>(p => p.GetRequiredService<LingoCastLibsContainer>())
                    .AddTransient<ILingoWindow>(p => p.GetRequiredService<LingoWindow>())

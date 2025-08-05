@@ -1,4 +1,5 @@
-﻿using LingoEngine.Director.Core.Scores.ColorPalettes;
+﻿using LingoEngine.ColorPalettes;
+using LingoEngine.Director.Core.Scores.ColorPalettes;
 using LingoEngine.Director.Core.Scores.FrameScripts;
 using LingoEngine.Director.Core.Scores.Sounds;
 using LingoEngine.Director.Core.Scores.Tempos;
@@ -23,13 +24,13 @@ namespace LingoEngine.Director.Core.Scores
         }
 
 
-        public DirScoreGridTopContainer(IDirScoreManager scoreManager, Func<string, Gfx.ILingoFrameworkGfxPanel, Windowing.IDirectorWindowDialogReference?> showConfirmDialog)
+        public DirScoreGridTopContainer(IDirScoreManager scoreManager, ILingoColorPaletteDefinitions paletteDefinitions, Func<string, Gfx.ILingoFrameworkGfxPanel, Windowing.IDirectorWindowDialogReference?> showConfirmDialog)
             :base(scoreManager, 6, showConfirmDialog) 
         {
             SetChannels(
             [
                 new DirScoreTempoGridChannel(_scoreManager),
-                new DirScoreColorPaletteGridChannel(_scoreManager),
+                new DirScoreColorPaletteGridChannel(_scoreManager,paletteDefinitions),
                 new DirScoreTransitionGridChannel(_scoreManager),
                 new DirScoreAudioGridChannel(1, _scoreManager),
                 new DirScoreAudioGridChannel(2, _scoreManager),

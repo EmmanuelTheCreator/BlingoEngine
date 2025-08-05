@@ -7,6 +7,7 @@ using LingoEngine.Bitmaps;
 using LingoEngine.Director.Core.Inspector;
 using System.Collections.Generic;
 using LingoEngine.Primitives;
+using LingoEngine.Texts;
 
 
 namespace LingoEngine.Director.Core.UI
@@ -19,11 +20,14 @@ namespace LingoEngine.Director.Core.UI
             var builder = new GfxPanelBuilder(panel, factory);
             return builder;
         }
-        public static LingoGfxLabel SetLabelAt(this LingoGfxPanel container, string name, float x, float y, string? text = null, int fontSize = 11)
+        public static LingoGfxLabel SetLabelAt(this LingoGfxPanel container, string name, float x, float y, string? text = null, int fontSize = 11, int? labelWidth = null, LingoTextAlignment lingoTextAlignment = LingoTextAlignment.Left)
         {
             LingoGfxLabel lbl = container.Factory.CreateLabel(name,text ??"");
             lbl.FontColor = DirectorColors.TextColorLabels;
             lbl.FontSize = fontSize;
+            if(labelWidth.HasValue)
+                lbl.Width = labelWidth.Value;
+            lbl.TextAlignment = lingoTextAlignment;
             container.AddItem(lbl, x, y);
             return lbl;
         }
@@ -111,7 +115,7 @@ namespace LingoEngine.Director.Core.UI
             container.AddVLine("VLineBtns", container.Width - 100, 10, container.Height - 10 - 10);
 
             container.SetButtonAt("OKBtn", "OK", container.Width - 90, 10, () => { okAction(); onClose(); },80);
-            container.SetButtonAt("CancelBtn", "Cancel", 410, 40, onClose,80);
+            container.SetButtonAt("CancelBtn", "Cancel", container.Width - 90, 40, onClose,80);
         }
 
     }
