@@ -51,7 +51,7 @@ namespace LingoEngine.Director.Core.Styles
 
         // Score grid
         public static LingoColor ScoreGridLineLight = LingoColor.FromHex("f9f9f9");
-        public static LingoColor ScoreGridLineDark = LingoColor.FromHex("d0d0d0");
+        public static LingoColor ScoreGridLineDark = LingoColor.FromHex("f0f0f0");
 
         public static LingoColor LineLight = LingoColor.FromHex("f9f9f9");
         public static LingoColor LineDark = LingoColor.FromHex("d0d0d0");

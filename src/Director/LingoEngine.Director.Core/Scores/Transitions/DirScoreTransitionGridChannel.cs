@@ -9,6 +9,7 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
     public DirScoreTransitionGridChannel(IDirScoreManager scoreManager)
         : base(LingoTransitionSprite.SpriteNumOffset+1, scoreManager)
     {
+        IsSingleFrame = true;
     }
 
     protected override DirScoreTransitionSprite CreateUISprite(LingoTransitionSprite sprite, IDirSpritesManager spritesManager) => new DirScoreTransitionSprite(sprite, spritesManager);

@@ -33,6 +33,7 @@ internal partial class DirScoreColorPaletteGridChannel : DirScoreChannel<ILingoS
         : base(LingoColorPaletteSprite.SpriteNumOffset+1, scoreManager)
     {
         _paletteDefinitions = paletteDefinitions;
+        IsSingleFrame = true;
     }
 
     protected override DirScoreColorPaletteSprite CreateUISprite(LingoColorPaletteSprite sprite, IDirSpritesManager spritesManager) => new DirScoreColorPaletteSprite(sprite, spritesManager);
@@ -86,7 +87,7 @@ internal partial class DirScoreColorPaletteGridChannel : DirScoreChannel<ILingoS
 
         var selected = settings.ColorPaletteId >= 0 && settings.ColorPaletteId < allPalettes.Count() ? allPalettes[settings.ColorPaletteId] : allPalettes.First();
 
-        LingoGfxCanvas colorsCanvas = _scoreManager.Factory.CreateGfxCanvas("Panel Pallette Canvas", 131, 131);
+        LingoGfxCanvas colorsCanvas = _scoreManager.Factory.CreateGfxCanvas("Panel Pallette Canvas", 130, 130);
         colorsCanvas.X = 10;
         colorsCanvas.Y = 10;
         panel.AddItem(colorsCanvas);
@@ -126,15 +127,15 @@ internal partial class DirScoreColorPaletteGridChannel : DirScoreChannel<ILingoS
     {
         colorsCanvas.Clear(LingoColorList.White);
         colorsCanvas.DrawRect(new LingoRect(1, 1, colorsCanvas.Width-2, colorsCanvas.Height-2), LingoColorList.White);
-        colorsCanvas.DrawRect(new LingoRect(0, 0, colorsCanvas.Width, colorsCanvas.Height), LingoColor.FromHex("#aaaaaa"),false);
+        colorsCanvas.DrawRect(new LingoRect(0, 0, colorsCanvas.Width, colorsCanvas.Height), LingoColor.FromHex("#bbbbbb"),false);
         var allColors = definition.Colors.ToList();
         var y = 0;
         for (int i = 0; i < allColors.Count; i++)
         {
             var color = allColors[i];
-            var x = (i % 16) * 8;
-            y = (i / 16) * 8;
-            colorsCanvas.DrawRect(new LingoRect(x, y, x+7, y+7), color);
+            var x = i % 16 * 8;
+            y = i / 16 * 8;
+            colorsCanvas.DrawRect(new LingoRect(x+1, y+1, x+8, y+8), color);
         }
     }
 

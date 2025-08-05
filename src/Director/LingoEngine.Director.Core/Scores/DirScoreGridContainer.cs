@@ -69,7 +69,7 @@ namespace LingoEngine.Director.Core.Scores
         private void RedrawCurrentFrameVLine(int channelCount)
         {
             _canvasCurrentFrame.Height = _scoreManager.GfxValues.ChannelHeight * channelCount;
-            _canvasCurrentFrame.DrawLine(new LingoPoint(0, 0), new LingoPoint(0, _canvasCurrentFrame.Height), LingoColorList.Red, 2);
+            _canvasCurrentFrame.DrawLine(new LingoPoint(0, 0), new LingoPoint(0, _canvasCurrentFrame.Height), LingoColor.FromHex("#dd0000"), 1);
         }
         protected void SetChannels(DirScoreChannel[] channels)
         {
@@ -136,6 +136,7 @@ namespace LingoEngine.Director.Core.Scores
         {
             int cur = currentFrame - 1;
             if (cur < 0) cur = 0;
+            // The red bar current frame is positioned on the circle of the begin frame, which is slightly to the left.
             CurrentFrameX = _gfxValues.LeftMargin + cur * _gfxValues.FrameWidth + _gfxValues.FrameWidth / 2f - 1; 
             if (_framework != null)
             {

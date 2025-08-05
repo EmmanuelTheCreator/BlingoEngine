@@ -139,6 +139,14 @@ namespace LingoEngine.Director.Core.Scores
             canvas.DrawText(new LingoPoint(X + labelLeft, 11), name, null, LingoColorList.Black, 9, (int)labelWidth);
         }
 
+        public bool IsFrameInSprite(int frame)
+            => Sprite.BeginFrame <= frame && Sprite.EndFrame >= frame; 
+        public bool IsFrameRangeInSprite(int beginFrame, int endFrame)
+            => 
+            (Sprite.BeginFrame >= beginFrame && beginFrame <= Sprite.EndFrame )
+            || (Sprite.BeginFrame >= endFrame && endFrame <= Sprite.EndFrame)
+            ;
+
         public bool IsPointInsideSprite(float x, float y)
         {
             if (x < X || x > X + Width || y < OffsetY || y > OffsetY + Height)

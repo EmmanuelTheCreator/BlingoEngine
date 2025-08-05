@@ -25,6 +25,7 @@ namespace LingoEngine.Director.Core.Scores
         public DirScoreGridSprites2DContainer Sprites2DContainer { get; private set; }
         public DirScoreGfxValues GfxValues  => _scoreManager.GfxValues;
         public float ScollX { get; set; }
+        public float ScollY { get; set; }
 
 #pragma warning disable CS8618
         public DirectorScoreWindow(IDirSpritesManager spritesManager, ILingoPlayer player, ILingoFrameworkFactory factory, DirScoreManager scoreManager, IDirectorWindowManager windowManager, ILingoColorPaletteDefinitions paletteDefinitions) : base(factory)
@@ -97,7 +98,7 @@ namespace LingoEngine.Director.Core.Scores
                 if (mouseEvent.MouseV >= topPosition && mouseEvent.MouseV <= topPosition + Sprites2DContainer.Size.Y )
                 {
                     var yPosition = mouseEvent.MouseV - topPosition;
-                    channel = Math.Clamp(MathL.RoundToInt((yPosition + 4) / gfxValues.ChannelHeight), 1, 999) + 6;
+                    channel = Math.Clamp(MathL.RoundToInt((yPosition + 4 + ScollY) / gfxValues.ChannelHeight), 1, 999) + 6;
                 }
             }
             if (channel <= 0) return;

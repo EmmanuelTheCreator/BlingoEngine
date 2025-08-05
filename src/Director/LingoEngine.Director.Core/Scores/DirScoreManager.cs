@@ -31,10 +31,13 @@ namespace LingoEngine.Director.Core.Scores
         private bool _dragBegin;
         private bool _dragEnd;
         private bool _dragMiddle;
+        private bool _isDropPreview;
         private int _mouseDownFrame = -1;
         public DirScoreGfxValues GfxValues { get; } = new();
         public IDirSpritesManager SpritesManager => _spritesManager!;
         public ILingoFrameworkFactory Factory { get; }
+        public int MaxChannelNumber { get; private set; }
+
         public DirScoreManager(ILingoFrameworkFactory factory, IDirectorEventMediator directorEventMediator)
         {
             Factory = factory;
@@ -50,12 +53,15 @@ namespace LingoEngine.Director.Core.Scores
             if (_channels.ContainsKey(channel.SpriteNumWithChannelNum))
                 throw new InvalidOperationException($"Channel with sprite number {channel.SpriteNumWithChannelNum} already exists.");
             _channels[channel.SpriteNumWithChannelNum] = channel;
+            MaxChannelNumber = Math.Max(MaxChannelNumber, channel.SpriteNumWithChannelNum);
         } 
         public void UnregisterChannel(DirScoreChannel channel)
         {
             if (!_channels.ContainsKey(channel.SpriteNumWithChannelNum))
                 return;
             _channels.Remove(channel.SpriteNumWithChannelNum);
+            var lastChannel = _channels.Values.LastOrDefault();
+            MaxChannelNumber = lastChannel != null? lastChannel.SpriteNumWithChannelNum : 0;
         }
 
 
@@ -163,6 +169,8 @@ namespace LingoEngine.Director.Core.Scores
             }
             else if (mouseEvent.Type == LingoMouseEventType.MouseMove)
             {
+                if (_isDropPreview)
+                    DropPreview(channelNumber, frameNumber);
                 if (!_dragging)
                 {
                     if (_mouseDownFrame >= 0 && Math.Abs(frameNumber - _mouseDownFrame) >= 1)
@@ -210,7 +218,40 @@ namespace LingoEngine.Director.Core.Scores
                     mouseEvent.Mouse.SetCursor(Inputs.LingoMouseCursor.Arrow);
                     _lastMouseLeftDown = false;
                 }
+                StopPreview();
             }
+        }
+        private List<DirScoreChannel> _lastPreviewChannels = new List<DirScoreChannel>();
+        public void StartDropPreview()
+        {
+            _isDropPreview = true;
+        }
+        private void DropPreview(int channelNumber, int frameNumber)
+        {
+            //var result = channel.DrawPreview(frameNumber);
+            if (channelNumber > 0)
+            {
+                var peviewChannel = channelNumber;
+                while (peviewChannel < MaxChannelNumber)
+                {
+                    if (_channels.TryGetValue(peviewChannel, out var previewChannel))
+                    {
+                        if (previewChannel.DrawPreview(frameNumber))
+                        {
+                            if (_lastPreviewChannels.Contains(previewChannel))
+                                _lastPreviewChannels.Add(previewChannel);
+                            break;
+                        }
+                    }
+                    peviewChannel++;
+                }
+            }
+        }
+        private void StopPreview()
+        {
+            foreach (var channel in _lastPreviewChannels)
+                channel.StopPreview();
+            _lastPreviewChannels.Clear();
         }
 
         private void HandleDoubleClick(int channelNumber, int frameNumber, DirScoreChannel channel, DirScoreSprite? spriteScore)

@@ -4,10 +4,8 @@ using LingoEngine.Core;
 using LingoEngine.Director.Core.Scores;
 using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.LGodot.Primitives;
-using LingoEngine.Director.Core.Stages.Commands;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Commands;
-using LingoEngine.Sprites;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.LGodot.Gfx;
@@ -44,11 +42,9 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     private bool _topCollapsed = true;
 
     private readonly IDirectorEventMediator _mediator;
-    private readonly ILingoCommandManager _commandManager;
-    private readonly IHistoryManager _historyManager;
     private readonly DirectorScoreWindow _directorScoreWindow;
 
-    public DirGodotScoreWindow(IDirectorEventMediator directorMediator, ILingoCommandManager commandManager, IHistoryManager historyManager, DirectorScoreWindow directorScoreWindow, ILingoPlayer player, IDirGodotWindowManager windowManager, IDirSpritesManager spritesManager)
+    public DirGodotScoreWindow(IDirectorEventMediator directorMediator, ILingoCommandManager commandManager, DirectorScoreWindow directorScoreWindow, ILingoPlayer player, IDirGodotWindowManager windowManager, IDirSpritesManager spritesManager)
         : base(DirectorMenuCodes.ScoreWindow, "Score", windowManager)
     {
         var _marginContainer = new Control();
@@ -56,8 +52,6 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _marginContainer.MouseFilter = MouseFilterEnum.Ignore;
         AddChild(_marginContainer);
         _mediator = directorMediator;
-        _commandManager = commandManager;
-        _historyManager = historyManager;
         _directorScoreWindow = directorScoreWindow;
         directorScoreWindow.Init(this);
         _TopContainer = new TopChannelsContainer(directorScoreWindow.TopContainer);
@@ -202,6 +196,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
             _leftChannelsScollClipper.ScrollVertical = _masterScroller.ScrollVertical;
         }
         _directorScoreWindow.ScollX = _masterScroller.ScrollHorizontal;
+        _directorScoreWindow.ScollY = _masterScroller.ScrollVertical;
         _topStripContent.Position = new Vector2(-_masterScroller.ScrollHorizontal, _topStripContent.Position.Y);
         if (_TopContainer.ScrollX != _masterScroller.ScrollHorizontal)
             _TopContainer.ScrollX = _masterScroller.ScrollHorizontal;

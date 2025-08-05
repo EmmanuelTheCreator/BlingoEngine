@@ -40,7 +40,7 @@ namespace LingoEngine.Director.Core.Scores
         public LingoPoint Position { get; internal set; }
         public LingoPoint Size { get; set; }
         public int SpriteNumWithChannelNum { get; }
-
+        public bool IsSingleFrame { get; protected set; }
         public virtual T Framework<T>() where T : ILingoFrameworkGfxNode => _canvas.Framework<T>();
         public virtual ILingoFrameworkGfxNode FrameworkObj => _canvas.FrameworkObj;
 
@@ -123,6 +123,18 @@ namespace LingoEngine.Director.Core.Scores
         {
             _showConfirmDialog = showConfirmDialog;
         }
+        /// <summary>
+        /// Retrurns false if beginsprite is inside existing sprite.
+        /// </summary>
+        internal virtual bool DrawPreview(int frameNumber)
+        {
+            return true;
+        }
+
+        internal virtual void StopPreview()
+        {
+            
+        }
     }
 
 
@@ -143,7 +155,13 @@ namespace LingoEngine.Director.Core.Scores
         //protected readonly HashSet<Vector2I> _selectedCells = new();
         //protected Vector2I? _lastSelectedCell = null;
         protected int _dragFrame;
+
         public List<TSpriteUI> SpriteUIs => _spriteUIs;
+
+        public bool ShowPreview { get; set; }
+        public int PreviewBegin { get; private set; }
+        public int PreviewEnd { get; private set; }
+
         protected DirScoreChannel(int spriteNumWithChannel, IDirScoreManager scoreManager, bool subscribeToSpritelistChange = true)
             : base(spriteNumWithChannel, scoreManager)
         {
@@ -218,40 +236,70 @@ namespace LingoEngine.Director.Core.Scores
             => _spriteUIs.FirstOrDefault(s => s.Sprite == sprite);
         protected abstract TSpriteManager GetManager(LingoMovie movie);
 
-       
-       
+        /// </ummary>
+        /// Retrurns false if beginsprite is inside existing sprite.
+        /// </summary>
+        internal override bool DrawPreview(int frameNumber)
+        {
+            if(_movie == null || _manager == null) return true;
+            var isSingleFrameSprite = IsSingleFrame;
+            PreviewBegin = frameNumber;
+            var endFrame = _movie.GetNextLabelFrame(frameNumber);
+            if (endFrame > _movie.FrameCount)
+                endFrame = _movie.FrameCount;
+            PreviewEnd = endFrame;
+            if (PreviewEnd < PreviewBegin)
+                PreviewEnd = PreviewBegin + 30;
+            var beginInSprite = _spriteUIs.FirstOrDefault(x => x.IsFrameInSprite(PreviewBegin));
+            if (beginInSprite != null)
+            {
+                ShowPreview = false;
+                RequireRedraw();
+                if (isSingleFrameSprite) return true; // if its a single frame, we may not move it to a second channel
+                return false;
+            }
+            if (isSingleFrameSprite)
+                PreviewEnd = PreviewBegin;
+            else 
+            { 
+                var endInSprite = _spriteUIs
+                .Where(x => x.IsFrameRangeInSprite(PreviewBegin, PreviewEnd))
+                .OrderBy(x => x.Sprite.BeginFrame)
+                .FirstOrDefault();
+                if (endInSprite != null)
+                    PreviewEnd = endInSprite.Sprite.BeginFrame - 1;
+            }
 
+            ShowPreview = true;
+            RequireRedraw();
+            return true;
+        }
+        internal override void StopPreview()
+        {
+            ShowPreview = false;
+            RequireRedraw();
+        }
         public override void Draw()
         {
             if (_hasDirtySpriteList)
                 RedrawAllSprites();
             
             _canvas.Clear(LingoColorList.Transparent);
-
-            //if (_owner.SpritePreviewRect.HasValue)
-            //{
-            //    var rect = _owner.SpritePreviewRect.Value;
-            //    DrawRect(rect, new Color(1, 1, 1, 0.25f), filled: true);
-            //    DrawRect(rect, new Color(1, 1, 1, 1), filled: false, width: 1);
-            //}
-
+           
             if (_movie == null) return;
 
             int channelCount = _movie.MaxSpriteChannelCount;
 
             foreach (var sp in _spriteUIs)
-            {
                 sp.Draw(_canvas, _gfxValues.FrameWidth, _gfxValues.ChannelHeight);
+
+
+            if (ShowPreview)
+            {
+                float px = (PreviewBegin - 1) * _gfxValues.FrameWidth;
+                float pw = PreviewEnd * _gfxValues.FrameWidth;
+                _canvas.DrawRect(new LingoRect(px, 0, pw, _gfxValues.ChannelHeight), new LingoColor(0,120, 120, 80),false,1);
             }
-
-
-            //if (ShowPreview)
-            //{
-            //    float px = _gfxValues.LeftMargin + (PreviewBegin - 1) * _gfxValues.FrameWidth;
-            //    float pw = (PreviewEnd - PreviewBegin + 1) * _gfxValues.FrameWidth;
-            //    float py = PreviewChannel * _gfxValues.ChannelHeight;
-            //    DrawRect(new Rect2(px, py, pw, _gfxValues.ChannelHeight), new Color(0, 0, 1, 0.3f));
-            //}
             _dirty = false;
         }
 

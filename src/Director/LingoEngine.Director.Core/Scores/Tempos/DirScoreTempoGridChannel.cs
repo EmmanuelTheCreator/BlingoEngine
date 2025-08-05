@@ -23,6 +23,7 @@ internal partial class DirScoreTempoGridChannel : DirScoreChannel<ILingoTempoSpr
     public DirScoreTempoGridChannel(IDirScoreManager scoreManager)
         : base(LingoTempoSprite.SpriteNumOffset+1, scoreManager)
     {
+        IsSingleFrame = true;
     }
 
     protected override DirScoreTempoSprite CreateUISprite(LingoTempoSprite sprite, IDirSpritesManager spritesManager) => new DirScoreTempoSprite(sprite, spritesManager);

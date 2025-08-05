@@ -17,6 +17,7 @@ namespace LingoEngine.Sprites
         IEnumerable<TSprite> GetAllSprites();
         IEnumerable<TSprite> GetAllSpritesByChannel(int channel);
         IEnumerable<TSprite> GetAllSpritesBySpriteNumAndChannel(int spriteNumAndChannel);
+        
         void MoveSprite(TSprite sprite, int newFrame);
     }
 

@@ -14,6 +14,7 @@ internal partial class DirScoreFrameScriptGridChannel : DirScoreChannel<ILingoFr
     public DirScoreFrameScriptGridChannel(IDirScoreManager scoreManager)
         : base(LingoFrameScriptSprite.SpriteNumOffset+1, scoreManager)
     {
+        IsSingleFrame = true;
     }
 
 }
