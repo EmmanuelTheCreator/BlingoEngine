@@ -129,7 +129,6 @@ namespace LingoEngine.Movies
             _paletteManager = new LingoSpriteColorPaletteSpriteManager(this, environment);
             _frameScriptManager = new LingoFrameScriptSpriteManager(this, environment);
 
-            //_spriteManagers.Add(_frameManager);
             _spriteManagers.Add(_tempoManager);
             _spriteManagers.Add(_paletteManager);
             _spriteManagers.Add(_transitionManager);
@@ -173,6 +172,16 @@ namespace LingoEngine.Movies
         public LingoFrameScriptSprite AddFrameBehavior<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour = null, Action<LingoFrameScriptSprite>? configure = null) where TBehaviour : LingoSpriteBehavior
             => _frameScriptManager.Add(frameNumber, configureBehaviour, configure);
         public LingoSprite2D AddSprite(int num,string name, Action<LingoSprite2D>? configure = null) => _spriteManager.AddSprite(num,name, configure);
+        public LingoSprite? AddSpriteByChannelNum(int spriteNumWithChannel, int begin, int end, ILingoMember? member)
+        {
+            if (spriteNumWithChannel < _spriteManagers.Count)
+            {
+                var sprite = _spriteManagers[spriteNumWithChannel].Add(spriteNumWithChannel, begin, end, member);
+                return sprite;
+            }
+            var sprite2D = _spriteManager.Add(spriteNumWithChannel, begin, end, member);
+            return sprite2D;
+        }
         public LingoSprite2D AddSprite(int num, int begin, int end, float x, float y, Action<LingoSprite2D>? configure = null)
             => _spriteManager.AddSprite(num, begin, end, x, y, configure);
         public bool RemoveSprite(string name) => _spriteManager.RemoveSprite(name);

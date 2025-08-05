@@ -1,4 +1,6 @@
-﻿using LingoEngine.Movies;
+﻿using LingoEngine.ColorPalettes;
+using LingoEngine.Members;
+using LingoEngine.Movies;
 using LingoEngine.Sprites;
 
 namespace LingoEngine.Scripts
@@ -36,7 +38,13 @@ namespace LingoEngine.Scripts
             configure?.Invoke(sprite);
             return sprite;
         }
-
+        protected override LingoSprite? OnAdd(int spriteNum, int begin, int end, ILingoMember? member)
+        {
+            var sprite = Add(begin);
+            if (member is LingoMemberScript memberTyped)
+                sprite.SetMember(memberTyped);
+            return sprite;
+        }
 
         //internal void MoveFrameBehavior(int previousFrame, int newFrame)
         //{

@@ -79,6 +79,11 @@ public sealed class DirectorGodotStyle
         // You could define styles for buttons inside the tabs if needed
         return theme;
     }
+    internal Theme GetLineEditTheme()
+    {
+        var theme = new Theme();
+        return theme;
+    }
     public Theme GetPopupWindowTheme()
     {
         return Theme;
@@ -316,4 +321,6 @@ public sealed class DirectorGodotStyle
         theme.SetStylebox("embedded_unfocused_border", "Window", border2);
         //theme.Set("close", "Window", border2);
     }
+
+   
 }

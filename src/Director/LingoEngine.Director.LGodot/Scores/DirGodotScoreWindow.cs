@@ -9,6 +9,7 @@ using LingoEngine.Commands;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.LGodot.Gfx;
+using LingoEngine.Director.LGodot.Styles;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
@@ -44,7 +45,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     private readonly IDirectorEventMediator _mediator;
     private readonly DirectorScoreWindow _directorScoreWindow;
 
-    public DirGodotScoreWindow(IDirectorEventMediator directorMediator, ILingoCommandManager commandManager, DirectorScoreWindow directorScoreWindow, ILingoPlayer player, IDirGodotWindowManager windowManager, IDirSpritesManager spritesManager)
+    public DirGodotScoreWindow(IDirectorEventMediator directorMediator, ILingoCommandManager commandManager, DirectorScoreWindow directorScoreWindow, ILingoPlayer player, IDirGodotWindowManager windowManager, IDirSpritesManager spritesManager,DirectorGodotStyle godotStyle)
         : base(DirectorMenuCodes.ScoreWindow, "Score", windowManager)
     {
         var _marginContainer = new Control();
@@ -74,7 +75,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _LeftTopContainer = new DirGodotScoreLeftTopContainer(_gfxValues, _player.Factory, Mouse,new Vector2(0, _gfxValues.ChannelHeight + 5),_mediator);
         _LeftChannelsContainer = new DirGodotScoreLeftChannelsContainer(_gfxValues,_player.Factory,Mouse, new Vector2(0, _gfxValues.TopStripHeight - _footerMargin), _mediator);
         _framesHeader = new DirGodotFrameHeader(_gfxValues);
-        _labelBar = new DirGodotScoreLabelsBar(_gfxValues, commandManager);
+        _labelBar = new DirGodotScoreLabelsBar(_gfxValues, commandManager, godotStyle);
         _labelBar.HeaderCollapseChanged += OnHeaderCollapseChanged;
 
         _collapseButton = new CollapseButton(_labelBar);

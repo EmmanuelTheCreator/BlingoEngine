@@ -61,14 +61,12 @@ namespace LingoEngine.Director.Core.Scores
         private void OnActiveMovieChanged(ILingoMovie? movie)
         {
             if (_movie != null)
-            {
                 _movie.CurrentFrameChanged -= OnCurrentFrameChanged;
-            }
+            
             _movie = movie as LingoMovie;
             if (_movie != null)
-            {
                 _movie.CurrentFrameChanged += OnCurrentFrameChanged;
-            }
+            _scoreManager.CurrentMovieChanged(_movie);
             TopContainer.SetMovie(_movie);
             Sprites2DContainer.SetMovie(_movie);
         }
@@ -107,6 +105,7 @@ namespace LingoEngine.Director.Core.Scores
         }
         public void OnCurrentFrameChanged(int currentFrame)
         {
+            
             TopContainer.CurrentFrameChanged(currentFrame);
             Sprites2DContainer.CurrentFrameChanged(currentFrame);
         }

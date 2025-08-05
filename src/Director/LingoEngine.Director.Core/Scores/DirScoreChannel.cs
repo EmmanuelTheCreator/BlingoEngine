@@ -2,6 +2,7 @@
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Gfx;
+using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
@@ -44,7 +45,10 @@ namespace LingoEngine.Director.Core.Scores
         public virtual T Framework<T>() where T : ILingoFrameworkGfxNode => _canvas.Framework<T>();
         public virtual ILingoFrameworkGfxNode FrameworkObj => _canvas.FrameworkObj;
 
-        
+        public bool ShowPreview { get; protected set; }
+        public int PreviewBegin { get; protected set; }
+        public int PreviewEnd { get; protected set; }
+
 
 #pragma warning disable CS8618 
         protected DirScoreChannel(int spriteNumWithChannelNum, IDirScoreManager scoreManager)
@@ -135,6 +139,7 @@ namespace LingoEngine.Director.Core.Scores
         {
             
         }
+
     }
 
 
@@ -158,10 +163,7 @@ namespace LingoEngine.Director.Core.Scores
 
         public List<TSpriteUI> SpriteUIs => _spriteUIs;
 
-        public bool ShowPreview { get; set; }
-        public int PreviewBegin { get; private set; }
-        public int PreviewEnd { get; private set; }
-
+      
         protected DirScoreChannel(int spriteNumWithChannel, IDirScoreManager scoreManager, bool subscribeToSpritelistChange = true)
             : base(spriteNumWithChannel, scoreManager)
         {
@@ -207,9 +209,6 @@ namespace LingoEngine.Director.Core.Scores
         {
             _mediator.RaiseSpriteSelected(sprite.Sprite);
         }
-
-      
-       
 
         private void RedrawAllSprites()
         {

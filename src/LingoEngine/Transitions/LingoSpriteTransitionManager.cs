@@ -1,3 +1,4 @@
+using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
 
@@ -32,6 +33,14 @@ internal class LingoSpriteTransitionManager : LingoSpriteManager<LingoTransition
     {
         var sprite = AddSprite(begin);
         sprite.SetMember(transitionMember);
+        return sprite;
+    }
+
+    protected override LingoSprite? OnAdd(int spriteNum, int begin, int end, ILingoMember? member)
+    {
+        var sprite = Add(begin);
+        if (member is LingoTransitionMember memberTyped)
+            sprite.SetMember(memberTyped);
         return sprite;
     }
 }

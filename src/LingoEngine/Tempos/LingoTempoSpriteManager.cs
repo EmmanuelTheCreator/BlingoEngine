@@ -1,4 +1,6 @@
+using LingoEngine.Members;
 using LingoEngine.Movies;
+using LingoEngine.Scripts;
 using LingoEngine.Sprites;
 
 namespace LingoEngine.Tempos;
@@ -47,7 +49,12 @@ internal class LingoTempoSpriteManager : LingoSpriteManager<LingoTempoSprite>, I
         sprite.SetSettings(settings);
         return sprite;
     }
-
+    protected override LingoSprite? OnAdd(int spriteNum, int begin, int end, ILingoMember? member)
+    {
+        var sprite = Add(begin);
+     
+        return sprite;
+    }
     public void ChangeTempo(int value)
     {
         if (value > 0 && value < 60)

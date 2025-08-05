@@ -1,3 +1,4 @@
+using LingoEngine.Members;
 using LingoEngine.Movies;
 
 namespace LingoEngine.Sprites
@@ -8,11 +9,13 @@ namespace LingoEngine.Sprites
         int MaxSpriteChannelCount { get; }
         int SpriteTotalCount { get; }
         int SpriteMaxNumber { get; }
+        int SpriteNumChannelOffset { get; }
         void MoveSprite(int number, int newFrame);
         void MuteChannel(int channel, bool state);
     }
     public interface ILingoSpriteManager<TSprite> : ILingoSpriteManager
     {
+
         event Action<int>? SpriteListChanged;
         IEnumerable<TSprite> GetAllSprites();
         IEnumerable<TSprite> GetAllSpritesByChannel(int channel);
@@ -35,6 +38,7 @@ namespace LingoEngine.Sprites
         public abstract int MaxSpriteChannelCount { get; set; }
         public abstract int SpriteTotalCount { get; }
         public abstract int SpriteMaxNumber { get; }
+        public int SpriteNumChannelOffset { get; protected set; }
 
         protected LingoSpriteManager(LingoMovie movie, LingoMovieEnvironment environment)
         {
@@ -47,6 +51,11 @@ namespace LingoEngine.Sprites
 
         internal abstract void UpdateActiveSprites(int currentFrame, int lastFrame);
         internal abstract void BeginSprites();
+        internal virtual LingoSprite? Add(int spriteNumWithChannel, int begin, int end, ILingoMember? member)
+        {
+            return OnAdd(spriteNumWithChannel- SpriteNumChannelOffset, begin, end, member);
+        }
+        protected abstract LingoSprite? OnAdd(int spriteNum, int begin, int end, ILingoMember? member);
         //internal abstract void EndSprites();
     }
 
@@ -88,7 +97,7 @@ namespace LingoEngine.Sprites
         public override int SpriteTotalCount => _activeSprites.Count;
         public override int SpriteMaxNumber => _activeSprites.Keys.DefaultIfEmpty(0).Max();
 
-        public int SpriteNumChannelOffset { get; }
+        
 
         public event Action<int>? SpriteListChanged;
         protected void RaiseSpriteListChanged(int spritenumChannel) => SpriteListChanged?.Invoke(spritenumChannel);

@@ -351,6 +351,8 @@ When a movie stops, events occur in the following order:
         }
         public ILingoSprite SetMember(ILingoMember? member)
         {
+            if (_Member != null && (_Member.Type == LingoMemberType.Script || _Member.Type == LingoMemberType.Sound || _Member.Type == LingoMemberType.Transition || _Member.Type == LingoMemberType.Unknown || _Member.Type == LingoMemberType.Palette || _Member.Type == LingoMemberType.Movie || _Member.Type == LingoMemberType.Font || _Member.Type == LingoMemberType.Cursor))
+                return this;
             // Release the old member link with this sprite
             if (member != _Member)
                 _Member?.ReleaseFromSprite(this);

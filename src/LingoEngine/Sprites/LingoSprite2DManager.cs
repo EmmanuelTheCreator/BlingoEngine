@@ -1,6 +1,7 @@
 ﻿using LingoEngine.Inputs;
 using LingoEngine.Members;
 using LingoEngine.Movies;
+using LingoEngine.Sounds;
 
 namespace LingoEngine.Sprites
 {
@@ -14,9 +15,11 @@ namespace LingoEngine.Sprites
         }
 
       
-        public LingoSprite2D Add(int num, Action<LingoSprite2D>? configure = null)
+        public LingoSprite2D Add(int num, int begin, int end, Action<LingoSprite2D>? configure = null)
          => AddSprite(num, c =>
          {
+             c.BeginFrame = begin;
+             c.EndFrame = end;
              c.LocZ = num;
              configure?.Invoke(c);
          });
@@ -30,6 +33,14 @@ namespace LingoEngine.Sprites
                c.LocZ = num;
                configure?.Invoke(c);
            });
+
+        protected override LingoSprite? OnAdd(int spriteNum, int begin, int end, ILingoMember? member)
+        {
+            var sprite = AddSprite(spriteNum, begin, end,0,0,null);
+            if (member != null)
+                sprite.SetMember(member);
+            return sprite;
+        }
         protected override LingoSprite2D OnCreateSprite(LingoMovie movie, Action<LingoSprite2D> onRemove)
         {
             var sprite = _environment.Factory.CreateSprite<LingoSprite2D>(_movie, onRemove);

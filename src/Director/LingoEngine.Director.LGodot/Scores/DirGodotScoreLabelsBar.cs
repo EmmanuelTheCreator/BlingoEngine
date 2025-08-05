@@ -3,6 +3,7 @@ using LingoEngine.Movies;
 using LingoEngine.Commands;
 using LingoEngine.Movies.Commands;
 using LingoEngine.Director.Core.Scores;
+using LingoEngine.Director.LGodot.Styles;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
@@ -21,7 +22,8 @@ internal partial class DirGodotScoreLabelsBar : Control
 
     public event Action<bool>? HeaderCollapseChanged;
 
-    public DirGodotScoreLabelsBar(DirScoreGfxValues gfxValues, ILingoCommandManager commandManager)
+    // todo : move all code to reusable Director layer
+    public DirGodotScoreLabelsBar(DirScoreGfxValues gfxValues, ILingoCommandManager commandManager, DirectorGodotStyle godotStyle)
     {
         _gfxValues = gfxValues;
         _commandManager = commandManager;
@@ -29,6 +31,7 @@ internal partial class DirGodotScoreLabelsBar : Control
         _editField.Visible = false;
         _editField.Size = new Vector2(120, 16);
         _editField.TextSubmitted += _ => CommitEdit();
+        _editField.Theme = godotStyle.GetLineEditTheme();
     }
 
     public bool HeaderCollapsed

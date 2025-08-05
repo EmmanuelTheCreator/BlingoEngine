@@ -3,6 +3,10 @@ using LingoEngine.Sprites;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Director.Core.Tools;
+using LingoEngine.Members;
+using LingoEngine.Commands;
+using LingoEngine.Director.Core.Stages.Commands;
+using LingoEngine.Movies;
 
 namespace LingoEngine.Director.Core.Scores
 {
@@ -25,6 +29,7 @@ namespace LingoEngine.Director.Core.Scores
         private readonly Dictionary<int, DirScoreChannel> _channels = new();
         private readonly List<DirScoreSprite> _selected = new();
         private readonly IDirectorEventMediator _directorEventMediator;
+        private readonly ILingoCommandManager _commandManager;
         private DirScoreSprite? _lastAddedSprite;
         private bool _lastMouseLeftDown;
         private bool _dragging;
@@ -33,15 +38,17 @@ namespace LingoEngine.Director.Core.Scores
         private bool _dragMiddle;
         private bool _isDropPreview;
         private int _mouseDownFrame = -1;
+        private LingoMovie? _movie;
         public DirScoreGfxValues GfxValues { get; } = new();
         public IDirSpritesManager SpritesManager => _spritesManager!;
         public ILingoFrameworkFactory Factory { get; }
         public int MaxChannelNumber { get; private set; }
 
-        public DirScoreManager(ILingoFrameworkFactory factory, IDirectorEventMediator directorEventMediator)
+        public DirScoreManager(ILingoFrameworkFactory factory, IDirectorEventMediator directorEventMediator, ILingoCommandManager lingoCommandManager)
         {
             Factory = factory;
             _directorEventMediator = directorEventMediator;
+            _commandManager = lingoCommandManager;
         }
 
         internal void SetSpritesManager(IDirSpritesManager manager)
@@ -64,6 +71,10 @@ namespace LingoEngine.Director.Core.Scores
             MaxChannelNumber = lastChannel != null? lastChannel.SpriteNumWithChannelNum : 0;
         }
 
+        public void CurrentMovieChanged(LingoMovie? movie)
+        {
+            _movie = movie;
+        }
 
         private void ClearSelection()
         {
@@ -169,8 +180,16 @@ namespace LingoEngine.Director.Core.Scores
             }
             else if (mouseEvent.Type == LingoMouseEventType.MouseMove)
             {
+                // Drag from castlib?
+                if (DirectorDragDropHolder.IsDragging && !_isDropPreview && DirectorDragDropHolder.Member != null)
+                    StartDropPreview();
+
                 if (_isDropPreview)
+                {
                     DropPreview(channelNumber, frameNumber);
+                    return;
+                }
+                
                 if (!_dragging)
                 {
                     if (_mouseDownFrame >= 0 && Math.Abs(frameNumber - _mouseDownFrame) >= 1)
@@ -199,6 +218,16 @@ namespace LingoEngine.Director.Core.Scores
             }
             else if (mouseEvent.Type == LingoMouseEventType.MouseUp)
             {
+                if (_isDropPreview)
+                {
+                    if (DirectorDragDropHolder.Member != null)
+                    {
+                        // drop from cast lib
+                        DropFromCastLib(DirectorDragDropHolder.Member);
+                    }
+                    StopPreview();
+                    return;
+                }
                 if (_lastMouseLeftDown)
                 {
                     if (_spritesManager != null && !_dragging && !_spritesManager.Key.ControlDown && !_spritesManager.Key.ShiftDown && _lastAddedSprite == null)
@@ -218,10 +247,37 @@ namespace LingoEngine.Director.Core.Scores
                     mouseEvent.Mouse.SetCursor(Inputs.LingoMouseCursor.Arrow);
                     _lastMouseLeftDown = false;
                 }
-                StopPreview();
+                
             }
         }
+
+
+
+        private void HandleDoubleClick(int channelNumber, int frameNumber, DirScoreChannel channel, DirScoreSprite? spriteScore)
+        {
+            if (channelNumber >= 4)
+                return;
+
+            if (spriteScore == null)
+            {
+                channel.ShowCreateSpriteDialog(frameNumber, sprite =>
+                {
+                    if (sprite != null)
+                    {
+                        _directorEventMediator.RaiseSpriteSelected(sprite);
+                    }
+                });
+            }
+            else
+                channel.ShowSpriteDialog(spriteScore.Sprite);
+        }
+
+
+
+        #region Preview and Drop
         private List<DirScoreChannel> _lastPreviewChannels = new List<DirScoreChannel>();
+        
+
         public void StartDropPreview()
         {
             _isDropPreview = true;
@@ -236,10 +292,18 @@ namespace LingoEngine.Director.Core.Scores
                 {
                     if (_channels.TryGetValue(peviewChannel, out var previewChannel))
                     {
+                        // todo : ability to drag multiple sprites wiuth preview
                         if (previewChannel.DrawPreview(frameNumber))
                         {
-                            if (_lastPreviewChannels.Contains(previewChannel))
+                            foreach (var channel in _lastPreviewChannels)
+                            {
+                                if (previewChannel != channel)
+                                    channel.StopPreview();
+                            }
+                            _lastPreviewChannels.Clear();
+                            if (!_lastPreviewChannels.Contains(previewChannel))
                                 _lastPreviewChannels.Add(previewChannel);
+
                             break;
                         }
                     }
@@ -252,28 +316,23 @@ namespace LingoEngine.Director.Core.Scores
             foreach (var channel in _lastPreviewChannels)
                 channel.StopPreview();
             _lastPreviewChannels.Clear();
+            _isDropPreview = false;
+            DirectorDragDropHolder.EndDrag();
         }
-
-        private void HandleDoubleClick(int channelNumber, int frameNumber, DirScoreChannel channel, DirScoreSprite? spriteScore)
+        private void DropFromCastLib(ILingoMember member)
         {
-            if (channelNumber >= 4)
-                return;
-            
-            if (spriteScore == null)
-            {
-                channel.ShowCreateSpriteDialog(frameNumber, sprite =>
-                {
-                    if (sprite != null)
-                    {
-                        _directorEventMediator.RaiseSpriteSelected(sprite);
-                    }
-                });
-            }
-            else
-            {
-                channel.ShowSpriteDialog(spriteScore.Sprite);
-            }
-        }
+            if (_movie == null) return;
+            var channel = _lastPreviewChannels.LastOrDefault();
+            if (channel == null) return;
+            _commandManager.Handle(new AddSpriteCommand(_movie, member, channel.SpriteNumWithChannelNum, channel.PreviewBegin, channel.PreviewEnd));
+            channel.RequireRedraw();
+        } 
+        #endregion
+
+
+
+
+        
 
     }
 }

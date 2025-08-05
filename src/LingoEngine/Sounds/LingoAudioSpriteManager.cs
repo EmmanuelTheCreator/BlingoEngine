@@ -1,10 +1,14 @@
-﻿using LingoEngine.Movies;
+﻿using LingoEngine.Members;
+using LingoEngine.Movies;
+using LingoEngine.Scripts;
 using LingoEngine.Sprites;
 
 namespace LingoEngine.Sounds
 {
     public interface ILingoSpriteAudioManager : ILingoSpriteManager<LingoSpriteSound>
     {
+        
+
         LingoSpriteSound Add(int channel, int startFrame, LingoMemberSound sound);
     }
     internal class LingoSpriteAudioManager : LingoSpriteManager<LingoSpriteSound>, ILingoSpriteAudioManager
@@ -29,7 +33,12 @@ namespace LingoEngine.Sounds
                 c.Init(channel, startFrame, end, sound);
             });
         }
-
+        protected override LingoSprite? OnAdd(int spriteNum, int begin, int end, ILingoMember? member)
+        {
+            if (!(member is LingoMemberSound memberTyped)) return null;
+            var sprite = Add(spriteNum, begin,memberTyped);
+            return sprite;
+        }
         public override void MuteChannel(int channel, bool state)
         {
             base.MuteChannel(channel, state);

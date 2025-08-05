@@ -1,3 +1,4 @@
+using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
 
@@ -15,7 +16,13 @@ internal class LingoSpriteColorPaletteSpriteManager : LingoSpriteManager<LingoCo
 
     public LingoColorPaletteSprite Add(int frame) => AddSprite(1, "ColorPalette_" + frame, sprite => sprite.Frame = frame);
 
-
+    protected override LingoSprite? OnAdd(int spriteNum, int begin, int end, ILingoMember? member)
+    {
+        var sprite = Add(begin); 
+        if (member is LingoColorPaletteMember memberTyped)
+            sprite.SetMember(memberTyped);
+        return sprite;
+    }
 
     protected override LingoColorPaletteSprite OnCreateSprite(LingoMovie movie, Action<LingoColorPaletteSprite> onRemove) => new LingoColorPaletteSprite(_environment, onRemove);
 
@@ -31,4 +38,6 @@ internal class LingoSpriteColorPaletteSpriteManager : LingoSpriteManager<LingoCo
         sprite.EndFrame = frameNumber;
         return sprite;
     }
+
+   
 }
