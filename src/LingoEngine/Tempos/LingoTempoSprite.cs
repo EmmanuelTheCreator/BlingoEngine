@@ -114,6 +114,20 @@ public class LingoTempoSprite : LingoSprite
         WaitSeconds = settings.WaitSeconds;
         CueChannel = settings.CueChannel;
         CuePoint = settings.CuePoint;
+        UpdateName(settings);
+    }
+
+    private void UpdateName(LingoTempoSpriteSettings settings)
+    {
+        switch (Action)
+        {
+            case LingoTempoSpriteAction.ChangeTempo: Name = "Tempo to " + settings.Tempo + "fps."; break;
+            case LingoTempoSpriteAction.WaitSeconds: Name = "Wait for " + settings.WaitSeconds + "s."; break;
+            case LingoTempoSpriteAction.WaitForUserInput: Name = "Wait for user input"; break;
+            case LingoTempoSpriteAction.WaitForCuePoint: Name = "Wait for CuePoint " + settings.CueChannel + "/" + settings.CuePoint; break;
+            default:
+                break;
+        }
     }
 
     public LingoTempoSpriteSettings? GetSettings()

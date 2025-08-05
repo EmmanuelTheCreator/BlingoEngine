@@ -5,6 +5,8 @@ using System.Linq.Expressions;
 using LingoEngine.Tools;
 using LingoEngine.Bitmaps;
 using LingoEngine.Director.Core.Inspector;
+using System.Collections.Generic;
+using LingoEngine.Primitives;
 
 
 namespace LingoEngine.Director.Core.UI
@@ -17,74 +19,100 @@ namespace LingoEngine.Director.Core.UI
             var builder = new GfxPanelBuilder(panel, factory);
             return builder;
         }
-        public static LingoGfxLabel SetLabelAt(this LingoGfxPanel container, ILingoFrameworkFactory factory, string name, float x, float y, string? text = null, int fontSize = 11)
+        public static LingoGfxLabel SetLabelAt(this LingoGfxPanel container, string name, float x, float y, string? text = null, int fontSize = 11)
         {
-            LingoGfxLabel lbl = factory.CreateLabel(name,text ??"");
+            LingoGfxLabel lbl = container.Factory.CreateLabel(name,text ??"");
             lbl.FontColor = DirectorColors.TextColorLabels;
             lbl.FontSize = fontSize;
             container.AddItem(lbl, x, y);
             return lbl;
         }
-        public static LingoGfxInputText SetInputTextAt<T>(this LingoGfxPanel container, ILingoFrameworkFactory factory, T element, string name, float x, float y, int width, Expression<Func<T,string?>> property, int maxLength = 0)
+        public static LingoGfxInputText SetInputTextAt<T>(this LingoGfxPanel container, T element, string name, float x, float y, int width, Expression<Func<T,string?>> property, int maxLength = 0)
         {
             Action<T, string?> setter = property.CompileSetter();
-            var control = factory.CreateInputText(name, maxLength,x => setter(element,x));
+            var control = container.Factory.CreateInputText(name, maxLength,x => setter(element,x));
             control.Text = property.CompileGetter()(element)?.ToString() ?? string.Empty;
             control.Width = width;
             container.AddItem(control, x, y);
             return control;
         }
-        public static LingoGfxInputNumber<float> SetInputNumberAt<T>(this LingoGfxPanel container, ILingoFrameworkFactory factory, T element, string name, float x, float y, int width, Expression<Func<T,float>> property, float? min = null, float? max = null)
+        public static LingoGfxInputNumber<float> SetInputNumberAt<T>(this LingoGfxPanel container, T element, string name, float x, float y, int width, Expression<Func<T,float>> property, float? min = null, float? max = null)
         {
             Action<T, float> setter = property.CompileSetter();
-            var control = factory.CreateInputNumberFloat(name, min, max, x => setter(element, x));
+            var control = container.Factory.CreateInputNumberFloat(name, min, max, x => setter(element, x));
             control.Value = property.CompileGetter()(element);
             control.Width = width;
             container.AddItem(control, x, y);
             return control;
         }
-        public static LingoGfxInputNumber<int> SetInputNumberAt<T>(this LingoGfxPanel container, ILingoFrameworkFactory factory, T element, string name, float x, float y, int width, Expression<Func<T,int>> property, int? min = null, int? max = null)
+        public static LingoGfxInputNumber<int> SetInputNumberAt<T>(this LingoGfxPanel container, T element, string name, float x, float y, int width, Expression<Func<T,int>> property, int? min = null, int? max = null)
         {
             Action<T, int> setter = property.CompileSetter();
-            var control = factory.CreateInputNumberInt(name, min, max, x => setter(element, x));
+            var control = container.Factory.CreateInputNumberInt(name, min, max, x => setter(element, x));
             control.Value = property.CompileGetter()(element);
             control.Width = width;
             container.AddItem(control, x, y);
             return control;
         }
-        public static LingoGfxInputCheckbox SetCheckboxAt<T>(this LingoGfxPanel container, ILingoFrameworkFactory factory, T element, string name, float x, float y, Expression<Func<T,bool>> property)
+        public static LingoGfxInputCheckbox SetCheckboxAt<T>(this LingoGfxPanel container, T element, string name, float x, float y, Expression<Func<T,bool>> property)
         {
             Action<T, bool> setter = property.CompileSetter();
-            LingoGfxInputCheckbox control = factory.CreateInputCheckbox(name,x => setter(element, x));
+            LingoGfxInputCheckbox control = container.Factory.CreateInputCheckbox(name,x => setter(element, x));
             control.Checked = property.CompileGetter()(element);
             container.AddItem(control, x, y);
             return control;
         } 
-        public static LingoGfxInputCombobox SetComboBoxAt<T>(this LingoGfxPanel container, ILingoFrameworkFactory factory, T element, string name, float x, float y, Expression<Func<T,string?>> propertyKey)
+        public static LingoGfxInputCombobox SetComboBoxAt(this LingoGfxPanel container, IEnumerable<KeyValuePair<string, string>> items, string name, float x, float y, int width = 100, string? selectedKey = null, Action<string?>? onChange = null)
         {
-            Action<T, string?> setter = propertyKey.CompileSetter();
-            LingoGfxInputCombobox control = factory.CreateInputCombobox(name,  x => setter(element, x));
-            control.SelectedKey = propertyKey.CompileGetter()(element);
-            container.AddItem(control, x, y);
-            return control;
+            var list = container.Factory.CreateInputCombobox(name, onChange);
+            foreach (var item in items)
+                list.AddItem(item.Key, item.Value);
+            if (selectedKey != null)
+                list.SelectedKey = selectedKey;
+            list.Width = width;
+            container.AddItem(list, x, y);
+            return list;
         }
 
-        public static LingoGfxButton SetButtonAt(this LingoGfxPanel container, ILingoFrameworkFactory factory, string name, string text, float x, float y, Action onClick)
+        public static LingoGfxButton SetButtonAt(this LingoGfxPanel container, string name, string text, float x, float y, Action onClick, int width = 80)
         {
-            var control = factory.CreateButton(name, text);
+            var control = container.Factory.CreateButton(name, text);
+            control.Width = width;
             control.Pressed += onClick;
             container.AddItem(control, x, y);
             return control;
         } 
-        public static LingoGfxStateButton SetStateButtonAt<T>(this LingoGfxPanel container, ILingoFrameworkFactory factory, T element, string name, float x, float y, Expression<Func<T,bool>> property, ILingoImageTexture? texture = null, string? label = null)
+        public static LingoGfxStateButton SetStateButtonAt<T>(this LingoGfxPanel container, T element, string name, float x, float y, Expression<Func<T,bool>> property, ILingoImageTexture? texture = null, string? label = null)
         {
             Action<T, bool> setter = property.CompileSetter();
-            LingoGfxStateButton control = factory.CreateStateButton(name, texture, label, onChange: val => setter(element, val));
+            LingoGfxStateButton control = container.Factory.CreateStateButton(name, texture, label ??"", onChange: val => setter(element, val));
             control.IsOn = property.CompileGetter()(element);
             container.AddItem(control, x, y);
             return control;
         }
+        public static LingoGfxCanvas AddVLine(this LingoGfxPanel container, string name, float x, float y, float height)
+        {
+            var paintPanel = container.Factory.CreateGfxCanvas(name, 2, (int)height);
+            paintPanel.DrawLine(new LingoPoint(0, 0), new LingoPoint(0, height), DirectorColors.LineLight, 1);
+            paintPanel.DrawLine(new LingoPoint(1, 0), new LingoPoint(1, height), DirectorColors.LineDark, 1);
+            container.AddItem(paintPanel, x, y);
+            return paintPanel;
+        } 
+        public static LingoGfxCanvas AddHLine(this LingoGfxPanel container, string name, float x, float y, float width)
+        {
+            var paintPanel = container.Factory.CreateGfxCanvas(name, (int)width, 2);
+            paintPanel.DrawLine(new LingoPoint(0, 0), new LingoPoint(width, 0), DirectorColors.LineLight, 1);
+            paintPanel.DrawLine(new LingoPoint(0, 1), new LingoPoint(width, 1), DirectorColors.LineDark, 1);
+            container.AddItem(paintPanel, x, y);
+            return paintPanel;
+        }
+        public static void AddPopupButtons(this LingoGfxPanel container, Action okAction, Action onClose)
+        {
+            container.AddVLine("VLineBtns", container.Width - 100, 10, container.Height - 10 - 10);
 
-       
+            container.SetButtonAt("OKBtn", "OK", container.Width - 90, 10, () => { okAction(); onClose(); },80);
+            container.SetButtonAt("CancelBtn", "Cancel", 410, 40, onClose,80);
+        }
+
     }
 }

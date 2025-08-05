@@ -85,7 +85,7 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
         // Set background color
         var styleBox = new StyleBoxFlat
         {
-            BgColor = DirectorColors.BG_WhiteMenus.ToGodotColor()
+            BgColor = DirectorColors.PopupWindow_Background.ToGodotColor()
         };
         node.AddThemeStyleboxOverride("panel", styleBox);
 
@@ -93,7 +93,7 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
         var dialog = new Window
         {
             Title = title,
-            AlwaysOnTop = true,
+            //AlwaysOnTop = true, // <- blocks combo boxes
             Exclusive = true,
             PopupWindow = true,
             Unresizable = true,

@@ -43,7 +43,7 @@ internal class LingoTempoSpriteManager : LingoSpriteManager<LingoTempoSprite>, I
     }
     public LingoTempoSprite Add(int frameNumber, LingoTempoSpriteSettings settings)
     {
-        var sprite = AddSprite(frameNumber);
+        var sprite = Add(frameNumber);
         sprite.SetSettings(settings);
         return sprite;
     }

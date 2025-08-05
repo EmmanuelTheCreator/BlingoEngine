@@ -124,9 +124,9 @@ namespace LingoEngine.Director.Core.Inspector
             var container = _factory.CreatePanel("InfoContainer");
             container.X = 50;
 
-            _sprite = container.SetLabelAt(_factory, "SpriteLabel", 0, 0);
-            _member = container.SetLabelAt(_factory, "MemberLabel", 0, 13);
-            _cast = container.SetLabelAt(_factory, "MemberLabel", 0, 26);
+            _sprite = container.SetLabelAt("SpriteLabel", 0, 0);
+            _member = container.SetLabelAt("MemberLabel", 0, 13);
+            _cast = container.SetLabelAt("MemberLabel", 0, 26);
 
 
             var header = _factory.CreatePanel("HeaderPanel");

@@ -4,18 +4,21 @@ using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Sprites;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Gfx;
+using LingoEngine.Director.Core.Windowing;
 namespace LingoEngine.Director.Core.Scores.Tempos;
 
 
 internal partial class DirScoreTempoGridChannel : DirScoreChannel<ILingoTempoSpriteManager, DirScoreTempoSprite, LingoTempoSprite>
 {
-    private int _editFrame;
-
-    private bool groupTempoSelected;
-    private bool groupWait;
-
-    public bool GroupTempoSelected { get => groupTempoSelected; set => groupTempoSelected = value; }
-    public bool GroupWait { get => groupWait; set => groupWait = value; }
+    
+    private KeyValuePair<string, string>[] _values = new[]
+                {
+                    new KeyValuePair<string, string>("ChangeTempo","Change Tempo"),
+                    new KeyValuePair<string, string>("WaitSeconds","Wait"),
+                    new KeyValuePair<string, string>("WaitForUserInput","Wait for Mouse Click or Key Press"),
+                    new KeyValuePair<string, string>("WaitForCuePoint","Wait for Cue Point"),
+                };
+    private IDirectorWindowDialogReference? _dialog;
 
     public DirScoreTempoGridChannel(IDirScoreManager scoreManager)
         : base(LingoTempoSprite.SpriteNumOffset+1, scoreManager)
@@ -34,6 +37,7 @@ internal partial class DirScoreTempoGridChannel : DirScoreChannel<ILingoTempoSpr
         {
             var sprite = _manager!.Add(frameNumber, settings);
             newSprite(sprite);
+            _hasDirtySpriteList = true;
             MarkDirty();
         };
         ShowDialog(settings, okAction);
@@ -59,18 +63,69 @@ internal partial class DirScoreTempoGridChannel : DirScoreChannel<ILingoTempoSpr
 
     private void ShowDialog(LingoTempoSpriteSettings settings, Action okAction)
     {
-        var onClose = () => { };
+        
         var panel = _scoreManager.Factory.CreatePanel("Create Tempo Sprite");
         panel.Width = 500;
-        panel.Height = 300;
-        panel.SetInputNumberAt(_scoreManager.Factory, settings, "Tempo", 100, 30, 50, s => s.Tempo, 1, 120);
-        panel.SetStateButtonAt(_scoreManager.Factory, this, "ComboTempo", 10, 30, x => x.GroupTempoSelected, null, "Tempo");
-        panel.SetStateButtonAt(_scoreManager.Factory, this, "ComboWait", 10, 60, x => x.GroupWait, null, "Wait");
-        panel.SetButtonAt(_scoreManager.Factory, "OKBtn", "OK", 400, 30, () => { okAction(); onClose(); });
-        panel.SetButtonAt(_scoreManager.Factory, "CancelBtn", "Cancel", 400, 60, onClose);
-        var dialog = _showConfirmDialog?.Invoke("Frame Properties Tempo", (ILingoFrameworkGfxPanel)panel.FrameworkObj);
-        if (dialog != null)
-            onClose = dialog.Close;
+        panel.Height = 100;
+        var tempo1 = panel.SetLabelAt("TempoLbl", 10, 60, "Tempo:");
+        var tempo2 = panel.SetInputNumberAt(settings, "Tempo", 100, 60, 50, s => s.Tempo, 1, 120);
+
+        var wait1 = panel.SetLabelAt("WaitLbl", 10, 60, "Wait in seconds:");
+        var wait2 = panel.SetInputNumberAt(settings, "Wait", 100, 60, 50, s => s.WaitSeconds, 1, 120);
+
+        // todo : add channel combo and cue point combo
+
+        wait1.Visibility = false;
+        wait2.Visibility = false;
+
+
+        panel.SetComboBoxAt(_values, "ComboTempo", 10, 30, 250, settings.Action.ToString(), actionKey =>
+        {
+            if (actionKey == null) return;
+            var actionType = Enum.Parse<LingoTempoSpriteAction>(actionKey);
+            settings.Action = actionType;
+            switch (actionType)
+            {
+                case LingoTempoSpriteAction.ChangeTempo:
+                    tempo1.Visibility = true;
+                    tempo2.Visibility = true;
+                    wait1.Visibility = false;
+                    wait2.Visibility = false;
+                    break;
+                case LingoTempoSpriteAction.WaitSeconds:
+                    tempo1.Visibility = false;
+                    tempo2.Visibility = false;
+                    wait1.Visibility = true;
+                    wait2.Visibility = true;
+                    break;
+                case LingoTempoSpriteAction.WaitForUserInput:
+                    tempo1.Visibility = false;
+                    tempo2.Visibility = false;
+                    wait1.Visibility = false;
+                    wait2.Visibility = false;
+                    break;
+                case LingoTempoSpriteAction.WaitForCuePoint:
+                    tempo1.Visibility = false;
+                    tempo2.Visibility = false;
+                    wait1.Visibility = false;
+                    wait2.Visibility = false;
+                    break;
+                default:
+                    break;
+            }
+
+        });
+
+        panel.AddPopupButtons(okAction, CloseDialog);
+
+        _dialog = _showConfirmDialog?.Invoke("Frame Properties: Tempo", (ILingoFrameworkGfxPanel)panel.FrameworkObj);
     }
 
+    private void CloseDialog()
+    {
+        if (_dialog == null) return;
+        _dialog.Close();
+        _dialog = null;
+    }
+   
 }

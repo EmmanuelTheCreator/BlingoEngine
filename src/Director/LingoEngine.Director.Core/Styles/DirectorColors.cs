@@ -53,6 +53,8 @@ namespace LingoEngine.Director.Core.Styles
         public static LingoColor ScoreGridLineLight = LingoColor.FromHex("f9f9f9");
         public static LingoColor ScoreGridLineDark = LingoColor.FromHex("d0d0d0");
 
+        public static LingoColor LineLight = LingoColor.FromHex("f9f9f9");
+        public static LingoColor LineDark = LingoColor.FromHex("d0d0d0");
 
         // Buttons
         public static LingoColor Button_Bg_Normal = new LingoColor(240, 240, 240);      // Classic light gray

@@ -95,7 +95,7 @@ namespace LingoEngine.Director.Core.Inspector
         public GfxPanelBuilder AddLabel(string name, string text, int labelSpan = 1)
         {
             var (xLabel, xInput, y) = Layout(labelSpan, 0);
-            _panel.SetLabelAt(_factory, name, xLabel, y, text);
+            _panel.SetLabelAt(name, xLabel, y, text);
             Advance(labelSpan);
             return this;
         }
@@ -105,8 +105,8 @@ namespace LingoEngine.Director.Core.Inspector
             var getter = property.CompileGetter();
             var (xLabel, xInput, y) = Layout(labelSpan, inputSpan);
             if (labelSpan> 0)
-                _panel.SetLabelAt(_factory, name + "Label", xLabel, y+ _labelYOffset, label);
-            var input = _panel.SetInputTextAt(_factory, target, name + "Input", xInput, y, (int)ComputeInputWidth(inputSpan, true, stretch: true), property);
+                _panel.SetLabelAt(name + "Label", xLabel, y+ _labelYOffset, label);
+            var input = _panel.SetInputTextAt(target, name + "Input", xInput, y, (int)ComputeInputWidth(inputSpan, true, stretch: true), property);
             input.Text = getter(target) ?? string.Empty;
             Advance(labelSpan + inputSpan);
             return this;
@@ -114,7 +114,7 @@ namespace LingoEngine.Director.Core.Inspector
         public GfxPanelBuilder AddButton(string name, string text, Action click, int widthSpan = 1)
         {
             var (xLabel, xInput, y) = Layout(widthSpan, 1);
-            var button = _panel.SetButtonAt(_factory, name, text, xLabel, y, click);
+            var button = _panel.SetButtonAt(name, text, xLabel, y, click);
             Advance(widthSpan);
             return this;
         }
@@ -122,8 +122,8 @@ namespace LingoEngine.Director.Core.Inspector
         {
             var (xLabel, xInput, y) = Layout(showLabel?labelSpan:0, inputSpan);
             if (showLabel)
-                _panel.SetLabelAt(_factory, name + "Label", xLabel, y+ _labelYOffset, label);
-            var numericInput = _panel.SetInputNumberAt(_factory, target, name + "Input", xInput, y,
+                _panel.SetLabelAt(name + "Label", xLabel, y+ _labelYOffset, label);
+            var numericInput = _panel.SetInputNumberAt(target, name + "Input", xInput, y,
                 (int)ComputeInputWidth(inputSpan, showLabel, stretch), property);
             if (configure != null)
                 configure(numericInput);
@@ -133,8 +133,8 @@ namespace LingoEngine.Director.Core.Inspector
         {
             var (xLabel, xInput, y) = Layout(showLabel?labelSpan:0, inputSpan);
             if (showLabel)
-                _panel.SetLabelAt(_factory, name + "Label", xLabel, y+ _labelYOffset, label);
-            var numericInput = _panel.SetInputNumberAt(_factory, target, name + "Input", xInput, y,
+                _panel.SetLabelAt(name + "Label", xLabel, y+ _labelYOffset, label);
+            var numericInput = _panel.SetInputNumberAt(target, name + "Input", xInput, y,
                 (int)ComputeInputWidth(inputSpan, showLabel, stretch), property);
             if (configure != null)
                 configure(numericInput);
@@ -145,8 +145,8 @@ namespace LingoEngine.Director.Core.Inspector
         {
             var (xLabel, xInput, y) = Layout(showLabel?labelSpan:0, inputSpan);
             if (showLabel)
-                _panel.SetLabelAt(_factory, name + "Label", xLabel, y+ _labelYOffset, label);
-            _panel.SetCheckboxAt(_factory, target, name + "Label", xInput, y, property);
+                _panel.SetLabelAt(name + "Label", xLabel, y+ _labelYOffset, label);
+            _panel.SetCheckboxAt(target, name + "Label", xInput, y, property);
             Advance((showLabel ? labelSpan : 0) + inputSpan);
             return this;
         }
@@ -167,7 +167,7 @@ namespace LingoEngine.Director.Core.Inspector
             var setter = property.CompileSetter();
             var getter = property.CompileGetter();
             var (xLabel, xInput, y) = Layout(labelSpan, inputSpan);
-            _panel.SetLabelAt(_factory, name + "Label", xLabel, y+ _labelYOffset, label);
+            _panel.SetLabelAt(name + "Label", xLabel, y+ _labelYOffset, label);
             var picker = _factory.CreateColorPicker(name + "Picker", color => setter(target, color));
             picker.Color = getter(target);
             //picker.Width = ComputeInputWidth(inputSpan);
@@ -183,7 +183,7 @@ namespace LingoEngine.Director.Core.Inspector
             var getter = property.CompileGetter();
             var (xLabel, xInput, y) = Layout(showLabel ? labelSpan : 0, inputSpan);
             if (showLabel)
-                _panel.SetLabelAt(_factory, name + "Label", xLabel, y + _labelYOffset, label);
+                _panel.SetLabelAt(name + "Label", xLabel, y + _labelYOffset, label);
             var combo = _factory.CreateInputCombobox(name + "Combo", val =>
             {
                 if (int.TryParse(val, out int v))
