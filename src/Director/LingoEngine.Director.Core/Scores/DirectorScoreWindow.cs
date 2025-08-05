@@ -6,6 +6,7 @@ using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Core;
 using LingoEngine.Events;
 using LingoEngine.Director.Core.Tools;
+using LingoEngine.Gfx;
 
 
 namespace LingoEngine.Director.Core.Scores
@@ -14,6 +15,7 @@ namespace LingoEngine.Director.Core.Scores
     {
         private readonly IDirSpritesManager _spritesManager;
         private readonly DirScoreManager _scoreManager;
+        private readonly IDirectorWindowManager _windowManager;
         private readonly LingoPlayer _player;
         private LingoMovie? _movie;
         protected ILingoMouseSubscription _mouseSub;
@@ -23,21 +25,23 @@ namespace LingoEngine.Director.Core.Scores
         public float ScollX { get; set; }
 
 #pragma warning disable CS8618
-        public DirectorScoreWindow(IDirSpritesManager spritesManager, ILingoPlayer player, ILingoFrameworkFactory factory, DirScoreManager scoreManager) : base(factory)
+        public DirectorScoreWindow(IDirSpritesManager spritesManager, ILingoPlayer player, ILingoFrameworkFactory factory, DirScoreManager scoreManager, IDirectorWindowManager windowManager) : base(factory)
 #pragma warning restore CS8618 
         {
             _spritesManager = spritesManager;
             _scoreManager = scoreManager;
+            _windowManager = windowManager;
             _player = (LingoPlayer)player;
             _player.ActiveMovieChanged += OnActiveMovieChanged;
+            
             
         }
         public override void Init(IDirFrameworkWindow frameworkWindow)
         {
             base.Init(frameworkWindow);
             _mouseSub = Mouse.OnMouseEvent(HandleMouseEvent);
-            TopContainer = new DirScoreGridTopContainer(_scoreManager);
-            Sprites2DContainer = new DirScoreGridSprites2DContainer(_scoreManager);
+            TopContainer = new DirScoreGridTopContainer(_scoreManager, ShowConfirmDialog);
+            Sprites2DContainer = new DirScoreGridSprites2DContainer(_scoreManager, ShowConfirmDialog);
         }
         public override void Dispose()
         {
@@ -111,7 +115,8 @@ namespace LingoEngine.Director.Core.Scores
 
         protected override void OnRaiseKeyUp(LingoKey lingoKey) { }
 
-       
+        internal IDirectorWindowDialogReference? ShowConfirmDialog(string title, ILingoFrameworkGfxPanel panel)
+            => _windowManager.ShowCustomDialog(title, panel);
 
     }
 }

@@ -1,3 +1,4 @@
+using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
 using LingoEngine.Tempos;
@@ -71,5 +72,11 @@ public class LingoColorPaletteSprite : LingoSprite
         };
 
         return action;
+    }
+
+    public void SetMember(LingoColorPaletteMember member)
+    {
+        Member = member;
+        SetSettings(member.GetSettings());
     }
 }

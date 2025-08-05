@@ -95,4 +95,9 @@ public class LingoFrameScriptSprite : LingoSprite
 
         return action;
     }
+
+    public void SetMember(LingoMemberScript lingoMemberScript)
+    {
+        Member = lingoMemberScript;
+    }
 }

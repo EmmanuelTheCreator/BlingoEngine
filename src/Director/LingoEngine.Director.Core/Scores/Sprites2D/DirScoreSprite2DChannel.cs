@@ -18,18 +18,7 @@ namespace LingoEngine.Director.Core.Scores.Sprites2D
 
 
 
-        protected override void OnDoubleClick(int frame, DirScoreSprite2D? sprite)
-        {
-            if (sprite == null) return;
-            _editFrame = frame;
-            //_slider.Value = sprite.Sprite.Tempo > 0? sprite.Sprite.Tempo : _movie!.Tempo;
-            //_dialog.PopupCentered(new Vector2I(200, 80));
-        }
-
-        internal void SetSprites(IEnumerable<LingoSprite2D> sprites)
-        {
-
-        }
+    
 
         private void OnDialogOk()
         {

@@ -9,7 +9,7 @@ namespace LingoEngine.Director.Core.Scores
     {
         
 
-        public DirScoreGridSprites2DContainer(IDirScoreManager scoreManager) : base(scoreManager, 10)
+        public DirScoreGridSprites2DContainer(IDirScoreManager scoreManager, Func<string, Gfx.ILingoFrameworkGfxPanel, Windowing.IDirectorWindowDialogReference?> showConfirmDialog) : base(scoreManager, 10, showConfirmDialog)
         {
         }
         public override void Dispose()

@@ -26,6 +26,7 @@ namespace LingoEngine.Director.Core.Scores
         private readonly List<DirScoreSprite> _selected = new();
         private readonly IDirectorEventMediator _directorEventMediator;
         private DirScoreSprite? _lastAddedSprite;
+        private bool _lastMouseLeftDown;
         private bool _dragging;
         private bool _dragBegin;
         private bool _dragEnd;
@@ -117,6 +118,12 @@ namespace LingoEngine.Director.Core.Scores
 
             if (mouseEvent.Type == LingoMouseEventType.MouseDown && mouseEvent.Mouse.LeftMouseDown)
             {
+                if (mouseEvent.Mouse.DoubleClick)
+                {
+                    HandleDoubleClick(channelNumber, frameNumber, channel, spriteScore);
+                    return;
+                }
+                _lastMouseLeftDown = true;
                 if (spriteScore != null)
                 {
                     if (spriteScore.IsLocked)
@@ -184,24 +191,48 @@ namespace LingoEngine.Director.Core.Scores
             }
             else if (mouseEvent.Type == LingoMouseEventType.MouseUp)
             {
-                if (_spritesManager != null && !_dragging && !_spritesManager.Key.ControlDown && !_spritesManager.Key.ShiftDown && _lastAddedSprite == null)
-                    ClearSelection();
-                else
+                if (_lastMouseLeftDown)
                 {
-                    foreach (var s in _selected)
+                    if (_spritesManager != null && !_dragging && !_spritesManager.Key.ControlDown && !_spritesManager.Key.ShiftDown && _lastAddedSprite == null)
+                        ClearSelection();
+                    else
                     {
-                        s.StopDragging();
-                        if (s.Channel != null)
-                            s.Channel.RequireRedraw();
+                        foreach (var s in _selected)
+                        {
+                            s.StopDragging();
+                            if (s.Channel != null)
+                                s.Channel.RequireRedraw();
+                        }
                     }
+                    _dragging = _dragBegin = _dragEnd = _dragMiddle = false;
+                    _mouseDownFrame = -1;
+                    _lastAddedSprite = null;
+                    mouseEvent.Mouse.SetCursor(Inputs.LingoMouseCursor.Arrow);
+                    _lastMouseLeftDown = false;
                 }
-                _dragging = _dragBegin = _dragEnd = _dragMiddle = false;
-                _mouseDownFrame = -1;
-                _lastAddedSprite = null;
-                mouseEvent.Mouse.SetCursor(Inputs.LingoMouseCursor.Arrow);
             }
         }
 
-       
+        private void HandleDoubleClick(int channelNumber, int frameNumber, DirScoreChannel channel, DirScoreSprite? spriteScore)
+        {
+            if (channelNumber >= 4)
+                return;
+            
+            if (spriteScore == null)
+            {
+                channel.ShowCreateSpriteDialog(frameNumber, sprite =>
+                {
+                    if (sprite != null)
+                    {
+                        _directorEventMediator.RaiseSpriteSelected(sprite);
+                    }
+                });
+            }
+            else
+            {
+                channel.ShowSpriteDialog(spriteScore.Sprite);
+            }
+        }
+
     }
 }

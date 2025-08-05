@@ -14,7 +14,6 @@ public enum LingoTempoSpriteAction
     WaitForUserInput,
     WaitForCuePoint
 }
-
 public class LingoTempoSprite : LingoSprite
 {
     public const int SpriteNumOffset = 0;
@@ -108,27 +107,40 @@ public class LingoTempoSprite : LingoSprite
     }
 
     private void Resume() => _environment.Movie.ContinueAfterInput();
+    public void SetSettings(LingoTempoSpriteSettings settings)
+    {
+        _tempo = settings.Tempo;
+        Action = settings.Action;
+        WaitSeconds = settings.WaitSeconds;
+        CueChannel = settings.CueChannel;
+        CuePoint = settings.CuePoint;
+    }
 
+    public LingoTempoSpriteSettings? GetSettings()
+    {
+        var settings = new LingoTempoSpriteSettings
+        {
+            Tempo = _tempo,
+            Action = Action,
+            WaitSeconds = WaitSeconds,
+            CueChannel = CueChannel,
+            CuePoint = CuePoint
+        }; 
+        return settings;
+    }
 
     public override Action<LingoSprite> GetCloneAction()
     {
         var baseAction = base.GetCloneAction();
         Action<LingoSprite> action = s => { };
-        var tempo = Tempo;
-        var actionT = Action;
-        var waitSeconds = WaitSeconds;
-        var cueChannel = CueChannel;
-        var cuePoint = CuePoint;
+        var settings = GetSettings();
         
         action = s =>
         {
             baseAction(s);
             var sprite = (LingoTempoSprite)s;
-            sprite.Tempo = tempo;
-            sprite.Action = actionT;
-            sprite.WaitSeconds = waitSeconds;
-            sprite.CueChannel = cueChannel;
-            sprite.CuePoint = cuePoint;
+            if (settings != null)
+                sprite.SetSettings(settings);
         };
 
         return action;

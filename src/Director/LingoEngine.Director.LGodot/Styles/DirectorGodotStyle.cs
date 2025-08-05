@@ -271,11 +271,49 @@ public sealed class DirectorGodotStyle
     private static void SetPopupWindowStyle(Theme theme)
     {
         //theme.SetStylebox("embedded_border", "Window", header);
-        theme.SetColor("title_color", "Window", DirectorColors.PopupWindow_Header_Text.ToGodotColor());
-        theme.SetColor("title_outline_modulate", "Window", DirectorColors.PopupWindow_Header_BG.ToGodotColor());
+        theme.SetColor("title_color", "Window", Colors.Black); // DirectorColors.PopupWindow_Header_Text.ToGodotColor());
+        //theme.SetColor("title_outline_modulate", "Window", DirectorColors.PopupWindow_Header_BG.ToGodotColor());
         theme.SetFont("title_font", "Window", new FontVariation { BaseFont = DefaultFont });
-        theme.SetFontSize("font_size", "Window", 11);
-        theme.SetFontSize("title_font_size", "Window", 12);
-        theme.SetFontSize("title_height", "Window", 20);
+        theme.SetConstant("font_size", "Window", 16);
+        theme.SetConstant("title_font_size", "Window", 12);
+        theme.SetConstant("title_height", "Window", 25);
+        theme.SetConstant("close_v_offset", "Window", 20);
+        var border = new StyleBoxFlat
+        {
+            BorderColor = DirectorColors.PopupWindow_Header_BG.ToGodotColor(),
+            BgColor = DirectorColors.PopupWindow_Background.ToGodotColor(),
+            BorderWidthBottom = 1,
+            BorderWidthLeft = 1,
+            BorderWidthRight = 1,
+            BorderWidthTop = 25,
+            BorderBlend = false,
+            ExpandMarginBottom = 1,
+            ExpandMarginTop = 25,
+            ExpandMarginLeft = 1,
+            ExpandMarginRight = 1,
+            DrawCenter = true,
+            ShadowSize = 20,
+            ShadowOffset = new Vector2(0, 1)
+        };
+        var border2 = new StyleBoxFlat
+        {
+            BorderColor = DirectorColors.PopupWindow_Border.ToGodotColor(),
+            BgColor = DirectorColors.PopupWindow_Background.ToGodotColor(),
+            BorderWidthBottom = 1,
+            BorderWidthLeft = 1,
+            BorderWidthRight = 1,
+            BorderWidthTop = 25,
+            BorderBlend = false,
+            ExpandMarginBottom = 1,
+            ExpandMarginTop = 25,
+            ExpandMarginLeft = 1,
+            ExpandMarginRight = 1,
+            DrawCenter = true,
+            ShadowSize = 10,
+            ShadowOffset = new Vector2(0, 1)
+        };
+        theme.SetStylebox("embedded_border", "Window", border);
+        theme.SetStylebox("embedded_unfocused_border", "Window", border2);
+        //theme.Set("close", "Window", border2);
     }
 }

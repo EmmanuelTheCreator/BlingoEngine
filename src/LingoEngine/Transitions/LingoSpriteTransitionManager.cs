@@ -6,6 +6,7 @@ namespace LingoEngine.Transitions;
 public interface ILingoSpriteTransitionManager : ILingoSpriteManager<LingoTransitionSprite>
 {
     LingoTransitionSprite Add(int frameNumber, LingoTransitionFrameSettings? settings = null);
+    LingoTransitionSprite Add(int begin, LingoTransitionMember transitionMember);
 }
 internal class LingoSpriteTransitionManager : LingoSpriteManager<LingoTransitionSprite>, ILingoSpriteTransitionManager
 {
@@ -24,6 +25,13 @@ internal class LingoSpriteTransitionManager : LingoSpriteManager<LingoTransition
         if (settings != null)
             sprite.SetSettings(settings);
         
+        return sprite;
+    }
+
+    public LingoTransitionSprite Add(int begin, LingoTransitionMember transitionMember)
+    {
+        var sprite = AddSprite(begin);
+        sprite.SetMember(transitionMember);
         return sprite;
     }
 }

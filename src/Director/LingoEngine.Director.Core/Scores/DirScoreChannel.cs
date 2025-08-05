@@ -1,5 +1,6 @@
 ﻿using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.Tools;
+using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Gfx;
 using LingoEngine.Movies;
 using LingoEngine.Primitives;
@@ -32,6 +33,7 @@ namespace LingoEngine.Director.Core.Scores
         protected bool _spriteDirty = true;
         protected bool _hasDirtySpriteList = true;
         protected IDirScoreChannelFramework? _framework;
+        protected Func<string, ILingoFrameworkGfxPanel, IDirectorWindowDialogReference?> _showConfirmDialog;
 
         public bool HasDirtySpriteList { get => _hasDirtySpriteList; set => _hasDirtySpriteList = value; }
         public bool Visible { get; internal set; } = true;
@@ -105,11 +107,21 @@ namespace LingoEngine.Director.Core.Scores
             _canvas.Width = Size.X;
             _canvas.Height = Size.Y;
         }
-       
-       
+        internal virtual void ShowCreateSpriteDialog(int frameNumber, Action<LingoSprite?> newSprite)
+        {
+        }
+        internal virtual void ShowSpriteDialog(LingoSprite sprite)
+        {
+        }
+
 
         public virtual void Draw()
         {
+        }
+
+        internal void SetShowDialogMethod(Func<string, ILingoFrameworkGfxPanel, IDirectorWindowDialogReference?> showConfirmDialog)
+        {
+            _showConfirmDialog = showConfirmDialog;
         }
     }
 
@@ -172,7 +184,7 @@ namespace LingoEngine.Director.Core.Scores
     
 
         protected abstract TSpriteUI CreateUISprite(TSprite sprite, IDirSpritesManager spritesManager);
-        protected virtual void OnDoubleClick(int frame, TSpriteUI? sprite) { }
+       
         protected virtual void OnSpriteClicked(TSpriteUI sprite)
         {
             _mediator.RaiseSpriteSelected(sprite.Sprite);

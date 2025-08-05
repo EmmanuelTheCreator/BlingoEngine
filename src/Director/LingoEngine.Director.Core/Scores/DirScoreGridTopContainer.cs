@@ -23,8 +23,8 @@ namespace LingoEngine.Director.Core.Scores
         }
 
 
-        public DirScoreGridTopContainer(IDirScoreManager scoreManager)
-            :base(scoreManager, 6) 
+        public DirScoreGridTopContainer(IDirScoreManager scoreManager, Func<string, Gfx.ILingoFrameworkGfxPanel, Windowing.IDirectorWindowDialogReference?> showConfirmDialog)
+            :base(scoreManager, 6, showConfirmDialog) 
         {
             SetChannels(
             [

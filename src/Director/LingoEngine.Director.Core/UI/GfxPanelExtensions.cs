@@ -76,10 +76,10 @@ namespace LingoEngine.Director.Core.UI
             container.AddItem(control, x, y);
             return control;
         } 
-        public static LingoGfxStateButton SetStateButtonAt<T>(this LingoGfxPanel container, ILingoFrameworkFactory factory, T element, string name, float x, float y, Expression<Func<T,bool>> property, ILingoImageTexture? texture = null)
+        public static LingoGfxStateButton SetStateButtonAt<T>(this LingoGfxPanel container, ILingoFrameworkFactory factory, T element, string name, float x, float y, Expression<Func<T,bool>> property, ILingoImageTexture? texture = null, string? label = null)
         {
             Action<T, bool> setter = property.CompileSetter();
-            LingoGfxStateButton control = factory.CreateStateButton(name, texture, string.Empty, onChange: val => setter(element, val));
+            LingoGfxStateButton control = factory.CreateStateButton(name, texture, label, onChange: val => setter(element, val));
             control.IsOn = property.CompileGetter()(element);
             container.AddItem(control, x, y);
             return control;

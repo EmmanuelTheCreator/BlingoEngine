@@ -1,6 +1,9 @@
 using Godot;
+using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Gfx;
+using LingoEngine.LGodot.Primitives;
+using LingoEngine.LGodot.Styles;
 
 namespace LingoEngine.Director.LGodot.Windowing;
 
@@ -14,12 +17,14 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
 {
     public const int ZIndexInactiveWindow = -4000;
     private IDirectorWindowManager _directorWindowManager;
+    private readonly ILingoGodotStyleManager _lingoGodotStyleManager;
     private readonly Dictionary<string, BaseGodotWindow> _godotWindows = new();
     public BaseGodotWindow? ActiveWindow { get; private set; }
 
-    public DirGodotWindowManager(IDirectorWindowManager directorWindowManager)
+    public DirGodotWindowManager(IDirectorWindowManager directorWindowManager, ILingoGodotStyleManager lingoGodotStyleManager)
     {
         _directorWindowManager = directorWindowManager;
+        _lingoGodotStyleManager = lingoGodotStyleManager;
         directorWindowManager.Init(this);
     }
     public void Register(BaseGodotWindow godotWindow)
@@ -47,16 +52,17 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
         SetTheActiveWindow(window);
     }
 
-    public void ShowConfirmDialog(string title, string message, Action<bool> onResult)
+    public IDirectorWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult)
     {
         var root = ActiveWindow?.GetTree().Root;
         if (root == null)
-            return;
+            return null;
 
         var dialog = new ConfirmationDialog
         {
             Title = title,
-            DialogText = message
+            DialogText = message,
+            Theme = _lingoGodotStyleManager.GetTheme(LingoGodotThemeElementType.PopupWindow),
         };
 
         dialog.Confirmed += () => { onResult(true); dialog.QueueFree(); };
@@ -64,36 +70,80 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
 
         root.AddChild(dialog);
         dialog.PopupCentered();
+        return new DirectorWindowDialogReference(dialog.QueueFree);
     }
 
-    public void ShowCustomDialog(string title, ILingoFrameworkGfxPanel panel)
+    public IDirectorWindowDialogReference? ShowCustomDialog(string title, ILingoFrameworkGfxPanel panel)
     {
         var root = ActiveWindow?.GetTree().Root;
         if (root == null)
-            return;
+            return null;
 
-        if (panel is not Node node)
+        if (panel is not Panel node)
             throw new ArgumentException("Panel must be a Godot node", nameof(panel));
 
-        var dialog = new AcceptDialog
+        // Set background color
+        var styleBox = new StyleBoxFlat
         {
-            Title = title
+            BgColor = DirectorColors.BG_WhiteMenus.ToGodotColor()
         };
-        dialog.GetOkButton().Text = "Close";
-        dialog.Confirmed += () => dialog.QueueFree();
-        dialog.Canceled += () => dialog.QueueFree();
+        node.AddThemeStyleboxOverride("panel", styleBox);
 
-        dialog.AddChild(node);
 
+        var dialog = new Window
+        {
+            Title = title,
+            AlwaysOnTop = true,
+            Exclusive = true,
+            PopupWindow = true,
+            Unresizable = true,
+            Size = new Vector2I((int)panel.Width, (int)panel.Height),
+            Theme = _lingoGodotStyleManager.GetTheme(LingoGodotThemeElementType.PopupWindow),
+        };
+        ReplaceIconColor(dialog, "close", new Color("#777777"));
+        ReplaceIconColor(dialog, "close_hl", Colors.Black);
+        ReplaceIconColor(dialog, "close_pressed", Colors.Black);
         root.AddChild(dialog);
+        dialog.CloseRequested += dialog.QueueFree;
+        dialog.AddChild(node);
         dialog.PopupCentered();
+
+
+        return new DirectorWindowDialogReference(dialog.QueueFree);
     }
 
-    public void ShowNotification(string message)
+    private static void ReplaceIconColor(Window dialog,string name,Color colorNew)
+    {
+        var closeButton = dialog.GetThemeIcon(name);
+        ImageTexture tinted = CreateTintedIcon(closeButton, colorNew);
+        dialog.AddThemeIconOverride(name, tinted);
+    }
+
+    private static ImageTexture CreateTintedIcon(Texture2D closeButton, Color colorNew)
+    {
+        var image = closeButton.GetImage();
+        image.Convert(Image.Format.Rgba8);
+
+        for (int y = 0; y < image.GetHeight(); y++)
+        {
+            for (int x = 0; x < image.GetWidth(); x++)
+            {
+                var color = image.GetPixel(x, y);
+                color = new Color(colorNew.R, colorNew.G, colorNew.B, color.A); // tint red
+                image.SetPixel(x, y, color);
+            }
+        }
+
+        var tinted = ImageTexture.CreateFromImage(image);
+        
+        return tinted;
+    }
+
+    public IDirectorWindowDialogReference? ShowNotification(string message)
     {
         var root = ActiveWindow?.GetTree().Root;
         if (root == null)
-            return;
+            return null;
 
         var panel = new Panel
         {
@@ -110,9 +160,10 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
         panel.Position = new Vector2(root.Size.X - panel.CustomMinimumSize.X - 10, 10);
 
         var timer = new Godot.Timer { WaitTime = 5, OneShot = true };
-        timer.Timeout += () => panel.QueueFree();
+        timer.Timeout += panel.QueueFree;
         panel.AddChild(timer);
         timer.Start();
+        return new DirectorWindowDialogReference(panel.QueueFree);
     }
 
     private void SetTheActiveWindow(BaseGodotWindow window)

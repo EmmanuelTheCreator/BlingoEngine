@@ -55,4 +55,10 @@ public class LingoTransitionSprite : LingoSprite
 
         return action;
     }
+
+    public void SetMember(LingoTransitionMember transitionMember)
+    {
+        Member = transitionMember;
+        SetSettings(transitionMember.GetSettings());
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.Tools;
+using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Events;
 using LingoEngine.Gfx;
 using LingoEngine.Inputs;
@@ -21,6 +22,7 @@ namespace LingoEngine.Director.Core.Scores
     {
         protected IDirScoreFrameworkGridContainer? _framework;
         protected readonly IDirScoreManager _scoreManager;
+        private readonly Func<string, ILingoFrameworkGfxPanel, IDirectorWindowDialogReference?> _showConfirmDialog;
         protected readonly DirScoreGfxValues _gfxValues;
         protected readonly DirScoreGridPainter _gridCanvas;
         protected readonly LingoGfxCanvas _canvasCurrentFrame;
@@ -40,9 +42,10 @@ namespace LingoEngine.Director.Core.Scores
 
 
 
-        public DirScoreGridContainer(IDirScoreManager scoreManager,int channelCount)
+        public DirScoreGridContainer(IDirScoreManager scoreManager,int channelCount, Func<string, ILingoFrameworkGfxPanel, Windowing.IDirectorWindowDialogReference?> showConfirmDialog)
         {
             _scoreManager = scoreManager;
+            _showConfirmDialog = showConfirmDialog;
             _gfxValues = _scoreManager.GfxValues;
             _gridCanvas = new DirScoreGridPainter(scoreManager.Factory, _gfxValues);
             _canvasCurrentFrame = scoreManager.Factory.CreateGfxCanvas("CurrentTimeLineTop" , 2, _gfxValues.ChannelHeight* channelCount);
@@ -77,6 +80,10 @@ namespace LingoEngine.Director.Core.Scores
             }
             _channels = channels;
             _channelsDic = _channels.ToDictionary(x => x.SpriteNumWithChannelNum);
+            foreach (var channel in _channels)
+            {
+                channel.SetShowDialogMethod(_showConfirmDialog);
+            }
             _framework?.RequireRecreateChannels();
         }
 

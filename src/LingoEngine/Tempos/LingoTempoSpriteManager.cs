@@ -8,6 +8,7 @@ public interface ILingoTempoSpriteManager : ILingoSpriteManager<LingoTempoSprite
 {
     public int Tempo { get; }
     LingoTempoSprite Add(int frameNumber, Action<LingoTempoSprite>? configure = null);
+    LingoTempoSprite Add(int frameNumber, LingoTempoSpriteSettings settings);
     void ChangeTempo(LingoTempoSprite lingoTempoSprite);
    
 }
@@ -40,6 +41,12 @@ internal class LingoTempoSpriteManager : LingoSpriteManager<LingoTempoSprite>, I
         
         return sprite;
     }
+    public LingoTempoSprite Add(int frameNumber, LingoTempoSpriteSettings settings)
+    {
+        var sprite = AddSprite(frameNumber);
+        sprite.SetSettings(settings);
+        return sprite;
+    }
 
     public void ChangeTempo(int value)
     {
@@ -48,4 +55,6 @@ internal class LingoTempoSpriteManager : LingoSpriteManager<LingoTempoSprite>, I
         _environment.Clock.FrameRate = _tempo;
     }
     public void ChangeTempo(LingoTempoSprite lingoTempoSprite) => ChangeTempo(lingoTempoSprite.Tempo);
+
+    
 }

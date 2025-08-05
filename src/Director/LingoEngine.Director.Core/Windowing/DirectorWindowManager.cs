@@ -10,9 +10,9 @@ namespace LingoEngine.Director.Core.Windowing
     public interface IDirFrameworkWindowManager
     {
         void SetActiveWindow(IDirectorWindowRegistration window);
-        void ShowConfirmDialog(string title, string message, Action<bool> onResult);
-        void ShowCustomDialog(string title, ILingoFrameworkGfxPanel panel);
-        void ShowNotification(string message);
+        IDirectorWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult);
+        IDirectorWindowDialogReference? ShowCustomDialog(string title, ILingoFrameworkGfxPanel panel);
+        IDirectorWindowDialogReference? ShowNotification(string message);
     }
     public interface IDirectorWindowRegistration
     {
@@ -28,9 +28,9 @@ namespace LingoEngine.Director.Core.Windowing
         bool CloseWindow(string windowCode);
         void Init(IDirFrameworkWindowManager frameworkWindowManager);
         void SetActiveWindow(string windowCode);
-        void ShowConfirmDialog(string title, string message, Action<bool> onResult);
-        void ShowCustomDialog(string title, ILingoFrameworkGfxPanel panel);
-        void ShowNotification(string message);
+        IDirectorWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult);
+        IDirectorWindowDialogReference? ShowCustomDialog(string title, ILingoFrameworkGfxPanel panel);
+        IDirectorWindowDialogReference? ShowNotification(string message);
     }
     public class DirectorWindowManager : IDirectorWindowManager,
         ICommandHandler<OpenWindowCommand>,
@@ -96,13 +96,13 @@ namespace LingoEngine.Director.Core.Windowing
             _frameworkWindowManager.SetActiveWindow(registration);
         }
 
-        public void ShowConfirmDialog(string title, string message, Action<bool> onResult)
+        public IDirectorWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult)
             => _frameworkWindowManager.ShowConfirmDialog(title, message, onResult);
 
-        public void ShowCustomDialog(string title, ILingoFrameworkGfxPanel panel)
+        public IDirectorWindowDialogReference? ShowCustomDialog(string title, ILingoFrameworkGfxPanel panel)
             => _frameworkWindowManager.ShowCustomDialog(title, panel);
 
-        public void ShowNotification(string message)
+        public IDirectorWindowDialogReference? ShowNotification(string message)
             => _frameworkWindowManager.ShowNotification(message);
 
 

@@ -11,6 +11,8 @@ using LingoEngine.ColorPalettes;
 using LingoEngine.Scripts;
 using LingoEngine.Sounds;
 using LingoEngine.Transitions;
+using LingoEngine.Members;
+using LingoEngine.Bitmaps;
 
 namespace LingoEngine.Director.Core.Sprites
 {
@@ -106,10 +108,10 @@ namespace LingoEngine.Director.Core.Sprites
         public bool CanExecute(AddSpriteCommand command) => true;
         public bool Handle(AddSpriteCommand command)
         {
-            var sprite = command.Movie.AddSprite(command.Channel, command.BeginFrame, command.EndFrame, 0, 0,
-                s => s.SetMember(command.Member));
+            var sprite = CreateSprite(command.Movie, command.Member, command.Channel, command.BeginFrame, command.EndFrame);
+            if (sprite == null) return true;
             _historyManager.Push(command.ToUndo(sprite, () => ChannelChanged(sprite.SpriteNumWithChannel)), command.ToRedo(() => ChannelChanged(sprite.SpriteNumWithChannel)));
-            //RefreshGrid(sprite.SpriteNumWithChannel);
+            ChannelChanged(sprite.SpriteNumWithChannel);
             return true;
         }
 
@@ -201,6 +203,25 @@ namespace LingoEngine.Director.Core.Sprites
             }
 
             return current;
+        } 
+        public static LingoSprite? CreateSprite(LingoMovie movie, ILingoMember member, int channel, int begin, int end)
+        {
+            switch (member)
+            {
+                case LingoMemberBitmap:return movie.Sprite2DManager.Add(channel,c => c.SetMember(member));
+                //case LingoTempoSprite:
+                case LingoColorPaletteMember memberPalette:
+                    {
+                        var colorSprite = movie.ColorPalettes.Add(begin);
+                        colorSprite.SetMember(memberPalette);
+                        return colorSprite;
+                    }
+                case LingoMemberScript lingoMemberScript:return movie.FrameScripts.Add(begin, c => c.SetMember(lingoMemberScript));
+                case LingoTransitionMember transitionMember:return movie.Transitions.Add(begin, transitionMember);
+                case LingoMemberSound memberSound:return movie.Audio.Add(channel, begin, memberSound);
+            }
+
+            return null;
         }
 
 
