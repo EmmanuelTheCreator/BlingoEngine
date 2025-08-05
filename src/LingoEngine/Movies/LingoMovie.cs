@@ -170,7 +170,7 @@ namespace LingoEngine.Movies
         public ILingoSpriteChannel GetActiveSprite(int number) => _spriteManager.GetActiveSprite(number);
         public LingoSprite2D AddSprite(string name, Action<LingoSprite2D>? configure = null) => _spriteManager.AddSprite(name, configure);
         public LingoSprite2D AddSprite(int num, Action<LingoSprite2D>? configure = null) => _spriteManager.AddSprite(num, configure);
-        public LingoSpriteFrameScript AddFrameBehavior<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour = null, Action<LingoSpriteFrameScript>? configure = null) where TBehaviour : LingoSpriteBehavior
+        public LingoFrameScriptSprite AddFrameBehavior<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour = null, Action<LingoFrameScriptSprite>? configure = null) where TBehaviour : LingoSpriteBehavior
             => _frameScriptManager.Add(frameNumber, configureBehaviour, configure);
         public LingoSprite2D AddSprite(int num,string name, Action<LingoSprite2D>? configure = null) => _spriteManager.AddSprite(num,name, configure);
         public LingoSprite2D AddSprite(int num, int begin, int end, float x, float y, Action<LingoSprite2D>? configure = null)

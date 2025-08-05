@@ -4,6 +4,7 @@ using LingoEngine.Inputs.Events;
 using LingoEngine.Inputs;
 using LingoEngine.Events;
 
+
 namespace LingoEngine.Tempos;
 
 public enum LingoTempoSpriteAction
@@ -107,4 +108,29 @@ public class LingoTempoSprite : LingoSprite
     }
 
     private void Resume() => _environment.Movie.ContinueAfterInput();
+
+
+    public override Action<LingoSprite> GetCloneAction()
+    {
+        var baseAction = base.GetCloneAction();
+        Action<LingoSprite> action = s => { };
+        var tempo = Tempo;
+        var actionT = Action;
+        var waitSeconds = WaitSeconds;
+        var cueChannel = CueChannel;
+        var cuePoint = CuePoint;
+        
+        action = s =>
+        {
+            baseAction(s);
+            var sprite = (LingoTempoSprite)s;
+            sprite.Tempo = tempo;
+            sprite.Action = actionT;
+            sprite.WaitSeconds = waitSeconds;
+            sprite.CueChannel = cueChannel;
+            sprite.CuePoint = cuePoint;
+        };
+
+        return action;
+    }
 }

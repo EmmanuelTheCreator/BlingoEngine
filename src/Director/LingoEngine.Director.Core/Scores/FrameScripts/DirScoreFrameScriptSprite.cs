@@ -6,9 +6,9 @@ namespace LingoEngine.Director.Core.Scores.FrameScripts;
 /// <summary>
 /// Drawable tempo keyframe.
 /// </summary>
-internal class DirScoreFrameScriptSprite : DirScoreSprite<LingoSpriteFrameScript>
+internal class DirScoreFrameScriptSprite : DirScoreSprite<LingoFrameScriptSprite>
 {
-    public DirScoreFrameScriptSprite(LingoSpriteFrameScript sprite, Sprites.IDirSpritesManager spritesManager)
+    public DirScoreFrameScriptSprite(LingoFrameScriptSprite sprite, Sprites.IDirSpritesManager spritesManager)
         : base(sprite, spritesManager)
     {
         //Init(sprite);

@@ -4,30 +4,35 @@ using LingoEngine.Sprites;
 namespace LingoEngine.Scripts
 {
     
-    public interface ILingoFrameScriptSpriteManager : ILingoSpriteManager<LingoSpriteFrameScript>
+    public interface ILingoFrameScriptSpriteManager : ILingoSpriteManager<LingoFrameScriptSprite>
     {
         //LingoSpriteFrameScript Add(int frame);
-        LingoSpriteFrameScript Add<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour, Action<LingoSpriteFrameScript>? configure) where TBehaviour : LingoSpriteBehavior;
+        LingoFrameScriptSprite Add<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour = null, Action<LingoFrameScriptSprite>? configure = null) where TBehaviour : LingoSpriteBehavior;
+        LingoFrameScriptSprite Add(int frameNumber, Action<LingoFrameScriptSprite>? configure = null);
     }
-    internal class LingoFrameScriptSpriteManager : LingoSpriteManager<LingoSpriteFrameScript>, ILingoFrameScriptSpriteManager
+    internal class LingoFrameScriptSpriteManager : LingoSpriteManager<LingoFrameScriptSprite>, ILingoFrameScriptSpriteManager
     {
         
-        public LingoFrameScriptSpriteManager(LingoMovie movie, LingoMovieEnvironment environment) : base(LingoSpriteFrameScript.SpriteNumOffset, movie, environment)
+        public LingoFrameScriptSpriteManager(LingoMovie movie, LingoMovieEnvironment environment) : base(LingoFrameScriptSprite.SpriteNumOffset, movie, environment)
         {
         }
 
         //public LingoSpriteFrameScript Add(int frame) => AddSprite(6, "FrameScript_" + frame, sprite => sprite.BeginFrame = frame);
 
-        protected override LingoSpriteFrameScript OnCreateSprite(LingoMovie movie, Action<LingoSpriteFrameScript> onRemove) => new LingoSpriteFrameScript(_environment, onRemove);
+        protected override LingoFrameScriptSprite OnCreateSprite(LingoMovie movie, Action<LingoFrameScriptSprite> onRemove) => new LingoFrameScriptSprite(_environment, onRemove);
 
-        public LingoSpriteFrameScript Add<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour, Action<LingoSpriteFrameScript>? configure) where TBehaviour : LingoSpriteBehavior
+        public LingoFrameScriptSprite Add<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour = null, Action<LingoFrameScriptSprite>? configure = null) where TBehaviour : LingoSpriteBehavior
+        {
+            var sprite = Add(frameNumber, configure);
+            var behaviour = sprite.SetBehavior<TBehaviour>();
+            configureBehaviour?.Invoke(behaviour);
+            return sprite;
+        }
+        public LingoFrameScriptSprite Add(int frameNumber, Action<LingoFrameScriptSprite>? configure = null) 
         {
             var sprite = AddSprite(1, $"FrameSprite_{frameNumber}", configure);
             sprite.BeginFrame = frameNumber;
             sprite.EndFrame = frameNumber;
-
-            var behaviour = sprite.SetBehavior<TBehaviour>();
-            configureBehaviour?.Invoke(behaviour);
             configure?.Invoke(sprite);
             return sprite;
         }

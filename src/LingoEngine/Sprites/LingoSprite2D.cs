@@ -39,12 +39,12 @@ namespace LingoEngine.Sprites
         public ILingoFrameworkSprite FrameworkObj => _frameworkSprite;
         public T Framework<T>() where T : class, ILingoFrameworkSprite => (T)_frameworkSprite;
 
-       
+
 
         public override string Name { get => _frameworkSprite.Name; set => _frameworkSprite.Name = value; }
         public int MemberNum
         {
-            get => Member?.NumberInCast ?? 0; 
+            get => Member?.NumberInCast ?? 0;
             set
             {
                 if (Member != null)
@@ -56,7 +56,7 @@ namespace LingoEngine.Sprites
         public int DisplayMember { get; set; }
         /// <summary>Offset to the property list for behaviors.</summary>
         public int SpritePropertiesOffset { get; set; }
-        
+
         private int _ink;
         public LingoInkType InkType { get => (LingoInkType)_ink; set => Ink = (int)value; }
         public int Ink
@@ -130,9 +130,9 @@ namespace LingoEngine.Sprites
         public ILingoMember? Member { get => _Member; set => SetMember(value); }
         public LingoCast? Cast { get; private set; }
 
-      
+
         public bool Editable { get; set; }
-       
+
         public bool IsDraggable
         {
             get => isDraggable;
@@ -140,7 +140,7 @@ namespace LingoEngine.Sprites
         }
 
         public LingoColor Color { get; set; }
-        
+
         public LingoRect Rect
         {
             get
@@ -160,7 +160,7 @@ namespace LingoEngine.Sprites
 
         public float Width { get => _frameworkSprite.Width; set => _frameworkSprite.SetDesiredWidth = value; }
         public float Height { get => _frameworkSprite.Height; set => _frameworkSprite.SetDesiredHeight = value; }
-       
+
 
         #endregion
 
@@ -191,10 +191,10 @@ namespace LingoEngine.Sprites
         // public int ScriptText { get; set; }
 
 #pragma warning disable CS8618
-        public LingoSprite2D(ILingoMovieEnvironment environment) :base(environment)
+        public LingoSprite2D(ILingoMovieEnvironment environment) : base(environment)
 #pragma warning restore CS8618
         {
-            
+
         }
         public void Init(ILingoFrameworkSprite frameworkSprite)
         {
@@ -202,7 +202,7 @@ namespace LingoEngine.Sprites
             _frameworkSprite.Ink = _ink;
             ApplyBlend();
         }
-       
+
 
         public ILingoSprite AddBehavior<T>() where T : LingoSpriteBehavior
         {
@@ -344,7 +344,7 @@ When a movie stops, events occur in the following order:
         public ILingoSprite SetMember(int memberNumber, int? castLibNum = null)
         {
             var member = _environment.GetMember<LingoMember>(memberNumber, castLibNum);
-            
+
             var newMember = member ?? throw new Exception(Name + ":Member not found with number: " + memberNumber);
             SetMember(newMember);
             return this;
@@ -364,7 +364,7 @@ When a movie stops, events occur in the following order:
             MemberHasChanged();
             return this;
         }
-     
+
         private void MemberHasChanged()
         {
             var existingPlayer = GetActorsOfType<LingoFilmLoopPlayer>().FirstOrDefault();
@@ -581,9 +581,9 @@ When a movie stops, events occur in the following order:
             return actionOnSpriteBehaviour(behavior);
         }
 
-        
 
-        
+
+
 
         public override void OnRemoveMe()
         {
@@ -601,6 +601,53 @@ When a movie stops, events occur in the following order:
             SpriteNum = spriteNum;
         }
 
-      
+        public override Action<LingoSprite> GetCloneAction()
+        {
+            var baseAction = base.GetCloneAction();
+            Action<LingoSprite> action = s => { };
+            var member = Member;
+            var x = LocH;
+            var y = LocV;
+            var z = LocZ;
+            var width = Width;
+            var height = Height;
+            var skew = Skew;
+            var ink = Ink;
+            var blend = Blend;
+            var hilite = Hilite;
+            var rotation = Rotation;
+            var flipH = FlipH;
+            var flipV = FlipV;
+            var cursor = Cursor;
+            var foreColor = ForeColor;
+            var backColor = BackColor;
+            var editable = Editable;
+            var isDraggable = IsDraggable;
+            action = s =>
+            {
+                baseAction(s);
+                var sprite2D = (LingoSprite2D)s;
+                sprite2D.SetMember(member);
+                sprite2D.LocH = x;
+                sprite2D.LocV = y;
+                sprite2D.LocZ = z;
+                sprite2D.Width = width;
+                sprite2D.Height = height;
+                sprite2D.Skew = skew;
+                sprite2D.Ink = ink;
+                sprite2D.Blend = blend;
+                sprite2D.Hilite = hilite;
+                sprite2D.Rotation = rotation;
+                sprite2D.FlipH = flipH;
+                sprite2D.FlipV = flipV;
+                sprite2D.Cursor = cursor;
+                sprite2D.ForeColor = foreColor;
+                sprite2D.BackColor = backColor;
+                sprite2D.Editable = editable;
+                sprite2D.IsDraggable = isDraggable;
+            };
+
+            return action;
+        }
     }
 }

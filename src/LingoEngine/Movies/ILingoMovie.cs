@@ -213,7 +213,7 @@ namespace LingoEngine.Movies
         /// Adds a new sprite to a specific sprite channel number.
         /// </summary>
         LingoSprite2D AddSprite(int num, Action<LingoSprite2D>? configure = null);
-        LingoSpriteFrameScript AddFrameBehavior<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour = null, Action<LingoSpriteFrameScript>? configure = null) where TBehaviour : LingoSpriteBehavior;
+        LingoFrameScriptSprite AddFrameBehavior<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour = null, Action<LingoFrameScriptSprite>? configure = null) where TBehaviour : LingoSpriteBehavior;
         LingoSprite2D AddSprite(int num, int begin, int end, float x, float y, Action<LingoSprite2D>? configure = null);
 
         /// <summary>

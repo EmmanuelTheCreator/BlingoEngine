@@ -1,14 +1,15 @@
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
 using LingoEngine.Sprites.Events;
+using System.Reflection;
 
 
 namespace LingoEngine.Scripts;
 
-public class LingoSpriteFrameScript : LingoSprite
+public class LingoFrameScriptSprite : LingoSprite
 {
     public const int SpriteNumOffset = 5;
-    private Action<LingoSpriteFrameScript> _onRemoveMe;
+    private Action<LingoFrameScriptSprite> _onRemoveMe;
   
 
     public int Channel { get; protected set; }
@@ -18,7 +19,7 @@ public class LingoSpriteFrameScript : LingoSprite
 
 
 #pragma warning disable CS8618
-    public LingoSpriteFrameScript(ILingoMovieEnvironment environment, Action<LingoSpriteFrameScript> onRemoveMe) : base(environment)
+    public LingoFrameScriptSprite(ILingoMovieEnvironment environment, Action<LingoFrameScriptSprite> onRemoveMe) : base(environment)
 #pragma warning restore CS8618 
     {
         _onRemoveMe = onRemoveMe;
@@ -66,5 +67,32 @@ public class LingoSpriteFrameScript : LingoSprite
         //Behavior.SetMe(this);
 
         return behavior;
+    } 
+   
+
+    public override Action<LingoSprite> GetCloneAction()
+    {
+        var baseAction = base.GetCloneAction();
+        Action<LingoSprite> action = s => { };
+        var behaviorType = Behavior != null ? Behavior.GetType(): null;
+        var userProperties = Behavior != null ? Behavior.UserProperties.Clone() : null;
+        var member = Member;
+        action = s =>
+        {
+            baseAction(s);
+            var sprite = (LingoFrameScriptSprite)s;
+            sprite.Member = Member;
+            if (behaviorType != null)
+            {
+                var method = typeof(LingoFrameScriptSprite).GetMethod(nameof(SetBehavior), BindingFlags.Instance | BindingFlags.NonPublic);
+                var generic = method!.MakeGenericMethod(behaviorType);
+                var behaviorNew = (LingoSpriteBehavior)generic.Invoke(sprite, null)!;
+                if (userProperties != null)
+                    behaviorNew.SetUserProperties(userProperties);
+                
+            }
+        };
+
+        return action;
     }
 }

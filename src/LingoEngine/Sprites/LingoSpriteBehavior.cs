@@ -11,7 +11,7 @@ namespace LingoEngine.Sprites
         /// <summary>
         /// Properties configured by the user via the property dialog.
         /// </summary>
-        public BehaviorPropertiesContainer UserProperties { get; } = new();
+        public BehaviorPropertiesContainer UserProperties { get; private set; } = new();
         public string Name { get; set; }
 
 #pragma warning disable CS8618
@@ -26,5 +26,6 @@ namespace LingoEngine.Sprites
             Me = sprite;
         }
 
+        internal void SetUserProperties(BehaviorPropertiesContainer userProperties) => UserProperties = userProperties;
     }
 }

@@ -160,5 +160,24 @@ namespace LingoEngine.Sprites
         {
             AnimationChanged?.Invoke();
         }
+
+        public virtual Action<LingoSprite> GetCloneAction()
+        {
+            Action<LingoSprite> action = s => { };
+            var isLocked = Lock;
+            int channel = SpriteNum;
+            int begin = BeginFrame;
+            int end = EndFrame;
+            string name = Name;
+            
+            action = s =>
+            {
+                s.Name = name;
+                s.BeginFrame = begin;
+                s.EndFrame = end;
+                s.Lock = isLocked;
+            };
+            return action;
+        }
     }
 }

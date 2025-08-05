@@ -7,7 +7,7 @@ namespace LingoEngine.Tempos;
 public interface ILingoTempoSpriteManager : ILingoSpriteManager<LingoTempoSprite>
 {
     public int Tempo { get; }
-    LingoTempoSprite Add(int frameNumber, int value);
+    LingoTempoSprite Add(int frameNumber, Action<LingoTempoSprite>? configure = null);
     void ChangeTempo(LingoTempoSprite lingoTempoSprite);
    
 }
@@ -30,11 +30,14 @@ internal class LingoTempoSpriteManager : LingoSpriteManager<LingoTempoSprite>, I
 
     protected override LingoTempoSprite OnCreateSprite(LingoMovie movie, Action<LingoTempoSprite> onRemove) => new LingoTempoSprite(_environment, onRemove);
 
-    public LingoTempoSprite Add(int frameNumber, int value)
+    public LingoTempoSprite Add(int frameNumber, Action<LingoTempoSprite>? configure = null)
     {
-        var sprite = AddSprite(1, "TempoChange_" + frameNumber,c => c.Tempo = value);
+        var sprite = AddSprite(1, "TempoChange_" + frameNumber);
         sprite.BeginFrame = frameNumber;
         sprite.EndFrame = frameNumber;
+        if (configure != null)
+            configure(sprite);
+        
         return sprite;
     }
 

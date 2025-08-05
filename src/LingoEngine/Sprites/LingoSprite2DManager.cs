@@ -14,6 +14,12 @@ namespace LingoEngine.Sprites
         }
 
       
+        public LingoSprite2D Add(int num, Action<LingoSprite2D>? configure = null)
+         => AddSprite(num, c =>
+         {
+             c.LocZ = num;
+             configure?.Invoke(c);
+         });
         internal LingoSprite2D AddSprite(int num, int begin, int end, float x, float y, Action<LingoSprite2D>? configure = null)
            => AddSprite(num, c =>
            {

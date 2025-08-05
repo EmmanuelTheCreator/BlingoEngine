@@ -4,7 +4,7 @@ using LingoEngine.Sprites;
 namespace LingoEngine.ColorPalettes;
 public interface ILingoSpriteColorPaletteSpriteManager : ILingoSpriteManager<LingoColorPaletteSprite>
 {
-    LingoColorPaletteSprite Add(int frameNumber, LingoColorPaletteFrameSettings settings);
+    LingoColorPaletteSprite Add(int frameNumber, LingoColorPaletteFrameSettings? settings = null);
 }
 internal class LingoSpriteColorPaletteSpriteManager : LingoSpriteManager<LingoColorPaletteSprite>, ILingoSpriteColorPaletteSpriteManager
 {
@@ -20,9 +20,13 @@ internal class LingoSpriteColorPaletteSpriteManager : LingoSpriteManager<LingoCo
     protected override LingoColorPaletteSprite OnCreateSprite(LingoMovie movie, Action<LingoColorPaletteSprite> onRemove) => new LingoColorPaletteSprite(_environment, onRemove);
 
 
-    public LingoColorPaletteSprite Add(int frameNumber, LingoColorPaletteFrameSettings settings)
+    public LingoColorPaletteSprite Add(int frameNumber, LingoColorPaletteFrameSettings? settings = null)
     {
-        var sprite = AddSprite(1, "ColorPalette_" + frameNumber, c => c.SetSettings(settings));
+        var sprite = AddSprite(1, "ColorPalette_" + frameNumber, c =>
+        {
+            if (settings != null)
+                c.SetSettings(settings);
+        });
         sprite.BeginFrame = frameNumber;
         sprite.EndFrame = frameNumber;
         return sprite;

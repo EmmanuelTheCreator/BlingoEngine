@@ -223,7 +223,7 @@ namespace LingoEngine.Director.Core.Inspector
                 case LingoTempoSprite tempo:AddSpriteTab(tempo);break;
                 case LingoColorPaletteSprite colorPalette:AddSpriteTab(colorPalette);if (colorPalette.Member != null) AddMemberTabs(colorPalette.Member); break;
                 case LingoTransitionSprite transition:AddSpriteTab(transition);if (transition.Member != null) AddMemberTabs(transition.Member); break;
-                case LingoSpriteFrameScript frameScript:AddSpriteTab(frameScript);if (frameScript.Member != null) AddMemberTabs(frameScript.Member); break;
+                case LingoFrameScriptSprite frameScript:AddSpriteTab(frameScript);if (frameScript.Member != null) AddMemberTabs(frameScript.Member); break;
 
                 default:
                     //AddTab(obj.GetType().Name, obj);
@@ -320,7 +320,7 @@ namespace LingoEngine.Director.Core.Inspector
                     return index + "." + b.Name;
                 });
             }
-            if (sprite is LingoSpriteFrameScript frameScript && frameScript.Behavior != null)
+            if (sprite is LingoFrameScriptSprite frameScript && frameScript.Behavior != null)
                 _behaviors.Add("1."+frameScript.Behavior.Name, frameScript.Behavior);
             
             foreach (var item in _behaviors)

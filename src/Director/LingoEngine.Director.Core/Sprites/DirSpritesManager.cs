@@ -6,6 +6,11 @@ using LingoEngine.Inputs;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
 using LingoEngine.Director.Core.Stages.Commands;
+using LingoEngine.Tempos;
+using LingoEngine.ColorPalettes;
+using LingoEngine.Scripts;
+using LingoEngine.Sounds;
+using LingoEngine.Transitions;
 
 namespace LingoEngine.Director.Core.Sprites
 {
@@ -74,7 +79,7 @@ namespace LingoEngine.Director.Core.Sprites
 
         public void DeleteSelected(LingoMovie movie)
         {
-            var sprites = SpritesSelection.Sprites.OfType<LingoSprite2D>().ToArray();
+            var sprites = SpritesSelection.Sprites.ToArray();
             foreach (var s in sprites)
                 CommandManager.Handle(new RemoveSpriteCommand(movie, s));
         }
@@ -116,25 +121,20 @@ namespace LingoEngine.Director.Core.Sprites
 
             int channel = sprite.SpriteNum;
             int begin = sprite.BeginFrame;
-            int end = sprite.EndFrame;
-            var member = sprite.Member;
-            string name = sprite.Name;
-            float x = sprite.LocH;
-            float y = sprite.LocV;
+            LingoMemberSound? memberSound = null;
+            if (sprite is LingoSpriteSound sound)
+                memberSound = sound.Sound;
+          
+            Action<LingoSprite> action = sprite.GetCloneAction();
 
             sprite.RemoveMe();
 
-            LingoSprite2D current = sprite;
+            LingoSprite current = sprite;
             void refresh() => ChannelChanged(command.Sprite.SpriteNumWithChannel);
 
             Action undo = () =>
             {
-                current = movie.AddSprite(channel, begin, end, x, y, s =>
-                {
-                    s.Name = name;
-                    if (member != null)
-                        s.SetMember(member);
-                });
+                current = CreateSprite(movie, sprite, channel, begin, memberSound, action, current);
                 refresh();
             };
 
@@ -147,6 +147,60 @@ namespace LingoEngine.Director.Core.Sprites
             _historyManager.Push(undo, redo);
             ChannelChanged(command.Sprite.SpriteNumWithChannel);
             return true;
+        }
+
+        private static LingoSprite CreateSprite(LingoMovie movie, LingoSprite sprite, int channel, int begin, LingoMemberSound? memberSound, Action<LingoSprite> action, LingoSprite current)
+        {
+            switch (sprite)
+            {
+                case LingoSprite2D:
+                    {
+                        var sprite2D = movie.Sprite2DManager.Add(channel);
+                        action(sprite2D);
+                        current = sprite2D;
+                        break;
+                    }
+                case LingoTempoSprite:
+                    {
+                        var tempoSprite1 = movie.Tempos.Add(begin);
+                        action(tempoSprite1);
+                        current = tempoSprite1;
+                        break;
+                    }
+                case LingoColorPaletteSprite:
+                    {
+                        var colorSprite = movie.ColorPalettes.Add(begin);
+                        action(colorSprite);
+                        current = colorSprite;
+                        break;
+                    }
+                case LingoFrameScriptSprite:
+                    {
+                        var scriptSprite = movie.FrameScripts.Add(begin);
+                        action(scriptSprite);
+                        current = scriptSprite;
+                        break;
+                    }
+                case LingoTransitionSprite:
+                    {
+                        var transitionSprite = movie.Transitions.Add(begin);
+                        action(transitionSprite);
+                        current = transitionSprite;
+                        break;
+                    }
+                case LingoSpriteSound:
+                    {
+                        if (memberSound != null)
+                        {
+                            var soundSprite = movie.Audio.Add(channel, begin, memberSound);
+                            action(soundSprite);
+                            current = soundSprite;
+                        }
+                        break;
+                    }
+            }
+
+            return current;
         }
 
 

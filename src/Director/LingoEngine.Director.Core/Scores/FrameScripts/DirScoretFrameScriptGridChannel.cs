@@ -4,15 +4,15 @@ using LingoEngine.Scripts;
 
 namespace LingoEngine.Director.Core.Scores.FrameScripts;
 
-internal partial class DirScoreFrameScriptGridChannel : DirScoreChannel<ILingoFrameScriptSpriteManager, DirScoreFrameScriptSprite, LingoSpriteFrameScript>
+internal partial class DirScoreFrameScriptGridChannel : DirScoreChannel<ILingoFrameScriptSpriteManager, DirScoreFrameScriptSprite, LingoFrameScriptSprite>
 {
 
-    protected override DirScoreFrameScriptSprite CreateUISprite(LingoSpriteFrameScript sprite, IDirSpritesManager spritesManager) => new DirScoreFrameScriptSprite(sprite, spritesManager);
+    protected override DirScoreFrameScriptSprite CreateUISprite(LingoFrameScriptSprite sprite, IDirSpritesManager spritesManager) => new DirScoreFrameScriptSprite(sprite, spritesManager);
 
     protected override ILingoFrameScriptSpriteManager GetManager(LingoMovie movie) => movie.FrameScripts;
 
     public DirScoreFrameScriptGridChannel(IDirScoreManager scoreManager)
-        : base(LingoSpriteFrameScript.SpriteNumOffset+1, scoreManager)
+        : base(LingoFrameScriptSprite.SpriteNumOffset+1, scoreManager)
     {
     }
 

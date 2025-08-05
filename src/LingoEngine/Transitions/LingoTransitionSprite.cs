@@ -1,3 +1,4 @@
+using LingoEngine.ColorPalettes;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
 
@@ -35,5 +36,23 @@ public class LingoTransitionSprite : LingoSprite
     {
         if (Member == null) return null;
         return Member.GetSettings();
+    }
+
+    public override Action<LingoSprite> GetCloneAction()
+    {
+        var baseAction = base.GetCloneAction();
+        Action<LingoSprite> action = s => { };
+        var settings = GetSettings();
+        var member = Member;
+        action = s =>
+        {
+            baseAction(s);
+            var sprite = (LingoTransitionSprite)s;
+            sprite.Member = Member;
+            if (settings != null)
+                sprite.SetSettings(settings);
+        };
+
+        return action;
     }
 }

@@ -1,5 +1,7 @@
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
+using LingoEngine.Tempos;
+using System.Security.Cryptography;
 
 namespace LingoEngine.ColorPalettes;
 
@@ -52,5 +54,22 @@ public class LingoColorPaletteSprite : LingoSprite
     {
         if (Member == null) return null;
         return Member.GetSettings();
+    }
+    public override Action<LingoSprite> GetCloneAction()
+    {
+        var baseAction = base.GetCloneAction();
+        Action<LingoSprite> action = s => { };
+        var settings = GetSettings();
+        var member = Member;
+        action = s =>
+        {
+            baseAction(s);
+            var sprite = (LingoColorPaletteSprite)s;
+            sprite.Member = Member;
+            if (settings != null)
+                sprite.SetSettings(settings);
+        };
+
+        return action;
     }
 }

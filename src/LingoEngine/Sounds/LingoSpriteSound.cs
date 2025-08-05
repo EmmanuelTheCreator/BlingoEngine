@@ -1,3 +1,4 @@
+using LingoEngine.ColorPalettes;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
 
@@ -48,5 +49,20 @@ public class LingoSpriteSound : LingoSprite
     public override void OnRemoveMe()
     {
         _onRemoveMe(this);
+    }
+
+    public override Action<LingoSprite> GetCloneAction()
+    {
+        var baseAction = base.GetCloneAction();
+        Action<LingoSprite> action = s => { };
+        var member = Sound;
+        action = s =>
+        {
+            baseAction(s);
+            var sprite = (LingoSpriteSound)s;
+            sprite.Sound = Sound;
+        };
+
+        return action;
     }
 }
