@@ -33,7 +33,6 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     private readonly Sprites2DChannelsContainer _Sprites2DContainer;
     private LingoPlayer _player;
     private readonly DirScoreGfxValues _gfxValues ;
-    private readonly DirGodotFrameHeader _framesHeader;
     private bool _topCollapsed = true;
 
     private readonly DirectorScoreWindow _directorScoreWindow;
@@ -60,7 +59,6 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
 
         Size = new Vector2(width, height);
         CustomMinimumSize = Size;
-        _framesHeader = new DirGodotFrameHeader(_gfxValues);
         _directorScoreWindow.HeaderCollapseChanged += OnHeaderCollapseChanged;
 
         
@@ -91,7 +89,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _topHClipper.AddChild(_topStripContent);
         _topHClipper.AddChild(_TopContainer);
         _marginContainer.AddChild(_topHClipper);
-        _topStripContent.AddChild(_framesHeader);
+        _topStripContent.AddChild((Node)_directorScoreWindow.FrameHeader.Canvas.FrameworkObj.FrameworkNode);
         _topStripContent.AddChild((Node)_directorScoreWindow.LabelsBar.ScollingPanel.FrameworkObj.FrameworkNode);
 
 
@@ -123,7 +121,8 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     private void RepositionBars()
     {
         float barsHeight = _topCollapsed ? _gfxValues.ChannelHeight : _gfxValues.ChannelHeight * 6;
-        _framesHeader.Position = new Vector2(0, barsHeight + _gfxValues.LabelsBarHeight+2);
+        _directorScoreWindow.FrameHeader.Canvas.X = 0;
+        _directorScoreWindow.FrameHeader.Canvas.Y = barsHeight + _gfxValues.LabelsBarHeight+2;
         float topHeight = barsHeight + _gfxValues.ChannelFramesHeight + 22;
 
         _masterScroller.Position = new Vector2(_gfxValues.ChannelInfoWidth, topHeight);
@@ -206,7 +205,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         float gridHeight = _movie.MaxSpriteChannelCount * _gfxValues.ChannelHeight + _gfxValues.ExtraMargin;
 
         //float topHeight = _gfxValues.ChannelFramesHeight;
-        float topHeight = _framesHeader.Position.Y + 20;
+        float topHeight = _directorScoreWindow.FrameHeader.Canvas.Y + 20;
 
         //_channelBar.CustomMinimumSize = new Vector2(_gfxValues.ChannelInfoWidth, gridHeight - _footerMargin);
         _scrollContent.CustomMinimumSize = new Vector2(gridWidth, gridHeight - _footerMargin);
@@ -237,7 +236,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     public void SetActiveMovie(LingoMovie? movie)
     {
         _movie = movie;
-        _framesHeader.SetMovie(movie);
+        _directorScoreWindow.FrameHeader.SetMovie(movie);
         //_LeftChannelsContainer.SetMovie(movie);
         RepositionBars();
     }

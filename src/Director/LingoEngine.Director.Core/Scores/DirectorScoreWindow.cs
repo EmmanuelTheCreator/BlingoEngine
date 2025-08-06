@@ -23,6 +23,7 @@ namespace LingoEngine.Director.Core.Scores
         private readonly ILingoColorPaletteDefinitions _paletteDefinitions;
         private readonly LingoPlayer _player;
         private readonly DirScoreLabelsBar _labelsBar;
+        private readonly DirScoreFrameHeader _frameHeader;
         private readonly DirScoreLeftTopContainer _LeftTopContainer;
         private readonly DirScoreLeftChannelsContainer _LeftChannelContainer;
         private readonly LingoGfxPanel _panelScroll;
@@ -41,6 +42,7 @@ namespace LingoEngine.Director.Core.Scores
         public DirScoreGridTopContainer TopContainer { get; private set; }
         public DirScoreGridSprites2DContainer Sprites2DContainer { get; private set; }
         public DirScoreLabelsBar LabelsBar => _labelsBar;
+        public DirScoreFrameHeader FrameHeader => _frameHeader;
         public DirScoreGfxValues GfxValues  => _scoreManager.GfxValues;
        // public DirScoreLeftTopContainer LeftTopContainer => _LeftTopContainer;
         //public DirScoreLeftChannelsContainer LeftChannelContainer => _LeftChannelContainer;
@@ -60,6 +62,7 @@ namespace LingoEngine.Director.Core.Scores
             _player = (LingoPlayer)player;
             _player.ActiveMovieChanged += OnActiveMovieChanged;
             _labelsBar = new DirScoreLabelsBar(GfxValues, factory, commandManager);
+            _frameHeader = new DirScoreFrameHeader(GfxValues, factory);
             _LeftTopContainer = new DirScoreLeftTopContainer(GfxValues, factory, new LingoPoint(0, GfxValues.TopStripHeight), mediator);
             _LeftChannelContainer = new DirScoreLeftChannelsContainer(GfxValues, factory, new LingoPoint(0, 0), mediator);
 
@@ -98,6 +101,7 @@ namespace LingoEngine.Director.Core.Scores
             _player.ActiveMovieChanged -= OnActiveMovieChanged;
             _labelsBar.HeaderCollapseChanged -= OnHeaderCollapseChanged;
             _labelsBar.Dispose();
+            _frameHeader.Dispose();
             TopContainer.Dispose();
             Sprites2DContainer.Dispose();
             _LeftTopContainer.Dispose();
@@ -118,6 +122,7 @@ namespace LingoEngine.Director.Core.Scores
             TopContainer.SetMovie(_movie);
             Sprites2DContainer.SetMovie(_movie);
             _labelsBar.SetMovie(_movie);
+            _frameHeader.SetMovie(_movie);
             _LeftTopContainer.SetMovie(_movie);
             _LeftChannelContainer.SetMovie(_movie);
         }
@@ -148,11 +153,10 @@ namespace LingoEngine.Director.Core.Scores
                 spriteNumWithChannel = Math.Clamp(MathL.RoundToInt((yPosition + 4) / gfxValues.ChannelHeight), 1, 999);
             }
             else {
-                isInFrameHeader = mouseEvent.MouseV <= gfxValues.LabelsBarHeight + TopContainer.Size.Y;
+                isInFrameHeader = mouseEvent.MouseV <= gfxValues.LabelsBarHeight + TopContainer.Size.Y + gfxValues.ChannelFramesHeight;
                 if (isInFrameHeader && !isInsideLeft)
                 {
-                    // Inside frameheaders
-                    // todo
+                    _frameHeader.HandleMouseEvent(mouseEvent, mouseFrame);
                     return;
                 }
                 // Sprites Container
