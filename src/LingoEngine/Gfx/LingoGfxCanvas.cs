@@ -32,4 +32,5 @@ namespace LingoEngine.Gfx
         public void DrawPicture(byte[] data, int width, int height, LingoPoint position, LingoPixelFormat format)
             => _framework.DrawPicture(data, width, height, position, format);
     }
+    
 }

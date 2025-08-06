@@ -42,7 +42,7 @@ namespace LingoEngine.Director.Core.Scores
 
 
 
-        public DirScoreGridContainer(IDirScoreManager scoreManager,int channelCount, Func<string, ILingoFrameworkGfxPanel, Windowing.IDirectorWindowDialogReference?> showConfirmDialog)
+        public DirScoreGridContainer(IDirScoreManager scoreManager,int channelCount, Func<string, ILingoFrameworkGfxPanel, IDirectorWindowDialogReference?> showConfirmDialog)
         {
             _scoreManager = scoreManager;
             _showConfirmDialog = showConfirmDialog;

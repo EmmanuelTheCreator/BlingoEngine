@@ -84,11 +84,7 @@ namespace LingoEngine.Director.Core.Scores
         {
             if (_movie == null) return;
             var gfxValues = _scoreManager.GfxValues;
-            if (mouseEvent.MouseH < gfxValues.ChannelInfoWidth)
-            {
-                // inside frame headers left.
-                return;
-            }
+            
             
             float frameF = (mouseEvent.MouseH - gfxValues.ChannelInfoWidth - 3 + ScollX) / gfxValues.FrameWidth;
             var mouseFrame = Math.Clamp(MathL.RoundToInt(frameF) + 1, 1, _movie.FrameCount);
@@ -97,6 +93,11 @@ namespace LingoEngine.Director.Core.Scores
             {
                 // Inside labels bar
                 _labelsBar.HandleMouseEvent(mouseEvent, mouseFrame);
+                return;
+            }
+            if (mouseEvent.MouseH < gfxValues.ChannelInfoWidth)
+            {
+                // inside frame headers left.
                 return;
             }
 

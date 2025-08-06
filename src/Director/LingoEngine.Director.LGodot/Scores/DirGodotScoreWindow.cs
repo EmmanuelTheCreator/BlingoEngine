@@ -24,7 +24,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
 
     private bool wasToggleKey;
     private LingoMovie? _movie;
-    private readonly ScrollContainer _leftChannelsScollClipper = new ScrollContainer { Name = "ScoreLeftChannelsScollClipper" };
+    private readonly ScrollContainer _leftChannelsScollClipper = new ScrollContainer{ Name = "ScoreLeftChannelsScollClipper" };
     private readonly ScrollContainer _masterScroller = new ScrollContainer{Name="ScoreMasterScroller"};
     private readonly Control _topStripContent = new Control{Name="ScoreTopStripContent"};
     private readonly Control _scrollContent = new Control{Name= "ScoreScrollContent" };
@@ -37,7 +37,6 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     private readonly DirGodotScoreLeftTopContainer _LeftTopContainer;
     //private readonly DirGodotScoreLabelsBar _labelBar;
     private readonly DirGodotScoreLeftChannelsContainer _LeftChannelsContainer;
-    private readonly DirGodotScoreLeftForLabels _leftChannelForLabels;
     private readonly DirGodotScoreLeftForLabels _leftHeaderForFrames;
     private bool _topCollapsed = true;
 
@@ -64,9 +63,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         var height = 400;
         var width = 800;
 
-        _leftChannelForLabels = new DirGodotScoreLeftForLabels(_gfxValues, "Labels", _gfxValues.LabelsBarHeight);
         _leftHeaderForFrames = new DirGodotScoreLeftForLabels(_gfxValues, "Member", _gfxValues.ChannelFramesHeight);
-        _marginContainer.AddChild(_leftChannelForLabels);
         _marginContainer.AddChild(_leftHeaderForFrames);
         
         Size = new Vector2(width, height);

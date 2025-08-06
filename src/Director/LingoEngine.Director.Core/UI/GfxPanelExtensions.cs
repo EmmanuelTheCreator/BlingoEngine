@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using LingoEngine.Tools;
 using LingoEngine.Bitmaps;
 using LingoEngine.Director.Core.Inspector;
-using System.Collections.Generic;
 using LingoEngine.Primitives;
 using LingoEngine.Texts;
 
@@ -14,7 +13,7 @@ namespace LingoEngine.Director.Core.UI
 {
     public static class GfxPanelExtensions
     {
-        
+       
         public static GfxPanelBuilder Compose(this LingoGfxPanel panel, ILingoFrameworkFactory factory)
         {
             var builder = new GfxPanelBuilder(panel, factory);
@@ -77,6 +76,17 @@ namespace LingoEngine.Director.Core.UI
         public static LingoGfxInputCombobox SetComboBoxAt(this LingoGfxPanel container, IEnumerable<KeyValuePair<string, string>> items, string name, float x, float y, int width = 100, string? selectedKey = null, Action<string?>? onChange = null)
         {
             var list = container.Factory.CreateInputCombobox(name, onChange);
+            foreach (var item in items)
+                list.AddItem(item.Key, item.Value);
+            if (selectedKey != null)
+                list.SelectedKey = selectedKey;
+            list.Width = width;
+            container.AddItem(list, x, y);
+            return list;
+        }
+        public static LingoGfxItemList SetInputListAt(this LingoGfxPanel container, IEnumerable<KeyValuePair<string, string>> items, string name, float x, float y, int width = 100, string? selectedKey = null, Action<string?>? onChange = null)
+        {
+            var list = container.Factory.CreateItemList(name, onChange);
             foreach (var item in items)
                 list.AddItem(item.Key, item.Value);
             if (selectedKey != null)

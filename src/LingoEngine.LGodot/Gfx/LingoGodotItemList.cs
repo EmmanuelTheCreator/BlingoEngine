@@ -46,7 +46,7 @@ namespace LingoEngine.LGodot.Gfx
             _onItemSelected = idx =>
             {
                 _onValueChanged?.Invoke();
-                _onChange?.Invoke(SelectedKey);
+                _onChange?.Invoke(_items[(int)idx].Key);
             };
             ItemSelected += _onItemSelected;
             SizeFlagsHorizontal = SizeFlags.ExpandFill;

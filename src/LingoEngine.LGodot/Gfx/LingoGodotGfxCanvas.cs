@@ -55,12 +55,14 @@ namespace LingoEngine.LGodot.Gfx
             if (!_dirty)
             {
                 _dirty = true;
+                //Console.WriteLine(Name + ":MarkDirty()");
                 QueueRedraw();
             }
         }
 
         public override void _Draw()
         {
+            //Console.WriteLine(Name + ":_Draw()");
             if (_clearColor.HasValue)
             {
                 DrawRect(new Rect2(0, 0, _desiredWidth, _desiredHeight), _clearColor.Value, true);

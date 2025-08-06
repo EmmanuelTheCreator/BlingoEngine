@@ -10,6 +10,7 @@ namespace LingoEngine.Movies
 
         void SetScoreLabel(int frameNumber, string? name);
         int GetNextLabelFrame(int frame);
+        int GetPreviousLabelFrame(int frame);
     }
 
     /// <summary>
@@ -80,6 +81,16 @@ namespace LingoEngine.Movies
             if (next == int.MaxValue)
                 return frame + 10;
             return next;
+        } 
+        public int GetPreviousLabelFrame(int frame)
+        {
+            var previous = _scoreLabels.Values
+                .Where(v => v < frame)
+                .DefaultIfEmpty(int.MaxValue)
+                .Max();
+            if (previous == int.MaxValue)
+                return frame - 10;
+            return previous;
         }
 
 
