@@ -1,4 +1,5 @@
 ﻿using Godot;
+using System;
 using LingoEngine.Director.Core.Events;
 using LingoEngine.Movies;
 using LingoEngine.Members;
@@ -49,7 +50,7 @@ namespace LingoEngine.Director.LGodot.Casts
 
             Size = new Vector2(360, 620);
             CustomMinimumSize = Size;
-            
+
             _tabs = new TabContainer();
             _tabs.Position = new Vector2(0, TitleBarHeight );
 
