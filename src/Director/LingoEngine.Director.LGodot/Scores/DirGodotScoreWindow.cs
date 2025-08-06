@@ -75,7 +75,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _LeftTopContainer = new DirGodotScoreLeftTopContainer(_gfxValues, _player.Factory, Mouse,new Vector2(0, _gfxValues.ChannelHeight + 5),_mediator);
         _LeftChannelsContainer = new DirGodotScoreLeftChannelsContainer(_gfxValues,_player.Factory,Mouse, new Vector2(0, _gfxValues.TopStripHeight - _footerMargin), _mediator);
         _framesHeader = new DirGodotFrameHeader(_gfxValues);
-        _labelBar = new DirGodotScoreLabelsBar(_gfxValues, commandManager, godotStyle);
+        _labelBar = new DirGodotScoreLabelsBar(_gfxValues, commandManager, godotStyle, _player.Factory, Mouse);
         _labelBar.HeaderCollapseChanged += OnHeaderCollapseChanged;
 
         _collapseButton = new CollapseButton(_labelBar);
@@ -112,6 +112,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _marginContainer.AddChild(_LeftTopContainer);
         _topStripContent.AddChild(_labelBar);
         _topStripContent.AddChild(_framesHeader);
+        _labelBar.UpdatePosition(new Vector2(_gfxValues.ChannelInfoWidth, 0));
 
 
 
@@ -156,6 +157,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _leftHeaderForFrames.Position = new Vector2(0, _framesHeader.Position.Y);
         _lastPosV = -1;
         UpdateScrollSize();
+        _labelBar.UpdatePosition(new Vector2(_gfxValues.ChannelInfoWidth - _masterScroller.ScrollHorizontal, 0));
     }
 
     private float _lastPosV = -1;
@@ -201,6 +203,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _topStripContent.Position = new Vector2(-_masterScroller.ScrollHorizontal, _topStripContent.Position.Y);
         if (_TopContainer.ScrollX != _masterScroller.ScrollHorizontal)
             _TopContainer.ScrollX = _masterScroller.ScrollHorizontal;
+        _labelBar.UpdatePosition(new Vector2(_gfxValues.ChannelInfoWidth - _masterScroller.ScrollHorizontal, 0));
     }
 
     private void RefreshGrid()
