@@ -33,9 +33,10 @@ namespace LingoEngine.Director.Core.Scores
     public class DirScoreSprite : IDisposable
     {
         private bool _isSelected;
-        private int _startDragFrameOffset = -1;
-        private int _startBeginFrame;
-        private int _startEndFrame;
+        private int _dragStartFrameOffset = -1;
+        private int _dragStartBeginFrame;
+        private int _dragStartEndFrame;
+        private int _dragStartChannel;
         private readonly IDirSpritesManager _spritesManager;
         internal DirScoreChannel? Channel { get; set; }
         public bool IsSingleFrameSprite { get; }
@@ -66,6 +67,10 @@ namespace LingoEngine.Director.Core.Scores
         public bool ShowLabel { get; set; } = true;
         public DirScoreSpriteLabelType LabelType { get; set; } = DirScoreSpriteLabelType.Member;
         public bool IsLocked => Sprite.Lock;
+
+        internal int DragStartChannel => _dragStartChannel;
+        internal int DragStartBeginFrame => _dragStartBeginFrame;
+        internal int DragStartEndFrame => _dragStartEndFrame;
 
         public DirScoreSprite(LingoSprite sprite, IDirSpritesManager spritesManager)
         {
@@ -156,9 +161,10 @@ namespace LingoEngine.Director.Core.Scores
 
         public void PrepareDragging(int startDragFrameOffset)
         {
-            _startDragFrameOffset = startDragFrameOffset;
-            _startBeginFrame = Sprite.BeginFrame;
-            _startEndFrame = Sprite.EndFrame;
+            _dragStartFrameOffset = startDragFrameOffset;
+            _dragStartBeginFrame = Sprite.BeginFrame;
+            _dragStartEndFrame = Sprite.EndFrame;
+            _dragStartChannel = Sprite.SpriteNumWithChannel;
         }
 
         public void DragMoveBegin(int frameOffset)
@@ -169,7 +175,7 @@ namespace LingoEngine.Director.Core.Scores
                 DragMove(frameOffset);
                 return;
             }
-            int newBegin = _startBeginFrame + (frameOffset - _startDragFrameOffset);
+            int newBegin = _dragStartBeginFrame + (frameOffset - _dragStartFrameOffset);
             if (newBegin <= Sprite.EndFrame && newBegin > 0)
                 Sprite.BeginFrame = newBegin;
         }
@@ -177,9 +183,9 @@ namespace LingoEngine.Director.Core.Scores
         public void DragMove(int frameOffset)
         {
             if (Sprite.Lock) return;
-            int delta = frameOffset - _startDragFrameOffset;
-            Sprite.BeginFrame = _startBeginFrame + delta;
-            Sprite.EndFrame = _startEndFrame + delta;
+            int delta = frameOffset - _dragStartFrameOffset;
+            Sprite.BeginFrame = _dragStartBeginFrame + delta;
+            Sprite.EndFrame = _dragStartEndFrame + delta;
         }
 
         public void DragMoveEnd(int frameOffset)
@@ -190,16 +196,26 @@ namespace LingoEngine.Director.Core.Scores
                 DragMove(frameOffset);
                 return;
             }
-            int newEnd = _startEndFrame + (frameOffset - _startDragFrameOffset);
+            int newEnd = _dragStartEndFrame + (frameOffset - _dragStartFrameOffset);
             if (newEnd >= Sprite.BeginFrame && newEnd > 0)
                 Sprite.EndFrame = newEnd;
         }
 
-        public void StopDragging()
+        public void StopDragging(bool checkCollision = true)
         {
-            _startDragFrameOffset = -1;
-            _startBeginFrame = Sprite.BeginFrame;
-            _startEndFrame = Sprite.EndFrame;
+            if (checkCollision && Channel != null)
+            {
+                if (!Channel.CanAcceptSpriteRange(this, Sprite.BeginFrame, Sprite.EndFrame))
+                {
+                    Sprite.BeginFrame = _dragStartBeginFrame;
+                    Sprite.EndFrame = _dragStartEndFrame;
+                }
+            }
+
+            _dragStartFrameOffset = -1;
+            _dragStartBeginFrame = Sprite.BeginFrame;
+            _dragStartEndFrame = Sprite.EndFrame;
+            _dragStartChannel = Sprite.SpriteNumWithChannel;
         }
 
 

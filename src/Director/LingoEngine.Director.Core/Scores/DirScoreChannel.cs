@@ -137,8 +137,12 @@ namespace LingoEngine.Director.Core.Scores
 
         internal virtual void StopPreview()
         {
-            
+
         }
+
+        internal virtual bool CanAcceptSpriteRange(DirScoreSprite? sprite, int begin, int end) => true;
+
+        internal virtual bool DrawMovePreview(int begin, int end, DirScoreSprite? ignore = null) => true;
 
     }
 
@@ -277,6 +281,47 @@ namespace LingoEngine.Director.Core.Scores
         {
             ShowPreview = false;
             RequireRedraw();
+        }
+
+        /// <summary>
+        /// Checks if a sprite range can be placed on this channel without colliding with existing sprites.
+        /// </summary>
+        /// <param name="sprite">Sprite to ignore from collision checks, if any.</param>
+        /// <param name="begin">Proposed first frame.</param>
+        /// <param name="end">Proposed last frame.</param>
+        /// <returns><c>true</c> if the range does not overlap any other sprite; otherwise, <c>false</c>.</returns>
+        internal override bool CanAcceptSpriteRange(DirScoreSprite? sprite, int begin, int end)
+        {
+            foreach (var sp in _spriteUIs)
+            {
+                if (ReferenceEquals(sp, sprite))
+                    continue;
+                if (!(end < sp.Sprite.BeginFrame || begin > sp.Sprite.EndFrame))
+                    return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Draws a preview rectangle for a potential sprite move if the target range is free.
+        /// </summary>
+        /// <param name="begin">Start frame of the preview range.</param>
+        /// <param name="end">End frame of the preview range.</param>
+        /// <param name="ignore">Optional sprite to exclude during overlap checks.</param>
+        /// <returns><c>true</c> if the preview was shown; otherwise, <c>false</c>.</returns>
+        internal override bool DrawMovePreview(int begin, int end, DirScoreSprite? ignore = null)
+        {
+            if (!CanAcceptSpriteRange(ignore, begin, end))
+            {
+                StopPreview();
+                return false;
+            }
+
+            PreviewBegin = begin;
+            PreviewEnd = end;
+            ShowPreview = true;
+            RequireRedraw();
+            return true;
         }
         public override void Draw()
         {

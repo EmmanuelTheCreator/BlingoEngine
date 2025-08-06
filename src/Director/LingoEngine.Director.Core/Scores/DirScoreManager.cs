@@ -7,6 +7,8 @@ using LingoEngine.Members;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Stages.Commands;
 using LingoEngine.Movies;
+using System.Linq;
+using LingoEngine.Director.Core.Scores.Sprites2D;
 
 namespace LingoEngine.Director.Core.Scores
 {
@@ -37,6 +39,7 @@ namespace LingoEngine.Director.Core.Scores
         private bool _dragEnd;
         private bool _dragMiddle;
         private bool _isDropPreview;
+        private DirScoreChannel? _dragPreviewChannel;
         private int _mouseDownFrame = -1;
         private LingoMovie? _movie;
         public DirScoreGfxValues GfxValues { get; } = new();
@@ -214,6 +217,8 @@ namespace LingoEngine.Director.Core.Scores
                 {
                     foreach (var s in _selected)
                         s.DragMove(frameNumber);
+
+                    UpdateDragPreview(channelNumber);
                 }
             }
             else if (mouseEvent.Type == LingoMouseEventType.MouseUp)
@@ -230,7 +235,11 @@ namespace LingoEngine.Director.Core.Scores
                 }
                 if (_lastMouseLeftDown)
                 {
-                    if (_spritesManager != null && !_dragging && !_spritesManager.Key.ControlDown && !_spritesManager.Key.ShiftDown && _lastAddedSprite == null)
+                    if (_dragPreviewChannel != null && _movie != null)
+                    {
+                        FinalizeChannelMove();
+                    }
+                    else if (_spritesManager != null && !_dragging && !_spritesManager.Key.ControlDown && !_spritesManager.Key.ShiftDown && _lastAddedSprite == null)
                         ClearSelection();
                     else
                     {
@@ -251,7 +260,104 @@ namespace LingoEngine.Director.Core.Scores
             }
         }
 
+        /// <summary>
+        /// Handles previewing channel moves while dragging sprites.
+        /// </summary>
+        /// <param name="channelNumber">Channel currently hovered by the mouse.</param>
+        private void UpdateDragPreview(int channelNumber)
+        {
+            // No selection -> no preview.
+            if (_selected.Count == 0)
+                return;
 
+            int originChannel = _selected[0].DragStartChannel;
+
+            // Only show preview when hovering over a different channel.
+            if (channelNumber != originChannel)
+            {
+                // Allow previews only for Sprite2D channels.
+                if (_channels.TryGetValue(channelNumber, out var target) && target is DirScoreSprite2DChannel)
+                {
+                    int minBegin = _selected.Min(s => s.Sprite.BeginFrame);
+                    int maxEnd = _selected.Max(s => s.Sprite.EndFrame);
+
+                    // Draw preview if the range fits the target channel.
+                    if (target.DrawMovePreview(minBegin, maxEnd))
+                    {
+                        if (_dragPreviewChannel != null && _dragPreviewChannel != target)
+                            _dragPreviewChannel.StopPreview();
+                        _dragPreviewChannel = target;
+                    }
+                    else if (_dragPreviewChannel != null)
+                    {
+                        _dragPreviewChannel.StopPreview();
+                        _dragPreviewChannel = null;
+                    }
+                }
+                else if (_dragPreviewChannel != null)
+                {
+                    // Current channel cannot host the sprites -> clear preview.
+                    _dragPreviewChannel.StopPreview();
+                    _dragPreviewChannel = null;
+                }
+            }
+            else if (_dragPreviewChannel != null)
+            {
+                // Returned to original channel -> remove preview.
+                _dragPreviewChannel.StopPreview();
+                _dragPreviewChannel = null;
+            }
+        }
+
+        /// <summary>
+        /// Applies a pending preview move by transferring the selected sprites to
+        /// the previewed channel and recording the operation for undo/redo.
+        /// </summary>
+        private void FinalizeChannelMove()
+        {
+            if (_dragPreviewChannel == null || _movie == null)
+                return;
+
+            // Target channel index corresponding to the preview channel.
+            int newChannelIdx = _dragPreviewChannel.SpriteNumWithChannelNum - LingoSprite2D.SpriteNumOffset - 1;
+
+            foreach (var s in _selected)
+            {
+                var oldChannel = s.Channel;
+                int origChannelIdx = s.Sprite.SpriteNum - 1;
+                int origBegin = s.DragStartBeginFrame;
+                int origEnd = s.DragStartEndFrame;
+                int newBegin = s.Sprite.BeginFrame;
+                int newEnd = s.Sprite.EndFrame;
+
+                // Move the sprite to the target channel if it actually changed.
+                if (origChannelIdx != newChannelIdx)
+                    _movie.ChangeSpriteChannel(s.Sprite, newChannelIdx);
+
+                // Record range change so the action can be undone/redone.
+                _commandManager.Handle(new ChangeSpriteRangeCommand(
+                    _movie, s.Sprite,
+                    origChannelIdx, origBegin, origEnd,
+                    newChannelIdx, newBegin, newEnd));
+
+                // Stop dragging without snapping back to the original range.
+                s.StopDragging(false);
+
+                // Mark the old channel dirty to trigger a redraw.
+                if (oldChannel != null)
+                {
+                    oldChannel.HasDirtySpriteList = true;
+                    oldChannel.RequireRedraw();
+                }
+            }
+
+            // Update the preview channel, clear preview state and selection.
+            _dragPreviewChannel.HasDirtySpriteList = true;
+            _dragPreviewChannel.RequireRedraw();
+            _dragPreviewChannel.StopPreview();
+            _dragPreviewChannel = null;
+            ClearSelection();
+        }
 
         private void HandleDoubleClick(int channelNumber, int frameNumber, DirScoreChannel channel, DirScoreSprite? spriteScore)
         {
