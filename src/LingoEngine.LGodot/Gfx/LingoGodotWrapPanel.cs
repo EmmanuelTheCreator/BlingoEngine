@@ -20,6 +20,7 @@ namespace LingoEngine.LGodot.Gfx
             _orientation = orientation;
             _itemMargin = LingoMargin.Zero;
             _margin = LingoMargin.Zero;
+            MouseFilter = MouseFilterEnum.Ignore;
             _container = CreateContainer(orientation);
             AddChild(_container);
             panel.Init(this);

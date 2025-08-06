@@ -31,7 +31,7 @@ namespace LingoEngine.Movies
         
         private bool _needToRaiseStartMovie = false;
         private LingoCastLibsContainer _castLibContainer;
-        private readonly LingoFrameManager _frameManager;
+        private readonly LingoFrameLabelManager _frameLabelManager;
         private readonly LingoSprite2DManager _spriteManager;
         private bool _IsManualUpdateStage;
         public event Action<int>? SpriteListChanged { add => _spriteManager.SpriteListChanged+=value;remove => _spriteManager.SpriteListChanged-=value; }
@@ -59,6 +59,7 @@ namespace LingoEngine.Movies
         public ILingoSpriteColorPaletteSpriteManager ColorPalettes => _paletteManager;
         public ILingoFrameScriptSpriteManager FrameScripts => _frameScriptManager;
         public LingoSprite2DManager Sprite2DManager => _spriteManager;
+        public ILingoFrameLabelManager FrameLabels => _frameLabelManager;
 
         public string Name { get; set; }
 
@@ -81,7 +82,7 @@ namespace LingoEngine.Movies
         public int LastChannel => _spriteManager.MaxSpriteChannelCount;
         public int LastFrame => FrameCount;
         public IReadOnlyDictionary<int, string> MarkerList =>
-            _frameManager.MarkerList;
+            _frameLabelManager.MarkerList;
         // Tempo (Frame Rate)
         public int Tempo
         {
@@ -105,7 +106,7 @@ namespace LingoEngine.Movies
 
 
 #pragma warning disable CS8618
-        protected internal LingoMovie(LingoMovieEnvironment environment, LingoStage movieStage, LingoCastLibsContainer castLibContainer, ILingoMemberFactory memberFactory, string name, int number, LingoEventMediator mediator, Action<LingoMovie> onRemoveMe, LingoProjectSettings projectSettings)
+        protected internal LingoMovie(LingoMovieEnvironment environment, LingoStage movieStage, LingoCastLibsContainer castLibContainer, ILingoMemberFactory memberFactory, string name, int number, LingoEventMediator mediator, Action<LingoMovie> onRemoveMe, LingoProjectSettings projectSettings, ILingoFrameLabelManager lingoFrameLabelManager)
 #pragma warning restore CS8618
         {
             _castLibContainer = castLibContainer;
@@ -122,7 +123,7 @@ namespace LingoEngine.Movies
 
             _spriteManager = new LingoSprite2DManager(this, environment);
             MaxSpriteChannelCount = projectSettings.MaxSpriteChannelCount;
-            _frameManager = new LingoFrameManager(this, environment, _spriteManager.AllTimeSprites);
+            _frameLabelManager = (LingoFrameLabelManager)lingoFrameLabelManager;
             _audioManager = new LingoSpriteAudioManager(this, environment);
             _transitionManager = new LingoSpriteTransitionManager(this, environment);
             _tempoManager = new LingoTempoSpriteManager(this, environment);
@@ -218,7 +219,7 @@ namespace LingoEngine.Movies
         public void GoTo(string label) => Go(label);
         public void Go(string label)
         {
-            if (_frameManager.ScoreLabels.TryGetValue(label, out var scoreLabel))
+            if (_frameLabelManager.ScoreLabels.TryGetValue(label, out var scoreLabel))
                 _NextFrame = scoreLabel;
         }
 
@@ -383,13 +384,13 @@ namespace LingoEngine.Movies
         }
 
         public void GoNext()
-            => Go(_frameManager.GetNextMarker(Frame));
+            => Go(_frameLabelManager.GetNextMarker(Frame));
 
         public void GoPrevious()
-            => Go(_frameManager.GetPreviousMarker(Frame));
+            => Go(_frameLabelManager.GetPreviousMarker(Frame));
 
         public void GoLoop()
-            => Go(_frameManager.GetLoopMarker(Frame));
+            => Go(_frameLabelManager.GetLoopMarker(Frame));
 
         public void InsertFrame()
         {
@@ -481,19 +482,13 @@ namespace LingoEngine.Movies
         public void StartTimer() => Timer = 0;
 
         public void SetScoreLabel(int frameNumber, string? name)
-            => _frameManager.SetScoreLabel(frameNumber, name);
-
-        public IReadOnlyDictionary<string, int> GetScoreLabels() => _frameManager.ScoreLabels;
-
-
-        public int GetNextLabelFrame(int frame)
-            => _frameManager.GetNextLabelFrame(frame);
+            => _frameLabelManager.SetScoreLabel(frameNumber, name);
 
         public int GetNextSpriteStart(int channel, int frame)
-            => _frameManager.GetNextSpriteStart(channel, frame);
+            => _spriteManager.GetNextSpriteStart(channel, frame);
 
         public int GetPrevSpriteEnd(int channel, int frame)
-            => _frameManager.GetPrevSpriteEnd(channel, frame);
+            => _spriteManager.GetPrevSpriteEnd(channel, frame);
 
        
         public int GetMaxLocZ() => _spriteManager.GetMaxLocZ();

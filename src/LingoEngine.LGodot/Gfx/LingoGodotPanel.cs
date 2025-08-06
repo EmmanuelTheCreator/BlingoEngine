@@ -18,6 +18,7 @@ namespace LingoEngine.LGodot.Gfx
 
         public LingoGodotPanel(LingoGfxPanel panel)
         {
+            MouseFilter = MouseFilterEnum.Ignore;
             panel.Init(this);
             SizeFlagsVertical = SizeFlags.ExpandFill;
             //SizeFlagsHorizontal = SizeFlags.ExpandFill;

@@ -78,13 +78,8 @@ internal partial class DirScoreTempoGridChannel : DirScoreChannel<ILingoTempoSpr
 
         wait1.Visibility = false;
         wait2.Visibility = false;
-
-
-        panel.SetComboBoxAt(_values, "ComboTempo", 10, 30, 250, settings.Action.ToString(), actionKey =>
+        Action<LingoTempoSpriteAction> applyVisibility = (actionType) =>
         {
-            if (actionKey == null) return;
-            var actionType = Enum.Parse<LingoTempoSpriteAction>(actionKey);
-            settings.Action = actionType;
             switch (actionType)
             {
                 case LingoTempoSpriteAction.ChangeTempo:
@@ -114,7 +109,15 @@ internal partial class DirScoreTempoGridChannel : DirScoreChannel<ILingoTempoSpr
                 default:
                     break;
             }
+        };
+        applyVisibility(settings.Action);
 
+        panel.SetComboBoxAt(_values, "ComboTempo", 10, 30, 250, settings.Action.ToString(), actionKey =>
+        {
+            if (actionKey == null) return;
+            var actionType = Enum.Parse<LingoTempoSpriteAction>(actionKey);
+            settings.Action = actionType;
+            applyVisibility(actionType);
         });
 
         panel.AddPopupButtons(okAction, CloseDialog);

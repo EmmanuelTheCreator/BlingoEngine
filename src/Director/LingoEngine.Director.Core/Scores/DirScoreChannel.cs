@@ -247,7 +247,7 @@ namespace LingoEngine.Director.Core.Scores
             if(_movie == null || _manager == null) return true;
             var isSingleFrameSprite = IsSingleFrame;
             PreviewBegin = frameNumber;
-            var endFrame = _movie.GetNextLabelFrame(frameNumber);
+            var endFrame = _movie.FrameLabels.GetNextLabelFrame(frameNumber);
             if (endFrame > _movie.FrameCount)
                 endFrame = _movie.FrameCount;
             PreviewEnd = endFrame;

@@ -1,31 +1,40 @@
-using LingoEngine.Sprites;
+using LingoEngine.Commands;
+using LingoEngine.Movies.Commands;
 
 namespace LingoEngine.Movies
 {
+    public interface ILingoFrameLabelManager
+    {
+        event Action? LabelsChanged;
+        IReadOnlyDictionary<string, int> GetScoreLabels();
+
+        void SetScoreLabel(int frameNumber, string? name);
+        int GetNextLabelFrame(int frame);
+    }
+
     /// <summary>
     /// Handles frame related data such as score labels and frame specific behaviours.
     /// </summary>
-    internal class LingoFrameManager
+    internal class LingoFrameLabelManager : ILingoFrameLabelManager,
+        ICommandHandler<DeleteFrameLabelCommand>,
+        ICommandHandler<SetFrameLabelCommand>,
+        ICommandHandler<AddFrameLabelCommand>,
+        ICommandHandler<UpdateFrameLabelCommand>
     {
-        private readonly LingoMovieEnvironment _environment;
-        private readonly LingoMovie _movie;
-        private readonly List<LingoSprite2D> _allTimeSprites;
         private readonly Dictionary<string, int> _scoreLabels = new();
 
-        internal LingoFrameManager(LingoMovie movie, LingoMovieEnvironment environment, List<LingoSprite2D> allTimeSprites)
+        public event Action? LabelsChanged;
+        public LingoFrameLabelManager()
         {
-            _movie = movie;
-            _environment = environment;
-            _allTimeSprites = allTimeSprites;
         }
 
         internal IReadOnlyDictionary<int, string> MarkerList =>
             _scoreLabels.ToDictionary(kv => kv.Value, kv => kv.Key);
 
-        internal IReadOnlyDictionary<string, int> ScoreLabels => _scoreLabels;
+        public IReadOnlyDictionary<string, int> ScoreLabels => _scoreLabels;
 
 
-        internal void SetScoreLabel(int frameNumber, string? name)
+        public void SetScoreLabel(int frameNumber, string? name)
         {
             string? existingLabel = null;
             foreach (var item in _scoreLabels)
@@ -40,9 +49,29 @@ namespace LingoEngine.Movies
                 _scoreLabels.Remove(existingLabel);
             if (!string.IsNullOrEmpty(name))
                 _scoreLabels[name] = frameNumber;
+            LabelsChanged?.Invoke();
         }
 
-        internal int GetNextLabelFrame(int frame)
+        public bool DeleteLabel(int frameNumber)
+        {
+            string? existingLabel = null;
+            foreach (var item in _scoreLabels)
+            {
+                if (item.Value == frameNumber)
+                {
+                    existingLabel = item.Key;
+                    break;
+                }
+            }
+            if (existingLabel == null) return false;
+            _scoreLabels.Remove(existingLabel);
+            return true;
+        }
+
+
+        public IReadOnlyDictionary<string, int> GetScoreLabels() => _scoreLabels;
+
+        public int GetNextLabelFrame(int frame)
         {
             var next = _scoreLabels.Values
                 .Where(v => v > frame)
@@ -53,29 +82,9 @@ namespace LingoEngine.Movies
             return next;
         }
 
-        internal int GetNextSpriteStart(int channel, int frame)
-        {
-            int next = int.MaxValue;
-            foreach (var sp in _allTimeSprites)
-            {
-                if (sp.SpriteNum - 1 == channel && sp.BeginFrame > frame)
-                    next = Math.Min(next, sp.BeginFrame);
-            }
-            return next == int.MaxValue ? -1 : next;
-        }
 
-        internal int GetPrevSpriteEnd(int channel, int frame)
-        {
-            int prev = -1;
-            foreach (var sp in _allTimeSprites)
-            {
-                if (sp.SpriteNum - 1 == channel && sp.EndFrame < frame)
-                    prev = Math.Max(prev, sp.EndFrame);
-            }
-            return prev;
-        }
 
-        internal int GetNextMarker(int frame)
+        public int GetNextMarker(int frame)
         {
             if (_scoreLabels.Count == 0)
                 return 1;
@@ -83,7 +92,7 @@ namespace LingoEngine.Movies
             return next;
         }
 
-        internal int GetPreviousMarker(int frame)
+        public int GetPreviousMarker(int frame)
         {
             if (_scoreLabels.Count == 0)
                 return 1;
@@ -133,5 +142,37 @@ namespace LingoEngine.Movies
                 }
             }
         }
+
+
+        public bool Handle(SetFrameLabelCommand command)
+        {
+           SetScoreLabel(command.FrameNumber, command.Name);
+            return true;
+        }
+
+        public bool CanExecute(AddFrameLabelCommand command) => true;
+
+        public bool Handle(AddFrameLabelCommand command)
+        {
+           SetScoreLabel(command.FrameNumber, command.Name);
+            return true;
+        }
+
+        public bool CanExecute(UpdateFrameLabelCommand command) => true;
+
+        public bool Handle(UpdateFrameLabelCommand command)
+        {
+            SetScoreLabel(command.PreviousFrame, null);
+            SetScoreLabel(command.NewFrame, command.Name);
+            return true;
+        } 
+        public bool CanExecute(DeleteFrameLabelCommand command) => true;
+
+        public bool Handle(DeleteFrameLabelCommand command)
+        {
+            return DeleteLabel(command.Frame);
+        }
+
+        
     }
 }

@@ -19,9 +19,9 @@ public class Lingo3DMovie : LingoMovie
     public Lingo3DMovie(LingoMovieEnvironment environment, LingoStage movieStage,
         LingoCastLibsContainer castLibContainer, ILingoMemberFactory memberFactory,
         string name, int number, LingoEventMediator mediator,
-        Action<LingoMovie> onRemoveMe, LingoProjectSettings projectSettings)
+        Action<LingoMovie> onRemoveMe, LingoProjectSettings projectSettings, ILingoFrameLabelManager lingoFrameLabelManager)
         : base(environment, movieStage, castLibContainer, memberFactory, name,
-            number, mediator, onRemoveMe, projectSettings)
+            number, mediator, onRemoveMe, projectSettings , lingoFrameLabelManager)
     {
     }
 }

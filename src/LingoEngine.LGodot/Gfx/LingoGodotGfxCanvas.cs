@@ -27,6 +27,7 @@ namespace LingoEngine.LGodot.Gfx
             _fontManager = fontManager;
             canvas.Init(this);
             Size = new Vector2(width, height);
+            MouseFilter = MouseFilterEnum.Ignore;
         }
 
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }

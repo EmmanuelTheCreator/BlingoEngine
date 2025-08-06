@@ -20,6 +20,14 @@ namespace LingoEngine.Director.Core.UI
             var builder = new GfxPanelBuilder(panel, factory);
             return builder;
         }
+
+        public static LingoGfxCanvas SetGfxCanvasAt(this LingoGfxPanel container, string name, float x, float y, int width, int height)
+        {
+            var canvas = container.Factory.CreateGfxCanvas(name, width, height);
+            container.AddItem(canvas, x, y);
+            return canvas;
+        }
+
         public static LingoGfxLabel SetLabelAt(this LingoGfxPanel container, string name, float x, float y, string? text = null, int fontSize = 11, int? labelWidth = null, LingoTextAlignment lingoTextAlignment = LingoTextAlignment.Left)
         {
             LingoGfxLabel lbl = container.Factory.CreateLabel(name,text ??"");
@@ -78,13 +86,13 @@ namespace LingoEngine.Director.Core.UI
             return list;
         }
 
-        public static LingoGfxButton SetButtonAt(this LingoGfxPanel container, string name, string text, float x, float y, Action onClick, int width = 80)
+        public static (LingoGfxButton Button, ILingoGfxLayoutNode Layout) SetButtonAt(this LingoGfxPanel container, string name, string text, float x, float y, Action onClick, int width = 80)
         {
             var control = container.Factory.CreateButton(name, text);
             control.Width = width;
             control.Pressed += onClick;
-            container.AddItem(control, x, y);
-            return control;
+            ILingoGfxLayoutNode layout = (ILingoGfxLayoutNode)container.AddItem(control, x, y);
+            return (control, layout);
         } 
         public static LingoGfxStateButton SetStateButtonAt<T>(this LingoGfxPanel container, T element, string name, float x, float y, Expression<Func<T,bool>> property, ILingoImageTexture? texture = null, string? label = null)
         {

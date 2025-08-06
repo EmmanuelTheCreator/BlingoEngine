@@ -279,5 +279,27 @@ namespace LingoEngine.Sprites
                     _mutedSprites.Remove(channel);
             }
         }
+
+        public int GetNextSpriteStart(int channel, int frame)
+        {
+            int next = int.MaxValue;
+            foreach (var sp in _allTimeSprites)
+            {
+                if (sp.SpriteNum - 1 == channel && sp.BeginFrame > frame)
+                    next = Math.Min(next, sp.BeginFrame);
+            }
+            return next == int.MaxValue ? -1 : next;
+        }
+
+        public int GetPrevSpriteEnd(int channel, int frame)
+        {
+            int prev = -1;
+            foreach (var sp in _allTimeSprites)
+            {
+                if (sp.SpriteNum - 1 == channel && sp.EndFrame < frame)
+                    prev = Math.Max(prev, sp.EndFrame);
+            }
+            return prev;
+        }
     }
 }

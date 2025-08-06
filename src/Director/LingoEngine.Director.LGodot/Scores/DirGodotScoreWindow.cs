@@ -24,10 +24,10 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
 
     private bool wasToggleKey;
     private LingoMovie? _movie;
-    private readonly ScrollContainer _leftChannelsScollClipper = new();
-    private readonly ScrollContainer _masterScroller = new ScrollContainer();
-    private readonly Control _topStripContent = new Control();
-    private readonly Control _scrollContent = new Control();
+    private readonly ScrollContainer _leftChannelsScollClipper = new ScrollContainer { Name = "ScoreLeftChannelsScollClipper" };
+    private readonly ScrollContainer _masterScroller = new ScrollContainer{Name="ScoreMasterScroller"};
+    private readonly Control _topStripContent = new Control{Name="ScoreTopStripContent"};
+    private readonly Control _scrollContent = new Control{Name= "ScoreScrollContent" };
     private ColorRect _topHClipper;
     private readonly TopChannelsContainer _TopContainer;
     private readonly Sprites2DChannelsContainer _Sprites2DContainer;
@@ -35,9 +35,8 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     private readonly DirScoreGfxValues _gfxValues ;
     private readonly DirGodotFrameHeader _framesHeader;
     private readonly DirGodotScoreLeftTopContainer _LeftTopContainer;
-    private readonly DirGodotScoreLabelsBar _labelBar;
+    //private readonly DirGodotScoreLabelsBar _labelBar;
     private readonly DirGodotScoreLeftChannelsContainer _LeftChannelsContainer;
-    private readonly CollapseButton _collapseButton;
     private readonly DirGodotScoreLeftForLabels _leftChannelForLabels;
     private readonly DirGodotScoreLeftForLabels _leftHeaderForFrames;
     private bool _topCollapsed = true;
@@ -72,13 +71,11 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         
         Size = new Vector2(width, height);
         CustomMinimumSize = Size;
-        _LeftTopContainer = new DirGodotScoreLeftTopContainer(_gfxValues, _player.Factory, Mouse,new Vector2(0, _gfxValues.ChannelHeight + 5),_mediator);
+        _LeftTopContainer = new DirGodotScoreLeftTopContainer(_gfxValues, _player.Factory, Mouse,new Vector2(0, _gfxValues.LabelsBarHeight + 1),_mediator);
         _LeftChannelsContainer = new DirGodotScoreLeftChannelsContainer(_gfxValues,_player.Factory,Mouse, new Vector2(0, _gfxValues.TopStripHeight - _footerMargin), _mediator);
         _framesHeader = new DirGodotFrameHeader(_gfxValues);
-        _labelBar = new DirGodotScoreLabelsBar(_gfxValues, commandManager, godotStyle, _player.Factory, Mouse);
-        _labelBar.HeaderCollapseChanged += OnHeaderCollapseChanged;
-
-        _collapseButton = new CollapseButton(_labelBar);
+        //_labelBar = new DirGodotScoreLabelsBar(directorScoreWindow.LabelsBar,godotStyle);
+        _directorScoreWindow.HeaderCollapseChanged += OnHeaderCollapseChanged;
 
         
 
@@ -106,13 +103,11 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _topStripContent.SizeFlagsHorizontal = Control.SizeFlags.Fill;
         _topStripContent.SizeFlagsVertical = Control.SizeFlags.Fill;
         _topHClipper.AddChild(_topStripContent);
-        _topHClipper.AddChild(_collapseButton);
         _topHClipper.AddChild(_TopContainer);
         _marginContainer.AddChild(_topHClipper);
         _marginContainer.AddChild(_LeftTopContainer);
-        _topStripContent.AddChild(_labelBar);
         _topStripContent.AddChild(_framesHeader);
-        _labelBar.UpdatePosition(new Vector2(_gfxValues.ChannelInfoWidth, 0));
+        _topStripContent.AddChild((Node)_directorScoreWindow.LabelsBar.ScollingPanel.FrameworkObj.FrameworkNode);
 
 
 
@@ -125,8 +120,9 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _leftChannelsScollClipper.MouseFilter = MouseFilterEnum.Ignore;
         _leftChannelsScollClipper.AddChild(_LeftChannelsContainer);
         _marginContainer.AddChild(_leftChannelsScollClipper); 
+        _marginContainer.AddChild((Node)_directorScoreWindow.LabelsBar.FixPanel.FrameworkObj.FrameworkNode); 
 
-        _TopContainer.Position = new Vector2(0, _gfxValues.ChannelHeight + 5);
+        _TopContainer.Position = new Vector2(0, _gfxValues.LabelsBarHeight + 1);
         OnHeaderCollapseChanged(false);
         RepositionBars();
     }
@@ -144,7 +140,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     {
         int ch = _gfxValues.ChannelHeight;
         float barsHeight = _topCollapsed ? 0 : ch * 5;
-        _framesHeader.Position = new Vector2(0, barsHeight + 20+20);
+        _framesHeader.Position = new Vector2(0, barsHeight + 20 + _gfxValues.LabelsBarHeight);
         //_topHeight =  _frameScripts.Position.Y +20;
 
         
@@ -153,11 +149,10 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
 
         _masterScroller.Position = new Vector2(_gfxValues.ChannelInfoWidth, topHeight);
         _leftChannelsScollClipper.Position = new Vector2(0, topHeight);
-        _collapseButton.Position = new Vector2(_topHClipper.Size.X - 16, 4);
         _leftHeaderForFrames.Position = new Vector2(0, _framesHeader.Position.Y);
         _lastPosV = -1;
         UpdateScrollSize();
-        _labelBar.UpdatePosition(new Vector2(_gfxValues.ChannelInfoWidth - _masterScroller.ScrollHorizontal, 0));
+        _directorScoreWindow.OnResize((int)Size.X,(int)Size.Y-TitleBarHeight);
     }
 
     private float _lastPosV = -1;
@@ -203,7 +198,6 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _topStripContent.Position = new Vector2(-_masterScroller.ScrollHorizontal, _topStripContent.Position.Y);
         if (_TopContainer.ScrollX != _masterScroller.ScrollHorizontal)
             _TopContainer.ScrollX = _masterScroller.ScrollHorizontal;
-        _labelBar.UpdatePosition(new Vector2(_gfxValues.ChannelInfoWidth - _masterScroller.ScrollHorizontal, 0));
     }
 
     private void RefreshGrid()
@@ -228,6 +222,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _leftChannelsScollClipper.Size = new Vector2(_gfxValues.ChannelInfoWidth, Size.Y - topHeight - 20 - _footerMargin);
         _topHClipper.Size = new Vector2(Size.X - _gfxValues.ChannelInfoWidth, topHeight + 20);
         _masterScroller.Size = new Vector2(Size.X - _gfxValues.ChannelInfoWidth, Size.Y - topHeight - 20 - _footerMargin);
+        
     }
 
 
@@ -250,12 +245,8 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     {
         _movie = movie;
         _framesHeader.SetMovie(movie);
-        //_frameScripts.SetMovie(movie);
         _LeftTopContainer.SetMovie(movie);
-        //_topGrids.SetMovie(movie);
         _LeftChannelsContainer.SetMovie(movie);
-        _labelBar.SetMovie(movie);
-        _labelBar.HeaderCollapsed = _topCollapsed;
         RepositionBars();
     }
 
@@ -264,7 +255,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     protected override void Dispose(bool disposing)
     {
         _player.ActiveMovieChanged -= OnActiveMovieChanged;
-        _labelBar.Dispose();
+        //_labelBar.Dispose();
         _LeftTopContainer.Dispose();
         _TopContainer.Dispose();
         _masterScroller.Dispose();
@@ -455,34 +446,5 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
 
    
 
-    private partial class CollapseButton : Control
-    {
-        private readonly DirGodotScoreLabelsBar _labels;
-        public CollapseButton(DirGodotScoreLabelsBar labels)
-        {
-            _labels = labels;
-            Size = new Vector2(12, 12);
-            MouseFilter = MouseFilterEnum.Stop;
-            _labels.HeaderCollapseChanged += _ => QueueRedraw();
-        }
-        public override void _GuiInput(InputEvent @event)
-        {
-            if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Left && mb.Pressed)
-            {
-                _labels.ToggleCollapsed();
-            }
-        }
-        public override void _Draw()
-        {
-            var font = ThemeDB.FallbackFont;
-            DrawRect(new Rect2(0, 0, 12, 12), Colors.Black, false, 1);
-            var x = 1;
-            var y = 1;
-            Vector2[] pts = !_labels.HeaderCollapsed
-                ?[ new Vector2(x, 3), new Vector2(x + 8, 3), new Vector2(x + 4, 11) ]
-                :[ new Vector2(10, y), new Vector2(10, y + 8), new Vector2(3, y + 4) ];
-            DrawPolygon(pts, new[] { Colors.Black });
-            //DrawString(font, new Vector2(1, font.GetAscent() - 7), (_labels.HeaderCollapsed ? "▶" : "▼"),HorizontalAlignment.Left,-1,11);
-        }
-    }
+  
 }

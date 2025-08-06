@@ -90,7 +90,7 @@ namespace LingoEngine.Movies
             {
                 onRemoveMe(m);
                 Dispose();
-            }, _projectSettings);
+            }, _projectSettings, _rootServiceProvider.GetRequiredService<ILingoFrameLabelManager>());
         }
         internal IServiceProvider GetServiceProvider() => _scopedServiceProvider.ServiceProvider;
         public void Dispose()

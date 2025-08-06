@@ -5,6 +5,7 @@ namespace LingoEngine.Director.Core.Scores;
 
 public class DirScoreGfxValues
 {
+    public int LabelsBarHeight { get; set; } = 20;
     public int ChannelHeight { get; set; } = 16;
     public int FrameWidth { get; set; } = 9;
     public int LeftMargin { get; set; } = 0;
@@ -12,7 +13,6 @@ public class DirScoreGfxValues
     public int ChannelInfoWidth { get; set; }
     public int ExtraMargin { get; set; } = 20;
     public int TopStripHeight { get; set; } = 120;
-    public int LabelsBarHeight { get; set; } = 20;
 
     public LingoColor ColLineLight { get; set; } = DirectorColors.ScoreGridLineLight;
     public LingoColor ColLineDark { get; set; } = DirectorColors.ScoreGridLineDark;
