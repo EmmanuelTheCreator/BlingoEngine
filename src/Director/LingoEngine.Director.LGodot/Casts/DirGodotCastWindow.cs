@@ -1,6 +1,7 @@
-using Godot;
 using LingoEngine.Director.Core.Casts;
 using LingoEngine.Director.Core.Tools;
+﻿using Godot;
+using System;
 using LingoEngine.Director.Core.Events;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Members;
@@ -31,6 +32,11 @@ namespace LingoEngine.Director.LGodot.Casts
 
             Size = new Vector2(360, 620);
             CustomMinimumSize = Size;
+
+
+            _tabs = new TabContainer();
+            _tabs.Position = new Vector2(0, TitleBarHeight );
+
 
             _tabs = _directorCastWindow.TabContainer.Framework<LingoGodotTabContainer>();
             _tabs.Position = new Vector2(0, TitleBarHeight);
