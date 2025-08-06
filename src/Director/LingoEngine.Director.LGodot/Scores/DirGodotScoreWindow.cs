@@ -236,8 +236,6 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     public void SetActiveMovie(LingoMovie? movie)
     {
         _movie = movie;
-        _directorScoreWindow.FrameHeader.SetMovie(movie);
-        //_LeftChannelsContainer.SetMovie(movie);
         RepositionBars();
     }
 

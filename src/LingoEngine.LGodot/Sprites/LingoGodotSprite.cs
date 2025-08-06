@@ -342,13 +342,9 @@ namespace LingoEngine.LGodot.Sprites
                 return;
 
             if (InkPreRenderer.CanHandle(_lingoSprite.InkType))
-            {
                 _Sprite2D.Texture = godotPicture.GetTextureForInk(_lingoSprite.InkType, _lingoSprite.BackColor);
-            }
             else
-            {
                 _Sprite2D.Texture = godotPicture.TextureGodot;
-            }
         }
         private ILingoMember? _previousChildElement;
         private Node? _previousChildElementNode;
