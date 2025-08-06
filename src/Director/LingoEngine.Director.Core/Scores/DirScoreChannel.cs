@@ -144,6 +144,7 @@ namespace LingoEngine.Director.Core.Scores
 
         internal virtual bool DrawMovePreview(int begin, int end, DirScoreSprite? ignore = null) => true;
 
+        internal abstract void ShowSpriteInfo(DirScoreSpriteLabelType type);
     }
 
 
@@ -347,6 +348,12 @@ namespace LingoEngine.Director.Core.Scores
             _dirty = false;
         }
 
-        
+        internal override void ShowSpriteInfo(DirScoreSpriteLabelType type)
+        {
+            foreach (var spriteUI in _spriteUIs)
+            {
+                spriteUI.LabelType = type;
+            }
+        }
     }
 }

@@ -24,10 +24,12 @@ namespace LingoEngine.Director.Core.Scores
                     collapsableHeader.Visible = !value;
                 _frameScript.Y = !value ? _frameScriptsTopOpen : 0;
                 Height = !value ? _gfxValues.ChannelHeight * _channels.Length : _gfxValues.ChannelHeight;
+                Canvas.Height = Height;
+                Draw();
             }
         }
 
-        public DirScoreLeftTopContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, ILingoMouse mouse, LingoPoint position, IDirectorEventMediator mediator) : base(gfxValues, factory, mouse, position,6, mediator)
+        public DirScoreLeftTopContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, LingoPoint position, IDirectorEventMediator mediator) : base(gfxValues, factory, position,6, mediator)
         {
             
             _frameScript = new DirScoreChannelHeader("", "Scripts", gfxValues, (c, state) => { });
@@ -50,6 +52,6 @@ namespace LingoEngine.Director.Core.Scores
         {
             _movie = movie;
         }
-        protected override DirScoreChannelHeader GetChannel(int layer) => _collapsed ? _frameScript : _channels[layer];
+        protected override DirScoreChannelHeader GetChannel(int spriteNumWithChannel) => _collapsed ? _frameScript : _channels[spriteNumWithChannel-1];
     } 
 }

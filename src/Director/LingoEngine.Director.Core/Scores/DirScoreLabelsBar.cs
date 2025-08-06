@@ -35,7 +35,7 @@ public class DirScoreLabelsBar : IDisposable
     private bool _headerCollapsed;
     private Dictionary<int,FrameLabelData> _frameLabels = new();
     private KeyValuePair<string, string>[] _frameLabelsForCombo = [
-                    new KeyValuePair<string, string>("ChangeTempo","Change Tempo"),
+                    new KeyValuePair<string, string>("Label1","Label1"),
                ];
 
 
@@ -82,7 +82,7 @@ public class DirScoreLabelsBar : IDisposable
         DrawCollapseButton();
         _fixPanel.AddItem(_canvasFix, 0, 0);
         _fixPanel.AddItem(_canvasOpenCollapse, 10, 4);
-        _labelsCombo = _fixPanel.SetInputListAt(_frameLabelsForCombo, "ScoreLabelsBarComboBox", 0, 20, _gfxValues.ChannelInfoWidth, null,key => MoveHeadTo(key));
+        _labelsCombo = _fixPanel.SetInputListAt(_frameLabelsForCombo, "ScoreLabelsBarListSelect", 2, 20, _gfxValues.ChannelInfoWidth, null,key => MoveHeadTo(key));
         _labelsCombo.Visibility = false;
         _labelsCombo.Height = 100;
 
@@ -159,8 +159,8 @@ public class DirScoreLabelsBar : IDisposable
     }
     private void RedrawFix()
     {
-        var top = 0;
         var height = _gfxValues.LabelsBarHeight;
+        _canvasFix.Clear(LingoColorList.Transparent);
         // info tight line
         _canvasFix.DrawVLineR(_gfxValues.ChannelInfoWidth, 0, height);
         // Bottom line

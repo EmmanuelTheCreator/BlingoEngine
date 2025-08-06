@@ -432,13 +432,19 @@ namespace LingoEngine.Director.Core.Scores
             if (channel == null) return;
             _commandManager.Handle(new AddSpriteCommand(_movie, member, channel.SpriteNumWithChannelNum, channel.PreviewBegin, channel.PreviewEnd));
             channel.RequireRedraw();
-        } 
+        }
+
+
         #endregion
 
 
 
 
-        
+        internal void ShowSpriteInfo(DirScoreSpriteLabelType type)
+        {
+            foreach (var channel in _channels.Values)
+                channel.ShowSpriteInfo(type);
+        }
 
     }
 }

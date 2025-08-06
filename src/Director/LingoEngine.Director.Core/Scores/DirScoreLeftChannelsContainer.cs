@@ -1,6 +1,5 @@
 ﻿using LingoEngine.Director.Core.Tools;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Inputs;
 using LingoEngine.Movies;
 using LingoEngine.Primitives;
 
@@ -11,7 +10,7 @@ namespace LingoEngine.Director.Core.Scores
         protected LingoMovie? _movie;
    
 
-        public DirScoreLeftChannelsContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, ILingoMouse mouse, LingoPoint position, IDirectorEventMediator mediator) : base(gfxValues, factory, mouse, position,10, mediator)
+        public DirScoreLeftChannelsContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, LingoPoint position, IDirectorEventMediator mediator) : base(gfxValues, factory, position,10, mediator)
         {
         }
 
@@ -42,5 +41,7 @@ namespace LingoEngine.Director.Core.Scores
             }
             SetChannels(channels.ToArray());
         }
+
+        protected override DirScoreChannelHeader GetChannel(int spriteNumWithChannel) => _channels[spriteNumWithChannel - 7];// -6 of 6 channels + -1 for 0 index array
     }
 }

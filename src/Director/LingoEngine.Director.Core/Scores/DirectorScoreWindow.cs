@@ -10,6 +10,7 @@ using LingoEngine.Gfx;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Primitives;
 using LingoEngine.Commands;
+using LingoEngine.Director.Core.UI;
 
 
 namespace LingoEngine.Director.Core.Scores
@@ -21,19 +22,35 @@ namespace LingoEngine.Director.Core.Scores
         private readonly IDirectorWindowManager _windowManager;
         private readonly ILingoColorPaletteDefinitions _paletteDefinitions;
         private readonly LingoPlayer _player;
+        private readonly DirScoreLabelsBar _labelsBar;
+        private readonly DirScoreLeftTopContainer _LeftTopContainer;
+        private readonly DirScoreLeftChannelsContainer _LeftChannelContainer;
+        private readonly LingoGfxPanel _panelScroll;
+        private readonly LingoGfxPanel _panelFix;
+        private readonly LingoGfxInputCombobox _spriteShowSelector;
         private LingoMovie? _movie;
         protected ILingoMouseSubscription _mouseSub;
-        private DirScoreLabelsBar _labelsBar;
+        private float _scollY;
+        private float _scollX;
+        private float _lastPosV;
+        private KeyValuePair<string, string>[] _frameLabelsForCombo = [
+                   new KeyValuePair<string, string>("Label1","Label1"),
+               ];
+
 
         public DirScoreGridTopContainer TopContainer { get; private set; }
         public DirScoreGridSprites2DContainer Sprites2DContainer { get; private set; }
         public DirScoreLabelsBar LabelsBar => _labelsBar;
         public DirScoreGfxValues GfxValues  => _scoreManager.GfxValues;
-        public float ScollX { get; set; }
-        public float ScollY { get; set; }
+       // public DirScoreLeftTopContainer LeftTopContainer => _LeftTopContainer;
+        //public DirScoreLeftChannelsContainer LeftChannelContainer => _LeftChannelContainer;
+        public LingoGfxPanel ScorePanelScroll => _panelScroll;
+        public LingoGfxPanel ScorePanelFix => _panelFix;
+        public float ScollX { get => _scollX; set => _scollX = value; }
+        public float ScollY { get => _scollY; set => _scollY = value; }
 
 #pragma warning disable CS8618
-        public DirectorScoreWindow(IDirSpritesManager spritesManager, ILingoPlayer player, ILingoFrameworkFactory factory, DirScoreManager scoreManager, IDirectorWindowManager windowManager, ILingoColorPaletteDefinitions paletteDefinitions, ILingoCommandManager commandManager) : base(factory)
+        public DirectorScoreWindow(IDirSpritesManager spritesManager, ILingoPlayer player, ILingoFrameworkFactory factory, DirScoreManager scoreManager, IDirectorWindowManager windowManager, ILingoColorPaletteDefinitions paletteDefinitions, ILingoCommandManager commandManager, IDirectorEventMediator mediator) : base(factory)
 #pragma warning restore CS8618 
         {
             _spritesManager = spritesManager;
@@ -43,7 +60,28 @@ namespace LingoEngine.Director.Core.Scores
             _player = (LingoPlayer)player;
             _player.ActiveMovieChanged += OnActiveMovieChanged;
             _labelsBar = new DirScoreLabelsBar(GfxValues, factory, commandManager);
+            _LeftTopContainer = new DirScoreLeftTopContainer(GfxValues, factory, new LingoPoint(0, GfxValues.TopStripHeight), mediator);
+            _LeftChannelContainer = new DirScoreLeftChannelsContainer(GfxValues, factory, new LingoPoint(0, 0), mediator);
+
+            // Fix top panel
+            _panelFix = factory.CreatePanel("ScoreWindowPanelFix");
+            _panelFix.AddItem(_LeftTopContainer.Canvas,0, GfxValues.LabelsBarHeight+1);
+            _panelFix.AddItem(_labelsBar.FixPanel,0, 0);
+
+            _frameLabelsForCombo = Enum.GetNames<DirScoreSpriteLabelType>().Select(name => new KeyValuePair<string, string>(name, name)).ToArray();
+            _spriteShowSelector = _panelFix.SetComboBoxAt(_frameLabelsForCombo, "ScoreSpriteShowSelector", 2, GfxValues.TopStripHeight - 2, GfxValues.ChannelInfoWidth - 6, _frameLabelsForCombo[1].Key, ShowSpriteInfo);
+            _spriteShowSelector.Visibility = true;
+
+
+            // Main Scroll panel
+            _panelScroll = factory.CreatePanel("ScoreWindowPanelScroll");
+            _panelScroll.AddItem(_LeftChannelContainer.Canvas,0, 0);
+
+            _labelsBar.HeaderCollapseChanged += OnHeaderCollapseChanged;
         }
+
+       
+
         public override void Init(IDirFrameworkWindow frameworkWindow)
         {
             base.Init(frameworkWindow);
@@ -58,9 +96,12 @@ namespace LingoEngine.Director.Core.Scores
                 _movie.CurrentFrameChanged -= OnCurrentFrameChanged;
             
             _player.ActiveMovieChanged -= OnActiveMovieChanged;
+            _labelsBar.HeaderCollapseChanged -= OnHeaderCollapseChanged;
             _labelsBar.Dispose();
             TopContainer.Dispose();
             Sprites2DContainer.Dispose();
+            _LeftTopContainer.Dispose();
+            _LeftChannelContainer.Dispose();
             base.Dispose();
         }
 
@@ -77,6 +118,8 @@ namespace LingoEngine.Director.Core.Scores
             TopContainer.SetMovie(_movie);
             Sprites2DContainer.SetMovie(_movie);
             _labelsBar.SetMovie(_movie);
+            _LeftTopContainer.SetMovie(_movie);
+            _LeftChannelContainer.SetMovie(_movie);
         }
         
 
@@ -95,32 +138,46 @@ namespace LingoEngine.Director.Core.Scores
                 _labelsBar.HandleMouseEvent(mouseEvent, mouseFrame);
                 return;
             }
-            if (mouseEvent.MouseH < gfxValues.ChannelInfoWidth)
-            {
-                // inside frame headers left.
-                return;
-            }
-
-            var channel = 0;
-
+            var isInsideLeft = mouseEvent.MouseH < gfxValues.ChannelInfoWidth;
+            var isInFrameHeader = false;
+            var spriteNumWithChannel = 0;
             if (mouseEvent.MouseV <= gfxValues.LabelsBarHeight + TopContainer.Size.Y)
             {
                 // Top channel
                 var yPosition = mouseEvent.MouseV - gfxValues.LabelsBarHeight;
-                channel = Math.Clamp(MathL.RoundToInt((yPosition + 4) / gfxValues.ChannelHeight), 1, 999);
+                spriteNumWithChannel = Math.Clamp(MathL.RoundToInt((yPosition + 4) / gfxValues.ChannelHeight), 1, 999);
             }
             else {
+                isInFrameHeader = mouseEvent.MouseV <= gfxValues.LabelsBarHeight + TopContainer.Size.Y;
+                if (isInFrameHeader && !isInsideLeft)
+                {
+                    // Inside frameheaders
+                    // todo
+                    return;
+                }
                 // Sprites Container
                 var topPosition = gfxValues.LabelsBarHeight + TopContainer.Size.Y + gfxValues.ChannelFramesHeight;
                 if (mouseEvent.MouseV >= topPosition && mouseEvent.MouseV <= topPosition + Sprites2DContainer.Size.Y )
                 {
                     var yPosition = mouseEvent.MouseV - topPosition;
-                    channel = Math.Clamp(MathL.RoundToInt((yPosition + 4 + ScollY) / gfxValues.ChannelHeight), 1, 999) + 6;
+                    spriteNumWithChannel = Math.Clamp(MathL.RoundToInt((yPosition + 4 + ScollY) / gfxValues.ChannelHeight), 1, 999) + 6;
                 }
             }
-            if (channel <= 0) return;
-            //Console.WriteLine($"Mouse Event: Frame {mouseFrame}, Channel {channel}");
-            _scoreManager.HandleMouse(mouseEvent, channel, mouseFrame);
+            //Console.WriteLine($"Mouse Event: Frame {mouseFrame}, Channel {channel}, isInsideLeft={isInsideLeft}");
+            if (spriteNumWithChannel <= 0)
+                return;
+            if (isInsideLeft )
+            {
+                if (mouseEvent.Type == LingoMouseEventType.MouseDown)
+                {
+                    if (spriteNumWithChannel < 7)
+                        _LeftTopContainer.RaiseMouseDown(mouseEvent, spriteNumWithChannel);
+                    else
+                        _LeftChannelContainer.RaiseMouseDown(mouseEvent, spriteNumWithChannel);
+                }
+                return;
+            }
+            _scoreManager.HandleMouse(mouseEvent, HeaderCollapsed? spriteNumWithChannel+5 : spriteNumWithChannel, mouseFrame);
         }
         public void OnCurrentFrameChanged(int currentFrame)
         {
@@ -146,6 +203,17 @@ namespace LingoEngine.Director.Core.Scores
             _labelsBar.OnResize(width, height);
         }
 
+        public void ScollVPositionChanged()
+        {
+            if (_lastPosV != _scollY)
+            {
+                _lastPosV = _scollY;
+                var lastPos = new LingoPoint(0, -_scollY);
+                _LeftChannelContainer.UpdatePosition(new LingoPoint(0, - _lastPosV+1));
+                //_leftChannelsScollClipper.ScrollVertical = _masterScroller.ScrollVertical;
+            }
+        }
+
 
         #region Top collapser
         public void ToggleCollapsed() => _labelsBar.ToggleCollapsed();
@@ -160,7 +228,20 @@ namespace LingoEngine.Director.Core.Scores
         {
             add => _labelsBar.HeaderCollapseChanged += value;
             remove => _labelsBar.HeaderCollapseChanged -= value;
-        } 
+        }
+        private void OnHeaderCollapseChanged(bool state)
+        {
+            _LeftTopContainer.Collapsed = state;
+            _spriteShowSelector.Y = GfxValues.LabelsBarHeight + 2 + _LeftTopContainer.Height;
+        }
         #endregion
+
+
+        private void ShowSpriteInfo(string? key)
+        {
+            if (key == null) return;
+            var type = Enum.Parse<DirScoreSpriteLabelType>(key);
+            _scoreManager.ShowSpriteInfo(type);
+        }
     }
 }

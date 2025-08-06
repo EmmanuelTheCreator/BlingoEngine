@@ -37,6 +37,7 @@ namespace LingoEngine.Director.Core.Scores
         private int _dragStartBeginFrame;
         private int _dragStartEndFrame;
         private int _dragStartChannel;
+        private DirScoreSpriteLabelType labelType = DirScoreSpriteLabelType.Member;
         private readonly IDirSpritesManager _spritesManager;
         internal DirScoreChannel? Channel { get; set; }
         public bool IsSingleFrameSprite { get; }
@@ -65,7 +66,7 @@ namespace LingoEngine.Director.Core.Scores
         public float Width { get; private set; }
         public float Height { get; private set; }
         public bool ShowLabel { get; set; } = true;
-        public DirScoreSpriteLabelType LabelType { get; set; } = DirScoreSpriteLabelType.Member;
+        public DirScoreSpriteLabelType LabelType { get => labelType; set { labelType = value; RequireRedraw();  } }
         public bool IsLocked => Sprite.Lock;
 
         internal int DragStartChannel => _dragStartChannel;

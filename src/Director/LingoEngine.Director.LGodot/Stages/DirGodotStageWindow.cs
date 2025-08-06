@@ -71,7 +71,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         : base(DirectorMenuCodes.StageWindow, "Stage", windowManager)
     {
         // TempFix
-        base.DontUseInputInsteadOfGuiInput();
+        //base.DontUseInputInsteadOfGuiInput();
         
 
         _stageContainer = (LingoGodotStageContainer)stageContainer;

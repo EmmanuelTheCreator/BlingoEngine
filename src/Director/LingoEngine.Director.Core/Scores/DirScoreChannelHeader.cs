@@ -32,6 +32,7 @@ namespace LingoEngine.Director.Core.Scores
 
         public void Draw(LingoGfxCanvas canvas)
         {
+            
             var y = Y;
             
             //canvas.DrawRect(new LingoRect(0, y, Width, Height), DirectorColors.BG_WhiteMenus); // new Color("#f0f0f0"));

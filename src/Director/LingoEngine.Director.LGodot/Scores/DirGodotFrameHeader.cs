@@ -2,6 +2,8 @@
 using Godot;
 using LingoEngine.Movies;
 using LingoEngine.Director.Core.Scores;
+using LingoEngine.Director.Core.Styles;
+using LingoEngine.LGodot.Primitives;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
@@ -37,6 +39,8 @@ internal partial class DirGodotFrameHeader : Control
                 DrawString(font, new Vector2(x + 1, font.GetAscent() - 6), (f+1).ToString(),
                     HorizontalAlignment.Left, -1, 10, new Color("#a0a0a0"));
         }
+        DrawLine(new Vector2(0, 0), new Vector2(Size.X, 0), DirectorColors.LineLight.ToGodotColor(), 1);
+        DrawLine(new Vector2(0, _gfxValues.ChannelFramesHeight), new Vector2(Size.X, _gfxValues.ChannelFramesHeight), DirectorColors.LineDark.ToGodotColor(), 1);
     }
 
     public override void _GuiInput(InputEvent @event)
