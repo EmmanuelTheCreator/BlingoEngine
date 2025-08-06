@@ -14,6 +14,7 @@ using LingoEngine.Transitions;
 using LingoEngine.Members;
 using LingoEngine.Director.Core.Casts.Commands;
 using System.Linq;
+using LingoEngine.Bitmaps;
 
 namespace LingoEngine.Director.Core.Sprites
 {

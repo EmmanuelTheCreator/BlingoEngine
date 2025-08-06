@@ -12,23 +12,26 @@ namespace LingoEngine.Director.Core.Casts;
 /// preview is delegated to <see cref="DirectorMemberThumbnail"/> so the logic
 /// can be shared across frameworks.
 /// </summary>
-public class DirCastItem : DirectorMemberThumbnail
+public class DirCastItem 
 {
-    public const int Width = 50;
-    public const int Height = 50;
+    public const int Width = 58;
+    public const int Height = 54;
     private const int LabelHeight = 12;
 
     private readonly ILingoMember _member;
     private bool _selected;
+    private readonly LingoGfxCanvas _canvas;
+    private DirectorMemberThumbnail _thumb;
 
     public ILingoMember Member => _member;
-    public LingoGfxCanvas Canvas => base.Canvas;
+    public LingoGfxCanvas Canvas => _canvas;
 
     public DirCastItem(ILingoFrameworkFactory factory, ILingoMember member, int index, IDirectorIconManager? iconManager)
-        : base(Width, Height, factory, iconManager)
     {
         _member = member;
-        Canvas.Name = $"CastItem{index}";
+        _canvas = factory.CreateGfxCanvas($"CastMemberCanvas_{index}", Width, Height);
+        
+        _thumb = new DirectorMemberThumbnail(Width - 2, Height - LabelHeight-1, factory, iconManager, _canvas, 1, 1);
         Draw();
     }
 
@@ -40,26 +43,27 @@ public class DirCastItem : DirectorMemberThumbnail
 
     private void Draw()
     {
+        _canvas.Clear(LingoColorList.Transparent);
+        // selection highlight
+        if (_selected)
+            _canvas.DrawRect(LingoRect.New(0, 0, Width, Height), DirectorColors.BlueSelectColor, true);
+        else
+        {
+            _canvas.DrawLine(new LingoPoint(0, 0), new LingoPoint(Width, 0), DirectorColors.LineDarker); // top
+            _canvas.DrawLine(new LingoPoint(0, 0), new LingoPoint(0, Height), DirectorColors.LineDarker); // left
+            _canvas.DrawLine(new LingoPoint(0, Height), new LingoPoint(Width, Height), DirectorColors.LineLight); // bottom
+            _canvas.DrawLine(new LingoPoint(Width, 0), new LingoPoint(Width, Height), DirectorColors.LineLight); // right
+        }
+        
         // draw member preview
-        SetMember(_member);
-
-        // label background
-        Canvas.DrawRect(LingoRect.New(0, Height - LabelHeight, Width, LabelHeight),
-            DirectorColors.BG_WhiteMenus, true);
-        Canvas.DrawRect(LingoRect.New(0, Height - LabelHeight, Width, LabelHeight),
-            LingoColorList.Gray, false);
+        _thumb.SetMember(_member);
 
         // label text
         string label = $"{_member.NumberInCast}. {_member.Name}";
-        Canvas.DrawText(new LingoPoint(2, Height - LabelHeight), label, null,
-            LingoColorList.Black, 8, Width - 4);
+        _canvas.DrawText(new LingoPoint(2, Height - LabelHeight + 10), label, null, _selected?LingoColorList.White : LingoColorList.Black, 8, Width - 4);
+        
 
-        // selection highlight
-        if (_selected)
-        {
-            Canvas.DrawRect(LingoRect.New(0, 0, Width, Height),
-                DirectorColors.Window_Title_BG_Active, false, 2);
-        }
+
     }
 }
 

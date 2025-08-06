@@ -13,15 +13,21 @@ using LingoEngine.Texts;
 using LingoEngine.Bitmaps;
 using LingoEngine.Scripts;
 using LingoEngine.Director.Core.UI;
+using LingoEngine.Casts;
 
 namespace LingoEngine.Director.Core.Casts
 {
     public class DirCastTab
     {
+        private int _itemMargin = 2;
         private readonly List<DirCastItem> _items = new();
         private readonly LingoGfxScrollContainer _scroll;
+        private readonly LingoGfxTabItem _tabItem;
         private readonly LingoGfxWrapPanel _wrap;
+        private readonly ILingoCast _cast;
         private readonly ILingoCommandManager _commandManager;
+        private readonly ILingoFrameworkFactory _factory;
+        private readonly IDirectorIconManager _iconManager;
         private DirCastItem? _selected;
         private bool _dragging;
         private float _dragStartX, _dragStartY;
@@ -29,46 +35,52 @@ namespace LingoEngine.Director.Core.Casts
         private static bool _openingEditor;
         private static readonly object _lock = new();
 
-        public LingoGfxScrollContainer Scroll => _scroll;
         public event Action<ILingoMember, DirCastItem>? MemberSelected;
+        internal LingoGfxTabItem TabItem => _tabItem;
 
-        public DirCastTab(ILingoFrameworkFactory factory, string name, IEnumerable<ILingoMember> members, IDirectorIconManager iconManager, ILingoCommandManager commandManager)
+        public int Width { get; private set; }
+
+        public DirCastTab(ILingoFrameworkFactory factory, ILingoCast cast, IDirectorIconManager iconManager, ILingoCommandManager commandManager)
         {
             _commandManager = commandManager;
-            _scroll = factory.CreateScrollContainer(name + "Scroll");
+            _factory = factory;
+            _iconManager = iconManager;
+            var tabName = cast.Name ?? $"Cast{cast.Number}";
+            _tabItem = factory.CreateTabItem("Cast_" + tabName, tabName);
+            _wrap = factory.CreateWrapPanel(LingoOrientation.Vertical, tabName + "_Wrap");
+            _cast = cast;
+            _wrap.ItemMargin = new LingoPoint(_itemMargin, _itemMargin);
+            _scroll = factory.CreateScrollContainer(tabName + "_Scroll");
             _scroll.ClipContents = true;
-            _wrap = factory.CreateWrapPanel(LingoOrientation.Horizontal, name + "Wrap");
             _scroll.AddItem(_wrap);
+
+            _tabItem.Content = _scroll;
+        }
+
+        internal void LoadAllMembers()
+        {
+            var members = _cast.GetAll();
             int idx = 0;
             foreach (var m in members)
             {
-                var item = new DirCastItem(factory, m, idx++, iconManager);
+                var item = new DirCastItem(_factory, m, idx++,_iconManager);
                 _items.Add(item);
                 _wrap.AddItem(item.Canvas);
             }
         }
 
-        public void SetViewportWidth(int width)
+        public void SetViewportSize(int width, int height)
         {
-            _scroll.Width = width;
-            _wrap.Width = width;
-            _columns = System.Math.Max(1, width / DirCastItem.Width);
+            //_scroll.Width = width;
+            Width = width;
+            _wrap.Width = Width;
+            var itemSize = DirCastItem.Width + _itemMargin;
+            var div = (double)(Width +2) / itemSize;
+            _columns = Math.Max(1, (int)Math.Floor(div));
+          //  Console.WriteLine("Coluimns:"+ Width + " div=" + div + " / "+ itemSize + "= "+ _columns);
         }
 
-        public ILingoMember? HitTest(float x, float y, out DirCastItem? item)
-        {
-            int col = (int)(x / DirCastItem.Width);
-            int row = (int)(y / DirCastItem.Height);
-            int idx = row * _columns + col;
-            if (idx >= 0 && idx < _items.Count)
-            {
-                item = _items[idx];
-                return item.Member;
-            }
-            item = null;
-            return null;
-        }
-
+       
         public void Select(DirCastItem? selected)
         {
             _selected = selected;
@@ -95,7 +107,8 @@ namespace LingoEngine.Director.Core.Casts
         public void HandleMouseEvent(LingoMouseEvent e)
         {
             float x = e.Mouse.MouseH + _scroll.ScrollHorizontal;
-            float y = e.Mouse.MouseV + _scroll.ScrollVertical;
+            float y = e.Mouse.MouseV + _scroll.ScrollVertical - _tabItem.TopHeight;
+            if (y < 0 || x < 0 || x > Width) return;
             switch (e.Type)
             {
                 case LingoMouseEventType.MouseDown:
@@ -119,6 +132,8 @@ namespace LingoEngine.Director.Core.Casts
                     }
                     break;
                 case LingoMouseEventType.MouseMove:
+                    var member2 = HitTest(x, y, out var item2);
+                    //Console.WriteLine($"MouseMove: {x}, {y} - Selected: {member2?.Name}");
                     if (e.Mouse.MouseDown && _selected != null)
                     {
                         float dx = x - _dragStartX;
@@ -136,6 +151,19 @@ namespace LingoEngine.Director.Core.Casts
                     lock (_lock) _openingEditor = false;
                     break;
             }
+        }
+        public ILingoMember? HitTest(float x, float y, out DirCastItem? item)
+        {
+            int col = (int)(x / (DirCastItem.Width + _itemMargin ));
+            int row = (int)(y / (DirCastItem.Height + _itemMargin));
+            int idx = row * _columns + col;
+            if (idx >= 0 && idx < _items.Count)
+            {
+                item = _items[idx];
+                return item.Member;
+            }
+            item = null;
+            return null;
         }
 
         private void OpenEditor(ILingoMember member)

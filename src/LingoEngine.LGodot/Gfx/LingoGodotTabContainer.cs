@@ -36,7 +36,7 @@ namespace LingoEngine.LGodot.Gfx
             _theme = _lingoGodotStyleManager.GetTheme(LingoGodotThemeElementType.Tabs) ?? new Theme();
             
             Theme = Theme;
-            ClipTabs = false;
+            ClipTabs = true;
 
         }
  
@@ -130,10 +130,13 @@ namespace LingoEngine.LGodot.Gfx
 
         public object FrameworkNode => Content?.FrameworkObj.FrameworkNode!;
 
+        public float TopHeight { get; set; }
+
         public LingoGodotTabItem(LingoGfxTabItem tab)
         {
             tab.Init(this);
             _tabItem = tab;
+            TopHeight = LingoGodotStyle.TapItemTopHeight;
         }
 
         public void Dispose()

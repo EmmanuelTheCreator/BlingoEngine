@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Casts.Commands;
-using LingoEngine.Director.Core.Events;
 using LingoEngine.Director.Core.Tools;
-using LingoEngine.Members;
-using LingoEngine.Movies;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
 
@@ -95,4 +90,6 @@ public class DirCastManager : ICommandHandler<CreateFilmLoopCommand>
         Refresh();
         return true;
     }
+
+
 }

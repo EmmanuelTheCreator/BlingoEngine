@@ -1,4 +1,5 @@
 ﻿using Godot;
+using LingoEngine.Core;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.LGodot.Core;
 using LingoEngine.LGodot.Stages;
@@ -13,6 +14,7 @@ namespace LingoEngine.LGodot
     {
         public static ILingoEngineRegistration WithLingoGodotEngine(this ILingoEngineRegistration engineRegistration, Node rootNode, bool withStageInWindow = false, Action<GodotFactory>? setup = null)
         {
+            LingoEngineGlobal.RunFramework = LingoEngineRunFramework.Godot;
             engineRegistration
                 .Services(s => s
                         .AddGodotLogging()

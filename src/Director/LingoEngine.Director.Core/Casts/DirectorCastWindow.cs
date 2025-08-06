@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
@@ -9,14 +8,17 @@ using LingoEngine.Events;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Tools;
+using LingoEngine.Core;
+using LingoEngine.Director.Core.Events;
 
 namespace LingoEngine.Director.Core.Casts
 {
-    public class DirectorCastWindow : DirectorWindow<IDirFrameworkCastWindow>
+    public class DirectorCastWindow : DirectorWindow<IDirFrameworkCastWindow> , IHasFindMemberEvent
     {
         private readonly IDirectorEventMediator _mediator;
         private readonly ILingoFrameworkFactory _factory;
         private readonly LingoGfxTabContainer _tabs;
+        private readonly LingoPlayer _player;
         private readonly Dictionary<string, DirCastTab> _tabMap = new();
         private readonly ILingoCommandManager _commandManager;
         private readonly IDirectorIconManager _iconManager;
@@ -25,9 +27,13 @@ namespace LingoEngine.Director.Core.Casts
 
         public LingoGfxTabContainer TabContainer => _tabs;
         public ILingoMember? SelectedMember => _selected;
+        public int Width { get; set; } = 360;
+        public int Height { get; set; } = 620;
 
-        public DirectorCastWindow(ILingoFrameworkFactory factory, IDirectorEventMediator mediator, ILingoCommandManager commandManager, IDirectorIconManager iconManager) : base(factory)
+        public DirectorCastWindow(ILingoFrameworkFactory factory, IDirectorEventMediator mediator, ILingoCommandManager commandManager, IDirectorIconManager iconManager, ILingoPlayer player) : base(factory)
         {
+            _player = (LingoPlayer)player;
+            _player.ActiveMovieChanged += OnActiveMovieChanged;
             _mediator = mediator;
             _factory = factory;
             _commandManager = commandManager;
@@ -44,12 +50,23 @@ namespace LingoEngine.Director.Core.Casts
         public override void Dispose()
         {
             _mouseSub?.Release();
+            _player.ActiveMovieChanged -= OnActiveMovieChanged;
             base.Dispose();
+        }
+
+        private void OnActiveMovieChanged(ILingoMovie? movie)
+        {
+            SetActiveMovie(movie);
+        }
+
+        public void SetActiveMovie(ILingoMovie? lingoMovie)
+        {
+            LoadMovie(lingoMovie);
+            SetViewportSize(Width, Height);
         }
 
         public void LoadMovie(ILingoMovie? movie)
         {
-            Framework.SetActiveMovie(movie);
             _tabMap.Clear();
             _tabs.ClearTabs();
             if (movie == null)
@@ -57,21 +74,23 @@ namespace LingoEngine.Director.Core.Casts
 
             foreach (var cast in movie.CastLib.GetAll())
             {
-                var members = cast.GetAll();
-                var tabName = cast.Name ?? $"Cast{cast.Number}";
-                var tab = new DirCastTab(_factory, tabName, members, _iconManager, _commandManager);
-                var tabItem = _factory.CreateTabItem(tabName, tabName);
-                tabItem.Content = tab.Scroll;
-                _tabs.AddTab(tabItem);
-                _tabMap[tabItem.Title] = tab;
+                var tab = new DirCastTab(_factory, cast, _iconManager, _commandManager);
+                _tabs.AddTab(tab.TabItem);
+                _tabMap[tab.TabItem.Title] = tab;
                 tab.MemberSelected += (m, i) => OnMemberSelected(tab, m, i);
+
+                tab.LoadAllMembers();
             }
         }
-
-        public void SetViewportWidth(int width)
+        public void OnResizing(int width, int height)
+        {
+            Width = width;
+            SetViewportSize(width, height);
+        }
+        private void SetViewportSize(int width, int height)
         {
             foreach (var tab in _tabMap.Values)
-                tab.SetViewportWidth(width);
+                tab.SetViewportSize(width, height);
         }
 
         private void OnMouseEvent(LingoMouseEvent e)

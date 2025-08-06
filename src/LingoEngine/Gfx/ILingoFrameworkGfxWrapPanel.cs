@@ -11,7 +11,7 @@ namespace LingoEngine.Gfx
         LingoOrientation Orientation { get; set; }
 
         /// <summary>Margin around each child item.</summary>
-        LingoMargin ItemMargin { get; set; }
+        LingoPoint ItemMargin { get; set; }
 
         /// <summary>Adds a child node to the container.</summary>
         void AddItem(ILingoFrameworkGfxNode child);

@@ -1,7 +1,6 @@
 using LingoEngine.Bitmaps;
 using LingoEngine.Primitives;
 using LingoEngine.Texts;
-using System.Collections.Generic;
 
 namespace LingoEngine.Gfx
 {
@@ -12,7 +11,7 @@ namespace LingoEngine.Gfx
     /// </summary>
     public class LingoGfxCanvas : LingoGfxNodeLayoutBase<ILingoFrameworkGfxCanvas>
     {
-
+        public bool Pixilated { get => _framework.Pixilated; set => _framework.Pixilated = value; }
         public void Clear(LingoColor color) => _framework.Clear(color);
         public void SetPixel(LingoPoint point, LingoColor color) => _framework.SetPixel(point, color);
         public void DrawLine(LingoPoint start, LingoPoint end, LingoColor color, float width = 1)
