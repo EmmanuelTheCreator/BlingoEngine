@@ -36,12 +36,16 @@ namespace LingoEngine.LGodot.Gfx
             };
             _panelStyle = new StyleBoxFlat
             {
-                BgColor = LingoColorList.Green.ToGodotColor(),
+                BgColor = LingoColorList.White.ToGodotColor(),
 
             };
             _panel.AddThemeStyleboxOverride("panel", _panelStyle);
             AddChild(_panel);
             CloseRequested += Hide;
+
+            ReplaceIconColor(this, "close", new Color("#777777"));
+            ReplaceIconColor(this, "close_hl", Colors.Black);
+            ReplaceIconColor(this, "close_pressed", Colors.Black);
         }
 
         public float X { get => Position.X; set => Position = new Vector2I((int)value, Position.Y); }
@@ -157,7 +161,28 @@ namespace LingoEngine.LGodot.Gfx
             QueueFree();
             base.Dispose();
         }
+        private static void ReplaceIconColor(Window dialog, string name, Color colorNew)
+        {
+            var icon = dialog.GetThemeIcon(name);
+            ImageTexture tinted = CreateTintedIcon(icon, colorNew);
+            dialog.AddThemeIconOverride(name, tinted);
+        }
 
-        
+        private static ImageTexture CreateTintedIcon(Texture2D icon, Color colorNew)
+        {
+            var image = icon.GetImage();
+            image.Convert(Image.Format.Rgba8);
+            for (int y = 0; y < image.GetHeight(); y++)
+            {
+                for (int x = 0; x < image.GetWidth(); x++)
+                {
+                    var color = image.GetPixel(x, y);
+                    color = new Color(colorNew.R, colorNew.G, colorNew.B, color.A);
+                    image.SetPixel(x, y, color);
+                }
+            }
+            return ImageTexture.CreateFromImage(image);
+        }
+
     }
 }
