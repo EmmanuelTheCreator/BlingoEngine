@@ -8,6 +8,7 @@ using LingoEngine.Inputs;
 using System.Collections.Generic;
 using LingoEngine.Primitives;
 using LingoEngine.Director.Core.Windowing;
+using LingoEngine.Director.Core.Icons;
 
 namespace LingoEngine.Director.Core.UI
 {
@@ -30,8 +31,7 @@ namespace LingoEngine.Director.Core.UI
         private LingoGfxButton _ModifyButton;
         private readonly LingoGfxButton _ControlButton;
         private readonly LingoGfxButton _windowButton;
-        private readonly LingoGfxButton _rewindButton;
-        private readonly LingoGfxButton _playButton;
+        private LingoGfxStateButton _playButton;
         private readonly IDirectorWindowManager _windowManager;
         private readonly DirectorProjectManager _projectManager;
         private readonly LingoPlayer _player;
@@ -43,6 +43,22 @@ namespace LingoEngine.Director.Core.UI
         private ILingoMovie? _lingoMovie;
         private List<LingoGfxButton> _topMenuButtons = new List<LingoGfxButton>();
         private List<LingoGfxMenu> _topMenus = new List<LingoGfxMenu>();
+        private bool _playPauseState;
+
+        public LingoGfxWrapPanel MenuBar => _menuBar;
+        public LingoGfxWrapPanel IconBar => _iconBar;
+
+        public bool PlayPauseState
+        {
+            get => _playPauseState; 
+            set
+            {
+                var hasChanged = _playPauseState != value;
+                _playPauseState = value;
+                if (hasChanged)
+                    SetPlayState(value);
+            }
+        }
 
         private class ShortCutInfo
         {
@@ -54,12 +70,8 @@ namespace LingoEngine.Director.Core.UI
             public bool Meta { get; init; }
         }
 
-        public DirectorMainMenu(IDirectorWindowManager windowManager,
-            DirectorProjectManager projectManager,
-            LingoPlayer player,
-            IDirectorShortCutManager shortCutManager,
-            IHistoryManager historyManager,
-            ILingoFrameworkFactory factory) : base(factory)
+        public DirectorMainMenu(IDirectorWindowManager windowManager,DirectorProjectManager projectManager, LingoPlayer player, IDirectorShortCutManager shortCutManager,
+            IHistoryManager historyManager, IDirectorIconManager directorIconManager,ILingoFrameworkFactory factory) : base(factory)
         {
             _windowManager = windowManager;
             _projectManager = projectManager;
@@ -69,7 +81,8 @@ namespace LingoEngine.Director.Core.UI
 
             _menuBar = factory.CreateWrapPanel(LingoOrientation.Horizontal, "MenuBar");
             _iconBar = factory.CreateWrapPanel(LingoOrientation.Horizontal, "IconBar");
-            
+            _iconBar.Height = 18;
+
             _fileMenu = factory.CreateMenu("FileMenu");
             _editMenu = factory.CreateMenu("EditMenu");
             _insertMenu = factory.CreateMenu("InsertMenu");
@@ -85,8 +98,18 @@ namespace LingoEngine.Director.Core.UI
             _windowButton = factory.CreateButton("WindowButton", "Window");
 
             // icon buttons
-            _rewindButton = factory.CreateButton("RewindButton", "|<");
-            _playButton = factory.CreateButton("PlayButton", "Play");
+            _iconBar
+                .Compose()
+                .AddVLine("VLine1", 16, 2)
+                .AddButton("RewindButton", "", DoRewind, c => c.IconTexture = directorIconManager.Get(DirectorIcon.Rewind))
+                .AddStateButton("RewindButton", this,directorIconManager.Get(DirectorIcon.Stop),p => p.PlayPauseState,"", 
+                    c =>
+                    {
+                        c.TextureOff = directorIconManager.Get(DirectorIcon.Play);
+                        _playButton = c;
+                    })
+                .AddVLine("VLine2", 16, 2)
+            ;
 
             _topMenus.Add(_fileMenu);
             _topMenus.Add(_editMenu);
@@ -117,7 +140,6 @@ namespace LingoEngine.Director.Core.UI
 
             ComposeMenu(factory);
 
-            _playButton.Pressed += OnPlayPressed;
             _player.ActiveMovieChanged += OnActiveMovieChanged;
             _shortCutManager.ShortCutAdded += OnShortCutAdded;
             _shortCutManager.ShortCutRemoved += OnShortCutRemoved;
@@ -127,6 +149,9 @@ namespace LingoEngine.Director.Core.UI
             foreach (var sc in _shortCutManager.GetShortCuts())
                 _shortCuts.Add(ParseShortCut(sc));
         }
+
+       
+
         public void CallOnAllTopMenuButtons(Action<LingoGfxButton> btnAction)
         {
             foreach (var item in _topMenuButtons)
@@ -250,31 +275,38 @@ namespace LingoEngine.Director.Core.UI
             if (_lingoMovie != null)
             {
                 _lingoMovie.PlayStateChanged -= OnPlayStateChanged;
-                _rewindButton.Pressed -= () => _lingoMovie.GoTo(1);
             }
             _lingoMovie = movie;
             if (_lingoMovie != null)
             {
                 _lingoMovie.PlayStateChanged += OnPlayStateChanged;
-                _rewindButton.Pressed += () => _lingoMovie.GoTo(1);
             }
             UpdatePlayButton();
         }
-
-        private void OnPlayPressed()
+        private void DoRewind()
         {
-            if (_lingoMovie == null) return;
-            if (_lingoMovie.IsPlaying)
-                _lingoMovie.Halt();
-            else
-                _lingoMovie.Play();
+            _lingoMovie?.GoTo(1);
         }
 
         private void OnPlayStateChanged(bool isPlaying) => UpdatePlayButton();
 
+        private bool _playPauseFromEvent;
         private void UpdatePlayButton()
         {
-            _playButton.Text = _lingoMovie != null && _lingoMovie.IsPlaying ? "Stop" : "Play";
+            _playPauseFromEvent = true;
+            PlayPauseState = _lingoMovie != null && _lingoMovie.IsPlaying;
+            _playButton.IsOn = PlayPauseState;
+            _playPauseFromEvent = false;
+        }
+        private void SetPlayState(bool state)
+        {
+            if (_playPauseFromEvent) return; // Prevent recursive calls from the button state change
+            if (_lingoMovie == null) return;
+            if (_lingoMovie.IsPlaying && state) return;
+            if (_lingoMovie.IsPlaying)
+                _lingoMovie.Halt();
+            else
+                _lingoMovie.Play();
         }
 
         private void OnShortCutAdded(DirectorShortCutMap map)
@@ -312,16 +344,7 @@ namespace LingoEngine.Director.Core.UI
             _redoItem.Enabled = _historyManager.CanRedo;
         }
 
-        public LingoGfxWrapPanel MenuBar => _menuBar;
-        public LingoGfxWrapPanel IconBar => _iconBar;
-        public LingoGfxMenu FileMenu => _fileMenu;
-        public LingoGfxMenu EditMenu => _editMenu;
-        public LingoGfxMenu WindowMenu => _windowMenu;
-        public LingoGfxButton FileButton => _fileButton;
-        public LingoGfxButton EditButton => _editButton;
-        public LingoGfxButton WindowButton => _windowButton;
-        public LingoGfxButton RewindButton => _rewindButton;
-        public LingoGfxButton PlayButton => _playButton;
+      
 
         public override void Dispose()
         {

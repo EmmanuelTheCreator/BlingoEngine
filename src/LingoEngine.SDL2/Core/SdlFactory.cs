@@ -426,7 +426,7 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
         button.Init(impl);
         button.Name = name;
         if (texture != null)
-            button.Texture = texture;
+            button.TextureOn = texture;
         return button;
     }
     /// <inheritdoc/>

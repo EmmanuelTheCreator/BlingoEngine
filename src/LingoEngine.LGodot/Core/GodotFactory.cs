@@ -437,7 +437,7 @@ namespace LingoEngine.LGodot.Core
             if (!string.IsNullOrWhiteSpace(text))
                 button.Text = text;
             if (texture != null)
-                button.Texture = texture;
+                button.TextureOn = texture;
             return button;
         }
 

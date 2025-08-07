@@ -331,9 +331,9 @@ namespace LingoEngine.Director.Core.Inspector
             composer.Finalize();
             wrapContainer
                 .AddItem(containerIcons)
-                .AddHLine(_factory, "SpriteSplitterIconHLine", _lastWidh - 10, 5)
+                .AddHLine("SpriteSplitterIconHLine", _lastWidh - 10, 5)
                 .AddItem(container)
-                .AddHLine(_factory, "SpriteSplitterIconHLine", _lastWidh - 10, 5)
+                .AddHLine("SpriteSplitterIconHLine", _lastWidh - 10, 5)
                 .AddItem(_behaviorPanel)
                 ;
         }

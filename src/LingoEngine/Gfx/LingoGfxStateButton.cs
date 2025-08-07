@@ -1,3 +1,5 @@
+using LingoEngine.Bitmaps;
+
 namespace LingoEngine.Gfx
 {
     /// <summary>
@@ -8,8 +10,9 @@ namespace LingoEngine.Gfx
         /// <summary>Displayed text on the button.</summary>
         public string Text { get => _framework.Text; set => _framework.Text = value; }
         /// <summary>Icon texture displayed on the button.</summary>
-        public Bitmaps.ILingoImageTexture? Texture { get => _framework.Texture; set => _framework.Texture = value; }
+        public Bitmaps.ILingoImageTexture? TextureOn { get => _framework.TextureOn; set => _framework.TextureOn = value; }
         /// <summary>Current toggle state.</summary>
         public bool IsOn { get => _framework.IsOn; set => _framework.IsOn = value; }
+        public ILingoImageTexture? TextureOff { get => _framework.TextureOff; set => _framework.TextureOff = value; }
     }
 }

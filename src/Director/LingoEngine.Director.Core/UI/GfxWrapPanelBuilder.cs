@@ -173,8 +173,22 @@ namespace LingoEngine.Director.Core.UI
             configure?.Invoke(slider);
             return this;
         }
+        public GfxWrapPanelBuilder AddVLine(string name, float height = 0, float paddingTop = 0)
+        {
+            _panel.AddVLine(name, height, paddingTop);
+            return this;
+        }
+        public GfxWrapPanelBuilder AddHLine(string name, float width = 0, float paddingLeft = 0)
+        {
+            _panel.AddHLine(name, width, paddingLeft);
+            return this;
+        } public GfxWrapPanelBuilder AddItem(ILingoGfxNode element)
+        {
+            _panel.AddItem(element);
+            return this;
+        }
 
-     
-       
+
+
     }
 }
