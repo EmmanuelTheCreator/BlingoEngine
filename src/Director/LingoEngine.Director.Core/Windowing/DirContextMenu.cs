@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
 

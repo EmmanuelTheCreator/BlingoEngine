@@ -95,38 +95,14 @@ namespace LingoEngine.Director.Core.Scores
         public override void Init(IDirFrameworkWindow frameworkWindow)
         {
             base.Init(frameworkWindow);
-            _spriteContextMenu = new DirContextMenu(frameworkWindow, _factory,
-                () => (Mouse.MouseH + Position.X, Mouse.MouseV+Position.Y), () => IsActiveWindow);
-            _spriteContextMenu.AddItem(string.Empty, "Find Member",
-                () => _contextSprite?.Sprite is ILingoSpriteWithMember swm && swm.GetMember() != null,
-                () =>
-                {
-                    if (_contextSprite?.Sprite is ILingoSpriteWithMember swm)
-                    {
-                        var member = swm.GetMember();
-                        if (member != null)
-                            _spritesManager.Mediator.RaiseFindMember(member);
-                    }
-                });
-            _spriteContextMenu.AddItem(string.Empty, "Delete",
-                () => _movie != null && _contextSprite != null && !_contextSprite.IsLocked,
-                () =>
-                {
-                    if (_movie != null)
-                        _spritesManager.DeleteSelected(_movie);
-                });
-            _spriteContextMenu.AddItem(string.Empty, "Create FilmLoop",
-                () => _movie != null && _spritesManager.SpritesSelection.Sprites.Any() &&
-                    _spritesManager.SpritesSelection.Sprites.All(s => s is LingoSprite2D or LingoSpriteSound),
-                () =>
-                {
-                    if (_movie != null)
-                        _spritesManager.CreateFilmLoop(_movie, "New FilmLoop");
-                });
+            CreateContextMenu(frameworkWindow);
             _mouseSub = Mouse.OnMouseEvent(HandleMouseEvent);
             TopContainer = new DirScoreGridTopContainer(_scoreManager, _paletteDefinitions, ShowConfirmDialog);
             Sprites2DContainer = new DirScoreGridSprites2DContainer(_scoreManager, ShowConfirmDialog);
         }
+
+      
+
         public override void Dispose()
         {
             _mouseSub.Release();
@@ -161,7 +137,40 @@ namespace LingoEngine.Director.Core.Scores
             _LeftTopContainer.SetMovie(_movie);
             _LeftChannelContainer.SetMovie(_movie);
         }
-        
+
+
+        private void CreateContextMenu(IDirFrameworkWindow frameworkWindow)
+        {
+            _spriteContextMenu = new DirContextMenu(frameworkWindow, _factory,
+                            () => (Mouse.MouseH + Position.X, Mouse.MouseV + Position.Y), () => IsActiveWindow);
+            _spriteContextMenu.AddItem(string.Empty, "Find Member",
+                () => _contextSprite?.Sprite is ILingoSpriteWithMember swm && swm.GetMember() != null,
+                () =>
+                {
+                    if (_contextSprite?.Sprite is ILingoSpriteWithMember swm)
+                    {
+                        var member = swm.GetMember();
+                        if (member != null)
+                            _spritesManager.Mediator.RaiseFindMember(member);
+                    }
+                });
+            _spriteContextMenu.AddItem(string.Empty, "Delete",
+                () => _movie != null && _contextSprite != null && !_contextSprite.IsLocked,
+                () =>
+                {
+                    if (_movie != null)
+                        _spritesManager.DeleteSelected(_movie);
+                });
+            _spriteContextMenu.AddItem(string.Empty, "Create FilmLoop",
+                () => _movie != null && _spritesManager.SpritesSelection.Sprites.Any() &&
+                    _spritesManager.SpritesSelection.Sprites.All(s => s is LingoSprite2D or LingoSpriteSound),
+                () =>
+                {
+                    if (_movie != null)
+                        _spritesManager.CreateFilmLoop(_movie, "New FilmLoop");
+                });
+        }
+
 
         private void HandleMouseEvent(LingoMouseEvent mouseEvent)
         {

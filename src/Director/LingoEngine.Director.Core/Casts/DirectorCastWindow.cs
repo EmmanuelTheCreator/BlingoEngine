@@ -39,6 +39,7 @@ namespace LingoEngine.Director.Core.Casts
             _commandManager = commandManager;
             _iconManager = iconManager;
             _tabs = factory.CreateTabContainer("CastTabs");
+            _mediator.Subscribe(this);
         }
 
         public override void Init(IDirFrameworkWindow frameworkWindow)
@@ -49,6 +50,7 @@ namespace LingoEngine.Director.Core.Casts
 
         public override void Dispose()
         {
+            _mediator.Unsubscribe(this);
             _mouseSub?.Release();
             _player.ActiveMovieChanged -= OnActiveMovieChanged;
             base.Dispose();
