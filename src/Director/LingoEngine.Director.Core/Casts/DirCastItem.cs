@@ -38,6 +38,7 @@ public class DirCastItem
         Draw();
     }
 
+    internal void MakeEmpty() => SetMember(null);
     public void SetMember(ILingoMember? member)
     {
         _member = member;
@@ -100,5 +101,7 @@ public class DirCastItem
 
 
     }
+
+   
 }
 

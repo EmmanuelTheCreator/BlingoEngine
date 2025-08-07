@@ -41,6 +41,10 @@ namespace LingoEngine.Casts
         /// </summary>
         CastMemberSelection? Selection { get; set; }
 
+        event Action<ILingoMember>? MemberAdded;
+        event Action<ILingoMember>? MemberDeleted;
+        event Action<ILingoMember>? MemberNameChanged;
+
 
         public T? GetMember<T>(int number) where T : class, ILingoMember;
         /// <inheritdoc/>

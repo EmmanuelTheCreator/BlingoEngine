@@ -90,7 +90,7 @@ namespace LingoEngine.Director.Core.Sprites
 
         public void DeleteSelected(LingoMovie movie)
         {
-            var sprites = SpritesSelection.Sprites.ToArray();
+            var sprites = SpritesSelection.Sprites.Where(x => !x.Lock).ToArray();
             foreach (var s in sprites)
                 CommandManager.Handle(new RemoveSpriteCommand(movie, s));
         }

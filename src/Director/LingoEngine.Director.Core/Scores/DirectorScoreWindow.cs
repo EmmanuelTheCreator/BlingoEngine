@@ -11,14 +11,9 @@ using LingoEngine.ColorPalettes;
 using LingoEngine.Primitives;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.UI;
-using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.Stages.Commands;
 using LingoEngine.Sprites;
-using LingoEngine.Members;
-using LingoEngine.Scripts;
-using LingoEngine.Transitions;
 using LingoEngine.Sounds;
-using System.Linq;
 
 
 namespace LingoEngine.Director.Core.Scores
@@ -101,7 +96,7 @@ namespace LingoEngine.Director.Core.Scores
         {
             base.Init(frameworkWindow);
             _spriteContextMenu = new DirContextMenu(frameworkWindow, _factory,
-                () => (Mouse.MouseH, Mouse.MouseV), () => IsActiveWindow);
+                () => (Mouse.MouseH + Position.X, Mouse.MouseV+Position.Y), () => IsActiveWindow);
             _spriteContextMenu.AddItem(string.Empty, "Find Member",
                 () => _contextSprite?.Sprite is ILingoSpriteWithMember swm && swm.GetMember() != null,
                 () =>
@@ -117,8 +112,8 @@ namespace LingoEngine.Director.Core.Scores
                 () => _movie != null && _contextSprite != null && !_contextSprite.IsLocked,
                 () =>
                 {
-                    if (_movie != null && _contextSprite != null)
-                        _spritesManager.CommandManager.Handle(new RemoveSpriteCommand(_movie, _contextSprite.Sprite));
+                    if (_movie != null)
+                        _spritesManager.DeleteSelected(_movie);
                 });
             _spriteContextMenu.AddItem(string.Empty, "Create FilmLoop",
                 () => _movie != null && _spritesManager.SpritesSelection.Sprites.Any() &&

@@ -106,7 +106,7 @@ public class JsonStateRepository
                     sndMem.IsLinked = sndDto.IsLinked;
                     sndMem.LinkedFilePath = sndDto.LinkedFilePath;
                 }
-                if (member is LingoMemberFilmLoop flMem && memDto is LingoMemberFilmLoopDTO flDto)
+                if (member is LingoFilmLoopMember flMem && memDto is LingoMemberFilmLoopDTO flDto)
                 {
                     flMem.Framing = (LingoFilmLoopFraming)flDto.Framing;
                     flMem.Loop = flDto.Loop;
@@ -343,7 +343,7 @@ public class JsonStateRepository
                 PurgePriority = baseDto.PurgePriority,
                 ImageFile = SavePicture(picture, dir)
             },
-            LingoMemberFilmLoop filmLoop => new LingoMemberFilmLoopDTO
+            LingoFilmLoopMember filmLoop => new LingoMemberFilmLoopDTO
             {
                 Name = baseDto.Name,
                 Number = baseDto.Number,

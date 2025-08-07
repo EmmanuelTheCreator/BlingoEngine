@@ -8,6 +8,7 @@ using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Bitmaps;
 using LingoEngine.Core;
+using LingoEngine.FilmLoops;
 
 namespace LingoEngine.Director.Core.Casts;
 
@@ -69,9 +70,8 @@ public class DirectorMemberThumbnail : IDisposable
             case ILingoMemberTextBase text:
                 DrawText(GetPreviewText(text));
                 break;
-            case LingoMemberSound sound:
-                DrawText(sound.Name);
-                break;
+            case LingoFilmLoopMember filmloop: DrawText(filmloop.Name); break;
+            case LingoMemberSound sound: DrawText(sound.Name); break;
         }
 
         if (_iconManager != null)

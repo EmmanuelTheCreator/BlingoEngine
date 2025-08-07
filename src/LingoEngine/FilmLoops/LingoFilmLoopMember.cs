@@ -1,18 +1,16 @@
 using LingoEngine.Casts;
-using LingoEngine.FilmLoops;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
-using System.Collections.Generic;
-using System.Linq;
+using LingoEngine.Bitmaps;
 
-namespace LingoEngine.Bitmaps
+namespace LingoEngine.FilmLoops
 {
     /// <summary>
     /// Represents a film loop cast member.
     /// </summary>
-    public class LingoMemberFilmLoop : LingoMember
+    public class LingoFilmLoopMember : LingoMember
     {
         private readonly ILingoFrameworkMemberFilmLoop _frameworkFilmLoop;
 
@@ -47,7 +45,7 @@ namespace LingoEngine.Bitmaps
             set => _frameworkFilmLoop.Loop = value;
         }
 
-        public LingoMemberFilmLoop(ILingoFrameworkMemberFilmLoop frameworkMember, LingoCast cast, int numberInCast, string name = "", string fileName = "", LingoPoint regPoint = default)
+        public LingoFilmLoopMember(ILingoFrameworkMemberFilmLoop frameworkMember, LingoCast cast, int numberInCast, string name = "", string fileName = "", LingoPoint regPoint = default)
             : base(frameworkMember, LingoMemberType.FilmLoop, cast, numberInCast, name, fileName, regPoint)
         {
             _frameworkFilmLoop = frameworkMember;

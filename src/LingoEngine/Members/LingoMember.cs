@@ -215,7 +215,8 @@ namespace LingoEngine.Members
                 var oldName = _name;
                 var changed = _name != value;
                 _name = value;
-                if (_cast != null && changed && !string.IsNullOrWhiteSpace(_name)) _cast.MemberNameChanged(oldName, this);
+                if (_cast != null && changed && !string.IsNullOrWhiteSpace(_name)) _cast.MemberNameHasChanged(oldName, this);
+                MemberChanged?.Invoke();
             }
         }
         /// <inheritdoc/>
@@ -248,6 +249,8 @@ namespace LingoEngine.Members
         public string CastName { get => _cast.Name; }
         public ILingoCast Cast { get => _cast; }
         public bool HasChanged { get; internal set; }
+
+        public event Action? MemberChanged;
 
         /// <inheritdoc/>
         public LingoMember(ILingoFrameworkMember frameworkMember, LingoMemberType type, LingoCast cast, int numberInCast, string name = "", string fileName = "", LingoPoint regPoint = default)

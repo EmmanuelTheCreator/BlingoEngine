@@ -8,13 +8,13 @@ namespace LingoEngine.SDL2.Pictures;
 
 public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
 {
-    private LingoMemberFilmLoop _member = null!;
+    private LingoFilmLoopMember _member = null!;
     public bool IsLoaded { get; private set; }
     public byte[]? Media { get; set; }
     public LingoFilmLoopFraming Framing { get; set; } = LingoFilmLoopFraming.Auto;
     public bool Loop { get; set; } = true;
 
-    internal void Init(LingoMemberFilmLoop member)
+    internal void Init(LingoFilmLoopMember member)
     {
         _member = member;
     }

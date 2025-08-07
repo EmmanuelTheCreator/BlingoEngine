@@ -27,6 +27,7 @@ using LingoEngine.Tempos;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Transitions;
 using LingoEngine.Scripts;
+using LingoEngine.FilmLoops;
 
 namespace LingoEngine.Director.Core.Inspector
 {
@@ -255,7 +256,7 @@ namespace LingoEngine.Director.Core.Inspector
                 case LingoMemberBitmap pic:AddBitmapTab(pic);break;
                 case LingoMemberSound sound:AddSoundTab(sound);break;
                 case LingoMemberShape shape:AddShapeTab(shape);break;
-                case LingoMemberFilmLoop film:AddTab(PropetyTabNames.FilmLoop, film);break;
+                case LingoFilmLoopMember film:AddTab(PropetyTabNames.FilmLoop, film);break;
             }
         }
 

@@ -17,7 +17,7 @@ using LingoEngine.Casts;
 
 namespace LingoEngine.Director.Core.Casts
 {
-    public class DirCastTab
+    public class DirCastTab : IDisposable
     {
         private int _itemMargin = 2;
         private readonly List<DirCastItem> _items = new();
@@ -57,6 +57,37 @@ namespace LingoEngine.Director.Core.Casts
             _scroll.AddItem(_wrap);
 
             _tabItem.Content = _scroll;
+            _cast.MemberAdded += MemberAdded;
+            _cast.MemberDeleted += MemberDeleted;
+            _cast.MemberNameChanged += MemberNameChanged;
+        }
+        public void Dispose()
+        {
+            _cast.MemberAdded -= MemberAdded;
+            _cast.MemberDeleted -= MemberDeleted;
+            _cast.MemberNameChanged -= MemberNameChanged;
+        }
+
+        private void MemberNameChanged(ILingoMember member)
+        {
+            var castItem = _items.FirstOrDefault(i => i.Member == member);
+            if (castItem == null) return;
+            castItem.SetMember(member);
+        }
+
+        private void MemberDeleted(ILingoMember member)
+        {
+            var castItem = _items.FirstOrDefault(i => i.Member == member);
+            if (castItem == null) return;
+            castItem.MakeEmpty();
+        }
+
+        private void MemberAdded(ILingoMember member)
+        {
+            var castItem = _items.FirstOrDefault(i => i.Member == member);
+            if (castItem != null) return;
+            castItem = _items[member.NumberInCast - 1];
+            castItem.SetMember(member);
         }
 
         internal void LoadAllMembers()

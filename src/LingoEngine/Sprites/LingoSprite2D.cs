@@ -7,7 +7,6 @@ using LingoEngine.Casts;
 using LingoEngine.Movies;
 using LingoEngine.FilmLoops;
 using LingoEngine.Sprites.Events;
-using LingoEngine.Bitmaps;
 using LingoEngine.Members;
 
 namespace LingoEngine.Sprites
@@ -373,7 +372,7 @@ When a movie stops, events occur in the following order:
         private void MemberHasChanged()
         {
             var existingPlayer = GetActorsOfType<LingoFilmLoopPlayer>().FirstOrDefault();
-            if (_Member is LingoMemberFilmLoop)
+            if (_Member is LingoFilmLoopMember)
             {
                 if (existingPlayer == null)
                 {

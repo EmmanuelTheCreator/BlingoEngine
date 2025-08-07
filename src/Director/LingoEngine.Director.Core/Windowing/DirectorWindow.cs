@@ -1,5 +1,6 @@
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
+using LingoEngine.Primitives;
 
 namespace LingoEngine.Director.Core.Windowing;
 
@@ -27,7 +28,8 @@ public class DirectorWindow<TFrameworkWindow> : IDirectorWindow, IDisposable, IL
         _Framework = (TFrameworkWindow)frameworkWindow;
         Mouse = frameworkWindow.Mouse;
     }
-
+    public LingoPoint Position => _Framework.GetPosition();
+    public LingoPoint Size => _Framework.GetSize();
     public bool IsOpen => _Framework.IsOpen;
     public bool IsActiveWindow => _Framework.IsActiveWindow;
     public virtual void OpenWindow() => _Framework.OpenWindow();

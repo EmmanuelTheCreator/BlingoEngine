@@ -68,6 +68,8 @@ namespace LingoEngine.Director.Core.Casts
         public void LoadMovie(ILingoMovie? movie)
         {
             _tabMap.Clear();
+            foreach (var tab in _tabMap)
+                tab.Value.Dispose();
             _tabs.ClearTabs();
             if (movie == null)
                 return;
