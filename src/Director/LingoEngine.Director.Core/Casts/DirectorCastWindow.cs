@@ -27,7 +27,7 @@ namespace LingoEngine.Director.Core.Casts
 
         public LingoGfxTabContainer TabContainer => _tabs;
         public ILingoMember? SelectedMember => _selected;
-        public int Width { get; set; } = 360;
+        public int Width { get; set; } = 370;
         public int Height { get; set; } = 620;
 
         public DirectorCastWindow(ILingoFrameworkFactory factory, IDirectorEventMediator mediator, ILingoCommandManager commandManager, IDirectorIconManager iconManager, ILingoPlayer player) : base(factory)

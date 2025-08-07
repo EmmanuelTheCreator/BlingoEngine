@@ -1,6 +1,7 @@
 using System;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
+using LingoEngine.Texts;
 
 namespace LingoEngine.SDL2.Gfx
 {
@@ -18,11 +19,12 @@ namespace LingoEngine.SDL2.Gfx
         public int FontSize { get; set; }
         public string? Font { get; set; }
         public LingoColor FontColor { get; set; }
-        public int LineHeight { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public int LineHeight { get; set; }
 
         public object FrameworkNode => this;
 
-        public LingoTextWrapMode WrapMode { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public LingoTextWrapMode WrapMode { get; set; }
+        public LingoTextAlignment TextAlignment { get; set; }
 
         public event Action? ValueChanged;
         public void Dispose() { }

@@ -216,7 +216,7 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
     /// <inheritdoc/>
     public LingoGfxWrapPanel CreateWrapPanel(LingoOrientation orientation, string name)
     {
-        var panel = new LingoGfxWrapPanel();
+        var panel = new LingoGfxWrapPanel(this);
         var impl = new SdlGfxWrapPanel(orientation);
         panel.Init(impl);
         panel.Name = name;

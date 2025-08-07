@@ -28,6 +28,8 @@ namespace LingoEngine.SDL2.Gfx
         public object FrameworkNode => this;
         public nint Texture => _texture;
 
+        public bool Pixilated { get; set; }
+
         public SdlGfxCanvas(nint renderer, ILingoFontManager fontManager, int width, int height)
         {
             _renderer = renderer;
