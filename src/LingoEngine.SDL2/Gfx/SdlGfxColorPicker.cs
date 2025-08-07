@@ -1,11 +1,19 @@
 using System;
+using System.Numerics;
+using ImGuiNET;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxColorPicker : ILingoFrameworkGfxColorPicker, IDisposable
+    internal class SdlGfxColorPicker : ILingoFrameworkGfxColorPicker, IDisposable, ISdlRenderElement
     {
+        private readonly nint _renderer;
+
+        public SdlGfxColorPicker(nint renderer)
+        {
+            _renderer = renderer;
+        }
         public float X { get; set; }
         public float Y { get; set; }
         public float Width { get; set; }
@@ -31,6 +39,27 @@ namespace LingoEngine.SDL2.Gfx
 
         public event Action? ValueChanged;
         public object FrameworkNode => this;
+
+        public void Render()
+        {
+            if (!Visibility) return;
+
+            ImGui.SetCursorPos(new Vector2(X, Y));
+            ImGui.PushID(Name);
+            if (!Enabled)
+                ImGui.BeginDisabled();
+
+            Vector3 col = new Vector3(_color.R / 255f, _color.G / 255f, _color.B / 255f);
+            if (ImGui.ColorEdit3("##color", ref col))
+            {
+                Color = new LingoColor((byte)(col.X * 255), (byte)(col.Y * 255), (byte)(col.Z * 255));
+            }
+
+            if (!Enabled)
+                ImGui.EndDisabled();
+            ImGui.PopID();
+        }
+
         public void Dispose() { }
     }
 }

@@ -7,6 +7,12 @@ namespace LingoEngine.SDL2.Gfx
 {
     internal class SdlGfxItemList : ILingoFrameworkGfxItemList, IDisposable
     {
+        private readonly nint _renderer;
+
+        public SdlGfxItemList(nint renderer)
+        {
+            _renderer = renderer;
+        }
         public float X { get; set; }
         public float Y { get; set; }
         public float Width { get; set; }
@@ -16,8 +22,8 @@ namespace LingoEngine.SDL2.Gfx
         public bool Enabled { get; set; } = true;
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;
 
-        private readonly List<KeyValuePair<string,string>> _items = new();
-        public IReadOnlyList<KeyValuePair<string,string>> Items => _items;
+        private readonly List<KeyValuePair<string, string>> _items = new();
+        public IReadOnlyList<KeyValuePair<string, string>> Items => _items;
         public int SelectedIndex { get; set; } = -1;
         public string? SelectedKey { get; set; }
         public string? SelectedValue { get; set; }
@@ -26,7 +32,7 @@ namespace LingoEngine.SDL2.Gfx
         public object FrameworkNode => this;
         public void AddItem(string key, string value)
         {
-            _items.Add(new KeyValuePair<string,string>(key, value));
+            _items.Add(new KeyValuePair<string, string>(key, value));
         }
         public void ClearItems()
         {
