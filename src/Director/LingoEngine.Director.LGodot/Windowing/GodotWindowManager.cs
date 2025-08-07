@@ -44,7 +44,7 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
         SetTheActiveWindow(window);
     }
 
-   
+
 
     public void SetActiveWindow(IDirectorWindowRegistration windowRegistration)
     {
@@ -112,7 +112,7 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
         return new DirectorWindowDialogReference(dialog.QueueFree);
     }
 
-    private static void ReplaceIconColor(Window dialog,string name,Color colorNew)
+    private static void ReplaceIconColor(Window dialog, string name, Color colorNew)
     {
         var closeButton = dialog.GetThemeIcon(name);
         ImageTexture tinted = CreateTintedIcon(closeButton, colorNew);
@@ -135,11 +135,11 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
         }
 
         var tinted = ImageTexture.CreateFromImage(image);
-        
+
         return tinted;
     }
 
-    public IDirectorWindowDialogReference? ShowNotification(string message)
+    public IDirectorWindowDialogReference? ShowNotification(string message, DirUINotificationType type)
     {
         var root = ActiveWindow?.GetTree().Root;
         if (root == null)
@@ -149,7 +149,27 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
         {
             CustomMinimumSize = new Vector2(200, 40)
         };
-        var style = new StyleBoxFlat { BgColor = new Color(1f, 1f, 0.8f) };
+        var (bg, border) = type switch
+        {
+            DirUINotificationType.Error => (
+                DirectorColors.Notification_Error_Bg.ToGodotColor(),
+                DirectorColors.Notification_Error_Border.ToGodotColor()
+            ),
+            DirUINotificationType.Information => (
+                DirectorColors.Notification_Info_Bg.ToGodotColor(),
+                DirectorColors.Notification_Info_Border.ToGodotColor()
+            ),
+            _ => (
+                DirectorColors.Notification_Warning_Bg.ToGodotColor(),
+                DirectorColors.Notification_Warning_Border.ToGodotColor()
+            ),
+        };
+        var style = new StyleBoxFlat
+        {
+            BgColor = bg,
+            BorderColor = border,
+            BorderWidthAll = 2
+        };
         panel.AddThemeStyleboxOverride("panel", style);
 
         var label = new Label { Text = message };
