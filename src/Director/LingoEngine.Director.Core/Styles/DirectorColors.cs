@@ -5,7 +5,8 @@ namespace LingoEngine.Director.Core.Styles
     public class DirectorColors
     {
         public static LingoColor BlueSelectColor = new LingoColor(0, 120, 215);
-        public static LingoColor BlueLightSelectColor = new LingoColor(229,241,251);
+        public static LingoColor BlueLightSelectColor = new LingoColor(229, 241, 251);
+        public static LingoColor BitmapSelectionFill = new LingoColor(0, 153, 255, 77);
         public static LingoColor BG_PropWindowBar = new LingoColor(178, 180, 191);    // Top bar of panels
         public static LingoColor BG_WhiteMenus = new LingoColor(240, 240, 240);       // Common window background
 
