@@ -69,6 +69,19 @@
                 _membersByName.Remove(name);
         }
 
+        internal void ChangeNumber(int oldNumber, int newNumber)
+        {
+            if (oldNumber == newNumber || containerForAll)
+                return;
+
+            if (_members.TryGetValue(oldNumber, out var member))
+            {
+                _members.Remove(oldNumber);
+                _members[newNumber] = member;
+                member.NumberInCast = newNumber;
+            }
+        }
+
         internal void MemberNameChanged(string oldName, LingoMember member)
         {
             oldName = oldName.ToLower();

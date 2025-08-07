@@ -20,6 +20,7 @@ public class DirCastItem
 
     private readonly ILingoMember _member;
     private bool _selected;
+    private bool _hovered;
     private readonly LingoGfxCanvas _canvas;
     private DirectorMemberThumbnail _thumb;
 
@@ -41,12 +42,27 @@ public class DirCastItem
         Draw();
     }
 
+    public void SetHovered(bool hovered)
+    {
+        _hovered = hovered;
+        Draw();
+    }
+
     private void Draw()
     {
         _canvas.Clear(LingoColorList.Transparent);
         // selection highlight
         if (_selected)
+        {
             _canvas.DrawRect(LingoRect.New(0, 0, Width, Height), DirectorColors.BlueSelectColor, true);
+        }
+        else if (_hovered)
+        {
+            _canvas.DrawLine(new LingoPoint(0, 0), new LingoPoint(Width, 0), LingoColorList.Black); // top
+            _canvas.DrawLine(new LingoPoint(0, 0), new LingoPoint(0, Height), LingoColorList.Black); // left
+            _canvas.DrawLine(new LingoPoint(0, Height), new LingoPoint(Width, Height), LingoColorList.Black); // bottom
+            _canvas.DrawLine(new LingoPoint(Width, 0), new LingoPoint(Width, Height), LingoColorList.Black); // right
+        }
         else
         {
             _canvas.DrawLine(new LingoPoint(0, 0), new LingoPoint(Width, 0), DirectorColors.LineDarker); // top
