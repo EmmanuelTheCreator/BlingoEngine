@@ -28,6 +28,12 @@ namespace LingoEngine.LGodot.Gfx
             canvas.Init(this);
             Size = new Vector2(width, height);
             MouseFilter = MouseFilterEnum.Ignore;
+            //TextureFilter = TextureFilterEnum.Nearest; // Use nearest neighbor for pixel art style
+        }
+        public bool Pixilated
+        {
+            get => TextureFilter == TextureFilterEnum.Nearest;
+            set => TextureFilter = value ? TextureFilterEnum.Nearest : TextureFilterEnum.Linear;
         }
 
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }

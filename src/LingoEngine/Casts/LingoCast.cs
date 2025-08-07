@@ -135,5 +135,15 @@ namespace LingoEngine.Casts
             }
         }
         public IEnumerable<ILingoMember> GetAll() => _MembersContainer.All;
+
+        public void SwapMembers(int slot1, int slot2)
+        {
+            if (slot1 == slot2) return;
+
+            var tempSlot = _MembersContainer.FindEmpty();
+            _MembersContainer.ChangeNumber(slot1, tempSlot);
+            _MembersContainer.ChangeNumber(slot2, slot1);
+            _MembersContainer.ChangeNumber(tempSlot, slot2);
+        }
     }
 }

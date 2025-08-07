@@ -2,11 +2,12 @@ using LingoEngine.Movies;
 using LingoEngine.Sprites;
 using LingoEngine.Sprites.Events;
 using System.Reflection;
+using LingoEngine.Members;
 
 
 namespace LingoEngine.Scripts;
 
-public class LingoFrameScriptSprite : LingoSprite
+public class LingoFrameScriptSprite : LingoSprite, ILingoSpriteWithMember
 {
     public const int SpriteNumOffset = 5;
     private Action<LingoFrameScriptSprite> _onRemoveMe;
@@ -100,4 +101,6 @@ public class LingoFrameScriptSprite : LingoSprite
     {
         Member = lingoMemberScript;
     }
+
+    public ILingoMember? GetMember() => Member;
 }

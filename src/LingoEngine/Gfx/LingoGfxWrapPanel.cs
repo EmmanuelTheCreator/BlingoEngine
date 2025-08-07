@@ -14,7 +14,7 @@ namespace LingoEngine.Gfx
             set => _framework.Orientation = value;
         }
 
-        public LingoMargin ItemMargin
+        public LingoPoint ItemMargin
         {
             get => _framework.ItemMargin;
             set => _framework.ItemMargin = value;

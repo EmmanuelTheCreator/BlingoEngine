@@ -5,6 +5,6 @@ namespace LingoEngine.Director.Core.Casts
 {
     public interface IDirFrameworkCastWindow : IDirFrameworkWindow
     {
-        void SetActiveMovie(ILingoMovie lingoMovie);
+        
     }
 }

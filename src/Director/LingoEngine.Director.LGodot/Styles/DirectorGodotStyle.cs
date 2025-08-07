@@ -14,6 +14,11 @@ public sealed class DirectorGodotStyle
 {
     private readonly LingoGodotStyle lingoGodotStyle;
 
+    static DirectorGodotStyle()
+    {
+        LingoGodotStyle.TapItemTopHeight = 20;
+    }
+
     public Theme Theme { get; }
     /// <summary>
     /// Highlight color for selected elements in the Director UI.

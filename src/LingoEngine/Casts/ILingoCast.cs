@@ -55,5 +55,12 @@ namespace LingoEngine.Casts
         T Add<T>(int numberInCast, string name, Action<T>? configure = null) where T: ILingoMember;
 
         IEnumerable<ILingoMember> GetAll();
+
+        /// <summary>
+        /// Swap the positions of two cast members identified by their slot numbers.
+        /// </summary>
+        /// <param name="slot1">First slot number.</param>
+        /// <param name="slot2">Second slot number.</param>
+        void SwapMembers(int slot1, int slot2);
     }
 }

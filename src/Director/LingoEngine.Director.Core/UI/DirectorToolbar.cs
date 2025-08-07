@@ -52,7 +52,7 @@ public abstract class DirectorToolbar<TToolEnumType>
             AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = BGColor }); 
         */
 
-        _container.ItemMargin = new LingoMargin(2, 2, 0, 0); // margin_left/top
+        //_container.ItemMargin = new LingoMargin(2, 2, 0, 0); // margin_left/top
         _panel.AddItem(_container);
 
         ToolSelected?.Invoke(SelectedTool);

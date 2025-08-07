@@ -60,6 +60,7 @@ namespace LingoEngine.Director.Core
                     .AddTransient<IDirStageManager>(p => p.GetRequiredService<DirStageManager>())
                     .AddSingleton<DirScoreManager>()
                     .AddSingleton<DirSpritesManager>()
+                    .AddSingleton<DirCastManager>()
                     .AddTransient<IDirSpritesManager>(p => p.GetRequiredService<DirSpritesManager>())
                     .AddTransient(p => new Lazy<IDirSpritesManager>(() => p.GetRequiredService<DirSpritesManager>()))
                     );

@@ -8,6 +8,7 @@ namespace LingoEngine.Gfx
     /// </summary>
     public interface ILingoFrameworkGfxCanvas : ILingoFrameworkGfxLayoutNode
     {
+        bool Pixilated { get; set; }
         void Clear(LingoColor color);
         void SetPixel(LingoPoint point, LingoColor color);
         void DrawLine(LingoPoint start, LingoPoint end, LingoColor color, float width = 1);

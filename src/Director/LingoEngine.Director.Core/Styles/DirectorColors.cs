@@ -48,6 +48,7 @@ namespace LingoEngine.Director.Core.Styles
         // Dividers and lines
         public static LingoColor DividerLines = new LingoColor(190, 190, 190);        // Light panel separators
 
+        public static LingoColor LineDarker = LingoColor.FromHex("a0a0a0");
 
         // Score grid
         public static LingoColor ScoreGridLineLight = LingoColor.FromHex("f9f9f9");

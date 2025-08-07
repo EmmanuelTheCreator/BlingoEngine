@@ -1,10 +1,11 @@
 using LingoEngine.ColorPalettes;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
+using LingoEngine.Members;
 
 namespace LingoEngine.Transitions;
 
-public class LingoTransitionSprite : LingoSprite
+public class LingoTransitionSprite : LingoSprite, ILingoSpriteWithMember
 {
     public const int SpriteNumOffset = 2;
     private readonly Action<LingoTransitionSprite> _removeMe;
@@ -61,4 +62,6 @@ public class LingoTransitionSprite : LingoSprite
         Member = transitionMember;
         SetSettings(transitionMember.GetSettings());
     }
+
+    public ILingoMember? GetMember() => Member;
 }

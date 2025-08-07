@@ -7,6 +7,8 @@ namespace LingoEngine.LGodot.Styles
         public Theme Theme { get; }
         public static Font DefaultFont => GD.Load<Font>("res://Media/Fonts/ARIAL.TTF");
 
+        public static float TapItemTopHeight { get; set; } = 22;
+
         public LingoGodotStyle()
         {
             Theme = BuildTheme();

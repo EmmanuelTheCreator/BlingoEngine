@@ -12,6 +12,8 @@ using LingoEngine.Scripts;
 using LingoEngine.Sounds;
 using LingoEngine.Transitions;
 using LingoEngine.Members;
+using LingoEngine.Director.Core.Casts.Commands;
+using System.Linq;
 using LingoEngine.Bitmaps;
 
 namespace LingoEngine.Director.Core.Sprites
@@ -29,6 +31,7 @@ namespace LingoEngine.Director.Core.Sprites
         void SelectSprite(LingoSprite sprite);
         void DeselectSprite(LingoSprite sprite);
         void DeleteSelected(LingoMovie movie);
+        void CreateFilmLoop(LingoMovie movie, string name);
     }
 
     public class DirSpritesManager : IDirSpritesManager, IDisposable,
@@ -77,6 +80,12 @@ namespace LingoEngine.Director.Core.Sprites
         {
             SpritesSelection.Remove(sprite);
             ScoreManager.DeselectSprite(sprite);
+        }
+
+        public void CreateFilmLoop(LingoMovie movie, string name)
+        {
+            var sprites = SpritesSelection.Sprites.ToArray();
+            CommandManager.Handle(new CreateFilmLoopCommand(movie, sprites, name));
         }
 
         public void DeleteSelected(LingoMovie movie)
@@ -151,6 +160,7 @@ namespace LingoEngine.Director.Core.Sprites
             ChannelChanged(command.Sprite.SpriteNumWithChannel);
             return true;
         }
+
 
         private static LingoSprite CreateSprite(LingoMovie movie, LingoSprite sprite, int spriteNumWithChannel, int begin,int end, LingoMemberSound? memberSound, Action<LingoSprite> action, LingoSprite current)
         {

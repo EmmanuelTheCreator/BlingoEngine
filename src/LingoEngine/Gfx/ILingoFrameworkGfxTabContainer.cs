@@ -22,5 +22,6 @@ namespace LingoEngine.Gfx
     {
         public string Title { get; set; }
         public ILingoGfxNode? Content { get; set; }
+        float TopHeight { get; set; }
     }
 }
