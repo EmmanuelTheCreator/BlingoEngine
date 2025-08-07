@@ -6,6 +6,7 @@ using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 using LingoEngine.SDL2.Primitives;
 using LingoEngine.SDL2.SDLL;
+using LingoEngine.SDL2.Pictures;
 using LingoEngine.Styles;
 using LingoEngine.Texts;
 
@@ -230,7 +231,25 @@ namespace LingoEngine.SDL2.Gfx
         }
         public void DrawPicture(ILingoImageTexture texture, int width, int height, LingoPoint position)
         {
-            throw new NotImplementedException();
+            UseTexture(() =>
+            {
+                if (texture is SdlImageTexture img)
+                {
+                    nint tex = SDL.SDL_CreateTextureFromSurface(_renderer, img.Ptr);
+                    if (tex != nint.Zero)
+                    {
+                        SDL.SDL_Rect dst = new SDL.SDL_Rect
+                        {
+                            x = (int)position.X,
+                            y = (int)position.Y,
+                            w = width,
+                            h = height
+                        };
+                        SDL.SDL_RenderCopy(_renderer, tex, nint.Zero, ref dst);
+                        SDL.SDL_DestroyTexture(tex);
+                    }
+                }
+            });
         }
 
         public void Dispose()
@@ -242,6 +261,6 @@ namespace LingoEngine.SDL2.Gfx
             }
         }
 
-       
+
     }
 }
