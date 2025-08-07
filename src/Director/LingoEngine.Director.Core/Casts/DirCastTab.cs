@@ -61,11 +61,12 @@ namespace LingoEngine.Director.Core.Casts
 
         internal void LoadAllMembers()
         {
-            var members = _cast.GetAll();
-            int idx = 0;
-            foreach (var m in members)
+            _items.Clear();
+            _wrap.RemoveAll();
+            for (int i = 1; i <= 999; i++)
             {
-                var item = new DirCastItem(_factory, m, idx++,_iconManager);
+                var member = _cast.Member[i];
+                var item = new DirCastItem(_factory, member, i, _iconManager);
                 _items.Add(item);
                 _wrap.AddItem(item.Canvas);
             }
@@ -77,12 +78,12 @@ namespace LingoEngine.Director.Core.Casts
             Width = width;
             _wrap.Width = Width;
             var itemSize = DirCastItem.Width + _itemMargin;
-            var div = (double)(Width +2) / itemSize;
+            var div = (double)(Width + 2) / itemSize;
             _columns = Math.Max(1, (int)Math.Floor(div));
-          //  Console.WriteLine("Coluimns:"+ Width + " div=" + div + " / "+ itemSize + "= "+ _columns);
+            //  Console.WriteLine("Coluimns:"+ Width + " div=" + div + " / "+ itemSize + "= "+ _columns);
         }
 
-       
+
         public void Select(DirCastItem? selected)
         {
             _selected = selected;
@@ -131,41 +132,41 @@ namespace LingoEngine.Director.Core.Casts
                 case LingoMouseEventType.MouseDown:
                     var member = memberHover;
                     var item = hoverItem;
-                    if (member != null && item != null)
+                    if (item != null)
                     {
-                        if (e.Mouse.DoubleClick)
+                        Select(item);
+                        if (member != null)
                         {
-                            OpenEditor(member);
-                            Select(item);
-                            MemberSelected?.Invoke(member, item);
-                        }
-                        else
-                        {
-                            Select(item);
-                            MemberSelected?.Invoke(member, item);
-                            _dragStartX = x;
-                            _dragStartY = y;
-                            _dragging = false;
-                            _dragItem = item;
+                            if (e.Mouse.DoubleClick)
+                            {
+                                OpenEditor(member);
+                                MemberSelected?.Invoke(member, item);
+                            }
+                            else
+                            {
+                                MemberSelected?.Invoke(member, item);
+                                _dragStartX = x;
+                                _dragStartY = y;
+                                _dragging = false;
+                                _dragItem = item;
+                            }
                         }
                     }
                     break;
                 case LingoMouseEventType.MouseMove:
-                    var member2 = memberHover;
-                    var item2 = hoverItem;
-                    if (e.Mouse.MouseDown && _selected != null)
+                    if (e.Mouse.MouseDown && _selected != null && _selected.Member != null)
                     {
                         float dx = x - _dragStartX;
                         float dy = y - _dragStartY;
                         if (!_dragging && dx * dx + dy * dy > 16)
                         {
                             _dragging = true;
-                            DirectorDragDropHolder.StartDrag(_selected.Member, "CastItem");
+                            DirectorDragDropHolder.StartDrag(_selected.Member!, "CastItem");
                         }
                     }
                     break;
                 case LingoMouseEventType.MouseUp:
-                    if (_dragging && _dragItem != null && hoverItem != null && hoverItem != _dragItem)
+                    if (_dragging && _dragItem?.Member != null && hoverItem != null && hoverItem != _dragItem)
                     {
                         SwapItems(_dragItem, hoverItem);
                     }
@@ -183,21 +184,16 @@ namespace LingoEngine.Director.Core.Casts
             int dstIndex = _items.IndexOf(target);
             if (srcIndex < 0 || dstIndex < 0) return;
 
-            // swap in list
-            (_items[srcIndex], _items[dstIndex]) = (_items[dstIndex], _items[srcIndex]);
+            _cast.SwapMembers(srcIndex + 1, dstIndex + 1);
 
-            // update wrap panel order
-            _wrap.RemoveAll();
-            foreach (var it in _items)
-                _wrap.AddItem(it.Canvas);
-
-            // update member slot numbers in cast
-            _cast.SwapMembers(source.Member.NumberInCast, target.Member.NumberInCast);
+            var srcMember = source.Member;
+            source.SetMember(target.Member);
+            target.SetMember(srcMember);
         }
 
         public ILingoMember? HitTest(float x, float y, out DirCastItem? item)
         {
-            int col = (int)(x / (DirCastItem.Width + _itemMargin ));
+            int col = (int)(x / (DirCastItem.Width + _itemMargin));
             int row = (int)(y / (DirCastItem.Height + _itemMargin));
             int idx = row * _columns + col;
             if (idx >= 0 && idx < _items.Count)
