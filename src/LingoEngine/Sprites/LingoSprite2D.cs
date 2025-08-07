@@ -8,10 +8,11 @@ using LingoEngine.Movies;
 using LingoEngine.FilmLoops;
 using LingoEngine.Sprites.Events;
 using LingoEngine.Bitmaps;
+using LingoEngine.Members;
 
 namespace LingoEngine.Sprites
 {
-    public class LingoSprite2D : LingoSprite, ILingoMouseEventHandler, ILingoSprite
+    public class LingoSprite2D : LingoSprite, ILingoMouseEventHandler, ILingoSprite, ILingoSpriteWithMember
     {
         public const int SpriteNumOffset = 6;
         private readonly List<LingoSpriteBehavior> _behaviors = new();
@@ -160,6 +161,8 @@ namespace LingoEngine.Sprites
 
         public float Width { get => _frameworkSprite.Width; set => _frameworkSprite.SetDesiredWidth = value; }
         public float Height { get => _frameworkSprite.Height; set => _frameworkSprite.SetDesiredHeight = value; }
+
+        public ILingoMember? GetMember() => Member;
 
 
         #endregion

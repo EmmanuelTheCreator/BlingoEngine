@@ -109,7 +109,15 @@ namespace LingoEngine.Director.Core.Scores
             int ch = sprite.SpriteNum - 1;
             if (_channels.TryGetValue(ch, out var channel))
                 return channel.FindSprite(sprite);
-               
+
+            return null;
+        }
+
+        /// <summary>Finds the score sprite at the specified channel and frame.</summary>
+        public DirScoreSprite? GetSpriteAt(int channelNumber, int frameNumber)
+        {
+            if (_channels.TryGetValue(channelNumber, out var channel))
+                return channel.GetSpriteAtFrame(frameNumber);
             return null;
         }
 
