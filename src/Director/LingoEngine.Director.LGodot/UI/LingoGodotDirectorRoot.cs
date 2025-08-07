@@ -9,6 +9,7 @@ using LingoEngine.Director.LGodot.Movies;
 using LingoEngine.Director.LGodot.Pictures;
 using LingoEngine.Director.LGodot.Gfx;
 using LingoEngine.Director.LGodot.Styles;
+using LingoEngine.Director.LGodot.Projects;
 
 namespace LingoEngine.Director.LGodot.UI
 {
@@ -30,7 +31,7 @@ namespace LingoEngine.Director.LGodot.UI
 
         public LingoGodotDirectorRoot(LingoPlayer player, IServiceProvider serviceProvider)
         {
-            _projectSettingsWindow = serviceProvider.GetRequiredService<DirGodotProjectSettingsWindow>();
+            
             _directorParent.Name = "DirectorRoot";
             // set up root
             var parent = (Node2D)serviceProvider.GetRequiredService<LingoGodotRootNode>().RootNode;
@@ -52,6 +53,7 @@ namespace LingoEngine.Director.LGodot.UI
             _importExportWindow = serviceProvider.GetRequiredService<DirGodotImportExportWindow>();
             _textWindow = serviceProvider.GetRequiredService<DirGodotTextableMemberWindow>();
             _picture = serviceProvider.GetRequiredService<DirGodotPictureMemberEditorWindow>();
+            _projectSettingsWindow = serviceProvider.GetRequiredService<DirGodotProjectSettingsWindow>();
 
             _directorParent.AddChild(_dirGodotMainMenu);
             _directorParent.AddChild(_stageWindow);

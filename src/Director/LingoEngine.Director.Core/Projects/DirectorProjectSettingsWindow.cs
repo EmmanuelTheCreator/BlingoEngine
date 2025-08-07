@@ -1,6 +1,7 @@
 using LingoEngine.Director.Core.FileSystems;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
+using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 
@@ -49,7 +50,7 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
         nameLabel.Width = 100;
         _nameEdit = factory.CreateInputText("NameEdit");
         _nameEdit.Text = state.ProjectName;
-        _nameEdit.ValueChanged += () => _slnPreviewLabel.Text = GetSlnPreview();
+        _nameEdit.ValueChanged += () => _slnPreviewLabel!.Text = GetSlnPreview();
         nameRow.AddItem(nameLabel);
         nameRow.AddItem(_nameEdit);
         _root.AddItem(nameRow);
@@ -60,7 +61,7 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
         folderLabel.Width = 100;
         _folderEdit = factory.CreateInputText("FolderEdit");
         _folderEdit.Text = state.ProjectFolder;
-        _folderEdit.ValueChanged += () => _slnPreviewLabel.Text = GetSlnPreview();
+        _folderEdit.ValueChanged += () => _slnPreviewLabel!.Text = GetSlnPreview();
         folderRow.AddItem(folderLabel);
         folderRow.AddItem(_folderEdit);
         _root.AddItem(folderRow);

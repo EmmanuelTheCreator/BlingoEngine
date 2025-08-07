@@ -26,6 +26,7 @@ namespace LingoEngine.Director.Core.Scores
     public class DirectorScoreWindow : DirectorWindow<IDirFrameworkScoreWindow> 
     {
         private readonly IDirSpritesManager _spritesManager;
+        private readonly ILingoFrameworkFactory _factory;
         private readonly DirScoreManager _scoreManager;
         private readonly IDirectorWindowManager _windowManager;
         private readonly ILingoColorPaletteDefinitions _paletteDefinitions;
@@ -66,6 +67,7 @@ namespace LingoEngine.Director.Core.Scores
 #pragma warning restore CS8618 
         {
             _spritesManager = spritesManager;
+            _factory = factory;
             _scoreManager = scoreManager;
             _windowManager = windowManager;
             _paletteDefinitions = paletteDefinitions;
@@ -98,7 +100,7 @@ namespace LingoEngine.Director.Core.Scores
         public override void Init(IDirFrameworkWindow frameworkWindow)
         {
             base.Init(frameworkWindow);
-            _spriteContextMenu = new DirContextMenu(frameworkWindow, Factory,
+            _spriteContextMenu = new DirContextMenu(frameworkWindow, _factory,
                 () => (Mouse.MouseH, Mouse.MouseV), () => IsActiveWindow);
             _spriteContextMenu.AddItem(string.Empty, "Find Member",
                 () => _contextSprite?.Sprite is ILingoSpriteWithMember swm && swm.GetMember() != null,

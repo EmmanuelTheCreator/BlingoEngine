@@ -3,7 +3,6 @@ using LingoEngine.Director.Core.Tools;
 ﻿using Godot;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Members;
-using LingoEngine.Core;
 using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.LGodot.Gfx;
 
@@ -11,19 +10,15 @@ namespace LingoEngine.Director.LGodot.Casts
 {
     internal partial class DirGodotCastWindow : BaseGodotWindow, IDirFrameworkCastWindow
     {
-        private readonly IDirectorEventMediator _mediator;
-        private readonly LingoPlayer _player;
         private readonly DirectorCastWindow _directorCastWindow;
         private readonly LingoGodotTabContainer _tabs;
         internal ILingoMember? SelectedMember => _directorCastWindow.SelectedMember;
 
-        public DirGodotCastWindow(IDirectorEventMediator mediator, DirectorGodotStyle style, DirectorCastWindow directorCastWindow, ILingoPlayer player, IDirGodotWindowManager windowManager, ILingoCommandManager commandManager, IHistoryManager historyManager, IDirectorIconManager iconManager)
+        public DirGodotCastWindow(DirectorCastWindow directorCastWindow, IDirGodotWindowManager windowManager, IHistoryManager historyManager)
             : base(DirectorMenuCodes.CastWindow, "Cast", windowManager, historyManager)
         {
-            _mediator = mediator;
             _directorCastWindow = directorCastWindow;
             directorCastWindow.Init(this);
-            _player = (LingoPlayer)player;
             
             //_mediator.Subscribe(this);
 

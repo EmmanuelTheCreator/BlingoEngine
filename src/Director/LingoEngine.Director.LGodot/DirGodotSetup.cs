@@ -28,6 +28,7 @@ using LingoEngine.LGodot.Styles;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Setup;
 using LingoEngine.Director.LGodot.Styles;
+using LingoEngine.Director.LGodot.Projects;
 
 namespace LingoEngine.Director.LGodot
 {
