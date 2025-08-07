@@ -136,6 +136,10 @@ namespace LingoEngine.Director.LGodot
             // Handle mouse button events (MouseDown and MouseUp)
             if (@event is InputEventMouseButton mouseButtonEvent)
             {
+                if (!IsActiveWindow && isInsideRect)
+                    _windowManager.SetActiveWindow(this, GetGlobalMousePosition());
+                if (!IsActiveWindow)
+                    return;
                 _MouseFrameworkObj.HandleMouseButtonEvent(mouseButtonEvent, isInsideRect, mousePos.X, mousePos.Y - TitleBarHeight);
                 //Console.WriteLine(Name + ":" + mousePos.X + "x" + mousePos.Y+":"+ isInsideRect);
             }
@@ -150,16 +154,16 @@ namespace LingoEngine.Director.LGodot
 
             if (@event is InputEventMouseButton mb)
             {
+                
                 var pressed = mb.Pressed;
-                if (pressed && isInsideRect)
-                    _windowManager.SetActiveWindow(this);
-                else
-                {
-
-                }
 
                 if (mb.ButtonIndex == MouseButton.Left)
                 {
+                    if (pressed && isInsideRect)
+                    {
+                        
+                        _windowManager.SetActiveWindow(this, GetGlobalMousePosition());
+                    }
                     Vector2 pos = GetLocalMousePosition();
 
                     if (pressed)

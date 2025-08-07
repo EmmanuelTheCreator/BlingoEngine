@@ -1,6 +1,8 @@
 using Godot;
+using LingoEngine.Director.Core.Stages;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.Core.Windowing;
+using LingoEngine.Director.LGodot.Movies;
 using LingoEngine.Gfx;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.LGodot.Styles;
@@ -10,12 +12,15 @@ namespace LingoEngine.Director.LGodot.Windowing;
 public interface IDirGodotWindowManager : IDirFrameworkWindowManager
 {
     void Register(BaseGodotWindow godotWindow);
-    void SetActiveWindow(BaseGodotWindow window);
+    void SetActiveWindow(BaseGodotWindow window, Vector2 mousePoint);
+   
+
     BaseGodotWindow? ActiveWindow { get; }
 }
 internal class DirGodotWindowManager : IDirGodotWindowManager
 {
-    public const int ZIndexInactiveWindow = -4000;
+    public const int ZIndexInactiveWindow = -1000;
+    public const int ZIndexInactiveWindowStage = -4000;
     private IDirectorWindowManager _directorWindowManager;
     private readonly ILingoGodotStyleManager _lingoGodotStyleManager;
     private readonly Dictionary<string, BaseGodotWindow> _godotWindows = new();
@@ -33,24 +38,53 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
         godotWindow.ZIndex = ZIndexInactiveWindow;
     }
 
-    public void SetActiveWindow(BaseGodotWindow window)
+    #region Window activation
+    public void SetActiveWindow(BaseGodotWindow window, Vector2 mousePoint)
     {
-        _directorWindowManager.SetActiveWindow(window.WindowCode);
         if (ActiveWindow == window)
+            return;
+        if (ActiveWindow != null && ActiveWindow.GetGlobalRect().HasPoint(mousePoint))
         {
-            window.GrabFocus();
+            // if the active window is clicked, we do not change the active window
+            // this is to prevent flickering when clicking on the active window
             return;
         }
+
         SetTheActiveWindow(window);
     }
 
 
+    private BaseGodotWindow? GetTopMostWindow(Vector2 mouse)
+    {
+        return _godotWindows.Values
+                    .Where(w => w.Visible && w.GetGlobalRect().HasPoint(mouse))
+                    .OrderByDescending(w => w.ZIndex)
+                    .FirstOrDefault();
+    }
 
     public void SetActiveWindow(IDirectorWindowRegistration windowRegistration)
     {
         var window = _godotWindows[windowRegistration.WindowCode];
         SetTheActiveWindow(window);
     }
+    private void SetTheActiveWindow(BaseGodotWindow window)
+    {
+        if (ActiveWindow != null)
+        {
+            ActiveWindow.ZIndex = ActiveWindow is DirGodotStageWindow? ZIndexInactiveWindowStage : ZIndexInactiveWindow;
+            ActiveWindow.QueueRedraw();
+        }
+        ActiveWindow = window;
+        ActiveWindow.ZIndex = 0;
+        var parent = window.GetParent();
+        if (parent != null)
+            parent.MoveChild(window, parent.GetChildCount() - 1);
+        window.GrabFocus();
+        window.QueueRedraw();
+    }
+
+    #endregion
+
 
     public IDirectorWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult)
     {
@@ -189,19 +223,5 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
         return new DirectorWindowDialogReference(panel.QueueFree);
     }
 
-    private void SetTheActiveWindow(BaseGodotWindow window)
-    {
-        if (ActiveWindow != null)
-        {
-            ActiveWindow.ZIndex = ZIndexInactiveWindow;
-            ActiveWindow.QueueRedraw();
-        }
-        ActiveWindow = window;
-        ActiveWindow.ZIndex = 0;
-        var parent = window.GetParent();
-        if (parent != null)
-            parent.MoveChild(window, parent.GetChildCount() - 1);
-        window.GrabFocus();
-        window.QueueRedraw();
-    }
+    
 }

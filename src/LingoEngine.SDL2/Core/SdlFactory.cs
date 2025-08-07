@@ -293,18 +293,41 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
         return slider;
     }
     /// <inheritdoc/>
-    public LingoGfxInputText CreateInputText(string name, int maxLength = 0)
+    public LingoGfxInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null)
     {
         var input = new LingoGfxInputText { MaxLength = maxLength };
         var impl = new SdlGfxInputText(_rootContext.Renderer);
         input.Init(impl);
         input.Name = name;
+        if (onChange != null)
+            input.ValueChanged += () =>
+            {
+                if (onChange != null)
+                    onChange(input.Text);
+            };
         return input;
     }
     /// <inheritdoc/>
-    public LingoGfxInputNumber<float> CreateInputNumber(string name, float? min = null, float? max = null)
+    public LingoGfxInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null)
     {
-        var input = new LingoGfxInputNumber<float>();
+        // Convert nullable float to NullableNum<float> explicitly  
+        var minNullableNum = min.HasValue ? new NullableNum<float>(min.Value) : new NullableNum<float>();
+        var maxNullableNum = max.HasValue ? new NullableNum<float>(max.Value) : new NullableNum<float>();
+        return CreateInputNumber(name, minNullableNum, maxNullableNum, onChange);
+    }
+    /// <inheritdoc/>
+    public LingoGfxInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null)
+    {
+        // Convert nullable float to NullableNum<float> explicitly  
+        var minNullableNum = min.HasValue ? new NullableNum<int>(min.Value) : new NullableNum<int>();
+        var maxNullableNum = max.HasValue ? new NullableNum<int>(max.Value) : new NullableNum<int>();
+        return CreateInputNumber(name, minNullableNum, maxNullableNum, onChange);
+    }
+    /// <inheritdoc/>
+    public LingoGfxInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null)
+         where TValue : System.Numerics.INumber<TValue>
+    {
+        var input = new LingoGfxInputNumber<TValue>();
         //var impl = new SdlGfxInputNumber<float>(_rootContext.Renderer);
         //input.Init(impl);
         //input.Name = name;
@@ -313,18 +336,7 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
         return input;
     }
     /// <inheritdoc/>
-    public LingoGfxInputNumber<int> CreateInputNumber(string name, int? min = null, int? max = null)
-    {
-        var input = new LingoGfxInputNumber<int>();
-        //var impl = new SdlGfxInputNumber<int>(_rootContext.Renderer);
-        //input.Init(impl);
-        //input.Name = name;
-        //if (min.HasValue) input.Min = min.Value;
-        //if (max.HasValue) input.Max = max.Value;
-        return input;
-    }
-    /// <inheritdoc/>
-    public LingoGfxSpinBox CreateSpinBox(string name, float? min = null, float? max = null)
+    public LingoGfxSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null)
     {
         var spin = new LingoGfxSpinBox();
         var impl = new SdlGfxSpinBox(_rootContext.Renderer);
@@ -332,24 +344,36 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
         spin.Name = name;
         if (min.HasValue) spin.Min = min.Value;
         if (max.HasValue) spin.Max = max.Value;
+        if (onChange != null)
+            spin.ValueChanged += () => onChange(spin.Value);
         return spin;
     }
-    /// <inheritdoc/>
-    public LingoGfxInputCheckbox CreateInputCheckbox(string name)
+
+    public LingoGfxInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null)
     {
         var input = new LingoGfxInputCheckbox();
         var impl = new SdlGfxInputCheckbox(_rootContext.Renderer);
         input.Init(impl);
         input.Name = name;
+        input.ValueChanged += () =>
+        {
+            if (onChange != null)
+                onChange(input.Checked);
+        };
         return input;
     }
     /// <inheritdoc/>
-    public LingoGfxInputCombobox CreateInputCombobox(string name)
+    public LingoGfxInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null)
     {
         var input = new LingoGfxInputCombobox();
         var impl = new SdlGfxInputCombobox(_rootContext.Renderer);
         input.Init(impl);
         input.Name = name;
+        input.ValueChanged += () =>
+        {
+            if (onChange != null)
+                onChange(input.SelectedKey);
+        };
         return input;
     }
     /// <inheritdoc/>
@@ -434,53 +458,15 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
     {
         throw new NotImplementedException();
     }
-    /// <inheritdoc/>
-    public LingoGfxInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null)
-    {
-        throw new NotImplementedException();
-    }
-    /// <inheritdoc/>
-    public LingoGfxInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null)
-    {
-        throw new NotImplementedException();
-    }
-    /// <inheritdoc/>
-    public LingoGfxInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null)
-    {
-        throw new NotImplementedException();
-    }
+  
+   
     /// <inheritdoc/>
     public LingoGfxWindow CreateWindow(string name, string title = "")
     {
         throw new NotImplementedException();
     }
-    /// <inheritdoc/>
-    public LingoGfxInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null)
-    {
-        // Convert nullable float to NullableNum<float> explicitly  
-        var minNullableNum = min.HasValue ? new NullableNum<float>(min.Value) : new NullableNum<float>();
-        var maxNullableNum = max.HasValue ? new NullableNum<float>(max.Value) : new NullableNum<float>();
-        return CreateInputNumber(name, minNullableNum, maxNullableNum, onChange);
-    }
-    /// <inheritdoc/>
-    public LingoGfxInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null)
-    {
-        // Convert nullable float to NullableNum<float> explicitly  
-        var minNullableNum = min.HasValue ? new NullableNum<int>(min.Value) : new NullableNum<int>();
-        var maxNullableNum = max.HasValue ? new NullableNum<int>(max.Value) : new NullableNum<int>();
-        return CreateInputNumber(name, minNullableNum, maxNullableNum, onChange);
-    }
-    /// <inheritdoc/>
-    public LingoGfxInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null)
-         where TValue : System.Numerics.INumber<TValue>
-    {
-        throw new NotImplementedException();
-    }
-    /// <inheritdoc/>
-    public LingoGfxSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null)
-    {
-        throw new NotImplementedException();
-    }
+  
+  
     /// <inheritdoc/>
     public LingoGfxHorizontalLineSeparator CreateHorizontalLineSeparator(string name)
     {
