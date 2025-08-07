@@ -16,18 +16,19 @@ namespace LingoEngine.Director.LGodot.UI
     public class LingoGodotDirectorRoot : IDisposable
     {
         private readonly Control _directorParent = new();
-        //private readonly DirGodotCastWindow _castViewer;
-        //private readonly DirGodotScoreWindow _scoreWindow;
+        private readonly DirGodotCastWindow _castViewer;
+        private readonly DirGodotScoreWindow _scoreWindow;
         private readonly DirGodotPropertyInspector _propertyInspector;
-        //private readonly DirGodotToolsWindow _toolsWindow;
-        //private readonly DirGodotStageWindow _stageWindow;
-        //private readonly DirGodotMainMenu _dirGodotMainMenu;
-        //private readonly DirGodotProjectSettingsWindow _projectSettingsWindow;
-        //private readonly DirGodotBinaryViewerWindow _binaryViewer;
-        //private readonly DirGodotBinaryViewerWindowV2 _binaryViewerV2;
-        //private readonly DirGodotImportExportWindow _importExportWindow;
-        //private readonly DirGodotTextableMemberWindow _textWindow;
-        //private readonly DirGodotPictureMemberEditorWindow _picture;
+        private readonly DirGodotToolsWindow _toolsWindow;
+        private readonly DirGodotStageWindow _stageWindow;
+        private readonly DirGodotMainMenu _dirGodotMainMenu;
+        private readonly DirGodotProjectSettingsWindow _projectSettingsWindow;
+        private readonly DirGodotBinaryViewerWindow _binaryViewer;
+        private readonly DirGodotBinaryViewerWindowV2 _binaryViewerV2;
+        private readonly DirGodotImportExportWindow _importExportWindow;
+        private readonly DirGodotTextableMemberWindow _textWindow;
+        private readonly DirGodotPictureMemberEditorWindow _picture;
+        private List<BaseGodotWindow> _windows = new List<BaseGodotWindow>();
 
         public LingoGodotDirectorRoot(LingoPlayer player, IServiceProvider serviceProvider)
         {
@@ -42,72 +43,69 @@ namespace LingoEngine.Director.LGodot.UI
             _directorParent.Theme = style.Theme;
 
             // Create windows
-            //_dirGodotMainMenu = serviceProvider.GetRequiredService<DirGodotMainMenu>();
-            //_stageWindow = serviceProvider.GetRequiredService<DirGodotStageWindow>();
-            //_castViewer = serviceProvider.GetRequiredService<DirGodotCastWindow>();
-            //_scoreWindow = serviceProvider.GetRequiredService<DirGodotScoreWindow>();
+            _dirGodotMainMenu = serviceProvider.GetRequiredService<DirGodotMainMenu>();
+            _stageWindow = serviceProvider.GetRequiredService<DirGodotStageWindow>();
+            _castViewer = serviceProvider.GetRequiredService<DirGodotCastWindow>();
+            _scoreWindow = serviceProvider.GetRequiredService<DirGodotScoreWindow>();
             _propertyInspector = serviceProvider.GetRequiredService<DirGodotPropertyInspector>();
-            //_toolsWindow = serviceProvider.GetRequiredService<DirGodotToolsWindow>();
-            //_binaryViewer = serviceProvider.GetRequiredService<DirGodotBinaryViewerWindow>();
-            //_binaryViewerV2 = serviceProvider.GetRequiredService<DirGodotBinaryViewerWindowV2>();
-            //_importExportWindow = serviceProvider.GetRequiredService<DirGodotImportExportWindow>();
-            //_textWindow = serviceProvider.GetRequiredService<DirGodotTextableMemberWindow>();
-            //_picture = serviceProvider.GetRequiredService<DirGodotPictureMemberEditorWindow>();
-            //_projectSettingsWindow = serviceProvider.GetRequiredService<DirGodotProjectSettingsWindow>();
+            _toolsWindow = serviceProvider.GetRequiredService<DirGodotToolsWindow>();
+            _binaryViewer = serviceProvider.GetRequiredService<DirGodotBinaryViewerWindow>();
+            _binaryViewerV2 = serviceProvider.GetRequiredService<DirGodotBinaryViewerWindowV2>();
+            _importExportWindow = serviceProvider.GetRequiredService<DirGodotImportExportWindow>();
+            _textWindow = serviceProvider.GetRequiredService<DirGodotTextableMemberWindow>();
+            _picture = serviceProvider.GetRequiredService<DirGodotPictureMemberEditorWindow>();
+            _projectSettingsWindow = serviceProvider.GetRequiredService<DirGodotProjectSettingsWindow>();
 
-            //_directorParent.AddChild(_dirGodotMainMenu);
-            //_directorParent.AddChild(_stageWindow);
-            //_directorParent.AddChild(_castViewer);
-            //_directorParent.AddChild(_projectSettingsWindow);
-            //_directorParent.AddChild(_scoreWindow);
-            //_directorParent.AddChild(_picture);
-            //_directorParent.AddChild(_toolsWindow);
-            //_directorParent.AddChild(_importExportWindow);
-            //_directorParent.AddChild(_textWindow);
-            _directorParent.AddChild(_propertyInspector);
-            //_directorParent.AddChild(_binaryViewer);
-            //_directorParent.AddChild(_binaryViewerV2);
+            _windows.Add(_stageWindow);
+            _windows.Add(_castViewer);
+            _windows.Add(_scoreWindow);
+            _windows.Add(_propertyInspector);
+            _windows.Add(_toolsWindow);
+            _windows.Add(_binaryViewer);
+            _windows.Add(_binaryViewerV2);
+            _windows.Add(_importExportWindow);
+            _windows.Add(_textWindow);
+            _windows.Add(_picture);
+            _windows.Add(_projectSettingsWindow);
 
-            //// Set all positions
-            //SetDefaultPositions();
+            _directorParent.AddChild(_dirGodotMainMenu);
+            foreach (var item in _windows)
+                _directorParent.AddChild(item);
 
-            //// close some windows
-            //_projectSettingsWindow.CloseWindow();
-            //_binaryViewer.CloseWindow();
-            //_binaryViewerV2.CloseWindow();
-            //_importExportWindow.CloseWindow();
-            //_textWindow.CloseWindow();
-            //_picture.CloseWindow();
 
+            // Set all positions
+            SetDefaultPositions();
+
+            // close some windows
+            _projectSettingsWindow.CloseWindow();
+            _binaryViewer.CloseWindow();
+            _binaryViewerV2.CloseWindow();
+            _importExportWindow.CloseWindow();
+            _textWindow.CloseWindow();
+            _picture.CloseWindow();
         }
 
         private void SetDefaultPositions()
         {
-            //_stageWindow.Position = new Vector2(100, 25);
-            //_castViewer.Position = new Vector2(830, 25);
-            //_scoreWindow.Position = new Vector2(20, 560);
-            _propertyInspector.Position = new Vector2(1330, 25);
-            //_toolsWindow.Position = new Vector2(10, 25);
-            //_binaryViewer.Position = new Vector2(20, 120);
-            //_binaryViewerV2.Position = new Vector2(20, 280);
-            //_importExportWindow.Position = new Vector2(120, 120);
-            //_projectSettingsWindow.Position = new Vector2(100, 100);
-            //_textWindow.Position = new Vector2(1200, 700);
-            //_picture.Position = new Vector2(20, 120);
+            _stageWindow.Position = new Vector2(70, 22);
+            _castViewer.Position = new Vector2(830, 22);
+            _scoreWindow.Position = new Vector2(20, 560);
+            _propertyInspector.Position = new Vector2(1530, 22);
+            _toolsWindow.Position = new Vector2(2, 22);
+            _binaryViewer.Position = new Vector2(20, 120);
+            _binaryViewerV2.Position = new Vector2(20, 280);
+            _importExportWindow.Position = new Vector2(120, 120);
+            _projectSettingsWindow.Position = new Vector2(100, 100);
+            _textWindow.Position = new Vector2(1200, 700);
+            _picture.Position = new Vector2(20, 120);
+            foreach (var item in _windows)
+                item.EnsureInBounds();
         }
 
         public void Dispose()
         {
-            //_picture.Dispose();
-            //_textWindow.Dispose();
-            //_stageWindow.Dispose();
-            //_scoreWindow.Dispose();
-            //_castViewer.Dispose();
-            //_propertyInspector.Dispose();
-            //_toolsWindow.Dispose();
-            //_binaryViewer.Dispose();
-            //_binaryViewerV2.Dispose();
-            //_importExportWindow.Dispose();
+            foreach (var item in _windows)
+                item.QueueFree();
         }
     }
 }

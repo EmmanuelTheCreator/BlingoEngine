@@ -96,5 +96,9 @@ namespace LingoEngine.Director.Core.Styles
         public static LingoColor PopupWindow_CloseButton_Border = new LingoColor(130, 130, 130);
         public static LingoColor PopupWindow_CloseButton_Hover = new LingoColor(255, 0, 0);
 
+        // Menu
+        public static LingoColor BG_TopMenu = LingoColorList.White; // Background color of the top menu bar
+
+
     }
 }

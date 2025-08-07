@@ -32,7 +32,7 @@ public partial class RootNodeTetriGrounds : Node2D
 #if DEBUG
             ProjectSettings.SetSetting("display/window/stretch/mode", "disabled");
             ProjectSettings.SetSetting("display/window/stretch/aspect", "ignore");
-            DisplayServer.WindowSetSize(new Vector2I(1600, 1000));
+            DisplayServer.WindowSetSize(new Vector2I(1600, 970));
 #else
             ProjectSettings.SetSetting("display/window/size/initial_position_type","3");
             ProjectSettings.SetSetting("display/window/stretch/mode","canvas_items");

@@ -270,21 +270,21 @@ namespace LingoEngine.Director.LGodot
             CustomMinimumSize = Size;
         }
 
-        private void EnsureInBounds()
+        public void EnsureInBounds()
         {
             var viewportRect = GetViewport().GetVisibleRect();
             Vector2 pos = Position;
             Vector2 size = Size;
 
             if (pos.X < viewportRect.Position.X)
-                pos.X = viewportRect.Position.X;
+                pos.X = viewportRect.Position.X +2;
             if (pos.Y < viewportRect.Position.Y)
-                pos.Y = viewportRect.Position.Y;
+                pos.Y = viewportRect.Position.Y + 2;
 
             if (pos.X + size.X > viewportRect.Position.X + viewportRect.Size.X)
-                pos.X = viewportRect.Position.X + viewportRect.Size.X - size.X;
+                pos.X = viewportRect.Position.X + viewportRect.Size.X - size.X -2;
             if (pos.Y + size.Y > viewportRect.Position.Y + viewportRect.Size.Y)
-                pos.Y = viewportRect.Position.Y + viewportRect.Size.Y - size.Y;
+                pos.Y = viewportRect.Position.Y + viewportRect.Size.Y - size.Y -2;
 
             Position = pos;
         }

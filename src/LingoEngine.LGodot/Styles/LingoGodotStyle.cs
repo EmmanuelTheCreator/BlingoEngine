@@ -67,8 +67,9 @@ namespace LingoEngine.LGodot.Styles
                 theme.SetConstant("minimum_spaces", controlType, 1);
                 theme.SetConstant("minimum_character_width", controlType, 0);
                 theme.SetConstant("line_spacing", controlType, 0);
+                theme.SetColor("caret_color", controlType,new Color(0.1f,0.1f,0.1f));
 
-                
+
             }
 
         }

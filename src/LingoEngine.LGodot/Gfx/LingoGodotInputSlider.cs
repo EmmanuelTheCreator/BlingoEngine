@@ -38,12 +38,12 @@ namespace LingoEngine.LGodot.Gfx
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
         public float Y { get => Position.Y; set => Position = new Vector2(Position.X, value); }
 
-        public new float Width
+        public float Width
         {
             get => CustomMinimumSize.X;
             set { CustomMinimumSize = new Vector2(value, CustomMinimumSize.Y); }
         }
-        public new float Height
+        public float Height
         {
             get => CustomMinimumSize.Y;
             set { CustomMinimumSize = new Vector2(CustomMinimumSize.X, value); }

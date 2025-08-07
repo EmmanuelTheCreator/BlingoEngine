@@ -20,9 +20,15 @@ namespace LingoEngine.Director.Core.UI
         private readonly LingoGfxWrapPanel _iconBar;
         private readonly LingoGfxMenu _fileMenu;
         private readonly LingoGfxMenu _editMenu;
+        private readonly LingoGfxMenu _insertMenu;
+        private readonly LingoGfxMenu _modifyMenu;
+        private readonly LingoGfxMenu _controlMenu;
         private readonly LingoGfxMenu _windowMenu;
         private readonly LingoGfxButton _fileButton;
         private readonly LingoGfxButton _editButton;
+        private readonly LingoGfxButton _insertButton;
+        private LingoGfxButton _ModifyButton;
+        private readonly LingoGfxButton _ControlButton;
         private readonly LingoGfxButton _windowButton;
         private readonly LingoGfxButton _rewindButton;
         private readonly LingoGfxButton _playButton;
@@ -35,6 +41,8 @@ namespace LingoEngine.Director.Core.UI
         private LingoGfxMenuItem _undoItem;
         private LingoGfxMenuItem _redoItem;
         private ILingoMovie? _lingoMovie;
+        private List<LingoGfxButton> _topMenuButtons = new List<LingoGfxButton>();
+        private List<LingoGfxMenu> _topMenus = new List<LingoGfxMenu>();
 
         private class ShortCutInfo
         {
@@ -61,20 +69,50 @@ namespace LingoEngine.Director.Core.UI
 
             _menuBar = factory.CreateWrapPanel(LingoOrientation.Horizontal, "MenuBar");
             _iconBar = factory.CreateWrapPanel(LingoOrientation.Horizontal, "IconBar");
+            
             _fileMenu = factory.CreateMenu("FileMenu");
             _editMenu = factory.CreateMenu("EditMenu");
+            _insertMenu = factory.CreateMenu("InsertMenu");
+            _modifyMenu = factory.CreateMenu("ModifyMenu");
+            _controlMenu = factory.CreateMenu("ControlMenu");
             _windowMenu = factory.CreateMenu("WindowMenu");
+            // menu buttons
             _fileButton = factory.CreateButton("FileButton", "File");
             _editButton = factory.CreateButton("EditButton", "Edit");
+            _insertButton = factory.CreateButton("InsertButton", "Insert");
+            _ModifyButton = factory.CreateButton("ModifyButton", "Modify");
+            _ControlButton = factory.CreateButton("ControlButton", "Control");
             _windowButton = factory.CreateButton("WindowButton", "Window");
+
+            // icon buttons
             _rewindButton = factory.CreateButton("RewindButton", "|<");
             _playButton = factory.CreateButton("PlayButton", "Play");
 
-            _menuBar.AddItem(_fileButton);
-            _menuBar.AddItem(_editButton);
-            _menuBar.AddItem(_windowButton);
+            _topMenus.Add(_fileMenu);
+            _topMenus.Add(_editMenu);
+            _topMenus.Add(_insertMenu);
+            _topMenus.Add(_modifyMenu);
+            _topMenus.Add(_controlMenu);
+            _topMenus.Add(_windowMenu);
+            
+            _topMenuButtons.Add(_fileButton);
+            _topMenuButtons.Add(_editButton);
+            _topMenuButtons.Add(_insertButton);
+            _topMenuButtons.Add(_ModifyButton);
+            _topMenuButtons.Add(_ControlButton);
+            _topMenuButtons.Add(_windowButton);
+
+
+            CallOnAllTopMenuButtons(x =>
+            {
+                _menuBar.AddItem(x);
+            });
+            
             _fileButton.Pressed += () => ShowMenu(_fileMenu, _fileButton);
             _editButton.Pressed += () => { UpdateUndoRedoState(); ShowMenu(_editMenu, _editButton); };
+            _insertButton.Pressed += () => ShowMenu(_insertMenu, _insertButton);
+            _ModifyButton.Pressed += () => ShowMenu(_modifyMenu, _ModifyButton);
+            _ControlButton.Pressed += () => ShowMenu(_controlMenu, _ControlButton);
             _windowButton.Pressed += () => ShowMenu(_windowMenu, _windowButton);
 
             ComposeMenu(factory);
@@ -89,8 +127,27 @@ namespace LingoEngine.Director.Core.UI
             foreach (var sc in _shortCutManager.GetShortCuts())
                 _shortCuts.Add(ParseShortCut(sc));
         }
-
+        public void CallOnAllTopMenuButtons(Action<LingoGfxButton> btnAction)
+        {
+            foreach (var item in _topMenuButtons)
+                btnAction(item); 
+        } public void CallOnAllTopMenus(Action<LingoGfxMenu> action)
+        {
+            foreach (var item in _topMenus)
+                action(item); 
+        }
+        
         private void ComposeMenu(ILingoFrameworkFactory factory)
+        {
+            CreateFileMenu(factory);
+            CreateEditMenu(factory);
+            CreateInsertMenu(factory);
+            CreateModifyMenu(factory);
+            CreateControlMenu(factory);
+            CreateWindowMenu(factory);
+        }
+
+        private void CreateFileMenu(ILingoFrameworkFactory factory)
         {
             // File Menu
             var load = factory.CreateMenuItem("Load");
@@ -108,7 +165,10 @@ namespace LingoEngine.Director.Core.UI
             var quit = factory.CreateMenuItem("Quit");
             quit.Activated += () => Environment.Exit(0);
             _fileMenu.AddItem(quit);
+        }  
 
+        private void CreateEditMenu(ILingoFrameworkFactory factory)
+        {
             // Edit Menu
             _undoItem = factory.CreateMenuItem("Undo\tCTRL+Z");
             _undoItem.Activated += () => _historyManager.Undo();
@@ -121,7 +181,30 @@ namespace LingoEngine.Director.Core.UI
             var projectSettings = factory.CreateMenuItem("Project Settings");
             projectSettings.Activated += () => _windowManager.OpenWindow(DirectorMenuCodes.ProjectSettingsWindow);
             _editMenu.AddItem(projectSettings);
+        }
 
+
+        
+        private void CreateInsertMenu(ILingoFrameworkFactory factory)
+        {
+            var menuItem = factory.CreateMenuItem("Menu TODO");
+            menuItem.Activated += () => { };
+            _insertMenu.AddItem(menuItem); ;
+        }
+        private void CreateModifyMenu(ILingoFrameworkFactory factory)
+        {
+            var menuItem = factory.CreateMenuItem("Menu TODO");
+            menuItem.Activated += () => { };
+            _modifyMenu.AddItem(menuItem);
+        }
+        private void CreateControlMenu(ILingoFrameworkFactory factory)
+        {
+            var menuItem = factory.CreateMenuItem("Menu TODO");
+            menuItem.Activated += () => { };
+            _controlMenu.AddItem(menuItem);
+        }
+        private void CreateWindowMenu(ILingoFrameworkFactory factory)
+        {
             // Window Menu
             var stage = factory.CreateMenuItem("Stage  \tCTRL+1");
             stage.Activated += () => _windowManager.OpenWindow(DirectorMenuCodes.StageWindow);
@@ -159,6 +242,8 @@ namespace LingoEngine.Director.Core.UI
             paint.Activated += () => _windowManager.OpenWindow(DirectorMenuCodes.PictureEditWindow);
             _windowMenu.AddItem(paint);
         }
+
+       
 
         private void OnActiveMovieChanged(ILingoMovie? movie)
         {
@@ -237,8 +322,6 @@ namespace LingoEngine.Director.Core.UI
         public LingoGfxButton WindowButton => _windowButton;
         public LingoGfxButton RewindButton => _rewindButton;
         public LingoGfxButton PlayButton => _playButton;
-
-        public bool IsOpen => false;
 
         public override void Dispose()
         {

@@ -51,9 +51,13 @@ namespace LingoEngine.LGodot.Gfx
             {
                 var parsedValue = valueParse(Text);
                 if (!parsedValue.IsValid)
+                {
+                    if (_value != null)
+                    Value = _value;
                     return;
-                if (Value == parsedValue.Value) return;
-                Value = parsedValue.Value;
+                }
+                if (_value == parsedValue.Value) return;
+                _value = parsedValue.Value;
                 _onChange?.Invoke(Value);
             };
             TextChanged += _ => _onValueChanged.Invoke();
