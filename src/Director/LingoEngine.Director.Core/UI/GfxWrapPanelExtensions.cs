@@ -40,6 +40,20 @@ namespace LingoEngine.Director.Core.UI
             panel.AddItem(list);
             return list;
         }
+
+        public static LingoGfxInputSlider<float> AddSliderFloat(this LingoGfxWrapPanel panel, ILingoFrameworkFactory factory, string name, LingoOrientation orientation, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
+        {
+            var slider = factory.CreateInputSliderFloat(orientation, name, min, max, step, onChange);
+            panel.AddItem(slider);
+            return slider;
+        }
+
+        public static LingoGfxInputSlider<int> AddSliderInt(this LingoGfxWrapPanel panel, ILingoFrameworkFactory factory, string name, LingoOrientation orientation, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
+        {
+            var slider = factory.CreateInputSliderInt(orientation, name, min, max, step, onChange);
+            panel.AddItem(slider);
+            return slider;
+        }
        
     }
 }

@@ -56,6 +56,8 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<DirectorTextEditWindow>()
                     .AddSingleton<DirectorBitmapEditWindow>()
                     .AddSingleton<DirectorImportExportWindow>()
+                    .AddSingleton<DirStageManager>()
+                    .AddTransient<IDirStageManager>(p => p.GetRequiredService<DirStageManager>())
                     .AddSingleton<DirScoreManager>()
                     .AddSingleton<DirSpritesManager>()
                     .AddTransient<IDirSpritesManager>(p => p.GetRequiredService<DirSpritesManager>())

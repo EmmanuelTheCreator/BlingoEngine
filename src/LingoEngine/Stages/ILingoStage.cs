@@ -12,7 +12,6 @@ namespace LingoEngine.Stages
         LingoColor BackgroundColor { get; set; }
         int Height { get; set; }
         LingoMember? MouseMemberUnderMouse { get; }
-        bool RecordKeyframes { get; set; }
         int Width { get; set; }
 
         void AddKeyFrame(LingoSprite2D sprite);

@@ -1,4 +1,5 @@
-﻿using LingoEngine.Casts;
+﻿using System;
+using LingoEngine.Casts;
 using LingoEngine.Core;
 using LingoEngine.Inputs;
 using LingoEngine.Members;
@@ -88,6 +89,11 @@ namespace LingoEngine.FrameworkCommunication
 
         /// <summary>Creates a scroll container.</summary>
         LingoGfxScrollContainer CreateScrollContainer(string name);
+
+        /// <summary>Creates a slider input control for floating point values.</summary>
+        LingoGfxInputSlider<float> CreateInputSliderFloat(LingoOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null);
+        /// <summary>Creates a slider input control for integer values.</summary>
+        LingoGfxInputSlider<int> CreateInputSliderInt(LingoOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null);
 
         /// <summary>Creates a single line text input.</summary>
         LingoGfxInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null);

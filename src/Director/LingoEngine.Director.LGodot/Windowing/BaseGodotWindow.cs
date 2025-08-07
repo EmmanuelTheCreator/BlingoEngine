@@ -5,6 +5,7 @@ using LingoEngine.LGodot;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.Primitives;
 using LingoEngine.Inputs;
+using LingoEngine.Director.Core.Tools;
 
 namespace LingoEngine.Director.LGodot
 {
@@ -12,6 +13,7 @@ namespace LingoEngine.Director.LGodot
     {
         public ILingoMouse Mouse { get; private set; }
         private readonly IDirGodotWindowManager _windowManager;
+        private readonly IHistoryManager? _historyManager;
         protected readonly LingoGodotMouse _MouseFrameworkObj;
         protected bool _dragging;
         protected bool _resizing;
@@ -34,12 +36,13 @@ namespace LingoEngine.Director.LGodot
         public string WindowCode { get; private set; }
         public string WindowName { get; private set; }
 
-        public BaseGodotWindow(string windowCode,string name, IDirGodotWindowManager windowManager)
+        public BaseGodotWindow(string windowCode,string name, IDirGodotWindowManager windowManager, IHistoryManager? historyManager = null)
         {
             Name = $"Window {name}";
             WindowName = name;
             WindowCode = windowCode;
             _windowManager = windowManager;
+            _historyManager = historyManager;
             _MouseFrameworkObj = new LingoGodotMouse(new Lazy<LingoMouse>(() => (LingoMouse)Mouse!));
             Mouse = new LingoMouse(_MouseFrameworkObj);
             
@@ -112,6 +115,20 @@ namespace LingoEngine.Director.LGodot
         }
         protected virtual void OnHandleTheEvent(InputEvent @event)
         {
+            if (@event is InputEventKey key && key.Pressed && _historyManager != null)
+            {
+                if (key.Keycode == Key.Z && key.CtrlPressed)
+                {
+                    _historyManager.Undo();
+                    return;
+                }
+                if (key.Keycode == Key.Y && key.CtrlPressed)
+                {
+                    _historyManager.Redo();
+                    return;
+                }
+            }
+
             var isInsideRect = GetGlobalRect().HasPoint(GetGlobalMousePosition());
             var mousePos = GetLocalMousePosition();
             // Handle mouse button events (MouseDown and MouseUp)

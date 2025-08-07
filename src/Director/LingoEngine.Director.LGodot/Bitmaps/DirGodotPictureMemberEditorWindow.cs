@@ -72,7 +72,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
     private bool _drawing;
 
     public DirGodotPictureMemberEditorWindow(IDirectorEventMediator mediator, ILingoPlayer player, IDirGodotWindowManager windowManager, DirectorBitmapEditWindow directorPictureEditWindow, IDirectorIconManager iconManager, ILingoCommandManager commandManager, IHistoryManager historyManager, ILingoFrameworkFactory factory)
-        : base(DirectorMenuCodes.PictureEditWindow, "Picture Editor", windowManager)
+        : base(DirectorMenuCodes.PictureEditWindow, "Picture Editor", windowManager, historyManager)
     {
         _mediator = mediator;
         _player = player;

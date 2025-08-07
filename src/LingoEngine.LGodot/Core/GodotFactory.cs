@@ -1,4 +1,6 @@
 ﻿using Godot;
+using System;
+using System.Numerics;
 using LingoEngine.Core;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.LGodot.Movies;
@@ -287,6 +289,35 @@ namespace LingoEngine.LGodot.Core
             var impl = new LingoGodotScrollContainer(scroll);
             scroll.Name = name;
             return scroll;
+        }
+
+        /// <inheritdoc/>
+        public LingoGfxInputSlider<float> CreateInputSliderFloat(LingoOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
+        {
+            var minNum = min.HasValue ? new NullableNum<float>(min.Value) : new NullableNum<float>();
+            var maxNum = max.HasValue ? new NullableNum<float>(max.Value) : new NullableNum<float>();
+            var stepNum = step.HasValue ? new NullableNum<float>(step.Value) : new NullableNum<float>();
+            return CreateInputSlider(name, orientation, minNum, maxNum, stepNum, onChange);
+        }
+
+        public LingoGfxInputSlider<int> CreateInputSliderInt(LingoOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
+        {
+            var minNum = min.HasValue ? new NullableNum<int>(min.Value) : new NullableNum<int>();
+            var maxNum = max.HasValue ? new NullableNum<int>(max.Value) : new NullableNum<int>();
+            var stepNum = step.HasValue ? new NullableNum<int>(step.Value) : new NullableNum<int>();
+            return CreateInputSlider(name, orientation, minNum, maxNum, stepNum, onChange);
+        }
+
+        public LingoGfxInputSlider<TValue> CreateInputSlider<TValue>(string name, LingoOrientation orientation, NullableNum<TValue> min, NullableNum<TValue> max, NullableNum<TValue> step, Action<TValue>? onChange = null)
+            where TValue : struct, System.Numerics.INumber<TValue>, System.IConvertible
+        {
+            var slider = new LingoGfxInputSlider<TValue>();
+            var impl = new LingoGodotInputSlider<TValue>(slider, orientation, onChange);
+            if (min.HasValue) slider.MinValue = min.Value!;
+            if (max.HasValue) slider.MaxValue = max.Value!;
+            if (step.HasValue) slider.Step = step.Value!;
+            slider.Name = name;
+            return slider;
         }
         /// <inheritdoc/>
 

@@ -35,7 +35,7 @@ namespace LingoEngine.Director.LGodot.Casts
         internal ILingoMember? SelectedMember => _selectedItem?.LingoMember;
 
         public DirGodotCastWindow(IDirectorEventMediator mediator, DirectorGodotStyle style, DirectorCastWindow directorCastWindow, ILingoPlayer player, IDirGodotWindowManager windowManager, ILingoCommandManager commandManager, IHistoryManager historyManager, IDirectorIconManager iconManager)
-            : base(DirectorMenuCodes.CastWindow, "Cast", windowManager)
+            : base(DirectorMenuCodes.CastWindow, "Cast", windowManager, historyManager)
         {
             _mediator = mediator;
             _style = style;

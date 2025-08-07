@@ -15,7 +15,6 @@ namespace LingoEngine.Stages
         public int Width { get; set; } = 640;
         public int Height { get; set; } = 480;
         public LingoColor BackgroundColor { get; set; }
-        public bool RecordKeyframes { get; set; }
 
         public LingoMovie? ActiveMovie { get; private set; }
         public LingoMember? MouseMemberUnderMouse
@@ -39,7 +38,7 @@ namespace LingoEngine.Stages
        
         public void AddKeyFrame(LingoSprite2D sprite)
         {
-            if (!RecordKeyframes || ActiveMovie == null)
+            if (ActiveMovie == null)
                 return;
             int frame = ActiveMovie.CurrentFrame;
             sprite.AddKeyframes((frame, sprite.LocH, sprite.LocV, sprite.Rotation, sprite.Skew));
@@ -47,7 +46,7 @@ namespace LingoEngine.Stages
 
         public void UpdateKeyFrame(LingoSprite2D sprite)
         {
-            if (!RecordKeyframes || ActiveMovie == null)
+            if (ActiveMovie == null)
                 return;
             int frame = ActiveMovie.CurrentFrame;
             sprite.UpdateKeyframe(frame, sprite.LocH, sprite.LocV, sprite.Rotation, sprite.Skew);
