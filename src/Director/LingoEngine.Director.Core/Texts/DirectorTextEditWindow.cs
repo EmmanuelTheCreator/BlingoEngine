@@ -5,6 +5,11 @@ namespace LingoEngine.Director.Core.Texts
 {
     public class DirectorTextEditWindow : DirectorWindow<IDirFrameworkTextEditWindow>
     {
-        public DirectorTextEditWindow(ILingoFrameworkFactory factory) : base(factory) { }
+        public TextEditIconBar IconBar { get; }
+
+        public DirectorTextEditWindow(ILingoFrameworkFactory factory) : base(factory)
+        {
+            IconBar = new TextEditIconBar(factory);
+        }
     }
 }
