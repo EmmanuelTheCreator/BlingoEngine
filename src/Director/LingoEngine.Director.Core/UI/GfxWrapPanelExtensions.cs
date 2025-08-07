@@ -1,16 +1,14 @@
-﻿using LingoEngine.Director.Core.Inspector;
-using LingoEngine.FrameworkCommunication;
+﻿using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
-using System.Collections.Generic;
 
 namespace LingoEngine.Director.Core.UI
 {
     public static class GfxWrapPanelExtensions
     {
-        public static GfxWrapPanelBuilder Compose(this LingoGfxWrapPanel panel, ILingoFrameworkFactory factory)
+        public static GfxWrapPanelBuilder Compose(this LingoGfxWrapPanel panel, GfxWrapPanelBuilder? parent = null)
         {
-            var builder = new GfxWrapPanelBuilder(panel, factory);
+            var builder = new GfxWrapPanelBuilder(panel, parent);
             return builder;
         }
 

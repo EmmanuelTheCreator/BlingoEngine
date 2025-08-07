@@ -233,7 +233,7 @@ namespace LingoEngine.LGodot.Core
         /// <inheritdoc/>
         public LingoGfxWrapPanel CreateWrapPanel(LingoOrientation orientation, string name)
         {
-            var panel = new LingoGfxWrapPanel();
+            var panel = new LingoGfxWrapPanel(this);
             var impl = new LingoGodotWrapPanel(panel, orientation);
 
             panel.Name = name;

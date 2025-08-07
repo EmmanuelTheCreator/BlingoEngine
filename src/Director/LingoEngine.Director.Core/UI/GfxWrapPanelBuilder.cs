@@ -4,7 +4,6 @@ using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 using LingoEngine.Tools;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace LingoEngine.Director.Core.UI
@@ -12,28 +11,52 @@ namespace LingoEngine.Director.Core.UI
     public class GfxWrapPanelBuilder
     {
         private LingoGfxWrapPanel _panel;
+        private LingoGfxWrapPanel _rootPanel;
         private ILingoFrameworkFactory _factory;
+        private readonly GfxWrapPanelBuilder? _parent;
 
-        public GfxWrapPanelBuilder(LingoGfxWrapPanel panel, ILingoFrameworkFactory factory)
+        public GfxWrapPanelBuilder(LingoGfxWrapPanel panel, GfxWrapPanelBuilder? parent)
         {
+            _rootPanel = panel;
             _panel = panel;
-            _factory = factory;
+            _factory = panel.Factory;
+            _parent = parent;
+        }
+        public LingoGfxWrapPanel Finalize()
+        {
+            return _parent != null? _parent.Finalize() : _rootPanel;
         }
 
-        public GfxWrapPanelBuilder Finalize()
+        public GfxWrapPanelBuilder NewLine(string name)
         {
+            if(_parent != null)
+                return _parent.NewLine(name);
+            _panel = _factory.CreateWrapPanel(_rootPanel.Orientation == LingoOrientation.Vertical? LingoOrientation.Horizontal : LingoOrientation.Vertical, name);
+            _panel.Width = _rootPanel.Width;
+            _rootPanel.AddItem(_panel);
+            return _panel.Compose(this);
+        }
+        public GfxWrapPanelBuilder Configure(Action<LingoGfxWrapPanel> configure)
+        {
+            configure(_panel);
             return this;
         }
-        public GfxWrapPanelBuilder AddLabel(string text, int fontSize = 11)
+
+
+        public GfxWrapPanelBuilder AddLabel(string name, string text, int fontSize = 11, int? width = null, Action<LingoGfxLabel>? configure = null)
         {
-            var label = _factory.CreateLabel("Label_" + Guid.NewGuid(), text);
+            LingoGfxLabel label = _factory.CreateLabel(name, text);
             label.FontSize = fontSize;
             label.FontColor = DirectorColors.TextColorLabels;
+            if (width.HasValue)
+                label.Width = width.Value;
             _panel.AddItem(label);
+            if (configure != null)
+                configure(label);
             return this;
         }
 
-        public GfxWrapPanelBuilder AddTextInput<T>(string name, T target, Expression<Func<T, string?>> property, int width = 100)
+        public GfxWrapPanelBuilder AddTextInput<T>(string name, T target, Expression<Func<T, string?>> property, int width = 100, Action<LingoGfxInputText>? configure = null)
         {
             var setter = property.CompileSetter();
             var getter = property.CompileGetter();
@@ -42,6 +65,8 @@ namespace LingoEngine.Director.Core.UI
             input.Text = getter(target) ?? string.Empty;
             input.Width = width;
             _panel.AddItem(input);
+            if (configure != null)
+                configure(input);
             return this;
         }
 
@@ -148,5 +173,8 @@ namespace LingoEngine.Director.Core.UI
             configure?.Invoke(slider);
             return this;
         }
+
+     
+       
     }
 }

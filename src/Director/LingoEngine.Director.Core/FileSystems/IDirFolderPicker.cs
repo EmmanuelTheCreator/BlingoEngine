@@ -1,0 +1,10 @@
+﻿
+
+
+namespace LingoEngine.Director.Core.FileSystems
+{
+    public interface IDirFolderPicker
+    {
+        void PickFolder(Action<string> onPicked);
+    }
+}

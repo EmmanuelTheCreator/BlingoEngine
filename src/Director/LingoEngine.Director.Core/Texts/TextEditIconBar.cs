@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
@@ -148,6 +149,11 @@ public class TextEditIconBar
         SetBold(member.Bold);
         SetItalic(member.Italic);
         SetUnderline(member.Underline);
+    }
+
+    public void OnResizing(float x, float y)
+    {
+        Panel.Width = x;
     }
 }
 

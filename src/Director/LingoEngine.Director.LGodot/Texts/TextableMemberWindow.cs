@@ -5,13 +5,13 @@ using LingoEngine.Members;
 using LingoEngine.Core;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Texts;
-using LingoEngine.Director.LGodot.Icons;
-using LingoEngine.Director.LGodot.UI;
 using LingoEngine.Director.LGodot.Windowing;
-using LingoEngine.FrameworkCommunication;
 using LingoEngine.LGodot.Gfx;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.Styles;
+using LingoEngine.Director.LGodot.Gfx;
+using LingoEngine.Director.Core.Tools;
+using LingoEngine.Director.Core.UI;
 
 namespace LingoEngine.Director.LGodot.Casts;
 
@@ -117,8 +117,8 @@ internal partial class DirGodotTextableMemberWindow : BaseGodotWindow, IHasMembe
     protected override void OnResizing(Vector2 size)
     {
         base.OnResizing(size);
+        _iconBar.OnResizing(size.X, size.Y);
         _navBar.CustomMinimumSize = new Vector2(size.X, NavigationBarHeight);
-        _iconBar.Panel.Width = size.X;
         _textEdit.Size = new Vector2(size.X - 10, size.Y - (TitleBarHeight + NavigationBarHeight + ActionBarHeight + 5 + _topOffset));
     }
 

@@ -271,7 +271,7 @@ namespace LingoEngine.Director.Core.Inspector
 
 
             containerIcons.Margin = new LingoMargin(5, 5, 5, 5);
-            var composer0 = containerIcons.Compose(_factory)
+            var composer0 = containerIcons.Compose()
                 .AddStateButton("SpriteLock", sprite, _iconManager.Get(DirectorIcon.Lock), c => c.Lock)
                 ;
             if (sprite is LingoSprite2D sprite2D0)
@@ -462,10 +462,10 @@ namespace LingoEngine.Director.Core.Inspector
 
             var rowSize = _factory.CreateWrapPanel(LingoOrientation.Horizontal, "MovieStageSizeRow");
             rowSize.Margin = new LingoMargin(5, 5, 5, 0);
-            rowSize.Compose(_factory)
-                .AddLabel("Stage size:")
+            rowSize.Compose()
+                .AddLabel("StageSizeLbl","Stage size:")
                 .AddNumericInputInt("MovieStageWidth", _player.Stage, m => m.Width, 40)
-                .AddLabel("x")
+                .AddLabel("StageSizeLblX", "x")
                 .AddNumericInputInt("MovieStageHeight", _player.Stage, m => m.Height, 40)
                 .AddCombobox("MovieResolutions", new[]
                 {
