@@ -1,9 +1,12 @@
 using LingoEngine.Bitmaps;
+using LingoEngine.ColorPalettes;
+using LingoEngine.FilmLoops;
 using LingoEngine.Members;
 using LingoEngine.Scripts;
 using LingoEngine.Shapes;
 using LingoEngine.Sounds;
 using LingoEngine.Texts;
+using LingoEngine.Transitions;
 
 namespace LingoEngine.Director.Core.Icons;
 
@@ -21,6 +24,9 @@ public static class LingoMemberTypeIcons
             LingoMemberField => DirectorIcon.MemberTypeField,
             ILingoMemberTextBase => DirectorIcon.MemberTypeText,
             LingoMemberShape => DirectorIcon.MemberTypeShape,
+            LingoFilmLoopMember => DirectorIcon.MemberTypeMovieClip, 
+            LingoColorPaletteMember => DirectorIcon.ColorPalette, 
+            LingoTransitionMember => DirectorIcon.Transition,
             LingoMemberScript script => 
                 script.ScriptType switch {
                     LingoScriptType.Parent => DirectorIcon.ParentScript,

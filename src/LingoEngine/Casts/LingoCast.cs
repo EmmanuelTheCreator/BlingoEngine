@@ -1,6 +1,7 @@
 ﻿using LingoEngine.Bitmaps;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Core;
+using LingoEngine.FilmLoops;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
@@ -38,6 +39,11 @@ namespace LingoEngine.Casts
 
         public ILingoMembersContainer Member => _MembersContainer;
 
+        public event Action<ILingoMember>? MemberAdded { add => _MembersContainer.MemberAdded +=value; remove => _MembersContainer.MemberAdded -= value; }
+        public event Action<ILingoMember>? MemberDeleted { add => _MembersContainer.MemberDeleted += value; remove => _MembersContainer.MemberDeleted -= value; }
+        public event Action<ILingoMember>? MemberNameChanged;
+        
+
         internal LingoCast(LingoCastLibsContainer castLibsContainer, ILingoFrameworkFactory factory, string name)
         {
             _castLibsContainer = castLibsContainer;
@@ -69,10 +75,11 @@ namespace LingoEngine.Casts
             _MembersContainer.Remove(member);
             return this;
         }
-        internal void MemberNameChanged(string oldName, LingoMember member)
+        internal void MemberNameHasChanged(string oldName, LingoMember member)
         {
             _castLibsContainer.MemberNameChanged(oldName, member);
             _MembersContainer.MemberNameChanged(oldName, member);
+            MemberNameChanged?.Invoke(member);
         }
         /// <inheritdoc/>
         public int FindEmpty() => _MembersContainer.FindEmpty();
@@ -123,7 +130,7 @@ namespace LingoEngine.Casts
             {
                 case Type t when t == typeof(LingoMemberBitmap):return LingoMemberType.Bitmap;
                 case Type t when t == typeof(LingoMemberSound):return LingoMemberType.Sound;
-                case Type t when t == typeof(LingoMemberFilmLoop):return LingoMemberType.FilmLoop;
+                case Type t when t == typeof(LingoFilmLoopMember):return LingoMemberType.FilmLoop;
                 case Type t when t == typeof(LingoMemberText):return LingoMemberType.Text;
                 case Type t when t == typeof(LingoMemberField):return LingoMemberType.Field;
                 case Type t when t == typeof(LingoMemberShape):return LingoMemberType.Shape;

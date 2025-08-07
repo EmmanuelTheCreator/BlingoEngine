@@ -27,6 +27,7 @@ namespace LingoEngine.SDL2.Gfx
         public string Text { get; set; } = string.Empty;
         public int FontSize { get; set; }
         public string? Font { get; set; }
+
         public LingoColor FontColor { get; set; } = LingoColor.Black;
         private int _lineHeight;
         public int LineHeight { get => _lineHeight; set => _lineHeight = value; }
@@ -36,6 +37,7 @@ namespace LingoEngine.SDL2.Gfx
         public LingoTextAlignment TextAlignment { get => _textAlignment; set => _textAlignment = value; }
 
         public object FrameworkNode => this;
+
 
         public event Action? ValueChanged;
 

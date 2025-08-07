@@ -12,6 +12,7 @@ using LingoEngine.Gfx;
 using LingoEngine.Sprites;
 using LingoEngine.Stages;
 using LingoEngine.Bitmaps;
+using LingoEngine.FilmLoops;
 
 namespace LingoEngine.FrameworkCommunication
 {
@@ -42,7 +43,7 @@ namespace LingoEngine.FrameworkCommunication
         /// <summary>Creates a sound member.</summary>
         LingoMemberSound CreateMemberSound(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default);
         /// <summary>Creates a film loop member.</summary>
-        LingoMemberFilmLoop CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default);
+        LingoFilmLoopMember CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default);
         /// <summary>Creates a vector shape member.</summary>
         LingoMemberShape CreateMemberShape(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default);
         /// <summary>Creates a field member.</summary>

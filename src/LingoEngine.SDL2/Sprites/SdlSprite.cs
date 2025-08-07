@@ -101,7 +101,15 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
     public void Hide() { _hide(this); }
     public void SetPosition(LingoPoint point) { X = point.X; Y = point.Y; }
 
-    public void MemberChanged() { IsDirtyMember = true; }
+    public void MemberChanged()
+    {
+        if (_lingoSprite.Member is { } member)
+        {
+            Width = member.Width;
+            Height = member.Height;
+        }
+        IsDirtyMember = true;
+    }
 
     internal void Update()
     {
@@ -117,8 +125,6 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
 
     internal void Render(nint renderer)
     {
-        // todo : rotation
-        // todo : skew
         if (_texture == nint.Zero) return;
         var offset = new LingoPoint();
         if (_lingoSprite.Member is { } member)
@@ -138,8 +144,8 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
 
         SDL.SDL_Rect dst = new SDL.SDL_Rect
         {
-            x = (int)(X - offset.X),
-            y = (int)(Y - offset.Y),
+            x = (int)(X - offset.X - Width / 2f),
+            y = (int)(Y - offset.Y - Height / 2f),
             w = (int)Width,
             h = (int)Height
         };
@@ -148,7 +154,7 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
             flip |= SDL.SDL_RendererFlip.SDL_FLIP_HORIZONTAL;
         if (FlipV)
             flip |= SDL.SDL_RendererFlip.SDL_FLIP_VERTICAL;
-        SDL.SDL_RenderCopyEx(renderer, _texture, nint.Zero, ref dst, 0, nint.Zero, flip);
+        SDL.SDL_RenderCopyEx(renderer, _texture, nint.Zero, ref dst, Rotation, nint.Zero, flip);
     }
 
     private void UpdateMember()
@@ -242,6 +248,6 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
 
     public void ApplyMemberChanges()
     {
-        
+
     }
 }

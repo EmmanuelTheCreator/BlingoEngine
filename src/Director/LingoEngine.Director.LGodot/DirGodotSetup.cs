@@ -28,6 +28,7 @@ using LingoEngine.LGodot.Styles;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Setup;
 using LingoEngine.Director.LGodot.Styles;
+using LingoEngine.Director.LGodot.Projects;
 
 namespace LingoEngine.Director.LGodot
 {
@@ -56,7 +57,8 @@ namespace LingoEngine.Director.LGodot
                 s.AddSingleton<DirGodotMainMenu>();
                 s.AddSingleton<DirGodotWindowManager>();
                 s.AddSingleton<DirGodotWindowManager>();
-                s.AddSingleton<IExecutableFilePicker, GodotFilePicker>();
+                s.AddSingleton<IDirExecutableFilePicker, GodotFilePicker>();
+                s.AddSingleton<IDirFolderPicker, GodotFolderPicker>();
                 s.AddSingleton<IDirectorIconManager>(p =>
                 {
                     var iconManager = new DirGodotIconManager(p.GetRequiredService<ILogger<DirGodotIconManager>>());

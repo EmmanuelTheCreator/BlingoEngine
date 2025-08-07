@@ -1,8 +1,8 @@
 using Godot;
 using LingoEngine.Director.Core.Projects;
 using LingoEngine.Director.Core.UI;
-using LingoEngine.Director.LGodot.Gfx;
 using LingoEngine.Director.LGodot.Windowing;
+using LingoEngine.LGodot.Gfx;
 
 namespace LingoEngine.Director.LGodot.Projects;
 
@@ -17,7 +17,7 @@ internal partial class DirGodotProjectSettingsWindow : BaseGodotWindow, IDirFram
         : base(DirectorMenuCodes.ProjectSettingsWindow, "Project Settings", windowManager)
     {
         directorWindow.Init(this);
-        Size = new Vector2(420, 200);
+        Size = new Vector2(directorWindow.Width, directorWindow.Height);
         CustomMinimumSize = Size;
 
         var root = directorWindow.RootPanel.Framework<LingoGodotWrapPanel>();

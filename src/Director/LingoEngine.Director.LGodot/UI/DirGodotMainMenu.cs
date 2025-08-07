@@ -18,6 +18,9 @@ using LingoEngine.Inputs;
 using System;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.LGodot;
+using LingoEngine.Primitives;
+using LingoEngine.Director.Core.Windowing;
+using LingoEngine.LGodot.Primitives;
 
 namespace LingoEngine.Director.LGodot;
 
@@ -108,5 +111,8 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
     {
         // not allowed
     }
-    
+
+    LingoPoint IDirFrameworkWindow.GetPosition() => Position.ToLingoPoint();
+
+    LingoPoint IDirFrameworkWindow.GetSize() => Size.ToLingoPoint();
 }

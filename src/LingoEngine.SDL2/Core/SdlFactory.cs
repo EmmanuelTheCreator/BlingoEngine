@@ -25,6 +25,7 @@ using LingoEngine.SDL2.Inputs;
 using LingoEngine.Bitmaps;
 using LingoEngine.Scripts;
 using LingoEngine.SDL2.Scripts;
+using LingoEngine.FilmLoops;
 
 namespace LingoEngine.SDL2.Core;
 /// <inheritdoc/>
@@ -76,7 +77,7 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
             Type t when t == typeof(LingoMemberText) => (CreateMemberText(cast, numberInCast, name) as T)!,
             Type t when t == typeof(LingoMemberField) => (CreateMemberField(cast, numberInCast, name) as T)!,
             Type t when t == typeof(LingoMemberSound) => (CreateMemberSound(cast, numberInCast, name) as T)!,
-            Type t when t == typeof(LingoMemberFilmLoop) => (CreateMemberFilmLoop(cast, numberInCast, name) as T)!,
+            Type t when t == typeof(LingoFilmLoopMember) => (CreateMemberFilmLoop(cast, numberInCast, name) as T)!,
             _ => throw new NotSupportedException()
         };
     }
@@ -90,10 +91,10 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
         return member;
     }
     /// <inheritdoc/>
-    public LingoMemberFilmLoop CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
+    public LingoFilmLoopMember CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
     {
         var impl = new SdlMemberFilmLoop();
-        var member = new LingoMemberFilmLoop(impl, (LingoCast)cast, numberInCast, name, fileName ?? "", regPoint);
+        var member = new LingoFilmLoopMember(impl, (LingoCast)cast, numberInCast, name, fileName ?? "", regPoint);
         impl.Init(member);
         _disposables.Add(impl);
         return member;
@@ -216,8 +217,10 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
     /// <inheritdoc/>
     public LingoGfxWrapPanel CreateWrapPanel(LingoOrientation orientation, string name)
     {
-        var panel = new LingoGfxWrapPanel();
+
+        var panel = new LingoGfxWrapPanel(this);
         var impl = new SdlGfxWrapPanel(_rootContext.Renderer, orientation);
+
         panel.Init(impl);
         panel.Name = name;
         // Keep orientation in sync on creation

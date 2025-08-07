@@ -27,7 +27,7 @@ namespace LingoEngine.Director.Core.Casts
 
         public LingoGfxTabContainer TabContainer => _tabs;
         public ILingoMember? SelectedMember => _selected;
-        public int Width { get; set; } = 360;
+        public int Width { get; set; } = 370;
         public int Height { get; set; } = 620;
 
         public DirectorCastWindow(ILingoFrameworkFactory factory, IDirectorEventMediator mediator, ILingoCommandManager commandManager, IDirectorIconManager iconManager, ILingoPlayer player) : base(factory)
@@ -39,6 +39,7 @@ namespace LingoEngine.Director.Core.Casts
             _commandManager = commandManager;
             _iconManager = iconManager;
             _tabs = factory.CreateTabContainer("CastTabs");
+            _mediator.Subscribe(this);
         }
 
         public override void Init(IDirFrameworkWindow frameworkWindow)
@@ -49,6 +50,7 @@ namespace LingoEngine.Director.Core.Casts
 
         public override void Dispose()
         {
+            _mediator.Unsubscribe(this);
             _mouseSub?.Release();
             _player.ActiveMovieChanged -= OnActiveMovieChanged;
             base.Dispose();
@@ -68,6 +70,8 @@ namespace LingoEngine.Director.Core.Casts
         public void LoadMovie(ILingoMovie? movie)
         {
             _tabMap.Clear();
+            foreach (var tab in _tabMap)
+                tab.Value.Dispose();
             _tabs.ClearTabs();
             if (movie == null)
                 return;

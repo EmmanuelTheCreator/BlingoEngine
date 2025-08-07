@@ -3,8 +3,8 @@
 
 namespace LingoEngine.Director.Core.FileSystems
 {
-    public interface IExecutableFilePicker
+    public interface IDirExecutableFilePicker
     {
         void PickExecutable(Action<string> onPicked);
-    }
+    } 
 }

@@ -12,27 +12,36 @@ namespace LingoEngine.Director.Core.Casts;
 /// preview is delegated to <see cref="DirectorMemberThumbnail"/> so the logic
 /// can be shared across frameworks.
 /// </summary>
-public class DirCastItem 
+public class DirCastItem
 {
     public const int Width = 58;
     public const int Height = 54;
     private const int LabelHeight = 12;
 
-    private readonly ILingoMember _member;
+    private ILingoMember? _member;
+    private readonly int _slotNumber;
     private bool _selected;
     private bool _hovered;
     private readonly LingoGfxCanvas _canvas;
     private DirectorMemberThumbnail _thumb;
 
-    public ILingoMember Member => _member;
+    public ILingoMember? Member => _member;
     public LingoGfxCanvas Canvas => _canvas;
 
-    public DirCastItem(ILingoFrameworkFactory factory, ILingoMember member, int index, IDirectorIconManager? iconManager)
+    public DirCastItem(ILingoFrameworkFactory factory, ILingoMember? member, int slotNumber, IDirectorIconManager? iconManager)
     {
         _member = member;
-        _canvas = factory.CreateGfxCanvas($"CastMemberCanvas_{index}", Width, Height);
-        
-        _thumb = new DirectorMemberThumbnail(Width - 2, Height - LabelHeight-1, factory, iconManager, _canvas, 1, 1);
+        _slotNumber = slotNumber;
+        _canvas = factory.CreateGfxCanvas($"CastMemberCanvas_{slotNumber}", Width, Height);
+
+        _thumb = new DirectorMemberThumbnail(Width - 2, Height - LabelHeight - 1, factory, iconManager, _canvas, 1, 1);
+        Draw();
+    }
+
+    internal void MakeEmpty() => SetMember(null);
+    public void SetMember(ILingoMember? member)
+    {
+        _member = member;
         Draw();
     }
 
@@ -70,16 +79,29 @@ public class DirCastItem
             _canvas.DrawLine(new LingoPoint(0, Height), new LingoPoint(Width, Height), DirectorColors.LineLight); // bottom
             _canvas.DrawLine(new LingoPoint(Width, 0), new LingoPoint(Width, Height), DirectorColors.LineLight); // right
         }
-        
-        // draw member preview
-        _thumb.SetMember(_member);
+
+        // draw member preview or empty slot
+        if (_member != null)
+        {
+            _thumb.SetMember(_member);
+        }
+        else
+        {
+            _thumb.SetEmpty();
+        }
 
         // label text
-        string label = $"{_member.NumberInCast}. {_member.Name}";
-        _canvas.DrawText(new LingoPoint(2, Height - LabelHeight + 10), label, null, _selected?LingoColorList.White : LingoColorList.Black, 8, Width - 4);
-        
+        string label;
+        if (_member != null)
+            label = $"{_member.NumberInCast}. {_member.Name}";
+        else
+            label = _slotNumber.ToString();
+        _canvas.DrawText(new LingoPoint(2, Height - LabelHeight + 10), label, null, _selected ? LingoColorList.White : LingoColorList.Black, 8, Width - 4);
+
 
 
     }
+
+   
 }
 

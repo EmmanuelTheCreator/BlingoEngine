@@ -1,8 +1,8 @@
-using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Casts.Commands;
 using LingoEngine.Director.Core.Tools;
+using LingoEngine.FilmLoops;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
 
@@ -53,7 +53,7 @@ public class DirCastManager : ICommandHandler<CreateFilmLoopCommand>
                 Sound: s.Sound!))
             .ToList();
 
-        LingoMemberFilmLoop member = cast.Add<LingoMemberFilmLoop>(0, command.Name, fl =>
+        LingoFilmLoopMember member = cast.Add<LingoFilmLoopMember>(0, command.Name, fl =>
         {
             foreach (var e in spriteEntries)
                 fl.AddSprite(e.Channel, e.Begin, e.End, e.Sprite);
@@ -64,7 +64,7 @@ public class DirCastManager : ICommandHandler<CreateFilmLoopCommand>
         _mediator.RaiseMemberSelected(member);
 
         int number = member.NumberInCast;
-        LingoMemberFilmLoop current = member;
+        LingoFilmLoopMember current = member;
 
         void Refresh() => _mediator.Raise(DirectorEventType.CastPropertiesChanged);
 
@@ -76,7 +76,7 @@ public class DirCastManager : ICommandHandler<CreateFilmLoopCommand>
 
         Action redo = () =>
         {
-            current = cast.Add<LingoMemberFilmLoop>(number, command.Name, fl =>
+            current = cast.Add<LingoFilmLoopMember>(number, command.Name, fl =>
             {
                 foreach (var e in spriteEntries)
                     fl.AddSprite(e.Channel, e.Begin, e.End, e.Sprite);

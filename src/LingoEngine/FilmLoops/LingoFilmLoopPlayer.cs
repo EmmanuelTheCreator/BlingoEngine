@@ -1,4 +1,3 @@
-using LingoEngine.Bitmaps;
 using LingoEngine.Events;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
@@ -10,7 +9,7 @@ using System.Collections.Generic;
 namespace LingoEngine.FilmLoops
 {
     /// <summary>
-    /// Internal helper that plays a <see cref="LingoMemberFilmLoop"/> on a sprite.
+    /// Internal helper that plays a <see cref="LingoFilmLoopMember"/> on a sprite.
     /// It subscribes to sprite events but is not exposed as a behaviour.
     /// </summary>
     public class LingoFilmLoopPlayer : IPlayableActor
@@ -29,7 +28,7 @@ namespace LingoEngine.FilmLoops
             _mediator.Subscribe(this, sprite.SpriteNum + 6);
         }
 
-        private LingoMemberFilmLoop? FilmLoop => _sprite.Member as LingoMemberFilmLoop;
+        private LingoFilmLoopMember? FilmLoop => _sprite.Member as LingoFilmLoopMember;
 
         public void BeginSprite()
         {
@@ -136,7 +135,7 @@ namespace LingoEngine.FilmLoops
             }
         }
 
-        private void ApplyFraming(LingoMemberFilmLoop fl, LingoSprite2D template, LingoSprite2D runtime)
+        private void ApplyFraming(LingoFilmLoopMember fl, LingoSprite2D template, LingoSprite2D runtime)
         {
             if (template.Member is not { } member)
                 return;

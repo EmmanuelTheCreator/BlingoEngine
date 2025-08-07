@@ -168,7 +168,10 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
         {
             BgColor = bg,
             BorderColor = border,
-            BorderWidthAll = 2
+            BorderWidthBottom = 1,
+            BorderWidthLeft = 1,
+            BorderWidthRight = 1,
+            BorderWidthTop = 1,
         };
         panel.AddThemeStyleboxOverride("panel", style);
 

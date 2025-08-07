@@ -10,7 +10,7 @@ namespace LingoEngine.LGodot.Bitmaps
     /// </summary>
     public class LingoGodotMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
     {
-        private LingoMemberFilmLoop _member = null!;
+        private LingoFilmLoopMember _member = null!;
         public bool IsLoaded { get; private set; }
         public byte[]? Media { get; set; }
         public LingoFilmLoopFraming Framing { get; set; } = LingoFilmLoopFraming.Auto;
@@ -20,7 +20,7 @@ namespace LingoEngine.LGodot.Bitmaps
         {
         }
 
-        internal void Init(LingoMemberFilmLoop member)
+        internal void Init(LingoFilmLoopMember member)
         {
             _member = member;
         }

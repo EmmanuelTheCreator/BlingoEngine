@@ -28,6 +28,7 @@ using LingoEngine.LGodot.Styles;
 using LingoEngine.LGodot.Bitmaps;
 using LingoEngine.LGodot.Scripts;
 using LingoEngine.Scripts;
+using LingoEngine.FilmLoops;
 
 namespace LingoEngine.LGodot.Core
 {
@@ -81,7 +82,7 @@ namespace LingoEngine.LGodot.Core
                 Type t when t == typeof(LingoMemberText) => (CreateMemberText(cast, numberInCast, name) as T)!,
                 Type t when t == typeof(LingoMemberField) => (CreateMemberField(cast, numberInCast, name) as T)!,
                 Type t when t == typeof(LingoMemberSound) => (CreateMemberSound(cast, numberInCast, name) as T)!,
-                Type t when t == typeof(LingoMemberFilmLoop) => (CreateMemberFilmLoop(cast, numberInCast, name) as T)!,
+                Type t when t == typeof(LingoFilmLoopMember) => (CreateMemberFilmLoop(cast, numberInCast, name) as T)!,
                 Type t when t == typeof(LingoMemberShape) => (CreateMemberShape(cast, numberInCast, name) as T)!,
             };
         }
@@ -95,10 +96,10 @@ namespace LingoEngine.LGodot.Core
             return memberSound;
         }
         /// <inheritdoc/>
-        public LingoMemberFilmLoop CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
+        public LingoFilmLoopMember CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
         {
             var impl = new LingoGodotMemberFilmLoop();
-            var member = new LingoMemberFilmLoop(impl, (LingoCast)cast, numberInCast, name, fileName ?? "", regPoint);
+            var member = new LingoFilmLoopMember(impl, (LingoCast)cast, numberInCast, name, fileName ?? "", regPoint);
             impl.Init(member);
             _disposables.Add(impl);
             return member;
@@ -233,7 +234,7 @@ namespace LingoEngine.LGodot.Core
         /// <inheritdoc/>
         public LingoGfxWrapPanel CreateWrapPanel(LingoOrientation orientation, string name)
         {
-            var panel = new LingoGfxWrapPanel();
+            var panel = new LingoGfxWrapPanel(this);
             var impl = new LingoGodotWrapPanel(panel, orientation);
 
             panel.Name = name;

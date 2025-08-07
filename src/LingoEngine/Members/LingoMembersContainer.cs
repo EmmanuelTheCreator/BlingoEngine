@@ -18,6 +18,8 @@
         /// <returns>The specified cast member.</returns>
         T? Member<T>(int number) where T : class, ILingoMember;
         T? Member<T>(string name) where T : class, ILingoMember;
+        event Action<ILingoMember>? MemberAdded;
+        event Action<ILingoMember>? MemberDeleted;
     }
 
     internal class LingoMembersContainer : ILingoMembersContainer
@@ -26,7 +28,8 @@
         private readonly bool containerForAll;
         private readonly Dictionary<string, LingoMember> _membersByName;
 
-
+        public event Action<ILingoMember>? MemberAdded;
+        public event Action<ILingoMember>? MemberDeleted;
         /// <summary>
         /// Returns a copy array
         /// </summary>
@@ -50,12 +53,13 @@
             else
             {
                 if (member.NumberInCast == 0)
-                    member.NumberInCast = GetNextNumber(member.Cast.Number,0);
+                    member.NumberInCast = FindEmpty(); // GetNextNumber(member.Cast.Number,0);
                 _members[member.NumberInCast] = member;
             }
             var name = member.Name.ToLower();
             if (!_membersByName.ContainsKey(name))
                 _membersByName.Add(name, member);
+            MemberAdded?.Invoke(member);
         }
 
         internal void Remove(LingoMember member)
@@ -67,6 +71,7 @@
                 _members.Remove(member.NumberInCast);
             if (_membersByName.ContainsKey(name))
                 _membersByName.Remove(name);
+            MemberDeleted?.Invoke(member);
         }
 
         internal void ChangeNumber(int oldNumber, int newNumber)
