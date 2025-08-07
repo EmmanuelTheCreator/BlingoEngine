@@ -29,6 +29,8 @@ namespace LingoEngine.Director.Core.Casts
         private readonly ILingoFrameworkFactory _factory;
         private readonly IDirectorIconManager _iconManager;
         private DirCastItem? _selected;
+        private DirCastItem? _hoveredItem;
+        private DirCastItem? _dragItem;
         private bool _dragging;
         private float _dragStartX, _dragStartY;
         private int _columns = 1;
@@ -108,11 +110,27 @@ namespace LingoEngine.Director.Core.Casts
         {
             float x = e.Mouse.MouseH + _scroll.ScrollHorizontal;
             float y = e.Mouse.MouseV + _scroll.ScrollVertical - _tabItem.TopHeight;
-            if (y < 0 || x < 0 || x > Width) return;
+            if (y < 0 || x < 0 || x > Width)
+            {
+                if (_hoveredItem != null)
+                {
+                    _hoveredItem.SetHovered(false);
+                    _hoveredItem = null;
+                }
+                return;
+            }
+            var memberHover = HitTest(x, y, out var hoverItem);
+            if (hoverItem != _hoveredItem)
+            {
+                _hoveredItem?.SetHovered(false);
+                _hoveredItem = hoverItem;
+                _hoveredItem?.SetHovered(true);
+            }
             switch (e.Type)
             {
                 case LingoMouseEventType.MouseDown:
-                    var member = HitTest(x, y, out var item);
+                    var member = memberHover;
+                    var item = hoverItem;
                     if (member != null && item != null)
                     {
                         if (e.Mouse.DoubleClick)
@@ -128,12 +146,13 @@ namespace LingoEngine.Director.Core.Casts
                             _dragStartX = x;
                             _dragStartY = y;
                             _dragging = false;
+                            _dragItem = item;
                         }
                     }
                     break;
                 case LingoMouseEventType.MouseMove:
-                    var member2 = HitTest(x, y, out var item2);
-                    //Console.WriteLine($"MouseMove: {x}, {y} - Selected: {member2?.Name}");
+                    var member2 = memberHover;
+                    var item2 = hoverItem;
                     if (e.Mouse.MouseDown && _selected != null)
                     {
                         float dx = x - _dragStartX;
@@ -146,12 +165,36 @@ namespace LingoEngine.Director.Core.Casts
                     }
                     break;
                 case LingoMouseEventType.MouseUp:
+                    if (_dragging && _dragItem != null && hoverItem != null && hoverItem != _dragItem)
+                    {
+                        SwapItems(_dragItem, hoverItem);
+                    }
+                    _dragItem = null;
                     _dragging = false;
                     _selected = null;
                     lock (_lock) _openingEditor = false;
+                    DirectorDragDropHolder.EndDrag();
                     break;
             }
         }
+        private void SwapItems(DirCastItem source, DirCastItem target)
+        {
+            int srcIndex = _items.IndexOf(source);
+            int dstIndex = _items.IndexOf(target);
+            if (srcIndex < 0 || dstIndex < 0) return;
+
+            // swap in list
+            (_items[srcIndex], _items[dstIndex]) = (_items[dstIndex], _items[srcIndex]);
+
+            // update wrap panel order
+            _wrap.RemoveAll();
+            foreach (var it in _items)
+                _wrap.AddItem(it.Canvas);
+
+            // update member slot numbers in cast
+            _cast.SwapMembers(source.Member.NumberInCast, target.Member.NumberInCast);
+        }
+
         public ILingoMember? HitTest(float x, float y, out DirCastItem? item)
         {
             int col = (int)(x / (DirCastItem.Width + _itemMargin ));
