@@ -46,10 +46,10 @@ public class DirectorMemberThumbnail : IDisposable
         _isCustomCanvas = canvas != null;
         ThumbWidth = width;
         ThumbHeight = height;
-       
-        Canvas = canvas?? factory.CreateGfxCanvas("MemberThumbnailCanvas", width, height);
+
+        Canvas = canvas ?? factory.CreateGfxCanvas("MemberThumbnailCanvas", width, height);
         _iconManager = iconManager;
-        
+
     }
 
     /// <summary>
@@ -59,10 +59,8 @@ public class DirectorMemberThumbnail : IDisposable
     {
         if (!_isCustomCanvas)
             Canvas.Clear(DirectorColors.BG_WhiteMenus);
-       
-        Canvas.DrawRect(LingoRect.New(_xOffset, _yOffset, _rectWidth, ThumbHeight ), LingoColorList.White, true);
-        Canvas.DrawRect(LingoRect.New(_xOffset, _yOffset, _rectWidth, ThumbHeight ), LingoColorList.Gray, false);
-        
+        DrawBorder();
+
         switch (member)
         {
             case LingoMemberBitmap pic:
@@ -83,12 +81,25 @@ public class DirectorMemberThumbnail : IDisposable
             {
                 var miniIconSize = 16;
                 var data = _iconManager.Get(icon.Value);
-                var x = ThumbWidth - miniIconSize-1;
-                var y = ThumbHeight - miniIconSize-1+ _iconYOffset;
-                Canvas.DrawRect(LingoRect.New(_xOffset+x, _yOffset + y, miniIconSize, miniIconSize), LingoColorList.White,true);
-                Canvas.DrawPicture(data, miniIconSize -2, miniIconSize-2, new LingoPoint(_xOffset+x + 1, _yOffset + y +1));
+                var x = ThumbWidth - miniIconSize - 1;
+                var y = ThumbHeight - miniIconSize - 1 + _iconYOffset;
+                Canvas.DrawRect(LingoRect.New(_xOffset + x, _yOffset + y, miniIconSize, miniIconSize), LingoColorList.White, true);
+                Canvas.DrawPicture(data, miniIconSize - 2, miniIconSize - 2, new LingoPoint(_xOffset + x + 1, _yOffset + y + 1));
             }
         }
+    }
+
+    public void SetEmpty()
+    {
+        if (!_isCustomCanvas)
+            Canvas.Clear(DirectorColors.BG_WhiteMenus);
+        DrawBorder();
+    }
+
+    private void DrawBorder()
+    {
+        Canvas.DrawRect(LingoRect.New(_xOffset, _yOffset, _rectWidth, ThumbHeight), LingoColorList.White, true);
+        Canvas.DrawRect(LingoRect.New(_xOffset, _yOffset, _rectWidth, ThumbHeight), LingoColorList.Gray, false);
     }
 
     private void DrawPicture(LingoMemberBitmap picture)
@@ -99,8 +110,8 @@ public class DirectorMemberThumbnail : IDisposable
             return;
         var w = impl.Width;
         var h = impl.Height;
-       
-        Canvas.DrawPicture(impl.Texture, ThumbWidth-2, ThumbHeight-2, new LingoPoint(_xOffset+1, _yOffset + 2));
+
+        Canvas.DrawPicture(impl.Texture, ThumbWidth - 2, ThumbHeight - 2, new LingoPoint(_xOffset + 1, _yOffset + 2));
     }
 
     private void DrawText(string text)
@@ -113,7 +124,7 @@ public class DirectorMemberThumbnail : IDisposable
         var startY = _yOffset + (int)Math.Max((ThumbHeight - textHeight) / 2f, 0);
 
         int maxWidth = ThumbWidth - 4;
-        Canvas.DrawText(new LingoPoint(_xOffset+2, startY), text, null, new LingoColor(0, 0, 0), fontSize, maxWidth);
+        Canvas.DrawText(new LingoPoint(_xOffset + 2, startY), text, null, new LingoColor(0, 0, 0), fontSize, maxWidth);
     }
 
     private static string GetPreviewText(ILingoMemberTextBase text)
