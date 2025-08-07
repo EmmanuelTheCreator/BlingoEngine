@@ -112,7 +112,7 @@ public class JsonStateRepository
                     flMem.Loop = flDto.Loop;
                     foreach (var sEntry in flDto.FilmLoop.SpriteEntries)
                     {
-                        var tpl = BuildSpriteFromDto(sEntry.Sprite, movie, memberMap, false);
+                        var tpl = BuildSprite2DVirtualFromDto(sEntry.Sprite, movie, memberMap);
                         flMem.AddSprite(sEntry.Channel, sEntry.BeginFrame, sEntry.EndFrame, tpl);
                     }
                     foreach (var sndEntry in flDto.FilmLoop.SoundEntries)
@@ -127,101 +127,99 @@ public class JsonStateRepository
         }
 
         foreach (var sDto in dto.Sprites)
-            BuildSpriteFromDto(sDto, movie, memberMap, true);
+            BuildSpriteFromDto(sDto, movie, memberMap);
 
         return movie;
     }
 
-    private static LingoSprite2D BuildSpriteFromDto(LingoSpriteDTO sDto, LingoMovie movie, Dictionary<int, LingoMember> memberMap, bool addToMovie)
+    private static LingoSprite2D BuildSpriteFromDto(LingoSpriteDTO sDto, LingoMovie movie, Dictionary<int, LingoMember> memberMap)
     {
         LingoSprite2D sprite;
-        if (addToMovie)
-        {
-            sprite = movie.AddSprite(sDto.SpriteNum, sDto.Name, s =>
-            {
-                s.Puppet = sDto.Puppet;
-                s.Lock = sDto.Lock;
-                s.Visibility = sDto.Visibility;
-                s.LocH = sDto.LocH;
-                s.LocV = sDto.LocV;
-                s.LocZ = sDto.LocZ;
-                s.Rotation = sDto.Rotation;
-                s.Skew = sDto.Skew;
-                s.RegPoint = new LingoPoint(sDto.RegPoint.X, sDto.RegPoint.Y);
-                s.Ink = sDto.Ink;
-                s.ForeColor = FromDto(sDto.ForeColor);
-                s.BackColor = FromDto(sDto.BackColor);
-                s.Blend = sDto.Blend;
-                s.Editable = sDto.Editable;
-                s.Width = sDto.Width;
-                s.Height = sDto.Height;
-                s.BeginFrame = sDto.BeginFrame;
-                s.EndFrame = sDto.EndFrame;
-                s.DisplayMember = sDto.DisplayMember;
-                s.SpritePropertiesOffset = sDto.SpritePropertiesOffset;
-            });
-        }
-        else
-        {
-            var env = movie.GetEnvironment();
-            sprite = env.Factory.CreateSprite<LingoSprite2D>(movie, _ => { });
-            var init = typeof(LingoSprite).GetMethod("Init", BindingFlags.NonPublic | BindingFlags.Instance);
-            init?.Invoke(sprite, new object[] { sDto.SpriteNum, sDto.Name });
-            sprite.Puppet = sDto.Puppet;
-            sprite.Lock = sDto.Lock;
-            sprite.Visibility = sDto.Visibility;
-            sprite.LocH = sDto.LocH;
-            sprite.LocV = sDto.LocV;
-            sprite.LocZ = sDto.LocZ;
-            sprite.Rotation = sDto.Rotation;
-            sprite.Skew = sDto.Skew;
-            sprite.RegPoint = new LingoPoint(sDto.RegPoint.X, sDto.RegPoint.Y);
-            sprite.Ink = sDto.Ink;
-            sprite.ForeColor = FromDto(sDto.ForeColor);
-            sprite.BackColor = FromDto(sDto.BackColor);
-            sprite.Blend = sDto.Blend;
-            sprite.Editable = sDto.Editable;
-            sprite.Width = sDto.Width;
-            sprite.Height = sDto.Height;
-            sprite.BeginFrame = sDto.BeginFrame;
-            sprite.EndFrame = sDto.EndFrame;
-            sprite.DisplayMember = sDto.DisplayMember;
-            sprite.SpritePropertiesOffset = sDto.SpritePropertiesOffset;
-        }
 
+        sprite = movie.AddSprite(sDto.SpriteNum, sDto.Name, s =>
+        {
+            s.Puppet = sDto.Puppet;
+            s.Lock = sDto.Lock;
+            s.Visibility = sDto.Visibility;
+            s.LocH = sDto.LocH;
+            s.LocV = sDto.LocV;
+            s.LocZ = sDto.LocZ;
+            s.Rotation = sDto.Rotation;
+            s.Skew = sDto.Skew;
+            s.RegPoint = new LingoPoint(sDto.RegPoint.X, sDto.RegPoint.Y);
+            s.Ink = sDto.Ink;
+            s.ForeColor = FromDto(sDto.ForeColor);
+            s.BackColor = FromDto(sDto.BackColor);
+            s.Blend = sDto.Blend;
+            s.Editable = sDto.Editable;
+            s.Width = sDto.Width;
+            s.Height = sDto.Height;
+            s.BeginFrame = sDto.BeginFrame;
+            s.EndFrame = sDto.EndFrame;
+            s.DisplayMember = sDto.DisplayMember;
+            s.SpritePropertiesOffset = sDto.SpritePropertiesOffset;
+        });
+        if(memberMap.TryGetValue(sDto.MemberNum, out var mem))
+            sprite.SetMember(mem);
+        AddAnimator(sDto, sprite, movie);
+        return sprite;
+    }
+    private static LingoSprite2DVirtual BuildSprite2DVirtualFromDto(LingoSpriteDTO sDto, LingoMovie movie, Dictionary<int, LingoMember> memberMap)
+    {
+        var env = movie.GetEnvironment();
+        var sprite = new LingoSprite2DVirtual(env);
+        sprite.Puppet = sDto.Puppet;
+        sprite.Lock = sDto.Lock;
+        sprite.LocH = sDto.LocH;
+        sprite.LocV = sDto.LocV;
+        sprite.LocZ = sDto.LocZ;
+        sprite.Rotation = sDto.Rotation;
+        sprite.Skew = sDto.Skew;
+        sprite.RegPoint = new LingoPoint(sDto.RegPoint.X, sDto.RegPoint.Y);
+        sprite.Ink = sDto.Ink;
+        sprite.ForeColor = FromDto(sDto.ForeColor);
+        sprite.BackColor = FromDto(sDto.BackColor);
+        sprite.Blend = sDto.Blend;
+        sprite.Width = sDto.Width;
+        sprite.Height = sDto.Height;
+        sprite.BeginFrame = sDto.BeginFrame;
+        sprite.EndFrame = sDto.EndFrame;
+        sprite.DisplayMember = sDto.DisplayMember;
         if (memberMap.TryGetValue(sDto.MemberNum, out var mem))
             sprite.SetMember(mem);
-
-        if (sDto.Animator != null)
-        {
-            var animator = new LingoSpriteAnimator(sprite, movie.GetEnvironment());
-            var addActor = typeof(LingoSprite2D).GetMethod("AddActor", BindingFlags.NonPublic | BindingFlags.Instance);
-            addActor?.Invoke(sprite, new object[] { animator });
-
-            ApplyOptions(animator.Position.Options, sDto.Animator.PositionOptions);
-            ApplyOptions(animator.Rotation.Options, sDto.Animator.RotationOptions);
-            ApplyOptions(animator.Skew.Options, sDto.Animator.SkewOptions);
-            ApplyOptions(animator.ForegroundColor.Options, sDto.Animator.ForegroundColorOptions);
-            ApplyOptions(animator.BackgroundColor.Options, sDto.Animator.BackgroundColorOptions);
-            ApplyOptions(animator.Blend.Options, sDto.Animator.BlendOptions);
-
-            foreach (var k in sDto.Animator.Position)
-                animator.Position.AddKeyFrame(k.Frame, new LingoPoint(k.Value.X, k.Value.Y), (LingoEaseType)k.Ease);
-            foreach (var k in sDto.Animator.Rotation)
-                animator.Rotation.AddKeyFrame(k.Frame, k.Value, (LingoEaseType)k.Ease);
-            foreach (var k in sDto.Animator.Skew)
-                animator.Skew.AddKeyFrame(k.Frame, k.Value, (LingoEaseType)k.Ease);
-            foreach (var k in sDto.Animator.ForegroundColor)
-                animator.ForegroundColor.AddKeyFrame(k.Frame, FromDto(k.Value), (LingoEaseType)k.Ease);
-            foreach (var k in sDto.Animator.BackgroundColor)
-                animator.BackgroundColor.AddKeyFrame(k.Frame, FromDto(k.Value), (LingoEaseType)k.Ease);
-            foreach (var k in sDto.Animator.Blend)
-                animator.Blend.AddKeyFrame(k.Frame, k.Value, (LingoEaseType)k.Ease);
-
-            animator.GetType().GetMethod("RecalculateCache", BindingFlags.NonPublic | BindingFlags.Instance)?.Invoke(animator, null);
-        }
-
+        AddAnimator(sDto, sprite, movie);
         return sprite;
+    }
+    private static void AddAnimator(LingoSpriteDTO sDto, ILingoSprite2DLight sprite, LingoMovie movie)
+    {
+        if (sDto.Animator == null)
+            return;
+        
+        var animator = new LingoSpriteAnimator(sprite, movie.GetEnvironment());
+        var addActor = typeof(LingoSprite2D).GetMethod("AddActor", BindingFlags.NonPublic | BindingFlags.Instance);
+        addActor?.Invoke(sprite, new object[] { animator });
+
+        ApplyOptions(animator.Position.Options, sDto.Animator.PositionOptions);
+        ApplyOptions(animator.Rotation.Options, sDto.Animator.RotationOptions);
+        ApplyOptions(animator.Skew.Options, sDto.Animator.SkewOptions);
+        ApplyOptions(animator.ForegroundColor.Options, sDto.Animator.ForegroundColorOptions);
+        ApplyOptions(animator.BackgroundColor.Options, sDto.Animator.BackgroundColorOptions);
+        ApplyOptions(animator.Blend.Options, sDto.Animator.BlendOptions);
+
+        foreach (var k in sDto.Animator.Position)
+            animator.Position.AddKeyFrame(k.Frame, new LingoPoint(k.Value.X, k.Value.Y), (LingoEaseType)k.Ease);
+        foreach (var k in sDto.Animator.Rotation)
+            animator.Rotation.AddKeyFrame(k.Frame, k.Value, (LingoEaseType)k.Ease);
+        foreach (var k in sDto.Animator.Skew)
+            animator.Skew.AddKeyFrame(k.Frame, k.Value, (LingoEaseType)k.Ease);
+        foreach (var k in sDto.Animator.ForegroundColor)
+            animator.ForegroundColor.AddKeyFrame(k.Frame, FromDto(k.Value), (LingoEaseType)k.Ease);
+        foreach (var k in sDto.Animator.BackgroundColor)
+            animator.BackgroundColor.AddKeyFrame(k.Frame, FromDto(k.Value), (LingoEaseType)k.Ease);
+        foreach (var k in sDto.Animator.Blend)
+            animator.Blend.AddKeyFrame(k.Frame, k.Value, (LingoEaseType)k.Ease);
+
+        animator.GetType().GetMethod("RecalculateCache", BindingFlags.NonPublic | BindingFlags.Instance)?.Invoke(animator, null);
     }
 
     private static LingoMovieDTO ToDto(LingoMovie movie, string dir)
@@ -422,6 +420,47 @@ public class JsonStateRepository
                     break;
             }
         }
+
+        return dto;
+    }
+    private static LingoSpriteDTO ToDto(LingoSprite2DVirtual sprite)
+    {
+        var dto = new LingoSpriteDTO
+        {
+            Name = sprite.Name,
+            SpriteNum = sprite.SpriteNum,
+            MemberNum = sprite.MemberNum,
+            DisplayMember = sprite.DisplayMember,
+            Puppet = sprite.Puppet,
+            Lock = sprite.Lock,
+            LocH = sprite.LocH,
+            LocV = sprite.LocV,
+            LocZ = sprite.LocZ,
+            Rotation = sprite.Rotation,
+            Skew = sprite.Skew,
+            RegPoint = new LingoPointDTO { X = sprite.RegPoint.X, Y = sprite.RegPoint.Y },
+            Ink = sprite.Ink,
+            ForeColor = ToDto(sprite.ForeColor),
+            BackColor = ToDto(sprite.BackColor),
+            Blend = sprite.Blend,
+            Width = sprite.Width,
+            Height = sprite.Height,
+            BeginFrame = sprite.BeginFrame,
+            EndFrame = sprite.EndFrame
+        };
+
+        //foreach (var actor in GetSpriteActors(sprite))
+        //{
+        //    switch (actor)
+        //    {
+        //        case LingoSpriteAnimator anim:
+        //            dto.Animator = ToDto(anim);
+        //            break;
+        //        case LingoFilmLoopPlayer fl:
+        //            // Film loop player state is transient, no need to save
+        //            break;
+        //    }
+        //}
 
         return dto;
     }

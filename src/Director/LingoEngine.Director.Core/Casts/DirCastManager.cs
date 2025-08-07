@@ -56,7 +56,7 @@ public class DirCastManager : ICommandHandler<CreateFilmLoopCommand>
         LingoFilmLoopMember member = cast.Add<LingoFilmLoopMember>(0, command.Name, fl =>
         {
             foreach (var e in spriteEntries)
-                fl.AddSprite(e.Channel, e.Begin, e.End, e.Sprite);
+                fl.AddSprite(movie.GetEnvironment(), e.Channel, e.Begin, e.End, e.Sprite);
             foreach (var e in soundEntries)
                 fl.AddSound(e.Channel, e.Start, e.Sound);
         });
@@ -79,7 +79,7 @@ public class DirCastManager : ICommandHandler<CreateFilmLoopCommand>
             current = cast.Add<LingoFilmLoopMember>(number, command.Name, fl =>
             {
                 foreach (var e in spriteEntries)
-                    fl.AddSprite(e.Channel, e.Begin, e.End, e.Sprite);
+                    fl.AddSprite(movie.GetEnvironment(), e.Channel, e.Begin, e.End, e.Sprite);
                 foreach (var e in soundEntries)
                     fl.AddSound(e.Channel, e.Start, e.Sound);
             });

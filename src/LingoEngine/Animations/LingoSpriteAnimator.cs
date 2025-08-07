@@ -18,11 +18,11 @@ namespace LingoEngine.Animations
         private LingoSpriteMotionPath _cachedPath = new();
         private bool _cacheDirty = true;
 
-        private readonly LingoSprite2D _sprite;
+        private readonly ILingoSprite2DLight _sprite;
         private readonly ILingoMovie _movie;
         private readonly ILingoEventMediator _mediator;
 
-        public LingoSpriteAnimator(LingoSprite2D sprite, ILingoMovieEnvironment env)
+        public LingoSpriteAnimator(ILingoSprite2DLight sprite, ILingoMovieEnvironment env)
         {
             _sprite = sprite;
             _movie = env.Movie;

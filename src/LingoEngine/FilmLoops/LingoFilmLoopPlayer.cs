@@ -17,7 +17,7 @@ namespace LingoEngine.FilmLoops
         private readonly LingoSprite2D _sprite;
         private readonly ILingoEventMediator _mediator;
         private readonly ILingoMovieEnvironment _env;
-        private readonly List<(LingoFilmLoop.SpriteEntry Entry, LingoSprite2D Runtime)> _layers = new();
+        private readonly List<(LingoFilmLoop.SpriteEntry Entry, LingoSprite2DVirtual Runtime)> _layers = new();
         private int _currentFrame;
 
         internal LingoFilmLoopPlayer(LingoSprite2D sprite, ILingoMovieEnvironment env)
@@ -80,11 +80,11 @@ namespace LingoEngine.FilmLoops
                 bool active = entry.BeginFrame <= _currentFrame && entry.EndFrame >= _currentFrame;
                 if (!active)
                 {
-                    runtime.FrameworkObj.Hide();
+                    //runtime.FrameworkObj.Hide();
                     continue;
                 }
 
-                runtime.FrameworkObj.Show();
+                //runtime.FrameworkObj.Show();
                 runtime.SetMember(template.Member);
                 ApplyFraming(fl, template, runtime);
 
@@ -124,18 +124,18 @@ namespace LingoEngine.FilmLoops
             foreach (var entry in fl.FilmLoop.SpriteEntries)
             {
                 var tmpl = entry.Sprite;
-                var rt = _env.Factory.CreateSprite<LingoSprite2D>((LingoMovie)_env.Movie, _ => { });
-                rt.Init(1000 + (++index), "filmLoopLayer" + index);
+                var rt = new LingoSprite2DVirtual(_env); // // _env.Factory.CreateSprite<LingoSprite2D>((LingoMovie)_env.Movie, _ => { });
+                //rt.Init(1000 + (++index), "filmLoopLayer" + index);
                 rt.SetMember(tmpl.Member);
                 rt.LocZ = tmpl.LocZ;
                 rt.Ink = tmpl.Ink;
-                rt.FrameworkObj.Show();
+                //rt.FrameworkObj.Show();
                 ApplyFraming(fl, tmpl, rt);
                 _layers.Add((entry, rt));
             }
         }
 
-        private void ApplyFraming(LingoFilmLoopMember fl, LingoSprite2D template, LingoSprite2D runtime)
+        private void ApplyFraming(LingoFilmLoopMember fl, LingoSprite2DVirtual template, LingoSprite2DVirtual runtime)
         {
             if (template.Member is not { } member)
                 return;

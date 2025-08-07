@@ -4,6 +4,8 @@ using LingoEngine.Sprites;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
 using LingoEngine.Bitmaps;
+using LingoEngine.Movies;
+using System;
 
 namespace LingoEngine.FilmLoops
 {
@@ -65,8 +67,17 @@ namespace LingoEngine.FilmLoops
         /// <param name="beginFrame">First frame on which the sprite is shown.</param>
         /// <param name="endFrame">Last frame on which the sprite is shown.</param>
         /// <param name="sprite">The sprite to add.</param>
-        public void AddSprite(int channel, int beginFrame, int endFrame, LingoSprite2D sprite)
+        public void AddSprite(int channel, int beginFrame, int endFrame, LingoSprite2DVirtual sprite)
             => FilmLoop.AddSprite(channel, beginFrame, endFrame, sprite);
+        /// <summary>
+        /// Adds a sprite to the film loop timeline.
+        /// </summary>
+        /// <param name="channel">Sprite channel inside the film loop.</param>
+        /// <param name="beginFrame">First frame on which the sprite is shown.</param>
+        /// <param name="endFrame">Last frame on which the sprite is shown.</param>
+        /// <param name="sprite">The sprite to add.</param>
+        public void AddSprite(ILingoMovieEnvironment environment,int channel, int beginFrame, int endFrame, LingoSprite2D sprite)
+            => FilmLoop.AddSprite(channel, beginFrame, endFrame,new LingoSprite2DVirtual(environment, sprite));
 
         /// <summary>
         /// Adds a sound to one of the film loop audio channels.
@@ -84,7 +95,7 @@ namespace LingoEngine.FilmLoops
         /// channel 1.
         /// </summary>
         /// <param name="sprites">Sprites to import into the film loop.</param>
-        public void AddFromSprites(IEnumerable<LingoSprite2D> sprites)
+        public void AddFromSprites(ILingoMovieEnvironment environment, IEnumerable<LingoSprite2D> sprites)
         {
             if (sprites == null)
                 return;
@@ -101,7 +112,7 @@ namespace LingoEngine.FilmLoops
                 int channel = sp.SpriteNum - minChannel + 1;
                 int begin = sp.BeginFrame - minFrame + 1;
                 int end = sp.EndFrame - minFrame + 1;
-                AddSprite(channel, begin, end, sp);
+                AddSprite(channel, begin, end, new LingoSprite2DVirtual(environment,sp));
             }
         }
     }

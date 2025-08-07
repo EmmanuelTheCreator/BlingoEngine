@@ -14,7 +14,7 @@ public class LingoFilmLoop
     /// <summary>
     /// Information about a sprite used in the film loop timeline.
     /// </summary>
-    public record SpriteEntry(int Channel, int BeginFrame, int EndFrame, LingoSprite2D Sprite);
+    public record SpriteEntry(int Channel, int BeginFrame, int EndFrame, LingoSprite2DVirtual Sprite);
 
     /// <summary>
     /// Description of a sound placed on one of the two audio channels.
@@ -26,7 +26,7 @@ public class LingoFilmLoop
 
     public int FrameCount { get; private set; }
 
-    public void AddSprite(int channel, int beginFrame, int endFrame, LingoSprite2D sprite)
+    public void AddSprite(int channel, int beginFrame, int endFrame, LingoSprite2DVirtual sprite)
     {
         SpriteEntries.Add(new SpriteEntry(channel, beginFrame, endFrame, sprite));
         FrameCount = Math.Max(FrameCount, endFrame);

@@ -7,11 +7,11 @@ using LingoEngine.Casts;
 using LingoEngine.Movies;
 using LingoEngine.FilmLoops;
 using LingoEngine.Sprites.Events;
-using LingoEngine.Members;
 
 namespace LingoEngine.Sprites
 {
-    public class LingoSprite2D : LingoSprite, ILingoMouseEventHandler, ILingoSprite, ILingoSpriteWithMember
+
+    public class LingoSprite2D : LingoSprite, ILingoMouseEventHandler, ILingoSprite, ILingoSpriteWithMember, ILingoSprite2DLight
     {
         public const int SpriteNumOffset = 6;
         private readonly List<LingoSpriteBehavior> _behaviors = new();
@@ -326,7 +326,7 @@ When a movie stops, events occur in the following order:
             base.DoEndSprite();
         }
 
-        
+
 
 
         internal void SetFrameworkSprite(ILingoFrameworkSprite fw) => _frameworkSprite = fw;
