@@ -3,6 +3,7 @@ using LingoEngine.Director.Core.Stages.Commands;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.FrameworkCommunication;
+using LingoEngine.Core;
 
 namespace LingoEngine.Director.Core.Stages
 {
@@ -15,10 +16,12 @@ namespace LingoEngine.Director.Core.Stages
 
         public StageTool SelectedTool { get; private set; }
 
+        public StageIconBar IconBar { get; }
 
-        public DirectorStageWindow(IHistoryManager historyManager, ILingoFrameworkFactory factory) : base(factory)
+        public DirectorStageWindow(IHistoryManager historyManager, ILingoFrameworkFactory factory, ILingoCommandManager commandManager, ILingoPlayer player, IDirectorEventMediator mediator, IDirStageManager stageManager) : base(factory)
         {
             _historyManager = historyManager;
+            IconBar = new StageIconBar(factory, commandManager, player, mediator, stageManager);
         }
 
         private void UpdateSelectionBox() => Framework.UpdateSelectionBox();

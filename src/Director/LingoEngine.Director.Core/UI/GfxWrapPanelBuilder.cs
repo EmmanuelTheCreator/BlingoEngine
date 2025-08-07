@@ -132,5 +132,21 @@ namespace LingoEngine.Director.Core.UI
             configure?.Invoke(button);
             return this;
         }
+
+        public GfxWrapPanelBuilder AddSliderFloat(string name, LingoOrientation orientation, Action<float>? onChange = null, float? min = null, float? max = null, float? step = null, Action<LingoGfxInputSlider<float>>? configure = null)
+        {
+            var slider = _factory.CreateInputSliderFloat(orientation, name, min, max, step, onChange);
+            _panel.AddItem(slider);
+            configure?.Invoke(slider);
+            return this;
+        }
+
+        public GfxWrapPanelBuilder AddSliderInt(string name, LingoOrientation orientation, Action<int>? onChange = null, int? min = null, int? max = null, int? step = null, Action<LingoGfxInputSlider<int>>? configure = null)
+        {
+            var slider = _factory.CreateInputSliderInt(orientation, name, min, max, step, onChange);
+            _panel.AddItem(slider);
+            configure?.Invoke(slider);
+            return this;
+        }
     }
 }

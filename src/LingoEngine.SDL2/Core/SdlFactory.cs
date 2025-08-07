@@ -260,6 +260,35 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
         scroll.Name = name;
         return scroll;
     }
+
+    /// <inheritdoc/>
+    public LingoGfxInputSlider<float> CreateInputSliderFloat(LingoOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
+    {
+        var slider = new LingoGfxInputSlider<float>();
+        var impl = new SdlGfxInputSlider<float>();
+        slider.Init(impl);
+        slider.Name = name;
+        if (min.HasValue) slider.MinValue = min.Value;
+        if (max.HasValue) slider.MaxValue = max.Value;
+        if (step.HasValue) slider.Step = step.Value;
+        if (onChange != null)
+            slider.ValueChanged += () => onChange(slider.Value);
+        return slider;
+    }
+
+    public LingoGfxInputSlider<int> CreateInputSliderInt(LingoOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
+    {
+        var slider = new LingoGfxInputSlider<int>();
+        var impl = new SdlGfxInputSlider<int>();
+        slider.Init(impl);
+        slider.Name = name;
+        if (min.HasValue) slider.MinValue = min.Value;
+        if (max.HasValue) slider.MaxValue = max.Value;
+        if (step.HasValue) slider.Step = step.Value;
+        if (onChange != null)
+            slider.ValueChanged += () => onChange(slider.Value);
+        return slider;
+    }
     /// <inheritdoc/>
     public LingoGfxInputText CreateInputText(string name, int maxLength = 0)
     {

@@ -17,8 +17,8 @@ namespace LingoEngine.Director.LGodot.Casts
         private readonly LingoGodotTabContainer _tabs;
         internal ILingoMember? SelectedMember => _directorCastWindow.SelectedMember;
 
-        public DirGodotCastWindow(IDirectorEventMediator mediator, DirectorCastWindow directorCastWindow, ILingoPlayer player, IDirGodotWindowManager windowManager)
-            : base(DirectorMenuCodes.CastWindow, "Cast", windowManager)
+        public DirGodotCastWindow(IDirectorEventMediator mediator, DirectorGodotStyle style, DirectorCastWindow directorCastWindow, ILingoPlayer player, IDirGodotWindowManager windowManager, ILingoCommandManager commandManager, IHistoryManager historyManager, IDirectorIconManager iconManager)
+            : base(DirectorMenuCodes.CastWindow, "Cast", windowManager, historyManager)
         {
             _mediator = mediator;
             _directorCastWindow = directorCastWindow;
