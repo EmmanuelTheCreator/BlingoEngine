@@ -40,7 +40,7 @@ namespace LingoEngine.SDL2.Gfx
                 }
                 if (value is SdlImageTexture img)
                 {
-                    _texturePtr = SDL.SDL_CreateTextureFromSurface(_renderer, img.Ptr);
+                    _texturePtr = SDL.SDL_CreateTextureFromSurface(_renderer, img.SurfaceId);
                 }
             }
         }
@@ -72,7 +72,7 @@ namespace LingoEngine.SDL2.Gfx
             if (_texturePtr != nint.Zero)
             {
                 Vector4 bg = _isOn ? new Vector4(0.25f, 0.25f, 0.25f, 1f) : Vector4.Zero;
-                if (ImGui.ImageButton((IntPtr)_texturePtr, new Vector2(Width, Height), Vector2.Zero, Vector2.One, 0, bg, Vector4.One))
+                if (ImGui.ImageButton(Name, _texturePtr, new Vector2(Width, Height), Vector2.Zero, Vector2.One, bg, Vector4.One))
                     IsOn = !_isOn;
             }
             else

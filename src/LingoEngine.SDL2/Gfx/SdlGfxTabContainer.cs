@@ -69,14 +69,15 @@ namespace LingoEngine.SDL2.Gfx
 
             ImGui.SetCursorPos(new Vector2(X, Y));
             ImGui.PushID(Name);
-            ImGui.BeginChild("##tabs", new Vector2(Width, Height), false);
+            ImGui.BeginChild("##tabs", new Vector2(Width, Height), ImGuiChildFlags.None);
 
             if (ImGui.BeginTabBar("##tabbar"))
             {
                 for (int i = 0; i < _children.Count; i++)
                 {
                     var tab = _children[i];
-                    if (ImGui.BeginTabItem(tab.Title, _selectedIndex == i))
+                    var isOpen = _selectedIndex == i;
+                    if (ImGui.BeginTabItem(tab.Title, ref isOpen))
                     {
                         _selectedIndex = i;
                         if (tab.Content?.FrameworkObj is ISdlRenderElement renderable)

@@ -7,13 +7,16 @@ public class SdlImageTexture : ILingoImageTexture
 {
     private SDL.SDL_Surface _surfacePtr;
     public SDL.SDL_Surface Ptr => _surfacePtr;
+
+    public nint SurfaceId { get; }
     public int Width { get; set; }
 
     public int Height { get; set; }
 
-    public SdlImageTexture(SDL.SDL_Surface surfacePtr, int width, int height)
+    public SdlImageTexture(SDL.SDL_Surface surfacePtr, nint surfaceId, int width, int height)
     {
         _surfacePtr = surfacePtr;
+        SurfaceId = surfaceId;
         Width = width;
         Height = height;
     }

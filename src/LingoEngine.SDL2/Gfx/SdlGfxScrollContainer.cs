@@ -48,7 +48,7 @@ namespace LingoEngine.SDL2.Gfx
 
             ImGui.SetCursorPos(new Vector2(X, Y));
             ImGui.PushID(Name);
-            ImGui.BeginChild("##scroll", new Vector2(Width, Height), false);
+            ImGui.BeginChild("##scroll", new Vector2(Width, Height), ImGuiChildFlags.None);
             ImGui.SetScrollX(ScrollHorizontal);
             ImGui.SetScrollY(ScrollVertical);
 

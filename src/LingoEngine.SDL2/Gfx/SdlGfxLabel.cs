@@ -28,7 +28,7 @@ namespace LingoEngine.SDL2.Gfx
         public int FontSize { get; set; }
         public string? Font { get; set; }
 
-        public LingoColor FontColor { get; set; } = LingoColor.Black;
+        public LingoColor FontColor { get; set; } = LingoColorList.Black;
         private int _lineHeight;
         public int LineHeight { get => _lineHeight; set => _lineHeight = value; }
         private LingoTextWrapMode _wrapMode;

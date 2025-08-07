@@ -68,7 +68,7 @@ namespace LingoEngine.SDL2.Gfx
 
             ImGui.SetCursorPos(new Vector2(X, Y));
             ImGui.PushID(Name);
-            ImGui.BeginChild("##wrap", new Vector2(Width, Height), false);
+            ImGui.BeginChild("##wrap", new Vector2(Width, Height), ImGuiChildFlags.None);
             float curX = 0;
             float curY = 0;
             float lineSize = 0;

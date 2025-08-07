@@ -71,7 +71,7 @@ namespace LingoEngine.SDL2.Gfx
                 ImGui.PushStyleVar(ImGuiStyleVar.ChildBorderSize, BorderWidth);
             }
 
-            ImGui.BeginChild("##panel", new Vector2(Width, Height), BorderWidth > 0);
+            ImGui.BeginChild("##panel", new Vector2(Width, Height),  BorderWidth > 0 ? ImGuiChildFlags.Borders :ImGuiChildFlags.None );
             foreach (var child in _children)
             {
                 if (child.FrameworkNode is ISdlRenderElement renderable)

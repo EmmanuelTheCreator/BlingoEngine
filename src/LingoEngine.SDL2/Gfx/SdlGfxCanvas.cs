@@ -237,7 +237,7 @@ namespace LingoEngine.SDL2.Gfx
             {
                 if (texture is SdlImageTexture img)
                 {
-                    nint tex = SDL.SDL_CreateTextureFromSurface(_renderer, img.Ptr);
+                    nint tex = SDL.SDL_CreateTextureFromSurface(_renderer, img.SurfaceId);
                     if (tex != nint.Zero)
                     {
                         SDL.SDL_Rect dst = new SDL.SDL_Rect

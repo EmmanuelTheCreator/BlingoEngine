@@ -46,7 +46,7 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
         _surfacePtr = Marshal.PtrToStructure<SDL.SDL_Surface>(_surface);
         Width = _surfacePtr.w;
         Height = _surfacePtr.h;
-        _surfaceLingo = new SdlImageTexture(_surfacePtr, Width, Height);
+        _surfaceLingo = new SdlImageTexture(_surfacePtr, _surface, Width, Height);
 
         ImageData = File.ReadAllBytes(fullFileName);
         Format = MimeHelper.GetMimeType(_member.FileName);
