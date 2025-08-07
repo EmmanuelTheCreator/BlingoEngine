@@ -5,7 +5,9 @@ namespace LingoEngine.Director.Core.Styles
     public class DirectorColors
     {
         public static LingoColor BlueSelectColor = new LingoColor(0, 120, 215);
-        public static LingoColor BlueLightSelectColor = new LingoColor(229, 241, 251);
+        public static LingoColor BlueSelectColorSemiTransparent = new LingoColor(0, 120, 215, 80);
+        public static LingoColor BlueLightSelectColor = new LingoColor(229,241,251);
+
         public static LingoColor BG_PropWindowBar = new LingoColor(178, 180, 191);    // Top bar of panels
         public static LingoColor BG_WhiteMenus = new LingoColor(240, 240, 240);       // Common window background
 
@@ -43,7 +45,6 @@ namespace LingoEngine.Director.Core.Styles
         public static LingoColor Border_Tabs = new LingoColor(100, 100, 100);         // Tab outline
         public static LingoColor Tab_Selected_TextColor = new LingoColor(0, 0, 0);         // text of the selected tab
         public static LingoColor Tab_Deselected_TextColor = new LingoColor(255, 255, 255); // text of the deselected tab
-
 
         // Dividers and lines
         public static LingoColor DividerLines = new LingoColor(190, 190, 190);        // Light panel separators

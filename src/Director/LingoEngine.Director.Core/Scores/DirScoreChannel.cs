@@ -6,6 +6,8 @@ using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
+using LingoEngine.Director.Core.Styles;
+using System.Collections.Generic;
 
 namespace LingoEngine.Director.Core.Scores
 {
@@ -20,7 +22,7 @@ namespace LingoEngine.Director.Core.Scores
         LingoPoint Position { get; }
         LingoPoint Size { get; }
     }
-  
+
     public abstract class DirScoreChannel : IDisposable, IDirScoreChannel
     {
         protected readonly DirScoreGfxValues _gfxValues;
@@ -48,6 +50,10 @@ namespace LingoEngine.Director.Core.Scores
         public bool ShowPreview { get; protected set; }
         public int PreviewBegin { get; protected set; }
         public int PreviewEnd { get; protected set; }
+
+        public bool ShowSelectionRect { get; private set; }
+        public int SelectionBegin { get; private set; }
+        public int SelectionEnd { get; private set; }
 
 
 #pragma warning disable CS8618 
@@ -100,6 +106,7 @@ namespace LingoEngine.Director.Core.Scores
         }
         public abstract DirScoreSprite? FindSprite(LingoSprite sprite);
         public abstract DirScoreSprite? GetSpriteAtFrame(int frame);
+        public abstract IEnumerable<DirScoreSprite> GetSprites();
         protected virtual void SubscribeMovie(LingoMovie movie) { }
         protected virtual void UnsubscribeMovie(LingoMovie movie) { }
 
@@ -144,6 +151,21 @@ namespace LingoEngine.Director.Core.Scores
 
         internal virtual bool DrawMovePreview(int begin, int end, DirScoreSprite? ignore = null) => true;
 
+        internal void SetSelectionRect(int begin, int end)
+        {
+            SelectionBegin = begin;
+            SelectionEnd = end;
+            ShowSelectionRect = true;
+            RequireRedraw();
+        }
+
+        internal void ClearSelectionRect()
+        {
+            if (!ShowSelectionRect) return;
+            ShowSelectionRect = false;
+            RequireRedraw();
+        }
+
         internal abstract void ShowSpriteInfo(DirScoreSpriteLabelType type);
     }
 
@@ -160,7 +182,7 @@ namespace LingoEngine.Director.Core.Scores
         private readonly bool _subscribeToSpritelistChange;
         protected TSpriteManager? _manager;
         protected TSpriteUI? _selectedUI;
-       
+
 
         //protected readonly HashSet<Vector2I> _selectedCells = new();
         //protected Vector2I? _lastSelectedCell = null;
@@ -168,7 +190,7 @@ namespace LingoEngine.Director.Core.Scores
 
         public List<TSpriteUI> SpriteUIs => _spriteUIs;
 
-      
+
         protected DirScoreChannel(int spriteNumWithChannel, IDirScoreManager scoreManager, bool subscribeToSpritelistChange = true)
             : base(spriteNumWithChannel, scoreManager)
         {
@@ -206,10 +228,10 @@ namespace LingoEngine.Director.Core.Scores
             _hasDirtySpriteList = true;
             MarkDirty();
         }
-    
+
 
         protected abstract TSpriteUI CreateUISprite(TSprite sprite, IDirSpritesManager spritesManager);
-       
+
         protected virtual void OnSpriteClicked(TSpriteUI sprite)
         {
             _mediator.RaiseSpriteSelected(sprite.Sprite);
@@ -219,7 +241,7 @@ namespace LingoEngine.Director.Core.Scores
         {
             foreach (var spriteUI in _spriteUIs)
                 spriteUI.Dispose();
-            
+
             _spriteUIs.Clear();
             if (_manager == null) return;
             var sprites = _manager.GetAllSpritesBySpriteNumAndChannel(SpriteNumWithChannelNum);
@@ -240,12 +262,14 @@ namespace LingoEngine.Director.Core.Scores
             => _spriteUIs.FirstOrDefault(s => s.Sprite == sprite);
         protected abstract TSpriteManager GetManager(LingoMovie movie);
 
+        public override IEnumerable<DirScoreSprite> GetSprites() => _spriteUIs;
+
         /// </ummary>
         /// Retrurns false if beginsprite is inside existing sprite.
         /// </summary>
         internal override bool DrawPreview(int frameNumber)
         {
-            if(_movie == null || _manager == null) return true;
+            if (_movie == null || _manager == null) return true;
             var isSingleFrameSprite = IsSingleFrame;
             PreviewBegin = frameNumber;
             var endFrame = _movie.FrameLabels.GetNextLabelFrame(frameNumber);
@@ -264,8 +288,8 @@ namespace LingoEngine.Director.Core.Scores
             }
             if (isSingleFrameSprite)
                 PreviewEnd = PreviewBegin;
-            else 
-            { 
+            else
+            {
                 var endInSprite = _spriteUIs
                 .Where(x => x.IsFrameRangeInSprite(PreviewBegin, PreviewEnd))
                 .OrderBy(x => x.Sprite.BeginFrame)
@@ -328,9 +352,9 @@ namespace LingoEngine.Director.Core.Scores
         {
             if (_hasDirtySpriteList)
                 RedrawAllSprites();
-            
+
             _canvas.Clear(LingoColorList.Transparent);
-           
+
             if (_movie == null) return;
 
             int channelCount = _movie.MaxSpriteChannelCount;
@@ -343,7 +367,14 @@ namespace LingoEngine.Director.Core.Scores
             {
                 float px = (PreviewBegin - 1) * _gfxValues.FrameWidth;
                 float pw = PreviewEnd * _gfxValues.FrameWidth;
-                _canvas.DrawRect(new LingoRect(px, 0, pw, _gfxValues.ChannelHeight), new LingoColor(0,120, 120, 80),false,1);
+                _canvas.DrawRect(new LingoRect(px, 0, pw, _gfxValues.ChannelHeight), new LingoColor(0, 120, 120, 80), false, 1);
+            }
+
+            if (ShowSelectionRect)
+            {
+                float sx = (SelectionBegin - 1) * _gfxValues.FrameWidth;
+                float ex = SelectionEnd * _gfxValues.FrameWidth;
+                _canvas.DrawRect(new LingoRect(sx, 0, ex, _gfxValues.ChannelHeight), DirectorColors.BlueSelectColorSemiTransparent, false, 1);
             }
             _dirty = false;
         }
