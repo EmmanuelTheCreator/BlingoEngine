@@ -3,6 +3,7 @@ using LingoEngine.Movies;
 using LingoEngine.Sprites;
 using LingoEngine.Tempos;
 using System.Security.Cryptography;
+using LingoEngine.Members;
 
 namespace LingoEngine.ColorPalettes;
 
@@ -23,7 +24,7 @@ public enum LingoColorPaletteCycleOption
     Loop,
 }
 
-public class LingoColorPaletteSprite : LingoSprite
+public class LingoColorPaletteSprite : LingoSprite, ILingoSpriteWithMember
 {
     public const int SpriteNumOffset = 1;
 
@@ -79,4 +80,6 @@ public class LingoColorPaletteSprite : LingoSprite
         Member = member;
         SetSettings(member.GetSettings());
     }
+
+    public ILingoMember? GetMember() => Member;
 }

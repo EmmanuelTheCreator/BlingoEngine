@@ -1,10 +1,11 @@
 using LingoEngine.ColorPalettes;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
+using LingoEngine.Members;
 
 namespace LingoEngine.Sounds;
 
-public class LingoSpriteSound : LingoSprite
+public class LingoSpriteSound : LingoSprite, ILingoSpriteWithMember
 {
     public const int SpriteNumOffset = 3;
     private Action<LingoSpriteSound> _onRemoveMe;
@@ -65,4 +66,6 @@ public class LingoSpriteSound : LingoSprite
 
         return action;
     }
+
+    public ILingoMember? GetMember() => Sound;
 }
