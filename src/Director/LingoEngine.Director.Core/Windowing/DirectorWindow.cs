@@ -9,8 +9,11 @@ public class DirectorWindow<TFrameworkWindow> : IDirectorWindow, IDisposable, IL
 {
 #pragma warning disable CS8618
     private TFrameworkWindow _Framework;
+
     public TFrameworkWindow Framework => _Framework;
     protected ILingoMouse Mouse { get; private set; }
+
+    protected readonly ILingoFrameworkFactory _factory;
 #pragma warning restore CS8618
 
     protected LingoKey LingoKey { get; }
@@ -19,6 +22,7 @@ public class DirectorWindow<TFrameworkWindow> : IDirectorWindow, IDisposable, IL
     public DirectorWindow(ILingoFrameworkFactory factory)
 #pragma warning restore CS8618 
     {
+        _factory = factory;
         LingoKey = factory.CreateKey();
         LingoKey.Subscribe(this);
     }
@@ -41,6 +45,7 @@ public class DirectorWindow<TFrameworkWindow> : IDirectorWindow, IDisposable, IL
     public virtual void Dispose()
     {
         LingoKey.Unsubscribe(this);
+       
     }
 
     public IDirFrameworkWindow FrameworkObj => _Framework;
@@ -60,4 +65,17 @@ public class DirectorWindow<TFrameworkWindow> : IDirectorWindow, IDisposable, IL
     protected virtual void OnRaiseKeyDown(LingoKey lingoKey) { }
 
     protected virtual void OnRaiseKeyUp(LingoKey lingoKey) { }
+
+    public (float X, float Y) MouseGetAbolutePosition() => (Mouse.MouseH + Position.X, Mouse.MouseV + Position.Y);
+
+    /// <summary>
+    /// Creates a new context menu for this window. Don't forget to dispose.
+    /// </summary>
+    protected DirContextMenu CreateContextMenu(Func<bool>? isllowed = null)
+    {
+            if (_Framework == null) throw new Exception("Context menu can only be created once the framework object has been set. Call in it the Init method of the DirectorWindow.");
+            var contextMenu = new DirContextMenu(_Framework, _factory,MouseGetAbolutePosition, isllowed?? AllowContextMenu);
+            return contextMenu;
+    }
+    protected virtual bool AllowContextMenu() => IsActiveWindow;
 }
