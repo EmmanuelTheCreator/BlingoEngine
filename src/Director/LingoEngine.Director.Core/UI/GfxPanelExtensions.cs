@@ -103,7 +103,26 @@ namespace LingoEngine.Director.Core.UI
             control.Pressed += onClick;
             ILingoGfxLayoutNode layout = (ILingoGfxLayoutNode)container.AddItem(control, x, y);
             return (control, layout);
-        } 
+        }
+        public static LingoGfxInputSlider<float> SetSliderAt<T>(this LingoGfxPanel container, T element, string name, float x, float y, int width, LingoOrientation orientation, Expression<Func<T, float>> property, float? min = null, float? max = null, float? step = null)
+        {
+            Action<T, float> setter = property.CompileSetter();
+            var slider = container.Factory.CreateInputSliderFloat(orientation, name, min, max, step, v => setter(element, v));
+            slider.Value = property.CompileGetter()(element);
+            slider.Width = width;
+            container.AddItem(slider, x, y);
+            return slider;
+        }
+
+        public static LingoGfxInputSlider<int> SetSliderAt<T>(this LingoGfxPanel container, T element, string name, float x, float y, int width, LingoOrientation orientation, Expression<Func<T, int>> property, int? min = null, int? max = null, int? step = null)
+        {
+            Action<T, int> setter = property.CompileSetter();
+            var slider = container.Factory.CreateInputSliderInt(orientation, name, min, max, step, v => setter(element, v));
+            slider.Value = property.CompileGetter()(element);
+            slider.Width = width;
+            container.AddItem(slider, x, y);
+            return slider;
+        }
         public static LingoGfxStateButton SetStateButtonAt<T>(this LingoGfxPanel container, T element, string name, float x, float y, Expression<Func<T,bool>> property, ILingoImageTexture? texture = null, string? label = null)
         {
             Action<T, bool> setter = property.CompileSetter();

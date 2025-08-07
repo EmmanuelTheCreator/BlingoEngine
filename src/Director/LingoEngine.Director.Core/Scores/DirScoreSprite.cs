@@ -20,9 +20,9 @@ namespace LingoEngine.Director.Core.Scores
         where TSprite : LingoSprite
     {
         public TSprite SpriteT { get; private set; }
-        
 
-#pragma warning disable CS8618 
+
+#pragma warning disable CS8618
         public DirScoreSprite(TSprite sprite, IDirSpritesManager spritesManager) : base(sprite, spritesManager)
 #pragma warning restore CS8618 
         {
@@ -46,17 +46,8 @@ namespace LingoEngine.Director.Core.Scores
         public bool RequireToRedraw { get; private set; } = true;
         public bool IsSelected
         {
-            get => _isSelected; 
-            set
-            {
-                if (_isSelected == value) return;
-                _isSelected = value;
-                if (value)
-                    _spritesManager.SelectSprite(Sprite);
-                else
-                    _spritesManager.DeselectSprite(Sprite);
-                RequireRedraw();
-            }
+            get => _isSelected;
+            set => SetSelected(value);
         }
         public LingoColor ColorCircleBorder { get; set; } = LingoColorList.Black;
         public LingoColor ColorCircle { get; set; } = LingoColorList.White;
@@ -66,7 +57,7 @@ namespace LingoEngine.Director.Core.Scores
         public float Width { get; private set; }
         public float Height { get; private set; }
         public bool ShowLabel { get; set; } = true;
-        public DirScoreSpriteLabelType LabelType { get => labelType; set { labelType = value; RequireRedraw();  } }
+        public DirScoreSpriteLabelType LabelType { get => labelType; set { labelType = value; RequireRedraw(); } }
         public bool IsLocked => Sprite.Lock;
 
         internal int DragStartChannel => _dragStartChannel;
@@ -92,7 +83,7 @@ namespace LingoEngine.Director.Core.Scores
         private void OnSelectionCleared()
         {
             if (IsSelected)
-                IsSelected = false;
+                SetSelected(false, false);
         }
 
         private void OnAnimationChanged() => RequireRedraw();
@@ -102,7 +93,21 @@ namespace LingoEngine.Director.Core.Scores
             //if (Sprite.IsDeleted)
             //    Channel?.RequireFullRedraw();
             //else
-                Channel?.RequireRedraw();
+            Channel?.RequireRedraw();
+        }
+
+        internal void SetSelected(bool value, bool notify = true)
+        {
+            if (_isSelected == value) return;
+            _isSelected = value;
+            if (notify)
+            {
+                if (value)
+                    _spritesManager.SelectSprite(Sprite);
+                else
+                    _spritesManager.DeselectSprite(Sprite);
+            }
+            RequireRedraw();
         }
 
         public void Draw(LingoGfxCanvas canvas, float frameWidth, float channelHeight, float yOffset = 0)
@@ -120,7 +125,7 @@ namespace LingoEngine.Director.Core.Scores
             var labelWidth = Width;
 
             // Draw Background
-            canvas.DrawRect(new LingoRect(X, 0, X+ Width, channelHeight), GetBgColor());
+            canvas.DrawRect(new LingoRect(X, 0, X + Width, channelHeight), GetBgColor());
 
             float radius = 3f;
             string name = Sprite.Name;
@@ -146,10 +151,10 @@ namespace LingoEngine.Director.Core.Scores
         }
 
         public bool IsFrameInSprite(int frame)
-            => Sprite.BeginFrame <= frame && Sprite.EndFrame >= frame; 
+            => Sprite.BeginFrame <= frame && Sprite.EndFrame >= frame;
         public bool IsFrameRangeInSprite(int beginFrame, int endFrame)
-            => 
-            (Sprite.BeginFrame >= beginFrame && beginFrame <= Sprite.EndFrame )
+            =>
+            (Sprite.BeginFrame >= beginFrame && beginFrame <= Sprite.EndFrame)
             || (Sprite.BeginFrame >= endFrame && endFrame <= Sprite.EndFrame)
             ;
 
@@ -230,7 +235,7 @@ namespace LingoEngine.Director.Core.Scores
             {
                 case DirScoreSpriteLabelType.Name: return Sprite2D.Name;
                 case DirScoreSpriteLabelType.Member: return Sprite2D.Member?.Name ?? string.Empty;
-                case DirScoreSpriteLabelType.Behavior: return Sprite2D.Behaviors.Count > 0 ? string.Join(",",Sprite2D.Behaviors.Select(x => x.Name)) : string.Empty;
+                case DirScoreSpriteLabelType.Behavior: return Sprite2D.Behaviors.Count > 0 ? string.Join(",", Sprite2D.Behaviors.Select(x => x.Name)) : string.Empty;
                 case DirScoreSpriteLabelType.Location: return $"{Sprite2D.LocH},{Sprite2D.LocV} ({Sprite2D.LocZ})";
                 case DirScoreSpriteLabelType.Ink: return Sprite2D.InkType.ToString();
                 case DirScoreSpriteLabelType.Blend: return Sprite2D.Blend.ToString();

@@ -7,6 +7,8 @@ namespace LingoEngine.Director.Core.Styles
         public static LingoColor BlueSelectColor = new LingoColor(0, 120, 215);
         public static LingoColor BlueLightSelectColor = new LingoColor(229, 241, 251);
         public static LingoColor BitmapSelectionFill = new LingoColor(0, 153, 255, 77);
+        public static LingoColor BlueSelectColorSemiTransparent = new LingoColor(0, 120, 215, 80);
+
         public static LingoColor BG_PropWindowBar = new LingoColor(178, 180, 191);    // Top bar of panels
         public static LingoColor BG_WhiteMenus = new LingoColor(240, 240, 240);       // Common window background
 
@@ -45,7 +47,6 @@ namespace LingoEngine.Director.Core.Styles
         public static LingoColor Tab_Selected_TextColor = new LingoColor(0, 0, 0);         // text of the selected tab
         public static LingoColor Tab_Deselected_TextColor = new LingoColor(255, 255, 255); // text of the deselected tab
 
-
         // Dividers and lines
         public static LingoColor DividerLines = new LingoColor(190, 190, 190);        // Light panel separators
 
@@ -71,6 +72,16 @@ namespace LingoEngine.Director.Core.Styles
 
         public static LingoColor Button_Text_Normal = new LingoColor(0, 0, 0);
         public static LingoColor Button_Text_Disabled = new LingoColor(130, 130, 130);
+
+
+
+        // Notifications
+        public static LingoColor Notification_Warning_Bg = new LingoColor(255, 255, 204);
+        public static LingoColor Notification_Warning_Border = new LingoColor(255, 255, 0);
+        public static LingoColor Notification_Error_Bg = new LingoColor(255, 204, 204);
+        public static LingoColor Notification_Error_Border = new LingoColor(255, 0, 0);
+        public static LingoColor Notification_Info_Bg = new LingoColor(204, 204, 255);
+        public static LingoColor Notification_Info_Border = new LingoColor(0, 0, 255);
 
 
 

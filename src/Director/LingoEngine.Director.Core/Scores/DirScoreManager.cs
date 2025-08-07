@@ -7,12 +7,13 @@ using LingoEngine.Members;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Stages.Commands;
 using LingoEngine.Movies;
+using System.Collections.Generic;
 using System.Linq;
 using LingoEngine.Director.Core.Scores.Sprites2D;
 
 namespace LingoEngine.Director.Core.Scores
 {
-    
+
 
     public interface IDirScoreManager
     {
@@ -22,7 +23,7 @@ namespace LingoEngine.Director.Core.Scores
         void DeselectSprite(LingoSprite sprite);
         void HandleMouse(LingoMouseEvent mouseEvent, int channelNumber, int frameNumber);
         void SelectSprite(LingoSprite sprite);
-       
+
     }
 
     public class DirScoreManager : IDirScoreManager
@@ -41,17 +42,23 @@ namespace LingoEngine.Director.Core.Scores
         private bool _isDropPreview;
         private DirScoreChannel? _dragPreviewChannel;
         private int _mouseDownFrame = -1;
+        private readonly DirScoreRectangleSelection _rectangleSelection;
         private LingoMovie? _movie;
         public DirScoreGfxValues GfxValues { get; } = new();
         public IDirSpritesManager SpritesManager => _spritesManager!;
+        internal IDirSpritesManager? SpritesManagerNullable => _spritesManager;
         public ILingoFrameworkFactory Factory { get; }
         public int MaxChannelNumber { get; private set; }
+        internal Dictionary<int, DirScoreChannel> Channels => _channels;
+        internal List<DirScoreSprite> Selected => _selected;
+        internal bool LastMouseLeftDown { get => _lastMouseLeftDown; set => _lastMouseLeftDown = value; }
 
         public DirScoreManager(ILingoFrameworkFactory factory, IDirectorEventMediator directorEventMediator, ILingoCommandManager lingoCommandManager)
         {
             Factory = factory;
             _directorEventMediator = directorEventMediator;
             _commandManager = lingoCommandManager;
+            _rectangleSelection = new DirScoreRectangleSelection(this);
         }
 
         internal void SetSpritesManager(IDirSpritesManager manager)
@@ -64,14 +71,14 @@ namespace LingoEngine.Director.Core.Scores
                 throw new InvalidOperationException($"Channel with sprite number {channel.SpriteNumWithChannelNum} already exists.");
             _channels[channel.SpriteNumWithChannelNum] = channel;
             MaxChannelNumber = Math.Max(MaxChannelNumber, channel.SpriteNumWithChannelNum);
-        } 
+        }
         public void UnregisterChannel(DirScoreChannel channel)
         {
             if (!_channels.ContainsKey(channel.SpriteNumWithChannelNum))
                 return;
             _channels.Remove(channel.SpriteNumWithChannelNum);
             var lastChannel = _channels.Values.LastOrDefault();
-            MaxChannelNumber = lastChannel != null? lastChannel.SpriteNumWithChannelNum : 0;
+            MaxChannelNumber = lastChannel != null ? lastChannel.SpriteNumWithChannelNum : 0;
         }
 
         public void CurrentMovieChanged(LingoMovie? movie)
@@ -79,29 +86,29 @@ namespace LingoEngine.Director.Core.Scores
             _movie = movie;
         }
 
-        private void ClearSelection()
+        internal void ClearSelection(bool notify = true)
         {
             var clone = _selected.ToList();
             foreach (var s in clone)
-                s.IsSelected = false;
+                s.SetSelected(false, notify);
             _selected.Clear();
         }
 
-        private void AddSelection(DirScoreSprite sprite)
+        internal void AddSelection(DirScoreSprite sprite, bool notify = true)
         {
             if (sprite.IsLocked) return;
             if (_selected.Contains(sprite))
             {
                 if (_spritesManager != null && (_spritesManager.Key.ControlDown || _spritesManager.Key.ShiftDown))
                 {
-                    sprite.IsSelected = false;
+                    sprite.SetSelected(false, notify);
                     _selected.Remove(sprite);
                 }
                 return;
             }
-            sprite.IsSelected = true;
-            _selected.Add(sprite);  
+            _selected.Add(sprite);
             _lastAddedSprite = sprite;
+            sprite.SetSelected(true, notify);
         }
 
         private DirScoreSprite? FindSprite(LingoSprite sprite)
@@ -134,7 +141,7 @@ namespace LingoEngine.Director.Core.Scores
             var scoreSprite = _selected.FirstOrDefault(s => s.Sprite == sprite);
             if (scoreSprite == null)
                 return;
-            scoreSprite.IsSelected = false;
+            scoreSprite.SetSelected(false);
             _selected.Remove(scoreSprite);
         }
 
@@ -176,7 +183,7 @@ namespace LingoEngine.Director.Core.Scores
                     }
                     else
                     {
-                        foreach (var s in _selected) 
+                        foreach (var s in _selected)
                             s.PrepareDragging(frameNumber);
                         _dragMiddle = true;
                     }
@@ -184,13 +191,13 @@ namespace LingoEngine.Director.Core.Scores
                 }
                 else
                 {
-                    if (_selected.Count > 0)
-                        channel.RequireRedraw();
-                    ClearSelection();
+                    _rectangleSelection.Begin(channelNumber, frameNumber);
                 }
             }
             else if (mouseEvent.Type == LingoMouseEventType.MouseMove)
             {
+                if (_rectangleSelection.Update(channelNumber, frameNumber))
+                    return;
                 // Drag from castlib?
                 if (DirectorDragDropHolder.IsDragging && !_isDropPreview && DirectorDragDropHolder.Member != null)
                     StartDropPreview();
@@ -200,7 +207,7 @@ namespace LingoEngine.Director.Core.Scores
                     DropPreview(channelNumber, frameNumber);
                     return;
                 }
-                
+
                 if (!_dragging)
                 {
                     if (_mouseDownFrame >= 0 && Math.Abs(frameNumber - _mouseDownFrame) >= 1)
@@ -231,6 +238,8 @@ namespace LingoEngine.Director.Core.Scores
             }
             else if (mouseEvent.Type == LingoMouseEventType.MouseUp)
             {
+                if (_rectangleSelection.Complete(mouseEvent, channelNumber, frameNumber))
+                    return;
                 if (_isDropPreview)
                 {
                     if (DirectorDragDropHolder.Member != null)
@@ -264,7 +273,7 @@ namespace LingoEngine.Director.Core.Scores
                     mouseEvent.Mouse.SetCursor(Inputs.LingoMouseCursor.Arrow);
                     _lastMouseLeftDown = false;
                 }
-                
+
             }
         }
 
@@ -390,7 +399,7 @@ namespace LingoEngine.Director.Core.Scores
 
         #region Preview and Drop
         private List<DirScoreChannel> _lastPreviewChannels = new List<DirScoreChannel>();
-        
+
 
         public void StartDropPreview()
         {
