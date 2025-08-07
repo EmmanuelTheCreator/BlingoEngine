@@ -56,6 +56,7 @@ namespace LingoEngine.Sprites
                 return;
 
             int oldChannel = sprite.SpriteNum - 1;
+            // _activeSpritesOrdered isn't changing
             _activeSprites.Remove(sprite.SpriteNum);
             _spriteChannels[oldChannel].RemoveSprite();
 
@@ -67,54 +68,38 @@ namespace LingoEngine.Sprites
             RaiseSpriteListChanged(sprite.SpriteNum+SpriteNumChannelOffset);
         }
 
-        internal override void UpdateActiveSprites(int currentFrame, int lastFrame)
+
+        protected override void SpriteEntered(LingoSprite2D sprite)
         {
-            _enteredSprites.Clear();
-            _exitedSprites.Clear();
-
-            foreach (var sprite in _allTimeSprites)
-            {
-                if (sprite == null) continue;
-                sprite.IsActive = sprite.BeginFrame <= currentFrame && sprite.EndFrame >= currentFrame;
-
-                bool wasActive = sprite.BeginFrame <= lastFrame && sprite.EndFrame >= lastFrame;
-                bool isActive = sprite.IsActive;
-
-                if (!wasActive && isActive)
-                {
-                    sprite.FrameworkObj.Show();
-                    _enteredSprites.Add(sprite);
-                    if (_activeSprites.TryGetValue(sprite.SpriteNum, out var existingSprite))
-                        throw new Exception($"Operlapping sprites:{existingSprite.Name}:{existingSprite.Member?.Name} and {sprite.Name}:{sprite.Member?.Name}");
-                    _spriteChannels[sprite.SpriteNum].SetSprite(sprite);
-                    _activeSprites.Add(sprite.SpriteNum, sprite);
-                    if (!_lingoMouse.IsSubscribed(sprite))
-                        _lingoMouse.Subscribe(sprite);
-                }
-                else if (wasActive && !isActive)
-                {
-                    // need to be done early to be able to create new active sprite on same spritenum
-                    _spriteChannels[sprite.SpriteNum].RemoveSprite();
-                    if (_lingoMouse.IsSubscribed(sprite))
-                        _lingoMouse.Unsubscribe(sprite);
-                    _activeSprites.Remove(sprite.SpriteNum);
-                    _exitedSprites.Add(sprite);
-                    sprite.FrameworkObj.Hide();
-                    sprite.DoEndSprite();
-                }
-            }
-
-            //if (_frameSpriteBehaviors.TryGetValue(currentFrame, out var frameSprite))
-            //    _currentFrameSprite = frameSprite;
-            //else
-            //    _currentFrameSprite = null;
+            _spriteChannels[sprite.SpriteNum].SetSprite(sprite);
         }
+        protected override void SpriteExited(LingoSprite2D sprite)
+        {
+            _spriteChannels[sprite.SpriteNum].RemoveSprite();
+        }
+
+        protected override void OnBeginSprite(LingoSprite2D sprite)
+        {
+            sprite.FrameworkObj.Show();
+            
+            if (!_lingoMouse.IsSubscribed(sprite))
+                _lingoMouse.Subscribe(sprite);
+            base.OnBeginSprite(sprite);
+        }
+        protected override void OnEndSprite(LingoSprite2D sprite)
+        {
+            base.OnEndSprite(sprite);
+            if (_lingoMouse.IsSubscribed(sprite))
+                _lingoMouse.Unsubscribe(sprite);
+            
+        }
+
 
         List<LingoMember> _changedMembers = new List<LingoMember>();
         internal void PreStepFrame()
         {
             _changedMembers.Clear();
-            foreach (var sprite in _activeSprites.Values)
+            foreach (var sprite in _activeSpritesOrdered)
             {
                 if (sprite.IsActive)
                 {
@@ -151,13 +136,13 @@ namespace LingoEngine.Sprites
 
         internal void SendAllSprites<T>(Action<T> actionOnSprite) where T : LingoSpriteBehavior
         {
-            foreach (var sprite in _activeSprites.Values)
+            foreach (var sprite in _activeSpritesOrdered)
                 sprite.CallBehavior(actionOnSprite);
         }
 
         internal IEnumerable<TResult?> SendAllSprites<T, TResult>(Func<T, TResult> actionOnSprite) where T : LingoSpriteBehavior
         {
-            foreach (var sprite in _activeSprites.Values)
+            foreach (var sprite in _activeSpritesOrdered)
                 yield return sprite.CallBehavior(actionOnSprite);
         }
 
@@ -216,7 +201,7 @@ namespace LingoEngine.Sprites
         internal IEnumerable<LingoSprite2D> GetSpritesAtPoint(float x, float y, bool skipLockedSprites = false)
         {
             var matches = new List<LingoSprite2D>();
-            foreach (var sprite in _activeSprites.Values)
+            foreach (var sprite in _activeSpritesOrdered)
             {
                 if (skipLockedSprites && sprite.Lock) continue;
                 if (sprite.SpriteChannel != null && !sprite.SpriteChannel.Visibility) continue;
@@ -232,7 +217,7 @@ namespace LingoEngine.Sprites
         internal LingoSprite2D? GetSpriteAtPoint(float x, float y, bool skipLockedSprites = false)
             => GetSpritesAtPoint(x, y, skipLockedSprites).FirstOrDefault();
        
-        internal int GetMaxLocZ() => _activeSprites.Values.Max(x => x.LocZ);
+        internal int GetMaxLocZ() => _activeSpritesOrdered.Max(x => x.LocZ);
 
 
     }

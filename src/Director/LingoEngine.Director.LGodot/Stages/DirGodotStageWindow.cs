@@ -206,7 +206,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         if (_movie != null)
         {
             _movie.PlayStateChanged -= OnPlayStateChanged;
-            _movie.SpriteListChanged -= SpriteListChanged;
+            _movie.Sprite2DListChanged -= SpriteListChanged;
         }
 
         _stage?.SetActiveMovie(movie);
@@ -217,7 +217,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         if (_movie != null)
         {
             _movie.PlayStateChanged += OnPlayStateChanged;
-            _movie.SpriteListChanged += SpriteListChanged;
+            _movie.Sprite2DListChanged += SpriteListChanged;
             var env = _movie.GetEnvironment();
             _boundingBoxes.SetInput(env.Mouse, env.Key);
         }
@@ -452,7 +452,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         if (_movie != null)
         {
             _movie.PlayStateChanged -= OnPlayStateChanged;
-            _movie.SpriteListChanged -= SpriteListChanged;
+            _movie.Sprite2DListChanged -= SpriteListChanged;
         }
         _stageChangedSubscription.Release();
         _player.ActiveMovieChanged -= OnActiveMovieChanged;

@@ -56,7 +56,7 @@ namespace LingoEngine.Sprites
             return OnAdd(spriteNumWithChannel- SpriteNumChannelOffset, begin, end, member);
         }
         protected abstract LingoSprite? OnAdd(int spriteNum, int begin, int end, ILingoMember? member);
-        //internal abstract void EndSprites();
+        internal abstract void EndSprites();
     }
 
 
@@ -71,6 +71,7 @@ namespace LingoEngine.Sprites
         protected readonly List<TSprite> _allTimeSprites = new();
 
         protected readonly Dictionary<int, TSprite> _activeSprites = new();
+        protected readonly List<TSprite> _activeSpritesOrdered = new();
         protected readonly List<TSprite> _enteredSprites = new();
         protected readonly List<TSprite> _exitedSprites = new();
 
@@ -206,7 +207,7 @@ namespace LingoEngine.Sprites
 
         protected void CallActiveSprites(Action<TSprite> actionOnAllActiveSprites)
         {
-            foreach (var sprite in _activeSprites.Values)
+            foreach (var sprite in _activeSpritesOrdered)
                 actionOnAllActiveSprites(sprite);
         }
         protected void CallActiveSprite(int number, Action<TSprite> spriteAction)
@@ -226,45 +227,63 @@ namespace LingoEngine.Sprites
             _enteredSprites.Clear();
             _exitedSprites.Clear();
 
-            foreach (var sprite in _allTimeSprites)
+            foreach (var sprite in _activeSpritesOrdered.ToArray()) // make a copy of the array
             {
-                if (sprite == null) continue;
-                sprite.IsActive = sprite.BeginFrame <= currentFrame && sprite.EndFrame >= currentFrame;
-
-                bool wasActive = sprite.BeginFrame <= lastFrame && sprite.EndFrame >= lastFrame;
-                bool isActive = sprite.IsActive;
-
-                if (!wasActive && isActive)
+                bool stillActive = sprite.BeginFrame <= currentFrame && sprite.EndFrame >= currentFrame;
+                if (!stillActive)
                 {
-                    _enteredSprites.Add(sprite);
-                    if (_activeSprites.TryGetValue(sprite.SpriteNum, out var existingSprite))
-                        throw new Exception($"Operlapping sprites:{existingSprite.Name} and {sprite.Name}");
-                    //_spriteChannels[sprite.SpriteNum].SetSprite(sprite);
-                    _activeSprites.Add(sprite.SpriteNum, sprite);
-                }
-                else if (wasActive && !isActive)
-                {
-                    // need to be done early to be able to create new active sprite on same spritenum
-                    //_spriteChannels[sprite.SpriteNum].RemoveSprite();
-                    _activeSprites.Remove(sprite.SpriteNum);
                     _exitedSprites.Add(sprite);
-                    sprite.DoEndSprite();
+                    _activeSprites.Remove(sprite.SpriteNum);
+                    _activeSpritesOrdered.Remove(sprite);
+                    SpriteExited(sprite);
                 }
             }
+            foreach (var sprite in _allTimeSprites)
+            {
+                if (sprite.IsActive) continue;
+                var isActive = sprite.BeginFrame <= currentFrame && sprite.EndFrame >= currentFrame;
+                if (isActive)
+                {
+                    sprite.IsActive = true;
+                    _enteredSprites.Add(sprite);
+                    if (_activeSprites.TryGetValue(sprite.SpriteNum, out var existingSprite))
+                        //throw new Exception($"Operlapping sprites:{existingSprite.Name}:{existingSprite.Member?.Name} and {sprite.Name}:{sprite.Member?.Name}");
+                        throw new Exception($"Operlapping sprites:{existingSprite.SpriteNum}) {existingSprite.Name} and {sprite.SpriteNum}) {sprite.Name}");
+                    _activeSprites.Add(sprite.SpriteNum, sprite);
+                    _activeSpritesOrdered.Add(sprite);
+                    SpriteEntered(sprite);
+
+                }
+            }
+            foreach (var sprite in _exitedSprites)
+                sprite.IsActive = false;
+        }
+
+        protected virtual void SpriteEntered(TSprite sprite)
+        {
+            //_spriteChannels[sprite.SpriteNum].SetSprite(sprite);
+        }
+        protected virtual void SpriteExited(TSprite sprite)
+        {
+            //_spriteChannels[sprite.SpriteNum].RemoveSprite();
         }
 
 
         internal override void BeginSprites()
         {
             foreach (var sprite in _enteredSprites)
-                sprite.DoBeginSprite();
+                OnBeginSprite(sprite);
         }
-        
+        protected virtual void OnBeginSprite(TSprite sprite) => sprite.DoBeginSprite();
 
-        //internal override void EndSprites()
-        //{
-        //    // Needs to be done earlier when just changing frame
-        //}
+        internal override void EndSprites()
+        {
+            foreach (var sprite in _exitedSprites)
+                OnEndSprite(sprite);
+        }
+        protected virtual void OnEndSprite(TSprite sprite) => sprite.DoEndSprite();
+
+
 
         public override void MuteChannel(int channel,bool state)
         {

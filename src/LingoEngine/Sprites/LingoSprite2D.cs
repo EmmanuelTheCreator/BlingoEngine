@@ -320,11 +320,13 @@ When a movie stops, events occur in the following order:
                 _eventMediator.Unsubscribe(b);
                 if (b is IHasEndSpriteEvent endSpriteEvent) endSpriteEvent.EndSprite();
             });
+            FrameworkObj.Hide();
             // Release the old member link with this sprite
             _Member?.ReleaseFromSprite(this);
             base.DoEndSprite();
         }
 
+        
 
 
         internal void SetFrameworkSprite(ILingoFrameworkSprite fw) => _frameworkSprite = fw;

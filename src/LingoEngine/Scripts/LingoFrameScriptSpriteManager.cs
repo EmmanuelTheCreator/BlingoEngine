@@ -1,5 +1,4 @@
-﻿using LingoEngine.ColorPalettes;
-using LingoEngine.Members;
+﻿using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
 
@@ -46,23 +45,7 @@ namespace LingoEngine.Scripts
             return sprite;
         }
 
-        //internal void MoveFrameBehavior(int previousFrame, int newFrame)
-        //{
-        //    if (previousFrame == newFrame) return;
-        //    if (!_frameSpriteBehaviors.TryGetValue(previousFrame, out var sprite))
-        //        return;
 
-        //    _frameSpriteBehaviors.Remove(previousFrame);
-
-        //    if (_frameSpriteBehaviors.TryGetValue(newFrame, out var existing))
-        //        existing.RemoveMe();
-
-        //    _frameSpriteBehaviors[newFrame] = sprite;
-        //    sprite.BeginFrame = newFrame;
-        //    sprite.EndFrame = newFrame;
-
-        //    RaiseSpriteListChanged();
-        //}
     }
 
 }

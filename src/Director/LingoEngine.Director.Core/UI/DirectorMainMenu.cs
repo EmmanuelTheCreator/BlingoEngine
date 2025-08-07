@@ -81,7 +81,7 @@ namespace LingoEngine.Director.Core.UI
 
             _menuBar = factory.CreateWrapPanel(LingoOrientation.Horizontal, "MenuBar");
             _iconBar = factory.CreateWrapPanel(LingoOrientation.Horizontal, "IconBar");
-            _iconBar.Height = 18;
+            _iconBar.Height = 20;
 
             _fileMenu = factory.CreateMenu("FileMenu");
             _editMenu = factory.CreateMenu("EditMenu");
@@ -109,6 +109,16 @@ namespace LingoEngine.Director.Core.UI
                         _playButton = c;
                     })
                 .AddVLine("VLine2", 16, 2)
+                .AddButton("Show"+ DirectorMenuCodes.StageWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.StageWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowStage))
+                .AddButton("Show"+ DirectorMenuCodes.CastWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.CastWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowCast))
+                .AddButton("Show"+ DirectorMenuCodes.ScoreWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.ScoreWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowScore))
+                .AddButton("Show"+ DirectorMenuCodes.PropertyInspector, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.PropertyInspector), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowProperty))
+                .AddVLine("VLine3", 16, 2)
+                .AddButton("Show"+ DirectorMenuCodes.PictureEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.PictureEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowPaint))
+                .AddButton("Show"+ DirectorMenuCodes.ShapeEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.ShapeEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowPath))
+                .AddButton("Show"+ DirectorMenuCodes.TextEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.TextEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowText))
+                //.AddVLine("VLine4", 16, 2)
+                //.AddButton("Show"+ DirectorMenuCodes.TextEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.TextEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowText))
             ;
 
             _topMenus.Add(_fileMenu);

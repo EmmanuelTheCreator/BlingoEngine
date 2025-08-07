@@ -251,7 +251,7 @@ namespace LingoEngine.Movies
         /// <summary>
         /// Raised whenever sprites are added or removed from the movie.
         /// </summary>
-        event Action<int>? SpriteListChanged;
+        event Action<int>? Sprite2DListChanged;
 
         /// <summary>
         /// Gets the total number of sprite channels in the Score.

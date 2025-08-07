@@ -25,6 +25,7 @@ namespace LingoEngine.Director.Core.Windowing
         IDirectorWindowManager Register<TWindow>(string windowCode, DirectorShortCutMap? shortCutMap = null)
              where TWindow : IDirectorWindow;
         bool OpenWindow(string windowCode);
+        bool SwapWindowOpenState(string windowCode);
         bool CloseWindow(string windowCode);
         void Init(IDirFrameworkWindowManager frameworkWindowManager);
         void SetActiveWindow(string windowCode);
@@ -106,6 +107,21 @@ namespace LingoEngine.Director.Core.Windowing
             => _frameworkWindowManager.ShowNotification(message, type);
 
 
+        public bool SwapWindowOpenState(string windowCode)
+        {
+            if (!_windowRegistrations.TryGetValue(windowCode, out var registration)) return false;
+            if (registration.Instance.IsOpen)
+            {
+                registration.Instance.CloseWindow();
+                return true;
+            }
+            else
+            {
+                registration.Instance.OpenWindow();
+                SetActiveWindow(registration);
+                return true;
+            }
+        }
         public bool OpenWindow(string windowCode)
         {
             if (!_windowRegistrations.TryGetValue(windowCode, out var registration)) return false;

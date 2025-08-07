@@ -71,8 +71,34 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
         });
 
         StyleTopMenu(directorMainMenu);
+        foreach (var childItem in _iconBar.GetChild(0).GetChildren())
+        {
+            if (childItem is Button btn)
+            {
+                StyleIconButton(btn);
+            }
+        }
     }
 
+    private static void StyleIconButton(Button btn)
+    {
+        var topMenuBtnStyle = new StyleBoxFlat
+        {
+            BorderWidthLeft = 0,
+            BorderWidthRight = 0,
+            BorderWidthTop = 0,
+            BorderWidthBottom = 0,
+            CornerRadiusBottomLeft = 0,
+            CornerRadiusBottomRight = 0,
+            CornerRadiusTopLeft = 0,
+            CornerRadiusTopRight = 0,
+            BgColor = DirectorColors.BG_TopMenu.ToGodotColor(),
+            ContentMarginLeft = 2,
+            ContentMarginRight = 2,
+        };
+        btn.AddThemeStyleboxOverride("normal", topMenuBtnStyle);
+        btn.Size = new Vector2(18, 18);
+    }
     private static void StyleTopMenu(DirectorMainMenu directorMainMenu)
     {
         var topMenuBtnStyle = new StyleBoxFlat
