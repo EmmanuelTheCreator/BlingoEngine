@@ -21,3 +21,17 @@ public class SdlImageTexture : ILingoImageTexture
         Height = height;
     }
 }
+
+public class SdlTexture2D : ILingoTexture2D
+{
+    public nint Texture { get; }
+    public int Width { get; }
+    public int Height { get; }
+
+    public SdlTexture2D(nint texture, int width, int height)
+    {
+        Texture = texture;
+        Width = width;
+        Height = height;
+    }
+}

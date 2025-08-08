@@ -1,5 +1,6 @@
 using LingoEngine.Bitmaps;
 using LingoEngine.Members;
+using LingoEngine.FilmLoops;
 using LingoEngine.Primitives;
 using LingoEngine.SDL2.Pictures;
 using LingoEngine.SDL2.SDLL;
@@ -20,6 +21,7 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
 
     private readonly nint _renderer;
     private nint _texture = nint.Zero;
+    internal nint Renderer => _renderer;
 
     public SdlSprite(LingoSprite2D sprite, nint renderer, Action<SdlSprite> show, Action<SdlSprite> hide, Action<SdlSprite> remove)
     {
@@ -189,6 +191,19 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
                             Height = p.Height;
                         }
                     }
+                }
+                break;
+            case LingoFilmLoopMember flm:
+                var fl = flm.Framework<SdlMemberFilmLoop>();
+                if (fl.Texture is SdlTexture2D tex && tex.Texture != nint.Zero)
+                {
+                    if (_texture != nint.Zero && _texture != tex.Texture)
+                    {
+                        SDL.SDL_DestroyTexture(_texture);
+                    }
+                    _texture = tex.Texture;
+                    Width = tex.Width;
+                    Height = tex.Height;
                 }
                 break;
             case LingoMemberText text:

@@ -2,8 +2,8 @@ using LingoEngine.Events;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
 using LingoEngine.Animations;
+using LingoEngine.Bitmaps;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 
 namespace LingoEngine.FilmLoops
@@ -34,7 +34,6 @@ namespace LingoEngine.FilmLoops
         {
             _currentFrame = 1;
             SetupLayers();
-            _sprite.Visibility = false;
             ApplyFrame();
         }
 
@@ -65,7 +64,9 @@ namespace LingoEngine.FilmLoops
                 layer.Runtime.RemoveMe();
             }
             _layers.Clear();
-            _sprite.Visibility = true;
+            var fl = FilmLoop;
+            if (fl != null)
+                fl.Framework<ILingoFrameworkMemberFilmLoop>().Media = null;
         }
 
         private void ApplyFrame()
@@ -74,17 +75,14 @@ namespace LingoEngine.FilmLoops
             if (fl == null)
                 return;
 
+            List<LingoSprite2DVirtual> activeLayers = new();
             foreach (var (entry, runtime) in _layers)
             {
                 var template = entry.Sprite;
                 bool active = entry.BeginFrame <= _currentFrame && entry.EndFrame >= _currentFrame;
                 if (!active)
-                {
-                    //runtime.FrameworkObj.Hide();
                     continue;
-                }
 
-                //runtime.FrameworkObj.Show();
                 runtime.SetMember(template.Member);
                 ApplyFraming(fl, template, runtime);
 
@@ -107,11 +105,20 @@ namespace LingoEngine.FilmLoops
                         skew = animator.Skew.GetValue(_currentFrame);
                 }
 
-                runtime.LocH = _sprite.LocH + x;
-                runtime.LocV = _sprite.LocV + y;
+                runtime.LocH = x;
+                runtime.LocV = y;
                 runtime.Rotation = rot;
                 runtime.Skew = skew;
+                activeLayers.Add(runtime);
             }
+
+            if (activeLayers.Count == 0)
+                return;
+
+            var frameworkFilmLoop = fl.Framework<ILingoFrameworkMemberFilmLoop>();
+            frameworkFilmLoop.ComposeTexture(_sprite, activeLayers);
+            _sprite.FrameworkObj.MemberChanged();
+            _sprite.FrameworkObj.ApplyMemberChanges();
         }
 
         private void SetupLayers()

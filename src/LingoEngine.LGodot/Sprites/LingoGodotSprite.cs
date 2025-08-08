@@ -12,6 +12,7 @@ using LingoEngine.Texts.FrameworkCommunication;
 using LingoEngine.Shapes;
 using LingoEngine.LGodot.Shapes;
 using LingoEngine.LGodot.Primitives;
+using LingoEngine.FilmLoops;
 
 namespace LingoEngine.LGodot.Sprites
 {
@@ -37,8 +38,11 @@ namespace LingoEngine.LGodot.Sprites
         private float _x;
         private float _y;
         public float X { get => _x; set { _x = value; IsDirty = true; } }
-        public float Y { get => _y; 
-            set { _y = value; IsDirty = true; } }
+        public float Y
+        {
+            get => _y;
+            set { _y = value; IsDirty = true; }
+        }
         private int _zIndex;
         public int ZIndex
         {
@@ -275,10 +279,10 @@ namespace LingoEngine.LGodot.Sprites
             // todo: move this 2 lines in IsDirty if test
             var offset = GetRegPointOffset();
             _Sprite2D.Position = new Vector2(_x - offset.X, _y - offset.Y);
-            
+
         }
 
-       
+
         private void UpdateMember()
         {
             if (!IsDirtyMember) return;
@@ -290,6 +294,14 @@ namespace LingoEngine.LGodot.Sprites
                 case LingoMemberBitmap pictureMember:
                     RemoveLastChildElement();
                     UpdateMemberPicture(pictureMember.Framework<LingoGodotMemberBitmap>());
+                    UpdateSizeFromTexture();
+                    if (_DesiredWidth == 0) _DesiredWidth = Width;
+                    if (_DesiredHeight == 0) _DesiredHeight = Height;
+                    IsDirty = true;
+                    return;
+                case LingoFilmLoopMember flm:
+                    RemoveLastChildElement();
+                    UpdateMemberFilmLoop(flm.Framework<LingoGodotMemberFilmLoop>());
                     UpdateSizeFromTexture();
                     if (_DesiredWidth == 0) _DesiredWidth = Width;
                     if (_DesiredHeight == 0) _DesiredHeight = Height;
@@ -308,7 +320,7 @@ namespace LingoEngine.LGodot.Sprites
                     UpdateNodeMember(_lingoSprite.Member, (Node)shape.Framework<LingoGodotMemberShape>().CloneForSpriteDraw());
                     break;
             }
-            
+
             UpdateSprite2DName();
         }
         public void ApplyMemberChanges()
@@ -329,7 +341,7 @@ namespace LingoEngine.LGodot.Sprites
         }
         private void RemoveLastChildElement()
         {
-            if (_previousChildElementNode != null) 
+            if (_previousChildElementNode != null)
                 _Sprite2D.RemoveChild(_previousChildElementNode);
             _previousChildElementNode = null;
             _previousChildElement = null;
@@ -346,9 +358,17 @@ namespace LingoEngine.LGodot.Sprites
             else
                 _Sprite2D.Texture = godotPicture.TextureGodot;
         }
+        private void UpdateMemberFilmLoop(LingoGodotMemberFilmLoop filmLoop)
+        {
+            if (filmLoop.Texture is not LingoGodotTexture2D tex)
+                return;
+            _Sprite2D.Texture = tex.Texture;
+            Width = tex.Width;
+            Height = tex.Height;
+        }
         private ILingoMember? _previousChildElement;
         private Node? _previousChildElementNode;
-        
+
         private void UpdateNodeMember(ILingoMember member, Node godotElement) // Clone required to be able to draw multiple times the same member
         {
             if (_previousChildElement == member) return;
