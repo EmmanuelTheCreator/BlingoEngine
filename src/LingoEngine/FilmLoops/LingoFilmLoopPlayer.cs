@@ -30,6 +30,8 @@ namespace LingoEngine.FilmLoops
 
         private LingoFilmLoopMember? FilmLoop => _sprite.Member as LingoFilmLoopMember;
 
+        public ILingoTexture2D Texture { get; private set; }
+
         public void BeginSprite()
         {
             _currentFrame = 1;
@@ -116,9 +118,9 @@ namespace LingoEngine.FilmLoops
                 return;
 
             var frameworkFilmLoop = fl.Framework<ILingoFrameworkMemberFilmLoop>();
-            frameworkFilmLoop.ComposeTexture(_sprite, activeLayers);
+            Texture = frameworkFilmLoop.ComposeTexture(_sprite, activeLayers);
             _sprite.FrameworkObj.MemberChanged();
-            _sprite.FrameworkObj.ApplyMemberChanges();
+            _sprite.FrameworkObj.ApplyMemberChangesOnStepFrame();
         }
 
         private void SetupLayers()
@@ -127,7 +129,6 @@ namespace LingoEngine.FilmLoops
             var fl = FilmLoop;
             if (fl == null)
                 return;
-            int index = 0;
             foreach (var entry in fl.FilmLoop.SpriteEntries)
             {
                 var tmpl = entry.Sprite;

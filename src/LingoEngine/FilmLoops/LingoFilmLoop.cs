@@ -1,5 +1,6 @@
 namespace LingoEngine.FilmLoops;
 
+using LingoEngine.Primitives;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
 using System;
@@ -11,6 +12,8 @@ using System.Collections.Generic;
 /// </summary>
 public class LingoFilmLoop
 {
+   
+
     /// <summary>
     /// Information about a sprite used in the film loop timeline.
     /// </summary>
@@ -35,5 +38,36 @@ public class LingoFilmLoop
     public void AddSound(int channel, int startFrame, LingoMemberSound sound)
     {
         SoundEntries.Add(new SoundEntry(channel, startFrame, sound));
+    }
+
+    public LingoRect GetBoundingBoxForFrame(int frame)
+    {
+        var boxes = SpriteEntries
+               .Select(e => e.Sprite.GetBoundingBoxForFrame(frame))
+               .ToList();
+
+        if (boxes.Count == 0)
+            return new LingoRect();
+
+        var bounds = boxes[0];
+        for (int i = 1; i < boxes.Count; i++)
+            bounds = bounds.Union(boxes[i]);
+
+        return bounds;
+    }
+    public LingoRect GetBoundingBox()
+    {
+        var boxes = SpriteEntries
+            .Select(e => e.Sprite.GetBoundingBox())
+            .ToList();
+
+        if (boxes.Count == 0)
+            return new LingoRect();
+
+        var bounds = boxes[0];
+        for (int i = 1; i < boxes.Count; i++)
+            bounds = bounds.Union(boxes[i]);
+
+        return bounds;
     }
 }

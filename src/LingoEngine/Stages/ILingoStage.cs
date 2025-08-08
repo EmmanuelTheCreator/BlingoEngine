@@ -21,7 +21,7 @@ namespace LingoEngine.Stages
         LingoSpriteMotionPath? GetSpriteMotionPath(LingoSprite2D sprite);
         LingoSprite2D? GetSpriteUnderMouse();
         void SetActiveMovie(LingoMovie? lingoMovie);
-        void SetSpriteTweenOptions(LingoSprite2D sprite, bool positionEnabled, bool rotationEnabled, bool skewEnabled, bool foregroundColorEnabled, bool backgroundColorEnabled, bool blendEnabled, float curvature, bool continuousAtEnds, bool speedSmooth, float easeIn, float easeOut);
+        void SetSpriteTweenOptions(LingoSprite2D sprite, bool positionEnabled, bool sizeEnabled, bool rotationEnabled, bool skewEnabled, bool foregroundColorEnabled, bool backgroundColorEnabled, bool blendEnabled, float curvature, bool continuousAtEnds, bool speedSmooth, float easeIn, float easeOut);
         void UpdateKeyFrame(LingoSprite2D sprite);
     }
 }

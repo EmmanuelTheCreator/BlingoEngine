@@ -1,14 +1,15 @@
 using LingoEngine.Primitives;
 using LingoEngine.Movies;
 using LingoEngine.Events;
-using System.Linq;
 using LingoEngine.Sprites;
 
 namespace LingoEngine.Animations
 {
     public class LingoSpriteAnimator : IPlayableActor
     {
+        private List<Action<int>> _applyActions = new();
         public LingoTween<LingoPoint> Position { get; } = new();
+        public LingoTween<LingoPoint> Size { get; } = new();
         public LingoTween<float> Rotation { get; } = new();
         public LingoTween<float> Skew { get; } = new();
         public LingoTween<LingoColor> ForegroundColor { get; } = new();
@@ -30,11 +31,12 @@ namespace LingoEngine.Animations
             _mediator.Subscribe(this, sprite.SpriteNum + 6);
         }
 
-        public void SetTweenOptions(bool positionEnabled, bool rotationEnabled, bool skewEnabled,
+        public void SetTweenOptions(bool positionEnabled, bool sizeEnabled, bool rotationEnabled, bool skewEnabled,
             bool foreColorEnabled, bool backColorEnabled, bool blendEnabled,
             float curvature, bool continuousAtEnds, bool smoothSpeed, float easeIn, float easeOut)
         {
             Position.Options.Enabled = positionEnabled;
+            Size.Options.Enabled = sizeEnabled;
             Rotation.Options.Enabled = rotationEnabled;
             Skew.Options.Enabled = skewEnabled;
             ForegroundColor.Options.Enabled = foreColorEnabled;
@@ -53,51 +55,43 @@ namespace LingoEngine.Animations
             }
         }
 
-        public void AddKeyFrame(int frame, float x, float y, float rotation, float skew,
-            LingoColor? foreColor = null, LingoColor? backColor = null, float? blend = null)
+        
+        public void AddKeyFrame(LingoKeyFrameSetting setting)
         {
-            Position.AddKeyFrame(frame, new LingoPoint(x, y));
-            Rotation.AddKeyFrame(frame, rotation);
-            Skew.AddKeyFrame(frame, skew);
-            if (foreColor.HasValue) ForegroundColor.AddKeyFrame(frame, foreColor.Value);
-            if (backColor.HasValue) BackgroundColor.AddKeyFrame(frame, backColor.Value);
-            if (blend.HasValue) Blend.AddKeyFrame(frame, blend.Value);
+            if (setting.Position != null) Position.AddKeyFrame(setting.Frame, setting.Position.Value);
+            if (setting.Size != null) Size.AddKeyFrame(setting.Frame, setting.Size.Value);
+            if (setting.Rotation != null) Rotation.AddKeyFrame(setting.Frame, setting.Rotation.Value);
+            if (setting.Skew != null) Skew.AddKeyFrame(setting.Frame, setting.Skew.Value);
+            if (setting.ForeColor != null) ForegroundColor.AddKeyFrame(setting.Frame, setting.ForeColor.Value);
+            if (setting.BackColor != null) BackgroundColor.AddKeyFrame(setting.Frame, setting.BackColor.Value);
+            if (setting.Blend != null) Blend.AddKeyFrame(setting.Frame, setting.Blend.Value);
             _cacheDirty = true;
         }
 
-        public void UpdateKeyFrame(int frame, float x, float y, float rotation, float skew,
-            LingoColor? foreColor = null, LingoColor? backColor = null, float? blend = null)
+        public void UpdateKeyFrame(LingoKeyFrameSetting setting)
         {
-            Position.UpdateKeyFrame(frame, new LingoPoint(x, y));
-            Rotation.UpdateKeyFrame(frame, rotation);
-            Skew.UpdateKeyFrame(frame, skew);
-            if (foreColor.HasValue) ForegroundColor.UpdateKeyFrame(frame, foreColor.Value);
-            if (backColor.HasValue) BackgroundColor.UpdateKeyFrame(frame, backColor.Value);
-            if (blend.HasValue) Blend.UpdateKeyFrame(frame, blend.Value);
+            if (setting.Position != null) Position.UpdateKeyFrame(setting.Frame, setting.Position.Value);
+            if (setting.Size != null) Size.UpdateKeyFrame(setting.Frame, setting.Size.Value);
+            if (setting.Rotation != null) Rotation.UpdateKeyFrame(setting.Frame, setting.Rotation.Value);
+            if (setting.Skew != null) Skew.UpdateKeyFrame(setting.Frame, setting.Skew.Value);
+            if (setting.ForeColor != null) ForegroundColor.UpdateKeyFrame(setting.Frame, setting.ForeColor.Value);
+            if (setting.BackColor != null) BackgroundColor.UpdateKeyFrame(setting.Frame, setting.BackColor.Value);
+            if (setting.Blend != null) Blend.UpdateKeyFrame(setting.Frame, setting.Blend.Value);
             _cacheDirty = true;
         }
 
-        internal void AddKeyFrames(params (int Frame, float X, float Y, float Rotation, float Skew)[] keyframes)
+        internal void AddKeyFrames(params LingoKeyFrameSetting[] keyframes)
         {
-            foreach (var (frame, x, y, rot, skew) in keyframes)
-                AddKeyFrame(frame, x, y, rot, skew);
+            foreach (var item in keyframes)
+                AddKeyFrame(item);
             RecalculateCache();
         }
 
         private void Apply(int frame)
         {
-            if (Position.Options.Enabled)
-                _sprite.Loc = Position.GetValue(frame);
-            if (Rotation.Options.Enabled)
-                _sprite.Rotation = Rotation.GetValue(frame);
-            if (Skew.Options.Enabled)
-                _sprite.Skew = Skew.GetValue(frame);
-            if (ForegroundColor.Options.Enabled)
-                _sprite.ForeColor = ForegroundColor.GetValue(frame);
-            if (BackgroundColor.Options.Enabled)
-                _sprite.BackColor = BackgroundColor.GetValue(frame);
-            if (Blend.Options.Enabled)
-                _sprite.Blend = Blend.GetValue(frame);
+            foreach (var action in _applyActions)
+                action.Invoke(frame);
+           
         }
 
         public void BeginSprite()
@@ -130,6 +124,7 @@ namespace LingoEngine.Animations
         internal void EnsureCache()
         {
             if (!_cacheDirty) return;
+            
             RecalculateCache();
         }
 
@@ -147,7 +142,170 @@ namespace LingoEngine.Animations
                     _cachedPath.Frames.Add(new LingoSpriteMotionFrame(frame, pos, isKey));
                 }
             }
+            _applyActions.Clear();
+            if (Position.Options.Enabled && Position.HasKeyFrames)
+                _applyActions.Add(frame => _sprite.Loc = Position.GetValue(frame));
+            if (Size.Options.Enabled && Size.HasKeyFrames)
+                _applyActions.Add(frame =>
+                {
+                    var size = Size.GetValue(frame);
+                    _sprite.Width = size.X;
+                    _sprite.Height = size.Y;
+                });
+            if (Rotation.Options.Enabled && Rotation.HasKeyFrames)
+                _applyActions.Add(frame => _sprite.Rotation = Rotation.GetValue(frame));
+            if (Skew.Options.Enabled && Skew.HasKeyFrames)
+                _applyActions.Add(frame => _sprite.Skew = Skew.GetValue(frame));
+            if (ForegroundColor.Options.Enabled && ForegroundColor.HasKeyFrames)
+                _applyActions.Add(frame => _sprite.ForeColor = ForegroundColor.GetValue(frame));
+            if (BackgroundColor.Options.Enabled && BackgroundColor.HasKeyFrames)
+                _applyActions.Add(frame => _sprite.BackColor = BackgroundColor.GetValue(frame));
+            if (Blend.Options.Enabled && Blend.HasKeyFrames)
+                _applyActions.Add(frame => _sprite.Blend = Blend.GetValue(frame));
             _cacheDirty = false;
+            _calculatedBoundingBox = null; // push to recalculate the boundingbox
         }
+
+
+        #region Boundingbox
+        private LingoRect? _calculatedBoundingBox;
+        public LingoRect GetBoundingBox()
+        {
+            if (_calculatedBoundingBox != null) return _calculatedBoundingBox.Value;
+            var positions = Position.HasKeyFrames
+                ? Position.KeyFrames.Select(k => k.Value).ToList()
+                : new List<LingoPoint> { _sprite.Loc };
+
+            var sizes = Size.HasKeyFrames
+                ? Size.KeyFrames.Select(k => k.Value).ToList()
+                : new List<LingoPoint> { new(_sprite.Width, _sprite.Height) };
+
+            var rotations = Rotation.HasKeyFrames
+                ? Rotation.KeyFrames.Select(k => k.Value).ToList()
+                : new List<float> { _sprite.Rotation };
+
+            var skews = Skew.HasKeyFrames
+                ? Skew.KeyFrames.Select(k => k.Value).ToList()
+                : new List<float> { _sprite.Skew };
+
+            LingoRect? result = null;
+
+            foreach (var pos in positions)
+                foreach (var size in sizes)
+                    foreach (var rot in rotations)
+                        foreach (var skew in skews)
+                        {
+                            var offset = _sprite.RegPoint;
+                            var center = new LingoPoint(pos.X - offset.X, pos.Y - offset.Y);
+
+                            // Get 4 corners of untransformed rect
+                            float hw = size.X / 2f;
+                            float hh = size.Y / 2f;
+
+                            var tl = new LingoPoint(-hw, -hh);
+                            var tr = new LingoPoint(hw, -hh);
+                            var br = new LingoPoint(hw, hh);
+                            var bl = new LingoPoint(-hw, hh);
+
+                            // Apply skew (shear)
+                            if (skew != 0)
+                            {
+                                float skewRad = skew * MathF.PI / 180f;
+                                float skewX = MathF.Tan(skewRad);
+                                tl.X += tl.Y * skewX;
+                                tr.X += tr.Y * skewX;
+                                br.X += br.Y * skewX;
+                                bl.X += bl.Y * skewX;
+                            }
+
+                            // Apply rotation
+                            if (rot != 0)
+                            {
+                                float rad = rot * MathF.PI / 180f;
+                                float cos = MathF.Cos(rad);
+                                float sin = MathF.Sin(rad);
+
+                                tl = Rotate(tl, cos, sin);
+                                tr = Rotate(tr, cos, sin);
+                                br = Rotate(br, cos, sin);
+                                bl = Rotate(bl, cos, sin);
+                            }
+
+                            // Offset to position
+                            tl += center;
+                            tr += center;
+                            br += center;
+                            bl += center;
+
+                            var rect = LingoRect.FromPoints(tl, tr, br, bl);
+                            result = result?.Union(rect) ?? rect;
+                        }
+
+            _calculatedBoundingBox = result ?? _sprite.Rect;
+            return result ?? _sprite.Rect;
+        }
+
+        private static LingoPoint Rotate(LingoPoint pt, float cos, float sin)
+        {
+            return new LingoPoint(
+                pt.X * cos - pt.Y * sin,
+                pt.X * sin + pt.Y * cos
+            );
+        }
+
+        public LingoRect GetBoundingBoxForFrame(int frame)
+        {
+            var pos = Position.GetValue(frame);
+            var size = Size.GetValue(frame);
+            var rot = Rotation.GetValue(frame);
+            var skew = Skew.GetValue(frame);
+
+            if (size.X == 0 || size.Y == 0)
+                size = new LingoPoint(_sprite.Width, _sprite.Height);
+
+            var offset = _sprite.RegPoint;
+            var center = new LingoPoint(pos.X - offset.X, pos.Y - offset.Y);
+
+            float hw = size.X / 2f;
+            float hh = size.Y / 2f;
+
+            var tl = new LingoPoint(-hw, -hh);
+            var tr = new LingoPoint(hw, -hh);
+            var br = new LingoPoint(hw, hh);
+            var bl = new LingoPoint(-hw, hh);
+
+            if (skew != 0)
+            {
+                float skewRad = skew * MathF.PI / 180f;
+                float skewX = MathF.Tan(skewRad);
+                tl.X += tl.Y * skewX;
+                tr.X += tr.Y * skewX;
+                br.X += br.Y * skewX;
+                bl.X += bl.Y * skewX;
+            }
+
+            if (rot != 0)
+            {
+                float rad = rot * MathF.PI / 180f;
+                float cos = MathF.Cos(rad);
+                float sin = MathF.Sin(rad);
+
+                tl = Rotate(tl, cos, sin);
+                tr = Rotate(tr, cos, sin);
+                br = Rotate(br, cos, sin);
+                bl = Rotate(bl, cos, sin);
+            }
+
+            tl += center;
+            tr += center;
+            br += center;
+            bl += center;
+
+            return LingoRect.FromPoints(tl, tr, br, bl);
+        }
+
+        #endregion
+
+
     }
 }

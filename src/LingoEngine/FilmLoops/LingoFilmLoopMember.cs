@@ -5,7 +5,6 @@ using LingoEngine.Members;
 using LingoEngine.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Movies;
-using System;
 
 namespace LingoEngine.FilmLoops
 {
@@ -15,6 +14,7 @@ namespace LingoEngine.FilmLoops
     public class LingoFilmLoopMember : LingoMember
     {
         private readonly ILingoFrameworkMemberFilmLoop _frameworkFilmLoop;
+        private bool _isLoaded;
 
         /// <summary>
         /// Timeline data describing the sprites and sounds composing this film loop.
@@ -53,7 +53,26 @@ namespace LingoEngine.FilmLoops
             _frameworkFilmLoop = frameworkMember;
         }
 
-        public override void Preload() => _frameworkFilmLoop.Preload();
+        internal void PrepareFilmloop()
+        {
+            UpdateSize();
+            HasChanged = true;
+        }
+
+        public override void Preload()
+        {
+            if (_isLoaded) return;
+            _frameworkFilmLoop.Preload();
+            UpdateSize();
+             _isLoaded = true;
+        }
+        public void UpdateSize()
+        {
+            var size = GetBoundingBox();
+            Width = (int)(size.Width);// + (size.Left <0 ? - size.Left : 0));
+            Height = (int)(size.Height); // + (size.Top < 0 ? -size.Top : 0));
+        }
+
         public override void Unload() => _frameworkFilmLoop.Unload();
         public override void Erase() => _frameworkFilmLoop.Erase();
         public override void ImportFileInto() => _frameworkFilmLoop.ImportFileInto();
@@ -115,5 +134,10 @@ namespace LingoEngine.FilmLoops
                 AddSprite(channel, begin, end, new LingoSprite2DVirtual(environment,sp));
             }
         }
+
+        public LingoRect GetBoundingBox() => FilmLoop.GetBoundingBox();
+        public LingoRect GetBoundingBoxForFrame(int frame) => FilmLoop.GetBoundingBoxForFrame(frame);
+
+        
     }
 }

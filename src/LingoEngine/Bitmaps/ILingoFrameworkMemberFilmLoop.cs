@@ -1,7 +1,6 @@
 using LingoEngine.FilmLoops;
 using LingoEngine.Members;
 using LingoEngine.Sprites;
-using System.Collections.Generic;
 
 namespace LingoEngine.Bitmaps
 {
@@ -14,11 +13,6 @@ namespace LingoEngine.Bitmaps
         /// Raw data representing the film loop media. The exact format is framework dependent.
         /// </summary>
         byte[]? Media { get; set; }
-
-        /// <summary>
-        /// Composed texture for the current film loop frame.
-        /// </summary>
-        ILingoTexture2D? Texture { get; set; }
 
         /// <summary>
         /// Determines how the film loop should be framed within its sprite rectangle.
@@ -37,6 +31,6 @@ namespace LingoEngine.Bitmaps
         /// </summary>
         /// <param name="hostSprite">The sprite hosting the film loop.</param>
         /// <param name="layers">Currently active layers for this frame.</param>
-        void ComposeTexture(LingoSprite2D hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers);
+        ILingoTexture2D ComposeTexture(LingoSprite2D hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers);
     }
 }

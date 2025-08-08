@@ -1,4 +1,5 @@
-﻿using LingoEngine.Members;
+﻿using LingoEngine.Animations;
+using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
@@ -41,7 +42,7 @@ namespace LingoEngine.Stages
             if (ActiveMovie == null)
                 return;
             int frame = ActiveMovie.CurrentFrame;
-            sprite.AddKeyframes((frame, sprite.LocH, sprite.LocV, sprite.Rotation, sprite.Skew));
+            sprite.AddKeyframes(sprite.ToKeyFrameSetting(frame));
         }
 
         public void UpdateKeyFrame(LingoSprite2D sprite)
@@ -49,14 +50,14 @@ namespace LingoEngine.Stages
             if (ActiveMovie == null)
                 return;
             int frame = ActiveMovie.CurrentFrame;
-            sprite.UpdateKeyframe(frame, sprite.LocH, sprite.LocV, sprite.Rotation, sprite.Skew);
+            sprite.UpdateKeyframe(sprite.ToKeyFrameSetting(frame));
         }
 
-        public void SetSpriteTweenOptions(LingoSprite2D sprite, bool positionEnabled, bool rotationEnabled,
+        public void SetSpriteTweenOptions(LingoSprite2D sprite, bool positionEnabled, bool sizeEnabled, bool rotationEnabled,
             bool skewEnabled, bool foregroundColorEnabled, bool backgroundColorEnabled, bool blendEnabled,
             float curvature, bool continuousAtEnds, bool speedSmooth, float easeIn, float easeOut)
         {
-            sprite.SetSpriteTweenOptions(positionEnabled, rotationEnabled, skewEnabled,
+            sprite.SetSpriteTweenOptions(positionEnabled, sizeEnabled, rotationEnabled, skewEnabled,
                 foregroundColorEnabled, backgroundColorEnabled, blendEnabled,
                 curvature, continuousAtEnds, speedSmooth, easeIn, easeOut);
         }

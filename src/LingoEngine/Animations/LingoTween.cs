@@ -30,7 +30,7 @@ namespace LingoEngine.Animations
                 AddKeyFrame(frame, value, ease);
             }
         }
-
+        public bool HasKeyFrames => _keys.Count > 0;
         public T GetValue(int frame)
         {
             if (_keys.Count == 0)

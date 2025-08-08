@@ -8,7 +8,9 @@ namespace LingoEngine.Sprites
     public class LingoSprite2DVirtual : LingoSprite ,ILingoSprite2DLight
     {
         public const int SpriteNumOffset = 6;
-
+        private int _ink;
+        private float _width;
+        private float _height;
         private LingoMember? _Member;
         private Action<LingoSprite2DVirtual>? _onRemoveMe;
         private int _constraint;
@@ -34,7 +36,8 @@ namespace LingoEngine.Sprites
         /// <summary>Channel default cast member.</summary>
         public int DisplayMember { get; set; }
 
-        private int _ink;
+        
+
         public LingoInkType InkType { get => (LingoInkType)_ink; set => Ink = (int)value; }
         public int Ink
         {
@@ -87,8 +90,11 @@ namespace LingoEngine.Sprites
         }
 
 
-        public float Width { get; set; }
-        public float Height { get; set; }
+        public float Width { 
+            get => _width; 
+            set => _width = value; 
+        }
+        public float Height { get => _height; set => _height = value; }
 
         public ILingoMember? GetMember() => Member;
 
@@ -142,6 +148,7 @@ namespace LingoEngine.Sprites
             SetMember(sp.Member);
         }
 
+        #region Animator
 
         /// <summary>
         /// Adds animation keyframes for this sprite. When invoked for the first time
@@ -149,36 +156,32 @@ namespace LingoEngine.Sprites
         /// in the internal sprite actors list.
         /// </summary>
         /// <param name="keyframes">Tuple list containing frame number, X, Y, rotation and skew values.</param>
-        public void AddKeyframes(params (int Frame, float X, float Y, float Rotation, float Skew)[] keyframes)
+        public void AddKeyframes(params LingoKeyFrameSetting[] keyframes)
         {
             if (keyframes == null || keyframes.Length == 0)
                 return;
-
-            var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
-            if (animator == null)
-            {
-                animator = new LingoSpriteAnimator(this, _environment);
-                AddActor(animator);
-            }
-
-            animator.AddKeyFrames(keyframes);
+            GetAnimator().AddKeyFrames(keyframes);
         }
 
-        public void UpdateKeyframe(int frame, float x, float y, float rotation, float skew)
+
+
+        public void UpdateKeyframe(LingoKeyFrameSetting setting)
         {
-            var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
-            if (animator == null)
-            {
-                animator = new LingoSpriteAnimator(this, _environment);
-                AddActor(animator);
-            }
-            animator.UpdateKeyFrame(frame, x, y, rotation, skew);
+            var animator = GetAnimator();
+            animator.UpdateKeyFrame(setting);
             animator.RecalculateCache();
         }
 
-        public void SetSpriteTweenOptions(bool positionEnabled, bool rotationEnabled, bool skewEnabled,
+        public void SetSpriteTweenOptions(bool positionEnabled, bool sizeEnabled, bool rotationEnabled, bool skewEnabled,
             bool foregroundColorEnabled, bool backgroundColorEnabled, bool blendEnabled,
             float curvature, bool continuousAtEnds, bool speedSmooth, float easeIn, float easeOut)
+        {
+            var animator = GetAnimator();
+            animator.SetTweenOptions(positionEnabled, sizeEnabled, rotationEnabled, skewEnabled,
+                foregroundColorEnabled, backgroundColorEnabled, blendEnabled,
+                curvature, continuousAtEnds, speedSmooth, easeIn, easeOut);
+        }
+        private LingoSpriteAnimator GetAnimator()
         {
             var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
             if (animator == null)
@@ -186,19 +189,37 @@ namespace LingoEngine.Sprites
                 animator = new LingoSpriteAnimator(this, _environment);
                 AddActor(animator);
             }
-            animator.SetTweenOptions(positionEnabled, rotationEnabled, skewEnabled,
-                foregroundColorEnabled, backgroundColorEnabled, blendEnabled,
-                curvature, continuousAtEnds, speedSmooth, easeIn, easeOut);
+
+            return animator;
         }
 
-       
+        #endregion
+
+
+        public LingoRect GetBoundingBox()
+        {
+            var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
+            if (animator != null)
+                return animator.GetBoundingBox();
+
+            return Rect;
+        } 
+        public LingoRect GetBoundingBoxForFrame(int frame)
+        {
+            var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
+            if (animator != null)
+                return animator.GetBoundingBoxForFrame(frame);
+
+            return Rect;
+        }
+
 
         public bool PointInSprite(LingoPoint point)
         {
             return Rect.Contains(point);
         }
+       
 
-      
         public void SetMember(ILingoMember? member)
         {
             if (_Member != null && (_Member.Type == LingoMemberType.Script || _Member.Type == LingoMemberType.Sound || _Member.Type == LingoMemberType.Transition || _Member.Type == LingoMemberType.Unknown || _Member.Type == LingoMemberType.Palette || _Member.Type == LingoMemberType.Movie || _Member.Type == LingoMemberType.Font || _Member.Type == LingoMemberType.Cursor))
@@ -208,7 +229,12 @@ namespace LingoEngine.Sprites
             //    _Member?.ReleaseFromSprite(this);
             _Member = member as LingoMember;
             if (_Member != null)
+            {
                 RegPoint = _Member.RegPoint;
+                _Member.Preload();
+                Width = _Member.Width;
+                Height = _Member.Height;
+            }
         }
 
        
@@ -285,6 +311,6 @@ namespace LingoEngine.Sprites
 
         public override string GetFullName() => $"{SpriteNum}.{Name}.{Member?.Name}";
 
-      
+       
     }
 }

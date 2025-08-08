@@ -218,7 +218,7 @@ namespace LingoEngine.LGodot.Texts
         public void ReleaseFromSprite(LingoSprite2D lingoSprite)
         {
             if (lingoSprite.Member == null) return;
-            var godotNode = lingoSprite.Framework<LingoGodotSprite>().ChildMemberNode;
+            var godotNode = lingoSprite.Framework<LingoGodotSprite2D>().ChildMemberNode;
             if (godotNode == null) return;
             var nodeLocal = _usedNodes.FirstOrDefault(x => x.Node2D == godotNode);
             if (nodeLocal != null)

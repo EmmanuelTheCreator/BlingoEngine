@@ -29,6 +29,7 @@ using LingoEngine.LGodot.Bitmaps;
 using LingoEngine.LGodot.Scripts;
 using LingoEngine.Scripts;
 using LingoEngine.FilmLoops;
+using LingoEngine.LGodot.FilmLoops;
 
 namespace LingoEngine.LGodot.Core
 {
@@ -98,7 +99,7 @@ namespace LingoEngine.LGodot.Core
         /// <inheritdoc/>
         public LingoFilmLoopMember CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
         {
-            var impl = new LingoGodotMemberFilmLoop();
+            var impl = new LingoGodotFilmLoopMember();
             var member = new LingoFilmLoopMember(impl, (LingoCast)cast, numberInCast, name, fileName ?? "", regPoint);
             impl.Init(member);
             _disposables.Add(impl);

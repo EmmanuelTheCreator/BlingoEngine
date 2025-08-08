@@ -1,5 +1,6 @@
 ﻿using LingoEngine.Primitives;
 using LingoEngine.Members;
+using LingoEngine.Animations;
 
 namespace LingoEngine.Sprites
 {
@@ -33,9 +34,9 @@ namespace LingoEngine.Sprites
         float Width { get; set; }
         int SpriteNum { get; }
 
-        void AddKeyframes(params (int Frame, float X, float Y, float Rotation, float Skew)[] keyframes);
+        void AddKeyframes(params LingoKeyFrameSetting[] keyframes);
         string GetFullName();
-        void SetSpriteTweenOptions(bool positionEnabled, bool rotationEnabled, bool skewEnabled, bool foregroundColorEnabled, bool backgroundColorEnabled, bool blendEnabled, float curvature, bool continuousAtEnds, bool speedSmooth, float easeIn, float easeOut);
-        void UpdateKeyframe(int frame, float x, float y, float rotation, float skew);
+        void SetSpriteTweenOptions(bool positionEnabled, bool sizeEnabled, bool rotationEnabled, bool skewEnabled, bool foregroundColorEnabled, bool backgroundColorEnabled, bool blendEnabled, float curvature, bool continuousAtEnds, bool speedSmooth, float easeIn, float easeOut);
+        void UpdateKeyframe(LingoKeyFrameSetting setting);
     }
 }

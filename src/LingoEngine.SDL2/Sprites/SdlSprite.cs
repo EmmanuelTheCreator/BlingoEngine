@@ -55,8 +55,8 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
     public float Height { get; private set; }
     public string Name { get; set; } = string.Empty;
     public LingoPoint RegPoint { get; set; }
-    public float SetDesiredHeight { get; set; }
-    public float SetDesiredWidth { get; set; }
+    public float DesiredHeight { get; set; }
+    public float DesiredWidth { get; set; }
     private int _zIndex;
     public int ZIndex
     {
@@ -119,8 +119,8 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
             UpdateMember();
         if (IsDirty)
         {
-            if (SetDesiredWidth != 0) Width = SetDesiredWidth;
-            if (SetDesiredHeight != 0) Height = SetDesiredHeight;
+            if (DesiredWidth != 0) Width = DesiredWidth;
+            if (DesiredHeight != 0) Height = DesiredHeight;
             IsDirty = false;
         }
     }
@@ -261,7 +261,7 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
 
     public void Resize(float w, float h) { Width = w; Height = h; }
 
-    public void ApplyMemberChanges()
+    public void ApplyMemberChangesOnStepFrame()
     {
 
     }

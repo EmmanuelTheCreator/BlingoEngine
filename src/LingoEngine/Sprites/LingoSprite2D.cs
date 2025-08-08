@@ -7,6 +7,7 @@ using LingoEngine.Casts;
 using LingoEngine.Movies;
 using LingoEngine.FilmLoops;
 using LingoEngine.Sprites.Events;
+using LingoEngine.Bitmaps;
 
 namespace LingoEngine.Sprites
 {
@@ -158,8 +159,8 @@ namespace LingoEngine.Sprites
         public byte[] Thumbnail { get; set; } = new byte[] { };
         public string ModifiedBy { get; set; } = "";
 
-        public float Width { get => _frameworkSprite.Width; set => _frameworkSprite.SetDesiredWidth = value; }
-        public float Height { get => _frameworkSprite.Height; set => _frameworkSprite.SetDesiredHeight = value; }
+        public float Width { get => _frameworkSprite.Width; set => _frameworkSprite.DesiredWidth = value; }
+        public float Height { get => _frameworkSprite.Height; set => _frameworkSprite.DesiredHeight = value; }
 
         public ILingoMember? GetMember() => Member;
 
@@ -220,42 +221,40 @@ namespace LingoEngine.Sprites
             return behavior;
         }
 
+        #region Animation / keyframes
+
         /// <summary>
         /// Adds animation keyframes for this sprite. When invoked for the first time
         /// it lazily creates a <see cref="LingoSpriteAnimator"/> actor and stores it
         /// in the internal sprite actors list.
         /// </summary>
         /// <param name="keyframes">Tuple list containing frame number, X, Y, rotation and skew values.</param>
-        public void AddKeyframes(params (int Frame, float X, float Y, float Rotation, float Skew)[] keyframes)
+        public void AddKeyframes(params LingoKeyFrameSetting[] keyframes)
         {
             if (keyframes == null || keyframes.Length == 0)
                 return;
 
-            var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
-            if (animator == null)
-            {
-                animator = new LingoSpriteAnimator(this, _environment);
-                AddActor(animator);
-            }
-
-            animator.AddKeyFrames(keyframes);
+            GetAnimator().AddKeyFrames(keyframes);
         }
 
-        public void UpdateKeyframe(int frame, float x, float y, float rotation, float skew)
+        public void UpdateKeyframe(LingoKeyFrameSetting setting)
         {
-            var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
-            if (animator == null)
-            {
-                animator = new LingoSpriteAnimator(this, _environment);
-                AddActor(animator);
-            }
-            animator.UpdateKeyFrame(frame, x, y, rotation, skew);
+            var animator = GetAnimator();
+            animator.UpdateKeyFrame(setting);
             animator.RecalculateCache();
         }
 
-        public void SetSpriteTweenOptions(bool positionEnabled, bool rotationEnabled, bool skewEnabled,
+        
+
+        public void SetSpriteTweenOptions(bool positionEnabled, bool sizeEnabled, bool rotationEnabled, bool skewEnabled,
             bool foregroundColorEnabled, bool backgroundColorEnabled, bool blendEnabled,
             float curvature, bool continuousAtEnds, bool speedSmooth, float easeIn, float easeOut)
+        {
+            GetAnimator().SetTweenOptions(positionEnabled, sizeEnabled, rotationEnabled, skewEnabled,
+                foregroundColorEnabled, backgroundColorEnabled, blendEnabled,
+                curvature, continuousAtEnds, speedSmooth, easeIn, easeOut);
+        }
+        private LingoSpriteAnimator GetAnimator()
         {
             var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
             if (animator == null)
@@ -263,11 +262,10 @@ namespace LingoEngine.Sprites
                 animator = new LingoSpriteAnimator(this, _environment);
                 AddActor(animator);
             }
-            animator.SetTweenOptions(positionEnabled, rotationEnabled, skewEnabled,
-                foregroundColorEnabled, backgroundColorEnabled, blendEnabled,
-                curvature, continuousAtEnds, speedSmooth, easeIn, easeOut);
-        }
 
+            return animator;
+        }
+        #endregion
         /*
         When the movie first starts, events occur in the following order:
 1 prepareMovie
@@ -307,7 +305,7 @@ When a movie stops, events occur in the following order:
         {
             if (_Member != null && _Member.HasChanged)
             {
-                _frameworkSprite.ApplyMemberChanges();
+                _frameworkSprite.ApplyMemberChangesOnStepFrame();
                 return _Member;
             }
             return null;
@@ -365,7 +363,12 @@ When a movie stops, events occur in the following order:
             {
                 RegPoint = _Member.RegPoint;
             }
-
+            if (member is LingoFilmLoopMember filmLoop)
+            {
+                filmLoop.PrepareFilmloop();// to get the size
+                Width = filmLoop.Width;
+                Height = filmLoop.Height;
+            }
 
             MemberHasChanged();
             return this;
@@ -393,6 +396,8 @@ When a movie stops, events occur in the following order:
 
             _frameworkSprite.MemberChanged();
         }
+        public LingoFilmLoopPlayer? GetFilmLoopPlayer() => GetActorsOfType<LingoFilmLoopPlayer>().FirstOrDefault();
+
 
         #region ZIndex/locZ
         public void SendToBack()
@@ -655,5 +660,7 @@ When a movie stops, events occur in the following order:
 
             return action;
         }
+
+        
     }
 }
