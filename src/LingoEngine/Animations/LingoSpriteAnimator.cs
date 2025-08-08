@@ -172,77 +172,32 @@ namespace LingoEngine.Animations
         public LingoRect GetBoundingBox()
         {
             if (_calculatedBoundingBox != null) return _calculatedBoundingBox.Value;
-            var positions = Position.HasKeyFrames
-                ? Position.KeyFrames.Select(k => k.Value).ToList()
-                : new List<LingoPoint> { _sprite.Loc };
 
-            var sizes = Size.HasKeyFrames
-                ? Size.KeyFrames.Select(k => k.Value).ToList()
-                : new List<LingoPoint> { new(_sprite.Width, _sprite.Height) };
-
-            var rotations = Rotation.HasKeyFrames
-                ? Rotation.KeyFrames.Select(k => k.Value).ToList()
-                : new List<float> { _sprite.Rotation };
-
-            var skews = Skew.HasKeyFrames
-                ? Skew.KeyFrames.Select(k => k.Value).ToList()
-                : new List<float> { _sprite.Skew };
+            var frames = new List<int>();
+            if (Position.HasKeyFrames) frames.AddRange(Position.KeyFrames.Select(k => k.Frame));
+            if (Size.HasKeyFrames) frames.AddRange(Size.KeyFrames.Select(k => k.Frame));
+            if (Rotation.HasKeyFrames) frames.AddRange(Rotation.KeyFrames.Select(k => k.Frame));
+            if (Skew.HasKeyFrames) frames.AddRange(Skew.KeyFrames.Select(k => k.Frame));
 
             LingoRect? result = null;
 
-            foreach (var pos in positions)
-                foreach (var size in sizes)
-                    foreach (var rot in rotations)
-                        foreach (var skew in skews)
-                        {
-                            var offset = _sprite.RegPoint;
-                            var center = new LingoPoint(pos.X - offset.X, pos.Y - offset.Y);
-
-                            // Get 4 corners of untransformed rect
-                            float hw = size.X / 2f;
-                            float hh = size.Y / 2f;
-
-                            var tl = new LingoPoint(-hw, -hh);
-                            var tr = new LingoPoint(hw, -hh);
-                            var br = new LingoPoint(hw, hh);
-                            var bl = new LingoPoint(-hw, hh);
-
-                            // Apply skew (shear)
-                            if (skew != 0)
-                            {
-                                float skewRad = skew * MathF.PI / 180f;
-                                float skewX = MathF.Tan(skewRad);
-                                tl.X += tl.Y * skewX;
-                                tr.X += tr.Y * skewX;
-                                br.X += br.Y * skewX;
-                                bl.X += bl.Y * skewX;
-                            }
-
-                            // Apply rotation
-                            if (rot != 0)
-                            {
-                                float rad = rot * MathF.PI / 180f;
-                                float cos = MathF.Cos(rad);
-                                float sin = MathF.Sin(rad);
-
-                                tl = Rotate(tl, cos, sin);
-                                tr = Rotate(tr, cos, sin);
-                                br = Rotate(br, cos, sin);
-                                bl = Rotate(bl, cos, sin);
-                            }
-
-                            // Offset to position
-                            tl += center;
-                            tr += center;
-                            br += center;
-                            bl += center;
-
-                            var rect = LingoRect.FromPoints(tl, tr, br, bl);
-                            result = result?.Union(rect) ?? rect;
-                        }
+            if (frames.Count == 0)
+            {
+                result = _sprite.Rect;
+            }
+            else
+            {
+                int start = frames.Min();
+                int end = frames.Max();
+                for (int f = start; f <= end; f++)
+                {
+                    var rect = GetBoundingBoxForFrame(f);
+                    result = result?.Union(rect) ?? rect;
+                }
+            }
 
             _calculatedBoundingBox = result ?? _sprite.Rect;
-            return result ?? _sprite.Rect;
+            return _calculatedBoundingBox.Value;
         }
 
         private static LingoPoint Rotate(LingoPoint pt, float cos, float sin)
@@ -263,8 +218,8 @@ namespace LingoEngine.Animations
             if (size.X == 0 || size.Y == 0)
                 size = new LingoPoint(_sprite.Width, _sprite.Height);
 
-            var offset = _sprite.RegPoint;
-            var center = new LingoPoint(pos.X - offset.X, pos.Y - offset.Y);
+            var reg = _sprite.RegPoint;
+            var center = new LingoPoint(pos.X - reg.X + size.X / 2f, pos.Y - reg.Y + size.Y / 2f);
 
             float hw = size.X / 2f;
             float hh = size.Y / 2f;
