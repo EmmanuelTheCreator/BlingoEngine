@@ -10,6 +10,8 @@ using LingoEngine.Director.Core.Projects;
 using LingoEngine.Setup;
 using Microsoft.Extensions.Logging;
 using LingoEngine.Core;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace LingoEngine.Director.Core.Compilers;
 
@@ -60,14 +62,93 @@ public class LingoScriptCompiler
         if (assembly != null)
         {
             RegisterFactory(assembly);
-            _projectManager.LoadMovie();
+            //_projectManager.LoadMovie();
         }
 
         if (wasPlaying && _player.ActiveMovie is LingoMovie movie)
             movie.Play();
     }
-
     private Assembly? BuildProject()
+    {
+        if (string.IsNullOrWhiteSpace(_dirSettings.CsProjFile))
+            return null;
+
+        var projPath = Path.Combine(_settings.ProjectFolder, _dirSettings.CsProjFile);
+        //var outputPath = Path.Combine(_settings.ProjectFolder, "TempOutput");
+        var outputPath = "C:\\Temp\\Director";
+        var intermediatePath = Path.Combine(outputPath, "obj");
+        if (!Directory.Exists(outputPath)) Directory.CreateDirectory(outputPath);
+        if (!Directory.Exists(intermediatePath)) Directory.CreateDirectory(intermediatePath);
+        var arguments = $"build \"{projPath}\" -c Debug " +
+                $"-p:OutputPath=\"{outputPath}\" " +
+                $"-p:OutDir=\"{outputPath}\" " +
+                $"-p:BaseOutputPath=\"{outputPath}\" " +
+                $"-p:IntermediateOutputPath=\"{intermediatePath.Replace("\\","/")}\"/";
+        var psi = new ProcessStartInfo("dotnet", arguments)
+        {
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        var process = new Process { StartInfo = psi };
+
+        bool buildFailed = false;
+
+        process.OutputDataReceived += (s, e) =>
+        {
+            if (e.Data == null) return;
+            _logger.LogInformation(e.Data);
+
+            if (e.Data.Contains(" error ", StringComparison.OrdinalIgnoreCase) ||
+                Regex.IsMatch(e.Data, @"\berror\s+CS\d{4}\b"))
+                buildFailed = true;
+        };
+
+        process.ErrorDataReceived += (s, e) =>
+        {
+            if (e.Data == null) return;
+            _logger.LogError(e.Data);
+
+            if (e.Data.Contains("error", StringComparison.OrdinalIgnoreCase))
+                buildFailed = true;
+        };
+
+        process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
+        process.WaitForExit();
+
+        if (buildFailed)
+        {
+            _logger.LogError("Build failed.");
+            return null;
+        }
+
+
+        var dllName = Path.GetFileNameWithoutExtension(projPath) + ".dll";
+        var dllPath = Path.Combine(outputPath, dllName);
+
+        if (!File.Exists(dllPath))
+        {
+            _logger.LogError($"Expected output DLL not found: {dllPath}");
+            return null;
+        }
+
+        _loadContext = new AssemblyLoadContext("LingoScripts", isCollectible: true);
+        return _loadContext.LoadFromAssemblyPath(dllPath);
+    }
+    private bool BuildFailed(string stdout, string stderr)
+    {
+        // Matches: "1 Error(s)", "15 Errors", "error CS1001", etc.
+        var hasErrorCount = Regex.IsMatch(stdout, @"\b\d+\s+Error\(s\)", RegexOptions.IgnoreCase);
+        var hasCsError = Regex.IsMatch(stdout, @"\berror\s+CS\d{4}\b", RegexOptions.IgnoreCase);
+        var fatal = Regex.IsMatch(stderr, @"\bfatal error\b", RegexOptions.IgnoreCase);
+
+        return hasErrorCount || hasCsError || fatal;
+    }
+    private Assembly? BuildProject2()
     {
         try
         {
@@ -122,10 +203,8 @@ public class LingoScriptCompiler
         var factory = (ILingoProjectFactory?)Activator.CreateInstance(factoryType);
         if (factory == null)
             return;
-
-        _engineRegistration.ServicesLingo(factory.Setup);
-        _player = _engineRegistration.Build();
-        factory.Run(_engineRegistration.ServiceProvider!);
+        _engineRegistration.SetTheProjectFactory(factoryType);
+        _engineRegistration.BuildAndRunProject();
     }
 
     private void RemoveRegistrations()

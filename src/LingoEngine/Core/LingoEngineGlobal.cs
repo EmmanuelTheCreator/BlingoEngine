@@ -12,5 +12,6 @@
     public class LingoEngineGlobal
     {
         public static LingoEngineRunFramework RunFramework { get; set; } = LingoEngineRunFramework.None;
+        public static bool IsRunningDirector { get; set; }
     }
 }

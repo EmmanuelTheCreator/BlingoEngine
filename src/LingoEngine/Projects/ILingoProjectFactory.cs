@@ -1,10 +1,11 @@
 namespace LingoEngine.Projects;
 
 using System;
-using Microsoft.Extensions.DependencyInjection;
+using LingoEngine.Core;
+using LingoEngine.Setup;
 
 public interface ILingoProjectFactory
 {
-    void Setup(IServiceCollection services);
-    void Run(IServiceProvider serviceProvider);
+    void Setup(ILingoEngineRegistration engineRegistration);
+    void Run(IServiceProvider serviceProvider, ILingoPlayer player, bool autoPlayMovie);
 }

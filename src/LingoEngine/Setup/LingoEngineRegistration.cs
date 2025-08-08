@@ -6,6 +6,7 @@ using LingoEngine.Projects;
 using LingoEngine.Sprites;
 using LingoEngine.Styles;
 using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel.DataAnnotations;
 namespace LingoEngine.Setup
 {
     public interface ILingoEngineRegistration
@@ -17,8 +18,10 @@ namespace LingoEngine.Setup
         ILingoEngineRegistration WithFrameworkFactory<T>(Action<T>? setup = null) where T : class, ILingoFrameworkFactory;
         ILingoEngineRegistration WithProjectSettings(Action<LingoProjectSettings> setup);
         LingoPlayer Build();
+        ILingoProjectFactory BuildAndRunProject();
         LingoPlayer Build(IServiceProvider serviceProvider);
         ILingoEngineRegistration AddBuildAction(Action<IServiceProvider> buildAction);
+        ILingoEngineRegistration SetProjectFactory<TLingoProjectFactory>() where TLingoProjectFactory : ILingoProjectFactory, new();
     }
     public interface IMovieRegistration
     {
@@ -83,11 +86,22 @@ namespace LingoEngine.Setup
         }
 
 
+        private bool _hasBeenBuild = false;
+        private LingoPlayer? _player;
+        private Func<ILingoProjectFactory>? _makeFactoryMethod;
+        private ILingoProjectFactory _projectFactory;
 
         public LingoPlayer Build()
-            => Build(_container.BuildServiceProvider());
+        {
+            if (_hasBeenBuild && _player != null) return _player;
+            if (_makeFactoryMethod != null)
+                _projectFactory = _makeFactoryMethod();
+            return Build(_container.BuildServiceProvider());
+        }
+
         public LingoPlayer Build(IServiceProvider serviceProvider)
         {
+            if (_hasBeenBuild && _player != null) return _player;
             _serviceProvider = serviceProvider;
             _projectSettingsSetup(serviceProvider.GetRequiredService<LingoProjectSettings>());
             LoadFonts(serviceProvider);
@@ -98,7 +112,22 @@ namespace LingoEngine.Setup
                 _FrameworkFactorySetup(serviceProvider.GetRequiredService<ILingoFrameworkFactory>());
             serviceProvider.GetRequiredService<ILingoCommandManager>()
                 .DiscoverAndSubscribe(serviceProvider);
+
+            _player = player;
+            _hasBeenBuild = true;
             return player;
+        }
+        public ILingoProjectFactory BuildAndRunProject()
+        {
+            Build();
+            return RunProject();
+        }
+        public ILingoProjectFactory RunProject()
+        {
+            if (_projectFactory == null) throw new InvalidOperationException("Project factory has not been set up. Use AddProjectFactory<TLingoProjectFactory>() to set it up. and run Build first");
+            
+            _projectFactory.Run(_serviceProvider!,_player!, !LingoEngineGlobal.IsRunningDirector);
+            return _projectFactory;
         }
 
         private void LoadFonts(IServiceProvider serviceProvider)
@@ -145,6 +174,30 @@ namespace LingoEngine.Setup
         public ILingoEngineRegistration AddBuildAction(Action<IServiceProvider> buildAction)
         {
             _BuildActions.Add(buildAction);
+            return this;
+        }
+
+        public ILingoEngineRegistration SetTheProjectFactory(Type factoryType)
+        {
+            var method = typeof(ILingoEngineRegistration).GetMethod(nameof(SetProjectFactory), Type.EmptyTypes);
+            var genericMethod = method!.MakeGenericMethod(factoryType);
+            genericMethod.Invoke(this, null);
+            return this;
+        }
+
+        public ILingoEngineRegistration SetProjectFactory<TLingoProjectFactory>() where TLingoProjectFactory : ILingoProjectFactory, new()
+        {
+            if (_makeFactoryMethod != null)
+            {
+                // there was already a project loaded, so unload the previous project
+                // TODO : unload
+            }
+            _makeFactoryMethod = () =>
+            {
+                var factory = new TLingoProjectFactory();
+                factory.Setup(this);
+                return factory;
+            };
             return this;
         }
 

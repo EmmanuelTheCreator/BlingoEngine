@@ -36,6 +36,7 @@ namespace LingoEngine.Director.LGodot
     {
         public static ILingoEngineRegistration WithDirectorGodotEngine(this ILingoEngineRegistration engineRegistration, Node rootNode)
         {
+            LingoEngineGlobal.IsRunningDirector = true;
             engineRegistration
                 .WithLingoGodotEngine(rootNode, true)
                 .WithDirectorEngine()
