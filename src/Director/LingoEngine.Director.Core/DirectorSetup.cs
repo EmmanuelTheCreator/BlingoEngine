@@ -17,6 +17,7 @@ using LingoEngine.Commands;
 using LingoEngine.Director.Core.Scripts.Commands;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.Compilers;
+using LingoEngine.Director.Core.Compilers.Commands;
 
 namespace LingoEngine.Director.Core
 {
@@ -67,11 +68,14 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<DirCastManager>()
                     .AddTransient<IDirSpritesManager>(p => p.GetRequiredService<DirSpritesManager>())
                     .AddTransient(p => new Lazy<IDirSpritesManager>(() => p.GetRequiredService<DirSpritesManager>()))
+                    .AddTransient<CompileProjectCommandHandler>()
                     );
             engineRegistration.AddBuildAction(
                 (serviceProvider) =>
                 {
                     serviceProvider.RegisterDirectorWindows();
+                    //serviceProvider.GetRequiredService<ILingoCommandManager>() // you forgot the canExecute?
+                    //    .Register<CompileProjectCommandHandler, CompileProjectCommand>();
                 });
             return engineRegistration;
         }

@@ -1,5 +1,4 @@
 using LingoEngine.Commands;
-using LingoEngine.Director.Core.Compilers;
 
 namespace LingoEngine.Director.Core.Compilers.Commands;
 
@@ -12,6 +11,7 @@ public class CompileProjectCommandHandler : ICommandHandler<CompileProjectComman
         _compiler = compiler;
     }
 
+    public bool CanExecute(CompileProjectCommand command) => true;
     public bool Handle(CompileProjectCommand command)
     {
         _compiler.Compile();

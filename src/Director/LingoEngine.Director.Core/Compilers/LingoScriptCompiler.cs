@@ -9,6 +9,7 @@ using LingoEngine.Projects;
 using LingoEngine.Director.Core.Projects;
 using LingoEngine.Setup;
 using Microsoft.Extensions.Logging;
+using LingoEngine.Core;
 
 namespace LingoEngine.Director.Core.Compilers;
 
@@ -68,37 +69,48 @@ public class LingoScriptCompiler
 
     private Assembly? BuildProject()
     {
-        if (string.IsNullOrWhiteSpace(_dirSettings.CsProjFile))
+        try
         {
-            _logger.LogWarning("No C# project file configured");
+
+       
+            if (string.IsNullOrWhiteSpace(_dirSettings.CsProjFile))
+            {
+                _logger.LogWarning("No C# project file configured");
+                return null;
+            }
+
+            var projPath = Path.Combine(_settings.ProjectFolder, _dirSettings.CsProjFile);
+            var outputPath = Path.Combine(_settings.ProjectFolder, _dirSettings.CsProjFile.Replace(".csproj", "",StringComparison.InvariantCultureIgnoreCase), "bin", "debug");
+            var sourceDir = Path.GetDirectoryName(projPath)!;
+            var sources = Directory.GetFiles(sourceDir, "*.cs", SearchOption.AllDirectories).Where(path => !path.Contains(@"\bin\") && !path.Contains(@"\obj\")).ToArray();
+            if (!Directory.Exists(outputPath))
+                Directory.CreateDirectory(outputPath);
+            var csc = new CSharpCodeProvider();
+            var parameters = new CompilerParameters
+            {
+                GenerateExecutable = false,
+                OutputAssembly = outputPath
+            };
+            parameters.ReferencedAssemblies.Add(typeof(LingoPlayer).Assembly.Location);
+
+            var results = csc.CompileAssemblyFromFile(parameters, sources);
+            if (results.Errors.HasErrors)
+            {
+                foreach (CompilerError error in results.Errors)
+                    _logger.LogError(error.ErrorText);
+                return null;
+            }
+
+            _logger.LogInformation("Compilation succeeded");
+
+            _loadContext = new AssemblyLoadContext("LingoScripts", true);
+            return _loadContext.LoadFromAssemblyPath(outputPath);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error while compiling:" + e.Message);
             return null;
         }
-
-        var projPath = Path.Combine(_settings.ProjectFolder, _dirSettings.CsProjFile);
-        var outputPath = Path.ChangeExtension(projPath, "dll");
-        var sourceDir = Path.GetDirectoryName(projPath)!;
-        var sources = Directory.GetFiles(sourceDir, "*.cs", SearchOption.AllDirectories);
-
-        var csc = new CSharpCodeProvider();
-        var parameters = new CompilerParameters
-        {
-            GenerateExecutable = false,
-            OutputAssembly = outputPath
-        };
-        parameters.ReferencedAssemblies.Add(typeof(LingoPlayer).Assembly.Location);
-
-        var results = csc.CompileAssemblyFromFile(parameters, sources);
-        if (results.Errors.HasErrors)
-        {
-            foreach (CompilerError error in results.Errors)
-                _logger.LogError(error.ErrorText);
-            return null;
-        }
-
-        _logger.LogInformation("Compilation succeeded");
-
-        _loadContext = new AssemblyLoadContext("LingoScripts", true);
-        return _loadContext.LoadFromAssemblyPath(outputPath);
     }
 
     private void RegisterFactory(Assembly assembly)
