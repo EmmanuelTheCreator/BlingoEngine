@@ -15,7 +15,7 @@ public class LingoProjectSettings
 
     public int MaxSpriteChannelCount { get; set; } = 20;
 
-   
+
 
     public LingoProjectSettings()
     {

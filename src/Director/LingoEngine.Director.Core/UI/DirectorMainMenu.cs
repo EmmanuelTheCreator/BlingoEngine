@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using LingoEngine.Primitives;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.Icons;
+using LingoEngine.Commands;
+using LingoEngine.Director.Core.Compilers.Commands;
 
 namespace LingoEngine.Director.Core.UI
 {
@@ -37,6 +39,7 @@ namespace LingoEngine.Director.Core.UI
         private readonly LingoPlayer _player;
         private readonly IDirectorShortCutManager _shortCutManager;
         private readonly IHistoryManager _historyManager;
+        private readonly ILingoCommandManager _commandManager;
         private readonly List<ShortCutInfo> _shortCuts = new();
         private LingoGfxMenuItem _undoItem;
         private LingoGfxMenuItem _redoItem;
@@ -50,7 +53,7 @@ namespace LingoEngine.Director.Core.UI
 
         public bool PlayPauseState
         {
-            get => _playPauseState; 
+            get => _playPauseState;
             set
             {
                 var hasChanged = _playPauseState != value;
@@ -70,14 +73,15 @@ namespace LingoEngine.Director.Core.UI
             public bool Meta { get; init; }
         }
 
-        public DirectorMainMenu(IDirectorWindowManager windowManager,DirectorProjectManager projectManager, LingoPlayer player, IDirectorShortCutManager shortCutManager,
-            IHistoryManager historyManager, IDirectorIconManager directorIconManager,ILingoFrameworkFactory factory) : base(factory)
+        public DirectorMainMenu(IDirectorWindowManager windowManager, DirectorProjectManager projectManager, LingoPlayer player, IDirectorShortCutManager shortCutManager,
+            IHistoryManager historyManager, IDirectorIconManager directorIconManager, ILingoCommandManager commandManager, ILingoFrameworkFactory factory) : base(factory)
         {
             _windowManager = windowManager;
             _projectManager = projectManager;
             _player = player;
             _shortCutManager = shortCutManager;
             _historyManager = historyManager;
+            _commandManager = commandManager;
 
             _menuBar = factory.CreateWrapPanel(LingoOrientation.Horizontal, "MenuBar");
             _iconBar = factory.CreateWrapPanel(LingoOrientation.Horizontal, "IconBar");
@@ -100,25 +104,26 @@ namespace LingoEngine.Director.Core.UI
             // icon buttons
             _iconBar
                 .Compose()
+                .AddButton("CompileButton", "", () => _commandManager.Handle(new CompileProjectCommand()), c => c.IconTexture = directorIconManager.Get(DirectorIcon.Script))
                 .AddVLine("VLine1", 16, 2)
                 .AddButton("RewindButton", "", DoRewind, c => c.IconTexture = directorIconManager.Get(DirectorIcon.Rewind))
-                .AddStateButton("RewindButton", this,directorIconManager.Get(DirectorIcon.Stop),p => p.PlayPauseState,"", 
+                .AddStateButton("RewindButton", this, directorIconManager.Get(DirectorIcon.Stop), p => p.PlayPauseState, "",
                     c =>
                     {
                         c.TextureOff = directorIconManager.Get(DirectorIcon.Play);
                         _playButton = c;
                     })
                 .AddVLine("VLine2", 16, 2)
-                .AddButton("Show"+ DirectorMenuCodes.StageWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.StageWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowStage))
-                .AddButton("Show"+ DirectorMenuCodes.CastWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.CastWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowCast))
-                .AddButton("Show"+ DirectorMenuCodes.ScoreWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.ScoreWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowScore))
-                .AddButton("Show"+ DirectorMenuCodes.PropertyInspector, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.PropertyInspector), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowProperty))
+                .AddButton("Show" + DirectorMenuCodes.StageWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.StageWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowStage))
+                .AddButton("Show" + DirectorMenuCodes.CastWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.CastWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowCast))
+                .AddButton("Show" + DirectorMenuCodes.ScoreWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.ScoreWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowScore))
+                .AddButton("Show" + DirectorMenuCodes.PropertyInspector, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.PropertyInspector), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowProperty))
                 .AddVLine("VLine3", 16, 2)
-                .AddButton("Show"+ DirectorMenuCodes.PictureEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.PictureEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowPaint))
-                .AddButton("Show"+ DirectorMenuCodes.ShapeEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.ShapeEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowPath))
-                .AddButton("Show"+ DirectorMenuCodes.TextEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.TextEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowText))
-                //.AddVLine("VLine4", 16, 2)
-                //.AddButton("Show"+ DirectorMenuCodes.TextEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.TextEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowText))
+                .AddButton("Show" + DirectorMenuCodes.PictureEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.PictureEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowPaint))
+                .AddButton("Show" + DirectorMenuCodes.ShapeEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.ShapeEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowPath))
+                .AddButton("Show" + DirectorMenuCodes.TextEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.TextEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowText))
+            //.AddVLine("VLine4", 16, 2)
+            //.AddButton("Show"+ DirectorMenuCodes.TextEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.TextEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowText))
             ;
 
             _topMenus.Add(_fileMenu);
@@ -127,7 +132,7 @@ namespace LingoEngine.Director.Core.UI
             _topMenus.Add(_modifyMenu);
             _topMenus.Add(_controlMenu);
             _topMenus.Add(_windowMenu);
-            
+
             _topMenuButtons.Add(_fileButton);
             _topMenuButtons.Add(_editButton);
             _topMenuButtons.Add(_insertButton);
@@ -140,7 +145,7 @@ namespace LingoEngine.Director.Core.UI
             {
                 _menuBar.AddItem(x);
             });
-            
+
             _fileButton.Pressed += () => ShowMenu(_fileMenu, _fileButton);
             _editButton.Pressed += () => { UpdateUndoRedoState(); ShowMenu(_editMenu, _editButton); };
             _insertButton.Pressed += () => ShowMenu(_insertMenu, _insertButton);
@@ -160,18 +165,19 @@ namespace LingoEngine.Director.Core.UI
                 _shortCuts.Add(ParseShortCut(sc));
         }
 
-       
+
 
         public void CallOnAllTopMenuButtons(Action<LingoGfxButton> btnAction)
         {
             foreach (var item in _topMenuButtons)
-                btnAction(item); 
-        } public void CallOnAllTopMenus(Action<LingoGfxMenu> action)
+                btnAction(item);
+        }
+        public void CallOnAllTopMenus(Action<LingoGfxMenu> action)
         {
             foreach (var item in _topMenus)
-                action(item); 
+                action(item);
         }
-        
+
         private void ComposeMenu(ILingoFrameworkFactory factory)
         {
             CreateFileMenu(factory);
@@ -200,7 +206,7 @@ namespace LingoEngine.Director.Core.UI
             var quit = factory.CreateMenuItem("Quit");
             quit.Activated += () => Environment.Exit(0);
             _fileMenu.AddItem(quit);
-        }  
+        }
 
         private void CreateEditMenu(ILingoFrameworkFactory factory)
         {
@@ -219,7 +225,7 @@ namespace LingoEngine.Director.Core.UI
         }
 
 
-        
+
         private void CreateInsertMenu(ILingoFrameworkFactory factory)
         {
             var menuItem = factory.CreateMenuItem("Menu TODO");
@@ -278,7 +284,7 @@ namespace LingoEngine.Director.Core.UI
             _windowMenu.AddItem(paint);
         }
 
-       
+
 
         private void OnActiveMovieChanged(ILingoMovie? movie)
         {
@@ -354,7 +360,7 @@ namespace LingoEngine.Director.Core.UI
             _redoItem.Enabled = _historyManager.CanRedo;
         }
 
-      
+
 
         public override void Dispose()
         {

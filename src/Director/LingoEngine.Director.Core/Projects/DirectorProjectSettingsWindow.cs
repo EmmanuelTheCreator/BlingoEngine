@@ -4,6 +4,10 @@ using LingoEngine.Director.Core.Windowing;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
+using LingoEngine.Commands;
+using LingoEngine.Projects;
+using LingoEngine.Director.Core.Projects.Commands;
+using System.IO;
 
 namespace LingoEngine.Director.Core.Projects;
 
@@ -14,15 +18,21 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
 {
     private readonly ProjectSettingsEditorState _state;
     private readonly IIdePathResolver _resolver;
-    private readonly IDirFolderPicker _picker;
+    private readonly IDirFolderPicker _folderPicker;
+    private readonly IDirFilePicker _filePicker;
     private readonly IDirectorWindowManager _windowManager;
+    private readonly ILingoCommandManager _commandManager;
+    private readonly LingoProjectSettings _settings;
+    private readonly DirectorProjectSettings _dirSettings;
 
     private readonly LingoGfxWrapPanel _root;
     private LingoGfxWrapPanel? _vsCodePathRow;
     private LingoGfxWrapPanel? _vsPathRow;
     private LingoGfxLabel? _slnPreviewLabel;
+    private LingoGfxInputText? _csProjEdit;
     private string _projectName = "";
     private string _folderName = "";
+    private string _csProjFile = "";
     private List<KeyValuePair<string, string>> _ideTypes = [
         new KeyValuePair<string, string>(DirectorIdeType.VisualStudio.ToString(), "Visual Studio"),
         new KeyValuePair<string, string>(DirectorIdeType.VisualStudioCode.ToString(), "Visual Studio Code"),
@@ -61,6 +71,16 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
                 _VSCodePathEdit.Text = visualStudioCodePath;
         }
     }
+    public string CsProjFile
+    {
+        get => _csProjFile;
+        set
+        {
+            _csProjFile = value;
+            if (_csProjEdit != null)
+                _csProjEdit.Text = _csProjFile;
+        }
+    }
     public string ProjectName
     {
         get => _projectName;
@@ -77,14 +97,23 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
     public DirectorProjectSettingsWindow(
         ProjectSettingsEditorState state,
         IIdePathResolver resolver,
-        IDirFolderPicker picker,
+        IDirFolderPicker folderPicker,
+        IDirFilePicker filePicker,
         IDirectorWindowManager windowManager,
+        ILingoCommandManager commandManager,
+        LingoProjectSettings settings,
+        DirectorProjectSettings dirSettings,
         ILingoFrameworkFactory factory) : base(factory)
     {
         _state = state;
         _resolver = resolver;
-        _picker = picker;
+        _folderPicker = folderPicker;
+        _filePicker = filePicker;
         _windowManager = windowManager;
+        _commandManager = commandManager;
+        _settings = settings;
+        _dirSettings = dirSettings;
+        _state.LoadFrom(_settings, _dirSettings);
         LoadState(state);
 
         _root = factory.CreateWrapPanel(LingoOrientation.Vertical, "ProjectSettingsRoot");
@@ -101,10 +130,20 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
             .NewLine("FolderRow")
             .AddLabel("FolderLabel", "Project Folder:", 11, 100)
             .AddTextInput("FolderEdit", this, s => s.FolderName, 200)
-             // Preview
+            // Csproj file
+            .NewLine("CsProjRow")
+            .AddLabel("CsProjLabel", "C# Project:", 11, 100)
+            .AddTextInput("CsProjEdit", this, s => s.CsProjFile, 200, c => _csProjEdit = c)
+            .AddButton("CsProjBrowse", "Browse...", () => _filePicker.PickFile(path =>
+            {
+                if (!string.IsNullOrWhiteSpace(FolderName))
+                    path = Path.GetRelativePath(FolderName, path);
+                CsProjFile = path;
+            }, "*.csproj ; C# Project Files"), c => c.Width = 80)
+            // Preview
             .NewLine("PeviewRow")
             .AddLabel("PreviewLabel", GetSlnPreview(), 11, null, c => { _slnPreviewLabel = c; })
-            // IDE selection
+             // IDE selection
              .NewLine("IdeRow")
             .AddLabel("IdeLabel", "IDE", 11, 100)
             .AddCombobox("ComboIdeTypes", _ideTypes, 100, state.SelectedIde.ToString(), s => { SelectedIde = Enum.Parse<DirectorIdeType>(s!); UpdateIdePathVisibility(); })
@@ -112,32 +151,35 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
             .NewLine("VsPathRow")
             .Configure(c => _vsPathRow = c)
             .AddLabel("VsPathLabel", "VS Path", 11, 100)
-            .AddTextInput("VsPathEdit", this, s => s.VisualStudioPath, 200,c => _VsPathEdit = c)
-            .AddButton("VsBrowse", "Browse...", () => _picker.PickFolder(path => VisualStudioPath = path), c => c.Width = 80)
+            .AddTextInput("VsPathEdit", this, s => s.VisualStudioPath, 200, c => _VsPathEdit = c)
+            .AddButton("VsBrowse", "Browse...", () => _folderPicker.PickFolder(path => VisualStudioPath = path), c => c.Width = 80)
             .AddButton("VsAuto", "Auto", () => VisualStudioPath = _resolver.AutoDetectVisualStudioPath() ?? string.Empty, c => c.Width = 80)
             // VS Code path
             .NewLine("VSCodePathRow")
             .Configure(c => _vsCodePathRow = c)
             .AddLabel("VSCodePathLabel", "VS Code Path", 11, 100)
             .AddTextInput("VSCodePathEdit", this, s => s.VisualStudioCodePath, 200, c => _VSCodePathEdit = c)
-            .AddButton("CodeBrowse", "Browse...", () => _picker.PickFolder(path => VisualStudioCodePath = path), c => c.Width = 80)
+            .AddButton("CodeBrowse", "Browse...", () => _folderPicker.PickFolder(path => VisualStudioCodePath = path), c => c.Width = 80)
             .AddButton("CodeAuto", "Auto", () => VisualStudioCodePath = _resolver.AutoDetectVSCodePath() ?? string.Empty, c => c.Width = 80)
             // Save & Apply buttons
             .NewLine("ButtonRow")
             .AddButton("SaveButton", "Save", OnSavePressed, c => c.Width = 90)
             .AddButton("ApplyButton", "Apply", () =>
             {
-                if (ValidateSettings())
-                    SaveState();
+                if (!ValidateSettings())
+                    return;
+                SaveState();
+                _state.SaveTo(_settings, _dirSettings);
+                _commandManager.Handle(new SaveDirProjectSettingsCommand(_dirSettings, _settings));
             }, c => c.Width = 90)
             .Finalize();
 
         UpdateIdePathVisibility();
     }
 
-   
 
-   
+
+
     private void UpdateSlnPreview()
     {
         SolutionPreviewName = GetSlnPreview();
@@ -158,12 +200,15 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
             return;
 
         SaveState();
+        _state.SaveTo(_settings, _dirSettings);
+        _commandManager.Handle(new SaveDirProjectSettingsCommand(_dirSettings, _settings));
         CloseWindow();
     }
     private void LoadState(ProjectSettingsEditorState state)
     {
         _projectName = state.ProjectName;
         _folderName = state.ProjectFolder;
+        _csProjFile = state.CsProjFile;
         SelectedIde = state.SelectedIde;
         VisualStudioPath = state.VisualStudioPath;
         VisualStudioCodePath = state.VisualStudioCodePath;
@@ -172,6 +217,7 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
     {
         _state.ProjectName = ProjectName.Trim();
         _state.ProjectFolder = FolderName.Trim();
+        _state.CsProjFile = CsProjFile.Trim();
         _state.SelectedIde = SelectedIde;
         _state.VisualStudioPath = VisualStudioPath.Trim();
         _state.VisualStudioCodePath = VisualStudioCodePath.Trim();
