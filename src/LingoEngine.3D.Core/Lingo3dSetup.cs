@@ -11,7 +11,7 @@ public static class Lingo3dSetup
 {
     public static ILingoEngineRegistration WithLingo3d(this ILingoEngineRegistration reg)
     {
-        //reg.Services(s => s.AddSingleton<ILingoFrameworkFactory, Lingo3dFactory>());
+        //reg.ServicesMain(s => s.AddSingleton<ILingoFrameworkFactory, Lingo3dFactory>());
         return reg;
     }
 }

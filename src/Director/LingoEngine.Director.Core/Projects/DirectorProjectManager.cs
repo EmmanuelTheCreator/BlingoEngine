@@ -5,6 +5,8 @@ using LingoEngine.Projects;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.Stages;
+using LingoEngine.Commands;
+using LingoEngine.Director.Core.Projects.Commands;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
@@ -14,7 +16,7 @@ namespace LingoEngine.Director.Core.Projects;
 /// <summary>
 /// Handles project level operations such as saving and loading movies.
 /// </summary>
-public class DirectorProjectManager
+public class DirectorProjectManager : ICommandHandler<SaveDirProjectSettingsCommand>
 {
     private readonly LingoProjectSettings _settings;
     private readonly LingoPlayer _player;
@@ -22,15 +24,25 @@ public class DirectorProjectManager
     private readonly IDirectorWindowManager _windowManager;
     private readonly DirectorProjectSettings _dirSettings;
     private readonly DirectorStageGuides _guides;
-    private readonly DirectorProjectSettingsRepository _settingsRepo = new();
+    private readonly DirectorProjectSettingsRepository _settingsRepo;
+    private readonly LingoProjectSettingsRepository _projectSettingsRepo;
 
-    public DirectorProjectManager(LingoProjectSettings settings, LingoPlayer player, IDirectorWindowManager windowManager, DirectorProjectSettings dirSettings, DirectorStageGuides guides)
+    public DirectorProjectManager(
+        LingoProjectSettings settings,
+        LingoPlayer player,
+        IDirectorWindowManager windowManager,
+        DirectorProjectSettings dirSettings,
+        DirectorStageGuides guides,
+        DirectorProjectSettingsRepository settingsRepo,
+        LingoProjectSettingsRepository projectSettingsRepo)
     {
         _settings = settings;
         _player = player;
         _windowManager = windowManager;
         _dirSettings = dirSettings;
         _guides = guides;
+        _settingsRepo = settingsRepo;
+        _projectSettingsRepo = projectSettingsRepo;
     }
 
     public void SaveMovie()
@@ -48,6 +60,7 @@ public class DirectorProjectManager
         _repo.Save(path, movie);
 
         SaveDirectorSettings();
+        SaveProjectSettings();
     }
 
     public void LoadMovie()
@@ -64,6 +77,7 @@ public class DirectorProjectManager
         var movie = _repo.Load(path, _player);
         _player.SetActiveMovie(movie);
 
+        LoadProjectSettings();
         LoadDirectorSettings();
     }
 
@@ -160,5 +174,31 @@ public class DirectorProjectManager
                 window.SetPositionAndSize(st.X, st.Y, st.Width, st.Height);
             }
         }
+    }
+
+    private void SaveProjectSettings()
+    {
+        var settingsPath = Path.Combine(_settings.ProjectFolder, _settings.ProjectName + ".lingo.json");
+        _projectSettingsRepo.Save(settingsPath, _settings);
+    }
+
+    private void LoadProjectSettings()
+    {
+        var settingsPath = Path.Combine(_settings.ProjectFolder, _settings.ProjectName + ".lingo.json");
+        var loaded = _projectSettingsRepo.Load(settingsPath);
+        _settings.CodeFolder = loaded.CodeFolder;
+        _settings.MaxSpriteChannelCount = loaded.MaxSpriteChannelCount;
+    }
+
+    public bool CanExecute(SaveDirProjectSettingsCommand command) => true;
+
+    public bool Handle(SaveDirProjectSettingsCommand command)
+    {
+        var dirPath = Path.Combine(command.ProjectSettings.ProjectFolder, command.ProjectSettings.ProjectName + ".director.json");
+        var projPath = Path.Combine(command.ProjectSettings.ProjectFolder, command.ProjectSettings.ProjectName + ".lingo.json");
+
+        _settingsRepo.Save(dirPath, command.DirSettings);
+        _projectSettingsRepo.Save(projPath, command.ProjectSettings);
+        return true;
     }
 }

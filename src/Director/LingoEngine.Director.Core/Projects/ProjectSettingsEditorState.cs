@@ -6,6 +6,7 @@ namespace LingoEngine.Director.Core.Projects
     {
         public string ProjectName { get; set; } = "";
         public string ProjectFolder { get; set; } = "";
+        public string CsProjFile { get; set; } = "";
         public DirectorIdeType SelectedIde { get; set; }
         public string VisualStudioPath { get; set; } = "";
         public string VisualStudioCodePath { get; set; } = "";
@@ -14,6 +15,7 @@ namespace LingoEngine.Director.Core.Projects
         {
             ProjectName = settings.ProjectName;
             ProjectFolder = settings.ProjectFolder;
+            CsProjFile = directorProjectSettings.CsProjFile;
             SelectedIde = directorProjectSettings.PreferredIde;
             VisualStudioPath = directorProjectSettings.VisualStudioPath ?? "";
             VisualStudioCodePath = directorProjectSettings.VisualStudioCodePath ?? "";
@@ -23,6 +25,7 @@ namespace LingoEngine.Director.Core.Projects
         {
             settings.ProjectName = ProjectName.Trim();
             settings.ProjectFolder = ProjectFolder.Trim();
+            directorProjectSettings.CsProjFile = CsProjFile.Trim();
             directorProjectSettings.PreferredIde = SelectedIde;
             directorProjectSettings.VisualStudioPath = VisualStudioPath.Trim();
             directorProjectSettings.VisualStudioCodePath = VisualStudioCodePath.Trim();

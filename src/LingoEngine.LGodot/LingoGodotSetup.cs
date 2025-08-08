@@ -16,7 +16,7 @@ namespace LingoEngine.LGodot
         {
             LingoEngineGlobal.RunFramework = LingoEngineRunFramework.Godot;
             engineRegistration
-                .Services(s => s
+                .ServicesMain(s => s
                         .AddGodotLogging()
                         .AddSingleton<LingoGodotStyle>()
                         .AddSingleton<ILingoFrameworkFactory, GodotFactory>()

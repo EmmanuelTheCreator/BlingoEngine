@@ -16,6 +16,7 @@ using LingoEngine.Director.Core.Scripts;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Scripts.Commands;
 using LingoEngine.Director.Core.Sprites;
+using LingoEngine.Director.Core.Compilers;
 
 namespace LingoEngine.Director.Core
 {
@@ -23,13 +24,16 @@ namespace LingoEngine.Director.Core
     {
         public static ILingoEngineRegistration WithDirectorEngine(this ILingoEngineRegistration engineRegistration)
         {
-            engineRegistration.Services(s => s
+            engineRegistration.ServicesMain(s => s
                     .AddSingleton<IDirectorEventMediator, DirectorEventMediator>()
                     .AddSingleton<IDirectorShortCutManager, DirectorShortCutManager>()
                     .AddSingleton<IHistoryManager, HistoryManager>()
                     .AddSingleton<DirectorWindowManager>()
                     .AddSingleton<DirectorProjectManager>()
+                    .AddSingleton<LingoScriptCompiler>()
                     .AddSingleton<DirectorProjectSettings>()
+                    .AddSingleton<DirectorProjectSettingsRepository>()
+                    .AddSingleton<LingoProjectSettingsRepository>()
                     .AddTransient<IDirectorWindowManager>(p => p.GetRequiredService<DirectorWindowManager>())
                     .AddTransient<IDirectorBehaviorDescriptionManager, DirectorBehaviorDescriptionManager>()
 

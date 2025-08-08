@@ -10,7 +10,8 @@ namespace LingoEngine.Setup
 {
     public interface ILingoEngineRegistration
     {
-        ILingoEngineRegistration Services(Action<IServiceCollection> services);
+        ILingoEngineRegistration ServicesMain(Action<IServiceCollection> services);
+        ILingoEngineRegistration ServicesLingo(Action<IServiceCollection> services);
         ILingoEngineRegistration AddFont(string name, string pathAndName);
         ILingoEngineRegistration ForMovie(string name, Action<IMovieRegistration> action);
         ILingoEngineRegistration WithFrameworkFactory<T>(Action<T>? setup = null) where T : class, ILingoFrameworkFactory;
@@ -39,6 +40,7 @@ namespace LingoEngine.Setup
     public class LingoEngineRegistration : ILingoEngineRegistration
     {
         private readonly IServiceCollection _container;
+        private readonly LingoProxyServiceCollection _proxy;
         private readonly Dictionary<string, MovieRegistration> _Movies = new();
         private readonly List<(string Name, string FileName)> _Fonts = new();
         private readonly List<Action<IServiceProvider>> _BuildActions = new();
@@ -49,6 +51,17 @@ namespace LingoEngine.Setup
         public LingoEngineRegistration(IServiceCollection container)
         {
             _container = container;
+            _proxy = new LingoProxyServiceCollection(container);
+        }
+
+        public IServiceProvider? ServiceProvider => _serviceProvider;
+
+        public void ClearDynamicRegistrations()
+        {
+            _proxy.UnregisterLingo();
+            _Movies.Clear();
+            _Fonts.Clear();
+            _BuildActions.Clear();
         }
         public void RegisterCommonServices()
         {
@@ -98,7 +111,7 @@ namespace LingoEngine.Setup
 
         public ILingoEngineRegistration ForMovie(string name, Action<IMovieRegistration> action)
         {
-            var registration = new MovieRegistration(_container, name);
+            var registration = new MovieRegistration(_proxy, name);
             action(registration);
             _Movies.Add(name, registration);
             return this;
@@ -111,9 +124,15 @@ namespace LingoEngine.Setup
                 item(movie);
         }
 
-        public ILingoEngineRegistration Services(Action<IServiceCollection> services)
+        public ILingoEngineRegistration ServicesMain(Action<IServiceCollection> services)
         {
             services(_container);
+            return this;
+        }
+
+        public ILingoEngineRegistration ServicesLingo(Action<IServiceCollection> services)
+        {
+            services(_proxy);
             return this;
         }
 
