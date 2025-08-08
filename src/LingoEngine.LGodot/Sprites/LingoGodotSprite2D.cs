@@ -340,7 +340,7 @@ namespace LingoEngine.LGodot.Sprites
             //    case LingoMemberShape shape:
             //        break;
             //    case LingoFilmLoopMember filmloop:
-                    
+
             //        break;
             //}
         }
@@ -370,17 +370,19 @@ namespace LingoEngine.LGodot.Sprites
             _DesiredWidth = size.Width;
             Width = size.Width;
             Height = size.Height;
+            var offset = filmLoop.Offset;
+            _Sprite2D.Offset = new Vector2(offset.X - Width / 2f, offset.Y - Height / 2f);
             _filmloopPlayer = _lingoSprite2D.GetFilmLoopPlayer();
             if (_filmloopPlayer == null) return;
             if (_filmloopPlayer.Texture is not LingoGodotTexture2D tex)
                 return;
 
             _Sprite2D.Texture = tex.Texture;
-           
+
         }
         private ILingoMember? _previousChildElement;
         private Node? _previousChildElementNode;
-        
+
 
         private void UpdateNodeMember(ILingoMember member, Node godotElement) // Clone required to be able to draw multiple times the same member
         {

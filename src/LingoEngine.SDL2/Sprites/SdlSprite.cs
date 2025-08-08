@@ -142,6 +142,12 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
             {
                 offset = baseOffset;
             }
+
+            if (_lingoSprite.Member is LingoFilmLoopMember flm)
+            {
+                var fl = flm.Framework<SdlMemberFilmLoop>();
+                offset = new LingoPoint(offset.X - fl.Offset.X, offset.Y - fl.Offset.Y);
+            }
         }
 
         SDL.SDL_Rect dst = new SDL.SDL_Rect
