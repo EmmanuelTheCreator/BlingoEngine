@@ -174,6 +174,8 @@ namespace LingoEngine.Sprites
             SpriteNum = sp.SpriteNum;
             Hilite = sp.Hilite;
         }
+        public LingoSpriteAnimatorProperties GetAnimatorProperties() => GetAnimator().Properties;
+
 
         #region Animator
 
@@ -208,12 +210,12 @@ namespace LingoEngine.Sprites
                 foregroundColorEnabled, backgroundColorEnabled, blendEnabled,
                 curvature, continuousAtEnds, speedSmooth, easeIn, easeOut);
         }
-        private LingoSpriteAnimator GetAnimator()
+        public LingoSpriteAnimator GetAnimator(LingoSpriteAnimatorProperties? animatorProperties = null)
         {
             var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
             if (animator == null)
             {
-                animator = new LingoSpriteAnimator(this, _spritesPlayer, _eventMediator);
+                animator = new LingoSpriteAnimator(this, _spritesPlayer, _eventMediator, animatorProperties);
                 AddActor(animator);
             }
 
@@ -249,6 +251,7 @@ namespace LingoEngine.Sprites
 
         public void SetMember(ILingoMember? member)
         {
+            if (_Member == member) return;
             if (_Member != null && (_Member.Type == LingoMemberType.Script || _Member.Type == LingoMemberType.Sound || _Member.Type == LingoMemberType.Transition || _Member.Type == LingoMemberType.Unknown || _Member.Type == LingoMemberType.Palette || _Member.Type == LingoMemberType.Movie || _Member.Type == LingoMemberType.Font || _Member.Type == LingoMemberType.Cursor))
                 return;
             // Release the old member link with this sprite

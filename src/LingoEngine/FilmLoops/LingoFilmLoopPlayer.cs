@@ -44,7 +44,7 @@ namespace LingoEngine.FilmLoops
             foreach (var entry in fl.SpriteEntries)
             {
                 var rt = new LingoSprite2DVirtual(_mediator, this, entry, _castLibs);
-
+                rt.GetAnimator(entry.AnimatorProperties);
                 ApplyFraming(fl, entry, rt);
                 _layers.Add((entry, rt));
             }
@@ -103,7 +103,7 @@ namespace LingoEngine.FilmLoops
                 bool active = entry.BeginFrame <= _currentFrame && entry.EndFrame >= _currentFrame;
                 if (!active)
                     continue;
-
+                runtime.GetAnimatorProperties();
                 runtime.SetMember(template.Member);
                 ApplyFraming(fl, template, runtime);
 

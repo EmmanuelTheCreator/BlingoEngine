@@ -9,6 +9,7 @@ using LingoEngine.Styles;
 using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel.DataAnnotations;
 using LingoEngine.Casts;
+using System;
 namespace LingoEngine.Setup
 {
     public interface ILingoEngineRegistration

@@ -132,6 +132,8 @@ namespace LingoEngine.Animations
 
 
         #region Boundingbox
+        public void SpriteRegPointOrSizeChanged() => _properties.RequestRecalculatedBoundingBox();
+
         public LingoRect GetBoundingBox() => _properties.GetBoundingBoxForFrame(_spritesPlayer.CurrentFrame, _sprite.RegPoint, _sprite.Width, _sprite.Height);
 
 

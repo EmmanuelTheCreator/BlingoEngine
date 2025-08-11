@@ -4,6 +4,8 @@ namespace LingoEngine.Animations
 {
     public class LingoSpriteAnimatorProperties
     {
+        private LingoRect? _calculatedBoundingBox;
+        private Dictionary<int,LingoRect> _calculatedFrameBoundingBoxes = new();
         private bool _cacheDirty = true;
         public bool CacheIsDirty => _cacheDirty;
         public void CacheApplied() => _cacheDirty = false;
@@ -39,8 +41,14 @@ namespace LingoEngine.Animations
                 opt.EaseOut = easeOut;
             }
         }
-        
 
+        public void AddKeyframes(params LingoKeyFrameSetting[] keyframes)
+        {
+            if (keyframes == null || keyframes.Length == 0)
+                return;
+            foreach (var keyframe in keyframes)
+                AddKeyFrame(keyframe);
+        }
         public void AddKeyFrame(LingoKeyFrameSetting setting)
         {
             if (setting.Position != null) Position.AddKeyFrame(setting.Frame, setting.Position.Value);
@@ -68,7 +76,7 @@ namespace LingoEngine.Animations
 
 
         #region Boundingbox
-        private LingoRect? _calculatedBoundingBox;
+        
         public LingoRect GetBoundingBox(LingoPoint spriteRegpoint, LingoRect spriteRect, float spriteWidth, float spriteHeight)
         {
             if (_calculatedBoundingBox != null) return _calculatedBoundingBox.Value;
@@ -101,6 +109,8 @@ namespace LingoEngine.Animations
         }
         public LingoRect GetBoundingBoxForFrame(int frame, LingoPoint spriteRegpoint, float spriteWidth, float spriteHeight)
         {
+            if (_calculatedFrameBoundingBoxes.TryGetValue(frame, out var cachedBox))
+                return cachedBox;
             var pos = Position.GetValue(frame);
             var size = Size.GetValue(frame);
             var rot = Rotation.GetValue(frame);
@@ -147,7 +157,9 @@ namespace LingoEngine.Animations
             br += center;
             bl += center;
 
-            return LingoRect.FromPoints(tl, tr, br, bl);
+            var newRect = LingoRect.FromPoints(tl, tr, br, bl);
+            _calculatedFrameBoundingBoxes.Add(frame, newRect);
+            return newRect;
         }
         private static LingoPoint Rotate(LingoPoint pt, float cos, float sin)
         {
@@ -160,6 +172,7 @@ namespace LingoEngine.Animations
         internal void RequestRecalculatedBoundingBox()
         {
             _calculatedBoundingBox = null;
+            _calculatedFrameBoundingBoxes.Clear();
         }
         #endregion
     }

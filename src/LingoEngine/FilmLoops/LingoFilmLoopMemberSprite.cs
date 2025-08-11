@@ -157,13 +157,7 @@ namespace LingoEngine.FilmLoops
             }
             return new LingoPoint();
         }
-        public void AddKeyframes(params LingoKeyFrameSetting[] keyframes)
-        {
-            if (keyframes == null || keyframes.Length == 0)
-                return;
-            foreach (var keyframe in keyframes)
-                AnimatorProperties.AddKeyFrame(keyframe);
-        }
+        public void AddKeyframes(params LingoKeyFrameSetting[] keyframes) => AnimatorProperties.AddKeyframes(keyframes);
 
     }
 }
