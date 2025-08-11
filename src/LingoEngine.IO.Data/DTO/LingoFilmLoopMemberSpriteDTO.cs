@@ -28,9 +28,11 @@ public class LingoFilmLoopMemberSpriteDTO
     public bool FlipV { get; set; }
 
     public LingoPointDTO RegPoint { get; set; }
-    public LingoColorDTO ForeColor { get; set; } 
-    public LingoColorDTO BackColor { get; set; } 
+    public LingoColorDTO ForeColor { get; set; }
+    public LingoColorDTO BackColor { get; set; }
     public float Width { get; set; }
     public float Height { get; set; }
+
+    public LingoSpriteAnimatorDTO Animator { get; set; } = new();
 
 }
