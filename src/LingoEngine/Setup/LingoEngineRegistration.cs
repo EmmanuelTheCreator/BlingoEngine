@@ -51,6 +51,12 @@ namespace LingoEngine.Setup
         private Action<ILingoFrameworkFactory>? _FrameworkFactorySetup;
         private IServiceProvider? _serviceProvider;
         private Action<LingoProjectSettings> _projectSettingsSetup = p => { };
+        private bool _hasBeenBuild = false;
+        private LingoPlayer? _player;
+        private Func<ILingoProjectFactory>? _makeFactoryMethod;
+        private ILingoProjectFactory? _projectFactory;
+        private ILingoMovie? _startupMovie;
+        public IServiceProvider? ServiceProvider => _serviceProvider;
 
         public LingoEngineRegistration(IServiceCollection container)
         {
@@ -58,7 +64,6 @@ namespace LingoEngine.Setup
             _proxy = new LingoProxyServiceCollection(container);
         }
 
-        public IServiceProvider? ServiceProvider => _serviceProvider;
 
         public void UnloadMovie(string? preserveNamespaceFragment = null)
         {
@@ -105,11 +110,7 @@ namespace LingoEngine.Setup
         }
 
 
-        private bool _hasBeenBuild = false;
-        private LingoPlayer? _player;
-        private Func<ILingoProjectFactory>? _makeFactoryMethod;
-        private ILingoProjectFactory _projectFactory;
-        private ILingoMovie? _startupMovie;
+     
 
         public LingoPlayer Build()
         {
