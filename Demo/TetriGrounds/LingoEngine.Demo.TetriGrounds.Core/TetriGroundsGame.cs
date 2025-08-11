@@ -25,11 +25,6 @@ namespace LingoEngine.Demo.TetriGrounds.Core
         }
         public ILingoMovie LoadMovie()
         {
-            _lingoPlayer
-                .LoadCastLibFromCsv("Data", Path.Combine("Medias", "Data", "Members.csv"))
-                .LoadCastLibFromCsv("InternalExt", Path.Combine("Medias", "InternalExt", "Members.csv"))
-                ;
-            //_lingoPlayer.AddCastLib("Data",c => c.Add(LingoMemberType.Bitmap, 1, "MyBG", "/Medias/Data/Game.jpg"));
             _movie = _lingoPlayer.NewMovie(MovieName);
 
             AddLabels();

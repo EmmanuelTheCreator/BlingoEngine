@@ -162,8 +162,8 @@ namespace LingoEngine.Core
 
         ILingoCast CastLib(int number);
         ILingoCast CastLib(string name);
-        ILingoPlayer LoadCastLibFromCsv(string castlibName, string pathAndFilenameToCsv);
-        ILingoPlayer AddCastLib(string name, Action<ILingoCast>? configure = null);
+        ILingoPlayer LoadCastLibFromCsv(string castlibName, string pathAndFilenameToCsv, bool isInternal = false);
+        ILingoPlayer AddCastLib(string name, bool isInternal = false, Action<ILingoCast>? configure = null);
     }
 }
 

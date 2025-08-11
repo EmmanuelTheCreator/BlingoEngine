@@ -320,7 +320,7 @@ When a movie stops, events occur in the following order:
             });
             FrameworkObj.Hide();
             // Release the old member link with this sprite
-            _Member?.ReleaseFromSprite(this);
+            _Member?.ReleaseFromRefUser(this);
             base.DoEndSprite();
         }
 
@@ -357,10 +357,13 @@ When a movie stops, events occur in the following order:
                 return this;
             // Release the old member link with this sprite
             if (member != _Member)
-                _Member?.ReleaseFromSprite(this);
+            {
+                _Member?.ReleaseFromRefUser(this);
+            }
             _Member = member as LingoMember;
             if (_Member != null)
             {
+                _Member.UsedBy(this);
                 RegPoint = _Member.RegPoint;
             }
             if (member is LingoFilmLoopMember filmLoop)
@@ -598,9 +601,15 @@ When a movie stops, events occur in the following order:
 
         public override void OnRemoveMe()
         {
+            _Member?.ReleaseFromRefUser(this);
             _frameworkSprite.RemoveMe();
             if (_onRemoveMe != null)
                 _onRemoveMe(this);
+        }
+
+        public void MemberHasBeenRemoved()
+        {
+            _Member = null;
         }
 
         public void SetOnRemoveMe(Action<LingoSprite2D> onRemoveMe) => _onRemoveMe = onRemoveMe;

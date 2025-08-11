@@ -34,11 +34,13 @@ public class LingoFrameScriptSprite : LingoSprite, ILingoSpriteWithMember
         BeginFrame = beginFrame;
         EndFrame = endFrame;
         Member = frameScript;
+        Member.UsedBy(this);
         Name = frameScript.Name ?? string.Empty;
     }
 
     public override void OnRemoveMe()
     {
+        Member?.ReleaseFromRefUser(this);
         if (Behavior != null)
             _environment.Events.Unsubscribe(Behavior);
         _onRemoveMe(this);
@@ -82,7 +84,8 @@ public class LingoFrameScriptSprite : LingoSprite, ILingoSpriteWithMember
         {
             baseAction(s);
             var sprite = (LingoFrameScriptSprite)s;
-            sprite.Member = Member;
+            sprite.Member = member;
+            member.UsedBy(sprite);
             if (behaviorType != null)
             {
                 var method = typeof(LingoFrameScriptSprite).GetMethod(nameof(SetBehavior), BindingFlags.Instance | BindingFlags.NonPublic);
@@ -90,7 +93,7 @@ public class LingoFrameScriptSprite : LingoSprite, ILingoSpriteWithMember
                 var behaviorNew = (LingoSpriteBehavior)generic.Invoke(sprite, null)!;
                 if (userProperties != null)
                     behaviorNew.SetUserProperties(userProperties);
-                
+
             }
         };
 
@@ -99,8 +102,15 @@ public class LingoFrameScriptSprite : LingoSprite, ILingoSpriteWithMember
 
     public void SetMember(LingoMemberScript lingoMemberScript)
     {
+        Member?.ReleaseFromRefUser(this);
         Member = lingoMemberScript;
+        Member.UsedBy(this);
     }
 
     public ILingoMember? GetMember() => Member;
+
+    public void MemberHasBeenRemoved()
+    {
+        Member = null!;
+    }
 }
