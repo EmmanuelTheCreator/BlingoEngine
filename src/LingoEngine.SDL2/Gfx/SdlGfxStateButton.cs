@@ -61,6 +61,8 @@ namespace LingoEngine.SDL2.Gfx
         public event Action? ValueChanged;
         public object FrameworkNode => this;
 
+        public ILingoImageTexture? TextureOff { get; set; }
+
         public void Render()
         {
             if (!Visibility) return;

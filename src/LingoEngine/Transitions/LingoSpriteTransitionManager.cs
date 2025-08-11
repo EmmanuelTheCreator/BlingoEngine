@@ -16,7 +16,8 @@ internal class LingoSpriteTransitionManager : LingoSpriteManager<LingoTransition
     {
     }
 
-    protected override LingoTransitionSprite OnCreateSprite(LingoMovie movie, Action<LingoTransitionSprite> onRemove) => new LingoTransitionSprite(_environment, onRemove);
+    protected override LingoTransitionSprite OnCreateSprite(LingoMovie movie, Action<LingoTransitionSprite> onRemove) 
+        => new LingoTransitionSprite(_environment.Events,_environment.CastLibsContainer.ActiveCast, onRemove);
 
     public LingoTransitionSprite Add(int frameNumber, LingoTransitionFrameSettings? settings = null)
     {

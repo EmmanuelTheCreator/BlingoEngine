@@ -86,7 +86,7 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
         int width = (int)MathF.Ceiling(bounds.Width);
         int height = (int)MathF.Ceiling(bounds.Height);
 
-        nint surface = SDL.SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL.SDL_PIXELFORMAT_RGBA32);
+        nint surface = SDL.SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL.SDL_PIXELFORMAT_RGBA8888);
         if (surface == nint.Zero)
             return Texture ?? new SdlTexture2D(nint.Zero, width, height);
 
@@ -110,7 +110,7 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
             {
                 if (destW != srcW || destH != srcH)
                 {
-                    srcSurf = SDL.SDL_CreateRGBSurfaceWithFormat(0, destW, destH, 32, SDL.SDL_PIXELFORMAT_RGBA32);
+                    srcSurf = SDL.SDL_CreateRGBSurfaceWithFormat(0, destW, destH, 32, SDL.SDL_PIXELFORMAT_RGBA8888);
                     if (srcSurf == nint.Zero)
                         continue;
                     SDL.SDL_Rect srect = new SDL.SDL_Rect { x = 0, y = 0, w = srcW, h = srcH };
@@ -125,7 +125,7 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
                 int cropH = Math.Min(destH, srcH);
                 int cropX = (srcW - cropW) / 2;
                 int cropY = (srcH - cropH) / 2;
-                srcSurf = SDL.SDL_CreateRGBSurfaceWithFormat(0, cropW, cropH, 32, SDL.SDL_PIXELFORMAT_RGBA32);
+                srcSurf = SDL.SDL_CreateRGBSurfaceWithFormat(0, cropW, cropH, 32, SDL.SDL_PIXELFORMAT_RGBA8888);
                 if (srcSurf == nint.Zero)
                     continue;
                 SDL.SDL_Rect srect = new SDL.SDL_Rect { x = cropX, y = cropY, w = cropW, h = cropH };

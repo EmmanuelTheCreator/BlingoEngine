@@ -20,7 +20,7 @@ namespace LingoEngine.Scripts
 
         //public LingoSpriteFrameScript Add(int frame) => AddSprite(6, "FrameScript_" + frame, sprite => sprite.BeginFrame = frame);
 
-        protected override LingoFrameScriptSprite OnCreateSprite(LingoMovie movie, Action<LingoFrameScriptSprite> onRemove) => new LingoFrameScriptSprite(_environment, onRemove);
+        protected override LingoFrameScriptSprite OnCreateSprite(LingoMovie movie, Action<LingoFrameScriptSprite> onRemove) => new LingoFrameScriptSprite(_environment.Player,_environment.Factory, _environment.Events, onRemove);
 
         public LingoFrameScriptSprite Add<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour = null, Action<LingoFrameScriptSprite>? configure = null) where TBehaviour : LingoSpriteBehavior
         {

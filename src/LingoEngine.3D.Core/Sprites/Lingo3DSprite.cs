@@ -1,5 +1,4 @@
 using LingoEngine.Movies;
-using LingoEngine.Events;
 using LingoEngine.L3D.Core.Members;
 using LingoEngine.Sprites;
 
@@ -12,7 +11,7 @@ public class Lingo3DSprite : LingoSprite2D
 {
     private readonly List<LingoCamera> _cameras = new();
 
-    public Lingo3DSprite(ILingoMovieEnvironment environment) : base(environment)
+    public Lingo3DSprite(ILingoMovieEnvironment environment, ILingoSpritesPlayer spritesHolder) : base(environment, spritesHolder)
     {
     }
 

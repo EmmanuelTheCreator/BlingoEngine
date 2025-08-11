@@ -1,6 +1,7 @@
 using System;
 using System.Numerics;
 using ImGuiNET;
+using LingoEngine.Bitmaps;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 
@@ -25,6 +26,8 @@ namespace LingoEngine.SDL2.Gfx
         public bool Enabled { get; set; } = true;
 
         public object FrameworkNode => this;
+
+        public ILingoImageTexture? IconTexture { get; set; }
 
         public event Action? Pressed;
 

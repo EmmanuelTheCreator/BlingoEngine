@@ -1,6 +1,7 @@
 ﻿using System;
 using LingoEngine.Casts;
 using LingoEngine.Commands;
+using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
 using LingoEngine.Movies;
@@ -273,9 +274,11 @@ namespace LingoEngine.Core
 
         public bool CanExecute(SetFrameLabelCommand command) => ActiveMovie is LingoMovie;
 
-      
+        public ILingoEventMediator GetEventMediator() => _serviceProvider.GetRequiredService<ILingoEventMediator>();
 
-       
+
+
+
         #endregion
     }
 }

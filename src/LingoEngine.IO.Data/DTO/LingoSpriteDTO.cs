@@ -1,7 +1,6 @@
 
 
 namespace LingoEngine.IO.Data.DTO;
-
 public class LingoSpriteDTO
 {
     public string Name { get; set; } = string.Empty;

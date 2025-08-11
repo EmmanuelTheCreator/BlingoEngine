@@ -1,3 +1,5 @@
+using LingoEngine.Casts;
+using LingoEngine.Events;
 using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
@@ -26,7 +28,7 @@ public enum LingoColorPaletteCycleOption
 public class LingoColorPaletteSprite : LingoSprite, ILingoSpriteWithMember
 {
     public const int SpriteNumOffset = 1;
-
+    private readonly ILingoCast _activeCastlib;
     private readonly Action<LingoColorPaletteSprite> _removeMe;
 
     public int Frame { get; set; }
@@ -34,8 +36,9 @@ public class LingoColorPaletteSprite : LingoSprite, ILingoSpriteWithMember
     public LingoColorPaletteMember? Member { get; set; }
     override public int SpriteNumWithChannel => SpriteNumOffset + SpriteNum;
 
-    public LingoColorPaletteSprite(ILingoMovieEnvironment environment, Action<LingoColorPaletteSprite> removeMe) : base(environment)
+    public LingoColorPaletteSprite(ILingoEventMediator mediator, ILingoCast activeCastlib, Action<LingoColorPaletteSprite> removeMe) : base(mediator)
     {
+        _activeCastlib = activeCastlib;
         _removeMe = removeMe;
         IsSingleFrame = true;
     }
@@ -49,7 +52,7 @@ public class LingoColorPaletteSprite : LingoSprite, ILingoSpriteWithMember
     {
         if (Member == null)
         {
-            Member = _environment.CastLibsContainer.ActiveCast.Add<LingoColorPaletteMember>(0, "");
+            Member = _activeCastlib.Add<LingoColorPaletteMember>(0, "");
             Member.UsedBy(this);
         }
         Member.SetSettings(settings);

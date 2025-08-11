@@ -1,5 +1,6 @@
 ﻿using LingoEngine.Bitmaps;
 using LingoEngine.ColorPalettes;
+using LingoEngine.Core;
 using LingoEngine.FilmLoops;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Members;

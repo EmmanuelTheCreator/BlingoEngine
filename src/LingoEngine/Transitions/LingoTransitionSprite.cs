@@ -1,13 +1,14 @@
-using LingoEngine.ColorPalettes;
-using LingoEngine.Movies;
 using LingoEngine.Sprites;
 using LingoEngine.Members;
+using LingoEngine.Events;
+using LingoEngine.Casts;
 
 namespace LingoEngine.Transitions;
 
 public class LingoTransitionSprite : LingoSprite, ILingoSpriteWithMember
 {
     public const int SpriteNumOffset = 2;
+    private readonly ILingoCast _castlib;
     private readonly Action<LingoTransitionSprite> _removeMe;
 
     public int Frame { get; set; }
@@ -16,8 +17,9 @@ public class LingoTransitionSprite : LingoSprite, ILingoSpriteWithMember
     public LingoTransitionMember? Member { get; set; }
     public override int SpriteNumWithChannel => SpriteNumOffset + SpriteNum;
 
-    public LingoTransitionSprite(ILingoMovieEnvironment environment, Action<LingoTransitionSprite> removeMe) : base(environment)
+    public LingoTransitionSprite(ILingoEventMediator mediator, ILingoCast castlib, Action<LingoTransitionSprite> removeMe) : base(mediator)
     {
+        _castlib = castlib;
         _removeMe = removeMe;
         IsSingleFrame = true;
     }
@@ -31,7 +33,7 @@ public class LingoTransitionSprite : LingoSprite, ILingoSpriteWithMember
     {
         if (Member == null)
         {
-            Member = _environment.CastLibsContainer.ActiveCast.Add<LingoTransitionMember>(0, "");
+            Member = _castlib.Add<LingoTransitionMember>(0, "");
             Member.UsedBy(this);
         }
         Member.SetSettings(settings);

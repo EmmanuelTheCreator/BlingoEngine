@@ -8,6 +8,7 @@ using LingoEngine.Movies;
 using LingoEngine.FilmLoops;
 using LingoEngine.Sprites.Events;
 using LingoEngine.Bitmaps;
+using LingoEngine.FrameworkCommunication;
 
 namespace LingoEngine.Sprites
 {
@@ -16,6 +17,11 @@ namespace LingoEngine.Sprites
     {
         public const int SpriteNumOffset = 6;
         private readonly List<LingoSpriteBehavior> _behaviors = new();
+        private readonly LingoMovie _movie;
+        private readonly ILingoFrameworkFactory _frameworkFactory;
+        private readonly ILingoSpritesPlayer _spritesHolder;
+        private readonly ILingoMovieEnvironment _environment;
+
         public IReadOnlyList<LingoSpriteBehavior> Behaviors => _behaviors;
 
         private ILingoFrameworkSprite _frameworkSprite;
@@ -194,10 +200,13 @@ namespace LingoEngine.Sprites
         // public int ScriptText { get; set; }
 
 #pragma warning disable CS8618
-        public LingoSprite2D(ILingoMovieEnvironment environment) : base(environment)
+        public LingoSprite2D(ILingoMovieEnvironment environment, ILingoSpritesPlayer spritesHolder) : base(environment.Events)
 #pragma warning restore CS8618
         {
-
+            _movie = (LingoMovie)environment.Movie;
+            _frameworkFactory = environment.Factory;
+            _spritesHolder = spritesHolder;
+            _environment = environment;
         }
         public void Init(ILingoFrameworkSprite frameworkSprite)
         {
@@ -214,7 +223,7 @@ namespace LingoEngine.Sprites
         }
         public T SetBehavior<T>() where T : LingoSpriteBehavior
         {
-            var behavior = _environment.Factory.CreateBehavior<T>((LingoMovie)_environment.Movie);
+            var behavior = _frameworkFactory.CreateBehavior<T>(_movie);
             behavior.SetMe(this);
             _behaviors.Add(behavior);
 
@@ -222,7 +231,7 @@ namespace LingoEngine.Sprites
         }
 
         #region Animation / keyframes
-
+        
         /// <summary>
         /// Adds animation keyframes for this sprite. When invoked for the first time
         /// it lazily creates a <see cref="LingoSpriteAnimator"/> actor and stores it
@@ -259,11 +268,18 @@ namespace LingoEngine.Sprites
             var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
             if (animator == null)
             {
-                animator = new LingoSpriteAnimator(this, _environment);
+                animator = new LingoSpriteAnimator(this, _movie, _eventMediator);
                 AddActor(animator);
             }
 
             return animator;
+        }
+        public void AddAnimator(LingoSpriteAnimatorProperties animatorProps, ILingoEventMediator eventMediator)
+        {
+            var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
+            if (animator != null) throw new Exception("Animator already set");
+            animator = new LingoSpriteAnimator(this, _movie, eventMediator, animatorProps);
+            AddActor(animator);
         }
         #endregion
         /*
@@ -384,7 +400,7 @@ When a movie stops, events occur in the following order:
             {
                 if (existingPlayer == null)
                 {
-                    existingPlayer = new LingoFilmLoopPlayer(this, _environment);
+                    existingPlayer = new LingoFilmLoopPlayer(this, _eventMediator,_environment.CastLibsContainer);
                     AddActor(existingPlayer);
                 }
                 if (IsActive)
@@ -670,6 +686,6 @@ When a movie stops, events occur in the following order:
             return action;
         }
 
-        
+       
     }
 }
