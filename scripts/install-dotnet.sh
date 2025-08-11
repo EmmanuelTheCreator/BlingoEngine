@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
+# Ensure $HOME/.dotnet is on PATH
+if [[ ":$PATH:" != *":$HOME/.dotnet:"* ]]; then
+  export PATH="$HOME/.dotnet:$PATH"
+fi
+
 if command -v dotnet >/dev/null 2>&1; then
   echo ".NET SDK already installed: $(dotnet --version)"
   exit 0
@@ -12,4 +17,4 @@ chmod +x dotnet-install.sh
 ./dotnet-install.sh --channel LTS
 rm dotnet-install.sh
 
-echo "Installation complete. Add \$HOME/.dotnet to your PATH if needed."
+echo "Installation complete. \$HOME/.dotnet has been added to your PATH."
