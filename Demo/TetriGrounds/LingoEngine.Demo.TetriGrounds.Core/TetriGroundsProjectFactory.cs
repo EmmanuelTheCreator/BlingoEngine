@@ -1,4 +1,6 @@
 using System;
+using System.IO;
+using LingoEngine.Casts;
 using LingoEngine.Core;
 using LingoEngine.Projects;
 using LingoEngine.Setup;
@@ -44,5 +46,12 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         game.LoadMovie();
         if (autoPlayMovie)
             game.Play();
+    }
+
+    public void LoadCastLibs(ILingoCastLibsContainer castlibContainer, LingoPlayer lingoPlayer)
+    {
+        lingoPlayer
+            .LoadCastLibFromCsv("Data", Path.Combine("Medias", "Data", "Members.csv"))
+            .LoadCastLibFromCsv("InternalExt", Path.Combine("Medias", "InternalExt", "Members.csv"), true);
     }
 }

@@ -24,12 +24,16 @@ public class LingoTransitionSprite : LingoSprite, ILingoSpriteWithMember
 
     public override void OnRemoveMe()
     {
+        Member?.ReleaseFromRefUser(this);
         _removeMe(this);
     }
     public void SetSettings(LingoTransitionFrameSettings settings)
     {
         if (Member == null)
+        {
             Member = _environment.CastLibsContainer.ActiveCast.Add<LingoTransitionMember>(0, "");
+            Member.UsedBy(this);
+        }
         Member.SetSettings(settings);
     }
 
@@ -49,7 +53,8 @@ public class LingoTransitionSprite : LingoSprite, ILingoSpriteWithMember
         {
             baseAction(s);
             var sprite = (LingoTransitionSprite)s;
-            sprite.Member = Member;
+            sprite.Member = member;
+            member?.UsedBy(sprite);
             if (settings != null)
                 sprite.SetSettings(settings);
         };
@@ -59,9 +64,16 @@ public class LingoTransitionSprite : LingoSprite, ILingoSpriteWithMember
 
     public void SetMember(LingoTransitionMember transitionMember)
     {
+        Member?.ReleaseFromRefUser(this);
         Member = transitionMember;
-        SetSettings(transitionMember.GetSettings());
+       Member.UsedBy(this);
+       SetSettings(transitionMember.GetSettings());
     }
 
     public ILingoMember? GetMember() => Member;
+
+    public void MemberHasBeenRemoved()
+    {
+        Member = null;
+    }
 }

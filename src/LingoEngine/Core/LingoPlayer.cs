@@ -183,19 +183,24 @@ namespace LingoEngine.Core
         ///     Number,Type,Name,Registration Point,Filename
         ///     1,bitmap,BallB,"(5, 5)",
         /// </summary>
-        public ILingoPlayer LoadCastLibFromCsv(string castlibName, string pathAndFilenameToCsv)
+        public ILingoPlayer LoadCastLibFromCsv(string castlibName, string pathAndFilenameToCsv, bool isInternal = false)
         {
-            var castLib = _castLibsContainer.AddCast(castlibName);
+            var castLib = _castLibsContainer.AddCast(castlibName, isInternal);
             _csvImporter.Value.ImportInCastFromCsvFile(castLib, pathAndFilenameToCsv);
             return this;
         }
 
-        public ILingoPlayer AddCastLib(string name, Action<ILingoCast>? configure = null)
+        public ILingoPlayer AddCastLib(string name, bool isInternal = false, Action<ILingoCast>? configure = null)
         {
-            var castLib = _castLibsContainer.AddCast(name);
+            var castLib = _castLibsContainer.AddCast(name, isInternal);
             if (configure != null)
                 configure(castLib);
             return this;
+        }
+
+        public void UnloadInternalCastLibs()
+        {
+            _castLibsContainer.RemoveInternal();
         }
 
         public void SetActiveMovie(LingoMovie? movie)

@@ -5,7 +5,7 @@ using LingoEngine.Primitives;
 
 namespace LingoEngine.Sprites
 {
-    public class LingoSprite2DVirtual : LingoSprite ,ILingoSprite2DLight
+    public class LingoSprite2DVirtual : LingoSprite, ILingoSprite2DLight, ILingoSpriteWithMember
     {
         public const int SpriteNumOffset = 6;
         private int _ink;
@@ -225,11 +225,14 @@ namespace LingoEngine.Sprites
             if (_Member != null && (_Member.Type == LingoMemberType.Script || _Member.Type == LingoMemberType.Sound || _Member.Type == LingoMemberType.Transition || _Member.Type == LingoMemberType.Unknown || _Member.Type == LingoMemberType.Palette || _Member.Type == LingoMemberType.Movie || _Member.Type == LingoMemberType.Font || _Member.Type == LingoMemberType.Cursor))
                 return;
             // Release the old member link with this sprite
-            //if (member != _Member)
-            //    _Member?.ReleaseFromSprite(this);
+            if (member != _Member)
+            {
+                _Member?.ReleaseFromRefUser(this);
+            }
             _Member = member as LingoMember;
             if (_Member != null)
             {
+                _Member.UsedBy(this);
                 RegPoint = _Member.RegPoint;
                 _Member.Preload();
                 Width = _Member.Width;
@@ -303,8 +306,14 @@ namespace LingoEngine.Sprites
 
         public override void OnRemoveMe()
         {
+            _Member?.ReleaseFromRefUser(this);
             if (_onRemoveMe != null)
                 _onRemoveMe(this);
+        }
+
+        public void MemberHasBeenRemoved()
+        {
+            _Member = null;
         }
 
         public void SetOnRemoveMe(Action<LingoSprite2DVirtual> onRemoveMe) => _onRemoveMe = onRemoveMe;

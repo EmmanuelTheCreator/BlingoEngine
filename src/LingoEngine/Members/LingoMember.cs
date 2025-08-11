@@ -1,6 +1,7 @@
 ﻿using LingoEngine.Casts;
 using LingoEngine.Primitives;
-using LingoEngine.Sprites;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace LingoEngine.Members
@@ -29,7 +30,7 @@ namespace LingoEngine.Members
     /// Corresponds to Lingo: member "Name" or member x
     /// </summary>
 
-    public interface ILingoMember
+    public interface ILingoMember : IDisposable
     {
         /// <summary>
         /// Retrieves the framework object like godot, unity or SDL
@@ -203,8 +204,9 @@ namespace LingoEngine.Members
         protected readonly LingoCast _cast;
         private string _name = string.Empty;
         private readonly ILingoFrameworkMember _frameworkMember;
+        private readonly List<IMemberRefUser> _linkedMemberRefUsers = new();
+        private bool _hasBeenDisposed;
         public ILingoFrameworkMember FrameworkObj => _frameworkMember;
-
 
         /// <inheritdoc/>
         public string Name
@@ -313,9 +315,33 @@ namespace LingoEngine.Members
             return _cast.Member[Number + numberOffset];
         }
 
-        internal virtual void ReleaseFromSprite(LingoSprite2D lingoSprite)
+        internal void UsedBy(IMemberRefUser refUser)
         {
-            FrameworkObj.ReleaseFromSprite(lingoSprite);
+            if (!_linkedMemberRefUsers.Contains(refUser))
+                _linkedMemberRefUsers.Add(refUser);
+        }
+
+        internal virtual void ReleaseFromRefUser(IMemberRefUser refUser)
+        {
+            _linkedMemberRefUsers.Remove(refUser);
+        }
+
+        protected virtual void OnDispose() { }
+
+        public void Dispose()
+        {
+            if (_hasBeenDisposed)
+                return;
+            _hasBeenDisposed = true;
+
+            foreach (var user in _linkedMemberRefUsers.ToArray())
+                user.MemberHasBeenRemoved();
+            _linkedMemberRefUsers.Clear();
+
+            OnDispose();
+
+            if (FrameworkObj is IDisposable disposable)
+                disposable.Dispose();
         }
     }
 }

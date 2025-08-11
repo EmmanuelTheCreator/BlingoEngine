@@ -1,6 +1,7 @@
 ﻿using LingoEngine.Core;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
+using System;
 
 namespace LingoEngine.Casts
 {
@@ -10,7 +11,7 @@ namespace LingoEngine.Casts
     /// A cast library can contain cast members such as sounds, text, graphics, and media.
     /// Lingo equivalent: castLib("LibraryName")
     /// </summary>
-    public interface ILingoCast
+    public interface ILingoCast : IDisposable
     {
         /// <summary>
         /// The name of the cast library.
@@ -36,6 +37,10 @@ namespace LingoEngine.Casts
         /// Cast library property; determines the preload mode of a specified cast library.
         /// </summary>
         PreLoadModeType PreLoadMode { get; set; }
+        /// <summary>
+        /// Indicates whether this cast library belongs to a specific movie (internal) or is shared (external).
+        /// </summary>
+        bool IsInternal { get; }
         /// <summary>
         /// Returns the cast members that are selected in a given Cast window
         /// </summary>

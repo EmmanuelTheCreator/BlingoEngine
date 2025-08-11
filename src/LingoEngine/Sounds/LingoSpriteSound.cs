@@ -31,6 +31,7 @@ public class LingoSpriteSound : LingoSprite, ILingoSpriteWithMember
         BeginFrame = beginFrame;
         EndFrame = endFrame;
         Sound = sound;
+        Sound.UsedBy(this);
         Name = sound.Name ?? string.Empty;
         _soundChannel = _environment.Sound.Channel(channel);
     }
@@ -47,10 +48,11 @@ public class LingoSpriteSound : LingoSprite, ILingoSpriteWithMember
         base.EndSprite();
     }
 
-    public override void OnRemoveMe()
-    {
-        _onRemoveMe(this);
-    }
+        public override void OnRemoveMe()
+        {
+            Sound?.ReleaseFromRefUser(this);
+            _onRemoveMe(this);
+        }
 
     public override Action<LingoSprite> GetCloneAction()
     {
@@ -61,11 +63,17 @@ public class LingoSpriteSound : LingoSprite, ILingoSpriteWithMember
         {
             baseAction(s);
             var sprite = (LingoSpriteSound)s;
-            sprite.Sound = Sound;
+            sprite.Sound = member;
+            member?.UsedBy(sprite);
         };
 
         return action;
     }
 
     public ILingoMember? GetMember() => Sound;
+
+    public void MemberHasBeenRemoved()
+    {
+        Sound = null;
+    }
 }
