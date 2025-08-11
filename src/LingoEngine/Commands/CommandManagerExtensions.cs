@@ -8,7 +8,11 @@ internal static class CommandManagerExtensions
 {
     public static void DiscoverAndSubscribe(this ILingoCommandManager manager, IServiceProvider provider)
     {
-        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(x =>
+        {
+            var name1 = x.GetName().Name;
+            return name1 != null && !name1!.StartsWith("System") && !name1!.StartsWith("Microsoft");
+        });
         foreach (var type in assemblies.SelectMany(a =>
         {
             try { return a.GetTypes(); } catch { return Array.Empty<Type>(); }

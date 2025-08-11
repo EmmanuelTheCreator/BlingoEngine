@@ -184,10 +184,10 @@ namespace LingoEngine.LGodot.Core
         /// <summary>
         /// Dependant on movie, because the behaviors are scoped and movie related.
         /// </summary>
-        public T CreateSprite<T>(ILingoMovie movie, Action<LingoSprite2D> onRemoveMe) where T : LingoSprite2D
+        public LingoSprite2D CreateSprite2D(ILingoMovie movie, Action<LingoSprite2D> onRemoveMe)
         {
             var movieTyped = (LingoMovie)movie;
-            var lingoSprite = movieTyped.GetServiceProvider().GetRequiredService<T>();
+            var lingoSprite = new LingoSprite2D(((LingoMovie)movie).GetEnvironment(), movie);
             lingoSprite.SetOnRemoveMe(onRemoveMe);
             movieTyped.Framework<LingoGodotMovie>().CreateSprite(lingoSprite);
             return lingoSprite;

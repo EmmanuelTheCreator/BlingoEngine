@@ -43,7 +43,7 @@ namespace LingoEngine.Sprites
         }
         protected override LingoSprite2D OnCreateSprite(LingoMovie movie, Action<LingoSprite2D> onRemove)
         {
-            var sprite = _environment.Factory.CreateSprite<LingoSprite2D>(_movie, onRemove);
+            var sprite = _environment.Factory.CreateSprite2D(_movie, onRemove);
             return sprite;
         }
         protected override void SpriteJustCreated(LingoSprite2D sprite)

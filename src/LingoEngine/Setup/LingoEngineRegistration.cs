@@ -21,7 +21,6 @@ namespace LingoEngine.Setup
         ILingoEngineRegistration WithProjectSettings(Action<LingoProjectSettings> setup);
         LingoPlayer Build();
         ILingoProjectFactory BuildAndRunProject();
-        LingoPlayer Build(IServiceProvider serviceProvider);
         ILingoEngineRegistration AddBuildAction(Action<IServiceProvider> buildAction);
         ILingoEngineRegistration SetProjectFactory<TLingoProjectFactory>() where TLingoProjectFactory : ILingoProjectFactory, new();
     }
@@ -110,22 +109,17 @@ namespace LingoEngine.Setup
         private LingoPlayer? _player;
         private Func<ILingoProjectFactory>? _makeFactoryMethod;
         private ILingoProjectFactory _projectFactory;
+        private ILingoMovie? _startupMovie;
 
         public LingoPlayer Build()
         {
             if (_hasBeenBuild && _player != null) return _player;
-            return Build(_container.BuildServiceProvider());
-        }
-
-        public LingoPlayer Build(IServiceProvider serviceProvider)
-        {
-            if (_hasBeenBuild && _player != null) return _player;
-            _serviceProvider = serviceProvider;
-            var player = serviceProvider.GetRequiredService<LingoPlayer>();
+            CreateProjectFactory();
+            _serviceProvider = _container.BuildServiceProvider();
+            var player = _serviceProvider.GetRequiredService<LingoPlayer>();
             player.SetActionOnNewMovie(ActionOnNewMovie);
             if (_FrameworkFactorySetup != null)
-                _FrameworkFactorySetup(serviceProvider.GetRequiredService<ILingoFrameworkFactory>());
-
+                _FrameworkFactorySetup(_serviceProvider.GetRequiredService<ILingoFrameworkFactory>());
             _player = player;
             InitializeProject();
             _hasBeenBuild = true;
@@ -139,23 +133,29 @@ namespace LingoEngine.Setup
         public ILingoProjectFactory RunProject()
         {
             if (_projectFactory == null) throw new InvalidOperationException("Project factory has not been set up. Use AddProjectFactory<TLingoProjectFactory>() to set it up. and run Build first");
-
-            _projectFactory.Run(_serviceProvider!,_player!, !LingoEngineGlobal.IsRunningDirector);
+            if (_startupMovie != null)
+                _projectFactory.Run(_startupMovie, !LingoEngineGlobal.IsRunningDirector);
             return _projectFactory;
         }
 
+        private void CreateProjectFactory()
+        {
+            if (_makeFactoryMethod == null)
+                return;
+            _projectFactory = _makeFactoryMethod();
+        }
         private void InitializeProject()
         {
-            if (_makeFactoryMethod == null || _serviceProvider == null || _player == null)
+            if (_projectFactory == null || _serviceProvider == null || _player == null)
                 return;
-
-            _projectFactory = _makeFactoryMethod();
+            
             _projectSettingsSetup(_serviceProvider.GetRequiredService<LingoProjectSettings>());
             LoadFonts(_serviceProvider);
             _BuildActions.ForEach(b => b(_serviceProvider));
             _serviceProvider.GetRequiredService<ILingoCommandManager>()
                 .DiscoverAndSubscribe(_serviceProvider);
             _projectFactory.LoadCastLibs(_serviceProvider.GetRequiredService<ILingoCastLibsContainer>(), _player);
+            _startupMovie = _projectFactory.LoadStartupMovie(_serviceProvider, _player);
         }
 
         private void LoadFonts(IServiceProvider serviceProvider)
@@ -230,6 +230,7 @@ namespace LingoEngine.Setup
 
             if (_hasBeenBuild && _serviceProvider != null)
             {
+                CreateProjectFactory();
                 InitializeProject();
             }
 

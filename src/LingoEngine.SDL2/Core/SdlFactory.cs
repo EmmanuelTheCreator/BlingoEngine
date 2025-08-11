@@ -170,13 +170,13 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
         return movie;
     }
     /// <inheritdoc/>
-    public T CreateSprite<T>(ILingoMovie movie, Action<LingoSprite2D> onRemoveMe) where T : LingoSprite2D
+    public LingoSprite2D CreateSprite2D(ILingoMovie movie, Action<LingoSprite2D> onRemoveMe)
     {
         var movieTyped = (LingoMovie)movie;
-        var sprite = movieTyped.GetServiceProvider().GetRequiredService<T>();
-        sprite.SetOnRemoveMe(onRemoveMe);
-        movieTyped.Framework<SdlMovie>().CreateSprite(sprite);
-        return sprite;
+        var lingoSprite = new LingoSprite2D(((LingoMovie)movie).GetEnvironment(), movie);
+        lingoSprite.SetOnRemoveMe(onRemoveMe);
+        movieTyped.Framework<SdlMovie>().CreateSprite(lingoSprite);
+        return lingoSprite;
     }
     /// <inheritdoc/>
     public void Dispose()
