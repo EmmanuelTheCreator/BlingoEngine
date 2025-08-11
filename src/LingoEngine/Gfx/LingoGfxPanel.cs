@@ -9,7 +9,7 @@ namespace LingoEngine.Gfx
     public class LingoGfxPanel : LingoGfxNodeLayoutBase<ILingoFrameworkGfxPanel>
     {
         private readonly ILingoFrameworkFactory _factory;
-
+        public ILingoFrameworkFactory Factory => _factory;
         public LingoGfxPanel(ILingoFrameworkFactory factory)
         {
             _factory = factory;

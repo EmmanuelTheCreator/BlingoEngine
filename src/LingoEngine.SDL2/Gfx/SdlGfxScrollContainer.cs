@@ -1,11 +1,20 @@
 using System;
+using System.Collections.Generic;
+using System.Numerics;
+using ImGuiNET;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxScrollContainer : ILingoFrameworkGfxScrollContainer, IDisposable
+    internal class SdlGfxScrollContainer : ILingoFrameworkGfxScrollContainer, IDisposable, ISdlRenderElement
     {
+        private readonly nint _renderer;
+
+        public SdlGfxScrollContainer(nint renderer)
+        {
+            _renderer = renderer;
+        }
         public float X { get; set; }
         public float Y { get; set; }
         public float Width { get; set; }
@@ -17,17 +26,47 @@ namespace LingoEngine.SDL2.Gfx
         public float ScrollVertical { get; set; }
         public bool ClipContents { get; set; }
         public object FrameworkNode => this;
-        public void AddItem(ILingoFrameworkGfxLayoutNode child) { }
-        public void Dispose() { }
 
-        public IEnumerable<ILingoFrameworkGfxLayoutNode> GetItems()
+        private readonly List<ILingoFrameworkGfxLayoutNode> _children = new();
+
+        public void AddItem(ILingoFrameworkGfxLayoutNode child)
         {
-            throw new NotImplementedException();
+            if (!_children.Contains(child))
+                _children.Add(child);
         }
 
         public void RemoveItem(ILingoFrameworkGfxLayoutNode lingoFrameworkGfxNode)
         {
-            throw new NotImplementedException();
+            _children.Remove(lingoFrameworkGfxNode);
+        }
+
+        public IEnumerable<ILingoFrameworkGfxLayoutNode> GetItems() => _children.ToArray();
+
+        public void Render()
+        {
+            if (!Visibility) return;
+
+            ImGui.SetCursorPos(new Vector2(X, Y));
+            ImGui.PushID(Name);
+            ImGui.BeginChild("##scroll", new Vector2(Width, Height), ImGuiChildFlags.None);
+            ImGui.SetScrollX(ScrollHorizontal);
+            ImGui.SetScrollY(ScrollVertical);
+
+            foreach (var child in _children)
+            {
+                if (child.FrameworkNode is ISdlRenderElement renderable)
+                    renderable.Render();
+            }
+
+            ScrollHorizontal = ImGui.GetScrollX();
+            ScrollVertical = ImGui.GetScrollY();
+            ImGui.EndChild();
+            ImGui.PopID();
+        }
+
+        public void Dispose()
+        {
+            _children.Clear();
         }
     }
 }

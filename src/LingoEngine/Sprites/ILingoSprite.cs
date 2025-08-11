@@ -1,19 +1,46 @@
 ﻿using LingoEngine.Casts;
 using LingoEngine.Members;
+using LingoEngine.Movies;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.Sprites
 {
     /// <summary>
-    /// Represents a sprite in the score with visual, timing, and behavioral properties.
+    /// Represents a base sprite in the score.
     /// Mirrors Lingo’s sprite object functionality.
     /// </summary>
-    public interface ILingoSprite
+    public interface ILingoSpriteBase
     {
         /// <summary>
         /// The frame number at which the sprite appears. Read/write.
         /// </summary>
         int BeginFrame { get; set; }
+        /// <summary>
+        /// The frame number at which the sprite stops displaying. Read/write.
+        /// </summary>
+        int EndFrame { get; set; }
+        /// <summary>
+        /// Returns or sets the name of the sprite.
+        /// </summary>
+        string Name { get; set; }
+
+        /// <summary>
+        /// The unique index number of the sprite in the score. Read-only.
+        /// </summary>
+        int SpriteNum { get; }
+
+        bool Puppet { get; set; }
+
+        bool Lock { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a sprite in the score with visual, timing, and behavioral properties.
+    /// Mirrors Lingo’s sprite object functionality.
+    /// </summary>
+    public interface ILingoSprite : ILingoSpriteBase
+    {
+       
 
         /// <summary>
         /// Background color for the sprite. Read/write.
@@ -40,10 +67,7 @@ namespace LingoEngine.Sprites
         /// </summary>
         bool Editable { get; set; }
 
-        /// <summary>
-        /// The frame number at which the sprite stops displaying. Read/write.
-        /// </summary>
-        int EndFrame { get; set; }
+       
 
         /// <summary>
         /// Foreground color of the sprite, often used in text. Read/write.
@@ -59,6 +83,7 @@ namespace LingoEngine.Sprites
         /// The ink effect applied to the sprite. Read-only.
         /// </summary>
         int Ink { get; set; }
+        LingoInkType InkType { get; set; }
 
         /// <summary>
         /// Returns TRUE if the sprite’s cast member is linked to an external file. Read-only.
@@ -95,11 +120,7 @@ namespace LingoEngine.Sprites
         /// </summary>
         string ModifiedBy { get; set; }
 
-        /// <summary>
-        /// Returns or sets the name of the sprite.
-        /// </summary>
-        string Name { get; set; }
-
+       
         /// <summary>
         /// The rectangular boundary of the sprite (top-left to bottom-right). Read/write.
         /// </summary>
@@ -188,10 +209,7 @@ namespace LingoEngine.Sprites
         /// </summary>
         int Size { get; }
 
-        /// <summary>
-        /// The unique index number of the sprite in the score. Read-only.
-        /// </summary>
-        int SpriteNum { get; }
+        
 
         /// <summary>
         /// Returns or sets a small thumbnail representation of the sprite’s media.
@@ -202,23 +220,24 @@ namespace LingoEngine.Sprites
         /// Controls whether the sprite is visible on the Stage. Read/write.
         /// </summary>
         bool Visibility { get; set; }
-        bool Lock { get; set; }
         int MemberNum { get; }
-        bool Puppet { get; set; }
+        
 
 
         /// <summary>
         /// Changes the cast member displayed by this sprite using the cast member number.
         /// </summary>
         /// <param name="memberNumber">The index of the cast member.</param>
-        void SetMember(int memberNumber, int? castLibNum = null);
+        ILingoSprite SetMember(int memberNumber, int? castLibNum = null);
 
         /// <summary>
         /// Changes the cast member displayed by this sprite using the cast member name.
         /// </summary>
         /// <param name="memberName">The name of the cast member.</param>
-        void SetMember(string memberName, int? castLibNum = null);
-        void SetMember(ILingoMember? member);
+        ILingoSprite SetMember(string memberName, int? castLibNum = null);
+        ILingoSprite SetMember(ILingoMember? member);
+
+        ILingoSprite AddBehavior<T>() where T : LingoSpriteBehavior;
 
         /// <summary>
         /// Sends the sprite to the back of the display order (lowest layer).

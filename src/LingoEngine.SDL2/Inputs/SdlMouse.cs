@@ -72,6 +72,7 @@ public class SdlMouse : ILingoFrameworkMouse
             LingoMouseCursor.Drag => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZEALL,
             LingoMouseCursor.Help => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW,
             LingoMouseCursor.Wait => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_WAIT,
+            LingoMouseCursor.NotAllowed => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_NO,
             _ => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW
         };
 
@@ -80,6 +81,20 @@ public class SdlMouse : ILingoFrameworkMouse
 
         _sdlCursor = SDL.SDL_CreateSystemCursor(sysCursor);
         SDL.SDL_SetCursor(_sdlCursor);
+    }
+
+    public void Release()
+    {
+        if (_sdlCursor != nint.Zero)
+        {
+            SDL.SDL_FreeCursor(_sdlCursor);
+            _sdlCursor = nint.Zero;
+        }
+    }
+
+    public void ReplaceMouseObj(LingoMouse lingoMouse)
+    {
+        _lingoMouse = new Lazy<LingoMouse>(() => lingoMouse);
     }
 
     ~SdlMouse()

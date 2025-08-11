@@ -1,37 +1,39 @@
 ﻿
+using LingoEngine.Events;
+
 namespace LingoEngine.Inputs.Events
 {
     public interface IHasMouseWithinEvent
     {
-        void MouseWithin(ILingoMouse mouse);
+        void MouseWithin(LingoMouseEvent mouse);
     }
     public interface IHasMouseLeaveEvent
     {
-        void MouseLeave(ILingoMouse mouse);
+        void MouseLeave(LingoMouseEvent mouse);
     }
     public interface IHasMouseDownEvent
     {
-        void MouseDown(ILingoMouse mouse);
+        void MouseDown(LingoMouseEvent mouse);
     }
 
     public interface IHasMouseUpEvent
     {
-        void MouseUp(ILingoMouse mouse);
+        void MouseUp(LingoMouseEvent mouse);
     }
 
     public interface IHasMouseMoveEvent
     {
-        void MouseMove(ILingoMouse mouse);
+        void MouseMove(LingoMouseEvent mouse);
     }
 
 
     public interface IHasMouseEnterEvent
     {
-        void MouseEnter(ILingoMouse mouse);
+        void MouseEnter(LingoMouseEvent mouse);
     }
 
     public interface IHasMouseExitEvent
     {
-        void MouseExit(ILingoMouse mouse);
+        void MouseExit(LingoMouseEvent mouse);
     }
 }

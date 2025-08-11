@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Reflection;
+using System.Collections.Generic;
 using LingoEngine.Movies;
 using LingoEngine.Core;
 using LingoEngine.Texts;
@@ -36,23 +37,39 @@ public class JsonStateRepository
             dir = Directory.GetCurrentDirectory();
 
         var json = File.ReadAllText(filePath);
-        var dto = JsonSerializer.Deserialize<LingoMovieDTO>(json) ?? throw new Exception("Invalid movie file");
+        var dto = JsonSerializer.Deserialize<LingoProjectDTO>(json) ?? throw new Exception("Invalid movie file");
 
         return Load(dto, player, dir);
     }
 
-    public LingoMovie Load(LingoMovieDTO dto, LingoPlayer player, string resourceDir)
+    public LingoMovie Load(LingoProjectDTO dto, LingoPlayer player, string resourceDir)
     {
         if (string.IsNullOrEmpty(resourceDir))
             resourceDir = Directory.GetCurrentDirectory();
-
-        return BuildMovieFromDto(dto, player, resourceDir);
+        BuildStageFromDto(dto.Stage, player, resourceDir);
+        return BuildMovieFromDto(dto.Movies.First(), player, resourceDir);
+    }
+    public LingoMovie Load(LingoStageDTO stageDto,LingoMovieDTO movieDto, LingoPlayer player, string resourceDir)
+    {
+        if (string.IsNullOrEmpty(resourceDir))
+            resourceDir = Directory.GetCurrentDirectory();
+        
+        BuildStageFromDto(stageDto, player, resourceDir);
+        return BuildMovieFromDto(movieDto, player, resourceDir);
     }
 
+    private static void BuildStageFromDto(LingoStageDTO dtoStage, LingoPlayer player, string resourceDir)
+    {
+        player.LoadStage(dtoStage.Width, dtoStage.Height, FromDto(dtoStage.BackgroundColor));
+    }
     private static LingoMovie BuildMovieFromDto(LingoMovieDTO dto, LingoPlayer player, string dir)
     {
         var movie = (LingoMovie)player.NewMovie(dto.Name);
         movie.Tempo = dto.Tempo;
+        movie.About = dto.About;
+        movie.Copyright = dto.Copyright;
+        movie.UserName = dto.UserName;
+        movie.CompanyName = dto.CompanyName;
 
         var castMap = new Dictionary<int, LingoCast>();
         var memberMap = new Dictionary<int, LingoMember>();
@@ -89,72 +106,120 @@ public class JsonStateRepository
                     sndMem.IsLinked = sndDto.IsLinked;
                     sndMem.LinkedFilePath = sndDto.LinkedFilePath;
                 }
+                if (member is LingoFilmLoopMember flMem && memDto is LingoMemberFilmLoopDTO flDto)
+                {
+                    flMem.Framing = (LingoFilmLoopFraming)flDto.Framing;
+                    flMem.Loop = flDto.Loop;
+                    foreach (var sEntry in flDto.FilmLoop.SpriteEntries)
+                    {
+                        var tpl = BuildSprite2DVirtualFromDto(sEntry.Sprite, movie, memberMap);
+                        flMem.AddSprite(sEntry.Channel, sEntry.BeginFrame, sEntry.EndFrame, tpl);
+                    }
+                    foreach (var sndEntry in flDto.FilmLoop.SoundEntries)
+                    {
+                        if (memberMap.TryGetValue(sndEntry.SoundMemberNum, out var sm) && sm is LingoMemberSound sndMem2)
+                            flMem.AddSound(sndEntry.Channel, sndEntry.StartFrame, sndMem2);
+                    }
+                }
 
                 memberMap[memDto.Number] = member;
             }
         }
 
         foreach (var sDto in dto.Sprites)
-        {
-            var sprite = movie.AddSprite<LingoSprite>(sDto.SpriteNum, sDto.Name, s =>
-            {
-                s.Puppet = sDto.Puppet;
-                s.Lock = sDto.Lock;
-                s.Visibility = sDto.Visibility;
-                s.LocH = sDto.LocH;
-                s.LocV = sDto.LocV;
-                s.LocZ = sDto.LocZ;
-                s.Rotation = sDto.Rotation;
-                s.Skew = sDto.Skew;
-                s.RegPoint = new LingoPoint(sDto.RegPoint.X, sDto.RegPoint.Y);
-                s.Ink = sDto.Ink;
-                s.ForeColor = FromDto(sDto.ForeColor);
-                s.BackColor = FromDto(sDto.BackColor);
-                s.Blend = sDto.Blend;
-                s.Editable = sDto.Editable;
-                s.Width = sDto.Width;
-                s.Height = sDto.Height;
-                s.BeginFrame = sDto.BeginFrame;
-                s.EndFrame = sDto.EndFrame;
-                s.DisplayMember = sDto.DisplayMember;
-                s.SpritePropertiesOffset = sDto.SpritePropertiesOffset;
-            });
-
-            if (memberMap.TryGetValue(sDto.MemberNum, out var mem))
-                sprite.SetMember(mem);
-
-            if (sDto.Animator != null)
-            {
-                var animator = new LingoSpriteAnimator(sprite, movie.GetEnvironment());
-                var addActor = typeof(LingoSprite).GetMethod("AddActor", BindingFlags.NonPublic | BindingFlags.Instance);
-                addActor?.Invoke(sprite, new object[] { animator });
-
-                ApplyOptions(animator.Position.Options, sDto.Animator.PositionOptions);
-                ApplyOptions(animator.Rotation.Options, sDto.Animator.RotationOptions);
-                ApplyOptions(animator.Skew.Options, sDto.Animator.SkewOptions);
-                ApplyOptions(animator.ForegroundColor.Options, sDto.Animator.ForegroundColorOptions);
-                ApplyOptions(animator.BackgroundColor.Options, sDto.Animator.BackgroundColorOptions);
-                ApplyOptions(animator.Blend.Options, sDto.Animator.BlendOptions);
-
-                foreach (var k in sDto.Animator.Position)
-                    animator.Position.AddKeyFrame(k.Frame, new LingoPoint(k.Value.X, k.Value.Y), (LingoEaseType)k.Ease);
-                foreach (var k in sDto.Animator.Rotation)
-                    animator.Rotation.AddKeyFrame(k.Frame, k.Value, (LingoEaseType)k.Ease);
-                foreach (var k in sDto.Animator.Skew)
-                    animator.Skew.AddKeyFrame(k.Frame, k.Value, (LingoEaseType)k.Ease);
-                foreach (var k in sDto.Animator.ForegroundColor)
-                    animator.ForegroundColor.AddKeyFrame(k.Frame, FromDto(k.Value), (LingoEaseType)k.Ease);
-                foreach (var k in sDto.Animator.BackgroundColor)
-                    animator.BackgroundColor.AddKeyFrame(k.Frame, FromDto(k.Value), (LingoEaseType)k.Ease);
-                foreach (var k in sDto.Animator.Blend)
-                    animator.Blend.AddKeyFrame(k.Frame, k.Value, (LingoEaseType)k.Ease);
-
-                animator.GetType().GetMethod("RecalculateCache", BindingFlags.NonPublic | BindingFlags.Instance)?.Invoke(animator, null);
-            }
-
-        }
+            BuildSpriteFromDto(sDto, movie, memberMap);
 
         return movie;
+    }
+
+    private static LingoSprite2D BuildSpriteFromDto(LingoSpriteDTO sDto, LingoMovie movie, Dictionary<int, LingoMember> memberMap)
+    {
+        LingoSprite2D sprite;
+
+        sprite = movie.AddSprite(sDto.SpriteNum, sDto.Name, s =>
+        {
+            s.Puppet = sDto.Puppet;
+            s.Lock = sDto.Lock;
+            s.Visibility = sDto.Visibility;
+            s.LocH = sDto.LocH;
+            s.LocV = sDto.LocV;
+            s.LocZ = sDto.LocZ;
+            s.Rotation = sDto.Rotation;
+            s.Skew = sDto.Skew;
+            s.RegPoint = new LingoPoint(sDto.RegPoint.X, sDto.RegPoint.Y);
+            s.Ink = sDto.Ink;
+            s.ForeColor = FromDto(sDto.ForeColor);
+            s.BackColor = FromDto(sDto.BackColor);
+            s.Blend = sDto.Blend;
+            s.Editable = sDto.Editable;
+            s.Width = sDto.Width;
+            s.Height = sDto.Height;
+            s.BeginFrame = sDto.BeginFrame;
+            s.EndFrame = sDto.EndFrame;
+            s.DisplayMember = sDto.DisplayMember;
+            s.SpritePropertiesOffset = sDto.SpritePropertiesOffset;
+        });
+        if(memberMap.TryGetValue(sDto.MemberNum, out var mem))
+            sprite.SetMember(mem);
+        AddAnimator(sDto, sprite, movie);
+        return sprite;
+    }
+    private static LingoSprite2DVirtual BuildSprite2DVirtualFromDto(LingoSpriteDTO sDto, LingoMovie movie, Dictionary<int, LingoMember> memberMap)
+    {
+        var env = movie.GetEnvironment();
+        var sprite = new LingoSprite2DVirtual(env);
+        sprite.Puppet = sDto.Puppet;
+        sprite.Lock = sDto.Lock;
+        sprite.LocH = sDto.LocH;
+        sprite.LocV = sDto.LocV;
+        sprite.LocZ = sDto.LocZ;
+        sprite.Rotation = sDto.Rotation;
+        sprite.Skew = sDto.Skew;
+        sprite.RegPoint = new LingoPoint(sDto.RegPoint.X, sDto.RegPoint.Y);
+        sprite.Ink = sDto.Ink;
+        sprite.ForeColor = FromDto(sDto.ForeColor);
+        sprite.BackColor = FromDto(sDto.BackColor);
+        sprite.Blend = sDto.Blend;
+        sprite.Width = sDto.Width;
+        sprite.Height = sDto.Height;
+        sprite.BeginFrame = sDto.BeginFrame;
+        sprite.EndFrame = sDto.EndFrame;
+        sprite.DisplayMember = sDto.DisplayMember;
+        if (memberMap.TryGetValue(sDto.MemberNum, out var mem))
+            sprite.SetMember(mem);
+        AddAnimator(sDto, sprite, movie);
+        return sprite;
+    }
+    private static void AddAnimator(LingoSpriteDTO sDto, ILingoSprite2DLight sprite, LingoMovie movie)
+    {
+        if (sDto.Animator == null)
+            return;
+        
+        var animator = new LingoSpriteAnimator(sprite, movie.GetEnvironment());
+        var addActor = typeof(LingoSprite2D).GetMethod("AddActor", BindingFlags.NonPublic | BindingFlags.Instance);
+        addActor?.Invoke(sprite, new object[] { animator });
+
+        ApplyOptions(animator.Position.Options, sDto.Animator.PositionOptions);
+        ApplyOptions(animator.Rotation.Options, sDto.Animator.RotationOptions);
+        ApplyOptions(animator.Skew.Options, sDto.Animator.SkewOptions);
+        ApplyOptions(animator.ForegroundColor.Options, sDto.Animator.ForegroundColorOptions);
+        ApplyOptions(animator.BackgroundColor.Options, sDto.Animator.BackgroundColorOptions);
+        ApplyOptions(animator.Blend.Options, sDto.Animator.BlendOptions);
+
+        foreach (var k in sDto.Animator.Position)
+            animator.Position.AddKeyFrame(k.Frame, new LingoPoint(k.Value.X, k.Value.Y), (LingoEaseType)k.Ease);
+        foreach (var k in sDto.Animator.Rotation)
+            animator.Rotation.AddKeyFrame(k.Frame, k.Value, (LingoEaseType)k.Ease);
+        foreach (var k in sDto.Animator.Skew)
+            animator.Skew.AddKeyFrame(k.Frame, k.Value, (LingoEaseType)k.Ease);
+        foreach (var k in sDto.Animator.ForegroundColor)
+            animator.ForegroundColor.AddKeyFrame(k.Frame, FromDto(k.Value), (LingoEaseType)k.Ease);
+        foreach (var k in sDto.Animator.BackgroundColor)
+            animator.BackgroundColor.AddKeyFrame(k.Frame, FromDto(k.Value), (LingoEaseType)k.Ease);
+        foreach (var k in sDto.Animator.Blend)
+            animator.Blend.AddKeyFrame(k.Frame, k.Value, (LingoEaseType)k.Ease);
+
+        animator.GetType().GetMethod("RecalculateCache", BindingFlags.NonPublic | BindingFlags.Instance)?.Invoke(animator, null);
     }
 
     private static LingoMovieDTO ToDto(LingoMovie movie, string dir)
@@ -165,6 +230,10 @@ public class JsonStateRepository
             Number = movie.Number,
             Tempo = movie.Tempo,
             FrameCount = movie.FrameCount,
+            About = movie.About,
+            Copyright = movie.Copyright,
+            UserName = movie.UserName,
+            CompanyName = movie.CompanyName,
             Casts = movie.CastLib.GetAll().Select(c => ToDto((LingoCast)c, dir)).ToList(),
             Sprites = GetAllSprites(movie).Select(ToDto).ToList()
         };
@@ -272,11 +341,45 @@ public class JsonStateRepository
                 PurgePriority = baseDto.PurgePriority,
                 ImageFile = SavePicture(picture, dir)
             },
+            LingoFilmLoopMember filmLoop => new LingoMemberFilmLoopDTO
+            {
+                Name = baseDto.Name,
+                Number = baseDto.Number,
+                CastLibNum = baseDto.CastLibNum,
+                NumberInCast = baseDto.NumberInCast,
+                Type = baseDto.Type,
+                RegPoint = baseDto.RegPoint,
+                Width = baseDto.Width,
+                Height = baseDto.Height,
+                Size = baseDto.Size,
+                Comments = baseDto.Comments,
+                FileName = baseDto.FileName,
+                PurgePriority = baseDto.PurgePriority,
+                Framing = (LingoFilmLoopFramingDTO)filmLoop.Framing,
+                Loop = filmLoop.Loop,
+                FilmLoop = new LingoFilmLoopDTO
+                {
+                    FrameCount = filmLoop.FilmLoop.FrameCount,
+                    SpriteEntries = filmLoop.FilmLoop.SpriteEntries.Select(e => new LingoFilmLoopSpriteEntryDTO
+                    {
+                        Channel = e.Channel,
+                        BeginFrame = e.BeginFrame,
+                        EndFrame = e.EndFrame,
+                        Sprite = ToDto(e.Sprite)
+                    }).ToList(),
+                    SoundEntries = filmLoop.FilmLoop.SoundEntries.Select(e => new LingoFilmLoopSoundEntryDTO
+                    {
+                        Channel = e.Channel,
+                        StartFrame = e.StartFrame,
+                        SoundMemberNum = e.Sound.Number
+                    }).ToList()
+                }
+            },
             _ => baseDto
         };
     }
 
-    private static LingoSpriteDTO ToDto(LingoSprite sprite)
+    private static LingoSpriteDTO ToDto(LingoSprite2D sprite)
     {
         var dto = new LingoSpriteDTO
         {
@@ -320,18 +423,59 @@ public class JsonStateRepository
 
         return dto;
     }
-
-    private static IEnumerable<LingoSprite> GetAllSprites(LingoMovie movie)
+    private static LingoSpriteDTO ToDto(LingoSprite2DVirtual sprite)
     {
-        var field = typeof(LingoMovie).GetField("_allTimeSprites", BindingFlags.NonPublic | BindingFlags.Instance);
-        if (field?.GetValue(movie) is IEnumerable<LingoSprite> sprites)
-            return sprites;
-        return Enumerable.Empty<LingoSprite>();
+        var dto = new LingoSpriteDTO
+        {
+            Name = sprite.Name,
+            SpriteNum = sprite.SpriteNum,
+            MemberNum = sprite.MemberNum,
+            DisplayMember = sprite.DisplayMember,
+            Puppet = sprite.Puppet,
+            Lock = sprite.Lock,
+            LocH = sprite.LocH,
+            LocV = sprite.LocV,
+            LocZ = sprite.LocZ,
+            Rotation = sprite.Rotation,
+            Skew = sprite.Skew,
+            RegPoint = new LingoPointDTO { X = sprite.RegPoint.X, Y = sprite.RegPoint.Y },
+            Ink = sprite.Ink,
+            ForeColor = ToDto(sprite.ForeColor),
+            BackColor = ToDto(sprite.BackColor),
+            Blend = sprite.Blend,
+            Width = sprite.Width,
+            Height = sprite.Height,
+            BeginFrame = sprite.BeginFrame,
+            EndFrame = sprite.EndFrame
+        };
+
+        //foreach (var actor in GetSpriteActors(sprite))
+        //{
+        //    switch (actor)
+        //    {
+        //        case LingoSpriteAnimator anim:
+        //            dto.Animator = ToDto(anim);
+        //            break;
+        //        case LingoFilmLoopPlayer fl:
+        //            // Film loop player state is transient, no need to save
+        //            break;
+        //    }
+        //}
+
+        return dto;
     }
 
-    private static IEnumerable<object> GetSpriteActors(LingoSprite sprite)
+    private static IEnumerable<LingoSprite2D> GetAllSprites(LingoMovie movie)
     {
-        var field = typeof(LingoSprite).GetField("_spriteActors", BindingFlags.NonPublic | BindingFlags.Instance);
+        var field = typeof(LingoMovie).GetField("_allTimeSprites", BindingFlags.NonPublic | BindingFlags.Instance);
+        if (field?.GetValue(movie) is IEnumerable<LingoSprite2D> sprites)
+            return sprites;
+        return Enumerable.Empty<LingoSprite2D>();
+    }
+
+    private static IEnumerable<object> GetSpriteActors(LingoSprite2D sprite)
+    {
+        var field = typeof(LingoSprite2D).GetField("_spriteActors", BindingFlags.NonPublic | BindingFlags.Instance);
         if (field?.GetValue(sprite) is IEnumerable<object> actors)
             return actors;
         return Enumerable.Empty<object>();

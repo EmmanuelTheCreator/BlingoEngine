@@ -1,4 +1,5 @@
 using LingoEngine.Primitives;
+using LingoEngine.Texts;
 
 namespace LingoEngine.Gfx
 {
@@ -13,5 +14,6 @@ namespace LingoEngine.Gfx
         LingoColor FontColor { get; set; }
         int LineHeight { get; set; }
         LingoTextWrapMode WrapMode { get; set; }
+        LingoTextAlignment TextAlignment { get; set; }
     }
 }

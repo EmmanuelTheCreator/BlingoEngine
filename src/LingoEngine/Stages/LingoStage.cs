@@ -1,5 +1,7 @@
-﻿using LingoEngine.Members;
+﻿using LingoEngine.Animations;
+using LingoEngine.Members;
 using LingoEngine.Movies;
+using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 
 namespace LingoEngine.Stages
@@ -7,11 +9,13 @@ namespace LingoEngine.Stages
     /// <summary>
     /// You have one stage for all movies
     /// </summary>
-    public class LingoStage
+    public class LingoStage : ILingoStage
     {
         private readonly ILingoFrameworkStage _lingoFrameworkMovieStage;
 
-        public bool RecordKeyframes { get; set; }
+        public int Width { get; set; } = 640;
+        public int Height { get; set; } = 480;
+        public LingoColor BackgroundColor { get; set; }
 
         public LingoMovie? ActiveMovie { get; private set; }
         public LingoMember? MouseMemberUnderMouse
@@ -29,29 +33,31 @@ namespace LingoEngine.Stages
         public LingoStage(ILingoFrameworkStage godotInstance)
         {
             _lingoFrameworkMovieStage = godotInstance;
+            BackgroundColor = LingoColorList.Black;
         }
 
-        public void AddKeyFrame(LingoSprite sprite)
+       
+        public void AddKeyFrame(LingoSprite2D sprite)
         {
-            if (!RecordKeyframes || ActiveMovie == null)
+            if (ActiveMovie == null)
                 return;
             int frame = ActiveMovie.CurrentFrame;
-            sprite.AddKeyframes((frame, sprite.LocH, sprite.LocV, sprite.Rotation, sprite.Skew));
+            sprite.AddKeyframes(sprite.ToKeyFrameSetting(frame));
         }
 
-        public void UpdateKeyFrame(LingoSprite sprite)
+        public void UpdateKeyFrame(LingoSprite2D sprite)
         {
-            if (!RecordKeyframes || ActiveMovie == null)
+            if (ActiveMovie == null)
                 return;
             int frame = ActiveMovie.CurrentFrame;
-            sprite.UpdateKeyframe(frame, sprite.LocH, sprite.LocV, sprite.Rotation, sprite.Skew);
+            sprite.UpdateKeyframe(sprite.ToKeyFrameSetting(frame));
         }
 
-        public void SetSpriteTweenOptions(LingoSprite sprite, bool positionEnabled, bool rotationEnabled,
+        public void SetSpriteTweenOptions(LingoSprite2D sprite, bool positionEnabled, bool sizeEnabled, bool rotationEnabled,
             bool skewEnabled, bool foregroundColorEnabled, bool backgroundColorEnabled, bool blendEnabled,
             float curvature, bool continuousAtEnds, bool speedSmooth, float easeIn, float easeOut)
         {
-            sprite.SetSpriteTweenOptions(positionEnabled, rotationEnabled, skewEnabled,
+            sprite.SetSpriteTweenOptions(positionEnabled, sizeEnabled, rotationEnabled, skewEnabled,
                 foregroundColorEnabled, backgroundColorEnabled, blendEnabled,
                 curvature, continuousAtEnds, speedSmooth, easeIn, easeOut);
         }
@@ -67,7 +73,7 @@ namespace LingoEngine.Stages
         }
 
 
-        public LingoSprite? GetSpriteUnderMouse()
+        public LingoSprite2D? GetSpriteUnderMouse()
         {
             if (ActiveMovie == null)
                 return null;
@@ -76,7 +82,7 @@ namespace LingoEngine.Stages
             return ActiveMovie.GetSpriteUnderMouse(skipLockedSprites);
         }
 
-        public Animations.LingoSpriteMotionPath? GetSpriteMotionPath(LingoSprite sprite)
+        public Animations.LingoSpriteMotionPath? GetSpriteMotionPath(LingoSprite2D sprite)
         {
             if (sprite == null) return null;
             return sprite.CallActor<Animations.LingoSpriteAnimator, Animations.LingoSpriteMotionPath>(

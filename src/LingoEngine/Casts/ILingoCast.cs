@@ -1,6 +1,7 @@
 ﻿using LingoEngine.Core;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
+using System;
 
 namespace LingoEngine.Casts
 {
@@ -10,7 +11,7 @@ namespace LingoEngine.Casts
     /// A cast library can contain cast members such as sounds, text, graphics, and media.
     /// Lingo equivalent: castLib("LibraryName")
     /// </summary>
-    public interface ILingoCast
+    public interface ILingoCast : IDisposable
     {
         /// <summary>
         /// The name of the cast library.
@@ -37,9 +38,17 @@ namespace LingoEngine.Casts
         /// </summary>
         PreLoadModeType PreLoadMode { get; set; }
         /// <summary>
+        /// Indicates whether this cast library belongs to a specific movie (internal) or is shared (external).
+        /// </summary>
+        bool IsInternal { get; }
+        /// <summary>
         /// Returns the cast members that are selected in a given Cast window
         /// </summary>
         CastMemberSelection? Selection { get; set; }
+
+        event Action<ILingoMember>? MemberAdded;
+        event Action<ILingoMember>? MemberDeleted;
+        event Action<ILingoMember>? MemberNameChanged;
 
 
         public T? GetMember<T>(int number) where T : class, ILingoMember;
@@ -52,7 +61,15 @@ namespace LingoEngine.Casts
         /// </summary>
         int FindEmpty();
         ILingoMember Add(LingoMemberType type, int numberInCast, string name, string fileName = "", LingoPoint regPoint = default);
+        T Add<T>(int numberInCast, string name, Action<T>? configure = null) where T: ILingoMember;
 
         IEnumerable<ILingoMember> GetAll();
+
+        /// <summary>
+        /// Swap the positions of two cast members identified by their slot numbers.
+        /// </summary>
+        /// <param name="slot1">First slot number.</param>
+        /// <param name="slot2">Second slot number.</param>
+        void SwapMembers(int slot1, int slot2);
     }
 }

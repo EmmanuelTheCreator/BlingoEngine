@@ -10,7 +10,7 @@ public sealed record AddSpriteCommand(
     LingoMovie Movie,
     ILingoMember Member,
     // Channel number is 1-based to match LingoMovie
-    int Channel,
+    int SpriteNumWithChannel,
     int BeginFrame,
     int EndFrame) : ILingoCommand
 {
@@ -28,12 +28,12 @@ public sealed record AddSpriteCommand(
     {
         var movie = Movie;
         var member = Member;
-        int channel = Channel;
+        int channel = SpriteNumWithChannel;
         int begin = BeginFrame;
         int end = EndFrame;
         return () =>
         {
-            movie.AddSprite(channel, begin, end, 0, 0, s => s.SetMember(member));
+            movie.AddSpriteByChannelNum(channel, begin, end, member);
             refresh();
         };
     }

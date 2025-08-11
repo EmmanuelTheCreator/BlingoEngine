@@ -2,6 +2,7 @@
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Tools.Commands;
 using LingoEngine.Director.Core.Windowing.Commands;
+using LingoEngine.Gfx;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Director.Core.Windowing
@@ -9,6 +10,9 @@ namespace LingoEngine.Director.Core.Windowing
     public interface IDirFrameworkWindowManager
     {
         void SetActiveWindow(IDirectorWindowRegistration window);
+        IDirectorWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult);
+        IDirectorWindowDialogReference? ShowCustomDialog(string title, ILingoFrameworkGfxPanel panel);
+        IDirectorWindowDialogReference? ShowNotification(string message, DirUINotificationType type);
     }
     public interface IDirectorWindowRegistration
     {
@@ -21,9 +25,13 @@ namespace LingoEngine.Director.Core.Windowing
         IDirectorWindowManager Register<TWindow>(string windowCode, DirectorShortCutMap? shortCutMap = null)
              where TWindow : IDirectorWindow;
         bool OpenWindow(string windowCode);
+        bool SwapWindowOpenState(string windowCode);
         bool CloseWindow(string windowCode);
         void Init(IDirFrameworkWindowManager frameworkWindowManager);
         void SetActiveWindow(string windowCode);
+        IDirectorWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult);
+        IDirectorWindowDialogReference? ShowCustomDialog(string title, ILingoFrameworkGfxPanel panel);
+        IDirectorWindowDialogReference? ShowNotification(string message, DirUINotificationType type);
     }
     public class DirectorWindowManager : IDirectorWindowManager,
         ICommandHandler<OpenWindowCommand>,
@@ -89,7 +97,31 @@ namespace LingoEngine.Director.Core.Windowing
             _frameworkWindowManager.SetActiveWindow(registration);
         }
 
+        public IDirectorWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult)
+            => _frameworkWindowManager.ShowConfirmDialog(title, message, onResult);
 
+        public IDirectorWindowDialogReference? ShowCustomDialog(string title, ILingoFrameworkGfxPanel panel)
+            => _frameworkWindowManager.ShowCustomDialog(title, panel);
+
+        public IDirectorWindowDialogReference? ShowNotification(string message, DirUINotificationType type)
+            => _frameworkWindowManager.ShowNotification(message, type);
+
+
+        public bool SwapWindowOpenState(string windowCode)
+        {
+            if (!_windowRegistrations.TryGetValue(windowCode, out var registration)) return false;
+            if (registration.Instance.IsOpen)
+            {
+                registration.Instance.CloseWindow();
+                return true;
+            }
+            else
+            {
+                registration.Instance.OpenWindow();
+                SetActiveWindow(registration);
+                return true;
+            }
+        }
         public bool OpenWindow(string windowCode)
         {
             if (!_windowRegistrations.TryGetValue(windowCode, out var registration)) return false;
@@ -97,6 +129,13 @@ namespace LingoEngine.Director.Core.Windowing
             SetActiveWindow(registration);
             return true;
         }
+
+        public IEnumerable<(string Code, IDirectorWindow Instance)> EnumerateRegistrations()
+        {
+            foreach (var kv in _windowRegistrations)
+                yield return (kv.Key, kv.Value.Instance);
+        }
+
         public bool CloseWindow(string windowCode)
         {
             if (!_windowRegistrations.TryGetValue(windowCode, out var registration)) return false;

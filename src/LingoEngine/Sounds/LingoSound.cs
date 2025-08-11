@@ -129,8 +129,8 @@ namespace LingoEngine.Sounds
 
         public void StopAll()
         {
-            for (int i = 0; i < numberOfSoundChannels; i++)
-                _Channels[i].Stop();
+            for (int i = 0; i < _Channels.Count; i++)
+                _Channels[i+1].Stop();
             
         }
 

@@ -37,6 +37,7 @@
             { "lightgray", LightGray },
             { "darkgray", DarkGray },
         };
+        public static LingoColor Transparent = LingoColor.Transparent();
 
         /// <summary>
         /// Attempts to retrieve a color from the color list by name.

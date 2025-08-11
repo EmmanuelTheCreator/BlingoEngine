@@ -100,8 +100,8 @@ namespace LingoEngine.Director.Core.Icons
 
         ReplaceMember,
         WindowPaint,
-        WindowText,
         WindowPath,
+        WindowText,
         Window3D,
 
     }

@@ -2,94 +2,156 @@ using Godot;
 using LingoEngine.Movies;
 using LingoEngine.LGodot.Stages;
 using LingoEngine.Core;
-using LingoEngine.Commands;
 using LingoEngine.Director.Core.Stages;
 using System.Linq;
 using System.Collections.Generic;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.Texts;
+using LingoEngine.FrameworkCommunication;
 using LingoEngine.Director.LGodot.Windowing;
-using LingoEngine.Director.Core.Stages.Commands;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Sprites;
-using LingoEngine.Movies.Commands;
 using LingoEngine.Stages;
-using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.UI;
-
+using LingoEngine.LGodot.Gfx;
+using LingoEngine.Inputs;
+using LingoEngine.Director.Core.Icons;
+using LingoEngine.Director.Core.Styles;
+using LingoEngine.Primitives;
+using LingoEngine.Director.LGodot.UI;
 
 namespace LingoEngine.Director.LGodot.Movies;
 
-internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelectedEvent, IDirFrameworkStageWindow
+internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStageWindow
 {
     private const int IconBarHeight = 12;
     private readonly LingoGodotStageContainer _stageContainer;
     private readonly IDirectorEventMediator _mediator;
     private readonly ILingoPlayer _player;
-    private readonly ILingoCommandManager _commandManager;
-    private readonly IHistoryManager _historyManager;
-    private readonly HBoxContainer _iconBar = new HBoxContainer();
-    private readonly HSlider _zoomSlider = new HSlider();
-    private readonly OptionButton _zoomDropdown = new OptionButton();
-    private readonly Button _rewindButton = new Button();
-    private readonly Button _playButton = new Button();
-    private readonly Button _prevFrameButton = new Button();
-    private readonly Button _nextFrameButton = new Button();
-    private readonly Button _recordButton = new Button();
     private readonly ColorRect _stageBgRect = new ColorRect();
-    private readonly ColorRect _colorDisplay = new ColorRect();
-    private readonly ColorPickerButton _colorPicker = new ColorPickerButton();
+    private readonly ColorRect _stageWindowBgRect = new ColorRect();
     private readonly ScrollContainer _scrollContainer = new ScrollContainer();
     private readonly SelectionBox _selectionBox = new SelectionBox();
-    private readonly BoundingBoxesOverlay _boundingBoxes = new BoundingBoxesOverlay();
+    private readonly StageBoundingBoxesOverlay _boundingBoxes;
+    private readonly StageSpriteSummaryOverlay _spriteSummary;
+    private readonly DirectorStageGuides _guides;
+    private readonly IDirectorEventSubscription _stageChangedSubscription;
 
     private LingoMovie? _movie;
     private ILingoFrameworkStage? _stage;
-    private readonly List<LingoSprite> _selectedSprites = new();
+    private readonly DirStageManager _stageManager;
     private readonly DirectorStageWindow _directorStageWindow;
-    private LingoSprite? _primarySelectedSprite;
-    private Vector2? _dragStart;
-    private Dictionary<LingoSprite, Primitives.LingoPoint>? _initialPositions;
-    private Dictionary<LingoSprite, float>? _initialRotations;
-    private bool _rotating;
+    private readonly StageIconBar _iconBar;
+    private readonly Node2D _stageLayer;
     private bool _spaceHeld;
     private bool _panning;
     private float _scale = 1f;
 
-    public DirGodotStageWindow(ILingoFrameworkStageContainer stageContainer, IDirectorEventMediator directorEventMediator, ILingoCommandManager commandManager, IHistoryManager historyManager, ILingoPlayer player, DirectorStageWindow directorStageWindow, IDirGodotWindowManager windowManager)
-        : base(DirectorMenuCodes.StageWindow, "Stage", windowManager)
+    public DirGodotStageWindow(ILingoFrameworkStageContainer stageContainer, IDirectorEventMediator directorEventMediator, IHistoryManager historyManager, ILingoPlayer player, DirectorStageWindow directorStageWindow, DirectorStageGuides guides, DirStageManager stageManager, IDirGodotWindowManager windowManager, IDirectorIconManager iconManager)
+        : base(DirectorMenuCodes.StageWindow, "Stage", windowManager, historyManager)
     {
+        // TempFix
+        //base.DontUseInputInsteadOfGuiInput();
+        
+
         _stageContainer = (LingoGodotStageContainer)stageContainer;
         _mediator = directorEventMediator;
         _player = player;
         _player.ActiveMovieChanged += OnActiveMovieChanged;
-        _commandManager = commandManager;
-        _historyManager = historyManager;
         directorStageWindow.Init(this);
         _directorStageWindow = directorStageWindow;
+        _iconBar = directorStageWindow.IconBar;
+        _iconBar.ZoomChanged += SetScale;
+        _iconBar.ColorChanged += OnColorChanged;
+        BackgroundColor = LingoColorList.Transparent;
+        _stageManager = stageManager;
+        _stageManager.SelectionChanged += OnStageSelectionChanged;
+        _stageManager.SpritesTransformed += OnStageSpritesTransformed;
+        _stageChangedSubscription = _mediator.Subscribe(DirectorEventType.StagePropertiesChanged, StagePropertyChanged);
 
-        _mediator.Subscribe(this);
+        var lp = (LingoPlayer)_player;
+        ((LingoStageMouse)lp.Mouse).ReplaceFrameworkObj(_MouseFrameworkObj);
+        
 
-        
-        
-        Size = new Vector2(640 +10, 480+ TitleBarHeight);
+        _spriteSummary = new StageSpriteSummaryOverlay(lp.Factory, _mediator, iconManager);
+        _boundingBoxes = new StageBoundingBoxesOverlay(lp.Factory, _mediator);
+        _guides = guides;
+        _guides.Draw();
+
+        Size = new Vector2(640 + 10, 480 + 5 + IconBarHeight + TitleBarHeight);
         CustomMinimumSize = Size;
         // Give all nodes clear names for easier debugging
         Name = "DirGodotStageWindow";
         _scrollContainer.Name = "StageScrollContainer";
         _stageBgRect.Name = "StageBackgroundRect";
+        _stageWindowBgRect.Name = "StageWindowBackgroundRect";
         _stageContainer.Container.Name = "StageContainer";
-        _iconBar.Name = "IconBar";
-        _zoomSlider.Name = "ZoomSlider";
-        _zoomDropdown.Name = "ZoomDropdown";
-        _rewindButton.Name = "RewindButton";
-        _playButton.Name = "PlayButton";
-        _prevFrameButton.Name = "PrevFrameButton";
-        _nextFrameButton.Name = "NextFrameButton";
-        _recordButton.Name = "RecordButton";
-        _colorDisplay.Name = "ColorDisplay";
-        _colorPicker.Name = "ColorPicker";
+
+        const int zIndexStageStart = DirGodotWindowManager.ZIndexInactiveWindow + 1000;
+
+        // Bg color for stage
+        _stageWindowBgRect.Color = Colors.DarkGray;
+        _stageWindowBgRect.CustomMinimumSize = Size;
+        _stageWindowBgRect.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        _stageWindowBgRect.SizeFlagsVertical = SizeFlags.ExpandFill;
+        _stageWindowBgRect.ZIndex = zIndexStageStart - 2; // Ensure it is behind everything else
+        AddChild(_stageWindowBgRect);
+
+        // Bg solid color for stage
+        _stageBgRect.Color = Colors.Black;
+        _stageBgRect.CustomMinimumSize = new Vector2(640, 480);
+        _stageBgRect.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        _stageBgRect.SizeFlagsVertical = SizeFlags.ExpandFill;
+        _stageBgRect.ZIndex = zIndexStageStart - 1; // Ensure it is behind everything else
+
+        var spriteSummaryCanvas = _spriteSummary.Canvas.Framework<LingoGodotGfxCanvas>();
+        var boundingBoxesCanvas = _boundingBoxes.Canvas.Framework<LingoGodotGfxCanvas>();
+        var guidesCanvas = _guides.Canvas.Framework<LingoGodotGfxCanvas>();
+        spriteSummaryCanvas.ZIndex = 1000;
+        boundingBoxesCanvas.ZIndex = 1001;
+        guidesCanvas.ZIndex = 999;
+        _selectionBox.ZIndex = 1002;
+        _selectionBox.Visible = false;
+        _stageContainer.Container.ZIndex = zIndexStageStart;
+
+        // canvas layer to keep all childs behind
+        _stageLayer = new Node2D();
+        _stageLayer.Name = "StageLayer";
+        _stageLayer.AddChild(_stageBgRect);
+        _stageLayer.AddChild(_stageContainer.Container);
+        _stageLayer.AddChild(guidesCanvas);
+        _stageLayer.AddChild(spriteSummaryCanvas);
+        _stageLayer.AddChild(_selectionBox);
+
+        
+        var wrapper = new Control();
+        wrapper.Name = "StageWrapper";
+        wrapper.CustomMinimumSize = new Vector2(3000, 2000);
+        wrapper.SizeFlagsHorizontal = SizeFlags.ShrinkBegin;
+        wrapper.SizeFlagsVertical = SizeFlags.ShrinkBegin;
+        wrapper.AddChild(_stageLayer);
+        _scrollContainer.AddChild(wrapper);
+        //_boundingBoxes.MouseFilter = MouseFilterEnum.Ignore; // ensure mouse clicks pass through
+
+
+        CreateScrollContainer();
+        AddChild(_scrollContainer);
+
+        // bottom icon bar
+        var iconBarPanel = _iconBar.Panel.Framework<LingoGodotPanel>();
+        AddChild(iconBarPanel);
+        CreateBottomIconBar(iconBarPanel);
+
+
+        
+    }
+
+   
+
+    private void CreateScrollContainer()
+    {
         // Set anchors to stretch fully
+        _scrollContainer.Position = new Vector2(0, 20);
         _scrollContainer.AnchorLeft = 0;
         _scrollContainer.AnchorTop = 0;
         _scrollContainer.AnchorRight = 1;
@@ -97,109 +159,30 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
 
         // Set offsets to 0
         _scrollContainer.OffsetLeft = 0;
-        _scrollContainer.OffsetTop = 0;
-        _scrollContainer.OffsetRight = -10;
-        _scrollContainer.OffsetBottom = -IconBarHeight - 5;
-        
-
-        _scrollContainer.Position = new Vector2(0, 20);
-        _stageBgRect.Color = Colors.Black;
-        _stageBgRect.CustomMinimumSize = new Vector2(640, 480);
-        _stageBgRect.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-        _stageBgRect.SizeFlagsVertical = SizeFlags.ExpandFill;
-        _scrollContainer.AddChild(_stageBgRect);
-        _scrollContainer.AddChild(_stageContainer.Container);
-        _stageContainer.Container.AddChild(_boundingBoxes);
-        _stageContainer.Container.AddChild(_selectionBox);
-        _boundingBoxes.ZIndex = 500;
-        //_boundingBoxes.MouseFilter = MouseFilterEnum.Ignore; // ensure mouse clicks pass through
-        _selectionBox.Visible = false;
-        _selectionBox.ZIndex = 1000;
-        AddChild(_scrollContainer);
-
-        // bottom icon bar
-        AddChild(_iconBar);
-        _iconBar.AnchorLeft = 0;
-        _iconBar.AnchorRight = 1;
-        _iconBar.AnchorTop = 1;
-        _iconBar.AnchorBottom = 1;
-        _iconBar.OffsetLeft = 0;
-        _iconBar.OffsetRight = 0;
-        _iconBar.OffsetTop = -IconBarHeight;
-        _iconBar.OffsetBottom = 0;
-
-        _rewindButton.Text = "|<";
-        _rewindButton.CustomMinimumSize = new Vector2(20, IconBarHeight);
-        _rewindButton.Pressed += () => _commandManager.Handle(new RewindMovieCommand());
-        _iconBar.AddChild(_rewindButton);
-
-        _playButton.CustomMinimumSize = new Vector2(60, IconBarHeight);
-        _playButton.AddThemeFontSizeOverride("font_size", 8);
-        _playButton.Pressed += () => _commandManager.Handle(new PlayMovieCommand());
-        _iconBar.AddChild(_playButton);
-
-        _prevFrameButton.Text = "<";
-        _prevFrameButton.CustomMinimumSize = new Vector2(20, IconBarHeight);
-        _prevFrameButton.Pressed += () => _commandManager.Handle(new StepFrameCommand(-1));
-        _iconBar.AddChild(_prevFrameButton);
-
-        _nextFrameButton.Text = ">";
-        _nextFrameButton.CustomMinimumSize = new Vector2(20, IconBarHeight);
-        _nextFrameButton.Pressed += () => _commandManager.Handle(new StepFrameCommand(1));
-        _iconBar.AddChild(_nextFrameButton);
-
-        _zoomSlider.MinValue = 0.5f;
-        _zoomSlider.MaxValue = 1.5f;
-        _zoomSlider.Step = 0.1f;
-        _zoomSlider.Value = 1f;
-        _zoomSlider.CustomMinimumSize = new Vector2(150, IconBarHeight);
-        _zoomSlider.ValueChanged += value =>
-        {
-            float scale = (float)value;
-            _scale = scale;
-            UpdateScaleDropdown(scale);
-            _stageContainer.SetScale(scale);
-        };
-        _iconBar.AddChild(_zoomSlider);
-
-        for (int i = 50; i <= 150; i += 10)
-            _zoomDropdown.AddItem($"{i}%");
-        _zoomDropdown.Select(5); // 100%
-        _zoomDropdown.CustomMinimumSize = new Vector2(60, IconBarHeight);
-        _zoomDropdown.ItemSelected += id =>
-        {
-            float scale = (50 + id * 10) / 100f;
-            _zoomSlider.Value = scale;
-            _scale = scale;
-            _stageContainer.SetScale(scale);
-        };
-        _iconBar.AddChild(_zoomDropdown);
-
-        _colorDisplay.Color = Colors.Black;
-        _colorDisplay.CustomMinimumSize = new Vector2(IconBarHeight, IconBarHeight);
-        _iconBar.AddChild(_colorDisplay);
-
-        _colorPicker.CustomMinimumSize = new Vector2(IconBarHeight, IconBarHeight);
-        _colorPicker.Color = Colors.Black;
-        _colorPicker.ColorChanged += c => OnColorChanged(c);
-        _iconBar.AddChild(_colorPicker);
-
-        _recordButton.Text = "●";
-        _recordButton.ToggleMode = true;
-        _recordButton.CustomMinimumSize = new Vector2(IconBarHeight, IconBarHeight);
-        _recordButton.AddThemeColorOverride("font_color", Colors.Red);
-        _recordButton.Toggled += pressed =>
-        {
-            if (_player is LingoPlayer lp)
-                lp.Stage.RecordKeyframes = pressed;
-        };
-        _iconBar.AddChild(_recordButton);
-
-        UpdatePlayButton();
+        _scrollContainer.OffsetTop = TitleBarHeight;
+        _scrollContainer.OffsetRight = 0;
+        _scrollContainer.OffsetBottom = -IconBarHeight-10;
+        _scrollContainer.HorizontalScrollMode = ScrollContainer.ScrollMode.ShowAlways;
+        _scrollContainer.VerticalScrollMode = ScrollContainer.ScrollMode.ShowAlways;
+        _scrollContainer.ZIndex = 500;
     }
+
+    private void CreateBottomIconBar(LingoGodotPanel iconBarPanel)
+    {
+        iconBarPanel.AnchorLeft = 0;
+        iconBarPanel.AnchorRight = 1;
+        iconBarPanel.AnchorTop = 1;
+        iconBarPanel.AnchorBottom = 1;
+        iconBarPanel.OffsetLeft = 0;
+        iconBarPanel.OffsetRight = 0;
+        iconBarPanel.OffsetTop = -TitleBarHeight;
+        iconBarPanel.OffsetBottom = 0;
+    }
+
     protected override void OnResizing(Vector2 size)
     {
         base.OnResizing(size);
+        _stageWindowBgRect.CustomMinimumSize = size;
     }
 
     public void SetStage(ILingoFrameworkStage stage)
@@ -223,58 +206,83 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         if (_movie != null)
         {
             _movie.PlayStateChanged -= OnPlayStateChanged;
-            _movie.SpriteListChanged -= UpdateBoundingBoxes;
+            _movie.Sprite2DListChanged -= SpriteListChanged;
         }
 
         _stage?.SetActiveMovie(movie);
         _movie = movie;
-        _selectedSprites.Clear();
-        _primarySelectedSprite = null;
+        _stageManager.ClearSelection();
         _selectionBox.Visible = false;
 
         if (_movie != null)
         {
             _movie.PlayStateChanged += OnPlayStateChanged;
-            _movie.SpriteListChanged += UpdateBoundingBoxes;
+            _movie.Sprite2DListChanged += SpriteListChanged;
+            var env = _movie.GetEnvironment();
+            _boundingBoxes.SetInput(env.Mouse, env.Key);
         }
 
-        UpdatePlayButton();
+        _iconBar.SetActiveMovie(movie);
         UpdateBoundingBoxes();
     }
 
     private void OnActiveMovieChanged(ILingoMovie? movie)
     {
         SetActiveMovie(movie as LingoMovie);
+        UpdateStagePosition();
     }
 
     private void OnPlayStateChanged(bool isPlaying)
     {
-        UpdatePlayButton();
         UpdateBoundingBoxes();
         if (isPlaying)
+        {
             _selectionBox.Visible = false;
-        else if (_selectedSprites.Count > 0)
+        }
+        else if (_stageManager.SelectedSprites.Count > 0)
             UpdateSelectionBox();
     }
 
-    private void UpdatePlayButton()
+    private void OnStageSelectionChanged()
     {
-        _playButton.Text = _movie != null && _movie.IsPlaying ? "stop !" : "Play >";
+        if (_movie != null && !_movie.IsPlaying && _stageManager.SelectedSprites.Count > 0)
+            UpdateSelectionBox();
+        else
+            _selectionBox.Visible = false;
+        UpdateBoundingBoxes();
+    }
+
+    private void OnStageSpritesTransformed()
+    {
+        UpdateSelectionBox();
+        UpdateBoundingBoxes();
     }
 
 
-    private void OnColorChanged(Color color)
-    {
-        _stageBgRect.Color = color;
-        _colorDisplay.Color = color;
-    }
 
-    private void UpdateScaleDropdown(float value)
+    private void OnColorChanged(LingoColor color)
     {
-        int percent = (int)Mathf.Round(value * 100);
-        int index = (percent - 50) / 10;
-        if (index >= 0 && index < _zoomDropdown.ItemCount)
-            _zoomDropdown.Select(index);
+        _stageManager.ChangeBackgroundColor(color);
+    }
+    private bool StagePropertyChanged()
+    {
+        var color = _player.Stage.BackgroundColor;
+        _stageBgRect.Color = color.ToGodotColor();
+        _stageBgRect.CustomMinimumSize = new Vector2(_player.Stage.Width, _player.Stage.Height);
+        UpdateStagePosition();
+        return true;
+    }
+    private void UpdateStagePosition()
+    {
+        _stageLayer.Position = new Vector2(3000 / 2f - _player.Stage.Width / 2f, 2000 / 2f - _player.Stage.Height / 2f);
+        _scrollContainer.ScrollHorizontal = 3000 / 2 - (int)_scrollContainer.Size.X / 2;
+        _scrollContainer.ScrollVertical = 2000 / 2 - (int)_scrollContainer.Size.Y / 2;
+    }
+    private void SetScale(float scale)
+    {
+        _iconBar.SetZoom(scale);
+        _scale = scale;
+        _stageLayer.SetScale(new Vector2(scale, scale));
     }
 
     private void OnToolChanged(StageTool tool)
@@ -293,59 +301,38 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         }
     }
 
-    public void SpriteSelected(ILingoSprite sprite)
-    {
-        _selectedSprites.Clear();
-        if (!(sprite is LingoSprite ls))
-            return;
-        _selectedSprites.Add(ls);
-        _primarySelectedSprite = ls;
-        if (_movie != null && !_movie.IsPlaying && ls != null)
-            UpdateSelectionBox();
-    }
-
     public void UpdateSelectionBox()
     {
-        if (_selectedSprites.Count == 0)
+        if (_stageManager.SelectedSprites.Count == 0)
         {
             _selectionBox.Visible = false;
             return;
         }
-        float left = _selectedSprites.Min(s => s.Rect.Left);
-        float top = _selectedSprites.Min(s => s.Rect.Top);
-        float right = _selectedSprites.Max(s => s.Rect.Right);
-        float bottom = _selectedSprites.Max(s => s.Rect.Bottom);
-        var rect = new Rect2(left, top, right - left, bottom - top);
+        var rect = _stageManager.ComputeSelectionRect().ToRect2();
         _selectionBox.UpdateRect(rect);
         _selectionBox.Visible = true;
     }
 
+    public void SpriteListChanged(int spriteNumWithChannelNum) => UpdateBoundingBoxes();
     public void UpdateBoundingBoxes()
     {
         if (_movie == null || _movie.IsPlaying)
         {
             _boundingBoxes.Visible = false;
+            _spriteSummary.Visible = false;
             return;
         }
 
-        var rects = new List<Rect2>();
-        foreach (var sprite in _selectedSprites)
+        if (_stageManager.SelectedSprites.Count > 0)
         {
-            if (sprite.Member is LingoMemberText || sprite.Member is LingoMemberField)
-            {
-                var r = sprite.Rect;
-                rects.Add(new Rect2(r.Left, r.Top, r.Right - r.Left, r.Bottom - r.Top));
-            }
-        }
-
-        if (rects.Count > 0)
-        {
-            _boundingBoxes.SetRects(rects);
+            _boundingBoxes.SetSprites(_stageManager.SelectedSprites);
             _boundingBoxes.Visible = true;
+            _spriteSummary.Visible = true;
         }
         else
         {
             _boundingBoxes.Visible = false;
+            _spriteSummary.Visible = false;
         }
     }
 
@@ -383,11 +370,9 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
             else if (!mb.Pressed && (mb.ButtonIndex == MouseButton.WheelUp || mb.ButtonIndex == MouseButton.WheelDown) && bounds.HasPoint(mousePos))
             {
                 float delta = mb.ButtonIndex == MouseButton.WheelUp ? 0.1f : -0.1f;
-                float newScale = Mathf.Clamp(_scale + delta, (float)_zoomSlider.MinValue, (float)_zoomSlider.MaxValue);
-                _zoomSlider.Value = newScale;
-                _scale = newScale;
-                UpdateScaleDropdown(newScale);
-                _stageContainer.SetScale(newScale);
+                float newScale = Mathf.Clamp(_scale + delta, _iconBar.MinZoom, _iconBar.MaxZoom);
+                SetScale(newScale);
+                //_stageContainer.SetScale(newScale);
                 GetViewport().SetInputAsHandled();
                 return;
             }
@@ -397,17 +382,6 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
             _scrollContainer.ScrollHorizontal -= (int)motion.Relative.X;
             _scrollContainer.ScrollVertical -= (int)motion.Relative.Y;
             GetViewport().SetInputAsHandled();
-            return;
-        }
-
-        if (@event is InputEventKey key && key.Pressed && key.Keycode == Key.Z && key.CtrlPressed)
-        {
-            _historyManager.Undo();
-            return;
-        }
-        if (@event is InputEventKey key2 && key2.Pressed && key2.Keycode == Key.Y && key2.CtrlPressed)
-        {
-            _historyManager.Redo();
             return;
         }
 
@@ -430,30 +404,11 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Left)
         {
             Vector2 localPos = _stageContainer.Container.ToLocal(mb.Position);
-
-            var sprite = _movie.GetSpriteAtPoint(localPos.X, localPos.Y, skipLockedSprites: true) as LingoSprite;
-            if (mb.Pressed)
+            if (_movie == null) return;
+            var sprite = _movie.GetSpriteAtPoint(localPos.X, localPos.Y, skipLockedSprites: true) as LingoSprite2D;
+            if (mb.Pressed && sprite != null)
             {
-                if (sprite != null)
-                {
-                    if (Input.IsKeyPressed(Key.Ctrl))
-                    {
-                        if (_selectedSprites.Contains(sprite))
-                            _selectedSprites.Remove(sprite);
-                        else
-                            _selectedSprites.Add(sprite);
-                        UpdateSelectionBox();
-                        UpdateBoundingBoxes();
-                    }
-                    else
-                    {
-                        _selectedSprites.Clear();
-                        _selectedSprites.Add(sprite);
-                        _mediator.RaiseSpriteSelected(sprite);
-                        UpdateSelectionBox();
-                        UpdateBoundingBoxes();
-                    }
-                }
+                _stageManager.HandlePointerClick(sprite, Input.IsKeyPressed(Key.Ctrl));
             }
         }
     }
@@ -462,41 +417,16 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
     {
         if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Left)
         {
+            var p = new LingoEngine.Primitives.LingoPoint(mb.Position.X, mb.Position.Y);
             if (mb.Pressed)
-            {
-                if (_selectedSprites.Count > 0)
-                {
-                    _dragStart = mb.Position;
-                    _initialPositions = _selectedSprites.ToDictionary(s => s, s => new Primitives.LingoPoint(s.LocH, s.LocV));
-                    if (_player is LingoPlayer lp && lp.Stage.RecordKeyframes)
-                        foreach (var s in _selectedSprites)
-                            lp.Stage.AddKeyFrame(s);
-                }
-            }
-            else if (_dragStart.HasValue && _initialPositions != null)
-            {
-                var end = _selectedSprites.ToDictionary(s => s, s => new Primitives.LingoPoint(s.LocH, s.LocV));
-                _commandManager.Handle(new MoveSpritesCommand(_initialPositions, end));
-                _dragStart = null;
-                _initialPositions = null;
-                if (_player is LingoPlayer lp && lp.Stage.RecordKeyframes)
-                    foreach (var s in _selectedSprites)
-                        lp.Stage.UpdateKeyFrame(s);
-            }
+                _stageManager.BeginMove(p);
+            else
+                _stageManager.EndMove(p);
         }
-        else if (@event is InputEventMouseMotion motion && _dragStart.HasValue && _initialPositions != null)
+        else if (@event is InputEventMouseMotion motion)
         {
-            Vector2 delta = motion.Position - _dragStart.Value;
-            foreach (var s in _selectedSprites)
-            {
-                var start = _initialPositions[s];
-                s.LocH = start.X + delta.X;
-                s.LocV = start.Y + delta.Y;
-                if (_player is LingoPlayer lp && lp.Stage.RecordKeyframes)
-                    lp.Stage.UpdateKeyFrame(s);
-            }
-            UpdateSelectionBox();
-            UpdateBoundingBoxes();
+            var p = new LingoEngine.Primitives.LingoPoint(motion.Position.X, motion.Position.Y);
+            _stageManager.UpdateMove(p);
         }
     }
 
@@ -504,68 +434,31 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
     {
         if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Left)
         {
+            var p = new LingoEngine.Primitives.LingoPoint(mb.Position.X, mb.Position.Y);
             if (mb.Pressed)
-            {
-                if (_selectedSprites.Count > 0)
-                {
-                    _dragStart = mb.Position;
-                    _initialRotations = _selectedSprites.ToDictionary(s => s, s => s.Rotation);
-                    _rotating = true;
-                    if (_player is LingoPlayer lp && lp.Stage.RecordKeyframes)
-                        foreach (var s in _selectedSprites)
-                            lp.Stage.AddKeyFrame(s);
-                }
-            }
-            else if (_rotating && _initialRotations != null)
-            {
-                var end = _selectedSprites.ToDictionary(s => s, s => s.Rotation);
-                _commandManager.Handle(new RotateSpritesCommand(_initialRotations, end));
-                _rotating = false;
-                _dragStart = null;
-                _initialRotations = null;
-                if (_player is LingoPlayer lp && lp.Stage.RecordKeyframes)
-                    foreach (var s in _selectedSprites)
-                        lp.Stage.UpdateKeyFrame(s);
-            }
+                _stageManager.BeginRotate(p);
+            else
+                _stageManager.EndRotate(p);
         }
-        else if (@event is InputEventMouseMotion motion && _rotating && _initialRotations != null && _dragStart.HasValue)
+        else if (@event is InputEventMouseMotion motion)
         {
-            Vector2 center = ComputeSelectionCenter();
-            float startAngle = (_dragStart.Value - center).Angle();
-            float currentAngle = (motion.Position - center).Angle();
-            float delta = Mathf.RadToDeg(currentAngle - startAngle);
-            foreach (var s in _selectedSprites)
-            {
-                s.Rotation = _initialRotations[s] + delta;
-                if (_player is LingoPlayer lp && lp.Stage.RecordKeyframes)
-                    lp.Stage.UpdateKeyFrame(s);
-            }
-            UpdateSelectionBox();
-            UpdateBoundingBoxes();
+            var p = new LingoEngine.Primitives.LingoPoint(motion.Position.X, motion.Position.Y);
+            _stageManager.UpdateRotate(p);
         }
     }
-
-    private Vector2 ComputeSelectionCenter()
-    {
-        if (_selectedSprites.Count == 0) return Vector2.Zero;
-        float left = _selectedSprites.Min(s => s.Rect.Left);
-        float top = _selectedSprites.Min(s => s.Rect.Top);
-        float right = _selectedSprites.Max(s => s.Rect.Right);
-        float bottom = _selectedSprites.Max(s => s.Rect.Bottom);
-        return new Vector2((left + right) / 2f, (top + bottom) / 2f);
-    }
-
-  
 
     protected override void Dispose(bool disposing)
     {
         if (_movie != null)
         {
             _movie.PlayStateChanged -= OnPlayStateChanged;
-            _movie.SpriteListChanged -= UpdateBoundingBoxes;
+            _movie.Sprite2DListChanged -= SpriteListChanged;
         }
+        _stageChangedSubscription.Release();
         _player.ActiveMovieChanged -= OnActiveMovieChanged;
-        _mediator.Unsubscribe(this);
+        _stageManager.SelectionChanged -= OnStageSelectionChanged;
+        _stageManager.SpritesTransformed -= OnStageSpritesTransformed;
+        _spriteSummary.Dispose();
         base.Dispose(disposing);
     }
 
@@ -588,25 +481,5 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IHasSpriteSelected
         }
     }
 
-    private partial class BoundingBoxesOverlay : Node2D
-    {
-        public BoundingBoxesOverlay()
-        {
-            Name = "BoundingBoxesOverlay";
-        }
-        private readonly List<Rect2> _rects = new();
-        public void SetRects(IEnumerable<Rect2> rects)
-        {
-            _rects.Clear();
-            _rects.AddRange(rects);
-            QueueRedraw();
-        }
-
-        public override void _Draw()
-        {
-            foreach (var rect in _rects)
-                DrawRect(rect, Colors.Yellow, false, 1);
-        }
-    }
     
 }

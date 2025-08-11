@@ -18,6 +18,8 @@
         /// <returns>The specified cast member.</returns>
         T? Member<T>(int number) where T : class, ILingoMember;
         T? Member<T>(string name) where T : class, ILingoMember;
+        event Action<ILingoMember>? MemberAdded;
+        event Action<ILingoMember>? MemberDeleted;
     }
 
     internal class LingoMembersContainer : ILingoMembersContainer
@@ -26,7 +28,8 @@
         private readonly bool containerForAll;
         private readonly Dictionary<string, LingoMember> _membersByName;
 
-
+        public event Action<ILingoMember>? MemberAdded;
+        public event Action<ILingoMember>? MemberDeleted;
         /// <summary>
         /// Returns a copy array
         /// </summary>
@@ -39,42 +42,83 @@
         }
         internal void Add(LingoMember member)
         {
-            if (containerForAll)
-                _members.Add(member.Number, member);
+            if (containerForAll && member.CastLibNum > 1)
+            {
+                // From the second castlib, the numbers needs to increament
+                if (_members.ContainsKey(member.Number))
+                    _members.Add((member.CastLibNum *131114)+ member.Number, member);
+                else
+                    _members.Add(member.Number, member);
+            }
             else
             {
                 if (member.NumberInCast == 0)
-                    member.NumberInCast = GetNextNumber();
+                    member.NumberInCast = FindEmpty(); // GetNextNumber(member.Cast.Number,0);
                 _members[member.NumberInCast] = member;
             }
-            if (!_membersByName.ContainsKey(member.Name))
-                _membersByName.Add(member.Name, member);
+            var name = member.Name.ToLower();
+            if (!_membersByName.ContainsKey(name))
+                _membersByName.Add(name, member);
+            MemberAdded?.Invoke(member);
         }
 
         internal void Remove(LingoMember member)
         {
+            var name = member.Name.ToLower();
             if (containerForAll)
                 _members.Remove(member.Number);
             else
                 _members.Remove(member.NumberInCast);
-            if (_membersByName.ContainsKey(member.Name))
-                _membersByName.Remove(member.Name);
+            if (_membersByName.ContainsKey(name))
+                _membersByName.Remove(name);
+            MemberDeleted?.Invoke(member);
+        }
+
+        internal void ChangeNumber(int oldNumber, int newNumber)
+        {
+            if (oldNumber == newNumber || containerForAll)
+                return;
+
+            if (_members.TryGetValue(oldNumber, out var member))
+            {
+                _members.Remove(oldNumber);
+                _members[newNumber] = member;
+                member.NumberInCast = newNumber;
+            }
         }
 
         internal void MemberNameChanged(string oldName, LingoMember member)
         {
-            if (!string.IsNullOrWhiteSpace(oldName) && _membersByName.ContainsKey(member.Name))
-                _membersByName.Remove(member.Name);
-            if (!_membersByName.ContainsKey(member.Name))
-                _membersByName.Add(member.Name, member);
+            oldName = oldName.ToLower();
+            var name = member.Name.ToLower();
+            if (!string.IsNullOrWhiteSpace(oldName) && _membersByName.ContainsKey(oldName))
+                _membersByName.Remove(oldName);
+            if (!_membersByName.ContainsKey(name))
+                _membersByName.Add(name.ToLower(), member);
         }
 
-        public ILingoMember? this[int number] => _members.TryGetValue(number, out var member) ? member : null;
-        public ILingoMember? this[string name] => _membersByName.TryGetValue(name, out var theValue) ? theValue : null;
+        public ILingoMember? this[int number] 
+            => _members.TryGetValue(number, out var member) ? member : null;
+        public ILingoMember? this[string name] => _membersByName.TryGetValue(name.ToLower(), out var theValue) ? theValue : null;
 
         public T? Member<T>(int number) where T : class, ILingoMember => _members.TryGetValue(number, out var member) ? member as T : null;
-        public T? Member<T>(string name) where T : class, ILingoMember => _membersByName.TryGetValue(name, out var theValue) ? theValue as T : null;
-        public int GetNextNumber() => _members.Keys.Any() ? _members.Keys.Max() + 1 : 1;
+        public T? Member<T>(string name) where T : class, ILingoMember => _membersByName.TryGetValue(name.ToLower(), out var theValue) ? theValue as T : null;
+        public int GetNextNumber(int castNumber, int numberInCast)
+        {
+            if (castNumber > 0)
+            {
+                // for the first cast, numbers follow the numberInCast
+                if (numberInCast <= 0)
+                    return _members.Keys.Any() ? _members.Keys.Max() + 1 : 1;
+                if (castNumber == 1)
+                    return numberInCast;
+                var startNumber = ((castNumber - 1) * 131114) + numberInCast;
+                if (_members.Keys.Contains(startNumber))
+                    return _members.Keys.Any() ? _members.Keys.Max() + 1 : 1;
+                return startNumber;
+            }
+            return _members.Keys.Any() ? _members.Keys.Max() + 1 : 1;
+        }
 
         private int _lastHighestNumber = 1;
         internal int FindEmpty()

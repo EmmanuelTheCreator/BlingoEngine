@@ -55,6 +55,9 @@ namespace LingoEngine.Tools
                         case LingoMemberType.Sound:
                             ext = ".wav";
                             break;
+                        case LingoMemberType.Script:
+                            ext = ".cs";
+                            break;
                     }
                     var name = row.Name.Length <1?"":"_"+ row.Name;
                     fn = row.Number + name + ext;

@@ -1,4 +1,5 @@
 ﻿using LingoEngine.Members;
+using LingoEngine.Sprites;
 
 namespace LingoEngine.LGodot.Core
 {
@@ -29,5 +30,6 @@ namespace LingoEngine.LGodot.Core
         public void Unload()
         {
         }
+        public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
     }
 }

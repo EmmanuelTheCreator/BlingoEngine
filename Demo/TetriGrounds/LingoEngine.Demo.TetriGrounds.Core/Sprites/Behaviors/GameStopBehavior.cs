@@ -1,3 +1,4 @@
+using LingoEngine.Events;
 using LingoEngine.Inputs;
 using LingoEngine.Inputs.Events;
 using LingoEngine.Movies;
@@ -58,7 +59,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             if (key.KeyPressed(49)) SendSprite<BgScriptBehavior>(myTargetSprite, s => s.SpaceBar());
         }
 
-        public void MouseEnter(ILingoMouse mouse)
+        public void MouseEnter(LingoMouseEvent mouse)
         {
             Cursor = 200;
         }

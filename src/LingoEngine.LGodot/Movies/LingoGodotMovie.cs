@@ -12,8 +12,8 @@ namespace LingoEngine.LGodot.Movies
         private LingoMovie _LingoMovie;
         private LingoGodotStage _stage;
         private readonly Action<LingoGodotMovie> _removeMethod;
-        private HashSet<LingoGodotSprite> _drawnSprites = new();
-        private HashSet<LingoGodotSprite> _allSprites = new();
+        private HashSet<LingoGodotSprite2D> _drawnSprites = new();
+        private HashSet<LingoGodotSprite2D> _allSprites = new();
 
         public Node2D GetNode2D() => _MovieNode2D;
 
@@ -47,9 +47,9 @@ namespace LingoEngine.LGodot.Movies
                 godotSprite.Update();
         }
 
-        internal void CreateSprite<T>(T lingoSprite) where T : LingoSprite
+        internal void CreateSprite<T>(T lingoSprite) where T : LingoSprite2D
         {
-            var godotSprite = new LingoGodotSprite(lingoSprite, _MovieNode2D, s =>
+            var godotSprite = new LingoGodotSprite2D(lingoSprite, _MovieNode2D, s =>
             {
                 // Show Sprite
                 _drawnSprites.Add(s);

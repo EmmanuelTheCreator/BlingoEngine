@@ -1,6 +1,7 @@
 using System.IO;
 using LingoEngine.Primitives;
 using LingoEngine.SDL2.Inputs;
+using LingoEngine.Sprites;
 using LingoEngine.Styles;
 using LingoEngine.Texts;
 using LingoEngine.Texts.FrameworkCommunication;
@@ -33,6 +34,8 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     public LingoTextAlignment Alignment { get; set; }
     public int Margin { get; set; }
     public bool IsLoaded { get; private set; }
+    public int Width {get;set;}
+    public int Height {get;set;}
 
     public void Dispose() { }
     public void Copy(string text) => SdlClipboard.SetText(text);
@@ -49,4 +52,6 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     public void PasteClipboardInto() => _lingoMemberText.Text = SdlClipboard.GetText();
     public void Preload() { IsLoaded = true; }
     public void Unload() { IsLoaded = false; }
+
+    public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
 }

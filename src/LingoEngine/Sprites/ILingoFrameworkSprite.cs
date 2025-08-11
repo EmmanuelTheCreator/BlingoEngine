@@ -17,8 +17,8 @@ namespace LingoEngine.Sprites
         float Height { get; }
         string Name { get; set; }
         LingoPoint RegPoint { get; set; }
-        float SetDesiredHeight { get; set; }
-        float SetDesiredWidth { get; set; }
+        float DesiredHeight { get; set; }
+        float DesiredWidth { get; set; }
         int ZIndex { get; set; }
 
         /// <summary>Rotation of the sprite in degrees.</summary>
@@ -41,6 +41,7 @@ namespace LingoEngine.Sprites
         void Hide();
         /// <summary>Set the sprite position.</summary>
         void SetPosition(LingoPoint point);
+        void ApplyMemberChangesOnStepFrame();
 
         /// <summary>
         /// Indicates whether the sprite is flipped horizontally.

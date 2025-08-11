@@ -5,13 +5,18 @@ namespace LingoEngine.Director.Core.Styles
     public class DirectorColors
     {
         public static LingoColor BlueSelectColor = new LingoColor(0, 120, 215);
-        public static LingoColor BlueLightSelectColor = new LingoColor(229,241,251);
+        public static LingoColor BlueLightSelectColor = new LingoColor(229, 241, 251);
+        public static LingoColor BitmapSelectionFill = new LingoColor(0, 153, 255, 77);
+        public static LingoColor BlueSelectColorSemiTransparent = new LingoColor(0, 120, 215, 80);
+
         public static LingoColor BG_PropWindowBar = new LingoColor(178, 180, 191);    // Top bar of panels
         public static LingoColor BG_WhiteMenus = new LingoColor(240, 240, 240);       // Common window background
 
         // Windows
-        public static LingoColor Window_Title_Line_Under = new LingoColor(178, 180, 191); // THe line just beneath the title of the window 
-        public static LingoColor Window_Title_BG = LingoColor.FromHex("#d2e0ed"); // THe line just beneath the title of the window 
+        public static LingoColor Window_Title_Line_Under = new LingoColor(178, 180, 191); // The line just beneath the title of the window
+        public static LingoColor Window_Title_BG = LingoColor.FromHex("#d2e0ed"); // Base color of the window title bar
+        public static LingoColor Window_Title_BG_Active = Window_Title_BG.Darken(0.2f); // Darker when window is active
+        public static LingoColor Window_Title_BG_Inactive = Window_Title_BG.Lighten(0.2f); // Lighter when window is inactive
 
 
         // Thumbnail of a member
@@ -42,15 +47,17 @@ namespace LingoEngine.Director.Core.Styles
         public static LingoColor Tab_Selected_TextColor = new LingoColor(0, 0, 0);         // text of the selected tab
         public static LingoColor Tab_Deselected_TextColor = new LingoColor(255, 255, 255); // text of the deselected tab
 
-
         // Dividers and lines
         public static LingoColor DividerLines = new LingoColor(190, 190, 190);        // Light panel separators
 
+        public static LingoColor LineDarker = LingoColor.FromHex("a0a0a0");
 
         // Score grid
         public static LingoColor ScoreGridLineLight = LingoColor.FromHex("f9f9f9");
-        public static LingoColor ScoreGridLineDark = LingoColor.FromHex("d0d0d0");
+        public static LingoColor ScoreGridLineDark = LingoColor.FromHex("f0f0f0");
 
+        public static LingoColor LineLight = LingoColor.FromHex("f9f9f9");
+        public static LingoColor LineDark = LingoColor.FromHex("d0d0d0");
 
         // Buttons
         public static LingoColor Button_Bg_Normal = new LingoColor(240, 240, 240);      // Classic light gray
@@ -68,6 +75,16 @@ namespace LingoEngine.Director.Core.Styles
 
 
 
+        // Notifications
+        public static LingoColor Notification_Warning_Bg = new LingoColor(255, 255, 204);
+        public static LingoColor Notification_Warning_Border = new LingoColor(255, 255, 0);
+        public static LingoColor Notification_Error_Bg = new LingoColor(255, 204, 204);
+        public static LingoColor Notification_Error_Border = new LingoColor(255, 0, 0);
+        public static LingoColor Notification_Info_Bg = new LingoColor(204, 204, 255);
+        public static LingoColor Notification_Info_Border = new LingoColor(0, 0, 255);
+
+
+
         // Popup Window
         public static LingoColor PopupWindow_Background = new LingoColor(255, 255, 255);   // Main background
         public static LingoColor PopupWindow_Border = new LingoColor(160, 160, 160);       // Frame border
@@ -78,6 +95,10 @@ namespace LingoEngine.Director.Core.Styles
         public static LingoColor PopupWindow_CloseButton_BG = new LingoColor(221, 221, 221);
         public static LingoColor PopupWindow_CloseButton_Border = new LingoColor(130, 130, 130);
         public static LingoColor PopupWindow_CloseButton_Hover = new LingoColor(255, 0, 0);
+
+        // Menu
+        public static LingoColor BG_TopMenu = new LingoColor(240, 240, 240); // Background color of the top menu bar
+
 
     }
 }

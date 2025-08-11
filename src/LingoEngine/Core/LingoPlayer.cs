@@ -5,6 +5,7 @@ using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
 using LingoEngine.Movies;
 using LingoEngine.Movies.Commands;
+using LingoEngine.Primitives;
 using LingoEngine.Sounds;
 using LingoEngine.Stages;
 using LingoEngine.Tools;
@@ -16,11 +17,8 @@ namespace LingoEngine.Core
 
     public class LingoPlayer : ILingoPlayer,
         ICommandHandler<RewindMovieCommand>,
-         ICommandHandler<PlayMovieCommand>,
-        ICommandHandler<StepFrameCommand>,
-        ICommandHandler<SetFrameLabelCommand>,
-        ICommandHandler<AddFrameLabelCommand>,
-        ICommandHandler<UpdateFrameLabelCommand>
+        ICommandHandler<PlayMovieCommand>,
+        ICommandHandler<StepFrameCommand>
     {
         private Lazy<CsvImporter> _csvImporter = new Lazy<CsvImporter>(() => new CsvImporter());
         private readonly LingoCastLibsContainer _castLibsContainer;
@@ -33,7 +31,7 @@ namespace LingoEngine.Core
 
 
         private readonly LingoKey _LingoKey;
-        private readonly LingoMouse _Mouse;
+        private readonly LingoStageMouse _Mouse;
         private readonly LingoStage _Stage;
         private readonly LingoSystem _System;
         private readonly LingoClock _clock;
@@ -41,11 +39,13 @@ namespace LingoEngine.Core
 
         public ILingoClock Clock => _clock;
         public LingoKey Key => _LingoKey;
-        public LingoStage Stage => _Stage;
+        public ILingoStage Stage => _Stage;
         /// <inheritdoc/>
         public ILingoCast ActiveCastLib => _castLibsContainer.ActiveCast;
+        
         /// <inheritdoc/>
         public ILingoSound Sound => _sound;
+        public ILingoStageMouse Mouse => _Mouse;
 
 
         /// <inheritdoc/>
@@ -93,7 +93,12 @@ namespace LingoEngine.Core
             _Stage = Factory.CreateStage(this);
             _Mouse = Factory.CreateMouse(_Stage);
         }
-
+        public void LoadStage(int width, int height, LingoColor backgroundColor)
+        {
+            Stage.Width = width;
+            Stage.Height = height;
+            Stage.BackgroundColor = backgroundColor;
+        }
 
         /// <inheritdoc/>
         public void Alert(string message)
@@ -129,7 +134,8 @@ namespace LingoEngine.Core
         {
             return true;
         }
-
+        public ILingoCast CastLib(int number) => _castLibsContainer[number];
+        public ILingoCast CastLib(string name) => _castLibsContainer[name];
         public ILingoMovie NewMovie(string name, bool andActivate = true)
         {
             // Create the default cast
@@ -177,19 +183,24 @@ namespace LingoEngine.Core
         ///     Number,Type,Name,Registration Point,Filename
         ///     1,bitmap,BallB,"(5, 5)",
         /// </summary>
-        public ILingoPlayer LoadCastLibFromCsv(string castlibName, string pathAndFilenameToCsv)
+        public ILingoPlayer LoadCastLibFromCsv(string castlibName, string pathAndFilenameToCsv, bool isInternal = false)
         {
-            var castLib = _castLibsContainer.AddCast(castlibName);
+            var castLib = _castLibsContainer.AddCast(castlibName, isInternal);
             _csvImporter.Value.ImportInCastFromCsvFile(castLib, pathAndFilenameToCsv);
             return this;
         }
 
-        public ILingoPlayer AddCastLib(string name, Action<ILingoCast>? configure = null)
+        public ILingoPlayer AddCastLib(string name, bool isInternal = false, Action<ILingoCast>? configure = null)
         {
-            var castLib = _castLibsContainer.AddCast(name);
+            var castLib = _castLibsContainer.AddCast(name, isInternal);
             if (configure != null)
                 configure(castLib);
             return this;
+        }
+
+        public void UnloadInternalCastLibs()
+        {
+            _castLibsContainer.RemoveInternal();
         }
 
         public void SetActiveMovie(LingoMovie? movie)
@@ -262,33 +273,9 @@ namespace LingoEngine.Core
 
         public bool CanExecute(SetFrameLabelCommand command) => ActiveMovie is LingoMovie;
 
-        public bool Handle(SetFrameLabelCommand command)
-        {
-            if (ActiveMovie is LingoMovie movie)
-                movie.SetScoreLabel(command.FrameNumber, command.Name);
-            return true;
-        }
+      
 
-        public bool CanExecute(AddFrameLabelCommand command) => ActiveMovie is LingoMovie;
-
-        public bool Handle(AddFrameLabelCommand command)
-        {
-            if (ActiveMovie is LingoMovie movie)
-                movie.SetScoreLabel(command.FrameNumber, command.Name);
-            return true;
-        }
-
-        public bool CanExecute(UpdateFrameLabelCommand command) => ActiveMovie is LingoMovie;
-
-        public bool Handle(UpdateFrameLabelCommand command)
-        {
-            if (ActiveMovie is LingoMovie movie)
-            {
-                movie.SetScoreLabel(command.PreviousFrame, null);
-                movie.SetScoreLabel(command.NewFrame, command.Name);
-            }
-            return true;
-        }
+       
         #endregion
     }
 }

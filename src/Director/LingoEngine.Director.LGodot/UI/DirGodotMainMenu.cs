@@ -5,15 +5,19 @@ using LingoEngine.Director.Core.Tools;
 using LingoEngine.LGodot.Gfx;
 using LingoEngine.Commands;
 using LingoEngine.Director.LGodot.Windowing;
-using LingoEngine.Director.Core.Stages.Commands;
 using LingoEngine.Director.Core.Casts.Commands;
 using LingoEngine.Movies;
-using LingoEngine.Sprites;
 using LingoEngine.Casts;
 using LingoEngine.Members;
-using LingoEngine.Director.LGodot.Scores;
 using LingoEngine.Director.LGodot.Casts;
 using LingoEngine.Director.Core.UI;
+using LingoEngine.Inputs;
+using LingoEngine.FrameworkCommunication;
+using LingoEngine.LGodot;
+using LingoEngine.Primitives;
+using LingoEngine.Director.Core.Windowing;
+using LingoEngine.LGodot.Primitives;
+using LingoEngine.Director.Core.Styles;
 
 namespace LingoEngine.Director.LGodot;
 
@@ -24,10 +28,16 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
 {
     private readonly LingoGodotWrapPanel _menuBar;
     private readonly LingoGodotWrapPanel _iconBar;
+    private Panel _bgColorPanel;
     private readonly IDirGodotWindowManager _windowManager;
     private readonly ILingoCommandManager _commandManager;
     private readonly LingoPlayer _player;
+
+    protected StyleBoxFlat Style = new StyleBoxFlat();
+
     public bool IsOpen => true;
+    public bool IsActiveWindow => true;
+    public ILingoMouse Mouse { get; private set; }
 
     public DirGodotMainMenu(
         DirectorProjectManager projectManager,
@@ -36,33 +46,112 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
         IHistoryManager historyManager,
         IDirGodotWindowManager windowManager,
         ILingoCommandManager commandManager,
-        DirectorMainMenu directorMainMenu)
+        DirectorMainMenu directorMainMenu, ILingoFrameworkFactory factory)
     {
         _windowManager = windowManager;
         _commandManager = commandManager;
         _player = player;
+        var mouseFrameworkObj = new LingoGodotMouse(new Lazy<LingoMouse>(() => (LingoMouse)Mouse!));
+        Mouse = new LingoMouse(mouseFrameworkObj);
         directorMainMenu.Init(this);
 
         _menuBar = directorMainMenu.MenuBar.Framework<LingoGodotWrapPanel>();
         _iconBar = directorMainMenu.IconBar.Framework<LingoGodotWrapPanel>();
+        CreateBgColor();
 
+        AddChild(_bgColorPanel);
         AddChild(_menuBar);
-        _menuBar.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-
-
         AddChild(_iconBar);
-        _iconBar.Position = new Vector2(300, 0);
-        _iconBar.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        _menuBar.Position = new Vector2(10, 1);
+        _iconBar.Position = new Vector2(300, 1);
 
-        _iconBar.AddItem(directorMainMenu.RewindButton.Framework<LingoGodotButton>());
-        _iconBar.AddItem(directorMainMenu.PlayButton.Framework<LingoGodotButton>());
+        directorMainMenu.CallOnAllTopMenus(btn =>
+        {
+            AddChild(btn.Framework<LingoGodotMenu>());
+        });
 
-        AddChild(directorMainMenu.FileMenu.Framework<LingoGodotMenu>());
-        AddChild(directorMainMenu.EditMenu.Framework<LingoGodotMenu>());
-        AddChild(directorMainMenu.WindowMenu.Framework<LingoGodotMenu>());
-
-        // button events handled in core
+        StyleTopMenu(directorMainMenu);
+        foreach (var childItem in _iconBar.GetChild(0).GetChildren())
+        {
+            if (childItem is Button btn)
+            {
+                StyleIconButton(btn);
+            }
+        }
     }
+
+    private static void StyleIconButton(Button btn)
+    {
+        var topMenuBtnStyle = new StyleBoxFlat
+        {
+            BorderWidthLeft = 0,
+            BorderWidthRight = 0,
+            BorderWidthTop = 0,
+            BorderWidthBottom = 0,
+            CornerRadiusBottomLeft = 0,
+            CornerRadiusBottomRight = 0,
+            CornerRadiusTopLeft = 0,
+            CornerRadiusTopRight = 0,
+            BgColor = DirectorColors.BG_TopMenu.ToGodotColor(),
+            ContentMarginLeft = 2,
+            ContentMarginRight = 2,
+        };
+        btn.AddThemeStyleboxOverride("normal", topMenuBtnStyle);
+        btn.Size = new Vector2(18, 18);
+    }
+    private static void StyleTopMenu(DirectorMainMenu directorMainMenu)
+    {
+        var topMenuBtnStyle = new StyleBoxFlat
+        {
+            BorderWidthLeft = 0,
+            BorderWidthRight = 0,
+            BorderWidthTop = 0,
+            BorderWidthBottom = 0,
+            CornerRadiusBottomLeft = 0,
+            CornerRadiusBottomRight = 0,
+            CornerRadiusTopLeft = 0,
+            CornerRadiusTopRight = 0,
+            BgColor = DirectorColors.BG_TopMenu.ToGodotColor(),
+            ContentMarginLeft = 5,
+            ContentMarginRight = 5,
+        };
+        var topMenuBtnStyle_hover = new StyleBoxFlat
+        {
+            BorderWidthLeft = 1,
+            BorderWidthRight = 1,
+            BorderWidthTop = 1,
+            BorderWidthBottom = 0,
+            CornerRadiusBottomLeft = 0,
+            CornerRadiusBottomRight = 0,
+            CornerRadiusTopLeft = 5,
+            CornerRadiusTopRight = 5,
+            BgColor = DirectorColors.BG_TopMenu.ToGodotColor(),
+            ContentMarginLeft = 5,
+            ContentMarginRight = 5,
+        };
+        
+        directorMainMenu.CallOnAllTopMenuButtons(btn =>
+        {
+            var btnG = (Button)btn.Framework<LingoGodotButton>().FrameworkNode;
+            btnG.AddThemeStyleboxOverride("normal", topMenuBtnStyle);
+            btnG.AddThemeStyleboxOverride("hover", topMenuBtnStyle_hover);
+            btnG.CustomMinimumSize = new Vector2(30, 18);
+        });
+    }
+
+    private void CreateBgColor()
+    {
+        StyleBoxFlat panelStyle = new StyleBoxFlat();
+        _bgColorPanel = new Panel();
+        _bgColorPanel.Size = new Vector2(3000, 20);
+        //_bgColorPanel.CustomMinimumSize = new Vector2(3000, 20);
+        _bgColorPanel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        _bgColorPanel.GrowHorizontal = GrowDirection.End;
+        _bgColorPanel.Name = "MainMenuBackgroundColorPanel";
+        panelStyle.BgColor = DirectorColors.BG_TopMenu.ToGodotColor(); ;
+        _bgColorPanel.AddThemeStyleboxOverride("panel", panelStyle);
+    }
+
 
     public override void _Input(InputEvent @event)
     {
@@ -70,13 +159,7 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
         if (@event is InputEventKey key && key.Pressed && !key.Echo && key.Keycode == Key.Delete)
         {
             var active = _windowManager.ActiveWindow;
-            if (active is DirGodotScoreWindow scoreWin && _player.ActiveMovie is LingoMovie movie)
-            {
-                var sprite = scoreWin.SelectedSprite;
-                if (sprite != null)
-                    _commandManager.Handle(new RemoveSpriteCommand(movie, sprite));
-            }
-            else if (active is DirGodotCastWindow castWin && _player.ActiveMovie is LingoMovie movie2)
+            if (active is DirGodotCastWindow castWin && _player.ActiveMovie is LingoMovie movie2)
             {
                 var member = castWin.SelectedMember as LingoMember;
                 if (member != null)
@@ -87,6 +170,7 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
             }
         }
     }
+   
 
 
     public void OpenWindow()
@@ -101,5 +185,15 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
     {
         // not allowed
     }
+
+    public void SetPositionAndSize(int x, int y, int width, int height)
+    {
+        // not allowed
+    }
+
+    LingoPoint IDirFrameworkWindow.GetPosition() => Position.ToLingoPoint();
+
+    LingoPoint IDirFrameworkWindow.GetSize() => Size.ToLingoPoint();
+
     
 }

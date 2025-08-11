@@ -1,4 +1,5 @@
 ﻿using LingoEngine.Movies;
+using LingoEngine.Primitives;
 
 namespace LingoEngine.Stages
 {
@@ -8,8 +9,12 @@ namespace LingoEngine.Stages
     /// </summary>
     public interface ILingoFrameworkStage
     {
+        LingoStage LingoStage { get; }
         /// <summary>Sets the currently active movie.</summary>
         void SetActiveMovie(LingoMovie? lingoMovie);
+        void ApplyPropertyChanges();
+
         float Scale { get; set; }
+        
     }
 }

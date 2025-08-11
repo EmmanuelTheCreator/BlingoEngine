@@ -1,4 +1,6 @@
 ﻿using Godot;
+using System;
+using System.Numerics;
 using LingoEngine.Core;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.LGodot.Movies;
@@ -22,10 +24,12 @@ using LingoEngine.Sprites;
 using LingoEngine.Stages;
 using LingoEngine.Styles;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Xml.Linq;
 using LingoEngine.LGodot.Styles;
 using LingoEngine.LGodot.Bitmaps;
+using LingoEngine.LGodot.Scripts;
+using LingoEngine.Scripts;
+using LingoEngine.FilmLoops;
+using LingoEngine.LGodot.FilmLoops;
 
 namespace LingoEngine.LGodot.Core
 {
@@ -33,10 +37,12 @@ namespace LingoEngine.LGodot.Core
     {
         private readonly List<IDisposable> _disposables = new List<IDisposable>();
         private readonly IServiceProvider _serviceProvider;
+        private readonly LingoGodotRootNode _lingoRootNode;
         private Node _rootNode;
 
         public GodotFactory(IServiceProvider serviceProvider, LingoGodotRootNode rootNode)
         {
+            _lingoRootNode= rootNode;
             _rootNode = rootNode.RootNode;
             _serviceProvider = serviceProvider;
         }
@@ -46,6 +52,7 @@ namespace LingoEngine.LGodot.Core
 
         #region Sound
 
+        /// <inheritdoc/>
         public LingoSound CreateSound(ILingoCastLibsContainer castLibsContainer)
         {
             var lingoSound = new LingoGodotSound();
@@ -53,6 +60,7 @@ namespace LingoEngine.LGodot.Core
             lingoSound.Init(soundChannel);
             return soundChannel;
         }
+        /// <inheritdoc/>
         public LingoSoundChannel CreateSoundChannel(int number)
         {
             var lingoSoundChannel = new LingoGodotSoundChannel(number, _rootNode);
@@ -65,6 +73,7 @@ namespace LingoEngine.LGodot.Core
 
 
         #region Members
+        /// <inheritdoc/>
         public T CreateMember<T>(ILingoCast cast, int numberInCast, string name = "") where T : LingoMember
         {
 
@@ -74,10 +83,11 @@ namespace LingoEngine.LGodot.Core
                 Type t when t == typeof(LingoMemberText) => (CreateMemberText(cast, numberInCast, name) as T)!,
                 Type t when t == typeof(LingoMemberField) => (CreateMemberField(cast, numberInCast, name) as T)!,
                 Type t when t == typeof(LingoMemberSound) => (CreateMemberSound(cast, numberInCast, name) as T)!,
-                Type t when t == typeof(LingoMemberFilmLoop) => (CreateMemberFilmLoop(cast, numberInCast, name) as T)!,
+                Type t when t == typeof(LingoFilmLoopMember) => (CreateMemberFilmLoop(cast, numberInCast, name) as T)!,
                 Type t when t == typeof(LingoMemberShape) => (CreateMemberShape(cast, numberInCast, name) as T)!,
             };
         }
+        /// <inheritdoc/>
         public LingoMemberSound CreateMemberSound(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
         {
             var lingoMemberSound = new LingoGodotMemberSound();
@@ -86,14 +96,16 @@ namespace LingoEngine.LGodot.Core
             _disposables.Add(lingoMemberSound);
             return memberSound;
         }
-        public LingoMemberFilmLoop CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
+        /// <inheritdoc/>
+        public LingoFilmLoopMember CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
         {
-            var impl = new LingoGodotMemberFilmLoop();
-            var member = new LingoMemberFilmLoop(impl, (LingoCast)cast, numberInCast, name, fileName ?? "", regPoint);
+            var impl = new LingoGodotFilmLoopMember();
+            var member = new LingoFilmLoopMember(impl, (LingoCast)cast, numberInCast, name, fileName ?? "", regPoint);
             impl.Init(member);
             _disposables.Add(impl);
             return member;
         }
+        /// <inheritdoc/>
         public LingoMemberShape CreateMemberShape(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
         {
             var impl = new LingoGodotMemberShape();
@@ -101,6 +113,7 @@ namespace LingoEngine.LGodot.Core
             _disposables.Add(impl);
             return member;
         }
+        /// <inheritdoc/>
         public LingoMemberBitmap CreateMemberBitmap(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
         {
             var godotInstance = new LingoGodotMemberBitmap(_serviceProvider.GetRequiredService<ILogger<LingoGodotMemberBitmap>>());
@@ -109,6 +122,7 @@ namespace LingoEngine.LGodot.Core
             _disposables.Add(godotInstance);
             return lingoInstance;
         }
+        /// <inheritdoc/>
         public LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
         {
             var godotInstance = new LingoGodotMemberField(_serviceProvider.GetRequiredService<ILingoFontManager>(), _serviceProvider.GetRequiredService<ILogger<LingoGodotMemberField>>());
@@ -117,6 +131,7 @@ namespace LingoEngine.LGodot.Core
             _disposables.Add(godotInstance);
             return lingoInstance;
         }
+        /// <inheritdoc/>
         public LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
         {
             var godotInstance = new LingoGodotMemberText(_serviceProvider.GetRequiredService<ILingoFontManager>(),_serviceProvider.GetRequiredService<ILogger<LingoGodotMemberText>>());
@@ -125,6 +140,15 @@ namespace LingoEngine.LGodot.Core
             _disposables.Add(godotInstance);
             return lingoInstance;
         }
+        /// <inheritdoc/>
+        public LingoMember CreateScript(ILingoCast cast, int numberInCast, string name = "", string? fileName = null,
+            LingoPoint regPoint = default)
+        {
+            var godotInstance = new LingoFrameworkMemberScript();
+            var lingoInstance = new LingoMemberScript(godotInstance, (LingoCast)cast, numberInCast, name, fileName ?? "", regPoint);
+            return lingoInstance;
+        }
+        /// <inheritdoc/>
         public LingoMember CreateEmpty(ILingoCast cast, int numberInCast, string name = "", string? fileName = null,
             LingoPoint regPoint = default)
         {
@@ -135,6 +159,7 @@ namespace LingoEngine.LGodot.Core
         #endregion
 
 
+        /// <inheritdoc/>
         public LingoStage CreateStage(LingoPlayer lingoPlayer)
         {
             var stageContainer = (LingoGodotStageContainer)_serviceProvider.GetRequiredService<ILingoFrameworkStageContainer>();
@@ -145,6 +170,7 @@ namespace LingoEngine.LGodot.Core
             _disposables.Add(godotInstance);
             return lingoInstance;
         }
+        /// <inheritdoc/>
         public LingoMovie AddMovie(LingoStage stage, LingoMovie lingoMovie)
         {
             var godotStage = stage.Framework<LingoGodotStage>();
@@ -158,7 +184,7 @@ namespace LingoEngine.LGodot.Core
         /// <summary>
         /// Dependant on movie, because the behaviors are scoped and movie related.
         /// </summary>
-        public T CreateSprite<T>(ILingoMovie movie, Action<LingoSprite> onRemoveMe) where T : LingoSprite
+        public T CreateSprite<T>(ILingoMovie movie, Action<LingoSprite2D> onRemoveMe) where T : LingoSprite2D
         {
             var movieTyped = (LingoMovie)movie;
             var lingoSprite = movieTyped.GetServiceProvider().GetRequiredService<T>();
@@ -167,20 +193,23 @@ namespace LingoEngine.LGodot.Core
             return lingoSprite;
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             foreach (var disposable in _disposables)
                 disposable.Dispose();
         }
 
-        public LingoMouse CreateMouse(LingoStage stage)
+        /// <inheritdoc/>
+        public LingoStageMouse CreateMouse(LingoStage stage)
         {
-            LingoMouse? mouse = null;
-            var godotInstance = new LingoGodotMouse(_rootNode, new Lazy<LingoMouse>(() => mouse!));
-            mouse = new LingoMouse(stage, godotInstance);
+            LingoStageMouse? mouse = null;
+            var godotInstance = _lingoRootNode.GetStageMouseNode(() => mouse!);
+            mouse = new LingoStageMouse(stage, godotInstance);
             return mouse;
         }
 
+        /// <inheritdoc/>
         public LingoKey CreateKey()
         {
             LingoKey? key = null;
@@ -192,6 +221,7 @@ namespace LingoEngine.LGodot.Core
 
 
         #region Gfx elements
+        /// <inheritdoc/>
         public LingoGfxCanvas CreateGfxCanvas(string name, int width, int height)
         {
             var canvas = new LingoGfxCanvas();
@@ -202,9 +232,10 @@ namespace LingoEngine.LGodot.Core
             return canvas;
         }
 
+        /// <inheritdoc/>
         public LingoGfxWrapPanel CreateWrapPanel(LingoOrientation orientation, string name)
         {
-            var panel = new LingoGfxWrapPanel();
+            var panel = new LingoGfxWrapPanel(this);
             var impl = new LingoGodotWrapPanel(panel, orientation);
 
             panel.Name = name;
@@ -213,6 +244,7 @@ namespace LingoEngine.LGodot.Core
             return panel;
         }
 
+        /// <inheritdoc/>
         public LingoGfxPanel CreatePanel(string name)
         {
             var panel = new LingoGfxPanel(this);
@@ -221,6 +253,7 @@ namespace LingoEngine.LGodot.Core
             panel.Name = name;
             return panel;
         }
+        /// <inheritdoc/>
         public LingoGfxLayoutWrapper CreateLayoutWrapper(ILingoGfxNode content, float? x, float? y)
         {
             if (content is ILingoGfxLayoutNode)
@@ -232,6 +265,7 @@ namespace LingoEngine.LGodot.Core
             return panel;
         }
 
+        /// <inheritdoc/>
         public LingoGfxTabContainer CreateTabContainer(string name)
         {
             var tab = new LingoGfxTabContainer();
@@ -240,6 +274,7 @@ namespace LingoEngine.LGodot.Core
             tab.Name = name;
             return tab;
         }
+        /// <inheritdoc/>
         public LingoGfxTabItem CreateTabItem(string name, string title)
         {
             var tab = new LingoGfxTabItem();
@@ -249,6 +284,7 @@ namespace LingoEngine.LGodot.Core
             return tab;
         }
 
+        /// <inheritdoc/>
         public LingoGfxScrollContainer CreateScrollContainer(string name)
         {
             var scroll = new LingoGfxScrollContainer();
@@ -256,6 +292,36 @@ namespace LingoEngine.LGodot.Core
             scroll.Name = name;
             return scroll;
         }
+
+        /// <inheritdoc/>
+        public LingoGfxInputSlider<float> CreateInputSliderFloat(LingoOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
+        {
+            var minNum = min.HasValue ? new NullableNum<float>(min.Value) : new NullableNum<float>();
+            var maxNum = max.HasValue ? new NullableNum<float>(max.Value) : new NullableNum<float>();
+            var stepNum = step.HasValue ? new NullableNum<float>(step.Value) : new NullableNum<float>();
+            return CreateInputSlider(name, orientation, minNum, maxNum, stepNum, onChange);
+        }
+
+        public LingoGfxInputSlider<int> CreateInputSliderInt(LingoOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
+        {
+            var minNum = min.HasValue ? new NullableNum<int>(min.Value) : new NullableNum<int>();
+            var maxNum = max.HasValue ? new NullableNum<int>(max.Value) : new NullableNum<int>();
+            var stepNum = step.HasValue ? new NullableNum<int>(step.Value) : new NullableNum<int>();
+            return CreateInputSlider(name, orientation, minNum, maxNum, stepNum, onChange);
+        }
+
+        public LingoGfxInputSlider<TValue> CreateInputSlider<TValue>(string name, LingoOrientation orientation, NullableNum<TValue> min, NullableNum<TValue> max, NullableNum<TValue> step, Action<TValue>? onChange = null)
+            where TValue : struct, System.Numerics.INumber<TValue>, System.IConvertible
+        {
+            var slider = new LingoGfxInputSlider<TValue>();
+            var impl = new LingoGodotInputSlider<TValue>(slider, orientation, onChange);
+            if (min.HasValue) slider.MinValue = min.Value!;
+            if (max.HasValue) slider.MaxValue = max.Value!;
+            if (step.HasValue) slider.Step = step.Value!;
+            slider.Name = name;
+            return slider;
+        }
+        /// <inheritdoc/>
 
         public LingoGfxInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null)
         {
@@ -266,16 +332,35 @@ namespace LingoEngine.LGodot.Core
             return input;
         }
 
-        public LingoGfxInputNumber CreateInputNumber(string name, float? min = null, float? max = null, Action<float>? onChange = null)
+        /// <inheritdoc/>
+        public LingoGfxInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null)
         {
-            var input = new LingoGfxInputNumber();
-            var impl = new LingoGodotInputNumber(input, _serviceProvider.GetRequiredService<ILingoFontManager>(), onChange);
-            if (min.HasValue) input.Min = min.Value;
-            if (max.HasValue) input.Max = max.Value;
+            // Convert nullable float to NullableNum<float> explicitly  
+            var minNullableNum = min.HasValue ? new NullableNum<float>(min.Value) : new NullableNum<float>();
+            var maxNullableNum = max.HasValue ? new NullableNum<float>(max.Value) : new NullableNum<float>();
+            return CreateInputNumber(name, minNullableNum, maxNullableNum, onChange);
+        }
+        /// <inheritdoc/>
+        public LingoGfxInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null)
+        {
+            // Convert nullable float to NullableNum<float> explicitly  
+            var minNullableNum = min.HasValue ? new NullableNum<int>(min.Value) : new NullableNum<int>();
+            var maxNullableNum = max.HasValue ? new NullableNum<int>(max.Value) : new NullableNum<int>();
+            return CreateInputNumber(name, minNullableNum, maxNullableNum, onChange);
+        }
+        /// <inheritdoc/>
+        public LingoGfxInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null)
+             where TValue : System.Numerics.INumber<TValue>
+        {
+            var input = new LingoGfxInputNumber<TValue>();
+            var impl = new LingoGodotInputNumber<TValue>(input, _serviceProvider.GetRequiredService<ILingoFontManager>(), onChange);
+            if (min.HasValue) input.Min = min.Value!;
+            if (max.HasValue) input.Max = max.Value!;
             input.Name = name;
             return input;
         }
 
+        /// <inheritdoc/>
         public LingoGfxSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null)
         {
             var spin = new LingoGfxSpinBox();
@@ -285,6 +370,7 @@ namespace LingoEngine.LGodot.Core
             if (max.HasValue) spin.Max = max.Value;
             return spin;
         }
+        /// <inheritdoc/>
 
         public LingoGfxInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null)
         {
@@ -294,6 +380,7 @@ namespace LingoEngine.LGodot.Core
             return input;
         }
 
+        /// <inheritdoc/>
         public LingoGfxInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null)
         {
             var input = new LingoGfxInputCombobox();
@@ -303,6 +390,7 @@ namespace LingoEngine.LGodot.Core
             return input;
         }
 
+        /// <inheritdoc/>
         public LingoGfxItemList CreateItemList(string name, Action<string?>? onChange = null)
         {
             var list = new LingoGfxItemList();
@@ -311,6 +399,7 @@ namespace LingoEngine.LGodot.Core
             return list;
         }
 
+        /// <inheritdoc/>
         public LingoGfxColorPicker CreateColorPicker(string name, Action<LingoColor>? onChange = null)
         {
             var picker = new LingoGfxColorPicker();
@@ -319,6 +408,7 @@ namespace LingoEngine.LGodot.Core
             return picker;
         }
 
+        /// <inheritdoc/>
         public LingoGfxLabel CreateLabel(string name, string text = "")
         {
             var label = new LingoGfxLabel();
@@ -329,6 +419,7 @@ namespace LingoEngine.LGodot.Core
             return label;
         }
 
+        /// <inheritdoc/>
         public LingoGfxButton CreateButton(string name, string text = "") //, Action? onClick = null)
         {
             var button = new LingoGfxButton();
@@ -347,10 +438,11 @@ namespace LingoEngine.LGodot.Core
             if (!string.IsNullOrWhiteSpace(text))
                 button.Text = text;
             if (texture != null)
-                button.Texture = texture;
+                button.TextureOn = texture;
             return button;
         }
 
+        /// <inheritdoc/>
         public LingoGfxMenu CreateMenu(string name)
         {
             var menu = new LingoGfxMenu();
@@ -358,6 +450,7 @@ namespace LingoEngine.LGodot.Core
             return menu;
         }
 
+        /// <inheritdoc/>
         public LingoGfxMenuItem CreateMenuItem(string name, string? shortcut = null)
         {
             var item = new LingoGfxMenuItem();
@@ -365,6 +458,16 @@ namespace LingoEngine.LGodot.Core
             return item;
         }
 
+        /// <inheritdoc/>
+        public LingoGfxMenu CreateContextMenu(object window)
+        {
+            var menu = CreateMenu("ContextMenu");
+            if (window is Node node)
+                node.AddChild(menu.Framework<LingoGodotMenu>());
+            return menu;
+        }
+
+        /// <inheritdoc/>
         public LingoGfxHorizontalLineSeparator CreateHorizontalLineSeparator(string name)
         {
             var sep = new LingoGfxHorizontalLineSeparator();
@@ -373,6 +476,7 @@ namespace LingoEngine.LGodot.Core
             return sep;
         }
 
+        /// <inheritdoc/>
         public LingoGfxVerticalLineSeparator CreateVerticalLineSeparator(string name)
         {
             var sep = new LingoGfxVerticalLineSeparator();
@@ -381,6 +485,7 @@ namespace LingoEngine.LGodot.Core
             return sep;
         }
 
+        /// <inheritdoc/>
         public LingoGfxWindow CreateWindow(string name, string title = "")
         {
             var win = new LingoGfxWindow();

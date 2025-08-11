@@ -5,6 +5,8 @@ using LingoEngine.LGodot.Primitives;
 using LingoEngine.Styles;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Bitmaps;
+using LingoEngine.Texts;
+using LingoEngine.LGodot.Texts;
 
 namespace LingoEngine.LGodot.Gfx
 {
@@ -15,7 +17,8 @@ namespace LingoEngine.LGodot.Gfx
     {
         private readonly ILingoFontManager _fontManager;
         private LingoMargin _margin = LingoMargin.Zero;
-
+        private float _desiredWidth = 0;
+        private float _desiredHeight = 0;
         private Color? _clearColor;
         private bool _dirty;
         private readonly List<Action> _drawActions = new();
@@ -24,12 +27,19 @@ namespace LingoEngine.LGodot.Gfx
             _fontManager = fontManager;
             canvas.Init(this);
             Size = new Vector2(width, height);
+            MouseFilter = MouseFilterEnum.Ignore;
+            //TextureFilter = TextureFilterEnum.Nearest; // Use nearest neighbor for pixel art style
+        }
+        public bool Pixilated
+        {
+            get => TextureFilter == TextureFilterEnum.Nearest;
+            set => TextureFilter = value ? TextureFilterEnum.Nearest : TextureFilterEnum.Linear;
         }
 
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
         public float Y { get => Position.Y; set => Position = new Vector2(Position.X, value); }
-        public float Width { get => Size.X; set => Size = new Vector2(value, Size.Y); }
-        public float Height { get => Size.Y; set => Size = new Vector2(Size.X, value); }
+        public float Width { get => Size.X; set { Size = new Vector2(value, Size.Y); CustomMinimumSize = Size; _desiredWidth = value; } }
+        public float Height { get => Size.Y; set { Size = new Vector2(Size.X, value);CustomMinimumSize = Size; _desiredHeight = value; } }
         public bool Visibility { get => Visible; set => Visible = value; }
         public LingoMargin Margin
         {
@@ -51,15 +61,20 @@ namespace LingoEngine.LGodot.Gfx
             if (!_dirty)
             {
                 _dirty = true;
+                //Console.WriteLine(Name + ":MarkDirty()");
                 QueueRedraw();
             }
         }
 
         public override void _Draw()
         {
+            //Console.WriteLine(Name + ":_Draw()");
             if (_clearColor.HasValue)
-                DrawRect(new Rect2(0, 0, Size.X, Size.Y), _clearColor.Value, true);
-
+            {
+                DrawRect(new Rect2(0, 0, _desiredWidth, _desiredHeight), _clearColor.Value, true);
+                Size = new Vector2(_desiredWidth, _desiredHeight);
+                CustomMinimumSize = Size; // Set the minimum size to the desired size
+            }
             foreach (var drawAction in _drawActions)
                 drawAction();
 
@@ -121,13 +136,13 @@ namespace LingoEngine.LGodot.Gfx
             var arr = points.Select(p => p.ToVector2()).ToArray();
           
             if (filled)
-                _drawActions.Add(() => DrawPolygon(arr, new[] { color.ToGodotColor() }));
+                _drawActions.Add(() => DrawPolygon(arr, [color.ToGodotColor()]));
             else
                 _drawActions.Add(() => DrawPolyline(arr, color.ToGodotColor(), width, true));
             MarkDirty();
         }
 
-        public void DrawText(LingoPoint position, string text, string? font = null, LingoColor? color = null, int fontSize = 12, int width = -1)
+        public void DrawText(LingoPoint position, string text, string? font = null, LingoColor? color = null, int fontSize = 12, int width = -1, LingoTextAlignment alignment = LingoTextAlignment.Left)
         {
             Font fontGodot = _fontManager.Get<FontFile>(font ?? "") ?? ThemeDB.FallbackFont;
             Color col = color.HasValue ? color.Value.ToGodotColor() : Colors.Black;
@@ -135,7 +150,7 @@ namespace LingoEngine.LGodot.Gfx
             if (!text.Contains('\n'))
             {
                 int w = width >= 0 ? width : -1;
-                _drawActions.Add(() => DrawString(fontGodot, position.ToVector2(), text, HorizontalAlignment.Left, w, fontSize, col));
+                _drawActions.Add(() => DrawString(fontGodot, position.ToVector2(), text, alignment.ToGodot(), w, fontSize, col));
             }
             else
             {
@@ -147,7 +162,7 @@ namespace LingoEngine.LGodot.Gfx
                     {
                         Vector2 pos = new Vector2(position.X, position.Y + i * lineHeight);
                         int w = width >= 0 ? width : -1;
-                        DrawString(fontGodot, pos, lines[i], HorizontalAlignment.Left, w, fontSize, col);
+                        DrawString(fontGodot, pos, lines[i], alignment.ToGodot(), w, fontSize, col);
                     }
                 });
             }

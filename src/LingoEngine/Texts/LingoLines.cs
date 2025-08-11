@@ -59,7 +59,7 @@ namespace LingoEngine.Texts
 
         private void Parse()
         {
-            _lines = _text.Split(["\r\n", "\n"], StringSplitOptions.None);
+            _lines = _text.Split(["\r\n", "\n", "\r"], StringSplitOptions.None);
             _hasParsed = true;
         }
 

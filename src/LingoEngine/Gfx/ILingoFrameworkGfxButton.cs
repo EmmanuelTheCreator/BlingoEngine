@@ -1,3 +1,5 @@
+using LingoEngine.Bitmaps;
+
 namespace LingoEngine.Gfx
 {
     /// <summary>
@@ -7,6 +9,8 @@ namespace LingoEngine.Gfx
     {
         string Text { get; set; }
         bool Enabled { get; set; }
+        ILingoImageTexture? IconTexture { get; set; }
+
         event Action? Pressed;
     }
 }

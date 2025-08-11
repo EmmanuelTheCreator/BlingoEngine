@@ -5,6 +5,8 @@ namespace LingoEngine.Texts
 {
     public interface ILingoMemberTextBase : ILingoMember
     {
+        
+        void ChangesHasBeenApplied();
         /// <summary>
         /// The raw text contents of the member. This property can be used to read or write the full contents.
         /// </summary>

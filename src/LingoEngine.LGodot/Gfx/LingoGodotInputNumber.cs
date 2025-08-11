@@ -8,26 +8,56 @@ namespace LingoEngine.LGodot.Gfx
     /// <summary>
     /// Godot implementation of <see cref="ILingoFrameworkGfxInputNumber"/>.
     /// </summary>
-    public partial class LingoGodotInputNumber : LineEdit, ILingoFrameworkGfxInputNumber, IDisposable
+    public partial class LingoGodotInputNumber<TValue> : LineEdit, ILingoFrameworkGfxInputNumber<TValue>, IDisposable
+        where TValue : System.Numerics.INumber<TValue>
     {
         private LingoMargin _margin = LingoMargin.Zero;
         private LingoNumberType _numberType = LingoNumberType.Float;
-        private Action<float>? _onChange;
+        private Action<TValue>? _onChange;
         private readonly ILingoFontManager _fontManager;
 
         private event Action _onValueChanged;
 
-        public LingoGodotInputNumber(LingoGfxInputNumber input, ILingoFontManager fontManager, Action<float>? onChange)
+        public LingoGodotInputNumber(LingoGfxInputNumber<TValue> input, ILingoFontManager fontManager, Action<TValue>? onChange)
         {
             _onChange = onChange;
             _fontManager = fontManager;
+            Func<string, (bool IsValid,TValue Value)> valueParse;
+            // Switch case to set Min and Max based on type  
+            switch (Type.GetTypeCode(typeof(TValue)))
+            {
+                case TypeCode.Int32:
+                    Min = TValue.CreateChecked(int.MinValue);
+                    Max = TValue.CreateChecked(int.MaxValue);
+                    valueParse = v => int.TryParse(Text, out var newValue) ? (true, TValue.CreateChecked(newValue)) : (false, TValue.Zero);
+                    break;
+                case TypeCode.Single:
+                    Min = TValue.CreateChecked(float.MinValue);
+                    Max = TValue.CreateChecked(float.MaxValue);
+                    valueParse = v => float.TryParse(Text, out var newValue) ? (true, TValue.CreateChecked(newValue)) : (false, TValue.Zero);
+                    break;
+                case TypeCode.Double:
+                    Min = TValue.CreateChecked(double.MinValue);
+                    Max = TValue.CreateChecked(double.MaxValue);
+                    valueParse = v => double.TryParse(Text, out var newValue) ? (true, TValue.CreateChecked(newValue)) : (false, TValue.Zero);
+                    break;
+                default:
+                    throw new NotSupportedException($"Type {typeof(TValue)} is not supported.");
+            }
+
+
             input.Init(this);
             _onValueChanged = () =>
             {
-                if (!float.TryParse(base.Text, out var newValue))
+                var parsedValue = valueParse(Text);
+                if (!parsedValue.IsValid)
+                {
+                    if (_value != null)
+                    Value = _value;
                     return;
-                if (Value == newValue) return;
-                Value = newValue;
+                }
+                if (_value == parsedValue.Value) return;
+                _value = parsedValue.Value;
                 _onChange?.Invoke(Value);
             };
             TextChanged += _ => _onValueChanged.Invoke();
@@ -76,8 +106,8 @@ namespace LingoEngine.LGodot.Gfx
         public bool Visibility { get => Visible; set => Visible = value; }
         public bool Enabled { get => Editable; set => Editable = value; }
 
-        private float _value;
-        public float Value
+        private TValue _value;
+        public TValue Value
         {
             get => _value; set
             {
@@ -87,8 +117,8 @@ namespace LingoEngine.LGodot.Gfx
                 Text = _value.ToString();
             }
         }
-        public float Min { get; set; } = float.MinValue;
-        public float Max { get; set; } = float.MaxValue;
+        public TValue Min { get; set; } 
+        public TValue Max { get; set; } 
         string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
         public LingoNumberType NumberType
         {

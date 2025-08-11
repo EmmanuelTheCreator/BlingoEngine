@@ -1,26 +1,33 @@
 ﻿using Godot;
 using LingoEngine.Director.Core.FileSystems;
+using LingoEngine.LGodot;
 
-namespace LingoEngine.Director.LGodot.FileSystems
+namespace LingoEngine.Director.LGodot.FileSystems;
+
+public partial class GodotFilePicker : IDirFilePicker
 {
-    public partial class GodotFilePicker : Node, IExecutableFilePicker
+    private readonly LingoGodotRootNode _directorRoot;
+
+    public GodotFilePicker(LingoGodotRootNode directorRoot)
     {
-        public void PickExecutable(Action<string> onPicked)
-        {
+        _directorRoot = directorRoot;
+    }
+
+    public void PickFile(Action<string> onPicked, string filter)
+    {
 #if USE_WINDOWS_FEATURES
         var dialog = new FileDialog
         {
             Access = FileDialog.AccessEnum.Filesystem,
             FileMode = FileDialog.FileModeEnum.OpenFile,
-            Filters = new[] { "*.exe ; Executable Files" }
+            Filters = new[] { filter }
         };
 
         dialog.FileSelected += h => onPicked(h);
-        GetTree().Root.AddChild(dialog);
+        _directorRoot.RootNode.AddChild(dialog);
         dialog.PopupCentered();
 #else
-            GD.PushWarning("Executable file picker not available. Define USE_WINDOWS_FEATURES in your Godot project to enable it.");
+        GD.PushWarning("File picker not available. Define USE_WINDOWS_FEATURES in your Godot project to enable it.");
 #endif
-        }
     }
 }

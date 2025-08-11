@@ -17,7 +17,6 @@ public class DirScoreGridPainter
     public int FrameCount { get; set; }
     public int ChannelCount { get; set; }
     public bool DrawBackground { get; set; } = true;
-    public float ScrollX { get; set; }
 
     public DirScoreGridPainter(ILingoFrameworkFactory factory, DirScoreGfxValues gfxValues)
     {
@@ -31,32 +30,43 @@ public class DirScoreGridPainter
         var colorLines = DirectorColors.ScoreGridLineDark;
         float width = _gfxValues.LeftMargin + FrameCount * _gfxValues.FrameWidth;
         float height = ChannelCount * _gfxValues.ChannelHeight;
+        Canvas.Clear(LingoColor.Transparent());
         Canvas.Width = width;
         Canvas.Height = height;
 
-        if (DrawBackground)
-            Canvas.DrawRect(LingoRect.New(-ScrollX, 0, width, height), LingoColorList.White, true);
 
+        if (DrawBackground)
+            Canvas.DrawRect(LingoRect.New(0, 0, width, height), LingoColorList.White, true);
+
+
+
+        // Draw horizontal lines
         for (int c = 0; c <= ChannelCount; c++)
         {
             float y = c * _gfxValues.ChannelHeight;
-            Canvas.DrawLine(new LingoPoint(-ScrollX, y), new LingoPoint(width - ScrollX, y), _gfxValues.ColLineLight);
+            Canvas.DrawLine(new LingoPoint(0, y), new LingoPoint(width , y), _gfxValues.ColLineLight);
         }
 
+        // Draw backgrounds every 5 frame.
         for (int f = 0; f < FrameCount; f++)
         {
-            float x = -ScrollX + _gfxValues.LeftMargin + f * _gfxValues.FrameWidth;
-            if (f % 5 == 0)
+            float x =  _gfxValues.LeftMargin + f * _gfxValues.FrameWidth;
+            if ((f+1) % 5 == 0)
                 Canvas.DrawRect(LingoRect.New(x, 0, _gfxValues.FrameWidth, height), colorLines, true);
         }
 
+        // Draw vertical lines
         for (int f = 0; f <= FrameCount; f++)
         {
-            float x = -ScrollX + _gfxValues.LeftMargin + f * _gfxValues.FrameWidth;
+            float x =  _gfxValues.LeftMargin + f * _gfxValues.FrameWidth;
             Canvas.DrawLine(new LingoPoint(x, 0), new LingoPoint(x, height), colorLines);
         }
 
-        Canvas.DrawLine(new LingoPoint(-ScrollX, 0), new LingoPoint(width - ScrollX, 0), colorLines);
-        Canvas.DrawLine(new LingoPoint(-ScrollX, height), new LingoPoint(width - ScrollX, height), colorLines);
+        // Draw first bg on frame 1, director sets exceptionalmy the first bg in dark.
+        Canvas.DrawRect(LingoRect.New(0, 0, _gfxValues.FrameWidth, height), colorLines, true);
+
+        // Draw top bottom lines
+        Canvas.DrawLine(new LingoPoint(0, 0), new LingoPoint(width , 0), colorLines);
+        Canvas.DrawLine(new LingoPoint(0, height), new LingoPoint(width , height), colorLines);
     }
 }

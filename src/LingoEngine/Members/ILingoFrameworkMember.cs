@@ -1,4 +1,6 @@
-﻿namespace LingoEngine.Members
+﻿using LingoEngine.Sprites;
+
+namespace LingoEngine.Members
 {
     public interface ILingoFrameworkMemberEmpty : ILingoFrameworkMember
     {
@@ -16,6 +18,7 @@
         void ImportFileInto();
         void PasteClipboardInto();
         void Preload();
+        void ReleaseFromSprite(LingoSprite2D lingoSprite);
         void Unload();
     }
 }

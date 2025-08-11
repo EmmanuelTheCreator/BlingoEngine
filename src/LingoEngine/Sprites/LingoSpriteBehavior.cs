@@ -1,18 +1,17 @@
 ﻿using LingoEngine.Core;
 using LingoEngine.Movies;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.Sprites
 {
     public abstract class LingoSpriteBehavior : LingoScriptBase
     {
-        protected LingoSprite Me;
-        public LingoSprite GetSprite() => Me;
+        protected LingoSprite2D Me;
+        public LingoSprite2D GetSprite() => Me;
 
         /// <summary>
         /// Properties configured by the user via the property dialog.
         /// </summary>
-        public BehaviorPropertiesContainer UserProperties { get; } = new();
+        public BehaviorPropertiesContainer UserProperties { get; private set; } = new();
         public string Name { get; set; }
 
 #pragma warning disable CS8618
@@ -22,10 +21,11 @@ namespace LingoEngine.Sprites
             Name = GetType().Name;
         }
 
-        internal void SetMe(LingoSprite sprite)
+        internal void SetMe(LingoSprite2D sprite)
         {
             Me = sprite;
         }
 
+        internal void SetUserProperties(BehaviorPropertiesContainer userProperties) => UserProperties = userProperties;
     }
 }

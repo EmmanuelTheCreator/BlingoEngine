@@ -64,4 +64,15 @@ public class BehaviorPropertiesContainer : IEnumerable<LingoPropertyItem>
 
     public IEnumerator<LingoPropertyItem> GetEnumerator() => _items.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public BehaviorPropertiesContainer Clone()
+    {
+        var clone = new BehaviorPropertiesContainer();
+        foreach (var item in _items)
+            clone.Add(item.Key, item.Value);
+        
+        return clone;
+    }
+
+   
 }

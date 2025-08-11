@@ -6,7 +6,9 @@ using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 using LingoEngine.SDL2.Primitives;
 using LingoEngine.SDL2.SDLL;
+using LingoEngine.SDL2.Pictures;
 using LingoEngine.Styles;
+using LingoEngine.Texts;
 
 namespace LingoEngine.SDL2.Gfx
 {
@@ -26,6 +28,8 @@ namespace LingoEngine.SDL2.Gfx
         private nint _texture;
         public object FrameworkNode => this;
         public nint Texture => _texture;
+
+        public bool Pixilated { get; set; }
 
         public SdlGfxCanvas(nint renderer, ILingoFontManager fontManager, int width, int height)
         {
@@ -157,7 +161,7 @@ namespace LingoEngine.SDL2.Gfx
             });
         }
 
-        public void DrawText(LingoPoint position, string text, string? font = null, LingoColor? color = null, int fontSize = 12, int width = -1)
+        public void DrawText(LingoPoint position, string text, string? font = null, LingoColor? color = null, int fontSize = 12, int width = -1, LingoTextAlignment alignment = default)
         {
             UseTexture(() =>
             {
@@ -229,7 +233,25 @@ namespace LingoEngine.SDL2.Gfx
         }
         public void DrawPicture(ILingoImageTexture texture, int width, int height, LingoPoint position)
         {
-            throw new NotImplementedException();
+            UseTexture(() =>
+            {
+                if (texture is SdlImageTexture img)
+                {
+                    nint tex = SDL.SDL_CreateTextureFromSurface(_renderer, img.SurfaceId);
+                    if (tex != nint.Zero)
+                    {
+                        SDL.SDL_Rect dst = new SDL.SDL_Rect
+                        {
+                            x = (int)position.X,
+                            y = (int)position.Y,
+                            w = width,
+                            h = height
+                        };
+                        SDL.SDL_RenderCopy(_renderer, tex, nint.Zero, ref dst);
+                        SDL.SDL_DestroyTexture(tex);
+                    }
+                }
+            });
         }
 
         public void Dispose()
@@ -241,6 +263,6 @@ namespace LingoEngine.SDL2.Gfx
             }
         }
 
-       
+
     }
 }

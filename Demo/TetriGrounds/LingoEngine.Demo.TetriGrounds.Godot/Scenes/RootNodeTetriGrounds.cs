@@ -1,12 +1,9 @@
 using Godot;
-using LingoEngine.Demo.TetriGrounds.Core;
+using LingoEngine.Setup;
 #if DEBUG
+using LingoEngine.Director.Core.Projects;
 using LingoEngine.Director.LGodot;
-using LingoEngine.Director.LGodot.UI;
-
-
 #else
-using LingoEngine.LGodot;
 #endif
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -14,9 +11,6 @@ using System;
 public partial class RootNodeTetriGrounds : Node2D
 {
     private ServiceCollection _services;
-#if DEBUG
-    private LingoGodotDirectorRoot _director;
-#endif
 
     //private LingoGodotPlayerControler _controller;
     // Called when the node enters the scene tree for the first time.
@@ -32,7 +26,7 @@ public partial class RootNodeTetriGrounds : Node2D
 #if DEBUG
             ProjectSettings.SetSetting("display/window/stretch/mode", "disabled");
             ProjectSettings.SetSetting("display/window/stretch/aspect", "ignore");
-            DisplayServer.WindowSetSize(new Vector2I(1600, 1000));
+            DisplayServer.WindowSetSize(new Vector2I(1600, 970));
 #else
             ProjectSettings.SetSetting("display/window/size/initial_position_type","3");
             ProjectSettings.SetSetting("display/window/stretch/mode","canvas_items");
@@ -49,22 +43,21 @@ public partial class RootNodeTetriGrounds : Node2D
 
             DisplayServer.WindowSetPosition(centeredPos);
             _services = new ServiceCollection();
-            TetriGroundsSetup.AddTetriGrounds(_services, c => c
+            _services.RegisterLingoEngine(c => c
+            
 #if DEBUG
                     .WithDirectorGodotEngine(this)
+                     .AddBuildAction(b =>
+                     {
+                         var directorSettings = b.GetRequiredService<DirectorProjectSettings>();
+                         directorSettings.CsProjFile = "LingoEngine.Demo.TetriGrounds.Core\\LingoEngine.Demo.TetriGrounds.Core.csproj";
+                     })
 #else
                     .WithLingoGodotEngine(this)
 #endif
+                    .SetProjectFactory<LingoEngine.Demo.TetriGrounds.Core.TetriGroundsProjectFactory>()
+                    .BuildAndRunProject()
                     );
-            var serviceProvider = _services.BuildServiceProvider();
-            var game = serviceProvider.GetRequiredService<TetriGroundsGame>();
-            var movie = game.LoadMovie();
-            game.Play();
-#if DEBUG
-#else
-#endif
-
-
         }
         catch (Exception ex)
         {

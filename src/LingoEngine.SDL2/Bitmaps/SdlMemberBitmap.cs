@@ -2,7 +2,10 @@ using System.Runtime.InteropServices;
 using LingoEngine.Bitmaps;
 using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.SDLL;
+using LingoEngine.Sprites;
 using LingoEngine.Tools;
+using System.Collections.Generic;
+using LingoEngine.Primitives;
 
 namespace LingoEngine.SDL2.Pictures;
 public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
@@ -11,6 +14,7 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
     private nint _surface = nint.Zero;
     private SDL.SDL_Surface _surfacePtr;
     private SdlImageTexture _surfaceLingo;
+    private readonly Dictionary<LingoInkType, nint> _inkTextures = new();
     public byte[]? ImageData { get; private set; }
     public bool IsLoaded { get; private set; }
     public string Format { get; private set; } = "image/unknown";
@@ -25,7 +29,7 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
     {
         _member = member;
     }
-
+    public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
     public void Preload()
     {
         if (IsLoaded)
@@ -42,7 +46,7 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
         _surfacePtr = Marshal.PtrToStructure<SDL.SDL_Surface>(_surface);
         Width = _surfacePtr.w;
         Height = _surfacePtr.h;
-        _surfaceLingo = new SdlImageTexture(_surfacePtr, Width, Height);
+        _surfaceLingo = new SdlImageTexture(_surfacePtr, _surface, Width, Height);
 
         ImageData = File.ReadAllBytes(fullFileName);
         Format = MimeHelper.GetMimeType(_member.FileName);
@@ -54,6 +58,7 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
 
     public void Unload()
     {
+        ClearCache();
         if (_surface != nint.Zero)
         {
             SDL.SDL_FreeSurface(_surface);
@@ -112,5 +117,48 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
 
     }
 
+    public nint GetTextureForInk(LingoInkType ink, LingoColor backColor, nint renderer)
+    {
+        if (!InkPreRenderer.CanHandle(ink) || _surface == nint.Zero)
+            return nint.Zero;
+
+        if (_inkTextures.TryGetValue(ink, out var cached) && cached != nint.Zero)
+            return cached;
+
+        nint surf = SDL.SDL_ConvertSurfaceFormat(_surface, SDL.SDL_PIXELFORMAT_RGBA8888, 0);
+        if (surf == nint.Zero)
+            return nint.Zero;
+
+        var surfPtr = Marshal.PtrToStructure<SDL.SDL_Surface>(surf);
+        var bytes = new byte[surfPtr.w * surfPtr.h * 4];
+        Marshal.Copy(surfPtr.pixels, bytes, 0, bytes.Length);
+        bytes = InkPreRenderer.Apply(bytes, ink, backColor);
+        var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+        try
+        {
+            nint newSurf = SDL.SDL_CreateRGBSurfaceFrom(handle.AddrOfPinnedObject(), surfPtr.w, surfPtr.h, 32, surfPtr.w * 4,
+                0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+            var tex = SDL.SDL_CreateTextureFromSurface(renderer, newSurf);
+            SDL.SDL_FreeSurface(newSurf);
+            SDL.SDL_FreeSurface(surf);
+            _inkTextures[ink] = tex;
+            return tex;
+        }
+        finally
+        {
+            handle.Free();
+        }
+    }
+
     public void SetImageData(byte[] bytes) => ImageData = bytes;
+
+    private void ClearCache()
+    {
+        foreach (var tex in _inkTextures.Values)
+        {
+            if (tex != nint.Zero)
+                SDL.SDL_DestroyTexture(tex);
+        }
+        _inkTextures.Clear();
+    }
 }

@@ -4,53 +4,57 @@ using LingoEngine.Inputs;
 using static Godot.Input;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Bitmaps;
+using System.Xml.Linq;
 
 
 namespace LingoEngine.LGodot
 {
-
-    /// <summary>
-    /// Communication between the Godot engine and the Lingo mouse object
-    /// </summary>
-
-    public partial class LingoGodotMouse : Area2D, ILingoFrameworkMouse
+    public class LingoGodotMouse : ILingoFrameworkMouse
     {
-        private readonly Lazy<LingoMouse> _lingoMouse;
+        private Lazy<LingoMouse> _lingoMouse;
         private DateTime _lastClickTime = DateTime.MinValue;
         private const double DOUBLE_CLICK_TIME_LIMIT = 0.25;  // 250 milliseconds for double-click detection
-        private CollisionShape2D _collisionShape2D = new();
-        private RectangleShape2D _RectangleShape2D = new();
-
-        public LingoGodotMouse(Node rootNode, Lazy<LingoMouse> lingoMouse)
+        public LingoGodotMouse(Lazy<LingoMouse> lingoMouse)
         {
-            Name = "MouseConnector";
             _lingoMouse = lingoMouse;
-            rootNode.AddChild(this);
-            AddChild(_collisionShape2D);
-            _RectangleShape2D.Size = new Vector2(1000, 1000);
-            _collisionShape2D.Shape = _RectangleShape2D;
-            _collisionShape2D.Name = "MouseDetectionCollisionShape";
         }
-       
-
-        // This method will be called when Godot's input_event is triggered
-            public override void _InputEvent(Viewport viewport, InputEvent inputEvent, int shapeIdx)
+        public void ReplaceMouseObj(LingoMouse lingoMouse)
         {
-            // Handle mouse button events (MouseDown and MouseUp)
-            if (inputEvent is InputEventMouseButton mouseButtonEvent)
+            _lingoMouse = new Lazy<LingoMouse>(()=>  lingoMouse);
+        }
+        public void Release()
+        {
+            
+        }
+        public void HandleMouseMoveEvent(InputEventMouseMotion mouseMotionEvent, bool isInsideRect, float x, float y)
+        {
+            //Console.WriteLine($"Mouse Move: {mouseMotionEvent.Position.X}, {mouseMotionEvent.Position.Y}");
+            //var x = mouseMotionEvent.Position.X + _offset.X;
+            //var y = mouseMotionEvent.Position.Y + _offset.Y;
+            _lingoMouse.Value.MouseH = x;
+            _lingoMouse.Value.MouseV = y;
+            if (isInsideRect)
+                _lingoMouse.Value.DoMouseMove();
+        }
+        private bool wasPressed = false;
+        public void HandleMouseButtonEvent(InputEventMouseButton mouseButtonEvent, bool isInsideRect, float x, float y)
+        {
+            _lingoMouse.Value.MouseH = x;
+            _lingoMouse.Value.MouseV = y;
+            //Console.WriteLine(Name + ":" + mouseButtonEvent.Position.X + "x" + mouseButtonEvent.Position.Y + ":" + isInsideRect);
+            // Handle Mouse Down event
+            if (mouseButtonEvent.Pressed)
             {
-                var x = mouseButtonEvent.Position.X;
-                var y = mouseButtonEvent.Position.Y;
-
-                // Handle Mouse Down event
-                if (mouseButtonEvent.Pressed)
+                // mouse down must be inside rect, mouse up may not
+                if (isInsideRect && x > 0 && y> 0)
                 {
+                    wasPressed = true;
                     if (mouseButtonEvent.ButtonIndex == MouseButton.Left)
                     {
                         // Handle Left Button Down
                         _lingoMouse.Value.MouseDown = true;
                         _lingoMouse.Value.LeftMouseDown = true;
-                        DetectDoubleClick();
+                         DetectDoubleClick();
                         _lingoMouse.Value.DoMouseDown();
                     }
                     else if (mouseButtonEvent.ButtonIndex == MouseButton.Right)
@@ -64,38 +68,30 @@ namespace LingoEngine.LGodot
                         // Handle Middle Button Down
                         _lingoMouse.Value.MiddleMouseDown = true;
                         _lingoMouse.Value.DoMouseDown();
-                    }              
-                }
-                // Handle Mouse Up event
-                else
-                {
-                    if (mouseButtonEvent.ButtonIndex == MouseButton.Left)
-                    {
-                        _lingoMouse.Value.MouseDown = false;
-                        _lingoMouse.Value.LeftMouseDown = false;
-                        _lingoMouse.Value.DoMouseUp();
-                    }
-                    else if (mouseButtonEvent.ButtonIndex == MouseButton.Right)
-                    {
-                        _lingoMouse.Value.RightMouseDown = false;
-                        _lingoMouse.Value.DoMouseUp();
-                    }
-                    else if (mouseButtonEvent.ButtonIndex == MouseButton.Middle)
-                    {
-                        _lingoMouse.Value.MiddleMouseDown = false;
-                        _lingoMouse.Value.DoMouseUp();
                     }
                 }
             }
-            // Handle Mouse Motion (MouseMove)
-            else if (inputEvent is InputEventMouseMotion mouseMotionEvent)
+            // Handle Mouse Up event
+            else if (wasPressed)
             {
-                var x = mouseMotionEvent.Position.X;
-                var y = mouseMotionEvent.Position.Y;
-                _lingoMouse.Value.MouseH = x;
-                _lingoMouse.Value.MouseV = y;
-                _lingoMouse.Value.DoMouseMove();
-            }              
+                wasPressed = false;
+                if (mouseButtonEvent.ButtonIndex == MouseButton.Left)
+                {
+                    _lingoMouse.Value.MouseDown = false;
+                    _lingoMouse.Value.LeftMouseDown = false;
+                    _lingoMouse.Value.DoMouseUp();
+                }
+                else if (mouseButtonEvent.ButtonIndex == MouseButton.Right)
+                {
+                    _lingoMouse.Value.RightMouseDown = false;
+                    _lingoMouse.Value.DoMouseUp();
+                }
+                else if (mouseButtonEvent.ButtonIndex == MouseButton.Middle)
+                {
+                    _lingoMouse.Value.MiddleMouseDown = false;
+                    _lingoMouse.Value.DoMouseUp();
+                }
+            }
         }
 
         private void DetectDoubleClick()
@@ -157,9 +153,12 @@ namespace LingoEngine.LGodot
                 LingoMouseCursor.Drag => DisplayServer.CursorShape.Drag,
                 LingoMouseCursor.Help => DisplayServer.CursorShape.Help,
                 LingoMouseCursor.Wait => DisplayServer.CursorShape.Busy,
+                LingoMouseCursor.NotAllowed => DisplayServer.CursorShape.Forbidden,
                 _ => DisplayServer.CursorShape.Arrow
             };
         }
+
+        
     }
 
 }

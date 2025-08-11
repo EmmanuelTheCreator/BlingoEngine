@@ -1,3 +1,4 @@
+using LingoEngine.FrameworkCommunication;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.Gfx
@@ -14,10 +15,16 @@ namespace LingoEngine.Gfx
             set => _framework.Orientation = value;
         }
 
-        public LingoMargin ItemMargin
+        public LingoPoint ItemMargin
         {
             get => _framework.ItemMargin;
             set => _framework.ItemMargin = value;
+        }
+        public ILingoFrameworkFactory Factory { get; }
+
+        public LingoGfxWrapPanel(ILingoFrameworkFactory factory)
+        {
+            Factory = factory;
         }
 
         public LingoGfxWrapPanel AddItem(ILingoGfxNode node)

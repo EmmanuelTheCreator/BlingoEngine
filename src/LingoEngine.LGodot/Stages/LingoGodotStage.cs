@@ -1,7 +1,6 @@
 ﻿using Godot;
 using LingoEngine.Core;
 using LingoEngine.Movies;
-using LingoEngine.LGodot.Stages;
 using LingoEngine.Stages;
 
 namespace LingoEngine.LGodot.Movies
@@ -17,6 +16,7 @@ namespace LingoEngine.LGodot.Movies
         private LingoGodotMovie? _activeMovie;
 
         float ILingoFrameworkStage.Scale { get => base.Scale.X; set => base.Scale = new Vector2(value,value); }
+        public LingoStage LingoStage => _LingoStage;
 
         public LingoGodotStage(LingoPlayer lingoPlayer)
         {
@@ -66,7 +66,7 @@ namespace LingoEngine.LGodot.Movies
                 RemoveChild(node);
         }
 
-    public void SetActiveMovie(LingoMovie? lingoMovie)
+        public void SetActiveMovie(LingoMovie? lingoMovie)
         {
             if (_activeMovie != null)
                 _activeMovie.Hide();
@@ -83,6 +83,10 @@ namespace LingoEngine.LGodot.Movies
         internal void SetScale(float scale)
         {
             Scale = new Vector2(scale, scale);
+        }
+
+        public void ApplyPropertyChanges()
+        {
         }
     }
 }

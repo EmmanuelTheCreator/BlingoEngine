@@ -1,7 +1,5 @@
 using Godot;
 using LingoEngine.Gfx;
-using System;
-using System.Collections.Generic;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.LGodot.Gfx
@@ -24,6 +22,7 @@ namespace LingoEngine.LGodot.Gfx
             _onChange = onChange;
             if (_onChange != null) ItemSelected += _ => _onChange(SelectedKey);
         }
+
 
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
         public float Y { get => Position.Y; set => Position = new Vector2(Position.X, value); }

@@ -1,3 +1,4 @@
+using LingoEngine.Events;
 using LingoEngine.Inputs;
 using LingoEngine.Inputs.Events;
 using LingoEngine.Movies;
@@ -10,13 +11,13 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
     {
         public NewGameBehavior(ILingoMovieEnvironment env) : base(env) {}
 
-        public void MouseUp(ILingoMouse mouse)
+        public void MouseUp(LingoMouseEvent mouse)
         {
             Cursor = -1;
             _Movie.GoTo("Game");
         }
 
-        public void MouseWithin(ILingoMouse mouse) => Cursor = 280;
-        public void MouseLeave(ILingoMouse mouse) => Cursor = -1;
+        public void MouseWithin(LingoMouseEvent mouse) => Cursor = 280;
+        public void MouseLeave(LingoMouseEvent mouse) => Cursor = -1;
     }
 }

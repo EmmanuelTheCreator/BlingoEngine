@@ -40,7 +40,7 @@ public class SdlMovie : ILingoFrameworkMovie, IDisposable
         SDL.SDL_RenderPresent(renderer);
     }
 
-    internal void CreateSprite<T>(T lingoSprite) where T : LingoSprite
+    internal void CreateSprite<T>(T lingoSprite) where T : LingoSprite2D
     {
         var sprite = new SdlSprite(lingoSprite, _stage.RootContext.Renderer,
             s => _drawnSprites.Add(s),

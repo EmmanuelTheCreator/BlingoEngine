@@ -10,12 +10,34 @@ namespace LingoEngine.Inputs
     /// <summary>
     /// Provides access to a user’s mouse activity, including mouse movement and mouse clicks.
     /// </summary>
-    public interface ILingoMouse
+    public interface ILingoStageMouse : ILingoMouse
     {
         /// <summary>
         /// Mouse property; returns the last active sprite clicked by the user. Read-only.
         /// </summary>
-        LingoSprite? ClickOn { get; }
+        LingoSprite2D? ClickOn { get; }
+        /// <summary>
+        /// Returns or sets the cast member underneath the mouse pointer.
+        /// </summary>
+        LingoMember? MouseMember { get; }
+        /// <summary>
+        /// Subscribe to mouse events.
+        /// </summary>
+        ILingoMouse Subscribe(ILingoMouseEventHandler handler);
+
+        /// <summary>
+        /// Unsubscribe from mouse events.
+        /// </summary>
+        ILingoMouse Unsubscribe(ILingoMouseEventHandler handler);
+
+       
+    }
+    /// <summary>
+    /// Provides access to a user’s mouse activity, including mouse movement and mouse clicks.
+    /// </summary>
+    public interface ILingoMouse
+    {
+        
 
         /// <summary>
         /// Returns TRUE if the user double-clicked the mouse; otherwise FALSE.
@@ -49,11 +71,6 @@ namespace LingoEngine.Inputs
         LingoPoint MouseLoc { get; }
 
         /// <summary>
-        /// Returns or sets the cast member underneath the mouse pointer.
-        /// </summary>
-        LingoMember? MouseMember { get; }
-
-        /// <summary>
         /// Returns TRUE on the frame when the mouse button is released.
         /// </summary>
         bool MouseUp { get; }
@@ -85,20 +102,81 @@ namespace LingoEngine.Inputs
         bool LeftMouseDown { get; }
         bool MiddleMouseDown { get; }
         ILingoCursor Cursor { get; }
+        void SetCursor(LingoMouseCursor cursorType);
+
+
+        ILingoMouseSubscription OnMouseDown(Action<LingoMouseEvent> handler);
+        ILingoMouseSubscription OnMouseUp(Action<LingoMouseEvent> handler);
+        ILingoMouseSubscription OnMouseMove(Action<LingoMouseEvent> handler);
+        ILingoMouseSubscription OnMouseEvent(Action<LingoMouseEvent> handler);
     }
+    public interface ILingoMouseSubscription
+    {
+        void Release();
+    }
+
+    public class LingoStageMouse : LingoMouse, ILingoStageMouse
+    {
+        private readonly LingoStage _lingoStage;
+        private HashSet<ILingoMouseEventHandler> _subscriptions = new();
+        public LingoSprite2D? ClickOn => _lingoStage.GetSpriteUnderMouse();
+        public LingoMember? MouseMember { get => _lingoStage.MouseMemberUnderMouse; }
+        public LingoStageMouse(LingoStage lingoMovieStage, ILingoFrameworkMouse frameworkMouse)
+            :base(frameworkMouse)
+        {
+            _lingoStage = lingoMovieStage;
+        }
+      
+        protected override void OnDoOnAll(LingoMouseEvent eventMouse, Action<ILingoMouseEventHandler, LingoMouseEvent> action)
+        {
+            foreach (var subscription in _subscriptions)
+            {
+                action(subscription, eventMouse);
+                if (!eventMouse.ContinuePropation) return;
+            }
+        }
+        /// <summary>
+        /// Subscribe to mouse events
+        /// </summary>
+        public ILingoMouse Subscribe(ILingoMouseEventHandler handler)
+        {
+            if (_subscriptions.Contains(handler)) return this;
+            _subscriptions.Add(handler);
+            return this;
+        }
+
+        /// <summary>
+        /// Unsubscribe from mouse events
+        /// </summary>
+        public ILingoMouse Unsubscribe(ILingoMouseEventHandler handler)
+        {
+            _subscriptions.Remove(handler);
+            return this;
+        }
+        internal bool IsSubscribed(LingoSprite2D sprite) => _subscriptions.Contains(sprite);
+
+       
+    }
+
+
+
+
 
 
     public class LingoMouse : ILingoMouse
     {
         private bool _lastMouseDownState = false; // Previous mouse state (used to detect "StillDown")
-
-        private HashSet<ILingoMouseEventHandler> _subscriptions = new();
-        private readonly LingoStage _lingoStage;
+        private readonly List<LingoMouseSubscription> _mouseUps = new();
+        private readonly List<LingoMouseSubscription> _mouseDowns = new();
+        private readonly List<LingoMouseSubscription> _mouseMoves = new();
+        private readonly List<LingoMouseSubscription> _mouseEvents = new();
+        
+        
         private readonly LingoCursor _cursor;
         private ILingoFrameworkMouse _frameworkObj;
         public T Framework<T>() where T : ILingoFrameworkMouse => (T)_frameworkObj;
 
-        public LingoMember? MouseMember { get => _lingoStage.MouseMemberUnderMouse; }
+        
         public LingoPoint MouseLoc => new LingoPoint(MouseH, MouseV);
 
         public float MouseH { get; set; }
@@ -112,53 +190,91 @@ namespace LingoEngine.Inputs
         public char MouseChar => ' ';
         public string MouseWord => "";
         public int MouseLine => 0;
-        public LingoSprite? ClickOn => _lingoStage.GetSpriteUnderMouse();
+        
 
         public bool LeftMouseDown { get; set; }
         public bool MiddleMouseDown { get; set; }
         public ILingoCursor Cursor => _cursor;
 
 
-        public LingoMouse(LingoStage lingoMovieStage, ILingoFrameworkMouse frameworkMouse)
+        public LingoMouse(ILingoFrameworkMouse frameworkMouse)
         {
             _frameworkObj = frameworkMouse;
-            _lingoStage = lingoMovieStage;
             _cursor = new LingoCursor(_frameworkObj);
         }
+        public void ReplaceFrameworkObj(ILingoFrameworkMouse mouseFrameworkObj)
+        {
+            _frameworkObj.Release();
+            _frameworkObj = mouseFrameworkObj;
+            mouseFrameworkObj.ReplaceMouseObj(this);
+        }
 
-
+        public void SetCursor(LingoMouseCursor cursorType)
+        {
+            if (_cursor.CursorType == cursorType) return;
+            _cursor.CursorType = cursorType;
+            _frameworkObj.SetCursor(cursorType);
+        }
         /// <summary>
         /// Called from communiction framework mouse
         /// </summary>
-        public void DoMouseUp() => DoOnAll(x => x.RaiseMouseUp(this));
-        public void DoMouseDown() => DoOnAll(x => x.RaiseMouseDown(this));
-        public void DoMouseMove() => DoOnAll(x => x.RaiseMouseMove(this));
-        private void DoOnAll(Action<ILingoMouseEventHandler> action)
-        {
-            foreach (var subscription in _subscriptions)
-                action(subscription);
-        }
+        public virtual void DoMouseUp() => DoOnAll(_mouseUps, (x, e) => x.RaiseMouseUp(e), LingoMouseEventType.MouseUp);
 
-        /// <summary>
-        /// Subscribe to mouse events
-        /// </summary>
-        public LingoMouse Subscribe(ILingoMouseEventHandler handler)
+        public virtual void DoMouseDown() => DoOnAll(_mouseDowns, (x, e) => x.RaiseMouseDown(e), LingoMouseEventType.MouseDown);
+
+        public virtual void DoMouseMove() => DoOnAll(_mouseMoves, (x, e) => x.RaiseMouseMove(e), LingoMouseEventType.MouseMove);
+        
+
+        private void DoOnAll(List<LingoMouseSubscription> subscriptions, Action<ILingoMouseEventHandler, LingoMouseEvent> action, LingoMouseEventType type)
         {
-            if (_subscriptions.Contains(handler)) return this;
-            _subscriptions.Add(handler);
-            return this;
+            var eventMouse = new LingoMouseEvent(this, type);
+            foreach (var subscription in subscriptions)
+            {
+                subscription.Do(eventMouse);
+                if (!eventMouse.ContinuePropation) return;
+            } 
+            foreach (var subscription in _mouseEvents)
+            {
+                subscription.Do(eventMouse);
+                if (!eventMouse.ContinuePropation) return;
+            }
+            OnDoOnAll(eventMouse, action);
         }
-        public LingoMouse Unsubscribe(ILingoMouseEventHandler handler)
-        {
-            _subscriptions.Remove(handler);
-            return this;
-        }
+        protected virtual void OnDoOnAll(LingoMouseEvent eventMouse, Action<ILingoMouseEventHandler, LingoMouseEvent> action)
+        { }
+
+        
         // Method to update the mouse state at the end of each frame
         internal void UpdateMouseState()
         {
             _lastMouseDownState = MouseDown;  // Save current mouse state for next frame
         }
+       
 
-        internal bool IsSubscribed(LingoSprite sprite) => _subscriptions.Contains(sprite);
+       
+        public ILingoMouseSubscription OnMouseDown(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseDowns.Remove(s));_mouseDowns.Add(sub); return sub; }
+        public ILingoMouseSubscription OnMouseUp(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s =>_mouseUps.Remove(s));_mouseUps.Add(sub); return sub; }
+        public ILingoMouseSubscription OnMouseMove(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseMoves.Remove(s)); _mouseMoves.Add(sub); return sub; }
+        public ILingoMouseSubscription OnMouseEvent(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseEvents.Remove(s)); _mouseEvents.Add(sub); return sub; }
+
+        private class LingoMouseSubscription : ILingoMouseSubscription
+        {
+            private readonly Action<LingoMouseEvent> _handler;
+            private readonly Action<LingoMouseSubscription> _onRelease;
+            public LingoMouseSubscription(Action<LingoMouseEvent> handler,Action<LingoMouseSubscription> onRelease)
+            {
+                _handler = handler;
+                _onRelease = onRelease;
+            }
+            internal void Do(LingoMouseEvent mouseEvent)
+            {
+                _handler(mouseEvent);
+            }
+            public void Release()
+            {
+                _onRelease(this);
+            }
+
+        }
     }
 }

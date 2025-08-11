@@ -1,5 +1,6 @@
 using LingoEngine.FilmLoops;
 using LingoEngine.Members;
+using LingoEngine.Sprites;
 
 namespace LingoEngine.Bitmaps
 {
@@ -24,5 +25,12 @@ namespace LingoEngine.Bitmaps
         /// Corresponds to the Lingo <c>loop</c> property used with film loop sprites.
         /// </summary>
         bool Loop { get; set; }
+
+        /// <summary>
+        /// Composes the active film loop layers into a single texture.
+        /// </summary>
+        /// <param name="hostSprite">The sprite hosting the film loop.</param>
+        /// <param name="layers">Currently active layers for this frame.</param>
+        ILingoTexture2D ComposeTexture(LingoSprite2D hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers);
     }
 }

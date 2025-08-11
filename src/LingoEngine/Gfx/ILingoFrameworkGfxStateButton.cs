@@ -1,3 +1,5 @@
+using LingoEngine.Bitmaps;
+
 namespace LingoEngine.Gfx
 {
     /// <summary>
@@ -8,8 +10,9 @@ namespace LingoEngine.Gfx
         /// <summary>Displayed text on the button.</summary>
         string Text { get; set; }
         /// <summary>Icon texture displayed on the button.</summary>
-        Bitmaps.ILingoImageTexture? Texture { get; set; }
+        ILingoImageTexture? TextureOn { get; set; }
         /// <summary>Whether the button is toggled on.</summary>
         bool IsOn { get; set; }
+        ILingoImageTexture? TextureOff { get; set; }
     }
 }

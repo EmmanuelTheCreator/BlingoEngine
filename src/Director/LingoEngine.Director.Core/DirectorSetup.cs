@@ -12,6 +12,12 @@ using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Bitmaps;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Setup;
+using LingoEngine.Director.Core.Scripts;
+using LingoEngine.Commands;
+using LingoEngine.Director.Core.Scripts.Commands;
+using LingoEngine.Director.Core.Sprites;
+using LingoEngine.Director.Core.Compilers;
+using LingoEngine.Director.Core.Compilers.Commands;
 
 namespace LingoEngine.Director.Core
 {
@@ -19,13 +25,16 @@ namespace LingoEngine.Director.Core
     {
         public static ILingoEngineRegistration WithDirectorEngine(this ILingoEngineRegistration engineRegistration)
         {
-            engineRegistration.Services(s => s
+            engineRegistration.ServicesMain(s => s
                     .AddSingleton<IDirectorEventMediator, DirectorEventMediator>()
                     .AddSingleton<IDirectorShortCutManager, DirectorShortCutManager>()
                     .AddSingleton<IHistoryManager, HistoryManager>()
                     .AddSingleton<DirectorWindowManager>()
                     .AddSingleton<DirectorProjectManager>()
+                    .AddSingleton<LingoScriptCompiler>()
                     .AddSingleton<DirectorProjectSettings>()
+                    .AddSingleton<DirectorProjectSettingsRepository>()
+                    .AddSingleton<LingoProjectSettingsRepository>()
                     .AddTransient<IDirectorWindowManager>(p => p.GetRequiredService<DirectorWindowManager>())
                     .AddTransient<IDirectorBehaviorDescriptionManager, DirectorBehaviorDescriptionManager>()
 
@@ -33,6 +42,9 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<IIdePathResolver, IdePathResolver>()
                     .AddSingleton<IIdeLauncher, IdeLauncher>()
                     .AddSingleton<ProjectSettingsEditorState, ProjectSettingsEditorState>()
+
+                    .AddSingleton<DirectorScriptsManager>()
+                    .AddTransient(p => new Lazy<IDirectorScriptsManager>(() => p.GetRequiredService<DirectorScriptsManager>()))
 
                     // Windows
                     .AddSingleton<DirectorMainMenu>()
@@ -42,18 +54,28 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<DirectorCastWindow>()
                     .AddSingleton<DirectorScoreWindow>()
                     .AddSingleton<DirectorPropertyInspectorWindow>()
+                    .AddSingleton<DirectorStageGuides>()
                     .AddSingleton<DirectorBinaryViewerWindow>()
                     .AddSingleton<DirectorBinaryViewerWindowV2>()
                     .AddSingleton<DirectorStageWindow>()
                     .AddSingleton<DirectorTextEditWindow>()
                     .AddSingleton<DirectorBitmapEditWindow>()
                     .AddSingleton<DirectorImportExportWindow>()
+                    .AddSingleton<DirStageManager>()
+                    .AddTransient<IDirStageManager>(p => p.GetRequiredService<DirStageManager>())
+                    .AddSingleton<DirScoreManager>()
+                    .AddSingleton<DirSpritesManager>()
+                    .AddSingleton<DirCastManager>()
+                    .AddTransient<IDirSpritesManager>(p => p.GetRequiredService<DirSpritesManager>())
+                    .AddTransient(p => new Lazy<IDirSpritesManager>(() => p.GetRequiredService<DirSpritesManager>()))
+                    .AddTransient<CompileProjectCommandHandler>()
                     );
             engineRegistration.AddBuildAction(
                 (serviceProvider) =>
                 {
                     serviceProvider.RegisterDirectorWindows();
-                   
+                    //serviceProvider.GetRequiredService<ILingoCommandManager>() // you forgot the canExecute?
+                    //    .Register<CompileProjectCommandHandler, CompileProjectCommand>();
                 });
             return engineRegistration;
         }

@@ -1,8 +1,11 @@
 ﻿using Godot;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Helpers;
+using LingoEngine.Primitives;
+using LingoEngine.Sprites;
 using LingoEngine.Tools;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace LingoEngine.LGodot.Bitmaps
 {
@@ -13,6 +16,7 @@ namespace LingoEngine.LGodot.Bitmaps
         private ILingoImageTexture? _imageTextureLingo;
         private Image? _image;
         private readonly ILogger _logger;
+        private readonly Dictionary<LingoInkType, ImageTexture> _inkCache = new();
 
         public ILingoImageTexture? Texture => _imageTextureLingo;
         public ImageTexture? TextureGodot
@@ -95,7 +99,7 @@ namespace LingoEngine.LGodot.Bitmaps
 
             UpdateImageData(_image);
         }
-
+        public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
 
 
         private void UpdateImageData(Image image)
@@ -129,6 +133,7 @@ namespace LingoEngine.LGodot.Bitmaps
 
         public void Unload()
         {
+            ClearCache();
             _imageTexture?.Dispose();
             _imageTexture = null;
             _imageTextureLingo = null;
@@ -137,6 +142,7 @@ namespace LingoEngine.LGodot.Bitmaps
 
         public void Dispose()
         {
+            ClearCache();
             _image?.Dispose();
             _imageTexture?.Dispose();
         }
@@ -178,8 +184,36 @@ namespace LingoEngine.LGodot.Bitmaps
             _lingoMemberPicture.SetImageData(_image.GetData());
         }
 
+        public ImageTexture GetTextureForInk(LingoInkType ink, LingoColor backColor)
+        {
+            if (!InkPreRenderer.CanHandle(ink) || _image == null)
+                return TextureGodot!;
+
+            if (_inkCache.TryGetValue(ink, out var tex))
+                return tex;
+
+            var img = GetImageCopy();
+            if (img.IsCompressed())
+                img.Decompress();
+            img.Convert(Image.Format.Rgba8);
+            var data = InkPreRenderer.Apply(img.GetData(), ink, backColor);
+            var newImg = Image.CreateFromData(img.GetWidth(), img.GetHeight(), false, Image.Format.Rgba8, data);
+            tex = ImageTexture.CreateFromImage(newImg);
+            newImg.Dispose();
+            _inkCache[ink] = tex;
+            return tex;
+        }
+
         public void SetImageData(byte[] bytes) => ImageData = bytes;
 
+        private void ClearCache()
+        {
+            foreach (var tex in _inkCache.Values)
+            {
+                tex.Dispose();
+            }
+            _inkCache.Clear();
+        }
 
     }
 }

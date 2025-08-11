@@ -8,6 +8,7 @@ using LingoEngine.Casts;
 using LingoEngine.Sprites;
 using LingoEngine.Commands;
 using LingoEngine.Projects;
+using LingoEngine.ColorPalettes;
 
 namespace LingoEngine
 {
@@ -23,12 +24,15 @@ namespace LingoEngine
                    .AddSingleton<LingoWindow>()
                    .AddSingleton<LingoClock>()
                    .AddSingleton<LingoSystem>()
+                   .AddSingleton<LingoFrameLabelManager>()
+                   .AddSingleton<ILingoColorPaletteDefinitions, LingoColorPaletteDefinitions>()
                    .AddTransient<ILingoPlayer>(p => p.GetRequiredService<LingoPlayer>())
                    .AddTransient<ILingoCastLibsContainer>(p => p.GetRequiredService<LingoCastLibsContainer>())
                    .AddTransient<ILingoWindow>(p => p.GetRequiredService<LingoWindow>())
                    .AddTransient<ILingoClock>(p => p.GetRequiredService<LingoClock>())
                    .AddTransient<ILingoSystem>(p => p.GetRequiredService<LingoSystem>())
-                   .AddTransient<LingoSprite>()
+                   .AddTransient<ILingoFrameLabelManager>(p => p.GetRequiredService<LingoFrameLabelManager>())
+                   .AddTransient<LingoSprite2D>()
                    .AddTransient<ILingoMemberFactory, LingoMemberFactory>()
                    .AddTransient(p => new Lazy<ILingoMemberFactory>(() => p.GetRequiredService<ILingoMemberFactory>()))
                    .AddScoped<ILingoMovieEnvironment, LingoMovieEnvironment>()

@@ -26,8 +26,8 @@ namespace LingoEngine.Director.LGodot.Gfx
         private SubViewport _viewport;
         private TextureRect _textureRect;
 
-        public DirGodotBinaryViewerWindow(IDirectorEventMediator mediator, DirectorBinaryViewerWindow directorBinaryViewerWindow, IDirGodotWindowManager windowManager) 
-            : base(DirectorMenuCodes.BinaryViewerWindow, "Binary Viewer", windowManager)
+    public DirGodotBinaryViewerWindow(IDirectorEventMediator mediator, DirectorBinaryViewerWindow directorBinaryViewerWindow, IDirGodotWindowManager windowManager)
+        : base(DirectorMenuCodes.BinaryViewerWindow, "Binary Viewer", windowManager)
         {
             _mediator = mediator;
             directorBinaryViewerWindow.Init(this);

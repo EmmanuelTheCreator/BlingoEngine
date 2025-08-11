@@ -2,6 +2,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using LingoEngine.Sounds;
 using LingoEngine.SDL2.SDLL;
+using LingoEngine.Sprites;
 
 namespace LingoEngine.SDL2.Sounds;
 
@@ -18,6 +19,8 @@ public class SdlMemberSound : ILingoFrameworkMemberSound, IDisposable
         _member = member;
     }
     public void Dispose() { Unload(); }
+
+    public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
     public void CopyToClipboard() { }
     public void Erase() { Unload(); }
     public void ImportFileInto() { }

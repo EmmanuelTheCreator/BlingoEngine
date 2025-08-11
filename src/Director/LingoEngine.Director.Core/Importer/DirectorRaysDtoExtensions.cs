@@ -1,16 +1,18 @@
-using System;
 using ProjectorRays.Director;
 using ProjectorRays.director.Chunks;
 using LingoEngine.IO.Data.DTO;
-using ProjectorRays.director.Scores;
 using ProjectorRays.director.Scores.Data;
 
 namespace LingoEngine.Director.Core.Importer;
 
 internal static class DirectorRaysDtoExtensions
 {
-    public static LingoMovieDTO ToDto(this RaysDirectorFile dir, string movieName, DirFilesContainerDTO resources)
+    public static (LingoStageDTO Stage,LingoMovieDTO Movie) ToDto(this RaysDirectorFile dir, string movieName, DirFilesContainerDTO resources)
     {
+        var stage = new LingoStageDTO
+        {
+            // todo
+        };
         var movie = new LingoMovieDTO
         {
             Name = movieName,
@@ -29,7 +31,7 @@ internal static class DirectorRaysDtoExtensions
                 movie.Sprites.Add(f.ToDto());
         }
 
-        return movie;
+        return (stage,movie);
     }
 
     public static LingoCastDTO ToDto(this RaysCastChunk cast, int number, DirFilesContainerDTO resources)

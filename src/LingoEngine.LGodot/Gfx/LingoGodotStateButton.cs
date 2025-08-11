@@ -3,6 +3,7 @@ using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Bitmaps;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace LingoEngine.LGodot.Gfx
 {
@@ -13,6 +14,7 @@ namespace LingoEngine.LGodot.Gfx
     {
         private LingoMargin _margin = LingoMargin.Zero;
         private ILingoImageTexture? _texture;
+        private ILingoImageTexture? _textureOff;
         private readonly StyleBoxFlat _style = new StyleBoxFlat();
         private readonly StyleBoxFlat _styleDisabled = new StyleBoxFlat();
         private readonly StyleBoxFlat _styleActive = new StyleBoxFlat();
@@ -80,15 +82,22 @@ namespace LingoEngine.LGodot.Gfx
         }
 
         public new string Text { get => base.Text; set => base.Text = value; }
-        public ILingoImageTexture? Texture
+        public ILingoImageTexture? TextureOn
         {
             get => _texture;
             set
             {
                 _texture = value;
-                if (value is LingoGodotImageTexture tex) 
-                    Icon = tex.Texture;
-                    
+                UpdateStateIcon();
+            }
+        }
+        public ILingoImageTexture? TextureOff
+        {
+            get => _textureOff;
+            set
+            {
+                _textureOff = value;
+                UpdateStateIcon();
             }
         }
         private bool _isOn;
@@ -99,6 +108,7 @@ namespace LingoEngine.LGodot.Gfx
             {
                 if (_isOn == value) return;
                 _isOn = value;
+                UpdateStateIcon();
                 _onValueChanged?.Invoke();
                 _onChange?.Invoke(IsOn);
                 UpdateStyle();
@@ -121,11 +131,19 @@ namespace LingoEngine.LGodot.Gfx
             base.Dispose();
         }
 
+        private void UpdateStateIcon()
+        {
+            if(_texture != null && _texture is LingoGodotImageTexture tex)
+                Icon = tex.Texture;
+             if (!IsOn && _textureOff != null && _textureOff is LingoGodotImageTexture texOff)
+                Icon = texOff.Texture;
+            
+        }
         private void UpdateStyle()
         {
             ResetStyle(_style);
             ResetStyle(_styleDisabled);
-            if (_isOn)
+            if (_isOn && _textureOff ==null)
                 _style.BgColor = Colors.DarkGray;
             else
                 _style.BgColor = Colors.Transparent;

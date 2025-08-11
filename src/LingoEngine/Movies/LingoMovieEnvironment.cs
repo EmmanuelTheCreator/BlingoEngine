@@ -16,7 +16,7 @@ namespace LingoEngine.Movies
         ILingoPlayer Player { get; }
         ILingoKey Key { get; }
         ILingoSound Sound { get; }
-        ILingoMouse Mouse { get; }
+        ILingoStageMouse Mouse { get; }
         ILingoSystem System { get; }
         ILingoMovie Movie { get; }
         ILingoClock Clock { get; }
@@ -34,7 +34,7 @@ namespace LingoEngine.Movies
         private LingoPlayer _player;
         private LingoKey _key;
         private LingoSound _sound;
-        private LingoMouse _mouse;
+        private LingoStageMouse _mouse;
         private LingoSystem _system;
         private ILingoClock _clock;
         private ILingoMovie _movie;
@@ -53,7 +53,7 @@ namespace LingoEngine.Movies
 
         public ILingoSound Sound => _sound;
 
-        public ILingoMouse Mouse => _mouse;
+        public ILingoStageMouse Mouse => _mouse;
 
         public ILingoSystem System => _system;
 
@@ -73,7 +73,7 @@ namespace LingoEngine.Movies
             _projectSettings = projectSettings;
         }
 
-        internal void Init(string name, int number, LingoPlayer player, LingoKey lingoKey, LingoSound sound, LingoMouse mouse, LingoStage stage, LingoSystem system, ILingoClock clock, LingoCastLibsContainer lingoCastLibsContainer, IServiceScope scopedServiceProvider,Action<LingoMovie> onRemoveMe)
+        internal void Init(string name, int number, LingoPlayer player, LingoKey lingoKey, LingoSound sound, LingoStageMouse mouse, LingoStage stage, LingoSystem system, ILingoClock clock, LingoCastLibsContainer lingoCastLibsContainer, IServiceScope scopedServiceProvider,Action<LingoMovie> onRemoveMe)
         {
             _scopedServiceProvider = scopedServiceProvider;
             _eventMediator = (LingoEventMediator)scopedServiceProvider.ServiceProvider.GetRequiredService<ILingoEventMediator>();
@@ -90,7 +90,7 @@ namespace LingoEngine.Movies
             {
                 onRemoveMe(m);
                 Dispose();
-            }, _projectSettings);
+            }, _projectSettings, _rootServiceProvider.GetRequiredService<ILingoFrameLabelManager>());
         }
         internal IServiceProvider GetServiceProvider() => _scopedServiceProvider.ServiceProvider;
         public void Dispose()

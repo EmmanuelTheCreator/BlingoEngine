@@ -1,4 +1,5 @@
-﻿using LingoEngine.Inputs;
+﻿using LingoEngine.Events;
+using LingoEngine.Inputs;
 using LingoEngine.Inputs.Events;
 using LingoEngine.Movies;
 using LingoEngine.Movies.Events;
@@ -14,7 +15,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Globals
         {
         }
 
-        public void MouseDown(ILingoMouse mouse)
+        public void MouseDown(LingoMouseEvent mouse)
         {
             _Movie.GoTo(_Movie.CurrentFrame + FrameOffsetOnClick);
         }
@@ -37,7 +38,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Globals
         public string? GetBehaviorTooltip() => "Navigate to the next frame on mouse down, and stay on the current frame for a number of ticks before navigating again.";
         public bool IsOKToAttach(LingoSymbol spriteType, int spriteNum) => true;
 
-        public void MouseDown(ILingoMouse mouse)
+        public void MouseDown(LingoMouseEvent mouse)
         {
             _Movie.GoTo(_Movie.CurrentFrame + FrameOffsetOnClick);
         }

@@ -7,6 +7,8 @@ using LingoEngine.Primitives;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Bitmaps;
+using LingoEngine.Core;
+using LingoEngine.FilmLoops;
 
 namespace LingoEngine.Director.Core.Casts;
 
@@ -15,19 +17,40 @@ namespace LingoEngine.Director.Core.Casts;
 /// </summary>
 public class DirectorMemberThumbnail : IDisposable
 {
-    private const int LabelHeight = 15;
+    private readonly float _yOffset;
+    private readonly float _xOffset;
+    private readonly bool _isCustomCanvas;
+    private readonly float _rectWidth = 0;
+    private readonly float _iconYOffset = 0;
     public int ThumbWidth { get; }
     public int ThumbHeight { get; }
+
+
+
     /// <summary>Canvas used for drawing the preview.</summary>
     public LingoGfxCanvas Canvas { get; }
     private readonly IDirectorIconManager? _iconManager;
 
-    public DirectorMemberThumbnail(int width, int height, ILingoFrameworkFactory factory, IDirectorIconManager? iconManager = null)
+    public DirectorMemberThumbnail(int width, int height, ILingoFrameworkFactory factory, IDirectorIconManager? iconManager = null, LingoGfxCanvas? canvas = null, int xOffset = 0, int yOffset = 0)
     {
+        _xOffset = xOffset;
+        _yOffset = yOffset;
+        _rectWidth = width;
+        // godot fix 
+        if (xOffset > 0 && LingoEngineGlobal.RunFramework == LingoEngineRunFramework.Godot)
+        {
+            _xOffset += 0.5f;
+            _yOffset += 0.5f;
+            _rectWidth--;
+            _iconYOffset = 0.5f;
+        }
+        _isCustomCanvas = canvas != null;
         ThumbWidth = width;
         ThumbHeight = height;
-        Canvas = factory.CreateGfxCanvas("MemberThumbnailCanvas", width, height);
+
+        Canvas = canvas ?? factory.CreateGfxCanvas("MemberThumbnailCanvas", width, height);
         _iconManager = iconManager;
+
     }
 
     /// <summary>
@@ -35,9 +58,10 @@ public class DirectorMemberThumbnail : IDisposable
     /// </summary>
     public void SetMember(ILingoMember member)
     {
-        Canvas.Clear(DirectorColors.BG_WhiteMenus);
-        Canvas.DrawRect(LingoRect.New(1, 1, ThumbWidth-2, ThumbHeight-2), LingoColorList.White, true);
-        Canvas.DrawRect(LingoRect.New(1, 1, ThumbWidth-2, ThumbHeight-2), LingoColorList.Gray, false);
+        if (!_isCustomCanvas)
+            Canvas.Clear(DirectorColors.BG_WhiteMenus);
+        DrawBorder();
+
         switch (member)
         {
             case LingoMemberBitmap pic:
@@ -46,9 +70,8 @@ public class DirectorMemberThumbnail : IDisposable
             case ILingoMemberTextBase text:
                 DrawText(GetPreviewText(text));
                 break;
-            case LingoMemberSound sound:
-                DrawText(sound.Name);
-                break;
+            case LingoFilmLoopMember filmloop: DrawText(filmloop.Name); break;
+            case LingoMemberSound sound: DrawText(sound.Name); break;
         }
 
         if (_iconManager != null)
@@ -58,12 +81,25 @@ public class DirectorMemberThumbnail : IDisposable
             {
                 var miniIconSize = 16;
                 var data = _iconManager.Get(icon.Value);
-                var x = ThumbWidth - miniIconSize-2;
-                var y = ThumbHeight - miniIconSize-2;
-                Canvas.DrawRect(LingoRect.New(x,y, miniIconSize, miniIconSize), LingoColorList.White,true);
-                Canvas.DrawPicture(data, miniIconSize-2, miniIconSize-2, new LingoPoint(x+1, y+1));
+                var x = ThumbWidth - miniIconSize - 1;
+                var y = ThumbHeight - miniIconSize - 1 + _iconYOffset;
+                Canvas.DrawRect(LingoRect.New(_xOffset + x, _yOffset + y, miniIconSize, miniIconSize), LingoColorList.White, true);
+                Canvas.DrawPicture(data, miniIconSize - 2, miniIconSize - 2, new LingoPoint(_xOffset + x + 1, _yOffset + y + 1));
             }
         }
+    }
+
+    public void SetEmpty()
+    {
+        if (!_isCustomCanvas)
+            Canvas.Clear(DirectorColors.BG_WhiteMenus);
+        DrawBorder();
+    }
+
+    private void DrawBorder()
+    {
+        Canvas.DrawRect(LingoRect.New(_xOffset, _yOffset, _rectWidth, ThumbHeight), LingoColorList.White, true);
+        Canvas.DrawRect(LingoRect.New(_xOffset, _yOffset, _rectWidth, ThumbHeight), LingoColorList.Gray, false);
     }
 
     private void DrawPicture(LingoMemberBitmap picture)
@@ -74,8 +110,8 @@ public class DirectorMemberThumbnail : IDisposable
             return;
         var w = impl.Width;
         var h = impl.Height;
-       
-        Canvas.DrawPicture(impl.Texture, ThumbWidth-4, ThumbHeight-4, new LingoPoint(2, 2));
+
+        Canvas.DrawPicture(impl.Texture, ThumbWidth - 2, ThumbHeight - 2, new LingoPoint(_xOffset + 1, _yOffset + 2));
     }
 
     private void DrawText(string text)
@@ -85,10 +121,10 @@ public class DirectorMemberThumbnail : IDisposable
 
         int lineCount = text.Split('\n').Length;
         int textHeight = lineCount * lineHeight;
-        int startY = (int)Math.Max((ThumbHeight - textHeight) / 2f, 0);
+        var startY = _yOffset + (int)Math.Max((ThumbHeight - textHeight) / 2f, 0);
 
         int maxWidth = ThumbWidth - 4;
-        Canvas.DrawText(new LingoPoint(2, startY), text, null, new LingoColor(0, 0, 0), fontSize, maxWidth);
+        Canvas.DrawText(new LingoPoint(_xOffset + 2, startY), text, null, new LingoColor(0, 0, 0), fontSize, maxWidth);
     }
 
     private static string GetPreviewText(ILingoMemberTextBase text)

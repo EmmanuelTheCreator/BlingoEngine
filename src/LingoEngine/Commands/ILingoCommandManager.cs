@@ -7,4 +7,5 @@ public interface ILingoCommandManager
         where TCommand : ILingoCommand;
     void Register(Type handlerType);
     bool Handle(ILingoCommand command);
+    void Clear(string? preserveNamespaceFragment = null);
 }

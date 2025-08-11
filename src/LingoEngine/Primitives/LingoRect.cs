@@ -90,6 +90,27 @@
                 float.Parse(parts[3], CultureInfo.InvariantCulture)
             );
         }
+        public static LingoRect FromPoints(params LingoPoint[] points)
+        {
+            if (points.Length == 0)
+                return default;
+
+            float left = points[0].X;
+            float top = points[0].Y;
+            float right = points[0].X;
+            float bottom = points[0].Y;
+
+            for (int i = 1; i < points.Length; i++)
+            {
+                var p = points[i];
+                if (p.X < left) left = p.X;
+                if (p.X > right) right = p.X;
+                if (p.Y < top) top = p.Y;
+                if (p.Y > bottom) bottom = p.Y;
+            }
+
+            return new LingoRect(left, top, right, bottom);
+        }
 
         public override bool Equals(object? obj) => obj is LingoRect rect && Equals(rect);
 

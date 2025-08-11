@@ -1,14 +1,20 @@
 using Godot;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.LGodot.Windowing;
+using LingoEngine.LGodot;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.Primitives;
+using LingoEngine.Inputs;
+using LingoEngine.Director.Core.Tools;
 
 namespace LingoEngine.Director.LGodot
 {
     public abstract partial class BaseGodotWindow : Panel
     {
+        public ILingoMouse Mouse { get; private set; }
         private readonly IDirGodotWindowManager _windowManager;
+        private readonly IHistoryManager? _historyManager;
+        protected readonly LingoGodotMouse _MouseFrameworkObj;
         protected bool _dragging;
         protected bool _resizing;
         private readonly Label _label = new Label
@@ -30,13 +36,17 @@ namespace LingoEngine.Director.LGodot
         public string WindowCode { get; private set; }
         public string WindowName { get; private set; }
 
-        public BaseGodotWindow(string windowCode,string name, IDirGodotWindowManager windowManager)
+        public BaseGodotWindow(string windowCode,string name, IDirGodotWindowManager windowManager, IHistoryManager? historyManager = null)
         {
             Name = $"Window {name}";
             WindowName = name;
             WindowCode = windowCode;
             _windowManager = windowManager;
-            MouseFilter = MouseFilterEnum.Stop;
+            _historyManager = historyManager;
+            _MouseFrameworkObj = new LingoGodotMouse(new Lazy<LingoMouse>(() => (LingoMouse)Mouse!));
+            Mouse = new LingoMouse(_MouseFrameworkObj);
+            
+            //MouseFilter = MouseFilterEnum.Stop;
             FocusMode = FocusModeEnum.All;
             AddChild(_label);
             _label.Position = new Vector2(5, 1);
@@ -72,7 +82,8 @@ namespace LingoEngine.Director.LGodot
 
         public override void _Draw()
         {
-            DrawRect(new Rect2(0, 0, Size.X, TitleBarHeight), DirectorColors.Window_Title_BG.ToGodotColor());
+            var titleColor = IsActiveWindow ? DirectorColors.Window_Title_BG_Active : DirectorColors.Window_Title_BG_Inactive;
+            DrawRect(new Rect2(0, 0, Size.X, TitleBarHeight), titleColor.ToGodotColor());
             DrawLine(new Vector2(0, TitleBarHeight), new Vector2(Size.X, TitleBarHeight), DirectorColors.Window_Title_Line_Under.ToGodotColor());
             _closeButton.Position = new Vector2(Size.X - 18, 1);
             // draw resize handle
@@ -80,20 +91,79 @@ namespace LingoEngine.Director.LGodot
             DrawLine(new Vector2(Size.X - ResizeHandle/2f, Size.Y), new Vector2(Size.X, Size.Y - ResizeHandle/2f), Colors.DarkGray);
         }
 
+
+        private bool useGuiInput = false;
+        protected void DontUseInputInsteadOfGuiInput()
+        {
+            // todo : fix this
+            useGuiInput = false;
+        }
+        public new LingoPoint GetPosition() => Position.ToLingoPoint();
+
+        public new LingoPoint GetSize() => Size.ToLingoPoint();
+        public override void _Input(InputEvent @event)
+        {
+            base._Input(@event);
+            if (useGuiInput || !Visible) return;
+            //if (!_dragging && !_resizing && !GetGlobalRect().HasPoint(GetGlobalMousePosition()))
+            //    return;
+            OnHandleTheEvent(@event);
+        }
         public override void _GuiInput(InputEvent @event)
         {
+            base._GuiInput(@event);
+            if (!useGuiInput || !Visible) return;
+            OnHandleTheEvent(@event);
+        }
+        protected virtual void OnHandleTheEvent(InputEvent @event)
+        {
+            if (@event is InputEventKey key && key.Pressed && _historyManager != null)
+            {
+                if (key.Keycode == Key.Z && key.CtrlPressed)
+                {
+                    _historyManager.Undo();
+                    return;
+                }
+                if (key.Keycode == Key.Y && key.CtrlPressed)
+                {
+                    _historyManager.Redo();
+                    return;
+                }
+            }
+
+            var isInsideRect = GetGlobalRect().HasPoint(GetGlobalMousePosition());
+            var mousePos = GetLocalMousePosition();
+            // Handle mouse button events (MouseDown and MouseUp)
+            if (@event is InputEventMouseButton mouseButtonEvent)
+            {
+                if (!IsActiveWindow && isInsideRect)
+                    _windowManager.SetActiveWindow(this, GetGlobalMousePosition());
+                if (!IsActiveWindow)
+                    return;
+                _MouseFrameworkObj.HandleMouseButtonEvent(mouseButtonEvent, isInsideRect, mousePos.X, mousePos.Y - TitleBarHeight);
+                //Console.WriteLine(Name + ":" + mousePos.X + "x" + mousePos.Y+":"+ isInsideRect);
+            }
+            // Handle Mouse Motion (MouseMove)
+            else if (@event is InputEventMouseMotion mouseMotionEvent)
+                _MouseFrameworkObj.HandleMouseMoveEvent(mouseMotionEvent, isInsideRect, mousePos.X, mousePos.Y - TitleBarHeight);
+            if (!_dragging && !_resizing)
+            {
+                if (!isInsideRect)
+                    return;
+            }
+
             if (@event is InputEventMouseButton mb)
             {
+                
                 var pressed = mb.Pressed;
-                if (pressed)
-                    _windowManager.SetActiveWindow(this);
-                else
-                {
-
-                }
 
                 if (mb.ButtonIndex == MouseButton.Left)
                 {
+                    if (pressed && isInsideRect)
+                    {
+                        
+                        _windowManager.SetActiveWindow(this, GetGlobalMousePosition());
+                    }
                     Vector2 pos = GetLocalMousePosition();
 
                     if (pressed)
@@ -184,7 +254,7 @@ namespace LingoEngine.Director.LGodot
         public bool IsOpen => Visible;
         public bool IsActiveWindow => _windowManager.ActiveWindow == this;
 
-        
+
 
         public virtual void OpenWindow()
         {
@@ -193,24 +263,35 @@ namespace LingoEngine.Director.LGodot
         }
         public virtual void CloseWindow() => Visible = false;
         public virtual void MoveWindow(int x, int y) => Position = new Vector2(x, y);
+        public virtual void SetPositionAndSize(int x, int y, int width, int height)
+        {
+            Position = new Vector2(x, y);
+            Size = new Vector2(width, height);
+            CustomMinimumSize = Size;
+        }
 
-        private void EnsureInBounds()
+        public void EnsureInBounds()
         {
             var viewportRect = GetViewport().GetVisibleRect();
             Vector2 pos = Position;
             Vector2 size = Size;
 
             if (pos.X < viewportRect.Position.X)
-                pos.X = viewportRect.Position.X;
+                pos.X = viewportRect.Position.X +2;
             if (pos.Y < viewportRect.Position.Y)
-                pos.Y = viewportRect.Position.Y;
+                pos.Y = viewportRect.Position.Y + 2;
 
             if (pos.X + size.X > viewportRect.Position.X + viewportRect.Size.X)
-                pos.X = viewportRect.Position.X + viewportRect.Size.X - size.X;
+                pos.X = viewportRect.Position.X + viewportRect.Size.X - size.X -2;
             if (pos.Y + size.Y > viewportRect.Position.Y + viewportRect.Size.Y)
-                pos.Y = viewportRect.Position.Y + viewportRect.Size.Y - size.Y;
+                pos.Y = viewportRect.Position.Y + viewportRect.Size.Y - size.Y -2;
 
             Position = pos;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using LingoEngine.Casts;
+﻿using System;
+using LingoEngine.Casts;
 using LingoEngine.Core;
 using LingoEngine.Inputs;
 using LingoEngine.Members;
@@ -11,6 +12,7 @@ using LingoEngine.Gfx;
 using LingoEngine.Sprites;
 using LingoEngine.Stages;
 using LingoEngine.Bitmaps;
+using LingoEngine.FilmLoops;
 
 namespace LingoEngine.FrameworkCommunication
 {
@@ -41,18 +43,16 @@ namespace LingoEngine.FrameworkCommunication
         /// <summary>Creates a sound member.</summary>
         LingoMemberSound CreateMemberSound(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default);
         /// <summary>Creates a film loop member.</summary>
-        LingoMemberFilmLoop CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default);
+        LingoFilmLoopMember CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default);
         /// <summary>Creates a vector shape member.</summary>
         LingoMemberShape CreateMemberShape(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default);
         /// <summary>Creates a field member.</summary>
-        LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null,
-            LingoPoint regPoint = default);
+        LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default);
         /// <summary>Creates a text member.</summary>
-        LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null,
-            LingoPoint regPoint = default);
+        LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default);
+        LingoMember CreateScript(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default);
         /// <summary>Creates a placeholder member.</summary>
-        LingoMember CreateEmpty(ILingoCast cast, int numberInCast, string name = "", string? fileName = null,
-            LingoPoint regPoint = default);
+        LingoMember CreateEmpty(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default);
         #endregion
 
         /// <summary>Creates a sound instance.</summary>
@@ -60,7 +60,7 @@ namespace LingoEngine.FrameworkCommunication
         /// <summary>Creates a sound channel.</summary>
         LingoSoundChannel CreateSoundChannel(int number);
         /// <summary>Creates a mouse handler bound to the stage.</summary>
-        LingoMouse CreateMouse(LingoStage stage);
+        LingoStageMouse CreateMouse(LingoStage stage);
         /// <summary>Creates a keyboard handler.</summary>
         LingoKey CreateKey();
 
@@ -91,11 +91,18 @@ namespace LingoEngine.FrameworkCommunication
         /// <summary>Creates a scroll container.</summary>
         LingoGfxScrollContainer CreateScrollContainer(string name);
 
+        /// <summary>Creates a slider input control for floating point values.</summary>
+        LingoGfxInputSlider<float> CreateInputSliderFloat(LingoOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null);
+        /// <summary>Creates a slider input control for integer values.</summary>
+        LingoGfxInputSlider<int> CreateInputSliderInt(LingoOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null);
+
         /// <summary>Creates a single line text input.</summary>
         LingoGfxInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null);
 
         /// <summary>Creates a numeric input field.</summary>
-        LingoGfxInputNumber CreateInputNumber(string name, float? min = null, float? max = null, Action<float>? onChange = null);
+        LingoGfxInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null);
+        /// <summary>Creates a numeric input field.</summary>
+        LingoGfxInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null);
 
         /// <summary>Creates a spin box input.</summary>
         LingoGfxSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null);
@@ -127,6 +134,9 @@ namespace LingoEngine.FrameworkCommunication
         /// <summary>Creates a menu item.</summary>
         LingoGfxMenuItem CreateMenuItem(string name, string? shortcut = null);
 
+        /// <summary>Creates a context menu bound to the given window.</summary>
+        LingoGfxMenu CreateContextMenu(object window);
+
         /// <summary>Creates a horizontal line separator.</summary>
         LingoGfxHorizontalLineSeparator CreateHorizontalLineSeparator(string name);
 
@@ -139,7 +149,7 @@ namespace LingoEngine.FrameworkCommunication
         #endregion
 
         /// <summary>Creates a sprite instance.</summary>
-        T CreateSprite<T>(ILingoMovie movie, Action<LingoSprite> onRemoveMe) where T : LingoSprite;
+        T CreateSprite<T>(ILingoMovie movie, Action<LingoSprite2D> onRemoveMe) where T : LingoSprite2D;
         /// <summary>Creates a sprite behaviour.</summary>
         T CreateBehavior<T>(LingoMovie lingoMovie) where T : LingoSpriteBehavior;
         /// <summary>Creates a movie script.</summary>

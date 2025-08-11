@@ -79,10 +79,14 @@
         /// Alternative wait cursor.
         /// </summary>
         Wait = 14,
+        /// <summary>
+        /// Forbidden or not allowed cursor
+        /// </summary>
+        NotAllowed = 50,
 
         /// <summary>
         /// Indicates a custom cursor image should be used.
         /// </summary>
-        Custom = 100
+        Custom = 100,
     }
 }

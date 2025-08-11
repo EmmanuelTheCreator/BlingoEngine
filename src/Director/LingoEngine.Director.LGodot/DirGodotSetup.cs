@@ -28,6 +28,7 @@ using LingoEngine.LGodot.Styles;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Setup;
 using LingoEngine.Director.LGodot.Styles;
+using LingoEngine.Director.LGodot.Projects;
 
 namespace LingoEngine.Director.LGodot
 {
@@ -35,11 +36,12 @@ namespace LingoEngine.Director.LGodot
     {
         public static ILingoEngineRegistration WithDirectorGodotEngine(this ILingoEngineRegistration engineRegistration, Node rootNode)
         {
+            LingoEngineGlobal.IsRunningDirector = true;
             engineRegistration
-                .WithLingoGodotEngine(rootNode,true)
+                .WithLingoGodotEngine(rootNode, true)
                 .WithDirectorEngine()
                 ;
-            engineRegistration.Services(s =>
+            engineRegistration.ServicesMain(s =>
             {
                 s.AddSingleton<DirectorGodotStyle>();
                 s.AddSingleton<DirGodotProjectSettingsWindow>();
@@ -56,14 +58,15 @@ namespace LingoEngine.Director.LGodot
                 s.AddSingleton<DirGodotMainMenu>();
                 s.AddSingleton<DirGodotWindowManager>();
                 s.AddSingleton<DirGodotWindowManager>();
-                s.AddSingleton<IExecutableFilePicker, GodotFilePicker>();
+                s.AddSingleton<IDirFilePicker, GodotFilePicker>();
+                s.AddSingleton<IDirFolderPicker, GodotFolderPicker>();
                 s.AddSingleton<IDirectorIconManager>(p =>
                 {
                     var iconManager = new DirGodotIconManager(p.GetRequiredService<ILogger<DirGodotIconManager>>());
-                    iconManager.LoadSheet("Media/Icons/General_Icons.png", 20,16, 16,8);
-                    iconManager.LoadSheet("Media/Icons/Painter_Icons.png", 20,16, 16,8);
-                    iconManager.LoadSheet("Media/Icons/Painter2_Icons.png", 20,16, 16,8);
-                    iconManager.LoadSheet("Media/Icons/Director_Icons.png", 20,16, 16,8);
+                    iconManager.LoadSheet("Media/Icons/General_Icons.png", 20, 16, 16, 8);
+                    iconManager.LoadSheet("Media/Icons/Painter_Icons.png", 20, 16, 16, 8);
+                    iconManager.LoadSheet("Media/Icons/Painter2_Icons.png", 20, 16, 16, 8);
+                    iconManager.LoadSheet("Media/Icons/Director_Icons.png", 20, 16, 16, 8);
                     return iconManager;
                 });
 
@@ -88,7 +91,7 @@ namespace LingoEngine.Director.LGodot
                 p.GetRequiredService<ILingoGodotStyleManager>().Register(LingoGodotThemeElementType.Tabs, styles.GetTabContainerTheme());
                 p.GetRequiredService<ILingoGodotStyleManager>().Register(LingoGodotThemeElementType.TabItem, styles.GetTabItemTheme());
                 p.GetRequiredService<ILingoGodotStyleManager>().Register(LingoGodotThemeElementType.PopupWindow, styles.GetPopupWindowTheme());
-               new LingoGodotDirectorRoot(p.GetRequiredService<LingoPlayer>(), p);
+                new LingoGodotDirectorRoot(p.GetRequiredService<LingoPlayer>(), p);
             });
             return engineRegistration;
         }

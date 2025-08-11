@@ -11,14 +11,15 @@ namespace LingoEngine.LGodot.Gfx
     {
         private FlowContainer _container;
         private LingoOrientation _orientation;
-        private LingoMargin _itemMargin;
+        private LingoPoint _itemMargin;
         private LingoMargin _margin;
 
         public LingoGodotWrapPanel(LingoGfxWrapPanel panel, LingoOrientation orientation)
         {
             _orientation = orientation;
-            _itemMargin = LingoMargin.Zero;
+            _itemMargin = new LingoPoint(4, 4);
             _margin = LingoMargin.Zero;
+            MouseFilter = MouseFilterEnum.Ignore;
             _container = CreateContainer(orientation);
             AddChild(_container);
             panel.Init(this);
@@ -33,6 +34,8 @@ namespace LingoEngine.LGodot.Gfx
             //container.SizeFlagsVertical = SizeFlags.Expand;
             container.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             container.SizeFlagsVertical = SizeFlags.ExpandFill;
+            container.AddThemeConstantOverride("h_separation", 4);
+            container.AddThemeConstantOverride("v_separation", 4);
             return container;
         }
 
@@ -82,14 +85,16 @@ namespace LingoEngine.LGodot.Gfx
             }
         }
 
-        public LingoMargin ItemMargin
+        public LingoPoint ItemMargin
         {
             get => _itemMargin;
             set
             {
                 _itemMargin = value;
-                foreach (var child in _container.GetChildren().OfType<Control>())
-                    ApplyItemMargin(child);
+                //foreach (var child in _container.GetChildren().OfType<Control>())
+                //    ApplyItemMargin(child);
+                _container.AddThemeConstantOverride("h_separation", (int)_itemMargin.X);
+                _container.AddThemeConstantOverride("v_separation", (int)_itemMargin.Y);
             }
         }
 
@@ -131,11 +136,13 @@ namespace LingoEngine.LGodot.Gfx
                 if (child != GetItem(0))
                     RemoveItem(child);
             }
+            _nodes.Clear();
         }
 
 
         public new void Dispose()
         {
+            RemoveAll();
             QueueFree();
             base.Dispose();
         }
