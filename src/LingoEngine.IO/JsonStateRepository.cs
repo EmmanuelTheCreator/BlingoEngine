@@ -50,11 +50,11 @@ public class JsonStateRepository
         BuildStageFromDto(dto.Stage, player, resourceDir);
         return BuildMovieFromDto(dto.Movies.First(), player, resourceDir);
     }
-    public LingoMovie Load(LingoStageDTO stageDto,LingoMovieDTO movieDto, LingoPlayer player, string resourceDir)
+    public LingoMovie Load(LingoStageDTO stageDto, LingoMovieDTO movieDto, LingoPlayer player, string resourceDir)
     {
         if (string.IsNullOrEmpty(resourceDir))
             resourceDir = Directory.GetCurrentDirectory();
-        
+
         BuildStageFromDto(stageDto, player, resourceDir);
         return BuildMovieFromDto(movieDto, player, resourceDir);
     }
@@ -65,7 +65,7 @@ public class JsonStateRepository
     }
     private static LingoMovie BuildMovieFromDto(LingoMovieDTO dto, LingoPlayer player, string dir)
     {
-        ILingoEventMediator mediator = player.GetEventMediator(); 
+        ILingoEventMediator mediator = player.GetEventMediator();
         var movie = (LingoMovie)player.NewMovie(dto.Name);
         movie.Tempo = dto.Tempo;
         movie.About = dto.About;
@@ -158,7 +158,7 @@ public class JsonStateRepository
             s.DisplayMember = sDto.DisplayMember;
             s.SpritePropertiesOffset = sDto.SpritePropertiesOffset;
         });
-        if(memberMap.TryGetValue(sDto.MemberNum, out var mem))
+        if (memberMap.TryGetValue(sDto.MemberNum, out var mem))
             sprite.SetMember(mem);
         AddAnimator(sDto, sprite, movie, eventMediator);
         return sprite;
@@ -182,8 +182,8 @@ public class JsonStateRepository
             Height = sDto.Height,
             BeginFrame = sDto.BeginFrame,
             EndFrame = sDto.EndFrame,
-            DisplayMember = sDto.DisplayMember, 
-            Channel = sDto.SpriteNum,
+            DisplayMember = sDto.DisplayMember,
+            Channel = sDto.Channel,
             CastNum = sDto.CastNum,
             FlipH = sDto.FlipH,
             FlipV = sDto.FlipV,
@@ -192,6 +192,27 @@ public class JsonStateRepository
             SpriteNum = sDto.SpriteNum,
             Name = sDto.Name,
         };
+        var anim = sDto.Animator;
+        ApplyOptions(sprite.AnimatorProperties.Position.Options, anim.PositionOptions);
+        ApplyOptions(sprite.AnimatorProperties.Rotation.Options, anim.RotationOptions);
+        ApplyOptions(sprite.AnimatorProperties.Skew.Options, anim.SkewOptions);
+        ApplyOptions(sprite.AnimatorProperties.ForegroundColor.Options, anim.ForegroundColorOptions);
+        ApplyOptions(sprite.AnimatorProperties.BackgroundColor.Options, anim.BackgroundColorOptions);
+        ApplyOptions(sprite.AnimatorProperties.Blend.Options, anim.BlendOptions);
+
+        foreach (var k in anim.Position)
+            sprite.AnimatorProperties.Position.AddKeyFrame(k.Frame, new LingoPoint(k.Value.X, k.Value.Y), (LingoEaseType)k.Ease);
+        foreach (var k in anim.Rotation)
+            sprite.AnimatorProperties.Rotation.AddKeyFrame(k.Frame, k.Value, (LingoEaseType)k.Ease);
+        foreach (var k in anim.Skew)
+            sprite.AnimatorProperties.Skew.AddKeyFrame(k.Frame, k.Value, (LingoEaseType)k.Ease);
+        foreach (var k in anim.ForegroundColor)
+            sprite.AnimatorProperties.ForegroundColor.AddKeyFrame(k.Frame, FromDto(k.Value), (LingoEaseType)k.Ease);
+        foreach (var k in anim.BackgroundColor)
+            sprite.AnimatorProperties.BackgroundColor.AddKeyFrame(k.Frame, FromDto(k.Value), (LingoEaseType)k.Ease);
+        foreach (var k in anim.Blend)
+            sprite.AnimatorProperties.Blend.AddKeyFrame(k.Frame, k.Value, (LingoEaseType)k.Ease);
+
         return sprite;
     }
     private static void AddAnimator(LingoSpriteDTO sDto, LingoSprite2D sprite, ILingoSpritesPlayer spritesPlayer, ILingoEventMediator eventMediator)
@@ -201,11 +222,11 @@ public class JsonStateRepository
         var animatorProps = CreateAnimatorProperties(sDto.Animator, sprite);
         sprite.AddAnimator(animatorProps, eventMediator);
     }
-        
+
     private static LingoSpriteAnimatorProperties CreateAnimatorProperties(LingoSpriteAnimatorDTO sDto, ILingoSprite2DLight sprite)
-    { 
+    {
         var animator = new LingoSpriteAnimatorProperties();
-        
+
 
         ApplyOptions(animator.Position.Options, sDto.PositionOptions);
         ApplyOptions(animator.Rotation.Options, sDto.RotationOptions);
@@ -463,7 +484,7 @@ public class JsonStateRepository
         //}
 
         return dto;
-    } 
+    }
     private static LingoFilmLoopMemberSpriteDTO ToDto(LingoFilmLoopMemberSprite sprite)
     {
         var dto = new LingoFilmLoopMemberSpriteDTO
@@ -491,8 +512,8 @@ public class JsonStateRepository
             FlipH = sprite.FlipH,
             FlipV = sprite.FlipV,
             Hilite = sprite.Hilite,
+            Animator = ToDto(sprite.AnimatorProperties),
         };
-        // todo : parse animator Properties
 
         return dto;
     }
@@ -516,6 +537,60 @@ public class JsonStateRepository
     private static LingoSpriteAnimatorDTO ToDto(LingoSpriteAnimator animatorA)
     {
         var animProps = animatorA.Properties;
+        return new LingoSpriteAnimatorDTO
+        {
+            Position = animProps.Position.KeyFrames.Select(k => new LingoPointKeyFrameDTO
+            {
+                Frame = k.Frame,
+                Value = new LingoPointDTO { X = k.Value.X, Y = k.Value.Y },
+                Ease = (LingoEaseTypeDTO)k.Ease
+            }).ToList(),
+            PositionOptions = ToDto(animProps.Position.Options),
+
+            Rotation = animProps.Rotation.KeyFrames.Select(k => new LingoFloatKeyFrameDTO
+            {
+                Frame = k.Frame,
+                Value = k.Value,
+                Ease = (LingoEaseTypeDTO)k.Ease
+            }).ToList(),
+            RotationOptions = ToDto(animProps.Rotation.Options),
+
+            Skew = animProps.Skew.KeyFrames.Select(k => new LingoFloatKeyFrameDTO
+            {
+                Frame = k.Frame,
+                Value = k.Value,
+                Ease = (LingoEaseTypeDTO)k.Ease
+            }).ToList(),
+            SkewOptions = ToDto(animProps.Skew.Options),
+
+            ForegroundColor = animProps.ForegroundColor.KeyFrames.Select(k => new LingoColorKeyFrameDTO
+            {
+                Frame = k.Frame,
+                Value = ToDto(k.Value),
+                Ease = (LingoEaseTypeDTO)k.Ease
+            }).ToList(),
+            ForegroundColorOptions = ToDto(animProps.ForegroundColor.Options),
+
+            BackgroundColor = animProps.BackgroundColor.KeyFrames.Select(k => new LingoColorKeyFrameDTO
+            {
+                Frame = k.Frame,
+                Value = ToDto(k.Value),
+                Ease = (LingoEaseTypeDTO)k.Ease
+            }).ToList(),
+            BackgroundColorOptions = ToDto(animProps.BackgroundColor.Options),
+
+            Blend = animProps.Blend.KeyFrames.Select(k => new LingoFloatKeyFrameDTO
+            {
+                Frame = k.Frame,
+                Value = k.Value,
+                Ease = (LingoEaseTypeDTO)k.Ease
+            }).ToList(),
+            BlendOptions = ToDto(animProps.Blend.Options)
+        };
+    }
+
+    private static LingoSpriteAnimatorDTO ToDto(LingoSpriteAnimatorProperties animProps)
+    {
         return new LingoSpriteAnimatorDTO
         {
             Position = animProps.Position.KeyFrames.Select(k => new LingoPointKeyFrameDTO

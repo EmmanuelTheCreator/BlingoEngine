@@ -6,7 +6,7 @@ using LingoEngine.Sprites;
 
 namespace LingoEngine.FilmLoops
 {
-    
+
     /// <summary>
     /// Declares a sprite from a filmloop inside a member, not instanciated as sprite yet.
     /// </summary>
@@ -22,8 +22,8 @@ namespace LingoEngine.FilmLoops
         public int DisplayMember { get; set; }
         public int SpriteNum { get; set; }
 
-        public int Channel{ get; set; }
-        public int BeginFrame{ get; set; }
+        public int Channel { get; set; }
+        public int BeginFrame { get; set; }
         public int EndFrame { get; set; }
 
         public LingoInkType InkType { get => (LingoInkType)_ink; set => Ink = (int)value; }
@@ -73,14 +73,14 @@ namespace LingoEngine.FilmLoops
             _animatorProperties = new LingoSpriteAnimatorProperties();
         }
 
-        public LingoFilmLoopMemberSprite(ILingoMember? member = null):this()
+        public LingoFilmLoopMemberSprite(ILingoMember? member = null) : this()
         {
             if (member != null)
                 SetMember(member);
         }
 
-        public LingoFilmLoopMemberSprite(LingoSprite2D sp, int channel, int begin, int end) 
-            :this(sp)
+        public LingoFilmLoopMemberSprite(LingoSprite2D sp, int channel, int begin, int end)
+            : this(sp)
         {
             BeginFrame = begin;
             EndFrame = end;
@@ -127,12 +127,19 @@ namespace LingoEngine.FilmLoops
             {
                 var cast = castLibs.GetCast(CastNum);
                 if (cast != null)
+                {
                     Member = cast.Member[MemberNumberInCast];
+                    if (Member != null && (Width == 0 || Height == 0))
+                    {
+                        Width = Member.Width;
+                        Height = Member.Height;
+                    }
+                }
             }
         }
 
-        public LingoRect GetBoundingBox() => _animatorProperties.GetBoundingBox(RegPoint,Rect,Width,Height);
-        public LingoRect GetBoundingBoxForFrame(int frame)=> _animatorProperties.GetBoundingBoxForFrame(frame,RegPoint,Width,Height);
+        public LingoRect GetBoundingBox() => _animatorProperties.GetBoundingBox(RegPoint, Rect, Width, Height);
+        public LingoRect GetBoundingBoxForFrame(int frame) => _animatorProperties.GetBoundingBoxForFrame(frame, RegPoint, Width, Height);
 
 
         private LingoPoint GetRegPointOffset()
