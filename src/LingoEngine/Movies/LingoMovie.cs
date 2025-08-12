@@ -11,6 +11,7 @@ using LingoEngine.Transitions;
 using LingoEngine.Tempos;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Scripts;
+using LingoEngine.Core;
 
 namespace LingoEngine.Movies
 {
@@ -28,13 +29,13 @@ namespace LingoEngine.Movies
         private int _NextFrame = -1;
         private int _lastFrame = 0;
         private bool _isPlaying = false;
-        
+
         private bool _needToRaiseStartMovie = false;
         private LingoCastLibsContainer _castLibContainer;
         private readonly LingoFrameLabelManager _frameLabelManager;
         private readonly LingoSprite2DManager _sprite2DManager;
         private bool _IsManualUpdateStage;
-        public event Action<int>? Sprite2DListChanged { add => _sprite2DManager.SpriteListChanged+=value;remove => _sprite2DManager.SpriteListChanged-=value; }
+        public event Action<int>? Sprite2DListChanged { add => _sprite2DManager.SpriteListChanged += value; remove => _sprite2DManager.SpriteListChanged -= value; }
 
         private readonly LingoSpriteAudioManager _audioManager;
         private readonly LingoSpriteTransitionManager _transitionManager;
@@ -75,7 +76,7 @@ namespace LingoEngine.Movies
 
         public int Frame => _currentFrame;
         public int CurrentFrame => _currentFrame;
-        public int FrameCount => 620; 
+        public int FrameCount => 620;
         public int Timer { get; private set; }
         public int SpriteTotalCount => _sprite2DManager.SpriteTotalCount;
         public int SpriteMaxNumber => _sprite2DManager.SpriteMaxNumber;
@@ -88,7 +89,7 @@ namespace LingoEngine.Movies
         {
             get => _tempoManager.Tempo;
             set => _tempoManager.ChangeTempo(value);
-        } 
+        }
         public int MaxSpriteChannelCount
         {
             get => _sprite2DManager.MaxSpriteChannelCount;
@@ -160,8 +161,8 @@ namespace LingoEngine.Movies
         }
 
 
-       
-        
+
+
 
 
         #region Sprites
@@ -172,7 +173,7 @@ namespace LingoEngine.Movies
         public LingoSprite2D AddSprite(int num, Action<LingoSprite2D>? configure = null) => _sprite2DManager.AddSprite(num, configure);
         public LingoFrameScriptSprite AddFrameBehavior<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour = null, Action<LingoFrameScriptSprite>? configure = null) where TBehaviour : LingoSpriteBehavior
             => _frameScriptManager.Add(frameNumber, configureBehaviour, configure);
-        public LingoSprite2D AddSprite(int num,string name, Action<LingoSprite2D>? configure = null) => _sprite2DManager.AddSprite(num,name, configure);
+        public LingoSprite2D AddSprite(int num, string name, Action<LingoSprite2D>? configure = null) => _sprite2DManager.AddSprite(num, name, configure);
         public LingoSprite? AddSpriteByChannelNum(int spriteNumWithChannel, int begin, int end, ILingoMember? member)
         {
             if (spriteNumWithChannel < _spriteManagers.Count)
@@ -244,7 +245,7 @@ namespace LingoEngine.Movies
                     _delayTicks--;
                     return;
                 }
-                if(_IsManualUpdateStage)
+                if (_IsManualUpdateStage)
                     OnUpdateStage();
                 else
                     AdvanceFrame();
@@ -308,10 +309,10 @@ namespace LingoEngine.Movies
                 //_spriteManagers.ForEach(x => x.EndSprites());
                 _isAdvancing = false;
             }
-            
+
         }
 
-     
+
 
         // Play the movie
         public void Play()
@@ -326,7 +327,7 @@ namespace LingoEngine.Movies
             PlayStateChanged?.Invoke(true);
             OnTick();
             _needToRaiseStartMovie = false;
-           
+
         }
 
         private void OnStop()
@@ -445,12 +446,12 @@ namespace LingoEngine.Movies
         }
         private void OnUpdateStage()
         {
-            
+
             Timer++;
             _actorList.Invoke();
             _FrameworkMovie.UpdateStage();
             _IsManualUpdateStage = false;
-        } 
+        }
         #endregion
 
 
@@ -465,23 +466,23 @@ namespace LingoEngine.Movies
         #region CastLibs
         public ILingoCastLibsContainer CastLib => _castLibContainer;
         public ILingoMembersContainer Member => _castLibContainer.Member;
-        public T? GetMember<T>(int number) where T : class,ILingoMember => _castLibContainer.GetMember<T>(number);
+        public T? GetMember<T>(int number) where T : class, ILingoMember => _castLibContainer.GetMember<T>(number);
         public T? GetMember<T>(string name) where T : class, ILingoMember => _castLibContainer.GetMember<T>(name);
         #endregion
 
 
         #region MovieScripts
         public ILingoMovie AddMovieScript<T>()
-            where T: LingoMovieScript
+            where T : LingoMovieScript
         {
             _MovieScripts.Add<T>();
             return this;
-        } 
+        }
         public void CallMovieScript<T>(Action<T> action) where T : LingoMovieScript
             => _MovieScripts.Call(action);
         public TResult? CallMovieScript<T, TResult>(Func<T, TResult> action) where T : LingoMovieScript
             => _MovieScripts.Call(action);
-           
+
         private void CallOnAllMovieScripts(Action<LingoMovieScript> actionOnAll)
             => _MovieScripts.CallAll(actionOnAll);
 
@@ -490,7 +491,7 @@ namespace LingoEngine.Movies
 
 
         public LingoMovieEnvironment GetEnvironment() => _environment;
-        public IServiceProvider GetServiceProvider() => _environment.GetServiceProvider();
+        public ILingoServiceProvider GetServiceProvider() => _environment.GetServiceProvider();
 
         public void StartTimer() => Timer = 0;
 
@@ -503,7 +504,7 @@ namespace LingoEngine.Movies
         public int GetPrevSpriteEnd(int channel, int frame)
             => _sprite2DManager.GetPrevSpriteEnd(channel, frame);
 
-       
+
         public int GetMaxLocZ() => _sprite2DManager.GetMaxLocZ();
 
         public ILingoMemberFactory New => _memberFactory;
@@ -511,6 +512,6 @@ namespace LingoEngine.Movies
         public LingoMember? MouseMemberUnderMouse() // todo : implement
             => null;
 
-        
+
     }
 }

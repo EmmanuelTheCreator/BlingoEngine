@@ -32,10 +32,10 @@ namespace LingoEngine.SDL2.Core;
 public class SdlFactory : ILingoFrameworkFactory, IDisposable
 {
     private readonly List<IDisposable> _disposables = new();
-    private readonly IServiceProvider _serviceProvider;
+    private readonly ILingoServiceProvider _serviceProvider;
     private readonly SdlRootContext _rootContext;
     /// <inheritdoc/>
-    public SdlFactory(IServiceProvider serviceProvider, SdlRootContext rootContext)
+    public SdlFactory(ILingoServiceProvider serviceProvider, SdlRootContext rootContext)
     {
         _serviceProvider = serviceProvider;
         _rootContext = rootContext;
@@ -458,15 +458,15 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
     {
         throw new NotImplementedException();
     }
-  
-   
+
+
     /// <inheritdoc/>
     public LingoGfxWindow CreateWindow(string name, string title = "")
     {
         throw new NotImplementedException();
     }
-  
-  
+
+
     /// <inheritdoc/>
     public LingoGfxHorizontalLineSeparator CreateHorizontalLineSeparator(string name)
     {

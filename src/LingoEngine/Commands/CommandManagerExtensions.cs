@@ -1,12 +1,12 @@
 using System;
 using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
+using LingoEngine.Core;
 
 namespace LingoEngine.Commands;
 
 internal static class CommandManagerExtensions
 {
-    public static void DiscoverAndSubscribe(this ILingoCommandManager manager, IServiceProvider provider)
+    public static void DiscoverAndSubscribe(this ILingoCommandManager manager, ILingoServiceProvider provider)
     {
         var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(x =>
         {

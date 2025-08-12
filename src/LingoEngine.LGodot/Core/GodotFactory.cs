@@ -36,13 +36,13 @@ namespace LingoEngine.LGodot.Core
     public class GodotFactory : ILingoFrameworkFactory, IDisposable
     {
         private readonly List<IDisposable> _disposables = new List<IDisposable>();
-        private readonly IServiceProvider _serviceProvider;
+        private readonly ILingoServiceProvider _serviceProvider;
         private readonly LingoGodotRootNode _lingoRootNode;
         private Node _rootNode;
 
-        public GodotFactory(IServiceProvider serviceProvider, LingoGodotRootNode rootNode)
+        public GodotFactory(ILingoServiceProvider serviceProvider, LingoGodotRootNode rootNode)
         {
-            _lingoRootNode= rootNode;
+            _lingoRootNode = rootNode;
             _rootNode = rootNode.RootNode;
             _serviceProvider = serviceProvider;
         }
@@ -134,7 +134,7 @@ namespace LingoEngine.LGodot.Core
         /// <inheritdoc/>
         public LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
         {
-            var godotInstance = new LingoGodotMemberText(_serviceProvider.GetRequiredService<ILingoFontManager>(),_serviceProvider.GetRequiredService<ILogger<LingoGodotMemberText>>());
+            var godotInstance = new LingoGodotMemberText(_serviceProvider.GetRequiredService<ILingoFontManager>(), _serviceProvider.GetRequiredService<ILogger<LingoGodotMemberText>>());
             var lingoInstance = new LingoMemberText((LingoCast)cast, godotInstance, numberInCast, name, fileName ?? "", regPoint);
             godotInstance.Init(lingoInstance);
             _disposables.Add(godotInstance);
@@ -454,7 +454,7 @@ namespace LingoEngine.LGodot.Core
         public LingoGfxMenuItem CreateMenuItem(string name, string? shortcut = null)
         {
             var item = new LingoGfxMenuItem();
-            var impl = new LingoGodotMenuItem(item,name, shortcut);
+            var impl = new LingoGodotMenuItem(item, name, shortcut);
             return item;
         }
 
