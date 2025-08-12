@@ -1,6 +1,5 @@
 using System;
 using LingoEngine.Gfx;
-using LingoEngine.SDL2.Core;
 
 namespace LingoEngine.SDL2.Gfx
 {
@@ -12,7 +11,7 @@ namespace LingoEngine.SDL2.Gfx
         public event Action? Activated;
         public object FrameworkNode => this;
 
-        public SdlGfxMenuItem(SdlFactory factory, string name, string? shortcut) : base(factory)
+        public SdlGfxMenuItem(SdlGfxFactory factory, string name, string? shortcut) : base(factory)
         {
             Name = name;
             Shortcut = shortcut;

@@ -3,7 +3,6 @@ using System.Numerics;
 using ImGuiNET;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
-using LingoEngine.SDL2.Core;
 using LingoEngine.SDL2.Primitives;
 using LingoEngine.Texts;
 
@@ -11,7 +10,7 @@ namespace LingoEngine.SDL2.Gfx
 {
     internal class SdlGfxLabel : SdlGfxComponent, ILingoFrameworkGfxLabel, IDisposable
     {
-        public SdlGfxLabel(SdlFactory factory) : base(factory)
+        public SdlGfxLabel(SdlGfxFactory factory) : base(factory)
         {
         }
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;

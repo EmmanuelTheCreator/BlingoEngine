@@ -3,13 +3,12 @@ using System.Numerics;
 using ImGuiNET;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
-using LingoEngine.SDL2.Core;
 
 namespace LingoEngine.SDL2.Gfx
 {
     internal class SdlGfxInputCheckbox : SdlGfxComponent, ILingoFrameworkGfxInputCheckbox, IDisposable
     {
-        public SdlGfxInputCheckbox(SdlFactory factory) : base(factory)
+        public SdlGfxInputCheckbox(SdlGfxFactory factory) : base(factory)
         {
         }
         public bool Enabled { get; set; } = true;

@@ -6,7 +6,6 @@ using LingoEngine.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.SDL2.Pictures;
 using LingoEngine.SDL2.SDLL;
-using LingoEngine.SDL2.Core;
 
 namespace LingoEngine.SDL2.Gfx
 {
@@ -17,7 +16,7 @@ namespace LingoEngine.SDL2.Gfx
         private nint _textureOffPtr;
         private ILingoImageTexture? _textureOff;
 
-        public SdlGfxStateButton(SdlFactory factory) : base(factory)
+        public SdlGfxStateButton(SdlGfxFactory factory) : base(factory)
         {
         }
         public bool Enabled { get; set; } = true;

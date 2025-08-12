@@ -40,12 +40,19 @@ namespace LingoEngine.LGodot.Core
         private readonly LingoGodotRootNode _lingoRootNode;
         private Node _rootNode;
 
+        private readonly GodotGfxFactory _gfxFactory;
+
         public GodotFactory(ILingoServiceProvider serviceProvider, LingoGodotRootNode rootNode)
         {
             _lingoRootNode = rootNode;
             _rootNode = rootNode.RootNode;
             _serviceProvider = serviceProvider;
+            var fontManager = _serviceProvider.GetRequiredService<ILingoFontManager>();
+            var styleManager = _serviceProvider.GetRequiredService<ILingoGodotStyleManager>();
+            _gfxFactory = new GodotGfxFactory(fontManager, styleManager);
         }
+
+        public ILingoGfxFactory GfxFactory => _gfxFactory;
 
         public T CreateBehavior<T>(LingoMovie lingoMovie) where T : LingoSpriteBehavior => lingoMovie.GetServiceProvider().GetRequiredService<T>();
         public T CreateMovieScript<T>(LingoMovie lingoMovie) where T : LingoMovieScript => lingoMovie.GetServiceProvider().GetRequiredService<T>();
@@ -221,281 +228,91 @@ namespace LingoEngine.LGodot.Core
 
 
         #region Gfx elements
-        /// <inheritdoc/>
         public LingoGfxCanvas CreateGfxCanvas(string name, int width, int height)
-        {
-            var canvas = new LingoGfxCanvas();
-            var impl = new LingoGodotGfxCanvas(canvas, _serviceProvider.GetRequiredService<ILingoFontManager>(), width, height);
-            canvas.Width = width;
-            canvas.Height = height;
-            canvas.Name = name;
-            return canvas;
-        }
+            => _gfxFactory.CreateGfxCanvas(name, width, height);
 
-        /// <inheritdoc/>
         public LingoGfxWrapPanel CreateWrapPanel(LingoOrientation orientation, string name)
-        {
-            var panel = new LingoGfxWrapPanel(this);
-            var impl = new LingoGodotWrapPanel(panel, orientation);
+            => _gfxFactory.CreateWrapPanel(orientation, name);
 
-            panel.Name = name;
-            // Ensure the public wrapper reflects the initial orientation
-            panel.Orientation = orientation;
-            return panel;
-        }
-
-        /// <inheritdoc/>
         public LingoGfxPanel CreatePanel(string name)
-        {
-            var panel = new LingoGfxPanel(this);
-            var impl = new LingoGodotPanel(panel);
+            => _gfxFactory.CreatePanel(name);
 
-            panel.Name = name;
-            return panel;
-        }
-        /// <inheritdoc/>
         public LingoGfxLayoutWrapper CreateLayoutWrapper(ILingoGfxNode content, float? x, float? y)
-        {
-            if (content is ILingoGfxLayoutNode)
-                throw new InvalidOperationException($"Content {content.Name} already supports layout — wrapping is unnecessary.");
-            var panel = new LingoGfxLayoutWrapper(content);
-            var impl = new LingoGodotLayoutWrapper(panel);
-            if (x != null) panel.X = x.Value;
-            if (y != null) panel.Y = y.Value;
-            return panel;
-        }
+            => _gfxFactory.CreateLayoutWrapper(content, x, y);
 
-        /// <inheritdoc/>
         public LingoGfxTabContainer CreateTabContainer(string name)
-        {
-            var tab = new LingoGfxTabContainer();
-            var impl = new LingoGodotTabContainer(tab, _serviceProvider.GetRequiredService<ILingoGodotStyleManager>());
+            => _gfxFactory.CreateTabContainer(name);
 
-            tab.Name = name;
-            return tab;
-        }
-        /// <inheritdoc/>
         public LingoGfxTabItem CreateTabItem(string name, string title)
-        {
-            var tab = new LingoGfxTabItem();
-            var impl = new LingoGodotTabItem(tab);
-            tab.Title = title;
-            tab.Name = name;
-            return tab;
-        }
+            => _gfxFactory.CreateTabItem(name, title);
 
-        /// <inheritdoc/>
         public LingoGfxScrollContainer CreateScrollContainer(string name)
-        {
-            var scroll = new LingoGfxScrollContainer();
-            var impl = new LingoGodotScrollContainer(scroll);
-            scroll.Name = name;
-            return scroll;
-        }
+            => _gfxFactory.CreateScrollContainer(name);
 
-        /// <inheritdoc/>
         public LingoGfxInputSlider<float> CreateInputSliderFloat(LingoOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
-        {
-            var minNum = min.HasValue ? new NullableNum<float>(min.Value) : new NullableNum<float>();
-            var maxNum = max.HasValue ? new NullableNum<float>(max.Value) : new NullableNum<float>();
-            var stepNum = step.HasValue ? new NullableNum<float>(step.Value) : new NullableNum<float>();
-            return CreateInputSlider(name, orientation, minNum, maxNum, stepNum, onChange);
-        }
+            => _gfxFactory.CreateInputSliderFloat(orientation, name, min, max, step, onChange);
 
         public LingoGfxInputSlider<int> CreateInputSliderInt(LingoOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
-        {
-            var minNum = min.HasValue ? new NullableNum<int>(min.Value) : new NullableNum<int>();
-            var maxNum = max.HasValue ? new NullableNum<int>(max.Value) : new NullableNum<int>();
-            var stepNum = step.HasValue ? new NullableNum<int>(step.Value) : new NullableNum<int>();
-            return CreateInputSlider(name, orientation, minNum, maxNum, stepNum, onChange);
-        }
+            => _gfxFactory.CreateInputSliderInt(orientation, name, min, max, step, onChange);
 
         public LingoGfxInputSlider<TValue> CreateInputSlider<TValue>(string name, LingoOrientation orientation, NullableNum<TValue> min, NullableNum<TValue> max, NullableNum<TValue> step, Action<TValue>? onChange = null)
-            where TValue : struct, System.Numerics.INumber<TValue>, System.IConvertible
-        {
-            var slider = new LingoGfxInputSlider<TValue>();
-            var impl = new LingoGodotInputSlider<TValue>(slider, orientation, onChange);
-            if (min.HasValue) slider.MinValue = min.Value!;
-            if (max.HasValue) slider.MaxValue = max.Value!;
-            if (step.HasValue) slider.Step = step.Value!;
-            slider.Name = name;
-            return slider;
-        }
-        /// <inheritdoc/>
+            where TValue : struct, System.Numerics.INumber<TValue>, IConvertible
+            => _gfxFactory.CreateInputSlider(name, orientation, min, max, step, onChange);
 
         public LingoGfxInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null)
-        {
-            var input = new LingoGfxInputText();
-            var impl = new LingoGodotInputText(input, _serviceProvider.GetRequiredService<ILingoFontManager>(), onChange);
-            input.MaxLength = maxLength;
-            input.Name = name;
-            return input;
-        }
+            => _gfxFactory.CreateInputText(name, maxLength, onChange);
 
-        /// <inheritdoc/>
         public LingoGfxInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null)
-        {
-            // Convert nullable float to NullableNum<float> explicitly  
-            var minNullableNum = min.HasValue ? new NullableNum<float>(min.Value) : new NullableNum<float>();
-            var maxNullableNum = max.HasValue ? new NullableNum<float>(max.Value) : new NullableNum<float>();
-            return CreateInputNumber(name, minNullableNum, maxNullableNum, onChange);
-        }
-        /// <inheritdoc/>
-        public LingoGfxInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null)
-        {
-            // Convert nullable float to NullableNum<float> explicitly  
-            var minNullableNum = min.HasValue ? new NullableNum<int>(min.Value) : new NullableNum<int>();
-            var maxNullableNum = max.HasValue ? new NullableNum<int>(max.Value) : new NullableNum<int>();
-            return CreateInputNumber(name, minNullableNum, maxNullableNum, onChange);
-        }
-        /// <inheritdoc/>
-        public LingoGfxInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null)
-             where TValue : System.Numerics.INumber<TValue>
-        {
-            var input = new LingoGfxInputNumber<TValue>();
-            var impl = new LingoGodotInputNumber<TValue>(input, _serviceProvider.GetRequiredService<ILingoFontManager>(), onChange);
-            if (min.HasValue) input.Min = min.Value!;
-            if (max.HasValue) input.Max = max.Value!;
-            input.Name = name;
-            return input;
-        }
+            => _gfxFactory.CreateInputNumberFloat(name, min, max, onChange);
 
-        /// <inheritdoc/>
+        public LingoGfxInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null)
+            => _gfxFactory.CreateInputNumberInt(name, min, max, onChange);
+
+        public LingoGfxInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null)
+            where TValue : System.Numerics.INumber<TValue>
+            => _gfxFactory.CreateInputNumber(name, min, max, onChange);
+
         public LingoGfxSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null)
-        {
-            var spin = new LingoGfxSpinBox();
-            var impl = new LingoGodotSpinBox(spin, _serviceProvider.GetRequiredService<ILingoFontManager>(), onChange);
-            spin.Name = name;
-            if (min.HasValue) spin.Min = min.Value;
-            if (max.HasValue) spin.Max = max.Value;
-            return spin;
-        }
-        /// <inheritdoc/>
+            => _gfxFactory.CreateSpinBox(name, min, max, onChange);
 
         public LingoGfxInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null)
-        {
-            var input = new LingoGfxInputCheckbox();
-            var impl = new LingoGodotInputCheckbox(input, onChange);
-            input.Name = name;
-            return input;
-        }
+            => _gfxFactory.CreateInputCheckbox(name, onChange);
 
-        /// <inheritdoc/>
         public LingoGfxInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null)
-        {
-            var input = new LingoGfxInputCombobox();
-            var impl = new LingoGodotInputCombobox(input, _serviceProvider.GetRequiredService<ILingoFontManager>(), onChange);
+            => _gfxFactory.CreateInputCombobox(name, onChange);
 
-            input.Name = name;
-            return input;
-        }
-
-        /// <inheritdoc/>
         public LingoGfxItemList CreateItemList(string name, Action<string?>? onChange = null)
-        {
-            var list = new LingoGfxItemList();
-            var impl = new LingoGodotItemList(list, onChange);
-            list.Name = name;
-            return list;
-        }
+            => _gfxFactory.CreateItemList(name, onChange);
 
-        /// <inheritdoc/>
         public LingoGfxColorPicker CreateColorPicker(string name, Action<LingoColor>? onChange = null)
-        {
-            var picker = new LingoGfxColorPicker();
-            var impl = new LingoGodotColorPicker(picker, onChange);
-            picker.Name = name;
-            return picker;
-        }
+            => _gfxFactory.CreateColorPicker(name, onChange);
 
-        /// <inheritdoc/>
         public LingoGfxLabel CreateLabel(string name, string text = "")
-        {
-            var label = new LingoGfxLabel();
-            var impl = new LingoGodotLabel(label, _serviceProvider.GetRequiredService<ILingoFontManager>());
-            label.Text = text;
+            => _gfxFactory.CreateLabel(name, text);
 
-            label.Name = name;
-            return label;
-        }
-
-        /// <inheritdoc/>
-        public LingoGfxButton CreateButton(string name, string text = "") //, Action? onClick = null)
-        {
-            var button = new LingoGfxButton();
-            var impl = new LingoGodotButton(button, _serviceProvider.GetRequiredService<ILingoFontManager>());
-            button.Name = name;
-            if (!string.IsNullOrWhiteSpace(text))
-                button.Text = text;
-            return button;
-        }
+        public LingoGfxButton CreateButton(string name, string text = "")
+            => _gfxFactory.CreateButton(name, text);
 
         public LingoGfxStateButton CreateStateButton(string name, ILingoImageTexture? texture = null, string text = "", Action<bool>? onChange = null)
-        {
-            var button = new LingoGfxStateButton();
-            var impl = new LingoGodotStateButton(button, onChange);
-            button.Name = name;
-            if (!string.IsNullOrWhiteSpace(text))
-                button.Text = text;
-            if (texture != null)
-                button.TextureOn = texture;
-            return button;
-        }
+            => _gfxFactory.CreateStateButton(name, texture, text, onChange);
 
-        /// <inheritdoc/>
         public LingoGfxMenu CreateMenu(string name)
-        {
-            var menu = new LingoGfxMenu();
-            var impl = new LingoGodotMenu(menu, name);
-            return menu;
-        }
+            => _gfxFactory.CreateMenu(name);
 
-        /// <inheritdoc/>
         public LingoGfxMenuItem CreateMenuItem(string name, string? shortcut = null)
-        {
-            var item = new LingoGfxMenuItem();
-            var impl = new LingoGodotMenuItem(item, name, shortcut);
-            return item;
-        }
+            => _gfxFactory.CreateMenuItem(name, shortcut);
 
-        /// <inheritdoc/>
         public LingoGfxMenu CreateContextMenu(object window)
-        {
-            var menu = CreateMenu("ContextMenu");
-            if (window is Node node)
-                node.AddChild(menu.Framework<LingoGodotMenu>());
-            return menu;
-        }
+            => _gfxFactory.CreateContextMenu(window);
 
-        /// <inheritdoc/>
         public LingoGfxHorizontalLineSeparator CreateHorizontalLineSeparator(string name)
-        {
-            var sep = new LingoGfxHorizontalLineSeparator();
-            var impl = new LingoGodotHorizontalLineSeparator(sep);
-            sep.Name = name;
-            return sep;
-        }
+            => _gfxFactory.CreateHorizontalLineSeparator(name);
 
-        /// <inheritdoc/>
         public LingoGfxVerticalLineSeparator CreateVerticalLineSeparator(string name)
-        {
-            var sep = new LingoGfxVerticalLineSeparator();
-            var impl = new LingoGodotVerticalLineSeparator(sep);
-            sep.Name = name;
-            return sep;
-        }
+            => _gfxFactory.CreateVerticalLineSeparator(name);
 
-        /// <inheritdoc/>
         public LingoGfxWindow CreateWindow(string name, string title = "")
-        {
-            var win = new LingoGfxWindow();
-            var impl = new LingoGodotWindow(win, _serviceProvider.GetRequiredService<ILingoGodotStyleManager>());
-            win.Name = name;
-            if (!string.IsNullOrWhiteSpace(title))
-                win.Title = title;
-            return win;
-        }
-
+            => _gfxFactory.CreateWindow(name, title);
 
         #endregion
 

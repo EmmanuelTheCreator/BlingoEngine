@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
-using LingoEngine.SDL2.Core;
 using LingoEngine.SDL2.SDLL;
 
 namespace LingoEngine.SDL2.Gfx
@@ -16,7 +15,7 @@ namespace LingoEngine.SDL2.Gfx
 
         private readonly List<ILingoFrameworkGfxLayoutNode> _children = new();
 
-        public SdlGfxWrapPanel(SdlFactory factory, LingoOrientation orientation) : base(factory)
+        public SdlGfxWrapPanel(SdlGfxFactory factory, LingoOrientation orientation) : base(factory)
         {
             Orientation = orientation;
             ItemMargin = new LingoPoint(0, 0);
