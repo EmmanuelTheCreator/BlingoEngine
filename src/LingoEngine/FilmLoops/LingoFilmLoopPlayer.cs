@@ -1,9 +1,7 @@
 using LingoEngine.Events;
-using LingoEngine.Movies;
 using LingoEngine.Sprites;
 using LingoEngine.Animations;
 using LingoEngine.Bitmaps;
-using LingoEngine.Members;
 using LingoEngine.Casts;
 using LingoEngine.Primitives;
 
@@ -15,10 +13,11 @@ namespace LingoEngine.FilmLoops
     /// </summary>
     public class LingoFilmLoopPlayer : IPlayableActor, ILingoSpritesPlayer
     {
-        private readonly LingoSprite2D _sprite;
+        private readonly ILingoSprite2DLight _sprite;
         private readonly ILingoCastLibsContainer _castLibs;
+        private readonly bool _isInnerPlayer;
         private readonly ILingoEventMediator _mediator;
-        private readonly List<(LingoFilmLoopMemberSprite Entry, LingoSprite2DVirtual Runtime)> _layers = new();
+        private readonly List<(LingoFilmLoopMemberSprite Entry, LingoSprite2DVirtual Runtime, LingoFilmLoopPlayer? InnerPlayer)> _layers = new();
         private readonly List<LingoSprite2DVirtual> _activeLayers = new();
         private int _currentFrame;
         public int CurrentFrame => _currentFrame;
@@ -29,13 +28,24 @@ namespace LingoEngine.FilmLoops
 
         public ILingoTexture2D? Texture { get; private set; }
 
-        internal LingoFilmLoopPlayer(LingoSprite2D sprite, ILingoEventMediator eventMediator, ILingoCastLibsContainer castLibs)
+        internal LingoFilmLoopPlayer(ILingoSprite2DLight sprite, ILingoEventMediator eventMediator, ILingoCastLibsContainer castLibs, bool isInnerPlayer = false)
         {
             _sprite = sprite;
             _castLibs = castLibs;
+            _isInnerPlayer = isInnerPlayer;
             _mediator = eventMediator;
 
         }
+
+        public void BeginSprite()
+        {
+            _currentFrame = 1;
+            SetupLayers();
+            ApplyFrame();
+            if (!_isInnerPlayer)
+                _mediator.Subscribe(this, _sprite.SpriteNum + 6);
+        }
+
         private void SetupLayers()
         {
             _layers.Clear();
@@ -47,24 +57,29 @@ namespace LingoEngine.FilmLoops
             FrameCount = fl.FrameCount;
             foreach (var entry in fl.SpriteEntries)
             {
-                var rt = new LingoSprite2DVirtual(_mediator, this, entry, _castLibs);
+                var runtime = new LingoSprite2DVirtual(_mediator, this, entry, _castLibs);
                 var properties = entry.AnimatorProperties.Clone();
                 if (!properties.Position.HasFirstKeyFrame())
                     // insert the initial sprite properties as keyframe
                     properties.AddKeyFrame(new LingoKeyFrameSetting(1, new LingoPoint(entry.LocH, entry.LocV), new LingoPoint(entry.Width, entry.Height), entry.Rotation, entry.Blend, entry.Skew, entry.ForeColor, entry.BackColor));
-                rt.GetAnimator(properties);
-                ApplyFraming(fl, entry, rt);
-                _layers.Add((entry, rt));
+                runtime.GetAnimator(properties);
+                ApplyFraming(fl, entry, runtime);
+                LingoFilmLoopPlayer? nestedPlayer = null;
+                if (entry.Member is LingoFilmLoopMember)
+                {
+                    nestedPlayer = runtime.GetFilmLoopPlayer();
+                    if (nestedPlayer == null)
+                    {
+                        nestedPlayer = new LingoFilmLoopPlayer(runtime, _mediator, _castLibs,true);
+                        runtime.AddActor(nestedPlayer);
+                        nestedPlayer.BeginSprite();
+                    }
+                }
+                _layers.Add((entry, runtime, nestedPlayer));
             }
         }
 
-        public void BeginSprite()
-        {
-            _currentFrame = 1;
-            SetupLayers();
-            ApplyFrame();
-            _mediator.Subscribe(this, _sprite.SpriteNum + 6);
-        }
+        
 
         public void StepFrame()
         {
@@ -88,7 +103,8 @@ namespace LingoEngine.FilmLoops
 
         public void EndSprite()
         {
-            _mediator.Unsubscribe(this);
+            if (!_isInnerPlayer)
+                _mediator.Unsubscribe(this);
             foreach (var layer in _layers)
             {
                 layer.Runtime.RemoveMe();
@@ -106,7 +122,7 @@ namespace LingoEngine.FilmLoops
                 return;
 
             _activeLayers.Clear();
-            foreach (var (entry, runtime) in _layers)
+            foreach (var (entry, runtime, innerplayer) in _layers)
             {
                 var template = entry;
                 bool active = entry.BeginFrame <= _currentFrame && entry.EndFrame >= _currentFrame;
@@ -127,29 +143,28 @@ namespace LingoEngine.FilmLoops
                 var backColor = template.BackColor;
                 if (animProperties != null)
                 {
-                    if (animProperties.Position.KeyFrames.Count > 0)
+                    if (animProperties.Position.KeyFrames.Count > 1)
                     {
                         var pos = animProperties.Position.GetValue(_currentFrame);
                         x = pos.X;
                         y = pos.Y;
                     }
-                    if (animProperties.Size.KeyFrames.Count > 0)
+                    if (animProperties.Size.KeyFrames.Count > 1)
                     {
                         var sz = animProperties.Size.GetValue(_currentFrame);
                         width = sz.X;
                         height = sz.Y;
                     }
-                    if (animProperties.Rotation.KeyFrames.Count > 0)
+                    if (animProperties.Rotation.KeyFrames.Count > 1)
                         rot = animProperties.Rotation.GetValue(_currentFrame);
-                    if (animProperties.Skew.KeyFrames.Count > 0)
+                    if (animProperties.Skew.KeyFrames.Count > 1)
                         skew = animProperties.Skew.GetValue(_currentFrame);
-                    if (animProperties.ForegroundColor.KeyFrames.Count > 0)
+                    if (animProperties.ForegroundColor.KeyFrames.Count > 1)
                         foreColor = animProperties.ForegroundColor.GetValue(_currentFrame);
-                    if (animProperties.BackgroundColor.KeyFrames.Count > 0)
+                    if (animProperties.BackgroundColor.KeyFrames.Count > 1)
                         backColor = animProperties.BackgroundColor.GetValue(_currentFrame);
-                    if (animProperties.Blend.KeyFrames.Count > 0)
+                    if (animProperties.Blend.KeyFrames.Count > 1)
                         blend = animProperties.Blend.GetValue(_currentFrame);
-
                 }
 
                 runtime.LocH = x;
@@ -162,20 +177,8 @@ namespace LingoEngine.FilmLoops
                 runtime.BackColor = backColor;
                 runtime.Blend = blend;
 
-                if (template.Member is LingoFilmLoopMember)
-                {
-                    var nestedPlayer = runtime.GetFilmLoopPlayer();
-                    if (nestedPlayer == null)
-                    {
-                        nestedPlayer = new LingoFilmLoopPlayer(runtime, _mediator, _castLibs);
-                        runtime.AddActor(nestedPlayer);
-                        nestedPlayer.BeginSprite();
-                    }
-                    else
-                    {
-                        nestedPlayer.StepFrame();
-                    }
-                }
+                if (innerplayer != null)
+                    innerplayer.StepFrame();
 
                 _activeLayers.Add(runtime);
             }
@@ -186,8 +189,6 @@ namespace LingoEngine.FilmLoops
             var frameworkFilmLoop = fl.Framework<ILingoFrameworkMemberFilmLoop>();
             Texture = frameworkFilmLoop.ComposeTexture(_sprite, _activeLayers);
             _sprite.UpdateTexture(Texture);
-            //_sprite.FrameworkObj.MemberChanged();
-            //_sprite.FrameworkObj.ApplyMemberChangesOnStepFrame();
         }
 
 

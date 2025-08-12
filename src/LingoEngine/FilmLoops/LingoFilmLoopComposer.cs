@@ -28,7 +28,7 @@ public static class LingoFilmLoopComposer
         LingoTransform2D Transform,
         float Alpha,
         LingoInkType Ink,
-        LingoColor BackColor);
+        LingoColor BackColor, LingoSprite2DVirtual Sprite2D);
 
     /// <summary>
     /// Computes the overall bounds and per-layer data needed to render a film
@@ -93,7 +93,8 @@ public static class LingoFilmLoopComposer
                 transform,
                 Math.Clamp(layer.Blend / 100f, 0f, 1f),
                 layer.InkType,
-                layer.BackColor));
+                layer.BackColor,
+                layer));
         }
 
         return (offset, width, height, prepared);

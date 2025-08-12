@@ -687,7 +687,7 @@ When a movie stops, events occur in the following order:
             return action;
         }
 
-        internal void UpdateTexture(ILingoTexture2D texture)
+        public void UpdateTexture(ILingoTexture2D texture)
         {
             _frameworkSprite.UpdateTexture(texture);
         }

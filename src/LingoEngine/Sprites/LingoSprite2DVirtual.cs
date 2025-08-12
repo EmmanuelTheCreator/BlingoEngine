@@ -1,9 +1,9 @@
 ﻿using LingoEngine.Animations;
+using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
 using LingoEngine.Events;
 using LingoEngine.FilmLoops;
 using LingoEngine.Members;
-using LingoEngine.Movies;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.Sprites
@@ -99,6 +99,7 @@ namespace LingoEngine.Sprites
             set => _width = value;
         }
         public float Height { get => _height; set => _height = value; }
+        public ILingoTexture2D? Texture { get; private set; }
 
         public ILingoMember? GetMember() => Member;
 
@@ -353,6 +354,9 @@ namespace LingoEngine.Sprites
 
         public override string GetFullName() => $"{SpriteNum}.{Name}.{Member?.Name}";
 
-
+        public void UpdateTexture(ILingoTexture2D texture)
+        {
+            Texture = texture;
+        }
     }
 }

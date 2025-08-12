@@ -82,7 +82,7 @@ namespace LingoEngine.Sprites
 
         #region Actors
         protected IEnumerable<T> GetActorsOfType<T>() => _spriteActors.OfType<T>();
-        protected void AddActor(object actor)
+        public void AddActor(object actor)
         {
             _spriteActors.Add(actor);
             if (IsActive)
