@@ -1,8 +1,10 @@
 namespace LingoEngine.SDL2;
+using System;
 using LingoEngine.Core;
 using LingoEngine.SDL2.SDLL;
 using LingoEngine.SDL2.Core;
 using LingoEngine.Movies;
+using LingoEngine.Inputs;
 using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.Stages;
 
@@ -15,13 +17,14 @@ public class SdlRootContext : IDisposable
 
     public LingoDebugOverlay DebugOverlay { get; set; }
     internal SdlKey Key { get; } = new();
+    internal SdlMouse Mouse { get; } = new SdlMouse(new Lazy<LingoMouse>(() => null!));
     private bool _f1Pressed;
 
     public SdlRootContext(nint window, nint renderer)
     {
         Window = window;
         Renderer = renderer;
-        
+
     }
     public void Init(ILingoPlayer player)
     {
@@ -31,7 +34,7 @@ public class SdlRootContext : IDisposable
     public void Run()
     {
         var clock = (LingoClock)_lPlayer.Clock;
-       
+
         bool running = true;
         uint last = SDL.SDL_GetTicks();
         while (running)
@@ -41,13 +44,14 @@ public class SdlRootContext : IDisposable
                 if (e.type == SDL.SDL_EventType.SDL_QUIT)
                     running = false;
                 Key.ProcessEvent(e);
+                Mouse.ProcessEvent(e);
             }
             uint now = SDL.SDL_GetTicks();
             float delta = (now - last) / 1000f;
             last = now;
             DebugOverlay.Update(delta);
             bool f1 = _lPlayer.Key.KeyPressed((int)SDL.SDL_Keycode.SDLK_F1);
-            if ( f1 && !_f1Pressed)
+            if (f1 && !_f1Pressed)
                 DebugOverlay.Toggle();
             _f1Pressed = f1;
             clock.Tick(delta);

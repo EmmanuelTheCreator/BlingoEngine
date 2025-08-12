@@ -4,7 +4,10 @@ namespace LingoEngine.Events
 {
     public enum LingoMouseEventType
     {
-        MouseUp,MouseDown, MouseMove
+        MouseUp,
+        MouseDown,
+        MouseMove,
+        MouseWheel
     }
     public class LingoMouseEvent
     {
@@ -13,6 +16,7 @@ namespace LingoEngine.Events
         public bool ContinuePropation { get; set; } = true;
         public float MouseH => Mouse.MouseH;
         public float MouseV => Mouse.MouseV;
+        public float WheelDelta => Mouse.WheelDelta;
 
         public LingoMouseEvent(LingoMouse lingoMouse, LingoMouseEventType type)
         {
@@ -26,6 +30,7 @@ namespace LingoEngine.Events
         void RaiseMouseDown(LingoMouseEvent mouse);
         void RaiseMouseUp(LingoMouseEvent mouse);
         void RaiseMouseMove(LingoMouseEvent mouse);
+        void RaiseMouseWheel(LingoMouseEvent mouse);
     }
     public interface ILingoMouseEventSubscription
     {
@@ -46,6 +51,7 @@ namespace LingoEngine.Events
         public void DoMouseDown(LingoMouseEvent mouse) => _target.RaiseMouseDown(mouse);
         public void DoMouseUp(LingoMouseEvent mouse) => _target.RaiseMouseUp(mouse);
         public void DoMouseMove(LingoMouseEvent mouse) => _target.RaiseMouseMove(mouse);
+        public void DoMouseWheel(LingoMouseEvent mouse) => _target.RaiseMouseWheel(mouse);
 
         public void Release()
         {

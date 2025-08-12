@@ -187,7 +187,7 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
     /// <inheritdoc/>
     public LingoStageMouse CreateMouse(LingoStage stage)
     {
-        var mouseImpl = new SdlMouse(new Lazy<LingoMouse>(() => null!));
+        var mouseImpl = _rootContext.Mouse;
         var mouse = new LingoStageMouse(stage, mouseImpl);
         mouseImpl.SetLingoMouse(mouse);
         return mouse;

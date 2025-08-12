@@ -20,11 +20,11 @@ namespace LingoEngine.LGodot
         }
         public void ReplaceMouseObj(LingoMouse lingoMouse)
         {
-            _lingoMouse = new Lazy<LingoMouse>(()=>  lingoMouse);
+            _lingoMouse = new Lazy<LingoMouse>(() => lingoMouse);
         }
         public void Release()
         {
-            
+
         }
         public void HandleMouseMoveEvent(InputEventMouseMotion mouseMotionEvent, bool isInsideRect, float x, float y)
         {
@@ -41,12 +41,18 @@ namespace LingoEngine.LGodot
         {
             _lingoMouse.Value.MouseH = x;
             _lingoMouse.Value.MouseV = y;
+            if (mouseButtonEvent.ButtonIndex == MouseButton.WheelUp || mouseButtonEvent.ButtonIndex == MouseButton.WheelDown)
+            {
+                var delta = mouseButtonEvent.ButtonIndex == MouseButton.WheelUp ? 1f : -1f;
+                _lingoMouse.Value.DoMouseWheel(delta);
+                return;
+            }
             //Console.WriteLine(Name + ":" + mouseButtonEvent.Position.X + "x" + mouseButtonEvent.Position.Y + ":" + isInsideRect);
             // Handle Mouse Down event
             if (mouseButtonEvent.Pressed)
             {
                 // mouse down must be inside rect, mouse up may not
-                if (isInsideRect && x > 0 && y> 0)
+                if (isInsideRect && x > 0 && y > 0)
                 {
                     wasPressed = true;
                     if (mouseButtonEvent.ButtonIndex == MouseButton.Left)
@@ -54,7 +60,7 @@ namespace LingoEngine.LGodot
                         // Handle Left Button Down
                         _lingoMouse.Value.MouseDown = true;
                         _lingoMouse.Value.LeftMouseDown = true;
-                         DetectDoubleClick();
+                        DetectDoubleClick();
                         _lingoMouse.Value.DoMouseDown();
                     }
                     else if (mouseButtonEvent.ButtonIndex == MouseButton.Right)
@@ -158,7 +164,7 @@ namespace LingoEngine.LGodot
             };
         }
 
-        
+
     }
 
 }

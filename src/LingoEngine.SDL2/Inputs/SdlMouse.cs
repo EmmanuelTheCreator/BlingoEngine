@@ -3,6 +3,7 @@ using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
 using LingoEngine.SDL2.Pictures;
 using LingoEngine.SDL2.SDLL;
+using System;
 using System.Runtime.InteropServices;
 
 namespace LingoEngine.SDL2.Inputs;
@@ -95,6 +96,61 @@ public class SdlMouse : ILingoFrameworkMouse
     public void ReplaceMouseObj(LingoMouse lingoMouse)
     {
         _lingoMouse = new Lazy<LingoMouse>(() => lingoMouse);
+    }
+
+    public void ProcessEvent(SDL.SDL_Event e)
+    {
+        switch (e.type)
+        {
+            case SDL.SDL_EventType.SDL_MOUSEMOTION:
+                _lingoMouse.Value.MouseH = e.motion.x;
+                _lingoMouse.Value.MouseV = e.motion.y;
+                _lingoMouse.Value.DoMouseMove();
+                break;
+            case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
+                _lingoMouse.Value.MouseH = e.button.x;
+                _lingoMouse.Value.MouseV = e.button.y;
+                if (e.button.button == SDL.SDL_BUTTON_LEFT)
+                {
+                    _lingoMouse.Value.MouseDown = true;
+                    _lingoMouse.Value.LeftMouseDown = true;
+                    _lingoMouse.Value.DoubleClick = e.button.clicks > 1;
+                }
+                else if (e.button.button == SDL.SDL_BUTTON_RIGHT)
+                {
+                    _lingoMouse.Value.RightMouseDown = true;
+                }
+                else if (e.button.button == SDL.SDL_BUTTON_MIDDLE)
+                {
+                    _lingoMouse.Value.MiddleMouseDown = true;
+                }
+                _lingoMouse.Value.DoMouseDown();
+                break;
+            case SDL.SDL_EventType.SDL_MOUSEBUTTONUP:
+                _lingoMouse.Value.MouseH = e.button.x;
+                _lingoMouse.Value.MouseV = e.button.y;
+                if (e.button.button == SDL.SDL_BUTTON_LEFT)
+                {
+                    _lingoMouse.Value.MouseDown = false;
+                    _lingoMouse.Value.LeftMouseDown = false;
+                }
+                else if (e.button.button == SDL.SDL_BUTTON_RIGHT)
+                {
+                    _lingoMouse.Value.RightMouseDown = false;
+                }
+                else if (e.button.button == SDL.SDL_BUTTON_MIDDLE)
+                {
+                    _lingoMouse.Value.MiddleMouseDown = false;
+                }
+                _lingoMouse.Value.DoMouseUp();
+                break;
+            case SDL.SDL_EventType.SDL_MOUSEWHEEL:
+                SDL.SDL_GetMouseState(out var x, out var y);
+                _lingoMouse.Value.MouseH = x;
+                _lingoMouse.Value.MouseV = y;
+                _lingoMouse.Value.DoMouseWheel(e.wheel.y);
+                break;
+        }
     }
 
     ~SdlMouse()

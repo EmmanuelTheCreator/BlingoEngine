@@ -231,7 +231,7 @@ namespace LingoEngine.Sprites
         }
 
         #region Animation / keyframes
-        
+
         /// <summary>
         /// Adds animation keyframes for this sprite. When invoked for the first time
         /// it lazily creates a <see cref="LingoSpriteAnimator"/> actor and stores it
@@ -253,7 +253,7 @@ namespace LingoEngine.Sprites
             animator.RecalculateCache();
         }
 
-        
+
 
         public void SetSpriteTweenOptions(bool positionEnabled, bool sizeEnabled, bool rotationEnabled, bool skewEnabled,
             bool foregroundColorEnabled, bool backgroundColorEnabled, bool blendEnabled,
@@ -400,7 +400,7 @@ When a movie stops, events occur in the following order:
             {
                 if (existingPlayer == null)
                 {
-                    existingPlayer = new LingoFilmLoopPlayer(this, _eventMediator,_environment.CastLibsContainer);
+                    existingPlayer = new LingoFilmLoopPlayer(this, _eventMediator, _environment.CastLibsContainer);
                     AddActor(existingPlayer);
                 }
                 if (IsActive)
@@ -555,6 +555,7 @@ When a movie stops, events occur in the following order:
             _eventMediator.RaiseMouseUp(mouse);
         }
         protected virtual void MouseUp(LingoMouseEvent mouse) { }
+        void ILingoMouseEventHandler.RaiseMouseWheel(LingoMouseEvent mouse) => _eventMediator.RaiseMouseWheel(mouse);
         private void DoMouseDrag(LingoMouseEvent mouse)
         {
             LocH = mouse.MouseH;
@@ -686,6 +687,6 @@ When a movie stops, events occur in the following order:
             return action;
         }
 
-       
+
     }
 }
