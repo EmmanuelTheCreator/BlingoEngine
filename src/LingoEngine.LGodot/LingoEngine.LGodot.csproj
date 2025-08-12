@@ -10,6 +10,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Platforms>AnyCPU;x64;x86</Platforms>
 		<AssemblyName>LingoEngine.LGodot</AssemblyName>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 		<!-- Specify the Godot version -->
 	</PropertyGroup>
   <ItemGroup>

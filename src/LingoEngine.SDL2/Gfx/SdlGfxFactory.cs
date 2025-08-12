@@ -1,4 +1,5 @@
 using System;
+using System.Reflection.Emit;
 using LingoEngine.Bitmaps;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
@@ -59,7 +60,13 @@ namespace LingoEngine.SDL2.Gfx
 
         public LingoGfxLayoutWrapper CreateLayoutWrapper(ILingoGfxNode content, float? x, float? y)
         {
-            throw new NotImplementedException();
+            if (content is ILingoGfxLayoutNode)
+                throw new InvalidOperationException($"Content {content.Name} already supports layout — wrapping is unnecessary.");
+            var panel = new LingoGfxLayoutWrapper(content);
+            var impl = new LingoSdlLayoutWrapper(this,panel);
+            if (x != null) panel.X = x.Value;
+            if (y != null) panel.Y = y.Value;
+            return panel;
         }
 
         public LingoGfxTabContainer CreateTabContainer(string name)
@@ -119,10 +126,11 @@ namespace LingoEngine.SDL2.Gfx
 
         public LingoGfxInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null)
         {
-            var input = new LingoGfxInputText { MaxLength = maxLength };
+            var input = new LingoGfxInputText();
             var impl = new SdlGfxInputText(this);
             input.Init(impl);
             input.Name = name;
+            input.MaxLength = maxLength;
             if (onChange != null)
                 input.ValueChanged += () => onChange(input.Text);
             return input;
@@ -145,6 +153,7 @@ namespace LingoEngine.SDL2.Gfx
         public LingoGfxInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null)
             where TValue : System.Numerics.INumber<TValue>
         {
+            throw new NotImplementedException();
             var input = new LingoGfxInputNumber<TValue>();
             //var impl = new SdlGfxInputNumber<float>(_rootContext.Renderer);
             //input.Init(impl);
@@ -211,30 +220,33 @@ namespace LingoEngine.SDL2.Gfx
 
         public LingoGfxLabel CreateLabel(string name, string text = "")
         {
-            var label = new LingoGfxLabel { Text = text };
+            var label = new LingoGfxLabel();
             var impl = new SdlGfxLabel(this);
             label.Init(impl);
             label.Name = name;
+            label.Text = text;
             return label;
         }
 
         public LingoGfxButton CreateButton(string name, string text = "")
         {
-            var button = new LingoGfxButton { Text = text };
+            var button = new LingoGfxButton();
             var impl = new SdlGfxButton(this);
             button.Init(impl);
             button.Name = name;
+            button.Text = text;
             return button;
         }
 
         public LingoGfxStateButton CreateStateButton(string name, ILingoImageTexture? texture = null, string text = "", Action<bool>? onChange = null)
         {
-            var button = new LingoGfxStateButton { Text = text };
+            var button = new LingoGfxStateButton();
             var impl = new SdlGfxStateButton(this);
             if (onChange != null)
                 button.ValueChanged += () => onChange(button.IsOn);
             button.Init(impl);
             button.Name = name;
+            button.Text = text;
             if (texture != null)
                 button.TextureOn = texture;
             return button;
