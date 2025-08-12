@@ -1,7 +1,6 @@
 using System;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
-using LingoEngine.SDL2.Core;
 
 namespace LingoEngine.SDL2.Gfx
 {
@@ -10,7 +9,7 @@ namespace LingoEngine.SDL2.Gfx
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;
         public object FrameworkNode => this;
 
-        public SdlGfxMenu(SdlFactory factory, string name) : base(factory)
+        public SdlGfxMenu(SdlGfxFactory factory, string name) : base(factory)
         {
             Name = name;
         }

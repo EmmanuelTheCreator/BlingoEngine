@@ -1,5 +1,4 @@
 using System;
-using LingoEngine.SDL2.Core;
 
 namespace LingoEngine.SDL2.Gfx;
 
@@ -9,7 +8,7 @@ namespace LingoEngine.SDL2.Gfx;
 /// </summary>
 public abstract class SdlGfxComponent : ILingoSDLComponent, IDisposable
 {
-    protected SdlGfxComponent(SdlFactory factory)
+    protected SdlGfxComponent(SdlGfxFactory factory)
     {
         ComponentContext = factory.CreateContext(this);
         ComponentContext.Visible = _visibility;

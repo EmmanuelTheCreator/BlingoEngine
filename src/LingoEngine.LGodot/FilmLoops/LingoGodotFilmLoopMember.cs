@@ -6,6 +6,7 @@ using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LingoEngine.LGodot.FilmLoops
 {
@@ -55,54 +56,36 @@ namespace LingoEngine.LGodot.FilmLoops
 
         public ILingoTexture2D ComposeTexture(LingoSprite2D hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers)
         {
-            var bounds = _member.GetBoundingBox();
-            Offset = new LingoPoint(-bounds.Left, -bounds.Top);
-            int width = (int)MathF.Ceiling(bounds.Width);
-            int height = (int)MathF.Ceiling(bounds.Height);
+            var prep = LingoFilmLoopComposer.Prepare(_member, Framing, layers);
+            Offset = prep.Offset;
+            int width = prep.Width;
+            int height = prep.Height;
             var image = Image.CreateEmpty(width, height, false, Image.Format.Rgba8);
-            foreach (var layer in layers)
+             var i = 0;
+            foreach (var info in prep.Layers)
             {
-                if (layer.Member is not LingoMemberBitmap pic)
+                if (info.Bitmap is not LingoGodotMemberBitmap bmp)
                     continue;
-
-                var bmp = pic.Framework<LingoGodotMemberBitmap>();
                 if (bmp.TextureGodot == null) continue;
-                var srcTex = bmp.GetTextureForInk(layer.InkType, layer.BackColor);
+                var srcTex = bmp.GetTextureForInk(info.Ink, info.BackColor);
                 if (srcTex == null)
                     continue;
                 var srcImg = srcTex.GetImage();
-                int destW = (int)layer.Width;
-                int destH = (int)layer.Height;
+                //DebugToDisk(srcImg, $"filmloop_{i}");
 
-                if (Framing == LingoFilmLoopFraming.Scale)
-                {
-                    if (destW != srcImg.GetWidth() || destH != srcImg.GetHeight())
-                        srcImg.Resize(destW, destH, Image.Interpolation.Bilinear);
-                }
-                else
-                {
-                    int cropW = Math.Min(destW, srcImg.GetWidth());
-                    int cropH = Math.Min(destH, srcImg.GetHeight());
-                    int cropX = (srcImg.GetWidth() - cropW) / 2;
-                    int cropY = (srcImg.GetHeight() - cropH) / 2;
-                    srcImg = srcImg.GetRegion(new Rect2I(cropX, cropY, cropW, cropH));
-                    destW = cropW;
-                    destH = cropH;
-                }
+                srcImg = srcImg.GetRegion(new Rect2I(info.SrcX, info.SrcY, info.SrcW, info.SrcH));
+                if (info.DestW != info.SrcW || info.DestH != info.SrcH)
+                    srcImg.Resize(info.DestW, info.DestH, Image.Interpolation.Bilinear);
 
-                var srcCenter = new Vector2(destW / 2f, destH / 2f);
-                var pos = new Vector2(layer.LocH + Offset.X, layer.LocV + Offset.Y);
-                var scale = new Vector2(layer.FlipH ? -1 : 1, layer.FlipV ? -1 : 1);
-                float skewX = Mathf.Tan(Mathf.DegToRad(layer.Skew));
-                var skew = new Transform2D(new Vector2(1, 0), new Vector2(skewX, 1), Vector2.Zero);
-                var transform = Transform2D.Identity;
-                transform = transform.Translated(-srcCenter);
-                transform = transform.Scaled(scale);
-                transform = skew * transform;
-                transform = transform.Rotated(Mathf.DegToRad(layer.Rotation));
-                transform = transform.Translated(pos);
-                BlendImage(image, srcImg, transform, Mathf.Clamp(layer.Blend / 100f, 0f, 1f));
+                var m = info.Transform.Matrix;
+                var transform = new Transform2D(
+                    new Vector2(m.M11, m.M12),
+                    new Vector2(m.M21, m.M22),
+                    new Vector2(m.M31, m.M32));
+                BlendImage(image, srcImg, transform, info.Alpha);
+
             }
+            DebugToDisk(image, $"filmloop_{_member.Name}_{hostSprite.Name}");
             var tex = ImageTexture.CreateFromImage(image);
             var texture = new LingoGodotTexture2D(tex);
             return texture;
@@ -111,10 +94,8 @@ namespace LingoEngine.LGodot.FilmLoops
         /// <summary>
         /// Blends <paramref name="src"/> onto <paramref name="dest"/> using the provided
         /// transform and opacity.
-        /// TODO: consider extracting a shared abstraction for SDL and Godot to avoid
-        /// duplicate pixel code and potentially cache small frames.
         /// </summary>
-        private static void BlendImage(Image dest, Image src, Transform2D transform, float alpha)
+        private unsafe static void BlendImage(Image dest, Image src, Transform2D transform, float alpha)
         {
             var inv = transform.AffineInverse();
             Vector2[] pts =
@@ -129,30 +110,61 @@ namespace LingoEngine.LGodot.FilmLoops
             int minY = (int)MathF.Floor(pts.Min(p => p.Y));
             int maxY = (int)MathF.Ceiling(pts.Max(p => p.Y));
 
-            for (int y = minY; y < maxY; y++)
+            int destWidth = dest.GetWidth();
+            int destHeight = dest.GetHeight();
+            int srcWidth = src.GetWidth();
+            int srcHeight = src.GetHeight();
+
+            var destData = dest.GetData();
+            var srcData = src.GetData();
+
+            int destPitch = destWidth * 4;
+            int srcPitch = srcWidth * 4;
+
+            fixed (byte* pDestFixed = destData)
+            fixed (byte* pSrcFixed = srcData)
             {
-                if (y < 0 || y >= dest.GetHeight()) continue;
-                for (int x = minX; x < maxX; x++)
+                // captureable handles (avoid capturing fixed locals)
+                IntPtr destPtr = (IntPtr)pDestFixed;
+                IntPtr srcPtr = (IntPtr)pSrcFixed;
+
+                Parallel.For(minY, maxY, y =>
                 {
-                    if (x < 0 || x >= dest.GetWidth()) continue;
-                    var srcPos = inv * new Vector2(x + 0.5f, y + 0.5f);
-                    int sx = (int)MathF.Floor(srcPos.X);
-                    int sy = (int)MathF.Floor(srcPos.Y);
-                    if (sx < 0 || sy < 0 || sx >= src.GetWidth() || sy >= src.GetHeight())
-                        continue;
-                    var c = src.GetPixel(sx, sy);
-                    c.A *= alpha;
-                    if (c.A <= 0f) continue;
-                    var dst = dest.GetPixel(x, y);
-                    float invA = 1f - c.A;
-                    dest.SetPixel(x, y, new Color(
-                        c.R + dst.R * invA,
-                        c.G + dst.G * invA,
-                        c.B + dst.B * invA,
-                        c.A + dst.A * invA));
-                }
+                    if ((uint)y >= (uint)destHeight) return;
+
+                    byte* pDest = (byte*)destPtr;
+                    byte* pSrc = (byte*)srcPtr;
+
+                    int destRow = y * destPitch;
+
+                    for (int x = minX; x < maxX; x++)
+                    {
+                        if ((uint)x >= (uint)destWidth) continue;
+
+                        var srcPos = inv * new Vector2(x + 0.5f, y + 0.5f);
+                        int sx = (int)MathF.Floor(srcPos.X);
+                        int sy = (int)MathF.Floor(srcPos.Y);
+                        if ((uint)sx >= (uint)srcWidth || (uint)sy >= (uint)srcHeight)
+                            continue;
+
+                        int srcIndex = sy * srcPitch + sx * 4;
+                        int destIndex = destRow + x * 4;
+
+                        float a = pSrc[srcIndex + 3] / 255f * alpha;
+                        if (a <= 0f) continue;
+                        float invA = 1f - a;
+
+                        pDest[destIndex] = (byte)(pSrc[srcIndex] * a + pDest[destIndex] * invA);
+                        pDest[destIndex + 1] = (byte)(pSrc[srcIndex + 1] * a + pDest[destIndex + 1] * invA);
+                        pDest[destIndex + 2] = (byte)(pSrc[srcIndex + 2] * a + pDest[destIndex + 2] * invA);
+                        pDest[destIndex + 3] = (byte)(pSrc[srcIndex + 3] * a + pDest[destIndex + 3] * invA);
+                    }
+                });
             }
+
+            dest.SetData(destWidth, destHeight, false, Image.Format.Rgba8, destData);
         }
+
 #if DEBUG
         public static void DebugToDisk(Image image, string filName)
         {

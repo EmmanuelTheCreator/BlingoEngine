@@ -35,13 +35,17 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
     private readonly List<IDisposable> _disposables = new();
     private readonly ILingoServiceProvider _serviceProvider;
     private readonly SdlRootContext _rootContext;
+    private readonly SdlGfxFactory _gfxFactory;
     /// <inheritdoc/>
     public SdlFactory(ILingoServiceProvider serviceProvider, SdlRootContext rootContext)
     {
         _serviceProvider = serviceProvider;
         _rootContext = rootContext;
         _rootContext.Factory = this;
+        _gfxFactory = new SdlGfxFactory(_rootContext, _serviceProvider.GetRequiredService<ILingoFontManager>());
     }
+
+    public ILingoGfxFactory GfxFactory => _gfxFactory;
     /// <inheritdoc/>
     public T CreateBehavior<T>(LingoMovie movie) where T : LingoSpriteBehavior
         => movie.GetServiceProvider().GetRequiredService<T>();
@@ -192,10 +196,10 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
     public LingoSDLComponentContainer ComponentContainer => _rootContext.ComponentContainer;
 
     public LingoSDLComponentContext CreateContext(ILingoSDLComponent component, LingoSDLComponentContext? parent = null)
-        => new(ComponentContainer, component, parent) { Renderer = _rootContext.Renderer };
+        => _gfxFactory.CreateContext(component, parent);
 
     public LingoSDLRenderContext CreateRenderContext(ILingoSDLComponent? component = null)
-        => new(_rootContext.Renderer);
+        => _gfxFactory.CreateRenderContext(component);
     /// <inheritdoc/>
     public LingoStageMouse CreateMouse(LingoStage stage)
     {
@@ -216,263 +220,80 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
     #region Gfx elements
     /// <inheritdoc/>
     public LingoGfxCanvas CreateGfxCanvas(string name, int width, int height)
-    {
-        var canvas = new LingoGfxCanvas();
-        var impl = new SdlGfxCanvas(this, _serviceProvider.GetRequiredService<ILingoFontManager>(), width, height);
-        canvas.Init(impl);
-        canvas.Width = width;
-        canvas.Height = height;
-        canvas.Name = name;
-        return canvas;
-    }
-    /// <inheritdoc/>
+        => _gfxFactory.CreateGfxCanvas(name, width, height);
+
     public LingoGfxWrapPanel CreateWrapPanel(LingoOrientation orientation, string name)
-    {
+        => _gfxFactory.CreateWrapPanel(orientation, name);
 
-        var panel = new LingoGfxWrapPanel(this);
-        var impl = new SdlGfxWrapPanel(this, orientation);
-
-        panel.Init(impl);
-        panel.Name = name;
-        // Keep orientation in sync on creation
-        panel.Orientation = orientation;
-        return panel;
-    }
-    /// <inheritdoc/>
     public LingoGfxPanel CreatePanel(string name)
-    {
-        var panel = new LingoGfxPanel(this);
-        var impl = new SdlGfxPanel(this);
-        panel.Init(impl);
-        panel.Name = name;
-        return panel;
-    }
-    /// <inheritdoc/>
-    public LingoGfxTabContainer CreateTabContainer(string name)
-    {
-        var tab = new LingoGfxTabContainer();
-        var impl = new SdlGfxTabContainer(this);
-        tab.Init(impl);
-        tab.Name = name;
-        return tab;
-    }
-    /// <inheritdoc/>
-    public LingoGfxTabItem CreateTabItem(string name, string title)
-    {
-        var tab = new LingoGfxTabItem();
-        var impl = new SdlGfxTabItem(this, tab);
-        tab.Title = title;
-        tab.Name = name;
-        return tab;
-    }
-    /// <inheritdoc/>
-    public LingoGfxScrollContainer CreateScrollContainer(string name)
-    {
-        var scroll = new LingoGfxScrollContainer();
-        var impl = new SdlGfxScrollContainer(this);
-        scroll.Init(impl);
-        scroll.Name = name;
-        return scroll;
-    }
+        => _gfxFactory.CreatePanel(name);
 
-    /// <inheritdoc/>
+    public LingoGfxTabContainer CreateTabContainer(string name)
+        => _gfxFactory.CreateTabContainer(name);
+
+    public LingoGfxTabItem CreateTabItem(string name, string title)
+        => _gfxFactory.CreateTabItem(name, title);
+
+    public LingoGfxScrollContainer CreateScrollContainer(string name)
+        => _gfxFactory.CreateScrollContainer(name);
+
     public LingoGfxInputSlider<float> CreateInputSliderFloat(LingoOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
-    {
-        var slider = new LingoGfxInputSlider<float>();
-        var impl = new SdlGfxInputSlider<float>(this);
-        slider.Init(impl);
-        slider.Name = name;
-        if (min.HasValue) slider.MinValue = min.Value;
-        if (max.HasValue) slider.MaxValue = max.Value;
-        if (step.HasValue) slider.Step = step.Value;
-        if (onChange != null)
-            slider.ValueChanged += () => onChange(slider.Value);
-        return slider;
-    }
+        => _gfxFactory.CreateInputSliderFloat(orientation, name, min, max, step, onChange);
 
     public LingoGfxInputSlider<int> CreateInputSliderInt(LingoOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
-    {
-        var slider = new LingoGfxInputSlider<int>();
-        var impl = new SdlGfxInputSlider<int>(this);
-        slider.Init(impl);
-        slider.Name = name;
-        if (min.HasValue) slider.MinValue = min.Value;
-        if (max.HasValue) slider.MaxValue = max.Value;
-        if (step.HasValue) slider.Step = step.Value;
-        if (onChange != null)
-            slider.ValueChanged += () => onChange(slider.Value);
-        return slider;
-    }
-    /// <inheritdoc/>
+        => _gfxFactory.CreateInputSliderInt(orientation, name, min, max, step, onChange);
+
     public LingoGfxInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null)
-    {
-        var input = new LingoGfxInputText { MaxLength = maxLength };
-        var impl = new SdlGfxInputText(this);
-        input.Init(impl);
-        input.Name = name;
-        if (onChange != null)
-            input.ValueChanged += () =>
-            {
-                if (onChange != null)
-                    onChange(input.Text);
-            };
-        return input;
-    }
-    /// <inheritdoc/>
+        => _gfxFactory.CreateInputText(name, maxLength, onChange);
+
     public LingoGfxInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null)
-    {
-        // Convert nullable float to NullableNum<float> explicitly  
-        var minNullableNum = min.HasValue ? new NullableNum<float>(min.Value) : new NullableNum<float>();
-        var maxNullableNum = max.HasValue ? new NullableNum<float>(max.Value) : new NullableNum<float>();
-        return CreateInputNumber(name, minNullableNum, maxNullableNum, onChange);
-    }
-    /// <inheritdoc/>
+        => _gfxFactory.CreateInputNumberFloat(name, min, max, onChange);
+
     public LingoGfxInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null)
-    {
-        // Convert nullable float to NullableNum<float> explicitly  
-        var minNullableNum = min.HasValue ? new NullableNum<int>(min.Value) : new NullableNum<int>();
-        var maxNullableNum = max.HasValue ? new NullableNum<int>(max.Value) : new NullableNum<int>();
-        return CreateInputNumber(name, minNullableNum, maxNullableNum, onChange);
-    }
-    /// <inheritdoc/>
+        => _gfxFactory.CreateInputNumberInt(name, min, max, onChange);
+
     public LingoGfxInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null)
-         where TValue : System.Numerics.INumber<TValue>
-    {
-        var input = new LingoGfxInputNumber<TValue>();
-        //var impl = new SdlGfxInputNumber<float>(_rootContext.Renderer);
-        //input.Init(impl);
-        //input.Name = name;
-        //if (min.HasValue) input.Min = min.Value;
-        //if (max.HasValue) input.Max = max.Value;
-        return input;
-    }
-    /// <inheritdoc/>
+        where TValue : System.Numerics.INumber<TValue>
+        => _gfxFactory.CreateInputNumber(name, min, max, onChange);
+
     public LingoGfxSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null)
-    {
-        var spin = new LingoGfxSpinBox();
-        var impl = new SdlGfxSpinBox(this);
-        spin.Init(impl);
-        spin.Name = name;
-        if (min.HasValue) spin.Min = min.Value;
-        if (max.HasValue) spin.Max = max.Value;
-        if (onChange != null)
-            spin.ValueChanged += () => onChange(spin.Value);
-        return spin;
-    }
+        => _gfxFactory.CreateSpinBox(name, min, max, onChange);
 
     public LingoGfxInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null)
-    {
-        var input = new LingoGfxInputCheckbox();
-        var impl = new SdlGfxInputCheckbox(this);
-        input.Init(impl);
-        input.Name = name;
-        input.ValueChanged += () =>
-        {
-            if (onChange != null)
-                onChange(input.Checked);
-        };
-        return input;
-    }
-    /// <inheritdoc/>
+        => _gfxFactory.CreateInputCheckbox(name, onChange);
+
     public LingoGfxInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null)
-    {
-        var input = new LingoGfxInputCombobox();
-        var impl = new SdlGfxInputCombobox(this);
-        input.Init(impl);
-        input.Name = name;
-        input.ValueChanged += () =>
-        {
-            if (onChange != null)
-                onChange(input.SelectedKey);
-        };
-        return input;
-    }
-    /// <inheritdoc/>
+        => _gfxFactory.CreateInputCombobox(name, onChange);
+
     public LingoGfxItemList CreateItemList(string name, Action<string?>? onChange = null)
-    {
-        var list = new LingoGfxItemList();
-        var impl = new SdlGfxItemList(this);
-        list.Init(impl);
-        list.Name = name;
-        if (onChange != null)
-            list.ValueChanged += () => onChange(list.SelectedKey);
-        return list;
-    }
-    /// <inheritdoc/>
+        => _gfxFactory.CreateItemList(name, onChange);
+
     public LingoGfxColorPicker CreateColorPicker(string name, Action<LingoColor>? onChange = null)
-    {
-        var picker = new LingoGfxColorPicker();
-        var impl = new SdlGfxColorPicker(this);
-        picker.Init(impl);
-        picker.Name = name;
-        if (onChange != null)
-            picker.ValueChanged += () => onChange(picker.Color);
-        return picker;
-    }
-    /// <inheritdoc/>
+        => _gfxFactory.CreateColorPicker(name, onChange);
+
     public LingoGfxLabel CreateLabel(string name, string text = "")
-    {
-        var label = new LingoGfxLabel { Text = text };
-        var impl = new SdlGfxLabel(this);
-        label.Init(impl);
-        label.Name = name;
-        return label;
-    }
-    /// <inheritdoc/>
+        => _gfxFactory.CreateLabel(name, text);
+
     public LingoGfxButton CreateButton(string name, string text = "")
-    {
-        var button = new LingoGfxButton { Text = text };
-        var impl = new SdlGfxButton(this);
-        button.Init(impl);
-        button.Name = name;
-        return button;
-    }
-    /// <inheritdoc/>
+        => _gfxFactory.CreateButton(name, text);
+
     public LingoGfxStateButton CreateStateButton(string name, Bitmaps.ILingoImageTexture? texture = null, string text = "", Action<bool>? onChange = null)
-    {
-        var button = new LingoGfxStateButton { Text = text };
-        var impl = new SdlGfxStateButton(this);
-        if (onChange != null)
-            button.ValueChanged += () => onChange(button.IsOn); // hooking in wrapper since SDL button is dummy
-        button.Init(impl);
-        button.Name = name;
-        if (texture != null)
-            button.TextureOn = texture;
-        return button;
-    }
-    /// <inheritdoc/>
+        => _gfxFactory.CreateStateButton(name, texture, text, onChange);
+
     public LingoGfxMenu CreateMenu(string name)
-    {
-        var menu = new LingoGfxMenu();
-        var impl = new SdlGfxMenu(this, name);
-        menu.Init(impl);
-        return menu;
-    }
-    /// <inheritdoc/>
+        => _gfxFactory.CreateMenu(name);
+
     public LingoGfxMenuItem CreateMenuItem(string name, string? shortcut = null)
-    {
-        var item = new LingoGfxMenuItem();
-        var impl = new SdlGfxMenuItem(this, name, shortcut);
-        item.Init(impl);
-        return item;
-    }
+        => _gfxFactory.CreateMenuItem(name, shortcut);
 
-    /// <inheritdoc/>
     public LingoGfxMenu CreateContextMenu(object window)
-    {
-        // SDL UI is not implemented yet, return a basic menu instance
-        var menu = CreateMenu("ContextMenu");
-        return menu;
-    }
-    /// <inheritdoc/>
+        => _gfxFactory.CreateContextMenu(window);
+
     public LingoGfxLayoutWrapper CreateLayoutWrapper(ILingoGfxNode content, float? x, float? y)
-    {
-        throw new NotImplementedException();
-    }
+        => _gfxFactory.CreateLayoutWrapper(content, x, y);
 
-
-    /// <inheritdoc/>
     public LingoGfxWindow CreateWindow(string name, string title = "")
+
     {
         var win = new LingoGfxWindow();
         var impl = new SdlGfxWindow(win, this);
@@ -481,17 +302,14 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
         return win;
     }
 
+        => _gfxFactory.CreateWindow(name, title);
 
-    /// <inheritdoc/>
+
     public LingoGfxHorizontalLineSeparator CreateHorizontalLineSeparator(string name)
-    {
-        throw new NotImplementedException();
-    }
-    /// <inheritdoc/>
+        => _gfxFactory.CreateHorizontalLineSeparator(name);
+
     public LingoGfxVerticalLineSeparator CreateVerticalLineSeparator(string name)
-    {
-        throw new NotImplementedException();
-    }
+        => _gfxFactory.CreateVerticalLineSeparator(name);
     #endregion
 
 

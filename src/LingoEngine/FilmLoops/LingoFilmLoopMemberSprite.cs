@@ -119,6 +119,8 @@ namespace LingoEngine.FilmLoops
             }
             MemberNumberInCast = member.NumberInCast;
             CastNum = member.CastLibNum;
+            Member = member;
+            SetMemberData(member);
         }
         public void LinkMember(ILingoCastLibsContainer castLibs)
         {
@@ -130,12 +132,16 @@ namespace LingoEngine.FilmLoops
                 {
                     Member = cast.Member[MemberNumberInCast];
                     if (Member != null && (Width == 0 || Height == 0))
-                    {
-                        Width = Member.Width;
-                        Height = Member.Height;
-                    }
+                        SetMemberData(Member);
                 }
             }
+        }
+
+        private void SetMemberData(ILingoMember member)
+        {
+            Width = member.Width;
+            Height = member.Height;
+            _animatorProperties.RequestRecalculatedBoundingBox();
         }
 
         public LingoRect GetBoundingBox() => _animatorProperties.GetBoundingBox(RegPoint, Rect, Width, Height);
@@ -157,6 +163,9 @@ namespace LingoEngine.FilmLoops
             }
             return new LingoPoint();
         }
+        /// <summary>
+        /// Possible tuples : (frame,x,y) , (int frame, int x, int y, float width, float height)
+        /// </summary>
         public void AddKeyframes(params LingoKeyFrameSetting[] keyframes) => AnimatorProperties.AddKeyframes(keyframes);
 
     }

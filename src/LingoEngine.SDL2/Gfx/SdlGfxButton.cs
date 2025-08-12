@@ -4,25 +4,20 @@ using ImGuiNET;
 using LingoEngine.Bitmaps;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
-using LingoEngine.Bitmaps;
-using LingoEngine.SDL2.Core;
 
 namespace LingoEngine.SDL2.Gfx
 {
     internal class SdlGfxButton : SdlGfxComponent, ILingoFrameworkGfxButton, IDisposable
     {
-        public SdlGfxButton(SdlFactory factory) : base(factory)
+        public SdlGfxButton(SdlGfxFactory factory) : base(factory)
         {
         }
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;
         public string Text { get; set; } = string.Empty;
         public bool Enabled { get; set; } = true;
-        private ILingoImageTexture? _icon;
-        public ILingoImageTexture? IconTexture { get => _icon; set => _icon = value; }
+        public ILingoImageTexture? IconTexture { get; set; }
 
         public object FrameworkNode => this;
-
-        public ILingoImageTexture? IconTexture { get; set; }
 
         public event Action? Pressed;
 

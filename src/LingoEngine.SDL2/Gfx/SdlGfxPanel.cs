@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
-using LingoEngine.SDL2.Core;
 using LingoEngine.SDL2.SDLL;
 
 namespace LingoEngine.SDL2.Gfx
 {
     internal class SdlGfxPanel : SdlGfxComponent, ILingoFrameworkGfxPanel, IDisposable
     {
-        public SdlGfxPanel(SdlFactory factory) : base(factory)
+        public SdlGfxPanel(SdlGfxFactory factory) : base(factory)
         {
         }
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;

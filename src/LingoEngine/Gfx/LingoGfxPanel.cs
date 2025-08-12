@@ -1,4 +1,3 @@
-using LingoEngine.FrameworkCommunication;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.Gfx
@@ -8,16 +7,16 @@ namespace LingoEngine.Gfx
     /// </summary>
     public class LingoGfxPanel : LingoGfxNodeLayoutBase<ILingoFrameworkGfxPanel>
     {
-        private readonly ILingoFrameworkFactory _factory;
-        public ILingoFrameworkFactory Factory => _factory;
-        public LingoGfxPanel(ILingoFrameworkFactory factory)
+        private readonly ILingoGfxFactory _factory;
+        public ILingoGfxFactory Factory => _factory;
+        public LingoGfxPanel(ILingoGfxFactory factory)
         {
             _factory = factory;
         }
 
 
         /// <summary>Adds a child to the panel and sets its position.</summary>
-        public ILingoGfxNode AddItem(ILingoGfxNode node, float? x= null, float? y = null)
+        public ILingoGfxNode AddItem(ILingoGfxNode node, float? x = null, float? y = null)
         {
             if (node is ILingoGfxLayoutNode layoutNode)
             {
@@ -28,14 +27,14 @@ namespace LingoEngine.Gfx
             }
             else
             {
-                LingoGfxLayoutWrapper item = _factory.CreateLayoutWrapper(node ,x, y);
+                LingoGfxLayoutWrapper item = _factory.CreateLayoutWrapper(node, x, y);
 
                 _framework.AddItem(item.FrameworkWrapper<ILingoFrameworkGfxLayoutWrapper>());
                 return item;
             }
 
         }
-      
+
         public void RemoveItem(ILingoGfxNode node) => _framework.RemoveItem(node.Framework<ILingoFrameworkGfxLayoutNode>());
         public void RemoveItem(ILingoFrameworkGfxLayoutNode node) => _framework.RemoveItem(node);
         public IEnumerable<ILingoFrameworkGfxLayoutNode> GetChildren() => _framework.GetItems();
@@ -79,9 +78,9 @@ namespace LingoEngine.Gfx
         public LingoGfxLayoutWrapper(ILingoGfxNode content)
         {
             Content = content;
-            
+
         }
-    
+
 
 
 

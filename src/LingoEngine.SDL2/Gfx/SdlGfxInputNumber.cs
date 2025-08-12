@@ -3,13 +3,12 @@ using System.Numerics;
 using ImGuiNET;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
-using LingoEngine.SDL2.Core;
 
 namespace LingoEngine.SDL2.Gfx
 {
     internal class SdlGfxInputNumber : SdlGfxComponent, ILingoFrameworkGfxInputNumber<float>, IDisposable
     {
-        public SdlGfxInputNumber(SdlFactory factory) : base(factory)
+        public SdlGfxInputNumber(SdlGfxFactory factory) : base(factory)
         {
         }
         public bool Enabled { get; set; } = true;

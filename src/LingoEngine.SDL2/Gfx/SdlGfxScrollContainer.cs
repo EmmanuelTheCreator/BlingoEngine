@@ -4,13 +4,12 @@ using System.Numerics;
 using ImGuiNET;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
-using LingoEngine.SDL2.Core;
 
 namespace LingoEngine.SDL2.Gfx
 {
     internal class SdlGfxScrollContainer : SdlGfxComponent, ILingoFrameworkGfxScrollContainer, IDisposable
     {
-        public SdlGfxScrollContainer(SdlFactory factory) : base(factory)
+        public SdlGfxScrollContainer(SdlGfxFactory factory) : base(factory)
         {
         }
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;

@@ -1,4 +1,3 @@
-using LingoEngine.FrameworkCommunication;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.Gfx
@@ -20,9 +19,9 @@ namespace LingoEngine.Gfx
             get => _framework.ItemMargin;
             set => _framework.ItemMargin = value;
         }
-        public ILingoFrameworkFactory Factory { get; }
+        public ILingoGfxFactory Factory { get; }
 
-        public LingoGfxWrapPanel(ILingoFrameworkFactory factory)
+        public LingoGfxWrapPanel(ILingoGfxFactory factory)
         {
             Factory = factory;
         }

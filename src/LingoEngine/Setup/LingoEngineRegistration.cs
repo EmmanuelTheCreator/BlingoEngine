@@ -7,43 +7,9 @@ using LingoEngine.Events;
 using LingoEngine.Sprites;
 using LingoEngine.Styles;
 using Microsoft.Extensions.DependencyInjection;
-using System.ComponentModel.DataAnnotations;
 using LingoEngine.Casts;
-using System;
 namespace LingoEngine.Setup
 {
-    public interface ILingoEngineRegistration
-    {
-        ILingoEngineRegistration ServicesMain(Action<IServiceCollection> services);
-        ILingoEngineRegistration ServicesLingo(Action<IServiceCollection> services);
-        ILingoEngineRegistration AddFont(string name, string pathAndName);
-        ILingoEngineRegistration ForMovie(string name, Action<IMovieRegistration> action);
-        ILingoEngineRegistration WithFrameworkFactory<T>(Action<T>? setup = null) where T : class, ILingoFrameworkFactory;
-        ILingoEngineRegistration WithProjectSettings(Action<LingoProjectSettings> setup);
-        LingoPlayer Build();
-        ILingoProjectFactory BuildAndRunProject();
-        ILingoEngineRegistration AddBuildAction(Action<ILingoServiceProvider> buildAction);
-        ILingoEngineRegistration SetProjectFactory<TLingoProjectFactory>() where TLingoProjectFactory : ILingoProjectFactory, new();
-    }
-    public interface IMovieRegistration
-    {
-        IMovieRegistration AddBehavior<T>() where T : LingoSpriteBehavior;
-        IMovieRegistration AddParentScript<T>() where T : LingoParentScript;
-        IMovieRegistration AddMovieScript<T>() where T : LingoMovieScript;
-    }
-    public static class LingoEngineRegistrationExtensions
-    {
-        public static IServiceCollection RegisterLingoEngine(this IServiceCollection container, Action<ILingoEngineRegistration> config)
-        {
-            var lingoServiceProvider = new LingoServiceProvider();
-            container.AddSingleton<ILingoServiceProvider>(lingoServiceProvider);
-            var engineRegistration = new LingoEngineRegistration(container, lingoServiceProvider);
-            engineRegistration.RegisterCommonServices();
-            container.AddSingleton<ILingoEngineRegistration>(engineRegistration);
-            config(engineRegistration);
-            return container;
-        }
-    }
     public class LingoEngineRegistration : ILingoEngineRegistration
     {
         private readonly IServiceCollection _container;

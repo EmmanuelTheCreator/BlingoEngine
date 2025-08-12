@@ -4,13 +4,12 @@ using System.Numerics;
 using ImGuiNET;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
-using LingoEngine.SDL2.Core;
 
 namespace LingoEngine.SDL2.Gfx
 {
     internal class SdlGfxInputCombobox : SdlGfxComponent, ILingoFrameworkGfxInputCombobox, IDisposable
     {
-        public SdlGfxInputCombobox(SdlFactory factory) : base(factory)
+        public SdlGfxInputCombobox(SdlGfxFactory factory) : base(factory)
         {
         }
         public bool Enabled { get; set; } = true;
