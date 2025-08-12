@@ -6,27 +6,37 @@ using LingoEngine.Gfx;
 using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Primitives;
-using System;
-using System.Linq;
 
 namespace LingoEngine.Director.Core.UI;
 
 public class MemberNavigationBar<T> where T : class, ILingoMember
 {
+    private string _memberName = "";
     private readonly IDirectorEventMediator _mediator;
     private readonly ILingoPlayer _player;
     private readonly IDirectorIconManager _iconManager;
     private readonly LingoGfxWrapPanel _panel;
-    private readonly LingoGfxButton _typeIcon;
-    private readonly LingoGfxInputText _nameEdit;
-    private readonly LingoGfxLabel _numberLabel;
-    private readonly LingoGfxLabel _castLibLabel;
+    private LingoGfxButton _typeIcon;
+    private LingoGfxLabel _numberLabel;
+    private LingoGfxLabel _castLibLabel;
+    private LingoGfxInputText _nameEdit;
 
     private T? _member;
 
     public LingoGfxWrapPanel Panel => _panel;
+    public string MemberName
+    {
+        get => _memberName; 
+        set
+        {
+            _memberName = value;
+            if (_member != null) _member.Name = value.Trim();
+        }
+    }
 
+#pragma warning disable CS8618 
     public MemberNavigationBar(IDirectorEventMediator mediator, ILingoPlayer player, IDirectorIconManager iconManager, ILingoFrameworkFactory factory, int barHeight = 20)
+#pragma warning restore CS8618 
     {
         _mediator = mediator;
         _player = player;
@@ -46,38 +56,32 @@ public class MemberNavigationBar<T> where T : class, ILingoMember
                 b.IconTexture = iconManager.Get(DirectorIcon.Next);
                 b.Width = barHeight;
                 b.Height = barHeight;
-            });
+            })
+            .AddButton("TypeIcon", string.Empty, () => { }, c =>
+            {
+                _typeIcon = c;
+                _typeIcon.Width = barHeight;
+                _typeIcon.Height = barHeight;
+                _typeIcon.Enabled = false;
+            })
+            .AddTextInput("NameEdit", this, x => x.MemberName, 100,c => _nameEdit = c)
+            .AddLabel("MemberNameLabel", "0",11,40,c => _numberLabel = c)
+            .AddButton("InfoButton", string.Empty, OnInfo, b =>
+            {
+                b.IconTexture = iconManager.Get(DirectorIcon.Info);
+                b.Width = barHeight;
+                b.Height = barHeight;
+            })
+            .AddLabel("CastLibLabel", "0",11,80,c => _castLibLabel = c)
+            ;
 
-        _typeIcon = factory.CreateButton("TypeIcon", string.Empty);
-        _typeIcon.Width = barHeight;
-        _typeIcon.Height = barHeight;
-        _typeIcon.Enabled = false;
-        _panel.AddItem(_typeIcon);
-
-        _nameEdit = factory.CreateInputText("NameEdit", 0, t => { if (_member != null) _member.Name = t; });
-        _nameEdit.Width = 100;
-        _panel.AddItem(_nameEdit);
-
-        _numberLabel = factory.CreateLabel("NumberLabel", string.Empty);
-        _numberLabel.Width = 40;
-        _panel.AddItem(_numberLabel);
-
-        _panel.Compose().AddButton("InfoButton", string.Empty, OnInfo, b =>
-        {
-            b.IconTexture = iconManager.Get(DirectorIcon.Info);
-            b.Width = barHeight;
-            b.Height = barHeight;
-        });
-
-        _castLibLabel = factory.CreateLabel("CastLibLabel", string.Empty);
-        _castLibLabel.Width = 80;
-        _panel.AddItem(_castLibLabel);
     }
 
     public void SetMember(T member)
     {
         _member = member;
-        _nameEdit.Text = member.Name;
+        _memberName = member.Name;
+        _nameEdit.Text = _memberName;
         _numberLabel.Text = member.NumberInCast.ToString();
         _castLibLabel.Text = GetCastName(member);
         var icon = LingoMemberTypeIcons.GetIconType(member);

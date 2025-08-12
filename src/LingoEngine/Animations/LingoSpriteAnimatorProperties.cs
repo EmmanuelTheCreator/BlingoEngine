@@ -9,14 +9,28 @@ namespace LingoEngine.Animations
         private bool _cacheDirty = true;
         public bool CacheIsDirty => _cacheDirty;
         public void CacheApplied() => _cacheDirty = false;
-        public LingoTween<LingoPoint> Position { get; } = new();
-        public LingoTween<LingoPoint> Size { get; } = new();
-        public LingoTween<float> Rotation { get; } = new();
-        public LingoTween<float> Skew { get; } = new();
-        public LingoTween<LingoColor> ForegroundColor { get; } = new();
-        public LingoTween<LingoColor> BackgroundColor { get; } = new();
-        public LingoTween<float> Blend { get; } = new();
+        public LingoTween<LingoPoint> Position { get; private set;} = new();
+        public LingoTween<LingoPoint> Size { get; private set;} = new();
+        public LingoTween<float> Rotation { get; private set;} = new();
+        public LingoTween<float> Skew { get; private set;} = new();
+        public LingoTween<LingoColor> ForegroundColor { get; private set;} = new();
+        public LingoTween<LingoColor> BackgroundColor { get; private set;} = new();
+        public LingoTween<float> Blend { get; private set; } = new();
 
+        public LingoSpriteAnimatorProperties Clone()
+        {
+            var clone = new LingoSpriteAnimatorProperties
+            {
+                Position = Position.Clone(),
+                Size = Size.Clone(),
+                Rotation = Rotation.Clone(),
+                Skew = Skew.Clone(),
+                ForegroundColor = ForegroundColor.Clone(),
+                BackgroundColor = BackgroundColor.Clone(),
+                Blend = Blend.Clone()
+            };
+            return clone;
+        }
 
         public void SetTweenOptions(bool positionEnabled, bool sizeEnabled, bool rotationEnabled, bool skewEnabled,
            bool foreColorEnabled, bool backColorEnabled, bool blendEnabled,

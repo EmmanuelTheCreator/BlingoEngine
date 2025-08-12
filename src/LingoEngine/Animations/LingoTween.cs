@@ -7,11 +7,14 @@ namespace LingoEngine.Animations
     public class LingoTween<T>
     {
         private readonly List<LingoKeyFrame<T>> _keys = new();
+        private bool _hasFirstKeyFrame;
+
         public IReadOnlyList<LingoKeyFrame<T>> KeyFrames => _keys;
-        public LingoTweenOptions Options { get; } = new();
+        public LingoTweenOptions Options { get; private set; } = new();
 
         public void AddKeyFrame(int frame, T value, LingoEaseType ease = LingoEaseType.Linear)
         {
+            if (frame == 1) _hasFirstKeyFrame = true;
             var k = new LingoKeyFrame<T>(frame, value) { Ease = ease };
             _keys.Add(k);
             _keys.Sort((a, b) => a.Frame.CompareTo(b.Frame));
@@ -93,5 +96,20 @@ namespace LingoEngine.Animations
             }
             return t < 1 ? a : b;
         }
+
+        internal LingoTween<T> Clone()
+        {
+            var clone = new LingoTween<T>();
+            foreach (var key in _keys)
+                clone.AddKeyFrame(key.Frame, key.Value, key.Ease);
+            
+            clone.Options = Options;
+            return clone;
+
+        }
+
+        public bool HasFirstKeyFrame() => _hasFirstKeyFrame;
+
+
     }
 }

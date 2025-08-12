@@ -1,4 +1,5 @@
-﻿using LingoEngine.Primitives;
+﻿using LingoEngine.Bitmaps;
+using LingoEngine.Primitives;
 
 namespace LingoEngine.Sprites
 {
@@ -30,19 +31,6 @@ namespace LingoEngine.Sprites
         // <summary>Vertical skew angle of the sprite in degrees.</summary>
         //float SkewY { get; set; }
 
-        /// <summary>Notify that the underlying member changed.</summary>
-        void MemberChanged();
-
-        /// <summary>Remove the sprite from the stage.</summary>
-        void RemoveMe();
-        /// <summary>Show the sprite.</summary>
-        void Show();
-        /// <summary>Hide the sprite.</summary>
-        void Hide();
-        /// <summary>Set the sprite position.</summary>
-        void SetPosition(LingoPoint point);
-        void ApplyMemberChangesOnStepFrame();
-
         /// <summary>
         /// Indicates whether the sprite is flipped horizontally.
         /// </summary>
@@ -62,5 +50,21 @@ namespace LingoEngine.Sprites
         /// Ink effect to apply when rendering the sprite.
         /// </summary>
         int Ink { get; set; }
+
+
+        /// <summary>Notify that the underlying member changed.</summary>
+        void MemberChanged();
+
+        /// <summary>Remove the sprite from the stage.</summary>
+        void RemoveMe();
+        /// <summary>Show the sprite.</summary>
+        void Show();
+        /// <summary>Hide the sprite.</summary>
+        void Hide();
+        /// <summary>Set the sprite position.</summary>
+        void SetPosition(LingoPoint point);
+        void ApplyMemberChangesOnStepFrame();
+       
+        void UpdateTexture(ILingoTexture2D texture);
     }
 }

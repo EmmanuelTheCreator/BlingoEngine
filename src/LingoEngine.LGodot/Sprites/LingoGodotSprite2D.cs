@@ -363,6 +363,10 @@ namespace LingoEngine.LGodot.Sprites
             else
                 _Sprite2D.Texture = godotPicture.TextureGodot;
         }
+        public void UpdateTexture(ILingoTexture2D texture)
+        {
+            _Sprite2D.Texture = ((LingoGodotTexture2D)texture).Texture;
+        }
         private void UpdateMemberFilmLoop(LingoGodotFilmLoopMember filmLoop)
         {
             var size = filmLoop.GetBoundingBox();
