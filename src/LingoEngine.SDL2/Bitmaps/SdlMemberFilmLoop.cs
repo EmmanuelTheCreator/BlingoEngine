@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using LingoEngine.Bitmaps;
 using LingoEngine.FilmLoops;
 using LingoEngine.Members;
@@ -14,6 +15,10 @@ using LingoEngine.Sprites;
 
 namespace LingoEngine.SDL2.Pictures;
 
+/// <summary>
+/// SDL implementation of a film loop member. It composes the layers of a
+/// <see cref="LingoFilmLoopMember"/> into an SDL texture for rendering.
+/// </summary>
 public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
 {
     private LingoFilmLoopMember _member = null!;
@@ -24,16 +29,22 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
     public LingoFilmLoopFraming Framing { get; set; } = LingoFilmLoopFraming.Auto;
     public bool Loop { get; set; } = true;
 
+    /// <summary>Initializes the film loop with its owning member.</summary>
     internal void Init(LingoFilmLoopMember member)
     {
         _member = member;
     }
+
+    /// <summary>SDL film loops do not retain sprites, so this is a no-op.</summary>
     public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
+
+    /// <summary>Marks the film loop as loaded.</summary>
     public void Preload()
     {
         IsLoaded = true;
     }
 
+    /// <summary>Releases any GPU resources held by the film loop.</summary>
     public void Unload()
     {
         if (Texture is SdlTexture2D tex && tex.Texture != nint.Zero)
@@ -44,17 +55,20 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
         IsLoaded = false;
     }
 
+    /// <summary>Clears media data and unloads any cached texture.</summary>
     public void Erase()
     {
         Media = null;
         Unload();
     }
 
+    /// <summary>Imports media from an external file. Not implemented.</summary>
     public void ImportFileInto()
     {
         // not implemented
     }
 
+    /// <summary>Copies the encoded media to the clipboard.</summary>
     public void CopyToClipboard()
     {
         if (Media == null) return;
@@ -62,6 +76,7 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
         SdlClipboard.SetText(base64);
     }
 
+    /// <summary>Pastes encoded media from the clipboard if available.</summary>
     public void PasteClipboardInto()
     {
         var data = SdlClipboard.GetText();
@@ -75,79 +90,51 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
         }
     }
 
+    /// <summary>
+    /// Composes the provided layers into a single SDL texture using the
+    /// <see cref="LingoFilmLoopComposer"/> for layout and transforms.
+    /// </summary>
+    /// <returns>The composed texture for rendering.</returns>
     public ILingoTexture2D ComposeTexture(LingoSprite2D hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers)
     {
         var sdlSprite = hostSprite.FrameworkObj as SdlSprite;
         if (sdlSprite == null)
             return Texture ?? new SdlTexture2D(nint.Zero, 0, 0);
 
-        var bounds = _member.GetBoundingBox();
-        Offset = new LingoPoint(-bounds.Left, -bounds.Top);
-        int width = (int)MathF.Ceiling(bounds.Width);
-        int height = (int)MathF.Ceiling(bounds.Height);
+        var prep = LingoFilmLoopComposer.Prepare(_member, Framing, layers);
+        Offset = prep.Offset;
+        int width = prep.Width;
+        int height = prep.Height;
 
         nint surface = SDL.SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL.SDL_PIXELFORMAT_RGBA8888);
         if (surface == nint.Zero)
             return Texture ?? new SdlTexture2D(nint.Zero, width, height);
 
-        foreach (var layer in layers)
+        foreach (var info in prep.Layers)
         {
-            if (layer.Member is not LingoMemberBitmap pic)
+            if (info.Bitmap is not SdlMemberBitmap bmp)
                 continue;
-            var bmp = pic.Framework<SdlMemberBitmap>();
             var src = bmp.Surface;
             if (src == nint.Zero)
                 continue;
 
-            int destW = (int)layer.Width;
-            int destH = (int)layer.Height;
-            int srcW = bmp.Width;
-            int srcH = bmp.Height;
-
             nint srcSurf = src;
             bool freeSrc = false;
-            if (Framing == LingoFilmLoopFraming.Scale)
+            if (info.SrcX != 0 || info.SrcY != 0 || info.SrcW != bmp.Width || info.SrcH != bmp.Height || info.DestW != info.SrcW || info.DestH != info.SrcH)
             {
-                if (destW != srcW || destH != srcH)
-                {
-                    srcSurf = SDL.SDL_CreateRGBSurfaceWithFormat(0, destW, destH, 32, SDL.SDL_PIXELFORMAT_RGBA8888);
-                    if (srcSurf == nint.Zero)
-                        continue;
-                    SDL.SDL_Rect srect = new SDL.SDL_Rect { x = 0, y = 0, w = srcW, h = srcH };
-                    SDL.SDL_Rect drect = new SDL.SDL_Rect { x = 0, y = 0, w = destW, h = destH };
-                    SDL.SDL_BlitScaled(src, ref srect, srcSurf, ref drect);
-                    freeSrc = true;
-                }
-            }
-            else
-            {
-                int cropW = Math.Min(destW, srcW);
-                int cropH = Math.Min(destH, srcH);
-                int cropX = (srcW - cropW) / 2;
-                int cropY = (srcH - cropH) / 2;
-                srcSurf = SDL.SDL_CreateRGBSurfaceWithFormat(0, cropW, cropH, 32, SDL.SDL_PIXELFORMAT_RGBA8888);
+                srcSurf = SDL.SDL_CreateRGBSurfaceWithFormat(0, info.DestW, info.DestH, 32, SDL.SDL_PIXELFORMAT_RGBA8888);
                 if (srcSurf == nint.Zero)
                     continue;
-                SDL.SDL_Rect srect = new SDL.SDL_Rect { x = cropX, y = cropY, w = cropW, h = cropH };
-                SDL.SDL_Rect drect = new SDL.SDL_Rect { x = 0, y = 0, w = cropW, h = cropH };
-                SDL.SDL_BlitSurface(src, ref srect, srcSurf, ref drect);
-                destW = cropW;
-                destH = cropH;
+                SDL.SDL_Rect srect = new SDL.SDL_Rect { x = info.SrcX, y = info.SrcY, w = info.SrcW, h = info.SrcH };
+                SDL.SDL_Rect drect = new SDL.SDL_Rect { x = 0, y = 0, w = info.DestW, h = info.DestH };
+                if (Framing == LingoFilmLoopFraming.Scale)
+                    SDL.SDL_BlitScaled(src, ref srect, srcSurf, ref drect);
+                else
+                    SDL.SDL_BlitSurface(src, ref srect, srcSurf, ref drect);
                 freeSrc = true;
             }
 
-            var srcCenter = new Vector2(destW / 2f, destH / 2f);
-            var pos = new Vector2(layer.LocH + Offset.X, layer.LocV + Offset.Y);
-            var scale = new Vector2(layer.FlipH ? -1 : 1, layer.FlipV ? -1 : 1);
-            float skewX = (float)Math.Tan(layer.Skew * Math.PI / 180f);
-            var transform = Matrix3x2.Identity;
-            transform *= Matrix3x2.CreateTranslation(-srcCenter);
-            transform *= Matrix3x2.CreateScale(scale);
-            transform *= Matrix3x2.CreateSkew(skewX, 0);
-            transform *= Matrix3x2.CreateRotation((float)(layer.Rotation * Math.PI / 180f));
-            transform *= Matrix3x2.CreateTranslation(pos);
-
-            BlendSurface(surface, srcSurf, transform, Math.Clamp(layer.Blend / 100f, 0f, 1f));
+            BlendSurface(surface, srcSurf, info.Transform.Matrix, info.Alpha);
 
             if (freeSrc)
                 SDL.SDL_FreeSurface(srcSurf);
@@ -190,9 +177,10 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
         byte* dpix = (byte*)dSurf.pixels;
         byte* spix = (byte*)sSurf.pixels;
 
-        for (int y = minY; y < maxY; y++)
+        Parallel.For(minY, maxY, y =>
         {
-            if (y < 0 || y >= dSurf.h) continue;
+            if (y < 0 || y >= dSurf.h) return;
+            byte* drow = dpix + y * dSurf.pitch;
             for (int x = minX; x < maxX; x++)
             {
                 if (x < 0 || x >= dSurf.w) continue;
@@ -204,14 +192,14 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
                 byte* sp = spix + sy * sSurf.pitch + sx * 4;
                 float a = sp[3] / 255f * alpha;
                 if (a <= 0f) continue;
-                byte* dp = dpix + y * dSurf.pitch + x * 4;
+                byte* dp = drow + x * 4;
                 float invA = 1f - a;
                 dp[0] = (byte)(sp[0] * a + dp[0] * invA);
                 dp[1] = (byte)(sp[1] * a + dp[1] * invA);
                 dp[2] = (byte)(sp[2] * a + dp[2] * invA);
                 dp[3] = (byte)(sp[3] * a + dp[3] * invA);
             }
-        }
+        });
 
         SDL.SDL_UnlockSurface(src);
         SDL.SDL_UnlockSurface(dest);

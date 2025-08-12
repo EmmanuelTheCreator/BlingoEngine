@@ -9,6 +9,8 @@ using LingoEngine.SDL2;
 using LingoEngine.SDL2.Core;
 using LingoEngine.Sprites;
 using LingoEngine.Texts;
+using LingoEngine.SDL2.Shapes;
+using LingoEngine.Shapes;
 
 namespace LingoEngine.SDL2.Sprites;
 
@@ -292,6 +294,21 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
             case LingoMemberField field:
                 field.Framework<SdlMemberField>().Preload();
                 break;
+            case LingoMemberShape shape:
+                var sh = shape.Framework<SdlMemberShape>();
+                sh.Preload();
+                if (_texture != nint.Zero)
+                {
+                    SDL.SDL_DestroyTexture(_texture);
+                    _texture = nint.Zero;
+                }
+                if (sh.Surface != nint.Zero)
+                {
+                    _texture = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, sh.Surface);
+                    Width = sh.Width;
+                    Height = sh.Height;
+                }
+                break;
         }
         ApplyInk();
     }
@@ -304,7 +321,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
         SDL.SDL_BlendFactor.SDL_BLENDFACTOR_ONE,
         SDL.SDL_BlendOperation.SDL_BLENDOPERATION_SUBTRACT);
 
-    private static readonly SDL.SDL_BlendMode _lightBlend = SDL.SDL_ComposeCustomBlendMode(
+    private static readonly SDL.SDL_BlendMode _lightestBlend = SDL.SDL_ComposeCustomBlendMode(
         SDL.SDL_BlendFactor.SDL_BLENDFACTOR_ONE,
         SDL.SDL_BlendFactor.SDL_BLENDFACTOR_ONE,
         SDL.SDL_BlendOperation.SDL_BLENDOPERATION_MAXIMUM,
@@ -312,16 +329,26 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
         SDL.SDL_BlendFactor.SDL_BLENDFACTOR_ONE,
         SDL.SDL_BlendOperation.SDL_BLENDOPERATION_MAXIMUM);
 
+    private static readonly SDL.SDL_BlendMode _darkestBlend = SDL.SDL_ComposeCustomBlendMode(
+        SDL.SDL_BlendFactor.SDL_BLENDFACTOR_ONE,
+        SDL.SDL_BlendFactor.SDL_BLENDFACTOR_ONE,
+        SDL.SDL_BlendOperation.SDL_BLENDOPERATION_MINIMUM,
+        SDL.SDL_BlendFactor.SDL_BLENDFACTOR_ONE,
+        SDL.SDL_BlendFactor.SDL_BLENDFACTOR_ONE,
+        SDL.SDL_BlendOperation.SDL_BLENDOPERATION_MINIMUM);
+
     private void ApplyInk()
     {
         _blendMode = _ink switch
         {
             (int)LingoInkType.AddPin => SDL.SDL_BlendMode.SDL_BLENDMODE_ADD,
             (int)LingoInkType.Add => SDL.SDL_BlendMode.SDL_BLENDMODE_ADD,
-            //(int)LingoInkType.SubPin => _subtractBlend,
-            //(int)LingoInkType.Sub => _subtractBlend,
-            //(int)LingoInkType.Dark => SDL.SDL_BlendMode.SDL_BLENDMODE_MOD,
-            //(int)LingoInkType.Light => _lightBlend,
+            (int)LingoInkType.SubstractPin => _subtractBlend,
+            (int)LingoInkType.Substract => _subtractBlend,
+            (int)LingoInkType.Darken => SDL.SDL_BlendMode.SDL_BLENDMODE_MOD,
+            (int)LingoInkType.Lighten => SDL.SDL_BlendMode.SDL_BLENDMODE_ADD,
+            (int)LingoInkType.Lightest => _lightestBlend,
+            (int)LingoInkType.Darkest => _darkestBlend,
             _ => SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND,
         };
         ComponentContext.BlendMode = _blendMode;

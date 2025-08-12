@@ -15,8 +15,7 @@ namespace LingoEngine.SDL2.Gfx
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;
         public string Text { get; set; } = string.Empty;
         public bool Enabled { get; set; } = true;
-        private ILingoImageTexture? _icon;
-        public ILingoImageTexture? IconTexture { get => _icon; set => _icon = value; }
+        public ILingoImageTexture? IconTexture { get; set; }
 
         public object FrameworkNode => this;
 

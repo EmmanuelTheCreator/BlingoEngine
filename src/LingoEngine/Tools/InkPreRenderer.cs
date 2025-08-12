@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.Tools
@@ -37,61 +38,68 @@ namespace LingoEngine.Tools
         public static byte[] Apply(ReadOnlySpan<byte> rgba, LingoInkType ink, LingoColor transparentColor)
         {
             byte[] result = rgba.ToArray();
-            var maxLength = result.Length - 3;
+            int pixelCount = result.Length / 4;
+
             switch (ink)
             {
                 case LingoInkType.BackgroundTransparent:
                 case LingoInkType.Matte:
-                    for (int i = 0; i < maxLength; i += 4)
+                    Parallel.For(0, pixelCount, idx =>
                     {
+                        int i = idx * 4;
                         if (result[i] == transparentColor.R &&
                             result[i + 1] == transparentColor.G &&
                             result[i + 2] == transparentColor.B)
                         {
                             result[i + 3] = 0;
                         }
-                    }
+                    });
                     break;
                 case LingoInkType.Blend:
-                    for (int i = 0; i < maxLength; i += 4)
+                    Parallel.For(0, pixelCount, idx =>
                     {
+                        int i = idx * 4;
                         byte a = result[i + 3];
                         result[i] = (byte)(result[i] * a / 255);
                         result[i + 1] = (byte)(result[i + 1] * a / 255);
                         result[i + 2] = (byte)(result[i + 2] * a / 255);
-                    }
+                    });
                     break;
                 case LingoInkType.Reverse:
                 case LingoInkType.NotCopy:
                 case LingoInkType.NotReverse:
-                    for (int i = 0; i < maxLength; i += 4)
+                    Parallel.For(0, pixelCount, idx =>
                     {
+                        int i = idx * 4;
                         result[i] = (byte)(255 - result[i]);
                         result[i + 1] = (byte)(255 - result[i + 1]);
                         result[i + 2] = (byte)(255 - result[i + 2]);
-                    }
+                    });
                     break;
                 case LingoInkType.Ghost:
                 case LingoInkType.NotGhost:
-                    for (int i = 0; i < maxLength; i += 4)
+                    Parallel.For(0, pixelCount, idx =>
                     {
+                        int i = idx * 4;
                         result[i + 3] = (byte)(result[i + 3] / 2);
-                    }
+                    });
                     break;
                 case LingoInkType.Mask:
-                    for (int i = 0; i < maxLength; i += 4)
+                    Parallel.For(0, pixelCount, idx =>
                     {
+                        int i = idx * 4;
                         result[i] = (byte)(255 - result[i]);
                         result[i + 1] = (byte)(255 - result[i + 1]);
                         result[i + 2] = (byte)(255 - result[i + 2]);
                         result[i + 3] = (byte)(result[i + 3] / 2);
-                    }
+                    });
                     break;
                 case LingoInkType.NotTransparent:
-                    for (int i = 0; i < maxLength; i += 4)
+                    Parallel.For(0, pixelCount, idx =>
                     {
+                        int i = idx * 4;
                         result[i + 3] = 255;
-                    }
+                    });
                     break;
             }
 
