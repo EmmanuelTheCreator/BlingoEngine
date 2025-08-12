@@ -38,7 +38,7 @@ namespace LingoEngine.FrameworkCommunication
         /// <summary>Creates a new cast member instance.</summary>
         T CreateMember<T>(ILingoCast cast, int numberInCast, string name = "") where T : LingoMember;
         /// <summary>Creates a picture member.</summary>
-        LingoMemberBitmap CreateMemberBitmap(ILingoCast cast,int numberInCast, string name = "", string? fileName = null,
+        LingoMemberBitmap CreateMemberBitmap(ILingoCast cast, int numberInCast, string name = "", string? fileName = null,
             LingoPoint regPoint = default);
         /// <summary>Creates a sound member.</summary>
         LingoMemberSound CreateMemberSound(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default);
@@ -154,6 +154,6 @@ namespace LingoEngine.FrameworkCommunication
         T CreateBehavior<T>(LingoMovie lingoMovie) where T : LingoSpriteBehavior;
         /// <summary>Creates a movie script.</summary>
         T CreateMovieScript<T>(LingoMovie lingoMovie) where T : LingoMovieScript;
-        
+
     }
 }

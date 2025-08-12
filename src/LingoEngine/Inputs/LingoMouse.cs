@@ -1,4 +1,5 @@
-﻿using LingoEngine.Events;
+using System;
+using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
@@ -218,6 +219,11 @@ namespace LingoEngine.Inputs
             _cursor.CursorType = cursorType;
             _frameworkObj.SetCursor(cursorType);
         }
+
+        /// <summary>
+        /// Creates a proxy mouse that forwards events within the bounds supplied by <paramref name="provider"/>.
+        /// </summary>
+        public LingoMouse CreateNewInstance(ILingoMouseRectProvider provider) => new ProxyMouse(this, provider);
         /// <summary>
         /// Called from communiction framework mouse
         /// </summary>
@@ -285,6 +291,90 @@ namespace LingoEngine.Inputs
                 _onRelease(this);
             }
 
+        }
+
+        private sealed class ProxyMouse : LingoMouse, IDisposable
+        {
+            private readonly LingoMouse _parent;
+            private readonly ILingoMouseRectProvider _provider;
+            private readonly ILingoMouseSubscription _downSub;
+            private readonly ILingoMouseSubscription _upSub;
+            private readonly ILingoMouseSubscription _moveSub;
+            private readonly ILingoMouseSubscription _wheelSub;
+
+            internal ProxyMouse(LingoMouse parent, ILingoMouseRectProvider provider)
+                : base(parent.Framework<ILingoFrameworkMouse>())
+            {
+                _parent = parent;
+                _provider = provider;
+                _downSub = parent.OnMouseDown(HandleDown);
+                _upSub = parent.OnMouseUp(HandleUp);
+                _moveSub = parent.OnMouseMove(HandleMove);
+                _wheelSub = parent.OnMouseWheel(HandleWheel);
+            }
+
+            private bool ShouldForward(LingoMouseEvent e)
+            {
+                if (!_provider.IsActivated) return false;
+                var r = _provider.MouseOffset;
+                return e.MouseH >= r.X && e.MouseH < r.X + r.Width &&
+                       e.MouseV >= r.Y && e.MouseV < r.Y + r.Height;
+            }
+
+            private void UpdateFromParent(LingoMouseEvent e)
+            {
+                var r = _provider.MouseOffset;
+                MouseH = e.MouseH - r.X;
+                MouseV = e.MouseV - r.Y;
+                MouseDown = _parent.MouseDown;
+                MouseUp = _parent.MouseUp;
+                RightMouseDown = _parent.RightMouseDown;
+                RightMouseUp = _parent.RightMouseUp;
+                LeftMouseDown = _parent.LeftMouseDown;
+                MiddleMouseDown = _parent.MiddleMouseDown;
+                DoubleClick = _parent.DoubleClick;
+            }
+
+            private void HandleDown(LingoMouseEvent e)
+            {
+                if (!ShouldForward(e)) return;
+                UpdateFromParent(e);
+                base.DoMouseDown();
+                UpdateMouseState();
+            }
+
+            private void HandleUp(LingoMouseEvent e)
+            {
+                if (!ShouldForward(e)) return;
+                UpdateFromParent(e);
+                base.DoMouseUp();
+                UpdateMouseState();
+            }
+
+            private void HandleMove(LingoMouseEvent e)
+            {
+                if (!ShouldForward(e)) return;
+                UpdateFromParent(e);
+                base.DoMouseMove();
+                UpdateMouseState();
+            }
+
+            private void HandleWheel(LingoMouseEvent e)
+            {
+                if (!ShouldForward(e)) return;
+                UpdateFromParent(e);
+                WheelDelta = e.WheelDelta;
+                base.DoMouseWheel(e.WheelDelta);
+                UpdateMouseState();
+            }
+
+            public void Dispose()
+            {
+                _downSub.Release();
+                _upSub.Release();
+                _moveSub.Release();
+                _wheelSub.Release();
+            }
         }
     }
 }

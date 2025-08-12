@@ -1,5 +1,6 @@
 namespace LingoEngine.SDL2;
 using System;
+using System.Collections.Generic;
 using LingoEngine.Core;
 using LingoEngine.SDL2.SDLL;
 using LingoEngine.SDL2.Core;
@@ -17,8 +18,10 @@ public class SdlRootContext : IDisposable, ISdlRootComponentContext
     private LingoPlayer _lPlayer;
 
     public LingoDebugOverlay DebugOverlay { get; set; }
-    internal SdlKey Key { get; } = new();
-    internal SdlMouse Mouse { get; } = new SdlMouse(new Lazy<LingoMouse>(() => null!));
+    internal List<SdlKey> Keys { get; } = new() { new SdlKey() };
+    internal List<SdlMouse> Mice { get; } = new() { new SdlMouse(new Lazy<LingoMouse>(() => null!)) };
+    internal SdlKey Key => Keys[0];
+    internal SdlMouse Mouse => Mice[0];
     private bool _f1Pressed;
     public LingoSDLComponentContainer ComponentContainer { get; } = new();
     internal SdlFactory Factory { get; set; } = null!;
@@ -48,8 +51,10 @@ public class SdlRootContext : IDisposable, ISdlRootComponentContext
             {
                 if (e.type == SDL.SDL_EventType.SDL_QUIT)
                     running = false;
-                Key.ProcessEvent(e);
-                Mouse.ProcessEvent(e);
+                foreach (var k in Keys)
+                    k.ProcessEvent(e);
+                foreach (var m in Mice)
+                    m.ProcessEvent(e);
             }
             uint now = SDL.SDL_GetTicks();
             float delta = (now - last) / 1000f;

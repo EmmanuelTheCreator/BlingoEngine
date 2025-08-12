@@ -12,6 +12,8 @@ namespace LingoEngine.Gfx
         string Title { get; set; }
         LingoColor BackgroundColor { get; set; }
         bool IsPopup { get; set; }
+        /// <summary>Whether the window is borderless (no title bar).</summary>
+        bool Borderless { get; set; }
 
         /// <summary>Raised when the window is opened.</summary>
         event Action? OnOpen;

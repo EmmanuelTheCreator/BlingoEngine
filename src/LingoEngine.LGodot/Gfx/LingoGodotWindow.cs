@@ -3,6 +3,8 @@ using LingoEngine.Gfx;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.LGodot.Styles;
 using LingoEngine.Primitives;
+using LingoEngine.Inputs;
+using LingoEngine.LGodot;
 using System;
 using static Godot.Control;
 
@@ -23,7 +25,16 @@ namespace LingoEngine.LGodot.Gfx
         private bool _isPopup;
         public LingoGodotWindow(LingoGfxWindow window, ILingoGodotStyleManager lingoGodotStyleManager)
         {
-            window.Init(this);
+            LingoMouse? mouse = null;
+            var mouseImpl = new LingoGodotMouseArea(this, new Lazy<LingoMouse>(() => mouse!));
+            mouse = new LingoMouse(mouseImpl);
+
+            LingoKey? key = null;
+            var keyImpl = new LingoGodotKey(this, new Lazy<LingoKey>(() => key!));
+            key = new LingoKey(keyImpl);
+            keyImpl.SetLingoKey(key);
+
+            window.Init(this, mouse, key);
             //Borderless = true;
             //ExtendToTitle = true;
             Theme = lingoGodotStyleManager.GetTheme(LingoGodotThemeElementType.PopupWindow);
@@ -50,15 +61,18 @@ namespace LingoEngine.LGodot.Gfx
 
         public float X { get => Position.X; set => Position = new Vector2I((int)value, Position.Y); }
         public float Y { get => Position.Y; set => Position = new Vector2I(Position.X, (int)value); }
-        public float Width { get => Size.X; 
-            set { 
+        public float Width
+        {
+            get => Size.X;
+            set
+            {
                 Size = new Vector2I((int)value, Size.Y);
                 _panel.Size = Size;
-            } 
+            }
         }
         public float Height
         {
-            get => Size.Y; 
+            get => Size.Y;
             set
             {
                 Size = new Vector2I(Size.X, (int)value);
@@ -70,7 +84,7 @@ namespace LingoEngine.LGodot.Gfx
         public new string Title { get => base.Title; set => base.Title = value; }
         public bool IsPopup
         {
-            get => _isPopup; 
+            get => _isPopup;
             set
             {
                 _isPopup = value;
@@ -78,6 +92,7 @@ namespace LingoEngine.LGodot.Gfx
                 Exclusive = value;
             }
         }
+        public bool Borderless { get => base.Borderless; set => base.Borderless = value; }
         public LingoColor BackgroundColor
         {
             get => _panelStyle.BgColor.ToLingoColor();
