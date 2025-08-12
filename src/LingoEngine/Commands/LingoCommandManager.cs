@@ -1,15 +1,16 @@
 using System;
 using System.Linq;
+using LingoEngine.Core;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Commands;
 
 internal sealed class LingoCommandManager : ILingoCommandManager
 {
-    private readonly IServiceProvider _provider;
+    private readonly ILingoServiceProvider _provider;
     private readonly Dictionary<Type, List<Type>> _handlers = new();
 
-    public LingoCommandManager(IServiceProvider provider) => _provider = provider;
+    public LingoCommandManager(ILingoServiceProvider provider) => _provider = provider;
 
     public void Register<THandler, TCommand>()
         where THandler : ICommandHandler<TCommand>

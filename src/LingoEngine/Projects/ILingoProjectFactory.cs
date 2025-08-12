@@ -10,6 +10,6 @@ public interface ILingoProjectFactory
 {
     void Setup(ILingoEngineRegistration engineRegistration);
     void LoadCastLibs(ILingoCastLibsContainer castlibContainer, LingoPlayer lingoPlayer);
-    ILingoMovie? LoadStartupMovie(IServiceProvider serviceProvider, LingoPlayer lingoPlayer);
+    ILingoMovie? LoadStartupMovie(ILingoServiceProvider serviceProvider, LingoPlayer lingoPlayer);
     void Run(ILingoMovie movie, bool autoPlayMovie);
 }

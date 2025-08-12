@@ -22,7 +22,7 @@ namespace LingoEngine.Setup
         ILingoEngineRegistration WithProjectSettings(Action<LingoProjectSettings> setup);
         LingoPlayer Build();
         ILingoProjectFactory BuildAndRunProject();
-        ILingoEngineRegistration AddBuildAction(Action<IServiceProvider> buildAction);
+        ILingoEngineRegistration AddBuildAction(Action<ILingoServiceProvider> buildAction);
         ILingoEngineRegistration SetProjectFactory<TLingoProjectFactory>() where TLingoProjectFactory : ILingoProjectFactory, new();
     }
     public interface IMovieRegistration
@@ -35,7 +35,9 @@ namespace LingoEngine.Setup
     {
         public static IServiceCollection RegisterLingoEngine(this IServiceCollection container, Action<ILingoEngineRegistration> config)
         {
-            var engineRegistration = new LingoEngineRegistration(container);
+            var lingoServiceProvider = new LingoServiceProvider();
+            container.AddSingleton<ILingoServiceProvider>(lingoServiceProvider);
+            var engineRegistration = new LingoEngineRegistration(container, lingoServiceProvider);
             engineRegistration.RegisterCommonServices();
             container.AddSingleton<ILingoEngineRegistration>(engineRegistration);
             config(engineRegistration);
@@ -48,21 +50,23 @@ namespace LingoEngine.Setup
         private readonly LingoProxyServiceCollection _proxy;
         private readonly Dictionary<string, MovieRegistration> _Movies = new();
         private readonly List<(string Name, string FileName)> _Fonts = new();
-        private readonly List<Action<IServiceProvider>> _BuildActions = new();
+        private readonly List<Action<ILingoServiceProvider>> _BuildActions = new();
         private Action<ILingoFrameworkFactory>? _FrameworkFactorySetup;
         private IServiceProvider? _serviceProvider;
+        private readonly ILingoServiceProvider _lingoServiceProvider;
         private Action<LingoProjectSettings> _projectSettingsSetup = p => { };
         private bool _hasBeenBuild = false;
         private LingoPlayer? _player;
         private Func<ILingoProjectFactory>? _makeFactoryMethod;
         private ILingoProjectFactory? _projectFactory;
         private ILingoMovie? _startupMovie;
-        public IServiceProvider? ServiceProvider => _serviceProvider;
+        public ILingoServiceProvider ServiceProvider => _lingoServiceProvider;
 
-        public LingoEngineRegistration(IServiceCollection container)
+        public LingoEngineRegistration(IServiceCollection container, ILingoServiceProvider lingoServiceProvider)
         {
             _container = container;
             _proxy = new LingoProxyServiceCollection(container);
+            _lingoServiceProvider = lingoServiceProvider;
         }
 
 
@@ -85,9 +89,9 @@ namespace LingoEngine.Setup
 
             if (_serviceProvider != null)
             {
-                var cmdManager = _serviceProvider.GetService<ILingoCommandManager>();
+                var cmdManager = _lingoServiceProvider.GetService<ILingoCommandManager>();
                 cmdManager?.Clear(preserveNamespaceFragment);
-                var eventMediator = _serviceProvider.GetService<ILingoEventMediator>();
+                var eventMediator = _lingoServiceProvider.GetService<ILingoEventMediator>();
                 eventMediator?.Clear(preserveNamespaceFragment);
             }
         }
@@ -111,17 +115,18 @@ namespace LingoEngine.Setup
         }
 
 
-     
+
 
         public LingoPlayer Build()
         {
             if (_hasBeenBuild && _player != null) return _player;
             CreateProjectFactory();
             _serviceProvider = _container.BuildServiceProvider();
-            var player = _serviceProvider.GetRequiredService<LingoPlayer>();
+            _lingoServiceProvider.SetServiceProvider(_serviceProvider);
+            var player = _lingoServiceProvider.GetRequiredService<LingoPlayer>();
             player.SetActionOnNewMovie(ActionOnNewMovie);
             if (_FrameworkFactorySetup != null)
-                _FrameworkFactorySetup(_serviceProvider.GetRequiredService<ILingoFrameworkFactory>());
+                _FrameworkFactorySetup(_lingoServiceProvider.GetRequiredService<ILingoFrameworkFactory>());
             _player = player;
             InitializeProject();
             _hasBeenBuild = true;
@@ -150,17 +155,17 @@ namespace LingoEngine.Setup
         {
             if (_projectFactory == null || _serviceProvider == null || _player == null)
                 return;
-            
-            _projectSettingsSetup(_serviceProvider.GetRequiredService<LingoProjectSettings>());
-            LoadFonts(_serviceProvider);
-            _BuildActions.ForEach(b => b(_serviceProvider));
-            _serviceProvider.GetRequiredService<ILingoCommandManager>()
-                .DiscoverAndSubscribe(_serviceProvider);
-            _projectFactory.LoadCastLibs(_serviceProvider.GetRequiredService<ILingoCastLibsContainer>(), _player);
-            _startupMovie = _projectFactory.LoadStartupMovie(_serviceProvider, _player);
+
+            _projectSettingsSetup(_lingoServiceProvider.GetRequiredService<LingoProjectSettings>());
+            LoadFonts(_lingoServiceProvider);
+            _BuildActions.ForEach(b => b(_lingoServiceProvider));
+            _lingoServiceProvider.GetRequiredService<ILingoCommandManager>()
+                .DiscoverAndSubscribe(_lingoServiceProvider);
+            _projectFactory.LoadCastLibs(_lingoServiceProvider.GetRequiredService<ILingoCastLibsContainer>(), _player);
+            _startupMovie = _projectFactory.LoadStartupMovie(_lingoServiceProvider, _player);
         }
 
-        private void LoadFonts(IServiceProvider serviceProvider)
+        private void LoadFonts(ILingoServiceProvider serviceProvider)
         {
             var fontsManager = serviceProvider.GetRequiredService<ILingoFontManager>();
             foreach (var font in _Fonts)
@@ -201,7 +206,7 @@ namespace LingoEngine.Setup
             return this;
         }
 
-        public ILingoEngineRegistration AddBuildAction(Action<IServiceProvider> buildAction)
+        public ILingoEngineRegistration AddBuildAction(Action<ILingoServiceProvider> buildAction)
         {
             _BuildActions.Add(buildAction);
             return this;
@@ -233,6 +238,8 @@ namespace LingoEngine.Setup
             if (_hasBeenBuild && _serviceProvider != null)
             {
                 CreateProjectFactory();
+                _serviceProvider = _container.BuildServiceProvider();
+                _lingoServiceProvider.SetServiceProvider(_serviceProvider);
                 InitializeProject();
             }
 

@@ -25,7 +25,7 @@ namespace LingoEngine.Core
         private readonly LingoCastLibsContainer _castLibsContainer;
         private readonly LingoSound _sound;
         private readonly ILingoWindow _window;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly ILingoServiceProvider _serviceProvider;
         private Action<LingoMovie> _actionOnNewMovie;
         private Dictionary<string, LingoMovieEnvironment> _moviesByName = new();
         private List<LingoMovieEnvironment> _movies = new();
@@ -43,7 +43,7 @@ namespace LingoEngine.Core
         public ILingoStage Stage => _Stage;
         /// <inheritdoc/>
         public ILingoCast ActiveCastLib => _castLibsContainer.ActiveCast;
-        
+
         /// <inheritdoc/>
         public ILingoSound Sound => _sound;
         public ILingoStageMouse Mouse => _Mouse;
@@ -80,9 +80,9 @@ namespace LingoEngine.Core
         public ILingoMovie? ActiveMovie { get; private set; }
         public event Action<ILingoMovie?>? ActiveMovieChanged;
 
-        public LingoPlayer(IServiceProvider serviceProvider, ILingoFrameworkFactory factory, ILingoCastLibsContainer castLibsContainer, ILingoWindow window, ILingoClock lingoClock, ILingoSystem lingoSystem)
+        public LingoPlayer(ILingoServiceProvider serviceProvider, ILingoFrameworkFactory factory, ILingoCastLibsContainer castLibsContainer, ILingoWindow window, ILingoClock lingoClock, ILingoSystem lingoSystem)
         {
-            _actionOnNewMovie= m => { };
+            _actionOnNewMovie = m => { };
             _serviceProvider = serviceProvider;
             Factory = factory;
             _castLibsContainer = (LingoCastLibsContainer)castLibsContainer;
@@ -114,7 +114,7 @@ namespace LingoEngine.Core
         /// <inheritdoc/>
         public void Cursor(int cursorNum)
         {
-            
+
         }
         /// <inheritdoc/>
         public void Halt()
@@ -140,7 +140,7 @@ namespace LingoEngine.Core
         public ILingoMovie NewMovie(string name, bool andActivate = true)
         {
             // Create the default cast
-            if (_castLibsContainer.Count == 0) 
+            if (_castLibsContainer.Count == 0)
                 _castLibsContainer.AddCast("Internal");
 
             // Create a new movies scope, needed for behaviours.
@@ -148,7 +148,7 @@ namespace LingoEngine.Core
 
             // Create the movie.
             var movieEnv = (LingoMovieEnvironment)scope.ServiceProvider.GetRequiredService<ILingoMovieEnvironment>();
-            movieEnv.Init(name, _movies.Count + 1, this, _LingoKey, _sound, _Mouse, _Stage, _System, Clock, _castLibsContainer, scope,m =>
+            movieEnv.Init(name, _movies.Count + 1, this, _LingoKey, _sound, _Mouse, _Stage, _System, Clock, _castLibsContainer, scope, m =>
             {
                 // On remove movie
                 var movieEnvironment = m.GetEnvironment();
