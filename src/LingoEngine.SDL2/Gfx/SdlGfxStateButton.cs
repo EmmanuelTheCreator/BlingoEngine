@@ -6,41 +6,54 @@ using LingoEngine.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.SDL2.Pictures;
 using LingoEngine.SDL2.SDLL;
+using LingoEngine.SDL2.Core;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxStateButton : ILingoFrameworkGfxStateButton, IDisposable, ISdlRenderElement
+    internal class SdlGfxStateButton : SdlGfxComponent, ILingoFrameworkGfxStateButton, IDisposable
     {
-        private readonly nint _renderer;
-        private nint _texturePtr;
-        private ILingoImageTexture? _texture;
+        private nint _textureOnPtr;
+        private ILingoImageTexture? _textureOn;
+        private nint _textureOffPtr;
+        private ILingoImageTexture? _textureOff;
 
-        public SdlGfxStateButton(nint renderer)
+        public SdlGfxStateButton(SdlFactory factory) : base(factory)
         {
-            _renderer = renderer;
         }
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Width { get; set; }
-        public float Height { get; set; }
-        public bool Visibility { get; set; } = true;
-        public string Name { get; set; } = string.Empty;
         public bool Enabled { get; set; } = true;
         public string Text { get; set; } = string.Empty;
         public Bitmaps.ILingoImageTexture? TextureOn
         {
-            get => _texture;
+            get => _textureOn;
             set
             {
-                _texture = value;
-                if (_texturePtr != nint.Zero)
+                _textureOn = value;
+                if (_textureOnPtr != nint.Zero)
                 {
-                    SDL.SDL_DestroyTexture(_texturePtr);
-                    _texturePtr = nint.Zero;
+                    SDL.SDL_DestroyTexture(_textureOnPtr);
+                    _textureOnPtr = nint.Zero;
                 }
                 if (value is SdlImageTexture img)
                 {
-                    _texturePtr = SDL.SDL_CreateTextureFromSurface(_renderer, img.SurfaceId);
+                    _textureOnPtr = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, img.SurfaceId);
+                }
+            }
+        }
+
+        public Bitmaps.ILingoImageTexture? TextureOff
+        {
+            get => _textureOff;
+            set
+            {
+                _textureOff = value;
+                if (_textureOffPtr != nint.Zero)
+                {
+                    SDL.SDL_DestroyTexture(_textureOffPtr);
+                    _textureOffPtr = nint.Zero;
+                }
+                if (value is SdlImageTexture img)
+                {
+                    _textureOffPtr = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, img.SurfaceId);
                 }
             }
         }
@@ -61,18 +74,19 @@ namespace LingoEngine.SDL2.Gfx
         public event Action? ValueChanged;
         public object FrameworkNode => this;
 
-        public void Render()
+        public override nint Render(LingoSDLRenderContext context)
         {
-            if (!Visibility) return;
+            if (!Visibility) return nint.Zero;
             ImGui.SetCursorPos(new Vector2(X, Y));
             ImGui.PushID(Name);
             if (!Enabled)
                 ImGui.BeginDisabled();
 
-            if (_texturePtr != nint.Zero)
+            nint tex = _isOn ? _textureOnPtr : _textureOffPtr;
+            if (tex != nint.Zero)
             {
                 Vector4 bg = _isOn ? new Vector4(0.25f, 0.25f, 0.25f, 1f) : Vector4.Zero;
-                if (ImGui.ImageButton(Name, _texturePtr, new Vector2(Width, Height), Vector2.Zero, Vector2.One, bg, Vector4.One))
+                if (ImGui.ImageButton(Name, tex, new Vector2(Width, Height), Vector2.Zero, Vector2.One, bg, Vector4.One))
                     IsOn = !_isOn;
             }
             else
@@ -85,15 +99,22 @@ namespace LingoEngine.SDL2.Gfx
             if (!Enabled)
                 ImGui.EndDisabled();
             ImGui.PopID();
+            return nint.Zero;
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
-            if (_texturePtr != nint.Zero)
+            if (_textureOnPtr != nint.Zero)
             {
-                SDL.SDL_DestroyTexture(_texturePtr);
-                _texturePtr = nint.Zero;
+                SDL.SDL_DestroyTexture(_textureOnPtr);
+                _textureOnPtr = nint.Zero;
             }
+            if (_textureOffPtr != nint.Zero)
+            {
+                SDL.SDL_DestroyTexture(_textureOffPtr);
+                _textureOffPtr = nint.Zero;
+            }
+            base.Dispose();
         }
     }
 }

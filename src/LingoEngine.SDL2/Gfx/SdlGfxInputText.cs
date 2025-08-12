@@ -3,23 +3,15 @@ using System.Numerics;
 using ImGuiNET;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
+using LingoEngine.SDL2.Core;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxInputText : ILingoFrameworkGfxInputText, IDisposable, ISdlRenderElement
+    internal class SdlGfxInputText : SdlGfxComponent, ILingoFrameworkGfxInputText, IDisposable
     {
-        private readonly nint _renderer;
-
-        public SdlGfxInputText(nint renderer)
+        public SdlGfxInputText(SdlFactory factory) : base(factory)
         {
-            _renderer = renderer;
         }
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Width { get; set; }
-        public float Height { get; set; }
-        public bool Visibility { get; set; } = true;
-        public string Name { get; set; } = string.Empty;
         public bool Enabled { get; set; } = true;
         private string _text = string.Empty;
         public string Text
@@ -42,9 +34,9 @@ namespace LingoEngine.SDL2.Gfx
 
         public event Action? ValueChanged;
 
-        public void Render()
+        public override nint Render(LingoSDLRenderContext context)
         {
-            if (!Visibility) return;
+            if (!Visibility) return nint.Zero;
 
             ImGui.SetCursorPos(new Vector2(X, Y));
             ImGui.PushID(Name);
@@ -58,8 +50,9 @@ namespace LingoEngine.SDL2.Gfx
             if (!Enabled)
                 ImGui.EndDisabled();
             ImGui.PopID();
+            return nint.Zero;
         }
 
-        public void Dispose() { }
+        public override void Dispose() => base.Dispose();
     }
 }

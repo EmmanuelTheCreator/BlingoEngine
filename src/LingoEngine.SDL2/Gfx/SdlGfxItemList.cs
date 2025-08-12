@@ -1,24 +1,18 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
+using ImGuiNET;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
+using LingoEngine.SDL2.Core;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxItemList : ILingoFrameworkGfxItemList, IDisposable
+    internal class SdlGfxItemList : SdlGfxComponent, ILingoFrameworkGfxItemList, IDisposable
     {
-        private readonly nint _renderer;
-
-        public SdlGfxItemList(nint renderer)
+        public SdlGfxItemList(SdlFactory factory) : base(factory)
         {
-            _renderer = renderer;
         }
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Width { get; set; }
-        public float Height { get; set; }
-        public bool Visibility { get; set; } = true;
-        public string Name { get; set; } = string.Empty;
         public bool Enabled { get; set; } = true;
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;
 
@@ -41,6 +35,44 @@ namespace LingoEngine.SDL2.Gfx
             SelectedKey = null;
             SelectedValue = null;
         }
-        public void Dispose() { }
+        public override void Dispose() => base.Dispose();
+
+        public override nint Render(LingoSDLRenderContext context)
+        {
+            if (!Visibility)
+                return nint.Zero;
+
+            ImGui.SetCursorPos(new Vector2(X, Y));
+            ImGui.PushID(Name);
+
+            if (!Enabled)
+                ImGui.BeginDisabled();
+
+            if (ImGui.BeginListBox("##list", new Vector2(Width, Height)))
+            {
+                for (int i = 0; i < _items.Count; i++)
+                {
+                    var item = _items[i];
+                    bool selected = i == SelectedIndex;
+                    if (ImGui.Selectable(item.Value, selected))
+                    {
+                        SelectedIndex = i;
+                        SelectedKey = item.Key;
+                        SelectedValue = item.Value;
+                        ValueChanged?.Invoke();
+                    }
+                    if (selected)
+                        ImGui.SetItemDefaultFocus();
+                }
+                ImGui.EndListBox();
+            }
+
+            if (!Enabled)
+                ImGui.EndDisabled();
+
+            ImGui.PopID();
+
+            return nint.Zero;
+        }
     }
 }

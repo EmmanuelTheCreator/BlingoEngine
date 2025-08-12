@@ -5,28 +5,32 @@ using LingoEngine.Primitives;
 using LingoEngine.SDL2.Pictures;
 using LingoEngine.SDL2.SDLL;
 using LingoEngine.SDL2.Texts;
+using LingoEngine.SDL2;
+using LingoEngine.SDL2.Core;
 using LingoEngine.Sprites;
 using LingoEngine.Texts;
 
 namespace LingoEngine.SDL2.Sprites;
 
-public class SdlSprite : ILingoFrameworkSprite, IDisposable
+public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
 {
     private readonly Action<SdlSprite> _show;
     private readonly Action<SdlSprite> _hide;
     private readonly Action<SdlSprite> _remove;
     private readonly LingoSprite2D _lingoSprite;
+    public LingoSDLComponentContext ComponentContext { get; }
     internal bool IsDirty { get; set; } = true;
     internal bool IsDirtyMember { get; set; } = true;
 
-    private readonly nint _renderer;
     private nint _texture = nint.Zero;
-    internal nint Renderer => _renderer;
 
-    public SdlSprite(LingoSprite2D sprite, nint renderer, Action<SdlSprite> show, Action<SdlSprite> hide, Action<SdlSprite> remove)
+    private readonly SdlFactory _factory;
+
+    public SdlSprite(LingoSprite2D sprite, SdlFactory factory, Action<SdlSprite> show, Action<SdlSprite> hide, Action<SdlSprite> remove)
     {
         _lingoSprite = sprite;
-        _renderer = renderer;
+        _factory = factory;
+        ComponentContext = factory.CreateContext(this);
         _show = show;
         _hide = hide;
         _remove = remove;
@@ -38,7 +42,17 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
         ApplyInk();
     }
 
-    public bool Visibility { get; set; }
+    private bool _visibility;
+    public bool Visibility
+    {
+        get => _visibility;
+        set
+        {
+            _visibility = value;
+            ComponentContext.Visible = value;
+        }
+    }
+
     private float _blend = 1f;
     public float Blend
     {
@@ -49,10 +63,52 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
             ApplyBlend();
         }
     }
-    public float X { get; set; }
-    public float Y { get; set; }
-    public float Width { get; private set; }
-    public float Height { get; private set; }
+
+    private float _x;
+    public float X
+    {
+        get => _x;
+        set
+        {
+            _x = value;
+            UpdateContextPosition();
+        }
+    }
+
+    private float _y;
+    public float Y
+    {
+        get => _y;
+        set
+        {
+            _y = value;
+            UpdateContextPosition();
+        }
+    }
+
+    private float _width;
+    public float Width
+    {
+        get => _width;
+        private set
+        {
+            _width = value;
+            ComponentContext.TargetWidth = (int)value;
+            UpdateContextPosition();
+        }
+    }
+
+    private float _height;
+    public float Height
+    {
+        get => _height;
+        private set
+        {
+            _height = value;
+            ComponentContext.TargetHeight = (int)value;
+            UpdateContextPosition();
+        }
+    }
     public string Name { get; set; } = string.Empty;
     public LingoPoint RegPoint { get; set; }
     public float DesiredHeight { get; set; }
@@ -65,8 +121,16 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
     }
     public float Rotation { get; set; }
     public float Skew { get; set; }
-    public bool FlipH { get; set; }
-    public bool FlipV { get; set; }
+    public bool FlipH
+    {
+        get => ComponentContext.FlipH;
+        set => ComponentContext.FlipH = value;
+    }
+    public bool FlipV
+    {
+        get => ComponentContext.FlipV;
+        set => ComponentContext.FlipV = value;
+    }
     private bool _directToStage;
     public bool DirectToStage
     {
@@ -75,6 +139,7 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
         {
             _directToStage = value;
             ApplyBlend();
+            ComponentContext.QueueRedraw(this);
         }
     }
 
@@ -87,20 +152,31 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
         {
             _ink = value;
             ApplyInk();
+            ComponentContext.QueueRedraw(this);
         }
     }
 
     public void RemoveMe() { _remove(this); Dispose(); }
     public void Dispose()
     {
+        ComponentContext.Dispose();
         if (_texture != nint.Zero)
         {
             SDL.SDL_DestroyTexture(_texture);
             _texture = nint.Zero;
         }
     }
-    public void Show() { _show(this); Update(); }
-    public void Hide() { _hide(this); }
+    public void Show()
+    {
+        Visibility = true;
+        _show(this);
+    }
+
+    public void Hide()
+    {
+        Visibility = false;
+        _hide(this);
+    }
     public void SetPosition(LingoPoint point) { X = point.X; Y = point.Y; }
 
     public void MemberChanged()
@@ -111,6 +187,7 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
             Height = member.Height;
         }
         IsDirtyMember = true;
+        ComponentContext.QueueRedraw(this);
     }
 
     internal void Update()
@@ -125,9 +202,14 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
         }
     }
 
-    internal void Render(nint renderer)
+    public nint Render(LingoSDLRenderContext context)
     {
-        if (_texture == nint.Zero) return;
+        Update();
+        ComponentContext.Renderer = context.Renderer;
+        if (_texture == nint.Zero)
+        {
+            return nint.Zero;
+        }
         var offset = new LingoPoint();
         if (_lingoSprite.Member is { } member)
         {
@@ -150,19 +232,10 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
             }
         }
 
-        SDL.SDL_Rect dst = new SDL.SDL_Rect
-        {
-            x = (int)(X - offset.X - Width / 2f),
-            y = (int)(Y - offset.Y - Height / 2f),
-            w = (int)Width,
-            h = (int)Height
-        };
-        SDL.SDL_RendererFlip flip = SDL.SDL_RendererFlip.SDL_FLIP_NONE;
-        if (FlipH)
-            flip |= SDL.SDL_RendererFlip.SDL_FLIP_HORIZONTAL;
-        if (FlipV)
-            flip |= SDL.SDL_RendererFlip.SDL_FLIP_VERTICAL;
-        SDL.SDL_RenderCopyEx(renderer, _texture, nint.Zero, ref dst, Rotation, nint.Zero, flip);
+        ComponentContext.OffsetX = offset.X;
+        ComponentContext.OffsetY = offset.Y;
+        UpdateContextPosition();
+        return _texture;
     }
 
     private void UpdateMember()
@@ -181,16 +254,16 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
 
                 if (p.Surface != nint.Zero)
                 {
-                    var tex = p.GetTextureForInk(_lingoSprite.InkType, _lingoSprite.BackColor, _renderer);
-                    if (tex != nint.Zero)
+                    var texInk = p.GetTextureForInk(_lingoSprite.InkType, _lingoSprite.BackColor, ComponentContext.Renderer);
+                    if (texInk != nint.Zero)
                     {
-                        _texture = tex;
+                        _texture = texInk;
                         Width = p.Width;
                         Height = p.Height;
                     }
                     else
                     {
-                        _texture = SDL.SDL_CreateTextureFromSurface(_renderer, p.Surface);
+                        _texture = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, p.Surface);
                         if (_texture != nint.Zero)
                         {
                             Width = p.Width;
@@ -219,18 +292,7 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
                 field.Framework<SdlMemberField>().Preload();
                 break;
         }
-        ApplyBlend();
         ApplyInk();
-    }
-
-    private void ApplyBlend()
-    {
-        byte alpha = (byte)((_directToStage ? 1f : _blend) * 255);
-        if (_texture != nint.Zero)
-        {
-            SDL.SDL_SetTextureAlphaMod(_texture, alpha);
-            SDL.SDL_SetTextureBlendMode(_texture, _blendMode);
-        }
     }
 
     private static readonly SDL.SDL_BlendMode _subtractBlend = SDL.SDL_ComposeCustomBlendMode(
@@ -261,8 +323,20 @@ public class SdlSprite : ILingoFrameworkSprite, IDisposable
             //(int)LingoInkType.Light => _lightBlend,
             _ => SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND,
         };
-        if (_texture != nint.Zero)
-            SDL.SDL_SetTextureBlendMode(_texture, _blendMode);
+        ComponentContext.BlendMode = _blendMode;
+    }
+
+    private void ApplyBlend()
+    {
+        ComponentContext.Blend = _directToStage ? 1f : _blend;
+    }
+
+    private void UpdateContextPosition()
+    {
+        int x = (int)(_x - ComponentContext.OffsetX - ComponentContext.TargetWidth / 2f);
+        int y = (int)(_y - ComponentContext.OffsetY - ComponentContext.TargetHeight / 2f);
+        ComponentContext.X = x;
+        ComponentContext.Y = y;
     }
 
     public void Resize(float w, float h) { Width = w; Height = h; }
