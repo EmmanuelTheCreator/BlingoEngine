@@ -57,9 +57,10 @@ namespace LingoEngine.LGodot.FilmLoops
         {
             var bounds = _member.GetBoundingBox();
             Offset = new LingoPoint(-bounds.Left, -bounds.Top);
-            int width = (int)MathF.Ceiling(bounds.Width);
-            int height = (int)MathF.Ceiling(bounds.Height);
+            int width = (int)MathF.Ceiling(100);
+            int height = (int)MathF.Ceiling(300);
             var image = Image.CreateEmpty(width, height, false, Image.Format.Rgba8);
+            var i = 0;
             foreach (var layer in layers)
             {
                 if (layer.Member is not LingoMemberBitmap pic)
@@ -71,6 +72,7 @@ namespace LingoEngine.LGodot.FilmLoops
                 if (srcTex == null)
                     continue;
                 var srcImg = srcTex.GetImage();
+                DebugToDisk(srcImg, $"filmloop_{i}_{pic.Name}");
                 int destW = (int)layer.Width;
                 int destH = (int)layer.Height;
 
@@ -102,7 +104,9 @@ namespace LingoEngine.LGodot.FilmLoops
                 transform = transform.Rotated(Mathf.DegToRad(layer.Rotation));
                 transform = transform.Translated(pos);
                 BlendImage(image, srcImg, transform, Mathf.Clamp(layer.Blend / 100f, 0f, 1f));
+                i++;
             }
+            DebugToDisk(image, $"filmloop_{_member.Name}_{hostSprite.Name}");
             var tex = ImageTexture.CreateFromImage(image);
             var texture = new LingoGodotTexture2D(tex);
             return texture;

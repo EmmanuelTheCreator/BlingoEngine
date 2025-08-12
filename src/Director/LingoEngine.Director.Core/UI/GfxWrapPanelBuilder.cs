@@ -1,6 +1,5 @@
 ﻿using LingoEngine.Bitmaps;
 using LingoEngine.Director.Core.Styles;
-using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 using LingoEngine.Tools;
@@ -12,7 +11,7 @@ namespace LingoEngine.Director.Core.UI
     {
         private LingoGfxWrapPanel _panel;
         private LingoGfxWrapPanel _rootPanel;
-        private ILingoFrameworkFactory _factory;
+        private ILingoGfxFactory _factory;
         private readonly GfxWrapPanelBuilder? _parent;
 
         public GfxWrapPanelBuilder(LingoGfxWrapPanel panel, GfxWrapPanelBuilder? parent)
