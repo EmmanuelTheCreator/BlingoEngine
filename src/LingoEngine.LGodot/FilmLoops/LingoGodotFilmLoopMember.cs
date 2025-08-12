@@ -85,7 +85,54 @@ namespace LingoEngine.LGodot.FilmLoops
                 BlendImage(image, srcImg, transform, info.Alpha);
                 i++;
             }
-            
+
+            foreach (var layer in layers)
+            {
+                if (layer.Member is not LingoFilmLoopMember)
+                    continue;
+                var nestedPlayer = layer.GetFilmLoopPlayer();
+                if (nestedPlayer?.Texture is not LingoGodotTexture2D nestedTex)
+                    continue;
+                var srcTex = nestedTex.Texture;
+                var srcImg = srcTex.GetImage();
+                int srcW = srcTex.GetWidth();
+                int srcH = srcTex.GetHeight();
+                int destW = (int)layer.Width;
+                int destH = (int)layer.Height;
+                int srcX = 0;
+                int srcY = 0;
+                if (Framing != LingoFilmLoopFraming.Scale)
+                {
+                    int cropW = Math.Min(destW, srcW);
+                    int cropH = Math.Min(destH, srcH);
+                    srcX = (srcW - cropW) / 2;
+                    srcY = (srcH - cropH) / 2;
+                    srcW = cropW;
+                    srcH = cropH;
+                    destW = cropW;
+                    destH = cropH;
+                }
+                srcImg = srcImg.GetRegion(new Rect2I(srcX, srcY, srcW, srcH));
+                if (destW != srcW || destH != srcH)
+                    srcImg.Resize(destW, destH, Image.Interpolation.Bilinear);
+
+                var srcCenter = new LingoPoint(destW / 2f, destH / 2f);
+                var pos = new LingoPoint(layer.LocH + Offset.X, layer.LocV + Offset.Y);
+                var scale = new LingoPoint(layer.FlipH ? -1 : 1, layer.FlipV ? -1 : 1);
+                var tform = LingoTransform2D.Identity
+                    .Translated(-srcCenter.X, -srcCenter.Y)
+                    .Scaled(scale.X, scale.Y)
+                    .Skewed(layer.Skew)
+                    .Rotated(layer.Rotation)
+                    .Translated(pos.X, pos.Y);
+                var m2 = tform.Matrix;
+                var transform2D = new Transform2D(
+                    new Vector2(m2.M11, m2.M12),
+                    new Vector2(m2.M21, m2.M22),
+                    new Vector2(m2.M31, m2.M32));
+                BlendImage(image, srcImg, transform2D, Math.Clamp(layer.Blend / 100f, 0f, 1f));
+            }
+
             //DebugToDisk(image, $"filmloop_{_member.Name}_{hostSprite.Name}");
             var tex = ImageTexture.CreateFromImage(image);
             var texture = new LingoGodotTexture2D(tex);

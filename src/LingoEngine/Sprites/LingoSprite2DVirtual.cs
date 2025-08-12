@@ -39,7 +39,7 @@ namespace LingoEngine.Sprites
         /// <summary>Channel default cast member.</summary>
         public int DisplayMember { get; set; }
 
-        
+
 
         public LingoInkType InkType { get => (LingoInkType)_ink; set => Ink = (int)value; }
         public int Ink
@@ -50,7 +50,7 @@ namespace LingoEngine.Sprites
                 _ink = value;
             }
         }
-               
+
         public bool Hilite { get; set; }
         public bool Linked { get; private set; }
         public bool Loaded { get; private set; }
@@ -68,8 +68,8 @@ namespace LingoEngine.Sprites
         }
 
         public float Rotation { get; set; }
-        public float Skew  { get; set; }
-        public bool FlipH  { get; set; }
+        public float Skew { get; set; }
+        public bool FlipH { get; set; }
         public bool FlipV { get; set; }
         public int Constraint { get => _constraint; set => _constraint = value; }
 
@@ -93,9 +93,10 @@ namespace LingoEngine.Sprites
         }
 
 
-        public float Width { 
-            get => _width; 
-            set => _width = value; 
+        public float Width
+        {
+            get => _width;
+            set => _width = value;
         }
         public float Height { get => _height; set => _height = value; }
 
@@ -104,7 +105,7 @@ namespace LingoEngine.Sprites
 
         #endregion
 
-      
+
         private LingoPoint GetRegPointOffset()
         {
             if (_Member is { } member)
@@ -129,7 +130,7 @@ namespace LingoEngine.Sprites
         }
 
         public LingoSprite2DVirtual(ILingoEventMediator eventMediator, ILingoSpritesPlayer spritesPlayer, LingoSprite2D sp)
-            :base(eventMediator)
+            : base(eventMediator)
         {
             _spritesPlayer = spritesPlayer;
             Name = sp.Name;
@@ -232,7 +233,7 @@ namespace LingoEngine.Sprites
                 return animator.GetBoundingBox();
 
             return Rect;
-        } 
+        }
         public LingoRect GetBoundingBoxForFrame(int frame)
         {
             var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
@@ -247,7 +248,7 @@ namespace LingoEngine.Sprites
         {
             return Rect.Contains(point);
         }
-       
+
 
         public void SetMember(ILingoMember? member)
         {
@@ -270,7 +271,7 @@ namespace LingoEngine.Sprites
             }
         }
 
-       
+
 
         #region ZIndex/locZ
         public void SendToBack()
@@ -294,7 +295,7 @@ namespace LingoEngine.Sprites
             LocZ++;
         }
         #endregion
-       
+
 
 
         #region Math methods
@@ -331,7 +332,7 @@ namespace LingoEngine.Sprites
         public bool IsPointInsideBoundingBox(float x, float y)
             => Rect.Contains((x, y));
 
-       
+
 
 
         public override void OnRemoveMe()
@@ -346,10 +347,12 @@ namespace LingoEngine.Sprites
             _Member = null;
         }
 
+        public LingoFilmLoopPlayer? GetFilmLoopPlayer() => GetActorsOfType<LingoFilmLoopPlayer>().FirstOrDefault();
+
         public void SetOnRemoveMe(Action<LingoSprite2DVirtual> onRemoveMe) => _onRemoveMe = onRemoveMe;
 
         public override string GetFullName() => $"{SpriteNum}.{Name}.{Member?.Name}";
 
-       
+
     }
 }

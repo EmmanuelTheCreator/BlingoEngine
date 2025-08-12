@@ -34,7 +34,7 @@ namespace LingoEngine.FilmLoops
             _sprite = sprite;
             _castLibs = castLibs;
             _mediator = eventMediator;
-            
+
         }
         private void SetupLayers()
         {
@@ -50,7 +50,7 @@ namespace LingoEngine.FilmLoops
                 var rt = new LingoSprite2DVirtual(_mediator, this, entry, _castLibs);
                 var properties = entry.AnimatorProperties.Clone();
                 if (!properties.Position.HasFirstKeyFrame())
-                // insert the initial sprite properties as keyframe
+                    // insert the initial sprite properties as keyframe
                     properties.AddKeyFrame(new LingoKeyFrameSetting(1, new LingoPoint(entry.LocH, entry.LocV), new LingoPoint(entry.Width, entry.Height), entry.Rotation, entry.Blend, entry.Skew, entry.ForeColor, entry.BackColor));
                 rt.GetAnimator(properties);
                 ApplyFraming(fl, entry, rt);
@@ -161,6 +161,22 @@ namespace LingoEngine.FilmLoops
                 runtime.ForeColor = foreColor;
                 runtime.BackColor = backColor;
                 runtime.Blend = blend;
+
+                if (template.Member is LingoFilmLoopMember)
+                {
+                    var nestedPlayer = runtime.GetFilmLoopPlayer();
+                    if (nestedPlayer == null)
+                    {
+                        nestedPlayer = new LingoFilmLoopPlayer(runtime, _mediator, _castLibs);
+                        runtime.AddActor(nestedPlayer);
+                        nestedPlayer.BeginSprite();
+                    }
+                    else
+                    {
+                        nestedPlayer.StepFrame();
+                    }
+                }
+
                 _activeLayers.Add(runtime);
             }
 
