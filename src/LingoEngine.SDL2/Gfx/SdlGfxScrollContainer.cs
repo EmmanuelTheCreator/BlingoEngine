@@ -4,23 +4,15 @@ using System.Numerics;
 using ImGuiNET;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
+using LingoEngine.SDL2.Core;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxScrollContainer : ILingoFrameworkGfxScrollContainer, IDisposable, ISdlRenderElement
+    internal class SdlGfxScrollContainer : SdlGfxComponent, ILingoFrameworkGfxScrollContainer, IDisposable
     {
-        private readonly nint _renderer;
-
-        public SdlGfxScrollContainer(nint renderer)
+        public SdlGfxScrollContainer(SdlFactory factory) : base(factory)
         {
-            _renderer = renderer;
         }
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Width { get; set; }
-        public float Height { get; set; }
-        public bool Visibility { get; set; } = true;
-        public string Name { get; set; } = string.Empty;
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;
         public float ScrollHorizontal { get; set; }
         public float ScrollVertical { get; set; }
@@ -42,9 +34,10 @@ namespace LingoEngine.SDL2.Gfx
 
         public IEnumerable<ILingoFrameworkGfxLayoutNode> GetItems() => _children.ToArray();
 
-        public void Render()
+        public override nint Render(LingoSDLRenderContext context)
         {
-            if (!Visibility) return;
+            if (!Visibility)
+                return nint.Zero;
 
             ImGui.SetCursorPos(new Vector2(X, Y));
             ImGui.PushID(Name);
@@ -54,19 +47,21 @@ namespace LingoEngine.SDL2.Gfx
 
             foreach (var child in _children)
             {
-                if (child.FrameworkNode is ISdlRenderElement renderable)
-                    renderable.Render();
+                if (child is SdlGfxComponent comp)
+                    comp.Render(context);
             }
 
             ScrollHorizontal = ImGui.GetScrollX();
             ScrollVertical = ImGui.GetScrollY();
             ImGui.EndChild();
             ImGui.PopID();
+            return nint.Zero;
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             _children.Clear();
+            base.Dispose();
         }
     }
 }

@@ -1,27 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.Numerics;
-using ImGuiNET;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
-using LingoEngine.SDL2.Primitives;
+using LingoEngine.SDL2.Core;
+using LingoEngine.SDL2.SDLL;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxPanel : ILingoFrameworkGfxPanel, IDisposable, ISdlRenderElement
+    internal class SdlGfxPanel : SdlGfxComponent, ILingoFrameworkGfxPanel, IDisposable
     {
-        private readonly nint _renderer;
-
-        public SdlGfxPanel(nint renderer)
+        public SdlGfxPanel(SdlFactory factory) : base(factory)
         {
-            _renderer = renderer;
         }
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Width { get; set; }
-        public float Height { get; set; }
-        public bool Visibility { get; set; } = true;
-        public string Name { get; set; } = string.Empty;
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;
         public LingoColor? BackgroundColor { get; set; }
         public LingoColor? BorderColor { get; set; }
@@ -48,48 +38,81 @@ namespace LingoEngine.SDL2.Gfx
             _children.Clear();
         }
 
-        public void Render()
+        private nint _texture;
+        private int _texW;
+        private int _texH;
+
+        public override nint Render(LingoSDLRenderContext context)
         {
-            if (!Visibility) return;
+            if (!Visibility)
+                return nint.Zero;
 
-            ImGui.SetCursorPos(new Vector2(X, Y));
-            ImGui.PushID(Name);
-
-            var pushed = 0;
-            if (BackgroundColor.HasValue)
+            int w = (int)Width;
+            int h = (int)Height;
+            if (_texture == nint.Zero || w != _texW || h != _texH)
             {
-                ImGui.PushStyleColor(ImGuiCol.ChildBg, BackgroundColor.Value.ToImGuiColor());
-                pushed++;
-            }
-            if (BorderColor.HasValue)
-            {
-                ImGui.PushStyleColor(ImGuiCol.Border, BorderColor.Value.ToImGuiColor());
-                pushed++;
-            }
-            if (BorderWidth > 0)
-            {
-                ImGui.PushStyleVar(ImGuiStyleVar.ChildBorderSize, BorderWidth);
+                if (_texture != nint.Zero)
+                {
+                    SDL.SDL_DestroyTexture(_texture);
+                }
+                _texture = SDL.SDL_CreateTexture(context.Renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
+                    (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, w, h);
+                _texW = w;
+                _texH = h;
             }
 
-            ImGui.BeginChild("##panel", new Vector2(Width, Height),  BorderWidth > 0 ? ImGuiChildFlags.Borders :ImGuiChildFlags.None );
+            SDL.SDL_SetRenderTarget(context.Renderer, _texture);
+
+            if (BackgroundColor is { } bg)
+            {
+                SDL.SDL_SetRenderDrawColor(context.Renderer, bg.R, bg.G, bg.B, bg.A);
+                SDL.SDL_RenderClear(context.Renderer);
+            }
+            else
+            {
+                SDL.SDL_SetRenderDrawColor(context.Renderer, 0, 0, 0, 0);
+                SDL.SDL_RenderClear(context.Renderer);
+            }
+
             foreach (var child in _children)
             {
-                if (child.FrameworkNode is ISdlRenderElement renderable)
-                    renderable.Render();
+                if (child.FrameworkNode is SdlGfxComponent comp)
+                {
+                    var ctx = comp.ComponentContext;
+                    var oldOffX = ctx.OffsetX;
+                    var oldOffY = ctx.OffsetY;
+                    ctx.OffsetX += -X;
+                    ctx.OffsetY += -Y;
+                    ctx.RenderToTexture(context);
+                    ctx.OffsetX = oldOffX;
+                    ctx.OffsetY = oldOffY;
+                }
             }
-            ImGui.EndChild();
 
-            if (BorderWidth > 0)
-                ImGui.PopStyleVar();
-            if (pushed > 0)
-                ImGui.PopStyleColor(pushed);
+            if (BorderWidth > 0 && BorderColor is { } bc)
+            {
+                SDL.SDL_SetRenderDrawColor(context.Renderer, bc.R, bc.G, bc.B, bc.A);
+                SDL.SDL_Rect rect = new SDL.SDL_Rect { x = 0, y = 0, w = w, h = h };
+                for (int i = 0; i < (int)BorderWidth; i++)
+                {
+                    SDL.SDL_RenderDrawRect(context.Renderer, ref rect);
+                    rect.x++; rect.y++; rect.w -= 2; rect.h -= 2;
+                }
+            }
 
-            ImGui.PopID();
+            SDL.SDL_SetRenderTarget(context.Renderer, nint.Zero);
+            return _texture;
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             RemoveAll();
+            if (_texture != nint.Zero)
+            {
+                SDL.SDL_DestroyTexture(_texture);
+                _texture = nint.Zero;
+            }
+            base.Dispose();
         }
     }
 }

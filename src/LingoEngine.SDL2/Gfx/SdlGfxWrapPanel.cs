@@ -1,21 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Numerics;
-using ImGuiNET;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
+using LingoEngine.SDL2.Core;
+using LingoEngine.SDL2.SDLL;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxWrapPanel : ILingoFrameworkGfxWrapPanel, IDisposable, ISdlRenderElement
+    internal class SdlGfxWrapPanel : SdlGfxComponent, ILingoFrameworkGfxWrapPanel, IDisposable
     {
-        private readonly nint _renderer;
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Width { get; set; }
-        public float Height { get; set; }
-        public bool Visibility { get; set; } = true;
-        public string Name { get; set; } = string.Empty;
         public LingoOrientation Orientation { get; set; }
         public LingoPoint ItemMargin { get; set; }
         public LingoMargin Margin { get; set; }
@@ -23,9 +16,8 @@ namespace LingoEngine.SDL2.Gfx
 
         private readonly List<ILingoFrameworkGfxLayoutNode> _children = new();
 
-        public SdlGfxWrapPanel(nint renderer, LingoOrientation orientation)
+        public SdlGfxWrapPanel(SdlFactory factory, LingoOrientation orientation) : base(factory)
         {
-            _renderer = renderer;
             Orientation = orientation;
             ItemMargin = new LingoPoint(0, 0);
             Margin = LingoMargin.Zero;
@@ -57,18 +49,44 @@ namespace LingoEngine.SDL2.Gfx
             _children.Clear();
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             RemoveAll();
+            if (_texture != nint.Zero)
+            {
+                SDL.SDL_DestroyTexture(_texture);
+                _texture = nint.Zero;
+            }
+            base.Dispose();
         }
 
-        public void Render()
-        {
-            if (!Visibility) return;
+        private nint _texture;
+        private int _texW;
+        private int _texH;
 
-            ImGui.SetCursorPos(new Vector2(X, Y));
-            ImGui.PushID(Name);
-            ImGui.BeginChild("##wrap", new Vector2(Width, Height), ImGuiChildFlags.None);
+        public override nint Render(LingoSDLRenderContext context)
+        {
+            if (!Visibility)
+                return nint.Zero;
+
+            int w = (int)Width;
+            int h = (int)Height;
+            if (_texture == nint.Zero || w != _texW || h != _texH)
+            {
+                if (_texture != nint.Zero)
+                {
+                    SDL.SDL_DestroyTexture(_texture);
+                }
+                _texture = SDL.SDL_CreateTexture(context.Renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
+                    (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, w, h);
+                _texW = w;
+                _texH = h;
+            }
+
+            SDL.SDL_SetRenderTarget(context.Renderer, _texture);
+            SDL.SDL_SetRenderDrawColor(context.Renderer, 0, 0, 0, 0);
+            SDL.SDL_RenderClear(context.Renderer);
+
             float curX = 0;
             float curY = 0;
             float lineSize = 0;
@@ -105,12 +123,14 @@ namespace LingoEngine.SDL2.Gfx
                     lineSize = Math.Max(lineSize, childW);
                 }
 
-                if (child.FrameworkNode is ISdlRenderElement renderable)
-                    renderable.Render();
+                if (child.FrameworkNode is SdlGfxComponent comp)
+                {
+                    comp.ComponentContext.RenderToTexture(context);
+                }
             }
 
-            ImGui.EndChild();
-            ImGui.PopID();
+            SDL.SDL_SetRenderTarget(context.Renderer, nint.Zero);
+            return _texture;
         }
     }
 }

@@ -156,7 +156,7 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
         if (Texture is SdlTexture2D oldTex && oldTex.Texture != nint.Zero)
             SDL.SDL_DestroyTexture(oldTex.Texture);
 
-        nint texture = SDL.SDL_CreateTextureFromSurface(sdlSprite.Renderer, surface);
+        nint texture = SDL.SDL_CreateTextureFromSurface(sdlSprite.ComponentContext.Renderer, surface);
         SDL.SDL_FreeSurface(surface);
         Texture = new SdlTexture2D(texture, width, height);
         return Texture;

@@ -3,23 +3,15 @@ using System.Numerics;
 using ImGuiNET;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
+using LingoEngine.SDL2.Core;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxInputSlider<TValue> : ILingoFrameworkGfxInputSlider<TValue>, IDisposable, ISdlRenderElement where TValue : struct
+    internal class SdlGfxInputSlider<TValue> : SdlGfxComponent, ILingoFrameworkGfxInputSlider<TValue>, IDisposable where TValue : struct
     {
-        private readonly nint _renderer;
-
-        public SdlGfxInputSlider(nint renderer)
+        public SdlGfxInputSlider(SdlFactory factory) : base(factory)
         {
-            _renderer = renderer;
         }
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Width { get; set; }
-        public float Height { get; set; }
-        public bool Visibility { get; set; } = true;
-        public string Name { get; set; } = string.Empty;
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;
         public bool Enabled { get; set; } = true;
         private TValue _value = default!;
@@ -41,9 +33,9 @@ namespace LingoEngine.SDL2.Gfx
         public event Action? ValueChanged;
         public object FrameworkNode => this;
 
-        public void Render()
+        public override nint Render(LingoSDLRenderContext context)
         {
-            if (!Visibility) return;
+            if (!Visibility) return nint.Zero;
             ImGui.SetCursorPos(new Vector2(X, Y));
             ImGui.PushID(Name);
             if (!Enabled)
@@ -69,8 +61,9 @@ namespace LingoEngine.SDL2.Gfx
             if (!Enabled)
                 ImGui.EndDisabled();
             ImGui.PopID();
+            return nint.Zero;
         }
 
-        public void Dispose() { }
+        public override void Dispose() => base.Dispose();
     }
 }

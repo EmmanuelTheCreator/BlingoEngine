@@ -4,27 +4,20 @@ using System.Numerics;
 using ImGuiNET;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
+using LingoEngine.SDL2.Core;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    public class SdlGfxTabContainer : ILingoFrameworkGfxTabContainer, IDisposable, ISdlRenderElement
+    public class SdlGfxTabContainer : SdlGfxComponent, ILingoFrameworkGfxTabContainer, IDisposable
     {
-        private readonly nint _renderer;
         private readonly List<ILingoFrameworkGfxTabItem> _children = new();
         private int _selectedIndex = -1;
 
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Width { get; set; }
-        public float Height { get; set; }
-        public bool Visibility { get; set; } = true;
-        public string Name { get; set; } = string.Empty;
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;
         public object FrameworkNode => this;
 
-        public SdlGfxTabContainer(nint renderer)
+        public SdlGfxTabContainer(SdlFactory factory) : base(factory)
         {
-            _renderer = renderer;
         }
 
         public string SelectedTabName =>
@@ -63,9 +56,10 @@ namespace LingoEngine.SDL2.Gfx
                 _selectedIndex = idx;
         }
 
-        public void Render()
+        public override nint Render(LingoSDLRenderContext context)
         {
-            if (!Visibility) return;
+            if (!Visibility)
+                return nint.Zero;
 
             ImGui.SetCursorPos(new Vector2(X, Y));
             ImGui.PushID(Name);
@@ -76,12 +70,12 @@ namespace LingoEngine.SDL2.Gfx
                 for (int i = 0; i < _children.Count; i++)
                 {
                     var tab = _children[i];
-                    var isOpen = _selectedIndex == i;
-                    if (ImGui.BeginTabItem(tab.Title, ref isOpen))
+                    bool open = _selectedIndex == i;
+                    if (ImGui.BeginTabItem(tab.Title, ref open))
                     {
                         _selectedIndex = i;
-                        if (tab.Content?.FrameworkObj is ISdlRenderElement renderable)
-                            renderable.Render();
+                        if (tab.Content?.FrameworkObj is SdlGfxComponent comp)
+                            comp.Render(context);
                         ImGui.EndTabItem();
                     }
                 }
@@ -90,38 +84,31 @@ namespace LingoEngine.SDL2.Gfx
 
             ImGui.EndChild();
             ImGui.PopID();
+            return nint.Zero;
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             ClearTabs();
+            base.Dispose();
         }
     }
 
-    public partial class SdlGfxTabItem : ILingoFrameworkGfxTabItem
+    public class SdlGfxTabItem : SdlGfxComponent, ILingoFrameworkGfxTabItem
     {
-        private readonly nint _renderer;
-
-        public SdlGfxTabItem(nint renderer, LingoGfxTabItem tab)
+        public SdlGfxTabItem(SdlFactory factory, LingoGfxTabItem tab) : base(factory)
         {
-            _renderer = renderer;
             tab.Init(this);
         }
 
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Width { get; set; }
-        public float Height { get; set; }
-        public bool Visibility { get; set; } = true;
-        public string Name { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;
         public ILingoGfxNode? Content { get; set; }
         public float TopHeight { get; set; }
         public object FrameworkNode => this;
 
-        public void Dispose()
-        {
-        }
+        public override void Dispose() => base.Dispose();
+
+        public override nint Render(LingoSDLRenderContext context) => nint.Zero;
     }
 }

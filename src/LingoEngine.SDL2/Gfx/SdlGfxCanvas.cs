@@ -7,21 +7,15 @@ using LingoEngine.Primitives;
 using LingoEngine.SDL2.Primitives;
 using LingoEngine.SDL2.SDLL;
 using LingoEngine.SDL2.Pictures;
+using LingoEngine.SDL2.Core;
 using LingoEngine.Styles;
 using LingoEngine.Texts;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxCanvas : ILingoFrameworkGfxCanvas, IDisposable
+    internal class SdlGfxCanvas : SdlGfxComponent, ILingoFrameworkGfxCanvas, IDisposable
     {
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Width { get; set; }
-        public float Height { get; set; }
-        public bool Visibility { get; set; } = true;
-        public string Name { get; set; } = string.Empty;
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;
-        private readonly nint _renderer;
         private readonly ILingoFontManager _fontManager;
         private readonly int _width;
         private readonly int _height;
@@ -31,30 +25,31 @@ namespace LingoEngine.SDL2.Gfx
 
         public bool Pixilated { get; set; }
 
-        public SdlGfxCanvas(nint renderer, ILingoFontManager fontManager, int width, int height)
+        public SdlGfxCanvas(SdlFactory factory, ILingoFontManager fontManager, int width, int height) : base(factory)
         {
-            _renderer = renderer;
             _fontManager = fontManager;
             _width = width;
             _height = height;
-            _texture = SDL.SDL_CreateTexture(renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
+            _texture = SDL.SDL_CreateTexture(ComponentContext.Renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
                 (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, width, height);
+            Width = width;
+            Height = height;
         }
 
         private void UseTexture(Action draw)
         {
-            var prev = SDL.SDL_GetRenderTarget(_renderer);
-            SDL.SDL_SetRenderTarget(_renderer, _texture);
+            var prev = SDL.SDL_GetRenderTarget(ComponentContext.Renderer);
+            SDL.SDL_SetRenderTarget(ComponentContext.Renderer, _texture);
             draw();
-            SDL.SDL_SetRenderTarget(_renderer, prev);
+            SDL.SDL_SetRenderTarget(ComponentContext.Renderer, prev);
         }
 
         public void Clear(LingoColor color)
         {
             UseTexture(() =>
             {
-                SDL.SDL_SetRenderDrawColor(_renderer, color.R, color.G, color.B, 255);
-                SDL.SDL_RenderClear(_renderer);
+                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, color.R, color.G, color.B, 255);
+                SDL.SDL_RenderClear(ComponentContext.Renderer);
             });
         }
 
@@ -62,8 +57,8 @@ namespace LingoEngine.SDL2.Gfx
         {
             UseTexture(() =>
             {
-                SDL.SDL_SetRenderDrawColor(_renderer, color.R, color.G, color.B, 255);
-                SDL.SDL_RenderDrawPointF(_renderer, point.X, point.Y);
+                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, color.R, color.G, color.B, 255);
+                SDL.SDL_RenderDrawPointF(ComponentContext.Renderer, point.X, point.Y);
             });
         }
 
@@ -71,8 +66,8 @@ namespace LingoEngine.SDL2.Gfx
         {
             UseTexture(() =>
             {
-                SDL.SDL_SetRenderDrawColor(_renderer, color.R, color.G, color.B, 255);
-                SDL.SDL_RenderDrawLineF(_renderer, start.X, start.Y, end.X, end.Y);
+                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, color.R, color.G, color.B, 255);
+                SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, start.X, start.Y, end.X, end.Y);
             });
         }
 
@@ -80,7 +75,7 @@ namespace LingoEngine.SDL2.Gfx
         {
             UseTexture(() =>
             {
-                SDL.SDL_SetRenderDrawColor(_renderer, color.R, color.G, color.B, 255);
+                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, color.R, color.G, color.B, 255);
                 SDL.SDL_Rect r = new SDL.SDL_Rect
                 {
                     x = (int)rect.Left,
@@ -89,9 +84,9 @@ namespace LingoEngine.SDL2.Gfx
                     h = (int)rect.Height
                 };
                 if (filled)
-                    SDL.SDL_RenderFillRect(_renderer, ref r);
+                    SDL.SDL_RenderFillRect(ComponentContext.Renderer, ref r);
                 else
-                    SDL.SDL_RenderDrawRect(_renderer, ref r);
+                    SDL.SDL_RenderDrawRect(ComponentContext.Renderer, ref r);
             });
         }
 
@@ -99,7 +94,7 @@ namespace LingoEngine.SDL2.Gfx
         {
             UseTexture(() =>
             {
-                SDL.SDL_SetRenderDrawColor(_renderer, color.R, color.G, color.B, 255);
+                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, color.R, color.G, color.B, 255);
                 int segs = (int)(radius * 6);
                 double step = (Math.PI * 2) / segs;
                 float prevX = center.X + radius;
@@ -109,9 +104,9 @@ namespace LingoEngine.SDL2.Gfx
                     double angle = step * i;
                     float x = center.X + (float)(radius * Math.Cos(angle));
                     float y = center.Y + (float)(radius * Math.Sin(angle));
-                    SDL.SDL_RenderDrawLineF(_renderer, prevX, prevY, x, y);
+                    SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, prevX, prevY, x, y);
                     if (filled)
-                        SDL.SDL_RenderDrawLineF(_renderer, center.X, center.Y, x, y);
+                        SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, center.X, center.Y, x, y);
                     prevX = x;
                     prevY = y;
                 }
@@ -122,7 +117,7 @@ namespace LingoEngine.SDL2.Gfx
         {
             UseTexture(() =>
             {
-                SDL.SDL_SetRenderDrawColor(_renderer, color.R, color.G, color.B, 255);
+                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, color.R, color.G, color.B, 255);
                 double startRad = startDeg * Math.PI / 180.0;
                 double endRad = endDeg * Math.PI / 180.0;
                 double step = (endRad - startRad) / segments;
@@ -133,7 +128,7 @@ namespace LingoEngine.SDL2.Gfx
                     double ang = startRad + i * step;
                     float x = center.X + (float)(radius * Math.Cos(ang));
                     float y = center.Y + (float)(radius * Math.Sin(ang));
-                    SDL.SDL_RenderDrawLineF(_renderer, prevX, prevY, x, y);
+                    SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, prevX, prevY, x, y);
                     prevX = x;
                     prevY = y;
                 }
@@ -145,17 +140,17 @@ namespace LingoEngine.SDL2.Gfx
             if (points.Count < 2) return;
             UseTexture(() =>
             {
-                SDL.SDL_SetRenderDrawColor(_renderer, color.R, color.G, color.B, 255);
+                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, color.R, color.G, color.B, 255);
                 for (int i = 0; i < points.Count - 1; i++)
-                    SDL.SDL_RenderDrawLineF(_renderer, points[i].X, points[i].Y, points[i + 1].X, points[i + 1].Y);
-                SDL.SDL_RenderDrawLineF(_renderer, points[^1].X, points[^1].Y, points[0].X, points[0].Y);
+                    SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, points[i].X, points[i].Y, points[i + 1].X, points[i + 1].Y);
+                SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, points[^1].X, points[^1].Y, points[0].X, points[0].Y);
                 if (filled)
                 {
                     var p0 = points[0];
                     for (int i = 1; i < points.Count - 1; i++)
                     {
-                        SDL.SDL_RenderDrawLineF(_renderer, p0.X, p0.Y, points[i].X, points[i].Y);
-                        SDL.SDL_RenderDrawLineF(_renderer, p0.X, p0.Y, points[i + 1].X, points[i + 1].Y);
+                        SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, p0.X, p0.Y, points[i].X, points[i].Y);
+                        SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, p0.X, p0.Y, points[i + 1].X, points[i + 1].Y);
                     }
                 }
             });
@@ -197,11 +192,11 @@ namespace LingoEngine.SDL2.Gfx
                 int y = (int)position.Y;
                 foreach (var (s, w, h) in surfaces)
                 {
-                    nint tex = SDL.SDL_CreateTextureFromSurface(_renderer, s);
+                    nint tex = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, s);
                     if (tex != nint.Zero)
                     {
                         SDL.SDL_Rect dst = new SDL.SDL_Rect { x = (int)position.X, y = y, w = w, h = h };
-                        SDL.SDL_RenderCopy(_renderer, tex, nint.Zero, ref dst);
+                        SDL.SDL_RenderCopy(ComponentContext.Renderer, tex, nint.Zero, ref dst);
                         SDL.SDL_DestroyTexture(tex);
                     }
                     SDL.SDL_FreeSurface(s);
@@ -220,11 +215,11 @@ namespace LingoEngine.SDL2.Gfx
                 var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
                 nint surf = SDL.SDL_CreateRGBSurfaceFrom(handle.AddrOfPinnedObject(), width, height, bpp, width * (bpp / 8), rmask, gmask, bmask, amask);
                 if (surf == nint.Zero) { handle.Free(); return; }
-                nint tex = SDL.SDL_CreateTextureFromSurface(_renderer, surf);
+                nint tex = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, surf);
                 if (tex != nint.Zero)
                 {
                     SDL.SDL_Rect dst = new SDL.SDL_Rect { x = (int)position.X, y = (int)position.Y, w = width, h = height };
-                    SDL.SDL_RenderCopy(_renderer, tex, nint.Zero, ref dst);
+                    SDL.SDL_RenderCopy(ComponentContext.Renderer, tex, nint.Zero, ref dst);
                     SDL.SDL_DestroyTexture(tex);
                 }
                 SDL.SDL_FreeSurface(surf);
@@ -237,7 +232,7 @@ namespace LingoEngine.SDL2.Gfx
             {
                 if (texture is SdlImageTexture img)
                 {
-                    nint tex = SDL.SDL_CreateTextureFromSurface(_renderer, img.SurfaceId);
+                    nint tex = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, img.SurfaceId);
                     if (tex != nint.Zero)
                     {
                         SDL.SDL_Rect dst = new SDL.SDL_Rect
@@ -247,15 +242,16 @@ namespace LingoEngine.SDL2.Gfx
                             w = width,
                             h = height
                         };
-                        SDL.SDL_RenderCopy(_renderer, tex, nint.Zero, ref dst);
+                        SDL.SDL_RenderCopy(ComponentContext.Renderer, tex, nint.Zero, ref dst);
                         SDL.SDL_DestroyTexture(tex);
                     }
                 }
             });
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
+            base.Dispose();
             if (_texture != nint.Zero)
             {
                 SDL.SDL_DestroyTexture(_texture);
@@ -263,6 +259,11 @@ namespace LingoEngine.SDL2.Gfx
             }
         }
 
+        public override nint Render(LingoSDLRenderContext context)
+        {
+            ComponentContext.Renderer = context.Renderer;
+            return _texture;
+        }
 
     }
 }

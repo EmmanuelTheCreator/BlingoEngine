@@ -5,6 +5,7 @@ using LingoEngine.SDL2.Core;
 using LingoEngine.Movies;
 using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.Stages;
+using LingoEngine.SDL2;
 
 public class SdlRootContext : IDisposable
 {
@@ -16,22 +17,26 @@ public class SdlRootContext : IDisposable
     public LingoDebugOverlay DebugOverlay { get; set; }
     internal SdlKey Key { get; } = new();
     private bool _f1Pressed;
+    public LingoSDLComponentContainer ComponentContainer { get; } = new();
+    internal SdlFactory Factory { get; set; } = null!;
 
     public SdlRootContext(nint window, nint renderer)
     {
         Window = window;
         Renderer = renderer;
-        
+
     }
     public void Init(ILingoPlayer player)
     {
         _lPlayer = (LingoPlayer)player;
-        DebugOverlay = new LingoDebugOverlay(new SdlDebugOverlay(Renderer), _lPlayer);
+        var overlay = new SdlDebugOverlay(Factory);
+        Factory.ComponentContainer.Activate(overlay.ComponentContext);
+        DebugOverlay = new LingoDebugOverlay(overlay, _lPlayer);
     }
     public void Run()
     {
         var clock = (LingoClock)_lPlayer.Clock;
-       
+
         bool running = true;
         uint last = SDL.SDL_GetTicks();
         while (running)
@@ -47,7 +52,7 @@ public class SdlRootContext : IDisposable
             last = now;
             DebugOverlay.Update(delta);
             bool f1 = _lPlayer.Key.KeyPressed((int)SDL.SDL_Keycode.SDLK_F1);
-            if ( f1 && !_f1Pressed)
+            if (f1 && !_f1Pressed)
                 DebugOverlay.Toggle();
             _f1Pressed = f1;
             clock.Tick(delta);

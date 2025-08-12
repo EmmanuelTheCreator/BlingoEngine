@@ -3,25 +3,17 @@ using System.Numerics;
 using ImGuiNET;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
+using LingoEngine.SDL2.Core;
 using LingoEngine.SDL2.Primitives;
 using LingoEngine.Texts;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxLabel : ILingoFrameworkGfxLabel, IDisposable, ISdlRenderElement
+    internal class SdlGfxLabel : SdlGfxComponent, ILingoFrameworkGfxLabel, IDisposable
     {
-        private readonly nint _renderer;
-
-        public SdlGfxLabel(nint renderer)
+        public SdlGfxLabel(SdlFactory factory) : base(factory)
         {
-            _renderer = renderer;
         }
-        public float X { get; set; }
-        public float Y { get; set; }
-        public float Width { get; set; }
-        public float Height { get; set; }
-        public bool Visibility { get; set; } = true;
-        public string Name { get; set; } = string.Empty;
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;
 
         public string Text { get; set; } = string.Empty;
@@ -41,9 +33,9 @@ namespace LingoEngine.SDL2.Gfx
 
         public event Action? ValueChanged;
 
-        public void Render()
+        public override nint Render(LingoSDLRenderContext context)
         {
-            if (!Visibility) return;
+            if (!Visibility) return nint.Zero;
 
             ImGui.PushID(Name);
             var pos = new Vector2(X, Y);
@@ -71,8 +63,9 @@ namespace LingoEngine.SDL2.Gfx
                 ImGui.PopTextWrapPos();
             ImGui.PopStyleColor();
             ImGui.PopID();
+            return nint.Zero;
         }
 
-        public void Dispose() { }
+        public override void Dispose() => base.Dispose();
     }
 }

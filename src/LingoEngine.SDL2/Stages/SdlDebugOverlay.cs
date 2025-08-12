@@ -1,18 +1,20 @@
 using LingoEngine.SDL2.SDLL;
 using LingoEngine.FrameworkCommunication;
+using LingoEngine.SDL2;
+using LingoEngine.SDL2.Core;
 
 namespace LingoEngine.SDL2.Stages;
 
-internal class SdlDebugOverlay : ILingoFrameworkDebugOverlay
+internal class SdlDebugOverlay : ILingoFrameworkDebugOverlay, ILingoSDLComponent
 {
-    private readonly nint _renderer;
     private nint _font;
     private bool _show;
     private SDL.SDL_Color _white;
+    public LingoSDLComponentContext ComponentContext { get; }
 
-    public SdlDebugOverlay(nint renderer)
+    public SdlDebugOverlay(SdlFactory factory)
     {
-        _renderer = renderer;
+        ComponentContext = factory.CreateContext(this);
 
         string fullFileName = GetFileName();
         _font = SDL_ttf.TTF_OpenFont(fullFileName, 12);
@@ -26,11 +28,13 @@ internal class SdlDebugOverlay : ILingoFrameworkDebugOverlay
     public void ShowDebugger()
     {
         _show = true;
+        ComponentContext.Visible = true;
     }
 
     public void HideDebugger()
     {
         _show = false;
+        ComponentContext.Visible = false;
     }
 
     public int PrepareLine(int id, string text)
@@ -45,17 +49,18 @@ internal class SdlDebugOverlay : ILingoFrameworkDebugOverlay
         if (surface == nint.Zero)
             throw new Exception($"TTF_RenderUTF8_Blended failed: {SDL.SDL_GetError()}");
 
-        nint texture = SDL.SDL_CreateTextureFromSurface(_renderer, surface);
+        nint texture = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, surface);
         if (texture == nint.Zero)
             throw new Exception($"SDL_CreateTextureFromSurface failed: {SDL.SDL_GetError()}");
 
         SDL.SDL_QueryTexture(texture, out _, out _, out int w, out int h);
         SDL.SDL_Rect dstRect = new SDL.SDL_Rect { x = 20, y = id * 15, w = w, h = h };
 
-        SDL.SDL_RenderCopy(_renderer, texture, nint.Zero, ref dstRect);
+        SDL.SDL_RenderCopy(ComponentContext.Renderer, texture, nint.Zero, ref dstRect);
 
         SDL.SDL_DestroyTexture(texture);
         SDL.SDL_FreeSurface(surface);
+        ComponentContext.QueueRedraw(this);
     }
 
 
@@ -63,6 +68,13 @@ internal class SdlDebugOverlay : ILingoFrameworkDebugOverlay
 
 
     public void End() { }
+
+    public nint Render(LingoSDLRenderContext context)
+    {
+        // renderer can change, so update if needed
+        ComponentContext.Renderer = context.Renderer;
+        return nint.Zero;
+    }
     public void Dispose()
     {
         if (_font != nint.Zero)
@@ -70,8 +82,7 @@ internal class SdlDebugOverlay : ILingoFrameworkDebugOverlay
             SDL_ttf.TTF_CloseFont(_font);
             _font = nint.Zero;
         }
-
-
+        ComponentContext.Dispose();
     }
 
 
