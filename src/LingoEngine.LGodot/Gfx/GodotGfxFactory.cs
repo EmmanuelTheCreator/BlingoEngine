@@ -4,6 +4,7 @@ using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 using LingoEngine.Styles;
 using LingoEngine.LGodot.Styles;
+using LingoEngine.Inputs;
 
 namespace LingoEngine.LGodot.Gfx
 {
@@ -14,11 +15,13 @@ namespace LingoEngine.LGodot.Gfx
     {
         private readonly ILingoFontManager _fontManager;
         private readonly ILingoGodotStyleManager _styleManager;
+        private readonly LingoGodotRootNode _rootNode;
 
-        public GodotGfxFactory(ILingoFontManager fontManager, ILingoGodotStyleManager styleManager)
+        public GodotGfxFactory(ILingoFontManager fontManager, ILingoGodotStyleManager styleManager, LingoGodotRootNode rootNode)
         {
             _fontManager = fontManager;
             _styleManager = styleManager;
+            _rootNode = rootNode;
         }
 
         public LingoGfxCanvas CreateGfxCanvas(string name, int width, int height)
@@ -257,10 +260,10 @@ namespace LingoEngine.LGodot.Gfx
             return sep;
         }
 
-        public LingoGfxWindow CreateWindow(string name, string title = "")
+        public LingoGfxWindow CreateWindow(string name, string title= "")
         {
             var win = new LingoGfxWindow();
-            var impl = new LingoGodotWindow(win, _styleManager);
+            var impl = new LingoGodotWindow(win, _styleManager, _rootNode);
             win.Name = name;
             if (!string.IsNullOrWhiteSpace(title))
                 win.Title = title;

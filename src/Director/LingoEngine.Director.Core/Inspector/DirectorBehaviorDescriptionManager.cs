@@ -15,11 +15,11 @@ namespace LingoEngine.Director.Core.Inspector
     internal class DirectorBehaviorDescriptionManager : IDirectorBehaviorDescriptionManager
     {
         private readonly ILingoFrameworkFactory _factory;
-        private Action? _onClose;
+        public Action<bool>? _OnWindowStateChanged;
+
         public DirectorBehaviorDescriptionManager(ILingoFrameworkFactory factory)
         {
             _factory = factory;
-            
         }
 
         
@@ -46,12 +46,16 @@ namespace LingoEngine.Director.Core.Inspector
             win.Height = height;
             win.BackgroundColor = DirectorColors.BG_WhiteMenus;
             win.IsPopup = true;
-            _onClose = () =>
+            _OnWindowStateChanged = (state) =>
             {
-                onClose.Invoke();
-                win.OnClose -= _onClose;
+                if (!state)
+                {
+                    win.OnWindowStateChanged -= _OnWindowStateChanged;
+                    onClose.Invoke();
+                }
             };
-            win.OnClose += _onClose;
+           
+            win.OnWindowStateChanged += _OnWindowStateChanged;
 
 
             

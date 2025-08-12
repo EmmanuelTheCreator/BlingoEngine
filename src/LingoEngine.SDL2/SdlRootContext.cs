@@ -1,6 +1,5 @@
 namespace LingoEngine.SDL2;
 using System;
-using System.Collections.Generic;
 using LingoEngine.Core;
 using LingoEngine.SDL2.SDLL;
 using LingoEngine.SDL2.Core;
@@ -8,20 +7,20 @@ using LingoEngine.Movies;
 using LingoEngine.Inputs;
 using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.Stages;
-using LingoEngine.SDL2;
+using LingoEngine.Primitives;
 
 public class SdlRootContext : IDisposable, ISdlRootComponentContext
 {
+    private LingoPlayer _lPlayer;
     public nint Window { get; }
     public nint Renderer { get; }
 
-    private LingoPlayer _lPlayer;
 
     public LingoDebugOverlay DebugOverlay { get; set; }
-    internal List<SdlKey> Keys { get; } = new() { new SdlKey() };
-    internal List<SdlMouse> Mice { get; } = new() { new SdlMouse(new Lazy<LingoMouse>(() => null!)) };
-    internal SdlKey Key => Keys[0];
-    internal SdlMouse Mouse => Mice[0];
+    public LingoKey LingoKey { get; }
+    internal SdlKey Key { get; }
+    public LingoMouse LingoMouse { get; }
+    public SdlMouse Mouse { get; }
     private bool _f1Pressed;
     public LingoSDLComponentContainer ComponentContainer { get; } = new();
     internal SdlFactory Factory { get; set; } = null!;
@@ -30,7 +29,11 @@ public class SdlRootContext : IDisposable, ISdlRootComponentContext
     {
         Window = window;
         Renderer = renderer;
-
+        Mouse = new SdlMouse(new Lazy<LingoMouse>(() => LingoMouse!));
+        LingoMouse = new LingoMouse(Mouse);
+        Key = new SdlKey();
+        LingoKey = new LingoKey(Key);
+        Key.SetLingoKey(LingoKey);
     }
     public void Init(ILingoPlayer player)
     {
@@ -51,10 +54,8 @@ public class SdlRootContext : IDisposable, ISdlRootComponentContext
             {
                 if (e.type == SDL.SDL_EventType.SDL_QUIT)
                     running = false;
-                foreach (var k in Keys)
-                    k.ProcessEvent(e);
-                foreach (var m in Mice)
-                    m.ProcessEvent(e);
+                Key.ProcessEvent(e);
+                Mouse.ProcessEvent(e);
             }
             uint now = SDL.SDL_GetTicks();
             float delta = (now - last) / 1000f;
@@ -81,5 +82,11 @@ public class SdlRootContext : IDisposable, ISdlRootComponentContext
         }
         SDL_image.IMG_Quit();
         SDL.SDL_Quit();
+    }
+
+    public LingoPoint GetWindowSize()
+    {
+        SDL.SDL_GetWindowSize(Window, out var w, out var h);
+        return new LingoPoint(w, h);
     }
 }

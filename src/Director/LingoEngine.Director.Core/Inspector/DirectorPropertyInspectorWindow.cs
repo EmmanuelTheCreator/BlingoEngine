@@ -464,6 +464,20 @@ namespace LingoEngine.Director.Core.Inspector
             var rowSize = _factory.CreateWrapPanel(LingoOrientation.Horizontal, "MovieStageSizeRow");
             rowSize.Margin = new LingoMargin(5, 5, 5, 0);
             rowSize.Compose()
+                .AddButton("tesxtt", "Test", () =>
+                {
+                    var kb = _factory.CreateKeyboard(Inputs.LingoJoystickKeyboard.LingoKeyboardLayoutType.Azerty,true);
+                    kb.Open(new LingoPoint(50,50));
+                    kb.EnterPressed += () =>
+                    {
+                        kb.Close();
+                    };
+                    kb.Closed += () =>
+                    {
+                        var text = kb.Text;
+                    };
+                })
+                .NewLine("t")
                 .AddLabel("StageSizeLbl","Stage size:")
                 .AddNumericInputInt("MovieStageWidth", _player.Stage, m => m.Width, 40)
                 .AddLabel("StageSizeLblX", "x")

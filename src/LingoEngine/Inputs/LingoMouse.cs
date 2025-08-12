@@ -267,11 +267,11 @@ namespace LingoEngine.Inputs
 
 
 
-        public ILingoMouseSubscription OnMouseDown(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseDowns.Remove(s)); _mouseDowns.Add(sub); return sub; }
-        public ILingoMouseSubscription OnMouseUp(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseUps.Remove(s)); _mouseUps.Add(sub); return sub; }
-        public ILingoMouseSubscription OnMouseMove(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseMoves.Remove(s)); _mouseMoves.Add(sub); return sub; }
-        public ILingoMouseSubscription OnMouseWheel(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseWheels.Remove(s)); _mouseWheels.Add(sub); return sub; }
-        public ILingoMouseSubscription OnMouseEvent(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseEvents.Remove(s)); _mouseEvents.Add(sub); return sub; }
+        public virtual ILingoMouseSubscription OnMouseDown(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseDowns.Remove(s)); _mouseDowns.Add(sub); return sub; }
+        public virtual ILingoMouseSubscription OnMouseUp(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseUps.Remove(s)); _mouseUps.Add(sub); return sub; }
+        public virtual ILingoMouseSubscription OnMouseMove(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseMoves.Remove(s)); _mouseMoves.Add(sub); return sub; }
+        public virtual ILingoMouseSubscription OnMouseWheel(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseWheels.Remove(s)); _mouseWheels.Add(sub); return sub; }
+        public virtual ILingoMouseSubscription OnMouseEvent(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseEvents.Remove(s)); _mouseEvents.Add(sub); return sub; }
 
         private class LingoMouseSubscription : ILingoMouseSubscription
         {
@@ -317,15 +317,15 @@ namespace LingoEngine.Inputs
             {
                 if (!_provider.IsActivated) return false;
                 var r = _provider.MouseOffset;
-                return e.MouseH >= r.X && e.MouseH < r.X + r.Width &&
-                       e.MouseV >= r.Y && e.MouseV < r.Y + r.Height;
+                return e.MouseH >= r.Left && e.MouseH < r.Left + r.Width &&
+                       e.MouseV >= r.Top && e.MouseV < r.Top + r.Height;
             }
 
             private void UpdateFromParent(LingoMouseEvent e)
             {
                 var r = _provider.MouseOffset;
-                MouseH = e.MouseH - r.X;
-                MouseV = e.MouseV - r.Y;
+                MouseH = e.MouseH - r.Left;
+                MouseV = e.MouseV - r.Top;
                 MouseDown = _parent.MouseDown;
                 MouseUp = _parent.MouseUp;
                 RightMouseDown = _parent.RightMouseDown;
@@ -334,6 +334,7 @@ namespace LingoEngine.Inputs
                 MiddleMouseDown = _parent.MiddleMouseDown;
                 DoubleClick = _parent.DoubleClick;
             }
+
 
             private void HandleDown(LingoMouseEvent e)
             {

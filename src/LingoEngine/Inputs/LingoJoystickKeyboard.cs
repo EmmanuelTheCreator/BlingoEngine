@@ -3,8 +3,7 @@ using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 using LingoEngine.Texts;
-using System;
-using System.Linq;
+using System.Reflection.Emit;
 
 namespace LingoEngine.Inputs
 {
@@ -12,33 +11,49 @@ namespace LingoEngine.Inputs
     /// On-screen keyboard navigated via joystick.
     /// Supports letters, digits, space and backspace.
     /// </summary>
-    public class LingoJoystickKeyboard : IDisposable
+    public class LingoJoystickKeyboard : ILingoKeyEventHandler, IDisposable
     {
         private readonly ILingoFrameworkFactory _factory;
         private readonly string[][] _layout;
-        private readonly int _cellWidth = 32;
-        private readonly int _cellHeight = 32;
+        private readonly int _cols;
         private readonly LingoGfxWindow _window;
         private readonly LingoGfxCanvas _canvas;
-        private readonly Action _onWindowClosed;
+        
+        private readonly ILingoMouseSubscription _mouseDownSub;
+        private readonly ILingoMouseSubscription _mouseMoveSub;
         private int _selectedRow;
         private int _selectedCol;
-        private bool _enableMouse;
-        private bool _enableKeyNumbers;
-        private bool _enableKeyLetters;
-        private bool _enableKeySpecial;
+        private bool _enableMouse = true;
+        private bool _enableKeyNumbers = true;
+        private bool _enableKeyLetters = true;
+        private bool _enableKeySpecial = true;
+
+        public void SetWhiteTheme()
+        {
+            SelectedColor = LingoColorList.Black;
+            SelectedBackgroundColor = LingoColorList.LightGray;
+            BackgroundColor = LingoColorList.White;
+            BorderColor = LingoColorList.LightGray;
+            TextColor = LingoColorList.Black;
+        }
 
         /// <summary>Color used for the border of the selected key.</summary>
-        public LingoColor SelectedColor { get; set; } = LingoColorList.Black;
+        public LingoColor SelectedColor { get; set; } = LingoColorList.White;
 
         /// <summary>Optional fill color for the selected key.</summary>
-        public LingoColor? SelectedBackgroundColor { get; set; }
+        public LingoColor? SelectedBackgroundColor { get; set; } = LingoColorList.DarkGray;
 
         /// <summary>Background color of the keyboard.</summary>
-        public LingoColor BackgroundColor { get; set; } = LingoColorList.White;
+        public LingoColor BackgroundColor { get; set; } = LingoColorList.Black;
+        public LingoColor BorderColor { get; set; } = LingoColorList.DarkGray;
+        public LingoColor TextColor { get; set; } = LingoColorList.White;
 
         /// <summary>Font name used for key labels.</summary>
         public string? FontName { get; set; }
+        public int CellSpacing { get; set; } = 2;
+        public int Margin { get; set; } = 5;
+        public int FontSize { get; set; } = 12;
+        public int CellSize { get; set; } = 32;
 
         private string _title = "Keyboard";
 
@@ -53,7 +68,7 @@ namespace LingoEngine.Inputs
             }
         }
 
-        private bool _showTitleBar = true;
+        private bool _showTitleBar = false;
 
         /// <summary>Whether to show the window title bar and close button.</summary>
         public bool ShowTitleBar
@@ -74,6 +89,8 @@ namespace LingoEngine.Inputs
 
         /// <summary>Raised when the keyboard window is closed.</summary>
         public event Action? Closed;
+        public event Action? EnterPressed;
+        public event Action<string>? TextChanged;
 
         /// <summary>Raised when a key is selected.</summary>
         public event Action<string>? KeySelected;
@@ -85,24 +102,52 @@ namespace LingoEngine.Inputs
             Qwerty
         }
 
-        public LingoJoystickKeyboard(ILingoFrameworkFactory factory, LingoKeyboardLayoutType layoutType = LingoKeyboardLayoutType.Qwerty, bool showEscapeKey = false)
+        public LingoJoystickKeyboard(ILingoFrameworkFactory factory, LingoKeyboardLayoutType layoutType = LingoKeyboardLayoutType.Azerty, bool showEscapeKey = false)
         {
             _factory = factory;
             _layout = layoutType == LingoKeyboardLayoutType.Azerty ? BuildAzertyLayout(showEscapeKey) : BuildQwertyLayout(showEscapeKey);
-            var cols = _layout.Max(r => r.Length);
-            var width = cols * _cellWidth;
-            var height = _layout.Length * _cellHeight;
+            _cols = _layout.Max(r => r.Length);
+            var width = _cols * (CellSize + CellSpacing);
+            var height = _layout.Length * (CellSize + CellSpacing);
             _window = _factory.CreateWindow("LingoJoystickKeyboard", _title);
-            _window.IsPopup = true;
-            _onWindowClosed = () => Closed?.Invoke();
-            _window.OnClose += _onWindowClosed;
-            _window.OnMouseDown += OnMouseDown;
-            _window.OnMouseMove += OnMouseMove;
-            _window.OnKeyDown += HandleKeyInput;
             _canvas = _factory.CreateGfxCanvas("LingoJoystickKeyboardCanvas", width, height);
+            _canvas.X = Margin;
+            _canvas.Y = Margin;
             _window.AddItem(_canvas);
+            _window.IsPopup = true;
+            _window.OnWindowStateChanged += OnWindowStateChanged;
+            _mouseDownSub = _window.Mouse.OnMouseDown(OnMouseDown);
+            _mouseMoveSub = _window.Mouse.OnMouseMove(OnMouseMove);
+            _window.Key.Subscribe(this);
             ApplyWindowChrome();
             DrawKeyboard();
+            _window.Width = width + Margin*2;
+            _window.Height = height+ Margin*2;
+            _window.BackgroundColor = BackgroundColor;
+        }
+        public void Dispose()
+        {
+            _window.OnWindowStateChanged -= OnWindowStateChanged;
+            _mouseDownSub.Release();
+            _mouseMoveSub.Release();
+            _window.Key.Unsubscribe(this);
+            _window.Dispose();
+        }
+        public void UpdateStyle()
+        {
+            var width = _cols * (CellSize + CellSpacing);
+            var height = _layout.Length * (CellSize + CellSpacing);
+            _canvas.Width = width;
+            _canvas.Height = height;
+            _window.Width = width;
+            _window.Height = height;
+            _window.BackgroundColor = BackgroundColor;
+            DrawKeyboard();
+        }
+        private void OnWindowStateChanged(bool state)
+        {
+            if (!state)
+                Closed?.Invoke();
         }
 
         /// <summary>Enables hardware keyboard input.</summary>
@@ -118,29 +163,29 @@ namespace LingoEngine.Inputs
 
         private static string[][] BuildQwertyLayout(bool showEsc)
         {
-            var layout = new[]
-            {
-                new[] { "1","2","3","4","5","6","7","8","9","0" },
-                new[] { "Q","W","E","R","T","Y","U","I","O","P" },
-                new[] { "A","S","D","F","G","H","J","K","L" },
-                new[] { "Z","X","C","V","B","N","M","SPACE","BACKSPACE" }
-            };
+            string[][] layout =
+            [
+                ["1","2","3","4","5","6","7","8","9","0"],
+                ["Q","W","E","R","T","Y","U","I","O","P","BACKSPACE"],
+                ["A","S","D","F","G","H","J","K","L","ENTER"],
+                ["Z","X","C","V","B","N","M","SPACE"]
+            ];
             if (showEsc)
-                layout[^1] = layout[^1].Concat(new[] { "ESC" }).ToArray();
+                layout[0] = layout[0].Concat(["ESC"]).ToArray();
             return layout;
         }
 
         private static string[][] BuildAzertyLayout(bool showEsc)
         {
-            var layout = new[]
-            {
-                new[] { "1","2","3","4","5","6","7","8","9","0" },
-                new[] { "A","Z","E","R","T","Y","U","I","O","P" },
-                new[] { "Q","S","D","F","G","H","J","K","L","M" },
-                new[] { "W","X","C","V","B","N","SPACE","BACKSPACE" }
-            };
+            string[][] layout =
+            [
+                ["1","2","3","4","5","6","7","8","9","0"],
+                ["A","Z","E","R","T","Y","U","I","O","P","BACKSPACE"],
+                ["Q","S","D","F","G","H","J","K","L","M","ENTER"],
+                ["W","X","C","V","B","N","SPACE"]
+            ];
             if (showEsc)
-                layout[^1] = layout[^1].Concat(new[] { "ESC" }).ToArray();
+                layout[0] = layout[0].Concat(new[] { "ESC" }).ToArray();
             return layout;
         }
 
@@ -160,16 +205,16 @@ namespace LingoEngine.Inputs
             {
                 for (int c = 0; c < _layout[r].Length; c++)
                 {
-                    var x = c * _cellWidth;
-                    var y = r * _cellHeight;
+                    var x = c * (CellSize + CellSpacing) ;
+                    var y = r * (CellSize + CellSpacing) ;
                     var key = _layout[r][c];
                     var selected = r == _selectedRow && c == _selectedCol;
                     if (selected && SelectedBackgroundColor.HasValue)
-                        _canvas.DrawRect(new LingoRect(x, y, _cellWidth, _cellHeight), SelectedBackgroundColor.Value, true);
-                    var border = selected ? SelectedColor : LingoColorList.DarkGray;
-                    _canvas.DrawRect(new LingoRect(x, y, _cellWidth, _cellHeight), border, false, 1);
-                    var label = key switch { "SPACE" => "Space", "BACKSPACE" => "Bksp", "ESC" => "Esc", _ => key };
-                    _canvas.DrawText(new LingoPoint(x + 2, y + 2), label, FontName, LingoColorList.Black, 12, _cellWidth - 4, LingoTextAlignment.Center);
+                        _canvas.DrawRect(LingoRect.New(x, y, CellSize, CellSize), SelectedBackgroundColor.Value, true);
+                    var border = selected ? SelectedColor : BorderColor;
+                    _canvas.DrawRect(LingoRect.New(x, y, CellSize, CellSize), border, false, 1);
+                    var label = key switch { "SPACE" => "Space", "BACKSPACE" => "<-", "ENTER" => "OK", "ESC" => "Esc", _ => key };
+                    _canvas.DrawText(new LingoPoint(x + 2, y + 20), label, FontName, TextColor, FontSize, CellSize - 4, LingoTextAlignment.Center);
                 }
             }
         }
@@ -214,6 +259,7 @@ namespace LingoEngine.Inputs
             {
                 "SPACE" => " ",
                 "BACKSPACE" => "\b",
+                "ENTER" => string.Empty,
                 "ESC" => string.Empty,
                 _ => key
             };
@@ -224,7 +270,11 @@ namespace LingoEngine.Inputs
         {
             var key = _layout[_selectedRow][_selectedCol];
             var result = GetSelectedKey();
-            if (key == "ESC")
+            if (key == "ENTER")
+            {
+                EnterPressed?.Invoke();
+            } 
+            else if (key == "ESC")
             {
                 Close();
             }
@@ -247,11 +297,14 @@ namespace LingoEngine.Inputs
                 if (Text.Length + value.Length <= MaxLength)
                     Text += value;
             }
+
+            TextChanged?.Invoke(value);
             KeySelected?.Invoke(value);
             DrawKeyboard();
         }
 
-        private void HandleKeyInput(LingoKey key)
+        void ILingoKeyEventHandler.RaiseKeyUp(LingoKey key) { }
+        void ILingoKeyEventHandler.RaiseKeyDown(LingoKey key)
         {
             if (!_window.Visibility) return;
             if (!(_enableKeyNumbers || _enableKeyLetters || _enableKeySpecial)) return;
@@ -298,13 +351,13 @@ namespace LingoEngine.Inputs
 
         private void OnMouseMove(LingoMouseEvent e)
         {
+            //Console.WriteLine($"Mouse moved: {e.MouseH}, {e.MouseV}");  
             if (!_window.Visibility) return;
             if (!_enableMouse) return;
-            var localX = e.MouseH - _window.X;
-            var localY = e.MouseV - _window.Y;
-            if (localX < 0 || localY < 0 || localX >= _canvas.Width || localY >= _canvas.Height) return;
-            var row = (int)(localY / _cellHeight);
-            var col = (int)(localX / _cellWidth);
+            var localX = e.MouseH - Margin;
+            var localY = e.MouseV - Margin;
+            var row = (int)(localY / (CellSize + CellSpacing));
+            var col = (int)(localX / (CellSize + CellSpacing));
             if (row < 0 || row >= _layout.Length || col < 0 || col >= _layout[row].Length) return;
             _selectedRow = row;
             _selectedCol = col;
@@ -339,14 +392,7 @@ namespace LingoEngine.Inputs
         /// <summary>Closes the keyboard popup window.</summary>
         public void Close() => _window.Hide();
 
-        public void Dispose()
-        {
-            _window.OnClose -= _onWindowClosed;
-            _window.OnMouseDown -= OnMouseDown;
-            _window.OnMouseMove -= OnMouseMove;
-            _window.OnKeyDown -= HandleKeyInput;
-            _window.Dispose();
-        }
+       
     }
 }
 

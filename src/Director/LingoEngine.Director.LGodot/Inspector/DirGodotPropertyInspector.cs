@@ -4,10 +4,8 @@ using LingoEngine.Core;
 using LingoEngine.LGodot.Gfx;
 using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.Director.Core.Icons;
-using LingoEngine.Director.Core.Styles;
 using LingoEngine.Sprites;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using LingoEngine.Director.Core.UI;
 
 namespace LingoEngine.Director.LGodot.Inspector;
@@ -59,16 +57,18 @@ public partial class DirGodotPropertyInspector : BaseGodotWindow, IDirFrameworkP
 
     private void OnBehaviorSelected(LingoSpriteBehavior behavior)
     {
-        if (_behaviorWindow != null && _behaviorWindow.Framework<ILingoFrameworkGfxWindow>().FrameworkNode is Node oldNode)
+        //if (_behaviorWindow != null && _behaviorWindow.Framework<ILingoFrameworkGfxWindow>().FrameworkNode is Node oldNode)
+        if (_behaviorWindow != null)
         {
-            oldNode.QueueFree();
+            //oldNode.QueueFree();
+            _behaviorWindow.Dispose();
             _behaviorWindow = null;
         }
 
         var win = _inspectorWindow.BuildBehaviorPopup(behavior);
         if (win == null) return;
-        if (win.Framework<ILingoFrameworkGfxWindow>().FrameworkNode is Node node)
-            GetTree().Root.AddChild(node);
+        //if (win.Framework<ILingoFrameworkGfxWindow>().FrameworkNode is Node node)
+        //    GetTree().Root.AddChild(node);
         
         win.PopupCentered();
         _behaviorWindow = win;

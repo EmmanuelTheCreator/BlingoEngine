@@ -208,13 +208,7 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
         mouseImpl.SetLingoMouse(mouse);
         return mouse;
     }
-    public LingoKey CreateKey()
-    {
-        var impl = _rootContext.Key;
-        var key = new LingoKey(impl);
-        impl.SetLingoKey(key);
-        return key;
-    }
+    public LingoKey CreateKey() => _rootContext.LingoKey;
 
 
     #region Gfx elements
@@ -293,15 +287,6 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
         => _gfxFactory.CreateLayoutWrapper(content, x, y);
 
     public LingoGfxWindow CreateWindow(string name, string title = "")
-
-    {
-        var win = new LingoGfxWindow();
-        var impl = new SdlGfxWindow(win, this);
-        win.Name = name;
-        win.Title = title;
-        return win;
-    }
-
         => _gfxFactory.CreateWindow(name, title);
 
 

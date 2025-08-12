@@ -49,7 +49,7 @@ namespace LingoEngine.LGodot.Core
             _serviceProvider = serviceProvider;
             var fontManager = _serviceProvider.GetRequiredService<ILingoFontManager>();
             var styleManager = _serviceProvider.GetRequiredService<ILingoGodotStyleManager>();
-            _gfxFactory = new GodotGfxFactory(fontManager, styleManager);
+            _gfxFactory = new GodotGfxFactory(fontManager, styleManager, _lingoRootNode);
         }
 
         public ILingoGfxFactory GfxFactory => _gfxFactory;

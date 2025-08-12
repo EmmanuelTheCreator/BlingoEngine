@@ -1,4 +1,3 @@
-using System;
 using LingoEngine.FrameworkCommunication;
 namespace LingoEngine.Inputs
 {
@@ -73,9 +72,9 @@ namespace LingoEngine.Inputs
     public class LingoKey : ILingoKey
     {
         private HashSet<ILingoKeyEventHandler> _subscriptions = new();
-        private readonly FrameworkCommunication.ILingoFrameworkKey _frameworkObj;
+        private readonly ILingoFrameworkKey _frameworkObj;
 
-        public LingoKey(FrameworkCommunication.ILingoFrameworkKey frameworkObj)
+        public LingoKey(ILingoFrameworkKey frameworkObj)
         {
             _frameworkObj = frameworkObj;
         }
@@ -85,7 +84,7 @@ namespace LingoEngine.Inputs
         /// </summary>
         public LingoKey CreateNewInstance(ILingoActivationProvider provider) => new ProxyKey(this, provider);
 
-        internal T Framework<T>() where T : FrameworkCommunication.ILingoFrameworkKey => (T)_frameworkObj;
+        internal T Framework<T>() where T : ILingoFrameworkKey => (T)_frameworkObj;
 
         public bool ControlDown => _frameworkObj.ControlDown;
         public bool CommandDown => _frameworkObj.CommandDown;

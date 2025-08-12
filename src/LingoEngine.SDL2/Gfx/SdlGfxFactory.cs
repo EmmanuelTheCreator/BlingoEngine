@@ -1,9 +1,8 @@
 using System;
-using System.Reflection.Emit;
 using LingoEngine.Bitmaps;
 using LingoEngine.Gfx;
+using LingoEngine.Inputs;
 using LingoEngine.Primitives;
-using LingoEngine.SDL2;
 using LingoEngine.Styles;
 
 namespace LingoEngine.SDL2.Gfx
@@ -15,6 +14,8 @@ namespace LingoEngine.SDL2.Gfx
     {
         private readonly ISdlRootComponentContext _rootContext;
         private readonly ILingoFontManager _fontManager;
+
+        public ISdlRootComponentContext RootContext => _rootContext;
 
         public SdlGfxFactory(ISdlRootComponentContext rootContext, ILingoFontManager fontManager)
         {
@@ -260,6 +261,18 @@ namespace LingoEngine.SDL2.Gfx
             return menu;
         }
 
+
+        public LingoGfxWindow CreateWindow(string name, string title = "")
+        {
+            
+            var win = new LingoGfxWindow();
+            var impl = new SdlGfxWindow(win, this);
+            win.Name = name;
+            win.Title = title;
+            return win;
+        }
+
+
         public LingoGfxMenuItem CreateMenuItem(string name, string? shortcut = null)
         {
             var item = new LingoGfxMenuItem();
@@ -284,9 +297,6 @@ namespace LingoEngine.SDL2.Gfx
             throw new NotImplementedException();
         }
 
-        public LingoGfxWindow CreateWindow(string name, string title = "")
-        {
-            throw new NotImplementedException();
-        }
+      
     }
 }

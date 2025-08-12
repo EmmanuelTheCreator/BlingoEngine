@@ -1,3 +1,4 @@
+using LingoEngine.Primitives;
 using LingoEngine.SDL2;
 using LingoEngine.SDL2.SDLL;
 
@@ -49,5 +50,11 @@ public class TestSdlRootComponentContext : ISdlRootComponentContext, IDisposable
         SDL_ttf.TTF_Quit();
         SDL_image.IMG_Quit();
         SDL.SDL_Quit();
+    }
+
+    public LingoPoint GetWindowSize()
+    {
+        SDL.SDL_GetWindowSize(_window, out var w, out var h);
+        return new LingoPoint(w, h);
     }
 }

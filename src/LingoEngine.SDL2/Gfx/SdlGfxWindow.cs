@@ -1,48 +1,29 @@
-using System;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
-using LingoEngine.SDL2.Core;
-using LingoEngine.SDL2.SDLL;
-using LingoEngine.Inputs;
 using LingoEngine.SDL2.Inputs;
 
 namespace LingoEngine.SDL2.Gfx;
 
 internal class SdlGfxWindow : SdlGfxPanel, ILingoFrameworkGfxWindow, IDisposable
 {
-    private readonly SdlFactory _factory;
+    private readonly SdlGfxFactory _factory;
+    private readonly LingoGfxWindow _lingoWindow;
     private readonly SdlMouse _mouseImpl;
     private readonly SdlKey _keyImpl;
-    private event Action? _onOpen;
-    private event Action? _onClose;
-    private event Action<float, float>? _onResize;
     private string _title = string.Empty;
     private bool _isPopup;
     private bool _borderless;
 
-    public SdlGfxWindow(LingoGfxWindow window, SdlFactory factory) : base(factory)
+    public SdlGfxWindow(LingoGfxWindow window, SdlGfxFactory factory) : base(factory)
     {
+        _lingoWindow = window;
         _factory = factory;
-
-        LingoMouse? mouse = null;
-        _mouseImpl = new SdlMouse(new Lazy<LingoMouse>(() => mouse!));
-        _factory.RootContext.Mice.Add(_mouseImpl);
-        mouse = new LingoMouse(_mouseImpl);
-
-        _keyImpl = new SdlKey();
-        _factory.RootContext.Keys.Add(_keyImpl);
-        var key = new LingoKey(_keyImpl);
-        _keyImpl.SetLingoKey(key);
-
-        window.Init(this, mouse, key);
+        var mouse = factory.RootContext.LingoMouse.CreateNewInstance(window);
+        var key = factory.RootContext.LingoKey.CreateNewInstance(window);
+        _lingoWindow.Init(this, mouse , key);
         Visibility = false;
     }
 
-    public void Dispose()
-    {
-        _factory.RootContext.Mice.Remove(_mouseImpl);
-        _factory.RootContext.Keys.Remove(_keyImpl);
-    }
 
     public string Title
     {
@@ -56,10 +37,7 @@ internal class SdlGfxWindow : SdlGfxPanel, ILingoFrameworkGfxWindow, IDisposable
         set
         {
             if (Math.Abs(base.Width - value) > float.Epsilon)
-            {
                 base.Width = value;
-                _onResize?.Invoke(base.Width, base.Height);
-            }
         }
     }
 
@@ -69,10 +47,7 @@ internal class SdlGfxWindow : SdlGfxPanel, ILingoFrameworkGfxWindow, IDisposable
         set
         {
             if (Math.Abs(base.Height - value) > float.Epsilon)
-            {
                 base.Height = value;
-                _onResize?.Invoke(base.Width, base.Height);
-            }
         }
     }
 
@@ -94,43 +69,34 @@ internal class SdlGfxWindow : SdlGfxPanel, ILingoFrameworkGfxWindow, IDisposable
         set => base.BackgroundColor = value;
     }
 
-    event Action? ILingoFrameworkGfxWindow.OnOpen
-    {
-        add => _onOpen += value;
-        remove => _onOpen -= value;
-    }
 
-    event Action? ILingoFrameworkGfxWindow.OnClose
+    // TODO :  Resize SDL window.
+    public void OnResize(int width, int height)
     {
-        add => _onClose += value;
-        remove => _onClose -= value;
-    }
-
-    event Action<float, float>? ILingoFrameworkGfxWindow.OnResize
-    {
-        add => _onResize += value;
-        remove => _onResize -= value;
+        _lingoWindow.Resize(width, height);
     }
 
     public void Popup()
     {
-        _factory.ComponentContainer.Activate(ComponentContext);
+        _factory.RootContext.ComponentContainer.Activate(ComponentContext);
         Visibility = true;
-        _onOpen?.Invoke();
+        _lingoWindow.RaiseWindowStateChanged(true);
     }
 
     public void PopupCentered()
     {
-        SDL.SDL_GetWindowSize(_factory.RootContext.Window, out var w, out var h);
-        X = (w - Width) / 2f;
-        Y = (h - Height) / 2f;
+        LingoPoint size = _factory.RootContext.GetWindowSize();
+       
+        X = (size.X - Width) / 2f;
+        Y = (size.Y - Height) / 2f;
         Popup();
+        _lingoWindow.RaiseWindowStateChanged(true);
     }
 
     public void Hide()
     {
         Visibility = false;
-        _factory.ComponentContainer.Deactivate(ComponentContext);
-        _onClose?.Invoke();
+        _factory.RootContext.ComponentContainer.Deactivate(ComponentContext);
+        _lingoWindow.RaiseWindowStateChanged(false);
     }
 }

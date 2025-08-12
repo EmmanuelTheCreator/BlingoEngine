@@ -155,5 +155,7 @@ namespace LingoEngine.FrameworkCommunication
         /// <summary>Creates a movie script.</summary>
         T CreateMovieScript<T>(LingoMovie lingoMovie) where T : LingoMovieScript;
 
+  
+        
     }
 }

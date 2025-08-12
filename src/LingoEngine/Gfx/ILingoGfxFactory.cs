@@ -1,5 +1,6 @@
 using System;
 using LingoEngine.Bitmaps;
+using LingoEngine.Inputs;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.Gfx

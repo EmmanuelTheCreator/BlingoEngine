@@ -1,11 +1,10 @@
 using Godot;
 using LingoEngine.Gfx;
+using LingoEngine.Inputs;
+using LingoEngine.LGodot.Core;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.LGodot.Styles;
 using LingoEngine.Primitives;
-using LingoEngine.Inputs;
-using LingoEngine.LGodot;
-using System;
 using static Godot.Control;
 
 namespace LingoEngine.LGodot.Gfx
@@ -19,45 +18,14 @@ namespace LingoEngine.LGodot.Gfx
         private readonly List<ILingoFrameworkGfxLayoutNode> _nodes = new();
         private readonly Panel _panel;
         private readonly StyleBoxFlat _panelStyle;
-        private event Action? _onOpen;
-        private event Action? _onClose;
-        private event Action<float, float>? _onResize;
+        private readonly LingoGfxWindow _lingoWindow;
+        private readonly LingoGodotRootNode _rootNode;
+        protected readonly LingoGodotMouse _MouseFrameworkObj;
         private bool _isPopup;
-        public LingoGodotWindow(LingoGfxWindow window, ILingoGodotStyleManager lingoGodotStyleManager)
-        {
-            LingoMouse? mouse = null;
-            var mouseImpl = new LingoGodotMouseArea(this, new Lazy<LingoMouse>(() => mouse!));
-            mouse = new LingoMouse(mouseImpl);
+        private int TitleBarHeight = 0;
 
-            LingoKey? key = null;
-            var keyImpl = new LingoGodotKey(this, new Lazy<LingoKey>(() => key!));
-            key = new LingoKey(keyImpl);
-            keyImpl.SetLingoKey(key);
 
-            window.Init(this, mouse, key);
-            //Borderless = true;
-            //ExtendToTitle = true;
-            Theme = lingoGodotStyleManager.GetTheme(LingoGodotThemeElementType.PopupWindow);
-
-            _panel = new Panel
-            {
-                Name = "WindowLayoutPanel",
-                SizeFlagsHorizontal = SizeFlags.ExpandFill,
-                SizeFlagsVertical = SizeFlags.ExpandFill,
-            };
-            _panelStyle = new StyleBoxFlat
-            {
-                BgColor = LingoColorList.White.ToGodotColor(),
-
-            };
-            _panel.AddThemeStyleboxOverride("panel", _panelStyle);
-            AddChild(_panel);
-            CloseRequested += Hide;
-
-            ReplaceIconColor(this, "close", new Color("#777777"));
-            ReplaceIconColor(this, "close_hl", Colors.Black);
-            ReplaceIconColor(this, "close_pressed", Colors.Black);
-        }
+        #region Properties
 
         public float X { get => Position.X; set => Position = new Vector2I((int)value, Position.Y); }
         public float Y { get => Position.Y; set => Position = new Vector2I(Position.X, (int)value); }
@@ -92,7 +60,6 @@ namespace LingoEngine.LGodot.Gfx
                 Exclusive = value;
             }
         }
-        public bool Borderless { get => base.Borderless; set => base.Borderless = value; }
         public LingoColor BackgroundColor
         {
             get => _panelStyle.BgColor.ToLingoColor();
@@ -113,20 +80,82 @@ namespace LingoEngine.LGodot.Gfx
 
         public object FrameworkNode => this;
 
-        event Action? ILingoFrameworkGfxWindow.OnOpen
+
+        #endregion
+
+
+        public LingoGodotWindow(LingoGfxWindow window, ILingoGodotStyleManager lingoGodotStyleManager, LingoGodotRootNode rootNode)
         {
-            add => _onOpen += value;
-            remove => _onOpen -= value;
+            _lingoWindow = window;
+            _rootNode = rootNode;
+            LingoMouse? mouse = null;
+            _MouseFrameworkObj = new LingoGodotMouse(new Lazy<LingoMouse>(() => (LingoMouse)mouse!));
+            mouse = new LingoMouse(_MouseFrameworkObj);
+
+            LingoKey? key = null;
+            var impl = new LingoGodotKey(this, new Lazy<LingoKey>(() => key!));
+            key = new LingoKey(impl);
+            impl.SetLingoKey(key);
+
+            _lingoWindow.Init(this,mouse,key);
+            //Borderless = true;
+            //ExtendToTitle = true;
+            Theme = lingoGodotStyleManager.GetTheme(LingoGodotThemeElementType.PopupWindow);
+
+            _panel = new Panel
+            {
+                Name = "WindowLayoutPanel",
+                SizeFlagsHorizontal = SizeFlags.ExpandFill,
+                SizeFlagsVertical = SizeFlags.ExpandFill,
+            };
+            _panelStyle = new StyleBoxFlat
+            {
+                BgColor = LingoColorList.White.ToGodotColor(),
+
+            };
+            _panel.AddThemeStyleboxOverride("panel", _panelStyle);
+            AddChild(_panel);
+            CloseRequested += Hide;
+
+            ReplaceIconColor(this, "close", new Color("#777777"));
+            ReplaceIconColor(this, "close_hl", Colors.Black);
+            ReplaceIconColor(this, "close_pressed", Colors.Black);
+
+            _rootNode.RootNode.GetTree().Root.AddChild(this);
+            
         }
-        event Action? ILingoFrameworkGfxWindow.OnClose
+
+
+        public override void _Input(InputEvent @event)
         {
-            add => _onClose += value;
-            remove => _onClose -= value;
+            base._Input(@event);
+            if (!Visible) return;
+            OnHandleTheEvent(@event);
         }
-        event Action<float, float>? ILingoFrameworkGfxWindow.OnResize
+
+        //public override void _GuiInput(InputEvent @event)
+        //{
+        //    base._GuiInput(@event);
+        //    if (!useGuiInput || !Visible) return;
+        //    OnHandleTheEvent(@event);
+        //}
+        protected virtual void OnHandleTheEvent(InputEvent @event)
         {
-            add => _onResize += value;
-            remove => _onResize -= value;
+            var isInsideRect = _panel.GetGlobalRect().HasPoint(_panel.GetGlobalMousePosition());
+            if (!isInsideRect) return;
+            var mousePos = _panel.GetLocalMousePosition();
+            //Console.WriteLine(Name + ":" + mousePos.X + "x" + mousePos.Y + ":" + isInsideRect);
+            // Handle mouse button events (MouseDown and MouseUp)
+            if (@event is InputEventMouseButton mouseButtonEvent)
+            {
+                if (!_lingoWindow.Visibility)
+                    return;
+                _MouseFrameworkObj.HandleMouseButtonEvent(mouseButtonEvent, isInsideRect, mousePos.X, mousePos.Y - TitleBarHeight);
+                //Console.WriteLine(Name + ":" + mousePos.X + "x" + mousePos.Y+":"+ isInsideRect);
+            }
+            // Handle Mouse Motion (MouseMove)
+            else if (@event is InputEventMouseMotion mouseMotionEvent)
+                _MouseFrameworkObj.HandleMouseMoveEvent(mouseMotionEvent, isInsideRect, mousePos.X, mousePos.Y - TitleBarHeight);
         }
 
         public void AddItem(ILingoFrameworkGfxLayoutNode child)
@@ -148,17 +177,17 @@ namespace LingoEngine.LGodot.Gfx
         public void Popup()
         {
             base.Popup();
-            _onOpen?.Invoke();
+            _lingoWindow.RaiseWindowStateChanged(true);
         }
         public void PopupCentered()
         {
             base.PopupCentered();
-            _onOpen?.Invoke();
+            _lingoWindow.RaiseWindowStateChanged(true);
         }
         public new void Hide()
         {
             base.Hide();
-            _onClose?.Invoke();
+            _lingoWindow.RaiseWindowStateChanged(false);
         }
 
         public override void _Notification(int what)
@@ -167,15 +196,11 @@ namespace LingoEngine.LGodot.Gfx
             if (what == 1008)// NotificationResized
             {
                 _panel.Size = Size;
-                _onResize?.Invoke(Size.X, Size.Y);
+                _lingoWindow.Resize(Size.X, Size.Y);
+                
             }
         }
-        public new void Dispose()
-        {
-            CloseRequested -= Hide;
-            QueueFree();
-            base.Dispose();
-        }
+       
         private static void ReplaceIconColor(Window dialog, string name, Color colorNew)
         {
             var icon = dialog.GetThemeIcon(name);
