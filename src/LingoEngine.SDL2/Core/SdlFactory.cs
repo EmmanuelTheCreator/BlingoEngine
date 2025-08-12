@@ -33,10 +33,10 @@ namespace LingoEngine.SDL2.Core;
 public class SdlFactory : ILingoFrameworkFactory, IDisposable
 {
     private readonly List<IDisposable> _disposables = new();
-    private readonly IServiceProvider _serviceProvider;
+    private readonly ILingoServiceProvider _serviceProvider;
     private readonly SdlRootContext _rootContext;
     /// <inheritdoc/>
-    public SdlFactory(IServiceProvider serviceProvider, SdlRootContext rootContext)
+    public SdlFactory(ILingoServiceProvider serviceProvider, SdlRootContext rootContext)
     {
         _serviceProvider = serviceProvider;
         _rootContext = rootContext;
@@ -172,13 +172,13 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
         return movie;
     }
     /// <inheritdoc/>
-    public T CreateSprite<T>(ILingoMovie movie, Action<LingoSprite2D> onRemoveMe) where T : LingoSprite2D
+    public LingoSprite2D CreateSprite2D(ILingoMovie movie, Action<LingoSprite2D> onRemoveMe)
     {
         var movieTyped = (LingoMovie)movie;
-        var sprite = movieTyped.GetServiceProvider().GetRequiredService<T>();
-        sprite.SetOnRemoveMe(onRemoveMe);
-        movieTyped.Framework<SdlMovie>().CreateSprite(sprite);
-        return sprite;
+        var lingoSprite = new LingoSprite2D(((LingoMovie)movie).GetEnvironment(), movie);
+        lingoSprite.SetOnRemoveMe(onRemoveMe);
+        movieTyped.Framework<SdlMovie>().CreateSprite(lingoSprite);
+        return lingoSprite;
     }
     /// <inheritdoc/>
     public void Dispose()

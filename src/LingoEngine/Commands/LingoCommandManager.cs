@@ -1,13 +1,16 @@
+using System;
+using System.Linq;
+using LingoEngine.Core;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Commands;
 
 internal sealed class LingoCommandManager : ILingoCommandManager
 {
-    private readonly IServiceProvider _provider;
+    private readonly ILingoServiceProvider _provider;
     private readonly Dictionary<Type, List<Type>> _handlers = new();
 
-    public LingoCommandManager(IServiceProvider provider) => _provider = provider;
+    public LingoCommandManager(ILingoServiceProvider provider) => _provider = provider;
 
     public void Register<THandler, TCommand>()
         where THandler : ICommandHandler<TCommand>
@@ -53,5 +56,23 @@ internal sealed class LingoCommandManager : ILingoCommandManager
             return ok;
         }
         return false;
+    }
+
+    public void Clear(string? preserveNamespaceFragment = null)
+    {
+        if (string.IsNullOrEmpty(preserveNamespaceFragment))
+        {
+            _handlers.Clear();
+            return;
+        }
+
+        foreach (var cmdType in _handlers.Keys.ToList())
+        {
+            var list = _handlers[cmdType];
+            list.RemoveAll(t => t.Namespace == null ||
+                t.Namespace.IndexOf(preserveNamespaceFragment, StringComparison.OrdinalIgnoreCase) < 0);
+            if (list.Count == 0)
+                _handlers.Remove(cmdType);
+        }
     }
 }

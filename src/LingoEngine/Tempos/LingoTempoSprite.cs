@@ -3,6 +3,7 @@ using LingoEngine.Sprites;
 using LingoEngine.Inputs.Events;
 using LingoEngine.Inputs;
 using LingoEngine.Events;
+using System;
 
 
 namespace LingoEngine.Tempos;
@@ -17,6 +18,7 @@ public enum LingoTempoSpriteAction
 public class LingoTempoSprite : LingoSprite
 {
     public const int SpriteNumOffset = 0;
+    private readonly ILingoMovieEnvironment _environment;
     private readonly Action<LingoTempoSprite> _removeMe;
     private int _tempo = 30;
 
@@ -61,8 +63,9 @@ public class LingoTempoSprite : LingoSprite
     }
 
     private WaitForInputSubscription? _waitForInputSubscription;
-    public LingoTempoSprite(ILingoMovieEnvironment environment, Action<LingoTempoSprite> removeMe) : base(environment)
+    public LingoTempoSprite(ILingoMovieEnvironment environment, Action<LingoTempoSprite> removeMe) : base(environment.Events)
     {
+        _environment = environment;
         _removeMe = removeMe;
         IsSingleFrame = true;
         Action = LingoTempoSpriteAction.ChangeTempo;

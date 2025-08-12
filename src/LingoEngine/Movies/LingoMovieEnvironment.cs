@@ -29,7 +29,7 @@ namespace LingoEngine.Movies
         T? GetMember<T>(int number, int? castLibNum = null) where T : class, ILingoMember;
         T? GetMember<T>(string name, int? castLibNum = null) where T : class, ILingoMember;
     }
-    public class LingoMovieEnvironment : ILingoMovieEnvironment , IDisposable
+    public class LingoMovieEnvironment : ILingoMovieEnvironment, IDisposable
     {
         private LingoPlayer _player;
         private LingoKey _key;
@@ -41,10 +41,11 @@ namespace LingoEngine.Movies
         private LingoCastLibsContainer _castLibsContainer;
         private LingoEventMediator _eventMediator;
         private IServiceScope _scopedServiceProvider;
+        private ILingoServiceProvider _serviceProvider;
         private readonly ILingoFrameworkFactory _factory;
         private readonly LingoProjectSettings _projectSettings;
         private readonly Lazy<ILingoMemberFactory> _memberFactory;
-        private readonly IServiceProvider _rootServiceProvider;
+        private readonly ILingoServiceProvider _rootServiceProvider;
         public ILingoEventMediator Events => _eventMediator;
 
         public ILingoPlayer Player => _player;
@@ -65,7 +66,7 @@ namespace LingoEngine.Movies
 
 #pragma warning disable CS8618 
 #pragma warning restore CS8618 
-        public LingoMovieEnvironment(IServiceProvider rootServiceProvider, ILingoFrameworkFactory factory, LingoProjectSettings projectSettings)
+        public LingoMovieEnvironment(ILingoServiceProvider rootServiceProvider, ILingoFrameworkFactory factory, LingoProjectSettings projectSettings)
         {
             _memberFactory = rootServiceProvider.GetRequiredService<Lazy<ILingoMemberFactory>>();
             _rootServiceProvider = rootServiceProvider;
@@ -73,10 +74,12 @@ namespace LingoEngine.Movies
             _projectSettings = projectSettings;
         }
 
-        internal void Init(string name, int number, LingoPlayer player, LingoKey lingoKey, LingoSound sound, LingoStageMouse mouse, LingoStage stage, LingoSystem system, ILingoClock clock, LingoCastLibsContainer lingoCastLibsContainer, IServiceScope scopedServiceProvider,Action<LingoMovie> onRemoveMe)
+        internal void Init(string name, int number, LingoPlayer player, LingoKey lingoKey, LingoSound sound, LingoStageMouse mouse, LingoStage stage, LingoSystem system, ILingoClock clock, LingoCastLibsContainer lingoCastLibsContainer, IServiceScope scopedServiceProvider, Action<LingoMovie> onRemoveMe)
         {
             _scopedServiceProvider = scopedServiceProvider;
-            _eventMediator = (LingoEventMediator)scopedServiceProvider.ServiceProvider.GetRequiredService<ILingoEventMediator>();
+            _serviceProvider = new LingoServiceProvider();
+            _serviceProvider.SetServiceProvider(scopedServiceProvider.ServiceProvider);
+            _eventMediator = (LingoEventMediator)_serviceProvider.GetRequiredService<ILingoEventMediator>();
             _player = player;
             _key = lingoKey;
             _sound = sound;
@@ -86,13 +89,13 @@ namespace LingoEngine.Movies
             _mouse.Subscribe(_eventMediator);
             _key.Subscribe(_eventMediator);
             _castLibsContainer = lingoCastLibsContainer;
-            _movie = new LingoMovie(this, stage, _castLibsContainer, _memberFactory.Value, name,number, _eventMediator, m =>
+            _movie = new LingoMovie(this, stage, _castLibsContainer, _memberFactory.Value, name, number, _eventMediator, m =>
             {
                 onRemoveMe(m);
                 Dispose();
             }, _projectSettings, _rootServiceProvider.GetRequiredService<ILingoFrameLabelManager>());
         }
-        internal IServiceProvider GetServiceProvider() => _scopedServiceProvider.ServiceProvider;
+        internal ILingoServiceProvider GetServiceProvider() => _serviceProvider;
         public void Dispose()
         {
             _mouse.Unsubscribe(_eventMediator);
@@ -103,7 +106,7 @@ namespace LingoEngine.Movies
         public ILingoCast? GetCastLib(int number) => _castLibsContainer[number];
         public ILingoCast? GetCastLib(string name) => _castLibsContainer[name];
 
-        T? ILingoMovieEnvironment.GetMember<T>(int number, int? castLibNum = null) where T : class => _castLibsContainer.GetMember<T>(number, castLibNum);  
+        T? ILingoMovieEnvironment.GetMember<T>(int number, int? castLibNum = null) where T : class => _castLibsContainer.GetMember<T>(number, castLibNum);
 
         T? ILingoMovieEnvironment.GetMember<T>(string name, int? castLibNum = null) where T : class => _castLibsContainer.GetMember<T>(name, castLibNum);
 

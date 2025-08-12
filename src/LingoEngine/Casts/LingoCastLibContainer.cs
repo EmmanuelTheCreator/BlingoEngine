@@ -1,6 +1,5 @@
 ﻿using LingoEngine.FrameworkCommunication;
 using LingoEngine.Members;
-using System.Xml.Linq;
 
 namespace LingoEngine.Casts
 {
@@ -18,7 +17,7 @@ namespace LingoEngine.Casts
         ILingoMember? GetMember(string name, int? castLibNum = null);
         T? GetMember<T>(int number, int? castLibNum = null) where T : class, ILingoMember;
         T? GetMember<T>(string name, int? castLibNum = null) where T : class, ILingoMember;
-        ILingoCast AddCast(string name);
+        ILingoCast AddCast(string name, bool isInternal = false);
         ILingoCast GetCast(int number);
         string GetCastName(int number);
         IEnumerable<ILingoCast> GetAll();
@@ -56,10 +55,10 @@ namespace LingoEngine.Casts
         public string GetCastName(int number) => _casts[number - 1].Name;
         public ILingoCast GetCast(int number) => _casts[number - 1];
 
-        public ILingoCast AddCast(string name)
+        public ILingoCast AddCast(string name, bool isInternal = false)
         {
             var nameL = name.ToLower();
-            var cast = new LingoCast(this, _factory, name);
+            var cast = new LingoCast(this, _factory, name, isInternal);
             _casts.Add(cast);
             _castsByName.Add(nameL, cast);
             if (ActiveCast == null)
@@ -70,13 +69,23 @@ namespace LingoEngine.Casts
         {
             var nameL = cast.Name.ToLower();
             var castTyped = (LingoCast)cast;
-            castTyped.RemoveAll();
+            castTyped.Dispose();
             _casts.Remove(castTyped);
             _castsByName.Remove(nameL);
             if (activeCast == cast && _casts.Count > 0)
                 activeCast = _casts[0];
 
             return cast;
+        }
+
+        public void RemoveInternal()
+        {
+            for (int i = _casts.Count - 1; i >= 0; i--)
+            {
+                var cast = _casts[i];
+                if (cast.IsInternal)
+                    RemoveCast(cast);
+            }
         }
 
         public int GetNextMemberNumber(int castNumber, int numberInCast) => _allMembersContainer.GetNextNumber(castNumber, numberInCast);

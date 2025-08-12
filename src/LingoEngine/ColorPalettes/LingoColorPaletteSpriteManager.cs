@@ -1,6 +1,7 @@
 using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
+using System;
 
 namespace LingoEngine.ColorPalettes;
 public interface ILingoSpriteColorPaletteSpriteManager : ILingoSpriteManager<LingoColorPaletteSprite>
@@ -24,7 +25,7 @@ internal class LingoSpriteColorPaletteSpriteManager : LingoSpriteManager<LingoCo
         return sprite;
     }
 
-    protected override LingoColorPaletteSprite OnCreateSprite(LingoMovie movie, Action<LingoColorPaletteSprite> onRemove) => new LingoColorPaletteSprite(_environment, onRemove);
+    protected override LingoColorPaletteSprite OnCreateSprite(LingoMovie movie, Action<LingoColorPaletteSprite> onRemove) => new LingoColorPaletteSprite(_environment.Events, _environment.CastLibsContainer.ActiveCast, onRemove);
 
 
     public LingoColorPaletteSprite Add(int frameNumber, LingoColorPaletteFrameSettings? settings = null)

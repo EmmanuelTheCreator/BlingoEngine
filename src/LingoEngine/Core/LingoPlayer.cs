@@ -1,6 +1,7 @@
 ﻿using System;
 using LingoEngine.Casts;
 using LingoEngine.Commands;
+using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
 using LingoEngine.Movies;
@@ -24,7 +25,7 @@ namespace LingoEngine.Core
         private readonly LingoCastLibsContainer _castLibsContainer;
         private readonly LingoSound _sound;
         private readonly ILingoWindow _window;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly ILingoServiceProvider _serviceProvider;
         private Action<LingoMovie> _actionOnNewMovie;
         private Dictionary<string, LingoMovieEnvironment> _moviesByName = new();
         private List<LingoMovieEnvironment> _movies = new();
@@ -42,7 +43,7 @@ namespace LingoEngine.Core
         public ILingoStage Stage => _Stage;
         /// <inheritdoc/>
         public ILingoCast ActiveCastLib => _castLibsContainer.ActiveCast;
-        
+
         /// <inheritdoc/>
         public ILingoSound Sound => _sound;
         public ILingoStageMouse Mouse => _Mouse;
@@ -79,9 +80,9 @@ namespace LingoEngine.Core
         public ILingoMovie? ActiveMovie { get; private set; }
         public event Action<ILingoMovie?>? ActiveMovieChanged;
 
-        public LingoPlayer(IServiceProvider serviceProvider, ILingoFrameworkFactory factory, ILingoCastLibsContainer castLibsContainer, ILingoWindow window, ILingoClock lingoClock, ILingoSystem lingoSystem)
+        public LingoPlayer(ILingoServiceProvider serviceProvider, ILingoFrameworkFactory factory, ILingoCastLibsContainer castLibsContainer, ILingoWindow window, ILingoClock lingoClock, ILingoSystem lingoSystem)
         {
-            _actionOnNewMovie= m => { };
+            _actionOnNewMovie = m => { };
             _serviceProvider = serviceProvider;
             Factory = factory;
             _castLibsContainer = (LingoCastLibsContainer)castLibsContainer;
@@ -113,7 +114,7 @@ namespace LingoEngine.Core
         /// <inheritdoc/>
         public void Cursor(int cursorNum)
         {
-            
+
         }
         /// <inheritdoc/>
         public void Halt()
@@ -139,7 +140,7 @@ namespace LingoEngine.Core
         public ILingoMovie NewMovie(string name, bool andActivate = true)
         {
             // Create the default cast
-            if (_castLibsContainer.Count == 0) 
+            if (_castLibsContainer.Count == 0)
                 _castLibsContainer.AddCast("Internal");
 
             // Create a new movies scope, needed for behaviours.
@@ -147,7 +148,7 @@ namespace LingoEngine.Core
 
             // Create the movie.
             var movieEnv = (LingoMovieEnvironment)scope.ServiceProvider.GetRequiredService<ILingoMovieEnvironment>();
-            movieEnv.Init(name, _movies.Count + 1, this, _LingoKey, _sound, _Mouse, _Stage, _System, Clock, _castLibsContainer, scope,m =>
+            movieEnv.Init(name, _movies.Count + 1, this, _LingoKey, _sound, _Mouse, _Stage, _System, Clock, _castLibsContainer, scope, m =>
             {
                 // On remove movie
                 var movieEnvironment = m.GetEnvironment();
@@ -183,19 +184,24 @@ namespace LingoEngine.Core
         ///     Number,Type,Name,Registration Point,Filename
         ///     1,bitmap,BallB,"(5, 5)",
         /// </summary>
-        public ILingoPlayer LoadCastLibFromCsv(string castlibName, string pathAndFilenameToCsv)
+        public ILingoPlayer LoadCastLibFromCsv(string castlibName, string pathAndFilenameToCsv, bool isInternal = false)
         {
-            var castLib = _castLibsContainer.AddCast(castlibName);
+            var castLib = _castLibsContainer.AddCast(castlibName, isInternal);
             _csvImporter.Value.ImportInCastFromCsvFile(castLib, pathAndFilenameToCsv);
             return this;
         }
 
-        public ILingoPlayer AddCastLib(string name, Action<ILingoCast>? configure = null)
+        public ILingoPlayer AddCastLib(string name, bool isInternal = false, Action<ILingoCast>? configure = null)
         {
-            var castLib = _castLibsContainer.AddCast(name);
+            var castLib = _castLibsContainer.AddCast(name, isInternal);
             if (configure != null)
                 configure(castLib);
             return this;
+        }
+
+        public void UnloadInternalCastLibs()
+        {
+            _castLibsContainer.RemoveInternal();
         }
 
         public void SetActiveMovie(LingoMovie? movie)
@@ -268,9 +274,11 @@ namespace LingoEngine.Core
 
         public bool CanExecute(SetFrameLabelCommand command) => ActiveMovie is LingoMovie;
 
-      
+        public ILingoEventMediator GetEventMediator() => _serviceProvider.GetRequiredService<ILingoEventMediator>();
 
-       
+
+
+
         #endregion
     }
 }

@@ -3,6 +3,9 @@ using LingoEngine.Sprites;
 using LingoEngine.Sprites.Events;
 using System.Reflection;
 using LingoEngine.Members;
+using LingoEngine.Events;
+using LingoEngine.FrameworkCommunication;
+using LingoEngine.Core;
 
 
 namespace LingoEngine.Scripts;
@@ -10,6 +13,8 @@ namespace LingoEngine.Scripts;
 public class LingoFrameScriptSprite : LingoSprite, ILingoSpriteWithMember
 {
     public const int SpriteNumOffset = 5;
+    private readonly ILingoPlayer player;
+    private readonly ILingoFrameworkFactory _frameworkFactory;
     private Action<LingoFrameScriptSprite> _onRemoveMe;
   
 
@@ -20,9 +25,11 @@ public class LingoFrameScriptSprite : LingoSprite, ILingoSpriteWithMember
 
 
 #pragma warning disable CS8618
-    public LingoFrameScriptSprite(ILingoMovieEnvironment environment, Action<LingoFrameScriptSprite> onRemoveMe) : base(environment)
+    public LingoFrameScriptSprite(ILingoPlayer player,ILingoFrameworkFactory frameworkFactory, ILingoEventMediator eventMediator, Action<LingoFrameScriptSprite> onRemoveMe) : base(eventMediator)
 #pragma warning restore CS8618 
     {
+        this.player = player;
+        _frameworkFactory = frameworkFactory;
         _onRemoveMe = onRemoveMe;
         IsSingleFrame = true;
     }
@@ -34,13 +41,15 @@ public class LingoFrameScriptSprite : LingoSprite, ILingoSpriteWithMember
         BeginFrame = beginFrame;
         EndFrame = endFrame;
         Member = frameScript;
+        Member.UsedBy(this);
         Name = frameScript.Name ?? string.Empty;
     }
 
     public override void OnRemoveMe()
     {
+        Member?.ReleaseFromRefUser(this);
         if (Behavior != null)
-            _environment.Events.Unsubscribe(Behavior);
+            _eventMediator.Unsubscribe(Behavior);
         _onRemoveMe(this);
     }
 
@@ -48,7 +57,7 @@ public class LingoFrameScriptSprite : LingoSprite, ILingoSpriteWithMember
     {
         base.BeginSprite();
         if (Behavior == null) return;
-        _environment.Events.Subscribe(Behavior, SpriteNumOffset+ SpriteNum);
+        _eventMediator.Subscribe(Behavior, SpriteNumOffset+ SpriteNum);
         if (Behavior is IHasBeginSpriteEvent beginSpriteEvent)
             beginSpriteEvent.BeginSprite();
     }
@@ -58,11 +67,12 @@ public class LingoFrameScriptSprite : LingoSprite, ILingoSpriteWithMember
             endSpriteEvent.EndSprite();
         base.EndSprite();
         if (Behavior == null) return;
-        _environment.Events.Unsubscribe(Behavior);
+        _eventMediator.Unsubscribe(Behavior);
     }
     internal T SetBehavior<T>() where T : LingoSpriteBehavior
     {
-        var behavior = _environment.Factory.CreateBehavior<T>((LingoMovie)_environment.Movie);
+        if (player.ActiveMovie == null) throw new Exception("No active movie found to set behavior on.");
+        var behavior = _frameworkFactory.CreateBehavior<T>((LingoMovie)player.ActiveMovie);
         Behavior = behavior;
         
         //Behavior.SetMe(this);
@@ -82,7 +92,8 @@ public class LingoFrameScriptSprite : LingoSprite, ILingoSpriteWithMember
         {
             baseAction(s);
             var sprite = (LingoFrameScriptSprite)s;
-            sprite.Member = Member;
+            sprite.Member = member;
+            member.UsedBy(sprite);
             if (behaviorType != null)
             {
                 var method = typeof(LingoFrameScriptSprite).GetMethod(nameof(SetBehavior), BindingFlags.Instance | BindingFlags.NonPublic);
@@ -90,7 +101,7 @@ public class LingoFrameScriptSprite : LingoSprite, ILingoSpriteWithMember
                 var behaviorNew = (LingoSpriteBehavior)generic.Invoke(sprite, null)!;
                 if (userProperties != null)
                     behaviorNew.SetUserProperties(userProperties);
-                
+
             }
         };
 
@@ -99,8 +110,15 @@ public class LingoFrameScriptSprite : LingoSprite, ILingoSpriteWithMember
 
     public void SetMember(LingoMemberScript lingoMemberScript)
     {
+        Member?.ReleaseFromRefUser(this);
         Member = lingoMemberScript;
+        Member.UsedBy(this);
     }
 
     public ILingoMember? GetMember() => Member;
+
+    public void MemberHasBeenRemoved()
+    {
+        Member = null!;
+    }
 }

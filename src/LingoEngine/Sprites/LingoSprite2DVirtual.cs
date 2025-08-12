@@ -1,13 +1,17 @@
 ﻿using LingoEngine.Animations;
+using LingoEngine.Casts;
+using LingoEngine.Events;
+using LingoEngine.FilmLoops;
 using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.Sprites
 {
-    public class LingoSprite2DVirtual : LingoSprite ,ILingoSprite2DLight
+    public class LingoSprite2DVirtual : LingoSprite, ILingoSprite2DLight, ILingoSpriteWithMember
     {
         public const int SpriteNumOffset = 6;
+        private readonly ILingoSpritesPlayer _spritesPlayer;
         private int _ink;
         private float _width;
         private float _height;
@@ -18,11 +22,10 @@ namespace LingoEngine.Sprites
 
         #region Properties
         public override int SpriteNumWithChannel => SpriteNum + SpriteNumOffset;
-        internal LingoSpriteChannel? SpriteChannel { get; set; }
 
 
 
-        public override string Name { get; set; }
+        public override string Name { get; set; } = "";
         public int MemberNum
         {
             get => Member?.NumberInCast ?? 0;
@@ -119,14 +122,16 @@ namespace LingoEngine.Sprites
         }
 
 
-        public LingoSprite2DVirtual(ILingoMovieEnvironment environment)
-            : base(environment)
+        public LingoSprite2DVirtual(ILingoEventMediator eventMediator, ILingoSpritesPlayer spritesPlayer)
+            : base(eventMediator)
         {
+            _spritesPlayer = spritesPlayer;
         }
 
-        public LingoSprite2DVirtual(ILingoMovieEnvironment environment,LingoSprite2D sp)
-            :base(environment)
+        public LingoSprite2DVirtual(ILingoEventMediator eventMediator, ILingoSpritesPlayer spritesPlayer, LingoSprite2D sp)
+            :base(eventMediator)
         {
+            _spritesPlayer = spritesPlayer;
             Name = sp.Name;
             LocH = sp.LocH;
             LocV = sp.LocV;
@@ -144,9 +149,33 @@ namespace LingoEngine.Sprites
             DisplayMember = sp.DisplayMember;
             SpriteNum = sp.SpriteNum;
             Hilite = sp.Hilite;
-            SpriteChannel = sp.SpriteChannel;
             SetMember(sp.Member);
         }
+
+        public LingoSprite2DVirtual(ILingoEventMediator eventMediator, ILingoSpritesPlayer spritesPlayer, LingoFilmLoopMemberSprite sp, ILingoCastLibsContainer castLibs) : this(eventMediator, spritesPlayer)
+        {
+            sp.LinkMember(castLibs);
+            SetMember(sp.Member);
+            Name = sp.Name;
+            LocH = sp.LocH;
+            LocV = sp.LocV;
+            LocZ = sp.LocZ;
+            Rotation = sp.Rotation;
+            Skew = sp.Skew;
+            FlipH = sp.FlipH;
+            FlipV = sp.FlipV;
+            RegPoint = sp.RegPoint;
+            ForeColor = sp.ForeColor;
+            BackColor = sp.BackColor;
+            Width = sp.Width;
+            Height = sp.Height;
+            InkType = sp.InkType;
+            DisplayMember = sp.DisplayMember;
+            SpriteNum = sp.SpriteNum;
+            Hilite = sp.Hilite;
+        }
+        public LingoSpriteAnimatorProperties GetAnimatorProperties() => GetAnimator().Properties;
+
 
         #region Animator
 
@@ -181,12 +210,12 @@ namespace LingoEngine.Sprites
                 foregroundColorEnabled, backgroundColorEnabled, blendEnabled,
                 curvature, continuousAtEnds, speedSmooth, easeIn, easeOut);
         }
-        private LingoSpriteAnimator GetAnimator()
+        public LingoSpriteAnimator GetAnimator(LingoSpriteAnimatorProperties? animatorProperties = null)
         {
             var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
             if (animator == null)
             {
-                animator = new LingoSpriteAnimator(this, _environment);
+                animator = new LingoSpriteAnimator(this, _spritesPlayer, _eventMediator, animatorProperties);
                 AddActor(animator);
             }
 
@@ -222,14 +251,18 @@ namespace LingoEngine.Sprites
 
         public void SetMember(ILingoMember? member)
         {
+            if (_Member == member) return;
             if (_Member != null && (_Member.Type == LingoMemberType.Script || _Member.Type == LingoMemberType.Sound || _Member.Type == LingoMemberType.Transition || _Member.Type == LingoMemberType.Unknown || _Member.Type == LingoMemberType.Palette || _Member.Type == LingoMemberType.Movie || _Member.Type == LingoMemberType.Font || _Member.Type == LingoMemberType.Cursor))
                 return;
             // Release the old member link with this sprite
-            //if (member != _Member)
-            //    _Member?.ReleaseFromSprite(this);
+            if (member != _Member)
+            {
+                _Member?.ReleaseFromRefUser(this);
+            }
             _Member = member as LingoMember;
             if (_Member != null)
             {
+                _Member.UsedBy(this);
                 RegPoint = _Member.RegPoint;
                 _Member.Preload();
                 Width = _Member.Width;
@@ -247,7 +280,7 @@ namespace LingoEngine.Sprites
 
         public void BringToFront()
         {
-            var maxZ = ((LingoMovie)_environment.Movie).GetMaxLocZ();
+            var maxZ = _spritesPlayer.GetMaxLocZ();
             LocZ = maxZ + 1;
         }
 
@@ -303,8 +336,14 @@ namespace LingoEngine.Sprites
 
         public override void OnRemoveMe()
         {
+            _Member?.ReleaseFromRefUser(this);
             if (_onRemoveMe != null)
                 _onRemoveMe(this);
+        }
+
+        public void MemberHasBeenRemoved()
+        {
+            _Member = null;
         }
 
         public void SetOnRemoveMe(Action<LingoSprite2DVirtual> onRemoveMe) => _onRemoveMe = onRemoveMe;

@@ -36,13 +36,13 @@ namespace LingoEngine.LGodot.Core
     public class GodotFactory : ILingoFrameworkFactory, IDisposable
     {
         private readonly List<IDisposable> _disposables = new List<IDisposable>();
-        private readonly IServiceProvider _serviceProvider;
+        private readonly ILingoServiceProvider _serviceProvider;
         private readonly LingoGodotRootNode _lingoRootNode;
         private Node _rootNode;
 
-        public GodotFactory(IServiceProvider serviceProvider, LingoGodotRootNode rootNode)
+        public GodotFactory(ILingoServiceProvider serviceProvider, LingoGodotRootNode rootNode)
         {
-            _lingoRootNode= rootNode;
+            _lingoRootNode = rootNode;
             _rootNode = rootNode.RootNode;
             _serviceProvider = serviceProvider;
         }
@@ -134,7 +134,7 @@ namespace LingoEngine.LGodot.Core
         /// <inheritdoc/>
         public LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
         {
-            var godotInstance = new LingoGodotMemberText(_serviceProvider.GetRequiredService<ILingoFontManager>(),_serviceProvider.GetRequiredService<ILogger<LingoGodotMemberText>>());
+            var godotInstance = new LingoGodotMemberText(_serviceProvider.GetRequiredService<ILingoFontManager>(), _serviceProvider.GetRequiredService<ILogger<LingoGodotMemberText>>());
             var lingoInstance = new LingoMemberText((LingoCast)cast, godotInstance, numberInCast, name, fileName ?? "", regPoint);
             godotInstance.Init(lingoInstance);
             _disposables.Add(godotInstance);
@@ -184,10 +184,10 @@ namespace LingoEngine.LGodot.Core
         /// <summary>
         /// Dependant on movie, because the behaviors are scoped and movie related.
         /// </summary>
-        public T CreateSprite<T>(ILingoMovie movie, Action<LingoSprite2D> onRemoveMe) where T : LingoSprite2D
+        public LingoSprite2D CreateSprite2D(ILingoMovie movie, Action<LingoSprite2D> onRemoveMe)
         {
             var movieTyped = (LingoMovie)movie;
-            var lingoSprite = movieTyped.GetServiceProvider().GetRequiredService<T>();
+            var lingoSprite = new LingoSprite2D(((LingoMovie)movie).GetEnvironment(), movie);
             lingoSprite.SetOnRemoveMe(onRemoveMe);
             movieTyped.Framework<LingoGodotMovie>().CreateSprite(lingoSprite);
             return lingoSprite;
@@ -454,7 +454,7 @@ namespace LingoEngine.LGodot.Core
         public LingoGfxMenuItem CreateMenuItem(string name, string? shortcut = null)
         {
             var item = new LingoGfxMenuItem();
-            var impl = new LingoGodotMenuItem(item,name, shortcut);
+            var impl = new LingoGodotMenuItem(item, name, shortcut);
             return item;
         }
 

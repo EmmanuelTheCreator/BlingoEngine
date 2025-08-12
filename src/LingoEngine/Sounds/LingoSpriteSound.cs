@@ -1,13 +1,13 @@
-using LingoEngine.ColorPalettes;
-using LingoEngine.Movies;
 using LingoEngine.Sprites;
 using LingoEngine.Members;
+using LingoEngine.Events;
 
 namespace LingoEngine.Sounds;
 
 public class LingoSpriteSound : LingoSprite, ILingoSpriteWithMember
 {
     public const int SpriteNumOffset = 3;
+    private readonly ILingoSound _sound;
     private Action<LingoSpriteSound> _onRemoveMe;
     private LingoSoundChannel? _soundChannel;
 
@@ -17,9 +17,10 @@ public class LingoSpriteSound : LingoSprite, ILingoSpriteWithMember
 
 
 #pragma warning disable CS8618 
-    public LingoSpriteSound(ILingoMovieEnvironment environment, Action<LingoSpriteSound> onRemoveMe) : base(environment)
+    public LingoSpriteSound(ILingoSound sound, ILingoEventMediator mediator, Action<LingoSpriteSound> onRemoveMe) : base(mediator)
 #pragma warning restore CS8618 
     {
+        _sound = sound;
         _onRemoveMe = onRemoveMe;
     }
 
@@ -31,8 +32,9 @@ public class LingoSpriteSound : LingoSprite, ILingoSpriteWithMember
         BeginFrame = beginFrame;
         EndFrame = endFrame;
         Sound = sound;
+        Sound.UsedBy(this);
         Name = sound.Name ?? string.Empty;
-        _soundChannel = _environment.Sound.Channel(channel);
+        _soundChannel = _sound.Channel(channel);
     }
 
     protected override void BeginSprite()
@@ -47,10 +49,11 @@ public class LingoSpriteSound : LingoSprite, ILingoSpriteWithMember
         base.EndSprite();
     }
 
-    public override void OnRemoveMe()
-    {
-        _onRemoveMe(this);
-    }
+        public override void OnRemoveMe()
+        {
+            Sound?.ReleaseFromRefUser(this);
+            _onRemoveMe(this);
+        }
 
     public override Action<LingoSprite> GetCloneAction()
     {
@@ -61,11 +64,17 @@ public class LingoSpriteSound : LingoSprite, ILingoSpriteWithMember
         {
             baseAction(s);
             var sprite = (LingoSpriteSound)s;
-            sprite.Sound = Sound;
+            sprite.Sound = member;
+            member?.UsedBy(sprite);
         };
 
         return action;
     }
 
     public ILingoMember? GetMember() => Sound;
+
+    public void MemberHasBeenRemoved()
+    {
+        Sound = null;
+    }
 }

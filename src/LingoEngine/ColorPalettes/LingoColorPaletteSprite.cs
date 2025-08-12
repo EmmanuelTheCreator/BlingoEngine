@@ -1,9 +1,10 @@
+using LingoEngine.Casts;
+using LingoEngine.Events;
 using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
 using LingoEngine.Tempos;
 using System.Security.Cryptography;
-using LingoEngine.Members;
 
 namespace LingoEngine.ColorPalettes;
 
@@ -27,7 +28,7 @@ public enum LingoColorPaletteCycleOption
 public class LingoColorPaletteSprite : LingoSprite, ILingoSpriteWithMember
 {
     public const int SpriteNumOffset = 1;
-
+    private readonly ILingoCast _activeCastlib;
     private readonly Action<LingoColorPaletteSprite> _removeMe;
 
     public int Frame { get; set; }
@@ -35,20 +36,25 @@ public class LingoColorPaletteSprite : LingoSprite, ILingoSpriteWithMember
     public LingoColorPaletteMember? Member { get; set; }
     override public int SpriteNumWithChannel => SpriteNumOffset + SpriteNum;
 
-    public LingoColorPaletteSprite(ILingoMovieEnvironment environment, Action<LingoColorPaletteSprite> removeMe) : base(environment)
+    public LingoColorPaletteSprite(ILingoEventMediator mediator, ILingoCast activeCastlib, Action<LingoColorPaletteSprite> removeMe) : base(mediator)
     {
+        _activeCastlib = activeCastlib;
         _removeMe = removeMe;
         IsSingleFrame = true;
     }
 
     public override void OnRemoveMe()
     {
+        Member?.ReleaseFromRefUser(this);
         _removeMe(this);
     }
     public void SetSettings(LingoColorPaletteFrameSettings settings)
     {
         if (Member == null)
-            Member =_environment.CastLibsContainer.ActiveCast.Add<LingoColorPaletteMember>(0, "");
+        {
+            Member = _activeCastlib.Add<LingoColorPaletteMember>(0, "");
+            Member.UsedBy(this);
+        }
         Member.SetSettings(settings);
     }
 
@@ -61,15 +67,13 @@ public class LingoColorPaletteSprite : LingoSprite, ILingoSpriteWithMember
     {
         var baseAction = base.GetCloneAction();
         Action<LingoSprite> action = s => { };
-        var settings = GetSettings();
         var member = Member;
         action = s =>
         {
             baseAction(s);
             var sprite = (LingoColorPaletteSprite)s;
-            sprite.Member = Member;
-            if (settings != null)
-                sprite.SetSettings(settings);
+            if (member != null)
+                sprite.SetMember(member);
         };
 
         return action;
@@ -77,8 +81,15 @@ public class LingoColorPaletteSprite : LingoSprite, ILingoSpriteWithMember
 
     public void SetMember(LingoColorPaletteMember member)
     {
+        Member?.ReleaseFromRefUser(this);
         Member = member;
+        Member.UsedBy(this);
         SetSettings(member.GetSettings());
+    }
+
+    public void MemberHasBeenRemoved()
+    {
+        Member = null;
     }
 
     public ILingoMember? GetMember() => Member;

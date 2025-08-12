@@ -149,7 +149,7 @@ namespace LingoEngine.FrameworkCommunication
         #endregion
 
         /// <summary>Creates a sprite instance.</summary>
-        T CreateSprite<T>(ILingoMovie movie, Action<LingoSprite2D> onRemoveMe) where T : LingoSprite2D;
+        LingoSprite2D CreateSprite2D(ILingoMovie movie, Action<LingoSprite2D> onRemoveMe);
         /// <summary>Creates a sprite behaviour.</summary>
         T CreateBehavior<T>(LingoMovie lingoMovie) where T : LingoSpriteBehavior;
         /// <summary>Creates a movie script.</summary>

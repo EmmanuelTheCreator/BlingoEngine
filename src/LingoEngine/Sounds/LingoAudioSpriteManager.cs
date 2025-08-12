@@ -19,7 +19,7 @@ namespace LingoEngine.Sounds
 
         protected override LingoSpriteSound OnCreateSprite(LingoMovie movie, Action<LingoSpriteSound> onRemove)
         {
-            var clip = new LingoSpriteSound(_environment,onRemove);
+            var clip = new LingoSpriteSound(_environment.Sound, _environment.Events,onRemove);
             return clip;
         }
    

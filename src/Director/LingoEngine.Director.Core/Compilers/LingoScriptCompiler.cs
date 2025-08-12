@@ -48,15 +48,8 @@ public class LingoScriptCompiler
     /// </summary>
     public void Compile()
     {
-        var active = _player.ActiveMovie as LingoMovie;
-        var wasPlaying = active?.IsPlaying == true;
-        if (active != null)
-        {
-            active.Halt();
-            _player.CloseMovie(active);
-        }
-
-        RemoveRegistrations();
+        var wasPlaying = (_player.ActiveMovie as LingoMovie)?.IsPlaying == true;
+        _engineRegistration.UnloadMovie("Director");
         UnloadAssembly();
         var assembly = BuildProject();
         if (assembly != null)
@@ -205,11 +198,6 @@ public class LingoScriptCompiler
             return;
         _engineRegistration.SetTheProjectFactory(factoryType);
         _engineRegistration.BuildAndRunProject();
-    }
-
-    private void RemoveRegistrations()
-    {
-        _engineRegistration.ClearDynamicRegistrations();
     }
 
     private void UnloadAssembly()

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
@@ -72,10 +73,28 @@ internal class LingoProxyServiceCollection : IServiceCollection
 
     IEnumerator IEnumerable.GetEnumerator() => _inner.GetEnumerator();
 
-    public void UnregisterLingo()
+    public void UnregisterMovie(string? preserveNamespaceFragment = null)
     {
-        foreach (var d in _registrations)
+        for (int i = _registrations.Count - 1; i >= 0; i--)
+        {
+            var d = _registrations[i];
+            if (preserveNamespaceFragment != null && HasNamespace(d, preserveNamespaceFragment))
+                continue;
             _inner.Remove(d);
-        _registrations.Clear();
+            _registrations.RemoveAt(i);
+        }
+    }
+
+    private static bool HasNamespace(ServiceDescriptor descriptor, string fragment)
+    {
+        var ns = descriptor.ServiceType?.Namespace;
+        if (ns != null && ns.IndexOf(fragment, StringComparison.OrdinalIgnoreCase) >= 0)
+            return true;
+        ns = descriptor.ImplementationType?.Namespace;
+        if (ns != null && ns.IndexOf(fragment, StringComparison.OrdinalIgnoreCase) >= 0)
+            return true;
+        var instType = descriptor.ImplementationInstance?.GetType();
+        ns = instType?.Namespace;
+        return ns != null && ns.IndexOf(fragment, StringComparison.OrdinalIgnoreCase) >= 0;
     }
 }

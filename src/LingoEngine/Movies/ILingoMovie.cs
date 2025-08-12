@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using LingoEngine.Casts;
+﻿using LingoEngine.Casts;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Core;
 using LingoEngine.Members;
@@ -16,7 +14,7 @@ namespace LingoEngine.Movies
     /// Represents the Lingo _movie object, providing control over playback, navigation, and transitions.
     /// Lingo equivalents are noted for each member.
     /// </summary>
-    public interface ILingoMovie
+    public interface ILingoMovie : ILingoSpritesPlayer
     {
         /// <summary>
         /// Gets the name of the movie.

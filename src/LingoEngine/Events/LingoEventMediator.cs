@@ -1,4 +1,6 @@
-﻿using LingoEngine.Inputs;
+﻿using System;
+using System.Linq;
+using LingoEngine.Inputs;
 using LingoEngine.Inputs.Events;
 using LingoEngine.Movies;
 using LingoEngine.Movies.Events;
@@ -88,6 +90,35 @@ namespace LingoEngine.Events
             if (ms is IHasKeyDownEvent keyDownEvent) _keyDowns.Remove(keyDownEvent);
 
             _priorities.Remove(ms);
+        }
+
+        public void Clear(string? preserveNamespaceFragment = null)
+        {
+            bool ShouldRemove(object obj) => string.IsNullOrEmpty(preserveNamespaceFragment) ||
+                obj.GetType().Namespace?.IndexOf(preserveNamespaceFragment, StringComparison.OrdinalIgnoreCase) < 0;
+
+            foreach (var key in _priorities.Keys.ToList())
+                if (ShouldRemove(key))
+                    _priorities.Remove(key);
+
+            void FilterList<T>(List<T> list) where T : class => list.RemoveAll(x => ShouldRemove(x!));
+
+            FilterList(_prepareMovies);
+            FilterList(_startMovies);
+            FilterList(_stopMovies);
+            FilterList(_mouseDowns);
+            FilterList(_mouseUps);
+            FilterList(_mouseMoves);
+            FilterList(_mouseEnters);
+            FilterList(_mouseExits);
+            FilterList(_stepFrames);
+            FilterList(_prepareFrames);
+            FilterList(_enterFrames);
+            FilterList(_exitFrames);
+            FilterList(_focuss);
+            FilterList(_blurs);
+            FilterList(_keyUps);
+            FilterList(_keyDowns);
         }
         internal void RaisePrepareMovie() => _prepareMovies.ForEach(x => x.PrepareMovie());
         internal void RaiseStartMovie() => _startMovies.ForEach(x => x.StartMovie());

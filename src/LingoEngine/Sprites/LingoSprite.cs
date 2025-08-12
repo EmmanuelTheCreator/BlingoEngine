@@ -1,13 +1,11 @@
 ﻿using LingoEngine.Events;
-using LingoEngine.Movies;
 using LingoEngine.Sprites.Events;
-using System.Threading.Channels;
 
 namespace LingoEngine.Sprites
 {
     public abstract class LingoSprite : ILingoSpriteBase
     {
-        protected readonly ILingoMovieEnvironment _environment;
+        //protected readonly ILingoMovieEnvironment _environment;
         protected readonly LingoEventMediator _eventMediator;
         private readonly List<object> _spriteActors = new();
         private bool _lock;
@@ -70,10 +68,9 @@ namespace LingoEngine.Sprites
 
         public event Action? AnimationChanged;
 
-        public LingoSprite(ILingoMovieEnvironment environment)
+        public LingoSprite(ILingoEventMediator eventMediator)
         {
-            _environment = environment;
-            _eventMediator = (LingoEventMediator)_environment.Events;
+            _eventMediator = (LingoEventMediator)eventMediator;
         }
         internal void Init(int number, string name)
         {

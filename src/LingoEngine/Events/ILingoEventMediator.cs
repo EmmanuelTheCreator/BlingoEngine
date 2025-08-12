@@ -9,5 +9,6 @@
         /// <param name="priority">Optional priority. Lower values are executed first.</param>
         void Subscribe(object listener, int priority = 5000);
         void Unsubscribe(object listener);
+        void Clear(string? preserveNamespaceFragment = null);
     }
 }

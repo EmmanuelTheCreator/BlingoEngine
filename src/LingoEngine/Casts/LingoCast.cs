@@ -10,6 +10,8 @@ using LingoEngine.Shapes;
 using LingoEngine.Sounds;
 using LingoEngine.Texts;
 using LingoEngine.Transitions;
+using System;
+using System.Linq;
 
 namespace LingoEngine.Casts
 {
@@ -35,6 +37,8 @@ namespace LingoEngine.Casts
         /// <inheritdoc/>
         public PreLoadModeType PreLoadMode { get; set; } = PreLoadModeType.WhenNeeded;
         /// <inheritdoc/>
+        public bool IsInternal { get; }
+        /// <inheritdoc/>
         public CastMemberSelection? Selection { get; set; } = null;
 
         public ILingoMembersContainer Member => _MembersContainer;
@@ -44,12 +48,13 @@ namespace LingoEngine.Casts
         public event Action<ILingoMember>? MemberNameChanged;
         
 
-        internal LingoCast(LingoCastLibsContainer castLibsContainer, ILingoFrameworkFactory factory, string name)
+        internal LingoCast(LingoCastLibsContainer castLibsContainer, ILingoFrameworkFactory factory, string name, bool isInternal)
         {
             _castLibsContainer = castLibsContainer;
             _factory = factory;
             Name = name;
             Number = castLibsContainer.GetNextCastNumber();
+            IsInternal = isInternal;
         }
 
         /// <inheritdoc/>
@@ -71,6 +76,8 @@ namespace LingoEngine.Casts
         }
         public ILingoCast Remove(LingoMember member)
         {
+            member.Dispose();
+
             _castLibsContainer.RemoveMember(member);
             _MembersContainer.Remove(member);
             return this;
@@ -152,5 +159,7 @@ namespace LingoEngine.Casts
             _MembersContainer.ChangeNumber(slot2, slot1);
             _MembersContainer.ChangeNumber(tempSlot, slot2);
         }
+
+        public void Dispose() => RemoveAll();
     }
 }

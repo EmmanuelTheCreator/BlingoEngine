@@ -254,6 +254,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
 
                 if (p.Surface != nint.Zero)
                 {
+
                     var texInk = p.GetTextureForInk(_lingoSprite.InkType, _lingoSprite.BackColor, ComponentContext.Renderer);
                     if (texInk != nint.Zero)
                     {

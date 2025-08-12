@@ -60,7 +60,6 @@ namespace LingoEngine.LGodot.FilmLoops
             int width = (int)MathF.Ceiling(bounds.Width);
             int height = (int)MathF.Ceiling(bounds.Height);
             var image = Image.CreateEmpty(width, height, false, Image.Format.Rgba8);
-            image.Lock();
             foreach (var layer in layers)
             {
                 if (layer.Member is not LingoMemberBitmap pic)
@@ -104,7 +103,6 @@ namespace LingoEngine.LGodot.FilmLoops
                 transform = transform.Translated(pos);
                 BlendImage(image, srcImg, transform, Mathf.Clamp(layer.Blend / 100f, 0f, 1f));
             }
-            image.Unlock();
             var tex = ImageTexture.CreateFromImage(image);
             var texture = new LingoGodotTexture2D(tex);
             return texture;
@@ -118,7 +116,6 @@ namespace LingoEngine.LGodot.FilmLoops
         /// </summary>
         private static void BlendImage(Image dest, Image src, Transform2D transform, float alpha)
         {
-            src.Lock();
             var inv = transform.AffineInverse();
             Vector2[] pts =
             {
@@ -155,7 +152,6 @@ namespace LingoEngine.LGodot.FilmLoops
                         c.A + dst.A * invA));
                 }
             }
-            src.Unlock();
         }
 #if DEBUG
         public static void DebugToDisk(Image image, string filName)
