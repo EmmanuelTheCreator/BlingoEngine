@@ -26,7 +26,7 @@ namespace LingoEngine.FilmLoops
 
         public int FrameCount { get; private set; }
 
-       
+
 
         /// <summary>
         /// Gets the framework specific implementation for this film loop.
@@ -71,7 +71,7 @@ namespace LingoEngine.FilmLoops
             if (_isLoaded) return;
             _frameworkFilmLoop.Preload();
             UpdateSize();
-             _isLoaded = true;
+            _isLoaded = true;
         }
         public void UpdateSize()
         {
@@ -141,36 +141,8 @@ namespace LingoEngine.FilmLoops
             }
         }
 
-        public LingoRect GetBoundingBoxForFrame(int frame)
-        {
-            var boxes = SpriteEntries
-                   .Select(e => e.GetBoundingBoxForFrame(frame))
-                   .ToList();
-
-            if (boxes.Count == 0)
-                return new LingoRect();
-
-            var bounds = boxes[0];
-            for (int i = 1; i < boxes.Count; i++)
-                bounds = bounds.Union(boxes[i]);
-
-            return bounds;
-        }
-        public LingoRect GetBoundingBox()
-        {
-            var boxes = SpriteEntries
-                .Select(e => e.GetBoundingBox())
-                .ToList();
-
-            if (boxes.Count == 0)
-                return new LingoRect();
-
-            var bounds = boxes[0];
-            for (int i = 1; i < boxes.Count; i++)
-                bounds = bounds.Union(boxes[i]);
-
-            return bounds;
-        }
+        public LingoRect GetBoundingBoxForFrame(int frame) => SpriteEntries.GetBoundingBoxForFrame(frame);
+        public LingoRect GetBoundingBox() => SpriteEntries.GetBoundingBox();
 
 
     }

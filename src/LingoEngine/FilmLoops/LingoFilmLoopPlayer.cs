@@ -19,6 +19,7 @@ namespace LingoEngine.FilmLoops
         private readonly ILingoCastLibsContainer _castLibs;
         private readonly ILingoEventMediator _mediator;
         private readonly List<(LingoFilmLoopMemberSprite Entry, LingoSprite2DVirtual Runtime)> _layers = new();
+        private readonly List<LingoSprite2DVirtual> _activeLayers = new();
         private int _currentFrame;
         public int CurrentFrame => _currentFrame;
 
@@ -38,9 +39,12 @@ namespace LingoEngine.FilmLoops
         private void SetupLayers()
         {
             _layers.Clear();
+            FrameCount = 0;
             var fl = FilmLoop;
             if (fl == null)
                 return;
+
+            FrameCount = fl.FrameCount;
             foreach (var entry in fl.SpriteEntries)
             {
                 var rt = new LingoSprite2DVirtual(_mediator, this, entry, _castLibs);
@@ -95,10 +99,9 @@ namespace LingoEngine.FilmLoops
             if (fl == null)
                 return;
 
-            List<LingoSprite2DVirtual> activeLayers = new();
+            _activeLayers.Clear();
             foreach (var (entry, runtime) in _layers)
             {
-                FrameCount = Math.Max(FrameCount, entry.EndFrame);
                 var template = entry;
                 bool active = entry.BeginFrame <= _currentFrame && entry.EndFrame >= _currentFrame;
                 if (!active)
@@ -131,19 +134,19 @@ namespace LingoEngine.FilmLoops
                 runtime.LocV = y;
                 runtime.Rotation = rot;
                 runtime.Skew = skew;
-                activeLayers.Add(runtime);
+                _activeLayers.Add(runtime);
             }
 
-            if (activeLayers.Count == 0)
+            if (_activeLayers.Count == 0)
                 return;
 
             var frameworkFilmLoop = fl.Framework<ILingoFrameworkMemberFilmLoop>();
-            Texture = frameworkFilmLoop.ComposeTexture(_sprite, activeLayers);
+            Texture = frameworkFilmLoop.ComposeTexture(_sprite, _activeLayers);
             _sprite.FrameworkObj.MemberChanged();
             _sprite.FrameworkObj.ApplyMemberChangesOnStepFrame();
         }
 
-      
+
 
         private void ApplyFraming(LingoFilmLoopMember fl, LingoFilmLoopMemberSprite template, LingoSprite2DVirtual runtime)
         {
@@ -177,44 +180,19 @@ namespace LingoEngine.FilmLoops
             runtime.Height = desiredH;
         }
 
-        public int GetMaxLocZ() => FilmLoop != null? FilmLoop.SpriteEntries.Max(x => x.SpriteNum) : 1;
+        public int GetMaxLocZ() => FilmLoop != null ? FilmLoop.SpriteEntries.Max(x => x.SpriteNum) : 1;
 
 
         public LingoRect GetBoundingBoxForFrame(int frame)
         {
             var fl = FilmLoop;
-            if (fl == null)
-                return new LingoRect();
-            var boxes = fl.SpriteEntries
-                   .Select(e => e.GetBoundingBoxForFrame(frame))
-                   .ToList();
-
-            if (boxes.Count == 0)
-                return new LingoRect();
-
-            var bounds = boxes[0];
-            for (int i = 1; i < boxes.Count; i++)
-                bounds = bounds.Union(boxes[i]);
-
-            return bounds;
+            return fl == null ? new LingoRect() : fl.SpriteEntries.GetBoundingBoxForFrame(frame);
         }
+
         public LingoRect GetBoundingBox()
         {
             var fl = FilmLoop;
-            if (fl == null)
-                return new LingoRect();
-            var boxes = fl.SpriteEntries
-                .Select(e => e.GetBoundingBox())
-                .ToList();
-
-            if (boxes.Count == 0)
-                return new LingoRect();
-
-            var bounds = boxes[0];
-            for (int i = 1; i < boxes.Count; i++)
-                bounds = bounds.Union(boxes[i]);
-
-            return bounds;
+            return fl == null ? new LingoRect() : fl.SpriteEntries.GetBoundingBox();
         }
 
 
