@@ -157,6 +157,9 @@ namespace LingoEngine.FilmLoops
             }
             return new LingoPoint();
         }
+        /// <summary>
+        /// Possible tuples : (frame,x,y) , (int frame, int x, int y, float width, float height)
+        /// </summary>
         public void AddKeyframes(params LingoKeyFrameSetting[] keyframes) => AnimatorProperties.AddKeyframes(keyframes);
 
     }

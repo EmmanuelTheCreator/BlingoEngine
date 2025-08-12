@@ -9,7 +9,7 @@ using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.Stages;
 using LingoEngine.SDL2;
 
-public class SdlRootContext : IDisposable
+public class SdlRootContext : IDisposable, ISdlRootComponentContext
 {
     public nint Window { get; }
     public nint Renderer { get; }

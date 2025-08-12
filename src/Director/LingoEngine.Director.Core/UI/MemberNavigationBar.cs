@@ -5,6 +5,7 @@ using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
 using LingoEngine.Members;
 using LingoEngine.Movies;
+using LingoEngine.Primitives;
 using System;
 using System.Linq;
 

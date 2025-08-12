@@ -61,7 +61,9 @@ namespace LingoEngine.LGodot.FilmLoops
             int width = prep.Width;
             int height = prep.Height;
             var image = Image.CreateEmpty(width, height, false, Image.Format.Rgba8);
+             var i = 0;
             foreach (var info in prep.Layers)
+
             {
                 if (info.Bitmap is not LingoGodotMemberBitmap bmp)
                     continue;
@@ -70,6 +72,7 @@ namespace LingoEngine.LGodot.FilmLoops
                 if (srcTex == null)
                     continue;
                 var srcImg = srcTex.GetImage();
+
                 srcImg = srcImg.GetRegion(new Rect2I(info.SrcX, info.SrcY, info.SrcW, info.SrcH));
                 if (info.DestW != info.SrcW || info.DestH != info.SrcH)
                     srcImg.Resize(info.DestW, info.DestH, Image.Interpolation.Bilinear);
@@ -80,7 +83,10 @@ namespace LingoEngine.LGodot.FilmLoops
                     new Vector2(m.M21, m.M22),
                     new Vector2(m.M31, m.M32));
                 BlendImage(image, srcImg, transform, info.Alpha);
+                DebugToDisk(srcImg, $"filmloop_{i}_{pic.Name}");
+
             }
+            DebugToDisk(image, $"filmloop_{_member.Name}_{hostSprite.Name}");
             var tex = ImageTexture.CreateFromImage(image);
             var texture = new LingoGodotTexture2D(tex);
             return texture;

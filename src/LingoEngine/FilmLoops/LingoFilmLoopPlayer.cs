@@ -34,7 +34,7 @@ namespace LingoEngine.FilmLoops
             _sprite = sprite;
             _castLibs = castLibs;
             _mediator = eventMediator;
-            _mediator.Subscribe(this, sprite.SpriteNum + 6);
+            
         }
         private void SetupLayers()
         {
@@ -59,6 +59,7 @@ namespace LingoEngine.FilmLoops
             _currentFrame = 1;
             SetupLayers();
             ApplyFrame();
+            _mediator.Subscribe(this, _sprite.SpriteNum + 6);
         }
 
         public void StepFrame()
@@ -83,6 +84,7 @@ namespace LingoEngine.FilmLoops
 
         public void EndSprite()
         {
+            _mediator.Unsubscribe(this);
             foreach (var layer in _layers)
             {
                 layer.Runtime.RemoveMe();
@@ -106,28 +108,26 @@ namespace LingoEngine.FilmLoops
                 bool active = entry.BeginFrame <= _currentFrame && entry.EndFrame >= _currentFrame;
                 if (!active)
                     continue;
-                runtime.GetAnimatorProperties();
+                var animProperties = runtime.GetAnimatorProperties();
                 runtime.SetMember(template.Member);
                 ApplyFraming(fl, template, runtime);
 
-                var animator = runtime.CallActor<LingoSpriteAnimator, LingoSpriteAnimator>(a => a);
                 float x = template.LocH;
                 float y = template.LocV;
                 float rot = template.Rotation;
                 float skew = template.Skew;
-                if (animator != null)
+                if (animProperties != null)
                 {
-                    var props = animator.Properties;
-                    if (props.Position.KeyFrames.Count > 0)
+                    if (animProperties.Position.KeyFrames.Count > 0)
                     {
-                        var pos = props.Position.GetValue(_currentFrame);
+                        var pos = animProperties.Position.GetValue(_currentFrame);
                         x = pos.X;
                         y = pos.Y;
                     }
-                    if (props.Rotation.KeyFrames.Count > 0)
-                        rot = props.Rotation.GetValue(_currentFrame);
-                    if (props.Skew.KeyFrames.Count > 0)
-                        skew = props.Skew.GetValue(_currentFrame);
+                    if (animProperties.Rotation.KeyFrames.Count > 0)
+                        rot = animProperties.Rotation.GetValue(_currentFrame);
+                    if (animProperties.Skew.KeyFrames.Count > 0)
+                        skew = animProperties.Skew.GetValue(_currentFrame);
                 }
 
                 runtime.LocH = x;

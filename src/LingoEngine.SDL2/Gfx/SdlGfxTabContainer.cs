@@ -4,7 +4,6 @@ using System.Numerics;
 using ImGuiNET;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
-using LingoEngine.SDL2.Core;
 
 namespace LingoEngine.SDL2.Gfx
 {
@@ -16,7 +15,7 @@ namespace LingoEngine.SDL2.Gfx
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;
         public object FrameworkNode => this;
 
-        public SdlGfxTabContainer(SdlFactory factory) : base(factory)
+        public SdlGfxTabContainer(SdlGfxFactory factory) : base(factory)
         {
         }
 
@@ -96,7 +95,7 @@ namespace LingoEngine.SDL2.Gfx
 
     public class SdlGfxTabItem : SdlGfxComponent, ILingoFrameworkGfxTabItem
     {
-        public SdlGfxTabItem(SdlFactory factory, LingoGfxTabItem tab) : base(factory)
+        public SdlGfxTabItem(SdlGfxFactory factory, LingoGfxTabItem tab) : base(factory)
         {
             tab.Init(this);
         }

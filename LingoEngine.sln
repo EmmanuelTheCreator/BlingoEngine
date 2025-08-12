@@ -37,8 +37,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LingoEngine.Demo.TetriGroun
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{D004920B-E200-4F03-AA99-48FB4D54F50E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Experimental", "Experimental", "{9C77EB5C-778D-4D98-AE2B-F80137E5D27C}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ToMakePackage", "ToMakePackage", "{134E8198-015E-4E1F-8B31-6DF91C4D80EE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectorRays.Console", "WillMoveToOwnRepo\ProjectorRays\src\ProjectorRays.Console\ProjectorRays.Console.csproj", "{1C1986AE-577A-4A90-8EA9-76F9CDB3540D}"
@@ -46,6 +44,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectorRays.DotNet", "WillMoveToOwnRepo\ProjectorRays\src\ProjectorRays.DotNet\ProjectorRays.DotNet.csproj", "{C9F6D15A-DFD0-4F4C-BBE5-8CBCF8315355}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectorRays.DotNet.Test", "WillMoveToOwnRepo\ProjectorRays\Test\ProjectorRays.DotNet.Test\ProjectorRays.DotNet.Test.csproj", "{08A845C8-FC7C-4C31-BB64-DDFA90F0A10C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LingoEngine.SDL2.GfxVisualTest", "Test\LingoEngine.SDL2.GfxVisualTest\LingoEngine.SDL2.GfxVisualTest.csproj", "{E8BD81BB-813E-4268-A798-3AFC2C5164EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -365,6 +365,24 @@ Global
 		{08A845C8-FC7C-4C31-BB64-DDFA90F0A10C}.ExportRelease|x64.Build.0 = Release|Any CPU
 		{08A845C8-FC7C-4C31-BB64-DDFA90F0A10C}.ExportRelease|x86.ActiveCfg = Release|Any CPU
 		{08A845C8-FC7C-4C31-BB64-DDFA90F0A10C}.ExportRelease|x86.Build.0 = Release|Any CPU
+		{E8BD81BB-813E-4268-A798-3AFC2C5164EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8BD81BB-813E-4268-A798-3AFC2C5164EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8BD81BB-813E-4268-A798-3AFC2C5164EF}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E8BD81BB-813E-4268-A798-3AFC2C5164EF}.Debug|x64.Build.0 = Debug|Any CPU
+		{E8BD81BB-813E-4268-A798-3AFC2C5164EF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E8BD81BB-813E-4268-A798-3AFC2C5164EF}.Debug|x86.Build.0 = Debug|Any CPU
+		{E8BD81BB-813E-4268-A798-3AFC2C5164EF}.ExportDebug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8BD81BB-813E-4268-A798-3AFC2C5164EF}.ExportDebug|Any CPU.Build.0 = Debug|Any CPU
+		{E8BD81BB-813E-4268-A798-3AFC2C5164EF}.ExportDebug|x64.ActiveCfg = Debug|Any CPU
+		{E8BD81BB-813E-4268-A798-3AFC2C5164EF}.ExportDebug|x64.Build.0 = Debug|Any CPU
+		{E8BD81BB-813E-4268-A798-3AFC2C5164EF}.ExportDebug|x86.ActiveCfg = Debug|Any CPU
+		{E8BD81BB-813E-4268-A798-3AFC2C5164EF}.ExportDebug|x86.Build.0 = Debug|Any CPU
+		{E8BD81BB-813E-4268-A798-3AFC2C5164EF}.ExportRelease|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8BD81BB-813E-4268-A798-3AFC2C5164EF}.ExportRelease|Any CPU.Build.0 = Debug|Any CPU
+		{E8BD81BB-813E-4268-A798-3AFC2C5164EF}.ExportRelease|x64.ActiveCfg = Debug|Any CPU
+		{E8BD81BB-813E-4268-A798-3AFC2C5164EF}.ExportRelease|x64.Build.0 = Debug|Any CPU
+		{E8BD81BB-813E-4268-A798-3AFC2C5164EF}.ExportRelease|x86.ActiveCfg = Debug|Any CPU
+		{E8BD81BB-813E-4268-A798-3AFC2C5164EF}.ExportRelease|x86.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -386,5 +404,6 @@ Global
 		{1C1986AE-577A-4A90-8EA9-76F9CDB3540D} = {134E8198-015E-4E1F-8B31-6DF91C4D80EE}
 		{C9F6D15A-DFD0-4F4C-BBE5-8CBCF8315355} = {134E8198-015E-4E1F-8B31-6DF91C4D80EE}
 		{08A845C8-FC7C-4C31-BB64-DDFA90F0A10C} = {134E8198-015E-4E1F-8B31-6DF91C4D80EE}
+		{E8BD81BB-813E-4268-A798-3AFC2C5164EF} = {D004920B-E200-4F03-AA99-48FB4D54F50E}
 	EndGlobalSection
 EndGlobal

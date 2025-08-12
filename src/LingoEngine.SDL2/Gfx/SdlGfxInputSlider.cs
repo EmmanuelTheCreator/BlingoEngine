@@ -3,13 +3,12 @@ using System.Numerics;
 using ImGuiNET;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
-using LingoEngine.SDL2.Core;
 
 namespace LingoEngine.SDL2.Gfx
 {
     internal class SdlGfxInputSlider<TValue> : SdlGfxComponent, ILingoFrameworkGfxInputSlider<TValue>, IDisposable where TValue : struct
     {
-        public SdlGfxInputSlider(SdlFactory factory) : base(factory)
+        public SdlGfxInputSlider(SdlGfxFactory factory) : base(factory)
         {
         }
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;

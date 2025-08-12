@@ -2,7 +2,7 @@ using LingoEngine.Styles;
 
 namespace LingoEngine.SDL2.Styles;
 
-internal class SdlFontManager : ILingoFontManager
+public class SdlFontManager : ILingoFontManager
 {
     private readonly List<(string Name, string FileName)> _fontsToLoad = new();
     private readonly Dictionary<string, object> _loadedFonts = new();

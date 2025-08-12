@@ -4,14 +4,12 @@ using ImGuiNET;
 using LingoEngine.Bitmaps;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
-using LingoEngine.Bitmaps;
-using LingoEngine.SDL2.Core;
 
 namespace LingoEngine.SDL2.Gfx
 {
     internal class SdlGfxButton : SdlGfxComponent, ILingoFrameworkGfxButton, IDisposable
     {
-        public SdlGfxButton(SdlFactory factory) : base(factory)
+        public SdlGfxButton(SdlGfxFactory factory) : base(factory)
         {
         }
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;

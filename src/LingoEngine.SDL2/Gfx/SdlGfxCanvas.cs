@@ -7,7 +7,6 @@ using LingoEngine.Primitives;
 using LingoEngine.SDL2.Primitives;
 using LingoEngine.SDL2.SDLL;
 using LingoEngine.SDL2.Pictures;
-using LingoEngine.SDL2.Core;
 using LingoEngine.Styles;
 using LingoEngine.Texts;
 
@@ -25,7 +24,7 @@ namespace LingoEngine.SDL2.Gfx
 
         public bool Pixilated { get; set; }
 
-        public SdlGfxCanvas(SdlFactory factory, ILingoFontManager fontManager, int width, int height) : base(factory)
+        public SdlGfxCanvas(SdlGfxFactory factory, ILingoFontManager fontManager, int width, int height) : base(factory)
         {
             _fontManager = fontManager;
             _width = width;
