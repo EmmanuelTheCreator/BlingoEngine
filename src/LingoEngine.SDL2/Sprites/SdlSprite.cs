@@ -312,6 +312,10 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
         }
         ApplyInk();
     }
+    public void UpdateTexture(ILingoTexture2D texture)
+    {
+        _texture = ((SdlTexture2D)texture).Texture;
+    }
 
     private static readonly SDL.SDL_BlendMode _subtractBlend = SDL.SDL_ComposeCustomBlendMode(
         SDL.SDL_BlendFactor.SDL_BLENDFACTOR_ONE,
@@ -373,4 +377,6 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
     {
 
     }
+
+   
 }
