@@ -1,4 +1,6 @@
-﻿namespace LingoEngine.Inputs
+using System;
+using LingoEngine.FrameworkCommunication;
+namespace LingoEngine.Inputs
 {
     /// <summary>
     /// Used to monitor a user’s keyboard activity.
@@ -78,6 +80,11 @@
             _frameworkObj = frameworkObj;
         }
 
+        /// <summary>
+        /// Creates a proxy key that emits events only while the <paramref name="provider"/> is activated.
+        /// </summary>
+        public LingoKey CreateNewInstance(ILingoActivationProvider provider) => new ProxyKey(this, provider);
+
         internal T Framework<T>() where T : FrameworkCommunication.ILingoFrameworkKey => (T)_frameworkObj;
 
         public bool ControlDown => _frameworkObj.ControlDown;
@@ -110,6 +117,36 @@
         {
             _subscriptions.Remove(handler);
             return this;
+        }
+        private sealed class ProxyKey : LingoKey, ILingoKeyEventHandler, IDisposable
+        {
+            private readonly LingoKey _parent;
+            private readonly ILingoActivationProvider _provider;
+
+            internal ProxyKey(LingoKey parent, ILingoActivationProvider provider)
+                : base(parent.Framework<ILingoFrameworkKey>())
+            {
+                _parent = parent;
+                _provider = provider;
+                _parent.Subscribe(this);
+            }
+
+            public void RaiseKeyDown(LingoKey lingoKey)
+            {
+                if (!_provider.IsActivated) return;
+                base.DoKeyDown();
+            }
+
+            public void RaiseKeyUp(LingoKey lingoKey)
+            {
+                if (!_provider.IsActivated) return;
+                base.DoKeyUp();
+            }
+
+            public void Dispose()
+            {
+                _parent.Unsubscribe(this);
+            }
         }
     }
 }
