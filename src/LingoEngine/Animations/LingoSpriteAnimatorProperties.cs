@@ -5,16 +5,16 @@ namespace LingoEngine.Animations
     public class LingoSpriteAnimatorProperties
     {
         private LingoRect? _calculatedBoundingBox;
-        private Dictionary<int,LingoRect> _calculatedFrameBoundingBoxes = new();
+        private Dictionary<int, LingoRect> _calculatedFrameBoundingBoxes = new();
         private bool _cacheDirty = true;
         public bool CacheIsDirty => _cacheDirty;
         public void CacheApplied() => _cacheDirty = false;
-        public LingoTween<LingoPoint> Position { get; private set;} = new();
-        public LingoTween<LingoPoint> Size { get; private set;} = new();
-        public LingoTween<float> Rotation { get; private set;} = new();
-        public LingoTween<float> Skew { get; private set;} = new();
-        public LingoTween<LingoColor> ForegroundColor { get; private set;} = new();
-        public LingoTween<LingoColor> BackgroundColor { get; private set;} = new();
+        public LingoTween<LingoPoint> Position { get; private set; } = new();
+        public LingoTween<LingoPoint> Size { get; private set; } = new();
+        public LingoTween<float> Rotation { get; private set; } = new();
+        public LingoTween<float> Skew { get; private set; } = new();
+        public LingoTween<LingoColor> ForegroundColor { get; private set; } = new();
+        public LingoTween<LingoColor> BackgroundColor { get; private set; } = new();
         public LingoTween<float> Blend { get; private set; } = new();
 
         public LingoSpriteAnimatorProperties Clone()
@@ -90,7 +90,7 @@ namespace LingoEngine.Animations
 
 
         #region Boundingbox
-        
+
         public LingoRect GetBoundingBox(LingoPoint spriteRegpoint, LingoRect spriteRect, float spriteWidth, float spriteHeight)
         {
             if (_calculatedBoundingBox != null) return _calculatedBoundingBox.Value;
@@ -101,24 +101,20 @@ namespace LingoEngine.Animations
             if (Rotation.HasKeyFrames) frames.AddRange(Rotation.KeyFrames.Select(k => k.Frame));
             if (Skew.HasKeyFrames) frames.AddRange(Skew.KeyFrames.Select(k => k.Frame));
 
-            LingoRect? result = null;
+            var result = spriteRect;
 
-            if (frames.Count == 0)
-            {
-                result = spriteRect;
-            }
-            else
+            if (frames.Count > 0)
             {
                 int start = frames.Min();
                 int end = frames.Max();
                 for (int f = start; f <= end; f++)
                 {
                     var rect = GetBoundingBoxForFrame(f, spriteRegpoint, spriteWidth, spriteHeight);
-                    result = result?.Union(rect) ?? rect;
+                    result = result.Union(rect);
                 }
             }
 
-            _calculatedBoundingBox = result ?? spriteRect;
+            _calculatedBoundingBox = result;
             return _calculatedBoundingBox.Value;
         }
         public LingoRect GetBoundingBoxForFrame(int frame, LingoPoint spriteRegpoint, float spriteWidth, float spriteHeight)
