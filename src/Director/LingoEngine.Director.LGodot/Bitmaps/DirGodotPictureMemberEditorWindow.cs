@@ -1,5 +1,4 @@
 ﻿using Godot;
-using LingoEngine.Director.LGodot.Gfx;
 using LingoEngine.Director.Core.Events;
 using LingoEngine.Members;
 using LingoEngine.Core;
@@ -81,10 +80,12 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
         directorPictureEditWindow.Init(this);
         CustomMinimumSize = Size;
 
-        _navBar = new MemberNavigationBar<LingoMemberBitmap>(_mediator, _player, _iconManager, NavigationBarHeight);
-        AddChild(_navBar);
-        _navBar.Position = new Vector2(0, TitleBarHeight);
-        _navBar.CustomMinimumSize = new Vector2(Size.X, NavigationBarHeight);
+        _navBar = new MemberNavigationBar<LingoMemberBitmap>(_mediator, _player, _iconManager, factory, NavigationBarHeight);
+        AddChild(_navBar.Panel.Framework<LingoGodotWrapPanel>());
+        _navBar.Panel.X = 0;
+        _navBar.Panel.Y = TitleBarHeight;
+        _navBar.Panel.Width = Size.X;
+        _navBar.Panel.Height = NavigationBarHeight;
 
         // Icon bar below navigation
         AddChild(_iconBar);
@@ -418,7 +419,8 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
     protected override void OnResizing(Vector2 size)
     {
         base.OnResizing(size);
-        _navBar.CustomMinimumSize = new Vector2(size.X, NavigationBarHeight);
+        _navBar.Panel.Width = size.X;
+        _navBar.Panel.Height = NavigationBarHeight;
         _iconBar.Position = new Vector2(0, NavigationBarHeight + TitleBarHeight);
         _iconBar.CustomMinimumSize = new Vector2(size.X, IconBarHeight);
         _bottomBar.Position = new Vector2(0, size.Y - BottomBarHeight);

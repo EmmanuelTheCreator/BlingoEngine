@@ -9,9 +9,9 @@ using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.LGodot.Gfx;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.Styles;
-using LingoEngine.Director.LGodot.Gfx;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
+using LingoEngine.FrameworkCommunication;
 
 namespace LingoEngine.Director.LGodot.Casts;
 
@@ -29,7 +29,7 @@ internal partial class DirGodotTextableMemberWindow : BaseGodotWindow, IHasMembe
     private readonly ILingoFontManager _lingoFontManager;
     private ILingoMemberTextBase? _member;
     private const int _topOffset = 4;
-    public DirGodotTextableMemberWindow(IDirectorEventMediator mediator, ILingoPlayer player, DirectorTextEditWindow directorTextEditWindow, IDirGodotWindowManager windowManager, IDirectorIconManager iconManager, ILingoFontManager lingoFontManager)
+    public DirGodotTextableMemberWindow(IDirectorEventMediator mediator, ILingoPlayer player, DirectorTextEditWindow directorTextEditWindow, IDirGodotWindowManager windowManager, IDirectorIconManager iconManager, ILingoFontManager lingoFontManager, ILingoFrameworkFactory factory)
         : base(DirectorMenuCodes.TextEditWindow, "Edit Text", windowManager)
     {
         _player = player;
@@ -41,10 +41,12 @@ internal partial class DirGodotTextableMemberWindow : BaseGodotWindow, IHasMembe
         Size = new Vector2(450, 200);
         CustomMinimumSize = Size;
 
-        _navBar = new MemberNavigationBar<ILingoMemberTextBase>(mediator, player, _iconManager, NavigationBarHeight);
-        AddChild(_navBar);
-        _navBar.Position = new Vector2(0, TitleBarHeight);
-        _navBar.CustomMinimumSize = new Vector2(Size.X, NavigationBarHeight);
+        _navBar = new MemberNavigationBar<ILingoMemberTextBase>(mediator, player, _iconManager, factory, NavigationBarHeight);
+        AddChild(_navBar.Panel.Framework<LingoGodotWrapPanel>());
+        _navBar.Panel.X = 0;
+        _navBar.Panel.Y = TitleBarHeight;
+        _navBar.Panel.Width = Size.X;
+        _navBar.Panel.Height = NavigationBarHeight;
 
         _iconBar = directorTextEditWindow.IconBar;
         _iconBar.AlignmentChanged += a => SetAlignment(a);
@@ -118,7 +120,8 @@ internal partial class DirGodotTextableMemberWindow : BaseGodotWindow, IHasMembe
     {
         base.OnResizing(size);
         _iconBar.OnResizing(size.X, size.Y);
-        _navBar.CustomMinimumSize = new Vector2(size.X, NavigationBarHeight);
+        _navBar.Panel.Width = size.X;
+        _navBar.Panel.Height = NavigationBarHeight;
         _textEdit.Size = new Vector2(size.X - 10, size.Y - (TitleBarHeight + NavigationBarHeight + ActionBarHeight + 5 + _topOffset));
     }
 
