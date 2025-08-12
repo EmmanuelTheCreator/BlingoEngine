@@ -375,7 +375,7 @@ namespace LingoEngine.LGodot.Sprites
             Width = size.Width;
             Height = size.Height;
             var offset = filmLoop.Offset;
-            _Sprite2D.Offset = new Vector2(offset.X - Width / 2f, offset.Y - Height / 2f);
+            _Sprite2D.Offset = new Vector2(Width/2f - offset.X , Height / 2f- offset.Y);
             _filmloopPlayer = _lingoSprite2D.GetFilmLoopPlayer();
             if (_filmloopPlayer == null) return;
             if (_filmloopPlayer.Texture is not LingoGodotTexture2D tex)
