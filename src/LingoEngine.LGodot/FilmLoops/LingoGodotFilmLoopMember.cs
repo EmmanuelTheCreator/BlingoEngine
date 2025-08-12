@@ -71,7 +71,7 @@ namespace LingoEngine.LGodot.FilmLoops
                 if (srcTex == null)
                     continue;
                 var srcImg = srcTex.GetImage();
-                DebugToDisk(srcImg, $"filmloop_{i}");
+                //DebugToDisk(srcImg, $"filmloop_{i}");
 
                 srcImg = srcImg.GetRegion(new Rect2I(info.SrcX, info.SrcY, info.SrcW, info.SrcH));
                 if (info.DestW != info.SrcW || info.DestH != info.SrcH)
@@ -100,11 +100,11 @@ namespace LingoEngine.LGodot.FilmLoops
             var inv = transform.AffineInverse();
             Vector2[] pts =
             {
-        transform * Vector2.Zero,
-        transform * new Vector2(src.GetWidth(), 0),
-        transform * new Vector2(src.GetWidth(), src.GetHeight()),
-        transform * new Vector2(0, src.GetHeight())
-    };
+                transform * Vector2.Zero,
+                transform * new Vector2(src.GetWidth(), 0),
+                transform * new Vector2(src.GetWidth(), src.GetHeight()),
+                transform * new Vector2(0, src.GetHeight())
+            };
             int minX = (int)MathF.Floor(pts.Min(p => p.X));
             int maxX = (int)MathF.Ceiling(pts.Max(p => p.X));
             int minY = (int)MathF.Floor(pts.Min(p => p.Y));

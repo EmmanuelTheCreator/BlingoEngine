@@ -40,8 +40,7 @@ public static class LingoFilmLoopComposer
     /// <param name="layers">Virtual sprite layers that make up the film loop.</param>
     /// <returns>The offset to apply when rendering, the final width and height,
     /// and the prepared layer list.</returns>
-    public static (LingoPoint Offset, int Width, int Height, List<LayerInfo> Layers)
-        Prepare(LingoFilmLoopMember filmLoop, LingoFilmLoopFraming framing, IEnumerable<LingoSprite2DVirtual> layers)
+    public static (LingoPoint Offset, int Width, int Height, List<LayerInfo> Layers) Prepare(LingoFilmLoopMember filmLoop, LingoFilmLoopFraming framing, IEnumerable<LingoSprite2DVirtual> layers)
     {
         var bounds = filmLoop.GetBoundingBox();
         var offset = new LingoPoint(-bounds.Left, -bounds.Top);
