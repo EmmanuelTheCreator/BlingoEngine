@@ -48,6 +48,7 @@ namespace LingoEngine.Events
         new void DoMouseDown(LingoStageMouse mouse);
         new void DoMouseUp(LingoStageMouse mouse);
         new void DoMouseMove(LingoStageMouse mouse);
+        new void DoMouseWheel(LingoStageMouse mouse);
 
         // Movie Script Frame events
         void DoEnterFrame();
@@ -81,6 +82,7 @@ namespace LingoEngine.Events
 
         // Dispatch MouseMove event to all subscribers
         public void MouseMove(LingoStageMouse mouse) => _subscriptions.ForEach(s => s.MouseMove(mouse));
+        public void MouseWheel(LingoStageMouse mouse) => _subscriptions.ForEach(s => s.MouseWheel(mouse));
 
         // Dispatch EnterFrame event to all subscribers
         public void EnterFrame() => _subscriptions.ForEach(s => s.EnterFrame());
@@ -102,6 +104,7 @@ namespace LingoEngine.Events
             public void MouseDown(LingoStageMouse mouse) => _target.DoMouseDown(mouse);
             public void MouseUp(LingoStageMouse mouse) => _target.DoMouseUp(mouse);
             public void MouseMove(LingoStageMouse mouse) => _target.DoMouseMove(mouse);
+            public void MouseWheel(LingoStageMouse mouse) => _target.DoMouseWheel(mouse);
             public void EnterFrame() => _target.DoEnterFrame();
             public void ExitFrame() => _target.DoExitFrame();
 

@@ -21,6 +21,7 @@ namespace LingoEngine.Events
         private readonly List<IHasMouseDownEvent> _mouseDowns = new();
         private readonly List<IHasMouseUpEvent> _mouseUps = new();
         private readonly List<IHasMouseMoveEvent> _mouseMoves = new();
+        private readonly List<IHasMouseWheelEvent> _mouseWheels = new();
         private readonly List<IHasMouseEnterEvent> _mouseEnters = new();
         private readonly List<IHasMouseExitEvent> _mouseExits = new();
         //private readonly List<IHasBeginSpriteEvent> _beginSprites = new();
@@ -55,6 +56,7 @@ namespace LingoEngine.Events
             if (ms is IHasMouseDownEvent mouseDownEvent) Insert(_mouseDowns, mouseDownEvent);
             if (ms is IHasMouseUpEvent mouseUpEvent) Insert(_mouseUps, mouseUpEvent);
             if (ms is IHasMouseMoveEvent mouseMoveEvent) Insert(_mouseMoves, mouseMoveEvent);
+            if (ms is IHasMouseWheelEvent mouseWheelEvent) Insert(_mouseWheels, mouseWheelEvent);
             if (ms is IHasMouseEnterEvent mouseEnterEvent) Insert(_mouseEnters, mouseEnterEvent);
             if (ms is IHasMouseExitEvent mouseExitEvent) Insert(_mouseExits, mouseExitEvent);
             //if (ms is IHasBeginSpriteEvent beginSpriteEvent) Insert(_beginSprites, beginSpriteEvent);
@@ -76,6 +78,7 @@ namespace LingoEngine.Events
             if (ms is IHasMouseDownEvent mouseDownEvent) _mouseDowns.Remove(mouseDownEvent);
             if (ms is IHasMouseUpEvent mouseUpEvent) _mouseUps.Remove(mouseUpEvent);
             if (ms is IHasMouseMoveEvent mouseMoveEvent) _mouseMoves.Remove(mouseMoveEvent);
+            if (ms is IHasMouseWheelEvent mouseWheelEvent) _mouseWheels.Remove(mouseWheelEvent);
             if (ms is IHasMouseEnterEvent mouseEnterEvent) _mouseEnters.Remove(mouseEnterEvent);
             if (ms is IHasMouseExitEvent mouseExitEvent) _mouseExits.Remove(mouseExitEvent);
             //if (ms is IHasBeginSpriteEvent beginSpriteEvent) _beginSprites.Remove(beginSpriteEvent);
@@ -109,6 +112,7 @@ namespace LingoEngine.Events
             FilterList(_mouseDowns);
             FilterList(_mouseUps);
             FilterList(_mouseMoves);
+            FilterList(_mouseWheels);
             FilterList(_mouseEnters);
             FilterList(_mouseExits);
             FilterList(_stepFrames);
@@ -126,6 +130,7 @@ namespace LingoEngine.Events
         public void RaiseMouseDown(LingoMouseEvent mouse) => _mouseDowns.ForEach(x => x.MouseDown(mouse));
         public void RaiseMouseUp(LingoMouseEvent mouse) => _mouseUps.ForEach(x => x.MouseUp(mouse));
         public void RaiseMouseMove(LingoMouseEvent mouse) => _mouseMoves.ForEach(x => x.MouseMove(mouse));
+        public void RaiseMouseWheel(LingoMouseEvent mouse) => _mouseWheels.ForEach(x => x.MouseWheel(mouse));
         internal void RaiseMouseEnter(LingoMouseEvent mouse) => _mouseEnters.ForEach(x => x.MouseEnter(mouse));
         internal void RaiseMouseExit(LingoMouseEvent mouse) => _mouseExits.ForEach(x => x.MouseExit(mouse));
         //internal void RaiseBeginSprite() => _beginSprites.ForEach(x => x.BeginSprite());

@@ -166,6 +166,7 @@ public class StageBoundingBoxesOverlay : IHasSpriteSelectedEvent, ILingoMouseEve
     }
 
     void ILingoMouseEventHandler.RaiseMouseMove(LingoMouseEvent mouse) => OnMouseMove(mouse);
+    void ILingoMouseEventHandler.RaiseMouseWheel(LingoMouseEvent mouse) { }
 
     private Anchor HitTest(float x, float y)
     {

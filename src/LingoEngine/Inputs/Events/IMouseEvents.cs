@@ -1,4 +1,3 @@
-﻿
 using LingoEngine.Events;
 
 namespace LingoEngine.Inputs.Events
@@ -26,6 +25,10 @@ namespace LingoEngine.Inputs.Events
         void MouseMove(LingoMouseEvent mouse);
     }
 
+    public interface IHasMouseWheelEvent
+    {
+        void MouseWheel(LingoMouseEvent mouse);
+    }
 
     public interface IHasMouseEnterEvent
     {

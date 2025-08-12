@@ -1,5 +1,6 @@
 ﻿using Godot;
 using LingoEngine.Director.Core.Events;
+using LingoEngine.Events;
 using LingoEngine.Members;
 using LingoEngine.Core;
 using LingoEngine.Primitives;
@@ -56,6 +57,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
     private int _brushSize = 1;
     private readonly LingoBitmapSelection _selection = new();
     private Vector2I _selectStart;
+    private Vector2 _lastMousePos;
 
 
     private readonly float[] _zoomLevels = new float[]
@@ -249,6 +251,11 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
 
         _scaleDropdown.ItemSelected += id => OnScaleSelected(id);
         _bottomBar.AddChild(_scaleDropdown);
+
+        Mouse.OnMouseDown(OnMouseDown);
+        Mouse.OnMouseUp(OnMouseUp);
+        Mouse.OnMouseMove(OnMouseMove);
+        Mouse.OnMouseEvent(OnMouseEvent);
     }
     private void StyleIconButton(Button button, DirectorIcon icon)
     {
@@ -509,108 +516,125 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
     {
         base._Input(@event);
 
-        if (base._dragging) return;
-        if (!Visible) return;
-        Rect2 bounds = new Rect2(_scrollContainer.GlobalPosition, _scrollContainer.Size);
-        Vector2 mousePos = GetGlobalMousePosition();
-        if (!bounds.HasPoint(mousePos)) return;
-        if (@event is InputEventKey keyEvent)
-        {
-            if (keyEvent.Keycode == Key.Space)
-                SpaceBarPress(keyEvent);
+        if (base._dragging || !Visible)
             return;
-        }
 
-        if (@event is InputEventMouseButton mb)
+        if (@event is InputEventKey keyEvent && keyEvent.Keycode == Key.Space)
         {
-            if (mb.ButtonIndex == MouseButton.Left)
-            {
-                if (mb.Pressed && _spaceHeld)
-                {
-                    _panning = true;
-                    GetViewport().SetInputAsHandled();
-                    return;
-                }
-
-                if (mb.Pressed && !@_spaceHeld)
-                {
-                    if (_paintToolbar.SelectedTool == PainterToolType.SelectRectangle)
-                        StartRectangleSelection();
-                    else if (_paintToolbar.SelectedTool == PainterToolType.SelectLasso)
-                        StartLassoSelection();
-                    else if (_painter != null && _imageRect.Texture != null)
-                    {
-                        _drawing = true;
-                        DrawingPixels();
-                    }
-                    GetViewport().SetInputAsHandled();
-                    return;
-                }
-
-                if (!mb.Pressed)
-                {
-                    if (_selection.IsDragSelecting && _paintToolbar.SelectedTool == PainterToolType.SelectRectangle)
-                        FinishRectangleSelection(mb);
-                    else if (_selection.IsLassoSelecting && _paintToolbar.SelectedTool == PainterToolType.SelectLasso)
-                        FinishLassoSelection(mb);
-                    else
-                        _panning = false;
-                    _drawing = false;
-                    GetViewport().SetInputAsHandled();
-                    return;
-                }
-            }
-            else if (!mb.Pressed && (mb.ButtonIndex == MouseButton.WheelUp || mb.ButtonIndex == MouseButton.WheelDown))
-            {
-                ZoomingWithMouseScroll(mb);
-                return;
-            }
-
-        }
-        else if (@event is InputEventMouseMotion motion)
-        {
-            if (_selection.IsDragSelecting && _paintToolbar.SelectedTool == PainterToolType.SelectRectangle)
-            {
-                var local = _imageRect.GetLocalMousePosition();
-                var end = new Vector2I((int)local.X, (int)local.Y);
-                _selection.UpdateRectSelection(
-                    new LingoPoint(_selectStart.X, _selectStart.Y),
-                    new LingoPoint(end.X, end.Y));
-                RedrawSelectionCanvas();
-                GetViewport().SetInputAsHandled();
-                return;
-            }
-            else if (_selection.IsLassoSelecting && _paintToolbar.SelectedTool == PainterToolType.SelectLasso)
-            {
-                var local = _imageRect.GetLocalMousePosition();
-                var point = new Vector2I((int)local.X, (int)local.Y);
-                _selection.AddLassoPoint(point.X, point.Y);
-                RedrawSelectionCanvas();
-                GetViewport().SetInputAsHandled();
-                return;
-            }
-            if (_panning)
-            {
-                _scrollContainer.ScrollHorizontal -= (int)motion.Relative.X;
-                _scrollContainer.ScrollVertical -= (int)motion.Relative.Y;
-
-                GetViewport().SetInputAsHandled();
-                return;
-            }
-            if (_drawing)
-            {
-                DrawingPixels();
-                GetViewport().SetInputAsHandled();
-                return;
-            }
+            SpaceBarPress(keyEvent);
         }
     }
 
-    private void ZoomingWithMouseScroll(InputEventMouseButton mb)
+    private void OnMouseDown(LingoMouseEvent e)
+    {
+        if (!IsEventInScrollArea() || !e.Mouse.LeftMouseDown)
+            return;
+
+        if (_spaceHeld)
+        {
+            _panning = true;
+            _lastMousePos = new Vector2(e.Mouse.MouseH, e.Mouse.MouseV);
+            GetViewport().SetInputAsHandled();
+            return;
+        }
+
+        if (_paintToolbar.SelectedTool == PainterToolType.SelectRectangle)
+            StartRectangleSelection();
+        else if (_paintToolbar.SelectedTool == PainterToolType.SelectLasso)
+            StartLassoSelection();
+        else if (_painter != null && _imageRect.Texture != null)
+        {
+            _drawing = true;
+            DrawingPixels();
+        }
+
+        GetViewport().SetInputAsHandled();
+    }
+
+    private void OnMouseUp(LingoMouseEvent e)
+    {
+        if (!IsEventInScrollArea())
+            return;
+
+        bool ctrl = Input.IsKeyPressed(Key.Ctrl);
+        bool shift = Input.IsKeyPressed(Key.Shift);
+
+        if (_selection.IsDragSelecting && _paintToolbar.SelectedTool == PainterToolType.SelectRectangle)
+            FinishRectangleSelection(ctrl, shift);
+        else if (_selection.IsLassoSelecting && _paintToolbar.SelectedTool == PainterToolType.SelectLasso)
+            FinishLassoSelection(ctrl, shift);
+        else
+            _panning = false;
+
+        _drawing = false;
+        GetViewport().SetInputAsHandled();
+    }
+
+    private void OnMouseMove(LingoMouseEvent e)
+    {
+        if (!IsEventInScrollArea())
+            return;
+
+        var current = new Vector2(e.Mouse.MouseH, e.Mouse.MouseV);
+
+        if (_selection.IsDragSelecting && _paintToolbar.SelectedTool == PainterToolType.SelectRectangle)
+        {
+            var local = _imageRect.GetLocalMousePosition();
+            var end = new Vector2I((int)local.X, (int)local.Y);
+            _selection.UpdateRectSelection(
+                new LingoPoint(_selectStart.X, _selectStart.Y),
+                new LingoPoint(end.X, end.Y));
+            RedrawSelectionCanvas();
+            GetViewport().SetInputAsHandled();
+            return;
+        }
+        else if (_selection.IsLassoSelecting && _paintToolbar.SelectedTool == PainterToolType.SelectLasso)
+        {
+            var local = _imageRect.GetLocalMousePosition();
+            var point = new Vector2I((int)local.X, (int)local.Y);
+            _selection.AddLassoPoint(point.X, point.Y);
+            RedrawSelectionCanvas();
+            GetViewport().SetInputAsHandled();
+            return;
+        }
+
+        if (_panning)
+        {
+            var rel = current - _lastMousePos;
+            _scrollContainer.ScrollHorizontal -= (int)rel.X;
+            _scrollContainer.ScrollVertical -= (int)rel.Y;
+            _lastMousePos = current;
+            GetViewport().SetInputAsHandled();
+            return;
+        }
+
+        if (_drawing)
+        {
+            DrawingPixels();
+            GetViewport().SetInputAsHandled();
+        }
+    }
+
+    private void OnMouseEvent(LingoMouseEvent e)
+    {
+        if (e.Type == LingoMouseEventType.MouseWheel && IsEventInScrollArea())
+        {
+            ZoomingWithMouseScroll(e.WheelDelta);
+        }
+    }
+
+    private bool IsEventInScrollArea()
+    {
+        Rect2 bounds = new Rect2(_scrollContainer.GlobalPosition, _scrollContainer.Size);
+        Vector2 mousePos = GetGlobalMousePosition();
+        return bounds.HasPoint(mousePos);
+    }
+
+    private void ZoomingWithMouseScroll(float delta)
     {
         // Apply zoom factor per scroll step (e.g. 25% per notch)
         const float zoomStep = 1.25f;
-        float factor = mb.ButtonIndex == MouseButton.WheelUp ? zoomStep : 1f / zoomStep;
+        float factor = delta > 0 ? zoomStep : 1f / zoomStep;
 
         float rawScale = _scale * factor;
 
@@ -625,14 +649,14 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
         GetViewport().SetInputAsHandled();
     }
 
-    private void FinishRectangleSelection(InputEventMouseButton mb)
+    private void FinishRectangleSelection(bool ctrlPressed, bool shiftPressed)
     {
         var local = _imageRect.GetLocalMousePosition();
         var end = new Vector2I((int)local.X, (int)local.Y);
         var rect = LingoPoint.RectFromPoints(
             new LingoPoint(_selectStart.X, _selectStart.Y),
             new LingoPoint(end.X, end.Y));
-        _selection.ApplySelection(rect, mb.CtrlPressed, mb.ShiftPressed);
+        _selection.ApplySelection(rect, ctrlPressed, shiftPressed);
         _selection.EndRectSelection();
         RedrawSelectionCanvas();
     }
@@ -664,13 +688,13 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
             RedrawSelectionCanvas();
         }
     }
-    private void FinishLassoSelection(InputEventMouseButton mb)
+    private void FinishLassoSelection(bool ctrlPressed, bool shiftPressed)
     {
         var polygon = _selection.EndLassoSelection();
         if (polygon.Count > 2)
         {
             var pixels = LingoPoint.PointsInsidePolygon(polygon);
-            _selection.ApplySelection(pixels, mb.CtrlPressed, mb.ShiftPressed);
+            _selection.ApplySelection(pixels, ctrlPressed, shiftPressed);
         }
         RedrawSelectionCanvas();
     }

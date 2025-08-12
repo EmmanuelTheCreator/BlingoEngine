@@ -1,8 +1,10 @@
 namespace LingoEngine.SDL2;
+using System;
 using LingoEngine.Core;
 using LingoEngine.SDL2.SDLL;
 using LingoEngine.SDL2.Core;
 using LingoEngine.Movies;
+using LingoEngine.Inputs;
 using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.Stages;
 using LingoEngine.SDL2;
@@ -16,6 +18,7 @@ public class SdlRootContext : IDisposable
 
     public LingoDebugOverlay DebugOverlay { get; set; }
     internal SdlKey Key { get; } = new();
+    internal SdlMouse Mouse { get; } = new SdlMouse(new Lazy<LingoMouse>(() => null!));
     private bool _f1Pressed;
     public LingoSDLComponentContainer ComponentContainer { get; } = new();
     internal SdlFactory Factory { get; set; } = null!;
@@ -46,6 +49,7 @@ public class SdlRootContext : IDisposable
                 if (e.type == SDL.SDL_EventType.SDL_QUIT)
                     running = false;
                 Key.ProcessEvent(e);
+                Mouse.ProcessEvent(e);
             }
             uint now = SDL.SDL_GetTicks();
             float delta = (now - last) / 1000f;
