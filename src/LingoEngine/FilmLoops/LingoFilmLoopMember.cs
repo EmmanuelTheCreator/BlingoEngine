@@ -5,6 +5,7 @@ using LingoEngine.Members;
 using LingoEngine.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Events;
+using System;
 
 namespace LingoEngine.FilmLoops
 {
@@ -75,9 +76,12 @@ namespace LingoEngine.FilmLoops
         }
         public void UpdateSize()
         {
-            var size = GetBoundingBox();
-            Width = (int)(size.Width);// + (size.Left <0 ? - size.Left : 0));
-            Height = (int)(size.Height); // + (size.Top < 0 ? -size.Top : 0));
+            var bounds = GetBoundingBox();
+            Width = (int)MathF.Ceiling(bounds.Width);
+            Height = (int)MathF.Ceiling(bounds.Height);
+            float regX = bounds.Left < 0 ? -bounds.Left : 0;
+            float regY = bounds.Top < 0 ? -bounds.Top : 0;
+            RegPoint = new LingoPoint(regX, regY);
         }
 
         public override void Unload() => _frameworkFilmLoop.Unload();
