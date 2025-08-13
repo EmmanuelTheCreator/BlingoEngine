@@ -7,15 +7,17 @@ public static class GfxTestScene
 {
     public static ILingoGfxNode Build(ILingoGfxFactory factory)
     {
-        //var scroll = factory.CreateScrollContainer("scroll");
-        //scroll.X = 20;
-        //scroll.Y = 20;
-        //scroll.Width = 760;
-        //scroll.Height = 560;
+        var scroll = factory.CreateScrollContainer("scroll");
+        scroll.X = 20;
+        scroll.Y = 20;
+        scroll.Width = 760;
+        scroll.Height = 560;
 
         var panel = factory.CreatePanel("rootPanel");
+        scroll.AddItem(panel);
         panel.Width = 720;
         panel.Height = 1400;
+        panel.BackgroundColor = new LingoColor(240, 240, 240, 255);
 
         float y = 10f;
 
@@ -25,13 +27,16 @@ public static class GfxTestScene
             y += height;
         }
 
-        Add(factory.CreateLabel("label", "Label"));
-        return panel;
-        //Add(factory.CreateButton("button", "Button"));
+        Add(CreateLabel(factory, "label1"));
+        Add(CreateLabel(factory, "Label2 test"));
+        Add(CreateLabel(factory, "Label3 test"));
+        Add(CreateLabel(factory, "Label4 test"));
+        Add(factory.CreateButton("button", "Button"));
 
         //Add(factory.CreateStateButton("stateButton", null, "State"));
 
         //Add(factory.CreateInputText("inputText"));
+        return scroll;
 
         ////Add(factory.CreateInputNumberInt("inputNumber", 0, 100));
 
@@ -97,5 +102,13 @@ public static class GfxTestScene
         //scroll.AddItem(panel);
 
         //return scroll;
+    }
+
+    private static LingoGfxLabel CreateLabel(ILingoGfxFactory factory, string text)
+    {
+        var label = factory.CreateLabel(text.Replace(" ","_"), text);
+        label.FontColor = LingoColorList.LightGray;
+        return label;
+
     }
 }

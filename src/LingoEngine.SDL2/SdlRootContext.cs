@@ -8,9 +8,13 @@ using LingoEngine.Inputs;
 using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.Stages;
 using LingoEngine.Primitives;
+using ImGuiNET;
+using System.Numerics;
 
 public class SdlRootContext : IDisposable, ISdlRootComponentContext
 {
+    private readonly ImGuiSdlBackend _imgui = new();
+
     private LingoPlayer _lPlayer;
     public nint Window { get; }
     public nint Renderer { get; }
@@ -22,8 +26,13 @@ public class SdlRootContext : IDisposable, ISdlRootComponentContext
     public LingoMouse LingoMouse { get; }
     public SdlMouse Mouse { get; }
     private bool _f1Pressed;
+    private bool _imguiReady;
+
     public LingoSDLComponentContainer ComponentContainer { get; } = new();
     internal SdlFactory Factory { get; set; } = null!;
+
+    public ImGuiViewportPtr ImGuiViewPort { get; private set; }
+    public ImDrawListPtr ImDrawList { get; private set; }
 
     public SdlRootContext(nint window, nint renderer)
     {
@@ -34,6 +43,9 @@ public class SdlRootContext : IDisposable, ISdlRootComponentContext
         Key = new SdlKey();
         LingoKey = new LingoKey(Key);
         Key.SetLingoKey(LingoKey);
+        _imgui.Init(Window, Renderer);
+
+        _imguiReady = true;
     }
     public void Init(ILingoPlayer player)
     {
@@ -54,21 +66,28 @@ public class SdlRootContext : IDisposable, ISdlRootComponentContext
             {
                 if (e.type == SDL.SDL_EventType.SDL_QUIT)
                     running = false;
+                _imgui.ProcessEvent(ref e);
                 Key.ProcessEvent(e);
                 Mouse.ProcessEvent(e);
             }
             uint now = SDL.SDL_GetTicks();
             float delta = (now - last) / 1000f;
             last = now;
+            ImGuiViewPort = _imgui.BeginFrame();
+            ImDrawList = ImGui.GetForegroundDrawList();
+
             DebugOverlay.Update(delta);
             bool f1 = _lPlayer.Key.KeyPressed((int)SDL.SDL_Keycode.SDLK_F1);
             if (f1 && !_f1Pressed)
                 DebugOverlay.Toggle();
             _f1Pressed = f1;
             clock.Tick(delta);
+            _imgui.EndFrame();
         }
         Dispose();
     }
+
+    
 
     public void Dispose()
     {

@@ -74,7 +74,7 @@ public abstract class SdlGfxComponent : ILingoSDLComponent, IDisposable
     public string Name { get; set; } = string.Empty;
 
     /// <inheritdoc />
-    public abstract nint Render(LingoSDLRenderContext context);
+    public abstract LingoSDLRenderResult Render(LingoSDLRenderContext context);
 
     /// <inheritdoc />
     public virtual void Dispose() => ComponentContext.Dispose();

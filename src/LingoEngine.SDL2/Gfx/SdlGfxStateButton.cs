@@ -74,7 +74,7 @@ namespace LingoEngine.SDL2.Gfx
         public object FrameworkNode => this;
 
 
-        public override nint Render(LingoSDLRenderContext context)
+        public override LingoSDLRenderResult Render(LingoSDLRenderContext context)
         {
             if (!Visibility) return nint.Zero;
             ImGui.SetCursorPos(new Vector2(X, Y));

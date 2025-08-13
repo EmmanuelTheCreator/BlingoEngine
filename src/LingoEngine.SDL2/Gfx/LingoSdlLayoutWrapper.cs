@@ -11,15 +11,18 @@ namespace LingoEngine.SDL2.Gfx
         public LingoSdlLayoutWrapper(SdlGfxFactory factory,LingoGfxLayoutWrapper layoutWrapper):base(factory)
         {
             _lingoLayoutWrapper = layoutWrapper;
-            layoutWrapper.Init(this);
+            _lingoLayoutWrapper.Init(this);
             var content = layoutWrapper.Content.FrameworkObj;
         }
 
         public LingoMargin Margin { get; set; }
 
-        public override nint Render(LingoSDLRenderContext context)
+        public override LingoSDLRenderResult Render(LingoSDLRenderContext context)
         {
-            return nint.Zero;
+            var sdlComponent = ((SdlGfxComponent)_lingoLayoutWrapper.Content.FrameworkObj);
+            sdlComponent.X = X;
+            sdlComponent.Y = Y;
+            return sdlComponent.Render(context);
         }
     }
 }

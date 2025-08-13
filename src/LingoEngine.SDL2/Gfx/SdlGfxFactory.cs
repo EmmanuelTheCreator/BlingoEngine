@@ -27,7 +27,7 @@ namespace LingoEngine.SDL2.Gfx
             => new(_rootContext.ComponentContainer, component, parent) { Renderer = _rootContext.Renderer };
 
         internal LingoSDLRenderContext CreateRenderContext(ILingoSDLComponent? component = null)
-            => new(_rootContext.Renderer);
+            => new(_rootContext.Renderer, _rootContext.ImGuiViewPort, _rootContext.ImDrawList, _rootContext.ImGuiViewPort.WorkPos);
 
         public LingoGfxCanvas CreateGfxCanvas(string name, int width, int height)
         {

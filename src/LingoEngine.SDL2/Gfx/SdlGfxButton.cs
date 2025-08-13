@@ -21,11 +21,13 @@ namespace LingoEngine.SDL2.Gfx
 
         public event Action? Pressed;
 
-        public override nint Render(LingoSDLRenderContext context)
+        public override LingoSDLRenderResult Render(LingoSDLRenderContext context)
         {
             if (!Visibility) return nint.Zero;
 
-            ImGui.SetCursorPos(new Vector2(X, Y));
+            //ImGui.SetCursorPos(new Vector2(X, Y));
+            var vpPos = context.ImGuiViewPort.WorkPos;
+            var basePos = vpPos + new Vector2(X, Y);
             ImGui.PushID(Name);
             if (!Enabled)
                 ImGui.BeginDisabled();
@@ -36,7 +38,7 @@ namespace LingoEngine.SDL2.Gfx
             if (!Enabled)
                 ImGui.EndDisabled();
             ImGui.PopID();
-            return nint.Zero;
+            return LingoSDLRenderResult.RequireRender();
         }
 
         public void Invoke() => Pressed?.Invoke();

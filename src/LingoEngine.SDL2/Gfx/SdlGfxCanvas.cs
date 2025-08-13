@@ -258,7 +258,7 @@ namespace LingoEngine.SDL2.Gfx
             }
         }
 
-        public override nint Render(LingoSDLRenderContext context)
+        public override LingoSDLRenderResult Render(LingoSDLRenderContext context)
         {
             ComponentContext.Renderer = context.Renderer;
             return _texture;

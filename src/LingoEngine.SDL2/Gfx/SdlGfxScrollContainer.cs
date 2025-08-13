@@ -33,29 +33,62 @@ namespace LingoEngine.SDL2.Gfx
 
         public IEnumerable<ILingoFrameworkGfxLayoutNode> GetItems() => _children.ToArray();
 
-        public override nint Render(LingoSDLRenderContext context)
+        public override LingoSDLRenderResult Render(LingoSDLRenderContext context)
         {
-            if (!Visibility)
-                return nint.Zero;
+            if (!Visibility) return nint.Zero;
 
-            ImGui.SetCursorPos(new Vector2(X, Y));
+            var screenPos = context.Origin + new Vector2(X, Y);
+            ImGui.SetCursorScreenPos(screenPos);
+
             ImGui.PushID(Name);
-            ImGui.BeginChild("##scroll", new Vector2(Width, Height), ImGuiChildFlags.None);
+
+            var childFlags = ImGuiChildFlags.None;
+            var winFlags = ImGuiWindowFlags.None; // add Always*Scrollbar if you want to force
+
+            // clip border if you like
+            if (ClipContents) childFlags |= ImGuiChildFlags.Borders;
+
+            ImGui.BeginChild("##scroll", new Vector2(Width, Height), childFlags, winFlags);
+
+            // apply incoming scroll
             ImGui.SetScrollX(ScrollHorizontal);
             ImGui.SetScrollY(ScrollVertical);
 
+            // child origin for nested components
+            var childOrigin = ImGui.GetCursorScreenPos();
+            var childCtx = new LingoSDLRenderContext(
+                context.Renderer,
+                context.ImGuiViewPort,
+                ImGui.GetWindowDrawList(),
+                childOrigin);
+
+            // render children & measure content extents
+            float maxX = 0, maxY = 0;
             foreach (var child in _children)
             {
                 if (child is SdlGfxComponent comp)
-                    comp.Render(context);
+                {
+                    comp.Render(childCtx);
+                    maxX = MathF.Max(maxX, comp.X + comp.Width);
+                    maxY = MathF.Max(maxY, comp.Y + comp.Height);
+                }
             }
 
+            // report content size to ImGui so it knows it should scroll
+            ImGui.SetCursorScreenPos(childOrigin);
+            ImGui.Dummy(new Vector2(maxX, maxY)); // <- drives scrollbar visibility
+
+            // read back scroll (after items)
             ScrollHorizontal = ImGui.GetScrollX();
             ScrollVertical = ImGui.GetScrollY();
+
             ImGui.EndChild();
             ImGui.PopID();
-            return nint.Zero;
+
+            return LingoSDLRenderResult.RequireRender();
         }
+
+
 
         public override void Dispose()
         {

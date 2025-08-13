@@ -31,7 +31,7 @@ namespace LingoEngine.SDL2.Gfx
         public event Action? ValueChanged;
         public object FrameworkNode => this;
 
-        public override nint Render(LingoSDLRenderContext context)
+        public override LingoSDLRenderResult Render(LingoSDLRenderContext context)
         {
             if (!Visibility) return nint.Zero;
 

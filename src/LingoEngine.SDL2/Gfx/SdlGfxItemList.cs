@@ -36,7 +36,7 @@ namespace LingoEngine.SDL2.Gfx
         }
         public override void Dispose() => base.Dispose();
 
-        public override nint Render(LingoSDLRenderContext context)
+        public override LingoSDLRenderResult Render(LingoSDLRenderContext context)
         {
             if (!Visibility)
                 return nint.Zero;

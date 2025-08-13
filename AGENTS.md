@@ -10,6 +10,7 @@ These instructions apply to the entire repository.
 - For changes in core engine code (e.g., under `src` or `Test/LingoEngine.Lingo.Core.Tests`), run `dotnet test Test/LingoEngine.Lingo.Core.Tests/LingoEngine.Lingo.Core.Tests.csproj`.
 - For changes in the ProjectorRays area (`WillMoveToOwnRepo/ProjectorRays`), run `dotnet test WillMoveToOwnRepo/ProjectorRays/Test/ProjectorRays.DotNet.Test/ProjectorRays.DotNet.Test.csproj`.
 - Apply the same approach for other components: run `dotnet test <path-to-test-project>` for each modified project.
+- Project `LingoEngine.SDL2.GfxVisualTest.csproj` is a console application to test the UI visually, not with tests in it.
 
 ## Code Style
 - Use `dotnet format` to fix style issues when needed.

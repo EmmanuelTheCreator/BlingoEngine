@@ -33,24 +33,28 @@ namespace LingoEngine.SDL2.Gfx
 
         public event Action? ValueChanged;
 
-        public override nint Render(LingoSDLRenderContext context)
+        public override LingoSDLRenderResult Render(LingoSDLRenderContext context)
         {
             if (!Visibility) return nint.Zero;
 
-            ImGui.SetCursorPos(new Vector2(X, Y));
-            ImGui.PushID(Name);
-            if (!Enabled)
-                ImGui.BeginDisabled();
+            // place relative to overlay screen
+            var basePos = context.ImGuiViewPort.WorkPos;
+            ImGui.SetCursorScreenPos(basePos + new Vector2(X, Y));
 
-            uint len = MaxLength > 0 ? (uint)MaxLength : 1024u;
-            if (ImGui.InputText("##text", ref _text, len))
+            if (Width > 0) ImGui.SetNextItemWidth(Width);
+
+            ImGui.PushID(Name);
+            if (!Enabled) ImGui.BeginDisabled();
+
+            uint cap = MaxLength > 0 ? (uint)MaxLength : 1024u;
+            if (ImGui.InputText("##text", ref _text, cap))
                 ValueChanged?.Invoke();
 
-            if (!Enabled)
-                ImGui.EndDisabled();
+            if (!Enabled) ImGui.EndDisabled();
             ImGui.PopID();
-            return nint.Zero;
+            return LingoSDLRenderResult.RequireRender();
         }
+
 
         public override void Dispose() => base.Dispose();
     }

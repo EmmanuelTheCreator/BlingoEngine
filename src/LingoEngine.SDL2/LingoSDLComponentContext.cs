@@ -49,8 +49,9 @@ public class LingoSDLComponentContext : IDisposable
 
         if (_requireRender && Component is { })
         {
-            Texture = Component.Render(renderContext);
-            _requireRender = false;
+            var renderResult = Component.Render(renderContext);
+            Texture = renderResult.Texture;
+            _requireRender = renderResult.DoRender;
         }
 
         if (Texture == nint.Zero)

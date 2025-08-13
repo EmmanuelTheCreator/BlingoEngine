@@ -34,7 +34,7 @@ namespace LingoEngine.SDL2.Gfx
 
         public int FontSize { get; set; } = 12;
 
-        public override nint Render(LingoSDLRenderContext context)
+        public override LingoSDLRenderResult Render(LingoSDLRenderContext context)
         {
             if (!Visibility) return nint.Zero;
 

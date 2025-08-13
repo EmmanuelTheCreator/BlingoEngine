@@ -204,7 +204,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
         }
     }
 
-    public nint Render(LingoSDLRenderContext context)
+    public LingoSDLRenderResult Render(LingoSDLRenderContext context)
     {
         Update();
         ComponentContext.Renderer = context.Renderer;

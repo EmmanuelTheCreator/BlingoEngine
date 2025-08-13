@@ -32,38 +32,47 @@ namespace LingoEngine.SDL2.Gfx
 
         public event Action? ValueChanged;
 
-        public override nint Render(LingoSDLRenderContext context)
+        public override LingoSDLRenderResult Render(LingoSDLRenderContext context)
         {
-            if (!Visibility) return nint.Zero;
+            if (!Visibility || string.IsNullOrEmpty(Text))
+                return default; // DoRender=false
+
+            var vpPos = context.ImGuiViewPort.WorkPos;
+            var basePos = vpPos + new Vector2(X, Y);
 
             ImGui.PushID(Name);
-            var pos = new Vector2(X, Y);
-            ImGui.SetCursorPos(pos);
-
             ImGui.PushStyleColor(ImGuiCol.Text, FontColor.ToImGuiColor());
-            if (WrapMode != LingoTextWrapMode.Off)
-                ImGui.PushTextWrapPos(X + Width);
 
-            if (TextAlignment != LingoTextAlignment.Left)
+            // Wrapping (only when Width > 0)
+            bool wrap = WrapMode != LingoTextWrapMode.Off && Width > 0;
+            if (wrap) ImGui.PushTextWrapPos(basePos.X + Width);
+
+            // Position with screen coords (no assertions)
+            if (!wrap && Width > 0 && TextAlignment != LingoTextAlignment.Left)
             {
-                float wrapWidth = WrapMode == LingoTextWrapMode.Off ? 0 : Width;
-                Vector2 size = ImGui.CalcTextSize(Text, wrapWidth);
-                float startX = pos.X;
-                if (TextAlignment == LingoTextAlignment.Center)
-                    startX += (Width - size.X) / 2f;
-                else if (TextAlignment == LingoTextAlignment.Right)
-                    startX += (Width - size.X);
-                ImGui.SetCursorPos(new Vector2(startX, pos.Y));
+                // single-line alignment
+                var sz = ImGui.CalcTextSize(Text);
+                float startX = basePos.X;
+                if (TextAlignment == LingoTextAlignment.Center) startX += (Width - sz.X) / 2f;
+                else if (TextAlignment == LingoTextAlignment.Right) startX += (Width - sz.X);
+                ImGui.SetCursorScreenPos(new Vector2(startX, basePos.Y));
+                ImGui.TextUnformatted(Text);
+            }
+            else
+            {
+                // left aligned (or wrapped)
+                ImGui.SetCursorScreenPos(basePos);
+                if (wrap) ImGui.TextWrapped(Text);
+                else ImGui.TextUnformatted(Text);
             }
 
-            ImGui.TextUnformatted(Text);
-
-            if (WrapMode != LingoTextWrapMode.Off)
-                ImGui.PopTextWrapPos();
+            if (wrap) ImGui.PopTextWrapPos();
             ImGui.PopStyleColor();
             ImGui.PopID();
-            return nint.Zero;
+
+            return LingoSDLRenderResult.RequireRender(); // UI drawn via ImGui, no SDL texture
         }
+
 
         public override void Dispose() => base.Dispose();
     }

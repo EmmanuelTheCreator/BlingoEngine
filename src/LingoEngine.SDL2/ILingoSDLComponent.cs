@@ -7,5 +7,5 @@ public interface ILingoSDLComponent
     /// </summary>
     /// <param name="context">Render context providing the SDL renderer.</param>
     /// <returns>The texture handle or <c>nint.Zero</c> when no texture is created.</returns>
-    nint Render(LingoSDLRenderContext context);
+    LingoSDLRenderResult Render(LingoSDLRenderContext context);
 }

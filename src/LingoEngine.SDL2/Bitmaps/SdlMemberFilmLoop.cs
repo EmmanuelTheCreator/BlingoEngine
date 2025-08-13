@@ -12,6 +12,7 @@ using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.SDLL;
 using LingoEngine.SDL2.Sprites;
 using LingoEngine.Sprites;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace LingoEngine.SDL2.Pictures;
 
@@ -119,15 +120,31 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
 
         foreach (var info in prep.Layers)
         {
-            if (info.Bitmap is not SdlMemberBitmap bmp)
-                continue;
-            var src = bmp.Surface;
-            if (src == nint.Zero)
+            nint srcImg = nint.Zero;
+            int widthS = 0;
+            int heightS = 0;
+            if (info.Sprite2D.Member is LingoMemberBitmap pic && pic.FrameworkObj is SdlMemberBitmap bmp)
+            {
+                var texture1 = ((ILingoFrameworkMemberBitmap)bmp).Texture as SdlImageTexture;
+                if (texture1 == null) continue;
+                srcImg = bmp.GetTextureForInk(info.Ink, info.BackColor, _sdlRootContext.Renderer);
+                widthS= texture1.Width;
+                heightS = texture1.Height;
+            }
+            else
+            {
+                if (info.Sprite2D.Texture == null) continue;
+                var tex = (SdlTexture2D)info.Sprite2D.Texture;
+                srcImg = tex.Texture;
+                widthS = tex.Width;
+                heightS = tex.Height;
+            }
+            if (srcImg == nint.Zero)
                 continue;
 
-            nint srcSurf = src;
+            nint srcSurf = srcImg;
             bool freeSrc = false;
-            if (info.SrcX != 0 || info.SrcY != 0 || info.SrcW != bmp.Width || info.SrcH != bmp.Height || info.DestW != info.SrcW || info.DestH != info.SrcH)
+            if (info.SrcX != 0 || info.SrcY != 0 || info.SrcW != widthS || info.SrcH != heightS || info.DestW != info.SrcW || info.DestH != info.SrcH)
             {
                 srcSurf = SDL.SDL_CreateRGBSurfaceWithFormat(0, info.DestW, info.DestH, 32, SDL.SDL_PIXELFORMAT_RGBA8888);
                 if (srcSurf == nint.Zero)
@@ -135,9 +152,9 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
                 SDL.SDL_Rect srect = new SDL.SDL_Rect { x = info.SrcX, y = info.SrcY, w = info.SrcW, h = info.SrcH };
                 SDL.SDL_Rect drect = new SDL.SDL_Rect { x = 0, y = 0, w = info.DestW, h = info.DestH };
                 if (Framing == LingoFilmLoopFraming.Scale)
-                    SDL.SDL_BlitScaled(src, ref srect, srcSurf, ref drect);
+                    SDL.SDL_BlitScaled(srcImg, ref srect, srcSurf, ref drect);
                 else
-                    SDL.SDL_BlitSurface(src, ref srect, srcSurf, ref drect);
+                    SDL.SDL_BlitSurface(srcImg, ref srect, srcSurf, ref drect);
                 freeSrc = true;
             }
 

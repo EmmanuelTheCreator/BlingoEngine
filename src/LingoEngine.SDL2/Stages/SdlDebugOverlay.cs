@@ -69,7 +69,7 @@ internal class SdlDebugOverlay : ILingoFrameworkDebugOverlay, ILingoSDLComponent
 
     public void End() { }
 
-    public nint Render(LingoSDLRenderContext context)
+    public LingoSDLRenderResult Render(LingoSDLRenderContext context)
     {
         // renderer can change, so update if needed
         ComponentContext.Renderer = context.Renderer;

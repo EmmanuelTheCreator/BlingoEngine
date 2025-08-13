@@ -41,7 +41,7 @@ namespace LingoEngine.SDL2.Gfx
         private int _texW;
         private int _texH;
 
-        public override nint Render(LingoSDLRenderContext context)
+        public override LingoSDLRenderResult Render(LingoSDLRenderContext context)
         {
             if (!Visibility)
                 return nint.Zero;

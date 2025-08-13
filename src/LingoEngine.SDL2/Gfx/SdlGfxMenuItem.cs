@@ -20,6 +20,6 @@ namespace LingoEngine.SDL2.Gfx
         public void Invoke() => Activated?.Invoke();
         public override void Dispose() => base.Dispose();
 
-        public override nint Render(LingoSDLRenderContext context) => nint.Zero;
+        public override LingoSDLRenderResult Render(LingoSDLRenderContext context) => nint.Zero;
     }
 }

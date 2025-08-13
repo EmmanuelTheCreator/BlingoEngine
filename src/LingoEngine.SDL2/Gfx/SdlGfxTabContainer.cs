@@ -55,7 +55,7 @@ namespace LingoEngine.SDL2.Gfx
                 _selectedIndex = idx;
         }
 
-        public override nint Render(LingoSDLRenderContext context)
+        public override LingoSDLRenderResult Render(LingoSDLRenderContext context)
         {
             if (!Visibility)
                 return nint.Zero;
@@ -108,6 +108,6 @@ namespace LingoEngine.SDL2.Gfx
 
         public override void Dispose() => base.Dispose();
 
-        public override nint Render(LingoSDLRenderContext context) => nint.Zero;
+        public override LingoSDLRenderResult Render(LingoSDLRenderContext context) => nint.Zero;
     }
 }
