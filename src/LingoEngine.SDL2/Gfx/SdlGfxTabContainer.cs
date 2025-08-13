@@ -69,8 +69,7 @@ namespace LingoEngine.SDL2.Gfx
                 for (int i = 0; i < _children.Count; i++)
                 {
                     var tab = _children[i];
-                    bool open = _selectedIndex == i;
-                    if (ImGui.BeginTabItem(tab.Title, ref open))
+                    if (ImGui.BeginTabItem(tab.Title))
                     {
                         _selectedIndex = i;
                         if (tab.Content?.FrameworkObj is SdlGfxComponent comp)
