@@ -325,7 +325,7 @@ namespace LingoEngine.Movies
             // StartMovie
             _isPlaying = true;
             PlayStateChanged?.Invoke(true);
-            OnTick();
+            //OnTick();
             _needToRaiseStartMovie = false;
 
         }
