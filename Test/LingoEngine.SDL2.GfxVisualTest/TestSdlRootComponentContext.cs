@@ -35,6 +35,7 @@ private bool _imguiReady;
     public ImDrawListPtr ImDrawList { get; private set; } = new ImDrawListPtr(nint.Zero);
 
     public nint RegisterTexture(nint sdlTexture) => _imgui.RegisterTexture(sdlTexture);
+    public nint GetTexture(nint textureId) => _imgui.GetTexture(textureId);
 
     public TestSdlRootComponentContext()
     {

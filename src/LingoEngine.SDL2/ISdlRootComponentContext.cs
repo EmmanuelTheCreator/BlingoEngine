@@ -14,6 +14,7 @@ public interface ISdlRootComponentContext
     LingoKey LingoKey { get; }
 
     nint RegisterTexture(nint sdlTexture);
+    nint GetTexture(nint textureId);
 
     LingoPoint GetWindowSize();
 }

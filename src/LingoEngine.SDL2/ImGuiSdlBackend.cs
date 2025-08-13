@@ -162,12 +162,7 @@ namespace LingoEngine.SDL2
             RenderDrawData(ImGui.GetDrawData());
         }
 
-        public nint RegisterTexture(nint sdlTexture)
-        {
-            // Simply pass SDL_Texture pointers as ImGui texture IDs.
-            return sdlTexture;
-        }
-
+        
         private void CreateFontTexture()
         {
             var io = ImGui.GetIO();
@@ -272,12 +267,36 @@ namespace LingoEngine.SDL2
             };
         }
 
-
-
         private static void MapKey(ImGuiIOPtr io, ImGuiKey imguiKey, SDL_Scancode scan, SDL_Scancode ev, bool down)
         {
             if (scan == ev) io.AddKeyEvent(imguiKey, down);
         }
+
+
+
+
+
+        #region Textures
+
+        private readonly Dictionary<IntPtr, IntPtr> _tex = new();
+        private long _next = 1;
+        public nint RegisterTexture(nint sdlTexture)
+        {
+            var imGuiId = Add(sdlTexture);
+            // todo : set texture to the Gfx card it seems for ImGui. How to do this with SDL?
+            return imGuiId;
+        }
+
+        private IntPtr Add(IntPtr sdlTexture)
+        {
+            var id = new IntPtr(_next++);
+            _tex[id] = sdlTexture;
+            return id;
+        }
+        public IntPtr GetTexture(IntPtr id) => _tex[id];
+
+
+        #endregion
 
 
     }

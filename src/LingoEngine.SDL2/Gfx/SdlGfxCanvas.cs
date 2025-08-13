@@ -17,6 +17,8 @@ namespace LingoEngine.SDL2.Gfx
     internal class SdlGfxCanvas : SdlGfxComponent, ILingoFrameworkGfxCanvas, IDisposable
     {
         public LingoMargin Margin { get; set; } = LingoMargin.Zero;
+
+        private readonly SdlGfxFactory _factory;
         private readonly ILingoFontManager _fontManager;
         private readonly int _width;
         private readonly int _height;
@@ -32,6 +34,7 @@ namespace LingoEngine.SDL2.Gfx
 
         public SdlGfxCanvas(SdlGfxFactory factory, ILingoFontManager fontManager, int width, int height) : base(factory)
         {
+            _factory = factory;
             _fontManager = fontManager;
             _width = width;
             _height = height;
@@ -42,7 +45,45 @@ namespace LingoEngine.SDL2.Gfx
             Height = height;
             _dirty = true;
         }
+        public override void Dispose()
+        {
+            base.Dispose();
+            if (_texture != nint.Zero)
+            {
+                SDL.SDL_DestroyTexture(_texture);
+                _texture = nint.Zero;
+            }
+        }
 
+        public override LingoSDLRenderResult Render(LingoSDLRenderContext context)
+        {
+            if (!Visibility)
+                return nint.Zero;
+
+            ComponentContext.Renderer = context.Renderer;
+
+            if (_dirty)
+            {
+                UseTexture(() =>
+                {
+                    var clear = _clearColor ?? new LingoColor(0, 0, 0);
+                    SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, clear.R, clear.G, clear.B, 255);
+                    SDL.SDL_RenderClear(ComponentContext.Renderer);
+                    foreach (var action in _drawActions)
+                        action();
+                });
+                _dirty = false;
+            }
+
+            var screenPos = context.Origin + new Vector2(X, Y);
+            ImGui.SetCursorScreenPos(screenPos);
+            ImGui.PushID(Name);
+            var imguiTexture = _factory.RootContext.GetTexture(_imguiTexture);
+            ImGui.Image(imguiTexture, new Vector2(Width, Height));
+            ImGui.PopID();
+
+            return LingoSDLRenderResult.RequireRender();
+        }
         private void UseTexture(Action draw)
         {
             var prev = SDL.SDL_GetRenderTarget(ComponentContext.Renderer);
@@ -302,44 +343,7 @@ namespace LingoEngine.SDL2.Gfx
             MarkDirty();
         }
 
-        public override void Dispose()
-        {
-            base.Dispose();
-            if (_texture != nint.Zero)
-            {
-                SDL.SDL_DestroyTexture(_texture);
-                _texture = nint.Zero;
-            }
-        }
-
-        public override LingoSDLRenderResult Render(LingoSDLRenderContext context)
-        {
-            if (!Visibility)
-                return nint.Zero;
-
-            ComponentContext.Renderer = context.Renderer;
-
-            if (_dirty)
-            {
-                UseTexture(() =>
-                {
-                    var clear = _clearColor ?? new LingoColor(0, 0, 0);
-                    SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, clear.R, clear.G, clear.B, 255);
-                    SDL.SDL_RenderClear(ComponentContext.Renderer);
-                    foreach (var action in _drawActions)
-                        action();
-                });
-                _dirty = false;
-            }
-
-            var screenPos = context.Origin + new Vector2(X, Y);
-            ImGui.SetCursorScreenPos(screenPos);
-            ImGui.PushID(Name);
-            ImGui.Image(_imguiTexture, new Vector2(Width, Height));
-            ImGui.PopID();
-
-            return LingoSDLRenderResult.RequireRender();
-        }
+    
 
     }
 }
