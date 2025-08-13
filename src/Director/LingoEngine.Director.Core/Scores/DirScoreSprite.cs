@@ -298,6 +298,15 @@ namespace LingoEngine.Director.Core.Scores
             RequireRedraw();
         }
 
+        internal void DeleteKeyFrame(int frame)
+        {
+            if (Sprite2D == null)
+                return;
+            Sprite2D.DeleteKeyFrame(frame - Sprite.BeginFrame);
+            _KeyFrames = null;
+            RequireRedraw();
+        }
+
 
         private string GetName()
         {
