@@ -6,7 +6,7 @@ namespace LingoEngine.SDL2.Sounds;
 
 public class SdlSoundChannel : ILingoFrameworkSoundChannel, IDisposable
 {
-    private LingoSoundChannel _channel = null!;
+    private LingoSoundChannel _lingoSoundChannel = null!;
     private nint _chunk = nint.Zero;
     private string? _currentFile;
     public int ChannelNumber { get; }
@@ -27,7 +27,7 @@ public class SdlSoundChannel : ILingoFrameworkSoundChannel, IDisposable
     }
     internal void Init(LingoSoundChannel channel)
     {
-        _channel = channel;
+        _lingoSoundChannel = channel;
     }
 
     public void PlayFile(string stringFilePath)
@@ -90,7 +90,16 @@ public class SdlSoundChannel : ILingoFrameworkSoundChannel, IDisposable
             IsPlaying = true;
         }
     }
-
+    private void Sound_Finished()
+    {
+        try
+        {
+            _lingoSoundChannel.SoundFinished();
+        }
+        catch
+        {
+        }
+    }
     public void Dispose()
     {
         Stop();

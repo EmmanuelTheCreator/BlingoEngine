@@ -71,7 +71,7 @@ namespace LingoEngine.LGodot.Sounds
             _audioPlayer = new AudioStreamPlayer();
             _audioPlayer.Name = "Channel " + channelNumber;
             _audioEffectPanner = new AudioEffectPanner();
-            _audioPlayer.Finished += _audioPlayer_Finished;
+            _audioPlayer.Finished += Sound_Finished;
             parentNode.AddChild(_audioPlayer);
 
             //AudioServer.AddBus(channelNumber);
@@ -85,7 +85,7 @@ namespace LingoEngine.LGodot.Sounds
             _lingoSoundChannel = soundChannel;
         }
 
-        private void _audioPlayer_Finished()
+        private void Sound_Finished()
         {
             try
             {
