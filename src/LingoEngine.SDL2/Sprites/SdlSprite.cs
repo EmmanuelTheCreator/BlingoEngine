@@ -216,21 +216,19 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
         if (_lingoSprite.Member is { } member)
         {
             var baseOffset = member.CenterOffsetFromRegPoint();
+            float scaleX = 1f;
+            float scaleY = 1f;
             if (member.Width != 0 && member.Height != 0)
             {
-                float scaleX = Width / member.Width;
-                float scaleY = Height / member.Height;
-                offset = new LingoPoint(baseOffset.X * scaleX, baseOffset.Y * scaleY);
+                scaleX = Width / member.Width;
+                scaleY = Height / member.Height;
             }
-            else
-            {
-                offset = baseOffset;
-            }
+            offset = new LingoPoint(baseOffset.X * scaleX, baseOffset.Y * scaleY);
 
             if (_lingoSprite.Member is LingoFilmLoopMember flm)
             {
                 var fl = flm.Framework<SdlMemberFilmLoop>();
-                offset = new LingoPoint(offset.X - fl.Offset.X, offset.Y - fl.Offset.Y);
+                offset = new LingoPoint(offset.X - fl.Offset.X * scaleX, offset.Y - fl.Offset.Y * scaleY);
             }
         }
 
@@ -378,5 +376,5 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
 
     }
 
-   
+
 }

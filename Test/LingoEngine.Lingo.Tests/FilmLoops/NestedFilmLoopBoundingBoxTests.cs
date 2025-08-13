@@ -103,4 +103,30 @@ public class NestedFilmLoopBoundingBoxTests
         Assert.Equal(-10, bounds.Left);
         Assert.Equal(20, bounds.Width);
     }
+
+    [Fact]
+    public void UpdateSizeAccountsForSpritesLeftOfOrigin()
+    {
+        var factory = new Mock<ILingoFrameworkFactory>();
+        var libs = new LingoCastLibsContainer(factory.Object);
+        var cast = (LingoCast)libs.AddCast("Test");
+
+        var framework = new Mock<ILingoFrameworkMemberFilmLoop>();
+        var film = new LingoFilmLoopMember(framework.Object, cast, 1, "Film");
+        var sprite = new LingoFilmLoopMemberSprite
+        {
+            LocH = -20,
+            LocV = 0,
+            Width = 10,
+            Height = 10,
+            BeginFrame = 1,
+            EndFrame = 1
+        };
+        film.AddSprite(sprite);
+
+        film.UpdateSize();
+
+        Assert.Equal(25, film.Width);
+        Assert.Equal(25, film.RegPoint.X);
+    }
 }

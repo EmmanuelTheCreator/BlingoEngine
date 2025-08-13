@@ -95,6 +95,12 @@ public static class LingoFilmLoopComposer
             }
 
             var pos = new LingoPoint(layer.LocH + offset.X, layer.LocV + offset.Y);
+            if (layer.Member is LingoFilmLoopMember nested)
+            {
+                var fl = nested.Framework<ILingoFrameworkMemberFilmLoop>();
+                pos.X -= fl.Offset.X;
+                pos.Y -= fl.Offset.Y;
+            }
             var scale = new LingoPoint(layer.FlipH ? -1 : 1, layer.FlipV ? -1 : 1);
             var transform = LingoTransform2D.Identity
                 .Translated(-reg.X, -reg.Y)

@@ -77,11 +77,16 @@ namespace LingoEngine.FilmLoops
         public void UpdateSize()
         {
             var bounds = GetBoundingBox();
-            Width = (int)MathF.Ceiling(bounds.Width);
-            Height = (int)MathF.Ceiling(bounds.Height);
-            float regX = bounds.Left < 0 ? -bounds.Left : 0;
-            float regY = bounds.Top < 0 ? -bounds.Top : 0;
-            RegPoint = new LingoPoint(regX, regY);
+
+            // Expand dimensions to include areas positioned left or above the origin.
+            float left = MathF.Min(bounds.Left, 0);
+            float top = MathF.Min(bounds.Top, 0);
+            float right = MathF.Max(bounds.Right, 0);
+            float bottom = MathF.Max(bounds.Bottom, 0);
+
+            Width = (int)MathF.Ceiling(right - left);
+            Height = (int)MathF.Ceiling(bottom - top);
+            RegPoint = new LingoPoint(-left, -top);
         }
 
         public override void Unload() => _frameworkFilmLoop.Unload();
