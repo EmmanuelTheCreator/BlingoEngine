@@ -168,11 +168,11 @@ namespace LingoEngine.Director.Core.Scores
                         continue; // already drawn
                     var centerX = X + 3f + (keyFrame - Sprite.BeginFrame) * frameWidth;
                     var keyframeCenter = new LingoPoint(centerX, OffsetY + Height / 2f);
-                    var color = ColorCircle;
+                    var color = ColorCircleBorder;
                     if (_dragKeyFrame && keyFrame == _dragKeyFrameStart && _dragKeyFrameStart != _dragKeyFramePreview)
-                        color = ColorCircle.Lighten(0.5f);
-                    canvas.DrawCircle(keyframeCenter, radius, color);
-                    canvas.DrawArc(keyframeCenter, radius, 0, 360, 8, ColorCircleBorder);
+                        color = ColorCircleBorder.Lighten(0.9f);
+                    canvas.DrawCircle(keyframeCenter, radius, ColorCircle);
+                    canvas.DrawArc(keyframeCenter, radius, 0, 360, 8, color);
                 }
                 if (_dragKeyFrame && _dragKeyFrameStart != _dragKeyFramePreview)
                 {
