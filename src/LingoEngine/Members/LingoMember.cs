@@ -179,6 +179,15 @@ namespace LingoEngine.Members
         /// Retrieves the next member
         /// </summary>
         ILingoMember? GetMemberInCastByOffset(int numberOffset);
+
+        /// <summary>
+        /// Determines whether the pixel at the specified coordinates is fully transparent.
+        /// Coordinates are relative to the member's top-left corner.
+        /// </summary>
+        /// <param name="x">X coordinate in pixels.</param>
+        /// <param name="y">Y coordinate in pixels.</param>
+        /// <returns><c>true</c> if the pixel is transparent; otherwise, <c>false</c>.</returns>
+        bool IsPixelTransparent(int x, int y);
     }
 
     /// <summary>
@@ -320,6 +329,10 @@ namespace LingoEngine.Members
             if (!_linkedMemberRefUsers.Contains(refUser))
                 _linkedMemberRefUsers.Add(refUser);
         }
+
+        /// <inheritdoc/>
+        public virtual bool IsPixelTransparent(int x, int y)
+            => _frameworkMember.IsPixelTransparent(x, y);
 
         internal virtual void ReleaseFromRefUser(IMemberRefUser refUser)
         {

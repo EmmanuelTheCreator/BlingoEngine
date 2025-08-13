@@ -20,5 +20,14 @@ namespace LingoEngine.Members
         void Preload();
         void ReleaseFromSprite(LingoSprite2D lingoSprite);
         void Unload();
+
+        /// <summary>
+        /// Determines whether the pixel at the given coordinates is fully transparent.
+        /// Coordinates are relative to the member's top-left corner.
+        /// </summary>
+        /// <param name="x">X coordinate in pixels.</param>
+        /// <param name="y">Y coordinate in pixels.</param>
+        /// <returns><c>true</c> if the pixel is transparent; otherwise, <c>false</c>.</returns>
+        bool IsPixelTransparent(int x, int y) => false;
     }
 }
