@@ -8,6 +8,7 @@ using LingoEngine.Core;
 using LingoEngine.Director.Core.Stages.Commands;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Tools;
+using LingoEngine.Animations;
 
 namespace LingoEngine.Director.Core.Stages;
 
@@ -29,6 +30,7 @@ public interface IDirStageManager
     void UpdateRotate(LingoPoint current);
     void EndRotate(LingoPoint end);
     void ChangeBackgroundColor(LingoColor color);
+    LingoSpriteMotionPath? GetMotionPath(LingoSprite2D sprite);
 }
 
 public class DirStageManager : IDirStageManager, IDisposable, ICommandHandler<StageChangeBackgroundColorCommand>
@@ -203,6 +205,11 @@ public class DirStageManager : IDirStageManager, IDisposable, ICommandHandler<St
         _dragStart = null;
         _initialRotations = null;
         SpritesTransformed?.Invoke();
+    }
+
+    public LingoSpriteMotionPath? GetMotionPath(LingoSprite2D sprite)
+    {
+        return _player.Stage.GetSpriteMotionPath(sprite);
     }
 
     public void ChangeBackgroundColor(LingoColor color)
