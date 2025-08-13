@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Runtime.InteropServices;
+using ImGuiNET;
 using LingoEngine.Bitmaps;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
@@ -260,8 +262,18 @@ namespace LingoEngine.SDL2.Gfx
 
         public override LingoSDLRenderResult Render(LingoSDLRenderContext context)
         {
+            if (!Visibility)
+                return nint.Zero;
+
             ComponentContext.Renderer = context.Renderer;
-            return _texture;
+
+            var screenPos = context.Origin + new Vector2(X, Y);
+            ImGui.SetCursorScreenPos(screenPos);
+            ImGui.PushID(Name);
+            ImGui.Image(_texture, new Vector2(Width, Height));
+            ImGui.PopID();
+
+            return LingoSDLRenderResult.RequireRender();
         }
 
     }
