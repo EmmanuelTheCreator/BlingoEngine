@@ -27,6 +27,7 @@ using LingoEngine.Scripts;
 using LingoEngine.SDL2.Scripts;
 using LingoEngine.FilmLoops;
 using LingoEngine.SDL2;
+using LingoEngine.SDL2.Styles;
 
 namespace LingoEngine.SDL2.Core;
 /// <inheritdoc/>
@@ -35,14 +36,17 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
     private readonly List<IDisposable> _disposables = new();
     private readonly ILingoServiceProvider _serviceProvider;
     private readonly SdlRootContext _rootContext;
+    private readonly SdlFontManager _fontManager;
     private readonly SdlGfxFactory _gfxFactory;
+    internal SdlFontManager FontManager => _fontManager;
     /// <inheritdoc/>
     public SdlFactory(ILingoServiceProvider serviceProvider, SdlRootContext rootContext)
     {
         _serviceProvider = serviceProvider;
         _rootContext = rootContext;
         _rootContext.Factory = this;
-        _gfxFactory = new SdlGfxFactory(_rootContext, _serviceProvider.GetRequiredService<ILingoFontManager>());
+        _fontManager = (SdlFontManager)_serviceProvider.GetRequiredService<ILingoFontManager>();
+        _gfxFactory = new SdlGfxFactory(_rootContext,_fontManager);
     }
 
     public ILingoGfxFactory GfxFactory => _gfxFactory;

@@ -10,6 +10,7 @@ using LingoEngine.SDL2.Stages;
 using LingoEngine.Primitives;
 using ImGuiNET;
 using System.Numerics;
+using LingoEngine.SDL2.Styles;
 
 public class SdlRootContext : IDisposable, ISdlRootComponentContext
 {
@@ -26,7 +27,6 @@ public class SdlRootContext : IDisposable, ISdlRootComponentContext
     public LingoMouse LingoMouse { get; }
     public SdlMouse Mouse { get; }
     private bool _f1Pressed;
-    private bool _imguiReady;
 
     public LingoSDLComponentContainer ComponentContainer { get; } = new();
     internal SdlFactory Factory { get; set; } = null!;
@@ -46,8 +46,6 @@ public class SdlRootContext : IDisposable, ISdlRootComponentContext
         LingoKey = new LingoKey(Key);
         Key.SetLingoKey(LingoKey);
         _imgui.Init(Window, Renderer);
-
-        _imguiReady = true;
     }
     public void Init(ILingoPlayer player)
     {

@@ -75,7 +75,7 @@ namespace LingoEngine.SDL2.Gfx
                         if (tab.Content?.FrameworkObj is SdlGfxComponent comp)
                         {
                             var origin = ImGui.GetCursorScreenPos();
-                            var childCtx = new LingoSDLRenderContext(context.Renderer, context.ImGuiViewPort, ImGui.GetWindowDrawList(), origin);
+                            var childCtx = context.CreateNew(origin);
                             comp.Render(childCtx);
                         }
                         ImGui.EndTabItem();

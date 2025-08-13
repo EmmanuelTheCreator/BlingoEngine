@@ -5,6 +5,7 @@ using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 using LingoEngine.SDL2.Primitives;
 using LingoEngine.Texts;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace LingoEngine.SDL2.Gfx
 {
@@ -36,12 +37,18 @@ namespace LingoEngine.SDL2.Gfx
         {
             if (!Visibility || string.IsNullOrEmpty(Text))
                 return default; // DoRender=false
-
-            var vpPos = context.ImGuiViewPort.WorkPos;
-            var basePos = vpPos + new Vector2(X, Y);
-
+            ImFontPtr? font = null;
+            if (FontSize > 0)
+            {
+                //font = context.GetFont(FontSize);
+                //if (font.HasValue)
+                //    ImGui.PushFont(font.Value);
+            }
+            var basePos = context.Origin + new Vector2(X, Y);
+            ImGui.SetCursorScreenPos(basePos);
             ImGui.PushID(Name);
             ImGui.PushStyleColor(ImGuiCol.Text, FontColor.ToImGuiColor());
+            
 
             // Wrapping (only when Width > 0)
             bool wrap = WrapMode != LingoTextWrapMode.Off && Width > 0;
@@ -69,7 +76,8 @@ namespace LingoEngine.SDL2.Gfx
             if (wrap) ImGui.PopTextWrapPos();
             ImGui.PopStyleColor();
             ImGui.PopID();
-
+            if (font.HasValue)
+                ImGui.PopFont();
             return LingoSDLRenderResult.RequireRender(); // UI drawn via ImGui, no SDL texture
         }
 

@@ -4,6 +4,7 @@ using LingoEngine.Primitives;
 using LingoEngine.SDL2;
 using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.SDLL;
+using LingoEngine.SDL2.Styles;
 using LingoEngine.Stages;
 using System.Numerics;
 
@@ -14,8 +15,9 @@ public class TestSdlRootComponentContext : ISdlRootComponentContext, IDisposable
 {
 
 
-    // add fields
-    private bool _imguiReady;
+
+private bool _imguiReady;
+    private SdlFontManager _fontManager;
 
     private readonly nint _window;
     public LingoSDLComponentContainer ComponentContainer { get; } = new();
@@ -50,7 +52,8 @@ public class TestSdlRootComponentContext : ISdlRootComponentContext, IDisposable
         Key.SetLingoKey(LingoKey);
 
         _imgui.Init(_window, Renderer);
-
+        _fontManager = new Styles.SdlFontManager();
+        _fontManager.LoadAll();
         _imguiReady = true;
     }
 
@@ -82,7 +85,9 @@ public class TestSdlRootComponentContext : ISdlRootComponentContext, IDisposable
 
             SDL.SDL_SetRenderDrawColor(Renderer, 50, 0, 50, 255);
             SDL.SDL_RenderClear(Renderer);
-            ComponentContainer.Render(new LingoSDLRenderContext(Renderer, ImGuiViewPort, ImDrawList, ImGuiViewPort.WorkPos));
+   
+            ComponentContainer.Render(new LingoSDLRenderContext(Renderer,ImGuiViewPort,ImDrawList, ImGuiViewPort.WorkPos, _fontManager));
+
 
             _imgui.EndFrame();  // draws ImGui on top
 
