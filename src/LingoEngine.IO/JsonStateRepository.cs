@@ -536,57 +536,7 @@ public class JsonStateRepository
 
     private static LingoSpriteAnimatorDTO ToDto(LingoSpriteAnimator animatorA)
     {
-        var animProps = animatorA.Properties;
-        return new LingoSpriteAnimatorDTO
-        {
-            Position = animProps.Position.KeyFrames.Select(k => new LingoPointKeyFrameDTO
-            {
-                Frame = k.Frame,
-                Value = new LingoPointDTO { X = k.Value.X, Y = k.Value.Y },
-                Ease = (LingoEaseTypeDTO)k.Ease
-            }).ToList(),
-            PositionOptions = ToDto(animProps.Position.Options),
-
-            Rotation = animProps.Rotation.KeyFrames.Select(k => new LingoFloatKeyFrameDTO
-            {
-                Frame = k.Frame,
-                Value = k.Value,
-                Ease = (LingoEaseTypeDTO)k.Ease
-            }).ToList(),
-            RotationOptions = ToDto(animProps.Rotation.Options),
-
-            Skew = animProps.Skew.KeyFrames.Select(k => new LingoFloatKeyFrameDTO
-            {
-                Frame = k.Frame,
-                Value = k.Value,
-                Ease = (LingoEaseTypeDTO)k.Ease
-            }).ToList(),
-            SkewOptions = ToDto(animProps.Skew.Options),
-
-            ForegroundColor = animProps.ForegroundColor.KeyFrames.Select(k => new LingoColorKeyFrameDTO
-            {
-                Frame = k.Frame,
-                Value = ToDto(k.Value),
-                Ease = (LingoEaseTypeDTO)k.Ease
-            }).ToList(),
-            ForegroundColorOptions = ToDto(animProps.ForegroundColor.Options),
-
-            BackgroundColor = animProps.BackgroundColor.KeyFrames.Select(k => new LingoColorKeyFrameDTO
-            {
-                Frame = k.Frame,
-                Value = ToDto(k.Value),
-                Ease = (LingoEaseTypeDTO)k.Ease
-            }).ToList(),
-            BackgroundColorOptions = ToDto(animProps.BackgroundColor.Options),
-
-            Blend = animProps.Blend.KeyFrames.Select(k => new LingoFloatKeyFrameDTO
-            {
-                Frame = k.Frame,
-                Value = k.Value,
-                Ease = (LingoEaseTypeDTO)k.Ease
-            }).ToList(),
-            BlendOptions = ToDto(animProps.Blend.Options)
-        };
+        return ToDto(animatorA.Properties);
     }
 
     private static LingoSpriteAnimatorDTO ToDto(LingoSpriteAnimatorProperties animProps)
