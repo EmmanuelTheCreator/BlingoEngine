@@ -64,14 +64,15 @@ namespace LingoEngine.SDL2.Gfx
 
             if (_dirty)
             {
-                UseTexture(() =>
-                {
-                    var clear = _clearColor ?? new LingoColor(0, 0, 0);
-                    SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, clear.R, clear.G, clear.B, 255);
-                    SDL.SDL_RenderClear(ComponentContext.Renderer);
-                    foreach (var action in _drawActions)
-                        action();
-                });
+                var prev = SDL.SDL_GetRenderTarget(ComponentContext.Renderer);
+                SDL.SDL_SetRenderTarget(ComponentContext.Renderer, _texture);
+                var clear = _clearColor ?? new LingoColor(0, 0, 0);
+                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, clear.R, clear.G, clear.B, 255);
+                SDL.SDL_RenderClear(ComponentContext.Renderer);
+                foreach (var action in _drawActions)
+                    action();
+                SDL.SDL_SetRenderTarget(ComponentContext.Renderer, prev);
+                //SDL.BlendIm
                 _dirty = false;
             }
 
@@ -84,13 +85,7 @@ namespace LingoEngine.SDL2.Gfx
 
             return LingoSDLRenderResult.RequireRender();
         }
-        private void UseTexture(Action draw)
-        {
-            var prev = SDL.SDL_GetRenderTarget(ComponentContext.Renderer);
-            SDL.SDL_SetRenderTarget(ComponentContext.Renderer, _texture);
-            draw();
-            SDL.SDL_SetRenderTarget(ComponentContext.Renderer, prev);
-        }
+      
 
         private void MarkDirty() => _dirty = true;
 
