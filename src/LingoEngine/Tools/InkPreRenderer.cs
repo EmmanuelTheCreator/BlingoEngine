@@ -63,6 +63,7 @@ namespace LingoEngine.Tools
                         result[i] = (byte)(result[i] * a / 255);
                         result[i + 1] = (byte)(result[i + 1] * a / 255);
                         result[i + 2] = (byte)(result[i + 2] * a / 255);
+                        result[i + 3] = 255;
                     });
                     break;
                 case LingoInkType.Reverse:

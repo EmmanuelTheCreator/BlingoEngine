@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\LingoEngine\LingoEngine.csproj" />
+    <ProjectReference Include="..\..\src\LingoEngine.SDL2\LingoEngine.SDL2.csproj" />
   </ItemGroup>
 
   <ItemGroup>

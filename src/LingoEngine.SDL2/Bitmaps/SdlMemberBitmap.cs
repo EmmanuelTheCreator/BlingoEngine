@@ -125,7 +125,7 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
         if (_inkTextures.TryGetValue(ink, out var cached) && cached != nint.Zero)
             return cached;
 
-        nint surf = SDL.SDL_ConvertSurfaceFormat(_surface, SDL.SDL_PIXELFORMAT_RGBA8888, 0);
+        nint surf = SDL.SDL_ConvertSurfaceFormat(_surface, SDL.SDL_PIXELFORMAT_ABGR8888, 0);
         if (surf == nint.Zero)
             return nint.Zero;
 
@@ -136,8 +136,8 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
         var handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
         try
         {
-            nint newSurf = SDL.SDL_CreateRGBSurfaceFrom(handle.AddrOfPinnedObject(), surfPtr.w, surfPtr.h, 32, surfPtr.w * 4,
-                0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+            nint newSurf = SDL.SDL_CreateRGBSurfaceWithFormatFrom(handle.AddrOfPinnedObject(), surfPtr.w, surfPtr.h, 32, surfPtr.w * 4,
+                SDL.SDL_PIXELFORMAT_ABGR8888);
             var tex = SDL.SDL_CreateTextureFromSurface(renderer, newSurf);
             SDL.SDL_FreeSurface(newSurf);
             SDL.SDL_FreeSurface(surf);
