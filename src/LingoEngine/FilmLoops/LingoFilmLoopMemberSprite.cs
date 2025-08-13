@@ -122,6 +122,8 @@ namespace LingoEngine.FilmLoops
             MemberNumberInCast = member.NumberInCast;
             CastNum = member.CastLibNum;
             Member = member;
+            if (RegPoint == default)
+                RegPoint = member.RegPoint;
             SetMemberData(member);
         }
         public void LinkMember(ILingoCastLibsContainer castLibs)
@@ -133,8 +135,13 @@ namespace LingoEngine.FilmLoops
                 if (cast != null)
                 {
                     Member = cast.Member[MemberNumberInCast];
-                    if (Member != null && (Width == 0 || Height == 0))
-                        SetMemberData(Member);
+                    if (Member != null)
+                    {
+                        if (RegPoint == default)
+                            RegPoint = Member.RegPoint;
+                        if (Width == 0 || Height == 0)
+                            SetMemberData(Member);
+                    }
                 }
             }
         }
