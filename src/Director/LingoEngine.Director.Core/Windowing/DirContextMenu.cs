@@ -1,5 +1,6 @@
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
+using LingoEngine.Inputs;
 
 namespace LingoEngine.Director.Core.Windowing
 {
@@ -13,6 +14,7 @@ namespace LingoEngine.Director.Core.Windowing
         private readonly Func<(float X, float Y)> _positionProvider;
         private readonly Func<bool> _allowOpen;
         private readonly List<Item> _items = new();
+        private readonly LingoMouse? _mouse;
 
         private record Item(LingoGfxMenuItem MenuItem, Func<bool> CanExecute, Action Execute);
 
@@ -20,12 +22,14 @@ namespace LingoEngine.Director.Core.Windowing
             object window,
             ILingoFrameworkFactory factory,
             Func<(float X, float Y)> positionProvider,
-            Func<bool> allowOpen)
+            Func<bool> allowOpen,
+            LingoMouse? mouse)
         {
             _factory = factory;
             _menu = factory.CreateContextMenu(window);
             _positionProvider = positionProvider;
             _allowOpen = allowOpen;
+            _mouse = mouse;
         }
 
         /// <summary>Adds a menu entry.</summary>
@@ -53,6 +57,11 @@ namespace LingoEngine.Director.Core.Windowing
             _menu.X = pos.X;
             _menu.Y = pos.Y;
             _menu.Popup();
+            if (_mouse != null)
+            {
+                _mouse.RightMouseDown = false;
+                _mouse.DoMouseUp();
+            }
         }
 
         public void Dispose()
