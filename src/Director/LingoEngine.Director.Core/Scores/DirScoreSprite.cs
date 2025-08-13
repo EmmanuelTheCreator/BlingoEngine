@@ -92,7 +92,11 @@ namespace LingoEngine.Director.Core.Scores
                 SetSelected(false, false);
         }
 
-        private void OnAnimationChanged() => RequireRedraw();
+        private void OnAnimationChanged()
+        {
+            _KeyFrames = null;
+            RequireRedraw();
+        }
         private void RequireRedraw()
         {
             RequireToRedraw = true;
@@ -157,7 +161,7 @@ namespace LingoEngine.Director.Core.Scores
             var keyFrames = Sprite2D?.GetKeyframes();
             if (keyFrames != null)
             {
-                _KeyFrames = keyFrames.Select(x => x.Frame).ToArray();
+                _KeyFrames = keyFrames.Select(x => x.Frame + Sprite.BeginFrame).ToArray();
                 foreach (var keyFrame in _KeyFrames)
                 {
                     if (keyFrame == Sprite.BeginFrame || keyFrame == Sprite.EndFrame)
@@ -260,7 +264,7 @@ namespace LingoEngine.Director.Core.Scores
         internal bool IsKeyFrame(int frame)
         {
             if (_KeyFrames == null && Sprite2D != null)
-                _KeyFrames = Sprite2D.GetKeyframes()?.Select(k => k.Frame).ToArray();
+                _KeyFrames = Sprite2D.GetKeyframes()?.Select(k => k.Frame + Sprite.BeginFrame).ToArray();
             return _KeyFrames != null && _KeyFrames.Contains(frame);
         }
 
@@ -288,7 +292,8 @@ namespace LingoEngine.Director.Core.Scores
             if (!_dragKeyFrame)
                 return;
             if (_dragKeyFramePreview != _dragKeyFrameStart && Sprite2D != null)
-                Sprite2D.MoveKeyFrame(_dragKeyFrameStart, _dragKeyFramePreview);
+                Sprite2D.MoveKeyFrame(_dragKeyFrameStart - Sprite.BeginFrame, _dragKeyFramePreview - Sprite.BeginFrame);
+            _KeyFrames = null;
             _dragKeyFrame = false;
             RequireRedraw();
         }

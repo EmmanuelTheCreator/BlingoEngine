@@ -243,7 +243,6 @@ namespace LingoEngine.Sprites
         {
             if (keyframes == null || keyframes.Length == 0)
                 return;
-
             GetAnimator().AddKeyFrames(keyframes);
         }
 
@@ -268,7 +267,7 @@ namespace LingoEngine.Sprites
                 return;
             animator.MoveKeyFrame(from, to);
         }
-        public bool DeleteKeyFrame(int frame)  
+        public bool DeleteKeyFrame(int frame)
         {
             var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
             if (animator == null)

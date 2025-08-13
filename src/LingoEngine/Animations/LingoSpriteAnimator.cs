@@ -7,7 +7,7 @@ namespace LingoEngine.Animations
     public class LingoSpriteAnimator : IPlayableActor
     {
         private LingoSpriteMotionPath _cachedPath = new();
-        
+
         private readonly ILingoSpritesPlayer _spritesPlayer;
         private readonly ILingoSprite2DLight _sprite;
         //private readonly ILingoMovie _movie;
@@ -56,18 +56,25 @@ namespace LingoEngine.Animations
         {
             foreach (var action in _applyActions)
                 action.Invoke(frame);
-           
+
+        }
+
+        private int ToRelativeFrame(int globalFrame)
+        {
+            if (_sprite is ILingoSpriteBase baseSprite)
+                return globalFrame - baseSprite.BeginFrame;
+            return globalFrame;
         }
 
         public void BeginSprite()
         {
             EnsureCache();
-            Apply(_spritesPlayer.CurrentFrame);
+            Apply(ToRelativeFrame(_spritesPlayer.CurrentFrame));
         }
 
         public void StepFrame()
         {
-            Apply(_spritesPlayer.CurrentFrame);
+            Apply(ToRelativeFrame(_spritesPlayer.CurrentFrame));
         }
 
         public void EndSprite()
@@ -78,10 +85,13 @@ namespace LingoEngine.Animations
         {
             EnsureCache();
             var path = new LingoSpriteMotionPath();
+            int offset = (_sprite as ILingoSpriteBase)?.BeginFrame ?? 0;
+            int relStart = startFrame - offset;
+            int relEnd = endFrame - offset;
             foreach (var f in _cachedPath.Frames)
             {
-                if (f.Frame < startFrame || f.Frame > endFrame) continue;
-                path.Frames.Add(f);
+                if (f.Frame < relStart || f.Frame > relEnd) continue;
+                path.Frames.Add(new LingoSpriteMotionFrame(f.Frame + offset, f.Position, f.IsKeyFrame));
             }
             return path;
         }
@@ -89,7 +99,7 @@ namespace LingoEngine.Animations
         internal void EnsureCache()
         {
             if (!_properties.CacheIsDirty) return;
-            
+
             RecalculateCache();
         }
 
@@ -129,7 +139,7 @@ namespace LingoEngine.Animations
                 _applyActions.Add(frame => _sprite.Blend = _properties.Blend.GetValue(frame));
             _properties.CacheApplied();
             _properties.RequestRecalculatedBoundingBox();// push to recalculate the boundingbox
-           
+
         }
 
 
@@ -139,10 +149,10 @@ namespace LingoEngine.Animations
         public LingoRect GetBoundingBox() => _properties.GetBoundingBoxForFrame(_spritesPlayer.CurrentFrame, _sprite.RegPoint, _sprite.Width, _sprite.Height);
 
 
-        public LingoRect GetBoundingBoxForFrame(int frame) 
+        public LingoRect GetBoundingBoxForFrame(int frame)
             => _properties.GetBoundingBoxForFrame(frame, _sprite.RegPoint, _sprite.Width, _sprite.Height);
 
-        
+
 
         #endregion
 
