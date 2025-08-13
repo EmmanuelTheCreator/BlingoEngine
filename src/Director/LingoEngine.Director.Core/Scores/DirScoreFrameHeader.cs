@@ -52,16 +52,18 @@ public class DirScoreFrameHeader : IDisposable
 
     public void HandleMouseEvent(LingoMouseEvent mouseEvent, int mouseFrame)
     {
-        if (_movie == null) return;
-        if (mouseEvent.Type == LingoMouseEventType.MouseDown && mouseEvent.Mouse.LeftMouseDown)
+        if (_movie == null)
+            return;
+
+        bool isDragging = mouseEvent.Mouse.LeftMouseDown &&
+            (mouseEvent.Type == LingoMouseEventType.MouseDown || mouseEvent.Type == LingoMouseEventType.MouseMove);
+
+        if (isDragging && mouseFrame >= 1 && mouseFrame <= _movie.FrameCount)
         {
-            if (mouseFrame >= 1 && mouseFrame <= _movie.FrameCount)
-            {
-                if (_movie.IsPlaying)
-                    _movie.GoTo(mouseFrame);
-                else
-                    _movie.GoToAndStop(mouseFrame);
-            }
+            if (_movie.IsPlaying)
+                _movie.GoTo(mouseFrame);
+            else
+                _movie.GoToAndStop(mouseFrame);
         }
     }
 }
