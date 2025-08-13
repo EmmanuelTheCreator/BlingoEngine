@@ -281,7 +281,7 @@ namespace LingoEngine.Director.Core.Scores
                 return;
             if (frame <= Sprite.BeginFrame || frame >= Sprite.EndFrame)
                 return;
-            if (_KeyFrames.Contains(frame))
+            if (_dragKeyFramePreview == frame)
                 return;
             _dragKeyFramePreview = frame;
             RequireRedraw();

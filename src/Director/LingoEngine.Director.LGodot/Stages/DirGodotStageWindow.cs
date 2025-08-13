@@ -34,6 +34,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
     private readonly SelectionBox _selectionBox = new SelectionBox();
     private readonly StageBoundingBoxesOverlay _boundingBoxes;
     private readonly StageSpriteSummaryOverlay _spriteSummary;
+    private readonly StageMotionPathOverlay _motionPath;
     private readonly DirectorStageGuides _guides;
     private readonly IDirectorEventSubscription _stageChangedSubscription;
 
@@ -52,7 +53,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
     {
         // TempFix
         //base.DontUseInputInsteadOfGuiInput();
-        
+
 
         _stageContainer = (LingoGodotStageContainer)stageContainer;
         _mediator = directorEventMediator;
@@ -71,10 +72,11 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
 
         var lp = (LingoPlayer)_player;
         ((LingoStageMouse)lp.Mouse).ReplaceFrameworkObj(_MouseFrameworkObj);
-        
+
 
         _spriteSummary = new StageSpriteSummaryOverlay(lp.Factory, _mediator, iconManager);
         _boundingBoxes = new StageBoundingBoxesOverlay(lp.Factory, _mediator);
+        _motionPath = new StageMotionPathOverlay(lp.Factory);
         _guides = guides;
         _guides.Draw();
 
@@ -106,9 +108,11 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
 
         var spriteSummaryCanvas = _spriteSummary.Canvas.Framework<LingoGodotGfxCanvas>();
         var boundingBoxesCanvas = _boundingBoxes.Canvas.Framework<LingoGodotGfxCanvas>();
+        var motionPathCanvas = _motionPath.Canvas.Framework<LingoGodotGfxCanvas>();
         var guidesCanvas = _guides.Canvas.Framework<LingoGodotGfxCanvas>();
         spriteSummaryCanvas.ZIndex = 1000;
         boundingBoxesCanvas.ZIndex = 1001;
+        motionPathCanvas.ZIndex = 1000;
         guidesCanvas.ZIndex = 999;
         _selectionBox.ZIndex = 1002;
         _selectionBox.Visible = false;
@@ -120,10 +124,11 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         _stageLayer.AddChild(_stageBgRect);
         _stageLayer.AddChild(_stageContainer.Container);
         _stageLayer.AddChild(guidesCanvas);
+        _stageLayer.AddChild(motionPathCanvas);
         _stageLayer.AddChild(spriteSummaryCanvas);
         _stageLayer.AddChild(_selectionBox);
 
-        
+
         var wrapper = new Control();
         wrapper.Name = "StageWrapper";
         wrapper.CustomMinimumSize = new Vector2(3000, 2000);
@@ -143,10 +148,10 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         CreateBottomIconBar(iconBarPanel);
 
 
-        
+
     }
 
-   
+
 
     private void CreateScrollContainer()
     {
@@ -161,7 +166,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         _scrollContainer.OffsetLeft = 0;
         _scrollContainer.OffsetTop = TitleBarHeight;
         _scrollContainer.OffsetRight = 0;
-        _scrollContainer.OffsetBottom = -IconBarHeight-10;
+        _scrollContainer.OffsetBottom = -IconBarHeight - 10;
         _scrollContainer.HorizontalScrollMode = ScrollContainer.ScrollMode.ShowAlways;
         _scrollContainer.VerticalScrollMode = ScrollContainer.ScrollMode.ShowAlways;
         _scrollContainer.ZIndex = 500;
@@ -190,7 +195,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         _stage = stage;
         if (stage is Node node)
         {
-           
+
             if (node.GetParent() != this)
             {
                 node.GetParent()?.RemoveChild(node);
@@ -224,6 +229,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
 
         _iconBar.SetActiveMovie(movie);
         UpdateBoundingBoxes();
+        UpdateMotionPath();
     }
 
     private void OnActiveMovieChanged(ILingoMovie? movie)
@@ -235,6 +241,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
     private void OnPlayStateChanged(bool isPlaying)
     {
         UpdateBoundingBoxes();
+        UpdateMotionPath();
         if (isPlaying)
         {
             _selectionBox.Visible = false;
@@ -250,12 +257,14 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         else
             _selectionBox.Visible = false;
         UpdateBoundingBoxes();
+        UpdateMotionPath();
     }
 
     private void OnStageSpritesTransformed()
     {
         UpdateSelectionBox();
         UpdateBoundingBoxes();
+        UpdateMotionPath();
     }
 
 
@@ -313,7 +322,11 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         _selectionBox.Visible = true;
     }
 
-    public void SpriteListChanged(int spriteNumWithChannelNum) => UpdateBoundingBoxes();
+    public void SpriteListChanged(int spriteNumWithChannelNum)
+    {
+        UpdateBoundingBoxes();
+        UpdateMotionPath();
+    }
     public void UpdateBoundingBoxes()
     {
         if (_movie == null || _movie.IsPlaying)
@@ -334,6 +347,19 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
             _boundingBoxes.Visible = false;
             _spriteSummary.Visible = false;
         }
+    }
+
+    public void UpdateMotionPath()
+    {
+        if (_movie == null || _movie.IsPlaying)
+        {
+            _motionPath.Draw(null);
+            return;
+        }
+
+        var sprite = _stageManager.PrimarySelectedSprite;
+        var path = sprite != null ? _stageManager.GetMotionPath(sprite) : null;
+        _motionPath.Draw(path);
     }
 
     public override void _Input(InputEvent @event)
@@ -481,5 +507,5 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         }
     }
 
-    
+
 }
