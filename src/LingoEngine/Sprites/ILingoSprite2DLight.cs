@@ -40,5 +40,11 @@ namespace LingoEngine.Sprites
         void SetSpriteTweenOptions(bool positionEnabled, bool sizeEnabled, bool rotationEnabled, bool skewEnabled, bool foregroundColorEnabled, bool backgroundColorEnabled, bool blendEnabled, float curvature, bool continuousAtEnds, bool speedSmooth, float easeIn, float easeOut);
         void UpdateKeyframe(LingoKeyFrameSetting setting);
         void UpdateTexture(ILingoTexture2D texture);
+
+
+        IReadOnlyCollection<LingoKeyFrameSetting>? GetKeyframes();
+        void MoveKeyFrame(int from, int to);
+        bool DeleteKeyFrame(int frame);
+       
     }
 }

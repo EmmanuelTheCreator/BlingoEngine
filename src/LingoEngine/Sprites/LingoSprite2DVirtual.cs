@@ -181,8 +181,29 @@ namespace LingoEngine.Sprites
         public LingoSpriteAnimatorProperties GetAnimatorProperties() => GetAnimator().Properties;
 
 
-        #region Animator
+        #region Animator / Keyframes
+        public IReadOnlyCollection<LingoKeyFrameSetting>? GetKeyframes()
+        {
+            var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
+            if (animator == null)
+                return null;
+            return animator.GetKeyframes();
+        }
 
+        public void MoveKeyFrame(int from, int to)
+        {
+            var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
+            if (animator == null)
+                return;
+            animator.MoveKeyFrame(from, to);
+        }
+        public bool DeleteKeyFrame(int frame)
+        {
+            var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
+            if (animator == null)
+                return false;
+            return animator.DeleteKeyFrame(frame);
+        }
         /// <summary>
         /// Adds animation keyframes for this sprite. When invoked for the first time
         /// it lazily creates a <see cref="LingoSpriteAnimator"/> actor and stores it

@@ -253,8 +253,28 @@ namespace LingoEngine.Sprites
             animator.UpdateKeyFrame(setting);
             animator.RecalculateCache();
         }
+        public IReadOnlyCollection<LingoKeyFrameSetting>? GetKeyframes()
+        {
+            var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
+            if (animator == null)
+                return null;
+            return animator.GetKeyframes();
+        }
 
-
+        public void MoveKeyFrame(int from, int to)
+        {
+            var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
+            if (animator == null)
+                return;
+            animator.MoveKeyFrame(from, to);
+        }
+        public bool DeleteKeyFrame(int frame)  
+        {
+            var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
+            if (animator == null)
+                return false;
+            return animator.DeleteKeyFrame(frame);
+        }
 
         public void SetSpriteTweenOptions(bool positionEnabled, bool sizeEnabled, bool rotationEnabled, bool skewEnabled,
             bool foregroundColorEnabled, bool backgroundColorEnabled, bool blendEnabled,

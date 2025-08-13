@@ -1,9 +1,11 @@
 ﻿using LingoEngine.Primitives;
+using System.Runtime;
 
 namespace LingoEngine.Animations
 {
     public class LingoSpriteAnimatorProperties
     {
+        private Dictionary<int, LingoKeyFrameSetting> _settings = new();
         private LingoRect? _calculatedBoundingBox;
         private Dictionary<int, LingoRect> _calculatedFrameBoundingBoxes = new();
         private bool _cacheDirty = true;
@@ -56,6 +58,19 @@ namespace LingoEngine.Animations
             }
         }
 
+        internal IReadOnlyCollection<LingoKeyFrameSetting>? GetKeyFrames() => _settings.Values;
+        internal void MoveKeyFrame(int from, int to)
+        {
+            if (!_settings.TryGetValue(from, out var setting))
+                return;
+            //setting.Frame = to;
+            // todo : move all keyframes in all arrays , or delete and add
+        }
+        public bool DeleteKeyFrame(int frame)
+        {
+            // TODO : remove keyframe
+            return false;
+        }
         public void AddKeyframes(params LingoKeyFrameSetting[] keyframes)
         {
             if (keyframes == null || keyframes.Length == 0)
@@ -72,6 +87,11 @@ namespace LingoEngine.Animations
             if (setting.ForeColor != null) ForegroundColor.AddKeyFrame(setting.Frame, setting.ForeColor.Value);
             if (setting.BackColor != null) BackgroundColor.AddKeyFrame(setting.Frame, setting.BackColor.Value);
             if (setting.Blend != null) Blend.AddKeyFrame(setting.Frame, setting.Blend.Value);
+
+            if (_settings.ContainsKey(setting.Frame))
+                _settings[setting.Frame] = setting;
+            else
+                _settings.Add(setting.Frame, setting);
             _cacheDirty = true;
         }
         public void UpdateKeyFrame(LingoKeyFrameSetting setting)
@@ -83,6 +103,10 @@ namespace LingoEngine.Animations
             if (setting.ForeColor != null) ForegroundColor.UpdateKeyFrame(setting.Frame, setting.ForeColor.Value);
             if (setting.BackColor != null) BackgroundColor.UpdateKeyFrame(setting.Frame, setting.BackColor.Value);
             if (setting.Blend != null) Blend.UpdateKeyFrame(setting.Frame, setting.Blend.Value);
+            if (_settings.ContainsKey(setting.Frame))
+                _settings[setting.Frame] = setting;
+            else
+                _settings.Add(setting.Frame, setting);
             _cacheDirty = true;
         }
 
@@ -184,6 +208,8 @@ namespace LingoEngine.Animations
             _calculatedBoundingBox = null;
             _calculatedFrameBoundingBoxes.Clear();
         }
+
+        
         #endregion
     }
 }

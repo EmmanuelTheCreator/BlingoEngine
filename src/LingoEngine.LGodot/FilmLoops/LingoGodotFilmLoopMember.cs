@@ -81,7 +81,7 @@ namespace LingoEngine.LGodot.FilmLoops
                 if (srcImg == null)
                     continue;
                
-                DebugToDisk(srcImg, $"filmloop_{i}_{info.Sprite2D.SpriteNum}_{info.Sprite2D.Member?.Name}");
+                //DebugToDisk(srcImg, $"filmloop_{i}_{info.Sprite2D.SpriteNum}_{info.Sprite2D.Member?.Name}");
 
                 srcImg = srcImg.GetRegion(new Rect2I(info.SrcX, info.SrcY, info.SrcW, info.SrcH));
                 if (info.DestW != info.SrcW || info.DestH != info.SrcH)
@@ -145,7 +145,7 @@ namespace LingoEngine.LGodot.FilmLoops
             //} 
             #endregion
 
-            DebugToDisk(image, $"filmloop_{_member.Name}_{hostSprite.Name}");
+            //DebugToDisk(image, $"filmloop_{_member.Name}_{hostSprite.Name}");
             var tex = ImageTexture.CreateFromImage(image);
             var texture = new LingoGodotTexture2D(tex);
             return texture;

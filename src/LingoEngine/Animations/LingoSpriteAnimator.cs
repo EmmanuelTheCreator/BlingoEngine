@@ -39,7 +39,9 @@ namespace LingoEngine.Animations
                 curvature, continuousAtEnds, smoothSpeed, easeIn, easeOut);
         }
 
-        
+        internal IReadOnlyCollection<LingoKeyFrameSetting>? GetKeyframes() => _properties.GetKeyFrames();
+        internal void MoveKeyFrame(int from, int to) => _properties.MoveKeyFrame(from, to);
+        internal bool DeleteKeyFrame(int frame) => _properties.DeleteKeyFrame(frame);
         public void AddKeyFrame(LingoKeyFrameSetting setting) => _properties.AddKeyFrame(setting);
         public void UpdateKeyFrame(LingoKeyFrameSetting setting) => _properties.UpdateKeyFrame(setting);
 
@@ -139,6 +141,8 @@ namespace LingoEngine.Animations
 
         public LingoRect GetBoundingBoxForFrame(int frame) 
             => _properties.GetBoundingBoxForFrame(frame, _sprite.RegPoint, _sprite.Width, _sprite.Height);
+
+        
 
         #endregion
 

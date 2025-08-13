@@ -64,6 +64,8 @@ namespace LingoEngine.Director.Core.Scores
         internal int DragStartBeginFrame => _dragStartBeginFrame;
         internal int DragStartEndFrame => _dragStartEndFrame;
 
+        private IEnumerable<int>? _KeyFrames;
+
         public DirScoreSprite(LingoSprite sprite, IDirSpritesManager spritesManager)
         {
             Sprite = sprite;
@@ -148,6 +150,23 @@ namespace LingoEngine.Director.Core.Scores
             }
             // Draw name
             canvas.DrawText(new LingoPoint(X + labelLeft, 11), name, null, LingoColorList.Black, 9, (int)labelWidth);
+            var keyFrames = Sprite2D?.GetKeyframes();
+            if (keyFrames != null)
+            {
+                foreach (var keyFrame in keyFrames)
+                {
+                    if (keyFrame.Frame == Sprite.BeginFrame || keyFrame.Frame == Sprite.EndFrame)
+                        continue; // already drawn
+                    var keyframeCenter = new LingoPoint(X + 3f + (keyFrame.Frame - Sprite.BeginFrame)*frameWidth, OffsetY + Height / 2f);
+                    canvas.DrawCircle(keyframeCenter, radius, ColorCircle);
+                    canvas.DrawArc(keyframeCenter, radius, 0, 360, 8, ColorCircleBorder);
+                }
+                _KeyFrames = keyFrames.Select(x => x.Frame).ToArray();
+            }
+            else
+            {
+                _KeyFrames = null;
+            }
         }
 
         public bool IsFrameInSprite(int frame)
