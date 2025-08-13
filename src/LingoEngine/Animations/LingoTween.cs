@@ -33,6 +33,37 @@ namespace LingoEngine.Animations
                 AddKeyFrame(frame, value, ease);
             }
         }
+
+        public bool DeleteKeyFrame(int frame)
+        {
+            var idx = _keys.FindIndex(k => k.Frame == frame);
+            if (idx >= 0)
+            {
+                _keys.RemoveAt(idx);
+                if (frame == 1)
+                    _hasFirstKeyFrame = _keys.Any(k => k.Frame == 1);
+                return true;
+            }
+            return false;
+        }
+
+        public bool MoveKeyFrame(int from, int to)
+        {
+            if (from == to)
+                return false;
+            var idx = _keys.FindIndex(k => k.Frame == from);
+            if (idx >= 0)
+            {
+                _keys[idx].Frame = to;
+                _keys.Sort((a, b) => a.Frame.CompareTo(b.Frame));
+                if (from == 1)
+                    _hasFirstKeyFrame = _keys.Any(k => k.Frame == 1);
+                if (to == 1)
+                    _hasFirstKeyFrame = true;
+                return true;
+            }
+            return false;
+        }
         public bool HasKeyFrames => _keys.Count > 0;
         public T GetValue(int frame)
         {
@@ -102,7 +133,7 @@ namespace LingoEngine.Animations
             var clone = new LingoTween<T>();
             foreach (var key in _keys)
                 clone.AddKeyFrame(key.Frame, key.Value, key.Ease);
-            
+
             clone.Options = Options;
             return clone;
 

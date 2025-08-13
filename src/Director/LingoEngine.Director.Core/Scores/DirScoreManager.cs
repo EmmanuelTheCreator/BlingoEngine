@@ -39,6 +39,8 @@ namespace LingoEngine.Director.Core.Scores
         private bool _dragBegin;
         private bool _dragEnd;
         private bool _dragMiddle;
+        private bool _dragKeyFrame;
+        private DirScoreSprite? _dragKeyFrameSprite;
         private bool _isDropPreview;
         private DirScoreChannel? _dragPreviewChannel;
         private int _mouseDownFrame = -1;
@@ -181,6 +183,12 @@ namespace LingoEngine.Director.Core.Scores
                             s.PrepareDragging(frameNumber);
                         _dragEnd = true;
                     }
+                    else if (spriteScore.IsKeyFrame(frameNumber))
+                    {
+                        spriteScore.PrepareKeyFrameDragging(frameNumber);
+                        _dragKeyFrame = true;
+                        _dragKeyFrameSprite = spriteScore;
+                    }
                     else
                     {
                         foreach (var s in _selected)
@@ -228,6 +236,10 @@ namespace LingoEngine.Director.Core.Scores
                     foreach (var s in _selected)
                         s.DragMoveEnd(frameNumber);
                 }
+                else if (_dragKeyFrame)
+                {
+                    _dragKeyFrameSprite?.DragKeyFrame(frameNumber);
+                }
                 else if (_dragMiddle)
                 {
                     foreach (var s in _selected)
@@ -250,6 +262,20 @@ namespace LingoEngine.Director.Core.Scores
                     StopPreview();
                     return;
                 }
+                if (_dragKeyFrame)
+                {
+                    _dragKeyFrameSprite?.StopKeyFrameDragging();
+                    if (_dragKeyFrameSprite?.Channel != null)
+                        _dragKeyFrameSprite.Channel.RequireRedraw();
+                    _dragKeyFrame = false;
+                    _dragKeyFrameSprite = null;
+                    _dragging = false;
+                    _mouseDownFrame = -1;
+                    _lastAddedSprite = null;
+                    mouseEvent.Mouse.SetCursor(Inputs.LingoMouseCursor.Arrow);
+                    _lastMouseLeftDown = false;
+                    return;
+                }
                 if (_lastMouseLeftDown)
                 {
                     if (_dragPreviewChannel != null && _movie != null)
@@ -267,7 +293,7 @@ namespace LingoEngine.Director.Core.Scores
                                 s.Channel.RequireRedraw();
                         }
                     }
-                    _dragging = _dragBegin = _dragEnd = _dragMiddle = false;
+                    _dragging = _dragBegin = _dragEnd = _dragMiddle = _dragKeyFrame = false;
                     _mouseDownFrame = -1;
                     _lastAddedSprite = null;
                     mouseEvent.Mouse.SetCursor(Inputs.LingoMouseCursor.Arrow);

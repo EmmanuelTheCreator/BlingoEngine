@@ -61,15 +61,45 @@ namespace LingoEngine.Animations
         internal IReadOnlyCollection<LingoKeyFrameSetting>? GetKeyFrames() => _settings.Values;
         internal void MoveKeyFrame(int from, int to)
         {
+            if (from == to)
+                return;
             if (!_settings.TryGetValue(from, out var setting))
                 return;
-            //setting.Frame = to;
-            // todo : move all keyframes in all arrays , or delete and add
+            _settings.Remove(from);
+            setting.Frame = to;
+            _settings[to] = setting;
+
+            Position.MoveKeyFrame(from, to);
+            Size.MoveKeyFrame(from, to);
+            Rotation.MoveKeyFrame(from, to);
+            Skew.MoveKeyFrame(from, to);
+            ForegroundColor.MoveKeyFrame(from, to);
+            BackgroundColor.MoveKeyFrame(from, to);
+            Blend.MoveKeyFrame(from, to);
+
+            _cacheDirty = true;
         }
         public bool DeleteKeyFrame(int frame)
         {
-            // TODO : remove keyframe
-            return false;
+            bool removed = false;
+            removed |= Position.DeleteKeyFrame(frame);
+            removed |= Size.DeleteKeyFrame(frame);
+            removed |= Rotation.DeleteKeyFrame(frame);
+            removed |= Skew.DeleteKeyFrame(frame);
+            removed |= ForegroundColor.DeleteKeyFrame(frame);
+            removed |= BackgroundColor.DeleteKeyFrame(frame);
+            removed |= Blend.DeleteKeyFrame(frame);
+
+            if (_settings.ContainsKey(frame))
+            {
+                _settings.Remove(frame);
+                removed = true;
+            }
+
+            if (removed)
+                _cacheDirty = true;
+
+            return removed;
         }
         public void AddKeyframes(params LingoKeyFrameSetting[] keyframes)
         {
@@ -209,7 +239,7 @@ namespace LingoEngine.Animations
             _calculatedFrameBoundingBoxes.Clear();
         }
 
-        
+
         #endregion
     }
 }
