@@ -17,7 +17,7 @@ using LingoEngine.Sounds;
 
 namespace LingoEngine.Director.Core.Scores
 {
-    public class DirectorScoreWindow : DirectorWindow<IDirFrameworkScoreWindow> 
+    public class DirectorScoreWindow : DirectorWindow<IDirFrameworkScoreWindow>
     {
         private readonly IDirSpritesManager _spritesManager;
         private readonly DirScoreManager _scoreManager;
@@ -32,6 +32,7 @@ namespace LingoEngine.Director.Core.Scores
         private readonly LingoGfxPanel _panelFix;
         private readonly LingoGfxInputCombobox _spriteShowSelector;
         private DirScoreSprite? _contextSprite;
+        private int _contextFrame;
         private LingoMovie? _movie;
         protected ILingoMouseSubscription _mouseSub;
         private float _scollY;
@@ -46,8 +47,8 @@ namespace LingoEngine.Director.Core.Scores
         public DirScoreGridSprites2DContainer Sprites2DContainer { get; private set; }
         public DirScoreLabelsBar LabelsBar => _labelsBar;
         public DirScoreFrameHeader FrameHeader => _frameHeader;
-        public DirScoreGfxValues GfxValues  => _scoreManager.GfxValues;
-       // public DirScoreLeftTopContainer LeftTopContainer => _LeftTopContainer;
+        public DirScoreGfxValues GfxValues => _scoreManager.GfxValues;
+        // public DirScoreLeftTopContainer LeftTopContainer => _LeftTopContainer;
         //public DirScoreLeftChannelsContainer LeftChannelContainer => _LeftChannelContainer;
         public LingoGfxPanel ScorePanelScroll => _panelScroll;
         public LingoGfxPanel ScorePanelFix => _panelFix;
@@ -71,8 +72,8 @@ namespace LingoEngine.Director.Core.Scores
 
             // Fix top panel
             _panelFix = factory.CreatePanel("ScoreWindowPanelFix");
-            _panelFix.AddItem(_LeftTopContainer.Canvas,0, GfxValues.LabelsBarHeight+1);
-            _panelFix.AddItem(_labelsBar.FixPanel,0, 0);
+            _panelFix.AddItem(_LeftTopContainer.Canvas, 0, GfxValues.LabelsBarHeight + 1);
+            _panelFix.AddItem(_labelsBar.FixPanel, 0, 0);
 
             _frameLabelsForCombo = Enum.GetNames<DirScoreSpriteLabelType>().Select(name => new KeyValuePair<string, string>(name, name)).ToArray();
             _spriteShowSelector = _panelFix.SetComboBoxAt(_frameLabelsForCombo, "ScoreSpriteShowSelector", 2, GfxValues.TopStripHeight - 2, GfxValues.ChannelInfoWidth - 6, _frameLabelsForCombo[1].Key, ShowSpriteInfo);
@@ -81,12 +82,12 @@ namespace LingoEngine.Director.Core.Scores
 
             // Main Scroll panel
             _panelScroll = factory.CreatePanel("ScoreWindowPanelScroll");
-            _panelScroll.AddItem(_LeftChannelContainer.Canvas,0, 0);
+            _panelScroll.AddItem(_LeftChannelContainer.Canvas, 0, 0);
 
             _labelsBar.HeaderCollapseChanged += OnHeaderCollapseChanged;
         }
 
-       
+
 
         public override void Init(IDirFrameworkWindow frameworkWindow)
         {
@@ -97,7 +98,7 @@ namespace LingoEngine.Director.Core.Scores
             Sprites2DContainer = new DirScoreGridSprites2DContainer(_scoreManager, ShowConfirmDialog);
         }
 
-      
+
 
         public override void Dispose()
         {
@@ -105,7 +106,7 @@ namespace LingoEngine.Director.Core.Scores
             _mouseSub.Release();
             if (_movie != null)
                 _movie.CurrentFrameChanged -= OnCurrentFrameChanged;
-            
+
             _player.ActiveMovieChanged -= OnActiveMovieChanged;
             _labelsBar.HeaderCollapseChanged -= OnHeaderCollapseChanged;
             _labelsBar.Dispose();
@@ -122,7 +123,7 @@ namespace LingoEngine.Director.Core.Scores
         {
             if (_movie != null)
                 _movie.CurrentFrameChanged -= OnCurrentFrameChanged;
-            
+
             _movie = movie as LingoMovie;
             if (_movie != null)
                 _movie.CurrentFrameChanged += OnCurrentFrameChanged;
@@ -149,6 +150,13 @@ namespace LingoEngine.Director.Core.Scores
                         if (member != null)
                             _spritesManager.Mediator.RaiseFindMember(member);
                     })
+                .AddItemFluent(string.Empty, "Delete Keyframe",
+                    () => _movie != null && _contextSprite != null && !_contextSprite.IsLocked &&
+                        _contextSprite.Sprite2D != null && _contextSprite.IsKeyFrame(_contextFrame),
+                    () =>
+                    {
+                        _contextSprite?.DeleteKeyFrame(_contextFrame);
+                    })
                 .AddItemFluent(string.Empty, "Delete",
                     () => _movie != null && _contextSprite != null && !_contextSprite.IsLocked,
                     () =>
@@ -171,8 +179,8 @@ namespace LingoEngine.Director.Core.Scores
         {
             if (_movie == null) return;
             var gfxValues = _scoreManager.GfxValues;
-            
-            
+
+
             float frameF = (mouseEvent.MouseH - gfxValues.ChannelInfoWidth - 3 + ScollX) / gfxValues.FrameWidth;
             var mouseFrame = Math.Clamp(MathL.RoundToInt(frameF) + 1, 1, _movie.FrameCount);
 
@@ -191,7 +199,8 @@ namespace LingoEngine.Director.Core.Scores
                 var yPosition = mouseEvent.MouseV - gfxValues.LabelsBarHeight;
                 spriteNumWithChannel = Math.Clamp(MathL.RoundToInt((yPosition + 4) / gfxValues.ChannelHeight), 1, 999);
             }
-            else {
+            else
+            {
                 isInFrameHeader = mouseEvent.MouseV <= gfxValues.LabelsBarHeight + TopContainer.Size.Y + gfxValues.ChannelFramesHeight;
                 if (isInFrameHeader && !isInsideLeft)
                 {
@@ -200,7 +209,7 @@ namespace LingoEngine.Director.Core.Scores
                 }
                 // Sprites Container
                 var topPosition = gfxValues.LabelsBarHeight + TopContainer.Size.Y + gfxValues.ChannelFramesHeight;
-                if (mouseEvent.MouseV >= topPosition && mouseEvent.MouseV <= topPosition + Sprites2DContainer.Size.Y )
+                if (mouseEvent.MouseV >= topPosition && mouseEvent.MouseV <= topPosition + Sprites2DContainer.Size.Y)
                 {
                     var yPosition = mouseEvent.MouseV - topPosition;
                     spriteNumWithChannel = Math.Clamp(MathL.RoundToInt((yPosition + 4 + ScollY) / gfxValues.ChannelHeight), 1, 999) + 6;
@@ -209,7 +218,7 @@ namespace LingoEngine.Director.Core.Scores
             //Console.WriteLine($"Mouse Event: Frame {mouseFrame}, Channel {channel}, isInsideLeft={isInsideLeft}");
             if (spriteNumWithChannel <= 0)
                 return;
-            if (isInsideLeft )
+            if (isInsideLeft)
             {
                 if (mouseEvent.Type == LingoMouseEventType.MouseDown)
                 {
@@ -228,6 +237,7 @@ namespace LingoEngine.Director.Core.Scores
                 if (sprite != null)
                 {
                     _contextSprite = sprite;
+                    _contextFrame = mouseFrame;
                     _spriteContextMenu.Popup();
                 }
             }
@@ -262,7 +272,7 @@ namespace LingoEngine.Director.Core.Scores
             {
                 _lastPosV = _scollY;
                 var lastPos = new LingoPoint(0, -_scollY);
-                _LeftChannelContainer.UpdatePosition(new LingoPoint(0, - _lastPosV+1));
+                _LeftChannelContainer.UpdatePosition(new LingoPoint(0, -_lastPosV + 1));
                 //_leftChannelsScollClipper.ScrollVertical = _masterScroller.ScrollVertical;
             }
         }
