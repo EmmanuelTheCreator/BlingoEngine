@@ -82,11 +82,22 @@ public static class LingoFilmLoopComposer
                 destH = cropH;
             }
 
-            var srcCenter = new LingoPoint(destW / 2f, destH / 2f);
+            var reg = layer.RegPoint;
+            if (layer.Member is { Width: > 0, Height: > 0 } m)
+            {
+                float scaleRegX = destW / (float)m.Width;
+                float scaleRegY = destH / (float)m.Height;
+                reg = new LingoPoint(reg.X * scaleRegX, reg.Y * scaleRegY);
+            }
+            else
+            {
+                reg = new LingoPoint(destW / 2f, destH / 2f);
+            }
+
             var pos = new LingoPoint(layer.LocH + offset.X, layer.LocV + offset.Y);
             var scale = new LingoPoint(layer.FlipH ? -1 : 1, layer.FlipV ? -1 : 1);
             var transform = LingoTransform2D.Identity
-                .Translated(-srcCenter.X, -srcCenter.Y)
+                .Translated(-reg.X, -reg.Y)
                 .Scaled(scale.X, scale.Y)
                 .Skewed(layer.Skew)
                 .Rotated(layer.Rotation)
