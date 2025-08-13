@@ -31,8 +31,8 @@ public class SdlRootContext : IDisposable, ISdlRootComponentContext
     public LingoSDLComponentContainer ComponentContainer { get; } = new();
     internal SdlFactory Factory { get; set; } = null!;
 
-    public ImGuiViewportPtr ImGuiViewPort { get; private set; }
-    public ImDrawListPtr ImDrawList { get; private set; }
+    public ImGuiViewportPtr ImGuiViewPort { get; private set; } = new ImGuiViewportPtr(nint.Zero);
+    public ImDrawListPtr ImDrawList { get; private set; } = new ImDrawListPtr(nint.Zero);
 
     public SdlRootContext(nint window, nint renderer)
     {

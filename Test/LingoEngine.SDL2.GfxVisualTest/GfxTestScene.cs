@@ -44,6 +44,7 @@ public static class GfxTestScene
         canvas2.Clear(new LingoColor(100, 100, 100, 255));
         canvas2.DrawCircle(new LingoPoint(50, 25), 20, new LingoColor(200, 0, 0, 255));
         canvas2.DrawRect(new LingoRect(10, 10, 80, 30), new LingoColor(0, 200, 0, 255));
+        canvas2.DrawText(new LingoPoint(5, 5), "Hallo", null, LingoColorList.Green);
         Add(canvas2);
         Add(factory.CreateButton("button", "Button"));
 

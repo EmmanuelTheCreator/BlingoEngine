@@ -30,8 +30,8 @@ private bool _imguiReady;
     private readonly ImGuiSdlBackend _imgui = new();
     public int Width { get; set; }
     public int Height { get; set; }
-    public ImGuiViewportPtr ImGuiViewPort { get; private set; }
-    public ImDrawListPtr ImDrawList { get; private set; }
+    public ImGuiViewportPtr ImGuiViewPort { get; private set; } = new ImGuiViewportPtr(nint.Zero);
+    public ImDrawListPtr ImDrawList { get; private set; } = new ImDrawListPtr(nint.Zero);
 
     public TestSdlRootComponentContext()
     {
@@ -69,8 +69,8 @@ private bool _imguiReady;
 
             ImGuiViewPort = _imgui.BeginFrame();
             ImDrawList = ImGui.GetForegroundDrawList();
-            //ImDrawList.AddText(ImGuiViewPort.WorkPos + new System.Numerics.Vector2(10, 10), 0xFFFFFFFF, "Overlay text");
-
+            ImDrawList.AddText(ImGuiViewPort.WorkPos + new System.Numerics.Vector2(10, 10), 0xFFFFFFFF, "Overlay text");
+            var origin = ImGuiViewPort.WorkPos;
             //RenderImGuiOverlay2(); // () => { });
 
             // --- Your ImGui code (safe for SetCursorPos) ---
@@ -84,11 +84,10 @@ private bool _imguiReady;
             SDL.SDL_SetRenderDrawColor(Renderer, 50, 0, 50, 255);
             SDL.SDL_RenderClear(Renderer);
             
-            ComponentContainer.Render(new LingoSDLRenderContext(Renderer,ImGuiViewPort,ImDrawList, ImGuiViewPort.WorkPos, _fontManager));
+            ComponentContainer.Render(new LingoSDLRenderContext(Renderer,ImGuiViewPort,ImDrawList, origin, _fontManager));
 
             _imgui.EndFrame();  // draws ImGui on top
 
-            SDL.SDL_RenderPresent(Renderer);
         }
     }
     private void RenderImGuiOverlay(Action render)

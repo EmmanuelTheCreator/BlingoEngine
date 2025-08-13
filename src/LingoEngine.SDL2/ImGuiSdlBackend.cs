@@ -23,7 +23,7 @@ namespace LingoEngine.SDL2
             _renderer = renderer;
 
             ImGui.CreateContext();
-            ImGui.StyleColorsDark();
+            ImGui.StyleColorsLight();
 
             var io = ImGui.GetIO();
             io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
