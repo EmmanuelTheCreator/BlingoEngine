@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.Animations
@@ -51,18 +52,17 @@ namespace LingoEngine.Animations
         {
             if (from == to)
                 return false;
-            var idx = _keys.FindIndex(k => k.Frame == from);
-            if (idx >= 0)
-            {
-                _keys[idx].Frame = to;
-                _keys.Sort((a, b) => a.Frame.CompareTo(b.Frame));
-                if (from == 1)
-                    _hasFirstKeyFrame = _keys.Any(k => k.Frame == 1);
-                if (to == 1)
-                    _hasFirstKeyFrame = true;
-                return true;
-            }
-            return false;
+
+            var key = _keys.FirstOrDefault(k => k.Frame == from);
+            if (key == null)
+                return false;
+
+            _keys.RemoveAll(k => k.Frame == to);
+            key.Frame = to;
+            _keys.Sort((a, b) => a.Frame.CompareTo(b.Frame));
+
+            _hasFirstKeyFrame = _keys.Any(k => k.Frame == 1);
+            return true;
         }
         public bool HasKeyFrames => _keys.Count > 0;
         public T GetValue(int frame)
