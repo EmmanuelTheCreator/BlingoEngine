@@ -324,6 +324,7 @@
 	  <None Include="Medias\InternalExt\25.txt">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
+	  <Content Include="Medias\Icons\DirectorSharp_Icon.png" />
 	  <Content Include="Medias\Icons\Director_Icons.png" />
 	  <Content Include="Medias\Icons\General_Icons.png" />
 	  <Content Include="Medias\Icons\Painter2_Icons.png" />
