@@ -45,7 +45,7 @@ public class DirectorWindow<TFrameworkWindow> : IDirectorWindow, IDisposable, IL
     public virtual void Dispose()
     {
         LingoKey.Unsubscribe(this);
-       
+
     }
 
     public IDirFrameworkWindow FrameworkObj => _Framework;
@@ -73,9 +73,9 @@ public class DirectorWindow<TFrameworkWindow> : IDirectorWindow, IDisposable, IL
     /// </summary>
     protected DirContextMenu CreateContextMenu(Func<bool>? isllowed = null)
     {
-            if (_Framework == null) throw new Exception("Context menu can only be created once the framework object has been set. Call in it the Init method of the DirectorWindow.");
-            var contextMenu = new DirContextMenu(_Framework, _factory,MouseGetAbolutePosition, isllowed?? AllowContextMenu);
-            return contextMenu;
+        if (_Framework == null) throw new Exception("Context menu can only be created once the framework object has been set. Call in it the Init method of the DirectorWindow.");
+        var contextMenu = new DirContextMenu(_Framework, _factory, MouseGetAbolutePosition, isllowed ?? AllowContextMenu, Mouse as LingoMouse);
+        return contextMenu;
     }
     protected virtual bool AllowContextMenu() => IsActiveWindow;
 }
