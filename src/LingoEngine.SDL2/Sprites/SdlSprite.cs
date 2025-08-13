@@ -232,8 +232,8 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
             }
         }
 
-        ComponentContext.OffsetX = offset.X;
-        ComponentContext.OffsetY = offset.Y;
+        ComponentContext.OffsetX = -offset.X;
+        ComponentContext.OffsetY = -offset.Y;
         UpdateContextPosition();
         return _texture;
     }
@@ -359,13 +359,13 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
     private void ApplyBlend()
     {
         //ComponentContext.Blend = _directToStage ? 1f : _blend;
-        ComponentContext.Blend =  _directToStage ? 1f : _blend/100;
+        ComponentContext.Blend = _directToStage ? 1f : _blend / 100;
     }
 
     private void UpdateContextPosition()
     {
-        int x = (int)(_x - ComponentContext.OffsetX - ComponentContext.TargetWidth / 2f);
-        int y = (int)(_y - ComponentContext.OffsetY - ComponentContext.TargetHeight / 2f);
+        int x = (int)(_x - ComponentContext.TargetWidth / 2f);
+        int y = (int)(_y - ComponentContext.TargetHeight / 2f);
         ComponentContext.X = x;
         ComponentContext.Y = y;
     }
