@@ -6,6 +6,7 @@ using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using System;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Threading.Tasks;
 
 namespace LingoEngine.LGodot.FilmLoops
@@ -65,7 +66,8 @@ namespace LingoEngine.LGodot.FilmLoops
             foreach (var info in prep.Layers)
             {
                 Image? srcImg = null;
-                if (info.Bitmap is LingoGodotMemberBitmap bmp)
+                if (info.Sprite2D.Member is LingoMemberBitmap pic && pic.FrameworkObj is LingoGodotMemberBitmap bmp)
+                    //if (info.Sprite2D.Member is Li.Bitmap is LingoGodotMemberBitmap bmp)
                 {
                     if (bmp.TextureGodot == null) continue;
                     var srcTex = bmp.GetTextureForInk(info.Ink, info.BackColor);
@@ -79,13 +81,12 @@ namespace LingoEngine.LGodot.FilmLoops
                 if (srcImg == null)
                     continue;
                
-                //DebugToDisk(srcImg, $"filmloop_{i}");
+                DebugToDisk(srcImg, $"filmloop_{i}_{info.Sprite2D.SpriteNum}_{info.Sprite2D.Member?.Name}");
 
                 srcImg = srcImg.GetRegion(new Rect2I(info.SrcX, info.SrcY, info.SrcW, info.SrcH));
                 if (info.DestW != info.SrcW || info.DestH != info.SrcH)
                     srcImg.Resize(info.DestW, info.DestH, Image.Interpolation.Bilinear);
-
-                var m = info.Transform.Matrix;
+                                var m = info.Transform.Matrix;
                 var transform = new Transform2D(
                     new Vector2(m.M11, m.M12),
                     new Vector2(m.M21, m.M22),
@@ -94,6 +95,7 @@ namespace LingoEngine.LGodot.FilmLoops
                 i++;
             }
 
+            #region OLD
             //foreach (var layer in layers)
             //{
             //    if (layer.Texture is null)
@@ -140,9 +142,10 @@ namespace LingoEngine.LGodot.FilmLoops
             //        new Vector2(m2.M21, m2.M22),
             //        new Vector2(m2.M31, m2.M32));
             //    BlendImage(image, srcImg, transform2D, Math.Clamp(layer.Blend / 100f, 0f, 1f));
-            //}
+            //} 
+            #endregion
 
-            //DebugToDisk(image, $"filmloop_{_member.Name}_{hostSprite.Name}");
+            DebugToDisk(image, $"filmloop_{_member.Name}_{hostSprite.Name}");
             var tex = ImageTexture.CreateFromImage(image);
             var texture = new LingoGodotTexture2D(tex);
             return texture;

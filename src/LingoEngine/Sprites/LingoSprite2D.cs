@@ -9,10 +9,11 @@ using LingoEngine.FilmLoops;
 using LingoEngine.Sprites.Events;
 using LingoEngine.Bitmaps;
 using LingoEngine.FrameworkCommunication;
+using System.Diagnostics;
 
 namespace LingoEngine.Sprites
 {
-
+    [DebuggerDisplay("LSprite2D:{SpriteNum}) {Name}:Member={Member?.Name}:{BeginFrame}->{EndFrame}:Pos={LocH}x{LocV}:Size={Width}x{Height}")]
     public class LingoSprite2D : LingoSprite, ILingoMouseEventHandler, ILingoSprite, ILingoSpriteWithMember, ILingoSprite2DLight
     {
         public const int SpriteNumOffset = 6;

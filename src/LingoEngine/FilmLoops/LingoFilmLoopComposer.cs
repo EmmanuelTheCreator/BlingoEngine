@@ -18,7 +18,8 @@ public static class LingoFilmLoopComposer
     /// transform and blending parameters required for rendering.
     /// </summary>
     public readonly record struct LayerInfo(
-        ILingoFrameworkMemberBitmap Bitmap,
+        //ILingoFrameworkMemberBitmap Bitmap,
+        //ILingoImageTexture Texture,
         int SrcX,
         int SrcY,
         int SrcW,
@@ -50,11 +51,20 @@ public static class LingoFilmLoopComposer
 
         foreach (var layer in layers)
         {
-            if (layer.Member is not LingoMemberBitmap pic)
-                continue;
-            var bmp = pic.Framework<ILingoFrameworkMemberBitmap>();
-            int srcW = bmp.Width;
-            int srcH = bmp.Height;
+            int srcW = 0;
+            int srcH = 0;
+            if (layer.Member is LingoMemberBitmap pic)
+            {
+                var bmp = pic.Framework<ILingoFrameworkMemberBitmap>();
+                srcW = bmp.Width;
+                srcH = bmp.Height;
+            }
+            else
+            {
+                if (layer.Texture == null) continue;
+                srcW = (int)layer.Width;
+                srcH = (int)layer.Height;
+            }
             int destW = (int)layer.Width;
             int destH = (int)layer.Height;
             int srcX = 0;
@@ -83,7 +93,7 @@ public static class LingoFilmLoopComposer
                 .Translated(pos.X, pos.Y);
 
             prepared.Add(new LayerInfo(
-                bmp,
+                //bmp,
                 srcX,
                 srcY,
                 srcW,

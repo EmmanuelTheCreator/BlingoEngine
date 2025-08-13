@@ -3,6 +3,7 @@ using LingoEngine.Casts;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
+using System.Diagnostics;
 
 namespace LingoEngine.FilmLoops
 {
@@ -10,6 +11,7 @@ namespace LingoEngine.FilmLoops
     /// <summary>
     /// Declares a sprite from a filmloop inside a member, not instanciated as sprite yet.
     /// </summary>
+    [DebuggerDisplay("LFilmLoopMemberSprite:{MemberNumberInCast}) {Name}:{BeginFrame}->{EndFrame}:Pos={LocH}x{LocV}:Size={Width}x{Height}")]
     public class LingoFilmLoopMemberSprite
     {
         private int _ink;

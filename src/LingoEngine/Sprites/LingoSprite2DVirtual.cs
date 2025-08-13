@@ -5,9 +5,11 @@ using LingoEngine.Events;
 using LingoEngine.FilmLoops;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
+using System.Diagnostics;
 
 namespace LingoEngine.Sprites
 {
+    [DebuggerDisplay("Sprite2DVirtual:{SpriteNum}) {Name}:Member={Member?.Name}:{BeginFrame}->{EndFrame}:Pos={LocH}x{LocV}:Size={Width}x{Height}")]
     public class LingoSprite2DVirtual : LingoSprite, ILingoSprite2DLight, ILingoSpriteWithMember
     {
         public const int SpriteNumOffset = 6;

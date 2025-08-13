@@ -1,8 +1,10 @@
 ﻿using LingoEngine.Events;
 using LingoEngine.Sprites.Events;
+using System.Diagnostics;
 
 namespace LingoEngine.Sprites
 {
+    [DebuggerDisplay("LingoSprite:{SpriteNum}) {Name}")]
     public abstract class LingoSprite : ILingoSpriteBase
     {
         //protected readonly ILingoMovieEnvironment _environment;
