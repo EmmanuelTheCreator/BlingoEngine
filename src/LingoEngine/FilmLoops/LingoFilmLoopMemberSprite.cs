@@ -139,6 +139,11 @@ namespace LingoEngine.FilmLoops
 
         private void SetMemberData(ILingoMember member)
         {
+            if (member is LingoFilmLoopMember filmLoop)
+            {
+                filmLoop.UpdateSize();
+            }
+
             Width = member.Width;
             Height = member.Height;
             _animatorProperties.RequestRecalculatedBoundingBox();
