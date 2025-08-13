@@ -608,10 +608,34 @@ When a movie stops, events occur in the following order:
 
 
         /// <summary>
-        /// Check if the mouse position is inside the bounding box of the sprite
+        /// Determines whether the mouse is inside the sprite, considering
+        /// transparent pixels for <see cref="LingoInkType.BackgroundTransparent"/>.
         /// </summary>
         public bool IsMouseInsideBoundingBox(LingoMouse mouse)
-            => Rect.Contains((mouse.MouseH, mouse.MouseV));
+        {
+            if (!Rect.Contains((mouse.MouseH, mouse.MouseV)))
+                return false;
+
+            if (InkType != LingoInkType.BackgroundTransparent || Member == null)
+                return true;
+
+            var rect = Rect;
+            if (Member.Width == 0 || Member.Height == 0 || Width == 0 || Height == 0)
+                return true;
+
+            var relX = (mouse.MouseH - rect.Left) / Width;
+            var relY = (mouse.MouseV - rect.Top) / Height;
+
+            int pixelX = (int)(relX * Member.Width);
+            int pixelY = (int)(relY * Member.Height);
+
+            if (FlipH)
+                pixelX = Member.Width - 1 - pixelX;
+            if (FlipV)
+                pixelY = Member.Height - 1 - pixelY;
+
+            return !Member.IsPixelTransparent(pixelX, pixelY);
+        }
 
         /// <summary>
         /// Check if the given point is inside the bounding box of the sprite

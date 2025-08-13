@@ -204,6 +204,18 @@ namespace LingoEngine.LGodot.Bitmaps
             return tex;
         }
 
+        public bool IsPixelTransparent(int x, int y)
+        {
+            if (_image == null)
+                return false;
+
+            if (x < 0 || y < 0 || x >= Width || y >= Height)
+                return true;
+
+            var color = _image.GetPixel(x, y);
+            return color.A <= 0.001f;
+        }
+
         public void SetImageData(byte[] bytes) => ImageData = bytes;
 
         private void ClearCache()

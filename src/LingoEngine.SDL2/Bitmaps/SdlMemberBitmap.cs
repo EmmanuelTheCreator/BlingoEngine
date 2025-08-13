@@ -35,7 +35,7 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
         if (IsLoaded)
             return;
         // For some unknown reason Path.Combine is not working :(
-        var fullFileName = Directory.GetCurrentDirectory()+Path.DirectorySeparatorChar+ _member.FileName;
+        var fullFileName = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + _member.FileName;
         if (!File.Exists(fullFileName))
             return;
 
@@ -147,6 +147,41 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
         finally
         {
             handle.Free();
+        }
+    }
+
+    public bool IsPixelTransparent(int x, int y)
+    {
+        if (_surface == nint.Zero)
+            return false;
+
+        if (x < 0 || y < 0 || x >= Width || y >= Height)
+            return true;
+
+        SDL.SDL_LockSurface(_surface);
+        try
+        {
+            var surf = Marshal.PtrToStructure<SDL.SDL_Surface>(_surface);
+            var format = Marshal.PtrToStructure<SDL.SDL_PixelFormat>(surf.format);
+            int bpp = format.BytesPerPixel;
+            int offset = y * surf.pitch + x * bpp;
+
+            uint pixel = bpp switch
+            {
+                1 => Marshal.ReadByte(surf.pixels, offset),
+                2 => (uint)Marshal.ReadInt16(surf.pixels, offset),
+                3 => (uint)(Marshal.ReadByte(surf.pixels, offset) |
+                              (Marshal.ReadByte(surf.pixels, offset + 1) << 8) |
+                              (Marshal.ReadByte(surf.pixels, offset + 2) << 16)),
+                _ => (uint)Marshal.ReadInt32(surf.pixels, offset)
+            };
+
+            SDL.SDL_GetRGBA(pixel, surf.format, out _, out _, out _, out byte a);
+            return a == 0;
+        }
+        finally
+        {
+            SDL.SDL_UnlockSurface(_surface);
         }
     }
 
