@@ -50,12 +50,9 @@ namespace LingoEngine.SDL2.Gfx
 
             ImGui.BeginChild("##scroll", new Vector2(Width, Height), childFlags, winFlags);
 
-            // apply incoming scroll
-            ImGui.SetScrollX(ScrollHorizontal);
-            ImGui.SetScrollY(ScrollVertical);
-
             // child origin for nested components
-            var childOrigin = ImGui.GetCursorScreenPos();
+            var scroll = new Vector2(ImGui.GetScrollX(), ImGui.GetScrollY());
+            var childOrigin = ImGui.GetCursorScreenPos() - scroll;
             var childCtx = new LingoSDLRenderContext(
                 context.Renderer,
                 context.ImGuiViewPort,
@@ -75,10 +72,10 @@ namespace LingoEngine.SDL2.Gfx
             }
 
             // report content size to ImGui so it knows it should scroll
-            ImGui.SetCursorScreenPos(childOrigin);
+            ImGui.SetCursorPos(Vector2.Zero);
             ImGui.Dummy(new Vector2(maxX, maxY)); // <- drives scrollbar visibility
 
-            // read back scroll (after items)
+            // capture user scroll position for external access
             ScrollHorizontal = ImGui.GetScrollX();
             ScrollVertical = ImGui.GetScrollY();
 

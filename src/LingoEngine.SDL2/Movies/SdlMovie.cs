@@ -48,8 +48,6 @@ public class SdlMovie : ILingoFrameworkMovie, IDisposable
         {
             s.ComponentContext.RenderToTexture(context);
         }
-
-        SDL.SDL_RenderPresent(context.Renderer);
     }
 
     internal void CreateSprite<T>(T lingoSprite) where T : LingoSprite2D

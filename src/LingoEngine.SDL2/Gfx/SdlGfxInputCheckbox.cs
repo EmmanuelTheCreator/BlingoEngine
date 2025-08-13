@@ -32,7 +32,7 @@ namespace LingoEngine.SDL2.Gfx
         public override LingoSDLRenderResult Render(LingoSDLRenderContext context)
         {
             if (!Visibility) return nint.Zero;
-            ImGui.SetCursorPos(new Vector2(X, Y));
+            ImGui.SetCursorScreenPos(context.Origin + new Vector2(X, Y));
             ImGui.PushID(Name);
             if (!Enabled)
                 ImGui.BeginDisabled();
@@ -42,7 +42,7 @@ namespace LingoEngine.SDL2.Gfx
             if (!Enabled)
                 ImGui.EndDisabled();
             ImGui.PopID();
-            return nint.Zero;
+            return LingoSDLRenderResult.RequireRender();
         }
 
         public override void Dispose() => base.Dispose();

@@ -74,7 +74,7 @@ public class SdlRootContext : IDisposable, ISdlRootComponentContext
             float delta = (now - last) / 1000f;
             last = now;
             ImGuiViewPort = _imgui.BeginFrame();
-            ImDrawList = ImGui.GetForegroundDrawList();
+            ImDrawList = ImGui.GetWindowDrawList();
 
             DebugOverlay.Update(delta);
             bool f1 = _lPlayer.Key.KeyPressed((int)SDL.SDL_Keycode.SDLK_F1);
@@ -87,7 +87,7 @@ public class SdlRootContext : IDisposable, ISdlRootComponentContext
         Dispose();
     }
 
-    
+
 
     public void Dispose()
     {

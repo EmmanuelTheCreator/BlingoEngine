@@ -60,7 +60,7 @@ namespace LingoEngine.SDL2.Gfx
             if (!Visibility)
                 return nint.Zero;
 
-            ImGui.SetCursorPos(new Vector2(X, Y));
+            ImGui.SetCursorScreenPos(context.Origin + new Vector2(X, Y));
             ImGui.PushID(Name);
             ImGui.BeginChild("##tabs", new Vector2(Width, Height), ImGuiChildFlags.None);
 
@@ -74,7 +74,11 @@ namespace LingoEngine.SDL2.Gfx
                     {
                         _selectedIndex = i;
                         if (tab.Content?.FrameworkObj is SdlGfxComponent comp)
-                            comp.Render(context);
+                        {
+                            var origin = ImGui.GetCursorScreenPos();
+                            var childCtx = new LingoSDLRenderContext(context.Renderer, context.ImGuiViewPort, ImGui.GetWindowDrawList(), origin);
+                            comp.Render(childCtx);
+                        }
                         ImGui.EndTabItem();
                     }
                 }
@@ -83,7 +87,7 @@ namespace LingoEngine.SDL2.Gfx
 
             ImGui.EndChild();
             ImGui.PopID();
-            return nint.Zero;
+            return LingoSDLRenderResult.RequireRender();
         }
 
         public override void Dispose()
@@ -108,6 +112,6 @@ namespace LingoEngine.SDL2.Gfx
 
         public override void Dispose() => base.Dispose();
 
-        public override LingoSDLRenderResult Render(LingoSDLRenderContext context) => nint.Zero;
+        public override LingoSDLRenderResult Render(LingoSDLRenderContext context) => LingoSDLRenderResult.RequireRender();
     }
 }
