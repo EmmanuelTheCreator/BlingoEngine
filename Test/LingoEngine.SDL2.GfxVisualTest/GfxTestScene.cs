@@ -106,7 +106,7 @@ public static class GfxTestScene
 
     private static LingoGfxLabel CreateLabel(ILingoGfxFactory factory, string text)
     {
-        var label = factory.CreateLabel(text.Replace(" ","_"), text);
+        var label = factory.CreateLabel(text.Replace(" ", "_"), text);
         label.FontColor = LingoColorList.LightGray;
         return label;
 

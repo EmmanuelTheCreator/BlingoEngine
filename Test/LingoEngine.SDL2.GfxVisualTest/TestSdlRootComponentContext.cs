@@ -14,10 +14,10 @@ public class TestSdlRootComponentContext : ISdlRootComponentContext, IDisposable
 {
 
 
-// add fields
-private bool _imguiReady;
+    // add fields
+    private bool _imguiReady;
 
-private readonly nint _window;
+    private readonly nint _window;
     public LingoSDLComponentContainer ComponentContainer { get; } = new();
     public nint Renderer { get; }
 
@@ -32,9 +32,10 @@ private readonly nint _window;
     public ImGuiViewportPtr ImGuiViewPort { get; private set; }
     public ImDrawListPtr ImDrawList { get; private set; }
 
+    public nint RegisterTexture(nint sdlTexture) => _imgui.RegisterTexture(sdlTexture);
+
     public TestSdlRootComponentContext()
     {
-        
         SDL.SDL_Init(SDL.SDL_INIT_VIDEO | SDL.SDL_INIT_EVENTS | SDL.SDL_INIT_GAMECONTROLLER | SDL.SDL_INIT_AUDIO);
         SDL_ttf.TTF_Init();
         SDL_image.IMG_Init(SDL_image.IMG_InitFlags.IMG_INIT_PNG);
@@ -81,8 +82,7 @@ private readonly nint _window;
 
             SDL.SDL_SetRenderDrawColor(Renderer, 50, 0, 50, 255);
             SDL.SDL_RenderClear(Renderer);
-
-            ComponentContainer.Render(new LingoSDLRenderContext(Renderer,ImGuiViewPort,ImDrawList, ImGuiViewPort.WorkPos));
+            ComponentContainer.Render(new LingoSDLRenderContext(Renderer, ImGuiViewPort, ImDrawList, ImGuiViewPort.WorkPos));
 
             _imgui.EndFrame();  // draws ImGui on top
 

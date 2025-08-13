@@ -21,6 +21,10 @@ namespace LingoEngine.SDL2.Gfx
         private readonly int _width;
         private readonly int _height;
         private nint _texture;
+        private readonly nint _imguiTexture;
+        private readonly List<Action> _drawActions = new();
+        private LingoColor? _clearColor;
+        private bool _dirty;
         public object FrameworkNode => this;
         public nint Texture => _texture;
 
@@ -33,8 +37,10 @@ namespace LingoEngine.SDL2.Gfx
             _height = height;
             _texture = SDL.SDL_CreateTexture(ComponentContext.Renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
                 (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, width, height);
+            _imguiTexture = factory.RootContext.RegisterTexture(_texture);
             Width = width;
             Height = height;
+            _dirty = true;
         }
 
         private void UseTexture(Action draw)
@@ -45,133 +51,167 @@ namespace LingoEngine.SDL2.Gfx
             SDL.SDL_SetRenderTarget(ComponentContext.Renderer, prev);
         }
 
+        private void MarkDirty() => _dirty = true;
+
         public void Clear(LingoColor color)
         {
-            UseTexture(() =>
-            {
-                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, color.R, color.G, color.B, 255);
-                SDL.SDL_RenderClear(ComponentContext.Renderer);
-            });
+            _drawActions.Clear();
+            _clearColor = color;
+            MarkDirty();
         }
 
         public void SetPixel(LingoPoint point, LingoColor color)
         {
-            UseTexture(() =>
+            var p = point;
+            var c = color;
+            _drawActions.Add(() =>
             {
-                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, color.R, color.G, color.B, 255);
-                SDL.SDL_RenderDrawPointF(ComponentContext.Renderer, point.X, point.Y);
+                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, 255);
+                SDL.SDL_RenderDrawPointF(ComponentContext.Renderer, p.X, p.Y);
             });
+            MarkDirty();
         }
 
         public void DrawLine(LingoPoint start, LingoPoint end, LingoColor color, float width = 1)
         {
-            UseTexture(() =>
+            var s = start;
+            var e = end;
+            var c = color;
+            _drawActions.Add(() =>
             {
-                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, color.R, color.G, color.B, 255);
-                SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, start.X, start.Y, end.X, end.Y);
+                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, 255);
+                SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, s.X, s.Y, e.X, e.Y);
             });
+            MarkDirty();
         }
 
         public void DrawRect(LingoRect rect, LingoColor color, bool filled = true, float width = 1)
         {
-            UseTexture(() =>
+            var rct = new SDL.SDL_Rect
             {
-                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, color.R, color.G, color.B, 255);
-                SDL.SDL_Rect r = new SDL.SDL_Rect
-                {
-                    x = (int)rect.Left,
-                    y = (int)rect.Top,
-                    w = (int)rect.Width,
-                    h = (int)rect.Height
-                };
-                if (filled)
-                    SDL.SDL_RenderFillRect(ComponentContext.Renderer, ref r);
+                x = (int)rect.Left,
+                y = (int)rect.Top,
+                w = (int)rect.Width,
+                h = (int)rect.Height
+            };
+            var c = color;
+            var f = filled;
+            _drawActions.Add(() =>
+            {
+                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, 255);
+                if (f)
+                    SDL.SDL_RenderFillRect(ComponentContext.Renderer, ref rct);
                 else
-                    SDL.SDL_RenderDrawRect(ComponentContext.Renderer, ref r);
+                    SDL.SDL_RenderDrawRect(ComponentContext.Renderer, ref rct);
             });
+            MarkDirty();
         }
 
         public void DrawCircle(LingoPoint center, float radius, LingoColor color, bool filled = true, float width = 1)
         {
-            UseTexture(() =>
+            var ctr = center;
+            var rad = radius;
+            var c = color;
+            var f = filled;
+            _drawActions.Add(() =>
             {
-                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, color.R, color.G, color.B, 255);
-                int segs = (int)(radius * 6);
+                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, 255);
+                int segs = (int)(rad * 6);
                 double step = (Math.PI * 2) / segs;
-                float prevX = center.X + radius;
-                float prevY = center.Y;
+                float prevX = ctr.X + rad;
+                float prevY = ctr.Y;
                 for (int i = 1; i <= segs; i++)
                 {
                     double angle = step * i;
-                    float x = center.X + (float)(radius * Math.Cos(angle));
-                    float y = center.Y + (float)(radius * Math.Sin(angle));
+                    float x = ctr.X + (float)(rad * Math.Cos(angle));
+                    float y = ctr.Y + (float)(rad * Math.Sin(angle));
                     SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, prevX, prevY, x, y);
-                    if (filled)
-                        SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, center.X, center.Y, x, y);
+                    if (f)
+                        SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, ctr.X, ctr.Y, x, y);
                     prevX = x;
                     prevY = y;
                 }
             });
+            MarkDirty();
         }
 
         public void DrawArc(LingoPoint center, float radius, float startDeg, float endDeg, int segments, LingoColor color, float width = 1)
         {
-            UseTexture(() =>
+            var ctr = center;
+            var rad = radius;
+            var sd = startDeg;
+            var ed = endDeg;
+            var segs = segments;
+            var c = color;
+            _drawActions.Add(() =>
             {
-                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, color.R, color.G, color.B, 255);
-                double startRad = startDeg * Math.PI / 180.0;
-                double endRad = endDeg * Math.PI / 180.0;
-                double step = (endRad - startRad) / segments;
-                float prevX = center.X + (float)(radius * Math.Cos(startRad));
-                float prevY = center.Y + (float)(radius * Math.Sin(startRad));
-                for (int i = 1; i <= segments; i++)
+                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, 255);
+                double startRad = sd * Math.PI / 180.0;
+                double endRad = ed * Math.PI / 180.0;
+                double step = (endRad - startRad) / segs;
+                float prevX = ctr.X + (float)(rad * Math.Cos(startRad));
+                float prevY = ctr.Y + (float)(rad * Math.Sin(startRad));
+                for (int i = 1; i <= segs; i++)
                 {
                     double ang = startRad + i * step;
-                    float x = center.X + (float)(radius * Math.Cos(ang));
-                    float y = center.Y + (float)(radius * Math.Sin(ang));
+                    float x = ctr.X + (float)(rad * Math.Cos(ang));
+                    float y = ctr.Y + (float)(rad * Math.Sin(ang));
                     SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, prevX, prevY, x, y);
                     prevX = x;
                     prevY = y;
                 }
             });
+            MarkDirty();
         }
 
         public void DrawPolygon(IReadOnlyList<LingoPoint> points, LingoColor color, bool filled = true, float width = 1)
         {
             if (points.Count < 2) return;
-            UseTexture(() =>
+            var pts = new LingoPoint[points.Count];
+            for (int i = 0; i < points.Count; i++)
+                pts[i] = points[i];
+            var c = color;
+            var f = filled;
+            _drawActions.Add(() =>
             {
-                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, color.R, color.G, color.B, 255);
-                for (int i = 0; i < points.Count - 1; i++)
-                    SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, points[i].X, points[i].Y, points[i + 1].X, points[i + 1].Y);
-                SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, points[^1].X, points[^1].Y, points[0].X, points[0].Y);
-                if (filled)
+                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, 255);
+                for (int i = 0; i < pts.Length - 1; i++)
+                    SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, pts[i].X, pts[i].Y, pts[i + 1].X, pts[i + 1].Y);
+                SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, pts[^1].X, pts[^1].Y, pts[0].X, pts[0].Y);
+                if (f)
                 {
-                    var p0 = points[0];
-                    for (int i = 1; i < points.Count - 1; i++)
+                    var p0 = pts[0];
+                    for (int i = 1; i < pts.Length - 1; i++)
                     {
-                        SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, p0.X, p0.Y, points[i].X, points[i].Y);
-                        SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, p0.X, p0.Y, points[i + 1].X, points[i + 1].Y);
+                        SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, p0.X, p0.Y, pts[i].X, pts[i].Y);
+                        SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, p0.X, p0.Y, pts[i + 1].X, pts[i + 1].Y);
                     }
                 }
             });
+            MarkDirty();
         }
 
         public void DrawText(LingoPoint position, string text, string? font = null, LingoColor? color = null, int fontSize = 12, int width = -1, LingoTextAlignment alignment = default)
         {
-            UseTexture(() =>
+            var pos = position;
+            var txt = text;
+            var fntName = font;
+            var col = color;
+            var fs = fontSize;
+            var w = width;
+            _drawActions.Add(() =>
             {
-                var path = _fontManager.Get<string>(font ?? string.Empty);
+                var path = _fontManager.Get<string>(fntName ?? string.Empty);
                 if (string.IsNullOrEmpty(path)) return;
-                nint fnt = SDL_ttf.TTF_OpenFont(path, fontSize);
+                nint fnt = SDL_ttf.TTF_OpenFont(path, fs);
                 if (fnt == nint.Zero) return;
-                SDL.SDL_Color c = new SDL.SDL_Color { r = color?.R ?? 0, g = color?.G ?? 0, b = color?.B ?? 0, a = 255 };
+                SDL.SDL_Color c = new SDL.SDL_Color { r = col?.R ?? 0, g = col?.G ?? 0, b = col?.B ?? 0, a = 255 };
 
                 string RenderLine(string line)
                 {
-                    if (width >= 0)
+                    if (w >= 0)
                     {
-                        while (line.Length > 0 && SDL_ttf.TTF_SizeUTF8(fnt, line, out int w, out _) == 0 && w > width)
+                        while (line.Length > 0 && SDL_ttf.TTF_SizeUTF8(fnt, line, out int tw, out _) == 0 && tw > w)
                         {
                             line = line.Substring(0, line.Length - 1);
                         }
@@ -179,7 +219,7 @@ namespace LingoEngine.SDL2.Gfx
                     return line;
                 }
 
-                string[] lines = text.Split('\n');
+                string[] lines = txt.Split('\n');
                 List<(nint surf, int w, int h)> surfaces = new();
                 foreach (var ln in lines)
                 {
@@ -190,64 +230,76 @@ namespace LingoEngine.SDL2.Gfx
                     surfaces.Add((s, sur.w, sur.h));
                 }
 
-                int y = (int)position.Y;
-                foreach (var (s, w, h) in surfaces)
+                int y = (int)pos.Y;
+                foreach (var (s, tw, th) in surfaces)
                 {
                     nint tex = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, s);
                     if (tex != nint.Zero)
                     {
-                        SDL.SDL_Rect dst = new SDL.SDL_Rect { x = (int)position.X, y = y, w = w, h = h };
+                        SDL.SDL_Rect dst = new SDL.SDL_Rect { x = (int)pos.X, y = y, w = tw, h = th };
                         SDL.SDL_RenderCopy(ComponentContext.Renderer, tex, nint.Zero, ref dst);
                         SDL.SDL_DestroyTexture(tex);
                     }
                     SDL.SDL_FreeSurface(s);
-                    y += h;
+                    y += th;
                 }
 
                 SDL_ttf.TTF_CloseFont(fnt);
             });
+            MarkDirty();
         }
 
         public void DrawPicture(byte[] data, int width, int height, LingoPoint position, LingoPixelFormat format)
         {
-            UseTexture(() =>
+            var dat = data;
+            var w = width;
+            var h = height;
+            var pos = position;
+            var fmt = format;
+            _drawActions.Add(() =>
             {
-                format.GetMasks(out uint rmask, out uint gmask, out uint bmask, out uint amask, out int bpp);
-                var handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-                nint surf = SDL.SDL_CreateRGBSurfaceFrom(handle.AddrOfPinnedObject(), width, height, bpp, width * (bpp / 8), rmask, gmask, bmask, amask);
+                fmt.GetMasks(out uint rmask, out uint gmask, out uint bmask, out uint amask, out int bpp);
+                var handle = GCHandle.Alloc(dat, GCHandleType.Pinned);
+                nint surf = SDL.SDL_CreateRGBSurfaceFrom(handle.AddrOfPinnedObject(), w, h, bpp, w * (bpp / 8), rmask, gmask, bmask, amask);
                 if (surf == nint.Zero) { handle.Free(); return; }
                 nint tex = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, surf);
                 if (tex != nint.Zero)
                 {
-                    SDL.SDL_Rect dst = new SDL.SDL_Rect { x = (int)position.X, y = (int)position.Y, w = width, h = height };
+                    SDL.SDL_Rect dst = new SDL.SDL_Rect { x = (int)pos.X, y = (int)pos.Y, w = w, h = h };
                     SDL.SDL_RenderCopy(ComponentContext.Renderer, tex, nint.Zero, ref dst);
                     SDL.SDL_DestroyTexture(tex);
                 }
                 SDL.SDL_FreeSurface(surf);
                 handle.Free();
             });
+            MarkDirty();
         }
         public void DrawPicture(ILingoImageTexture texture, int width, int height, LingoPoint position)
         {
-            UseTexture(() =>
+            var tex = texture;
+            var w = width;
+            var h = height;
+            var pos = position;
+            _drawActions.Add(() =>
             {
-                if (texture is SdlImageTexture img)
+                if (tex is SdlImageTexture img)
                 {
-                    nint tex = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, img.SurfaceId);
-                    if (tex != nint.Zero)
+                    nint sdlTex = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, img.SurfaceId);
+                    if (sdlTex != nint.Zero)
                     {
                         SDL.SDL_Rect dst = new SDL.SDL_Rect
                         {
-                            x = (int)position.X,
-                            y = (int)position.Y,
-                            w = width,
-                            h = height
+                            x = (int)pos.X,
+                            y = (int)pos.Y,
+                            w = w,
+                            h = h
                         };
-                        SDL.SDL_RenderCopy(ComponentContext.Renderer, tex, nint.Zero, ref dst);
-                        SDL.SDL_DestroyTexture(tex);
+                        SDL.SDL_RenderCopy(ComponentContext.Renderer, sdlTex, nint.Zero, ref dst);
+                        SDL.SDL_DestroyTexture(sdlTex);
                     }
                 }
             });
+            MarkDirty();
         }
 
         public override void Dispose()
@@ -267,10 +319,23 @@ namespace LingoEngine.SDL2.Gfx
 
             ComponentContext.Renderer = context.Renderer;
 
+            if (_dirty)
+            {
+                UseTexture(() =>
+                {
+                    var clear = _clearColor ?? new LingoColor(0, 0, 0);
+                    SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, clear.R, clear.G, clear.B, 255);
+                    SDL.SDL_RenderClear(ComponentContext.Renderer);
+                    foreach (var action in _drawActions)
+                        action();
+                });
+                _dirty = false;
+            }
+
             var screenPos = context.Origin + new Vector2(X, Y);
             ImGui.SetCursorScreenPos(screenPos);
             ImGui.PushID(Name);
-            ImGui.Image(_texture, new Vector2(Width, Height));
+            ImGui.Image(_imguiTexture, new Vector2(Width, Height));
             ImGui.PopID();
 
             return LingoSDLRenderResult.RequireRender();
