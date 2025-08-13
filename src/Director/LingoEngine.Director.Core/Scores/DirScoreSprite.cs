@@ -3,6 +3,7 @@ using LingoEngine.Sprites;
 using LingoEngine.Primitives;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.Tools;
+using System.Linq;
 
 namespace LingoEngine.Director.Core.Scores
 {
@@ -65,6 +66,9 @@ namespace LingoEngine.Director.Core.Scores
         internal int DragStartEndFrame => _dragStartEndFrame;
 
         private IEnumerable<int>? _KeyFrames;
+        private bool _dragKeyFrame;
+        private int _dragKeyFrameStart;
+        private int _dragKeyFramePreview;
 
         public DirScoreSprite(LingoSprite sprite, IDirSpritesManager spritesManager)
         {
@@ -153,15 +157,25 @@ namespace LingoEngine.Director.Core.Scores
             var keyFrames = Sprite2D?.GetKeyframes();
             if (keyFrames != null)
             {
-                foreach (var keyFrame in keyFrames)
+                _KeyFrames = keyFrames.Select(x => x.Frame).ToArray();
+                foreach (var keyFrame in _KeyFrames)
                 {
-                    if (keyFrame.Frame == Sprite.BeginFrame || keyFrame.Frame == Sprite.EndFrame)
+                    if (keyFrame == Sprite.BeginFrame || keyFrame == Sprite.EndFrame)
                         continue; // already drawn
-                    var keyframeCenter = new LingoPoint(X + 3f + (keyFrame.Frame - Sprite.BeginFrame)*frameWidth, OffsetY + Height / 2f);
-                    canvas.DrawCircle(keyframeCenter, radius, ColorCircle);
+                    var centerX = X + 3f + (keyFrame - Sprite.BeginFrame) * frameWidth;
+                    var keyframeCenter = new LingoPoint(centerX, OffsetY + Height / 2f);
+                    var color = ColorCircle;
+                    if (_dragKeyFrame && keyFrame == _dragKeyFrameStart && _dragKeyFrameStart != _dragKeyFramePreview)
+                        color = ColorCircle.Lighten(0.5f);
+                    canvas.DrawCircle(keyframeCenter, radius, color);
                     canvas.DrawArc(keyframeCenter, radius, 0, 360, 8, ColorCircleBorder);
                 }
-                _KeyFrames = keyFrames.Select(x => x.Frame).ToArray();
+                if (_dragKeyFrame && _dragKeyFrameStart != _dragKeyFramePreview)
+                {
+                    var previewCenter = new LingoPoint(X + 3f + (_dragKeyFramePreview - Sprite.BeginFrame) * frameWidth, OffsetY + Height / 2f);
+                    canvas.DrawCircle(previewCenter, radius, ColorCircle);
+                    canvas.DrawArc(previewCenter, radius, 0, 360, 8, ColorCircleBorder);
+                }
             }
             else
             {
@@ -241,6 +255,42 @@ namespace LingoEngine.Director.Core.Scores
             _dragStartBeginFrame = Sprite.BeginFrame;
             _dragStartEndFrame = Sprite.EndFrame;
             _dragStartChannel = Sprite.SpriteNumWithChannel;
+        }
+
+        internal bool IsKeyFrame(int frame)
+        {
+            if (_KeyFrames == null && Sprite2D != null)
+                _KeyFrames = Sprite2D.GetKeyframes()?.Select(k => k.Frame).ToArray();
+            return _KeyFrames != null && _KeyFrames.Contains(frame);
+        }
+
+        internal void PrepareKeyFrameDragging(int frame)
+        {
+            _dragKeyFrame = true;
+            _dragKeyFrameStart = frame;
+            _dragKeyFramePreview = frame;
+        }
+
+        internal void DragKeyFrame(int frame)
+        {
+            if (!_dragKeyFrame || _KeyFrames == null)
+                return;
+            if (frame <= Sprite.BeginFrame || frame >= Sprite.EndFrame)
+                return;
+            if (_KeyFrames.Contains(frame))
+                return;
+            _dragKeyFramePreview = frame;
+            RequireRedraw();
+        }
+
+        internal void StopKeyFrameDragging()
+        {
+            if (!_dragKeyFrame)
+                return;
+            if (_dragKeyFramePreview != _dragKeyFrameStart && Sprite2D != null)
+                Sprite2D.MoveKeyFrame(_dragKeyFrameStart, _dragKeyFramePreview);
+            _dragKeyFrame = false;
+            RequireRedraw();
         }
 
 
