@@ -13,5 +13,7 @@ public interface ISdlRootComponentContext
     LingoMouse LingoMouse { get; }
     LingoKey LingoKey { get; }
 
+    nint RegisterTexture(nint sdlTexture);
+
     LingoPoint GetWindowSize();
 }

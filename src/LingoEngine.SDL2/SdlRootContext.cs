@@ -34,6 +34,8 @@ public class SdlRootContext : IDisposable, ISdlRootComponentContext
     public ImGuiViewportPtr ImGuiViewPort { get; private set; } = new ImGuiViewportPtr(nint.Zero);
     public ImDrawListPtr ImDrawList { get; private set; } = new ImDrawListPtr(nint.Zero);
 
+    public nint RegisterTexture(nint sdlTexture) => _imgui.RegisterTexture(sdlTexture);
+
     public SdlRootContext(nint window, nint renderer)
     {
         Window = window;
