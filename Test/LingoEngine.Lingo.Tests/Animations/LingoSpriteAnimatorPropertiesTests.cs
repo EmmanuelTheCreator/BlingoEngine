@@ -45,6 +45,21 @@ public class LingoSpriteAnimatorPropertiesTests
     }
 
     [Fact]
+    public void MoveKeyFrame_OverExisting_ReplacesDestination()
+    {
+        var props = new LingoSpriteAnimatorProperties();
+        props.AddKeyFrame(new LingoKeyFrameSetting(5, position: new LingoPoint(10, 20)));
+        props.AddKeyFrame(new LingoKeyFrameSetting(8, position: new LingoPoint(30, 40)));
+
+        props.MoveKeyFrame(5, 8);
+
+        Assert.Single(props.Position.KeyFrames);
+        Assert.Contains(props.Position.KeyFrames, k => k.Frame == 8 && k.Value.Equals(new LingoPoint(10, 20)));
+        Assert.Single(props.GetKeyFrames()!);
+        Assert.Contains(props.GetKeyFrames()!, k => k.Frame == 8);
+    }
+
+    [Fact]
     public void DeleteKeyFrame_RemovesData()
     {
         var props = new LingoSpriteAnimatorProperties();
