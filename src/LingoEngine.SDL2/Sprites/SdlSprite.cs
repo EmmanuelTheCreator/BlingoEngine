@@ -25,6 +25,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
     internal bool IsDirtyMember { get; set; } = true;
 
     private nint _texture = nint.Zero;
+    private bool _textureOwned;
 
     private readonly SdlFactory _factory;
 
@@ -162,11 +163,10 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
     public void Dispose()
     {
         ComponentContext.Dispose();
-        if (_texture != nint.Zero)
-        {
+        if (_textureOwned && _texture != nint.Zero)
             SDL.SDL_DestroyTexture(_texture);
-            _texture = nint.Zero;
-        }
+        _texture = nint.Zero;
+        _textureOwned = false;
     }
     public void Show()
     {
@@ -241,20 +241,18 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
     private void UpdateMember()
     {
         IsDirtyMember = false;
+        if (_textureOwned && _texture != nint.Zero)
+            SDL.SDL_DestroyTexture(_texture);
+        _texture = nint.Zero;
+        _textureOwned = false;
+
         switch (_lingoSprite.Member)
         {
             case LingoMemberBitmap pic:
                 var p = pic.Framework<SdlMemberBitmap>();
                 p.Preload();
-                if (_texture != nint.Zero)
-                {
-                    SDL.SDL_DestroyTexture(_texture);
-                    _texture = nint.Zero;
-                }
-
                 if (p.Surface != nint.Zero)
                 {
-
                     var texInk = p.GetTextureForInk(_lingoSprite.InkType, _lingoSprite.BackColor, ComponentContext.Renderer);
                     if (texInk != nint.Zero)
                     {
@@ -267,6 +265,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
                         _texture = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, p.Surface);
                         if (_texture != nint.Zero)
                         {
+                            _textureOwned = true;
                             Width = p.Width;
                             Height = p.Height;
                         }
@@ -277,10 +276,6 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
                 var fl = flm.Framework<SdlMemberFilmLoop>();
                 if (fl.Texture is SdlTexture2D tex && tex.Texture != nint.Zero)
                 {
-                    if (_texture != nint.Zero && _texture != tex.Texture)
-                    {
-                        SDL.SDL_DestroyTexture(_texture);
-                    }
                     _texture = tex.Texture;
                     Width = tex.Width;
                     Height = tex.Height;
@@ -295,16 +290,15 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
             case LingoMemberShape shape:
                 var sh = shape.Framework<SdlMemberShape>();
                 sh.Preload();
-                if (_texture != nint.Zero)
-                {
-                    SDL.SDL_DestroyTexture(_texture);
-                    _texture = nint.Zero;
-                }
                 if (sh.Surface != nint.Zero)
                 {
                     _texture = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, sh.Surface);
-                    Width = sh.Width;
-                    Height = sh.Height;
+                    if (_texture != nint.Zero)
+                    {
+                        _textureOwned = true;
+                        Width = sh.Width;
+                        Height = sh.Height;
+                    }
                 }
                 break;
         }
@@ -359,7 +353,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
     private void ApplyBlend()
     {
         //ComponentContext.Blend = _directToStage ? 1f : _blend;
-        ComponentContext.Blend =  _directToStage ? 1f : _blend/100;
+        ComponentContext.Blend = _directToStage ? 1f : _blend / 100;
     }
 
     private void UpdateContextPosition()
