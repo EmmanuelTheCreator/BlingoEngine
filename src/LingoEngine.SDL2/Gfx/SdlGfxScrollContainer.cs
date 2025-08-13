@@ -53,11 +53,7 @@ namespace LingoEngine.SDL2.Gfx
             // child origin for nested components
             var scroll = new Vector2(ImGui.GetScrollX(), ImGui.GetScrollY());
             var childOrigin = ImGui.GetCursorScreenPos() - scroll;
-            var childCtx = new LingoSDLRenderContext(
-                context.Renderer,
-                context.ImGuiViewPort,
-                ImGui.GetWindowDrawList(),
-                childOrigin);
+            var childCtx = context.CreateNew(childOrigin);
 
             // render children & measure content extents
             float maxX = 0, maxY = 0;

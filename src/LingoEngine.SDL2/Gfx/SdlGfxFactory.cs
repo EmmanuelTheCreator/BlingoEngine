@@ -3,6 +3,7 @@ using LingoEngine.Bitmaps;
 using LingoEngine.Gfx;
 using LingoEngine.Inputs;
 using LingoEngine.Primitives;
+using LingoEngine.SDL2.Styles;
 using LingoEngine.Styles;
 
 namespace LingoEngine.SDL2.Gfx
@@ -13,11 +14,11 @@ namespace LingoEngine.SDL2.Gfx
     public class SdlGfxFactory : ILingoGfxFactory
     {
         private readonly ISdlRootComponentContext _rootContext;
-        private readonly ILingoFontManager _fontManager;
+        private readonly SdlFontManager _fontManager;
 
         public ISdlRootComponentContext RootContext => _rootContext;
 
-        public SdlGfxFactory(ISdlRootComponentContext rootContext, ILingoFontManager fontManager)
+        public SdlGfxFactory(ISdlRootComponentContext rootContext, SdlFontManager fontManager)
         {
             _rootContext = rootContext;
             _fontManager = fontManager;
@@ -27,7 +28,7 @@ namespace LingoEngine.SDL2.Gfx
             => new(_rootContext.ComponentContainer, component, parent) { Renderer = _rootContext.Renderer };
 
         internal LingoSDLRenderContext CreateRenderContext(ILingoSDLComponent? component = null)
-            => new(_rootContext.Renderer, _rootContext.ImGuiViewPort, _rootContext.ImDrawList, _rootContext.ImGuiViewPort.WorkPos);
+            => new(_rootContext.Renderer, _rootContext.ImGuiViewPort, _rootContext.ImDrawList, _rootContext.ImGuiViewPort.WorkPos, (SdlFontManager) _fontManager);
 
         public LingoGfxCanvas CreateGfxCanvas(string name, int width, int height)
         {

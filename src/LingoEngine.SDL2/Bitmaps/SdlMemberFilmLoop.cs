@@ -105,6 +105,7 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
     /// <returns>The composed texture for rendering.</returns>
     public ILingoTexture2D ComposeTexture(ILingoSprite2DLight hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers)
     {
+        return Texture ?? new SdlTexture2D(nint.Zero, 0, 0);
         //var sdlSprite = hostSprite.FrameworkObj as SdlSprite;
         //if (sdlSprite == null)
         //    return Texture ?? new SdlTexture2D(nint.Zero, 0, 0);
