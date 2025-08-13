@@ -99,7 +99,7 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
     /// <inheritdoc/>
     public LingoFilmLoopMember CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
     {
-        var impl = new SdlMemberFilmLoop();
+        var impl = new SdlMemberFilmLoop(_rootContext);
         var member = new LingoFilmLoopMember(impl, (LingoCast)cast, numberInCast, name, fileName ?? "", regPoint);
         impl.Init(member);
         _disposables.Add(impl);

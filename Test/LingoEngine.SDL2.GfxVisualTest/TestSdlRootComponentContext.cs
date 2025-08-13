@@ -1,6 +1,9 @@
+using LingoEngine.Inputs;
 using LingoEngine.Primitives;
 using LingoEngine.SDL2;
+using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.SDLL;
+using LingoEngine.Stages;
 
 namespace LingoEngine.SDL2.GfxVisualTest;
 
@@ -10,8 +13,15 @@ public class TestSdlRootComponentContext : ISdlRootComponentContext, IDisposable
     public LingoSDLComponentContainer ComponentContainer { get; } = new();
     public nint Renderer { get; }
 
+    public SdlMouse Mouse { get; set; }
+    public LingoMouse LingoMouse { get; set; }
+
+    internal SdlKey Key { get; set; } = new Inputs.SdlKey();
+    public LingoKey LingoKey { get; set; } 
+
     public TestSdlRootComponentContext()
     {
+        
         SDL.SDL_Init(SDL.SDL_INIT_VIDEO | SDL.SDL_INIT_EVENTS | SDL.SDL_INIT_GAMECONTROLLER | SDL.SDL_INIT_AUDIO);
         SDL_ttf.TTF_Init();
         SDL_image.IMG_Init(SDL_image.IMG_InitFlags.IMG_INIT_PNG);
@@ -21,6 +31,9 @@ public class TestSdlRootComponentContext : ISdlRootComponentContext, IDisposable
         Renderer = SDL.SDL_CreateRenderer(_window, -1,
             SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED | SDL.SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC);
         SDL.SDL_RenderSetLogicalSize(Renderer, 800, 600);
+        CreateMouse();
+        LingoKey = new LingoKey(Key);
+        Key.SetLingoKey(LingoKey);
     }
 
     public void Run()
@@ -41,6 +54,16 @@ public class TestSdlRootComponentContext : ISdlRootComponentContext, IDisposable
 
             SDL.SDL_RenderPresent(Renderer);
         }
+    }
+
+    public LingoMouse CreateMouse()
+    {
+        Mouse = new SdlMouse(new Lazy<LingoMouse>(() => LingoMouse));
+        var mouseImpl = Mouse;
+        var mouse = new LingoMouse(mouseImpl);
+        mouseImpl.SetLingoMouse(mouse);
+        LingoMouse = mouse;
+        return mouse;
     }
 
     public void Dispose()

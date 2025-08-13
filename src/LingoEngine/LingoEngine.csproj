@@ -23,4 +23,8 @@
     <Folder Include="Scores\Commands\" />
   </ItemGroup>
 
+	<ItemGroup>
+		<InternalsVisibleTo Include="LingoEngine.SDL2.GfxVisualTest" />
+		<InternalsVisibleTo Include="LingoEngine.Lingo.Tests" />
+	</ItemGroup>
 </Project>

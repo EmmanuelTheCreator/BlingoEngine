@@ -21,6 +21,7 @@ namespace LingoEngine.SDL2.Pictures;
 /// </summary>
 public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
 {
+    ISdlRootComponentContext _sdlRootContext;
     private LingoFilmLoopMember _member = null!;
     public bool IsLoaded { get; private set; }
     public byte[]? Media { get; set; }
@@ -28,6 +29,12 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
     public LingoPoint Offset { get; private set; }
     public LingoFilmLoopFraming Framing { get; set; } = LingoFilmLoopFraming.Auto;
     public bool Loop { get; set; } = true;
+
+
+    public SdlMemberFilmLoop(ISdlRootComponentContext sdlRootContext)
+    {
+        _sdlRootContext = sdlRootContext;
+    }
 
     /// <summary>Initializes the film loop with its owning member.</summary>
     internal void Init(LingoFilmLoopMember member)
@@ -95,11 +102,11 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
     /// <see cref="LingoFilmLoopComposer"/> for layout and transforms.
     /// </summary>
     /// <returns>The composed texture for rendering.</returns>
-    public ILingoTexture2D ComposeTexture(LingoSprite2D hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers)
+    public ILingoTexture2D ComposeTexture(ILingoSprite2DLight hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers)
     {
-        var sdlSprite = hostSprite.FrameworkObj as SdlSprite;
-        if (sdlSprite == null)
-            return Texture ?? new SdlTexture2D(nint.Zero, 0, 0);
+        //var sdlSprite = hostSprite.FrameworkObj as SdlSprite;
+        //if (sdlSprite == null)
+        //    return Texture ?? new SdlTexture2D(nint.Zero, 0, 0);
 
         var prep = LingoFilmLoopComposer.Prepare(_member, Framing, layers);
         Offset = prep.Offset;
@@ -143,7 +150,7 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
         if (Texture is SdlTexture2D oldTex && oldTex.Texture != nint.Zero)
             SDL.SDL_DestroyTexture(oldTex.Texture);
 
-        nint texture = SDL.SDL_CreateTextureFromSurface(sdlSprite.ComponentContext.Renderer, surface);
+        nint texture = SDL.SDL_CreateTextureFromSurface(_sdlRootContext.Renderer, surface);
         SDL.SDL_FreeSurface(surface);
         Texture = new SdlTexture2D(texture, width, height);
         return Texture;
@@ -206,4 +213,6 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
     }
 
     public void Dispose() { Unload(); }
+
+   
 }

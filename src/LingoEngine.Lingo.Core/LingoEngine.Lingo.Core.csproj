@@ -6,5 +6,9 @@
     <LangVersion>12</LangVersion>
     <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
-
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>LingoEngine.Lingo.Core.Tests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
 </Project>
