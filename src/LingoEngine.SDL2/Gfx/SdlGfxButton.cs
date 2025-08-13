@@ -25,9 +25,8 @@ namespace LingoEngine.SDL2.Gfx
         {
             if (!Visibility) return nint.Zero;
 
-            //ImGui.SetCursorPos(new Vector2(X, Y));
-            var vpPos = context.ImGuiViewPort.WorkPos;
-            var basePos = vpPos + new Vector2(X, Y);
+            var basePos = context.Origin + new Vector2(X, Y);
+            ImGui.SetCursorScreenPos(basePos);
             ImGui.PushID(Name);
             if (!Enabled)
                 ImGui.BeginDisabled();

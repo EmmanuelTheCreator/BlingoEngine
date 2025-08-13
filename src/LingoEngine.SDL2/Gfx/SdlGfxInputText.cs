@@ -37,9 +37,8 @@ namespace LingoEngine.SDL2.Gfx
         {
             if (!Visibility) return nint.Zero;
 
-            // place relative to overlay screen
-            var basePos = context.ImGuiViewPort.WorkPos;
-            ImGui.SetCursorScreenPos(basePos + new Vector2(X, Y));
+            // place relative to current context origin
+            ImGui.SetCursorScreenPos(context.Origin + new Vector2(X, Y));
 
             if (Width > 0) ImGui.SetNextItemWidth(Width);
 

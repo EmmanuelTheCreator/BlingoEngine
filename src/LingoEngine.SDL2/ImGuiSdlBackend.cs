@@ -47,7 +47,7 @@ namespace LingoEngine.SDL2
         {
             NewFrame();
             var imGuiViewPort = ImGui.GetMainViewport();
-            
+
             ImGui.SetNextWindowPos(imGuiViewPort.WorkPos);
             ImGui.SetNextWindowSize(imGuiViewPort.WorkSize);
             const ImGuiWindowFlags overlayFlags =
@@ -152,7 +152,8 @@ namespace LingoEngine.SDL2
         {
             ImGui.End();
             ImGui.PopStyleVar();
-            Render();           
+            Render();
+            SDL_RenderPresent(_renderer);
         }
 
         public void Render()
@@ -278,6 +279,6 @@ namespace LingoEngine.SDL2
             if (scan == ev) io.AddKeyEvent(imguiKey, down);
         }
 
-       
+
     }
 }
