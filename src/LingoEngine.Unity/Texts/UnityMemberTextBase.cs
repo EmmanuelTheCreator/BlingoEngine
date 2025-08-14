@@ -1,4 +1,5 @@
 using System.IO;
+using LingoEngine.Bitmaps;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Styles;
@@ -39,6 +40,8 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
     public int Width { get; set; }
     public int Height { get; set; }
 
+    public ILingoTexture2D? TextureLingo => throw new NotImplementedException();
+
     public void Copy(string text) { }
     public string PasteClipboard() => string.Empty;
 
@@ -58,4 +61,9 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
     public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
 
     public void Dispose() { }
+
+    public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+    {
+        throw new NotImplementedException();
+    }
 }

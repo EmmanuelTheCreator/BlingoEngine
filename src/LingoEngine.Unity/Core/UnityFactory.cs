@@ -166,7 +166,7 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
     public LingoGfxColorPicker CreateColorPicker(string name, Action<LingoColor>? onChange = null) => throw new NotImplementedException();
     public LingoGfxLabel CreateLabel(string name, string text = "") => throw new NotImplementedException();
     public LingoGfxButton CreateButton(string name, string text = "") => throw new NotImplementedException();
-    public LingoGfxStateButton CreateStateButton(string name, ILingoImageTexture? texture = null, string text = "", Action<bool>? onChange = null) => throw new NotImplementedException();
+    public LingoGfxStateButton CreateStateButton(string name, ILingoTexture2D? texture = null, string text = "", Action<bool>? onChange = null) => throw new NotImplementedException();
     public LingoGfxMenu CreateMenu(string name) => throw new NotImplementedException();
     public LingoGfxMenuItem CreateMenuItem(string name, string? shortcut = null) => throw new NotImplementedException();
     public LingoGfxMenu CreateContextMenu(object window) => throw new NotImplementedException();

@@ -1,5 +1,6 @@
 using LingoEngine.Bitmaps;
 using LingoEngine.Members;
+using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Tools;
 using System;
@@ -12,7 +13,7 @@ public class UnityMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
 {
     private LingoMemberBitmap _member = null!;
     private Texture2D? _texture;
-    private UnityImageTexture? _textureWrapper;
+    private UnityTexture2D? _textureWrapper;
 
     public byte[]? ImageData { get; private set; }
     public string Format { get; private set; } = "image/unknown";
@@ -20,8 +21,9 @@ public class UnityMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
     public int Height { get; private set; }
     public bool IsLoaded { get; private set; }
 
-    public ILingoImageTexture? Texture => _textureWrapper;
     internal Texture2D? TextureUnity => _texture;
+
+    public ILingoTexture2D? TextureLingo => _textureWrapper;
 
     internal void Init(LingoMemberBitmap member)
     {
@@ -72,7 +74,7 @@ public class UnityMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
         _texture.LoadImage(bytes);
         Width = _texture.width;
         Height = _texture.height;
-        _textureWrapper = new UnityImageTexture(_texture);
+        _textureWrapper = new UnityTexture2D(_texture);
         _member.Size = bytes.Length;
         _member.Width = Width;
         _member.Height = Height;
@@ -89,4 +91,9 @@ public class UnityMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
     }
 
     public void Dispose() => Unload();
+
+    public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+    {
+        throw new NotImplementedException();
+    }
 }

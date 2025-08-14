@@ -25,7 +25,7 @@ public class SdlFontManager : ILingoFontManager
     public void LoadAll()
     {
         if (_loadedFonts.Count == 0)
-            _loadedFonts.Add("default", new LingoSdlFont(this, "Tahoma.ttf")); // default font
+            _loadedFonts.Add("default", new LingoSdlFont(this,"Fonts\\Tahoma.ttf")); // default font
         foreach (var font in _fontsToLoad)
             _loadedFonts[font.Name] = new LingoSdlFont(this, font.Name); // placeholder
 
