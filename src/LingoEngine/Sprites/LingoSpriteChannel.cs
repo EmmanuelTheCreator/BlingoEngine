@@ -26,11 +26,7 @@ namespace LingoEngine.Sprites
     /// </summary>
     public interface ILingoSpriteChannel : ILingoSprite
     {
-        /// <summary>
-        ///  identifies the name of a sprite channel. Read/write during a Score recording session only.
-        ///  Set the name of a sprite channel during a Score recording session—between calls to the Movie object’s beginRecording() and endRecording() methods.
-        /// </summary>
-        string Name { get; set; }
+       
 
         /// <summary>
         /// Returns the number of a sprite channel. 
@@ -46,7 +42,6 @@ namespace LingoEngine.Sprites
         /// Gets the <see cref="LingoSprite2D"/> currently assigned to the sprite channel.
         /// </summary>
         ILingoSprite? Sprite { get; }
-        bool Puppet { get; set; }
 
         /// <summary>
         /// Has a loaded sprite in the timeline on this channel
@@ -68,6 +63,8 @@ namespace LingoEngine.Sprites
 
     public class LingoSpriteChannel : ILingoSpriteChannel
     {
+        private bool _puppet;
+        private readonly LingoMovie _movie;
         private bool _visibility = true;
         private ILingoSprite? _sprite;
         /// <inheritdoc/>
@@ -84,36 +81,7 @@ namespace LingoEngine.Sprites
                 if (_sprite != null) _sprite.Visibility = value;
             }
         }
-        /// <inheritdoc/>
-        public ILingoSprite? Sprite => _sprite;
-
-        public LingoSpriteChannel(int number)
-        {
-            Number = number;
-        }
-        internal void SetSprite(LingoSprite2D sprite)
-        {
-            _sprite = sprite;
-            sprite.SpriteChannel = this;
-            _sprite.Visibility = _visibility;
-        }
-        internal void RemoveSprite()
-        {
-            _sprite = null;
-        }
-
-
-        /// <inheritdoc/>
-        public void MakeScriptedSprite(LingoMember? member = null, LingoPoint? loc = null)
-        {
-            Scripted = true;
-        }
-        /// <inheritdoc/>
-        public void RemoveScriptedSprite()
-        {
-            Scripted = false;
-        }
-
+        #region Properties proxy
 
         // Let it crach when there is no sprite set.
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
@@ -167,7 +135,77 @@ namespace LingoEngine.Sprites
 
         public int MemberNum => _sprite.MemberNum;
 
-        public bool Puppet { get => _sprite.Puppet; set => _sprite.Puppet = value; }
+
+        #endregion
+
+
+        /// <inheritdoc/>
+        public ILingoSprite? Sprite => _sprite;
+
+        public LingoSpriteChannel(int number, LingoMovie movie)
+        {
+            Number = number;
+            _movie = movie;
+        }
+
+        
+
+        public bool Puppet
+        {
+            get => _puppet;
+            set
+            {
+                _puppet = value;
+                Scripted = value; // if puppet is set, we are scripted
+                if (value)
+                {
+                    if (_sprite == null)
+                    {
+                        _sprite = _movie.AddSprite(Number, 1, _movie.FrameCount, 0, 0);
+                        _sprite.Puppet = value;
+                    }
+                }
+                else
+                {
+                    if (_sprite != null)
+                    {
+                        var typed = ((LingoSprite)_sprite);
+                        typed.DoEndSprite();
+                        typed.RemoveMe();
+                        //_movie.RemoveSprite(_sprite);
+                        _sprite = null;
+                    }
+                }
+            }
+        }
+
+        internal void SetSprite(LingoSprite2D sprite)
+        {
+            _sprite = sprite;
+            sprite.SpriteChannel = this;
+            _sprite.Visibility = _visibility;
+        }
+        internal void RemoveSprite()
+        {
+            _sprite = null;
+        }
+
+
+        /// <inheritdoc/>
+        public void MakeScriptedSprite(LingoMember? member = null, LingoPoint? loc = null)
+        {
+            Scripted = true;
+        }
+        /// <inheritdoc/>
+        public void RemoveScriptedSprite()
+        {
+            Scripted = false;
+        }
+
+
+       
+
+        
 
         public ILingoSprite SetMember(int memberNumber, int? castLibNum = null) => _sprite.SetMember(memberNumber, castLibNum);
         public ILingoSprite SetMember(string memberName, int? castLibNum = null) => _sprite.SetMember(memberName, castLibNum);

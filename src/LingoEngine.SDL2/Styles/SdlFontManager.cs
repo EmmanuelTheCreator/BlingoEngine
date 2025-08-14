@@ -25,9 +25,9 @@ public class SdlFontManager : ILingoFontManager
     public void LoadAll()
     {
         if (_loadedFonts.Count == 0)
-            _loadedFonts.Add("default", new LingoSdlFont(this,"Fonts\\Tahoma.ttf")); // default font
+            _loadedFonts.Add("Tahoma", new LingoSdlFont(this, "Tahoma", "Fonts\\Tahoma.ttf")); // default font
         foreach (var font in _fontsToLoad)
-            _loadedFonts[font.Name] = new LingoSdlFont(this, font.Name); // placeholder
+            _loadedFonts[font.Name] = new LingoSdlFont(this, font.Name, font.FileName); // placeholder
 
         _fontsToLoad.Clear();
         InitFonts();
@@ -37,7 +37,7 @@ public class SdlFontManager : ILingoFontManager
         => _loadedFonts.TryGetValue(name, out var f) ? f as T : null;
     public ISdlFontLoadedByUser GetTyped(object fontUser, string? name, int fontSize)
     {
-        if (string.IsNullOrEmpty(name)) return _loadedFonts["default"].Get(fontUser,fontSize);
+        if (string.IsNullOrEmpty(name)) return _loadedFonts["Tahoma"].Get(fontUser,fontSize);
         return _loadedFonts[name].Get(fontUser, fontSize);
     }
 
@@ -82,10 +82,12 @@ public class SdlFontManager : ILingoFontManager
     {
         private Dictionary<int, LoadedFontWithSize> _loadedFontSizes = new();
         public string FileName { get; private set; }
+        public string Name { get; private set; }
 
-        internal LingoSdlFont(SdlFontManager fontManager, string fontFileName)
+        internal LingoSdlFont(SdlFontManager fontManager, string name, string fontFileName)
         {
             FileName = fontFileName;
+            Name = name.Trim();
         }
 
 

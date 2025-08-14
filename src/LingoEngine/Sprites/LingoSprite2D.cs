@@ -10,6 +10,7 @@ using LingoEngine.Sprites.Events;
 using LingoEngine.Bitmaps;
 using LingoEngine.FrameworkCommunication;
 using System.Diagnostics;
+using LingoEngine.Inputs.Events;
 
 namespace LingoEngine.Sprites
 {
@@ -168,7 +169,8 @@ namespace LingoEngine.Sprites
         public string ModifiedBy { get; set; } = "";
 
         public float Width { get => _frameworkSprite.Width; set => _frameworkSprite.DesiredWidth = value; }
-        public float Height { get => _frameworkSprite.Height; set => _frameworkSprite.DesiredHeight = value; }
+        public float Height { get => _frameworkSprite.Height; 
+            set => _frameworkSprite.DesiredHeight = value; }
 
         public ILingoMember? GetMember() => Member;
 
@@ -217,6 +219,7 @@ namespace LingoEngine.Sprites
             ApplyBlend();
         }
 
+        #region Behaviors
 
         public ILingoSprite AddBehavior<T>() where T : LingoSpriteBehavior
         {
@@ -230,7 +233,14 @@ namespace LingoEngine.Sprites
             _behaviors.Add(behavior);
 
             return behavior;
+        } 
+        private void CallBehaviorForEvents<T>(Action<T> action)
+        {
+            foreach (var item in _behaviors.OfType<T>())
+                action(item);
         }
+        #endregion
+
 
         #region Animation / keyframes
 
@@ -332,7 +342,7 @@ When a movie stops, events occur in the following order:
             // Subscribe all behaviors
             _behaviors.ForEach(b =>
             {
-                _eventMediator.Subscribe(b, SpriteNum + 6);
+                _eventMediator.Subscribe(b, SpriteNum + 6,true); //  we ignore mouse because it has to be within the boundingbox
                 if (b is IHasBeginSpriteEvent beginSpriteEvent) beginSpriteEvent.BeginSprite();
 
             });
@@ -352,7 +362,7 @@ When a movie stops, events occur in the following order:
             _behaviors.ForEach(b =>
             {
                 // Unsubscribe all behaviors
-                _eventMediator.Unsubscribe(b);
+                _eventMediator.Unsubscribe(b,true); //  we ignore mouse because it has to be within the boundingbox
                 if (b is IHasEndSpriteEvent endSpriteEvent) endSpriteEvent.EndSprite();
             });
             FrameworkObj.Hide();
@@ -372,6 +382,9 @@ When a movie stops, events occur in the following order:
         {
             return Rect.Contains(point);
         }
+
+
+        #region Member / MemberChange
 
         public ILingoSprite SetMember(string memberName, int? castLibNum = null)
         {
@@ -440,8 +453,11 @@ When a movie stops, events occur in the following order:
 
             _frameworkSprite.MemberChanged();
 
-           
-        }
+
+        } 
+        #endregion
+
+
         public LingoFilmLoopPlayer? GetFilmLoopPlayer() => GetActorsOfType<LingoFilmLoopPlayer>().FirstOrDefault();
 
 
@@ -516,22 +532,33 @@ When a movie stops, events occur in the following order:
 
         void ILingoMouseEventHandler.RaiseMouseMove(LingoMouseEvent mouse)
         {
+            if (!_movie.IsPlaying) return;
+            if (IsActive && Member?.Name == "B_Play")
+            {
+                var inside = IsMouseInsideBoundingBox(mouse.Mouse);
+                Console.WriteLine($"Mouse:{mouse.Mouse.MouseH}x{mouse.Mouse.MouseV} \t{Member?.Name}\t{inside}\tpos={LocH}x{LocV}\tRect={Rect};Size: {Width}x{Height}");
+            }
             // Only respond if the sprite is active and the mouse is within the bounding box
             if (IsActive && IsMouseInsideBoundingBox(mouse.Mouse))
             {
-                _eventMediator.RaiseMouseMove(mouse);
-                if (!isMouseInside)
-                {
-                    MouseEnter(mouse); // Mouse has entered the sprite
-                    _eventMediator.RaiseMouseEnter(mouse);
-                    isMouseInside = true;
-                }
+                
+                    CallBehaviorForEvents<IHasMouseMoveEvent>(b => b.MouseMove(mouse));
+                    _eventMediator.RaiseMouseMove(mouse);
+
+                    if (!isMouseInside)
+                    {
+                        MouseEnter(mouse); // Mouse has entered the sprite
+                        CallBehaviorForEvents<IHasMouseEnterEvent>(b => b.MouseEnter(mouse));
+                        _eventMediator.RaiseMouseEnter(mouse);
+                        isMouseInside = true;
+                    }
             }
             else
             {
                 if (isMouseInside)
                 {
                     MouseExit(mouse); // Mouse has exited the sprite
+                    CallBehaviorForEvents<IHasMouseExitEvent>(b => b.MouseExit(mouse));
                     _eventMediator.RaiseMouseExit(mouse);
                     isMouseInside = false;
                 }
@@ -569,8 +596,12 @@ When a movie stops, events occur in the following order:
         {
             if (isDraggable && IsMouseInsideBoundingBox(mouse.Mouse))
                 isDragging = true;
-            MouseDown(mouse);
-            _eventMediator.RaiseMouseDown(mouse);
+            if (isMouseInside)
+            {
+                MouseDown(mouse);
+                CallBehaviorForEvents<IHasMouseDownEvent>(b => b.MouseDown(mouse));
+                _eventMediator.RaiseMouseDown(mouse);
+            }
         }
 
         protected virtual void MouseDown(LingoMouseEvent mouse) { }
@@ -578,11 +609,23 @@ When a movie stops, events occur in the following order:
         {
             if (isDragging && isDragging)
                 isDragging = false;
-            MouseUp(mouse);
-            _eventMediator.RaiseMouseUp(mouse);
+            if (isMouseInside)
+            {
+                MouseUp(mouse);
+                CallBehaviorForEvents<IHasMouseUpEvent>(b => b.MouseUp(mouse));
+                _eventMediator.RaiseMouseUp(mouse);
+            }
         }
         protected virtual void MouseUp(LingoMouseEvent mouse) { }
-        void ILingoMouseEventHandler.RaiseMouseWheel(LingoMouseEvent mouse) => _eventMediator.RaiseMouseWheel(mouse);
+        void ILingoMouseEventHandler.RaiseMouseWheel(LingoMouseEvent mouse)
+        {
+            if (isMouseInside)
+            {
+                CallBehaviorForEvents<IHasMouseWheelEvent>(b => b.MouseWheel(mouse));
+                _eventMediator.RaiseMouseWheel(mouse);
+            }
+        }
+
         private void DoMouseDrag(LingoMouseEvent mouse)
         {
             LocH = mouse.MouseH;
@@ -620,13 +663,14 @@ When a movie stops, events occur in the following order:
         /// </summary>
         public bool IsMouseInsideBoundingBox(LingoMouse mouse)
         {
-            if (!Rect.Contains((mouse.MouseH, mouse.MouseV)))
+            var rect = Rect; // LingoRect.New(LocH,LocV,Width,Height);
+            if (!rect.Contains(mouse.MouseLoc))
                 return false;
-
+            
             if (InkType != LingoInkType.BackgroundTransparent || Member == null)
                 return true;
 
-            var rect = Rect;
+            //var rect = Rect;
             if (Member.Width == 0 || Member.Height == 0 || Width == 0 || Height == 0)
                 return true;
 

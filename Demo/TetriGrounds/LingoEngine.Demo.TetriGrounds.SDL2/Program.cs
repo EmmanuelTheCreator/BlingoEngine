@@ -10,7 +10,7 @@ namespace LingoEngine.Demo.TetriGrounds.SDL2
         {
             var services = new ServiceCollection();
             services.RegisterLingoEngine(c => c
-                    .WithLingoSdlEngine("TetriGrounds", 640, 480)
+                    .WithLingoSdlEngine("TetriGrounds", 730, 547)
                     .SetProjectFactory<LingoEngine.Demo.TetriGrounds.Core.TetriGroundsProjectFactory>()
                     .BuildAndRunProject()
                     );

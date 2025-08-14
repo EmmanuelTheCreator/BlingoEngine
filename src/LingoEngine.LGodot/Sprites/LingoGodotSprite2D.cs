@@ -241,8 +241,11 @@ namespace LingoEngine.LGodot.Sprites
             _filmloopPlayer = null;
             if (LingoSprite.Member != null)
             {
-                Width = LingoSprite.Member.Width;
-                Height = LingoSprite.Member.Height;
+                if (Width == 0 || Height == 0)
+                {
+                    Width = LingoSprite.Member.Width;
+                    Height = LingoSprite.Member.Height;
+                }
             }
             IsDirtyMember = true;
         }
@@ -255,8 +258,12 @@ namespace LingoEngine.LGodot.Sprites
                 //Height = 0;
                 return;
             }
-            Width = _texture.Width;
-            Height = _texture.Height;
+
+            if (Width == 0 || Height == 0)
+            {
+                Width = _texture.Width;
+                Height = _texture.Height;
+            }
         }
         internal void Update()
         {
@@ -296,7 +303,7 @@ namespace LingoEngine.LGodot.Sprites
                 case LingoMemberBitmap pictureMember:
                     RemoveLastChildElement();
                     UpdateMemberPicture(pictureMember.Framework<LingoGodotMemberBitmap>());
-                    UpdateSizeFromTexture();
+                    //UpdateSizeFromTexture();
                     if (_DesiredWidth == 0) _DesiredWidth = Width;
                     if (_DesiredHeight == 0) _DesiredHeight = Height;
                     IsDirty = true;
@@ -304,7 +311,7 @@ namespace LingoEngine.LGodot.Sprites
                 case LingoFilmLoopMember flm:
                     RemoveLastChildElement();
                     UpdateMemberFilmLoop(flm.Framework<LingoGodotFilmLoopMember>());
-                    UpdateSizeFromTexture();
+                    //UpdateSizeFromTexture();
                     if (_DesiredWidth == 0) _DesiredWidth = Width;
                     if (_DesiredHeight == 0) _DesiredHeight = Height;
                     IsDirty = true;

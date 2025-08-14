@@ -89,7 +89,7 @@ namespace LingoEngine.Sprites
                     if (_spriteChannels.Count < _maxSpriteChannelCount)
                     {
                         for (int i = _spriteChannels.Count; i < _maxSpriteChannelCount; i++)
-                            _spriteChannels.Add(i, new LingoSpriteChannel(i));
+                            _spriteChannels.Add(i, new LingoSpriteChannel(i,_movie));
                     }
                 }
             }
@@ -176,6 +176,11 @@ namespace LingoEngine.Sprites
         {
             if (!_spritesByName.TryGetValue(name, out var sprite))
                 return false;
+            sprite.RemoveMe();
+            return true;
+        } 
+        internal bool RemoveSprite(LingoSprite2D sprite)
+        {
             sprite.RemoveMe();
             return true;
         }

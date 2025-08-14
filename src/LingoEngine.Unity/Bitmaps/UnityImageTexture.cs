@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using LingoEngine.Bitmaps;
 using UnityEngine;
 
@@ -10,10 +8,12 @@ public class UnityTexture2D : ILingoTexture2D
     public Texture2D? Texture { get; private set; }
 
     private readonly Dictionary<object, TextureSubscription> _users = new();
+    public string Name { get; set; } = string.Empty;
 
-    public UnityTexture2D(Texture2D texture)
+    public UnityTexture2D(Texture2D texture, string name = "")
     {
         Texture = texture;
+        Name = name;
     }
 
     public int Width => Texture!.width;
@@ -21,9 +21,10 @@ public class UnityTexture2D : ILingoTexture2D
 
     public bool IsDisposed => throw new NotImplementedException();
 
+
     public ILingoTextureUserSubscription AddUser(object user)
     {
-        var sub = new TextureSubscription(() => RemoveUser(user));
+        var sub = new TextureSubscription(this, () => RemoveUser(user));
         _users.Add(user, sub);
         return sub;
     }
@@ -46,7 +47,14 @@ public class UnityTexture2D : ILingoTexture2D
     private class TextureSubscription : ILingoTextureUserSubscription
     {
         private readonly Action _onRelease;
-        public TextureSubscription(Action onRelease) => _onRelease = onRelease;
+        public ILingoTexture2D Texture { get; }
+        public TextureSubscription(ILingoTexture2D texture, Action onRelease)
+        {
+            _onRelease = onRelease;
+            Texture = texture;
+        }
+
+
         public void Release() => _onRelease();
     }
 }

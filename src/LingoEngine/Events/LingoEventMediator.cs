@@ -46,19 +46,23 @@ namespace LingoEngine.Events
                 list.Insert(index, item);
         }
 
-        public void Subscribe(object ms, int priority = DefaultPriority)
+        public void Subscribe(object ms, int priority = DefaultPriority, bool ignoreMouse = false)
         {
             _priorities[ms] = priority;
 
             if (ms is IHasPrepareMovieEvent prepareMovieEvent) Insert(_prepareMovies, prepareMovieEvent);
             if (ms is IHasStartMovieEvent startMovieEvent) Insert(_startMovies, startMovieEvent);
             if (ms is IHasStopMovieEvent stopMovieEvent) Insert(_stopMovies, stopMovieEvent);
-            if (ms is IHasMouseDownEvent mouseDownEvent) Insert(_mouseDowns, mouseDownEvent);
-            if (ms is IHasMouseUpEvent mouseUpEvent) Insert(_mouseUps, mouseUpEvent);
-            if (ms is IHasMouseMoveEvent mouseMoveEvent) Insert(_mouseMoves, mouseMoveEvent);
-            if (ms is IHasMouseWheelEvent mouseWheelEvent) Insert(_mouseWheels, mouseWheelEvent);
-            if (ms is IHasMouseEnterEvent mouseEnterEvent) Insert(_mouseEnters, mouseEnterEvent);
-            if (ms is IHasMouseExitEvent mouseExitEvent) Insert(_mouseExits, mouseExitEvent);
+            if (!ignoreMouse)
+            {
+                // for behaviors, events lay only fire when the mouse is in the boundingbox of the sprite
+                if (ms is IHasMouseDownEvent mouseDownEvent) Insert(_mouseDowns, mouseDownEvent);
+                if (ms is IHasMouseUpEvent mouseUpEvent) Insert(_mouseUps, mouseUpEvent);
+                if (ms is IHasMouseMoveEvent mouseMoveEvent) Insert(_mouseMoves, mouseMoveEvent);
+                if (ms is IHasMouseWheelEvent mouseWheelEvent) Insert(_mouseWheels, mouseWheelEvent);
+                if (ms is IHasMouseEnterEvent mouseEnterEvent) Insert(_mouseEnters, mouseEnterEvent);
+                if (ms is IHasMouseExitEvent mouseExitEvent) Insert(_mouseExits, mouseExitEvent);
+            }
             //if (ms is IHasBeginSpriteEvent beginSpriteEvent) Insert(_beginSprites, beginSpriteEvent);
             //if (ms is IHasEndSpriteEvent endSpriteEvent) Insert(_endSprites, endSpriteEvent);
             if (ms is IHasStepFrameEvent stepFrameEvent) Insert(_stepFrames, stepFrameEvent);
@@ -70,17 +74,20 @@ namespace LingoEngine.Events
             if (ms is IHasKeyUpEvent keyUpEvent) Insert(_keyUps, keyUpEvent);
             if (ms is IHasKeyDownEvent keyDownEvent) Insert(_keyDowns, keyDownEvent);
         }
-        public void Unsubscribe(object ms)
+        public void Unsubscribe(object ms, bool ignoreMouse = false)
         {
             if (ms is IHasPrepareMovieEvent prepareMovieEvent) _prepareMovies.Remove(prepareMovieEvent);
             if (ms is IHasStartMovieEvent startMovieEvent) _startMovies.Remove(startMovieEvent);
             if (ms is IHasStopMovieEvent stopMovieEvent) _stopMovies.Remove(stopMovieEvent);
-            if (ms is IHasMouseDownEvent mouseDownEvent) _mouseDowns.Remove(mouseDownEvent);
-            if (ms is IHasMouseUpEvent mouseUpEvent) _mouseUps.Remove(mouseUpEvent);
-            if (ms is IHasMouseMoveEvent mouseMoveEvent) _mouseMoves.Remove(mouseMoveEvent);
-            if (ms is IHasMouseWheelEvent mouseWheelEvent) _mouseWheels.Remove(mouseWheelEvent);
-            if (ms is IHasMouseEnterEvent mouseEnterEvent) _mouseEnters.Remove(mouseEnterEvent);
-            if (ms is IHasMouseExitEvent mouseExitEvent) _mouseExits.Remove(mouseExitEvent);
+            if (!ignoreMouse)
+            {
+                if (ms is IHasMouseDownEvent mouseDownEvent) _mouseDowns.Remove(mouseDownEvent);
+                if (ms is IHasMouseUpEvent mouseUpEvent) _mouseUps.Remove(mouseUpEvent);
+                if (ms is IHasMouseMoveEvent mouseMoveEvent) _mouseMoves.Remove(mouseMoveEvent);
+                if (ms is IHasMouseWheelEvent mouseWheelEvent) _mouseWheels.Remove(mouseWheelEvent);
+                if (ms is IHasMouseEnterEvent mouseEnterEvent) _mouseEnters.Remove(mouseEnterEvent);
+                if (ms is IHasMouseExitEvent mouseExitEvent) _mouseExits.Remove(mouseExitEvent);
+            }
             //if (ms is IHasBeginSpriteEvent beginSpriteEvent) _beginSprites.Remove(beginSpriteEvent);
             //if (ms is IHasEndSpriteEvent endSpriteEvent) _endSprites.Remove(endSpriteEvent);
             if (ms is IHasStepFrameEvent stepFrameEvent) _stepFrames.Remove(stepFrameEvent);

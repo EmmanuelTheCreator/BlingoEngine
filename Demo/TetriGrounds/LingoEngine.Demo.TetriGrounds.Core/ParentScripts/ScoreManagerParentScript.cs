@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
 {
     // Converted from 5_ScoreManager.ls
-    public class ScoreManagerParentScript : LingoParentScript
+    public class ScoreManagerParentScript : LingoParentScript, IOverScreenTextParent
     {
         private int myPlayerScore;
         private int myLevel;
@@ -71,7 +71,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
         public void NewText(string text)
         {
             var env = ((LingoMovie)_Movie).GetEnvironment();
-            var o = new OverScreenTextParentScript(env, _global) { Duration = 130, Text = text, Parent = this };
+            var o = new OverScreenTextParentScript(env, _global,130, text, this);
             myOverScreenText.Add(o);
         }
 

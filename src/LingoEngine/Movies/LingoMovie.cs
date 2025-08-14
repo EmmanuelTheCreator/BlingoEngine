@@ -187,6 +187,7 @@ namespace LingoEngine.Movies
         public LingoSprite2D AddSprite(int num, int begin, int end, float x, float y, Action<LingoSprite2D>? configure = null)
             => _sprite2DManager.AddSprite(num, begin, end, x, y, configure);
         public bool RemoveSprite(string name) => _sprite2DManager.RemoveSprite(name);
+        public bool RemoveSprite(LingoSprite2D sprite) => _sprite2DManager.RemoveSprite(sprite);
         public bool TryGetAllTimeSprite(string name, out LingoSprite2D? sprite) => _sprite2DManager.TryGetAllTimeSprite(name, out sprite);
         public bool TryGetAllTimeSprite(int number, out LingoSprite2D? sprite) => _sprite2DManager.TryGetAllTimeSprite(number, out sprite);
         public void SetSpriteMember(int number, string memberName) => _sprite2DManager.SetSpriteMember(number, memberName);

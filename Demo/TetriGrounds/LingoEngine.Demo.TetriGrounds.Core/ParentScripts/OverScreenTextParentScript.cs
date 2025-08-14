@@ -5,31 +5,49 @@ using LingoEngine.Texts;
 
 namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
 {
+    public interface IOverScreenTextParent
+    {
+        void TextFinished(OverScreenTextParentScript text);
+    }
     // Converted from 6_OverScreenText.ls
     public class OverScreenTextParentScript : LingoParentScript, IHasStepFrameEvent
     {
         private readonly GlobalVars _global;
         private int myNum = 48;
         private int myNum2 = 49;
-        private int myCounter;
+        private int myCounter = 0;
+
         public int Duration { get; set; } = 130;
         public string Text { get; set; } = string.Empty;
         public int LocV { get; set; } = 100;
-        public ScoreManagerParentScript? Parent { get; set; }
+        public IOverScreenTextParent? Parent { get; set; }
 
-        public OverScreenTextParentScript(ILingoMovieEnvironment env, GlobalVars global) : base(env)
+        public OverScreenTextParentScript(ILingoMovieEnvironment env, GlobalVars global, int duration, string text, IOverScreenTextParent parent) : base(env)
         {
+            Duration = duration;
+            Text = text;
             _global = global;
             _Movie.ActorList.Add(this);
-            //Sprite(myNum).Puppet = true;
-            //Sprite(myNum2).Puppet = true;
+            Parent = parent;
+            if (Sprite(myNum).Puppet)
+            {
+                myNum = 46;
+                myNum = 47;
+                LocV = 130;
+            }
+            Sprite(myNum).Puppet = true;
+            Sprite(myNum2).Puppet = true;
             Sprite(myNum).SetMember("T_OverScreen");
             Sprite(myNum2).SetMember("T_OverScreen2");
             Sprite(myNum).LocZ = 1000;
             Sprite(myNum2).LocZ = 999;
             Sprite(myNum).Ink = 36;
             Sprite(myNum2).Ink = 36;
+            Member<LingoMemberText>("T_OverScreen").Text = Text;
+            Member<LingoMemberText>("T_OverScreen2").Text = Text;
         }
+
+        
 
         public void StepFrame()
         {
@@ -51,15 +69,12 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             if (blend < 0) blend = 0;
             Sprite(myNum).Blend = (int)blend;
             Sprite(myNum2).Blend = (int)blend;
-            Member<LingoMemberText>("T_OverScreen").Text = Text;
-            Member<LingoMemberText>("T_OverScreen2").Text = Text;
+           
         }
 
         public void Destroy()
         {
             _Movie.ActorList.Remove(this);
-            Sprite(myNum).Blend = 100;
-            Sprite(myNum2).Blend = 100;
             Sprite(myNum).Puppet = false;
             Sprite(myNum2).Puppet = false;
         }

@@ -318,12 +318,22 @@
 	  <None Include="Media\Data\9_Bg.png">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
+	  <None Include="Media\Fonts\8PinMatrix.ttf.import" />
+	  <None Include="Media\Fonts\arcade.ttf.import" />
+	  <None Include="Media\Fonts\bikly.ttf.import" />
+	  <None Include="Media\Fonts\earth.ttf.import" />
+	  <None Include="Media\Fonts\Tahoma.ttf.import" />
 	  <None Include="Media\InternalExt\24.txt">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
 	  <None Include="Media\InternalExt\25.txt">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
+	  <Content Include="Media\Fonts\8PinMatrix.ttf" />
+	  <Content Include="Media\Fonts\arcade.ttf" />
+	  <Content Include="Media\Fonts\bikly.ttf" />
+	  <Content Include="Media\Fonts\earth.ttf" />
+	  <Content Include="Media\Fonts\Tahoma.ttf" />
 	  <Content Include="Media\Icons\DirectorSharp_Icon.png" />
 	  <Content Include="Media\Icons\Director_Icons.png" />
 	  <Content Include="Media\Icons\General_Icons.png" />
