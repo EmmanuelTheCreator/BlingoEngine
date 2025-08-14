@@ -242,8 +242,8 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
     private void UpdateMember()
     {
         IsDirtyMember = false;
-        if (_textureOwned && _texture != nint.Zero)
-            SDL.SDL_DestroyTexture(_texture);
+        //if (_textureOwned && _texture != nint.Zero)
+        //    SDL.SDL_DestroyTexture(_texture);
         _texture = nint.Zero;
         _textureOwned = false;
 
@@ -311,7 +311,13 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
 
     public void UpdateTexture(ILingoTexture2D texture)
     {
-        _texture = ((SdlTexture2D)texture).Texture;
+        var tex = (SdlTexture2D)texture;
+        _texture = tex.Texture;
+        if (!_textureOwned && (Width == 0 || Height == 0))
+        {
+            Width = tex.Width;
+            Height = tex.Height;
+        }
     }
 
     private static readonly SDL.SDL_BlendMode _subtractBlend = SDL.SDL_ComposeCustomBlendMode(

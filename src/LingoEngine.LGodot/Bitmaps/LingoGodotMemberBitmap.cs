@@ -170,7 +170,7 @@ namespace LingoEngine.LGodot.Bitmaps
             // Update the member's image data directly
             _lingoMemberPicture.SetImageData(_image.GetData());
         }
-        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor) => RenderToTexture(ink, transparentColor);
+        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor) => GetTextureForInk(ink, transparentColor);
         public ILingoTexture2D GetTextureForInk(LingoInkType ink, LingoColor backColor)
         {
             if (!InkPreRenderer.CanHandle(ink) || _image == null)

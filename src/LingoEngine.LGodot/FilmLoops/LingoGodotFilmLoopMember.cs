@@ -75,7 +75,7 @@ namespace LingoEngine.LGodot.FilmLoops
                 //    var srcTex = bmp.GetTextureForInk(info.Ink, info.BackColor);
                 //    srcImg = srcTex.GetImage();
                 //}
-                if (info.Sprite2D.Member is ILingoFrameworkMemberWithTexture memberWithTexture)
+                if (info.Sprite2D.Member is ILingoMemberWithTexture memberWithTexture)
                 {
                     var textureG = memberWithTexture.RenderToTexture(info.Ink, info.BackColor) as LingoGodotTexture2D;
                     if (textureG != null)

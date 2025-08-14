@@ -112,7 +112,8 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
             var tex = SDL.SDL_CreateTextureFromSurface(renderer, newSurf);
             SDL.SDL_FreeSurface(newSurf);
             SDL.SDL_FreeSurface(surf);
-            var texture = new SdlTexture2D(SDL.SDL_CreateTextureFromSurface(_sdlRootContext.Renderer, _surface), Width, Height);
+            //var texture = new SdlTexture2D(SDL.SDL_CreateTextureFromSurface(_sdlRootContext.Renderer, _surface), Width, Height);
+            var texture = new SdlTexture2D(tex, surfPtr.w, surfPtr.h);
             _inkTextures[ink] = texture;
             return texture;
         }
