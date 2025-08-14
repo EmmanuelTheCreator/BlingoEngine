@@ -54,7 +54,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         
         _gfxValues = _directorScoreWindow.GfxValues;
 
-        var height = 370;
+        var height = 360;
         var width = 800;
 
         Size = new Vector2(width, height);

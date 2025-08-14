@@ -55,9 +55,7 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
     }
     public ILingoMovie? LoadStartupMovie(ILingoServiceProvider serviceProvider, LingoPlayer lingoPlayer)
     {
-        _settings = serviceProvider.GetRequiredService<LingoProjectSettings>();
-        lingoPlayer.Stage.Width = _settings.StageWidth;
-        lingoPlayer.Stage.Height = _settings.StageHeight;
+        
         _movie = LoadMovie(lingoPlayer);
         return _movie;
     }

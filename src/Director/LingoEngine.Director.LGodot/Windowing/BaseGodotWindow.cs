@@ -54,7 +54,13 @@ namespace LingoEngine.Director.LGodot
             _label.LabelSettings.FontSize = 12;
             _label.LabelSettings.FontColor = Colors.Black;
             _label.Text = name;
+
+            Style.BorderColor = DirectorColors.Window_Border.ToGodotColor();
+            Style.BorderWidthLeft = 1;
+            Style.BorderWidthRight = 1;
+            Style.BorderWidthBottom = 1;
             BackgroundColor = DirectorColors.BG_WhiteMenus;
+            
             AddChild(_closeButton);
             _closeButton.Text = "X";
             _closeButton.CustomMinimumSize = new Vector2(16, 16);
@@ -76,6 +82,7 @@ namespace LingoEngine.Director.LGodot
             set
             {
                 Style.BgColor = value.ToGodotColor();
+                
                 AddThemeStyleboxOverride("panel", Style);
             }
         }
@@ -266,12 +273,14 @@ namespace LingoEngine.Director.LGodot
         public virtual void SetPositionAndSize(int x, int y, int width, int height)
         {
             Position = new Vector2(x, y);
-            Size = new Vector2(width, height);
+            var size = new Vector2(width, height); // not title bar height, because this is loaded from saved settings
+            Size = size;
             CustomMinimumSize = Size;
         }
-        public void SetSize(int width, int height)
+        public virtual void SetSize(int width, int height)
         {
-            Size = new Vector2(width, height);
+            var size = new Vector2(width, height + TitleBarHeight);
+            Size = size;
             CustomMinimumSize = Size;
         }
         public void EnsureInBounds()

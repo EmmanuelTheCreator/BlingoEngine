@@ -8,6 +8,8 @@ using LingoEngine.Sprites;
 using LingoEngine.Styles;
 using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Casts;
+using System.Runtime;
+using System;
 namespace LingoEngine.Setup
 {
     public class LingoEngineRegistration : ILingoEngineRegistration
@@ -94,6 +96,7 @@ namespace LingoEngine.Setup
             if (_FrameworkFactorySetup != null)
                 _FrameworkFactorySetup(_lingoServiceProvider.GetRequiredService<ILingoFrameworkFactory>());
             _player = player;
+            
             InitializeProject();
             _hasBeenBuild = true;
             return player;
@@ -122,7 +125,15 @@ namespace LingoEngine.Setup
             if (_projectFactory == null || _serviceProvider == null || _player == null)
                 return;
 
-            _projectSettingsSetup(_lingoServiceProvider.GetRequiredService<LingoProjectSettings>());
+            var settings = _serviceProvider.GetRequiredService<LingoProjectSettings>();
+            _projectSettingsSetup(settings);
+            if (settings.StageWidth > 0 && settings.StageHeight > 0)
+            {
+                var stageWidth = Math.Min(settings.StageWidth, 800);
+                var stageHeight = Math.Min(settings.StageHeight, 600);
+                _player.Stage.Width = settings.StageWidth;
+                _player.Stage.Height = settings.StageHeight;
+            }
             LoadFonts(_lingoServiceProvider);
             _BuildActions.ForEach(b => b(_lingoServiceProvider));
             _lingoServiceProvider.GetRequiredService<ILingoCommandManager>()

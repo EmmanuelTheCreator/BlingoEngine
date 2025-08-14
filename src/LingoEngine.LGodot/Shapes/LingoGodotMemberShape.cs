@@ -54,7 +54,7 @@ namespace LingoEngine.LGodot.Shapes
         public (int TL, int TR, int BR, int BL) CornerRadius { get; set; }  = (5, 5, 5, 5);
         public bool Filled { get; set; } = true;
 
-        public ILingoTexture2D? TextureLingo => throw new NotImplementedException();
+        public ILingoTexture2D? TextureLingo => null;
 
         public virtual LingoGodotMemberShape CloneForSpriteDraw()
         {

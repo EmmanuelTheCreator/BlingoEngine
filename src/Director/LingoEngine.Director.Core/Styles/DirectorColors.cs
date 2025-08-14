@@ -17,6 +17,7 @@ namespace LingoEngine.Director.Core.Styles
         public static LingoColor Window_Title_BG = LingoColor.FromHex("#d2e0ed"); // Base color of the window title bar
         public static LingoColor Window_Title_BG_Active = Window_Title_BG.Darken(0.2f); // Darker when window is active
         public static LingoColor Window_Title_BG_Inactive = Window_Title_BG.Lighten(0.2f); // Lighter when window is inactive
+        public static LingoColor Window_Border = new LingoColor(200, 200, 200);       // borders for the windows
 
 
         // Thumbnail of a member

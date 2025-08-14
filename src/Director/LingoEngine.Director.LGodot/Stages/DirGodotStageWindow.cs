@@ -3,11 +3,7 @@ using LingoEngine.Movies;
 using LingoEngine.LGodot.Stages;
 using LingoEngine.Core;
 using LingoEngine.Director.Core.Stages;
-using System.Linq;
-using System.Collections.Generic;
 using LingoEngine.LGodot.Primitives;
-using LingoEngine.Texts;
-using LingoEngine.FrameworkCommunication;
 using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Sprites;
@@ -16,9 +12,7 @@ using LingoEngine.Director.Core.UI;
 using LingoEngine.LGodot.Gfx;
 using LingoEngine.Inputs;
 using LingoEngine.Director.Core.Icons;
-using LingoEngine.Director.Core.Styles;
 using LingoEngine.Primitives;
-using LingoEngine.Director.LGodot.UI;
 
 namespace LingoEngine.Director.LGodot.Movies;
 
@@ -47,6 +41,10 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
     private bool _spaceHeld;
     private bool _panning;
     private float _scale = 1f;
+    private LingoGodotGfxCanvas _spriteSummaryCanvas;
+    private LingoGodotGfxCanvas _boundingBoxesCanvas;
+    private LingoGodotGfxCanvas _motionPathCanvas;
+    private LingoGodotGfxCanvas _guidesCanvas;
 
     public DirGodotStageWindow(ILingoFrameworkStageContainer stageContainer, IDirectorEventMediator directorEventMediator, IHistoryManager historyManager, ILingoPlayer player, DirectorStageWindow directorStageWindow, DirectorStageGuides guides, DirStageManager stageManager, IDirGodotWindowManager windowManager, IDirectorIconManager iconManager)
         : base(DirectorMenuCodes.StageWindow, "Stage", windowManager, historyManager)
@@ -97,23 +95,24 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         _stageWindowBgRect.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         _stageWindowBgRect.SizeFlagsVertical = SizeFlags.ExpandFill;
         _stageWindowBgRect.ZIndex = zIndexStageStart - 2; // Ensure it is behind everything else
+        
         AddChild(_stageWindowBgRect);
 
         // Bg solid color for stage
         _stageBgRect.Color = Colors.Black;
         _stageBgRect.CustomMinimumSize = new Vector2(640, 480);
-        _stageBgRect.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-        _stageBgRect.SizeFlagsVertical = SizeFlags.ExpandFill;
+        //_stageBgRect.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+        //_stageBgRect.SizeFlagsVertical = SizeFlags.ExpandFill;
         _stageBgRect.ZIndex = zIndexStageStart - 1; // Ensure it is behind everything else
 
-        var spriteSummaryCanvas = _spriteSummary.Canvas.Framework<LingoGodotGfxCanvas>();
-        var boundingBoxesCanvas = _boundingBoxes.Canvas.Framework<LingoGodotGfxCanvas>();
-        var motionPathCanvas = _motionPath.Canvas.Framework<LingoGodotGfxCanvas>();
-        var guidesCanvas = _guides.Canvas.Framework<LingoGodotGfxCanvas>();
-        spriteSummaryCanvas.ZIndex = 1000;
-        boundingBoxesCanvas.ZIndex = 1001;
-        motionPathCanvas.ZIndex = 1000;
-        guidesCanvas.ZIndex = 999;
+        _spriteSummaryCanvas = _spriteSummary.Canvas.Framework<LingoGodotGfxCanvas>();
+        _boundingBoxesCanvas = _boundingBoxes.Canvas.Framework<LingoGodotGfxCanvas>();
+        _motionPathCanvas = _motionPath.Canvas.Framework<LingoGodotGfxCanvas>();
+        _guidesCanvas = _guides.Canvas.Framework<LingoGodotGfxCanvas>();
+        _spriteSummaryCanvas.ZIndex = 1000;
+        _boundingBoxesCanvas.ZIndex = 1001;
+        _motionPathCanvas.ZIndex = 1000;
+        _guidesCanvas.ZIndex = 999;
         _selectionBox.ZIndex = 1002;
         _selectionBox.Visible = false;
         _stageContainer.Container.ZIndex = zIndexStageStart;
@@ -123,9 +122,9 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         _stageLayer.Name = "StageLayer";
         _stageLayer.AddChild(_stageBgRect);
         _stageLayer.AddChild(_stageContainer.Container);
-        _stageLayer.AddChild(guidesCanvas);
-        _stageLayer.AddChild(motionPathCanvas);
-        _stageLayer.AddChild(spriteSummaryCanvas);
+        _stageLayer.AddChild(_guidesCanvas);
+        _stageLayer.AddChild(_motionPathCanvas);
+        _stageLayer.AddChild(_spriteSummaryCanvas);
         _stageLayer.AddChild(_selectionBox);
 
 
@@ -169,7 +168,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         _scrollContainer.OffsetBottom = -IconBarHeight - 10;
         _scrollContainer.HorizontalScrollMode = ScrollContainer.ScrollMode.ShowAlways;
         _scrollContainer.VerticalScrollMode = ScrollContainer.ScrollMode.ShowAlways;
-        _scrollContainer.ZIndex = 500;
+        //_scrollContainer.ZIndex = 500;
     }
 
     private void CreateBottomIconBar(LingoGodotPanel iconBarPanel)
@@ -189,7 +188,12 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         base.OnResizing(size);
         _stageWindowBgRect.CustomMinimumSize = size;
     }
-
+    public override void SetSize(int width, int height)
+    {
+        base.SetSize(width, height);
+        _stageWindowBgRect.CustomMinimumSize = new Vector2(width,height);
+        StagePropertyChanged();
+    }
     public void SetStage(ILingoFrameworkStage stage)
     {
         _stage = stage;
@@ -278,14 +282,26 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         var color = _player.Stage.BackgroundColor;
         _stageBgRect.Color = color.ToGodotColor();
         _stageBgRect.CustomMinimumSize = new Vector2(_player.Stage.Width, _player.Stage.Height);
+        var innerPos = new Vector2(40, 30);
+        _stageContainer.Container.Position = innerPos; //, TitleBarHeight+10);
+        _guidesCanvas.Position = innerPos;
+        _motionPathCanvas.Position = innerPos;
+        _spriteSummaryCanvas.Position = innerPos;
+        _selectionBox.Position = innerPos;
         UpdateStagePosition();
         return true;
     }
     private void UpdateStagePosition()
     {
-        _stageLayer.Position = new Vector2(3000 / 2f - _player.Stage.Width / 2f, 2000 / 2f - _player.Stage.Height / 2f);
+        
+        _stageLayer.Position = new Vector2((3000 - _player.Stage.Width) / 2f, (2000 - _player.Stage.Height) / 2f);
+
         _scrollContainer.ScrollHorizontal = 3000 / 2 - (int)_scrollContainer.Size.X / 2;
         _scrollContainer.ScrollVertical = 2000 / 2 - (int)_scrollContainer.Size.Y / 2;
+        SetScale(1);
+        //var min = _scrollContainer.GetVScrollBar().MinValue;
+        //var max = _scrollContainer.GetVScrollBar().MaxValue;
+        //var range = max - min;
     }
     private void SetScale(float scale)
     {

@@ -32,6 +32,7 @@ namespace LingoEngine.Director.Core.Windowing
         IDirectorWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult);
         IDirectorWindowDialogReference? ShowCustomDialog(string title, ILingoFrameworkGfxPanel panel);
         IDirectorWindowDialogReference? ShowNotification(string message, DirUINotificationType type);
+        void SetWindowSize(string windowCode, int stageWidth, int stageHeight);
     }
     public class DirectorWindowManager : IDirectorWindowManager,
         ICommandHandler<OpenWindowCommand>,
@@ -159,7 +160,7 @@ namespace LingoEngine.Director.Core.Windowing
             return true;
         }
 
-        internal void SetWindowSize(string windowCode, int stageWidth, int stageHeight)
+        public void SetWindowSize(string windowCode, int stageWidth, int stageHeight)
         {
             if (!_windowRegistrations.TryGetValue(windowCode, out var registration)) return;
             registration.Instance.SetSize(stageWidth, stageHeight);

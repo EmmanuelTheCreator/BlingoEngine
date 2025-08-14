@@ -12,6 +12,8 @@ using LingoEngine.Director.LGodot.Styles;
 using LingoEngine.Director.LGodot.Projects;
 using LingoEngine.Director.Core.Projects;
 using LingoEngine.Projects;
+using LingoEngine.Director.Core.Windowing;
+using LingoEngine.Director.Core.UI;
 
 namespace LingoEngine.Director.LGodot.UI
 {
@@ -88,14 +90,14 @@ namespace LingoEngine.Director.LGodot.UI
 
             if (startupProjectSettings.StageWidth > 0 && startupProjectSettings.StageHeight > 0)
             {
-                var stageWidth = Math.Min(startupProjectSettings.StageWidth, 800);
-                var stageHeight = Math.Min(startupProjectSettings.StageHeight, 600);
-                var size = new Vector2(stageWidth, stageHeight);
-                _stageWindow.Size = size;
-                _stageWindow.CustomMinimumSize = size;
+                var stageWidth = Math.Min(startupProjectSettings.StageWidth, 800);// scrollbars
+                var stageHeight = Math.Min(startupProjectSettings.StageHeight, 600); // bottombar
+                //var size = new Vector2(stageWidth, stageHeight);
+               // _stageWindow.Size = size;
+                //_stageWindow.CustomMinimumSize = size;
                 _scoreWindow.Position = new Vector2(_scoreWindow.Position.X, 640 - 560 + stageHeight);
-                //serviceProvider.GetRequiredService<DirectorWindowManager>()
-                //    .SetWindowSize(DirectorMenuCodes.StageWindow, stageWidth, stageHeight);
+                serviceProvider.GetRequiredService<IDirectorWindowManager>()
+                    .SetWindowSize(DirectorMenuCodes.StageWindow, stageWidth, stageHeight);
                 foreach (var item in _windows)
                     item.EnsureInBounds();
             }
