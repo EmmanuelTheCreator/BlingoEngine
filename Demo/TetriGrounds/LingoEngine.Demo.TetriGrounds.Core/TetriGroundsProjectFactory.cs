@@ -147,6 +147,9 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
                 b.myWaitbeforeExecute = 0;
                 //b.myFunction = 70;
             });
-
+        _movie.AddSprite(28, 59, 64, 94, 297).SetMember(32,2); // Text personal
+        _movie.AddSprite(29, 59, 64, 95, 313).SetMember("T_InternetScoresNamesP");
+        _movie.AddSprite(30, 59, 64, 151, 313).SetMember("T_InternetScoresP");
+        _movie.AddSprite(35, 61, 64, 323, 238).SetMember("alert");
     }
 }

@@ -167,7 +167,7 @@ namespace LingoEngine.Movies
 
         #region Sprites
         public ILingoSpriteChannel Channel(int channelNumber) => _sprite2DManager.Channel(channelNumber);
-        public void PuppetSprite(int number, bool isPuppetSprite) => _sprite2DManager.PuppetSprite(number, isPuppetSprite);
+        public void PuppetSprite(int number, bool isPuppetSprite) => Channel(number).Puppet = isPuppetSprite;
         public ILingoSpriteChannel GetActiveSprite(int number) => _sprite2DManager.GetActiveSprite(number);
         public LingoSprite2D AddSprite(string name, Action<LingoSprite2D>? configure = null) => _sprite2DManager.AddSprite(name, configure);
         public LingoSprite2D AddSprite(int num, Action<LingoSprite2D>? configure = null) => _sprite2DManager.AddSprite(num, configure);

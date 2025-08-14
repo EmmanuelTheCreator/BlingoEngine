@@ -206,8 +206,6 @@ namespace LingoEngine.Sprites
             sprite = _allTimeSprites[number - 1];
             return true;
         }
-        internal void PuppetSprite(int number, bool isPuppetSprite) => CallActiveSprite(number, sprite => sprite.Puppet = isPuppetSprite);
-
 
 
         protected void CallActiveSprites(Action<TSprite> actionOnAllActiveSprites)

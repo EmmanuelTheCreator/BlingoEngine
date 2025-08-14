@@ -51,6 +51,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
         public void CreateBlock()
         {
             myNum = _global.SpriteManager?.Sadd() ?? 0;
+           
             var spr = Sprite(myNum);
             spr.SetMember(myMember);
             spr.Ink = 36;
