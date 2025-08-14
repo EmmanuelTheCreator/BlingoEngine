@@ -29,11 +29,14 @@ namespace LingoEngine.SDL2.Gfx
 
         public void RemoveItem(ILingoFrameworkGfxLayoutNode child)
         {
-            _children.Remove(child);
+            if (_children.Remove(child))
+                (child as IDisposable)?.Dispose();
         }
 
         public void RemoveAll()
         {
+            foreach (var child in _children)
+                (child as IDisposable)?.Dispose();
             _children.Clear();
         }
 
