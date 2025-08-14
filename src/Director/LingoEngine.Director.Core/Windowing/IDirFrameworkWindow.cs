@@ -15,5 +15,6 @@ namespace LingoEngine.Director.Core.Windowing
         void SetPositionAndSize(int x, int y, int width, int height);
         LingoPoint GetPosition();
         LingoPoint GetSize();
+        void SetSize(int width, int height);
     }
 }

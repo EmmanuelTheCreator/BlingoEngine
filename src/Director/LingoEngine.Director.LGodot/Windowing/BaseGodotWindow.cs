@@ -269,7 +269,11 @@ namespace LingoEngine.Director.LGodot
             Size = new Vector2(width, height);
             CustomMinimumSize = Size;
         }
-
+        public void SetSize(int width, int height)
+        {
+            Size = new Vector2(width, height);
+            CustomMinimumSize = Size;
+        }
         public void EnsureInBounds()
         {
             var viewportRect = GetViewport().GetVisibleRect();

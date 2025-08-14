@@ -242,17 +242,17 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
     private void UpdateMember()
     {
         IsDirtyMember = false;
-        //if (_textureOwned && _texture != nint.Zero)
+        //if (_textureOwned && _texture != nint.Zero) // we may not dispose a texture because it can be used by other sprites.
         //    SDL.SDL_DestroyTexture(_texture);
         _texture = nint.Zero;
         _textureOwned = false;
-
+        
         switch (_lingoSprite.Member)
         {
             case LingoMemberBitmap pic:
+                pic.Preload();
                 var p = pic.Framework<SdlMemberBitmap>();
-                p.Preload();
-                if (p.TextureLingo is SdlTexture2D tex2D && tex2D.Texture!= nint.Zero)
+                if (pic.TextureLingo is SdlTexture2D tex2D && tex2D.Texture!= nint.Zero)
                 {
                     var texInk = p.GetTextureForInk(_lingoSprite.InkType, _lingoSprite.BackColor, ComponentContext.Renderer) as SdlTexture2D;
                     if (texInk != null && texInk.Texture != nint.Zero)

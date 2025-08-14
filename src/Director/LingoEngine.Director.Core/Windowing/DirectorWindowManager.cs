@@ -159,7 +159,11 @@ namespace LingoEngine.Director.Core.Windowing
             return true;
         }
 
-
+        internal void SetWindowSize(string windowCode, int stageWidth, int stageHeight)
+        {
+            if (!_windowRegistrations.TryGetValue(windowCode, out var registration)) return;
+            registration.Instance.SetSize(stageWidth, stageHeight);
+        }
 
         private class WindowRegistration : IDirectorWindowRegistration
         {

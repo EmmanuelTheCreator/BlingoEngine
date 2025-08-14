@@ -18,6 +18,8 @@ using LingoEngine.Primitives;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.Director.Core.Styles;
+using LingoEngine.Projects;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Director.LGodot;
 
@@ -78,6 +80,7 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
                 StyleIconButton(btn);
             }
         }
+       
     }
 
     private static void StyleIconButton(Button btn)
@@ -187,6 +190,10 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
     }
 
     public void SetPositionAndSize(int x, int y, int width, int height)
+    {
+        // not allowed
+    }
+    public void SetSize(int width, int height)
     {
         // not allowed
     }

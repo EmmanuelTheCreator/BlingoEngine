@@ -18,10 +18,6 @@ config/icon="uid://cwac1s8duqarl"
 
 [display]
 
-window/size/initial_position_type=3
-window/size/initial_position=Vector2i(0, 200)
-window/stretch/mode="viewport"
-window/stretch/scale_mode="integer"
 
 [dotnet]
 

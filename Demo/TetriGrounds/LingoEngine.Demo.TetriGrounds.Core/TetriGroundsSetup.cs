@@ -27,7 +27,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core
                             s.ProjectName = "TetriGrounds";
                             s.MaxSpriteChannelCount = 300;
                         })
-                        .ForMovie(TetriGroundsGame.MovieName, s => s
+                        .ForMovie(TetriGroundsProjectFactory.MovieName, s => s
                             .AddScriptsFromAssembly()
 
                             // As an example, you can add them manually too:
@@ -40,7 +40,6 @@ namespace LingoEngine.Demo.TetriGrounds.Core
                 }
                 )
                 .AddSingleton<IArkCore, TetriGroundsCore>()
-                .AddSingleton<TetriGroundsGame, TetriGroundsGame>()
                 .AddSingleton<GlobalVars>()
                 ;
             return services;

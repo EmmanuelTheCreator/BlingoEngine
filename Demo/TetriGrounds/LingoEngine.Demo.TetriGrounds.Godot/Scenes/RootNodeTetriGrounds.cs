@@ -39,8 +39,8 @@ public partial class RootNodeTetriGrounds : Node2D
             var windowSize = DisplayServer.WindowGetSize();
 
             var centeredPos = (screenSize - windowSize) / 2;
-            centeredPos.Y += 400; // Shift window down by 200px
-
+            centeredPos.Y += 200; // Shift window down by 200px
+            centeredPos.X -= 200;
             DisplayServer.WindowSetPosition(centeredPos);
             _services = new ServiceCollection();
             _services.RegisterLingoEngine(c => c

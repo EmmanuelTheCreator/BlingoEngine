@@ -8,6 +8,7 @@
         void CloseWindow();
         void MoveWindow(int x, int y);
         void SetPositionAndSize(int x, int y, int width, int height);
+        void SetSize(int width, int height);
 
         IDirFrameworkWindow FrameworkObj { get; }
     }

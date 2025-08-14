@@ -41,6 +41,8 @@ public class DirectorWindow<TFrameworkWindow> : IDirectorWindow, IDisposable, IL
     public virtual void MoveWindow(int x, int y) => _Framework.MoveWindow(x, y);
     public virtual void SetPositionAndSize(int x, int y, int width, int height)
         => _Framework.SetPositionAndSize(x, y, width, height);
+    public virtual void SetSize(int width, int height)
+        => _Framework.SetSize(width, height);
 
     public virtual void Dispose()
     {

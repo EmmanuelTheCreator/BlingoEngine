@@ -10,6 +10,8 @@ using LingoEngine.Director.LGodot.Pictures;
 using LingoEngine.Director.LGodot.Gfx;
 using LingoEngine.Director.LGodot.Styles;
 using LingoEngine.Director.LGodot.Projects;
+using LingoEngine.Director.Core.Projects;
+using LingoEngine.Projects;
 
 namespace LingoEngine.Director.LGodot.UI
 {
@@ -30,7 +32,7 @@ namespace LingoEngine.Director.LGodot.UI
         private readonly DirGodotPictureMemberEditorWindow _picture;
         private List<BaseGodotWindow> _windows = new List<BaseGodotWindow>();
 
-        public LingoGodotDirectorRoot(LingoPlayer player, IServiceProvider serviceProvider)
+        public LingoGodotDirectorRoot(LingoPlayer player, IServiceProvider serviceProvider, LingoProjectSettings startupProjectSettings)
         {
             
             _directorParent.Name = "DirectorRoot";
@@ -83,6 +85,20 @@ namespace LingoEngine.Director.LGodot.UI
             _importExportWindow.CloseWindow();
             _textWindow.CloseWindow();
             _picture.CloseWindow();
+
+            if (startupProjectSettings.StageWidth > 0 && startupProjectSettings.StageHeight > 0)
+            {
+                var stageWidth = Math.Min(startupProjectSettings.StageWidth, 800);
+                var stageHeight = Math.Min(startupProjectSettings.StageHeight, 600);
+                var size = new Vector2(stageWidth, stageHeight);
+                _stageWindow.Size = size;
+                _stageWindow.CustomMinimumSize = size;
+                _scoreWindow.Position = new Vector2(_scoreWindow.Position.X, 640 - 560 + stageHeight);
+                //serviceProvider.GetRequiredService<DirectorWindowManager>()
+                //    .SetWindowSize(DirectorMenuCodes.StageWindow, stageWidth, stageHeight);
+                foreach (var item in _windows)
+                    item.EnsureInBounds();
+            }
         }
 
         private void SetDefaultPositions()

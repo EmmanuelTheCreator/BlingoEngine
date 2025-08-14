@@ -13,17 +13,16 @@ using LingoEngine.Director.Core.Bitmaps;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Setup;
 using LingoEngine.Director.Core.Scripts;
-using LingoEngine.Commands;
-using LingoEngine.Director.Core.Scripts.Commands;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.Compilers;
 using LingoEngine.Director.Core.Compilers.Commands;
+using LingoEngine.Projects;
 
 namespace LingoEngine.Director.Core
 {
     public static class DirectorSetup
     {
-        public static ILingoEngineRegistration WithDirectorEngine(this ILingoEngineRegistration engineRegistration)
+        public static ILingoEngineRegistration WithDirectorEngine(this ILingoEngineRegistration engineRegistration, Action<DirectorProjectSettings>? directorSettingsConfig = null)
         {
             engineRegistration.ServicesMain(s => s
                     .AddSingleton<IDirectorEventMediator, DirectorEventMediator>()
@@ -76,6 +75,15 @@ namespace LingoEngine.Director.Core
                     serviceProvider.RegisterDirectorWindows();
                     //serviceProvider.GetRequiredService<ILingoCommandManager>() // you forgot the canExecute?
                     //    .Register<CompileProjectCommandHandler, CompileProjectCommand>();
+                    if (directorSettingsConfig != null)
+                    {
+                        //var settings = new DirectorProjectSettings();
+                        //directorSettingsConfig(settings)
+                        //serviceProvider.GetRequiredService<IDirectorWindowManager>()
+                        
+
+                    }
+                   
                 });
             return engineRegistration;
         }

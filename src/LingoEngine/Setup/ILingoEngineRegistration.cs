@@ -16,6 +16,7 @@ namespace LingoEngine.Setup
         ILingoProjectFactory BuildAndRunProject();
         ILingoEngineRegistration AddBuildAction(Action<ILingoServiceProvider> buildAction);
         ILingoEngineRegistration SetProjectFactory<TLingoProjectFactory>() where TLingoProjectFactory : ILingoProjectFactory, new();
+        
     }
 }
 

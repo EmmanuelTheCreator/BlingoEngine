@@ -11,6 +11,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core;
 public class TetriGroundsProjectFactory : ILingoProjectFactory
 {
     public const string MovieName = "Aaark Noid";
+    private LingoProjectSettings _settings;
     private ILingoMovie? _movie;
 
     public void Setup(ILingoEngineRegistration config)
@@ -26,8 +27,10 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
                     s.ProjectFolder = "TetriGrounds";
                     s.ProjectName = "TetriGrounds";
                     s.MaxSpriteChannelCount = 300;
+                    s.StageWidth = 730;
+                    s.StageHeight = 547;
                 })
-                .ForMovie(TetriGroundsGame.MovieName, s => s
+                .ForMovie(MovieName, s => s
                     .AddScriptsFromAssembly()
 
                 // As an example, you can add them manually too:
@@ -38,7 +41,6 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
                 )
                 .ServicesLingo(s => s
                     .AddSingleton<IArkCore, TetriGroundsCore>()
-                    .AddSingleton<TetriGroundsGame, TetriGroundsGame>()
                     .AddSingleton<GlobalVars>()
                 );
     }
@@ -48,11 +50,14 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
     public void LoadCastLibs(ILingoCastLibsContainer castlibContainer, LingoPlayer lingoPlayer)
     {
         lingoPlayer
-            .LoadCastLibFromCsv("Data", Path.Combine("Medias", "Data", "Members.csv"))
-            .LoadCastLibFromCsv("InternalExt", Path.Combine("Medias", "InternalExt", "Members.csv"), true);
+            .LoadCastLibFromCsv("Data", Path.Combine("Media", "Data", "Members.csv"))
+            .LoadCastLibFromCsv("InternalExt", Path.Combine("Media", "InternalExt", "Members.csv"), true);
     }
     public ILingoMovie? LoadStartupMovie(ILingoServiceProvider serviceProvider, LingoPlayer lingoPlayer)
     {
+        _settings = serviceProvider.GetRequiredService<LingoProjectSettings>();
+        lingoPlayer.Stage.Width = _settings.StageWidth;
+        lingoPlayer.Stage.Height = _settings.StageHeight;
         _movie = LoadMovie(lingoPlayer);
         return _movie;
     }
@@ -65,7 +70,6 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
     public ILingoMovie LoadMovie(ILingoPlayer lingoPlayer)
     {
         _movie = lingoPlayer.NewMovie(MovieName);
-
         AddLabels();
         InitSprites();
         return _movie;
