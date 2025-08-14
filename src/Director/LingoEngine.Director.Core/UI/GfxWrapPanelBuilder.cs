@@ -7,6 +7,43 @@ using System.Linq.Expressions;
 
 namespace LingoEngine.Director.Core.UI
 {
+    public class GfxWrapPanelBuilderForToolBar 
+    {
+        private int _numberOfVLines = 0;
+        private int _height;
+        private readonly GfxWrapPanelBuilder _builder;
+
+        public GfxWrapPanelBuilderForToolBar(LingoGfxWrapPanel panel, GfxWrapPanelBuilder? parent, int height = 20) 
+        {
+            _height = height;
+            _builder = new GfxWrapPanelBuilder(panel, parent);
+        }
+
+        public GfxWrapPanelBuilderForToolBar AddVLine()
+        {
+            _numberOfVLines++;
+            var name = "vline" + _numberOfVLines;
+            _builder.AddVLine(name, _height-4, 2);
+            return this;
+        }
+        public GfxWrapPanelBuilderForToolBar AddButton(string name, string text, Action click, Action<LingoGfxButton>? configure = null)
+        {
+            _builder.AddButton(name, text, click, configure);
+            return this;
+        }
+        public GfxWrapPanelBuilderForToolBar AddStateButton<T>(string name, T target, ILingoTexture2D texture, Expression<Func<T, bool>> property, Action<LingoGfxStateButton>? configure = null)
+        {
+            _builder.AddStateButton(name, target, texture,property, "", configure);
+            return this;
+        } 
+        public GfxWrapPanelBuilderForToolBar AddStateButton<T>(string name, T target,string text, Expression<Func<T, bool>> property, Action<LingoGfxStateButton>? configure = null)
+        {
+            _builder.AddStateButton(name, target, null,property, text, configure);
+            return this;
+        } 
+        
+       // TODO : add other controls.
+    }
     public class GfxWrapPanelBuilder
     {
         private LingoGfxWrapPanel _panel;
@@ -138,7 +175,7 @@ namespace LingoEngine.Director.Core.UI
             return this;
         }
 
-        public GfxWrapPanelBuilder AddStateButton<T>(string name, T target, ILingoTexture2D texture, Expression<Func<T, bool>> property, string text = "", Action<LingoGfxStateButton>? configure = null)
+        public GfxWrapPanelBuilder AddStateButton<T>(string name, T target, ILingoTexture2D? texture, Expression<Func<T, bool>> property, string text = "", Action<LingoGfxStateButton>? configure = null)
         {
             var setter = property.CompileSetter();
             var getter = property.CompileGetter();

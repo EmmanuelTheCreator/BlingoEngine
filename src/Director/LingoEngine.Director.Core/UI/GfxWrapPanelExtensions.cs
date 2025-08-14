@@ -11,6 +11,11 @@ namespace LingoEngine.Director.Core.UI
             var builder = new GfxWrapPanelBuilder(panel, parent);
             return builder;
         }
+        public static GfxWrapPanelBuilderForToolBar ComposeForToolBar(this LingoGfxWrapPanel panel, GfxWrapPanelBuilder? parent = null)
+        {
+            var builder = new GfxWrapPanelBuilderForToolBar(panel, parent);
+            return builder;
+        }
 
         public static LingoGfxWrapPanel AddHLine(this LingoGfxWrapPanel panel, string name, float width =0, float paddingLeft = 0)
         {

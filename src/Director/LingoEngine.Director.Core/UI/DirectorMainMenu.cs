@@ -103,22 +103,22 @@ namespace LingoEngine.Director.Core.UI
 
             // icon buttons
             _iconBar
-                .Compose()
+                .ComposeForToolBar()
                 .AddButton("CompileButton", "", () => _commandManager.Handle(new CompileProjectCommand()), c => c.IconTexture = directorIconManager.Get(DirectorIcon.Script))
-                .AddVLine("VLine1", 16, 2)
+                .AddVLine()
                 .AddButton("RewindButton", "", DoRewind, c => c.IconTexture = directorIconManager.Get(DirectorIcon.Rewind))
-                .AddStateButton("RewindButton", this, directorIconManager.Get(DirectorIcon.Stop), p => p.PlayPauseState, "",
+                .AddStateButton("RewindButton", this, directorIconManager.Get(DirectorIcon.Stop), p => p.PlayPauseState, 
                     c =>
                     {
                         c.TextureOff = directorIconManager.Get(DirectorIcon.Play);
                         _playButton = c;
                     })
-                .AddVLine("VLine2", 16, 2)
+                .AddVLine()
                 .AddButton("Show" + DirectorMenuCodes.StageWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.StageWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowStage))
                 .AddButton("Show" + DirectorMenuCodes.CastWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.CastWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowCast))
                 .AddButton("Show" + DirectorMenuCodes.ScoreWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.ScoreWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowScore))
                 .AddButton("Show" + DirectorMenuCodes.PropertyInspector, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.PropertyInspector), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowProperty))
-                .AddVLine("VLine3", 16, 2)
+                .AddVLine()
                 .AddButton("Show" + DirectorMenuCodes.PictureEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.PictureEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowPaint))
                 .AddButton("Show" + DirectorMenuCodes.ShapeEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.ShapeEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowPath))
                 .AddButton("Show" + DirectorMenuCodes.TextEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.TextEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowText))
