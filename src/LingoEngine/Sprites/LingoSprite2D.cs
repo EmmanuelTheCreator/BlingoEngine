@@ -168,7 +168,9 @@ namespace LingoEngine.Sprites
         public byte[] Thumbnail { get; set; } = new byte[] { };
         public string ModifiedBy { get; set; } = "";
 
-        public float Width { get => _frameworkSprite.Width; set => _frameworkSprite.DesiredWidth = value; }
+        public float Width { get => _frameworkSprite.Width; 
+            set => _frameworkSprite.DesiredWidth = value; 
+        }
         public float Height { get => _frameworkSprite.Height; 
             set => _frameworkSprite.DesiredHeight = value; }
 
@@ -344,7 +346,8 @@ When a movie stops, events occur in the following order:
             _behaviors.ForEach(b =>
             {
                 _eventMediator.Subscribe(b, SpriteNum + 6,true); //  we ignore mouse because it has to be within the boundingbox
-                if (b is IHasBeginSpriteEvent beginSpriteEvent) beginSpriteEvent.BeginSprite();
+                if (_movie.IsPlaying)
+                    if (b is IHasBeginSpriteEvent beginSpriteEvent) beginSpriteEvent.BeginSprite();
 
             });
             base.DoBeginSprite();
@@ -360,12 +363,13 @@ When a movie stops, events occur in the following order:
         }
         internal override void DoEndSprite()
         {
-            _behaviors.ForEach(b =>
-            {
-                // Unsubscribe all behaviors
-                _eventMediator.Unsubscribe(b,true); //  we ignore mouse because it has to be within the boundingbox
-                if (b is IHasEndSpriteEvent endSpriteEvent) endSpriteEvent.EndSprite();
-            });
+                _behaviors.ForEach(b =>
+                {
+                    // Unsubscribe all behaviors
+                    _eventMediator.Unsubscribe(b, true); //  we ignore mouse because it has to be within the boundingbox
+                    if (_movie.IsPlaying)
+                        if (b is IHasEndSpriteEvent endSpriteEvent) endSpriteEvent.EndSprite();
+                });
             FrameworkObj.Hide();
             _textureSubscription?.Release();
             _textureSubscription = null;

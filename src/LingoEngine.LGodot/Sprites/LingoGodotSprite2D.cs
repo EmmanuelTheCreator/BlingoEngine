@@ -90,8 +90,10 @@ namespace LingoEngine.LGodot.Sprites
         public float Height { get; private set; }
         private float _DesiredWidth;
         private float _DesiredHeight;
-        public float DesiredWidth { get => _DesiredWidth; set { _DesiredWidth = value; IsDirty = true; } }
-        public float DesiredHeight { get => _DesiredHeight; set { _DesiredHeight = value; IsDirty = true; } }
+        public float DesiredWidth { get => _DesiredWidth; 
+            set { _DesiredWidth = value; IsDirty = true; } }
+        public float DesiredHeight { get => _DesiredHeight; 
+            set { _DesiredHeight = value; IsDirty = true; } }
 
         public float Rotation
         {

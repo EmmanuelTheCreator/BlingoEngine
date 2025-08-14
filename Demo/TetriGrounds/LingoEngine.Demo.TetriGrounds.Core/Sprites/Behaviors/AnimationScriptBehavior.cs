@@ -25,7 +25,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 
         public void BeginSprite()
         {
-            if (myValue == -1)
+            if (myValue == -1 || myValue < myStartMembernum || myValue > myEndMembernum)
             {
                 // not implemented: get start data from another sprite
                 myValue = myStartMembernum;
