@@ -1,0 +1,60 @@
+using LingoEngine.FrameworkCommunication;
+using LingoEngine.Inputs;
+using System.Collections.Generic;
+
+namespace LingoEngine.Unity.Inputs;
+
+public class UnityKey : ILingoFrameworkKey
+{
+    private readonly HashSet<int> _keys = new();
+    private LingoKey? _lingoKey;
+    private string _lastKey = string.Empty;
+    private int _lastCode;
+
+    internal void SetLingoKey(LingoKey key) => _lingoKey = key;
+
+    public void KeyDown(int keyCode, string keyName)
+    {
+        _keys.Add(keyCode);
+        _lastCode = keyCode;
+        _lastKey = keyName;
+        _lingoKey?.DoKeyDown();
+    }
+
+    public void KeyUp(int keyCode, string keyName)
+    {
+        _keys.Remove(keyCode);
+        _lastCode = keyCode;
+        _lastKey = keyName;
+        _lingoKey?.DoKeyUp();
+    }
+
+    private static bool ContainsAny(HashSet<int> set, params int[] codes)
+    {
+        foreach (var c in codes)
+            if (set.Contains(c)) return true;
+        return false;
+    }
+
+    public bool CommandDown => ContainsAny(_keys, 310, 309);
+    public bool ControlDown => ContainsAny(_keys, 17);
+    public bool OptionDown => ContainsAny(_keys, 18);
+    public bool ShiftDown => ContainsAny(_keys, 16);
+
+    public bool KeyPressed(LingoKeyType key) => key switch
+    {
+        LingoKeyType.BACKSPACE => _keys.Contains(8),
+        LingoKeyType.ENTER or LingoKeyType.RETURN => _keys.Contains(13),
+        LingoKeyType.QUOTE => _keys.Contains(39),
+        LingoKeyType.SPACE => _keys.Contains(32),
+        LingoKeyType.TAB => _keys.Contains(9),
+        _ => false
+    };
+
+    public bool KeyPressed(char key) => _keys.Contains(char.ToUpperInvariant(key));
+
+    public bool KeyPressed(int keyCode) => _keys.Contains(keyCode);
+
+    public string Key => _lastKey;
+    public int KeyCode => _lastCode;
+}
