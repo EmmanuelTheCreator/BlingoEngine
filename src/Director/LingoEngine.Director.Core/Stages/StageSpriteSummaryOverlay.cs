@@ -22,6 +22,8 @@ public class StageSpriteSummaryOverlay : IHasSpriteSelectedEvent, IDisposable
     private readonly IDirectorIconManager _iconManager;
     private readonly ILingoTexture2D _infoIcon;
     private readonly ILingoTexture2D _behaviorIcon;
+    private readonly ILingoTextureUserSubscription _infoIconSubscription;
+    private readonly ILingoTextureUserSubscription _behaviorIconSubscription;
 
     public LingoGfxCanvas Canvas => _canvas;
 
@@ -35,7 +37,9 @@ public class StageSpriteSummaryOverlay : IHasSpriteSelectedEvent, IDisposable
         _mediator.Subscribe(this);
         _iconManager = iconManager;
         _infoIcon = _iconManager.Get(DirectorIcon.Info);
+        _infoIconSubscription = _infoIcon.AddUser(this);
         _behaviorIcon = _iconManager.Get(DirectorIcon.BehaviorScript);
+        _behaviorIconSubscription = _behaviorIcon.AddUser(this);
     }
 
     /// <summary>Called when a sprite is selected.</summary>
@@ -71,7 +75,7 @@ public class StageSpriteSummaryOverlay : IHasSpriteSelectedEvent, IDisposable
             icons = icons.Append(_behaviorIcon).ToArray();
         }
 
-        int height = lines.Length * iconSize + (margin*2);
+        int height = lines.Length * iconSize + (margin * 2);
         int widthText = lines.Max(l => l.Length * 6);
         int width = Math.Max(120, widthText + iconSize + 8);
 
@@ -87,7 +91,7 @@ public class StageSpriteSummaryOverlay : IHasSpriteSelectedEvent, IDisposable
         {
             int y = i * iconSize + margin;
             _canvas.DrawPicture(icons[i], iconSize, iconSize, new LingoPoint(2, y));
-            _canvas.DrawText(new LingoPoint(iconSize + 4, y+ bugFixGodotNotUnderstandY), lines[i], null, LingoColorList.Black, fontSize);
+            _canvas.DrawText(new LingoPoint(iconSize + 4, y + bugFixGodotNotUnderstandY), lines[i], null, LingoColorList.Black, fontSize);
         }
 
         _canvas.Visibility = true;
@@ -96,6 +100,8 @@ public class StageSpriteSummaryOverlay : IHasSpriteSelectedEvent, IDisposable
     public void Dispose()
     {
         _mediator.Unsubscribe(this);
+        _infoIconSubscription.Release();
+        _behaviorIconSubscription.Release();
         _canvas.Dispose();
     }
 }

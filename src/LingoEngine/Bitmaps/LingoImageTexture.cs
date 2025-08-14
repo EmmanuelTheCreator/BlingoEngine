@@ -1,11 +1,16 @@
-﻿namespace LingoEngine.Bitmaps
+namespace LingoEngine.Bitmaps;
+
+public interface ILingoTextureUserSubscription
 {
-    
-    public interface ILingoTexture2D
-    {
-        int Width { get; }
-
-        int Height { get; }
-
-    }
+    void Release();
 }
+
+public interface ILingoTexture2D
+{
+    int Width { get; }
+
+    int Height { get; }
+
+    ILingoTextureUserSubscription AddUser(object user);
+}
+

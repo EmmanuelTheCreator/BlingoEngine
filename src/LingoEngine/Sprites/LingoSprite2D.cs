@@ -32,6 +32,7 @@ namespace LingoEngine.Sprites
         private LingoMember? _Member;
         private Action<LingoSprite2D>? _onRemoveMe;
         private bool _isFocus = false;
+        private ILingoTextureUserSubscription? _textureSubscription;
         private bool _flipH;
         private bool _flipV;
         private int _cursor;
@@ -355,6 +356,8 @@ When a movie stops, events occur in the following order:
                 if (b is IHasEndSpriteEvent endSpriteEvent) endSpriteEvent.EndSprite();
             });
             FrameworkObj.Hide();
+            _textureSubscription?.Release();
+            _textureSubscription = null;
             // Release the old member link with this sprite
             _Member?.ReleaseFromRefUser(this);
             base.DoEndSprite();
@@ -434,6 +437,17 @@ When a movie stops, events occur in the following order:
             }
 
             _frameworkSprite.MemberChanged();
+
+            _textureSubscription?.Release();
+            if (_Member?.FrameworkObj is ILingoFrameworkMemberWithTexture withTexture &&
+                withTexture.TextureLingo is { } tex)
+            {
+                _textureSubscription = tex.AddUser(this);
+            }
+            else
+            {
+                _textureSubscription = null;
+            }
         }
         public LingoFilmLoopPlayer? GetFilmLoopPlayer() => GetActorsOfType<LingoFilmLoopPlayer>().FirstOrDefault();
 
@@ -733,6 +747,8 @@ When a movie stops, events occur in the following order:
 
         public void UpdateTexture(ILingoTexture2D texture)
         {
+            _textureSubscription?.Release();
+            _textureSubscription = texture.AddUser(this);
             _frameworkSprite.UpdateTexture(texture);
         }
     }

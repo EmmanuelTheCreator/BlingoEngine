@@ -27,6 +27,7 @@ namespace LingoEngine.FilmLoops
         private LingoFilmLoopMember? FilmLoop => _sprite.Member as LingoFilmLoopMember;
 
         public ILingoTexture2D? Texture { get; private set; }
+        private ILingoTextureUserSubscription? _textureSubscription;
 
         internal LingoFilmLoopPlayer(ILingoSprite2DLight sprite, ILingoEventMediator eventMediator, ILingoCastLibsContainer castLibs, bool isInnerPlayer = false)
         {
@@ -70,7 +71,7 @@ namespace LingoEngine.FilmLoops
                     nestedPlayer = runtime.GetFilmLoopPlayer();
                     if (nestedPlayer == null)
                     {
-                        nestedPlayer = new LingoFilmLoopPlayer(runtime, _mediator, _castLibs,true);
+                        nestedPlayer = new LingoFilmLoopPlayer(runtime, _mediator, _castLibs, true);
                         runtime.AddActor(nestedPlayer);
                         nestedPlayer.BeginSprite();
                     }
@@ -79,7 +80,7 @@ namespace LingoEngine.FilmLoops
             }
         }
 
-        
+
 
         public void StepFrame()
         {
@@ -110,6 +111,9 @@ namespace LingoEngine.FilmLoops
                 layer.Runtime.RemoveMe();
             }
             _layers.Clear();
+            _textureSubscription?.Release();
+            _textureSubscription = null;
+            Texture = null;
             var fl = FilmLoop;
             if (fl != null)
                 fl.Framework<ILingoFrameworkMemberFilmLoop>().Media = null;
@@ -187,7 +191,9 @@ namespace LingoEngine.FilmLoops
                 return;
 
             var frameworkFilmLoop = fl.Framework<ILingoFrameworkMemberFilmLoop>();
+            _textureSubscription?.Release();
             Texture = frameworkFilmLoop.ComposeTexture(_sprite, _activeLayers);
+            _textureSubscription = Texture.AddUser(this);
             _sprite.UpdateTexture(Texture);
         }
 

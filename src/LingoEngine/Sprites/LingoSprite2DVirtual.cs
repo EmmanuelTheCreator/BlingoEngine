@@ -20,6 +20,7 @@ namespace LingoEngine.Sprites
         private LingoMember? _Member;
         private Action<LingoSprite2DVirtual>? _onRemoveMe;
         private int _constraint;
+        private ILingoTextureUserSubscription? _textureSubscription;
 
 
         #region Properties
@@ -361,6 +362,9 @@ namespace LingoEngine.Sprites
 
         public override void OnRemoveMe()
         {
+            _textureSubscription?.Release();
+            _textureSubscription = null;
+            Texture = null;
             _Member?.ReleaseFromRefUser(this);
             if (_onRemoveMe != null)
                 _onRemoveMe(this);
@@ -368,6 +372,9 @@ namespace LingoEngine.Sprites
 
         public void MemberHasBeenRemoved()
         {
+            _textureSubscription?.Release();
+            _textureSubscription = null;
+            Texture = null;
             _Member = null;
         }
 
@@ -379,7 +386,9 @@ namespace LingoEngine.Sprites
 
         public void UpdateTexture(ILingoTexture2D texture)
         {
+            _textureSubscription?.Release();
             Texture = texture;
+            _textureSubscription = texture.AddUser(this);
         }
     }
 }
