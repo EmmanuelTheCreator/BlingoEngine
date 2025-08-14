@@ -150,9 +150,9 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
             bool freeSrc = true;
             var sSurf = Marshal.PtrToStructure<SDL.SDL_Surface>(srcSurf);
             var pixFmt = Marshal.PtrToStructure<SDL.SDL_PixelFormat>(sSurf.format).format;
-            if (pixFmt != SDL.SDL_PIXELFORMAT_RGBA8888)
+            if (pixFmt != SDL.SDL_PIXELFORMAT_ABGR8888)
             {
-                nint conv = SDL.SDL_ConvertSurfaceFormat(srcSurf, SDL.SDL_PIXELFORMAT_RGBA8888, 0);
+                nint conv = SDL.SDL_ConvertSurfaceFormat(srcSurf, SDL.SDL_PIXELFORMAT_ABGR8888, 0);
                 if (conv == nint.Zero)
                     continue;
                 srcSurf = conv;
@@ -164,7 +164,7 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
 
             if (info.SrcX != 0 || info.SrcY != 0 || info.SrcW != widthS || info.SrcH != heightS || info.DestW != info.SrcW || info.DestH != info.SrcH)
             {
-                nint cropped = SDL.SDL_CreateRGBSurfaceWithFormat(0, info.DestW, info.DestH, 32, SDL.SDL_PIXELFORMAT_RGBA8888);
+                nint cropped = SDL.SDL_CreateRGBSurfaceWithFormat(0, info.DestW, info.DestH, 32, SDL.SDL_PIXELFORMAT_ABGR8888);
                 if (cropped == nint.Zero)
                 {
                     if (freeSrc)
@@ -189,39 +189,60 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
                 SDL.SDL_FreeSurface(srcSurf);
         }
 
-        if (TextureLingo is SdlTexture2D oldTex && oldTex.Handle != nint.Zero)
-            SDL.SDL_DestroyTexture(oldTex.Handle);
-
         nint texture = SDL.SDL_CreateTextureFromSurface(_sdlRootContext.Renderer, surface);
         //DebugToDisk(texture, $"filmloop_{frame}_{_member.Name}_{hostSprite.Name}");
         SDL.SDL_FreeSurface(surface);
-        TextureLingo = new SdlTexture2D(texture, width, height);
-        TextureLingo.Name = $"Filmloop_{frame}_Member_" + _member.Name;
+        TextureLingo = new SdlTexture2D(texture, width, height, $"Filmloop_{frame}_Member_" + _member.Name);
         return TextureLingo;
     }
 #if DEBUG
-    public void DebugToDisk(nint texture, string filName) => SdlTexture2D.DebugToDisk(_sdlRootContext.Renderer, texture, filName);  
+    public void DebugToDisk(nint texture, string filName) => SdlTexture2D.DebugToDisk(_sdlRootContext.Renderer, texture, filName);
 #endif
     /// <summary>
     /// Blends <paramref name="src"/> onto <paramref name="dest"/> using an affine transform.
-    /// TODO: share logic with Godot implementation and investigate caching small frames.
     /// </summary>
-    private static unsafe void BlendSurface(nint dest, nint src, Matrix3x2 transform, float alpha)
+    private static unsafe void BlendSurface(nint dest, nint src, Matrix3x2 transform, float _)
     {
         SDL.SDL_LockSurface(dest);
         SDL.SDL_LockSurface(src);
+
         var dSurf = Marshal.PtrToStructure<SDL.SDL_Surface>(dest);
         var sSurf = Marshal.PtrToStructure<SDL.SDL_Surface>(src);
+        var dFmt = Marshal.PtrToStructure<SDL.SDL_PixelFormat>(dSurf.format);
+        var sFmt = Marshal.PtrToStructure<SDL.SDL_PixelFormat>(sSurf.format);
+
+        if (dSurf.format == IntPtr.Zero || sSurf.format == IntPtr.Zero) goto UNLOCK;
+        if (dFmt.BytesPerPixel != 4 || sFmt.BytesPerPixel != 4) goto UNLOCK;
+
+        static void Unpack(uint px, in SDL.SDL_PixelFormat f, out byte r, out byte g, out byte b, out byte a)
+        {
+            r = (byte)((px & f.Rmask) >> f.Rshift);
+            g = (byte)((px & f.Gmask) >> f.Gshift);
+            b = (byte)((px & f.Bmask) >> f.Bshift);
+            a = (byte)((px & f.Amask) >> f.Ashift);
+            // normalize to 8-bit if losses exist
+            r = (byte)(r * 255 / (f.Rmask >> f.Rshift));
+            g = (byte)(g * 255 / (f.Gmask >> f.Gshift));
+            b = (byte)(b * 255 / (f.Bmask >> f.Bshift));
+            a = (byte)(a * 255 / (f.Amask >> f.Ashift));
+        }
+        static uint Pack(byte r, byte g, byte b, byte a, in SDL.SDL_PixelFormat f)
+        {
+            uint R = (uint)(r * (f.Rmask >> f.Rshift) / 255) << f.Rshift;
+            uint G = (uint)(g * (f.Gmask >> f.Gshift) / 255) << f.Gshift;
+            uint B = (uint)(b * (f.Bmask >> f.Bshift) / 255) << f.Bshift;
+            uint A = (uint)(a * (f.Amask >> f.Ashift) / 255) << f.Ashift;
+            return (R & f.Rmask) | (G & f.Gmask) | (B & f.Bmask) | (A & f.Amask);
+        }
 
         Matrix3x2.Invert(transform, out var inv);
 
-        Vector2[] pts =
-        {
-            Vector2.Transform(Vector2.Zero, transform),
-            Vector2.Transform(new Vector2(sSurf.w, 0), transform),
-            Vector2.Transform(new Vector2(sSurf.w, sSurf.h), transform),
-            Vector2.Transform(new Vector2(0, sSurf.h), transform)
-        };
+        Vector2[] pts = {
+        Vector2.Transform(Vector2.Zero, transform),
+        Vector2.Transform(new Vector2(sSurf.w, 0), transform),
+        Vector2.Transform(new Vector2(sSurf.w, sSurf.h), transform),
+        Vector2.Transform(new Vector2(0, sSurf.h), transform)
+    };
         int minX = (int)MathF.Floor(pts.Min(p => p.X));
         int maxX = (int)MathF.Ceiling(pts.Max(p => p.X));
         int minY = (int)MathF.Floor(pts.Min(p => p.Y));
@@ -232,31 +253,34 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
 
         Parallel.For(minY, maxY, y =>
         {
-            if (y < 0 || y >= dSurf.h) return;
+            if ((uint)y >= (uint)dSurf.h) return;
             byte* drow = dpix + y * dSurf.pitch;
+
             for (int x = minX; x < maxX; x++)
             {
-                if (x < 0 || x >= dSurf.w) continue;
+                if ((uint)x >= (uint)dSurf.w) continue;
+
                 var srcPos = Vector2.Transform(new Vector2(x + 0.5f, y + 0.5f), inv);
                 int sx = (int)MathF.Floor(srcPos.X);
                 int sy = (int)MathF.Floor(srcPos.Y);
-                if (sx < 0 || sy < 0 || sx >= sSurf.w || sy >= sSurf.h)
-                    continue;
-                byte* sp = spix + sy * sSurf.pitch + sx * 4;
-                float a = sp[3] / 255f * alpha;
-                if (a <= 0f) continue;
-                byte* dp = drow + x * 4;
-                float invA = 1f - a;
-                dp[0] = (byte)(sp[0] * a + dp[0] * invA);
-                dp[1] = (byte)(sp[1] * a + dp[1] * invA);
-                dp[2] = (byte)(sp[2] * a + dp[2] * invA);
-                dp[3] = (byte)(sp[3] * a + dp[3] * invA);
+                if ((uint)sx >= (uint)sSurf.w || (uint)sy >= (uint)sSurf.h) continue;
+
+                uint* sp = (uint*)(spix + sy * sSurf.pitch + sx * 4);
+                byte r, g, b, a;
+                Unpack(*sp, sFmt, out r, out g, out b, out a);
+                if (a == 0) continue; // skip fully transparent
+
+                uint* dp = (uint*)(drow + x * 4);
+                *dp = Pack(r, g, b, a, dFmt); // no extra blending
             }
         });
 
+        UNLOCK:
         SDL.SDL_UnlockSurface(src);
         SDL.SDL_UnlockSurface(dest);
     }
+
+
 
     public void Dispose() { Unload(); }
 

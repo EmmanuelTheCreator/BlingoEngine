@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Godot;
 using LingoEngine.Bitmaps;
 
@@ -27,7 +25,7 @@ public class LingoGodotTexture2D : ILingoTexture2D
     {
         if (IsDisposed)
             throw new Exception("Texture is disposed and cannot be used anymore.");
-        var sub = new TextureSubscription(() => RemoveUser(user));
+        var sub = new TextureSubscription(this, () => RemoveUser(user));
         _users.Add(user, sub);
         return sub;
     }
@@ -57,7 +55,13 @@ public class LingoGodotTexture2D : ILingoTexture2D
     private class TextureSubscription : ILingoTextureUserSubscription
     {
         private readonly Action _onRelease;
-        public TextureSubscription(Action onRelease) => _onRelease = onRelease;
+        public ILingoTexture2D Texture { get; }
+        public TextureSubscription(ILingoTexture2D texture, Action onRelease)
+        {
+            _onRelease = onRelease;
+            Texture = texture;
+        }
+
         public void Release() => _onRelease();
     }
 }

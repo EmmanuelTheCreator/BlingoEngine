@@ -201,6 +201,7 @@ namespace LingoEngine.FilmLoops
                     return;
                 Texture = frameworkFilmLoop.ComposeTexture(_sprite, _activeLayers, _currentFrame);
                 _textures.Add((Texture, Texture?.AddUser(this)));
+                if (Texture == null) return;
             }
         
 
@@ -210,7 +211,7 @@ namespace LingoEngine.FilmLoops
             //Texture = null;
             //Texture = frameworkFilmLoop.ComposeTexture(_sprite, _activeLayers, _currentFrame);
             //_textureSubscription = Texture.AddUser(this);
-            _sprite.UpdateTexture(Texture);
+            _sprite.UpdateTexture(Texture!);
         }
 
 

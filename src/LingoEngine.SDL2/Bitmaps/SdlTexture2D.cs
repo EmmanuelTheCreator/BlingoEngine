@@ -14,17 +14,18 @@ public class SdlTexture2D : ILingoTexture2D
 
     private readonly Dictionary<object, TextureSubscription> _users = new();
 
-    public SdlTexture2D(nint texture, int width, int height)
+    public SdlTexture2D(nint texture, int width, int height, string name = "")
     {
         Handle = texture;
         Width = width;
         Height = height;
+        Name = name;
     }
 
     public ILingoTextureUserSubscription AddUser(object user)
     {
         if (IsDisposed) throw new Exception("Texture is disposed and cannot be used anymore.");
-        var sub = new TextureSubscription(() => RemoveUser(user));
+        var sub = new TextureSubscription(this, () => RemoveUser(user));
         _users.Add(user, sub);
         return sub;
     }
@@ -123,6 +124,8 @@ public class SdlTexture2D : ILingoTexture2D
     }
 
 #if DEBUG
+    public void DebugWriteToDisk(nint renderer)
+        => DebugToDisk(renderer, Handle, Name);
     public static void DebugToDisk(nint renderer, nint texture, string fileName)
         => DebugToDisk(renderer, texture, "", fileName);
     public static void DebugToDisk(nint renderer, nint texture, string folder, string fileName)
@@ -135,7 +138,7 @@ public class SdlTexture2D : ILingoTexture2D
         SDL.SDL_QueryTexture(texture, out _, out _, out int w, out int h);
 
         // 1) temp target with a known format
-        var OUT_FMT = SDL.SDL_PIXELFORMAT_ABGR8888;
+        var OUT_FMT = SDL.SDL_PIXELFORMAT_RGBA8888;
         var target = SDL.SDL_CreateTexture(renderer, OUT_FMT,(int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, w, h);
         if (target == nint.Zero) throw new Exception(SDL.SDL_GetError());
         SDL.SDL_SetTextureBlendMode(target, SDL.SDL_BlendMode.SDL_BLENDMODE_NONE);
@@ -170,7 +173,13 @@ public class SdlTexture2D : ILingoTexture2D
     private class TextureSubscription : ILingoTextureUserSubscription
     {
         private readonly Action _onRelease;
-        public TextureSubscription(Action onRelease) => _onRelease = onRelease;
+        public ILingoTexture2D Texture { get; }
+        public TextureSubscription(SdlTexture2D texture, Action onRelease)
+        {
+            Texture = texture;
+            _onRelease = onRelease;
+        }
+
         public void Release() => _onRelease();
     }
 }
