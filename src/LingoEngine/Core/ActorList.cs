@@ -10,7 +10,7 @@ namespace LingoEngine.Core
 
         internal void Invoke()
         {
-            foreach (var actor in _actors)
+            foreach (var actor in _actors.ToArray()) // make a copy of the array so that it can be modified during scripts.
                 actor.StepFrame();
         }
     }

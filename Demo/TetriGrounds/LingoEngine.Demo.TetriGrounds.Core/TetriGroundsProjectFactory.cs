@@ -51,8 +51,8 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
     public void LoadCastLibs(ILingoCastLibsContainer castlibContainer, LingoPlayer lingoPlayer)
     {
         lingoPlayer
-            .LoadCastLibFromCsv("Data", Path.Combine("Media", "Data", "Members.csv"))
-            .LoadCastLibFromCsv("InternalExt", Path.Combine("Media", "InternalExt", "Members.csv"), true);
+            .LoadCastLibFromCsv("InternalExt", Path.Combine("Media", "InternalExt", "Members.csv"), true)
+            .LoadCastLibFromCsv("Data", Path.Combine("Media", "Data", "Members.csv"));
     }
     public ILingoMovie? LoadStartupMovie(ILingoServiceProvider serviceProvider, LingoPlayer lingoPlayer)
     {
@@ -82,13 +82,13 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
     }
     public void InitSprites()
     {
-        if (_movie == null) return;
+        //if (_movie == null) return;
 
-        _movie.AddSprite(1, 1, 64, 519, 343) //, c => c.InkType = Primitives.LingoInkType.BackgroundTransparent)
-            .SetMember("B_Play")
-            .AddBehavior<ButtonStartGameBehavior>();
-        _movie.AddFrameBehavior<GameStopBehavior>(10);
-        return;
+        //_movie.AddSprite(1, 1, 64, 519, 343) //, c => c.InkType = Primitives.LingoInkType.BackgroundTransparent)
+        //    .SetMember("B_Play")
+        //    .AddBehavior<ButtonStartGameBehavior>();
+        //_movie.AddFrameBehavior<GameStopBehavior>(10);
+        //return;
 
         var MyBG = _movie.Member["Game"];
         _movie.AddFrameBehavior<GameStopBehavior>(60);
@@ -98,11 +98,23 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         _movie.AddFrameBehavior<MouseDownNavigateWithStayBehavior>(2, b => { b.TickWait = 1; b.FrameOffsetOnClick = 40; });
         _movie.AddSprite(4, 54, 64, 336, 241).AddBehavior<BgScriptBehavior>().SetMember("Game");// BG GAme
         _movie.AddSprite(5, 56, 64, 591, 36,c => { c.Width = 193; c.Height = 35; }).SetMember("TetriGrounds_s"); // LOGO
-        _movie.AddSprite(6, 59, 64, 503, 438).SetMember(9,2); // copyright text
+        _movie.AddSprite(6, 59, 64, 503, 438).SetMember(7,2); // copyright text
         _movie.AddSprite(7, 60, 64, 441, 92).SetMember("T_data");
-        _movie.AddSprite(9, 60, 64, 519, 343, c => c.InkType = Primitives.LingoInkType.BackgroundTransparent)
-            .SetMember("B_Play")
-            .AddBehavior<ButtonStartGameBehavior>();
+        _movie.AddSprite(9, 60, 64, 519, 343).SetMember("B_Play").AddBehavior<ButtonStartGameBehavior>();
+        
+        _movie.AddSprite(22, 55, 64, 519, 343).SetMember("bell0039")
+            .AddBehavior<AnimationScriptBehavior>(b => {
+                b.myStartMembernum = 67;
+                b.myEndMembernum = 108;
+                b.mySlowDown = 2;
+                b.myValue = 1;
+                // My Sprite that contains info
+                b.myDataSpriteNum = 1;
+                // Name Info
+                b.myDataName = "1";
+                b.myWaitbeforeExecute = 0;
+                //b.myFunction = 70;
+                });
 
     }
 }

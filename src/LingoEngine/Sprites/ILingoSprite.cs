@@ -237,7 +237,7 @@ namespace LingoEngine.Sprites
         ILingoSprite SetMember(string memberName, int? castLibNum = null);
         ILingoSprite SetMember(ILingoMember? member);
 
-        ILingoSprite AddBehavior<T>() where T : LingoSpriteBehavior;
+        ILingoSprite AddBehavior<T>(Action<T>? configure = null) where T : LingoSpriteBehavior;
 
         /// <summary>
         /// Sends the sprite to the back of the display order (lowest layer).

@@ -50,6 +50,9 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
                     }
                     else
                     {
+                        // loop
+                        //myValue = myStartMembernum;
+                        // END
                         _Movie.ActorList.Remove(this);
                         myAnimate = false;
                     }

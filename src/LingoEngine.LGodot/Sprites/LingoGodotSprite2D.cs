@@ -259,7 +259,7 @@ namespace LingoEngine.LGodot.Sprites
                 return;
             }
 
-            if (Width == 0 || Height == 0)
+            //if (Width == 0 || Height == 0)
             {
                 Width = _texture.Width;
                 Height = _texture.Height;

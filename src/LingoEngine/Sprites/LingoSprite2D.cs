@@ -221,17 +221,18 @@ namespace LingoEngine.Sprites
 
         #region Behaviors
 
-        public ILingoSprite AddBehavior<T>() where T : LingoSpriteBehavior
+        public ILingoSprite AddBehavior<T>(Action<T>? configure = null) where T : LingoSpriteBehavior
         {
-            SetBehavior<T>();
+            SetBehavior<T>(configure);
             return this;
         }
-        public T SetBehavior<T>() where T : LingoSpriteBehavior
+        public T SetBehavior<T>(Action<T>? configure = null) where T : LingoSpriteBehavior
         {
             var behavior = _frameworkFactory.CreateBehavior<T>(_movie);
             behavior.SetMe(this);
             _behaviors.Add(behavior);
-
+            if (configure != null)
+                configure(behavior);
             return behavior;
         } 
         private void CallBehaviorForEvents<T>(Action<T> action)
@@ -533,11 +534,11 @@ When a movie stops, events occur in the following order:
         void ILingoMouseEventHandler.RaiseMouseMove(LingoMouseEvent mouse)
         {
             if (!_movie.IsPlaying) return;
-            if (IsActive && Member?.Name == "B_Play")
-            {
-                var inside = IsMouseInsideBoundingBox(mouse.Mouse);
-                Console.WriteLine($"Mouse:{mouse.Mouse.MouseH}x{mouse.Mouse.MouseV} \t{Member?.Name}\t{inside}\tpos={LocH}x{LocV}\tRect={Rect};Size: {Width}x{Height}");
-            }
+            //if (IsActive && Member?.Name == "B_Play")
+            //{
+            //    var inside = IsMouseInsideBoundingBox(mouse.Mouse);
+            //    Console.WriteLine($"Mouse:{mouse.Mouse.MouseH}x{mouse.Mouse.MouseV} \t{Member?.Name}\t{inside}\tpos={LocH}x{LocV}\tRect={Rect};Size: {Width}x{Height}");
+            //}
             // Only respond if the sprite is active and the mouse is within the bounding box
             if (IsActive && IsMouseInsideBoundingBox(mouse.Mouse))
             {
