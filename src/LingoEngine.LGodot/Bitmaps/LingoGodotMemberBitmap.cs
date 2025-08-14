@@ -171,13 +171,14 @@ namespace LingoEngine.LGodot.Bitmaps
             _lingoMemberPicture.SetImageData(_image.GetData());
         }
         public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor) => GetTextureForInk(ink, transparentColor);
-        public ILingoTexture2D GetTextureForInk(LingoInkType ink, LingoColor backColor)
+        public ILingoTexture2D? GetTextureForInk(LingoInkType ink, LingoColor backColor)
         {
             if (!InkPreRenderer.CanHandle(ink) || _image == null)
-                return _texture!;
+                return null;
 
-            if (_inkCache.TryGetValue(ink, out var tex))
-                return tex;
+            var inkKey = InkPreRenderer.GetInkCacheKey(ink);
+            if (_inkCache.TryGetValue(inkKey, out var tex))
+                return tex; //.Clone();
 
             var img = GetImageCopy();
             if (img.IsCompressed())
@@ -189,8 +190,8 @@ namespace LingoEngine.LGodot.Bitmaps
             var newTexture = new LingoGodotTexture2D(tex1);
             _texture = newTexture;
             newImg.Dispose();
-            _inkCache[ink] = newTexture;
-            return newTexture;
+            _inkCache[inkKey] = newTexture;
+            return newTexture; //.Clone();
         }
 
         public bool IsPixelTransparent(int x, int y)

@@ -65,6 +65,6 @@ namespace LingoEngine.Sprites
         void SetPosition(LingoPoint point);
         void ApplyMemberChangesOnStepFrame();
        
-        void UpdateTexture(ILingoTexture2D texture);
+        void SetTexture(ILingoTexture2D texture);
     }
 }

@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using LingoEngine.Bitmaps;
+using LingoEngine.Core;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
 using LingoEngine.Shapes;
 using LingoEngine.Sprites;
 using LingoEngine.Texts;
+
 
 namespace LingoEngine.FilmLoops;
 
@@ -52,22 +54,12 @@ public static class LingoFilmLoopComposer
         int height = (int)MathF.Ceiling(bounds.Height);
         var prepared = new List<LayerInfo>();
 
+        //DebugInfo(layers, bounds, offset, width, height);
+
         foreach (var layer in layers)
         {
             int srcW = 0;
             int srcH = 0;
-            //if (layer.Member is LingoMemberBitmap pic)
-            //{
-            //    var bmp = pic.Framework<ILingoFrameworkMemberBitmap>();
-            //    srcW = bmp.Width;
-            //    srcH = bmp.Height;
-            //}
-            // TODO : use 
-            //if (layer.Member is LingoMemberText or LingoMemberField or LingoMemberShape or LingoMemberBitmap)
-            //{
-            //    srcW = (int)layer.Member.Width;
-            //    srcH = (int)layer.Member.Height;
-            //}
             if (layer.Member is ILingoMemberWithTexture)
             {
                 srcW = (int)layer.Member.Width;
@@ -141,5 +133,27 @@ public static class LingoFilmLoopComposer
 
         return (offset, width, height, prepared);
     }
+#if DEBUG
+    private static void DebugInfo(IEnumerable<LingoSprite2DVirtual> layers, LingoRect bounds, LingoPoint offset, int width, int height)
+    {
+        Console.WriteLine("Running framework: " + LingoEngineGlobal.RunFramework);
+        Console.WriteLine("bounds=\t" + bounds);
+        Console.WriteLine("offset=\t" + offset);
+        Console.WriteLine("size=\t" + width + "x" + height);
+        foreach (var layer in layers)
+        {
+            Console.WriteLine("----- layer : " + layer.Member?.Name + "----");
+            if (layer.Member != null)
+            {
+                Console.WriteLine($"Member.Size= {layer.Member.Width} x {layer.Member.Height}");
+            }
+            Console.WriteLine($"layer.Size=\t{layer.Width} x {layer.Height}");
+            Console.WriteLine($"layer.RegPoint=\t{layer.RegPoint.X} x {layer.RegPoint.Y}");
+            Console.WriteLine($"layer.Position=\t{layer.LocH} x {layer.LocV}");
+            Console.WriteLine($"layer.Skew= \t{layer.Skew}");
+            Console.WriteLine($"layer.Rotation=\t{layer.Rotation}");
+        }
+    }
+#endif
 }
 

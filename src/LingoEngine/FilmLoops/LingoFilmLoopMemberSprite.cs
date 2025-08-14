@@ -15,6 +15,7 @@ namespace LingoEngine.FilmLoops
     public class LingoFilmLoopMemberSprite
     {
         private int _ink;
+        private float width;
         private readonly LingoSpriteAnimatorProperties _animatorProperties;
         public LingoSpriteAnimatorProperties AnimatorProperties => _animatorProperties;
 
@@ -54,7 +55,10 @@ namespace LingoEngine.FilmLoops
         public LingoColor BackColor { get; set; } = LingoColorList.White;
         public ILingoMember? Member { get; private set; }
 
-        public float Width { get; set; }
+        public float Width { 
+            get => width; 
+            set => width = value; 
+        }
         public float Height { get; set; }
 
 
@@ -152,7 +156,8 @@ namespace LingoEngine.FilmLoops
             {
                 filmLoop.UpdateSize();
             }
-
+            if (member.Width == 0)
+                member.Preload();
             Width = member.Width;
             Height = member.Height;
             _animatorProperties.RequestRecalculatedBoundingBox();

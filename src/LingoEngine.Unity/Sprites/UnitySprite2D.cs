@@ -131,7 +131,7 @@ public class UnitySprite2D : ILingoFrameworkSprite, IDisposable
     {
     }
 
-    public void UpdateTexture(ILingoTexture2D texture)
+    public void SetTexture(ILingoTexture2D texture)
     {
         if (texture is Unity.Bitmaps.UnityTexture2D ut)
         {

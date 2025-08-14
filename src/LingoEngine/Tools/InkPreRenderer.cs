@@ -1,4 +1,5 @@
 using System;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using LingoEngine.Primitives;
 
@@ -105,6 +106,22 @@ namespace LingoEngine.Tools
             }
 
             return result;
+        }
+
+        public static LingoInkType GetInkCacheKey(LingoInkType ink)
+        {
+            var inkKey = ink;
+            switch (ink)
+            {
+                case LingoInkType.BackgroundTransparent:return LingoInkType.Matte;
+                case LingoInkType.Reverse:
+                case LingoInkType.NotCopy:
+                case LingoInkType.NotReverse:return LingoInkType.Reverse;
+                case LingoInkType.Ghost:
+                case LingoInkType.NotGhost: return LingoInkType.Ghost;
+                default:
+                    return ink;
+            }
         }
     }
 }

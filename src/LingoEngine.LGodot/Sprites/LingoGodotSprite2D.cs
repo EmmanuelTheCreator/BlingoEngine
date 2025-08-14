@@ -30,7 +30,7 @@ namespace LingoEngine.LGodot.Sprites
         private LingoFilmLoopPlayer? _filmloopPlayer;
         private CanvasItemMaterial _material = new();
         private int _ink;
-
+        private LingoGodotTexture2D? _texture;
         internal LingoSprite2D LingoSprite => _lingoSprite2D;
         internal Node? ChildMemberNode => _previousChildElementNode;
         internal bool IsDirty { get; set; } = true;
@@ -248,15 +248,15 @@ namespace LingoEngine.LGodot.Sprites
         }
         private void UpdateSizeFromTexture()
         {
-            if (_Sprite2D.Texture == null)
+            if (_texture == null)
             {
                 // this breaks the filmloop
                 //Width = 0;
                 //Height = 0;
                 return;
             }
-            Width = _Sprite2D.Texture.GetWidth();
-            Height = _Sprite2D.Texture.GetHeight();
+            Width = _texture.Width;
+            Height = _texture.Height;
         }
         internal void Update()
         {
@@ -266,7 +266,7 @@ namespace LingoEngine.LGodot.Sprites
             if (IsDirty)
             {
                 // update complex properties
-                if (_Sprite2D.Texture != null)
+                if (_texture != null)
                 {
                     if (_DesiredWidth != Width || _DesiredHeight != Height)
                     {
@@ -364,14 +364,31 @@ namespace LingoEngine.LGodot.Sprites
             {
                 var texture1 = godotPicture.GetTextureForInk(_lingoSprite2D.InkType, _lingoSprite2D.BackColor) as LingoGodotTexture2D;
                 if (texture1 != null)
-                    _Sprite2D.Texture = texture1.Texture;
+                    TextureHasChanged(texture1);
             }
             else
-                _Sprite2D.Texture = ((LingoGodotTexture2D)godotPicture.TextureLingo).Texture;
+                TextureHasChanged((LingoGodotTexture2D)godotPicture.TextureLingo);
         }
-        public void UpdateTexture(ILingoTexture2D texture)
+        private void TextureHasChanged(LingoGodotTexture2D tex)
         {
-            _Sprite2D.Texture = ((LingoGodotTexture2D)texture).Texture;
+            if (tex.Texture == _Sprite2D.Texture) return;
+            if (tex.IsDisposed)
+            {
+
+            }
+            _Sprite2D.Texture = tex.Texture;
+            _texture = tex;
+            // because we dont need to clone the textures, we dont need to subscribe unsubscribe to  texture.
+            _lingoSprite2D.FWTextureHasChanged(tex,false);
+            if (Width == 0 || Height == 0)
+            {
+                Width = tex.Width;
+                Height = tex.Height;
+            }
+        }
+        public void SetTexture(ILingoTexture2D texture)
+        {
+            TextureHasChanged((LingoGodotTexture2D)texture);
         }
         private void UpdateMemberFilmLoop(LingoGodotFilmLoopMember filmLoop)
         {
@@ -386,9 +403,7 @@ namespace LingoEngine.LGodot.Sprites
             if (_filmloopPlayer == null) return;
             if (_filmloopPlayer.Texture is not LingoGodotTexture2D tex)
                 return;
-
-            _Sprite2D.Texture = tex.Texture;
-
+            TextureHasChanged(tex); 
         }
         private ILingoMember? _previousChildElement;
         private Node? _previousChildElementNode;

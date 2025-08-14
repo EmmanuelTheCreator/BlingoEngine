@@ -28,6 +28,7 @@ namespace LingoEngine.FilmLoops
 
         public ILingoTexture2D? Texture { get; private set; }
         private ILingoTextureUserSubscription? _textureSubscription;
+        private List<(ILingoTexture2D? Texture, ILingoTextureUserSubscription? TextureSubscription)> _textures = new();
 
         internal LingoFilmLoopPlayer(ILingoSprite2DLight sprite, ILingoEventMediator eventMediator, ILingoCastLibsContainer castLibs, bool isInnerPlayer = false)
         {
@@ -49,6 +50,7 @@ namespace LingoEngine.FilmLoops
 
         private void SetupLayers()
         {
+            _textures.Clear();
             _layers.Clear();
             FrameCount = 0;
             var fl = FilmLoop;
@@ -117,6 +119,9 @@ namespace LingoEngine.FilmLoops
             var fl = FilmLoop;
             if (fl != null)
                 fl.Framework<ILingoFrameworkMemberFilmLoop>().Media = null;
+            foreach (var textureT in _textures)
+                textureT.TextureSubscription?.Release();
+            _textures.Clear();
         }
 
         private void ApplyFrame()
@@ -124,76 +129,87 @@ namespace LingoEngine.FilmLoops
             var fl = FilmLoop;
             if (fl == null)
                 return;
-
-            _activeLayers.Clear();
-            foreach (var (entry, runtime, innerplayer) in _layers)
+            var frameworkFilmLoop = fl.Framework<ILingoFrameworkMemberFilmLoop>();
+            if (_textures.Count >= _currentFrame)
             {
-                var template = entry;
-                bool active = entry.BeginFrame <= _currentFrame && entry.EndFrame >= _currentFrame;
-                if (!active)
-                    continue;
-                var animProperties = runtime.GetAnimatorProperties();
-                runtime.SetMember(template.Member);
-                ApplyFraming(fl, template, runtime);
-
-                float x = template.LocH;
-                float y = template.LocV;
-                float rot = template.Rotation;
-                float skew = template.Skew;
-                float width = runtime.Width;
-                float height = runtime.Height;
-                float blend = template.Blend;
-                var foreColor = template.ForeColor;
-                var backColor = template.BackColor;
-                if (animProperties != null)
+                Texture = _textures[_currentFrame-1].Texture;
+            }
+            else { 
+                _activeLayers.Clear();
+                foreach (var (entry, runtime, innerplayer) in _layers)
                 {
-                    if (animProperties.Position.KeyFrames.Count > 1)
+                    var template = entry;
+                    bool active = entry.BeginFrame <= _currentFrame && entry.EndFrame >= _currentFrame;
+                    if (!active)
+                        continue;
+                    var animProperties = runtime.GetAnimatorProperties();
+                    runtime.SetMember(template.Member);
+                    ApplyFraming(fl, template, runtime);
+
+                    float x = template.LocH;
+                    float y = template.LocV;
+                    float rot = template.Rotation;
+                    float skew = template.Skew;
+                    float width = runtime.Width;
+                    float height = runtime.Height;
+                    float blend = template.Blend;
+                    var foreColor = template.ForeColor;
+                    var backColor = template.BackColor;
+                    if (animProperties != null)
                     {
-                        var pos = animProperties.Position.GetValue(_currentFrame);
-                        x = pos.X;
-                        y = pos.Y;
+                        if (animProperties.Position.KeyFrames.Count > 1)
+                        {
+                            var pos = animProperties.Position.GetValue(_currentFrame);
+                            x = pos.X;
+                            y = pos.Y;
+                        }
+                        if (animProperties.Size.KeyFrames.Count > 1)
+                        {
+                            var sz = animProperties.Size.GetValue(_currentFrame);
+                            width = sz.X;
+                            height = sz.Y;
+                        }
+                        if (animProperties.Rotation.KeyFrames.Count > 1)
+                            rot = animProperties.Rotation.GetValue(_currentFrame);
+                        if (animProperties.Skew.KeyFrames.Count > 1)
+                            skew = animProperties.Skew.GetValue(_currentFrame);
+                        if (animProperties.ForegroundColor.KeyFrames.Count > 1)
+                            foreColor = animProperties.ForegroundColor.GetValue(_currentFrame);
+                        if (animProperties.BackgroundColor.KeyFrames.Count > 1)
+                            backColor = animProperties.BackgroundColor.GetValue(_currentFrame);
+                        if (animProperties.Blend.KeyFrames.Count > 1)
+                            blend = animProperties.Blend.GetValue(_currentFrame);
                     }
-                    if (animProperties.Size.KeyFrames.Count > 1)
-                    {
-                        var sz = animProperties.Size.GetValue(_currentFrame);
-                        width = sz.X;
-                        height = sz.Y;
-                    }
-                    if (animProperties.Rotation.KeyFrames.Count > 1)
-                        rot = animProperties.Rotation.GetValue(_currentFrame);
-                    if (animProperties.Skew.KeyFrames.Count > 1)
-                        skew = animProperties.Skew.GetValue(_currentFrame);
-                    if (animProperties.ForegroundColor.KeyFrames.Count > 1)
-                        foreColor = animProperties.ForegroundColor.GetValue(_currentFrame);
-                    if (animProperties.BackgroundColor.KeyFrames.Count > 1)
-                        backColor = animProperties.BackgroundColor.GetValue(_currentFrame);
-                    if (animProperties.Blend.KeyFrames.Count > 1)
-                        blend = animProperties.Blend.GetValue(_currentFrame);
+
+                    runtime.LocH = x;
+                    runtime.LocV = y;
+                    runtime.Rotation = rot;
+                    runtime.Skew = skew;
+                    runtime.Width = width;
+                    runtime.Height = height;
+                    runtime.ForeColor = foreColor;
+                    runtime.BackColor = backColor;
+                    runtime.Blend = blend;
+
+                    if (innerplayer != null)
+                        innerplayer.StepFrame();
+
+                    _activeLayers.Add(runtime);
                 }
 
-                runtime.LocH = x;
-                runtime.LocV = y;
-                runtime.Rotation = rot;
-                runtime.Skew = skew;
-                runtime.Width = width;
-                runtime.Height = height;
-                runtime.ForeColor = foreColor;
-                runtime.BackColor = backColor;
-                runtime.Blend = blend;
-
-                if (innerplayer != null)
-                    innerplayer.StepFrame();
-
-                _activeLayers.Add(runtime);
+                if (_activeLayers.Count == 0)
+                    return;
+                Texture = frameworkFilmLoop.ComposeTexture(_sprite, _activeLayers, _currentFrame);
+                _textures.Add((Texture, Texture?.AddUser(this)));
             }
+        
 
-            if (_activeLayers.Count == 0)
-                return;
-
-            var frameworkFilmLoop = fl.Framework<ILingoFrameworkMemberFilmLoop>();
-            _textureSubscription?.Release();
-            Texture = frameworkFilmLoop.ComposeTexture(_sprite, _activeLayers);
-            _textureSubscription = Texture.AddUser(this);
+            
+            //_textureSubscription?.Release();
+            //_textureSubscription = null;
+            //Texture = null;
+            //Texture = frameworkFilmLoop.ComposeTexture(_sprite, _activeLayers, _currentFrame);
+            //_textureSubscription = Texture.AddUser(this);
             _sprite.UpdateTexture(Texture);
         }
 

@@ -5,6 +5,7 @@ using LingoEngine.SDL2.SDLL;
 using LingoEngine.Sprites;
 using LingoEngine.Tools;
 using LingoEngine.Primitives;
+using System.Security.Cryptography;
 
 namespace LingoEngine.SDL2.Pictures;
 public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
@@ -92,9 +93,11 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
     {
         if (!InkPreRenderer.CanHandle(ink) || _surface == nint.Zero)
             return null;
+        var inkKey = InkPreRenderer.GetInkCacheKey(ink);
+        
 
-        if (_inkTextures.TryGetValue(ink, out var cached) && cached != null)
-            return cached;
+        if (_inkTextures.TryGetValue(inkKey, out var cached) && cached != null)
+            return cached.Clone(_sdlRootContext.Renderer);
 
         nint surf = SDL.SDL_ConvertSurfaceFormat(_surface, SDL.SDL_PIXELFORMAT_ABGR8888, 0);
         if (surf == nint.Zero)
@@ -114,8 +117,10 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
             SDL.SDL_FreeSurface(surf);
             //var texture = new SdlTexture2D(SDL.SDL_CreateTextureFromSurface(_sdlRootContext.Renderer, _surface), Width, Height);
             var texture = new SdlTexture2D(tex, surfPtr.w, surfPtr.h);
-            _inkTextures[ink] = texture;
-            return texture;
+            _inkTextures[inkKey] = texture;
+
+            //SdlTexture2D.DebugToDisk(_sdlRootContext.Renderer, texture.Handle,"Members", _member.Name);
+            return texture.Clone(_sdlRootContext.Renderer);
         }
         finally
         {
@@ -165,7 +170,7 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
         foreach (var tex in _inkTextures.Values)
         {
             if (tex != null)
-                SDL.SDL_DestroyTexture(tex.Texture);
+                SDL.SDL_DestroyTexture(tex.Handle);
         }
         _inkTextures.Clear();
     }

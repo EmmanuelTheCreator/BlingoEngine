@@ -291,8 +291,11 @@ namespace LingoEngine.Sprites
                 _Member.UsedBy(this);
                 RegPoint = _Member.RegPoint;
                 _Member.Preload();
-                Width = _Member.Width;
-                Height = _Member.Height;
+                if (Width == 0 || Height == 0)
+                {
+                    Width = _Member.Width;
+                    Height = _Member.Height;
+                }
             }
         }
 

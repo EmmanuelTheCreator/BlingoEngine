@@ -392,6 +392,8 @@ When a movie stops, events occur in the following order:
         }
         public ILingoSprite SetMember(ILingoMember? member)
         {
+            if (_Member == member) return this;
+            var _lastMember = _Member;
             if (_Member != null && (_Member.Type == LingoMemberType.Script || _Member.Type == LingoMemberType.Sound || _Member.Type == LingoMemberType.Transition || _Member.Type == LingoMemberType.Unknown || _Member.Type == LingoMemberType.Palette || _Member.Type == LingoMemberType.Movie || _Member.Type == LingoMemberType.Font || _Member.Type == LingoMemberType.Cursor))
                 return this;
             // Release the old member link with this sprite
@@ -438,16 +440,7 @@ When a movie stops, events occur in the following order:
 
             _frameworkSprite.MemberChanged();
 
-            _textureSubscription?.Release();
-            if (_Member?.FrameworkObj is ILingoFrameworkMemberWithTexture withTexture &&
-                withTexture.TextureLingo is { } tex)
-            {
-                _textureSubscription = tex.AddUser(this);
-            }
-            else
-            {
-                _textureSubscription = null;
-            }
+           
         }
         public LingoFilmLoopPlayer? GetFilmLoopPlayer() => GetActorsOfType<LingoFilmLoopPlayer>().FirstOrDefault();
 
@@ -747,9 +740,20 @@ When a movie stops, events occur in the following order:
 
         public void UpdateTexture(ILingoTexture2D texture)
         {
-            _textureSubscription?.Release();
-            _textureSubscription = texture.AddUser(this);
-            _frameworkSprite.UpdateTexture(texture);
+            _frameworkSprite.SetTexture(texture);
+        }
+
+        public void FWTextureHasChanged(ILingoTexture2D? texture2D, bool useSubscription = true)
+        {
+            if (useSubscription)
+
+            {
+                _textureSubscription?.Release();
+                if (texture2D != null)
+                    _textureSubscription = texture2D.AddUser(this);
+                else
+                    _textureSubscription = null;
+            }
         }
     }
 }

@@ -19,6 +19,8 @@ public class UnityTexture2D : ILingoTexture2D
     public int Width => Texture!.width;
     public int Height => Texture!.height;
 
+    public bool IsDisposed => throw new NotImplementedException();
+
     public ILingoTextureUserSubscription AddUser(object user)
     {
         var sub = new TextureSubscription(() => RemoveUser(user));
@@ -34,6 +36,11 @@ public class UnityTexture2D : ILingoTexture2D
             UnityEngine.Object.Destroy(Texture);
             Texture = null;
         }
+    }
+
+    public void Dispose()
+    {
+        throw new NotImplementedException();
     }
 
     private class TextureSubscription : ILingoTextureUserSubscription

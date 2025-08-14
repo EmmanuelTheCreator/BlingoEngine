@@ -4,14 +4,10 @@ using LingoEngine.FilmLoops;
 using LingoEngine.Primitives;
 using LingoEngine.SDL2.Pictures;
 using LingoEngine.SDL2.SDLL;
-using LingoEngine.SDL2.Texts;
-using LingoEngine.SDL2;
 using LingoEngine.SDL2.Core;
 using LingoEngine.Sprites;
 using LingoEngine.Texts;
-using LingoEngine.SDL2.Shapes;
 using LingoEngine.Shapes;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace LingoEngine.SDL2.Sprites;
 
@@ -20,7 +16,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
     private readonly Action<SdlSprite> _show;
     private readonly Action<SdlSprite> _hide;
     private readonly Action<SdlSprite> _remove;
-    private readonly LingoSprite2D _lingoSprite;
+    private readonly LingoSprite2D _lingoSprite2D;
     public LingoSDLComponentContext ComponentContext { get; }
     internal bool IsDirty { get; set; } = true;
     internal bool IsDirtyMember { get; set; } = true;
@@ -32,7 +28,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
 
     public SdlSprite(LingoSprite2D sprite, SdlFactory factory, Action<SdlSprite> show, Action<SdlSprite> hide, Action<SdlSprite> remove)
     {
-        _lingoSprite = sprite;
+        _lingoSprite2D = sprite;
         _factory = factory;
         ComponentContext = factory.CreateContext(this);
         _show = show;
@@ -184,7 +180,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
 
     public void MemberChanged()
     {
-        if (_lingoSprite.Member is { } member)
+        if (_lingoSprite2D.Member is { } member)
         {
             Width = member.Width;
             Height = member.Height;
@@ -214,7 +210,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
             return nint.Zero;
         }
         var offset = new LingoPoint();
-        if (_lingoSprite.Member is { } member)
+        if (_lingoSprite2D.Member is { } member)
         {
             var baseOffset = member.CenterOffsetFromRegPoint();
             float scaleX = 1f;
@@ -226,7 +222,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
             }
             offset = new LingoPoint(baseOffset.X * scaleX, baseOffset.Y * scaleY);
 
-            if (_lingoSprite.Member is LingoFilmLoopMember flm)
+            if (_lingoSprite2D.Member is LingoFilmLoopMember flm)
             {
                 var fl = flm.Framework<SdlMemberFilmLoop>();
                 offset = new LingoPoint(offset.X - fl.Offset.X * scaleX, offset.Y - fl.Offset.Y * scaleY);
@@ -247,58 +243,49 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
         _texture = nint.Zero;
         _textureOwned = false;
         
-        switch (_lingoSprite.Member)
+        switch (_lingoSprite2D.Member)
         {
             case LingoMemberBitmap pic:
                 pic.Preload();
                 var p = pic.Framework<SdlMemberBitmap>();
-                if (pic.TextureLingo is SdlTexture2D tex2D && tex2D.Texture!= nint.Zero)
+                if (pic.TextureLingo is SdlTexture2D tex2D && tex2D.Handle!= nint.Zero)
                 {
-                    var texInk = p.GetTextureForInk(_lingoSprite.InkType, _lingoSprite.BackColor, ComponentContext.Renderer) as SdlTexture2D;
-                    if (texInk != null && texInk.Texture != nint.Zero)
-                        SetTextureOwned(texInk);
+                    var texInk = p.GetTextureForInk(_lingoSprite2D.InkType, _lingoSprite2D.BackColor, ComponentContext.Renderer) as SdlTexture2D;
+                    if (texInk != null && texInk.Handle != nint.Zero)
+                        TextureHasChanged(texInk);
                     else
                     {
                         //var textureShape = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, p.Surface);
                         //SetTextureOwned(new SdlTexture2D(textureShape,p.Width, p.Height));
-                        SetTextureOwned(tex2D);
+                        TextureHasChanged(tex2D);
                     }
                 }
                 break;
             case LingoFilmLoopMember flm:
                 var fl = flm.Framework<SdlMemberFilmLoop>();
-                if (fl.TextureLingo is SdlTexture2D tex && tex.Texture != nint.Zero)
-                    SetTextureOwned(tex);
+                if (fl.TextureLingo is SdlTexture2D tex && tex.Handle != nint.Zero)
+                    TextureHasChanged(tex);
                 break;
             case ILingoMemberTextBase text:
                 text.FrameworkObj.Preload();
-                var textureT = text.RenderToTexture(_lingoSprite.InkType, _lingoSprite.BackColor);
+                var textureT = text.RenderToTexture(_lingoSprite2D.InkType, _lingoSprite2D.BackColor);
                 if (textureT != null && textureT is SdlTexture2D sdlTexture)
-                    SetTextureOwned(sdlTexture);
+                    TextureHasChanged(sdlTexture);
                 break;
             case LingoMemberShape shape:
                 shape.FrameworkObj.Preload();
-                var textureS = shape.RenderToTexture(_lingoSprite.InkType, _lingoSprite.BackColor);
+                var textureS = shape.RenderToTexture(_lingoSprite2D.InkType, _lingoSprite2D.BackColor);
                 if (textureS != null && textureS is SdlTexture2D sdlTexture2)
-                    SetTextureOwned(sdlTexture2);
-                //if (sh.Surface != nint.Zero)
-                //{
-                //    var textureShape = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, sh.Surface);
-                //    if (_texture != nint.Zero)
-                //    {
-                //        _textureOwned = true;
-                //        Width = sh.Width;
-                //        Height = sh.Height;
-                //    }
-                //}
+                    TextureHasChanged(sdlTexture2);
                 break;
         }
         ApplyInk();
     }
 
-    private void SetTextureOwned(SdlTexture2D tex)
+    private void TextureHasChanged(SdlTexture2D tex)
     {
-        _texture = tex.Texture;
+        _texture = tex.Handle;
+        _lingoSprite2D.FWTextureHasChanged(tex);
         if (_texture == nint.Zero)
             return;
         _textureOwned = true;
@@ -309,15 +296,10 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
         }
     }
 
-    public void UpdateTexture(ILingoTexture2D texture)
+    public void SetTexture(ILingoTexture2D texture)
     {
         var tex = (SdlTexture2D)texture;
-        _texture = tex.Texture;
-        if (!_textureOwned && (Width == 0 || Height == 0))
-        {
-            Width = tex.Width;
-            Height = tex.Height;
-        }
+        TextureHasChanged(tex);
     }
 
     private static readonly SDL.SDL_BlendMode _subtractBlend = SDL.SDL_ComposeCustomBlendMode(

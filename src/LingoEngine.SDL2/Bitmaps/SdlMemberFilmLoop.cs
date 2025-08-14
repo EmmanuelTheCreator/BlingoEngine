@@ -48,9 +48,9 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
     /// <summary>Releases any GPU resources held by the film loop.</summary>
     public void Unload()
     {
-        if (TextureLingo is SdlTexture2D tex && tex.Texture != nint.Zero)
+        if (TextureLingo is SdlTexture2D tex && tex.Handle != nint.Zero)
         {
-            SDL.SDL_DestroyTexture(tex.Texture);
+            SDL.SDL_DestroyTexture(tex.Handle);
             TextureLingo = null;
         }
         IsLoaded = false;
@@ -96,13 +96,13 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
     /// <see cref="LingoFilmLoopComposer"/> for layout and transforms.
     /// </summary>
     /// <returns>The composed texture for rendering.</returns>
-    public ILingoTexture2D ComposeTexture(ILingoSprite2DLight hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers)
+    public ILingoTexture2D ComposeTexture(ILingoSprite2DLight hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers, int frame)
     {
-        //return Texture ?? new SdlTexture2D(nint.Zero, 0, 0);
+        //return new SdlTexture2D(nint.Zero, 0, 0);
         //var sdlSprite = hostSprite.FrameworkObj as SdlSprite;
         //if (sdlSprite == null)
         //    return Texture ?? new SdlTexture2D(nint.Zero, 0, 0);
-
+        
         var prep = LingoFilmLoopComposer.Prepare(_member, Framing, layers);
         Offset = prep.Offset;
         int width = prep.Width;
@@ -111,9 +111,10 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
         nint surface = SDL.SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL.SDL_PIXELFORMAT_RGBA8888);
         if (surface == nint.Zero)
             return TextureLingo ?? new SdlTexture2D(nint.Zero, width, height);
-
+        var i = 0;
         foreach (var info in prep.Layers)
         {
+            i++;
             nint srcImg = nint.Zero;
             SdlTexture2D? textureSdl = null;
             int widthS = 0;
@@ -124,7 +125,8 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
                 if (textureSdl == null) continue;
                 textureSdl = bmp.GetTextureForInk(info.Ink, info.BackColor, _sdlRootContext.Renderer) as SdlTexture2D;
                 if (textureSdl == null) continue;
-                srcImg = textureSdl.Texture;
+                //DebugToDisk(textureSdl.Handle, $"filmloop_{i}_{info.Sprite2D.SpriteNum}_{info.Sprite2D.Member?.Name}");
+                srcImg = textureSdl.Handle;
                 widthS = textureSdl.Width;
                 heightS = textureSdl.Height;
             }
@@ -135,15 +137,17 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
                 if (info.Sprite2D.Texture == null) continue;
 
                 textureSdl = (SdlTexture2D)info.Sprite2D.Texture;
-                srcImg = textureSdl.Texture;
+
+                //DebugToDisk(textureSdl.Handle, $"filmloop_{frame}/{i}_{info.Sprite2D.SpriteNum}_{info.Sprite2D.Member?.Name}");
+                srcImg = textureSdl.Handle;
                 widthS = textureSdl.Width;
                 heightS = textureSdl.Height;
             }
             if (srcImg == nint.Zero)
                 continue;
-
-            nint srcSurf = srcImg;
-            bool freeSrc = false;
+            //DebugToDisk(srcImg, $"filmloop_{i}_{info.Sprite2D.SpriteNum}_{info.Sprite2D.Member?.Name}");
+            nint srcSurf = textureSdl.ToSurface(_sdlRootContext.Renderer, out widthS, out heightS);
+            bool freeSrc = true;
             var sSurf = Marshal.PtrToStructure<SDL.SDL_Surface>(srcSurf);
             var pixFmt = Marshal.PtrToStructure<SDL.SDL_PixelFormat>(sSurf.format).format;
             if (pixFmt != SDL.SDL_PIXELFORMAT_RGBA8888)
@@ -185,15 +189,19 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
                 SDL.SDL_FreeSurface(srcSurf);
         }
 
-        if (TextureLingo is SdlTexture2D oldTex && oldTex.Texture != nint.Zero)
-            SDL.SDL_DestroyTexture(oldTex.Texture);
+        if (TextureLingo is SdlTexture2D oldTex && oldTex.Handle != nint.Zero)
+            SDL.SDL_DestroyTexture(oldTex.Handle);
 
         nint texture = SDL.SDL_CreateTextureFromSurface(_sdlRootContext.Renderer, surface);
+        //DebugToDisk(texture, $"filmloop_{frame}_{_member.Name}_{hostSprite.Name}");
         SDL.SDL_FreeSurface(surface);
         TextureLingo = new SdlTexture2D(texture, width, height);
+        TextureLingo.Name = $"Filmloop_{frame}_Member_" + _member.Name;
         return TextureLingo;
     }
-
+#if DEBUG
+    public void DebugToDisk(nint texture, string filName) => SdlTexture2D.DebugToDisk(_sdlRootContext.Renderer, texture, filName);  
+#endif
     /// <summary>
     /// Blends <paramref name="src"/> onto <paramref name="dest"/> using an affine transform.
     /// TODO: share logic with Godot implementation and investigate caching small frames.
