@@ -29,7 +29,7 @@ namespace LingoEngine.Gfx
         LingoGfxColorPicker CreateColorPicker(string name, Action<LingoColor>? onChange = null);
         LingoGfxLabel CreateLabel(string name, string text = "");
         LingoGfxButton CreateButton(string name, string text = "");
-        LingoGfxStateButton CreateStateButton(string name, ILingoImageTexture? texture = null, string text = "", Action<bool>? onChange = null);
+        LingoGfxStateButton CreateStateButton(string name, ILingoTexture2D? texture = null, string text = "", Action<bool>? onChange = null);
         LingoGfxMenu CreateMenu(string name);
         LingoGfxMenuItem CreateMenuItem(string name, string? shortcut = null);
         LingoGfxMenu CreateContextMenu(object window);

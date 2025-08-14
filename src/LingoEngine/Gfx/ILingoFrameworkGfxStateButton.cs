@@ -10,9 +10,9 @@ namespace LingoEngine.Gfx
         /// <summary>Displayed text on the button.</summary>
         string Text { get; set; }
         /// <summary>Icon texture displayed on the button.</summary>
-        ILingoImageTexture? TextureOn { get; set; }
+        ILingoTexture2D? TextureOn { get; set; }
         /// <summary>Whether the button is toggled on.</summary>
         bool IsOn { get; set; }
-        ILingoImageTexture? TextureOff { get; set; }
+        ILingoTexture2D? TextureOff { get; set; }
     }
 }

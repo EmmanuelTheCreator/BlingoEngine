@@ -9,7 +9,7 @@ namespace LingoEngine.Gfx
     {
         public string Text { get => _framework.Text; set => _framework.Text = value; }
         public bool Enabled { get => _framework.Enabled; set => _framework.Enabled = value; }
-        public ILingoImageTexture? IconTexture { get => _framework.IconTexture; set => _framework.IconTexture = value; }
+        public ILingoTexture2D? IconTexture { get => _framework.IconTexture; set => _framework.IconTexture = value; }
 
         public event Action? Pressed
         {

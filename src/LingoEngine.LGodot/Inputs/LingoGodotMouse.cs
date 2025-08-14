@@ -120,10 +120,9 @@ namespace LingoEngine.LGodot
         }
         public void SetCursor(LingoMemberBitmap image)
         {
-            var frameworkObj = image.Framework<LingoGodotMemberBitmap>();
-            if (frameworkObj.TextureGodot == null)
+            if (!(image.TextureLingo is LingoGodotTexture2D godotTexture))
                 return;
-            DisplayServer.Singleton.CursorSetCustomImage(frameworkObj.TextureGodot, DisplayServer.CursorShape.Arrow, hotspot: Vector2.Zero);
+            DisplayServer.Singleton.CursorSetCustomImage(godotTexture.Texture, DisplayServer.CursorShape.Arrow, hotspot: Vector2.Zero);
         }
 
         public void SetCursor(LingoMouseCursor cursor)

@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using LingoEngine.Bitmaps;
+using LingoEngine.Members;
 using LingoEngine.Primitives;
+using LingoEngine.Shapes;
 using LingoEngine.Sprites;
+using LingoEngine.Texts;
 
 namespace LingoEngine.FilmLoops;
 
@@ -53,14 +56,26 @@ public static class LingoFilmLoopComposer
         {
             int srcW = 0;
             int srcH = 0;
-            if (layer.Member is LingoMemberBitmap pic)
+            //if (layer.Member is LingoMemberBitmap pic)
+            //{
+            //    var bmp = pic.Framework<ILingoFrameworkMemberBitmap>();
+            //    srcW = bmp.Width;
+            //    srcH = bmp.Height;
+            //}
+            // TODO : use 
+            //if (layer.Member is LingoMemberText or LingoMemberField or LingoMemberShape or LingoMemberBitmap)
+            //{
+            //    srcW = (int)layer.Member.Width;
+            //    srcH = (int)layer.Member.Height;
+            //}
+            if (layer.Member is ILingoMemberWithTexture)
             {
-                var bmp = pic.Framework<ILingoFrameworkMemberBitmap>();
-                srcW = bmp.Width;
-                srcH = bmp.Height;
+                srcW = (int)layer.Member.Width;
+                srcH = (int)layer.Member.Height;
             }
             else
             {
+                // filmloops
                 if (layer.Texture == null) continue;
                 srcW = (int)layer.Width;
                 srcH = (int)layer.Height;

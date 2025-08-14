@@ -1,4 +1,6 @@
 ﻿using Godot;
+using LingoEngine.Bitmaps;
+using LingoEngine.LGodot.Bitmaps;
 using LingoEngine.LGodot.Helpers;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.LGodot.Sprites;
@@ -22,6 +24,9 @@ namespace LingoEngine.LGodot.Texts
         
         private GodotMemberTextNode _defaultTextNode;
         private List<GodotMemberTextNode> _usedNodes = new List<GodotMemberTextNode>();
+        private LingoGodotTexture2D? _texture;
+        public ILingoTexture2D? TextureLingo => _texture;
+        public LingoGodotTexture2D? TextureGodot => _texture;
 
         internal class GodotMemberTextNode
         {
@@ -251,6 +256,38 @@ namespace LingoEngine.LGodot.Texts
                 foreach (var usedNode in _usedNodes)
                     usedNode.SetName(lingoInstance.Name);
             }
+        }
+        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+        {
+            int w = Width > 0 ? Width : (int)Size.X;
+            int h = Height > 0 ? Height : (int)Size.Y;
+            if (w <= 0 || h <= 0)
+                w = h = 1;
+            var viewport = new SubViewport
+            {
+                Size = new Vector2I(w, h),
+                TransparentBg = true,
+                RenderTargetUpdateMode = SubViewport.UpdateMode.Once
+            };
+            var label = new Label
+            {
+                LabelSettings = _LabelSettings,
+                Text = Text,
+                Size = new Vector2(w, h)
+            };
+            label.AutowrapMode = WordWrap ? TextServer.AutowrapMode.Word : TextServer.AutowrapMode.Off;
+            label.HorizontalAlignment = Alignment switch
+            {
+                LingoTextAlignment.Center => HorizontalAlignment.Center,
+                LingoTextAlignment.Right => HorizontalAlignment.Right,
+                _ => HorizontalAlignment.Left
+            };
+            viewport.AddChild(label);
+            var img = viewport.GetTexture().GetImage();
+            viewport.Dispose();
+            var tex = ImageTexture.CreateFromImage(img);
+            _texture =  new LingoGodotTexture2D(tex);
+            return _texture;
         }
         
         public string ReadText()

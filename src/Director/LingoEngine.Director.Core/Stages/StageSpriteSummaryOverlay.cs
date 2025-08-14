@@ -20,8 +20,8 @@ public class StageSpriteSummaryOverlay : IHasSpriteSelectedEvent, IDisposable
     private readonly LingoGfxCanvas _canvas;
     private readonly IDirectorEventMediator _mediator;
     private readonly IDirectorIconManager _iconManager;
-    private readonly ILingoImageTexture _infoIcon;
-    private readonly ILingoImageTexture _behaviorIcon;
+    private readonly ILingoTexture2D _infoIcon;
+    private readonly ILingoTexture2D _behaviorIcon;
 
     public LingoGfxCanvas Canvas => _canvas;
 

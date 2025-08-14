@@ -12,7 +12,7 @@ namespace LingoEngine.LGodot.Gfx
     public partial class LingoGodotButton : Button, ILingoFrameworkGfxButton, IDisposable
     {
         private LingoMargin _margin = LingoMargin.Zero;
-        private ILingoImageTexture? _texture;
+        private ILingoTexture2D? _texture;
 
         private event Action? _pressed;
        
@@ -55,13 +55,13 @@ namespace LingoEngine.LGodot.Gfx
             remove => _pressed -= value;
         }
 
-        public ILingoImageTexture? IconTexture
+        public ILingoTexture2D? IconTexture
         {
             get => _texture;
             set
             {
                 _texture = value;
-                if (_texture != null && _texture is LingoGodotImageTexture tex)
+                if (_texture != null && _texture is LingoGodotTexture2D tex)
                     Icon = tex.Texture;
             }
         }

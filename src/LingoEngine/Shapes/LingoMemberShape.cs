@@ -1,3 +1,4 @@
+using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
@@ -7,7 +8,7 @@ namespace LingoEngine.Shapes
     /// <summary>
     /// Represents a vector shape cast member.
     /// </summary>
-    public class LingoMemberShape : LingoMember
+    public class LingoMemberShape : LingoMember, ILingoMemberWithTexture
     {
         private readonly ILingoFrameworkMemberShape _framework;
 
@@ -24,6 +25,8 @@ namespace LingoEngine.Shapes
         public override int Height { get => Convert.ToInt32(_framework.Height); set => _framework.Height = value; }
         public bool Filled { get => _framework.Filled; set => _framework.Filled = value; }
 
+        public ILingoTexture2D? TextureLingo => _framework.TextureLingo;
+
         public T Framework<T>() where T : ILingoFrameworkMemberShape => (T)_framework;
 
         public LingoMemberShape(LingoCast cast, ILingoFrameworkMemberShape framework, int numberInCast, string name = "", string fileName = "", LingoPoint regPoint = default)
@@ -39,5 +42,8 @@ namespace LingoEngine.Shapes
         }
 
         public override void Preload() => _framework.Preload();
+
+        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+           => _framework.RenderToTexture(ink, transparentColor);
     }
 }

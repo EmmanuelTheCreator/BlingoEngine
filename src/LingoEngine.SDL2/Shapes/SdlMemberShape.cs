@@ -5,14 +5,20 @@ using LingoEngine.Primitives;
 using LingoEngine.Shapes;
 using LingoEngine.SDL2.SDLL;
 using LingoEngine.Sprites;
+using LingoEngine.Bitmaps;
+using LingoEngine.SDL2.Pictures;
 
 namespace LingoEngine.SDL2.Shapes
 {
     public class SdlMemberShape : ILingoFrameworkMemberShape, IDisposable
     {
+
+        private readonly ISdlRootComponentContext _sdlRootContext;
         private nint _surface = nint.Zero;
         private SDL.SDL_Surface _surfacePtr;
-
+        internal nint Surface => _surface;
+        private SdlTexture2D? _texture;
+        public ILingoTexture2D? TextureLingo => _texture;
         public bool IsLoaded { get; private set; }
         public LingoList<LingoPoint> VertexList { get; } = new();
         public LingoShapeType ShapeType { get; set; } = LingoShapeType.Rectangle;
@@ -26,7 +32,15 @@ namespace LingoEngine.SDL2.Shapes
         public float Height { get; set; }
         public bool Filled { get; set; } = true;
 
-        internal nint Surface => _surface;
+
+
+
+
+        public SdlMemberShape(ISdlRootComponentContext sdlRootContext)
+        {
+            _sdlRootContext = sdlRootContext;
+        }
+
 
         public void CopyToClipboard() { }
         public void Erase() { VertexList.Clear(); }
@@ -67,7 +81,7 @@ namespace LingoEngine.SDL2.Shapes
                     DrawRoundRect(w, h, fill, stroke);
                     break;
             }
-
+            _texture = new SdlTexture2D(SDL.SDL_CreateTextureFromSurface(_sdlRootContext.Renderer, _surface), w, h);
             IsLoaded = true;
         }
 
@@ -84,6 +98,17 @@ namespace LingoEngine.SDL2.Shapes
         public void Dispose() { Unload(); }
 
         public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
+
+
+        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+        {
+            if (_texture == null)
+                Preload();
+            return _texture;
+        }
+
+
+        #region Draw methods
 
         private unsafe void DrawRectangle(int w, int h, uint fill, uint stroke)
         {
@@ -224,6 +249,9 @@ namespace LingoEngine.SDL2.Shapes
                 if (e2 >= dy) { err += dy; x0 += sx; }
                 if (e2 <= dx) { err += dx; y0 += sy; }
             }
-        }
+        } 
+        #endregion
+
+
     }
 }

@@ -6,5 +6,5 @@ namespace LingoEngine.SDL2.Texts;
 
 public class SdlMemberText : SdlMemberTextBase<LingoMemberText>, ILingoFrameworkMemberText
 {
-    public SdlMemberText(ILingoFontManager fontManager) : base(fontManager) { }
+    public SdlMemberText(ILingoFontManager fontManager, ISdlRootComponentContext sdlRootContext) : base(fontManager, sdlRootContext) { }
 }

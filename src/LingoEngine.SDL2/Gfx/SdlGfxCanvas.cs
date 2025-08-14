@@ -310,7 +310,7 @@ namespace LingoEngine.SDL2.Gfx
             });
             MarkDirty();
         }
-        public void DrawPicture(ILingoImageTexture texture, int width, int height, LingoPoint position)
+        public void DrawPicture(ILingoTexture2D texture, int width, int height, LingoPoint position)
         {
             var tex = texture;
             var w = width;
@@ -318,9 +318,10 @@ namespace LingoEngine.SDL2.Gfx
             var pos = position;
             _drawActions.Add(() =>
             {
-                if (tex is SdlImageTexture img)
+                if (tex is SdlTexture2D img)
                 {
-                    nint sdlTex = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, img.SurfaceId);
+
+                    nint sdlTex = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, img.Texture);
                     if (sdlTex != nint.Zero)
                     {
                         SDL.SDL_Rect dst = new SDL.SDL_Rect

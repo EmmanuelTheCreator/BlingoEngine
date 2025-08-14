@@ -3,7 +3,7 @@ using LingoEngine.SDL2.SDLL;
 
 namespace LingoEngine.SDL2.Pictures;
 
-public class SdlImageTexture : ILingoImageTexture
+public class SdlImageTexture : ILingoTexture2D
 {
     private SDL.SDL_Surface _surfacePtr;
     public SDL.SDL_Surface Ptr => _surfacePtr;

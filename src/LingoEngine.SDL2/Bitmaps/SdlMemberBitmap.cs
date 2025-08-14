@@ -4,7 +4,6 @@ using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.SDLL;
 using LingoEngine.Sprites;
 using LingoEngine.Tools;
-using System.Collections.Generic;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.SDL2.Pictures;
@@ -13,17 +12,24 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
     private LingoMemberBitmap _member = null!;
     private nint _surface = nint.Zero;
     private SDL.SDL_Surface _surfacePtr;
-    private SdlImageTexture _surfaceLingo;
-    private readonly Dictionary<LingoInkType, nint> _inkTextures = new();
+    private SdlTexture2D? _texture;
+    private readonly Dictionary<LingoInkType, SdlTexture2D> _inkTextures = new();
+    private readonly ISdlRootComponentContext _sdlRootContext;
+
     public byte[]? ImageData { get; private set; }
     public bool IsLoaded { get; private set; }
     public string Format { get; private set; } = "image/unknown";
     public int Width { get; private set; }
     public int Height { get; private set; }
-    public SDL.SDL_Surface Texture => _surfacePtr;
+    public SDL.SDL_Surface TextureSDL => _surfacePtr;
     internal nint Surface => _surface;
 
-    ILingoImageTexture? ILingoFrameworkMemberBitmap.Texture => _surfaceLingo;
+    public ILingoTexture2D? TextureLingo => _texture;
+
+    public SdlMemberBitmap(ISdlRootComponentContext sdlRootContext)
+    {
+        _sdlRootContext = sdlRootContext;
+    }
 
     internal void Init(LingoMemberBitmap member)
     {
@@ -46,13 +52,14 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
         _surfacePtr = Marshal.PtrToStructure<SDL.SDL_Surface>(_surface);
         Width = _surfacePtr.w;
         Height = _surfacePtr.h;
-        _surfaceLingo = new SdlImageTexture(_surfacePtr, _surface, Width, Height);
-
+        //var surfaceLingo = new SdlImageTexture(_surfacePtr, _surface, Width, Height);
+        
         ImageData = File.ReadAllBytes(fullFileName);
         Format = MimeHelper.GetMimeType(_member.FileName);
         _member.Size = ImageData.Length;
         _member.Width = Width;
         _member.Height = Height;
+        _texture = new SdlTexture2D(SDL.SDL_CreateTextureFromSurface(_sdlRootContext.Renderer, _surface), Width, Height);
         IsLoaded = true;
     }
 
@@ -64,6 +71,7 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
             SDL.SDL_FreeSurface(_surface);
             _surface = nint.Zero;
         }
+        _texture = null;
         IsLoaded = false;
     }
 
@@ -74,60 +82,23 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
     }
 
     public void Dispose() { Unload(); }
-    public void CopyToClipboard()
-    {
-        if (ImageData == null) return;
-        var base64 = Convert.ToBase64String(ImageData);
-        SdlClipboard.SetText("data:" + Format + ";base64," + base64);
-    }
+    
     public void ImportFileInto() { }
-    public void PasteClipboardInto()
-    {
-        var data = SdlClipboard.GetText();
-        if (string.IsNullOrEmpty(data)) return;
-        var parts = data.Split(',', 2);
-        if (parts.Length != 2) return;
 
-        var bytes = Convert.FromBase64String(parts[1]);
-        GCHandle pinned = GCHandle.Alloc(bytes, GCHandleType.Pinned);
-        try
-        {
-            var rw = SDL.SDL_RWFromMem(pinned.AddrOfPinnedObject(), bytes.Length);
-            _surface = SDL_image.IMG_Load_RW(rw, 1);
-            if (_surface == nint.Zero)
-            {
-                Console.WriteLine("IMG_Load_RW failed: " + SDL_image.IMG_GetError());
-                return;
-            }
+    public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor) 
+        => GetTextureForInk(ink, transparentColor, _sdlRootContext.Renderer);
 
-            var surf = Marshal.PtrToStructure<SDL.SDL_Surface>(_surface);
-            Width = surf.w;
-            Height = surf.h;
-            ImageData = bytes;
-            Format = parts[0].Replace("data:", "");
-            _member.Size = bytes.Length;
-            _member.Width = Width;
-            _member.Height = Height;
-            IsLoaded = true;
-        }
-        finally
-        {
-            pinned.Free();
-        }
-
-    }
-
-    public nint GetTextureForInk(LingoInkType ink, LingoColor backColor, nint renderer)
+    public ILingoTexture2D? GetTextureForInk(LingoInkType ink, LingoColor backColor, nint renderer)
     {
         if (!InkPreRenderer.CanHandle(ink) || _surface == nint.Zero)
-            return nint.Zero;
+            return null;
 
-        if (_inkTextures.TryGetValue(ink, out var cached) && cached != nint.Zero)
+        if (_inkTextures.TryGetValue(ink, out var cached) && cached != null)
             return cached;
 
         nint surf = SDL.SDL_ConvertSurfaceFormat(_surface, SDL.SDL_PIXELFORMAT_ABGR8888, 0);
         if (surf == nint.Zero)
-            return nint.Zero;
+            return null;
 
         var surfPtr = Marshal.PtrToStructure<SDL.SDL_Surface>(surf);
         var bytes = new byte[surfPtr.w * surfPtr.h * 4];
@@ -141,8 +112,9 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
             var tex = SDL.SDL_CreateTextureFromSurface(renderer, newSurf);
             SDL.SDL_FreeSurface(newSurf);
             SDL.SDL_FreeSurface(surf);
-            _inkTextures[ink] = tex;
-            return tex;
+            var texture = new SdlTexture2D(SDL.SDL_CreateTextureFromSurface(_sdlRootContext.Renderer, _surface), Width, Height);
+            _inkTextures[ink] = texture;
+            return texture;
         }
         finally
         {
@@ -191,9 +163,57 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
     {
         foreach (var tex in _inkTextures.Values)
         {
-            if (tex != nint.Zero)
-                SDL.SDL_DestroyTexture(tex);
+            if (tex != null)
+                SDL.SDL_DestroyTexture(tex.Texture);
         }
         _inkTextures.Clear();
     }
+
+
+
+    #region Clipboard
+
+    public void CopyToClipboard()
+    {
+        if (ImageData == null) return;
+        var base64 = Convert.ToBase64String(ImageData);
+        SdlClipboard.SetText("data:" + Format + ";base64," + base64);
+    }
+    public void PasteClipboardInto()
+    {
+        var data = SdlClipboard.GetText();
+        if (string.IsNullOrEmpty(data)) return;
+        var parts = data.Split(',', 2);
+        if (parts.Length != 2) return;
+
+        var bytes = Convert.FromBase64String(parts[1]);
+        GCHandle pinned = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+        try
+        {
+            var rw = SDL.SDL_RWFromMem(pinned.AddrOfPinnedObject(), bytes.Length);
+            _surface = SDL_image.IMG_Load_RW(rw, 1);
+            if (_surface == nint.Zero)
+            {
+                Console.WriteLine("IMG_Load_RW failed: " + SDL_image.IMG_GetError());
+                return;
+            }
+
+            var surf = Marshal.PtrToStructure<SDL.SDL_Surface>(_surface);
+            Width = surf.w;
+            Height = surf.h;
+            ImageData = bytes;
+            Format = parts[0].Replace("data:", "");
+            _member.Size = bytes.Length;
+            _member.Width = Width;
+            _member.Height = Height;
+            IsLoaded = true;
+        }
+        finally
+        {
+            pinned.Free();
+        }
+
+       
+    }
+    #endregion
 }

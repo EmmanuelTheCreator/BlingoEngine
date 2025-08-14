@@ -105,13 +105,11 @@ public class DirectorMemberThumbnail : IDisposable
     private void DrawPicture(LingoMemberBitmap picture)
     {
         picture.Preload();
-        var impl = picture.Framework<ILingoFrameworkMemberBitmap>();
-        if (impl.Texture == null)
+        if (picture.TextureLingo == null)
             return;
-        var w = impl.Width;
-        var h = impl.Height;
-
-        Canvas.DrawPicture(impl.Texture, ThumbWidth - 2, ThumbHeight - 2, new LingoPoint(_xOffset + 1, _yOffset + 2));
+        var w = picture.TextureLingo.Width;
+        var h = picture.TextureLingo.Height;
+        Canvas.DrawPicture(picture.TextureLingo, ThumbWidth - 2, ThumbHeight - 2, new LingoPoint(_xOffset + 1, _yOffset + 2));
     }
 
     private void DrawText(string text)

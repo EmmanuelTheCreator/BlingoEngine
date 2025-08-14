@@ -12,16 +12,16 @@ namespace LingoEngine.SDL2.Gfx
     internal class SdlGfxStateButton : SdlGfxComponent, ILingoFrameworkGfxStateButton, IDisposable
     {
         private nint _textureOnPtr;
-        private ILingoImageTexture? _textureOn;
+        private ILingoTexture2D? _textureOn;
         private nint _textureOffPtr;
-        private ILingoImageTexture? _textureOff;
+        private ILingoTexture2D? _textureOff;
 
         public SdlGfxStateButton(SdlGfxFactory factory) : base(factory)
         {
         }
         public bool Enabled { get; set; } = true;
         public string Text { get; set; } = string.Empty;
-        public Bitmaps.ILingoImageTexture? TextureOn
+        public Bitmaps.ILingoTexture2D? TextureOn
         {
             get => _textureOn;
             set
@@ -39,7 +39,7 @@ namespace LingoEngine.SDL2.Gfx
             }
         }
 
-        public Bitmaps.ILingoImageTexture? TextureOff
+        public Bitmaps.ILingoTexture2D? TextureOff
         {
             get => _textureOff;
             set

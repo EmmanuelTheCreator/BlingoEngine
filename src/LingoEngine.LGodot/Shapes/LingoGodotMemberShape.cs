@@ -1,4 +1,5 @@
 using Godot;
+using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.Primitives;
 using LingoEngine.Shapes;
@@ -52,6 +53,8 @@ namespace LingoEngine.LGodot.Shapes
         public float Height { get => height; set => height = value; }
         public (int TL, int TR, int BR, int BL) CornerRadius { get; set; }  = (5, 5, 5, 5);
         public bool Filled { get; set; } = true;
+
+        public ILingoTexture2D? TextureLingo => throw new NotImplementedException();
 
         public virtual LingoGodotMemberShape CloneForSpriteDraw()
         {
@@ -168,6 +171,10 @@ namespace LingoEngine.LGodot.Shapes
             return points.Max(p => p.DistanceTo(center));
         }
 
-        
+        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+        {
+            // TODO
+            return null;
+        }
     }
 }

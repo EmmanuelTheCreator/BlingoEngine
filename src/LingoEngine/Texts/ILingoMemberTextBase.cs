@@ -3,7 +3,7 @@ using LingoEngine.Primitives;
 
 namespace LingoEngine.Texts
 {
-    public interface ILingoMemberTextBase : ILingoMember
+    public interface ILingoMemberTextBase : ILingoMember, ILingoMemberWithTexture
     {
         
         void ChangesHasBeenApplied();

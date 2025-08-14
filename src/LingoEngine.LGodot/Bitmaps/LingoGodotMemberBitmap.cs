@@ -1,30 +1,29 @@
 ﻿using Godot;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Helpers;
+using LingoEngine.Members;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Tools;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
 
 namespace LingoEngine.LGodot.Bitmaps
 {
     public class LingoGodotMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
     {
         private LingoMemberBitmap _lingoMemberPicture;
-        private ImageTexture? _imageTexture;
-        private ILingoImageTexture? _imageTextureLingo;
+        private LingoGodotTexture2D? _texture;
         private Image? _image;
         private readonly ILogger _logger;
-        private readonly Dictionary<LingoInkType, ImageTexture> _inkCache = new();
+        private readonly Dictionary<LingoInkType, LingoGodotTexture2D> _inkCache = new();
 
-        public ILingoImageTexture? Texture => _imageTextureLingo;
-        public ImageTexture? TextureGodot
+        public LingoGodotTexture2D? TextureImage => _texture;
+        public ILingoTexture2D? TextureLingo
         {
             get
             {
                 if (!IsLoaded) Preload();
-                return _imageTexture;
+                return _texture;
             }
         }
 
@@ -40,7 +39,8 @@ namespace LingoEngine.LGodot.Bitmaps
 
         public int Height { get; private set; }
 
-#pragma warning disable CS8618 
+
+#pragma warning disable CS8618
         public LingoGodotMemberBitmap(ILogger<LingoGodotMemberBitmap> logger)
 #pragma warning restore CS8618 
         {
@@ -51,6 +51,57 @@ namespace LingoEngine.LGodot.Bitmaps
         {
             _lingoMemberPicture = lingoInstance;
             CreateTexture();
+        }
+       
+        public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
+
+
+        private void UpdateImageData(Image image)
+        {
+            Width = image.GetWidth();
+            Height = image.GetHeight();
+            ImageData = image.GetData();
+
+            Format = MimeHelper.GetMimeType(_lingoMemberPicture.FileName);
+            _lingoMemberPicture.Size = ImageData.Length;
+            _lingoMemberPicture.Width = Width;
+            _lingoMemberPicture.Height = Height;
+        }
+        public void Erase()
+        {
+            Unload();
+            _image?.Dispose();
+            ImageData = null;
+            IsLoaded = false;
+        }
+
+
+        public void Preload()
+        {
+            if (IsLoaded) return;
+            if (_image == null) CreateTexture();
+            IsLoaded = true;
+            if (_image == null || _image.IsEmpty())
+                return;
+        }
+
+        public void Unload()
+        {
+            ClearCache();
+            _texture?.Texture.Dispose();
+            _texture = null;
+            IsLoaded = false;
+        }
+
+        public void Dispose()
+        {
+            ClearCache();
+            _image?.Dispose();
+            _texture?.Texture.Dispose();
+        }
+      
+        public void ImportFileInto()
+        {
         }
         /// <summary>
         /// Creates an ImageTexture from the ImageData byte array.
@@ -93,76 +144,12 @@ namespace LingoEngine.LGodot.Bitmaps
                 return;
             }
             _image = image;
-            _imageTexture = ImageTexture.CreateFromImage(_image);
-            if (_imageTexture == null) return;
-            _imageTextureLingo = new LingoGodotImageTexture(_imageTexture);
+            var imageTexture = ImageTexture.CreateFromImage(_image);
+            if (imageTexture == null) return;
+            _texture = new LingoGodotTexture2D(imageTexture);
 
             UpdateImageData(_image);
         }
-        public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
-
-
-        private void UpdateImageData(Image image)
-        {
-            Width = image.GetWidth();
-            Height = image.GetHeight();
-            ImageData = image.GetData();
-
-            Format = MimeHelper.GetMimeType(_lingoMemberPicture.FileName);
-            _lingoMemberPicture.Size = ImageData.Length;
-            _lingoMemberPicture.Width = Width;
-            _lingoMemberPicture.Height = Height;
-        }
-        public void Erase()
-        {
-            Unload();
-            _image?.Dispose();
-            ImageData = null;
-            IsLoaded = false;
-        }
-
-
-        public void Preload()
-        {
-            if (IsLoaded) return;
-            if (_image == null) CreateTexture();
-            IsLoaded = true;
-            if (_image == null || _image.IsEmpty())
-                return;
-        }
-
-        public void Unload()
-        {
-            ClearCache();
-            _imageTexture?.Dispose();
-            _imageTexture = null;
-            _imageTextureLingo = null;
-            IsLoaded = false;
-        }
-
-        public void Dispose()
-        {
-            ClearCache();
-            _image?.Dispose();
-            _imageTexture?.Dispose();
-        }
-        public void CopyToClipboard()
-        {
-            if (_image == null) CreateTexture();
-            if (ImageData == null) return;
-            var base64 = Convert.ToBase64String(ImageData);
-            DisplayServer.ClipboardSet("data:" + Format + ";base64," + base64);
-        }
-        public void PasteClipboardInto()
-        {
-            _image = DisplayServer.ClipboardGetImage();
-            UpdateImageData(_image);
-        }
-
-        public void ImportFileInto()
-        {
-        }
-
         public Image GetImageCopy()
         {
             if (_image == null)
@@ -175,19 +162,19 @@ namespace LingoEngine.LGodot.Bitmaps
         {
             _image?.Dispose(); // Dispose old image
             _image = editedImage.Duplicate() as Image ?? throw new InvalidOperationException("Failed to copy edited image.");
-            _imageTexture?.Dispose();
+            _texture?.Texture.Dispose();
 
-            _imageTexture = ImageTexture.CreateFromImage(_image);
+            var imageTexture = ImageTexture.CreateFromImage(_image);
             UpdateImageData(_image); // Also updates width, height, and member size
-
+            _texture = new LingoGodotTexture2D(imageTexture);
             // Update the member's image data directly
             _lingoMemberPicture.SetImageData(_image.GetData());
         }
-
-        public ImageTexture GetTextureForInk(LingoInkType ink, LingoColor backColor)
+        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor) => RenderToTexture(ink, transparentColor);
+        public ILingoTexture2D GetTextureForInk(LingoInkType ink, LingoColor backColor)
         {
             if (!InkPreRenderer.CanHandle(ink) || _image == null)
-                return TextureGodot!;
+                return _texture!;
 
             if (_inkCache.TryGetValue(ink, out var tex))
                 return tex;
@@ -198,10 +185,12 @@ namespace LingoEngine.LGodot.Bitmaps
             img.Convert(Image.Format.Rgba8);
             var data = InkPreRenderer.Apply(img.GetData(), ink, backColor);
             var newImg = Image.CreateFromData(img.GetWidth(), img.GetHeight(), false, Image.Format.Rgba8, data);
-            tex = ImageTexture.CreateFromImage(newImg);
+            var tex1 = ImageTexture.CreateFromImage(newImg);
+            var newTexture = new LingoGodotTexture2D(tex1);
+            _texture = newTexture;
             newImg.Dispose();
-            _inkCache[ink] = tex;
-            return tex;
+            _inkCache[ink] = newTexture;
+            return newTexture;
         }
 
         public bool IsPixelTransparent(int x, int y)
@@ -221,11 +210,24 @@ namespace LingoEngine.LGodot.Bitmaps
         private void ClearCache()
         {
             foreach (var tex in _inkCache.Values)
-            {
-                tex.Dispose();
-            }
+                tex?.Texture.Dispose();
             _inkCache.Clear();
         }
 
+        #region Clipboard
+        public void CopyToClipboard()
+        {
+            if (_image == null) CreateTexture();
+            if (ImageData == null) return;
+            var base64 = Convert.ToBase64String(ImageData);
+            DisplayServer.ClipboardSet("data:" + Format + ";base64," + base64);
+        }
+        public void PasteClipboardInto()
+        {
+            _image = DisplayServer.ClipboardGetImage();
+            UpdateImageData(_image);
+        }
+
+        #endregion
     }
 }

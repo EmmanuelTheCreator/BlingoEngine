@@ -13,8 +13,8 @@ namespace LingoEngine.LGodot.Gfx
     public partial class LingoGodotStateButton : Button, ILingoFrameworkGfxStateButton, IDisposable
     {
         private LingoMargin _margin = LingoMargin.Zero;
-        private ILingoImageTexture? _texture;
-        private ILingoImageTexture? _textureOff;
+        private ILingoTexture2D? _texture;
+        private ILingoTexture2D? _textureOff;
         private readonly StyleBoxFlat _style = new StyleBoxFlat();
         private readonly StyleBoxFlat _styleDisabled = new StyleBoxFlat();
         private readonly StyleBoxFlat _styleActive = new StyleBoxFlat();
@@ -82,7 +82,7 @@ namespace LingoEngine.LGodot.Gfx
         }
 
         public new string Text { get => base.Text; set => base.Text = value; }
-        public ILingoImageTexture? TextureOn
+        public ILingoTexture2D? TextureOn
         {
             get => _texture;
             set
@@ -91,7 +91,7 @@ namespace LingoEngine.LGodot.Gfx
                 UpdateStateIcon();
             }
         }
-        public ILingoImageTexture? TextureOff
+        public ILingoTexture2D? TextureOff
         {
             get => _textureOff;
             set
@@ -133,9 +133,9 @@ namespace LingoEngine.LGodot.Gfx
 
         private void UpdateStateIcon()
         {
-            if(_texture != null && _texture is LingoGodotImageTexture tex)
+            if(_texture != null && _texture is LingoGodotTexture2D tex)
                 Icon = tex.Texture;
-             if (!IsOn && _textureOff != null && _textureOff is LingoGodotImageTexture texOff)
+             if (!IsOn && _textureOff != null && _textureOff is LingoGodotTexture2D texOff)
                 Icon = texOff.Texture;
             
         }

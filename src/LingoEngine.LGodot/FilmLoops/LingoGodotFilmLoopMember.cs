@@ -4,10 +4,7 @@ using LingoEngine.FilmLoops;
 using LingoEngine.LGodot.Bitmaps;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
-using System;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Threading.Tasks;
+using LingoEngine.Members;
 
 namespace LingoEngine.LGodot.FilmLoops
 {
@@ -17,6 +14,9 @@ namespace LingoEngine.LGodot.FilmLoops
     public class LingoGodotFilmLoopMember : ILingoFrameworkMemberFilmLoop, IDisposable
     {
         private LingoFilmLoopMember _member = null!;
+        private LingoGodotTexture2D? _texture;
+        public ILingoTexture2D? TextureLingo => _texture;
+
         public bool IsLoaded { get; private set; }
         public byte[]? Media { get; set; }
         public LingoFilmLoopFraming Framing { get; set; } = LingoFilmLoopFraming.Auto;
@@ -53,8 +53,10 @@ namespace LingoEngine.LGodot.FilmLoops
         {
             // Placeholder for future import logic
         }
-
-
+        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+        {
+            return _texture;
+        }
         public ILingoTexture2D ComposeTexture(ILingoSprite2DLight hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers)
         {
             var prep = LingoFilmLoopComposer.Prepare(_member, Framing, layers);
@@ -66,12 +68,18 @@ namespace LingoEngine.LGodot.FilmLoops
             foreach (var info in prep.Layers)
             {
                 Image? srcImg = null;
-                if (info.Sprite2D.Member is LingoMemberBitmap pic && pic.FrameworkObj is LingoGodotMemberBitmap bmp)
-                    //if (info.Sprite2D.Member is Li.Bitmap is LingoGodotMemberBitmap bmp)
+                //if (info.Sprite2D.Member is LingoMemberBitmap pic && pic.FrameworkObj is LingoGodotMemberBitmap bmp)
+                //    //if (info.Sprite2D.Member is Li.Bitmap is LingoGodotMemberBitmap bmp)
+                //{
+                //    if (bmp.Texture == null) continue;
+                //    var srcTex = bmp.GetTextureForInk(info.Ink, info.BackColor);
+                //    srcImg = srcTex.GetImage();
+                //}
+                if (info.Sprite2D.Member is ILingoFrameworkMemberWithTexture memberWithTexture)
                 {
-                    if (bmp.TextureGodot == null) continue;
-                    var srcTex = bmp.GetTextureForInk(info.Ink, info.BackColor);
-                    srcImg = srcTex.GetImage();
+                    var textureG = memberWithTexture.RenderToTexture(info.Ink, info.BackColor) as LingoGodotTexture2D;
+                    if (textureG != null)
+                        srcImg = textureG.Texture.GetImage();
                 }
                 else
                 {
@@ -147,8 +155,8 @@ namespace LingoEngine.LGodot.FilmLoops
 
             //DebugToDisk(image, $"filmloop_{_member.Name}_{hostSprite.Name}");
             var tex = ImageTexture.CreateFromImage(image);
-            var texture = new LingoGodotTexture2D(tex);
-            return texture;
+            _texture = new LingoGodotTexture2D(tex);
+            return _texture;
         }
 
         /// <summary>
@@ -274,6 +282,8 @@ namespace LingoEngine.LGodot.FilmLoops
                 // ignore malformed clipboard data
             }
         }
+
+     
         #endregion
     }
 }

@@ -37,7 +37,7 @@ namespace LingoEngine.Director.LGodot.Icons
             var lingoTexture = new LingoGodotTexture2D(texture);
             return new LingoIconSheetGodot(lingoTexture,iconWidth,iconHeight,horizontalSpacing, itemCount);
         }
-        protected override ILingoImageTexture? OnGetTextureImage(LingoIconSheetGodot sheet, int x)
+        protected override ILingoTexture2D? OnGetTextureImage(LingoIconSheetGodot sheet, int x)
         {
             var texture = sheet.Image.Texture;
             var image = texture.GetImage();
@@ -46,7 +46,7 @@ namespace LingoEngine.Director.LGodot.Icons
             // Copy the icon region from the sprite sheet
             sub.BlitRect(image, new Rect2I(x, 0, sheet.IconWidth, sheet.IconHeight), Vector2I.Zero);
             var tex = ImageTexture.CreateFromImage(sub);
-            var lingoTexture = new LingoGodotImageTexture(tex);
+            var lingoTexture = new LingoGodotTexture2D(tex);
             return lingoTexture;
         }
     }

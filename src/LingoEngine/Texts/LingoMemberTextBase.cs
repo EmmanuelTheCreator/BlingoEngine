@@ -1,4 +1,5 @@
-﻿using LingoEngine.Casts;
+﻿using LingoEngine.Bitmaps;
+using LingoEngine.Casts;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
 using LingoEngine.Texts.FrameworkCommunication;
@@ -164,6 +165,8 @@ namespace LingoEngine.Texts
                 
             }
         }
+
+        public ILingoTexture2D? TextureLingo => _frameworkMember.TextureLingo;
         #endregion
 
 
@@ -277,6 +280,11 @@ namespace LingoEngine.Texts
             _selectionEnd = end;
             _selectedText = Text.Substring(start - 1, end - start);
         }
+
+        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+          => _frameworkMember.RenderToTexture(ink, transparentColor);
+
+
     }
 
 }

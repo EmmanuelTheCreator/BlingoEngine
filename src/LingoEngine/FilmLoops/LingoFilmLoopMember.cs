@@ -12,7 +12,7 @@ namespace LingoEngine.FilmLoops
     /// <summary>
     /// Represents a film loop cast member.
     /// </summary>
-    public class LingoFilmLoopMember : LingoMember
+    public class LingoFilmLoopMember : LingoMember, ILingoMemberWithTexture
     {
         private readonly ILingoFrameworkMemberFilmLoop _frameworkFilmLoop;
         private bool _isLoaded;
@@ -26,7 +26,7 @@ namespace LingoEngine.FilmLoops
         public List<SoundEntry> SoundEntries { get; } = new();
 
         public int FrameCount { get; private set; }
-
+        public ILingoTexture2D? TextureLingo => _frameworkFilmLoop.TextureLingo;
 
 
         /// <summary>
@@ -54,6 +54,8 @@ namespace LingoEngine.FilmLoops
             get => _frameworkFilmLoop.Loop;
             set => _frameworkFilmLoop.Loop = value;
         }
+
+        
 
         public LingoFilmLoopMember(ILingoFrameworkMemberFilmLoop frameworkMember, LingoCast cast, int numberInCast, string name = "", string fileName = "", LingoPoint regPoint = default)
             : base(frameworkMember, LingoMemberType.FilmLoop, cast, numberInCast, name, fileName, regPoint)
@@ -153,6 +155,7 @@ namespace LingoEngine.FilmLoops
         public LingoRect GetBoundingBoxForFrame(int frame) => SpriteEntries.GetBoundingBoxForFrame(frame);
         public LingoRect GetBoundingBox() => SpriteEntries.GetBoundingBox();
 
-
+        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+            => _frameworkFilmLoop.RenderToTexture(ink, transparentColor);
     }
 }

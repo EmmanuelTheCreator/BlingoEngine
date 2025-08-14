@@ -1,4 +1,5 @@
-﻿using LingoEngine.Casts;
+﻿using LingoEngine.Bitmaps;
+using LingoEngine.Casts;
 using LingoEngine.Primitives;
 using System;
 using System.Collections.Generic;
@@ -24,12 +25,21 @@ namespace LingoEngine.Members
         Havok, VectorShape,
         Movie, WindowsMedia
     }
+
+    public interface ILingoMemberWithTexture 
+    {
+        /// <summary>
+        /// The texture associated with this member, if any.
+        /// </summary>
+        ILingoTexture2D? TextureLingo { get; }
+        ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor);
+    }
+
     /// <summary>
     /// Represents a cast member within a cast library.
     /// Cast members can contain media (e.g., images, sounds, video) or scripts (behaviors, movie scripts).
     /// Corresponds to Lingo: member "Name" or member x
     /// </summary>
-
     public interface ILingoMember : IDisposable
     {
         /// <summary>

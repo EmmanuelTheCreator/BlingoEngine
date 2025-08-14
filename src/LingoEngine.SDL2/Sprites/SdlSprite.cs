@@ -11,6 +11,7 @@ using LingoEngine.Sprites;
 using LingoEngine.Texts;
 using LingoEngine.SDL2.Shapes;
 using LingoEngine.Shapes;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace LingoEngine.SDL2.Sprites;
 
@@ -251,59 +252,63 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
             case LingoMemberBitmap pic:
                 var p = pic.Framework<SdlMemberBitmap>();
                 p.Preload();
-                if (p.Surface != nint.Zero)
+                if (p.TextureLingo is SdlTexture2D tex2D && tex2D.Texture!= nint.Zero)
                 {
-                    var texInk = p.GetTextureForInk(_lingoSprite.InkType, _lingoSprite.BackColor, ComponentContext.Renderer);
-                    if (texInk != nint.Zero)
-                    {
-                        _texture = texInk;
-                        Width = p.Width;
-                        Height = p.Height;
-                    }
+                    var texInk = p.GetTextureForInk(_lingoSprite.InkType, _lingoSprite.BackColor, ComponentContext.Renderer) as SdlTexture2D;
+                    if (texInk != null && texInk.Texture != nint.Zero)
+                        SetTextureOwned(texInk);
                     else
                     {
-                        _texture = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, p.Surface);
-                        if (_texture != nint.Zero)
-                        {
-                            _textureOwned = true;
-                            Width = p.Width;
-                            Height = p.Height;
-                        }
+                        //var textureShape = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, p.Surface);
+                        //SetTextureOwned(new SdlTexture2D(textureShape,p.Width, p.Height));
+                        SetTextureOwned(tex2D);
                     }
                 }
                 break;
             case LingoFilmLoopMember flm:
                 var fl = flm.Framework<SdlMemberFilmLoop>();
-                if (fl.Texture is SdlTexture2D tex && tex.Texture != nint.Zero)
-                {
-                    _texture = tex.Texture;
-                    Width = tex.Width;
-                    Height = tex.Height;
-                }
+                if (fl.TextureLingo is SdlTexture2D tex && tex.Texture != nint.Zero)
+                    SetTextureOwned(tex);
                 break;
-            case LingoMemberText text:
-                text.Framework<SdlMemberText>().Preload();
-                break;
-            case LingoMemberField field:
-                field.Framework<SdlMemberField>().Preload();
+            case ILingoMemberTextBase text:
+                text.FrameworkObj.Preload();
+                var textureT = text.RenderToTexture(_lingoSprite.InkType, _lingoSprite.BackColor);
+                if (textureT != null && textureT is SdlTexture2D sdlTexture)
+                    SetTextureOwned(sdlTexture);
                 break;
             case LingoMemberShape shape:
-                var sh = shape.Framework<SdlMemberShape>();
-                sh.Preload();
-                if (sh.Surface != nint.Zero)
-                {
-                    _texture = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, sh.Surface);
-                    if (_texture != nint.Zero)
-                    {
-                        _textureOwned = true;
-                        Width = sh.Width;
-                        Height = sh.Height;
-                    }
-                }
+                shape.FrameworkObj.Preload();
+                var textureS = shape.RenderToTexture(_lingoSprite.InkType, _lingoSprite.BackColor);
+                if (textureS != null && textureS is SdlTexture2D sdlTexture2)
+                    SetTextureOwned(sdlTexture2);
+                //if (sh.Surface != nint.Zero)
+                //{
+                //    var textureShape = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, sh.Surface);
+                //    if (_texture != nint.Zero)
+                //    {
+                //        _textureOwned = true;
+                //        Width = sh.Width;
+                //        Height = sh.Height;
+                //    }
+                //}
                 break;
         }
         ApplyInk();
     }
+
+    private void SetTextureOwned(SdlTexture2D tex)
+    {
+        _texture = tex.Texture;
+        if (_texture == nint.Zero)
+            return;
+        _textureOwned = true;
+        if (Width == 0 || Height == 0)
+        {
+            Width = tex.Width;
+            Height = tex.Height;
+        }
+    }
+
     public void UpdateTexture(ILingoTexture2D texture)
     {
         _texture = ((SdlTexture2D)texture).Texture;

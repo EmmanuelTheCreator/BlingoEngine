@@ -1,10 +1,20 @@
-﻿using LingoEngine.Sprites;
+﻿using LingoEngine.Bitmaps;
+using LingoEngine.Primitives;
+using LingoEngine.Sprites;
 
 namespace LingoEngine.Members
 {
     public interface ILingoFrameworkMemberEmpty : ILingoFrameworkMember
     {
 
+    }
+    public interface ILingoFrameworkMemberWithTexture : ILingoFrameworkMember
+    {
+        /// <summary>
+        /// The texture associated with this member, if any.
+        /// </summary>
+        ILingoTexture2D? TextureLingo { get; }
+        ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor);
     }
     public interface ILingoFrameworkMember
     {

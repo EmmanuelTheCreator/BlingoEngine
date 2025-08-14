@@ -1,9 +1,10 @@
-﻿using LingoEngine.Members;
+﻿using LingoEngine.Bitmaps;
+using LingoEngine.Members;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.Texts.FrameworkCommunication
 {
-    public interface ILingoFrameworkMemberTextBase : ILingoFrameworkMember
+    public interface ILingoFrameworkMemberTextBase : ILingoFrameworkMemberWithTexture
     {
         /// <summary>
         /// The raw text contents of the member. This property can be used to read or write the full contents.

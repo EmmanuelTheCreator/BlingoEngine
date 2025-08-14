@@ -3,7 +3,7 @@ using LingoEngine.Primitives;
 
 namespace LingoEngine.Shapes
 {
-    public interface ILingoFrameworkMemberShape : ILingoFrameworkMember
+    public interface ILingoFrameworkMemberShape : ILingoFrameworkMemberWithTexture
     {
         LingoList<LingoPoint> VertexList { get; }
         LingoShapeType ShapeType { get; set; }

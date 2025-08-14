@@ -112,7 +112,7 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
     /// <inheritdoc/>
     public LingoMemberShape CreateMemberShape(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
     {
-        var impl = new SdlMemberShape();
+        var impl = new SdlMemberShape(_rootContext);
         var member = new LingoMemberShape((LingoCast)cast, impl, numberInCast, name, fileName ?? "", regPoint);
         _disposables.Add(impl);
         return member;
@@ -120,7 +120,7 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
     /// <inheritdoc/>
     public LingoMemberBitmap CreateMemberBitmap(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
     {
-        var impl = new SdlMemberBitmap();
+        var impl = new SdlMemberBitmap(_rootContext);
         var member = new LingoMemberBitmap((LingoCast)cast, impl, numberInCast, name, fileName ?? "", regPoint);
         impl.Init(member);
         _disposables.Add(impl);
@@ -129,7 +129,7 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
     /// <inheritdoc/>
     public LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
     {
-        var impl = new SdlMemberField(_serviceProvider.GetRequiredService<ILingoFontManager>());
+        var impl = new SdlMemberField(_serviceProvider.GetRequiredService<ILingoFontManager>(), _rootContext);
         var member = new LingoMemberField((LingoCast)cast, impl, numberInCast, name, fileName ?? "", regPoint);
         impl.Init(member);
         _disposables.Add(impl);
@@ -138,7 +138,7 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
     /// <inheritdoc/>
     public LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
     {
-        var impl = new SdlMemberText(_serviceProvider.GetRequiredService<ILingoFontManager>());
+        var impl = new SdlMemberText(_serviceProvider.GetRequiredService<ILingoFontManager>(), _rootContext);
         var member = new LingoMemberText((LingoCast)cast, impl, numberInCast, name, fileName ?? "", regPoint);
         impl.Init(member);
         _disposables.Add(impl);
@@ -275,7 +275,7 @@ public class SdlFactory : ILingoFrameworkFactory, IDisposable
     public LingoGfxButton CreateButton(string name, string text = "")
         => _gfxFactory.CreateButton(name, text);
 
-    public LingoGfxStateButton CreateStateButton(string name, Bitmaps.ILingoImageTexture? texture = null, string text = "", Action<bool>? onChange = null)
+    public LingoGfxStateButton CreateStateButton(string name, Bitmaps.ILingoTexture2D? texture = null, string text = "", Action<bool>? onChange = null)
         => _gfxFactory.CreateStateButton(name, texture, text, onChange);
 
     public LingoGfxMenu CreateMenu(string name)

@@ -8,7 +8,7 @@ namespace LingoEngine.Bitmaps
     /// <summary>
     /// Framework specific implementation details for a film loop member.
     /// </summary>
-    public interface ILingoFrameworkMemberFilmLoop : ILingoFrameworkMember
+    public interface ILingoFrameworkMemberFilmLoop : ILingoFrameworkMemberWithTexture
     {
         /// <summary>
         /// Raw data representing the film loop media. The exact format is framework dependent.
@@ -38,5 +38,7 @@ namespace LingoEngine.Bitmaps
         /// <param name="hostSprite">The sprite hosting the film loop.</param>
         /// <param name="layers">Currently active layers for this frame.</param>
         ILingoTexture2D ComposeTexture(ILingoSprite2DLight hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers);
+
+        
     }
 }

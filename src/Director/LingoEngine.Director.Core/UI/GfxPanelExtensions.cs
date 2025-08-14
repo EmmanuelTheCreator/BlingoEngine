@@ -123,7 +123,7 @@ namespace LingoEngine.Director.Core.UI
             container.AddItem(slider, x, y);
             return slider;
         }
-        public static LingoGfxStateButton SetStateButtonAt<T>(this LingoGfxPanel container, T element, string name, float x, float y, Expression<Func<T,bool>> property, ILingoImageTexture? texture = null, string? label = null)
+        public static LingoGfxStateButton SetStateButtonAt<T>(this LingoGfxPanel container, T element, string name, float x, float y, Expression<Func<T,bool>> property, ILingoTexture2D? texture = null, string? label = null)
         {
             Action<T, bool> setter = property.CompileSetter();
             LingoGfxStateButton control = container.Factory.CreateStateButton(name, texture, label ??"", onChange: val => setter(element, val));

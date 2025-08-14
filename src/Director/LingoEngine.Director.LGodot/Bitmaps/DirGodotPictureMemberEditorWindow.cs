@@ -259,7 +259,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
     }
     private void StyleIconButton(Button button, DirectorIcon icon)
     {
-        button.Icon = ((LingoGodotImageTexture)_iconManager.Get(icon)).Texture;
+        button.Icon = ((LingoGodotTexture2D)_iconManager.Get(icon)).Texture;
         button.CustomMinimumSize = new Vector2(20, IconBarHeight);
         button.AddThemeStyleboxOverride("normal", new StyleBoxFlat
         {
@@ -287,8 +287,10 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
         bool firstLoad = _member == null;
         var godotPicture = picture.Framework<LingoGodotMemberBitmap>();
         godotPicture.Preload();
+        var texture2D = godotPicture.TextureLingo as LingoGodotTexture2D;
 
-        if (godotPicture.TextureGodot is ImageTexture tex)
+
+        if (texture2D != null && texture2D.Texture is ImageTexture tex)
         {
             _painter?.Dispose();
 

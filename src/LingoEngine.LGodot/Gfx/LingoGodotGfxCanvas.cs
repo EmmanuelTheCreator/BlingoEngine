@@ -185,9 +185,9 @@ namespace LingoEngine.LGodot.Gfx
             MarkDirty();
         } 
         
-        public void DrawPicture(ILingoImageTexture texture, int width, int height, LingoPoint position)
+        public void DrawPicture(ILingoTexture2D texture, int width, int height, LingoPoint position)
         {
-            var tex = ((LingoGodotImageTexture)texture).Texture;    
+            var tex = ((LingoGodotTexture2D)texture).Texture;    
             _drawActions.Add(() =>
             {
                 DrawTextureRect(tex, new Rect2(position.X, position.Y, width, height), false); // don't tile

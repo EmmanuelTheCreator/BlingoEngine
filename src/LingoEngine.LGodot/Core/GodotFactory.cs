@@ -293,7 +293,7 @@ namespace LingoEngine.LGodot.Core
         public LingoGfxButton CreateButton(string name, string text = "")
             => _gfxFactory.CreateButton(name, text);
 
-        public LingoGfxStateButton CreateStateButton(string name, ILingoImageTexture? texture = null, string text = "", Action<bool>? onChange = null)
+        public LingoGfxStateButton CreateStateButton(string name, ILingoTexture2D? texture = null, string text = "", Action<bool>? onChange = null)
             => _gfxFactory.CreateStateButton(name, texture, text, onChange);
 
         public LingoGfxMenu CreateMenu(string name)

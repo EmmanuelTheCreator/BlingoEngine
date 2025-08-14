@@ -2,7 +2,7 @@
 
 namespace LingoEngine.Bitmaps
 {
-    public interface ILingoFrameworkMemberBitmap : ILingoFrameworkMember
+    public interface ILingoFrameworkMemberBitmap : ILingoFrameworkMemberWithTexture
     {
 
         /// <summary>
@@ -10,7 +10,6 @@ namespace LingoEngine.Bitmaps
         /// This field is implementation-independent; renderers may interpret this as needed.
         /// </summary>
         byte[]? ImageData { get; }
-        public ILingoImageTexture? Texture { get; }
 
         /// <summary>
         /// Optional MIME type or encoding format (e.g., "image/png", "image/jpeg")

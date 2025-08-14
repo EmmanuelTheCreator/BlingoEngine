@@ -9,7 +9,7 @@ namespace LingoEngine.Bitmaps
     /// Represents a bitmap or picture cast member in a Director movie.
     /// Lingo: member("name").type = #bitmap or #picture
     /// </summary>
-    public class LingoMemberBitmap : LingoMember
+    public class LingoMemberBitmap : LingoMember , ILingoMemberWithTexture
     {
         private readonly ILingoFrameworkMemberBitmap _lingoFrameworkMemberPicture;
 
@@ -36,6 +36,8 @@ namespace LingoEngine.Bitmaps
         /// Gets the MIME type or encoding format of the image (e.g., "image/png", "image/jpeg").
         /// </summary>
         public string Format => _lingoFrameworkMemberPicture.Format;
+
+        public ILingoTexture2D? TextureLingo => _lingoFrameworkMemberPicture.TextureLingo;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LingoMemberBitmap"/> class.
@@ -96,6 +98,9 @@ namespace LingoEngine.Bitmaps
         public override void PasteClipBoardInto() => _lingoFrameworkMemberPicture.PasteClipboardInto();
 
         public void SetImageData(byte[] bytes) => _lingoFrameworkMemberPicture.SetImageData(bytes);
+
+        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+            => _lingoFrameworkMemberPicture.RenderToTexture(ink, transparentColor);
     }
 
 }

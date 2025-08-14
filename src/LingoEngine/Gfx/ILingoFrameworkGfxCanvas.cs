@@ -18,6 +18,6 @@ namespace LingoEngine.Gfx
         void DrawPolygon(IReadOnlyList<LingoPoint> points, LingoColor color, bool filled = true, float width = 1);
         void DrawText(LingoPoint position, string text, string? font = null, LingoColor? color = null, int fontSize = 12, int width = -1, Texts.LingoTextAlignment alignment = default);
         void DrawPicture(byte[] data, int width, int height, LingoPoint position, LingoPixelFormat format);
-        void DrawPicture(ILingoImageTexture texture, int width, int height, LingoPoint position);
+        void DrawPicture(ILingoTexture2D texture, int width, int height, LingoPoint position);
     }
 }

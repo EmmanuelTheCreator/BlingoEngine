@@ -311,11 +311,13 @@ namespace LingoEngine.LGodot.Sprites
                     return;
                 case LingoMemberText textMember:
                     var godotElement = textMember.Framework<LingoGodotMemberText>();
-                    UpdateNodeMember(textMember, textMember.Framework<LingoGodotMemberText>().CreateForSpriteDraw());
+                    UpdateNodeMember(textMember, godotElement.CreateForSpriteDraw());
+                    //_lingoSprite2D.UpdateTexture(godotElement.RenderToTexture());
                     break;
                 case LingoMemberField fieldMember:
                     var godotElementF = fieldMember.Framework<LingoGodotMemberField>();
-                    UpdateNodeMember(fieldMember, fieldMember.Framework<LingoGodotMemberField>().CreateForSpriteDraw());
+                    UpdateNodeMember(fieldMember, godotElementF.CreateForSpriteDraw());
+                    //_lingoSprite2D.UpdateTexture(godotElementF.RenderToTexture());
                     break;
                 // all generice godot node base class members
                 case LingoMemberShape shape:
@@ -355,13 +357,17 @@ namespace LingoEngine.LGodot.Sprites
         private void UpdateMemberPicture(LingoGodotMemberBitmap godotPicture)
         {
             godotPicture.Preload();
-            if (godotPicture.TextureGodot == null)
+            if (godotPicture.TextureLingo == null)
                 return;
 
             if (InkPreRenderer.CanHandle(_lingoSprite2D.InkType))
-                _Sprite2D.Texture = godotPicture.GetTextureForInk(_lingoSprite2D.InkType, _lingoSprite2D.BackColor);
+            {
+                var texture1 = godotPicture.GetTextureForInk(_lingoSprite2D.InkType, _lingoSprite2D.BackColor) as LingoGodotTexture2D;
+                if (texture1 != null)
+                    _Sprite2D.Texture = texture1.Texture;
+            }
             else
-                _Sprite2D.Texture = godotPicture.TextureGodot;
+                _Sprite2D.Texture = ((LingoGodotTexture2D)godotPicture.TextureLingo).Texture;
         }
         public void UpdateTexture(ILingoTexture2D texture)
         {

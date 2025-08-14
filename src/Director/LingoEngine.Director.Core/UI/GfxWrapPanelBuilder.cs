@@ -138,7 +138,7 @@ namespace LingoEngine.Director.Core.UI
             return this;
         }
 
-        public GfxWrapPanelBuilder AddStateButton<T>(string name, T target, ILingoImageTexture texture, Expression<Func<T, bool>> property, string text = "", Action<LingoGfxStateButton>? configure = null)
+        public GfxWrapPanelBuilder AddStateButton<T>(string name, T target, ILingoTexture2D texture, Expression<Func<T, bool>> property, string text = "", Action<LingoGfxStateButton>? configure = null)
         {
             var setter = property.CompileSetter();
             var getter = property.CompileGetter();

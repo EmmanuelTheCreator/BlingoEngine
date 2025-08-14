@@ -1,18 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using LingoEngine.Bitmaps;
 using LingoEngine.FilmLoops;
-using LingoEngine.Members;
 using LingoEngine.Primitives;
 using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.SDLL;
-using LingoEngine.SDL2.Sprites;
 using LingoEngine.Sprites;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace LingoEngine.SDL2.Pictures;
 
@@ -26,7 +19,7 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
     private LingoFilmLoopMember _member = null!;
     public bool IsLoaded { get; private set; }
     public byte[]? Media { get; set; }
-    public ILingoTexture2D? Texture { get; private set; }
+    public ILingoTexture2D? TextureLingo { get; private set; }
     public LingoPoint Offset { get; private set; }
     public LingoFilmLoopFraming Framing { get; set; } = LingoFilmLoopFraming.Auto;
     public bool Loop { get; set; } = true;
@@ -55,10 +48,10 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
     /// <summary>Releases any GPU resources held by the film loop.</summary>
     public void Unload()
     {
-        if (Texture is SdlTexture2D tex && tex.Texture != nint.Zero)
+        if (TextureLingo is SdlTexture2D tex && tex.Texture != nint.Zero)
         {
             SDL.SDL_DestroyTexture(tex.Texture);
-            Texture = null;
+            TextureLingo = null;
         }
         IsLoaded = false;
     }
@@ -97,7 +90,7 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
         {
         }
     }
-
+    public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor) => TextureLingo;
     /// <summary>
     /// Composes the provided layers into a single SDL texture using the
     /// <see cref="LingoFilmLoopComposer"/> for layout and transforms.
@@ -105,7 +98,7 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
     /// <returns>The composed texture for rendering.</returns>
     public ILingoTexture2D ComposeTexture(ILingoSprite2DLight hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers)
     {
-        return Texture ?? new SdlTexture2D(nint.Zero, 0, 0);
+        //return Texture ?? new SdlTexture2D(nint.Zero, 0, 0);
         //var sdlSprite = hostSprite.FrameworkObj as SdlSprite;
         //if (sdlSprite == null)
         //    return Texture ?? new SdlTexture2D(nint.Zero, 0, 0);
@@ -117,45 +110,72 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
 
         nint surface = SDL.SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL.SDL_PIXELFORMAT_RGBA8888);
         if (surface == nint.Zero)
-            return Texture ?? new SdlTexture2D(nint.Zero, width, height);
+            return TextureLingo ?? new SdlTexture2D(nint.Zero, width, height);
 
         foreach (var info in prep.Layers)
         {
             nint srcImg = nint.Zero;
+            SdlTexture2D? textureSdl = null;
             int widthS = 0;
             int heightS = 0;
             if (info.Sprite2D.Member is LingoMemberBitmap pic && pic.FrameworkObj is SdlMemberBitmap bmp)
             {
-                var texture1 = ((ILingoFrameworkMemberBitmap)bmp).Texture as SdlImageTexture;
-                if (texture1 == null) continue;
-                srcImg = bmp.GetTextureForInk(info.Ink, info.BackColor, _sdlRootContext.Renderer);
-                widthS= texture1.Width;
-                heightS = texture1.Height;
+                textureSdl = ((ILingoFrameworkMemberBitmap)bmp).TextureLingo as SdlTexture2D;
+                if (textureSdl == null) continue;
+                textureSdl = bmp.GetTextureForInk(info.Ink, info.BackColor, _sdlRootContext.Renderer) as SdlTexture2D;
+                if (textureSdl == null) continue;
+                srcImg = textureSdl.Texture;
+                widthS = textureSdl.Width;
+                heightS = textureSdl.Height;
             }
             else
             {
+                if (info.Sprite2D.Member != null)
+                    info.Sprite2D.Member.Preload();
                 if (info.Sprite2D.Texture == null) continue;
-                var tex = (SdlTexture2D)info.Sprite2D.Texture;
-                srcImg = tex.Texture;
-                widthS = tex.Width;
-                heightS = tex.Height;
+
+                textureSdl = (SdlTexture2D)info.Sprite2D.Texture;
+                srcImg = textureSdl.Texture;
+                widthS = textureSdl.Width;
+                heightS = textureSdl.Height;
             }
             if (srcImg == nint.Zero)
                 continue;
 
             nint srcSurf = srcImg;
             bool freeSrc = false;
+            var sSurf = Marshal.PtrToStructure<SDL.SDL_Surface>(srcSurf);
+            var pixFmt = Marshal.PtrToStructure<SDL.SDL_PixelFormat>(sSurf.format).format;
+            if (pixFmt != SDL.SDL_PIXELFORMAT_RGBA8888)
+            {
+                nint conv = SDL.SDL_ConvertSurfaceFormat(srcSurf, SDL.SDL_PIXELFORMAT_RGBA8888, 0);
+                if (conv == nint.Zero)
+                    continue;
+                srcSurf = conv;
+                sSurf = Marshal.PtrToStructure<SDL.SDL_Surface>(srcSurf);
+                widthS = sSurf.w;
+                heightS = sSurf.h;
+                freeSrc = true;
+            }
+
             if (info.SrcX != 0 || info.SrcY != 0 || info.SrcW != widthS || info.SrcH != heightS || info.DestW != info.SrcW || info.DestH != info.SrcH)
             {
-                srcSurf = SDL.SDL_CreateRGBSurfaceWithFormat(0, info.DestW, info.DestH, 32, SDL.SDL_PIXELFORMAT_RGBA8888);
-                if (srcSurf == nint.Zero)
+                nint cropped = SDL.SDL_CreateRGBSurfaceWithFormat(0, info.DestW, info.DestH, 32, SDL.SDL_PIXELFORMAT_RGBA8888);
+                if (cropped == nint.Zero)
+                {
+                    if (freeSrc)
+                        SDL.SDL_FreeSurface(srcSurf);
                     continue;
+                }
                 SDL.SDL_Rect srect = new SDL.SDL_Rect { x = info.SrcX, y = info.SrcY, w = info.SrcW, h = info.SrcH };
                 SDL.SDL_Rect drect = new SDL.SDL_Rect { x = 0, y = 0, w = info.DestW, h = info.DestH };
                 if (Framing == LingoFilmLoopFraming.Scale)
-                    SDL.SDL_BlitScaled(srcImg, ref srect, srcSurf, ref drect);
+                    SDL.SDL_BlitScaled(srcSurf, ref srect, cropped, ref drect);
                 else
-                    SDL.SDL_BlitSurface(srcImg, ref srect, srcSurf, ref drect);
+                    SDL.SDL_BlitSurface(srcSurf, ref srect, cropped, ref drect);
+                if (freeSrc)
+                    SDL.SDL_FreeSurface(srcSurf);
+                srcSurf = cropped;
                 freeSrc = true;
             }
 
@@ -165,13 +185,13 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
                 SDL.SDL_FreeSurface(srcSurf);
         }
 
-        if (Texture is SdlTexture2D oldTex && oldTex.Texture != nint.Zero)
+        if (TextureLingo is SdlTexture2D oldTex && oldTex.Texture != nint.Zero)
             SDL.SDL_DestroyTexture(oldTex.Texture);
 
         nint texture = SDL.SDL_CreateTextureFromSurface(_sdlRootContext.Renderer, surface);
         SDL.SDL_FreeSurface(surface);
-        Texture = new SdlTexture2D(texture, width, height);
-        return Texture;
+        TextureLingo = new SdlTexture2D(texture, width, height);
+        return TextureLingo;
     }
 
     /// <summary>
@@ -232,5 +252,5 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
 
     public void Dispose() { Unload(); }
 
-   
+    
 }
