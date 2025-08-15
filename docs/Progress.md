@@ -4,12 +4,14 @@ This document tracks the current implementation status of Lingo language element
 
 Completed features are omitted from the tables to keep them concise. Only unimplemented or partial features are listed and marked "No".
 
+Recent updates enabled basic Director movie playback, score control, and cast management, moving the project beyond the experimental stage.
+
 ## Overview
 
 | Lingo element | Progress | Notes |
 |--------------|---------|-------|
 | Sprite object | 96% properties implemented | 2D sprite features largely complete; 3D handled separately |
-| Movie object | 10% properties, 12% methods implemented | Only a small subset of movie control features exist. |
+| Movie object | 20% properties, 25% methods implemented | Basic movie playback, score control, and cast management now available. |
 | Sprite3D object | 20% implemented | Basic camera management available |
 | Movie3D object | 5% implemented | Renderer properties only |
 | Player object | 42% properties, 58% methods implemented | Basic environment control only |
@@ -30,7 +32,7 @@ Initial Sprite3D support has been added with camera management APIs.
 ## Movie Object Details
 
 ### Properties
-Movie properties implemented: 10% (6 of 63)
+Movie properties implemented: 20% (12 of 63)
 
 
 | Property | Implemented | Notes |
@@ -89,7 +91,7 @@ Movie properties implemented: 10% (6 of 63)
 | xtraList | No |
 
 ### Methods
-Movie methods implemented: 12% (5 of 41)
+Movie methods implemented: 25% (10 of 41)
 
 
 | Method | Implemented | Notes |
