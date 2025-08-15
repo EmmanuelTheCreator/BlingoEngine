@@ -58,7 +58,7 @@ public class DirScoreFrameHeader : IDisposable
             return;
 
         bool isDragging = mouseEvent.Mouse.LeftMouseDown &&
-            (mouseEvent.Type == AbstUIMouseEventType.MouseDown || mouseEvent.Type == AbstUIMouseEventType.MouseMove);
+            (mouseEvent.Type == AbstMouseEventType.MouseDown || mouseEvent.Type == AbstMouseEventType.MouseMove);
 
         if (isDragging && mouseFrame >= 1 && mouseFrame <= _movie.FrameCount)
         {

@@ -36,7 +36,7 @@ namespace LingoEngine.Inputs
     /// <summary>
     /// Provides access to a user’s mouse activity, including mouse movement and mouse clicks.
     /// </summary>
-    public interface ILingoMouse : IAbstUIMouse
+    public interface ILingoMouse : IAbstMouse
     {
 
 
@@ -44,11 +44,11 @@ namespace LingoEngine.Inputs
         void SetCursor(AMouseCursor cursorType);
 
 
-        IAbstUIMouseSubscription OnMouseDown(Action<LingoMouseEvent> handler);
-        IAbstUIMouseSubscription OnMouseUp(Action<LingoMouseEvent> handler);
-        IAbstUIMouseSubscription OnMouseMove(Action<LingoMouseEvent> handler);
-        IAbstUIMouseSubscription OnMouseWheel(Action<LingoMouseEvent> handler);
-        IAbstUIMouseSubscription OnMouseEvent(Action<LingoMouseEvent> handler);
+        IAbstMouseSubscription OnMouseDown(Action<LingoMouseEvent> handler);
+        IAbstMouseSubscription OnMouseUp(Action<LingoMouseEvent> handler);
+        IAbstMouseSubscription OnMouseMove(Action<LingoMouseEvent> handler);
+        IAbstMouseSubscription OnMouseWheel(Action<LingoMouseEvent> handler);
+        IAbstMouseSubscription OnMouseEvent(Action<LingoMouseEvent> handler);
     }
    
     public class LingoStageMouse : LingoMouse, ILingoStageMouse
@@ -62,7 +62,7 @@ namespace LingoEngine.Inputs
         {
             _lingoStage = lingoMovieStage;
         }
-        protected override void OnDoOnAll(LingoMouseEvent eventMouse, Action<IAbstUIMouseEventHandler<LingoMouseEvent>, LingoMouseEvent> action)
+        protected override void OnDoOnAll(LingoMouseEvent eventMouse, Action<IAbstMouseEventHandler<LingoMouseEvent>, LingoMouseEvent> action)
         {
             base.OnDoOnAll(eventMouse, action);
             foreach (var subscription in _subscriptions)
@@ -96,14 +96,14 @@ namespace LingoEngine.Inputs
 
 
 
-    public interface ILingoFrameworkMouse : IAbstUIFrameworkMouse
+    public interface ILingoFrameworkMouse : IAbstFrameworkMouse
     {
         void SetCursor(AMouseCursor cursorType);
         void SetCursor(LingoMemberBitmap? image);
     }
 
 
-    public class LingoMouse : AbstUIMouse<LingoMouseEvent>, ILingoMouse
+    public class LingoMouse : AbstMouse<LingoMouseEvent>, ILingoMouse
     {
         ILingoFrameworkMouse _lingoFrameworkObj;
 

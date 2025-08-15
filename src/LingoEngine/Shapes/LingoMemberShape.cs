@@ -26,7 +26,7 @@ namespace LingoEngine.Shapes
         public override int Height { get => Convert.ToInt32(_framework.Height); set => _framework.Height = value; }
         public bool Filled { get => _framework.Filled; set => _framework.Filled = value; }
 
-        public ILingoTexture2D? TextureLingo => _framework.TextureLingo;
+        public IAbstUITexture2D? TextureLingo => _framework.TextureLingo;
 
         public T Framework<T>() where T : ILingoFrameworkMemberShape => (T)_framework;
 
@@ -44,7 +44,7 @@ namespace LingoEngine.Shapes
 
         public override void Preload() => _framework.Preload();
 
-        public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
+        public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
            => _framework.RenderToTexture(ink, transparentColor);
     }
 }

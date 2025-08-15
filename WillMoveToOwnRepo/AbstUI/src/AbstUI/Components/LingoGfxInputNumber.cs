@@ -1,5 +1,4 @@
 using AbstUI.Primitives;
-using LingoEngine.Primitives;
 
 namespace AbstUI.Components
 {

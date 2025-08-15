@@ -36,7 +36,7 @@ namespace LingoEngine.Director.Core.Scores
         private DirScoreSprite? _contextSprite;
         private int _contextFrame;
         private LingoMovie? _movie;
-        protected IAbstUIMouseSubscription _mouseSub;
+        protected IAbstMouseSubscription _mouseSub;
         private float _scollY;
         private float _scollX;
         private float _lastPosV;
@@ -222,7 +222,7 @@ namespace LingoEngine.Director.Core.Scores
                 return;
             if (isInsideLeft)
             {
-                if (mouseEvent.Type == AbstUIMouseEventType.MouseDown)
+                if (mouseEvent.Type == AbstMouseEventType.MouseDown)
                 {
                     if (spriteNumWithChannel < 7)
                         _LeftTopContainer.RaiseMouseDown(mouseEvent, spriteNumWithChannel);
@@ -233,7 +233,7 @@ namespace LingoEngine.Director.Core.Scores
             }
             var scoreChannel = HeaderCollapsed ? spriteNumWithChannel + 5 : spriteNumWithChannel;
             _scoreManager.HandleMouse(mouseEvent, scoreChannel, mouseFrame);
-            if (mouseEvent.Type == AbstUIMouseEventType.MouseDown && mouseEvent.Mouse.RightMouseDown)
+            if (mouseEvent.Type == AbstMouseEventType.MouseDown && mouseEvent.Mouse.RightMouseDown)
             {
                 var sprite = _scoreManager.GetSpriteAt(scoreChannel, mouseFrame);
                 if (sprite != null)

@@ -3,11 +3,12 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using LingoEngine.Primitives;
 using LingoEngine.Shapes;
-using LingoEngine.SDL2.SDLL;
 using LingoEngine.Sprites;
 using LingoEngine.Bitmaps;
-using LingoEngine.SDL2.Pictures;
 using AbstUI.Primitives;
+using AbstUI.SDL2;
+using AbstUI.SDL2.Bitmaps;
+using AbstUI.SDL2.SDLL;
 
 namespace LingoEngine.SDL2.Shapes
 {
@@ -19,7 +20,7 @@ namespace LingoEngine.SDL2.Shapes
         private SDL.SDL_Surface _surfacePtr;
         internal nint Surface => _surface;
         private SdlTexture2D? _texture;
-        public ILingoTexture2D? TextureLingo => _texture;
+        public IAbstUITexture2D? TextureLingo => _texture;
         public bool IsLoaded { get; private set; }
         public LingoList<APoint> VertexList { get; } = new();
         public LingoShapeType ShapeType { get; set; } = LingoShapeType.Rectangle;
@@ -101,7 +102,7 @@ namespace LingoEngine.SDL2.Shapes
         public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
 
 
-        public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
+        public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         {
             if (_texture == null)
                 Preload();

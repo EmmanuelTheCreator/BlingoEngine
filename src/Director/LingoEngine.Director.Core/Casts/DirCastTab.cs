@@ -161,7 +161,7 @@ namespace LingoEngine.Director.Core.Casts
             }
             switch (e.Type)
             {
-                case AbstUIMouseEventType.MouseDown:
+                case AbstMouseEventType.MouseDown:
                     var member = memberHover;
                     var item = hoverItem;
                     if (item != null)
@@ -185,7 +185,7 @@ namespace LingoEngine.Director.Core.Casts
                         }
                     }
                     break;
-                case AbstUIMouseEventType.MouseMove:
+                case AbstMouseEventType.MouseMove:
                     if (e.Mouse.MouseDown && _selected != null && _selected.Member != null)
                     {
                         float dx = x - _dragStartX;
@@ -197,7 +197,7 @@ namespace LingoEngine.Director.Core.Casts
                         }
                     }
                     break;
-                case AbstUIMouseEventType.MouseUp:
+                case AbstMouseEventType.MouseUp:
                     if (_dragging && _dragItem?.Member != null && hoverItem != null && hoverItem != _dragItem)
                     {
                         SwapItems(_dragItem, hoverItem);

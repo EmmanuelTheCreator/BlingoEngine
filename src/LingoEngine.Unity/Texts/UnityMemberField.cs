@@ -1,4 +1,4 @@
-using LingoEngine.Styles;
+using AbstUI.Styles;
 using LingoEngine.Texts;
 using LingoEngine.Texts.FrameworkCommunication;
 
@@ -6,5 +6,5 @@ namespace LingoEngine.Unity.Texts;
 
 public class UnityMemberField : UnityMemberTextBase<LingoMemberField>, ILingoFrameworkMemberField
 {
-    public UnityMemberField(ILingoFontManager fontManager) : base(fontManager) { }
+    public UnityMemberField(IAbstFontManager fontManager) : base(fontManager) { }
 }

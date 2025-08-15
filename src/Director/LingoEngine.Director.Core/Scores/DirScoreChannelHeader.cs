@@ -40,7 +40,7 @@ namespace LingoEngine.Director.Core.Scores
 
             canvas.DrawText(new APoint(xOffset+20 + 25, y+ 11), Icon,null, _textColor, 10);
             if (!string.IsNullOrEmpty(Label))
-                canvas.DrawText(new APoint(xOffset+20 + 2, y+ 11), Label, null, _textColor, 10,45, AbstUI.Texts.AbstUITextAlignment.Right);
+                canvas.DrawText(new APoint(xOffset+20 + 2, y+ 11), Label, null, _textColor, 10,45, AbstUI.Texts.AbstTextAlignment.Right);
 
             // Visibility rect
             var btnWidth = 8;

@@ -226,9 +226,9 @@ public class DirScoreLabelsBar : IDisposable
   
     internal void HandleMouseEvent(LingoMouseEvent mouseEvent, int mouseFrame)
     {
-        if (mouseEvent.Type == AbstUIMouseEventType.MouseDown) MouseDown(mouseEvent, mouseFrame);
-        else if (mouseEvent.Type == AbstUIMouseEventType.MouseUp) MouseUp(mouseEvent);
-        else if (mouseEvent.Type == AbstUIMouseEventType.MouseMove) MouseMove(mouseEvent, mouseFrame);
+        if (mouseEvent.Type == AbstMouseEventType.MouseDown) MouseDown(mouseEvent, mouseFrame);
+        else if (mouseEvent.Type == AbstMouseEventType.MouseUp) MouseUp(mouseEvent);
+        else if (mouseEvent.Type == AbstMouseEventType.MouseMove) MouseMove(mouseEvent, mouseFrame);
     }
     private void MouseDown(LingoMouseEvent e, int mouseFrame)
     {

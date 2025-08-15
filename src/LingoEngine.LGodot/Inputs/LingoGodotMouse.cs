@@ -1,13 +1,14 @@
 ﻿using Godot;
 using LingoEngine.Inputs;
 using LingoEngine.Bitmaps;
-using LingoEngine.LGodot.Bitmaps;
 using LingoEngine.Events;
+using AbstUI.LGodot.Bitmaps;
+using AbstUI.LGodot.Inputs;
 
 
-namespace LingoEngine.LGodot
+namespace LingoEngine.LGodot.Inputs
 {
-    public class LingoGodotMouse : AbstUIGodotMouse<LingoMouse, LingoMouseEvent> , ILingoFrameworkMouse
+    public class LingoGodotMouse : AbstUIGodotMouse<LingoMouse, LingoMouseEvent>, ILingoFrameworkMouse
     {
         public LingoGodotMouse(Lazy<LingoMouse> lingoMouse) : base(lingoMouse)
         {

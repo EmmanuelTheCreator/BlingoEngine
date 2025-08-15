@@ -24,7 +24,7 @@ namespace LingoEngine.Texts.FrameworkCommunication
         int FontSize { get; set; }
         LingoTextStyle FontStyle { get; set; }
         AColor TextColor { get; set; }
-        AbstUITextAlignment Alignment { get; set; }
+        AbstTextAlignment Alignment { get; set; }
         int Margin { get; set; }
         int Width { get; set; }
         int Height { get; set; }

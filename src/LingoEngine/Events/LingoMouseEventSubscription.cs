@@ -4,18 +4,18 @@ using LingoEngine.Inputs;
 namespace LingoEngine.Events
 {
    
-    public class LingoMouseEvent : AbstUIMouseEvent
+    public class LingoMouseEvent : AbstMouseEvent
     {
         public new LingoMouse Mouse { get; }
 
-        public LingoMouseEvent(LingoMouse lingoMouse, AbstUIMouseEventType type)
+        public LingoMouseEvent(LingoMouse lingoMouse, AbstMouseEventType type)
             :base(lingoMouse, type)
         {
             Mouse = lingoMouse;
         }
     }
 
-    public interface ILingoMouseEventHandler : IAbstUIMouseEventHandler<LingoMouseEvent>
+    public interface ILingoMouseEventHandler : IAbstMouseEventHandler<LingoMouseEvent>
     {
     }
     public interface ILingoMouseEventSubscription

@@ -1,8 +1,9 @@
+using AbstUI.LGodot.Bitmaps;
+using AbstUI.LGodot.Helpers;
+using AbstUI.Primitives;
 using Godot;
 using LingoEngine.Bitmaps;
 using LingoEngine.Director.Core.Icons;
-using LingoEngine.LGodot.Bitmaps;
-using LingoEngine.LGodot.Helpers;
 using Microsoft.Extensions.Logging;
 
 namespace LingoEngine.Director.LGodot.Icons
@@ -37,7 +38,7 @@ namespace LingoEngine.Director.LGodot.Icons
             var lingoTexture = new LingoGodotTexture2D(texture);
             return new LingoIconSheetGodot(lingoTexture,iconWidth,iconHeight,horizontalSpacing, itemCount);
         }
-        protected override ILingoTexture2D? OnGetTextureImage(LingoIconSheetGodot sheet, int x)
+        protected override IAbstUITexture2D? OnGetTextureImage(LingoIconSheetGodot sheet, int x)
         {
             var texture = sheet.Image.Texture;
             var image = texture.GetImage();

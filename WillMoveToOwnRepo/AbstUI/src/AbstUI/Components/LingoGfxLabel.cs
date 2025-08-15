@@ -15,6 +15,6 @@ namespace AbstUI.Components
         public AColor FontColor { get => _framework.FontColor; set => _framework.FontColor = value; }
         public int LineHeight { get => _framework.LineHeight; set => _framework.LineHeight = value; }
         public ATextWrapMode WrapMode { get => _framework.WrapMode; set => _framework.WrapMode = value; }
-        public AbstUITextAlignment TextAlignment { get => _framework.TextAlignment; set => _framework.TextAlignment = value; }
+        public AbstTextAlignment TextAlignment { get => _framework.TextAlignment; set => _framework.TextAlignment = value; }
     }
 }

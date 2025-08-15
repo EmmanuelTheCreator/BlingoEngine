@@ -1,4 +1,5 @@
 using System;
+using AbstUI.LUnity.Bitmaps;
 using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Sprites;
@@ -131,9 +132,9 @@ public class UnitySprite2D : ILingoFrameworkSprite, IDisposable
     {
     }
 
-    public void SetTexture(ILingoTexture2D texture)
+    public void SetTexture(IAbstUITexture2D texture)
     {
-        if (texture is Unity.Bitmaps.UnityTexture2D ut)
+        if (texture is UnityTexture2D ut)
         {
             var tex = ut.Texture;
             _renderer.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f));

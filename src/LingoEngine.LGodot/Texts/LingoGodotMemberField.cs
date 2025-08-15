@@ -1,5 +1,5 @@
 ﻿using Godot;
-using LingoEngine.Styles;
+using AbstUI.Styles;
 using LingoEngine.Texts;
 using LingoEngine.Texts.FrameworkCommunication;
 using Microsoft.Extensions.Logging;
@@ -10,7 +10,7 @@ namespace LingoEngine.LGodot.Texts
     {
 
 
-        public LingoGodotMemberField(ILingoFontManager lingoFontManager, ILogger<LingoGodotMemberField> logger) : base(lingoFontManager, logger)
+        public LingoGodotMemberField(IAbstFontManager lingoFontManager, ILogger<LingoGodotMemberField> logger) : base(lingoFontManager, logger)
         {
         }
         internal Node CreateForSpriteDraw() => CreateForSpriteDraw(new LingoGodotMemberField(_fontManager, (ILogger<LingoGodotMemberField>)_logger));

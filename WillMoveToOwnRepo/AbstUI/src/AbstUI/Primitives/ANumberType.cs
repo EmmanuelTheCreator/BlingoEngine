@@ -1,4 +1,4 @@
-namespace LingoEngine.Primitives
+namespace AbstUI.Primitives
 {
     /// <summary>
     /// Specifies the numeric input mode.

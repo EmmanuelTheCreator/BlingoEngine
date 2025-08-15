@@ -9,6 +9,12 @@
 
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Gfx\**" />
+    <EmbeddedResource Remove="Gfx\**" />
+    <None Remove="Gfx\**" />
+  </ItemGroup>
+
 
 
   <ItemGroup>
@@ -24,7 +30,6 @@
 
 
   <ItemGroup>
-    <Folder Include="Gfx\" />
     <Folder Include="Inputs\Commands\" />
     <Folder Include="Scores\Commands\" />
   </ItemGroup>

@@ -1,13 +1,13 @@
 using ImGuiNET;
 using AbstUI.Primitives;
 using LingoEngine.Inputs;
-using LingoEngine.SDL2;
 using LingoEngine.SDL2.Inputs;
-using LingoEngine.SDL2.SDLL;
-using LingoEngine.SDL2.Styles;
 using LingoEngine.Stages;
 using System.Numerics;
 using AbstUI.Inputs;
+using AbstUI.SDL2.Styles;
+using AbstUI.SDL2.SDLL;
+using AbstUI.SDL2;
 
 
 namespace LingoEngine.SDL2.GfxVisualTest;
@@ -25,10 +25,10 @@ private bool _imguiReady;
     public nint Renderer { get; }
 
     public LingoSdlMouse Mouse { get; set; }
-    public IAbstUIMouse LingoMouse { get; set; }
+    public IAbstMouse LingoMouse { get; set; }
 
     internal ILingoFrameworkKey Key { get; set; }
-    public IAbstUIKey LingoKey { get; set; }
+    public IAbstKey LingoKey { get; set; }
     private readonly ImGuiSdlBackend _imgui = new();
     public int Width { get; set; }
     public int Height { get; set; }
@@ -50,13 +50,13 @@ private bool _imguiReady;
             SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED | SDL.SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC);
         SDL.SDL_RenderSetLogicalSize(Renderer, Width, Height);
         CreateMouse();
-        var key = new SdlKey();
+        var key = new LingoSdlKey();
         Key = key;
         var LingoKey = new LingoKey(key);
-        key.SetLingoKey(LingoKey);
+        key.SetKeyObj(LingoKey);
 
         _imgui.Init(_window, Renderer);
-        _fontManager = new Styles.SdlFontManager();
+        _fontManager = new SdlFontManager();
         _fontManager.LoadAll();
         _imguiReady = true;
     }
@@ -136,10 +136,10 @@ private bool _imguiReady;
 
     public LingoMouse CreateMouse()
     {
-        Mouse = new LingoSdlMouse(new Lazy<AbstUIMouse<Events.LingoMouseEvent>>(() => (AbstUIMouse < Events.LingoMouseEvent > )LingoMouse));
+        Mouse = new LingoSdlMouse(new Lazy<AbstMouse<Events.LingoMouseEvent>>(() => (AbstMouse < Events.LingoMouseEvent > )LingoMouse));
         var mouseImpl = Mouse;
         var mouse = new LingoMouse(mouseImpl);
-        mouseImpl.SetLingoMouse(mouse);
+        mouseImpl.SetMouse(mouse);
         LingoMouse = mouse;
         return mouse;
     }

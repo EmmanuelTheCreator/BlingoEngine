@@ -127,7 +127,7 @@ namespace LingoEngine.Texts
         /// <summary>
         /// Gets or sets the alignment of the text in the field: 0 = left, 1 = center, 2 = right.
         /// </summary>
-        AbstUITextAlignment Alignment { get; set; }
+        AbstTextAlignment Alignment { get; set; }
 
         /// <summary>
         /// Gets or sets the margin (padding) around the text inside the field.

@@ -21,7 +21,7 @@ using LingoEngine.Unity.Movies;
 using LingoEngine.Unity.Sprites;
 using LingoEngine.Unity.Texts;
 using LingoEngine.Unity.Sounds;
-using LingoEngine.Styles;
+using AbstUI.Styles;
 using Microsoft.Extensions.DependencyInjection;
 using AbstUI.Primitives;
 using AbstUI.Components;
@@ -88,7 +88,7 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
     public LingoMemberShape CreateMemberShape(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
     public LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
-        var fontManager = _serviceProvider.GetRequiredService<ILingoFontManager>();
+        var fontManager = _serviceProvider.GetRequiredService<IAbstFontManager>();
         var impl = new UnityMemberField(fontManager);
         var member = new LingoMemberField((LingoCast)cast, impl, numberInCast, name, fileName ?? string.Empty, regPoint);
         impl.Init(member);
@@ -97,7 +97,7 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
     }
     public LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
-        var fontManager = _serviceProvider.GetRequiredService<ILingoFontManager>();
+        var fontManager = _serviceProvider.GetRequiredService<IAbstFontManager>();
         var impl = new UnityMemberText(fontManager);
         var member = new LingoMemberText((LingoCast)cast, impl, numberInCast, name, fileName ?? string.Empty, regPoint);
         impl.Init(member);
@@ -132,16 +132,16 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
     {
         var mouseImpl = new LingoUnityMouse(new Lazy<LingoMouse>(() => null!));
         var mouse = new LingoStageMouse(stage, mouseImpl);
-        mouseImpl.SetLingoMouse(mouse);
+        mouseImpl.SetMouseObj(mouse);
         return mouse;
     }
 
     public LingoKey CreateKey()
     {
         LingoKey? key = null;
-        var impl = new UnityKey();
+        var impl = new LingoUnityKey();
         key = new LingoKey(impl);
-        impl.SetLingoKey(key);
+        impl.SetKeyObj(key);
         return key;
     }
 
@@ -166,7 +166,7 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
     public AbstUIGfxColorPicker CreateColorPicker(string name, Action<AColor>? onChange = null) => throw new NotImplementedException();
     public AbstUIGfxLabel CreateLabel(string name, string text = "") => throw new NotImplementedException();
     public AbstUIGfxButton CreateButton(string name, string text = "") => throw new NotImplementedException();
-    public AbstUIGfxStateButton CreateStateButton(string name, ILingoTexture2D? texture = null, string text = "", Action<bool>? onChange = null) => throw new NotImplementedException();
+    public AbstUIGfxStateButton CreateStateButton(string name, IAbstUITexture2D? texture = null, string text = "", Action<bool>? onChange = null) => throw new NotImplementedException();
     public AbstUIGfxMenu CreateMenu(string name) => throw new NotImplementedException();
     public AbstUIGfxMenuItem CreateMenuItem(string name, string? shortcut = null) => throw new NotImplementedException();
     public AbstUIGfxMenu CreateContextMenu(object window) => throw new NotImplementedException();

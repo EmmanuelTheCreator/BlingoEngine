@@ -129,7 +129,7 @@ namespace LingoEngine.Texts
             }
         }
         /// <inheritdoc/>
-        public AbstUITextAlignment Alignment
+        public AbstTextAlignment Alignment
         {
             get => _frameworkMember.Alignment;
             set { _frameworkMember.Alignment = value;  }
@@ -168,7 +168,7 @@ namespace LingoEngine.Texts
             }
         }
 
-        public ILingoTexture2D? TextureLingo => _frameworkMember.TextureLingo;
+        public IAbstUITexture2D? TextureLingo => _frameworkMember.TextureLingo;
         #endregion
 
 
@@ -283,7 +283,7 @@ namespace LingoEngine.Texts
             _selectedText = Text.Substring(start - 1, end - start);
         }
 
-        public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
+        public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
           => _frameworkMember.RenderToTexture(ink, transparentColor);
 
 

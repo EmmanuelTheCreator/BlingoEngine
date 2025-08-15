@@ -6,28 +6,29 @@ using LingoEngine.Inputs;
 using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.SDL2.Movies;
-using LingoEngine.SDL2.Pictures;
 using LingoEngine.SDL2.Sounds;
 using LingoEngine.SDL2.Texts;
 using LingoEngine.SDL2.Shapes;
-using LingoEngine.SDL2.Gfx;
 using LingoEngine.Sounds;
 using LingoEngine.Shapes;
 using LingoEngine.Texts;
 using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Sprites;
 using LingoEngine.Stages;
-using LingoEngine.Styles;
+using AbstUI.Styles;
 using LingoEngine.SDL2.Stages;
 using LingoEngine.SDL2.Inputs;
 using LingoEngine.Bitmaps;
 using LingoEngine.Scripts;
 using LingoEngine.SDL2.Scripts;
 using LingoEngine.FilmLoops;
-using LingoEngine.SDL2;
-using LingoEngine.SDL2.Styles;
 using AbstUI.Primitives;
 using AbstUI.Components;
+using AbstUI.SDL2.Styles;
+using AbstUI.SDL2;
+using AbstUI.SDL2.Components;
+using LingoEngine.SDL2.Bitmaps;
+using LingoEngine.SDL2.FilmLoops;
 
 namespace LingoEngine.SDL2.Core;
 /// <inheritdoc/>
@@ -45,7 +46,7 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
         _serviceProvider = serviceProvider;
         _rootContext = rootContext;
         _rootContext.Factory = this;
-        _fontManager = (SdlFontManager)_serviceProvider.GetRequiredService<ILingoFontManager>();
+        _fontManager = (SdlFontManager)_serviceProvider.GetRequiredService<IAbstFontManager>();
         _gfxFactory = new SdlGfxFactory(_rootContext,_fontManager);
     }
 
@@ -129,7 +130,7 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
     /// <inheritdoc/>
     public LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
-        var impl = new SdlMemberField(_serviceProvider.GetRequiredService<ILingoFontManager>(), _rootContext);
+        var impl = new SdlMemberField(_serviceProvider.GetRequiredService<IAbstFontManager>(), _rootContext);
         var member = new LingoMemberField((LingoCast)cast, impl, numberInCast, name, fileName ?? "", regPoint);
         impl.Init(member);
         _disposables.Add(impl);
@@ -138,7 +139,7 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
     /// <inheritdoc/>
     public LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
-        var impl = new SdlMemberText(_serviceProvider.GetRequiredService<ILingoFontManager>(), _rootContext);
+        var impl = new SdlMemberText(_serviceProvider.GetRequiredService<IAbstFontManager>(), _rootContext);
         var member = new LingoMemberText((LingoCast)cast, impl, numberInCast, name, fileName ?? "", regPoint);
         impl.Init(member);
         _disposables.Add(impl);
@@ -209,7 +210,7 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
     {
         var mouseImpl = (LingoSdlMouse)_rootContext.Mouse;
         var mouse = new LingoStageMouse(stage, mouseImpl);
-        mouseImpl.SetLingoMouse(mouse);
+        mouseImpl.SetMouse(mouse);
         return mouse;
     }
     public LingoKey CreateKey() => (LingoKey)_rootContext.LingoKey;
@@ -275,7 +276,7 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
     public AbstUIGfxButton CreateButton(string name, string text = "")
         => _gfxFactory.CreateButton(name, text);
 
-    public AbstUIGfxStateButton CreateStateButton(string name, Bitmaps.ILingoTexture2D? texture = null, string text = "", Action<bool>? onChange = null)
+    public AbstUIGfxStateButton CreateStateButton(string name, IAbstUITexture2D? texture = null, string text = "", Action<bool>? onChange = null)
         => _gfxFactory.CreateStateButton(name, texture, text, onChange);
 
     public AbstUIGfxMenu CreateMenu(string name)

@@ -23,14 +23,13 @@ using LingoEngine.Director.Core.Casts;
 using LingoEngine.Director.LGodot.UI;
 using LingoEngine.Director.Core.Icons;
 using Microsoft.Extensions.Logging;
-using LingoEngine.Styles;
-using LingoEngine.LGodot.Styles;
+using AbstUI.Styles;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Setup;
 using LingoEngine.Director.LGodot.Styles;
 using LingoEngine.Director.LGodot.Projects;
 using LingoEngine.Projects;
-using AbstUI.Core;
+using AbstUI.LGodot.Styles;
 
 namespace LingoEngine.Director.LGodot
 {
@@ -88,7 +87,7 @@ namespace LingoEngine.Director.LGodot
                 .AddBuildAction(p =>
                 {
                     var styles = p.GetRequiredService<DirectorGodotStyle>();
-                    p.GetRequiredService<ILingoFontManager>().SetDefaultFont(DirectorGodotStyle.DefaultFont);
+                    p.GetRequiredService<IAbstFontManager>().SetDefaultFont(DirectorGodotStyle.DefaultFont);
                     p.GetRequiredService<ILingoGodotStyleManager>().Register(LingoGodotThemeElementType.Tabs, styles.GetTabContainerTheme());
                     p.GetRequiredService<ILingoGodotStyleManager>().Register(LingoGodotThemeElementType.TabItem, styles.GetTabItemTheme());
                     p.GetRequiredService<ILingoGodotStyleManager>().Register(LingoGodotThemeElementType.PopupWindow, styles.GetPopupWindowTheme());

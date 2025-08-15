@@ -1,15 +1,17 @@
 using System.Runtime.InteropServices;
 using LingoEngine.Bitmaps;
 using LingoEngine.SDL2.Inputs;
-using LingoEngine.SDL2.SDLL;
 using LingoEngine.Sprites;
 using LingoEngine.Tools;
 using LingoEngine.Primitives;
 using System.Security.Cryptography;
 using AbstUI.Primitives;
 using AbstUI.Tools;
+using AbstUI.SDL2.SDLL;
+using AbstUI.SDL2;
+using AbstUI.SDL2.Bitmaps;
 
-namespace LingoEngine.SDL2.Pictures;
+namespace LingoEngine.SDL2.Bitmaps;
 public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
 {
     private LingoMemberBitmap _member = null!;
@@ -27,7 +29,7 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
     public SDL.SDL_Surface TextureSDL => _surfacePtr;
     internal nint Surface => _surface;
 
-    public ILingoTexture2D? TextureLingo => _texture;
+    public IAbstUITexture2D? TextureLingo => _texture;
 
     public SdlMemberBitmap(ISdlRootComponentContext sdlRootContext)
     {
@@ -56,7 +58,7 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
         Width = _surfacePtr.w;
         Height = _surfacePtr.h;
         //var surfaceLingo = new SdlImageTexture(_surfacePtr, _surface, Width, Height);
-        
+
         ImageData = File.ReadAllBytes(fullFileName);
         Format = MimeHelper.GetMimeType(_member.FileName);
         _member.Size = ImageData.Length;
@@ -85,18 +87,18 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
     }
 
     public void Dispose() { Unload(); }
-    
+
     public void ImportFileInto() { }
 
-    public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor) 
+    public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         => GetTextureForInk(ink, transparentColor, _sdlRootContext.Renderer);
 
-    public ILingoTexture2D? GetTextureForInk(LingoInkType ink, AColor backColor, nint renderer)
+    public IAbstUITexture2D? GetTextureForInk(LingoInkType ink, AColor backColor, nint renderer)
     {
         if (!InkPreRenderer.CanHandle(ink) || _surface == nint.Zero)
             return null;
         var inkKey = InkPreRenderer.GetInkCacheKey(ink);
-        
+
 
         if (_inkTextures.TryGetValue(inkKey, out var cached) && cached != null)
             return cached.Clone(_sdlRootContext.Renderer);
@@ -151,8 +153,8 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
                 1 => Marshal.ReadByte(surf.pixels, offset),
                 2 => (uint)Marshal.ReadInt16(surf.pixels, offset),
                 3 => (uint)(Marshal.ReadByte(surf.pixels, offset) |
-                              (Marshal.ReadByte(surf.pixels, offset + 1) << 8) |
-                              (Marshal.ReadByte(surf.pixels, offset + 2) << 16)),
+                              Marshal.ReadByte(surf.pixels, offset + 1) << 8 |
+                              Marshal.ReadByte(surf.pixels, offset + 2) << 16),
                 _ => (uint)Marshal.ReadInt32(surf.pixels, offset)
             };
 
@@ -221,7 +223,7 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
             pinned.Free();
         }
 
-       
+
     }
     #endregion
 }

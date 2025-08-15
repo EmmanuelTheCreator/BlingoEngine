@@ -17,12 +17,10 @@ using LingoEngine.Members;
 using LingoEngine.Casts;
 using LingoEngine.Shapes;
 using LingoEngine.Bitmaps;
-using LingoEngine.LGodot.Gfx;
 using LingoEngine.Sprites;
 using LingoEngine.Stages;
-using LingoEngine.Styles;
+using AbstUI.Styles;
 using Microsoft.Extensions.Logging;
-using LingoEngine.LGodot.Styles;
 using LingoEngine.LGodot.Bitmaps;
 using LingoEngine.LGodot.Scripts;
 using LingoEngine.Scripts;
@@ -30,6 +28,8 @@ using LingoEngine.FilmLoops;
 using LingoEngine.LGodot.FilmLoops;
 using AbstUI.Primitives;
 using AbstUI.Components;
+using AbstUI.Inputs;
+using AbstUI.LGodot.Styles;
 
 namespace LingoEngine.LGodot.Core
 {
@@ -47,7 +47,7 @@ namespace LingoEngine.LGodot.Core
             _lingoRootNode = rootNode;
             _rootNode = rootNode.RootNode;
             _serviceProvider = serviceProvider;
-            var fontManager = _serviceProvider.GetRequiredService<ILingoFontManager>();
+            var fontManager = _serviceProvider.GetRequiredService<IAbstFontManager>();
             var styleManager = _serviceProvider.GetRequiredService<ILingoGodotStyleManager>();
             _gfxFactory = new GodotGfxFactory(fontManager, styleManager, _lingoRootNode);
         }
@@ -132,7 +132,7 @@ namespace LingoEngine.LGodot.Core
         /// <inheritdoc/>
         public LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
         {
-            var godotInstance = new LingoGodotMemberField(_serviceProvider.GetRequiredService<ILingoFontManager>(), _serviceProvider.GetRequiredService<ILogger<LingoGodotMemberField>>());
+            var godotInstance = new LingoGodotMemberField(_serviceProvider.GetRequiredService<IAbstFontManager>(), _serviceProvider.GetRequiredService<ILogger<LingoGodotMemberField>>());
             var lingoInstance = new LingoMemberField((LingoCast)cast, godotInstance, numberInCast, name, fileName ?? "", regPoint);
             godotInstance.Init(lingoInstance);
             _disposables.Add(godotInstance);
@@ -141,7 +141,7 @@ namespace LingoEngine.LGodot.Core
         /// <inheritdoc/>
         public LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
         {
-            var godotInstance = new LingoGodotMemberText(_serviceProvider.GetRequiredService<ILingoFontManager>(), _serviceProvider.GetRequiredService<ILogger<LingoGodotMemberText>>());
+            var godotInstance = new LingoGodotMemberText(_serviceProvider.GetRequiredService<IAbstFontManager>(), _serviceProvider.GetRequiredService<ILogger<LingoGodotMemberText>>());
             var lingoInstance = new LingoMemberText((LingoCast)cast, godotInstance, numberInCast, name, fileName ?? "", regPoint);
             godotInstance.Init(lingoInstance);
             _disposables.Add(godotInstance);
@@ -220,9 +220,9 @@ namespace LingoEngine.LGodot.Core
         public LingoKey CreateKey()
         {
             LingoKey? key = null;
-            var impl = new LingoGodotKey(_rootNode, new Lazy<LingoKey>(() => key!));
+            var impl = new LingoGodotKey(_rootNode, new Lazy<AbstKey>(() => key!));
             key = new LingoKey(impl);
-            impl.SetLingoKey(key);
+            impl.SetKeyObj(key);
             return key;
         }
 
@@ -293,7 +293,7 @@ namespace LingoEngine.LGodot.Core
         public AbstUIGfxButton CreateButton(string name, string text = "")
             => _gfxFactory.CreateButton(name, text);
 
-        public AbstUIGfxStateButton CreateStateButton(string name, ILingoTexture2D? texture = null, string text = "", Action<bool>? onChange = null)
+        public AbstUIGfxStateButton CreateStateButton(string name, IAbstUITexture2D? texture = null, string text = "", Action<bool>? onChange = null)
             => _gfxFactory.CreateStateButton(name, texture, text, onChange);
 
         public AbstUIGfxMenu CreateMenu(string name)

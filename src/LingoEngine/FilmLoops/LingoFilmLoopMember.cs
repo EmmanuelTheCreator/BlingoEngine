@@ -27,7 +27,7 @@ namespace LingoEngine.FilmLoops
         public List<SoundEntry> SoundEntries { get; } = new();
 
         public int FrameCount { get; private set; }
-        public ILingoTexture2D? TextureLingo => _frameworkFilmLoop.TextureLingo;
+        public IAbstUITexture2D? TextureLingo => _frameworkFilmLoop.TextureLingo;
 
 
         /// <summary>
@@ -156,7 +156,7 @@ namespace LingoEngine.FilmLoops
         public ARect GetBoundingBoxForFrame(int frame) => SpriteEntries.GetBoundingBoxForFrame(frame);
         public ARect GetBoundingBox() => SpriteEntries.GetBoundingBox();
 
-        public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
+        public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
             => _frameworkFilmLoop.RenderToTexture(ink, transparentColor);
     }
 }

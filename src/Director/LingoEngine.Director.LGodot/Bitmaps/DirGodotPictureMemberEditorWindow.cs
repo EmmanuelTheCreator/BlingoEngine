@@ -10,7 +10,6 @@ using LingoEngine.Commands;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.LGodot.Gfx;
-using LingoEngine.LGodot.Primitives;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Bitmaps;
@@ -19,6 +18,8 @@ using LingoEngine.Director.LGodot.Bitmaps;
 using System.Collections.Generic;
 using AbstUI.Primitives;
 using AbstUI.Inputs;
+using AbstUI.LGodot.Bitmaps;
+using AbstUI.LGodot.Primitives;
 
 namespace LingoEngine.Director.LGodot.Pictures;
 
@@ -620,7 +621,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
 
     private void OnMouseEvent(LingoMouseEvent e)
     {
-        if (e.Type == AbstUIMouseEventType.MouseWheel && IsEventInScrollArea())
+        if (e.Type == AbstMouseEventType.MouseWheel && IsEventInScrollArea())
         {
             ZoomingWithMouseScroll(e.WheelDelta);
         }

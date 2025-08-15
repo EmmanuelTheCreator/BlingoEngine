@@ -1,3 +1,4 @@
+using AbstUI.LUnity.Bitmaps;
 using AbstUI.Primitives;
 using AbstUI.Tools;
 using LingoEngine.Bitmaps;
@@ -24,7 +25,7 @@ public class UnityMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
 
     internal Texture2D? TextureUnity => _texture;
 
-    public ILingoTexture2D? TextureLingo => _textureWrapper;
+    public IAbstUITexture2D? TextureLingo => _textureWrapper;
 
     internal void Init(LingoMemberBitmap member)
     {
@@ -93,7 +94,7 @@ public class UnityMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
 
     public void Dispose() => Unload();
 
-    public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
+    public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
     {
         throw new NotImplementedException();
     }

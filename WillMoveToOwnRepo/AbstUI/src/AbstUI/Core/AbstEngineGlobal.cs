@@ -1,6 +1,6 @@
 ﻿namespace AbstUI.Core
 {
-    public enum AbstUIEngineRunFramework
+    public enum AbstEngineRunFramework
     {
         None = 0,
         Godot = 1,
@@ -9,9 +9,9 @@
         Custom = 4,
         SDL2 = 5
     }
-    public class AbstUIEngineGlobal
+    public class AbstEngineGlobal
     {
-        public static AbstUIEngineRunFramework RunFramework { get; set; } = AbstUIEngineRunFramework.None;
+        public static AbstEngineRunFramework RunFramework { get; set; } = AbstEngineRunFramework.None;
         public static bool IsRunningDirector { get; set; }
     }
 }

@@ -15,7 +15,7 @@ namespace LingoEngine.Tools
             public int Size{ get; set; }
             public AColor? Color{ get; set; }
             public string Text { get; set; } = "";
-            public AbstUITextAlignment Alignment { get; set; } = AbstUITextAlignment.Left;
+            public AbstTextAlignment Alignment { get; set; } = AbstTextAlignment.Left;
             public LingoTextStyle Style { get; set; } = LingoTextStyle.None;
         }
         public static RtfBasicInfo? Parse(string rtfContent)
@@ -114,15 +114,15 @@ namespace LingoEngine.Tools
 
             // Text alignment
             var alignmentMatch = Regex.Match(rtfContent, @"\\q(l|r|j|c)\b");
-            AbstUITextAlignment alignment = AbstUITextAlignment.Left;
+            AbstTextAlignment alignment = AbstTextAlignment.Left;
             if (alignmentMatch.Success)
             {
                 switch (alignmentMatch.Groups[1].Value)
                 {
-                    case "l": alignment = AbstUITextAlignment.Left; break;
-                    case "r": alignment = AbstUITextAlignment.Right; break;
-                    case "c": alignment = AbstUITextAlignment.Center; break;
-                    case "j": alignment = AbstUITextAlignment.Justified; break;
+                    case "l": alignment = AbstTextAlignment.Left; break;
+                    case "r": alignment = AbstTextAlignment.Right; break;
+                    case "c": alignment = AbstTextAlignment.Center; break;
+                    case "j": alignment = AbstTextAlignment.Justified; break;
                 }
             }
 

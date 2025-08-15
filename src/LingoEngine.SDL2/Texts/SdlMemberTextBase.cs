@@ -4,13 +4,14 @@ using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Primitives;
 using LingoEngine.SDL2.Inputs;
-using LingoEngine.SDL2.Pictures;
-using LingoEngine.SDL2.SDLL;
-using LingoEngine.SDL2.Styles;
 using LingoEngine.Sprites;
-using LingoEngine.Styles;
+using AbstUI.Styles;
 using LingoEngine.Texts;
 using LingoEngine.Texts.FrameworkCommunication;
+using AbstUI.SDL2.Styles;
+using AbstUI.SDL2;
+using AbstUI.SDL2.Bitmaps;
+using AbstUI.SDL2.SDLL;
 
 namespace LingoEngine.SDL2.Texts;
 
@@ -27,7 +28,7 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     private string fontName = string.Empty;
 
     public SdlTexture2D? TextureSDL => _textureSDL;
-    public ILingoTexture2D? TextureLingo => _textureSDL;
+    public IAbstUITexture2D? TextureLingo => _textureSDL;
    
 
     public string Text { get => _text; set => _text = value; }
@@ -53,14 +54,14 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     }
     public LingoTextStyle FontStyle { get; set; }
     public AColor TextColor { get; set; } = AColor.FromRGB(0, 0, 0);
-    public AbstUITextAlignment Alignment { get; set; }
+    public AbstTextAlignment Alignment { get; set; }
     public int Margin { get; set; }
     public bool IsLoaded { get; private set; }
     public int Width {get;set;}
     public int Height {get;set;}
 
 
-    protected SdlMemberTextBase(ILingoFontManager fontManager, ISdlRootComponentContext sdlRootContext)
+    protected SdlMemberTextBase(IAbstFontManager fontManager, ISdlRootComponentContext sdlRootContext)
     {
         _sdlRootContext = sdlRootContext;
         _fontManager = (SdlFontManager)fontManager;
@@ -108,7 +109,7 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
 
     public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
 
-    public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
+    public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
     {
         PreloadFont();
 

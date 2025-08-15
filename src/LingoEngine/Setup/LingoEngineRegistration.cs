@@ -5,12 +5,11 @@ using LingoEngine.Movies;
 using LingoEngine.Projects;
 using LingoEngine.Events;
 using LingoEngine.Sprites;
-using LingoEngine.Styles;
+using AbstUI.Styles;
 using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Casts;
 using System.Runtime;
 using System;
-using AbstUI.Core;
 namespace LingoEngine.Setup
 {
     public class LingoEngineRegistration : ILingoEngineRegistration
@@ -145,7 +144,7 @@ namespace LingoEngine.Setup
 
         private void LoadFonts(ILingoServiceProvider serviceProvider)
         {
-            var fontsManager = serviceProvider.GetRequiredService<ILingoFontManager>();
+            var fontsManager = serviceProvider.GetRequiredService<IAbstFontManager>();
             foreach (var font in _Fonts)
                 fontsManager.AddFont(font.Name, font.FileName);
             fontsManager.LoadAll();

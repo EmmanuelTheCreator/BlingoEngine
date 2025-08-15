@@ -4,7 +4,7 @@ using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
-using LingoEngine.Styles;
+using AbstUI.Styles;
 using LingoEngine.Texts;
 using LingoEngine.Texts.FrameworkCommunication;
 
@@ -17,9 +17,9 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
 {
     protected TText _lingoMemberText = default!;
     protected string _text = string.Empty;
-    protected readonly ILingoFontManager _fontManager;
+    protected readonly IAbstFontManager _fontManager;
 
-    protected UnityMemberTextBase(ILingoFontManager fontManager)
+    protected UnityMemberTextBase(IAbstFontManager fontManager)
     {
         _fontManager = fontManager;
     }
@@ -36,13 +36,13 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
     public int FontSize { get; set; }
     public LingoTextStyle FontStyle { get; set; }
     public AColor TextColor { get; set; } = AColor.FromRGB(0, 0, 0);
-    public AbstUITextAlignment Alignment { get; set; }
+    public AbstTextAlignment Alignment { get; set; }
     public int Margin { get; set; }
     public bool IsLoaded { get; private set; }
     public int Width { get; set; }
     public int Height { get; set; }
 
-    public ILingoTexture2D? TextureLingo => throw new NotImplementedException();
+    public IAbstUITexture2D? TextureLingo => throw new NotImplementedException();
 
     public void Copy(string text) { }
     public string PasteClipboard() => string.Empty;
@@ -64,7 +64,7 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
 
     public void Dispose() { }
 
-    public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
+    public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
     {
         throw new NotImplementedException();
     }

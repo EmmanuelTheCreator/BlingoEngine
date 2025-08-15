@@ -2,16 +2,17 @@
 using Godot;
 using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
-using LingoEngine.LGodot.Bitmaps;
-using LingoEngine.LGodot.Helpers;
-using LingoEngine.LGodot.Primitives;
 using LingoEngine.LGodot.Sprites;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
-using LingoEngine.Styles;
+using AbstUI.Styles;
 using LingoEngine.Texts;
 using LingoEngine.Texts.FrameworkCommunication;
 using Microsoft.Extensions.Logging;
+using AbstUI.LGodot.Helpers;
+using AbstUI.LGodot.Texts;
+using AbstUI.LGodot.Bitmaps;
+using AbstUI.LGodot.Primitives;
 
 namespace LingoEngine.LGodot.Texts
 {
@@ -20,14 +21,14 @@ namespace LingoEngine.LGodot.Texts
     {
         protected TLingoText _lingoMemberText;
         protected string _text = "";
-        protected ILingoFontManager _fontManager;
+        protected IAbstFontManager _fontManager;
         protected readonly ILogger _logger;
         protected LabelSettings _LabelSettings = new LabelSettings();
         
         private GodotMemberTextNode _defaultTextNode;
         private List<GodotMemberTextNode> _usedNodes = new List<GodotMemberTextNode>();
         private LingoGodotTexture2D? _texture;
-        public ILingoTexture2D? TextureLingo => _texture;
+        public IAbstUITexture2D? TextureLingo => _texture;
         public LingoGodotTexture2D? TextureGodot => _texture;
 
         internal class GodotMemberTextNode
@@ -133,25 +134,25 @@ namespace LingoEngine.LGodot.Texts
                 
             }
         }
-        public AbstUITextAlignment Alignment
+        public AbstTextAlignment Alignment
         {
             get
             {
                 return _defaultTextNode.LabelNode.HorizontalAlignment switch
                 {
-                    HorizontalAlignment.Left => AbstUITextAlignment.Left,
-                    HorizontalAlignment.Center => AbstUITextAlignment.Center,
-                    HorizontalAlignment.Right => AbstUITextAlignment.Right,
-                    _ => AbstUITextAlignment.Left // Default fallback
+                    HorizontalAlignment.Left => AbstTextAlignment.Left,
+                    HorizontalAlignment.Center => AbstTextAlignment.Center,
+                    HorizontalAlignment.Right => AbstTextAlignment.Right,
+                    _ => AbstTextAlignment.Left // Default fallback
                 };
             }
             set
             {
                 var align = value switch
                 {
-                    AbstUITextAlignment.Left => HorizontalAlignment.Left,
-                    AbstUITextAlignment.Center => HorizontalAlignment.Center,
-                    AbstUITextAlignment.Right => HorizontalAlignment.Right,
+                    AbstTextAlignment.Left => HorizontalAlignment.Left,
+                    AbstTextAlignment.Center => HorizontalAlignment.Center,
+                    AbstTextAlignment.Right => HorizontalAlignment.Right,
                     _ => HorizontalAlignment.Left // Default fallback
                 };
                 Apply(x => x.LabelNode.HorizontalAlignment = align);
@@ -234,7 +235,7 @@ namespace LingoEngine.LGodot.Texts
 
 
 #pragma warning disable CS8618
-        public LingoGodotMemberTextBase(ILingoFontManager lingoFontManager, ILogger logger)
+        public LingoGodotMemberTextBase(IAbstFontManager lingoFontManager, ILogger logger)
 #pragma warning restore CS8618
         {
             _fontManager = lingoFontManager;
@@ -259,7 +260,7 @@ namespace LingoEngine.LGodot.Texts
                     usedNode.SetName(lingoInstance.Name);
             }
         }
-        public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
+        public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         {
             int w = Width > 0 ? Width : (int)Size.X;
             int h = Height > 0 ? Height : (int)Size.Y;
@@ -280,8 +281,8 @@ namespace LingoEngine.LGodot.Texts
             label.AutowrapMode = WordWrap ? TextServer.AutowrapMode.Word : TextServer.AutowrapMode.Off;
             label.HorizontalAlignment = Alignment switch
             {
-                AbstUITextAlignment.Center => HorizontalAlignment.Center,
-                AbstUITextAlignment.Right => HorizontalAlignment.Right,
+                AbstTextAlignment.Center => HorizontalAlignment.Center,
+                AbstTextAlignment.Right => HorizontalAlignment.Right,
                 _ => HorizontalAlignment.Left
             };
             viewport.AddChild(label);

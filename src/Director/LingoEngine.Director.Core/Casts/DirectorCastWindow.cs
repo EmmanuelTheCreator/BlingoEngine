@@ -23,7 +23,7 @@ namespace LingoEngine.Director.Core.Casts
         private readonly ILingoCommandManager _commandManager;
         private readonly IDirectorIconManager _iconManager;
         private ILingoMember? _selected;
-        private IAbstUIMouseSubscription? _mouseSub;
+        private IAbstMouseSubscription? _mouseSub;
 
         public AbstUIGfxTabContainer TabContainer => _tabs;
         public ILingoMember? SelectedMember => _selected;

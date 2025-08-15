@@ -27,7 +27,7 @@ namespace LingoEngine.Director.Core.UI
             return canvas;
         }
 
-        public static AbstUIGfxLabel SetLabelAt(this AbstUIGfxPanel container, string name, float x, float y, string? text = null, int fontSize = 11, int? labelWidth = null, AbstUITextAlignment lingoTextAlignment = AbstUITextAlignment.Left)
+        public static AbstUIGfxLabel SetLabelAt(this AbstUIGfxPanel container, string name, float x, float y, string? text = null, int fontSize = 11, int? labelWidth = null, AbstTextAlignment lingoTextAlignment = AbstTextAlignment.Left)
         {
             AbstUIGfxLabel lbl = container.Factory.CreateLabel(name,text ??"");
             lbl.FontColor = DirectorColors.TextColorLabels;
@@ -123,7 +123,7 @@ namespace LingoEngine.Director.Core.UI
             container.AddItem(slider, x, y);
             return slider;
         }
-        public static AbstUIGfxStateButton SetStateButtonAt<T>(this AbstUIGfxPanel container, T element, string name, float x, float y, Expression<Func<T,bool>> property, ILingoTexture2D? texture = null, string? label = null)
+        public static AbstUIGfxStateButton SetStateButtonAt<T>(this AbstUIGfxPanel container, T element, string name, float x, float y, Expression<Func<T,bool>> property, IAbstUITexture2D? texture = null, string? label = null)
         {
             Action<T, bool> setter = property.CompileSetter();
             AbstUIGfxStateButton control = container.Factory.CreateStateButton(name, texture, label ??"", onChange: val => setter(element, val));

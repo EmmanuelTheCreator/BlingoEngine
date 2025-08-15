@@ -14,6 +14,6 @@ namespace AbstUI.Components
         AColor FontColor { get; set; }
         int LineHeight { get; set; }
         ATextWrapMode WrapMode { get; set; }
-        AbstUITextAlignment TextAlignment { get; set; }
+        AbstTextAlignment TextAlignment { get; set; }
     }
 }

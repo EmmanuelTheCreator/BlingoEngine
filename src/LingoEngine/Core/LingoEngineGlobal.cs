@@ -1,8 +1,10 @@
-﻿namespace AbstUI.Core
+﻿using AbstUI.Core;
+
+namespace LingoEngine.Core
 {
-   
-    public class LingoEngineGlobal : AbstUIEngineGlobal
+
+    public class LingoEngineGlobal : AbstEngineGlobal
     {
-       
+
     }
 }

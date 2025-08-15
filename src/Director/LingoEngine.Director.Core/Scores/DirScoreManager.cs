@@ -157,7 +157,7 @@ namespace LingoEngine.Director.Core.Scores
                 return;
             var spriteScore = channel.GetSpriteAtFrame(frameNumber);
 
-            if (mouseEvent.Type == AbstUIMouseEventType.MouseDown && mouseEvent.Mouse.LeftMouseDown)
+            if (mouseEvent.Type == AbstMouseEventType.MouseDown && mouseEvent.Mouse.LeftMouseDown)
             {
                 if (mouseEvent.Mouse.DoubleClick)
                 {
@@ -206,7 +206,7 @@ namespace LingoEngine.Director.Core.Scores
                     _rectangleSelection.Begin(channelNumber, frameNumber);
                 }
             }
-            else if (mouseEvent.Type == AbstUIMouseEventType.MouseMove)
+            else if (mouseEvent.Type == AbstMouseEventType.MouseMove)
             {
                 if (_rectangleSelection.Update(channelNumber, frameNumber))
                     return;
@@ -253,7 +253,7 @@ namespace LingoEngine.Director.Core.Scores
                     UpdateDragPreview(channelNumber);
                 }
             }
-            else if (mouseEvent.Type == AbstUIMouseEventType.MouseUp)
+            else if (mouseEvent.Type == AbstMouseEventType.MouseUp)
             {
                 if (_rectangleSelection.Complete(mouseEvent, channelNumber, frameNumber))
                     return;

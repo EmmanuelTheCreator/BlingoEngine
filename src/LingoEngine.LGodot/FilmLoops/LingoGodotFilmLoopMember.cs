@@ -1,11 +1,11 @@
 ﻿using Godot;
 using LingoEngine.Bitmaps;
 using LingoEngine.FilmLoops;
-using LingoEngine.LGodot.Bitmaps;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Members;
 using AbstUI.Primitives;
+using AbstUI.LGodot.Bitmaps;
 
 namespace LingoEngine.LGodot.FilmLoops
 {
@@ -16,7 +16,7 @@ namespace LingoEngine.LGodot.FilmLoops
     {
         private LingoFilmLoopMember _member = null!;
         private LingoGodotTexture2D? _texture;
-        public ILingoTexture2D? TextureLingo => _texture;
+        public IAbstUITexture2D? TextureLingo => _texture;
 
         public bool IsLoaded { get; private set; }
         public byte[]? Media { get; set; }
@@ -54,11 +54,11 @@ namespace LingoEngine.LGodot.FilmLoops
         {
             // Placeholder for future import logic
         }
-        public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
+        public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         {
             return _texture;
         }
-        public ILingoTexture2D ComposeTexture(ILingoSprite2DLight hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers, int frame)
+        public IAbstUITexture2D ComposeTexture(ILingoSprite2DLight hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers, int frame)
         {
             var prep = LingoFilmLoopComposer.Prepare(_member, Framing, layers);
             Offset = prep.Offset;

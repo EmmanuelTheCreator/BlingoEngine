@@ -2,12 +2,13 @@
 using AbstUI.Primitives;
 using AbstUI.Tools;
 using LingoEngine.Bitmaps;
-using LingoEngine.LGodot.Helpers;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Tools;
 using Microsoft.Extensions.Logging;
+using AbstUI.LGodot.Helpers;
+using AbstUI.LGodot.Bitmaps;
 
 namespace LingoEngine.LGodot.Bitmaps
 {
@@ -20,7 +21,7 @@ namespace LingoEngine.LGodot.Bitmaps
         private readonly Dictionary<LingoInkType, LingoGodotTexture2D> _inkCache = new();
 
         public LingoGodotTexture2D? TextureImage => _texture;
-        public ILingoTexture2D? TextureLingo
+        public IAbstUITexture2D? TextureLingo
         {
             get
             {
@@ -172,8 +173,8 @@ namespace LingoEngine.LGodot.Bitmaps
             // Update the member's image data directly
             _lingoMemberPicture.SetImageData(_image.GetData());
         }
-        public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor) => GetTextureForInk(ink, transparentColor);
-        public ILingoTexture2D? GetTextureForInk(LingoInkType ink, AColor backColor)
+        public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor) => GetTextureForInk(ink, transparentColor);
+        public IAbstUITexture2D? GetTextureForInk(LingoInkType ink, AColor backColor)
         {
             if (!InkPreRenderer.CanHandle(ink) || _image == null)
                 return null;

@@ -133,7 +133,7 @@ After:
         AbstUIGfxButton CreateButton(string name, string text = "");
 
         /// <summary>Creates a toggle state button.</summary>
-        AbstUIGfxStateButton CreateStateButton(string name, ILingoTexture2D? texture = null, string text = "", Action<bool>? onChange = null);
+        AbstUIGfxStateButton CreateStateButton(string name, IAbstUITexture2D? texture = null, string text = "", Action<bool>? onChange = null);
 
         /// <summary>Creates a menu container.</summary>
         AbstUIGfxMenu CreateMenu(string name);

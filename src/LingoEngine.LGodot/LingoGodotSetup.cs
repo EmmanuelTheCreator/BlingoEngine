@@ -6,24 +6,26 @@ using LingoEngine.LGodot.Stages;
 using LingoEngine.LGodot.Styles;
 using LingoEngine.Setup;
 using LingoEngine.Stages;
-using LingoEngine.Styles;
 using Microsoft.Extensions.DependencyInjection;
+using AbstUI.LGodot;
+using LingoEngine.Core;
 namespace LingoEngine.LGodot
 {
     public static class LingoGodotSetup
     {
         public static ILingoEngineRegistration WithLingoGodotEngine(this ILingoEngineRegistration engineRegistration, Node rootNode, bool withStageInWindow = false, Action<GodotFactory>? setup = null)
         {
-            LingoEngineGlobal.RunFramework = AbstUIEngineRunFramework.Godot;
+            LingoEngineGlobal.RunFramework = AbstEngineRunFramework.Godot;
             engineRegistration
                 .ServicesMain(s => s
                         .AddGodotLogging()
                         .AddSingleton<LingoGodotStyle>()
                         .AddSingleton<ILingoFrameworkFactory, GodotFactory>()
-                        .AddSingleton<ILingoGodotStyleManager, LingoGodotStyleManager>()
+                        
                         .AddSingleton<ILingoFrameworkStageContainer, LingoGodotStageContainer>()
-                        .AddSingleton<ILingoFontManager, LingoGodotFontManager>()
                         .AddSingleton(p => new LingoGodotRootNode(rootNode, withStageInWindow))
+                        .AddSingleton< IAbstGodotRootNode>(p => p.GetRequiredService<LingoGodotRootNode>())
+                        .WithAbstUIGodot()
                         )
                 .WithFrameworkFactory(setup)
                 ;

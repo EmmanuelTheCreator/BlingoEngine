@@ -10,10 +10,11 @@ using LingoEngine.LGodot.Bitmaps;
 using LingoEngine.Tools;
 using LingoEngine.Shapes;
 using LingoEngine.LGodot.Shapes;
-using LingoEngine.LGodot.Primitives;
 using LingoEngine.FilmLoops;
 using LingoEngine.LGodot.FilmLoops;
 using AbstUI.Primitives;
+using AbstUI.LGodot.Bitmaps;
+using AbstUI.LGodot.Primitives;
 
 namespace LingoEngine.LGodot.Sprites
 {
@@ -396,7 +397,7 @@ namespace LingoEngine.LGodot.Sprites
                 Height = tex.Height;
             }
         }
-        public void SetTexture(ILingoTexture2D texture)
+        public void SetTexture(IAbstUITexture2D texture)
         {
             TextureHasChanged((LingoGodotTexture2D)texture);
         }

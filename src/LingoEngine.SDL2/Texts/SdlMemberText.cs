@@ -1,4 +1,5 @@
-using LingoEngine.Styles;
+using AbstUI.SDL2;
+using AbstUI.Styles;
 using LingoEngine.Texts;
 using LingoEngine.Texts.FrameworkCommunication;
 
@@ -6,5 +7,5 @@ namespace LingoEngine.SDL2.Texts;
 
 public class SdlMemberText : SdlMemberTextBase<LingoMemberText>, ILingoFrameworkMemberText
 {
-    public SdlMemberText(ILingoFontManager fontManager, ISdlRootComponentContext sdlRootContext) : base(fontManager, sdlRootContext) { }
+    public SdlMemberText(IAbstFontManager fontManager, ISdlRootComponentContext sdlRootContext) : base(fontManager, sdlRootContext) { }
 }

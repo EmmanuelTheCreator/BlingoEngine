@@ -9,6 +9,7 @@ using LingoEngine.FilmLoops;
 using AbstUI.Primitives;
 using AbstUI.Core;
 using AbstUI.Components;
+using LingoEngine.Core;
 
 namespace LingoEngine.Director.Core.Casts;
 
@@ -37,7 +38,7 @@ public class DirectorMemberThumbnail : IDisposable
         _yOffset = yOffset;
         _rectWidth = width;
         // godot fix 
-        if (xOffset > 0 && LingoEngineGlobal.RunFramework == AbstUIEngineRunFramework.Godot)
+        if (xOffset > 0 && LingoEngineGlobal.RunFramework == AbstEngineRunFramework.Godot)
         {
             _xOffset += 0.5f;
             _yOffset += 0.5f;

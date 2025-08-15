@@ -93,7 +93,7 @@ internal partial class DirScoreColorPaletteGridChannel : DirScoreChannel<ILingoS
         colorsCanvas.Y = 10;
         panel.AddItem(colorsCanvas);
 
-        panel.SetLabelAt("PaletteLabel", xOffset, 10, "Palette:",11, labelWidth, AbstUI.Texts.AbstUITextAlignment.Right);
+        panel.SetLabelAt("PaletteLabel", xOffset, 10, "Palette:",11, labelWidth, AbstUI.Texts.AbstTextAlignment.Right);
         panel.SetComboBoxAt(paletteOptions, "Palette", xOffset + labelWidth + xMargin, 10, 120, selected.Name, key =>
         {
             var id = allPalettes.FindIndex(p => p.Name == key);
@@ -102,17 +102,17 @@ internal partial class DirScoreColorPaletteGridChannel : DirScoreChannel<ILingoS
             RedrawColors(colorsCanvas, selected);
         });
 
-        panel.SetLabelAt("ActionLabel", xOffset, 40, "Action:", 11, labelWidth, AbstUI.Texts.AbstUITextAlignment.Right);
+        panel.SetLabelAt("ActionLabel", xOffset, 40, "Action:", 11, labelWidth, AbstUI.Texts.AbstTextAlignment.Right);
         panel.SetComboBoxAt(_paletteOptions, "Action", xOffset + labelWidth + xMargin, 40, 120, settings.Action.ToString(), key =>
         {
             if (Enum.TryParse<LingoColorPaletteAction>(key, out var action))
                 settings.Action = action;
         });
 
-        panel.SetLabelAt("RateLabel", xOffset, 70, "Rate FPS:", 11, labelWidth, AbstUI.Texts.AbstUITextAlignment.Right);
+        panel.SetLabelAt("RateLabel", xOffset, 70, "Rate FPS:", 11, labelWidth, AbstUI.Texts.AbstTextAlignment.Right);
         panel.SetInputNumberAt(settings, "Rate", xOffset + labelWidth + xMargin, 70, 100, s => s.Rate, 1, 30);
 
-        panel.SetLabelAt("OptionsLabel", xOffset, 100, "Options:", 11, labelWidth, AbstUI.Texts.AbstUITextAlignment.Right);
+        panel.SetLabelAt("OptionsLabel", xOffset, 100, "Options:", 11, labelWidth, AbstUI.Texts.AbstTextAlignment.Right);
         panel.SetComboBoxAt(_transitionOptions, "TransitionOption", xOffset+ labelWidth + xMargin, 100, 120, settings.TransitionOption.ToString(), key =>
         {
             if (Enum.TryParse<LingoColorPaletteTransitionOption>(key, out var option))

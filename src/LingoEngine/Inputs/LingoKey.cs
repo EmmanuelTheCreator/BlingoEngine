@@ -6,19 +6,19 @@ namespace LingoEngine.Inputs
     /// Mirrors Lingo's _key object functionality for key state and input monitoring.
     /// Example: isCtrlDown = _key.controlDown
     /// </summary>
-    public interface ILingoKey : IAbstUIKey
+    public interface ILingoKey : IAbstKey
     {
         LingoKey Subscribe(ILingoKeyEventHandler handler);
 
         LingoKey Unsubscribe(ILingoKeyEventHandler handler);
     }
-    public interface ILingoFrameworkKey : IAbstUIFrameworkKey
+    public interface ILingoFrameworkKey : IAbstFrameworkKey
     {
 
     }
 
     /// <inheritdoc/>
-    public class LingoKey : AbstUIKey, ILingoKey
+    public class LingoKey : AbstKey, ILingoKey
     {
         private HashSet<ILingoKeyEventHandler> _subscriptionsLingo = new();
         private readonly ILingoFrameworkKey _frameworkObjLingo;
@@ -28,7 +28,7 @@ namespace LingoEngine.Inputs
             _frameworkObjLingo = frameworkObj;
         }
 
-        protected override void DoOnAll(Action<IAbstUIKeyEventHandler> action)
+        protected override void DoOnAll(Action<IAbstKeyEventHandler> action)
         {
             base.DoOnAll(action);
         }

@@ -1,10 +1,11 @@
 ﻿using AbstUI.Inputs;
 using AbstUI.Primitives;
+using AbstUI.SDL2.Inputs;
+using AbstUI.SDL2.SDLL;
 using LingoEngine.Bitmaps;
 using LingoEngine.Events;
 using LingoEngine.Inputs;
-using LingoEngine.SDL2.Pictures;
-using LingoEngine.SDL2.SDLL;
+using LingoEngine.SDL2.Bitmaps;
 using System.Runtime.InteropServices;
 
 namespace LingoEngine.SDL2.Inputs;
@@ -15,7 +16,7 @@ public class LingoSdlMouse : SdlMouse<LingoMouseEvent> , ILingoFrameworkMouse
     private AMouseCursor _cursor = AMouseCursor.Arrow;
     
 
-    public LingoSdlMouse(Lazy<AbstUIMouse<LingoMouseEvent>> mouse) : base(mouse)
+    public LingoSdlMouse(Lazy<AbstMouse<LingoMouseEvent>> mouse) : base(mouse)
     {
     }
     public override void SetCursor(AMouseCursor value)

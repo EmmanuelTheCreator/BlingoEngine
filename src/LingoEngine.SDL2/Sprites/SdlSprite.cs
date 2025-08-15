@@ -2,13 +2,16 @@ using LingoEngine.Bitmaps;
 using LingoEngine.Members;
 using LingoEngine.FilmLoops;
 using LingoEngine.Primitives;
-using LingoEngine.SDL2.Pictures;
-using LingoEngine.SDL2.SDLL;
 using LingoEngine.SDL2.Core;
 using LingoEngine.Sprites;
 using LingoEngine.Texts;
 using LingoEngine.Shapes;
 using AbstUI.Primitives;
+using AbstUI.SDL2;
+using AbstUI.SDL2.Bitmaps;
+using AbstUI.SDL2.SDLL;
+using LingoEngine.SDL2.Bitmaps;
+using LingoEngine.SDL2.FilmLoops;
 
 namespace LingoEngine.SDL2.Sprites;
 
@@ -297,7 +300,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
         }
     }
 
-    public void SetTexture(ILingoTexture2D texture)
+    public void SetTexture(IAbstUITexture2D texture)
     {
         var tex = (SdlTexture2D)texture;
         TextureHasChanged(tex);

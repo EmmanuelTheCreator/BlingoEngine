@@ -21,8 +21,8 @@ public class StageSpriteSummaryOverlay : IHasSpriteSelectedEvent, IDisposable
     private readonly AbstUIGfxCanvas _canvas;
     private readonly IDirectorEventMediator _mediator;
     private readonly IDirectorIconManager _iconManager;
-    private readonly ILingoTexture2D _infoIcon;
-    private readonly ILingoTexture2D _behaviorIcon;
+    private readonly IAbstUITexture2D _infoIcon;
+    private readonly IAbstUITexture2D _behaviorIcon;
     private readonly IAbstUITextureUserSubscription _infoIconSubscription;
     private readonly IAbstUITextureUserSubscription _behaviorIconSubscription;
 

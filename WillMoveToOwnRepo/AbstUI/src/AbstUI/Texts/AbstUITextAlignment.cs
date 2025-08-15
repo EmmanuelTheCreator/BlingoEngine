@@ -4,7 +4,7 @@
     /// Represents horizontal alignment of text within a field.
     /// Corresponds to the Lingo 'alignment' property.
     /// </summary>
-    public enum AbstUITextAlignment
+    public enum AbstTextAlignment
     {
         /// <summary>Left-aligned text (Lingo: 0)</summary>
         Left = 0,

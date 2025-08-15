@@ -19,8 +19,8 @@ namespace LingoEngine.Inputs
         private readonly AbstUIGfxWindow _window;
         private readonly AbstUIGfxCanvas _canvas;
         
-        private readonly IAbstUIMouseSubscription _mouseDownSub;
-        private readonly IAbstUIMouseSubscription _mouseMoveSub;
+        private readonly IAbstMouseSubscription _mouseDownSub;
+        private readonly IAbstMouseSubscription _mouseMoveSub;
         private int _selectedRow;
         private int _selectedCol;
         private bool _enableMouse = true;
@@ -214,7 +214,7 @@ namespace LingoEngine.Inputs
                     var border = selected ? SelectedColor : BorderColor;
                     _canvas.DrawRect(ARect.New(x, y, CellSize, CellSize), border, false, 1);
                     var label = key switch { "SPACE" => "Space", "BACKSPACE" => "<-", "ENTER" => "OK", "ESC" => "Esc", _ => key };
-                    _canvas.DrawText(new APoint(x + 2, y + 20), label, FontName, TextColor, FontSize, CellSize - 4, AbstUITextAlignment.Center);
+                    _canvas.DrawText(new APoint(x + 2, y + 20), label, FontName, TextColor, FontSize, CellSize - 4, AbstTextAlignment.Center);
                 }
             }
         }

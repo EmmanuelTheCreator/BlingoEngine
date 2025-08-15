@@ -1,4 +1,5 @@
-﻿using LingoEngine.Bitmaps;
+﻿using AbstUI.Primitives;
+using LingoEngine.Bitmaps;
 
 namespace LingoEngine.Director.Core.Icons
 {
@@ -7,7 +8,7 @@ namespace LingoEngine.Director.Core.Icons
     {
 
         private readonly List<TLingoIconSheet> _sheets = new();
-        private readonly Dictionary<DirectorIcon, ILingoTexture2D> _iconCache = new();
+        private readonly Dictionary<DirectorIcon, IAbstUITexture2D> _iconCache = new();
 
 
         public void LoadSheet(string path, int itemCount, int iconWidth, int iconHeight, int horizontalSpacing = 0)
@@ -20,7 +21,7 @@ namespace LingoEngine.Director.Core.Icons
         protected abstract TLingoIconSheet? OnLoadSheet(string path, int itemCount, int iconWidth, int iconHeight, int horizontalSpacing = 0);
 
 
-        public ILingoTexture2D Get(DirectorIcon icon)
+        public IAbstUITexture2D Get(DirectorIcon icon)
         {
             if (_iconCache.TryGetValue(icon, out var cached))
                 return cached;
@@ -46,7 +47,7 @@ namespace LingoEngine.Director.Core.Icons
 
             throw new ArgumentOutOfRangeException(nameof(icon), "Icon index out of range.");
         }
-        protected abstract ILingoTexture2D? OnGetTextureImage(TLingoIconSheet sheet, int x);
+        protected abstract IAbstUITexture2D? OnGetTextureImage(TLingoIconSheet sheet, int x);
 
     }
 }

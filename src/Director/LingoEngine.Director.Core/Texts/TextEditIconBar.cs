@@ -32,7 +32,7 @@ public class TextEditIconBar
     public AbstUIGfxPanel Panel { get; }
 
     /// <summary>Raised when the text alignment changes.</summary>
-    public event Action<AbstUITextAlignment>? AlignmentChanged;
+    public event Action<AbstTextAlignment>? AlignmentChanged;
     /// <summary>Raised when bold style is toggled.</summary>
     public event Action<bool>? BoldChanged;
     /// <summary>Raised when italic style is toggled.</summary>
@@ -65,10 +65,10 @@ public class TextEditIconBar
         var container = factory.CreateWrapPanel(AOrientation.Horizontal, "TextEditIconBarContainer");
         Panel.AddItem(container);
 
-        _alignLeft = factory.CreateStateButton("AlignLeft", null, "L", _ => AlignmentChanged?.Invoke(AbstUITextAlignment.Left));
-        _alignCenter = factory.CreateStateButton("AlignCenter", null, "C", _ => AlignmentChanged?.Invoke(AbstUITextAlignment.Center));
-        _alignRight = factory.CreateStateButton("AlignRight", null, "R", _ => AlignmentChanged?.Invoke(AbstUITextAlignment.Right));
-        _alignJustified = factory.CreateStateButton("AlignJustified", null, "J", _ => AlignmentChanged?.Invoke(AbstUITextAlignment.Justified));
+        _alignLeft = factory.CreateStateButton("AlignLeft", null, "L", _ => AlignmentChanged?.Invoke(AbstTextAlignment.Left));
+        _alignCenter = factory.CreateStateButton("AlignCenter", null, "C", _ => AlignmentChanged?.Invoke(AbstTextAlignment.Center));
+        _alignRight = factory.CreateStateButton("AlignRight", null, "R", _ => AlignmentChanged?.Invoke(AbstTextAlignment.Right));
+        _alignJustified = factory.CreateStateButton("AlignJustified", null, "J", _ => AlignmentChanged?.Invoke(AbstTextAlignment.Justified));
         container.AddItem(_alignLeft);
         container.AddItem(_alignCenter);
         container.AddItem(_alignRight);
@@ -119,12 +119,12 @@ public class TextEditIconBar
     public void SetFontSize(int size) => _fontSize.Value = size;
 
     /// <summary>Set the alignment state.</summary>
-    public void SetAlignment(AbstUITextAlignment alignment)
+    public void SetAlignment(AbstTextAlignment alignment)
     {
-        _alignLeft.IsOn = alignment == AbstUITextAlignment.Left;
-        _alignCenter.IsOn = alignment == AbstUITextAlignment.Center;
-        _alignRight.IsOn = alignment == AbstUITextAlignment.Right;
-        _alignJustified.IsOn = alignment == AbstUITextAlignment.Justified;
+        _alignLeft.IsOn = alignment == AbstTextAlignment.Left;
+        _alignCenter.IsOn = alignment == AbstTextAlignment.Center;
+        _alignRight.IsOn = alignment == AbstTextAlignment.Right;
+        _alignJustified.IsOn = alignment == AbstTextAlignment.Justified;
     }
 
     public void SetBold(bool on) => _boldButton.IsOn = on;

@@ -40,6 +40,7 @@
 	</ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\WillMoveToOwnRepo\AbstUI\src\AbstUI.LGodot\AbstUI.LGodot.csproj" />
     <ProjectReference Include="..\LingoEngine\LingoEngine.csproj" />
   </ItemGroup>
 

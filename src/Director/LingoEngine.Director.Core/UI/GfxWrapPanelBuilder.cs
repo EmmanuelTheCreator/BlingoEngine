@@ -31,7 +31,7 @@ namespace LingoEngine.Director.Core.UI
             _builder.AddButton(name, text, click, configure);
             return this;
         }
-        public GfxWrapPanelBuilderForToolBar AddStateButton<T>(string name, T target, ILingoTexture2D texture, Expression<Func<T, bool>> property, Action<AbstUIGfxStateButton>? configure = null)
+        public GfxWrapPanelBuilderForToolBar AddStateButton<T>(string name, T target, IAbstUITexture2D texture, Expression<Func<T, bool>> property, Action<AbstUIGfxStateButton>? configure = null)
         {
             _builder.AddStateButton(name, target, texture,property, "", configure);
             return this;
@@ -175,7 +175,7 @@ namespace LingoEngine.Director.Core.UI
             return this;
         }
 
-        public GfxWrapPanelBuilder AddStateButton<T>(string name, T target, ILingoTexture2D? texture, Expression<Func<T, bool>> property, string text = "", Action<AbstUIGfxStateButton>? configure = null)
+        public GfxWrapPanelBuilder AddStateButton<T>(string name, T target, IAbstUITexture2D? texture, Expression<Func<T, bool>> property, string text = "", Action<AbstUIGfxStateButton>? configure = null)
         {
             var setter = property.CompileSetter();
             var getter = property.CompileGetter();

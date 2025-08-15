@@ -6,10 +6,10 @@ namespace AbstUI.Components
     /// <summary>
     /// Engine level wrapper for a window element.
     /// </summary>
-    public class AbstUIGfxWindow : AbstUIGfxNodeLayoutBase<IAbstUIFrameworkGfxWindow>, IAbstUIMouseRectProvider
+    public class AbstUIGfxWindow : AbstUIGfxNodeLayoutBase<IAbstUIFrameworkGfxWindow>, IAbstMouseRectProvider
     {
-        private IAbstUIMouse _mouse = null!;
-        private IAbstUIKey _key = null!;
+        private IAbstMouse _mouse = null!;
+        private IAbstKey _key = null!;
 
 
         public string Title { get => _framework.Title; set => _framework.Title = value; }
@@ -17,9 +17,9 @@ namespace AbstUI.Components
         public bool IsPopup { get => _framework.IsPopup; set => _framework.IsPopup = value; }
         public bool Borderless { get => _framework.Borderless; set => _framework.Borderless = value; }
 
-        public IAbstUIMouse Mouse => _mouse;
+        public IAbstMouse Mouse => _mouse;
 
-        public IAbstUIKey Key => _key;
+        public IAbstKey Key => _key;
 
         public event Action<bool>? OnWindowStateChanged;
         public event Action<float, float>? OnResize;
@@ -29,7 +29,7 @@ namespace AbstUI.Components
 
 
 
-        public void Init(IAbstUIFrameworkGfxWindow framework, IAbstUIMouse mouse, AbstUIKey key)
+        public void Init(IAbstUIFrameworkGfxWindow framework, IAbstMouse mouse, AbstKey key)
         {
             base.Init(framework);
             _mouse = mouse;
@@ -59,8 +59,8 @@ namespace AbstUI.Components
 
         public void Hide() => _framework.Hide();
 
-        ARect IAbstUIMouseRectProvider.MouseOffset => new ARect(X, Y, Width, Height);
-        bool IAbstUIActivationProvider.IsActivated => Visibility;
+        ARect IAbstMouseRectProvider.MouseOffset => new ARect(X, Y, Width, Height);
+        bool IAbstActivationProvider.IsActivated => Visibility;
 
 
         public void Resize(int width, int height) => OnResize?.Invoke(width, height);

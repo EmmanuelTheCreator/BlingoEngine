@@ -7,12 +7,12 @@ using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Texts;
 using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.LGodot.Gfx;
-using LingoEngine.LGodot.Primitives;
-using LingoEngine.Styles;
+using AbstUI.Styles;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.FrameworkCommunication;
 using AbstUI.Texts;
+using AbstUI.LGodot.Primitives;
 
 namespace LingoEngine.Director.LGodot.Casts;
 
@@ -27,10 +27,10 @@ internal partial class DirGodotTextableMemberWindow : BaseGodotWindow, IHasMembe
 
     private readonly ILingoPlayer _player;
     private readonly IDirectorIconManager _iconManager;
-    private readonly ILingoFontManager _lingoFontManager;
+    private readonly IAbstFontManager _lingoFontManager;
     private ILingoMemberTextBase? _member;
     private const int _topOffset = 4;
-    public DirGodotTextableMemberWindow(IDirectorEventMediator mediator, ILingoPlayer player, DirectorTextEditWindow directorTextEditWindow, IDirGodotWindowManager windowManager, IDirectorIconManager iconManager, ILingoFontManager lingoFontManager, ILingoFrameworkFactory factory)
+    public DirGodotTextableMemberWindow(IDirectorEventMediator mediator, ILingoPlayer player, DirectorTextEditWindow directorTextEditWindow, IDirGodotWindowManager windowManager, IDirectorIconManager iconManager, IAbstFontManager lingoFontManager, ILingoFrameworkFactory factory)
         : base(DirectorMenuCodes.TextEditWindow, "Edit Text", windowManager)
     {
         _player = player;
@@ -126,16 +126,16 @@ internal partial class DirGodotTextableMemberWindow : BaseGodotWindow, IHasMembe
         _textEdit.Size = new Vector2(size.X - 10, size.Y - (TitleBarHeight + NavigationBarHeight + ActionBarHeight + 5 + _topOffset));
     }
 
-    private bool SetAlignment(AbstUITextAlignment alignment)
+    private bool SetAlignment(AbstTextAlignment alignment)
     {
         if (_member != null)
             _member.Alignment = alignment;
         int val = alignment switch
         {
-            AbstUITextAlignment.Left => (int)HorizontalAlignment.Left,
-            AbstUITextAlignment.Center => (int)HorizontalAlignment.Center,
-            AbstUITextAlignment.Right => (int)HorizontalAlignment.Right,
-            AbstUITextAlignment.Justified => (int)HorizontalAlignment.Fill,
+            AbstTextAlignment.Left => (int)HorizontalAlignment.Left,
+            AbstTextAlignment.Center => (int)HorizontalAlignment.Center,
+            AbstTextAlignment.Right => (int)HorizontalAlignment.Right,
+            AbstTextAlignment.Justified => (int)HorizontalAlignment.Fill,
             _ => (int)HorizontalAlignment.Left
         };
         _textEdit.Set("alignment", val);

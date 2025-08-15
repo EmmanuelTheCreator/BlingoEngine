@@ -1,8 +1,9 @@
 ﻿using Godot;
 using AbstUI.Primitives;
 using LingoEngine.Director.Core.Styles;
-using LingoEngine.LGodot.Primitives;
 using LingoEngine.LGodot.Styles;
+using LingoEngine.LGodot.Gfx;
+using AbstUI.LGodot.Primitives;
 
 namespace LingoEngine.Director.LGodot.Styles;
 
@@ -16,7 +17,7 @@ public sealed class DirectorGodotStyle
 
     static DirectorGodotStyle()
     {
-        LingoGodotStyle.TapItemTopHeight = 20;
+        LingoGodotTabItem.TapItemTopHeight = 20;
     }
 
     public Theme Theme { get; }

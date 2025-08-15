@@ -103,7 +103,7 @@ namespace LingoEngine.Sprites
             set => _width = value;
         }
         public float Height { get => _height; set => _height = value; }
-        public ILingoTexture2D? Texture { get; private set; }
+        public IAbstUITexture2D? Texture { get; private set; }
 
         public ILingoMember? GetMember() => Member;
 
@@ -388,7 +388,7 @@ namespace LingoEngine.Sprites
 
         public override string GetFullName() => $"{SpriteNum}.{Name}.{Member?.Name}";
 
-        public void UpdateTexture(ILingoTexture2D texture)
+        public void UpdateTexture(IAbstUITexture2D texture)
         {
             _textureSubscription?.Release();
             Texture = texture;

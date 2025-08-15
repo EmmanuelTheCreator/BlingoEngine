@@ -1,10 +1,10 @@
 
-using LingoEngine.Bitmaps;
+using AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.Icons;
 
 public interface IDirectorIconManager
 {
 
-    ILingoTexture2D Get(DirectorIcon icon);
+    IAbstUITexture2D Get(DirectorIcon icon);
 }

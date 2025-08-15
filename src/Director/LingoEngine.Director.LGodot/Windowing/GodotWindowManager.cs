@@ -4,8 +4,8 @@ using LingoEngine.Director.Core.Stages;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.LGodot.Movies;
-using LingoEngine.LGodot.Primitives;
-using LingoEngine.LGodot.Styles;
+using AbstUI.LGodot.Styles;
+using AbstUI.LGodot.Primitives;
 
 namespace LingoEngine.Director.LGodot.Windowing;
 

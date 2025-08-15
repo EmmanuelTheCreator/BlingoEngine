@@ -1,0 +1,28 @@
+﻿<Project Sdk="Godot.NET.Sdk/4.5.0-dev.5">
+
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFramework>net8</TargetFramework>
+		<!-- Use netstandard for compatibility -->
+		<GodotVersion>4.5.0-dev.5</GodotVersion>
+		<LangVersion>12</LangVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Platforms>AnyCPU;x64;x86</Platforms>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<!-- Specify the Godot version -->
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="obj\**" />
+	  <EmbeddedResource Remove="obj\**" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Godot.NET.Sdk" Version="4.5.0-dev.5" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.6" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\AbstUI\AbstUI.csproj" />
+	</ItemGroup>
+</Project>
