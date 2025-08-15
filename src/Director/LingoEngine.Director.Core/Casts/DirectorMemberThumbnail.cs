@@ -29,10 +29,10 @@ public class DirectorMemberThumbnail : IDisposable
 
 
     /// <summary>Canvas used for drawing the preview.</summary>
-    public AbstUIGfxCanvas Canvas { get; }
+    public AbstGfxCanvas Canvas { get; }
     private readonly IDirectorIconManager? _iconManager;
 
-    public DirectorMemberThumbnail(int width, int height, ILingoFrameworkFactory factory, IDirectorIconManager? iconManager = null, AbstUIGfxCanvas? canvas = null, int xOffset = 0, int yOffset = 0)
+    public DirectorMemberThumbnail(int width, int height, ILingoFrameworkFactory factory, IDirectorIconManager? iconManager = null, AbstGfxCanvas? canvas = null, int xOffset = 0, int yOffset = 0)
     {
         _xOffset = xOffset;
         _yOffset = yOffset;

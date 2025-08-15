@@ -4,14 +4,14 @@ using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Members;
 using LingoEngine.Director.LGodot.Windowing;
-using LingoEngine.LGodot.Gfx;
+using AbstUI.LGodot.Components;
 
 namespace LingoEngine.Director.LGodot.Casts
 {
     internal partial class DirGodotCastWindow : BaseGodotWindow, IDirFrameworkCastWindow
     {
         private readonly DirectorCastWindow _directorCastWindow;
-        private readonly LingoGodotTabContainer _tabs;
+        private readonly AbstGodotTabContainer _tabs;
         internal ILingoMember? SelectedMember => _directorCastWindow.SelectedMember;
 
         public DirGodotCastWindow(DirectorCastWindow directorCastWindow, IDirGodotWindowManager windowManager, IHistoryManager historyManager)
@@ -25,7 +25,7 @@ namespace LingoEngine.Director.LGodot.Casts
             Size = new Vector2(directorCastWindow.Width, directorCastWindow.Height);
             CustomMinimumSize = Size;
 
-            _tabs = _directorCastWindow.TabContainer.Framework<LingoGodotTabContainer>();
+            _tabs = _directorCastWindow.TabContainer.Framework<AbstGodotTabContainer>();
             _tabs.Position = new Vector2(0, TitleBarHeight);
             _tabs.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             _tabs.SizeFlagsVertical = Control.SizeFlags.ExpandFill;

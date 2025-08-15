@@ -22,9 +22,9 @@ namespace LingoEngine.Director.Core.Casts
     {
         private int _itemMargin = 2;
         private readonly List<DirCastItem> _items = new();
-        private readonly AbstUIGfxScrollContainer _scroll;
-        private readonly AbstUIGfxTabItem _tabItem;
-        private readonly AbstUIGfxWrapPanel _wrap;
+        private readonly AbstScrollContainer _scroll;
+        private readonly AbstTabItem _tabItem;
+        private readonly AbstWrapPanel _wrap;
         private readonly ILingoCast _cast;
         private readonly ILingoCommandManager _commandManager;
         private readonly ILingoFrameworkFactory _factory;
@@ -39,7 +39,7 @@ namespace LingoEngine.Director.Core.Casts
         private static readonly object _lock = new();
 
         public event Action<ILingoMember, DirCastItem>? MemberSelected;
-        internal AbstUIGfxTabItem TabItem => _tabItem;
+        internal AbstTabItem TabItem => _tabItem;
 
         public int Width { get; private set; }
 

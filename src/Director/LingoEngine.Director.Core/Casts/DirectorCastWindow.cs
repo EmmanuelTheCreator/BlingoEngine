@@ -17,7 +17,7 @@ namespace LingoEngine.Director.Core.Casts
     public class DirectorCastWindow : DirectorWindow<IDirFrameworkCastWindow> , IHasFindMemberEvent
     {
         private readonly IDirectorEventMediator _mediator;
-        private readonly AbstUIGfxTabContainer _tabs;
+        private readonly AbstTabContainer _tabs;
         private readonly LingoPlayer _player;
         private readonly Dictionary<string, DirCastTab> _tabMap = new();
         private readonly ILingoCommandManager _commandManager;
@@ -25,7 +25,7 @@ namespace LingoEngine.Director.Core.Casts
         private ILingoMember? _selected;
         private IAbstMouseSubscription? _mouseSub;
 
-        public AbstUIGfxTabContainer TabContainer => _tabs;
+        public AbstTabContainer TabContainer => _tabs;
         public ILingoMember? SelectedMember => _selected;
         public int Width { get; set; } = 370;
         public int Height { get; set; } = 620;

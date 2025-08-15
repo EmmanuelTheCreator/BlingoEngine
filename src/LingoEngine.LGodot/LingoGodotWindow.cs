@@ -12,15 +12,15 @@ using LingoEngine.LGodot.Inputs;
 namespace LingoEngine.LGodot.Gfx
 {
     /// <summary>
-    /// Godot implementation of <see cref="IAbstUIFrameworkGfxWindow"/>.
+    /// Godot implementation of <see cref="IAbstFrameworkWindow"/>.
     /// </summary>
-    public partial class LingoGodotWindow : Window, IAbstUIFrameworkGfxWindow, IDisposable
+    public partial class LingoGodotWindow : Window, IAbstFrameworkWindow, IDisposable
     {
         private AMargin _margin = AMargin.Zero;
-        private readonly List<IAbstUIFrameworkGfxLayoutNode> _nodes = new();
+        private readonly List<IAbstFrameworkLayoutNode> _nodes = new();
         private readonly Panel _panel;
         private readonly StyleBoxFlat _panelStyle;
-        private readonly AbstUIGfxWindow _lingoWindow;
+        private readonly AbstWindow _lingoWindow;
         private readonly IAbstGodotRootNode _rootNode;
         protected readonly LingoGodotMouse _MouseFrameworkObj;
         private bool _isPopup;
@@ -50,7 +50,7 @@ namespace LingoEngine.LGodot.Gfx
             }
         }
         public bool Visibility { get => Visible; set => Visible = value; }
-        string IAbstUIFrameworkGfxNode.Name { get => Name; set => Name = value; }
+        string IAbstFrameworkNode.Name { get => Name; set => Name = value; }
         public new string Title { get => base.Title; set => base.Title = value; }
         public bool IsPopup
         {
@@ -64,7 +64,7 @@ namespace LingoEngine.LGodot.Gfx
         }
         public AColor BackgroundColor
         {
-            get => _panelStyle.BgColor.ToLingoColor();
+            get => _panelStyle.BgColor.ToAbstColor();
             set => _panelStyle.BgColor = value.ToGodotColor();
         }
         public AMargin Margin
@@ -86,7 +86,7 @@ namespace LingoEngine.LGodot.Gfx
         #endregion
 
 
-        public LingoGodotWindow(AbstUIGfxWindow window, ILingoGodotStyleManager lingoGodotStyleManager, LingoGodotRootNode rootNode)
+        public LingoGodotWindow(AbstWindow window, IAbstGodotStyleManager lingoGodotStyleManager, LingoGodotRootNode rootNode)
         {
             _lingoWindow = window;
             _rootNode = rootNode;
@@ -102,7 +102,7 @@ namespace LingoEngine.LGodot.Gfx
             _lingoWindow.Init(this,mouse,key);
             //Borderless = true;
             //ExtendToTitle = true;
-            Theme = lingoGodotStyleManager.GetTheme(LingoGodotThemeElementType.PopupWindow);
+            Theme = lingoGodotStyleManager.GetTheme(AbstGodotThemeElementType.PopupWindow);
 
             _panel = new Panel
             {
@@ -160,21 +160,21 @@ namespace LingoEngine.LGodot.Gfx
                 _MouseFrameworkObj.HandleMouseMoveEvent(mouseMotionEvent, isInsideRect, mousePos.X, mousePos.Y - TitleBarHeight);
         }
 
-        public void AddItem(IAbstUIFrameworkGfxLayoutNode child)
+        public void AddItem(IAbstFrameworkLayoutNode child)
         {
             if (child.FrameworkNode is Node node)
                 _panel.AddChild(node);
             _nodes.Add(child);
         }
 
-        public void RemoveItem(IAbstUIFrameworkGfxLayoutNode child)
+        public void RemoveItem(IAbstFrameworkLayoutNode child)
         {
             if (child.FrameworkNode is Node node)
                 _panel.RemoveChild(node);
             _nodes.Remove(child);
         }
 
-        public IEnumerable<IAbstUIFrameworkGfxLayoutNode> GetItems() => _nodes.ToArray();
+        public IEnumerable<IAbstFrameworkLayoutNode> GetItems() => _nodes.ToArray();
 
         public void Popup()
         {

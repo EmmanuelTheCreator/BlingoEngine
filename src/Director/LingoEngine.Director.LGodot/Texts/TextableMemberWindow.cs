@@ -6,13 +6,13 @@ using LingoEngine.Core;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Texts;
 using LingoEngine.Director.LGodot.Windowing;
-using LingoEngine.LGodot.Gfx;
 using AbstUI.Styles;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.FrameworkCommunication;
 using AbstUI.Texts;
 using AbstUI.LGodot.Primitives;
+using AbstUI.LGodot.Components;
 
 namespace LingoEngine.Director.LGodot.Casts;
 
@@ -23,7 +23,7 @@ internal partial class DirGodotTextableMemberWindow : BaseGodotWindow, IHasMembe
     private readonly TextEdit _textEdit = new TextEdit();
     private readonly MemberNavigationBar<ILingoMemberTextBase> _navBar;
     private readonly TextEditIconBar _iconBar;
-    private readonly LingoGodotPanel _topBar;
+    private readonly AbstGodotPanel _topBar;
 
     private readonly ILingoPlayer _player;
     private readonly IDirectorIconManager _iconManager;
@@ -43,7 +43,7 @@ internal partial class DirGodotTextableMemberWindow : BaseGodotWindow, IHasMembe
         CustomMinimumSize = Size;
 
         _navBar = new MemberNavigationBar<ILingoMemberTextBase>(mediator, player, _iconManager, factory, NavigationBarHeight);
-        AddChild(_navBar.Panel.Framework<LingoGodotWrapPanel>());
+        AddChild(_navBar.Panel.Framework<AbstGodotWrapPanel>());
         _navBar.Panel.X = 0;
         _navBar.Panel.Y = TitleBarHeight;
         _navBar.Panel.Width = Size.X;
@@ -79,7 +79,7 @@ internal partial class DirGodotTextableMemberWindow : BaseGodotWindow, IHasMembe
 
         _iconBar.SetFonts(_lingoFontManager.GetAllNames());
 
-        _topBar = _iconBar.Panel.Framework<LingoGodotPanel>();
+        _topBar = _iconBar.Panel.Framework<AbstGodotPanel>();
         _topBar.Position = new Vector2(0, TitleBarHeight + NavigationBarHeight + 2);
         AddChild(_topBar);
 

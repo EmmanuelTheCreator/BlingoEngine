@@ -32,7 +32,7 @@ namespace LingoEngine.Director.Core.Scores
             Label = label ?? "";
         }
 
-        public void Draw(AbstUIGfxCanvas canvas)
+        public void Draw(AbstGfxCanvas canvas)
         {
             var xOffset = 1;
             var y = Y;

@@ -27,9 +27,9 @@ namespace LingoEngine.FilmLoops
 
         private LingoFilmLoopMember? FilmLoop => _sprite.Member as LingoFilmLoopMember;
 
-        public IAbstUITexture2D? Texture { get; private set; }
+        public IAbstTexture2D? Texture { get; private set; }
         private IAbstUITextureUserSubscription? _textureSubscription;
-        private List<(IAbstUITexture2D? Texture, IAbstUITextureUserSubscription? TextureSubscription)> _textures = new();
+        private List<(IAbstTexture2D? Texture, IAbstUITextureUserSubscription? TextureSubscription)> _textures = new();
 
         internal LingoFilmLoopPlayer(ILingoSprite2DLight sprite, ILingoEventMediator eventMediator, ILingoCastLibsContainer castLibs, bool isInnerPlayer = false)
         {

@@ -8,10 +8,10 @@ public interface ISdlRootComponentContext
 {
     public ImGuiViewportPtr ImGuiViewPort { get; }
     public ImDrawListPtr ImDrawList { get; }
-    LingoSDLComponentContainer ComponentContainer { get; }
+    AbstSDLComponentContainer ComponentContainer { get; }
     nint Renderer { get; }
-    IAbstMouse LingoMouse { get; }
-    IAbstKey LingoKey { get; }
+    IAbstMouse AbstMouse { get; }
+    IAbstKey AbstKey { get; }
 
     nint RegisterTexture(nint sdlTexture);
     nint GetTexture(nint textureId);

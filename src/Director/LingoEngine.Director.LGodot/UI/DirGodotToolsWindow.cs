@@ -3,10 +3,10 @@ using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.Director.Core.Stages;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Bitmaps;
-using LingoEngine.LGodot.Gfx;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.FrameworkCommunication;
+using AbstUI.LGodot.Components;
 
 namespace LingoEngine.Director.LGodot.Gfx;
 
@@ -25,7 +25,7 @@ internal partial class DirGodotToolsWindow : BaseGodotWindow, IDirFrameworkTools
         CustomMinimumSize = Size;
 
         _stageToolbar = new StageToolbar(iconManager, commandManager, factory);
-        var toolbarPanel = _stageToolbar.Panel.Framework<LingoGodotPanel>();
+        var toolbarPanel = _stageToolbar.Panel.Framework<AbstGodotPanel>();
         toolbarPanel.Position = new Vector2(5, TitleBarHeight + 5);
         AddChild(toolbarPanel);
 

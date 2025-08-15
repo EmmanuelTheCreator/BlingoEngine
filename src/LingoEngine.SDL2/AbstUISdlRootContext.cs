@@ -17,12 +17,12 @@ public abstract class AbstUISdlRootContext<TMouse> : IDisposable
     public LingoSdlKey Key { get; set; }
     public IAbstFrameworkMouse Mouse { get; set; }
 
-    public IAbstKey LingoKey { get; protected set; }
-    public IAbstMouse LingoMouse { get; set; }
+    public IAbstKey AbstKey { get; protected set; }
+    public IAbstMouse AbstMouse { get; set; }
    
     
 
-    public LingoSDLComponentContainer ComponentContainer { get; } = new();
+    public AbstSDLComponentContainer ComponentContainer { get; } = new();
     internal LingoSdlFactory Factory { get; set; } = null!;
 
   

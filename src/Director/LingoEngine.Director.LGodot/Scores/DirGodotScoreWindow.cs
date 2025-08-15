@@ -7,9 +7,9 @@ using LingoEngine.Director.Core.Tools;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Sprites;
-using LingoEngine.LGodot.Gfx;
 using LingoEngine.Director.LGodot.Styles;
 using AbstUI.LGodot.Primitives;
+using AbstUI.LGodot.Components;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
@@ -281,8 +281,8 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     {
         protected TDirScoreGridContainer _DirScoreContainer;
         private float _scrollX;
-        private readonly LingoGodotGfxCanvas _gridLines;
-        private readonly LingoGodotGfxCanvas _currentFrame;
+        private readonly AbstGodotGfxCanvas _gridLines;
+        private readonly AbstGodotGfxCanvas _currentFrame;
         private List<ContainerChannel> _channels = new List<ContainerChannel>();
         public float CurrentFrameX { get => _currentFrame.Position.X; set => _currentFrame.Position = new Vector2(value, _currentFrame.Position.Y); }
 
@@ -290,8 +290,8 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         {
             _DirScoreContainer = topContainer;
             _DirScoreContainer.Init(this);
-            _gridLines = _DirScoreContainer.CanvasGridLines.Framework<LingoGodotGfxCanvas>();
-            _currentFrame = _DirScoreContainer.CanvasCurrentFrame.Framework<LingoGodotGfxCanvas>();
+            _gridLines = _DirScoreContainer.CanvasGridLines.Framework<AbstGodotGfxCanvas>();
+            _currentFrame = _DirScoreContainer.CanvasCurrentFrame.Framework<AbstGodotGfxCanvas>();
             Position = _DirScoreContainer.Position.ToVector2();
             Size = _DirScoreContainer.Size.ToVector2();
             CustomMinimumSize = Size;
@@ -368,7 +368,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         {
             _directorChannel = directorChannel;
             _directorChannel.Init(this);
-            AddChild(_directorChannel.Framework<LingoGodotGfxCanvas>());
+            AddChild(_directorChannel.Framework<AbstGodotGfxCanvas>());
             Size = new Vector2(directorChannel.Size.X, directorChannel.Size.Y);
             CustomMinimumSize = Size;
             Position = new Vector2(directorChannel.Position.X, directorChannel.Position.Y);

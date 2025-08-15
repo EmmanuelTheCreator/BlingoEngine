@@ -4,21 +4,21 @@ using UnityEngine;
 
 namespace AbstUI.LUnity.Inputs;
 
-public class AbstUnityMouse<TLingoMouseType, TAbstUIMouseEvent> : IAbstFrameworkMouse
-        where TLingoMouseType : AbstMouse<TAbstUIMouseEvent>
+public class AbstUnityMouse<TAbstMouseType, TAbstUIMouseEvent> : IAbstFrameworkMouse
+        where TAbstMouseType : AbstMouse<TAbstUIMouseEvent>
         where TAbstUIMouseEvent : AbstMouseEvent
 {
-    private Lazy<TLingoMouseType> _lingoMouse;
+    private Lazy<TAbstMouseType> _lingoMouse;
     private bool _hidden;
 
     private AMouseCursor _cursor = AMouseCursor.Arrow;
 
-    public AbstUnityMouse(Lazy<TLingoMouseType> mouse)
+    public AbstUnityMouse(Lazy<TAbstMouseType> mouse)
     {
         _lingoMouse = mouse;
     }
 
-    public void SetMouseObj(TLingoMouseType mouse) => _lingoMouse = new Lazy<TLingoMouseType>(() => mouse);
+    public void SetMouseObj(TAbstMouseType mouse) => _lingoMouse = new Lazy<TAbstMouseType>(() => mouse);
 
     public void HideMouse(bool state)
     {
@@ -38,7 +38,7 @@ public class AbstUnityMouse<TLingoMouseType, TAbstUIMouseEvent> : IAbstFramework
         Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
     }
 
-    public void ReplaceMouseObj(IAbstMouse lingoMouse) => _lingoMouse = new Lazy<TLingoMouseType>(() => (TLingoMouseType)lingoMouse);
+    public void ReplaceMouseObj(IAbstMouse lingoMouse) => _lingoMouse = new Lazy<TAbstMouseType>(() => (TAbstMouseType)lingoMouse);
 
     public void HandleMouseMove(int x, int y)
     {

@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LingoEngine.SDL2.SDLL
+namespace AbstUI.SDL2.SDLL
 {
     public static partial class SDL_gfx
     {

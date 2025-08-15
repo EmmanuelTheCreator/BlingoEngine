@@ -146,33 +146,33 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
     }
 
     #region Gfx
-    public AbstUIGfxCanvas CreateGfxCanvas(string name, int width, int height) => throw new NotImplementedException();
-    public AbstUIGfxWrapPanel CreateWrapPanel(AOrientation orientation, string name) => throw new NotImplementedException();
-    public AbstUIGfxPanel CreatePanel(string name) => throw new NotImplementedException();
-    public AbstUIGfxLayoutWrapper CreateLayoutWrapper(IAbstUIGfxNode content, float? x, float? y) => throw new NotImplementedException();
-    public AbstUIGfxTabContainer CreateTabContainer(string name) => throw new NotImplementedException();
-    public AbstUIGfxTabItem CreateTabItem(string name, string title) => throw new NotImplementedException();
-    public AbstUIGfxScrollContainer CreateScrollContainer(string name) => throw new NotImplementedException();
-    public AbstUIGfxInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null) => throw new NotImplementedException();
-    public AbstUIGfxInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null) => throw new NotImplementedException();
-    public AbstUIGfxInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null) => throw new NotImplementedException();
-    public AbstUIGfxInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null) => throw new NotImplementedException();
-    public AbstUIGfxInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null) => throw new NotImplementedException();
-    public AbstUIGfxInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null) where TValue : System.Numerics.INumber<TValue> => throw new NotImplementedException();
-    public AbstUIGfxSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null) => throw new NotImplementedException();
-    public AbstUIGfxInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null) => throw new NotImplementedException();
-    public AbstUIGfxInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null) => throw new NotImplementedException();
-    public AbstUIGfxItemList CreateItemList(string name, Action<string?>? onChange = null) => throw new NotImplementedException();
-    public AbstUIGfxColorPicker CreateColorPicker(string name, Action<AColor>? onChange = null) => throw new NotImplementedException();
-    public AbstUIGfxLabel CreateLabel(string name, string text = "") => throw new NotImplementedException();
-    public AbstUIGfxButton CreateButton(string name, string text = "") => throw new NotImplementedException();
-    public AbstUIGfxStateButton CreateStateButton(string name, IAbstUITexture2D? texture = null, string text = "", Action<bool>? onChange = null) => throw new NotImplementedException();
-    public AbstUIGfxMenu CreateMenu(string name) => throw new NotImplementedException();
-    public AbstUIGfxMenuItem CreateMenuItem(string name, string? shortcut = null) => throw new NotImplementedException();
-    public AbstUIGfxMenu CreateContextMenu(object window) => throw new NotImplementedException();
-    public AbstUIGfxHorizontalLineSeparator CreateHorizontalLineSeparator(string name) => throw new NotImplementedException();
-    public AbstUIGfxVerticalLineSeparator CreateVerticalLineSeparator(string name) => throw new NotImplementedException();
-    public AbstUIGfxWindow CreateWindow(string name, string title = "") => throw new NotImplementedException();
+    public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height) => throw new NotImplementedException();
+    public AbstWrapPanel CreateWrapPanel(AOrientation orientation, string name) => throw new NotImplementedException();
+    public AbstPanel CreatePanel(string name) => throw new NotImplementedException();
+    public AbstLayoutWrapper CreateLayoutWrapper(IAbstNode content, float? x, float? y) => throw new NotImplementedException();
+    public AbstTabContainer CreateTabContainer(string name) => throw new NotImplementedException();
+    public AbstTabItem CreateTabItem(string name, string title) => throw new NotImplementedException();
+    public AbstScrollContainer CreateScrollContainer(string name) => throw new NotImplementedException();
+    public AbstInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null) => throw new NotImplementedException();
+    public AbstInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null) => throw new NotImplementedException();
+    public AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null) => throw new NotImplementedException();
+    public AbstInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null) => throw new NotImplementedException();
+    public AbstInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null) => throw new NotImplementedException();
+    public AbstInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null) where TValue : System.Numerics.INumber<TValue> => throw new NotImplementedException();
+    public AbstInputSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null) => throw new NotImplementedException();
+    public AbstInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null) => throw new NotImplementedException();
+    public AbstInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null) => throw new NotImplementedException();
+    public AbstItemList CreateItemList(string name, Action<string?>? onChange = null) => throw new NotImplementedException();
+    public AbstColorPicker CreateColorPicker(string name, Action<AColor>? onChange = null) => throw new NotImplementedException();
+    public AbstLabel CreateLabel(string name, string text = "") => throw new NotImplementedException();
+    public AbstButton CreateButton(string name, string text = "") => throw new NotImplementedException();
+    public AbstStateButton CreateStateButton(string name, IAbstTexture2D? texture = null, string text = "", Action<bool>? onChange = null) => throw new NotImplementedException();
+    public AbstMenu CreateMenu(string name) => throw new NotImplementedException();
+    public AbstMenuItem CreateMenuItem(string name, string? shortcut = null) => throw new NotImplementedException();
+    public AbstMenu CreateContextMenu(object window) => throw new NotImplementedException();
+    public AbstHorizontalLineSeparator CreateHorizontalLineSeparator(string name) => throw new NotImplementedException();
+    public AbstVerticalLineSeparator CreateVerticalLineSeparator(string name) => throw new NotImplementedException();
+    public AbstWindow CreateWindow(string name, string title = "") => throw new NotImplementedException();
     #endregion
 
     public LingoSprite2D CreateSprite2D(ILingoMovie movie, Action<LingoSprite2D> onRemoveMe)

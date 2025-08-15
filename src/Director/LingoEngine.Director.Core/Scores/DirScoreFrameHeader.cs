@@ -13,9 +13,9 @@ public class DirScoreFrameHeader : IDisposable
 {
     private LingoMovie? _movie;
     private readonly DirScoreGfxValues _gfxValues;
-    private readonly AbstUIGfxCanvas _canvas;
+    private readonly AbstGfxCanvas _canvas;
 
-    public AbstUIGfxCanvas Canvas => _canvas;
+    public AbstGfxCanvas Canvas => _canvas;
 
     public DirScoreFrameHeader(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory)
     {

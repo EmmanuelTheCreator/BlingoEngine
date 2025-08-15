@@ -17,7 +17,7 @@ namespace LingoEngine.LGodot.Inputs
         public void SetCursor(LingoMemberBitmap? image)
         {
             if (image == null) return;
-            if (!(image.TextureLingo is LingoGodotTexture2D godotTexture))
+            if (!(image.TextureLingo is AbstGodotTexture2D godotTexture))
                 return;
             DisplayServer.Singleton.CursorSetCustomImage(godotTexture.Texture, DisplayServer.CursorShape.Arrow, hotspot: Vector2.Zero);
         }

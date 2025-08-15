@@ -55,7 +55,7 @@ namespace LingoEngine.LGodot.Shapes
         public (int TL, int TR, int BR, int BL) CornerRadius { get; set; }  = (5, 5, 5, 5);
         public bool Filled { get; set; } = true;
 
-        public IAbstUITexture2D? TextureLingo => null;
+        public IAbstTexture2D? TextureLingo => null;
 
         public virtual LingoGodotMemberShape CloneForSpriteDraw()
         {
@@ -172,7 +172,7 @@ namespace LingoEngine.LGodot.Shapes
             return points.Max(p => p.DistanceTo(center));
         }
 
-        public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
+        public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         {
             // TODO
             return null;

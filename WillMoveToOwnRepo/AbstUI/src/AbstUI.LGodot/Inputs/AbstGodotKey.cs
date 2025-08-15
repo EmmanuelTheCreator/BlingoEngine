@@ -1,7 +1,7 @@
 ﻿using AbstUI.Inputs;
 using Godot;
 
-namespace LingoEngine.LGodot;
+namespace AbstUI.LGodot.Inputs;
 
 public partial class AbstGodotKey : Node, IAbstFrameworkKey
 {

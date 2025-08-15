@@ -31,7 +31,7 @@ using System;
 using System.Runtime.InteropServices;
 #endregion
 
-namespace LingoEngine.SDL2.SDLL
+namespace AbstUI.SDL2.SDLL
 {
     public static partial class SDL_gfx
     {

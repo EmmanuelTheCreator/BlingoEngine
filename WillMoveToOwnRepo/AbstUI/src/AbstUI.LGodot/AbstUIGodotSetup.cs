@@ -9,8 +9,8 @@ namespace AbstUI.LGodot
         public static IServiceCollection WithAbstUIGodot(this IServiceCollection services)
         {
             services
-                .AddSingleton<IAbstFontManager, LingoGodotFontManager>()
-                .AddSingleton<ILingoGodotStyleManager, LingoGodotStyleManager>()
+                .AddSingleton<IAbstFontManager, AbstGodotFontManager>()
+                .AddSingleton<IAbstGodotStyleManager, AbstGodotStyleManager>()
                         ;
 
             return services;

@@ -168,7 +168,7 @@ namespace LingoEngine.Texts
             }
         }
 
-        public IAbstUITexture2D? TextureLingo => _frameworkMember.TextureLingo;
+        public IAbstTexture2D? TextureLingo => _frameworkMember.TextureLingo;
         #endregion
 
 
@@ -283,7 +283,7 @@ namespace LingoEngine.Texts
             _selectedText = Text.Substring(start - 1, end - start);
         }
 
-        public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
+        public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
           => _frameworkMember.RenderToTexture(ink, transparentColor);
 
 

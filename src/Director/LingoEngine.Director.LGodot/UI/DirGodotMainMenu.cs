@@ -13,14 +13,12 @@ using LingoEngine.Director.LGodot.Casts;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Inputs;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.LGodot;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.Styles;
-using LingoEngine.Projects;
-using Microsoft.Extensions.DependencyInjection;
 using AbstUI.Primitives;
 using AbstUI.LGodot.Primitives;
 using LingoEngine.LGodot.Inputs;
+using AbstUI.LGodot.Components;
 
 namespace LingoEngine.Director.LGodot;
 
@@ -29,8 +27,8 @@ namespace LingoEngine.Director.LGodot;
 /// </summary>
 internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
 {
-    private readonly LingoGodotWrapPanel _menuBar;
-    private readonly LingoGodotWrapPanel _iconBar;
+    private readonly AbstGodotWrapPanel _menuBar;
+    private readonly AbstGodotWrapPanel _iconBar;
     private Panel _bgColorPanel;
     private readonly IDirGodotWindowManager _windowManager;
     private readonly ILingoCommandManager _commandManager;
@@ -58,8 +56,8 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
         Mouse = new LingoMouse(mouseFrameworkObj);
         directorMainMenu.Init(this);
 
-        _menuBar = directorMainMenu.MenuBar.Framework<LingoGodotWrapPanel>();
-        _iconBar = directorMainMenu.IconBar.Framework<LingoGodotWrapPanel>();
+        _menuBar = directorMainMenu.MenuBar.Framework<AbstGodotWrapPanel>();
+        _iconBar = directorMainMenu.IconBar.Framework<AbstGodotWrapPanel>();
         CreateBgColor();
 
         AddChild(_bgColorPanel);
@@ -70,7 +68,7 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
 
         directorMainMenu.CallOnAllTopMenus(btn =>
         {
-            AddChild(btn.Framework<LingoGodotMenu>());
+            AddChild(btn.Framework<AbstGodotMenu>());
         });
 
         StyleTopMenu(directorMainMenu);
@@ -136,7 +134,7 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
         
         directorMainMenu.CallOnAllTopMenuButtons(btn =>
         {
-            var btnG = (Button)btn.Framework<LingoGodotButton>().FrameworkNode;
+            var btnG = (Button)btn.Framework<AbstGodotButton>().FrameworkNode;
             btnG.AddThemeStyleboxOverride("normal", topMenuBtnStyle);
             btnG.AddThemeStyleboxOverride("hover", topMenuBtnStyle_hover);
             btnG.CustomMinimumSize = new Vector2(30, 18);
@@ -199,9 +197,9 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
         // not allowed
     }
 
-    APoint IDirFrameworkWindow.GetPosition() => Position.ToLingoPoint();
+    APoint IDirFrameworkWindow.GetPosition() => Position.ToAbstPoint();
 
-    APoint IDirFrameworkWindow.GetSize() => Size.ToLingoPoint();
+    APoint IDirFrameworkWindow.GetSize() => Size.ToAbstPoint();
 
     
 }

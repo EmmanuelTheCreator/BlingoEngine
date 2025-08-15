@@ -16,21 +16,21 @@ public class DirScoreLabelsBar : IDisposable
 {
     private readonly DirScoreGfxValues _gfxValues;
     private readonly ILingoCommandManager _commandManager;
-    private readonly AbstUIGfxCanvas _canvasFix;
-    private readonly AbstUIGfxCanvas _canvasOpenCollapse;
-    private readonly AbstUIGfxCanvas _canvas;
-    private readonly AbstUIGfxInputText _editField;
-    private readonly AbstUIGfxButton _btnApply;
-    private readonly AbstUIGfxButton _btnCancel;
-    private readonly AbstUIGfxButton _btnDelete;
-    private readonly IAbstUIGfxLayoutNode _btnApplyLayout;
-    private readonly IAbstUIGfxLayoutNode _btnCancelLayout;
-    private readonly IAbstUIGfxLayoutNode _btnDeleteLayout;
+    private readonly AbstGfxCanvas _canvasFix;
+    private readonly AbstGfxCanvas _canvasOpenCollapse;
+    private readonly AbstGfxCanvas _canvas;
+    private readonly AbstInputText _editField;
+    private readonly AbstButton _btnApply;
+    private readonly AbstButton _btnCancel;
+    private readonly AbstButton _btnDelete;
+    private readonly IAbstLayoutNode _btnApplyLayout;
+    private readonly IAbstLayoutNode _btnCancelLayout;
+    private readonly IAbstLayoutNode _btnDeleteLayout;
     private LingoMovie? _movie;
-    //private readonly AbstUIGfxInputCombobox _labelsCombo;
-    private readonly AbstUIGfxItemList _labelsCombo;
-    private readonly AbstUIGfxPanel _scollingPanel;
-    private readonly AbstUIGfxPanel _fixPanel;
+    //private readonly AbstGfxInputCombobox _labelsCombo;
+    private readonly AbstItemList _labelsCombo;
+    private readonly AbstPanel _scollingPanel;
+    private readonly AbstPanel _fixPanel;
     private FrameLabelData? _activeFrameLabel;
     private bool _dragging;
     private bool _headerCollapsed;
@@ -60,9 +60,9 @@ public class DirScoreLabelsBar : IDisposable
     public float Height => _fixPanel.Height;
     public float ScrollingWidth => _scollingPanel.Width;
     public float ScollingHeight => _scollingPanel.Height;
-    public AbstUIGfxPanel ScollingPanel => _scollingPanel;
-    public AbstUIGfxPanel FixPanel => _fixPanel;
-    //public AbstUIGfxInputText EditField => _editField;
+    public AbstPanel ScollingPanel => _scollingPanel;
+    public AbstPanel FixPanel => _fixPanel;
+    //public AbstGfxInputText EditField => _editField;
 
 
 
@@ -457,7 +457,7 @@ public class DirScoreLabelsBar : IDisposable
         {
             return mouseFrame >= Frame && mouseFrame < Frame + FrameWidth;
         }
-        public void DrawOnCanvas(AbstUIGfxCanvas _canvas, int labelsBarHeight, float x, AColor color)
+        public void DrawOnCanvas(AbstGfxCanvas _canvas, int labelsBarHeight, float x, AColor color)
         {
             var pts = new[]
             {

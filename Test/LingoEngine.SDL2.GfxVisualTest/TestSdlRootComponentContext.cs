@@ -21,14 +21,14 @@ private bool _imguiReady;
     private SdlFontManager _fontManager;
 
     private readonly nint _window;
-    public LingoSDLComponentContainer ComponentContainer { get; } = new();
+    public AbstSDLComponentContainer ComponentContainer { get; } = new();
     public nint Renderer { get; }
 
     public LingoSdlMouse Mouse { get; set; }
-    public IAbstMouse LingoMouse { get; set; }
+    public IAbstMouse AbstMouse { get; set; }
 
     internal ILingoFrameworkKey Key { get; set; }
-    public IAbstKey LingoKey { get; set; }
+    public IAbstKey AbstKey { get; set; }
     private readonly ImGuiSdlBackend _imgui = new();
     public int Width { get; set; }
     public int Height { get; set; }
@@ -90,7 +90,7 @@ private bool _imguiReady;
             SDL.SDL_SetRenderDrawColor(Renderer, 50, 0, 50, 255);
             SDL.SDL_RenderClear(Renderer);
             
-            ComponentContainer.Render(new LingoSDLRenderContext(Renderer,ImGuiViewPort,ImDrawList, origin, _fontManager));
+            ComponentContainer.Render(new AbstSDLRenderContext(Renderer,ImGuiViewPort,ImDrawList, origin, _fontManager));
 
 
             _imgui.EndFrame();  // draws ImGui on top
@@ -136,11 +136,11 @@ private bool _imguiReady;
 
     public LingoMouse CreateMouse()
     {
-        Mouse = new LingoSdlMouse(new Lazy<AbstMouse<Events.LingoMouseEvent>>(() => (AbstMouse < Events.LingoMouseEvent > )LingoMouse));
+        Mouse = new LingoSdlMouse(new Lazy<AbstMouse<Events.LingoMouseEvent>>(() => (AbstMouse < Events.LingoMouseEvent > )AbstMouse));
         var mouseImpl = Mouse;
         var mouse = new LingoMouse(mouseImpl);
         mouseImpl.SetMouse(mouse);
-        LingoMouse = mouse;
+        AbstMouse = mouse;
         return mouse;
     }
 

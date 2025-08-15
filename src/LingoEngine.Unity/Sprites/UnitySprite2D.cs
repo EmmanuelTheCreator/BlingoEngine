@@ -132,7 +132,7 @@ public class UnitySprite2D : ILingoFrameworkSprite, IDisposable
     {
     }
 
-    public void SetTexture(IAbstUITexture2D texture)
+    public void SetTexture(IAbstTexture2D texture)
     {
         if (texture is UnityTexture2D ut)
         {

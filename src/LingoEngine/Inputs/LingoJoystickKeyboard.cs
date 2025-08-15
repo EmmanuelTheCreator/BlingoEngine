@@ -16,8 +16,8 @@ namespace LingoEngine.Inputs
         private readonly ILingoFrameworkFactory _factory;
         private readonly string[][] _layout;
         private readonly int _cols;
-        private readonly AbstUIGfxWindow _window;
-        private readonly AbstUIGfxCanvas _canvas;
+        private readonly AbstWindow _window;
+        private readonly AbstGfxCanvas _canvas;
         
         private readonly IAbstMouseSubscription _mouseDownSub;
         private readonly IAbstMouseSubscription _mouseMoveSub;

@@ -122,7 +122,7 @@ internal partial class DirScoreTempoGridChannel : DirScoreChannel<ILingoTempoSpr
 
         panel.AddPopupButtons(okAction, CloseDialog);
 
-        _dialog = _showConfirmDialog?.Invoke("Frame Properties: Tempo", (IAbstUIFrameworkGfxPanel)panel.FrameworkObj);
+        _dialog = _showConfirmDialog?.Invoke("Frame Properties: Tempo", (IAbstFrameworkPanel)panel.FrameworkObj);
     }
 
     private void CloseDialog()

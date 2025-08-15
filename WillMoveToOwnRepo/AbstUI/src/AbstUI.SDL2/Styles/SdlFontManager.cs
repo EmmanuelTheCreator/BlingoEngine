@@ -9,14 +9,14 @@ public interface ISdlFontLoadedByUser
     nint FontHandle { get; }
     void Release();
 }
-public interface ILingoSdlFont
+public interface IAbstSdlFont
 {
     ISdlFontLoadedByUser? Get(object fontUser, int fontSize);
 }
 public class SdlFontManager : IAbstFontManager
 {
     private readonly List<(string Name, string FileName)> _fontsToLoad = new();
-    private readonly Dictionary<string, LingoSdlFont> _loadedFonts = new();
+    private readonly Dictionary<string, AbstSdlFont> _loadedFonts = new();
     public IAbstFontManager AddFont(string name, string pathAndName)
     {
         _fontsToLoad.Add((name, pathAndName));
@@ -25,9 +25,9 @@ public class SdlFontManager : IAbstFontManager
     public void LoadAll()
     {
         if (_loadedFonts.Count == 0)
-            _loadedFonts.Add("Tahoma", new LingoSdlFont(this, "Tahoma", "Fonts\\Tahoma.ttf")); // default font
+            _loadedFonts.Add("Tahoma", new AbstSdlFont(this, "Tahoma", "Fonts\\Tahoma.ttf")); // default font
         foreach (var font in _fontsToLoad)
-            _loadedFonts[font.Name] = new LingoSdlFont(this, font.Name, font.FileName); // placeholder
+            _loadedFonts[font.Name] = new AbstSdlFont(this, font.Name, font.FileName); // placeholder
 
         _fontsToLoad.Clear();
         InitFonts();
@@ -46,9 +46,9 @@ public class SdlFontManager : IAbstFontManager
 
     public void SetDefaultFont<T>(T font) where T : class
     {
-        if (font is not ILingoSdlFont sdlFont)
-            throw new ArgumentException("Font must be of type ILingoSdlFont", nameof(font));
-        _loadedFonts["default"] = (LingoSdlFont)sdlFont;
+        if (font is not IAbstSdlFont sdlFont)
+            throw new ArgumentException("Font must be of type IAbstSdlFont", nameof(font));
+        _loadedFonts["default"] = (AbstSdlFont)sdlFont;
     }
 
     public IEnumerable<string> GetAllNames() => _loadedFonts.Keys;
@@ -78,13 +78,13 @@ public class SdlFontManager : IAbstFontManager
         => _fonts.TryGetValue(size, out var font) ? font : null;
 
 
-    private class LingoSdlFont : ILingoSdlFont
+    private class AbstSdlFont : IAbstSdlFont
     {
         private Dictionary<int, LoadedFontWithSize> _loadedFontSizes = new();
         public string FileName { get; private set; }
         public string Name { get; private set; }
 
-        internal LingoSdlFont(SdlFontManager fontManager, string name, string fontFileName)
+        internal AbstSdlFont(SdlFontManager fontManager, string name, string fontFileName)
         {
             FileName = fontFileName;
             Name = name.Trim();

@@ -88,7 +88,7 @@ internal partial class DirScoreColorPaletteGridChannel : DirScoreChannel<ILingoS
 
         var selected = settings.ColorPaletteId >= 0 && settings.ColorPaletteId < allPalettes.Count() ? allPalettes[settings.ColorPaletteId] : allPalettes.First();
 
-        AbstUIGfxCanvas colorsCanvas = _scoreManager.Factory.CreateGfxCanvas("Panel Pallette Canvas", 130, 130);
+        AbstGfxCanvas colorsCanvas = _scoreManager.Factory.CreateGfxCanvas("Panel Pallette Canvas", 130, 130);
         colorsCanvas.X = 10;
         colorsCanvas.Y = 10;
         panel.AddItem(colorsCanvas);
@@ -122,9 +122,9 @@ internal partial class DirScoreColorPaletteGridChannel : DirScoreChannel<ILingoS
 
         panel.AddPopupButtons(okAction, CloseDialog);
 
-        _dialog = _showConfirmDialog?.Invoke("Frame Properties: Palette", (IAbstUIFrameworkGfxPanel)panel.FrameworkObj);
+        _dialog = _showConfirmDialog?.Invoke("Frame Properties: Palette", (IAbstFrameworkPanel)panel.FrameworkObj);
     }
-    private void RedrawColors(AbstUIGfxCanvas colorsCanvas, LingoColorPaletteDefinition definition)
+    private void RedrawColors(AbstGfxCanvas colorsCanvas, LingoColorPaletteDefinition definition)
     {
         colorsCanvas.Clear(AColors.White);
         colorsCanvas.DrawRect(new ARect(1, 1, colorsCanvas.Width-2, colorsCanvas.Height-2), AColors.White);

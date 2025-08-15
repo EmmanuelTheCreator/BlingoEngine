@@ -23,7 +23,7 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
     private LingoFilmLoopMember _member = null!;
     public bool IsLoaded { get; private set; }
     public byte[]? Media { get; set; }
-    public IAbstUITexture2D? TextureLingo { get; private set; }
+    public IAbstTexture2D? TextureLingo { get; private set; }
     public APoint Offset { get; private set; }
     public LingoFilmLoopFraming Framing { get; set; } = LingoFilmLoopFraming.Auto;
     public bool Loop { get; set; } = true;
@@ -94,13 +94,13 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
         {
         }
     }
-    public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor) => TextureLingo;
+    public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor) => TextureLingo;
     /// <summary>
     /// Composes the provided layers into a single SDL texture using the
     /// <see cref="LingoFilmLoopComposer"/> for layout and transforms.
     /// </summary>
     /// <returns>The composed texture for rendering.</returns>
-    public IAbstUITexture2D ComposeTexture(ILingoSprite2DLight hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers, int frame)
+    public IAbstTexture2D ComposeTexture(ILingoSprite2DLight hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers, int frame)
     {
         //return new SdlTexture2D(nint.Zero, 0, 0);
         //var sdlSprite = hostSprite.FrameworkObj as SdlSprite;

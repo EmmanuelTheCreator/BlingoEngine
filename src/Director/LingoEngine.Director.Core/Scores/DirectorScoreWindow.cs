@@ -30,9 +30,9 @@ namespace LingoEngine.Director.Core.Scores
         private readonly DirScoreFrameHeader _frameHeader;
         private readonly DirScoreLeftTopContainer _LeftTopContainer;
         private readonly DirScoreLeftChannelsContainer _LeftChannelContainer;
-        private readonly AbstUIGfxPanel _panelScroll;
-        private readonly AbstUIGfxPanel _panelFix;
-        private readonly AbstUIGfxInputCombobox _spriteShowSelector;
+        private readonly AbstPanel _panelScroll;
+        private readonly AbstPanel _panelFix;
+        private readonly AbstInputCombobox _spriteShowSelector;
         private DirScoreSprite? _contextSprite;
         private int _contextFrame;
         private LingoMovie? _movie;
@@ -52,8 +52,8 @@ namespace LingoEngine.Director.Core.Scores
         public DirScoreGfxValues GfxValues => _scoreManager.GfxValues;
         // public DirScoreLeftTopContainer LeftTopContainer => _LeftTopContainer;
         //public DirScoreLeftChannelsContainer LeftChannelContainer => _LeftChannelContainer;
-        public AbstUIGfxPanel ScorePanelScroll => _panelScroll;
-        public AbstUIGfxPanel ScorePanelFix => _panelFix;
+        public AbstPanel ScorePanelScroll => _panelScroll;
+        public AbstPanel ScorePanelFix => _panelFix;
         public float ScollX { get => _scollX; set => _scollX = value; }
         public float ScollY { get => _scollY; set => _scollY = value; }
 
@@ -259,7 +259,7 @@ namespace LingoEngine.Director.Core.Scores
 
         protected override void OnRaiseKeyUp(LingoKey lingoKey) { }
 
-        internal IDirectorWindowDialogReference? ShowConfirmDialog(string title, IAbstUIFrameworkGfxPanel panel)
+        internal IDirectorWindowDialogReference? ShowConfirmDialog(string title, IAbstFrameworkPanel panel)
             => _windowManager.ShowCustomDialog(title, panel);
 
 

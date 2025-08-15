@@ -9,7 +9,7 @@ namespace AbstUI.LUnity.Primitives;
 public static class UnityColorExtensions
 {
     /// <summary>Converts a Unity <see cref="Color"/> to a <see cref="AColor"/>.</summary>
-    public static AColor ToLingoColor(this Color color)
+    public static AColor ToAbstColor(this Color color)
         => AColor.FromRGB(
             (byte)(color.r * 255),
             (byte)(color.g * 255),

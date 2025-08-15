@@ -8,7 +8,7 @@ namespace LingoEngine.Director.Core.Icons
     {
 
         private readonly List<TLingoIconSheet> _sheets = new();
-        private readonly Dictionary<DirectorIcon, IAbstUITexture2D> _iconCache = new();
+        private readonly Dictionary<DirectorIcon, IAbstTexture2D> _iconCache = new();
 
 
         public void LoadSheet(string path, int itemCount, int iconWidth, int iconHeight, int horizontalSpacing = 0)
@@ -21,7 +21,7 @@ namespace LingoEngine.Director.Core.Icons
         protected abstract TLingoIconSheet? OnLoadSheet(string path, int itemCount, int iconWidth, int iconHeight, int horizontalSpacing = 0);
 
 
-        public IAbstUITexture2D Get(DirectorIcon icon)
+        public IAbstTexture2D Get(DirectorIcon icon)
         {
             if (_iconCache.TryGetValue(icon, out var cached))
                 return cached;
@@ -47,7 +47,7 @@ namespace LingoEngine.Director.Core.Icons
 
             throw new ArgumentOutOfRangeException(nameof(icon), "Icon index out of range.");
         }
-        protected abstract IAbstUITexture2D? OnGetTextureImage(TLingoIconSheet sheet, int x);
+        protected abstract IAbstTexture2D? OnGetTextureImage(TLingoIconSheet sheet, int x);
 
     }
 }

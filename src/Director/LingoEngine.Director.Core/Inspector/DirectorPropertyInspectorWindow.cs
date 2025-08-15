@@ -51,35 +51,35 @@ namespace LingoEngine.Director.Core.Inspector
             FilmLoop,
         }
         public const int HeaderHeight = 44;
-        private AbstUIGfxLabel? _sprite;
-        private AbstUIGfxLabel? _member;
-        private AbstUIGfxLabel? _cast;
+        private AbstLabel? _sprite;
+        private AbstLabel? _member;
+        private AbstLabel? _cast;
         private LingoPlayer _player;
         private ILingoCommandManager _commandManager;
-        private AbstUIGfxTabContainer _tabs;
+        private AbstTabContainer _tabs;
         private DirectorMemberThumbnail? _thumb;
-        private AbstUIGfxPanel? _header;
+        private AbstPanel? _header;
         private IDirectorIconManager _iconManager;
         public ILingoFrameworkFactory Factory => _factory;
-        private AbstUIGfxPanel _headerPanel;
+        private AbstPanel _headerPanel;
         private IDirectorEventMediator _mediator;
         private readonly IDirectorBehaviorDescriptionManager _descriptionManager;
         private readonly ILogger<DirectorPropertyInspectorWindow> _logger;
         private readonly DirectorStageGuides _guides;
-        private AbstUIGfxWrapPanel _behaviorPanel;
+        private AbstWrapPanel _behaviorPanel;
         private float _lastWidh;
         private float _lastHeight;
         private Dictionary<string, LingoSpriteBehavior> _behaviors = new();
-        private AbstUIGfxItemList _behaviorList;
-        private AbstUIGfxWindow? _behaviorWindow;
+        private AbstItemList _behaviorList;
+        private AbstWindow? _behaviorWindow;
 
-        public AbstUIGfxPanel HeaderPanel => _headerPanel;
-        public AbstUIGfxTabContainer Tabs => _tabs;
+        public AbstPanel HeaderPanel => _headerPanel;
+        public AbstTabContainer Tabs => _tabs;
         public string SpriteText { get => _sprite?.Text ?? string.Empty; set { if (_sprite != null) _sprite.Text = value; } }
         public string MemberText { get => _member?.Text ?? string.Empty; set { if (_member != null) _member.Text = value; } }
         public string CastText { get => _cast?.Text ?? string.Empty; set { if (_cast != null) _cast.Text = value; } }
 
-        public record HeaderElements(AbstUIGfxPanel Panel, AbstUIGfxWrapPanel Header, DirectorMemberThumbnail Thumbnail);
+        public record HeaderElements(AbstPanel Panel, AbstWrapPanel Header, DirectorMemberThumbnail Thumbnail);
 
         public DirectorPropertyInspectorWindow(LingoPlayer player, ILingoCommandManager commandManager, ILingoFrameworkFactory factory, IDirectorIconManager iconManager, IDirectorEventMediator mediator, IDirectorBehaviorDescriptionManager descriptionManager, DirectorStageGuides guides, ILogger<DirectorPropertyInspectorWindow> logger) : base(factory)
         {
@@ -110,7 +110,7 @@ namespace LingoEngine.Director.Core.Inspector
         }
 
       
-        private AbstUIGfxPanel CreateHeaderElements()
+        private AbstPanel CreateHeaderElements()
         {
             var thumb = new DirectorMemberThumbnail(36, 36, _factory, _iconManager);
 
@@ -356,13 +356,13 @@ namespace LingoEngine.Director.Core.Inspector
         }
 
 
-        public AbstUIGfxWindow? BuildBehaviorPopup(LingoSpriteBehavior behavior)
+        public AbstWindow? BuildBehaviorPopup(LingoSpriteBehavior behavior)
             => _descriptionManager.BuildBehaviorPopup(behavior, () =>
             {
                 _behaviorList.SelectedIndex = -1;
             });
 
-        public void ShowBehaviorPopup(AbstUIGfxWindow window)
+        public void ShowBehaviorPopup(AbstWindow window)
         {
             _behaviorWindow?.Dispose();
             _behaviorWindow = window;
@@ -698,11 +698,11 @@ namespace LingoEngine.Director.Core.Inspector
 
         #region Common: AddTab
 
-        private AbstUIGfxWrapPanel AddTab(PropetyTabNames tabName)
+        private AbstWrapPanel AddTab(PropetyTabNames tabName)
         {
             var name = tabName.ToString();
             var scroller = _factory.CreateScrollContainer(name + "Scroll");
-            AbstUIGfxWrapPanel container = _factory.CreateWrapPanel(AOrientation.Vertical, name + "Container");
+            AbstWrapPanel container = _factory.CreateWrapPanel(AOrientation.Vertical, name + "Container");
             scroller.AddItem(container);
             var tabItem = _factory.CreateTabItem(name, name);
             tabItem.Content = scroller;
@@ -717,7 +717,7 @@ namespace LingoEngine.Director.Core.Inspector
                 return;
             var name = tabName.ToString();
             var scroller = _factory.CreateScrollContainer(name + "Scroll");
-            AbstUIGfxWrapPanel container = _factory.CreateWrapPanel(AOrientation.Vertical, name + "Container");
+            AbstWrapPanel container = _factory.CreateWrapPanel(AOrientation.Vertical, name + "Container");
 
             if (_commandManager != null && (obj is LingoMemberBitmap || obj is ILingoMemberTextBase))
             {

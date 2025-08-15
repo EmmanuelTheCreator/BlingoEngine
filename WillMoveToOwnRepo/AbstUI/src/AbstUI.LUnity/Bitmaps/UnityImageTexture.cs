@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace AbstUI.LUnity.Bitmaps;
 
-public class UnityTexture2D : IAbstUITexture2D
+public class UnityTexture2D : IAbstTexture2D
 {
     public Texture2D? Texture { get; private set; }
 
@@ -47,8 +47,8 @@ public class UnityTexture2D : IAbstUITexture2D
     private class TextureSubscription : IAbstUITextureUserSubscription
     {
         private readonly Action _onRelease;
-        public IAbstUITexture2D Texture { get; }
-        public TextureSubscription(IAbstUITexture2D texture, Action onRelease)
+        public IAbstTexture2D Texture { get; }
+        public TextureSubscription(IAbstTexture2D texture, Action onRelease)
         {
             _onRelease = onRelease;
             Texture = texture;

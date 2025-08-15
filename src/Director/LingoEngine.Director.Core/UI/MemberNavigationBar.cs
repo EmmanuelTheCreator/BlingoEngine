@@ -15,15 +15,15 @@ public class MemberNavigationBar<T> where T : class, ILingoMember
     private readonly IDirectorEventMediator _mediator;
     private readonly ILingoPlayer _player;
     private readonly IDirectorIconManager _iconManager;
-    private readonly AbstUIGfxWrapPanel _panel;
-    private AbstUIGfxButton _typeIcon;
-    private AbstUIGfxLabel _numberLabel;
-    private AbstUIGfxLabel _castLibLabel;
-    private AbstUIGfxInputText _nameEdit;
+    private readonly AbstWrapPanel _panel;
+    private AbstButton _typeIcon;
+    private AbstLabel _numberLabel;
+    private AbstLabel _castLibLabel;
+    private AbstInputText _nameEdit;
 
     private T? _member;
 
-    public AbstUIGfxWrapPanel Panel => _panel;
+    public AbstWrapPanel Panel => _panel;
     public string MemberName
     {
         get => _memberName; 

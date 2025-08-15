@@ -121,7 +121,7 @@ namespace LingoEngine.Director.Core.Scores
             RequireRedraw();
         }
 
-        public void Draw(AbstUIGfxCanvas canvas, float frameWidth, float channelHeight, float yOffset = 0)
+        public void Draw(AbstGfxCanvas canvas, float frameWidth, float channelHeight, float yOffset = 0)
         {
             //if (!RequireToRedraw) return;
             RequireToRedraw = false;

@@ -48,11 +48,11 @@ namespace LingoEngine.LGodot.Core
             _rootNode = rootNode.RootNode;
             _serviceProvider = serviceProvider;
             var fontManager = _serviceProvider.GetRequiredService<IAbstFontManager>();
-            var styleManager = _serviceProvider.GetRequiredService<ILingoGodotStyleManager>();
+            var styleManager = _serviceProvider.GetRequiredService<IAbstGodotStyleManager>();
             _gfxFactory = new GodotGfxFactory(fontManager, styleManager, _lingoRootNode);
         }
 
-        public IAbstUIGfxFactory GfxFactory => _gfxFactory;
+        public IAbstComponentFactory GfxFactory => _gfxFactory;
 
         public T CreateBehavior<T>(LingoMovie lingoMovie) where T : LingoSpriteBehavior => lingoMovie.GetServiceProvider().GetRequiredService<T>();
         public T CreateMovieScript<T>(LingoMovie lingoMovie) where T : LingoMovieScript => lingoMovie.GetServiceProvider().GetRequiredService<T>();
@@ -228,90 +228,90 @@ namespace LingoEngine.LGodot.Core
 
 
         #region Gfx elements
-        public AbstUIGfxCanvas CreateGfxCanvas(string name, int width, int height)
+        public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
             => _gfxFactory.CreateGfxCanvas(name, width, height);
 
-        public AbstUIGfxWrapPanel CreateWrapPanel(AOrientation orientation, string name)
+        public AbstWrapPanel CreateWrapPanel(AOrientation orientation, string name)
             => _gfxFactory.CreateWrapPanel(orientation, name);
 
-        public AbstUIGfxPanel CreatePanel(string name)
+        public AbstPanel CreatePanel(string name)
             => _gfxFactory.CreatePanel(name);
 
-        public AbstUIGfxLayoutWrapper CreateLayoutWrapper(IAbstUIGfxNode content, float? x, float? y)
+        public AbstLayoutWrapper CreateLayoutWrapper(IAbstNode content, float? x, float? y)
             => _gfxFactory.CreateLayoutWrapper(content, x, y);
 
-        public AbstUIGfxTabContainer CreateTabContainer(string name)
+        public AbstTabContainer CreateTabContainer(string name)
             => _gfxFactory.CreateTabContainer(name);
 
-        public AbstUIGfxTabItem CreateTabItem(string name, string title)
+        public AbstTabItem CreateTabItem(string name, string title)
             => _gfxFactory.CreateTabItem(name, title);
 
-        public AbstUIGfxScrollContainer CreateScrollContainer(string name)
+        public AbstScrollContainer CreateScrollContainer(string name)
             => _gfxFactory.CreateScrollContainer(name);
 
-        public AbstUIGfxInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
+        public AbstInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
             => _gfxFactory.CreateInputSliderFloat(orientation, name, min, max, step, onChange);
 
-        public AbstUIGfxInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
+        public AbstInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
             => _gfxFactory.CreateInputSliderInt(orientation, name, min, max, step, onChange);
 
-        public AbstUIGfxInputSlider<TValue> CreateInputSlider<TValue>(string name, AOrientation orientation, NullableNum<TValue> min, NullableNum<TValue> max, NullableNum<TValue> step, Action<TValue>? onChange = null)
+        public AbstInputSlider<TValue> CreateInputSlider<TValue>(string name, AOrientation orientation, NullableNum<TValue> min, NullableNum<TValue> max, NullableNum<TValue> step, Action<TValue>? onChange = null)
             where TValue : struct, System.Numerics.INumber<TValue>, IConvertible
             => _gfxFactory.CreateInputSlider(name, orientation, min, max, step, onChange);
 
-        public AbstUIGfxInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null)
+        public AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null)
             => _gfxFactory.CreateInputText(name, maxLength, onChange);
 
-        public AbstUIGfxInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null)
+        public AbstInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null)
             => _gfxFactory.CreateInputNumberFloat(name, min, max, onChange);
 
-        public AbstUIGfxInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null)
+        public AbstInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null)
             => _gfxFactory.CreateInputNumberInt(name, min, max, onChange);
 
-        public AbstUIGfxInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null)
+        public AbstInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null)
             where TValue : System.Numerics.INumber<TValue>
             => _gfxFactory.CreateInputNumber(name, min, max, onChange);
 
-        public AbstUIGfxSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null)
+        public AbstInputSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null)
             => _gfxFactory.CreateSpinBox(name, min, max, onChange);
 
-        public AbstUIGfxInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null)
+        public AbstInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null)
             => _gfxFactory.CreateInputCheckbox(name, onChange);
 
-        public AbstUIGfxInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null)
+        public AbstInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null)
             => _gfxFactory.CreateInputCombobox(name, onChange);
 
-        public AbstUIGfxItemList CreateItemList(string name, Action<string?>? onChange = null)
+        public AbstItemList CreateItemList(string name, Action<string?>? onChange = null)
             => _gfxFactory.CreateItemList(name, onChange);
 
-        public AbstUIGfxColorPicker CreateColorPicker(string name, Action<AColor>? onChange = null)
+        public AbstColorPicker CreateColorPicker(string name, Action<AColor>? onChange = null)
             => _gfxFactory.CreateColorPicker(name, onChange);
 
-        public AbstUIGfxLabel CreateLabel(string name, string text = "")
+        public AbstLabel CreateLabel(string name, string text = "")
             => _gfxFactory.CreateLabel(name, text);
 
-        public AbstUIGfxButton CreateButton(string name, string text = "")
+        public AbstButton CreateButton(string name, string text = "")
             => _gfxFactory.CreateButton(name, text);
 
-        public AbstUIGfxStateButton CreateStateButton(string name, IAbstUITexture2D? texture = null, string text = "", Action<bool>? onChange = null)
+        public AbstStateButton CreateStateButton(string name, IAbstTexture2D? texture = null, string text = "", Action<bool>? onChange = null)
             => _gfxFactory.CreateStateButton(name, texture, text, onChange);
 
-        public AbstUIGfxMenu CreateMenu(string name)
+        public AbstMenu CreateMenu(string name)
             => _gfxFactory.CreateMenu(name);
 
-        public AbstUIGfxMenuItem CreateMenuItem(string name, string? shortcut = null)
+        public AbstMenuItem CreateMenuItem(string name, string? shortcut = null)
             => _gfxFactory.CreateMenuItem(name, shortcut);
 
-        public AbstUIGfxMenu CreateContextMenu(object window)
+        public AbstMenu CreateContextMenu(object window)
             => _gfxFactory.CreateContextMenu(window);
 
-        public AbstUIGfxHorizontalLineSeparator CreateHorizontalLineSeparator(string name)
+        public AbstHorizontalLineSeparator CreateHorizontalLineSeparator(string name)
             => _gfxFactory.CreateHorizontalLineSeparator(name);
 
-        public AbstUIGfxVerticalLineSeparator CreateVerticalLineSeparator(string name)
+        public AbstVerticalLineSeparator CreateVerticalLineSeparator(string name)
             => _gfxFactory.CreateVerticalLineSeparator(name);
 
-        public AbstUIGfxWindow CreateWindow(string name, string title = "")
+        public AbstWindow CreateWindow(string name, string title = "")
             => _gfxFactory.CreateWindow(name, title);
 
         #endregion

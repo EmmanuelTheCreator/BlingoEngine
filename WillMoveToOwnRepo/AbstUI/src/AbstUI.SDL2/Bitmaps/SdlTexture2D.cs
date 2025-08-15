@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace AbstUI.SDL2.Bitmaps;
 
-public class SdlTexture2D : IAbstUITexture2D
+public class SdlTexture2D : IAbstTexture2D
 {
     public nint Handle { get; private set; }
     public int Width { get; }
@@ -92,7 +92,7 @@ public class SdlTexture2D : IAbstUITexture2D
 
 
 
-    public IAbstUITexture2D Clone(nint renderer)
+    public IAbstTexture2D Clone(nint renderer)
     {
         var cloned = CloneTexture(renderer, Handle);
         var clone = new SdlTexture2D(cloned, Width, Height);
@@ -173,7 +173,7 @@ public class SdlTexture2D : IAbstUITexture2D
     private class TextureSubscription : IAbstUITextureUserSubscription
     {
         private readonly Action _onRelease;
-        public IAbstUITexture2D Texture { get; }
+        public IAbstTexture2D Texture { get; }
         public TextureSubscription(SdlTexture2D texture, Action onRelease)
         {
             Texture = texture;

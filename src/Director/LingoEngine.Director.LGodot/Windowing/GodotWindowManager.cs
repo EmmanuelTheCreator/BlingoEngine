@@ -22,11 +22,11 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
     public const int ZIndexInactiveWindow = -1000;
     public const int ZIndexInactiveWindowStage = -4000;
     private IDirectorWindowManager _directorWindowManager;
-    private readonly ILingoGodotStyleManager _lingoGodotStyleManager;
+    private readonly IAbstGodotStyleManager _lingoGodotStyleManager;
     private readonly Dictionary<string, BaseGodotWindow> _godotWindows = new();
     public BaseGodotWindow? ActiveWindow { get; private set; }
 
-    public DirGodotWindowManager(IDirectorWindowManager directorWindowManager, ILingoGodotStyleManager lingoGodotStyleManager)
+    public DirGodotWindowManager(IDirectorWindowManager directorWindowManager, IAbstGodotStyleManager lingoGodotStyleManager)
     {
         _directorWindowManager = directorWindowManager;
         _lingoGodotStyleManager = lingoGodotStyleManager;
@@ -96,7 +96,7 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
         {
             Title = title,
             DialogText = message,
-            Theme = _lingoGodotStyleManager.GetTheme(LingoGodotThemeElementType.PopupWindow),
+            Theme = _lingoGodotStyleManager.GetTheme(AbstGodotThemeElementType.PopupWindow),
         };
 
         dialog.Confirmed += () => { onResult(true); dialog.QueueFree(); };
@@ -107,7 +107,7 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
         return new DirectorWindowDialogReference(dialog.QueueFree);
     }
 
-    public IDirectorWindowDialogReference? ShowCustomDialog(string title, IAbstUIFrameworkGfxPanel panel)
+    public IDirectorWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel)
     {
         var root = ActiveWindow?.GetTree().Root;
         if (root == null)
@@ -132,7 +132,7 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
             PopupWindow = true,
             Unresizable = true,
             Size = new Vector2I((int)panel.Width, (int)panel.Height),
-            Theme = _lingoGodotStyleManager.GetTheme(LingoGodotThemeElementType.PopupWindow),
+            Theme = _lingoGodotStyleManager.GetTheme(AbstGodotThemeElementType.PopupWindow),
         };
         ReplaceIconColor(dialog, "close", new Color("#777777"));
         ReplaceIconColor(dialog, "close_hl", Colors.Black);

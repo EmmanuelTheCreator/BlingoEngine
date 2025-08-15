@@ -28,7 +28,7 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     private string fontName = string.Empty;
 
     public SdlTexture2D? TextureSDL => _textureSDL;
-    public IAbstUITexture2D? TextureLingo => _textureSDL;
+    public IAbstTexture2D? TextureLingo => _textureSDL;
    
 
     public string Text { get => _text; set => _text = value; }
@@ -109,7 +109,7 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
 
     public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
 
-    public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
+    public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
     {
         PreloadFont();
 

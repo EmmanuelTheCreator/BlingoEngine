@@ -19,21 +19,21 @@ namespace LingoEngine.Director.Core.UI
     /// </summary>
     public class DirectorMainMenu : DirectorWindow<IDirFrameworkMainMenuWindow>
     {
-        private readonly AbstUIGfxWrapPanel _menuBar;
-        private readonly AbstUIGfxWrapPanel _iconBar;
-        private readonly AbstUIGfxMenu _fileMenu;
-        private readonly AbstUIGfxMenu _editMenu;
-        private readonly AbstUIGfxMenu _insertMenu;
-        private readonly AbstUIGfxMenu _modifyMenu;
-        private readonly AbstUIGfxMenu _controlMenu;
-        private readonly AbstUIGfxMenu _windowMenu;
-        private readonly AbstUIGfxButton _fileButton;
-        private readonly AbstUIGfxButton _editButton;
-        private readonly AbstUIGfxButton _insertButton;
-        private AbstUIGfxButton _ModifyButton;
-        private readonly AbstUIGfxButton _ControlButton;
-        private readonly AbstUIGfxButton _windowButton;
-        private AbstUIGfxStateButton _playButton;
+        private readonly AbstWrapPanel _menuBar;
+        private readonly AbstWrapPanel _iconBar;
+        private readonly AbstMenu _fileMenu;
+        private readonly AbstMenu _editMenu;
+        private readonly AbstMenu _insertMenu;
+        private readonly AbstMenu _modifyMenu;
+        private readonly AbstMenu _controlMenu;
+        private readonly AbstMenu _windowMenu;
+        private readonly AbstButton _fileButton;
+        private readonly AbstButton _editButton;
+        private readonly AbstButton _insertButton;
+        private AbstButton _ModifyButton;
+        private readonly AbstButton _ControlButton;
+        private readonly AbstButton _windowButton;
+        private AbstStateButton _playButton;
         private readonly IDirectorWindowManager _windowManager;
         private readonly DirectorProjectManager _projectManager;
         private readonly LingoPlayer _player;
@@ -41,15 +41,15 @@ namespace LingoEngine.Director.Core.UI
         private readonly IHistoryManager _historyManager;
         private readonly ILingoCommandManager _commandManager;
         private readonly List<ShortCutInfo> _shortCuts = new();
-        private AbstUIGfxMenuItem _undoItem;
-        private AbstUIGfxMenuItem _redoItem;
+        private AbstMenuItem _undoItem;
+        private AbstMenuItem _redoItem;
         private ILingoMovie? _lingoMovie;
-        private List<AbstUIGfxButton> _topMenuButtons = new List<AbstUIGfxButton>();
-        private List<AbstUIGfxMenu> _topMenus = new List<AbstUIGfxMenu>();
+        private List<AbstButton> _topMenuButtons = new List<AbstButton>();
+        private List<AbstMenu> _topMenus = new List<AbstMenu>();
         private bool _playPauseState;
 
-        public AbstUIGfxWrapPanel MenuBar => _menuBar;
-        public AbstUIGfxWrapPanel IconBar => _iconBar;
+        public AbstWrapPanel MenuBar => _menuBar;
+        public AbstWrapPanel IconBar => _iconBar;
 
         public bool PlayPauseState
         {
@@ -167,12 +167,12 @@ namespace LingoEngine.Director.Core.UI
 
 
 
-        public void CallOnAllTopMenuButtons(Action<AbstUIGfxButton> btnAction)
+        public void CallOnAllTopMenuButtons(Action<AbstButton> btnAction)
         {
             foreach (var item in _topMenuButtons)
                 btnAction(item);
         }
-        public void CallOnAllTopMenus(Action<AbstUIGfxMenu> action)
+        public void CallOnAllTopMenus(Action<AbstMenu> action)
         {
             foreach (var item in _topMenus)
                 action(item);
@@ -348,7 +348,7 @@ namespace LingoEngine.Director.Core.UI
             return new ShortCutInfo { Map = map, Key = key.ToUpperInvariant(), Ctrl = ctrl, Alt = alt, Shift = shift, Meta = meta };
         }
 
-        private void ShowMenu(AbstUIGfxMenu menu, AbstUIGfxButton button)
+        private void ShowMenu(AbstMenu menu, AbstButton button)
         {
             menu.PositionPopup(button);
             menu.Popup();

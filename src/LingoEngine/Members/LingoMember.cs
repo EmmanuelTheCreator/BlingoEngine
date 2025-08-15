@@ -32,8 +32,8 @@ namespace LingoEngine.Members
         /// <summary>
         /// The texture associated with this member, if any.
         /// </summary>
-        IAbstUITexture2D? TextureLingo { get; }
-        IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor);
+        IAbstTexture2D? TextureLingo { get; }
+        IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor);
     }
 
     /// <summary>

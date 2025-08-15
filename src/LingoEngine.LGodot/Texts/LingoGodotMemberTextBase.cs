@@ -27,9 +27,9 @@ namespace LingoEngine.LGodot.Texts
         
         private GodotMemberTextNode _defaultTextNode;
         private List<GodotMemberTextNode> _usedNodes = new List<GodotMemberTextNode>();
-        private LingoGodotTexture2D? _texture;
-        public IAbstUITexture2D? TextureLingo => _texture;
-        public LingoGodotTexture2D? TextureGodot => _texture;
+        private AbstGodotTexture2D? _texture;
+        public IAbstTexture2D? TextureLingo => _texture;
+        public AbstGodotTexture2D? TextureGodot => _texture;
 
         internal class GodotMemberTextNode
         {
@@ -166,7 +166,7 @@ namespace LingoEngine.LGodot.Texts
             set
             {
                 _lingoColor = value;
-                _LabelSettings.SetLingoColor(value);
+                _LabelSettings.SetAbstColor(value);
                 
             }
         }
@@ -176,7 +176,7 @@ namespace LingoEngine.LGodot.Texts
             set
             {
 
-                _LabelSettings.SetLingoFontSize(value);
+                _LabelSettings.SetAbstFontSize(value);
                 UpdateSize();
                 
             }
@@ -189,7 +189,7 @@ namespace LingoEngine.LGodot.Texts
             set
             {
                 _fontName = value;
-                _LabelSettings.SetLingoFont(_fontManager, value);
+                _LabelSettings.SetAbstFont(_fontManager, value);
                 UpdateSize();
                 
             }
@@ -260,7 +260,7 @@ namespace LingoEngine.LGodot.Texts
                     usedNode.SetName(lingoInstance.Name);
             }
         }
-        public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
+        public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         {
             int w = Width > 0 ? Width : (int)Size.X;
             int h = Height > 0 ? Height : (int)Size.Y;
@@ -289,7 +289,7 @@ namespace LingoEngine.LGodot.Texts
             var img = viewport.GetTexture().GetImage();
             viewport.Dispose();
             var tex = ImageTexture.CreateFromImage(img);
-            _texture =  new LingoGodotTexture2D(tex);
+            _texture =  new AbstGodotTexture2D(tex);
             return _texture;
         }
         
@@ -327,7 +327,7 @@ namespace LingoEngine.LGodot.Texts
 
         private void UpdateSize()
         {
-            Size = _defaultTextNode != null? _defaultTextNode.LabelNode.GetCombinedMinimumSize().ToLingoPoint() : (_LabelSettings.Font ?? _fontManager.GetDefaultFont<Font>()).GetMultilineStringSize(Text).ToLingoPoint();
+            Size = _defaultTextNode != null? _defaultTextNode.LabelNode.GetCombinedMinimumSize().ToAbstPoint() : (_LabelSettings.Font ?? _fontManager.GetDefaultFont<Font>()).GetMultilineStringSize(Text).ToAbstPoint();
             _lingoMemberText.Width = (int)Size.X;
             _lingoMemberText.Height = (int)Size.Y;
         }

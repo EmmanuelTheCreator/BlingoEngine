@@ -13,22 +13,22 @@ namespace LingoEngine.Director.Core.Stages;
 
 public class StageIconBar : IDisposable
 {
-    private readonly AbstUIGfxButton _rewindButton;
-    private readonly AbstUIGfxButton _playButton;
-    private readonly AbstUIGfxButton _prevFrameButton;
-    private readonly AbstUIGfxButton _nextFrameButton;
-    private readonly AbstUIGfxInputSlider<float> _zoomSlider;
-    private readonly AbstUIGfxInputCombobox _zoomDropdown;
-    private readonly AbstUIGfxPanel _colorDisplay;
-    private readonly AbstUIGfxColorPicker _colorPicker;
-    private readonly AbstUIGfxStateButton _recordButton;
+    private readonly AbstButton _rewindButton;
+    private readonly AbstButton _playButton;
+    private readonly AbstButton _prevFrameButton;
+    private readonly AbstButton _nextFrameButton;
+    private readonly AbstInputSlider<float> _zoomSlider;
+    private readonly AbstInputCombobox _zoomDropdown;
+    private readonly AbstPanel _colorDisplay;
+    private readonly AbstColorPicker _colorPicker;
+    private readonly AbstStateButton _recordButton;
     private readonly ILingoPlayer _player;
     private readonly IDirStageManager _stageManager;
     private LingoMovie? _movie;
     private readonly IDirectorEventSubscription _stageChangedSub;
     private bool _updatingZoom;
 
-    public AbstUIGfxPanel Panel { get; }
+    public AbstPanel Panel { get; }
 
     public event Action<float>? ZoomChanged;
     public event Action<AColor>? ColorChanged;

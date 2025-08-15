@@ -32,7 +32,7 @@ namespace LingoEngine.LGodot.Sprites
         private LingoFilmLoopPlayer? _filmloopPlayer;
         private CanvasItemMaterial _material = new();
         private int _ink;
-        private LingoGodotTexture2D? _texture;
+        private AbstGodotTexture2D? _texture;
         internal LingoSprite2D LingoSprite => _lingoSprite2D;
         internal Node? ChildMemberNode => _previousChildElementNode;
         internal bool IsDirty { get; set; } = true;
@@ -373,14 +373,14 @@ namespace LingoEngine.LGodot.Sprites
 
             if (InkPreRenderer.CanHandle(_lingoSprite2D.InkType))
             {
-                var texture1 = godotPicture.GetTextureForInk(_lingoSprite2D.InkType, _lingoSprite2D.BackColor) as LingoGodotTexture2D;
+                var texture1 = godotPicture.GetTextureForInk(_lingoSprite2D.InkType, _lingoSprite2D.BackColor) as AbstGodotTexture2D;
                 if (texture1 != null)
                     TextureHasChanged(texture1);
             }
             else
-                TextureHasChanged((LingoGodotTexture2D)godotPicture.TextureLingo);
+                TextureHasChanged((AbstGodotTexture2D)godotPicture.TextureLingo);
         }
-        private void TextureHasChanged(LingoGodotTexture2D tex)
+        private void TextureHasChanged(AbstGodotTexture2D tex)
         {
             if (tex.Texture == _Sprite2D.Texture) return;
             if (tex.IsDisposed)
@@ -397,9 +397,9 @@ namespace LingoEngine.LGodot.Sprites
                 Height = tex.Height;
             }
         }
-        public void SetTexture(IAbstUITexture2D texture)
+        public void SetTexture(IAbstTexture2D texture)
         {
-            TextureHasChanged((LingoGodotTexture2D)texture);
+            TextureHasChanged((AbstGodotTexture2D)texture);
         }
         private void UpdateMemberFilmLoop(LingoGodotFilmLoopMember filmLoop)
         {
@@ -412,7 +412,7 @@ namespace LingoEngine.LGodot.Sprites
             _Sprite2D.Offset = new Vector2(Width/2f - offset.X , Height / 2f- offset.Y);
             _filmloopPlayer = _lingoSprite2D.GetFilmLoopPlayer();
             if (_filmloopPlayer == null) return;
-            if (_filmloopPlayer.Texture is not LingoGodotTexture2D tex)
+            if (_filmloopPlayer.Texture is not AbstGodotTexture2D tex)
                 return;
             TextureHasChanged(tex); 
         }

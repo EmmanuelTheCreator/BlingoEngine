@@ -11,9 +11,9 @@ namespace LingoEngine.Director.Core.Stages;
 /// </summary>
 public class StageMotionPathOverlay : IDisposable
 {
-    private readonly AbstUIGfxCanvas _canvas;
+    private readonly AbstGfxCanvas _canvas;
 
-    public AbstUIGfxCanvas Canvas => _canvas;
+    public AbstGfxCanvas Canvas => _canvas;
 
     public bool Visible { get => _canvas.Visibility; set => _canvas.Visibility = value; }
 

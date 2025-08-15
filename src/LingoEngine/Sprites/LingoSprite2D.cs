@@ -788,12 +788,12 @@ When a movie stops, events occur in the following order:
             return action;
         }
 
-        public void UpdateTexture(IAbstUITexture2D texture)
+        public void UpdateTexture(IAbstTexture2D texture)
         {
             _frameworkSprite.SetTexture(texture);
         }
 
-        public void FWTextureHasChanged(IAbstUITexture2D? texture2D, bool useSubscription = true)
+        public void FWTextureHasChanged(IAbstTexture2D? texture2D, bool useSubscription = true)
         {
             if (useSubscription)
 

@@ -9,9 +9,9 @@ using Microsoft.Extensions.Logging;
 namespace LingoEngine.Director.LGodot.Icons
 {
 
-    public class LingoIconSheetGodot : LingoIconSheet<LingoGodotTexture2D>
+    public class LingoIconSheetGodot : LingoIconSheet<AbstGodotTexture2D>
     {
-        public LingoIconSheetGodot(LingoGodotTexture2D image, int iconWidth, int iconHeight, int horizontalSpacing, int iconCount) : base(image, iconWidth, iconHeight, horizontalSpacing, iconCount)
+        public LingoIconSheetGodot(AbstGodotTexture2D image, int iconWidth, int iconHeight, int horizontalSpacing, int iconCount) : base(image, iconWidth, iconHeight, horizontalSpacing, iconCount)
         {
         }
     }
@@ -35,10 +35,10 @@ namespace LingoEngine.Director.LGodot.Icons
                 _logger.LogWarning($"Failed to load texture: {path}");
                 return null;
             }
-            var lingoTexture = new LingoGodotTexture2D(texture);
+            var lingoTexture = new AbstGodotTexture2D(texture);
             return new LingoIconSheetGodot(lingoTexture,iconWidth,iconHeight,horizontalSpacing, itemCount);
         }
-        protected override IAbstUITexture2D? OnGetTextureImage(LingoIconSheetGodot sheet, int x)
+        protected override IAbstTexture2D? OnGetTextureImage(LingoIconSheetGodot sheet, int x)
         {
             var texture = sheet.Image.Texture;
             var image = texture.GetImage();
@@ -47,7 +47,7 @@ namespace LingoEngine.Director.LGodot.Icons
             // Copy the icon region from the sprite sheet
             sub.BlitRect(image, new Rect2I(x, 0, sheet.IconWidth, sheet.IconHeight), Vector2I.Zero);
             var tex = ImageTexture.CreateFromImage(sub);
-            var lingoTexture = new LingoGodotTexture2D(tex);
+            var lingoTexture = new AbstGodotTexture2D(tex);
             return lingoTexture;
         }
     }

@@ -5,11 +5,11 @@ using AbstUI.SDL2.SDLL;
 
 namespace LingoEngine.SDL2.Stages;
 
-internal class SdlDebugOverlay : ILingoFrameworkDebugOverlay, ILingoSDLComponent
+internal class SdlDebugOverlay : ILingoFrameworkDebugOverlay, IAbstSDLComponent
 {
     private nint _font;
     private SDL.SDL_Color _white;
-    public LingoSDLComponentContext ComponentContext { get; }
+    public AbstSDLComponentContext ComponentContext { get; }
 
     public SdlDebugOverlay(LingoSdlFactory factory)
     {
@@ -66,7 +66,7 @@ internal class SdlDebugOverlay : ILingoFrameworkDebugOverlay, ILingoSDLComponent
 
     public void End() { }
 
-    public LingoSDLRenderResult Render(LingoSDLRenderContext context)
+    public AbstSDLRenderResult Render(AbstSDLRenderContext context)
     {
         // renderer can change, so update if needed
         ComponentContext.Renderer = context.Renderer;

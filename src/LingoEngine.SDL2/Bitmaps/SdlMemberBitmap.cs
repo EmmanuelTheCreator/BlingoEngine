@@ -29,7 +29,7 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
     public SDL.SDL_Surface TextureSDL => _surfacePtr;
     internal nint Surface => _surface;
 
-    public IAbstUITexture2D? TextureLingo => _texture;
+    public IAbstTexture2D? TextureLingo => _texture;
 
     public SdlMemberBitmap(ISdlRootComponentContext sdlRootContext)
     {
@@ -90,10 +90,10 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
 
     public void ImportFileInto() { }
 
-    public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
+    public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         => GetTextureForInk(ink, transparentColor, _sdlRootContext.Renderer);
 
-    public IAbstUITexture2D? GetTextureForInk(LingoInkType ink, AColor backColor, nint renderer)
+    public IAbstTexture2D? GetTextureForInk(LingoInkType ink, AColor backColor, nint renderer)
     {
         if (!InkPreRenderer.CanHandle(ink) || _surface == nint.Zero)
             return null;

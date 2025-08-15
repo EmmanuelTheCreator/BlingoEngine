@@ -14,22 +14,22 @@ namespace LingoEngine.Director.Core.UI
     public static class GfxPanelExtensions
     {
        
-        public static GfxPanelBuilder Compose(this AbstUIGfxPanel panel, ILingoFrameworkFactory factory)
+        public static GfxPanelBuilder Compose(this AbstPanel panel, ILingoFrameworkFactory factory)
         {
             var builder = new GfxPanelBuilder(panel, factory);
             return builder;
         }
 
-        public static AbstUIGfxCanvas SetGfxCanvasAt(this AbstUIGfxPanel container, string name, float x, float y, int width, int height)
+        public static AbstGfxCanvas SetGfxCanvasAt(this AbstPanel container, string name, float x, float y, int width, int height)
         {
             var canvas = container.Factory.CreateGfxCanvas(name, width, height);
             container.AddItem(canvas, x, y);
             return canvas;
         }
 
-        public static AbstUIGfxLabel SetLabelAt(this AbstUIGfxPanel container, string name, float x, float y, string? text = null, int fontSize = 11, int? labelWidth = null, AbstTextAlignment lingoTextAlignment = AbstTextAlignment.Left)
+        public static AbstLabel SetLabelAt(this AbstPanel container, string name, float x, float y, string? text = null, int fontSize = 11, int? labelWidth = null, AbstTextAlignment lingoTextAlignment = AbstTextAlignment.Left)
         {
-            AbstUIGfxLabel lbl = container.Factory.CreateLabel(name,text ??"");
+            AbstLabel lbl = container.Factory.CreateLabel(name,text ??"");
             lbl.FontColor = DirectorColors.TextColorLabels;
             lbl.FontSize = fontSize;
             if(labelWidth.HasValue)
@@ -38,7 +38,7 @@ namespace LingoEngine.Director.Core.UI
             container.AddItem(lbl, x, y);
             return lbl;
         }
-        public static AbstUIGfxInputText SetInputTextAt<T>(this AbstUIGfxPanel container, T element, string name, float x, float y, int width, Expression<Func<T,string?>> property, int maxLength = 0)
+        public static AbstInputText SetInputTextAt<T>(this AbstPanel container, T element, string name, float x, float y, int width, Expression<Func<T,string?>> property, int maxLength = 0)
         {
             Action<T, string?> setter = property.CompileSetter();
             var control = container.Factory.CreateInputText(name, maxLength,x => setter(element,x));
@@ -47,7 +47,7 @@ namespace LingoEngine.Director.Core.UI
             container.AddItem(control, x, y);
             return control;
         }
-        public static AbstUIGfxInputNumber<float> SetInputNumberAt<T>(this AbstUIGfxPanel container, T element, string name, float x, float y, int width, Expression<Func<T,float>> property, float? min = null, float? max = null)
+        public static AbstInputNumber<float> SetInputNumberAt<T>(this AbstPanel container, T element, string name, float x, float y, int width, Expression<Func<T,float>> property, float? min = null, float? max = null)
         {
             Action<T, float> setter = property.CompileSetter();
             var control = container.Factory.CreateInputNumberFloat(name, min, max, x => setter(element, x));
@@ -56,7 +56,7 @@ namespace LingoEngine.Director.Core.UI
             container.AddItem(control, x, y);
             return control;
         }
-        public static AbstUIGfxInputNumber<int> SetInputNumberAt<T>(this AbstUIGfxPanel container, T element, string name, float x, float y, int width, Expression<Func<T,int>> property, int? min = null, int? max = null)
+        public static AbstInputNumber<int> SetInputNumberAt<T>(this AbstPanel container, T element, string name, float x, float y, int width, Expression<Func<T,int>> property, int? min = null, int? max = null)
         {
             Action<T, int> setter = property.CompileSetter();
             var control = container.Factory.CreateInputNumberInt(name, min, max, x => setter(element, x));
@@ -65,15 +65,15 @@ namespace LingoEngine.Director.Core.UI
             container.AddItem(control, x, y);
             return control;
         }
-        public static AbstUIGfxInputCheckbox SetCheckboxAt<T>(this AbstUIGfxPanel container, T element, string name, float x, float y, Expression<Func<T,bool>> property)
+        public static AbstInputCheckbox SetCheckboxAt<T>(this AbstPanel container, T element, string name, float x, float y, Expression<Func<T,bool>> property)
         {
             Action<T, bool> setter = property.CompileSetter();
-            AbstUIGfxInputCheckbox control = container.Factory.CreateInputCheckbox(name,x => setter(element, x));
+            AbstInputCheckbox control = container.Factory.CreateInputCheckbox(name,x => setter(element, x));
             control.Checked = property.CompileGetter()(element);
             container.AddItem(control, x, y);
             return control;
         } 
-        public static AbstUIGfxInputCombobox SetComboBoxAt(this AbstUIGfxPanel container, IEnumerable<KeyValuePair<string, string>> items, string name, float x, float y, int width = 100, string? selectedKey = null, Action<string?>? onChange = null)
+        public static AbstInputCombobox SetComboBoxAt(this AbstPanel container, IEnumerable<KeyValuePair<string, string>> items, string name, float x, float y, int width = 100, string? selectedKey = null, Action<string?>? onChange = null)
         {
             var list = container.Factory.CreateInputCombobox(name, onChange);
             foreach (var item in items)
@@ -84,7 +84,7 @@ namespace LingoEngine.Director.Core.UI
             container.AddItem(list, x, y);
             return list;
         }
-        public static AbstUIGfxItemList SetInputListAt(this AbstUIGfxPanel container, IEnumerable<KeyValuePair<string, string>> items, string name, float x, float y, int width = 100, string? selectedKey = null, Action<string?>? onChange = null)
+        public static AbstItemList SetInputListAt(this AbstPanel container, IEnumerable<KeyValuePair<string, string>> items, string name, float x, float y, int width = 100, string? selectedKey = null, Action<string?>? onChange = null)
         {
             var list = container.Factory.CreateItemList(name, onChange);
             foreach (var item in items)
@@ -96,15 +96,15 @@ namespace LingoEngine.Director.Core.UI
             return list;
         }
 
-        public static (AbstUIGfxButton Button, IAbstUIGfxLayoutNode Layout) SetButtonAt(this AbstUIGfxPanel container, string name, string text, float x, float y, Action onClick, int width = 80)
+        public static (AbstButton Button, IAbstLayoutNode Layout) SetButtonAt(this AbstPanel container, string name, string text, float x, float y, Action onClick, int width = 80)
         {
             var control = container.Factory.CreateButton(name, text);
             control.Width = width;
             control.Pressed += onClick;
-            IAbstUIGfxLayoutNode layout = (IAbstUIGfxLayoutNode)container.AddItem(control, x, y);
+            IAbstLayoutNode layout = (IAbstLayoutNode)container.AddItem(control, x, y);
             return (control, layout);
         }
-        public static AbstUIGfxInputSlider<float> SetSliderAt<T>(this AbstUIGfxPanel container, T element, string name, float x, float y, int width, AOrientation orientation, Expression<Func<T, float>> property, float? min = null, float? max = null, float? step = null)
+        public static AbstInputSlider<float> SetSliderAt<T>(this AbstPanel container, T element, string name, float x, float y, int width, AOrientation orientation, Expression<Func<T, float>> property, float? min = null, float? max = null, float? step = null)
         {
             Action<T, float> setter = property.CompileSetter();
             var slider = container.Factory.CreateInputSliderFloat(orientation, name, min, max, step, v => setter(element, v));
@@ -114,7 +114,7 @@ namespace LingoEngine.Director.Core.UI
             return slider;
         }
 
-        public static AbstUIGfxInputSlider<int> SetSliderAt<T>(this AbstUIGfxPanel container, T element, string name, float x, float y, int width, AOrientation orientation, Expression<Func<T, int>> property, int? min = null, int? max = null, int? step = null)
+        public static AbstInputSlider<int> SetSliderAt<T>(this AbstPanel container, T element, string name, float x, float y, int width, AOrientation orientation, Expression<Func<T, int>> property, int? min = null, int? max = null, int? step = null)
         {
             Action<T, int> setter = property.CompileSetter();
             var slider = container.Factory.CreateInputSliderInt(orientation, name, min, max, step, v => setter(element, v));
@@ -123,15 +123,15 @@ namespace LingoEngine.Director.Core.UI
             container.AddItem(slider, x, y);
             return slider;
         }
-        public static AbstUIGfxStateButton SetStateButtonAt<T>(this AbstUIGfxPanel container, T element, string name, float x, float y, Expression<Func<T,bool>> property, IAbstUITexture2D? texture = null, string? label = null)
+        public static AbstStateButton SetStateButtonAt<T>(this AbstPanel container, T element, string name, float x, float y, Expression<Func<T,bool>> property, IAbstTexture2D? texture = null, string? label = null)
         {
             Action<T, bool> setter = property.CompileSetter();
-            AbstUIGfxStateButton control = container.Factory.CreateStateButton(name, texture, label ??"", onChange: val => setter(element, val));
+            AbstStateButton control = container.Factory.CreateStateButton(name, texture, label ??"", onChange: val => setter(element, val));
             control.IsOn = property.CompileGetter()(element);
             container.AddItem(control, x, y);
             return control;
         }
-        public static AbstUIGfxCanvas AddVLine(this AbstUIGfxPanel container, string name, float x, float y, float height)
+        public static AbstGfxCanvas AddVLine(this AbstPanel container, string name, float x, float y, float height)
         {
             var paintPanel = container.Factory.CreateGfxCanvas(name, 2, (int)height);
             paintPanel.DrawLine(new APoint(0, 0), new APoint(0, height), DirectorColors.LineLight, 1);
@@ -139,7 +139,7 @@ namespace LingoEngine.Director.Core.UI
             container.AddItem(paintPanel, x, y);
             return paintPanel;
         } 
-        public static AbstUIGfxCanvas AddHLine(this AbstUIGfxPanel container, string name, float x, float y, float width)
+        public static AbstGfxCanvas AddHLine(this AbstPanel container, string name, float x, float y, float width)
         {
             var paintPanel = container.Factory.CreateGfxCanvas(name, (int)width, 2);
             paintPanel.DrawLine(new APoint(0, 0), new APoint(width, 0), DirectorColors.LineLight, 1);
@@ -147,7 +147,7 @@ namespace LingoEngine.Director.Core.UI
             container.AddItem(paintPanel, x, y);
             return paintPanel;
         }
-        public static void AddPopupButtons(this AbstUIGfxPanel container, Action okAction, Action onClose)
+        public static void AddPopupButtons(this AbstPanel container, Action okAction, Action onClose)
         {
             container.AddVLine("VLineBtns", container.Width - 100, 10, container.Height - 10 - 10);
 

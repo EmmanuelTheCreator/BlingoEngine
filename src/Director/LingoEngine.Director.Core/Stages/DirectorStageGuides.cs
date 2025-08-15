@@ -11,7 +11,7 @@ namespace LingoEngine.Director.Core.Stages;
 /// </summary>
 public class DirectorStageGuides
 {
-    private readonly AbstUIGfxCanvas _canvas;
+    private readonly AbstGfxCanvas _canvas;
 
     public IList<float> VerticalGuides { get; } = new List<float>();
     public IList<float> HorizontalGuides { get; } = new List<float>();
@@ -36,7 +36,7 @@ public class DirectorStageGuides
     private float _gridHeight = 32;
     public float GridHeight { get => _gridHeight; set { _gridHeight = value; Draw(); } }
 
-    public AbstUIGfxCanvas Canvas => _canvas;
+    public AbstGfxCanvas Canvas => _canvas;
 
     public DirectorStageGuides(ILingoFrameworkFactory factory)
     {

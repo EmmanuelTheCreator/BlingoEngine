@@ -25,7 +25,7 @@ public class UnityMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
 
     internal Texture2D? TextureUnity => _texture;
 
-    public IAbstUITexture2D? TextureLingo => _textureWrapper;
+    public IAbstTexture2D? TextureLingo => _textureWrapper;
 
     internal void Init(LingoMemberBitmap member)
     {
@@ -94,7 +94,7 @@ public class UnityMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
 
     public void Dispose() => Unload();
 
-    public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
+    public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
     {
         throw new NotImplementedException();
     }

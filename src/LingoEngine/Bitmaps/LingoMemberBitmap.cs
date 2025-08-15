@@ -38,7 +38,7 @@ namespace LingoEngine.Bitmaps
         /// </summary>
         public string Format => _lingoFrameworkMemberPicture.Format;
 
-        public IAbstUITexture2D? TextureLingo => _lingoFrameworkMemberPicture.TextureLingo;
+        public IAbstTexture2D? TextureLingo => _lingoFrameworkMemberPicture.TextureLingo;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LingoMemberBitmap"/> class.
@@ -100,7 +100,7 @@ namespace LingoEngine.Bitmaps
 
         public void SetImageData(byte[] bytes) => _lingoFrameworkMemberPicture.SetImageData(bytes);
 
-        public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
+        public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
             => _lingoFrameworkMemberPicture.RenderToTexture(ink, transparentColor);
     }
 

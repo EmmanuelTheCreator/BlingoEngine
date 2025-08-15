@@ -105,9 +105,9 @@ namespace LingoEngine.Director.LGodot
             // todo : fix this
             useGuiInput = false;
         }
-        public new APoint GetPosition() => Position.ToLingoPoint();
+        public new APoint GetPosition() => Position.ToAbstPoint();
 
-        public new APoint GetSize() => Size.ToLingoPoint();
+        public new APoint GetSize() => Size.ToAbstPoint();
         public override void _Input(InputEvent @event)
         {
             base._Input(@event);

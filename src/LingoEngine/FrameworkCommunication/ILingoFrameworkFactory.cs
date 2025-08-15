@@ -69,89 +69,89 @@ namespace LingoEngine.FrameworkCommunication
         /// <summary>
         /// Creates a generic drawing canvas instance.
         /// </summary>
-        AbstUIGfxCanvas CreateGfxCanvas(string name, int width, int height);
+        AbstGfxCanvas CreateGfxCanvas(string name, int width, int height);
 
         /// <summary>
         /// Creates a wrapping panel container.
         /// </summary>
-        AbstUIGfxWrapPanel CreateWrapPanel(AOrientation orientation, string name);
+        AbstWrapPanel CreateWrapPanel(AOrientation orientation, string name);
 
         /// <summary>
         /// Creates a simple panel container for absolute positioning.
         /// </summary>
-        AbstUIGfxPanel CreatePanel(string name);
-        AbstUIGfxLayoutWrapper CreateLayoutWrapper(IAbstUIGfxNode content, float? x, float? y);
+        AbstPanel CreatePanel(string name);
+        AbstLayoutWrapper CreateLayoutWrapper(IAbstNode content, float? x, float? y);
 
         /// <summary>
         /// Creates a tab container for organizing child panels.
         /// </summary>
-        AbstUIGfxTabContainer CreateTabContainer(string name);
-        AbstUIGfxTabItem CreateTabItem(string name, string title);
+        AbstTabContainer CreateTabContainer(string name);
+        AbstTabItem CreateTabItem(string name, string title);
 
         /// <summary>Creates a scroll container.</summary>
-        AbstUIGfxScrollContainer CreateScrollContainer(string name);
+        AbstScrollContainer CreateScrollContainer(string name);
 
         /// <summary>Creates a slider input control for floating point values.</summary>
-        AbstUIGfxInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null);
+        AbstInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null);
         /// <summary>Creates a slider input control for integer values.</summary>
-        AbstUIGfxInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null);
+        AbstInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null);
 
         /// <summary>Creates a single line text input.</summary>
-        AbstUIGfxInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null);
+        AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null);
 
         /// <summary>Creates a numeric input field.</summary>
-        AbstUIGfxInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null);
+        AbstInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null);
         /// <summary>Creates a numeric input field.</summary>
-        AbstUIGfxInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null);
+        AbstInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null);
 
         /// <summary>Creates a spin box input.</summary>
-        AbstUIGfxSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null);
+        AbstInputSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null);
 
         /// <summary>Creates a checkbox input.</summary>
-        AbstUIGfxInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null);
+        AbstInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null);
 
         /// <summary>Creates a combo box input.</summary>
-        AbstUIGfxInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null);
+        AbstInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null);
 
         /// <summary>Creates a list widget.</summary>
-        AbstUIGfxItemList CreateItemList(string name, Action<string?>? onChange = null);
+        AbstItemList CreateItemList(string name, Action<string?>? onChange = null);
 
         /// <summary>Creates a color picker input.</summary>
 
 /* Unmerged change from project 'LingoEngine (net8.0)'
 Before:
-        AbstUIGfxColorPicker CreateColorPicker(string name, Action<Primitives.LingoColor>? onChange = null);
+        AbstGfxColorPicker CreateColorPicker(string name, Action<Primitives.LingoColor>? onChange = null);
 After:
-        AbstUIGfxColorPicker CreateColorPicker(string name, Action<LingoColor>? onChange = null);
+        AbstGfxColorPicker CreateColorPicker(string name, Action<LingoColor>? onChange = null);
 */
-        AbstUIGfxColorPicker CreateColorPicker(string name, Action<AbstUI.Primitives.AColor>? onChange = null);
+        AbstColorPicker CreateColorPicker(string name, Action<AbstUI.Primitives.AColor>? onChange = null);
 
         /// <summary>Creates a simple text label.</summary>
-        AbstUIGfxLabel CreateLabel(string name, string text = "");
+        AbstLabel CreateLabel(string name, string text = "");
 
         /// <summary>Creates a clickable button.</summary>
-        AbstUIGfxButton CreateButton(string name, string text = "");
+        AbstButton CreateButton(string name, string text = "");
 
         /// <summary>Creates a toggle state button.</summary>
-        AbstUIGfxStateButton CreateStateButton(string name, IAbstUITexture2D? texture = null, string text = "", Action<bool>? onChange = null);
+        AbstStateButton CreateStateButton(string name, IAbstTexture2D? texture = null, string text = "", Action<bool>? onChange = null);
 
         /// <summary>Creates a menu container.</summary>
-        AbstUIGfxMenu CreateMenu(string name);
+        AbstMenu CreateMenu(string name);
 
         /// <summary>Creates a menu item.</summary>
-        AbstUIGfxMenuItem CreateMenuItem(string name, string? shortcut = null);
+        AbstMenuItem CreateMenuItem(string name, string? shortcut = null);
 
         /// <summary>Creates a context menu bound to the given window.</summary>
-        AbstUIGfxMenu CreateContextMenu(object window);
+        AbstMenu CreateContextMenu(object window);
 
         /// <summary>Creates a horizontal line separator.</summary>
-        AbstUIGfxHorizontalLineSeparator CreateHorizontalLineSeparator(string name);
+        AbstHorizontalLineSeparator CreateHorizontalLineSeparator(string name);
 
         /// <summary>Creates a vertical line separator.</summary>
-        AbstUIGfxVerticalLineSeparator CreateVerticalLineSeparator(string name);
+        AbstVerticalLineSeparator CreateVerticalLineSeparator(string name);
 
         /// <summary>Creates a window container.</summary>
-        AbstUIGfxWindow CreateWindow(string name, string title = "");
+        AbstWindow CreateWindow(string name, string title = "");
 
         #endregion
 

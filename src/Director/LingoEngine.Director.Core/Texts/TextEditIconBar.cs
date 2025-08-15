@@ -16,20 +16,20 @@ namespace LingoEngine.Director.Core.Texts;
 /// </summary>
 public class TextEditIconBar
 {
-    private readonly AbstUIGfxStateButton _alignLeft;
-    private readonly AbstUIGfxStateButton _alignCenter;
-    private readonly AbstUIGfxStateButton _alignRight;
-    private readonly AbstUIGfxStateButton _alignJustified;
-    private readonly AbstUIGfxStateButton _boldButton;
-    private readonly AbstUIGfxStateButton _italicButton;
-    private readonly AbstUIGfxStateButton _underlineButton;
-    private readonly AbstUIGfxPanel _colorDisplay;
-    private readonly AbstUIGfxColorPicker _colorPicker;
-    private readonly AbstUIGfxSpinBox _fontSize;
-    private readonly AbstUIGfxInputCombobox _fontsCombo;
+    private readonly AbstStateButton _alignLeft;
+    private readonly AbstStateButton _alignCenter;
+    private readonly AbstStateButton _alignRight;
+    private readonly AbstStateButton _alignJustified;
+    private readonly AbstStateButton _boldButton;
+    private readonly AbstStateButton _italicButton;
+    private readonly AbstStateButton _underlineButton;
+    private readonly AbstPanel _colorDisplay;
+    private readonly AbstColorPicker _colorPicker;
+    private readonly AbstInputSpinBox _fontSize;
+    private readonly AbstInputCombobox _fontsCombo;
 
     /// <summary>Container panel holding the toolbar items.</summary>
-    public AbstUIGfxPanel Panel { get; }
+    public AbstPanel Panel { get; }
 
     /// <summary>Raised when the text alignment changes.</summary>
     public event Action<AbstTextAlignment>? AlignmentChanged;

@@ -26,14 +26,14 @@ public class SdlRootContext : AbstUISdlRootContext<LingoMouse> , ISdlRootCompone
 
     public SdlRootContext(nint window, nint renderer) : base(window, renderer)
     {
-        _sdlMouse = new LingoSdlMouse(new Lazy<AbstMouse<LingoMouseEvent>>(() => (LingoMouse)LingoMouse));
+        _sdlMouse = new LingoSdlMouse(new Lazy<AbstMouse<LingoMouseEvent>>(() => (LingoMouse)AbstMouse));
         Mouse = _sdlMouse;
-        LingoMouse = new LingoMouse(_sdlMouse);
+        AbstMouse = new LingoMouse(_sdlMouse);
         _imgui.Init(Window, Renderer);
 
         Key = new LingoSdlKey();
         var lingoKey = new LingoKey(Key);
-        LingoKey = lingoKey;
+        AbstKey = lingoKey;
         Key.SetKeyObj(lingoKey);
     }
     public void Init(ILingoPlayer player)

@@ -1,7 +1,7 @@
 ﻿namespace AbstUI.Primitives
 {
     /// <summary>
-    /// Represents standard Lingo-compatible mouse cursor types.
+    /// Represents standard mouse cursor types.
     /// </summary>
     public enum AMouseCursor
     {

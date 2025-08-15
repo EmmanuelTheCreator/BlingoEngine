@@ -1,8 +1,8 @@
+using AbstUI.LGodot.Components;
 using Godot;
 using LingoEngine.Director.Core.Projects;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.LGodot.Windowing;
-using LingoEngine.LGodot.Gfx;
 
 namespace LingoEngine.Director.LGodot.Projects;
 
@@ -20,7 +20,7 @@ internal partial class DirGodotProjectSettingsWindow : BaseGodotWindow, IDirFram
         Size = new Vector2(directorWindow.Width, directorWindow.Height);
         CustomMinimumSize = Size;
 
-        var root = directorWindow.RootPanel.Framework<LingoGodotWrapPanel>();
+        var root = directorWindow.RootPanel.Framework<AbstGodotWrapPanel>();
         root.Position = new Vector2(5, TitleBarHeight + 5);
         AddChild(root);
     }

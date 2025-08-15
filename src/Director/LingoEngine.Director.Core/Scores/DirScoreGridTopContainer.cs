@@ -25,7 +25,7 @@ namespace LingoEngine.Director.Core.Scores
         }
 
 
-        public DirScoreGridTopContainer(IDirScoreManager scoreManager, ILingoColorPaletteDefinitions paletteDefinitions, Func<string, IAbstUIFrameworkGfxPanel, Windowing.IDirectorWindowDialogReference?> showConfirmDialog)
+        public DirScoreGridTopContainer(IDirScoreManager scoreManager, ILingoColorPaletteDefinitions paletteDefinitions, Func<string, IAbstFrameworkPanel, Windowing.IDirectorWindowDialogReference?> showConfirmDialog)
             :base(scoreManager, 6, showConfirmDialog) 
         {
             SetChannels(

@@ -14,15 +14,15 @@ namespace LingoEngine.Director.Core.Scores
         protected readonly DirScoreGfxValues _gfxValues;
         protected APoint _position;
         private readonly IDirectorEventMediator _mediator;
-        protected readonly AbstUIGfxCanvas _canvas;
+        protected readonly AbstGfxCanvas _canvas;
         private readonly IDirectorEventSubscription _mediatorSub;
         protected DirScoreChannelHeader[] _channels = [];
         
         public int Width { get; protected set; }
         public int Height { get; protected set; }
 
-        public IAbstUIFrameworkGfxNode FrameworkGfxNode => _canvas.FrameworkObj;
-        public AbstUIGfxCanvas Canvas => _canvas;
+        public IAbstFrameworkNode FrameworkGfxNode => _canvas.FrameworkObj;
+        public AbstGfxCanvas Canvas => _canvas;
 
         public DirScoreLeftContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, APoint position, int initialChannelCount, IDirectorEventMediator mediator)
         {

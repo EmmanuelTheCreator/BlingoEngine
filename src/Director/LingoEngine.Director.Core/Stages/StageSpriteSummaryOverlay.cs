@@ -18,15 +18,15 @@ namespace LingoEngine.Director.Core.Stages;
 /// </summary>
 public class StageSpriteSummaryOverlay : IHasSpriteSelectedEvent, IDisposable
 {
-    private readonly AbstUIGfxCanvas _canvas;
+    private readonly AbstGfxCanvas _canvas;
     private readonly IDirectorEventMediator _mediator;
     private readonly IDirectorIconManager _iconManager;
-    private readonly IAbstUITexture2D _infoIcon;
-    private readonly IAbstUITexture2D _behaviorIcon;
+    private readonly IAbstTexture2D _infoIcon;
+    private readonly IAbstTexture2D _behaviorIcon;
     private readonly IAbstUITextureUserSubscription _infoIconSubscription;
     private readonly IAbstUITextureUserSubscription _behaviorIconSubscription;
 
-    public AbstUIGfxCanvas Canvas => _canvas;
+    public AbstGfxCanvas Canvas => _canvas;
 
     public bool Visible { get => Canvas.Visibility; set => Canvas.Visibility = value; }
 

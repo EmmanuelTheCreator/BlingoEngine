@@ -15,13 +15,13 @@ namespace LingoEngine.LGodot.Bitmaps
     public class LingoGodotMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
     {
         private LingoMemberBitmap _lingoMemberPicture;
-        private LingoGodotTexture2D? _texture;
+        private AbstGodotTexture2D? _texture;
         private Image? _image;
         private readonly ILogger _logger;
-        private readonly Dictionary<LingoInkType, LingoGodotTexture2D> _inkCache = new();
+        private readonly Dictionary<LingoInkType, AbstGodotTexture2D> _inkCache = new();
 
-        public LingoGodotTexture2D? TextureImage => _texture;
-        public IAbstUITexture2D? TextureLingo
+        public AbstGodotTexture2D? TextureImage => _texture;
+        public IAbstTexture2D? TextureLingo
         {
             get
             {
@@ -149,7 +149,7 @@ namespace LingoEngine.LGodot.Bitmaps
             _image = image;
             var imageTexture = ImageTexture.CreateFromImage(_image);
             if (imageTexture == null) return;
-            _texture = new LingoGodotTexture2D(imageTexture);
+            _texture = new AbstGodotTexture2D(imageTexture);
 
             UpdateImageData(_image);
         }
@@ -169,12 +169,12 @@ namespace LingoEngine.LGodot.Bitmaps
 
             var imageTexture = ImageTexture.CreateFromImage(_image);
             UpdateImageData(_image); // Also updates width, height, and member size
-            _texture = new LingoGodotTexture2D(imageTexture);
+            _texture = new AbstGodotTexture2D(imageTexture);
             // Update the member's image data directly
             _lingoMemberPicture.SetImageData(_image.GetData());
         }
-        public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor) => GetTextureForInk(ink, transparentColor);
-        public IAbstUITexture2D? GetTextureForInk(LingoInkType ink, AColor backColor)
+        public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor) => GetTextureForInk(ink, transparentColor);
+        public IAbstTexture2D? GetTextureForInk(LingoInkType ink, AColor backColor)
         {
             if (!InkPreRenderer.CanHandle(ink) || _image == null)
                 return null;
@@ -190,7 +190,7 @@ namespace LingoEngine.LGodot.Bitmaps
             var data = InkPreRenderer.Apply(img.GetData(), ink, backColor);
             var newImg = Image.CreateFromData(img.GetWidth(), img.GetHeight(), false, Image.Format.Rgba8, data);
             var tex1 = ImageTexture.CreateFromImage(newImg);
-            var newTexture = new LingoGodotTexture2D(tex1);
+            var newTexture = new AbstGodotTexture2D(tex1);
             _texture = newTexture;
             newImg.Dispose();
             _inkCache[inkKey] = newTexture;

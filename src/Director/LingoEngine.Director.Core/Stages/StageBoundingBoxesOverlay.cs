@@ -16,7 +16,7 @@ namespace LingoEngine.Director.Core.Stages;
 /// </summary>
 public class StageBoundingBoxesOverlay : IHasSpriteSelectedEvent, ILingoMouseEventHandler, IDisposable
 {
-    private readonly AbstUIGfxCanvas _canvas;
+    private readonly AbstGfxCanvas _canvas;
     private readonly IDirectorEventMediator _mediator;
     private ILingoStageMouse _mouse;
     private ILingoKey _key;
@@ -25,7 +25,7 @@ public class StageBoundingBoxesOverlay : IHasSpriteSelectedEvent, ILingoMouseEve
 
     public bool Visible { get => _canvas.Visibility; set => _canvas.Visibility = value; }
 
-    public AbstUIGfxCanvas Canvas => _canvas;
+    public AbstGfxCanvas Canvas => _canvas;
 
     public StageBoundingBoxesOverlay(ILingoFrameworkFactory factory, IDirectorEventMediator mediator)
     {

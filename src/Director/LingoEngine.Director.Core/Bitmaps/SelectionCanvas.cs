@@ -8,8 +8,8 @@ namespace LingoEngine.Director.Core.Bitmaps;
 
 public class SelectionCanvas
 {
-    private readonly AbstUIGfxCanvas _canvas;
-    public AbstUIGfxCanvas Canvas => _canvas;
+    private readonly AbstGfxCanvas _canvas;
+    public AbstGfxCanvas Canvas => _canvas;
     public bool Visible { get => _canvas.Visibility; set => _canvas.Visibility = value; }
 
     public SelectionCanvas(ILingoFrameworkFactory factory)

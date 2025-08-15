@@ -9,17 +9,16 @@ using LingoEngine.Director.Core.Bitmaps;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.LGodot.Gfx;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Bitmaps;
 using LingoEngine.Director.Core.Bitmaps.Commands;
 using LingoEngine.Director.LGodot.Bitmaps;
-using System.Collections.Generic;
 using AbstUI.Primitives;
 using AbstUI.Inputs;
 using AbstUI.LGodot.Bitmaps;
 using AbstUI.LGodot.Primitives;
+using AbstUI.LGodot.Components;
 
 namespace LingoEngine.Director.LGodot.Pictures;
 
@@ -85,7 +84,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
         CustomMinimumSize = Size;
 
         _navBar = new MemberNavigationBar<LingoMemberBitmap>(_mediator, _player, _iconManager, factory, NavigationBarHeight);
-        AddChild(_navBar.Panel.Framework<LingoGodotWrapPanel>());
+        AddChild(_navBar.Panel.Framework<AbstGodotWrapPanel>());
         _navBar.Panel.X = 0;
         _navBar.Panel.Y = TitleBarHeight;
         _navBar.Panel.Width = Size.X;
@@ -96,7 +95,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
         _iconBar.Position = new Vector2(150, TitleBarHeight + NavigationBarHeight + 5);
         _iconBar.CustomMinimumSize = new Vector2(Size.X, IconBarHeight);
         _paintToolbar = new PaintToolbar(_iconManager, _commandManager, factory);
-        var toolbarPanel = _paintToolbar.Panel.Framework<LingoGodotPanel>();
+        var toolbarPanel = _paintToolbar.Panel.Framework<AbstGodotPanel>();
         AddChild(toolbarPanel);
         toolbarPanel.Position = new Vector2(0, TitleBarHeight + NavigationBarHeight + 5 + IconBarHeight);
 
@@ -207,7 +206,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
         _centerContainer.AddChild(_imageRect);
 
         _regPointCanvas = new RegPointCanvas(factory);
-        var regNode = _regPointCanvas.Canvas.Framework<LingoGodotGfxCanvas>();
+        var regNode = _regPointCanvas.Canvas.Framework<AbstGodotGfxCanvas>();
         regNode.AnchorLeft = 0.5f;
         regNode.AnchorTop = 0.5f;
         regNode.AnchorRight = 0.5f;
@@ -216,7 +215,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
         _scrollContainer.AddChild(regNode);
 
         _selectionCanvas = new SelectionCanvas(factory);
-        var selNode = _selectionCanvas.Canvas.Framework<LingoGodotGfxCanvas>();
+        var selNode = _selectionCanvas.Canvas.Framework<AbstGodotGfxCanvas>();
         selNode.AnchorLeft = 0.5f;
         selNode.AnchorTop = 0.5f;
         selNode.AnchorRight = 0.5f;
@@ -261,7 +260,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
     }
     private void StyleIconButton(Button button, DirectorIcon icon)
     {
-        button.Icon = ((LingoGodotTexture2D)_iconManager.Get(icon)).Texture;
+        button.Icon = ((AbstGodotTexture2D)_iconManager.Get(icon)).Texture;
         button.CustomMinimumSize = new Vector2(20, IconBarHeight);
         button.AddThemeStyleboxOverride("normal", new StyleBoxFlat
         {
@@ -289,7 +288,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
         bool firstLoad = _member == null;
         var godotPicture = picture.Framework<LingoGodotMemberBitmap>();
         godotPicture.Preload();
-        var texture2D = godotPicture.TextureLingo as LingoGodotTexture2D;
+        var texture2D = godotPicture.TextureLingo as AbstGodotTexture2D;
 
 
         if (texture2D != null && texture2D.Texture is ImageTexture tex)
@@ -393,14 +392,14 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
         float h = Mathf.Max(_centerContainer.CustomMinimumSize.Y, unscaled.Y);
         _regPointCanvas.Canvas.Width = w;
         _regPointCanvas.Canvas.Height = h;
-        var regNode = _regPointCanvas.Canvas.Framework<LingoGodotGfxCanvas>();
+        var regNode = _regPointCanvas.Canvas.Framework<AbstGodotGfxCanvas>();
         regNode.OffsetLeft = -w / 2f;
         regNode.OffsetTop = -h / 2f;
         regNode.OffsetRight = w / 2f;
         regNode.OffsetBottom = h / 2f;
         _selectionCanvas.Canvas.Width = w;
         _selectionCanvas.Canvas.Height = h;
-        var selNode = _selectionCanvas.Canvas.Framework<LingoGodotGfxCanvas>();
+        var selNode = _selectionCanvas.Canvas.Framework<AbstGodotGfxCanvas>();
         selNode.OffsetLeft = -w / 2f;
         selNode.OffsetTop = -h / 2f;
         selNode.OffsetRight = w / 2f;

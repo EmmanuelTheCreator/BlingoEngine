@@ -10,13 +10,13 @@ namespace LingoEngine.Director.Core.Windowing
     public class DirContextMenu : IDisposable
     {
         private readonly ILingoFrameworkFactory _factory;
-        private readonly AbstUIGfxMenu _menu;
+        private readonly AbstMenu _menu;
         private readonly Func<(float X, float Y)> _positionProvider;
         private readonly Func<bool> _allowOpen;
         private readonly List<Item> _items = new();
         private readonly LingoMouse? _mouse;
 
-        private record Item(AbstUIGfxMenuItem MenuItem, Func<bool> CanExecute, Action Execute);
+        private record Item(AbstMenuItem MenuItem, Func<bool> CanExecute, Action Execute);
 
         public DirContextMenu(
             object window,
@@ -38,9 +38,9 @@ namespace LingoEngine.Director.Core.Windowing
             AddItem(icon, text, canExecute, execute);
             return this;
         }
-        public AbstUIGfxMenuItem AddItem(string icon, string text, Func<bool> canExecute, Action execute)
+        public AbstMenuItem AddItem(string icon, string text, Func<bool> canExecute, Action execute)
         {
-            AbstUIGfxMenuItem item = _factory.CreateMenuItem(text);
+            AbstMenuItem item = _factory.CreateMenuItem(text);
             item.Activated += () => { if (canExecute()) execute(); };
             _menu.AddItem(item);
             _items.Add(new Item(item, canExecute, execute));

@@ -8,11 +8,11 @@ using LingoEngine.Director.Core.Tools;
 using LingoEngine.Sprites;
 using LingoEngine.Stages;
 using LingoEngine.Director.Core.UI;
-using LingoEngine.LGodot.Gfx;
 using LingoEngine.Inputs;
 using LingoEngine.Director.Core.Icons;
 using AbstUI.Primitives;
 using AbstUI.LGodot.Primitives;
+using AbstUI.LGodot.Components;
 
 namespace LingoEngine.Director.LGodot.Movies;
 
@@ -41,10 +41,10 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
     private bool _spaceHeld;
     private bool _panning;
     private float _scale = 1f;
-    private LingoGodotGfxCanvas _spriteSummaryCanvas;
-    private LingoGodotGfxCanvas _boundingBoxesCanvas;
-    private LingoGodotGfxCanvas _motionPathCanvas;
-    private LingoGodotGfxCanvas _guidesCanvas;
+    private AbstGodotGfxCanvas _spriteSummaryCanvas;
+    private AbstGodotGfxCanvas _boundingBoxesCanvas;
+    private AbstGodotGfxCanvas _motionPathCanvas;
+    private AbstGodotGfxCanvas _guidesCanvas;
 
     public DirGodotStageWindow(ILingoFrameworkStageContainer stageContainer, IDirectorEventMediator directorEventMediator, IHistoryManager historyManager, ILingoPlayer player, DirectorStageWindow directorStageWindow, DirectorStageGuides guides, DirStageManager stageManager, IDirGodotWindowManager windowManager, IDirectorIconManager iconManager)
         : base(DirectorMenuCodes.StageWindow, "Stage", windowManager, historyManager)
@@ -105,10 +105,10 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         //_stageBgRect.SizeFlagsVertical = SizeFlags.ExpandFill;
         _stageBgRect.ZIndex = zIndexStageStart - 1; // Ensure it is behind everything else
 
-        _spriteSummaryCanvas = _spriteSummary.Canvas.Framework<LingoGodotGfxCanvas>();
-        _boundingBoxesCanvas = _boundingBoxes.Canvas.Framework<LingoGodotGfxCanvas>();
-        _motionPathCanvas = _motionPath.Canvas.Framework<LingoGodotGfxCanvas>();
-        _guidesCanvas = _guides.Canvas.Framework<LingoGodotGfxCanvas>();
+        _spriteSummaryCanvas = _spriteSummary.Canvas.Framework<AbstGodotGfxCanvas>();
+        _boundingBoxesCanvas = _boundingBoxes.Canvas.Framework<AbstGodotGfxCanvas>();
+        _motionPathCanvas = _motionPath.Canvas.Framework<AbstGodotGfxCanvas>();
+        _guidesCanvas = _guides.Canvas.Framework<AbstGodotGfxCanvas>();
         _spriteSummaryCanvas.ZIndex = 1000;
         _boundingBoxesCanvas.ZIndex = 1001;
         _motionPathCanvas.ZIndex = 1000;
@@ -142,7 +142,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         AddChild(_scrollContainer);
 
         // bottom icon bar
-        var iconBarPanel = _iconBar.Panel.Framework<LingoGodotPanel>();
+        var iconBarPanel = _iconBar.Panel.Framework<AbstGodotPanel>();
         AddChild(iconBarPanel);
         CreateBottomIconBar(iconBarPanel);
 
@@ -171,7 +171,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         //_scrollContainer.ZIndex = 500;
     }
 
-    private void CreateBottomIconBar(LingoGodotPanel iconBarPanel)
+    private void CreateBottomIconBar(AbstGodotPanel iconBarPanel)
     {
         iconBarPanel.AnchorLeft = 0;
         iconBarPanel.AnchorRight = 1;

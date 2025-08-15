@@ -15,13 +15,13 @@ using LingoEngine.SDL2.FilmLoops;
 
 namespace LingoEngine.SDL2.Sprites;
 
-public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
+public class SdlSprite : ILingoFrameworkSprite, IAbstSDLComponent, IDisposable
 {
     private readonly Action<SdlSprite> _show;
     private readonly Action<SdlSprite> _hide;
     private readonly Action<SdlSprite> _remove;
     private readonly LingoSprite2D _lingoSprite2D;
-    public LingoSDLComponentContext ComponentContext { get; }
+    public AbstSDLComponentContext ComponentContext { get; }
     internal bool IsDirty { get; set; } = true;
     internal bool IsDirtyMember { get; set; } = true;
 
@@ -205,7 +205,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
         }
     }
 
-    public LingoSDLRenderResult Render(LingoSDLRenderContext context)
+    public AbstSDLRenderResult Render(AbstSDLRenderContext context)
     {
         Update();
         ComponentContext.Renderer = context.Renderer;
@@ -300,7 +300,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
         }
     }
 
-    public void SetTexture(IAbstUITexture2D texture)
+    public void SetTexture(IAbstTexture2D texture)
     {
         var tex = (SdlTexture2D)texture;
         TextureHasChanged(tex);

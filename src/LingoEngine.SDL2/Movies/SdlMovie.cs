@@ -38,7 +38,7 @@ public class SdlMovie : ILingoFrameworkMovie, IDisposable
         Render(context);
     }
 
-    public void Render(LingoSDLRenderContext context)
+    public void Render(AbstSDLRenderContext context)
     {
         SDL.SDL_SetRenderDrawColor(context.Renderer, 0, 0, 0, 255);
         SDL.SDL_RenderClear(context.Renderer);

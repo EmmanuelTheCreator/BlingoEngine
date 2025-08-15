@@ -6,7 +6,7 @@ namespace LingoEngine.SDL2.GfxVisualTest;
 
 public static class GfxTestScene
 {
-    public static IAbstUIGfxNode Build(IAbstUIGfxFactory factory)
+    public static IAbstNode Build(IAbstComponentFactory factory)
     {
         var scroll = factory.CreateScrollContainer("scroll");
         scroll.X = 20;
@@ -22,7 +22,7 @@ public static class GfxTestScene
 
         float y = 10f;
 
-        void Add(IAbstUIGfxNode node, float height = 40)
+        void Add(IAbstNode node, float height = 40)
         {
             panel.AddItem(node, 10, y);
             y += height;
@@ -71,7 +71,7 @@ public static class GfxTestScene
         var colorPicker = factory.CreateColorPicker("colorPicker");
         Add(colorPicker, 80);
 
-        AbstUIGfxCanvas canvas = factory.CreateGfxCanvas("canvas", 100, 50);
+        AbstGfxCanvas canvas = factory.CreateGfxCanvas("canvas", 100, 50);
         canvas.Clear(new AColor(100, 100, 100, 255));
         canvas.DrawRect(new ARect(10, 10, 80, 30), new AColor(200, 0, 0, 255));
         Add(canvas, 60);
@@ -121,7 +121,7 @@ public static class GfxTestScene
         return scroll;
     }
 
-    private static AbstUIGfxLabel CreateLabel(IAbstUIGfxFactory factory, string text, Action<AbstUIGfxLabel>? configure = null)
+    private static AbstLabel CreateLabel(IAbstComponentFactory factory, string text, Action<AbstLabel>? configure = null)
     {
 
         var label = factory.CreateLabel(text.Replace(" ", "_"), text);

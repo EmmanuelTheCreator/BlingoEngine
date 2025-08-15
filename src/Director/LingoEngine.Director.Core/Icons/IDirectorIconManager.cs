@@ -6,5 +6,5 @@ namespace LingoEngine.Director.Core.Icons;
 public interface IDirectorIconManager
 {
 
-    IAbstUITexture2D Get(DirectorIcon icon);
+    IAbstTexture2D Get(DirectorIcon icon);
 }

@@ -42,7 +42,7 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
     public int Width { get; set; }
     public int Height { get; set; }
 
-    public IAbstUITexture2D? TextureLingo => throw new NotImplementedException();
+    public IAbstTexture2D? TextureLingo => throw new NotImplementedException();
 
     public void Copy(string text) { }
     public string PasteClipboard() => string.Empty;
@@ -64,7 +64,7 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
 
     public void Dispose() { }
 
-    public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
+    public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
     {
         throw new NotImplementedException();
     }

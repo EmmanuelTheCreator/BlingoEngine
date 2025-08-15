@@ -15,8 +15,8 @@ namespace LingoEngine.LGodot.FilmLoops
     public class LingoGodotFilmLoopMember : ILingoFrameworkMemberFilmLoop, IDisposable
     {
         private LingoFilmLoopMember _member = null!;
-        private LingoGodotTexture2D? _texture;
-        public IAbstUITexture2D? TextureLingo => _texture;
+        private AbstGodotTexture2D? _texture;
+        public IAbstTexture2D? TextureLingo => _texture;
 
         public bool IsLoaded { get; private set; }
         public byte[]? Media { get; set; }
@@ -54,11 +54,11 @@ namespace LingoEngine.LGodot.FilmLoops
         {
             // Placeholder for future import logic
         }
-        public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
+        public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         {
             return _texture;
         }
-        public IAbstUITexture2D ComposeTexture(ILingoSprite2DLight hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers, int frame)
+        public IAbstTexture2D ComposeTexture(ILingoSprite2DLight hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers, int frame)
         {
             var prep = LingoFilmLoopComposer.Prepare(_member, Framing, layers);
             Offset = prep.Offset;
@@ -72,14 +72,14 @@ namespace LingoEngine.LGodot.FilmLoops
                 Image? srcImg = null;
                 if (info.Sprite2D.Member is ILingoMemberWithTexture memberWithTexture)
                 {
-                    var textureG = memberWithTexture.RenderToTexture(info.Ink, info.BackColor) as LingoGodotTexture2D;
+                    var textureG = memberWithTexture.RenderToTexture(info.Ink, info.BackColor) as AbstGodotTexture2D;
                     if (textureG != null)
                         srcImg = textureG.Texture.GetImage();
                 }
                 else
                 {
                     if (info.Sprite2D.Texture == null) continue;
-                    srcImg = ((LingoGodotTexture2D)info.Sprite2D.Texture).Texture.GetImage();
+                    srcImg = ((AbstGodotTexture2D)info.Sprite2D.Texture).Texture.GetImage();
                 }
                 if (srcImg == null)
                     continue;
@@ -150,7 +150,7 @@ namespace LingoEngine.LGodot.FilmLoops
 
             //DebugToDisk(image, $"filmloop_{frame}_{_member.Name}_{hostSprite.Name}");
             var tex = ImageTexture.CreateFromImage(image);
-            _texture = new LingoGodotTexture2D(tex);
+            _texture = new AbstGodotTexture2D(tex);
             _texture.Name = $"Filmloop_{frame}_Member_" + _member.Name;
             return _texture;
         }

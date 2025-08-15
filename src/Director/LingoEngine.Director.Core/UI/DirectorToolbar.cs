@@ -15,12 +15,12 @@ public abstract class DirectorToolbar<TToolEnumType>
     protected readonly IDirectorIconManager _iconManager;
     protected readonly ILingoCommandManager _commandManager;
     protected readonly ILingoFrameworkFactory _factory;
-    protected readonly AbstUIGfxPanel _panel;
-    protected readonly AbstUIGfxWrapPanel _container;
-    protected AbstUIGfxStateButton? _selectedButton;
+    protected readonly AbstPanel _panel;
+    protected readonly AbstWrapPanel _container;
+    protected AbstStateButton? _selectedButton;
 
     public event Action<TToolEnumType>? ToolSelected;
-    public AbstUIGfxPanel Panel => _panel;
+    public AbstPanel Panel => _panel;
     public TToolEnumType SelectedTool { get; protected set; }
 
     public DirectorToolbar(string name, IDirectorIconManager iconManager, ILingoCommandManager commandManager, ILingoFrameworkFactory factory)
@@ -87,7 +87,7 @@ public abstract class DirectorToolbar<TToolEnumType>
         ToolSelected?.Invoke(tool);
     }
 
-    private void SelectButton(AbstUIGfxStateButton btn)
+    private void SelectButton(AbstStateButton btn)
     {
         if (_selectedButton == btn) return;
         if (_selectedButton != null)

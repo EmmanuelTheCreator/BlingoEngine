@@ -20,7 +20,7 @@ namespace LingoEngine.SDL2.Shapes
         private SDL.SDL_Surface _surfacePtr;
         internal nint Surface => _surface;
         private SdlTexture2D? _texture;
-        public IAbstUITexture2D? TextureLingo => _texture;
+        public IAbstTexture2D? TextureLingo => _texture;
         public bool IsLoaded { get; private set; }
         public LingoList<APoint> VertexList { get; } = new();
         public LingoShapeType ShapeType { get; set; } = LingoShapeType.Rectangle;
@@ -102,7 +102,7 @@ namespace LingoEngine.SDL2.Shapes
         public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
 
 
-        public IAbstUITexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
+        public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         {
             if (_texture == null)
                 Preload();

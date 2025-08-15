@@ -8,12 +8,12 @@ namespace LingoEngine.Director.Core.Scores;
 
 /// <summary>
 /// Framework independent painter for the Score grid.
-/// Uses a <see cref="AbstUIGfxCanvas"/> to draw the grid graphics.
+/// Uses a <see cref="AbstGfxCanvas"/> to draw the grid graphics.
 /// </summary>
 public class DirScoreGridPainter
 {
     private readonly DirScoreGfxValues _gfxValues;
-    public AbstUIGfxCanvas Canvas { get; }
+    public AbstGfxCanvas Canvas { get; }
 
     public int FrameCount { get; set; }
     public int ChannelCount { get; set; }

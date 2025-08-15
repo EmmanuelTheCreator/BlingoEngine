@@ -10,7 +10,7 @@ namespace LingoEngine.Director.Core.Inspector
     public interface IDirectorBehaviorDescriptionManager
     {
         /// <summary>Builds a popup window for editing the given behavior.</summary>
-        AbstUIGfxWindow? BuildBehaviorPopup(LingoSpriteBehavior behavior, Action onClose);
+        AbstWindow? BuildBehaviorPopup(LingoSpriteBehavior behavior, Action onClose);
     }
 
     internal class DirectorBehaviorDescriptionManager : IDirectorBehaviorDescriptionManager
@@ -24,7 +24,7 @@ namespace LingoEngine.Director.Core.Inspector
         }
 
         
-        public AbstUIGfxWindow? BuildBehaviorPopup(LingoSpriteBehavior behavior, Action onClose)
+        public AbstWindow? BuildBehaviorPopup(LingoSpriteBehavior behavior, Action onClose)
         {
             if (!(behavior is ILingoPropertyDescriptionList))
                return null;
@@ -83,7 +83,7 @@ namespace LingoEngine.Director.Core.Inspector
             return win;
         }
 
-        private (IAbstUIGfxLayoutNode Node, BehaviorPropertyDescriptionList Definitions)? BuildBehaviorPanel(LingoSpriteBehavior behavior, int width, int height)
+        private (IAbstLayoutNode Node, BehaviorPropertyDescriptionList Definitions)? BuildBehaviorPanel(LingoSpriteBehavior behavior, int width, int height)
         {
             
 
@@ -112,7 +112,7 @@ namespace LingoEngine.Director.Core.Inspector
         }
 
 
-        private BehaviorPropertyDescriptionList? BuildDescriptionList(LingoSpriteBehavior behavior, AbstUIGfxWrapPanel container, ILingoPropertyDescriptionList descProvider)
+        private BehaviorPropertyDescriptionList? BuildDescriptionList(LingoSpriteBehavior behavior, AbstWrapPanel container, ILingoPropertyDescriptionList descProvider)
         {
             BehaviorPropertyDescriptionList? definitions = descProvider.GetPropertyDescriptionList();
             if (definitions == null || definitions.Count == 0)
@@ -165,7 +165,7 @@ namespace LingoEngine.Director.Core.Inspector
            
         }
 
-        private AbstUIGfxInputText CreateString(BehaviorPropertiesContainer properties, string key, object? propValue)
+        private AbstInputText CreateString(BehaviorPropertiesContainer properties, string key, object? propValue)
         {
             var input = _factory.CreateInputText($"PropInput_{key}");
             input.Width = 70;
@@ -174,7 +174,7 @@ namespace LingoEngine.Director.Core.Inspector
             return input;
         }
 
-        private AbstUIGfxInputNumber<int> CreateInt(BehaviorPropertiesContainer properties, string key, object? propValue)
+        private AbstInputNumber<int> CreateInt(BehaviorPropertiesContainer properties, string key, object? propValue)
         {
             var input = _factory.CreateInputNumberInt($"PropInput_{key}");
             input.Width = 70;
@@ -188,7 +188,7 @@ namespace LingoEngine.Director.Core.Inspector
             input.ValueChanged += () => properties[key] = (int)input.Value;
             return input;
         } 
-        private AbstUIGfxInputNumber<float> CreateFloat(BehaviorPropertiesContainer properties, string key, object? propValue)
+        private AbstInputNumber<float> CreateFloat(BehaviorPropertiesContainer properties, string key, object? propValue)
         {
             var input = _factory.CreateInputNumberFloat($"PropInput_{key}");
             input.Width = 70;
@@ -207,7 +207,7 @@ namespace LingoEngine.Director.Core.Inspector
             return input;
         }
 
-        private AbstUIGfxInputCheckbox CreateBoolean(BehaviorPropertiesContainer properties, string key, object? propValue)
+        private AbstInputCheckbox CreateBoolean(BehaviorPropertiesContainer properties, string key, object? propValue)
         {
             var input = _factory.CreateInputCheckbox($"PropInput_{key}");
             input.Width = 70;
@@ -219,7 +219,7 @@ namespace LingoEngine.Director.Core.Inspector
             return input;
         }
 
-        public AbstUIGfxWrapPanel BuildProperties(object obj)
+        public AbstWrapPanel BuildProperties(object obj)
         {
             ILingoFrameworkFactory factory = _factory;
             var root = factory.CreateWrapPanel(AOrientation.Vertical, $"{obj.GetType().Name}Props");

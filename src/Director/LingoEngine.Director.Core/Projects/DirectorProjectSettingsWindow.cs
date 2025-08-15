@@ -25,11 +25,11 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
     private readonly LingoProjectSettings _settings;
     private readonly DirectorProjectSettings _dirSettings;
 
-    private readonly AbstUIGfxWrapPanel _root;
-    private AbstUIGfxWrapPanel? _vsCodePathRow;
-    private AbstUIGfxWrapPanel? _vsPathRow;
-    private AbstUIGfxLabel? _slnPreviewLabel;
-    private AbstUIGfxInputText? _csProjEdit;
+    private readonly AbstWrapPanel _root;
+    private AbstWrapPanel? _vsCodePathRow;
+    private AbstWrapPanel? _vsPathRow;
+    private AbstLabel? _slnPreviewLabel;
+    private AbstInputText? _csProjEdit;
     private string _projectName = "";
     private string _folderName = "";
     private string _csProjFile = "";
@@ -39,10 +39,10 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
         ];
     private string visualStudioPath = "";
     private string visualStudioCodePath = "";
-    private AbstUIGfxInputText? _VsPathEdit;
-    private AbstUIGfxInputText? _VSCodePathEdit;
+    private AbstInputText? _VsPathEdit;
+    private AbstInputText? _VSCodePathEdit;
 
-    public AbstUIGfxWrapPanel RootPanel => _root;
+    public AbstWrapPanel RootPanel => _root;
     public string FolderName
     {
         get => _folderName;

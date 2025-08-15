@@ -37,7 +37,7 @@ namespace LingoEngine.Bitmaps
         /// </summary>
         /// <param name="hostSprite">The sprite hosting the film loop.</param>
         /// <param name="layers">Currently active layers for this frame.</param>
-        IAbstUITexture2D ComposeTexture(ILingoSprite2DLight hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers, int frame);
+        IAbstTexture2D ComposeTexture(ILingoSprite2DLight hostSprite, IReadOnlyList<LingoSprite2DVirtual> layers, int frame);
 
         
     }

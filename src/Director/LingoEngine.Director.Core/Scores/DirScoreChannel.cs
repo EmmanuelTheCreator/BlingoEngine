@@ -28,7 +28,7 @@ namespace LingoEngine.Director.Core.Scores
         protected readonly DirScoreGfxValues _gfxValues;
         protected readonly IDirSpritesManager _spritesManager;
         protected readonly IDirScoreManager _scoreManager;
-        protected readonly AbstUIGfxCanvas _canvas;
+        protected readonly AbstGfxCanvas _canvas;
         protected LingoMovie? _movie;
         protected float _scrollX;
         protected int _lastFrame = -1;
@@ -36,7 +36,7 @@ namespace LingoEngine.Director.Core.Scores
         protected bool _spriteDirty = true;
         protected bool _hasDirtySpriteList = true;
         protected IDirScoreChannelFramework? _framework;
-        protected Func<string, IAbstUIFrameworkGfxPanel, IDirectorWindowDialogReference?> _showConfirmDialog;
+        protected Func<string, IAbstFrameworkPanel, IDirectorWindowDialogReference?> _showConfirmDialog;
 
         public bool HasDirtySpriteList { get => _hasDirtySpriteList; set => _hasDirtySpriteList = value; }
         public bool Visible { get; internal set; } = true;
@@ -44,8 +44,8 @@ namespace LingoEngine.Director.Core.Scores
         public APoint Size { get; set; }
         public int SpriteNumWithChannelNum { get; }
         public bool IsSingleFrame { get; protected set; }
-        public virtual T Framework<T>() where T : IAbstUIFrameworkGfxNode => _canvas.Framework<T>();
-        public virtual IAbstUIFrameworkGfxNode FrameworkObj => _canvas.FrameworkObj;
+        public virtual T Framework<T>() where T : IAbstFrameworkNode => _canvas.Framework<T>();
+        public virtual IAbstFrameworkNode FrameworkObj => _canvas.FrameworkObj;
 
         public bool ShowPreview { get; protected set; }
         public int PreviewBegin { get; protected set; }
@@ -130,7 +130,7 @@ namespace LingoEngine.Director.Core.Scores
         {
         }
 
-        internal void SetShowDialogMethod(Func<string, IAbstUIFrameworkGfxPanel, IDirectorWindowDialogReference?> showConfirmDialog)
+        internal void SetShowDialogMethod(Func<string, IAbstFrameworkPanel, IDirectorWindowDialogReference?> showConfirmDialog)
         {
             _showConfirmDialog = showConfirmDialog;
         }

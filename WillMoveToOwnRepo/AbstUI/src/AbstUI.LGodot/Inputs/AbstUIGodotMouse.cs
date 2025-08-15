@@ -6,20 +6,20 @@ using AbstUI.Inputs;
 
 namespace AbstUI.LGodot.Inputs
 {
-    public class AbstUIGodotMouse<TLingoMouseType, TAbstUIMouseEvent> : IAbstFrameworkMouse
-        where TLingoMouseType : AbstMouse<TAbstUIMouseEvent>
+    public class AbstUIGodotMouse<TAbstMouseType, TAbstUIMouseEvent> : IAbstFrameworkMouse
+        where TAbstMouseType : AbstMouse<TAbstUIMouseEvent>
         where TAbstUIMouseEvent : AbstMouseEvent
     {
-        private Lazy<TLingoMouseType> _lingoMouse;
+        private Lazy<TAbstMouseType> _lingoMouse;
         private DateTime _lastClickTime = DateTime.MinValue;
         private const double DOUBLE_CLICK_TIME_LIMIT = 0.25;  // 250 milliseconds for double-click detection
-        public AbstUIGodotMouse(Lazy<TLingoMouseType> lingoMouse)
+        public AbstUIGodotMouse(Lazy<TAbstMouseType> lingoMouse)
         {
             _lingoMouse = lingoMouse;
         }
         public void ReplaceMouseObj(IAbstMouse lingoMouse)
         {
-            _lingoMouse = new Lazy<TLingoMouseType>(() => (TLingoMouseType)lingoMouse);
+            _lingoMouse = new Lazy<TAbstMouseType>(() => (TAbstMouseType)lingoMouse);
         }
         public void Release()
         {
@@ -130,7 +130,7 @@ namespace AbstUI.LGodot.Inputs
 
         }
         /// <summary>
-        /// Converts a LingoMouseCursor to the equivalent Godot CursorShape.
+        /// Converts a AbstMouseCursor to the equivalent Godot CursorShape.
         /// </summary>
         public static DisplayServer.CursorShape ToGodotCursor(AMouseCursor cursor)
         {

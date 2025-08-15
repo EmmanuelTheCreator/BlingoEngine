@@ -23,11 +23,11 @@ public class DirCastItem
     private readonly int _slotNumber;
     private bool _selected;
     private bool _hovered;
-    private readonly AbstUIGfxCanvas _canvas;
+    private readonly AbstGfxCanvas _canvas;
     private DirectorMemberThumbnail _thumb;
 
     public ILingoMember? Member => _member;
-    public AbstUIGfxCanvas Canvas => _canvas;
+    public AbstGfxCanvas Canvas => _canvas;
 
     public DirCastItem(ILingoFrameworkFactory factory, ILingoMember? member, int slotNumber, IDirectorIconManager? iconManager)
     {
