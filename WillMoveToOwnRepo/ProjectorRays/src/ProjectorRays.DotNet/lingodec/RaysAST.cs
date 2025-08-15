@@ -1,5 +1,6 @@
 using ProjectorRays.Common;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ProjectorRays.LingoDec;
 
@@ -66,6 +67,8 @@ public abstract class AstNode
     /// attempt to cover all Lingo syntax features.
     /// </summary>
     public virtual void WriteScriptText(RaysCodeWriter code) { }
+    public virtual bool HasSpaces() => false;
+    public virtual Datum? GetValue() => null;
 }
 
 public class BlockNode : AstNode
@@ -89,6 +92,7 @@ public class LiteralNode : AstNode
 
     public override void WriteScriptText(RaysCodeWriter code) =>
         Value.WriteScriptText(code, false, false);
+    public override Datum? GetValue() => Value;
 }
 
 public class VarNode : AstNode
@@ -119,6 +123,7 @@ public class BinaryOpNode : AstNode
         code.Write(" ");
         Right.WriteScriptText(code);
     }
+    public override bool HasSpaces() => true;
 }
 
 public class UnaryOpNode : AstNode
@@ -137,6 +142,7 @@ public class UnaryOpNode : AstNode
         code.Write(opStr + " ");
         Operand.WriteScriptText(code);
     }
+    public override bool HasSpaces() => true;
 }
 
 public class AssignmentNode : AstNode
@@ -155,6 +161,7 @@ public class AssignmentNode : AstNode
         code.Write(" = ");
         Value.WriteScriptText(code);
     }
+    public override bool HasSpaces() => true;
 }
 
 public class ArgListNode : AstNode
@@ -175,6 +182,7 @@ public class ArgListNode : AstNode
             Args[i].WriteScriptText(code);
         }
     }
+    public override bool HasSpaces() => Args.Count > 1 || Args.Any(a => a.HasSpaces());
 }
 
 public class CallNode : AstNode
@@ -200,6 +208,7 @@ public class CallNode : AstNode
         }
         code.Write(")");
     }
+    public override bool HasSpaces() => Args.Count > 1 || Args.Any(a => a.HasSpaces());
 }
 
 public class ReturnNode : AstNode
@@ -216,6 +225,48 @@ public class ReturnNode : AstNode
             Value.WriteScriptText(code);
         }
     }
+    public override bool HasSpaces() => true;
+}
+
+public class ChunkExprNode : AstNode
+{
+    public ChunkExprType Type;
+    public AstNode First;
+    public AstNode Last;
+    public AstNode String;
+    public ChunkExprNode(ChunkExprType type, AstNode first, AstNode last, AstNode str)
+    {
+        Type = type;
+        First = first;
+        Last = last;
+        String = str;
+    }
+
+    public override void WriteScriptText(RaysCodeWriter code)
+    {
+        code.Write(StandardNames.GetName(StandardNames.ChunkTypeNames, (uint)Type));
+        code.Write(" ");
+        bool parenFirst = First.HasSpaces();
+        if (parenFirst) code.Write("(");
+        First.WriteScriptText(code);
+        if (parenFirst) code.Write(")");
+        if (!(Last is LiteralNode lit && lit.Value.Type == DatumType.kDatumInt && lit.Value.I == 0))
+        {
+            code.Write(" to ");
+            bool parenLast = Last.HasSpaces();
+            if (parenLast) code.Write("(");
+            Last.WriteScriptText(code);
+            if (parenLast) code.Write(")");
+        }
+        code.Write(" of ");
+        bool stringIsBiggerChunk = String is ChunkExprNode c && c.Type > this.Type;
+        bool parenString = !stringIsBiggerChunk && String.HasSpaces();
+        if (parenString) code.Write("(");
+        String.WriteScriptText(code);
+        if (parenString) code.Write(")");
+    }
+
+    public override bool HasSpaces() => true;
 }
 
 public class UnknownOpNode : AstNode

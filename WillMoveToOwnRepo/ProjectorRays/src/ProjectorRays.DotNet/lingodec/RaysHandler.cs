@@ -165,12 +165,19 @@ public class RaysHandler
                 case OpCode.kOpNot:
                     if (stack.Count >= 1) { var opnd = stack.Pop(); stack.Push(new UnaryOpNode(bc.Opcode, opnd)); } else { Ast.Statements.Add(new UnknownOpNode(bc)); }
                     break;
+                case OpCode.kOpGetChunk:
+                    {
+                        var str = stack.Pop();
+                        var chunk = ReadChunkRef(stack, str);
+                        stack.Push(chunk);
+                    }
+                    break;
                 case OpCode.kOpPushArgList:
                 case OpCode.kOpPushArgListNoRet:
-                    { int n = bc.Obj; var list = new List<AstNode>(); for (int i=0;i<n;i++) list.Insert(0, stack.Pop()); stack.Push(new ArgListNode(list, bc.Opcode == OpCode.kOpPushArgListNoRet)); }
+                    { int n = bc.Obj; var list = new List<AstNode>(); for (int i = 0; i < n; i++) list.Insert(0, stack.Pop()); stack.Push(new ArgListNode(list, bc.Opcode == OpCode.kOpPushArgListNoRet)); }
                     break;
                 case OpCode.kOpLocalCall:
-                    { var args = stack.Pop() as ArgListNode ?? new ArgListNode(new List<AstNode>(), false); string name = bc.Obj >=0 && bc.Obj < Script.Handlers.Count ? Script.Handlers[bc.Obj].Name :  $"handler_{bc.Obj}"; var call = new CallNode(name, args.Args, args.NoReturn); if (args.NoReturn) Ast.Statements.Add(call); else stack.Push(call); }
+                    { var args = stack.Pop() as ArgListNode ?? new ArgListNode(new List<AstNode>(), false); string name = bc.Obj >= 0 && bc.Obj < Script.Handlers.Count ? Script.Handlers[bc.Obj].Name : $"handler_{bc.Obj}"; var call = new CallNode(name, args.Args, args.NoReturn); if (args.NoReturn) Ast.Statements.Add(call); else stack.Push(call); }
                     break;
                 case OpCode.kOpExtCall:
                     { var args = stack.Pop() as ArgListNode ?? new ArgListNode(new List<AstNode>(), false); var call = new CallNode(GetName(bc.Obj), args.Args, args.NoReturn); if (args.NoReturn) Ast.Statements.Add(call); else stack.Push(call); }
@@ -197,6 +204,29 @@ public class RaysHandler
                     break;
             }
         }
+    }
+
+    private static AstNode ReadChunkRef(Stack<AstNode> stack, AstNode str)
+    {
+        var lastLine = stack.Pop();
+        var firstLine = stack.Pop();
+        var lastItem = stack.Pop();
+        var firstItem = stack.Pop();
+        var lastWord = stack.Pop();
+        var firstWord = stack.Pop();
+        var lastChar = stack.Pop();
+        var firstChar = stack.Pop();
+
+        if (!(firstLine is LiteralNode fl && fl.Value.Type == DatumType.kDatumInt && fl.Value.ToInt() == 0))
+            str = new ChunkExprNode(ChunkExprType.kChunkLine, firstLine, lastLine, str);
+        if (!(firstItem is LiteralNode fi && fi.Value.Type == DatumType.kDatumInt && fi.Value.ToInt() == 0))
+            str = new ChunkExprNode(ChunkExprType.kChunkItem, firstItem, lastItem, str);
+        if (!(firstWord is LiteralNode fw && fw.Value.Type == DatumType.kDatumInt && fw.Value.ToInt() == 0))
+            str = new ChunkExprNode(ChunkExprType.kChunkWord, firstWord, lastWord, str);
+        if (!(firstChar is LiteralNode fc && fc.Value.Type == DatumType.kDatumInt && fc.Value.ToInt() == 0))
+            str = new ChunkExprNode(ChunkExprType.kChunkChar, firstChar, lastChar, str);
+
+        return str;
     }
 
     public List<short> ReadVarnamesTable(ReadStream stream, ushort count, uint offset)
