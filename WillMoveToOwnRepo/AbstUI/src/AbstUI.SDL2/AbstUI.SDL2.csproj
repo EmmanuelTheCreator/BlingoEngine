@@ -1,17 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-		<Platforms>AnyCPU;x64;x86</Platforms>
+        <PropertyGroup>
+                <TargetFramework>net8.0</TargetFramework>
+                <ImplicitUsings>enable</ImplicitUsings>
+                <Nullable>enable</Nullable>
+                <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+                <Platforms>AnyCPU;x64;x86</Platforms>
+        </PropertyGroup>
 
-	</PropertyGroup>
+        <PropertyGroup>
+                <!-- NuGet Packaging Metadata -->
+                <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+                <PackageId>AbstUI.SDL2</PackageId>
+                <Version>1.0.0</Version>
+                <Authors>Emmanuel The Creator</Authors>
+                <Company>The Community</Company>
+                <Description>SDL2 backend for the AbstUI framework, rendering the abstract UI components through SDL2.</Description>
+                <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
+                <PackageTags>AbstUI SDL2</PackageTags>
+                <PackageLicenseExpression>MIT</PackageLicenseExpression>
+                <PackageReadmeFile>README.md</PackageReadmeFile>
+        </PropertyGroup>
+        <ItemGroup>
+                <None Include="README.md" Pack="true" PackagePath="" />
+        </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="ImGui.NET" Version="1.91.6.1" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
+        <ItemGroup>
+                <PackageReference Include="ImGui.NET" Version="1.91.6.1" />
+                <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
 	</ItemGroup>
 
 	<ItemGroup>
