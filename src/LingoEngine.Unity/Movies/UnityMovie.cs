@@ -5,7 +5,7 @@ using LingoEngine.Sprites;
 using UnityEngine;
 using LingoEngine.Unity.Stages;
 using LingoEngine.Unity.Sprites;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.Unity.Movies;
 

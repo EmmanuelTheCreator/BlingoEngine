@@ -1,11 +1,10 @@
-using LingoEngine.FrameworkCommunication;
+using AbstUI.Inputs;
 using LingoEngine.Inputs;
 using LingoEngine.SDL2.SDLL;
-using System.Collections.Generic;
 
 namespace LingoEngine.SDL2.Inputs;
 
-internal class SdlKey : ILingoFrameworkKey
+public class SdlKey : ILingoFrameworkKey
 {
     private readonly HashSet<SDL.SDL_Keycode> _keys = new();
     private LingoKey? _lingoKey;
@@ -37,13 +36,13 @@ internal class SdlKey : ILingoFrameworkKey
     public bool OptionDown => (SDL.SDL_GetModState() & SDL.SDL_Keymod.KMOD_ALT) != 0;
     public bool ShiftDown => (SDL.SDL_GetModState() & SDL.SDL_Keymod.KMOD_SHIFT) != 0;
 
-    public bool KeyPressed(LingoKeyType key) => key switch
+    public bool KeyPressed(AbstUIKeyType key) => key switch
     {
-        LingoKeyType.BACKSPACE => _keys.Contains(SDL.SDL_Keycode.SDLK_BACKSPACE),
-        LingoKeyType.ENTER or LingoKeyType.RETURN => _keys.Contains(SDL.SDL_Keycode.SDLK_RETURN),
-        LingoKeyType.QUOTE => _keys.Contains(SDL.SDL_Keycode.SDLK_QUOTE),
-        LingoKeyType.SPACE => _keys.Contains(SDL.SDL_Keycode.SDLK_SPACE),
-        LingoKeyType.TAB => _keys.Contains(SDL.SDL_Keycode.SDLK_TAB),
+        AbstUIKeyType.BACKSPACE => _keys.Contains(SDL.SDL_Keycode.SDLK_BACKSPACE),
+        AbstUIKeyType.ENTER or AbstUIKeyType.RETURN => _keys.Contains(SDL.SDL_Keycode.SDLK_RETURN),
+        AbstUIKeyType.QUOTE => _keys.Contains(SDL.SDL_Keycode.SDLK_QUOTE),
+        AbstUIKeyType.SPACE => _keys.Contains(SDL.SDL_Keycode.SDLK_SPACE),
+        AbstUIKeyType.TAB => _keys.Contains(SDL.SDL_Keycode.SDLK_TAB),
         _ => false
     };
 

@@ -8,44 +8,35 @@ using LingoEngine.Inputs;
 using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.Stages;
 using ImGuiNET;
-using System.Numerics;
-using LingoEngine.SDL2.Styles;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Inputs;
+using LingoEngine.SDL2.Movies;
+using LingoEngine.Events;
 
-public class SdlRootContext : IDisposable, ISdlRootComponentContext
+public class SdlRootContext : AbstUISdlRootContext<LingoMouse> , ISdlRootComponentContext
 {
-    private readonly ImGuiSdlBackend _imgui = new();
-
-    private LingoPlayer _lPlayer;
-    public nint Window { get; }
-    public nint Renderer { get; }
-
-
-    public LingoDebugOverlay DebugOverlay { get; set; }
-    public LingoKey LingoKey { get; }
-    internal SdlKey Key { get; }
-    public LingoMouse LingoMouse { get; }
-    public SdlMouse Mouse { get; }
     private bool _f1Pressed;
-
-    public LingoSDLComponentContainer ComponentContainer { get; } = new();
-    internal SdlFactory Factory { get; set; } = null!;
-
+    private LingoSdlMouse _sdlMouse;
+    private readonly ImGuiSdlBackend _imgui = new();
+    private LingoPlayer _lPlayer;
+    public LingoDebugOverlay DebugOverlay { get; set; }
+    public nint RegisterTexture(nint sdlTexture) => _imgui.RegisterTexture(sdlTexture);
+    public nint GetTexture(nint textureId) => _imgui.GetTexture(textureId);
+   
     public ImGuiViewportPtr ImGuiViewPort { get; private set; } = new ImGuiViewportPtr(nint.Zero);
     public ImDrawListPtr ImDrawList { get; private set; } = new ImDrawListPtr(nint.Zero);
 
-    public nint RegisterTexture(nint sdlTexture) => _imgui.RegisterTexture(sdlTexture);
-    public nint GetTexture(nint textureId) => _imgui.GetTexture(textureId);
-    public SdlRootContext(nint window, nint renderer)
+    public SdlRootContext(nint window, nint renderer) : base(window, renderer)
     {
-        Window = window;
-        Renderer = renderer;
-        Mouse = new SdlMouse(new Lazy<LingoMouse>(() => LingoMouse!));
-        LingoMouse = new LingoMouse(Mouse);
-        Key = new SdlKey();
-        LingoKey = new LingoKey(Key);
-        Key.SetLingoKey(LingoKey);
+        _sdlMouse = new LingoSdlMouse(new Lazy<AbstUIMouse<LingoMouseEvent>>(() => (LingoMouse)LingoMouse));
+        Mouse = _sdlMouse;
+        LingoMouse = new LingoMouse(_sdlMouse);
         _imgui.Init(Window, Renderer);
+
+        Key = new SdlKey();
+        var lingoKey = new LingoKey(Key);
+        LingoKey = lingoKey;
+        Key.SetLingoKey(lingoKey);
     }
     public void Init(ILingoPlayer player)
     {
@@ -68,7 +59,7 @@ public class SdlRootContext : IDisposable, ISdlRootComponentContext
                     running = false;
                 _imgui.ProcessEvent(ref e);
                 Key.ProcessEvent(e);
-                Mouse.ProcessEvent(e);
+                _sdlMouse.ProcessEvent(e);
             }
             uint now = SDL.SDL_GetTicks();
             float delta = (now - last) / 1000f;
@@ -86,6 +77,35 @@ public class SdlRootContext : IDisposable, ISdlRootComponentContext
         }
         Dispose();
     }
+}
+
+
+public abstract class AbstUISdlRootContext<TMouse> : IDisposable
+     where TMouse : IAbstUIMouse
+{
+    
+    public nint Window { get; }
+    public nint Renderer { get; }
+
+    public SdlKey Key { get; set; }
+    public IAbstUIFrameworkMouse Mouse { get; set; }
+
+    public IAbstUIKey LingoKey { get; protected set; }
+    public IAbstUIMouse LingoMouse { get; set; }
+   
+    
+
+    public LingoSDLComponentContainer ComponentContainer { get; } = new();
+    internal LingoSdlFactory Factory { get; set; } = null!;
+
+  
+    public AbstUISdlRootContext(nint window, nint renderer)
+    {
+        Window = window;
+        Renderer = renderer;
+    }
+   
+   
 
 
 

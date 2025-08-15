@@ -1,7 +1,7 @@
 using System;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
-using LingoEngine.Gfx;
 using LingoEngine.Inputs;
 using LingoEngine.SDL2.Styles;
 using LingoEngine.Styles;
@@ -11,7 +11,7 @@ namespace LingoEngine.SDL2.Gfx
     /// <summary>
     /// Factory responsible for creating SDL specific GFX components.
     /// </summary>
-    public class SdlGfxFactory : ILingoGfxFactory
+    public class SdlGfxFactory : IAbstUIGfxFactory
     {
         private readonly ISdlRootComponentContext _rootContext;
         private readonly SdlFontManager _fontManager;
@@ -30,9 +30,9 @@ namespace LingoEngine.SDL2.Gfx
         internal LingoSDLRenderContext CreateRenderContext(ILingoSDLComponent? component = null)
             => new(_rootContext.Renderer, _rootContext.ImGuiViewPort, _rootContext.ImDrawList, _rootContext.ImGuiViewPort.WorkPos, (SdlFontManager) _fontManager);
 
-        public LingoGfxCanvas CreateGfxCanvas(string name, int width, int height)
+        public AbstUIGfxCanvas CreateGfxCanvas(string name, int width, int height)
         {
-            var canvas = new LingoGfxCanvas();
+            var canvas = new AbstUIGfxCanvas();
             var impl = new SdlGfxCanvas(this, _fontManager, width, height);
             canvas.Init(impl);
             canvas.Width = width;
@@ -41,9 +41,9 @@ namespace LingoEngine.SDL2.Gfx
             return canvas;
         }
 
-        public LingoGfxWrapPanel CreateWrapPanel(AOrientation orientation, string name)
+        public AbstUIGfxWrapPanel CreateWrapPanel(AOrientation orientation, string name)
         {
-            var panel = new LingoGfxWrapPanel(this);
+            var panel = new AbstUIGfxWrapPanel(this);
             var impl = new SdlGfxWrapPanel(this, orientation);
             panel.Init(impl);
             panel.Name = name;
@@ -51,56 +51,56 @@ namespace LingoEngine.SDL2.Gfx
             return panel;
         }
 
-        public LingoGfxPanel CreatePanel(string name)
+        public AbstUIGfxPanel CreatePanel(string name)
         {
-            var panel = new LingoGfxPanel(this);
+            var panel = new AbstUIGfxPanel(this);
             var impl = new SdlGfxPanel(this);
             panel.Init(impl);
             panel.Name = name;
             return panel;
         }
 
-        public LingoGfxLayoutWrapper CreateLayoutWrapper(ILingoGfxNode content, float? x, float? y)
+        public AbstUIGfxLayoutWrapper CreateLayoutWrapper(IAbstUIGfxNode content, float? x, float? y)
         {
-            if (content is ILingoGfxLayoutNode)
+            if (content is IAbstUIGfxLayoutNode)
                 throw new InvalidOperationException($"Content {content.Name} already supports layout — wrapping is unnecessary.");
-            var panel = new LingoGfxLayoutWrapper(content);
+            var panel = new AbstUIGfxLayoutWrapper(content);
             var impl = new LingoSdlLayoutWrapper(this,panel);
             if (x != null) panel.X = x.Value;
             if (y != null) panel.Y = y.Value;
             return panel;
         }
 
-        public LingoGfxTabContainer CreateTabContainer(string name)
+        public AbstUIGfxTabContainer CreateTabContainer(string name)
         {
-            var tab = new LingoGfxTabContainer();
+            var tab = new AbstUIGfxTabContainer();
             var impl = new SdlGfxTabContainer(this);
             tab.Init(impl);
             tab.Name = name;
             return tab;
         }
 
-        public LingoGfxTabItem CreateTabItem(string name, string title)
+        public AbstUIGfxTabItem CreateTabItem(string name, string title)
         {
-            var tab = new LingoGfxTabItem();
+            var tab = new AbstUIGfxTabItem();
             var impl = new SdlGfxTabItem(this, tab);
             tab.Title = title;
             tab.Name = name;
             return tab;
         }
 
-        public LingoGfxScrollContainer CreateScrollContainer(string name)
+        public AbstUIGfxScrollContainer CreateScrollContainer(string name)
         {
-            var scroll = new LingoGfxScrollContainer();
+            var scroll = new AbstUIGfxScrollContainer();
             var impl = new SdlGfxScrollContainer(this);
             scroll.Init(impl);
             scroll.Name = name;
             return scroll;
         }
 
-        public LingoGfxInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
+        public AbstUIGfxInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
         {
-            var slider = new LingoGfxInputSlider<float>();
+            var slider = new AbstUIGfxInputSlider<float>();
             var impl = new SdlGfxInputSlider<float>(this);
             slider.Init(impl);
             slider.Name = name;
@@ -112,9 +112,9 @@ namespace LingoEngine.SDL2.Gfx
             return slider;
         }
 
-        public LingoGfxInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
+        public AbstUIGfxInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
         {
-            var slider = new LingoGfxInputSlider<int>();
+            var slider = new AbstUIGfxInputSlider<int>();
             var impl = new SdlGfxInputSlider<int>(this);
             slider.Init(impl);
             slider.Name = name;
@@ -126,9 +126,9 @@ namespace LingoEngine.SDL2.Gfx
             return slider;
         }
 
-        public LingoGfxInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null)
+        public AbstUIGfxInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null)
         {
-            var input = new LingoGfxInputText();
+            var input = new AbstUIGfxInputText();
             var impl = new SdlGfxInputText(this);
             input.Init(impl);
             input.Name = name;
@@ -138,25 +138,25 @@ namespace LingoEngine.SDL2.Gfx
             return input;
         }
 
-        public LingoGfxInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null)
+        public AbstUIGfxInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null)
         {
             var minNullableNum = min.HasValue ? new NullableNum<float>(min.Value) : new NullableNum<float>();
             var maxNullableNum = max.HasValue ? new NullableNum<float>(max.Value) : new NullableNum<float>();
             return CreateInputNumber(name, minNullableNum, maxNullableNum, onChange);
         }
 
-        public LingoGfxInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null)
+        public AbstUIGfxInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null)
         {
             var minNullableNum = min.HasValue ? new NullableNum<int>(min.Value) : new NullableNum<int>();
             var maxNullableNum = max.HasValue ? new NullableNum<int>(max.Value) : new NullableNum<int>();
             return CreateInputNumber(name, minNullableNum, maxNullableNum, onChange);
         }
 
-        public LingoGfxInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null)
+        public AbstUIGfxInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null)
             where TValue : System.Numerics.INumber<TValue>
         {
             throw new NotImplementedException();
-            var input = new LingoGfxInputNumber<TValue>();
+            var input = new AbstUIGfxInputNumber<TValue>();
             //var impl = new SdlGfxInputNumber<float>(_rootContext.Renderer);
             //input.Init(impl);
             //input.Name = name;
@@ -165,9 +165,9 @@ namespace LingoEngine.SDL2.Gfx
             return input;
         }
 
-        public LingoGfxSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null)
+        public AbstUIGfxSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null)
         {
-            var spin = new LingoGfxSpinBox();
+            var spin = new AbstUIGfxSpinBox();
             var impl = new SdlGfxSpinBox(this);
             spin.Init(impl);
             spin.Name = name;
@@ -178,9 +178,9 @@ namespace LingoEngine.SDL2.Gfx
             return spin;
         }
 
-        public LingoGfxInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null)
+        public AbstUIGfxInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null)
         {
-            var input = new LingoGfxInputCheckbox();
+            var input = new AbstUIGfxInputCheckbox();
             var impl = new SdlGfxInputCheckbox(this);
             input.Init(impl);
             input.Name = name;
@@ -188,9 +188,9 @@ namespace LingoEngine.SDL2.Gfx
             return input;
         }
 
-        public LingoGfxInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null)
+        public AbstUIGfxInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null)
         {
-            var input = new LingoGfxInputCombobox();
+            var input = new AbstUIGfxInputCombobox();
             var impl = new SdlGfxInputCombobox(this);
             input.Init(impl);
             input.Name = name;
@@ -198,9 +198,9 @@ namespace LingoEngine.SDL2.Gfx
             return input;
         }
 
-        public LingoGfxItemList CreateItemList(string name, Action<string?>? onChange = null)
+        public AbstUIGfxItemList CreateItemList(string name, Action<string?>? onChange = null)
         {
-            var list = new LingoGfxItemList();
+            var list = new AbstUIGfxItemList();
             var impl = new SdlGfxItemList(this);
             list.Init(impl);
             list.Name = name;
@@ -209,9 +209,9 @@ namespace LingoEngine.SDL2.Gfx
             return list;
         }
 
-        public LingoGfxColorPicker CreateColorPicker(string name, Action<AColor>? onChange = null)
+        public AbstUIGfxColorPicker CreateColorPicker(string name, Action<AColor>? onChange = null)
         {
-            var picker = new LingoGfxColorPicker();
+            var picker = new AbstUIGfxColorPicker();
             var impl = new SdlGfxColorPicker(this);
             picker.Init(impl);
             picker.Name = name;
@@ -220,9 +220,9 @@ namespace LingoEngine.SDL2.Gfx
             return picker;
         }
 
-        public LingoGfxLabel CreateLabel(string name, string text = "")
+        public AbstUIGfxLabel CreateLabel(string name, string text = "")
         {
-            var label = new LingoGfxLabel();
+            var label = new AbstUIGfxLabel();
             var impl = new SdlGfxLabel(this);
             label.Init(impl);
             label.Name = name;
@@ -230,9 +230,9 @@ namespace LingoEngine.SDL2.Gfx
             return label;
         }
 
-        public LingoGfxButton CreateButton(string name, string text = "")
+        public AbstUIGfxButton CreateButton(string name, string text = "")
         {
-            var button = new LingoGfxButton();
+            var button = new AbstUIGfxButton();
             var impl = new SdlGfxButton(this);
             button.Init(impl);
             button.Name = name;
@@ -240,9 +240,9 @@ namespace LingoEngine.SDL2.Gfx
             return button;
         }
 
-        public LingoGfxStateButton CreateStateButton(string name, ILingoTexture2D? texture = null, string text = "", Action<bool>? onChange = null)
+        public AbstUIGfxStateButton CreateStateButton(string name, IAbstUITexture2D? texture = null, string text = "", Action<bool>? onChange = null)
         {
-            var button = new LingoGfxStateButton();
+            var button = new AbstUIGfxStateButton();
             var impl = new SdlGfxStateButton(this);
             if (onChange != null)
                 button.ValueChanged += () => onChange(button.IsOn);
@@ -254,19 +254,19 @@ namespace LingoEngine.SDL2.Gfx
             return button;
         }
 
-        public LingoGfxMenu CreateMenu(string name)
+        public AbstUIGfxMenu CreateMenu(string name)
         {
-            var menu = new LingoGfxMenu();
+            var menu = new AbstUIGfxMenu();
             var impl = new SdlGfxMenu(this, name);
             menu.Init(impl);
             return menu;
         }
 
 
-        public LingoGfxWindow CreateWindow(string name, string title = "")
+        public AbstUIGfxWindow CreateWindow(string name, string title = "")
         {
             
-            var win = new LingoGfxWindow();
+            var win = new AbstUIGfxWindow();
             var impl = new SdlGfxWindow(win, this);
             win.Name = name;
             win.Title = title;
@@ -274,26 +274,26 @@ namespace LingoEngine.SDL2.Gfx
         }
 
 
-        public LingoGfxMenuItem CreateMenuItem(string name, string? shortcut = null)
+        public AbstUIGfxMenuItem CreateMenuItem(string name, string? shortcut = null)
         {
-            var item = new LingoGfxMenuItem();
+            var item = new AbstUIGfxMenuItem();
             var impl = new SdlGfxMenuItem(this, name, shortcut);
             item.Init(impl);
             return item;
         }
 
-        public LingoGfxMenu CreateContextMenu(object window)
+        public AbstUIGfxMenu CreateContextMenu(object window)
         {
             var menu = CreateMenu("ContextMenu");
             return menu;
         }
 
-        public LingoGfxHorizontalLineSeparator CreateHorizontalLineSeparator(string name)
+        public AbstUIGfxHorizontalLineSeparator CreateHorizontalLineSeparator(string name)
         {
             throw new NotImplementedException();
         }
 
-        public LingoGfxVerticalLineSeparator CreateVerticalLineSeparator(string name)
+        public AbstUIGfxVerticalLineSeparator CreateVerticalLineSeparator(string name)
         {
             throw new NotImplementedException();
         }

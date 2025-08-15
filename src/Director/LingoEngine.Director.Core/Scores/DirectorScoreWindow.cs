@@ -6,14 +6,15 @@ using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Core;
 using LingoEngine.Events;
 using LingoEngine.Director.Core.Tools;
-using LingoEngine.Gfx;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Primitives;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Sprites;
 using LingoEngine.Sounds;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
+using AbstUI.Inputs;
 
 
 namespace LingoEngine.Director.Core.Scores
@@ -29,13 +30,13 @@ namespace LingoEngine.Director.Core.Scores
         private readonly DirScoreFrameHeader _frameHeader;
         private readonly DirScoreLeftTopContainer _LeftTopContainer;
         private readonly DirScoreLeftChannelsContainer _LeftChannelContainer;
-        private readonly LingoGfxPanel _panelScroll;
-        private readonly LingoGfxPanel _panelFix;
-        private readonly LingoGfxInputCombobox _spriteShowSelector;
+        private readonly AbstUIGfxPanel _panelScroll;
+        private readonly AbstUIGfxPanel _panelFix;
+        private readonly AbstUIGfxInputCombobox _spriteShowSelector;
         private DirScoreSprite? _contextSprite;
         private int _contextFrame;
         private LingoMovie? _movie;
-        protected ILingoMouseSubscription _mouseSub;
+        protected IAbstUIMouseSubscription _mouseSub;
         private float _scollY;
         private float _scollX;
         private float _lastPosV;
@@ -51,8 +52,8 @@ namespace LingoEngine.Director.Core.Scores
         public DirScoreGfxValues GfxValues => _scoreManager.GfxValues;
         // public DirScoreLeftTopContainer LeftTopContainer => _LeftTopContainer;
         //public DirScoreLeftChannelsContainer LeftChannelContainer => _LeftChannelContainer;
-        public LingoGfxPanel ScorePanelScroll => _panelScroll;
-        public LingoGfxPanel ScorePanelFix => _panelFix;
+        public AbstUIGfxPanel ScorePanelScroll => _panelScroll;
+        public AbstUIGfxPanel ScorePanelFix => _panelFix;
         public float ScollX { get => _scollX; set => _scollX = value; }
         public float ScollY { get => _scollY; set => _scollY = value; }
 
@@ -221,7 +222,7 @@ namespace LingoEngine.Director.Core.Scores
                 return;
             if (isInsideLeft)
             {
-                if (mouseEvent.Type == LingoMouseEventType.MouseDown)
+                if (mouseEvent.Type == AbstUIMouseEventType.MouseDown)
                 {
                     if (spriteNumWithChannel < 7)
                         _LeftTopContainer.RaiseMouseDown(mouseEvent, spriteNumWithChannel);
@@ -232,7 +233,7 @@ namespace LingoEngine.Director.Core.Scores
             }
             var scoreChannel = HeaderCollapsed ? spriteNumWithChannel + 5 : spriteNumWithChannel;
             _scoreManager.HandleMouse(mouseEvent, scoreChannel, mouseFrame);
-            if (mouseEvent.Type == LingoMouseEventType.MouseDown && mouseEvent.Mouse.RightMouseDown)
+            if (mouseEvent.Type == AbstUIMouseEventType.MouseDown && mouseEvent.Mouse.RightMouseDown)
             {
                 var sprite = _scoreManager.GetSpriteAt(scoreChannel, mouseFrame);
                 if (sprite != null)
@@ -258,7 +259,7 @@ namespace LingoEngine.Director.Core.Scores
 
         protected override void OnRaiseKeyUp(LingoKey lingoKey) { }
 
-        internal IDirectorWindowDialogReference? ShowConfirmDialog(string title, ILingoFrameworkGfxPanel panel)
+        internal IDirectorWindowDialogReference? ShowConfirmDialog(string title, IAbstUIFrameworkGfxPanel panel)
             => _windowManager.ShowCustomDialog(title, panel);
 
 

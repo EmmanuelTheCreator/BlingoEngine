@@ -2,7 +2,7 @@
 using LingoEngine.Members;
 using LingoEngine.Animations;
 using LingoEngine.Bitmaps;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.Sprites
 {

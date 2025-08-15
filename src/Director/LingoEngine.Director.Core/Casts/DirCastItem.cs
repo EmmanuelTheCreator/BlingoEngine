@@ -1,8 +1,8 @@
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
 
@@ -23,11 +23,11 @@ public class DirCastItem
     private readonly int _slotNumber;
     private bool _selected;
     private bool _hovered;
-    private readonly LingoGfxCanvas _canvas;
+    private readonly AbstUIGfxCanvas _canvas;
     private DirectorMemberThumbnail _thumb;
 
     public ILingoMember? Member => _member;
-    public LingoGfxCanvas Canvas => _canvas;
+    public AbstUIGfxCanvas Canvas => _canvas;
 
     public DirCastItem(ILingoFrameworkFactory factory, ILingoMember? member, int slotNumber, IDirectorIconManager? iconManager)
     {

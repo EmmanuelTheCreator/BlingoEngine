@@ -1,12 +1,12 @@
 using System;
 using System.Numerics;
 using ImGuiNET;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxSpinBox : SdlGfxComponent, ILingoFrameworkGfxSpinBox, IDisposable
+    internal class SdlGfxSpinBox : SdlGfxComponent, IAbstUIFrameworkGfxSpinBox, IDisposable
     {
         public SdlGfxSpinBox(SdlGfxFactory factory) : base(factory)
         {

@@ -6,7 +6,7 @@ using LingoEngine.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Events;
 using System;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.FilmLoops
 {

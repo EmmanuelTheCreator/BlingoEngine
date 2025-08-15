@@ -3,8 +3,8 @@ using LingoEngine.Tempos;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Sprites;
 using LingoEngine.Director.Core.UI;
-using LingoEngine.Gfx;
 using LingoEngine.Director.Core.Windowing;
+using AbstUI.Components;
 namespace LingoEngine.Director.Core.Scores.Tempos;
 
 
@@ -122,7 +122,7 @@ internal partial class DirScoreTempoGridChannel : DirScoreChannel<ILingoTempoSpr
 
         panel.AddPopupButtons(okAction, CloseDialog);
 
-        _dialog = _showConfirmDialog?.Invoke("Frame Properties: Tempo", (ILingoFrameworkGfxPanel)panel.FrameworkObj);
+        _dialog = _showConfirmDialog?.Invoke("Frame Properties: Tempo", (IAbstUIFrameworkGfxPanel)panel.FrameworkObj);
     }
 
     private void CloseDialog()

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Members;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Windowing.Commands;
@@ -13,7 +12,9 @@ using LingoEngine.Bitmaps;
 using LingoEngine.Scripts;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Casts;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
+using AbstUI.Inputs;
 
 namespace LingoEngine.Director.Core.Casts
 {
@@ -21,9 +22,9 @@ namespace LingoEngine.Director.Core.Casts
     {
         private int _itemMargin = 2;
         private readonly List<DirCastItem> _items = new();
-        private readonly LingoGfxScrollContainer _scroll;
-        private readonly LingoGfxTabItem _tabItem;
-        private readonly LingoGfxWrapPanel _wrap;
+        private readonly AbstUIGfxScrollContainer _scroll;
+        private readonly AbstUIGfxTabItem _tabItem;
+        private readonly AbstUIGfxWrapPanel _wrap;
         private readonly ILingoCast _cast;
         private readonly ILingoCommandManager _commandManager;
         private readonly ILingoFrameworkFactory _factory;
@@ -38,7 +39,7 @@ namespace LingoEngine.Director.Core.Casts
         private static readonly object _lock = new();
 
         public event Action<ILingoMember, DirCastItem>? MemberSelected;
-        internal LingoGfxTabItem TabItem => _tabItem;
+        internal AbstUIGfxTabItem TabItem => _tabItem;
 
         public int Width { get; private set; }
 
@@ -160,7 +161,7 @@ namespace LingoEngine.Director.Core.Casts
             }
             switch (e.Type)
             {
-                case LingoMouseEventType.MouseDown:
+                case AbstUIMouseEventType.MouseDown:
                     var member = memberHover;
                     var item = hoverItem;
                     if (item != null)
@@ -184,7 +185,7 @@ namespace LingoEngine.Director.Core.Casts
                         }
                     }
                     break;
-                case LingoMouseEventType.MouseMove:
+                case AbstUIMouseEventType.MouseMove:
                     if (e.Mouse.MouseDown && _selected != null && _selected.Member != null)
                     {
                         float dx = x - _dragStartX;
@@ -196,7 +197,7 @@ namespace LingoEngine.Director.Core.Casts
                         }
                     }
                     break;
-                case LingoMouseEventType.MouseUp:
+                case AbstUIMouseEventType.MouseUp:
                     if (_dragging && _dragItem?.Member != null && hoverItem != null && hoverItem != _dragItem)
                     {
                         SwapItems(_dragItem, hoverItem);

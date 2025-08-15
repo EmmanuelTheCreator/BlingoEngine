@@ -1,9 +1,9 @@
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.Core;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Members;
 using LingoEngine.Movies;
 
@@ -15,15 +15,15 @@ public class MemberNavigationBar<T> where T : class, ILingoMember
     private readonly IDirectorEventMediator _mediator;
     private readonly ILingoPlayer _player;
     private readonly IDirectorIconManager _iconManager;
-    private readonly LingoGfxWrapPanel _panel;
-    private LingoGfxButton _typeIcon;
-    private LingoGfxLabel _numberLabel;
-    private LingoGfxLabel _castLibLabel;
-    private LingoGfxInputText _nameEdit;
+    private readonly AbstUIGfxWrapPanel _panel;
+    private AbstUIGfxButton _typeIcon;
+    private AbstUIGfxLabel _numberLabel;
+    private AbstUIGfxLabel _castLibLabel;
+    private AbstUIGfxInputText _nameEdit;
 
     private T? _member;
 
-    public LingoGfxWrapPanel Panel => _panel;
+    public AbstUIGfxWrapPanel Panel => _panel;
     public string MemberName
     {
         get => _memberName; 

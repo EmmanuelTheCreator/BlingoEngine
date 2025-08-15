@@ -1,6 +1,5 @@
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Inputs;
@@ -10,22 +9,23 @@ using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Core;
 using LingoEngine.Director.Core.Events;
+using AbstUI.Components;
+using AbstUI.Inputs;
 
 namespace LingoEngine.Director.Core.Casts
 {
     public class DirectorCastWindow : DirectorWindow<IDirFrameworkCastWindow> , IHasFindMemberEvent
     {
         private readonly IDirectorEventMediator _mediator;
-        private readonly ILingoFrameworkFactory _factory;
-        private readonly LingoGfxTabContainer _tabs;
+        private readonly AbstUIGfxTabContainer _tabs;
         private readonly LingoPlayer _player;
         private readonly Dictionary<string, DirCastTab> _tabMap = new();
         private readonly ILingoCommandManager _commandManager;
         private readonly IDirectorIconManager _iconManager;
         private ILingoMember? _selected;
-        private ILingoMouseSubscription? _mouseSub;
+        private IAbstUIMouseSubscription? _mouseSub;
 
-        public LingoGfxTabContainer TabContainer => _tabs;
+        public AbstUIGfxTabContainer TabContainer => _tabs;
         public ILingoMember? SelectedMember => _selected;
         public int Width { get; set; } = 370;
         public int Height { get; set; } = 620;
@@ -35,7 +35,6 @@ namespace LingoEngine.Director.Core.Casts
             _player = (LingoPlayer)player;
             _player.ActiveMovieChanged += OnActiveMovieChanged;
             _mediator = mediator;
-            _factory = factory;
             _commandManager = commandManager;
             _iconManager = iconManager;
             _tabs = factory.CreateTabContainer("CastTabs");

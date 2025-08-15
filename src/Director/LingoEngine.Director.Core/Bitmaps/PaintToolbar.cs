@@ -1,4 +1,4 @@
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Bitmaps.Commands;
 using LingoEngine.Director.Core.Icons;

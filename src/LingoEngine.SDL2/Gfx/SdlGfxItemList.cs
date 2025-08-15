@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxItemList : SdlGfxComponent, ILingoFrameworkGfxItemList, IDisposable
+    internal class SdlGfxItemList : SdlGfxComponent, IAbstUIFrameworkGfxItemList, IDisposable
     {
         public SdlGfxItemList(SdlGfxFactory factory) : base(factory)
         {

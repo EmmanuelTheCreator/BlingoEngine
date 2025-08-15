@@ -1,13 +1,13 @@
 ﻿using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Windowing;
-using LingoEngine.Gfx;
 using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
 using LingoEngine.Director.Core.Styles;
 using System.Collections.Generic;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
 
 namespace LingoEngine.Director.Core.Scores
 {
@@ -28,7 +28,7 @@ namespace LingoEngine.Director.Core.Scores
         protected readonly DirScoreGfxValues _gfxValues;
         protected readonly IDirSpritesManager _spritesManager;
         protected readonly IDirScoreManager _scoreManager;
-        protected readonly LingoGfxCanvas _canvas;
+        protected readonly AbstUIGfxCanvas _canvas;
         protected LingoMovie? _movie;
         protected float _scrollX;
         protected int _lastFrame = -1;
@@ -36,7 +36,7 @@ namespace LingoEngine.Director.Core.Scores
         protected bool _spriteDirty = true;
         protected bool _hasDirtySpriteList = true;
         protected IDirScoreChannelFramework? _framework;
-        protected Func<string, ILingoFrameworkGfxPanel, IDirectorWindowDialogReference?> _showConfirmDialog;
+        protected Func<string, IAbstUIFrameworkGfxPanel, IDirectorWindowDialogReference?> _showConfirmDialog;
 
         public bool HasDirtySpriteList { get => _hasDirtySpriteList; set => _hasDirtySpriteList = value; }
         public bool Visible { get; internal set; } = true;
@@ -44,8 +44,8 @@ namespace LingoEngine.Director.Core.Scores
         public APoint Size { get; set; }
         public int SpriteNumWithChannelNum { get; }
         public bool IsSingleFrame { get; protected set; }
-        public virtual T Framework<T>() where T : ILingoFrameworkGfxNode => _canvas.Framework<T>();
-        public virtual ILingoFrameworkGfxNode FrameworkObj => _canvas.FrameworkObj;
+        public virtual T Framework<T>() where T : IAbstUIFrameworkGfxNode => _canvas.Framework<T>();
+        public virtual IAbstUIFrameworkGfxNode FrameworkObj => _canvas.FrameworkObj;
 
         public bool ShowPreview { get; protected set; }
         public int PreviewBegin { get; protected set; }
@@ -130,7 +130,7 @@ namespace LingoEngine.Director.Core.Scores
         {
         }
 
-        internal void SetShowDialogMethod(Func<string, ILingoFrameworkGfxPanel, IDirectorWindowDialogReference?> showConfirmDialog)
+        internal void SetShowDialogMethod(Func<string, IAbstUIFrameworkGfxPanel, IDirectorWindowDialogReference?> showConfirmDialog)
         {
             _showConfirmDialog = showConfirmDialog;
         }

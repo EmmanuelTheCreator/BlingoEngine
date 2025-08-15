@@ -1,25 +1,25 @@
 using Godot;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.Primitives;
 using LingoEngine.Styles;
 
 namespace LingoEngine.LGodot.Gfx
 {
     /// <summary>
-    /// Godot implementation of <see cref="ILingoFrameworkGfxInputNumber"/>.
+    /// Godot implementation of <see cref="IAbstUIFrameworkGfxInputNumber"/>.
     /// </summary>
-    public partial class LingoGodotInputNumber<TValue> : LineEdit, ILingoFrameworkGfxInputNumber<TValue>, IDisposable
+    public partial class LingoGodotInputNumber<TValue> : LineEdit, IAbstUIFrameworkGfxInputNumber<TValue>, IDisposable
         where TValue : System.Numerics.INumber<TValue>
     {
         private AMargin _margin = AMargin.Zero;
-        private LingoNumberType _numberType = LingoNumberType.Float;
+        private ANumberType _numberType = ANumberType.Float;
         private Action<TValue>? _onChange;
         private readonly ILingoFontManager _fontManager;
 
         private event Action _onValueChanged;
 
-        public LingoGodotInputNumber(LingoGfxInputNumber<TValue> input, ILingoFontManager fontManager, Action<TValue>? onChange)
+        public LingoGodotInputNumber(AbstUIGfxInputNumber<TValue> input, ILingoFontManager fontManager, Action<TValue>? onChange)
         {
             _onChange = onChange;
             _fontManager = fontManager;
@@ -120,8 +120,8 @@ namespace LingoEngine.LGodot.Gfx
         }
         public TValue Min { get; set; } 
         public TValue Max { get; set; } 
-        string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
-        public LingoNumberType NumberType
+        string IAbstUIFrameworkGfxNode.Name { get => Name; set => Name = value; }
+        public ANumberType NumberType
         {
             get => _numberType;
             set
@@ -192,7 +192,7 @@ namespace LingoEngine.LGodot.Gfx
         }
 
 
-        event Action? ILingoFrameworkGfxNodeInput.ValueChanged
+        event Action? IAbstUIFrameworkGfxNodeInput.ValueChanged
         {
             add => _onValueChanged += value;
             remove => _onValueChanged -= value;

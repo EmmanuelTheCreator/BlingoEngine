@@ -1,3 +1,4 @@
+using AbstUI.Inputs;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
 using System.Collections.Generic;
@@ -41,13 +42,13 @@ public class UnityKey : ILingoFrameworkKey
     public bool OptionDown => ContainsAny(_keys, 18);
     public bool ShiftDown => ContainsAny(_keys, 16);
 
-    public bool KeyPressed(LingoKeyType key) => key switch
+    public bool KeyPressed(AbstUIKeyType key) => key switch
     {
-        LingoKeyType.BACKSPACE => _keys.Contains(8),
-        LingoKeyType.ENTER or LingoKeyType.RETURN => _keys.Contains(13),
-        LingoKeyType.QUOTE => _keys.Contains(39),
-        LingoKeyType.SPACE => _keys.Contains(32),
-        LingoKeyType.TAB => _keys.Contains(9),
+        AbstUIKeyType.BACKSPACE => _keys.Contains(8),
+        AbstUIKeyType.ENTER or AbstUIKeyType.RETURN => _keys.Contains(13),
+        AbstUIKeyType.QUOTE => _keys.Contains(39),
+        AbstUIKeyType.SPACE => _keys.Contains(32),
+        AbstUIKeyType.TAB => _keys.Contains(9),
         _ => false
     };
 

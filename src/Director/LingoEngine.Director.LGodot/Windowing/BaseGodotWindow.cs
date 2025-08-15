@@ -5,7 +5,7 @@ using LingoEngine.LGodot;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.Inputs;
 using LingoEngine.Director.Core.Tools;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.Director.LGodot
 {

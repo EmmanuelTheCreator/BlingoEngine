@@ -1,9 +1,9 @@
-﻿using LingoEngine.AbstUI.Primitives;
+﻿using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Events;
-using LingoEngine.Gfx;
 using LingoEngine.Inputs;
 using LingoEngine.Movies;
 
@@ -22,10 +22,10 @@ namespace LingoEngine.Director.Core.Scores
     {
         protected IDirScoreFrameworkGridContainer? _framework;
         protected readonly IDirScoreManager _scoreManager;
-        private readonly Func<string, ILingoFrameworkGfxPanel, IDirectorWindowDialogReference?> _showConfirmDialog;
+        private readonly Func<string, IAbstUIFrameworkGfxPanel, IDirectorWindowDialogReference?> _showConfirmDialog;
         protected readonly DirScoreGfxValues _gfxValues;
         protected readonly DirScoreGridPainter _gridCanvas;
-        protected readonly LingoGfxCanvas _canvasCurrentFrame;
+        protected readonly AbstUIGfxCanvas _canvasCurrentFrame;
         protected LingoMovie? _movie;
         
         protected int _currentFrame = -1;
@@ -36,13 +36,13 @@ namespace LingoEngine.Director.Core.Scores
         public APoint Position { get; set; }
         public APoint Size { get; set; }
        
-        public LingoGfxCanvas CanvasGridLines => _gridCanvas.Canvas;
-        public LingoGfxCanvas CanvasCurrentFrame => _canvasCurrentFrame;
+        public AbstUIGfxCanvas CanvasGridLines => _gridCanvas.Canvas;
+        public AbstUIGfxCanvas CanvasCurrentFrame => _canvasCurrentFrame;
         public DirScoreChannel[] Channels => _channels;
 
 
 
-        public DirScoreGridContainer(IDirScoreManager scoreManager,int channelCount, Func<string, ILingoFrameworkGfxPanel, IDirectorWindowDialogReference?> showConfirmDialog)
+        public DirScoreGridContainer(IDirScoreManager scoreManager,int channelCount, Func<string, IAbstUIFrameworkGfxPanel, IDirectorWindowDialogReference?> showConfirmDialog)
         {
             _scoreManager = scoreManager;
             _showConfirmDialog = showConfirmDialog;

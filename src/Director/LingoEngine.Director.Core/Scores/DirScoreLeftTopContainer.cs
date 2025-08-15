@@ -1,4 +1,4 @@
-﻿using LingoEngine.AbstUI.Primitives;
+﻿using AbstUI.Primitives;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;

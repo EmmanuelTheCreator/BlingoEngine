@@ -1,5 +1,6 @@
-﻿using Godot;
-using LingoEngine.AbstUI.Primitives;
+﻿using AbstUI.Texts;
+using Godot;
+using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Bitmaps;
 using LingoEngine.LGodot.Helpers;
@@ -132,25 +133,25 @@ namespace LingoEngine.LGodot.Texts
                 
             }
         }
-        public LingoTextAlignment Alignment
+        public AbstUITextAlignment Alignment
         {
             get
             {
                 return _defaultTextNode.LabelNode.HorizontalAlignment switch
                 {
-                    HorizontalAlignment.Left => LingoTextAlignment.Left,
-                    HorizontalAlignment.Center => LingoTextAlignment.Center,
-                    HorizontalAlignment.Right => LingoTextAlignment.Right,
-                    _ => LingoTextAlignment.Left // Default fallback
+                    HorizontalAlignment.Left => AbstUITextAlignment.Left,
+                    HorizontalAlignment.Center => AbstUITextAlignment.Center,
+                    HorizontalAlignment.Right => AbstUITextAlignment.Right,
+                    _ => AbstUITextAlignment.Left // Default fallback
                 };
             }
             set
             {
                 var align = value switch
                 {
-                    LingoTextAlignment.Left => HorizontalAlignment.Left,
-                    LingoTextAlignment.Center => HorizontalAlignment.Center,
-                    LingoTextAlignment.Right => HorizontalAlignment.Right,
+                    AbstUITextAlignment.Left => HorizontalAlignment.Left,
+                    AbstUITextAlignment.Center => HorizontalAlignment.Center,
+                    AbstUITextAlignment.Right => HorizontalAlignment.Right,
                     _ => HorizontalAlignment.Left // Default fallback
                 };
                 Apply(x => x.LabelNode.HorizontalAlignment = align);
@@ -279,8 +280,8 @@ namespace LingoEngine.LGodot.Texts
             label.AutowrapMode = WordWrap ? TextServer.AutowrapMode.Word : TextServer.AutowrapMode.Off;
             label.HorizontalAlignment = Alignment switch
             {
-                LingoTextAlignment.Center => HorizontalAlignment.Center,
-                LingoTextAlignment.Right => HorizontalAlignment.Right,
+                AbstUITextAlignment.Center => HorizontalAlignment.Center,
+                AbstUITextAlignment.Right => HorizontalAlignment.Right,
                 _ => HorizontalAlignment.Left
             };
             viewport.AddChild(label);

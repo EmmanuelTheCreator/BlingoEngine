@@ -1,15 +1,15 @@
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.Director.Core.Bitmaps;
 
 public class RegPointCanvas
 {
-    private readonly LingoGfxCanvas _canvas;
-    public LingoGfxCanvas Canvas => _canvas;
+    private readonly AbstUIGfxCanvas _canvas;
+    public AbstUIGfxCanvas Canvas => _canvas;
     public bool Visible { get => _canvas.Visibility; set => _canvas.Visibility = value; }
 
     public RegPointCanvas(ILingoFrameworkFactory factory)

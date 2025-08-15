@@ -1,5 +1,5 @@
+using AbstUI.Components;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Inputs;
 
 namespace LingoEngine.Director.Core.Windowing
@@ -10,13 +10,13 @@ namespace LingoEngine.Director.Core.Windowing
     public class DirContextMenu : IDisposable
     {
         private readonly ILingoFrameworkFactory _factory;
-        private readonly LingoGfxMenu _menu;
+        private readonly AbstUIGfxMenu _menu;
         private readonly Func<(float X, float Y)> _positionProvider;
         private readonly Func<bool> _allowOpen;
         private readonly List<Item> _items = new();
         private readonly LingoMouse? _mouse;
 
-        private record Item(LingoGfxMenuItem MenuItem, Func<bool> CanExecute, Action Execute);
+        private record Item(AbstUIGfxMenuItem MenuItem, Func<bool> CanExecute, Action Execute);
 
         public DirContextMenu(
             object window,
@@ -38,9 +38,9 @@ namespace LingoEngine.Director.Core.Windowing
             AddItem(icon, text, canExecute, execute);
             return this;
         }
-        public LingoGfxMenuItem AddItem(string icon, string text, Func<bool> canExecute, Action execute)
+        public AbstUIGfxMenuItem AddItem(string icon, string text, Func<bool> canExecute, Action execute)
         {
-            LingoGfxMenuItem item = _factory.CreateMenuItem(text);
+            AbstUIGfxMenuItem item = _factory.CreateMenuItem(text);
             item.Activated += () => { if (canExecute()) execute(); };
             _menu.AddItem(item);
             _items.Add(new Item(item, canExecute, execute));

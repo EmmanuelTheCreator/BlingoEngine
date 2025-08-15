@@ -1,9 +1,9 @@
 using Godot;
+using AbstUI.Components;
 using LingoEngine.Director.Core.Stages;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.LGodot.Movies;
-using LingoEngine.Gfx;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.LGodot.Styles;
 
@@ -107,7 +107,7 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
         return new DirectorWindowDialogReference(dialog.QueueFree);
     }
 
-    public IDirectorWindowDialogReference? ShowCustomDialog(string title, ILingoFrameworkGfxPanel panel)
+    public IDirectorWindowDialogReference? ShowCustomDialog(string title, IAbstUIFrameworkGfxPanel panel)
     {
         var root = ActiveWindow?.GetTree().Root;
         if (root == null)

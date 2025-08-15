@@ -1,4 +1,5 @@
-﻿using LingoEngine.ColorPalettes;
+﻿using AbstUI.Components;
+using LingoEngine.ColorPalettes;
 using LingoEngine.Director.Core.Scores.ColorPalettes;
 using LingoEngine.Director.Core.Scores.FrameScripts;
 using LingoEngine.Director.Core.Scores.Sounds;
@@ -24,7 +25,7 @@ namespace LingoEngine.Director.Core.Scores
         }
 
 
-        public DirScoreGridTopContainer(IDirScoreManager scoreManager, ILingoColorPaletteDefinitions paletteDefinitions, Func<string, Gfx.ILingoFrameworkGfxPanel, Windowing.IDirectorWindowDialogReference?> showConfirmDialog)
+        public DirScoreGridTopContainer(IDirScoreManager scoreManager, ILingoColorPaletteDefinitions paletteDefinitions, Func<string, IAbstUIFrameworkGfxPanel, Windowing.IDirectorWindowDialogReference?> showConfirmDialog)
             :base(scoreManager, 6, showConfirmDialog) 
         {
             SetChannels(

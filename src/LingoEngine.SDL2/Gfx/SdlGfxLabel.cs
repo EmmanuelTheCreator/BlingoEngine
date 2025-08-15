@@ -1,15 +1,15 @@
 using System;
 using System.Numerics;
+using AbstUI.Texts;
 using ImGuiNET;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.SDL2.Primitives;
-using LingoEngine.Texts;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxLabel : SdlGfxComponent, ILingoFrameworkGfxLabel, IDisposable
+    internal class SdlGfxLabel : SdlGfxComponent, IAbstUIFrameworkGfxLabel, IDisposable
     {
         public SdlGfxLabel(SdlGfxFactory factory) : base(factory)
         {
@@ -25,8 +25,8 @@ namespace LingoEngine.SDL2.Gfx
         public int LineHeight { get => _lineHeight; set => _lineHeight = value; }
         private ATextWrapMode _wrapMode;
         public ATextWrapMode WrapMode { get => _wrapMode; set => _wrapMode = value; }
-        private LingoTextAlignment _textAlignment;
-        public LingoTextAlignment TextAlignment { get => _textAlignment; set => _textAlignment = value; }
+        private AbstUITextAlignment _textAlignment;
+        public AbstUITextAlignment TextAlignment { get => _textAlignment; set => _textAlignment = value; }
 
         public object FrameworkNode => this;
 
@@ -55,13 +55,13 @@ namespace LingoEngine.SDL2.Gfx
             if (wrap) ImGui.PushTextWrapPos(basePos.X + Width);
 
             // Position with screen coords (no assertions)
-            if (!wrap && Width > 0 && TextAlignment != LingoTextAlignment.Left)
+            if (!wrap && Width > 0 && TextAlignment != AbstUITextAlignment.Left)
             {
                 // single-line alignment
                 var sz = ImGui.CalcTextSize(Text);
                 float startX = basePos.X;
-                if (TextAlignment == LingoTextAlignment.Center) startX += (Width - sz.X) / 2f;
-                else if (TextAlignment == LingoTextAlignment.Right) startX += (Width - sz.X);
+                if (TextAlignment == AbstUITextAlignment.Center) startX += (Width - sz.X) / 2f;
+                else if (TextAlignment == AbstUITextAlignment.Right) startX += (Width - sz.X);
                 ImGui.SetCursorScreenPos(new Vector2(startX, basePos.Y));
                 ImGui.TextUnformatted(Text);
             }

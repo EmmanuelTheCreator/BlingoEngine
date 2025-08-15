@@ -1,5 +1,5 @@
 using Godot;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.LGodot.Primitives;
 

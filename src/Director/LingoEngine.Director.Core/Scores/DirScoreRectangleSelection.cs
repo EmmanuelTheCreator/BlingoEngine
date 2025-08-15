@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using LingoEngine.Events;
-using LingoEngine.Inputs;
 using LingoEngine.Sprites;
 using LingoEngine.Director.Core.Sprites;
+using AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.Scores
 {
@@ -120,7 +120,7 @@ namespace LingoEngine.Director.Core.Scores
             _selecting = false;
             _prevMinChannel = _prevMaxChannel = -1;
             _manager.LastMouseLeftDown = false;
-            mouseEvent.Mouse.SetCursor(LingoMouseCursor.Arrow);
+            mouseEvent.Mouse.SetCursor(AMouseCursor.Arrow);
             return true;
         }
     }

@@ -1,12 +1,12 @@
 using System;
 using System.Numerics;
 using ImGuiNET;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxColorPicker : SdlGfxComponent, ILingoFrameworkGfxColorPicker, IDisposable
+    internal class SdlGfxColorPicker : SdlGfxComponent, IAbstUIFrameworkGfxColorPicker, IDisposable
     {
         public SdlGfxColorPicker(SdlGfxFactory factory) : base(factory)
         {

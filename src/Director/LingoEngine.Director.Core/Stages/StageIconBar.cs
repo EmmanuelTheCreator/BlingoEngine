@@ -3,32 +3,32 @@ using LingoEngine.Commands;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Movies;
 using LingoEngine.Movies.Commands;
 using LingoEngine.Core;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
 
 namespace LingoEngine.Director.Core.Stages;
 
 public class StageIconBar : IDisposable
 {
-    private readonly LingoGfxButton _rewindButton;
-    private readonly LingoGfxButton _playButton;
-    private readonly LingoGfxButton _prevFrameButton;
-    private readonly LingoGfxButton _nextFrameButton;
-    private readonly LingoGfxInputSlider<float> _zoomSlider;
-    private readonly LingoGfxInputCombobox _zoomDropdown;
-    private readonly LingoGfxPanel _colorDisplay;
-    private readonly LingoGfxColorPicker _colorPicker;
-    private readonly LingoGfxStateButton _recordButton;
+    private readonly AbstUIGfxButton _rewindButton;
+    private readonly AbstUIGfxButton _playButton;
+    private readonly AbstUIGfxButton _prevFrameButton;
+    private readonly AbstUIGfxButton _nextFrameButton;
+    private readonly AbstUIGfxInputSlider<float> _zoomSlider;
+    private readonly AbstUIGfxInputCombobox _zoomDropdown;
+    private readonly AbstUIGfxPanel _colorDisplay;
+    private readonly AbstUIGfxColorPicker _colorPicker;
+    private readonly AbstUIGfxStateButton _recordButton;
     private readonly ILingoPlayer _player;
     private readonly IDirStageManager _stageManager;
     private LingoMovie? _movie;
     private readonly IDirectorEventSubscription _stageChangedSub;
     private bool _updatingZoom;
 
-    public LingoGfxPanel Panel { get; }
+    public AbstUIGfxPanel Panel { get; }
 
     public event Action<float>? ZoomChanged;
     public event Action<AColor>? ColorChanged;

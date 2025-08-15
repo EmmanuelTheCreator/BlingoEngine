@@ -1,7 +1,7 @@
-﻿using LingoEngine.AbstUI.Primitives;
+﻿using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 
@@ -10,7 +10,7 @@ namespace LingoEngine.Director.Core.Inspector
     public interface IDirectorBehaviorDescriptionManager
     {
         /// <summary>Builds a popup window for editing the given behavior.</summary>
-        LingoGfxWindow? BuildBehaviorPopup(LingoSpriteBehavior behavior, Action onClose);
+        AbstUIGfxWindow? BuildBehaviorPopup(LingoSpriteBehavior behavior, Action onClose);
     }
 
     internal class DirectorBehaviorDescriptionManager : IDirectorBehaviorDescriptionManager
@@ -24,7 +24,7 @@ namespace LingoEngine.Director.Core.Inspector
         }
 
         
-        public LingoGfxWindow? BuildBehaviorPopup(LingoSpriteBehavior behavior, Action onClose)
+        public AbstUIGfxWindow? BuildBehaviorPopup(LingoSpriteBehavior behavior, Action onClose)
         {
             if (!(behavior is ILingoPropertyDescriptionList))
                return null;
@@ -83,7 +83,7 @@ namespace LingoEngine.Director.Core.Inspector
             return win;
         }
 
-        private (ILingoGfxLayoutNode Node, BehaviorPropertyDescriptionList Definitions)? BuildBehaviorPanel(LingoSpriteBehavior behavior, int width, int height)
+        private (IAbstUIGfxLayoutNode Node, BehaviorPropertyDescriptionList Definitions)? BuildBehaviorPanel(LingoSpriteBehavior behavior, int width, int height)
         {
             
 
@@ -112,7 +112,7 @@ namespace LingoEngine.Director.Core.Inspector
         }
 
 
-        private BehaviorPropertyDescriptionList? BuildDescriptionList(LingoSpriteBehavior behavior, LingoGfxWrapPanel container, ILingoPropertyDescriptionList descProvider)
+        private BehaviorPropertyDescriptionList? BuildDescriptionList(LingoSpriteBehavior behavior, AbstUIGfxWrapPanel container, ILingoPropertyDescriptionList descProvider)
         {
             BehaviorPropertyDescriptionList? definitions = descProvider.GetPropertyDescriptionList();
             if (definitions == null || definitions.Count == 0)
@@ -165,7 +165,7 @@ namespace LingoEngine.Director.Core.Inspector
            
         }
 
-        private LingoGfxInputText CreateString(BehaviorPropertiesContainer properties, string key, object? propValue)
+        private AbstUIGfxInputText CreateString(BehaviorPropertiesContainer properties, string key, object? propValue)
         {
             var input = _factory.CreateInputText($"PropInput_{key}");
             input.Width = 70;
@@ -174,11 +174,11 @@ namespace LingoEngine.Director.Core.Inspector
             return input;
         }
 
-        private LingoGfxInputNumber<int> CreateInt(BehaviorPropertiesContainer properties, string key, object? propValue)
+        private AbstUIGfxInputNumber<int> CreateInt(BehaviorPropertiesContainer properties, string key, object? propValue)
         {
             var input = _factory.CreateInputNumberInt($"PropInput_{key}");
             input.Width = 70;
-            input.NumberType = LingoNumberType.Integer;
+            input.NumberType = ANumberType.Integer;
             if (propValue is int i)
                 input.Value = i;
             //else if (propValue is float f)
@@ -188,11 +188,11 @@ namespace LingoEngine.Director.Core.Inspector
             input.ValueChanged += () => properties[key] = (int)input.Value;
             return input;
         } 
-        private LingoGfxInputNumber<float> CreateFloat(BehaviorPropertiesContainer properties, string key, object? propValue)
+        private AbstUIGfxInputNumber<float> CreateFloat(BehaviorPropertiesContainer properties, string key, object? propValue)
         {
             var input = _factory.CreateInputNumberFloat($"PropInput_{key}");
             input.Width = 70;
-            input.NumberType = LingoNumberType.Float;
+            input.NumberType = ANumberType.Float;
             if (propValue is int i)
                 input.Value = i;
             else if (propValue is float f)
@@ -207,7 +207,7 @@ namespace LingoEngine.Director.Core.Inspector
             return input;
         }
 
-        private LingoGfxInputCheckbox CreateBoolean(BehaviorPropertiesContainer properties, string key, object? propValue)
+        private AbstUIGfxInputCheckbox CreateBoolean(BehaviorPropertiesContainer properties, string key, object? propValue)
         {
             var input = _factory.CreateInputCheckbox($"PropInput_{key}");
             input.Width = 70;
@@ -219,7 +219,7 @@ namespace LingoEngine.Director.Core.Inspector
             return input;
         }
 
-        public LingoGfxWrapPanel BuildProperties(object obj)
+        public AbstUIGfxWrapPanel BuildProperties(object obj)
         {
             ILingoFrameworkFactory factory = _factory;
             var root = factory.CreateWrapPanel(AOrientation.Vertical, $"{obj.GetType().Name}Props");

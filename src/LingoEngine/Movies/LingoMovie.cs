@@ -11,7 +11,6 @@ using LingoEngine.Transitions;
 using LingoEngine.Tempos;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Scripts;
-using LingoEngine.Core;
 
 namespace LingoEngine.Movies
 {

@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.SDL2.SDLL;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxPanel : SdlGfxComponent, ILingoFrameworkGfxPanel, IDisposable
+    internal class SdlGfxPanel : SdlGfxComponent, IAbstUIFrameworkGfxPanel, IDisposable
     {
         public SdlGfxPanel(SdlGfxFactory factory) : base(factory)
         {
@@ -17,17 +17,17 @@ namespace LingoEngine.SDL2.Gfx
         public float BorderWidth { get; set; }
         public object FrameworkNode => this;
 
-        private readonly List<ILingoFrameworkGfxLayoutNode> _children = new();
+        private readonly List<IAbstUIFrameworkGfxLayoutNode> _children = new();
 
-        public void AddItem(ILingoFrameworkGfxLayoutNode child)
+        public void AddItem(IAbstUIFrameworkGfxLayoutNode child)
         {
             if (!_children.Contains(child))
                 _children.Add(child);
         }
 
-        public IEnumerable<ILingoFrameworkGfxLayoutNode> GetItems() => _children.ToArray();
+        public IEnumerable<IAbstUIFrameworkGfxLayoutNode> GetItems() => _children.ToArray();
 
-        public void RemoveItem(ILingoFrameworkGfxLayoutNode child)
+        public void RemoveItem(IAbstUIFrameworkGfxLayoutNode child)
         {
             if (_children.Remove(child))
                 (child as IDisposable)?.Dispose();

@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Texts;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Texts;
 
 namespace LingoEngine.Director.Core.Texts;
@@ -15,23 +16,23 @@ namespace LingoEngine.Director.Core.Texts;
 /// </summary>
 public class TextEditIconBar
 {
-    private readonly LingoGfxStateButton _alignLeft;
-    private readonly LingoGfxStateButton _alignCenter;
-    private readonly LingoGfxStateButton _alignRight;
-    private readonly LingoGfxStateButton _alignJustified;
-    private readonly LingoGfxStateButton _boldButton;
-    private readonly LingoGfxStateButton _italicButton;
-    private readonly LingoGfxStateButton _underlineButton;
-    private readonly LingoGfxPanel _colorDisplay;
-    private readonly LingoGfxColorPicker _colorPicker;
-    private readonly LingoGfxSpinBox _fontSize;
-    private readonly LingoGfxInputCombobox _fontsCombo;
+    private readonly AbstUIGfxStateButton _alignLeft;
+    private readonly AbstUIGfxStateButton _alignCenter;
+    private readonly AbstUIGfxStateButton _alignRight;
+    private readonly AbstUIGfxStateButton _alignJustified;
+    private readonly AbstUIGfxStateButton _boldButton;
+    private readonly AbstUIGfxStateButton _italicButton;
+    private readonly AbstUIGfxStateButton _underlineButton;
+    private readonly AbstUIGfxPanel _colorDisplay;
+    private readonly AbstUIGfxColorPicker _colorPicker;
+    private readonly AbstUIGfxSpinBox _fontSize;
+    private readonly AbstUIGfxInputCombobox _fontsCombo;
 
     /// <summary>Container panel holding the toolbar items.</summary>
-    public LingoGfxPanel Panel { get; }
+    public AbstUIGfxPanel Panel { get; }
 
     /// <summary>Raised when the text alignment changes.</summary>
-    public event Action<LingoTextAlignment>? AlignmentChanged;
+    public event Action<AbstUITextAlignment>? AlignmentChanged;
     /// <summary>Raised when bold style is toggled.</summary>
     public event Action<bool>? BoldChanged;
     /// <summary>Raised when italic style is toggled.</summary>
@@ -64,10 +65,10 @@ public class TextEditIconBar
         var container = factory.CreateWrapPanel(AOrientation.Horizontal, "TextEditIconBarContainer");
         Panel.AddItem(container);
 
-        _alignLeft = factory.CreateStateButton("AlignLeft", null, "L", _ => AlignmentChanged?.Invoke(LingoTextAlignment.Left));
-        _alignCenter = factory.CreateStateButton("AlignCenter", null, "C", _ => AlignmentChanged?.Invoke(LingoTextAlignment.Center));
-        _alignRight = factory.CreateStateButton("AlignRight", null, "R", _ => AlignmentChanged?.Invoke(LingoTextAlignment.Right));
-        _alignJustified = factory.CreateStateButton("AlignJustified", null, "J", _ => AlignmentChanged?.Invoke(LingoTextAlignment.Justified));
+        _alignLeft = factory.CreateStateButton("AlignLeft", null, "L", _ => AlignmentChanged?.Invoke(AbstUITextAlignment.Left));
+        _alignCenter = factory.CreateStateButton("AlignCenter", null, "C", _ => AlignmentChanged?.Invoke(AbstUITextAlignment.Center));
+        _alignRight = factory.CreateStateButton("AlignRight", null, "R", _ => AlignmentChanged?.Invoke(AbstUITextAlignment.Right));
+        _alignJustified = factory.CreateStateButton("AlignJustified", null, "J", _ => AlignmentChanged?.Invoke(AbstUITextAlignment.Justified));
         container.AddItem(_alignLeft);
         container.AddItem(_alignCenter);
         container.AddItem(_alignRight);
@@ -118,12 +119,12 @@ public class TextEditIconBar
     public void SetFontSize(int size) => _fontSize.Value = size;
 
     /// <summary>Set the alignment state.</summary>
-    public void SetAlignment(LingoTextAlignment alignment)
+    public void SetAlignment(AbstUITextAlignment alignment)
     {
-        _alignLeft.IsOn = alignment == LingoTextAlignment.Left;
-        _alignCenter.IsOn = alignment == LingoTextAlignment.Center;
-        _alignRight.IsOn = alignment == LingoTextAlignment.Right;
-        _alignJustified.IsOn = alignment == LingoTextAlignment.Justified;
+        _alignLeft.IsOn = alignment == AbstUITextAlignment.Left;
+        _alignCenter.IsOn = alignment == AbstUITextAlignment.Center;
+        _alignRight.IsOn = alignment == AbstUITextAlignment.Right;
+        _alignJustified.IsOn = alignment == AbstUITextAlignment.Justified;
     }
 
     public void SetBold(bool on) => _boldButton.IsOn = on;

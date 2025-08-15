@@ -1,19 +1,19 @@
 using Godot;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 
 namespace LingoEngine.LGodot.Gfx
 {
     /// <summary>
-    /// Godot implementation of <see cref="ILingoFrameworkGfxMenu"/>.
+    /// Godot implementation of <see cref="IAbstUIFrameworkGfxMenu"/>.
     /// </summary>
-    public partial class LingoGodotMenu : PopupMenu, ILingoFrameworkGfxMenu, IDisposable
+    public partial class LingoGodotMenu : PopupMenu, IAbstUIFrameworkGfxMenu, IDisposable
     {
         private readonly Dictionary<int, LingoGodotMenuItem> _items = new();
         private string _name;
         private AMargin _margin;
 
-        public LingoGodotMenu(LingoGfxMenu menu, string name)
+        public LingoGodotMenu(AbstUIGfxMenu menu, string name)
         {
             _name = name;
             _margin = AMargin.Zero;
@@ -45,7 +45,7 @@ namespace LingoEngine.LGodot.Gfx
 
         public object FrameworkNode => this;
 
-        public void AddItem(ILingoFrameworkGfxMenuItem item)
+        public void AddItem(IAbstUIFrameworkGfxMenuItem item)
         {
             if (item is not LingoGodotMenuItem godotItem)
                 return;
@@ -63,7 +63,7 @@ namespace LingoEngine.LGodot.Gfx
         }
 
        
-        public void PositionPopup(ILingoFrameworkGfxButton button)
+        public void PositionPopup(IAbstUIFrameworkGfxButton button)
         {
             if (button is not Button btn)
                 return;

@@ -13,6 +13,7 @@ using LingoEngine.Director.Core.Scores.Sprites2D;
 using LingoEngine.Scripts;
 using System;
 using LingoEngine.Director.Core.Inspector.Commands;
+using AbstUI.Inputs;
 
 namespace LingoEngine.Director.Core.Scores
 {
@@ -156,7 +157,7 @@ namespace LingoEngine.Director.Core.Scores
                 return;
             var spriteScore = channel.GetSpriteAtFrame(frameNumber);
 
-            if (mouseEvent.Type == LingoMouseEventType.MouseDown && mouseEvent.Mouse.LeftMouseDown)
+            if (mouseEvent.Type == AbstUIMouseEventType.MouseDown && mouseEvent.Mouse.LeftMouseDown)
             {
                 if (mouseEvent.Mouse.DoubleClick)
                 {
@@ -168,7 +169,7 @@ namespace LingoEngine.Director.Core.Scores
                 {
                     if (spriteScore.IsLocked)
                     {
-                        mouseEvent.Mouse.SetCursor(Inputs.LingoMouseCursor.NotAllowed);
+                        mouseEvent.Mouse.SetCursor(AbstUI.Primitives.AMouseCursor.NotAllowed);
                         _directorEventMediator.RaiseSpriteSelected(spriteScore.Sprite);
                         _mouseDownFrame = -1;
                         return;
@@ -205,7 +206,7 @@ namespace LingoEngine.Director.Core.Scores
                     _rectangleSelection.Begin(channelNumber, frameNumber);
                 }
             }
-            else if (mouseEvent.Type == LingoMouseEventType.MouseMove)
+            else if (mouseEvent.Type == AbstUIMouseEventType.MouseMove)
             {
                 if (_rectangleSelection.Update(channelNumber, frameNumber))
                     return;
@@ -225,7 +226,7 @@ namespace LingoEngine.Director.Core.Scores
                     if (_mouseDownFrame >= 0 && Math.Abs(frameNumber - _mouseDownFrame) >= 1)
                     {
                         _dragging = true;
-                        mouseEvent.Mouse.SetCursor(Inputs.LingoMouseCursor.Drag);
+                        mouseEvent.Mouse.SetCursor(AbstUI.Primitives.AMouseCursor.Drag);
                     }
                     else
                         return;
@@ -252,7 +253,7 @@ namespace LingoEngine.Director.Core.Scores
                     UpdateDragPreview(channelNumber);
                 }
             }
-            else if (mouseEvent.Type == LingoMouseEventType.MouseUp)
+            else if (mouseEvent.Type == AbstUIMouseEventType.MouseUp)
             {
                 if (_rectangleSelection.Complete(mouseEvent, channelNumber, frameNumber))
                     return;
@@ -283,7 +284,7 @@ namespace LingoEngine.Director.Core.Scores
                     _dragging = false;
                     _mouseDownFrame = -1;
                     _lastAddedSprite = null;
-                    mouseEvent.Mouse.SetCursor(Inputs.LingoMouseCursor.Arrow);
+                    mouseEvent.Mouse.SetCursor(AbstUI.Primitives.AMouseCursor.Arrow);
                     _lastMouseLeftDown = false;
                     return;
                 }
@@ -307,7 +308,7 @@ namespace LingoEngine.Director.Core.Scores
                     _dragging = _dragBegin = _dragEnd = _dragMiddle = _dragKeyFrame = false;
                     _mouseDownFrame = -1;
                     _lastAddedSprite = null;
-                    mouseEvent.Mouse.SetCursor(Inputs.LingoMouseCursor.Arrow);
+                    mouseEvent.Mouse.SetCursor(AbstUI.Primitives.AMouseCursor.Arrow);
                     _lastMouseLeftDown = false;
                 }
 

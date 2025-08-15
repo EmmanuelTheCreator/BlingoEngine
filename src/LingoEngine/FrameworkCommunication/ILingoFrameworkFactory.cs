@@ -7,12 +7,12 @@ using LingoEngine.Movies;
 using LingoEngine.Sounds;
 using LingoEngine.Shapes;
 using LingoEngine.Texts;
-using LingoEngine.Gfx;
 using LingoEngine.Sprites;
 using LingoEngine.Stages;
 using LingoEngine.Bitmaps;
 using LingoEngine.FilmLoops;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
 
 namespace LingoEngine.FrameworkCommunication
 {
@@ -69,89 +69,89 @@ namespace LingoEngine.FrameworkCommunication
         /// <summary>
         /// Creates a generic drawing canvas instance.
         /// </summary>
-        LingoGfxCanvas CreateGfxCanvas(string name, int width, int height);
+        AbstUIGfxCanvas CreateGfxCanvas(string name, int width, int height);
 
         /// <summary>
         /// Creates a wrapping panel container.
         /// </summary>
-        LingoGfxWrapPanel CreateWrapPanel(AOrientation orientation, string name);
+        AbstUIGfxWrapPanel CreateWrapPanel(AOrientation orientation, string name);
 
         /// <summary>
         /// Creates a simple panel container for absolute positioning.
         /// </summary>
-        LingoGfxPanel CreatePanel(string name);
-        LingoGfxLayoutWrapper CreateLayoutWrapper(ILingoGfxNode content, float? x, float? y);
+        AbstUIGfxPanel CreatePanel(string name);
+        AbstUIGfxLayoutWrapper CreateLayoutWrapper(IAbstUIGfxNode content, float? x, float? y);
 
         /// <summary>
         /// Creates a tab container for organizing child panels.
         /// </summary>
-        LingoGfxTabContainer CreateTabContainer(string name);
-        LingoGfxTabItem CreateTabItem(string name, string title);
+        AbstUIGfxTabContainer CreateTabContainer(string name);
+        AbstUIGfxTabItem CreateTabItem(string name, string title);
 
         /// <summary>Creates a scroll container.</summary>
-        LingoGfxScrollContainer CreateScrollContainer(string name);
+        AbstUIGfxScrollContainer CreateScrollContainer(string name);
 
         /// <summary>Creates a slider input control for floating point values.</summary>
-        LingoGfxInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null);
+        AbstUIGfxInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null);
         /// <summary>Creates a slider input control for integer values.</summary>
-        LingoGfxInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null);
+        AbstUIGfxInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null);
 
         /// <summary>Creates a single line text input.</summary>
-        LingoGfxInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null);
+        AbstUIGfxInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null);
 
         /// <summary>Creates a numeric input field.</summary>
-        LingoGfxInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null);
+        AbstUIGfxInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null);
         /// <summary>Creates a numeric input field.</summary>
-        LingoGfxInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null);
+        AbstUIGfxInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null);
 
         /// <summary>Creates a spin box input.</summary>
-        LingoGfxSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null);
+        AbstUIGfxSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null);
 
         /// <summary>Creates a checkbox input.</summary>
-        LingoGfxInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null);
+        AbstUIGfxInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null);
 
         /// <summary>Creates a combo box input.</summary>
-        LingoGfxInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null);
+        AbstUIGfxInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null);
 
         /// <summary>Creates a list widget.</summary>
-        LingoGfxItemList CreateItemList(string name, Action<string?>? onChange = null);
+        AbstUIGfxItemList CreateItemList(string name, Action<string?>? onChange = null);
 
         /// <summary>Creates a color picker input.</summary>
 
 /* Unmerged change from project 'LingoEngine (net8.0)'
 Before:
-        LingoGfxColorPicker CreateColorPicker(string name, Action<Primitives.LingoColor>? onChange = null);
+        AbstUIGfxColorPicker CreateColorPicker(string name, Action<Primitives.LingoColor>? onChange = null);
 After:
-        LingoGfxColorPicker CreateColorPicker(string name, Action<LingoColor>? onChange = null);
+        AbstUIGfxColorPicker CreateColorPicker(string name, Action<LingoColor>? onChange = null);
 */
-        LingoGfxColorPicker CreateColorPicker(string name, Action<LingoEngine.AbstUI.Primitives.AColor>? onChange = null);
+        AbstUIGfxColorPicker CreateColorPicker(string name, Action<AbstUI.Primitives.AColor>? onChange = null);
 
         /// <summary>Creates a simple text label.</summary>
-        LingoGfxLabel CreateLabel(string name, string text = "");
+        AbstUIGfxLabel CreateLabel(string name, string text = "");
 
         /// <summary>Creates a clickable button.</summary>
-        LingoGfxButton CreateButton(string name, string text = "");
+        AbstUIGfxButton CreateButton(string name, string text = "");
 
         /// <summary>Creates a toggle state button.</summary>
-        LingoGfxStateButton CreateStateButton(string name, ILingoTexture2D? texture = null, string text = "", Action<bool>? onChange = null);
+        AbstUIGfxStateButton CreateStateButton(string name, ILingoTexture2D? texture = null, string text = "", Action<bool>? onChange = null);
 
         /// <summary>Creates a menu container.</summary>
-        LingoGfxMenu CreateMenu(string name);
+        AbstUIGfxMenu CreateMenu(string name);
 
         /// <summary>Creates a menu item.</summary>
-        LingoGfxMenuItem CreateMenuItem(string name, string? shortcut = null);
+        AbstUIGfxMenuItem CreateMenuItem(string name, string? shortcut = null);
 
         /// <summary>Creates a context menu bound to the given window.</summary>
-        LingoGfxMenu CreateContextMenu(object window);
+        AbstUIGfxMenu CreateContextMenu(object window);
 
         /// <summary>Creates a horizontal line separator.</summary>
-        LingoGfxHorizontalLineSeparator CreateHorizontalLineSeparator(string name);
+        AbstUIGfxHorizontalLineSeparator CreateHorizontalLineSeparator(string name);
 
         /// <summary>Creates a vertical line separator.</summary>
-        LingoGfxVerticalLineSeparator CreateVerticalLineSeparator(string name);
+        AbstUIGfxVerticalLineSeparator CreateVerticalLineSeparator(string name);
 
         /// <summary>Creates a window container.</summary>
-        LingoGfxWindow CreateWindow(string name, string title = "");
+        AbstUIGfxWindow CreateWindow(string name, string title = "");
 
         #endregion
 

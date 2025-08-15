@@ -24,7 +24,7 @@
 
 
   <ItemGroup>
-    <Folder Include="AbstUI\Components\" />
+    <Folder Include="Gfx\" />
     <Folder Include="Inputs\Commands\" />
     <Folder Include="Scores\Commands\" />
   </ItemGroup>
@@ -32,5 +32,9 @@
 	<ItemGroup>
 		<InternalsVisibleTo Include="LingoEngine.SDL2.GfxVisualTest" />
 		<InternalsVisibleTo Include="LingoEngine.Lingo.Tests" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\WillMoveToOwnRepo\AbstUI\src\AbstUI\AbstUI.csproj" />
 	</ItemGroup>
 </Project>

@@ -1,8 +1,8 @@
-﻿using LingoEngine.AbstUI.Primitives;
+﻿using AbstUI.Components;
+using AbstUI.Primitives;
+using AbstUI.Tools;
 using LingoEngine.Bitmaps;
 using LingoEngine.Director.Core.Styles;
-using LingoEngine.Gfx;
-using LingoEngine.Tools;
 using System.Linq.Expressions;
 
 namespace LingoEngine.Director.Core.UI
@@ -13,7 +13,7 @@ namespace LingoEngine.Director.Core.UI
         private int _height;
         private readonly GfxWrapPanelBuilder _builder;
 
-        public GfxWrapPanelBuilderForToolBar(LingoGfxWrapPanel panel, GfxWrapPanelBuilder? parent, int height = 20) 
+        public GfxWrapPanelBuilderForToolBar(AbstUIGfxWrapPanel panel, GfxWrapPanelBuilder? parent, int height = 20) 
         {
             _height = height;
             _builder = new GfxWrapPanelBuilder(panel, parent);
@@ -26,17 +26,17 @@ namespace LingoEngine.Director.Core.UI
             _builder.AddVLine(name, _height-4, 2);
             return this;
         }
-        public GfxWrapPanelBuilderForToolBar AddButton(string name, string text, Action click, Action<LingoGfxButton>? configure = null)
+        public GfxWrapPanelBuilderForToolBar AddButton(string name, string text, Action click, Action<AbstUIGfxButton>? configure = null)
         {
             _builder.AddButton(name, text, click, configure);
             return this;
         }
-        public GfxWrapPanelBuilderForToolBar AddStateButton<T>(string name, T target, ILingoTexture2D texture, Expression<Func<T, bool>> property, Action<LingoGfxStateButton>? configure = null)
+        public GfxWrapPanelBuilderForToolBar AddStateButton<T>(string name, T target, ILingoTexture2D texture, Expression<Func<T, bool>> property, Action<AbstUIGfxStateButton>? configure = null)
         {
             _builder.AddStateButton(name, target, texture,property, "", configure);
             return this;
         } 
-        public GfxWrapPanelBuilderForToolBar AddStateButton<T>(string name, T target,string text, Expression<Func<T, bool>> property, Action<LingoGfxStateButton>? configure = null)
+        public GfxWrapPanelBuilderForToolBar AddStateButton<T>(string name, T target,string text, Expression<Func<T, bool>> property, Action<AbstUIGfxStateButton>? configure = null)
         {
             _builder.AddStateButton(name, target, null,property, text, configure);
             return this;
@@ -46,19 +46,19 @@ namespace LingoEngine.Director.Core.UI
     }
     public class GfxWrapPanelBuilder
     {
-        private LingoGfxWrapPanel _panel;
-        private LingoGfxWrapPanel _rootPanel;
-        private ILingoGfxFactory _factory;
+        private AbstUIGfxWrapPanel _panel;
+        private AbstUIGfxWrapPanel _rootPanel;
+        private IAbstUIGfxFactory _factory;
         private readonly GfxWrapPanelBuilder? _parent;
 
-        public GfxWrapPanelBuilder(LingoGfxWrapPanel panel, GfxWrapPanelBuilder? parent)
+        public GfxWrapPanelBuilder(AbstUIGfxWrapPanel panel, GfxWrapPanelBuilder? parent)
         {
             _rootPanel = panel;
             _panel = panel;
             _factory = panel.Factory;
             _parent = parent;
         }
-        public LingoGfxWrapPanel Finalize()
+        public AbstUIGfxWrapPanel Finalize()
         {
             return _parent != null? _parent.Finalize() : _rootPanel;
         }
@@ -72,16 +72,16 @@ namespace LingoEngine.Director.Core.UI
             _rootPanel.AddItem(_panel);
             return _panel.Compose(this);
         }
-        public GfxWrapPanelBuilder Configure(Action<LingoGfxWrapPanel> configure)
+        public GfxWrapPanelBuilder Configure(Action<AbstUIGfxWrapPanel> configure)
         {
             configure(_panel);
             return this;
         }
 
 
-        public GfxWrapPanelBuilder AddLabel(string name, string text, int fontSize = 11, int? width = null, Action<LingoGfxLabel>? configure = null)
+        public GfxWrapPanelBuilder AddLabel(string name, string text, int fontSize = 11, int? width = null, Action<AbstUIGfxLabel>? configure = null)
         {
-            LingoGfxLabel label = _factory.CreateLabel(name, text);
+            AbstUIGfxLabel label = _factory.CreateLabel(name, text);
             label.FontSize = fontSize;
             label.FontColor = DirectorColors.TextColorLabels;
             if (width.HasValue)
@@ -92,7 +92,7 @@ namespace LingoEngine.Director.Core.UI
             return this;
         }
 
-        public GfxWrapPanelBuilder AddTextInput<T>(string name, T target, Expression<Func<T, string?>> property, int width = 100, Action<LingoGfxInputText>? configure = null)
+        public GfxWrapPanelBuilder AddTextInput<T>(string name, T target, Expression<Func<T, string?>> property, int width = 100, Action<AbstUIGfxInputText>? configure = null)
         {
             var setter = property.CompileSetter();
             var getter = property.CompileGetter();
@@ -175,17 +175,17 @@ namespace LingoEngine.Director.Core.UI
             return this;
         }
 
-        public GfxWrapPanelBuilder AddStateButton<T>(string name, T target, ILingoTexture2D? texture, Expression<Func<T, bool>> property, string text = "", Action<LingoGfxStateButton>? configure = null)
+        public GfxWrapPanelBuilder AddStateButton<T>(string name, T target, ILingoTexture2D? texture, Expression<Func<T, bool>> property, string text = "", Action<AbstUIGfxStateButton>? configure = null)
         {
             var setter = property.CompileSetter();
             var getter = property.CompileGetter();
-            LingoGfxStateButton button = _factory.CreateStateButton(name, texture, text, value => setter(target, value));
+            AbstUIGfxStateButton button = _factory.CreateStateButton(name, texture, text, value => setter(target, value));
             button.IsOn = getter(target);
             _panel.AddItem(button);
             configure?.Invoke(button);
             return this;
         } 
-        public GfxWrapPanelBuilder AddButton(string name, string text, Action click, Action<LingoGfxButton>? configure = null)
+        public GfxWrapPanelBuilder AddButton(string name, string text, Action click, Action<AbstUIGfxButton>? configure = null)
         {
             var button = _factory.CreateButton(name, text);
             _panel.AddItem(button);
@@ -194,7 +194,7 @@ namespace LingoEngine.Director.Core.UI
             return this;
         }
 
-        public GfxWrapPanelBuilder AddSliderFloat(string name, AOrientation orientation, Action<float>? onChange = null, float? min = null, float? max = null, float? step = null, Action<LingoGfxInputSlider<float>>? configure = null)
+        public GfxWrapPanelBuilder AddSliderFloat(string name, AOrientation orientation, Action<float>? onChange = null, float? min = null, float? max = null, float? step = null, Action<AbstUIGfxInputSlider<float>>? configure = null)
         {
             var slider = _factory.CreateInputSliderFloat(orientation, name, min, max, step, onChange);
             _panel.AddItem(slider);
@@ -202,7 +202,7 @@ namespace LingoEngine.Director.Core.UI
             return this;
         }
 
-        public GfxWrapPanelBuilder AddSliderInt(string name, AOrientation orientation, Action<int>? onChange = null, int? min = null, int? max = null, int? step = null, Action<LingoGfxInputSlider<int>>? configure = null)
+        public GfxWrapPanelBuilder AddSliderInt(string name, AOrientation orientation, Action<int>? onChange = null, int? min = null, int? max = null, int? step = null, Action<AbstUIGfxInputSlider<int>>? configure = null)
         {
             var slider = _factory.CreateInputSliderInt(orientation, name, min, max, step, onChange);
             _panel.AddItem(slider);
@@ -218,7 +218,7 @@ namespace LingoEngine.Director.Core.UI
         {
             _panel.AddHLine(name, width, paddingLeft);
             return this;
-        } public GfxWrapPanelBuilder AddItem(ILingoGfxNode element)
+        } public GfxWrapPanelBuilder AddItem(IAbstUIGfxNode element)
         {
             _panel.AddItem(element);
             return this;

@@ -1,6 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 using LingoEngine.Primitives;
 using LingoEngine.SDL2.SDLL;
 using LingoEngine.Tools;

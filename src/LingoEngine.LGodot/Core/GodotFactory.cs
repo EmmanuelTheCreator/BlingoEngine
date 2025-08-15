@@ -16,7 +16,6 @@ using LingoEngine.LGodot.Stages;
 using LingoEngine.Members;
 using LingoEngine.Casts;
 using LingoEngine.Shapes;
-using LingoEngine.Gfx;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Gfx;
 using LingoEngine.Sprites;
@@ -29,7 +28,8 @@ using LingoEngine.LGodot.Scripts;
 using LingoEngine.Scripts;
 using LingoEngine.FilmLoops;
 using LingoEngine.LGodot.FilmLoops;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
 
 namespace LingoEngine.LGodot.Core
 {
@@ -52,7 +52,7 @@ namespace LingoEngine.LGodot.Core
             _gfxFactory = new GodotGfxFactory(fontManager, styleManager, _lingoRootNode);
         }
 
-        public ILingoGfxFactory GfxFactory => _gfxFactory;
+        public IAbstUIGfxFactory GfxFactory => _gfxFactory;
 
         public T CreateBehavior<T>(LingoMovie lingoMovie) where T : LingoSpriteBehavior => lingoMovie.GetServiceProvider().GetRequiredService<T>();
         public T CreateMovieScript<T>(LingoMovie lingoMovie) where T : LingoMovieScript => lingoMovie.GetServiceProvider().GetRequiredService<T>();
@@ -212,7 +212,7 @@ namespace LingoEngine.LGodot.Core
         {
             LingoStageMouse? mouse = null;
             var godotInstance = _lingoRootNode.GetStageMouseNode(() => mouse!);
-            mouse = new LingoStageMouse(stage, godotInstance);
+            mouse = new LingoStageMouse(stage, (ILingoFrameworkMouse)godotInstance);
             return mouse;
         }
 
@@ -228,90 +228,90 @@ namespace LingoEngine.LGodot.Core
 
 
         #region Gfx elements
-        public LingoGfxCanvas CreateGfxCanvas(string name, int width, int height)
+        public AbstUIGfxCanvas CreateGfxCanvas(string name, int width, int height)
             => _gfxFactory.CreateGfxCanvas(name, width, height);
 
-        public LingoGfxWrapPanel CreateWrapPanel(AOrientation orientation, string name)
+        public AbstUIGfxWrapPanel CreateWrapPanel(AOrientation orientation, string name)
             => _gfxFactory.CreateWrapPanel(orientation, name);
 
-        public LingoGfxPanel CreatePanel(string name)
+        public AbstUIGfxPanel CreatePanel(string name)
             => _gfxFactory.CreatePanel(name);
 
-        public LingoGfxLayoutWrapper CreateLayoutWrapper(ILingoGfxNode content, float? x, float? y)
+        public AbstUIGfxLayoutWrapper CreateLayoutWrapper(IAbstUIGfxNode content, float? x, float? y)
             => _gfxFactory.CreateLayoutWrapper(content, x, y);
 
-        public LingoGfxTabContainer CreateTabContainer(string name)
+        public AbstUIGfxTabContainer CreateTabContainer(string name)
             => _gfxFactory.CreateTabContainer(name);
 
-        public LingoGfxTabItem CreateTabItem(string name, string title)
+        public AbstUIGfxTabItem CreateTabItem(string name, string title)
             => _gfxFactory.CreateTabItem(name, title);
 
-        public LingoGfxScrollContainer CreateScrollContainer(string name)
+        public AbstUIGfxScrollContainer CreateScrollContainer(string name)
             => _gfxFactory.CreateScrollContainer(name);
 
-        public LingoGfxInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
+        public AbstUIGfxInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
             => _gfxFactory.CreateInputSliderFloat(orientation, name, min, max, step, onChange);
 
-        public LingoGfxInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
+        public AbstUIGfxInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
             => _gfxFactory.CreateInputSliderInt(orientation, name, min, max, step, onChange);
 
-        public LingoGfxInputSlider<TValue> CreateInputSlider<TValue>(string name, AOrientation orientation, NullableNum<TValue> min, NullableNum<TValue> max, NullableNum<TValue> step, Action<TValue>? onChange = null)
+        public AbstUIGfxInputSlider<TValue> CreateInputSlider<TValue>(string name, AOrientation orientation, NullableNum<TValue> min, NullableNum<TValue> max, NullableNum<TValue> step, Action<TValue>? onChange = null)
             where TValue : struct, System.Numerics.INumber<TValue>, IConvertible
             => _gfxFactory.CreateInputSlider(name, orientation, min, max, step, onChange);
 
-        public LingoGfxInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null)
+        public AbstUIGfxInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null)
             => _gfxFactory.CreateInputText(name, maxLength, onChange);
 
-        public LingoGfxInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null)
+        public AbstUIGfxInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null)
             => _gfxFactory.CreateInputNumberFloat(name, min, max, onChange);
 
-        public LingoGfxInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null)
+        public AbstUIGfxInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null)
             => _gfxFactory.CreateInputNumberInt(name, min, max, onChange);
 
-        public LingoGfxInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null)
+        public AbstUIGfxInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null)
             where TValue : System.Numerics.INumber<TValue>
             => _gfxFactory.CreateInputNumber(name, min, max, onChange);
 
-        public LingoGfxSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null)
+        public AbstUIGfxSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null)
             => _gfxFactory.CreateSpinBox(name, min, max, onChange);
 
-        public LingoGfxInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null)
+        public AbstUIGfxInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null)
             => _gfxFactory.CreateInputCheckbox(name, onChange);
 
-        public LingoGfxInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null)
+        public AbstUIGfxInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null)
             => _gfxFactory.CreateInputCombobox(name, onChange);
 
-        public LingoGfxItemList CreateItemList(string name, Action<string?>? onChange = null)
+        public AbstUIGfxItemList CreateItemList(string name, Action<string?>? onChange = null)
             => _gfxFactory.CreateItemList(name, onChange);
 
-        public LingoGfxColorPicker CreateColorPicker(string name, Action<AColor>? onChange = null)
+        public AbstUIGfxColorPicker CreateColorPicker(string name, Action<AColor>? onChange = null)
             => _gfxFactory.CreateColorPicker(name, onChange);
 
-        public LingoGfxLabel CreateLabel(string name, string text = "")
+        public AbstUIGfxLabel CreateLabel(string name, string text = "")
             => _gfxFactory.CreateLabel(name, text);
 
-        public LingoGfxButton CreateButton(string name, string text = "")
+        public AbstUIGfxButton CreateButton(string name, string text = "")
             => _gfxFactory.CreateButton(name, text);
 
-        public LingoGfxStateButton CreateStateButton(string name, ILingoTexture2D? texture = null, string text = "", Action<bool>? onChange = null)
+        public AbstUIGfxStateButton CreateStateButton(string name, ILingoTexture2D? texture = null, string text = "", Action<bool>? onChange = null)
             => _gfxFactory.CreateStateButton(name, texture, text, onChange);
 
-        public LingoGfxMenu CreateMenu(string name)
+        public AbstUIGfxMenu CreateMenu(string name)
             => _gfxFactory.CreateMenu(name);
 
-        public LingoGfxMenuItem CreateMenuItem(string name, string? shortcut = null)
+        public AbstUIGfxMenuItem CreateMenuItem(string name, string? shortcut = null)
             => _gfxFactory.CreateMenuItem(name, shortcut);
 
-        public LingoGfxMenu CreateContextMenu(object window)
+        public AbstUIGfxMenu CreateContextMenu(object window)
             => _gfxFactory.CreateContextMenu(window);
 
-        public LingoGfxHorizontalLineSeparator CreateHorizontalLineSeparator(string name)
+        public AbstUIGfxHorizontalLineSeparator CreateHorizontalLineSeparator(string name)
             => _gfxFactory.CreateHorizontalLineSeparator(name);
 
-        public LingoGfxVerticalLineSeparator CreateVerticalLineSeparator(string name)
+        public AbstUIGfxVerticalLineSeparator CreateVerticalLineSeparator(string name)
             => _gfxFactory.CreateVerticalLineSeparator(name);
 
-        public LingoGfxWindow CreateWindow(string name, string title = "")
+        public AbstUIGfxWindow CreateWindow(string name, string title = "")
             => _gfxFactory.CreateWindow(name, title);
 
         #endregion

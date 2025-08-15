@@ -15,7 +15,7 @@ using LingoEngine.Sprites;
 using LingoEngine.FilmLoops;
 using LingoEngine.Bitmaps;
 using LingoEngine.Events;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.IO;
 

@@ -1,5 +1,5 @@
 using System.Numerics;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Primitives;
 

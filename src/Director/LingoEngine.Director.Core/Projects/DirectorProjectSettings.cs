@@ -1,6 +1,6 @@
 ﻿namespace LingoEngine.Director.Core.Projects;
 
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 public enum DirectorIdeType
 {

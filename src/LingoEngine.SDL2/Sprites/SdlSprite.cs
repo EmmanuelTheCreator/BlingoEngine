@@ -8,7 +8,7 @@ using LingoEngine.SDL2.Core;
 using LingoEngine.Sprites;
 using LingoEngine.Texts;
 using LingoEngine.Shapes;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Sprites;
 
@@ -25,9 +25,9 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
     private nint _texture = nint.Zero;
     private bool _textureOwned;
 
-    private readonly SdlFactory _factory;
+    private readonly LingoSdlFactory _factory;
 
-    public SdlSprite(LingoSprite2D sprite, SdlFactory factory, Action<SdlSprite> show, Action<SdlSprite> hide, Action<SdlSprite> remove)
+    public SdlSprite(LingoSprite2D sprite, LingoSdlFactory factory, Action<SdlSprite> show, Action<SdlSprite> hide, Action<SdlSprite> remove)
     {
         _lingoSprite2D = sprite;
         _factory = factory;

@@ -11,7 +11,7 @@ internal class SdlDebugOverlay : ILingoFrameworkDebugOverlay, ILingoSDLComponent
     private SDL.SDL_Color _white;
     public LingoSDLComponentContext ComponentContext { get; }
 
-    public SdlDebugOverlay(SdlFactory factory)
+    public SdlDebugOverlay(LingoSdlFactory factory)
     {
         ComponentContext = factory.CreateContext(this);
 

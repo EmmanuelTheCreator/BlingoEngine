@@ -6,7 +6,8 @@ using LingoEngine.Sprites;
 using LingoEngine.Tools;
 using LingoEngine.Primitives;
 using System.Security.Cryptography;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Tools;
 
 namespace LingoEngine.SDL2.Pictures;
 public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable

@@ -1,5 +1,5 @@
 ﻿using Godot;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 using LingoEngine.LGodot.Sprites;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;

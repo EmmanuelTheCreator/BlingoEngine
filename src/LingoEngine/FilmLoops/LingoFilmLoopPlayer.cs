@@ -4,7 +4,7 @@ using LingoEngine.Animations;
 using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
 using LingoEngine.Primitives;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.FilmLoops
 {
@@ -28,8 +28,8 @@ namespace LingoEngine.FilmLoops
         private LingoFilmLoopMember? FilmLoop => _sprite.Member as LingoFilmLoopMember;
 
         public ILingoTexture2D? Texture { get; private set; }
-        private ILingoTextureUserSubscription? _textureSubscription;
-        private List<(ILingoTexture2D? Texture, ILingoTextureUserSubscription? TextureSubscription)> _textures = new();
+        private IAbstUITextureUserSubscription? _textureSubscription;
+        private List<(ILingoTexture2D? Texture, IAbstUITextureUserSubscription? TextureSubscription)> _textures = new();
 
         internal LingoFilmLoopPlayer(ILingoSprite2DLight sprite, ILingoEventMediator eventMediator, ILingoCastLibsContainer castLibs, bool isInnerPlayer = false)
         {

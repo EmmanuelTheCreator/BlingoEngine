@@ -7,7 +7,7 @@ using LingoEngine.SDL2.Core;
 using LingoEngine.Sprites;
 using System.Linq;
 using System.Collections.Generic;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Movies;
 
@@ -17,10 +17,10 @@ public class SdlMovie : ILingoFrameworkMovie, IDisposable
     private readonly Action<SdlMovie> _removeMethod;
     private readonly HashSet<SdlSprite> _drawnSprites = new();
     private readonly HashSet<SdlSprite> _allSprites = new();
-    private readonly SdlFactory _factory;
+    private readonly LingoSdlFactory _factory;
     private LingoMovie _movie;
 
-    public SdlMovie(SdlStage stage, SdlFactory factory, LingoMovie movie, Action<SdlMovie> removeMethod)
+    public SdlMovie(SdlStage stage, LingoSdlFactory factory, LingoMovie movie, Action<SdlMovie> removeMethod)
     {
         _stage = stage;
         _factory = factory;

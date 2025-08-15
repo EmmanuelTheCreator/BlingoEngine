@@ -1,14 +1,14 @@
 using Godot;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.Styles;
 
 namespace LingoEngine.LGodot.Gfx
 {
     /// <summary>
-    /// Godot implementation of <see cref="ILingoFrameworkGfxInputText"/>.
+    /// Godot implementation of <see cref="IAbstUIFrameworkGfxInputText"/>.
     /// </summary>
-    public partial class LingoGodotInputText : LineEdit, ILingoFrameworkGfxInputText, IDisposable
+    public partial class LingoGodotInputText : LineEdit, IAbstUIFrameworkGfxInputText, IDisposable
     {
         private readonly Action<string>? _onChange;
         private readonly ILingoFontManager _fontManager;
@@ -16,7 +16,7 @@ namespace LingoEngine.LGodot.Gfx
         private AMargin _margin = AMargin.Zero;
         private event Action? _onValueChanged;
 
-        public LingoGodotInputText(LingoGfxInputText input, ILingoFontManager fontManager, Action<string>? onChange)
+        public LingoGodotInputText(AbstUIGfxInputText input, ILingoFontManager fontManager, Action<string>? onChange)
         {
             _onChange = onChange;
             _fontManager = fontManager;
@@ -65,7 +65,7 @@ namespace LingoEngine.LGodot.Gfx
 
         public new string Text { get => base.Text; set => base.Text = value; }
         public new int MaxLength { get => base.MaxLength; set => base.MaxLength = value; }
-        string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
+        string IAbstUIFrameworkGfxNode.Name { get => Name; set => Name = value; }
         public string? Font
         {
             get => _font;
@@ -141,7 +141,7 @@ namespace LingoEngine.LGodot.Gfx
 
 
 
-        event Action? ILingoFrameworkGfxNodeInput.ValueChanged
+        event Action? IAbstUIFrameworkGfxNodeInput.ValueChanged
         {
             add => _onValueChanged += value;
             remove => _onValueChanged -= value;

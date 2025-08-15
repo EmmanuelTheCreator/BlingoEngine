@@ -1,4 +1,4 @@
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 using LingoEngine.FilmLoops;
 using LingoEngine.Members;
 using LingoEngine.Sprites;

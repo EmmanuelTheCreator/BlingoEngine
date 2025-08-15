@@ -1,24 +1,24 @@
 using Godot;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
-using LingoEngine.Gfx;
 using LingoEngine.LGodot.Bitmaps;
 
 namespace LingoEngine.LGodot.Gfx
 {
     /// <summary>
-    /// Godot implementation of <see cref="ILingoFrameworkGfxButton"/>.
+    /// Godot implementation of <see cref="IAbstUIFrameworkGfxButton"/>.
     /// </summary>
-    public partial class LingoGodotButton : Button, ILingoFrameworkGfxButton, IDisposable
+    public partial class LingoGodotButton : Button, IAbstUIFrameworkGfxButton, IDisposable
     {
         private AMargin _margin = AMargin.Zero;
-        private ILingoTexture2D? _texture;
+        private IAbstUITexture2D? _texture;
 
         private event Action? _pressed;
        
         public object FrameworkNode => this;
 
-        public LingoGodotButton(LingoGfxButton button, LingoEngine.Styles.ILingoFontManager lingoFontManager)
+        public LingoGodotButton(AbstUIGfxButton button, LingoEngine.Styles.ILingoFontManager lingoFontManager)
         {
             button.Init(this);
             Pressed += () => _pressed?.Invoke();
@@ -32,7 +32,7 @@ namespace LingoEngine.LGodot.Gfx
         public bool Visibility { get => Visible; set => Visible = value; }
         
        
-        string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
+        string IAbstUIFrameworkGfxNode.Name { get => Name; set => Name = value; }
 
         public AMargin Margin
         {
@@ -49,13 +49,13 @@ namespace LingoEngine.LGodot.Gfx
 
         public new string Text { get => base.Text; set => base.Text = value; }
         public bool Enabled { get => !Disabled; set => Disabled = !value; }
-        event Action? ILingoFrameworkGfxButton.Pressed
+        event Action? IAbstUIFrameworkGfxButton.Pressed
         {
             add => _pressed += value;
             remove => _pressed -= value;
         }
 
-        public ILingoTexture2D? IconTexture
+        public IAbstUITexture2D? IconTexture
         {
             get => _texture;
             set

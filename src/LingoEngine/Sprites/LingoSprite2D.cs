@@ -11,7 +11,7 @@ using LingoEngine.Bitmaps;
 using LingoEngine.FrameworkCommunication;
 using System.Diagnostics;
 using LingoEngine.Inputs.Events;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.Sprites
 {
@@ -34,7 +34,7 @@ namespace LingoEngine.Sprites
         private LingoMember? _Member;
         private Action<LingoSprite2D>? _onRemoveMe;
         private bool _isFocus = false;
-        private ILingoTextureUserSubscription? _textureSubscription;
+        private IAbstUITextureUserSubscription? _textureSubscription;
         private bool _flipH;
         private bool _flipV;
         private int _cursor;
@@ -536,7 +536,7 @@ When a movie stops, events occur in the following order:
 
         #region Mouse
 
-        void ILingoMouseEventHandler.RaiseMouseMove(LingoMouseEvent mouse)
+        public void RaiseMouseMove(LingoMouseEvent mouse)
         {
             if (!_movie.IsPlaying) return;
             //if (IsActive && Member?.Name == "B_Play")
@@ -598,7 +598,7 @@ When a movie stops, events occur in the following order:
                 _previousCursor = null;
             }
         }
-        void ILingoMouseEventHandler.RaiseMouseDown(LingoMouseEvent mouse)
+        public void RaiseMouseDown(LingoMouseEvent mouse)
         {
             if (isDraggable && IsMouseInsideBoundingBox(mouse.Mouse))
                 isDragging = true;
@@ -611,7 +611,7 @@ When a movie stops, events occur in the following order:
         }
 
         protected virtual void MouseDown(LingoMouseEvent mouse) { }
-        void ILingoMouseEventHandler.RaiseMouseUp(LingoMouseEvent mouse)
+        public void RaiseMouseUp(LingoMouseEvent mouse)
         {
             if (isDragging && isDragging)
                 isDragging = false;
@@ -623,7 +623,7 @@ When a movie stops, events occur in the following order:
             }
         }
         protected virtual void MouseUp(LingoMouseEvent mouse) { }
-        void ILingoMouseEventHandler.RaiseMouseWheel(LingoMouseEvent mouse)
+        public void RaiseMouseWheel(LingoMouseEvent mouse)
         {
             if (isMouseInside)
             {

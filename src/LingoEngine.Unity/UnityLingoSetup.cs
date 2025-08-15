@@ -4,8 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Unity.Core;
 using LingoEngine.Styles;
 using LingoEngine.Unity.Styles;
-using LingoEngine.AbstUI.Core;
-using AbstUIEngine.AbstUI.Core;
+using AbstUI.Core;
 
 namespace LingoEngine.Unity;
 

@@ -1,90 +1,25 @@
-using LingoEngine.Bitmaps;
-using LingoEngine.FrameworkCommunication;
-using LingoEngine.Inputs;
-using LingoEngine.SDL2.Pictures;
+using AbstUI.Inputs;
+using AbstUI.Primitives;
 using LingoEngine.SDL2.SDLL;
-using System;
-using System.Runtime.InteropServices;
 
 namespace LingoEngine.SDL2.Inputs;
-
-public class SdlMouse : ILingoFrameworkMouse
+public class SdlMouse<TAbstUIMouseEvent> : IAbstUIFrameworkMouse
+        where TAbstUIMouseEvent : AbstUIMouseEvent
 {
-    private Lazy<LingoMouse> _lingoMouse;
+    private Lazy<AbstUIMouse<TAbstUIMouseEvent>> _lingoMouse;
     private bool _hidden;
-    private LingoMemberBitmap? _cursorImage;
-    private LingoMouseCursor _cursor = LingoMouseCursor.Arrow;
-    private nint _sdlCursor = nint.Zero;
+    protected nint _sdlCursor = nint.Zero;
 
-    public SdlMouse(Lazy<LingoMouse> mouse)
+    public SdlMouse(Lazy<AbstUIMouse<TAbstUIMouseEvent>> mouse)
     {
         _lingoMouse = mouse;
     }
-
-    internal void SetLingoMouse(LingoMouse mouse) => _lingoMouse = new Lazy<LingoMouse>(() => mouse);
-
-    public void HideMouse(bool state)
+    ~SdlMouse()
     {
-        _hidden = state;
-        SDL.SDL_ShowCursor(state ? 0 : 1);
-    }
-
-    public void SetCursor(LingoMemberBitmap image)
-    {
-        _cursorImage = image;
-        image.Framework<SdlMemberBitmap>().Preload();
-        var pic = image.Framework<SdlMemberBitmap>();
-        if (pic.ImageData == null) return;
-
-        var handle = GCHandle.Alloc(pic.ImageData, GCHandleType.Pinned);
-        try
-        {
-            var rw = SDL.SDL_RWFromMem(handle.AddrOfPinnedObject(), pic.ImageData.Length);
-            var surface = SDL_image.IMG_Load_RW(rw, 1);
-            if (surface == nint.Zero) return;
-
-            _sdlCursor = SDL.SDL_CreateColorCursor(surface, 0, 0);
-            SDL.SDL_SetCursor(_sdlCursor);
-            SDL.SDL_FreeSurface(surface);
-        }
-        finally
-        {
-            handle.Free();
-        }
-    }
-
-
-    public void SetCursor(LingoMouseCursor value)
-    {
-        _cursor = value;
-        SDL.SDL_SystemCursor sysCursor = value switch
-        {
-            LingoMouseCursor.Cross => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_CROSSHAIR,
-            LingoMouseCursor.Watch => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_WAIT,
-            LingoMouseCursor.IBeam => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_IBEAM,
-            LingoMouseCursor.SizeAll => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZEALL,
-            LingoMouseCursor.SizeNWSE => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZENWSE,
-            LingoMouseCursor.SizeNESW => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZENESW,
-            LingoMouseCursor.SizeWE => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZEWE,
-            LingoMouseCursor.SizeNS => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZENS,
-            LingoMouseCursor.UpArrow => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW,
-            LingoMouseCursor.Blank => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW,
-            LingoMouseCursor.Finger => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_HAND,
-            LingoMouseCursor.Drag => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZEALL,
-            LingoMouseCursor.Help => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW,
-            LingoMouseCursor.Wait => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_WAIT,
-            LingoMouseCursor.NotAllowed => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_NO,
-            _ => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW
-        };
-
         if (_sdlCursor != nint.Zero)
             SDL.SDL_FreeCursor(_sdlCursor);
-
-        _sdlCursor = SDL.SDL_CreateSystemCursor(sysCursor);
-        SDL.SDL_SetCursor(_sdlCursor);
     }
-
-    public void Release()
+    public virtual void Release()
     {
         if (_sdlCursor != nint.Zero)
         {
@@ -92,10 +27,21 @@ public class SdlMouse : ILingoFrameworkMouse
             _sdlCursor = nint.Zero;
         }
     }
+    internal void SetLingoMouse(AbstUIMouse<TAbstUIMouseEvent> mouse) => _lingoMouse = new Lazy<AbstUIMouse<TAbstUIMouseEvent>>(() => mouse);
 
-    public void ReplaceMouseObj(LingoMouse lingoMouse)
+    public void HideMouse(bool state)
     {
-        _lingoMouse = new Lazy<LingoMouse>(() => lingoMouse);
+        _hidden = state;
+        SDL.SDL_ShowCursor(state ? 0 : 1);
+    }
+
+   
+
+   
+
+    public void ReplaceMouseObj(IAbstUIMouse lingoMouse)
+    {
+        _lingoMouse = new Lazy<AbstUIMouse<TAbstUIMouseEvent>>(() => (AbstUIMouse < TAbstUIMouseEvent > )lingoMouse);
     }
 
     public void ProcessEvent(SDL.SDL_Event e)
@@ -152,10 +98,35 @@ public class SdlMouse : ILingoFrameworkMouse
                 break;
         }
     }
-
-    ~SdlMouse()
+    public virtual void SetCursor(AMouseCursor value)
     {
+        SDL.SDL_SystemCursor sysCursor = value switch
+        {
+            AMouseCursor.Cross => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_CROSSHAIR,
+            AMouseCursor.Watch => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_WAIT,
+            AMouseCursor.IBeam => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_IBEAM,
+            AMouseCursor.SizeAll => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZEALL,
+            AMouseCursor.SizeNWSE => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZENWSE,
+            AMouseCursor.SizeNESW => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZENESW,
+            AMouseCursor.SizeWE => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZEWE,
+            AMouseCursor.SizeNS => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZENS,
+            AMouseCursor.UpArrow => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW,
+            AMouseCursor.Blank => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW,
+            AMouseCursor.Finger => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_HAND,
+            AMouseCursor.Drag => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_SIZEALL,
+            AMouseCursor.Help => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW,
+            AMouseCursor.Wait => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_WAIT,
+            AMouseCursor.NotAllowed => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_NO,
+            _ => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW
+        };
+
         if (_sdlCursor != nint.Zero)
             SDL.SDL_FreeCursor(_sdlCursor);
+
+        _sdlCursor = SDL.SDL_CreateSystemCursor(sysCursor);
+        SDL.SDL_SetCursor(_sdlCursor);
     }
+
+   
+
 }

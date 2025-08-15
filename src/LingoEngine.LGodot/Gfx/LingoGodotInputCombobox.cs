@@ -1,13 +1,13 @@
 using Godot;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 
 namespace LingoEngine.LGodot.Gfx
 {
     /// <summary>
-    /// Godot implementation of <see cref="ILingoFrameworkGfxInputCombobox"/>.
+    /// Godot implementation of <see cref="IAbstUIFrameworkGfxInputCombobox"/>.
     /// </summary>
-    public partial class LingoGodotInputCombobox : OptionButton, ILingoFrameworkGfxInputCombobox, IDisposable
+    public partial class LingoGodotInputCombobox : OptionButton, IAbstUIFrameworkGfxInputCombobox, IDisposable
     {
         private readonly List<KeyValuePair<string,string>> _items = new();
         private AMargin _margin = AMargin.Zero;
@@ -15,7 +15,7 @@ namespace LingoEngine.LGodot.Gfx
 
         private event Action? _onValueChanged;
 
-        public LingoGodotInputCombobox(LingoGfxInputCombobox input, LingoEngine.Styles.ILingoFontManager lingoFontManager, Action<string?>? onChange)
+        public LingoGodotInputCombobox(AbstUIGfxInputCombobox input, LingoEngine.Styles.ILingoFontManager lingoFontManager, Action<string?>? onChange)
         {
             input.Init(this);
             ItemSelected += idx => _onValueChanged?.Invoke();
@@ -30,7 +30,7 @@ namespace LingoEngine.LGodot.Gfx
         public float Height { get => Size.Y; set => Size = new Vector2(Size.X, value); }
         public bool Visibility { get => Visible; set => Visible = value; }
         public bool Enabled { get => !Disabled; set => Disabled = !value; }
-        string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
+        string IAbstUIFrameworkGfxNode.Name { get => Name; set => Name = value; }
 
         public AMargin Margin
         {
@@ -91,7 +91,7 @@ namespace LingoEngine.LGodot.Gfx
             }
         }
 
-        event Action? ILingoFrameworkGfxNodeInput.ValueChanged
+        event Action? IAbstUIFrameworkGfxNodeInput.ValueChanged
         {
             add => _onValueChanged += value;
             remove => _onValueChanged -= value;

@@ -1,12 +1,12 @@
 using System;
 using System.Numerics;
 using ImGuiNET;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxInputSlider<TValue> : SdlGfxComponent, ILingoFrameworkGfxInputSlider<TValue>, IDisposable where TValue : struct
+    internal class SdlGfxInputSlider<TValue> : SdlGfxComponent, IAbstUIFrameworkGfxInputSlider<TValue>, IDisposable where TValue : struct
     {
         public SdlGfxInputSlider(SdlGfxFactory factory) : base(factory)
         {

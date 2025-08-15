@@ -45,10 +45,10 @@ namespace LingoEngine.Events
         void DoKeyUp(LingoKey key);
 
         // Mouse events
-        new void DoMouseDown(LingoStageMouse mouse);
-        new void DoMouseUp(LingoStageMouse mouse);
-        new void DoMouseMove(LingoStageMouse mouse);
-        new void DoMouseWheel(LingoStageMouse mouse);
+        void DoMouseDown(LingoStageMouse mouse);
+        void DoMouseUp(LingoStageMouse mouse);
+        void DoMouseMove(LingoStageMouse mouse);
+        void DoMouseWheel(LingoStageMouse mouse);
 
         // Movie Script Frame events
         void DoEnterFrame();

@@ -1,12 +1,12 @@
 using System;
 using System.Numerics;
 using ImGuiNET;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxInputCheckbox : SdlGfxComponent, ILingoFrameworkGfxInputCheckbox, IDisposable
+    internal class SdlGfxInputCheckbox : SdlGfxComponent, IAbstUIFrameworkGfxInputCheckbox, IDisposable
     {
         public SdlGfxInputCheckbox(SdlGfxFactory factory) : base(factory)
         {

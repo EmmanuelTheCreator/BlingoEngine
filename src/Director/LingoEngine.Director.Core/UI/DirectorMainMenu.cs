@@ -2,7 +2,6 @@ using LingoEngine.Core;
 using LingoEngine.Director.Core.Projects;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Movies;
 using LingoEngine.Inputs;
 using System.Collections.Generic;
@@ -10,7 +9,8 @@ using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Compilers.Commands;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
 
 namespace LingoEngine.Director.Core.UI
 {
@@ -19,21 +19,21 @@ namespace LingoEngine.Director.Core.UI
     /// </summary>
     public class DirectorMainMenu : DirectorWindow<IDirFrameworkMainMenuWindow>
     {
-        private readonly LingoGfxWrapPanel _menuBar;
-        private readonly LingoGfxWrapPanel _iconBar;
-        private readonly LingoGfxMenu _fileMenu;
-        private readonly LingoGfxMenu _editMenu;
-        private readonly LingoGfxMenu _insertMenu;
-        private readonly LingoGfxMenu _modifyMenu;
-        private readonly LingoGfxMenu _controlMenu;
-        private readonly LingoGfxMenu _windowMenu;
-        private readonly LingoGfxButton _fileButton;
-        private readonly LingoGfxButton _editButton;
-        private readonly LingoGfxButton _insertButton;
-        private LingoGfxButton _ModifyButton;
-        private readonly LingoGfxButton _ControlButton;
-        private readonly LingoGfxButton _windowButton;
-        private LingoGfxStateButton _playButton;
+        private readonly AbstUIGfxWrapPanel _menuBar;
+        private readonly AbstUIGfxWrapPanel _iconBar;
+        private readonly AbstUIGfxMenu _fileMenu;
+        private readonly AbstUIGfxMenu _editMenu;
+        private readonly AbstUIGfxMenu _insertMenu;
+        private readonly AbstUIGfxMenu _modifyMenu;
+        private readonly AbstUIGfxMenu _controlMenu;
+        private readonly AbstUIGfxMenu _windowMenu;
+        private readonly AbstUIGfxButton _fileButton;
+        private readonly AbstUIGfxButton _editButton;
+        private readonly AbstUIGfxButton _insertButton;
+        private AbstUIGfxButton _ModifyButton;
+        private readonly AbstUIGfxButton _ControlButton;
+        private readonly AbstUIGfxButton _windowButton;
+        private AbstUIGfxStateButton _playButton;
         private readonly IDirectorWindowManager _windowManager;
         private readonly DirectorProjectManager _projectManager;
         private readonly LingoPlayer _player;
@@ -41,15 +41,15 @@ namespace LingoEngine.Director.Core.UI
         private readonly IHistoryManager _historyManager;
         private readonly ILingoCommandManager _commandManager;
         private readonly List<ShortCutInfo> _shortCuts = new();
-        private LingoGfxMenuItem _undoItem;
-        private LingoGfxMenuItem _redoItem;
+        private AbstUIGfxMenuItem _undoItem;
+        private AbstUIGfxMenuItem _redoItem;
         private ILingoMovie? _lingoMovie;
-        private List<LingoGfxButton> _topMenuButtons = new List<LingoGfxButton>();
-        private List<LingoGfxMenu> _topMenus = new List<LingoGfxMenu>();
+        private List<AbstUIGfxButton> _topMenuButtons = new List<AbstUIGfxButton>();
+        private List<AbstUIGfxMenu> _topMenus = new List<AbstUIGfxMenu>();
         private bool _playPauseState;
 
-        public LingoGfxWrapPanel MenuBar => _menuBar;
-        public LingoGfxWrapPanel IconBar => _iconBar;
+        public AbstUIGfxWrapPanel MenuBar => _menuBar;
+        public AbstUIGfxWrapPanel IconBar => _iconBar;
 
         public bool PlayPauseState
         {
@@ -167,12 +167,12 @@ namespace LingoEngine.Director.Core.UI
 
 
 
-        public void CallOnAllTopMenuButtons(Action<LingoGfxButton> btnAction)
+        public void CallOnAllTopMenuButtons(Action<AbstUIGfxButton> btnAction)
         {
             foreach (var item in _topMenuButtons)
                 btnAction(item);
         }
-        public void CallOnAllTopMenus(Action<LingoGfxMenu> action)
+        public void CallOnAllTopMenus(Action<AbstUIGfxMenu> action)
         {
             foreach (var item in _topMenus)
                 action(item);
@@ -348,7 +348,7 @@ namespace LingoEngine.Director.Core.UI
             return new ShortCutInfo { Map = map, Key = key.ToUpperInvariant(), Ctrl = ctrl, Alt = alt, Shift = shift, Meta = meta };
         }
 
-        private void ShowMenu(LingoGfxMenu menu, LingoGfxButton button)
+        private void ShowMenu(AbstUIGfxMenu menu, AbstUIGfxButton button)
         {
             menu.PositionPopup(button);
             menu.Popup();

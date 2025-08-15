@@ -1,12 +1,12 @@
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
-using LingoEngine.Texts;
+using AbstUI.Texts;
+using AbstUI.Components;
+using AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.GfxVisualTest;
 
 public static class GfxTestScene
 {
-    public static ILingoGfxNode Build(ILingoGfxFactory factory)
+    public static IAbstUIGfxNode Build(IAbstUIGfxFactory factory)
     {
         var scroll = factory.CreateScrollContainer("scroll");
         scroll.X = 20;
@@ -22,7 +22,7 @@ public static class GfxTestScene
 
         float y = 10f;
 
-        void Add(ILingoGfxNode node, float height = 40)
+        void Add(IAbstUIGfxNode node, float height = 40)
         {
             panel.AddItem(node, 10, y);
             y += height;
@@ -31,12 +31,12 @@ public static class GfxTestScene
         Add(CreateLabel(factory, "label1"));
         Add(CreateLabel(factory, "Label2 center", lbl2 => { 
             lbl2.Width = 200;
-            lbl2.TextAlignment = LingoTextAlignment.Center;
+            lbl2.TextAlignment = AbstUITextAlignment.Center;
         }));
         Add(CreateLabel(factory, "Label3 right", lbl3 =>
         {
             lbl3.Width = 200;
-            lbl3.TextAlignment = LingoTextAlignment.Right;
+            lbl3.TextAlignment = AbstUITextAlignment.Right;
         }));
         Add(CreateLabel(factory, "Label4 BIG",c => c.FontSize = 30));
 
@@ -71,7 +71,7 @@ public static class GfxTestScene
         var colorPicker = factory.CreateColorPicker("colorPicker");
         Add(colorPicker, 80);
 
-        LingoGfxCanvas canvas = factory.CreateGfxCanvas("canvas", 100, 50);
+        AbstUIGfxCanvas canvas = factory.CreateGfxCanvas("canvas", 100, 50);
         canvas.Clear(new AColor(100, 100, 100, 255));
         canvas.DrawRect(new ARect(10, 10, 80, 30), new AColor(200, 0, 0, 255));
         Add(canvas, 60);
@@ -121,7 +121,7 @@ public static class GfxTestScene
         return scroll;
     }
 
-    private static LingoGfxLabel CreateLabel(ILingoGfxFactory factory, string text, Action<LingoGfxLabel>? configure = null)
+    private static AbstUIGfxLabel CreateLabel(IAbstUIGfxFactory factory, string text, Action<AbstUIGfxLabel>? configure = null)
     {
 
         var label = factory.CreateLabel(text.Replace(" ", "_"), text);

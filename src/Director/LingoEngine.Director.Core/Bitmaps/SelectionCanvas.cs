@@ -1,15 +1,15 @@
 using LingoEngine.Bitmaps;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Director.Core.Styles;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
 
 namespace LingoEngine.Director.Core.Bitmaps;
 
 public class SelectionCanvas
 {
-    private readonly LingoGfxCanvas _canvas;
-    public LingoGfxCanvas Canvas => _canvas;
+    private readonly AbstUIGfxCanvas _canvas;
+    public AbstUIGfxCanvas Canvas => _canvas;
     public bool Visible { get => _canvas.Visibility; set => _canvas.Visibility = value; }
 
     public SelectionCanvas(ILingoFrameworkFactory factory)

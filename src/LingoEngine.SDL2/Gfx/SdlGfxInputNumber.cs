@@ -1,13 +1,13 @@
 using System;
 using System.Numerics;
 using ImGuiNET;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxInputNumber : SdlGfxComponent, ILingoFrameworkGfxInputNumber<float>, IDisposable
+    internal class SdlGfxInputNumber : SdlGfxComponent, IAbstUIFrameworkGfxInputNumber<float>, IDisposable
     {
         public SdlGfxInputNumber(SdlGfxFactory factory) : base(factory)
         {
@@ -28,7 +28,7 @@ namespace LingoEngine.SDL2.Gfx
         }
         public float Min { get; set; }
         public float Max { get; set; }
-        public LingoNumberType NumberType { get; set; } = LingoNumberType.Float;
+        public ANumberType NumberType { get; set; } = ANumberType.Float;
         public AMargin Margin { get; set; } = AMargin.Zero;
         public event Action? ValueChanged;
         public object FrameworkNode => this;
@@ -44,7 +44,7 @@ namespace LingoEngine.SDL2.Gfx
             if (!Enabled)
                 ImGui.BeginDisabled();
 
-            if (NumberType == LingoNumberType.Integer)
+            if (NumberType == ANumberType.Integer)
             {
                 int val = (int)_value;
                 if (ImGui.InputInt("##num", ref val))

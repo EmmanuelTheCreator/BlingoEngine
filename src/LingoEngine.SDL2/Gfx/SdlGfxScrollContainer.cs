@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxScrollContainer : SdlGfxComponent, ILingoFrameworkGfxScrollContainer, IDisposable
+    internal class SdlGfxScrollContainer : SdlGfxComponent, IAbstUIFrameworkGfxScrollContainer, IDisposable
     {
         public SdlGfxScrollContainer(SdlGfxFactory factory) : base(factory)
         {
@@ -18,20 +18,20 @@ namespace LingoEngine.SDL2.Gfx
         public bool ClipContents { get; set; }
         public object FrameworkNode => this;
 
-        private readonly List<ILingoFrameworkGfxLayoutNode> _children = new();
+        private readonly List<IAbstUIFrameworkGfxLayoutNode> _children = new();
 
-        public void AddItem(ILingoFrameworkGfxLayoutNode child)
+        public void AddItem(IAbstUIFrameworkGfxLayoutNode child)
         {
             if (!_children.Contains(child))
                 _children.Add(child);
         }
 
-        public void RemoveItem(ILingoFrameworkGfxLayoutNode lingoFrameworkGfxNode)
+        public void RemoveItem(IAbstUIFrameworkGfxLayoutNode lingoFrameworkGfxNode)
         {
             _children.Remove(lingoFrameworkGfxNode);
         }
 
-        public IEnumerable<ILingoFrameworkGfxLayoutNode> GetItems() => _children.ToArray();
+        public IEnumerable<IAbstUIFrameworkGfxLayoutNode> GetItems() => _children.ToArray();
 
         public override LingoSDLRenderResult Render(LingoSDLRenderContext context)
         {

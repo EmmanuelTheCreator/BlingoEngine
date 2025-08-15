@@ -1,5 +1,5 @@
 using ImGuiNET;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 using LingoEngine.Inputs;
 using LingoEngine.SDL2;
 using LingoEngine.SDL2.Inputs;
@@ -7,6 +7,7 @@ using LingoEngine.SDL2.SDLL;
 using LingoEngine.SDL2.Styles;
 using LingoEngine.Stages;
 using System.Numerics;
+using AbstUI.Inputs;
 
 
 namespace LingoEngine.SDL2.GfxVisualTest;
@@ -23,11 +24,11 @@ private bool _imguiReady;
     public LingoSDLComponentContainer ComponentContainer { get; } = new();
     public nint Renderer { get; }
 
-    public SdlMouse Mouse { get; set; }
-    public LingoMouse LingoMouse { get; set; }
+    public LingoSdlMouse Mouse { get; set; }
+    public IAbstUIMouse LingoMouse { get; set; }
 
-    internal SdlKey Key { get; set; } = new Inputs.SdlKey();
-    public LingoKey LingoKey { get; set; }
+    internal ILingoFrameworkKey Key { get; set; }
+    public IAbstUIKey LingoKey { get; set; }
     private readonly ImGuiSdlBackend _imgui = new();
     public int Width { get; set; }
     public int Height { get; set; }
@@ -49,8 +50,10 @@ private bool _imguiReady;
             SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED | SDL.SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC);
         SDL.SDL_RenderSetLogicalSize(Renderer, Width, Height);
         CreateMouse();
-        LingoKey = new LingoKey(Key);
-        Key.SetLingoKey(LingoKey);
+        var key = new SdlKey();
+        Key = key;
+        var LingoKey = new LingoKey(key);
+        key.SetLingoKey(LingoKey);
 
         _imgui.Init(_window, Renderer);
         _fontManager = new Styles.SdlFontManager();
@@ -133,7 +136,7 @@ private bool _imguiReady;
 
     public LingoMouse CreateMouse()
     {
-        Mouse = new SdlMouse(new Lazy<LingoMouse>(() => LingoMouse));
+        Mouse = new LingoSdlMouse(new Lazy<AbstUIMouse<Events.LingoMouseEvent>>(() => (AbstUIMouse < Events.LingoMouseEvent > )LingoMouse));
         var mouseImpl = Mouse;
         var mouse = new LingoMouse(mouseImpl);
         mouseImpl.SetLingoMouse(mouse);

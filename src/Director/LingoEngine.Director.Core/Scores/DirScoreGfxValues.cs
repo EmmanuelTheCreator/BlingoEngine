@@ -1,5 +1,5 @@
 using LingoEngine.Director.Core.Styles;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.Scores;
 

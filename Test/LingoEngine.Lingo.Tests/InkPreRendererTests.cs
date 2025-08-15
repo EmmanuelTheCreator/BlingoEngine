@@ -1,4 +1,4 @@
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 using LingoEngine.Primitives;
 using LingoEngine.Tools;
 using Xunit;

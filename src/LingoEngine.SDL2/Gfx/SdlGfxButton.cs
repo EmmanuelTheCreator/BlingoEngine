@@ -1,13 +1,12 @@
 using System;
 using System.Numerics;
 using ImGuiNET;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Bitmaps;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxButton : SdlGfxComponent, ILingoFrameworkGfxButton, IDisposable
+    internal class SdlGfxButton : SdlGfxComponent, IAbstUIFrameworkGfxButton, IDisposable
     {
         public SdlGfxButton(SdlGfxFactory factory) : base(factory)
         {
@@ -15,7 +14,7 @@ namespace LingoEngine.SDL2.Gfx
         public AMargin Margin { get; set; } = AMargin.Zero;
         public string Text { get; set; } = string.Empty;
         public bool Enabled { get; set; } = true;
-        public ILingoTexture2D? IconTexture { get; set; }
+        public IAbstUITexture2D? IconTexture { get; set; }
 
         public object FrameworkNode => this;
 

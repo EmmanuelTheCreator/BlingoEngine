@@ -1,20 +1,20 @@
 using Godot;
-using LingoEngine.Gfx;
 using System;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
 
 namespace LingoEngine.LGodot.Gfx
 {
     /// <summary>
-    /// Godot implementation of <see cref="ILingoFrameworkGfxInputCheckbox"/>.
+    /// Godot implementation of <see cref="IAbstUIFrameworkGfxInputCheckbox"/>.
     /// </summary>
-    public partial class LingoGodotInputCheckbox : CheckBox, ILingoFrameworkGfxInputCheckbox, IDisposable
+    public partial class LingoGodotInputCheckbox : CheckBox, IAbstUIFrameworkGfxInputCheckbox, IDisposable
     {
         private AMargin _margin = AMargin.Zero;
         private Action<bool>? _onChange;
 
         private event Action? _onValueChanged;
-        public LingoGodotInputCheckbox(LingoGfxInputCheckbox input, Action<bool>? onChange)
+        public LingoGodotInputCheckbox(AbstUIGfxInputCheckbox input, Action<bool>? onChange)
         {
             _onChange = onChange;
             input.Init(this);
@@ -44,12 +44,12 @@ namespace LingoEngine.LGodot.Gfx
             }
         }
 
-        string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
+        string IAbstUIFrameworkGfxNode.Name { get => Name; set => Name = value; }
 
         public object FrameworkNode => this;
 
 
-        event Action? ILingoFrameworkGfxNodeInput.ValueChanged
+        event Action? IAbstUIFrameworkGfxNodeInput.ValueChanged
         {
             add => _onValueChanged += value;
             remove => _onValueChanged -= value;

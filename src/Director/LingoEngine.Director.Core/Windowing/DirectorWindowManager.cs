@@ -1,8 +1,8 @@
-﻿using LingoEngine.Commands;
+﻿using AbstUI.Components;
+using LingoEngine.Commands;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Tools.Commands;
 using LingoEngine.Director.Core.Windowing.Commands;
-using LingoEngine.Gfx;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Director.Core.Windowing
@@ -11,7 +11,7 @@ namespace LingoEngine.Director.Core.Windowing
     {
         void SetActiveWindow(IDirectorWindowRegistration window);
         IDirectorWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult);
-        IDirectorWindowDialogReference? ShowCustomDialog(string title, ILingoFrameworkGfxPanel panel);
+        IDirectorWindowDialogReference? ShowCustomDialog(string title, IAbstUIFrameworkGfxPanel panel);
         IDirectorWindowDialogReference? ShowNotification(string message, DirUINotificationType type);
     }
     public interface IDirectorWindowRegistration
@@ -30,7 +30,7 @@ namespace LingoEngine.Director.Core.Windowing
         void Init(IDirFrameworkWindowManager frameworkWindowManager);
         void SetActiveWindow(string windowCode);
         IDirectorWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult);
-        IDirectorWindowDialogReference? ShowCustomDialog(string title, ILingoFrameworkGfxPanel panel);
+        IDirectorWindowDialogReference? ShowCustomDialog(string title, IAbstUIFrameworkGfxPanel panel);
         IDirectorWindowDialogReference? ShowNotification(string message, DirUINotificationType type);
         void SetWindowSize(string windowCode, int stageWidth, int stageHeight);
     }
@@ -101,7 +101,7 @@ namespace LingoEngine.Director.Core.Windowing
         public IDirectorWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult)
             => _frameworkWindowManager.ShowConfirmDialog(title, message, onResult);
 
-        public IDirectorWindowDialogReference? ShowCustomDialog(string title, ILingoFrameworkGfxPanel panel)
+        public IDirectorWindowDialogReference? ShowCustomDialog(string title, IAbstUIFrameworkGfxPanel panel)
             => _frameworkWindowManager.ShowCustomDialog(title, panel);
 
         public IDirectorWindowDialogReference? ShowNotification(string message, DirUINotificationType type)

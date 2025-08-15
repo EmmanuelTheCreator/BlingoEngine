@@ -12,6 +12,7 @@ using LingoEngine.Styles;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.FrameworkCommunication;
+using AbstUI.Texts;
 
 namespace LingoEngine.Director.LGodot.Casts;
 
@@ -125,16 +126,16 @@ internal partial class DirGodotTextableMemberWindow : BaseGodotWindow, IHasMembe
         _textEdit.Size = new Vector2(size.X - 10, size.Y - (TitleBarHeight + NavigationBarHeight + ActionBarHeight + 5 + _topOffset));
     }
 
-    private bool SetAlignment(LingoTextAlignment alignment)
+    private bool SetAlignment(AbstUITextAlignment alignment)
     {
         if (_member != null)
             _member.Alignment = alignment;
         int val = alignment switch
         {
-            LingoTextAlignment.Left => (int)HorizontalAlignment.Left,
-            LingoTextAlignment.Center => (int)HorizontalAlignment.Center,
-            LingoTextAlignment.Right => (int)HorizontalAlignment.Right,
-            LingoTextAlignment.Justified => (int)HorizontalAlignment.Fill,
+            AbstUITextAlignment.Left => (int)HorizontalAlignment.Left,
+            AbstUITextAlignment.Center => (int)HorizontalAlignment.Center,
+            AbstUITextAlignment.Right => (int)HorizontalAlignment.Right,
+            AbstUITextAlignment.Justified => (int)HorizontalAlignment.Fill,
             _ => (int)HorizontalAlignment.Left
         };
         _textEdit.Set("alignment", val);

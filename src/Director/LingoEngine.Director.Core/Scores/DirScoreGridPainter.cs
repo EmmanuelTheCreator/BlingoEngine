@@ -1,19 +1,19 @@
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.Director.Core.Scores;
 
 /// <summary>
 /// Framework independent painter for the Score grid.
-/// Uses a <see cref="LingoGfxCanvas"/> to draw the grid graphics.
+/// Uses a <see cref="AbstUIGfxCanvas"/> to draw the grid graphics.
 /// </summary>
 public class DirScoreGridPainter
 {
     private readonly DirScoreGfxValues _gfxValues;
-    public LingoGfxCanvas Canvas { get; }
+    public AbstUIGfxCanvas Canvas { get; }
 
     public int FrameCount { get; set; }
     public int ChannelCount { get; set; }

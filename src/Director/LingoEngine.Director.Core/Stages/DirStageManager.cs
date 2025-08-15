@@ -8,7 +8,7 @@ using LingoEngine.Director.Core.Stages.Commands;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Animations;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.Stages;
 
