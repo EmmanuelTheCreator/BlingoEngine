@@ -1,5 +1,4 @@
 ﻿using Godot;
-using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
 using LingoEngine.Bitmaps;
 using AbstUI.Primitives;
@@ -12,7 +11,7 @@ namespace LingoEngine.LGodot
     /// Communication between the Godot engine and the Lingo mouse object
     /// </summary>
 
-    public partial class LingoGodotMouseArea : Area2D, IAbstUIFrameworkMouse
+    public partial class LingoGodotMouseArea : Area2D, IAbstUIFrameworkMouse, ILingoFrameworkMouse
     {
         private readonly LingoGodotMouse _handler;
         private CollisionShape2D _collisionShape2D = new();
@@ -42,7 +41,7 @@ namespace LingoEngine.LGodot
             _RectangleShape2D.Size = vector2;
         }
 
-        public void SetCursor(LingoMemberBitmap image) => _handler.SetCursor(image);
+        public void SetCursor(LingoMemberBitmap? image) => _handler.SetCursor(image);
 
         public void SetCursor(AMouseCursor value) => _handler.SetCursor(value);
 
