@@ -37,6 +37,11 @@
     <ProjectReference Include="..\..\..\WillMoveToOwnRepo\ProjectorRays\src\ProjectorRays.DotNet\ProjectorRays.DotNet.csproj" />
     <ProjectReference Include="..\..\LingoEngine.IO\LingoEngine.IO.csproj" />
     <ProjectReference Include="..\..\LingoEngine\LingoEngine.csproj" />
+    <ProjectReference Include="..\..\LingoEngine.Lingo.Core\LingoEngine.Lingo.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TextCopy" Version="6.2.1" />
   </ItemGroup>
 
   <ItemGroup>

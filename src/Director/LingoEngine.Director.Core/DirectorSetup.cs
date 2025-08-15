@@ -43,6 +43,7 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<ProjectSettingsEditorState, ProjectSettingsEditorState>()
 
                     .AddSingleton<DirectorScriptsManager>()
+                    .AddSingleton<LingoCSharpConverterPopup>()
                     .AddTransient(p => new Lazy<IDirectorScriptsManager>(() => p.GetRequiredService<DirectorScriptsManager>()))
 
                     // Windows
@@ -80,10 +81,10 @@ namespace LingoEngine.Director.Core
                         //var settings = new DirectorProjectSettings();
                         //directorSettingsConfig(settings)
                         //serviceProvider.GetRequiredService<IDirectorWindowManager>()
-                        
+
 
                     }
-                   
+
                 });
             return engineRegistration;
         }
