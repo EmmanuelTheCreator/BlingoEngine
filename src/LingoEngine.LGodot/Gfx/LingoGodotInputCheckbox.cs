@@ -1,7 +1,7 @@
 using Godot;
 using LingoEngine.Gfx;
 using System;
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.LGodot.Gfx
 {
@@ -10,7 +10,7 @@ namespace LingoEngine.LGodot.Gfx
     /// </summary>
     public partial class LingoGodotInputCheckbox : CheckBox, ILingoFrameworkGfxInputCheckbox, IDisposable
     {
-        private LingoMargin _margin = LingoMargin.Zero;
+        private AMargin _margin = AMargin.Zero;
         private Action<bool>? _onChange;
 
         private event Action? _onValueChanged;
@@ -31,7 +31,7 @@ namespace LingoEngine.LGodot.Gfx
 
         public bool Checked { get => ButtonPressed; set => ButtonPressed = value; }
 
-        public LingoMargin Margin
+        public AMargin Margin
         {
             get => _margin;
             set

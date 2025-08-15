@@ -13,6 +13,7 @@ using LingoEngine.LGodot.Shapes;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.FilmLoops;
 using LingoEngine.LGodot.FilmLoops;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.LGodot.Sprites
 {
@@ -53,7 +54,7 @@ namespace LingoEngine.LGodot.Sprites
                 ApplyZIndex();
             }
         }
-        public LingoPoint RegPoint { get => (_Container2D.Position.X, _Container2D.Position.Y); set { _Container2D.Position = new Vector2(value.X, value.Y); IsDirty = true; } }
+        public APoint RegPoint { get => (_Container2D.Position.X, _Container2D.Position.Y); set { _Container2D.Position = new Vector2(value.X, value.Y); IsDirty = true; } }
 
         public bool Visibility { get => _Container2D.Visible; set => _Container2D.Visible = value; }
         public ILingoCast? Cast { get; private set; }
@@ -231,7 +232,7 @@ namespace LingoEngine.LGodot.Sprites
             _Container2D.GetParent().RemoveChild(_Container2D);
         }
 
-        public void SetPosition(LingoPoint lingoPoint)
+        public void SetPosition(APoint lingoPoint)
         {
             _x = lingoPoint.X;
             _y = lingoPoint.Y;
@@ -441,9 +442,9 @@ namespace LingoEngine.LGodot.Sprites
             _Sprite2D.Scale = new Vector2(scaleFactorW, scaleFactorH);
         }
 
-        private LingoPoint GetRegPointOffset()
+        private APoint GetRegPointOffset()
         {
-            if (_lingoSprite2D.Member == null) return new LingoPoint();
+            if (_lingoSprite2D.Member == null) return new APoint();
             if (_lingoSprite2D.Member is LingoMemberBitmap member)
             {
                 var baseOffset = member.CenterOffsetFromRegPoint();
@@ -451,7 +452,7 @@ namespace LingoEngine.LGodot.Sprites
                 {
                     float scaleX = _Sprite2D.Scale.X;
                     float scaleY = _Sprite2D.Scale.Y;
-                    return new LingoPoint(baseOffset.X * scaleX, baseOffset.Y * scaleY);
+                    return new APoint(baseOffset.X * scaleX, baseOffset.Y * scaleY);
                 }
                 return baseOffset;
             }

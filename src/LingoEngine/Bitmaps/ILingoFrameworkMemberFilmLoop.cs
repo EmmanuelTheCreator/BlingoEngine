@@ -1,6 +1,6 @@
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.FilmLoops;
 using LingoEngine.Members;
-using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 
 namespace LingoEngine.Bitmaps
@@ -30,7 +30,7 @@ namespace LingoEngine.Bitmaps
         /// <summary>
         /// Offset from the film loop's registration point to the top-left corner of its composed texture.
         /// </summary>
-        LingoPoint Offset { get; }
+        APoint Offset { get; }
 
         /// <summary>
         /// Composes the active film loop layers into a single texture.

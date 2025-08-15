@@ -1,5 +1,5 @@
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using LingoEngine.Texts;
 
 namespace LingoEngine.SDL2.GfxVisualTest;
@@ -18,7 +18,7 @@ public static class GfxTestScene
         scroll.AddItem(panel);
         panel.Width = 720;
         panel.Height = 1400;
-        panel.BackgroundColor = new LingoColor(240, 240, 240, 255);
+        panel.BackgroundColor = new AColor(240, 240, 240, 255);
 
         float y = 10f;
 
@@ -41,10 +41,10 @@ public static class GfxTestScene
         Add(CreateLabel(factory, "Label4 BIG",c => c.FontSize = 30));
 
         var canvas2 = factory.CreateGfxCanvas("canvas1", 100, 50);
-        canvas2.Clear(new LingoColor(100, 100, 100, 255));
-        canvas2.DrawCircle(new LingoPoint(50, 25), 20, new LingoColor(200, 0, 0, 255));
-        canvas2.DrawRect(new LingoRect(10, 10, 80, 30), new LingoColor(0, 200, 0, 255));
-        canvas2.DrawText(new LingoPoint(5, 5), "Hallo", null, LingoColorList.Green);
+        canvas2.Clear(new AColor(100, 100, 100, 255));
+        canvas2.DrawCircle(new APoint(50, 25), 20, new AColor(200, 0, 0, 255));
+        canvas2.DrawRect(new ARect(10, 10, 80, 30), new AColor(0, 200, 0, 255));
+        canvas2.DrawText(new APoint(5, 5), "Hallo", null, AColors.Green);
         Add(canvas2);
         Add(factory.CreateButton("button", "Button"));
 
@@ -64,7 +64,7 @@ public static class GfxTestScene
         combo.AddItem("3", "Three");
         Add(combo);
 
-        var slider = factory.CreateInputSliderFloat(LingoOrientation.Horizontal, "slider", 0, 1, 0.1f);
+        var slider = factory.CreateInputSliderFloat(AOrientation.Horizontal, "slider", 0, 1, 0.1f);
         slider.Width = 200;
         Add(slider, 50);
 
@@ -72,8 +72,8 @@ public static class GfxTestScene
         Add(colorPicker, 80);
 
         LingoGfxCanvas canvas = factory.CreateGfxCanvas("canvas", 100, 50);
-        canvas.Clear(new LingoColor(100, 100, 100, 255));
-        canvas.DrawRect(new LingoRect(10, 10, 80, 30), new LingoColor(200, 0, 0, 255));
+        canvas.Clear(new AColor(100, 100, 100, 255));
+        canvas.DrawRect(new ARect(10, 10, 80, 30), new AColor(200, 0, 0, 255));
         Add(canvas, 60);
 
         var list = factory.CreateItemList("itemList");
@@ -84,7 +84,7 @@ public static class GfxTestScene
         list.AddItem("c", "Item C");
         Add(list, 80);
 
-        var wrap = factory.CreateWrapPanel(LingoOrientation.Horizontal, "wrapPanel");
+        var wrap = factory.CreateWrapPanel(AOrientation.Horizontal, "wrapPanel");
         wrap.Width = 300;
         wrap.Height = 60;
         wrap.AddItem(factory.CreateButton("wrapBtn1", "One"));
@@ -125,7 +125,7 @@ public static class GfxTestScene
     {
 
         var label = factory.CreateLabel(text.Replace(" ", "_"), text);
-        label.FontColor = LingoColorList.LightGray;
+        label.FontColor = AColors.LightGray;
         if (configure != null)
             configure(label);
         return label;

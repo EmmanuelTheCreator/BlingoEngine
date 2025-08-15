@@ -1,4 +1,4 @@
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.L3D.Core.Members;
 
@@ -8,7 +8,7 @@ namespace LingoEngine.L3D.Core.Members;
 public class LingoShader
 {
     public string Name { get; set; } = string.Empty;
-    public LingoColor DiffuseColor { get; set; } = new();
-    public LingoColor SpecularColor { get; set; } = new();
+    public AColor DiffuseColor { get; set; } = new();
+    public AColor SpecularColor { get; set; } = new();
     public float Smoothness { get; set; } = 0f;
 }

@@ -1,6 +1,6 @@
 using System;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Bitmaps;
-using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using UnityEngine;
 
@@ -70,7 +70,7 @@ public class UnitySprite2D : ILingoFrameworkSprite, IDisposable
         set => _go.name = value;
     }
 
-    public LingoPoint RegPoint { get; set; }
+    public APoint RegPoint { get; set; }
     public float DesiredHeight { get; set; }
     public float DesiredWidth { get; set; }
 
@@ -121,7 +121,7 @@ public class UnitySprite2D : ILingoFrameworkSprite, IDisposable
 
     public void Hide() => Visibility = false;
 
-    public void SetPosition(LingoPoint point)
+    public void SetPosition(APoint point)
     {
         X = point.X;
         Y = point.Y;

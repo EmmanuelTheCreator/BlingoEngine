@@ -1,4 +1,5 @@
-﻿using LingoEngine.Director.Core.Styles;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Director.Core.Styles;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
@@ -40,7 +41,7 @@ namespace LingoEngine.Director.Core.Inspector
            
            
             var win = _factory.CreateWindow("BehaviorParams", $"Parameters for \"{behavior.Name}\"");
-            var root = _factory.CreateWrapPanel(LingoOrientation.Horizontal, "BehaviorPopupRoot");
+            var root = _factory.CreateWrapPanel(AOrientation.Horizontal, "BehaviorPopupRoot");
             win.AddItem(root);
             win.Width = width;
             win.Height = height;
@@ -65,12 +66,12 @@ namespace LingoEngine.Director.Core.Inspector
             vLine.Height = height;
             root.AddItem(vLine);
 
-            var right = _factory.CreateWrapPanel(LingoOrientation.Vertical, "BehaviorPopupRight");
+            var right = _factory.CreateWrapPanel(AOrientation.Vertical, "BehaviorPopupRight");
             right.Width = rightWidth;
             var ok = _factory.CreateButton("BehaviorPopupOk", "OK");
             ok.Width = 74;
             float margin = (rightWidth - ok.Width) / 2f;
-            ok.Margin = new LingoMargin(margin, 0, margin, 0);
+            ok.Margin = new AMargin(margin, 0, margin, 0);
             ok.Pressed += () =>
             {
                 behavior.UserProperties.Apply(behaviorPanel.Value.Definitions);
@@ -90,7 +91,7 @@ namespace LingoEngine.Director.Core.Inspector
             //var scroller = _factory.CreateScrollContainer("BehaviorPanelScroller");
             //scroller.Width = width;
             //scroller.Height = height;
-            var container = _factory.CreateWrapPanel(LingoOrientation.Vertical, "BehaviorPanel");
+            var container = _factory.CreateWrapPanel(AOrientation.Vertical, "BehaviorPanel");
             container.Width = width;
             container.Height = height;
             //scroller.AddItem(container);
@@ -122,21 +123,21 @@ namespace LingoEngine.Director.Core.Inspector
             if (!string.IsNullOrEmpty(desc))
             {
                 var descLabel = _factory.CreateLabel("BehaviorDescLabel_"+ behavior.Name, desc);
-                descLabel.FontColor = LingoColorList.Black;
+                descLabel.FontColor = AColors.Black;
                 descLabel.Width = 200;
                 descLabel.FontSize = 14;
-                descLabel.WrapMode = LingoTextWrapMode.WordSmart;
+                descLabel.WrapMode = ATextWrapMode.WordSmart;
                 container.AddItem(descLabel);
             }
 
             var properties = behavior.UserProperties;
             foreach (var propDefinition in definitions)
             {
-                var row = _factory.CreateWrapPanel(LingoOrientation.Horizontal, $"PropRow_{propDefinition.Key}");
+                var row = _factory.CreateWrapPanel(AOrientation.Horizontal, $"PropRow_{propDefinition.Key}");
                 string labelText = !string.IsNullOrEmpty(propDefinition.Value.Comment) ? propDefinition.Value.Comment! : propDefinition.Key.ToString();
                 var label = _factory.CreateLabel($"PropLabel_{propDefinition.Key}", labelText);
                 label.Width = 80;
-                label.WrapMode = LingoTextWrapMode.WordSmart;
+                label.WrapMode = ATextWrapMode.WordSmart;
                 label.FontColor = DirectorColors.TextColorLabels;
                 label.FontSize = 10;
                 row.AddItem(label);
@@ -221,15 +222,15 @@ namespace LingoEngine.Director.Core.Inspector
         public LingoGfxWrapPanel BuildProperties(object obj)
         {
             ILingoFrameworkFactory factory = _factory;
-            var root = factory.CreateWrapPanel(LingoOrientation.Vertical, $"{obj.GetType().Name}Props");
+            var root = factory.CreateWrapPanel(AOrientation.Vertical, $"{obj.GetType().Name}Props");
             foreach (var prop in obj.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
             {
                 if (!prop.CanRead)
                     continue;
-                if (!IsSimpleType(prop.PropertyType) && prop.PropertyType != typeof(LingoPoint))
+                if (!IsSimpleType(prop.PropertyType) && prop.PropertyType != typeof(APoint))
                     continue;
 
-                var row = factory.CreateWrapPanel(LingoOrientation.Horizontal, prop.Name + "Row");
+                var row = factory.CreateWrapPanel(AOrientation.Horizontal, prop.Name + "Row");
                 var label = factory.CreateLabel(prop.Name + "Label", prop.Name);
                 label.Width = 80;
                 row.AddItem(label);
@@ -246,9 +247,9 @@ namespace LingoEngine.Director.Core.Inspector
                         cb.Enabled = false;
                     row.AddItem(cb);
                 }
-                else if (prop.PropertyType == typeof(LingoPoint))
+                else if (prop.PropertyType == typeof(APoint))
                 {
-                    var point = val is LingoPoint p ? p : new LingoPoint();
+                    var point = val is APoint p ? p : new APoint();
                     var xSpin = factory.CreateSpinBox(prop.Name + "X");
                     var ySpin = factory.CreateSpinBox(prop.Name + "Y");
                     xSpin.Value = point.X;
@@ -257,13 +258,13 @@ namespace LingoEngine.Director.Core.Inspector
                     {
                         xSpin.ValueChanged += () =>
                         {
-                            var pVal = (LingoPoint)prop.GetValue(obj)!;
+                            var pVal = (APoint)prop.GetValue(obj)!;
                             pVal.X = xSpin.Value;
                             prop.SetValue(obj, pVal);
                         };
                         ySpin.ValueChanged += () =>
                         {
-                            var pVal = (LingoPoint)prop.GetValue(obj)!;
+                            var pVal = (APoint)prop.GetValue(obj)!;
                             pVal.Y = ySpin.Value;
                             prop.SetValue(obj, pVal);
                         };

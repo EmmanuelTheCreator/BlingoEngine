@@ -1,3 +1,4 @@
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
@@ -92,7 +93,7 @@ public class UnityMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
 
     public void Dispose() => Unload();
 
-    public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+    public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
     {
         throw new NotImplementedException();
     }

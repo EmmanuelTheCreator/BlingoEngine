@@ -3,9 +3,9 @@ using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.LGodot;
 using LingoEngine.LGodot.Primitives;
-using LingoEngine.Primitives;
 using LingoEngine.Inputs;
 using LingoEngine.Director.Core.Tools;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Director.LGodot
 {
@@ -78,7 +78,7 @@ namespace LingoEngine.Director.LGodot
             //AddThemeStyleboxOverride("panel", styleBox);
             windowManager.Register(this);
         }
-        public LingoColor BackgroundColor {
+        public AColor BackgroundColor {
             set
             {
                 Style.BgColor = value.ToGodotColor();
@@ -105,9 +105,9 @@ namespace LingoEngine.Director.LGodot
             // todo : fix this
             useGuiInput = false;
         }
-        public new LingoPoint GetPosition() => Position.ToLingoPoint();
+        public new APoint GetPosition() => Position.ToLingoPoint();
 
-        public new LingoPoint GetSize() => Size.ToLingoPoint();
+        public new APoint GetSize() => Size.ToLingoPoint();
         public override void _Input(InputEvent @event)
         {
             base._Input(@event);

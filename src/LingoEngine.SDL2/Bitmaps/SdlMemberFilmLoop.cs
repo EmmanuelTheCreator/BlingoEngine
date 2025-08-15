@@ -1,5 +1,6 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.FilmLoops;
 using LingoEngine.Primitives;
@@ -20,7 +21,7 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
     public bool IsLoaded { get; private set; }
     public byte[]? Media { get; set; }
     public ILingoTexture2D? TextureLingo { get; private set; }
-    public LingoPoint Offset { get; private set; }
+    public APoint Offset { get; private set; }
     public LingoFilmLoopFraming Framing { get; set; } = LingoFilmLoopFraming.Auto;
     public bool Loop { get; set; } = true;
 
@@ -90,7 +91,7 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
         {
         }
     }
-    public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor) => TextureLingo;
+    public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor) => TextureLingo;
     /// <summary>
     /// Composes the provided layers into a single SDL texture using the
     /// <see cref="LingoFilmLoopComposer"/> for layout and transforms.

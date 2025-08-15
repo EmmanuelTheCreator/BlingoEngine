@@ -1,4 +1,5 @@
-﻿using LingoEngine.Casts;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Casts;
 using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Primitives;
@@ -45,7 +46,7 @@ namespace LingoEngine.Sprites
         /// <summary>
         /// Background color for the sprite. Read/write.
         /// </summary>
-        LingoColor BackColor { get; set; }
+        AColor BackColor { get; set; }
 
         /// <summary>
         /// Specifies the blend percentage (0–100) of the sprite’s visibility. Read/write.
@@ -60,7 +61,7 @@ namespace LingoEngine.Sprites
         /// <summary>
         /// Foreground color tint of the sprite. Read/write.
         /// </summary>
-        LingoColor Color { get; set; }
+        AColor Color { get; set; }
 
         /// <summary>
         /// Whether the sprite is editable by the user (e.g., for text input). Read/write.
@@ -72,7 +73,7 @@ namespace LingoEngine.Sprites
         /// <summary>
         /// Foreground color of the sprite, often used in text. Read/write.
         /// </summary>
-        LingoColor ForeColor { get; set; }
+        AColor ForeColor { get; set; }
 
         /// <summary>
         /// Whether the sprite is highlighted. Read/write.
@@ -124,13 +125,13 @@ namespace LingoEngine.Sprites
         /// <summary>
         /// The rectangular boundary of the sprite (top-left to bottom-right). Read/write.
         /// </summary>
-        LingoRect Rect { get; }
+        ARect Rect { get; }
 
         /// <summary>
         /// Specifies the registration point of a cast member. Read/write.
         /// </summary>
-        LingoPoint RegPoint { get; set; }
-        LingoPoint Loc { get; set; }
+        APoint RegPoint { get; set; }
+        APoint Loc { get; set; }
         /// <summary>
         /// Horizontal location of the sprite on the stage. Read/write.
         /// </summary>
@@ -261,7 +262,7 @@ namespace LingoEngine.Sprites
 
         bool Intersects(ILingoSprite other);
         bool Within(ILingoSprite other);
-        (LingoPoint topLeft, LingoPoint topRight, LingoPoint bottomRight, LingoPoint bottomLeft) Quad();
+        (APoint topLeft, APoint topRight, APoint bottomRight, APoint bottomLeft) Quad();
 
     }
 }

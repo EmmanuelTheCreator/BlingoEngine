@@ -7,10 +7,10 @@ using LingoEngine.Movies;
 using LingoEngine.Inputs;
 using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.Stages;
-using LingoEngine.Primitives;
 using ImGuiNET;
 using System.Numerics;
 using LingoEngine.SDL2.Styles;
+using LingoEngine.AbstUI.Primitives;
 
 public class SdlRootContext : IDisposable, ISdlRootComponentContext
 {
@@ -103,9 +103,9 @@ public class SdlRootContext : IDisposable, ISdlRootComponentContext
         SDL.SDL_Quit();
     }
 
-    public LingoPoint GetWindowSize()
+    public APoint GetWindowSize()
     {
         SDL.SDL_GetWindowSize(Window, out var w, out var h);
-        return new LingoPoint(w, h);
+        return new APoint(w, h);
     }
 }

@@ -1,4 +1,4 @@
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Gfx
 {
@@ -8,10 +8,10 @@ namespace LingoEngine.Gfx
     public interface ILingoFrameworkGfxWrapPanel : ILingoFrameworkGfxLayoutNode
     {
         /// <summary>Orientation of child layout.</summary>
-        LingoOrientation Orientation { get; set; }
+        AOrientation Orientation { get; set; }
 
         /// <summary>Margin around each child item.</summary>
-        LingoPoint ItemMargin { get; set; }
+        APoint ItemMargin { get; set; }
 
         /// <summary>Adds a child node to the container.</summary>
         void AddItem(ILingoFrameworkGfxNode child);

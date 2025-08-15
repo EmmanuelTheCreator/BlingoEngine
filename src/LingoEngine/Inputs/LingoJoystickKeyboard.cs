@@ -1,7 +1,7 @@
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using LingoEngine.Texts;
 using System.Reflection.Emit;
 
@@ -30,23 +30,23 @@ namespace LingoEngine.Inputs
 
         public void SetWhiteTheme()
         {
-            SelectedColor = LingoColorList.Black;
-            SelectedBackgroundColor = LingoColorList.LightGray;
-            BackgroundColor = LingoColorList.White;
-            BorderColor = LingoColorList.LightGray;
-            TextColor = LingoColorList.Black;
+            SelectedColor = AColors.Black;
+            SelectedBackgroundColor = AColors.LightGray;
+            BackgroundColor = AColors.White;
+            BorderColor = AColors.LightGray;
+            TextColor = AColors.Black;
         }
 
         /// <summary>Color used for the border of the selected key.</summary>
-        public LingoColor SelectedColor { get; set; } = LingoColorList.White;
+        public AColor SelectedColor { get; set; } = AColors.White;
 
         /// <summary>Optional fill color for the selected key.</summary>
-        public LingoColor? SelectedBackgroundColor { get; set; } = LingoColorList.DarkGray;
+        public AColor? SelectedBackgroundColor { get; set; } = AColors.DarkGray;
 
         /// <summary>Background color of the keyboard.</summary>
-        public LingoColor BackgroundColor { get; set; } = LingoColorList.Black;
-        public LingoColor BorderColor { get; set; } = LingoColorList.DarkGray;
-        public LingoColor TextColor { get; set; } = LingoColorList.White;
+        public AColor BackgroundColor { get; set; } = AColors.Black;
+        public AColor BorderColor { get; set; } = AColors.DarkGray;
+        public AColor TextColor { get; set; } = AColors.White;
 
         /// <summary>Font name used for key labels.</summary>
         public string? FontName { get; set; }
@@ -210,11 +210,11 @@ namespace LingoEngine.Inputs
                     var key = _layout[r][c];
                     var selected = r == _selectedRow && c == _selectedCol;
                     if (selected && SelectedBackgroundColor.HasValue)
-                        _canvas.DrawRect(LingoRect.New(x, y, CellSize, CellSize), SelectedBackgroundColor.Value, true);
+                        _canvas.DrawRect(ARect.New(x, y, CellSize, CellSize), SelectedBackgroundColor.Value, true);
                     var border = selected ? SelectedColor : BorderColor;
-                    _canvas.DrawRect(LingoRect.New(x, y, CellSize, CellSize), border, false, 1);
+                    _canvas.DrawRect(ARect.New(x, y, CellSize, CellSize), border, false, 1);
                     var label = key switch { "SPACE" => "Space", "BACKSPACE" => "<-", "ENTER" => "OK", "ESC" => "Esc", _ => key };
-                    _canvas.DrawText(new LingoPoint(x + 2, y + 20), label, FontName, TextColor, FontSize, CellSize - 4, LingoTextAlignment.Center);
+                    _canvas.DrawText(new APoint(x + 2, y + 20), label, FontName, TextColor, FontSize, CellSize - 4, LingoTextAlignment.Center);
                 }
             }
         }
@@ -374,7 +374,7 @@ namespace LingoEngine.Inputs
         }
 
         /// <summary>Opens the keyboard popup window at the given position or centered if none.</summary>
-        public void Open(LingoPoint? position = null)
+        public void Open(APoint? position = null)
         {
             ApplyWindowChrome();
             if (position.HasValue)

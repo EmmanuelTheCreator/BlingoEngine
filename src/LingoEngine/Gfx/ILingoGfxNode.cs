@@ -1,4 +1,4 @@
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Gfx
 {
@@ -11,7 +11,7 @@ namespace LingoEngine.Gfx
         bool Visibility { get; set; }
         float Width { get; set; }
         float Height { get; set; }
-        LingoMargin Margin { get; set; }
+        AMargin Margin { get; set; }
         T Framework<T>() where T : ILingoFrameworkGfxNode;
         ILingoFrameworkGfxNode FrameworkObj { get; }
     }

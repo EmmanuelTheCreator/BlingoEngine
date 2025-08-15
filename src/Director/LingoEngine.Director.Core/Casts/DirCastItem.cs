@@ -1,3 +1,4 @@
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.FrameworkCommunication;
@@ -59,25 +60,25 @@ public class DirCastItem
 
     private void Draw()
     {
-        _canvas.Clear(LingoColorList.Transparent);
+        _canvas.Clear(AColors.Transparent);
         // selection highlight
         if (_selected)
         {
-            _canvas.DrawRect(LingoRect.New(0, 0, Width, Height), DirectorColors.BlueSelectColor, true);
+            _canvas.DrawRect(ARect.New(0, 0, Width, Height), DirectorColors.BlueSelectColor, true);
         }
         else if (_hovered)
         {
-            _canvas.DrawLine(new LingoPoint(0, 0), new LingoPoint(Width, 0), LingoColorList.Black); // top
-            _canvas.DrawLine(new LingoPoint(0, 0), new LingoPoint(0, Height), LingoColorList.Black); // left
-            _canvas.DrawLine(new LingoPoint(0, Height), new LingoPoint(Width, Height), LingoColorList.Black); // bottom
-            _canvas.DrawLine(new LingoPoint(Width, 0), new LingoPoint(Width, Height), LingoColorList.Black); // right
+            _canvas.DrawLine(new APoint(0, 0), new APoint(Width, 0), AColors.Black); // top
+            _canvas.DrawLine(new APoint(0, 0), new APoint(0, Height), AColors.Black); // left
+            _canvas.DrawLine(new APoint(0, Height), new APoint(Width, Height), AColors.Black); // bottom
+            _canvas.DrawLine(new APoint(Width, 0), new APoint(Width, Height), AColors.Black); // right
         }
         else
         {
-            _canvas.DrawLine(new LingoPoint(0, 0), new LingoPoint(Width, 0), DirectorColors.LineDarker); // top
-            _canvas.DrawLine(new LingoPoint(0, 0), new LingoPoint(0, Height), DirectorColors.LineDarker); // left
-            _canvas.DrawLine(new LingoPoint(0, Height), new LingoPoint(Width, Height), DirectorColors.LineLight); // bottom
-            _canvas.DrawLine(new LingoPoint(Width, 0), new LingoPoint(Width, Height), DirectorColors.LineLight); // right
+            _canvas.DrawLine(new APoint(0, 0), new APoint(Width, 0), DirectorColors.LineDarker); // top
+            _canvas.DrawLine(new APoint(0, 0), new APoint(0, Height), DirectorColors.LineDarker); // left
+            _canvas.DrawLine(new APoint(0, Height), new APoint(Width, Height), DirectorColors.LineLight); // bottom
+            _canvas.DrawLine(new APoint(Width, 0), new APoint(Width, Height), DirectorColors.LineLight); // right
         }
 
         // draw member preview or empty slot
@@ -96,7 +97,7 @@ public class DirCastItem
             label = $"{_member.NumberInCast}. {_member.Name}";
         else
             label = _slotNumber.ToString();
-        _canvas.DrawText(new LingoPoint(2, Height - LabelHeight + 10), label, null, _selected ? LingoColorList.White : LingoColorList.Black, 8, Width - 4);
+        _canvas.DrawText(new APoint(2, Height - LabelHeight + 10), label, null, _selected ? AColors.White : AColors.Black, 8, Width - 4);
 
 
 

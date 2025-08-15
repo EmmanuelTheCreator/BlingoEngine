@@ -6,6 +6,7 @@ using LingoEngine.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Events;
 using System;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.FilmLoops
 {
@@ -57,7 +58,7 @@ namespace LingoEngine.FilmLoops
 
         
 
-        public LingoFilmLoopMember(ILingoFrameworkMemberFilmLoop frameworkMember, LingoCast cast, int numberInCast, string name = "", string fileName = "", LingoPoint regPoint = default)
+        public LingoFilmLoopMember(ILingoFrameworkMemberFilmLoop frameworkMember, LingoCast cast, int numberInCast, string name = "", string fileName = "", APoint regPoint = default)
             : base(frameworkMember, LingoMemberType.FilmLoop, cast, numberInCast, name, fileName, regPoint)
         {
             _frameworkFilmLoop = frameworkMember;
@@ -88,7 +89,7 @@ namespace LingoEngine.FilmLoops
 
             Width = (int)MathF.Ceiling(right - left);
             Height = (int)MathF.Ceiling(bottom - top);
-            RegPoint = new LingoPoint(-left, -top);
+            RegPoint = new APoint(-left, -top);
         }
 
         public override void Unload() => _frameworkFilmLoop.Unload();
@@ -152,10 +153,10 @@ namespace LingoEngine.FilmLoops
             }
         }
 
-        public LingoRect GetBoundingBoxForFrame(int frame) => SpriteEntries.GetBoundingBoxForFrame(frame);
-        public LingoRect GetBoundingBox() => SpriteEntries.GetBoundingBox();
+        public ARect GetBoundingBoxForFrame(int frame) => SpriteEntries.GetBoundingBoxForFrame(frame);
+        public ARect GetBoundingBox() => SpriteEntries.GetBoundingBox();
 
-        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+        public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
             => _frameworkFilmLoop.RenderToTexture(ink, transparentColor);
     }
 }

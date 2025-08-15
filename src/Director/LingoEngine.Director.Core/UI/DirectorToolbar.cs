@@ -1,11 +1,11 @@
-﻿using LingoEngine.Commands;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Commands;
 using LingoEngine.Director.Core.Bitmaps;
 using LingoEngine.Director.Core.Bitmaps.Commands;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.Director.Core.UI;
 
@@ -34,7 +34,7 @@ public abstract class DirectorToolbar<TToolEnumType>
         _panel.Width = 52;   // fallback size similar to Godot implementation
         _panel.Height = 200;
 
-        _container = factory.CreateWrapPanel(LingoOrientation.Vertical, "PaintToolbarContainer");
+        _container = factory.CreateWrapPanel(AOrientation.Vertical, "PaintToolbarContainer");
         _container.Width = _panel.Width - 2;
         _container.Height = _panel.Height - 2;
         // TODO: custom minimum size (48,100) when supported

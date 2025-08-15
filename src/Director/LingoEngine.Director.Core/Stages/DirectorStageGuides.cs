@@ -1,3 +1,4 @@
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
@@ -15,8 +16,8 @@ public class DirectorStageGuides
     public IList<float> VerticalGuides { get; } = new List<float>();
     public IList<float> HorizontalGuides { get; } = new List<float>();
 
-    private LingoColor _guidesColor = LingoColorList.Blue;
-    public LingoColor GuidesColor { get => _guidesColor; set { _guidesColor = value; Draw(); } }
+    private AColor _guidesColor = AColors.Blue;
+    public AColor GuidesColor { get => _guidesColor; set { _guidesColor = value; Draw(); } }
     private bool _guidesVisible = true;
     public bool GuidesVisible { get => _guidesVisible; set { _guidesVisible = value; Draw(); } }
     private bool _guidesSnap;
@@ -24,8 +25,8 @@ public class DirectorStageGuides
     private bool _guidesLocked;
     public bool GuidesLocked { get => _guidesLocked; set { _guidesLocked = value; } }
 
-    private LingoColor _gridColor = LingoColorList.Gray;
-    public LingoColor GridColor { get => _gridColor; set { _gridColor = value; Draw(); } }
+    private AColor _gridColor = AColors.Gray;
+    public AColor GridColor { get => _gridColor; set { _gridColor = value; Draw(); } }
     private bool _gridVisible;
     public bool GridVisible { get => _gridVisible; set { _gridVisible = value; Draw(); } }
     private bool _gridSnap;
@@ -49,22 +50,22 @@ public class DirectorStageGuides
 
     public void Draw()
     {
-        _canvas.Clear(LingoColorList.Transparent);
+        _canvas.Clear(AColors.Transparent);
 
         if (GridVisible && GridWidth > 0 && GridHeight > 0)
         {
             for (float x = 0; x <= _canvas.Width; x += GridWidth)
-                _canvas.DrawLine(new LingoPoint(x, 0), new LingoPoint(x, _canvas.Height), GridColor);
+                _canvas.DrawLine(new APoint(x, 0), new APoint(x, _canvas.Height), GridColor);
             for (float y = 0; y <= _canvas.Height; y += GridHeight)
-                _canvas.DrawLine(new LingoPoint(0, y), new LingoPoint(_canvas.Width, y), GridColor);
+                _canvas.DrawLine(new APoint(0, y), new APoint(_canvas.Width, y), GridColor);
         }
 
         if (GuidesVisible)
         {
             foreach (var x in VerticalGuides)
-                _canvas.DrawLine(new LingoPoint(x, 0), new LingoPoint(x, _canvas.Height), GuidesColor);
+                _canvas.DrawLine(new APoint(x, 0), new APoint(x, _canvas.Height), GuidesColor);
             foreach (var y in HorizontalGuides)
-                _canvas.DrawLine(new LingoPoint(0, y), new LingoPoint(_canvas.Width, y), GuidesColor);
+                _canvas.DrawLine(new APoint(0, y), new APoint(_canvas.Width, y), GuidesColor);
         }
 
         _canvas.Visibility = GuidesVisible || GridVisible;

@@ -1,13 +1,13 @@
 using Godot;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using System.Linq;
 
 namespace LingoEngine.LGodot.Gfx
 {
     public partial class LingoGodotScrollContainer : ScrollContainer, ILingoFrameworkGfxScrollContainer, IDisposable
     {
-        private LingoMargin _margin = LingoMargin.Zero;
+        private AMargin _margin = AMargin.Zero;
         public LingoGodotScrollContainer(LingoGfxScrollContainer container)
         {
             container.Init(this);
@@ -36,7 +36,7 @@ namespace LingoEngine.LGodot.Gfx
             set => base.ClipContents = value;
         }
 
-        public LingoMargin Margin
+        public AMargin Margin
         {
             get => _margin;
             set

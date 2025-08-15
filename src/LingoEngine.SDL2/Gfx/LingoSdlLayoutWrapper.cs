@@ -1,5 +1,5 @@
-﻿using LingoEngine.Gfx;
-using LingoEngine.Primitives;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Gfx;
 
 namespace LingoEngine.SDL2.Gfx
 {
@@ -15,7 +15,7 @@ namespace LingoEngine.SDL2.Gfx
             var content = layoutWrapper.Content.FrameworkObj;
         }
 
-        public LingoMargin Margin { get; set; }
+        public AMargin Margin { get; set; }
 
         public override LingoSDLRenderResult Render(LingoSDLRenderContext context)
         {

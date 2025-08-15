@@ -9,7 +9,6 @@ using LingoEngine.LGodot.Texts;
 using LingoEngine.LGodot.Shapes;
 using LingoEngine.Inputs;
 using LingoEngine.Movies;
-using LingoEngine.Primitives;
 using LingoEngine.Sounds;
 using LingoEngine.Texts;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +29,7 @@ using LingoEngine.LGodot.Scripts;
 using LingoEngine.Scripts;
 using LingoEngine.FilmLoops;
 using LingoEngine.LGodot.FilmLoops;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.LGodot.Core
 {
@@ -95,7 +95,7 @@ namespace LingoEngine.LGodot.Core
             };
         }
         /// <inheritdoc/>
-        public LingoMemberSound CreateMemberSound(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
+        public LingoMemberSound CreateMemberSound(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
         {
             var lingoMemberSound = new LingoGodotMemberSound();
             var memberSound = new LingoMemberSound(lingoMemberSound, (LingoCast)cast, numberInCast, name, fileName ?? "");
@@ -104,7 +104,7 @@ namespace LingoEngine.LGodot.Core
             return memberSound;
         }
         /// <inheritdoc/>
-        public LingoFilmLoopMember CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
+        public LingoFilmLoopMember CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
         {
             var impl = new LingoGodotFilmLoopMember();
             var member = new LingoFilmLoopMember(impl, (LingoCast)cast, numberInCast, name, fileName ?? "", regPoint);
@@ -113,7 +113,7 @@ namespace LingoEngine.LGodot.Core
             return member;
         }
         /// <inheritdoc/>
-        public LingoMemberShape CreateMemberShape(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
+        public LingoMemberShape CreateMemberShape(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
         {
             var impl = new LingoGodotMemberShape();
             var member = new LingoMemberShape((LingoCast)cast, impl, numberInCast, name, fileName ?? "", regPoint);
@@ -121,7 +121,7 @@ namespace LingoEngine.LGodot.Core
             return member;
         }
         /// <inheritdoc/>
-        public LingoMemberBitmap CreateMemberBitmap(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
+        public LingoMemberBitmap CreateMemberBitmap(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
         {
             var godotInstance = new LingoGodotMemberBitmap(_serviceProvider.GetRequiredService<ILogger<LingoGodotMemberBitmap>>());
             var lingoInstance = new LingoMemberBitmap((LingoCast)cast, godotInstance, numberInCast, name, fileName ?? "", regPoint);
@@ -130,7 +130,7 @@ namespace LingoEngine.LGodot.Core
             return lingoInstance;
         }
         /// <inheritdoc/>
-        public LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
+        public LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
         {
             var godotInstance = new LingoGodotMemberField(_serviceProvider.GetRequiredService<ILingoFontManager>(), _serviceProvider.GetRequiredService<ILogger<LingoGodotMemberField>>());
             var lingoInstance = new LingoMemberField((LingoCast)cast, godotInstance, numberInCast, name, fileName ?? "", regPoint);
@@ -139,7 +139,7 @@ namespace LingoEngine.LGodot.Core
             return lingoInstance;
         }
         /// <inheritdoc/>
-        public LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
+        public LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
         {
             var godotInstance = new LingoGodotMemberText(_serviceProvider.GetRequiredService<ILingoFontManager>(), _serviceProvider.GetRequiredService<ILogger<LingoGodotMemberText>>());
             var lingoInstance = new LingoMemberText((LingoCast)cast, godotInstance, numberInCast, name, fileName ?? "", regPoint);
@@ -149,7 +149,7 @@ namespace LingoEngine.LGodot.Core
         }
         /// <inheritdoc/>
         public LingoMember CreateScript(ILingoCast cast, int numberInCast, string name = "", string? fileName = null,
-            LingoPoint regPoint = default)
+            APoint regPoint = default)
         {
             var godotInstance = new LingoFrameworkMemberScript();
             var lingoInstance = new LingoMemberScript(godotInstance, (LingoCast)cast, numberInCast, name, fileName ?? "", regPoint);
@@ -157,7 +157,7 @@ namespace LingoEngine.LGodot.Core
         }
         /// <inheritdoc/>
         public LingoMember CreateEmpty(ILingoCast cast, int numberInCast, string name = "", string? fileName = null,
-            LingoPoint regPoint = default)
+            APoint regPoint = default)
         {
             var godotInstance = new LingoFrameworkMemberEmpty();
             var lingoInstance = new LingoMember(godotInstance, LingoMemberType.Empty, (LingoCast)cast, numberInCast, name, fileName ?? "", regPoint);
@@ -231,7 +231,7 @@ namespace LingoEngine.LGodot.Core
         public LingoGfxCanvas CreateGfxCanvas(string name, int width, int height)
             => _gfxFactory.CreateGfxCanvas(name, width, height);
 
-        public LingoGfxWrapPanel CreateWrapPanel(LingoOrientation orientation, string name)
+        public LingoGfxWrapPanel CreateWrapPanel(AOrientation orientation, string name)
             => _gfxFactory.CreateWrapPanel(orientation, name);
 
         public LingoGfxPanel CreatePanel(string name)
@@ -249,13 +249,13 @@ namespace LingoEngine.LGodot.Core
         public LingoGfxScrollContainer CreateScrollContainer(string name)
             => _gfxFactory.CreateScrollContainer(name);
 
-        public LingoGfxInputSlider<float> CreateInputSliderFloat(LingoOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
+        public LingoGfxInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
             => _gfxFactory.CreateInputSliderFloat(orientation, name, min, max, step, onChange);
 
-        public LingoGfxInputSlider<int> CreateInputSliderInt(LingoOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
+        public LingoGfxInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
             => _gfxFactory.CreateInputSliderInt(orientation, name, min, max, step, onChange);
 
-        public LingoGfxInputSlider<TValue> CreateInputSlider<TValue>(string name, LingoOrientation orientation, NullableNum<TValue> min, NullableNum<TValue> max, NullableNum<TValue> step, Action<TValue>? onChange = null)
+        public LingoGfxInputSlider<TValue> CreateInputSlider<TValue>(string name, AOrientation orientation, NullableNum<TValue> min, NullableNum<TValue> max, NullableNum<TValue> step, Action<TValue>? onChange = null)
             where TValue : struct, System.Numerics.INumber<TValue>, IConvertible
             => _gfxFactory.CreateInputSlider(name, orientation, min, max, step, onChange);
 
@@ -284,7 +284,7 @@ namespace LingoEngine.LGodot.Core
         public LingoGfxItemList CreateItemList(string name, Action<string?>? onChange = null)
             => _gfxFactory.CreateItemList(name, onChange);
 
-        public LingoGfxColorPicker CreateColorPicker(string name, Action<LingoColor>? onChange = null)
+        public LingoGfxColorPicker CreateColorPicker(string name, Action<AColor>? onChange = null)
             => _gfxFactory.CreateColorPicker(name, onChange);
 
         public LingoGfxLabel CreateLabel(string name, string text = "")

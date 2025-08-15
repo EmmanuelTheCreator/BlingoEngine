@@ -1,4 +1,5 @@
 using System.IO;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
@@ -33,7 +34,7 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
     public string FontName { get; set; } = string.Empty;
     public int FontSize { get; set; }
     public LingoTextStyle FontStyle { get; set; }
-    public LingoColor TextColor { get; set; } = LingoColor.FromRGB(0, 0, 0);
+    public AColor TextColor { get; set; } = AColor.FromRGB(0, 0, 0);
     public LingoTextAlignment Alignment { get; set; }
     public int Margin { get; set; }
     public bool IsLoaded { get; private set; }
@@ -62,7 +63,7 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
 
     public void Dispose() { }
 
-    public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+    public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
     {
         throw new NotImplementedException();
     }

@@ -11,6 +11,7 @@ using LingoEngine.Bitmaps;
 using LingoEngine.FrameworkCommunication;
 using System.Diagnostics;
 using LingoEngine.Inputs.Events;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Sprites
 {
@@ -104,7 +105,7 @@ namespace LingoEngine.Sprites
         public float LocH { get => _frameworkSprite.X; set => _frameworkSprite.X = value; }
         public float LocV { get => _frameworkSprite.Y; set => _frameworkSprite.Y = value; }
         public int LocZ { get => _frameworkSprite.ZIndex; set => _frameworkSprite.ZIndex = value; }
-        public LingoPoint Loc { get => (_frameworkSprite.X, _frameworkSprite.Y); set => _frameworkSprite.SetPosition(value); }
+        public APoint Loc { get => (_frameworkSprite.X, _frameworkSprite.Y); set => _frameworkSprite.SetPosition(value); }
 
         public float Rotation { get => _frameworkSprite.Rotation; set => _frameworkSprite.Rotation = value; }
         public float Skew { get => _frameworkSprite.Skew; set => _frameworkSprite.Skew = value; }
@@ -130,9 +131,9 @@ namespace LingoEngine.Sprites
             }
         }
 
-        public LingoPoint RegPoint { get; set; }
-        public LingoColor ForeColor { get; set; } = LingoColorList.Black;
-        public LingoColor BackColor { get; set; } = LingoColorList.White;
+        public APoint RegPoint { get; set; }
+        public AColor ForeColor { get; set; } = AColors.Black;
+        public AColor BackColor { get; set; } = AColors.White;
         public List<string> ScriptInstanceList { get; private set; } = new();
 
 
@@ -149,16 +150,16 @@ namespace LingoEngine.Sprites
             set => isDraggable = value;
         }
 
-        public LingoColor Color { get; set; }
+        public AColor Color { get; set; }
 
-        public LingoRect Rect
+        public ARect Rect
         {
             get
             {
                 var offset = GetRegPointOffset();
                 float left = LocH - offset.X - Width / 2f;
                 float top = LocV - offset.Y - Height / 2f;
-                return new LingoRect(left, top, left + Width, top + Height);
+                return new ARect(left, top, left + Width, top + Height);
             }
         }
 
@@ -184,7 +185,7 @@ namespace LingoEngine.Sprites
             _frameworkSprite.Blend = _directToStage ? 1f : _blend;
         }
 
-        private LingoPoint GetRegPointOffset()
+        private APoint GetRegPointOffset()
         {
             if (_Member is { } member)
             {
@@ -193,11 +194,11 @@ namespace LingoEngine.Sprites
                 {
                     float scaleX = Width / member.Width;
                     float scaleY = Height / member.Height;
-                    return new LingoPoint(baseOffset.X * scaleX, baseOffset.Y * scaleY);
+                    return new APoint(baseOffset.X * scaleX, baseOffset.Y * scaleY);
                 }
                 return baseOffset;
             }
-            return new LingoPoint();
+            return new APoint();
         }
 
 
@@ -383,7 +384,7 @@ When a movie stops, events occur in the following order:
 
         internal void SetFrameworkSprite(ILingoFrameworkSprite fw) => _frameworkSprite = fw;
 
-        public bool PointInSprite(LingoPoint point)
+        public bool PointInSprite(APoint point)
         {
             return Rect.Contains(point);
         }
@@ -519,14 +520,14 @@ When a movie stops, events occur in the following order:
             return other.Rect.Contains(center);
         }
 
-        public (LingoPoint topLeft, LingoPoint topRight, LingoPoint bottomRight, LingoPoint bottomLeft) Quad()
+        public (APoint topLeft, APoint topRight, APoint bottomRight, APoint bottomLeft) Quad()
         {
             var rect = Rect;
             return (
                 rect.TopLeft,
-                new LingoPoint(rect.Right, rect.Top),
+                new APoint(rect.Right, rect.Top),
                 rect.BottomRight,
-                new LingoPoint(rect.Left, rect.Bottom)
+                new APoint(rect.Left, rect.Bottom)
             );
         }
 

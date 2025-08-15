@@ -1,3 +1,4 @@
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
 
@@ -5,11 +6,11 @@ namespace LingoEngine.Shapes
 {
     public interface ILingoFrameworkMemberShape : ILingoFrameworkMemberWithTexture
     {
-        LingoList<LingoPoint> VertexList { get; }
+        LingoList<APoint> VertexList { get; }
         LingoShapeType ShapeType { get; set; }
-        LingoColor FillColor { get; set; }
-        LingoColor EndColor { get; set; }
-        LingoColor StrokeColor { get; set; }
+        AColor FillColor { get; set; }
+        AColor EndColor { get; set; }
+        AColor StrokeColor { get; set; }
         int StrokeWidth { get; set; }
         float Width { get; set; }
         float Height { get; set; }

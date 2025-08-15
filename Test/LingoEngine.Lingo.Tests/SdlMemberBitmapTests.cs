@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Primitives;
 using LingoEngine.SDL2.SDLL;
 using LingoEngine.Tools;
@@ -32,7 +33,7 @@ public class SdlMemberBitmapTests : IDisposable
         Assert.Equal(32, bytes[2]);
         Assert.Equal(128, bytes[3]);
 
-        var result = InkPreRenderer.Apply(bytes, LingoInkType.Blend, new LingoColor(0, 0, 0));
+        var result = InkPreRenderer.Apply(bytes, LingoInkType.Blend, new AColor(0, 0, 0));
         Assert.Equal(120 * 128 / 255, result[0]);
         Assert.Equal(64 * 128 / 255, result[1]);
         Assert.Equal(32 * 128 / 255, result[2]);

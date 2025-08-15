@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
@@ -12,7 +12,7 @@ namespace LingoEngine.SDL2.Gfx
         public SdlGfxScrollContainer(SdlGfxFactory factory) : base(factory)
         {
         }
-        public LingoMargin Margin { get; set; } = LingoMargin.Zero;
+        public AMargin Margin { get; set; } = AMargin.Zero;
         public float ScrollHorizontal { get; set; }
         public float ScrollVertical { get; set; }
         public bool ClipContents { get; set; }

@@ -1,4 +1,5 @@
 using Godot;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.Primitives;
@@ -9,16 +10,16 @@ namespace LingoEngine.LGodot.Shapes
 {
     public partial class LingoGodotMemberShape : Node2D, ILingoFrameworkMemberShape, IDisposable
     {
-        private LingoColor _fillColor = LingoColor.FromRGB(255, 255, 255);
+        private AColor _fillColor = AColor.FromRGB(255, 255, 255);
         private LingoShapeType _shapeType = LingoShapeType.Rectangle;
         private int _strokeWidth = 1;
-        private LingoList<LingoPoint> _vertexList = new();
+        private LingoList<APoint> _vertexList = new();
         private float width;
         private float height;
 
         public bool IsLoaded { get; private set; }
         public bool IsDirty { get; private set; } = true;
-        public LingoList<LingoPoint> VertexList 
+        public LingoList<APoint> VertexList 
         { get => _vertexList;
             set
             {
@@ -36,7 +37,7 @@ namespace LingoEngine.LGodot.Shapes
                 IsLoaded = false;
             }
         }
-        public LingoColor FillColor { get => _fillColor; 
+        public AColor FillColor { get => _fillColor; 
             set
             {
                 _fillColor = value;
@@ -44,8 +45,8 @@ namespace LingoEngine.LGodot.Shapes
                 IsLoaded = false;
             } 
         }
-        public LingoColor EndColor { get; set; } = LingoColor.FromRGB(255, 255, 255);
-        public LingoColor StrokeColor { get; set; } = LingoColor.FromRGB(0, 0, 0);
+        public AColor EndColor { get; set; } = AColor.FromRGB(255, 255, 255);
+        public AColor StrokeColor { get; set; } = AColor.FromRGB(0, 0, 0);
         public int StrokeWidth { get => _strokeWidth; set => _strokeWidth = value; }
         public bool Closed { get; set; } = true;
         public bool AntiAlias { get; set; } = true;
@@ -171,7 +172,7 @@ namespace LingoEngine.LGodot.Shapes
             return points.Max(p => p.DistanceTo(center));
         }
 
-        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+        public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         {
             // TODO
             return null;

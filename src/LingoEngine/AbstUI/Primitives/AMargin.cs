@@ -1,16 +1,16 @@
-namespace LingoEngine.Primitives
+namespace LingoEngine.AbstUI.Primitives
 {
     /// <summary>
     /// Represents margin or padding values with left, top, right and bottom components.
     /// </summary>
-    public struct LingoMargin
+    public struct AMargin
     {
         public float Left { get; set; }
         public float Top { get; set; }
         public float Right { get; set; }
         public float Bottom { get; set; }
 
-        public LingoMargin(float left, float top, float right, float bottom)
+        public AMargin(float left, float top, float right, float bottom)
         {
             Left = left;
             Top = top;
@@ -19,6 +19,6 @@ namespace LingoEngine.Primitives
         }
 
         /// <summary>Margin with all sides set to zero.</summary>
-        public static readonly LingoMargin Zero = new(0, 0, 0, 0);
+        public static readonly AMargin Zero = new(0, 0, 0, 0);
     }
 }

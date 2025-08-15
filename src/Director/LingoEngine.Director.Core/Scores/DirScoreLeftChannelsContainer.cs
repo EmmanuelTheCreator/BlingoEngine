@@ -1,7 +1,7 @@
-﻿using LingoEngine.Director.Core.Tools;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Director.Core.Tools;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Movies;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.Director.Core.Scores
 {
@@ -10,7 +10,7 @@ namespace LingoEngine.Director.Core.Scores
         protected LingoMovie? _movie;
    
 
-        public DirScoreLeftChannelsContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, LingoPoint position, IDirectorEventMediator mediator) : base(gfxValues, factory, position,10, mediator)
+        public DirScoreLeftChannelsContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, APoint position, IDirectorEventMediator mediator) : base(gfxValues, factory, position,10, mediator)
         {
         }
 

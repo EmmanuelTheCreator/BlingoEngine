@@ -1,4 +1,5 @@
-﻿using LingoEngine.Animations;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Animations;
 using LingoEngine.Casts;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
@@ -50,9 +51,9 @@ namespace LingoEngine.FilmLoops
         public bool FlipH { get; set; }
         public bool FlipV { get; set; }
 
-        public LingoPoint RegPoint { get; set; }
-        public LingoColor ForeColor { get; set; } = LingoColorList.Black;
-        public LingoColor BackColor { get; set; } = LingoColorList.White;
+        public APoint RegPoint { get; set; }
+        public AColor ForeColor { get; set; } = AColors.Black;
+        public AColor BackColor { get; set; } = AColors.White;
         public ILingoMember? Member { get; private set; }
 
         public float Width { 
@@ -62,14 +63,14 @@ namespace LingoEngine.FilmLoops
         public float Height { get; set; }
 
 
-        public LingoRect Rect
+        public ARect Rect
         {
             get
             {
                 var offset = GetRegPointOffset();
                 float left = LocH - offset.X - Width / 2f;
                 float top = LocV - offset.Y - Height / 2f;
-                return new LingoRect(left, top, left + Width, top + Height);
+                return new ARect(left, top, left + Width, top + Height);
             }
         }
 
@@ -163,11 +164,11 @@ namespace LingoEngine.FilmLoops
             _animatorProperties.RequestRecalculatedBoundingBox();
         }
 
-        public LingoRect GetBoundingBox() => _animatorProperties.GetBoundingBox(RegPoint, Rect, Width, Height);
-        public LingoRect GetBoundingBoxForFrame(int frame) => _animatorProperties.GetBoundingBoxForFrame(frame, RegPoint, Width, Height);
+        public ARect GetBoundingBox() => _animatorProperties.GetBoundingBox(RegPoint, Rect, Width, Height);
+        public ARect GetBoundingBoxForFrame(int frame) => _animatorProperties.GetBoundingBoxForFrame(frame, RegPoint, Width, Height);
 
 
-        private LingoPoint GetRegPointOffset()
+        private APoint GetRegPointOffset()
         {
             if (Member != null)
             {
@@ -176,11 +177,11 @@ namespace LingoEngine.FilmLoops
                 {
                     float scaleX = Width / Member.Width;
                     float scaleY = Height / Member.Height;
-                    return new LingoPoint(baseOffset.X * scaleX, baseOffset.Y * scaleY);
+                    return new APoint(baseOffset.X * scaleX, baseOffset.Y * scaleY);
                 }
                 return baseOffset;
             }
-            return new LingoPoint();
+            return new APoint();
         }
         /// <summary>
         /// Possible tuples : (frame,x,y) , (int frame, int x, int y, float width, float height)

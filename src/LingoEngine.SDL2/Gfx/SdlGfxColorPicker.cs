@@ -1,8 +1,8 @@
 using System;
 using System.Numerics;
 using ImGuiNET;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
@@ -12,10 +12,10 @@ namespace LingoEngine.SDL2.Gfx
         {
         }
         public bool Enabled { get; set; } = true;
-        public LingoMargin Margin { get; set; } = LingoMargin.Zero;
+        public AMargin Margin { get; set; } = AMargin.Zero;
 
-        private LingoColor _color;
-        public LingoColor Color
+        private AColor _color;
+        public AColor Color
         {
             get => _color;
             set
@@ -43,7 +43,7 @@ namespace LingoEngine.SDL2.Gfx
             Vector3 col = new Vector3(_color.R / 255f, _color.G / 255f, _color.B / 255f);
             if (ImGui.ColorEdit3("##color", ref col))
             {
-                Color = new LingoColor((byte)(col.X * 255), (byte)(col.Y * 255), (byte)(col.Z * 255));
+                Color = new AColor((byte)(col.X * 255), (byte)(col.Y * 255), (byte)(col.Z * 255));
             }
 
             if (!Enabled)

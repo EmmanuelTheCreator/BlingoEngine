@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using LingoEngine.Texts;
 
 namespace LingoEngine.Director.Core.Texts;
@@ -43,7 +43,7 @@ public class TextEditIconBar
     /// <summary>Raised when a font is selected.</summary>
     public event Action<string>? FontChanged;
     /// <summary>Raised when color changes.</summary>
-    public event Action<LingoColor>? ColorChanged;
+    public event Action<AColor>? ColorChanged;
 
     /// <summary>Returns whether bold is currently selected.</summary>
     public bool IsBold => _boldButton.IsOn;
@@ -61,7 +61,7 @@ public class TextEditIconBar
         Panel = factory.CreatePanel("TextEditIconBar");
         Panel.Height = actionBarHeight;
 
-        var container = factory.CreateWrapPanel(LingoOrientation.Horizontal, "TextEditIconBarContainer");
+        var container = factory.CreateWrapPanel(AOrientation.Horizontal, "TextEditIconBarContainer");
         Panel.AddItem(container);
 
         _alignLeft = factory.CreateStateButton("AlignLeft", null, "L", _ => AlignmentChanged?.Invoke(LingoTextAlignment.Left));
@@ -131,7 +131,7 @@ public class TextEditIconBar
     public void SetUnderline(bool on) => _underlineButton.IsOn = on;
 
     /// <summary>Set the current font color.</summary>
-    public void SetColor(LingoColor color)
+    public void SetColor(AColor color)
     {
         _colorDisplay.BackgroundColor = color;
         _colorPicker.Color = color;

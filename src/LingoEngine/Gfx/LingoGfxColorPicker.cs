@@ -1,4 +1,4 @@
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Gfx
 {
@@ -7,6 +7,6 @@ namespace LingoEngine.Gfx
     /// </summary>
     public class LingoGfxColorPicker : LingoGfxInputBase<ILingoFrameworkGfxColorPicker>
     {
-        public LingoColor Color { get => _framework.Color; set => _framework.Color = value; }
+        public AColor Color { get => _framework.Color; set => _framework.Color = value; }
     }
 }

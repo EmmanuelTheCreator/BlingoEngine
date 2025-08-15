@@ -2,33 +2,34 @@
 using LingoEngine.Members;
 using LingoEngine.Animations;
 using LingoEngine.Bitmaps;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Sprites
 {
     public interface ILingoSprite2DLight
     {
-        LingoColor BackColor { get; set; }
+        AColor BackColor { get; set; }
         float Blend { get; set; }
         int Constraint { get; set; }
         int DisplayMember { get; set; }
         bool FlipH { get; set; }
         bool FlipV { get; set; }
-        LingoColor ForeColor { get; set; }
+        AColor ForeColor { get; set; }
         float Height { get; set; }
         bool Hilite { get; set; }
         int Ink { get; set; }
         LingoInkType InkType { get; set; }
         bool Linked { get; }
         bool Loaded { get; }
-        LingoPoint Loc { get; set; }
+        APoint Loc { get; set; }
         float LocH { get; set; }
         float LocV { get; set; }
         int LocZ { get; set; }
         ILingoMember? Member { get; set; }
         int MemberNum { get; set; }
         string Name { get; set; }
-        LingoRect Rect { get; }
-        LingoPoint RegPoint { get; set; }
+        ARect Rect { get; }
+        APoint RegPoint { get; set; }
         float Rotation { get; set; }
         float Skew { get; set; }
         int SpriteNumWithChannel { get; }

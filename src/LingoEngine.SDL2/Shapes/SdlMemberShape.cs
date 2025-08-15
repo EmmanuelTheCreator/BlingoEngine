@@ -7,6 +7,7 @@ using LingoEngine.SDL2.SDLL;
 using LingoEngine.Sprites;
 using LingoEngine.Bitmaps;
 using LingoEngine.SDL2.Pictures;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Shapes
 {
@@ -20,11 +21,11 @@ namespace LingoEngine.SDL2.Shapes
         private SdlTexture2D? _texture;
         public ILingoTexture2D? TextureLingo => _texture;
         public bool IsLoaded { get; private set; }
-        public LingoList<LingoPoint> VertexList { get; } = new();
+        public LingoList<APoint> VertexList { get; } = new();
         public LingoShapeType ShapeType { get; set; } = LingoShapeType.Rectangle;
-        public LingoColor FillColor { get; set; } = LingoColor.FromRGB(255, 255, 255);
-        public LingoColor EndColor { get; set; } = LingoColor.FromRGB(255, 255, 255);
-        public LingoColor StrokeColor { get; set; } = LingoColor.FromRGB(0, 0, 0);
+        public AColor FillColor { get; set; } = AColor.FromRGB(255, 255, 255);
+        public AColor EndColor { get; set; } = AColor.FromRGB(255, 255, 255);
+        public AColor StrokeColor { get; set; } = AColor.FromRGB(0, 0, 0);
         public int StrokeWidth { get; set; } = 1;
         public bool Closed { get; set; } = true;
         public bool AntiAlias { get; set; } = true;
@@ -100,7 +101,7 @@ namespace LingoEngine.SDL2.Shapes
         public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
 
 
-        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+        public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         {
             if (_texture == null)
                 Preload();

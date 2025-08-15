@@ -1,7 +1,7 @@
 using Godot;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
 using LingoEngine.LGodot.Primitives;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.LGodot.Gfx
 {
@@ -10,9 +10,9 @@ namespace LingoEngine.LGodot.Gfx
     /// </summary>
     public partial class LingoGodotPanel : Panel, ILingoFrameworkGfxPanel, IDisposable
     {
-        private LingoMargin _margin = LingoMargin.Zero;
-        private LingoColor? _background = null;
-        private LingoColor? _borderColor = null;
+        private AMargin _margin = AMargin.Zero;
+        private AColor? _background = null;
+        private AColor? _borderColor = null;
         private float _borderWidth =0;
         private readonly StyleBoxFlat _style = new StyleBoxFlat();
 
@@ -33,7 +33,7 @@ namespace LingoEngine.LGodot.Gfx
         public bool Visibility { get => Visible; set => Visible = value; }
         string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
 
-        public LingoMargin Margin
+        public AMargin Margin
         {
             get => _margin;
             set
@@ -98,7 +98,7 @@ namespace LingoEngine.LGodot.Gfx
         //    //        DrawCircle(c.Position, 2, Colors.Red);
         //    //}
         //}
-        public LingoColor? BackgroundColor
+        public AColor? BackgroundColor
         {
             get => _background;
             set
@@ -108,7 +108,7 @@ namespace LingoEngine.LGodot.Gfx
             }
         }
 
-        public LingoColor? BorderColor
+        public AColor? BorderColor
         {
             get => _borderColor;
             set
@@ -190,9 +190,9 @@ namespace LingoEngine.LGodot.Gfx
             set => CustomMinimumSize = new Vector2(CustomMinimumSize.X, value);
         }
 
-        public LingoMargin Margin
+        public AMargin Margin
         {
-            get => new LingoMargin(
+            get => new AMargin(
                 GetThemeConstant("margin_top"),
                 GetThemeConstant("margin_right"),
                 GetThemeConstant("margin_bottom"),

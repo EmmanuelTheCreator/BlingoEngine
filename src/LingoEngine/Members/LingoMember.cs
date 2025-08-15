@@ -1,4 +1,5 @@
-﻿using LingoEngine.Bitmaps;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
 using LingoEngine.Primitives;
 using System;
@@ -32,7 +33,7 @@ namespace LingoEngine.Members
         /// The texture associated with this member, if any.
         /// </summary>
         ILingoTexture2D? TextureLingo { get; }
-        ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor);
+        ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor);
     }
 
     /// <summary>
@@ -97,7 +98,7 @@ namespace LingoEngine.Members
         /// <summary>
         /// Specifies the registration point of a cast member
         /// </summary>
-        LingoPoint RegPoint { get; set; }
+        APoint RegPoint { get; set; }
 
         /// <summary>
         /// The width (in pixels) of the cast member's content, if applicable.
@@ -251,7 +252,7 @@ namespace LingoEngine.Members
         /// <inheritdoc/>
         public int CastLibNum { get; private set; }
         /// <inheritdoc/>
-        public LingoPoint RegPoint { get; set; }
+        public APoint RegPoint { get; set; }
         /// <inheritdoc/>
         public int PurgePriority { get; set; }
         /// <inheritdoc/>
@@ -274,7 +275,7 @@ namespace LingoEngine.Members
         public event Action? MemberChanged;
 
         /// <inheritdoc/>
-        public LingoMember(ILingoFrameworkMember frameworkMember, LingoMemberType type, LingoCast cast, int numberInCast, string name = "", string fileName = "", LingoPoint regPoint = default)
+        public LingoMember(ILingoFrameworkMember frameworkMember, LingoMemberType type, LingoCast cast, int numberInCast, string name = "", string fileName = "", APoint regPoint = default)
         {
             _frameworkMember = frameworkMember;
             NumberInCast = numberInCast;

@@ -321,7 +321,6 @@ namespace LingoEngine.Movies
         /// Lingo : // newBitmap = _movie.newMember(#bitmap)
         /// </summary>
         ILingoMemberFactory New { get; }
-        int CurrentFrame { get; }
         
 
         #endregion

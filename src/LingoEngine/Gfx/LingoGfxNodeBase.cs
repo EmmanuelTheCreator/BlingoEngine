@@ -1,5 +1,5 @@
 using System;
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Gfx
 {
@@ -15,7 +15,7 @@ namespace LingoEngine.Gfx
 
         public virtual bool Visibility { get => _framework.Visibility; set => _framework.Visibility = value; }
         public virtual string Name { get => _framework.Name; set => _framework.Name = value; }
-        public virtual LingoMargin Margin { get => _framework.Margin; set => _framework.Margin = value; }
+        public virtual AMargin Margin { get => _framework.Margin; set => _framework.Margin = value; }
 
         public virtual float Width { get => _framework.Width; set => _framework.Width = value; }
         public virtual float Height { get => _framework.Height; set => _framework.Height = value; }

@@ -1,9 +1,9 @@
 using Godot;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Bitmaps;
 using static System.Net.Mime.MediaTypeNames;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.LGodot.Gfx
 {
@@ -12,7 +12,7 @@ namespace LingoEngine.LGodot.Gfx
     /// </summary>
     public partial class LingoGodotStateButton : Button, ILingoFrameworkGfxStateButton, IDisposable
     {
-        private LingoMargin _margin = LingoMargin.Zero;
+        private AMargin _margin = AMargin.Zero;
         private ILingoTexture2D? _texture;
         private ILingoTexture2D? _textureOff;
         private readonly StyleBoxFlat _style = new StyleBoxFlat();
@@ -68,7 +68,7 @@ namespace LingoEngine.LGodot.Gfx
         }
         string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
 
-        public LingoMargin Margin
+        public AMargin Margin
         {
             get => _margin;
             set

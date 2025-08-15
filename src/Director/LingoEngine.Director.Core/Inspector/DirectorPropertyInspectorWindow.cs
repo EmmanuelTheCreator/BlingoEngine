@@ -29,6 +29,7 @@ using LingoEngine.ColorPalettes;
 using LingoEngine.Transitions;
 using LingoEngine.Scripts;
 using LingoEngine.FilmLoops;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.Inspector
 {
@@ -54,11 +55,10 @@ namespace LingoEngine.Director.Core.Inspector
         private LingoGfxLabel? _member;
         private LingoGfxLabel? _cast;
         private LingoPlayer _player;
-        private ILingoCommandManager? _commandManager;
+        private ILingoCommandManager _commandManager;
         private LingoGfxTabContainer _tabs;
         private DirectorMemberThumbnail? _thumb;
         private LingoGfxPanel? _header;
-        private ILingoFrameworkFactory _factory;
         private IDirectorIconManager _iconManager;
         public ILingoFrameworkFactory Factory => _factory;
         private LingoGfxPanel _headerPanel;
@@ -85,7 +85,6 @@ namespace LingoEngine.Director.Core.Inspector
         {
             _player = player;
             _commandManager = commandManager;
-            _factory = factory;
             _iconManager = iconManager;
             _mediator = mediator;
             _descriptionManager = descriptionManager;
@@ -269,11 +268,11 @@ namespace LingoEngine.Director.Core.Inspector
         {
             CreateBehaviorPanel();
             var wrapContainer = AddTab(PropetyTabNames.Sprite);
-            var containerIcons = _factory.CreateWrapPanel(LingoOrientation.Horizontal, "SpriteDetailIcons");
+            var containerIcons = _factory.CreateWrapPanel(AOrientation.Horizontal, "SpriteDetailIcons");
             var container = _factory.CreatePanel("SpriteDetailPanel");
 
 
-            containerIcons.Margin = new LingoMargin(5, 5, 5, 5);
+            containerIcons.Margin = new AMargin(5, 5, 5, 5);
             var composer0 = containerIcons.Compose()
                 .AddStateButton("SpriteLock", sprite, _iconManager.Get(DirectorIcon.Lock), c => c.Lock)
                 ;
@@ -320,11 +319,11 @@ namespace LingoEngine.Director.Core.Inspector
                 _behaviors = sprite2D1.Behaviors.ToDictionary(b =>
                 {
                     index++;
-                    return index + "." + b.Name;
+                    return $"{index}.{b.Name} {(b.ScriptMember != null? $"{b.ScriptMember.CastLibNum},{b.ScriptMember.NumberInCast}":"")}";
                 });
             }
             if (sprite is LingoFrameScriptSprite frameScript && frameScript.Behavior != null)
-                _behaviors.Add("1."+frameScript.Behavior.Name, frameScript.Behavior);
+                _behaviors.Add("1."+frameScript.Behavior.Name + $"{(frameScript.Member != null ? $"{frameScript.Member.CastLibNum},{frameScript.Member.NumberInCast}" : "")}", frameScript.Behavior);
             
             foreach (var item in _behaviors)
                 _behaviorList.AddItem(item.Key, item.Value.Name);
@@ -342,7 +341,7 @@ namespace LingoEngine.Director.Core.Inspector
 
         private void CreateBehaviorPanel()
         {
-            _behaviorPanel = _factory.CreateWrapPanel(LingoOrientation.Vertical, "InspectorBehaviors");
+            _behaviorPanel = _factory.CreateWrapPanel(AOrientation.Vertical, "InspectorBehaviors");
 
             _behaviorList = _factory.CreateItemList("BehaviorList", x =>
             {
@@ -351,7 +350,7 @@ namespace LingoEngine.Director.Core.Inspector
             });
             _behaviorList.Height = 45;
             _behaviorList.Width = _lastWidh - 15;
-            _behaviorList.Margin = new LingoMargin(5, 0, 0, 0);
+            _behaviorList.Margin = new AMargin(5, 0, 0, 0);
             _behaviorPanel.AddItem(_behaviorList);
 
         }
@@ -444,7 +443,7 @@ namespace LingoEngine.Director.Core.Inspector
             var soundChannel = _player.Sound.Channel(1);
             if (soundChannel == null) return;
             var wrap = AddTab(PropetyTabNames.Sound);
-            var btnPanel = _factory.CreateWrapPanel(LingoOrientation.Horizontal, "SoundButtons");
+            var btnPanel = _factory.CreateWrapPanel(AOrientation.Horizontal, "SoundButtons");
             var playBtn = _factory.CreateButton("SoundPlay", "Play");
             var stopBtn = _factory.CreateButton("SoundStop", "Stop");
             playBtn.Pressed += () => soundChannel.Play(member);
@@ -480,8 +479,8 @@ namespace LingoEngine.Director.Core.Inspector
         {
             var wrap = AddTab(PropetyTabNames.Movie);
 
-            var rowSize = _factory.CreateWrapPanel(LingoOrientation.Horizontal, "MovieStageSizeRow");
-            rowSize.Margin = new LingoMargin(5, 5, 5, 0);
+            var rowSize = _factory.CreateWrapPanel(AOrientation.Horizontal, "MovieStageSizeRow");
+            rowSize.Margin = new AMargin(5, 5, 5, 0);
             rowSize.Compose()
                 //.AddButton("tesxtt", "Test", () =>
                 //{
@@ -585,7 +584,7 @@ namespace LingoEngine.Director.Core.Inspector
         {
             var wrap = AddTab(PropetyTabNames.Cast);
             var rowChannels = _factory.CreatePanel("CastRow");
-            rowChannels.Margin = new LingoMargin(5, 5, 0, 0);
+            rowChannels.Margin = new AMargin(5, 5, 0, 0);
             rowChannels.Compose(_factory)
                    .Columns(8)
                    .NextRow()
@@ -603,7 +602,7 @@ namespace LingoEngine.Director.Core.Inspector
         {
             var wrap = AddTab(PropetyTabNames.Text);
             var rowChannels = _factory.CreatePanel("TextRow");
-            rowChannels.Margin = new LingoMargin(5, 5, 0, 0);
+            rowChannels.Margin = new AMargin(5, 5, 0, 0);
             rowChannels.Compose(_factory)
                    .NextRow()
                    .Columns(8)
@@ -629,7 +628,7 @@ namespace LingoEngine.Director.Core.Inspector
         {
             var wrap = AddTab(PropetyTabNames.Shape);
             var rowChannels = _factory.CreatePanel("ShapeRow");
-            rowChannels.Margin = new LingoMargin(5, 5, 0, 0);
+            rowChannels.Margin = new AMargin(5, 5, 0, 0);
             var composer = rowChannels.Compose(_factory)
                    .NextRow()
                    .Columns(8)
@@ -665,7 +664,7 @@ namespace LingoEngine.Director.Core.Inspector
         {
             var wrap = AddTab(PropetyTabNames.Guides);
             var guidesPanel = _factory.CreatePanel("GuidesPanel");
-            guidesPanel.Margin = new LingoMargin(5, 5, 0, 0);
+            guidesPanel.Margin = new AMargin(5, 5, 0, 0);
             guidesPanel.Compose(_factory)
                    .Columns(4)
                    .AddColorPicker("GuideColor", "Color:", guides, g => g.GuidesColor)
@@ -676,7 +675,7 @@ namespace LingoEngine.Director.Core.Inspector
             wrap.AddItem(guidesPanel);
 
             var gridPanel = _factory.CreatePanel("GridPanel");
-            gridPanel.Margin = new LingoMargin(5, 5, 0, 0);
+            gridPanel.Margin = new AMargin(5, 5, 0, 0);
             gridPanel.Compose(_factory)
                    .Columns(4)
                    .AddColorPicker("GridColor", "Color:", guides, g => g.GridColor)
@@ -703,7 +702,7 @@ namespace LingoEngine.Director.Core.Inspector
         {
             var name = tabName.ToString();
             var scroller = _factory.CreateScrollContainer(name + "Scroll");
-            LingoGfxWrapPanel container = _factory.CreateWrapPanel(LingoOrientation.Vertical, name + "Container");
+            LingoGfxWrapPanel container = _factory.CreateWrapPanel(AOrientation.Vertical, name + "Container");
             scroller.AddItem(container);
             var tabItem = _factory.CreateTabItem(name, name);
             tabItem.Content = scroller;
@@ -718,7 +717,7 @@ namespace LingoEngine.Director.Core.Inspector
                 return;
             var name = tabName.ToString();
             var scroller = _factory.CreateScrollContainer(name + "Scroll");
-            LingoGfxWrapPanel container = _factory.CreateWrapPanel(LingoOrientation.Vertical, name + "Container");
+            LingoGfxWrapPanel container = _factory.CreateWrapPanel(AOrientation.Vertical, name + "Container");
 
             if (_commandManager != null && (obj is LingoMemberBitmap || obj is ILingoMemberTextBase))
             {

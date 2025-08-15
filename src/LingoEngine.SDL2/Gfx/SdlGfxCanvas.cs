@@ -5,18 +5,18 @@ using System.Runtime.InteropServices;
 using ImGuiNET;
 using LingoEngine.Bitmaps;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using LingoEngine.SDL2.Primitives;
 using LingoEngine.SDL2.SDLL;
 using LingoEngine.SDL2.Pictures;
 using LingoEngine.Styles;
 using LingoEngine.Texts;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
     internal class SdlGfxCanvas : SdlGfxComponent, ILingoFrameworkGfxCanvas, IDisposable
     {
-        public LingoMargin Margin { get; set; } = LingoMargin.Zero;
+        public AMargin Margin { get; set; } = AMargin.Zero;
 
         private readonly SdlGfxFactory _factory;
         private readonly ILingoFontManager _fontManager;
@@ -25,7 +25,7 @@ namespace LingoEngine.SDL2.Gfx
         private nint _texture;
         private readonly nint _imguiTexture;
         private readonly List<Action> _drawActions = new();
-        private LingoColor? _clearColor;
+        private AColor? _clearColor;
         private bool _dirty;
         public object FrameworkNode => this;
         public nint Texture => _texture;
@@ -66,7 +66,7 @@ namespace LingoEngine.SDL2.Gfx
             {
                 var prev = SDL.SDL_GetRenderTarget(ComponentContext.Renderer);
                 SDL.SDL_SetRenderTarget(ComponentContext.Renderer, _texture);
-                var clear = _clearColor ?? new LingoColor(0, 0, 0);
+                var clear = _clearColor ?? new AColor(0, 0, 0);
                 SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, clear.R, clear.G, clear.B, 255);
                 SDL.SDL_RenderClear(ComponentContext.Renderer);
                 foreach (var action in _drawActions)
@@ -89,14 +89,14 @@ namespace LingoEngine.SDL2.Gfx
 
         private void MarkDirty() => _dirty = true;
 
-        public void Clear(LingoColor color)
+        public void Clear(AColor color)
         {
             _drawActions.Clear();
             _clearColor = color;
             MarkDirty();
         }
 
-        public void SetPixel(LingoPoint point, LingoColor color)
+        public void SetPixel(APoint point, AColor color)
         {
             var p = point;
             var c = color;
@@ -108,7 +108,7 @@ namespace LingoEngine.SDL2.Gfx
             MarkDirty();
         }
 
-        public void DrawLine(LingoPoint start, LingoPoint end, LingoColor color, float width = 1)
+        public void DrawLine(APoint start, APoint end, AColor color, float width = 1)
         {
             var s = start;
             var e = end;
@@ -121,7 +121,7 @@ namespace LingoEngine.SDL2.Gfx
             MarkDirty();
         }
 
-        public void DrawRect(LingoRect rect, LingoColor color, bool filled = true, float width = 1)
+        public void DrawRect(ARect rect, AColor color, bool filled = true, float width = 1)
         {
             var rct = new SDL.SDL_Rect
             {
@@ -143,7 +143,7 @@ namespace LingoEngine.SDL2.Gfx
             MarkDirty();
         }
 
-        public void DrawCircle(LingoPoint center, float radius, LingoColor color, bool filled = true, float width = 1)
+        public void DrawCircle(APoint center, float radius, AColor color, bool filled = true, float width = 1)
         {
             var ctr = center;
             var rad = radius;
@@ -171,7 +171,7 @@ namespace LingoEngine.SDL2.Gfx
             MarkDirty();
         }
 
-        public void DrawArc(LingoPoint center, float radius, float startDeg, float endDeg, int segments, LingoColor color, float width = 1)
+        public void DrawArc(APoint center, float radius, float startDeg, float endDeg, int segments, AColor color, float width = 1)
         {
             var ctr = center;
             var rad = radius;
@@ -200,10 +200,10 @@ namespace LingoEngine.SDL2.Gfx
             MarkDirty();
         }
 
-        public void DrawPolygon(IReadOnlyList<LingoPoint> points, LingoColor color, bool filled = true, float width = 1)
+        public void DrawPolygon(IReadOnlyList<APoint> points, AColor color, bool filled = true, float width = 1)
         {
             if (points.Count < 2) return;
-            var pts = new LingoPoint[points.Count];
+            var pts = new APoint[points.Count];
             for (int i = 0; i < points.Count; i++)
                 pts[i] = points[i];
             var c = color;
@@ -227,7 +227,7 @@ namespace LingoEngine.SDL2.Gfx
             MarkDirty();
         }
 
-        public void DrawText(LingoPoint position, string text, string? font = null, LingoColor? color = null, int fontSize = 12, int width = -1, LingoTextAlignment alignment = default)
+        public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, LingoTextAlignment alignment = default)
         {
             var pos = position;
             var txt = text;
@@ -285,7 +285,7 @@ namespace LingoEngine.SDL2.Gfx
             MarkDirty();
         }
 
-        public void DrawPicture(byte[] data, int width, int height, LingoPoint position, LingoPixelFormat format)
+        public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)
         {
             var dat = data;
             var w = width;
@@ -310,7 +310,7 @@ namespace LingoEngine.SDL2.Gfx
             });
             MarkDirty();
         }
-        public void DrawPicture(ILingoTexture2D texture, int width, int height, LingoPoint position)
+        public void DrawPicture(ILingoTexture2D texture, int width, int height, APoint position)
         {
             var tex = texture;
             var w = width;

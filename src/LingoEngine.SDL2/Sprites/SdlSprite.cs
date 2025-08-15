@@ -8,6 +8,7 @@ using LingoEngine.SDL2.Core;
 using LingoEngine.Sprites;
 using LingoEngine.Texts;
 using LingoEngine.Shapes;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Sprites;
 
@@ -110,7 +111,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
         }
     }
     public string Name { get; set; } = string.Empty;
-    public LingoPoint RegPoint { get; set; }
+    public APoint RegPoint { get; set; }
     public float DesiredHeight { get; set; }
     public float DesiredWidth { get; set; }
     private int _zIndex;
@@ -176,7 +177,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
         Visibility = false;
         _hide(this);
     }
-    public void SetPosition(LingoPoint point) { X = point.X; Y = point.Y; }
+    public void SetPosition(APoint point) { X = point.X; Y = point.Y; }
 
     public void MemberChanged()
     {
@@ -209,7 +210,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
         {
             return nint.Zero;
         }
-        var offset = new LingoPoint();
+        var offset = new APoint();
         if (_lingoSprite2D.Member is { } member)
         {
             var baseOffset = member.CenterOffsetFromRegPoint();
@@ -220,12 +221,12 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoSDLComponent, IDisposable
                 scaleX = Width / member.Width;
                 scaleY = Height / member.Height;
             }
-            offset = new LingoPoint(baseOffset.X * scaleX, baseOffset.Y * scaleY);
+            offset = new APoint(baseOffset.X * scaleX, baseOffset.Y * scaleY);
 
             if (_lingoSprite2D.Member is LingoFilmLoopMember flm)
             {
                 var fl = flm.Framework<SdlMemberFilmLoop>();
-                offset = new LingoPoint(offset.X - fl.Offset.X * scaleX, offset.Y - fl.Offset.Y * scaleY);
+                offset = new APoint(offset.X - fl.Offset.X * scaleX, offset.Y - fl.Offset.Y * scaleY);
             }
         }
 

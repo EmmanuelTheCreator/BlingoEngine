@@ -1,5 +1,6 @@
 ﻿namespace LingoEngine.Director.Core.Projects;
-using LingoEngine.Primitives;
+
+using LingoEngine.AbstUI.Primitives;
 
 public enum DirectorIdeType
 {
@@ -14,7 +15,7 @@ public class DirectorProjectSettings
     public string CsProjFile { get; set; } = string.Empty;
 
     // Stage guides
-    public LingoColor GuidesColor { get; set; } = LingoColorList.Blue;
+    public AColor GuidesColor { get; set; } = AColors.Blue;
     public bool GuidesVisible { get; set; } = true;
     public bool GuidesSnap { get; set; }
     public bool GuidesLocked { get; set; }
@@ -22,7 +23,7 @@ public class DirectorProjectSettings
     public List<float> HorizontalGuides { get; set; } = new();
 
     // Stage grid
-    public LingoColor GridColor { get; set; } = LingoColorList.Gray;
+    public AColor GridColor { get; set; } = AColors.Gray;
     public bool GridVisible { get; set; }
     public bool GridSnap { get; set; }
     public float GridWidth { get; set; } = 32;

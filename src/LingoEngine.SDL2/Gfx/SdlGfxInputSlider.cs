@@ -1,8 +1,8 @@
 using System;
 using System.Numerics;
 using ImGuiNET;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
@@ -11,7 +11,7 @@ namespace LingoEngine.SDL2.Gfx
         public SdlGfxInputSlider(SdlGfxFactory factory) : base(factory)
         {
         }
-        public LingoMargin Margin { get; set; } = LingoMargin.Zero;
+        public AMargin Margin { get; set; } = AMargin.Zero;
         public bool Enabled { get; set; } = true;
         private TValue _value = default!;
         public TValue Value

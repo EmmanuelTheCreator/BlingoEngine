@@ -1,9 +1,9 @@
-﻿using LingoEngine.Director.Core.Styles;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 
 
 namespace LingoEngine.Director.Core.Scores
@@ -12,7 +12,7 @@ namespace LingoEngine.Director.Core.Scores
     {
 
         protected readonly DirScoreGfxValues _gfxValues;
-        protected LingoPoint _position;
+        protected APoint _position;
         private readonly IDirectorEventMediator _mediator;
         protected readonly LingoGfxCanvas _canvas;
         private readonly IDirectorEventSubscription _mediatorSub;
@@ -24,7 +24,7 @@ namespace LingoEngine.Director.Core.Scores
         public ILingoFrameworkGfxNode FrameworkGfxNode => _canvas.FrameworkObj;
         public LingoGfxCanvas Canvas => _canvas;
 
-        public DirScoreLeftContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, LingoPoint position, int initialChannelCount, IDirectorEventMediator mediator)
+        public DirScoreLeftContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, APoint position, int initialChannelCount, IDirectorEventMediator mediator)
         {
             _gfxValues = gfxValues;
             _position = position;
@@ -70,7 +70,7 @@ namespace LingoEngine.Director.Core.Scores
                 header.Draw(_canvas);
             }
         }
-        public void UpdatePosition(LingoPoint position)
+        public void UpdatePosition(APoint position)
         {
             _position = position;
             _canvas.Y = position.Y;

@@ -1,6 +1,7 @@
 using System;
 using System.Numerics;
 using ImGuiNET;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 
@@ -28,7 +29,7 @@ namespace LingoEngine.SDL2.Gfx
         public float Min { get; set; }
         public float Max { get; set; }
         public LingoNumberType NumberType { get; set; } = LingoNumberType.Float;
-        public LingoMargin Margin { get; set; } = LingoMargin.Zero;
+        public AMargin Margin { get; set; } = AMargin.Zero;
         public event Action? ValueChanged;
         public object FrameworkNode => this;
 

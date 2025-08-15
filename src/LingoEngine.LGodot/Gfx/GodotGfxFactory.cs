@@ -1,10 +1,10 @@
 using System;
 using LingoEngine.Bitmaps;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using LingoEngine.Styles;
 using LingoEngine.LGodot.Styles;
 using LingoEngine.Inputs;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.LGodot.Gfx
 {
@@ -34,7 +34,7 @@ namespace LingoEngine.LGodot.Gfx
             return canvas;
         }
 
-        public LingoGfxWrapPanel CreateWrapPanel(LingoOrientation orientation, string name)
+        public LingoGfxWrapPanel CreateWrapPanel(AOrientation orientation, string name)
         {
             var panel = new LingoGfxWrapPanel(this);
             var impl = new LingoGodotWrapPanel(panel, orientation);
@@ -87,7 +87,7 @@ namespace LingoEngine.LGodot.Gfx
             return scroll;
         }
 
-        public LingoGfxInputSlider<float> CreateInputSliderFloat(LingoOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
+        public LingoGfxInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
         {
             var minNum = min.HasValue ? new NullableNum<float>(min.Value) : new NullableNum<float>();
             var maxNum = max.HasValue ? new NullableNum<float>(max.Value) : new NullableNum<float>();
@@ -95,7 +95,7 @@ namespace LingoEngine.LGodot.Gfx
             return CreateInputSlider(name, orientation, minNum, maxNum, stepNum, onChange);
         }
 
-        public LingoGfxInputSlider<int> CreateInputSliderInt(LingoOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
+        public LingoGfxInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
         {
             var minNum = min.HasValue ? new NullableNum<int>(min.Value) : new NullableNum<int>();
             var maxNum = max.HasValue ? new NullableNum<int>(max.Value) : new NullableNum<int>();
@@ -103,7 +103,7 @@ namespace LingoEngine.LGodot.Gfx
             return CreateInputSlider(name, orientation, minNum, maxNum, stepNum, onChange);
         }
 
-        public LingoGfxInputSlider<TValue> CreateInputSlider<TValue>(string name, LingoOrientation orientation, NullableNum<TValue> min, NullableNum<TValue> max, NullableNum<TValue> step, Action<TValue>? onChange = null)
+        public LingoGfxInputSlider<TValue> CreateInputSlider<TValue>(string name, AOrientation orientation, NullableNum<TValue> min, NullableNum<TValue> max, NullableNum<TValue> step, Action<TValue>? onChange = null)
             where TValue : struct, System.Numerics.INumber<TValue>, IConvertible
         {
             var slider = new LingoGfxInputSlider<TValue>();
@@ -183,7 +183,7 @@ namespace LingoEngine.LGodot.Gfx
             return list;
         }
 
-        public LingoGfxColorPicker CreateColorPicker(string name, Action<LingoColor>? onChange = null)
+        public LingoGfxColorPicker CreateColorPicker(string name, Action<AColor>? onChange = null)
         {
             var picker = new LingoGfxColorPicker();
             var impl = new LingoGodotColorPicker(picker, onChange);

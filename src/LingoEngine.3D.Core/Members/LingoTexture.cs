@@ -1,4 +1,5 @@
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
+
 namespace LingoEngine.L3D.Core.Members;
 
 /// <summary>
@@ -7,5 +8,5 @@ namespace LingoEngine.L3D.Core.Members;
 public class LingoTexture
 {
     public string FileName { get; set; } = string.Empty;
-    public LingoColor? TransparentColor { get; set; }
+    public AColor? TransparentColor { get; set; }
 }

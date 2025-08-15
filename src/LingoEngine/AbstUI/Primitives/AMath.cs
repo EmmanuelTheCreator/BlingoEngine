@@ -1,6 +1,6 @@
-﻿namespace LingoEngine.Primitives
+﻿namespace LingoEngine.AbstUI.Primitives
 {
-    public static class LingoMath
+    public static class AMath
     {
         public static int Clamp(int value, int min, int max)
         {

@@ -6,7 +6,6 @@ using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
 using LingoEngine.Members;
 using LingoEngine.Movies;
-using LingoEngine.Primitives;
 using LingoEngine.Sounds;
 using LingoEngine.Texts;
 using LingoEngine.Shapes;
@@ -25,6 +24,7 @@ using LingoEngine.Unity.Texts;
 using LingoEngine.Unity.Sounds;
 using LingoEngine.Styles;
 using Microsoft.Extensions.DependencyInjection;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Unity.Core;
 
@@ -70,23 +70,23 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
             _ => throw new NotSupportedException()
         };
     }
-    public LingoMemberBitmap CreateMemberBitmap(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
+    public LingoMemberBitmap CreateMemberBitmap(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
         var impl = new UnityMemberBitmap();
         var member = new LingoMemberBitmap((LingoCast)cast, impl, numberInCast, name, fileName ?? string.Empty, regPoint);
         impl.Init(member);
         return member;
     }
-    public LingoMemberSound CreateMemberSound(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
+    public LingoMemberSound CreateMemberSound(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
         var impl = new UnityMemberSound();
         var member = new LingoMemberSound(impl, (LingoCast)cast, numberInCast, name, fileName ?? string.Empty);
         impl.Init(member);
         return member;
     }
-    public LingoFilmLoopMember CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default) => throw new NotImplementedException();
-    public LingoMemberShape CreateMemberShape(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default) => throw new NotImplementedException();
-    public LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
+    public LingoFilmLoopMember CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
+    public LingoMemberShape CreateMemberShape(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
+    public LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
         var fontManager = _serviceProvider.GetRequiredService<ILingoFontManager>();
         var impl = new UnityMemberField(fontManager);
@@ -95,7 +95,7 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
         _disposables.Add(impl);
         return member;
     }
-    public LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
+    public LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
         var fontManager = _serviceProvider.GetRequiredService<ILingoFontManager>();
         var impl = new UnityMemberText(fontManager);
@@ -104,8 +104,8 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
         _disposables.Add(impl);
         return member;
     }
-    public LingoMember CreateScript(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default) => throw new NotImplementedException();
-    public LingoMember CreateEmpty(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, LingoPoint regPoint = default)
+    public LingoMember CreateScript(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
+    public LingoMember CreateEmpty(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
         var impl = new UnityFrameworkMemberEmpty();
         var member = new LingoMember(impl, LingoMemberType.Empty, (LingoCast)cast, numberInCast, name, fileName ?? string.Empty, regPoint);
@@ -147,14 +147,14 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
 
     #region Gfx
     public LingoGfxCanvas CreateGfxCanvas(string name, int width, int height) => throw new NotImplementedException();
-    public LingoGfxWrapPanel CreateWrapPanel(LingoOrientation orientation, string name) => throw new NotImplementedException();
+    public LingoGfxWrapPanel CreateWrapPanel(AOrientation orientation, string name) => throw new NotImplementedException();
     public LingoGfxPanel CreatePanel(string name) => throw new NotImplementedException();
     public LingoGfxLayoutWrapper CreateLayoutWrapper(ILingoGfxNode content, float? x, float? y) => throw new NotImplementedException();
     public LingoGfxTabContainer CreateTabContainer(string name) => throw new NotImplementedException();
     public LingoGfxTabItem CreateTabItem(string name, string title) => throw new NotImplementedException();
     public LingoGfxScrollContainer CreateScrollContainer(string name) => throw new NotImplementedException();
-    public LingoGfxInputSlider<float> CreateInputSliderFloat(LingoOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null) => throw new NotImplementedException();
-    public LingoGfxInputSlider<int> CreateInputSliderInt(LingoOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null) => throw new NotImplementedException();
+    public LingoGfxInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null) => throw new NotImplementedException();
+    public LingoGfxInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null) => throw new NotImplementedException();
     public LingoGfxInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null) => throw new NotImplementedException();
     public LingoGfxInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null) => throw new NotImplementedException();
     public LingoGfxInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null) => throw new NotImplementedException();
@@ -163,7 +163,7 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
     public LingoGfxInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null) => throw new NotImplementedException();
     public LingoGfxInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null) => throw new NotImplementedException();
     public LingoGfxItemList CreateItemList(string name, Action<string?>? onChange = null) => throw new NotImplementedException();
-    public LingoGfxColorPicker CreateColorPicker(string name, Action<LingoColor>? onChange = null) => throw new NotImplementedException();
+    public LingoGfxColorPicker CreateColorPicker(string name, Action<AColor>? onChange = null) => throw new NotImplementedException();
     public LingoGfxLabel CreateLabel(string name, string text = "") => throw new NotImplementedException();
     public LingoGfxButton CreateButton(string name, string text = "") => throw new NotImplementedException();
     public LingoGfxStateButton CreateStateButton(string name, ILingoTexture2D? texture = null, string text = "", Action<bool>? onChange = null) => throw new NotImplementedException();

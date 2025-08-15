@@ -1,6 +1,6 @@
-﻿namespace LingoEngine.Primitives
+﻿namespace LingoEngine.AbstUI.Primitives
 {
-    public enum LingoTextWrapMode : int
+    public enum ATextWrapMode : int
     {
         /// <summary>
         /// <para>Autowrap is disabled.</para>

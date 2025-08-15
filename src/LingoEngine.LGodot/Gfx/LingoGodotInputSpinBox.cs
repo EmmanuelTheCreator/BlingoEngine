@@ -1,12 +1,12 @@
 using Godot;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.LGodot.Gfx
 {
     public partial class LingoGodotSpinBox : SpinBox, ILingoFrameworkGfxSpinBox, IDisposable
     {
-        private LingoMargin _margin = LingoMargin.Zero;
+        private AMargin _margin = AMargin.Zero;
         private Action<float>? _onChange;
 
         public LingoGodotSpinBox(LingoGfxSpinBox spin, LingoEngine.Styles.ILingoFontManager lingoFontManager, Action<float>? onChange)
@@ -25,7 +25,7 @@ namespace LingoEngine.LGodot.Gfx
         public bool Visibility { get => Visible; set => Visible = value; }
         string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
 
-        public LingoMargin Margin
+        public AMargin Margin
         {
             get => _margin;
             set

@@ -1,7 +1,7 @@
 using Godot;
 using System;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.LGodot.Gfx
 {
@@ -12,13 +12,13 @@ namespace LingoEngine.LGodot.Gfx
     {
         private readonly Slider _slider;
         private readonly System.Action<TValue>? _onChange;
-        private LingoMargin _margin = LingoMargin.Zero;
+        private AMargin _margin = AMargin.Zero;
         private event System.Action? _onValueChanged;
 
-        public LingoGodotInputSlider(LingoGfxInputSlider<TValue> slider, LingoOrientation orientation, System.Action<TValue>? onChange)
+        public LingoGodotInputSlider(LingoGfxInputSlider<TValue> slider, AOrientation orientation, System.Action<TValue>? onChange)
         {
             _onChange = onChange;
-            _slider = orientation == LingoOrientation.Horizontal ? new HSlider() : new VSlider();
+            _slider = orientation == AOrientation.Horizontal ? new HSlider() : new VSlider();
             _slider.AnchorLeft = 0; _slider.AnchorRight = 1; _slider.AnchorTop = 0; _slider.AnchorBottom = 1;
             _slider.OffsetLeft = 0; _slider.OffsetRight = 0; _slider.OffsetTop = 0; _slider.OffsetBottom = 0;
             AddChild(_slider);
@@ -52,7 +52,7 @@ namespace LingoEngine.LGodot.Gfx
         public bool Visibility { get => Visible; set => Visible = value; }
         string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
 
-        public LingoMargin Margin
+        public AMargin Margin
         {
             get => _margin;
             set

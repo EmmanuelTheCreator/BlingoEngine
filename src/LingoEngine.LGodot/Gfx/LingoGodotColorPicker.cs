@@ -1,7 +1,7 @@
 using Godot;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
 using LingoEngine.LGodot.Primitives;
-using LingoEngine.Primitives;
 using System;
 
 namespace LingoEngine.LGodot.Gfx
@@ -11,11 +11,11 @@ namespace LingoEngine.LGodot.Gfx
     /// </summary>
     public partial class LingoGodotColorPicker : ColorPickerButton, ILingoFrameworkGfxColorPicker, IDisposable
     {
-        private LingoMargin _margin = LingoMargin.Zero;
-        private readonly Action<LingoColor>? _onChange;
+        private AMargin _margin = AMargin.Zero;
+        private readonly Action<AColor>? _onChange;
         private event Action? _onValueChanged;
 
-        public LingoGodotColorPicker(LingoGfxColorPicker picker, Action<LingoColor>? onChange)
+        public LingoGodotColorPicker(LingoGfxColorPicker picker, Action<AColor>? onChange)
         {
             _onChange = onChange;
             picker.Init(this);
@@ -38,7 +38,7 @@ namespace LingoEngine.LGodot.Gfx
         public bool Enabled { get => !Disabled; set => Disabled = !value; }
         string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
 
-        public LingoMargin Margin
+        public AMargin Margin
         {
             get => _margin;
             set
@@ -51,7 +51,7 @@ namespace LingoEngine.LGodot.Gfx
             }
         }
 
-        public new LingoColor Color
+        public new AColor Color
         {
             get => base.Color.ToLingoColor();
             set => base.Color = value.ToGodotColor();

@@ -6,6 +6,7 @@ using LingoEngine.Sprites;
 using LingoEngine.Tools;
 using LingoEngine.Primitives;
 using System.Security.Cryptography;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Pictures;
 public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
@@ -86,10 +87,10 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
     
     public void ImportFileInto() { }
 
-    public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor) 
+    public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor) 
         => GetTextureForInk(ink, transparentColor, _sdlRootContext.Renderer);
 
-    public ILingoTexture2D? GetTextureForInk(LingoInkType ink, LingoColor backColor, nint renderer)
+    public ILingoTexture2D? GetTextureForInk(LingoInkType ink, AColor backColor, nint renderer)
     {
         if (!InkPreRenderer.CanHandle(ink) || _surface == nint.Zero)
             return null;

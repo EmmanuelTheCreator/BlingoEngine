@@ -1,4 +1,4 @@
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.L3D.Core.Primitives;
 
@@ -7,10 +7,10 @@ namespace LingoEngine.L3D.Core.Primitives;
 /// </summary>
 public struct LingoColorRange
 {
-    public LingoColor Start { get; set; }
-    public LingoColor End { get; set; }
+    public AColor Start { get; set; }
+    public AColor End { get; set; }
 
-    public LingoColorRange(LingoColor start, LingoColor end)
+    public LingoColorRange(AColor start, AColor end)
     {
         Start = start;
         End = end;

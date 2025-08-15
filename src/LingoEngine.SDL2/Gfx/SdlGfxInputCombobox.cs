@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
@@ -13,7 +13,7 @@ namespace LingoEngine.SDL2.Gfx
         {
         }
         public bool Enabled { get; set; } = true;
-        public LingoMargin Margin { get; set; } = LingoMargin.Zero;
+        public AMargin Margin { get; set; } = AMargin.Zero;
 
         private readonly List<KeyValuePair<string, string>> _items = new();
         public IReadOnlyList<KeyValuePair<string, string>> Items => _items;

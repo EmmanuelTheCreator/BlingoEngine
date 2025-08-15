@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Animations
 {
@@ -119,10 +119,10 @@ namespace LingoEngine.Animations
                 float bb = (float)(object)b;
                 return (T)(object)(aa + (bb - aa) * t);
             }
-            if (typeof(T) == typeof(LingoPoint))
+            if (typeof(T) == typeof(APoint))
             {
-                var pa = (LingoPoint)(object)a;
-                var pb = (LingoPoint)(object)b;
+                var pa = (APoint)(object)a;
+                var pb = (APoint)(object)b;
                 return (T)(object)(pa + (pb - pa) * t);
             }
             return t < 1 ? a : b;

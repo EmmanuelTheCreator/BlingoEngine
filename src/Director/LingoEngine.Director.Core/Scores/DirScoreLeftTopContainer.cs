@@ -1,8 +1,8 @@
-﻿using LingoEngine.Director.Core.Tools;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Director.Core.Tools;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
 using LingoEngine.Movies;
-using LingoEngine.Primitives;
 
 
 namespace LingoEngine.Director.Core.Scores
@@ -29,7 +29,7 @@ namespace LingoEngine.Director.Core.Scores
             }
         }
 
-        public DirScoreLeftTopContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, LingoPoint position, IDirectorEventMediator mediator) : base(gfxValues, factory, position,6, mediator)
+        public DirScoreLeftTopContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, APoint position, IDirectorEventMediator mediator) : base(gfxValues, factory, position,6, mediator)
         {
             
             _frameScript = new DirScoreChannelHeader("", "Scripts", gfxValues, (c, state) => { });

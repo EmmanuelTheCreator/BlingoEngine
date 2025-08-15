@@ -1,6 +1,6 @@
-﻿using LingoEngine.Casts;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Casts;
 using LingoEngine.Members;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.Transitions
 {
@@ -22,7 +22,7 @@ namespace LingoEngine.Transitions
 
 
 
-        public LingoTransitionMember(LingoCast cast, int numberInCast, string name = "", string fileName = "", LingoPoint regPoint = default) : base(null, LingoMemberType.Palette, cast, numberInCast, name, fileName, regPoint)
+        public LingoTransitionMember(LingoCast cast, int numberInCast, string name = "", string fileName = "", APoint regPoint = default) : base(null, LingoMemberType.Palette, cast, numberInCast, name, fileName, regPoint)
         {
         }
 

@@ -1,12 +1,12 @@
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Commands;
-using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 
 namespace LingoEngine.Director.Core.Stages.Commands
 {
     public sealed record MoveSpritesCommand(
-        IReadOnlyDictionary<LingoSprite2D, LingoPoint> StartPositions,
-        IReadOnlyDictionary<LingoSprite2D, LingoPoint> EndPositions) : ILingoCommand
+        IReadOnlyDictionary<LingoSprite2D, APoint> StartPositions,
+        IReadOnlyDictionary<LingoSprite2D, APoint> EndPositions) : ILingoCommand
     {
         public Action ToUndo(Action updateSelectionBox)
         {

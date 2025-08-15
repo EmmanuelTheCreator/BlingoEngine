@@ -1,7 +1,7 @@
-﻿using LingoEngine.Animations;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Animations;
 using LingoEngine.Members;
 using LingoEngine.Movies;
-using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 
 namespace LingoEngine.Stages
@@ -9,7 +9,7 @@ namespace LingoEngine.Stages
     public interface ILingoStage
     {
         LingoMovie? ActiveMovie { get; }
-        LingoColor BackgroundColor { get; set; }
+        AColor BackgroundColor { get; set; }
         int Height { get; set; }
         LingoMember? MouseMemberUnderMouse { get; }
         int Width { get; set; }

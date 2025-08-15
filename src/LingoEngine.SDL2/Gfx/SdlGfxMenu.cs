@@ -1,12 +1,12 @@
 using System;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
     internal class SdlGfxMenu : SdlGfxComponent, ILingoFrameworkGfxMenu, IDisposable
     {
-        public LingoMargin Margin { get; set; } = LingoMargin.Zero;
+        public AMargin Margin { get; set; } = AMargin.Zero;
         public object FrameworkNode => this;
 
         public SdlGfxMenu(SdlGfxFactory factory, string name) : base(factory)

@@ -1,4 +1,5 @@
-﻿using LingoEngine.Bitmaps;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Bitmaps;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 
@@ -14,7 +15,7 @@ namespace LingoEngine.Members
         /// The texture associated with this member, if any.
         /// </summary>
         ILingoTexture2D? TextureLingo { get; }
-        ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor);
+        ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor);
     }
     public interface ILingoFrameworkMember
     {

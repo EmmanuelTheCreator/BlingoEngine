@@ -1,6 +1,6 @@
 using Godot;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using LingoEngine.Styles;
 
 namespace LingoEngine.LGodot.Gfx
@@ -13,7 +13,7 @@ namespace LingoEngine.LGodot.Gfx
         private readonly Action<string>? _onChange;
         private readonly ILingoFontManager _fontManager;
         private string? _font;
-        private LingoMargin _margin = LingoMargin.Zero;
+        private AMargin _margin = AMargin.Zero;
         private event Action? _onValueChanged;
 
         public LingoGodotInputText(LingoGfxInputText input, ILingoFontManager fontManager, Action<string>? onChange)
@@ -125,7 +125,7 @@ namespace LingoEngine.LGodot.Gfx
             }
         }
 
-        public LingoMargin Margin
+        public AMargin Margin
         {
             get => _margin;
             set

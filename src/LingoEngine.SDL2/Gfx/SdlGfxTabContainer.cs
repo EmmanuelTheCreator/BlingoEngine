@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
@@ -12,7 +12,7 @@ namespace LingoEngine.SDL2.Gfx
         private readonly List<ILingoFrameworkGfxTabItem> _children = new();
         private int _selectedIndex = -1;
 
-        public LingoMargin Margin { get; set; } = LingoMargin.Zero;
+        public AMargin Margin { get; set; } = AMargin.Zero;
         public object FrameworkNode => this;
 
         public SdlGfxTabContainer(SdlGfxFactory factory) : base(factory)
@@ -104,7 +104,7 @@ namespace LingoEngine.SDL2.Gfx
         }
 
         public string Title { get; set; } = string.Empty;
-        public LingoMargin Margin { get; set; } = LingoMargin.Zero;
+        public AMargin Margin { get; set; } = AMargin.Zero;
         public ILingoGfxNode? Content { get; set; }
         public float TopHeight { get; set; }
         public object FrameworkNode => this;

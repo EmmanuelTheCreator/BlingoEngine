@@ -125,7 +125,7 @@ namespace LingoEngine.SDL2.SDLL
         }
 
         /* This is public because SDL_DropEvent needs it! */
-        public static unsafe string UTF8_ToManaged(nint s, bool freePtr = false)
+        public static unsafe string? UTF8_ToManaged(nint s, bool freePtr = false)
         {
             if (s == nint.Zero)
             {

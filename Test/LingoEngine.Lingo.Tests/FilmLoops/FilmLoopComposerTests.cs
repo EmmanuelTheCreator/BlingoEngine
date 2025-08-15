@@ -1,3 +1,4 @@
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
 using LingoEngine.Events;
@@ -24,7 +25,7 @@ public class FilmLoopComposerTests
         {
             Width = 20,
             Height = 20,
-            RegPoint = new LingoPoint(0, 0)
+            RegPoint = new APoint(0, 0)
         };
 
         var filmFramework = new Mock<ILingoFrameworkMemberFilmLoop>();
@@ -48,7 +49,7 @@ public class FilmLoopComposerTests
 
         var prep = LingoFilmLoopComposer.Prepare(film, LingoFilmLoopFraming.Auto, layers);
         var layer = prep.Layers[0];
-        var topLeft = layer.Transform.TransformPoint(new LingoPoint(0, 0));
+        var topLeft = layer.Transform.TransformPoint(new APoint(0, 0));
 
         Assert.Equal(0, topLeft.X);
         Assert.Equal(0, topLeft.Y);

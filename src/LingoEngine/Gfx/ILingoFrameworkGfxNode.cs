@@ -1,4 +1,4 @@
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Gfx
 {
@@ -11,7 +11,7 @@ namespace LingoEngine.Gfx
         float Height { get; set; }
 
         /// <summary>Margin around the node.</summary>
-        LingoMargin Margin { get; set; }
+        AMargin Margin { get; set; }
         object FrameworkNode { get; }
     }
     /// <summary>

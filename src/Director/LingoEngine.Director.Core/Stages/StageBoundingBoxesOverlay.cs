@@ -1,13 +1,13 @@
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Inputs;
 using LingoEngine.Events;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Members;
 using LingoEngine.Texts;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.Stages;
 
@@ -182,29 +182,29 @@ public class StageBoundingBoxesOverlay : IHasSpriteSelectedEvent, ILingoMouseEve
         return Anchor.None;
     }
 
-    private IEnumerable<LingoPoint> GetAnchorPoints(LingoRect r)
+    private IEnumerable<APoint> GetAnchorPoints(ARect r)
     {
-        yield return new LingoPoint(r.Left, r.Top); // TL
-        yield return new LingoPoint((r.Left + r.Right) / 2, r.Top); // T
-        yield return new LingoPoint(r.Right, r.Top); // TR
-        yield return new LingoPoint(r.Right, (r.Top + r.Bottom) / 2); // R
-        yield return new LingoPoint(r.Right, r.Bottom); // BR
-        yield return new LingoPoint((r.Left + r.Right) / 2, r.Bottom); // B
-        yield return new LingoPoint(r.Left, r.Bottom); // BL
-        yield return new LingoPoint(r.Left, (r.Top + r.Bottom) / 2); // L
+        yield return new APoint(r.Left, r.Top); // TL
+        yield return new APoint((r.Left + r.Right) / 2, r.Top); // T
+        yield return new APoint(r.Right, r.Top); // TR
+        yield return new APoint(r.Right, (r.Top + r.Bottom) / 2); // R
+        yield return new APoint(r.Right, r.Bottom); // BR
+        yield return new APoint((r.Left + r.Right) / 2, r.Bottom); // B
+        yield return new APoint(r.Left, r.Bottom); // BL
+        yield return new APoint(r.Left, (r.Top + r.Bottom) / 2); // L
     }
 
     private void Draw()
     {
-        _canvas.Clear(LingoColorList.Transparent);
+        _canvas.Clear(AColors.Transparent);
         foreach (var sprite in _sprites)
         {
             if (sprite.Member is LingoMemberText || sprite.Member is LingoMemberField)
             {
                 var r = sprite.Rect;
-                _canvas.DrawRect(LingoRect.New(r.Left, r.Top, r.Right - r.Left, r.Bottom - r.Top), LingoColorList.Yellow, false, 1);
+                _canvas.DrawRect(ARect.New(r.Left, r.Top, r.Right - r.Left, r.Bottom - r.Top), AColors.Yellow, false, 1);
                 foreach (var p in GetAnchorPoints(r))
-                    _canvas.DrawRect(LingoRect.New(p.X - 1, p.Y - 1, 2, 2), LingoColorList.Yellow, true);
+                    _canvas.DrawRect(ARect.New(p.X - 1, p.Y - 1, 2, 2), AColors.Yellow, true);
             }
         }
     }

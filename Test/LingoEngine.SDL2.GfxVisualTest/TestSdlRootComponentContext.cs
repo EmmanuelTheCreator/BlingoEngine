@@ -1,6 +1,6 @@
 using ImGuiNET;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Inputs;
-using LingoEngine.Primitives;
 using LingoEngine.SDL2;
 using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.SDLL;
@@ -151,9 +151,9 @@ private bool _imguiReady;
         SDL.SDL_Quit();
     }
 
-    public LingoPoint GetWindowSize()
+    public APoint GetWindowSize()
     {
         SDL.SDL_GetWindowSize(_window, out var w, out var h);
-        return new LingoPoint(w, h);
+        return new APoint(w, h);
     }
 }

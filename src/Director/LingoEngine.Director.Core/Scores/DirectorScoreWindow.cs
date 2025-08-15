@@ -13,6 +13,7 @@ using LingoEngine.Commands;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Sprites;
 using LingoEngine.Sounds;
+using LingoEngine.AbstUI.Primitives;
 
 
 namespace LingoEngine.Director.Core.Scores
@@ -67,8 +68,8 @@ namespace LingoEngine.Director.Core.Scores
             _player.ActiveMovieChanged += OnActiveMovieChanged;
             _labelsBar = new DirScoreLabelsBar(GfxValues, factory, commandManager);
             _frameHeader = new DirScoreFrameHeader(GfxValues, factory);
-            _LeftTopContainer = new DirScoreLeftTopContainer(GfxValues, factory, new LingoPoint(0, GfxValues.TopStripHeight), mediator);
-            _LeftChannelContainer = new DirScoreLeftChannelsContainer(GfxValues, factory, new LingoPoint(0, 0), mediator);
+            _LeftTopContainer = new DirScoreLeftTopContainer(GfxValues, factory, new APoint(0, GfxValues.TopStripHeight), mediator);
+            _LeftChannelContainer = new DirScoreLeftChannelsContainer(GfxValues, factory, new APoint(0, 0), mediator);
 
             // Fix top panel
             _panelFix = factory.CreatePanel("ScoreWindowPanelFix");
@@ -271,8 +272,8 @@ namespace LingoEngine.Director.Core.Scores
             if (_lastPosV != _scollY)
             {
                 _lastPosV = _scollY;
-                var lastPos = new LingoPoint(0, -_scollY);
-                _LeftChannelContainer.UpdatePosition(new LingoPoint(0, -_lastPosV + 1));
+                var lastPos = new APoint(0, -_scollY);
+                _LeftChannelContainer.UpdatePosition(new APoint(0, -_lastPosV + 1));
                 //_leftChannelsScollClipper.ScrollVertical = _masterScroller.ScrollVertical;
             }
         }

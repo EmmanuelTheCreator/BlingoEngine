@@ -1,11 +1,11 @@
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Gfx
 {
     /// <summary>
     /// Framework specific container allowing absolute positioning of child nodes.
     /// </summary>
-    
+
     public interface ILingoFrameworkGfxPanel : ILingoFrameworkGfxLayoutNode
     {
         /// <summary>Adds a child node to the panel.</summary>
@@ -15,9 +15,9 @@ namespace LingoEngine.Gfx
         IEnumerable<ILingoFrameworkGfxLayoutNode> GetItems();
 
         /// <summary>Background color of the panel.</summary>
-        LingoColor? BackgroundColor { get; set; }
+        AColor? BackgroundColor { get; set; }
         /// <summary>Border color of the panel.</summary>
-        LingoColor? BorderColor { get; set; }
+        AColor? BorderColor { get; set; }
         /// <summary>Border width around the panel.</summary>
         float BorderWidth { get; set; }
     }

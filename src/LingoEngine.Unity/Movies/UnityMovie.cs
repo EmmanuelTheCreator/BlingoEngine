@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using LingoEngine.Movies;
-using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using UnityEngine;
 using LingoEngine.Unity.Stages;
 using LingoEngine.Unity.Sprites;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Unity.Movies;
 
@@ -63,7 +63,7 @@ public class UnityMovie : ILingoFrameworkMovie, IDisposable
         GameObject.Destroy(_root);
     }
 
-    LingoPoint ILingoFrameworkMovie.GetGlobalMousePosition()
+    APoint ILingoFrameworkMovie.GetGlobalMousePosition()
     {
         var pos = Input.mousePosition;
         return (pos.x, pos.y);

@@ -4,6 +4,7 @@ using LingoEngine.Primitives;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.Tools;
 using System.Linq;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.Scores
 {
@@ -50,9 +51,9 @@ namespace LingoEngine.Director.Core.Scores
             get => _isSelected;
             set => SetSelected(value);
         }
-        public LingoColor ColorCircleBorder { get; set; } = LingoColorList.Black;
-        public LingoColor ColorCircle { get; set; } = LingoColorList.White;
-        public LingoColor ColorBase { get; set; } = LingoColor.FromHex("#ccccff");
+        public AColor ColorCircleBorder { get; set; } = AColors.Black;
+        public AColor ColorCircle { get; set; } = AColors.White;
+        public AColor ColorBase { get; set; } = AColor.FromHex("#ccccff");
         public float X { get; private set; }
         public float OffsetY { get; private set; }
         public float Width { get; private set; }
@@ -135,15 +136,15 @@ namespace LingoEngine.Director.Core.Scores
             var labelWidth = Width;
 
             // Draw Background
-            canvas.DrawRect(new LingoRect(X, 0, X + Width, channelHeight), GetBgColor());
+            canvas.DrawRect(new ARect(X, 0, X + Width, channelHeight), GetBgColor());
 
             float radius = 3f;
             string name = Sprite.Name;
             if (Sprite.BeginFrame != Sprite.EndFrame)
             {
                 // Draw keyframes
-                var startCenter = new LingoPoint(X + 3f, OffsetY + Height / 2f);
-                var endCenter = new LingoPoint(X + Width - 3f, OffsetY + Height / 2f);
+                var startCenter = new APoint(X + 3f, OffsetY + Height / 2f);
+                var endCenter = new APoint(X + Width - 3f, OffsetY + Height / 2f);
                 canvas.DrawCircle(startCenter, radius, ColorCircle);
                 canvas.DrawCircle(endCenter, radius, ColorCircle);
                 canvas.DrawArc(startCenter, radius, 0, 360, 8, ColorCircleBorder);
@@ -157,7 +158,7 @@ namespace LingoEngine.Director.Core.Scores
                 labelLeft = 0;
             }
             // Draw name
-            canvas.DrawText(new LingoPoint(X + labelLeft, 11), name, null, LingoColorList.Black, 9, (int)labelWidth);
+            canvas.DrawText(new APoint(X + labelLeft, 11), name, null, AColors.Black, 9, (int)labelWidth);
             var keyFrames = Sprite2D?.GetKeyframes();
             if (keyFrames != null)
             {
@@ -167,7 +168,7 @@ namespace LingoEngine.Director.Core.Scores
                     if (keyFrame == Sprite.BeginFrame || keyFrame == Sprite.EndFrame)
                         continue; // already drawn
                     var centerX = X + 3f + (keyFrame - Sprite.BeginFrame) * frameWidth;
-                    var keyframeCenter = new LingoPoint(centerX, OffsetY + Height / 2f);
+                    var keyframeCenter = new APoint(centerX, OffsetY + Height / 2f);
                     var color = ColorCircleBorder;
                     if (_dragKeyFrame && keyFrame == _dragKeyFrameStart && _dragKeyFrameStart != _dragKeyFramePreview)
                         color = ColorCircleBorder.Lighten(0.9f);
@@ -176,7 +177,7 @@ namespace LingoEngine.Director.Core.Scores
                 }
                 if (_dragKeyFrame && _dragKeyFrameStart != _dragKeyFramePreview)
                 {
-                    var previewCenter = new LingoPoint(X + 3f + (_dragKeyFramePreview - Sprite.BeginFrame) * frameWidth, OffsetY + Height / 2f);
+                    var previewCenter = new APoint(X + 3f + (_dragKeyFramePreview - Sprite.BeginFrame) * frameWidth, OffsetY + Height / 2f);
                     canvas.DrawCircle(previewCenter, radius, ColorCircle);
                     canvas.DrawArc(previewCenter, radius, 0, 360, 8, ColorCircleBorder);
                 }
@@ -328,7 +329,7 @@ namespace LingoEngine.Director.Core.Scores
             }
         }
 
-        private LingoColor GetBgColor()
+        private AColor GetBgColor()
         {
             var bgColor = ColorBase;
             if (Sprite.Lock)

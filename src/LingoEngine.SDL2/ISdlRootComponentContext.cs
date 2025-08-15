@@ -1,6 +1,6 @@
 using ImGuiNET;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Inputs;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.SDL2;
 
@@ -16,5 +16,5 @@ public interface ISdlRootComponentContext
     nint RegisterTexture(nint sdlTexture);
     nint GetTexture(nint textureId);
 
-    LingoPoint GetWindowSize();
+    APoint GetWindowSize();
 }

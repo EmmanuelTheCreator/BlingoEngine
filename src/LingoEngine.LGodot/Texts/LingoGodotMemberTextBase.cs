@@ -1,4 +1,5 @@
 ﻿using Godot;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Bitmaps;
 using LingoEngine.LGodot.Helpers;
@@ -156,8 +157,8 @@ namespace LingoEngine.LGodot.Texts
             }
         }
 
-        private LingoColor _lingoColor = LingoColor.FromRGB(0, 0, 0);
-        public LingoColor TextColor
+        private AColor _lingoColor = AColor.FromRGB(0, 0, 0);
+        public AColor TextColor
         {
             get => _lingoColor; 
             set
@@ -194,7 +195,7 @@ namespace LingoEngine.LGodot.Texts
 
 
         public bool IsLoaded { get; private set; }
-        public LingoPoint Size { get; private set; }
+        public APoint Size { get; private set; }
         private bool _widthSet;
         public int Width { get => _widthSet? (int)_defaultTextNode.LabelNode.CustomMinimumSize.X: (int)Size.X; 
             set
@@ -257,7 +258,7 @@ namespace LingoEngine.LGodot.Texts
                     usedNode.SetName(lingoInstance.Name);
             }
         }
-        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+        public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         {
             int w = Width > 0 ? Width : (int)Size.X;
             int h = Height > 0 ? Height : (int)Size.Y;

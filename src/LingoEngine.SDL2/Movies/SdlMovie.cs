@@ -1,5 +1,4 @@
 using LingoEngine.Movies;
-using LingoEngine.Primitives;
 using LingoEngine.SDL2.SDLL;
 using LingoEngine.SDL2.Sprites;
 using LingoEngine.SDL2.Stages;
@@ -8,6 +7,7 @@ using LingoEngine.SDL2.Core;
 using LingoEngine.Sprites;
 using System.Linq;
 using System.Collections.Generic;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Movies;
 
@@ -65,7 +65,7 @@ public class SdlMovie : ILingoFrameworkMovie, IDisposable
         _removeMethod(this);
     }
 
-    LingoPoint ILingoFrameworkMovie.GetGlobalMousePosition() => (0, 0);
+    APoint ILingoFrameworkMovie.GetGlobalMousePosition() => (0, 0);
 
     public void Dispose()
     {

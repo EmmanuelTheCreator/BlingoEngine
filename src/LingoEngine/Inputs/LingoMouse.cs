@@ -1,8 +1,8 @@
 using System;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Members;
-using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Stages;
 
@@ -69,7 +69,7 @@ namespace LingoEngine.Inputs
         /// <summary>
         /// Returns the (H, V) point location of the mouse on the Stage.
         /// </summary>
-        LingoPoint MouseLoc { get; }
+        APoint MouseLoc { get; }
 
         /// <summary>
         /// Returns TRUE on the frame when the mouse button is released.
@@ -180,7 +180,7 @@ namespace LingoEngine.Inputs
         public T Framework<T>() where T : ILingoFrameworkMouse => (T)_frameworkObj;
 
 
-        public LingoPoint MouseLoc => new LingoPoint(MouseH, MouseV);
+        public APoint MouseLoc => new APoint(MouseH, MouseV);
 
         public float MouseH { get; set; }
         public float MouseV { get; set; }

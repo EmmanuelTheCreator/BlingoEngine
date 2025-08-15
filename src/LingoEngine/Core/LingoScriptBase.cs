@@ -1,4 +1,5 @@
-﻿using LingoEngine.Bitmaps;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
 using LingoEngine.Inputs;
 using LingoEngine.Members;
@@ -85,8 +86,8 @@ namespace LingoEngine.Core
         protected Vector2 RandomVector() => throw new NotImplementedException();
 
         protected LingoSymbol Symbol(string name) => LingoSymbol.New(name);
-        protected LingoPoint Point(float x, float y) => new(x, y);
-        protected LingoRect Rect(float left, float top, float right, float bottom) => new(left, top, right, bottom);
+        protected APoint Point(float x, float y) => new(x, y);
+        protected ARect Rect(float left, float top, float right, float bottom) => new(left, top, right, bottom);
         protected DateTime Date() => DateTime.Now;
         protected ILingoTimeoutObject Timeout(string timeoutObjName, int periodInMilliseconds, Action onTick) => _Movie.TimeOutList.New(timeoutObjName, periodInMilliseconds, onTick);
 
@@ -178,7 +179,7 @@ namespace LingoEngine.Core
         protected TResult? SendSprite<T, TResult>(int spriteNumber, Func<T, TResult> actionOnSprite) where T : LingoSpriteBehavior => _Movie.SendSprite(spriteNumber, actionOnSprite);
         protected void CallMovieScript<T>(Action<T> action) where T : LingoMovieScript => _Movie.CallMovieScript(action);
         protected TResult? CallMovieScript<T, TResult>(Func<T, TResult> action) where T : LingoMovieScript => _Movie.CallMovieScript(action);
-        protected LingoList<ILingoSpriteChannel> SpritesUnderPoint(LingoPoint point)
+        protected LingoList<ILingoSpriteChannel> SpritesUnderPoint(APoint point)
             => new LingoList<ILingoSpriteChannel>(_Movie.GetSpritesAtPoint(point.X, point.Y).Select(s => (ILingoSpriteChannel)s));
 
         protected void UpdateStage() => _Movie.UpdateStage();

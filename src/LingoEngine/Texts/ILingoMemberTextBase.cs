@@ -1,5 +1,5 @@
-﻿using LingoEngine.Members;
-using LingoEngine.Primitives;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Members;
 
 namespace LingoEngine.Texts
 {
@@ -106,7 +106,7 @@ namespace LingoEngine.Texts
         /// Text color in a Lingo-compatible color format.
         /// Corresponds to Lingo's textColor property.
         /// </summary>
-        LingoColor TextColor { get; set; }
+        AColor TextColor { get; set; }
 
         /// <summary>
         /// Gets or sets whether the text is bold.

@@ -1,4 +1,5 @@
-﻿using LingoEngine.Animations;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Animations;
 using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
 using LingoEngine.Events;
@@ -61,7 +62,7 @@ namespace LingoEngine.Sprites
         public float LocH { get; set; }
         public float LocV { get; set; }
         public int LocZ { get; set; }
-        public LingoPoint Loc
+        public APoint Loc
         {
             get => (LocH, LocV); set
             {
@@ -76,22 +77,22 @@ namespace LingoEngine.Sprites
         public bool FlipV { get; set; }
         public int Constraint { get => _constraint; set => _constraint = value; }
 
-        public LingoPoint RegPoint { get; set; }
-        public LingoColor ForeColor { get; set; } = LingoColorList.Black;
-        public LingoColor BackColor { get; set; } = LingoColorList.White;
+        public APoint RegPoint { get; set; }
+        public AColor ForeColor { get; set; } = AColors.Black;
+        public AColor BackColor { get; set; } = AColors.White;
 
 
 
         public ILingoMember? Member { get => _Member; set => SetMember(value); }
 
-        public LingoRect Rect
+        public ARect Rect
         {
             get
             {
                 var offset = GetRegPointOffset();
                 float left = LocH - offset.X - Width / 2f;
                 float top = LocV - offset.Y - Height / 2f;
-                return new LingoRect(left, top, left + Width, top + Height);
+                return new ARect(left, top, left + Width, top + Height);
             }
         }
 
@@ -110,7 +111,7 @@ namespace LingoEngine.Sprites
         #endregion
 
 
-        private LingoPoint GetRegPointOffset()
+        private APoint GetRegPointOffset()
         {
             if (_Member is { } member)
             {
@@ -119,11 +120,11 @@ namespace LingoEngine.Sprites
                 {
                     float scaleX = Width / member.Width;
                     float scaleY = Height / member.Height;
-                    return new LingoPoint(baseOffset.X * scaleX, baseOffset.Y * scaleY);
+                    return new APoint(baseOffset.X * scaleX, baseOffset.Y * scaleY);
                 }
                 return baseOffset;
             }
-            return new LingoPoint();
+            return new APoint();
         }
 
 
@@ -251,7 +252,7 @@ namespace LingoEngine.Sprites
         #endregion
 
 
-        public LingoRect GetBoundingBox()
+        public ARect GetBoundingBox()
         {
             var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
             if (animator != null)
@@ -259,7 +260,7 @@ namespace LingoEngine.Sprites
 
             return Rect;
         }
-        public LingoRect GetBoundingBoxForFrame(int frame)
+        public ARect GetBoundingBoxForFrame(int frame)
         {
             var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
             if (animator != null)
@@ -269,7 +270,7 @@ namespace LingoEngine.Sprites
         }
 
 
-        public bool PointInSprite(LingoPoint point)
+        public bool PointInSprite(APoint point)
         {
             return Rect.Contains(point);
         }
@@ -339,14 +340,14 @@ namespace LingoEngine.Sprites
             return other.Rect.Contains(center);
         }
 
-        public (LingoPoint topLeft, LingoPoint topRight, LingoPoint bottomRight, LingoPoint bottomLeft) Quad()
+        public (APoint topLeft, APoint topRight, APoint bottomRight, APoint bottomLeft) Quad()
         {
             var rect = Rect;
             return (
                 rect.TopLeft,
-                new LingoPoint(rect.Right, rect.Top),
+                new APoint(rect.Right, rect.Top),
                 rect.BottomRight,
-                new LingoPoint(rect.Left, rect.Bottom)
+                new APoint(rect.Left, rect.Bottom)
             );
         }
 

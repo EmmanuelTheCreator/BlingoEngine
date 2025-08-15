@@ -1,6 +1,6 @@
-﻿using LingoEngine.FrameworkCommunication;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.Director.Core.UI
 {
@@ -21,7 +21,7 @@ namespace LingoEngine.Director.Core.UI
         {
             var line = panel.Factory.CreateHorizontalLineSeparator(name);
             if (width > 0) line.Width = width;
-            if (paddingLeft > 0) line.Margin = new LingoMargin(paddingLeft, 0, 0, 0);
+            if (paddingLeft > 0) line.Margin = new AMargin(paddingLeft, 0, 0, 0);
             panel.AddItem(line);
             return panel;
         }
@@ -29,7 +29,7 @@ namespace LingoEngine.Director.Core.UI
         {
             var line = panel.Factory.CreateVerticalLineSeparator(name);
             if (height > 0) line.Height = height;
-            if (paddingTop > 0) line.Margin = new LingoMargin(0, paddingTop, 0, 0);
+            if (paddingTop > 0) line.Margin = new AMargin(0, paddingTop, 0, 0);
             panel.AddItem(line);
             return panel;
         }
@@ -44,14 +44,14 @@ namespace LingoEngine.Director.Core.UI
             return list;
         }
 
-        public static LingoGfxInputSlider<float> AddSliderFloat(this LingoGfxWrapPanel panel, string name, LingoOrientation orientation, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
+        public static LingoGfxInputSlider<float> AddSliderFloat(this LingoGfxWrapPanel panel, string name, AOrientation orientation, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
         {
             var slider = panel.Factory.CreateInputSliderFloat(orientation, name, min, max, step, onChange);
             panel.AddItem(slider);
             return slider;
         }
 
-        public static LingoGfxInputSlider<int> AddSliderInt(this LingoGfxWrapPanel panel, string name, LingoOrientation orientation, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
+        public static LingoGfxInputSlider<int> AddSliderInt(this LingoGfxWrapPanel panel, string name, AOrientation orientation, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
         {
             var slider = panel.Factory.CreateInputSliderInt(orientation, name, min, max, step, onChange);
             panel.AddItem(slider);

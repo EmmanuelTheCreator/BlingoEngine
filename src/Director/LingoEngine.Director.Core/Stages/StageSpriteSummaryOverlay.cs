@@ -8,6 +8,7 @@ using LingoEngine.Director.Core.Tools;
 using LingoEngine.Sprites;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Bitmaps;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.Stages;
 
@@ -51,7 +52,7 @@ public class StageSpriteSummaryOverlay : IHasSpriteSelectedEvent, IDisposable
 
     private void DrawInfo(ILingoSprite sprite)
     {
-        _canvas.Clear(LingoColorList.White);
+        _canvas.Clear(AColors.White);
         if (sprite is not LingoSprite2D sp || sp.Member == null)
         {
             _canvas.Visibility = false;
@@ -84,14 +85,14 @@ public class StageSpriteSummaryOverlay : IHasSpriteSelectedEvent, IDisposable
         _canvas.X = sp.Rect.Left;
         _canvas.Y = sp.Rect.Bottom;
 
-        _canvas.DrawRect(LingoRect.New(0, 0, width, height), LingoColorList.LightGray, true);
+        _canvas.DrawRect(ARect.New(0, 0, width, height), AColors.LightGray, true);
         var bugFixGodotNotUnderstandY = 12;
 
         for (int i = 0; i < lines.Length; i++)
         {
             int y = i * iconSize + margin;
-            _canvas.DrawPicture(icons[i], iconSize, iconSize, new LingoPoint(2, y));
-            _canvas.DrawText(new LingoPoint(iconSize + 4, y + bugFixGodotNotUnderstandY), lines[i], null, LingoColorList.Black, fontSize);
+            _canvas.DrawPicture(icons[i], iconSize, iconSize, new APoint(2, y));
+            _canvas.DrawText(new APoint(iconSize + 4, y + bugFixGodotNotUnderstandY), lines[i], null, AColors.Black, fontSize);
         }
 
         _canvas.Visibility = true;

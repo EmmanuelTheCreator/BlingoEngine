@@ -1,8 +1,8 @@
 using Godot;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Gfx;
 using LingoEngine.LGodot.Bitmaps;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.LGodot.Gfx
 {
@@ -11,7 +11,7 @@ namespace LingoEngine.LGodot.Gfx
     /// </summary>
     public partial class LingoGodotButton : Button, ILingoFrameworkGfxButton, IDisposable
     {
-        private LingoMargin _margin = LingoMargin.Zero;
+        private AMargin _margin = AMargin.Zero;
         private ILingoTexture2D? _texture;
 
         private event Action? _pressed;
@@ -34,7 +34,7 @@ namespace LingoEngine.LGodot.Gfx
        
         string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
 
-        public LingoMargin Margin
+        public AMargin Margin
         {
             get => _margin;
             set

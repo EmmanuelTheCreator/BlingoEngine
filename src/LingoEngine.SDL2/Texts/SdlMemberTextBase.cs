@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Primitives;
 using LingoEngine.SDL2.Inputs;
@@ -50,7 +51,7 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
         }
     }
     public LingoTextStyle FontStyle { get; set; }
-    public LingoColor TextColor { get; set; } = LingoColor.FromRGB(0, 0, 0);
+    public AColor TextColor { get; set; } = AColor.FromRGB(0, 0, 0);
     public LingoTextAlignment Alignment { get; set; }
     public int Margin { get; set; }
     public bool IsLoaded { get; private set; }
@@ -106,7 +107,7 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
 
     public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
 
-    public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+    public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
     {
         PreloadFont();
 

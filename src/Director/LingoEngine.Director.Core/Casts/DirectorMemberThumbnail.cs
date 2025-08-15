@@ -7,8 +7,10 @@ using LingoEngine.Primitives;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Bitmaps;
-using LingoEngine.Core;
 using LingoEngine.FilmLoops;
+using LingoEngine.AbstUI.Primitives;
+using LingoEngine.AbstUI.Core;
+using AbstUIEngine.AbstUI.Core;
 
 namespace LingoEngine.Director.Core.Casts;
 
@@ -37,7 +39,7 @@ public class DirectorMemberThumbnail : IDisposable
         _yOffset = yOffset;
         _rectWidth = width;
         // godot fix 
-        if (xOffset > 0 && LingoEngineGlobal.RunFramework == LingoEngineRunFramework.Godot)
+        if (xOffset > 0 && LingoEngineGlobal.RunFramework == AbstUIEngineRunFramework.Godot)
         {
             _xOffset += 0.5f;
             _yOffset += 0.5f;
@@ -83,8 +85,8 @@ public class DirectorMemberThumbnail : IDisposable
                 var data = _iconManager.Get(icon.Value);
                 var x = ThumbWidth - miniIconSize - 1;
                 var y = ThumbHeight - miniIconSize - 1 + _iconYOffset;
-                Canvas.DrawRect(LingoRect.New(_xOffset + x, _yOffset + y, miniIconSize, miniIconSize), LingoColorList.White, true);
-                Canvas.DrawPicture(data, miniIconSize - 2, miniIconSize - 2, new LingoPoint(_xOffset + x + 1, _yOffset + y + 1));
+                Canvas.DrawRect(ARect.New(_xOffset + x, _yOffset + y, miniIconSize, miniIconSize), AColors.White, true);
+                Canvas.DrawPicture(data, miniIconSize - 2, miniIconSize - 2, new APoint(_xOffset + x + 1, _yOffset + y + 1));
             }
         }
     }
@@ -98,8 +100,8 @@ public class DirectorMemberThumbnail : IDisposable
 
     private void DrawBorder()
     {
-        Canvas.DrawRect(LingoRect.New(_xOffset, _yOffset, _rectWidth, ThumbHeight), LingoColorList.White, true);
-        Canvas.DrawRect(LingoRect.New(_xOffset, _yOffset, _rectWidth, ThumbHeight), LingoColorList.Gray, false);
+        Canvas.DrawRect(ARect.New(_xOffset, _yOffset, _rectWidth, ThumbHeight), AColors.White, true);
+        Canvas.DrawRect(ARect.New(_xOffset, _yOffset, _rectWidth, ThumbHeight), AColors.Gray, false);
     }
 
     private void DrawPicture(LingoMemberBitmap picture)
@@ -109,7 +111,7 @@ public class DirectorMemberThumbnail : IDisposable
             return;
         var w = picture.TextureLingo.Width;
         var h = picture.TextureLingo.Height;
-        Canvas.DrawPicture(picture.TextureLingo, ThumbWidth - 2, ThumbHeight - 2, new LingoPoint(_xOffset + 1, _yOffset + 2));
+        Canvas.DrawPicture(picture.TextureLingo, ThumbWidth - 2, ThumbHeight - 2, new APoint(_xOffset + 1, _yOffset + 2));
     }
 
     private void DrawText(string text)
@@ -122,7 +124,7 @@ public class DirectorMemberThumbnail : IDisposable
         var startY = _yOffset + (int)Math.Max((ThumbHeight - textHeight) / 2f, 0);
 
         int maxWidth = ThumbWidth - 4;
-        Canvas.DrawText(new LingoPoint(_xOffset + 2, startY), text, null, new LingoColor(0, 0, 0), fontSize, maxWidth);
+        Canvas.DrawText(new APoint(_xOffset + 2, startY), text, null, new AColor(0, 0, 0), fontSize, maxWidth);
     }
 
     private static string GetPreviewText(ILingoMemberTextBase text)

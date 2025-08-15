@@ -1,3 +1,4 @@
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
 using LingoEngine.FilmLoops;
@@ -22,7 +23,7 @@ public class LingoFilmLoopMemberSpriteTests
         {
             Width = 9,
             Height = 8,
-            RegPoint = new LingoPoint(4, 0)
+            RegPoint = new APoint(4, 0)
         };
 
         var sprite = new LingoFilmLoopMemberSprite(bitmap);

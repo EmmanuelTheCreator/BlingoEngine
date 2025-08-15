@@ -1,5 +1,5 @@
-﻿using LingoEngine.Bitmaps;
-using LingoEngine.Primitives;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Bitmaps;
 
 namespace LingoEngine.Sprites
 {
@@ -17,7 +17,7 @@ namespace LingoEngine.Sprites
         float Width { get; }
         float Height { get; }
         string Name { get; set; }
-        LingoPoint RegPoint { get; set; }
+        APoint RegPoint { get; set; }
         float DesiredHeight { get; set; }
         float DesiredWidth { get; set; }
         int ZIndex { get; set; }
@@ -62,7 +62,7 @@ namespace LingoEngine.Sprites
         /// <summary>Hide the sprite.</summary>
         void Hide();
         /// <summary>Set the sprite position.</summary>
-        void SetPosition(LingoPoint point);
+        void SetPosition(APoint point);
         void ApplyMemberChangesOnStepFrame();
        
         void SetTexture(ILingoTexture2D texture);

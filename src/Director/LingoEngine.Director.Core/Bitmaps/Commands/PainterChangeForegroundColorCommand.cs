@@ -1,7 +1,7 @@
-﻿using LingoEngine.Commands;
-using LingoEngine.Primitives;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Commands;
 
 namespace LingoEngine.Director.Core.Bitmaps.Commands
 {
-    public sealed record PainterChangeForegroundColorCommand(LingoColor color) : ILingoCommand;
+    public sealed record PainterChangeForegroundColorCommand(AColor color) : ILingoCommand;
 }

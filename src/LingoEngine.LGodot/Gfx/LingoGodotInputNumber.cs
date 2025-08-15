@@ -1,4 +1,5 @@
 using Godot;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 using LingoEngine.Styles;
@@ -11,7 +12,7 @@ namespace LingoEngine.LGodot.Gfx
     public partial class LingoGodotInputNumber<TValue> : LineEdit, ILingoFrameworkGfxInputNumber<TValue>, IDisposable
         where TValue : System.Numerics.INumber<TValue>
     {
-        private LingoMargin _margin = LingoMargin.Zero;
+        private AMargin _margin = AMargin.Zero;
         private LingoNumberType _numberType = LingoNumberType.Float;
         private Action<TValue>? _onChange;
         private readonly ILingoFontManager _fontManager;
@@ -177,7 +178,7 @@ namespace LingoEngine.LGodot.Gfx
                 Theme = theme;
             }
         }
-        public LingoMargin Margin
+        public AMargin Margin
         {
             get => _margin;
             set

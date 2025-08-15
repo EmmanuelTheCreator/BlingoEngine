@@ -1,10 +1,10 @@
-﻿using LingoEngine.Primitives;
+﻿using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.ColorPalettes
 {
     internal static class LingoColorsPalettes
     {
-        internal static IEnumerable<LingoColor> SystemMacColors() => [
+        internal static IEnumerable<AColor> SystemMacColors() => [
                  N(255,255,255), N(255,255,204), N(255,255,153), N(255,255,102), N(255,255,51), N(255,255,0), N(255,204,255), N(255,204,204),
     N(255,204,153), N(255,204,102), N(255,204,51), N(255,204,0), N(255,153,255), N(255,153,204), N(255,153,153), N(255,153,102),
     N(255,153,51), N(255,153,0), N(255,102,255), N(255,102,204), N(255,102,153), N(255,102,102), N(255,102,51), N(255,102,0),
@@ -38,7 +38,7 @@ namespace LingoEngine.ColorPalettes
     N(0,0,119), N(0,0,85), N(0,0,68), N(0,0,34), N(0,0,17), N(238,238,238), N(221,221,221), N(187,187,187),
     N(170,170,170), N(136,136,136), N(119,119,119), N(85,85,85), N(68,68,68), N(34,34,34), N(17,17,17), N(0,0,0)
                       ];
-        internal static IEnumerable<LingoColor> WindowsSystemPalette() =>
+        internal static IEnumerable<AColor> WindowsSystemPalette() =>
             [
                 N(255,255,255), N(0,255,255), N(255,0,255), N(0,0,255), N(255,255,0), N(0,255,0), N(255,0,0), N(128,128,128),
     N(160,160,164), N(255,251,240), N(51,51,51), N(153,102,0), N(51,102,51), N(0,51,153), N(204,0,255), N(136,0,0),
@@ -73,7 +73,7 @@ namespace LingoEngine.ColorPalettes
     N(255,153,153), N(255,204,255), N(153,212,255), N(153,212,153), N(255,255,153), N(240,240,240), N(166,202,240), N(192,220,192),
     N(192,192,192), N(0,128,128), N(128,0,128), N(0,0,128), N(128,128,0), N(0,128,0), N(128,0,0), N(0,0,0),
             ];
-        internal static IEnumerable<LingoColor> RainbowPalette() =>
+        internal static IEnumerable<AColor> RainbowPalette() =>
             [
                  N(255,255,255), N(0,105,255), N(0,99,255), N(0,93,255), N(0,86,255), N(0,80,255), N(0,74,255), N(0,67,255),
             N(0,61,255), N(0,54,255), N(0,48,255), N(0,42,255), N(0,35,255), N(0,29,255), N(0,23,255), N(0,16,255),
@@ -109,16 +109,16 @@ namespace LingoEngine.ColorPalettes
             N(112,112,112), N(96,96,96), N(80,80,80), N(64,64,64), N(48,48,48), N(32,32,32), N(16,16,16), N(0,0,0),
             ];
 
-        internal static IEnumerable<LingoColor> GrayscalePalette()
+        internal static IEnumerable<AColor> GrayscalePalette()
         {
-            var colors = new List<LingoColor>();
+            var colors = new List<AColor>();
             for (byte i = 0; i < 255; i ++)
             {
                 colors.Add(N(i, i, i));
             }
             return colors.ToArray();
         }
-        internal static IEnumerable<LingoColor> PastelsPalette() =>
+        internal static IEnumerable<AColor> PastelsPalette() =>
             [
                N(255, 255, 255), N(254, 254, 242), N(254, 253, 230), N(254, 253, 218), N(254, 252, 206), N(254, 251, 194), N(254, 251, 182), N(254, 250, 170),
         N(253, 250, 157), N(253, 249, 145), N(253, 248, 133), N(253, 248, 121), N(253, 247, 109), N(253, 247, 97), N(253, 246, 85), N(252, 245, 72),
@@ -154,7 +154,7 @@ namespace LingoEngine.ColorPalettes
         N(112, 112, 112), N(96, 96, 96), N(80, 80, 80), N(64, 64, 64), N(48, 48, 48), N(32, 32, 32), N(16, 16, 16), N(0, 0, 0)
             ];
 
-        internal static IEnumerable<LingoColor> VividPalette() =>
+        internal static IEnumerable<AColor> VividPalette() =>
             [
             N(255, 255, 255),
         N(254, 254, 238),
@@ -414,7 +414,7 @@ namespace LingoEngine.ColorPalettes
         N(0, 0, 0)
 
             ];
-        internal static IEnumerable<LingoColor> NTSCPalette() =>
+        internal static IEnumerable<AColor> NTSCPalette() =>
             [
             N(255, 255, 255), N(89, 43, 133), N(93, 33, 95), N(123, 40, 82), N(154, 48, 68), N(161, 61, 66), N(165, 67, 65), N(169, 71, 62),
         N(172, 75, 58), N(176, 79, 55), N(180, 83, 51), N(186, 102, 53), N(193, 122, 54), N(200, 141, 55), N(207, 161, 57), N(213, 181, 58),
@@ -449,7 +449,7 @@ namespace LingoEngine.ColorPalettes
         N(240, 240, 240), N(224, 224, 224), N(208, 208, 208), N(192, 192, 192), N(176, 176, 176), N(160, 160, 160), N(144, 144, 144), N(128, 128, 128),
         N(112, 112, 112), N(96, 96, 96), N(80, 80, 80), N(64, 64, 64), N(48, 48, 48), N(32, 32, 32), N(16, 16, 16), N(0, 0, 0),
             ]; 
-        internal static IEnumerable<LingoColor> MetalicPalette() =>
+        internal static IEnumerable<AColor> MetalicPalette() =>
             [
              N(255, 255, 255), N(102, 76, 128), N(95, 66, 108), N(88, 55, 89), N(117, 71, 94), N(148, 88, 99), N(155, 102, 105), N(159, 108, 106),
     N(163, 109, 104), N(166, 111, 102), N(170, 115, 101), N(174, 121, 103), N(180, 134, 107), N(187, 148, 111), N(194, 162, 115), N(201, 176, 119),
@@ -485,7 +485,7 @@ namespace LingoEngine.ColorPalettes
     N(119, 119, 119), N(102, 102, 102), N(85, 85, 85), N(68, 68, 68), N(51, 51, 51), N(34, 34, 34), N(17, 17, 17), N(0, 0, 0)
             ];
 
-        internal static IEnumerable<LingoColor> Web216Palette() =>
+        internal static IEnumerable<AColor> Web216Palette() =>
             [
          N(0, 255, 255), N(255, 0, 255), N(0, 0, 255), N(255, 255, 0), N(0, 255, 0), N(255, 0, 0), N(128, 128, 128), N(160, 160, 164),
         N(255, 251, 240), N(255, 255, 254), N(255, 255, 204), N(255, 255, 153), N(255, 255, 102), N(255, 255, 51), N(255, 255, 0), N(255, 204, 255),
@@ -521,7 +521,7 @@ namespace LingoEngine.ColorPalettes
         N(0, 128, 128), N(128, 0, 128), N(0, 0, 128), N(128, 128, 0), N(0, 128, 0), N(128, 0, 0), N(0, 0, 0),
             ];
         
-        internal static IEnumerable<LingoColor> WinDir4Palette() =>
+        internal static IEnumerable<AColor> WinDir4Palette() =>
             [
              N(255,255,255), N(240,240,240), N(0,255,255), N(255,0,255), N(0,0,255), N(255,255,0),
             N(0,255,0), N(255,0,0), N(128,128,128), N(160,160,164), N(255,251,240), N(51,51,51),
@@ -568,6 +568,6 @@ namespace LingoEngine.ColorPalettes
             N(191,191,0), N(0,191,0), N(191,0,0), N(0,0,0),
             ];
         
-        internal static LingoColor N(byte r, byte g, byte b) => new LingoColor(r, g, b);
+        internal static AColor N(byte r, byte g, byte b) => new AColor(r, g, b);
     }
 }

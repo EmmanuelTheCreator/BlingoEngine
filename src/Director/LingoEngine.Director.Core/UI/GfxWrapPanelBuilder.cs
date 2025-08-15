@@ -1,7 +1,7 @@
-﻿using LingoEngine.Bitmaps;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Bitmaps;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using LingoEngine.Tools;
 using System.Linq.Expressions;
 
@@ -67,7 +67,7 @@ namespace LingoEngine.Director.Core.UI
         {
             if(_parent != null)
                 return _parent.NewLine(name);
-            _panel = _factory.CreateWrapPanel(_rootPanel.Orientation == LingoOrientation.Vertical? LingoOrientation.Horizontal : LingoOrientation.Vertical, name);
+            _panel = _factory.CreateWrapPanel(_rootPanel.Orientation == AOrientation.Vertical? AOrientation.Horizontal : AOrientation.Vertical, name);
             _panel.Width = _rootPanel.Width;
             _rootPanel.AddItem(_panel);
             return _panel.Compose(this);
@@ -140,7 +140,7 @@ namespace LingoEngine.Director.Core.UI
             return this;
         }
 
-        public GfxWrapPanelBuilder AddColorPicker<T>(string name, T target, Expression<Func<T, LingoColor>> property, int width = 20)
+        public GfxWrapPanelBuilder AddColorPicker<T>(string name, T target, Expression<Func<T, AColor>> property, int width = 20)
         {
             var setter = property.CompileSetter();
             var getter = property.CompileGetter();
@@ -194,7 +194,7 @@ namespace LingoEngine.Director.Core.UI
             return this;
         }
 
-        public GfxWrapPanelBuilder AddSliderFloat(string name, LingoOrientation orientation, Action<float>? onChange = null, float? min = null, float? max = null, float? step = null, Action<LingoGfxInputSlider<float>>? configure = null)
+        public GfxWrapPanelBuilder AddSliderFloat(string name, AOrientation orientation, Action<float>? onChange = null, float? min = null, float? max = null, float? step = null, Action<LingoGfxInputSlider<float>>? configure = null)
         {
             var slider = _factory.CreateInputSliderFloat(orientation, name, min, max, step, onChange);
             _panel.AddItem(slider);
@@ -202,7 +202,7 @@ namespace LingoEngine.Director.Core.UI
             return this;
         }
 
-        public GfxWrapPanelBuilder AddSliderInt(string name, LingoOrientation orientation, Action<int>? onChange = null, int? min = null, int? max = null, int? step = null, Action<LingoGfxInputSlider<int>>? configure = null)
+        public GfxWrapPanelBuilder AddSliderInt(string name, AOrientation orientation, Action<int>? onChange = null, int? min = null, int? max = null, int? step = null, Action<LingoGfxInputSlider<int>>? configure = null)
         {
             var slider = _factory.CreateInputSliderInt(orientation, name, min, max, step, onChange);
             _panel.AddItem(slider);

@@ -1,42 +1,42 @@
 using System.Collections.Generic;
 using System.Linq;
-using LingoEngine.Primitives;
 using LingoEngine.Gfx;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.Bitmaps;
 
 public class LingoBitmapSelection
 {
-    private readonly HashSet<LingoPoint> _selectedPixels = new();
-    private readonly List<LingoPoint> _lassoPoints = new();
+    private readonly HashSet<APoint> _selectedPixels = new();
+    private readonly List<APoint> _lassoPoints = new();
 
     private bool _dragSelecting;
-    private LingoRect? _dragRect;
+    private ARect? _dragRect;
     private bool _lassoSelecting;
 
-    public IReadOnlyCollection<LingoPoint> SelectedPixels => _selectedPixels;
+    public IReadOnlyCollection<APoint> SelectedPixels => _selectedPixels;
     public bool IsDragSelecting => _dragSelecting;
-    public LingoRect? DragRect => _dragRect;
+    public ARect? DragRect => _dragRect;
     public bool IsLassoSelecting => _lassoSelecting;
-    public IReadOnlyList<LingoPoint> LassoPoints => _lassoPoints;
+    public IReadOnlyList<APoint> LassoPoints => _lassoPoints;
 
-    private LingoPoint _canvasHalf;
-    private LingoPoint _offset;
+    private APoint _canvasHalf;
+    private APoint _offset;
 
     public void Prepare(LingoGfxCanvas canvas, int memberWidth, int memberHeight)
     {
-        _canvasHalf = new LingoPoint(canvas.Width / 2f, canvas.Height / 2f);
-        var imageHalf = new LingoPoint(memberWidth / 2f, memberHeight / 2f);
+        _canvasHalf = new APoint(canvas.Width / 2f, canvas.Height / 2f);
+        var imageHalf = new APoint(memberWidth / 2f, memberHeight / 2f);
         _offset = _canvasHalf - imageHalf;
     }
 
-    public LingoPoint ToCanvas(LingoPoint point, float scale)
+    public APoint ToCanvas(APoint point, float scale)
         => (_offset + point) * scale + _canvasHalf * (1 - scale);
 
-    public LingoRect ToCanvas(LingoRect rect, float scale)
+    public ARect ToCanvas(ARect rect, float scale)
     {
         var pos = ToCanvas(rect.TopLeft, scale);
-        return LingoRect.New(pos.X, pos.Y, rect.Width * scale, rect.Height * scale);
+        return ARect.New(pos.X, pos.Y, rect.Width * scale, rect.Height * scale);
     }
 
     public void BeginRectSelection()
@@ -45,9 +45,9 @@ public class LingoBitmapSelection
         _dragRect = null;
     }
 
-    public void UpdateRectSelection(LingoPoint start, LingoPoint end)
+    public void UpdateRectSelection(APoint start, APoint end)
     {
-        _dragRect = LingoPoint.RectFromPoints(start, end);
+        _dragRect = APoint.RectFromPoints(start, end);
     }
 
     public void EndRectSelection()
@@ -56,7 +56,7 @@ public class LingoBitmapSelection
         _dragRect = null;
     }
 
-    public void BeginLassoSelection(LingoPoint start)
+    public void BeginLassoSelection(APoint start)
     {
         _lassoPoints.Clear();
         _lassoPoints.Add(start);
@@ -65,10 +65,10 @@ public class LingoBitmapSelection
 
     public void AddLassoPoint(int x, int y)
     {
-        _lassoPoints.Add(new LingoPoint(x, y));
+        _lassoPoints.Add(new APoint(x, y));
     }
 
-    public IReadOnlyList<LingoPoint> EndLassoSelection()
+    public IReadOnlyList<APoint> EndLassoSelection()
     {
         _lassoSelecting = false;
         var points = _lassoPoints.ToArray();
@@ -76,7 +76,7 @@ public class LingoBitmapSelection
         return points;
     }
 
-    public void ApplySelection(IEnumerable<LingoPoint> pixels, bool ctrl, bool shift)
+    public void ApplySelection(IEnumerable<APoint> pixels, bool ctrl, bool shift)
     {
         if (shift)
         {
@@ -96,15 +96,15 @@ public class LingoBitmapSelection
         }
     }
 
-    public void ApplySelection(LingoRect rect, bool ctrl, bool shift)
+    public void ApplySelection(ARect rect, bool ctrl, bool shift)
     {
         ApplySelection(PixelsInRect(rect), ctrl, shift);
     }
 
-    private static IEnumerable<LingoPoint> PixelsInRect(LingoRect rect)
+    private static IEnumerable<APoint> PixelsInRect(ARect rect)
     {
         for (int y = (int)rect.Top; y < (int)(rect.Top + rect.Height); y++)
             for (int x = (int)rect.Left; x < (int)(rect.Left + rect.Width); x++)
-                yield return new LingoPoint(x, y);
+                yield return new APoint(x, y);
     }
 }

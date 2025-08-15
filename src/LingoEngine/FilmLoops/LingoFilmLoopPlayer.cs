@@ -4,6 +4,7 @@ using LingoEngine.Animations;
 using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
 using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.FilmLoops
 {
@@ -64,7 +65,7 @@ namespace LingoEngine.FilmLoops
                 var properties = entry.AnimatorProperties.Clone();
                 if (!properties.Position.HasFirstKeyFrame())
                     // insert the initial sprite properties as keyframe
-                    properties.AddKeyFrame(new LingoKeyFrameSetting(1, new LingoPoint(entry.LocH, entry.LocV), new LingoPoint(entry.Width, entry.Height), entry.Rotation, entry.Blend, entry.Skew, entry.ForeColor, entry.BackColor));
+                    properties.AddKeyFrame(new LingoKeyFrameSetting(1, new APoint(entry.LocH, entry.LocV), new APoint(entry.Width, entry.Height), entry.Rotation, entry.Blend, entry.Skew, entry.ForeColor, entry.BackColor));
                 runtime.GetAnimator(properties);
                 ApplyFraming(fl, entry, runtime);
                 LingoFilmLoopPlayer? nestedPlayer = null;
@@ -251,16 +252,16 @@ namespace LingoEngine.FilmLoops
         public int GetMaxLocZ() => FilmLoop != null ? FilmLoop.SpriteEntries.Max(x => x.SpriteNum) : 1;
 
 
-        public LingoRect GetBoundingBoxForFrame(int frame)
+        public ARect GetBoundingBoxForFrame(int frame)
         {
             var fl = FilmLoop;
-            return fl == null ? new LingoRect() : fl.SpriteEntries.GetBoundingBoxForFrame(frame);
+            return fl == null ? new ARect() : fl.SpriteEntries.GetBoundingBoxForFrame(frame);
         }
 
-        public LingoRect GetBoundingBox()
+        public ARect GetBoundingBox()
         {
             var fl = FilmLoop;
-            return fl == null ? new LingoRect() : fl.SpriteEntries.GetBoundingBox();
+            return fl == null ? new ARect() : fl.SpriteEntries.GetBoundingBox();
         }
 
 

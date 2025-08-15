@@ -1,9 +1,9 @@
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Casts;
 using LingoEngine.Core;
 using LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors;
 using LingoEngine.Demo.TetriGrounds.Core.Sprites.Globals;
 using LingoEngine.Movies;
-using LingoEngine.Primitives;
 using LingoEngine.Projects;
 using LingoEngine.Setup;
 using LingoEngine.Texts;
@@ -86,7 +86,7 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
     }
     public void InitMembers(LingoPlayer player)
     {
-        var textColor = LingoColor.FromHex("#999966");
+        var textColor = AColor.FromHex("#999966");
         var text = player.CastLib(2).GetMember<LingoMemberText>("T_data");
         text!.TextColor = textColor;
     }

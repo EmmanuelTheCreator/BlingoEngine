@@ -1,3 +1,4 @@
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.L3D.Core.Primitives;
@@ -9,6 +10,6 @@ namespace LingoEngine.L3D.Core.Primitives;
 public class LingoParticle
 {
     public LingoEmitter Emitter { get; set; } = new();
-    public LingoColorRange ColorRange { get; set; } = new(new LingoColor(), new LingoColor());
+    public LingoColorRange ColorRange { get; set; } = new(new AColor(), new AColor());
     public int Lifetime { get; set; } = 0; // in milliseconds
 }

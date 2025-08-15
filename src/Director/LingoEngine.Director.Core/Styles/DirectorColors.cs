@@ -1,104 +1,104 @@
-﻿using LingoEngine.Primitives;
+﻿using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.Styles
 {
     public class DirectorColors
     {
-        public static LingoColor BlueSelectColor = new LingoColor(0, 120, 215);
-        public static LingoColor BlueLightSelectColor = new LingoColor(229, 241, 251);
-        public static LingoColor BitmapSelectionFill = new LingoColor(0, 153, 255, 77);
-        public static LingoColor BlueSelectColorSemiTransparent = new LingoColor(0, 120, 215, 80);
+        public static AColor BlueSelectColor = new AColor(0, 120, 215);
+        public static AColor BlueLightSelectColor = new AColor(229, 241, 251);
+        public static AColor BitmapSelectionFill = new AColor(0, 153, 255, 77);
+        public static AColor BlueSelectColorSemiTransparent = new AColor(0, 120, 215, 80);
 
-        public static LingoColor BG_PropWindowBar = new LingoColor(178, 180, 191);    // Top bar of panels
-        public static LingoColor BG_WhiteMenus = new LingoColor(240, 240, 240);       // Common window background
+        public static AColor BG_PropWindowBar = new AColor(178, 180, 191);    // Top bar of panels
+        public static AColor BG_WhiteMenus = new AColor(240, 240, 240);       // Common window background
 
         // Windows
-        public static LingoColor Window_Title_Line_Under = new LingoColor(178, 180, 191); // The line just beneath the title of the window
-        public static LingoColor Window_Title_BG = LingoColor.FromHex("#d2e0ed"); // Base color of the window title bar
-        public static LingoColor Window_Title_BG_Active = Window_Title_BG.Darken(0.2f); // Darker when window is active
-        public static LingoColor Window_Title_BG_Inactive = Window_Title_BG.Lighten(0.2f); // Lighter when window is inactive
-        public static LingoColor Window_Border = new LingoColor(200, 200, 200);       // borders for the windows
+        public static AColor Window_Title_Line_Under = new AColor(178, 180, 191); // The line just beneath the title of the window
+        public static AColor Window_Title_BG = AColor.FromHex("#d2e0ed"); // Base color of the window title bar
+        public static AColor Window_Title_BG_Active = Window_Title_BG.Darken(0.2f); // Darker when window is active
+        public static AColor Window_Title_BG_Inactive = Window_Title_BG.Lighten(0.2f); // Lighter when window is inactive
+        public static AColor Window_Border = new AColor(200, 200, 200);       // borders for the windows
 
 
         // Thumbnail of a member
-        public static LingoColor Bg_Thumb = new LingoColor(255, 255, 255);
-        public static LingoColor Border_Thumb = new LingoColor(64, 64, 64);
+        public static AColor Bg_Thumb = new AColor(255, 255, 255);
+        public static AColor Border_Thumb = new AColor(64, 64, 64);
 
 
         // Text
-        public static LingoColor TextColorLabels = new LingoColor(30, 30, 30);        // Property labels
-        public static LingoColor TextColorDisabled = new LingoColor(130, 130, 130);   // Grayed-out text
-        public static LingoColor TextColorFocused = new LingoColor(20, 20, 20);       // Active focus color
+        public static AColor TextColorLabels = new AColor(30, 30, 30);        // Property labels
+        public static AColor TextColorDisabled = new AColor(130, 130, 130);   // Grayed-out text
+        public static AColor TextColorFocused = new AColor(20, 20, 20);       // Active focus color
 
 
         // Inputs
-        public static LingoColor InputText = new LingoColor(30, 30, 30);
-        public static LingoColor InputBorder = new LingoColor(30, 30, 30);
-        public static LingoColor InputSelection = new LingoColor(0, 120, 215);        // Windows blue selection
-        public static LingoColor InputSelectionText = new LingoColor(255, 255, 255);  // Text over selection
-        public static LingoColor Input_Border = new LingoColor(50, 50, 50);           // Border for text inputs
-        public static LingoColor Input_Bg = new LingoColor(255, 255, 255);            // Background for text inputs
+        public static AColor InputText = new AColor(30, 30, 30);
+        public static AColor InputBorder = new AColor(30, 30, 30);
+        public static AColor InputSelection = new AColor(0, 120, 215);        // Windows blue selection
+        public static AColor InputSelectionText = new AColor(255, 255, 255);  // Text over selection
+        public static AColor Input_Border = new AColor(50, 50, 50);           // Border for text inputs
+        public static AColor Input_Bg = new AColor(255, 255, 255);            // Background for text inputs
 
 
         // Tabs
-        public static LingoColor BG_Tabs = new LingoColor(157, 172, 191);             // Inactive tabs
-        public static LingoColor BG_Tabs_Hover = new LingoColor(120, 133, 150);             // Inactive tabs
-        public static LingoColor TabActiveBorder = new LingoColor(130, 130, 130);     // Top/side borders
-        public static LingoColor Border_Tabs = new LingoColor(100, 100, 100);         // Tab outline
-        public static LingoColor Tab_Selected_TextColor = new LingoColor(0, 0, 0);         // text of the selected tab
-        public static LingoColor Tab_Deselected_TextColor = new LingoColor(255, 255, 255); // text of the deselected tab
+        public static AColor BG_Tabs = new AColor(157, 172, 191);             // Inactive tabs
+        public static AColor BG_Tabs_Hover = new AColor(120, 133, 150);             // Inactive tabs
+        public static AColor TabActiveBorder = new AColor(130, 130, 130);     // Top/side borders
+        public static AColor Border_Tabs = new AColor(100, 100, 100);         // Tab outline
+        public static AColor Tab_Selected_TextColor = new AColor(0, 0, 0);         // text of the selected tab
+        public static AColor Tab_Deselected_TextColor = new AColor(255, 255, 255); // text of the deselected tab
 
         // Dividers and lines
-        public static LingoColor DividerLines = new LingoColor(190, 190, 190);        // Light panel separators
+        public static AColor DividerLines = new AColor(190, 190, 190);        // Light panel separators
 
-        public static LingoColor LineDarker = LingoColor.FromHex("a0a0a0");
+        public static AColor LineDarker = AColor.FromHex("a0a0a0");
 
         // Score grid
-        public static LingoColor ScoreGridLineLight = LingoColor.FromHex("f9f9f9");
-        public static LingoColor ScoreGridLineDark = LingoColor.FromHex("f0f0f0");
+        public static AColor ScoreGridLineLight = AColor.FromHex("f9f9f9");
+        public static AColor ScoreGridLineDark = AColor.FromHex("f0f0f0");
 
-        public static LingoColor LineLight = LingoColor.FromHex("f9f9f9");
-        public static LingoColor LineDark = LingoColor.FromHex("d0d0d0");
+        public static AColor LineLight = AColor.FromHex("f9f9f9");
+        public static AColor LineDark = AColor.FromHex("d0d0d0");
 
         // Buttons
-        public static LingoColor Button_Bg_Normal = new LingoColor(240, 240, 240);      // Classic light gray
-        public static LingoColor Button_Bg_Hover = BlueLightSelectColor;                // Hover highlight
-        public static LingoColor Button_Bg_Pressed = new LingoColor(204, 204, 204);     // Pressed darker gray
-        public static LingoColor Button_Bg_Disabled = new LingoColor(230, 230, 230);    // Disabled gray
+        public static AColor Button_Bg_Normal = new AColor(240, 240, 240);      // Classic light gray
+        public static AColor Button_Bg_Hover = BlueLightSelectColor;                // Hover highlight
+        public static AColor Button_Bg_Pressed = new AColor(204, 204, 204);     // Pressed darker gray
+        public static AColor Button_Bg_Disabled = new AColor(230, 230, 230);    // Disabled gray
 
-        public static LingoColor Button_Border_Normal = new LingoColor(50, 50, 50);     // Standard border
-        public static LingoColor Button_Border_Pressed = new LingoColor(100, 100, 100); // Slightly darker on press
-        public static LingoColor Button_Border_Disabled = new LingoColor(190, 190, 190);// Faded border
-        public static LingoColor Button_Border_Hover = BlueSelectColor;                 // Border hover
+        public static AColor Button_Border_Normal = new AColor(50, 50, 50);     // Standard border
+        public static AColor Button_Border_Pressed = new AColor(100, 100, 100); // Slightly darker on press
+        public static AColor Button_Border_Disabled = new AColor(190, 190, 190);// Faded border
+        public static AColor Button_Border_Hover = BlueSelectColor;                 // Border hover
 
-        public static LingoColor Button_Text_Normal = new LingoColor(0, 0, 0);
-        public static LingoColor Button_Text_Disabled = new LingoColor(130, 130, 130);
+        public static AColor Button_Text_Normal = new AColor(0, 0, 0);
+        public static AColor Button_Text_Disabled = new AColor(130, 130, 130);
 
 
 
         // Notifications
-        public static LingoColor Notification_Warning_Bg = new LingoColor(255, 255, 204);
-        public static LingoColor Notification_Warning_Border = new LingoColor(255, 255, 0);
-        public static LingoColor Notification_Error_Bg = new LingoColor(255, 204, 204);
-        public static LingoColor Notification_Error_Border = new LingoColor(255, 0, 0);
-        public static LingoColor Notification_Info_Bg = new LingoColor(204, 204, 255);
-        public static LingoColor Notification_Info_Border = new LingoColor(0, 0, 255);
+        public static AColor Notification_Warning_Bg = new AColor(255, 255, 204);
+        public static AColor Notification_Warning_Border = new AColor(255, 255, 0);
+        public static AColor Notification_Error_Bg = new AColor(255, 204, 204);
+        public static AColor Notification_Error_Border = new AColor(255, 0, 0);
+        public static AColor Notification_Info_Bg = new AColor(204, 204, 255);
+        public static AColor Notification_Info_Border = new AColor(0, 0, 255);
 
 
 
         // Popup Window
-        public static LingoColor PopupWindow_Background = new LingoColor(255, 255, 255);   // Main background
-        public static LingoColor PopupWindow_Border = new LingoColor(160, 160, 160);       // Frame border
+        public static AColor PopupWindow_Background = new AColor(255, 255, 255);   // Main background
+        public static AColor PopupWindow_Border = new AColor(160, 160, 160);       // Frame border
 
-        public static LingoColor PopupWindow_Header_BG = new LingoColor(216, 216, 216);    // Header bar (light gray)
-        public static LingoColor PopupWindow_Header_Text = new LingoColor(0, 0, 0);        // Title text
+        public static AColor PopupWindow_Header_BG = new AColor(216, 216, 216);    // Header bar (light gray)
+        public static AColor PopupWindow_Header_Text = new AColor(0, 0, 0);        // Title text
 
-        public static LingoColor PopupWindow_CloseButton_BG = new LingoColor(221, 221, 221);
-        public static LingoColor PopupWindow_CloseButton_Border = new LingoColor(130, 130, 130);
-        public static LingoColor PopupWindow_CloseButton_Hover = new LingoColor(255, 0, 0);
+        public static AColor PopupWindow_CloseButton_BG = new AColor(221, 221, 221);
+        public static AColor PopupWindow_CloseButton_Border = new AColor(130, 130, 130);
+        public static AColor PopupWindow_CloseButton_Hover = new AColor(255, 0, 0);
 
         // Menu
-        public static LingoColor BG_TopMenu = new LingoColor(240, 240, 240); // Background color of the top menu bar
+        public static AColor BG_TopMenu = new AColor(240, 240, 240); // Background color of the top menu bar
 
 
     }

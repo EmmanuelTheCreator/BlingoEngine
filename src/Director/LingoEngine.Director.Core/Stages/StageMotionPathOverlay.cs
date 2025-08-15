@@ -1,8 +1,8 @@
 using System;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Animations;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.Director.Core.Stages;
 
@@ -25,7 +25,7 @@ public class StageMotionPathOverlay : IDisposable
 
     public void Draw(LingoSpriteMotionPath? path)
     {
-        _canvas.Clear(LingoColorList.Transparent);
+        _canvas.Clear(AColors.Transparent);
         if (path == null || path.Frames.Count == 0)
         {
             _canvas.Visibility = false;
@@ -36,31 +36,31 @@ public class StageMotionPathOverlay : IDisposable
         {
             var prev = path.Frames[i - 1].Position;
             var curr = path.Frames[i].Position;
-            _canvas.DrawLine(prev, curr, LingoColorList.Yellow);
+            _canvas.DrawLine(prev, curr, AColors.Yellow);
         }
 
         var first = path.Frames[0];
         var last = path.Frames[^1];
-        DrawCircle(first.Position, LingoColorList.Green, true, 2.5f);
-        DrawCircle(last.Position, LingoColorList.Red, true, 2.5f);
+        DrawCircle(first.Position, AColors.Green, true, 2.5f);
+        DrawCircle(last.Position, AColors.Red, true, 2.5f);
 
         for (int i = 1; i < path.Frames.Count - 1; i++)
         {
             var f = path.Frames[i];
             if (f.IsKeyFrame)
-                DrawCircle(f.Position, LingoColorList.Yellow, true, 2.5f);
+                DrawCircle(f.Position, AColors.Yellow, true, 2.5f);
             else
-                DrawCircle(f.Position, LingoColorList.Yellow, false, 1.5f);
+                DrawCircle(f.Position, AColors.Yellow, false, 1.5f);
         }
 
         _canvas.Visibility = true;
     }
 
-    private void DrawCircle(LingoPoint position, LingoColor fillColor, bool keyframe, float radius)
+    private void DrawCircle(APoint position, AColor fillColor, bool keyframe, float radius)
     {
         _canvas.DrawCircle(position, radius, fillColor, true);
         if (keyframe)
-            _canvas.DrawCircle(position, radius, LingoColorList.Black, false, 1);
+            _canvas.DrawCircle(position, radius, AColors.Black, false, 1);
     }
 
     public void Dispose()

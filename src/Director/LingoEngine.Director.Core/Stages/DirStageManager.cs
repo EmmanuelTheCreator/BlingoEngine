@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using LingoEngine.Director.Core.Sprites;
-using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Core;
 using LingoEngine.Director.Core.Stages.Commands;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Animations;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.Stages;
 
@@ -21,15 +21,15 @@ public interface IDirStageManager
     bool RecordKeyframes { get; set; }
     void HandlePointerClick(LingoSprite2D? sprite, bool ctrlHeld);
     void ClearSelection();
-    LingoPoint ComputeSelectionCenter();
-    LingoRect ComputeSelectionRect();
-    void BeginMove(LingoPoint start);
-    void UpdateMove(LingoPoint current);
-    void EndMove(LingoPoint end);
-    void BeginRotate(LingoPoint start);
-    void UpdateRotate(LingoPoint current);
-    void EndRotate(LingoPoint end);
-    void ChangeBackgroundColor(LingoColor color);
+    APoint ComputeSelectionCenter();
+    ARect ComputeSelectionRect();
+    void BeginMove(APoint start);
+    void UpdateMove(APoint current);
+    void EndMove(APoint end);
+    void BeginRotate(APoint start);
+    void UpdateRotate(APoint current);
+    void EndRotate(APoint end);
+    void ChangeBackgroundColor(AColor color);
     LingoSpriteMotionPath? GetMotionPath(LingoSprite2D sprite);
 }
 
@@ -43,8 +43,8 @@ public class DirStageManager : IDirStageManager, IDisposable, ICommandHandler<St
     private readonly List<LingoSprite2D> _selected = new();
     private LingoSprite2D? _primary;
 
-    private LingoPoint? _dragStart;
-    private Dictionary<LingoSprite2D, LingoPoint>? _initialPositions;
+    private APoint? _dragStart;
+    private Dictionary<LingoSprite2D, APoint>? _initialPositions;
     private Dictionary<LingoSprite2D, float>? _initialRotations;
     private bool _rotating;
 
@@ -105,39 +105,39 @@ public class DirStageManager : IDirStageManager, IDisposable, ICommandHandler<St
         _spritesManager.SpritesSelection.Clear();
     }
 
-    public LingoPoint ComputeSelectionCenter()
+    public APoint ComputeSelectionCenter()
     {
         if (_selected.Count == 0)
-            return new LingoPoint(0, 0);
+            return new APoint(0, 0);
         float left = _selected.Min(s => s.Rect.Left);
         float top = _selected.Min(s => s.Rect.Top);
         float right = _selected.Max(s => s.Rect.Right);
         float bottom = _selected.Max(s => s.Rect.Bottom);
-        return new LingoPoint((left + right) / 2f, (top + bottom) / 2f);
+        return new APoint((left + right) / 2f, (top + bottom) / 2f);
     }
 
-    public LingoRect ComputeSelectionRect()
+    public ARect ComputeSelectionRect()
     {
         if (_selected.Count == 0)
-            return new LingoRect();
+            return new ARect();
         float left = _selected.Min(s => s.Rect.Left);
         float top = _selected.Min(s => s.Rect.Top);
         float right = _selected.Max(s => s.Rect.Right);
         float bottom = _selected.Max(s => s.Rect.Bottom);
-        return new LingoRect(left, top, right, bottom);
+        return new ARect(left, top, right, bottom);
     }
 
-    public void BeginMove(LingoPoint start)
+    public void BeginMove(APoint start)
     {
         if (_selected.Count == 0) return;
         _dragStart = start;
-        _initialPositions = _selected.ToDictionary(s => s, s => new LingoPoint(s.LocH, s.LocV));
+        _initialPositions = _selected.ToDictionary(s => s, s => new APoint(s.LocH, s.LocV));
         if (RecordKeyframes && _player is LingoPlayer lp)
             foreach (var s in _selected)
                 lp.Stage.AddKeyFrame(s);
     }
 
-    public void UpdateMove(LingoPoint current)
+    public void UpdateMove(APoint current)
     {
         if (_dragStart == null || _initialPositions == null) return;
         float dx = current.X - _dragStart.Value.X;
@@ -153,10 +153,10 @@ public class DirStageManager : IDirStageManager, IDisposable, ICommandHandler<St
         SpritesTransformed?.Invoke();
     }
 
-    public void EndMove(LingoPoint end)
+    public void EndMove(APoint end)
     {
         if (_dragStart == null || _initialPositions == null) return;
-        var endPos = _selected.ToDictionary(s => s, s => new LingoPoint(s.LocH, s.LocV));
+        var endPos = _selected.ToDictionary(s => s, s => new APoint(s.LocH, s.LocV));
         _commandManager.Handle(new MoveSpritesCommand(_initialPositions, endPos));
         if (RecordKeyframes && _player is LingoPlayer lp)
             foreach (var s in _selected)
@@ -166,7 +166,7 @@ public class DirStageManager : IDirStageManager, IDisposable, ICommandHandler<St
         SpritesTransformed?.Invoke();
     }
 
-    public void BeginRotate(LingoPoint start)
+    public void BeginRotate(APoint start)
     {
         if (_selected.Count == 0) return;
         _dragStart = start;
@@ -177,7 +177,7 @@ public class DirStageManager : IDirStageManager, IDisposable, ICommandHandler<St
                 lp.Stage.AddKeyFrame(s);
     }
 
-    public void UpdateRotate(LingoPoint current)
+    public void UpdateRotate(APoint current)
     {
         if (!_rotating || _dragStart == null || _initialRotations == null) return;
         var center = ComputeSelectionCenter();
@@ -193,7 +193,7 @@ public class DirStageManager : IDirStageManager, IDisposable, ICommandHandler<St
         SpritesTransformed?.Invoke();
     }
 
-    public void EndRotate(LingoPoint end)
+    public void EndRotate(APoint end)
     {
         if (!_rotating || _initialRotations == null) return;
         var endRot = _selected.ToDictionary(s => s, s => s.Rotation);
@@ -212,7 +212,7 @@ public class DirStageManager : IDirStageManager, IDisposable, ICommandHandler<St
         return _player.Stage.GetSpriteMotionPath(sprite);
     }
 
-    public void ChangeBackgroundColor(LingoColor color)
+    public void ChangeBackgroundColor(AColor color)
     {
         if (_player is not LingoPlayer lp) return;
         var current = lp.Stage.BackgroundColor;

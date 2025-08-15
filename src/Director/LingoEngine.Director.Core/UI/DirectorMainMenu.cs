@@ -6,11 +6,11 @@ using LingoEngine.Gfx;
 using LingoEngine.Movies;
 using LingoEngine.Inputs;
 using System.Collections.Generic;
-using LingoEngine.Primitives;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Compilers.Commands;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.UI
 {
@@ -83,8 +83,8 @@ namespace LingoEngine.Director.Core.UI
             _historyManager = historyManager;
             _commandManager = commandManager;
 
-            _menuBar = factory.CreateWrapPanel(LingoOrientation.Horizontal, "MenuBar");
-            _iconBar = factory.CreateWrapPanel(LingoOrientation.Horizontal, "IconBar");
+            _menuBar = factory.CreateWrapPanel(AOrientation.Horizontal, "MenuBar");
+            _iconBar = factory.CreateWrapPanel(AOrientation.Horizontal, "IconBar");
             _iconBar.Height = 20;
 
             _fileMenu = factory.CreateMenu("FileMenu");

@@ -1,4 +1,5 @@
-﻿using LingoEngine.Director.Core.Styles;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Director.Core.Styles;
 using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 
@@ -7,7 +8,7 @@ namespace LingoEngine.Director.Core.Scores
 {
     public class DirScoreChannelHeader
     {
-        private LingoColor _textColor = LingoColor.FromHex("#a0a0a0");
+        private AColor _textColor = AColor.FromHex("#a0a0a0");
         protected readonly DirScoreGfxValues _gfxValues;
         private readonly Action<DirScoreChannelHeader,bool> _muteStateChanged;
 
@@ -37,9 +38,9 @@ namespace LingoEngine.Director.Core.Scores
             var y = Y;
             
 
-            canvas.DrawText(new LingoPoint(xOffset+20 + 25, y+ 11), Icon,null, _textColor, 10);
+            canvas.DrawText(new APoint(xOffset+20 + 25, y+ 11), Icon,null, _textColor, 10);
             if (!string.IsNullOrEmpty(Label))
-                canvas.DrawText(new LingoPoint(xOffset+20 + 2, y+ 11), Label, null, _textColor, 10,45, LingoEngine.Texts.LingoTextAlignment.Right);
+                canvas.DrawText(new APoint(xOffset+20 + 2, y+ 11), Label, null, _textColor, 10,45, LingoEngine.Texts.LingoTextAlignment.Right);
 
             // Visibility rect
             var btnWidth = 8;
@@ -48,32 +49,32 @@ namespace LingoEngine.Director.Core.Scores
             var btnTop = y+ 4;
             if (_muted)
             {
-                canvas.DrawRect(new LingoRect(btnLeft, btnTop, btnLeft+ btnWidth, btnTop+btnHeight), DirectorColors.LineDarker);
-                canvas.DrawLine(new LingoPoint(btnLeft, btnTop + btnHeight), new LingoPoint(btnLeft + btnWidth, btnTop + btnHeight), DirectorColors.LineLight);  // bottom line
-                canvas.DrawLine(new LingoPoint(btnLeft + btnWidth, btnTop), new LingoPoint(btnLeft + btnWidth, btnTop + btnHeight), DirectorColors.LineLight); // right line
+                canvas.DrawRect(new ARect(btnLeft, btnTop, btnLeft+ btnWidth, btnTop+btnHeight), DirectorColors.LineDarker);
+                canvas.DrawLine(new APoint(btnLeft, btnTop + btnHeight), new APoint(btnLeft + btnWidth, btnTop + btnHeight), DirectorColors.LineLight);  // bottom line
+                canvas.DrawLine(new APoint(btnLeft + btnWidth, btnTop), new APoint(btnLeft + btnWidth, btnTop + btnHeight), DirectorColors.LineLight); // right line
             }
             else
             {
-                canvas.DrawLine(new LingoPoint(btnLeft, btnTop), new LingoPoint(btnLeft + btnWidth, btnTop), DirectorColors.LineLight);  // top line
-                canvas.DrawLine(new LingoPoint(btnLeft, btnTop), new LingoPoint(btnLeft, btnTop + btnHeight), DirectorColors.LineLight); // left line
-                canvas.DrawLine(new LingoPoint(btnLeft, btnTop + btnHeight), new LingoPoint(btnLeft + btnWidth, btnTop + btnHeight), DirectorColors.LineDarker);  // bottom line
-                canvas.DrawLine(new LingoPoint(btnLeft + btnWidth, btnTop), new LingoPoint(btnLeft + btnWidth, btnTop + btnHeight), DirectorColors.LineDarker); // right line
+                canvas.DrawLine(new APoint(btnLeft, btnTop), new APoint(btnLeft + btnWidth, btnTop), DirectorColors.LineLight);  // top line
+                canvas.DrawLine(new APoint(btnLeft, btnTop), new APoint(btnLeft, btnTop + btnHeight), DirectorColors.LineLight); // left line
+                canvas.DrawLine(new APoint(btnLeft, btnTop + btnHeight), new APoint(btnLeft + btnWidth, btnTop + btnHeight), DirectorColors.LineDarker);  // bottom line
+                canvas.DrawLine(new APoint(btnLeft + btnWidth, btnTop), new APoint(btnLeft + btnWidth, btnTop + btnHeight), DirectorColors.LineDarker); // right line
             }
 
             // Horizontal line at the bottom
-            canvas.DrawLine(new LingoPoint(xOffset, y + _gfxValues.ChannelHeight), new LingoPoint(Width, y + _gfxValues.ChannelHeight), _gfxValues.ColLineDark);
-            canvas.DrawLine(new LingoPoint(xOffset, y + _gfxValues.ChannelHeight + 1), new LingoPoint(Width, y + _gfxValues.ChannelHeight + 1), _gfxValues.ColLineLight);
+            canvas.DrawLine(new APoint(xOffset, y + _gfxValues.ChannelHeight), new APoint(Width, y + _gfxValues.ChannelHeight), _gfxValues.ColLineDark);
+            canvas.DrawLine(new APoint(xOffset, y + _gfxValues.ChannelHeight + 1), new APoint(Width, y + _gfxValues.ChannelHeight + 1), _gfxValues.ColLineLight);
 
             // Vertical line after visibility
             var visOffset = _gfxValues.ChannelHeight;
-            canvas.DrawLine(new LingoPoint(_gfxValues.ChannelHeight + xOffset + 0, y + 1), new LingoPoint(_gfxValues.ChannelHeight + xOffset + 0, y + _gfxValues.ChannelHeight), _gfxValues.ColLineDark);
-            canvas.DrawLine(new LingoPoint(_gfxValues.ChannelHeight + xOffset + 1, y + 0), new LingoPoint(_gfxValues.ChannelHeight + xOffset + 1, y + _gfxValues.ChannelHeight - 2), _gfxValues.ColLineLight);
+            canvas.DrawLine(new APoint(_gfxValues.ChannelHeight + xOffset + 0, y + 1), new APoint(_gfxValues.ChannelHeight + xOffset + 0, y + _gfxValues.ChannelHeight), _gfxValues.ColLineDark);
+            canvas.DrawLine(new APoint(_gfxValues.ChannelHeight + xOffset + 1, y + 0), new APoint(_gfxValues.ChannelHeight + xOffset + 1, y + _gfxValues.ChannelHeight - 2), _gfxValues.ColLineLight);
 
             // Vertical line at the beginning
-            canvas.DrawLine(new LingoPoint(xOffset, y), new LingoPoint(xOffset, y + _gfxValues.ChannelHeight), _gfxValues.ColLineLight);
+            canvas.DrawLine(new APoint(xOffset, y), new APoint(xOffset, y + _gfxValues.ChannelHeight), _gfxValues.ColLineLight);
 
             // Vertical line at the end
-            canvas.DrawLine(new LingoPoint(Width, y), new LingoPoint(Width, y + _gfxValues.ChannelHeight), _gfxValues.ColLineDark);
+            canvas.DrawLine(new APoint(Width, y), new APoint(Width, y + _gfxValues.ChannelHeight), _gfxValues.ColLineDark);
 
            
         }

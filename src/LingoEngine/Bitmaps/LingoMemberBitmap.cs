@@ -1,4 +1,5 @@
-﻿using LingoEngine.Casts;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Casts;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
 
@@ -45,7 +46,7 @@ namespace LingoEngine.Bitmaps
         /// <param name="lingoFrameworkMemberPicture">The framework picture object.</param>
         /// <param name="numberInCast">The number of the member in the <see cref="LingoCast"/>.</param>
         /// <param name="name">The name of the member.</param>
-        public LingoMemberBitmap(LingoCast cast, ILingoFrameworkMemberBitmap lingoFrameworkMemberPicture, int numberInCast, string name = "", string fileName = "", LingoPoint regPoint = default)
+        public LingoMemberBitmap(LingoCast cast, ILingoFrameworkMemberBitmap lingoFrameworkMemberPicture, int numberInCast, string name = "", string fileName = "", APoint regPoint = default)
             : base(lingoFrameworkMemberPicture, LingoMemberType.Picture, cast, numberInCast, name, fileName, regPoint)
         {
             _lingoFrameworkMemberPicture = lingoFrameworkMemberPicture;
@@ -99,7 +100,7 @@ namespace LingoEngine.Bitmaps
 
         public void SetImageData(byte[] bytes) => _lingoFrameworkMemberPicture.SetImageData(bytes);
 
-        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+        public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
             => _lingoFrameworkMemberPicture.RenderToTexture(ink, transparentColor);
     }
 

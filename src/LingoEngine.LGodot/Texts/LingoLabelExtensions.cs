@@ -1,5 +1,5 @@
 ﻿using Godot;
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Styles;
 using LingoEngine.Texts;
 
@@ -20,7 +20,7 @@ namespace LingoEngine.LGodot.Texts
                 labelSettings.FontSize = fontSize;
             return labelSettings;
         }
-        public static LabelSettings SetLingoColor(this LabelSettings labelSettings, LingoColor color)
+        public static LabelSettings SetLingoColor(this LabelSettings labelSettings, AColor color)
         {
             labelSettings.FontColor = new Color(color.R, color.G, color.B);
             return labelSettings;
@@ -47,7 +47,7 @@ namespace LingoEngine.LGodot.Texts
                 default: return LingoTextAlignment.Left;
             };
         }
-        public static LingoColor GetLingoColor(this LabelSettings labelSettings)
-            => new LingoColor(-1, (byte)labelSettings.FontColor.R, (byte)labelSettings.FontColor.G, (byte)labelSettings.FontColor.B);
+        public static AColor GetLingoColor(this LabelSettings labelSettings)
+            => new AColor(-1, (byte)labelSettings.FontColor.R, (byte)labelSettings.FontColor.G, (byte)labelSettings.FontColor.B);
     }
 }

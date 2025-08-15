@@ -1,7 +1,7 @@
 ﻿using Godot;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.LGodot.Sprites;
 using LingoEngine.Movies;
-using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 
 namespace LingoEngine.LGodot.Movies
@@ -74,7 +74,7 @@ namespace LingoEngine.LGodot.Movies
             _MovieNode2D.GetParent().RemoveChild(_MovieNode2D);
             _MovieNode2D.Dispose();
         }
-        LingoPoint ILingoFrameworkMovie.GetGlobalMousePosition()
+        APoint ILingoFrameworkMovie.GetGlobalMousePosition()
         {
             var pos = _MovieNode2D.GetGlobalMousePosition();
             return (pos.X, pos.Y);

@@ -6,6 +6,7 @@ using LingoEngine.Gfx;
 using LingoEngine.Sprites;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.Scores.ColorPalettes;
 
@@ -125,9 +126,9 @@ internal partial class DirScoreColorPaletteGridChannel : DirScoreChannel<ILingoS
     }
     private void RedrawColors(LingoGfxCanvas colorsCanvas, LingoColorPaletteDefinition definition)
     {
-        colorsCanvas.Clear(LingoColorList.White);
-        colorsCanvas.DrawRect(new LingoRect(1, 1, colorsCanvas.Width-2, colorsCanvas.Height-2), LingoColorList.White);
-        colorsCanvas.DrawRect(new LingoRect(0, 0, colorsCanvas.Width, colorsCanvas.Height), LingoColor.FromHex("#bbbbbb"),false);
+        colorsCanvas.Clear(AColors.White);
+        colorsCanvas.DrawRect(new ARect(1, 1, colorsCanvas.Width-2, colorsCanvas.Height-2), AColors.White);
+        colorsCanvas.DrawRect(new ARect(0, 0, colorsCanvas.Width, colorsCanvas.Height), AColor.FromHex("#bbbbbb"),false);
         var allColors = definition.Colors.ToList();
         var y = 0;
         for (int i = 0; i < allColors.Count; i++)
@@ -135,7 +136,7 @@ internal partial class DirScoreColorPaletteGridChannel : DirScoreChannel<ILingoS
             var color = allColors[i];
             var x = i % 16 * 8;
             y = i / 16 * 8;
-            colorsCanvas.DrawRect(new LingoRect(x+1, y+1, x+8, y+8), color);
+            colorsCanvas.DrawRect(new ARect(x+1, y+1, x+8, y+8), color);
         }
     }
 

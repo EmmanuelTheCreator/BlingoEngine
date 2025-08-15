@@ -1,6 +1,6 @@
 using Godot;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.LGodot.Gfx
 {
@@ -11,12 +11,12 @@ namespace LingoEngine.LGodot.Gfx
     {
         private readonly Dictionary<int, LingoGodotMenuItem> _items = new();
         private string _name;
-        private LingoMargin _margin;
+        private AMargin _margin;
 
         public LingoGodotMenu(LingoGfxMenu menu, string name)
         {
             _name = name;
-            _margin = LingoMargin.Zero;
+            _margin = AMargin.Zero;
             menu.Init(this);
             IdPressed += OnIdPressed;
             
@@ -30,7 +30,7 @@ namespace LingoEngine.LGodot.Gfx
         public float Height { get => Size.Y; set => Size = new Vector2I(Size.X, (int)value); }
         public bool Visibility { get => Visible; set => Visible = value; }
 
-        public LingoMargin Margin
+        public AMargin Margin
         {
             get => _margin;
             set

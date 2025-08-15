@@ -1,6 +1,6 @@
-using LingoEngine.Primitives;
 using LingoEngine.Events;
 using LingoEngine.Sprites;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Animations
 {
@@ -146,10 +146,10 @@ namespace LingoEngine.Animations
         #region Boundingbox
         public void SpriteRegPointOrSizeChanged() => _properties.RequestRecalculatedBoundingBox();
 
-        public LingoRect GetBoundingBox() => _properties.GetBoundingBoxForFrame(_spritesPlayer.CurrentFrame, _sprite.RegPoint, _sprite.Width, _sprite.Height);
+        public ARect GetBoundingBox() => _properties.GetBoundingBoxForFrame(_spritesPlayer.CurrentFrame, _sprite.RegPoint, _sprite.Width, _sprite.Height);
 
 
-        public LingoRect GetBoundingBoxForFrame(int frame)
+        public ARect GetBoundingBoxForFrame(int frame)
             => _properties.GetBoundingBoxForFrame(frame, _sprite.RegPoint, _sprite.Width, _sprite.Height);
 
 

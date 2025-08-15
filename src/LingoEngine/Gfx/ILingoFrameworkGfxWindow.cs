@@ -1,4 +1,4 @@
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 using System;
 
 namespace LingoEngine.Gfx
@@ -10,7 +10,7 @@ namespace LingoEngine.Gfx
     {
         /// <summary>Window title.</summary>
         string Title { get; set; }
-        LingoColor BackgroundColor { get; set; }
+        AColor BackgroundColor { get; set; }
         bool IsPopup { get; set; }
         /// <summary>Whether the window is borderless (no title bar).</summary>
         bool Borderless { get; set; }

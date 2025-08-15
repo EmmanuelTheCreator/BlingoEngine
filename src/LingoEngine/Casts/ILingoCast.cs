@@ -1,6 +1,6 @@
-﻿using LingoEngine.Core;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Core;
 using LingoEngine.Members;
-using LingoEngine.Primitives;
 using System;
 
 namespace LingoEngine.Casts
@@ -60,7 +60,7 @@ namespace LingoEngine.Casts
         /// displays the next empty cast member position or the position after a specified cast member. This method is available only on the current cast library.
         /// </summary>
         int FindEmpty();
-        ILingoMember Add(LingoMemberType type, int numberInCast, string name, string fileName = "", LingoPoint regPoint = default);
+        ILingoMember Add(LingoMemberType type, int numberInCast, string name, string fileName = "", APoint regPoint = default);
         T Add<T>(int numberInCast, string name, Action<T>? configure = null) where T: ILingoMember;
 
         IEnumerable<ILingoMember> GetAll();

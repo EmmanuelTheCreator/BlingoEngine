@@ -3,11 +3,11 @@ using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using LingoEngine.Commands;
 using LingoEngine.Projects;
 using LingoEngine.Director.Core.Projects.Commands;
 using System.IO;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.Projects;
 
@@ -116,8 +116,8 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
         _state.LoadFrom(_settings, _dirSettings);
         LoadState(state);
 
-        _root = factory.CreateWrapPanel(LingoOrientation.Vertical, "ProjectSettingsRoot");
-        _root.ItemMargin = new LingoPoint(0, 4);
+        _root = factory.CreateWrapPanel(AOrientation.Vertical, "ProjectSettingsRoot");
+        _root.ItemMargin = new APoint(0, 4);
         _root.Width = Width;
         _root.Height = Height;
 

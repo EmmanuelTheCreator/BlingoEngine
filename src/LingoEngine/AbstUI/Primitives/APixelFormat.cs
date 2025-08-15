@@ -1,7 +1,7 @@
-namespace LingoEngine.Primitives
+namespace LingoEngine.AbstUI.Primitives
 {
     /// <summary>Supported pixel formats for raw picture drawing.</summary>
-    public enum LingoPixelFormat
+    public enum APixelFormat
     {
         Rgba8888,
         Rgb888,

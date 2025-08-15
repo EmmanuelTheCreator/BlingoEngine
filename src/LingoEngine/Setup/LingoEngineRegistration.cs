@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Casts;
 using System.Runtime;
 using System;
+using LingoEngine.AbstUI.Core;
 namespace LingoEngine.Setup
 {
     public class LingoEngineRegistration : ILingoEngineRegistration

@@ -1,10 +1,10 @@
-﻿using LingoEngine.Bitmaps;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Bitmaps;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Core;
 using LingoEngine.FilmLoops;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Members;
-using LingoEngine.Primitives;
 using LingoEngine.Scripts;
 using LingoEngine.Shapes;
 using LingoEngine.Sounds;
@@ -103,7 +103,7 @@ namespace LingoEngine.Casts
                 Remove(member);
         }
 
-        public ILingoMember Add(LingoMemberType type, int numberInCast, string name, string fileName = "", LingoPoint regPoint = default)
+        public ILingoMember Add(LingoMemberType type, int numberInCast, string name, string fileName = "", APoint regPoint = default)
         {
             switch (type)
             {

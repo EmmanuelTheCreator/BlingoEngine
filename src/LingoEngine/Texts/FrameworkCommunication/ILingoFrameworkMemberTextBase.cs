@@ -1,6 +1,6 @@
-﻿using LingoEngine.Bitmaps;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Bitmaps;
 using LingoEngine.Members;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.Texts.FrameworkCommunication
 {
@@ -22,7 +22,7 @@ namespace LingoEngine.Texts.FrameworkCommunication
         string FontName { get; set; }
         int FontSize { get; set; }
         LingoTextStyle FontStyle { get; set; }
-        LingoColor TextColor { get; set; }
+        AColor TextColor { get; set; }
         LingoTextAlignment Alignment { get; set; }
         int Margin { get; set; }
         int Width { get; set; }

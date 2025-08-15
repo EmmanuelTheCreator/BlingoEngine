@@ -1,8 +1,8 @@
 using LingoEngine.Core;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Primitives;
 using LingoEngine.Casts;
 using LingoEngine.Members;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.L3D.Core.Members;
 
@@ -17,7 +17,7 @@ public class LingoMember3D : LingoMember
     public List<LingoLight> Lights { get; } = new();
     public List<LingoModel> Models { get; } = new();
 
-    public LingoMember3D(LingoCast cast, ILingoFrameworkMember3D frameworkMember, int numberInCast, string name = "", string fileName = "", LingoPoint regPoint = default)
+    public LingoMember3D(LingoCast cast, ILingoFrameworkMember3D frameworkMember, int numberInCast, string name = "", string fileName = "", APoint regPoint = default)
         : base(frameworkMember, LingoMemberType.Shockwave3D, cast, numberInCast, name, fileName, regPoint)
     {
     }

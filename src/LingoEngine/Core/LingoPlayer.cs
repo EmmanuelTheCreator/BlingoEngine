@@ -1,4 +1,5 @@
 ﻿using System;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Casts;
 using LingoEngine.Commands;
 using LingoEngine.Events;
@@ -6,7 +7,6 @@ using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
 using LingoEngine.Movies;
 using LingoEngine.Movies.Commands;
-using LingoEngine.Primitives;
 using LingoEngine.Sounds;
 using LingoEngine.Stages;
 using LingoEngine.Tools;
@@ -94,7 +94,7 @@ namespace LingoEngine.Core
             _Stage = Factory.CreateStage(this);
             _Mouse = Factory.CreateMouse(_Stage);
         }
-        public void LoadStage(int width, int height, LingoColor backgroundColor)
+        public void LoadStage(int width, int height, AColor backgroundColor)
         {
             Stage.Width = width;
             Stage.Height = height;

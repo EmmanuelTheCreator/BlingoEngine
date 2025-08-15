@@ -1,30 +1,30 @@
-﻿namespace LingoEngine.Primitives
+﻿namespace LingoEngine.AbstUI.Primitives
 {
     using System;
     using System.Globalization;
 
-    public struct LingoRect : IEquatable<LingoRect>
+    public struct ARect : IEquatable<ARect>
     {
         public float Left { get; set; }
         public float Top { get; set; }
         public float Right { get; set; }
         public float Bottom { get; set; }
 
-        public LingoRect(float left, float top, float right, float bottom)
+        public ARect(float left, float top, float right, float bottom)
         {
             Left = left;
             Top = top;
             Right = right;
             Bottom = bottom;
         }
-        public static LingoRect New(float x, float y, float width, float height)
-            => new LingoRect(x, y, x + width, y + height);
+        public static ARect New(float x, float y, float width, float height)
+            => new ARect(x, y, x + width, y + height);
 
         public float Width => Right - Left;
         public float Height => Bottom - Top;
-        public LingoPoint TopLeft => new(Left, Top);
-        public LingoPoint BottomRight => new(Right, Bottom);
-        public LingoPoint Center => new((Left + Right) / 2, (Top + Bottom) / 2);
+        public APoint TopLeft => new(Left, Top);
+        public APoint BottomRight => new(Right, Bottom);
+        public APoint Center => new((Left + Right) / 2, (Top + Bottom) / 2);
 
         public void Offset(float dx, float dy)
         {
@@ -34,16 +34,16 @@
             Bottom += dy;
         }
 
-        public bool Contains(LingoPoint point) =>
+        public bool Contains(APoint point) =>
             point.X >= Left && point.X <= Right && point.Y >= Top && point.Y <= Bottom;
 
-        public bool Intersects(LingoRect other) =>
+        public bool Intersects(ARect other) =>
             !(Right < other.Left || Left > other.Right || Bottom < other.Top || Top > other.Bottom);
 
-        public LingoRect Intersect(LingoRect other)
+        public ARect Intersect(ARect other)
         {
             if (!Intersects(other)) return default;
-            return new LingoRect(
+            return new ARect(
                 Math.Max(Left, other.Left),
                 Math.Max(Top, other.Top),
                 Math.Min(Right, other.Right),
@@ -51,9 +51,9 @@
             );
         }
 
-        public LingoRect Union(LingoRect other)
+        public ARect Union(ARect other)
         {
-            return new LingoRect(
+            return new ARect(
                 Math.Min(Left, other.Left),
                 Math.Min(Top, other.Top),
                 Math.Max(Right, other.Right),
@@ -61,9 +61,9 @@
             );
         }
 
-        public LingoRect Inset(float dx, float dy)
+        public ARect Inset(float dx, float dy)
         {
-            return new LingoRect(Left + dx, Top + dy, Right - dx, Bottom - dy);
+            return new ARect(Left + dx, Top + dy, Right - dx, Bottom - dy);
         }
 
         public override string ToString() =>
@@ -75,7 +75,7 @@
             $"{Right.ToString(CultureInfo.InvariantCulture)}," +
             $"{Bottom.ToString(CultureInfo.InvariantCulture)}";
 
-        public static LingoRect Parse(string csv)
+        public static ARect Parse(string csv)
         {
             var parts = csv.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                .Select(p => p.Trim())
@@ -83,14 +83,14 @@
             if (parts.Length != 4)
                 throw new FormatException("LingoRect.Parse expects 4 comma-separated values.");
 
-            return new LingoRect(
+            return new ARect(
                 float.Parse(parts[0], CultureInfo.InvariantCulture),
                 float.Parse(parts[1], CultureInfo.InvariantCulture),
                 float.Parse(parts[2], CultureInfo.InvariantCulture),
                 float.Parse(parts[3], CultureInfo.InvariantCulture)
             );
         }
-        public static LingoRect FromPoints(params LingoPoint[] points)
+        public static ARect FromPoints(params APoint[] points)
         {
             if (points.Length == 0)
                 return default;
@@ -109,18 +109,18 @@
                 if (p.Y > bottom) bottom = p.Y;
             }
 
-            return new LingoRect(left, top, right, bottom);
+            return new ARect(left, top, right, bottom);
         }
 
-        public override bool Equals(object? obj) => obj is LingoRect rect && Equals(rect);
+        public override bool Equals(object? obj) => obj is ARect rect && Equals(rect);
 
-        public bool Equals(LingoRect other) =>
+        public bool Equals(ARect other) =>
             Left == other.Left && Top == other.Top && Right == other.Right && Bottom == other.Bottom;
 
         public override int GetHashCode() => HashCode.Combine(Left, Top, Right, Bottom);
 
-        public static bool operator ==(LingoRect left, LingoRect right) => left.Equals(right);
-        public static bool operator !=(LingoRect left, LingoRect right) => !(left == right);
+        public static bool operator ==(ARect left, ARect right) => left.Equals(right);
+        public static bool operator !=(ARect left, ARect right) => !(left == right);
     }
 
 }

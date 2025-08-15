@@ -1,11 +1,11 @@
-﻿using LingoEngine.Director.Core.Sprites;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Events;
 using LingoEngine.Gfx;
 using LingoEngine.Inputs;
 using LingoEngine.Movies;
-using LingoEngine.Primitives;
 
 
 
@@ -33,8 +33,8 @@ namespace LingoEngine.Director.Core.Scores
         protected DirScoreChannel[] _channels = [];
 
         public float CurrentFrameX { get; set; }
-        public LingoPoint Position { get; set; }
-        public LingoPoint Size { get; set; }
+        public APoint Position { get; set; }
+        public APoint Size { get; set; }
        
         public LingoGfxCanvas CanvasGridLines => _gridCanvas.Canvas;
         public LingoGfxCanvas CanvasCurrentFrame => _canvasCurrentFrame;
@@ -69,7 +69,7 @@ namespace LingoEngine.Director.Core.Scores
         private void RedrawCurrentFrameVLine(int channelCount)
         {
             _canvasCurrentFrame.Height = _scoreManager.GfxValues.ChannelHeight * channelCount;
-            _canvasCurrentFrame.DrawLine(new LingoPoint(0, 0), new LingoPoint(0, _canvasCurrentFrame.Height), LingoColor.FromHex("#dd0000"), 1);
+            _canvasCurrentFrame.DrawLine(new APoint(0, 0), new APoint(0, _canvasCurrentFrame.Height), AColor.FromHex("#dd0000"), 1);
         }
         protected void SetChannels(DirScoreChannel[] channels)
         {
@@ -94,7 +94,7 @@ namespace LingoEngine.Director.Core.Scores
             {
                 var ch = _channels[i];
                 if (!ch.Visible) continue;
-                ch.Position = new LingoPoint(0, y);
+                ch.Position = new APoint(0, y);
                 y += _gfxValues.ChannelHeight;
             }
         }
@@ -152,7 +152,7 @@ namespace LingoEngine.Director.Core.Scores
             float width = _gfxValues.LeftMargin + _movie.FrameCount * _gfxValues.FrameWidth;
             int visibleCount = _channels.Count(ch => ch.Visible);
             float height = visibleCount * _gfxValues.ChannelHeight;
-            Size = new LingoPoint(width, height);
+            Size = new APoint(width, height);
             _gridCanvas.FrameCount = _movie.FrameCount;
             _gridCanvas.ChannelCount = visibleCount;
             _gridCanvas.Draw();

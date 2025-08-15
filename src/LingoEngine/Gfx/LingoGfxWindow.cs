@@ -1,5 +1,5 @@
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Inputs;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.Gfx
 {
@@ -13,7 +13,7 @@ namespace LingoEngine.Gfx
 
 
         public string Title { get => _framework.Title; set => _framework.Title = value; }
-        public LingoColor BackgroundColor { get => _framework.BackgroundColor; set => _framework.BackgroundColor = value; }
+        public AColor BackgroundColor { get => _framework.BackgroundColor; set => _framework.BackgroundColor = value; }
         public bool IsPopup { get => _framework.IsPopup; set => _framework.IsPopup = value; }
         public bool Borderless { get => _framework.Borderless; set => _framework.Borderless = value; }
 
@@ -59,7 +59,7 @@ namespace LingoEngine.Gfx
 
         public void Hide() => _framework.Hide();
 
-        LingoRect ILingoMouseRectProvider.MouseOffset => new LingoRect(X, Y, Width, Height);
+        ARect ILingoMouseRectProvider.MouseOffset => new ARect(X, Y, Width, Height);
         bool ILingoActivationProvider.IsActivated => Visibility;
 
 

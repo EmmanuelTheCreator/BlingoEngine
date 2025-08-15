@@ -1,14 +1,14 @@
 ﻿
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.ColorPalettes
 {
     public class LingoColorPaletteDefinition
     {
         public string Name { get; private set; }
-        public IEnumerable<LingoColor> Colors { get; private set; }
+        public IEnumerable<AColor> Colors { get; private set; }
 
-        public LingoColorPaletteDefinition(string name, IEnumerable<LingoColor> colors)
+        public LingoColorPaletteDefinition(string name, IEnumerable<AColor> colors)
         {
             Name = name;
             Colors = colors;
@@ -18,7 +18,7 @@ namespace LingoEngine.ColorPalettes
 
     public interface ILingoColorPaletteDefinitions
     {
-        ILingoColorPaletteDefinitions AddPalette(string name, IEnumerable<LingoColor> colors);
+        ILingoColorPaletteDefinitions AddPalette(string name, IEnumerable<AColor> colors);
         IEnumerable<LingoColorPaletteDefinition> GetAll();
     }
 
@@ -32,7 +32,7 @@ namespace LingoEngine.ColorPalettes
         }
         public IEnumerable<LingoColorPaletteDefinition> GetAll() => _palettes;
 
-        public ILingoColorPaletteDefinitions AddPalette(string name, IEnumerable<LingoColor> colors)
+        public ILingoColorPaletteDefinitions AddPalette(string name, IEnumerable<AColor> colors)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Palette name cannot be null or empty.", nameof(name));

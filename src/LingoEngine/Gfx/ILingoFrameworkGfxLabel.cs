@@ -1,4 +1,4 @@
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Texts;
 
 namespace LingoEngine.Gfx
@@ -11,9 +11,9 @@ namespace LingoEngine.Gfx
         string Text { get; set; }
         int FontSize { get; set; }
         string? Font { get; set; }
-        LingoColor FontColor { get; set; }
+        AColor FontColor { get; set; }
         int LineHeight { get; set; }
-        LingoTextWrapMode WrapMode { get; set; }
+        ATextWrapMode WrapMode { get; set; }
         LingoTextAlignment TextAlignment { get; set; }
     }
 }

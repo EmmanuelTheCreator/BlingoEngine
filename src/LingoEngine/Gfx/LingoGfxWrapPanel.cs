@@ -1,4 +1,4 @@
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Gfx
 {
@@ -8,13 +8,13 @@ namespace LingoEngine.Gfx
     public class LingoGfxWrapPanel : LingoGfxNodeLayoutBase<ILingoFrameworkGfxWrapPanel>
     {
 
-        public LingoOrientation Orientation
+        public AOrientation Orientation
         {
             get => _framework.Orientation;
             set => _framework.Orientation = value;
         }
 
-        public LingoPoint ItemMargin
+        public APoint ItemMargin
         {
             get => _framework.ItemMargin;
             set => _framework.ItemMargin = value;

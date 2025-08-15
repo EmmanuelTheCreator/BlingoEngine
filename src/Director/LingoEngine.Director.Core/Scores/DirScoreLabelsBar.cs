@@ -1,13 +1,13 @@
 using LingoEngine.Commands;
 using LingoEngine.Movies;
 using LingoEngine.Movies.Commands;
-using LingoEngine.Primitives;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
 using LingoEngine.Events;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
 using System.Drawing;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.Scores;
 
@@ -75,7 +75,7 @@ public class DirScoreLabelsBar : IDisposable
         _fixPanel = factory.CreatePanel("ScoreLabelsFixBarPanel");
         _fixPanel.Height = gfxValues.LabelsBarHeight;
         _fixPanel.Width = 500;
-        _fixPanel.BackgroundColor = LingoColorList.Transparent;
+        _fixPanel.BackgroundColor = AColors.Transparent;
 
         _canvasFix = factory.CreateGfxCanvas("ScoreCanvasFix", 500, gfxValues.LabelsBarHeight);
         _canvasOpenCollapse = factory.CreateGfxCanvas("ScoreOpenCollapse", 20, 13);
@@ -160,7 +160,7 @@ public class DirScoreLabelsBar : IDisposable
     private void RedrawFix()
     {
         var height = _gfxValues.LabelsBarHeight;
-        _canvasFix.Clear(LingoColorList.Transparent);
+        _canvasFix.Clear(AColors.Transparent);
         // info tight line
         _canvasFix.DrawVLineR(_gfxValues.ChannelInfoWidth, 0, height);
         // Bottom line
@@ -168,20 +168,20 @@ public class DirScoreLabelsBar : IDisposable
         // draw combo Label
         var x = 7;
         var y = 5;
-        LingoPoint[] pts = [new LingoPoint(x, y+3), new LingoPoint(x + 8, y+3), new LingoPoint(x + 4, y+11)];
-        _canvasFix.DrawPolygon(pts, LingoColorList.DarkGray);
-        _canvasFix.DrawLine(new LingoPoint(x-1, y-2), new LingoPoint(x + 10, y-2 ), LingoColorList.DarkGray);
-        _canvasFix.DrawLine(new LingoPoint(x-1, y), new LingoPoint(x + 10, y ), LingoColorList.DarkGray);
+        APoint[] pts = [new APoint(x, y+3), new APoint(x + 8, y+3), new APoint(x + 4, y+11)];
+        _canvasFix.DrawPolygon(pts, AColors.DarkGray);
+        _canvasFix.DrawLine(new APoint(x-1, y-2), new APoint(x + 10, y-2 ), AColors.DarkGray);
+        _canvasFix.DrawLine(new APoint(x-1, y), new APoint(x + 10, y ), AColors.DarkGray);
 
         // draw previous Label
         x = 30;
         y = 5;
-        pts = [new LingoPoint(x + 10, y), new LingoPoint(x + 10, y + 8), new LingoPoint(x + 3, y + 4)];
-        _canvasFix.DrawPolygon(pts, LingoColorList.DarkGray);
+        pts = [new APoint(x + 10, y), new APoint(x + 10, y + 8), new APoint(x + 3, y + 4)];
+        _canvasFix.DrawPolygon(pts, AColors.DarkGray);
         // Draw next label
         x = 50;
-        pts = [new LingoPoint(x + 3, y), new LingoPoint(x + 3, y + 8), new LingoPoint(x + 10, y + 4)];
-        _canvasFix.DrawPolygon(pts, LingoColorList.DarkGray);
+        pts = [new APoint(x + 3, y), new APoint(x + 3, y + 8), new APoint(x + 10, y + 4)];
+        _canvasFix.DrawPolygon(pts, AColors.DarkGray);
     }
     private void SelectCombo(int newFrame)
     {
@@ -194,7 +194,7 @@ public class DirScoreLabelsBar : IDisposable
     public void DrawScrollable()
     {
         if (_movie == null) return;
-        _canvas.Clear(LingoColorList.White);
+        _canvas.Clear(AColors.White);
         
         var labels = _movie.FrameLabels.GetScoreLabels();
         _frameLabels.Clear();
@@ -209,16 +209,16 @@ public class DirScoreLabelsBar : IDisposable
             _frameLabels.Add(frameData.Frame, frameData);
         }
         foreach (var frameData in _frameLabels.Values.OrderBy(x => x.Frame))
-            frameData.DrawOnCanvas(_canvas, _gfxValues.LabelsBarHeight,frameData.X, LingoColorList.DarkGray);
+            frameData.DrawOnCanvas(_canvas, _gfxValues.LabelsBarHeight,frameData.X, AColors.DarkGray);
 
         // Draw dragging pointer
         if (_dragging && _activeFrameLabel != null)
         {
             var x = (_dragFrame - 1) * _gfxValues.FrameWidth;
-            _activeFrameLabel.DrawOnCanvas(_canvas, _gfxValues.LabelsBarHeight, x, LingoColorList.Black);
+            _activeFrameLabel.DrawOnCanvas(_canvas, _gfxValues.LabelsBarHeight, x, AColors.Black);
             //Console.WriteLine("DirScoreLabelsBar.Draw():" + _dragFrame + ":" + x+":"+ _activeFrameLabel.Name+":"+ _activeFrameLabel.Frame);
-            _canvas.DrawRect(new LingoRect(x-20, 0, x, _gfxValues.LabelsBarHeight), LingoColorList.White, true);
-            _canvas.DrawText(new LingoPoint(x-18, 13), _dragFrame.ToString(),null,LingoColorList.Gray,9);
+            _canvas.DrawRect(new ARect(x-20, 0, x, _gfxValues.LabelsBarHeight), AColors.White, true);
+            _canvas.DrawText(new APoint(x-18, 13), _dragFrame.ToString(),null,AColors.Gray,9);
         }
     }
 
@@ -418,14 +418,14 @@ public class DirScoreLabelsBar : IDisposable
     }
     private void DrawCollapseButton()
     {
-        _canvasOpenCollapse.Clear(LingoColorList.White);
-        _canvasOpenCollapse.DrawRect(new LingoRect(0, 0, 12, 12), LingoColorList.Black, false, 1);
+        _canvasOpenCollapse.Clear(AColors.White);
+        _canvasOpenCollapse.DrawRect(new ARect(0, 0, 12, 12), AColors.Black, false, 1);
         var x = 1;
         var y = 1;
-        LingoPoint[] pts = !HeaderCollapsed
-            ? [new LingoPoint(x, 3), new LingoPoint(x + 8, 3), new LingoPoint(x + 4, 11)]
-            : [new LingoPoint(10, y), new LingoPoint(10, y + 8), new LingoPoint(3, y + 4)];
-        _canvasOpenCollapse.DrawPolygon(pts, LingoColorList.Black);
+        APoint[] pts = !HeaderCollapsed
+            ? [new APoint(x, 3), new APoint(x + 8, 3), new APoint(x + 4, 11)]
+            : [new APoint(10, y), new APoint(10, y + 8), new APoint(3, y + 4)];
+        _canvasOpenCollapse.DrawPolygon(pts, AColors.Black);
     }
 
     #endregion
@@ -456,17 +456,17 @@ public class DirScoreLabelsBar : IDisposable
         {
             return mouseFrame >= Frame && mouseFrame < Frame + FrameWidth;
         }
-        public void DrawOnCanvas(LingoGfxCanvas _canvas, int labelsBarHeight, float x, LingoColor color)
+        public void DrawOnCanvas(LingoGfxCanvas _canvas, int labelsBarHeight, float x, AColor color)
         {
             var pts = new[]
             {
-                new LingoPoint(x,5),
-                new LingoPoint(x+10,5),
-                new LingoPoint(x+5,15)
+                new APoint(x,5),
+                new APoint(x+10,5),
+                new APoint(x+5,15)
             };
-            _canvas.DrawRect(new LingoRect(x, 0, x + WidthPx, labelsBarHeight), LingoColorList.White, true);
+            _canvas.DrawRect(new ARect(x, 0, x + WidthPx, labelsBarHeight), AColors.White, true);
             _canvas.DrawPolygon(pts, color);
-            _canvas.DrawText(new LingoPoint(x + 12, 12), Name, null, color, 10);
+            _canvas.DrawText(new APoint(x + 12, 12), Name, null, color, 10);
         }
     }
 

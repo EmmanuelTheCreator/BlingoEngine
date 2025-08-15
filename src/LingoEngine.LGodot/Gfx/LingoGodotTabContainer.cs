@@ -1,7 +1,7 @@
 using Godot;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
 using LingoEngine.LGodot.Styles;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.LGodot.Gfx
 {
@@ -10,7 +10,7 @@ namespace LingoEngine.LGodot.Gfx
     /// </summary>
     public partial class LingoGodotTabContainer : TabContainer, ILingoFrameworkGfxTabContainer, IDisposable
     {
-        private LingoMargin _margin = LingoMargin.Zero;
+        private AMargin _margin = AMargin.Zero;
         private Theme _theme;
         private readonly List<ILingoFrameworkGfxTabItem> _nodes = new List<ILingoFrameworkGfxTabItem>();
         private readonly ILingoGodotStyleManager _lingoGodotStyleManager;
@@ -43,7 +43,7 @@ namespace LingoEngine.LGodot.Gfx
 
 
 
-        public LingoMargin Margin
+        public AMargin Margin
         {
             get => _margin;
             set
@@ -118,7 +118,7 @@ namespace LingoEngine.LGodot.Gfx
         public float Height { get => ContentFrameWork.Height; set => ContentFrameWork.Height = value; }
         public bool Visibility { get => ContentFrameWork.Visibility; set => ContentFrameWork.Visibility = value; }
         public string Title { get; set; }
-        public LingoMargin Margin { get => ContentFrameWork.Margin; set => ContentFrameWork.Margin = value; }
+        public AMargin Margin { get => ContentFrameWork.Margin; set => ContentFrameWork.Margin = value; }
         string ILingoFrameworkGfxNode.Name
         {
             get => ContentFrameWork.Name; set

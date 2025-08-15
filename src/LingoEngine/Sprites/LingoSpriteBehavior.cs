@@ -1,5 +1,6 @@
 ﻿using LingoEngine.Core;
 using LingoEngine.Movies;
+using LingoEngine.Scripts;
 
 namespace LingoEngine.Sprites
 {
@@ -13,6 +14,7 @@ namespace LingoEngine.Sprites
         /// </summary>
         public BehaviorPropertiesContainer UserProperties { get; private set; } = new();
         public string Name { get; set; }
+        public LingoMemberScript? ScriptMember { get; internal set; }
 
 #pragma warning disable CS8618
         public LingoSpriteBehavior(ILingoMovieEnvironment env) : base(env)

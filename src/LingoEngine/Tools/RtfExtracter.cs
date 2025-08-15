@@ -1,8 +1,8 @@
-﻿using LingoEngine.Primitives;
-using LingoEngine.Texts;
+﻿using LingoEngine.Texts;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Tools
 {
@@ -12,7 +12,7 @@ namespace LingoEngine.Tools
         {
             public string? FontName { get; set; } = "";
             public int Size{ get; set; }
-            public LingoColor? Color{ get; set; }
+            public AColor? Color{ get; set; }
             public string Text { get; set; } = "";
             public LingoTextAlignment Alignment { get; set; } = LingoTextAlignment.Left;
             public LingoTextStyle Style { get; set; } = LingoTextStyle.None;
@@ -101,14 +101,14 @@ namespace LingoEngine.Tools
             var colorTableMatch = Regex.Match(rtfContent, @"\\colortbl(?<colortbl>[^}]+)}");
             var colorEntries = Regex.Matches(colorTableMatch.Groups["colortbl"].Value, @"\\red(?<r>\d+)\\green(?<g>\d+)\\blue(?<b>\d+);");
 
-            LingoColor? colorL = null;
+            AColor? colorL = null;
             if (colorIndex - 1 >= 0 && colorIndex - 1 < colorEntries.Count)
             {
                 var colorEntry = colorEntries[colorIndex - 1];
                 var r = byte.Parse(colorEntry.Groups["r"].Value);
                 var g = byte.Parse(colorEntry.Groups["g"].Value);
                 var b = byte.Parse(colorEntry.Groups["b"].Value);
-                colorL = new LingoColor(-1, r, g, b);
+                colorL = new AColor(-1, r, g, b);
             }
 
             // Text alignment

@@ -1,11 +1,11 @@
 using Godot;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using LingoEngine.Styles;
 using LingoEngine.LGodot.Primitives;
 using static Godot.TextServer;
 using LingoEngine.LGodot.Texts;
 using LingoEngine.Texts;
+using LingoEngine.AbstUI.Primitives;
 
 
 namespace LingoEngine.LGodot.Gfx
@@ -16,9 +16,9 @@ namespace LingoEngine.LGodot.Gfx
     public partial class LingoGodotLabel : Label, ILingoFrameworkGfxLabel, IDisposable
     {
         private readonly ILingoFontManager _fontManager;
-        private LingoMargin _margin = LingoMargin.Zero;
+        private AMargin _margin = AMargin.Zero;
         private string? _font;
-        private LingoColor _fontColor;
+        private AColor _fontColor;
 
         public LingoGodotLabel(LingoGfxLabel label, ILingoFontManager fontManager)
         {
@@ -38,7 +38,7 @@ namespace LingoEngine.LGodot.Gfx
         public LingoTextAlignment TextAlignment { get => HorizontalAlignment.ToLingo(); set => HorizontalAlignment = value.ToGodot(); }
         string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
 
-        public LingoMargin Margin
+        public AMargin Margin
         {
             get => _margin;
             set
@@ -114,7 +114,7 @@ namespace LingoEngine.LGodot.Gfx
             }
         }
 
-        public LingoColor FontColor
+        public AColor FontColor
         {
             get => _fontColor;
             set
@@ -128,7 +128,7 @@ namespace LingoEngine.LGodot.Gfx
 
         public object FrameworkNode => this;
 
-        public LingoTextWrapMode WrapMode { get => (LingoTextWrapMode)(int)AutowrapMode; set => AutowrapMode = (AutowrapMode)(int)value; }
+        public ATextWrapMode WrapMode { get => (ATextWrapMode)(int)AutowrapMode; set => AutowrapMode = (AutowrapMode)(int)value; }
 
         public new void Dispose()
         {

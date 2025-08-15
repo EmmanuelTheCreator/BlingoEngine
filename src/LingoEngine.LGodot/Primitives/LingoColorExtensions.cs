@@ -1,5 +1,5 @@
 ﻿using Godot;
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.LGodot.Primitives
 {
@@ -8,9 +8,9 @@ namespace LingoEngine.LGodot.Primitives
         /// <summary>
         /// Converts a Godot Color to a LingoColor.
         /// </summary>
-        public static LingoColor ToLingoColor(this Color color)
+        public static AColor ToLingoColor(this Color color)
         {
-            return LingoColor.FromRGB(
+            return AColor.FromRGB(
                 (byte)(color.R * 255),
                 (byte)(color.G * 255),
                 (byte)(color.B * 255),
@@ -22,7 +22,7 @@ namespace LingoEngine.LGodot.Primitives
         /// <summary>
         /// Converts a LingoColor to a Godot Color.
         /// </summary>
-        public static Color ToGodotColor(this LingoColor color)
+        public static Color ToGodotColor(this AColor color)
         {
             return new Color(
                 color.R / 255.0f,

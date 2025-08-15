@@ -1,4 +1,5 @@
-﻿using LingoEngine.Bitmaps;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
@@ -70,7 +71,7 @@ namespace LingoEngine.Texts
         }
 
         /// <inheritdoc/>
-        public LingoColor TextColor
+        public AColor TextColor
         {
             get => _frameworkMember.TextColor;
             set { _frameworkMember.TextColor = value;  }
@@ -171,7 +172,7 @@ namespace LingoEngine.Texts
 
 
 
-        public LingoMemberTextBase(LingoMemberType type, LingoCast cast, TFrameworkType frameworkMember, int numberInCast, string name = "", string fileName = "", LingoPoint regPoint = default)
+        public LingoMemberTextBase(LingoMemberType type, LingoCast cast, TFrameworkType frameworkMember, int numberInCast, string name = "", string fileName = "", APoint regPoint = default)
             : base(frameworkMember, type, cast, numberInCast, name, fileName, regPoint)
         {
             _frameworkMember = frameworkMember;
@@ -281,7 +282,7 @@ namespace LingoEngine.Texts
             _selectedText = Text.Substring(start - 1, end - start);
         }
 
-        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+        public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
           => _frameworkMember.RenderToTexture(ink, transparentColor);
 
 

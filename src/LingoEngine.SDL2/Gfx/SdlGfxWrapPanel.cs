@@ -1,25 +1,25 @@
 using System;
 using System.Collections.Generic;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using LingoEngine.SDL2.SDLL;
 
 namespace LingoEngine.SDL2.Gfx
 {
     internal class SdlGfxWrapPanel : SdlGfxComponent, ILingoFrameworkGfxWrapPanel, IDisposable
     {
-        public LingoOrientation Orientation { get; set; }
-        public LingoPoint ItemMargin { get; set; }
-        public LingoMargin Margin { get; set; }
+        public AOrientation Orientation { get; set; }
+        public APoint ItemMargin { get; set; }
+        public AMargin Margin { get; set; }
         public object FrameworkNode => this;
 
         private readonly List<ILingoFrameworkGfxLayoutNode> _children = new();
 
-        public SdlGfxWrapPanel(SdlGfxFactory factory, LingoOrientation orientation) : base(factory)
+        public SdlGfxWrapPanel(SdlGfxFactory factory, AOrientation orientation) : base(factory)
         {
             Orientation = orientation;
-            ItemMargin = new LingoPoint(0, 0);
-            Margin = LingoMargin.Zero;
+            ItemMargin = new APoint(0, 0);
+            Margin = AMargin.Zero;
         }
 
         public void AddItem(ILingoFrameworkGfxNode child)
@@ -95,7 +95,7 @@ namespace LingoEngine.SDL2.Gfx
                 float childW = child.Width + margin.Left + margin.Right;
                 float childH = child.Height + margin.Top + margin.Bottom;
 
-                if (Orientation == LingoOrientation.Horizontal)
+                if (Orientation == AOrientation.Horizontal)
                 {
                     if (curX + childW > Width)
                     {

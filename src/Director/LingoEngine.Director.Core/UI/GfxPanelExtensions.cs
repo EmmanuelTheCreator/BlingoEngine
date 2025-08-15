@@ -5,8 +5,8 @@ using System.Linq.Expressions;
 using LingoEngine.Tools;
 using LingoEngine.Bitmaps;
 using LingoEngine.Director.Core.Inspector;
-using LingoEngine.Primitives;
 using LingoEngine.Texts;
+using LingoEngine.AbstUI.Primitives;
 
 
 namespace LingoEngine.Director.Core.UI
@@ -104,7 +104,7 @@ namespace LingoEngine.Director.Core.UI
             ILingoGfxLayoutNode layout = (ILingoGfxLayoutNode)container.AddItem(control, x, y);
             return (control, layout);
         }
-        public static LingoGfxInputSlider<float> SetSliderAt<T>(this LingoGfxPanel container, T element, string name, float x, float y, int width, LingoOrientation orientation, Expression<Func<T, float>> property, float? min = null, float? max = null, float? step = null)
+        public static LingoGfxInputSlider<float> SetSliderAt<T>(this LingoGfxPanel container, T element, string name, float x, float y, int width, AOrientation orientation, Expression<Func<T, float>> property, float? min = null, float? max = null, float? step = null)
         {
             Action<T, float> setter = property.CompileSetter();
             var slider = container.Factory.CreateInputSliderFloat(orientation, name, min, max, step, v => setter(element, v));
@@ -114,7 +114,7 @@ namespace LingoEngine.Director.Core.UI
             return slider;
         }
 
-        public static LingoGfxInputSlider<int> SetSliderAt<T>(this LingoGfxPanel container, T element, string name, float x, float y, int width, LingoOrientation orientation, Expression<Func<T, int>> property, int? min = null, int? max = null, int? step = null)
+        public static LingoGfxInputSlider<int> SetSliderAt<T>(this LingoGfxPanel container, T element, string name, float x, float y, int width, AOrientation orientation, Expression<Func<T, int>> property, int? min = null, int? max = null, int? step = null)
         {
             Action<T, int> setter = property.CompileSetter();
             var slider = container.Factory.CreateInputSliderInt(orientation, name, min, max, step, v => setter(element, v));
@@ -134,16 +134,16 @@ namespace LingoEngine.Director.Core.UI
         public static LingoGfxCanvas AddVLine(this LingoGfxPanel container, string name, float x, float y, float height)
         {
             var paintPanel = container.Factory.CreateGfxCanvas(name, 2, (int)height);
-            paintPanel.DrawLine(new LingoPoint(0, 0), new LingoPoint(0, height), DirectorColors.LineLight, 1);
-            paintPanel.DrawLine(new LingoPoint(1, 0), new LingoPoint(1, height), DirectorColors.LineDark, 1);
+            paintPanel.DrawLine(new APoint(0, 0), new APoint(0, height), DirectorColors.LineLight, 1);
+            paintPanel.DrawLine(new APoint(1, 0), new APoint(1, height), DirectorColors.LineDark, 1);
             container.AddItem(paintPanel, x, y);
             return paintPanel;
         } 
         public static LingoGfxCanvas AddHLine(this LingoGfxPanel container, string name, float x, float y, float width)
         {
             var paintPanel = container.Factory.CreateGfxCanvas(name, (int)width, 2);
-            paintPanel.DrawLine(new LingoPoint(0, 0), new LingoPoint(width, 0), DirectorColors.LineLight, 1);
-            paintPanel.DrawLine(new LingoPoint(0, 1), new LingoPoint(width, 1), DirectorColors.LineDark, 1);
+            paintPanel.DrawLine(new APoint(0, 0), new APoint(width, 0), DirectorColors.LineLight, 1);
+            paintPanel.DrawLine(new APoint(0, 1), new APoint(width, 1), DirectorColors.LineDark, 1);
             container.AddItem(paintPanel, x, y);
             return paintPanel;
         }

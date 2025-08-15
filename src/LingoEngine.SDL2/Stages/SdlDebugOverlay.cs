@@ -8,7 +8,6 @@ namespace LingoEngine.SDL2.Stages;
 internal class SdlDebugOverlay : ILingoFrameworkDebugOverlay, ILingoSDLComponent
 {
     private nint _font;
-    private bool _show;
     private SDL.SDL_Color _white;
     public LingoSDLComponentContext ComponentContext { get; }
 
@@ -27,13 +26,11 @@ internal class SdlDebugOverlay : ILingoFrameworkDebugOverlay, ILingoSDLComponent
 
     public void ShowDebugger()
     {
-        _show = true;
         ComponentContext.Visible = true;
     }
 
     public void HideDebugger()
     {
-        _show = false;
         ComponentContext.Visible = false;
     }
 

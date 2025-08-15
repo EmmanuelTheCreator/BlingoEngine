@@ -1,16 +1,16 @@
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Bitmaps.Commands;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.Director.Core.Bitmaps;
 
 public class PaintToolbar : DirectorToolbar<PainterToolType>
 {
 
-    public LingoColor SelectedColor { get; private set; } = new LingoColor(0, 0, 0);
+    public AColor SelectedColor { get; private set; } = new AColor(0, 0, 0);
     public PaintToolbar(IDirectorIconManager iconManager, ILingoCommandManager commandManager, ILingoFrameworkFactory factory) : base("PaintToolbarRoot", iconManager, commandManager, factory)
     {
         AddToolButton(DirectorIcon.Pencil);
@@ -19,8 +19,8 @@ public class PaintToolbar : DirectorToolbar<PainterToolType>
         AddToolButton(DirectorIcon.PaintLasso);
         AddToolButton(DirectorIcon.RectangleSelect);
         AddToolButton(DirectorIcon.PaintBucket);
-        AddColorPickerForeground(LingoColorList.Black);
-        AddColorPickerBackground(LingoColorList.White);
+        AddColorPickerForeground(AColors.Black);
+        AddColorPickerBackground(AColors.White);
 
         SelectTool(PainterToolType.Pencil);
     }
@@ -40,13 +40,13 @@ public class PaintToolbar : DirectorToolbar<PainterToolType>
             _ => throw new ArgumentOutOfRangeException(nameof(icon), icon.ToString())
         };
     }
-    private void AddColorPickerForeground(LingoColor color) 
+    private void AddColorPickerForeground(AColor color) 
         => AddColorPicker(c => new PainterChangeForegroundColorCommand(c), color);
 
-    private void AddColorPickerBackground(LingoColor color) 
+    private void AddColorPickerBackground(AColor color) 
         => AddColorPicker(c => new PainterChangeBackgroundColorCommand(c), color);
 
-    protected void AddColorPicker(Func<LingoColor, ILingoCommand> toCommand, LingoColor color)
+    protected void AddColorPicker(Func<AColor, ILingoCommand> toCommand, AColor color)
     {
         var picker = _factory.CreateColorPicker("PaintColorPicker", color =>
         {

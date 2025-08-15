@@ -1,4 +1,4 @@
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Inputs
 {
@@ -10,7 +10,7 @@ namespace LingoEngine.Inputs
         /// <summary>
         /// Rectangle describing the area in which mouse events are valid.
         /// </summary>
-        LingoRect MouseOffset { get; }
+        ARect MouseOffset { get; }
     }
 }
 

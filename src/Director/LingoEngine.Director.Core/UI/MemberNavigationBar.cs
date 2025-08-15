@@ -1,3 +1,4 @@
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Core;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Tools;
@@ -5,7 +6,6 @@ using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
 using LingoEngine.Members;
 using LingoEngine.Movies;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.Director.Core.UI;
 
@@ -41,7 +41,7 @@ public class MemberNavigationBar<T> where T : class, ILingoMember
         _mediator = mediator;
         _player = player;
         _iconManager = iconManager;
-        _panel = factory.CreateWrapPanel(LingoOrientation.Horizontal, "MemberNavigationBar");
+        _panel = factory.CreateWrapPanel(AOrientation.Horizontal, "MemberNavigationBar");
         _panel.Height = barHeight;
 
         _panel.Compose()

@@ -1,5 +1,5 @@
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using LingoEngine.SDL2.Inputs;
 
 namespace LingoEngine.SDL2.Gfx;
@@ -8,8 +8,6 @@ internal class SdlGfxWindow : SdlGfxPanel, ILingoFrameworkGfxWindow, IDisposable
 {
     private readonly SdlGfxFactory _factory;
     private readonly LingoGfxWindow _lingoWindow;
-    private readonly SdlMouse _mouseImpl;
-    private readonly SdlKey _keyImpl;
     private string _title = string.Empty;
     private bool _isPopup;
     private bool _borderless;
@@ -63,9 +61,9 @@ internal class SdlGfxWindow : SdlGfxPanel, ILingoFrameworkGfxWindow, IDisposable
         set => _borderless = value;
     }
 
-    public new LingoColor BackgroundColor
+    public new AColor BackgroundColor
     {
-        get => base.BackgroundColor ?? LingoColorList.White;
+        get => base.BackgroundColor ?? AColors.White;
         set => base.BackgroundColor = value;
     }
 
@@ -85,7 +83,7 @@ internal class SdlGfxWindow : SdlGfxPanel, ILingoFrameworkGfxWindow, IDisposable
 
     public void PopupCentered()
     {
-        LingoPoint size = _factory.RootContext.GetWindowSize();
+        APoint size = _factory.RootContext.GetWindowSize();
        
         X = (size.X - Width) / 2f;
         Y = (size.Y - Height) / 2f;

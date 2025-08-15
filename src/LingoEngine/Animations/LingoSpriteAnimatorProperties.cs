@@ -1,4 +1,4 @@
-﻿using LingoEngine.Primitives;
+﻿using LingoEngine.AbstUI.Primitives;
 using System.Runtime;
 
 namespace LingoEngine.Animations
@@ -6,17 +6,17 @@ namespace LingoEngine.Animations
     public class LingoSpriteAnimatorProperties
     {
         private Dictionary<int, LingoKeyFrameSetting> _settings = new();
-        private LingoRect? _calculatedBoundingBox;
-        private Dictionary<int, LingoRect> _calculatedFrameBoundingBoxes = new();
+        private ARect? _calculatedBoundingBox;
+        private Dictionary<int, ARect> _calculatedFrameBoundingBoxes = new();
         private bool _cacheDirty = true;
         public bool CacheIsDirty => _cacheDirty;
         public void CacheApplied() => _cacheDirty = false;
-        public LingoTween<LingoPoint> Position { get; private set; } = new();
-        public LingoTween<LingoPoint> Size { get; private set; } = new();
+        public LingoTween<APoint> Position { get; private set; } = new();
+        public LingoTween<APoint> Size { get; private set; } = new();
         public LingoTween<float> Rotation { get; private set; } = new();
         public LingoTween<float> Skew { get; private set; } = new();
-        public LingoTween<LingoColor> ForegroundColor { get; private set; } = new();
-        public LingoTween<LingoColor> BackgroundColor { get; private set; } = new();
+        public LingoTween<AColor> ForegroundColor { get; private set; } = new();
+        public LingoTween<AColor> BackgroundColor { get; private set; } = new();
         public LingoTween<float> Blend { get; private set; } = new();
 
         public LingoSpriteAnimatorProperties Clone()
@@ -145,7 +145,7 @@ namespace LingoEngine.Animations
 
         #region Boundingbox
 
-        public LingoRect GetBoundingBox(LingoPoint spriteRegpoint, LingoRect spriteRect, float spriteWidth, float spriteHeight)
+        public ARect GetBoundingBox(APoint spriteRegpoint, ARect spriteRect, float spriteWidth, float spriteHeight)
         {
             if (_calculatedBoundingBox != null) return _calculatedBoundingBox.Value;
 
@@ -171,7 +171,7 @@ namespace LingoEngine.Animations
             _calculatedBoundingBox = result;
             return _calculatedBoundingBox.Value;
         }
-        public LingoRect GetBoundingBoxForFrame(int frame, LingoPoint spriteRegpoint, float spriteWidth, float spriteHeight)
+        public ARect GetBoundingBoxForFrame(int frame, APoint spriteRegpoint, float spriteWidth, float spriteHeight)
         {
             if (_calculatedFrameBoundingBoxes.TryGetValue(frame, out var cachedBox))
                 return cachedBox;
@@ -181,18 +181,18 @@ namespace LingoEngine.Animations
             var skew = Skew.GetValue(frame);
 
             if (size.X == 0 || size.Y == 0)
-                size = new LingoPoint(spriteWidth, spriteHeight);
+                size = new APoint(spriteWidth, spriteHeight);
 
             var reg = spriteRegpoint;
-            var center = new LingoPoint(pos.X - reg.X + size.X / 2f, pos.Y - reg.Y + size.Y / 2f);
+            var center = new APoint(pos.X - reg.X + size.X / 2f, pos.Y - reg.Y + size.Y / 2f);
 
             float hw = size.X / 2f;
             float hh = size.Y / 2f;
 
-            var tl = new LingoPoint(-hw, -hh);
-            var tr = new LingoPoint(hw, -hh);
-            var br = new LingoPoint(hw, hh);
-            var bl = new LingoPoint(-hw, hh);
+            var tl = new APoint(-hw, -hh);
+            var tr = new APoint(hw, -hh);
+            var br = new APoint(hw, hh);
+            var bl = new APoint(-hw, hh);
 
             if (skew != 0)
             {
@@ -221,13 +221,13 @@ namespace LingoEngine.Animations
             br += center;
             bl += center;
 
-            var newRect = LingoRect.FromPoints(tl, tr, br, bl);
+            var newRect = ARect.FromPoints(tl, tr, br, bl);
             _calculatedFrameBoundingBoxes.Add(frame, newRect);
             return newRect;
         }
-        private static LingoPoint Rotate(LingoPoint pt, float cos, float sin)
+        private static APoint Rotate(APoint pt, float cos, float sin)
         {
-            return new LingoPoint(
+            return new APoint(
                 pt.X * cos - pt.Y * sin,
                 pt.X * sin + pt.Y * cos
             );

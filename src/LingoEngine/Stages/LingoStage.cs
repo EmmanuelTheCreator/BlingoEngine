@@ -1,7 +1,7 @@
-﻿using LingoEngine.Animations;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Animations;
 using LingoEngine.Members;
 using LingoEngine.Movies;
-using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 
 namespace LingoEngine.Stages
@@ -15,7 +15,7 @@ namespace LingoEngine.Stages
 
         public int Width { get; set; } = 640;
         public int Height { get; set; } = 480;
-        public LingoColor BackgroundColor { get; set; }
+        public AColor BackgroundColor { get; set; }
 
         public LingoMovie? ActiveMovie { get; private set; }
         public LingoMember? MouseMemberUnderMouse
@@ -33,7 +33,7 @@ namespace LingoEngine.Stages
         public LingoStage(ILingoFrameworkStage godotInstance)
         {
             _lingoFrameworkMovieStage = godotInstance;
-            BackgroundColor = LingoColorList.Black;
+            BackgroundColor = AColors.Black;
         }
 
        

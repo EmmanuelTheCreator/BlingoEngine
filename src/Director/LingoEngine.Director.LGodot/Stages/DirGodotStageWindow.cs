@@ -12,7 +12,7 @@ using LingoEngine.Director.Core.UI;
 using LingoEngine.LGodot.Gfx;
 using LingoEngine.Inputs;
 using LingoEngine.Director.Core.Icons;
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Director.LGodot.Movies;
 
@@ -62,7 +62,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         _iconBar = directorStageWindow.IconBar;
         _iconBar.ZoomChanged += SetScale;
         _iconBar.ColorChanged += OnColorChanged;
-        BackgroundColor = LingoColorList.Transparent;
+        BackgroundColor = AColors.Transparent;
         _stageManager = stageManager;
         _stageManager.SelectionChanged += OnStageSelectionChanged;
         _stageManager.SpritesTransformed += OnStageSpritesTransformed;
@@ -273,7 +273,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
 
 
 
-    private void OnColorChanged(LingoColor color)
+    private void OnColorChanged(AColor color)
     {
         _stageManager.ChangeBackgroundColor(color);
     }
@@ -459,7 +459,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
     {
         if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Left)
         {
-            var p = new LingoEngine.Primitives.LingoPoint(mb.Position.X, mb.Position.Y);
+            var p = new APoint(mb.Position.X, mb.Position.Y);
             if (mb.Pressed)
                 _stageManager.BeginMove(p);
             else
@@ -467,7 +467,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         }
         else if (@event is InputEventMouseMotion motion)
         {
-            var p = new LingoEngine.Primitives.LingoPoint(motion.Position.X, motion.Position.Y);
+            var p = new APoint(motion.Position.X, motion.Position.Y);
             _stageManager.UpdateMove(p);
         }
     }
@@ -476,7 +476,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
     {
         if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Left)
         {
-            var p = new LingoEngine.Primitives.LingoPoint(mb.Position.X, mb.Position.Y);
+            var p = new APoint(mb.Position.X, mb.Position.Y);
             if (mb.Pressed)
                 _stageManager.BeginRotate(p);
             else
@@ -484,7 +484,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         }
         else if (@event is InputEventMouseMotion motion)
         {
-            var p = new LingoEngine.Primitives.LingoPoint(motion.Position.X, motion.Position.Y);
+            var p = new APoint(motion.Position.X, motion.Position.Y);
             _stageManager.UpdateRotate(p);
         }
     }

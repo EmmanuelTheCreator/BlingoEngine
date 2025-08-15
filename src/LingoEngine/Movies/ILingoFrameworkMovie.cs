@@ -1,4 +1,4 @@
-﻿using LingoEngine.Primitives;
+﻿using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Movies
 {
@@ -13,6 +13,6 @@ namespace LingoEngine.Movies
         /// <summary>Removes the movie from the stage.</summary>
         void RemoveMe();
         /// <summary>Retrieves the current mouse position in global coordinates.</summary>
-        LingoPoint GetGlobalMousePosition();
+        APoint GetGlobalMousePosition();
     }
 }

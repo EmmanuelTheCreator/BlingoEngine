@@ -1,8 +1,8 @@
 using System;
 using System.Numerics;
 using ImGuiNET;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
@@ -27,7 +27,7 @@ namespace LingoEngine.SDL2.Gfx
         }
         public float Min { get; set; }
         public float Max { get; set; }
-        public LingoMargin Margin { get; set; } = LingoMargin.Zero;
+        public AMargin Margin { get; set; } = AMargin.Zero;
         public object FrameworkNode => this;
 
         public event Action? ValueChanged;

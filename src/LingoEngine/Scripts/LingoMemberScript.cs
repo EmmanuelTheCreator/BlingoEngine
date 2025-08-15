@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Casts;
 using LingoEngine.Members;
-using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 
 namespace LingoEngine.Scripts
@@ -12,7 +12,7 @@ namespace LingoEngine.Scripts
         public LingoScriptType ScriptType { get; set; } = LingoScriptType.Behavior;
         public string? BehaviorTypeName { get; private set; }
 
-        public LingoMemberScript(ILingoFrameworkMember frameworkMember, LingoCast cast, int numberInCast, string name = "", string fileName = "", LingoPoint regPoint = default)
+        public LingoMemberScript(ILingoFrameworkMember frameworkMember, LingoCast cast, int numberInCast, string name = "", string fileName = "", APoint regPoint = default)
             : base(frameworkMember, LingoMemberType.Script, cast, numberInCast, name, fileName, regPoint)
         {
         }

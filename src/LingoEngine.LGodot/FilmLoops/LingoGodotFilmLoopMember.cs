@@ -5,6 +5,7 @@ using LingoEngine.LGodot.Bitmaps;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Members;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.LGodot.FilmLoops
 {
@@ -21,7 +22,7 @@ namespace LingoEngine.LGodot.FilmLoops
         public byte[]? Media { get; set; }
         public LingoFilmLoopFraming Framing { get; set; } = LingoFilmLoopFraming.Auto;
         public bool Loop { get; set; } = true;
-        public LingoPoint Offset { get; private set; }
+        public APoint Offset { get; private set; }
 
         public LingoFilmLoopMember Member => _member;
         public LingoGodotFilmLoopMember()
@@ -53,7 +54,7 @@ namespace LingoEngine.LGodot.FilmLoops
         {
             // Placeholder for future import logic
         }
-        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+        public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         {
             return _texture;
         }
@@ -244,7 +245,7 @@ namespace LingoEngine.LGodot.FilmLoops
             Unload();
         }
 
-        public LingoRect GetBoundingBox() => Member.GetBoundingBox();
+        public ARect GetBoundingBox() => Member.GetBoundingBox();
 
 
         #region Clipboard

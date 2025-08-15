@@ -1,3 +1,4 @@
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
@@ -20,14 +21,14 @@ public class RegPointCanvas
     {
         _canvas.Width = member.Width * scale;
         _canvas.Height = member.Height * scale;
-        _canvas.Clear(LingoColorList.Transparent);
+        _canvas.Clear(AColors.Transparent);
         float areaWidth = _canvas.Width;
         float areaHeight = _canvas.Height;
-        var canvasHalf = new LingoPoint(areaWidth / 2f, areaHeight / 2f);
-        var imageHalf = new LingoPoint(member.Width / 2f, member.Height / 2f);
+        var canvasHalf = new APoint(areaWidth / 2f, areaHeight / 2f);
+        var imageHalf = new APoint(member.Width / 2f, member.Height / 2f);
         var offset = canvasHalf - imageHalf;
         var pos = (offset + member.RegPoint) * scale + canvasHalf * (1 - scale);
-        _canvas.DrawLine(new LingoPoint(pos.X, 0), new LingoPoint(pos.X, areaHeight), LingoColorList.Red);
-        _canvas.DrawLine(new LingoPoint(0, pos.Y), new LingoPoint(areaWidth, pos.Y), LingoColorList.Red);
+        _canvas.DrawLine(new APoint(pos.X, 0), new APoint(pos.X, areaHeight), AColors.Red);
+        _canvas.DrawLine(new APoint(0, pos.Y), new APoint(areaWidth, pos.Y), AColors.Red);
     }
 }

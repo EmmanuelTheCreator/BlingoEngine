@@ -1,4 +1,4 @@
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.L3D.Core.Members;
 
@@ -8,8 +8,8 @@ namespace LingoEngine.L3D.Core.Members;
 public class LingoLight
 {
     public float Attenuation { get; set; } = 1f;
-    public LingoColor Color { get; set; } = new();
-    public LingoColor Specular { get; set; } = new();
+    public AColor Color { get; set; } = new();
+    public AColor Specular { get; set; } = new();
     public float SpotAngle { get; set; } = 0f;
     public float SpotDecay { get; set; } = 0f;
     public string Type { get; set; } = "#point"; // #point, #directional, etc.

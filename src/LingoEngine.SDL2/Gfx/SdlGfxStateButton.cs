@@ -2,10 +2,10 @@ using System;
 using System.Numerics;
 using ImGuiNET;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.SDL2.Pictures;
 using LingoEngine.SDL2.SDLL;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
@@ -69,7 +69,7 @@ namespace LingoEngine.SDL2.Gfx
                 }
             }
         }
-        public LingoMargin Margin { get; set; } = LingoMargin.Zero;
+        public AMargin Margin { get; set; } = AMargin.Zero;
         public event Action? ValueChanged;
         public object FrameworkNode => this;
 

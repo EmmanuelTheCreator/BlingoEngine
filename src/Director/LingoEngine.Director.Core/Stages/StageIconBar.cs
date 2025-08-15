@@ -6,8 +6,8 @@ using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
 using LingoEngine.Movies;
 using LingoEngine.Movies.Commands;
-using LingoEngine.Primitives;
 using LingoEngine.Core;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.Stages;
 
@@ -31,7 +31,7 @@ public class StageIconBar : IDisposable
     public LingoGfxPanel Panel { get; }
 
     public event Action<float>? ZoomChanged;
-    public event Action<LingoColor>? ColorChanged;
+    public event Action<AColor>? ColorChanged;
 
     public float MinZoom => _zoomSlider.MinValue;
     public float MaxZoom => _zoomSlider.MaxValue;
@@ -46,7 +46,7 @@ public class StageIconBar : IDisposable
         Panel.BackgroundColor = DirectorColors.BG_WhiteMenus;
         Panel.Height = iconBarHeight;
 
-        var container = factory.CreateWrapPanel(LingoOrientation.Horizontal, "StageIconBarContainer");
+        var container = factory.CreateWrapPanel(AOrientation.Horizontal, "StageIconBarContainer");
         Panel.AddItem(container);
 
         _rewindButton = factory.CreateButton("RewindButton", "|<");
@@ -73,7 +73,7 @@ public class StageIconBar : IDisposable
         _nextFrameButton.Pressed += () => commandManager.Handle(new StepFrameCommand(1));
         container.AddItem(_nextFrameButton);
 
-        _zoomSlider = factory.CreateInputSliderFloat(LingoOrientation.Horizontal, "ZoomSlider", 0.5f, 1.5f, 0.1f);
+        _zoomSlider = factory.CreateInputSliderFloat(AOrientation.Horizontal, "ZoomSlider", 0.5f, 1.5f, 0.1f);
         _zoomSlider.Value = 1f;
         _zoomSlider.Width = 150;
         _zoomSlider.Height = iconBarHeight;
@@ -105,13 +105,13 @@ public class StageIconBar : IDisposable
         _colorDisplay = factory.CreatePanel("ColorDisplay");
         _colorDisplay.Width = iconBarHeight;
         _colorDisplay.Height = iconBarHeight;
-        _colorDisplay.BackgroundColor = LingoColorList.Black;
+        _colorDisplay.BackgroundColor = AColors.Black;
         container.AddItem(_colorDisplay);
 
         _colorPicker = factory.CreateColorPicker("ColorPicker", null);
         _colorPicker.Width = iconBarHeight;
         _colorPicker.Height = iconBarHeight;
-        _colorPicker.Color = LingoColorList.Black;
+        _colorPicker.Color = AColors.Black;
         _colorPicker.ValueChanged += () =>
         {
             var c = _colorPicker.Color;
@@ -161,7 +161,7 @@ public class StageIconBar : IDisposable
         _updatingZoom = false;
     }
 
-    public void SetColor(LingoColor color)
+    public void SetColor(AColor color)
     {
         _colorDisplay.BackgroundColor = color;
         _colorPicker.Color = color;

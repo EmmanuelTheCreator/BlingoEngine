@@ -2,10 +2,10 @@ using System;
 using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using LingoEngine.Tools;
 
 namespace LingoEngine.Director.Core.Inspector
@@ -162,7 +162,7 @@ namespace LingoEngine.Director.Core.Inspector
             Advance(1);
             return this;
         }
-        public GfxPanelBuilder AddColorPicker<T>(string name, string label, T target,Expression<Func<T, LingoColor>> property,int inputSpan = 1, int labelSpan = 1)
+        public GfxPanelBuilder AddColorPicker<T>(string name, string label, T target,Expression<Func<T, AColor>> property,int inputSpan = 1, int labelSpan = 1)
         {
             var setter = property.CompileSetter();
             var getter = property.CompileGetter();

@@ -1,8 +1,8 @@
 using System;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Gfx;
 using LingoEngine.Inputs;
-using LingoEngine.Primitives;
 using LingoEngine.SDL2.Styles;
 using LingoEngine.Styles;
 
@@ -41,7 +41,7 @@ namespace LingoEngine.SDL2.Gfx
             return canvas;
         }
 
-        public LingoGfxWrapPanel CreateWrapPanel(LingoOrientation orientation, string name)
+        public LingoGfxWrapPanel CreateWrapPanel(AOrientation orientation, string name)
         {
             var panel = new LingoGfxWrapPanel(this);
             var impl = new SdlGfxWrapPanel(this, orientation);
@@ -98,7 +98,7 @@ namespace LingoEngine.SDL2.Gfx
             return scroll;
         }
 
-        public LingoGfxInputSlider<float> CreateInputSliderFloat(LingoOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
+        public LingoGfxInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
         {
             var slider = new LingoGfxInputSlider<float>();
             var impl = new SdlGfxInputSlider<float>(this);
@@ -112,7 +112,7 @@ namespace LingoEngine.SDL2.Gfx
             return slider;
         }
 
-        public LingoGfxInputSlider<int> CreateInputSliderInt(LingoOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
+        public LingoGfxInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
         {
             var slider = new LingoGfxInputSlider<int>();
             var impl = new SdlGfxInputSlider<int>(this);
@@ -209,7 +209,7 @@ namespace LingoEngine.SDL2.Gfx
             return list;
         }
 
-        public LingoGfxColorPicker CreateColorPicker(string name, Action<LingoColor>? onChange = null)
+        public LingoGfxColorPicker CreateColorPicker(string name, Action<AColor>? onChange = null)
         {
             var picker = new LingoGfxColorPicker();
             var impl = new SdlGfxColorPicker(this);

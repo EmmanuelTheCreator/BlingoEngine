@@ -15,6 +15,7 @@ using LingoEngine.Sprites;
 using LingoEngine.FilmLoops;
 using LingoEngine.Bitmaps;
 using LingoEngine.Events;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.IO;
 
@@ -84,7 +85,7 @@ public class JsonStateRepository
 
             foreach (var memDto in castDto.Members)
             {
-                var reg = new LingoPoint(memDto.RegPoint.X, memDto.RegPoint.Y);
+                var reg = new APoint(memDto.RegPoint.X, memDto.RegPoint.Y);
                 string fileName = memDto.FileName;
                 if (memDto is LingoMemberPictureDTO pic && !string.IsNullOrEmpty(pic.ImageFile))
                     fileName = Path.Combine(dir, pic.ImageFile);
@@ -145,7 +146,7 @@ public class JsonStateRepository
             s.LocZ = sDto.LocZ;
             s.Rotation = sDto.Rotation;
             s.Skew = sDto.Skew;
-            s.RegPoint = new LingoPoint(sDto.RegPoint.X, sDto.RegPoint.Y);
+            s.RegPoint = new APoint(sDto.RegPoint.X, sDto.RegPoint.Y);
             s.Ink = sDto.Ink;
             s.ForeColor = FromDto(sDto.ForeColor);
             s.BackColor = FromDto(sDto.BackColor);
@@ -173,7 +174,7 @@ public class JsonStateRepository
             LocZ = sDto.LocZ,
             Rotation = sDto.Rotation,
             Skew = sDto.Skew,
-            RegPoint = new LingoPoint(sDto.RegPoint.X, sDto.RegPoint.Y),
+            RegPoint = new APoint(sDto.RegPoint.X, sDto.RegPoint.Y),
             Ink = sDto.Ink,
             ForeColor = FromDto(sDto.ForeColor),
             BackColor = FromDto(sDto.BackColor),
@@ -201,7 +202,7 @@ public class JsonStateRepository
         ApplyOptions(sprite.AnimatorProperties.Blend.Options, anim.BlendOptions);
 
         foreach (var k in anim.Position)
-            sprite.AnimatorProperties.Position.AddKeyFrame(k.Frame, new LingoPoint(k.Value.X, k.Value.Y), (LingoEaseType)k.Ease);
+            sprite.AnimatorProperties.Position.AddKeyFrame(k.Frame, new APoint(k.Value.X, k.Value.Y), (LingoEaseType)k.Ease);
         foreach (var k in anim.Rotation)
             sprite.AnimatorProperties.Rotation.AddKeyFrame(k.Frame, k.Value, (LingoEaseType)k.Ease);
         foreach (var k in anim.Skew)
@@ -236,7 +237,7 @@ public class JsonStateRepository
         ApplyOptions(animator.Blend.Options, sDto.BlendOptions);
 
         foreach (var k in sDto.Position)
-            animator.Position.AddKeyFrame(k.Frame, new LingoPoint(k.Value.X, k.Value.Y), (LingoEaseType)k.Ease);
+            animator.Position.AddKeyFrame(k.Frame, new APoint(k.Value.X, k.Value.Y), (LingoEaseType)k.Ease);
         foreach (var k in sDto.Rotation)
             animator.Rotation.AddKeyFrame(k.Frame, k.Value, (LingoEaseType)k.Ease);
         foreach (var k in sDto.Skew)
@@ -606,7 +607,7 @@ public class JsonStateRepository
         };
     }
 
-    private static LingoColorDTO ToDto(LingoColor color)
+    private static LingoColorDTO ToDto(AColor color)
     {
         return new LingoColorDTO
         {
@@ -678,6 +679,6 @@ public class JsonStateRepository
         target.EaseOut = dto.EaseOut;
     }
 
-    private static LingoColor FromDto(LingoColorDTO dto)
-        => new LingoColor(dto.Code, dto.R, dto.G, dto.B, dto.Name);
+    private static AColor FromDto(LingoColorDTO dto)
+        => new AColor(dto.Code, dto.R, dto.G, dto.B, dto.Name);
 }

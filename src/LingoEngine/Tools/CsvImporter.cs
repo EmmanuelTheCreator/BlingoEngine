@@ -1,6 +1,6 @@
-﻿using LingoEngine.Casts;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Casts;
 using LingoEngine.Members;
-using LingoEngine.Primitives;
 using LingoEngine.Texts;
 using System;
 using System.IO;
@@ -19,10 +19,10 @@ namespace LingoEngine.Tools
             public int Number { get; set; }
             public LingoMemberType Type { get; set; }
             public string Name { get; set; }
-            public LingoPoint RegPoint { get; set; }
+            public APoint RegPoint { get; set; }
             public string FileName { get; set; }
 
-            public CsvRow(int number, LingoMemberType type, string name, LingoPoint registration, string fileName)
+            public CsvRow(int number, LingoMemberType type, string name, APoint registration, string fileName)
             {
                 Number = number;
                 Type = type;

@@ -1,4 +1,5 @@
 ﻿using Godot;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Helpers;
 using LingoEngine.Members;
@@ -170,8 +171,8 @@ namespace LingoEngine.LGodot.Bitmaps
             // Update the member's image data directly
             _lingoMemberPicture.SetImageData(_image.GetData());
         }
-        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor) => GetTextureForInk(ink, transparentColor);
-        public ILingoTexture2D? GetTextureForInk(LingoInkType ink, LingoColor backColor)
+        public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor) => GetTextureForInk(ink, transparentColor);
+        public ILingoTexture2D? GetTextureForInk(LingoInkType ink, AColor backColor)
         {
             if (!InkPreRenderer.CanHandle(ink) || _image == null)
                 return null;

@@ -1,10 +1,10 @@
 using Godot;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
 using LingoEngine.Inputs;
 using LingoEngine.LGodot.Core;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.LGodot.Styles;
-using LingoEngine.Primitives;
 using static Godot.Control;
 
 namespace LingoEngine.LGodot.Gfx
@@ -14,7 +14,7 @@ namespace LingoEngine.LGodot.Gfx
     /// </summary>
     public partial class LingoGodotWindow : Window, ILingoFrameworkGfxWindow, IDisposable
     {
-        private LingoMargin _margin = LingoMargin.Zero;
+        private AMargin _margin = AMargin.Zero;
         private readonly List<ILingoFrameworkGfxLayoutNode> _nodes = new();
         private readonly Panel _panel;
         private readonly StyleBoxFlat _panelStyle;
@@ -60,12 +60,12 @@ namespace LingoEngine.LGodot.Gfx
                 Exclusive = value;
             }
         }
-        public LingoColor BackgroundColor
+        public AColor BackgroundColor
         {
             get => _panelStyle.BgColor.ToLingoColor();
             set => _panelStyle.BgColor = value.ToGodotColor();
         }
-        public LingoMargin Margin
+        public AMargin Margin
         {
             get => _margin;
             set
@@ -110,7 +110,7 @@ namespace LingoEngine.LGodot.Gfx
             };
             _panelStyle = new StyleBoxFlat
             {
-                BgColor = LingoColorList.White.ToGodotColor(),
+                BgColor = AColors.White.ToGodotColor(),
 
             };
             _panel.AddThemeStyleboxOverride("panel", _panelStyle);

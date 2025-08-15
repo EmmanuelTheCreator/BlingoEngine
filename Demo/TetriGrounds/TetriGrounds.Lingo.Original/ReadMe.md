@@ -1,0 +1,1 @@
+This folder contains the original Lingo scripts written in the year 2005 :-)

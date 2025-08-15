@@ -1,4 +1,4 @@
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.L3D.Core.Members;
 
@@ -8,7 +8,7 @@ namespace LingoEngine.L3D.Core.Members;
 public class LingoCamera
 {
     /// <summary>backdrop color of the camera</summary>
-    public LingoColor Backdrop { get; set; } = new();
+    public AColor Backdrop { get; set; } = new();
 
     /// <summary>fieldOfView property</summary>
     public float FieldOfView { get; set; } = 60f;

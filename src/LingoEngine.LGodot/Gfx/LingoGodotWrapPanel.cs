@@ -1,6 +1,6 @@
 using Godot;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.LGodot.Gfx
 {
@@ -10,24 +10,24 @@ namespace LingoEngine.LGodot.Gfx
     public partial class LingoGodotWrapPanel : MarginContainer, ILingoFrameworkGfxWrapPanel, IDisposable
     {
         private FlowContainer _container;
-        private LingoOrientation _orientation;
-        private LingoPoint _itemMargin;
-        private LingoMargin _margin;
+        private AOrientation _orientation;
+        private APoint _itemMargin;
+        private AMargin _margin;
 
-        public LingoGodotWrapPanel(LingoGfxWrapPanel panel, LingoOrientation orientation)
+        public LingoGodotWrapPanel(LingoGfxWrapPanel panel, AOrientation orientation)
         {
             _orientation = orientation;
-            _itemMargin = new LingoPoint(4, 4);
-            _margin = LingoMargin.Zero;
+            _itemMargin = new APoint(4, 4);
+            _margin = AMargin.Zero;
             MouseFilter = MouseFilterEnum.Ignore;
             _container = CreateContainer(orientation);
             AddChild(_container);
             panel.Init(this);
         }
 
-        private FlowContainer CreateContainer(LingoOrientation orientation)
+        private FlowContainer CreateContainer(AOrientation orientation)
         {
-            FlowContainer container = orientation == LingoOrientation.Horizontal ? new VFlowContainer() : new HFlowContainer();
+            FlowContainer container = orientation == AOrientation.Horizontal ? new VFlowContainer() : new HFlowContainer();
             //container.SizeFlagsVertical = SizeFlags.ExpandFill;
             //container.SizeFlagsHorizontal = SizeFlags.ExpandFill;
             //container.SizeFlagsHorizontal = SizeFlags.Expand;
@@ -60,7 +60,7 @@ namespace LingoEngine.LGodot.Gfx
             }
         }
 
-        public LingoOrientation Orientation
+        public AOrientation Orientation
         {
             get => _orientation;
             set
@@ -85,7 +85,7 @@ namespace LingoEngine.LGodot.Gfx
             }
         }
 
-        public LingoPoint ItemMargin
+        public APoint ItemMargin
         {
             get => _itemMargin;
             set
@@ -98,7 +98,7 @@ namespace LingoEngine.LGodot.Gfx
             }
         }
 
-        public LingoMargin Margin
+        public AMargin Margin
         {
             get => _margin;
             set

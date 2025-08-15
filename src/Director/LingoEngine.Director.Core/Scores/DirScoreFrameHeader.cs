@@ -4,6 +4,7 @@ using LingoEngine.Gfx;
 using LingoEngine.Movies;
 using LingoEngine.Primitives;
 using LingoEngine.Director.Core.Styles;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.Scores;
 
@@ -39,15 +40,15 @@ public class DirScoreFrameHeader : IDisposable
 
         int frameCount = _movie.FrameCount;
         // draw first frame number
-        _canvas.DrawText(new LingoPoint(1, 13), "1", null, LingoColorList.Gray, 10);
+        _canvas.DrawText(new APoint(1, 13), "1", null, AColors.Gray, 10);
         for (int f = 0; f <= frameCount; f++)
         {
             float x = _gfxValues.LeftMargin + f * _gfxValues.FrameWidth;
             if ((f + 1) % 5 == 0)
-                _canvas.DrawText(new LingoPoint(x + 1, 13), (f + 1).ToString(), null, LingoColorList.Gray, 10);
+                _canvas.DrawText(new APoint(x + 1, 13), (f + 1).ToString(), null, AColors.Gray, 10);
         }
-        _canvas.DrawLine(new LingoPoint(0, 0), new LingoPoint(_canvas.Width, 0), DirectorColors.LineLight, 1);
-        _canvas.DrawLine(new LingoPoint(0, _gfxValues.ChannelFramesHeight), new LingoPoint(_canvas.Width, _gfxValues.ChannelFramesHeight), DirectorColors.LineDark, 1);
+        _canvas.DrawLine(new APoint(0, 0), new APoint(_canvas.Width, 0), DirectorColors.LineLight, 1);
+        _canvas.DrawLine(new APoint(0, _gfxValues.ChannelFramesHeight), new APoint(_canvas.Width, _gfxValues.ChannelFramesHeight), DirectorColors.LineDark, 1);
     }
 
     public void HandleMouseEvent(LingoMouseEvent mouseEvent, int mouseFrame)

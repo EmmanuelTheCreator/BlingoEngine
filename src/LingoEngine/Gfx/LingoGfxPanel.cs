@@ -1,4 +1,4 @@
-using LingoEngine.Primitives;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Gfx
 {
@@ -39,8 +39,8 @@ namespace LingoEngine.Gfx
         public void RemoveItem(ILingoFrameworkGfxLayoutNode node) => _framework.RemoveItem(node);
         public IEnumerable<ILingoFrameworkGfxLayoutNode> GetChildren() => _framework.GetItems();
 
-        public LingoColor? BackgroundColor { get => _framework.BackgroundColor; set => _framework.BackgroundColor = value; }
-        public LingoColor? BorderColor { get => _framework.BorderColor; set => _framework.BorderColor = value; }
+        public AColor? BackgroundColor { get => _framework.BackgroundColor; set => _framework.BackgroundColor = value; }
+        public AColor? BorderColor { get => _framework.BorderColor; set => _framework.BorderColor = value; }
         public float BorderWidth { get => _framework.BorderWidth; set => _framework.BorderWidth = value; }
     }
 
@@ -55,7 +55,7 @@ namespace LingoEngine.Gfx
 
         public override bool Visibility { get => Content.Visibility; set => Content.Visibility = value; }
         public override string Name { get => Content.Name; set => Content.Name = value; }
-        public override LingoMargin Margin { get => Content.Margin; set => Content.Margin = value; }
+        public override AMargin Margin { get => Content.Margin; set => Content.Margin = value; }
         public override float Width { get => Content.Width; set => Content.Width = value; }
         public override float Height { get => Content.Height; set => Content.Height = value; }
 

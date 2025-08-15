@@ -1,3 +1,4 @@
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
 using LingoEngine.Members;
@@ -12,12 +13,12 @@ namespace LingoEngine.Shapes
     {
         private readonly ILingoFrameworkMemberShape _framework;
 
-        public LingoList<LingoPoint> VertexList => _framework.VertexList;
+        public LingoList<APoint> VertexList => _framework.VertexList;
         public LingoShapeType ShapeType { get => _framework.ShapeType; set => _framework.ShapeType = value; }
         public int ShapeTypeInt { get => (int)ShapeType; set => ShapeType = (LingoShapeType)value; }
-        public LingoColor FillColor { get => _framework.FillColor; set => _framework.FillColor = value; }
-        public LingoColor EndColor { get => _framework.EndColor; set => _framework.EndColor = value; }
-        public LingoColor StrokeColor { get => _framework.StrokeColor; set => _framework.StrokeColor = value; }
+        public AColor FillColor { get => _framework.FillColor; set => _framework.FillColor = value; }
+        public AColor EndColor { get => _framework.EndColor; set => _framework.EndColor = value; }
+        public AColor StrokeColor { get => _framework.StrokeColor; set => _framework.StrokeColor = value; }
         public int StrokeWidth { get => _framework.StrokeWidth; set => _framework.StrokeWidth = value; }
         public bool Closed { get => _framework.Closed; set => _framework.Closed = value; }
         public bool AntiAlias { get => _framework.AntiAlias; set => _framework.AntiAlias = value; }
@@ -29,11 +30,11 @@ namespace LingoEngine.Shapes
 
         public T Framework<T>() where T : ILingoFrameworkMemberShape => (T)_framework;
 
-        public LingoMemberShape(LingoCast cast, ILingoFrameworkMemberShape framework, int numberInCast, string name = "", string fileName = "", LingoPoint regPoint = default)
+        public LingoMemberShape(LingoCast cast, ILingoFrameworkMemberShape framework, int numberInCast, string name = "", string fileName = "", APoint regPoint = default)
             : base(framework, LingoMemberType.VectorShape, cast, numberInCast, name, fileName, regPoint)
         {
             _framework = framework;
-            RegPoint = new LingoPoint(0, 0);
+            RegPoint = new APoint(0, 0);
         }
 
         protected override LingoMember OnDuplicate(int newNumber)
@@ -43,7 +44,7 @@ namespace LingoEngine.Shapes
 
         public override void Preload() => _framework.Preload();
 
-        public ILingoTexture2D? RenderToTexture(LingoInkType ink, LingoColor transparentColor)
+        public ILingoTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
            => _framework.RenderToTexture(ink, transparentColor);
     }
 }

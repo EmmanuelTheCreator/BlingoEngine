@@ -1,8 +1,8 @@
 ﻿using Godot;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.LGodot.Styles;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.Director.LGodot.Styles;
 
@@ -157,7 +157,7 @@ public sealed class DirectorGodotStyle
         // Background behind all tabs
         var tabPanel = new StyleBoxFlat
         {
-            BgColor = LingoColorList.Magenta.ToGodotColor(), //DirectorColors.BG_WhiteMenus.ToGodotColor()
+            BgColor = AColors.Magenta.ToGodotColor(), //DirectorColors.BG_WhiteMenus.ToGodotColor()
         };
 
 

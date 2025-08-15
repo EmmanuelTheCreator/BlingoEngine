@@ -1,6 +1,6 @@
 using Godot;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.LGodot.Gfx
 {
@@ -10,7 +10,7 @@ namespace LingoEngine.LGodot.Gfx
     public partial class LingoGodotInputCombobox : OptionButton, ILingoFrameworkGfxInputCombobox, IDisposable
     {
         private readonly List<KeyValuePair<string,string>> _items = new();
-        private LingoMargin _margin = LingoMargin.Zero;
+        private AMargin _margin = AMargin.Zero;
         private Action<string?>? _onChange;
 
         private event Action? _onValueChanged;
@@ -32,7 +32,7 @@ namespace LingoEngine.LGodot.Gfx
         public bool Enabled { get => !Disabled; set => Disabled = !value; }
         string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
 
-        public LingoMargin Margin
+        public AMargin Margin
         {
             get => _margin;
             set

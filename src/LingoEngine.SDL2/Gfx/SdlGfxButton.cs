@@ -1,9 +1,9 @@
 using System;
 using System.Numerics;
 using ImGuiNET;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
@@ -12,7 +12,7 @@ namespace LingoEngine.SDL2.Gfx
         public SdlGfxButton(SdlGfxFactory factory) : base(factory)
         {
         }
-        public LingoMargin Margin { get; set; } = LingoMargin.Zero;
+        public AMargin Margin { get; set; } = AMargin.Zero;
         public string Text { get; set; } = string.Empty;
         public bool Enabled { get; set; } = true;
         public ILingoTexture2D? IconTexture { get; set; }

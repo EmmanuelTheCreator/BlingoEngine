@@ -1,14 +1,14 @@
 ﻿
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Casts;
 using LingoEngine.Members;
-using LingoEngine.Primitives;
 using LingoEngine.Texts.FrameworkCommunication;
 
 namespace LingoEngine.Texts
 {
     public class LingoMemberText : LingoMemberTextBase<ILingoFrameworkMemberText>, ILingoMemberText
     {
-        public LingoMemberText(LingoCast cast, ILingoFrameworkMemberText frameworkMember, int numberInCast, string name = "", string fileName = "", LingoPoint regPoint = default) : base(LingoMemberType.Text,cast, frameworkMember, numberInCast, name, fileName, regPoint)
+        public LingoMemberText(LingoCast cast, ILingoFrameworkMemberText frameworkMember, int numberInCast, string name = "", string fileName = "", APoint regPoint = default) : base(LingoMemberType.Text,cast, frameworkMember, numberInCast, name, fileName, regPoint)
         {
         }
 

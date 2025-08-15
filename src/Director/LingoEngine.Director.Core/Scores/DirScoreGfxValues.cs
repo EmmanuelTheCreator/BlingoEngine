@@ -1,5 +1,5 @@
-using LingoEngine.Primitives;
 using LingoEngine.Director.Core.Styles;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.Scores;
 
@@ -14,8 +14,8 @@ public class DirScoreGfxValues
     public int ExtraMargin { get; set; } = 20;
     public int TopStripHeight { get; set; } = 120;
 
-    public LingoColor ColLineLight { get; set; } = DirectorColors.LineLight;
-    public LingoColor ColLineDark { get; set; } = DirectorColors.LineDark;
+    public AColor ColLineLight { get; set; } = DirectorColors.LineLight;
+    public AColor ColLineDark { get; set; } = DirectorColors.LineDark;
     public float ChannelFramesHeight { get; set; } = 20;
 
     public DirScoreGfxValues()

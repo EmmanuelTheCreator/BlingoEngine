@@ -1,12 +1,12 @@
 using Godot;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.Styles;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Bitmaps;
 using LingoEngine.Texts;
 using LingoEngine.LGodot.Texts;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.LGodot.Gfx
 {
@@ -16,7 +16,7 @@ namespace LingoEngine.LGodot.Gfx
     public partial class LingoGodotGfxCanvas : Control, ILingoFrameworkGfxCanvas, IDisposable
     {
         private readonly ILingoFontManager _fontManager;
-        private LingoMargin _margin = LingoMargin.Zero;
+        private AMargin _margin = AMargin.Zero;
         private float _desiredWidth = 0;
         private float _desiredHeight = 0;
         private Color? _clearColor;
@@ -41,7 +41,7 @@ namespace LingoEngine.LGodot.Gfx
         public float Width { get => Size.X; set { Size = new Vector2(value, Size.Y); CustomMinimumSize = Size; _desiredWidth = value; } }
         public float Height { get => Size.Y; set { Size = new Vector2(Size.X, value);CustomMinimumSize = Size; _desiredHeight = value; } }
         public bool Visibility { get => Visible; set => Visible = value; }
-        public LingoMargin Margin
+        public AMargin Margin
         {
             get => _margin;
             set
@@ -84,26 +84,26 @@ namespace LingoEngine.LGodot.Gfx
             _dirty = false;
         }
 
-        public void Clear(LingoColor color)
+        public void Clear(AColor color)
         {
             _drawActions.Clear();
             _clearColor = color.ToGodotColor();
             MarkDirty();
         }
 
-        public void SetPixel(LingoPoint point, LingoColor color)
+        public void SetPixel(APoint point, AColor color)
         {
             _drawActions.Add(() => DrawRect(new Rect2(point.X, point.Y, 1, 1), color.ToGodotColor(), true));
             MarkDirty();
         }
 
-        public void DrawLine(LingoPoint start, LingoPoint end, LingoColor color, float width = 1)
+        public void DrawLine(APoint start, APoint end, AColor color, float width = 1)
         {
             _drawActions.Add(() => base.DrawLine(start.ToVector2(), end.ToVector2(), color.ToGodotColor(), width));
             MarkDirty();
         }
 
-        public void DrawRect(LingoRect rect, LingoColor color, bool filled = true, float width = 1)
+        public void DrawRect(ARect rect, AColor color, bool filled = true, float width = 1)
         {
             var godotRect = rect.ToRect2();
             var godotColor = color.ToGodotColor();
@@ -115,7 +115,7 @@ namespace LingoEngine.LGodot.Gfx
             MarkDirty();
         }
 
-        public void DrawCircle(LingoPoint center, float radius, LingoColor color, bool filled = true, float width = 1)
+        public void DrawCircle(APoint center, float radius, AColor color, bool filled = true, float width = 1)
         {
             if (filled)
                 _drawActions.Add(() => base.DrawCircle(center.ToVector2(), radius, color.ToGodotColor()));
@@ -125,13 +125,13 @@ namespace LingoEngine.LGodot.Gfx
             MarkDirty();
         }
 
-        public void DrawArc(LingoPoint center, float radius, float startDeg, float endDeg, int segments, LingoColor color, float width = 1)
+        public void DrawArc(APoint center, float radius, float startDeg, float endDeg, int segments, AColor color, float width = 1)
         {
             _drawActions.Add(() => DrawArc(center.ToVector2(), radius, startDeg, endDeg, segments, color.ToGodotColor(), width));
             MarkDirty();
         }
 
-        public void DrawPolygon(IReadOnlyList<LingoPoint> points, LingoColor color, bool filled = true, float width = 1)
+        public void DrawPolygon(IReadOnlyList<APoint> points, AColor color, bool filled = true, float width = 1)
         {
             var arr = points.Select(p => p.ToVector2()).ToArray();
           
@@ -142,7 +142,7 @@ namespace LingoEngine.LGodot.Gfx
             MarkDirty();
         }
 
-        public void DrawText(LingoPoint position, string text, string? font = null, LingoColor? color = null, int fontSize = 12, int width = -1, LingoTextAlignment alignment = LingoTextAlignment.Left)
+        public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, LingoTextAlignment alignment = LingoTextAlignment.Left)
         {
             Font fontGodot = _fontManager.Get<FontFile>(font ?? "") ?? ThemeDB.FallbackFont;
             Color col = color.HasValue ? color.Value.ToGodotColor() : Colors.Black;
@@ -171,7 +171,7 @@ namespace LingoEngine.LGodot.Gfx
         }
 
 
-        public void DrawPicture(byte[] data, int width, int height, LingoPoint position, LingoPixelFormat format)
+        public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)
         {
             //DrawRect(LingoRect.New(position.X, position.Y, width, height),new LingoColor(255,0,0));
             var img = Image.CreateFromData(width, height, false, format.ToGodotFormat(), data);
@@ -185,7 +185,7 @@ namespace LingoEngine.LGodot.Gfx
             MarkDirty();
         } 
         
-        public void DrawPicture(ILingoTexture2D texture, int width, int height, LingoPoint position)
+        public void DrawPicture(ILingoTexture2D texture, int width, int height, APoint position)
         {
             var tex = ((LingoGodotTexture2D)texture).Texture;    
             _drawActions.Add(() =>

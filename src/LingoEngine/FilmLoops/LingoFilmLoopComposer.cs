@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using LingoEngine.AbstUI.Core;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Bitmaps;
-using LingoEngine.Core;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
 using LingoEngine.Shapes;
@@ -31,10 +32,10 @@ public static class LingoFilmLoopComposer
         int SrcH,
         int DestW,
         int DestH,
-        LingoTransform2D Transform,
+        ATransform2D Transform,
         float Alpha,
         LingoInkType Ink,
-        LingoColor BackColor, LingoSprite2DVirtual Sprite2D);
+        AColor BackColor, LingoSprite2DVirtual Sprite2D);
 
     /// <summary>
     /// Computes the overall bounds and per-layer data needed to render a film
@@ -46,10 +47,10 @@ public static class LingoFilmLoopComposer
     /// <param name="layers">Virtual sprite layers that make up the film loop.</param>
     /// <returns>The offset to apply when rendering, the final width and height,
     /// and the prepared layer list.</returns>
-    public static (LingoPoint Offset, int Width, int Height, List<LayerInfo> Layers) Prepare(LingoFilmLoopMember filmLoop, LingoFilmLoopFraming framing, IEnumerable<LingoSprite2DVirtual> layers)
+    public static (APoint Offset, int Width, int Height, List<LayerInfo> Layers) Prepare(LingoFilmLoopMember filmLoop, LingoFilmLoopFraming framing, IEnumerable<LingoSprite2DVirtual> layers)
     {
         var bounds = filmLoop.GetBoundingBox();
-        var offset = new LingoPoint(-bounds.Left, -bounds.Top);
+        var offset = new APoint(-bounds.Left, -bounds.Top);
         int width = (int)MathF.Ceiling(bounds.Width);
         int height = (int)MathF.Ceiling(bounds.Height);
         var prepared = new List<LayerInfo>();
@@ -94,22 +95,22 @@ public static class LingoFilmLoopComposer
             {
                 float scaleRegX = destW / (float)m.Width;
                 float scaleRegY = destH / (float)m.Height;
-                reg = new LingoPoint(reg.X * scaleRegX, reg.Y * scaleRegY);
+                reg = new APoint(reg.X * scaleRegX, reg.Y * scaleRegY);
             }
             else
             {
-                reg = new LingoPoint(destW / 2f, destH / 2f);
+                reg = new APoint(destW / 2f, destH / 2f);
             }
 
-            var pos = new LingoPoint(layer.LocH + offset.X, layer.LocV + offset.Y);
+            var pos = new APoint(layer.LocH + offset.X, layer.LocV + offset.Y);
             if (layer.Member is LingoFilmLoopMember nested)
             {
                 var fl = nested.Framework<ILingoFrameworkMemberFilmLoop>();
                 pos.X -= fl.Offset.X;
                 pos.Y -= fl.Offset.Y;
             }
-            var scale = new LingoPoint(layer.FlipH ? -1 : 1, layer.FlipV ? -1 : 1);
-            var transform = LingoTransform2D.Identity
+            var scale = new APoint(layer.FlipH ? -1 : 1, layer.FlipV ? -1 : 1);
+            var transform = ATransform2D.Identity
                 .Translated(-reg.X, -reg.Y)
                 .Scaled(scale.X, scale.Y)
                 .Skewed(layer.Skew)
@@ -138,7 +139,7 @@ public static class LingoFilmLoopComposer
         return (offset, width, height, prepared);
     }
 #if DEBUG
-    private static void DebugInfo(IEnumerable<LingoSprite2DVirtual> layers, LingoRect bounds, LingoPoint offset, int width, int height)
+    private static void DebugInfo(IEnumerable<LingoSprite2DVirtual> layers, ARect bounds, APoint offset, int width, int height)
     {
         Console.WriteLine("Running framework: " + LingoEngineGlobal.RunFramework);
         Console.WriteLine("bounds=\t" + bounds);

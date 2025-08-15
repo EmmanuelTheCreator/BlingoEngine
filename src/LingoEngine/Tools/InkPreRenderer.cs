@@ -1,6 +1,7 @@
 using System;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.Tools
@@ -36,7 +37,7 @@ namespace LingoEngine.Tools
         /// <param name="rgba">Source pixels in RGBA8888 format.</param>
         /// <param name="ink">Ink type to apply.</param>
         /// <param name="transparentColor">Stage background color used for <c>BackgroundTransparent</c>.</param>
-        public static byte[] Apply(ReadOnlySpan<byte> rgba, LingoInkType ink, LingoColor transparentColor)
+        public static byte[] Apply(ReadOnlySpan<byte> rgba, LingoInkType ink, AColor transparentColor)
         {
             byte[] result = rgba.ToArray();
             int pixelCount = result.Length / 4;

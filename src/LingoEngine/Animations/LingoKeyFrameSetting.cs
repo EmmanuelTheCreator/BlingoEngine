@@ -1,4 +1,4 @@
-﻿using LingoEngine.Primitives;
+﻿using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Sprites;
 
 namespace LingoEngine.Animations
@@ -8,16 +8,16 @@ namespace LingoEngine.Animations
        
 
         public int Frame { get; set; }
-        public LingoPoint? Position { get; set; }
-        public LingoPoint? Size { get; set; }
+        public APoint? Position { get; set; }
+        public APoint? Size { get; set; }
         public float? Rotation { get; set; }
         public float? Blend { get; set; }
         public float? Skew { get; set; }
-        public LingoColor? ForeColor { get; set; }
-        public LingoColor? BackColor { get; set; }
+        public AColor? ForeColor { get; set; }
+        public AColor? BackColor { get; set; }
 
 
-        public LingoKeyFrameSetting(int frame, LingoPoint? position = null, LingoPoint? size = null, float? rotation = null, float? blend = null, float? skew = null, LingoColor? foreColor = null, LingoColor? backColor = null)
+        public LingoKeyFrameSetting(int frame, APoint? position = null, APoint? size = null, float? rotation = null, float? blend = null, float? skew = null, AColor? foreColor = null, AColor? backColor = null)
         {
             Frame = frame;
             Position = position;
@@ -33,15 +33,15 @@ namespace LingoEngine.Animations
         {
             return new LingoKeyFrameSetting(
                 frame: t.frame,
-                position: new LingoPoint(t.x, t.y),
-                size: new LingoPoint(t.width,t.height)
+                position: new APoint(t.x, t.y),
+                size: new APoint(t.width,t.height)
             );
         } 
         public static implicit operator LingoKeyFrameSetting((int frame, int x, int y) t)
         {
             return new LingoKeyFrameSetting(
                 frame: t.frame,
-                position: new LingoPoint(t.x, t.y)
+                position: new APoint(t.x, t.y)
             );
         }
 
@@ -54,8 +54,8 @@ namespace LingoEngine.Animations
         {
             return new LingoKeyFrameSetting(
                 frame: frame,
-                position: new LingoPoint(sprite.LocH, sprite.LocV),
-                size: new LingoPoint(sprite.Width, sprite.Height),
+                position: new APoint(sprite.LocH, sprite.LocV),
+                size: new APoint(sprite.Width, sprite.Height),
                 rotation: sprite.Rotation,
                 blend: sprite.Blend,
                 skew: sprite.Skew,

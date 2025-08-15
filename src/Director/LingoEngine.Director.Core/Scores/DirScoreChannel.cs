@@ -4,10 +4,10 @@ using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Gfx;
 using LingoEngine.Members;
 using LingoEngine.Movies;
-using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Director.Core.Styles;
 using System.Collections.Generic;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.Scores
 {
@@ -19,8 +19,8 @@ namespace LingoEngine.Director.Core.Scores
     public interface IDirScoreChannel
     {
         bool Visible { get; }
-        LingoPoint Position { get; }
-        LingoPoint Size { get; }
+        APoint Position { get; }
+        APoint Size { get; }
     }
 
     public abstract class DirScoreChannel : IDisposable, IDirScoreChannel
@@ -40,8 +40,8 @@ namespace LingoEngine.Director.Core.Scores
 
         public bool HasDirtySpriteList { get => _hasDirtySpriteList; set => _hasDirtySpriteList = value; }
         public bool Visible { get; internal set; } = true;
-        public LingoPoint Position { get; internal set; }
-        public LingoPoint Size { get; set; }
+        public APoint Position { get; internal set; }
+        public APoint Size { get; set; }
         public int SpriteNumWithChannelNum { get; }
         public bool IsSingleFrame { get; protected set; }
         public virtual T Framework<T>() where T : ILingoFrameworkGfxNode => _canvas.Framework<T>();
@@ -114,7 +114,7 @@ namespace LingoEngine.Director.Core.Scores
         {
             if (_movie == null) return;
             float width = _gfxValues.LeftMargin + _movie.FrameCount * _gfxValues.FrameWidth;
-            Size = new LingoPoint(width, _gfxValues.ChannelHeight);
+            Size = new APoint(width, _gfxValues.ChannelHeight);
             _canvas.Width = Size.X;
             _canvas.Height = Size.Y;
         }
@@ -353,7 +353,7 @@ namespace LingoEngine.Director.Core.Scores
             if (_hasDirtySpriteList)
                 RedrawAllSprites();
 
-            _canvas.Clear(LingoColorList.Transparent);
+            _canvas.Clear(AColors.Transparent);
 
             if (_movie == null) return;
 
@@ -367,14 +367,14 @@ namespace LingoEngine.Director.Core.Scores
             {
                 float px = (PreviewBegin - 1) * _gfxValues.FrameWidth;
                 float pw = PreviewEnd * _gfxValues.FrameWidth;
-                _canvas.DrawRect(new LingoRect(px, 0, pw, _gfxValues.ChannelHeight), new LingoColor(0, 120, 120, 80), false, 1);
+                _canvas.DrawRect(new ARect(px, 0, pw, _gfxValues.ChannelHeight), new AColor(0, 120, 120, 80), false, 1);
             }
 
             if (ShowSelectionRect)
             {
                 float sx = (SelectionBegin - 1) * _gfxValues.FrameWidth;
                 float ex = SelectionEnd * _gfxValues.FrameWidth;
-                _canvas.DrawRect(new LingoRect(sx, 0, ex, _gfxValues.ChannelHeight), DirectorColors.BlueSelectColorSemiTransparent, false, 1);
+                _canvas.DrawRect(new ARect(sx, 0, ex, _gfxValues.ChannelHeight), DirectorColors.BlueSelectColorSemiTransparent, false, 1);
             }
             _dirty = false;
         }

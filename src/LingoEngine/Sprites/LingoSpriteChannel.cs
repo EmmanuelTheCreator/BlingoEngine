@@ -1,4 +1,5 @@
-﻿using LingoEngine.Casts;
+﻿using LingoEngine.AbstUI.Primitives;
+using LingoEngine.Casts;
 using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Primitives;
@@ -52,8 +53,8 @@ namespace LingoEngine.Sprites
         /// Creates a scripted sprite that can be controlled by script.
         /// </summary>
         /// <param name="member">Optional <see cref="LingoMember"/> to assign to the new sprite.</param>
-        /// <param name="loc">Optional <see cref="LingoPoint"/> location.</param>
-        void MakeScriptedSprite(LingoMember? member = null, LingoPoint? loc = null);
+        /// <param name="loc">Optional <see cref="APoint"/> location.</param>
+        void MakeScriptedSprite(LingoMember? member = null, APoint? loc = null);
 
         /// <summary>
         /// to switch control of the sprite channel back to the Score.
@@ -87,14 +88,14 @@ namespace LingoEngine.Sprites
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
         public int BeginFrame { get => _sprite.BeginFrame; set => _sprite.BeginFrame = value; }
 
-        public LingoColor BackColor { get => _sprite.BackColor; set => _sprite.BackColor = value; }
+        public AColor BackColor { get => _sprite.BackColor; set => _sprite.BackColor = value; }
         public float Blend { get => _sprite.Blend; set => _sprite.Blend = value; }
         public LingoCast? Cast => _sprite.Cast;
-        public LingoColor Color { get => _sprite.Color; set => _sprite.Color = value; }
+        public AColor Color { get => _sprite.Color; set => _sprite.Color = value; }
         public bool Editable { get => _sprite.Editable; set => _sprite.Editable = value; }
         public bool Lock { get => _sprite.Lock; set => _sprite.Lock = value; }
         public int EndFrame { get => _sprite.EndFrame; set => _sprite.EndFrame = value; }
-        public LingoColor ForeColor { get => _sprite.ForeColor; set => _sprite.ForeColor = value; }
+        public AColor ForeColor { get => _sprite.ForeColor; set => _sprite.ForeColor = value; }
         public bool Hilite { get => _sprite.Hilite; set => _sprite.Hilite = value; }
         public int Ink { get => _sprite.Ink; set => _sprite.Ink = value; }
         public LingoInkType InkType { get => _sprite.InkType; set => _sprite.InkType = value; }
@@ -111,9 +112,9 @@ namespace LingoEngine.Sprites
         }
         public string ModifiedBy { get => _sprite.ModifiedBy; set => _sprite.ModifiedBy = value; }
         public string Name { get => _sprite.Name; set => _sprite.Name = value; }
-        public LingoRect Rect => _sprite.Rect;
-        public LingoPoint RegPoint { get => _sprite.RegPoint; set => _sprite.RegPoint = value; }
-        public LingoPoint Loc { get => _sprite.Loc; set => _sprite.Loc = value; }
+        public ARect Rect => _sprite.Rect;
+        public APoint RegPoint { get => _sprite.RegPoint; set => _sprite.RegPoint = value; }
+        public APoint Loc { get => _sprite.Loc; set => _sprite.Loc = value; }
         public float LocH { get => _sprite.LocH; set => _sprite.LocH = value; }
         public float LocV { get => _sprite.LocV; set => _sprite.LocV = value; }
         public int LocZ { get => _sprite.LocZ; set => _sprite.LocZ = value; }
@@ -192,7 +193,7 @@ namespace LingoEngine.Sprites
 
 
         /// <inheritdoc/>
-        public void MakeScriptedSprite(LingoMember? member = null, LingoPoint? loc = null)
+        public void MakeScriptedSprite(LingoMember? member = null, APoint? loc = null)
         {
             Scripted = true;
         }
@@ -217,7 +218,7 @@ namespace LingoEngine.Sprites
         public void MoveForward() => _sprite.MoveForward();
         public bool Intersects(ILingoSprite other) => _sprite.Intersects(other);
         public bool Within(ILingoSprite other) => _sprite.Within(other);
-        public (LingoPoint topLeft, LingoPoint topRight, LingoPoint bottomRight, LingoPoint bottomLeft) Quad() => _sprite.Quad();
+        public (APoint topLeft, APoint topRight, APoint bottomRight, APoint bottomLeft) Quad() => _sprite.Quad();
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
         public bool HasSprite() => _sprite != null;

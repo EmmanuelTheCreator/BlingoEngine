@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Gfx;
 using LingoEngine.Members;
-using LingoEngine.Primitives;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Windowing.Commands;
 using LingoEngine.Director.Core.Scripts.Commands;
@@ -14,6 +13,7 @@ using LingoEngine.Bitmaps;
 using LingoEngine.Scripts;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Casts;
+using LingoEngine.AbstUI.Primitives;
 
 namespace LingoEngine.Director.Core.Casts
 {
@@ -49,9 +49,9 @@ namespace LingoEngine.Director.Core.Casts
             _iconManager = iconManager;
             var tabName = cast.Name ?? $"Cast{cast.Number}";
             _tabItem = factory.CreateTabItem("Cast_" + tabName, tabName);
-            _wrap = factory.CreateWrapPanel(LingoOrientation.Vertical, tabName + "_Wrap");
+            _wrap = factory.CreateWrapPanel(AOrientation.Vertical, tabName + "_Wrap");
             _cast = cast;
-            _wrap.ItemMargin = new LingoPoint(_itemMargin, _itemMargin);
+            _wrap.ItemMargin = new APoint(_itemMargin, _itemMargin);
             _scroll = factory.CreateScrollContainer(tabName + "_Scroll");
             _scroll.ClipContents = true;
             _scroll.AddItem(_wrap);

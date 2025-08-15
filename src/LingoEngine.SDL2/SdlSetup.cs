@@ -1,4 +1,5 @@
-using LingoEngine.Core;
+using AbstUIEngine.AbstUI.Core;
+using LingoEngine.AbstUI.Core;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.SDL2.Core;
 using LingoEngine.SDL2.SDLL;
@@ -14,7 +15,7 @@ public static class SdlSetup
 
     public static ILingoEngineRegistration WithLingoSdlEngine(this ILingoEngineRegistration reg, string windowTitle, int width, int height, Action<SdlFactory>? setup = null)
     {
-        LingoEngineGlobal.RunFramework = LingoEngineRunFramework.SDL2;
+        LingoEngineGlobal.RunFramework = AbstUIEngineRunFramework.SDL2;
         if (SDL.SDL_Init(SDL.SDL_INIT_VIDEO | SDL.SDL_INIT_EVENTS | SDL.SDL_INIT_GAMECONTROLLER | SDL.SDL_INIT_AUDIO) < 0)
         {
             Console.WriteLine("Unable to initialize SDL. Error: {0}", SDL.SDL_GetError());
@@ -48,7 +49,7 @@ public static class SdlSetup
     }
     public static ILingoEngineRegistration WithLingoSdlEngine(this ILingoEngineRegistration reg, nint sdlWindow, nint sdlRenderer, Action<SdlFactory>? setup = null)
     {
-        LingoEngineGlobal.RunFramework = LingoEngineRunFramework.SDL2;
+        LingoEngineGlobal.RunFramework = AbstUIEngineRunFramework.SDL2;
         var rootContext = new SdlRootContext(sdlWindow, sdlRenderer);
         RegisterServices(reg, setup, rootContext);
         return reg;

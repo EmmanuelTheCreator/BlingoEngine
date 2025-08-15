@@ -1,8 +1,8 @@
 using System;
 using System.Numerics;
 using ImGuiNET;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using LingoEngine.SDL2.Primitives;
 using LingoEngine.Texts;
 using static System.Net.Mime.MediaTypeNames;
@@ -14,17 +14,17 @@ namespace LingoEngine.SDL2.Gfx
         public SdlGfxLabel(SdlGfxFactory factory) : base(factory)
         {
         }
-        public LingoMargin Margin { get; set; } = LingoMargin.Zero;
+        public AMargin Margin { get; set; } = AMargin.Zero;
 
         public string Text { get; set; } = string.Empty;
         public int FontSize { get; set; }
         public string? Font { get; set; }
 
-        public LingoColor FontColor { get; set; } = LingoColorList.Black;
+        public AColor FontColor { get; set; } = AColors.Black;
         private int _lineHeight;
         public int LineHeight { get => _lineHeight; set => _lineHeight = value; }
-        private LingoTextWrapMode _wrapMode;
-        public LingoTextWrapMode WrapMode { get => _wrapMode; set => _wrapMode = value; }
+        private ATextWrapMode _wrapMode;
+        public ATextWrapMode WrapMode { get => _wrapMode; set => _wrapMode = value; }
         private LingoTextAlignment _textAlignment;
         public LingoTextAlignment TextAlignment { get => _textAlignment; set => _textAlignment = value; }
 
@@ -51,7 +51,7 @@ namespace LingoEngine.SDL2.Gfx
             
 
             // Wrapping (only when Width > 0)
-            bool wrap = WrapMode != LingoTextWrapMode.Off && Width > 0;
+            bool wrap = WrapMode != ATextWrapMode.Off && Width > 0;
             if (wrap) ImGui.PushTextWrapPos(basePos.X + Width);
 
             // Position with screen coords (no assertions)

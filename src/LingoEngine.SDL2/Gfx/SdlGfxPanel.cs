@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using LingoEngine.AbstUI.Primitives;
 using LingoEngine.Gfx;
-using LingoEngine.Primitives;
 using LingoEngine.SDL2.SDLL;
 
 namespace LingoEngine.SDL2.Gfx
@@ -11,9 +11,9 @@ namespace LingoEngine.SDL2.Gfx
         public SdlGfxPanel(SdlGfxFactory factory) : base(factory)
         {
         }
-        public LingoMargin Margin { get; set; } = LingoMargin.Zero;
-        public LingoColor? BackgroundColor { get; set; }
-        public LingoColor? BorderColor { get; set; }
+        public AMargin Margin { get; set; } = AMargin.Zero;
+        public AColor? BackgroundColor { get; set; }
+        public AColor? BorderColor { get; set; }
         public float BorderWidth { get; set; }
         public object FrameworkNode => this;
 

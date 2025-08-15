@@ -24,6 +24,7 @@
 
 
   <ItemGroup>
+    <Folder Include="AbstUI\Components\" />
     <Folder Include="Inputs\Commands\" />
     <Folder Include="Scores\Commands\" />
   </ItemGroup>
