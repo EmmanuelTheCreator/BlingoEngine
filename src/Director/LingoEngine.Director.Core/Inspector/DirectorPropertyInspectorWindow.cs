@@ -18,6 +18,7 @@ using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Tools;
 using LingoEngine.Director.Core.Windowing;
+using LingoEngine.Director.Core.Inspector.Commands;
 using LingoEngine.Director.Core.Stages;
 using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
@@ -31,7 +32,8 @@ using LingoEngine.FilmLoops;
 
 namespace LingoEngine.Director.Core.Inspector
 {
-    public class DirectorPropertyInspectorWindow : DirectorWindow<IDirFrameworkPropertyInspectorWindow>, IHasSpriteSelectedEvent, IHasMemberSelectedEvent
+    public class DirectorPropertyInspectorWindow : DirectorWindow<IDirFrameworkPropertyInspectorWindow>, IHasSpriteSelectedEvent, IHasMemberSelectedEvent,
+        ICommandHandler<OpenBehaviorPopupCommand>
     {
         public enum PropetyTabNames
         {
@@ -69,7 +71,7 @@ namespace LingoEngine.Director.Core.Inspector
         private float _lastHeight;
         private Dictionary<string, LingoSpriteBehavior> _behaviors = new();
         private LingoGfxItemList _behaviorList;
-        public event Action<LingoSpriteBehavior>? BehaviorSelected;
+        private LingoGfxWindow? _behaviorWindow;
 
         public LingoGfxPanel HeaderPanel => _headerPanel;
         public LingoGfxTabContainer Tabs => _tabs;
@@ -345,7 +347,7 @@ namespace LingoEngine.Director.Core.Inspector
             _behaviorList = _factory.CreateItemList("BehaviorList", x =>
             {
                 if (x != null && _behaviors.TryGetValue(x, out var behavior))
-                    BehaviorSelected?.Invoke(behavior);
+                    _commandManager.Handle(new OpenBehaviorPopupCommand(behavior));
             });
             _behaviorList.Height = 45;
             _behaviorList.Width = _lastWidh - 15;
@@ -360,6 +362,23 @@ namespace LingoEngine.Director.Core.Inspector
             {
                 _behaviorList.SelectedIndex = -1;
             });
+
+        public void ShowBehaviorPopup(LingoGfxWindow window)
+        {
+            _behaviorWindow?.Dispose();
+            _behaviorWindow = window;
+            window.PopupCentered();
+        }
+
+        public bool CanExecute(OpenBehaviorPopupCommand command) => true;
+
+        public bool Handle(OpenBehaviorPopupCommand command)
+        {
+            var win = BuildBehaviorPopup(command.Behavior);
+            if (win == null) return true;
+            ShowBehaviorPopup(win);
+            return true;
+        }
 
         #endregion
 
