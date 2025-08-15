@@ -1,15 +1,31 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFrameworks>net8.0;net48</TargetFrameworks>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-		<LangVersion>12</LangVersion>
-		<Platforms>AnyCPU;x64;x86</Platforms>
+        <PropertyGroup>
+                <TargetFrameworks>net8.0;net48</TargetFrameworks>
+                <ImplicitUsings>enable</ImplicitUsings>
+                <Nullable>enable</Nullable>
+                <LangVersion>12</LangVersion>
+                <Platforms>AnyCPU;x64;x86</Platforms>
+        </PropertyGroup>
 
-	</PropertyGroup>
-	<ItemGroup Condition="'$(TargetFramework)' == 'net48'">
-		<PackageReference Include="System.Memory" Version="4.5.5" />
-		<PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-	</ItemGroup>
+        <PropertyGroup>
+                <!-- NuGet Packaging Metadata -->
+                <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+                <PackageId>AbstUI</PackageId>
+                <Version>1.0.0</Version>
+                <Authors>Emmanuel The Creator</Authors>
+                <Company>The Community</Company>
+                <Description>Core abstractions and components for the AbstUI framework, providing reusable UI primitives across multiple backends.</Description>
+                <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
+                <PackageTags>AbstUI</PackageTags>
+                <PackageLicenseExpression>MIT</PackageLicenseExpression>
+                <PackageReadmeFile>README.md</PackageReadmeFile>
+        </PropertyGroup>
+        <ItemGroup>
+                <None Include="README.md" Pack="true" PackagePath="" />
+        </ItemGroup>
+        <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+                <PackageReference Include="System.Memory" Version="4.5.5" />
+                <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+        </ItemGroup>
 </Project>
