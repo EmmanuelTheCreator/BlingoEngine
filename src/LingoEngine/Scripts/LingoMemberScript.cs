@@ -1,14 +1,38 @@
-﻿using LingoEngine.Casts;
+using System;
+using System.Linq;
+using LingoEngine.Casts;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
+using LingoEngine.Sprites;
 
 namespace LingoEngine.Scripts
 {
     public class LingoMemberScript : LingoMember
     {
         public LingoScriptType ScriptType { get; set; } = LingoScriptType.Behavior;
-        public LingoMemberScript(ILingoFrameworkMember frameworkMember, LingoCast cast, int numberInCast, string name = "", string fileName = "", LingoPoint regPoint = default) : base(frameworkMember, LingoMemberType.Script, cast, numberInCast, name, fileName, regPoint)
+        public string? BehaviorTypeName { get; private set; }
+
+        public LingoMemberScript(ILingoFrameworkMember frameworkMember, LingoCast cast, int numberInCast, string name = "", string fileName = "", LingoPoint regPoint = default)
+            : base(frameworkMember, LingoMemberType.Script, cast, numberInCast, name, fileName, regPoint)
         {
         }
+
+        public void SetBehaviorType<TBehavior>() where TBehavior : LingoSpriteBehavior
+            => BehaviorTypeName = typeof(TBehavior).FullName;
+
+        public void SetBehaviorType(Type behaviorType)
+            => BehaviorTypeName = behaviorType.FullName;
+
+        public Type? GetBehaviorType()
+            => BehaviorTypeName == null
+                ? null
+                : AppDomain.CurrentDomain.GetAssemblies()
+                    .SelectMany(a =>
+                    {
+                        try { return a.GetTypes(); }
+                        catch { return Array.Empty<Type>(); }
+                    })
+                    .FirstOrDefault(t => t.FullName == BehaviorTypeName);
     }
 }
+

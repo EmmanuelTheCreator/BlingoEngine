@@ -10,6 +10,9 @@ using LingoEngine.Movies;
 using System.Collections.Generic;
 using System.Linq;
 using LingoEngine.Director.Core.Scores.Sprites2D;
+using LingoEngine.Scripts;
+using System;
+using LingoEngine.Director.Core.Inspector.Commands;
 
 namespace LingoEngine.Director.Core.Scores
 {
@@ -207,7 +210,8 @@ namespace LingoEngine.Director.Core.Scores
                 if (_rectangleSelection.Update(channelNumber, frameNumber))
                     return;
                 // Drag from castlib?
-                if (DirectorDragDropHolder.IsDragging && !_isDropPreview && DirectorDragDropHolder.Member != null)
+                if (DirectorDragDropHolder.IsDragging && !_isDropPreview && DirectorDragDropHolder.Member != null &&
+                    DirectorDragDropHolder.Member is not LingoMemberScript { ScriptType: LingoScriptType.Behavior })
                     StartDropPreview();
 
                 if (_isDropPreview)
@@ -260,6 +264,13 @@ namespace LingoEngine.Director.Core.Scores
                         DropFromCastLib(DirectorDragDropHolder.Member);
                     }
                     StopPreview();
+                    return;
+                }
+                if (DirectorDragDropHolder.Member is LingoMemberScript { ScriptType: LingoScriptType.Behavior } script &&
+                    spriteScore?.Sprite is LingoSprite2D sprite2D)
+                {
+                    sprite2D.AttachBehavior(script, _commandManager);
+                    DirectorDragDropHolder.EndDrag();
                     return;
                 }
                 if (_dragKeyFrame)

@@ -4,26 +4,23 @@ using LingoEngine.Core;
 using LingoEngine.LGodot.Gfx;
 using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.Director.Core.Icons;
-using LingoEngine.Sprites;
-using LingoEngine.Gfx;
 using LingoEngine.Director.Core.UI;
 
 namespace LingoEngine.Director.LGodot.Inspector;
 
 public partial class DirGodotPropertyInspector : BaseGodotWindow, IDirFrameworkPropertyInspectorWindow
 {
-   
+
     private readonly DirectorPropertyInspectorWindow _inspectorWindow;
     private LingoGodotPanel _headerPanel;
-    private LingoGfxWindow? _behaviorWindow;
 
     public DirGodotPropertyInspector(DirectorPropertyInspectorWindow inspectorWindow, ILingoPlayer player, IDirGodotWindowManager windowManager, IDirectorIconManager iconManager)
         : base(DirectorMenuCodes.PropertyInspector, "Property Inspector", windowManager)
     {
         _inspectorWindow = inspectorWindow;
-        
+
         Size = new Vector2(260, 450);
-        _inspectorWindow.Init(this, Size.X, Size.Y,TitleBarHeight);
+        _inspectorWindow.Init(this, Size.X, Size.Y, TitleBarHeight);
         CustomMinimumSize = Size;
 
         _headerPanel = _inspectorWindow.HeaderPanel.Framework<LingoGodotPanel>();
@@ -37,8 +34,6 @@ public partial class DirGodotPropertyInspector : BaseGodotWindow, IDirFrameworkP
         tabs.Size = new Vector2(Size.X, Size.Y - 30 - DirectorPropertyInspectorWindow.HeaderHeight);
         AddChild(tabs);
 
-        _inspectorWindow.BehaviorSelected += OnBehaviorSelected;
-
         //var behaviorPanel = _inspectorWindow.BehaviorPanel.Framework<LingoGodotPanel>();
         //behaviorPanel.Visibility = false;
         //behaviorPanel.Position = new Vector2(0, TitleBarHeight + DirectorPropertyInspectorWindow.HeaderHeight);
@@ -46,34 +41,13 @@ public partial class DirGodotPropertyInspector : BaseGodotWindow, IDirFrameworkP
         //AddChild(behaviorPanel);
 
     }
-  
+
     protected override void OnResizing(Vector2 size)
     {
         base.OnResizing(size);
 
-       _inspectorWindow.OnResizing(size.X, size.Y);
+        _inspectorWindow.OnResizing(size.X, size.Y);
 
     }
 
-    private void OnBehaviorSelected(LingoSpriteBehavior behavior)
-    {
-        //if (_behaviorWindow != null && _behaviorWindow.Framework<ILingoFrameworkGfxWindow>().FrameworkNode is Node oldNode)
-        if (_behaviorWindow != null)
-        {
-            //oldNode.QueueFree();
-            _behaviorWindow.Dispose();
-            _behaviorWindow = null;
-        }
-
-        var win = _inspectorWindow.BuildBehaviorPopup(behavior);
-        if (win == null) return;
-        //if (win.Framework<ILingoFrameworkGfxWindow>().FrameworkNode is Node node)
-        //    GetTree().Root.AddChild(node);
-        
-        win.PopupCentered();
-        _behaviorWindow = win;
-    }
- 
-
-    
 }
