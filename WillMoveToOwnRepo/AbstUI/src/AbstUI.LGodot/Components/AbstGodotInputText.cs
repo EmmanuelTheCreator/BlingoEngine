@@ -16,7 +16,7 @@ namespace AbstUI.LGodot.Components
         private AMargin _margin = AMargin.Zero;
         private event Action? _onValueChanged;
 
-        public AbstGodotInputText(AbstInputText input, IAbstFontManager fontManager, Action<string>? onChange)
+        public AbstGodotInputText(AbstInputText input, IAbstFontManager fontManager, Action<string>? onChange, bool multiLine = false)
         {
             _onChange = onChange;
             _fontManager = fontManager;
@@ -30,6 +30,7 @@ namespace AbstUI.LGodot.Components
 
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
         public float Y { get => Position.Y; set => Position = new Vector2(Position.X, value); }
+        public bool IsMultiLine { get; set; }
         private float _wantedWidth = 10;
         public float Width
         {
@@ -139,7 +140,7 @@ namespace AbstUI.LGodot.Components
         }
         public object FrameworkNode => this;
 
-
+       
 
         event Action? IAbstFrameworkNodeInput.ValueChanged
         {

@@ -286,7 +286,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         _stageContainer.Container.Position = innerPos; //, TitleBarHeight+10);
         _guidesCanvas.Position = innerPos;
         _motionPathCanvas.Position = innerPos;
-        _spriteSummaryCanvas.Position = innerPos;
+        _spriteSummaryCanvas.Position = innerPos; // new Vector2(innerPos.X, innerPos.Y + 130);
         _selectionBox.Position = innerPos;
         UpdateStagePosition();
         return true;

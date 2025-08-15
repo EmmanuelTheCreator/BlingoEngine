@@ -241,8 +241,8 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
     public AbstInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
         => _gfxFactory.CreateInputSliderInt(orientation, name, min, max, step, onChange);
 
-    public AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null)
-        => _gfxFactory.CreateInputText(name, maxLength, onChange);
+    public AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null, bool multiLine = false)
+        => _gfxFactory.CreateInputText(name, maxLength, onChange, multiLine);
 
     public AbstInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null)
         => _gfxFactory.CreateInputNumberFloat(name, min, max, onChange);

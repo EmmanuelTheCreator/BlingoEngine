@@ -259,8 +259,8 @@ namespace LingoEngine.LGodot.Core
             where TValue : struct, System.Numerics.INumber<TValue>, IConvertible
             => _gfxFactory.CreateInputSlider(name, orientation, min, max, step, onChange);
 
-        public AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null)
-            => _gfxFactory.CreateInputText(name, maxLength, onChange);
+        public AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null, bool multiLine = false)
+            => _gfxFactory.CreateInputText(name, maxLength, onChange, multiLine);
 
         public AbstInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null)
             => _gfxFactory.CreateInputNumberFloat(name, min, max, onChange);

@@ -25,6 +25,7 @@ using AbstUI.Styles;
 using Microsoft.Extensions.DependencyInjection;
 using AbstUI.Primitives;
 using AbstUI.Components;
+using System.Numerics;
 
 namespace LingoEngine.Unity.Core;
 
@@ -155,7 +156,7 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
     public AbstScrollContainer CreateScrollContainer(string name) => throw new NotImplementedException();
     public AbstInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null) => throw new NotImplementedException();
     public AbstInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null) => throw new NotImplementedException();
-    public AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null) => throw new NotImplementedException();
+    public AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null, bool multiLine = false) => throw new NotImplementedException();
     public AbstInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null) => throw new NotImplementedException();
     public AbstInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null) => throw new NotImplementedException();
     public AbstInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null) where TValue : System.Numerics.INumber<TValue> => throw new NotImplementedException();

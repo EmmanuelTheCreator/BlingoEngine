@@ -9,5 +9,6 @@ namespace AbstUI.Components
         int MaxLength { get; set; }
         string? Font { get; set; }
         int FontSize { get; set; }
+        bool IsMultiLine { get; set; }
     }
 }

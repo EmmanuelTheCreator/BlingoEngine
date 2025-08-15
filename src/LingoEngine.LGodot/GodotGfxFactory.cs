@@ -114,10 +114,10 @@ namespace LingoEngine.LGodot
             return slider;
         }
 
-        public AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null)
+        public AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null, bool multiLine = false)
         {
             var input = new AbstInputText();
-            var impl = new AbstGodotInputText(input, _fontManager, onChange);
+            var impl = new AbstGodotInputText(input, _fontManager, onChange, multiLine);
             input.MaxLength = maxLength;
             input.Name = name;
             return input;

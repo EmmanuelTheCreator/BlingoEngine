@@ -97,7 +97,7 @@ namespace LingoEngine.FrameworkCommunication
         AbstInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null);
 
         /// <summary>Creates a single line text input.</summary>
-        AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null);
+        AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null, bool multiLine = false);
 
         /// <summary>Creates a numeric input field.</summary>
         AbstInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null);

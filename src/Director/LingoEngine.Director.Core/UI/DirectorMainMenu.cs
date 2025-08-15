@@ -11,6 +11,7 @@ using LingoEngine.Commands;
 using LingoEngine.Director.Core.Compilers.Commands;
 using AbstUI.Primitives;
 using AbstUI.Components;
+using LingoEngine.Director.Core.Tools.Commands;
 
 namespace LingoEngine.Director.Core.UI
 {
@@ -221,7 +222,11 @@ namespace LingoEngine.Director.Core.UI
 
             var projectSettings = factory.CreateMenuItem("Project Settings");
             projectSettings.Activated += () => _windowManager.OpenWindow(DirectorMenuCodes.ProjectSettingsWindow);
-            _editMenu.AddItem(projectSettings);
+            _editMenu.AddItem(projectSettings); 
+            
+            var cConverter = factory.CreateMenuItem("Lingo to # Converter");
+            cConverter.Activated += () => _commandManager.Handle(new OpenLingoCSharpConverterCommand());
+            _editMenu.AddItem(cConverter);
         }
 
 

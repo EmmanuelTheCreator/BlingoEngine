@@ -123,10 +123,10 @@ namespace AbstUI.SDL2
             return slider;
         }
 
-        public AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null)
+        public AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null, bool multiLine = false)
         {
             var input = new AbstInputText();
-            var impl = new AbstSdlInputText(this);
+            var impl = new AbstSdlInputText(this, multiLine);
             input.Init(impl);
             input.Name = name;
             input.MaxLength = maxLength;

@@ -8,7 +8,7 @@ namespace AbstUI.SDL2.Components
 {
     internal class AbstSdlInputText : AbstSdlComponent, IAbstFrameworkInputText, IDisposable
     {
-        public AbstSdlInputText(AbstSdlComponentFactory factory) : base(factory)
+        public AbstSdlInputText(AbstSdlComponentFactory factory, bool multiLine) : base(factory)
         {
         }
         public bool Enabled { get; set; } = true;
@@ -30,6 +30,8 @@ namespace AbstUI.SDL2.Components
         public int FontSize { get; set; } = 12;
         public AMargin Margin { get; set; } = AMargin.Zero;
         public object FrameworkNode => this;
+
+        public bool IsMultiLine { get; set; }
 
         public event Action? ValueChanged;
 

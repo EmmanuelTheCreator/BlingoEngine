@@ -2,6 +2,7 @@ using AbstUI.Components;
 using AbstUI.Primitives;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Tools.Commands;
+using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Lingo.Core;
@@ -45,7 +46,7 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
         var content = _factory.CreateWrapPanel(AOrientation.Horizontal, "Content");
         content.Width = 600;
         content.Height = 320;
-        root.AddItem(_factory.CreateLayoutWrapper(content, 0, 0));
+        root.AddItem(content);
 
         var left = _factory.CreateWrapPanel(AOrientation.Vertical, "LingoColumn");
         left.Width = 300;
@@ -77,19 +78,21 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
         var csharpInput = _factory.CreateInputText("CSharpText", 0, null);
         csharpInput.Width = 280;
         csharpInput.Height = 280;
-        csharpInput.Enabled = false;
+        //csharpInput.Enabled = false;
+        csharpInput.IsMultiLine = true;
         right.AddItem(csharpInput);
 
         var menuBar = _factory.CreateWrapPanel(AOrientation.Horizontal, "BottomBar");
         menuBar.Width = 600;
         menuBar.Height = 40;
-        root.AddItem(_factory.CreateLayoutWrapper(menuBar, 0, 320));
+        menuBar.Margin = new AMargin(0, 320, 0, 0);
+        root.AddItem(menuBar); // _factory.CreateLayoutWrapper(menuBar, 0, 320));
 
         menuBar.ComposeForToolBar()
             .AddButton("ConvertButton", "Convert", () =>
             {
-                vm.CSharp = LingoToCSharpConverter.Convert(vm.Lingo);
-                csharpInput.Text = vm.CSharp;
+            vm.CSharp = LingoToCSharpConverter.Convert(vm.Lingo);
+            csharpInput.Text = vm.CSharp.Replace("\r", "\n");
             });
 
         return root;
