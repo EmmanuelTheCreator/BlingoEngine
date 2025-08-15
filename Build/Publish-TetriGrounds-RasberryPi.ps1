@@ -1,0 +1,20 @@
+# Requires PowerShell 5+
+$ErrorActionPreference = "Stop"
+
+$rootDir = Resolve-Path (Join-Path $PSScriptRoot "..")
+$project = Join-Path $rootDir "Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.SDL2/LingoEngine.Demo.TetriGrounds.SDL2.csproj"
+$outDir = Join-Path $rootDir "Publish/TetriGrounds-RasberryPi"
+$arch = "arm"
+
+New-Item -ItemType Directory -Force -Path $outDir | Out-Null
+
+dotnet publish $project -c Release -r linux-arm --self-contained false -o $outDir
+
+$installScript = @"
+#!/usr/bin/env bash
+set -e
+
+curl -fsSL https://dot.net/v1/dotnet-install.sh | bash -s -- --channel 8.0 --runtime dotnet --architecture $arch
+"@
+$installPath = Join-Path $outDir "install.sh"
+Set-Content -Path $installPath -Value $installScript
