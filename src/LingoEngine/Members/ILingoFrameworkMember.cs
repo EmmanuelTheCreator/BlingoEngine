@@ -38,6 +38,10 @@ namespace LingoEngine.Members
         /// <param name="x">X coordinate in pixels.</param>
         /// <param name="y">Y coordinate in pixels.</param>
         /// <returns><c>true</c> if the pixel is transparent; otherwise, <c>false</c>.</returns>
+#if NET48
+        bool IsPixelTransparent(int x, int y);
+#else
         bool IsPixelTransparent(int x, int y) => false;
+#endif
     }
 }

@@ -252,7 +252,11 @@ namespace LingoEngine.Core
             }
             else
             {
+#if NET48
+                var target = MathCompat.Clamp(movie.Frame + offset, 1, movie.FrameCount);
+#else
                 var target = Math.Clamp(movie.Frame + offset, 1, movie.FrameCount);
+#endif
                 movie.GoToAndStop(target);
             }
             return true;

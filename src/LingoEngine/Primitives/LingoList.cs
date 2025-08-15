@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 
 namespace LingoEngine.Primitives
 {
@@ -127,12 +128,22 @@ namespace LingoEngine.Primitives
         /// <summary>
         /// Gets the last item in the list.
         /// </summary>
-        public T GetLast() => _items[^1];
+        public T GetLast()
+#if NET48
+            => _items[_items.Count - 1];
+#else
+            => _items[^1];
+#endif
 
         /// <summary>
         /// Gets a random item in the list.
         /// </summary>
+#if NET48
+        private static readonly Random _random = new Random();
+        public T GetAValue() => _items[_random.Next(0, _items.Count)];
+#else
         public T GetAValue() => _items[Random.Shared.Next(0, _items.Count)];
+#endif
 
         /// <summary>
         /// Returns the Lingo type identifier.

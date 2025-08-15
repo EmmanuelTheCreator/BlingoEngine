@@ -1,5 +1,7 @@
-﻿namespace LingoEngine.Primitives
-{
+﻿using System;
+
+namespace LingoEngine.Primitives
+{ 
     /// <summary>
     /// Represents a color value in the Lingo system, supporting palette index, RGB, and optional name.
     /// Platform-agnostic.
@@ -47,7 +49,11 @@
         /// </summary>
         public LingoColor Lighten(float factor)
         {
+#if NET48
+            factor = MathCompat.Clamp(factor, 0f, 1f);
+#else
             factor = Math.Clamp(factor, 0f, 1f);
+#endif
             byte r = (byte)(R + (255 - R) * factor);
             byte g = (byte)(G + (255 - G) * factor);
             byte b = (byte)(B + (255 - B) * factor);
@@ -59,7 +65,11 @@
         /// </summary>
         public LingoColor Darken(float factor)
         {
+#if NET48
+            factor = MathCompat.Clamp(factor, 0f, 1f);
+#else
             factor = Math.Clamp(factor, 0f, 1f);
+#endif
             byte r = (byte)(R * (1f - factor));
             byte g = (byte)(G * (1f - factor));
             byte b = (byte)(B * (1f - factor));

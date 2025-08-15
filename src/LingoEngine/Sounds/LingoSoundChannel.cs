@@ -1,9 +1,3 @@
-﻿using static System.Net.Mime.MediaTypeNames;
-using System.Net.NetworkInformation;
-using System.Numerics;
-using System;
-using System.Threading.Channels;
-
 namespace LingoEngine.Sounds
 {
     /// <summary>
@@ -183,7 +177,9 @@ namespace LingoEngine.Sounds
         /// <inheritdoc/>
         public float PreloadTime { get; set; }
         public float CurrentTime { get => _frameworkSoundChannel.CurrentTime; set => _frameworkSoundChannel.CurrentTime = value; }
-        public bool Mute { get => mute;
+        public bool Mute
+        {
+            get => mute;
             set
             {
                 mute = value;
@@ -288,7 +284,7 @@ namespace LingoEngine.Sounds
             if (preloadTime > -1) sound.PreloadTime = preloadTime;
             _playlist.Enqueue(sound);
         }
-       
+
         /// <inheritdoc/>
         public void Rewind() { _frameworkSoundChannel.Rewind(); }
         /// <inheritdoc/>
@@ -306,7 +302,7 @@ namespace LingoEngine.Sounds
             if (LoopCount > 1)
             {
                 _currentLoop++;
-                
+
                 if (_currentLoop >= LoopCount)
                 {
                     Status = LingoSoundChannelStatus.Idle;
@@ -320,7 +316,7 @@ namespace LingoEngine.Sounds
             {
                 Status = LingoSoundChannelStatus.Idle;
             }
-            
+
         }
     }
 

@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Data;
+using System.Linq;
 
 namespace LingoEngine.Texts
 {
@@ -54,7 +56,7 @@ namespace LingoEngine.Texts
 
         private void Parse()
         {
-            _words = _text.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(x => new LingoWords(x)).ToArray();
+            _words = _text.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(x => new LingoWords(x)).ToArray();
             _hasParsed = true;
         }
 

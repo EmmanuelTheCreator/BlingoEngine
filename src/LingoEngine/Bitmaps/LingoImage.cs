@@ -11,7 +11,7 @@
     }
     public class LingoImage : ILingoImage
     {
-        public static int[] AllowedBitDepthsValues => [1, 2, 4, 8, 16, 32];
+        public static int[] AllowedBitDepthsValues => new[] { 1, 2, 4, 8, 16, 32 };
         public int Width { get; private set; }
 
         public int Height { get; private set; }
@@ -21,7 +21,7 @@
         public LingoImage(int width, int height, int bitDepths)
         {
             if (!AllowedBitDepthsValues.Contains(bitDepths))
-                throw new ArgumentException("bitDepths must be in the range of " + string.Join(',', AllowedBitDepthsValues), nameof(BitDepths));
+                throw new ArgumentException("bitDepths must be in the range of " + string.Join(",", AllowedBitDepthsValues), nameof(BitDepths));
             Width = width;
             Height = height;
             BitDepths = bitDepths;
