@@ -2,6 +2,7 @@
 using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Sounds;
+using System;
 
 namespace LingoEngine.Sprites
 {
@@ -185,14 +186,22 @@ namespace LingoEngine.Sprites
         {
             if (!_activeSprites.TryGetValue(spriteNumber, out var sprite))
                 return pos;
+#if NET48
+            return (int)MathCompat.Clamp(pos, sprite.Left, sprite.Right);
+#else
             return (int)Math.Clamp(pos, sprite.Left, sprite.Right);
+#endif
         }
 
         internal int ConstrainV(int spriteNumber, int pos)
         {
             if (!_activeSprites.TryGetValue(spriteNumber, out var sprite))
                 return pos;
+#if NET48
+            return (int)MathCompat.Clamp(pos, sprite.Top, sprite.Bottom);
+#else
             return (int)Math.Clamp(pos, sprite.Top, sprite.Bottom);
+#endif
         }
 
         internal LingoSprite2D? GetSpriteUnderMouse(bool skipLockedSprites = false)

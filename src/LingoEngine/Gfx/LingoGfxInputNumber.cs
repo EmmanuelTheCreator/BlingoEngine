@@ -4,11 +4,15 @@ namespace LingoEngine.Gfx
 {
 
     public struct NullableNum<TValue>
+#if NET48
+        where TValue : struct
+#else
         where TValue : System.Numerics.INumber<TValue>
+#endif
     {
         private TValue? _Value;
         public TValue Value => _Value ?? throw new InvalidOperationException("Value is null. Use HasValue to check if a value is present.");
-        public bool HasValue{ get; set; }
+        public bool HasValue { get; set; }
         public NullableNum()
         {
             HasValue = false;
@@ -37,7 +41,11 @@ namespace LingoEngine.Gfx
     /// Engine level wrapper for a numeric input field.
     /// </summary>
     public class LingoGfxInputNumber<TValue> : LingoGfxInputBase<ILingoFrameworkGfxInputNumber<TValue>>
+#if NET48
+        where TValue : struct
+#else
         where TValue : System.Numerics.INumber<TValue>
+#endif
     {
         public TValue Value { get => _framework.Value; set => _framework.Value = value; }
         public TValue Min { get => _framework.Min; set => _framework.Min = value; }

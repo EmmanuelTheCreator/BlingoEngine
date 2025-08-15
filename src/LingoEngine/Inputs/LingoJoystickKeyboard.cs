@@ -290,7 +290,7 @@ namespace LingoEngine.Inputs
             if (value == "\b")
             {
                 if (Text.Length > 0)
-                    Text = Text[..^1];
+                    Text = Text.Substring(0, Text.Length - 1);
             }
             else
             {

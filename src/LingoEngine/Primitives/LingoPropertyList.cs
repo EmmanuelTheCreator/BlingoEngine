@@ -19,6 +19,9 @@
     {
         private readonly Dictionary<TKey, TValue> _dict = new();
         private readonly List<TKey> _keyOrder = new();
+#if NET48
+        private static readonly Random _random = new Random();
+#endif
 
         /// <summary>
         /// Gets or sets the value associated with the specified key.
@@ -279,14 +282,23 @@
         /// <summary>
         /// Gets the last value.
         /// </summary>
-        public TValue GetLast() => _dict[_keyOrder[^1]];
+        public TValue GetLast()
+#if NET48
+            => _dict[_keyOrder[_keyOrder.Count - 1]];
+#else
+            => _dict[_keyOrder[^1]];
+#endif
 
         /// <summary>
         /// Gets a random key.
         /// </summary>
         public TKey GetAProp()
         {
+#if NET48
+            int i = _random.Next(0, _keyOrder.Count);
+#else
             int i = Random.Shared.Next(0, _keyOrder.Count);
+#endif
             return _keyOrder[i];
         }
 

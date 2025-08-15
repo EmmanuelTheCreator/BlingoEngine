@@ -2,6 +2,7 @@
 using LingoEngine.Texts;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace LingoEngine.Tools
 {
@@ -54,11 +55,11 @@ namespace LingoEngine.Tools
                 //    sb.AppendLine("Text: " + match1.Groups["text"].Value);
                 //    sb.AppendLine("----------");
                 //}
-                fullText = string.Join(Environment.NewLine, blockMatches.Select(m => m.Groups["text"].Value));
+                fullText = string.Join(Environment.NewLine, blockMatches.Cast<Match>().Select(m => m.Groups["text"].Value));
             }
            // var ressss = sb.ToString();
             ///else
-                match = blockMatches[^1]; // Use last/innermost block
+                match = blockMatches[blockMatches.Count - 1]; // Use last/innermost block
 
             // Font index from block
             int fontIndex = int.Parse(match.Groups["f"].Value);

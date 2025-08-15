@@ -2,6 +2,8 @@
 using LingoEngine.Members;
 using LingoEngine.Primitives;
 using LingoEngine.Texts;
+using System;
+using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
@@ -37,7 +39,7 @@ namespace LingoEngine.Tools
         /// </summary>
         public void ImportInCastFromCsvFile(ILingoCast cast, string filePath, bool skipFirstLine = true)
         {
-            var rootFolder = Path.GetDirectoryName(Path.GetRelativePath(Environment.CurrentDirectory, filePath))??"";
+            var rootFolder = Path.GetDirectoryName(GetRelativePath(Environment.CurrentDirectory, filePath)) ?? "";
             var csv = ImportCsvCastFile(filePath, skipFirstLine);
             foreach (var row in csv)
             {
@@ -148,6 +150,21 @@ namespace LingoEngine.Tools
             result.Add(sb.ToString()); // Add last field
             return result.ToArray();
         }
+
+#if NET48
+        private static string GetRelativePath(string basePath, string filePath)
+        {
+            var baseUri = new Uri(AppendDirectorySeparatorChar(basePath));
+            var fileUri = new Uri(filePath);
+            var relative = baseUri.MakeRelativeUri(fileUri).ToString().Replace('/', Path.DirectorySeparatorChar);
+            return Uri.UnescapeDataString(relative);
+        }
+
+        private static string AppendDirectorySeparatorChar(string path)
+            => path.EndsWith(Path.DirectorySeparatorChar.ToString()) ? path : path + Path.DirectorySeparatorChar;
+#else
+        private static string GetRelativePath(string basePath, string filePath) => Path.GetRelativePath(basePath, filePath);
+#endif
     }
 
 }

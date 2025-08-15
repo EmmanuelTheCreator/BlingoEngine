@@ -71,8 +71,8 @@ namespace LingoEngine.Animations
                 return default!;
             if (frame <= _keys[0].Frame)
                 return _keys[0].Value;
-            if (frame >= _keys[^1].Frame)
-                return _keys[^1].Value;
+            if (frame >= _keys[_keys.Count - 1].Frame)
+                return _keys[_keys.Count - 1].Value;
 
             for (int i = 0; i < _keys.Count - 1; i++)
             {
@@ -92,7 +92,7 @@ namespace LingoEngine.Animations
                     return Lerp(k0.Value, k1.Value, t);
                 }
             }
-            return _keys[^1].Value;
+            return _keys[_keys.Count - 1].Value;
         }
 
         private static float ApplyEase(float t, LingoEaseType ease)

@@ -81,7 +81,7 @@ namespace LingoEngine.Movies
             if (next == int.MaxValue)
                 return frame + 10;
             return next;
-        } 
+        }
         public int GetPreviousLabelFrame(int frame)
         {
             var previous = _scoreLabels.Values
@@ -155,9 +155,11 @@ namespace LingoEngine.Movies
         }
 
 
+        public bool CanExecute(SetFrameLabelCommand command) => true;
+
         public bool Handle(SetFrameLabelCommand command)
         {
-           SetScoreLabel(command.FrameNumber, command.Name);
+            SetScoreLabel(command.FrameNumber, command.Name);
             return true;
         }
 
@@ -165,7 +167,7 @@ namespace LingoEngine.Movies
 
         public bool Handle(AddFrameLabelCommand command)
         {
-           SetScoreLabel(command.FrameNumber, command.Name);
+            SetScoreLabel(command.FrameNumber, command.Name);
             return true;
         }
 
@@ -176,7 +178,7 @@ namespace LingoEngine.Movies
             SetScoreLabel(command.PreviousFrame, null);
             SetScoreLabel(command.NewFrame, command.Name);
             return true;
-        } 
+        }
         public bool CanExecute(DeleteFrameLabelCommand command) => true;
 
         public bool Handle(DeleteFrameLabelCommand command)
@@ -184,6 +186,6 @@ namespace LingoEngine.Movies
             return DeleteLabel(command.Frame);
         }
 
-        
+
     }
 }
