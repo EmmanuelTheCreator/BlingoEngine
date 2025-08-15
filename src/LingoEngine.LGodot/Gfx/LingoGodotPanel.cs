@@ -1,14 +1,14 @@
 using Godot;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.LGodot.Primitives;
 
 namespace LingoEngine.LGodot.Gfx
 {
     /// <summary>
-    /// Godot implementation of <see cref="ILingoFrameworkGfxPanel"/>.
+    /// Godot implementation of <see cref="IAbstUIFrameworkGfxPanel"/>.
     /// </summary>
-    public partial class LingoGodotPanel : Panel, ILingoFrameworkGfxPanel, IDisposable
+    public partial class LingoGodotPanel : Panel, IAbstUIFrameworkGfxPanel, IDisposable
     {
         private AMargin _margin = AMargin.Zero;
         private AColor? _background = null;
@@ -16,7 +16,7 @@ namespace LingoEngine.LGodot.Gfx
         private float _borderWidth =0;
         private readonly StyleBoxFlat _style = new StyleBoxFlat();
 
-        public LingoGodotPanel(LingoGfxPanel panel)
+        public LingoGodotPanel(AbstUIGfxPanel panel)
         {
             MouseFilter = MouseFilterEnum.Ignore;
             panel.Init(this);
@@ -31,7 +31,7 @@ namespace LingoEngine.LGodot.Gfx
         public float Width { get => Size.X; set { Size = new Vector2(value, Size.Y); } }// CustomMinimumSize = new Vector2(value, Size.Y); } } 
         public float Height { get => Size.Y; set { Size = new Vector2(Size.X, value); CustomMinimumSize = new Vector2(Size.X, value); } }
         public bool Visibility { get => Visible; set => Visible = value; }
-        string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
+        string IAbstUIFrameworkGfxNode.Name { get => Name; set => Name = value; }
 
         public AMargin Margin
         {
@@ -46,8 +46,8 @@ namespace LingoEngine.LGodot.Gfx
 
 
 
-        private readonly List<ILingoFrameworkGfxLayoutNode> _nodes = new List<ILingoFrameworkGfxLayoutNode>();
-        public void AddItem(ILingoFrameworkGfxLayoutNode child)
+        private readonly List<IAbstUIFrameworkGfxLayoutNode> _nodes = new List<IAbstUIFrameworkGfxLayoutNode>();
+        public void AddItem(IAbstUIFrameworkGfxLayoutNode child)
         {
             if (child.FrameworkNode is Node node)
             {
@@ -70,7 +70,7 @@ namespace LingoEngine.LGodot.Gfx
         }
 
 
-        public void RemoveItem(ILingoFrameworkGfxLayoutNode child)
+        public void RemoveItem(IAbstUIFrameworkGfxLayoutNode child)
         {
             if (child.FrameworkNode is Node node)
                 RemoveChild(node);
@@ -85,7 +85,7 @@ namespace LingoEngine.LGodot.Gfx
             }
             _nodes.Clear();
         }
-        public IEnumerable<ILingoFrameworkGfxLayoutNode> GetItems() => _nodes.ToArray();
+        public IEnumerable<IAbstUIFrameworkGfxLayoutNode> GetItems() => _nodes.ToArray();
         //public override void _Draw()
         //{
         //    DrawRect(new Rect2(Vector2.Zero, Size), _background.ToGodotColor());
@@ -150,12 +150,12 @@ namespace LingoEngine.LGodot.Gfx
             _style.BorderWidthTop = _style.BorderWidthBottom = _style.BorderWidthLeft = _style.BorderWidthRight = (int)_borderWidth;
         }
     }
-    public partial class LingoGodotLayoutWrapper : MarginContainer, ILingoFrameworkGfxLayoutWrapper
+    public partial class LingoGodotLayoutWrapper : MarginContainer, IAbstUIFrameworkGfxLayoutWrapper
     {
-        private LingoGfxLayoutWrapper _lingoLayoutWrapper;
+        private AbstUIGfxLayoutWrapper _lingoLayoutWrapper;
         public object FrameworkNode => this;
 
-        public LingoGodotLayoutWrapper(LingoGfxLayoutWrapper layoutWrapper)
+        public LingoGodotLayoutWrapper(AbstUIGfxLayoutWrapper layoutWrapper)
         {
             _lingoLayoutWrapper = layoutWrapper;
             layoutWrapper.Init(this);

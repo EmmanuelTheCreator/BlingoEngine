@@ -1,5 +1,5 @@
 ﻿using System;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 using LingoEngine.Casts;
 using LingoEngine.Commands;
 using LingoEngine.Events;

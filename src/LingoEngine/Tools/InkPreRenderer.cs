@@ -1,7 +1,7 @@
 using System;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.Tools

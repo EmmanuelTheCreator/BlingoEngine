@@ -1,9 +1,9 @@
-﻿using LingoEngine.AbstUI.Primitives;
+﻿using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 
 
 namespace LingoEngine.Director.Core.Scores
@@ -14,15 +14,15 @@ namespace LingoEngine.Director.Core.Scores
         protected readonly DirScoreGfxValues _gfxValues;
         protected APoint _position;
         private readonly IDirectorEventMediator _mediator;
-        protected readonly LingoGfxCanvas _canvas;
+        protected readonly AbstUIGfxCanvas _canvas;
         private readonly IDirectorEventSubscription _mediatorSub;
         protected DirScoreChannelHeader[] _channels = [];
         
         public int Width { get; protected set; }
         public int Height { get; protected set; }
 
-        public ILingoFrameworkGfxNode FrameworkGfxNode => _canvas.FrameworkObj;
-        public LingoGfxCanvas Canvas => _canvas;
+        public IAbstUIFrameworkGfxNode FrameworkGfxNode => _canvas.FrameworkObj;
+        public AbstUIGfxCanvas Canvas => _canvas;
 
         public DirScoreLeftContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, APoint position, int initialChannelCount, IDirectorEventMediator mediator)
         {

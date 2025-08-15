@@ -1,4 +1,4 @@
-﻿using LingoEngine.AbstUI.Primitives;
+﻿using AbstUI.Primitives;
 using LingoEngine.Casts;
 using LingoEngine.Members;
 using LingoEngine.Movies;

@@ -2,7 +2,8 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Texts;
 
 namespace LingoEngine.Tools
 {
@@ -14,7 +15,7 @@ namespace LingoEngine.Tools
             public int Size{ get; set; }
             public AColor? Color{ get; set; }
             public string Text { get; set; } = "";
-            public LingoTextAlignment Alignment { get; set; } = LingoTextAlignment.Left;
+            public AbstUITextAlignment Alignment { get; set; } = AbstUITextAlignment.Left;
             public LingoTextStyle Style { get; set; } = LingoTextStyle.None;
         }
         public static RtfBasicInfo? Parse(string rtfContent)
@@ -113,15 +114,15 @@ namespace LingoEngine.Tools
 
             // Text alignment
             var alignmentMatch = Regex.Match(rtfContent, @"\\q(l|r|j|c)\b");
-            LingoTextAlignment alignment = LingoTextAlignment.Left;
+            AbstUITextAlignment alignment = AbstUITextAlignment.Left;
             if (alignmentMatch.Success)
             {
                 switch (alignmentMatch.Groups[1].Value)
                 {
-                    case "l": alignment = LingoTextAlignment.Left; break;
-                    case "r": alignment = LingoTextAlignment.Right; break;
-                    case "c": alignment = LingoTextAlignment.Center; break;
-                    case "j": alignment = LingoTextAlignment.Justified; break;
+                    case "l": alignment = AbstUITextAlignment.Left; break;
+                    case "r": alignment = AbstUITextAlignment.Right; break;
+                    case "c": alignment = AbstUITextAlignment.Center; break;
+                    case "j": alignment = AbstUITextAlignment.Justified; break;
                 }
             }
 

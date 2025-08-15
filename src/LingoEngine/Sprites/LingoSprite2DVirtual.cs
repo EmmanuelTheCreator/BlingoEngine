@@ -1,4 +1,4 @@
-﻿using LingoEngine.AbstUI.Primitives;
+﻿using AbstUI.Primitives;
 using LingoEngine.Animations;
 using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
@@ -21,7 +21,7 @@ namespace LingoEngine.Sprites
         private LingoMember? _Member;
         private Action<LingoSprite2DVirtual>? _onRemoveMe;
         private int _constraint;
-        private ILingoTextureUserSubscription? _textureSubscription;
+        private IAbstUITextureUserSubscription? _textureSubscription;
 
 
         #region Properties

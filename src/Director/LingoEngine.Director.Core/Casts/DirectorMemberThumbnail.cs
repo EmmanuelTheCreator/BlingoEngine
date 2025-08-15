@@ -1,5 +1,4 @@
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Members;
 using LingoEngine.Sounds;
 using LingoEngine.Texts;
@@ -8,9 +7,10 @@ using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Bitmaps;
 using LingoEngine.FilmLoops;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.AbstUI.Core;
+using AbstUI.Primitives;
+using AbstUI.Core;
 using AbstUIEngine.AbstUI.Core;
+using AbstUI.Components;
 
 namespace LingoEngine.Director.Core.Casts;
 
@@ -30,10 +30,10 @@ public class DirectorMemberThumbnail : IDisposable
 
 
     /// <summary>Canvas used for drawing the preview.</summary>
-    public LingoGfxCanvas Canvas { get; }
+    public AbstUIGfxCanvas Canvas { get; }
     private readonly IDirectorIconManager? _iconManager;
 
-    public DirectorMemberThumbnail(int width, int height, ILingoFrameworkFactory factory, IDirectorIconManager? iconManager = null, LingoGfxCanvas? canvas = null, int xOffset = 0, int yOffset = 0)
+    public DirectorMemberThumbnail(int width, int height, ILingoFrameworkFactory factory, IDirectorIconManager? iconManager = null, AbstUIGfxCanvas? canvas = null, int xOffset = 0, int yOffset = 0)
     {
         _xOffset = xOffset;
         _yOffset = yOffset;

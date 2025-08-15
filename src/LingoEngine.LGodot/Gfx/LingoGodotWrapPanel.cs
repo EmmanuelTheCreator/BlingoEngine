@@ -1,20 +1,20 @@
 using Godot;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 
 namespace LingoEngine.LGodot.Gfx
 {
     /// <summary>
-    /// Godot implementation of <see cref="ILingoFrameworkGfxWrapPanel"/>.
+    /// Godot implementation of <see cref="IAbstUIFrameworkGfxWrapPanel"/>.
     /// </summary>
-    public partial class LingoGodotWrapPanel : MarginContainer, ILingoFrameworkGfxWrapPanel, IDisposable
+    public partial class LingoGodotWrapPanel : MarginContainer, IAbstUIFrameworkGfxWrapPanel, IDisposable
     {
         private FlowContainer _container;
         private AOrientation _orientation;
         private APoint _itemMargin;
         private AMargin _margin;
 
-        public LingoGodotWrapPanel(LingoGfxWrapPanel panel, AOrientation orientation)
+        public LingoGodotWrapPanel(AbstUIGfxWrapPanel panel, AOrientation orientation)
         {
             _orientation = orientation;
             _itemMargin = new APoint(4, 4);
@@ -54,7 +54,7 @@ namespace LingoEngine.LGodot.Gfx
 
         //public SizeFlags SizeFlagsHorizontal { get => _container.SizeFlagsHorizontal; set => _container.SizeFlagsHorizontal = value; }
         //public Vector2 Position { get => _container.Position; set => _container.Position = value; }
-        string ILingoFrameworkGfxNode.Name { get => Name; set
+        string IAbstUIFrameworkGfxNode.Name { get => Name; set
                 {
                 Name = value; _container.Name = value + "_Flow";
             }
@@ -109,8 +109,8 @@ namespace LingoEngine.LGodot.Gfx
         }
         public object FrameworkNode => this;
 
-        private readonly List<ILingoFrameworkGfxNode> _nodes = new List<ILingoFrameworkGfxNode>();
-        public void AddItem(ILingoFrameworkGfxNode child)
+        private readonly List<IAbstUIFrameworkGfxNode> _nodes = new List<IAbstUIFrameworkGfxNode>();
+        public void AddItem(IAbstUIFrameworkGfxNode child)
         {
             if (child.FrameworkNode is not Node node)
                 return;
@@ -120,15 +120,15 @@ namespace LingoEngine.LGodot.Gfx
             _container.AddChild(node);
             _nodes.Add(child);
         }
-        public void RemoveItem(ILingoFrameworkGfxNode child)
+        public void RemoveItem(IAbstUIFrameworkGfxNode child)
         {
             if (child.FrameworkNode is not Node node)
                 return;
             _container.RemoveChild(node);
             _nodes.Remove(child);
         }
-        public IEnumerable<ILingoFrameworkGfxNode> GetItems() => _nodes.ToArray();
-        public ILingoFrameworkGfxNode? GetItem(int index) => _nodes[index];
+        public IEnumerable<IAbstUIFrameworkGfxNode> GetItems() => _nodes.ToArray();
+        public IAbstUIFrameworkGfxNode? GetItem(int index) => _nodes[index];
         public void RemoveAll()
         {
             foreach (var child in GetItems())

@@ -1,19 +1,19 @@
 using Godot;
-using LingoEngine.Gfx;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.Styles;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Bitmaps;
-using LingoEngine.Texts;
 using LingoEngine.LGodot.Texts;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
+using AbstUI.Texts;
 
 namespace LingoEngine.LGodot.Gfx
 {
     /// <summary>
-    /// Godot implementation of <see cref="ILingoFrameworkGfxCanvas"/>.
+    /// Godot implementation of <see cref="IAbstUIFrameworkGfxCanvas"/>.
     /// </summary>
-    public partial class LingoGodotGfxCanvas : Control, ILingoFrameworkGfxCanvas, IDisposable
+    public partial class LingoGodotGfxCanvas : Control, IAbstUIFrameworkGfxCanvas, IDisposable
     {
         private readonly ILingoFontManager _fontManager;
         private AMargin _margin = AMargin.Zero;
@@ -22,7 +22,7 @@ namespace LingoEngine.LGodot.Gfx
         private Color? _clearColor;
         private bool _dirty;
         private readonly List<Action> _drawActions = new();
-        public LingoGodotGfxCanvas(LingoGfxCanvas canvas, ILingoFontManager fontManager, int width, int height)
+        public LingoGodotGfxCanvas(AbstUIGfxCanvas canvas, ILingoFontManager fontManager, int width, int height)
         {
             _fontManager = fontManager;
             canvas.Init(this);
@@ -54,7 +54,7 @@ namespace LingoEngine.LGodot.Gfx
             }
         }
 
-        string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
+        string IAbstUIFrameworkGfxNode.Name { get => Name; set => Name = value; }
         public object FrameworkNode => this;
         private void MarkDirty()
         {
@@ -142,7 +142,7 @@ namespace LingoEngine.LGodot.Gfx
             MarkDirty();
         }
 
-        public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, LingoTextAlignment alignment = LingoTextAlignment.Left)
+        public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstUITextAlignment alignment = AbstUITextAlignment.Left)
         {
             Font fontGodot = _fontManager.Get<FontFile>(font ?? "") ?? ThemeDB.FallbackFont;
             Color col = color.HasValue ? color.Value.ToGodotColor() : Colors.Black;
@@ -185,7 +185,7 @@ namespace LingoEngine.LGodot.Gfx
             MarkDirty();
         } 
         
-        public void DrawPicture(ILingoTexture2D texture, int width, int height, APoint position)
+        public void DrawPicture(IAbstUITexture2D texture, int width, int height, APoint position)
         {
             var tex = ((LingoGodotTexture2D)texture).Texture;    
             _drawActions.Add(() =>

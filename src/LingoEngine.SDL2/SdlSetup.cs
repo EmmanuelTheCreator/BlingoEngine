@@ -1,5 +1,4 @@
-using AbstUIEngine.AbstUI.Core;
-using LingoEngine.AbstUI.Core;
+using AbstUI.Core;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.SDL2.Core;
 using LingoEngine.SDL2.SDLL;
@@ -13,7 +12,7 @@ namespace LingoEngine.SDL2;
 public static class SdlSetup
 {
 
-    public static ILingoEngineRegistration WithLingoSdlEngine(this ILingoEngineRegistration reg, string windowTitle, int width, int height, Action<SdlFactory>? setup = null)
+    public static ILingoEngineRegistration WithLingoSdlEngine(this ILingoEngineRegistration reg, string windowTitle, int width, int height, Action<LingoSdlFactory>? setup = null)
     {
         LingoEngineGlobal.RunFramework = AbstUIEngineRunFramework.SDL2;
         if (SDL.SDL_Init(SDL.SDL_INIT_VIDEO | SDL.SDL_INIT_EVENTS | SDL.SDL_INIT_GAMECONTROLLER | SDL.SDL_INIT_AUDIO) < 0)
@@ -47,7 +46,7 @@ public static class SdlSetup
         SDL.SDL_VideoQuit();
         SDL.SDL_Quit();
     }
-    public static ILingoEngineRegistration WithLingoSdlEngine(this ILingoEngineRegistration reg, nint sdlWindow, nint sdlRenderer, Action<SdlFactory>? setup = null)
+    public static ILingoEngineRegistration WithLingoSdlEngine(this ILingoEngineRegistration reg, nint sdlWindow, nint sdlRenderer, Action<LingoSdlFactory>? setup = null)
     {
         LingoEngineGlobal.RunFramework = AbstUIEngineRunFramework.SDL2;
         var rootContext = new SdlRootContext(sdlWindow, sdlRenderer);
@@ -55,11 +54,11 @@ public static class SdlSetup
         return reg;
     }
 
-    private static void RegisterServices(ILingoEngineRegistration reg, Action<SdlFactory>? setup, SdlRootContext rootContext)
+    private static void RegisterServices(ILingoEngineRegistration reg, Action<LingoSdlFactory>? setup, SdlRootContext rootContext)
     {
         reg
             .ServicesMain(s => s
-                    .AddSingleton<ILingoFrameworkFactory, SdlFactory>()
+                    .AddSingleton<ILingoFrameworkFactory, LingoSdlFactory>()
                     .AddSingleton<ILingoFontManager, SdlFontManager>()
                     .AddSingleton(rootContext)
                 ).WithFrameworkFactory(setup);

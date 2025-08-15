@@ -1,4 +1,4 @@
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
 using LingoEngine.Events;

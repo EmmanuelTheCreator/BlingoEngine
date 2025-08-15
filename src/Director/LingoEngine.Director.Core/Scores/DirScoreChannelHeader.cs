@@ -1,6 +1,6 @@
-﻿using LingoEngine.AbstUI.Primitives;
+﻿using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.Director.Core.Styles;
-using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 
 
@@ -32,7 +32,7 @@ namespace LingoEngine.Director.Core.Scores
             Label = label ?? "";
         }
 
-        public void Draw(LingoGfxCanvas canvas)
+        public void Draw(AbstUIGfxCanvas canvas)
         {
             var xOffset = 1;
             var y = Y;
@@ -40,7 +40,7 @@ namespace LingoEngine.Director.Core.Scores
 
             canvas.DrawText(new APoint(xOffset+20 + 25, y+ 11), Icon,null, _textColor, 10);
             if (!string.IsNullOrEmpty(Label))
-                canvas.DrawText(new APoint(xOffset+20 + 2, y+ 11), Label, null, _textColor, 10,45, LingoEngine.Texts.LingoTextAlignment.Right);
+                canvas.DrawText(new APoint(xOffset+20 + 2, y+ 11), Label, null, _textColor, 10,45, AbstUI.Texts.AbstUITextAlignment.Right);
 
             // Visibility rect
             var btnWidth = 8;

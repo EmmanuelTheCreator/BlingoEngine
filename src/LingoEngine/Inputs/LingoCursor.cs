@@ -1,5 +1,5 @@
-﻿using LingoEngine.Bitmaps;
-using LingoEngine.FrameworkCommunication;
+﻿using AbstUI.Primitives;
+using LingoEngine.Bitmaps;
 
 namespace LingoEngine.Inputs
 {
@@ -8,7 +8,7 @@ namespace LingoEngine.Inputs
         private ILingoFrameworkMouse _frameworkObj;
         private int _lastCursor;
         private int _cursor;
-        private LingoMouseCursor _cursorType;
+        private AMouseCursor _cursorType;
         private bool _isCursorVisible = true;
         private LingoMemberBitmap? image;
         public int this[int index]
@@ -26,7 +26,7 @@ namespace LingoEngine.Inputs
             get => image; set
             {
                 image = value;
-                CursorType = LingoMouseCursor.Custom;
+                CursorType = AMouseCursor.Custom;
             }
         }
         public int Cursor
@@ -36,14 +36,14 @@ namespace LingoEngine.Inputs
             {
                 _cursor = value;
                 _lastCursor = value;
-                _cursorType = (LingoMouseCursor)value;
+                _cursorType = (AMouseCursor)value;
                 if (value == 100)
                     _frameworkObj.SetCursor(Image);
                 else
-                    _frameworkObj.SetCursor((LingoMouseCursor)value);
+                    _frameworkObj.SetCursor((AMouseCursor)value);
             }
         }
-        public LingoMouseCursor CursorType { get => _cursorType; set => Cursor = (int)value; }
+        public AMouseCursor CursorType { get => _cursorType; set => Cursor = (int)value; }
 
         public bool IsCursorVisible => _isCursorVisible;
 

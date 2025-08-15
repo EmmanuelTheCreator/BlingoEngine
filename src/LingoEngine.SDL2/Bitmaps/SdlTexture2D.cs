@@ -1,4 +1,5 @@
-﻿using LingoEngine.Bitmaps;
+﻿using AbstUI.Primitives;
+using LingoEngine.Bitmaps;
 using LingoEngine.SDL2.SDLL;
 using System.Runtime.InteropServices;
 
@@ -22,7 +23,7 @@ public class SdlTexture2D : ILingoTexture2D
         Name = name;
     }
 
-    public ILingoTextureUserSubscription AddUser(object user)
+    public IAbstUITextureUserSubscription AddUser(object user)
     {
         if (IsDisposed) throw new Exception("Texture is disposed and cannot be used anymore.");
         var sub = new TextureSubscription(this, () => RemoveUser(user));
@@ -170,10 +171,10 @@ public class SdlTexture2D : ILingoTexture2D
     }
 
 #endif
-    private class TextureSubscription : ILingoTextureUserSubscription
+    private class TextureSubscription : IAbstUITextureUserSubscription
     {
         private readonly Action _onRelease;
-        public ILingoTexture2D Texture { get; }
+        public IAbstUITexture2D Texture { get; }
         public TextureSubscription(SdlTexture2D texture, Action onRelease)
         {
             Texture = texture;

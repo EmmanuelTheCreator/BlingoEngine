@@ -1,18 +1,18 @@
 using Godot;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.LGodot.Styles;
 
 namespace LingoEngine.LGodot.Gfx
 {
     /// <summary>
-    /// Godot implementation of <see cref="ILingoFrameworkGfxTabContainer"/>.
+    /// Godot implementation of <see cref="IAbstUIFrameworkGfxTabContainer"/>.
     /// </summary>
-    public partial class LingoGodotTabContainer : TabContainer, ILingoFrameworkGfxTabContainer, IDisposable
+    public partial class LingoGodotTabContainer : TabContainer, IAbstUIFrameworkGfxTabContainer, IDisposable
     {
         private AMargin _margin = AMargin.Zero;
         private Theme _theme;
-        private readonly List<ILingoFrameworkGfxTabItem> _nodes = new List<ILingoFrameworkGfxTabItem>();
+        private readonly List<IAbstUIFrameworkGfxTabItem> _nodes = new List<IAbstUIFrameworkGfxTabItem>();
         private readonly ILingoGodotStyleManager _lingoGodotStyleManager;
 
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
@@ -20,12 +20,12 @@ namespace LingoEngine.LGodot.Gfx
         public float Width { get => Size.X; set => Size = new Vector2(value, Size.Y); }
         public float Height { get => Size.Y; set => Size = new Vector2(Size.X, value); }
         public bool Visibility { get => Visible; set => Visible = value; }
-        string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
+        string IAbstUIFrameworkGfxNode.Name { get => Name; set => Name = value; }
         public string SelectedTabName => GetTabTitle(CurrentTab);
         public object FrameworkNode => this;
 
 
-        public LingoGodotTabContainer(LingoGfxTabContainer tab, ILingoGodotStyleManager lingoGodotStyleManager)
+        public LingoGodotTabContainer(AbstUIGfxTabContainer tab, ILingoGodotStyleManager lingoGodotStyleManager)
         {
             tab.Init(this);
             SizeFlagsVertical = SizeFlags.ExpandFill;
@@ -58,7 +58,7 @@ namespace LingoEngine.LGodot.Gfx
 
         
 
-        public void AddTab(ILingoFrameworkGfxTabItem tabItem)
+        public void AddTab(IAbstUIFrameworkGfxTabItem tabItem)
         {
             var content = ((LingoGodotTabItem)tabItem).ContentFrameWork.FrameworkNode;
             if (content is Control node)
@@ -67,7 +67,7 @@ namespace LingoEngine.LGodot.Gfx
             _nodes.Add(tabItem);
         }
 
-        public void RemoveTab(ILingoFrameworkGfxTabItem tabItem)
+        public void RemoveTab(IAbstUIFrameworkGfxTabItem tabItem)
         {
             var content = ((LingoGodotTabItem)tabItem).ContentFrameWork.FrameworkNode;
             if (content is Node node)
@@ -75,7 +75,7 @@ namespace LingoEngine.LGodot.Gfx
             _nodes.Remove(tabItem);
         }
 
-        public IEnumerable<ILingoFrameworkGfxTabItem> GetTabs() => _nodes.ToArray();
+        public IEnumerable<IAbstUIFrameworkGfxTabItem> GetTabs() => _nodes.ToArray();
         public void AddTab(string title, Node node)
         {
             AddChild(node);
@@ -104,13 +104,13 @@ namespace LingoEngine.LGodot.Gfx
             CurrentTab = _nodes.FindIndex(x => x.Title == tabName);
         }
     }
-    public partial class LingoGodotTabItem : ILingoFrameworkGfxTabItem
+    public partial class LingoGodotTabItem : IAbstUIFrameworkGfxTabItem
     {
         private string _name;
-        private LingoGfxTabItem _tabItem;
-        public LingoGfxTabItem TabItem => _tabItem;
-        public ILingoFrameworkGfxLayoutNode ContentFrameWork => (Content?.FrameworkObj as ILingoFrameworkGfxLayoutNode)!;
-        public ILingoGfxNode? Content { get; set; }
+        private AbstUIGfxTabItem _tabItem;
+        public AbstUIGfxTabItem TabItem => _tabItem;
+        public IAbstUIFrameworkGfxLayoutNode ContentFrameWork => (Content?.FrameworkObj as IAbstUIFrameworkGfxLayoutNode)!;
+        public IAbstUIGfxNode? Content { get; set; }
 
         public float X { get => ContentFrameWork.X; set => ContentFrameWork.X = value; }
         public float Y { get => ContentFrameWork.Y; set => ContentFrameWork.Y = value; }
@@ -119,7 +119,7 @@ namespace LingoEngine.LGodot.Gfx
         public bool Visibility { get => ContentFrameWork.Visibility; set => ContentFrameWork.Visibility = value; }
         public string Title { get; set; }
         public AMargin Margin { get => ContentFrameWork.Margin; set => ContentFrameWork.Margin = value; }
-        string ILingoFrameworkGfxNode.Name
+        string IAbstUIFrameworkGfxNode.Name
         {
             get => ContentFrameWork.Name; set
             {
@@ -132,7 +132,7 @@ namespace LingoEngine.LGodot.Gfx
 
         public float TopHeight { get; set; }
 
-        public LingoGodotTabItem(LingoGfxTabItem tab)
+        public LingoGodotTabItem(AbstUIGfxTabItem tab)
         {
             tab.Init(this);
             _tabItem = tab;

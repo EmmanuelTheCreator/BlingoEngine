@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using LingoEngine.AbstUI.Core;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Core;
+using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Members;
 using LingoEngine.Primitives;

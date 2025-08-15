@@ -2,11 +2,11 @@ using LingoEngine.Movies;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.UI;
-using LingoEngine.Gfx;
 using LingoEngine.Sprites;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Primitives;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
 
 namespace LingoEngine.Director.Core.Scores.ColorPalettes;
 
@@ -88,12 +88,12 @@ internal partial class DirScoreColorPaletteGridChannel : DirScoreChannel<ILingoS
 
         var selected = settings.ColorPaletteId >= 0 && settings.ColorPaletteId < allPalettes.Count() ? allPalettes[settings.ColorPaletteId] : allPalettes.First();
 
-        LingoGfxCanvas colorsCanvas = _scoreManager.Factory.CreateGfxCanvas("Panel Pallette Canvas", 130, 130);
+        AbstUIGfxCanvas colorsCanvas = _scoreManager.Factory.CreateGfxCanvas("Panel Pallette Canvas", 130, 130);
         colorsCanvas.X = 10;
         colorsCanvas.Y = 10;
         panel.AddItem(colorsCanvas);
 
-        panel.SetLabelAt("PaletteLabel", xOffset, 10, "Palette:",11, labelWidth,LingoEngine.Texts.LingoTextAlignment.Right);
+        panel.SetLabelAt("PaletteLabel", xOffset, 10, "Palette:",11, labelWidth, AbstUI.Texts.AbstUITextAlignment.Right);
         panel.SetComboBoxAt(paletteOptions, "Palette", xOffset + labelWidth + xMargin, 10, 120, selected.Name, key =>
         {
             var id = allPalettes.FindIndex(p => p.Name == key);
@@ -102,17 +102,17 @@ internal partial class DirScoreColorPaletteGridChannel : DirScoreChannel<ILingoS
             RedrawColors(colorsCanvas, selected);
         });
 
-        panel.SetLabelAt("ActionLabel", xOffset, 40, "Action:", 11, labelWidth, LingoEngine.Texts.LingoTextAlignment.Right);
+        panel.SetLabelAt("ActionLabel", xOffset, 40, "Action:", 11, labelWidth, AbstUI.Texts.AbstUITextAlignment.Right);
         panel.SetComboBoxAt(_paletteOptions, "Action", xOffset + labelWidth + xMargin, 40, 120, settings.Action.ToString(), key =>
         {
             if (Enum.TryParse<LingoColorPaletteAction>(key, out var action))
                 settings.Action = action;
         });
 
-        panel.SetLabelAt("RateLabel", xOffset, 70, "Rate FPS:", 11, labelWidth, LingoEngine.Texts.LingoTextAlignment.Right);
+        panel.SetLabelAt("RateLabel", xOffset, 70, "Rate FPS:", 11, labelWidth, AbstUI.Texts.AbstUITextAlignment.Right);
         panel.SetInputNumberAt(settings, "Rate", xOffset + labelWidth + xMargin, 70, 100, s => s.Rate, 1, 30);
 
-        panel.SetLabelAt("OptionsLabel", xOffset, 100, "Options:", 11, labelWidth, LingoEngine.Texts.LingoTextAlignment.Right);
+        panel.SetLabelAt("OptionsLabel", xOffset, 100, "Options:", 11, labelWidth, AbstUI.Texts.AbstUITextAlignment.Right);
         panel.SetComboBoxAt(_transitionOptions, "TransitionOption", xOffset+ labelWidth + xMargin, 100, 120, settings.TransitionOption.ToString(), key =>
         {
             if (Enum.TryParse<LingoColorPaletteTransitionOption>(key, out var option))
@@ -124,7 +124,7 @@ internal partial class DirScoreColorPaletteGridChannel : DirScoreChannel<ILingoS
 
         _dialog = _showConfirmDialog?.Invoke("Frame Properties: Palette", (ILingoFrameworkGfxPanel)panel.FrameworkObj);
     }
-    private void RedrawColors(LingoGfxCanvas colorsCanvas, LingoColorPaletteDefinition definition)
+    private void RedrawColors(AbstUIGfxCanvas colorsCanvas, LingoColorPaletteDefinition definition)
     {
         colorsCanvas.Clear(AColors.White);
         colorsCanvas.DrawRect(new ARect(1, 1, colorsCanvas.Width-2, colorsCanvas.Height-2), AColors.White);

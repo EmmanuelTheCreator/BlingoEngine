@@ -1,14 +1,14 @@
 using System;
 using System.Linq;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Sprites;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Bitmaps;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
 
 namespace LingoEngine.Director.Core.Stages;
 
@@ -18,7 +18,7 @@ namespace LingoEngine.Director.Core.Stages;
 /// </summary>
 public class StageSpriteSummaryOverlay : IHasSpriteSelectedEvent, IDisposable
 {
-    private readonly LingoGfxCanvas _canvas;
+    private readonly AbstUIGfxCanvas _canvas;
     private readonly IDirectorEventMediator _mediator;
     private readonly IDirectorIconManager _iconManager;
     private readonly ILingoTexture2D _infoIcon;
@@ -26,7 +26,7 @@ public class StageSpriteSummaryOverlay : IHasSpriteSelectedEvent, IDisposable
     private readonly ILingoTextureUserSubscription _infoIconSubscription;
     private readonly ILingoTextureUserSubscription _behaviorIconSubscription;
 
-    public LingoGfxCanvas Canvas => _canvas;
+    public AbstUIGfxCanvas Canvas => _canvas;
 
     public bool Visible { get => Canvas.Visibility; set => Canvas.Visibility = value; }
 

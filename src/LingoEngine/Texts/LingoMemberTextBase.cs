@@ -1,4 +1,5 @@
-﻿using LingoEngine.AbstUI.Primitives;
+﻿using AbstUI.Texts;
+using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
 using LingoEngine.Members;
@@ -128,7 +129,7 @@ namespace LingoEngine.Texts
             }
         }
         /// <inheritdoc/>
-        public LingoTextAlignment Alignment
+        public AbstUITextAlignment Alignment
         {
             get => _frameworkMember.Alignment;
             set { _frameworkMember.Alignment = value;  }

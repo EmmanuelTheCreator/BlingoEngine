@@ -1,10 +1,10 @@
 using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Movies;
 using LingoEngine.Primitives;
 using LingoEngine.Director.Core.Styles;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
 
 namespace LingoEngine.Director.Core.Scores;
 
@@ -12,9 +12,9 @@ public class DirScoreFrameHeader : IDisposable
 {
     private LingoMovie? _movie;
     private readonly DirScoreGfxValues _gfxValues;
-    private readonly LingoGfxCanvas _canvas;
+    private readonly AbstUIGfxCanvas _canvas;
 
-    public LingoGfxCanvas Canvas => _canvas;
+    public AbstUIGfxCanvas Canvas => _canvas;
 
     public DirScoreFrameHeader(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory)
     {

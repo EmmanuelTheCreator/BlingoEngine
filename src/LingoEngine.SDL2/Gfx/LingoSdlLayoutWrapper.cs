@@ -1,14 +1,14 @@
-﻿using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+﻿using AbstUI.Components;
+using AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    public partial class LingoSdlLayoutWrapper : SdlGfxComponent, ILingoFrameworkGfxLayoutWrapper
+    public partial class LingoSdlLayoutWrapper : SdlGfxComponent, IAbstUIFrameworkGfxLayoutWrapper
     {
-        private LingoGfxLayoutWrapper _lingoLayoutWrapper;
+        private AbstUIGfxLayoutWrapper _lingoLayoutWrapper;
         public object FrameworkNode => this;
 
-        public LingoSdlLayoutWrapper(SdlGfxFactory factory,LingoGfxLayoutWrapper layoutWrapper):base(factory)
+        public LingoSdlLayoutWrapper(SdlGfxFactory factory,AbstUIGfxLayoutWrapper layoutWrapper):base(factory)
         {
             _lingoLayoutWrapper = layoutWrapper;
             _lingoLayoutWrapper.Init(this);

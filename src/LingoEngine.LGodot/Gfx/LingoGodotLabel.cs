@@ -1,26 +1,26 @@
 using Godot;
-using LingoEngine.Gfx;
 using LingoEngine.Styles;
 using LingoEngine.LGodot.Primitives;
 using static Godot.TextServer;
 using LingoEngine.LGodot.Texts;
-using LingoEngine.Texts;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
+using AbstUI.Texts;
 
 
 namespace LingoEngine.LGodot.Gfx
 {
     /// <summary>
-    /// Godot implementation of <see cref="ILingoFrameworkGfxLabel"/>.
+    /// Godot implementation of <see cref="IAbstUIFrameworkGfxLabel"/>.
     /// </summary>
-    public partial class LingoGodotLabel : Label, ILingoFrameworkGfxLabel, IDisposable
+    public partial class LingoGodotLabel : Label, IAbstUIFrameworkGfxLabel, IDisposable
     {
         private readonly ILingoFontManager _fontManager;
         private AMargin _margin = AMargin.Zero;
         private string? _font;
         private AColor _fontColor;
 
-        public LingoGodotLabel(LingoGfxLabel label, ILingoFontManager fontManager)
+        public LingoGodotLabel(AbstUIGfxLabel label, ILingoFontManager fontManager)
         {
             _fontManager = fontManager;
             label.Init(this);
@@ -35,8 +35,8 @@ namespace LingoEngine.LGodot.Gfx
         public float Height { get => Size.Y; set { Size = new Vector2(Size.X, value); CustomMinimumSize = new Vector2(Size.X, value); } }
     
         public bool Visibility { get => Visible; set => Visible = value; }
-        public LingoTextAlignment TextAlignment { get => HorizontalAlignment.ToLingo(); set => HorizontalAlignment = value.ToGodot(); }
-        string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
+        public AbstUITextAlignment TextAlignment { get => HorizontalAlignment.ToLingo(); set => HorizontalAlignment = value.ToGodot(); }
+        string IAbstUIFrameworkGfxNode.Name { get => Name; set => Name = value; }
 
         public AMargin Margin
         {

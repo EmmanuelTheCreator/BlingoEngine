@@ -1,3 +1,4 @@
+using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using UnityEngine;
 
@@ -22,7 +23,7 @@ public class UnityTexture2D : ILingoTexture2D
     public bool IsDisposed => throw new NotImplementedException();
 
 
-    public ILingoTextureUserSubscription AddUser(object user)
+    public IAbstUITextureUserSubscription AddUser(object user)
     {
         var sub = new TextureSubscription(this, () => RemoveUser(user));
         _users.Add(user, sub);
@@ -44,10 +45,10 @@ public class UnityTexture2D : ILingoTexture2D
         throw new NotImplementedException();
     }
 
-    private class TextureSubscription : ILingoTextureUserSubscription
+    private class TextureSubscription : IAbstUITextureUserSubscription
     {
         private readonly Action _onRelease;
-        public ILingoTexture2D Texture { get; }
+        public IAbstUITexture2D Texture { get; }
         public TextureSubscription(ILingoTexture2D texture, Action onRelease)
         {
             _onRelease = onRelease;

@@ -1,27 +1,26 @@
 using Godot;
-using LingoEngine.Gfx;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Bitmaps;
-using static System.Net.Mime.MediaTypeNames;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
 
 namespace LingoEngine.LGodot.Gfx
 {
     /// <summary>
-    /// Godot implementation of <see cref="ILingoFrameworkGfxStateButton"/>.
+    /// Godot implementation of <see cref="IAbstUIFrameworkGfxStateButton"/>.
     /// </summary>
-    public partial class LingoGodotStateButton : Button, ILingoFrameworkGfxStateButton, IDisposable
+    public partial class LingoGodotStateButton : Button, IAbstUIFrameworkGfxStateButton, IDisposable
     {
         private AMargin _margin = AMargin.Zero;
-        private ILingoTexture2D? _texture;
-        private ILingoTexture2D? _textureOff;
+        private IAbstUITexture2D? _texture;
+        private IAbstUITexture2D? _textureOff;
         private readonly StyleBoxFlat _style = new StyleBoxFlat();
         private readonly StyleBoxFlat _styleDisabled = new StyleBoxFlat();
         private readonly StyleBoxFlat _styleActive = new StyleBoxFlat();
         private Action<bool>? _onChange;
         private event Action? _onValueChanged;
 
-        public LingoGodotStateButton(LingoGfxStateButton button, Action<bool>? onChange)
+        public LingoGodotStateButton(AbstUIGfxStateButton button, Action<bool>? onChange)
         {
             _onChange = onChange;
             ToggleMode = false;
@@ -66,7 +65,7 @@ namespace LingoEngine.LGodot.Gfx
                 Modulate = value ? Colors.White : new Color(1, 1, 1, 0.5f); // 50% transparent
             }
         }
-        string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
+        string IAbstUIFrameworkGfxNode.Name { get => Name; set => Name = value; }
 
         public AMargin Margin
         {
@@ -82,7 +81,7 @@ namespace LingoEngine.LGodot.Gfx
         }
 
         public new string Text { get => base.Text; set => base.Text = value; }
-        public ILingoTexture2D? TextureOn
+        public IAbstUITexture2D? TextureOn
         {
             get => _texture;
             set
@@ -91,7 +90,7 @@ namespace LingoEngine.LGodot.Gfx
                 UpdateStateIcon();
             }
         }
-        public ILingoTexture2D? TextureOff
+        public IAbstUITexture2D? TextureOff
         {
             get => _textureOff;
             set
@@ -117,7 +116,7 @@ namespace LingoEngine.LGodot.Gfx
 
         public object FrameworkNode => this;
 
-        event Action? ILingoFrameworkGfxNodeInput.ValueChanged
+        event Action? IAbstUIFrameworkGfxNodeInput.ValueChanged
         {
             add => _onValueChanged += value;
             remove => _onValueChanged -= value;

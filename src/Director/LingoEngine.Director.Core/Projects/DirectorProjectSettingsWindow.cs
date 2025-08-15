@@ -2,12 +2,12 @@ using LingoEngine.Director.Core.FileSystems;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Commands;
 using LingoEngine.Projects;
 using LingoEngine.Director.Core.Projects.Commands;
 using System.IO;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
 
 namespace LingoEngine.Director.Core.Projects;
 
@@ -25,11 +25,11 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
     private readonly LingoProjectSettings _settings;
     private readonly DirectorProjectSettings _dirSettings;
 
-    private readonly LingoGfxWrapPanel _root;
-    private LingoGfxWrapPanel? _vsCodePathRow;
-    private LingoGfxWrapPanel? _vsPathRow;
-    private LingoGfxLabel? _slnPreviewLabel;
-    private LingoGfxInputText? _csProjEdit;
+    private readonly AbstUIGfxWrapPanel _root;
+    private AbstUIGfxWrapPanel? _vsCodePathRow;
+    private AbstUIGfxWrapPanel? _vsPathRow;
+    private AbstUIGfxLabel? _slnPreviewLabel;
+    private AbstUIGfxInputText? _csProjEdit;
     private string _projectName = "";
     private string _folderName = "";
     private string _csProjFile = "";
@@ -39,10 +39,10 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
         ];
     private string visualStudioPath = "";
     private string visualStudioCodePath = "";
-    private LingoGfxInputText? _VsPathEdit;
-    private LingoGfxInputText? _VSCodePathEdit;
+    private AbstUIGfxInputText? _VsPathEdit;
+    private AbstUIGfxInputText? _VSCodePathEdit;
 
-    public LingoGfxWrapPanel RootPanel => _root;
+    public AbstUIGfxWrapPanel RootPanel => _root;
     public string FolderName
     {
         get => _folderName;

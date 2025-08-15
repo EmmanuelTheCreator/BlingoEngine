@@ -1,3 +1,4 @@
+using AbstUI.Inputs;
 using Godot;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
@@ -50,13 +51,13 @@ public partial class LingoGodotKey : Node, ILingoFrameworkKey
     public bool OptionDown => Input.IsKeyPressed(Godot.Key.Alt);
     public bool ShiftDown => Input.IsKeyPressed(Godot.Key.Shift);
 
-    public bool KeyPressed(LingoKeyType key) => key switch
+    public bool KeyPressed(AbstUIKeyType key) => key switch
     {
-        LingoKeyType.BACKSPACE => _pressed.Contains(Godot.Key.Backspace),
-        LingoKeyType.ENTER or LingoKeyType.RETURN => _pressed.Contains(Godot.Key.Enter),
-        LingoKeyType.QUOTE => _pressed.Contains(Godot.Key.Quoteleft),
-        LingoKeyType.SPACE => _pressed.Contains(Godot.Key.Space),
-        LingoKeyType.TAB => _pressed.Contains(Godot.Key.Tab),
+        AbstUIKeyType.BACKSPACE => _pressed.Contains(Godot.Key.Backspace),
+        AbstUIKeyType.ENTER or AbstUIKeyType.RETURN => _pressed.Contains(Godot.Key.Enter),
+        AbstUIKeyType.QUOTE => _pressed.Contains(Godot.Key.Quoteleft),
+        AbstUIKeyType.SPACE => _pressed.Contains(Godot.Key.Space),
+        AbstUIKeyType.TAB => _pressed.Contains(Godot.Key.Tab),
         _ => false
     };
 

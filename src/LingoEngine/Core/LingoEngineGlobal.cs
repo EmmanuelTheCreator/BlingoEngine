@@ -1,6 +1,4 @@
-﻿using AbstUIEngine.AbstUI.Core;
-
-namespace LingoEngine.AbstUI.Core
+﻿namespace AbstUI.Core
 {
    
     public class LingoEngineGlobal : AbstUIEngineGlobal

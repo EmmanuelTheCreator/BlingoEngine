@@ -1,5 +1,5 @@
 using ImGuiNET;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 using LingoEngine.Inputs;
 using LingoEngine.SDL2;
 using LingoEngine.SDL2.Inputs;

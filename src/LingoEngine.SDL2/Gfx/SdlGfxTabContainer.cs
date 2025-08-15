@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using ImGuiNET;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    public class SdlGfxTabContainer : SdlGfxComponent, ILingoFrameworkGfxTabContainer, IDisposable
+    public class SdlGfxTabContainer : SdlGfxComponent, IAbstUIFrameworkGfxTabContainer, IDisposable
     {
-        private readonly List<ILingoFrameworkGfxTabItem> _children = new();
+        private readonly List<IAbstUIFrameworkGfxTabItem> _children = new();
         private int _selectedIndex = -1;
 
         public AMargin Margin { get; set; } = AMargin.Zero;
@@ -22,14 +22,14 @@ namespace LingoEngine.SDL2.Gfx
         public string SelectedTabName =>
             _selectedIndex >= 0 && _selectedIndex < _children.Count ? _children[_selectedIndex].Title : string.Empty;
 
-        public void AddTab(ILingoFrameworkGfxTabItem content)
+        public void AddTab(IAbstUIFrameworkGfxTabItem content)
         {
             _children.Add(content);
             if (_selectedIndex == -1)
                 _selectedIndex = 0;
         }
 
-        public void RemoveTab(ILingoFrameworkGfxTabItem content)
+        public void RemoveTab(IAbstUIFrameworkGfxTabItem content)
         {
             var index = _children.IndexOf(content);
             if (index >= 0)
@@ -40,7 +40,7 @@ namespace LingoEngine.SDL2.Gfx
             }
         }
 
-        public IEnumerable<ILingoFrameworkGfxTabItem> GetTabs() => _children.ToArray();
+        public IEnumerable<IAbstUIFrameworkGfxTabItem> GetTabs() => _children.ToArray();
 
         public void ClearTabs()
         {
@@ -96,16 +96,16 @@ namespace LingoEngine.SDL2.Gfx
         }
     }
 
-    public class SdlGfxTabItem : SdlGfxComponent, ILingoFrameworkGfxTabItem
+    public class SdlGfxTabItem : SdlGfxComponent, IAbstUIFrameworkGfxTabItem
     {
-        public SdlGfxTabItem(SdlGfxFactory factory, LingoGfxTabItem tab) : base(factory)
+        public SdlGfxTabItem(SdlGfxFactory factory, AbstUIGfxTabItem tab) : base(factory)
         {
             tab.Init(this);
         }
 
         public string Title { get; set; } = string.Empty;
         public AMargin Margin { get; set; } = AMargin.Zero;
-        public ILingoGfxNode? Content { get; set; }
+        public IAbstUIGfxNode? Content { get; set; }
         public float TopHeight { get; set; }
         public object FrameworkNode => this;
 

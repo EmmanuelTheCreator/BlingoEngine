@@ -1,19 +1,19 @@
 using Godot;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 
 namespace LingoEngine.LGodot.Gfx
 {
     /// <summary>
-    /// Godot implementation of <see cref="ILingoFrameworkGfxVerticalLineSeparator"/>.
+    /// Godot implementation of <see cref="IAbstUIFrameworkGfxVerticalLineSeparator"/>.
     /// </summary>
-    public partial class LingoGodotVerticalLineSeparator : Control, ILingoFrameworkGfxVerticalLineSeparator, IDisposable
+    public partial class LingoGodotVerticalLineSeparator : Control, IAbstUIFrameworkGfxVerticalLineSeparator, IDisposable
     {
         private AMargin _margin = AMargin.Zero;
         private Color _lightColor;
         private Color _darkColor;
 
-        public LingoGodotVerticalLineSeparator(LingoGfxVerticalLineSeparator separator)
+        public LingoGodotVerticalLineSeparator(AbstUIGfxVerticalLineSeparator separator)
         {
             separator.Init(this);
             _lightColor = new Color(1, 1, 1);
@@ -52,7 +52,7 @@ namespace LingoEngine.LGodot.Gfx
             }
         }
         public bool Visibility { get => Visible; set => Visible = value; }
-        string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
+        string IAbstUIFrameworkGfxNode.Name { get => Name; set => Name = value; }
 
         public AMargin Margin
         {

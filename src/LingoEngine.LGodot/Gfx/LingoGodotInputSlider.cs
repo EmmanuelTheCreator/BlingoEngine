@@ -1,13 +1,13 @@
 using Godot;
 using System;
-using LingoEngine.Gfx;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
 
 namespace LingoEngine.LGodot.Gfx
 {
-    /// Godot implementation of <see cref="ILingoFrameworkGfxInputSlider{TValue}"/>.
+    /// Godot implementation of <see cref="IAbstUIFrameworkGfxInputSlider{TValue}"/>.
     /// </summary>
-    public partial class LingoGodotInputSlider<TValue> : Control, ILingoFrameworkGfxInputSlider<TValue>, System.IDisposable
+    public partial class LingoGodotInputSlider<TValue> : Control, IAbstUIFrameworkGfxInputSlider<TValue>, System.IDisposable
         where TValue : struct, System.IConvertible
     {
         private readonly Slider _slider;
@@ -15,7 +15,7 @@ namespace LingoEngine.LGodot.Gfx
         private AMargin _margin = AMargin.Zero;
         private event System.Action? _onValueChanged;
 
-        public LingoGodotInputSlider(LingoGfxInputSlider<TValue> slider, AOrientation orientation, System.Action<TValue>? onChange)
+        public LingoGodotInputSlider(AbstUIGfxInputSlider<TValue> slider, AOrientation orientation, System.Action<TValue>? onChange)
         {
             _onChange = onChange;
             _slider = orientation == AOrientation.Horizontal ? new HSlider() : new VSlider();
@@ -50,7 +50,7 @@ namespace LingoEngine.LGodot.Gfx
         }
 
         public bool Visibility { get => Visible; set => Visible = value; }
-        string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
+        string IAbstUIFrameworkGfxNode.Name { get => Name; set => Name = value; }
 
         public AMargin Margin
         {
@@ -68,7 +68,7 @@ namespace LingoEngine.LGodot.Gfx
         public bool Enabled { get => _slider.Editable; set => _slider.Editable = value; }
         public object FrameworkNode => this;
 
-        event System.Action? ILingoFrameworkGfxNodeInput.ValueChanged
+        event System.Action? IAbstUIFrameworkGfxNodeInput.ValueChanged
         {
             add => _onValueChanged += value;
             remove => _onValueChanged -= value;

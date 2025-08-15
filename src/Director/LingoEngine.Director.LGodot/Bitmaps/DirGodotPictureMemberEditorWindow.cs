@@ -17,7 +17,7 @@ using LingoEngine.LGodot.Bitmaps;
 using LingoEngine.Director.Core.Bitmaps.Commands;
 using LingoEngine.Director.LGodot.Bitmaps;
 using System.Collections.Generic;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.Director.LGodot.Pictures;
 

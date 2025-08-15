@@ -1,4 +1,5 @@
-﻿using LingoEngine.AbstUI.Primitives;
+﻿using AbstUI.Texts;
+using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Members;
 
@@ -23,7 +24,7 @@ namespace LingoEngine.Texts.FrameworkCommunication
         int FontSize { get; set; }
         LingoTextStyle FontStyle { get; set; }
         AColor TextColor { get; set; }
-        LingoTextAlignment Alignment { get; set; }
+        AbstUITextAlignment Alignment { get; set; }
         int Margin { get; set; }
         int Width { get; set; }
         int Height { get; set; }

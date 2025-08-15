@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Members;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Windowing.Commands;
@@ -13,7 +12,8 @@ using LingoEngine.Bitmaps;
 using LingoEngine.Scripts;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Casts;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
 
 namespace LingoEngine.Director.Core.Casts
 {
@@ -21,9 +21,9 @@ namespace LingoEngine.Director.Core.Casts
     {
         private int _itemMargin = 2;
         private readonly List<DirCastItem> _items = new();
-        private readonly LingoGfxScrollContainer _scroll;
-        private readonly LingoGfxTabItem _tabItem;
-        private readonly LingoGfxWrapPanel _wrap;
+        private readonly AbstUIGfxScrollContainer _scroll;
+        private readonly AbstUIGfxTabItem _tabItem;
+        private readonly AbstUIGfxWrapPanel _wrap;
         private readonly ILingoCast _cast;
         private readonly ILingoCommandManager _commandManager;
         private readonly ILingoFrameworkFactory _factory;
@@ -38,7 +38,7 @@ namespace LingoEngine.Director.Core.Casts
         private static readonly object _lock = new();
 
         public event Action<ILingoMember, DirCastItem>? MemberSelected;
-        internal LingoGfxTabItem TabItem => _tabItem;
+        internal AbstUIGfxTabItem TabItem => _tabItem;
 
         public int Width { get; private set; }
 

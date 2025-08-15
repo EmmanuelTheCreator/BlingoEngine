@@ -1,23 +1,23 @@
-﻿using LingoEngine.AbstUI.Primitives;
+﻿using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 
 namespace LingoEngine.Director.Core.UI
 {
     public static class GfxWrapPanelExtensions
     {
-        public static GfxWrapPanelBuilder Compose(this LingoGfxWrapPanel panel, GfxWrapPanelBuilder? parent = null)
+        public static GfxWrapPanelBuilder Compose(this AbstUIGfxWrapPanel panel, GfxWrapPanelBuilder? parent = null)
         {
             var builder = new GfxWrapPanelBuilder(panel, parent);
             return builder;
         }
-        public static GfxWrapPanelBuilderForToolBar ComposeForToolBar(this LingoGfxWrapPanel panel, GfxWrapPanelBuilder? parent = null)
+        public static GfxWrapPanelBuilderForToolBar ComposeForToolBar(this AbstUIGfxWrapPanel panel, GfxWrapPanelBuilder? parent = null)
         {
             var builder = new GfxWrapPanelBuilderForToolBar(panel, parent);
             return builder;
         }
 
-        public static LingoGfxWrapPanel AddHLine(this LingoGfxWrapPanel panel, string name, float width =0, float paddingLeft = 0)
+        public static AbstUIGfxWrapPanel AddHLine(this AbstUIGfxWrapPanel panel, string name, float width =0, float paddingLeft = 0)
         {
             var line = panel.Factory.CreateHorizontalLineSeparator(name);
             if (width > 0) line.Width = width;
@@ -25,7 +25,7 @@ namespace LingoEngine.Director.Core.UI
             panel.AddItem(line);
             return panel;
         }
-        public static LingoGfxWrapPanel AddVLine(this LingoGfxWrapPanel panel, string name, float height =0, float paddingTop = 0)
+        public static AbstUIGfxWrapPanel AddVLine(this AbstUIGfxWrapPanel panel, string name, float height =0, float paddingTop = 0)
         {
             var line = panel.Factory.CreateVerticalLineSeparator(name);
             if (height > 0) line.Height = height;
@@ -34,7 +34,7 @@ namespace LingoEngine.Director.Core.UI
             return panel;
         }
 
-        public static LingoGfxItemList AddItemList(this LingoGfxWrapPanel panel, string name, IEnumerable<KeyValuePair<string,string>> items, int width = 100)
+        public static AbstUIGfxItemList AddItemList(this AbstUIGfxWrapPanel panel, string name, IEnumerable<KeyValuePair<string,string>> items, int width = 100)
         {
             var list = panel.Factory.CreateItemList(name);
             foreach (var item in items)
@@ -44,14 +44,14 @@ namespace LingoEngine.Director.Core.UI
             return list;
         }
 
-        public static LingoGfxInputSlider<float> AddSliderFloat(this LingoGfxWrapPanel panel, string name, AOrientation orientation, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
+        public static AbstUIGfxInputSlider<float> AddSliderFloat(this AbstUIGfxWrapPanel panel, string name, AOrientation orientation, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
         {
             var slider = panel.Factory.CreateInputSliderFloat(orientation, name, min, max, step, onChange);
             panel.AddItem(slider);
             return slider;
         }
 
-        public static LingoGfxInputSlider<int> AddSliderInt(this LingoGfxWrapPanel panel, string name, AOrientation orientation, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
+        public static AbstUIGfxInputSlider<int> AddSliderInt(this AbstUIGfxWrapPanel panel, string name, AOrientation orientation, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
         {
             var slider = panel.Factory.CreateInputSliderInt(orientation, name, min, max, step, onChange);
             panel.AddItem(slider);

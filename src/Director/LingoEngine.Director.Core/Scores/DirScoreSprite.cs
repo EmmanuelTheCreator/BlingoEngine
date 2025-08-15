@@ -1,10 +1,10 @@
-﻿using LingoEngine.Gfx;
-using LingoEngine.Sprites;
+﻿using LingoEngine.Sprites;
 using LingoEngine.Primitives;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.Tools;
 using System.Linq;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
 
 namespace LingoEngine.Director.Core.Scores
 {
@@ -121,7 +121,7 @@ namespace LingoEngine.Director.Core.Scores
             RequireRedraw();
         }
 
-        public void Draw(LingoGfxCanvas canvas, float frameWidth, float channelHeight, float yOffset = 0)
+        public void Draw(AbstUIGfxCanvas canvas, float frameWidth, float channelHeight, float yOffset = 0)
         {
             //if (!RequireToRedraw) return;
             RequireToRedraw = false;

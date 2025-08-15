@@ -1,11 +1,11 @@
-﻿using LingoEngine.AbstUI.Primitives;
+﻿using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.Bitmaps;
 using LingoEngine.Director.Core.Bitmaps.Commands;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 
 namespace LingoEngine.Director.Core.UI;
 
@@ -15,12 +15,12 @@ public abstract class DirectorToolbar<TToolEnumType>
     protected readonly IDirectorIconManager _iconManager;
     protected readonly ILingoCommandManager _commandManager;
     protected readonly ILingoFrameworkFactory _factory;
-    protected readonly LingoGfxPanel _panel;
-    protected readonly LingoGfxWrapPanel _container;
-    protected LingoGfxStateButton? _selectedButton;
+    protected readonly AbstUIGfxPanel _panel;
+    protected readonly AbstUIGfxWrapPanel _container;
+    protected AbstUIGfxStateButton? _selectedButton;
 
     public event Action<TToolEnumType>? ToolSelected;
-    public LingoGfxPanel Panel => _panel;
+    public AbstUIGfxPanel Panel => _panel;
     public TToolEnumType SelectedTool { get; protected set; }
 
     public DirectorToolbar(string name, IDirectorIconManager iconManager, ILingoCommandManager commandManager, ILingoFrameworkFactory factory)
@@ -87,7 +87,7 @@ public abstract class DirectorToolbar<TToolEnumType>
         ToolSelected?.Invoke(tool);
     }
 
-    private void SelectButton(LingoGfxStateButton btn)
+    private void SelectButton(AbstUIGfxStateButton btn)
     {
         if (_selectedButton == btn) return;
         if (_selectedButton != null)

@@ -3,8 +3,8 @@ using LingoEngine.Tempos;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Sprites;
 using LingoEngine.Director.Core.UI;
-using LingoEngine.Gfx;
 using LingoEngine.Director.Core.Windowing;
+using AbstUI.Components;
 namespace LingoEngine.Director.Core.Scores.Tempos;
 
 

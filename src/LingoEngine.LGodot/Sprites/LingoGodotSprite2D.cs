@@ -13,7 +13,7 @@ using LingoEngine.LGodot.Shapes;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.FilmLoops;
 using LingoEngine.LGodot.FilmLoops;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.LGodot.Sprites
 {

@@ -1,8 +1,8 @@
 using System;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.Animations;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 
 namespace LingoEngine.Director.Core.Stages;
 
@@ -11,9 +11,9 @@ namespace LingoEngine.Director.Core.Stages;
 /// </summary>
 public class StageMotionPathOverlay : IDisposable
 {
-    private readonly LingoGfxCanvas _canvas;
+    private readonly AbstUIGfxCanvas _canvas;
 
-    public LingoGfxCanvas Canvas => _canvas;
+    public AbstUIGfxCanvas Canvas => _canvas;
 
     public bool Visible { get => _canvas.Visibility; set => _canvas.Visibility = value; }
 

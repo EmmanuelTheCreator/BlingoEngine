@@ -1,6 +1,6 @@
 using Godot;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.Inputs;
 using LingoEngine.LGodot.Core;
 using LingoEngine.LGodot.Primitives;
@@ -10,15 +10,15 @@ using static Godot.Control;
 namespace LingoEngine.LGodot.Gfx
 {
     /// <summary>
-    /// Godot implementation of <see cref="ILingoFrameworkGfxWindow"/>.
+    /// Godot implementation of <see cref="IAbstUIFrameworkGfxWindow"/>.
     /// </summary>
-    public partial class LingoGodotWindow : Window, ILingoFrameworkGfxWindow, IDisposable
+    public partial class LingoGodotWindow : Window, IAbstUIFrameworkGfxWindow, IDisposable
     {
         private AMargin _margin = AMargin.Zero;
-        private readonly List<ILingoFrameworkGfxLayoutNode> _nodes = new();
+        private readonly List<IAbstUIFrameworkGfxLayoutNode> _nodes = new();
         private readonly Panel _panel;
         private readonly StyleBoxFlat _panelStyle;
-        private readonly LingoGfxWindow _lingoWindow;
+        private readonly AbstUIGfxWindow _lingoWindow;
         private readonly LingoGodotRootNode _rootNode;
         protected readonly LingoGodotMouse _MouseFrameworkObj;
         private bool _isPopup;
@@ -48,7 +48,7 @@ namespace LingoEngine.LGodot.Gfx
             }
         }
         public bool Visibility { get => Visible; set => Visible = value; }
-        string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
+        string IAbstUIFrameworkGfxNode.Name { get => Name; set => Name = value; }
         public new string Title { get => base.Title; set => base.Title = value; }
         public bool IsPopup
         {
@@ -84,7 +84,7 @@ namespace LingoEngine.LGodot.Gfx
         #endregion
 
 
-        public LingoGodotWindow(LingoGfxWindow window, ILingoGodotStyleManager lingoGodotStyleManager, LingoGodotRootNode rootNode)
+        public LingoGodotWindow(AbstUIGfxWindow window, ILingoGodotStyleManager lingoGodotStyleManager, LingoGodotRootNode rootNode)
         {
             _lingoWindow = window;
             _rootNode = rootNode;
@@ -158,21 +158,21 @@ namespace LingoEngine.LGodot.Gfx
                 _MouseFrameworkObj.HandleMouseMoveEvent(mouseMotionEvent, isInsideRect, mousePos.X, mousePos.Y - TitleBarHeight);
         }
 
-        public void AddItem(ILingoFrameworkGfxLayoutNode child)
+        public void AddItem(IAbstUIFrameworkGfxLayoutNode child)
         {
             if (child.FrameworkNode is Node node)
                 _panel.AddChild(node);
             _nodes.Add(child);
         }
 
-        public void RemoveItem(ILingoFrameworkGfxLayoutNode child)
+        public void RemoveItem(IAbstUIFrameworkGfxLayoutNode child)
         {
             if (child.FrameworkNode is Node node)
                 _panel.RemoveChild(node);
             _nodes.Remove(child);
         }
 
-        public IEnumerable<ILingoFrameworkGfxLayoutNode> GetItems() => _nodes.ToArray();
+        public IEnumerable<IAbstUIFrameworkGfxLayoutNode> GetItems() => _nodes.ToArray();
 
         public void Popup()
         {

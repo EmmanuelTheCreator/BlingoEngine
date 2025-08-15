@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Texts;
+using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Primitives;
 using LingoEngine.SDL2.Inputs;
@@ -52,7 +53,7 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     }
     public LingoTextStyle FontStyle { get; set; }
     public AColor TextColor { get; set; } = AColor.FromRGB(0, 0, 0);
-    public LingoTextAlignment Alignment { get; set; }
+    public AbstUITextAlignment Alignment { get; set; }
     public int Margin { get; set; }
     public bool IsLoaded { get; private set; }
     public int Width {get;set;}

@@ -1,9 +1,9 @@
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Texts;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
-using LingoEngine.Texts;
-using System.Reflection.Emit;
+using AbstUI.Inputs;
 
 namespace LingoEngine.Inputs
 {
@@ -16,11 +16,11 @@ namespace LingoEngine.Inputs
         private readonly ILingoFrameworkFactory _factory;
         private readonly string[][] _layout;
         private readonly int _cols;
-        private readonly LingoGfxWindow _window;
-        private readonly LingoGfxCanvas _canvas;
+        private readonly AbstUIGfxWindow _window;
+        private readonly AbstUIGfxCanvas _canvas;
         
-        private readonly ILingoMouseSubscription _mouseDownSub;
-        private readonly ILingoMouseSubscription _mouseMoveSub;
+        private readonly IAbstUIMouseSubscription _mouseDownSub;
+        private readonly IAbstUIMouseSubscription _mouseMoveSub;
         private int _selectedRow;
         private int _selectedCol;
         private bool _enableMouse = true;
@@ -116,9 +116,9 @@ namespace LingoEngine.Inputs
             _window.AddItem(_canvas);
             _window.IsPopup = true;
             _window.OnWindowStateChanged += OnWindowStateChanged;
-            _mouseDownSub = _window.Mouse.OnMouseDown(OnMouseDown);
-            _mouseMoveSub = _window.Mouse.OnMouseMove(OnMouseMove);
-            _window.Key.Subscribe(this);
+            _mouseDownSub = ((ILingoMouse)_window.Mouse).OnMouseDown(OnMouseDown);
+            _mouseMoveSub = ((ILingoMouse)_window.Mouse).OnMouseMove(OnMouseMove);
+            ((ILingoKey)_window.Key).Subscribe(this);
             ApplyWindowChrome();
             DrawKeyboard();
             _window.Width = width + Margin*2;
@@ -130,7 +130,7 @@ namespace LingoEngine.Inputs
             _window.OnWindowStateChanged -= OnWindowStateChanged;
             _mouseDownSub.Release();
             _mouseMoveSub.Release();
-            _window.Key.Unsubscribe(this);
+            ((ILingoKey)_window.Key).Unsubscribe(this);
             _window.Dispose();
         }
         public void UpdateStyle()
@@ -214,7 +214,7 @@ namespace LingoEngine.Inputs
                     var border = selected ? SelectedColor : BorderColor;
                     _canvas.DrawRect(ARect.New(x, y, CellSize, CellSize), border, false, 1);
                     var label = key switch { "SPACE" => "Space", "BACKSPACE" => "<-", "ENTER" => "OK", "ESC" => "Esc", _ => key };
-                    _canvas.DrawText(new APoint(x + 2, y + 20), label, FontName, TextColor, FontSize, CellSize - 4, LingoTextAlignment.Center);
+                    _canvas.DrawText(new APoint(x + 2, y + 20), label, FontName, TextColor, FontSize, CellSize - 4, AbstUITextAlignment.Center);
                 }
             }
         }

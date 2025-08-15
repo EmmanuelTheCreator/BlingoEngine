@@ -2,11 +2,11 @@ using System;
 using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Reflection.Emit;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Components;
+using AbstUI.Primitives;
+using AbstUI.Tools;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
-using LingoEngine.Tools;
 
 namespace LingoEngine.Director.Core.Inspector
 {
@@ -16,7 +16,7 @@ namespace LingoEngine.Director.Core.Inspector
     public class GfxPanelBuilder
     {
         private readonly ILingoFrameworkFactory _factory;
-        private readonly LingoGfxPanel _panel;
+        private readonly AbstUIGfxPanel _panel;
         private int _columns = 1;
         private int _currentColumn;
         private int _currentRow;
@@ -39,7 +39,7 @@ namespace LingoEngine.Director.Core.Inspector
 
         public float CurrentHeight => (_currentRow + 1) * _rowHeight;
 
-        public GfxPanelBuilder(LingoGfxPanel panel, ILingoFrameworkFactory factory)
+        public GfxPanelBuilder(AbstUIGfxPanel panel, ILingoFrameworkFactory factory)
         {
             _panel = panel;
             _factory = factory;
@@ -118,7 +118,7 @@ namespace LingoEngine.Director.Core.Inspector
             Advance(widthSpan);
             return this;
         }
-        public GfxPanelBuilder AddNumericInputFloat<T>(string name, string label, T target, Expression<Func<T, float>> property,int inputSpan = 1, bool showLabel = true, bool stretch = false, int labelSpan = 1, Action<LingoGfxInputNumber<float>>? configure = null)
+        public GfxPanelBuilder AddNumericInputFloat<T>(string name, string label, T target, Expression<Func<T, float>> property,int inputSpan = 1, bool showLabel = true, bool stretch = false, int labelSpan = 1, Action<AbstUIGfxInputNumber<float>>? configure = null)
         {
             var (xLabel, xInput, y) = Layout(showLabel?labelSpan:0, inputSpan);
             if (showLabel)
@@ -129,7 +129,7 @@ namespace LingoEngine.Director.Core.Inspector
                 configure(numericInput);
             Advance((showLabel ? labelSpan : 0) + inputSpan);
             return this;
-        } public GfxPanelBuilder AddNumericInputInt<T>(string name, string label, T target, Expression<Func<T, int>> property,int inputSpan = 1, bool showLabel = true, bool stretch = false, int labelSpan = 1, Action<LingoGfxInputNumber<int>>? configure = null)
+        } public GfxPanelBuilder AddNumericInputInt<T>(string name, string label, T target, Expression<Func<T, int>> property,int inputSpan = 1, bool showLabel = true, bool stretch = false, int labelSpan = 1, Action<AbstUIGfxInputNumber<int>>? configure = null)
         {
             var (xLabel, xInput, y) = Layout(showLabel?labelSpan:0, inputSpan);
             if (showLabel)

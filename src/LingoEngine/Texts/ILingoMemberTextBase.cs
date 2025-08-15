@@ -1,4 +1,5 @@
-﻿using LingoEngine.AbstUI.Primitives;
+﻿using AbstUI.Texts;
+using AbstUI.Primitives;
 using LingoEngine.Members;
 
 namespace LingoEngine.Texts
@@ -126,7 +127,7 @@ namespace LingoEngine.Texts
         /// <summary>
         /// Gets or sets the alignment of the text in the field: 0 = left, 1 = center, 2 = right.
         /// </summary>
-        LingoTextAlignment Alignment { get; set; }
+        AbstUITextAlignment Alignment { get; set; }
 
         /// <summary>
         /// Gets or sets the margin (padding) around the text inside the field.

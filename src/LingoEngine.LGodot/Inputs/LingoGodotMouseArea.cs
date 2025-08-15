@@ -2,6 +2,8 @@
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
 using LingoEngine.Bitmaps;
+using AbstUI.Primitives;
+using AbstUI.Inputs;
 
 
 namespace LingoEngine.LGodot
@@ -10,7 +12,7 @@ namespace LingoEngine.LGodot
     /// Communication between the Godot engine and the Lingo mouse object
     /// </summary>
 
-    public partial class LingoGodotMouseArea : Area2D, ILingoFrameworkMouse
+    public partial class LingoGodotMouseArea : Area2D, IAbstUIFrameworkMouse
     {
         private readonly LingoGodotMouse _handler;
         private CollisionShape2D _collisionShape2D = new();
@@ -27,7 +29,7 @@ namespace LingoEngine.LGodot
             _collisionShape2D.Shape = _RectangleShape2D;
             _collisionShape2D.Name = "MouseDetectionCollisionShape";
         }
-        public void ReplaceMouseObj(LingoMouse lingoMouse) => _handler.ReplaceMouseObj(lingoMouse);
+        public void ReplaceMouseObj(IAbstUIMouse lingoMouse) => _handler.ReplaceMouseObj(lingoMouse);
         public void Release()
         {
             RemoveChild(_collisionShape2D);
@@ -42,7 +44,7 @@ namespace LingoEngine.LGodot
 
         public void SetCursor(LingoMemberBitmap image) => _handler.SetCursor(image);
 
-        public void SetCursor(LingoMouseCursor value) => _handler.SetCursor(value);
+        public void SetCursor(AMouseCursor value) => _handler.SetCursor(value);
 
         // This method will be called when Godot's input_event is triggered
         public override void _InputEvent(Viewport viewport, InputEvent inputEvent, int shapeIdx)

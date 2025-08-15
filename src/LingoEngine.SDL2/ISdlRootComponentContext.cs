@@ -1,6 +1,6 @@
 using ImGuiNET;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Inputs;
+using AbstUI.Primitives;
+using AbstUI.Inputs;
 
 namespace LingoEngine.SDL2;
 
@@ -10,8 +10,8 @@ public interface ISdlRootComponentContext
     public ImDrawListPtr ImDrawList { get; }
     LingoSDLComponentContainer ComponentContainer { get; }
     nint Renderer { get; }
-    LingoMouse LingoMouse { get; }
-    LingoKey LingoKey { get; }
+    IAbstUIMouse LingoMouse { get; }
+    IAbstUIKey LingoKey { get; }
 
     nint RegisterTexture(nint sdlTexture);
     nint GetTexture(nint textureId);

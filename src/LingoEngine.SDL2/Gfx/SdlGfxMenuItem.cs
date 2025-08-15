@@ -1,9 +1,9 @@
 using System;
-using LingoEngine.Gfx;
+using AbstUI.Components;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxMenuItem : SdlGfxComponent, ILingoFrameworkGfxMenuItem, IDisposable
+    internal class SdlGfxMenuItem : SdlGfxComponent, IAbstUIFrameworkGfxMenuItem, IDisposable
     {
         public bool Enabled { get; set; } = true;
         public bool CheckMark { get; set; }

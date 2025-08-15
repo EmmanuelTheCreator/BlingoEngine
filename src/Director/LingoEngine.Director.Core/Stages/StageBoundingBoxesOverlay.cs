@@ -1,13 +1,13 @@
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Sprites;
 using LingoEngine.Inputs;
 using LingoEngine.Events;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Members;
 using LingoEngine.Texts;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
 
 namespace LingoEngine.Director.Core.Stages;
 
@@ -16,7 +16,7 @@ namespace LingoEngine.Director.Core.Stages;
 /// </summary>
 public class StageBoundingBoxesOverlay : IHasSpriteSelectedEvent, ILingoMouseEventHandler, IDisposable
 {
-    private readonly LingoGfxCanvas _canvas;
+    private readonly AbstUIGfxCanvas _canvas;
     private readonly IDirectorEventMediator _mediator;
     private ILingoStageMouse _mouse;
     private ILingoKey _key;
@@ -25,7 +25,7 @@ public class StageBoundingBoxesOverlay : IHasSpriteSelectedEvent, ILingoMouseEve
 
     public bool Visible { get => _canvas.Visibility; set => _canvas.Visibility = value; }
 
-    public LingoGfxCanvas Canvas => _canvas;
+    public AbstUIGfxCanvas Canvas => _canvas;
 
     public StageBoundingBoxesOverlay(ILingoFrameworkFactory factory, IDirectorEventMediator mediator)
     {

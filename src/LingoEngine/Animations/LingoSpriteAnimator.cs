@@ -1,6 +1,6 @@
 using LingoEngine.Events;
 using LingoEngine.Sprites;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.Animations
 {

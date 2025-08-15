@@ -1,21 +1,21 @@
 using Godot;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.LGodot.Primitives;
 using System;
 
 namespace LingoEngine.LGodot.Gfx
 {
     /// <summary>
-    /// Godot implementation of <see cref="ILingoFrameworkGfxColorPicker"/>.
+    /// Godot implementation of <see cref="IAbstUIFrameworkGfxColorPicker"/>.
     /// </summary>
-    public partial class LingoGodotColorPicker : ColorPickerButton, ILingoFrameworkGfxColorPicker, IDisposable
+    public partial class LingoGodotColorPicker : ColorPickerButton, IAbstUIFrameworkGfxColorPicker, IDisposable
     {
         private AMargin _margin = AMargin.Zero;
         private readonly Action<AColor>? _onChange;
         private event Action? _onValueChanged;
 
-        public LingoGodotColorPicker(LingoGfxColorPicker picker, Action<AColor>? onChange)
+        public LingoGodotColorPicker(AbstUIGfxColorPicker picker, Action<AColor>? onChange)
         {
             _onChange = onChange;
             picker.Init(this);
@@ -36,7 +36,7 @@ namespace LingoEngine.LGodot.Gfx
         public float Height { get => Size.Y; set { Size = new Vector2(Size.X, value); CustomMinimumSize = new Vector2(Size.X, value); } }
         public bool Visibility { get => Visible; set => Visible = value; }
         public bool Enabled { get => !Disabled; set => Disabled = !value; }
-        string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
+        string IAbstUIFrameworkGfxNode.Name { get => Name; set => Name = value; }
 
         public AMargin Margin
         {
@@ -57,7 +57,7 @@ namespace LingoEngine.LGodot.Gfx
             set => base.Color = value.ToGodotColor();
         }
 
-        event Action? ILingoFrameworkGfxNodeInput.ValueChanged
+        event Action? IAbstUIFrameworkGfxNodeInput.ValueChanged
         {
             add => _onValueChanged += value;
             remove => _onValueChanged -= value;

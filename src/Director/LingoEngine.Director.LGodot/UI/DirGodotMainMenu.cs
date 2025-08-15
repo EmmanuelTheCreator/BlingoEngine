@@ -19,7 +19,7 @@ using LingoEngine.LGodot.Primitives;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.Projects;
 using Microsoft.Extensions.DependencyInjection;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.Director.LGodot;
 

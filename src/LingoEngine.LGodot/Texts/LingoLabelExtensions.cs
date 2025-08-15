@@ -1,7 +1,7 @@
-﻿using Godot;
-using LingoEngine.AbstUI.Primitives;
+﻿using AbstUI.Texts;
+using Godot;
+using AbstUI.Primitives;
 using LingoEngine.Styles;
-using LingoEngine.Texts;
 
 namespace LingoEngine.LGodot.Texts
 {
@@ -25,26 +25,26 @@ namespace LingoEngine.LGodot.Texts
             labelSettings.FontColor = new Color(color.R, color.G, color.B);
             return labelSettings;
         }
-        public static HorizontalAlignment ToGodot(this LingoTextAlignment alignment)
+        public static HorizontalAlignment ToGodot(this AbstUITextAlignment alignment)
         {
             switch (alignment)
             {
-                case LingoTextAlignment.Left: return HorizontalAlignment.Left;
-                case LingoTextAlignment.Center: return HorizontalAlignment.Center;
-                case LingoTextAlignment.Right: return HorizontalAlignment.Right;
-                case LingoTextAlignment.Justified: return HorizontalAlignment.Fill;
+                case AbstUITextAlignment.Left: return HorizontalAlignment.Left;
+                case AbstUITextAlignment.Center: return HorizontalAlignment.Center;
+                case AbstUITextAlignment.Right: return HorizontalAlignment.Right;
+                case AbstUITextAlignment.Justified: return HorizontalAlignment.Fill;
                 default: return HorizontalAlignment.Left;
             };
         } 
-        public static LingoTextAlignment ToLingo(this HorizontalAlignment alignment)
+        public static AbstUITextAlignment ToLingo(this HorizontalAlignment alignment)
         {
             switch (alignment)
             {
-                case HorizontalAlignment.Left: return LingoTextAlignment.Left;
-                case HorizontalAlignment.Center: return LingoTextAlignment.Center;
-                case HorizontalAlignment.Right: return LingoTextAlignment.Right;
-                case HorizontalAlignment.Fill: return LingoTextAlignment.Justified;
-                default: return LingoTextAlignment.Left;
+                case HorizontalAlignment.Left: return AbstUITextAlignment.Left;
+                case HorizontalAlignment.Center: return AbstUITextAlignment.Center;
+                case HorizontalAlignment.Right: return AbstUITextAlignment.Right;
+                case HorizontalAlignment.Fill: return AbstUITextAlignment.Justified;
+                default: return AbstUITextAlignment.Left;
             };
         }
         public static AColor GetLingoColor(this LabelSettings labelSettings)

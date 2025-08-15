@@ -12,7 +12,7 @@ using LingoEngine.Director.Core.UI;
 using LingoEngine.LGodot.Gfx;
 using LingoEngine.Inputs;
 using LingoEngine.Director.Core.Icons;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.Director.LGodot.Movies;
 

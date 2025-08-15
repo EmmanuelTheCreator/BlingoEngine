@@ -7,7 +7,7 @@ using LingoEngine.SDL2.SDLL;
 using LingoEngine.Sprites;
 using LingoEngine.Bitmaps;
 using LingoEngine.SDL2.Pictures;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Shapes
 {

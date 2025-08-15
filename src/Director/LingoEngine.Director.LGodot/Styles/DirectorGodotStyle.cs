@@ -1,5 +1,5 @@
 ﻿using Godot;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.LGodot.Primitives;
 using LingoEngine.LGodot.Styles;

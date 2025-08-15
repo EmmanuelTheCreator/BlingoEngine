@@ -1,6 +1,6 @@
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Primitives;
 using System.Collections.Generic;
 
@@ -11,7 +11,7 @@ namespace LingoEngine.Director.Core.Stages;
 /// </summary>
 public class DirectorStageGuides
 {
-    private readonly LingoGfxCanvas _canvas;
+    private readonly AbstUIGfxCanvas _canvas;
 
     public IList<float> VerticalGuides { get; } = new List<float>();
     public IList<float> HorizontalGuides { get; } = new List<float>();
@@ -36,7 +36,7 @@ public class DirectorStageGuides
     private float _gridHeight = 32;
     public float GridHeight { get => _gridHeight; set { _gridHeight = value; Draw(); } }
 
-    public LingoGfxCanvas Canvas => _canvas;
+    public AbstUIGfxCanvas Canvas => _canvas;
 
     public DirectorStageGuides(ILingoFrameworkFactory factory)
     {

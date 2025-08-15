@@ -1,6 +1,5 @@
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Inputs;
@@ -10,6 +9,7 @@ using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Core;
 using LingoEngine.Director.Core.Events;
+using AbstUI.Components;
 
 namespace LingoEngine.Director.Core.Casts
 {
@@ -17,7 +17,7 @@ namespace LingoEngine.Director.Core.Casts
     {
         private readonly IDirectorEventMediator _mediator;
         private readonly ILingoFrameworkFactory _factory;
-        private readonly LingoGfxTabContainer _tabs;
+        private readonly AbstUIGfxTabContainer _tabs;
         private readonly LingoPlayer _player;
         private readonly Dictionary<string, DirCastTab> _tabMap = new();
         private readonly ILingoCommandManager _commandManager;
@@ -25,7 +25,7 @@ namespace LingoEngine.Director.Core.Casts
         private ILingoMember? _selected;
         private ILingoMouseSubscription? _mouseSub;
 
-        public LingoGfxTabContainer TabContainer => _tabs;
+        public AbstUIGfxTabContainer TabContainer => _tabs;
         public ILingoMember? SelectedMember => _selected;
         public int Width { get; set; } = 370;
         public int Height { get; set; } = 620;

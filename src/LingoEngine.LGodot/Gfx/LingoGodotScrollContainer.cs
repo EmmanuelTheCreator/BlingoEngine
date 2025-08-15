@@ -1,14 +1,14 @@
 using Godot;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 using System.Linq;
 
 namespace LingoEngine.LGodot.Gfx
 {
-    public partial class LingoGodotScrollContainer : ScrollContainer, ILingoFrameworkGfxScrollContainer, IDisposable
+    public partial class LingoGodotScrollContainer : ScrollContainer, IAbstUIFrameworkGfxScrollContainer, IDisposable
     {
         private AMargin _margin = AMargin.Zero;
-        public LingoGodotScrollContainer(LingoGfxScrollContainer container)
+        public LingoGodotScrollContainer(AbstUIGfxScrollContainer container)
         {
             container.Init(this);
         }
@@ -18,7 +18,7 @@ namespace LingoEngine.LGodot.Gfx
         public float Width { get => Size.X; set => Size = new Vector2(value, Size.Y); }
         public float Height { get => Size.Y; set => Size = new Vector2(Size.X, value); }
         public bool Visibility { get => Visible; set => Visible = value; }
-        string ILingoFrameworkGfxNode.Name { get => Name; set => Name = value; }
+        string IAbstUIFrameworkGfxNode.Name { get => Name; set => Name = value; }
 
         public new float ScrollHorizontal
         {
@@ -51,21 +51,21 @@ namespace LingoEngine.LGodot.Gfx
         public object FrameworkNode => this;
 
 
-        private readonly List<ILingoFrameworkGfxLayoutNode> _nodes = new List<ILingoFrameworkGfxLayoutNode>();
-        public void AddItem(ILingoFrameworkGfxLayoutNode child)
+        private readonly List<IAbstUIFrameworkGfxLayoutNode> _nodes = new List<IAbstUIFrameworkGfxLayoutNode>();
+        public void AddItem(IAbstUIFrameworkGfxLayoutNode child)
         {
             if (child.FrameworkNode is Node node)
                 base.AddChild(node);
             _nodes.Add(child);
         }
-        public void RemoveItem(ILingoFrameworkGfxLayoutNode lingoFrameworkGfxNode)
+        public void RemoveItem(IAbstUIFrameworkGfxLayoutNode lingoFrameworkGfxNode)
         {
             if (lingoFrameworkGfxNode.FrameworkNode is Node node)
                 RemoveChild(node);
             _nodes.Remove(lingoFrameworkGfxNode);
         }
 
-        public IEnumerable<ILingoFrameworkGfxLayoutNode> GetItems() => _nodes.ToArray();
+        public IEnumerable<IAbstUIFrameworkGfxLayoutNode> GetItems() => _nodes.ToArray();
 
 
 

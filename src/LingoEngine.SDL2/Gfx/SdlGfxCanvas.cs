@@ -4,17 +4,17 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using ImGuiNET;
 using LingoEngine.Bitmaps;
-using LingoEngine.Gfx;
 using LingoEngine.SDL2.Primitives;
 using LingoEngine.SDL2.SDLL;
 using LingoEngine.SDL2.Pictures;
 using LingoEngine.Styles;
-using LingoEngine.Texts;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
+using AbstUI.Texts;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxCanvas : SdlGfxComponent, ILingoFrameworkGfxCanvas, IDisposable
+    internal class SdlGfxCanvas : SdlGfxComponent, IAbstUIFrameworkGfxCanvas, IDisposable
     {
         public AMargin Margin { get; set; } = AMargin.Zero;
 
@@ -227,7 +227,7 @@ namespace LingoEngine.SDL2.Gfx
             MarkDirty();
         }
 
-        public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, LingoTextAlignment alignment = default)
+        public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstUITextAlignment alignment = default)
         {
             var pos = position;
             var txt = text;
@@ -310,7 +310,7 @@ namespace LingoEngine.SDL2.Gfx
             });
             MarkDirty();
         }
-        public void DrawPicture(ILingoTexture2D texture, int width, int height, APoint position)
+        public void DrawPicture(IAbstUITexture2D texture, int width, int height, APoint position)
         {
             var tex = texture;
             var w = width;

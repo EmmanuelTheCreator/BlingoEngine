@@ -2,12 +2,12 @@ using LingoEngine.Commands;
 using LingoEngine.Movies;
 using LingoEngine.Movies.Commands;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Gfx;
 using LingoEngine.Events;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
 using System.Drawing;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
 
 namespace LingoEngine.Director.Core.Scores;
 
@@ -15,21 +15,21 @@ public class DirScoreLabelsBar : IDisposable
 {
     private readonly DirScoreGfxValues _gfxValues;
     private readonly ILingoCommandManager _commandManager;
-    private readonly LingoGfxCanvas _canvasFix;
-    private readonly LingoGfxCanvas _canvasOpenCollapse;
-    private readonly LingoGfxCanvas _canvas;
-    private readonly LingoGfxInputText _editField;
-    private readonly LingoGfxButton _btnApply;
-    private readonly LingoGfxButton _btnCancel;
-    private readonly LingoGfxButton _btnDelete;
-    private readonly ILingoGfxLayoutNode _btnApplyLayout;
-    private readonly ILingoGfxLayoutNode _btnCancelLayout;
-    private readonly ILingoGfxLayoutNode _btnDeleteLayout;
+    private readonly AbstUIGfxCanvas _canvasFix;
+    private readonly AbstUIGfxCanvas _canvasOpenCollapse;
+    private readonly AbstUIGfxCanvas _canvas;
+    private readonly AbstUIGfxInputText _editField;
+    private readonly AbstUIGfxButton _btnApply;
+    private readonly AbstUIGfxButton _btnCancel;
+    private readonly AbstUIGfxButton _btnDelete;
+    private readonly IAbstUIGfxLayoutNode _btnApplyLayout;
+    private readonly IAbstUIGfxLayoutNode _btnCancelLayout;
+    private readonly IAbstUIGfxLayoutNode _btnDeleteLayout;
     private LingoMovie? _movie;
-    //private readonly LingoGfxInputCombobox _labelsCombo;
-    private readonly LingoGfxItemList _labelsCombo;
-    private readonly LingoGfxPanel _scollingPanel;
-    private readonly LingoGfxPanel _fixPanel;
+    //private readonly AbstUIGfxInputCombobox _labelsCombo;
+    private readonly AbstUIGfxItemList _labelsCombo;
+    private readonly AbstUIGfxPanel _scollingPanel;
+    private readonly AbstUIGfxPanel _fixPanel;
     private FrameLabelData? _activeFrameLabel;
     private bool _dragging;
     private bool _headerCollapsed;
@@ -59,9 +59,9 @@ public class DirScoreLabelsBar : IDisposable
     public float Height => _fixPanel.Height;
     public float ScrollingWidth => _scollingPanel.Width;
     public float ScollingHeight => _scollingPanel.Height;
-    public LingoGfxPanel ScollingPanel => _scollingPanel;
-    public LingoGfxPanel FixPanel => _fixPanel;
-    //public LingoGfxInputText EditField => _editField;
+    public AbstUIGfxPanel ScollingPanel => _scollingPanel;
+    public AbstUIGfxPanel FixPanel => _fixPanel;
+    //public AbstUIGfxInputText EditField => _editField;
 
 
 
@@ -456,7 +456,7 @@ public class DirScoreLabelsBar : IDisposable
         {
             return mouseFrame >= Frame && mouseFrame < Frame + FrameWidth;
         }
-        public void DrawOnCanvas(LingoGfxCanvas _canvas, int labelsBarHeight, float x, AColor color)
+        public void DrawOnCanvas(AbstUIGfxCanvas _canvas, int labelsBarHeight, float x, AColor color)
         {
             var pts = new[]
             {

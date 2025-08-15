@@ -1,10 +1,10 @@
 using System;
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
+using AbstUI.Components;
+using AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxMenu : SdlGfxComponent, ILingoFrameworkGfxMenu, IDisposable
+    internal class SdlGfxMenu : SdlGfxComponent, IAbstUIFrameworkGfxMenu, IDisposable
     {
         public AMargin Margin { get; set; } = AMargin.Zero;
         public object FrameworkNode => this;
@@ -14,9 +14,9 @@ namespace LingoEngine.SDL2.Gfx
             Name = name;
         }
 
-        public void AddItem(ILingoFrameworkGfxMenuItem item) { }
+        public void AddItem(IAbstUIFrameworkGfxMenuItem item) { }
         public void ClearItems() { }
-        public void PositionPopup(ILingoFrameworkGfxButton button) { }
+        public void PositionPopup(IAbstUIFrameworkGfxButton button) { }
         public void Popup() { }
         public override void Dispose() => base.Dispose();
 

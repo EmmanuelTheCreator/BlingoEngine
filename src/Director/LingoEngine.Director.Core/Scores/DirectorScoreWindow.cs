@@ -6,14 +6,14 @@ using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Core;
 using LingoEngine.Events;
 using LingoEngine.Director.Core.Tools;
-using LingoEngine.Gfx;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Primitives;
 using LingoEngine.Commands;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Sprites;
 using LingoEngine.Sounds;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
 
 
 namespace LingoEngine.Director.Core.Scores
@@ -29,9 +29,9 @@ namespace LingoEngine.Director.Core.Scores
         private readonly DirScoreFrameHeader _frameHeader;
         private readonly DirScoreLeftTopContainer _LeftTopContainer;
         private readonly DirScoreLeftChannelsContainer _LeftChannelContainer;
-        private readonly LingoGfxPanel _panelScroll;
-        private readonly LingoGfxPanel _panelFix;
-        private readonly LingoGfxInputCombobox _spriteShowSelector;
+        private readonly AbstUIGfxPanel _panelScroll;
+        private readonly AbstUIGfxPanel _panelFix;
+        private readonly AbstUIGfxInputCombobox _spriteShowSelector;
         private DirScoreSprite? _contextSprite;
         private int _contextFrame;
         private LingoMovie? _movie;
@@ -51,8 +51,8 @@ namespace LingoEngine.Director.Core.Scores
         public DirScoreGfxValues GfxValues => _scoreManager.GfxValues;
         // public DirScoreLeftTopContainer LeftTopContainer => _LeftTopContainer;
         //public DirScoreLeftChannelsContainer LeftChannelContainer => _LeftChannelContainer;
-        public LingoGfxPanel ScorePanelScroll => _panelScroll;
-        public LingoGfxPanel ScorePanelFix => _panelFix;
+        public AbstUIGfxPanel ScorePanelScroll => _panelScroll;
+        public AbstUIGfxPanel ScorePanelFix => _panelFix;
         public float ScollX { get => _scollX; set => _scollX = value; }
         public float ScollY { get => _scollY; set => _scollY = value; }
 

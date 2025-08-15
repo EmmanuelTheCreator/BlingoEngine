@@ -5,7 +5,7 @@ using LingoEngine.LGodot.Bitmaps;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Members;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.LGodot.FilmLoops
 {

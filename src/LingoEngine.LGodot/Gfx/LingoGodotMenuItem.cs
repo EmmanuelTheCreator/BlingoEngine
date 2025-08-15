@@ -1,15 +1,15 @@
 using Godot;
-using LingoEngine.Gfx;
+using AbstUI.Components;
 using System;
 
 namespace LingoEngine.LGodot.Gfx
 {
     /// <summary>
-    /// Godot implementation of <see cref="ILingoFrameworkGfxMenuItem"/>.
+    /// Godot implementation of <see cref="IAbstUIFrameworkGfxMenuItem"/>.
     /// </summary>
-    internal partial class LingoGodotMenuItem : ILingoFrameworkGfxMenuItem, IDisposable
+    internal partial class LingoGodotMenuItem : IAbstUIFrameworkGfxMenuItem, IDisposable
     {
-        private readonly LingoGfxMenuItem _LingoMenuItem;
+        private readonly AbstUIGfxMenuItem _LingoMenuItem;
         private string _name;
         private bool _enabled = true;
         private bool _check;
@@ -27,7 +27,7 @@ namespace LingoEngine.LGodot.Gfx
 
         public event Action? Activated;
 
-        public LingoGodotMenuItem(LingoGfxMenuItem item, string name, string? shortcut)
+        public LingoGodotMenuItem(AbstUIGfxMenuItem item, string name, string? shortcut)
         {
             _LingoMenuItem = item;
             _name = name;

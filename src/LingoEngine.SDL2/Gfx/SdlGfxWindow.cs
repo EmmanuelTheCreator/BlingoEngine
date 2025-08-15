@@ -1,23 +1,23 @@
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
-using LingoEngine.SDL2.Inputs;
+using AbstUI.Components;
+using AbstUI.Inputs;
+using AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.Gfx;
 
-internal class SdlGfxWindow : SdlGfxPanel, ILingoFrameworkGfxWindow, IDisposable
+internal class SdlGfxWindow : SdlGfxPanel, IAbstUIFrameworkGfxWindow, IDisposable
 {
     private readonly SdlGfxFactory _factory;
-    private readonly LingoGfxWindow _lingoWindow;
+    private readonly AbstUIGfxWindow _lingoWindow;
     private string _title = string.Empty;
     private bool _isPopup;
     private bool _borderless;
 
-    public SdlGfxWindow(LingoGfxWindow window, SdlGfxFactory factory) : base(factory)
+    public SdlGfxWindow(AbstUIGfxWindow window, SdlGfxFactory factory) : base(factory)
     {
         _lingoWindow = window;
         _factory = factory;
-        var mouse = factory.RootContext.LingoMouse.CreateNewInstance(window);
-        var key = factory.RootContext.LingoKey.CreateNewInstance(window);
+        var mouse = ((IAbstUIMouseInternal)factory.RootContext.LingoMouse).CreateNewInstance(window);
+        var key = ((AbstUIKey)factory.RootContext.LingoKey).CreateNewInstance(window);
         _lingoWindow.Init(this, mouse , key);
         Visibility = false;
     }

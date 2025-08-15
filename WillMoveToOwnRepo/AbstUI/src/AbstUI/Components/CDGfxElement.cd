@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Interface Name="AbstUI.Gfx.IAbstUIFrameworkGfxButton" Collapsed="true">
+    <Position X="10.75" Y="6.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAACAAEAAA=</HashCode>
+      <FileName>Gfx\IAbstUIFrameworkGfxButton.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AbstUI.Gfx.IAbstUIFrameworkGfxCanvas" Collapsed="true">
+    <Position X="4.75" Y="9.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAAAAAAAAAAAAAAAAQCAAABAIAEAAAABIAIA=</HashCode>
+      <FileName>Gfx\IAbstUIFrameworkGfxCanvas.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AbstUI.Gfx.IAbstUIFrameworkGfxInputCheckbox" Collapsed="true">
+    <Position X="11.5" Y="7.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Gfx\IAbstUIFrameworkGfxInputCheckbox.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AbstUI.Gfx.IAbstUIFrameworkGfxInputCombobox" Collapsed="true">
+    <Position X="11.5" Y="8.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AACAAAACAAAACAAAAAAAAAAAwAAAAAAAAIAAAAAAAAA=</HashCode>
+      <FileName>Gfx\IAbstUIFrameworkGfxInputCombobox.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AbstUI.Gfx.IAbstUIFrameworkGfxInputNumber" Collapsed="true">
+    <Position X="11.75" Y="9.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAABAAAAAAEAAAAAAAAAAAAAAAABAgAAAAAAA=</HashCode>
+      <FileName>Gfx\IAbstUIFrameworkGfxInputNumber.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AbstUI.Gfx.IAbstUIFrameworkGfxInputText" Collapsed="true">
+    <Position X="15" Y="8.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQCAACAAA=</HashCode>
+      <FileName>Gfx\IAbstUIFrameworkGfxInputText.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AbstUI.Gfx.IAbstUIFrameworkGfxLabel" Collapsed="true">
+    <Position X="8.25" Y="6.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAAAAAAAAAAgAAAAAAAAAAAAAACAECAAA=</HashCode>
+      <FileName>Gfx\IAbstUIFrameworkGfxLabel.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AbstUI.Gfx.IAbstUIFrameworkGfxMenu" Collapsed="true">
+    <Position X="5.5" Y="11.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAAAAAAAAAAAAQAAQAwAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Gfx\IAbstUIFrameworkGfxMenu.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AbstUI.Gfx.IAbstUIFrameworkGfxMenuItem" Collapsed="true">
+    <Position X="15.5" Y="4.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAIBAAAAAAAQABAAAAAAAAAAAAAAAAAE=</HashCode>
+      <FileName>Gfx\IAbstUIFrameworkGfxMenuItem.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AbstUI.Gfx.IAbstUIFrameworkGfxNode" Collapsed="true">
+    <Position X="10.75" Y="4.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AEAAAAAABAAAAAAAAAAAAEQAAAAAAAEAAAAAAAAAAAA=</HashCode>
+      <FileName>Gfx\IAbstUIFrameworkGfxNode.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AbstUI.Gfx.IAbstUIFrameworkGfxLayoutNode" Collapsed="true">
+    <Position X="5.25" Y="6.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYAA=</HashCode>
+      <FileName>Gfx\IAbstUIFrameworkGfxNode.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AbstUI.Gfx.IAbstUIFrameworkGfxNodeInput" Collapsed="true">
+    <Position X="13.25" Y="6.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAIAAAAAAAAAAAEAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Gfx\IAbstUIFrameworkGfxNodeInput.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AbstUI.Gfx.IAbstUIFrameworkGfxPanel" Collapsed="true">
+    <Position X="4.75" Y="8" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAEAAAAAAAAAACCAJAQAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Gfx\IAbstUIFrameworkGfxPanel.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AbstUI.Gfx.IAbstUIFrameworkGfxLayoutWrapper" Collapsed="true">
+    <Position X="8" Y="9.25" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Gfx\IAbstUIFrameworkGfxPanel.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AbstUI.Gfx.IAbstUIFrameworkGfxScrollContainer" Collapsed="true">
+    <Position X="8" Y="10.25" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>ABAAAAABAAAAEAIAAAAAAAAAAAIAQAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Gfx\IAbstUIFrameworkGfxScrollContainer.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AbstUI.Gfx.IAbstUIFrameworkGfxSpinBox" Collapsed="true">
+    <Position X="15" Y="7.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAABAAAAAAEAAAAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>Gfx\IAbstUIFrameworkGfxSpinBox.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AbstUI.Gfx.IAbstUIFrameworkGfxTabContainer" Collapsed="true">
+    <Position X="8" Y="8" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AgAAAAgAQAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Gfx\IAbstUIFrameworkGfxTabContainer.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AbstUI.Gfx.IAbstUIFrameworkGfxTabItem" Collapsed="true">
+    <Position X="8" Y="11.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAgAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Gfx\IAbstUIFrameworkGfxTabContainer.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="AbstUI.Gfx.IAbstUIFrameworkGfxWrapPanel" Collapsed="true">
+    <Position X="4.75" Y="10.25" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAQAAEAAAAAIAAAAAAAIAQAAAEAAAAAAAAAA=</HashCode>
+      <FileName>Gfx\IAbstUIFrameworkGfxWrapPanel.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

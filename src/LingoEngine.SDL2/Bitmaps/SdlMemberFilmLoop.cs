@@ -1,6 +1,6 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.FilmLoops;
 using LingoEngine.Primitives;

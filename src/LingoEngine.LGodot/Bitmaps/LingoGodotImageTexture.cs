@@ -1,3 +1,4 @@
+using AbstUI.Primitives;
 using Godot;
 using LingoEngine.Bitmaps;
 
@@ -21,7 +22,7 @@ public class LingoGodotTexture2D : ILingoTexture2D
 
     public bool IsDisposed { get; private set; }
 
-    public ILingoTextureUserSubscription AddUser(object user)
+    public IAbstUITextureUserSubscription AddUser(object user)
     {
         if (IsDisposed)
             throw new Exception("Texture is disposed and cannot be used anymore.");
@@ -52,10 +53,10 @@ public class LingoGodotTexture2D : ILingoTexture2D
 
         return new LingoGodotTexture2D(newTex);
     }
-    private class TextureSubscription : ILingoTextureUserSubscription
+    private class TextureSubscription : IAbstUITextureUserSubscription
     {
         private readonly Action _onRelease;
-        public ILingoTexture2D Texture { get; }
+        public IAbstUITexture2D Texture { get; }
         public TextureSubscription(ILingoTexture2D texture, Action onRelease)
         {
             _onRelease = onRelease;

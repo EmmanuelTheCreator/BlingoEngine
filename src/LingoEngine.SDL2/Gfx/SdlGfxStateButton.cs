@@ -1,27 +1,27 @@
 using System;
 using System.Numerics;
 using ImGuiNET;
-using LingoEngine.Gfx;
 using LingoEngine.Bitmaps;
 using LingoEngine.SDL2.Pictures;
 using LingoEngine.SDL2.SDLL;
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Components;
 
 namespace LingoEngine.SDL2.Gfx
 {
-    internal class SdlGfxStateButton : SdlGfxComponent, ILingoFrameworkGfxStateButton, IDisposable
+    internal class SdlGfxStateButton : SdlGfxComponent, IAbstUIFrameworkGfxStateButton, IDisposable
     {
         private nint _textureOnPtr;
-        private ILingoTexture2D? _textureOn;
+        private IAbstUITexture2D? _textureOn;
         private nint _textureOffPtr;
-        private ILingoTexture2D? _textureOff;
+        private IAbstUITexture2D? _textureOff;
 
         public SdlGfxStateButton(SdlGfxFactory factory) : base(factory)
         {
         }
         public bool Enabled { get; set; } = true;
         public string Text { get; set; } = string.Empty;
-        public Bitmaps.ILingoTexture2D? TextureOn
+        public IAbstUITexture2D? TextureOn
         {
             get => _textureOn;
             set
@@ -39,7 +39,7 @@ namespace LingoEngine.SDL2.Gfx
             }
         }
 
-        public Bitmaps.ILingoTexture2D? TextureOff
+        public IAbstUITexture2D? TextureOff
         {
             get => _textureOff;
             set

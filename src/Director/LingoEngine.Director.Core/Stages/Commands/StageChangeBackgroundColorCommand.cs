@@ -1,4 +1,4 @@
-using LingoEngine.AbstUI.Primitives;
+using AbstUI.Primitives;
 using LingoEngine.Commands;
 
 namespace LingoEngine.Director.Core.Stages.Commands;

@@ -1,6 +1,6 @@
-using LingoEngine.AbstUI.Primitives;
-using LingoEngine.Gfx;
-using LingoEngine.Texts;
+using AbstUI.Texts;
+using AbstUI.Components;
+using AbstUI.Primitives;
 
 namespace LingoEngine.SDL2.GfxVisualTest;
 
@@ -31,12 +31,12 @@ public static class GfxTestScene
         Add(CreateLabel(factory, "label1"));
         Add(CreateLabel(factory, "Label2 center", lbl2 => { 
             lbl2.Width = 200;
-            lbl2.TextAlignment = LingoTextAlignment.Center;
+            lbl2.TextAlignment = AbstUITextAlignment.Center;
         }));
         Add(CreateLabel(factory, "Label3 right", lbl3 =>
         {
             lbl3.Width = 200;
-            lbl3.TextAlignment = LingoTextAlignment.Right;
+            lbl3.TextAlignment = AbstUITextAlignment.Right;
         }));
         Add(CreateLabel(factory, "Label4 BIG",c => c.FontSize = 30));
 

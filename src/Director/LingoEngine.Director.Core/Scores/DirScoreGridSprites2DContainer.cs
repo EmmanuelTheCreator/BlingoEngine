@@ -1,4 +1,5 @@
-﻿using LingoEngine.Director.Core.Scores.Sprites2D;
+﻿using AbstUI.Components;
+using LingoEngine.Director.Core.Scores.Sprites2D;
 using LingoEngine.Inputs;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
@@ -9,7 +10,7 @@ namespace LingoEngine.Director.Core.Scores
     {
         
 
-        public DirScoreGridSprites2DContainer(IDirScoreManager scoreManager, Func<string, Gfx.ILingoFrameworkGfxPanel, Windowing.IDirectorWindowDialogReference?> showConfirmDialog) : base(scoreManager, 10, showConfirmDialog)
+        public DirScoreGridSprites2DContainer(IDirScoreManager scoreManager, Func<string, ILingoFrameworkGfxPanel, Windowing.IDirectorWindowDialogReference?> showConfirmDialog) : base(scoreManager, 10, showConfirmDialog)
         {
         }
         public override void Dispose()
