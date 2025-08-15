@@ -10,7 +10,7 @@
 - 🔌 **Pluggable Rendering Backends** – Clean architecture supporting:
   - [Godot Engine](https://godotengine.org/)
   - SDL2
-- 🧠 **Experimental Director API Layer** – Provides high-level compatibility with Director's original movie and cast behavior.
+- 🧠 **Director application** – Offers basic movie, cast, and score compatibility and can run standalone or as a library in your project.
 - 🧩 **Modular Runtime Architecture** – Clear separation of concerns: input, rendering, audio, system services, and script execution.
 - ⚙️ **Service-Oriented Initialization** – Uses dependency injection and service collections for clean setup.
 - 🌍 **Cross-Platform Compatibility** – Works anywhere the .NET SDK is available.
@@ -24,7 +24,7 @@
 | `src/LingoEngine` | Core Lingo runtime and engine abstractions |
 | `src/LingoEngine.LGodot` | Adapter for [Godot](https://godotengine.org/) |
 | `src/LingoEngine.SDL2` | Adapter for SDL2 |
-| `src/Director` | Experimental Director API re‑implementations |
+| `src/Director` | Standalone Director application re‑implementation (basic movie, cast, and score features working) |
 | `Demo/TetriGrounds` | Sample game showing usage with both backends |
 
 🔎 For a detailed technical overview, see the [Architecture guide](docs/Architecture.md).
@@ -40,10 +40,17 @@
    cd LingoEngine
    ```
 
-2. **Open the solution**  
+2. **Install prerequisites**
+   Ensure the .NET 8 SDK is available. You can install it using the helper script:
+
+   ```bash
+   ./scripts/install-dotnet.sh
+   ```
+
+3. **Open the solution**
    Open `LingoEngine.sln` in your preferred C# IDE (Visual Studio / Rider).
 
-3. **Build a demo**  
+4. **Build a demo**
    Navigate to `Demo/TetriGrounds` and run one of the included platform integrations.
 
 👉 Use the dedicated guides for full setup instructions:
@@ -67,12 +74,15 @@ Both the SDL2 and Godot frontends share the same backend logic. Here's an exampl
 
 ```csharp
 var services = new ServiceCollection();
-services.AddTetriGrounds(cfg => cfg.WithLingoSdlEngine("TetriGrounds", 640, 480));
-var provider = services.BuildServiceProvider();
+services.RegisterLingoEngine(cfg => cfg
+    .WithLingoSdlEngine("TetriGrounds", 1280, 960)
+    .SetProjectFactory<LingoEngine.Demo.TetriGrounds.Core.TetriGroundsProjectFactory>()
+    .BuildAndRunProject());
 
-provider.GetRequiredService<TetriGroundsGame>().Play();
+var provider = services.BuildServiceProvider();
 provider.GetRequiredService<SdlRootContext>().Run();
 ```
+The window dimensions above create a Director window larger than the 640×480 stage configured in the project factory.
 
 Swap to the Godot backend by using `.WithLingoGodotEngine(...)`.
 
@@ -132,7 +142,7 @@ Documentation generated from the source code is available using [DocFX](https://
 | Feature                                | Status       |
 |----------------------------------------|--------------|
 | Full Lingo language support            | In Progress  |
-| Director-compatible APIs               | Partial      |
+| Standalone Director application        | Basic support |
 | Backends: Godot, SDL2                  | ✅ Implemented |
 | Documentation & learning materials     | In Progress  |
 | Unity integration                      | Planned      |

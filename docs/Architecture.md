@@ -11,7 +11,7 @@ LingoEngine is organized into four main architectural layers:
 |---------------------|----------------------------------------------------------------------------------------------------------------------------------|
 | **Core**            | The Lingo language runtime and virtual machine (VM) — fully rendering-agnostic. |
 | **Framework Adapters** | Abstractions that allow the engine to run on multiple rendering platforms (Godot, SDL2, etc.). |
-| **Director Layer**  | Optional high-level APIs that mimic Macromedia Director's original movie/cast/score model. |
+| **Director Layer**  | Optional high-level components that mimic Macromedia Director's original movie/cast/score model. |
 | **Demo Projects**   | Sample integrations demonstrating how to use LingoEngine with real frameworks and games. |
 Each adapter implements a well-defined set of interfaces to ensure the **core engine remains untouched** regardless of the target platform.
 
@@ -70,12 +70,12 @@ These map to native objects in the respective frameworks while still adhering to
 
 ## 🎬 Optional Director Layer
 
-The `src/Director` folder contains a **higher-level API surface** that mirrors Macromedia Director's built-in behaviors more closely:
+The `src/Director` folder contains a **higher-level application layer** that mirrors Macromedia Director's built-in behaviors more closely:
 
 - `LingoEngine.Director.Movie` – manages movie playback and score state
 - `LingoEngine.Director.Cast` – emulates cast member access
 - `LingoEngine.Director.Stage` – provides legacy stage behaviors
-- `LingoEngine.Director.Key/Sound/System/...` – optional subsystems mimicking Director APIs
+- `LingoEngine.Director.Key/Sound/System/...` – optional subsystems reflecting classic Director features
 
 This layer is **optional** but useful for full-featured game recreation.
 
@@ -107,7 +107,7 @@ LingoEngine's architecture enables:
 
 ```mermaid
 graph TD
-    demo["Demo Projects<br/>(TetriGrounds, etc.)"] --> director["Director Compatibility<br/>(Optional High-Level API)"]
+    demo["Demo Projects<br/>(TetriGrounds, etc.)"] --> director["Director Compatibility<br/>(Optional Application Layer)"]
     director --> core["Core Runtime<br/>Lingo VM + Engine Logic"]
     core -->|"Interfaces"| godot["Godot Adapter<br/>(LGodotFactory)"]
     core -->|"Interfaces"| sdl["SDL2 Adapter<br/>(SdlFactory)"]
@@ -180,4 +180,4 @@ graph TD
 
 ---
 
-Let me know if you'd like a visual diagram added next!
+
