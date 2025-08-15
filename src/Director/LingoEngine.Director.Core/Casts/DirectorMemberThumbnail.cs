@@ -26,7 +26,9 @@ public class DirectorMemberThumbnail : IDisposable
     public int ThumbWidth { get; }
     public int ThumbHeight { get; }
 
-
+    private ILingoMember? _cachedMember;
+    private IAbstUITextureUserSubscription? _pictureSubscription;
+    private IAbstUITextureUserSubscription? _iconSubscription;
 
     /// <summary>Canvas used for drawing the preview.</summary>
     public AbstGfxCanvas Canvas { get; }
@@ -63,35 +65,68 @@ public class DirectorMemberThumbnail : IDisposable
             Canvas.Clear(DirectorColors.BG_WhiteMenus);
         DrawBorder();
 
+        if (!ReferenceEquals(_cachedMember, member))
+        {
+            _pictureSubscription?.Release();
+            _pictureSubscription = null;
+            _iconSubscription?.Release();
+            _iconSubscription = null;
+
+            if (_iconManager != null)
+            {
+                var icon = LingoMemberTypeIcons.GetIconType(member);
+                if (icon.HasValue)
+                {
+                    var data = _iconManager.Get(icon.Value);
+                    _iconSubscription = data.AddUser(this);
+                }
+            }
+
+            _cachedMember = member;
+        }
+
         switch (member)
         {
             case LingoMemberBitmap pic:
-                DrawPicture(pic);
+                if (_pictureSubscription == null)
+                {
+                    pic.Preload();
+                    if (pic.TextureLingo != null)
+                        _pictureSubscription = pic.TextureLingo.AddUser(this);
+                }
+                var tex = _pictureSubscription?.Texture;
+                if (tex != null)
+                    Canvas.DrawPicture(tex, ThumbWidth - 2, ThumbHeight - 2, new APoint(_xOffset + 1, _yOffset + 2));
                 break;
             case ILingoMemberTextBase text:
                 DrawText(GetPreviewText(text));
                 break;
-            case LingoFilmLoopMember filmloop: DrawText(filmloop.Name); break;
-            case LingoMemberSound sound: DrawText(sound.Name); break;
+            case LingoFilmLoopMember filmloop:
+                DrawText(filmloop.Name);
+                break;
+            case LingoMemberSound sound:
+                DrawText(sound.Name);
+                break;
         }
 
-        if (_iconManager != null)
+        if (_iconSubscription != null)
         {
-            var icon = LingoMemberTypeIcons.GetIconType(member);
-            if (icon.HasValue)
-            {
-                var miniIconSize = 16;
-                var data = _iconManager.Get(icon.Value);
-                var x = ThumbWidth - miniIconSize - 1;
-                var y = ThumbHeight - miniIconSize - 1 + _iconYOffset;
-                Canvas.DrawRect(ARect.New(_xOffset + x, _yOffset + y, miniIconSize, miniIconSize), AColors.White, true);
-                Canvas.DrawPicture(data, miniIconSize - 2, miniIconSize - 2, new APoint(_xOffset + x + 1, _yOffset + y + 1));
-            }
+            var miniIconSize = 16;
+            var data = _iconSubscription.Texture;
+            var x = ThumbWidth - miniIconSize - 1;
+            var y = ThumbHeight - miniIconSize - 1 + _iconYOffset;
+            Canvas.DrawRect(ARect.New(_xOffset + x, _yOffset + y, miniIconSize, miniIconSize), AColors.White, true);
+            Canvas.DrawPicture(data, miniIconSize - 2, miniIconSize - 2, new APoint(_xOffset + x + 1, _yOffset + y + 1));
         }
     }
 
     public void SetEmpty()
     {
+        _cachedMember = null;
+        _pictureSubscription?.Release();
+        _pictureSubscription = null;
+        _iconSubscription?.Release();
+        _iconSubscription = null;
         if (!_isCustomCanvas)
             Canvas.Clear(DirectorColors.BG_WhiteMenus);
         DrawBorder();
@@ -145,6 +180,8 @@ public class DirectorMemberThumbnail : IDisposable
 
     public void Dispose()
     {
+        _pictureSubscription?.Release();
+        _iconSubscription?.Release();
         Canvas.Dispose();
     }
 }
