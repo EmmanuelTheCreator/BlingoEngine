@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+        <PropertyGroup>
+                <TargetFramework>net8.0</TargetFramework>
+                <ImplicitUsings>enable</ImplicitUsings>
+                <Nullable>enable</Nullable>
+                <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+                <Platforms>AnyCPU;x64;x86</Platforms>
+        </PropertyGroup>
+
+        <PropertyGroup>
+                <!-- NuGet Packaging Metadata -->
+                <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+                <PackageId>AbstUI.Blazor</PackageId>
+                <Version>1.0.0</Version>
+                <Authors>Emmanuel The Creator</Authors>
+                <Company>The Community</Company>
+                <Description>Blazor backend for the AbstUI framework, rendering the abstract UI components through Blazor.</Description>
+                <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
+                <PackageTags>AbstUI.Blazor</PackageTags>
+                <PackageLicenseExpression>MIT</PackageLicenseExpression>
+                <PackageReadmeFile>README.md</PackageReadmeFile>
+        </PropertyGroup>
+        <ItemGroup>
+                <None Include="README.md" Pack="true" PackagePath="" />
+        </ItemGroup>
+
+        <ItemGroup>
+                <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\AbstUI\AbstUI.csproj" />
+	</ItemGroup>
+
+</Project>
