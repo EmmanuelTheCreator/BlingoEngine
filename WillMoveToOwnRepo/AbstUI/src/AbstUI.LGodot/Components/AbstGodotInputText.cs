@@ -1,3 +1,4 @@
+using System;
 using Godot;
 using AbstUI.Components;
 using AbstUI.Primitives;
@@ -6,67 +7,147 @@ using AbstUI.Styles;
 namespace AbstUI.LGodot.Components
 {
     /// <summary>
-    /// Godot implementation of <see cref="IAbstFrameworkInputText"/>.
+    /// Godot implementation of <see cref="IAbstFrameworkInputText"/> using composition.
     /// </summary>
-    public partial class AbstGodotInputText : LineEdit, IAbstFrameworkInputText, IDisposable
+    public class AbstGodotInputText : IAbstFrameworkInputText, IDisposable
     {
         private readonly Action<string>? _onChange;
         private readonly IAbstFontManager _fontManager;
+        private readonly Control _control;
+        private readonly LineEdit? _lineEdit;
+        private readonly TextEdit? _textEdit;
+
         private string? _font;
         private AMargin _margin = AMargin.Zero;
         private event Action? _onValueChanged;
+
+        private float _wantedWidth = 10;
+        private float _wantedHeight = 10;
 
         public AbstGodotInputText(AbstInputText input, IAbstFontManager fontManager, Action<string>? onChange, bool multiLine = false)
         {
             _onChange = onChange;
             _fontManager = fontManager;
+            IsMultiLine = multiLine;
+
+            if (multiLine)
+            {
+                _textEdit = new TextEdit();
+                _control = _textEdit;
+            }
+            else
+            {
+                _lineEdit = new LineEdit();
+                _control = _lineEdit;
+            }
+
+            _control.CustomMinimumSize = new Vector2(2, 2);
+            _control.SizeFlagsHorizontal = 0;
+            _control.SizeFlagsVertical = 0;
+
+            if (_lineEdit != null)
+                _lineEdit.TextChanged += OnLineEditTextChanged;
+            else
+                _textEdit!.TextChanged += OnTextEditTextChanged;
+
+            _control.Ready += () =>
+            {
+                _control.CustomMinimumSize = new Vector2(_wantedWidth, _wantedHeight);
+                _control.Size = new Vector2(_wantedWidth, _wantedHeight);
+            };
+
             input.Init(this);
-            TextChanged += _ => _onValueChanged?.Invoke();
-            if (_onChange != null) TextChanged += _ => _onChange(Text);
-            CustomMinimumSize = new Vector2(2, 2);
-            SizeFlagsHorizontal =0;
-            SizeFlagsVertical =0;
         }
 
-        public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
-        public float Y { get => Position.Y; set => Position = new Vector2(Position.X, value); }
-        public bool IsMultiLine { get; set; }
-        private float _wantedWidth = 10;
+        private void OnLineEditTextChanged(string _)
+        {
+            _onValueChanged?.Invoke();
+            _onChange?.Invoke(Text);
+        }
+
+        private void OnTextEditTextChanged()
+        {
+            _onValueChanged?.Invoke();
+            _onChange?.Invoke(Text);
+        }
+
+        public float X
+        {
+            get => _control.Position.X;
+            set => _control.Position = new Vector2(value, _control.Position.Y);
+        }
+
+        public float Y
+        {
+            get => _control.Position.Y;
+            set => _control.Position = new Vector2(_control.Position.X, value);
+        }
+
         public float Width
         {
-            get => Size.X;
+            get => _control.Size.X;
             set
             {
                 _wantedWidth = value;
-                CustomMinimumSize = new Vector2(_wantedWidth, _wantedHeight);
-                Size = new Vector2(value, _wantedHeight);
+                _control.CustomMinimumSize = new Vector2(_wantedWidth, _wantedHeight);
+                _control.Size = new Vector2(value, _wantedHeight);
             }
         }
-        private float _wantedHeight = 10;
+
         public float Height
         {
-            get => Size.Y;
+            get => _control.Size.Y;
             set
             {
-                _wantedHeight = Height;
-                CustomMinimumSize = new Vector2(_wantedWidth, _wantedHeight);
-                Size = new Vector2(_wantedWidth, value);
+                _wantedHeight = value;
+                _control.CustomMinimumSize = new Vector2(_wantedWidth, _wantedHeight);
+                _control.Size = new Vector2(_wantedWidth, value);
             }
         }
 
-        public override void _Ready()
+        public bool Visibility
         {
-            base._Ready();
-            CustomMinimumSize = new Vector2(_wantedWidth, _wantedHeight);
-            Size = new Vector2(_wantedWidth, _wantedHeight);
+            get => _control.Visible;
+            set => _control.Visible = value;
         }
 
-        public bool Visibility { get => Visible; set => Visible = value; }
-        public bool Enabled { get => Editable; set => Editable = value; }
+        public bool Enabled
+        {
+            get => _lineEdit?.Editable ?? _textEdit?.Editable ?? true;
+            set
+            {
+                if (_lineEdit != null) _lineEdit.Editable = value;
+                if (_textEdit != null) _textEdit.Editable = value;
+            }
+        }
 
-        public new string Text { get => base.Text; set => base.Text = value; }
-        public new int MaxLength { get => base.MaxLength; set => base.MaxLength = value; }
-        string IAbstFrameworkNode.Name { get => Name; set => Name = value; }
+        public string Text
+        {
+            get => _lineEdit?.Text ?? _textEdit?.Text ?? string.Empty;
+            set
+            {
+                if (_lineEdit != null) _lineEdit.Text = value;
+                if (_textEdit != null) _textEdit.Text = value;
+            }
+        }
+
+        private int _maxLength;
+        public int MaxLength
+        {
+            get => _lineEdit?.MaxLength ?? _maxLength;
+            set
+            {
+                if (_lineEdit != null) _lineEdit.MaxLength = value;
+                _maxLength = value;
+            }
+        }
+
+        string IAbstFrameworkNode.Name
+        {
+            get => _control.Name;
+            set => _control.Name = value;
+        }
+
         public string? Font
         {
             get => _font;
@@ -75,16 +156,17 @@ namespace AbstUI.LGodot.Components
                 _font = value;
                 if (string.IsNullOrEmpty(value))
                 {
-                    RemoveThemeFontOverride("font");
+                    _control.RemoveThemeFontOverride("font");
                 }
                 else
                 {
                     var font = _fontManager.Get<FontFile>(value);
                     if (font != null)
-                        AddThemeFontOverride("font", font);
+                        _control.AddThemeFontOverride("font", font);
                 }
             }
         }
+
         private int _fontSize;
         public int FontSize
         {
@@ -93,36 +175,33 @@ namespace AbstUI.LGodot.Components
             {
                 _fontSize = value;
 
-                Font? baseFont = null;
-                if (string.IsNullOrEmpty(_font))
-                    baseFont = _fontManager.GetDefaultFont<Font>();
-                else
-                    baseFont = _fontManager.Get<Font>(_font);
+                Font? baseFont = string.IsNullOrEmpty(_font)
+                    ? _fontManager.GetDefaultFont<Font>()
+                    : _fontManager.Get<Font>(_font);
                 if (baseFont == null)
                     return;
 
-                // Create a FontVariation with size applied through theme variation
                 var variation = new FontVariation
                 {
                     BaseFont = baseFont
                 };
 
-                // Set the size override via theme properties
                 var theme = new Theme();
-                theme.SetFont("font", "LineEdit", variation);
-                theme.SetFontSize("font_size", "LineEdit", _fontSize);
-                Theme = theme;
+                var cls = _control.GetClass();
+                theme.SetFont("font", cls, variation);
+                theme.SetFontSize("font_size", cls, _fontSize);
+                _control.Theme = theme;
             }
         }
-        private Color _fontColor = Colors.Black;
 
+        private Color _fontColor = Colors.Black;
         public Color FontColor
         {
             get => _fontColor;
             set
             {
                 _fontColor = value;
-                AddThemeColorOverride("font_color", _fontColor);
+                _control.AddThemeColorOverride("font_color", _fontColor);
             }
         }
 
@@ -132,15 +211,16 @@ namespace AbstUI.LGodot.Components
             set
             {
                 _margin = value;
-                AddThemeConstantOverride("margin_left", (int)_margin.Left);
-                AddThemeConstantOverride("margin_right", (int)_margin.Right);
-                AddThemeConstantOverride("margin_top", (int)_margin.Top);
-                AddThemeConstantOverride("margin_bottom", (int)_margin.Bottom);
+                _control.AddThemeConstantOverride("margin_left", (int)_margin.Left);
+                _control.AddThemeConstantOverride("margin_right", (int)_margin.Right);
+                _control.AddThemeConstantOverride("margin_top", (int)_margin.Top);
+                _control.AddThemeConstantOverride("margin_bottom", (int)_margin.Bottom);
             }
         }
-        public object FrameworkNode => this;
 
-       
+        public object FrameworkNode => _control;
+
+        public bool IsMultiLine { get; set; }
 
         event Action? IAbstFrameworkNodeInput.ValueChanged
         {
@@ -148,12 +228,15 @@ namespace AbstUI.LGodot.Components
             remove => _onValueChanged -= value;
         }
 
-        public new void Dispose()
+        public void Dispose()
         {
-            TextChanged -= _ => _onValueChanged?.Invoke();
-            if (_onChange != null) TextChanged -= _ => _onChange(Text);
-            QueueFree();
-            base.Dispose();
+            if (_lineEdit != null)
+                _lineEdit.TextChanged -= OnLineEditTextChanged;
+            if (_textEdit != null)
+                _textEdit.TextChanged -= OnTextEditTextChanged;
+
+            _control.QueueFree();
         }
     }
 }
+
