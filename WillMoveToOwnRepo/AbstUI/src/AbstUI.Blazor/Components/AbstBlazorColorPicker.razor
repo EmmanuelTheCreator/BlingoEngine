@@ -1,0 +1,2 @@
+@inherits AbstBlazorComponentBase
+<input type="color" value="@Color.ToHex()" @oninput="HandleInput" disabled="@(Enabled ? null : true)" style="@BuildStyle()" />

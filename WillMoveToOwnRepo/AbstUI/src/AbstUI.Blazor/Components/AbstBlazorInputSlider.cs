@@ -1,37 +1,26 @@
-using System;
-using System.Numerics;
-using ImGuiNET;
+using Microsoft.AspNetCore.Components;
 using AbstUI.Components;
-using AbstUI.Primitives;
+using System.Numerics;
 
-namespace AbstUI.Blazor.Components
+namespace AbstUI.Blazor.Components;
+
+public partial class AbstBlazorInputSlider<TValue> : IAbstFrameworkInputSlider<TValue>
+    where TValue : INumber<TValue>
 {
-    internal class AbstBlazorInputSlider<TValue> : AbstBlazorComponent, IAbstFrameworkInputSlider<TValue>, IDisposable where TValue : struct
-    {
-        public AbstBlazorInputSlider(AbstBlazorComponentFactory factory) : base(factory)
-        {
-        }
-        public AMargin Margin { get; set; } = AMargin.Zero;
-        public bool Enabled { get; set; } = true;
-        private TValue _value = default!;
-        public TValue Value
-        {
-            get => _value;
-            set
-            {
-                if (!Equals(_value, value))
-                {
-                    _value = value;
-                    ValueChanged?.Invoke();
-                }
-            }
-        }
-        public TValue MinValue { get; set; } = default!;
-        public TValue MaxValue { get; set; } = default!;
-        public TValue Step { get; set; } = default!;
-        public event Action? ValueChanged;
-        public object FrameworkNode => this;
+    [Parameter] public TValue Value { get; set; } = TValue.Zero;
+    [Parameter] public TValue MinValue { get; set; } = TValue.Zero;
+    [Parameter] public TValue MaxValue { get; set; } = TValue.One;
+    [Parameter] public TValue Step { get; set; } = TValue.One;
+    [Parameter] public bool Enabled { get; set; } = true;
 
-        public override AbstBlazorRenderResult Render(AbstBlazorRenderContext context) => new AbstBlazorRenderResult();
+    public event Action? ValueChanged;
+
+    private void HandleInput(ChangeEventArgs e)
+    {
+        if (TValue.TryParse(e.Value?.ToString(), null, out var result))
+        {
+            Value = result;
+            ValueChanged?.Invoke();
+        }
     }
 }

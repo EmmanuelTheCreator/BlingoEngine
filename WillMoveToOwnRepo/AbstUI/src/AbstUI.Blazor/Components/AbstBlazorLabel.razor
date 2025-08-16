@@ -1,0 +1,6 @@
+@inherits AbstBlazorComponentBase
+<span style="@StyleString">@Text</span>
+
+@code {
+    private string StyleString => BuildStyle() + $"color:{FontColor.ToHex()};font-size:{FontSize}px;";
+}

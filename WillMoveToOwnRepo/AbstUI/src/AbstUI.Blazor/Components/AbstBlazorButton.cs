@@ -1,25 +1,20 @@
-using System;
-using System.Numerics;
-using ImGuiNET;
+using Microsoft.AspNetCore.Components;
 using AbstUI.Components;
 using AbstUI.Primitives;
 
-namespace AbstUI.Blazor.Components
+namespace AbstUI.Blazor.Components;
+
+public partial class AbstBlazorButton : IAbstFrameworkButton
 {
-    internal class AbstBlazorButton : AbstBlazorComponent, IAbstFrameworkButton, IDisposable
+    [Parameter] public string Text { get; set; } = string.Empty;
+    [Parameter] public bool Enabled { get; set; } = true;
+    public IAbstTexture2D? IconTexture { get; set; }
+
+    public event Action? Pressed;
+
+    private void HandleClick()
     {
-        public AbstBlazorButton(AbstBlazorComponentFactory factory) : base(factory)
-        {
-        }
-        public AMargin Margin { get; set; } = AMargin.Zero;
-        public string Text { get; set; } = string.Empty;
-        public bool Enabled { get; set; } = true;
-        public IAbstTexture2D? IconTexture { get; set; }
-
-        public object FrameworkNode => this;
-
-        public event Action? Pressed;
-
-        public override AbstBlazorRenderResult Render(AbstBlazorRenderContext context) => new AbstBlazorRenderResult();
+        if (Enabled)
+            Pressed?.Invoke();
     }
 }

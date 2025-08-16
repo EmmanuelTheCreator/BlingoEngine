@@ -1,36 +1,22 @@
-using System;
-using System.Numerics;
-using ImGuiNET;
+using Microsoft.AspNetCore.Components;
 using AbstUI.Components;
 using AbstUI.Primitives;
 
-namespace AbstUI.Blazor.Components
+namespace AbstUI.Blazor.Components;
+
+public partial class AbstBlazorColorPicker : IAbstFrameworkColorPicker
 {
-    internal class AbstBlazorColorPicker : AbstBlazorComponent, IAbstFrameworkColorPicker, IDisposable
+    [Parameter] public AColor Color { get; set; } = AColor.FromRGB(0, 0, 0);
+    [Parameter] public bool Enabled { get; set; } = true;
+
+    public event Action? ValueChanged;
+
+    private void HandleInput(ChangeEventArgs e)
     {
-        public AbstBlazorColorPicker(AbstBlazorComponentFactory factory) : base(factory)
+        if (e.Value is string hex && hex.StartsWith("#"))
         {
+            Color = AColor.FromHex(hex);
+            ValueChanged?.Invoke();
         }
-        public bool Enabled { get; set; } = true;
-        public AMargin Margin { get; set; } = AMargin.Zero;
-
-        private AColor _color;
-        public AColor Color
-        {
-            get => _color;
-            set
-            {
-                if (!_color.Equals(value))
-                {
-                    _color = value;
-                    ValueChanged?.Invoke();
-                }
-            }
-        }
-
-        public event Action? ValueChanged;
-        public object FrameworkNode => this;
-
-        public override AbstBlazorRenderResult Render(AbstBlazorRenderContext context) => new AbstBlazorRenderResult();
     }
 }

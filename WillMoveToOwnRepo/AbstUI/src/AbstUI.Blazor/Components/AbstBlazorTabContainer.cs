@@ -1,60 +1,65 @@
-using System;
 using System.Collections.Generic;
-using System.Numerics;
-using ImGuiNET;
+using Microsoft.AspNetCore.Components;
 using AbstUI.Components;
-using AbstUI.Primitives;
 
-namespace AbstUI.Blazor.Components
+namespace AbstUI.Blazor.Components;
+
+public partial class AbstBlazorTabContainer : AbstBlazorComponentBase, IAbstFrameworkTabContainer
 {
-    public class AbstBlazorTabContainer : AbstBlazorComponent, IAbstFrameworkTabContainer, IDisposable
+    private readonly List<IAbstFrameworkTabItem> _tabs = new();
+    private readonly List<RenderFragment> _fragments = new();
+    private int _selectedIndex = -1;
+
+    public string SelectedTabName => _selectedIndex >= 0 && _selectedIndex < _tabs.Count ? _tabs[_selectedIndex].Title : string.Empty;
+
+    public void AddTab(IAbstFrameworkTabItem content)
     {
-        private readonly List<IAbstFrameworkTabItem> _children = new();
-        private int _selectedIndex = -1;
-
-        public AMargin Margin { get; set; } = AMargin.Zero;
-        public object FrameworkNode => this;
-
-        public AbstBlazorTabContainer(AbstBlazorComponentFactory factory) : base(factory)
-        {
-        }
-
-        public string SelectedTabName =>
-            _selectedIndex >= 0 && _selectedIndex < _children.Count ? _children[_selectedIndex].Title : string.Empty;
-
-        public void AddTab(IAbstFrameworkTabItem content)
-        {
-            _children.Add(content);
-            if (_selectedIndex == -1)
-                _selectedIndex = 0;
-        }
-
-        public void RemoveTab(IAbstFrameworkTabItem content)
-        {
-            var index = _children.IndexOf(content);
-            if (index >= 0)
-            {
-                _children.RemoveAt(index);
-                if (_selectedIndex >= _children.Count)
-                    _selectedIndex = _children.Count - 1;
-            }
-        }
-
-        public IEnumerable<IAbstFrameworkTabItem> GetTabs() => _children.ToArray();
-
-        public void ClearTabs()
-        {
-            _children.Clear();
-            _selectedIndex = -1;
-        }
-
-        public void SelectTabByName(string tabName)
-        {
-            var idx = _children.FindIndex(t => t.Title == tabName);
-            if (idx >= 0)
-                _selectedIndex = idx;
-        }
-
-        public override AbstBlazorRenderResult Render(AbstBlazorRenderContext context) => new AbstBlazorRenderResult();
+        _tabs.Add(content);
+        if (content is AbstBlazorTabItem item && item.ContentFragment != null)
+            _fragments.Add(item.ContentFragment);
+        else
+            _fragments.Add(builder => { });
+        if (_selectedIndex == -1) _selectedIndex = 0;
+        StateHasChanged();
     }
+
+    public void RemoveTab(IAbstFrameworkTabItem content)
+    {
+        var index = _tabs.IndexOf(content);
+        if (index >= 0)
+        {
+            _tabs.RemoveAt(index);
+            _fragments.RemoveAt(index);
+            if (_selectedIndex >= _tabs.Count) _selectedIndex = _tabs.Count - 1;
+            StateHasChanged();
+        }
+    }
+
+    public IEnumerable<IAbstFrameworkTabItem> GetTabs() => _tabs;
+
+    public void ClearTabs()
+    {
+        _tabs.Clear();
+        _fragments.Clear();
+        _selectedIndex = -1;
+        StateHasChanged();
+    }
+
+    public void SelectTabByName(string tabName)
+    {
+        var idx = _tabs.FindIndex(t => t.Title == tabName);
+        if (idx >= 0)
+        {
+            _selectedIndex = idx;
+            StateHasChanged();
+        }
+    }
+
+    private void SelectTab(int index)
+    {
+        _selectedIndex = index;
+    }
+
+    internal IReadOnlyList<IAbstFrameworkTabItem> Tabs => _tabs;
+    internal RenderFragment? ActiveContent => _selectedIndex >= 0 && _selectedIndex < _fragments.Count ? _fragments[_selectedIndex] : null;
 }

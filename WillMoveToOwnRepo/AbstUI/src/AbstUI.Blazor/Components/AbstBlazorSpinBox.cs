@@ -1,37 +1,23 @@
-using System;
-using System.Numerics;
-using ImGuiNET;
+using Microsoft.AspNetCore.Components;
 using AbstUI.Components;
-using AbstUI.Primitives;
 
-namespace AbstUI.Blazor.Components
+namespace AbstUI.Blazor.Components;
+
+public partial class AbstBlazorSpinBox : IAbstFrameworkSpinBox
 {
-    internal class AbstBlazorSpinBox : AbstBlazorComponent, IAbstFrameworkSpinBox, IDisposable
+    [Parameter] public float Value { get; set; }
+    [Parameter] public float Min { get; set; }
+    [Parameter] public float Max { get; set; }
+    [Parameter] public bool Enabled { get; set; } = true;
+
+    public event Action? ValueChanged;
+
+    private void HandleInput(ChangeEventArgs e)
     {
-        public AbstBlazorSpinBox(AbstBlazorComponentFactory factory) : base(factory)
+        if (float.TryParse(e.Value?.ToString(), out var v))
         {
+            Value = v;
+            ValueChanged?.Invoke();
         }
-        public bool Enabled { get; set; } = true;
-        private float _value;
-        public float Value
-        {
-            get => _value;
-            set
-            {
-                if (_value != value)
-                {
-                    _value = value;
-                    ValueChanged?.Invoke();
-                }
-            }
-        }
-        public float Min { get; set; }
-        public float Max { get; set; }
-        public AMargin Margin { get; set; } = AMargin.Zero;
-        public object FrameworkNode => this;
-
-        public event Action? ValueChanged;
-
-        public override AbstBlazorRenderResult Render(AbstBlazorRenderContext context) => new AbstBlazorRenderResult();
     }
 }

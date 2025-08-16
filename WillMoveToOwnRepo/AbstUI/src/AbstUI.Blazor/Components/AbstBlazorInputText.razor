@@ -1,0 +1,9 @@
+@inherits AbstBlazorComponentBase
+@if (IsMultiLine)
+{
+    <textarea value="@Text" @oninput="HandleInput" maxlength="@MaxLength" disabled="@(Enabled ? null : true)" style="@BuildStyle()"></textarea>
+}
+else
+{
+    <input value="@Text" @oninput="HandleInput" maxlength="@MaxLength" disabled="@(Enabled ? null : true)" style="@BuildStyle()" />
+}

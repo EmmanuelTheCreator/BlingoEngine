@@ -1,0 +1,2 @@
+@inherits AbstBlazorComponentBase
+<button @onclick="HandleClick" disabled="@(Enabled ? null : true)" style="@BuildStyle()">@Text</button>

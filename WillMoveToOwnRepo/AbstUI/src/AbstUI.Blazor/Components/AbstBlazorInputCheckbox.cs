@@ -1,34 +1,23 @@
-using System;
-using System.Numerics;
-using ImGuiNET;
+using Microsoft.AspNetCore.Components;
 using AbstUI.Components;
-using AbstUI.Primitives;
 
-namespace AbstUI.Blazor.Components
+namespace AbstUI.Blazor.Components;
+
+public partial class AbstBlazorInputCheckbox : IAbstFrameworkInputCheckbox
 {
-    internal class AbstBlazorInputCheckbox : AbstBlazorComponent, IAbstFrameworkInputCheckbox, IDisposable
-    {
-        public AbstBlazorInputCheckbox(AbstBlazorComponentFactory factory) : base(factory)
-        {
-        }
-        public bool Enabled { get; set; } = true;
-        private bool _checked;
-        public bool Checked
-        {
-            get => _checked;
-            set
-            {
-                if (_checked != value)
-                {
-                    _checked = value;
-                    ValueChanged?.Invoke();
-                }
-            }
-        }
-        public AMargin Margin { get; set; } = AMargin.Zero;
-        public event Action? ValueChanged;
-        public object FrameworkNode => this;
+    [Parameter] public bool Checked { get; set; }
+    [Parameter] public bool Enabled { get; set; } = true;
 
-        public override AbstBlazorRenderResult Render(AbstBlazorRenderContext context) => new AbstBlazorRenderResult();
+    public event Action? ValueChanged;
+
+    private void OnChange(ChangeEventArgs e)
+    {
+        Checked = e.Value switch
+        {
+            bool b => b,
+            string s => s == "on" || s == "true",
+            _ => false
+        };
+        ValueChanged?.Invoke();
     }
 }
