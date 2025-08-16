@@ -2,6 +2,14 @@
 
 **LingoEngine** is a modern, cross-platform C# runtime designed to emulate Macromedia Director's **Lingo** scripting language. It enables playback of original Lingo code and behaviors on top of modern rendering backends like **Godot** and **SDL2**, allowing legacy projects to be revived or reimagined with full flexibility.
 
+![Director full screenshot](Images/Direcor-FullScreenshot.jpg)
+
+<img src="Images/PropertyInspector.png" alt="Property Inspector" width="50%" />
+<img src="Images/TempoChange.jpg" alt="Tempo Change" width="50%" />
+
+> ⚠️ **Can you help us make this dream project come true?**  
+> This project is still under heavy development, and we can use some help. Reach out if you want to contribute.
+
 ---
 
 ## ✨ Key Features
