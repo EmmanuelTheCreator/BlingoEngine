@@ -1,0 +1,7 @@
+# Ignore native binaries and fonts
+Fonts/
+cimgui/
+*.ttf
+*.dll
+*.so
+*.dylib
