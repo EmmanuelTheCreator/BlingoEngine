@@ -176,7 +176,7 @@ graph TD
 - [README.md](../README.md)
 - [Godot Setup Guide](GodotSetup.md)
 - [SDL2 Setup Guide](SDLSetup.md)
-- [Lingo vs C# Differences](../Lingo_vs_CSharp.md)
+- [Lingo vs C# Differences](Lingo_vs_CSharp.md)
 
 ---
 
