@@ -23,23 +23,17 @@
 - ⚙️ **Service-Oriented Initialization** – Uses dependency injection and service collections for clean setup.
 - 🌍 **Cross-Platform Compatibility** – Works anywhere the .NET SDK is available.
 
----
+## ⭐ Why Use LingoEngine?
 
-## 📁 Project Structure
-
-| Folder | Description |
-|--------|-------------|
-| `src/LingoEngine` | Core Lingo runtime and engine abstractions |
-| `src/LingoEngine.LGodot` | Adapter for [Godot](https://godotengine.org/) |
-| `src/LingoEngine.SDL2` | Adapter for SDL2 |
-| `src/Director` | Standalone Director application re‑implementation (basic movie, cast, and score features working) |
-| `Demo/TetriGrounds` | Sample game showing usage with both backends |
-
-🔎 For a detailed technical overview, see the [Architecture guide](docs/Architecture.md).
+- 🚀 Port legacy Director projects to modern engines
+- 🔁 Reuse existing assets, scripts, and logic
+- 🛠️ Build hybrid projects that combine old logic with new rendering
+- 🕹️ Explore the inner workings of Director games using readable C# code
+- 💾 Preserve interactive media history with a modern toolset
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Running the Demo
 
 1. **Clone the repository**:
 
@@ -76,7 +70,7 @@
 
 ---
 
-## 🎮 Running the Demo
+## 🎮 Getting Started with Development
 
 Both the SDL2 and Godot frontends share the same backend logic. Here's an example of how to bootstrap the SDL2 engine:
 
@@ -94,26 +88,7 @@ The window dimensions above create a Director window larger than the 640×480 st
 
 Swap to the Godot backend by using `.WithLingoGodotEngine(...)`.
 
-📄 See [Godot Setup](docs/GodotSetup.md) and [SDL2 Setup](docs/SDLSetup.md) for exact details.
-
----
-
-## 🧪 Running Tests
-
-This project uses the .NET SDK. You can run all unit tests with:
-
-```bash
-dotnet test
-```
-
-Need to install the SDK?
-
-- Follow the [official install guide](https://learn.microsoft.com/dotnet/core/install/)
-- Or run the helper script:
-
-```bash
-./scripts/install-dotnet.sh
-```
+📄 See the [Getting Started guide](docs/GettingStarted.md), [Godot Setup](docs/GodotSetup.md), and [SDL2 Setup](docs/SDLSetup.md) for exact details.
 
 ---
 
@@ -121,10 +96,15 @@ Need to install the SDK?
 
 ### Guides
 
-- [Lingo vs C# Differences](Lingo_vs_CSharp.md)
+- [Getting Started](docs/GettingStarted.md)
+- [Lingo vs C# Differences](docs/Lingo_vs_CSharp.md)
 - [Architecture Overview](docs/Architecture.md)
 - [Godot Setup](docs/GodotSetup.md)
 - [SDL2 Setup](docs/SDLSetup.md)
+- [Project Setup](docs/ProjectSetup.md)
+- [Progress Log](docs/Progress.md)
+- [Director Keyframe Tags](docs/director_keyframe_tags.md)
+- [Director Lingo MX2004 Scripting Guide](docs/Director_Lingo_mx2004_scripting.pdf)
 - [XMED File Comparisons](docs/XMED_FileComparisons.md)
 - [XMED Offsets](docs/XMED_Offsets.md)
 - [Text Styling Example](docs/Text_Multi_Line_Multi_Style.md)
@@ -132,16 +112,6 @@ Need to install the SDK?
 ### API Reference
 
 Documentation generated from the source code is available using [DocFX](https://github.com/dotnet/docfx). Run `scripts/build-docs.sh` (or `scripts/build-docs.ps1` on Windows) to produce the site in `docs/docfx/_site`. The pages include "View Source" links back to the repository.
-
-### Component READMEs
-
-- [Core Runtime Readme](src/LingoEngine/README.md)
-- [Godot Adapter Readme](src/LingoEngine.LGodot/ReadMe.md)
-- [SDL2 Adapter Readme](src/LingoEngine.SDL2/ReadMe.md)
-- [IO Library Readme](src/LingoEngine.IO/ReadMe.md)
-- [Director Core Readme](src/Director/LingoEngine.Director.Core/ReadMe.md)
-- [Director Godot Adapter Readme](src/Director/LingoEngine.Director.LGodot/ReadMe.md)
-- [AI Conversion Notes](Demo/TetriGrounds/ConversionTextForAI.md)
 
 ---
 
@@ -172,16 +142,6 @@ To get started:
 Please include examples or documentation when appropriate.
 
 Please also read our [Code of Conduct](CODE_OF_CONDUCT.md).
-
----
-
-## ⭐ Why Use LingoEngine?
-
-- 🚀 Port legacy Director projects to modern engines
-- 🔁 Reuse existing assets, scripts, and logic
-- 🛠️ Build hybrid projects that combine old logic with new rendering
-- 🕹️ Explore the inner workings of Director games using readable C# code
-- 💾 Preserve interactive media history with a modern toolset
 
 ---
 
