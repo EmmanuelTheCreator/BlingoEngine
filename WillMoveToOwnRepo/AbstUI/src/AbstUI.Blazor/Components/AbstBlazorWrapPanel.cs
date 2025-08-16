@@ -1,67 +1,54 @@
-using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Components;
 using AbstUI.Components;
 using AbstUI.Primitives;
 
-namespace AbstUI.Blazor.Components
+namespace AbstUI.Blazor.Components;
+
+public partial class AbstBlazorWrapPanel : AbstBlazorComponentBase, IAbstFrameworkWrapPanel
 {
-    internal class AbstBlazorWrapPanel : AbstBlazorComponent, IAbstFrameworkWrapPanel, IDisposable
+    private readonly List<IAbstFrameworkNode> _children = new();
+    private readonly List<RenderFragment> _fragments = new();
+
+    [Parameter] public AOrientation Orientation { get; set; }
+    [Parameter] public APoint ItemMargin { get; set; }
+
+    public void AddItem(IAbstFrameworkNode child)
     {
-        public AOrientation Orientation { get; set; }
-        public APoint ItemMargin { get; set; }
-        public AMargin Margin { get; set; }
-        public object FrameworkNode => this;
-
-        private readonly List<IAbstFrameworkLayoutNode> _children = new();
-
-        public AbstBlazorWrapPanel(AbstBlazorComponentFactory factory, AOrientation orientation) : base(factory)
+        if (!_children.Contains(child))
         {
-            Orientation = orientation;
-            ItemMargin = new APoint(0, 0);
-            Margin = AMargin.Zero;
+            _children.Add(child);
+            if (child is AbstBlazorComponentBase comp)
+                _fragments.Add(comp.RenderFragment);
+            StateHasChanged();
         }
-
-        public void AddItem(IAbstFrameworkNode child)
-        {
-            if (child is IAbstFrameworkLayoutNode layout && !_children.Contains(layout))
-                _children.Add(layout);
-        }
-
-        public void RemoveItem(IAbstFrameworkNode child)
-        {
-            if (child is IAbstFrameworkLayoutNode layout)
-                _children.Remove(layout);
-        }
-
-        public IEnumerable<IAbstFrameworkNode> GetItems() => _children.ToArray();
-
-        public IAbstFrameworkNode? GetItem(int index)
-        {
-            if (index < 0 || index >= _children.Count)
-                return null;
-            return _children[index];
-        }
-
-        public void RemoveAll()
-        {
-            _children.Clear();
-        }
-
-        public override void Dispose()
-        {
-            RemoveAll();
-            if (_texture != nint.Zero)
-            {
-                Blazor.Blazor_DestroyTexture(_texture);
-                _texture = nint.Zero;
-            }
-            base.Dispose();
-        }
-
-        private nint _texture;
-        private int _texW;
-        private int _texH;
-
-        public override AbstBlazorRenderResult Render(AbstBlazorRenderContext context) => new AbstBlazorRenderResult();
     }
+
+    public void RemoveItem(IAbstFrameworkNode child)
+    {
+        var index = _children.IndexOf(child);
+        if (index >= 0)
+        {
+            _children.RemoveAt(index);
+            _fragments.RemoveAt(index);
+            StateHasChanged();
+        }
+    }
+
+    public IEnumerable<IAbstFrameworkNode> GetItems() => _children;
+
+    public IAbstFrameworkNode? GetItem(int index)
+        => index >= 0 && index < _children.Count ? _children[index] : null;
+
+    public void RemoveAll()
+    {
+        _children.Clear();
+        _fragments.Clear();
+        StateHasChanged();
+    }
+
+    private string BuildWrapStyle() =>
+        $"{BuildStyle()}display:flex;flex-wrap:wrap;flex-direction:{(Orientation == AOrientation.Horizontal ? "row" : "column")};";
+
+    private string BuildItemStyle() => $"margin:{ItemMargin.Y}px {ItemMargin.X}px;";
 }

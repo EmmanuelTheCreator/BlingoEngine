@@ -1,55 +1,22 @@
-using System.Numerics;
-using System.Runtime.InteropServices;
-using ImGuiNET;
-using AbstUI.Styles;
-using AbstUI.Primitives;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Components;
 using AbstUI.Components;
-using AbstUI.Texts;
-using AbstUI.Blazor.Bitmaps;
+using AbstUI.Primitives;
 
-namespace AbstUI.Blazor.Components
+namespace AbstUI.Blazor.Components;
+
+public partial class AbstBlazorGfxCanvas : AbstBlazorComponentBase, IAbstFrameworkGfxCanvas
 {
-    internal class AbstBlazorGfxCanvas : AbstBlazorComponent, IAbstFrameworkGfxCanvas, IDisposable
-    {
-        public AMargin Margin { get; set; } = AMargin.Zero;
+    [Parameter] public bool Pixilated { get; set; }
 
-        private readonly AbstBlazorComponentFactory _factory;
-        private readonly IAbstFontManager _fontManager;
-        private readonly int _width;
-        private readonly int _height;
-        private nint _texture;
-        private readonly nint _imguiTexture;
-        private readonly List<Action> _drawActions = new();
-        private AColor? _clearColor;
-        private bool _dirty;
-        public object FrameworkNode => this;
-        public nint Texture => _texture;
-
-        public bool Pixilated { get; set; }
-
-        public AbstBlazorGfxCanvas(AbstBlazorComponentFactory factory, IAbstFontManager fontManager, int width, int height) : base(factory)
-        {
-            _factory = factory;
-            _fontManager = fontManager;
-            _width = width;
-            _height = height;
-            _texture = Blazor.Blazor_CreateTexture(ComponentContext.Renderer, Blazor.Blazor_PIXELFORMAT_RGBA8888,
-                (int)Blazor.Blazor_TextureAccess.Blazor_TEXTUREACCESS_TARGET, width, height);
-            _imguiTexture = factory.RootContext.RegisterTexture(_texture);
-            Width = width;
-            Height = height;
-            _dirty = true;
-        }
-        public override void Dispose()
-        {
-            base.Dispose();
-            if (_texture != nint.Zero)
-            {
-                Blazor.Blazor_DestroyTexture(_texture);
-                _texture = nint.Zero;
-            }
-        }
-
-        public override AbstBlazorRenderResult Render(AbstBlazorRenderContext context) => new AbstBlazorRenderResult();
-    }
+    public void Clear(AColor color) { }
+    public void SetPixel(APoint point, AColor color) { }
+    public void DrawLine(APoint start, APoint end, AColor color, float width = 1) { }
+    public void DrawRect(ARect rect, AColor color, bool filled = true, float width = 1) { }
+    public void DrawCircle(APoint center, float radius, AColor color, bool filled = true, float width = 1) { }
+    public void DrawArc(APoint center, float radius, float startDeg, float endDeg, int segments, AColor color, float width = 1) { }
+    public void DrawPolygon(IReadOnlyList<APoint> points, AColor color, bool filled = true, float width = 1) { }
+    public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, Texts.AbstTextAlignment alignment = default) { }
+    public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format) { }
+    public void DrawPicture(IAbstTexture2D texture, int width, int height, APoint position) { }
 }

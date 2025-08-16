@@ -1,0 +1,9 @@
+@inherits AbstBlazorComponentBase
+<div style="@BuildWrapStyle()">
+    @for (var i = 0; i < _fragments.Count; i++)
+    {
+        <div style="@BuildItemStyle()">
+            @_fragments[i]
+        </div>
+    }
+</div>
