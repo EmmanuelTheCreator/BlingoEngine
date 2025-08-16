@@ -40,22 +40,22 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
     private AbstPanel BuildPanel(ViewModel vm)
     {
         var root = _factory.CreatePanel("LingoCSharpRoot");
-        root.Width = 600;
-        root.Height = 360;
+        root.Width = 800;
+        root.Height = 900;
 
         var content = _factory.CreateWrapPanel(AOrientation.Horizontal, "Content");
-        content.Width = 600;
-        content.Height = 320;
+        content.Width = 800;
+        content.Height = 860;
         root.AddItem(content);
 
         var left = _factory.CreateWrapPanel(AOrientation.Vertical, "LingoColumn");
-        left.Width = 300;
-        left.Height = 320;
+        left.Width = 400;
+        left.Height = 860;
         content.AddItem(left);
 
         var right = _factory.CreateWrapPanel(AOrientation.Vertical, "CSharpColumn");
-        right.Width = 300;
-        right.Height = 320;
+        right.Width = 400;
+        right.Height = 860;
         content.AddItem(right);
 
         var leftHeader = _factory.CreateWrapPanel(AOrientation.Horizontal, "LingoHeader");
@@ -65,8 +65,9 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
             .AddButton("CopyLingo", "Copy", () => ClipboardService.SetText(vm.Lingo));
 
         var lingoInput = _factory.CreateInputText("LingoText", 0, text => vm.Lingo = text);
-        lingoInput.Width = 280;
-        lingoInput.Height = 280;
+        lingoInput.Width = 380;
+        lingoInput.Height = 820;
+        lingoInput.IsMultiLine = true;
         left.AddItem(lingoInput);
 
         var rightHeader = _factory.CreateWrapPanel(AOrientation.Horizontal, "CSharpHeader");
@@ -76,23 +77,23 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
             .AddButton("CopyCSharp", "Copy", () => ClipboardService.SetText(vm.CSharp));
 
         var csharpInput = _factory.CreateInputText("CSharpText", 0, null);
-        csharpInput.Width = 280;
-        csharpInput.Height = 280;
+        csharpInput.Width = 380;
+        csharpInput.Height = 820;
         //csharpInput.Enabled = false;
         csharpInput.IsMultiLine = true;
         right.AddItem(csharpInput);
 
         var menuBar = _factory.CreateWrapPanel(AOrientation.Horizontal, "BottomBar");
-        menuBar.Width = 600;
+        menuBar.Width = 800;
         menuBar.Height = 40;
-        menuBar.Margin = new AMargin(0, 320, 0, 0);
-        root.AddItem(menuBar); // _factory.CreateLayoutWrapper(menuBar, 0, 320));
+        menuBar.Margin = new AMargin(0, 860, 0, 0);
+        root.AddItem(menuBar); // _factory.CreateLayoutWrapper(menuBar, 0, 860));
 
         menuBar.ComposeForToolBar()
             .AddButton("ConvertButton", "Convert", () =>
             {
-            vm.CSharp = LingoToCSharpConverter.Convert(vm.Lingo);
-            csharpInput.Text = vm.CSharp.Replace("\r", "\n");
+                vm.CSharp = LingoToCSharpConverter.Convert(vm.Lingo);
+                csharpInput.Text = vm.CSharp.Replace("\r", "\n");
             });
 
         return root;
