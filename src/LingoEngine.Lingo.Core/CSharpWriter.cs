@@ -10,11 +10,17 @@ namespace LingoEngine.Lingo.Core;
 public class CSharpWriter : ILingoAstVisitor
 {
     private readonly StringBuilder _sb = new();
+    private readonly string _methodAccessModifier;
+
+    public CSharpWriter(string methodAccessModifier = "public")
+    {
+        _methodAccessModifier = methodAccessModifier;
+    }
 
     /// <summary>Converts the given AST node to C#.</summary>
-    public static string Write(LingoNode node)
+    public static string Write(LingoNode node, string methodAccessModifier = "public")
     {
-        var writer = new CSharpWriter();
+        var writer = new CSharpWriter(methodAccessModifier);
         node.Accept(writer);
         return writer._sb.ToString();
     }
@@ -61,7 +67,25 @@ public class CSharpWriter : ILingoAstVisitor
         // Unhandled nodes are ignored for now
     }
 
-    public void Visit(LingoHandlerNode node) => node.Block.Accept(this);
+    public void Visit(LingoHandlerNode node)
+    {
+        var name = node.Handler?.Name ?? string.Empty;
+        if (name.Length > 0)
+        {
+            name = char.ToUpperInvariant(name[0]) + name[1..];
+            Append(_methodAccessModifier);
+            Append(" void ");
+            AppendLine(name + "()");
+            AppendLine("{");
+            node.Block.Accept(this);
+            AppendLine("}");
+            AppendLine();
+        }
+        else
+        {
+            node.Block.Accept(this);
+        }
+    }
 
     public void Visit(LingoErrorNode node) => AppendLine("// error");
 
@@ -313,6 +337,20 @@ public class CSharpWriter : ILingoAstVisitor
         node.Sound.Accept(this);
         Append(").");
         node.Property.Accept(this);
+    }
+
+    public void Visit(LingoCursorStmtNode node)
+    {
+        Append("Cursor = ");
+        node.Value.Accept(this);
+        AppendLine(";");
+    }
+
+    public void Visit(LingoGoToStmtNode node)
+    {
+        Append("_Movie.GoTo(");
+        node.Target.Accept(this);
+        AppendLine(");");
     }
 
     public void Visit(LingoAssignmentStmtNode node)

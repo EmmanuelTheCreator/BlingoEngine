@@ -465,6 +465,20 @@ namespace LingoEngine.Lingo.Core
             node.Sound.Accept(this);
         }
 
+        public void Visit(LingoCursorStmtNode node)
+        {
+            Write("cursor ");
+            node.Value.Accept(this);
+            WriteLine();
+        }
+
+        public void Visit(LingoGoToStmtNode node)
+        {
+            Write("go to ");
+            node.Target.Accept(this);
+            WriteLine();
+        }
+
         public void Visit(LingoAssignmentStmtNode node)
         {
             node.Target.Accept(this);

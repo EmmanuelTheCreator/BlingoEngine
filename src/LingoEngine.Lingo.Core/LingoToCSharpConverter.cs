@@ -5,7 +5,7 @@ namespace LingoEngine.Lingo.Core;
 
 public static class LingoToCSharpConverter
 {
-    public static string Convert(string lingoSource)
+    public static string Convert(string lingoSource, string methodAccessModifier = "public")
     {
         var trimmed = lingoSource.Trim();
 
@@ -23,10 +23,10 @@ public static class LingoToCSharpConverter
 
         var parser = new LingoAstParser();
         var ast = parser.Parse(lingoSource);
-        return CSharpWriter.Write(ast);
+        return CSharpWriter.Write(ast, methodAccessModifier);
     }
 
-    public static LingoBatchResult Convert(IEnumerable<LingoScriptFile> scripts)
+    public static LingoBatchResult Convert(IEnumerable<LingoScriptFile> scripts, string methodAccessModifier = "public")
     {
         var result = new LingoBatchResult();
         var asts = new Dictionary<string, LingoNode>();
@@ -66,7 +66,7 @@ public static class LingoToCSharpConverter
             ast.Accept(annotator);
 
         foreach (var kvp in asts)
-            result.ConvertedScripts[kvp.Key] = CSharpWriter.Write(kvp.Value);
+            result.ConvertedScripts[kvp.Key] = CSharpWriter.Write(kvp.Value, methodAccessModifier);
 
         return result;
     }
@@ -237,63 +237,65 @@ public static class LingoToCSharpConverter
         public void Visit(LingoCommentNode n) { }
         public void Visit(LingoNewObjNode n) { n.ObjArgs.Accept(this); }
         public void Visit(LingoLiteralNode n) { }
-        public void Visit(LingoCallNode n){ if(!string.IsNullOrEmpty(n.Name)) Methods.Add(n.Name); }
-        public void Visit(LingoObjCallNode n){ if(n.Name.Value!=null) Methods.Add(n.Name.Value.AsString()); }
-        public void Visit(LingoBlockNode n){ foreach(var c in n.Children) c.Accept(this); }
-        public void Visit(LingoIfStmtNode n){ n.Condition.Accept(this); n.ThenBlock.Accept(this); if(n.HasElse) n.ElseBlock!.Accept(this); }
-        public void Visit(LingoIfElseStmtNode n){ n.Condition.Accept(this); n.ThenBlock.Accept(this); n.ElseBlock.Accept(this); }
-        public void Visit(LingoPutStmtNode n){ n.Value.Accept(this); n.Target.Accept(this); }
-        public void Visit(LingoBinaryOpNode n){ n.Left.Accept(this); n.Right.Accept(this); }
-        public void Visit(LingoCaseStmtNode n){ n.Value.Accept(this); n.Otherwise?.Accept(this); }
+        public void Visit(LingoCallNode n) { if (!string.IsNullOrEmpty(n.Name)) Methods.Add(n.Name); }
+        public void Visit(LingoObjCallNode n) { if (n.Name.Value != null) Methods.Add(n.Name.Value.AsString()); }
+        public void Visit(LingoBlockNode n) { foreach (var c in n.Children) c.Accept(this); }
+        public void Visit(LingoIfStmtNode n) { n.Condition.Accept(this); n.ThenBlock.Accept(this); if (n.HasElse) n.ElseBlock!.Accept(this); }
+        public void Visit(LingoIfElseStmtNode n) { n.Condition.Accept(this); n.ThenBlock.Accept(this); n.ElseBlock.Accept(this); }
+        public void Visit(LingoPutStmtNode n) { n.Value.Accept(this); n.Target.Accept(this); }
+        public void Visit(LingoBinaryOpNode n) { n.Left.Accept(this); n.Right.Accept(this); }
+        public void Visit(LingoCaseStmtNode n) { n.Value.Accept(this); n.Otherwise?.Accept(this); }
         public void Visit(LingoTheExprNode n) { }
         public void Visit(LingoExitStmtNode n) { }
-        public void Visit(LingoReturnStmtNode n){ n.Value?.Accept(this); }
-        public void Visit(LingoTellStmtNode n){ n.Block.Accept(this); }
-        public void Visit(LingoOtherwiseNode n){ n.Block.Accept(this); }
-        public void Visit(LingoCaseLabelNode n){ n.Value.Accept(this); n.Block?.Accept(this); }
-        public void Visit(LingoChunkExprNode n){ n.Expr.Accept(this); }
-        public void Visit(LingoInverseOpNode n){ n.Expr.Accept(this); }
-        public void Visit(LingoObjCallV4Node n){ n.Object.Accept(this); if(n.Name.Value!=null) Methods.Add(n.Name.Value.AsString()); n.ArgList.Accept(this); }
-        public void Visit(LingoMemberExprNode n){ n.Expr.Accept(this); }
-        public void Visit(LingoObjPropExprNode n){ n.Object.Accept(this); n.Property.Accept(this); }
-        public void Visit(LingoPlayCmdStmtNode n){ n.Command.Accept(this); }
-        public void Visit(LingoThePropExprNode n){ n.Property.Accept(this); }
-        public void Visit(LingoMenuPropExprNode n){ n.Menu.Accept(this); n.Property.Accept(this); }
-        public void Visit(LingoSoundCmdStmtNode n){ n.Command.Accept(this); }
-        public void Visit(LingoSoundPropExprNode n){ n.Sound.Accept(this); n.Property.Accept(this); }
-        public void Visit(LingoAssignmentStmtNode n){ n.Target.Accept(this); n.Value.Accept(this); }
-        public void Visit(LingoSendSpriteStmtNode n){ n.Sprite.Accept(this); n.Message.Accept(this); }
-        public void Visit(LingoObjBracketExprNode n){ n.Object.Accept(this); n.Index.Accept(this); }
-        public void Visit(LingoSpritePropExprNode n){ n.Sprite.Accept(this); n.Property.Accept(this); }
-        public void Visit(LingoChunkDeleteStmtNode n){ n.Chunk.Accept(this); }
-        public void Visit(LingoChunkHiliteStmtNode n){ n.Chunk.Accept(this); }
-        public void Visit(LingoRepeatWhileStmtNode n){ n.Condition.Accept(this); n.Body.Accept(this); }
-        public void Visit(LingoMenuItemPropExprNode n){ n.MenuItem.Accept(this); n.Property.Accept(this); }
-        public void Visit(LingoObjPropIndexExprNode n){ n.Object.Accept(this); n.PropertyIndex.Accept(this); }
-        public void Visit(LingoRepeatWithInStmtNode n){ n.List.Accept(this); n.Body.Accept(this); }
-        public void Visit(LingoRepeatWithToStmtNode n){ n.Start.Accept(this); n.End.Accept(this); n.Body.Accept(this); }
-        public void Visit(LingoSpriteWithinExprNode n){ n.SpriteA.Accept(this); n.SpriteB.Accept(this); }
-        public void Visit(LingoLastStringChunkExprNode n){ n.Source.Accept(this); }
-        public void Visit(LingoSpriteIntersectsExprNode n){ n.SpriteA.Accept(this); n.SpriteB.Accept(this); }
-        public void Visit(LingoStringChunkCountExprNode n){ n.Source.Accept(this); }
-        public void Visit(LingoNotOpNode n){ n.Expr.Accept(this); }
-        public void Visit(LingoRepeatWithStmtNode n){ n.Start.Accept(this); n.End.Accept(this); n.Body.Accept(this); }
-        public void Visit(LingoRepeatUntilStmtNode n){ n.Condition.Accept(this); n.Body.Accept(this); }
-        public void Visit(LingoRepeatForeverStmtNode n){ n.Body.Accept(this); }
-        public void Visit(LingoRepeatTimesStmtNode n){ n.Count.Accept(this); n.Body.Accept(this); }
-        public void Visit(LingoExitRepeatIfStmtNode n){ n.Condition.Accept(this); }
-        public void Visit(LingoNextRepeatIfStmtNode n){ n.Condition.Accept(this); }
-        public void Visit(LingoErrorNode n){}
-        public void Visit(LingoEndCaseNode n){}
-        public void Visit(LingoWhenStmtNode n){}
-        public void Visit(LingoGlobalDeclStmtNode n){}
-        public void Visit(LingoPropertyDeclStmtNode n){}
-        public void Visit(LingoInstanceDeclStmtNode n){}
-        public void Visit(LingoExitRepeatStmtNode n){}
-        public void Visit(LingoNextRepeatStmtNode n){}
-        public void Visit(LingoVarNode n){}
-        public void Visit(LingoDatumNode n){}
-        public void Visit(LingoNextStmtNode n){}
+        public void Visit(LingoReturnStmtNode n) { n.Value?.Accept(this); }
+        public void Visit(LingoTellStmtNode n) { n.Block.Accept(this); }
+        public void Visit(LingoOtherwiseNode n) { n.Block.Accept(this); }
+        public void Visit(LingoCaseLabelNode n) { n.Value.Accept(this); n.Block?.Accept(this); }
+        public void Visit(LingoChunkExprNode n) { n.Expr.Accept(this); }
+        public void Visit(LingoInverseOpNode n) { n.Expr.Accept(this); }
+        public void Visit(LingoObjCallV4Node n) { n.Object.Accept(this); if (n.Name.Value != null) Methods.Add(n.Name.Value.AsString()); n.ArgList.Accept(this); }
+        public void Visit(LingoMemberExprNode n) { n.Expr.Accept(this); }
+        public void Visit(LingoObjPropExprNode n) { n.Object.Accept(this); n.Property.Accept(this); }
+        public void Visit(LingoPlayCmdStmtNode n) { n.Command.Accept(this); }
+        public void Visit(LingoThePropExprNode n) { n.Property.Accept(this); }
+        public void Visit(LingoMenuPropExprNode n) { n.Menu.Accept(this); n.Property.Accept(this); }
+        public void Visit(LingoSoundCmdStmtNode n) { n.Command.Accept(this); }
+        public void Visit(LingoSoundPropExprNode n) { n.Sound.Accept(this); n.Property.Accept(this); }
+        public void Visit(LingoCursorStmtNode n) { n.Value.Accept(this); }
+        public void Visit(LingoGoToStmtNode n) { n.Target.Accept(this); }
+        public void Visit(LingoAssignmentStmtNode n) { n.Target.Accept(this); n.Value.Accept(this); }
+        public void Visit(LingoSendSpriteStmtNode n) { n.Sprite.Accept(this); n.Message.Accept(this); }
+        public void Visit(LingoObjBracketExprNode n) { n.Object.Accept(this); n.Index.Accept(this); }
+        public void Visit(LingoSpritePropExprNode n) { n.Sprite.Accept(this); n.Property.Accept(this); }
+        public void Visit(LingoChunkDeleteStmtNode n) { n.Chunk.Accept(this); }
+        public void Visit(LingoChunkHiliteStmtNode n) { n.Chunk.Accept(this); }
+        public void Visit(LingoRepeatWhileStmtNode n) { n.Condition.Accept(this); n.Body.Accept(this); }
+        public void Visit(LingoMenuItemPropExprNode n) { n.MenuItem.Accept(this); n.Property.Accept(this); }
+        public void Visit(LingoObjPropIndexExprNode n) { n.Object.Accept(this); n.PropertyIndex.Accept(this); }
+        public void Visit(LingoRepeatWithInStmtNode n) { n.List.Accept(this); n.Body.Accept(this); }
+        public void Visit(LingoRepeatWithToStmtNode n) { n.Start.Accept(this); n.End.Accept(this); n.Body.Accept(this); }
+        public void Visit(LingoSpriteWithinExprNode n) { n.SpriteA.Accept(this); n.SpriteB.Accept(this); }
+        public void Visit(LingoLastStringChunkExprNode n) { n.Source.Accept(this); }
+        public void Visit(LingoSpriteIntersectsExprNode n) { n.SpriteA.Accept(this); n.SpriteB.Accept(this); }
+        public void Visit(LingoStringChunkCountExprNode n) { n.Source.Accept(this); }
+        public void Visit(LingoNotOpNode n) { n.Expr.Accept(this); }
+        public void Visit(LingoRepeatWithStmtNode n) { n.Start.Accept(this); n.End.Accept(this); n.Body.Accept(this); }
+        public void Visit(LingoRepeatUntilStmtNode n) { n.Condition.Accept(this); n.Body.Accept(this); }
+        public void Visit(LingoRepeatForeverStmtNode n) { n.Body.Accept(this); }
+        public void Visit(LingoRepeatTimesStmtNode n) { n.Count.Accept(this); n.Body.Accept(this); }
+        public void Visit(LingoExitRepeatIfStmtNode n) { n.Condition.Accept(this); }
+        public void Visit(LingoNextRepeatIfStmtNode n) { n.Condition.Accept(this); }
+        public void Visit(LingoErrorNode n) { }
+        public void Visit(LingoEndCaseNode n) { }
+        public void Visit(LingoWhenStmtNode n) { }
+        public void Visit(LingoGlobalDeclStmtNode n) { }
+        public void Visit(LingoPropertyDeclStmtNode n) { }
+        public void Visit(LingoInstanceDeclStmtNode n) { }
+        public void Visit(LingoExitRepeatStmtNode n) { }
+        public void Visit(LingoNextRepeatStmtNode n) { }
+        public void Visit(LingoVarNode n) { }
+        public void Visit(LingoDatumNode n) { }
+        public void Visit(LingoNextStmtNode n) { }
     }
 
     private class SendSpriteTypeResolver : ILingoAstVisitor
@@ -335,6 +337,8 @@ public static class LingoToCSharpConverter
         public void Visit(LingoMenuPropExprNode n) { n.Menu.Accept(this); n.Property.Accept(this); }
         public void Visit(LingoSoundCmdStmtNode n) { n.Command.Accept(this); }
         public void Visit(LingoSoundPropExprNode n) { n.Sound.Accept(this); n.Property.Accept(this); }
+        public void Visit(LingoCursorStmtNode n) { n.Value.Accept(this); }
+        public void Visit(LingoGoToStmtNode n) { n.Target.Accept(this); }
         public void Visit(LingoAssignmentStmtNode n) { n.Target.Accept(this); n.Value.Accept(this); }
         public void Visit(LingoSendSpriteStmtNode n)
         {
