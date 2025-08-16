@@ -89,7 +89,12 @@ public class LingoToCSharpConverterTests
             }
         };
         var batch = LingoToCSharpConverter.Convert(scripts);
-        Assert.Equal("SendSprite<B2>(2, b2 => b2.doIt());", batch.ConvertedScripts["B1"].Trim());
+        var expected = string.Join('\n',
+            "public void BeginSprite()",
+            "{",
+            "SendSprite<B2>(2, b2 => b2.doIt());",
+            "}");
+        Assert.Equal(expected.Trim(), batch.ConvertedScripts["B1"].Trim());
     }
 
     [Fact]
@@ -111,7 +116,12 @@ public class LingoToCSharpConverterTests
             }
         };
         var batch = LingoToCSharpConverter.Convert(scripts);
-        Assert.Equal("CallMovieScript<M1>(m1 => m1.myMovieHandler());", batch.ConvertedScripts["P1"].Trim());
+        var expected = string.Join('\n',
+            "public void BeginSprite()",
+            "{",
+            "CallMovieScript<M1>(m1 => m1.myMovieHandler());",
+            "}");
+        Assert.Equal(expected.Trim(), batch.ConvertedScripts["P1"].Trim());
     }
 
     [Fact]
@@ -247,6 +257,67 @@ public class LingoToCSharpConverterTests
         var inst = new LingoInstanceDeclStmtNode();
         inst.Names.AddRange(new[] { "i1" });
         Assert.Equal("var i1;", CSharpWriter.Write(inst).Trim());
+    }
+
+    [Fact]
+    public void DeclarationStatementsAreParsedAndConverted()
+    {
+        var result = LingoToCSharpConverter.Convert("global g1, g2");
+        Assert.Equal("var g1, g2;", result.Trim());
+
+        result = LingoToCSharpConverter.Convert("property p1, p2");
+        Assert.Equal("var p1, p2;", result.Trim());
+
+        result = LingoToCSharpConverter.Convert("instance i1");
+        Assert.Equal("var i1;", result.Trim());
+    }
+
+    [Fact]
+    public void CursorAndGoToStatementsAreConverted()
+    {
+        var lingo = @"on mouseUp me
+  cursor -1
+  go to ""Game""
+end
+
+on mouseWithin me
+  cursor 280
+end
+
+on mouseleave me
+  cursor -1
+end";
+        var result = LingoToCSharpConverter.Convert(lingo);
+        var expected = string.Join('\n',
+            "public void MouseUp()",
+            "{",
+            "Cursor = -1;",
+            "_Movie.GoTo(\"Game\");",
+            "}",
+            "",
+            "public void MouseWithin()",
+            "{",
+            "Cursor = 280;",
+            "}",
+            "",
+            "public void Mouseleave()",
+            "{",
+            "Cursor = -1;",
+            "}");
+        Assert.Equal(expected.Trim(), result.Trim());
+    }
+
+    [Fact]
+    public void AccessModifierIsAppliedToHandlers()
+    {
+        var lingo = @"on test
+end";
+        var result = LingoToCSharpConverter.Convert(lingo, "internal");
+        var expected = string.Join('\n',
+            "internal void Test()",
+            "{",
+            "}");
+        Assert.Equal(expected.Trim(), result.Trim());
     }
 
     [Fact]

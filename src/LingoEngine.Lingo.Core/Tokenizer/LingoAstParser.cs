@@ -12,8 +12,15 @@
         {
             _tokenizer = new LingoTokenizer(source);
             AdvanceToken();
-            // Placeholder for now
-            return ParseHandlerBody();
+            var block = new LingoBlockNode();
+            while (_currentToken.Type != LingoTokenType.Eof)
+            {
+                if (_currentToken.Type == LingoTokenType.On)
+                    block.Children.Add(ParseHandler());
+                else
+                    block.Children.Add(ParseStatement());
+            }
+            return block;
         }
         private void AdvanceToken() => _currentToken = _tokenizer.NextToken();
         private bool Match(LingoTokenType type)
@@ -34,44 +41,66 @@
         }
 
 
-        private LingoNode ParseHandlerBody()
+        private LingoNode ParseHandler()
         {
-            var block = new LingoBlockNode();
-
-            while (_currentToken.Type != LingoTokenType.Eof)
+            Expect(LingoTokenType.On);
+            var nameTok = Expect(LingoTokenType.Identifier);
+            int declLine = nameTok.Line;
+            while (_currentToken.Line == declLine && _currentToken.Type != LingoTokenType.Eof)
+                AdvanceToken();
+            var body = new LingoBlockNode();
+            while (_currentToken.Type != LingoTokenType.End && _currentToken.Type != LingoTokenType.Eof)
+                body.Children.Add(ParseStatement());
+            if (_currentToken.Type == LingoTokenType.End)
+                AdvanceToken();
+            return new LingoHandlerNode
             {
-                switch (_currentToken.Type)
-                {
-                    case LingoTokenType.Identifier:
-                        block.Children.Add(ParseCallOrAssignment());
-                        break;
-                    case LingoTokenType.On:
-                        AdvanceToken();
-                        if (_currentToken.Type == LingoTokenType.Identifier)
-                            AdvanceToken();
-                        break;
+                Handler = new LingoHandler { Name = nameTok.Lexeme },
+                Block = body
+            };
+        }
 
-                    case LingoTokenType.If:
-                    case LingoTokenType.Put:
-                    case LingoTokenType.Exit:
-                    case LingoTokenType.Next:
-                    case LingoTokenType.Repeat:
-                        block.Children.Add(ParseKeywordStatement());
-                        break;
-
-                    default:
-                        AdvanceToken(); // skip unrecognized
-                        break;
-                }
+        private LingoNode ParseStatement()
+        {
+            switch (_currentToken.Type)
+            {
+                case LingoTokenType.Identifier:
+                    return ParseCallOrAssignment();
+                case LingoTokenType.Global:
+                case LingoTokenType.Property:
+                case LingoTokenType.Instance:
+                    return ParseDeclarationStatement(_currentToken.Type);
+                case LingoTokenType.If:
+                case LingoTokenType.Put:
+                case LingoTokenType.Exit:
+                case LingoTokenType.Next:
+                case LingoTokenType.Repeat:
+                    return ParseKeywordStatement();
+                default:
+                    AdvanceToken();
+                    return new LingoErrorNode();
             }
-
-            return block;
         }
 
 
         private LingoNode ParseCallOrAssignment()
         {
             var ident = Expect(LingoTokenType.Identifier);
+
+            var nameLower = ident.Lexeme.ToLowerInvariant();
+
+            if (nameLower == "cursor")
+            {
+                var value = ParseExpression();
+                return new LingoCursorStmtNode { Value = value };
+            }
+
+            if (nameLower == "go")
+            {
+                Match(LingoTokenType.To);
+                var target = ParseExpression();
+                return new LingoGoToStmtNode { Target = target };
+            }
 
             if (string.Equals(ident.Lexeme, "sendSprite", System.StringComparison.OrdinalIgnoreCase))
             {
@@ -151,6 +180,35 @@
             }
         }
 
+        private LingoNode ParseDeclarationStatement(LingoTokenType keyword)
+        {
+            AdvanceToken(); // consume keyword
+            var names = new List<string>();
+            do
+            {
+                var ident = Expect(LingoTokenType.Identifier);
+                names.Add(ident.Lexeme);
+            } while (Match(LingoTokenType.Comma));
+
+            switch (keyword)
+            {
+                case LingoTokenType.Global:
+                    var g = new LingoGlobalDeclStmtNode();
+                    g.Names.AddRange(names);
+                    return g;
+                case LingoTokenType.Property:
+                    var p = new LingoPropertyDeclStmtNode();
+                    p.Names.AddRange(names);
+                    return p;
+                case LingoTokenType.Instance:
+                    var i = new LingoInstanceDeclStmtNode();
+                    i.Names.AddRange(names);
+                    return i;
+                default:
+                    return new LingoErrorNode();
+            }
+        }
+
         private LingoNode ParseExpression()
         {
             switch (_currentToken.Type)
@@ -182,6 +240,32 @@
                     }
                     AdvanceToken();
                     return new LingoDatumNode(datum);
+
+                case LingoTokenType.Minus:
+                    AdvanceToken();
+                    if (_currentToken.Type == LingoTokenType.Number)
+                    {
+                        var negText = "-" + _currentToken.Lexeme;
+                        LingoDatum negDatum;
+                        if (negText.Contains('.'))
+                        {
+                            if (float.TryParse(negText, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var nf))
+                                negDatum = new LingoDatum(nf);
+                            else
+                                negDatum = new LingoDatum(negText);
+                        }
+                        else if (int.TryParse(negText, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var ni))
+                        {
+                            negDatum = new LingoDatum(ni);
+                        }
+                        else
+                        {
+                            negDatum = new LingoDatum(negText);
+                        }
+                        AdvanceToken();
+                        return new LingoDatumNode(negDatum);
+                    }
+                    return new LingoDatumNode(new LingoDatum("-"));
 
                 case LingoTokenType.String:
                     var strLiteral = new LingoDatumNode(new LingoDatum(_currentToken.Lexeme));
@@ -248,28 +332,7 @@
                    _currentToken.Type != LingoTokenType.Else &&
                    _currentToken.Type != LingoTokenType.Eof)
             {
-                switch (_currentToken.Type)
-                {
-                    case LingoTokenType.Identifier:
-                        block.Children.Add(ParseCallOrAssignment());
-                        break;
-                    case LingoTokenType.On:
-                        AdvanceToken();
-                        if (_currentToken.Type == LingoTokenType.Identifier)
-                            AdvanceToken();
-                        break;
-
-                    case LingoTokenType.If:
-                    case LingoTokenType.Put:
-                    case LingoTokenType.Exit:
-                    case LingoTokenType.Next:
-                        block.Children.Add(ParseKeywordStatement());
-                        break;
-
-                    default:
-                        AdvanceToken(); // Skip unknown token
-                        break;
-                }
+                block.Children.Add(ParseStatement());
             }
 
             return block;

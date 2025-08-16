@@ -31,6 +31,8 @@
         void Visit(LingoMenuPropExprNode node);
         void Visit(LingoSoundCmdStmtNode node);
         void Visit(LingoSoundPropExprNode node);
+        void Visit(LingoCursorStmtNode node);
+        void Visit(LingoGoToStmtNode node);
         void Visit(LingoAssignmentStmtNode node);
         void Visit(LingoSendSpriteStmtNode node);
         void Visit(LingoExitRepeatStmtNode node);

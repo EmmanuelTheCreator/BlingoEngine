@@ -315,6 +315,18 @@ namespace LingoEngine.Lingo.Core.Tokenizer
         public override void Accept(ILingoAstVisitor visitor) => visitor.Visit(this);
     }
 
+    public class LingoCursorStmtNode : LingoNode
+    {
+        public LingoNode Value { get; set; } = null!;
+        public override void Accept(ILingoAstVisitor visitor) => visitor.Visit(this);
+    }
+
+    public class LingoGoToStmtNode : LingoNode
+    {
+        public LingoNode Target { get; set; } = null!;
+        public override void Accept(ILingoAstVisitor visitor) => visitor.Visit(this);
+    }
+
     public class LingoAssignmentStmtNode : LingoNode
     {
         public LingoNode Target { get; set; } = null!;
@@ -325,13 +337,13 @@ namespace LingoEngine.Lingo.Core.Tokenizer
     /// <summary>
     /// Represents a sendSprite command.
     /// </summary>
-public class LingoSendSpriteStmtNode : LingoNode
-{
-    public LingoNode Sprite { get; set; } = null!;
-    public LingoNode Message { get; set; } = null!;
-    public string? TargetType { get; set; }
-    public override void Accept(ILingoAstVisitor visitor) => visitor.Visit(this);
-}
+    public class LingoSendSpriteStmtNode : LingoNode
+    {
+        public LingoNode Sprite { get; set; } = null!;
+        public LingoNode Message { get; set; } = null!;
+        public string? TargetType { get; set; }
+        public override void Accept(ILingoAstVisitor visitor) => visitor.Visit(this);
+    }
 
     public class LingoExitRepeatStmtNode : LingoNode
     {
