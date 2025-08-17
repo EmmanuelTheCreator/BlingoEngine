@@ -68,7 +68,7 @@ internal class AbstImGuiWindow : AbstImGuiPanel, IAbstFrameworkWindow, IDisposab
     }
 
 
-    // TODO :  Resize SDL window.
+    // TODO : handle window resize.
     public void OnResize(int width, int height)
     {
         _lingoWindow.Resize(width, height);

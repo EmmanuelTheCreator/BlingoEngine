@@ -6,13 +6,12 @@ using AbstUI.ImGui.Styles;
 namespace AbstUI.ImGui
 {
     /// <summary>
-    /// Factory responsible for creating SDL specific GFX components.
+    /// Factory responsible for creating ImGui specific GFX components.
     /// </summary>
     public class AbstImGuiComponentFactory : IAbstComponentFactory
     {
         private readonly IImGuiRootComponentContext _rootContext;
         private readonly ImGuiFontManager _fontManager;
-
         public IImGuiRootComponentContext RootContext => _rootContext;
 
         public AbstImGuiComponentFactory(IImGuiRootComponentContext rootContext, ImGuiFontManager fontManager)

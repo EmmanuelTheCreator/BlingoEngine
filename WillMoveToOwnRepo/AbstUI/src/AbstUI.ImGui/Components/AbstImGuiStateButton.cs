@@ -3,15 +3,12 @@ using ImGuiNET;
 using AbstUI.Primitives;
 using AbstUI.Components;
 using AbstUI.ImGui.Bitmaps;
-using AbstUI.ImGui.ImGuiLL;
 
 namespace AbstUI.ImGui.Components
 {
     internal class AbstImGuiStateButton : AbstImGuiComponent, IAbstFrameworkStateButton, IDisposable
     {
-        private nint _textureOnPtr;
         private IAbstTexture2D? _textureOn;
-        private nint _textureOffPtr;
         private IAbstTexture2D? _textureOff;
 
         public AbstImGuiStateButton(AbstImGuiComponentFactory factory) : base(factory)
@@ -25,15 +22,7 @@ namespace AbstUI.ImGui.Components
             set
             {
                 _textureOn = value;
-                if (_textureOnPtr != nint.Zero)
-                {
-                    SDL.SDL_DestroyTexture(_textureOnPtr);
-                    _textureOnPtr = nint.Zero;
-                }
-                if (value is ImGuiImageTexture img)
-                {
-                    _textureOnPtr = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, img.SurfaceId);
-                }
+                // TODO: handle texture registration with ImGui backend
             }
         }
 
@@ -43,15 +32,7 @@ namespace AbstUI.ImGui.Components
             set
             {
                 _textureOff = value;
-                if (_textureOffPtr != nint.Zero)
-                {
-                    SDL.SDL_DestroyTexture(_textureOffPtr);
-                    _textureOffPtr = nint.Zero;
-                }
-                if (value is ImGuiImageTexture img)
-                {
-                    _textureOffPtr = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, img.SurfaceId);
-                }
+                // TODO: handle texture registration with ImGui backend
             }
         }
         private bool _isOn;
@@ -80,7 +61,8 @@ namespace AbstUI.ImGui.Components
             if (!Enabled)
                 global::ImGuiNET.ImGui.BeginDisabled();
 
-            nint tex = _isOn ? _textureOnPtr : _textureOffPtr;
+            nint tex = _isOn && _textureOn is ImGuiTexture2D onTex ? onTex.Handle :
+                        (!_isOn && _textureOff is ImGuiTexture2D offTex ? offTex.Handle : nint.Zero);
             if (tex != nint.Zero)
             {
                 Vector4 bg = _isOn ? new Vector4(0.25f, 0.25f, 0.25f, 1f) : Vector4.Zero;
@@ -102,16 +84,6 @@ namespace AbstUI.ImGui.Components
 
         public override void Dispose()
         {
-            if (_textureOnPtr != nint.Zero)
-            {
-                SDL.SDL_DestroyTexture(_textureOnPtr);
-                _textureOnPtr = nint.Zero;
-            }
-            if (_textureOffPtr != nint.Zero)
-            {
-                SDL.SDL_DestroyTexture(_textureOffPtr);
-                _textureOffPtr = nint.Zero;
-            }
             base.Dispose();
         }
     }

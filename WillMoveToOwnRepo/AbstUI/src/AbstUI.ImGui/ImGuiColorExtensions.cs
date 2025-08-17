@@ -4,7 +4,7 @@ using AbstUI.Primitives;
 namespace AbstUI.ImGui;
 
 /// <summary>
-/// Extension helpers for converting <see cref="AColor"/> values to SDL-friendly types.
+/// Extension helpers for converting <see cref="AColor"/> values to ImGui-friendly types.
 /// </summary>
 public static class ImGuiColorExtensions
 {
