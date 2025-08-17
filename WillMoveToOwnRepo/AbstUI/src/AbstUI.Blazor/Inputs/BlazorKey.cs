@@ -1,52 +1,54 @@
 using AbstUI.Inputs;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace AbstUI.Blazor.Inputs;
 
+/// <summary>
+/// Keyboard wrapper using standard DOM events provided by Blazor.
+/// </summary>
 public class BlazorKey : IAbstFrameworkKey
 {
-    private readonly HashSet<Blazor.Blazor_Keycode> _keys = new();
+    private readonly HashSet<string> _keys = new();
     private AbstKey? _lingoKey;
     private string _lastKey = string.Empty;
     private int _lastCode;
 
     public void SetKeyObj(AbstKey key) => _lingoKey = key;
 
-    public void ProcessEvent(Blazor.Blazor_Event e)
+    public void KeyDown(KeyboardEventArgs e)
     {
-        if (e.type == Blazor.Blazor_EventType.Blazor_KEYDOWN && e.key.repeat == 0)
-        {
-            _keys.Add(e.key.keysym.sym);
-            _lastCode = (int)e.key.keysym.sym;
-            _lastKey = Blazor.Blazor_GetKeyName(e.key.keysym.sym);
-            _lingoKey?.DoKeyDown();
-        }
-        else if (e.type == Blazor.Blazor_EventType.Blazor_KEYUP)
-        {
-            _keys.Remove(e.key.keysym.sym);
-            _lastCode = (int)e.key.keysym.sym;
-            _lastKey = Blazor.Blazor_GetKeyName(e.key.keysym.sym);
-            _lingoKey?.DoKeyUp();
-        }
+        _keys.Add(e.Key);
+        _lastKey = e.Key;
+        _lastCode = e.Key.Length == 1 ? char.ToUpperInvariant(e.Key[0]) : 0;
+        _lingoKey?.DoKeyDown();
     }
 
-    public bool CommandDown => (Blazor.Blazor_GetModState() & Blazor.Blazor_Keymod.KMOD_GUI) != 0;
-    public bool ControlDown => (Blazor.Blazor_GetModState() & Blazor.Blazor_Keymod.KMOD_CTRL) != 0;
-    public bool OptionDown => (Blazor.Blazor_GetModState() & Blazor.Blazor_Keymod.KMOD_ALT) != 0;
-    public bool ShiftDown => (Blazor.Blazor_GetModState() & Blazor.Blazor_Keymod.KMOD_SHIFT) != 0;
+    public void KeyUp(KeyboardEventArgs e)
+    {
+        _keys.Remove(e.Key);
+        _lastKey = e.Key;
+        _lastCode = e.Key.Length == 1 ? char.ToUpperInvariant(e.Key[0]) : 0;
+        _lingoKey?.DoKeyUp();
+    }
+
+    public bool CommandDown => _keys.Contains("Meta");
+    public bool ControlDown => _keys.Contains("Control");
+    public bool OptionDown => _keys.Contains("Alt");
+    public bool ShiftDown => _keys.Contains("Shift");
 
     public bool KeyPressed(AbstUIKeyType key) => key switch
     {
-        AbstUIKeyType.BACKSPACE => _keys.Contains(Blazor.Blazor_Keycode.BlazorK_BACKSPACE),
-        AbstUIKeyType.ENTER or AbstUIKeyType.RETURN => _keys.Contains(Blazor.Blazor_Keycode.BlazorK_RETURN),
-        AbstUIKeyType.QUOTE => _keys.Contains(Blazor.Blazor_Keycode.BlazorK_QUOTE),
-        AbstUIKeyType.SPACE => _keys.Contains(Blazor.Blazor_Keycode.BlazorK_SPACE),
-        AbstUIKeyType.TAB => _keys.Contains(Blazor.Blazor_Keycode.BlazorK_TAB),
+        AbstUIKeyType.BACKSPACE => _keys.Contains("Backspace"),
+        AbstUIKeyType.ENTER or AbstUIKeyType.RETURN => _keys.Contains("Enter"),
+        AbstUIKeyType.QUOTE => _keys.Contains("'"),
+        AbstUIKeyType.SPACE => _keys.Contains(" "),
+        AbstUIKeyType.TAB => _keys.Contains("Tab"),
         _ => false
     };
 
-    public bool KeyPressed(char key) => _keys.Contains((Blazor.Blazor_Keycode)char.ToUpperInvariant(key));
+    public bool KeyPressed(char key) => _keys.Contains(key.ToString().ToUpperInvariant());
 
-    public bool KeyPressed(int keyCode) => _keys.Contains((Blazor.Blazor_Keycode)keyCode);
+    public bool KeyPressed(int keyCode) => _keys.Contains(((char)keyCode).ToString().ToUpperInvariant());
 
     public string Key => _lastKey;
     public int KeyCode => _lastCode;

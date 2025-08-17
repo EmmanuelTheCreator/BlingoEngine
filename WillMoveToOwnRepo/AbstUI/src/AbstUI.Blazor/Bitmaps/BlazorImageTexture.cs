@@ -1,20 +1,14 @@
+using Microsoft.AspNetCore.Components;
 
 namespace AbstUI.Blazor.Bitmaps;
 
+/// <summary>
+/// Texture created from an existing DOM image element.
+/// </summary>
 public class BlazorImageTexture : BlazorTexture2D
 {
-    private Blazor.Blazor_Surface _surfacePtr;
-    public Blazor.Blazor_Surface Ptr => _surfacePtr;
-    public nint SurfaceId { get; private set; }
-
-
-
-    public BlazorImageTexture(Blazor.Blazor_Surface surfacePtr, nint surfaceId, int width, int height)
-        : base(nint.Zero, width, height) // Initialize with zero texture
+    public BlazorImageTexture(ElementReference element, int width, int height)
+        : base(element, width, height)
     {
-        _surfacePtr = surfacePtr;
-        SurfaceId = surfaceId;
     }
-
 }
-

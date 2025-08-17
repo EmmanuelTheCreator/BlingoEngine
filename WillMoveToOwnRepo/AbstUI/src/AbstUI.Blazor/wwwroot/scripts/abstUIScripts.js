@@ -91,3 +91,9 @@ export class abstCanvas {
         ctx.putImageData(imgData, x, y);
     }
 }
+
+export class AbstUIKey {
+    static setCursor(cursor) {
+        document.body.style.cursor = cursor;
+    }
+}
