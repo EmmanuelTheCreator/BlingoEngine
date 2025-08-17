@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using AbstUI.Components;
 using AbstUI.Primitives;
 
@@ -44,6 +45,13 @@ namespace AbstUI.ImGui.Components
             if (!Visibility)
                 return nint.Zero;
 
+            var drawList = context.ImDrawList;
+            var p0 = context.Origin + new Vector2(X, Y);
+            var p1 = p0 + new Vector2(Width, Height);
+
+            if (BackgroundColor is { } bg)
+                drawList.AddRectFilled(p0, p1, global::ImGuiNET.ImGui.GetColorU32(bg.ToImGuiColor()));
+
             foreach (var child in _children)
             {
                 if (child.FrameworkNode is AbstImGuiComponent comp)
@@ -59,7 +67,9 @@ namespace AbstUI.ImGui.Components
                 }
             }
 
-            // TODO: draw panel directly using ImGui
+            if (BorderWidth > 0 && BorderColor is { } bc)
+                drawList.AddRect(p0, p1, global::ImGuiNET.ImGui.GetColorU32(bc.ToImGuiColor()), 0f, global::ImGuiNET.ImDrawFlags.None, BorderWidth);
+
             return AbstImGuiRenderResult.RequireRender();
         }
 

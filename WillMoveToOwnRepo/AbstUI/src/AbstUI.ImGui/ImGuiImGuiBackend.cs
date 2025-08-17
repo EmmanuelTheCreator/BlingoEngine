@@ -14,32 +14,32 @@ public sealed class ImGuiImGuiBackend : IDisposable
 
     public void Init(nint window, nint renderer)
     {
-        ImGui.CreateContext();
-        ImGui.StyleColorsLight();
+        global::ImGuiNET.ImGui.CreateContext();
+        global::ImGuiNET.ImGui.StyleColorsLight();
         _inited = true;
     }
 
     public void Shutdown()
     {
         if (!_inited) return;
-        ImGui.DestroyContext();
+        global::ImGuiNET.ImGui.DestroyContext();
         _inited = false;
     }
 
     public ImGuiViewportPtr BeginFrame()
     {
-        ImGui.NewFrame();
-        var viewport = ImGui.GetMainViewport();
-        ImGui.SetNextWindowPos(viewport.WorkPos);
-        ImGui.SetNextWindowSize(viewport.WorkSize);
+        global::ImGuiNET.ImGui.NewFrame();
+        var viewport = global::ImGuiNET.ImGui.GetMainViewport();
+        global::ImGuiNET.ImGui.SetNextWindowPos(viewport.WorkPos);
+        global::ImGuiNET.ImGui.SetNextWindowSize(viewport.WorkSize);
         const ImGuiWindowFlags overlayFlags =
             ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoMove |
             ImGuiWindowFlags.NoSavedSettings | ImGuiWindowFlags.NoBringToFrontOnFocus |
             ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoNav |
             ImGuiWindowFlags.NoBackground;
 
-        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);
-        ImGui.Begin("##overlay_root", overlayFlags);
+        global::ImGuiNET.ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);
+        global::ImGuiNET.ImGui.Begin("##overlay_root", overlayFlags);
         return viewport;
     }
 
@@ -53,19 +53,19 @@ public sealed class ImGuiImGuiBackend : IDisposable
 
     public void NewFrame()
     {
-        ImGui.NewFrame();
+        global::ImGuiNET.ImGui.NewFrame();
     }
 
     public void EndFrame()
     {
-        ImGui.End();
-        ImGui.PopStyleVar();
+        global::ImGuiNET.ImGui.End();
+        global::ImGuiNET.ImGui.PopStyleVar();
         Render();
     }
 
     public void Render()
     {
-        ImGui.Render();
+        global::ImGuiNET.ImGui.Render();
         // TODO: submit draw data to the renderer
     }
 

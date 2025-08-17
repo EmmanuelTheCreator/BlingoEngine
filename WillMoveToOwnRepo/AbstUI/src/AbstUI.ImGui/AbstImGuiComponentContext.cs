@@ -1,4 +1,6 @@
 using System;
+using System.Numerics;
+
 namespace AbstUI.ImGui;
 
 public class AbstImGuiComponentContext : IDisposable
@@ -57,7 +59,14 @@ public class AbstImGuiComponentContext : IDisposable
 
         int drawX = (int)(X + OffsetX);
         int drawY = (int)(Y + OffsetY);
-        // TODO: draw the texture directly with ImGui here
+
+        var p0 = renderContext.Origin + new Vector2(drawX, drawY);
+        var p1 = p0 + new Vector2(TargetWidth, TargetHeight);
+        var uv0 = new Vector2(FlipH ? 1f : 0f, FlipV ? 1f : 0f);
+        var uv1 = new Vector2(FlipH ? 0f : 1f, FlipV ? 0f : 1f);
+        float alpha = Blend <= 0 ? 1f : Math.Clamp(Blend, 0f, 1f);
+        var col = global::ImGuiNET.ImGui.GetColorU32(new Vector4(1f, 1f, 1f, alpha));
+        renderContext.ImDrawList.AddImage(Texture, p0, p1, uv0, uv1, col);
     }
 
     public void Dispose()

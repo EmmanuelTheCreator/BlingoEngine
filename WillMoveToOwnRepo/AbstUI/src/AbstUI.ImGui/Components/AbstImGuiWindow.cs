@@ -68,9 +68,13 @@ internal class AbstImGuiWindow : AbstImGuiPanel, IAbstFrameworkWindow, IDisposab
     }
 
 
-    // TODO : handle window resize.
     public void OnResize(int width, int height)
     {
+        // update local size so layout information stays in sync with the native window
+        Width = width;
+        Height = height;
+
+        // notify underlying window abstraction
         _lingoWindow.Resize(width, height);
     }
 

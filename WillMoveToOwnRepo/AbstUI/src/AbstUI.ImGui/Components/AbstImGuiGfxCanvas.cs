@@ -6,6 +6,7 @@ using AbstUI.ImGui.Bitmaps;
 using AbstUI.Primitives;
 using AbstUI.Styles;
 using AbstUI.ImGui.Styles;
+using AbstUI.Texts;
 using ImGuiNET;
 
 namespace AbstUI.ImGui.Components;
@@ -39,27 +40,27 @@ internal class AbstImGuiGfxCanvas : AbstImGuiComponent, IAbstFrameworkGfxCanvas,
             return nint.Zero;
 
         var screenPos = context.Origin + new Vector2(X, Y);
-        ImGui.SetCursorScreenPos(screenPos);
-        ImGui.PushID(Name);
-        ImGui.InvisibleButton("canvas", new Vector2(Width, Height));
-        var drawList = ImGui.GetWindowDrawList();
-        var origin = ImGui.GetItemRectMin();
+        global::ImGuiNET.ImGui.SetCursorScreenPos(screenPos);
+        global::ImGuiNET.ImGui.PushID(Name);
+        global::ImGuiNET.ImGui.InvisibleButton("canvas", new Vector2(Width, Height));
+        var drawList = global::ImGuiNET.ImGui.GetWindowDrawList();
+        var origin = global::ImGuiNET.ImGui.GetItemRectMin();
 
         if (_clearColor.HasValue)
             drawList.AddRectFilled(origin, origin + new Vector2(Width, Height),
-                ImGui.GetColorU32(_clearColor.Value.ToImGuiColor()));
+                global::ImGuiNET.ImGui.GetColorU32(_clearColor.Value.ToImGuiColor()));
 
         foreach (var action in _drawActions)
             action(drawList, origin);
 
-        ImGui.PopID();
+        global::ImGuiNET.ImGui.PopID();
         return AbstImGuiRenderResult.RequireRender();
     }
 
     private void MarkDirty() { }
 
     private static Vector2 ToVec2(APoint p) => new(p.X, p.Y);
-    private static uint ToU32(AColor c) => ImGui.GetColorU32(c.ToImGuiColor());
+    private static uint ToU32(AColor c) => global::ImGuiNET.ImGui.GetColorU32(c.ToImGuiColor());
 
     public void Clear(AColor color)
     {
@@ -130,9 +131,9 @@ internal class AbstImGuiGfxCanvas : AbstImGuiComponent, IAbstFrameworkGfxCanvas,
             for (int i = 0; i < points.Count; i++)
                 arr[i] = origin + ToVec2(points[i]);
             if (filled)
-                dl.AddConvexPolyFilled(arr, ToU32(color));
+                dl.AddConvexPolyFilled(ref arr[0], arr.Length, ToU32(color));
             else
-                dl.AddPolyline(arr, ToU32(color), ImDrawFlags.None, width);
+                dl.AddPolyline(ref arr[0], arr.Length, ToU32(color), ImDrawFlags.None, width);
         });
         MarkDirty();
     }
