@@ -11,6 +11,7 @@ using LingoEngine.Core;
 using LingoEngine.Director.Core.Events;
 using AbstUI.Components;
 using AbstUI.Inputs;
+using System.Drawing;
 
 namespace LingoEngine.Director.Core.Casts
 {
@@ -38,6 +39,8 @@ namespace LingoEngine.Director.Core.Casts
             _mediator = mediator;
             _commandManager = commandManager;
             _iconManager = iconManager;
+            MinimumWidth = 360;
+            MinimumHeight = 100;
             _tabs = factory.CreateTabContainer("CastTabs");
             _tabs.Height = Height;
             _mediator.Subscribe(this);
@@ -77,7 +80,7 @@ namespace LingoEngine.Director.Core.Casts
             foreach (var cast in movie.CastLib.GetAll())
             {
                 var tab = new DirCastTab(_factory, cast, _iconManager, _commandManager, _mediator, _player);
-                tab.SetViewportSize(Width,Height);
+                tab.SetViewportSize(Width,Height-10);
                 _tabs.AddTab(tab.TabItem);
                 _tabMap[tab.TabItem.Title] = tab;
                 tab.MemberSelected += (m, i) => OnMemberSelected(tab, m, i);
@@ -85,12 +88,10 @@ namespace LingoEngine.Director.Core.Casts
                 tab.LoadAllMembers();
             }
         }
-        public void OnResizing(int width, int height)
+        protected override void OnResizing(bool firstLoad, int width, int height)
         {
-            SetViewportSize(width, height);
-        }
-        private void SetViewportSize(int width, int height)
-        {
+            if (width < MinimumWidth) width = MinimumWidth;
+            if (height < MinimumHeight) height = MinimumHeight;
             TabContainer.Width = width;
             TabContainer.Height = height;
             _tabs.Width = width;

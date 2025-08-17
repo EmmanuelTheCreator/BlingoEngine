@@ -151,13 +151,13 @@ namespace LingoEngine.Director.Core.Casts
         {
             Width = width;
             _tabItem.Width = width;
-            _tabItem.Height = height;
+            //_tabItem.Height = height-20;
             _root.Width = width;
-            _root.Height = height;
+            //_root.Height = height-20;
             _topBar.Width = width;
             _navBar.Panel.Width = width - _viewButton.Width;
             _scroll.Width = width;
-            _scroll.Height = height - (int)_tabItem.TopHeight-10;
+            _scroll.Height = height - (int)_tabItem.TopHeight-20;
             _wrap.Width = Width;
             _listWrap.Width = Width;
             var itemSize = DirCastItem.Width + _itemMargin;

@@ -11,6 +11,8 @@ public class DirectorWindow<TFrameworkWindow> : IDirectorWindow, IDisposable, IL
     private TFrameworkWindow _Framework;
 
     public TFrameworkWindow Framework => _Framework;
+    public int MinimumWidth { get; set; }
+    public int MinimumHeight { get; set; }
     protected ILingoMouse Mouse { get; private set; }
 
     protected readonly ILingoFrameworkFactory _factory;
@@ -80,4 +82,12 @@ public class DirectorWindow<TFrameworkWindow> : IDirectorWindow, IDisposable, IL
         return contextMenu;
     }
     protected virtual bool AllowContextMenu() => IsActiveWindow;
+
+    public void Resize(bool firstLoad, int width, int height)
+    {
+        if (width < MinimumWidth) width = MinimumWidth;
+        if (height < MinimumHeight) height = MinimumHeight;
+        OnResizing(firstLoad,width, height);
+    }
+    protected virtual void OnResizing(bool firstLoad, int width, int height) { }
 }
