@@ -1,4 +1,5 @@
-using AbstUI.ImGui.ImGuiLL;
+using System;
+using System.Collections.Generic;
 using AbstUI.Styles;
 using ImGuiNET;
 
@@ -11,17 +12,23 @@ public interface IImGuiFontLoadedByUser
 }
 public interface IAbstImGuiFont
 {
-    IImGuiFontLoadedByUser? Get(object fontUser, int fontSize);
+    IImGuiFontLoadedByUser Get(object fontUser, int fontSize);
 }
+
+/// <summary>
+/// Minimal font manager placeholder for the ImGui backend.
+/// </summary>
 public class ImGuiFontManager : IAbstFontManager
 {
     private readonly List<(string Name, string FileName)> _fontsToLoad = new();
     private readonly Dictionary<string, AbstImGuiFont> _loadedFonts = new();
+
     public IAbstFontManager AddFont(string name, string pathAndName)
     {
         _fontsToLoad.Add((name, pathAndName));
         return this;
     }
+
     public void LoadAll()
     {
         if (_loadedFonts.Count == 0)
@@ -31,10 +38,11 @@ public class ImGuiFontManager : IAbstFontManager
 
         _fontsToLoad.Clear();
         InitFonts();
-
     }
+
     public T? Get<T>(string name) where T : class
         => _loadedFonts.TryGetValue(name, out var f) ? f as T : null;
+
     public IImGuiFontLoadedByUser GetTyped(object fontUser, string? name, int fontSize)
     {
         if (string.IsNullOrEmpty(name)) return _loadedFonts["Tahoma"].Get(fontUser, fontSize);
@@ -53,30 +61,16 @@ public class ImGuiFontManager : IAbstFontManager
 
     public IEnumerable<string> GetAllNames() => _loadedFonts.Keys;
 
-
-
-    // SDL Fonts
+    // ImGui fonts
     private readonly Dictionary<int, ImFontPtr> _fonts = new();
 
-    public unsafe void InitFonts()
+    public void InitFonts()
     {
-        //var io = global::ImGuiNET.ImGui.GetIO();
-
-        //foreach (int size in new[] { 7, 8, 9, 10, 11, 12, 14, 16, 20, 24, 32 }) // etc
-        //{
-        //    var config = ImGuiNative.ImFontConfig_ImFontConfig(); // allocate native config
-        //    ImFontConfigPtr configPtr = new ImFontConfigPtr(config);
-        //    configPtr.SizePixels = size;
-        //    var font = io.Fonts.AddFontDefault(configPtr);
-        //    _fonts[size] = font;
-        //}
-        //io.Fonts.Build();
+        // Font initialization to be implemented.
     }
 
-    // TODO : use subscription based, add fontUser
     public ImFontPtr? GetFont(int size)
         => _fonts.TryGetValue(size, out var font) ? font : null;
-
 
     private class AbstImGuiFont : IAbstImGuiFont
     {
@@ -89,7 +83,6 @@ public class ImGuiFontManager : IAbstFontManager
             FileName = fontFileName;
             Name = name.Trim();
         }
-
 
         public IImGuiFontLoadedByUser Get(object fontUser, int fontSize)
         {
@@ -111,7 +104,7 @@ public class ImGuiFontManager : IAbstFontManager
         public LoadedFontWithSize(string fileName, int fontSize, Action<LoadedFontWithSize> onRemove)
         {
             _onRemove = onRemove;
-            FontHandle = SDL_ttf.TTF_OpenFont(fileName, fontSize);
+            FontHandle = nint.Zero;
         }
 
         public IImGuiFontLoadedByUser AddUser(object user)
@@ -126,7 +119,6 @@ public class ImGuiFontManager : IAbstFontManager
             if (_fontUsers.Count == 0)
             {
                 _onRemove(this);
-                SDL_ttf.TTF_CloseFont(FontHandle);
                 FontHandle = nint.Zero;
             }
         }
@@ -147,5 +139,4 @@ public class ImGuiFontManager : IAbstFontManager
 
         public void Release() => _onRemove(this);
     }
-
 }

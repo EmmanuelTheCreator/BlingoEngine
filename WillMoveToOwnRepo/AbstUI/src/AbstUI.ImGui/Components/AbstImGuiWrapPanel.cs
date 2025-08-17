@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using AbstUI.Components;
 using AbstUI.Primitives;
-using AbstUI.ImGui.ImGuiLL;
 
 namespace AbstUI.ImGui.Components
 {
@@ -51,40 +50,13 @@ namespace AbstUI.ImGui.Components
         public override void Dispose()
         {
             RemoveAll();
-            if (_texture != nint.Zero)
-            {
-                SDL.SDL_DestroyTexture(_texture);
-                _texture = nint.Zero;
-            }
             base.Dispose();
         }
-
-        private nint _texture;
-        private int _texW;
-        private int _texH;
 
         public override AbstImGuiRenderResult Render(AbstImGuiRenderContext context)
         {
             if (!Visibility)
                 return nint.Zero;
-
-            int w = (int)Width;
-            int h = (int)Height;
-            if (_texture == nint.Zero || w != _texW || h != _texH)
-            {
-                if (_texture != nint.Zero)
-                {
-                    SDL.SDL_DestroyTexture(_texture);
-                }
-                _texture = SDL.SDL_CreateTexture(context.Renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
-                    (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, w, h);
-                _texW = w;
-                _texH = h;
-            }
-
-            SDL.SDL_SetRenderTarget(context.Renderer, _texture);
-            SDL.SDL_SetRenderDrawColor(context.Renderer, 0, 0, 0, 0);
-            SDL.SDL_RenderClear(context.Renderer);
 
             float curX = 0;
             float curY = 0;
@@ -128,8 +100,8 @@ namespace AbstUI.ImGui.Components
                 }
             }
 
-            SDL.SDL_SetRenderTarget(context.Renderer, nint.Zero);
-            return _texture;
+            // TODO: draw wrap panel using ImGui
+            return AbstImGuiRenderResult.RequireRender();
         }
     }
 }

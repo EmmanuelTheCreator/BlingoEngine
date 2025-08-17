@@ -1,341 +1,173 @@
+using System;
+using System.Collections.Generic;
 using System.Numerics;
-using System.Runtime.InteropServices;
-using ImGuiNET;
-using AbstUI.Styles;
-using AbstUI.Primitives;
 using AbstUI.Components;
-using AbstUI.Texts;
 using AbstUI.ImGui.Bitmaps;
-using AbstUI.ImGui.ImGuiLL;
+using AbstUI.Primitives;
+using AbstUI.Styles;
+using AbstUI.ImGui.Styles;
+using ImGuiNET;
 
-namespace AbstUI.ImGui.Components
+namespace AbstUI.ImGui.Components;
+
+/// <summary>
+/// Graphics canvas that renders primitives directly using ImGui draw lists.
+/// </summary>
+internal class AbstImGuiGfxCanvas : AbstImGuiComponent, IAbstFrameworkGfxCanvas, IDisposable
 {
-    internal class AbstImGuiGfxCanvas : AbstImGuiComponent, IAbstFrameworkGfxCanvas, IDisposable
+    public AMargin Margin { get; set; } = AMargin.Zero;
+
+    private readonly List<Action<ImDrawListPtr, Vector2>> _drawActions = new();
+    private AColor? _clearColor;
+
+    public object FrameworkNode => this;
+
+    public bool Pixilated { get; set; }
+    private readonly ImGuiFontManager _fontManager;
+
+    public AbstImGuiGfxCanvas(AbstImGuiComponentFactory factory, ImGuiFontManager fontManager, int width, int height)
+        : base(factory)
     {
-        public AMargin Margin { get; set; } = AMargin.Zero;
+        _fontManager = fontManager;
+        Width = width;
+        Height = height;
+    }
 
-        private readonly AbstImGuiComponentFactory _factory;
-        private readonly IAbstFontManager _fontManager;
-        private readonly int _width;
-        private readonly int _height;
-        private nint _texture;
-        private readonly nint _imguiTexture;
-        private readonly List<Action> _drawActions = new();
-        private AColor? _clearColor;
-        private bool _dirty;
-        public object FrameworkNode => this;
-        public nint Texture => _texture;
+    public override AbstImGuiRenderResult Render(AbstImGuiRenderContext context)
+    {
+        if (!Visibility)
+            return nint.Zero;
 
-        public bool Pixilated { get; set; }
+        var screenPos = context.Origin + new Vector2(X, Y);
+        ImGui.SetCursorScreenPos(screenPos);
+        ImGui.PushID(Name);
+        ImGui.InvisibleButton("canvas", new Vector2(Width, Height));
+        var drawList = ImGui.GetWindowDrawList();
+        var origin = ImGui.GetItemRectMin();
 
-        public AbstImGuiGfxCanvas(AbstImGuiComponentFactory factory, IAbstFontManager fontManager, int width, int height) : base(factory)
+        if (_clearColor.HasValue)
+            drawList.AddRectFilled(origin, origin + new Vector2(Width, Height),
+                ImGui.GetColorU32(_clearColor.Value.ToImGuiColor()));
+
+        foreach (var action in _drawActions)
+            action(drawList, origin);
+
+        ImGui.PopID();
+        return AbstImGuiRenderResult.RequireRender();
+    }
+
+    private void MarkDirty() { }
+
+    private static Vector2 ToVec2(APoint p) => new(p.X, p.Y);
+    private static uint ToU32(AColor c) => ImGui.GetColorU32(c.ToImGuiColor());
+
+    public void Clear(AColor color)
+    {
+        _drawActions.Clear();
+        _clearColor = color;
+        MarkDirty();
+    }
+
+    public void SetPixel(APoint point, AColor color)
+    {
+        _drawActions.Add((dl, origin) =>
+            dl.AddRectFilled(origin + ToVec2(point), origin + ToVec2(point) + new Vector2(1, 1), ToU32(color)));
+        MarkDirty();
+    }
+
+    public void DrawLine(APoint start, APoint end, AColor color, float width = 1)
+    {
+        _drawActions.Add((dl, origin) =>
+            dl.AddLine(origin + ToVec2(start), origin + ToVec2(end), ToU32(color), width));
+        MarkDirty();
+    }
+
+    public void DrawRect(ARect rect, AColor color, bool filled = true, float width = 1)
+    {
+        _drawActions.Add((dl, origin) =>
         {
-            _factory = factory;
-            _fontManager = fontManager;
-            _width = width;
-            _height = height;
-            _texture = SDL.SDL_CreateTexture(ComponentContext.Renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
-                (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, width, height);
-            _imguiTexture = factory.RootContext.RegisterTexture(_texture);
-            Width = width;
-            Height = height;
-            _dirty = true;
-        }
-        public override void Dispose()
+            var p0 = origin + new Vector2(rect.Left, rect.Top);
+            var p1 = origin + new Vector2(rect.Right, rect.Bottom);
+            if (filled)
+                dl.AddRectFilled(p0, p1, ToU32(color));
+            else
+                dl.AddRect(p0, p1, ToU32(color), 0f, ImDrawFlags.None, width);
+        });
+        MarkDirty();
+    }
+
+    public void DrawCircle(APoint center, float radius, AColor color, bool filled = true, float width = 1)
+    {
+        _drawActions.Add((dl, origin) =>
         {
-            base.Dispose();
-            if (_texture != nint.Zero)
-            {
-                SDL.SDL_DestroyTexture(_texture);
-                _texture = nint.Zero;
-            }
-        }
+            var c = origin + ToVec2(center);
+            if (filled)
+                dl.AddCircleFilled(c, radius, ToU32(color));
+            else
+                dl.AddCircle(c, radius, ToU32(color), 0, width);
+        });
+        MarkDirty();
+    }
 
-        public override AbstImGuiRenderResult Render(AbstImGuiRenderContext context)
+    public void DrawArc(APoint center, float radius, float startDeg, float endDeg, int segments, AColor color, float width = 1)
+    {
+        _drawActions.Add((dl, origin) =>
         {
-            if (!Visibility)
-                return nint.Zero;
+            var c = origin + ToVec2(center);
+            float a0 = MathF.PI / 180f * startDeg;
+            float a1 = MathF.PI / 180f * endDeg;
+            dl.PathArcTo(c, radius, a0, a1, segments);
+            dl.PathStroke(ToU32(color), ImDrawFlags.None, width);
+        });
+        MarkDirty();
+    }
 
-            ComponentContext.Renderer = context.Renderer;
-
-            if (_dirty)
-            {
-                var prev = SDL.SDL_GetRenderTarget(ComponentContext.Renderer);
-                SDL.SDL_SetRenderTarget(ComponentContext.Renderer, _texture);
-                var clear = _clearColor ?? new AColor(0, 0, 0);
-                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, clear.R, clear.G, clear.B, 255);
-                SDL.SDL_RenderClear(ComponentContext.Renderer);
-                foreach (var action in _drawActions)
-                    action();
-                SDL.SDL_SetRenderTarget(ComponentContext.Renderer, prev);
-                //SDL.BlendIm
-                _dirty = false;
-            }
-
-            var screenPos = context.Origin + new Vector2(X, Y);
-            global::ImGuiNET.ImGui.SetCursorScreenPos(screenPos);
-            global::ImGuiNET.ImGui.PushID(Name);
-            var imguiTexture = _factory.RootContext.GetTexture(_imguiTexture);
-            global::ImGuiNET.ImGui.Image(imguiTexture, new Vector2(Width, Height));
-            global::ImGuiNET.ImGui.PopID();
-
-            return AbstImGuiRenderResult.RequireRender();
-        }
-
-
-        private void MarkDirty() => _dirty = true;
-
-        public void Clear(AColor color)
+    public void DrawPolygon(IReadOnlyList<APoint> points, AColor color, bool filled = true, float width = 1)
+    {
+        _drawActions.Add((dl, origin) =>
         {
-            _drawActions.Clear();
-            _clearColor = color;
-            MarkDirty();
-        }
-
-        public void SetPixel(APoint point, AColor color)
-        {
-            var p = point;
-            var c = color;
-            _drawActions.Add(() =>
-            {
-                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, 255);
-                SDL.SDL_RenderDrawPointF(ComponentContext.Renderer, p.X, p.Y);
-            });
-            MarkDirty();
-        }
-
-        public void DrawLine(APoint start, APoint end, AColor color, float width = 1)
-        {
-            var s = start;
-            var e = end;
-            var c = color;
-            _drawActions.Add(() =>
-            {
-                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, 255);
-                SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, s.X, s.Y, e.X, e.Y);
-            });
-            MarkDirty();
-        }
-
-        public void DrawRect(ARect rect, AColor color, bool filled = true, float width = 1)
-        {
-            var rct = new SDL.SDL_Rect
-            {
-                x = (int)rect.Left,
-                y = (int)rect.Top,
-                w = (int)rect.Width,
-                h = (int)rect.Height
-            };
-            var c = color;
-            var f = filled;
-            _drawActions.Add(() =>
-            {
-                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, 255);
-                if (f)
-                    SDL.SDL_RenderFillRect(ComponentContext.Renderer, ref rct);
-                else
-                    SDL.SDL_RenderDrawRect(ComponentContext.Renderer, ref rct);
-            });
-            MarkDirty();
-        }
-
-        public void DrawCircle(APoint center, float radius, AColor color, bool filled = true, float width = 1)
-        {
-            var ctr = center;
-            var rad = radius;
-            var c = color;
-            var f = filled;
-            _drawActions.Add(() =>
-            {
-                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, 255);
-                int segs = (int)(rad * 6);
-                double step = Math.PI * 2 / segs;
-                float prevX = ctr.X + rad;
-                float prevY = ctr.Y;
-                for (int i = 1; i <= segs; i++)
-                {
-                    double angle = step * i;
-                    float x = ctr.X + (float)(rad * Math.Cos(angle));
-                    float y = ctr.Y + (float)(rad * Math.Sin(angle));
-                    SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, prevX, prevY, x, y);
-                    if (f)
-                        SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, ctr.X, ctr.Y, x, y);
-                    prevX = x;
-                    prevY = y;
-                }
-            });
-            MarkDirty();
-        }
-
-        public void DrawArc(APoint center, float radius, float startDeg, float endDeg, int segments, AColor color, float width = 1)
-        {
-            var ctr = center;
-            var rad = radius;
-            var sd = startDeg;
-            var ed = endDeg;
-            var segs = segments;
-            var c = color;
-            _drawActions.Add(() =>
-            {
-                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, 255);
-                double startRad = sd * Math.PI / 180.0;
-                double endRad = ed * Math.PI / 180.0;
-                double step = (endRad - startRad) / segs;
-                float prevX = ctr.X + (float)(rad * Math.Cos(startRad));
-                float prevY = ctr.Y + (float)(rad * Math.Sin(startRad));
-                for (int i = 1; i <= segs; i++)
-                {
-                    double ang = startRad + i * step;
-                    float x = ctr.X + (float)(rad * Math.Cos(ang));
-                    float y = ctr.Y + (float)(rad * Math.Sin(ang));
-                    SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, prevX, prevY, x, y);
-                    prevX = x;
-                    prevY = y;
-                }
-            });
-            MarkDirty();
-        }
-
-        public void DrawPolygon(IReadOnlyList<APoint> points, AColor color, bool filled = true, float width = 1)
-        {
-            if (points.Count < 2) return;
-            var pts = new APoint[points.Count];
+            var arr = new Vector2[points.Count];
             for (int i = 0; i < points.Count; i++)
-                pts[i] = points[i];
-            var c = color;
-            var f = filled;
-            _drawActions.Add(() =>
-            {
-                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, 255);
-                for (int i = 0; i < pts.Length - 1; i++)
-                    SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, pts[i].X, pts[i].Y, pts[i + 1].X, pts[i + 1].Y);
-                SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, pts[^1].X, pts[^1].Y, pts[0].X, pts[0].Y);
-                if (f)
-                {
-                    var p0 = pts[0];
-                    for (int i = 1; i < pts.Length - 1; i++)
-                    {
-                        SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, p0.X, p0.Y, pts[i].X, pts[i].Y);
-                        SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, p0.X, p0.Y, pts[i + 1].X, pts[i + 1].Y);
-                    }
-                }
-            });
-            MarkDirty();
-        }
+                arr[i] = origin + ToVec2(points[i]);
+            if (filled)
+                dl.AddConvexPolyFilled(arr, ToU32(color));
+            else
+                dl.AddPolyline(arr, ToU32(color), ImDrawFlags.None, width);
+        });
+        MarkDirty();
+    }
 
-        public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = default)
+    public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = default)
+    {
+        var c = color ?? AColors.Black;
+        _drawActions.Add((dl, origin) =>
+            dl.AddText(origin + ToVec2(position), ToU32(c), text));
+        MarkDirty();
+    }
+
+    public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)
+    {
+        // Loading raw image data is not yet supported.
+        MarkDirty();
+    }
+
+    public void DrawPicture(IAbstTexture2D texture, int width, int height, APoint position)
+    {
+        if (texture is ImGuiTexture2D img)
         {
-            var pos = position;
-            var txt = text;
-            var fntName = font;
-            var col = color;
-            var fs = fontSize;
-            var w = width;
-            _drawActions.Add(() =>
+            _drawActions.Add((dl, origin) =>
             {
-                var path = _fontManager.Get<string>(fntName ?? string.Empty);
-                if (string.IsNullOrEmpty(path)) return;
-                nint fnt = SDL_ttf.TTF_OpenFont(path, fs);
-                if (fnt == nint.Zero) return;
-                SDL.SDL_Color c = new SDL.SDL_Color { r = col?.R ?? 0, g = col?.G ?? 0, b = col?.B ?? 0, a = 255 };
-
-                string RenderLine(string line)
-                {
-                    if (w >= 0)
-                    {
-                        while (line.Length > 0 && SDL_ttf.TTF_SizeUTF8(fnt, line, out int tw, out _) == 0 && tw > w)
-                        {
-                            line = line.Substring(0, line.Length - 1);
-                        }
-                    }
-                    return line;
-                }
-
-                string[] lines = txt.Split('\n');
-                List<(nint surf, int w, int h)> surfaces = new();
-                foreach (var ln in lines)
-                {
-                    var line = RenderLine(ln);
-                    nint s = SDL_ttf.TTF_RenderUTF8_Blended(fnt, line, c);
-                    if (s == nint.Zero) continue;
-                    var sur = SDL.PtrToStructure<SDL.SDL_Surface>(s);
-                    surfaces.Add((s, sur.w, sur.h));
-                }
-
-                int y = (int)pos.Y;
-                foreach (var (s, tw, th) in surfaces)
-                {
-                    nint tex = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, s);
-                    if (tex != nint.Zero)
-                    {
-                        SDL.SDL_Rect dst = new SDL.SDL_Rect { x = (int)pos.X, y = y, w = tw, h = th };
-                        SDL.SDL_RenderCopy(ComponentContext.Renderer, tex, nint.Zero, ref dst);
-                        SDL.SDL_DestroyTexture(tex);
-                    }
-                    SDL.SDL_FreeSurface(s);
-                    y += th;
-                }
-
-                SDL_ttf.TTF_CloseFont(fnt);
+                var p0 = origin + ToVec2(position);
+                var p1 = p0 + new Vector2(width, height);
+                dl.AddImage(img.Handle, p0, p1);
             });
-            MarkDirty();
         }
+        MarkDirty();
+    }
 
-        public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)
-        {
-            var dat = data;
-            var w = width;
-            var h = height;
-            var pos = position;
-            var fmt = format;
-            _drawActions.Add(() =>
-            {
-                fmt.GetMasks(out uint rmask, out uint gmask, out uint bmask, out uint amask, out int bpp);
-                var handle = GCHandle.Alloc(dat, GCHandleType.Pinned);
-                nint surf = SDL.SDL_CreateRGBSurfaceFrom(handle.AddrOfPinnedObject(), w, h, bpp, w * (bpp / 8), rmask, gmask, bmask, amask);
-                if (surf == nint.Zero) { handle.Free(); return; }
-                nint tex = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, surf);
-                if (tex != nint.Zero)
-                {
-                    SDL.SDL_Rect dst = new SDL.SDL_Rect { x = (int)pos.X, y = (int)pos.Y, w = w, h = h };
-                    SDL.SDL_RenderCopy(ComponentContext.Renderer, tex, nint.Zero, ref dst);
-                    SDL.SDL_DestroyTexture(tex);
-                }
-                SDL.SDL_FreeSurface(surf);
-                handle.Free();
-            });
-            MarkDirty();
-        }
-        public void DrawPicture(IAbstTexture2D texture, int width, int height, APoint position)
-        {
-            var tex = texture;
-            var w = width;
-            var h = height;
-            var pos = position;
-            _drawActions.Add(() =>
-            {
-                if (tex is ImGuiTexture2D img)
-                {
-
-                    nint sdlTex = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, img.Handle);
-                    if (sdlTex != nint.Zero)
-                    {
-                        SDL.SDL_Rect dst = new SDL.SDL_Rect
-                        {
-                            x = (int)pos.X,
-                            y = (int)pos.Y,
-                            w = w,
-                            h = h
-                        };
-                        SDL.SDL_RenderCopy(ComponentContext.Renderer, sdlTex, nint.Zero, ref dst);
-                        SDL.SDL_DestroyTexture(sdlTex);
-                    }
-                }
-            });
-            MarkDirty();
-        }
-
-
-
+    public override void Dispose()
+    {
+        _drawActions.Clear();
+        base.Dispose();
     }
 }

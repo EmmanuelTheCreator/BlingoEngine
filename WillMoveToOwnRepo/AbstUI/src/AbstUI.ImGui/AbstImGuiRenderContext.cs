@@ -1,5 +1,5 @@
-using AbstUI.ImGui.Styles;
 using ImGuiNET;
+using AbstUI.ImGui.Styles;
 
 namespace AbstUI.ImGui;
 public class AbstImGuiRenderContext
@@ -18,6 +18,7 @@ public class AbstImGuiRenderContext
         Origin = origin;
         ImGuiFontManager = sdlFontManager;
     }
+
     public ImFontPtr? GetFont(int size) => ImGuiFontManager.GetFont(size);
 
     public AbstImGuiRenderContext CreateNew(System.Numerics.Vector2 childOrigin)

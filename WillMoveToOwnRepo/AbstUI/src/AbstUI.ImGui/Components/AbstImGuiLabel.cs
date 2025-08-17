@@ -77,7 +77,7 @@ namespace AbstUI.ImGui.Components
             global::ImGuiNET.ImGui.PopID();
             if (font.HasValue)
                 global::ImGuiNET.ImGui.PopFont();
-            return AbstImGuiRenderResult.RequireRender(); // UI drawn via ImGui, no SDL texture
+            return AbstImGuiRenderResult.RequireRender(); // UI drawn via ImGui with no texture
         }
 
 

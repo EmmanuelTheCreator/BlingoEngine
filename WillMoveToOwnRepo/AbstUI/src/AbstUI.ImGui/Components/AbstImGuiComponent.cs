@@ -3,7 +3,7 @@ using System;
 namespace AbstUI.ImGui.Components;
 
 /// <summary>
-/// Base class for SDL GFX components providing common geometry and visibility
+/// Base class for ImGui components providing common geometry and visibility
 /// handling that synchronizes with the <see cref="AbstImGuiComponentContext"/>.
 /// </summary>
 public abstract class AbstImGuiComponent : IAbstImGuiComponent, IDisposable
