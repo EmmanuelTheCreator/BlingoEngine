@@ -547,4 +547,18 @@ end";
         var result = LingoToCSharpConverter.Convert(lingo);
         Assert.Contains("_movie.actorList.deleteOne", result);
     }
+
+    [Fact]
+    public void AppendActorListIsConverted()
+    {
+        var result = LingoToCSharpConverter.Convert("append the actorlist(me)");
+        Assert.Contains("_Movie.ActorList.Add(this)", result);
+    }
+
+    [Fact]
+    public void ReverseActorListIsConverted()
+    {
+        var result = LingoToCSharpConverter.Convert("reverse the actorlist(me)");
+        Assert.Contains("_Movie.ActorList.Reverse(this)", result);
+    }
 }

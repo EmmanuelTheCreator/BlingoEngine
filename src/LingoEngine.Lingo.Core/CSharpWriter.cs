@@ -301,9 +301,35 @@ public class CSharpWriter : ILingoAstVisitor
 
     public void Visit(LingoObjPropExprNode node)
     {
-        if (node.Object is LingoVarNode objVar && objVar.VarName.Equals("me", StringComparison.OrdinalIgnoreCase) && node.Property is LingoVarNode propVar)
+        if (node.Object is LingoVarNode objVar &&
+            objVar.VarName.Equals("me", StringComparison.OrdinalIgnoreCase) &&
+            node.Property is LingoVarNode propVar)
         {
             Append(char.ToUpperInvariant(propVar.VarName[0]) + propVar.VarName[1..]);
+            return;
+        }
+
+        if (node.Object is LingoTheExprNode theNode)
+        {
+            node.Object.Accept(this);
+            Append(".");
+            if (node.Property is LingoVarNode propVar2)
+            {
+                var name = propVar2.VarName;
+                if (theNode.Prop.Equals("actorlist", StringComparison.OrdinalIgnoreCase) &&
+                    name.Equals("append", StringComparison.OrdinalIgnoreCase))
+                {
+                    Append("Add");
+                }
+                else
+                {
+                    Append(char.ToUpperInvariant(name[0]) + name[1..]);
+                }
+            }
+            else
+            {
+                node.Property.Accept(this);
+            }
         }
         else
         {
