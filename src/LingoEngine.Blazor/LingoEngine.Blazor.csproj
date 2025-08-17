@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- NuGet Packaging Metadata -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>LingoEngine.Blazor</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Emmanuel The Creator</Authors>
+    <Company>The Community</Company>
+    <Description>Blazor backend integration for LingoEngine.</Description>
+    <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
+    <PackageTags>LingoEngine;Blazor</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\..\WillMoveToOwnRepo\AbstUI\src\AbstUI\AbstUI.csproj" />
+    <ProjectReference Include="..\LingoEngine\LingoEngine.csproj" />
+  </ItemGroup>
+</Project>
