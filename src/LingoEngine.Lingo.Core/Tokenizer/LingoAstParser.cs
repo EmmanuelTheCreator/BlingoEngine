@@ -115,8 +115,34 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                     return new LingoSendSpriteStmtNode { Sprite = sprite, Message = message };
                 }
             }
-
             var expr = ParseExpression(false);
+            if (_currentToken.Type == LingoTokenType.The && expr is LingoVarNode methodVar)
+            {
+                AdvanceToken();
+                var propTok = Expect(LingoTokenType.Identifier);
+                LingoNode objExpr = new LingoTheExprNode { Prop = propTok.Lexeme };
+                while (Match(LingoTokenType.Dot))
+                {
+                    var pTok = Expect(LingoTokenType.Identifier);
+                    objExpr = new LingoObjPropExprNode
+                    {
+                        Object = objExpr,
+                        Property = new LingoVarNode { VarName = pTok.Lexeme }
+                    };
+                }
+                Expect(LingoTokenType.LeftParen);
+                var argExpr = ParseExpression();
+                Expect(LingoTokenType.RightParen);
+                return new LingoCallNode
+                {
+                    Callee = new LingoObjPropExprNode
+                    {
+                        Object = objExpr,
+                        Property = new LingoVarNode { VarName = methodVar.VarName }
+                    },
+                    Arguments = argExpr
+                };
+            }
             if (Match(LingoTokenType.Equals))
             {
                 var value = ParseExpression();
