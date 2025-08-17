@@ -97,3 +97,19 @@ export class AbstUIKey {
         document.body.style.cursor = cursor;
     }
 }
+
+export class AbstUIWindow {
+    static showBootstrapModal(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const modal = bootstrap.Modal.getOrCreateInstance(el);
+        modal.show();
+    }
+
+    static hideBootstrapModal(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const modal = bootstrap.Modal.getOrCreateInstance(el);
+        modal.hide();
+    }
+}
