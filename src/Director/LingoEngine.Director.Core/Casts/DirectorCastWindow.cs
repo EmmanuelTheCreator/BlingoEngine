@@ -102,7 +102,7 @@ namespace LingoEngine.Director.Core.Casts
                 tab.HandleMouseEvent(e);
         }
 
-        private void OnMemberSelected(DirCastTab source, ILingoMember member, DirCastItem item)
+        private void OnMemberSelected(DirCastTab source, ILingoMember member, IDirCastItem item)
         {
             _selected = member;
             foreach (var kv in _tabMap)

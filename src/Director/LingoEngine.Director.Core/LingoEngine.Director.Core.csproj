@@ -53,5 +53,8 @@
   <ItemGroup Condition="'$(IsWindows)' == 'true' and '$(DefineConstants)' != '$(DefineConstants.Replace(`USE_WINDOWS_FEATURES`, ``))'">
     <PackageReference Include="System.Management" Version="8.0.0" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.CodeDom" Version="9.0.8" />
+  </ItemGroup>
 
 </Project>
