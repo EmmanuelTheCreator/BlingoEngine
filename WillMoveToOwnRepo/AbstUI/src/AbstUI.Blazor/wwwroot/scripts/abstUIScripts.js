@@ -1,4 +1,17 @@
 export class abstCanvas {
+    static createCanvas(width, height) {
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        return canvas;
+    }
+
+    static disposeCanvas(canvas) {
+        if (canvas && canvas.remove) {
+            canvas.remove();
+        }
+    }
+
     static getContext(canvas, pixilated) {
         const ctx = canvas.getContext('2d');
         if (pixilated) {

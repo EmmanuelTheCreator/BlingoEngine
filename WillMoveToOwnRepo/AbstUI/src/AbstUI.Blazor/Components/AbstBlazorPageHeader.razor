@@ -1,0 +1,35 @@
+@using System.Linq
+@using Microsoft.AspNetCore.Components
+@using AbstUI.Blazor.Styles
+@inject AbstUI.Styles.IAbstFontManager FontManager
+
+@implements IDisposable
+
+@code {
+    private AbstBlazorFontManager? BlazorFontManager => FontManager as AbstBlazorFontManager;
+
+    protected override void OnInitialized()
+    {
+        if (BlazorFontManager != null)
+            BlazorFontManager.FontsChanged += HandleFontsChanged;
+    }
+
+    private void HandleFontsChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        if (BlazorFontManager != null)
+            BlazorFontManager.FontsChanged -= HandleFontsChanged;
+    }
+
+    private IEnumerable<(string Name, string File)> Fonts =>
+        FontManager.GetAllNames().Select(n => (n, FontManager.Get<string>(n)!));
+}
+
+@foreach (var font in Fonts)
+{
+    <style @key="font.Name">
+        @((MarkupString)$"@font-face {{ font-family: '{font.Name}'; src: url('{font.File}') format('truetype'); }}")
+    </style>
+}
+<script src="_content/AbstUI.Blazor/scripts/abstUIScripts.js"></script>
