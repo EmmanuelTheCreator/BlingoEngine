@@ -35,6 +35,7 @@ public class LingoToCSharpConverterTests
     {
         var lingo = "if 1 then\nput 2 into x\nend if";
         var result = LingoToCSharpConverter.Convert(lingo);
+        Console.WriteLine(result);
         var expected = string.Join('\n',
             "if (1)",
             "{",
@@ -508,5 +509,21 @@ end";
 
         var hilite = new LingoChunkHiliteStmtNode { Chunk = new LingoVarNode { VarName = "c" } };
         Assert.Equal("Hilite(c);", CSharpWriter.Write(hilite).Trim());
+    }
+
+    [Fact]
+    public void DestroyHandlerActorListIsParsed()
+    {
+        var lingo = @"on destroy me
+  if the actorlist.getpos(me) <>0 then
+    _movie.actorList.deleteOne(me)
+  end if
+  gSpritemanager.SDestroy(myNum)
+  myNum = void
+  myGfx = 0
+  me=void
+end";
+        var result = LingoToCSharpConverter.Convert(lingo);
+        Assert.Contains("_movie.actorList.deleteOne", result);
     }
 }
