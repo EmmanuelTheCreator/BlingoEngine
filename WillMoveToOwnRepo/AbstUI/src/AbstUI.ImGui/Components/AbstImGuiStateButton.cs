@@ -8,11 +8,15 @@ namespace AbstUI.ImGui.Components
 {
     internal class AbstImGuiStateButton : AbstImGuiComponent, IAbstFrameworkStateButton, IDisposable
     {
+        private readonly AbstImGuiComponentFactory _factory;
         private IAbstTexture2D? _textureOn;
         private IAbstTexture2D? _textureOff;
+        private nint _texOnHandle;
+        private nint _texOffHandle;
 
         public AbstImGuiStateButton(AbstImGuiComponentFactory factory) : base(factory)
         {
+            _factory = factory;
         }
         public bool Enabled { get; set; } = true;
         public string Text { get; set; } = string.Empty;
@@ -22,7 +26,7 @@ namespace AbstUI.ImGui.Components
             set
             {
                 _textureOn = value;
-                // TODO: handle texture registration with ImGui backend
+                _texOnHandle = RegisterTexture(value);
             }
         }
 
@@ -32,7 +36,7 @@ namespace AbstUI.ImGui.Components
             set
             {
                 _textureOff = value;
-                // TODO: handle texture registration with ImGui backend
+                _texOffHandle = RegisterTexture(value);
             }
         }
         private bool _isOn;
@@ -52,6 +56,16 @@ namespace AbstUI.ImGui.Components
         public event Action? ValueChanged;
         public object FrameworkNode => this;
 
+        private nint RegisterTexture(IAbstTexture2D? texture)
+        {
+            return texture switch
+            {
+                ImGuiTexture2D img when img.Handle != nint.Zero => img.Handle,
+                ImGuiImageTexture img => _factory.RootContext.RegisterTexture(img.SurfaceId),
+                _ => nint.Zero
+            };
+        }
+
 
         public override AbstImGuiRenderResult Render(AbstImGuiRenderContext context)
         {
@@ -61,8 +75,7 @@ namespace AbstUI.ImGui.Components
             if (!Enabled)
                 global::ImGuiNET.ImGui.BeginDisabled();
 
-            nint tex = _isOn && _textureOn is ImGuiTexture2D onTex ? onTex.Handle :
-                        (!_isOn && _textureOff is ImGuiTexture2D offTex ? offTex.Handle : nint.Zero);
+            nint tex = _isOn ? _texOnHandle : _texOffHandle;
             if (tex != nint.Zero)
             {
                 Vector4 bg = _isOn ? new Vector4(0.25f, 0.25f, 0.25f, 1f) : Vector4.Zero;

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using AbstUI.Components;
 using AbstUI.Primitives;
 
@@ -58,6 +59,10 @@ namespace AbstUI.ImGui.Components
             if (!Visibility)
                 return nint.Zero;
 
+            var topLeft = context.Origin + new Vector2(X, Y);
+            global::ImGuiNET.ImGui.SetCursorScreenPos(topLeft);
+            global::ImGuiNET.ImGui.InvisibleButton($"##{Name}", new Vector2(Width, Height));
+
             float curX = 0;
             float curY = 0;
             float lineSize = 0;
@@ -100,7 +105,6 @@ namespace AbstUI.ImGui.Components
                 }
             }
 
-            // TODO: draw wrap panel using ImGui
             return AbstImGuiRenderResult.RequireRender();
         }
     }
