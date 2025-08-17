@@ -61,8 +61,8 @@ public class SdlRootContext : AbstUISdlRootContext<LingoMouse>, ISdlRootComponen
             _f1Pressed = f1;
             clock.Tick(delta);
 
-            SDL.SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
-            SDL.SDL_RenderClear(Renderer);
+            //SDL.SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
+            //SDL.SDL_RenderClear(Renderer);
             Factory.ComponentContainer.Render(Factory.CreateRenderContext());
             SDL.SDL_RenderPresent(Renderer);
         }
