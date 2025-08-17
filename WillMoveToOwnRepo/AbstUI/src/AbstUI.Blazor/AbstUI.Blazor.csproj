@@ -50,12 +50,18 @@
     <Compile Include="Components/AbstBlazorStateButton.cs" />
     <Compile Include="Components/AbstBlazorPanel.cs" />
     <Compile Include="Components/AbstBlazorWrapPanel.cs" />
-    <Compile Include="Components/AbstBlazorGfxCanvas.cs" />
-    <Compile Include="Components/AbstInputComponent.cs" />
-      <Compile Include="Components/AbstBlazorTabContainer.cs" />
-      <Compile Include="Components/AbstBlazorTabItem.cs" />
-      <Compile Include="Inputs/BlazorMouse.cs" />
-      <Compile Include="Inputs/BlazorKey.cs" />
-    </ItemGroup>
+      <Compile Include="Components/AbstBlazorGfxCanvas.cs" />
+      <Compile Include="Components/AbstInputComponent.cs" />
+        <Compile Include="Components/AbstBlazorTabContainer.cs" />
+        <Compile Include="Components/AbstBlazorTabItem.cs" />
+        <Compile Include="Inputs/BlazorMouse.cs" />
+        <Compile Include="Inputs/BlazorKey.cs" />
+        <Compile Include="AbstUIBlazorSetup.cs" />
+        <Compile Include="Bitmaps/AbstBlazorTexture2D.cs" />
+        <Compile Include="Bitmaps/BlazorImageTexture.cs" />
+        <Compile Include="Styles/AbstBlazorFontManager.cs" />
+        <Compile Include="Styles/AbstBlazorStyleManager.cs" />
+        <Compile Include="Primitives/AbstColorExtensions.cs" />
+      </ItemGroup>
 
-</Project>
+  </Project>

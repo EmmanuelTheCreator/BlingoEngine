@@ -1,15 +1,16 @@
-using Microsoft.AspNetCore.Components;
 using AbstUI.Primitives;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace AbstUI.Blazor.Bitmaps;
 
 /// <summary>
-/// Simple texture wrapper backed by a DOM element.
+/// Texture backed by an off-screen HTML &lt;canvas&gt; element.
 /// </summary>
-public class BlazorTexture2D : IAbstTexture2D
+public class AbstBlazorTexture2D : IAbstTexture2D
 {
-    /// <summary>Reference to an HTML image or canvas element representing the texture.</summary>
-    public ElementReference Element { get; }
+    private readonly IJSRuntime _jsRuntime;
+    public ElementReference Canvas { get; }
     public int Width { get; }
     public int Height { get; }
     public bool IsDisposed { get; private set; }
@@ -17,12 +18,19 @@ public class BlazorTexture2D : IAbstTexture2D
 
     private readonly Dictionary<object, TextureSubscription> _users = new();
 
-    public BlazorTexture2D(ElementReference element, int width, int height, string name = "")
+    protected AbstBlazorTexture2D(IJSRuntime jsRuntime, ElementReference canvas, int width, int height, string name = "")
     {
-        Element = element;
+        _jsRuntime = jsRuntime;
+        Canvas = canvas;
         Width = width;
         Height = height;
         Name = name;
+    }
+
+    public static async Task<AbstBlazorTexture2D> CreateAsync(IJSRuntime jsRuntime, int width, int height, string name = "")
+    {
+        var canvas = await jsRuntime.InvokeAsync<ElementReference>("abstCanvas.createCanvas", width, height);
+        return new AbstBlazorTexture2D(jsRuntime, canvas, width, height, name);
     }
 
     public IAbstUITextureUserSubscription AddUser(object user)
@@ -46,13 +54,14 @@ public class BlazorTexture2D : IAbstTexture2D
         if (IsDisposed)
             return;
         IsDisposed = true;
+        _ = _jsRuntime.InvokeVoidAsync("abstCanvas.disposeCanvas", Canvas);
     }
 
     private class TextureSubscription : IAbstUITextureUserSubscription
     {
         private readonly Action _onRelease;
         public IAbstTexture2D Texture { get; }
-        public TextureSubscription(BlazorTexture2D texture, Action onRelease)
+        public TextureSubscription(IAbstTexture2D texture, Action onRelease)
         {
             Texture = texture;
             _onRelease = onRelease;
