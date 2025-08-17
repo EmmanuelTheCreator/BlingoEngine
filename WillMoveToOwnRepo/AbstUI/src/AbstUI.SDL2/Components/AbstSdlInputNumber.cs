@@ -1,6 +1,5 @@
 using System;
 using System.Numerics;
-using ImGuiNET;
 using AbstUI.Components;
 using AbstUI.Primitives;
 
@@ -36,36 +35,8 @@ namespace AbstUI.SDL2.Components
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
-            if (!Visibility) return nint.Zero;
-
-            ImGui.SetCursorScreenPos(context.Origin + new Vector2(X, Y));
-            ImGui.PushID(Name);
-            if (!Enabled)
-                ImGui.BeginDisabled();
-
-            if (NumberType == ANumberType.Integer)
-            {
-                int val = (int)_value;
-                if (ImGui.InputInt("##num", ref val))
-                {
-                    val = Math.Clamp(val, (int)Min, (int)Max);
-                    Value = val;
-                }
-            }
-            else
-            {
-                float val = _value;
-                if (ImGui.InputFloat("##num", ref val))
-                {
-                    val = Math.Clamp(val, Min, Max);
-                    Value = val;
-                }
-            }
-
-            if (!Enabled)
-                ImGui.EndDisabled();
-            ImGui.PopID();
-            return AbstSDLRenderResult.RequireRender();
+            if (!Visibility) return default;
+            return default;
         }
 
         public override void Dispose() => base.Dispose();

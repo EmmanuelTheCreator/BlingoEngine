@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using ImGuiNET;
 using AbstUI.Components;
 using AbstUI.Primitives;
 
@@ -38,40 +37,8 @@ namespace AbstUI.SDL2.Components
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
-            if (!Visibility)
-                return nint.Zero;
-
-            ImGui.SetCursorScreenPos(context.Origin + new Vector2(X, Y));
-            ImGui.PushID(Name);
-
-            if (!Enabled)
-                ImGui.BeginDisabled();
-
-            if (ImGui.BeginListBox("##list", new Vector2(Width, Height)))
-            {
-                for (int i = 0; i < _items.Count; i++)
-                {
-                    var item = _items[i];
-                    bool selected = i == SelectedIndex;
-                    if (ImGui.Selectable(item.Value, selected))
-                    {
-                        SelectedIndex = i;
-                        SelectedKey = item.Key;
-                        SelectedValue = item.Value;
-                        ValueChanged?.Invoke();
-                    }
-                    if (selected)
-                        ImGui.SetItemDefaultFocus();
-                }
-                ImGui.EndListBox();
-            }
-
-            if (!Enabled)
-                ImGui.EndDisabled();
-
-            ImGui.PopID();
-
-            return AbstSDLRenderResult.RequireRender();
+            if (!Visibility) return default;
+            return default;
         }
     }
 }

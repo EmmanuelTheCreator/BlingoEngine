@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using ImGuiNET;
 using AbstUI.Components;
 using AbstUI.Primitives;
 
@@ -57,36 +56,8 @@ namespace AbstUI.SDL2.Components
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
-            if (!Visibility)
-                return nint.Zero;
-
-            ImGui.SetCursorScreenPos(context.Origin + new Vector2(X, Y));
-            ImGui.PushID(Name);
-            ImGui.BeginChild("##tabs", new Vector2(Width, Height), ImGuiChildFlags.None);
-
-            if (ImGui.BeginTabBar("##tabbar"))
-            {
-                for (int i = 0; i < _children.Count; i++)
-                {
-                    var tab = _children[i];
-                    if (ImGui.BeginTabItem(tab.Title))
-                    {
-                        _selectedIndex = i;
-                        if (tab.Content?.FrameworkObj is AbstSdlComponent comp)
-                        {
-                            var origin = ImGui.GetCursorScreenPos();
-                            var childCtx = context.CreateNew(origin);
-                            comp.Render(childCtx);
-                        }
-                        ImGui.EndTabItem();
-                    }
-                }
-                ImGui.EndTabBar();
-            }
-
-            ImGui.EndChild();
-            ImGui.PopID();
-            return AbstSDLRenderResult.RequireRender();
+            if (!Visibility) return default;
+            return default;
         }
 
         public override void Dispose()
@@ -111,6 +82,6 @@ namespace AbstUI.SDL2.Components
 
         public override void Dispose() => base.Dispose();
 
-        public override AbstSDLRenderResult Render(AbstSDLRenderContext context) => AbstSDLRenderResult.RequireRender();
+        public override AbstSDLRenderResult Render(AbstSDLRenderContext context) => default;
     }
 }
