@@ -2,7 +2,7 @@
 
 namespace LingoEngine.Lingo.Core.Tokenizer
 {
-  /// <summary>
+    /// <summary>
     /// Represents a Lingo handler (method or event).
     /// </summary>
     public class LingoHandler
