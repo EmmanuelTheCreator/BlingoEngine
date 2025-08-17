@@ -17,7 +17,7 @@ public sealed class DirectorGodotStyle
 
     static DirectorGodotStyle()
     {
-        AbstGodotTabItem.TapItemTopHeight = 20;
+        AbstGodotTabItem.TabItemTopHeight = 20;
     }
 
     public Theme Theme { get; }

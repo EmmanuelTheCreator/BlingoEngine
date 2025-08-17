@@ -21,17 +21,24 @@ namespace LingoEngine.Director.LGodot.Casts
             directorCastWindow.Init(this);
             
             //_mediator.Subscribe(this);
-
-            Size = new Vector2(directorCastWindow.Width, directorCastWindow.Height);
-            CustomMinimumSize = Size;
+            var size = new Vector2(directorCastWindow.Width, directorCastWindow.Height);
+            Size = size;
+            CustomMinimumSize = size;
 
             _tabs = _directorCastWindow.TabContainer.Framework<AbstGodotTabContainer>();
             _tabs.Position = new Vector2(0, TitleBarHeight);
             _tabs.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             _tabs.SizeFlagsVertical = Control.SizeFlags.ExpandFill;
             AddChild(_tabs);
+           
+        }
+
+        public override void _Ready()
+        {
+            base._Ready();
             UpdateSize(Size);
         }
+
 
         protected override void OnResizing(Vector2 size)
         {
@@ -41,8 +48,8 @@ namespace LingoEngine.Director.LGodot.Casts
 
         private void UpdateSize(Vector2 size)
         {
-            _tabs.Size = new Vector2(Size.X, Size.Y - TitleBarHeight - 10);
-            _directorCastWindow.OnResizing((int)_tabs.Size.X, (int)_tabs.Size.Y);
+            //_tabs.Size = new Vector2(Size.X, Size.Y - TitleBarHeight - 10);
+            _directorCastWindow.OnResizing((int)Size.X, (int)Size.Y - TitleBarHeight - 10);
         }
        
 

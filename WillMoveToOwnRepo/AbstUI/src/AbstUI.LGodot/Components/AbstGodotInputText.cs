@@ -13,9 +13,9 @@ namespace AbstUI.LGodot.Components
     {
         private readonly Action<string>? _onChange;
         private readonly IAbstFontManager _fontManager;
-        private readonly Control _control;
-        private readonly LineEdit? _lineEdit;
-        private readonly TextEdit? _textEdit;
+        private Control _control;
+        private LineEdit? _lineEdit;
+        private TextEdit? _textEdit;
 
         private string? _font;
         private AMargin _margin = AMargin.Zero;
@@ -23,13 +23,28 @@ namespace AbstUI.LGodot.Components
 
         private float _wantedWidth = 10;
         private float _wantedHeight = 10;
+        private Color _fontColor = Colors.Black;
+        private bool _isMultiLine;
+        public object FrameworkNode => _control;
 
         public AbstGodotInputText(AbstInputText input, IAbstFontManager fontManager, Action<string>? onChange, bool multiLine = false)
         {
             _onChange = onChange;
             _fontManager = fontManager;
             IsMultiLine = multiLine;
+            _control= InitControl(multiLine);
 
+            input.Init(this);
+        }
+
+        private Control InitControl(bool multiLine)
+        {
+            if (_lineEdit != null)
+                _lineEdit.TextChanged -= OnLineEditTextChanged;
+            if (_textEdit != null)
+                _textEdit.TextChanged -= OnTextEditTextChanged;
+            if (_control != null)
+                _control.Ready -= ControlReady;
             if (multiLine)
             {
                 _textEdit = new TextEdit();
@@ -50,14 +65,16 @@ namespace AbstUI.LGodot.Components
             else
                 _textEdit!.TextChanged += OnTextEditTextChanged;
 
-            _control.Ready += () =>
-            {
-                _control.CustomMinimumSize = new Vector2(_wantedWidth, _wantedHeight);
-                _control.Size = new Vector2(_wantedWidth, _wantedHeight);
-            };
-
-            input.Init(this);
+            _control.Ready += ControlReady;
+            return _control;
         }
+
+        private void ControlReady()
+        {
+            _control.CustomMinimumSize = new Vector2(_wantedWidth, _wantedHeight);
+            _control.Size = new Vector2(_wantedWidth, _wantedHeight);
+        }
+
 
         private void OnLineEditTextChanged(string _)
         {
@@ -134,7 +151,7 @@ namespace AbstUI.LGodot.Components
         private int _maxLength;
         public int MaxLength
         {
-            get => _lineEdit?.MaxLength ?? _maxLength;
+            get => _maxLength;
             set
             {
                 if (_lineEdit != null) _lineEdit.MaxLength = value;
@@ -194,7 +211,8 @@ namespace AbstUI.LGodot.Components
             }
         }
 
-        private Color _fontColor = Colors.Black;
+      
+
         public Color FontColor
         {
             get => _fontColor;
@@ -218,9 +236,18 @@ namespace AbstUI.LGodot.Components
             }
         }
 
-        public object FrameworkNode => _control;
+       
 
-        public bool IsMultiLine { get; set; }
+        public bool IsMultiLine
+        {
+            get => _isMultiLine; set
+            {
+                if (_isMultiLine == value)
+                    return;
+                _isMultiLine = value;
+                InitControl(_isMultiLine);
+            }
+        }
 
         event Action? IAbstFrameworkNodeInput.ValueChanged
         {

@@ -9,19 +9,43 @@ using LingoEngine.Movies;
 
 namespace LingoEngine.Director.Core.UI;
 
-public class MemberNavigationBar<T> where T : class, ILingoMember
+public class MemberNavigationBar<T> : MemberNavigationBar where T : class, ILingoMember
+{
+    public MemberNavigationBar(IDirectorEventMediator mediator, ILingoPlayer player, IDirectorIconManager iconManager, ILingoFrameworkFactory factory, int barHeight = 20) : base(mediator, player, iconManager, factory, barHeight)
+    {
+    }
+    protected override void Navigate(int offset)
+    {
+        if (_member == null) return;
+        if (_player.ActiveMovie is not ILingoMovie movie) return;
+        var cast = movie.CastLib.GetCast(_member.CastLibNum);
+        var items = cast.GetAll().OfType<T>().OrderBy(m => m.NumberInCast).ToList();
+        int index = items.FindIndex(m => m == _member);
+        if (index < 0) return;
+        int target = index + offset;
+        if (target < 0 || target >= items.Count) return;
+        var next = items[target];
+        _mediator.RaiseFindMember(next);
+        _mediator.RaiseMemberSelected(next);
+        SetMember(next);
+    }
+}
+
+public class MemberNavigationBar
 {
     private string _memberName = "";
-    private readonly IDirectorEventMediator _mediator;
-    private readonly ILingoPlayer _player;
     private readonly IDirectorIconManager _iconManager;
     private readonly AbstWrapPanel _panel;
     private AbstButton _typeIcon;
     private AbstLabel _numberLabel;
     private AbstLabel _castLibLabel;
     private AbstInputText _nameEdit;
+    protected readonly ILingoPlayer _player;
 
-    private T? _member;
+    public int Height { get; private set; }
+
+    protected readonly IDirectorEventMediator _mediator;
+    protected ILingoMember? _member;
 
     public AbstWrapPanel Panel => _panel;
     public string MemberName
@@ -38,6 +62,7 @@ public class MemberNavigationBar<T> where T : class, ILingoMember
     public MemberNavigationBar(IDirectorEventMediator mediator, ILingoPlayer player, IDirectorIconManager iconManager, ILingoFrameworkFactory factory, int barHeight = 20)
 #pragma warning restore CS8618 
     {
+        Height = barHeight;
         _mediator = mediator;
         _player = player;
         _iconManager = iconManager;
@@ -77,8 +102,9 @@ public class MemberNavigationBar<T> where T : class, ILingoMember
 
     }
 
-    public void SetMember(T member)
+    public void SetMember(ILingoMember member)
     {
+        if (member == _member) return;
         _member = member;
         _memberName = member.Name;
         _nameEdit.Text = _memberName;
@@ -104,12 +130,12 @@ public class MemberNavigationBar<T> where T : class, ILingoMember
         _mediator.RaiseMemberSelected(_member);
     }
 
-    private void Navigate(int offset)
+    protected virtual void Navigate(int offset)
     {
         if (_member == null) return;
         if (_player.ActiveMovie is not ILingoMovie movie) return;
         var cast = movie.CastLib.GetCast(_member.CastLibNum);
-        var items = cast.GetAll().OfType<T>().OrderBy(m => m.NumberInCast).ToList();
+        var items = cast.GetAll().ToList();
         int index = items.FindIndex(m => m == _member);
         if (index < 0) return;
         int target = index + offset;

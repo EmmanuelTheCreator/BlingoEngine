@@ -5,6 +5,7 @@ namespace LingoEngine.Director.Core.Styles
     public class DirectorColors
     {
         public static AColor BlueSelectColor = new AColor(0, 120, 215);
+        public static AColor ListHoverColor = new AColor(220, 220, 220);
         public static AColor BlueLightSelectColor = new AColor(229, 241, 251);
         public static AColor BitmapSelectionFill = new AColor(0, 153, 255, 77);
         public static AColor BlueSelectColorSemiTransparent = new AColor(0, 120, 215, 80);

@@ -19,8 +19,22 @@ namespace AbstUI.LGodot.Components
 
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
         public float Y { get => Position.Y; set => Position = new Vector2(Position.X, value); }
-        public float Width { get => Size.X; set => Size = new Vector2(value, Size.Y); }
-        public float Height { get => Size.Y; set => Size = new Vector2(Size.X, value); }
+        public float Width { get => Size.X; 
+            set
+            {
+                CustomMinimumSize = new Vector2(value, Size.Y);
+                Size = CustomMinimumSize;
+            }
+        }
+        public float Height
+        {
+            get => Size.Y;
+            set
+            {
+                CustomMinimumSize = new Vector2(Size.X, value);
+                Size = CustomMinimumSize;
+            }
+        }
         public bool Visibility { get => Visible; set => Visible = value; }
         string IAbstFrameworkNode.Name { get => Name; set => Name = value; }
         public string SelectedTabName => GetTabTitle(CurrentTab);
@@ -108,21 +122,20 @@ namespace AbstUI.LGodot.Components
     }
     public partial class AbstGodotTabItem : IAbstFrameworkTabItem
     {
-        private string _name;
         private AbstTabItem _tabItem;
         public AbstTabItem TabItem => _tabItem;
         public IAbstFrameworkLayoutNode ContentFrameWork => (Content?.FrameworkObj as IAbstFrameworkLayoutNode)!;
         public IAbstNode? Content { get; set; }
 
         // To make a better way for styling
-        public static float TapItemTopHeight { get; set; } = 22;
+        public static float TabItemTopHeight { get; set; } = 22;
 
         public float X { get => ContentFrameWork.X; set => ContentFrameWork.X = value; }
         public float Y { get => ContentFrameWork.Y; set => ContentFrameWork.Y = value; }
         public float Width { get => ContentFrameWork.Width; set => ContentFrameWork.Width = value; }
         public float Height { get => ContentFrameWork.Height; set => ContentFrameWork.Height = value; }
         public bool Visibility { get => ContentFrameWork.Visibility; set => ContentFrameWork.Visibility = value; }
-        public string Title { get; set; }
+        public string Title { get; set; } = "";
         public AMargin Margin { get => ContentFrameWork.Margin; set => ContentFrameWork.Margin = value; }
         string IAbstFrameworkNode.Name
         {
@@ -141,7 +154,7 @@ namespace AbstUI.LGodot.Components
         {
             tab.Init(this);
             _tabItem = tab;
-            TopHeight = TapItemTopHeight;
+            TopHeight = TabItemTopHeight;
         }
 
         public void Dispose()

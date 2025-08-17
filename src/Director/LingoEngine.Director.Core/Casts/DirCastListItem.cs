@@ -6,6 +6,7 @@ using LingoEngine.Director.Core.UI;
 using LingoEngine.Texts;
 using AbstUI.Primitives;
 using AbstUI.Components;
+using System.Xml.Linq;
 
 namespace LingoEngine.Director.Core.Casts
 {
@@ -14,118 +15,94 @@ namespace LingoEngine.Director.Core.Casts
     /// </summary>
     public class DirCastListItem : IDirCastItem, IDisposable
     {
-        private readonly AbstPanel _panel;
-        private readonly AbstLabel _name;
-        private readonly AbstLabel _number;
-        private readonly AbstLabel _script;
-        private readonly AbstLabel _modified;
-        private readonly AbstLabel _comments;
-        private readonly AbstGfxCanvas _iconCanvas;
-        private readonly ILingoFrameworkFactory _factory;
+        private readonly AbstGfxCanvas _panel;
         private readonly IDirectorIconManager _iconManager;
+        private IAbstTexture2D? _icon;
         private IAbstUITextureUserSubscription? _iconSubscription;
         private bool _selected;
         private bool _hovered;
 
         public const int RowHeight = 20;
         public ILingoMember? Member { get; private set; }
-        public AbstPanel Panel => _panel;
+        public AbstGfxCanvas Panel => _panel;
 
-        public DirCastListItem(ILingoFrameworkFactory factory, ILingoMember? member, IDirectorIconManager iconManager)
+        public DirCastListItem(ILingoFrameworkFactory factory, ILingoMember member, IDirectorIconManager iconManager)
         {
-            _factory = factory;
             _iconManager = iconManager;
-            _panel = factory.CreatePanel("CastListRow");
+            _panel = factory.CreateGfxCanvas("CastListRow", 370, RowHeight);
             _panel.Height = RowHeight;
-            _panel.BackgroundColor = DirectorColors.BG_WhiteMenus;
-            _iconCanvas = _panel.SetGfxCanvasAt("Icon", 2, 2, 16, 16);
-            _name = _panel.SetLabelAt("Name", 22, 2, fontSize: 10, labelWidth: 120);
-            _number = _panel.SetLabelAt("Number", 150, 2, fontSize: 10, labelWidth: 40);
-            _script = _panel.SetLabelAt("Script", 190, 2, fontSize: 10, labelWidth: 80);
-            _modified = _panel.SetLabelAt("Modified", 270, 2, fontSize: 10, labelWidth: 90);
-            _comments = _panel.SetLabelAt("Comments", 362, 2, fontSize: 10, labelWidth: 200);
             SetMember(member);
         }
 
-        public void SetMember(ILingoMember? member)
+        private void DrawRow()
+        {
+            if (Member == null)
+                return;
+            var member = Member;
+            var textColor = AColors.Black;
+            var bgColor = AColors.White;
+            var vPosText = 12;
+            if (_selected)
+            {
+                bgColor = DirectorColors.BlueSelectColor;
+                textColor = AColors.White;
+            }
+            else if (_hovered)
+            {
+                bgColor = DirectorColors.ListHoverColor;
+                textColor = AColors.Black;
+            }
+            _panel.Clear(bgColor);
+            if (_icon != null)
+                _panel.DrawPicture(_icon, 16, 16, new APoint(2, 2));
+            _panel.DrawText(new APoint(22, vPosText), member.Name, null, textColor, 9, 120);
+            _panel.DrawText(new APoint(150, vPosText), member.NumberInCast.ToString(), null, textColor, 9, 40);
+            _panel.DrawText(new APoint(190, vPosText), member is LingoEngine.Scripts.LingoMemberScript script ? script.ScriptType.ToString() : "", null, textColor, 10, 280);
+            _panel.DrawText(new APoint(250, vPosText), member.ModifiedDate.ToShortDateString(), null, textColor, 9, 90);
+            var size = (int)_panel.Width - 362;
+            if (size > 20)
+                _panel.DrawText(new APoint(342, vPosText), member.Comments, null, textColor, 9, size);
+            _panel.DrawLine(new APoint(0, 0), new APoint(0, RowHeight ), DirectorColors.LineDark);
+            _panel.DrawLine(new APoint(_panel.Width, 0), new APoint(_panel.Width, RowHeight ), DirectorColors.LineDark);
+        }
+
+        public void SetMember(ILingoMember member)
         {
             Member = member;
             _iconSubscription?.Release();
             _iconSubscription = null;
-            _iconCanvas.Clear(AColors.Transparent);
-            if (member != null)
+           var iconType = LingoMemberTypeIcons.GetIconType(member);
+            if (iconType.HasValue)
             {
-                var iconType = LingoMemberTypeIcons.GetIconType(member);
-                if (iconType.HasValue)
-                {
-                    var tex = _iconManager.Get(iconType.Value);
-                    _iconSubscription = tex.AddUser(this);
-                    _iconCanvas.DrawPicture(tex, 16, 16, new APoint(0, 0));
-                }
-                _name.Text = member.Name;
-                _number.Text = member.NumberInCast.ToString();
-                _script.Text = member is LingoEngine.Scripts.LingoMemberScript script ? script.ScriptType.ToString() : "";
-                _modified.Text = member.ModifiedDate.ToShortDateString();
-                _comments.Text = member.Comments;
+                _icon = _iconManager.Get(iconType.Value);
+                _iconSubscription = _icon.AddUser(this);
             }
-            else
-            {
-                _name.Text = string.Empty;
-                _number.Text = string.Empty;
-                _script.Text = string.Empty;
-                _modified.Text = string.Empty;
-                _comments.Text = string.Empty;
-            }
+            DrawRow();
+        }
+        public void SetWidth(int width)
+        {
+            _panel.Width = width;
+            DrawRow();
         }
 
         public void SetSelected(bool selected)
         {
             _selected = selected;
-            UpdateColors();
+            DrawRow();
         }
 
         public void SetHovered(bool hovered)
         {
             _hovered = hovered;
-            UpdateColors();
+            DrawRow();
         }
 
-        private void UpdateColors()
-        {
-            if (_selected)
-            {
-                _panel.BackgroundColor = DirectorColors.BlueSelectColor;
-                _name.FontColor = AColors.White;
-                _number.FontColor = AColors.White;
-                _script.FontColor = AColors.White;
-                _modified.FontColor = AColors.White;
-                _comments.FontColor = AColors.White;
-            }
-            else if (_hovered)
-            {
-                _panel.BackgroundColor = DirectorColors.LineLight;
-                _name.FontColor = AColors.Black;
-                _number.FontColor = AColors.Black;
-                _script.FontColor = AColors.Black;
-                _modified.FontColor = AColors.Black;
-                _comments.FontColor = AColors.Black;
-            }
-            else
-            {
-                _panel.BackgroundColor = DirectorColors.BG_WhiteMenus;
-                _name.FontColor = AColors.Black;
-                _number.FontColor = AColors.Black;
-                _script.FontColor = AColors.Black;
-                _modified.FontColor = AColors.Black;
-                _comments.FontColor = AColors.Black;
-            }
-        }
 
         public void Dispose()
         {
+            _panel.Dispose();
             _iconSubscription?.Release();
             _iconSubscription = null;
-            _iconCanvas.Dispose();
         }
     }
 }

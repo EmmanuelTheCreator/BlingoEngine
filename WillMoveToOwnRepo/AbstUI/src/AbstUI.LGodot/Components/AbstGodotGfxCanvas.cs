@@ -37,8 +37,24 @@ namespace AbstUI.LGodot.Components
 
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
         public float Y { get => Position.Y; set => Position = new Vector2(Position.X, value); }
-        public float Width { get => Size.X; set { Size = new Vector2(value, Size.Y); CustomMinimumSize = Size; _desiredWidth = value; } }
-        public float Height { get => Size.Y; set { Size = new Vector2(Size.X, value);CustomMinimumSize = Size; _desiredHeight = value; } }
+        public float Width { 
+            get => Size.X; 
+            set { 
+                Size = new Vector2(value, Size.Y); 
+                CustomMinimumSize = Size; _desiredWidth = value; 
+                QueueRedraw();
+                
+            } 
+        }
+        public float Height { 
+            get => Size.Y; 
+            set 
+            { 
+                Size = new Vector2(Size.X, value);
+                CustomMinimumSize = Size; _desiredHeight = value;
+                QueueRedraw();
+            } 
+        }
         public bool Visibility { get => Visible; set => Visible = value; }
         public AMargin Margin
         {

@@ -24,6 +24,7 @@ namespace LingoEngine.Director.Core.Casts
         private readonly IDirectorIconManager _iconManager;
         private ILingoMember? _selected;
         private IAbstMouseSubscription? _mouseSub;
+        private ILingoMovie? _movie;
 
         public AbstTabContainer TabContainer => _tabs;
         public ILingoMember? SelectedMember => _selected;
@@ -38,6 +39,7 @@ namespace LingoEngine.Director.Core.Casts
             _commandManager = commandManager;
             _iconManager = iconManager;
             _tabs = factory.CreateTabContainer("CastTabs");
+            _tabs.Height = Height;
             _mediator.Subscribe(this);
         }
 
@@ -57,16 +59,13 @@ namespace LingoEngine.Director.Core.Casts
 
         private void OnActiveMovieChanged(ILingoMovie? movie)
         {
+            if (movie == _movie)
+                return;
+            _movie = movie;
             SetActiveMovie(movie);
         }
 
-        public void SetActiveMovie(ILingoMovie? lingoMovie)
-        {
-            LoadMovie(lingoMovie);
-            SetViewportSize(Width, Height);
-        }
-
-        public void LoadMovie(ILingoMovie? movie)
+        private void SetActiveMovie(ILingoMovie? movie)
         {
             _tabMap.Clear();
             foreach (var tab in _tabMap)
@@ -78,6 +77,7 @@ namespace LingoEngine.Director.Core.Casts
             foreach (var cast in movie.CastLib.GetAll())
             {
                 var tab = new DirCastTab(_factory, cast, _iconManager, _commandManager, _mediator, _player);
+                tab.SetViewportSize(Width,Height);
                 _tabs.AddTab(tab.TabItem);
                 _tabMap[tab.TabItem.Title] = tab;
                 tab.MemberSelected += (m, i) => OnMemberSelected(tab, m, i);
@@ -87,11 +87,16 @@ namespace LingoEngine.Director.Core.Casts
         }
         public void OnResizing(int width, int height)
         {
-            Width = width;
             SetViewportSize(width, height);
         }
         private void SetViewportSize(int width, int height)
         {
+            TabContainer.Width = width;
+            TabContainer.Height = height;
+            _tabs.Width = width;
+            _tabs.Height = height;
+            Width = width;
+            Height = height;
             foreach (var tab in _tabMap.Values)
                 tab.SetViewportSize(width, height);
         }
