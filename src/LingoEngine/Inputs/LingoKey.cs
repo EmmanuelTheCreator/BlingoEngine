@@ -1,4 +1,5 @@
 using AbstUI.Inputs;
+using LingoEngine.Events;
 namespace LingoEngine.Inputs
 {
     /// <summary>
@@ -23,14 +24,9 @@ namespace LingoEngine.Inputs
         private HashSet<ILingoKeyEventHandler> _subscriptionsLingo = new();
         private readonly ILingoFrameworkKey _frameworkObjLingo;
 
-        public LingoKey(ILingoFrameworkKey frameworkObj):base(frameworkObj)
+        public LingoKey(ILingoFrameworkKey frameworkObj) : base(frameworkObj)
         {
             _frameworkObjLingo = frameworkObj;
-        }
-
-        protected override void DoOnAll(Action<IAbstKeyEventHandler> action)
-        {
-            base.DoOnAll(action);
         }
 
         ///// <summary>
@@ -43,14 +39,16 @@ namespace LingoEngine.Inputs
 
         public override void DoKeyUp()
         {
-            base.DoOnAll(x => x.RaiseKeyUp(this));
-            DoOnAllLingo(x => x.RaiseKeyUp(this));
+            var ev = new LingoKeyEvent(this, AbstKeyEventType.KeyUp);
+            base.DoOnAll(x => x.RaiseKeyUp(ev));
+            DoOnAllLingo(x => x.RaiseKeyUp(ev));
         }
 
         public override void DoKeyDown()
         {
-            base.DoOnAll(x => x.RaiseKeyDown(this));
-            DoOnAllLingo(x => x.RaiseKeyDown(this));
+            var ev = new LingoKeyEvent(this, AbstKeyEventType.KeyDown);
+            base.DoOnAll(x => x.RaiseKeyDown(ev));
+            DoOnAllLingo(x => x.RaiseKeyDown(ev));
         }
 
         private void DoOnAllLingo(Action<ILingoKeyEventHandler> action)
@@ -72,6 +70,6 @@ namespace LingoEngine.Inputs
             _subscriptionsLingo.Remove(handler);
             return this;
         }
-        
+
     }
 }

@@ -53,7 +53,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             myTargetSprite = 4;
         }
 
-        public void KeyDown(ILingoKey key)
+        public void KeyDown(LingoKeyEvent key)
         {
             if (key.KeyPressed(35)) SendSprite<BgScriptBehavior>(myTargetSprite, s => s.PauseGame());
             if (key.KeyPressed(49)) SendSprite<BgScriptBehavior>(myTargetSprite, s => s.SpaceBar());

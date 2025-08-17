@@ -18,7 +18,7 @@ namespace LingoEngine.Inputs
         private readonly int _cols;
         private readonly AbstWindow _window;
         private readonly AbstGfxCanvas _canvas;
-        
+
         private readonly IAbstMouseSubscription _mouseDownSub;
         private readonly IAbstMouseSubscription _mouseMoveSub;
         private int _selectedRow;
@@ -121,8 +121,8 @@ namespace LingoEngine.Inputs
             ((ILingoKey)_window.Key).Subscribe(this);
             ApplyWindowChrome();
             DrawKeyboard();
-            _window.Width = width + Margin*2;
-            _window.Height = height+ Margin*2;
+            _window.Width = width + Margin * 2;
+            _window.Height = height + Margin * 2;
             _window.BackgroundColor = BackgroundColor;
         }
         public void Dispose()
@@ -205,8 +205,8 @@ namespace LingoEngine.Inputs
             {
                 for (int c = 0; c < _layout[r].Length; c++)
                 {
-                    var x = c * (CellSize + CellSpacing) ;
-                    var y = r * (CellSize + CellSpacing) ;
+                    var x = c * (CellSize + CellSpacing);
+                    var y = r * (CellSize + CellSpacing);
                     var key = _layout[r][c];
                     var selected = r == _selectedRow && c == _selectedCol;
                     if (selected && SelectedBackgroundColor.HasValue)
@@ -273,7 +273,7 @@ namespace LingoEngine.Inputs
             if (key == "ENTER")
             {
                 EnterPressed?.Invoke();
-            } 
+            }
             else if (key == "ESC")
             {
                 Close();
@@ -303,8 +303,8 @@ namespace LingoEngine.Inputs
             DrawKeyboard();
         }
 
-        void ILingoKeyEventHandler.RaiseKeyUp(LingoKey key) { }
-        void ILingoKeyEventHandler.RaiseKeyDown(LingoKey key)
+        void ILingoKeyEventHandler.RaiseKeyUp(LingoKeyEvent key) { }
+        void ILingoKeyEventHandler.RaiseKeyDown(LingoKeyEvent key)
         {
             if (!_window.Visibility) return;
             if (!(_enableKeyNumbers || _enableKeyLetters || _enableKeySpecial)) return;
@@ -349,6 +349,10 @@ namespace LingoEngine.Inputs
             }
         }
 
+        void IAbstKeyEventHandler<LingoKeyEvent>.RaiseKeyDown(LingoKeyEvent key) => ((ILingoKeyEventHandler)this).RaiseKeyDown(key);
+        void IAbstKeyEventHandler<LingoKeyEvent>.RaiseKeyUp(LingoKeyEvent key) => ((ILingoKeyEventHandler)this).RaiseKeyUp(key);
+
+
         private void OnMouseMove(LingoMouseEvent e)
         {
             //Console.WriteLine($"Mouse moved: {e.MouseH}, {e.MouseV}");  
@@ -392,7 +396,7 @@ namespace LingoEngine.Inputs
         /// <summary>Closes the keyboard popup window.</summary>
         public void Close() => _window.Hide();
 
-       
+
     }
 }
 

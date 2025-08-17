@@ -2,6 +2,7 @@
 using LingoEngine.Inputs.Events;
 using LingoEngine.Movies.Events;
 using LingoEngine.Sprites;
+using AbstUI.Inputs;
 
 namespace LingoEngine.Events
 {
@@ -148,8 +149,11 @@ namespace LingoEngine.Events
         internal void RaiseExitFrame() => _exitFrames.ForEach(x => x.ExitFrame());
         public void RaiseFocus() => _focuss.ForEach(x => x.Focus());
         public void RaiseBlur() => _blurs.ForEach(x => x.Blur());
-        public void RaiseKeyUp(LingoKey key) => _keyUps.ForEach(x => x.KeyUp(key));
-        public void RaiseKeyDown(LingoKey key) => _keyDowns.ForEach(x => x.KeyDown(key));
+        public void RaiseKeyUp(LingoKeyEvent key) => _keyUps.ForEach(x => x.KeyUp(key));
+        public void RaiseKeyDown(LingoKeyEvent key) => _keyDowns.ForEach(x => x.KeyDown(key));
+
+        void IAbstKeyEventHandler<LingoKeyEvent>.RaiseKeyDown(LingoKeyEvent key) => RaiseKeyDown(key);
+        void IAbstKeyEventHandler<LingoKeyEvent>.RaiseKeyUp(LingoKeyEvent key) => RaiseKeyUp(key);
 
 
     }

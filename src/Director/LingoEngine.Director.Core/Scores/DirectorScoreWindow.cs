@@ -251,13 +251,13 @@ namespace LingoEngine.Director.Core.Scores
             Sprites2DContainer.CurrentFrameChanged(currentFrame);
         }
 
-        protected override void OnRaiseKeyDown(LingoKey lingoKey)
+        protected override void OnRaiseKeyDown(LingoKeyEvent lingoKey)
         {
             if (_movie != null && string.Equals(lingoKey.Key, "Delete", StringComparison.OrdinalIgnoreCase))
                 _spritesManager.DeleteSelected(_movie);
         }
 
-        protected override void OnRaiseKeyUp(LingoKey lingoKey) { }
+        protected override void OnRaiseKeyUp(LingoKeyEvent lingoKey) { }
 
         internal IDirectorWindowDialogReference? ShowConfirmDialog(string title, IAbstFrameworkPanel panel)
             => _windowManager.ShowCustomDialog(title, panel);
