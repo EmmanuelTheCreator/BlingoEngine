@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using LingoEngine.Lingo.Core.Tokenizer;
 
@@ -168,6 +169,10 @@ public class CSharpWriter : ILingoAstVisitor
         {
             Append("_Movie.ActorList");
         }
+        else if (propLower == "frame")
+        {
+            Append("_Movie.CurrentFrame");
+        }
         else
         {
             Append($"/* the {node.Prop} */");
@@ -296,9 +301,16 @@ public class CSharpWriter : ILingoAstVisitor
 
     public void Visit(LingoObjPropExprNode node)
     {
-        node.Object.Accept(this);
-        Append(".");
-        node.Property.Accept(this);
+        if (node.Object is LingoVarNode objVar && objVar.VarName.Equals("me", StringComparison.OrdinalIgnoreCase) && node.Property is LingoVarNode propVar)
+        {
+            Append(char.ToUpperInvariant(propVar.VarName[0]) + propVar.VarName[1..]);
+        }
+        else
+        {
+            node.Object.Accept(this);
+            Append(".");
+            node.Property.Accept(this);
+        }
     }
 
     public void Visit(LingoPlayCmdStmtNode node)
@@ -400,7 +412,10 @@ public class CSharpWriter : ILingoAstVisitor
         Append("Sprite(");
         node.Sprite.Accept(this);
         Append(").");
-        node.Property.Accept(this);
+        if (node.Property is LingoVarNode propVar)
+            Append(char.ToUpperInvariant(propVar.VarName[0]) + propVar.VarName[1..]);
+        else
+            node.Property.Accept(this);
     }
 
     public void Visit(LingoChunkDeleteStmtNode node)
@@ -554,7 +569,13 @@ public class CSharpWriter : ILingoAstVisitor
         Append(")");
     }
 
-    public void Visit(LingoVarNode node) => Append(node.VarName);
+    public void Visit(LingoVarNode node)
+    {
+        if (node.VarName.Equals("me", StringComparison.OrdinalIgnoreCase))
+            Append("this");
+        else
+            Append(node.VarName);
+    }
 
     public void Visit(LingoBlockNode node)
     {
