@@ -12,6 +12,7 @@ public static class LingoToCSharpConverter
 {
     public static string Convert(string lingoSource, string methodAccessModifier = "public")
     {
+        lingoSource = lingoSource.Replace("\r", "\n");
         var trimmed = lingoSource.Trim();
 
         var match = System.Text.RegularExpressions.Regex.Match(
