@@ -21,6 +21,7 @@ public partial class AbstBlazorGfxCanvas : AbstBlazorComponentBase, IAbstFramewo
     private AColor? _clearColor;
     private bool _dirty;
 
+
     protected override string BuildStyle()
     {
         var style = base.BuildStyle();
