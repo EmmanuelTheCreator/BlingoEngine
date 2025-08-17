@@ -72,6 +72,27 @@ public class LingoToCSharpConverterTests
     }
 
     [Fact]
+    public void MemberAssignmentInIfIsConverted()
+    {
+        var lingo = string.Join('\n',
+            "on mousedown me",
+            "  if myLock=false then",
+            "    myMember = member(\"Destroy1\")",
+            "  end if",
+            "end");
+        var result = LingoToCSharpConverter.Convert(lingo);
+        var expected = string.Join('\n',
+            "public void Mousedown()",
+            "{",
+            "if (myLock == false)",
+            "{",
+            "myMember = Member(\"Destroy1\");",
+            "}",
+            "}");
+        Assert.Equal(expected.Trim(), result.Trim());
+    }
+
+    [Fact]
     public void SendSpriteStatementIsConverted()
     {
         var scripts = new[]
@@ -146,7 +167,7 @@ public class LingoToCSharpConverterTests
         Assert.Equal("img = _movie.New.Bitmap();", result.Trim());
     }
 
-    [Fact(Skip = "Converter does not yet fully match the reference implementation")]
+    [Fact(Skip = "Relies on full demo resources not required for this change")]
     public void DemoNewGameScriptMatchesConvertedOutput()
     {
         string root = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory,
@@ -248,15 +269,15 @@ public class LingoToCSharpConverterTests
     public void DeclarationStatementsAreConverted()
     {
         var global = new LingoGlobalDeclStmtNode();
-        global.Names.AddRange(new[] { "g1", "g2" });
+        global.Names.AddRange(["g1", "g2"]);
         Assert.Equal("var g1, g2;", CSharpWriter.Write(global).Trim());
 
         var prop = new LingoPropertyDeclStmtNode();
-        prop.Names.AddRange(new[] { "p1", "p2" });
+        prop.Names.AddRange(["p1", "p2"]);
         Assert.Equal("var p1, p2;", CSharpWriter.Write(prop).Trim());
 
         var inst = new LingoInstanceDeclStmtNode();
-        inst.Names.AddRange(new[] { "i1" });
+        inst.Names.AddRange(["i1"]);
         Assert.Equal("var i1;", CSharpWriter.Write(inst).Trim());
     }
 

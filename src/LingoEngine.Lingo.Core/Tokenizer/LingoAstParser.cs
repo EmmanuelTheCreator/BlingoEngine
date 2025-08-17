@@ -116,7 +116,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 }
             }
 
-            var expr = ParseExpression();
+            var expr = ParseExpression(false);
             if (Match(LingoTokenType.Equals))
             {
                 var value = ParseExpression();
@@ -213,7 +213,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
             }
         }
 
-        private LingoNode ParseExpression()
+        private LingoNode ParseExpression(bool allowEquals = true)
         {
             var expr = ParsePrimary();
             while (true)
@@ -238,6 +238,17 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                         Left = expr,
                         Right = right,
                         Opcode = LingoBinaryOpcode.NotEquals
+                    };
+                }
+                else if (allowEquals && _currentToken.Type == LingoTokenType.Equals)
+                {
+                    AdvanceToken();
+                    var right = ParsePrimary();
+                    expr = new LingoBinaryOpNode
+                    {
+                        Left = expr,
+                        Right = right,
+                        Opcode = LingoBinaryOpcode.Equals
                     };
                 }
                 else
@@ -378,6 +389,21 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                             };
                         }
                     }
+                    else if (name.Equals("member", StringComparison.OrdinalIgnoreCase) && Match(LingoTokenType.LeftParen))
+                    {
+                        var inner = ParseExpression();
+                        Expect(LingoTokenType.RightParen);
+                        expr = new LingoMemberExprNode { Expr = inner };
+                        while (Match(LingoTokenType.Dot))
+                        {
+                            var pTok = Expect(LingoTokenType.Identifier);
+                            expr = new LingoObjPropExprNode
+                            {
+                                Object = expr,
+                                Property = new LingoVarNode { VarName = pTok.Lexeme }
+                            };
+                        }
+                    }
                     else
                     {
                         expr = new LingoVarNode { VarName = name };
@@ -443,7 +469,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
             Expect(LingoTokenType.Into);
 
             // Parse the destination expression (where to put)
-            var target = ParseExpression();
+            var target = ParseExpression(false);
 
             return new LingoPutStmtNode(value, target);
         }
