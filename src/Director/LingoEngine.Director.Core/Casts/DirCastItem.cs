@@ -13,7 +13,7 @@ namespace LingoEngine.Director.Core.Casts;
 /// preview is delegated to <see cref="DirectorMemberThumbnail"/> so the logic
 /// can be shared across frameworks.
 /// </summary>
-public class DirCastItem
+public class DirCastItem : IDirCastItem
 {
     public const int Width = 58;
     public const int Height = 54;

@@ -12,6 +12,7 @@ using LingoEngine.Bitmaps;
 using LingoEngine.Scripts;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Casts;
+using LingoEngine.Core;
 using AbstUI.Primitives;
 using AbstUI.Components;
 using AbstUI.Inputs;
@@ -22,42 +23,64 @@ namespace LingoEngine.Director.Core.Casts
     {
         private int _itemMargin = 2;
         private readonly List<DirCastItem> _items = new();
+        private readonly List<DirCastListItem> _listItems = new();
         private readonly AbstScrollContainer _scroll;
         private readonly AbstTabItem _tabItem;
         private readonly AbstWrapPanel _wrap;
+        private readonly AbstWrapPanel _listWrap;
+        private readonly AbstPanel _root;
+        private readonly AbstWrapPanel _topBar;
+        private readonly AbstStateButton _viewButton;
         private readonly ILingoCast _cast;
         private readonly ILingoCommandManager _commandManager;
         private readonly ILingoFrameworkFactory _factory;
         private readonly IDirectorIconManager _iconManager;
-        private DirCastItem? _selected;
-        private DirCastItem? _hoveredItem;
+        private readonly MemberNavigationBar<ILingoMember> _navBar;
+        private IDirCastItem? _selected;
+        private IDirCastItem? _hoveredItem;
         private DirCastItem? _dragItem;
         private bool _dragging;
         private float _dragStartX, _dragStartY;
         private int _columns = 1;
+        private bool _listView;
         private static bool _openingEditor;
         private static readonly object _lock = new();
 
-        public event Action<ILingoMember, DirCastItem>? MemberSelected;
+        public event Action<ILingoMember, IDirCastItem>? MemberSelected;
         internal AbstTabItem TabItem => _tabItem;
 
         public int Width { get; private set; }
 
-        public DirCastTab(ILingoFrameworkFactory factory, ILingoCast cast, IDirectorIconManager iconManager, ILingoCommandManager commandManager)
+        public DirCastTab(ILingoFrameworkFactory factory, ILingoCast cast, IDirectorIconManager iconManager, ILingoCommandManager commandManager, IDirectorEventMediator mediator, ILingoPlayer player)
         {
             _commandManager = commandManager;
             _factory = factory;
             _iconManager = iconManager;
             var tabName = cast.Name ?? $"Cast{cast.Number}";
             _tabItem = factory.CreateTabItem("Cast_" + tabName, tabName);
+            _root = factory.CreatePanel(tabName + "_Root");
+            _topBar = factory.CreateWrapPanel(AOrientation.Horizontal, tabName + "_Top");
+            _topBar.Height = 20;
+            _viewButton = factory.CreateStateButton(tabName + "_ViewMode", null, "", v => SetListView(v));
+            _viewButton.TextureOff = iconManager.Get(DirectorIcon.ViewGrid);
+            _viewButton.TextureOn = iconManager.Get(DirectorIcon.ViewList);
+            _viewButton.Width = _topBar.Height;
+            _viewButton.Height = _topBar.Height;
+            _topBar.AddItem(_viewButton);
+            _navBar = new MemberNavigationBar<ILingoMember>(mediator, player, iconManager, factory, (int)_topBar.Height);
+            _topBar.AddItem(_navBar.Panel);
             _wrap = factory.CreateWrapPanel(AOrientation.Vertical, tabName + "_Wrap");
+            _listWrap = factory.CreateWrapPanel(AOrientation.Vertical, tabName + "_ListWrap");
             _cast = cast;
             _wrap.ItemMargin = new APoint(_itemMargin, _itemMargin);
             _scroll = factory.CreateScrollContainer(tabName + "_Scroll");
             _scroll.ClipContents = true;
             _scroll.AddItem(_wrap);
+            _root.AddItem(_topBar, 0, 0);
+            _root.AddItem(_scroll, 0, _topBar.Height);
 
-            _tabItem.Content = _scroll;
+            _tabItem.TopHeight = _topBar.Height;
+            _tabItem.Content = _root;
             _cast.MemberAdded += MemberAdded;
             _cast.MemberDeleted += MemberDeleted;
             _cast.MemberNameChanged += MemberNameChanged;
@@ -71,56 +94,78 @@ namespace LingoEngine.Director.Core.Casts
 
         private void MemberNameChanged(ILingoMember member)
         {
-            var castItem = _items.FirstOrDefault(i => i.Member == member);
-            if (castItem == null) return;
-            castItem.SetMember(member);
+            var idx = _items.FindIndex(i => i.Member == member);
+            if (idx < 0) return;
+            _items[idx].SetMember(member);
+            _listItems[idx].SetMember(member);
+            if (_selected?.Member == member)
+                _navBar.SetMember(member);
         }
 
         private void MemberDeleted(ILingoMember member)
         {
-            var castItem = _items.FirstOrDefault(i => i.Member == member);
-            if (castItem == null) return;
-            castItem.MakeEmpty();
+            var idx = _items.FindIndex(i => i.Member == member);
+            if (idx < 0) return;
+            _items[idx].MakeEmpty();
+            _listItems[idx].SetMember(null);
+            if (_selected?.Member == member)
+                Select(null);
         }
 
         private void MemberAdded(ILingoMember member)
         {
-            var castItem = _items.FirstOrDefault(i => i.Member == member);
-            if (castItem != null) return;
-            castItem = _items[member.NumberInCast - 1];
-            castItem.SetMember(member);
+            var index = member.NumberInCast - 1;
+            if (index >= 0 && index < _items.Count)
+            {
+                _items[index].SetMember(member);
+                _listItems[index].SetMember(member);
+            }
         }
 
         internal void LoadAllMembers()
         {
             _items.Clear();
+            _listItems.Clear();
             _wrap.RemoveAll();
+            _listWrap.RemoveAll();
             for (int i = 1; i <= 999; i++)
             {
                 var member = _cast.Member[i];
                 var item = new DirCastItem(_factory, member, i, _iconManager);
+                var listItem = new DirCastListItem(_factory, member, _iconManager);
                 _items.Add(item);
+                _listItems.Add(listItem);
                 _wrap.AddItem(item.Canvas);
+                _listWrap.AddItem(listItem.Panel);
             }
         }
 
         public void SetViewportSize(int width, int height)
         {
-            //_scroll.Width = width;
             Width = width;
+            _root.Width = width;
+            _root.Height = height;
+            _topBar.Width = width;
+            _navBar.Panel.Width = width - _viewButton.Width;
+            _scroll.Width = width;
+            _scroll.Height = height - (int)_tabItem.TopHeight;
             _wrap.Width = Width;
+            _listWrap.Width = Width;
             var itemSize = DirCastItem.Width + _itemMargin;
             var div = (double)(Width + 2) / itemSize;
             _columns = Math.Max(1, (int)Math.Floor(div));
-            //  Console.WriteLine("Coluimns:"+ Width + " div=" + div + " / "+ itemSize + "= "+ _columns);
         }
 
 
-        public void Select(DirCastItem? selected)
+        public void Select(IDirCastItem? selected)
         {
             _selected = selected;
             foreach (var it in _items)
                 it.SetSelected(it == selected);
+            foreach (var it in _listItems)
+                it.SetSelected(it == selected);
+            if (selected?.Member is ILingoMember member)
+                _navBar.SetMember(member);
         }
 
         public int IndexOfMember(ILingoMember member)
@@ -133,11 +178,21 @@ namespace LingoEngine.Director.Core.Casts
 
         public void ScrollToIndex(int index)
         {
-            int row = index / _columns;
-            _scroll.ScrollVertical = row * DirCastItem.Height;
+            if (_listView)
+            {
+                _scroll.ScrollVertical = index * DirCastListItem.RowHeight;
+            }
+            else
+            {
+                int row = index / _columns;
+                _scroll.ScrollVertical = row * DirCastItem.Height;
+            }
         }
 
-        public DirCastItem? GetItem(int index) => index >= 0 && index < _items.Count ? _items[index] : null;
+        public IDirCastItem? GetItem(int index)
+            => _listView
+                ? index >= 0 && index < _listItems.Count ? _listItems[index] : null
+                : index >= 0 && index < _items.Count ? _items[index] : null;
 
         public void HandleMouseEvent(LingoMouseEvent e)
         {
@@ -152,8 +207,13 @@ namespace LingoEngine.Director.Core.Casts
                 }
                 return;
             }
-            var memberHover = HitTest(x, y, out var hoverItem);
-            if (hoverItem != _hoveredItem)
+            ILingoMember? memberHover;
+            IDirCastItem? hoverItem;
+            if (_listView)
+                memberHover = HitTestList(y, out hoverItem);
+            else
+                memberHover = HitTestGrid(x, y, out hoverItem);
+            if (!ReferenceEquals(hoverItem, _hoveredItem))
             {
                 _hoveredItem?.SetHovered(false);
                 _hoveredItem = hoverItem;
@@ -180,27 +240,27 @@ namespace LingoEngine.Director.Core.Casts
                                 _dragStartX = x;
                                 _dragStartY = y;
                                 _dragging = false;
-                                _dragItem = item;
+                                _dragItem = item as DirCastItem;
                             }
                         }
                     }
                     break;
                 case AbstMouseEventType.MouseMove:
-                    if (e.Mouse.MouseDown && _selected != null && _selected.Member != null)
+                    if (!_listView && e.Mouse.MouseDown && _selected is DirCastItem sel && sel.Member != null)
                     {
                         float dx = x - _dragStartX;
                         float dy = y - _dragStartY;
                         if (!_dragging && dx * dx + dy * dy > 16)
                         {
                             _dragging = true;
-                            DirectorDragDropHolder.StartDrag(_selected.Member!, "CastItem");
+                            DirectorDragDropHolder.StartDrag(sel.Member!, "CastItem");
                         }
                     }
                     break;
                 case AbstMouseEventType.MouseUp:
-                    if (_dragging && _dragItem?.Member != null && hoverItem != null && hoverItem != _dragItem)
+                    if (!_listView && _dragging && _dragItem?.Member != null && hoverItem is DirCastItem di && di != _dragItem)
                     {
-                        SwapItems(_dragItem, hoverItem);
+                        SwapItems(_dragItem, di);
                     }
                     _dragItem = null;
                     _dragging = false;
@@ -223,7 +283,7 @@ namespace LingoEngine.Director.Core.Casts
             target.SetMember(srcMember);
         }
 
-        public ILingoMember? HitTest(float x, float y, out DirCastItem? item)
+        private ILingoMember? HitTestGrid(float x, float y, out IDirCastItem? item)
         {
             int col = (int)(x / (DirCastItem.Width + _itemMargin));
             int row = (int)(y / (DirCastItem.Height + _itemMargin));
@@ -231,10 +291,30 @@ namespace LingoEngine.Director.Core.Casts
             if (idx >= 0 && idx < _items.Count)
             {
                 item = _items[idx];
-                return item.Member;
+                return _items[idx].Member;
             }
             item = null;
             return null;
+        }
+
+        private ILingoMember? HitTestList(float y, out IDirCastItem? item)
+        {
+            int idx = (int)(y / DirCastListItem.RowHeight);
+            if (idx >= 0 && idx < _listItems.Count)
+            {
+                item = _listItems[idx];
+                return _listItems[idx].Member;
+            }
+            item = null;
+            return null;
+        }
+
+        private void SetListView(bool list)
+        {
+            _listView = list;
+            _scroll.RemoveItem(list ? _wrap : _listWrap);
+            _scroll.AddItem(list ? _listWrap : _wrap);
+            Select(null);
         }
 
         private void OpenEditor(ILingoMember member)

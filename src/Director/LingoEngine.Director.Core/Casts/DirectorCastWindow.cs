@@ -77,7 +77,7 @@ namespace LingoEngine.Director.Core.Casts
 
             foreach (var cast in movie.CastLib.GetAll())
             {
-                var tab = new DirCastTab(_factory, cast, _iconManager, _commandManager);
+                var tab = new DirCastTab(_factory, cast, _iconManager, _commandManager, _mediator, _player);
                 _tabs.AddTab(tab.TabItem);
                 _tabMap[tab.TabItem.Title] = tab;
                 tab.MemberSelected += (m, i) => OnMemberSelected(tab, m, i);
@@ -102,7 +102,7 @@ namespace LingoEngine.Director.Core.Casts
                 tab.HandleMouseEvent(e);
         }
 
-        private void OnMemberSelected(DirCastTab source, ILingoMember member, DirCastItem item)
+        private void OnMemberSelected(DirCastTab source, ILingoMember member, IDirCastItem item)
         {
             _selected = member;
             foreach (var kv in _tabMap)
