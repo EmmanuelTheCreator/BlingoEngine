@@ -12,6 +12,7 @@ using LingoEngine.Bitmaps;
 using LingoEngine.Scripts;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Casts;
+using LingoEngine.Core;
 using AbstUI.Primitives;
 using AbstUI.Components;
 using AbstUI.Inputs;
@@ -34,6 +35,7 @@ namespace LingoEngine.Director.Core.Casts
         private readonly ILingoCommandManager _commandManager;
         private readonly ILingoFrameworkFactory _factory;
         private readonly IDirectorIconManager _iconManager;
+        private readonly MemberNavigationBar<ILingoMember> _navBar;
         private IDirCastItem? _selected;
         private IDirCastItem? _hoveredItem;
         private DirCastItem? _dragItem;
@@ -49,7 +51,7 @@ namespace LingoEngine.Director.Core.Casts
 
         public int Width { get; private set; }
 
-        public DirCastTab(ILingoFrameworkFactory factory, ILingoCast cast, IDirectorIconManager iconManager, ILingoCommandManager commandManager)
+        public DirCastTab(ILingoFrameworkFactory factory, ILingoCast cast, IDirectorIconManager iconManager, ILingoCommandManager commandManager, IDirectorEventMediator mediator, ILingoPlayer player)
         {
             _commandManager = commandManager;
             _factory = factory;
@@ -62,7 +64,11 @@ namespace LingoEngine.Director.Core.Casts
             _viewButton = factory.CreateStateButton(tabName + "_ViewMode", null, "", v => SetListView(v));
             _viewButton.TextureOff = iconManager.Get(DirectorIcon.ViewGrid);
             _viewButton.TextureOn = iconManager.Get(DirectorIcon.ViewList);
+            _viewButton.Width = _topBar.Height;
+            _viewButton.Height = _topBar.Height;
             _topBar.AddItem(_viewButton);
+            _navBar = new MemberNavigationBar<ILingoMember>(mediator, player, iconManager, factory, (int)_topBar.Height);
+            _topBar.AddItem(_navBar.Panel);
             _wrap = factory.CreateWrapPanel(AOrientation.Vertical, tabName + "_Wrap");
             _listWrap = factory.CreateWrapPanel(AOrientation.Vertical, tabName + "_ListWrap");
             _cast = cast;
@@ -92,6 +98,8 @@ namespace LingoEngine.Director.Core.Casts
             if (idx < 0) return;
             _items[idx].SetMember(member);
             _listItems[idx].SetMember(member);
+            if (_selected?.Member == member)
+                _navBar.SetMember(member);
         }
 
         private void MemberDeleted(ILingoMember member)
@@ -100,6 +108,8 @@ namespace LingoEngine.Director.Core.Casts
             if (idx < 0) return;
             _items[idx].MakeEmpty();
             _listItems[idx].SetMember(null);
+            if (_selected?.Member == member)
+                Select(null);
         }
 
         private void MemberAdded(ILingoMember member)
@@ -135,6 +145,8 @@ namespace LingoEngine.Director.Core.Casts
             Width = width;
             _root.Width = width;
             _root.Height = height;
+            _topBar.Width = width;
+            _navBar.Panel.Width = width - _viewButton.Width;
             _scroll.Width = width;
             _scroll.Height = height - (int)_tabItem.TopHeight;
             _wrap.Width = Width;
@@ -152,6 +164,8 @@ namespace LingoEngine.Director.Core.Casts
                 it.SetSelected(it == selected);
             foreach (var it in _listItems)
                 it.SetSelected(it == selected);
+            if (selected?.Member is ILingoMember member)
+                _navBar.SetMember(member);
         }
 
         public int IndexOfMember(ILingoMember member)
