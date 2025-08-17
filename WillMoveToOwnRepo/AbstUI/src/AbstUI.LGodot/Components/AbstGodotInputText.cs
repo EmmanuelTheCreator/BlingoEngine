@@ -45,6 +45,8 @@ namespace AbstUI.LGodot.Components
                 _textEdit.TextChanged -= OnTextEditTextChanged;
             if (_control != null)
                 _control.Ready -= ControlReady;
+            _lineEdit = null;
+            _textEdit = null;
             if (multiLine)
             {
                 _textEdit = new TextEdit();
@@ -62,8 +64,8 @@ namespace AbstUI.LGodot.Components
 
             if (_lineEdit != null)
                 _lineEdit.TextChanged += OnLineEditTextChanged;
-            else
-                _textEdit!.TextChanged += OnTextEditTextChanged;
+            if (_textEdit != null)
+                _textEdit.TextChanged += OnTextEditTextChanged;
 
             _control.Ready += ControlReady;
             return _control;
@@ -78,12 +80,14 @@ namespace AbstUI.LGodot.Components
 
         private void OnLineEditTextChanged(string _)
         {
+            _text = _textEdit?.Text ?? _textEdit?.Text ?? string.Empty;
             _onValueChanged?.Invoke();
             _onChange?.Invoke(Text);
         }
 
         private void OnTextEditTextChanged()
         {
+            _text = _textEdit?.Text ?? _textEdit?.Text ?? string.Empty;
             _onValueChanged?.Invoke();
             _onChange?.Invoke(Text);
         }
@@ -138,11 +142,14 @@ namespace AbstUI.LGodot.Components
             }
         }
 
+        private string _text;
+
         public string Text
         {
-            get => _lineEdit?.Text ?? _textEdit?.Text ?? string.Empty;
+            get => _text;
             set
             {
+                _text = value;
                 if (_lineEdit != null) _lineEdit.Text = value;
                 if (_textEdit != null) _textEdit.Text = value;
             }
