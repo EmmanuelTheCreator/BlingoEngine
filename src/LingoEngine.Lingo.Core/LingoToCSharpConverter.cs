@@ -1,8 +1,13 @@
+using System;
 using System.Collections.Generic;
 using LingoEngine.Lingo.Core.Tokenizer;
 
 namespace LingoEngine.Lingo.Core;
 
+/// <summary>
+/// Converts Lingo source into C# following the mapping rules documented at
+/// https://github.com/EmmanuelTheCreator/LingoEngine/blob/main/docs/Lingo_vs_CSharp.md.
+/// </summary>
 public static class LingoToCSharpConverter
 {
     public static string Convert(string lingoSource, string methodAccessModifier = "public")
@@ -188,7 +193,7 @@ public static class LingoToCSharpConverter
 
         int pos = idx + 4;
         if (pos >= tokens.Count) return false;
-        if (tokens[pos].Type != LingoTokenType.Identifier) return false;
+        if (tokens[pos].Type != LingoTokenType.Symbol) return false;
         string type = tokens[pos].Lexeme.ToLowerInvariant();
         string method = type switch
         {

@@ -308,6 +308,29 @@ end";
     }
 
     [Fact]
+    public void SpriteMoveAndExitFrameLoopAreConverted()
+    {
+        var lingo = @"on mouseDown me
+  sprite(me.spriteNum).locH = sprite(me.spriteNum).locH + 5
+end
+on exitFrame
+  go to the frame
+end";
+        var result = LingoToCSharpConverter.Convert(lingo);
+        var expected = string.Join('\n',
+            "public void MouseDown()",
+            "{",
+            "Sprite(SpriteNum).LocH = Sprite(SpriteNum).LocH + 5;",
+            "}",
+            "",
+            "public void ExitFrame()",
+            "{",
+            "_Movie.GoTo(_Movie.CurrentFrame);",
+            "}");
+        Assert.Equal(expected.Trim(), result.Trim());
+    }
+
+    [Fact]
     public void AccessModifierIsAppliedToHandlers()
     {
         var lingo = @"on test
@@ -465,7 +488,7 @@ end";
             Sprite = new LingoDatumNode(new LingoDatum(2)),
             Property = new LingoVarNode { VarName = "locH" }
         };
-        Assert.Equal("Sprite(2).locH", CSharpWriter.Write(spriteProp).Trim());
+        Assert.Equal("Sprite(2).LocH", CSharpWriter.Write(spriteProp).Trim());
 
         var menuItemProp = new LingoMenuItemPropExprNode
         {

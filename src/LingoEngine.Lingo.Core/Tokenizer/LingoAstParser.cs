@@ -1,4 +1,6 @@
-﻿namespace LingoEngine.Lingo.Core.Tokenizer
+﻿using System;
+
+namespace LingoEngine.Lingo.Core.Tokenizer
 {
     /// <summary>
     /// Parses a Lingo script source string into an abstract syntax tree (AST).
@@ -85,25 +87,27 @@
 
         private LingoNode ParseCallOrAssignment()
         {
-            var ident = Expect(LingoTokenType.Identifier);
-
-            var nameLower = ident.Lexeme.ToLowerInvariant();
-
-            if (nameLower == "cursor")
+            if (_currentToken.Type == LingoTokenType.Identifier &&
+                _currentToken.Lexeme.Equals("cursor", StringComparison.OrdinalIgnoreCase))
             {
+                AdvanceToken();
                 var value = ParseExpression();
                 return new LingoCursorStmtNode { Value = value };
             }
 
-            if (nameLower == "go")
+            if (_currentToken.Type == LingoTokenType.Identifier &&
+                _currentToken.Lexeme.Equals("go", StringComparison.OrdinalIgnoreCase))
             {
+                AdvanceToken();
                 Match(LingoTokenType.To);
                 var target = ParseExpression();
                 return new LingoGoToStmtNode { Target = target };
             }
 
-            if (string.Equals(ident.Lexeme, "sendSprite", System.StringComparison.OrdinalIgnoreCase))
+            if (_currentToken.Type == LingoTokenType.Identifier &&
+                _currentToken.Lexeme.Equals("sendSprite", StringComparison.OrdinalIgnoreCase))
             {
+                AdvanceToken();
                 var sprite = ParseExpression();
                 if (Match(LingoTokenType.Comma))
                 {
@@ -112,17 +116,17 @@
                 }
             }
 
+            var expr = ParseExpression();
             if (Match(LingoTokenType.Equals))
             {
                 var value = ParseExpression();
-                return new LingoAssignmentStmtNode
-                {
-                    Target = new LingoDatumNode(new LingoDatum(ident.Lexeme, isSymbol: true)),
-                    Value = value
-                };
+                return new LingoAssignmentStmtNode { Target = expr, Value = value };
             }
 
-            return new LingoCallNode { Name = ident.Lexeme };
+            if (expr is LingoVarNode v)
+                return new LingoCallNode { Name = v.VarName };
+
+            return expr;
         }
 
 
@@ -211,6 +215,25 @@
 
         private LingoNode ParseExpression()
         {
+            var expr = ParsePrimary();
+            while (_currentToken.Type == LingoTokenType.Plus)
+            {
+                AdvanceToken();
+                var right = ParsePrimary();
+                expr = new LingoBinaryOpNode
+                {
+                    Left = expr,
+                    Right = right,
+                    Opcode = LingoBinaryOpcode.Add
+                };
+            }
+
+            return expr;
+        }
+
+        private LingoNode ParsePrimary()
+        {
+            LingoNode expr;
             switch (_currentToken.Type)
             {
                 case LingoTokenType.Number:
@@ -239,7 +262,8 @@
                         datum = new LingoDatum(text);
                     }
                     AdvanceToken();
-                    return new LingoDatumNode(datum);
+                    expr = new LingoDatumNode(datum);
+                    break;
 
                 case LingoTokenType.Minus:
                     AdvanceToken();
@@ -263,26 +287,112 @@
                             negDatum = new LingoDatum(negText);
                         }
                         AdvanceToken();
-                        return new LingoDatumNode(negDatum);
+                        expr = new LingoDatumNode(negDatum);
                     }
-                    return new LingoDatumNode(new LingoDatum("-"));
+                    else
+                    {
+                        expr = new LingoDatumNode(new LingoDatum("-"));
+                    }
+                    break;
 
                 case LingoTokenType.String:
-                    var strLiteral = new LingoDatumNode(new LingoDatum(_currentToken.Lexeme));
+                    expr = new LingoDatumNode(new LingoDatum(_currentToken.Lexeme));
                     AdvanceToken();
-                    return strLiteral;
+                    break;
+
+                case LingoTokenType.Symbol:
+                    expr = new LingoDatumNode(new LingoDatum(_currentToken.Lexeme, isSymbol: true));
+                    AdvanceToken();
+                    break;
+
+                case LingoTokenType.Me:
+                    expr = new LingoVarNode { VarName = "me" };
+                    AdvanceToken();
+                    break;
+
+                case LingoTokenType.The:
+                    AdvanceToken();
+                    var propTok = Expect(LingoTokenType.Identifier);
+                    expr = new LingoTheExprNode { Prop = propTok.Lexeme };
+                    break;
 
                 case LingoTokenType.Identifier:
-                    var ident = new LingoDatumNode(new LingoDatum(_currentToken.Lexeme, isSymbol: true));
+                    var name = _currentToken.Lexeme;
                     AdvanceToken();
-                    return ident;
+                    if (name.Equals("sprite", StringComparison.OrdinalIgnoreCase) && Match(LingoTokenType.LeftParen))
+                    {
+                        var indexExpr = ParseSpriteIndex();
+                        Expect(LingoTokenType.RightParen);
+                        if (Match(LingoTokenType.Dot))
+                        {
+                            var pTok = Expect(LingoTokenType.Identifier);
+                            expr = new LingoSpritePropExprNode
+                            {
+                                Sprite = indexExpr,
+                                Property = new LingoVarNode { VarName = pTok.Lexeme }
+                            };
+                        }
+                        else
+                        {
+                            expr = new LingoCallNode
+                            {
+                                Callee = new LingoVarNode { VarName = name },
+                                Arguments = indexExpr as LingoDatumNode ?? new LingoDatumNode(new LingoDatum(0))
+                            };
+                        }
+                    }
+                    else
+                    {
+                        expr = new LingoVarNode { VarName = name };
+                        while (Match(LingoTokenType.Dot))
+                        {
+                            var pTok = Expect(LingoTokenType.Identifier);
+                            expr = new LingoObjPropExprNode
+                            {
+                                Object = expr,
+                                Property = new LingoVarNode { VarName = pTok.Lexeme }
+                            };
+                        }
+                    }
+                    break;
 
                 default:
-                    // fallback: unknown expressions are treated as raw datum
-                    var fallback = new LingoDatumNode(new LingoDatum(_currentToken.Lexeme));
                     AdvanceToken();
-                    return fallback;
+                    return new LingoErrorNode();
             }
+
+            return expr;
+        }
+
+        private LingoNode ParseSpriteIndex()
+        {
+            LingoNode expr;
+            if (_currentToken.Type == LingoTokenType.Me)
+            {
+                expr = new LingoVarNode { VarName = "me" };
+                AdvanceToken();
+            }
+            else if (_currentToken.Type == LingoTokenType.Identifier)
+            {
+                expr = new LingoVarNode { VarName = _currentToken.Lexeme };
+                AdvanceToken();
+            }
+            else
+            {
+                expr = new LingoErrorNode();
+            }
+
+            while (Match(LingoTokenType.Dot))
+            {
+                var pTok = Expect(LingoTokenType.Identifier);
+                expr = new LingoObjPropExprNode
+                {
+                    Object = expr,
+                    Property = new LingoVarNode { VarName = pTok.Lexeme }
+                };
+            }
+
+            return expr;
         }
 
         private LingoNode ParsePutStatement()
