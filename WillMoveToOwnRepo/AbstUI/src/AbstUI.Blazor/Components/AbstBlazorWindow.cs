@@ -68,9 +68,10 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IAbstFrameworkWindow, IDispos
     }
 
 
-    // TODO :  Resize Blazor window.
     public void OnResize(int width, int height)
     {
+        Width = width;
+        Height = height;
         _lingoWindow.Resize(width, height);
     }
 
