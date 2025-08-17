@@ -1,6 +1,7 @@
 using AbstUI.Components;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
+using Microsoft.JSInterop;
 
 namespace AbstUI.Blazor.Components;
 
@@ -11,6 +12,9 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IAbstFrameworkWindow, IDispos
     private string _title = string.Empty;
     private bool _isPopup;
     private bool _borderless;
+    private IJSObjectReference? _module;
+
+    [Inject] private IJSRuntime JS { get; set; } = default!;
 
     public AbstBlazorWindow(AbstWindow window, AbstBlazorComponentFactory factory) : base(factory)
     {
@@ -77,6 +81,8 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IAbstFrameworkWindow, IDispos
 
     public void Popup()
     {
+        EnsureModule();
+        _module!.InvokeVoidAsync("AbstUIWindow.showBootstrapModal", Name);
         _factory.RootContext.ComponentContainer.Activate(ComponentContext);
         Visibility = true;
         _lingoWindow.RaiseWindowStateChanged(true);
@@ -94,8 +100,16 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IAbstFrameworkWindow, IDispos
 
     public void Hide()
     {
+        EnsureModule();
+        _module!.InvokeVoidAsync("AbstUIWindow.hideBootstrapModal", Name);
         Visibility = false;
         _factory.RootContext.ComponentContainer.Deactivate(ComponentContext);
         _lingoWindow.RaiseWindowStateChanged(false);
+    }
+
+    private void EnsureModule()
+    {
+        _module ??= JS.InvokeAsync<IJSObjectReference>("import", "./_content/AbstUI.Blazor/scripts/abstUIScripts.js")
+                     .AsTask().GetAwaiter().GetResult();
     }
 }
