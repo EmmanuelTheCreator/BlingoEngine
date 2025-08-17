@@ -54,13 +54,13 @@ public class LingoTempoSprite : LingoSprite
     /// </summary>
     public int CuePoint { get; set; }
 
-    private class WaitForInputSubscription : IHasMouseDownEvent, IHasKeyDownEvent
-    {
-        private readonly LingoTempoSprite _owner;
-        public WaitForInputSubscription(LingoTempoSprite owner) => _owner = owner;
-        public void MouseDown(LingoMouseEvent mouse) => _owner.Resume();
-        public void KeyDown(ILingoKey key) => _owner.Resume();
-    }
+        private class WaitForInputSubscription : IHasMouseDownEvent, IHasKeyDownEvent
+        {
+            private readonly LingoTempoSprite _owner;
+            public WaitForInputSubscription(LingoTempoSprite owner) => _owner = owner;
+            public void MouseDown(LingoMouseEvent mouse) => _owner.Resume();
+            public void KeyDown(LingoKeyEvent key) => _owner.Resume();
+        }
 
     private WaitForInputSubscription? _waitForInputSubscription;
     public LingoTempoSprite(ILingoMovieEnvironment environment, Action<LingoTempoSprite> removeMe) : base(environment.Events)

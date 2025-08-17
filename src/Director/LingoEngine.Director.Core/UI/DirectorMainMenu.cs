@@ -4,6 +4,7 @@ using LingoEngine.Director.Core.Tools;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Movies;
 using LingoEngine.Inputs;
+using LingoEngine.Events;
 using System.Collections.Generic;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.Icons;
@@ -108,7 +109,7 @@ namespace LingoEngine.Director.Core.UI
                 .AddButton("CompileButton", "", () => _commandManager.Handle(new CompileProjectCommand()), c => c.IconTexture = directorIconManager.Get(DirectorIcon.Script))
                 .AddVLine()
                 .AddButton("RewindButton", "", DoRewind, c => c.IconTexture = directorIconManager.Get(DirectorIcon.Rewind))
-                .AddStateButton("RewindButton", this, directorIconManager.Get(DirectorIcon.Stop), p => p.PlayPauseState, 
+                .AddStateButton("RewindButton", this, directorIconManager.Get(DirectorIcon.Stop), p => p.PlayPauseState,
                     c =>
                     {
                         c.TextureOff = directorIconManager.Get(DirectorIcon.Play);
@@ -222,8 +223,8 @@ namespace LingoEngine.Director.Core.UI
 
             var projectSettings = factory.CreateMenuItem("Project Settings");
             projectSettings.Activated += () => _windowManager.OpenWindow(DirectorMenuCodes.ProjectSettingsWindow);
-            _editMenu.AddItem(projectSettings); 
-            
+            _editMenu.AddItem(projectSettings);
+
             var cConverter = factory.CreateMenuItem("Lingo to # Converter");
             cConverter.Activated += () => _commandManager.Handle(new OpenLingoCSharpConverterCommand());
             _editMenu.AddItem(cConverter);
@@ -376,7 +377,7 @@ namespace LingoEngine.Director.Core.UI
             base.Dispose();
         }
 
-        protected override void OnRaiseKeyDown(LingoKey key)
+        protected override void OnRaiseKeyDown(LingoKeyEvent key)
         {
             var label = key.Key.ToUpperInvariant();
             bool ctrl = key.ControlDown;
@@ -394,6 +395,6 @@ namespace LingoEngine.Director.Core.UI
             }
         }
 
-        protected override void OnRaiseKeyUp(LingoKey key) { }
+        protected override void OnRaiseKeyUp(LingoKeyEvent key) { }
     }
 }

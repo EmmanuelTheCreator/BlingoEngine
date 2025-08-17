@@ -1,8 +1,12 @@
-﻿namespace LingoEngine.Inputs
+using AbstUI.Inputs;
+using LingoEngine.Events;
+
+namespace LingoEngine.Inputs
 {
-    public interface ILingoKeyEventHandler
+    public interface ILingoKeyEventHandler : IAbstKeyEventHandler<LingoKeyEvent>
     {
-        void RaiseKeyDown(LingoKey lingoKey);
-        void RaiseKeyUp(LingoKey lingoKey);
+        new void RaiseKeyDown(LingoKeyEvent lingoKey);
+        new void RaiseKeyUp(LingoKeyEvent lingoKey);
     }
 }
+

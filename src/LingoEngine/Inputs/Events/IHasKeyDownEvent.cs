@@ -1,9 +1,10 @@
-﻿using LingoEngine.Inputs;
+using LingoEngine.Events;
 
 namespace LingoEngine.Inputs.Events
 {
     public interface IHasKeyDownEvent
     {
-        void KeyDown(ILingoKey mouse);
+        void KeyDown(LingoKeyEvent key);
     }
 }
+

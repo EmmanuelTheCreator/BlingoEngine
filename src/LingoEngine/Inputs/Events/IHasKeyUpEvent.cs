@@ -1,7 +1,10 @@
-﻿namespace LingoEngine.Inputs.Events
+using LingoEngine.Events;
+
+namespace LingoEngine.Inputs.Events
 {
     public interface IHasKeyUpEvent
     {
-        void KeyUp(ILingoKey mouse);
+        void KeyUp(LingoKeyEvent key);
     }
 }
+

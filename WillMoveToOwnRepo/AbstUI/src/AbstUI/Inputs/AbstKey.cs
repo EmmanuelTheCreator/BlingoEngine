@@ -52,8 +52,8 @@ namespace AbstUI.Inputs
         bool KeyPressed(AbstUIKeyType key);
         bool KeyPressed(int keyCode);
 
-        AbstKey Subscribe(IAbstKeyEventHandler handler);
-        AbstKey Unsubscribe(IAbstKeyEventHandler handler);
+        AbstKey Subscribe(IAbstKeyEventHandler<AbstKeyEvent> handler);
+        AbstKey Unsubscribe(IAbstKeyEventHandler<AbstKeyEvent> handler);
 
     }
 
@@ -74,7 +74,7 @@ namespace AbstUI.Inputs
     /// <inheritdoc/>
     public class AbstKey : IAbstKey
     {
-        private HashSet<IAbstKeyEventHandler> _subscriptions = new();
+        private HashSet<IAbstKeyEventHandler<AbstKeyEvent>> _subscriptions = new();
         private readonly IAbstFrameworkKey _frameworkObj;
 
         public AbstKey(IAbstFrameworkKey frameworkObj)
@@ -99,9 +99,17 @@ namespace AbstUI.Inputs
         public string Key => _frameworkObj.Key;
         public int KeyCode => _frameworkObj.KeyCode;
 
-        public virtual void DoKeyUp() => DoOnAll(x => x.RaiseKeyUp(this));
-        public virtual void DoKeyDown() => DoOnAll(x => x.RaiseKeyDown(this));
-        protected virtual void DoOnAll(Action<IAbstKeyEventHandler> action)
+        public virtual void DoKeyUp()
+        {
+            var ev = new AbstKeyEvent(this, AbstKeyEventType.KeyUp);
+            DoOnAll(x => x.RaiseKeyUp(ev));
+        }
+        public virtual void DoKeyDown()
+        {
+            var ev = new AbstKeyEvent(this, AbstKeyEventType.KeyDown);
+            DoOnAll(x => x.RaiseKeyDown(ev));
+        }
+        protected virtual void DoOnAll(Action<IAbstKeyEventHandler<AbstKeyEvent>> action)
         {
             foreach (var subscription in _subscriptions)
                 action(subscription);
@@ -109,18 +117,18 @@ namespace AbstUI.Inputs
         /// <summary>
         /// Subscribe to key events.
         /// </summary>
-        public AbstKey Subscribe(IAbstKeyEventHandler handler)
+        public AbstKey Subscribe(IAbstKeyEventHandler<AbstKeyEvent> handler)
         {
             if (_subscriptions.Contains(handler)) return this;
             _subscriptions.Add(handler);
             return this;
         }
-        public AbstKey Unsubscribe(IAbstKeyEventHandler handler)
+        public AbstKey Unsubscribe(IAbstKeyEventHandler<AbstKeyEvent> handler)
         {
             _subscriptions.Remove(handler);
             return this;
         }
-        private sealed class ProxyKey : AbstKey, IAbstKeyEventHandler, IDisposable
+        private sealed class ProxyKey : AbstKey, IAbstKeyEventHandler<AbstKeyEvent>, IDisposable
         {
             private readonly AbstKey _parent;
             private readonly IAbstActivationProvider _provider;
@@ -133,13 +141,13 @@ namespace AbstUI.Inputs
                 _parent.Subscribe(this);
             }
 
-            public void RaiseKeyDown(AbstKey lingoKey)
+            public void RaiseKeyDown(AbstKeyEvent lingoKey)
             {
                 if (!_provider.IsActivated) return;
                 DoKeyDown();
             }
 
-            public void RaiseKeyUp(AbstKey lingoKey)
+            public void RaiseKeyUp(AbstKeyEvent lingoKey)
             {
                 if (!_provider.IsActivated) return;
                 DoKeyUp();

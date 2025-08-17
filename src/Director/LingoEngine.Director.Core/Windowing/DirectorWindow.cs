@@ -1,6 +1,7 @@
 using AbstUI.Primitives;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
+using LingoEngine.Events;
 
 namespace LingoEngine.Director.Core.Windowing;
 
@@ -54,21 +55,21 @@ public class DirectorWindow<TFrameworkWindow> : IDirectorWindow, IDisposable, IL
 
     public IDirFrameworkWindow FrameworkObj => _Framework;
 
-    public void RaiseKeyDown(LingoKey lingoKey)
+    public void RaiseKeyDown(LingoKeyEvent lingoKey)
     {
         if (IsActiveWindow)
             OnRaiseKeyDown(lingoKey);
     }
 
-    public void RaiseKeyUp(LingoKey lingoKey)
+    public void RaiseKeyUp(LingoKeyEvent lingoKey)
     {
         if (IsActiveWindow)
             OnRaiseKeyUp(lingoKey);
     }
 
-    protected virtual void OnRaiseKeyDown(LingoKey lingoKey) { }
+    protected virtual void OnRaiseKeyDown(LingoKeyEvent lingoKey) { }
 
-    protected virtual void OnRaiseKeyUp(LingoKey lingoKey) { }
+    protected virtual void OnRaiseKeyUp(LingoKeyEvent lingoKey) { }
 
     public (float X, float Y) MouseGetAbolutePosition() => (Mouse.MouseH + Position.X, Mouse.MouseV + Position.Y);
 
@@ -87,7 +88,7 @@ public class DirectorWindow<TFrameworkWindow> : IDirectorWindow, IDisposable, IL
     {
         if (width < MinimumWidth) width = MinimumWidth;
         if (height < MinimumHeight) height = MinimumHeight;
-        OnResizing(firstLoad,width, height);
+        OnResizing(firstLoad, width, height);
     }
     protected virtual void OnResizing(bool firstLoad, int width, int height) { }
 }
