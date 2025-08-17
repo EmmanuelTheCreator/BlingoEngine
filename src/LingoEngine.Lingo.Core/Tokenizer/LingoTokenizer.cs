@@ -27,6 +27,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
         Slash,
         LessThan,
         GreaterThan,
+        NotEquals,
         Not,
         And,
         Or,
@@ -180,7 +181,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 '*' => MakeToken(LingoTokenType.Asterisk),
                 '/' => MakeToken(LingoTokenType.Slash),
                 '=' => MakeToken(LingoTokenType.Equals),
-                '<' => MakeToken(LingoTokenType.LessThan),
+                '<' => Match('>') ? MakeToken(LingoTokenType.NotEquals) : MakeToken(LingoTokenType.LessThan),
                 '>' => MakeToken(LingoTokenType.GreaterThan),
                 '#' => new LingoToken(LingoTokenType.Symbol, ReadIdentifier(), _line),
                 _ => MakeToken(LingoTokenType.Symbol)

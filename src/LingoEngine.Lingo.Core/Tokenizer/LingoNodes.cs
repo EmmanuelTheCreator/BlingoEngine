@@ -510,7 +510,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
     public class LingoCallNode : LingoNode
     {
         public LingoNode Callee { get; set; } = null!;
-        public LingoDatumNode Arguments { get; set; } = null!;
+        public LingoNode Arguments { get; set; } = null!;
         public string Name { get; set; } = "";
         public string? TargetType { get; set; }
 
