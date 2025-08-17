@@ -63,14 +63,10 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="ImGui.NET" Version="1.91.6.1" />
-  </ItemGroup>
-
-	<ItemGroup>
-		<InternalsVisibleTo Include="LingoEngine.SDL2.GfxVisualTest" />
-		<InternalsVisibleTo Include="LingoEngine.Lingo.Tests" />
-	</ItemGroup>
+        <ItemGroup>
+                <InternalsVisibleTo Include="LingoEngine.SDL2.GfxVisualTest" />
+                <InternalsVisibleTo Include="LingoEngine.Lingo.Tests" />
+        </ItemGroup>
 
 	
 </Project>

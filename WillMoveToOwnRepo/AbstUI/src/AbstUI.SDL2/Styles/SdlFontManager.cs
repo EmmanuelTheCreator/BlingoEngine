@@ -1,6 +1,5 @@
 using AbstUI.SDL2.SDLL;
 using AbstUI.Styles;
-using ImGuiNET;
 
 namespace AbstUI.SDL2.Styles;
 
@@ -56,26 +55,12 @@ public class SdlFontManager : IAbstFontManager
 
 
     // SDL Fonts
-    private readonly Dictionary<int, ImFontPtr> _fonts = new();
-
-    public unsafe void InitFonts()
+    public void InitFonts()
     {
-        //var io = ImGui.GetIO();
-
-        //foreach (int size in new[] { 7, 8, 9, 10, 11, 12, 14, 16, 20, 24, 32 }) // etc
-        //{
-        //    var config = ImGuiNative.ImFontConfig_ImFontConfig(); // allocate native config
-        //    ImFontConfigPtr configPtr = new ImFontConfigPtr(config);
-        //    configPtr.SizePixels = size;
-        //    var font = io.Fonts.AddFontDefault(configPtr);
-        //    _fonts[size] = font;
-        //}
-        //io.Fonts.Build();
+        // No additional fonts to initialize.
     }
 
-    // TODO : use subscription based, add fontUser
-    public ImFontPtr? GetFont(int size)
-        => _fonts.TryGetValue(size, out var font) ? font : null;
+    public object? GetFont(int size) => null;
 
 
     private class AbstSdlFont : IAbstSdlFont

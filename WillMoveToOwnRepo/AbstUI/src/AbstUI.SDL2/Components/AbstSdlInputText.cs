@@ -1,6 +1,5 @@
 using System;
 using System.Numerics;
-using ImGuiNET;
 using AbstUI.Components;
 using AbstUI.Primitives;
 
@@ -37,23 +36,8 @@ namespace AbstUI.SDL2.Components
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
-            if (!Visibility) return nint.Zero;
-
-            // place relative to current context origin
-            ImGui.SetCursorScreenPos(context.Origin + new Vector2(X, Y));
-
-            if (Width > 0) ImGui.SetNextItemWidth(Width);
-
-            ImGui.PushID(Name);
-            if (!Enabled) ImGui.BeginDisabled();
-
-            uint cap = MaxLength > 0 ? (uint)MaxLength : 1024u;
-            if (ImGui.InputText("##text", ref _text, cap))
-                ValueChanged?.Invoke();
-
-            if (!Enabled) ImGui.EndDisabled();
-            ImGui.PopID();
-            return AbstSDLRenderResult.RequireRender();
+            if (!Visibility) return default;
+            return default;
         }
 
 

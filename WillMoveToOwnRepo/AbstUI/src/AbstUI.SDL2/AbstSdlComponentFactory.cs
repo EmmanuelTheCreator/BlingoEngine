@@ -25,7 +25,7 @@ namespace AbstUI.SDL2
             => new(_rootContext.ComponentContainer, component, parent) { Renderer = _rootContext.Renderer };
 
         public AbstSDLRenderContext CreateRenderContext(IAbstSDLComponent? component = null)
-            => new(_rootContext.Renderer, _rootContext.ImGuiViewPort, _rootContext.ImDrawList, _rootContext.ImGuiViewPort.WorkPos, _fontManager);
+            => new(_rootContext.Renderer, System.Numerics.Vector2.Zero, _fontManager);
 
         public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
         {
@@ -60,7 +60,7 @@ namespace AbstUI.SDL2
         public AbstLayoutWrapper CreateLayoutWrapper(IAbstNode content, float? x, float? y)
         {
             if (content is IAbstLayoutNode)
-                throw new InvalidOperationException($"Content {content.Name} already supports layout — wrapping is unnecessary.");
+                throw new InvalidOperationException($"Content {content.Name} already supports layout â€” wrapping is unnecessary.");
             var panel = new AbstLayoutWrapper(content);
             var impl = new AbstSdlLayoutWrapper(this, panel);
             if (x != null) panel.X = x.Value;

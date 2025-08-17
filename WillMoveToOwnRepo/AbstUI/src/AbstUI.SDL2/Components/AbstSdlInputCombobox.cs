@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
-using ImGuiNET;
 using AbstUI.Components;
 using AbstUI.Primitives;
 
@@ -38,36 +37,8 @@ namespace AbstUI.SDL2.Components
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
-            if (!Visibility) return nint.Zero;
-            ImGui.SetCursorScreenPos(context.Origin + new Vector2(X, Y));
-            ImGui.PushID(Name);
-            if (!Enabled)
-                ImGui.BeginDisabled();
-
-            string preview = SelectedValue ?? string.Empty;
-            if (ImGui.BeginCombo("##combo", preview))
-            {
-                for (int i = 0; i < _items.Count; i++)
-                {
-                    bool selected = i == SelectedIndex;
-                    var it = _items[i];
-                    if (ImGui.Selectable(it.Value, selected))
-                    {
-                        SelectedIndex = i;
-                        SelectedKey = it.Key;
-                        SelectedValue = it.Value;
-                        ValueChanged?.Invoke();
-                    }
-                    if (selected)
-                        ImGui.SetItemDefaultFocus();
-                }
-                ImGui.EndCombo();
-            }
-
-            if (!Enabled)
-                ImGui.EndDisabled();
-            ImGui.PopID();
-            return AbstSDLRenderResult.RequireRender();
+            if (!Visibility) return default;
+            return default;
         }
 
         public override void Dispose() => base.Dispose();

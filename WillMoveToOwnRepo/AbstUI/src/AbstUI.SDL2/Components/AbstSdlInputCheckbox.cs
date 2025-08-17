@@ -1,6 +1,5 @@
 using System;
 using System.Numerics;
-using ImGuiNET;
 using AbstUI.Components;
 using AbstUI.Primitives;
 
@@ -31,18 +30,8 @@ namespace AbstUI.SDL2.Components
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
-            if (!Visibility) return nint.Zero;
-            ImGui.SetCursorScreenPos(context.Origin + new Vector2(X, Y));
-            ImGui.PushID(Name);
-            if (!Enabled)
-                ImGui.BeginDisabled();
-            bool val = _checked;
-            if (ImGui.Checkbox("##check", ref val))
-                Checked = val;
-            if (!Enabled)
-                ImGui.EndDisabled();
-            ImGui.PopID();
-            return AbstSDLRenderResult.RequireRender();
+            if (!Visibility) return default;
+            return default;
         }
 
         public override void Dispose() => base.Dispose();

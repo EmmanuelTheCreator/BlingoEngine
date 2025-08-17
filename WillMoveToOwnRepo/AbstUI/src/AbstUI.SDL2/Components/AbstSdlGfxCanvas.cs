@@ -1,6 +1,5 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
-using ImGuiNET;
 using AbstUI.Styles;
 using AbstUI.Primitives;
 using AbstUI.Components;
@@ -19,7 +18,6 @@ namespace AbstUI.SDL2.Components
         private readonly int _width;
         private readonly int _height;
         private nint _texture;
-        private readonly nint _imguiTexture;
         private readonly List<Action> _drawActions = new();
         private AColor? _clearColor;
         private bool _dirty;
@@ -36,7 +34,6 @@ namespace AbstUI.SDL2.Components
             _height = height;
             _texture = SDL.SDL_CreateTexture(ComponentContext.Renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
                 (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, width, height);
-            _imguiTexture = factory.RootContext.RegisterTexture(_texture);
             Width = width;
             Height = height;
             _dirty = true;
@@ -68,18 +65,10 @@ namespace AbstUI.SDL2.Components
                 foreach (var action in _drawActions)
                     action();
                 SDL.SDL_SetRenderTarget(ComponentContext.Renderer, prev);
-                //SDL.BlendIm
                 _dirty = false;
             }
 
-            var screenPos = context.Origin + new Vector2(X, Y);
-            ImGui.SetCursorScreenPos(screenPos);
-            ImGui.PushID(Name);
-            var imguiTexture = _factory.RootContext.GetTexture(_imguiTexture);
-            ImGui.Image(imguiTexture, new Vector2(Width, Height));
-            ImGui.PopID();
-
-            return AbstSDLRenderResult.RequireRender();
+            return _texture;
         }
 
 

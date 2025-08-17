@@ -1,5 +1,4 @@
 using System.Numerics;
-using ImGuiNET;
 using AbstUI.Primitives;
 using AbstUI.Components;
 using AbstUI.SDL2.Bitmaps;
@@ -74,30 +73,8 @@ namespace AbstUI.SDL2.Components
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
-            if (!Visibility) return nint.Zero;
-            ImGui.SetCursorPos(new Vector2(X, Y));
-            ImGui.PushID(Name);
-            if (!Enabled)
-                ImGui.BeginDisabled();
-
-            nint tex = _isOn ? _textureOnPtr : _textureOffPtr;
-            if (tex != nint.Zero)
-            {
-                Vector4 bg = _isOn ? new Vector4(0.25f, 0.25f, 0.25f, 1f) : Vector4.Zero;
-                if (ImGui.ImageButton(Name, tex, new Vector2(Width, Height), Vector2.Zero, Vector2.One, bg, Vector4.One))
-                    IsOn = !_isOn;
-            }
-            else
-            {
-                bool value = _isOn;
-                if (ImGui.Checkbox(Text, ref value))
-                    IsOn = value;
-            }
-
-            if (!Enabled)
-                ImGui.EndDisabled();
-            ImGui.PopID();
-            return nint.Zero;
+            if (!Visibility) return default;
+            return default;
         }
 
         public override void Dispose()
