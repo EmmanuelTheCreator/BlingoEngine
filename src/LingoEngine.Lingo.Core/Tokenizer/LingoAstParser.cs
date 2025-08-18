@@ -167,7 +167,24 @@ namespace LingoEngine.Lingo.Core.Tokenizer
             }
 
             if (expr is LingoVarNode v)
+            {
+                if (_currentToken.Type != LingoTokenType.End &&
+                    _currentToken.Type != LingoTokenType.Else &&
+                    _currentToken.Type != LingoTokenType.Eof &&
+                    _currentToken.Type != LingoTokenType.Return)
+                {
+                    var args = new List<LingoNode>();
+                    args.Add(ParseExpression());
+                    while (Match(LingoTokenType.Comma))
+                    {
+                        args.Add(ParseExpression());
+                    }
+                    var argList = new LingoDatumNode(new LingoDatum(args, LingoDatum.DatumType.ArgList));
+                    return new LingoCallNode { Callee = v, Arguments = argList };
+                }
+
                 return new LingoCallNode { Name = v.VarName };
+            }
 
             return expr;
         }
@@ -475,15 +492,33 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 case LingoTokenType.LeftBracket:
                     AdvanceToken();
                     var elements = new List<LingoNode>();
+                    var isPropList = false;
+                    if (Match(LingoTokenType.Colon))
+                    {
+                        Expect(LingoTokenType.RightBracket);
+                        expr = new LingoDatumNode(new LingoDatum(elements, LingoDatum.DatumType.PropList));
+                        break;
+                    }
                     if (_currentToken.Type != LingoTokenType.RightBracket)
                     {
                         do
                         {
-                            elements.Add(ParseExpression());
+                            var keyOrValue = ParseExpression();
+                            if (Match(LingoTokenType.Colon))
+                            {
+                                var value = ParseExpression();
+                                elements.Add(keyOrValue);
+                                elements.Add(value);
+                                isPropList = true;
+                            }
+                            else
+                            {
+                                elements.Add(keyOrValue);
+                            }
                         } while (Match(LingoTokenType.Comma));
                     }
                     Expect(LingoTokenType.RightBracket);
-                    expr = new LingoDatumNode(new LingoDatum(elements));
+                    expr = new LingoDatumNode(new LingoDatum(elements, isPropList ? LingoDatum.DatumType.PropList : LingoDatum.DatumType.List));
                     break;
 
                 case LingoTokenType.Symbol:

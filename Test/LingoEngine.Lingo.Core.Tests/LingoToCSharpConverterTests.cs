@@ -42,7 +42,7 @@ public class LingoToCSharpConverterTests
             "{",
             "    x = 2;",
             "}");
-        Assert.Equal(expected.Trim(), result.Trim());
+        Assert.Equal(expected.Trim(), result.Replace("\r", "").Trim());
     }
 
     [Fact]
@@ -70,6 +70,39 @@ public class LingoToCSharpConverterTests
     {
         var result = _converter.Convert("next repeat");
         Assert.Equal("continue;", result.Trim());
+    }
+
+    [Fact]
+    public void PropertyDescriptionListIsConverted()
+    {
+        var lingo = string.Join('\n',
+            "on getPropertyDescriptionList",
+            "  description = [:]",
+            "  addProp description,#myMin, [#default:0, #format:#integer, #comment:\"Min Value:\"]",
+            "  addProp description,#myMax, [#default:10, #format:#integer, #comment:\"Max Value:\"]",
+            "  addProp description,#myValue, [#default:-1, #format:#integer, #comment:\"My Start Value:\"]",
+            "  addProp description,#myStep, [#default:1, #format:#integer, #comment:\"My step:\"]",
+            "  addProp description,#myDataSpriteNum, [#default:1, #format:#integer, #comment:\"My Sprite that contains info\\n(set value to -1):\"]",
+            "  addProp description,#myDataName, [#default:1, #format:#string, #comment:\"Name Info:\"]",
+            "  addProp description,#myWaitbeforeExecute, [#default:70, #format:#integer, #comment:\"WaitTime before execute:\"]",
+            "  addProp description,#myFunction, [#default:70, #format:#symbol, #comment:\"function to execute:\"]",
+            "  return description",
+            "end");
+        var result = _converter.Convert(lingo);
+        var expected = string.Join('\n',
+            "public BehaviorPropertyDescriptionList? GetPropertyDescriptionList()",
+            "{",
+            "    return new BehaviorPropertyDescriptionList()",
+            "        .Add(this, x => x.myMin, \"Min Value:\", 0)",
+            "        .Add(this, x => x.myMax, \"Max Value:\", 10)",
+            "        .Add(this, x => x.myValue, \"My Start Value:\", -1)",
+            "        .Add(this, x => x.myStep, \"My step:\", 1)",
+            "        .Add(this, x => x.myDataSpriteNum, \"My Sprite that contains info\\n(set value to -1):\", 1)",
+            "        .Add(this, x => x.myDataName, \"Name Info:\", \"1\")",
+            "        .Add(this, x => x.myWaitbeforeExecute, \"WaitTime before execute:\", 70)",
+            "        .Add(this, x => x.myFunction, \"function to execute:\", \"70\");",
+            "}");
+        Assert.Equal(expected.Trim(), result.Replace("\r", "").Trim());
     }
 
     [Fact]
