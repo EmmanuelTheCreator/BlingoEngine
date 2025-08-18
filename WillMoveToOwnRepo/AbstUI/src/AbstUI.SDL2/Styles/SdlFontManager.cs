@@ -24,6 +24,7 @@ public class SdlFontManager : IAbstFontManager
     public void LoadAll()
     {
         if (_loadedFonts.Count == 0)
+            _loadedFonts.Add("default", new AbstSdlFont(this, "Tahoma", "Fonts\\Tahoma.ttf")); // default font
             _loadedFonts.Add("Tahoma", new AbstSdlFont(this, "Tahoma", "Fonts\\Tahoma.ttf")); // default font
         foreach (var font in _fontsToLoad)
             _loadedFonts[font.Name] = new AbstSdlFont(this, font.Name, font.FileName); // placeholder
@@ -36,7 +37,7 @@ public class SdlFontManager : IAbstFontManager
         => _loadedFonts.TryGetValue(name, out var f) ? f as T : null;
     public ISdlFontLoadedByUser GetTyped(object fontUser, string? name, int fontSize)
     {
-        if (string.IsNullOrEmpty(name)) return _loadedFonts["Tahoma"].Get(fontUser, fontSize);
+        if (string.IsNullOrEmpty(name)) return _loadedFonts["default"].Get(fontUser, fontSize);
         return _loadedFonts[name].Get(fontUser, fontSize);
     }
 

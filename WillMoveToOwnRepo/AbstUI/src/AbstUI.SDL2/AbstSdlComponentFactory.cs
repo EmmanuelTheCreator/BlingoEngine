@@ -15,6 +15,7 @@ namespace AbstUI.SDL2
 
         public ISdlRootComponentContext RootContext => _rootContext;
         public SdlFocusManager FocusManager => _rootContext.FocusManager;
+        public SdlFontManager FontManager => _fontManager;
 
         public AbstSdlComponentFactory(ISdlRootComponentContext rootContext, SdlFontManager fontManager)
         {

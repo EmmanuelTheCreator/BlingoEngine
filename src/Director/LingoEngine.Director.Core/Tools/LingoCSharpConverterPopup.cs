@@ -146,7 +146,8 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
     }
 
     public List<string> WordsLingoCodeKeywords = [.. _lingoKeyWordsDefault];
-    private static readonly string[] _lingoKeyWordsDefault = ["property", "on", "if", "then", "else", "me", "or", "and", "true", "false", "repeat", "with", "end", "to", "return", "while", "the", "new"];
+    private static readonly string[] _lingoKeyWordsDefault = [
+        "property", "on", "if", "then", "else", "me", "or", "and", "true", "false", "repeat", "with", "end", "to", "return", "while", "the", "new", "global"];
 
     public List<string> WordsLingoCodeBuiltIn = [.. _lingoWordsDefault];
     private static readonly string[] _lingoWordsDefault = [

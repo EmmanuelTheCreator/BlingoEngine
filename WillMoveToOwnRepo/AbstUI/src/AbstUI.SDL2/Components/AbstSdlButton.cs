@@ -12,9 +12,17 @@ namespace AbstUI.SDL2.Components
 {
     internal class AbstSdlButton : AbstSdlComponent, IAbstFrameworkButton, IHandleSdlEvent, ISdlFocusable, IDisposable
     {
-        public AbstSdlButton(AbstSdlComponentFactory factory) : base(factory)
-        {
-        }
+        private ISdlFontLoadedByUser? _font;
+        private SdlGlyphAtlas? _atlas;
+        private nint _texture;
+        private string _renderedText = string.Empty;
+        private int _texW;
+        private int _texH;
+        private bool _pressed;
+        private bool _focused;
+        private readonly SdlFontManager _fontManager;
+
+
         public AMargin Margin { get; set; } = AMargin.Zero;
         public string Text { get; set; } = string.Empty;
         public bool Enabled { get; set; } = true;
@@ -24,19 +32,15 @@ namespace AbstUI.SDL2.Components
 
         public event Action? Pressed;
 
-        private ISdlFontLoadedByUser? _font;
-        private SdlGlyphAtlas? _atlas;
-        private nint _texture;
-        private string _renderedText = string.Empty;
-        private int _texW;
-        private int _texH;
-        private bool _pressed;
-        private bool _focused;
-
+      
+        public AbstSdlButton(AbstSdlComponentFactory factory) : base(factory)
+        {
+            _fontManager = factory.FontManager;
+        }
         private void EnsureResources(AbstSDLRenderContext ctx)
         {
-            _font ??= ctx.SdlFontManager.GetTyped(this, null, 12);
-            _atlas ??= new SdlGlyphAtlas(ctx.Renderer, _font.FontHandle);
+            _font = _fontManager.GetDefaultFont<IAbstSdlFont>().Get(this,12);
+            _atlas ??= new SdlGlyphAtlas(ctx.Renderer, _font!.FontHandle);
         }
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)

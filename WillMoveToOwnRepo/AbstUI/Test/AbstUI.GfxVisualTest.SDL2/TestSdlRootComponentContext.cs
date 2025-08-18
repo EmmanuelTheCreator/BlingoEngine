@@ -30,7 +30,9 @@ public sealed class TestSdlRootComponentContext : ISdlRootComponentContext, IDis
     public TestSdlRootComponentContext()
     {
         SDL.SDL_Init(SDL.SDL_INIT_VIDEO);
-        SDL_image.IMG_Init(SDL_image.IMG_InitFlags.IMG_INIT_PNG);
+        SDL_image.IMG_Init(SDL_image.IMG_InitFlags.IMG_INIT_PNG | SDL_image.IMG_InitFlags.IMG_INIT_JPG);
+        SDL_ttf.TTF_Init();
+        SDL_mixer.Mix_Init(SDL_mixer.MIX_InitFlags.MIX_INIT_MP3); 
 
         Window = SDL.SDL_CreateWindow(
             "AbstUI SDL2 Visual Test",
@@ -39,7 +41,6 @@ public sealed class TestSdlRootComponentContext : ISdlRootComponentContext, IDis
             800,
             600,
             SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN);
-
         Renderer = SDL.SDL_CreateRenderer(
             Window,
             -1,
@@ -73,7 +74,7 @@ public sealed class TestSdlRootComponentContext : ISdlRootComponentContext, IDis
                 ComponentContainer.HandleEvent(e);
             }
 
-            SDL.SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
+            SDL.SDL_SetRenderDrawColor(Renderer, 50, 0, 0, 255);
             SDL.SDL_RenderClear(Renderer);
             ComponentContainer.Render(factory.CreateRenderContext());
             SDL.SDL_RenderPresent(Renderer);
@@ -92,7 +93,9 @@ public sealed class TestSdlRootComponentContext : ISdlRootComponentContext, IDis
     {
         SDL.SDL_DestroyRenderer(Renderer);
         SDL.SDL_DestroyWindow(Window);
+        SDL_ttf.TTF_Quit();
         SDL_image.IMG_Quit();
+        SDL_mixer.Mix_Quit();
         SDL.SDL_Quit();
     }
 }
