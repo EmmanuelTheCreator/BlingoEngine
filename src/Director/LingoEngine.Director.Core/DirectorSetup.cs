@@ -17,6 +17,9 @@ using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.Compilers;
 using LingoEngine.Director.Core.Compilers.Commands;
 using LingoEngine.Projects;
+using LingoEngine.Lingo.Core;
+using LingoEngine.Commands;
+using LingoEngine.Director.Core.Tools.Commands;
 
 namespace LingoEngine.Director.Core
 {
@@ -74,6 +77,12 @@ namespace LingoEngine.Director.Core
                 (serviceProvider) =>
                 {
                     serviceProvider.RegisterDirectorWindows();
+                    // Services that needs to be resolved to subscribe to the command handler.
+                    serviceProvider.GetRequiredService<ILingoCommandManager>()
+                        .Register<LingoCSharpConverterPopup, OpenLingoCSharpConverterCommand>()
+                        .Preload<OpenLingoCSharpConverterCommand>()
+                        ;
+                    
                     //serviceProvider.GetRequiredService<ILingoCommandManager>() // you forgot the canExecute?
                     //    .Register<CompileProjectCommandHandler, CompileProjectCommand>();
                     if (directorSettingsConfig != null)

@@ -1,7 +1,4 @@
-using System;
-using System.Linq;
 using LingoEngine.Core;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Commands;
 
@@ -12,12 +9,12 @@ internal sealed class LingoCommandManager : ILingoCommandManager
 
     public LingoCommandManager(ILingoServiceProvider provider) => _provider = provider;
 
-    public void Register<THandler, TCommand>()
+    public ILingoCommandManager Register<THandler, TCommand>()
         where THandler : ICommandHandler<TCommand>
         where TCommand : ILingoCommand
         => Register(typeof(THandler));
 
-    public void Register(Type handlerType)
+    public ILingoCommandManager Register(Type handlerType)
     {
         foreach (var iface in handlerType.GetInterfaces()
                      .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommandHandler<>)))
@@ -26,12 +23,13 @@ internal sealed class LingoCommandManager : ILingoCommandManager
             if (_handlers.TryGetValue(cmdType, out var handlers))
             {
                 if (handlers.Contains(handlerType))
-                    return; // Already registered
+                    return this; // Already registered
                 handlers.Add(handlerType);
             }
             else
                 _handlers[cmdType] = new List<Type> { handlerType };
         }
+        return this;
     }
 
     public bool Handle(ILingoCommand command)
@@ -74,5 +72,15 @@ internal sealed class LingoCommandManager : ILingoCommandManager
             if (list.Count == 0)
                 _handlers.Remove(cmdType);
         }
+    }
+
+    public ILingoCommandManager Preload<TCommand>() where TCommand : ILingoCommand
+    {
+        var type = typeof(TCommand);
+        if (!_handlers.TryGetValue(type, out var handlerTypes))
+            return this;
+        foreach (var handlerType in handlerTypes)
+            _provider.GetService(handlerType);
+        return this;
     }
 }
