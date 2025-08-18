@@ -48,8 +48,38 @@ public sealed class ImGuiImGuiBackend : IDisposable
     /// </summary>
     public void ProcessEvent(object evt)
     {
-        // TODO: translate platform events to ImGui IO events.
+        var data = global::ImGuiNET.ImGui.GetDrawData();
+        var overlay = global::ImGuiNET.ImGui.GetForegroundDrawList();
+
+        for (var n = 0; n < data.CmdListsCount; n++)
+        {
+            var src = data.CmdLists[n];
+            var vtx = src.VtxBuffer;
+            var idx = src.IdxBuffer;
+
+            var idxOffset = 0;
+            for (var cmdi = 0; cmdi < src.CmdBuffer.Size; cmdi++)
+            {
+                var cmd = src.CmdBuffer[cmdi];
+                overlay.PushClipRect(
+                    new Vector2(cmd.ClipRect.X, cmd.ClipRect.Y),
+                    new Vector2(cmd.ClipRect.Z, cmd.ClipRect.W),
+                    true);
+
+                for (var i = 0; i < cmd.ElemCount; i += 3)
+                {
+                    var v0 = vtx[idx[idxOffset + i]];
+                    var v1 = vtx[idx[idxOffset + i + 1]];
+                    var v2 = vtx[idx[idxOffset + i + 2]];
+                    overlay.AddTriangleFilled(v0.pos, v1.pos, v2.pos, v0.col);
+                }
+
+                idxOffset += (int)cmd.ElemCount;
+                overlay.PopClipRect();
+            }
+        }
     }
+    
 
     public void NewFrame()
     {

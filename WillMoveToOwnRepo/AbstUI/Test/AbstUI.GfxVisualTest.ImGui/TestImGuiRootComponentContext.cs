@@ -64,10 +64,21 @@ public sealed class TestImGuiRootComponentContext : IImGuiRootComponentContext, 
         while (!Console.KeyAvailable)
         {
             ImGuiViewPort = _imgui.BeginFrame();
-            ImDrawList = global::ImGuiNET.ImGui.GetForegroundDrawList();
-            ImDrawList.AddText(ImGuiViewPort.WorkPos + new Vector2(10, 10), 0xFFFFFFFF, "ImGui visual test");
-            var origin = ImGuiViewPort.WorkPos;
+            global::ImGuiNET.ImGui.SetNextWindowPos(ImGuiViewPort.WorkPos);
+            global::ImGuiNET.ImGui.SetNextWindowSize(ImGuiViewPort.WorkSize);
+            global::ImGuiNET.ImGui.Begin(
+                "AbstUI ImGui Visual Test",
+                ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize);
+
+            ImDrawList = global::ImGuiNET.ImGui.GetWindowDrawList();
+            var origin = global::ImGuiNET.ImGui.GetWindowPos();
+            ImDrawList.AddRectFilled(
+                origin + new Vector2(20, 20),
+                origin + new Vector2(120, 80),
+                0xFFFF00FF);
             ComponentContainer.Render(new AbstImGuiRenderContext(Renderer, ImGuiViewPort, ImDrawList, origin, FontManager));
+
+            global::ImGuiNET.ImGui.End();
             _imgui.EndFrame();
             Thread.Sleep(16);
         }
