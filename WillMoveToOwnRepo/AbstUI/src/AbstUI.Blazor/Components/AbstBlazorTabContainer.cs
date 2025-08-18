@@ -20,7 +20,7 @@ public partial class AbstBlazorTabContainer : AbstBlazorComponentBase, IAbstFram
         else
             _fragments.Add(builder => { });
         if (_selectedIndex == -1) _selectedIndex = 0;
-        StateHasChanged();
+        RequestRender();
     }
 
     public void RemoveTab(IAbstFrameworkTabItem content)
@@ -31,7 +31,7 @@ public partial class AbstBlazorTabContainer : AbstBlazorComponentBase, IAbstFram
             _tabs.RemoveAt(index);
             _fragments.RemoveAt(index);
             if (_selectedIndex >= _tabs.Count) _selectedIndex = _tabs.Count - 1;
-            StateHasChanged();
+            RequestRender();
         }
     }
 
@@ -42,7 +42,7 @@ public partial class AbstBlazorTabContainer : AbstBlazorComponentBase, IAbstFram
         _tabs.Clear();
         _fragments.Clear();
         _selectedIndex = -1;
-        StateHasChanged();
+        RequestRender();
     }
 
     public void SelectTabByName(string tabName)
@@ -51,7 +51,7 @@ public partial class AbstBlazorTabContainer : AbstBlazorComponentBase, IAbstFram
         if (idx >= 0)
         {
             _selectedIndex = idx;
-            StateHasChanged();
+            RequestRender();
         }
     }
 

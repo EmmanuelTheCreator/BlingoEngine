@@ -2,11 +2,10 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using AbstUI.Components;
-using AbstUI.Primitives;
 
 namespace AbstUI.Blazor.Components;
 
-public partial class AbstBlazorInputCombobox : IAbstFrameworkInputCombobox
+public partial class AbstBlazorItemList : IAbstFrameworkItemList
 {
     [Parameter] public bool Enabled { get; set; } = true;
 

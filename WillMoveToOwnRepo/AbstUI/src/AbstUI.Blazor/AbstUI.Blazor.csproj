@@ -49,6 +49,8 @@
     <Compile Include="Components/AbstBlazorInputNumber.cs" />
     <Compile Include="Components/AbstBlazorSpinBox.cs" />
     <Compile Include="Components/AbstBlazorColorPicker.cs" />
+    <Compile Include="Components/AbstBlazorInputCombobox.cs" />
+    <Compile Include="Components/AbstBlazorItemList.cs" />
     <Compile Include="Components/AbstBlazorStateButton.cs" />
     <Compile Include="Components/AbstBlazorPanel.cs" />
     <Compile Include="Components/AbstBlazorWrapPanel.cs" />

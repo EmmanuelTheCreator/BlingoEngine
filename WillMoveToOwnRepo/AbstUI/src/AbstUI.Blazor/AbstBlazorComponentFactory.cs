@@ -151,6 +151,8 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
     public AbstInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null)
     {
         var input = new AbstInputCombobox();
+        var impl = new AbstBlazorInputCombobox();
+        input.Init(impl);
         input.Name = name;
         if (onChange != null)
             input.ValueChanged += () => onChange(input.SelectedKey);
@@ -160,6 +162,8 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
     public AbstItemList CreateItemList(string name, Action<string?>? onChange = null)
     {
         var list = new AbstItemList();
+        var impl = new AbstBlazorItemList();
+        list.Init(impl);
         list.Name = name;
         if (onChange != null)
             list.ValueChanged += () => onChange(list.SelectedKey);

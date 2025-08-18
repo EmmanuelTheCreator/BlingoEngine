@@ -17,6 +17,26 @@ public abstract class AbstBlazorComponentBase : ComponentBase, IAbstFrameworkLay
     public object FrameworkNode => this;
     public virtual void Dispose() { }
 
+    private bool _renderHandleAssigned;
+
+    protected override void OnInitialized()
+    {
+        _renderHandleAssigned = true;
+        base.OnInitialized();
+    }
+
+    /// <summary>
+    /// Requests a re-render if the component has been initialized.
+    /// This avoids calling <see cref="ComponentBase.StateHasChanged"/> before the
+    /// render handle is assigned which would otherwise throw an exception when
+    /// children are added during initial construction of the scene.
+    /// </summary>
+    protected void RequestRender()
+    {
+        if (_renderHandleAssigned)
+            _ = InvokeAsync(StateHasChanged);
+    }
+
     public RenderFragment RenderFragment => builder =>
     {
         builder.OpenComponent(0, GetType());

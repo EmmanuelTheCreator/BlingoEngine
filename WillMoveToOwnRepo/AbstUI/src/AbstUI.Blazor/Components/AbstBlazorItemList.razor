@@ -1,0 +1,8 @@
+@inherits AbstBlazorComponentBase
+<select id="@Name" value="@SelectedIndex" @onchange="HandleChange" disabled="@(Enabled ? null : true)" style="@BuildStyle()" size="@_items.Count">
+    @for (int i = 0; i < _items.Count; i++)
+    {
+        var item = _items[i];
+        <option value="@i">@item.Value</option>
+    }
+</select>
