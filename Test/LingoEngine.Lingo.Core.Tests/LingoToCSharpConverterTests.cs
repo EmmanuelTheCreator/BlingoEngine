@@ -121,6 +121,30 @@ public class LingoToCSharpConverterTests
     }
 
     [Fact]
+    public void SendSpriteUnknownMethodGeneratesBehavior()
+    {
+        var scripts = new[]
+        {
+            new LingoScriptFile
+            {
+                Name = "B1",
+                Source = "on beginSprite\r\n sendSprite 2, #doIt\r\nend\r\n",
+                Type = LingoScriptType.Behavior
+            }
+        };
+        var batch = _converter.Convert(scripts);
+        var expected = string.Join('\n',
+            "public void BeginSprite()",
+            "{",
+            "SendSprite<DoItBehavior>(2, doitbehavior => doitbehavior.doIt());",
+            "}");
+        Assert.Equal(expected.Trim(), batch.ConvertedScripts["B1"].Trim());
+        Assert.True(batch.ConvertedScripts.ContainsKey("DoItBehavior"));
+        Assert.Contains("public class DoItBehavior : LingoSpriteBehavior", batch.ConvertedScripts["DoItBehavior"]);
+        Assert.Contains("public object? doIt(params object?[] args) => null;", batch.ConvertedScripts["DoItBehavior"]);
+    }
+
+    [Fact]
     public void UnknownMethodCallsMovieScript()
     {
         var scripts = new[]
