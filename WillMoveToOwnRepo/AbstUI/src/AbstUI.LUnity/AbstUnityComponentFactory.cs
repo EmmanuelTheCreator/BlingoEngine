@@ -10,7 +10,16 @@ namespace AbstUI.LUnity;
 /// </summary>
 public class AbstUnityComponentFactory : IAbstComponentFactory
 {
-    public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height) => throw new NotImplementedException();
+    public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
+    {
+        var canvas = new AbstGfxCanvas();
+        var impl = new AbstUnityGfxCanvas(width, height);
+        canvas.Init(impl);
+        canvas.Name = name;
+        canvas.Width = width;
+        canvas.Height = height;
+        return canvas;
+    }
 
     public AbstWrapPanel CreateWrapPanel(AOrientation orientation, string name)
     {
@@ -196,9 +205,23 @@ public class AbstUnityComponentFactory : IAbstComponentFactory
 
     public AbstMenu CreateContextMenu(object window) => throw new NotImplementedException();
 
-    public AbstHorizontalLineSeparator CreateHorizontalLineSeparator(string name) => throw new NotImplementedException();
+    public AbstHorizontalLineSeparator CreateHorizontalLineSeparator(string name)
+    {
+        var sep = new AbstHorizontalLineSeparator();
+        var impl = new AbstUnityHorizontalLineSeparator();
+        sep.Init(impl);
+        sep.Name = name;
+        return sep;
+    }
 
-    public AbstVerticalLineSeparator CreateVerticalLineSeparator(string name) => throw new NotImplementedException();
+    public AbstVerticalLineSeparator CreateVerticalLineSeparator(string name)
+    {
+        var sep = new AbstVerticalLineSeparator();
+        var impl = new AbstUnityVerticalLineSeparator();
+        sep.Init(impl);
+        sep.Name = name;
+        return sep;
+    }
 
     public AbstWindow CreateWindow(string name, string title = "") => throw new NotImplementedException();
 }

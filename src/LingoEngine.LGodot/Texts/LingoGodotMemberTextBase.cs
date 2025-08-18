@@ -224,6 +224,22 @@ namespace LingoEngine.LGodot.Texts
         protected Node CreateForSpriteDraw(LingoGodotMemberTextBase<TLingoText> copiedNode)
         {
             var newNode = new GodotMemberTextNode(_usedNodes.Count + 1, _LabelSettings);
+
+
+            if (!string.IsNullOrWhiteSpace(_lingoMemberText?.Name))
+                newNode.SetName(_lingoMemberText.Name);
+
+            newNode.LabelNode.Text = _text;
+            newNode.LabelNode.AutowrapMode = _defaultTextNode.LabelNode.AutowrapMode;
+            newNode.LabelNode.LinesSkipped = _defaultTextNode.LabelNode.LinesSkipped;
+            newNode.LabelNode.HorizontalAlignment = _defaultTextNode.LabelNode.HorizontalAlignment;
+            newNode.LabelNode.CustomMinimumSize = _defaultTextNode.LabelNode.CustomMinimumSize;
+            newNode.LabelNode.AddThemeConstantOverride("margin_left", _margin);
+            newNode.LabelNode.AddThemeConstantOverride("margin_right", _margin);
+            newNode.LabelNode.AddThemeConstantOverride("margin_top", _margin);
+            newNode.LabelNode.AddThemeConstantOverride("margin_bottom", _margin);
+
+
             _usedNodes.Add(newNode);
 
             // Ensure new nodes inherit current text settings.

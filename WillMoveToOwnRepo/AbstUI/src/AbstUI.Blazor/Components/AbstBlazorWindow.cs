@@ -1,6 +1,7 @@
 using AbstUI.Components;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace AbstUI.Blazor.Components;
@@ -16,13 +17,13 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IAbstFrameworkWindow, IDispos
 
     [Inject] private IJSRuntime JS { get; set; } = default!;
 
-    public AbstBlazorWindow(AbstWindow window, AbstBlazorComponentFactory factory) : base(factory)
+    public AbstBlazorWindow(AbstWindow window, AbstBlazorComponentFactory factory) 
     {
         _lingoWindow = window;
         _factory = factory;
-        var mouse = ((IAbstMouseInternal)factory.RootContext.AbstMouse).CreateNewInstance(window);
-        var key = ((AbstKey)factory.RootContext.AbstKey).CreateNewInstance(window);
-        _lingoWindow.Init(this, mouse, key);
+        //var mouse = ((IAbstMouseInternal)factory.RootContext.AbstMouse).CreateNewInstance(window);
+        //var key = ((AbstKey)factory.RootContext.AbstKey).CreateNewInstance(window);
+        //_lingoWindow.Init(this, mouse, key);
         Visibility = false;
     }
 
@@ -83,17 +84,17 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IAbstFrameworkWindow, IDispos
     {
         EnsureModule();
         _module!.InvokeVoidAsync("AbstUIWindow.showBootstrapModal", Name);
-        _factory.RootContext.ComponentContainer.Activate(ComponentContext);
+        //_factory.RootContext.ComponentContainer.Activate(ComponentContext);
         Visibility = true;
         _lingoWindow.RaiseWindowStateChanged(true);
     }
 
     public void PopupCentered()
     {
-        APoint size = _factory.RootContext.GetWindowSize();
+        //APoint size = _factory.RootContext.GetWindowSize();
 
-        X = (size.X - Width) / 2f;
-        Y = (size.Y - Height) / 2f;
+        //X = (size.X - Width) / 2f;
+        //Y = (size.Y - Height) / 2f;
         Popup();
         _lingoWindow.RaiseWindowStateChanged(true);
     }
@@ -103,7 +104,7 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IAbstFrameworkWindow, IDispos
         EnsureModule();
         _module!.InvokeVoidAsync("AbstUIWindow.hideBootstrapModal", Name);
         Visibility = false;
-        _factory.RootContext.ComponentContainer.Deactivate(ComponentContext);
+        //_factory.RootContext.ComponentContainer.Deactivate(ComponentContext);
         _lingoWindow.RaiseWindowStateChanged(false);
     }
 

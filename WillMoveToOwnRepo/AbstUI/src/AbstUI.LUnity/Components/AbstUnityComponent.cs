@@ -13,7 +13,7 @@ internal class AbstUnityComponent : IAbstFrameworkLayoutNode
 
     protected AbstUnityComponent(GameObject? gameObject = null)
     {
-        GameObject = gameObject ?? new GameObject();
+        GameObject = gameObject ?? new GameObject("AbstUIComponent", typeof(RectTransform));
     }
 
     public string Name

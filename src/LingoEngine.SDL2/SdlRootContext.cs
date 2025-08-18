@@ -17,7 +17,7 @@ public class SdlRootContext : AbstUISdlRootContext<LingoMouse>, ISdlRootComponen
     private LingoPlayer _lPlayer;
     public LingoDebugOverlay DebugOverlay { get; set; }
 
-    public SdlRootContext(nint window, nint renderer) : base(window, renderer)
+    public SdlRootContext(nint window, nint renderer, SdlFocusManager focusManager) : base(window, renderer, focusManager)
     {
         _sdlMouse = new LingoSdlMouse(new Lazy<AbstMouse<LingoMouseEvent>>(() => (LingoMouse)AbstMouse));
         Mouse = _sdlMouse;

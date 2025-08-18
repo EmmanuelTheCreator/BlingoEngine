@@ -135,7 +135,10 @@ public class LingoToCSharpConverter
     /// </summary>
     public string ConvertClass(LingoScriptFile script)
     {
-        var suffix = script.Type switch
+        var handlers = ExtractHandlerNames(script.Source);
+        var scriptType = handlers.Contains("getPropertyDescriptionList") ? LingoScriptType.Behavior : script.Type;
+
+        var suffix = scriptType switch
         {
             LingoScriptType.Movie => "MovieScript",
             LingoScriptType.Parent => "ParentScript",
@@ -143,7 +146,7 @@ public class LingoToCSharpConverter
             _ => "Script"
         };
 
-        var baseType = script.Type switch
+        var baseType = scriptType switch
         {
             LingoScriptType.Movie => "LingoMovieScript",
             LingoScriptType.Parent => "LingoParentScript",
@@ -152,31 +155,13 @@ public class LingoToCSharpConverter
         };
 
         var className = script.Name + suffix;
-
-        var handlers = ExtractHandlerNames(script.Source);
-        string[] propDescRequired =
-        {
-            "getPropertyDescriptionList",
-            "getBehaviorDescription",
-            "getBehaviorTooltip",
-            "runPropertyDialog",
-            "isOKToAttach"
-        };
-        bool hasPropDescHandlers = true;
-        foreach (string h in propDescRequired)
-        {
-            if (!handlers.Contains(h))
-            {
-                hasPropDescHandlers = false;
-                break;
-            }
-        }
+        bool hasPropDescHandler = handlers.Contains("getPropertyDescriptionList");
 
         var sb = new System.Text.StringBuilder();
-        sb.AppendLine($"public class {className} : {baseType}{(hasPropDescHandlers ? ", ILingoPropertyDescriptionList" : string.Empty)}");
+        sb.AppendLine($"public class {className} : {baseType}{(hasPropDescHandler ? ", ILingoPropertyDescriptionList" : string.Empty)}");
         sb.AppendLine("{");
 
-        bool needsGlobal = script.Type == LingoScriptType.Movie || script.Type == LingoScriptType.Parent;
+        bool needsGlobal = scriptType == LingoScriptType.Movie || scriptType == LingoScriptType.Parent;
         if (needsGlobal)
         {
             sb.AppendLine("    private readonly GlobalVars _global;");
@@ -200,6 +185,21 @@ public class LingoToCSharpConverter
             sb.AppendLine(" { }");
         }
 
+        if (hasPropDescHandler)
+        {
+            var props = ExtractPropertyDescriptions(script.Source);
+            sb.AppendLine();
+            sb.AppendLine("    public BehaviorPropertyDescriptionList? GetPropertyDescriptionList() => new()");
+            sb.AppendLine("    {");
+            for (int i = 0; i < props.Count; i++)
+            {
+                var p = props[i];
+                var comma = i < props.Count - 1 ? "," : string.Empty;
+                sb.AppendLine($"        {{ this, x => x.{p.Name}, \"{p.Comment}\", {p.Default} }}{comma}");
+            }
+            sb.AppendLine("    };");
+        }
+
         sb.AppendLine("}");
         return sb.ToString();
     }
@@ -212,6 +212,29 @@ public class LingoToCSharpConverter
             set.Add(m.Groups[1].Value);
         return set;
     }
+
+    private static List<(string Name, string Default, string Comment)> ExtractPropertyDescriptions(string source)
+    {
+        var list = new List<(string Name, string Default, string Comment)>();
+        var regex = new Regex(@"addProp\s+description,#(?<name>\w+),\s*\[(?<body>[^\]]*)\]", RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        foreach (Match m in regex.Matches(source))
+        {
+            var name = m.Groups["name"].Value;
+            var body = m.Groups["body"].Value;
+            var defMatch = Regex.Match(body, @"#default:(?<val>[^,#\]]+)");
+            var fmtMatch = Regex.Match(body, @"#format:#(?<fmt>\w+)");
+            var commentMatch = Regex.Match(body, @"#comment:""(.*?)""", RegexOptions.Singleline);
+            var def = defMatch.Success ? defMatch.Groups["val"].Value.Trim() : "0";
+            var fmt = fmtMatch.Success ? fmtMatch.Groups["fmt"].Value.Trim().ToLowerInvariant() : string.Empty;
+            if (fmt == "string" || fmt == "symbol")
+                def = $"\"{Escape(def)}\"";
+            var comment = commentMatch.Success ? Escape(commentMatch.Groups[1].Value) : string.Empty;
+            list.Add((name, def, comment));
+        }
+        return list;
+    }
+
+    private static string Escape(string value) => value.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n");
 
     private static bool TryConvertNewMember(string source, out string converted)
     {
@@ -306,6 +329,8 @@ public class LingoToCSharpConverter
 
     private static LingoScriptType DetectScriptType(string source)
     {
+        if (Regex.IsMatch(source, @"(?im)^\s*on\s+getPropertyDescriptionList\b"))
+            return LingoScriptType.Behavior;
         if (Regex.IsMatch(source, @"(?im)^\s*on\s+new\s+me\b"))
             return LingoScriptType.Parent;
         if (Regex.IsMatch(source, @"(?im)^\s*on\s+(startmovie|endmovie)\b"))

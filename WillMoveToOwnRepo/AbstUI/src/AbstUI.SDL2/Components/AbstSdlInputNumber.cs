@@ -7,7 +7,7 @@ using AbstUI.SDL2.SDLL;
 
 namespace AbstUI.SDL2.Components;
 
-internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInputNumber<TValue>, IHandleSdlEvent, IDisposable
+internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInputNumber<TValue>, IHandleSdlEvent, ISdlFocusable, IDisposable
 #if NET48
     where TValue : struct
 #else
@@ -132,5 +132,9 @@ internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInpu
         base.Dispose();
         _textInput.Dispose();
     }
+
+    public bool HasFocus => _textInput.HasFocus;
+
+    public void SetFocus(bool focus) => _textInput.SetFocus(focus);
 }
 
