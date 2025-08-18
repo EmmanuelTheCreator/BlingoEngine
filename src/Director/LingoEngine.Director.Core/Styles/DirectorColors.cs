@@ -1,4 +1,5 @@
 ﻿using AbstUI.Primitives;
+using System.Drawing;
 
 namespace LingoEngine.Director.Core.Styles
 {
@@ -103,10 +104,16 @@ namespace LingoEngine.Director.Core.Styles
 
 
         // Code Highlighting
-        public static AColor CodeKeyword = new AColor(0, 0, 200); // Blue
-        public static AColor CodeLiteral = new AColor(80, 80, 80); // Dark gray
-        public static AColor CodeComment = new AColor(200, 0, 0); // Dark red
-        public static AColor CodeBuiltIn = new AColor(0, 128, 0); // Green
+        public static AColor LingoCodeKeyword = new AColor(0, 0, 200); // Blue
+        public static AColor LingoCodeLiteral = new AColor(80, 80, 80); // Dark gray
+        public static AColor LingoCodeComment = new AColor(200, 0, 0); // Dark red
+        public static AColor LingoCodeBuiltIn = new AColor(0, 128, 0); // Green
+
+        public static AColor CCharpCodeTypes = AColor.FromHex("#2B91AF"); // Teal
+        public static AColor CCharpCodeBuiltIn = AColor.FromHex("#0000FF"); // Blue
+        public static AColor CCharpCodeString = AColor.FromHex("#A31515"); // Maroon
+        public static AColor CCharpCodeComment = AColor.FromHex("#008000"); // Green
+        public static AColor CCharpCodeNumber = AColor.FromHex("#098658"); // Dark green
 
     }
 }

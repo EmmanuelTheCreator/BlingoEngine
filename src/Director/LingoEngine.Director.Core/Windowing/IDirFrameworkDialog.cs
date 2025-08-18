@@ -4,6 +4,6 @@ namespace LingoEngine.Director.Core.Windowing
 {
     public interface IDirFrameworkDialog : IFrameworkFor<ILingoDialog>
     {
-        void Init();
+        void Init(ILingoDialog lingoDialog);
     }
 }

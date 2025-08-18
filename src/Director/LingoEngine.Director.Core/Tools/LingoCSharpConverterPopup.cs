@@ -6,6 +6,7 @@ using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Lingo.Core;
+using LingoEngine.Texts;
 using TextCopy;
 
 namespace LingoEngine.Director.Core.Tools;
@@ -126,6 +127,7 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
                         ? $"Line {e.LineNumber}: {e.LineText} - {e.Error}"
                         : $"{e.File}:{e.LineNumber}: {e.LineText} - {e.Error}"));
                 errorInput.Text = vm.Errors;
+                _frameworkObj?.UpdateCSharpColors(_csharpInput);
             });
 
         return root;
@@ -142,4 +144,42 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
         _lingoInput.Dispose();
         _csharpInput.Dispose();
     }
+
+    public List<string> WordsLingoCodeKeywords = [.. _lingoKeyWordsDefault];
+    private static readonly string[] _lingoKeyWordsDefault = ["property", "on", "if", "then", "else", "me", "or", "and", "true", "false", "repeat", "with", "end", "to", "return", "while", "the", "new"];
+
+    public List<string> WordsLingoCodeBuiltIn = [.. _lingoWordsDefault];
+    private static readonly string[] _lingoWordsDefault = [
+            "point","loc","void","char","rgb","in","line",
+            "default","format","color","comment","integer","boolean","string","text","string","symbol",
+            "getPropertyDescriptionList","GetBehaviorTooltip","IsOKToAttach","GetBehaviorDescription",
+            "_movie","actorlist","cursor","alert",
+            "membernum","member","preload","sound",
+            "sprite","spritenum","locH","locV","locZ","blend","ink","mouseH","mouseV","puppet",
+            "deleteOne","append","getpos","deleteone","addprop","sendsprite","voidp","frame","length","count",
+            "go","exit",
+            "value",
+            "script","handler",
+            "stepFrame","beginsprite","endsprite",
+            "startmovie","stopmovie",
+            "mouseup","mousedown","mouseenter","mouseleave",
+            "neterror","nettextresult","getNetText",
+            "_key","keypressed","controldown","shiftdown",
+        ];
+    public List<string> WordsCCharpCodeBuiltIn = [.. _csharpWordsDefault];
+    private static readonly string[] _csharpWordsDefault = [
+             "abstract","as","base","break","case","catch","checked","class","const","continue",
+            "default","delegate","do","else","enum","event","explicit","extern","finally","fixed",
+            "for","foreach","goto","if","implicit","in","interface","internal","is","lock",
+            "namespace","new","operator","out","override","params","private","protected","public",
+            "readonly","record","ref","return","sealed","sizeof","stackalloc","static","struct",
+            "switch","this","throw","try","typeof","unsafe","using","virtual","volatile","while",
+            "async","await","var","null","true","false",
+        ];
+    public List<string> WordsCCharpCodeTypes = [.. _csharpWordsCodeTypesDefault];
+    private static readonly string[] _csharpWordsCodeTypesDefault = [
+
+            "bool","byte","sbyte","char","decimal","double","float","int","uint","nint","nuint",
+            "long","ulong","object","short","ushort","string","void"
+        ];
 }

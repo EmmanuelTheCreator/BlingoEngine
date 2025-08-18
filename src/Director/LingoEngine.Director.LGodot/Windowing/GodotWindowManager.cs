@@ -190,7 +190,7 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
         if (lingoDialog != null)
         {
             var frameworkDialog = (IDirFrameworkDialog)dialog;
-            frameworkDialog.Init();
+            frameworkDialog.Init(lingoDialog);
             lingoDialog.Init(frameworkDialog);
         }
         dialog.PopupCentered();
