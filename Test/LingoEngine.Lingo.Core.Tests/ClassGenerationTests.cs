@@ -144,5 +144,45 @@ end",
         Assert.Contains("return new BehaviorPropertyDescriptionList()", result);
         Assert.Contains(".Add(this, x => x.myStartMembernum, \"My Start membernum:\", 0)", result);
         Assert.Contains(".Add(this, x => x.myFunction, \"function to execute:\", \"70\")", result);
+        Assert.Contains("public int myStartMembernum = 0;", result);
+        Assert.Contains("public string myFunction = \"70\";", result);
+    }
+
+    [Fact]
+    public void PropertyDeclarationsBecomeFields()
+    {
+        var file = new LingoScriptFile
+        {
+            Name = "MyVars",
+            Source = @"property myVar1, myVar2
+on startMovie
+end",
+            Type = LingoScriptType.Behavior
+        };
+        var result = _converter.ConvertClass(file);
+        Assert.Contains("public object myVar1;", result);
+        Assert.Contains("public object myVar2;", result);
+    }
+
+    [Fact]
+    public void PropertyTypesAreInferredFromAssignments()
+    {
+        var file = new LingoScriptFile
+        {
+            Name = "InferTypes",
+            Source = @"property a, b, c, d
+on startMovie
+  a = 1
+  b = ""hi""
+  c = member(""foo"").text
+  d = false
+end",
+            Type = LingoScriptType.Behavior
+        };
+        var result = _converter.ConvertClass(file);
+        Assert.Contains("public int a;", result);
+        Assert.Contains("public string b;", result);
+        Assert.Contains("public string c;", result);
+        Assert.Contains("public bool d;", result);
     }
 }

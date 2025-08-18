@@ -213,6 +213,37 @@ public class LingoToCSharpConverterTests
     }
 
     [Fact]
+    public void CommentLinesArePreserved()
+    {
+        var lingo = string.Join('\n', "-- test", "put 1 into x");
+        var result = _converter.Convert(lingo);
+        var expected = string.Join('\n', "// test", "x = 1;");
+        Assert.Equal(expected.Trim(), result.Trim());
+    }
+
+    [Fact]
+    public void ElseIfStatementIsConverted()
+    {
+        var lingo = string.Join('\n',
+            "if a = 1 then",
+            "  x = 1",
+            "else if a = 2 then",
+            "  x = 2",
+            "end if");
+        var result = _converter.Convert(lingo);
+        var expected = string.Join('\n',
+            "if (a == 1)",
+            "{",
+            "    x = 1;",
+            "}",
+            "else if (a == 2)",
+            "{",
+            "    x = 2;",
+            "}");
+        Assert.Equal(expected.Trim(), result.Trim());
+    }
+
+    [Fact]
     public void MeVoidAssignmentIsIgnored()
     {
         var lingo = string.Join('\n',
@@ -429,28 +460,28 @@ end";
     {
         var global = new LingoGlobalDeclStmtNode();
         global.Names.AddRange(["g1", "g2"]);
-        Assert.Equal("var g1, g2;", CSharpWriter.Write(global).Trim());
+        Assert.Equal(string.Empty, CSharpWriter.Write(global).Trim());
 
         var prop = new LingoPropertyDeclStmtNode();
         prop.Names.AddRange(["p1", "p2"]);
-        Assert.Equal("var p1, p2;", CSharpWriter.Write(prop).Trim());
+        Assert.Equal(string.Empty, CSharpWriter.Write(prop).Trim());
 
         var inst = new LingoInstanceDeclStmtNode();
         inst.Names.AddRange(["i1"]);
-        Assert.Equal("var i1;", CSharpWriter.Write(inst).Trim());
+        Assert.Equal(string.Empty, CSharpWriter.Write(inst).Trim());
     }
 
     [Fact]
     public void DeclarationStatementsAreParsedAndConverted()
     {
         var result = _converter.Convert("global g1, g2");
-        Assert.Equal("var g1, g2;", result.Trim());
+        Assert.Equal(string.Empty, result.Trim());
 
         result = _converter.Convert("property p1, p2");
-        Assert.Equal("var p1, p2;", result.Trim());
+        Assert.Equal(string.Empty, result.Trim());
 
         result = _converter.Convert("instance i1");
-        Assert.Equal("var i1;", result.Trim());
+        Assert.Equal(string.Empty, result.Trim());
     }
 
     [Fact]
