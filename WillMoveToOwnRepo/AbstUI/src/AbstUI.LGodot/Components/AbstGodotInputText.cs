@@ -3,6 +3,7 @@ using Godot;
 using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.Styles;
+using AbstUI.LGodot.Primitives;
 
 namespace AbstUI.LGodot.Components
 {
@@ -23,7 +24,7 @@ namespace AbstUI.LGodot.Components
 
         private float _wantedWidth = 10;
         private float _wantedHeight = 10;
-        private Color _fontColor = Colors.Black;
+        private AColor _textColor = AColors.Black;
         private bool _isMultiLine;
         public object FrameworkNode => _control;
 
@@ -32,7 +33,7 @@ namespace AbstUI.LGodot.Components
             _onChange = onChange;
             _fontManager = fontManager;
             IsMultiLine = multiLine;
-            _control= InitControl(multiLine);
+            _control = InitControl(multiLine);
 
             input.Init(this);
         }
@@ -218,15 +219,15 @@ namespace AbstUI.LGodot.Components
             }
         }
 
-      
 
-        public Color FontColor
+
+        public AColor TextColor
         {
-            get => _fontColor;
+            get => _textColor;
             set
             {
-                _fontColor = value;
-                _control.AddThemeColorOverride("font_color", _fontColor);
+                _textColor = value;
+                _control.AddThemeColorOverride("font_color", _textColor.ToGodotColor());
             }
         }
 
@@ -243,7 +244,7 @@ namespace AbstUI.LGodot.Components
             }
         }
 
-       
+
 
         public bool IsMultiLine
         {

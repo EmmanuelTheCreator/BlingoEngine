@@ -45,6 +45,7 @@ namespace AbstUI.SDL2.Components
         public int FontSize { get; set; } = 12;
         public AMargin Margin { get; set; } = AMargin.Zero;
         public object FrameworkNode => this;
+        public AColor TextColor { get; set; } = AColors.Black;
 
         public bool IsMultiLine { get; set; }
 
@@ -155,7 +156,7 @@ namespace AbstUI.SDL2.Components
             int baseline = (int)Y + (int)Height / 2 + ascent / 2;
 
             _atlas.DrawRun(CollectionsMarshal.AsSpan(_codepoints), (int)X + 4, baseline,
-                new SDL.SDL_Color { r = 0, g = 0, b = 0, a = 255 });
+                TextColor.ToSDLColor());
 
             if (_focused)
             {
