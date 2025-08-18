@@ -1,10 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Net.Http;
-using System.Runtime.InteropServices;
 using AbstUI.Blazor;
 using AbstUI.Blazor.Bitmaps;
 using AbstUI.Primitives;
@@ -15,6 +11,8 @@ using LingoEngine.Sprites;
 using LingoEngine.Tools;
 using AbstUI.Tools;
 using Microsoft.JSInterop;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace LingoEngine.Blazor.Bitmaps;
 
@@ -111,27 +109,12 @@ public class LingoBlazorMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
         ImageData = bytes;
         try
         {
-            using var ms = new MemoryStream(bytes);
-            using var img = Image.FromStream(ms);
+            using var img = Image.Load<Rgba32>(bytes);
             Width = img.Width;
             Height = img.Height;
-            var rect = new Rectangle(0, 0, Width, Height);
-            using var bmp = new Bitmap(img);
-            var data = bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-            int rowBytes = Width * 4;
-            _stride = rowBytes;
-            _pixelData = new byte[rowBytes * Height];
-            for (int y = 0; y < Height; y++)
-            {
-                var src = data.Scan0 + y * data.Stride;
-                Marshal.Copy(src, _pixelData, y * rowBytes, rowBytes);
-            }
-            bmp.UnlockBits(data);
-            // Convert BGRA -> RGBA
-            for (int i = 0; i < _pixelData.Length; i += 4)
-            {
-                (_pixelData[i], _pixelData[i + 2]) = (_pixelData[i + 2], _pixelData[i]);
-            }
+            _stride = Width * 4;
+            _pixelData = new byte[_stride * Height];
+            img.CopyPixelDataTo(_pixelData);
         }
         catch { }
         _member.Size = bytes.Length;
