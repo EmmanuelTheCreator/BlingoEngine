@@ -21,6 +21,7 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\..\WillMoveToOwnRepo\AbstUI\src\AbstUI\AbstUI.csproj" />
+    <ProjectReference Include="..\..\WillMoveToOwnRepo\AbstUI\src\AbstUI.Blazor\AbstUI.Blazor.csproj" />
     <ProjectReference Include="..\LingoEngine\LingoEngine.csproj" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 # LingoEngine
 
-**LingoEngine** is a modern, cross-platform C# runtime designed to emulate Macromedia Director's **Lingo** scripting language. It enables playback of original Lingo code and behaviors on top of modern rendering backends like **Godot** and **SDL2**, allowing legacy projects to be revived or reimagined with full flexibility.
+**LingoEngine** is a modern, cross-platform C# runtime designed to emulate Macromedia Director's **Lingo** scripting language. It enables playback of original Lingo code and behaviors on top of modern rendering backends like **Godot**, **SDL2**, **Unity**, and **Blazor**, allowing legacy projects to be revived or reimagined with full flexibility.
 
 ![Director full screenshot](Images/Direcor-FullScreenshot.jpg)
 
@@ -17,7 +17,9 @@
 - ✅ **Lingo Script Execution** – Runs legacy Macromedia Director scripts directly in C#.
 - 🔌 **Pluggable Rendering Backends** – Clean architecture supporting:
   - [Godot Engine](https://godotengine.org/)
-  - SDL2
+  - [SDL2](https://www.libsdl.org/)
+  - [Unity](https://unity.com/)
+  - [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
 - 🧠 **Director application** – Offers basic movie, cast, and score compatibility and can run standalone or as a library in your project.
 - 🧩 **Modular Runtime Architecture** – Clear separation of concerns: input, rendering, audio, system services, and script execution.
 - ⚙️ **Service-Oriented Initialization** – Uses dependency injection and service collections for clean setup.
@@ -59,6 +61,7 @@
 
 - [Godot Setup](docs/GodotSetup.md)
 - [SDL2 Setup](docs/SDLSetup.md)
+- [Blazor Demo](docs/BlazorDemo.md)
 
 ### VS Code Setup
 
@@ -88,7 +91,7 @@ The window dimensions above create a Director window larger than the 640×480 st
 
 Swap to the Godot backend by using `.WithLingoGodotEngine(...)`.
 
-📄 See the [Getting Started guide](docs/GettingStarted.md), [Godot Setup](docs/GodotSetup.md), and [SDL2 Setup](docs/SDLSetup.md) for exact details.
+📄 See the [Getting Started guide](docs/GettingStarted.md), [Godot Setup](docs/GodotSetup.md), [SDL2 Setup](docs/SDLSetup.md), and [Blazor Demo](docs/BlazorDemo.md) for exact details.
 
 ---
 
@@ -101,6 +104,7 @@ Swap to the Godot backend by using `.WithLingoGodotEngine(...)`.
 - [Architecture Overview](docs/Architecture.md)
 - [Godot Setup](docs/GodotSetup.md)
 - [SDL2 Setup](docs/SDLSetup.md)
+- [Blazor Demo](docs/BlazorDemo.md)
 - [Project Setup](docs/ProjectSetup.md)
 - [Progress Log](docs/Progress.md)
 - [Director Keyframe Tags](docs/director_keyframe_tags.md)
@@ -121,9 +125,8 @@ Documentation generated from the source code is available using [DocFX](https://
 |----------------------------------------|--------------|
 | Full Lingo language support            | In Progress  |
 | Standalone Director application        | Basic support |
-| Backends: Godot, SDL2                  | ✅ Implemented |
+| Backends: Godot, SDL2, Unity, Blazor   | ✅ Implemented |
 | Documentation & learning materials     | In Progress  |
-| Unity integration                      | Planned      |
 | Lingo bytecode (dcode) interpreter     | Experimental |
 
 ---
