@@ -63,6 +63,7 @@ namespace AbstUI.SDL2.Components
                 _texH = h;
             }
 
+            var prevTarget = SDL.SDL_GetRenderTarget(context.Renderer);
             SDL.SDL_SetRenderTarget(context.Renderer, _texture);
 
             if (BackgroundColor is { } bg)
@@ -102,7 +103,7 @@ namespace AbstUI.SDL2.Components
                 }
             }
 
-            SDL.SDL_SetRenderTarget(context.Renderer, nint.Zero);
+            SDL.SDL_SetRenderTarget(context.Renderer, prevTarget);
             return _texture;
         }
 
