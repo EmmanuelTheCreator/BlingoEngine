@@ -5,5 +5,5 @@ namespace AbstUI.SDL2.Texts;
 
 public static class SdlLabelExtensions
 {
-   
+
 }

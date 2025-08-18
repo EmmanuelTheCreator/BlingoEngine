@@ -2,43 +2,135 @@ using System;
 using System.Numerics;
 using AbstUI.Components;
 using AbstUI.Primitives;
+using AbstUI.SDL2;
+using AbstUI.SDL2.SDLL;
 
-namespace AbstUI.SDL2.Components
+namespace AbstUI.SDL2.Components;
+
+internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInputNumber<TValue>, IHandleSdlEvent, IDisposable
+#if NET48
+    where TValue : struct
+#else
+    where TValue : INumber<TValue>
+#endif
 {
-    internal class AbstSdlInputNumber : AbstSdlComponent, IAbstFrameworkInputNumber<float>, IDisposable
+    private readonly AbstSdlInputText _textInput;
+
+    public AbstSdlInputNumber(AbstSdlComponentFactory factory) : base(factory)
     {
-        public AbstSdlInputNumber(AbstSdlComponentFactory factory) : base(factory)
+        _textInput = new AbstSdlInputText(factory, false);
+        _textInput.ValueChanged += OnTextChanged;
+    }
+
+    public bool Enabled { get; set; } = true;
+
+    private TValue _value = TValue.Zero;
+    public TValue Value
+    {
+        get => _value;
+        set
         {
-        }
-        public bool Enabled { get; set; } = true;
-        private float _value;
-        public float Value
-        {
-            get => _value;
-            set
+            var v = Clamp(value);
+            if (!_value.Equals(v))
             {
-                if (_value != value)
-                {
-                    _value = value;
-                    ValueChanged?.Invoke();
-                }
+                _value = v;
+                _textInput.Text = v.ToString();
+                ValueChanged?.Invoke();
             }
         }
-        public float Min { get; set; }
-        public float Max { get; set; }
-        public ANumberType NumberType { get; set; } = ANumberType.Float;
-        public AMargin Margin { get; set; } = AMargin.Zero;
-        public event Action? ValueChanged;
-        public object FrameworkNode => this;
+    }
 
-        public int FontSize { get; set; } = 12;
+    public TValue Min { get; set; }
+    public TValue Max { get; set; }
 
-        public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
+    public TValue Step { get; set; } = TValue.One;
+
+    public ANumberType NumberType { get; set; } = ANumberType.Float;
+    public AMargin Margin { get; set; } = AMargin.Zero;
+    public event Action? ValueChanged;
+    public object FrameworkNode => this;
+
+    public int FontSize
+    {
+        get => _textInput.FontSize;
+        set => _textInput.FontSize = value;
+    }
+
+    public string? Font
+    {
+        get => _textInput.Font;
+        set => _textInput.Font = value;
+    }
+
+    private TValue Clamp(TValue v)
+    {
+        if (v < Min) v = Min;
+        if (v > Max) v = Max;
+        return v;
+    }
+
+    private void OnTextChanged()
+    {
+        if (TValue.TryParse(_textInput.Text, null, out var v))
         {
-            if (!Visibility) return default;
-            return default;
+            v = Clamp(v);
+            if (!_value.Equals(v))
+            {
+                _value = v;
+                ValueChanged?.Invoke();
+            }
+        }
+    }
+
+    public void HandleEvent(AbstSDLEvent e)
+    {
+        if (!Enabled) return;
+
+        _textInput.HandleEvent(e);
+        if (e.StopPropagation) return;
+
+        ref var ev = ref e.Event;
+
+        if (ev.type == SDL.SDL_EventType.SDL_MOUSEWHEEL)
+        {
+            if (ev.wheel.y > 0) Value += Step * TValue.CreateChecked(ev.wheel.y);
+            else if (ev.wheel.y < 0) Value -= Step * TValue.CreateChecked(-ev.wheel.y);
+            e.StopPropagation = true;
+            return;
         }
 
-        public override void Dispose() => base.Dispose();
+        if (ev.type == SDL.SDL_EventType.SDL_KEYDOWN && _textInput.HasFocus)
+        {
+            if (ev.key.keysym.sym == SDL.SDL_Keycode.SDLK_UP)
+            {
+                Value += Step;
+                e.StopPropagation = true;
+                return;
+            }
+            if (ev.key.keysym.sym == SDL.SDL_Keycode.SDLK_DOWN)
+            {
+                Value -= Step;
+                e.StopPropagation = true;
+                return;
+            }
+        }
+    }
+
+
+    public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
+    {
+        if (!Visibility) return default;
+        _textInput.X = X;
+        _textInput.Y = Y;
+        _textInput.Width = Width;
+        _textInput.Height = Height;
+        return _textInput.Render(context);
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        _textInput.Dispose();
     }
 }
+

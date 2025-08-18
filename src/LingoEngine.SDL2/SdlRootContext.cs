@@ -49,6 +49,7 @@ public class SdlRootContext : AbstUISdlRootContext<LingoMouse>, ISdlRootComponen
                     running = false;
                 Key.ProcessEvent(e);
                 _sdlMouse.ProcessEvent(e);
+                Factory.ComponentContainer.HandleEvent(e);
             }
             uint now = SDL.SDL_GetTicks();
             float delta = (now - last) / 1000f;
