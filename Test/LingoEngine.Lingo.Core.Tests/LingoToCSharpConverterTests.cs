@@ -40,7 +40,7 @@ public class LingoToCSharpConverterTests
         var expected = string.Join('\n',
             "if (1)",
             "{",
-            "x = 2;",
+            "    x = 2;",
             "}");
         Assert.Equal(expected.Trim(), result.Trim());
     }
@@ -53,7 +53,7 @@ public class LingoToCSharpConverterTests
         var expected = string.Join('\n',
             "while (1)",
             "{",
-            "x = 2;",
+            "    x = 2;",
             "}");
         Assert.Equal(expected.Trim(), result.Trim());
     }
@@ -85,10 +85,10 @@ public class LingoToCSharpConverterTests
         var expected = string.Join('\n',
             "public void Mousedown()",
             "{",
-            "if (myLock == false)",
-            "{",
-            "myMember = Member(\"Destroy1\");",
-            "}",
+            "    if (myLock == false)",
+            "    {",
+            "        myMember = Member(\"Destroy1\");",
+            "    }",
             "}");
         Assert.Equal(expected.Trim(), result.Trim());
     }
@@ -115,9 +115,33 @@ public class LingoToCSharpConverterTests
         var expected = string.Join('\n',
             "public void BeginSprite()",
             "{",
-            "SendSprite<B2>(2, b2 => b2.doIt());",
+            "    SendSprite<B2>(2, b2 => b2.doIt());",
             "}");
         Assert.Equal(expected.Trim(), batch.ConvertedScripts["B1"].Trim());
+    }
+
+    [Fact]
+    public void SendSpriteUnknownMethodGeneratesBehavior()
+    {
+        var scripts = new[]
+        {
+            new LingoScriptFile
+            {
+                Name = "B1",
+                Source = "on beginSprite\r\n sendSprite 2, #doIt\r\nend\r\n",
+                Type = LingoScriptType.Behavior
+            }
+        };
+        var batch = _converter.Convert(scripts);
+        var expected = string.Join('\n',
+            "public void BeginSprite()",
+            "{",
+            "    SendSprite<DoItBehavior>(2, doitbehavior => doitbehavior.doIt());",
+            "}");
+        Assert.Equal(expected.Trim(), batch.ConvertedScripts["B1"].Trim());
+        Assert.True(batch.ConvertedScripts.ContainsKey("DoItBehavior"));
+        Assert.Contains("public class DoItBehavior : LingoSpriteBehavior", batch.ConvertedScripts["DoItBehavior"]);
+        Assert.Contains("public object? doIt(params object?[] args) => null;", batch.ConvertedScripts["DoItBehavior"]);
     }
 
     [Fact]
@@ -142,7 +166,7 @@ public class LingoToCSharpConverterTests
         var expected = string.Join('\n',
             "public void BeginSprite()",
             "{",
-            "CallMovieScript<M1>(m1 => m1.myMovieHandler());",
+            "    CallMovieScript<M1>(m1 => m1.myMovieHandler());",
             "}");
         Assert.Equal(expected.Trim(), batch.ConvertedScripts["P1"].Trim());
     }
@@ -181,7 +205,7 @@ public class LingoToCSharpConverterTests
         var expected = string.Join('\n',
             "if (x == null)",
             "{",
-            "x = 1;",
+            "    x = 1;",
             "}",
             "myMembers = [\"A\", \"B\"];",
             "y = myMembers[2];");
@@ -234,36 +258,36 @@ on new me,_Gfx,ChosenType
   myMember = myMembers[ChosenType]
   myGfx = _Gfx
   myDestroyAnim = false
-  
+
   return me
 end";
         var result = _converter.Convert(lingo);
         var expected = string.Join('\n',
             "public void Stepframe()",
             "{",
-            "if (myDestroyAnim == true)",
-            "{",
-            "if (myMemberNumAnim > 7)",
-            "{",
-            "myMemberNumAnim = 0;",
-            "_Movie.ActorList.Deleteone(this);",
-            "Destroy();",
-            "}",
-            "myMemberNumAnim = myMemberNumAnim + 1;",
-            "Sprite(myNum).Member = Member(\"Destroy\" + myMemberNumAnim);",
-            "}",
+            "    if (myDestroyAnim == true)",
+            "    {",
+            "        if (myMemberNumAnim > 7)",
+            "        {",
+            "            myMemberNumAnim = 0;",
+            "            _Movie.ActorList.Deleteone(this);",
+            "            Destroy();",
+            "        }",
+            "        myMemberNumAnim = myMemberNumAnim + 1;",
+            "        Sprite(myNum).Member = Member(\"Destroy\" + myMemberNumAnim);",
+            "    }",
             "}",
             "",
             "public void New(object _Gfx, object ChosenType)",
             "{",
-            "if (ChosenType == null)",
-            "{",
-            "ChosenType = 1;",
-            "}",
-            "myMembers = [\"Block1\", \"Block2\", \"Block3\", \"Block4\", \"Block5\", \"Block6\", \"Block7\"];",
-            "myMember = myMembers[ChosenType];",
-            "myGfx = _Gfx;",
-            "myDestroyAnim = false;",
+            "    if (ChosenType == null)",
+            "    {",
+            "        ChosenType = 1;",
+            "    }",
+            "    myMembers = [\"Block1\", \"Block2\", \"Block3\", \"Block4\", \"Block5\", \"Block6\", \"Block7\"];",
+            "    myMember = myMembers[ChosenType];",
+            "    myGfx = _Gfx;",
+            "    myDestroyAnim = false;",
             "}");
         Assert.Equal(expected.Trim(), result.Trim());
     }
@@ -286,18 +310,18 @@ end";
         var expected = string.Join('\n',
             "public void Cmp()",
             "{",
-            "if (1 < 2)",
-            "{",
-            "}",
-            "if (1 <= 2)",
-            "{",
-            "}",
-            "if (1 >= 2)",
-            "{",
-            "}",
-            "if (1 > 2)",
-            "{",
-            "}",
+            "    if (1 < 2)",
+            "    {",
+            "    }",
+            "    if (1 <= 2)",
+            "    {",
+            "    }",
+            "    if (1 >= 2)",
+            "    {",
+            "    }",
+            "    if (1 > 2)",
+            "    {",
+            "    }",
             "}");
         Assert.Equal(expected.Trim(), result.Trim());
     }
@@ -347,12 +371,12 @@ end";
         var expected = string.Join('\n',
             "switch (1)",
             "{",
-            "case 1:",
-            "DoOne();",
-            "case 2:",
-            "DoTwo();",
-            "default:",
-            "DoDefault();",
+            "    case 1:",
+            "        DoOne();",
+            "    case 2:",
+            "        DoTwo();",
+            "    default:",
+            "        DoDefault();",
             "}");
         Assert.Equal(expected, result);
     }
@@ -448,18 +472,18 @@ end";
         var expected = string.Join('\n',
             "public void MouseUp()",
             "{",
-            "Cursor = -1;",
-            "_Movie.GoTo(\"Game\");",
+            "    Cursor = -1;",
+            "    _Movie.GoTo(\"Game\");",
             "}",
             "",
             "public void MouseWithin()",
             "{",
-            "Cursor = 280;",
+            "    Cursor = 280;",
             "}",
             "",
             "public void Mouseleave()",
             "{",
-            "Cursor = -1;",
+            "    Cursor = -1;",
             "}");
         Assert.Equal(expected.Trim(), result.Trim());
     }
@@ -477,12 +501,12 @@ end";
         var expected = string.Join('\n',
             "public void MouseDown()",
             "{",
-            "Sprite(SpriteNum).LocH = Sprite(SpriteNum).LocH + 5;",
+            "    Sprite(SpriteNum).LocH = Sprite(SpriteNum).LocH + 5;",
             "}",
             "",
             "public void ExitFrame()",
             "{",
-            "_Movie.GoTo(_Movie.CurrentFrame);",
+            "    _Movie.GoTo(_Movie.CurrentFrame);",
             "}");
         Assert.Equal(expected.Trim(), result.Trim());
     }
@@ -512,7 +536,7 @@ end";
         var expectedIn = string.Join('\n',
             "foreach (var v in lst)",
             "{",
-            "Do();",
+            "    Do();",
             "}");
         Assert.Equal(expectedIn, CSharpWriter.Write(withIn).Trim());
 
@@ -526,7 +550,7 @@ end";
         var expectedTo = string.Join('\n',
             "for (var i = 1; i <= 3; i++)",
             "{",
-            "Step();",
+            "    Step();",
             "}");
         Assert.Equal(expectedTo, CSharpWriter.Write(withTo).Trim());
 
@@ -536,7 +560,7 @@ end";
         var expectedUntil = string.Join('\n',
             "do",
             "{",
-            "Work();",
+            "    Work();",
             "} while (!(done));");
         Assert.Equal(expectedUntil, CSharpWriter.Write(until).Trim());
 
@@ -545,7 +569,7 @@ end";
         var expectedForever = string.Join('\n',
             "while (true)",
             "{",
-            "Loop();",
+            "    Loop();",
             "}");
         Assert.Equal(expectedForever, CSharpWriter.Write(forever).Trim());
 
@@ -555,7 +579,7 @@ end";
         var expectedTimes = string.Join('\n',
             "for (int i = 1; i <= 2; i++)",
             "{",
-            "T();",
+            "    T();",
             "}");
         Assert.Equal(expectedTimes, CSharpWriter.Write(times).Trim());
     }

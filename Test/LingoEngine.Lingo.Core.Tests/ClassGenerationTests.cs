@@ -85,9 +85,11 @@ public class ClassGenerationTests
             "{",
             "    public MyBehaviorBehavior(ILingoMovieEnvironment env) : base(env) { }",
             "",
-            "    public BehaviorPropertyDescriptionList? GetPropertyDescriptionList() => new()",
+            "    public BehaviorPropertyDescriptionList? GetPropertyDescriptionList()",
             "    {",
-            "    };",
+            "        return new BehaviorPropertyDescriptionList()",
+            "        ;",
+            "    }",
             "}");
         Assert.Equal(expected, result);
     }
@@ -107,9 +109,11 @@ public class ClassGenerationTests
             "{",
             "    public MyScriptBehavior(ILingoMovieEnvironment env) : base(env) { }",
             "",
-            "    public BehaviorPropertyDescriptionList? GetPropertyDescriptionList() => new()",
+            "    public BehaviorPropertyDescriptionList? GetPropertyDescriptionList()",
             "    {",
-            "    };",
+            "        return new BehaviorPropertyDescriptionList()",
+            "        ;",
+            "    }",
             "}");
         Assert.Equal(expected, result);
     }
@@ -136,8 +140,9 @@ end",
         };
         var result = _converter.ConvertClass(file);
         Assert.Contains("public class MyComplexScriptBehavior : LingoSpriteBehavior, ILingoPropertyDescriptionList", result);
-        Assert.Contains("public BehaviorPropertyDescriptionList? GetPropertyDescriptionList() => new()", result);
-        Assert.Contains("{ this, x => x.myStartMembernum, \"My Start membernum:\", 0 }", result);
-        Assert.Contains("{ this, x => x.myFunction, \"function to execute:\", \"70\" }", result);
+        Assert.Contains("public BehaviorPropertyDescriptionList? GetPropertyDescriptionList()", result);
+        Assert.Contains("return new BehaviorPropertyDescriptionList()", result);
+        Assert.Contains(".Add(this, x => x.myStartMembernum, \"My Start membernum:\", 0)", result);
+        Assert.Contains(".Add(this, x => x.myFunction, \"function to execute:\", \"70\")", result);
     }
 }

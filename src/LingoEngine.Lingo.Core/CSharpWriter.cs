@@ -15,6 +15,8 @@ public class CSharpWriter : ILingoAstVisitor
     private readonly StringBuilder _sb = new();
     private readonly string _methodAccessModifier;
     private string? _currentHandlerName;
+    private int _indent;
+    private bool _atLineStart = true;
 
     public CSharpWriter(string methodAccessModifier = "public")
     {
@@ -51,9 +53,38 @@ public class CSharpWriter : ILingoAstVisitor
         return sb.ToString();
     }
 
-    private void Append(string text) => _sb.Append(text);
-    private void AppendLine(string text) => _sb.AppendLine(text);
-    private void AppendLine() => _sb.AppendLine();
+    private void WriteIndent()
+    {
+        if (_atLineStart)
+        {
+            for (int i = 0; i < _indent; i++)
+                _sb.Append("    ");
+            _atLineStart = false;
+        }
+    }
+
+    private void Append(string text)
+    {
+        if (text.Length == 0) return;
+        WriteIndent();
+        _sb.Append(text);
+    }
+
+    private void AppendLine(string text)
+    {
+        WriteIndent();
+        _sb.AppendLine(text);
+        _atLineStart = true;
+    }
+
+    private void AppendLine()
+    {
+        _sb.AppendLine();
+        _atLineStart = true;
+    }
+
+    private void Indent() => _indent++;
+    private void Unindent() { if (_indent > 0) _indent--; }
 
     private static string DatumToCSharp(LingoDatum datum)
     {
@@ -92,7 +123,9 @@ public class CSharpWriter : ILingoAstVisitor
             Append(string.Join(", ", args));
             AppendLine(")");
             AppendLine("{");
+            Indent();
             node.Block.Accept(this);
+            Unindent();
             AppendLine("}");
             AppendLine();
         }
@@ -129,13 +162,17 @@ public class CSharpWriter : ILingoAstVisitor
         node.Condition.Accept(this);
         AppendLine(")");
         AppendLine("{");
+        Indent();
         node.ThenBlock.Accept(this);
+        Unindent();
         AppendLine("}");
         if (node.HasElse)
         {
             AppendLine("else");
             AppendLine("{");
+            Indent();
             node.ElseBlock!.Accept(this);
+            Unindent();
             AppendLine("}");
         }
     }
@@ -146,11 +183,15 @@ public class CSharpWriter : ILingoAstVisitor
         node.Condition.Accept(this);
         AppendLine(")");
         AppendLine("{");
+        Indent();
         node.ThenBlock.Accept(this);
+        Unindent();
         AppendLine("}");
         AppendLine("else");
         AppendLine("{");
+        Indent();
         node.ElseBlock.Accept(this);
+        Unindent();
         AppendLine("}");
     }
 
@@ -240,20 +281,26 @@ public class CSharpWriter : ILingoAstVisitor
         node.Value.Accept(this);
         AppendLine(")");
         AppendLine("{");
+        Indent();
         var label = node.FirstLabel as LingoCaseLabelNode;
         while (label != null)
         {
             Append("case ");
             label.Value.Accept(this);
             AppendLine(":");
+            Indent();
             label.Block?.Accept(this);
+            Unindent();
             label = label.NextLabel;
         }
         if (node.Otherwise != null)
         {
             AppendLine("default:");
+            Indent();
             node.Otherwise.Accept(this);
+            Unindent();
         }
+        Unindent();
         AppendLine("}");
     }
 
@@ -292,7 +339,9 @@ public class CSharpWriter : ILingoAstVisitor
         Append("case ");
         node.Value.Accept(this);
         AppendLine(":");
+        Indent();
         node.Block?.Accept(this);
+        Unindent();
     }
 
     public void Visit(LingoChunkExprNode node) => node.Expr.Accept(this);
@@ -527,7 +576,9 @@ public class CSharpWriter : ILingoAstVisitor
         node.Condition.Accept(this);
         AppendLine(")");
         AppendLine("{");
+        Indent();
         node.Body.Accept(this);
+        Unindent();
         AppendLine("}");
     }
 
@@ -553,7 +604,9 @@ public class CSharpWriter : ILingoAstVisitor
         node.List.Accept(this);
         AppendLine(")");
         AppendLine("{");
+        Indent();
         node.Body.Accept(this);
+        Unindent();
         AppendLine("}");
     }
 
@@ -566,7 +619,9 @@ public class CSharpWriter : ILingoAstVisitor
         Append($"; {node.Variable}++)");
         AppendLine();
         AppendLine("{");
+        Indent();
         node.Body.Accept(this);
+        Unindent();
         AppendLine("}");
     }
 
@@ -674,7 +729,9 @@ public class CSharpWriter : ILingoAstVisitor
         Append($"; {repeatWithStmtNode.Variable}++)");
         AppendLine();
         AppendLine("{");
+        Indent();
         repeatWithStmtNode.Body.Accept(this);
+        Unindent();
         AppendLine("}");
     }
 
@@ -682,9 +739,10 @@ public class CSharpWriter : ILingoAstVisitor
     {
         AppendLine("do");
         AppendLine("{");
+        Indent();
         repeatUntilStmtNode.Body.Accept(this);
-        Append("}");
-        Append(" while (!(");
+        Unindent();
+        Append("} while (!(");
         repeatUntilStmtNode.Condition.Accept(this);
         AppendLine("));");
     }
@@ -693,7 +751,9 @@ public class CSharpWriter : ILingoAstVisitor
     {
         AppendLine("while (true)");
         AppendLine("{");
+        Indent();
         repeatForeverStmtNode.Body.Accept(this);
+        Unindent();
         AppendLine("}");
     }
 
@@ -703,7 +763,9 @@ public class CSharpWriter : ILingoAstVisitor
         repeatTimesStmtNode.Count.Accept(this);
         AppendLine("; i++)");
         AppendLine("{");
+        Indent();
         repeatTimesStmtNode.Body.Accept(this);
+        Unindent();
         AppendLine("}");
     }
 

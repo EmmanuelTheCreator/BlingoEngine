@@ -118,12 +118,16 @@ public class LingoToCSharpConverter
             }
         }
 
-        var annotator = new SendSpriteTypeResolver(methodMap);
+        var generatedBehaviors = new Dictionary<string, string>();
+        var annotator = new SendSpriteTypeResolver(methodMap, generatedBehaviors);
         foreach (var ast in asts.Values)
             ast.Accept(annotator);
 
         foreach (var kvp in asts)
             result.ConvertedScripts[kvp.Key] = CSharpWriter.Write(kvp.Value, methodAccessModifier);
+
+        foreach (var kvp in generatedBehaviors)
+            result.ConvertedScripts[kvp.Value] = GenerateSendSpriteBehaviorClass(kvp.Value, kvp.Key);
 
         return result;
     }
@@ -189,17 +193,29 @@ public class LingoToCSharpConverter
         {
             var props = ExtractPropertyDescriptions(script.Source);
             sb.AppendLine();
-            sb.AppendLine("    public BehaviorPropertyDescriptionList? GetPropertyDescriptionList() => new()");
+            sb.AppendLine("    public BehaviorPropertyDescriptionList? GetPropertyDescriptionList()");
             sb.AppendLine("    {");
+            sb.AppendLine("        return new BehaviorPropertyDescriptionList()");
             for (int i = 0; i < props.Count; i++)
             {
                 var p = props[i];
-                var comma = i < props.Count - 1 ? "," : string.Empty;
-                sb.AppendLine($"        {{ this, x => x.{p.Name}, \"{p.Comment}\", {p.Default} }}{comma}");
+                sb.AppendLine($"            .Add(this, x => x.{p.Name}, \"{p.Comment}\", {p.Default})");
             }
-            sb.AppendLine("    };");
+            sb.AppendLine("        ;");
+            sb.AppendLine("    }");
         }
 
+        sb.AppendLine("}");
+        return sb.ToString();
+    }
+
+    private static string GenerateSendSpriteBehaviorClass(string className, string method)
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine($"public class {className} : LingoSpriteBehavior");
+        sb.AppendLine("{");
+        sb.AppendLine($"    public {className}(ILingoMovieEnvironment env) : base(env) {{ }}");
+        sb.AppendLine($"    public object? {method}(params object?[] args) => null;");
         sb.AppendLine("}");
         return sb.ToString();
     }
@@ -415,9 +431,11 @@ public class LingoToCSharpConverter
     private class SendSpriteTypeResolver : ILingoAstVisitor
     {
         private readonly Dictionary<string, string> _methodMap;
-        public SendSpriteTypeResolver(Dictionary<string, string> methodMap)
+        private readonly Dictionary<string, string> _generated;
+        public SendSpriteTypeResolver(Dictionary<string, string> methodMap, Dictionary<string, string> generated)
         {
             _methodMap = methodMap;
+            _generated = generated;
         }
         public void Visit(LingoHandlerNode n) => n.Block.Accept(this);
         public void Visit(LingoCommentNode n) { }
@@ -460,7 +478,19 @@ public class LingoToCSharpConverter
             {
                 var name = dn.Datum.AsSymbol();
                 if (_methodMap.TryGetValue(name, out var script))
+                {
                     n.TargetType = script;
+                }
+                else
+                {
+                    if (!_generated.TryGetValue(name, out var className))
+                    {
+                        className = char.ToUpperInvariant(name[0]) + name[1..] + "Behavior";
+                        _generated[name] = className;
+                    }
+                    _methodMap[name] = className;
+                    n.TargetType = className;
+                }
             }
             n.Sprite.Accept(this);
             n.Message.Accept(this);
