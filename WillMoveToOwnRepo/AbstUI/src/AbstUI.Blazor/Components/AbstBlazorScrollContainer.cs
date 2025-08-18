@@ -1,38 +1,48 @@
-using System;
 using System.Collections.Generic;
-using System.Numerics;
-using ImGuiNET;
+using Microsoft.AspNetCore.Components;
 using AbstUI.Components;
 using AbstUI.Primitives;
 
-namespace AbstUI.Blazor.Components
+namespace AbstUI.Blazor.Components;
+
+public partial class AbstBlazorScrollContainer : AbstBlazorComponentBase, IAbstFrameworkScrollContainer
 {
-    internal class AbstBlazorScrollContainer : AbstBlazorComponent, IAbstFrameworkScrollContainer, IDisposable
+    private readonly List<IAbstFrameworkLayoutNode> _children = new();
+    private readonly List<RenderFragment> _fragments = new();
+
+    [Parameter] public bool ClipContents { get; set; }
+    public float ScrollHorizontal { get; set; }
+    public float ScrollVertical { get; set; }
+
+    public void AddItem(IAbstFrameworkLayoutNode child)
     {
-        public AbstBlazorScrollContainer(AbstBlazorComponentFactory factory) : base(factory)
+        if (!_children.Contains(child))
         {
+            _children.Add(child);
+            if (child is AbstBlazorComponentBase comp)
+                _fragments.Add(comp.RenderFragment);
+            StateHasChanged();
         }
-        public AMargin Margin { get; set; } = AMargin.Zero;
-        public float ScrollHorizontal { get; set; }
-        public float ScrollVertical { get; set; }
-        public bool ClipContents { get; set; }
-        public object FrameworkNode => this;
+    }
 
-        private readonly List<IAbstFrameworkLayoutNode> _children = new();
-
-        public void AddItem(IAbstFrameworkLayoutNode child)
+    public void RemoveItem(IAbstFrameworkLayoutNode child)
+    {
+        var index = _children.IndexOf(child);
+        if (index >= 0)
         {
-            if (!_children.Contains(child))
-                _children.Add(child);
+            _children.RemoveAt(index);
+            _fragments.RemoveAt(index);
+            StateHasChanged();
         }
+    }
 
-        public void RemoveItem(IAbstFrameworkLayoutNode child)
-        {
-            _children.Remove(child);
-        }
+    public IEnumerable<IAbstFrameworkLayoutNode> GetItems() => _children;
 
-        public IEnumerable<IAbstFrameworkLayoutNode> GetItems() => _children.ToArray();
-
-        public override AbstBlazorRenderResult Render(AbstBlazorRenderContext context) => new AbstBlazorRenderResult();
+    protected override string BuildStyle()
+    {
+        var style = base.BuildStyle();
+        style += $"position:absolute;left:{X}px;top:{Y}px;";
+        style += ClipContents ? "overflow:hidden;" : "overflow:auto;";
+        return style;
     }
 }

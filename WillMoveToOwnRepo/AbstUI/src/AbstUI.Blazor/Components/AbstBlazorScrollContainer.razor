@@ -1,0 +1,7 @@
+@inherits AbstBlazorComponentBase
+<div id="@Name" style="@BuildStyle()">
+    @foreach (var fragment in _fragments)
+    {
+        @fragment
+    }
+</div>
