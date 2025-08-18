@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using AbstUI.Components;
 using AbstUI.Primitives;
@@ -41,6 +42,21 @@ public abstract class AbstBlazorComponentBase : ComponentBase, IAbstFrameworkLay
     {
         BuildRenderTree(builder);
     };
+
+    public static RenderFragment BuildFragment(Type componentType, IDictionary<string, object?>? parameters = null)
+        => builder =>
+        {
+            builder.OpenComponent(0, componentType);
+            if (parameters != null)
+            {
+                var seq = 1;
+                foreach (var (key, value) in parameters)
+                {
+                    builder.AddAttribute(seq++, key, value);
+                }
+            }
+            builder.CloseComponent();
+        };
 
     protected virtual string BuildStyle()
     {
