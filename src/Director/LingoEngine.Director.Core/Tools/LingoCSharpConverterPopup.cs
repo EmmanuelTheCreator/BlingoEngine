@@ -96,15 +96,14 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
         errorInput.IsMultiLine = true;
         errorInput.Enabled = false;
         errorInput.Margin = new AMargin(0, 500, 0, 0);
-        root.AddItem(errorInput);
+        //prop?.SetValue(framework, DirectorColors.Notification_Error_Border);
+        root.AddItem(errorInput,0,450);
         var framework = errorInput.FrameworkObj;
-        var prop = framework.GetType().GetProperty("FontColor");
-        prop?.SetValue(framework, DirectorColors.Notification_Error_Border);
 
         var menuBar = _factory.CreateWrapPanel(AOrientation.Horizontal, "BottomBar");
         menuBar.Width = 800;
         menuBar.Height = 40;
-        menuBar.Margin = new AMargin(0, 460, 0, 0);
+        menuBar.Margin = new AMargin(0, 520, 0, 0);
         root.AddItem(menuBar); // _factory.CreateLayoutWrapper(menuBar, 0, 860));
 
         menuBar.ComposeForToolBar()
