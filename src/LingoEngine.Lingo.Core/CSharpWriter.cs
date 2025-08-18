@@ -14,6 +14,7 @@ public class CSharpWriter : ILingoAstVisitor
 {
     private readonly StringBuilder _sb = new();
     private readonly string _methodAccessModifier;
+    private string? _currentHandlerName;
 
     public CSharpWriter(string methodAccessModifier = "public")
     {
@@ -75,13 +76,21 @@ public class CSharpWriter : ILingoAstVisitor
 
     public void Visit(LingoHandlerNode node)
     {
+        var prevHandler = _currentHandlerName;
         var name = node.Handler?.Name ?? string.Empty;
+        _currentHandlerName = name;
         if (name.Length > 0)
         {
             name = char.ToUpperInvariant(name[0]) + name[1..];
             Append(_methodAccessModifier);
             Append(" void ");
-            AppendLine(name + "()");
+            Append(name);
+            Append("(");
+            var args = node.Handler.ArgumentNames
+                .Where(a => !a.Equals("me", StringComparison.OrdinalIgnoreCase))
+                .Select(a => $"object {a}");
+            Append(string.Join(", ", args));
+            AppendLine(")");
             AppendLine("{");
             node.Block.Accept(this);
             AppendLine("}");
@@ -91,6 +100,7 @@ public class CSharpWriter : ILingoAstVisitor
         {
             node.Block.Accept(this);
         }
+        _currentHandlerName = prevHandler;
     }
 
     public void Visit(LingoErrorNode node) => AppendLine("// error");
@@ -251,6 +261,13 @@ public class CSharpWriter : ILingoAstVisitor
 
     public void Visit(LingoReturnStmtNode node)
     {
+        if (node.Value is LingoVarNode varNode &&
+            varNode.VarName.Equals("me", StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(_currentHandlerName, "new", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
         Append("return");
         if (node.Value != null)
         {
@@ -289,6 +306,17 @@ public class CSharpWriter : ILingoAstVisitor
 
     public void Visit(LingoObjCallV4Node node)
     {
+        if (node.Object is LingoVarNode objVar &&
+            objVar.VarName.Equals("me", StringComparison.OrdinalIgnoreCase))
+        {
+            var name = node.Name.Value.AsString();
+            Append(char.ToUpperInvariant(name[0]) + name[1..]);
+            Append("(");
+            node.ArgList.Accept(this);
+            AppendLine(");");
+            return;
+        }
+
         node.Object.Accept(this);
         Append(".");
         Append(node.Name.Value.AsString());
@@ -613,7 +641,7 @@ public class CSharpWriter : ILingoAstVisitor
         node.Callee.Accept(this);
         Append("(");
         node.Arguments.Accept(this);
-        Append(")");
+        AppendLine(");");
     }
 
     public void Visit(LingoVarNode node)
