@@ -49,9 +49,9 @@ namespace LingoEngine.Lingo.Core.Tokenizer
             Value = value;
         }
 
-        public LingoDatum(List<LingoNode> list)
+        public LingoDatum(List<LingoNode> list, DatumType type = DatumType.List)
         {
-            Type = DatumType.List;
+            Type = type;
             Value = list;
         }
 
@@ -123,7 +123,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
         private string WritePropList()
         {
             if (Value is not List<LingoNode> list)
-                return "[:";
+                return "[:]";
 
             var sb = new StringBuilder("[");
             if (list.Count == 0)
