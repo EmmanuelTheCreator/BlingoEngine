@@ -1,16 +1,13 @@
-//using AbstUI.SDL2;
-//using AbstUI.SDL2.Components;
-//using AbstUI.SDL2.Styles;
-//using LingoEngine.SDL2.GfxVisualTest;
-
-//using var rootContext = new TestSdlRootComponentContext();
+using AbstUI.SDL2;
 using AbstUI.SDL2.Styles;
+using LingoEngine.SDL2.GfxVisualTest;
 
+using var rootContext = new TestSdlRootComponentContext();
 var fontManager = new SdlFontManager();
-//fontManager.LoadAll();
-//var factory = new AbstSdlComponentFactory(rootContext, fontManager);
+fontManager.LoadAll();
+var factory = new AbstSdlComponentFactory(rootContext, fontManager);
 
-//var scroll = GfxTestScene.Build(factory);
-//rootContext.ComponentContainer.Activate(((dynamic)scroll.FrameworkObj).ComponentContext);
+var scroll = GfxTestScene.Build(factory);
+rootContext.ComponentContainer.Activate(((dynamic)scroll.FrameworkObj).ComponentContext);
 
-//rootContext.Run();
+rootContext.Run(factory);
