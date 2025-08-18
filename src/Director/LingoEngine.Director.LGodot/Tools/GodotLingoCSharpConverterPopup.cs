@@ -11,10 +11,12 @@ namespace LingoEngine.Director.LGodot.Tools;
 public partial class GodotLingoCSharpConverterPopup : Window, ILingoFrameworkCSharpConverterPopup, IFrameworkFor<LingoCSharpConverterPopup>
 {
     private CodeHighlighter _lingoHighlighter;
+    private CodeHighlighter _csharpHighlighter;
     
     public GodotLingoCSharpConverterPopup()
     {
         _lingoHighlighter = CreateLingoHighlighter();
+        _csharpHighlighter = CreateCSharpHighlighter();
     }
 
     
@@ -65,11 +67,50 @@ public partial class GodotLingoCSharpConverterPopup : Window, ILingoFrameworkCSh
 
     public void UpdateCSharpColors(AbstInputText inputText)
     {
-        
+        ((TextEdit)inputText.Framework<AbstGodotInputText>().FrameworkNode).SyntaxHighlighter = _csharpHighlighter;
     }
 
     public void UpdateLingoColors(AbstInputText inputText)
     {
         ((TextEdit)inputText.Framework<AbstGodotInputText>().FrameworkNode).SyntaxHighlighter = _lingoHighlighter;
+    }
+
+    private static CodeHighlighter CreateCSharpHighlighter()
+    {
+        var highlighter = new CodeHighlighter();
+
+        var keywordColor = new Color("#0000FF"); // Blue
+        foreach (var word in new[]
+        {
+            "abstract","as","base","break","case","catch","checked","class","const","continue",
+            "default","delegate","do","else","enum","event","explicit","extern","finally","fixed",
+            "for","foreach","goto","if","implicit","in","interface","internal","is","lock",
+            "namespace","new","operator","out","override","params","private","protected","public",
+            "readonly","record","ref","return","sealed","sizeof","stackalloc","static","struct",
+            "switch","this","throw","try","typeof","unsafe","using","virtual","volatile","while",
+            "async","await","var","null","true","false"
+        })
+            highlighter.AddKeywordColor(word, keywordColor);
+
+        var typeColor = new Color("#2B91AF"); // Teal
+        foreach (var word in new[]
+        {
+            "bool","byte","sbyte","char","decimal","double","float","int","uint","nint","nuint",
+            "long","ulong","object","short","ushort","string","void"
+        })
+            highlighter.AddKeywordColor(word, typeColor);
+
+        var stringColor = new Color("#A31515"); // Maroon
+        var commentColor = new Color("#008000"); // Green
+        var numberColor = new Color("#098658"); // Dark green
+
+        highlighter.NumberColor = numberColor;
+
+        highlighter.AddColorRegion("//", "", commentColor, true);
+        highlighter.AddColorRegion("/*", "*/", commentColor);
+        highlighter.AddColorRegion("\"", "\"", stringColor);
+        highlighter.AddColorRegion("@\"", "\"", stringColor);
+
+        return highlighter;
     }
 }
