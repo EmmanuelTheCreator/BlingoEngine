@@ -30,6 +30,12 @@ public class AbstUIScriptResolver : IAsyncDisposable
     public async ValueTask CanvasDisposeCanvas(ElementReference canvas)
         => await (await GetModuleAsync()).InvokeVoidAsync("abstCanvas.disposeCanvas", canvas);
 
+    public async ValueTask CanvasAddToBody(ElementReference canvas)
+        => await (await GetModuleAsync()).InvokeVoidAsync("abstCanvas.addCanvasToBody", canvas);
+
+    public async ValueTask CanvasSetVisible(ElementReference canvas, bool visible)
+        => await (await GetModuleAsync()).InvokeVoidAsync("abstCanvas.setCanvasVisible", canvas, visible);
+
     public async ValueTask<IJSObjectReference> CanvasGetContext(ElementReference canvas, bool pixilated)
         => await (await GetModuleAsync()).InvokeAsync<IJSObjectReference>("abstCanvas.getContext", canvas, pixilated);
 
@@ -62,6 +68,9 @@ public class AbstUIScriptResolver : IAsyncDisposable
 
     public async ValueTask<byte[]> CanvasGetImageData(IJSObjectReference ctx, int width, int height)
         => await (await GetModuleAsync()).InvokeAsync<byte[]>("abstCanvas.getImageData", ctx, width, height);
+
+    public async ValueTask CanvasSetGlobalAlpha(IJSObjectReference ctx, double alpha)
+        => await (await GetModuleAsync()).InvokeVoidAsync("abstCanvas.setGlobalAlpha", ctx, alpha);
 
     public async ValueTask SetCursor(string cursor)
         => await (await GetModuleAsync()).InvokeVoidAsync("AbstUIKey.setCursor", cursor);
