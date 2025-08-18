@@ -92,12 +92,124 @@ public class CSharpWriter : ILingoAstVisitor
         {
             LingoDatum.DatumType.Integer or LingoDatum.DatumType.Float => datum.AsString(),
             LingoDatum.DatumType.String => $"\"{datum.AsString()}\"",
-            LingoDatum.DatumType.Symbol or LingoDatum.DatumType.VarRef => datum.AsString(),
+            LingoDatum.DatumType.Symbol => $"Symbol(\"{datum.AsString()}\")",
+            LingoDatum.DatumType.VarRef => datum.AsString(),
             LingoDatum.DatumType.List => datum.Value is List<LingoNode> list
                 ? "[" + string.Join(", ", list.Select(n => Write(n).Trim())) + "]"
                 : "[]",
+            LingoDatum.DatumType.ArgList or LingoDatum.DatumType.ArgListNoRet => datum.Value is List<LingoNode> argList
+                ? string.Join(", ", argList.Select(n => Write(n).Trim()))
+                : string.Empty,
+            LingoDatum.DatumType.PropList => datum.Value is List<LingoNode> propList
+                ? "new LingoPropertyList<object?>" +
+                    (propList.Count == 0
+                        ? "()"
+                        : " { " + string.Join(", ", Enumerable.Range(0, propList.Count / 2)
+                            .Select(i => $"[{Write(propList[2 * i]).Trim()}] = {Write(propList[2 * i + 1]).Trim()}")) + " }")
+                : "new LingoPropertyList<object?>()",
             _ => datum.AsString()
         };
+    }
+
+    private record PropDesc(string Name, string Comment, string DefaultValue);
+
+    private static string EscapeString(string s) => s
+        .Replace("\\", "\\\\")
+        .Replace("\"", "\\\"")
+        .Replace("\n", "\\n");
+
+    private static string FormatDefault(LingoDatum datum, string? format)
+    {
+        var value = datum.AsString();
+        if (string.Equals(format, "string", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(format, "symbol", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"\"{EscapeString(value)}\"";
+        }
+        return value;
+    }
+
+    private void WritePropertyDescriptionListHandler(LingoHandlerNode node)
+    {
+        Append(_methodAccessModifier);
+        Append(" BehaviorPropertyDescriptionList? GetPropertyDescriptionList()");
+        AppendLine();
+        AppendLine("{");
+        Indent();
+
+        var props = new List<PropDesc>();
+        foreach (var child in node.Block.Children)
+        {
+            if (child is LingoCallNode call &&
+                call.Callee is LingoVarNode v &&
+                v.VarName.Equals("addProp", StringComparison.OrdinalIgnoreCase) &&
+                call.Arguments is LingoDatumNode argDatum &&
+                argDatum.Datum.Type == LingoDatum.DatumType.ArgList &&
+                argDatum.Datum.Value is List<LingoNode> args &&
+                args.Count >= 3)
+            {
+                if (args[1] is not LingoDatumNode symNode) continue;
+                var propName = symNode.Datum.AsSymbol();
+                if (args[2] is not LingoDatumNode propList ||
+                    propList.Datum.Type != LingoDatum.DatumType.PropList ||
+                    propList.Datum.Value is not List<LingoNode> plist)
+                    continue;
+
+                string? comment = null;
+                string? format = null;
+                LingoDatum? defDatum = null;
+
+                for (int i = 0; i + 1 < plist.Count; i += 2)
+                {
+                    if (plist[i] is not LingoDatumNode keyNode) continue;
+                    var key = keyNode.Datum.AsSymbol();
+                    var valNode = plist[i + 1];
+                    if (key == "comment")
+                    {
+                        if (valNode is LingoDatumNode dn) comment = dn.Datum.AsString();
+                    }
+                    else if (key == "format")
+                    {
+                        if (valNode is LingoDatumNode dn) format = dn.Datum.AsSymbol();
+                    }
+                    else if (key == "default")
+                    {
+                        if (valNode is LingoDatumNode dn) defDatum = dn.Datum;
+                    }
+                }
+
+                if (propName != null && comment != null && defDatum != null)
+                {
+                    var defVal = FormatDefault(defDatum, format);
+                    props.Add(new PropDesc(propName, EscapeString(comment), defVal));
+                }
+            }
+        }
+
+        if (props.Count > 0)
+        {
+            AppendLine("return new BehaviorPropertyDescriptionList()");
+            Indent();
+            for (int i = 0; i < props.Count; i++)
+            {
+                var p = props[i];
+                var line = $".Add(this, x => x.{p.Name}, \"{p.Comment}\", {p.DefaultValue})";
+                if (i == props.Count - 1)
+                {
+                    line += ";";
+                }
+                AppendLine(line);
+            }
+            Unindent();
+        }
+        else
+        {
+            AppendLine("return new BehaviorPropertyDescriptionList();");
+        }
+
+        Unindent();
+        AppendLine("}");
+        AppendLine();
     }
 
     private void Unsupported(LingoNode node)
@@ -110,6 +222,14 @@ public class CSharpWriter : ILingoAstVisitor
         var prevHandler = _currentHandlerName;
         var name = node.Handler?.Name ?? string.Empty;
         _currentHandlerName = name;
+
+        if (name.Equals("getPropertyDescriptionList", StringComparison.OrdinalIgnoreCase))
+        {
+            WritePropertyDescriptionListHandler(node);
+            _currentHandlerName = prevHandler;
+            return;
+        }
+
         if (name.Length > 0)
         {
             name = char.ToUpperInvariant(name[0]) + name[1..];
