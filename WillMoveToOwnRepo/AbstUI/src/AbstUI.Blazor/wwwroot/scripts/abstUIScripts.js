@@ -12,6 +12,14 @@ export class abstCanvas {
         }
     }
 
+    static addCanvasToBody(canvas) {
+        document.body.appendChild(canvas);
+    }
+
+    static setCanvasVisible(canvas, visible) {
+        canvas.style.display = visible ? 'block' : 'none';
+    }
+
     static getContext(canvas, pixilated) {
         const ctx = canvas.getContext('2d');
         if (pixilated) {
@@ -106,6 +114,10 @@ export class abstCanvas {
 
     static getImageData(ctx, width, height) {
         return ctx.getImageData(0, 0, width, height).data;
+    }
+
+    static setGlobalAlpha(ctx, alpha) {
+        ctx.globalAlpha = alpha;
     }
 }
 
