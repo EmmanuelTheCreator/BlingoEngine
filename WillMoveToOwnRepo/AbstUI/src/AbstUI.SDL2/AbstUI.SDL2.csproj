@@ -30,7 +30,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<InternalsVisibleTo Include="AbstUIEngine.SDL2.GfxVisualTest" />
+		<InternalsVisibleTo Include="AbstUI.GfxVisualTest.SDL2" />
 	</ItemGroup>
 
 	<ItemGroup>
