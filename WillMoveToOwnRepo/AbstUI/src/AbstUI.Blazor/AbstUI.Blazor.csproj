@@ -37,6 +37,7 @@
     <ProjectReference Include="..\AbstUI\AbstUI.csproj" />
   </ItemGroup>
 
+  <!-- Explicitly include source files and generated Razor component code -->
   <ItemGroup>
     <Compile Remove="**/*.cs" />
     <Compile Include="AbstBlazorComponentFactory.cs" />
@@ -56,21 +57,23 @@
     <Compile Include="Components/AbstBlazorLayoutWrapper.cs" />
     <Compile Include="Components/AbstBlazorWrapPanel.cs" />
     <Compile Include="Components/AbstBlazorScrollContainer.cs" />
-      <Compile Include="Components/AbstBlazorGfxCanvas.cs" />
-      <Compile Include="Components/AbstInputComponent.cs" />
-        <Compile Include="Components/AbstBlazorTabContainer.cs" />
-        <Compile Include="Components/AbstBlazorTabItem.cs" />
-        <Compile Include="Components/AbstBlazorMenu.cs" />
-        <Compile Include="Components/AbstBlazorMenuItem.cs" />
-        <Compile Include="Inputs/BlazorMouse.cs" />
-        <Compile Include="Inputs/BlazorKey.cs" />
-        <Compile Include="AbstUIBlazorSetup.cs" />
-        <Compile Include="AbstUIScriptResolver.cs" />
-        <Compile Include="Bitmaps/AbstBlazorTexture2D.cs" />
-        <Compile Include="Bitmaps/BlazorImageTexture.cs" />
-        <Compile Include="Styles/AbstBlazorFontManager.cs" />
-        <Compile Include="Styles/AbstBlazorStyleManager.cs" />
-        <Compile Include="Primitives/AbstColorExtensions.cs" />
-      </ItemGroup>
+    <Compile Include="Components/AbstBlazorGfxCanvas.cs" />
+    <Compile Include="Components/AbstInputComponent.cs" />
+    <Compile Include="Components/AbstBlazorTabContainer.cs" />
+    <Compile Include="Components/AbstBlazorTabItem.cs" />
+    <Compile Include="Components/AbstBlazorMenu.cs" />
+    <Compile Include="Components/AbstBlazorMenuItem.cs" />
+    <Compile Include="Inputs/BlazorMouse.cs" />
+    <Compile Include="Inputs/BlazorKey.cs" />
+    <Compile Include="AbstUIBlazorSetup.cs" />
+    <Compile Include="AbstUIScriptResolver.cs" />
+    <Compile Include="Bitmaps/AbstBlazorTexture2D.cs" />
+    <Compile Include="Bitmaps/BlazorImageTexture.cs" />
+    <Compile Include="Styles/AbstBlazorFontManager.cs" />
+    <Compile Include="Styles/AbstBlazorStyleManager.cs" />
+    <Compile Include="Primitives/AbstColorExtensions.cs" />
+    <!-- Include generated Razor component code to ensure attributes like onclick are processed -->
+    <Compile Include="obj/**/*.razor.g.cs" />
+  </ItemGroup>
 
-  </Project>
+</Project>
