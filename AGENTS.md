@@ -11,6 +11,7 @@ These instructions apply to the entire repository.
 - For changes in the ProjectorRays area (`WillMoveToOwnRepo/ProjectorRays`), run `dotnet test WillMoveToOwnRepo/ProjectorRays/Test/ProjectorRays.DotNet.Test/ProjectorRays.DotNet.Test.csproj`.
 - Apply the same approach for other components: run `dotnet test <path-to-test-project>` for each modified project.
 - Project `LingoEngine.SDL2.GfxVisualTest.csproj` is a console application to test the UI visually, not with tests in it.
+ - Other visual test projects such as `WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.*` are also manual console apps; build or run them with `dotnet build`/`dotnet run` rather than `dotnet test`.
 
 ## Code Style
 - Use `dotnet format` to fix style issues when needed.
@@ -40,6 +41,10 @@ These instructions apply to the entire repository.
 | WillMoveToOwnRepo/AbstUI/src/AbstUI.SDL2/AbstUI.SDL2.csproj | SDL2 backend for AbstUI |
 | WillMoveToOwnRepo/AbstUI/src/AbstUI.LUnity/AbstUI.LUnity.csproj | Unity backend for AbstUI |
 | WillMoveToOwnRepo/AbstUI/src/AbstUI.LGodot/AbstUI.LGodot.csproj | Godot backend for AbstUI |
+| WillMoveToOwnRepo/AbstUI/src/AbstUI.ImGui/AbstUI.ImGui.csproj | ImGui backend for AbstUI |
+| WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest/AbstUI.GfxVisualTest.csproj | Shared graphics visual test utilities for AbstUI |
+| WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.ImGui/AbstUI.GfxVisualTest.ImGui.csproj | ImGui visual test application for AbstUI |
+| WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.SDL2/AbstUI.GfxVisualTest.SDL2.csproj | SDL2 visual test application for AbstUI |
 | WillMoveToOwnRepo/ProjectorRays/src/ProjectorRays.DotNet/ProjectorRays.DotNet.csproj | Core ProjectorRays .NET library |
 | WillMoveToOwnRepo/ProjectorRays/src/ProjectorRays.Console/ProjectorRays.Console.csproj | Console showcase for ProjectorRays |
 | WillMoveToOwnRepo/ProjectorRays/Test/ProjectorRays.DotNet.Test/ProjectorRays.DotNet.Test.csproj | Tests for ProjectorRays library |
