@@ -11,9 +11,9 @@ internal class AbstUnityComponent : IAbstFrameworkLayoutNode
 {
     protected readonly GameObject GameObject;
 
-    public AbstUnityComponent()
+    protected AbstUnityComponent(GameObject? gameObject = null)
     {
-        GameObject = new GameObject();
+        GameObject = gameObject ?? new GameObject();
     }
 
     public string Name
@@ -28,13 +28,61 @@ internal class AbstUnityComponent : IAbstFrameworkLayoutNode
         set => GameObject.SetActive(value);
     }
 
-    public float Width { get; set; }
-    public float Height { get; set; }
+    private float _width;
+    private float _height;
+
+    public float Width
+    {
+        get => _width;
+        set
+        {
+            _width = value;
+            var scale = GameObject.transform.localScale;
+            scale.x = value;
+            GameObject.transform.localScale = scale;
+        }
+    }
+
+    public float Height
+    {
+        get => _height;
+        set
+        {
+            _height = value;
+            var scale = GameObject.transform.localScale;
+            scale.y = value;
+            GameObject.transform.localScale = scale;
+        }
+    }
 
     public AMargin Margin { get; set; } = AMargin.Zero;
 
-    public float X { get; set; }
-    public float Y { get; set; }
+    private float _x;
+    private float _y;
+
+    public float X
+    {
+        get => _x;
+        set
+        {
+            _x = value;
+            var pos = GameObject.transform.position;
+            pos.x = value;
+            GameObject.transform.position = pos;
+        }
+    }
+
+    public float Y
+    {
+        get => _y;
+        set
+        {
+            _y = value;
+            var pos = GameObject.transform.position;
+            pos.y = value;
+            GameObject.transform.position = pos;
+        }
+    }
 
     public object FrameworkNode => GameObject;
 

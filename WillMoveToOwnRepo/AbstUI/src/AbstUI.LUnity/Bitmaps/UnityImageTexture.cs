@@ -1,4 +1,5 @@
 using AbstUI.Primitives;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace AbstUI.LUnity.Bitmaps;
@@ -20,6 +21,13 @@ public class UnityTexture2D : IAbstTexture2D
     public int Height => Texture!.height;
 
     public bool IsDisposed => throw new NotImplementedException();
+
+    public Sprite? ToSprite()
+    {
+        if (Texture == null)
+            return null;
+        return Sprite.Create(Texture, new Rect(0, 0, Texture.width, Texture.height), new Vector2(0.5f, 0.5f));
+    }
 
 
     public IAbstUITextureUserSubscription AddUser(object user)
