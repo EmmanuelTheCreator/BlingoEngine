@@ -21,7 +21,7 @@ public partial class AbstBlazorPanel : AbstBlazorComponentBase, IAbstFrameworkPa
             _children.Add(child);
             if (child is AbstBlazorComponentBase comp)
                 _fragments.Add(comp.RenderFragment);
-            StateHasChanged();
+            RequestRender();
         }
     }
 
@@ -32,7 +32,7 @@ public partial class AbstBlazorPanel : AbstBlazorComponentBase, IAbstFrameworkPa
         {
             _children.RemoveAt(index);
             _fragments.RemoveAt(index);
-            StateHasChanged();
+            RequestRender();
         }
     }
 
@@ -40,7 +40,7 @@ public partial class AbstBlazorPanel : AbstBlazorComponentBase, IAbstFrameworkPa
     {
         _children.Clear();
         _fragments.Clear();
-        StateHasChanged();
+        RequestRender();
     }
 
     public IEnumerable<IAbstFrameworkLayoutNode> GetItems() => _children;

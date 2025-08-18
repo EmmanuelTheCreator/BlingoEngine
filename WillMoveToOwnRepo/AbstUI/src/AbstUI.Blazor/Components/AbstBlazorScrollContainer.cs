@@ -21,7 +21,7 @@ public partial class AbstBlazorScrollContainer : AbstBlazorComponentBase, IAbstF
             _children.Add(child);
             if (child is AbstBlazorComponentBase comp)
                 _fragments.Add(comp.RenderFragment);
-            StateHasChanged();
+            RequestRender();
         }
     }
 
@@ -32,7 +32,7 @@ public partial class AbstBlazorScrollContainer : AbstBlazorComponentBase, IAbstF
         {
             _children.RemoveAt(index);
             _fragments.RemoveAt(index);
-            StateHasChanged();
+            RequestRender();
         }
     }
 
