@@ -34,6 +34,7 @@ namespace AbstUI.SDL2.Components
         private ISdlFontLoadedByUser? _font;
         private nint _texture;
         private string _renderedText = string.Empty;
+        private int _measuredWidth;
 
         private void EnsureResources(AbstSDLRenderContext ctx)
         {
@@ -62,9 +63,30 @@ namespace AbstUI.SDL2.Components
                 SDL.SDL_FreeSurface(surf);
 
                 _renderedText = Text;
-                Width = w;
+
+                // Only override width if no explicit width was set
+                if (Width <= 0)
+                    Width = w;
+                // Height is always dictated by the rendered texture
                 Height = h;
+
+                // Cache the measured width for alignment calculations
+                _measuredWidth = w;
             }
+
+            // Align texture within the available width
+            float availableWidth = Width;
+            float offset = 0;
+            if (availableWidth > _measuredWidth)
+            {
+                offset = TextAlignment switch
+                {
+                    AbstTextAlignment.Center => (availableWidth - _measuredWidth) / 2f,
+                    AbstTextAlignment.Right => availableWidth - _measuredWidth,
+                    _ => 0
+                };
+            }
+            ComponentContext.OffsetX = offset;
 
             return _texture;
         }
