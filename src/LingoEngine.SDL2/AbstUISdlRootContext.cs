@@ -10,7 +10,7 @@ using AbstUI.SDL2;
 public abstract class AbstUISdlRootContext<TMouse> : IDisposable
      where TMouse : IAbstMouse
 {
-    
+
     public nint Window { get; }
     public nint Renderer { get; }
 
@@ -19,20 +19,20 @@ public abstract class AbstUISdlRootContext<TMouse> : IDisposable
 
     public IAbstKey AbstKey { get; protected set; }
     public IAbstMouse AbstMouse { get; set; }
-   
-    
 
-    public AbstSDLComponentContainer ComponentContainer { get; } = new();
+    public SdlFocusManager FocusManager { get; }
+    public AbstSDLComponentContainer ComponentContainer { get; }
     internal LingoSdlFactory Factory { get; set; } = null!;
 
-  
-    public AbstUISdlRootContext(nint window, nint renderer)
+    public AbstUISdlRootContext(nint window, nint renderer, SdlFocusManager focusManager)
     {
         Window = window;
         Renderer = renderer;
+        FocusManager = focusManager;
+        ComponentContainer = new AbstSDLComponentContainer(focusManager);
     }
-   
-   
+
+
 
 
 

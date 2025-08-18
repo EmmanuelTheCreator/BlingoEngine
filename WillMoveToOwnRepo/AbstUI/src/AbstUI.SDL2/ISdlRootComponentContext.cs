@@ -9,6 +9,7 @@ public interface ISdlRootComponentContext
     nint Renderer { get; }
     IAbstMouse AbstMouse { get; }
     IAbstKey AbstKey { get; }
+    SdlFocusManager FocusManager { get; }
 
     APoint GetWindowSize();
 }

@@ -6,7 +6,7 @@ using AbstUI.SDL2.SDLL;
 
 namespace AbstUI.SDL2.Components;
 
-internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IHandleSdlEvent, IDisposable
+internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IHandleSdlEvent, ISdlFocusable, IDisposable
 {
     private readonly AbstSdlInputNumber<float> _number;
     private const int ButtonWidth = 16;
@@ -128,5 +128,9 @@ internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IHandle
         base.Dispose();
         _number.Dispose();
     }
+
+    public bool HasFocus => _number.HasFocus;
+
+    public void SetFocus(bool focus) => _number.SetFocus(focus);
 }
 
