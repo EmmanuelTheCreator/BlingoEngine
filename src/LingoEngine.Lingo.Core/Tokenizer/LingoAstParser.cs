@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace LingoEngine.Lingo.Core.Tokenizer
 {
@@ -67,6 +68,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
             switch (_currentToken.Type)
             {
                 case LingoTokenType.Identifier:
+                case LingoTokenType.Me:
                     return ParseCallOrAssignment();
                 case LingoTokenType.Global:
                 case LingoTokenType.Property:
@@ -244,6 +246,43 @@ namespace LingoEngine.Lingo.Core.Tokenizer
             var expr = ParsePrimary();
             while (true)
             {
+                if (Match(LingoTokenType.Dot))
+                {
+                    var pTok = Expect(LingoTokenType.Identifier);
+                    expr = new LingoObjPropExprNode
+                    {
+                        Object = expr,
+                        Property = new LingoVarNode { VarName = pTok.Lexeme }
+                    };
+                }
+                else if (Match(LingoTokenType.LeftBracket))
+                {
+                    var idx = ParseExpression();
+                    Expect(LingoTokenType.RightBracket);
+                    expr = new LingoObjBracketExprNode
+                    {
+                        Object = expr,
+                        Index = idx
+                    };
+                }
+                else if (Match(LingoTokenType.LeftParen))
+                {
+                    var argExpr = ParseExpression();
+                    Expect(LingoTokenType.RightParen);
+                    expr = new LingoCallNode
+                    {
+                        Callee = expr,
+                        Arguments = argExpr
+                    };
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            while (true)
+            {
                 if (_currentToken.Type == LingoTokenType.Plus)
                 {
                     AdvanceToken();
@@ -355,6 +394,20 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                     AdvanceToken();
                     break;
 
+                case LingoTokenType.LeftBracket:
+                    AdvanceToken();
+                    var elements = new List<LingoNode>();
+                    if (_currentToken.Type != LingoTokenType.RightBracket)
+                    {
+                        do
+                        {
+                            elements.Add(ParseExpression());
+                        } while (Match(LingoTokenType.Comma));
+                    }
+                    Expect(LingoTokenType.RightBracket);
+                    expr = new LingoDatumNode(new LingoDatum(elements));
+                    break;
+
                 case LingoTokenType.Symbol:
                     expr = new LingoDatumNode(new LingoDatum(_currentToken.Lexeme, isSymbol: true));
                     AdvanceToken();
@@ -369,25 +422,6 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                     AdvanceToken();
                     var propTok = Expect(LingoTokenType.Identifier);
                     expr = new LingoTheExprNode { Prop = propTok.Lexeme };
-                    while (Match(LingoTokenType.Dot))
-                    {
-                        var pTok = Expect(LingoTokenType.Identifier);
-                        expr = new LingoObjPropExprNode
-                        {
-                            Object = expr,
-                            Property = new LingoVarNode { VarName = pTok.Lexeme }
-                        };
-                    }
-                    if (Match(LingoTokenType.LeftParen))
-                    {
-                        var argExpr = ParseExpression();
-                        Expect(LingoTokenType.RightParen);
-                        expr = new LingoCallNode
-                        {
-                            Callee = expr,
-                            Arguments = argExpr
-                        };
-                    }
                     break;
 
                 case LingoTokenType.Identifier:
@@ -433,15 +467,6 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                     else
                     {
                         expr = new LingoVarNode { VarName = name };
-                        while (Match(LingoTokenType.Dot))
-                        {
-                            var pTok = Expect(LingoTokenType.Identifier);
-                            expr = new LingoObjPropExprNode
-                            {
-                                Object = expr,
-                                Property = new LingoVarNode { VarName = pTok.Lexeme }
-                            };
-                        }
                     }
                     break;
 
