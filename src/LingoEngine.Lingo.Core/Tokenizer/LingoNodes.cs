@@ -341,6 +341,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
     {
         public LingoNode Sprite { get; set; } = null!;
         public LingoNode Message { get; set; } = null!;
+        public LingoNode? Arguments { get; set; }
         public string? TargetType { get; set; }
         public override void Accept(ILingoAstVisitor visitor) => visitor.Visit(this);
     }

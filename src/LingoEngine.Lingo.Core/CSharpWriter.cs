@@ -636,7 +636,9 @@ public class CSharpWriter : ILingoAstVisitor
             Append(dn.Datum.AsSymbol());
         else
             node.Message.Accept(this);
-        Append("());");
+        Append("(");
+        node.Arguments?.Accept(this);
+        Append("));");
         AppendLine();
     }
 

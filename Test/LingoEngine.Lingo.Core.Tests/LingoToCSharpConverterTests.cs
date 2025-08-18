@@ -154,6 +154,33 @@ public class LingoToCSharpConverterTests
     }
 
     [Fact]
+    public void SendSpriteWithArgumentIsConverted()
+    {
+        var scripts = new[]
+        {
+            new LingoScriptFile
+            {
+                Name = "B1",
+                Source = "on beginSprite\r\n sendSprite 2, #doIt, 42\r\nend\r\n",
+                Type = LingoScriptType.Behavior
+            },
+            new LingoScriptFile
+            {
+                Name = "B2",
+                Source = "on doIt me, value\r\n end\r\n",
+                Type = LingoScriptType.Behavior
+            }
+        };
+        var batch = _converter.Convert(scripts);
+        var expected = string.Join('\n',
+            "public void BeginSprite()",
+            "{",
+            "    SendSprite<B2>(2, b2 => b2.doIt(42));",
+            "}");
+        Assert.Equal(expected.Trim(), batch.ConvertedScripts["B1"].Trim());
+    }
+
+    [Fact]
     public void SendSpriteUnknownMethodGeneratesBehavior()
     {
         var scripts = new[]
