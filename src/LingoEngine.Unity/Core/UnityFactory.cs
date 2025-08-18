@@ -25,6 +25,7 @@ using AbstUI.Styles;
 using Microsoft.Extensions.DependencyInjection;
 using AbstUI.Primitives;
 using AbstUI.Components;
+using AbstUI.LUnity;
 using System.Numerics;
 
 namespace LingoEngine.Unity.Core;
@@ -33,11 +34,15 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
 {
     private readonly List<IDisposable> _disposables = new();
     private readonly ILingoServiceProvider _serviceProvider;
+    private readonly AbstUnityComponentFactory _gfxFactory;
 
     public UnityFactory(ILingoServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
+        _gfxFactory = new AbstUnityComponentFactory();
     }
+
+    public IAbstComponentFactory GfxFactory => _gfxFactory;
 
     public LingoStage CreateStage(LingoPlayer lingoPlayer)
     {
@@ -147,26 +152,27 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
     }
 
     #region Gfx
-    public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height) => throw new NotImplementedException();
-    public AbstWrapPanel CreateWrapPanel(AOrientation orientation, string name) => throw new NotImplementedException();
-    public AbstPanel CreatePanel(string name) => throw new NotImplementedException();
-    public AbstLayoutWrapper CreateLayoutWrapper(IAbstNode content, float? x, float? y) => throw new NotImplementedException();
-    public AbstTabContainer CreateTabContainer(string name) => throw new NotImplementedException();
-    public AbstTabItem CreateTabItem(string name, string title) => throw new NotImplementedException();
-    public AbstScrollContainer CreateScrollContainer(string name) => throw new NotImplementedException();
+    public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height) => _gfxFactory.CreateGfxCanvas(name, width, height);
+    public AbstWrapPanel CreateWrapPanel(AOrientation orientation, string name) => _gfxFactory.CreateWrapPanel(orientation, name);
+    public AbstPanel CreatePanel(string name) => _gfxFactory.CreatePanel(name);
+    public AbstLayoutWrapper CreateLayoutWrapper(IAbstNode content, float? x, float? y) => _gfxFactory.CreateLayoutWrapper(content, x, y);
+    public AbstTabContainer CreateTabContainer(string name) => _gfxFactory.CreateTabContainer(name);
+    public AbstTabItem CreateTabItem(string name, string title) => _gfxFactory.CreateTabItem(name, title);
+    public AbstScrollContainer CreateScrollContainer(string name) => _gfxFactory.CreateScrollContainer(name);
     public AbstInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null) => throw new NotImplementedException();
     public AbstInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null) => throw new NotImplementedException();
-    public AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null, bool multiLine = false) => throw new NotImplementedException();
+    public AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null, bool multiLine = false)
+        => _gfxFactory.CreateInputText(name, maxLength, onChange, multiLine);
     public AbstInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null) => throw new NotImplementedException();
     public AbstInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null) => throw new NotImplementedException();
     public AbstInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null) where TValue : System.Numerics.INumber<TValue> => throw new NotImplementedException();
     public AbstInputSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null) => throw new NotImplementedException();
-    public AbstInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null) => throw new NotImplementedException();
-    public AbstInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null) => throw new NotImplementedException();
+    public AbstInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null) => _gfxFactory.CreateInputCheckbox(name, onChange);
+    public AbstInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null) => _gfxFactory.CreateInputCombobox(name, onChange);
     public AbstItemList CreateItemList(string name, Action<string?>? onChange = null) => throw new NotImplementedException();
     public AbstColorPicker CreateColorPicker(string name, Action<AColor>? onChange = null) => throw new NotImplementedException();
-    public AbstLabel CreateLabel(string name, string text = "") => throw new NotImplementedException();
-    public AbstButton CreateButton(string name, string text = "") => throw new NotImplementedException();
+    public AbstLabel CreateLabel(string name, string text = "") => _gfxFactory.CreateLabel(name, text);
+    public AbstButton CreateButton(string name, string text = "") => _gfxFactory.CreateButton(name, text);
     public AbstStateButton CreateStateButton(string name, IAbstTexture2D? texture = null, string text = "", Action<bool>? onChange = null) => throw new NotImplementedException();
     public AbstMenu CreateMenu(string name) => throw new NotImplementedException();
     public AbstMenuItem CreateMenuItem(string name, string? shortcut = null) => throw new NotImplementedException();
