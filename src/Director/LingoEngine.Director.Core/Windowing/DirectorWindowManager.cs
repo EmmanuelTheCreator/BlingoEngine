@@ -12,6 +12,8 @@ namespace LingoEngine.Director.Core.Windowing
         void SetActiveWindow(IDirectorWindowRegistration window);
         IDirectorWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult);
         IDirectorWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel);
+        IDirectorWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? lingoDialog = null)
+            where TDialog : class, ILingoDialog;
         IDirectorWindowDialogReference? ShowNotification(string message, DirUINotificationType type);
     }
     public interface IDirectorWindowRegistration
@@ -31,6 +33,8 @@ namespace LingoEngine.Director.Core.Windowing
         void SetActiveWindow(string windowCode);
         IDirectorWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult);
         IDirectorWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel);
+        IDirectorWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? lingoDialog = null)
+            where TDialog : class, ILingoDialog;
         IDirectorWindowDialogReference? ShowNotification(string message, DirUINotificationType type);
         void SetWindowSize(string windowCode, int stageWidth, int stageHeight);
     }
@@ -103,6 +107,10 @@ namespace LingoEngine.Director.Core.Windowing
 
         public IDirectorWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel)
             => _frameworkWindowManager.ShowCustomDialog(title, panel);
+
+        public IDirectorWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? lingoDialog = null)
+            where TDialog : class, ILingoDialog
+            => _frameworkWindowManager.ShowCustomDialog<TDialog>(title, panel, lingoDialog);
 
         public IDirectorWindowDialogReference? ShowNotification(string message, DirUINotificationType type)
             => _frameworkWindowManager.ShowNotification(message, type);

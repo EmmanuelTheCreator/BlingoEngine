@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Godot;
 using AbstUI.Components;
 using LingoEngine.Director.Core.Stages;
@@ -6,6 +9,7 @@ using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.LGodot.Movies;
 using AbstUI.LGodot.Styles;
 using AbstUI.LGodot.Primitives;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Director.LGodot.Windowing;
 
@@ -13,7 +17,7 @@ public interface IDirGodotWindowManager : IDirFrameworkWindowManager
 {
     void Register(BaseGodotWindow godotWindow);
     void SetActiveWindow(BaseGodotWindow window, Vector2 mousePoint);
-   
+
 
     BaseGodotWindow? ActiveWindow { get; }
 }
@@ -23,13 +27,15 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
     public const int ZIndexInactiveWindowStage = -4000;
     private IDirectorWindowManager _directorWindowManager;
     private readonly IAbstGodotStyleManager _lingoGodotStyleManager;
+    private readonly DirGodotFrameworkFactory _frameworkFactory;
     private readonly Dictionary<string, BaseGodotWindow> _godotWindows = new();
     public BaseGodotWindow? ActiveWindow { get; private set; }
 
-    public DirGodotWindowManager(IDirectorWindowManager directorWindowManager, IAbstGodotStyleManager lingoGodotStyleManager)
+    public DirGodotWindowManager(IDirectorWindowManager directorWindowManager, IAbstGodotStyleManager lingoGodotStyleManager, DirGodotFrameworkFactory frameworkFactory)
     {
         _directorWindowManager = directorWindowManager;
         _lingoGodotStyleManager = lingoGodotStyleManager;
+        _frameworkFactory = frameworkFactory;
         directorWindowManager.Init(this);
     }
     public void Register(BaseGodotWindow godotWindow)
@@ -71,7 +77,7 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
     {
         if (ActiveWindow != null)
         {
-            ActiveWindow.ZIndex = ActiveWindow is DirGodotStageWindow? ZIndexInactiveWindowStage : ZIndexInactiveWindow;
+            ActiveWindow.ZIndex = ActiveWindow is DirGodotStageWindow ? ZIndexInactiveWindowStage : ZIndexInactiveWindow;
             ActiveWindow.QueueRedraw();
         }
         ActiveWindow = window;
@@ -123,17 +129,14 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
         };
         node.AddThemeStyleboxOverride("panel", styleBox);
 
-
-        var dialog = new Window
-        {
-            Title = title,
-            //AlwaysOnTop = true, // <- blocks combo boxes
-            Exclusive = true,
-            PopupWindow = true,
-            Unresizable = true,
-            Size = new Vector2I((int)panel.Width, (int)panel.Height),
-            Theme = _lingoGodotStyleManager.GetTheme(AbstGodotThemeElementType.PopupWindow),
-        };
+        var dialog = _frameworkFactory.ServiceProvider.GetRequiredService<Window>();
+        dialog.Title = title;
+        //AlwaysOnTop = true; // <- blocks combo boxes
+        dialog.Exclusive = true;
+        dialog.PopupWindow = true;
+        dialog.Unresizable = true;
+        dialog.Size = new Vector2I((int)panel.Width, (int)panel.Height);
+        dialog.Theme = _lingoGodotStyleManager.GetTheme(AbstGodotThemeElementType.PopupWindow);
         ReplaceIconColor(dialog, "close", new Color("#777777"));
         ReplaceIconColor(dialog, "close_hl", Colors.Black);
         ReplaceIconColor(dialog, "close_pressed", Colors.Black);
@@ -142,6 +145,55 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
         dialog.AddChild(node);
         dialog.PopupCentered();
 
+        return new DirectorWindowDialogReference(dialog.QueueFree);
+    }
+
+    public IDirectorWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? lingoDialog = null)
+        where TDialog : class, ILingoDialog
+    {
+        var root = ActiveWindow?.GetTree().Root;
+        if (root == null)
+            return null;
+
+        if (panel is not Panel node)
+            throw new ArgumentException("Panel must be a Godot node", nameof(panel));
+
+        // Set background color
+        var styleBox = new StyleBoxFlat
+        {
+            BgColor = DirectorColors.PopupWindow_Background.ToGodotColor()
+        };
+        node.AddThemeStyleboxOverride("panel", styleBox);
+        Window dialog;
+        if (lingoDialog != null)
+        {
+            dialog = _frameworkFactory.GetFrameworkFor<Window>(lingoDialog);
+        }
+        else
+        {
+            dialog = _frameworkFactory.ServiceProvider.GetRequiredService<Window>();
+        }
+
+        dialog.Title = title;
+        //AlwaysOnTop = true; // <- blocks combo boxes
+        dialog.Exclusive = true;
+        dialog.PopupWindow = true;
+        dialog.Unresizable = true;
+        dialog.Size = new Vector2I((int)panel.Width, (int)panel.Height);
+        dialog.Theme = _lingoGodotStyleManager.GetTheme(AbstGodotThemeElementType.PopupWindow);
+        ReplaceIconColor(dialog, "close", new Color("#777777"));
+        ReplaceIconColor(dialog, "close_hl", Colors.Black);
+        ReplaceIconColor(dialog, "close_pressed", Colors.Black);
+        root.AddChild(dialog);
+        dialog.CloseRequested += dialog.QueueFree;
+        dialog.AddChild(node);
+        if (lingoDialog != null)
+        {
+            var frameworkDialog = (IDirFrameworkDialog)dialog;
+            frameworkDialog.Init();
+            lingoDialog.Init(frameworkDialog);
+        }
+        dialog.PopupCentered();
 
         return new DirectorWindowDialogReference(dialog.QueueFree);
     }
@@ -223,5 +275,5 @@ internal class DirGodotWindowManager : IDirGodotWindowManager
         return new DirectorWindowDialogReference(panel.QueueFree);
     }
 
-    
+
 }

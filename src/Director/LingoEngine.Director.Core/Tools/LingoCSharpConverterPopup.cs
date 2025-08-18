@@ -10,12 +10,12 @@ using TextCopy;
 
 namespace LingoEngine.Director.Core.Tools;
 
-public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverterCommand>
+public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverterCommand>, ILingoDialog
 {
-    private readonly IDirectorWindowManager _windowManager;
-    private readonly ILingoFrameworkFactory _factory;
+    protected readonly IDirectorWindowManager _windowManager;
+    protected readonly ILingoFrameworkFactory _factory;
 
-    private sealed class ViewModel
+    protected sealed class ViewModel
     {
         public string Lingo { get; set; } = string.Empty;
         public string CSharp { get; set; } = string.Empty;
@@ -29,15 +29,19 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
 
     public bool CanExecute(OpenLingoCSharpConverterCommand command) => true;
 
-    public bool Handle(OpenLingoCSharpConverterCommand command)
+    public virtual bool Handle(OpenLingoCSharpConverterCommand command)
     {
         var vm = new ViewModel();
         var panel = BuildPanel(vm);
-        _windowManager.ShowCustomDialog("Lingo to C#", panel.Framework<IAbstFrameworkPanel>());
+        _windowManager.ShowCustomDialog<LingoCSharpConverterPopup>("Lingo to C#", panel.Framework<IAbstFrameworkPanel>(), this);
         return true;
     }
 
-    private AbstPanel BuildPanel(ViewModel vm)
+    public void Init(IDirFrameworkDialog framework)
+    {
+    }
+
+    protected AbstPanel BuildPanel(ViewModel vm)
     {
         var root = _factory.CreatePanel("LingoCSharpRoot");
         root.Width = 800;
