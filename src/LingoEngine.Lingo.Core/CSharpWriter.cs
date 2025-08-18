@@ -642,6 +642,29 @@ public class CSharpWriter : ILingoAstVisitor
         AppendLine();
     }
 
+    public void Visit(LingoSendSpriteExprNode node)
+    {
+        Append("SendSprite");
+        string param = "sprite";
+        if (!string.IsNullOrEmpty(node.TargetType))
+        {
+            Append("<");
+            Append(node.TargetType);
+            Append(">");
+            param = node.TargetType.ToLowerInvariant();
+        }
+        Append("(");
+        node.Sprite.Accept(this);
+        Append($", {param} => {param}.");
+        if (node.Message is LingoDatumNode dn && dn.Datum.Type == LingoDatum.DatumType.Symbol)
+            Append(dn.Datum.AsSymbol());
+        else
+            node.Message.Accept(this);
+        Append("(");
+        node.Arguments?.Accept(this);
+        Append("))");
+    }
+
     public void Visit(LingoExitRepeatStmtNode node) => AppendLine("break;");
 
     public void Visit(LingoNextRepeatStmtNode node) => AppendLine("continue;");

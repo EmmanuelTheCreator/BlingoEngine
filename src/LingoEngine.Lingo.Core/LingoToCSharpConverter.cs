@@ -485,6 +485,7 @@ public class LingoToCSharpConverter
         public void Visit(LingoGoToStmtNode n) { n.Target.Accept(this); }
         public void Visit(LingoAssignmentStmtNode n) { n.Target.Accept(this); n.Value.Accept(this); }
         public void Visit(LingoSendSpriteStmtNode n) { n.Sprite.Accept(this); n.Message.Accept(this); n.Arguments?.Accept(this); }
+        public void Visit(LingoSendSpriteExprNode n) { n.Sprite.Accept(this); n.Message.Accept(this); n.Arguments?.Accept(this); }
         public void Visit(LingoObjBracketExprNode n) { n.Object.Accept(this); n.Index.Accept(this); }
         public void Visit(LingoSpritePropExprNode n) { n.Sprite.Accept(this); n.Property.Accept(this); }
         public void Visit(LingoChunkDeleteStmtNode n) { n.Chunk.Accept(this); }
@@ -563,6 +564,30 @@ public class LingoToCSharpConverter
         public void Visit(LingoGoToStmtNode n) { n.Target.Accept(this); }
         public void Visit(LingoAssignmentStmtNode n) { n.Target.Accept(this); n.Value.Accept(this); }
         public void Visit(LingoSendSpriteStmtNode n)
+        {
+            if (n.Message is LingoDatumNode dn && dn.Datum.Type == LingoDatum.DatumType.Symbol)
+            {
+                var name = dn.Datum.AsSymbol();
+                if (_methodMap.TryGetValue(name, out var script))
+                {
+                    n.TargetType = script;
+                }
+                else
+                {
+                    if (!_generated.TryGetValue(name, out var className))
+                    {
+                        className = char.ToUpperInvariant(name[0]) + name[1..] + "Behavior";
+                        _generated[name] = className;
+                    }
+                    _methodMap[name] = className;
+                    n.TargetType = className;
+                }
+            }
+            n.Sprite.Accept(this);
+            n.Message.Accept(this);
+            n.Arguments?.Accept(this);
+        }
+        public void Visit(LingoSendSpriteExprNode n)
         {
             if (n.Message is LingoDatumNode dn && dn.Datum.Type == LingoDatum.DatumType.Symbol)
             {
