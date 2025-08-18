@@ -39,15 +39,7 @@ public abstract class AbstBlazorComponentBase : ComponentBase, IAbstFrameworkLay
 
     public RenderFragment RenderFragment => builder =>
     {
-        builder.OpenComponent(0, GetType());
-        foreach (var prop in GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
-        {
-            if (prop.GetCustomAttribute<ParameterAttribute>() != null)
-            {
-                builder.AddAttribute(1, prop.Name, prop.GetValue(this));
-            }
-        }
-        builder.CloseComponent();
+        BuildRenderTree(builder);
     };
 
     protected virtual string BuildStyle()
