@@ -1,6 +1,7 @@
 using Godot;
 using LingoEngine.Director.Core;
 using LingoEngine.LGodot;
+using LingoEngine.LGodot.Core;
 using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Director.LGodot.Gfx;
 using LingoEngine.Director.LGodot.Casts;
@@ -30,6 +31,7 @@ using LingoEngine.Director.LGodot.Styles;
 using LingoEngine.Director.LGodot.Projects;
 using LingoEngine.Projects;
 using AbstUI.LGodot.Styles;
+using LingoEngine.Director.LGodot.Tools;
 
 namespace LingoEngine.Director.LGodot
 {
@@ -57,9 +59,11 @@ namespace LingoEngine.Director.LGodot
                     s.AddSingleton<DirGodotPictureMemberEditorWindow>();
                     s.AddSingleton<DirGodotMainMenu>();
                     s.AddSingleton<DirGodotWindowManager>();
-                    s.AddSingleton<DirGodotWindowManager>();
                     s.AddSingleton<IDirFilePicker, GodotFilePicker>();
                     s.AddSingleton<IDirFolderPicker, GodotFolderPicker>();
+                    s.AddTransient<GodotLingoCSharpConverterPopup>();
+                    s.AddTransient<Window>();
+                    s.AddSingleton<DirGodotFrameworkFactory>();
                     s.AddSingleton<IDirectorIconManager>(p =>
                     {
                         var iconManager = new DirGodotIconManager(p.GetRequiredService<ILogger<DirGodotIconManager>>());
@@ -91,6 +95,7 @@ namespace LingoEngine.Director.LGodot
                     p.GetRequiredService<IAbstGodotStyleManager>().Register(AbstGodotThemeElementType.Tabs, styles.GetTabContainerTheme());
                     p.GetRequiredService<IAbstGodotStyleManager>().Register(AbstGodotThemeElementType.TabItem, styles.GetTabItemTheme());
                     p.GetRequiredService<IAbstGodotStyleManager>().Register(AbstGodotThemeElementType.PopupWindow, styles.GetPopupWindowTheme());
+                    p.GetRequiredService<DirGodotFrameworkFactory>().DiscoverInAssembly(typeof(GodotLingoCSharpConverterPopup).Assembly);
                     new LingoGodotDirectorRoot(p.GetRequiredService<LingoPlayer>(), p, p.GetRequiredService<LingoProjectSettings>());
                 });
             return engineRegistration;
