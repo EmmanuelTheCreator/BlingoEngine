@@ -1,0 +1,22 @@
+<Project Sdk="Godot.NET.Sdk/4.5.0-dev.5">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <Nullable>enable</Nullable>
+    <LangVersion>12</LangVersion>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="obj\**" />
+    <EmbeddedResource Remove="obj\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AbstUI.LGodot\AbstUI.LGodot.csproj" />
+    <ProjectReference Include="..\..\src\AbstUI\AbstUI.csproj" />
+    <ProjectReference Include="..\AbstUI.GfxVisualTest\AbstUI.GfxVisualTest.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.godot" />
+    <None Include="AbstUITestScene.tscn" />
+  </ItemGroup>
+</Project>
