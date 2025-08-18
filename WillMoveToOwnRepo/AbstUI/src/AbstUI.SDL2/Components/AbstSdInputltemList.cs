@@ -9,13 +9,12 @@ using AbstUI.SDL2.Styles;
 
 namespace AbstUI.SDL2.Components
 {
-    internal class AbstSdInputltemList : AbstSdlComponent, IAbstFrameworkItemList, IHandleSdlEvent, ISdlFocusable, IDisposable
+    internal class AbstSdInputltemList : AbstSdlScrollViewer, IAbstFrameworkItemList, ISdlFocusable, IDisposable
     {
         public AbstSdInputltemList(AbstSdlComponentFactory factory) : base(factory)
         {
         }
         public bool Enabled { get; set; } = true;
-        public AMargin Margin { get; set; } = AMargin.Zero;
 
         private readonly List<KeyValuePair<string, string>> _items = new();
         public IReadOnlyList<KeyValuePair<string, string>> Items => _items;
@@ -28,6 +27,7 @@ namespace AbstUI.SDL2.Components
         public void AddItem(string key, string value)
         {
             _items.Add(new KeyValuePair<string, string>(key, value));
+            ComponentContext.QueueRedraw(this);
         }
         public void ClearItems()
         {
@@ -35,6 +35,7 @@ namespace AbstUI.SDL2.Components
             SelectedIndex = -1;
             SelectedKey = null;
             SelectedValue = null;
+            ComponentContext.QueueRedraw(this);
         }
         private bool _focused;
         public bool HasFocus => _focused;
@@ -42,9 +43,6 @@ namespace AbstUI.SDL2.Components
 
         private ISdlFontLoadedByUser? _font;
         private SdlGlyphAtlas? _atlas;
-        private nint _texture;
-        private int _texW;
-        private int _texH;
         private int _lineHeight;
 
         private void EnsureResources(AbstSDLRenderContext ctx)
@@ -59,29 +57,14 @@ namespace AbstUI.SDL2.Components
             }
         }
 
-        public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
+        protected override void RenderContent(AbstSDLRenderContext context)
         {
-            if (!Visibility) return default;
-
             EnsureResources(context);
             int w = (int)Width;
             int h = (int)Height;
-            bool needRender = _texture == nint.Zero || _texW != w || _texH != h;
-            if (needRender)
-            {
-                if (_texture != nint.Zero)
-                    SDL.SDL_DestroyTexture(_texture);
-                _texture = SDL.SDL_CreateTexture(context.Renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
-                    (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, w, h);
-                SDL.SDL_SetTextureBlendMode(_texture, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
-            }
-
-            SDL.SDL_SetRenderTarget(context.Renderer, _texture);
-            SDL.SDL_SetRenderDrawColor(context.Renderer, 255, 255, 255, 255);
-            SDL.SDL_RenderClear(context.Renderer);
-
-            int y = 0;
-            for (int i = 0; i < _items.Count && y < h; i++)
+            int start = (int)MathF.Max(ScrollVertical / _lineHeight, 0);
+            int y = -(int)(ScrollVertical - start * _lineHeight);
+            for (int i = start; i < _items.Count && y < h; i++)
             {
                 SDL.SDL_Rect rect = new SDL.SDL_Rect { x = 0, y = y, w = w, h = _lineHeight };
                 if (i == SelectedIndex)
@@ -102,11 +85,6 @@ namespace AbstUI.SDL2.Components
                 }
                 y += _lineHeight;
             }
-
-            SDL.SDL_SetRenderTarget(context.Renderer, nint.Zero);
-            _texW = w;
-            _texH = h;
-            return _texture;
         }
 
         private void DrawItemText(string text, int x, int y, SDL.SDL_Color color, AbstSDLRenderContext ctx)
@@ -118,7 +96,7 @@ namespace AbstUI.SDL2.Components
             _atlas!.DrawRun(span, x, baseline, color);
         }
 
-        public void HandleEvent(AbstSDLEvent e)
+        protected override void HandleContentEvent(AbstSDLEvent e)
         {
             if (!Enabled) return;
             ref var ev = ref e.Event;
@@ -128,7 +106,7 @@ namespace AbstUI.SDL2.Components
                     ev.button.y >= Y && ev.button.y <= Y + Height)
                 {
                     Factory.FocusManager.SetFocus(this);
-                    int idx = (int)((ev.button.y - Y) / _lineHeight);
+                    int idx = (int)((ev.button.y - Y + ScrollVertical) / _lineHeight);
                     if (idx >= 0 && idx < _items.Count)
                     {
                         SelectedIndex = idx;
@@ -171,11 +149,6 @@ namespace AbstUI.SDL2.Components
 
         public override void Dispose()
         {
-            if (_texture != nint.Zero)
-            {
-                SDL.SDL_DestroyTexture(_texture);
-                _texture = nint.Zero;
-            }
             _font?.Release();
             _atlas?.Dispose();
             base.Dispose();
