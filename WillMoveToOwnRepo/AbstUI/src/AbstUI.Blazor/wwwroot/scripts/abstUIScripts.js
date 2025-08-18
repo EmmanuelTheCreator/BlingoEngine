@@ -103,6 +103,10 @@ export class abstCanvas {
         const imgData = new ImageData(new Uint8ClampedArray(data), width, height);
         ctx.putImageData(imgData, x, y);
     }
+
+    static getImageData(ctx, width, height) {
+        return ctx.getImageData(0, 0, width, height).data;
+    }
 }
 
 export class AbstUIKey {

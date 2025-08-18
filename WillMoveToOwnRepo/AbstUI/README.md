@@ -7,3 +7,4 @@ The repository currently includes the core abstractions and optional backends:
 - `AbstUI.SDL2`: SDL2 backend.
 - `AbstUI.LGodot`: Godot backend.
 - `AbstUI.LUnity`: Unity backend.
+- `AbstUI.Blazor`: Blazor backend.

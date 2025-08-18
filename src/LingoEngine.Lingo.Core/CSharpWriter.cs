@@ -1,5 +1,7 @@
 using System;
 using System.Text;
+using System.Collections.Generic;
+using System.Linq;
 using LingoEngine.Lingo.Core.Tokenizer;
 
 namespace LingoEngine.Lingo.Core;
@@ -59,6 +61,9 @@ public class CSharpWriter : ILingoAstVisitor
             LingoDatum.DatumType.Integer or LingoDatum.DatumType.Float => datum.AsString(),
             LingoDatum.DatumType.String => $"\"{datum.AsString()}\"",
             LingoDatum.DatumType.Symbol or LingoDatum.DatumType.VarRef => datum.AsString(),
+            LingoDatum.DatumType.List => datum.Value is List<LingoNode> list
+                ? "[" + string.Join(", ", list.Select(n => Write(n).Trim())) + "]"
+                : "[]",
             _ => datum.AsString()
         };
     }
@@ -393,6 +398,15 @@ public class CSharpWriter : ILingoAstVisitor
 
     public void Visit(LingoAssignmentStmtNode node)
     {
+        if (node.Target is LingoVarNode lhs && lhs.VarName.Equals("me", StringComparison.OrdinalIgnoreCase))
+        {
+            bool rhsIsVoid = node.Value is LingoVarNode rhsVar && rhsVar.VarName.Equals("void", StringComparison.OrdinalIgnoreCase)
+                || node.Value is LingoDatumNode rhsDatum && rhsDatum.Datum.Type == LingoDatum.DatumType.Void;
+
+            if (rhsIsVoid)
+                return;
+        }
+
         node.Target.Accept(this);
         Append(" = ");
         node.Value.Accept(this);
@@ -569,6 +583,13 @@ public class CSharpWriter : ILingoAstVisitor
 
     public void Visit(LingoCallNode node)
     {
+        if (node.Callee is LingoVarNode varNode && varNode.VarName.Equals("voidp", StringComparison.OrdinalIgnoreCase))
+        {
+            node.Arguments.Accept(this);
+            Append(" == null");
+            return;
+        }
+
         if (!string.IsNullOrEmpty(node.Name))
         {
             if (!string.IsNullOrEmpty(node.TargetType))

@@ -1,18 +1,13 @@
-using AbstUI.Inputs;
+using AbstUI.Blazor.Inputs;
 using LingoEngine.Inputs;
 
 namespace LingoEngine.Blazor.Inputs;
 
-public class LingoBlazorKey : ILingoFrameworkKey
+/// <summary>
+/// Blazor implementation of <see cref="ILingoFrameworkKey"/> leveraging the
+/// generic <see cref="BlazorKey"/> from AbstUI.
+/// </summary>
+public class LingoBlazorKey : BlazorKey, ILingoFrameworkKey
 {
-    public bool CommandDown => false;
-    public bool ControlDown => false;
-    public bool OptionDown => false;
-    public bool ShiftDown => false;
-    public string Key => string.Empty;
-    public int KeyCode => 0;
-
-    public bool KeyPressed(AbstUIKeyType key) => false;
-    public bool KeyPressed(char key) => false;
-    public bool KeyPressed(int keyCode) => false;
 }
+
