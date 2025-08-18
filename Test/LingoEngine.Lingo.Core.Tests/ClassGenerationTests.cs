@@ -5,6 +5,7 @@ namespace LingoEngine.Lingo.Core.Tests;
 
 public class ClassGenerationTests
 {
+    private readonly LingoToCSharpConverter _converter = new();
     [Fact]
     public void BehaviorScriptGeneratesClass()
     {
@@ -14,7 +15,7 @@ public class ClassGenerationTests
             Source = "",
             Type = LingoScriptType.Behavior
         };
-        var result = LingoToCSharpConverter.ConvertClass(file).Trim();
+        var result = _converter.ConvertClass(file).Trim();
         var expected = string.Join('\n',
             "public class MyBehaviorBehavior : LingoSpriteBehavior",
             "{",
@@ -32,7 +33,7 @@ public class ClassGenerationTests
             Source = "",
             Type = LingoScriptType.Parent
         };
-        var result = LingoToCSharpConverter.ConvertClass(file).Trim();
+        var result = _converter.ConvertClass(file).Trim();
         var expected = string.Join('\n',
             "public class MyParentParentScript : LingoParentScript",
             "{",
@@ -55,7 +56,7 @@ public class ClassGenerationTests
             Source = "",
             Type = LingoScriptType.Movie
         };
-        var result = LingoToCSharpConverter.ConvertClass(file).Trim();
+        var result = _converter.ConvertClass(file).Trim();
         var expected = string.Join('\n',
             "public class MyMovieMovieScript : LingoMovieScript",
             "{",
@@ -88,7 +89,7 @@ public class ClassGenerationTests
                 "end"),
             Type = LingoScriptType.Behavior
         };
-        var result = LingoToCSharpConverter.ConvertClass(file).Trim();
+        var result = _converter.ConvertClass(file).Trim();
         var expected = string.Join('\n',
             "public class MyBehaviorBehavior : LingoSpriteBehavior, ILingoPropertyDescriptionList",
             "{",
@@ -106,7 +107,7 @@ public class ClassGenerationTests
             Source = "on getPropertyDescriptionList\nend",
             Type = LingoScriptType.Behavior
         };
-        var result = LingoToCSharpConverter.ConvertClass(file).Trim();
+        var result = _converter.ConvertClass(file).Trim();
         var expected = string.Join('\n',
             "public class MyBehaviorBehavior : LingoSpriteBehavior",
             "{",

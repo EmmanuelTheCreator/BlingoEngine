@@ -54,7 +54,7 @@ internal partial class ImportLingoFilesStep : VBoxContainer
         _bulkType.ItemSelected += idx => ApplyBulkType((int)idx);
         bulkRow.AddChild(_bulkType);
         AddChild(bulkRow);
-        
+
 
         _importButton.Text = "Import";
         _importButton.Pressed += OnImportPressed;
@@ -193,7 +193,8 @@ internal partial class ImportLingoFilesStep : VBoxContainer
         if (scripts.Count == 0)
             return;
 
-        var result = LingoToCSharpConverter.Convert(scripts);
+        var converter = new LingoToCSharpConverter();
+        var result = converter.Convert(scripts);
         foreach (var script in scripts)
         {
             if (!result.ConvertedScripts.TryGetValue(script.Name, out var code))
