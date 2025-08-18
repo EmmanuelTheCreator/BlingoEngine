@@ -1,10 +1,10 @@
 using System;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using LingoEngine.Primitives;
 using LingoEngine.Shapes;
 using LingoEngine.Sprites;
 using LingoEngine.Bitmaps;
+using LingoEngine.Tools;
 using AbstUI.Primitives;
 using AbstUI.SDL2;
 using AbstUI.SDL2.Bitmaps;
@@ -141,7 +141,8 @@ namespace LingoEngine.SDL2.Shapes
             float ry = h / 2f;
             float maxR = MathF.Max(rx, ry);
 
-            Parallel.For(0, h, y =>
+            int totalPixels = w * h;
+            ParallelHelper.For(0, h, totalPixels, y =>
             {
                 for (int x = 0; x < w; x++)
                 {
@@ -198,7 +199,8 @@ namespace LingoEngine.SDL2.Shapes
             SDL.SDL_LockSurface(_surface);
             byte* pix = (byte*)_surfacePtr.pixels;
             int pitch = _surfacePtr.pitch;
-            Parallel.For(0, h, y =>
+            int totalPixels = w * h;
+            ParallelHelper.For(0, h, totalPixels, y =>
             {
                 for (int x = 0; x < w; x++)
                 {
@@ -251,7 +253,7 @@ namespace LingoEngine.SDL2.Shapes
                 if (e2 >= dy) { err += dy; x0 += sx; }
                 if (e2 <= dx) { err += dx; y0 += sy; }
             }
-        } 
+        }
         #endregion
 
 

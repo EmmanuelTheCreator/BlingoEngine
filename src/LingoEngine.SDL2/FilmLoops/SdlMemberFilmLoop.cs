@@ -10,6 +10,7 @@ using LingoEngine.Primitives;
 using LingoEngine.SDL2.Bitmaps;
 using LingoEngine.SDL2.Inputs;
 using LingoEngine.Sprites;
+using LingoEngine.Tools;
 
 namespace LingoEngine.SDL2.FilmLoops;
 
@@ -255,7 +256,8 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
         byte* dpix = (byte*)dSurf.pixels;
         byte* spix = (byte*)sSurf.pixels;
 
-        Parallel.For(minY, maxY, y =>
+        int totalPixels = (maxX - minX) * (maxY - minY);
+        ParallelHelper.For(minY, maxY, totalPixels, y =>
         {
             if ((uint)y >= (uint)dSurf.h) return;
             byte* drow = dpix + y * dSurf.pitch;
@@ -279,7 +281,7 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
             }
         });
 
-        UNLOCK:
+    UNLOCK:
         SDL.SDL_UnlockSurface(src);
         SDL.SDL_UnlockSurface(dest);
     }
