@@ -38,4 +38,19 @@
 	  <ProjectReference Include="..\AbstUI\AbstUI.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Update="cimgui\linux-x64\cimgui.so">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="cimgui\osx\cimgui.dylib">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="cimgui\win-x64\cimgui.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="cimgui\win-x86\cimgui.dll">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
 </Project>

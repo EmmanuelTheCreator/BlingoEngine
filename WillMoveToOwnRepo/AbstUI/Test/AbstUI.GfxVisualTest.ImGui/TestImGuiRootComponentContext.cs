@@ -1,62 +1,59 @@
 using ImGuiNET;
 using AbstUI.Primitives;
-using LingoEngine.Inputs;
-using LingoEngine.SDL2.Inputs;
-using LingoEngine.Stages;
-using System.Numerics;
 using AbstUI.Inputs;
-using AbstUI.SDL2.Styles;
-using AbstUI.SDL2.SDLL;
-using AbstUI.SDL2;
+using AbstUI.ImGui;
+using AbstUI.ImGui.Styles;
+using AbstUI.ImGui.Inputs;
+using LingoEngine.Inputs;
 
 
-namespace LingoEngine.SDL2.GfxVisualTest;
+namespace LingoEngine.ImGui2.GfxVisualTest;
 
-public class TestSdlRootComponentContext : ISdlRootComponentContext, IDisposable
+public class TestImGuiRootComponentContext : IImGuiRootComponentContext, IDisposable
 {
 
 
 
 private bool _imguiReady;
-    private SdlFontManager _fontManager;
+    private ImGuiFontManager _fontManager;
 
     private readonly nint _window;
-    public AbstSDLComponentContainer ComponentContainer { get; } = new();
+    public AbstImGuiComponentContainer ComponentContainer { get; } = new();
     public nint Renderer { get; }
 
-    public LingoSdlMouse Mouse { get; set; }
+    public ImGuiMouse<AbstMouseEvent> Mouse { get; set; }
     public IAbstMouse AbstMouse { get; set; }
 
     internal ILingoFrameworkKey Key { get; set; }
     public IAbstKey AbstKey { get; set; }
-    private readonly ImGuiSdlBackend _imgui = new();
+    private readonly ImGuiImGuiBackend _imgui = new();
     public int Width { get; set; }
     public int Height { get; set; }
     public ImGuiViewportPtr ImGuiViewPort { get; private set; } = new ImGuiViewportPtr(nint.Zero);
     public ImDrawListPtr ImDrawList { get; private set; } = new ImDrawListPtr(nint.Zero);
 
-    public nint RegisterTexture(nint sdlTexture) => _imgui.RegisterTexture(sdlTexture);
+    public nint RegisterTexture(nint ImGuiTexture) => _imgui.RegisterTexture(ImGuiTexture);
     public nint GetTexture(nint textureId) => _imgui.GetTexture(textureId);
 
-    public TestSdlRootComponentContext()
+    public TestImGuiRootComponentContext()
     {
-        SDL.SDL_Init(SDL.SDL_INIT_VIDEO | SDL.SDL_INIT_EVENTS | SDL.SDL_INIT_GAMECONTROLLER | SDL.SDL_INIT_AUDIO);
-        SDL_ttf.TTF_Init();
-        SDL_image.IMG_Init(SDL_image.IMG_InitFlags.IMG_INIT_PNG);
+        ImGui.ImGui_Init(ImGui.ImGui_INIT_VIDEO | ImGui.ImGui_INIT_EVENTS | ImGui.ImGui_INIT_GAMECONTROLLER | ImGui.ImGui_INIT_AUDIO);
+        ImGui_ttf.TTF_Init();
+        ImGui_image.IMG_Init(ImGui_image.IMG_InitFlags.IMG_INIT_PNG);
 
-        _window = SDL.SDL_CreateWindow("SDL Gfx Visual Test", SDL.SDL_WINDOWPOS_CENTERED, SDL.SDL_WINDOWPOS_CENTERED, 800, 600,
-            SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
-        Renderer = SDL.SDL_CreateRenderer(_window, -1,
-            SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED | SDL.SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC);
-        SDL.SDL_RenderSetLogicalSize(Renderer, Width, Height);
+        _window = ImGui.ImGui_CreateWindow("ImGui Gfx Visual Test", ImGui.ImGui_WINDOWPOS_CENTERED, ImGui.ImGui_WINDOWPOS_CENTERED, 800, 600,
+            ImGui.ImGui_WindowFlags.ImGui_WINDOW_SHOWN | ImGui.ImGui_WindowFlags.ImGui_WINDOW_RESIZABLE);
+        Renderer = ImGui.ImGui_CreateRenderer(_window, -1,
+            ImGui.ImGui_RendererFlags.ImGui_RENDERER_ACCELERATED | ImGui.ImGui_RendererFlags.ImGui_RENDERER_PRESENTVSYNC);
+        ImGui.ImGui_RenderSetLogicalSize(Renderer, Width, Height);
         CreateMouse();
-        var key = new LingoSdlKey();
+        var key = new LingoImGuiKey();
         Key = key;
         var LingoKey = new LingoKey(key);
         key.SetKeyObj(LingoKey);
 
         _imgui.Init(_window, Renderer);
-        _fontManager = new SdlFontManager();
+        _fontManager = new ImGuiFontManager();
         _fontManager.LoadAll();
         _imguiReady = true;
     }
@@ -66,10 +63,10 @@ private bool _imguiReady;
         bool running = true;
         while (running)
         {
-            while (SDL.SDL_PollEvent(out var e) == 1)
+            while (ImGui.ImGui_PollEvent(out var e) == 1)
             {
                 _imgui.ProcessEvent(ref e);
-                if (e.type == SDL.SDL_EventType.SDL_QUIT)
+                if (e.type == ImGui.ImGui_EventType.ImGui_QUIT)
                     running = false;
             }
 
@@ -83,14 +80,14 @@ private bool _imguiReady;
             //ImGui.SetNextWindowSize(new System.Numerics.Vector2(800, 600), ImGuiCond.Once);
             //ImGui.Begin("Debug2");
             //ImGui.SetCursorPos(new System.Numerics.Vector2(10, 40)); // <- no AccessViolation now
-            //ImGui.Text("Hello from ImGui.NET (SDL_Renderer)");
+            //ImGui.Text("Hello from ImGui.NET (ImGui_Renderer)");
 
 
 
-            SDL.SDL_SetRenderDrawColor(Renderer, 50, 0, 50, 255);
-            SDL.SDL_RenderClear(Renderer);
+            ImGui.ImGui_SetRenderDrawColor(Renderer, 50, 0, 50, 255);
+            ImGui.ImGui_RenderClear(Renderer);
             
-            ComponentContainer.Render(new AbstSDLRenderContext(Renderer,ImGuiViewPort,ImDrawList, origin, _fontManager));
+            ComponentContainer.Render(new AbstImGuiRenderContext(Renderer,ImGuiViewPort,ImDrawList, origin, _fontManager));
 
 
             _imgui.EndFrame();  // draws ImGui on top
@@ -110,7 +107,7 @@ private bool _imguiReady;
             ImGuiWindowFlags.NoBringToFrontOnFocus |
             ImGuiWindowFlags.NoFocusOnAppearing |
             ImGuiWindowFlags.NoNav |
-            ImGuiWindowFlags.NoBackground; // keep SDL clear color
+            ImGuiWindowFlags.NoBackground; // keep ImGui clear color
 
         ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, System.Numerics.Vector2.Zero);
         if (ImGui.Begin("##overlay_root", flags))
@@ -136,7 +133,7 @@ private bool _imguiReady;
 
     public LingoMouse CreateMouse()
     {
-        Mouse = new LingoSdlMouse(new Lazy<AbstMouse<Events.LingoMouseEvent>>(() => (AbstMouse < Events.LingoMouseEvent > )AbstMouse));
+        Mouse = new LingoImGuiMouse(new Lazy<AbstMouse<Events.LingoMouseEvent>>(() => (AbstMouse < Events.LingoMouseEvent > )AbstMouse));
         var mouseImpl = Mouse;
         var mouse = new LingoMouse(mouseImpl);
         mouseImpl.SetMouse(mouse);
@@ -147,16 +144,16 @@ private bool _imguiReady;
     public void Dispose()
     {
         _imgui.Shutdown();
-        SDL.SDL_DestroyRenderer(Renderer);
-        SDL.SDL_DestroyWindow(_window);
-        SDL_ttf.TTF_Quit();
-        SDL_image.IMG_Quit();
-        SDL.SDL_Quit();
+        ImGui.ImGui_DestroyRenderer(Renderer);
+        ImGui.ImGui_DestroyWindow(_window);
+        ImGui_ttf.TTF_Quit();
+        ImGui_image.IMG_Quit();
+        ImGui.ImGui_Quit();
     }
 
     public APoint GetWindowSize()
     {
-        SDL.SDL_GetWindowSize(_window, out var w, out var h);
+        ImGui.ImGui_GetWindowSize(_window, out var w, out var h);
         return new APoint(w, h);
     }
 }
