@@ -9,7 +9,7 @@ using AbstUI.SDL2.SDLL;
 
 namespace AbstUI.SDL2.Components
 {
-    internal class AbstSdlGfxCanvas : AbstSdlComponent, IAbstFrameworkGfxCanvas, IDisposable
+    public class AbstSdlGfxCanvas : AbstSdlComponent, IAbstFrameworkGfxCanvas, IDisposable
     {
         public AMargin Margin { get; set; } = AMargin.Zero;
 
@@ -20,7 +20,7 @@ namespace AbstUI.SDL2.Components
         private nint _texture;
         private readonly List<Action> _drawActions = new();
         private AColor? _clearColor;
-        private bool _dirty;
+        protected bool _dirty;
         public object FrameworkNode => this;
         public nint Texture => _texture;
 
@@ -72,7 +72,7 @@ namespace AbstUI.SDL2.Components
         }
 
 
-        private void MarkDirty() => _dirty = true;
+        protected void MarkDirty() => _dirty = true;
 
         public void Clear(AColor color)
         {
