@@ -26,7 +26,6 @@ namespace AbstUI.LGodot.Components
             label.Init(this);
             LabelSettings = new LabelSettings();
             AutowrapMode = TextServer.AutowrapMode.Off;
-            
         }
 
         //public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }

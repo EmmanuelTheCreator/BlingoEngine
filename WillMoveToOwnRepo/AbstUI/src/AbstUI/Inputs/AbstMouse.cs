@@ -97,12 +97,12 @@ namespace AbstUI.Inputs
         IAbstMouse CreateNewInstance(IAbstMouseRectProvider provider);
     }
 
-    //public class AbstUIMouse : AbstUIMouse<AbstUIMouseEvent>
-    //{
-    //    public AbstUIMouse(IAbstUIFrameworkMouse frameworkMouse) : base((l,type) => new AbstUIMouseEvent(l,type), frameworkMouse)
-    //    {
-    //    }
-    //}
+    public class AbstMouse : AbstMouse<AbstMouseEvent>
+    {
+        public AbstMouse(IAbstFrameworkMouse frameworkMouse) : base((m,t) => new AbstMouseEvent(m,t), frameworkMouse)
+        {
+        }
+    }
     public class AbstMouse<TAbstUIMouseEvent> : IAbstUIMouse<TAbstUIMouseEvent>
         where TAbstUIMouseEvent : AbstMouseEvent
     {

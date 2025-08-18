@@ -11,6 +11,9 @@
     <EmbeddedResource Remove="obj\**" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Properties\launchSettings.json" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\src\AbstUI.LGodot\AbstUI.LGodot.csproj" />
     <ProjectReference Include="..\..\src\AbstUI\AbstUI.csproj" />
     <ProjectReference Include="..\AbstUI.GfxVisualTest\AbstUI.GfxVisualTest.csproj" />

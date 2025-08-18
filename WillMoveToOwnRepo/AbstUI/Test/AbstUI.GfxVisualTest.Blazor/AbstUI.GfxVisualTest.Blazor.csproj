@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\AbstUI.Blazor\AbstUI.Blazor.csproj" />
     <ProjectReference Include="..\..\src\AbstUI\AbstUI.csproj" />
+    <ProjectReference Include="..\AbstUI.GfxVisualTest\AbstUI.GfxVisualTest.csproj" />
   </ItemGroup>
 
 </Project>

@@ -6,7 +6,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\src\LingoEngine\LingoEngine.csproj" />
     <ProjectReference Include="..\..\src\AbstUI.ImGui\AbstUI.ImGui.csproj" />
     <ProjectReference Include="..\..\src\AbstUI\AbstUI.csproj" />
     <ProjectReference Include="..\AbstUI.GfxVisualTest\AbstUI.GfxVisualTest.csproj" />

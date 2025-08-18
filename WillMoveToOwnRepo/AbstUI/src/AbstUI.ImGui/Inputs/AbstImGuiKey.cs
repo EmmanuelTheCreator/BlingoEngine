@@ -5,7 +5,7 @@ namespace AbstUI.ImGui.Inputs;
 /// <summary>
 /// Basic keyboard input placeholder for the ImGui backend.
 /// </summary>
-public class ImGuiKey : IAbstFrameworkKey
+public class AbstImGuiKey : IAbstFrameworkKey
 {
     public bool CommandDown => false;
     public bool ControlDown => false;

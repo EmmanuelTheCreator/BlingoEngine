@@ -6,9 +6,7 @@ using ImGuiNET;
 using System;
 using System.Numerics;
 using System.Threading;
-using LingoEngine.Events;
-using LingoEngine.Inputs;
-using LingoEngine.ImGui.Inputs;
+using AbstUI.ImGui.Inputs;
 
 namespace LingoEngine.ImGui.GfxVisualTest;
 
@@ -22,6 +20,20 @@ public sealed class TestImGuiRootComponentContext : IImGuiRootComponentContext, 
 {
     private readonly ImGuiImGuiBackend _imgui = new();
 
+   
+    /// <summary>Font manager used by the visual test.</summary>
+    public ImGuiFontManager FontManager { get; } = new();
+
+    public AbstImGuiComponentContainer ComponentContainer { get; } = new();
+    public ImGuiViewportPtr ImGuiViewPort { get; private set; }
+    public ImDrawListPtr ImDrawList { get; private set; }
+    public nint Renderer { get; } = nint.Zero;
+    public AbstImGuiMouse<AbstMouseEvent> Mouse { get; private set; } = null!;
+    public IAbstMouse AbstMouse { get; private set; } = null!;
+    internal IAbstFrameworkKey Key { get; private set; } = null!;
+    public IAbstKey AbstKey { get; private set; } = null!;
+
+
     public TestImGuiRootComponentContext()
     {
         _imgui.Init(nint.Zero, nint.Zero);
@@ -31,25 +43,17 @@ public sealed class TestImGuiRootComponentContext : IImGuiRootComponentContext, 
         io.Fonts.Build();
         FontManager.LoadAll();
 
-        CreateMouse();
-        var key = new LingoImGuiKey();
+        Mouse = new AbstImGuiMouse<AbstMouseEvent>(new Lazy<AbstMouse<AbstMouseEvent>>(() => (AbstMouse<AbstMouseEvent>)AbstMouse));
+        var lingoMouse = new AbstMouse(Mouse);
+        Mouse.ReplaceMouseObj(lingoMouse);
+        AbstMouse = lingoMouse;
+
+        var key = new AbstImGuiKey();
         Key = key;
-        var lingoKey = new LingoKey(key);
-        key.SetKeyObj(lingoKey);
+        var lingoKey = new AbstKey(key);
         AbstKey = lingoKey;
     }
 
-    /// <summary>Font manager used by the visual test.</summary>
-    public ImGuiFontManager FontManager { get; } = new();
-
-    public AbstImGuiComponentContainer ComponentContainer { get; } = new();
-    public ImGuiViewportPtr ImGuiViewPort { get; private set; }
-    public ImDrawListPtr ImDrawList { get; private set; }
-    public nint Renderer { get; } = nint.Zero;
-    public LingoImGuiMouse Mouse { get; private set; } = null!;
-    public IAbstMouse AbstMouse { get; private set; } = null!;
-    internal ILingoFrameworkKey Key { get; private set; } = null!;
-    public IAbstKey AbstKey { get; private set; } = null!;
 
     /// <summary>
     /// Runs an ImGui frame loop until a key is pressed.
@@ -75,13 +79,6 @@ public sealed class TestImGuiRootComponentContext : IImGuiRootComponentContext, 
 
     public void Dispose() => _imgui.Dispose();
 
-    private LingoMouse CreateMouse()
-    {
-        Mouse = new LingoImGuiMouse(new Lazy<AbstMouse<LingoMouseEvent>>(() => (LingoMouse)AbstMouse));
-        var lingoMouse = new LingoMouse(Mouse);
-        Mouse.ReplaceMouseObj(lingoMouse);
-        AbstMouse = lingoMouse;
-        return lingoMouse;
-    }
+ 
 }
 

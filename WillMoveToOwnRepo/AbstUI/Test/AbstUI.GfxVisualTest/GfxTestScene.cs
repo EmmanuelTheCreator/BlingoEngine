@@ -18,7 +18,7 @@ public static class GfxTestScene
         scroll.AddItem(panel);
         panel.Width = 720;
         panel.Height = 1400;
-        panel.BackgroundColor = new AColor(240, 240, 240, 255);
+        panel.BackgroundColor = new AColor(100, 50, 50, 255);
 
         float y = 10f;
 
@@ -96,14 +96,16 @@ public static class GfxTestScene
         tabs.Width = 300;
         tabs.Height = 120;
         var tab1 = factory.CreateTabItem("tab1", "First");
-        tab1.Content = factory.CreateLabel("tab1Label", "Tab 1");
+        var tab1Panel = factory.CreateWrapPanel(AOrientation.Vertical, "tab1panel");
+        tab1Panel.AddItem(factory.CreateButton("tab1Btn1", "Button 1"));
+        tab1.Content = tab1Panel;
         tabs.AddTab(tab1);
-        var tab2 = factory.CreateTabItem("tab2", "Second");
-        tab2.Content = factory.CreateLabel("tab2Label", "Tab 2");
-        tabs.AddTab(tab2); 
-        var tab3 = factory.CreateTabItem("tab3", "3de");
-        tab3.Content = factory.CreateLabel("tab2Label", "Tab 3");
-        tabs.AddTab(tab3);
+        var tab2 = factory.CreateTabItem("tab2", "First");
+        var tab2Panel = factory.CreateWrapPanel(AOrientation.Vertical, "tab2panel");
+        tab2Panel.AddItem(factory.CreateButton("tab2Btn2", "Button 2"));
+        tab2.Content = tab2Panel;
+        tabs.AddTab(tab2);
+        
         Add(tabs, 130);
 
         var menu = factory.CreateMenu("menu");

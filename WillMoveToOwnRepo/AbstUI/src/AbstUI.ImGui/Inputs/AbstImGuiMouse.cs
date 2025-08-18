@@ -1,16 +1,15 @@
 using AbstUI.Inputs;
-using AbstUI.Primitives;
 
 namespace AbstUI.ImGui.Inputs;
 
 /// <summary>
 /// Simplified mouse handler for the ImGui backend.
 /// </summary>
-public class ImGuiMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse where TAbstUIMouseEvent : AbstMouseEvent
+public class AbstImGuiMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse where TAbstUIMouseEvent : AbstMouseEvent
 {
     private Lazy<AbstMouse<TAbstUIMouseEvent>> _lingoMouse;
 
-    public ImGuiMouse(Lazy<AbstMouse<TAbstUIMouseEvent>> mouse)
+    public AbstImGuiMouse(Lazy<AbstMouse<TAbstUIMouseEvent>> mouse)
     {
         _lingoMouse = mouse;
     }

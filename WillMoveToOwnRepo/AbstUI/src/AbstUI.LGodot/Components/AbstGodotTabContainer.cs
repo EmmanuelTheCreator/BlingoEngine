@@ -76,6 +76,7 @@ namespace AbstUI.LGodot.Components
 
         public void AddTab(IAbstFrameworkTabItem tabItem)
         {
+
             var content = ((AbstGodotTabItem)tabItem).ContentFrameWork.FrameworkNode;
             if (content is Control node)
                 AddTab(tabItem.Title, node);
