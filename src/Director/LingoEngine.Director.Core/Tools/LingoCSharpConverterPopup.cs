@@ -189,12 +189,15 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
     private static readonly string[] _csharpWordsCodeTypesDefault = [
 
             "bool","byte","sbyte","char","decimal","double","float","int","uint","nint","nuint",
-            "long","ulong","object","short","ushort","string","void","List",
+            "long","ulong","object","short","ushort","string","void",
+
+        // NET
+        "List","Add","Remove","IndexOf",
 
         // lingo 
          "APoint","ARect","AColor","Loc","Char","FromHex","Line","Word",
             "format","AColor","Comment","Text","Symbol",
-            "GetPropertyDescriptionList","GetBehaviorTooltip","IsOKToAttach","GetBehaviorDescription",
+            "GetPropertyDescriptionList","GetBehaviorTooltip","IsOKToAttach","GetBehaviorDescription","BehaviorPropertyDescriptionList",
             "_Movie","Actorlist","Cursor","Alert",
             "MemberNum","Member","Preload","Sound",
             "Sprite","SpriteNum","LocH","LocV","LocZ","Blend","Ink","MouseH","MouseV","Puppet","ILingoSprite",

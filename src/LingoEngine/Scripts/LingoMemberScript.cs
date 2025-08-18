@@ -17,11 +17,14 @@ namespace LingoEngine.Scripts
         {
         }
 
-        public void SetBehaviorType<TBehavior>() where TBehavior : LingoSpriteBehavior
-            => BehaviorTypeName = typeof(TBehavior).FullName;
+        public LingoMemberScript SetBehaviorType<TBehavior>() where TBehavior : LingoSpriteBehavior
+           => SetBehaviorType(typeof(TBehavior));
 
-        public void SetBehaviorType(Type behaviorType)
-            => BehaviorTypeName = behaviorType.FullName;
+        public LingoMemberScript SetBehaviorType(Type behaviorType)
+        {
+            BehaviorTypeName = behaviorType.FullName;
+            return this;
+        }
 
         public Type? GetBehaviorType()
             => BehaviorTypeName == null

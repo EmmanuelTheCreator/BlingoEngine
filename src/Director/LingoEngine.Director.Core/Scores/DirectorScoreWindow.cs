@@ -76,6 +76,11 @@ namespace LingoEngine.Director.Core.Scores
             _LeftTopContainer = new DirScoreLeftTopContainer(GfxValues, factory, new APoint(0, GfxValues.TopStripHeight), mediator);
             _LeftChannelContainer = new DirScoreLeftChannelsContainer(GfxValues, factory, new APoint(0, 0), mediator);
 
+            Width = 800;
+            Height = 360;
+            MinimumHeight = 200;
+            MinimumWidth = 300;
+
             // Fix top panel
             _panelFix = factory.CreatePanel("ScoreWindowPanelFix");
             _panelFix.AddItem(_LeftTopContainer.Canvas, 0, GfxValues.LabelsBarHeight + 1);
@@ -185,9 +190,11 @@ namespace LingoEngine.Director.Core.Scores
 
         private void GlobalHandleMouseEvent(LingoMouseEvent mouseEvent)
         {
-            if (DirectorDragDropHolder.IsDragging && DirectorDragDropHolder.Member != null)
+            if (DirectorDragDropHolder.IsDragging && DirectorDragDropHolder.Member != null && mouseEvent.Type == AbstMouseEventType.MouseUp)
             {
                 var localEvent = mouseEvent.Translate((LingoMouse)Mouse);
+                if (localEvent.MouseH < 0 || localEvent.MouseH > Width || localEvent.MouseV < 0 || localEvent.MouseV > Height)
+                    return;
                 HandleMouseEvent(localEvent);
             }
         }
