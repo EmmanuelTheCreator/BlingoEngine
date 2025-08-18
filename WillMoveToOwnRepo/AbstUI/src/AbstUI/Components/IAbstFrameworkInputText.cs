@@ -1,3 +1,5 @@
+using AbstUI.Primitives;
+
 namespace AbstUI.Components
 {
     /// <summary>
@@ -9,6 +11,10 @@ namespace AbstUI.Components
         int MaxLength { get; set; }
         string? Font { get; set; }
         int FontSize { get; set; }
+        /// <summary>
+        /// Gets or sets the color of the text.
+        /// </summary>
+        AColor TextColor { get; set; }
         bool IsMultiLine { get; set; }
     }
 }

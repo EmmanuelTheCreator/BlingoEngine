@@ -30,6 +30,7 @@ namespace AbstUI.ImGui.Components
         public int FontSize { get; set; } = 12;
         public AMargin Margin { get; set; } = AMargin.Zero;
         public object FrameworkNode => this;
+        public AColor TextColor { get; set; } = AColors.Black;
 
         public bool IsMultiLine { get; set; }
 
@@ -45,6 +46,7 @@ namespace AbstUI.ImGui.Components
             if (Width > 0) global::ImGuiNET.ImGui.SetNextItemWidth(Width);
 
             global::ImGuiNET.ImGui.PushID(Name);
+            global::ImGuiNET.ImGui.PushStyleColor(ImGuiCol.Text, TextColor.ToImGuiColor());
             if (!Enabled) global::ImGuiNET.ImGui.BeginDisabled();
 
             uint cap = MaxLength > 0 ? (uint)MaxLength : 1024u;
@@ -52,6 +54,7 @@ namespace AbstUI.ImGui.Components
                 ValueChanged?.Invoke();
 
             if (!Enabled) global::ImGuiNET.ImGui.EndDisabled();
+            global::ImGuiNET.ImGui.PopStyleColor();
             global::ImGuiNET.ImGui.PopID();
             return AbstImGuiRenderResult.RequireRender();
         }

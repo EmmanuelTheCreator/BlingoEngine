@@ -25,6 +25,7 @@ public class RmlUiInputText : IAbstFrameworkInputText, IDisposable
     private int _maxLength;
     private string? _font;
     private int _fontSize;
+    private AColor _textColor = AColors.Black;
     private bool _isMultiLine;
     private event Action? _valueChanged;
 
@@ -71,6 +72,7 @@ public class RmlUiInputText : IAbstFrameworkInputText, IDisposable
         if (_maxLength != 0) _element.SetAttribute("maxlength", _maxLength.ToString());
         if (!string.IsNullOrEmpty(_font)) _element.SetProperty("font-family", _font);
         if (_fontSize != 0) _element.SetProperty("font-size", $"{_fontSize}px");
+        _element.SetProperty("color", _textColor.ToHex());
 
         if (_input != null) _input.SetValue(_text);
         else _textarea?.SetInnerRml(_text);
@@ -202,6 +204,16 @@ public class RmlUiInputText : IAbstFrameworkInputText, IDisposable
         {
             _fontSize = value;
             _element.SetProperty("font-size", $"{value}px");
+        }
+    }
+
+    public AColor TextColor
+    {
+        get => _textColor;
+        set
+        {
+            _textColor = value;
+            _element.SetProperty("color", value.ToHex());
         }
     }
 
