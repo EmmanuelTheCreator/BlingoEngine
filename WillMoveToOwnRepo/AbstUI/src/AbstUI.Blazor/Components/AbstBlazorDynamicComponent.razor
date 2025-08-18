@@ -1,0 +1,21 @@
+@inherits AbstBlazorComponentBase
+@using Microsoft.AspNetCore.Components
+@using System
+@using System.Collections.Generic
+
+<div id="@Name" style="@BuildStyle()">
+    @if (_fragment is not null)
+    {
+        @_fragment
+    }
+</div>
+
+@code {
+    private RenderFragment? _fragment;
+
+    public void SetComponent(Type componentType, IDictionary<string, object?>? parameters = null)
+    {
+        _fragment = BuildFragment(componentType, parameters);
+        RequestRender();
+    }
+}
