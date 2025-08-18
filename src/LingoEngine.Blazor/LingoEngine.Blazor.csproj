@@ -25,6 +25,6 @@
     <ProjectReference Include="..\LingoEngine\LingoEngine.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
   </ItemGroup>
 </Project>
