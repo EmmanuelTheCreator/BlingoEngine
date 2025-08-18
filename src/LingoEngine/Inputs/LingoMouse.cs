@@ -50,7 +50,7 @@ namespace LingoEngine.Inputs
         IAbstMouseSubscription OnMouseWheel(Action<LingoMouseEvent> handler);
         IAbstMouseSubscription OnMouseEvent(Action<LingoMouseEvent> handler);
     }
-   
+
     public class LingoStageMouse : LingoMouse, ILingoStageMouse
     {
         private readonly LingoStage _lingoStage;
@@ -113,12 +113,12 @@ namespace LingoEngine.Inputs
 
 
         public LingoMouse(ILingoFrameworkMouse frameworkMouse)
-            :base((p,type) => new LingoMouseEvent((LingoMouse)p, type), frameworkMouse)
+            : base((p, type) => new LingoMouseEvent((LingoMouse)p, type), frameworkMouse)
         {
             _lingoFrameworkObj = frameworkMouse;
             _cursor = new LingoCursor(frameworkMouse);
         }
-        
+
 
         public void SetCursor(AMouseCursor cursorType)
         {
@@ -143,8 +143,8 @@ namespace LingoEngine.Inputs
         //}
 
 
-       
-        
+
+
 
 
 
@@ -155,6 +155,6 @@ namespace LingoEngine.Inputs
         //public virtual IAbstUIMouseSubscription OnMouseEvent(Action<LingoMouseEvent> handler)
         //    => base.OnMouseEvent(e => handler(e));
 
-       
+
     }
 }

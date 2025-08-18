@@ -1,7 +1,7 @@
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Movies;
-using LingoEngine.Inputs;
+using LingoEngine.Director.Core.Inputs;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Core;
 using LingoEngine.Events;
@@ -15,6 +15,7 @@ using LingoEngine.Sounds;
 using AbstUI.Primitives;
 using AbstUI.Components;
 using AbstUI.Inputs;
+using LingoEngine.Inputs;
 
 
 namespace LingoEngine.Director.Core.Scores
@@ -26,6 +27,7 @@ namespace LingoEngine.Director.Core.Scores
         private readonly IDirectorWindowManager _windowManager;
         private readonly ILingoColorPaletteDefinitions _paletteDefinitions;
         private readonly LingoPlayer _player;
+        private readonly IGlobalLingoMouse _globalMouse;
         private readonly DirScoreLabelsBar _labelsBar;
         private readonly DirScoreFrameHeader _frameHeader;
         private readonly DirScoreLeftTopContainer _LeftTopContainer;
@@ -37,6 +39,7 @@ namespace LingoEngine.Director.Core.Scores
         private int _contextFrame;
         private LingoMovie? _movie;
         protected IAbstMouseSubscription _mouseSub;
+        private IAbstMouseSubscription? _globalMouseUpSub;
         private float _scollY;
         private float _scollX;
         private float _lastPosV;
@@ -58,14 +61,15 @@ namespace LingoEngine.Director.Core.Scores
         public float ScollY { get => _scollY; set => _scollY = value; }
 
 #pragma warning disable CS8618
-        public DirectorScoreWindow(IDirSpritesManager spritesManager, ILingoPlayer player, ILingoFrameworkFactory factory, DirScoreManager scoreManager, IDirectorWindowManager windowManager, ILingoColorPaletteDefinitions paletteDefinitions, ILingoCommandManager commandManager, IDirectorEventMediator mediator) : base(factory)
-#pragma warning restore CS8618 
+        public DirectorScoreWindow(IDirSpritesManager spritesManager, ILingoPlayer player, ILingoFrameworkFactory factory, DirScoreManager scoreManager, IDirectorWindowManager windowManager, ILingoColorPaletteDefinitions paletteDefinitions, ILingoCommandManager commandManager, IGlobalLingoMouse globalMouse, IDirectorEventMediator mediator) : base(factory)
+#pragma warning restore CS8618
         {
             _spritesManager = spritesManager;
             _scoreManager = scoreManager;
             _windowManager = windowManager;
             _paletteDefinitions = paletteDefinitions;
             _player = (LingoPlayer)player;
+            _globalMouse = globalMouse;
             _player.ActiveMovieChanged += OnActiveMovieChanged;
             _labelsBar = new DirScoreLabelsBar(GfxValues, factory, commandManager);
             _frameHeader = new DirScoreFrameHeader(GfxValues, factory);
@@ -96,6 +100,7 @@ namespace LingoEngine.Director.Core.Scores
             base.Init(frameworkWindow);
             InitContextMenu();
             _mouseSub = Mouse.OnMouseEvent(HandleMouseEvent);
+            _globalMouseUpSub = _globalMouse.OnMouseUp(GlobalHandleMouseEvent);
             TopContainer = new DirScoreGridTopContainer(_scoreManager, _paletteDefinitions, ShowConfirmDialog);
             Sprites2DContainer = new DirScoreGridSprites2DContainer(_scoreManager, ShowConfirmDialog);
         }
@@ -106,6 +111,7 @@ namespace LingoEngine.Director.Core.Scores
         {
             _spriteContextMenu?.Dispose();
             _mouseSub.Release();
+            _globalMouseUpSub?.Release();
             if (_movie != null)
                 _movie.CurrentFrameChanged -= OnCurrentFrameChanged;
 
@@ -174,6 +180,16 @@ namespace LingoEngine.Director.Core.Scores
                         if (_movie == null) return;
                         _spritesManager.CreateFilmLoop(_movie, "New FilmLoop");
                     });
+        }
+
+
+        private void GlobalHandleMouseEvent(LingoMouseEvent mouseEvent)
+        {
+            if (DirectorDragDropHolder.IsDragging && DirectorDragDropHolder.Member != null)
+            {
+                var localEvent = mouseEvent.Translate((LingoMouse)Mouse);
+                HandleMouseEvent(localEvent);
+            }
         }
 
 
