@@ -18,7 +18,7 @@ namespace AbstUI.LGodot.Components
         private readonly IAbstFontManager _fontManager;
         private AMargin _margin = AMargin.Zero;
         private string? _font;
-        private AColor _fontColor;
+        private AColor _fontColor = AColors.Black;
 
         public AbstGodotLabel(AbstLabel label, IAbstFontManager fontManager)
         {

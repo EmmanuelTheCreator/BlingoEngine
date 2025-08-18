@@ -1,6 +1,7 @@
 using LingoEngine.Events;
 using LingoEngine.Movies;
 using LingoEngine.Movies.Events;
+using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Sprites.Events;
 using LingoEngine.Texts;
@@ -8,7 +9,7 @@ using LingoEngine.Texts;
 namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 {
     // Converted from 23_TextCounter.ls
-    public class TextCounterBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasExitFrameEvent
+    public class TextCounterBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasExitFrameEvent, ILingoPropertyDescriptionList
     {
         public int myMax = 10;
         public int myMin = 0;
@@ -71,6 +72,29 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
                 txt.Text = myValue.ToString();
             }
             myWaiter = 0;
+        }
+
+        public BehaviorPropertyDescriptionList? GetPropertyDescriptionList()
+        {
+            return new BehaviorPropertyDescriptionList()
+                .Add(this, x => x.myMin, "Min Value:", 0)
+                .Add(this, x => x.myMax, "Max Value:", 10)
+                .Add(this, x => x.myValue, "My Start Value:", -1)
+                .Add(this, x => x.myStep, "My step:", 1)
+                .Add(this, x => x.myDataSpriteNum, "My Sprite that contains info\n(set value to -1):", 1)
+                .Add(this, x => x.myDataName, "Name Info:", "1")
+                .Add(this, x => x.myWaitbeforeExecute, "WaitTime before execute:", 70)
+                .Add(this, x => x.myFunction, "function to execute:", "70");
+        }
+
+        public string? GetBehaviorDescription() => "Todo add description";
+
+
+        public string? GetBehaviorTooltip() => "";
+
+        public bool IsOKToAttach(LingoSymbol spriteType, int spriteNum)
+        {
+            return true;
         }
     }
 }

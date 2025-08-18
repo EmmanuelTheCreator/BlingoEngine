@@ -74,7 +74,7 @@ public sealed class TestSdlRootComponentContext : ISdlRootComponentContext, IDis
                 ComponentContainer.HandleEvent(e);
             }
 
-            SDL.SDL_SetRenderDrawColor(Renderer, 50, 0, 0, 255);
+            SDL.SDL_SetRenderDrawColor(Renderer, 200, 200, 150, 255);
             SDL.SDL_RenderClear(Renderer);
             ComponentContainer.Render(factory.CreateRenderContext());
             SDL.SDL_RenderPresent(Renderer);

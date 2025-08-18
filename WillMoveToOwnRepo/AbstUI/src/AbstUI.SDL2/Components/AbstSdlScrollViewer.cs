@@ -14,7 +14,7 @@ namespace AbstUI.SDL2.Components
         public AMargin Margin { get; set; } = AMargin.Zero;
         public float ScrollHorizontal { get; set; }
         public float ScrollVertical { get; set; }
-        public bool ClipContents { get; set; }
+        public bool ClipContents { get; set; } = true;
 
         private nint _texture;
         private int _texW;
@@ -44,7 +44,7 @@ namespace AbstUI.SDL2.Components
 
             bool needRender = _texture == nint.Zero || _texW != w || _texH != h ||
                                _lastScrollH != ScrollHorizontal || _lastScrollV != ScrollVertical;
-            if (needRender)
+            //if (needRender)
             {
                 if (_texture != nint.Zero)
                     SDL.SDL_DestroyTexture(_texture);
@@ -67,7 +67,7 @@ namespace AbstUI.SDL2.Components
                 if (ClipContents)
                     SDL.SDL_RenderSetClipRect(context.Renderer, nint.Zero);
 
-                SDL.SDL_SetRenderDrawColor(context.Renderer, 200, 200, 200, 255);
+                SDL.SDL_SetRenderDrawColor(context.Renderer, 200, 0, 0, 255);
                 SDL.SDL_Rect vbar = new SDL.SDL_Rect { x = w - sbSize, y = 0, w = sbSize, h = h - sbSize };
                 SDL.SDL_RenderFillRect(context.Renderer, ref vbar);
                 SDL.SDL_Rect hbar = new SDL.SDL_Rect { x = 0, y = h - sbSize, w = w - sbSize, h = sbSize };
@@ -75,7 +75,7 @@ namespace AbstUI.SDL2.Components
                 SDL.SDL_Rect corner = new SDL.SDL_Rect { x = w - sbSize, y = h - sbSize, w = sbSize, h = sbSize };
                 SDL.SDL_RenderFillRect(context.Renderer, ref corner);
 
-                SDL.SDL_SetRenderDrawColor(context.Renderer, 160, 160, 160, 255);
+                SDL.SDL_SetRenderDrawColor(context.Renderer, 50, 50, 50, 255);
                 SDL.SDL_RenderDrawRect(context.Renderer, ref vbar);
                 SDL.SDL_RenderDrawRect(context.Renderer, ref hbar);
                 SDL.SDL_RenderDrawRect(context.Renderer, ref corner);
@@ -87,7 +87,7 @@ namespace AbstUI.SDL2.Components
                 _lastScrollH = ScrollHorizontal;
                 _lastScrollV = ScrollVertical;
             }
-
+  
             return _texture;
         }
 

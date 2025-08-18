@@ -217,7 +217,7 @@ namespace LingoEngine.Director.Core.Scores
                     spriteNumWithChannel = Math.Clamp(MathL.RoundToInt((yPosition + 4 + ScollY) / gfxValues.ChannelHeight), 1, 999) + 6;
                 }
             }
-            //Console.WriteLine($"Mouse Event: Frame {mouseFrame}, Channel {channel}, isInsideLeft={isInsideLeft}");
+           // Console.WriteLine($"Mouse Event: Frame {mouseFrame}, Channel {spriteNumWithChannel}, isInsideLeft={isInsideLeft}");
             if (spriteNumWithChannel <= 0)
                 return;
             if (isInsideLeft)
@@ -231,7 +231,8 @@ namespace LingoEngine.Director.Core.Scores
                 }
                 return;
             }
-            var scoreChannel = HeaderCollapsed ? spriteNumWithChannel + 5 : spriteNumWithChannel;
+            var scoreChannel = spriteNumWithChannel; // - 6;
+            //Console.WriteLine($"Mouse Event: Frame {mouseFrame}, Channel {scoreChannel}, isInsideLeft={isInsideLeft}");
             _scoreManager.HandleMouse(mouseEvent, scoreChannel, mouseFrame);
             if (mouseEvent.Type == AbstMouseEventType.MouseDown && mouseEvent.Mouse.RightMouseDown)
             {

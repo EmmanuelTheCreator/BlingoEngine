@@ -151,7 +151,7 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
 
     public List<string> WordsLingoCodeBuiltIn = [.. _lingoWordsDefault];
     private static readonly string[] _lingoWordsDefault = [
-            "point","loc","void","char","rgb","in","line",
+            "point","loc","void","char","rgb","in","line","word",
             "default","format","color","comment","integer","boolean","string","text","string","symbol",
             "getPropertyDescriptionList","GetBehaviorTooltip","IsOKToAttach","GetBehaviorDescription",
             "_movie","actorlist","cursor","alert",
@@ -163,9 +163,15 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
             "script","handler",
             "stepFrame","beginsprite","endsprite",
             "startmovie","stopmovie",
-            "mouseup","mousedown","mouseenter","mouseleave",
+            "_Mouse","mouseup","mousedown","mouseenter","mouseleave",
             "neterror","nettextresult","getNetText",
             "_key","keypressed","controldown","shiftdown",
+            "_Player",
+            "_Sound",
+            "_System",
+            "Channel","Number",
+            "CastLib",
+            "Put",
         ];
     public List<string> WordsCCharpCodeBuiltIn = [.. _csharpWordsDefault];
     private static readonly string[] _csharpWordsDefault = [
@@ -175,12 +181,35 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
             "namespace","new","operator","out","override","params","private","protected","public",
             "readonly","record","ref","return","sealed","sizeof","stackalloc","static","struct",
             "switch","this","throw","try","typeof","unsafe","using","virtual","volatile","while",
-            "async","await","var","null","true","false",
+            "async","await","var","null","true","false","void",
+
+        
         ];
     public List<string> WordsCCharpCodeTypes = [.. _csharpWordsCodeTypesDefault];
     private static readonly string[] _csharpWordsCodeTypesDefault = [
 
             "bool","byte","sbyte","char","decimal","double","float","int","uint","nint","nuint",
-            "long","ulong","object","short","ushort","string","void"
+            "long","ulong","object","short","ushort","string","void","List",
+
+        // lingo 
+         "APoint","ARect","AColor","Loc","Char","FromHex","Line","Word",
+            "format","AColor","Comment","Text","Symbol",
+            "GetPropertyDescriptionList","GetBehaviorTooltip","IsOKToAttach","GetBehaviorDescription",
+            "_Movie","Actorlist","Cursor","Alert",
+            "MemberNum","Member","Preload","Sound",
+            "Sprite","SpriteNum","LocH","LocV","LocZ","Blend","Ink","MouseH","MouseV","Puppet","ILingoSprite",
+            "DeleteOne","Append","GetPos","Deleteone","Addprop","Sendsprite","Frame","Length","Count",
+            "Go","GoTo",
+            "Script","Handler",
+            "StepFrame","BeginSprite","EndSprite",
+            "StartMovie","StopMovie",
+            "_Mouse","MouseUp","MouseDown","MouseEnter","MouseLeave","LingoMouseEvent",
+            "NetError","NetTextResult","GetNetText",
+            "_Key","KeyPressed","ControlDown","ShiftDown","LingoKeyEvent",
+            "_Player",
+            "_Sound",
+            "_System",
+            "Channel","Number",
+            "CastLib","LingoCast","LingoInkType","ILingoMember"
         ];
 }
