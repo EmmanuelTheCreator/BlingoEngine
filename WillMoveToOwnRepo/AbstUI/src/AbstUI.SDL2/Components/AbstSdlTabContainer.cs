@@ -91,6 +91,7 @@ namespace AbstUI.SDL2.Components
                 SDL.SDL_SetTextureBlendMode(_texture, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
             }
 
+            var prevTarget = SDL.SDL_GetRenderTarget(context.Renderer);
             SDL.SDL_SetRenderTarget(context.Renderer, _texture);
             SDL.SDL_SetRenderDrawColor(context.Renderer, 255, 255, 255, 255);
             SDL.SDL_RenderClear(context.Renderer);
@@ -139,7 +140,7 @@ namespace AbstUI.SDL2.Components
                 }
             }
 
-            SDL.SDL_SetRenderTarget(context.Renderer, nint.Zero);
+            SDL.SDL_SetRenderTarget(context.Renderer, prevTarget);
             _texW = w;
             _texH = h;
             return _texture;
