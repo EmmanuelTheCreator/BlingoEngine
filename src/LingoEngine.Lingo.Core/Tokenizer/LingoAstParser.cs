@@ -20,6 +20,11 @@ namespace LingoEngine.Lingo.Core.Tokenizer
             {
                 if (_currentToken.Type == LingoTokenType.On)
                     block.Children.Add(ParseHandler());
+                else if (_currentToken.Type == LingoTokenType.Comment)
+                {
+                    block.Children.Add(new LingoCommentNode { Text = _currentToken.Lexeme });
+                    AdvanceToken();
+                }
                 else
                     block.Children.Add(ParseStatement());
             }
@@ -72,6 +77,10 @@ namespace LingoEngine.Lingo.Core.Tokenizer
         {
             switch (_currentToken.Type)
             {
+                case LingoTokenType.Comment:
+                    var text = _currentToken.Lexeme;
+                    AdvanceToken();
+                    return new LingoCommentNode { Text = text };
                 case LingoTokenType.Identifier:
                 case LingoTokenType.Me:
                     return ParseCallOrAssignment();
@@ -616,13 +625,41 @@ namespace LingoEngine.Lingo.Core.Tokenizer
             if (_currentToken.Type == LingoTokenType.Else)
             {
                 AdvanceToken(); // consume 'else'
-                elseBlock = ParseBlock();
+                if (_currentToken.Type == LingoTokenType.If)
+                {
+                    elseBlock = ParseElseIfChain();
+                }
+                else
+                {
+                    elseBlock = ParseBlock();
+                }
             }
 
             Expect(LingoTokenType.End);
             Expect(LingoTokenType.If);
 
             return new LingoIfStmtNode(condition, thenBlock, elseBlock);
+        }
+
+        private LingoBlockNode ParseElseIfChain()
+        {
+            // current token is 'if'
+            AdvanceToken(); // consume 'if'
+            var cond = ParseExpression();
+            Expect(LingoTokenType.Then);
+            var thenBlock = ParseBlock();
+            LingoNode? elseBlock = null;
+            if (_currentToken.Type == LingoTokenType.Else)
+            {
+                AdvanceToken();
+                if (_currentToken.Type == LingoTokenType.If)
+                    elseBlock = ParseElseIfChain();
+                else
+                    elseBlock = ParseBlock();
+            }
+            var block = new LingoBlockNode();
+            block.Children.Add(new LingoIfStmtNode(cond, thenBlock, elseBlock));
+            return block;
         }
 
         private LingoBlockNode ParseBlock()

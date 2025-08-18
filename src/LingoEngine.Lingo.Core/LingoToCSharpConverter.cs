@@ -160,10 +160,36 @@ public class LingoToCSharpConverter
 
         var className = script.Name + suffix;
         bool hasPropDescHandler = handlers.Contains("getPropertyDescriptionList");
+        var propDescs = ExtractPropertyDescriptions(script.Source);
+        var propDecls = ExtractPropertyDeclarations(script.Source);
 
         var sb = new System.Text.StringBuilder();
         sb.AppendLine($"public class {className} : {baseType}{(hasPropDescHandler ? ", ILingoPropertyDescriptionList" : string.Empty)}");
         sb.AppendLine("{");
+
+        var fieldMap = new Dictionary<string, (string Type, string? Default)>(StringComparer.OrdinalIgnoreCase);
+        foreach (var n in propDecls)
+            fieldMap[n] = ("object", null);
+        foreach (var d in propDescs)
+            fieldMap[d.Name] = (FormatToCSharpType(d.Format), d.Default);
+
+        var inferredTypes = InferPropertyTypes(script.Source, fieldMap.Keys);
+        foreach (var kv in inferredTypes)
+        {
+            if (fieldMap.TryGetValue(kv.Key, out var existing) && existing.Type == "object")
+                fieldMap[kv.Key] = (kv.Value, existing.Default);
+        }
+        if (fieldMap.Count > 0)
+        {
+            foreach (var kv in fieldMap)
+            {
+                if (kv.Value.Default != null)
+                    sb.AppendLine($"    public {kv.Value.Type} {kv.Key} = {kv.Value.Default};");
+                else
+                    sb.AppendLine($"    public {kv.Value.Type} {kv.Key};");
+            }
+            sb.AppendLine();
+        }
 
         bool needsGlobal = scriptType == LingoScriptType.Movie || scriptType == LingoScriptType.Parent;
         if (needsGlobal)
@@ -191,7 +217,7 @@ public class LingoToCSharpConverter
 
         if (hasPropDescHandler)
         {
-            var props = ExtractPropertyDescriptions(script.Source);
+            var props = propDescs;
             sb.AppendLine();
             sb.AppendLine("    public BehaviorPropertyDescriptionList? GetPropertyDescriptionList()");
             sb.AppendLine("    {");
@@ -229,9 +255,9 @@ public class LingoToCSharpConverter
         return set;
     }
 
-    private static List<(string Name, string Default, string Comment)> ExtractPropertyDescriptions(string source)
+    private static List<(string Name, string Default, string Comment, string Format)> ExtractPropertyDescriptions(string source)
     {
-        var list = new List<(string Name, string Default, string Comment)>();
+        var list = new List<(string Name, string Default, string Comment, string Format)>();
         var regex = new Regex(@"addProp\s+description,#(?<name>\w+),\s*\[(?<body>[^\]]*)\]", RegexOptions.IgnoreCase | RegexOptions.Singleline);
         foreach (Match m in regex.Matches(source))
         {
@@ -245,10 +271,74 @@ public class LingoToCSharpConverter
             if (fmt == "string" || fmt == "symbol")
                 def = $"\"{Escape(def)}\"";
             var comment = commentMatch.Success ? Escape(commentMatch.Groups[1].Value) : string.Empty;
-            list.Add((name, def, comment));
+            list.Add((name, def, comment, fmt));
         }
         return list;
     }
+
+    private static List<string> ExtractPropertyDeclarations(string source)
+    {
+        var list = new List<string>();
+        try
+        {
+            var parser = new LingoAstParser();
+            var ast = parser.Parse(source);
+            if (ast is LingoBlockNode block)
+            {
+                foreach (var child in block.Children)
+                {
+                    if (child is LingoPropertyDeclStmtNode prop)
+                        list.AddRange(prop.Names);
+                }
+            }
+        }
+        catch
+        {
+            // ignore parse errors and return whatever was collected so far
+        }
+        return list;
+    }
+
+    private static Dictionary<string, string> InferPropertyTypes(string source, IEnumerable<string> propertyNames)
+    {
+        var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var targets = new HashSet<string>(propertyNames, StringComparer.OrdinalIgnoreCase);
+        var lines = source.Split('\n');
+        foreach (var line in lines)
+        {
+            var trimmed = line.Trim();
+            foreach (var name in targets)
+            {
+                if (result.ContainsKey(name)) continue;
+                var m = Regex.Match(trimmed, $"(?i)^{Regex.Escape(name)}\\s*=\\s*(.+)$");
+                if (m.Success)
+                {
+                    var rhs = m.Groups[1].Value.Trim();
+                    result[name] = InferFromRhs(rhs);
+                }
+            }
+        }
+        return result;
+
+        static string InferFromRhs(string rhs)
+        {
+            if (Regex.IsMatch(rhs, @"^"".*""$")) return "string";
+            if (rhs.Contains("member(", StringComparison.OrdinalIgnoreCase) && rhs.Contains(").text", StringComparison.OrdinalIgnoreCase)) return "string";
+            if (Regex.IsMatch(rhs, @"^(true|false)$", RegexOptions.IgnoreCase)) return "bool";
+            if (Regex.IsMatch(rhs, @"^[-+]?[0-9]+$")) return "int";
+            if (Regex.IsMatch(rhs, @"^[-+]?[0-9]*\\.[0-9]+$")) return "float";
+            return "object";
+        }
+    }
+
+    private static string FormatToCSharpType(string fmt) => fmt switch
+    {
+        "integer" => "int",
+        "float" => "float",
+        "boolean" => "bool",
+        "string" or "symbol" => "string",
+        _ => "object"
+    };
 
     private static string Escape(string value) => value.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n");
 

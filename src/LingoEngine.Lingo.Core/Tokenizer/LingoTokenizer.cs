@@ -14,6 +14,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
         String,
         Identifier,
         Symbol,
+        Comment,
         LeftParen,
         RightParen,
         LeftBracket,
@@ -185,7 +186,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 ';' => MakeToken(LingoTokenType.Semicolon),
                 '+' => MakeToken(LingoTokenType.Plus),
                 '&' => MakeToken(LingoTokenType.Ampersand),
-                '-' => MakeToken(LingoTokenType.Minus),
+                '-' => Peek() == '-' ? Comment() : MakeToken(LingoTokenType.Minus),
                 '*' => MakeToken(LingoTokenType.Asterisk),
                 '/' => MakeToken(LingoTokenType.Slash),
                 '=' => MakeToken(LingoTokenType.Equals),
@@ -197,6 +198,15 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 '#' => new LingoToken(LingoTokenType.Symbol, ReadIdentifier(), _line),
                 _ => MakeToken(LingoTokenType.Symbol)
             };
+        }
+
+        private LingoToken Comment()
+        {
+            Advance(); // consume second '-'
+            while (Peek() != '\n' && !IsAtEnd())
+                Advance();
+            var text = _source[(_start + 2).._position];
+            return new LingoToken(LingoTokenType.Comment, text.Trim(), _line);
         }
         private void SkipWhitespace()
         {
@@ -213,9 +223,6 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                     case '\n':
                         _line++;
                         Advance();
-                        break;
-                    case '-' when PeekNext() == '-':
-                        while (Peek() != '\n' && !IsAtEnd()) Advance();
                         break;
                     default:
                         return;

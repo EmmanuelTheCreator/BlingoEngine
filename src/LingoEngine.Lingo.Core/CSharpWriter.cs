@@ -168,12 +168,20 @@ public class CSharpWriter : ILingoAstVisitor
         AppendLine("}");
         if (node.HasElse)
         {
-            AppendLine("else");
-            AppendLine("{");
-            Indent();
-            node.ElseBlock!.Accept(this);
-            Unindent();
-            AppendLine("}");
+            if (node.ElseBlock is LingoBlockNode block && block.Children.Count == 1 && block.Children[0] is LingoIfStmtNode nested)
+            {
+                Append("else ");
+                nested.Accept(this);
+            }
+            else
+            {
+                AppendLine("else");
+                AppendLine("{");
+                Indent();
+                node.ElseBlock!.Accept(this);
+                Unindent();
+                AppendLine("}");
+            }
         }
     }
 
@@ -549,26 +557,11 @@ public class CSharpWriter : ILingoAstVisitor
         AppendLine(");");
     }
 
-    public void Visit(LingoGlobalDeclStmtNode node)
-    {
-        Append("var ");
-        Append(string.Join(", ", node.Names));
-        AppendLine(";");
-    }
+    public void Visit(LingoGlobalDeclStmtNode node) { }
 
-    public void Visit(LingoPropertyDeclStmtNode node)
-    {
-        Append("var ");
-        Append(string.Join(", ", node.Names));
-        AppendLine(";");
-    }
+    public void Visit(LingoPropertyDeclStmtNode node) { }
 
-    public void Visit(LingoInstanceDeclStmtNode node)
-    {
-        Append("var ");
-        Append(string.Join(", ", node.Names));
-        AppendLine(";");
-    }
+    public void Visit(LingoInstanceDeclStmtNode node) { }
 
     public void Visit(LingoRepeatWhileStmtNode node)
     {
