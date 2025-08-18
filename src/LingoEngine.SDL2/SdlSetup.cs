@@ -49,18 +49,17 @@ public static class SdlSetup
     public static ILingoEngineRegistration WithLingoSdlEngine(this ILingoEngineRegistration reg, nint sdlWindow, nint sdlRenderer, Action<LingoSdlFactory>? setup = null)
     {
         LingoEngineGlobal.RunFramework = AbstEngineRunFramework.SDL2;
-        var rootContext = new SdlRootContext(sdlWindow, sdlRenderer);
-        RegisterServices(reg, setup, rootContext);
+        RegisterServices(reg, setup, sdlWindow, sdlRenderer);
         return reg;
     }
 
-    private static void RegisterServices(ILingoEngineRegistration reg, Action<LingoSdlFactory>? setup, SdlRootContext rootContext)
+    private static void RegisterServices(ILingoEngineRegistration reg, Action<LingoSdlFactory>? setup, nint sdlWindow, nint sdlRenderer)
     {
         reg
             .ServicesMain(s => s
-                    .AddSingleton<ILingoFrameworkFactory, LingoSdlFactory>()
                     .WithAbstUISdl()
-                    .AddSingleton(rootContext)
+                    .AddSingleton(provider => new SdlRootContext(sdlWindow, sdlRenderer, provider.GetRequiredService<SdlFocusManager>()))
+                    .AddSingleton<ILingoFrameworkFactory, LingoSdlFactory>()
                 ).WithFrameworkFactory(setup);
     }
 }

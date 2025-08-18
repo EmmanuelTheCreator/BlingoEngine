@@ -11,7 +11,7 @@ using AbstUI.SDL2.Styles;
 
 namespace AbstUI.SDL2.Components
 {
-    internal class AbstSdlInputText : AbstSdlComponent, IAbstFrameworkInputText, IHandleSdlEvent, IDisposable
+    internal class AbstSdlInputText : AbstSdlComponent, IAbstFrameworkInputText, IHandleSdlEvent, ISdlFocusable, IDisposable
     {
         private readonly bool _multiLine;
         private readonly List<int> _codepoints = new();
@@ -49,6 +49,12 @@ namespace AbstUI.SDL2.Components
         public bool IsMultiLine { get; set; }
 
         public bool HasFocus => _focused;
+        public void SetFocus(bool focus)
+        {
+            _focused = focus;
+            if (focus)
+                _blinkStart = SDL.SDL_GetTicks();
+        }
 
         public event Action? ValueChanged;
 
@@ -69,7 +75,7 @@ namespace AbstUI.SDL2.Components
             switch (ev.type)
             {
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
-                    _focused = true;
+                    Factory.FocusManager.SetFocus(this);
                     _caret = _codepoints.Count;
                     e.StopPropagation = true;
                     break;

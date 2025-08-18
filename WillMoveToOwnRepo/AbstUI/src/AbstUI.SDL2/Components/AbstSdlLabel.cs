@@ -1,9 +1,9 @@
 using System;
-using System.Numerics;
-using AbstUI.Texts;
 using AbstUI.Components;
 using AbstUI.Primitives;
-using static System.Net.Mime.MediaTypeNames;
+using AbstUI.SDL2.SDLL;
+using AbstUI.SDL2.Styles;
+using AbstUI.Texts;
 
 namespace AbstUI.SDL2.Components
 {
@@ -28,17 +28,52 @@ namespace AbstUI.SDL2.Components
 
         public object FrameworkNode => this;
 
-
         public event Action? ValueChanged;
+
+        private ISdlFontLoadedByUser? _font;
+        private nint _texture;
+        private string _renderedText = string.Empty;
+
+        private void EnsureResources(AbstSDLRenderContext ctx)
+        {
+            _font ??= ctx.SdlFontManager.GetTyped(this, Font, FontSize);
+        }
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
             if (!Visibility || string.IsNullOrEmpty(Text))
                 return default;
-            return default;
+
+            EnsureResources(context);
+
+            if (_texture == nint.Zero || _renderedText != Text)
+            {
+                if (_texture != nint.Zero)
+                {
+                    SDL.SDL_DestroyTexture(_texture);
+                    _texture = nint.Zero;
+                }
+
+                SDL.SDL_Color col = new SDL.SDL_Color { r = FontColor.R, g = FontColor.G, b = FontColor.B, a = FontColor.A };
+                var surf = SDL_ttf.TTF_RenderUTF8_Blended(_font!.FontHandle, Text, col);
+                _texture = SDL.SDL_CreateTextureFromSurface(context.Renderer, surf);
+                SDL.SDL_QueryTexture(_texture, out _, out _, out int w, out int h);
+                SDL.SDL_FreeSurface(surf);
+
+                _renderedText = Text;
+                Width = w;
+                Height = h;
+            }
+
+            return _texture;
         }
 
-
-        public override void Dispose() => base.Dispose();
+        public override void Dispose()
+        {
+            if (_texture != nint.Zero)
+                SDL.SDL_DestroyTexture(_texture);
+            _font?.Release();
+            base.Dispose();
+        }
     }
 }

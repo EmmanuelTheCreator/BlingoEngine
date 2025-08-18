@@ -7,6 +7,12 @@ public class AbstSDLComponentContainer
 {
     private readonly List<AbstSDLComponentContext> _allComponents = new();
     private readonly HashSet<AbstSDLComponentContext> _activeComponents = new();
+    private readonly SdlFocusManager _focusManager;
+
+    public AbstSDLComponentContainer(SdlFocusManager focusManager)
+    {
+        _focusManager = focusManager;
+    }
 
     internal void Register(AbstSDLComponentContext context) => _allComponents.Add(context);
     internal void Unregister(AbstSDLComponentContext context)
@@ -28,6 +34,9 @@ public class AbstSDLComponentContainer
 
     public void HandleEvent(SDL.SDL_Event e)
     {
+        if (e.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN)
+            _focusManager.SetFocus(null);
+
         var evt = new AbstSDLEvent(e);
         foreach (var ctx in _activeComponents)
         {

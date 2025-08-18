@@ -1,17 +1,19 @@
 using System.Numerics;
 using AbstUI.Primitives;
 using AbstUI.Components;
+using AbstUI.SDL2;
 using AbstUI.SDL2.Bitmaps;
 using AbstUI.SDL2.SDLL;
 
 namespace AbstUI.SDL2.Components
 {
-    internal class AbstSdlStateButton : AbstSdlComponent, IAbstFrameworkStateButton, IDisposable
+    internal class AbstSdlStateButton : AbstSdlComponent, IAbstFrameworkStateButton, ISdlFocusable, IDisposable
     {
         private nint _textureOnPtr;
         private IAbstTexture2D? _textureOn;
         private nint _textureOffPtr;
         private IAbstTexture2D? _textureOff;
+        private bool _focused;
 
         public AbstSdlStateButton(AbstSdlComponentFactory factory) : base(factory)
         {
@@ -91,5 +93,9 @@ namespace AbstUI.SDL2.Components
             }
             base.Dispose();
         }
+
+        public bool HasFocus => _focused;
+
+        public void SetFocus(bool focus) => _focused = focus;
     }
 }

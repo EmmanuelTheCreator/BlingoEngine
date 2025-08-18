@@ -10,9 +10,12 @@ public abstract class AbstSdlComponent : IAbstSDLComponent, IDisposable
 {
     protected AbstSdlComponent(AbstSdlComponentFactory factory)
     {
+        Factory = factory;
         ComponentContext = factory.CreateContext(this);
         ComponentContext.Visible = _visibility;
     }
+
+    protected AbstSdlComponentFactory Factory { get; }
 
     public AbstSDLComponentContext ComponentContext { get; }
 
