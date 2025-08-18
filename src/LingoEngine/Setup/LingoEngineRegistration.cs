@@ -85,11 +85,23 @@ namespace LingoEngine.Setup
 
 
 
+        public ILingoEngineRegistration BuildDelayed()
+        {
+            if (_hasBeenBuild && _player != null) return this;
+            CreateProjectFactory();
+            return this;
+        }
         public LingoPlayer Build()
         {
             if (_hasBeenBuild && _player != null) return _player;
             CreateProjectFactory();
             _serviceProvider = _container.BuildServiceProvider();
+            return Build(_serviceProvider);
+        }
+
+        public LingoPlayer Build(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
             _lingoServiceProvider.SetServiceProvider(_serviceProvider);
             var player = _lingoServiceProvider.GetRequiredService<LingoPlayer>();
             player.SetActionOnNewMovie(ActionOnNewMovie);

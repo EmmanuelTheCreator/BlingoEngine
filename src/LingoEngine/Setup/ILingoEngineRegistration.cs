@@ -2,6 +2,7 @@
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Projects;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 namespace LingoEngine.Setup
 {
     public interface ILingoEngineRegistration
@@ -13,6 +14,8 @@ namespace LingoEngine.Setup
         ILingoEngineRegistration WithFrameworkFactory<T>(Action<T>? setup = null) where T : class, ILingoFrameworkFactory;
         ILingoEngineRegistration WithProjectSettings(Action<LingoProjectSettings> setup);
         LingoPlayer Build();
+        ILingoEngineRegistration BuildDelayed();
+        LingoPlayer Build(IServiceProvider serviceProvider);
         ILingoProjectFactory BuildAndRunProject();
         ILingoEngineRegistration AddBuildAction(Action<ILingoServiceProvider> buildAction);
         ILingoEngineRegistration SetProjectFactory<TLingoProjectFactory>() where TLingoProjectFactory : ILingoProjectFactory, new();
