@@ -1,6 +1,5 @@
 using System;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
 using AbstUI.Primitives;
 using LingoEngine.Primitives;
 
@@ -46,7 +45,7 @@ namespace LingoEngine.Tools
             {
                 case LingoInkType.BackgroundTransparent:
                 case LingoInkType.Matte:
-                    Parallel.For(0, pixelCount, idx =>
+                    ParallelHelper.For(0, pixelCount, pixelCount, idx =>
                     {
                         int i = idx * 4;
                         if (result[i] == transparentColor.R &&
@@ -58,7 +57,7 @@ namespace LingoEngine.Tools
                     });
                     break;
                 case LingoInkType.Blend:
-                    Parallel.For(0, pixelCount, idx =>
+                    ParallelHelper.For(0, pixelCount, pixelCount, idx =>
                     {
                         int i = idx * 4;
                         byte a = result[i + 3];
@@ -71,7 +70,7 @@ namespace LingoEngine.Tools
                 case LingoInkType.Reverse:
                 case LingoInkType.NotCopy:
                 case LingoInkType.NotReverse:
-                    Parallel.For(0, pixelCount, idx =>
+                    ParallelHelper.For(0, pixelCount, pixelCount, idx =>
                     {
                         int i = idx * 4;
                         result[i] = (byte)(255 - result[i]);
@@ -81,14 +80,14 @@ namespace LingoEngine.Tools
                     break;
                 case LingoInkType.Ghost:
                 case LingoInkType.NotGhost:
-                    Parallel.For(0, pixelCount, idx =>
+                    ParallelHelper.For(0, pixelCount, pixelCount, idx =>
                     {
                         int i = idx * 4;
                         result[i + 3] = (byte)(result[i + 3] / 2);
                     });
                     break;
                 case LingoInkType.Mask:
-                    Parallel.For(0, pixelCount, idx =>
+                    ParallelHelper.For(0, pixelCount, pixelCount, idx =>
                     {
                         int i = idx * 4;
                         result[i] = (byte)(255 - result[i]);
@@ -98,7 +97,7 @@ namespace LingoEngine.Tools
                     });
                     break;
                 case LingoInkType.NotTransparent:
-                    Parallel.For(0, pixelCount, idx =>
+                    ParallelHelper.For(0, pixelCount, pixelCount, idx =>
                     {
                         int i = idx * 4;
                         result[i + 3] = 255;
@@ -114,10 +113,10 @@ namespace LingoEngine.Tools
             var inkKey = ink;
             switch (ink)
             {
-                case LingoInkType.BackgroundTransparent:return LingoInkType.Matte;
+                case LingoInkType.BackgroundTransparent: return LingoInkType.Matte;
                 case LingoInkType.Reverse:
                 case LingoInkType.NotCopy:
-                case LingoInkType.NotReverse:return LingoInkType.Reverse;
+                case LingoInkType.NotReverse: return LingoInkType.Reverse;
                 case LingoInkType.Ghost:
                 case LingoInkType.NotGhost: return LingoInkType.Ghost;
                 default:

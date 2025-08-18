@@ -4,6 +4,7 @@ using LingoEngine.FilmLoops;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Members;
+using LingoEngine.Tools;
 using AbstUI.Primitives;
 using AbstUI.LGodot.Bitmaps;
 
@@ -83,19 +84,19 @@ namespace LingoEngine.LGodot.FilmLoops
                 }
                 if (srcImg == null)
                     continue;
-               
+
                 //DebugToDisk(srcImg, $"filmloop_{frame}/{i}_{info.Sprite2D.SpriteNum}_{info.Sprite2D.Member?.Name}");
 
                 srcImg = srcImg.GetRegion(new Rect2I(info.SrcX, info.SrcY, info.SrcW, info.SrcH));
                 if (info.DestW != info.SrcW || info.DestH != info.SrcH)
                     srcImg.Resize(info.DestW, info.DestH, Image.Interpolation.Bilinear);
-                                var m = info.Transform.Matrix;
+                var m = info.Transform.Matrix;
                 var transform = new Transform2D(
                     new Vector2(m.M11, m.M12),
                     new Vector2(m.M21, m.M22),
                     new Vector2(m.M31, m.M32));
                 BlendImage(image, srcImg, transform, info.Alpha);
-                
+
             }
 
             #region OLD
@@ -192,7 +193,8 @@ namespace LingoEngine.LGodot.FilmLoops
                 IntPtr destPtr = (IntPtr)pDestFixed;
                 IntPtr srcPtr = (IntPtr)pSrcFixed;
 
-                Parallel.For(minY, maxY, y =>
+                int totalPixels = (maxX - minX) * (maxY - minY);
+                ParallelHelper.For(minY, maxY, totalPixels, y =>
                 {
                     if ((uint)y >= (uint)destHeight) return;
 
@@ -279,7 +281,7 @@ namespace LingoEngine.LGodot.FilmLoops
             }
         }
 
-     
+
         #endregion
     }
 }
