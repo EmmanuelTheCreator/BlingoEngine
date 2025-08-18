@@ -102,5 +102,11 @@ namespace LingoEngine.Director.Core.Styles
         public static AColor BG_TopMenu = new AColor(240, 240, 240); // Background color of the top menu bar
 
 
+        // Code Highlighting
+        public static AColor CodeKeyword = new AColor(77, 77, 255); // Blue
+        public static AColor CodeLiteral = new AColor(80, 80, 80); // Dark gray
+        public static AColor CodeComment = new AColor(139, 0, 0); // Dark red
+        public static AColor CodeBuiltIn = new AColor(0, 128, 0); // Green
+
     }
 }
