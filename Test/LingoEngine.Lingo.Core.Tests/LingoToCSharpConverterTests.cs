@@ -167,6 +167,36 @@ public class LingoToCSharpConverterTests
         Assert.Equal("img = _movie.New.Bitmap();", result.Trim());
     }
 
+    [Fact]
+    public void VoidpAndListAreConverted()
+    {
+        var lingo = string.Join('\n',
+            "if voidp(x) then",
+            "  x = 1",
+            "end if",
+            "myMembers = [\"A\", \"B\"]",
+            "y = myMembers[2]");
+        var result = LingoToCSharpConverter.Convert(lingo);
+        var expected = string.Join('\n',
+            "if (x == null)",
+            "{",
+            "x = 1;",
+            "}",
+            "myMembers = [\"A\", \"B\"];",
+            "y = myMembers[2];");
+        Assert.Equal(expected.Trim(), result.Trim());
+    }
+
+    [Fact]
+    public void MeVoidAssignmentIsIgnored()
+    {
+        var lingo = string.Join('\n',
+            "me = void",
+            "x = 5");
+        var result = LingoToCSharpConverter.Convert(lingo);
+        Assert.Equal("x = 5;", result.Trim());
+    }
+
     [Fact(Skip = "Relies on full demo resources not required for this change")]
     public void DemoNewGameScriptMatchesConvertedOutput()
     {

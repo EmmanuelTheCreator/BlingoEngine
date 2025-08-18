@@ -49,6 +49,12 @@ namespace LingoEngine.Lingo.Core.Tokenizer
             Value = value;
         }
 
+        public LingoDatum(List<LingoNode> list)
+        {
+            Type = DatumType.List;
+            Value = list;
+        }
+
         public LingoDatum(string value, bool isSymbol = false)
         {
             Type = isSymbol ? DatumType.Symbol : DatumType.String;
