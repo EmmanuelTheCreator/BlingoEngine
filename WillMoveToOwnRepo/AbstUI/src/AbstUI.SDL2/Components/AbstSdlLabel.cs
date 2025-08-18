@@ -11,6 +11,7 @@ namespace AbstUI.SDL2.Components
     {
         public AbstSdlLabel(AbstSdlComponentFactory factory) : base(factory)
         {
+            FontSize = 12;
         }
         public AMargin Margin { get; set; } = AMargin.Zero;
 
@@ -36,7 +37,7 @@ namespace AbstUI.SDL2.Components
 
         private void EnsureResources(AbstSDLRenderContext ctx)
         {
-            _font ??= ctx.SdlFontManager.GetTyped(this, Font, FontSize);
+            _font ??= ctx.SdlFontManager.GetTyped(this, Font, FontSize <= 0 ? 12 : FontSize);
         }
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
