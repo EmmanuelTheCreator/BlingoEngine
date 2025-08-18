@@ -55,7 +55,7 @@ public partial class AbstBlazorGfxCanvas : AbstBlazorComponentBase, IAbstFramewo
         if (!_dirty)
         {
             _dirty = true;
-            _ = InvokeAsync(StateHasChanged);
+            RequestRender();
         }
     }
 

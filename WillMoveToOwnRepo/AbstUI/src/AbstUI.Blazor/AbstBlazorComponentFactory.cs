@@ -43,6 +43,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
 
         var wrapper = new AbstLayoutWrapper(content);
         var impl = new AbstBlazorLayoutWrapper(wrapper);
+        wrapper.Init(impl);
         if (x.HasValue) wrapper.X = x.Value;
         if (y.HasValue) wrapper.Y = y.Value;
         return wrapper;
@@ -201,6 +202,8 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
     public AbstMenu CreateMenu(string name)
     {
         var menu = new AbstMenu();
+        var impl = new AbstBlazorMenu(this, name);
+        menu.Init(impl);
         menu.Name = name;
         return menu;
     }
@@ -208,6 +211,8 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
     public AbstMenuItem CreateMenuItem(string name, string? shortcut = null)
     {
         var item = new AbstMenuItem();
+        var impl = new AbstBlazorMenuItem(this, name, shortcut);
+        item.Init(impl);
         item.Name = name;
         item.Shortcut = shortcut;
         return item;

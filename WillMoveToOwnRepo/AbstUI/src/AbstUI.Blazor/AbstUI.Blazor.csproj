@@ -60,6 +60,8 @@
       <Compile Include="Components/AbstInputComponent.cs" />
         <Compile Include="Components/AbstBlazorTabContainer.cs" />
         <Compile Include="Components/AbstBlazorTabItem.cs" />
+        <Compile Include="Components/AbstBlazorMenu.cs" />
+        <Compile Include="Components/AbstBlazorMenuItem.cs" />
         <Compile Include="Inputs/BlazorMouse.cs" />
         <Compile Include="Inputs/BlazorKey.cs" />
         <Compile Include="AbstUIBlazorSetup.cs" />
