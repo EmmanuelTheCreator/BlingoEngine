@@ -24,11 +24,14 @@ namespace LingoEngine.Lingo.Core.Tokenizer
         Semicolon,
         Equals,
         Plus,
+        Ampersand,
         Minus,
         Asterisk,
         Slash,
         LessThan,
         GreaterThan,
+        LessOrEqual,
+        GreaterOrEqual,
         NotEquals,
         Not,
         And,
@@ -181,12 +184,16 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 ':' => MakeToken(LingoTokenType.Colon),
                 ';' => MakeToken(LingoTokenType.Semicolon),
                 '+' => MakeToken(LingoTokenType.Plus),
+                '&' => MakeToken(LingoTokenType.Ampersand),
                 '-' => MakeToken(LingoTokenType.Minus),
                 '*' => MakeToken(LingoTokenType.Asterisk),
                 '/' => MakeToken(LingoTokenType.Slash),
                 '=' => MakeToken(LingoTokenType.Equals),
-                '<' => Match('>') ? MakeToken(LingoTokenType.NotEquals) : MakeToken(LingoTokenType.LessThan),
-                '>' => MakeToken(LingoTokenType.GreaterThan),
+                '<' => Match('=') ? MakeToken(LingoTokenType.LessOrEqual) :
+                    Match('>') ? MakeToken(LingoTokenType.NotEquals) :
+                    MakeToken(LingoTokenType.LessThan),
+                '>' => Match('=') ? MakeToken(LingoTokenType.GreaterOrEqual) :
+                    MakeToken(LingoTokenType.GreaterThan),
                 '#' => new LingoToken(LingoTokenType.Symbol, ReadIdentifier(), _line),
                 _ => MakeToken(LingoTokenType.Symbol)
             };

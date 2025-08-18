@@ -197,6 +197,110 @@ public class LingoToCSharpConverterTests
         Assert.Equal("x = 5;", result.Trim());
     }
 
+    [Fact]
+    public void ReturnMeInNewIsIgnored()
+    {
+        var lingo = string.Join('\n',
+            "on new me",
+            "  return me",
+            "end");
+        var result = LingoToCSharpConverter.Convert(lingo);
+        var expected = string.Join('\n',
+            "public void New()",
+            "{",
+            "}");
+        Assert.Equal(expected.Trim(), result.Trim());
+    }
+
+    [Fact]
+    public void StepframeAndNewHandlersAreConverted()
+    {
+        var lingo = @"on stepframe me
+  if myDestroyAnim=true then
+    if myMemberNumAnim >7 then
+      myMemberNumAnim = 0
+      deleteone the actorlist(me)
+      me.destroy()
+    end if
+    myMemberNumAnim = myMemberNumAnim +1
+    sprite(myNum).member = member(""Destroy""&myMemberNumAnim)
+  end if
+end
+
+on new me,_Gfx,ChosenType
+  if voidp(ChosenType) then ChosenType=1
+  myMembers = [""Block1"",""Block2"",""Block3"",""Block4"",""Block5"",""Block6"",""Block7""]
+  myMember = myMembers[ChosenType]
+  myGfx = _Gfx
+  myDestroyAnim = false
+  
+  return me
+end";
+        var result = LingoToCSharpConverter.Convert(lingo);
+        var expected = string.Join('\n',
+            "public void Stepframe()",
+            "{",
+            "if (myDestroyAnim == true)",
+            "{",
+            "if (myMemberNumAnim > 7)",
+            "{",
+            "myMemberNumAnim = 0;",
+            "_Movie.ActorList.Deleteone(this);",
+            "Destroy();",
+            "}",
+            "myMemberNumAnim = myMemberNumAnim + 1;",
+            "Sprite(myNum).Member = Member(\"Destroy\" + myMemberNumAnim);",
+            "}",
+            "}",
+            "",
+            "public void New(object _Gfx, object ChosenType)",
+            "{",
+            "if (ChosenType == null)",
+            "{",
+            "ChosenType = 1;",
+            "}",
+            "myMembers = [\"Block1\", \"Block2\", \"Block3\", \"Block4\", \"Block5\", \"Block6\", \"Block7\"];",
+            "myMember = myMembers[ChosenType];",
+            "myGfx = _Gfx;",
+            "myDestroyAnim = false;",
+            "}");
+        Assert.Equal(expected.Trim(), result.Trim());
+    }
+
+    [Fact]
+    public void ComparisonOperatorsAreConverted()
+    {
+        var lingo = string.Join('\n',
+            "on cmp",
+            "  if 1 < 2 then",
+            "  end if",
+            "  if 1 <= 2 then",
+            "  end if",
+            "  if 1 >= 2 then",
+            "  end if",
+            "  if 1 > 2 then",
+            "  end if",
+            "end");
+        var result = LingoToCSharpConverter.Convert(lingo);
+        var expected = string.Join('\n',
+            "public void Cmp()",
+            "{",
+            "if (1 < 2)",
+            "{",
+            "}",
+            "if (1 <= 2)",
+            "{",
+            "}",
+            "if (1 >= 2)",
+            "{",
+            "}",
+            "if (1 > 2)",
+            "{",
+            "}",
+            "}");
+        Assert.Equal(expected.Trim(), result.Trim());
+    }
+
     [Fact(Skip = "Relies on full demo resources not required for this change")]
     public void DemoNewGameScriptMatchesConvertedOutput()
     {

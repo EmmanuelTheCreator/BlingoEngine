@@ -49,8 +49,13 @@ namespace LingoEngine.Lingo.Core.Tokenizer
             Expect(LingoTokenType.On);
             var nameTok = Expect(LingoTokenType.Identifier);
             int declLine = nameTok.Line;
+            var args = new List<string>();
             while (_currentToken.Line == declLine && _currentToken.Type != LingoTokenType.Eof)
+            {
+                if (_currentToken.Type == LingoTokenType.Identifier || _currentToken.Type == LingoTokenType.Me)
+                    args.Add(_currentToken.Lexeme);
                 AdvanceToken();
+            }
             var body = new LingoBlockNode();
             while (_currentToken.Type != LingoTokenType.End && _currentToken.Type != LingoTokenType.Eof)
                 body.Children.Add(ParseStatement());
@@ -58,7 +63,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 AdvanceToken();
             return new LingoHandlerNode
             {
-                Handler = new LingoHandler { Name = nameTok.Lexeme },
+                Handler = new LingoHandler { Name = nameTok.Lexeme, ArgumentNames = args },
                 Block = body
             };
         }
@@ -79,6 +84,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 case LingoTokenType.Exit:
                 case LingoTokenType.Next:
                 case LingoTokenType.Repeat:
+                case LingoTokenType.Return:
                     return ParseKeywordStatement();
                 default:
                     AdvanceToken();
@@ -207,6 +213,12 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 case LingoTokenType.Repeat:
                     return ParseRepeatStatement();
 
+                case LingoTokenType.Return:
+                    LingoNode? retValue = null;
+                    if (_currentToken.Type != LingoTokenType.End && _currentToken.Type != LingoTokenType.Eof)
+                        retValue = ParseExpression();
+                    return new LingoReturnStmtNode(retValue);
+
                 default:
                     return new LingoDatumNode(new LingoDatum(keywordToken.Lexeme));
             }
@@ -267,7 +279,9 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 }
                 else if (Match(LingoTokenType.LeftParen))
                 {
-                    var argExpr = ParseExpression();
+                    LingoNode argExpr = _currentToken.Type != LingoTokenType.RightParen
+                        ? ParseExpression()
+                        : new LingoBlockNode();
                     Expect(LingoTokenType.RightParen);
                     expr = new LingoCallNode
                     {
@@ -294,6 +308,17 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                         Opcode = LingoBinaryOpcode.Add
                     };
                 }
+                else if (_currentToken.Type == LingoTokenType.Ampersand)
+                {
+                    AdvanceToken();
+                    var right = ParsePrimary();
+                    expr = new LingoBinaryOpNode
+                    {
+                        Left = expr,
+                        Right = right,
+                        Opcode = LingoBinaryOpcode.Concat
+                    };
+                }
                 else if (_currentToken.Type == LingoTokenType.NotEquals)
                 {
                     AdvanceToken();
@@ -303,6 +328,50 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                         Left = expr,
                         Right = right,
                         Opcode = LingoBinaryOpcode.NotEquals
+                    };
+                }
+                else if (_currentToken.Type == LingoTokenType.GreaterThan)
+                {
+                    AdvanceToken();
+                    var right = ParsePrimary();
+                    expr = new LingoBinaryOpNode
+                    {
+                        Left = expr,
+                        Right = right,
+                        Opcode = LingoBinaryOpcode.GreaterThan
+                    };
+                }
+                else if (_currentToken.Type == LingoTokenType.GreaterOrEqual)
+                {
+                    AdvanceToken();
+                    var right = ParsePrimary();
+                    expr = new LingoBinaryOpNode
+                    {
+                        Left = expr,
+                        Right = right,
+                        Opcode = LingoBinaryOpcode.GreaterOrEqual
+                    };
+                }
+                else if (_currentToken.Type == LingoTokenType.LessThan)
+                {
+                    AdvanceToken();
+                    var right = ParsePrimary();
+                    expr = new LingoBinaryOpNode
+                    {
+                        Left = expr,
+                        Right = right,
+                        Opcode = LingoBinaryOpcode.LessThan
+                    };
+                }
+                else if (_currentToken.Type == LingoTokenType.LessOrEqual)
+                {
+                    AdvanceToken();
+                    var right = ParsePrimary();
+                    expr = new LingoBinaryOpNode
+                    {
+                        Left = expr,
+                        Right = right,
+                        Opcode = LingoBinaryOpcode.LessOrEqual
                     };
                 }
                 else if (allowEquals && _currentToken.Type == LingoTokenType.Equals)
@@ -531,7 +600,15 @@ namespace LingoEngine.Lingo.Core.Tokenizer
             // "if" already consumed
 
             var condition = ParseExpression();
-            Expect(LingoTokenType.Then);
+            var thenTok = Expect(LingoTokenType.Then);
+
+            if (_currentToken.Line == thenTok.Line)
+            {
+                var stmt = ParseStatement();
+                var single = new LingoBlockNode();
+                single.Children.Add(stmt);
+                return new LingoIfStmtNode(condition, single, null);
+            }
 
             var thenBlock = ParseBlock();
 
