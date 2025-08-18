@@ -132,9 +132,11 @@ internal class AbstUnityGfxCanvas : AbstUnityComponent, IAbstFrameworkGfxCanvas,
             int y1 = Mathf.RoundToInt(r.Bottom);
             if (filled)
             {
-                for (int y = y0; y < y1; y++)
-                    for (int x = x0; x < x1; x++)
-                        SetPixel(tex, x, y, col);
+                int rw = x1 - x0;
+                int rh = y1 - y0;
+                var arr = new Color[rw * rh];
+                for (int i = 0; i < arr.Length; i++) arr[i] = col;
+                tex.SetPixels(x0, tex.height - y1, rw, rh, arr);
             }
             else
             {
@@ -288,9 +290,10 @@ internal class AbstUnityGfxCanvas : AbstUnityComponent, IAbstFrameworkGfxCanvas,
             var t = new Texture2D(w, h, ToUnityFormat(fmt), false);
             t.LoadRawTextureData(dat);
             t.Apply();
-            for (int y = 0; y < h; y++)
-                for (int x = 0; x < w; x++)
-                    SetPixel(tex, (int)pos.X + x, (int)pos.Y + y, t.GetPixel(x, y));
+            var colors = t.GetPixels(0, 0, w, h);
+            int dstX = Mathf.RoundToInt(pos.X);
+            int dstY = tex.height - Mathf.RoundToInt(pos.Y) - h;
+            tex.SetPixels(dstX, dstY, w, h, colors);
             UnityEngine.Object.Destroy(t);
         });
         MarkDirty();
@@ -302,9 +305,10 @@ internal class AbstUnityGfxCanvas : AbstUnityComponent, IAbstFrameworkGfxCanvas,
         var w = width; var h = height; var pos = position; var src = ut.Texture;
         _drawActions.Add(tex =>
         {
-            for (int y = 0; y < h; y++)
-                for (int x = 0; x < w; x++)
-                    SetPixel(tex, (int)pos.X + x, (int)pos.Y + y, src.GetPixel(x, y));
+            var colors = src.GetPixels(0, 0, w, h);
+            int dstX = Mathf.RoundToInt(pos.X);
+            int dstY = tex.height - Mathf.RoundToInt(pos.Y) - h;
+            tex.SetPixels(dstX, dstY, w, h, colors);
         });
         MarkDirty();
     }
