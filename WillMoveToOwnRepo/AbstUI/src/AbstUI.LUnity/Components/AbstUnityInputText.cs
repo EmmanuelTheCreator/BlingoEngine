@@ -1,5 +1,7 @@
 using System;
 using AbstUI.Components;
+using AbstUI.LUnity.Primitives;
+using AbstUI.Primitives;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,6 +15,7 @@ internal class AbstUnityInputText : AbstUnityComponent, IAbstFrameworkInputText
     private readonly InputField _inputField;
     private readonly Text _textComponent;
     private string _text = string.Empty;
+    private AColor _textColor = new(0, 0, 0);
 
     public AbstUnityInputText() : base(CreateGameObject(out var input, out var text))
     {
@@ -69,6 +72,16 @@ internal class AbstUnityInputText : AbstUnityComponent, IAbstFrameworkInputText
     public string? Font { get; set; }
 
     public int FontSize { get; set; }
+
+    public AColor TextColor
+    {
+        get => _textColor;
+        set
+        {
+            _textColor = value;
+            _textComponent.color = value.ToUnityColor();
+        }
+    }
 
     public bool IsMultiLine
     {

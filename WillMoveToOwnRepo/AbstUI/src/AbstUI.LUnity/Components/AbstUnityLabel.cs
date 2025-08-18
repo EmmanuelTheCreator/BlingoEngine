@@ -1,4 +1,5 @@
 using AbstUI.Components;
+using AbstUI.LUnity.Primitives;
 using AbstUI.Primitives;
 using AbstUI.Texts;
 using UnityEngine;
@@ -58,7 +59,7 @@ internal class AbstUnityLabel : AbstUnityComponent, IAbstFrameworkLabel
         set
         {
             _fontColor = value;
-            _textComponent.color = new Color(value.R / 255f, value.G / 255f, value.B / 255f, value.A / 255f);
+            _textComponent.color = value.ToUnityColor();
         }
     }
 

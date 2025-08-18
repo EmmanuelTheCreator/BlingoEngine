@@ -1,4 +1,6 @@
 using AbstUI.Components;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace AbstUI.LUnity.Components;
 
@@ -7,4 +9,14 @@ namespace AbstUI.LUnity.Components;
 /// </summary>
 internal class AbstUnityLayoutWrapper : AbstUnityComponent, IAbstFrameworkLayoutWrapper
 {
+    public AbstUnityLayoutWrapper() : base(CreateGameObject())
+    {
+    }
+
+    private static GameObject CreateGameObject()
+    {
+        var go = new GameObject("LayoutWrapper", typeof(RectTransform));
+        go.AddComponent<Image>();
+        return go;
+    }
 }
