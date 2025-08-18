@@ -225,6 +225,7 @@ namespace LingoEngine.LGodot.Texts
         {
             var newNode = new GodotMemberTextNode(_usedNodes.Count + 1, _LabelSettings);
 
+
             if (!string.IsNullOrWhiteSpace(_lingoMemberText?.Name))
                 newNode.SetName(_lingoMemberText.Name);
 
@@ -238,7 +239,23 @@ namespace LingoEngine.LGodot.Texts
             newNode.LabelNode.AddThemeConstantOverride("margin_top", _margin);
             newNode.LabelNode.AddThemeConstantOverride("margin_bottom", _margin);
 
+
             _usedNodes.Add(newNode);
+
+            // Ensure new nodes inherit current text settings.
+            Apply(x =>
+            {
+                x.LabelNode.Text = _text;
+                x.LabelNode.AutowrapMode = WordWrap ? TextServer.AutowrapMode.Word : TextServer.AutowrapMode.Off;
+                x.LabelNode.LinesSkipped = ScrollTop;
+                x.LabelNode.HorizontalAlignment = Alignment switch
+                {
+                    AbstTextAlignment.Center => HorizontalAlignment.Center,
+                    AbstTextAlignment.Right => HorizontalAlignment.Right,
+                    _ => HorizontalAlignment.Left
+                };
+            });
+
             return newNode.Node2D;
         }
         public void ReleaseFromSprite(LingoSprite2D lingoSprite)
