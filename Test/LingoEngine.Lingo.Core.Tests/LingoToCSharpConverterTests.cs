@@ -9,24 +9,25 @@ namespace LingoEngine.Lingo.Core.Tests;
 
 public class LingoToCSharpConverterTests
 {
+    private readonly LingoToCSharpConverter _converter = new();
     [Fact]
     public void PutStatementIsConverted()
     {
-        var result = LingoToCSharpConverter.Convert("put 1 into x");
+        var result = _converter.Convert("put 1 into x");
         Assert.Equal("x = 1;", result.Trim());
     }
 
     [Fact]
     public void AssignmentStatementIsConverted()
     {
-        var result = LingoToCSharpConverter.Convert("x = 5");
+        var result = _converter.Convert("x = 5");
         Assert.Equal("x = 5;", result.Trim());
     }
 
     [Fact]
     public void CallStatementIsConverted()
     {
-        var result = LingoToCSharpConverter.Convert("myFunc");
+        var result = _converter.Convert("myFunc");
         Assert.Equal("myFunc();", result.Trim());
     }
 
@@ -34,7 +35,7 @@ public class LingoToCSharpConverterTests
     public void IfStatementIsConverted()
     {
         var lingo = "if 1 then\nput 2 into x\nend if";
-        var result = LingoToCSharpConverter.Convert(lingo);
+        var result = _converter.Convert(lingo);
         Console.WriteLine(result);
         var expected = string.Join('\n',
             "if (1)",
@@ -48,7 +49,7 @@ public class LingoToCSharpConverterTests
     public void RepeatWhileStatementIsConverted()
     {
         var lingo = "repeat while 1\nput 2 into x\nend repeat";
-        var result = LingoToCSharpConverter.Convert(lingo);
+        var result = _converter.Convert(lingo);
         var expected = string.Join('\n',
             "while (1)",
             "{",
@@ -60,14 +61,14 @@ public class LingoToCSharpConverterTests
     [Fact]
     public void ExitRepeatIfStatementIsConverted()
     {
-        var result = LingoToCSharpConverter.Convert("exit repeat if 1");
+        var result = _converter.Convert("exit repeat if 1");
         Assert.Equal("if (1) break;", result.Trim());
     }
 
     [Fact]
     public void NextRepeatStatementIsConverted()
     {
-        var result = LingoToCSharpConverter.Convert("next repeat");
+        var result = _converter.Convert("next repeat");
         Assert.Equal("continue;", result.Trim());
     }
 
@@ -80,7 +81,7 @@ public class LingoToCSharpConverterTests
             "    myMember = member(\"Destroy1\")",
             "  end if",
             "end");
-        var result = LingoToCSharpConverter.Convert(lingo);
+        var result = _converter.Convert(lingo);
         var expected = string.Join('\n',
             "public void Mousedown()",
             "{",
@@ -110,7 +111,7 @@ public class LingoToCSharpConverterTests
                 Type = LingoScriptType.Behavior
             }
         };
-        var batch = LingoToCSharpConverter.Convert(scripts);
+        var batch = _converter.Convert(scripts);
         var expected = string.Join('\n',
             "public void BeginSprite()",
             "{",
@@ -137,7 +138,7 @@ public class LingoToCSharpConverterTests
                 Type = LingoScriptType.Behavior
             }
         };
-        var batch = LingoToCSharpConverter.Convert(scripts);
+        var batch = _converter.Convert(scripts);
         var expected = string.Join('\n',
             "public void BeginSprite()",
             "{",
@@ -149,21 +150,21 @@ public class LingoToCSharpConverterTests
     [Fact]
     public void MemberTextAccessIsConverted()
     {
-        var result = LingoToCSharpConverter.Convert("member(\"T_Text\").text");
+        var result = _converter.Convert("member(\"T_Text\").text");
         Assert.Equal("Member<LingoMemberText>(\"T_Text\").Text", result.Trim());
     }
 
     [Fact]
     public void NewMemberCallIsConverted()
     {
-        var result = LingoToCSharpConverter.Convert("_movie.newMember(#bitmap)");
+        var result = _converter.Convert("_movie.newMember(#bitmap)");
         Assert.Equal("_movie.New.Bitmap()", result.Trim());
     }
 
     [Fact]
     public void NewMemberAssignmentIsConverted()
     {
-        var result = LingoToCSharpConverter.Convert("img = _movie.newMember(#bitmap)");
+        var result = _converter.Convert("img = _movie.newMember(#bitmap)");
         Assert.Equal("img = _movie.New.Bitmap();", result.Trim());
     }
 
@@ -176,7 +177,7 @@ public class LingoToCSharpConverterTests
             "end if",
             "myMembers = [\"A\", \"B\"]",
             "y = myMembers[2]");
-        var result = LingoToCSharpConverter.Convert(lingo);
+        var result = _converter.Convert(lingo);
         var expected = string.Join('\n',
             "if (x == null)",
             "{",
@@ -193,7 +194,7 @@ public class LingoToCSharpConverterTests
         var lingo = string.Join('\n',
             "me = void",
             "x = 5");
-        var result = LingoToCSharpConverter.Convert(lingo);
+        var result = _converter.Convert(lingo);
         Assert.Equal("x = 5;", result.Trim());
     }
 
@@ -204,7 +205,7 @@ public class LingoToCSharpConverterTests
             "on new me",
             "  return me",
             "end");
-        var result = LingoToCSharpConverter.Convert(lingo);
+        var result = _converter.Convert(lingo);
         var expected = string.Join('\n',
             "public void New()",
             "{",
@@ -236,7 +237,7 @@ on new me,_Gfx,ChosenType
   
   return me
 end";
-        var result = LingoToCSharpConverter.Convert(lingo);
+        var result = _converter.Convert(lingo);
         var expected = string.Join('\n',
             "public void Stepframe()",
             "{",
@@ -281,7 +282,7 @@ end";
             "  if 1 > 2 then",
             "  end if",
             "end");
-        var result = LingoToCSharpConverter.Convert(lingo);
+        var result = _converter.Convert(lingo);
         var expected = string.Join('\n',
             "public void Cmp()",
             "{",
@@ -312,7 +313,7 @@ end";
             "TetriGrounds", "LingoEngine.Demo.TetriGrounds.Core", "Sprites",
             "Behaviors", "NewGameBehavior.cs"));
 
-        string converted = LingoToCSharpConverter.Convert(ls);
+        string converted = _converter.Convert(ls);
 
         static string Normalize(string s) => string.Join('\n', s.Split('\n', '\r').Select(l => l.Trim()).Where(l => l.Length > 0));
 
@@ -418,13 +419,13 @@ end";
     [Fact]
     public void DeclarationStatementsAreParsedAndConverted()
     {
-        var result = LingoToCSharpConverter.Convert("global g1, g2");
+        var result = _converter.Convert("global g1, g2");
         Assert.Equal("var g1, g2;", result.Trim());
 
-        result = LingoToCSharpConverter.Convert("property p1, p2");
+        result = _converter.Convert("property p1, p2");
         Assert.Equal("var p1, p2;", result.Trim());
 
-        result = LingoToCSharpConverter.Convert("instance i1");
+        result = _converter.Convert("instance i1");
         Assert.Equal("var i1;", result.Trim());
     }
 
@@ -443,7 +444,7 @@ end
 on mouseleave me
   cursor -1
 end";
-        var result = LingoToCSharpConverter.Convert(lingo);
+        var result = _converter.Convert(lingo);
         var expected = string.Join('\n',
             "public void MouseUp()",
             "{",
@@ -472,7 +473,7 @@ end
 on exitFrame
   go to the frame
 end";
-        var result = LingoToCSharpConverter.Convert(lingo);
+        var result = _converter.Convert(lingo);
         var expected = string.Join('\n',
             "public void MouseDown()",
             "{",
@@ -491,7 +492,7 @@ end";
     {
         var lingo = @"on test
 end";
-        var result = LingoToCSharpConverter.Convert(lingo, "internal");
+        var result = _converter.Convert(lingo, "internal");
         var expected = string.Join('\n',
             "internal void Test()",
             "{",
@@ -678,21 +679,39 @@ end";
   myGfx = 0
   me=void
 end";
-        var result = LingoToCSharpConverter.Convert(lingo);
+        var result = _converter.Convert(lingo);
         Assert.Contains("_movie.actorList.deleteOne", result);
     }
 
     [Fact]
     public void AppendActorListIsConverted()
     {
-        var result = LingoToCSharpConverter.Convert("append the actorlist(me)");
+        var result = _converter.Convert("append the actorlist(me)");
         Assert.Contains("_Movie.ActorList.Add(this)", result);
     }
 
     [Fact]
     public void ReverseActorListIsConverted()
     {
-        var result = LingoToCSharpConverter.Convert("reverse the actorlist(me)");
+        var result = _converter.Convert("reverse the actorlist(me)");
         Assert.Contains("_Movie.ActorList.Reverse(this)", result);
+    }
+
+    [Fact]
+    public void ParentScriptIsDetected()
+    {
+        var lingo = "on new me\nend";
+        var file = new LingoScriptFile { Name = "MyParent", Source = lingo, Type = LingoScriptType.Behavior };
+        var result = _converter.Convert(file);
+        Assert.Contains("class MyParentParentScript : LingoParentScript", result);
+    }
+
+    [Fact]
+    public void MovieScriptIsDetected()
+    {
+        var lingo = "on StartMovie\nend";
+        var file = new LingoScriptFile { Name = "MyMovie", Source = lingo, Type = LingoScriptType.Behavior };
+        var result = _converter.Convert(file);
+        Assert.Contains("class MyMovieMovieScript : LingoMovieScript", result);
     }
 }

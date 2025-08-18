@@ -4,8 +4,10 @@ using LingoEngine.Commands;
 using LingoEngine.Director.Core.Tools.Commands;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
+using LingoEngine.Director.Core.Styles;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Lingo.Core;
+using System.Linq;
 using TextCopy;
 
 namespace LingoEngine.Director.Core.Tools;
@@ -19,6 +21,7 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
     {
         public string Lingo { get; set; } = string.Empty;
         public string CSharp { get; set; } = string.Empty;
+        public string Errors { get; set; } = string.Empty;
     }
 
     public LingoCSharpConverterPopup(IDirectorWindowManager windowManager, ILingoFrameworkFactory factory)
@@ -45,7 +48,7 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
     {
         var root = _factory.CreatePanel("LingoCSharpRoot");
         root.Width = 800;
-        root.Height = 500;
+        root.Height = 560;
 
         var content = _factory.CreateWrapPanel(AOrientation.Horizontal, "Content");
         content.Width = 800;
@@ -87,6 +90,17 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
         csharpInput.IsMultiLine = true;
         right.AddItem(csharpInput);
 
+        var errorInput = _factory.CreateInputText("ErrorsText", 0, null);
+        errorInput.Width = 800;
+        errorInput.Height = 60;
+        errorInput.IsMultiLine = true;
+        errorInput.Enabled = false;
+        errorInput.Margin = new AMargin(0, 500, 0, 0);
+        root.AddItem(errorInput);
+        var framework = errorInput.FrameworkObj;
+        var prop = framework.GetType().GetProperty("FontColor");
+        prop?.SetValue(framework, DirectorColors.Notification_Error_Border);
+
         var menuBar = _factory.CreateWrapPanel(AOrientation.Horizontal, "BottomBar");
         menuBar.Width = 800;
         menuBar.Height = 40;
@@ -96,8 +110,14 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
         menuBar.ComposeForToolBar()
             .AddButton("ConvertButton", "Convert", () =>
             {
-                vm.CSharp = LingoToCSharpConverter.Convert(vm.Lingo);
+                var converter = new LingoToCSharpConverter();
+                vm.CSharp = converter.Convert(vm.Lingo);
                 csharpInput.Text = vm.CSharp; //.Replace("\r", "\n");
+                vm.Errors = string.Join("\n", converter.Errors.Select(e =>
+                    string.IsNullOrEmpty(e.File)
+                        ? $"Line {e.LineNumber}: {e.LineText} - {e.Error}"
+                        : $"{e.File}:{e.LineNumber}: {e.LineText} - {e.Error}"));
+                errorInput.Text = vm.Errors;
             });
 
         return root;

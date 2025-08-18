@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using LingoEngine.Lingo.Core.Tokenizer;
 
 namespace LingoEngine.Lingo.Core;
@@ -8,10 +9,13 @@ namespace LingoEngine.Lingo.Core;
 /// Converts Lingo source into C# following the mapping rules documented at
 /// https://github.com/EmmanuelTheCreator/LingoEngine/blob/main/docs/Lingo_vs_CSharp.md.
 /// </summary>
-public static class LingoToCSharpConverter
+public class LingoToCSharpConverter
 {
-    public static string Convert(string lingoSource, string methodAccessModifier = "public")
+    public List<ErrorDto> Errors { get; } = new();
+
+    public string Convert(string lingoSource, string methodAccessModifier = "public")
     {
+        Errors.Clear();
         lingoSource = lingoSource.Replace("\r", "\n");
         var trimmed = lingoSource.Trim();
 
@@ -28,12 +32,51 @@ public static class LingoToCSharpConverter
             return converted;
 
         var parser = new LingoAstParser();
-        var ast = parser.Parse(lingoSource);
-        return CSharpWriter.Write(ast, methodAccessModifier);
+        try
+        {
+            var ast = parser.Parse(lingoSource);
+            return CSharpWriter.Write(ast, methodAccessModifier);
+        }
+        catch (Exception ex)
+        {
+            LogError(null, lingoSource, ex);
+            throw;
+        }
     }
 
-    public static LingoBatchResult Convert(IEnumerable<LingoScriptFile> scripts, string methodAccessModifier = "public")
+    public string Convert(LingoScriptFile script, string methodAccessModifier = "public")
     {
+        Errors.Clear();
+        var source = script.Source.Replace("\r", "\n");
+        var type = DetectScriptType(source);
+        var file = new LingoScriptFile { Name = script.Name, Source = source, Type = type };
+
+        var classCode = ConvertClass(file);
+
+        var parser = new LingoAstParser();
+        LingoNode ast;
+        try
+        {
+            ast = parser.Parse(source);
+        }
+        catch (Exception ex)
+        {
+            LogError(script.Name, source, ex);
+            throw;
+        }
+
+        var methods = CSharpWriter.Write(ast, methodAccessModifier);
+        var insertIdx = classCode.LastIndexOf('}');
+        if (insertIdx >= 0)
+            classCode = classCode[..insertIdx] + methods + classCode[insertIdx..];
+        else
+            classCode += methods;
+        return classCode;
+    }
+
+    public LingoBatchResult Convert(IEnumerable<LingoScriptFile> scripts, string methodAccessModifier = "public")
+    {
+        Errors.Clear();
         var result = new LingoBatchResult();
         var asts = new Dictionary<string, LingoNode>();
         var methodsPerScript = new Dictionary<string, HashSet<string>>();
@@ -41,8 +84,16 @@ public static class LingoToCSharpConverter
         foreach (var file in scripts)
         {
             var parser = new LingoAstParser();
-            var ast = parser.Parse(file.Source);
-            asts[file.Name] = ast;
+            try
+            {
+                var ast = parser.Parse(file.Source);
+                asts[file.Name] = ast;
+            }
+            catch (Exception ex)
+            {
+                LogError(file.Name, file.Source, ex);
+                throw;
+            }
 
             var handlers = ExtractHandlerNames(file.Source);
             var custom = new HashSet<string>();
@@ -82,7 +133,7 @@ public static class LingoToCSharpConverter
     /// Only the class declaration and constructor are emitted.
     /// The class name is derived from the file name plus the script type suffix.
     /// </summary>
-    public static string ConvertClass(LingoScriptFile script)
+    public string ConvertClass(LingoScriptFile script)
     {
         var suffix = script.Type switch
         {
@@ -228,6 +279,38 @@ public static class LingoToCSharpConverter
         var call = $"{obj}.New.{method}({rest})".TrimEnd();
         converted = lhs != null ? $"{lhs} = {call};" : call;
         return true;
+    }
+
+    private void LogError(string? file, string source, Exception ex)
+    {
+        var lineNumber = 0;
+        var lineText = string.Empty;
+        try
+        {
+            var match = Regex.Match(ex.Message, @"line (\d+)");
+            if (match.Success && int.TryParse(match.Groups[1].Value, out var line))
+            {
+                var lines = source.Split('\n');
+                if (line - 1 >= 0 && line - 1 < lines.Length)
+                    lineText = lines[line - 1];
+                lineNumber = line;
+            }
+        }
+        catch
+        {
+            // ignored
+        }
+
+        Errors.Add(new ErrorDto(file ?? string.Empty, lineNumber, lineText, ex.Message));
+    }
+
+    private static LingoScriptType DetectScriptType(string source)
+    {
+        if (Regex.IsMatch(source, @"(?im)^\s*on\s+new\s+me\b"))
+            return LingoScriptType.Parent;
+        if (Regex.IsMatch(source, @"(?im)^\s*on\s+(startmovie|endmovie)\b"))
+            return LingoScriptType.Movie;
+        return LingoScriptType.Behavior;
     }
 
     private static readonly HashSet<string> DefaultMethods = new(
