@@ -65,6 +65,8 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
     public AbstScrollContainer CreateScrollContainer(string name)
     {
         var scroll = new AbstScrollContainer();
+        var impl = new AbstBlazorScrollContainer();
+        scroll.Init(impl);
         scroll.Name = name;
         return scroll;
     }

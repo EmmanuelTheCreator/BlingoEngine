@@ -1,7 +1,25 @@
-﻿@page "/"
+@page "/"
+@using Microsoft.AspNetCore.Components
+@using AbstUI.Blazor
+@using AbstUI.Blazor.Components
+@using AbstUI.Components
+@using LingoEngine.SDL2.GfxVisualTest
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+@if (_scene is not null)
+{
+    @_scene
+}
 
-Welcome to your new app.
+@code {
+    private RenderFragment? _scene;
+
+    protected override void OnInitialized()
+    {
+        var factory = new AbstBlazorComponentFactory();
+        var scroll = (AbstScrollContainer)GfxTestScene.Build(factory);
+        var impl = (AbstBlazorComponentBase)scroll.Framework<IAbstFrameworkScrollContainer>();
+        _scene = impl.RenderFragment;
+    }
+}
