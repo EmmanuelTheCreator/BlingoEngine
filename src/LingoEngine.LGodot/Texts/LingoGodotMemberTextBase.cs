@@ -24,7 +24,7 @@ namespace LingoEngine.LGodot.Texts
         protected IAbstFontManager _fontManager;
         protected readonly ILogger _logger;
         protected LabelSettings _LabelSettings = new LabelSettings();
-        
+
         private GodotMemberTextNode _defaultTextNode;
         private List<GodotMemberTextNode> _usedNodes = new List<GodotMemberTextNode>();
         private AbstGodotTexture2D? _texture;
@@ -56,28 +56,28 @@ namespace LingoEngine.LGodot.Texts
 
             internal void SetName(string name)
             {
-                _parentNode.Name = name+ _index;
+                _parentNode.Name = name + _index;
             }
         }
 
 
-        
+
 
 
         #region Properties
 
-        public string Text { get => _text; set{  UpdateText(value);} }
+        public string Text { get => _text; set { UpdateText(value); } }
 
         public bool WordWrap
         {
             get => _defaultTextNode.LabelNode.AutowrapMode != TextServer.AutowrapMode.Off;
-            set { Apply(x => x.LabelNode.AutowrapMode = value ? TextServer.AutowrapMode.Word : TextServer.AutowrapMode.Off);  }
+            set { Apply(x => x.LabelNode.AutowrapMode = value ? TextServer.AutowrapMode.Word : TextServer.AutowrapMode.Off); }
         }
 
         public int ScrollTop
         {
             get => _defaultTextNode.LabelNode.LinesSkipped;
-            set { Apply(x => x.LabelNode.LinesSkipped = value);  }
+            set { Apply(x => x.LabelNode.LinesSkipped = value); }
         }
 
         private LingoTextStyle _textStyle = LingoTextStyle.None;
@@ -110,10 +110,10 @@ namespace LingoEngine.LGodot.Texts
                     //_LabelSettings.UnderlineMode = value.HasFlag(LingoTextStyle.Underline)
                     //    ? UnderlineMode.Always
                     //    : UnderlineMode.Disabled;
-                    
+
                 }
-                
-                    UpdateSize();
+
+                UpdateSize();
             }
         }
 
@@ -131,7 +131,7 @@ namespace LingoEngine.LGodot.Texts
                     x.LabelNode.AddThemeConstantOverride("margin_top", value);
                     x.LabelNode.AddThemeConstantOverride("margin_bottom", value);
                 });
-                
+
             }
         }
         public AbstTextAlignment Alignment
@@ -162,23 +162,23 @@ namespace LingoEngine.LGodot.Texts
         private AColor _lingoColor = AColor.FromRGB(0, 0, 0);
         public AColor TextColor
         {
-            get => _lingoColor; 
+            get => _lingoColor;
             set
             {
                 _lingoColor = value;
                 _LabelSettings.SetAbstColor(value);
-                
+
             }
         }
         public int FontSize
         {
-            get => _LabelSettings.FontSize; 
+            get => _LabelSettings.FontSize;
             set
             {
 
                 _LabelSettings.SetAbstFontSize(value);
                 UpdateSize();
-                
+
             }
         }
 
@@ -191,7 +191,7 @@ namespace LingoEngine.LGodot.Texts
                 _fontName = value;
                 _LabelSettings.SetAbstFont(_fontManager, value);
                 UpdateSize();
-                
+
             }
         }
 
@@ -199,7 +199,9 @@ namespace LingoEngine.LGodot.Texts
         public bool IsLoaded { get; private set; }
         public APoint Size { get; private set; }
         private bool _widthSet;
-        public int Width { get => _widthSet? (int)_defaultTextNode.LabelNode.CustomMinimumSize.X: (int)Size.X; 
+        public int Width
+        {
+            get => _widthSet ? (int)_defaultTextNode.LabelNode.CustomMinimumSize.X : (int)Size.X;
             set
             {
                 Apply(x => x.LabelNode.CustomMinimumSize = new Vector2(value, x.LabelNode.CustomMinimumSize.Y));
@@ -207,7 +209,9 @@ namespace LingoEngine.LGodot.Texts
             }
         }
         private bool _heightSet;
-        public int Height { get => _heightSet? (int)_defaultTextNode.LabelNode.CustomMinimumSize.Y :(int)Size.Y;
+        public int Height
+        {
+            get => _heightSet ? (int)_defaultTextNode.LabelNode.CustomMinimumSize.Y : (int)Size.Y;
             set
             {
                 Apply(x => x.LabelNode.CustomMinimumSize = new Vector2(x.LabelNode.CustomMinimumSize.X, value));
@@ -219,7 +223,21 @@ namespace LingoEngine.LGodot.Texts
 
         protected Node CreateForSpriteDraw(LingoGodotMemberTextBase<TLingoText> copiedNode)
         {
-            var newNode = new GodotMemberTextNode(_usedNodes.Count+1, _LabelSettings);
+            var newNode = new GodotMemberTextNode(_usedNodes.Count + 1, _LabelSettings);
+
+            if (!string.IsNullOrWhiteSpace(_lingoMemberText?.Name))
+                newNode.SetName(_lingoMemberText.Name);
+
+            newNode.LabelNode.Text = _text;
+            newNode.LabelNode.AutowrapMode = _defaultTextNode.LabelNode.AutowrapMode;
+            newNode.LabelNode.LinesSkipped = _defaultTextNode.LabelNode.LinesSkipped;
+            newNode.LabelNode.HorizontalAlignment = _defaultTextNode.LabelNode.HorizontalAlignment;
+            newNode.LabelNode.CustomMinimumSize = _defaultTextNode.LabelNode.CustomMinimumSize;
+            newNode.LabelNode.AddThemeConstantOverride("margin_left", _margin);
+            newNode.LabelNode.AddThemeConstantOverride("margin_right", _margin);
+            newNode.LabelNode.AddThemeConstantOverride("margin_top", _margin);
+            newNode.LabelNode.AddThemeConstantOverride("margin_bottom", _margin);
+
             _usedNodes.Add(newNode);
             return newNode.Node2D;
         }
@@ -289,10 +307,10 @@ namespace LingoEngine.LGodot.Texts
             var img = viewport.GetTexture().GetImage();
             viewport.Dispose();
             var tex = ImageTexture.CreateFromImage(img);
-            _texture =  new AbstGodotTexture2D(tex);
+            _texture = new AbstGodotTexture2D(tex);
             return _texture;
         }
-        
+
         public string ReadText()
         {
             var file = GodotHelper.ReadFile(_lingoMemberText.FileName);
@@ -317,7 +335,7 @@ namespace LingoEngine.LGodot.Texts
             foreach (var item in _usedNodes)
                 item.LabelNode.Text = value;
             UpdateSize();
-            
+
         }
         private void Apply(Action<GodotMemberTextNode> action)
         {
@@ -327,7 +345,7 @@ namespace LingoEngine.LGodot.Texts
 
         private void UpdateSize()
         {
-            Size = _defaultTextNode != null? _defaultTextNode.LabelNode.GetCombinedMinimumSize().ToAbstPoint() : (_LabelSettings.Font ?? _fontManager.GetDefaultFont<Font>()).GetMultilineStringSize(Text).ToAbstPoint();
+            Size = _defaultTextNode != null ? _defaultTextNode.LabelNode.GetCombinedMinimumSize().ToAbstPoint() : (_LabelSettings.Font ?? _fontManager.GetDefaultFont<Font>()).GetMultilineStringSize(Text).ToAbstPoint();
             _lingoMemberText.Width = (int)Size.X;
             _lingoMemberText.Height = (int)Size.Y;
         }
@@ -368,7 +386,7 @@ namespace LingoEngine.LGodot.Texts
         public void Copy(string text) => DisplayServer.ClipboardSet(text);
         public string PasteClipboard() => DisplayServer.ClipboardGet();
 
-       
+
         #endregion
     }
 }
