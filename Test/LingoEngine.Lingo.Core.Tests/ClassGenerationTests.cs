@@ -88,7 +88,7 @@ public class ClassGenerationTests
             "    public BehaviorPropertyDescriptionList? GetPropertyDescriptionList()",
             "    {",
             "        return new BehaviorPropertyDescriptionList()",
-            "            ;",
+            "        ;",
             "    }",
             "}");
         Assert.Equal(expected, result);
@@ -112,7 +112,7 @@ public class ClassGenerationTests
             "    public BehaviorPropertyDescriptionList? GetPropertyDescriptionList()",
             "    {",
             "        return new BehaviorPropertyDescriptionList()",
-            "            ;",
+            "        ;",
             "    }",
             "}");
         Assert.Equal(expected, result);
