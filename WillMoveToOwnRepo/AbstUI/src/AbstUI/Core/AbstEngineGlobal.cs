@@ -7,7 +7,8 @@
         Unity = 2,
         MonoGame = 3,
         Custom = 4,
-        SDL2 = 5
+        SDL2 = 5,
+        Blazor = 6
     }
     public class AbstEngineGlobal
     {
