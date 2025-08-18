@@ -32,6 +32,8 @@ using LingoEngine.Director.LGodot.Projects;
 using LingoEngine.Projects;
 using AbstUI.LGodot.Styles;
 using LingoEngine.Director.LGodot.Tools;
+using LingoEngine.Director.Core.Inputs;
+using LingoEngine.Director.LGodot.Inputs;
 
 namespace LingoEngine.Director.LGodot
 {
@@ -45,6 +47,7 @@ namespace LingoEngine.Director.LGodot
                 .WithDirectorEngine(directorSettingsConfig)
                 .ServicesMain(s =>
                 {
+                    s.AddSingleton<IGlobalLingoMouse, GlobalLingoMouse>();
                     s.AddSingleton<DirectorGodotStyle>();
                     s.AddSingleton<DirGodotProjectSettingsWindow>();
                     s.AddSingleton<DirGodotToolsWindow>();

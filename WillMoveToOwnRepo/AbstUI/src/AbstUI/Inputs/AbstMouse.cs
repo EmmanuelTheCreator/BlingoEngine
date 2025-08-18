@@ -95,15 +95,16 @@ namespace AbstUI.Inputs
     public interface IAbstMouseInternal : IAbstMouse
     {
         IAbstMouse CreateNewInstance(IAbstMouseRectProvider provider);
+        ARect GetMouseOffset();
     }
 
     public class AbstMouse : AbstMouse<AbstMouseEvent>
     {
-        public AbstMouse(IAbstFrameworkMouse frameworkMouse) : base((m,t) => new AbstMouseEvent(m,t), frameworkMouse)
+        public AbstMouse(IAbstFrameworkMouse frameworkMouse) : base((m, t) => new AbstMouseEvent(m, t), frameworkMouse)
         {
         }
     }
-    public class AbstMouse<TAbstUIMouseEvent> : IAbstUIMouse<TAbstUIMouseEvent>
+    public class AbstMouse<TAbstUIMouseEvent> : IAbstUIMouse<TAbstUIMouseEvent>, IAbstMouseInternal
         where TAbstUIMouseEvent : AbstMouseEvent
     {
         private bool _lastMouseDownState = false; // Previous mouse state (used to detect "StillDown")
@@ -149,12 +150,16 @@ namespace AbstUI.Inputs
             mouseFrameworkObj.ReplaceMouseObj(this);
         }
 
-        
+
 
         /// <summary>
         /// Creates a proxy mouse that forwards events within the bounds supplied by <paramref name="provider"/>.
         /// </summary>
         public virtual IAbstMouse CreateNewInstance(IAbstMouseRectProvider provider) => new ProxyMouse(_ctorNewEvent, this, provider);
+
+        protected virtual ARect GetMouseOffset() => default;
+
+        ARect IAbstMouseInternal.GetMouseOffset() => GetMouseOffset();
         /// <summary>
         /// Called from communiction framework mouse
         /// </summary>
@@ -234,7 +239,7 @@ namespace AbstUI.Inputs
             private readonly IAbstMouseSubscription _wheelSub;
 
             internal ProxyMouse(Func<IAbstMouse, AbstMouseEventType, TAbstUIMouseEvent> ctorNewEvent, AbstMouse<TAbstUIMouseEvent> parent, IAbstMouseRectProvider provider)
-                : base(ctorNewEvent,parent.Framework<IAbstFrameworkMouse>())
+                : base(ctorNewEvent, parent.Framework<IAbstFrameworkMouse>())
             {
                 _parent = parent;
                 _provider = provider;
@@ -243,6 +248,8 @@ namespace AbstUI.Inputs
                 _moveSub = parent.OnMouseMove(HandleMove);
                 _wheelSub = parent.OnMouseWheel(HandleWheel);
             }
+
+            protected override ARect GetMouseOffset() => _provider.MouseOffset;
 
             private bool ShouldForward(TAbstUIMouseEvent e)
             {
