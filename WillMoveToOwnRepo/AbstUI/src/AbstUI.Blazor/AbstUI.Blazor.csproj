@@ -53,6 +53,7 @@
     <Compile Include="Components/AbstBlazorItemList.cs" />
     <Compile Include="Components/AbstBlazorStateButton.cs" />
     <Compile Include="Components/AbstBlazorPanel.cs" />
+    <Compile Include="Components/AbstBlazorLayoutWrapper.cs" />
     <Compile Include="Components/AbstBlazorWrapPanel.cs" />
     <Compile Include="Components/AbstBlazorScrollContainer.cs" />
       <Compile Include="Components/AbstBlazorGfxCanvas.cs" />
