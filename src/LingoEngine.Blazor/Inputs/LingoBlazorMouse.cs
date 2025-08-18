@@ -1,42 +1,45 @@
+using System;
+using System.Threading.Tasks;
+using AbstUI.Blazor;
+using AbstUI.Blazor.Inputs;
 using AbstUI.Inputs;
-using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Events;
 using LingoEngine.Inputs;
+using Microsoft.JSInterop;
 
 namespace LingoEngine.Blazor.Inputs;
 
-public class LingoBlazorMouse : ILingoFrameworkMouse
+/// <summary>
+/// Blazor-specific mouse implementation that bridges LingoEngine with the
+/// AbstUI.Blazor <see cref="BlazorMouse{T}"/> backend.
+/// </summary>
+public class LingoBlazorMouse : BlazorMouse<LingoMouseEvent>, ILingoFrameworkMouse
 {
-    private Lazy<AbstMouse<LingoMouseEvent>> _lingoMouse;
+    private readonly AbstUIScriptResolver _scripts;
 
-    public LingoBlazorMouse(Lazy<AbstMouse<LingoMouseEvent>> mouse)
+    public LingoBlazorMouse(Lazy<AbstMouse<LingoMouseEvent>> mouse, IJSRuntime js, AbstUIScriptResolver scripts)
+        : base(mouse, js)
     {
-        _lingoMouse = mouse;
+        _scripts = scripts;
     }
 
-    public void HideMouse(bool state)
-    {
-        // Blazor integration pending
-    }
-
-    public void Release()
-    {
-        // cleanup resources if needed
-    }
-
-    public void ReplaceMouseObj(IAbstMouse lingoMouse)
-    {
-        _lingoMouse = new Lazy<AbstMouse<LingoMouseEvent>>(() => (AbstMouse<LingoMouseEvent>)lingoMouse);
-    }
-
-    public void SetCursor(AMouseCursor cursorType)
-    {
-        // TODO: set system cursor when Blazor backend is available
-    }
-
+    /// <summary>
+    /// Sets a custom cursor image using a Blazor data URL.
+    /// </summary>
     public void SetCursor(LingoMemberBitmap? image)
     {
-        // TODO: implement custom cursor images for Blazor
+        if (image?.ImageData == null)
+        {
+            _ = SetCursorCss("default");
+            return;
+        }
+
+        string base64 = Convert.ToBase64String(image.ImageData);
+        string cursor = $"url('data:{image.Format};base64,{base64}'), auto";
+        _ = SetCursorCss(cursor);
     }
+
+    private Task SetCursorCss(string cursor) => _scripts.SetCursor(cursor).AsTask();
 }
+

@@ -57,6 +57,7 @@
         <Compile Include="Inputs/BlazorMouse.cs" />
         <Compile Include="Inputs/BlazorKey.cs" />
         <Compile Include="AbstUIBlazorSetup.cs" />
+        <Compile Include="AbstUIScriptResolver.cs" />
         <Compile Include="Bitmaps/AbstBlazorTexture2D.cs" />
         <Compile Include="Bitmaps/BlazorImageTexture.cs" />
         <Compile Include="Styles/AbstBlazorFontManager.cs" />

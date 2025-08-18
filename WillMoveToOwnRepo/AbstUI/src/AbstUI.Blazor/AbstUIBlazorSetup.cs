@@ -10,7 +10,8 @@ public static class AbstUIBlazorSetup
     {
         services
             .AddSingleton<IAbstFontManager, AbstBlazorFontManager>()
-            .AddSingleton<IAbstBlazorStyleManager, AbstBlazorStyleManager>();
+            .AddSingleton<IAbstBlazorStyleManager, AbstBlazorStyleManager>()
+            .AddSingleton<AbstUIScriptResolver>();
         return services;
     }
 }
