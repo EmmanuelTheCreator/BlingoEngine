@@ -1,3 +1,4 @@
+using System;
 using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.Blazor.Components;
@@ -37,7 +38,11 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
     }
     public AbstLayoutWrapper CreateLayoutWrapper(IAbstNode content, float? x, float? y)
     {
+        if (content is IAbstLayoutNode)
+            throw new InvalidOperationException($"Content {content.Name} already supports layout wrapping is unnecessary.");
+
         var wrapper = new AbstLayoutWrapper(content);
+        var impl = new AbstBlazorLayoutWrapper(wrapper);
         if (x.HasValue) wrapper.X = x.Value;
         if (y.HasValue) wrapper.Y = y.Value;
         return wrapper;
