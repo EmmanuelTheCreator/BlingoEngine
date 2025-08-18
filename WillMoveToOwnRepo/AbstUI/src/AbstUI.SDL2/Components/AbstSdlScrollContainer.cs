@@ -37,8 +37,8 @@ namespace AbstUI.SDL2.Components
                     var ctx = comp.ComponentContext;
                     var oldOffX = ctx.OffsetX;
                     var oldOffY = ctx.OffsetY;
-                    ctx.OffsetX += -X - ScrollHorizontal;
-                    ctx.OffsetY += -Y - ScrollVertical;
+                    ctx.OffsetX += -ScrollHorizontal;
+                    ctx.OffsetY += -ScrollVertical;
                     ctx.RenderToTexture(context);
                     ctx.OffsetX = oldOffX;
                     ctx.OffsetY = oldOffY;
