@@ -103,9 +103,9 @@ namespace LingoEngine.Director.Core.Styles
 
 
         // Code Highlighting
-        public static AColor CodeKeyword = new AColor(77, 77, 255); // Blue
+        public static AColor CodeKeyword = new AColor(0, 0, 200); // Blue
         public static AColor CodeLiteral = new AColor(80, 80, 80); // Dark gray
-        public static AColor CodeComment = new AColor(139, 0, 0); // Dark red
+        public static AColor CodeComment = new AColor(200, 0, 0); // Dark red
         public static AColor CodeBuiltIn = new AColor(0, 128, 0); // Green
 
     }

@@ -4,18 +4,24 @@ using LingoEngine.Commands;
 using LingoEngine.Director.Core.Tools.Commands;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
-using LingoEngine.Director.Core.Styles;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Lingo.Core;
-using System.Linq;
 using TextCopy;
 
 namespace LingoEngine.Director.Core.Tools;
 
+public interface ILingoFrameworkCSharpConverterPopup : IDirFrameworkDialog
+{
+    public void UpdateLingoColors(AbstInputText inputText);
+    public void UpdateCSharpColors(AbstInputText inputText);
+}
 public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverterCommand>, ILingoDialog
 {
     protected readonly IDirectorWindowManager _windowManager;
     protected readonly ILingoFrameworkFactory _factory;
+    private ILingoFrameworkCSharpConverterPopup? _frameworkObj;
+    private AbstInputText _csharpInput;
+    private AbstInputText _lingoInput;
 
     protected sealed class ViewModel
     {
@@ -42,6 +48,7 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
 
     public void Init(IDirFrameworkDialog framework)
     {
+        _frameworkObj = (ILingoFrameworkCSharpConverterPopup)framework;
     }
 
     protected AbstPanel BuildPanel(ViewModel vm)
@@ -71,11 +78,12 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
             .AddLabel("LingoLabel", "Lingo")
             .AddButton("CopyLingo", "Copy", () => ClipboardService.SetText(vm.Lingo));
 
-        var lingoInput = _factory.CreateInputText("LingoText", 0, text => vm.Lingo = text);
-        lingoInput.Width = 380;
-        lingoInput.Height = 420;
-        lingoInput.IsMultiLine = true;
-        left.AddItem(lingoInput);
+        _lingoInput = _factory.CreateInputText("LingoText", 0, text => vm.Lingo = text);
+        _lingoInput.Width = 380;
+        _lingoInput.Height = 420;
+        _lingoInput.IsMultiLine = true;
+        _lingoInput.ValueChanged += LingoInput_ValueChanged;
+        left.AddItem(_lingoInput);
 
         var rightHeader = _factory.CreateWrapPanel(AOrientation.Horizontal, "CSharpHeader");
         right.AddItem(rightHeader);
@@ -83,12 +91,13 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
             .AddLabel("CSharpLabel", "C#")
             .AddButton("CopyCSharp", "Copy", () => ClipboardService.SetText(vm.CSharp));
 
-        var csharpInput = _factory.CreateInputText("CSharpText", 0, null);
-        csharpInput.Width = 380;
-        csharpInput.Height = 420;
+        _csharpInput = _factory.CreateInputText("CSharpText", 0, null);
+        _csharpInput.Width = 380;
+        _csharpInput.Height = 420;
         //csharpInput.Enabled = false;
-        csharpInput.IsMultiLine = true;
-        right.AddItem(csharpInput);
+        _csharpInput.IsMultiLine = true;
+        _csharpInput.ValueChanged += CsharpInput_ValueChanged;
+        right.AddItem(_csharpInput);
 
         var errorInput = _factory.CreateInputText("ErrorsText", 0, null);
         errorInput.Width = 800;
@@ -111,7 +120,7 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
             {
                 var converter = new LingoToCSharpConverter();
                 vm.CSharp = converter.Convert(vm.Lingo);
-                csharpInput.Text = vm.CSharp; //.Replace("\r", "\n");
+                _csharpInput.Text = vm.CSharp; //.Replace("\r", "\n");
                 vm.Errors = string.Join("\n", converter.Errors.Select(e =>
                     string.IsNullOrEmpty(e.File)
                         ? $"Line {e.LineNumber}: {e.LineText} - {e.Error}"
@@ -120,5 +129,17 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
             });
 
         return root;
+    }
+
+    private void CsharpInput_ValueChanged() => _frameworkObj?.UpdateCSharpColors(_csharpInput);
+
+    private void LingoInput_ValueChanged() => _frameworkObj?.UpdateLingoColors(_lingoInput);
+
+    public void Dispose()
+    {
+        _lingoInput.ValueChanged -= LingoInput_ValueChanged;
+        _csharpInput.ValueChanged -= CsharpInput_ValueChanged;
+        _lingoInput.Dispose();
+        _csharpInput.Dispose();
     }
 }
