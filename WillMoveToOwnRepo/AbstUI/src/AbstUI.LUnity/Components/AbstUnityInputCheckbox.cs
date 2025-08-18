@@ -1,5 +1,7 @@
 using System;
 using AbstUI.Components;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace AbstUI.LUnity.Components;
 
@@ -8,9 +10,36 @@ namespace AbstUI.LUnity.Components;
 /// </summary>
 internal class AbstUnityInputCheckbox : AbstUnityComponent, IAbstFrameworkInputCheckbox
 {
-    public bool Enabled { get; set; } = true;
-
+    private readonly Toggle _toggle;
     private bool _checked;
+
+    public AbstUnityInputCheckbox() : base(CreateGameObject(out var toggle))
+    {
+        _toggle = toggle;
+        _toggle.onValueChanged.AddListener(OnToggleChanged);
+    }
+
+    private static GameObject CreateGameObject(out Toggle toggle)
+    {
+        var go = new GameObject("Toggle");
+        go.AddComponent<Image>();
+        toggle = go.AddComponent<Toggle>();
+        return go;
+    }
+
+    private void OnToggleChanged(bool value)
+    {
+        if (_checked == value) return;
+        _checked = value;
+        ValueChanged?.Invoke();
+    }
+
+    public bool Enabled
+    {
+        get => _toggle.interactable;
+        set => _toggle.interactable = value;
+    }
+
     public bool Checked
     {
         get => _checked;
@@ -18,6 +47,7 @@ internal class AbstUnityInputCheckbox : AbstUnityComponent, IAbstFrameworkInputC
         {
             if (_checked == value) return;
             _checked = value;
+            _toggle.isOn = value;
             ValueChanged?.Invoke();
         }
     }

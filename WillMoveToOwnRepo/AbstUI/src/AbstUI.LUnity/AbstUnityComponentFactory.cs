@@ -69,9 +69,33 @@ public class AbstUnityComponentFactory : IAbstComponentFactory
         return scroll;
     }
 
-    public AbstInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null) => throw new NotImplementedException();
+    public AbstInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
+    {
+        var slider = new AbstInputSlider<float>();
+        var impl = new AbstUnityInputSlider<float>(orientation);
+        slider.Init(impl);
+        slider.Name = name;
+        if (min.HasValue) slider.MinValue = min.Value;
+        if (max.HasValue) slider.MaxValue = max.Value;
+        if (step.HasValue) slider.Step = step.Value;
+        if (onChange != null)
+            slider.ValueChanged += () => onChange(slider.Value);
+        return slider;
+    }
 
-    public AbstInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null) => throw new NotImplementedException();
+    public AbstInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
+    {
+        var slider = new AbstInputSlider<int>();
+        var impl = new AbstUnityInputSlider<int>(orientation);
+        slider.Init(impl);
+        slider.Name = name;
+        if (min.HasValue) slider.MinValue = min.Value;
+        if (max.HasValue) slider.MaxValue = max.Value;
+        if (step.HasValue) slider.Step = step.Value;
+        if (onChange != null)
+            slider.ValueChanged += () => onChange(slider.Value);
+        return slider;
+    }
 
     public AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null, bool multiLine = false)
     {
@@ -88,9 +112,33 @@ public class AbstUnityComponentFactory : IAbstComponentFactory
         return input;
     }
 
-    public AbstInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null) => throw new NotImplementedException();
+    public AbstInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null)
+    {
+        var input = new AbstInputNumber<float>();
+        var impl = new AbstUnityInputNumber<float>();
+        input.Init(impl);
+        input.Name = name;
+        input.NumberType = ANumberType.Float;
+        if (min.HasValue) input.Min = min.Value;
+        if (max.HasValue) input.Max = max.Value;
+        if (onChange != null)
+            input.ValueChanged += () => onChange(input.Value);
+        return input;
+    }
 
-    public AbstInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null) => throw new NotImplementedException();
+    public AbstInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null)
+    {
+        var input = new AbstInputNumber<int>();
+        var impl = new AbstUnityInputNumber<int>();
+        input.Init(impl);
+        input.Name = name;
+        input.NumberType = ANumberType.Integer;
+        if (min.HasValue) input.Min = min.Value;
+        if (max.HasValue) input.Max = max.Value;
+        if (onChange != null)
+            input.ValueChanged += () => onChange(input.Value);
+        return input;
+    }
 
     public AbstInputSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null) => throw new NotImplementedException();
 
