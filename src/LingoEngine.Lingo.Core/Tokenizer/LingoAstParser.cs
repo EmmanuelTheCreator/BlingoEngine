@@ -125,12 +125,21 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 _currentToken.Lexeme.Equals("sendSprite", StringComparison.OrdinalIgnoreCase))
             {
                 AdvanceToken();
+                var hasParen = Match(LingoTokenType.LeftParen);
                 var sprite = ParseExpression();
-                if (Match(LingoTokenType.Comma))
+                Expect(LingoTokenType.Comma);
+                var message = ParseExpression();
+                var args = new List<LingoNode>();
+                while (Match(LingoTokenType.Comma))
                 {
-                    var message = ParseExpression();
-                    return new LingoSendSpriteStmtNode { Sprite = sprite, Message = message };
+                    args.Add(ParseExpression());
                 }
+                if (hasParen)
+                    Expect(LingoTokenType.RightParen);
+                LingoNode? argList = null;
+                if (args.Count > 0)
+                    argList = new LingoDatumNode(new LingoDatum(args, LingoDatum.DatumType.ArgList));
+                return new LingoSendSpriteStmtNode { Sprite = sprite, Message = message, Arguments = argList };
             }
             var expr = ParseExpression(false);
             if (_currentToken.Type == LingoTokenType.The && expr is LingoVarNode methodVar)

@@ -493,6 +493,12 @@ namespace LingoEngine.Lingo.Core
             node.Sprite.Accept(this);
             Write(", ");
             node.Message.Accept(this);
+            if (node.Arguments != null)
+            {
+                Write(", ");
+                node.Arguments.Accept(this);
+            }
+            WriteLine();
         }
 
         public void Visit(LingoExitRepeatStmtNode node)
