@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using AbstUI.Components;
 using AbstUI.Primitives;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace AbstUI.LUnity.Components;
 
@@ -13,6 +14,17 @@ internal class AbstUnityTabContainer : AbstUnityComponent, IAbstFrameworkTabCont
 {
     private readonly List<IAbstFrameworkTabItem> _tabs = new();
     private int _selectedIndex = -1;
+
+    public AbstUnityTabContainer() : base(CreateGameObject())
+    {
+    }
+
+    private static GameObject CreateGameObject()
+    {
+        var go = new GameObject("TabContainer", typeof(RectTransform));
+        go.AddComponent<Image>();
+        return go;
+    }
 
     public string SelectedTabName =>
         _selectedIndex >= 0 && _selectedIndex < _tabs.Count ? _tabs[_selectedIndex].Title : string.Empty;
@@ -63,6 +75,17 @@ internal class AbstUnityTabContainer : AbstUnityComponent, IAbstFrameworkTabCont
 internal class AbstUnityTabItem : AbstUnityComponent, IAbstFrameworkTabItem
 {
     private IAbstNode? _content;
+
+    public AbstUnityTabItem() : base(CreateGameObject())
+    {
+    }
+
+    private static GameObject CreateGameObject()
+    {
+        var go = new GameObject("TabItem", typeof(RectTransform));
+        go.AddComponent<Image>();
+        return go;
+    }
 
     public string Title { get; set; } = string.Empty;
 

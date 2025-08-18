@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using AbstUI.Components;
 using AbstUI.Primitives;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace AbstUI.LUnity.Components;
 
@@ -11,16 +12,39 @@ namespace AbstUI.LUnity.Components;
 internal class AbstUnityWrapPanel : AbstUnityComponent, IAbstFrameworkWrapPanel
 {
     private readonly List<IAbstFrameworkNode> _children = new();
+    private readonly HorizontalOrVerticalLayoutGroup _layout;
+    private APoint _itemMargin;
 
-    public AbstUnityWrapPanel(AOrientation orientation)
+    public AbstUnityWrapPanel(AOrientation orientation) : base(CreateGameObject(orientation, out var layout))
     {
         Orientation = orientation;
+        _layout = layout;
         ItemMargin = new APoint(0, 0);
+    }
+
+    private static GameObject CreateGameObject(AOrientation orientation, out HorizontalOrVerticalLayoutGroup layout)
+    {
+        var go = new GameObject("WrapPanel", typeof(RectTransform));
+        layout = orientation == AOrientation.Horizontal
+            ? go.AddComponent<HorizontalLayoutGroup>() as HorizontalOrVerticalLayoutGroup
+            : go.AddComponent<VerticalLayoutGroup>() as HorizontalOrVerticalLayoutGroup;
+        layout.childControlWidth = layout.childControlHeight = false;
+        layout.childForceExpandWidth = layout.childForceExpandHeight = false;
+        layout.spacing = 0f;
+        return go;
     }
 
     public AOrientation Orientation { get; set; }
 
-    public APoint ItemMargin { get; set; }
+    public APoint ItemMargin
+    {
+        get => _itemMargin;
+        set
+        {
+            _itemMargin = value;
+            _layout.spacing = Orientation == AOrientation.Horizontal ? value.X : value.Y;
+        }
+    }
 
     public void AddItem(IAbstFrameworkNode child)
     {
