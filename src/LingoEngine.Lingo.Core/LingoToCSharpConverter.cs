@@ -199,7 +199,7 @@ public class LingoToCSharpConverter
             for (int i = 0; i < props.Count; i++)
             {
                 var p = props[i];
-                sb.AppendLine($"        .Add(this, x => x.{p.Name}, \"{p.Comment}\", {p.Default})");
+                sb.AppendLine($"            .Add(this, x => x.{p.Name}, \"{p.Comment}\", {p.Default})");
             }
             sb.AppendLine("        ;");
             sb.AppendLine("    }");
