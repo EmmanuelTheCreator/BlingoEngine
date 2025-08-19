@@ -1,5 +1,5 @@
-using LingoEngine.Commands;
+using AbstUI.Commands;
 
 namespace LingoEngine.Movies.Commands;
 
-public sealed record RewindMovieCommand() : ILingoCommand;
+public sealed record RewindMovieCommand() : IAbstCommand;

@@ -1,5 +1,5 @@
-using LingoEngine.Commands;
+using AbstUI.Commands;
 
 namespace LingoEngine.Movies.Commands;
 
-public sealed record StepFrameCommand(int Offset) : ILingoCommand;
+public sealed record StepFrameCommand(int Offset) : IAbstCommand;

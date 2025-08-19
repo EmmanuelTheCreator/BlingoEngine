@@ -1,6 +1,6 @@
-namespace LingoEngine.Commands;
+namespace AbstUI.Commands;
 
-public interface ICommandHandler<TCommand> where TCommand : ILingoCommand
+public interface IAbstCommandHandler<TCommand> where TCommand : IAbstCommand
 {
 #if NET48
     bool CanExecute(TCommand command);

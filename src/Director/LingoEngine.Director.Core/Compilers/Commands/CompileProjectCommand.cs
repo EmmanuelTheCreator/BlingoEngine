@@ -1,5 +1,5 @@
-using LingoEngine.Commands;
+using AbstUI.Commands;
 
 namespace LingoEngine.Director.Core.Compilers.Commands;
 
-public sealed record CompileProjectCommand() : ILingoCommand;
+public sealed record CompileProjectCommand() : IAbstCommand;

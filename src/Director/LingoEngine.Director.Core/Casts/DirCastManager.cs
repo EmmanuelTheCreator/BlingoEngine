@@ -1,5 +1,5 @@
 using LingoEngine.Casts;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.Core.Casts.Commands;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.FilmLoops;
@@ -8,7 +8,7 @@ using LingoEngine.Sprites;
 
 namespace LingoEngine.Director.Core.Casts;
 
-public class DirCastManager : ICommandHandler<CreateFilmLoopCommand>
+public class DirCastManager : IAbstCommandHandler<CreateFilmLoopCommand>
 {
     private readonly IDirectorEventMediator _mediator;
     private readonly IHistoryManager _historyManager;

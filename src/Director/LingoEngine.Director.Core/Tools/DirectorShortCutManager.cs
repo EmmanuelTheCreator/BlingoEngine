@@ -1,4 +1,4 @@
-﻿using LingoEngine.Commands;
+﻿using AbstUI.Commands;
 using System;
 
 namespace LingoEngine.Director.Core.Tools
@@ -8,24 +8,24 @@ namespace LingoEngine.Director.Core.Tools
         event Action<DirectorShortCutMap>? ShortCutAdded;
         event Action<DirectorShortCutMap>? ShortCutRemoved;
         bool Execute(string keyCombination);
-        DirectorShortCutMap CreateShortCut(string name, string keyCombination, Func<DirectorShortCutMap, ILingoCommand> command, string? description = null);
+        DirectorShortCutMap CreateShortCut(string name, string keyCombination, Func<DirectorShortCutMap, IAbstCommand> command, string? description = null);
         void RemoveShortCut(string name);
         IEnumerable<DirectorShortCutMap> GetShortCuts();
     }
     public class DirectorShortCutManager : IDirectorShortCutManager
     {
         private readonly Dictionary<string, DirectorShortCutMap> _shortCuts = new();
-        private readonly ILingoCommandManager _lingoCommandManager;
+        private readonly IAbstCommandManager _lingoCommandManager;
 
         public event Action<DirectorShortCutMap>? ShortCutAdded;
         public event Action<DirectorShortCutMap>? ShortCutRemoved;
 
-        public DirectorShortCutManager(ILingoCommandManager lingoCommandManager)
+        public DirectorShortCutManager(IAbstCommandManager lingoCommandManager)
         {
             _lingoCommandManager = lingoCommandManager;
         }
 
-        public DirectorShortCutMap CreateShortCut(string name, string keyCombination, Func<DirectorShortCutMap, ILingoCommand> command, string? description = null)
+        public DirectorShortCutMap CreateShortCut(string name, string keyCombination, Func<DirectorShortCutMap, IAbstCommand> command, string? description = null)
         {
             var shortcut = new DirectorShortCutMap(name, command, description, keyCombination);
             _shortCuts[name] = shortcut;

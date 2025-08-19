@@ -1,6 +1,6 @@
 using LingoEngine.Members;
 using LingoEngine.Movies;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using System;
 using LingoEngine.Sprites;
 
@@ -12,7 +12,7 @@ public sealed record AddSpriteCommand(
     // Channel number is 1-based to match LingoMovie
     int SpriteNumWithChannel,
     int BeginFrame,
-    int EndFrame) : ILingoCommand
+    int EndFrame) : IAbstCommand
 {
     public Action ToUndo(LingoSprite sprite, Action refresh)
     {

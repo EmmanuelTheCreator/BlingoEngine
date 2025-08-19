@@ -1,4 +1,4 @@
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.Core.Inspector.Commands;
 using LingoEngine.Scripts;
 using LingoEngine.Sprites;
@@ -7,7 +7,7 @@ namespace LingoEngine.Director.Core.Sprites;
 
 public static class LingoSprite2DDirectorExtensions
 {
-    public static void AttachBehavior(this LingoSprite2D sprite, LingoMemberScript script, ILingoCommandManager commandManager)
+    public static void AttachBehavior(this LingoSprite2D sprite, LingoMemberScript script, IAbstCommandManager commandManager)
     {
         
         LingoSpriteBehavior? behavior = sprite.AddBehavior(script);

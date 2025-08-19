@@ -4,7 +4,7 @@ using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Inputs;
 using LingoEngine.Events;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Core;
@@ -21,7 +21,7 @@ namespace LingoEngine.Director.Core.Casts
         private readonly AbstTabContainer _tabs;
         private readonly LingoPlayer _player;
         private readonly Dictionary<string, DirCastTab> _tabMap = new();
-        private readonly ILingoCommandManager _commandManager;
+        private readonly IAbstCommandManager _commandManager;
         private readonly IDirectorIconManager _iconManager;
         private ILingoMember? _selected;
         private IAbstMouseSubscription? _mouseSub;
@@ -32,7 +32,7 @@ namespace LingoEngine.Director.Core.Casts
         public int Width { get; set; } = 370;
         public int Height { get; set; } = 620;
 
-        public DirectorCastWindow(ILingoFrameworkFactory factory, IDirectorEventMediator mediator, ILingoCommandManager commandManager, IDirectorIconManager iconManager, ILingoPlayer player) : base(factory)
+        public DirectorCastWindow(ILingoFrameworkFactory factory, IDirectorEventMediator mediator, IAbstCommandManager commandManager, IDirectorIconManager iconManager, ILingoPlayer player) : base(factory)
         {
             _player = (LingoPlayer)player;
             _player.ActiveMovieChanged += OnActiveMovieChanged;

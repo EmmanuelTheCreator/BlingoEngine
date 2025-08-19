@@ -2,7 +2,7 @@ using LingoEngine.Director.Core.FileSystems;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Projects;
 using LingoEngine.Director.Core.Projects.Commands;
 using System.IO;
@@ -21,7 +21,7 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
     private readonly IDirFolderPicker _folderPicker;
     private readonly IDirFilePicker _filePicker;
     private readonly IDirectorWindowManager _windowManager;
-    private readonly ILingoCommandManager _commandManager;
+    private readonly IAbstCommandManager _commandManager;
     private readonly LingoProjectSettings _settings;
     private readonly DirectorProjectSettings _dirSettings;
 
@@ -100,7 +100,7 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
         IDirFolderPicker folderPicker,
         IDirFilePicker filePicker,
         IDirectorWindowManager windowManager,
-        ILingoCommandManager commandManager,
+        IAbstCommandManager commandManager,
         LingoProjectSettings settings,
         DirectorProjectSettings dirSettings,
         ILingoFrameworkFactory factory) : base(factory)

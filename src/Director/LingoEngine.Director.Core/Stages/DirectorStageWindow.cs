@@ -1,4 +1,4 @@
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.Core.Stages.Commands;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Windowing;
@@ -8,9 +8,9 @@ using LingoEngine.Core;
 namespace LingoEngine.Director.Core.Stages
 {
     public class DirectorStageWindow : DirectorWindow<IDirFrameworkStageWindow>,
-        ICommandHandler<StageToolSelectCommand>, 
-        ICommandHandler<MoveSpritesCommand>, 
-        ICommandHandler<RotateSpritesCommand>
+        IAbstCommandHandler<StageToolSelectCommand>, 
+        IAbstCommandHandler<MoveSpritesCommand>, 
+        IAbstCommandHandler<RotateSpritesCommand>
     {
         private readonly IHistoryManager _historyManager;
 
@@ -18,7 +18,7 @@ namespace LingoEngine.Director.Core.Stages
 
         public StageIconBar IconBar { get; }
 
-        public DirectorStageWindow(IHistoryManager historyManager, ILingoFrameworkFactory factory, ILingoCommandManager commandManager, ILingoPlayer player, IDirectorEventMediator mediator, IDirStageManager stageManager) : base(factory)
+        public DirectorStageWindow(IHistoryManager historyManager, ILingoFrameworkFactory factory, IAbstCommandManager commandManager, ILingoPlayer player, IDirectorEventMediator mediator, IDirStageManager stageManager) : base(factory)
         {
             _historyManager = historyManager;
             IconBar = new StageIconBar(factory, commandManager, player, mediator, stageManager);

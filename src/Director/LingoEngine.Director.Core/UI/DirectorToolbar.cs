@@ -1,6 +1,6 @@
 ﻿using AbstUI.Components;
 using AbstUI.Primitives;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.Core.Bitmaps;
 using LingoEngine.Director.Core.Bitmaps.Commands;
 using LingoEngine.Director.Core.Icons;
@@ -13,7 +13,7 @@ public abstract class DirectorToolbar<TToolEnumType>
     where TToolEnumType : Enum
 {
     protected readonly IDirectorIconManager _iconManager;
-    protected readonly ILingoCommandManager _commandManager;
+    protected readonly IAbstCommandManager _commandManager;
     protected readonly ILingoFrameworkFactory _factory;
     protected readonly AbstPanel _panel;
     protected readonly AbstWrapPanel _container;
@@ -23,7 +23,7 @@ public abstract class DirectorToolbar<TToolEnumType>
     public AbstPanel Panel => _panel;
     public TToolEnumType SelectedTool { get; protected set; }
 
-    public DirectorToolbar(string name, IDirectorIconManager iconManager, ILingoCommandManager commandManager, ILingoFrameworkFactory factory)
+    public DirectorToolbar(string name, IDirectorIconManager iconManager, IAbstCommandManager commandManager, ILingoFrameworkFactory factory)
     {
         _iconManager = iconManager;
         _commandManager = commandManager;
@@ -58,7 +58,7 @@ public abstract class DirectorToolbar<TToolEnumType>
         ToolSelected?.Invoke(SelectedTool);
     }
    
-    protected void AddToolButton(DirectorIcon icon, Func<TToolEnumType, ILingoCommand> toCommand)
+    protected void AddToolButton(DirectorIcon icon, Func<TToolEnumType, IAbstCommand> toCommand)
     {
         var btn = _factory.CreateStateButton(icon.ToString(), _iconManager.Get(icon));
         btn.Width = 20; // approximate size

@@ -4,7 +4,7 @@ using LingoEngine.Core;
 using LingoEngine.Director.Core.Scores;
 using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.Director.Core.Tools;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.LGodot.Styles;
@@ -37,7 +37,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
 
     private readonly DirectorScoreWindow _directorScoreWindow;
 
-    public DirGodotScoreWindow(IDirectorEventMediator directorMediator, ILingoCommandManager commandManager, DirectorScoreWindow directorScoreWindow, ILingoPlayer player, IDirGodotWindowManager windowManager, IDirSpritesManager spritesManager,DirectorGodotStyle godotStyle)
+    public DirGodotScoreWindow(IDirectorEventMediator directorMediator, IAbstCommandManager commandManager, DirectorScoreWindow directorScoreWindow, ILingoPlayer player, IDirGodotWindowManager windowManager, IDirSpritesManager spritesManager,DirectorGodotStyle godotStyle)
         : base(DirectorMenuCodes.ScoreWindow, "Score", windowManager)
     {
         //DontUseInputInsteadOfGuiInput();

@@ -1,23 +1,25 @@
-using LingoEngine.Core;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
-namespace LingoEngine.Commands;
+namespace AbstUI.Commands;
 
-internal sealed class LingoCommandManager : ILingoCommandManager
+public sealed class AbstCommandManager : IAbstCommandManager
 {
-    private readonly ILingoServiceProvider _provider;
+    private readonly IServiceProvider _provider;
     private readonly Dictionary<Type, List<Type>> _handlers = new();
 
-    public LingoCommandManager(ILingoServiceProvider provider) => _provider = provider;
+    public AbstCommandManager(IServiceProvider provider) => _provider = provider;
 
-    public ILingoCommandManager Register<THandler, TCommand>()
-        where THandler : ICommandHandler<TCommand>
-        where TCommand : ILingoCommand
+    public IAbstCommandManager Register<THandler, TCommand>()
+        where THandler : IAbstCommandHandler<TCommand>
+        where TCommand : IAbstCommand
         => Register(typeof(THandler));
 
-    public ILingoCommandManager Register(Type handlerType)
+    public IAbstCommandManager Register(Type handlerType)
     {
         foreach (var iface in handlerType.GetInterfaces()
-                     .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommandHandler<>)))
+                     .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IAbstCommandHandler<>)))
         {
             var cmdType = iface.GetGenericArguments()[0];
             if (_handlers.TryGetValue(cmdType, out var handlers))
@@ -32,7 +34,7 @@ internal sealed class LingoCommandManager : ILingoCommandManager
         return this;
     }
 
-    public bool Handle(ILingoCommand command)
+    public bool Handle(IAbstCommand command)
     {
         var type = command.GetType();
         var ok = false;
@@ -40,7 +42,7 @@ internal sealed class LingoCommandManager : ILingoCommandManager
         {
             foreach (var handlerType in handlerTypes)
             {
-                var handlerObj = _provider.GetService(handlerType);// ?? ActivatorUtilities.CreateInstance(_provider, handlerType);
+                var handlerObj = _provider.GetService(handlerType);
                 if (handlerObj == null)
                     throw new Exception("Handler not found for command: " + type.FullName);
                 dynamic h = handlerObj;
@@ -74,7 +76,7 @@ internal sealed class LingoCommandManager : ILingoCommandManager
         }
     }
 
-    public ILingoCommandManager Preload<TCommand>() where TCommand : ILingoCommand
+    public IAbstCommandManager Preload<TCommand>() where TCommand : IAbstCommand
     {
         var type = typeof(TCommand);
         if (!_handlers.TryGetValue(type, out var handlerTypes))

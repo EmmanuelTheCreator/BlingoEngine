@@ -1,16 +1,16 @@
-﻿using LingoEngine.Commands;
+﻿using AbstUI.Commands;
 
 namespace LingoEngine.Director.Core.Tools
 {
     public class DirectorShortCutMap
     {
-        private readonly Func<DirectorShortCutMap, ILingoCommand> commandCtor;
+        private readonly Func<DirectorShortCutMap, IAbstCommand> commandCtor;
 
         public string ShortCut { get; set; }
         public string? Description { get; set; }
         public string KeyCombination { get; }
 
-        public DirectorShortCutMap(string shortCut, Func<DirectorShortCutMap, ILingoCommand> commandCtor, string? description = null, string keyCombination = null)
+        public DirectorShortCutMap(string shortCut, Func<DirectorShortCutMap, IAbstCommand> commandCtor, string? description = null, string keyCombination = null)
         {
             ShortCut = shortCut;
             this.commandCtor = commandCtor;
@@ -18,6 +18,6 @@ namespace LingoEngine.Director.Core.Tools
             KeyCombination = keyCombination;
         }
 
-        public ILingoCommand GetCommand() => commandCtor(this);
+        public IAbstCommand GetCommand() => commandCtor(this);
     }
 }

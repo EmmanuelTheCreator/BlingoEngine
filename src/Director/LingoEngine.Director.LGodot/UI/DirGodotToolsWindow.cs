@@ -3,7 +3,7 @@ using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.Director.Core.Stages;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Bitmaps;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.FrameworkCommunication;
 using AbstUI.LGodot.Components;
@@ -16,7 +16,7 @@ internal partial class DirGodotToolsWindow : BaseGodotWindow, IDirFrameworkTools
 
     public event Action<int>? IconPressed;
 
-    public DirGodotToolsWindow(DirectorToolsWindow directorToolsWindow,IDirGodotWindowManager windowManager, IDirectorIconManager iconManager, ILingoCommandManager commandManager, ILingoFrameworkFactory factory)
+    public DirGodotToolsWindow(DirectorToolsWindow directorToolsWindow,IDirGodotWindowManager windowManager, IDirectorIconManager iconManager, IAbstCommandManager commandManager, ILingoFrameworkFactory factory)
         : base(DirectorMenuCodes.ToolsWindow, "Tools", windowManager)
     {
         directorToolsWindow.Init(this);

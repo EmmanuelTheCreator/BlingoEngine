@@ -1,5 +1,5 @@
 using System;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.FrameworkCommunication;
@@ -36,7 +36,7 @@ public class StageIconBar : IDisposable
     public float MinZoom => _zoomSlider.MinValue;
     public float MaxZoom => _zoomSlider.MaxValue;
 
-    public StageIconBar(ILingoFrameworkFactory factory, ILingoCommandManager commandManager, ILingoPlayer player, IDirectorEventMediator mediator, IDirStageManager stageManager)
+    public StageIconBar(ILingoFrameworkFactory factory, IAbstCommandManager commandManager, ILingoPlayer player, IDirectorEventMediator mediator, IDirStageManager stageManager)
     {
         const int iconBarHeight = 12;
         _player = player;

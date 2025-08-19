@@ -1,7 +1,7 @@
 ﻿using AbstUI.Primitives;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 
 namespace LingoEngine.Director.Core.Bitmaps.Commands
 {
-    public sealed record PainterChangeForegroundColorCommand(AColor color) : ILingoCommand;
+    public sealed record PainterChangeForegroundColorCommand(AColor color) : IAbstCommand;
 }

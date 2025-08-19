@@ -1,6 +1,6 @@
-﻿using LingoEngine.Commands;
 using LingoEngine.Core;
 using LingoEngine.FrameworkCommunication;
+using AbstUI.Commands;
 using LingoEngine.Movies;
 using LingoEngine.Projects;
 using LingoEngine.Events;
@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Casts;
 using System.Runtime;
 using System;
+
 namespace LingoEngine.Setup
 {
     public class LingoEngineRegistration : ILingoEngineRegistration
@@ -37,7 +38,6 @@ namespace LingoEngine.Setup
             _lingoServiceProvider = lingoServiceProvider;
         }
 
-
         public void UnloadMovie(string? preserveNamespaceFragment = null)
         {
             if (_player?.ActiveMovie is LingoMovie active)
@@ -57,12 +57,13 @@ namespace LingoEngine.Setup
 
             if (_serviceProvider != null)
             {
-                var cmdManager = _lingoServiceProvider.GetService<ILingoCommandManager>();
+                var cmdManager = _lingoServiceProvider.GetService<IAbstCommandManager>();
                 cmdManager?.Clear(preserveNamespaceFragment);
                 var eventMediator = _lingoServiceProvider.GetService<ILingoEventMediator>();
                 eventMediator?.Clear(preserveNamespaceFragment);
             }
         }
+
         public void RegisterCommonServices()
         {
             _container.WithGodotEngine();
@@ -82,15 +83,13 @@ namespace LingoEngine.Setup
             return this;
         }
 
-
-
-
         public ILingoEngineRegistration BuildDelayed()
         {
             if (_hasBeenBuild && _player != null) return this;
             CreateProjectFactory();
             return this;
         }
+
         public LingoPlayer Build()
         {
             if (_hasBeenBuild && _player != null) return _player;
@@ -108,58 +107,24 @@ namespace LingoEngine.Setup
             if (_FrameworkFactorySetup != null)
                 _FrameworkFactorySetup(_lingoServiceProvider.GetRequiredService<ILingoFrameworkFactory>());
             _player = player;
-            
+
             InitializeProject();
             _hasBeenBuild = true;
             return player;
         }
+
         public ILingoProjectFactory BuildAndRunProject()
         {
             Build();
             return RunProject();
         }
+
         public ILingoProjectFactory RunProject()
         {
             if (_projectFactory == null) throw new InvalidOperationException("Project factory has not been set up. Use AddProjectFactory<TLingoProjectFactory>() to set it up. and run Build first");
             if (_startupMovie != null)
                 _projectFactory.Run(_startupMovie, !LingoEngineGlobal.IsRunningDirector);
             return _projectFactory;
-        }
-
-        private void CreateProjectFactory()
-        {
-            if (_makeFactoryMethod == null)
-                return;
-            _projectFactory = _makeFactoryMethod();
-        }
-        private void InitializeProject()
-        {
-            if (_projectFactory == null || _serviceProvider == null || _player == null)
-                return;
-
-            var settings = _serviceProvider.GetRequiredService<LingoProjectSettings>();
-            _projectSettingsSetup(settings);
-            if (settings.StageWidth > 0 && settings.StageHeight > 0)
-            {
-                var stageWidth = Math.Min(settings.StageWidth, 800);
-                var stageHeight = Math.Min(settings.StageHeight, 600);
-                _player.Stage.Width = settings.StageWidth;
-                _player.Stage.Height = settings.StageHeight;
-            }
-            LoadFonts(_lingoServiceProvider);
-            _BuildActions.ForEach(b => b(_lingoServiceProvider));
-            _lingoServiceProvider.GetRequiredService<ILingoCommandManager>()
-                .DiscoverAndSubscribe(_lingoServiceProvider);
-            _projectFactory.LoadCastLibs(_lingoServiceProvider.GetRequiredService<ILingoCastLibsContainer>(), _player);
-            _startupMovie = _projectFactory.LoadStartupMovie(_lingoServiceProvider, _player);
-        }
-
-        private void LoadFonts(ILingoServiceProvider serviceProvider)
-        {
-            var fontsManager = serviceProvider.GetRequiredService<IAbstFontManager>();
-            foreach (var font in _Fonts)
-                fontsManager.AddFont(font.Name, font.FileName);
-            fontsManager.LoadAll();
         }
 
         public ILingoEngineRegistration ForMovie(string name, Action<IMovieRegistration> action)
@@ -169,6 +134,7 @@ namespace LingoEngine.Setup
             _Movies.Add(name, registration);
             return this;
         }
+
         private void ActionOnNewMovie(LingoMovie movie)
         {
             var registration = _Movies[movie.Name];
@@ -213,7 +179,6 @@ namespace LingoEngine.Setup
         {
             if (_makeFactoryMethod != null)
             {
-                // there was already a project loaded, so unload the previous project
                 UnloadMovie();
             }
 
@@ -235,6 +200,43 @@ namespace LingoEngine.Setup
             return this;
         }
 
+        private void CreateProjectFactory()
+        {
+            if (_makeFactoryMethod == null)
+                return;
+            _projectFactory = _makeFactoryMethod();
+        }
+
+        private void InitializeProject()
+        {
+            if (_projectFactory == null || _serviceProvider == null || _player == null)
+                return;
+
+            var settings = _serviceProvider.GetRequiredService<LingoProjectSettings>();
+            _projectSettingsSetup(settings);
+            if (settings.StageWidth > 0 && settings.StageHeight > 0)
+            {
+                var stageWidth = Math.Min(settings.StageWidth, 800);
+                var stageHeight = Math.Min(settings.StageHeight, 600);
+                _player.Stage.Width = settings.StageWidth;
+                _player.Stage.Height = settings.StageHeight;
+            }
+            LoadFonts(_lingoServiceProvider);
+            _BuildActions.ForEach(b => b(_lingoServiceProvider));
+            _lingoServiceProvider.GetRequiredService<IAbstCommandManager>()
+                .DiscoverAndSubscribe(_lingoServiceProvider);
+            _projectFactory.LoadCastLibs(_lingoServiceProvider.GetRequiredService<LingoCastLibsContainer>(), _player);
+            _startupMovie = _projectFactory.LoadStartupMovie(_lingoServiceProvider, _player);
+        }
+
+        private void LoadFonts(ILingoServiceProvider serviceProvider)
+        {
+            var fontsManager = serviceProvider.GetRequiredService<IAbstFontManager>();
+            foreach (var font in _Fonts)
+                fontsManager.AddFont(font.Name, font.FileName);
+            fontsManager.LoadAll();
+        }
+
         private class MovieRegistration : IMovieRegistration
         {
             private readonly IServiceCollection _container;
@@ -246,6 +248,7 @@ namespace LingoEngine.Setup
                 _container = container;
                 _movieName = movieName;
             }
+
             public Action<LingoMovie>[] GetAllMovieScriptsCtors() => _MovieScripts.ToArray();
 
             public IMovieRegistration AddBehavior<T>() where T : LingoSpriteBehavior
@@ -263,13 +266,12 @@ namespace LingoEngine.Setup
                 });
                 return this;
             }
+
             public IMovieRegistration AddParentScript<T>() where T : LingoParentScript
             {
                 _container.AddTransient<T>();
                 return this;
             }
-
-
         }
     }
 }

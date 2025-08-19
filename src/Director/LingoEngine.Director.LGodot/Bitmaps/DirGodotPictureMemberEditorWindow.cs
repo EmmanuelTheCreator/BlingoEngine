@@ -6,7 +6,7 @@ using LingoEngine.Core;
 using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Bitmaps;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Director.Core.UI;
@@ -49,7 +49,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
     private readonly IDirectorEventMediator _mediator;
     private readonly ILingoPlayer _player;
     private readonly IDirectorIconManager _iconManager;
-    private readonly ILingoCommandManager _commandManager;
+    private readonly IAbstCommandManager _commandManager;
     private readonly IHistoryManager _historyManager;
     private LingoMemberBitmap? _member;
     private bool _showRegPoint = true;
@@ -70,7 +70,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
     private bool _panning;
     private bool _drawing;
 
-    public DirGodotPictureMemberEditorWindow(IDirectorEventMediator mediator, ILingoPlayer player, IDirGodotWindowManager windowManager, DirectorBitmapEditWindow directorPictureEditWindow, IDirectorIconManager iconManager, ILingoCommandManager commandManager, IHistoryManager historyManager, ILingoFrameworkFactory factory)
+    public DirGodotPictureMemberEditorWindow(IDirectorEventMediator mediator, ILingoPlayer player, IDirGodotWindowManager windowManager, DirectorBitmapEditWindow directorPictureEditWindow, IDirectorIconManager iconManager, IAbstCommandManager commandManager, IHistoryManager historyManager, ILingoFrameworkFactory factory)
         : base(DirectorMenuCodes.PictureEditWindow, "Picture Editor", windowManager, historyManager)
     {
         _mediator = mediator;

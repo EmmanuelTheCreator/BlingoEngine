@@ -1,4 +1,4 @@
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Movies.Commands;
 
 namespace LingoEngine.Movies
@@ -17,10 +17,10 @@ namespace LingoEngine.Movies
     /// Handles frame related data such as score labels and frame specific behaviours.
     /// </summary>
     internal class LingoFrameLabelManager : ILingoFrameLabelManager,
-        ICommandHandler<DeleteFrameLabelCommand>,
-        ICommandHandler<SetFrameLabelCommand>,
-        ICommandHandler<AddFrameLabelCommand>,
-        ICommandHandler<UpdateFrameLabelCommand>
+        IAbstCommandHandler<DeleteFrameLabelCommand>,
+        IAbstCommandHandler<SetFrameLabelCommand>,
+        IAbstCommandHandler<AddFrameLabelCommand>,
+        IAbstCommandHandler<UpdateFrameLabelCommand>
     {
         private readonly Dictionary<string, int> _scoreLabels = new();
 

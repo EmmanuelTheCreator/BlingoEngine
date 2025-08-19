@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Members;
 using LingoEngine.Casts;
 using LingoEngine.Sprites;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Projects;
 using LingoEngine.ColorPalettes;
 
@@ -38,7 +38,7 @@ namespace LingoEngine
                    .AddScoped<ILingoEventMediator, LingoEventMediator>()
                    // Xtras
                    .AddScoped<IBuddyAPI, BuddyAPI>()
-                   .AddSingleton<ILingoCommandManager, LingoCommandManager>()
+                   .AddSingleton<IAbstCommandManager, AbstCommandManager>()
                    ;
 
             return services;

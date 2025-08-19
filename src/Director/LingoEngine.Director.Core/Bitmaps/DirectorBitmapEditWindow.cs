@@ -1,4 +1,4 @@
-﻿using LingoEngine.Commands;
+﻿using AbstUI.Commands;
 using LingoEngine.Director.Core.Bitmaps.Commands;
 using LingoEngine.Director.Core.Windowing;
 using System.Reflection;
@@ -7,9 +7,9 @@ using LingoEngine.FrameworkCommunication;
 namespace LingoEngine.Director.Core.Bitmaps
 {
     public class DirectorBitmapEditWindow : DirectorWindow<IDirFrameworkBitmapEditWindow>,
-            ICommandHandler<PainterToolSelectCommand>,
-            ICommandHandler<PainterDrawPixelCommand>,
-            ICommandHandler<PainterFillCommand>
+            IAbstCommandHandler<PainterToolSelectCommand>,
+            IAbstCommandHandler<PainterDrawPixelCommand>,
+            IAbstCommandHandler<PainterFillCommand>
     {
         public DirectorBitmapEditWindow(ILingoFrameworkFactory factory) : base(factory) { }
         public bool CanExecute(PainterToolSelectCommand command) => true;

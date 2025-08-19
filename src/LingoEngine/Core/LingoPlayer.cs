@@ -1,7 +1,7 @@
 ﻿using System;
 using AbstUI.Primitives;
 using LingoEngine.Casts;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
@@ -17,9 +17,9 @@ namespace LingoEngine.Core
 
 
     public class LingoPlayer : ILingoPlayer,
-        ICommandHandler<RewindMovieCommand>,
-        ICommandHandler<PlayMovieCommand>,
-        ICommandHandler<StepFrameCommand>
+        IAbstCommandHandler<RewindMovieCommand>,
+        IAbstCommandHandler<PlayMovieCommand>,
+        IAbstCommandHandler<StepFrameCommand>
     {
         private Lazy<CsvImporter> _csvImporter = new Lazy<CsvImporter>(() => new CsvImporter());
         private readonly LingoCastLibsContainer _castLibsContainer;
