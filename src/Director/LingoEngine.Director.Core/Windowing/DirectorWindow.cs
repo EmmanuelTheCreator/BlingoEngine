@@ -12,6 +12,8 @@ public class DirectorWindow<TFrameworkWindow> : IDirectorWindow, IDisposable, IL
     private TFrameworkWindow _Framework;
 
     public TFrameworkWindow Framework => _Framework;
+    public int Width { get; set; }
+    public int Height { get; set; }
     public int MinimumWidth { get; set; }
     public int MinimumHeight { get; set; }
     protected ILingoMouse Mouse { get; private set; }

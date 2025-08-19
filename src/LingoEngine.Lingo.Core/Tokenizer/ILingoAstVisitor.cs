@@ -35,6 +35,7 @@
         void Visit(LingoGoToStmtNode node);
         void Visit(LingoAssignmentStmtNode node);
         void Visit(LingoSendSpriteStmtNode node);
+        void Visit(LingoSendSpriteExprNode node);
         void Visit(LingoExitRepeatStmtNode node);
         void Visit(LingoNextRepeatStmtNode node);
         void Visit(LingoObjBracketExprNode node);

@@ -1,3 +1,6 @@
+using System;
+using AbstUI.Styles;
+
 namespace AbstUI.Components
 {
     /// <summary>
@@ -14,6 +17,44 @@ namespace AbstUI.Components
         {
             add { _framework.ValueChanged += value; }
             remove { _framework.ValueChanged -= value; }
+        }
+
+        protected override void OnSetStyle(AbstComponentStyle componentStyle)
+        {
+            base.OnSetStyle(componentStyle);
+            if (componentStyle is AbstInputStyle style)
+            {
+                if (style.FontSize.HasValue)
+                {
+                    if (_framework is IAbstFrameworkInputText text)
+                        text.FontSize = style.FontSize.Value;
+                    if (_framework is IAbstFrameworkInputNumber number)
+                        number.FontSize = style.FontSize.Value;
+                }
+
+                if (style.Font is not null && _framework is IAbstFrameworkInputText textWithFont)
+                    textWithFont.Font = style.Font;
+
+                if (style.TextColor.HasValue && _framework is IAbstFrameworkInputText textWithColor)
+                    textWithColor.TextColor = style.TextColor.Value;
+            }
+        }
+
+        protected override void OnGetStyle(AbstComponentStyle componentStyle)
+        {
+            base.OnGetStyle(componentStyle);
+            if (componentStyle is AbstInputStyle style)
+            {
+                if (_framework is IAbstFrameworkInputText text)
+                {
+                    style.FontSize = text.FontSize;
+                    style.Font = text.Font;
+                    style.TextColor = text.TextColor;
+                }
+
+                if (_framework is IAbstFrameworkInputNumber number)
+                    style.FontSize = number.FontSize;
+            }
         }
     }
 }

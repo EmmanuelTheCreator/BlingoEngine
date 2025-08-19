@@ -13,7 +13,7 @@ namespace AbstUI.SDL2.Components
         public AMargin Margin { get; set; }
         public object FrameworkNode => this;
 
-        private readonly List<IAbstFrameworkLayoutNode> _children = new();
+        private readonly List<IAbstFrameworkNode> _children = new();
 
         public AbstSdlWrapPanel(AbstSdlComponentFactory factory, AOrientation orientation) : base(factory)
         {
@@ -24,14 +24,13 @@ namespace AbstUI.SDL2.Components
 
         public void AddItem(IAbstFrameworkNode child)
         {
-            if (child is IAbstFrameworkLayoutNode layout && !_children.Contains(layout))
-                _children.Add(layout);
+            if (!_children.Contains(child))
+                _children.Add(child);
         }
 
         public void RemoveItem(IAbstFrameworkNode child)
         {
-            if (child is IAbstFrameworkLayoutNode layout)
-                _children.Remove(layout);
+            _children.Remove(child);
         }
 
         public IEnumerable<IAbstFrameworkNode> GetItems() => _children.ToArray();
@@ -82,6 +81,7 @@ namespace AbstUI.SDL2.Components
                 _texH = h;
             }
 
+            var prevTarget = SDL.SDL_GetRenderTarget(context.Renderer);
             SDL.SDL_SetRenderTarget(context.Renderer, _texture);
             SDL.SDL_SetRenderDrawColor(context.Renderer, 0, 0, 0, 0);
             SDL.SDL_RenderClear(context.Renderer);
@@ -95,6 +95,9 @@ namespace AbstUI.SDL2.Components
                 float childW = child.Width + margin.Left + margin.Right;
                 float childH = child.Height + margin.Top + margin.Bottom;
 
+                float targetX;
+                float targetY;
+
                 if (Orientation == AOrientation.Horizontal)
                 {
                     if (curX + childW > Width)
@@ -103,8 +106,8 @@ namespace AbstUI.SDL2.Components
                         curY += lineSize + ItemMargin.Y;
                         lineSize = 0;
                     }
-                    child.X = curX + margin.Left;
-                    child.Y = curY + margin.Top;
+                    targetX = curX + margin.Left;
+                    targetY = curY + margin.Top;
                     curX += childW + ItemMargin.X;
                     lineSize = Math.Max(lineSize, childH);
                 }
@@ -116,19 +119,29 @@ namespace AbstUI.SDL2.Components
                         curX += lineSize + ItemMargin.X;
                         lineSize = 0;
                     }
-                    child.X = curX + margin.Left;
-                    child.Y = curY + margin.Top;
+                    targetX = curX + margin.Left;
+                    targetY = curY + margin.Top;
                     curY += childH + ItemMargin.Y;
                     lineSize = Math.Max(lineSize, childW);
                 }
 
-                if (child.FrameworkNode is AbstSdlComponent comp)
+                var comp = child.FrameworkNode as AbstSdlComponent;
+
+                if (child is IAbstFrameworkLayoutNode layout)
                 {
-                    comp.ComponentContext.RenderToTexture(context);
+                    layout.X = targetX;
+                    layout.Y = targetY;
                 }
+                else if (comp != null)
+                {
+                    comp.X = targetX;
+                    comp.Y = targetY;
+                }
+
+                comp?.ComponentContext.RenderToTexture(context);
             }
 
-            SDL.SDL_SetRenderTarget(context.Renderer, nint.Zero);
+            SDL.SDL_SetRenderTarget(context.Renderer, prevTarget);
             return _texture;
         }
     }

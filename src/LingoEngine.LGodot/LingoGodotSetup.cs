@@ -21,10 +21,10 @@ namespace LingoEngine.LGodot
                         .AddGodotLogging()
                         .AddSingleton<LingoGodotStyle>()
                         .AddSingleton<ILingoFrameworkFactory, GodotFactory>()
-                        
+
                         .AddSingleton<ILingoFrameworkStageContainer, LingoGodotStageContainer>()
                         .AddSingleton(p => new LingoGodotRootNode(rootNode, withStageInWindow))
-                        .AddSingleton< IAbstGodotRootNode>(p => p.GetRequiredService<LingoGodotRootNode>())
+                        .AddSingleton<IAbstGodotRootNode>(p => p.GetRequiredService<LingoGodotRootNode>())
                         .WithAbstUIGodot()
                         )
                 .WithFrameworkFactory(setup)

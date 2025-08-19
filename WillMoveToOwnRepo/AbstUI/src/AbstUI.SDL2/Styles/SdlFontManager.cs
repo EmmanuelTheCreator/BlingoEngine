@@ -1,5 +1,6 @@
 using AbstUI.SDL2.SDLL;
 using AbstUI.Styles;
+using System.IO;
 
 namespace AbstUI.SDL2.Styles;
 
@@ -24,10 +25,19 @@ public class SdlFontManager : IAbstFontManager
     public void LoadAll()
     {
         if (_loadedFonts.Count == 0)
-            _loadedFonts.Add("default", new AbstSdlFont(this, "Tahoma", "Fonts\\Tahoma.ttf")); // default font
-            _loadedFonts.Add("Tahoma", new AbstSdlFont(this, "Tahoma", "Fonts\\Tahoma.ttf")); // default font
+        {
+            var tahoma = Path.Combine(AppContext.BaseDirectory, "Fonts", "Tahoma.ttf");
+            _loadedFonts.Add("default", new AbstSdlFont(this, "Tahoma", tahoma));
+            _loadedFonts.Add("Tahoma", new AbstSdlFont(this, "Tahoma", tahoma));
+        }
+
         foreach (var font in _fontsToLoad)
-            _loadedFonts[font.Name] = new AbstSdlFont(this, font.Name, font.FileName); // placeholder
+        {
+            var path = Path.IsPathRooted(font.FileName)
+                ? font.FileName
+                : Path.Combine(AppContext.BaseDirectory, font.FileName.Replace("\\", "/"));
+            _loadedFonts[font.Name] = new AbstSdlFont(this, font.Name, path);
+        }
 
         _fontsToLoad.Clear();
         InitFonts();

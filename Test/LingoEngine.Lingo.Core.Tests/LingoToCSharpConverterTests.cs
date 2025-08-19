@@ -42,7 +42,7 @@ public class LingoToCSharpConverterTests
             "{",
             "    x = 2;",
             "}");
-        Assert.Equal(expected.Trim(), result.Trim());
+        Assert.Equal(expected.Trim(), result.Replace("\r", "").Trim());
     }
 
     [Fact]
@@ -70,6 +70,39 @@ public class LingoToCSharpConverterTests
     {
         var result = _converter.Convert("next repeat");
         Assert.Equal("continue;", result.Trim());
+    }
+
+    [Fact]
+    public void PropertyDescriptionListIsConverted()
+    {
+        var lingo = string.Join('\n',
+            "on getPropertyDescriptionList",
+            "  description = [:]",
+            "  addProp description,#myMin, [#default:0, #format:#integer, #comment:\"Min Value:\"]",
+            "  addProp description,#myMax, [#default:10, #format:#integer, #comment:\"Max Value:\"]",
+            "  addProp description,#myValue, [#default:-1, #format:#integer, #comment:\"My Start Value:\"]",
+            "  addProp description,#myStep, [#default:1, #format:#integer, #comment:\"My step:\"]",
+            "  addProp description,#myDataSpriteNum, [#default:1, #format:#integer, #comment:\"My Sprite that contains info\\n(set value to -1):\"]",
+            "  addProp description,#myDataName, [#default:1, #format:#string, #comment:\"Name Info:\"]",
+            "  addProp description,#myWaitbeforeExecute, [#default:70, #format:#integer, #comment:\"WaitTime before execute:\"]",
+            "  addProp description,#myFunction, [#default:70, #format:#symbol, #comment:\"function to execute:\"]",
+            "  return description",
+            "end");
+        var result = _converter.Convert(lingo);
+        var expected = string.Join('\n',
+            "public BehaviorPropertyDescriptionList? GetPropertyDescriptionList()",
+            "{",
+            "    return new BehaviorPropertyDescriptionList()",
+            "        .Add(this, x => x.myMin, \"Min Value:\", 0)",
+            "        .Add(this, x => x.myMax, \"Max Value:\", 10)",
+            "        .Add(this, x => x.myValue, \"My Start Value:\", -1)",
+            "        .Add(this, x => x.myStep, \"My step:\", 1)",
+            "        .Add(this, x => x.myDataSpriteNum, \"My Sprite that contains info\\n(set value to -1):\", 1)",
+            "        .Add(this, x => x.myDataName, \"Name Info:\", \"1\")",
+            "        .Add(this, x => x.myWaitbeforeExecute, \"WaitTime before execute:\", 70)",
+            "        .Add(this, x => x.myFunction, \"function to execute:\", \"70\");",
+            "}");
+        Assert.Equal(expected.Trim(), result.Replace("\r", "").Trim());
     }
 
     [Fact]
@@ -116,6 +149,33 @@ public class LingoToCSharpConverterTests
             "public void BeginSprite()",
             "{",
             "    SendSprite<B2>(2, b2 => b2.doIt());",
+            "}");
+        Assert.Equal(expected.Trim(), batch.ConvertedScripts["B1"].Trim());
+    }
+
+    [Fact]
+    public void SendSpriteWithArgumentIsConverted()
+    {
+        var scripts = new[]
+        {
+            new LingoScriptFile
+            {
+                Name = "B1",
+                Source = "on beginSprite\r\n sendSprite 2, #doIt, 42\r\nend\r\n",
+                Type = LingoScriptType.Behavior
+            },
+            new LingoScriptFile
+            {
+                Name = "B2",
+                Source = "on doIt me, value\r\n end\r\n",
+                Type = LingoScriptType.Behavior
+            }
+        };
+        var batch = _converter.Convert(scripts);
+        var expected = string.Join('\n',
+            "public void BeginSprite()",
+            "{",
+            "    SendSprite<B2>(2, b2 => b2.doIt(42));",
             "}");
         Assert.Equal(expected.Trim(), batch.ConvertedScripts["B1"].Trim());
     }
@@ -768,5 +828,73 @@ end";
         var file = new LingoScriptFile { Name = "MyMovie", Source = lingo, Type = LingoScriptType.Behavior };
         var result = _converter.Convert(file);
         Assert.Contains("class MyMovieMovieScript : LingoMovieScript", result);
+    }
+
+    [Fact]
+    public void CompleteScriptWithSendSpriteIsConverted()
+    {
+        var scripts = new[]
+        {
+            new LingoScriptFile
+            {
+                Name = "Counter",
+                Source = @"on Beginsprite me
+  if myValue=-1 then
+    myValue = sendsprite(myDataSpriteNum ,#GetCounterStartData,myDataName)
+    if myValue=void then myValue =0
+    if myValue < myMin or myValue>myMax then myValue=0
+  end if
+  me.Updateme()
+  myWaiter = myWaitbeforeExecute
+end
+
+on exitframe me
+  if myWaiter<myWaitbeforeExecute then
+    if myWaiter=myWaitbeforeExecute-1 then
+      sendsprite(myDataSpriteNum ,myFunction,myDataName,myValue)
+    end if
+    myWaiter = myWaiter +1
+  end if
+  
+end",
+                Type = LingoScriptType.Behavior
+            }
+        };
+        var batch = _converter.Convert(scripts);
+        var expected = string.Join('\n',
+            "public void Beginsprite()",
+            "{",
+            "    if (myValue == -1)",
+            "    {",
+            "        myValue = SendSprite<GetCounterStartDataBehavior>(myDataSpriteNum, getcounterstartdatabehavior => getcounterstartdatabehavior.GetCounterStartData(myDataName));",
+            "        if (myValue == void)",
+            "        {",
+            "            myValue = 0;",
+            "        }",
+            "        if ((myValue < myMin) || (myValue > myMax))",
+            "        {",
+            "            myValue = 0;",
+            "        }",
+            "    }",
+            "    Updateme();",
+            "    myWaiter = myWaitbeforeExecute;",
+            "}",
+            "",
+            "public void Exitframe()",
+            "{",
+            "    if (myWaiter < myWaitbeforeExecute)",
+            "    {",
+            "        if (myWaiter == (myWaitbeforeExecute - 1))",
+            "        {",
+            "            SendSprite(myDataSpriteNum, sprite => sprite.myFunction(myDataName, myValue));",
+            "        }",
+            "        myWaiter = myWaiter + 1;",
+            "    }",
+            "}");
+        Assert.Equal(expected.Trim(), batch.ConvertedScripts["Counter"].Replace("\r", "").Trim());
+        Assert.True(batch.ConvertedScripts.ContainsKey("GetCounterStartDataBehavior"));
+        var generated = batch.ConvertedScripts["GetCounterStartDataBehavior"];
+        Assert.Contains("public class GetCounterStartDataBehavior : LingoSpriteBehavior", generated);
+        Assert.Contains("public object? GetCounterStartData(params object?[] args) => null;", generated);
     }
 }

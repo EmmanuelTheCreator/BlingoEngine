@@ -16,8 +16,8 @@ public class AbstSDLComponentContext : IDisposable
     public int TargetHeight { get; set; }
     public int X { get; set; }
     public int Y { get; set; }
-    public bool Visible { get; set; }
-    public float Blend { get; set; }
+    public bool Visible { get; set; } = true;
+    public float Blend { get; set; } = 100;
     public int? InkType { get; set; }
     public float OffsetX { get; set; }
     public float OffsetY { get; set; }

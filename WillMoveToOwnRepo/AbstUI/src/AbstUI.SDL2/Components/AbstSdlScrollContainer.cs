@@ -30,6 +30,7 @@ namespace AbstUI.SDL2.Components
 
         protected override void RenderContent(AbstSDLRenderContext context)
         {
+            float maxX = 0, maxY = 0;
             foreach (var child in _children)
             {
                 if (child.FrameworkNode is AbstSdlComponent comp)
@@ -37,13 +38,22 @@ namespace AbstUI.SDL2.Components
                     var ctx = comp.ComponentContext;
                     var oldOffX = ctx.OffsetX;
                     var oldOffY = ctx.OffsetY;
+
+                    // Render child relative to this container's origin and scroll position
                     ctx.OffsetX += -X - ScrollHorizontal;
                     ctx.OffsetY += -Y - ScrollVertical;
                     ctx.RenderToTexture(context);
+
                     ctx.OffsetX = oldOffX;
                     ctx.OffsetY = oldOffY;
+
+                    maxX = MathF.Max(maxX, comp.X + comp.Width);
+                    maxY = MathF.Max(maxY, comp.Y + comp.Height);
                 }
             }
+
+            ContentWidth = maxX;
+            ContentHeight = maxY;
         }
 
         public override void Dispose()
