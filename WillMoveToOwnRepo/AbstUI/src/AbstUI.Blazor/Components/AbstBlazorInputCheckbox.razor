@@ -1,2 +1,2 @@
 @inherits AbstBlazorComponentBase
-<input type="checkbox" checked="@Checked" @onchange="OnChange" disabled="@(Enabled ? null : true)" style="@BuildStyle()" />
+<input type="checkbox" checked="@_component.Checked" @onchange="OnChange" disabled="@(_component.Enabled ? null : true)" style="@BuildStyle()" />

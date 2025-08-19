@@ -37,11 +37,12 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
 {
     private readonly ILingoServiceProvider _services;
     private readonly List<IDisposable> _disposables = new();
-    private readonly IAbstComponentFactory _gfxFactory = new AbstBlazorComponentFactory();
+    private readonly IAbstComponentFactory _gfxFactory;
 
     public BlazorFactory(ILingoServiceProvider services)
     {
         _services = services;
+        _gfxFactory = services.GetRequiredService<IAbstComponentFactory>();
     }
 
     public LingoStage CreateStage(LingoPlayer lingoPlayer)

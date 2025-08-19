@@ -1,15 +1,25 @@
+@using Microsoft.AspNetCore.Components
+@using System.Collections.Generic
 @inherits AbstBlazorComponentBase
-<ul class="nav nav-tabs">
-@for (int i = 0; i < Tabs.Count; i++)
-{
-    var tab = Tabs[i];
-    <li class="nav-item">
-        <a class="nav-link @(i == _selectedIndex ? "active" : "")" href="#" @onclick="(() => SelectTab(i))">@tab.Title</a>
-    </li>
-}
-</ul>
-<div class="tab-content" style="@BuildStyle()">
-    <div class="tab-pane fade show active">
-        @ActiveContent
+
+<CascadingValue Value="_component.ChildContainer">
+    <ul class="nav nav-tabs">
+    @for (int i = 0; i < _component.Tabs.Count; i++)
+    {
+        var tab = _component.Tabs[i];
+        <li class="nav-item">
+            <a class="nav-link @(i == _component.SelectedIndex ? "active" : "")" href="#" @onclick="(() => SelectTab(i))">@tab.Title</a>
+        </li>
+    }
+    </ul>
+    <div class="tab-content" style="@BuildStyle()">
+        <div class="tab-pane fade show active">
+            @if (_component.ActiveContentNode is { } node)
+            {
+                var type = _component.ChildContainer.GetRazorComponentType(node);
+                var parameters = new Dictionary<string, object?> { ["Component"] = node };
+                <DynamicComponent Type="@type" Parameters="@parameters" />
+            }
+        </div>
     </div>
-</div>
+</CascadingValue>

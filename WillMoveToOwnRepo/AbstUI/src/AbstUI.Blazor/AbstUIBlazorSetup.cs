@@ -1,4 +1,5 @@
 using AbstUI.Blazor.Styles;
+using AbstUI.Components;
 using AbstUI.Styles;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,7 +12,10 @@ public static class AbstUIBlazorSetup
         services
             .AddSingleton<IAbstFontManager, AbstBlazorFontManager>()
             .AddSingleton<IAbstBlazorStyleManager, AbstBlazorStyleManager>()
-            .AddSingleton<AbstUIScriptResolver>();
+            .AddSingleton<AbstUIScriptResolver>()
+            .AddSingleton<AbstBlazorComponentMapper>()
+            .AddSingleton<AbstBlazorComponentContainer>()
+            .AddSingleton<IAbstComponentFactory, AbstBlazorComponentFactory>();
         return services;
     }
 }
