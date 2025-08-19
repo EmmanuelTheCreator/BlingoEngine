@@ -132,16 +132,17 @@ namespace LingoEngine.Lingo.Core.Tokenizer
 
     public class LingoPutStmtNode : LingoNode
     {
-        public LingoPutStmtNode(LingoNode value, LingoNode target)
+        public LingoPutStmtNode(LingoNode value, LingoNode? target)
         {
             Value = value;
             Target = target;
+            Variable = target;
         }
 
         public LingoNode Value { get; set; }
         public LingoPutType Type { get; set; }
-        public LingoNode Variable { get; set; }
-        public LingoNode Target { get; }
+        public LingoNode? Variable { get; set; }
+        public LingoNode? Target { get; }
 
         public override void Accept(ILingoAstVisitor visitor) => visitor.Visit(this);
     }

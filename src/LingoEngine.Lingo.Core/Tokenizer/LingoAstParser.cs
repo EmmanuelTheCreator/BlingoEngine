@@ -725,13 +725,20 @@ namespace LingoEngine.Lingo.Core.Tokenizer
             // Parse the value expression (what to put)
             var value = ParseExpression();
 
-            // Expect and consume the "into" keyword
-            Expect(LingoTokenType.Into);
+            // If followed by "into" parse target; otherwise treat as message output
+            if (_currentToken.Type == LingoTokenType.Into)
+            {
+                var tokType = _currentToken.Type;
+                AdvanceToken();
+                var target = ParseExpression(false);
+                var node = new LingoPutStmtNode(value, target)
+                {
+                    Type = LingoPutType.Into
+                };
+                return node;
+            }
 
-            // Parse the destination expression (where to put)
-            var target = ParseExpression(false);
-
-            return new LingoPutStmtNode(value, target);
+            return new LingoPutStmtNode(value, null) { Type = LingoPutType.Message };
         }
 
 

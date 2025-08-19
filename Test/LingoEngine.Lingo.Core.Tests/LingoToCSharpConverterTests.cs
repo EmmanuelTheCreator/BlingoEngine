@@ -18,6 +18,13 @@ public class LingoToCSharpConverterTests
     }
 
     [Fact]
+    public void PutStatementWithoutIntoIsConverted()
+    {
+        var result = _converter.Convert("put x");
+        Assert.Equal("Put(x);", result.Trim());
+    }
+
+    [Fact]
     public void AssignmentStatementIsConverted()
     {
         var result = _converter.Convert("x = 5");

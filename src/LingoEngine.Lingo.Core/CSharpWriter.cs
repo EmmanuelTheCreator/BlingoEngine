@@ -335,10 +335,19 @@ public class CSharpWriter : ILingoAstVisitor
 
     public void Visit(LingoPutStmtNode node)
     {
-        node.Target.Accept(this);
-        Append(" = ");
-        node.Value.Accept(this);
-        AppendLine(";");
+        if (node.Target == null || node.Type == LingoPutType.Message)
+        {
+            Append("Put(");
+            node.Value.Accept(this);
+            AppendLine(");");
+        }
+        else
+        {
+            node.Target.Accept(this);
+            Append(" = ");
+            node.Value.Accept(this);
+            AppendLine(";");
+        }
     }
 
     public void Visit(LingoTheExprNode node)
