@@ -8,8 +8,6 @@ using LingoEngine.Sprites;
 using AbstUI.Styles;
 using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Casts;
-using System.Runtime;
-using System;
 
 namespace LingoEngine.Setup
 {
@@ -17,10 +15,10 @@ namespace LingoEngine.Setup
     {
         private readonly IServiceCollection _container;
         private readonly LingoProxyServiceCollection _proxy;
-        private readonly Dictionary<string, MovieRegistration> _Movies = new();
-        private readonly List<(string Name, string FileName)> _Fonts = new();
-        private readonly List<Action<ILingoServiceProvider>> _BuildActions = new();
-        private Action<ILingoFrameworkFactory>? _FrameworkFactorySetup;
+        private readonly Dictionary<string, MovieRegistration> _movies = new();
+        private readonly List<(string Name, string FileName)> _fonts = new();
+        private readonly List<Action<ILingoServiceProvider>> _buildActions = new();
+        private Action<ILingoFrameworkFactory>? _frameworkFactorySetup;
         private IServiceProvider? _serviceProvider;
         private readonly ILingoServiceProvider _lingoServiceProvider;
         private Action<LingoProjectSettings> _projectSettingsSetup = p => { };
@@ -51,9 +49,9 @@ namespace LingoEngine.Setup
             _player?.UnloadInternalCastLibs();
 
             _proxy.UnregisterMovie(preserveNamespaceFragment);
-            _Movies.Clear();
-            _Fonts.Clear();
-            _BuildActions.Clear();
+            _movies.Clear();
+            _fonts.Clear();
+            _buildActions.Clear();
 
             if (_serviceProvider != null)
             {
@@ -73,7 +71,7 @@ namespace LingoEngine.Setup
         {
             _container.AddSingleton<ILingoFrameworkFactory, T>();
             if (setup != null)
-                _FrameworkFactorySetup = f => setup((T)f);
+                _frameworkFactorySetup = f => setup((T)f);
             return this;
         }
 
@@ -104,8 +102,8 @@ namespace LingoEngine.Setup
             _lingoServiceProvider.SetServiceProvider(_serviceProvider);
             var player = _lingoServiceProvider.GetRequiredService<LingoPlayer>();
             player.SetActionOnNewMovie(ActionOnNewMovie);
-            if (_FrameworkFactorySetup != null)
-                _FrameworkFactorySetup(_lingoServiceProvider.GetRequiredService<ILingoFrameworkFactory>());
+            if (_frameworkFactorySetup != null)
+                _frameworkFactorySetup(_lingoServiceProvider.GetRequiredService<ILingoFrameworkFactory>());
             _player = player;
 
             InitializeProject();
@@ -113,17 +111,18 @@ namespace LingoEngine.Setup
             return player;
         }
 
-        public ILingoProjectFactory BuildAndRunProject()
+        public ILingoProjectFactory BuildAndRunProject(Action<IServiceProvider>? afterStart = null)
         {
             Build();
-            return RunProject();
+            return RunProject(afterStart);
         }
 
-        public ILingoProjectFactory RunProject()
+        public ILingoProjectFactory RunProject(Action<IServiceProvider>? afterStart = null)
         {
             if (_projectFactory == null) throw new InvalidOperationException("Project factory has not been set up. Use AddProjectFactory<TLingoProjectFactory>() to set it up. and run Build first");
             if (_startupMovie != null)
                 _projectFactory.Run(_startupMovie, !LingoEngineGlobal.IsRunningDirector);
+            if (afterStart!= null && _serviceProvider != null) afterStart(_serviceProvider);
             return _projectFactory;
         }
 
@@ -131,13 +130,13 @@ namespace LingoEngine.Setup
         {
             var registration = new MovieRegistration(_proxy, name);
             action(registration);
-            _Movies.Add(name, registration);
+            _movies.Add(name, registration);
             return this;
         }
 
         private void ActionOnNewMovie(LingoMovie movie)
         {
-            var registration = _Movies[movie.Name];
+            var registration = _movies[movie.Name];
             var ctor = registration.GetAllMovieScriptsCtors();
             foreach (var item in ctor)
                 item(movie);
@@ -157,15 +156,18 @@ namespace LingoEngine.Setup
 
         public ILingoEngineRegistration AddFont(string name, string pathAndName)
         {
-            _Fonts.Add((name, pathAndName));
+            _fonts.Add((name, pathAndName));
             return this;
         }
 
         public ILingoEngineRegistration AddBuildAction(Action<ILingoServiceProvider> buildAction)
         {
-            _BuildActions.Add(buildAction);
+            _buildActions.Add(buildAction);
             return this;
         }
+
+
+        #region Projects
 
         public ILingoEngineRegistration SetTheProjectFactory(Type factoryType)
         {
@@ -179,6 +181,7 @@ namespace LingoEngine.Setup
         {
             if (_makeFactoryMethod != null)
             {
+                // there was already a project loaded, so unload the previous project
                 UnloadMovie();
             }
 
@@ -222,7 +225,7 @@ namespace LingoEngine.Setup
                 _player.Stage.Height = settings.StageHeight;
             }
             LoadFonts(_lingoServiceProvider);
-            _BuildActions.ForEach(b => b(_lingoServiceProvider));
+            _buildActions.ForEach(b => b(_lingoServiceProvider));
             _lingoServiceProvider.GetRequiredService<IAbstCommandManager>()
                 .DiscoverAndSubscribe(_lingoServiceProvider);
             _projectFactory.LoadCastLibs(_lingoServiceProvider.GetRequiredService<LingoCastLibsContainer>(), _player);
@@ -232,16 +235,18 @@ namespace LingoEngine.Setup
         private void LoadFonts(ILingoServiceProvider serviceProvider)
         {
             var fontsManager = serviceProvider.GetRequiredService<IAbstFontManager>();
-            foreach (var font in _Fonts)
+            foreach (var font in _fonts)
                 fontsManager.AddFont(font.Name, font.FileName);
             fontsManager.LoadAll();
-        }
+        } 
+        #endregion
+
 
         private class MovieRegistration : IMovieRegistration
         {
             private readonly IServiceCollection _container;
             private readonly string _movieName;
-            private readonly List<Action<LingoMovie>> _MovieScripts = new();
+            private readonly List<Action<LingoMovie>> _movieScripts = new();
 
             public MovieRegistration(IServiceCollection container, string movieName)
             {
@@ -249,7 +254,7 @@ namespace LingoEngine.Setup
                 _movieName = movieName;
             }
 
-            public Action<LingoMovie>[] GetAllMovieScriptsCtors() => _MovieScripts.ToArray();
+            public Action<LingoMovie>[] GetAllMovieScriptsCtors() => _movieScripts.ToArray();
 
             public IMovieRegistration AddBehavior<T>() where T : LingoSpriteBehavior
             {
@@ -260,7 +265,7 @@ namespace LingoEngine.Setup
             public IMovieRegistration AddMovieScript<T>() where T : LingoMovieScript
             {
                 _container.AddScoped<T>();
-                _MovieScripts.Add(movie =>
+                _movieScripts.Add(movie =>
                 {
                     movie.AddMovieScript<T>();
                 });

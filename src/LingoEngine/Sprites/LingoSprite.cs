@@ -14,7 +14,9 @@ namespace LingoEngine.Sprites
         private int _beginFrame;
         private int _endFrame;
         private string _name = string.Empty;
-
+        protected ILingoFrameworkSprite _frameworkSprite;
+        public ILingoFrameworkSprite FrameworkObj => _frameworkSprite;
+        
         public int BeginFrame
         {
             get => _beginFrame;
@@ -124,6 +126,9 @@ namespace LingoEngine.Sprites
 
         internal virtual void DoBeginSprite()
         {
+            if (InitialState != null)
+                LoadState(InitialState);
+
             // Subscribe all actors
             foreach (var actor in _spriteActors)
             {
@@ -131,8 +136,7 @@ namespace LingoEngine.Sprites
                 if (actor is IHasBeginSpriteEvent begin) begin.BeginSprite();
             }
 
-            if (InitialState != null)
-                LoadState(InitialState);
+           
 
             BeginSprite();
         }
@@ -165,36 +169,10 @@ namespace LingoEngine.Sprites
             AnimationChanged?.Invoke();
         }
 
-        public void LoadState(LingoSpriteState state)
-        {
-            BeginFrame = state.BeginFrame;
-            EndFrame = state.EndFrame;
-            Name = state.Name;
-            Puppet = state.Puppet;
-            SpriteNum = state.SpriteNum;
-            Lock = state.Lock;
-            OnLoadState(state);
-        }
 
-        protected virtual void OnLoadState(LingoSpriteState state) { }
 
-        public LingoSpriteState GetState()
-        {
-            var state = CreateState();
-            state.BeginFrame = BeginFrame;
-            state.EndFrame = EndFrame;
-            state.Name = Name;
-            state.Puppet = Puppet;
-            state.SpriteNum = SpriteNum;
-            state.Lock = Lock;
-            OnGetState(state);
-            return state;
-        }
 
-        protected virtual LingoSpriteState CreateState() => new();
-
-        protected virtual void OnGetState(LingoSpriteState state) { }
-
+        #region Clone/ Get/Load state
         public virtual Action<LingoSprite> GetCloneAction()
         {
             Action<LingoSprite> action = s => { };
@@ -213,5 +191,28 @@ namespace LingoEngine.Sprites
             };
             return action;
         }
+
+        public void LoadState(LingoSpriteState state)
+        {
+            Name = state.Name;
+            OnLoadState(state);
+        }
+
+        protected virtual void OnLoadState(LingoSpriteState state) { }
+
+        public LingoSpriteState GetState()
+        {
+            var state = CreateState();
+            state.Name = Name;
+            OnGetState(state);
+            return state;
+        }
+
+        protected virtual LingoSpriteState CreateState() => new();
+
+        protected virtual void OnGetState(LingoSpriteState state) { }
+
+        #endregion
+
     }
 }

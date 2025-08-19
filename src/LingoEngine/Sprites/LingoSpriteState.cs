@@ -1,16 +1,14 @@
+using AbstUI.Primitives;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
+using LingoEngine.Sounds;
 
 namespace LingoEngine.Sprites;
 
 public class LingoSpriteState
 {
-    public int BeginFrame { get; set; }
-    public int EndFrame { get; set; }
     public string Name { get; set; } = string.Empty;
-    public bool Puppet { get; set; }
-    public int SpriteNum { get; set; }
-    public bool Lock { get; set; }
+    //public int SpriteNum { get; set; }
 }
 
 public class LingoSprite2DState : LingoSpriteState
@@ -19,11 +17,7 @@ public class LingoSprite2DState : LingoSpriteState
     public int DisplayMember { get; set; }
     public int SpritePropertiesOffset { get; set; }
     public int Ink { get; set; }
-    public bool Visibility { get; set; }
     public bool Hilite { get; set; }
-    public bool Linked { get; set; }
-    public bool Loaded { get; set; }
-    public bool MediaReady { get; set; }
     public float Blend { get; set; }
     public float LocH { get; set; }
     public float LocV { get; set; }
@@ -70,6 +64,5 @@ public class LingoSprite2DVirtualState : LingoSpriteState
 
 public class LingoSpriteSoundState : LingoSpriteState
 {
-    public int Channel { get; set; }
     public LingoMemberSound? Sound { get; set; }
 }

@@ -9,13 +9,13 @@ namespace LingoEngine.Demo.TetriGrounds.SDL2
         static void Main(string[] args)
         {
             var services = new ServiceCollection();
+            IServiceProvider? serviceProvider = null;
             services.RegisterLingoEngine(c => c
                     .WithLingoSdlEngine("TetriGrounds", 730, 547)
                     .SetProjectFactory<LingoEngine.Demo.TetriGrounds.Core.TetriGroundsProjectFactory>()
-                    .BuildAndRunProject()
+                    .BuildAndRunProject(sp => serviceProvider = sp)
                     );
-            var serviceProvider = services.BuildServiceProvider();
-            serviceProvider.GetRequiredService<SdlRootContext>().Run();
+            serviceProvider?.GetRequiredService<SdlRootContext>().Run();
             SdlSetup.Dispose();
         }
     }

@@ -31,10 +31,16 @@ public class LingoSpriteSound : LingoSprite, ILingoSpriteWithMember
         SpriteNum = channel;
         BeginFrame = beginFrame;
         EndFrame = endFrame;
-        Sound = sound;
-        Sound.UsedBy(this);
+        SetSound(sound);
         Name = sound.Name ?? string.Empty;
         _soundChannel = _sound.Channel(channel);
+    }
+
+    private void SetSound(LingoMemberSound? sound)
+    {
+        if (Sound == sound || sound == null) return;
+        Sound = sound;
+        Sound.UsedBy(this);
     }
 
     protected override void BeginSprite()
@@ -64,8 +70,7 @@ public class LingoSpriteSound : LingoSprite, ILingoSpriteWithMember
         {
             baseAction(s);
             var sprite = (LingoSpriteSound)s;
-            sprite.Sound = member;
-            member?.UsedBy(sprite);
+            sprite.SetSound(member);
         };
 
         return action;
@@ -76,15 +81,12 @@ public class LingoSpriteSound : LingoSprite, ILingoSpriteWithMember
     protected override void OnLoadState(LingoSpriteState state)
     {
         if (state is not LingoSpriteSoundState s) return;
-        Channel = s.Channel;
-        Sound = s.Sound;
-        Sound?.UsedBy(this);
+        SetSound(s.Sound);
     }
 
     protected override void OnGetState(LingoSpriteState state)
     {
         if (state is not LingoSpriteSoundState s) return;
-        s.Channel = Channel;
         s.Sound = Sound;
     }
 

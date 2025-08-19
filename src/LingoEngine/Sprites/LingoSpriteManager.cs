@@ -222,6 +222,14 @@ namespace LingoEngine.Sprites
             if (sprite == null) return;
             spriteAction(sprite);
         }
+        protected bool TryCallActiveSprite(int number, Action<TSprite> spriteAction)
+        {
+            if (!_activeSprites.ContainsKey(number)) return false;
+            var sprite = _activeSprites[number];
+            if (sprite == null) return false;
+            spriteAction(sprite);
+            return true;
+        }
         protected TResult? CallActiveSprite<TResult>(int number, Func<TSprite, TResult?> spriteAction)
         {
             var sprite = _activeSprites[number];

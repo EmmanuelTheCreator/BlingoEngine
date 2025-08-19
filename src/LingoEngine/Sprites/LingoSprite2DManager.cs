@@ -149,6 +149,9 @@ namespace LingoEngine.Sprites
 
 
 
+        internal bool TrySendSprite<T>(int spriteNumber, Action<T> actionOnSpriteBehaviour)
+            where T : LingoSpriteBehavior
+            => TryCallActiveSprite(spriteNumber, s => s.CallBehavior(actionOnSpriteBehaviour));
         internal void SendSprite<T>(int spriteNumber, Action<T> actionOnSpriteBehaviour)
             where T : LingoSpriteBehavior
             => CallActiveSprite(spriteNumber, s => s.CallBehavior(actionOnSpriteBehaviour));

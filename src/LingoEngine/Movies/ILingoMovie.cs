@@ -307,6 +307,7 @@ namespace LingoEngine.Movies
         void SendSprite(string name, Action<ILingoSpriteChannel> actionOnSprite);
         void SendSprite(int number, Action<ILingoSpriteChannel> actionOnSprite);
         void SendSprite<T>(int spriteNumber, Action<T> actionOnSprite) where T : LingoSpriteBehavior;
+        bool TrySendSprite<T>(int spriteNumber, Action<T> actionOnSprite) where T : LingoSpriteBehavior;
         TResult? SendSprite<T, TResult>(int spriteNumber, Func<T, TResult> actionOnSprite) where T : LingoSpriteBehavior;
         #endregion
 

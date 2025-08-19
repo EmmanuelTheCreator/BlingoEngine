@@ -164,7 +164,7 @@ namespace LingoEngine.Movies
 
 
 
-        #region Sprites
+        #region Sprite2Ds
         public ILingoSpriteChannel Channel(int channelNumber) => _sprite2DManager.Channel(channelNumber);
         public void PuppetSprite(int number, bool isPuppetSprite) => Channel(number).Puppet = isPuppetSprite;
         public ILingoSpriteChannel GetActiveSprite(int number) => _sprite2DManager.GetActiveSprite(number);
@@ -192,6 +192,7 @@ namespace LingoEngine.Movies
         public void SetSpriteMember(int number, string memberName) => _sprite2DManager.SetSpriteMember(number, memberName);
         public void SetSpriteMember(int number, int memberNumber) => _sprite2DManager.SetSpriteMember(number, memberNumber);
         public void SendSprite<T>(int spriteNumber, Action<T> actionOnSpriteBehaviour) where T : LingoSpriteBehavior => _sprite2DManager.SendSprite(spriteNumber, actionOnSpriteBehaviour);
+        public bool TrySendSprite<T>(int spriteNumber, Action<T> actionOnSpriteBehaviour) where T : LingoSpriteBehavior => _sprite2DManager.TrySendSprite(spriteNumber, actionOnSpriteBehaviour);
         public TResult? SendSprite<T, TResult>(int spriteNumber, Func<T, TResult> actionOnSpriteBehaviour) where T : LingoSpriteBehavior => _sprite2DManager.SendSprite<T, TResult>(spriteNumber, actionOnSpriteBehaviour);
         public void SendSprite(string name, Action<ILingoSpriteChannel> actionOnSprite) => _sprite2DManager.SendSprite(name, actionOnSprite);
         public void SendSprite(int spriteNumber, Action<ILingoSpriteChannel> actionOnSprite) => _sprite2DManager.SendSprite(spriteNumber, actionOnSprite);

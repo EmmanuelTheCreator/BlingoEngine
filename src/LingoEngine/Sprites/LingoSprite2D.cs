@@ -27,7 +27,7 @@ namespace LingoEngine.Sprites
 
         public IReadOnlyList<LingoSpriteBehavior> Behaviors => _behaviors;
 
-        private ILingoFrameworkSprite _frameworkSprite;
+        
         private bool isMouseInside = false;
         private bool isDragging = false;
         private bool isDraggable = false;  // A flag to control dragging behavior
@@ -47,7 +47,7 @@ namespace LingoEngine.Sprites
         #region Properties
         public override int SpriteNumWithChannel => SpriteNum + SpriteNumOffset;
         internal LingoSpriteChannel? SpriteChannel { get; set; }
-        public ILingoFrameworkSprite FrameworkObj => _frameworkSprite;
+       
         public T Framework<T>() where T : class, ILingoFrameworkSprite => (T)_frameworkSprite;
 
 
@@ -743,6 +743,7 @@ When a movie stops, events occur in the following order:
         {
             SpriteNum = spriteNum;
         }
+        #region Clone and Get/Load State
 
         public override Action<LingoSprite> GetCloneAction()
         {
@@ -798,21 +799,18 @@ When a movie stops, events occur in the following order:
         protected override void OnLoadState(LingoSpriteState state)
         {
             if (state is not LingoSprite2DState s) return;
-            SetMember(s.Member);
+            if (s.Width > 0) Width = s.Width;
+            if (s.Height > 0) Height = s.Height;
+            //SetMember(s.Member);
             DisplayMember = s.DisplayMember;
             SpritePropertiesOffset = s.SpritePropertiesOffset;
             Ink = s.Ink;
-            Visibility = s.Visibility;
             Hilite = s.Hilite;
-            Linked = s.Linked;
-            Loaded = s.Loaded;
-            MediaReady = s.MediaReady;
             Blend = s.Blend;
             LocH = s.LocH;
             LocV = s.LocV;
             LocZ = s.LocZ;
-            Width = s.Width;
-            Height = s.Height;
+
             Rotation = s.Rotation;
             Skew = s.Skew;
             FlipH = s.FlipH;
@@ -834,11 +832,7 @@ When a movie stops, events occur in the following order:
             s.DisplayMember = DisplayMember;
             s.SpritePropertiesOffset = SpritePropertiesOffset;
             s.Ink = Ink;
-            s.Visibility = Visibility;
             s.Hilite = Hilite;
-            s.Linked = Linked;
-            s.Loaded = Loaded;
-            s.MediaReady = MediaReady;
             s.Blend = Blend;
             s.LocH = LocH;
             s.LocV = LocV;
@@ -859,6 +853,7 @@ When a movie stops, events occur in the following order:
             s.IsDraggable = IsDraggable;
         }
 
+        #endregion
         public void UpdateTexture(IAbstTexture2D texture)
         {
             _frameworkSprite.SetTexture(texture);
