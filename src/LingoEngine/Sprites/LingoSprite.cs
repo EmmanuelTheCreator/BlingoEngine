@@ -70,7 +70,7 @@ namespace LingoEngine.Sprites
 
         public bool IsDeleted { get; private set; }
 
-        public LingoSpriteState? InitialState { get; internal set; }
+        public LingoSpriteState? InitialState { get; set; }
 
         public event Action? AnimationChanged;
 

@@ -141,26 +141,41 @@ public class JsonStateRepository
             s.Puppet = sDto.Puppet;
             s.Lock = sDto.Lock;
             s.Visibility = sDto.Visibility;
-            s.LocH = sDto.LocH;
-            s.LocV = sDto.LocV;
-            s.LocZ = sDto.LocZ;
-            s.Rotation = sDto.Rotation;
-            s.Skew = sDto.Skew;
-            s.RegPoint = new APoint(sDto.RegPoint.X, sDto.RegPoint.Y);
-            s.Ink = sDto.Ink;
-            s.ForeColor = FromDto(sDto.ForeColor);
-            s.BackColor = FromDto(sDto.BackColor);
-            s.Blend = sDto.Blend;
-            s.Editable = sDto.Editable;
-            s.Width = sDto.Width;
-            s.Height = sDto.Height;
             s.BeginFrame = sDto.BeginFrame;
             s.EndFrame = sDto.EndFrame;
-            s.DisplayMember = sDto.DisplayMember;
-            s.SpritePropertiesOffset = sDto.SpritePropertiesOffset;
         });
+
+        var state = new LingoSprite2DState
+        {
+            Name = sDto.Name,
+            DisplayMember = sDto.DisplayMember,
+            SpritePropertiesOffset = sDto.SpritePropertiesOffset,
+            Ink = sDto.Ink,
+            Blend = sDto.Blend,
+            LocH = sDto.LocH,
+            LocV = sDto.LocV,
+            LocZ = sDto.LocZ,
+            Rotation = sDto.Rotation,
+            Skew = sDto.Skew,
+            RegPoint = new APoint(sDto.RegPoint.X, sDto.RegPoint.Y),
+            ForeColor = FromDto(sDto.ForeColor),
+            BackColor = FromDto(sDto.BackColor),
+            Editable = sDto.Editable,
+            Width = sDto.Width,
+            Height = sDto.Height,
+            FlipH = sDto.FlipH,
+            FlipV = sDto.FlipV,
+        };
+
         if (memberMap.TryGetValue(sDto.MemberNum, out var mem))
+        {
+            state.Member = mem;
             sprite.SetMember(mem);
+        }
+
+        sprite.InitialState = state;
+        sprite.LoadState(state);
+
         AddAnimator(sDto, sprite, movie, eventMediator);
         return sprite;
     }
@@ -403,29 +418,32 @@ public class JsonStateRepository
 
     private static LingoSpriteDTO ToDto(LingoSprite2D sprite)
     {
+        var state = sprite.InitialState as LingoSprite2DState ?? (LingoSprite2DState)sprite.GetState();
         var dto = new LingoSpriteDTO
         {
-            Name = sprite.Name,
+            Name = state.Name,
             SpriteNum = sprite.SpriteNum,
-            MemberNum = sprite.MemberNum,
-            DisplayMember = sprite.DisplayMember,
-            SpritePropertiesOffset = sprite.SpritePropertiesOffset,
+            MemberNum = state.Member?.NumberInCast ?? sprite.MemberNum,
+            DisplayMember = state.DisplayMember,
+            SpritePropertiesOffset = state.SpritePropertiesOffset,
             Puppet = sprite.Puppet,
             Lock = sprite.Lock,
             Visibility = sprite.Visibility,
-            LocH = sprite.LocH,
-            LocV = sprite.LocV,
-            LocZ = sprite.LocZ,
-            Rotation = sprite.Rotation,
-            Skew = sprite.Skew,
-            RegPoint = new LingoPointDTO { X = sprite.RegPoint.X, Y = sprite.RegPoint.Y },
-            Ink = sprite.Ink,
-            ForeColor = ToDto(sprite.ForeColor),
-            BackColor = ToDto(sprite.BackColor),
-            Blend = sprite.Blend,
-            Editable = sprite.Editable,
-            Width = sprite.Width,
-            Height = sprite.Height,
+            LocH = state.LocH,
+            LocV = state.LocV,
+            LocZ = state.LocZ,
+            Rotation = state.Rotation,
+            Skew = state.Skew,
+            RegPoint = new LingoPointDTO { X = state.RegPoint.X, Y = state.RegPoint.Y },
+            Ink = state.Ink,
+            ForeColor = ToDto(state.ForeColor),
+            BackColor = ToDto(state.BackColor),
+            Blend = state.Blend,
+            Editable = state.Editable,
+            FlipH = state.FlipH,
+            FlipV = state.FlipV,
+            Width = state.Width,
+            Height = state.Height,
             BeginFrame = sprite.BeginFrame,
             EndFrame = sprite.EndFrame
         };
@@ -447,26 +465,29 @@ public class JsonStateRepository
     }
     private static LingoSpriteDTO ToDto(LingoSprite2DVirtual sprite)
     {
+        var state = sprite.InitialState as LingoSprite2DVirtualState ?? (LingoSprite2DVirtualState)sprite.GetState();
         var dto = new LingoSpriteDTO
         {
-            Name = sprite.Name,
+            Name = state.Name,
             SpriteNum = sprite.SpriteNum,
-            MemberNum = sprite.MemberNum,
-            DisplayMember = sprite.DisplayMember,
+            MemberNum = state.Member?.NumberInCast ?? sprite.MemberNum,
+            DisplayMember = state.DisplayMember,
             Puppet = sprite.Puppet,
             Lock = sprite.Lock,
-            LocH = sprite.LocH,
-            LocV = sprite.LocV,
-            LocZ = sprite.LocZ,
-            Rotation = sprite.Rotation,
-            Skew = sprite.Skew,
-            RegPoint = new LingoPointDTO { X = sprite.RegPoint.X, Y = sprite.RegPoint.Y },
-            Ink = sprite.Ink,
-            ForeColor = ToDto(sprite.ForeColor),
-            BackColor = ToDto(sprite.BackColor),
-            Blend = sprite.Blend,
-            Width = sprite.Width,
-            Height = sprite.Height,
+            LocH = state.LocH,
+            LocV = state.LocV,
+            LocZ = state.LocZ,
+            Rotation = state.Rotation,
+            Skew = state.Skew,
+            RegPoint = new LingoPointDTO { X = state.RegPoint.X, Y = state.RegPoint.Y },
+            Ink = state.Ink,
+            ForeColor = ToDto(state.ForeColor),
+            BackColor = ToDto(state.BackColor),
+            Blend = state.Blend,
+            Width = state.Width,
+            Height = state.Height,
+            FlipH = state.FlipH,
+            FlipV = state.FlipV,
             BeginFrame = sprite.BeginFrame,
             EndFrame = sprite.EndFrame
         };
