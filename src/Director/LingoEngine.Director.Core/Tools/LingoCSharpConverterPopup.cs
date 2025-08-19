@@ -8,6 +8,7 @@ using LingoEngine.FrameworkCommunication;
 using LingoEngine.Lingo.Core;
 using LingoEngine.Texts;
 using TextCopy;
+using System.Linq;
 
 namespace LingoEngine.Director.Core.Tools;
 
@@ -107,7 +108,7 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
         errorInput.Enabled = false;
         errorInput.Margin = new AMargin(0, 500, 0, 0);
         //prop?.SetValue(framework, DirectorColors.Notification_Error_Border);
-        root.AddItem(errorInput,0,450);
+        root.AddItem(errorInput, 0, 450);
         var framework = errorInput.FrameworkObj;
 
         var menuBar = _factory.CreateWrapPanel(AOrientation.Horizontal, "BottomBar");
@@ -147,25 +148,25 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
 
     public List<string> WordsLingoCodeKeywords = [.. _lingoKeyWordsDefault];
     private static readonly string[] _lingoKeyWordsDefault = [
-        "property", "on", "if", "then", "else", "me", "or", "and", "true", "false", "repeat", "with", "end", "to", "return", "while", "the", "new", "global"];
+        "Property", "On", "If", "Then", "Else", "Me", "Or", "And", "True", "False", "Repeat", "With", "End", "To", "Return", "While", "The", "New", "Global"];
 
     public List<string> WordsLingoCodeBuiltIn = [.. _lingoWordsDefault];
     private static readonly string[] _lingoWordsDefault = [
-            "point","loc","void","char","rgb","in","line","word",
-            "default","format","color","comment","integer","boolean","string","text","string","symbol",
-            "getPropertyDescriptionList","GetBehaviorTooltip","IsOKToAttach","GetBehaviorDescription",
-            "_movie","actorlist","cursor","alert",
-            "membernum","member","preload","sound",
-            "sprite","spritenum","locH","locV","locZ","blend","ink","mouseH","mouseV","puppet",
-            "deleteOne","append","getpos","deleteone","addprop","sendsprite","voidp","frame","length","count",
-            "go","exit",
-            "value",
-            "script","handler",
-            "stepFrame","beginsprite","endsprite",
-            "startmovie","stopmovie",
-            "_Mouse","mouseup","mousedown","mouseenter","mouseleave",
-            "neterror","nettextresult","getNetText",
-            "_key","keypressed","controldown","shiftdown",
+            "Point","Loc","Void","Char","Rgb","In","Line","Word",
+            "Default","Format","Color","Comment","Integer","Boolean","String","Text","String","Symbol",
+            "GetPropertyDescriptionList","GetBehaviorTooltip","IsOKToAttach","GetBehaviorDescription",
+            "_Movie","ActorList","Cursor","Alert",
+            "MemberNum","Member","Preload","Sound",
+            "Sprite","SpriteNum","LocH","LocV","LocZ","Blend","Ink","MouseH","MouseV","Puppet",
+            "DeleteOne","Append","GetPos","AddProp","SendSprite","VoidP","Frame","Length","Count",
+            "Go","Exit",
+            "Value",
+            "Script","Handler",
+            "StepFrame","BeginSprite","EndSprite",
+            "StartMovie","StopMovie",
+            "_Mouse","MouseUp","MouseDown","MouseEnter","MouseLeave",
+            "NetError","NetTextResult","GetNetText",
+            "_Key","KeyPressed","ControlDown","ShiftDown",
             "_Player",
             "_Sound",
             "_System",
@@ -173,6 +174,8 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
             "CastLib",
             "Put",
         ];
+    public static IEnumerable<string> CaseInsensitiveWords(IEnumerable<string> words)
+        => words.SelectMany(w => new[] { w, w.ToLowerInvariant() }).Distinct();
     public List<string> WordsCCharpCodeBuiltIn = [.. _csharpWordsDefault];
     private static readonly string[] _csharpWordsDefault = [
              "abstract","as","base","break","case","catch","checked","class","const","continue",
@@ -183,7 +186,7 @@ public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverte
             "switch","this","throw","try","typeof","unsafe","using","virtual","volatile","while",
             "async","await","var","null","true","false","void",
 
-        
+
         ];
     public List<string> WordsCCharpCodeTypes = [.. _csharpWordsCodeTypesDefault];
     private static readonly string[] _csharpWordsCodeTypesDefault = [

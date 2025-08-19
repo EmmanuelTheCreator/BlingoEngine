@@ -6,6 +6,7 @@ using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.FrameworkCommunication;
+using System.Linq;
 
 namespace LingoEngine.Director.LGodot.Tools;
 
@@ -21,15 +22,15 @@ public partial class GodotLingoCSharpConverterPopup : Window, ILingoFrameworkCSh
 
     public GodotLingoCSharpConverterPopup()
     {
-        
+
     }
 
-    
+
     public void Init(ILingoDialog lingoDialog)
     {
         _lingoDialog = (LingoCSharpConverterPopup)lingoDialog;
-        _wordsLingoCodeBuiltIn = _lingoDialog.WordsLingoCodeBuiltIn;
-        _wordsLingoCodeKeywords = _lingoDialog.WordsLingoCodeKeywords;
+        _wordsLingoCodeBuiltIn = LingoCSharpConverterPopup.CaseInsensitiveWords(_lingoDialog.WordsLingoCodeBuiltIn).ToList();
+        _wordsLingoCodeKeywords = LingoCSharpConverterPopup.CaseInsensitiveWords(_lingoDialog.WordsLingoCodeKeywords).ToList();
         _wordsCCharpCodeBuiltIn = _lingoDialog.WordsCCharpCodeBuiltIn;
         _wordsCCharpCodeTypes = _lingoDialog.WordsCCharpCodeTypes;
         _lingoHighlighter = CreateLingoHighlighter();
@@ -44,16 +45,16 @@ public partial class GodotLingoCSharpConverterPopup : Window, ILingoFrameworkCSh
             highlighter.AddKeywordColor(word, keywordColor);
 
         var builtInColor = DirectorColors.LingoCodeBuiltIn.ToGodotColor();
-         
+
         foreach (var word in _wordsLingoCodeBuiltIn)
             highlighter.AddKeywordColor(word, builtInColor);
 
         var literalColor = DirectorColors.LingoCodeLiteral.ToGodotColor();
         highlighter.NumberColor = literalColor;
 
-        highlighter.AddColorRegion("--", "", DirectorColors.LingoCodeComment.ToGodotColor(),true);
+        highlighter.AddColorRegion("--", "", DirectorColors.LingoCodeComment.ToGodotColor(), true);
         highlighter.AddColorRegion("\"", "\"", literalColor);
-      
+
         return highlighter;
     }
 
@@ -79,7 +80,7 @@ public partial class GodotLingoCSharpConverterPopup : Window, ILingoFrameworkCSh
         foreach (var word in _wordsCCharpCodeTypes)
             highlighter.AddKeywordColor(word, typeColor);
 
-       
+
 
         highlighter.NumberColor = DirectorColors.CCharpCodeNumber.ToGodotColor(); ;
 
