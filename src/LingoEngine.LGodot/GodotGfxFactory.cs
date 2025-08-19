@@ -10,23 +10,23 @@ namespace LingoEngine.LGodot
     /// <summary>
     /// Factory responsible for creating Godot specific GFX components.
     /// </summary>
-    public class GodotGfxFactory : IAbstComponentFactory
+    public class GodotGfxFactory : AbstComponentFactoryBase, IAbstComponentFactory
     {
-        private readonly IAbstFontManager _fontManager;
-        private readonly IAbstGodotStyleManager _styleManager;
+        private readonly IAbstGodotStyleManager _godotStyleManager;
         private readonly LingoGodotRootNode _rootNode;
 
-        public GodotGfxFactory(IAbstFontManager fontManager, IAbstGodotStyleManager styleManager, LingoGodotRootNode rootNode)
+        public GodotGfxFactory(IAbstStyleManager styleManager, IAbstFontManager fontManager, IAbstGodotStyleManager godotStyleManager, LingoGodotRootNode rootNode)
+            : base(styleManager, fontManager)
         {
-            _fontManager = fontManager;
-            _styleManager = styleManager;
+            _godotStyleManager = godotStyleManager;
             _rootNode = rootNode;
         }
 
         public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
         {
             var canvas = new AbstGfxCanvas();
-            var impl = new AbstGodotGfxCanvas(canvas, _fontManager, width, height);
+            var impl = new AbstGodotGfxCanvas(canvas, FontManager, width, height);
+            InitComponent(canvas);
             canvas.Width = width;
             canvas.Height = height;
             canvas.Name = name;
@@ -37,6 +37,7 @@ namespace LingoEngine.LGodot
         {
             var panel = new AbstWrapPanel(this);
             var impl = new AbstGodotWrapPanel(panel, orientation);
+            InitComponent(panel);
             panel.Name = name;
             panel.Orientation = orientation;
             return panel;
@@ -46,6 +47,7 @@ namespace LingoEngine.LGodot
         {
             var panel = new AbstPanel(this);
             var impl = new AbstGodotPanel(panel);
+            InitComponent(panel);
             panel.Name = name;
             return panel;
         }
@@ -56,6 +58,7 @@ namespace LingoEngine.LGodot
                 throw new InvalidOperationException($"Content {content.Name} already supports layout — wrapping is unnecessary.");
             var panel = new AbstLayoutWrapper(content);
             var impl = new AbstGodotLayoutWrapper(panel);
+            InitComponent(panel);
             if (x != null) panel.X = x.Value;
             if (y != null) panel.Y = y.Value;
             return panel;
@@ -64,7 +67,8 @@ namespace LingoEngine.LGodot
         public AbstTabContainer CreateTabContainer(string name)
         {
             var tab = new AbstTabContainer();
-            var impl = new AbstGodotTabContainer(tab, _styleManager);
+            var impl = new AbstGodotTabContainer(tab, _godotStyleManager);
+            InitComponent(tab);
             tab.Name = name;
             return tab;
         }
@@ -73,6 +77,7 @@ namespace LingoEngine.LGodot
         {
             var tab = new AbstTabItem();
             var impl = new AbstGodotTabItem(tab);
+            InitComponent(tab);
             tab.Title = title;
             tab.Name = name;
             return tab;
@@ -82,6 +87,7 @@ namespace LingoEngine.LGodot
         {
             var scroll = new AbstScrollContainer();
             var impl = new AbstGodotScrollContainer(scroll);
+            InitComponent(scroll);
             scroll.Name = name;
             return scroll;
         }
@@ -107,6 +113,7 @@ namespace LingoEngine.LGodot
         {
             var slider = new AbstInputSlider<TValue>();
             var impl = new AbstGodotInputSlider<TValue>(slider, orientation, onChange);
+            InitComponent(slider);
             if (min.HasValue) slider.MinValue = min.Value!;
             if (max.HasValue) slider.MaxValue = max.Value!;
             if (step.HasValue) slider.Step = step.Value!;
@@ -117,7 +124,8 @@ namespace LingoEngine.LGodot
         public AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null, bool multiLine = false)
         {
             var input = new AbstInputText();
-            var impl = new AbstGodotInputText(input, _fontManager, onChange, multiLine);
+            var impl = new AbstGodotInputText(input, FontManager, onChange, multiLine);
+            InitComponent(input);
             input.MaxLength = maxLength;
             input.Name = name;
             return input;
@@ -141,7 +149,8 @@ namespace LingoEngine.LGodot
              where TValue : System.Numerics.INumber<TValue>
         {
             var input = new AbstInputNumber<TValue>();
-            var impl = new AbstGodotInputNumber<TValue>(input, _fontManager, onChange);
+            var impl = new AbstGodotInputNumber<TValue>(input, FontManager, onChange);
+            InitComponent(input);
             if (min.HasValue) input.Min = min.Value!;
             if (max.HasValue) input.Max = max.Value!;
             input.Name = name;
@@ -151,7 +160,8 @@ namespace LingoEngine.LGodot
         public AbstInputSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null)
         {
             var spin = new AbstInputSpinBox();
-            var impl = new AbstGodotSpinBox(spin, _fontManager, onChange);
+            var impl = new AbstGodotSpinBox(spin, FontManager, onChange);
+            InitComponent(spin);
             spin.Name = name;
             if (min.HasValue) spin.Min = min.Value;
             if (max.HasValue) spin.Max = max.Value;
@@ -162,6 +172,7 @@ namespace LingoEngine.LGodot
         {
             var input = new AbstInputCheckbox();
             var impl = new AbstGodotInputCheckbox(input, onChange);
+            InitComponent(input);
             input.Name = name;
             return input;
         }
@@ -169,7 +180,8 @@ namespace LingoEngine.LGodot
         public AbstInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null)
         {
             var input = new AbstInputCombobox();
-            var impl = new AbstGodotInputCombobox(input, _fontManager, onChange);
+            var impl = new AbstGodotInputCombobox(input, FontManager, onChange);
+            InitComponent(input);
             input.Name = name;
             return input;
         }
@@ -178,6 +190,7 @@ namespace LingoEngine.LGodot
         {
             var list = new AbstItemList();
             var impl = new AbstGodotItemList(list, onChange);
+            InitComponent(list);
             list.Name = name;
             return list;
         }
@@ -186,6 +199,7 @@ namespace LingoEngine.LGodot
         {
             var picker = new AbstColorPicker();
             var impl = new AbstGodotColorPicker(picker, onChange);
+            InitComponent(picker);
             picker.Name = name;
             return picker;
         }
@@ -193,7 +207,8 @@ namespace LingoEngine.LGodot
         public AbstLabel CreateLabel(string name, string text = "")
         {
             var label = new AbstLabel();
-            var impl = new AbstGodotLabel(label, _fontManager);
+            var impl = new AbstGodotLabel(label, FontManager);
+            InitComponent(label);
             label.Text = text;
             label.Name = name;
             return label;
@@ -202,7 +217,8 @@ namespace LingoEngine.LGodot
         public AbstButton CreateButton(string name, string text = "")
         {
             var button = new AbstButton();
-            var impl = new AbstGodotButton(button, _fontManager);
+            var impl = new AbstGodotButton(button, FontManager);
+            InitComponent(button);
             button.Name = name;
             if (!string.IsNullOrWhiteSpace(text))
                 button.Text = text;
@@ -213,6 +229,7 @@ namespace LingoEngine.LGodot
         {
             var button = new AbstStateButton();
             var impl = new AbstGodotStateButton(button, onChange);
+            InitComponent(button);
             button.Name = name;
             if (!string.IsNullOrWhiteSpace(text))
                 button.Text = text;
@@ -225,6 +242,7 @@ namespace LingoEngine.LGodot
         {
             var menu = new AbstMenu();
             var impl = new AbstGodotMenu(menu, name);
+            InitComponent(menu);
             return menu;
         }
 
@@ -247,6 +265,7 @@ namespace LingoEngine.LGodot
         {
             var sep = new AbstHorizontalLineSeparator();
             var impl = new AbstGodotHorizontalLineSeparator(sep);
+            InitComponent(sep);
             sep.Name = name;
             return sep;
         }
@@ -255,6 +274,7 @@ namespace LingoEngine.LGodot
         {
             var sep = new AbstVerticalLineSeparator();
             var impl = new AbstGodotVerticalLineSeparator(sep);
+            InitComponent(sep);
             sep.Name = name;
             return sep;
         }
@@ -262,7 +282,8 @@ namespace LingoEngine.LGodot
         public AbstWindow CreateWindow(string name, string title = "")
         {
             var win = new AbstWindow();
-            var impl = new LingoGodotWindow(win, _styleManager, _rootNode);
+            var impl = new LingoGodotWindow(win, _godotStyleManager, _rootNode);
+            InitComponent(win);
             win.Name = name;
             if (!string.IsNullOrWhiteSpace(title))
                 win.Title = title;
