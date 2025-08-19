@@ -34,6 +34,7 @@ using AbstUI.LGodot.Styles;
 using LingoEngine.Director.LGodot.Tools;
 using LingoEngine.Director.Core.Inputs;
 using LingoEngine.Director.LGodot.Inputs;
+using LingoEngine.Director.Core.Tools;
 
 namespace LingoEngine.Director.LGodot
 {
@@ -65,6 +66,7 @@ namespace LingoEngine.Director.LGodot
                     s.AddSingleton<IDirFilePicker, GodotFilePicker>();
                     s.AddSingleton<IDirFolderPicker, GodotFolderPicker>();
                     s.AddTransient<GodotLingoCSharpConverterPopup>();
+                    s.AddTransient<IDirFrameworkCodeHighlighter, DirGodotCodeHighlighter>();
                     s.AddTransient<Window>();
                     s.AddSingleton<DirGodotFrameworkFactory>();
                     s.AddSingleton<IDirectorIconManager>(p =>
