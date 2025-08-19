@@ -284,18 +284,15 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstWindow CreateWindow(string name, string title = "")
     {
         var window = new AbstWindow();
+        InitComponent(window);
         window.Name = name;
         window.Title = title;
-        InitComponent(window);
         return window;
     }
 
     public AbstButton CreateButton(string name, string text = "")
     {
-        var impl = new AbstBlazorButtonComponent();
-        impl.Name = name;
-        impl.Text = text;
-        button.Init(impl);
+        var button = new AbstButton();
         InitComponent(button);
 
         button.Name = name;
@@ -305,8 +302,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
 
     public AbstLabel CreateLabel(string name, string text = "")
     {
-        var impl = new AbstBlazorLabelComponent { Text = text, Name = name };
-        label.Init(impl);
+        var label = new AbstLabel();
         InitComponent(label);
 
         label.Name = name;

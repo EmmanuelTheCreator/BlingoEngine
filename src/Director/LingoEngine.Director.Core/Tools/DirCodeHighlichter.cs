@@ -44,7 +44,11 @@ public class DirCodeHighlichter : IDisposable
         set => _text.Height = value;
     }
 
-    public void SetText(string text) => _text.Text = text;
+    public void SetText(string text)
+    {
+        _text.Text = text;
+    }
+
     public string Text => _text.Text;
 
     public void Dispose()
