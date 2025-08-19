@@ -44,7 +44,7 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<ProjectSettingsEditorState, ProjectSettingsEditorState>()
 
                     .AddSingleton<DirectorScriptsManager>()
-                    .AddSingleton<LingoCSharpConverterPopup>()
+                    
                     .AddTransient(p => new Lazy<IDirectorScriptsManager>(() => p.GetRequiredService<DirectorScriptsManager>()))
 
                     // Windows
@@ -69,17 +69,22 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<DirCastManager>()
                     .AddTransient<IDirSpritesManager>(p => p.GetRequiredService<DirSpritesManager>())
                     .AddTransient(p => new Lazy<IDirSpritesManager>(() => p.GetRequiredService<DirSpritesManager>()))
+                    // Handlers
                     .AddTransient<CompileProjectCommandHandler>()
+                    .AddSingleton<LingoCSharpConverterPopup>()
+                    .AddSingleton<LingoCSharpConverterPopupHandler>()
+                   
                     );
             engineRegistration.AddBuildAction(
                 (serviceProvider) =>
                 {
                     serviceProvider.RegisterDirectorWindows();
+                    //serviceProvider.GetRequiredService< LingoCSharpConverterPopupHandler>();
                     // Services that needs to be resolved to subscribe to the command handler.
-                    serviceProvider.GetRequiredService<IAbstCommandManager>()
-                        .Register<LingoCSharpConverterPopupHandler, OpenLingoCSharpConverterCommand>()
-                        .Preload<OpenLingoCSharpConverterCommand>()
-                        ;
+                    //serviceProvider.GetRequiredService<IAbstCommandManager>()
+                    //    .Register<LingoCSharpConverterPopupHandler, OpenLingoCSharpConverterCommand>()
+                    //    .Preload<OpenLingoCSharpConverterCommand>()
+                    //    ;
                     
                     //serviceProvider.GetRequiredService<IAbstCommandManager>() // you forgot the canExecute?
                     //    .Register<CompileProjectCommandHandler, CompileProjectCommand>();

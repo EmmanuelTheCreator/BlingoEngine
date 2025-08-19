@@ -1,5 +1,6 @@
 using AbstUI;
 using AbstUI.Components;
+using AbstUI.LGodot;
 using AbstUI.LGodot.Primitives;
 using AbstUI.LGodot.Styles;
 using AbstUI.LGodot.Windowing;
@@ -25,14 +26,16 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager
     private IAbstWindowManager _directorWindowManager;
     private readonly IAbstGodotStyleManager _lingoGodotStyleManager;
     private readonly IAbstComponentFactory _frameworkFactory;
+    private readonly IAbstGodotRootNode _abstGodotRootNode;
     private readonly Dictionary<string, BaseGodotWindow> _godotWindows = new();
     public BaseGodotWindow? ActiveWindow { get; private set; }
 
-    public AbstGodotWindowManager(IAbstWindowManager directorWindowManager, IAbstGodotStyleManager lingoGodotStyleManager, IAbstComponentFactory frameworkFactory)
+    public AbstGodotWindowManager(IAbstWindowManager directorWindowManager, IAbstGodotStyleManager lingoGodotStyleManager, IAbstComponentFactory frameworkFactory, IAbstGodotRootNode abstGodotRootNode)
     {
         _directorWindowManager = directorWindowManager;
         _lingoGodotStyleManager = lingoGodotStyleManager;
         _frameworkFactory = frameworkFactory;
+        _abstGodotRootNode = abstGodotRootNode;
         directorWindowManager.Init(this);
     }
     public void Register(BaseGodotWindow godotWindow)
@@ -86,7 +89,7 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager
 
     public IAbstWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult)
     {
-        var root = ActiveWindow?.GetTree().Root;
+        var root = _abstGodotRootNode.RootNode.GetTree().Root;
         if (root == null)
             return null;
 
@@ -107,7 +110,7 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager
 
     public IAbstWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel)
     {
-        var root = ActiveWindow?.GetTree().Root;
+        var root = _abstGodotRootNode.RootNode.GetTree().Root;
         if (root == null)
             return null;
 
@@ -121,7 +124,7 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager
         };
         node.AddThemeStyleboxOverride("panel", styleBox);
 
-        var dialogAbst = _frameworkFactory.GetRequiredService<IAbstDialog>();
+        var dialogAbst = _frameworkFactory.CreateElement<IAbstDialog>();
         var dialog = dialogAbst.FrameworkObj<AbstGodotDialog>();
         dialog.Title = title;
         dialog.Size = new Vector2I((int)panel.Width, (int)panel.Height);
@@ -137,7 +140,7 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager
     public IAbstWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? lingoDialog = null)
         where TDialog : class, IAbstDialog
     {
-        var root = ActiveWindow?.GetTree().Root;
+        var root = _abstGodotRootNode.RootNode.GetTree().Root;
         if (root == null)
             return null;
 
@@ -167,12 +170,12 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager
         root.AddChild(dialog);
         dialog.CloseRequested += dialog.QueueFree;
         dialog.AddChild(node);
-        if (lingoDialog != null)
-        {
-            var frameworkDialog = (IAbstFrameworkDialog)dialog;
-            frameworkDialog.Init(lingoDialog);
-            lingoDialog.Init(frameworkDialog);
-        }
+        //if (lingoDialog != null)
+        //{
+        //    var frameworkDialog = (IAbstFrameworkDialog)dialog;
+        //    frameworkDialog.Init(lingoDialog);
+        //    lingoDialog.Init(frameworkDialog);
+        //}
         dialog.PopupCentered();
 
         return new AbstWindowDialogReference( dialog.QueueFree, dialog);
@@ -183,7 +186,7 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager
 
     public IAbstWindowDialogReference? ShowNotification(string message, AbstUINotificationType type)
     {
-        var root = ActiveWindow?.GetTree().Root;
+        var root = _abstGodotRootNode.RootNode.GetTree().Root;
         if (root == null)
             return null;
 

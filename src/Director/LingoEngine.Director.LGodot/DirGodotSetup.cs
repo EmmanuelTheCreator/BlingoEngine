@@ -71,8 +71,10 @@ namespace LingoEngine.Director.LGodot
                     .AddSingleton<IDirFilePicker, GodotFilePicker>()
                     .AddSingleton<IDirFolderPicker, GodotFolderPicker>()
                     .AddTransient<GodotLingoCSharpConverterPopup>()
-                    .AddTransient<IDirFrameworkCodeHighlighter, DirGodotCodeHighlighter>()
-                    .AddTransient<Window>()
+
+                    .AddTransient<DirCodeHighlichter>()
+                    .AddTransient<DirGodotCodeHighlighter>()
+                    
                     //.AddSingleton<AbstGodotFrameworkFactory>()
                     .AddSingleton<IDirectorIconManager>(p =>
                     {
@@ -106,7 +108,10 @@ namespace LingoEngine.Director.LGodot
                     p.GetRequiredService<IAbstGodotStyleManager>().Register(AbstGodotThemeElementType.Tabs, styles.GetTabContainerTheme());
                     p.GetRequiredService<IAbstGodotStyleManager>().Register(AbstGodotThemeElementType.TabItem, styles.GetTabItemTheme());
                     p.GetRequiredService<IAbstGodotStyleManager>().Register(AbstGodotThemeElementType.PopupWindow, styles.GetPopupWindowTheme());
-                    p.GetRequiredService<IAbstComponentFactory>().DiscoverInAssembly(typeof(DirGodotSetup).Assembly);
+                    p.GetRequiredService<IAbstComponentFactory>()
+                    .DiscoverInAssembly(typeof(DirGodotSetup).Assembly)
+                   // .Register<DirCodeHighlichter,DirGodotCodeHighlighter>()
+                    ;
                     new LingoGodotDirectorRoot(p.GetRequiredService<LingoPlayer>(), p, p.GetRequiredService<LingoProjectSettings>());
                 });
             return engineRegistration;

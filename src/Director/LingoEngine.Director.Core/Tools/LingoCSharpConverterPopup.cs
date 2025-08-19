@@ -26,8 +26,9 @@ public class LingoCSharpConverterPopupHandler : IAbstCommandHandler<OpenLingoCSh
 
     public virtual bool Handle(OpenLingoCSharpConverterCommand command)
     {
-        var component = _componentFactory.CreateElement<LingoCSharpConverterPopup>();
-        _windowManager.ShowCustomDialog("Lingo to C#", component.Framework<IAbstFrameworkPanel>(), component);
+        var component = (LingoCSharpConverterPopup)_componentFactory.CreateElement<LingoCSharpConverterPopup, IAbstDialog>();
+        
+        _windowManager.ShowCustomDialog("Lingo to C#", component.GetFWPanel(), component);
         return true;
     }
 }
@@ -55,10 +56,13 @@ public class LingoCSharpConverterPopup : AbstDialog
 
   
 
-    public void Init(IAbstFrameworkDialog framework) 
-    { 
+    public override void Init(IAbstFrameworkDialog framework) 
+    {
+        base.Init(framework);
+        _lingoHighlighter.Update();
+        _csharpHighlighter.Update();
     }
-
+    internal IAbstFrameworkPanel GetFWPanel() => _panel.Framework<IAbstFrameworkPanel>();
     protected AbstPanel BuildPanel(ViewModel vm)
     {
         var root = _factory.CreatePanel("LingoCSharpRoot");
@@ -87,10 +91,11 @@ public class LingoCSharpConverterPopup : AbstDialog
             .AddButton("CopyLingo", "Copy", () => ClipboardService.SetText(vm.Lingo));
 
         _lingoHighlighter = _factory.ComponentFactory.CreateElement<DirCodeHighlichter>(); // new DirCodeHighlichter(_factory, DirCodeHighlichter.Language.Lingo);
-        _csharpHighlighter.CodeLanguage = DirCodeHighlichter.SourceCodeLanguage.Lingo;
+        _lingoHighlighter.CodeLanguage = DirCodeHighlichter.SourceCodeLanguage.Lingo;
         _lingoHighlighter.Width = 380;
         _lingoHighlighter.Height = 420;
         _lingoHighlighter.TextChanged += () => vm.Lingo = _lingoHighlighter.Text;
+        
         left.AddItem(_lingoHighlighter.TextComponent);
 
         var rightHeader = _factory.CreateWrapPanel(AOrientation.Horizontal, "CSharpHeader");
@@ -104,6 +109,7 @@ public class LingoCSharpConverterPopup : AbstDialog
         _csharpHighlighter.Width = 380;
         _csharpHighlighter.Height = 420;
         _csharpHighlighter.TextChanged += () => vm.CSharp = _csharpHighlighter.Text;
+        
         right.AddItem(_csharpHighlighter.TextComponent);
 
         var errorInput = _factory.CreateInputText("ErrorsText", 0, null);
@@ -142,6 +148,9 @@ public class LingoCSharpConverterPopup : AbstDialog
         _lingoHighlighter.Dispose();
         _csharpHighlighter.Dispose();
     }
+
+   
+
     public DirCodeHighlichter LingoHighlighter => _lingoHighlighter;
     public DirCodeHighlichter CSharpHighlighter => _csharpHighlighter;
 }

@@ -15,6 +15,9 @@ public interface IAbstComponentFactoryBase
     IAbstComponentFactoryBase DiscoverInAssembly(Assembly assembly);
     TReturnType CreateElement<TReturnType>()
         where TReturnType : notnull;
+    TReturnType CreateElement<TReturnType, TForType>()
+        where TReturnType : TForType
+        where TForType : notnull;
 
     T GetRequiredService<T>() where T : notnull;
 }
@@ -80,17 +83,30 @@ public abstract class AbstComponentFactoryBase : IAbstComponentFactoryBase
         var componentType = typeof(TComponent);
         if (_frameworkMap.ContainsKey(componentType))
             _frameworkMap.Remove(componentType);
-        _frameworkMap[componentType] = typeof(TComponent);
+        _frameworkMap[componentType] = typeof(TFamework);
         return this;
     }
 
     public TReturnType CreateElement<TReturnType>()
         where TReturnType : notnull
     {
+        var type = typeof(TReturnType);
         var component = _serviceProvider.GetRequiredService<TReturnType>();
-        var fw = GetFrameworkFor<IFrameworkFor<TReturnType>>(component);
+        var fw = GetFrameworkFor<IFrameworkFor<TReturnType>>(type);
         if (fw is IFrameworkForInitializable<TReturnType> initable)
             initable.Init(component);
+        if (component is IAbstNode abstNode)
+            InitComponent(abstNode);
+        return component;
+    }
+    public TReturnType CreateElement<TReturnType, TForType>()
+        where TForType : notnull
+        where TReturnType : TForType
+    {
+        var component = _serviceProvider.GetRequiredService<TReturnType>();
+        var fw = GetFrameworkFor<IFrameworkFor<TReturnType>>(component);
+        if (fw is IFrameworkForInitializable<TForType> initable)
+            initable.Init((TForType)component);
         if (component is IAbstNode abstNode)
             InitComponent(abstNode);
         return component;
@@ -98,8 +114,8 @@ public abstract class AbstComponentFactoryBase : IAbstComponentFactoryBase
     /// <summary>
     /// Resolves the framework counterpart for the specified Lingo dialog.
     /// </summary>
-    public TReturnType GetFrameworkFor<TReturnType>(object component)
-        => (TReturnType)GetFrameworkFor(component.GetType());
+    public TReturnType GetFrameworkFor<TReturnType>(object component) => (TReturnType)GetFrameworkFor(component.GetType());
+    public TReturnType GetFrameworkFor<TReturnType>(Type type) => (TReturnType)GetFrameworkFor(type);
     public object GetFrameworkFor(Type type)
     {
         if (!_frameworkMap.TryGetValue(type, out var frameworkType))

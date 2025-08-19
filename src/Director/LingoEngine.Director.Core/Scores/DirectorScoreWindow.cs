@@ -226,7 +226,7 @@ namespace LingoEngine.Director.Core.Scores
             else
             {
                 isInFrameHeader = mouseEvent.MouseV <= gfxValues.LabelsBarHeight + TopContainer.Size.Y + gfxValues.ChannelFramesHeight;
-                if (isInFrameHeader && !isInsideLeft)
+                if (isInFrameHeader && !isInsideLeft && !DirectorDragDropHolder.IsDragging)
                 {
                     _frameHeader.HandleMouseEvent(mouseEvent, mouseFrame);
                     return;

@@ -44,9 +44,11 @@ namespace LingoEngine.Director.Core.Inspector
             var panel = behaviorPanel.Value.Node;
 
              //var win = _factory.CreateWindow("BehaviorParams", $"Parameters for \"{behavior.Name}\"");
-            var root = _factory.CreateWrapPanel(AOrientation.Horizontal, "BehaviorPopupRoot");
+            var root = _factory.CreatePanel("BehaviorPopupRoot");
+            var wrap = _factory.CreateWrapPanel(AOrientation.Horizontal, "BehaviorPopupWrap");
             root.Width = width;
             root.Height = height;
+            root.AddItem(wrap);
             //win.AddItem(root);
             //win.Width = width;
             //win.Height = height;
@@ -65,11 +67,11 @@ namespace LingoEngine.Director.Core.Inspector
 
 
 
-            root.AddItem(panel);
+            wrap.AddItem(panel);
 
             var vLine = _factory.CreateVerticalLineSeparator("BehaviorPopupLine");
             vLine.Height = height;
-            root.AddItem(vLine);
+            wrap.AddItem(vLine);
 
             var right = _factory.CreateWrapPanel(AOrientation.Vertical, "BehaviorPopupRight");
             right.Width = rightWidth;
@@ -83,7 +85,7 @@ namespace LingoEngine.Director.Core.Inspector
                 _popup?.Close();
             };
             right.AddItem(ok);
-            root.AddItem(right);
+            wrap.AddItem(right);
 
             _popup = _windowManager.ShowCustomDialog($"Parameters for \"{behavior.Name}\"", root.Framework<IAbstFrameworkPanel>());
             

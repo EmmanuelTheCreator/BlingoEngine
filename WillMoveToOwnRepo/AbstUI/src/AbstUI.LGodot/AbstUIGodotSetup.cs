@@ -39,7 +39,9 @@ namespace AbstUI.LGodot
         public static IServiceProvider WithAbstUIGodot(this IServiceProvider services)
         {
             //Console.WriteLine("AbstUIGodotSetup: Is this still needed?");
-            services.GetRequiredService<IAbstComponentFactory>().DiscoverInAssembly(typeof(AbstUIGodotSetup).Assembly);
+            services.GetRequiredService<IAbstComponentFactory>()
+                .DiscoverInAssembly(typeof(AbstUIGodotSetup).Assembly)
+                ;
             //services.GetRequiredService<IAbstComponentFactory>()
             //     .Register<IAbstDialog,AbstGodotDialog>()
             //    ;

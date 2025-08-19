@@ -8,7 +8,7 @@ using System;
 
 namespace LingoEngine.Director.LGodot.Tools;
 
-public class DirGodotCodeHighlighter : IDirFrameworkCodeHighlighter, IFrameworkFor<DirCodeHighlichter>, IDisposable
+public class DirGodotCodeHighlighter : IDirFrameworkCodeHighlighter, IFrameworkForInitializable<DirCodeHighlichter>, IDisposable
 {
     private DirCodeHighlichter _base = null!;
     private readonly CodeHighlighter _highlighter = new();
@@ -19,15 +19,18 @@ public class DirGodotCodeHighlighter : IDirFrameworkCodeHighlighter, IFrameworkF
     {
         _base = highlighter;
         _base.TextChanged += UpdateColors;
-        Setup();
-        UpdateColors();
+        highlighter.Init(this);
     }
 
     public void Dispose()
     {
         _base.TextChanged -= UpdateColors;
     }
-
+    public void Update()
+    {
+        Setup();
+        UpdateColors();
+    }
     private void Setup()
     {
         if (_base.CodeLanguage == DirCodeHighlichter.SourceCodeLanguage.Lingo)

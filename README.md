@@ -6,6 +6,7 @@
 
 <img src="Images/PropertyInspector.png" alt="Property Inspector" width="50%" />
 <img src="Images/TempoChange.jpg" alt="Tempo Change" width="50%" />
+<img src="Images/Director_CodeConverter1.jpg" alt="Tempo Change" width="50%" />
 
 > ⚠️ **Can you help us make this dream project come true?**  
 > This project is still under heavy development, and we can use some help. Reach out if you want to contribute.

@@ -14,13 +14,6 @@ public class DirCodeHighlichter : IDisposable
     private readonly AbstInputText _text;
     private readonly Action _onChanged;
 
-    public DirCodeHighlichter(ILingoFrameworkFactory factory)
-    {
-        _text = factory.CreateInputText("CodeText", 0, null);
-        _text.IsMultiLine = true;
-        _onChanged = () => TextChanged?.Invoke();
-        _text.ValueChanged += _onChanged;
-    }
 
     public SourceCodeLanguage CodeLanguage { get; set; }
     public AbstInputText TextComponent => _text;
@@ -46,12 +39,32 @@ public class DirCodeHighlichter : IDisposable
 
     public string Text => _text.Text;
 
+
+    public DirCodeHighlichter(ILingoFrameworkFactory factory)
+    {
+        _text = factory.CreateInputText("CodeText", 0, null);
+        _text.IsMultiLine = true;
+        _onChanged = () => TextChanged?.Invoke();
+        _text.ValueChanged += _onChanged;
+    }
+    public void Init(IDirFrameworkCodeHighlighter dirGodotCodeHighlighter)
+    {
+        _Framework = dirGodotCodeHighlighter;
+    }
+   
     public void Dispose()
     {
         _text.ValueChanged -= _onChanged;
         _text.Dispose();
         TextChanged = null;
     }
+
+    internal void Update()
+    {
+        _Framework.Update();
+    }
+
+
 
     public List<string> WordsLingoCodeKeywords = [.. _lingoKeyWordsDefault];
     private static readonly string[] _lingoKeyWordsDefault = [
@@ -94,6 +107,7 @@ public class DirCodeHighlichter : IDisposable
         ];
 
     public List<string> WordsCCharpCodeTypes = [.. _csharpWordsCodeTypesDefault];
+    private IDirFrameworkCodeHighlighter _Framework;
     private static readonly string[] _csharpWordsCodeTypesDefault = [
             "bool","byte","sbyte","char","decimal","double","float","int","uint","nint","nuint",
             "long","ulong","object","short","ushort","string","void",
@@ -123,4 +137,6 @@ public class DirCodeHighlichter : IDisposable
 
     public static IEnumerable<string> CaseInsensitiveWords(IEnumerable<string> words)
         => words.SelectMany(w => new[] { w, w.ToLowerInvariant() }).Distinct();
+
+    
 }
