@@ -1,6 +1,6 @@
-using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.Texts;
+using AbstUI.Styles;
 
 namespace AbstUI.Components
 {
@@ -16,5 +16,27 @@ namespace AbstUI.Components
         public int LineHeight { get => _framework.LineHeight; set => _framework.LineHeight = value; }
         public ATextWrapMode WrapMode { get => _framework.WrapMode; set => _framework.WrapMode = value; }
         public AbstTextAlignment TextAlignment { get => _framework.TextAlignment; set => _framework.TextAlignment = value; }
+
+        protected override void OnSetStyle(AbstComponentStyle componentStyle)
+        {
+            base.OnSetStyle(componentStyle);
+            if (componentStyle is AbstLabelStyle style)
+            {
+                if (style.Font != null) Font = style.Font;
+                if (style.FontSize.HasValue) FontSize = style.FontSize.Value;
+                if (style.FontColor.HasValue) FontColor = style.FontColor.Value;
+            }
+        }
+
+        protected override void OnGetStyle(AbstComponentStyle componentStyle)
+        {
+            base.OnGetStyle(componentStyle);
+            if (componentStyle is AbstLabelStyle style)
+            {
+                style.Font = Font;
+                style.FontSize = FontSize;
+                style.FontColor = FontColor;
+            }
+        }
     }
 }
