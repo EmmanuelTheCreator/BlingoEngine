@@ -2,19 +2,21 @@ using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.ImGui.Components;
 using AbstUI.ImGui.Styles;
+using AbstUI.Styles;
 
 namespace AbstUI.ImGui
 {
     /// <summary>
     /// Factory responsible for creating ImGui specific GFX components.
     /// </summary>
-    public class AbstImGuiComponentFactory : IAbstComponentFactory
+    public class AbstImGuiComponentFactory : AbstComponentFactoryBase, IAbstComponentFactory
     {
         private readonly IImGuiRootComponentContext _rootContext;
         private readonly ImGuiFontManager _fontManager;
         public IImGuiRootComponentContext RootContext => _rootContext;
 
-        public AbstImGuiComponentFactory(IImGuiRootComponentContext rootContext, ImGuiFontManager fontManager)
+        public AbstImGuiComponentFactory(IImGuiRootComponentContext rootContext, ImGuiFontManager fontManager, IAbstStyleManager styleManager)
+            : base(styleManager, fontManager)
         {
             _rootContext = rootContext;
             _fontManager = fontManager;
@@ -31,6 +33,7 @@ namespace AbstUI.ImGui
             var canvas = new AbstGfxCanvas();
             var impl = new AbstImGuiGfxCanvas(this, _fontManager, width, height);
             canvas.Init(impl);
+            InitComponent(canvas);
             canvas.Width = width;
             canvas.Height = height;
             canvas.Name = name;
@@ -42,6 +45,7 @@ namespace AbstUI.ImGui
             var panel = new AbstWrapPanel(this);
             var impl = new AbstImGuiWrapPanel(this, orientation);
             panel.Init(impl);
+            InitComponent(panel);
             panel.Name = name;
             panel.Orientation = orientation;
             return panel;
@@ -52,6 +56,7 @@ namespace AbstUI.ImGui
             var panel = new AbstPanel(this);
             var impl = new AbstImGuiPanel(this);
             panel.Init(impl);
+            InitComponent(panel);
             panel.Name = name;
             return panel;
         }
@@ -62,6 +67,7 @@ namespace AbstUI.ImGui
                 throw new InvalidOperationException($"Content {content.Name} already supports layout  wrapping is unnecessary.");
             var panel = new AbstLayoutWrapper(content);
             var impl = new AbstImGuiLayoutWrapper(this, panel);
+            InitComponent(panel);
             if (x != null) panel.X = x.Value;
             if (y != null) panel.Y = y.Value;
             return panel;
@@ -72,6 +78,7 @@ namespace AbstUI.ImGui
             var tab = new AbstTabContainer();
             var impl = new AbstImGuiTabContainer(this);
             tab.Init(impl);
+            InitComponent(tab);
             tab.Name = name;
             return tab;
         }
@@ -82,6 +89,7 @@ namespace AbstUI.ImGui
             var impl = new AbstImGuiTabItem(this, tab);
             tab.Title = title;
             tab.Name = name;
+            InitComponent(tab);
             return tab;
         }
 
@@ -90,6 +98,7 @@ namespace AbstUI.ImGui
             var scroll = new AbstScrollContainer();
             var impl = new AbstImGuiScrollContainer(this);
             scroll.Init(impl);
+            InitComponent(scroll);
             scroll.Name = name;
             return scroll;
         }
@@ -99,6 +108,7 @@ namespace AbstUI.ImGui
             var slider = new AbstInputSlider<float>();
             var impl = new AbstImGuiInputSlider<float>(this);
             slider.Init(impl);
+            InitComponent(slider);
             slider.Name = name;
             if (min.HasValue) slider.MinValue = min.Value;
             if (max.HasValue) slider.MaxValue = max.Value;
@@ -113,6 +123,7 @@ namespace AbstUI.ImGui
             var slider = new AbstInputSlider<int>();
             var impl = new AbstImGuiInputSlider<int>(this);
             slider.Init(impl);
+            InitComponent(slider);
             slider.Name = name;
             if (min.HasValue) slider.MinValue = min.Value;
             if (max.HasValue) slider.MaxValue = max.Value;
@@ -127,6 +138,7 @@ namespace AbstUI.ImGui
             var input = new AbstInputText();
             var impl = new AbstImGuiInputText(this, multiLine);
             input.Init(impl);
+            InitComponent(input);
             input.Name = name;
             input.MaxLength = maxLength;
             if (onChange != null)
@@ -155,6 +167,7 @@ namespace AbstUI.ImGui
             var input = new AbstInputNumber<TValue>();
             //var impl = new AbstImGuiInputNumber<float>(_rootContext.Renderer);
             //input.Init(impl);
+            InitComponent(input);
             //input.Name = name;
             //if (min.HasValue) input.Min = min.Value;
             //if (max.HasValue) input.Max = max.Value;
@@ -166,6 +179,7 @@ namespace AbstUI.ImGui
             var spin = new AbstInputSpinBox();
             var impl = new AbstImGuiSpinBox(this);
             spin.Init(impl);
+            InitComponent(spin);
             spin.Name = name;
             if (min.HasValue) spin.Min = min.Value;
             if (max.HasValue) spin.Max = max.Value;
@@ -179,6 +193,7 @@ namespace AbstUI.ImGui
             var input = new AbstInputCheckbox();
             var impl = new AbstImGuiInputCheckbox(this);
             input.Init(impl);
+            InitComponent(input);
             input.Name = name;
             input.ValueChanged += () => onChange?.Invoke(input.Checked);
             return input;
@@ -189,6 +204,7 @@ namespace AbstUI.ImGui
             var input = new AbstInputCombobox();
             var impl = new AbstImGuiInputCombobox(this);
             input.Init(impl);
+            InitComponent(input);
             input.Name = name;
             input.ValueChanged += () => onChange?.Invoke(input.SelectedKey);
             return input;
@@ -199,6 +215,7 @@ namespace AbstUI.ImGui
             var list = new AbstItemList();
             var impl = new AbstImGuiInputltemList(this);
             list.Init(impl);
+            InitComponent(list);
             list.Name = name;
             if (onChange != null)
                 list.ValueChanged += () => onChange(list.SelectedKey);
@@ -210,6 +227,7 @@ namespace AbstUI.ImGui
             var picker = new AbstColorPicker();
             var impl = new AbstImGuiColorPicker(this);
             picker.Init(impl);
+            InitComponent(picker);
             picker.Name = name;
             if (onChange != null)
                 picker.ValueChanged += () => onChange(picker.Color);
@@ -221,6 +239,7 @@ namespace AbstUI.ImGui
             var label = new AbstLabel();
             var impl = new AbstImGuiLabel(this);
             label.Init(impl);
+            InitComponent(label);
             label.Name = name;
             label.Text = text;
             return label;
@@ -231,6 +250,7 @@ namespace AbstUI.ImGui
             var button = new AbstButton();
             var impl = new AbstImGuiButton(this);
             button.Init(impl);
+            InitComponent(button);
             button.Name = name;
             button.Text = text;
             return button;
@@ -243,6 +263,7 @@ namespace AbstUI.ImGui
             if (onChange != null)
                 button.ValueChanged += () => onChange(button.IsOn);
             button.Init(impl);
+            InitComponent(button);
             button.Name = name;
             button.Text = text;
             if (texture != null)
@@ -255,6 +276,7 @@ namespace AbstUI.ImGui
             var menu = new AbstMenu();
             var impl = new AbstImGuiMenu(this, name);
             menu.Init(impl);
+            InitComponent(menu);
             return menu;
         }
 
@@ -266,6 +288,7 @@ namespace AbstUI.ImGui
             var impl = new AbstImGuiWindow(win, this);
             win.Name = name;
             win.Title = title;
+            InitComponent(win);
             return win;
         }
 

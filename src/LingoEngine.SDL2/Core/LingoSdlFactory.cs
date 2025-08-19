@@ -37,6 +37,7 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
     private readonly ILingoServiceProvider _serviceProvider;
     private readonly SdlRootContext _rootContext;
     private readonly SdlFontManager _fontManager;
+    private readonly IAbstStyleManager _styleManager;
     private readonly AbstSdlComponentFactory _gfxFactory;
     internal SdlFontManager FontManager => _fontManager;
     /// <inheritdoc/>
@@ -46,7 +47,8 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
         _rootContext = rootContext;
         _rootContext.Factory = this;
         _fontManager = (SdlFontManager)_serviceProvider.GetRequiredService<IAbstFontManager>();
-        _gfxFactory = new AbstSdlComponentFactory(_rootContext,_fontManager);
+        _styleManager = _serviceProvider.GetRequiredService<IAbstStyleManager>();
+        _gfxFactory = new AbstSdlComponentFactory(_rootContext, _fontManager, _styleManager);
     }
 
     public IAbstComponentFactory GfxFactory => _gfxFactory;

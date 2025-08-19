@@ -10,8 +10,8 @@ namespace AbstUI.LGodot
         {
             services
                 .AddSingleton<IAbstFontManager, AbstGodotFontManager>()
-                .AddSingleton<IAbstGodotStyleManager, AbstGodotStyleManager>()
-                        ;
+                .AddSingleton<IAbstStyleManager, AbstStyleManager>()
+                .AddSingleton<IAbstGodotStyleManager, AbstGodotStyleManager>();
 
             return services;
         }

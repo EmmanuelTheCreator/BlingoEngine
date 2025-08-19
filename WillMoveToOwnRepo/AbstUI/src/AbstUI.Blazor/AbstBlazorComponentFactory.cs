@@ -2,16 +2,20 @@ using System;
 using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.Blazor.Components;
+using AbstUI.Styles;
 
 namespace AbstUI.Blazor;
 
-public class AbstBlazorComponentFactory : IAbstComponentFactory
+public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstComponentFactory
 {
-    private readonly AbstBlazorComponentMapper _mapper;
 
-    public AbstBlazorComponentFactory(AbstBlazorComponentMapper mapper)
+    private readonly IAbstFontManager _fontManager;
+      private readonly AbstBlazorComponentMapper _mapper;
+
+    public AbstBlazorComponentFactory(IAbstStyleManager styleManager, IAbstFontManager fontManager, AbstBlazorComponentMapper mapper) : base(styleManager, fontManager)
     {
-        _mapper = mapper;
+        _fontManager = fontManager;
+         _mapper = mapper;
         _mapper.Map<AbstBlazorWrapPanelComponent>(typeof(Components.AbstBlazorWrapPanel));
         _mapper.Map<AbstBlazorPanelComponent>(typeof(Components.AbstBlazorPanel));
         _mapper.Map<AbstBlazorTabContainerComponent>(typeof(Components.AbstBlazorTabContainer));
@@ -22,11 +26,13 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         _mapper.Map<AbstBlazorInputTextComponent>(typeof(Components.AbstBlazorInputText));
         _mapper.Map<AbstBlazorLayoutWrapper>(typeof(Components.AbstBlazorLayoutWrapper));
     }
+
     public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
     {
         var canvas = new AbstGfxCanvas();
         var impl = new AbstBlazorGfxCanvas { Width = width, Height = height };
         canvas.Init(impl);
+        InitComponent(canvas);
         canvas.Name = name;
         canvas.Width = width;
         canvas.Height = height;
@@ -38,6 +44,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         var panel = new AbstWrapPanel(this);
         var impl = new AbstBlazorWrapPanelComponent();
         panel.Init(impl);
+        InitComponent(panel);
         panel.Name = name;
         panel.Orientation = orientation;
         return panel;
@@ -48,6 +55,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         var panel = new AbstPanel(this);
         var impl = new AbstBlazorPanelComponent();
         panel.Init(impl);
+        InitComponent(panel);
         panel.Name = name;
         return panel;
     }
@@ -59,6 +67,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         var wrapper = new AbstLayoutWrapper(content);
         var impl = new AbstBlazorLayoutWrapper(wrapper);
         wrapper.Init(impl);
+        InitComponent(wrapper);
         if (x.HasValue) wrapper.X = x.Value;
         if (y.HasValue) wrapper.Y = y.Value;
         return wrapper;
@@ -69,6 +78,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         var tab = new AbstTabContainer();
         var impl = new AbstBlazorTabContainerComponent();
         tab.Init(impl);
+        InitComponent(tab);
         tab.Name = name;
         return tab;
     }
@@ -78,6 +88,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         var tab = new AbstTabItem();
         var impl = new AbstBlazorTabItemComponent();
         tab.Init(impl);
+        InitComponent(tab);
         tab.Name = name;
         tab.Title = title;
         return tab;
@@ -88,6 +99,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         var scroll = new AbstScrollContainer();
         var impl = new AbstBlazorScrollContainerComponent();
         scroll.Init(impl);
+        InitComponent(scroll);
         scroll.Name = name;
         return scroll;
     }
@@ -96,6 +108,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         var slider = new AbstInputSlider<float>();
         var impl = new AbstBlazorInputSlider<float>();
         slider.Init(impl);
+        InitComponent(slider);
         slider.Name = name;
         if (min.HasValue) slider.MinValue = min.Value;
         if (max.HasValue) slider.MaxValue = max.Value;
@@ -110,6 +123,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         var slider = new AbstInputSlider<int>();
         var impl = new AbstBlazorInputSlider<int>();
         slider.Init(impl);
+        InitComponent(slider);
         slider.Name = name;
         if (min.HasValue) slider.MinValue = min.Value;
         if (max.HasValue) slider.MaxValue = max.Value;
@@ -124,6 +138,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         var input = new AbstInputNumber<float>();
         var impl = new AbstBlazorInputNumber<float>();
         input.Init(impl);
+        InitComponent(input);
         input.Name = name;
         if (min.HasValue) input.Min = min.Value;
         if (max.HasValue) input.Max = max.Value;
@@ -137,6 +152,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         var input = new AbstInputNumber<int>();
         var impl = new AbstBlazorInputNumber<int>();
         input.Init(impl);
+        InitComponent(input);
         input.Name = name;
         if (min.HasValue) input.Min = min.Value;
         if (max.HasValue) input.Max = max.Value;
@@ -150,6 +166,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         var spin = new AbstInputSpinBox();
         var impl = new AbstBlazorSpinBox();
         spin.Init(impl);
+            InitComponent(spin);
         spin.Name = name;
         if (min.HasValue) spin.Min = min.Value;
         if (max.HasValue) spin.Max = max.Value;
@@ -164,6 +181,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         var impl = new AbstBlazorInputCheckboxComponent();
         impl.Name = name;
         input.Init(impl);
+            InitComponent(input);
         input.Name = name;
         if (onChange != null)
             input.ValueChanged += () => onChange(input.Checked);
@@ -175,6 +193,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         var input = new AbstInputCombobox();
         var impl = new AbstBlazorInputCombobox();
         input.Init(impl);
+            InitComponent(input);
         input.Name = name;
         if (onChange != null)
             input.ValueChanged += () => onChange(input.SelectedKey);
@@ -186,6 +205,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         var list = new AbstItemList();
         var impl = new AbstBlazorItemList();
         list.Init(impl);
+            InitComponent(list);
         list.Name = name;
         if (onChange != null)
             list.ValueChanged += () => onChange(list.SelectedKey);
@@ -197,6 +217,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         var picker = new AbstColorPicker();
         var impl = new AbstBlazorColorPicker();
         picker.Init(impl);
+            InitComponent(picker);
         picker.Name = name;
         if (onChange != null)
             picker.ValueChanged += () => onChange(picker.Color);
@@ -208,6 +229,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         var button = new AbstStateButton();
         var impl = new AbstBlazorStateButton();
         button.Init(impl);
+            InitComponent(button);
         button.Name = name;
         button.Text = text;
         if (texture != null) button.TextureOn = texture;
@@ -220,6 +242,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         var menu = new AbstMenu();
         var impl = new AbstBlazorMenu(this, name);
         menu.Init(impl);
+            InitComponent(menu);
         menu.Name = name;
         return menu;
     }
@@ -237,6 +260,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
     public AbstMenu CreateContextMenu(object window)
     {
         var menu = new AbstMenu();
+        InitComponent(menu);
         menu.Name = "ContextMenu";
         return menu;
     }
@@ -244,6 +268,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
     public AbstHorizontalLineSeparator CreateHorizontalLineSeparator(string name)
     {
         var sep = new AbstHorizontalLineSeparator();
+        InitComponent(sep);
         sep.Name = name;
         return sep;
     }
@@ -251,6 +276,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
     public AbstVerticalLineSeparator CreateVerticalLineSeparator(string name)
     {
         var sep = new AbstVerticalLineSeparator();
+        InitComponent(sep);
         sep.Name = name;
         return sep;
     }
@@ -260,16 +286,18 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         var window = new AbstWindow();
         window.Name = name;
         window.Title = title;
+        InitComponent(window);
         return window;
     }
 
     public AbstButton CreateButton(string name, string text = "")
     {
-        var button = new AbstButton();
         var impl = new AbstBlazorButtonComponent();
         impl.Name = name;
         impl.Text = text;
         button.Init(impl);
+        InitComponent(button);
+
         button.Name = name;
         button.Text = text;
         return button;
@@ -277,9 +305,10 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
 
     public AbstLabel CreateLabel(string name, string text = "")
     {
-        var label = new AbstLabel();
         var impl = new AbstBlazorLabelComponent { Text = text, Name = name };
         label.Init(impl);
+        InitComponent(label);
+
         label.Name = name;
         label.Text = text;
         return label;
@@ -290,6 +319,7 @@ public class AbstBlazorComponentFactory : IAbstComponentFactory
         var input = new AbstInputText();
         var impl = new AbstBlazorInputTextComponent { IsMultiLine = multiLine, MaxLength = maxLength };
         input.Init(impl);
+        InitComponent(input);
         input.Name = name;
         if (onChange != null)
             input.ValueChanged += () => onChange(input.Text);

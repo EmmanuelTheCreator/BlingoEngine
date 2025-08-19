@@ -11,6 +11,7 @@ namespace AbstUI.LUnity
         {
             services
                 .AddSingleton<IAbstFontManager, UnityFontManager>()
+                .AddSingleton<IAbstStyleManager, AbstStyleManager>()
                 .AddSingleton<IAbstComponentFactory, AbstUnityComponentFactory>();
 
             return services;

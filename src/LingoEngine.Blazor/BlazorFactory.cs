@@ -4,6 +4,7 @@ using AbstUI.Blazor;
 using AbstUI.Components;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
+using AbstUI.Styles;
 using LingoEngine.Bitmaps;
 using LingoEngine.Blazor.Inputs;
 using LingoEngine.Blazor.Movies;
@@ -42,6 +43,9 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
     public BlazorFactory(ILingoServiceProvider services)
     {
         _services = services;
+
+        var styleManager = _services.GetRequiredService<IAbstStyleManager>();
+        var fontManager = _services.GetRequiredService<IAbstFontManager>();
         _gfxFactory = services.GetRequiredService<IAbstComponentFactory>();
     }
 

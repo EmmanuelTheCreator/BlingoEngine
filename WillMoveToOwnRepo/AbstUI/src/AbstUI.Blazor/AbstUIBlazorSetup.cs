@@ -11,6 +11,7 @@ public static class AbstUIBlazorSetup
     {
         services
             .AddSingleton<IAbstFontManager, AbstBlazorFontManager>()
+            .AddSingleton<IAbstStyleManager, AbstStyleManager>()
             .AddSingleton<IAbstBlazorStyleManager, AbstBlazorStyleManager>()
             .AddSingleton<AbstUIScriptResolver>()
             .AddSingleton<AbstBlazorComponentMapper>()
