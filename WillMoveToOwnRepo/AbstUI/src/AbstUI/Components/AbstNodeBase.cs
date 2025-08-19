@@ -1,5 +1,6 @@
 using System;
 using AbstUI.Primitives;
+using AbstUI.Styles;
 
 namespace AbstUI.Components
 {
@@ -20,6 +21,55 @@ namespace AbstUI.Components
         public virtual float Width { get => _framework.Width; set => _framework.Width = value; }
         public virtual float Height { get => _framework.Height; set => _framework.Height = value; }
 
+        #region Styling
+        /// <summary>
+        /// Apply a style to this component.
+        /// </summary>
+        public void SetStyle(AbstComponentStyle componentStyle)
+        {
+            if (componentStyle.Visibility.HasValue)
+                Visibility = componentStyle.Visibility.Value;
+            if (componentStyle.Margin.HasValue)
+                Margin = componentStyle.Margin.Value;
+            if (componentStyle.Width.HasValue)
+                Width = componentStyle.Width.Value;
+            if (componentStyle.Height.HasValue)
+                Height = componentStyle.Height.Value;
+
+            OnSetStyle(componentStyle);
+        }
+
+        /// <summary>
+        /// Retrieve the current style applied to this component.
+        /// </summary>
+        /// <typeparam name="TStyle">Specific style type to return.</typeparam>
+        /// <returns>Populated style instance.</returns>
+        public TStyle GetStyle<TStyle>() where TStyle : AbstComponentStyle, new()
+        {
+            var style = new TStyle
+            {
+                Visibility = Visibility,
+                Margin = Margin,
+                Width = Width,
+                Height = Height,
+            };
+
+            OnGetStyle(style);
+            return style;
+        }
+
+        /// <summary>
+        /// Allows derived components to handle style-specific properties when applying styles.
+        /// </summary>
+        /// <param name="componentStyle">Style being applied.</param>
+        protected virtual void OnSetStyle(AbstComponentStyle componentStyle) { }
+
+        /// <summary>
+        /// Allows derived components to handle style-specific properties when retrieving styles.
+        /// </summary>
+        /// <param name="componentStyle">Style being populated.</param>
+        protected virtual void OnGetStyle(AbstComponentStyle componentStyle) { }
+        #endregion
 
         public virtual T Framework<T>() where T : IAbstFrameworkNode => (T)(object)_framework;
         public virtual IAbstFrameworkNode FrameworkObj => _framework;
