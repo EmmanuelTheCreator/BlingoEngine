@@ -85,6 +85,9 @@ namespace AbstUI.SDL2.Components
                 }
                 y += _lineHeight;
             }
+
+            ContentWidth = w;
+            ContentHeight = _lineHeight * _items.Count;
         }
 
         private void DrawItemText(string text, int x, int y, SDL.SDL_Color color, AbstSDLRenderContext ctx)
