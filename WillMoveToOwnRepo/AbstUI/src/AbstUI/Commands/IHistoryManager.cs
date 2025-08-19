@@ -1,5 +1,5 @@
 using System;
-namespace LingoEngine.Director.Core.Tools
+namespace AbstUI.Commands
 {
     public interface IHistoryManager
     {

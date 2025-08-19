@@ -17,7 +17,7 @@ namespace LingoEngine.LGodot
         }
         public IAbstFrameworkMouse GetStageMouseNode(Func<LingoMouse> getMouse)
         {
-            var godotInstance = new LingoGodotMouseArea(RootNode, new Lazy<LingoMouse>(() => getMouse()));
+            var godotInstance = new LingoGodotMouseArea(RootNode, new Lazy<IAbstMouseInternal>(() => getMouse()));
             return godotInstance;
         }
 

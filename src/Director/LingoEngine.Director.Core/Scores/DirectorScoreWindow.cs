@@ -1,13 +1,10 @@
-using LingoEngine.Director.Core.Windowing;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Movies;
 using LingoEngine.Director.Core.Inputs;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Core;
-using LingoEngine.Events;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.ColorPalettes;
-using LingoEngine.Primitives;
 using AbstUI.Commands;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Sprites;
@@ -15,7 +12,8 @@ using LingoEngine.Sounds;
 using AbstUI.Primitives;
 using AbstUI.Components;
 using AbstUI.Inputs;
-using LingoEngine.Inputs;
+using AbstUI.Windowing;
+using AbstUI;
 
 
 namespace LingoEngine.Director.Core.Scores
@@ -24,10 +22,10 @@ namespace LingoEngine.Director.Core.Scores
     {
         private readonly IDirSpritesManager _spritesManager;
         private readonly DirScoreManager _scoreManager;
-        private readonly IDirectorWindowManager _windowManager;
+        private readonly IAbstWindowManager _windowManager;
         private readonly ILingoColorPaletteDefinitions _paletteDefinitions;
         private readonly LingoPlayer _player;
-        private readonly IGlobalLingoMouse _globalMouse;
+        private readonly IAbstMouse<AbstMouseEvent> _globalMouse;
         private readonly DirScoreLabelsBar _labelsBar;
         private readonly DirScoreFrameHeader _frameHeader;
         private readonly DirScoreLeftTopContainer _LeftTopContainer;
@@ -46,7 +44,7 @@ namespace LingoEngine.Director.Core.Scores
         private KeyValuePair<string, string>[] _frameLabelsForCombo = [
                    new KeyValuePair<string, string>("Label1","Label1"),
                ];
-        private DirContextMenu? _spriteContextMenu;
+        private AbstContextMenu? _spriteContextMenu;
 
         public DirScoreGridTopContainer TopContainer { get; private set; }
         public DirScoreGridSprites2DContainer Sprites2DContainer { get; private set; }
@@ -61,7 +59,7 @@ namespace LingoEngine.Director.Core.Scores
         public float ScollY { get => _scollY; set => _scollY = value; }
 
 #pragma warning disable CS8618
-        public DirectorScoreWindow(IDirSpritesManager spritesManager, ILingoPlayer player, ILingoFrameworkFactory factory, DirScoreManager scoreManager, IDirectorWindowManager windowManager, ILingoColorPaletteDefinitions paletteDefinitions, IAbstCommandManager commandManager, IGlobalLingoMouse globalMouse, IDirectorEventMediator mediator) : base(factory)
+        public DirectorScoreWindow(IServiceProvider serviceProvider, IDirSpritesManager spritesManager, ILingoPlayer player, ILingoFrameworkFactory factory, DirScoreManager scoreManager, IAbstWindowManager windowManager, ILingoColorPaletteDefinitions paletteDefinitions, IAbstCommandManager commandManager, IAbstGlobalMouse globalMouse, IDirectorEventMediator mediator, IAbstComponentFactory componentFactory) : base(serviceProvider, DirectorMenuCodes.ScoreWindow)
 #pragma warning restore CS8618
         {
             _spritesManager = spritesManager;
@@ -69,7 +67,7 @@ namespace LingoEngine.Director.Core.Scores
             _windowManager = windowManager;
             _paletteDefinitions = paletteDefinitions;
             _player = (LingoPlayer)player;
-            _globalMouse = globalMouse;
+            _globalMouse = (IAbstMouse<AbstMouseEvent>)globalMouse;
             _player.ActiveMovieChanged += OnActiveMovieChanged;
             _labelsBar = new DirScoreLabelsBar(GfxValues, factory, commandManager);
             _frameHeader = new DirScoreFrameHeader(GfxValues, factory);
@@ -100,11 +98,12 @@ namespace LingoEngine.Director.Core.Scores
 
 
 
-        public override void Init(IDirFrameworkWindow frameworkWindow)
+        public override void Init(IAbstFrameworkWindow frameworkWindow)
         {
             base.Init(frameworkWindow);
             InitContextMenu();
-            _mouseSub = Mouse.OnMouseEvent(HandleMouseEvent);
+            var mouse = (AbstMouse<AbstMouseEvent>)Mouse;
+            _mouseSub = mouse.OnMouseEvent(HandleMouseEvent);
             _globalMouseUpSub = _globalMouse.OnMouseUp(GlobalHandleMouseEvent);
             TopContainer = new DirScoreGridTopContainer(_scoreManager, _paletteDefinitions, ShowConfirmDialog);
             Sprites2DContainer = new DirScoreGridSprites2DContainer(_scoreManager, ShowConfirmDialog);
@@ -188,11 +187,11 @@ namespace LingoEngine.Director.Core.Scores
         }
 
 
-        private void GlobalHandleMouseEvent(LingoMouseEvent mouseEvent)
+        private void GlobalHandleMouseEvent(AbstMouseEvent mouseEvent)
         {
             if (DirectorDragDropHolder.IsDragging && DirectorDragDropHolder.Member != null && mouseEvent.Type == AbstMouseEventType.MouseUp)
             {
-                var localEvent = mouseEvent.Translate((LingoMouse)Mouse);
+                var localEvent = mouseEvent.Translate((AbstMouse<AbstMouseEvent>)Mouse);
                 if (localEvent.MouseH < 0 || localEvent.MouseH > Width || localEvent.MouseV < 0 || localEvent.MouseV > Height)
                     return;
                 HandleMouseEvent(localEvent);
@@ -200,7 +199,7 @@ namespace LingoEngine.Director.Core.Scores
         }
 
 
-        private void HandleMouseEvent(LingoMouseEvent mouseEvent)
+        private void HandleMouseEvent(AbstMouseEvent mouseEvent)
         {
             if (_movie == null) return;
             var gfxValues = _scoreManager.GfxValues;
@@ -275,20 +274,21 @@ namespace LingoEngine.Director.Core.Scores
             Sprites2DContainer.CurrentFrameChanged(currentFrame);
         }
 
-        protected override void OnRaiseKeyDown(LingoKeyEvent lingoKey)
+        protected override void OnRaiseKeyDown(AbstKeyEvent lingoKey)
         {
             if (_movie != null && string.Equals(lingoKey.Key, "Delete", StringComparison.OrdinalIgnoreCase))
                 _spritesManager.DeleteSelected(_movie);
         }
 
-        protected override void OnRaiseKeyUp(LingoKeyEvent lingoKey) { }
+        protected override void OnRaiseKeyUp(AbstKeyEvent lingoKey) { }
 
-        internal IDirectorWindowDialogReference? ShowConfirmDialog(string title, IAbstFrameworkPanel panel)
+        internal IAbstWindowDialogReference? ShowConfirmDialog(string title, IAbstFrameworkPanel panel)
             => _windowManager.ShowCustomDialog(title, panel);
 
 
-        public void OnResize(int width, int height)
+        protected override void OnResizing(bool firstLoad, int width, int height)
         {
+            base.OnResizing(firstLoad,width, height);
             _labelsBar.OnResize(width, height);
         }
 

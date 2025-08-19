@@ -26,6 +26,8 @@ using LingoEngine.Texts;
 using LingoEngine.Events;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
+using AbstUI;
+using AbstUI.Windowing;
 
 namespace LingoEngine.Blazor;
 
@@ -39,6 +41,8 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
     private readonly ILingoServiceProvider _services;
     private readonly List<IDisposable> _disposables = new();
     private readonly IAbstComponentFactory _gfxFactory;
+
+    public IAbstComponentFactory ComponentFactory => _gfxFactory;
 
     public BlazorFactory(ILingoServiceProvider services)
     {
@@ -142,7 +146,6 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
     public AbstMenu CreateContextMenu(object window) => _gfxFactory.CreateContextMenu(window);
     public AbstHorizontalLineSeparator CreateHorizontalLineSeparator(string name) => _gfxFactory.CreateHorizontalLineSeparator(name);
     public AbstVerticalLineSeparator CreateVerticalLineSeparator(string name) => _gfxFactory.CreateVerticalLineSeparator(name);
-    public AbstWindow CreateWindow(string name, string title = "") => _gfxFactory.CreateWindow(name, title);
     public T CreateBehavior<T>(LingoMovie lingoMovie) where T : LingoSpriteBehavior => throw new NotImplementedException();
     public T CreateMovieScript<T>(LingoMovie lingoMovie) where T : LingoMovieScript => throw new NotImplementedException();
 

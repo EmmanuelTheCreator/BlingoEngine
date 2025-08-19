@@ -7,6 +7,7 @@ using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Primitives;
 using AbstUI.Primitives;
 using AbstUI.Components;
+using AbstUI.Windowing;
 
 namespace LingoEngine.Director.Core.Scores.ColorPalettes;
 
@@ -16,7 +17,7 @@ internal partial class DirScoreColorPaletteGridChannel : DirScoreChannel<ILingoS
     private readonly ILingoColorPaletteDefinitions _paletteDefinitions;
     
     private LingoColorPaletteFrameSettings? _currentSettings;
-    private IDirectorWindowDialogReference? _dialog;
+    private IAbstWindowDialogReference? _dialog;
 
     private KeyValuePair<string, string>[] _paletteOptions = new[] {
             new KeyValuePair<string, string>("PaletteTransition", "Palette Transition"),

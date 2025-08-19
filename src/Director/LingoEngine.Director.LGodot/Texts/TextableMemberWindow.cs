@@ -5,7 +5,6 @@ using LingoEngine.Members;
 using LingoEngine.Core;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Texts;
-using LingoEngine.Director.LGodot.Windowing;
 using AbstUI.Styles;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
@@ -13,6 +12,7 @@ using LingoEngine.FrameworkCommunication;
 using AbstUI.Texts;
 using AbstUI.LGodot.Primitives;
 using AbstUI.LGodot.Components;
+using AbstEngine.Director.LGodot;
 
 namespace LingoEngine.Director.LGodot.Casts;
 
@@ -30,14 +30,14 @@ internal partial class DirGodotTextableMemberWindow : BaseGodotWindow, IHasMembe
     private readonly IAbstFontManager _lingoFontManager;
     private ILingoMemberTextBase? _member;
     private const int _topOffset = 4;
-    public DirGodotTextableMemberWindow(IDirectorEventMediator mediator, ILingoPlayer player, DirectorTextEditWindow directorTextEditWindow, IDirGodotWindowManager windowManager, IDirectorIconManager iconManager, IAbstFontManager lingoFontManager, ILingoFrameworkFactory factory)
-        : base(DirectorMenuCodes.TextEditWindow, "Edit Text", windowManager)
+    public DirGodotTextableMemberWindow(IDirectorEventMediator mediator, ILingoPlayer player, DirectorTextEditWindow directorTextEditWindow, IServiceProvider serviceProvider, IDirectorIconManager iconManager, IAbstFontManager lingoFontManager, ILingoFrameworkFactory factory)
+        : base( "Edit Text", serviceProvider)
     {
         _player = player;
         _iconManager = iconManager;
         _lingoFontManager = lingoFontManager;
         mediator.Subscribe(this);
-        directorTextEditWindow.Init(this);
+        Init(directorTextEditWindow);
 
         Size = new Vector2(450, 200);
         CustomMinimumSize = Size;

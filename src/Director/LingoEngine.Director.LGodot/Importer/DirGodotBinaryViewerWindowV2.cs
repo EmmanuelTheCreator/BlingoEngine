@@ -1,11 +1,8 @@
 using Godot;
 using LingoEngine.Director.Core.Importer;
-using LingoEngine.Director.LGodot.Windowing;
-using LingoEngine.Director.Core.UI;
 using ProjectorRays.Common;
-using System;
-using System.Collections.Generic;
 using LingoEngine.Director.Core.Inspector;
+using AbstEngine.Director.LGodot;
 
 namespace LingoEngine.Director.LGodot.Gfx;
 
@@ -25,11 +22,11 @@ internal partial class DirGodotBinaryViewerWindowV2 : BaseGodotWindow, IDirFrame
     private readonly Dictionary<int, int> _blockIndexByOffset = new();
     private readonly List<RayStreamAnnotation> _blocks = new();
 
-    public DirGodotBinaryViewerWindowV2(DirectorBinaryViewerWindowV2 viewerWindow, IDirGodotWindowManager windowManager)
-        : base(DirectorMenuCodes.BinaryViewerWindowV2, "Binary Viewer V2", windowManager)
+    public DirGodotBinaryViewerWindowV2(DirectorBinaryViewerWindowV2 viewerWindow, IServiceProvider serviceProvider)
+        : base("Binary Viewer V2", serviceProvider)
     {
-        viewerWindow.Init(this);
-        Size = new Vector2(1400, 600);
+        Init(viewerWindow);
+       
         CustomMinimumSize = Size;
 
         _viewport = new SubViewport();

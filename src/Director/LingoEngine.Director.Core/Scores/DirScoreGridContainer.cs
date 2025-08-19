@@ -1,5 +1,6 @@
 ﻿using AbstUI.Components;
 using AbstUI.Primitives;
+using AbstUI.Windowing;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Windowing;
@@ -22,7 +23,7 @@ namespace LingoEngine.Director.Core.Scores
     {
         protected IDirScoreFrameworkGridContainer? _framework;
         protected readonly IDirScoreManager _scoreManager;
-        private readonly Func<string, IAbstFrameworkPanel, IDirectorWindowDialogReference?> _showConfirmDialog;
+        private readonly Func<string, IAbstFrameworkPanel, IAbstWindowDialogReference?> _showConfirmDialog;
         protected readonly DirScoreGfxValues _gfxValues;
         protected readonly DirScoreGridPainter _gridCanvas;
         protected readonly AbstGfxCanvas _canvasCurrentFrame;
@@ -42,7 +43,7 @@ namespace LingoEngine.Director.Core.Scores
 
 
 
-        public DirScoreGridContainer(IDirScoreManager scoreManager,int channelCount, Func<string, IAbstFrameworkPanel, IDirectorWindowDialogReference?> showConfirmDialog)
+        public DirScoreGridContainer(IDirScoreManager scoreManager,int channelCount, Func<string, IAbstFrameworkPanel, IAbstWindowDialogReference?> showConfirmDialog)
         {
             _scoreManager = scoreManager;
             _showConfirmDialog = showConfirmDialog;

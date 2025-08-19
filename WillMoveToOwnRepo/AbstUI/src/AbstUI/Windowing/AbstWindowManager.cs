@@ -1,9 +1,8 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using AbstUI.Components;
 using AbstUI.Commands;
 using AbstUI.Windowing.Commands;
+using AbstUI.Tools;
 
 namespace AbstUI.Windowing;
 
@@ -28,6 +27,10 @@ public interface IAbstWindowManager
          where TWindow : IAbstWindow;
     IAbstWindowManager Register<TWindow>(string windowCode)
          where TWindow : IAbstWindow;
+    IAbstWindowManager Register<TWindow>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor, AbstShortCutMap? shortCutMap = null)
+          where TWindow : IAbstWindow;
+    IAbstWindowManager Register<TWindow>(string windowCode, AbstShortCutMap? shortCutMap = null)
+          where TWindow : IAbstWindow;
     bool OpenWindow(string windowCode);
     bool SwapWindowOpenState(string windowCode);
     bool CloseWindow(string windowCode);
@@ -41,15 +44,6 @@ public interface IAbstWindowManager
     void SetWindowSize(string windowCode, int width, int height);
 }
 
-public interface IAbstDialog { }
-
-public enum AbstUINotificationType
-{
-    Info,
-    Warning,
-    Error
-}
-
 public class AbstWindowManager : IAbstWindowManager,
     IAbstCommandHandler<OpenWindowCommand>,
     IAbstCommandHandler<CloseWindowCommand>
@@ -57,7 +51,7 @@ public class AbstWindowManager : IAbstWindowManager,
     private readonly Dictionary<string, WindowRegistration> _windowRegistrations = new();
     private readonly IServiceProvider _serviceProvider;
     private IAbstFrameworkWindowManager _frameworkWindowManager = null!;
-    private IAbstWindowRegistration? _activeWindow;
+    private WindowRegistration? _activeWindow;
 
     public AbstWindowManager(IServiceProvider serviceProvider)
     {
@@ -66,6 +60,34 @@ public class AbstWindowManager : IAbstWindowManager,
 
     public void Init(IAbstFrameworkWindowManager frameworkWindowManager)
         => _frameworkWindowManager = frameworkWindowManager;
+    public IAbstWindowManager Register<TWindow>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor, AbstShortCutMap? shortCutMap = null)
+            where TWindow : IAbstWindow
+    {
+        if (_windowRegistrations.ContainsKey(windowCode))
+            throw new InvalidOperationException($"Window with code '{windowCode}' is already registered.");
+
+        _windowRegistrations[windowCode] = new WindowRegistration(windowCode, () =>
+        {
+            var instance = constructor(_serviceProvider);
+            return instance;
+        }, shortCutMap);
+
+        return this;
+    }
+    public IAbstWindowManager Register<TWindow>(string windowCode, AbstShortCutMap? shortCutMap = null)
+            where TWindow : IAbstWindow
+    {
+        if (_windowRegistrations.ContainsKey(windowCode))
+            throw new InvalidOperationException($"Window with code '{windowCode}' is already registered.");
+
+        _windowRegistrations[windowCode] = new WindowRegistration(windowCode, () =>
+        {
+            var instance = _serviceProvider.GetRequiredService<TWindow>();
+            return instance;
+        }, shortCutMap);
+
+        return this;
+    }
 
     public IAbstWindowManager Register<TWindow>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor)
         where TWindow : IAbstWindow
@@ -93,7 +115,11 @@ public class AbstWindowManager : IAbstWindowManager,
     {
         if (window is not WindowRegistration registration)
             throw new ArgumentException("Invalid window registration type.", nameof(window));
-        _activeWindow = window;
+        if (_activeWindow != null && _activeWindow.Instance != null)
+            _activeWindow.Instance.SetActivated(false);
+        
+        registration.Instance.SetActivated(true);
+        _activeWindow = registration;
         _frameworkWindowManager.SetActiveWindow(registration);
     }
 
@@ -163,18 +189,23 @@ public class AbstWindowManager : IAbstWindowManager,
         private readonly Func<IAbstWindow> _constructor;
         private IAbstWindow? _instance;
         public string WindowCode { get; }
-        public WindowRegistration(string windowCode, Func<IAbstWindow> constructor)
+        public AbstShortCutMap? ShortCutMap { get; }
+        public WindowRegistration(string windowCode, Func<IAbstWindow> constructor, AbstShortCutMap? shortCutMap = null)
         {
             WindowCode = windowCode;
             _constructor = constructor;
+            ShortCutMap = shortCutMap;
         }
         public IAbstWindow Instance
         {
             get
             {
-                _instance ??= _constructor();
+                if (_instance == null)
+                    _instance = _constructor();
+
                 return _instance;
             }
         }
     }
 }
+

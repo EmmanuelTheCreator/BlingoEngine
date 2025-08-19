@@ -10,6 +10,7 @@ using LingoEngine.Director.Core.Projects.Commands;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using AbstUI.Windowing;
 
 namespace LingoEngine.Director.Core.Projects;
 
@@ -21,7 +22,7 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
     private readonly LingoProjectSettings _settings;
     private readonly LingoPlayer _player;
     private readonly JsonStateRepository _repo = new();
-    private readonly IDirectorWindowManager _windowManager;
+    private readonly IAbstWindowManager _windowManager;
     private readonly DirectorProjectSettings _dirSettings;
     private readonly DirectorStageGuides _guides;
     private readonly DirectorProjectSettingsRepository _settingsRepo;
@@ -30,7 +31,7 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
     public DirectorProjectManager(
         LingoProjectSettings settings,
         LingoPlayer player,
-        IDirectorWindowManager windowManager,
+        IAbstWindowManager windowManager,
         DirectorProjectSettings dirSettings,
         DirectorStageGuides guides,
         DirectorProjectSettingsRepository settingsRepo,
@@ -99,7 +100,7 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
         _dirSettings.HorizontalGuides = _guides.HorizontalGuides.ToList();
 
         var states = new Dictionary<string, DirectorWindowState>();
-        if (_windowManager is DirectorWindowManager dm)
+        if (_windowManager is AbstWindowManager dm)
         {
             foreach (var (code, window) in dm.EnumerateRegistrations())
             {
@@ -164,7 +165,7 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
         _guides.Draw();
 
         // Apply window states
-        if (_windowManager is DirectorWindowManager dm)
+        if (_windowManager is AbstWindowManager dm)
         {
             foreach (var (code, window) in dm.EnumerateRegistrations())
             {

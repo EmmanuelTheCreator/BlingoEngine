@@ -205,7 +205,7 @@ namespace LingoEngine.Director.Core.Casts
                 ? index >= 0 && index < _listItems.Count ? _listItems[index] : null
                 : index >= 0 && index < _items.Count ? _items[index] : null;
 
-        public void HandleMouseEvent(LingoMouseEvent e)
+        public void HandleMouseEvent(AbstMouseEvent e)
         {
             float x = e.Mouse.MouseH + _scroll.ScrollHorizontal;
             float y = e.Mouse.MouseV + _scroll.ScrollVertical -  _navBar.Height - AbstTabItem.TopTabHeaderHeight;

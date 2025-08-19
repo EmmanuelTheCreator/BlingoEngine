@@ -2,14 +2,13 @@ using Godot;
 using LingoEngine.Movies;
 using LingoEngine.Core;
 using LingoEngine.Director.Core.Scores;
-using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.Director.Core.Tools;
 using AbstUI.Commands;
-using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.LGodot.Styles;
 using AbstUI.LGodot.Primitives;
 using AbstUI.LGodot.Components;
+using AbstEngine.Director.LGodot;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
@@ -37,8 +36,8 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
 
     private readonly DirectorScoreWindow _directorScoreWindow;
 
-    public DirGodotScoreWindow(IDirectorEventMediator directorMediator, IAbstCommandManager commandManager, DirectorScoreWindow directorScoreWindow, ILingoPlayer player, IDirGodotWindowManager windowManager, IDirSpritesManager spritesManager,DirectorGodotStyle godotStyle)
-        : base(DirectorMenuCodes.ScoreWindow, "Score", windowManager)
+    public DirGodotScoreWindow(IDirectorEventMediator directorMediator, IAbstCommandManager commandManager, DirectorScoreWindow directorScoreWindow, ILingoPlayer player, IServiceProvider serviceProvider, IDirSpritesManager spritesManager,DirectorGodotStyle godotStyle)
+        : base("Score", serviceProvider)
     {
         //DontUseInputInsteadOfGuiInput();
         var _marginContainer = new Control();
@@ -46,7 +45,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _marginContainer.MouseFilter = MouseFilterEnum.Ignore;
         AddChild(_marginContainer);
         _directorScoreWindow = directorScoreWindow;
-        directorScoreWindow.Init(this);
+        Init(directorScoreWindow);
         _TopContainer = new TopChannelsContainer(directorScoreWindow.TopContainer);
         _Sprites2DContainer = new Sprites2DChannelsContainer(directorScoreWindow.Sprites2DContainer);
         _player = (LingoPlayer) player;
@@ -106,7 +105,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
 
         _TopContainer.Position = new Vector2(0, _gfxValues.LabelsBarHeight + 1);
         OnHeaderCollapseChanged(false);
-        RepositionBars();
+        RepositionBars(true);
     }
 
     private void OnHeaderCollapseChanged(bool collapsed)
@@ -117,7 +116,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     }
 
     private float _topHeight = 0;
-    private void RepositionBars()
+    private void RepositionBars(bool firstLoad = false)
     {
         float barsHeight = _topCollapsed ? _gfxValues.ChannelHeight : _gfxValues.ChannelHeight * 6;
         _directorScoreWindow.FrameHeader.Canvas.X = 0;
@@ -128,7 +127,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _leftChannelsScollClipper.Position = new Vector2(0, topHeight);
         _lastPosV = -1;
         UpdateScrollSize();
-        _directorScoreWindow.OnResize((int)Size.X,(int)Size.Y-TitleBarHeight);
+        _directorScoreWindow.ResizeFromFW(firstLoad,(int)Size.X,(int)Size.Y-TitleBarHeight);
     }
 
     public override void _Process(double delta)

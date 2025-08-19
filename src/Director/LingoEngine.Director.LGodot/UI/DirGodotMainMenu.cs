@@ -1,10 +1,7 @@
 using Godot;
 using LingoEngine.Core;
 using LingoEngine.Director.Core.Projects;
-using LingoEngine.Director.Core.Tools;
-using LingoEngine.LGodot.Gfx;
 using AbstUI.Commands;
-using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.Director.Core.Casts.Commands;
 using LingoEngine.Movies;
 using LingoEngine.Casts;
@@ -13,24 +10,28 @@ using LingoEngine.Director.LGodot.Casts;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Inputs;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.Styles;
 using AbstUI.Primitives;
 using AbstUI.LGodot.Primitives;
 using LingoEngine.LGodot.Inputs;
 using AbstUI.LGodot.Components;
+using AbstEngine.Director.LGodot.Windowing;
+using AbstUI.Inputs;
+using AbstUI.Windowing;
+using AbstUI.Tools;
 
 namespace LingoEngine.Director.LGodot;
 
 /// <summary>
 /// Godot wrapper for <see cref="DirectorMainMenu"/>.
 /// </summary>
-internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
+internal partial class DirGodotMainMenu : Control , IDirFrameworkMainMenuWindow
 {
     private readonly AbstGodotWrapPanel _menuBar;
     private readonly AbstGodotWrapPanel _iconBar;
     private Panel _bgColorPanel;
-    private readonly IDirGodotWindowManager _windowManager;
+    private readonly DirectorMainMenu _directorMainMenu;
+    private readonly IAbstGodotWindowManager _windowManager;
     private readonly IAbstCommandManager _commandManager;
     private readonly LingoPlayer _player;
 
@@ -38,23 +39,27 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
 
     public bool IsOpen => true;
     public bool IsActiveWindow => true;
-    public ILingoMouse Mouse { get; private set; }
+    public string Title { get; set; }
+    public AColor BackgroundColor { get; set; }
+
+    IAbstMouse IAbstFrameworkWindow.Mouse => _directorMainMenu.Mouse;
+
+    public IAbstKey AbstKey => _directorMainMenu.Key;
 
     public DirGodotMainMenu(
         DirectorProjectManager projectManager,
         LingoPlayer player,
-        IDirectorShortCutManager shortCutManager,
+        IAbstShortCutManager shortCutManager,
         IHistoryManager historyManager,
-        IDirGodotWindowManager windowManager,
+        IAbstGodotWindowManager windowManager,
         IAbstCommandManager commandManager,
         DirectorMainMenu directorMainMenu, ILingoFrameworkFactory factory)
     {
+        _directorMainMenu = directorMainMenu;
         _windowManager = windowManager;
         _commandManager = commandManager;
         _player = player;
-        var mouseFrameworkObj = new LingoGodotMouse(new Lazy<LingoMouse>(() => (LingoMouse)Mouse!));
-        Mouse = new LingoMouse(mouseFrameworkObj);
-        directorMainMenu.Init(this);
+        _directorMainMenu.Init(this);
 
         _menuBar = directorMainMenu.MenuBar.Framework<AbstGodotWrapPanel>();
         _iconBar = directorMainMenu.IconBar.Framework<AbstGodotWrapPanel>();
@@ -197,9 +202,12 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
         // not allowed
     }
 
-    APoint IDirFrameworkWindow.GetPosition() => Position.ToAbstPoint();
+    public APoint GetPosition() => Position.ToAbstPoint();
 
-    APoint IDirFrameworkWindow.GetSize() => Size.ToAbstPoint();
+    public APoint GetSize() => Size.ToAbstPoint();
 
-    
+    public void Init(IAbstWindow instance)
+    {
+        throw new NotImplementedException();
+    }
 }

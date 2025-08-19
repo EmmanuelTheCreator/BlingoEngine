@@ -5,10 +5,10 @@ using LingoEngine.Xtras.BuddyApi;
 using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Members;
 using LingoEngine.Casts;
-using LingoEngine.Sprites;
 using AbstUI.Commands;
 using LingoEngine.Projects;
 using LingoEngine.ColorPalettes;
+using LingoEngine.Inputs;
 
 namespace LingoEngine
 {
@@ -39,6 +39,7 @@ namespace LingoEngine
                    // Xtras
                    .AddScoped<IBuddyAPI, BuddyAPI>()
                    .AddSingleton<IAbstCommandManager, AbstCommandManager>()
+                   .AddTransient<LingoJoystickKeyboard>()
                    ;
 
             return services;

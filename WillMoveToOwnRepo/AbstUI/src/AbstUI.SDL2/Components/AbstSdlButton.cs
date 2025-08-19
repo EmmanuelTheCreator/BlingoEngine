@@ -35,7 +35,7 @@ namespace AbstUI.SDL2.Components
 
         public AbstSdlButton(AbstSdlComponentFactory factory) : base(factory)
         {
-            _fontManager = factory.FontManager;
+            _fontManager = factory.FontManagerTyped;
         }
         private void EnsureResources(AbstSDLRenderContext ctx)
         {

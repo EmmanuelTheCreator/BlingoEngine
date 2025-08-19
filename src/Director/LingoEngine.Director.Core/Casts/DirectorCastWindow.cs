@@ -1,17 +1,20 @@
-using LingoEngine.Director.Core.Windowing;
-using LingoEngine.FrameworkCommunication;
-using LingoEngine.Members;
-using LingoEngine.Movies;
-using LingoEngine.Inputs;
-using LingoEngine.Events;
 using AbstUI.Commands;
-using LingoEngine.Director.Core.Icons;
-using LingoEngine.Director.Core.Tools;
-using LingoEngine.Core;
-using LingoEngine.Director.Core.Events;
 using AbstUI.Components;
 using AbstUI.Inputs;
+using AbstUI.Windowing;
+using LingoEngine.Core;
+using LingoEngine.Director.Core.Events;
+using LingoEngine.Director.Core.Icons;
+using LingoEngine.Director.Core.Tools;
+using LingoEngine.Director.Core.UI;
+using LingoEngine.Director.Core.Windowing;
+using LingoEngine.Events;
+using LingoEngine.FrameworkCommunication;
+using LingoEngine.Inputs;
+using LingoEngine.Members;
+using LingoEngine.Movies;
 using System.Drawing;
+using System.Numerics;
 
 namespace LingoEngine.Director.Core.Casts
 {
@@ -29,10 +32,8 @@ namespace LingoEngine.Director.Core.Casts
 
         public AbstTabContainer TabContainer => _tabs;
         public ILingoMember? SelectedMember => _selected;
-        public int Width { get; set; } = 370;
-        public int Height { get; set; } = 620;
 
-        public DirectorCastWindow(ILingoFrameworkFactory factory, IDirectorEventMediator mediator, IAbstCommandManager commandManager, IDirectorIconManager iconManager, ILingoPlayer player) : base(factory)
+        public DirectorCastWindow(IServiceProvider serviceProvider, ILingoFrameworkFactory factory, IDirectorEventMediator mediator, IAbstCommandManager commandManager, IDirectorIconManager iconManager, ILingoPlayer player) : base(serviceProvider, DirectorMenuCodes.CastWindow)
         {
             _player = (LingoPlayer)player;
             _player.ActiveMovieChanged += OnActiveMovieChanged;
@@ -41,15 +42,19 @@ namespace LingoEngine.Director.Core.Casts
             _iconManager = iconManager;
             MinimumWidth = 360;
             MinimumHeight = 100;
+            Width = 370;
+            Height = 620;
+            X = 830;
+            Y = 22;
             _tabs = factory.CreateTabContainer("CastTabs");
             _tabs.Height = Height;
             _mediator.Subscribe(this);
         }
 
-        public override void Init(IDirFrameworkWindow frameworkWindow)
+        public override void Init(IAbstFrameworkWindow frameworkWindow)
         {
             base.Init(frameworkWindow);
-            _mouseSub = Mouse.OnMouseEvent(OnMouseEvent);
+            _mouseSub = MouseT.OnMouseEvent(OnMouseEvent);
         }
 
         public override void Dispose()
@@ -102,7 +107,7 @@ namespace LingoEngine.Director.Core.Casts
                 tab.SetViewportSize(width, height);
         }
 
-        private void OnMouseEvent(LingoMouseEvent e)
+        private void OnMouseEvent(AbstMouseEvent e)
         {
             if (_tabMap.TryGetValue(_tabs.SelectedTabName, out var tab))
                 tab.HandleMouseEvent(e);

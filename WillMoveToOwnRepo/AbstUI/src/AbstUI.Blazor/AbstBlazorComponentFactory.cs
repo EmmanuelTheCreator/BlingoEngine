@@ -3,6 +3,7 @@ using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.Blazor.Components;
 using AbstUI.Styles;
+using AbstUI.Windowing;
 
 namespace AbstUI.Blazor;
 
@@ -12,9 +13,9 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     private readonly IAbstFontManager _fontManager;
       private readonly AbstBlazorComponentMapper _mapper;
 
-    public AbstBlazorComponentFactory(IAbstStyleManager styleManager, IAbstFontManager fontManager, AbstBlazorComponentMapper mapper) : base(styleManager, fontManager)
+    public AbstBlazorComponentFactory(IServiceProvider serviceProvider, AbstBlazorComponentMapper mapper) : base(serviceProvider)
     {
-        _fontManager = fontManager;
+        _fontManager = FontManager;
          _mapper = mapper;
         _mapper.Map<AbstBlazorWrapPanelComponent>(typeof(Components.AbstBlazorWrapPanel));
         _mapper.Map<AbstBlazorPanelComponent>(typeof(Components.AbstBlazorPanel));
@@ -30,7 +31,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
     {
         var canvas = new AbstGfxCanvas();
-        var impl = new AbstBlazorGfxCanvas { Width = width, Height = height };
+        var impl = new AbstBlazorGfxCanvas();
         canvas.Init(impl);
         InitComponent(canvas);
         canvas.Name = name;
@@ -281,14 +282,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
         return sep;
     }
 
-    public AbstWindow CreateWindow(string name, string title = "")
-    {
-        var window = new AbstWindow();
-        InitComponent(window);
-        window.Name = name;
-        window.Title = title;
-        return window;
-    }
+   
 
     public AbstButton CreateButton(string name, string text = "")
     {

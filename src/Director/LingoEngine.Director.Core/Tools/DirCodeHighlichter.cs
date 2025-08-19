@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using AbstUI.Components;
 using LingoEngine.FrameworkCommunication;
 
@@ -8,26 +5,24 @@ namespace LingoEngine.Director.Core.Tools;
 
 public class DirCodeHighlichter : IDisposable
 {
-    public enum Language
+    public enum SourceCodeLanguage
     {
         Lingo,
         CSharp
     }
 
     private readonly AbstInputText _text;
-    private readonly Language _language;
     private readonly Action _onChanged;
 
-    public DirCodeHighlichter(ILingoFrameworkFactory factory, Language language)
+    public DirCodeHighlichter(ILingoFrameworkFactory factory)
     {
-        _language = language;
         _text = factory.CreateInputText("CodeText", 0, null);
         _text.IsMultiLine = true;
         _onChanged = () => TextChanged?.Invoke();
         _text.ValueChanged += _onChanged;
     }
 
-    public Language CodeLanguage => _language;
+    public SourceCodeLanguage CodeLanguage { get; set; }
     public AbstInputText TextComponent => _text;
 
     public event Action? TextChanged;

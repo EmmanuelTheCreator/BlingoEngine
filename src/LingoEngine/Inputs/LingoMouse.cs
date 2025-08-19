@@ -30,19 +30,19 @@ namespace LingoEngine.Inputs
         /// Unsubscribe from mouse events.
         /// </summary>
         ILingoMouse Unsubscribe(ILingoMouseEventHandler handler);
-
-
     }
+    public interface ILingoFrameworkMouse : IAbstFrameworkMouse
+    {
+        void SetCursor(LingoMemberBitmap? image);
+    }
+
     /// <summary>
     /// Provides access to a user’s mouse activity, including mouse movement and mouse clicks.
     /// </summary>
     public interface ILingoMouse : IAbstMouse
     {
 
-
         ILingoCursor Cursor { get; }
-        void SetCursor(AMouseCursor cursorType);
-
 
         IAbstMouseSubscription OnMouseDown(Action<LingoMouseEvent> handler);
         IAbstMouseSubscription OnMouseUp(Action<LingoMouseEvent> handler);
@@ -91,19 +91,112 @@ namespace LingoEngine.Inputs
         }
         internal bool IsSubscribed(LingoSprite2D sprite) => _subscriptions.Contains(sprite);
 
+        // <summary>
+        /// Creates a proxy mouse that forwards events within the bounds supplied by <paramref name="provider"/>.
+        /// </summary>
+       
+        public new virtual LingoStageMouse CreateNewInstance(IAbstMouseRectProvider provider)
+            => new ProxyLingoMouse(this, provider);
+        public virtual LingoStageMouse DisplaceMouse(IAbstMouseRectProvider provider)
+        {
+            var newStageMouse = CreateNewInstance(provider);
+            ReplaceFrameworkObj(newStageMouse.Framework<ILingoFrameworkMouse>());
+            return newStageMouse;
+        }
+        private sealed class ProxyLingoMouse : LingoStageMouse, IDisposable
+        {
+            private readonly LingoStageMouse _parent;
+            private readonly IAbstMouseRectProvider _provider;
+            private readonly IAbstMouseSubscription _downSub;
+            private readonly IAbstMouseSubscription _upSub;
+            private readonly IAbstMouseSubscription _moveSub;
+            private readonly IAbstMouseSubscription _wheelSub;
 
+            internal ProxyLingoMouse(LingoStageMouse parent, IAbstMouseRectProvider provider)
+                : base(parent._lingoStage, parent.Framework<ILingoFrameworkMouse>())
+            {
+                _parent = parent;
+                _provider = provider;
+                _downSub = parent.OnMouseDown(HandleDown);
+                _upSub = parent.OnMouseUp(HandleUp);
+                _moveSub = parent.OnMouseMove(HandleMove);
+                _wheelSub = parent.OnMouseWheel(HandleWheel);
+            }
+
+            protected override ARect GetMouseOffset() => _provider.MouseOffset;
+
+            private bool ShouldForward(LingoMouseEvent e)
+            {
+                if (!_provider.IsActivated) return false;
+                var r = _provider.MouseOffset;
+                return e.MouseH >= r.Left && e.MouseH < r.Left + r.Width &&
+                       e.MouseV >= r.Top && e.MouseV < r.Top + r.Height;
+            }
+
+            private void UpdateFromParent(LingoMouseEvent e)
+            {
+                var r = _provider.MouseOffset;
+                MouseH = e.MouseH - r.Left;
+                MouseV = e.MouseV - r.Top;
+                MouseDown = _parent.MouseDown;
+                MouseUp = _parent.MouseUp;
+                RightMouseDown = _parent.RightMouseDown;
+                RightMouseUp = _parent.RightMouseUp;
+                LeftMouseDown = _parent.LeftMouseDown;
+                MiddleMouseDown = _parent.MiddleMouseDown;
+                DoubleClick = _parent.DoubleClick;
+            }
+
+
+            private void HandleDown(LingoMouseEvent e)
+            {
+                if (!ShouldForward(e)) return;
+                UpdateFromParent(e);
+                DoMouseDown();
+                UpdateMouseState();
+            }
+
+            private void HandleUp(LingoMouseEvent e)
+            {
+                if (!ShouldForward(e)) return;
+                UpdateFromParent(e);
+                DoMouseUp();
+                UpdateMouseState();
+            }
+
+            private void HandleMove(LingoMouseEvent e)
+            {
+                if (!ShouldForward(e)) return;
+                UpdateFromParent(e);
+                DoMouseMove();
+                UpdateMouseState();
+            }
+
+            private void HandleWheel(LingoMouseEvent e)
+            {
+                if (!ShouldForward(e)) return;
+                UpdateFromParent(e);
+                WheelDelta = e.WheelDelta;
+                base.DoMouseWheel(e.WheelDelta);
+                UpdateMouseState();
+            }
+
+            public void Dispose()
+            {
+                _downSub.Release();
+                _upSub.Release();
+                _moveSub.Release();
+                _wheelSub.Release();
+            }
+        }
     }
 
 
 
-    public interface ILingoFrameworkMouse : IAbstFrameworkMouse
-    {
-        void SetCursor(AMouseCursor cursorType);
-        void SetCursor(LingoMemberBitmap? image);
-    }
+  
 
 
-    public class LingoMouse : AbstMouse<LingoMouseEvent>, ILingoMouse
+    public class LingoMouse : AbstMouse<LingoMouseEvent>, ILingoMouse, IAbstMouseInternal
     {
         ILingoFrameworkMouse _lingoFrameworkObj;
 
@@ -120,41 +213,13 @@ namespace LingoEngine.Inputs
         }
 
 
-        public void SetCursor(AMouseCursor cursorType)
+        public override void SetCursor(AMouseCursor cursorType)
         {
             if (_cursor.CursorType == cursorType) return;
             _cursor.CursorType = cursorType;
+            base.SetCursor(cursorType);
             _lingoFrameworkObj.SetCursor(cursorType);
         }
-
-        ///// <summary>
-        ///// Called from communiction framework mouse
-        ///// </summary>
-        //public virtual void DoMouseUp() => DoOnAll(_mouseUps, (x, e) => x.RaiseMouseUp(e), LingoMouseEventType.MouseUp);
-
-        //public virtual void DoMouseDown() => DoOnAll(_mouseDowns, (x, e) => x.RaiseMouseDown(e), LingoMouseEventType.MouseDown);
-
-        //public virtual void DoMouseMove() => DoOnAll(_mouseMoves, (x, e) => x.RaiseMouseMove(e), LingoMouseEventType.MouseMove);
-
-        //public virtual void DoMouseWheel(float delta)
-        //{
-        //    WheelDelta = delta;
-        //    DoOnAll(_mouseWheels, (x, e) => x.RaiseMouseWheel(e), LingoMouseEventType.MouseWheel);
-        //}
-
-
-
-
-
-
-
-        //public virtual IAbstUIMouseSubscription OnMouseDown(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseDowns.Remove(s)); _mouseDowns.Add(sub); return sub; }
-        //public virtual IAbstUIMouseSubscription OnMouseUp(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseUps.Remove(s)); _mouseUps.Add(sub); return sub; }
-        //public virtual IAbstUIMouseSubscription OnMouseMove(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseMoves.Remove(s)); _mouseMoves.Add(sub); return sub; }
-        //public virtual IAbstUIMouseSubscription OnMouseWheel(Action<LingoMouseEvent> handler) { var sub = new LingoMouseSubscription(handler, s => _mouseWheels.Remove(s)); _mouseWheels.Add(sub); return sub; }
-        //public virtual IAbstUIMouseSubscription OnMouseEvent(Action<LingoMouseEvent> handler)
-        //    => base.OnMouseEvent(e => handler(e));
-
 
     }
 }

@@ -1,6 +1,6 @@
 using AbstUI.Primitives;
 
-namespace AbstUI.Styles;
+namespace AbstUI.Styles.Components;
 
 /// <summary>
 /// Base style for input components.

@@ -1,8 +1,9 @@
-﻿using LingoEngine.Director.Core.Windowing;
+﻿using AbstUI.Windowing;
+using LingoEngine.Director.Core.Windowing;
 
 namespace LingoEngine.Director.Core.Stages
 {
-    public interface IDirFrameworkStageWindow : IDirFrameworkWindow
+    public interface IDirFrameworkStageWindow : IAbstFrameworkWindow
     {
         void UpdateBoundingBoxes();
         void UpdateSelectionBox();

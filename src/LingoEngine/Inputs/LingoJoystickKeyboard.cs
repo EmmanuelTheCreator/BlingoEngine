@@ -1,9 +1,9 @@
 using AbstUI.Texts;
 using AbstUI.Components;
 using AbstUI.Primitives;
-using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
 using AbstUI.Inputs;
+using AbstUI.Windowing;
 
 namespace LingoEngine.Inputs
 {
@@ -11,16 +11,18 @@ namespace LingoEngine.Inputs
     /// On-screen keyboard navigated via joystick.
     /// Supports letters, digits, space and backspace.
     /// </summary>
-    public class LingoJoystickKeyboard : ILingoKeyEventHandler, IDisposable
+    public class LingoJoystickKeyboard : IAbstKeyEventHandler<AbstKeyEvent>, IDisposable
     {
         private readonly ILingoFrameworkFactory _factory;
         private readonly string[][] _layout;
         private readonly int _cols;
-        private readonly AbstWindow _window;
+        private readonly IAbstWindowDialogReference _window;
         private readonly AbstGfxCanvas _canvas;
 
         private readonly IAbstMouseSubscription _mouseDownSub;
         private readonly IAbstMouseSubscription _mouseMoveSub;
+        private readonly IAbstMouse<AbstMouseEvent> _mouse;
+        private readonly AbstKey _key;
         private int _selectedRow;
         private int _selectedCol;
         private bool _enableMouse = true;
@@ -102,36 +104,46 @@ namespace LingoEngine.Inputs
             Qwerty
         }
 
-        public LingoJoystickKeyboard(ILingoFrameworkFactory factory, LingoKeyboardLayoutType layoutType = LingoKeyboardLayoutType.Azerty, bool showEscapeKey = false)
+        public LingoJoystickKeyboard(ILingoFrameworkFactory factory, IAbstWindowManager windowManager, LingoKeyboardLayoutType layoutType = LingoKeyboardLayoutType.Azerty, bool showEscapeKey = false)
         {
             _factory = factory;
             _layout = layoutType == LingoKeyboardLayoutType.Azerty ? BuildAzertyLayout(showEscapeKey) : BuildQwertyLayout(showEscapeKey);
             _cols = _layout.Max(r => r.Length);
             var width = _cols * (CellSize + CellSpacing);
             var height = _layout.Length * (CellSize + CellSpacing);
-            _window = _factory.CreateWindow("LingoJoystickKeyboard", _title);
+            //_window = _factory.CreateWindow("LingoJoystickKeyboard", _title);
+            var _root = _factory.CreatePanel("LingoJoystickKeyboardPanel");
+            _root.Width = width + Margin * 2;
+            _root.Height = height + Margin * 2;
             _canvas = _factory.CreateGfxCanvas("LingoJoystickKeyboardCanvas", width, height);
             _canvas.X = Margin;
             _canvas.Y = Margin;
-            _window.AddItem(_canvas);
-            _window.IsPopup = true;
-            _window.OnWindowStateChanged += OnWindowStateChanged;
-            _mouseDownSub = ((ILingoMouse)_window.Mouse).OnMouseDown(OnMouseDown);
-            _mouseMoveSub = ((ILingoMouse)_window.Mouse).OnMouseMove(OnMouseMove);
-            ((ILingoKey)_window.Key).Subscribe(this);
+            _root.AddItem(_canvas);
+            _window = windowManager.ShowCustomDialog(_title, _root.Framework<IAbstFrameworkPanel>())!;
+            if (_window.Dialog == null) throw new Exception("Dialog is null in subscription for keyboard");
+            _mouse = (IAbstMouse<AbstMouseEvent>)_window.Dialog.Mouse;
+            _key = (AbstKey)_window.Dialog.Key;
+            _window.Dialog.OnWindowStateChanged += OnWindowStateChanged;
+            _mouseDownSub = _mouse.OnMouseDown(OnMouseDown);
+            _mouseMoveSub = _mouse.OnMouseMove(OnMouseMove);
+            _key.Subscribe(this);
             ApplyWindowChrome();
             DrawKeyboard();
-            _window.Width = width + Margin * 2;
-            _window.Height = height + Margin * 2;
-            _window.BackgroundColor = BackgroundColor;
+            //_window.Width = width + Margin * 2;
+            //_window.Height = height + Margin * 2;
+            _window.Dialog.BackgroundColor = BackgroundColor;
         }
         public void Dispose()
         {
-            _window.OnWindowStateChanged -= OnWindowStateChanged;
+            
             _mouseDownSub.Release();
             _mouseMoveSub.Release();
-            ((ILingoKey)_window.Key).Unsubscribe(this);
-            _window.Dispose();
+            _key.Unsubscribe(this);
+            if (_window.Dialog != null)
+            {
+                _window.Dialog.OnWindowStateChanged -= OnWindowStateChanged;
+                _window.Dialog.Dispose();
+            }
         }
         public void UpdateStyle()
         {
@@ -139,9 +151,12 @@ namespace LingoEngine.Inputs
             var height = _layout.Length * (CellSize + CellSpacing);
             _canvas.Width = width;
             _canvas.Height = height;
-            _window.Width = width;
-            _window.Height = height;
-            _window.BackgroundColor = BackgroundColor;
+           
+            if (_window.Dialog != null)
+            {
+                _window.Dialog.BackgroundColor = BackgroundColor;
+                _window.Dialog.SetSize(width, height);
+            }
             DrawKeyboard();
         }
         private void OnWindowStateChanged(bool state)
@@ -191,11 +206,11 @@ namespace LingoEngine.Inputs
 
         private void ApplyWindowChrome()
         {
-            if (ShowTitleBar)
-                _window.Title = _title;
-            else
-                _window.Title = string.Empty;
-            _window.Borderless = !ShowTitleBar;
+            //if (ShowTitleBar)
+            //    _window.Title = _title;
+            //else
+            //    _window.Title = string.Empty;
+            //_window.Borderless = !ShowTitleBar;
         }
 
         private void DrawKeyboard()
@@ -303,10 +318,10 @@ namespace LingoEngine.Inputs
             DrawKeyboard();
         }
 
-        void ILingoKeyEventHandler.RaiseKeyUp(LingoKeyEvent key) { }
-        void ILingoKeyEventHandler.RaiseKeyDown(LingoKeyEvent key)
+        public void RaiseKeyUp(AbstKeyEvent key) { }
+        public void RaiseKeyDown(AbstKeyEvent key)
         {
-            if (!_window.Visibility) return;
+            if (_window.Dialog == null || !_window.Dialog.IsOpen) return;
             if (!(_enableKeyNumbers || _enableKeyLetters || _enableKeySpecial)) return;
             var name = key.Key.ToUpperInvariant();
             bool isDigit = name.Length == 1 && char.IsDigit(name[0]);
@@ -349,14 +364,13 @@ namespace LingoEngine.Inputs
             }
         }
 
-        void IAbstKeyEventHandler<LingoKeyEvent>.RaiseKeyDown(LingoKeyEvent key) => ((ILingoKeyEventHandler)this).RaiseKeyDown(key);
-        void IAbstKeyEventHandler<LingoKeyEvent>.RaiseKeyUp(LingoKeyEvent key) => ((ILingoKeyEventHandler)this).RaiseKeyUp(key);
+       
 
 
-        private void OnMouseMove(LingoMouseEvent e)
+        private void OnMouseMove(AbstMouseEvent e)
         {
             //Console.WriteLine($"Mouse moved: {e.MouseH}, {e.MouseV}");  
-            if (!_window.Visibility) return;
+            if (_window.Dialog == null || !_window.Dialog.Visibility) return;
             if (!_enableMouse) return;
             var localX = e.MouseH - Margin;
             var localY = e.MouseV - Margin;
@@ -368,9 +382,9 @@ namespace LingoEngine.Inputs
             DrawKeyboard();
         }
 
-        private void OnMouseDown(LingoMouseEvent e)
+        private void OnMouseDown(AbstMouseEvent e)
         {
-            if (!_window.Visibility) return;
+            if (_window.Dialog == null || !_window.Dialog.Visibility) return;
             if (!_enableMouse) return;
             OnMouseMove(e);
             ExecuteSelectedKey();
@@ -381,22 +395,25 @@ namespace LingoEngine.Inputs
         public void Open(APoint? position = null)
         {
             ApplyWindowChrome();
+            if (_window.Dialog == null) return;
             if (position.HasValue)
             {
-                _window.X = position.Value.X;
-                _window.Y = position.Value.Y;
-                _window.Popup();
+                _window.Dialog.X = position.Value.X;
+                _window.Dialog.Y = position.Value.Y;
+                _window.Dialog.Popup();
             }
             else
             {
-                _window.PopupCentered();
+                _window.Dialog.PopupCentered();
             }
         }
 
         /// <summary>Closes the keyboard popup window.</summary>
-        public void Close() => _window.Hide();
-
-
+        public void Close()
+        {
+            if (_window.Dialog == null) return;
+            _window.Dialog.Hide();
+        }
     }
 }
 

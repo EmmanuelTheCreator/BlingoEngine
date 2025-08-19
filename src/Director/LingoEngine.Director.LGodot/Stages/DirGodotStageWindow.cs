@@ -3,16 +3,17 @@ using LingoEngine.Movies;
 using LingoEngine.LGodot.Stages;
 using LingoEngine.Core;
 using LingoEngine.Director.Core.Stages;
-using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Sprites;
 using LingoEngine.Stages;
-using LingoEngine.Director.Core.UI;
 using LingoEngine.Inputs;
 using LingoEngine.Director.Core.Icons;
 using AbstUI.Primitives;
 using AbstUI.LGodot.Primitives;
 using AbstUI.LGodot.Components;
+using AbstEngine.Director.LGodot;
+using LingoEngine.LGodot.Inputs;
+using AbstUI.Inputs;
 
 namespace LingoEngine.Director.LGodot.Movies;
 
@@ -46,8 +47,8 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
     private AbstGodotGfxCanvas _motionPathCanvas;
     private AbstGodotGfxCanvas _guidesCanvas;
 
-    public DirGodotStageWindow(ILingoFrameworkStageContainer stageContainer, IDirectorEventMediator directorEventMediator, IHistoryManager historyManager, ILingoPlayer player, DirectorStageWindow directorStageWindow, DirectorStageGuides guides, DirStageManager stageManager, IDirGodotWindowManager windowManager, IDirectorIconManager iconManager)
-        : base(DirectorMenuCodes.StageWindow, "Stage", windowManager, historyManager)
+    public DirGodotStageWindow(ILingoFrameworkStageContainer stageContainer, IDirectorEventMediator directorEventMediator, IServiceProvider serviceProvider, ILingoPlayer player, DirectorStageWindow directorStageWindow, DirectorStageGuides guides, DirStageManager stageManager, IDirectorIconManager iconManager)
+        : base( "Stage", serviceProvider)
     {
         // TempFix
         //base.DontUseInputInsteadOfGuiInput();
@@ -57,7 +58,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         _mediator = directorEventMediator;
         _player = player;
         _player.ActiveMovieChanged += OnActiveMovieChanged;
-        directorStageWindow.Init(this);
+        Init(directorStageWindow);
         _directorStageWindow = directorStageWindow;
         _iconBar = directorStageWindow.IconBar;
         _iconBar.ZoomChanged += SetScale;
@@ -69,7 +70,9 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         _stageChangedSubscription = _mediator.Subscribe(DirectorEventType.StagePropertiesChanged, StagePropertyChanged);
 
         var lp = (LingoPlayer)_player;
-        ((LingoStageMouse)lp.Mouse).ReplaceFrameworkObj(_MouseFrameworkObj);
+        var stageMouse = (LingoStageMouse)lp.Mouse;
+        stageMouse.DisplaceMouse(directorStageWindow);
+        
 
 
         _spriteSummary = new StageSpriteSummaryOverlay(lp.Factory, _mediator, iconManager);

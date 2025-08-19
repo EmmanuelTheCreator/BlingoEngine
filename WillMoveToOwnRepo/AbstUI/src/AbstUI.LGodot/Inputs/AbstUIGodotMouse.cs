@@ -6,20 +6,24 @@ using AbstUI.Inputs;
 
 namespace AbstUI.LGodot.Inputs
 {
-    public class AbstUIGodotMouse<TAbstMouseType, TAbstUIMouseEvent> : IAbstFrameworkMouse
-        where TAbstMouseType : AbstMouse<TAbstUIMouseEvent>
-        where TAbstUIMouseEvent : AbstMouseEvent
+    public interface IAbstGodotMouseHandler: IAbstFrameworkMouse
     {
-        private Lazy<TAbstMouseType> _lingoMouse;
+        void HandleMouseMoveEvent(InputEventMouseMotion mouseMotionEvent, bool isInsideRect, float x, float y);
+        void HandleMouseButtonEvent(InputEventMouseButton mouseButtonEvent, bool isInsideRect, float x, float y);
+        
+    }
+    public class AbstGodotMouse : IAbstFrameworkMouse, IAbstGodotMouseHandler
+    {
+        private Lazy<IAbstMouseInternal> _lingoMouse;
         private DateTime _lastClickTime = DateTime.MinValue;
         private const double DOUBLE_CLICK_TIME_LIMIT = 0.25;  // 250 milliseconds for double-click detection
-        public AbstUIGodotMouse(Lazy<TAbstMouseType> lingoMouse)
+        public AbstGodotMouse(Lazy<IAbstMouseInternal> lingoMouse)
         {
             _lingoMouse = lingoMouse;
         }
         public void ReplaceMouseObj(IAbstMouse lingoMouse)
         {
-            _lingoMouse = new Lazy<TAbstMouseType>(() => (TAbstMouseType)lingoMouse);
+            _lingoMouse = new Lazy<IAbstMouseInternal>(() => (IAbstMouseInternal)lingoMouse);
         }
         public void Release()
         {

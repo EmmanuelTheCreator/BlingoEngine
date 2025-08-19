@@ -13,6 +13,13 @@ namespace LingoEngine.Events
         {
             Mouse = lingoMouse;
         }
+        public LingoMouseEvent(AbstMouseEvent mouseEvent, LingoMouse mouse)
+            :base(mouse, mouseEvent.Type)
+        {
+            Mouse = mouse;
+            Type = mouseEvent.Type ;
+            ContinuePropation = mouseEvent.ContinuePropation ;
+        }
     }
 
     public interface ILingoMouseEventHandler : IAbstMouseEventHandler<LingoMouseEvent>

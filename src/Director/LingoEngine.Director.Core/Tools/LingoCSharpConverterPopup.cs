@@ -3,19 +3,38 @@ using AbstUI.Primitives;
 using AbstUI.Commands;
 using LingoEngine.Director.Core.Tools.Commands;
 using LingoEngine.Director.Core.UI;
-using LingoEngine.Director.Core.Windowing;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Lingo.Core;
 using TextCopy;
-using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
+using AbstUI.Windowing;
+using AbstUI.Inputs;
+using AbstUI;
 
 namespace LingoEngine.Director.Core.Tools;
 
-public class LingoCSharpConverterPopup : IAbstCommandHandler<OpenLingoCSharpConverterCommand>, ILingoDialog
+public class LingoCSharpConverterPopupHandler : IAbstCommandHandler<OpenLingoCSharpConverterCommand> 
 {
-    protected readonly IDirectorWindowManager _windowManager;
+    private readonly IAbstWindowManager _windowManager;
+    private readonly IAbstComponentFactory _componentFactory;
+
+    public LingoCSharpConverterPopupHandler(IAbstWindowManager windowManager, IAbstComponentFactory componentFactory)
+    {
+        _windowManager = windowManager;
+        _componentFactory = componentFactory;
+    }
+    public bool CanExecute(OpenLingoCSharpConverterCommand command) => true;
+
+    public virtual bool Handle(OpenLingoCSharpConverterCommand command)
+    {
+        var component = _componentFactory.CreateElement<LingoCSharpConverterPopup>();
+        _windowManager.ShowCustomDialog("Lingo to C#", component.Framework<IAbstFrameworkPanel>(), component);
+        return true;
+    }
+}
+public class LingoCSharpConverterPopup : AbstDialog
+{
     protected readonly ILingoFrameworkFactory _factory;
+    private readonly AbstPanel _panel;
     private DirCodeHighlichter _csharpHighlighter = null!;
     private DirCodeHighlichter _lingoHighlighter = null!;
 
@@ -26,23 +45,19 @@ public class LingoCSharpConverterPopup : IAbstCommandHandler<OpenLingoCSharpConv
         public string Errors { get; set; } = string.Empty;
     }
 
-    public LingoCSharpConverterPopup(IDirectorWindowManager windowManager, ILingoFrameworkFactory factory)
+    public LingoCSharpConverterPopup(ILingoFrameworkFactory factory, IAbstGlobalMouse mouse, IAbstGlobalKey key)
+        :base(mouse,key)
     {
-        _windowManager = windowManager;
         _factory = factory;
-    }
-
-    public bool CanExecute(OpenLingoCSharpConverterCommand command) => true;
-
-    public virtual bool Handle(OpenLingoCSharpConverterCommand command)
-    {
         var vm = new ViewModel();
-        var panel = BuildPanel(vm);
-        _windowManager.ShowCustomDialog<LingoCSharpConverterPopup>("Lingo to C#", panel.Framework<IAbstFrameworkPanel>(), this);
-        return true;
+        _panel = BuildPanel(vm);
     }
 
-    public void Init(IDirFrameworkDialog framework) { }
+  
+
+    public void Init(IAbstFrameworkDialog framework) 
+    { 
+    }
 
     protected AbstPanel BuildPanel(ViewModel vm)
     {
@@ -71,12 +86,12 @@ public class LingoCSharpConverterPopup : IAbstCommandHandler<OpenLingoCSharpConv
             .AddLabel("LingoLabel", "Lingo")
             .AddButton("CopyLingo", "Copy", () => ClipboardService.SetText(vm.Lingo));
 
-        _lingoHighlighter = new DirCodeHighlichter(_factory, DirCodeHighlichter.Language.Lingo);
+        _lingoHighlighter = _factory.ComponentFactory.CreateElement<DirCodeHighlichter>(); // new DirCodeHighlichter(_factory, DirCodeHighlichter.Language.Lingo);
+        _csharpHighlighter.CodeLanguage = DirCodeHighlichter.SourceCodeLanguage.Lingo;
         _lingoHighlighter.Width = 380;
         _lingoHighlighter.Height = 420;
         _lingoHighlighter.TextChanged += () => vm.Lingo = _lingoHighlighter.Text;
         left.AddItem(_lingoHighlighter.TextComponent);
-        LinkHighlighter(_lingoHighlighter);
 
         var rightHeader = _factory.CreateWrapPanel(AOrientation.Horizontal, "CSharpHeader");
         right.AddItem(rightHeader);
@@ -84,12 +99,12 @@ public class LingoCSharpConverterPopup : IAbstCommandHandler<OpenLingoCSharpConv
             .AddLabel("CSharpLabel", "C#")
             .AddButton("CopyCSharp", "Copy", () => ClipboardService.SetText(vm.CSharp));
 
-        _csharpHighlighter = new DirCodeHighlichter(_factory, DirCodeHighlichter.Language.CSharp);
+        _csharpHighlighter = _factory.ComponentFactory.CreateElement<DirCodeHighlichter>();
+        _csharpHighlighter.CodeLanguage = DirCodeHighlichter.SourceCodeLanguage.CSharp;
         _csharpHighlighter.Width = 380;
         _csharpHighlighter.Height = 420;
         _csharpHighlighter.TextChanged += () => vm.CSharp = _csharpHighlighter.Text;
         right.AddItem(_csharpHighlighter.TextComponent);
-        LinkHighlighter(_csharpHighlighter);
 
         var errorInput = _factory.CreateInputText("ErrorsText", 0, null);
         errorInput.Width = 800;
@@ -120,12 +135,6 @@ public class LingoCSharpConverterPopup : IAbstCommandHandler<OpenLingoCSharpConv
             });
 
         return root;
-    }
-
-    private void LinkHighlighter(DirCodeHighlichter highlighter)
-    {
-        if (_factory is LingoBaseFrameworkFactory fw)
-            fw.ServiceProvider.GetRequiredService<IDirFrameworkCodeHighlighter>().Init(highlighter);
     }
 
     public void Dispose()

@@ -1,8 +1,8 @@
+using AbstEngine.Director.LGodot;
 using AbstUI.LGodot.Components;
 using Godot;
 using LingoEngine.Director.Core.Projects;
 using LingoEngine.Director.Core.UI;
-using LingoEngine.Director.LGodot.Windowing;
 
 namespace LingoEngine.Director.LGodot.Projects;
 
@@ -13,12 +13,10 @@ internal partial class DirGodotProjectSettingsWindow : BaseGodotWindow, IDirFram
 {
     public DirGodotProjectSettingsWindow(
         DirectorProjectSettingsWindow directorWindow,
-        IDirGodotWindowManager windowManager)
-        : base(DirectorMenuCodes.ProjectSettingsWindow, "Project Settings", windowManager)
+        IServiceProvider serviceProvider)
+        : base("Project Settings", serviceProvider)
     {
-        directorWindow.Init(this);
-        Size = new Vector2(directorWindow.Width, directorWindow.Height);
-        CustomMinimumSize = Size;
+        Init(directorWindow);
 
         var root = directorWindow.RootPanel.Framework<AbstGodotWrapPanel>();
         root.Position = new Vector2(5, TitleBarHeight + 5);

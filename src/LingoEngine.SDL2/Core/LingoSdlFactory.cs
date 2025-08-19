@@ -28,6 +28,8 @@ using AbstUI.SDL2.Styles;
 using AbstUI.SDL2;
 using LingoEngine.SDL2.Bitmaps;
 using LingoEngine.SDL2.FilmLoops;
+using AbstUI;
+using AbstUI.Windowing;
 
 namespace LingoEngine.SDL2.Core;
 /// <inheritdoc/>
@@ -40,6 +42,11 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
     private readonly IAbstStyleManager _styleManager;
     private readonly AbstSdlComponentFactory _gfxFactory;
     internal SdlFontManager FontManager => _fontManager;
+    internal SdlRootContext RootContext => _rootContext;
+
+    public AbstSDLComponentContainer ComponentContainer => _rootContext.ComponentContainer;
+
+    public IAbstComponentFactory ComponentFactory => _gfxFactory;
     /// <inheritdoc/>
     public LingoSdlFactory(ILingoServiceProvider serviceProvider, SdlRootContext rootContext)
     {
@@ -48,7 +55,7 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
         _rootContext.Factory = this;
         _fontManager = (SdlFontManager)_serviceProvider.GetRequiredService<IAbstFontManager>();
         _styleManager = _serviceProvider.GetRequiredService<IAbstStyleManager>();
-        _gfxFactory = new AbstSdlComponentFactory(_rootContext, _fontManager, _styleManager);
+        _gfxFactory = (AbstSdlComponentFactory)serviceProvider.GetRequiredService<IAbstComponentFactory>();
     }
 
     public IAbstComponentFactory GfxFactory => _gfxFactory;
@@ -197,9 +204,7 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
             d.Dispose();
     }
 
-    internal SdlRootContext RootContext => _rootContext;
 
-    public AbstSDLComponentContainer ComponentContainer => _rootContext.ComponentContainer;
 
     public AbstSDLComponentContext CreateContext(IAbstSDLComponent component, AbstSDLComponentContext? parent = null)
         => _gfxFactory.CreateContext(component, parent);
@@ -291,9 +296,6 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
 
     public AbstLayoutWrapper CreateLayoutWrapper(IAbstNode content, float? x, float? y)
         => _gfxFactory.CreateLayoutWrapper(content, x, y);
-
-    public AbstWindow CreateWindow(string name, string title = "")
-        => _gfxFactory.CreateWindow(name, title);
 
 
     public AbstHorizontalLineSeparator CreateHorizontalLineSeparator(string name)

@@ -2,7 +2,7 @@ using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.SDL2.Components;
 using AbstUI.SDL2.Styles;
-using AbstUI.Styles;
+using AbstUI.Windowing;
 
 namespace AbstUI.SDL2
 {
@@ -12,29 +12,28 @@ namespace AbstUI.SDL2
     public class AbstSdlComponentFactory : AbstComponentFactoryBase, IAbstComponentFactory
     {
         private readonly ISdlRootComponentContext _rootContext;
-        private readonly SdlFontManager _fontManager;
+        public readonly SdlFontManager FontManagerTyped;
 
         public ISdlRootComponentContext RootContext => _rootContext;
         public SdlFocusManager FocusManager => _rootContext.FocusManager;
-        public SdlFontManager FontManager => _fontManager;
 
-        public AbstSdlComponentFactory(ISdlRootComponentContext rootContext, SdlFontManager fontManager, IAbstStyleManager styleManager)
-            : base(styleManager, fontManager)
+        public AbstSdlComponentFactory(ISdlRootComponentContext rootContext, IServiceProvider serviceProvider)
+            : base(serviceProvider)
         {
             _rootContext = rootContext;
-            _fontManager = fontManager;
+            FontManagerTyped = (SdlFontManager)FontManager;
         }
 
         public AbstSDLComponentContext CreateContext(IAbstSDLComponent component, AbstSDLComponentContext? parent = null)
             => new(_rootContext.ComponentContainer, component, parent) { Renderer = _rootContext.Renderer };
 
         public AbstSDLRenderContext CreateRenderContext(IAbstSDLComponent? component = null)
-            => new(_rootContext.Renderer, System.Numerics.Vector2.Zero, _fontManager);
+            => new(_rootContext.Renderer, System.Numerics.Vector2.Zero, FontManagerTyped);
 
         public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
         {
             var canvas = new AbstGfxCanvas();
-            var impl = new AbstSdlGfxCanvas(this, _fontManager, width, height);
+            var impl = new AbstSdlGfxCanvas(this, FontManagerTyped, width, height);
             canvas.Init(impl);
             InitComponent(canvas);
             canvas.Width = width;
@@ -284,16 +283,16 @@ namespace AbstUI.SDL2
         }
 
 
-        public AbstWindow CreateWindow(string name, string title = "")
-        {
+        //public AbstWindow CreateWindow(string name, string title = "")
+        //{
 
-            var win = new AbstWindow();
-            var impl = new AbstSdlWindow(win, this);
-            win.Name = name;
-            win.Title = title;
-            InitComponent(win);
-            return win;
-        }
+        //    var win = new AbstWindow();
+        //    var impl = new AbstSdlWindow(win, this);
+        //    win.Name = name;
+        //    win.Title = title;
+        //    InitComponent(win);
+        //    return win;
+        //}
 
 
         public AbstMenuItem CreateMenuItem(string name, string? shortcut = null)

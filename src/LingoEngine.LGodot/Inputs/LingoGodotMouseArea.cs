@@ -18,7 +18,7 @@ namespace LingoEngine.LGodot
         private CollisionShape2D _collisionShape2D = new();
         private RectangleShape2D _RectangleShape2D = new();
 
-        public LingoGodotMouseArea(Node rootNode, Lazy<LingoMouse> lingoMouse)
+        public LingoGodotMouseArea(Node rootNode, Lazy<IAbstMouseInternal> lingoMouse)
         {
             Name = "MouseConnector";
             _handler = new LingoGodotMouse(lingoMouse);

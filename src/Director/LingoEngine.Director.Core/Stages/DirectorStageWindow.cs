@@ -1,9 +1,11 @@
 using AbstUI.Commands;
+using LingoEngine.Core;
 using LingoEngine.Director.Core.Stages.Commands;
 using LingoEngine.Director.Core.Tools;
+using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.FrameworkCommunication;
-using LingoEngine.Core;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Director.Core.Stages
 {
@@ -18,7 +20,7 @@ namespace LingoEngine.Director.Core.Stages
 
         public StageIconBar IconBar { get; }
 
-        public DirectorStageWindow(IHistoryManager historyManager, ILingoFrameworkFactory factory, IAbstCommandManager commandManager, ILingoPlayer player, IDirectorEventMediator mediator, IDirStageManager stageManager) : base(factory)
+        public DirectorStageWindow(IServiceProvider serviceProvider, IHistoryManager historyManager, ILingoFrameworkFactory factory, IAbstCommandManager commandManager, ILingoPlayer player, IDirectorEventMediator mediator, IDirStageManager stageManager) : base(serviceProvider, DirectorMenuCodes.StageWindow)
         {
             _historyManager = historyManager;
             IconBar = new StageIconBar(factory, commandManager, player, mediator, stageManager);

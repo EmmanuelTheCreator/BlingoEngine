@@ -1,35 +1,37 @@
-using LingoEngine.FrameworkCommunication;
-using LingoEngine.Primitives;
-using LingoEngine.Director.Core.Styles;
-using LingoEngine.Director.Core.Casts;
-using LingoEngine.Director.Core.Icons;
-using LingoEngine.Core;
 using AbstUI.Commands;
-using LingoEngine.Members;
-using LingoEngine.Sprites;
-using LingoEngine.Texts;
-using LingoEngine.Sounds;
-using LingoEngine.Movies;
-using LingoEngine.Director.Core.Windowing.Commands;
+using AbstUI.Components;
+using AbstUI.Primitives;
+using AbstUI.Tools;
+using AbstUI.Windowing;
+using LingoEngine.Bitmaps;
+using LingoEngine.Casts;
+using LingoEngine.ColorPalettes;
+using LingoEngine.Core;
+using LingoEngine.Director.Core.Casts;
 using LingoEngine.Director.Core.Events;
+using LingoEngine.Director.Core.Icons;
+using LingoEngine.Director.Core.Inspector.Commands;
 using LingoEngine.Director.Core.Sprites;
+using LingoEngine.Director.Core.Stages;
+using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
-using LingoEngine.Director.Core.Inspector.Commands;
-using LingoEngine.Director.Core.Stages;
-using LingoEngine.Bitmaps;
-using LingoEngine.Casts;
-using LingoEngine.Shapes;
-using Microsoft.Extensions.Logging;
-using LingoEngine.Tempos;
-using LingoEngine.ColorPalettes;
-using LingoEngine.Transitions;
-using LingoEngine.Scripts;
+using LingoEngine.Director.Core.Windowing.Commands;
 using LingoEngine.FilmLoops;
-using AbstUI.Primitives;
-using AbstUI.Tools;
-using AbstUI.Components;
+using LingoEngine.FrameworkCommunication;
+using LingoEngine.Members;
+using LingoEngine.Movies;
+using LingoEngine.Primitives;
+using LingoEngine.Scripts;
+using LingoEngine.Shapes;
+using LingoEngine.Sounds;
+using LingoEngine.Sprites;
+using LingoEngine.Tempos;
+using LingoEngine.Texts;
+using LingoEngine.Transitions;
+using Microsoft.Extensions.Logging;
+using System.Numerics;
 
 namespace LingoEngine.Director.Core.Inspector
 {
@@ -60,7 +62,6 @@ namespace LingoEngine.Director.Core.Inspector
         private DirectorMemberThumbnail? _thumb;
         private AbstPanel? _header;
         private IDirectorIconManager _iconManager;
-        public ILingoFrameworkFactory Factory => _factory;
         private AbstPanel _headerPanel;
         private IDirectorEventMediator _mediator;
         private readonly IDirectorBehaviorDescriptionManager _descriptionManager;
@@ -71,7 +72,7 @@ namespace LingoEngine.Director.Core.Inspector
         private float _lastHeight;
         private Dictionary<string, LingoSpriteBehavior> _behaviors = new();
         private AbstItemList _behaviorList;
-        private AbstWindow? _behaviorWindow;
+        private IAbstWindowDialogReference? _behaviorWindow;
 
         public AbstPanel HeaderPanel => _headerPanel;
         public AbstTabContainer Tabs => _tabs;
@@ -81,7 +82,7 @@ namespace LingoEngine.Director.Core.Inspector
 
         public record HeaderElements(AbstPanel Panel, AbstWrapPanel Header, DirectorMemberThumbnail Thumbnail);
 
-        public DirectorPropertyInspectorWindow(LingoPlayer player, IAbstCommandManager commandManager, ILingoFrameworkFactory factory, IDirectorIconManager iconManager, IDirectorEventMediator mediator, IDirectorBehaviorDescriptionManager descriptionManager, DirectorStageGuides guides, ILogger<DirectorPropertyInspectorWindow> logger) : base(factory)
+        public DirectorPropertyInspectorWindow(IServiceProvider serviceProvider, LingoPlayer player, IAbstCommandManager commandManager, ILingoFrameworkFactory factory, IDirectorIconManager iconManager, IDirectorEventMediator mediator, IDirectorBehaviorDescriptionManager descriptionManager, DirectorStageGuides guides, ILogger<DirectorPropertyInspectorWindow> logger) : base(serviceProvider, DirectorMenuCodes.PropertyInspector)
         {
             _player = player;
             _commandManager = commandManager;
@@ -91,17 +92,28 @@ namespace LingoEngine.Director.Core.Inspector
             _guides = guides;
             _logger = logger;
             _mediator.Subscribe(this);
+            Width = 260;
+            Height = 450;
+            MinimumWidth = 260;
+            MinimumHeight = 200;
+            X = 1530;
+            Y = 22;
+            _lastWidh = Width;
+            _lastHeight = Height;
         }
         public override void Dispose()
         {
             base.Dispose();
             _mediator.Unsubscribe(this);
         }
-        public void Init(IDirFrameworkWindow frameworkWindow, float width, float height, int titleBarHeight)
+        public override void Init(IAbstFrameworkWindow frameworkWindow)
         {
             base.Init(frameworkWindow);
-            _lastHeight = height;
-            _lastWidh = width;
+            Title = "Property Inspector";
+           
+        }
+        public void Init(int titleBarHeight)
+        {
             CreateHeaderElements();
             _tabs = _factory.CreateTabContainer("InspectorTabs");
             CreateBehaviorPanel();
@@ -152,8 +164,10 @@ namespace LingoEngine.Director.Core.Inspector
         public void SpriteSelected(ILingoSpriteBase sprite) => ShowObject(sprite);
         public void MemberSelected(ILingoMember member) => ShowObject(member);
 
-        public void OnResizing(float width, float height)
+
+        protected override void OnResizing(bool firstLoad, int width, int height)
         {
+            base.OnResizing(firstLoad, width, height);
             _lastWidh = width;
             _lastHeight = height;
             if (_tabs == null || _header == null)
@@ -356,17 +370,17 @@ namespace LingoEngine.Director.Core.Inspector
         }
 
 
-        public AbstWindow? BuildBehaviorPopup(LingoSpriteBehavior behavior)
+        public IAbstWindowDialogReference? BuildBehaviorPopup(LingoSpriteBehavior behavior)
             => _descriptionManager.BuildBehaviorPopup(behavior, () =>
             {
                 _behaviorList.SelectedIndex = -1;
             });
 
-        public void ShowBehaviorPopup(AbstWindow window)
+        public void ShowBehaviorPopup(IAbstWindowDialogReference window)
         {
-            _behaviorWindow?.Dispose();
+            _behaviorWindow?.Dialog?.Dispose();
             _behaviorWindow = window;
-            window.PopupCentered();
+            //window.PopupCentered();
         }
 
         public bool CanExecute(OpenBehaviorPopupCommand command) => true;

@@ -1,6 +1,5 @@
 using LingoEngine.Core;
 using LingoEngine.Director.Core.Projects;
-using LingoEngine.Director.Core.Tools;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Movies;
 using LingoEngine.Inputs;
@@ -13,6 +12,9 @@ using LingoEngine.Director.Core.Compilers.Commands;
 using AbstUI.Primitives;
 using AbstUI.Components;
 using LingoEngine.Director.Core.Tools.Commands;
+using AbstUI.Windowing;
+using AbstUI.Inputs;
+using AbstUI.Tools;
 
 namespace LingoEngine.Director.Core.UI
 {
@@ -36,10 +38,10 @@ namespace LingoEngine.Director.Core.UI
         private readonly AbstButton _ControlButton;
         private readonly AbstButton _windowButton;
         private AbstStateButton _playButton;
-        private readonly IDirectorWindowManager _windowManager;
+        private readonly IAbstWindowManager _windowManager;
         private readonly DirectorProjectManager _projectManager;
         private readonly LingoPlayer _player;
-        private readonly IDirectorShortCutManager _shortCutManager;
+        private readonly IAbstShortCutManager _shortCutManager;
         private readonly IHistoryManager _historyManager;
         private readonly IAbstCommandManager _commandManager;
         private readonly List<ShortCutInfo> _shortCuts = new();
@@ -67,7 +69,7 @@ namespace LingoEngine.Director.Core.UI
 
         private class ShortCutInfo
         {
-            public DirectorShortCutMap Map { get; init; } = null!;
+            public AbstShortCutMap Map { get; init; } = null!;
             public string Key { get; init; } = string.Empty;
             public bool Ctrl { get; init; }
             public bool Alt { get; init; }
@@ -75,8 +77,8 @@ namespace LingoEngine.Director.Core.UI
             public bool Meta { get; init; }
         }
 
-        public DirectorMainMenu(IDirectorWindowManager windowManager, DirectorProjectManager projectManager, LingoPlayer player, IDirectorShortCutManager shortCutManager,
-            IHistoryManager historyManager, IDirectorIconManager directorIconManager, IAbstCommandManager commandManager, ILingoFrameworkFactory factory) : base(factory)
+        public DirectorMainMenu(IServiceProvider serviceProvider, IAbstWindowManager windowManager, DirectorProjectManager projectManager, LingoPlayer player, IAbstShortCutManager shortCutManager,
+            IHistoryManager historyManager, IDirectorIconManager directorIconManager, IAbstCommandManager commandManager, ILingoFrameworkFactory factory) : base(serviceProvider, DirectorMenuCodes.MainMenu)
         {
             _windowManager = windowManager;
             _projectManager = projectManager;
@@ -331,13 +333,13 @@ namespace LingoEngine.Director.Core.UI
                 _lingoMovie.Play();
         }
 
-        private void OnShortCutAdded(DirectorShortCutMap map)
+        private void OnShortCutAdded(AbstShortCutMap map)
             => _shortCuts.Add(ParseShortCut(map));
 
-        private void OnShortCutRemoved(DirectorShortCutMap map)
+        private void OnShortCutRemoved(AbstShortCutMap map)
             => _shortCuts.RemoveAll(s => s.Map == map);
 
-        private ShortCutInfo ParseShortCut(DirectorShortCutMap map)
+        private ShortCutInfo ParseShortCut(AbstShortCutMap map)
         {
             bool ctrl = false, alt = false, shift = false, meta = false;
             string key = string.Empty;
@@ -377,7 +379,7 @@ namespace LingoEngine.Director.Core.UI
             base.Dispose();
         }
 
-        protected override void OnRaiseKeyDown(LingoKeyEvent key)
+        protected override void OnRaiseKeyDown(AbstKeyEvent key)
         {
             var label = key.Key.ToUpperInvariant();
             bool ctrl = key.ControlDown;
@@ -395,6 +397,6 @@ namespace LingoEngine.Director.Core.UI
             }
         }
 
-        protected override void OnRaiseKeyUp(LingoKeyEvent key) { }
+        protected override void OnRaiseKeyUp(AbstKeyEvent key) { }
     }
 }

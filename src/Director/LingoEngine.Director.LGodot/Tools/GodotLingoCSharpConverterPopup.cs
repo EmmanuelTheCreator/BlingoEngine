@@ -1,13 +1,11 @@
-using Godot;
+using AbstUI.FrameworkCommunication;
+using AbstUI.LGodot.Windowing;
 using LingoEngine.Director.Core.Tools;
-using LingoEngine.Director.Core.Windowing;
-using LingoEngine.FrameworkCommunication;
 
 namespace LingoEngine.Director.LGodot.Tools;
 
-public partial class GodotLingoCSharpConverterPopup : Window, IDirFrameworkDialog, IFrameworkFor<LingoCSharpConverterPopup>
+public partial class GodotLingoCSharpConverterPopup : AbstGodotDialog, IFrameworkFor<LingoCSharpConverterPopup>
 {
     public GodotLingoCSharpConverterPopup() { }
 
-    public void Init(ILingoDialog lingoDialog) { }
 }

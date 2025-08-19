@@ -52,7 +52,7 @@ public class DirScoreFrameHeader : IDisposable
         _canvas.DrawLine(new APoint(0, _gfxValues.ChannelFramesHeight), new APoint(_canvas.Width, _gfxValues.ChannelFramesHeight), DirectorColors.LineDark, 1);
     }
 
-    public void HandleMouseEvent(LingoMouseEvent mouseEvent, int mouseFrame)
+    public void HandleMouseEvent(AbstMouseEvent mouseEvent, int mouseFrame)
     {
         if (_movie == null)
             return;

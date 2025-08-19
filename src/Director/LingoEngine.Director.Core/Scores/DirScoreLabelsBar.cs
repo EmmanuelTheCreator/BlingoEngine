@@ -224,13 +224,13 @@ public class DirScoreLabelsBar : IDisposable
     }
 
   
-    internal void HandleMouseEvent(LingoMouseEvent mouseEvent, int mouseFrame)
+    internal void HandleMouseEvent(AbstMouseEvent mouseEvent, int mouseFrame)
     {
         if (mouseEvent.Type == AbstMouseEventType.MouseDown) MouseDown(mouseEvent, mouseFrame);
         else if (mouseEvent.Type == AbstMouseEventType.MouseUp) MouseUp(mouseEvent);
         else if (mouseEvent.Type == AbstMouseEventType.MouseMove) MouseMove(mouseEvent, mouseFrame);
     }
-    private void MouseDown(LingoMouseEvent e, int mouseFrame)
+    private void MouseDown(AbstMouseEvent e, int mouseFrame)
     {
         //Console.WriteLine($"Mouse Down: {e.MouseH} {e.MouseV} Frame: {mouseFrame}");
         if (_movie == null) return;
@@ -284,7 +284,7 @@ public class DirScoreLabelsBar : IDisposable
         IsEditing = false;
         DrawScrollable();
     }
-    private void MouseMove(LingoMouseEvent e, int mouseFrame)
+    private void MouseMove(AbstMouseEvent e, int mouseFrame)
     {
         if (_movie == null || !_dragging || _activeFrameLabel == null) return;
         var newFrame = mouseFrame - _mouseFrameOffset;
@@ -302,7 +302,7 @@ public class DirScoreLabelsBar : IDisposable
     }
 
   
-    private void MouseUp(LingoMouseEvent e)
+    private void MouseUp(AbstMouseEvent e)
     {
         if (_dragging && _activeFrameLabel != null)
         {

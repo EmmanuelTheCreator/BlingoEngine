@@ -1,11 +1,11 @@
 ﻿using Godot;
-using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.Director.LGodot.Importer;
 using LingoEngine.Director.Core.Importer;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Inspector;
 using LingoEngine.Director.LGodot.Importer.TestData;
 using LingoEngine.Director.Core.UI;
+using AbstEngine.Director.LGodot;
 
 namespace LingoEngine.Director.LGodot.Gfx
 {
@@ -26,14 +26,11 @@ namespace LingoEngine.Director.LGodot.Gfx
         private SubViewport _viewport;
         private TextureRect _textureRect;
 
-    public DirGodotBinaryViewerWindow(IDirectorEventMediator mediator, DirectorBinaryViewerWindow directorBinaryViewerWindow, IDirGodotWindowManager windowManager)
-        : base(DirectorMenuCodes.BinaryViewerWindow, "Binary Viewer", windowManager)
+    public DirGodotBinaryViewerWindow(IDirectorEventMediator mediator, DirectorBinaryViewerWindow directorBinaryViewerWindow, IServiceProvider serviceProvider)
+        : base("Binary Viewer", serviceProvider)
         {
             _mediator = mediator;
-            directorBinaryViewerWindow.Init(this);
-            Size = new Vector2(1400, 600);
-            CustomMinimumSize = Size;
-
+            Init(directorBinaryViewerWindow);
             //_viewport = new SubViewport();
             //_viewport.SetDisable3D(true);
             //_viewport.TransparentBg = false;

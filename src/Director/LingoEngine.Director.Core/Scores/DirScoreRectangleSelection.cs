@@ -4,6 +4,7 @@ using LingoEngine.Events;
 using LingoEngine.Sprites;
 using LingoEngine.Director.Core.Sprites;
 using AbstUI.Primitives;
+using AbstUI.Inputs;
 
 namespace LingoEngine.Director.Core.Scores
 {
@@ -69,7 +70,7 @@ namespace LingoEngine.Director.Core.Scores
             return true;
         }
 
-        public bool Complete(LingoMouseEvent mouseEvent, int channelNumber, int frameNumber)
+        public bool Complete(AbstMouseEvent mouseEvent, int channelNumber, int frameNumber)
         {
             if (!_selecting)
                 return false;

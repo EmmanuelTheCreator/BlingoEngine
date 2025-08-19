@@ -1,6 +1,6 @@
 using AbstUI.Primitives;
 using AbstUI.Texts;
-using AbstUI.Styles;
+using AbstUI.Styles.Components;
 
 namespace AbstUI.Components
 {

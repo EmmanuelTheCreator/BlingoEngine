@@ -1,22 +1,22 @@
-using AbstUI.Styles;
-using AbstUI.Primitives;
+using AbstUI;
 using AbstUI.Components;
-using AbstUI.LGodot.Styles;
+using AbstUI.LGodot;
 using AbstUI.LGodot.Components;
-using LingoEngine.LGodot.Gfx;
+using AbstUI.LGodot.Styles;
+using AbstUI.Primitives;
 
 namespace LingoEngine.LGodot
 {
     /// <summary>
     /// Factory responsible for creating Godot specific GFX components.
     /// </summary>
-    public class GodotGfxFactory : AbstComponentFactoryBase, IAbstComponentFactory
+    public class GodotComponentFactory : AbstComponentFactoryBase, IAbstComponentFactory
     {
         private readonly IAbstGodotStyleManager _godotStyleManager;
-        private readonly LingoGodotRootNode _rootNode;
+        private readonly IAbstGodotRootNode _rootNode;
 
-        public GodotGfxFactory(IAbstStyleManager styleManager, IAbstFontManager fontManager, IAbstGodotStyleManager godotStyleManager, LingoGodotRootNode rootNode)
-            : base(styleManager, fontManager)
+        public GodotComponentFactory(IServiceProvider serviceProvider, IAbstGodotStyleManager godotStyleManager, IAbstGodotRootNode rootNode)
+            : base(serviceProvider)
         {
             _godotStyleManager = godotStyleManager;
             _rootNode = rootNode;
@@ -279,15 +279,15 @@ namespace LingoEngine.LGodot
             return sep;
         }
 
-        public AbstWindow CreateWindow(string name, string title = "")
-        {
-            var win = new AbstWindow();
-            var impl = new LingoGodotWindow(win, _godotStyleManager, _rootNode);
-            InitComponent(win);
-            win.Name = name;
-            if (!string.IsNullOrWhiteSpace(title))
-                win.Title = title;
-            return win;
-        }
+        //public AbstWindow CreateWindow(string name, string title = "")
+        //{
+        //    var win = new AbstWindow();
+        //    var impl = new LingoGodotWindow(win, _godotStyleManager, _rootNode);
+        //    InitComponent(win);
+        //    win.Name = name;
+        //    if (!string.IsNullOrWhiteSpace(title))
+        //        win.Title = title;
+        //    return win;
+        //}
     }
 }

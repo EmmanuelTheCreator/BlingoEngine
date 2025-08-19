@@ -55,6 +55,8 @@ namespace AbstUI.Inputs
         AbstKey Subscribe(IAbstKeyEventHandler<AbstKeyEvent> handler);
         AbstKey Unsubscribe(IAbstKeyEventHandler<AbstKeyEvent> handler);
 
+        IAbstKey CreateNewInstance(IAbstActivationProvider provider);
+
     }
 
     /// <summary>
@@ -75,9 +77,14 @@ namespace AbstUI.Inputs
     public class AbstKey : IAbstKey
     {
         private HashSet<IAbstKeyEventHandler<AbstKeyEvent>> _subscriptions = new();
-        private readonly IAbstFrameworkKey _frameworkObj;
+        private IAbstFrameworkKey _frameworkObj;
 
+        public AbstKey() { }
         public AbstKey(IAbstFrameworkKey frameworkObj)
+        {
+            _frameworkObj = frameworkObj;
+        }
+        protected void Init(IAbstFrameworkKey frameworkObj)
         {
             _frameworkObj = frameworkObj;
         }
@@ -85,7 +92,7 @@ namespace AbstUI.Inputs
         /// <summary>
         /// Creates a proxy key that emits events only while the <paramref name="provider"/> is activated.
         /// </summary>
-        public AbstKey CreateNewInstance(IAbstActivationProvider provider) => new ProxyKey(this, provider);
+        public IAbstKey CreateNewInstance(IAbstActivationProvider provider) => new ProxyKey(this, provider);
 
         internal T Framework<T>() where T : IAbstFrameworkKey => (T)_frameworkObj;
 

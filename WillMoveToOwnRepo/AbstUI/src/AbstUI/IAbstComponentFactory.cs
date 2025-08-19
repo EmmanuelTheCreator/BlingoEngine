@@ -1,11 +1,13 @@
+using AbstUI.Components;
 using AbstUI.Primitives;
+using System.Reflection;
 
-namespace AbstUI.Components
+namespace AbstUI
 {
     /// <summary>
     /// Factory interface for creating engine-level GFX components.
     /// </summary>
-    public interface IAbstComponentFactory
+    public interface IAbstComponentFactory : IAbstComponentFactoryBase
     {
         AbstGfxCanvas CreateGfxCanvas(string name, int width, int height);
         AbstWrapPanel CreateWrapPanel(AOrientation orientation, string name);
@@ -32,6 +34,6 @@ namespace AbstUI.Components
         AbstMenu CreateContextMenu(object window);
         AbstHorizontalLineSeparator CreateHorizontalLineSeparator(string name);
         AbstVerticalLineSeparator CreateVerticalLineSeparator(string name);
-        AbstWindow CreateWindow(string name, string title = "");
+        
     }
 }

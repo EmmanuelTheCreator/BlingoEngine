@@ -1,5 +1,4 @@
 ﻿using AbstUI.LUnity.Styles;
-using AbstUI.Components;
 using AbstUI.Styles;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,7 +11,8 @@ namespace AbstUI.LUnity
             services
                 .AddSingleton<IAbstFontManager, UnityFontManager>()
                 .AddSingleton<IAbstStyleManager, AbstStyleManager>()
-                .AddSingleton<IAbstComponentFactory, AbstUnityComponentFactory>();
+                .AddSingleton<IAbstComponentFactory, AbstUnityComponentFactory>()
+                .WithAbstUI();
 
             return services;
         }

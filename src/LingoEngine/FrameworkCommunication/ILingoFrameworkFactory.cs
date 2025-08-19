@@ -13,6 +13,8 @@ using LingoEngine.Bitmaps;
 using LingoEngine.FilmLoops;
 using AbstUI.Primitives;
 using AbstUI.Components;
+using AbstUI.Windowing;
+using AbstUI;
 
 namespace LingoEngine.FrameworkCommunication
 {
@@ -23,6 +25,8 @@ namespace LingoEngine.FrameworkCommunication
     /// </summary>
     public interface ILingoFrameworkFactory
     {
+        IAbstComponentFactory ComponentFactory { get; }
+
         /// <summary>
         /// Creates the main <see cref="LingoStage"/> for a <see cref="LingoPlayer"/>.
         /// </summary>
@@ -150,8 +154,8 @@ After:
         /// <summary>Creates a vertical line separator.</summary>
         AbstVerticalLineSeparator CreateVerticalLineSeparator(string name);
 
-        /// <summary>Creates a window container.</summary>
-        AbstWindow CreateWindow(string name, string title = "");
+        ///// <summary>Creates a window container.</summary>
+        //AbstWindow CreateWindow(string name, string title = "");
 
         #endregion
 

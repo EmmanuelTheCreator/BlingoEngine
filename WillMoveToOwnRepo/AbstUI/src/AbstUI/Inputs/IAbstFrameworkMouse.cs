@@ -1,4 +1,6 @@
-﻿namespace AbstUI.Inputs
+﻿using AbstUI.Primitives;
+
+namespace AbstUI.Inputs
 {
     /// <summary>
     /// Interface for mouse operations provided by the framework.
@@ -14,5 +16,6 @@
         /// </summary>
         void Release();
         void ReplaceMouseObj(IAbstMouse lingoMouse);
+        void SetCursor(AMouseCursor cursor);
     }
 }

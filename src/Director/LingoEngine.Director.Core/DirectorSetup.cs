@@ -29,15 +29,13 @@ namespace LingoEngine.Director.Core
         {
             engineRegistration.ServicesMain(s => s
                     .AddSingleton<IDirectorEventMediator, DirectorEventMediator>()
-                    .AddSingleton<IDirectorShortCutManager, DirectorShortCutManager>()
+                   
                     .AddSingleton<IHistoryManager, HistoryManager>()
-                    .AddSingleton<DirectorWindowManager>()
                     .AddSingleton<DirectorProjectManager>()
                     .AddSingleton<LingoScriptCompiler>()
                     .AddSingleton<DirectorProjectSettings>()
                     .AddSingleton<DirectorProjectSettingsRepository>()
                     .AddSingleton<LingoProjectSettingsRepository>()
-                    .AddTransient<IDirectorWindowManager>(p => p.GetRequiredService<DirectorWindowManager>())
                     .AddTransient<IDirectorBehaviorDescriptionManager, DirectorBehaviorDescriptionManager>()
 
                     // File system
@@ -79,7 +77,7 @@ namespace LingoEngine.Director.Core
                     serviceProvider.RegisterDirectorWindows();
                     // Services that needs to be resolved to subscribe to the command handler.
                     serviceProvider.GetRequiredService<IAbstCommandManager>()
-                        .Register<LingoCSharpConverterPopup, OpenLingoCSharpConverterCommand>()
+                        .Register<LingoCSharpConverterPopupHandler, OpenLingoCSharpConverterCommand>()
                         .Preload<OpenLingoCSharpConverterCommand>()
                         ;
                     
@@ -89,7 +87,7 @@ namespace LingoEngine.Director.Core
                     {
                         //var settings = new DirectorProjectSettings();
                         //directorSettingsConfig(settings)
-                        //serviceProvider.GetRequiredService<IDirectorWindowManager>()
+                        //serviceProvider.GetRequiredService<IAbstWindowManager>()
 
 
                     }

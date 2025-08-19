@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using LingoEngine.Casts;
 using LingoEngine.Core;
 using LingoEngine.FrameworkCommunication;
@@ -18,7 +16,6 @@ using UnityEngine;
 using LingoEngine.Unity.Stages;
 using LingoEngine.Unity.Bitmaps;
 using LingoEngine.Unity.Movies;
-using LingoEngine.Unity.Sprites;
 using LingoEngine.Unity.Texts;
 using LingoEngine.Unity.Sounds;
 using AbstUI.Styles;
@@ -26,7 +23,7 @@ using Microsoft.Extensions.DependencyInjection;
 using AbstUI.Primitives;
 using AbstUI.Components;
 using AbstUI.LUnity;
-using System.Numerics;
+using AbstUI;
 
 namespace LingoEngine.Unity.Core;
 
@@ -39,12 +36,12 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
     public UnityFactory(ILingoServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
-        var styleManager = _serviceProvider.GetRequiredService<IAbstStyleManager>();
-        var fontManager = _serviceProvider.GetRequiredService<IAbstFontManager>();
-        _gfxFactory = new AbstUnityComponentFactory(styleManager, fontManager);
+        _gfxFactory = new AbstUnityComponentFactory(serviceProvider);
     }
 
     public IAbstComponentFactory GfxFactory => _gfxFactory;
+
+    public IAbstComponentFactory ComponentFactory => _gfxFactory;
 
     public LingoStage CreateStage(LingoPlayer lingoPlayer)
     {
@@ -181,7 +178,7 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
     public AbstMenu CreateContextMenu(object window) => throw new NotImplementedException();
     public AbstHorizontalLineSeparator CreateHorizontalLineSeparator(string name) => throw new NotImplementedException();
     public AbstVerticalLineSeparator CreateVerticalLineSeparator(string name) => throw new NotImplementedException();
-    public AbstWindow CreateWindow(string name, string title = "") => throw new NotImplementedException();
+    //public AbstWindow CreateWindow(string name, string title = "") => throw new NotImplementedException();
     #endregion
 
     public LingoSprite2D CreateSprite2D(ILingoMovie movie, Action<LingoSprite2D> onRemoveMe)

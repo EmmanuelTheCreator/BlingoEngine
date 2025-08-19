@@ -1,6 +1,6 @@
-﻿using LingoEngine.Director.Core.Windowing;
+﻿using AbstUI.Windowing;
 
 namespace LingoEngine.Director.Core.Scores
 {
-    public interface IDirFrameworkScoreWindow : IDirFrameworkWindow { }
+    public interface IDirFrameworkScoreWindow : IAbstFrameworkWindow { }
 }

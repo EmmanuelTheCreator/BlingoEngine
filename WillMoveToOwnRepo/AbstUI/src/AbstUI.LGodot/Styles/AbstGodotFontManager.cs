@@ -3,7 +3,7 @@ using Godot;
 
 namespace AbstUI.LGodot.Styles
 {
-    internal class AbstGodotFontManager : IAbstFontManager
+    public class AbstGodotFontManager : IAbstFontManager
     {
         private readonly List<(string Name, string FileName)> _fontsToLoad = new();
         private readonly Dictionary<string, FontFile> _loadedFonts = new();

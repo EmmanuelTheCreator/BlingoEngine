@@ -3,7 +3,6 @@ using LingoEngine.Director.Core.Events;
 using LingoEngine.Events;
 using LingoEngine.Members;
 using LingoEngine.Core;
-using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Bitmaps;
 using AbstUI.Commands;
@@ -19,6 +18,8 @@ using AbstUI.Inputs;
 using AbstUI.LGodot.Bitmaps;
 using AbstUI.LGodot.Primitives;
 using AbstUI.LGodot.Components;
+using AbstEngine.Director.LGodot;
+using AbstEngine.Director.LGodot.Windowing;
 
 namespace LingoEngine.Director.LGodot.Pictures;
 
@@ -70,8 +71,8 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
     private bool _panning;
     private bool _drawing;
 
-    public DirGodotPictureMemberEditorWindow(IDirectorEventMediator mediator, ILingoPlayer player, IDirGodotWindowManager windowManager, DirectorBitmapEditWindow directorPictureEditWindow, IDirectorIconManager iconManager, IAbstCommandManager commandManager, IHistoryManager historyManager, ILingoFrameworkFactory factory)
-        : base(DirectorMenuCodes.PictureEditWindow, "Picture Editor", windowManager, historyManager)
+    public DirGodotPictureMemberEditorWindow(IServiceProvider serviceProvider, IDirectorEventMediator mediator, ILingoPlayer player, IAbstGodotWindowManager windowManager, DirectorBitmapEditWindow directorPictureEditWindow, IDirectorIconManager iconManager, IAbstCommandManager commandManager, IHistoryManager historyManager, ILingoFrameworkFactory factory)
+        : base("Picture Editor", serviceProvider)
     {
         _mediator = mediator;
         _player = player;
@@ -79,9 +80,8 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
         _commandManager = commandManager;
         _historyManager = historyManager;
         _mediator.Subscribe(this);
-        Size = new Vector2(800, 500);
-        directorPictureEditWindow.Init(this);
-        CustomMinimumSize = Size;
+        Init(directorPictureEditWindow);
+        
 
         _navBar = new MemberNavigationBar<LingoMemberBitmap>(_mediator, _player, _iconManager, factory, NavigationBarHeight);
         AddChild(_navBar.Panel.Framework<AbstGodotWrapPanel>());
@@ -253,10 +253,10 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
         _scaleDropdown.ItemSelected += id => OnScaleSelected(id);
         _bottomBar.AddChild(_scaleDropdown);
 
-        Mouse.OnMouseDown(OnMouseDown);
-        Mouse.OnMouseUp(OnMouseUp);
-        Mouse.OnMouseMove(OnMouseMove);
-        Mouse.OnMouseEvent(OnMouseEvent);
+        MouseT.OnMouseDown(OnMouseDown);
+        MouseT.OnMouseUp(OnMouseUp);
+        MouseT.OnMouseMove(OnMouseMove);
+        MouseT.OnMouseEvent(OnMouseEvent);
     }
     private void StyleIconButton(Button button, DirectorIcon icon)
     {
@@ -528,7 +528,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
         }
     }
 
-    private void OnMouseDown(LingoMouseEvent e)
+    private void OnMouseDown(AbstMouseEvent e)
     {
         if (!IsEventInScrollArea() || !e.Mouse.LeftMouseDown)
             return;
@@ -554,7 +554,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
         GetViewport().SetInputAsHandled();
     }
 
-    private void OnMouseUp(LingoMouseEvent e)
+    private void OnMouseUp(AbstMouseEvent e)
     {
         if (!IsEventInScrollArea())
             return;
@@ -573,7 +573,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
         GetViewport().SetInputAsHandled();
     }
 
-    private void OnMouseMove(LingoMouseEvent e)
+    private void OnMouseMove(AbstMouseEvent e)
     {
         if (!IsEventInScrollArea())
             return;
@@ -618,7 +618,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
         }
     }
 
-    private void OnMouseEvent(LingoMouseEvent e)
+    private void OnMouseEvent(AbstMouseEvent e)
     {
         if (e.Type == AbstMouseEventType.MouseWheel && IsEventInScrollArea())
         {

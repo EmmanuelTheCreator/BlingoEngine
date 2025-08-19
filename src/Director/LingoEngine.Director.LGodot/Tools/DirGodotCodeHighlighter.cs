@@ -1,9 +1,9 @@
+using AbstUI.FrameworkCommunication;
 using AbstUI.LGodot.Components;
 using AbstUI.LGodot.Primitives;
 using Godot;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.Core.Tools;
-using LingoEngine.FrameworkCommunication;
 using System;
 
 namespace LingoEngine.Director.LGodot.Tools;
@@ -30,7 +30,7 @@ public class DirGodotCodeHighlighter : IDirFrameworkCodeHighlighter, IFrameworkF
 
     private void Setup()
     {
-        if (_base.CodeLanguage == DirCodeHighlichter.Language.Lingo)
+        if (_base.CodeLanguage == DirCodeHighlichter.SourceCodeLanguage.Lingo)
         {
             var keywordColor = DirectorColors.LingoCodeKeyword.ToGodotColor();
             foreach (var word in DirCodeHighlichter.CaseInsensitiveWords(_base.WordsLingoCodeKeywords))

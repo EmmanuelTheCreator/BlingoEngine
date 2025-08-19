@@ -1,10 +1,13 @@
-using LingoEngine.Director.Core.Windowing;
-using LingoEngine.FrameworkCommunication;
-
 namespace LingoEngine.Director.Core.UI
 {
     public class DirectorToolsWindow : DirectorWindow<IDirFrameworkToolsWindow>
     {
-        public DirectorToolsWindow(ILingoFrameworkFactory factory) : base(factory) { }
+        public DirectorToolsWindow(IServiceProvider serviceProvider) : base(serviceProvider, DirectorMenuCodes.ToolsWindow) 
+        {
+            Width = 60;
+            Height= 300;
+            MinimumWidth = 60;
+            MinimumHeight = 200;
+        }
     }
 }

@@ -1,5 +1,7 @@
-﻿using AbstUI.SDL2.Styles;
+﻿using AbstUI.Inputs;
+using AbstUI.SDL2.Styles;
 using AbstUI.Styles;
+using AbstUI.Windowing;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AbstUI.SDL2
@@ -9,10 +11,33 @@ namespace AbstUI.SDL2
         public static IServiceCollection WithAbstUISdl(this IServiceCollection services)
         {
             services
+                .AddSingleton<AbstSdlComponentFactory>()
+                .AddTransient<IAbstComponentFactory>(p => p.GetRequiredService<AbstSdlComponentFactory>())
+                //.AddTransient<IAbstFrameworkDialog, AbstSDLDialog>()
+
+
                 .AddSingleton<IAbstFontManager, SdlFontManager>()
                 .AddSingleton<IAbstStyleManager, AbstStyleManager>()
-                .AddSingleton<SdlFocusManager>();
+                .AddTransient(p => (SdlFontManager)p.GetRequiredService<IAbstFontManager>())
+                .AddTransient(p => (AbstStyleManager)p.GetRequiredService<IAbstStyleManager>())
+                .AddSingleton<SdlFocusManager>()
 
+
+                //.AddSingleton<IAbstGlobalMouse, GlobalGodotAbstMouse>()
+                .AddSingleton<IAbstGlobalKey, GlobalSDLAbstKey>()
+
+                .WithAbstUI();
+
+            return services;
+        }
+
+        public static IServiceProvider WithAbstUISdl(this IServiceProvider services)
+        {
+            //Console.WriteLine("AbstUIGodotSetup: Is this still needed?");
+            services.GetRequiredService<AbstSdlComponentFactory>().DiscoverInAssembly(typeof(AbstUISDLSetup).Assembly);
+            //services.GetRequiredService<IAbstComponentFactory>()
+            //     .Register<IAbstDialog,AbstGodotDialog>()
+            //    ;
             return services;
         }
     }

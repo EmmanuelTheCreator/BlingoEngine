@@ -1,4 +1,5 @@
-﻿using Godot;
+﻿using AbstUI.Styles;
+using Godot;
 
 namespace AbstUI.LGodot.Styles
 {
@@ -15,7 +16,7 @@ namespace AbstUI.LGodot.Styles
         void Register(AbstGodotThemeElementType type, Theme theme);
     }
 
-    internal class AbstGodotStyleManager : IAbstGodotStyleManager
+    public class AbstGodotStyleManager : AbstStyleManager, IAbstGodotStyleManager
     {
         private static readonly Dictionary<AbstGodotThemeElementType, Theme> _themes = new Dictionary<AbstGodotThemeElementType, Theme>();
         public Theme? GetTheme(AbstGodotThemeElementType type)

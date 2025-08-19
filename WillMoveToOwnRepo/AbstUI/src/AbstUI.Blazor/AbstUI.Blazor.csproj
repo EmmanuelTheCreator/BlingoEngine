@@ -43,6 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Windowing\" />
     <Folder Include="Texts\" />
   </ItemGroup>
 

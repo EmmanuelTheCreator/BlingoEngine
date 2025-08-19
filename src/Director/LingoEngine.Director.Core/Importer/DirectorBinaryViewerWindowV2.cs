@@ -1,12 +1,14 @@
 using LingoEngine.Director.Core.Inspector;
+using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
+using LingoEngine.FrameworkCommunication;
 using Microsoft.Extensions.Logging;
 using ProjectorRays.Common;
 using ProjectorRays.director.Scores;
 using ProjectorRays.Director;
 using System;
 using System.IO;
-using LingoEngine.FrameworkCommunication;
+using System.Numerics;
 
 namespace LingoEngine.Director.Core.Importer;
 
@@ -23,9 +25,11 @@ public class DirectorBinaryViewerWindowV2 : DirectorWindow<IDirFrameworkBinaryVi
     /// <summary>The raw bytes read from the test file.</summary>
     public byte[]? Data { get; private set; }
 
-    public DirectorBinaryViewerWindowV2(ILogger<DirectorBinaryViewerWindowV2> logger, ILingoFrameworkFactory factory) : base(factory)
+    public DirectorBinaryViewerWindowV2(IServiceProvider serviceProvider, ILogger<DirectorBinaryViewerWindowV2> logger, ILingoFrameworkFactory factory) : base(serviceProvider, DirectorMenuCodes.BinaryViewerWindowV2)
     {
         _logger = logger;
+        Width = 1400;
+        Height =  600;
         //LoadTestData();
     }
 

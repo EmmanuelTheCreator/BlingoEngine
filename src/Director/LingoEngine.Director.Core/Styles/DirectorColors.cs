@@ -1,15 +1,16 @@
 ﻿using AbstUI.Primitives;
-using System.Drawing;
+using AbstUI.Styles;
 
 namespace LingoEngine.Director.Core.Styles
 {
     public class DirectorColors
     {
-        public static AColor BlueSelectColor = new AColor(0, 120, 215);
-        public static AColor ListHoverColor = new AColor(220, 220, 220);
-        public static AColor BlueLightSelectColor = new AColor(229, 241, 251);
-        public static AColor BitmapSelectionFill = new AColor(0, 153, 255, 77);
-        public static AColor BlueSelectColorSemiTransparent = new AColor(0, 120, 215, 80);
+
+        public static AColor BlueSelectColor = AbstDefaultColors.BlueSelectColor ;
+        public static AColor ListHoverColor = AbstDefaultColors.ListHoverColor ;
+        public static AColor BlueLightSelectColor = AbstDefaultColors.BlueLightSelectColor ;
+        public static AColor BitmapSelectionFill = AbstDefaultColors.BitmapSelectionFill ;
+        public static AColor BlueSelectColorSemiTransparent = AbstDefaultColors.BlueSelectColorSemiTransparent;
 
         public static AColor BG_PropWindowBar = new AColor(178, 180, 191);    // Top bar of panels
         public static AColor BG_WhiteMenus = new AColor(240, 240, 240);       // Common window background

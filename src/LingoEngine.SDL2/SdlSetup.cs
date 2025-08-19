@@ -60,6 +60,12 @@ public static class SdlSetup
                     .WithAbstUISdl()
                     .AddSingleton(provider => new SdlRootContext(sdlWindow, sdlRenderer, provider.GetRequiredService<SdlFocusManager>()))
                     .AddSingleton<ILingoFrameworkFactory, LingoSdlFactory>()
-                ).WithFrameworkFactory(setup);
+                    
+                )
+            .WithFrameworkFactory(setup)
+            .AddBuildAction(b =>
+            {
+                b.WithAbstUISdl();
+            });
     }
 }

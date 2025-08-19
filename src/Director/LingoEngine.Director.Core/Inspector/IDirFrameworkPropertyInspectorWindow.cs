@@ -1,6 +1,6 @@
-using LingoEngine.Director.Core.Windowing;
+using AbstUI.Windowing;
 
 namespace LingoEngine.Director.Core.Inspector
 {
-    public interface IDirFrameworkPropertyInspectorWindow : IDirFrameworkWindow { }
+    public interface IDirFrameworkPropertyInspectorWindow : IAbstFrameworkWindow { }
 }

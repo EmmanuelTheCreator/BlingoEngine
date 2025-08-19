@@ -8,6 +8,7 @@ using LingoEngine.Director.Core.Projects.Commands;
 using System.IO;
 using AbstUI.Primitives;
 using AbstUI.Components;
+using AbstUI.Windowing;
 
 namespace LingoEngine.Director.Core.Projects;
 
@@ -20,7 +21,7 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
     private readonly IIdePathResolver _resolver;
     private readonly IDirFolderPicker _folderPicker;
     private readonly IDirFilePicker _filePicker;
-    private readonly IDirectorWindowManager _windowManager;
+    private readonly IAbstWindowManager _windowManager;
     private readonly IAbstCommandManager _commandManager;
     private readonly LingoProjectSettings _settings;
     private readonly DirectorProjectSettings _dirSettings;
@@ -91,20 +92,21 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
         }
     }
     public DirectorIdeType SelectedIde { get; set; }
-    public int Width { get; set; } = 500;
-    public int Height { get; set; } = 200;
 
     public DirectorProjectSettingsWindow(
+        IServiceProvider serviceProvider,
         ProjectSettingsEditorState state,
         IIdePathResolver resolver,
         IDirFolderPicker folderPicker,
         IDirFilePicker filePicker,
-        IDirectorWindowManager windowManager,
+        IAbstWindowManager windowManager,
         IAbstCommandManager commandManager,
         LingoProjectSettings settings,
         DirectorProjectSettings dirSettings,
-        ILingoFrameworkFactory factory) : base(factory)
+        ILingoFrameworkFactory factory) : base(serviceProvider, DirectorMenuCodes.ProjectSettingsWindow)
     {
+        Width = 500;
+        Height = 200;
         _state = state;
         _resolver = resolver;
         _folderPicker = folderPicker;
@@ -234,25 +236,25 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
     {
         if (string.IsNullOrWhiteSpace(ProjectName))
         {
-            _windowManager.ShowNotification("Project name is required.", DirUINotificationType.Error);
+            _windowManager.ShowNotification("Project name is required.", AbstUINotificationType.Error);
             return false;
         }
 
         if (string.IsNullOrWhiteSpace(FolderName))
         {
-            _windowManager.ShowNotification("Project folder is required.", DirUINotificationType.Error);
+            _windowManager.ShowNotification("Project folder is required.", AbstUINotificationType.Error);
             return false;
         }
 
         if (SelectedIde == DirectorIdeType.VisualStudio && string.IsNullOrWhiteSpace(VisualStudioPath))
         {
-            _windowManager.ShowNotification("Visual Studio path is required.", DirUINotificationType.Error);
+            _windowManager.ShowNotification("Visual Studio path is required.", AbstUINotificationType.Error);
             return false;
         }
 
         if (SelectedIde == DirectorIdeType.VisualStudioCode && string.IsNullOrWhiteSpace(VisualStudioCodePath))
         {
-            _windowManager.ShowNotification("VS Code path is required.", DirUINotificationType.Error);
+            _windowManager.ShowNotification("VS Code path is required.", AbstUINotificationType.Error);
             return false;
         }
 

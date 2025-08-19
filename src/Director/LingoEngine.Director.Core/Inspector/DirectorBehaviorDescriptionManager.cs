@@ -1,5 +1,6 @@
 ﻿using AbstUI.Components;
 using AbstUI.Primitives;
+using AbstUI.Windowing;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Primitives;
@@ -10,21 +11,24 @@ namespace LingoEngine.Director.Core.Inspector
     public interface IDirectorBehaviorDescriptionManager
     {
         /// <summary>Builds a popup window for editing the given behavior.</summary>
-        AbstWindow? BuildBehaviorPopup(LingoSpriteBehavior behavior, Action onClose);
+        IAbstWindowDialogReference? BuildBehaviorPopup(LingoSpriteBehavior behavior, Action onClose);
     }
 
     internal class DirectorBehaviorDescriptionManager : IDirectorBehaviorDescriptionManager
     {
         private readonly ILingoFrameworkFactory _factory;
+        private readonly IAbstWindowManager _windowManager;
         public Action<bool>? _OnWindowStateChanged;
+        private IAbstWindowDialogReference? _popup;
 
-        public DirectorBehaviorDescriptionManager(ILingoFrameworkFactory factory)
+        public DirectorBehaviorDescriptionManager(ILingoFrameworkFactory factory, IAbstWindowManager windowManager)
         {
             _factory = factory;
+            _windowManager = windowManager;
         }
 
         
-        public AbstWindow? BuildBehaviorPopup(LingoSpriteBehavior behavior, Action onClose)
+        public IAbstWindowDialogReference? BuildBehaviorPopup(LingoSpriteBehavior behavior, Action onClose)
         {
             if (!(behavior is ILingoPropertyDescriptionList))
                return null;
@@ -38,28 +42,29 @@ namespace LingoEngine.Director.Core.Inspector
             var behaviorPanel = BuildBehaviorPanel(behavior, width - rightWidth - 10, height);
             if (behaviorPanel == null ) return null;
             var panel = behaviorPanel.Value.Node;
-           
-           
-            var win = _factory.CreateWindow("BehaviorParams", $"Parameters for \"{behavior.Name}\"");
+
+             //var win = _factory.CreateWindow("BehaviorParams", $"Parameters for \"{behavior.Name}\"");
             var root = _factory.CreateWrapPanel(AOrientation.Horizontal, "BehaviorPopupRoot");
-            win.AddItem(root);
-            win.Width = width;
-            win.Height = height;
-            win.BackgroundColor = DirectorColors.BG_WhiteMenus;
-            win.IsPopup = true;
-            _OnWindowStateChanged = (state) =>
-            {
-                if (!state)
-                {
-                    win.OnWindowStateChanged -= _OnWindowStateChanged;
-                    onClose.Invoke();
-                }
-            };
-           
-            win.OnWindowStateChanged += _OnWindowStateChanged;
+            root.Width = width;
+            root.Height = height;
+            //win.AddItem(root);
+            //win.Width = width;
+            //win.Height = height;
+            //win.BackgroundColor = DirectorColors.BG_WhiteMenus;
+            //win.IsPopup = true;
+            //_OnWindowStateChanged = (state) =>
+            //{
+            //    if (!state)
+            //    {
+            //        win.OnWindowStateChanged -= _OnWindowStateChanged;
+            //        onClose.Invoke();
+            //    }
+            //};
+
+            //win.OnWindowStateChanged += _OnWindowStateChanged;
 
 
-            
+
             root.AddItem(panel);
 
             var vLine = _factory.CreateVerticalLineSeparator("BehaviorPopupLine");
@@ -75,12 +80,14 @@ namespace LingoEngine.Director.Core.Inspector
             ok.Pressed += () =>
             {
                 behavior.UserProperties.Apply(behaviorPanel.Value.Definitions);
-                win.Hide();
+                _popup?.Close();
             };
             right.AddItem(ok);
             root.AddItem(right);
 
-            return win;
+            _popup = _windowManager.ShowCustomDialog($"Parameters for \"{behavior.Name}\"", root.Framework<IAbstFrameworkPanel>());
+            
+            return _popup;
         }
 
         private (IAbstLayoutNode Node, BehaviorPropertyDescriptionList Definitions)? BuildBehaviorPanel(LingoSpriteBehavior behavior, int width, int height)

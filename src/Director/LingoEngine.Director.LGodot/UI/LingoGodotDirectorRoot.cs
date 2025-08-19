@@ -14,6 +14,8 @@ using LingoEngine.Director.Core.Projects;
 using LingoEngine.Projects;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.UI;
+using AbstEngine.Director.LGodot;
+using AbstUI.Windowing;
 
 namespace LingoEngine.Director.LGodot.UI
 {
@@ -95,8 +97,8 @@ namespace LingoEngine.Director.LGodot.UI
                 //var size = new Vector2(stageWidth, stageHeight);
                // _stageWindow.Size = size;
                 //_stageWindow.CustomMinimumSize = size;
-                _scoreWindow.Position = new Vector2(_scoreWindow.Position.X, 640 - 560 + stageHeight);
-                serviceProvider.GetRequiredService<IDirectorWindowManager>()
+                _scoreWindow.SetThePosition(new Vector2(_scoreWindow.Position.X, 640 - 560 + stageHeight));
+                serviceProvider.GetRequiredService<IAbstWindowManager>()
                     .SetWindowSize(DirectorMenuCodes.StageWindow, stageWidth, stageHeight);
                 foreach (var item in _windows)
                     item.EnsureInBounds();
@@ -106,9 +108,9 @@ namespace LingoEngine.Director.LGodot.UI
         private void SetDefaultPositions()
         {
             _stageWindow.Position = new Vector2(70, 22);
-            _castViewer.Position = new Vector2(830, 22);
+            //_castViewer.Position = new Vector2(830, 22);
             _scoreWindow.Position = new Vector2(20, 560);
-            _propertyInspector.Position = new Vector2(1530, 22);
+            //_propertyInspector.Position = new Vector2(1530, 22);
             _toolsWindow.Position = new Vector2(2, 22);
             _binaryViewer.Position = new Vector2(20, 120);
             _binaryViewerV2.Position = new Vector2(20, 280);

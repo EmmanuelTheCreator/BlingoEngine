@@ -73,8 +73,12 @@ namespace AbstUI.Inputs
         bool LeftMouseDown { get; }
         bool MiddleMouseDown { get; }
         float WheelDelta { get; set; }
+
+        IAbstMouse CreateNewInstance(IAbstMouseRectProvider provider);
+       
+        void SetCursor(AMouseCursor cursor);
     }
-    public interface IAbstUIMouse<TAbstUIMouseEvent> : IAbstMouse
+    public interface IAbstMouse<TAbstUIMouseEvent> : IAbstMouse
         where TAbstUIMouseEvent : AbstMouseEvent
     {
 
@@ -83,6 +87,8 @@ namespace AbstUI.Inputs
         IAbstMouseSubscription OnMouseMove(Action<TAbstUIMouseEvent> handler);
         IAbstMouseSubscription OnMouseWheel(Action<TAbstUIMouseEvent> handler);
         IAbstMouseSubscription OnMouseEvent(Action<TAbstUIMouseEvent> handler);
+        T Framework<T>() where T : IAbstFrameworkMouse;
+        IAbstMouse CreateNewInstance(IAbstMouseRectProvider provider, Func<IAbstMouse, AbstMouseEventType, TAbstUIMouseEvent> ctorNewEvent);
     }
     public interface IAbstMouseSubscription
     {
@@ -91,11 +97,61 @@ namespace AbstUI.Inputs
 
 
 
-
+    
     public interface IAbstMouseInternal : IAbstMouse
     {
-        IAbstMouse CreateNewInstance(IAbstMouseRectProvider provider);
+        /// <summary>
+        /// Returns TRUE if the user double-clicked the mouse; otherwise FALSE.
+        /// Read-only. Set by the system when a double-click occurs.
+        /// </summary>
+        new bool DoubleClick {get;set; }
+
+
+        /// <summary>
+        /// Returns TRUE while the mouse button is held down; otherwise FALSE.
+        /// </summary>
+        new bool MouseDown {get;set; }
+
+        /// <summary>
+        /// Returns the horizontal position of the mouse pointer relative to the Stage (pixels).
+        /// </summary>
+        new float MouseH {get;set; }
+
+
+
+        /// <summary>
+        /// Returns TRUE on the frame when the mouse button is released.
+        /// </summary>
+        new bool MouseUp {get;set; }
+
+        /// <summary>
+        /// Returns the vertical position of the mouse pointer relative to the Stage (pixels).
+        /// </summary>
+        new float MouseV {get;set; }
+
+
+        /// <summary>
+        /// Returns TRUE while the right mouse button is held down (Windows only).
+        /// </summary>
+        new bool RightMouseDown {get;set; }
+
+        /// <summary>
+        /// Returns TRUE on the frame when the right mouse button is released (Windows only).
+        /// </summary>
+        new bool RightMouseUp {get;set; }
+
+       
+        new bool LeftMouseDown {get;set; }
+        new bool MiddleMouseDown {get;set; }
+        new float WheelDelta { get; set; }
         ARect GetMouseOffset();
+        void DoMouseUp();
+
+        void DoMouseDown();
+
+        void DoMouseMove();
+
+        void DoMouseWheel(float delta);
     }
 
     public class AbstMouse : AbstMouse<AbstMouseEvent>
@@ -104,7 +160,7 @@ namespace AbstUI.Inputs
         {
         }
     }
-    public class AbstMouse<TAbstUIMouseEvent> : IAbstUIMouse<TAbstUIMouseEvent>, IAbstMouseInternal
+    public class AbstMouse<TAbstUIMouseEvent> : IAbstMouse<TAbstUIMouseEvent>, IAbstMouseInternal
         where TAbstUIMouseEvent : AbstMouseEvent
     {
         private bool _lastMouseDownState = false; // Previous mouse state (used to detect "StillDown")
@@ -116,7 +172,6 @@ namespace AbstUI.Inputs
         private readonly Func<IAbstMouse, AbstMouseEventType, TAbstUIMouseEvent> _ctorNewEvent;
         private IAbstFrameworkMouse _frameworkObj;
         public T Framework<T>() where T : IAbstFrameworkMouse => (T)_frameworkObj;
-
 
         public APoint MouseLoc => new APoint(MouseH, MouseV);
 
@@ -156,7 +211,8 @@ namespace AbstUI.Inputs
         /// Creates a proxy mouse that forwards events within the bounds supplied by <paramref name="provider"/>.
         /// </summary>
         public virtual IAbstMouse CreateNewInstance(IAbstMouseRectProvider provider) => new ProxyMouse(_ctorNewEvent, this, provider);
-
+        public virtual IAbstMouse CreateNewInstance(IAbstMouseRectProvider provider, Func<IAbstMouse, AbstMouseEventType, TAbstUIMouseEvent> ctorNewEvent)
+            => new ProxyMouse(ctorNewEvent, this, provider);
         protected virtual ARect GetMouseOffset() => default;
 
         ARect IAbstMouseInternal.GetMouseOffset() => GetMouseOffset();
@@ -208,6 +264,11 @@ namespace AbstUI.Inputs
         public virtual IAbstMouseSubscription OnMouseMove(Action<TAbstUIMouseEvent> handler) { var sub = new AbstUIMouseSubscription(handler, s => _mouseMoves.Remove(s)); _mouseMoves.Add(sub); return sub; }
         public virtual IAbstMouseSubscription OnMouseWheel(Action<TAbstUIMouseEvent> handler) { var sub = new AbstUIMouseSubscription(handler, s => _mouseWheels.Remove(s)); _mouseWheels.Add(sub); return sub; }
         public virtual IAbstMouseSubscription OnMouseEvent(Action<TAbstUIMouseEvent> handler) { var sub = new AbstUIMouseSubscription(handler, s => _mouseEvents.Remove(s)); _mouseEvents.Add(sub); return sub; }
+
+        public virtual void SetCursor(AMouseCursor cursorType)
+        {
+            _frameworkObj.SetCursor(cursorType);
+        }
 
         private class AbstUIMouseSubscription : IAbstMouseSubscription
         {

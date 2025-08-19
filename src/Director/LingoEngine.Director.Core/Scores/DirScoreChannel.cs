@@ -8,6 +8,7 @@ using LingoEngine.Director.Core.Styles;
 using System.Collections.Generic;
 using AbstUI.Primitives;
 using AbstUI.Components;
+using AbstUI.Windowing;
 
 namespace LingoEngine.Director.Core.Scores
 {
@@ -36,7 +37,7 @@ namespace LingoEngine.Director.Core.Scores
         protected bool _spriteDirty = true;
         protected bool _hasDirtySpriteList = true;
         protected IDirScoreChannelFramework? _framework;
-        protected Func<string, IAbstFrameworkPanel, IDirectorWindowDialogReference?> _showConfirmDialog;
+        protected Func<string, IAbstFrameworkPanel, IAbstWindowDialogReference?> _showConfirmDialog;
 
         public bool HasDirtySpriteList { get => _hasDirtySpriteList; set => _hasDirtySpriteList = value; }
         public bool Visible { get; internal set; } = true;
@@ -130,7 +131,7 @@ namespace LingoEngine.Director.Core.Scores
         {
         }
 
-        internal void SetShowDialogMethod(Func<string, IAbstFrameworkPanel, IDirectorWindowDialogReference?> showConfirmDialog)
+        internal void SetShowDialogMethod(Func<string, IAbstFrameworkPanel, IAbstWindowDialogReference?> showConfirmDialog)
         {
             _showConfirmDialog = showConfirmDialog;
         }

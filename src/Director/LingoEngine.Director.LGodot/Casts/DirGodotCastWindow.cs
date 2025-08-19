@@ -1,10 +1,8 @@
 using LingoEngine.Director.Core.Casts;
-using LingoEngine.Director.Core.Tools;
-﻿using Godot;
-using LingoEngine.Director.Core.UI;
+using Godot;
 using LingoEngine.Members;
-using LingoEngine.Director.LGodot.Windowing;
 using AbstUI.LGodot.Components;
+using AbstEngine.Director.LGodot;
 
 namespace LingoEngine.Director.LGodot.Casts
 {
@@ -14,16 +12,16 @@ namespace LingoEngine.Director.LGodot.Casts
         private readonly AbstGodotTabContainer _tabs;
         internal ILingoMember? SelectedMember => _directorCastWindow.SelectedMember;
 
-        public DirGodotCastWindow(DirectorCastWindow directorCastWindow, IDirGodotWindowManager windowManager, IHistoryManager historyManager)
-            : base(DirectorMenuCodes.CastWindow, "Cast", windowManager, historyManager)
+        public DirGodotCastWindow(DirectorCastWindow directorCastWindow, IServiceProvider serviceProvider)
+            : base("Cast", serviceProvider)
         {
             _directorCastWindow = directorCastWindow;
-            directorCastWindow.Init(this);
-            
+            Init(_directorCastWindow);
+           
             //_mediator.Subscribe(this);
-            var size = new Vector2(directorCastWindow.Width, directorCastWindow.Height);
-            Size = size;
-            CustomMinimumSize = size;// new Vector2(directorCastWindow.MinimumWidth, directorCastWindow.MinimumHeight);
+            //var size = new Vector2(directorCastWindow.Width, directorCastWindow.Height);
+            //Size = size;
+            //CustomMinimumSize = size;// new Vector2(directorCastWindow.MinimumWidth, directorCastWindow.MinimumHeight);
 
             _tabs = _directorCastWindow.TabContainer.Framework<AbstGodotTabContainer>();
             _tabs.Position = new Vector2(0, TitleBarHeight);
@@ -58,7 +56,7 @@ namespace LingoEngine.Director.LGodot.Casts
 
         private void UpdateSize(Vector2 size, bool firstLoad = false)
         {
-            _directorCastWindow.Resize(firstLoad,(int)Size.X, (int)Size.Y - TitleBarHeight - 10);
+            _directorCastWindow.ResizeFromFW(firstLoad,(int)Size.X, (int)Size.Y - TitleBarHeight - 10);
         }
        
 

@@ -1,9 +1,8 @@
 using Godot;
 using LingoEngine.Core;
-using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.Director.Core.Importer;
 using LingoEngine.Projects;
-using LingoEngine.Director.Core.UI;
+using AbstEngine.Director.LGodot;
 
 namespace LingoEngine.Director.LGodot.Gfx;
 
@@ -16,11 +15,11 @@ internal partial class DirGodotImportExportWindow : BaseGodotWindow, IDirFramewo
     private readonly Button _dirButton = new();
     private readonly Button _exportButton = new();
 
-    public DirGodotImportExportWindow(LingoProjectSettings settings, LingoPlayer player, DirectorImportExportWindow directorWindow, IDirGodotWindowManager windowManager)
-        : base(DirectorMenuCodes.ImportExportWindow, "Import / Export", windowManager)
+    public DirGodotImportExportWindow(LingoProjectSettings settings, LingoPlayer player, DirectorImportExportWindow directorWindow, IServiceProvider serviceProvider)
+        : base("Import / Export", serviceProvider)
     {
-        directorWindow.Init(this);
-        Size = new Vector2(400, 300);
+        Init(directorWindow);
+       
         CustomMinimumSize = Size;
 
         _home.Position = new Vector2(5, TitleBarHeight + 5);

@@ -1,4 +1,5 @@
 ﻿using AbstUI.Components;
+using AbstUI.Inputs;
 using AbstUI.Primitives;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.Core.Tools;
@@ -75,7 +76,7 @@ namespace LingoEngine.Director.Core.Scores
             _position = position;
             _canvas.Y = position.Y;
         }
-        public void RaiseMouseDown(LingoMouseEvent mouse, int spriteNumWithChannel)
+        public void RaiseMouseDown(AbstMouseEvent mouse, int spriteNumWithChannel)
         {
             var header = GetChannel(spriteNumWithChannel);
             header.ToggleMute();

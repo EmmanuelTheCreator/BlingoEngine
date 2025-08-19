@@ -30,6 +30,7 @@ using AbstUI.Primitives;
 using AbstUI.Components;
 using AbstUI.Inputs;
 using AbstUI.LGodot.Styles;
+using AbstUI;
 
 namespace LingoEngine.LGodot.Core
 {
@@ -40,7 +41,7 @@ namespace LingoEngine.LGodot.Core
         private readonly LingoGodotRootNode _lingoRootNode;
         private Node _rootNode;
 
-        private readonly GodotGfxFactory _gfxFactory;
+        private readonly GodotComponentFactory _gfxFactory;
 
         public GodotFactory(ILingoServiceProvider serviceProvider, LingoGodotRootNode rootNode)
         {
@@ -50,10 +51,12 @@ namespace LingoEngine.LGodot.Core
             var fontManager = _serviceProvider.GetRequiredService<IAbstFontManager>();
             var styleManager = _serviceProvider.GetRequiredService<IAbstStyleManager>();
             var godotStyleManager = _serviceProvider.GetRequiredService<IAbstGodotStyleManager>();
-            _gfxFactory = new GodotGfxFactory(styleManager, fontManager, godotStyleManager, _lingoRootNode);
+            _gfxFactory = _serviceProvider.GetRequiredService<GodotComponentFactory>(); // new GodotGfxFactory(styleManager, fontManager, godotStyleManager, _lingoRootNode);
         }
 
         public IAbstComponentFactory GfxFactory => _gfxFactory;
+
+        public IAbstComponentFactory ComponentFactory => _gfxFactory;
 
         public T CreateBehavior<T>(LingoMovie lingoMovie) where T : LingoSpriteBehavior => lingoMovie.GetServiceProvider().GetRequiredService<T>();
         public T CreateMovieScript<T>(LingoMovie lingoMovie) where T : LingoMovieScript => lingoMovie.GetServiceProvider().GetRequiredService<T>();
@@ -312,8 +315,7 @@ namespace LingoEngine.LGodot.Core
         public AbstVerticalLineSeparator CreateVerticalLineSeparator(string name)
             => _gfxFactory.CreateVerticalLineSeparator(name);
 
-        public AbstWindow CreateWindow(string name, string title = "")
-            => _gfxFactory.CreateWindow(name, title);
+        
 
         #endregion
 

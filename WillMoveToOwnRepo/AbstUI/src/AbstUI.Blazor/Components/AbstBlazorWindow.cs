@@ -1,39 +1,25 @@
-using System.Collections.Generic;
 using AbstUI.Components;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
+using AbstUI.Windowing;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
 namespace AbstUI.Blazor.Components;
 
-internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable
+internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable, IAbstFrameworkWindow
 {
     private readonly AbstBlazorComponentFactory _factory;
-    private readonly AbstWindow _lingoWindow;
+    private readonly IAbstWindowInternal _lingoWindow;
     private string _title = string.Empty;
     private bool _isPopup;
     private bool _borderless;
     private IJSObjectReference? _module;
+    private IAbstWindow _abstWindow;
 
     [Inject] private IJSRuntime JS { get; set; } = default!;
 
-    public AbstBlazorWindow(AbstWindow window, AbstBlazorComponentFactory factory)
-    {
-        _lingoWindow = window;
-        _factory = factory;
-        //var mouse = ((IAbstMouseInternal)factory.RootContext.AbstMouse).CreateNewInstance(window);
-        //var key = ((AbstKey)factory.RootContext.AbstKey).CreateNewInstance(window);
-        //_lingoWindow.Init(this, mouse, key);
-        Visibility = false;
-    }
-
-    public void AddItem(IAbstFrameworkLayoutNode child) { }
-
-    public void RemoveItem(IAbstFrameworkLayoutNode child) { }
-
-    public IEnumerable<IAbstFrameworkLayoutNode> GetItems() => System.Array.Empty<IAbstFrameworkLayoutNode>();
-
+  
 
     public string Title
     {
@@ -72,12 +58,38 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable
         get => _borderless;
         set => _borderless = value;
     }
+    public AColor BackgroundColor { get; set; }
+
+    public bool IsActiveWindow => _lingoWindow.IsActivated;
+
+    public bool IsOpen => Visibility;
+
+    public IAbstMouse Mouse => _abstWindow.Mouse;
+
+    public IAbstKey AbstKey => _abstWindow.Key;
+
+    public AbstBlazorWindow(IAbstWindow window, AbstBlazorComponentFactory factory)
+    {
+        _lingoWindow = (IAbstWindowInternal)window;
+        _factory = factory;
+        //var mouse = ((IAbstMouseInternal)factory.RootContext.AbstMouse).CreateNewInstance(window);
+        //var key = ((AbstKey)factory.RootContext.AbstKey).CreateNewInstance(window);
+        //_lingoWindow.Init(this, mouse, key);
+        Visibility = false;
+    }
+
+
+    public void Init(IAbstWindow instance)
+    {
+        _abstWindow = instance;
+        instance.Init(this);
+    }
 
     public void OnResize(int width, int height)
     {
         Width = width;
         Height = height;
-        _lingoWindow.Resize(width, height);
+        _lingoWindow.ResizeFromFW(false, width, height);
     }
 
     public void Popup()
@@ -99,7 +111,24 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable
         _lingoWindow.RaiseWindowStateChanged(true);
     }
 
-    public void Hide()
+    
+
+    private void EnsureModule()
+    {
+        _module ??= JS.InvokeAsync<IJSObjectReference>("import", "./_content/AbstUI.Blazor/scripts/abstUIScripts.js")
+                     .AsTask().GetAwaiter().GetResult();
+    }
+
+    public void OpenWindow()
+    {
+        EnsureModule();
+        _module!.InvokeVoidAsync("AbstUIWindow.showBootstrapModal", Name);
+        //_factory.RootContext.ComponentContainer.Activate(ComponentContext);
+        Visibility = true;
+        _lingoWindow.RaiseWindowStateChanged(true);
+    }
+
+    public void CloseWindow()
     {
         EnsureModule();
         _module!.InvokeVoidAsync("AbstUIWindow.hideBootstrapModal", Name);
@@ -108,9 +137,28 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable
         _lingoWindow.RaiseWindowStateChanged(false);
     }
 
-    private void EnsureModule()
+    public void MoveWindow(int x, int y)
     {
-        _module ??= JS.InvokeAsync<IJSObjectReference>("import", "./_content/AbstUI.Blazor/scripts/abstUIScripts.js")
-                     .AsTask().GetAwaiter().GetResult();
+        X = x;
+        Y = y;
     }
+
+    public void SetPositionAndSize(int x, int y, int width, int height)
+    {
+        MoveWindow(x, y);
+        Width = width;
+        Height = height;
+    }
+
+    public APoint GetPosition() => new APoint(X, Y);
+
+    public APoint GetSize() => new APoint(Width, Height);
+
+    public void SetSize(int width, int height)
+    {
+        Width = width;
+        Height = height;
+    }
+
+  
 }

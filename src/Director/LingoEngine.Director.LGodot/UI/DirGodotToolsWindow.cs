@@ -1,12 +1,11 @@
 using Godot;
-using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.Director.Core.Stages;
 using LingoEngine.Director.Core.UI;
-using LingoEngine.Director.Core.Bitmaps;
 using AbstUI.Commands;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.FrameworkCommunication;
 using AbstUI.LGodot.Components;
+using AbstEngine.Director.LGodot;
 
 namespace LingoEngine.Director.LGodot.Gfx;
 
@@ -16,14 +15,13 @@ internal partial class DirGodotToolsWindow : BaseGodotWindow, IDirFrameworkTools
 
     public event Action<int>? IconPressed;
 
-    public DirGodotToolsWindow(DirectorToolsWindow directorToolsWindow,IDirGodotWindowManager windowManager, IDirectorIconManager iconManager, IAbstCommandManager commandManager, ILingoFrameworkFactory factory)
-        : base(DirectorMenuCodes.ToolsWindow, "Tools", windowManager)
+    public DirGodotToolsWindow(DirectorToolsWindow directorToolsWindow, IServiceProvider serviceProvider, IDirectorIconManager iconManager, IAbstCommandManager commandManager, ILingoFrameworkFactory factory)
+        : base( "Tools", serviceProvider)
     {
-        directorToolsWindow.Init(this);
+        Init(directorToolsWindow);
 
-        Size = new Vector2(60, 300);
-        CustomMinimumSize = Size;
-
+        
+        
         _stageToolbar = new StageToolbar(iconManager, commandManager, factory);
         var toolbarPanel = _stageToolbar.Panel.Framework<AbstGodotPanel>();
         toolbarPanel.Position = new Vector2(5, TitleBarHeight + 5);

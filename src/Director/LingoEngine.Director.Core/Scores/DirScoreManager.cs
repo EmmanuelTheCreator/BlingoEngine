@@ -25,7 +25,7 @@ namespace LingoEngine.Director.Core.Scores
         IDirSpritesManager SpritesManager { get; }
         ILingoFrameworkFactory Factory { get; }
         void DeselectSprite(LingoSprite sprite);
-        void HandleMouse(LingoMouseEvent mouseEvent, int channelNumber, int frameNumber);
+        void HandleMouse(AbstMouseEvent mouseEvent, int channelNumber, int frameNumber);
         void SelectSprite(LingoSprite sprite);
 
     }
@@ -151,7 +151,7 @@ namespace LingoEngine.Director.Core.Scores
             _selected.Remove(scoreSprite);
         }
 
-        public void HandleMouse(LingoMouseEvent mouseEvent, int channelNumber, int frameNumber)
+        public void HandleMouse(AbstMouseEvent mouseEvent, int channelNumber, int frameNumber)
         {
             if (!_channels.TryGetValue(channelNumber, out var channel))
                 return;

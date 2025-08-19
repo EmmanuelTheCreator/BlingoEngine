@@ -1,5 +1,5 @@
 using System;
-using AbstUI.Styles;
+using AbstUI.Styles.Components;
 
 namespace AbstUI.Components
 {

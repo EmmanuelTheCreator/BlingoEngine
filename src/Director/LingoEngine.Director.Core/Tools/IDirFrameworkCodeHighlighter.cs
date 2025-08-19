@@ -1,8 +1,7 @@
-using LingoEngine.FrameworkCommunication;
+using AbstUI.FrameworkCommunication;
 
 namespace LingoEngine.Director.Core.Tools;
 
-public interface IDirFrameworkCodeHighlighter : IFrameworkFor<DirCodeHighlichter>
+public interface IDirFrameworkCodeHighlighter : IFrameworkForInitializable<DirCodeHighlichter>
 {
-    void Init(DirCodeHighlichter highlighter);
 }

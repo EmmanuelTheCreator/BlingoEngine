@@ -1,10 +1,9 @@
 using Godot;
 using LingoEngine.Director.Core.Inspector;
 using LingoEngine.Core;
-using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.Director.Core.Icons;
-using LingoEngine.Director.Core.UI;
 using AbstUI.LGodot.Components;
+using AbstEngine.Director.LGodot;
 
 namespace LingoEngine.Director.LGodot.Inspector;
 
@@ -14,13 +13,12 @@ public partial class DirGodotPropertyInspector : BaseGodotWindow, IDirFrameworkP
     private readonly DirectorPropertyInspectorWindow _inspectorWindow;
     private AbstGodotPanel _headerPanel;
 
-    public DirGodotPropertyInspector(DirectorPropertyInspectorWindow inspectorWindow, ILingoPlayer player, IDirGodotWindowManager windowManager, IDirectorIconManager iconManager)
-        : base(DirectorMenuCodes.PropertyInspector, "Property Inspector", windowManager)
+    public DirGodotPropertyInspector(DirectorPropertyInspectorWindow inspectorWindow, ILingoPlayer player, IServiceProvider serviceProvider, IDirectorIconManager iconManager)
+        : base("Property Inspector", serviceProvider)
     {
         _inspectorWindow = inspectorWindow;
-
-        Size = new Vector2(260, 450);
-        _inspectorWindow.Init(this, Size.X, Size.Y, TitleBarHeight);
+        Init(_inspectorWindow);
+        _inspectorWindow.Init(TitleBarHeight);
         CustomMinimumSize = Size;
 
         _headerPanel = _inspectorWindow.HeaderPanel.Framework<AbstGodotPanel>();
@@ -42,12 +40,6 @@ public partial class DirGodotPropertyInspector : BaseGodotWindow, IDirFrameworkP
 
     }
 
-    protected override void OnResizing(Vector2 size)
-    {
-        base.OnResizing(size);
-
-        _inspectorWindow.OnResizing(size.X, size.Y);
-
-    }
+   
 
 }

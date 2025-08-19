@@ -801,7 +801,7 @@ When a movie stops, events occur in the following order:
             if (state is not LingoSprite2DState s) return;
             if (s.Width > 0) Width = s.Width;
             if (s.Height > 0) Height = s.Height;
-            //SetMember(s.Member);
+            //SetMember(s.Member); // Gives problems in SDL
             DisplayMember = s.DisplayMember;
             SpritePropertiesOffset = s.SpritePropertiesOffset;
             Ink = s.Ink;

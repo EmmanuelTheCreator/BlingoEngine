@@ -5,6 +5,7 @@ using LingoEngine.Sprites;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
 using AbstUI.Components;
+using AbstUI.Windowing;
 namespace LingoEngine.Director.Core.Scores.Tempos;
 
 
@@ -18,7 +19,7 @@ internal partial class DirScoreTempoGridChannel : DirScoreChannel<ILingoTempoSpr
                     new KeyValuePair<string, string>("WaitForUserInput","Wait for Mouse Click or Key Press"),
                     new KeyValuePair<string, string>("WaitForCuePoint","Wait for Cue Point"),
                 };
-    private IDirectorWindowDialogReference? _dialog;
+    private IAbstWindowDialogReference? _dialog;
 
     public DirScoreTempoGridChannel(IDirScoreManager scoreManager)
         : base(LingoTempoSprite.SpriteNumOffset+1, scoreManager)

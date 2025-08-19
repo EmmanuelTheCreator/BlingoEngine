@@ -3,6 +3,7 @@ using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.LUnity.Components;
 using AbstUI.Styles;
+using AbstUI.Windowing;
 
 namespace AbstUI.LUnity;
 
@@ -11,11 +12,9 @@ namespace AbstUI.LUnity;
 /// </summary>
 public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponentFactory
 {
-    private readonly IAbstFontManager _fontManager;
 
-    public AbstUnityComponentFactory(IAbstStyleManager styleManager, IAbstFontManager fontManager) : base(styleManager, fontManager)
+    public AbstUnityComponentFactory(IServiceProvider serviceProvider) : base(serviceProvider)
     {
-        _fontManager = fontManager;
     }
 
     public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
@@ -249,5 +248,4 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         return sep;
     }
 
-    public AbstWindow CreateWindow(string name, string title = "") => throw new NotImplementedException();
 }

@@ -6,10 +6,11 @@ using LingoEngine.Director.Core.Casts;
 using LingoEngine.Director.Core.Importer;
 using LingoEngine.Director.Core.Projects;
 using LingoEngine.Director.Core.Texts;
-using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Tools.Commands;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Bitmaps;
+using AbstUI.Windowing;
+using AbstUI.Tools;
 
 namespace LingoEngine.Director.Core.Windowing
 {
@@ -17,8 +18,8 @@ namespace LingoEngine.Director.Core.Windowing
     {
         internal static IServiceProvider RegisterDirectorWindows(this IServiceProvider serviceProvider)
         {
-            var windowManager = serviceProvider.GetRequiredService<IDirectorWindowManager>();
-            var shortCutManager = serviceProvider.GetRequiredService<IDirectorShortCutManager>();
+            var windowManager = serviceProvider.GetRequiredService<IAbstWindowManager>();
+            var shortCutManager = serviceProvider.GetRequiredService<IAbstShortCutManager>();
 
             windowManager
                 .Register<DirectorProjectSettingsWindow>(DirectorMenuCodes.ProjectSettingsWindow)
