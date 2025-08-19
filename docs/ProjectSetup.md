@@ -72,7 +72,7 @@ public class MyGameProjectFactory : ILingoProjectFactory
     public void LoadCastLibs(ILingoCastLibsContainer castlibs, LingoPlayer player)
         => player.LoadCastLibFromCsv("Data", Path.Combine("Media", "Data", "Members.csv"));
 
-    public ILingoMovie? LoadStartupMovie(IAbstServiceProvider services, LingoPlayer player)
+    public ILingoMovie? LoadStartupMovie(ILingoServiceProvider services, LingoPlayer player)
         => player.NewMovie("Intro");
 
     public void Run(ILingoMovie movie, bool autoPlayMovie)
@@ -85,7 +85,7 @@ public class MyGameProjectFactory : ILingoProjectFactory
 This implementation defines four required methods:
 - `Setup(ILingoEngineRegistration config)` registers fonts, project settings (including the 640×480 stage), movies, and services.
 - `LoadCastLibs(ILingoCastLibsContainer castlibs, LingoPlayer player)` loads external cast libraries using the provided player.
-- `LoadStartupMovie(IAbstServiceProvider services, LingoPlayer player)` chooses the movie that starts first.
+- `LoadStartupMovie(ILingoServiceProvider services, LingoPlayer player)` chooses the movie that starts first.
 - `Run(ILingoMovie movie, bool autoPlayMovie)` finalizes startup and optionally plays the movie automatically.
 
 ### Set properties of members

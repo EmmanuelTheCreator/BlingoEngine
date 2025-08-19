@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using LingoEngine.Casts;
 using LingoEngine.Core;
-using AbstUI.Core;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
 using LingoEngine.Members;
@@ -34,10 +33,10 @@ namespace LingoEngine.Unity.Core;
 public class UnityFactory : ILingoFrameworkFactory, IDisposable
 {
     private readonly List<IDisposable> _disposables = new();
-    private readonly IAbstServiceProvider _serviceProvider;
+    private readonly ILingoServiceProvider _serviceProvider;
     private readonly AbstUnityComponentFactory _gfxFactory;
 
-    public UnityFactory(IAbstServiceProvider serviceProvider)
+    public UnityFactory(ILingoServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
         _gfxFactory = new AbstUnityComponentFactory();

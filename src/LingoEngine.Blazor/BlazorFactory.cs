@@ -12,7 +12,6 @@ using LingoEngine.Blazor.Stages;
 using LingoEngine.Blazor.FilmLoops;
 using LingoEngine.Casts;
 using LingoEngine.Core;
-using AbstUI.Core;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.FilmLoops;
 using LingoEngine.Inputs;
@@ -36,11 +35,11 @@ namespace LingoEngine.Blazor;
 /// </summary>
 public class BlazorFactory : ILingoFrameworkFactory, IDisposable
 {
-    private readonly IAbstServiceProvider _services;
+    private readonly ILingoServiceProvider _services;
     private readonly List<IDisposable> _disposables = new();
     private readonly IAbstComponentFactory _gfxFactory;
 
-    public BlazorFactory(IAbstServiceProvider services)
+    public BlazorFactory(ILingoServiceProvider services)
     {
         _services = services;
         _gfxFactory = services.GetRequiredService<IAbstComponentFactory>();

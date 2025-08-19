@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using AbstUI.Core;
 using LingoEngine.FrameworkCommunication;
 
 namespace LingoEngine.Director.Core.Windowing;
@@ -13,15 +12,15 @@ namespace LingoEngine.Director.Core.Windowing;
 /// </summary>
 public abstract class LingoBaseFrameworkFactory
 {
-    private readonly IAbstServiceProvider _serviceProvider;
+    private readonly IServiceProvider _serviceProvider;
     private readonly Dictionary<Type, Type> _frameworkMap = new();
 
-    protected LingoBaseFrameworkFactory(IAbstServiceProvider serviceProvider)
+    protected LingoBaseFrameworkFactory(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
     }
 
-    public IAbstServiceProvider ServiceProvider => _serviceProvider;
+    public IServiceProvider ServiceProvider => _serviceProvider;
 
     /// <summary>
     /// Scans the assembly of the derived factory for types implementing

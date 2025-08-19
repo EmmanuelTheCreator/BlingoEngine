@@ -1,7 +1,6 @@
 using AbstUI.Primitives;
 using LingoEngine.Casts;
 using LingoEngine.Core;
-using AbstUI.Core;
 using LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors;
 using LingoEngine.Demo.TetriGrounds.Core.Sprites.Globals;
 using LingoEngine.Movies;
@@ -58,7 +57,7 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
             .LoadCastLibFromCsv("Data", Path.Combine("Media", "Data", "Members.csv"));
         InitMembers(lingoPlayer);
     }
-    public ILingoMovie? LoadStartupMovie(IAbstServiceProvider serviceProvider, LingoPlayer lingoPlayer)
+    public ILingoMovie? LoadStartupMovie(ILingoServiceProvider serviceProvider, LingoPlayer lingoPlayer)
     {
         
         _movie = LoadMovie(lingoPlayer);

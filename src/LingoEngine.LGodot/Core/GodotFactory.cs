@@ -2,7 +2,6 @@
 using System;
 using System.Numerics;
 using LingoEngine.Core;
-using AbstUI.Core;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.LGodot.Movies;
 using LingoEngine.LGodot.Sounds;
@@ -37,13 +36,13 @@ namespace LingoEngine.LGodot.Core
     public class GodotFactory : ILingoFrameworkFactory, IDisposable
     {
         private readonly List<IDisposable> _disposables = new List<IDisposable>();
-        private readonly IAbstServiceProvider _serviceProvider;
+        private readonly ILingoServiceProvider _serviceProvider;
         private readonly LingoGodotRootNode _lingoRootNode;
         private Node _rootNode;
 
         private readonly GodotGfxFactory _gfxFactory;
 
-        public GodotFactory(IAbstServiceProvider serviceProvider, LingoGodotRootNode rootNode)
+        public GodotFactory(ILingoServiceProvider serviceProvider, LingoGodotRootNode rootNode)
         {
             _lingoRootNode = rootNode;
             _rootNode = rootNode.RootNode;

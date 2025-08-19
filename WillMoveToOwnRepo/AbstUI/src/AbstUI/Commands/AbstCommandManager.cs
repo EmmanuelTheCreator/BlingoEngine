@@ -1,16 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AbstUI.Core;
 
 namespace AbstUI.Commands;
 
 public sealed class AbstCommandManager : IAbstCommandManager
 {
-    private readonly IAbstServiceProvider _provider;
+    private readonly IServiceProvider _provider;
     private readonly Dictionary<Type, List<Type>> _handlers = new();
 
-    public AbstCommandManager(IAbstServiceProvider provider) => _provider = provider;
+    public AbstCommandManager(IServiceProvider provider) => _provider = provider;
 
     public IAbstCommandManager Register<THandler, TCommand>()
         where THandler : IAbstCommandHandler<TCommand>

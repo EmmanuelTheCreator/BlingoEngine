@@ -1,6 +1,5 @@
 ﻿using LingoEngine.Casts;
 using LingoEngine.Core;
-using AbstUI.Core;
 using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
@@ -42,11 +41,11 @@ namespace LingoEngine.Movies
         private LingoCastLibsContainer _castLibsContainer;
         private LingoEventMediator _eventMediator;
         private IServiceScope _scopedServiceProvider;
-        private IAbstServiceProvider _serviceProvider;
+        private ILingoServiceProvider _serviceProvider;
         private readonly ILingoFrameworkFactory _factory;
         private readonly LingoProjectSettings _projectSettings;
         private readonly Lazy<ILingoMemberFactory> _memberFactory;
-        private readonly IAbstServiceProvider _rootServiceProvider;
+        private readonly ILingoServiceProvider _rootServiceProvider;
         public ILingoEventMediator Events => _eventMediator;
 
         public ILingoPlayer Player => _player;
@@ -67,7 +66,7 @@ namespace LingoEngine.Movies
 
 #pragma warning disable CS8618 
 #pragma warning restore CS8618 
-        public LingoMovieEnvironment(IAbstServiceProvider rootServiceProvider, ILingoFrameworkFactory factory, LingoProjectSettings projectSettings)
+        public LingoMovieEnvironment(ILingoServiceProvider rootServiceProvider, ILingoFrameworkFactory factory, LingoProjectSettings projectSettings)
         {
             _memberFactory = rootServiceProvider.GetRequiredService<Lazy<ILingoMemberFactory>>();
             _rootServiceProvider = rootServiceProvider;
@@ -78,7 +77,7 @@ namespace LingoEngine.Movies
         internal void Init(string name, int number, LingoPlayer player, LingoKey lingoKey, LingoSound sound, LingoStageMouse mouse, LingoStage stage, LingoSystem system, ILingoClock clock, LingoCastLibsContainer lingoCastLibsContainer, IServiceScope scopedServiceProvider, Action<LingoMovie> onRemoveMe)
         {
             _scopedServiceProvider = scopedServiceProvider;
-            _serviceProvider = new AbstServiceProvider();
+            _serviceProvider = new LingoServiceProvider();
             _serviceProvider.SetServiceProvider(scopedServiceProvider.ServiceProvider);
             _eventMediator = (LingoEventMediator)_serviceProvider.GetRequiredService<ILingoEventMediator>();
             _player = player;
@@ -96,7 +95,7 @@ namespace LingoEngine.Movies
                 Dispose();
             }, _projectSettings, _rootServiceProvider.GetRequiredService<ILingoFrameLabelManager>());
         }
-        internal IAbstServiceProvider GetServiceProvider() => _serviceProvider;
+        internal ILingoServiceProvider GetServiceProvider() => _serviceProvider;
         public void Dispose()
         {
             _mouse.Unsubscribe(_eventMediator);

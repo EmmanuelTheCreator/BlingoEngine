@@ -1,7 +1,6 @@
 using System;
 using LingoEngine.Casts;
 using LingoEngine.Core;
-using AbstUI.Core;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
 using LingoEngine.Members;
@@ -35,13 +34,13 @@ namespace LingoEngine.SDL2.Core;
 public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
 {
     private readonly List<IDisposable> _disposables = new();
-    private readonly IAbstServiceProvider _serviceProvider;
+    private readonly ILingoServiceProvider _serviceProvider;
     private readonly SdlRootContext _rootContext;
     private readonly SdlFontManager _fontManager;
     private readonly AbstSdlComponentFactory _gfxFactory;
     internal SdlFontManager FontManager => _fontManager;
     /// <inheritdoc/>
-    public LingoSdlFactory(IAbstServiceProvider serviceProvider, SdlRootContext rootContext)
+    public LingoSdlFactory(ILingoServiceProvider serviceProvider, SdlRootContext rootContext)
     {
         _serviceProvider = serviceProvider;
         _rootContext = rootContext;

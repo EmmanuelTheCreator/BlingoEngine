@@ -1,12 +1,11 @@
 using System;
 using System.Linq;
-using AbstUI.Core;
 
 namespace AbstUI.Commands;
 
 public static class AbstCommandManagerExtensions
 {
-    public static void DiscoverAndSubscribe(this IAbstCommandManager manager, IAbstServiceProvider provider)
+    public static void DiscoverAndSubscribe(this IAbstCommandManager manager, IServiceProvider provider)
     {
         var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(x =>
         {
