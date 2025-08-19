@@ -43,9 +43,10 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
     public BlazorFactory(ILingoServiceProvider services)
     {
         _services = services;
+
         var styleManager = _services.GetRequiredService<IAbstStyleManager>();
         var fontManager = _services.GetRequiredService<IAbstFontManager>();
-        _gfxFactory = new AbstBlazorComponentFactory(styleManager, fontManager);
+        _gfxFactory = services.GetRequiredService<IAbstComponentFactory>();
     }
 
     public LingoStage CreateStage(LingoPlayer lingoPlayer)

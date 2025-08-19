@@ -1,15 +1,4 @@
 @inherits AbstBlazorComponentBase
-@using AbstUI.Texts
-<div style="@StyleString">@Text</div>
 
-@code {
-    private string StyleString => BuildStyle() +
-        $"color:{FontColor.ToHex()};font-size:{FontSize}px;text-align:{GetAlignment()};";
+<div style="@BuildSpanStyle()">@_component.Text</div>
 
-    private string GetAlignment() => TextAlignment switch
-    {
-        AbstTextAlignment.Center => "center",
-        AbstTextAlignment.Right => "right",
-        _ => "left"
-    };
-}

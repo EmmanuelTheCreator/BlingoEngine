@@ -1,7 +1,14 @@
+@using Microsoft.AspNetCore.Components
+@using System.Collections.Generic
 @inherits AbstBlazorComponentBase
-<div id="@Name" style="@($"{BuildStyle()}{BuildPanelStyle()}")">
-    @foreach (var fragment in _fragments)
-    {
-        @fragment
-    }
-</div>
+
+<CascadingValue Value="_component.ChildContainer">
+    <div id="@Name" style="@($"{BuildStyle()}{BuildPanelStyle()}")">
+        @foreach (var child in _component.GetItems())
+        {
+            var type = _component.ChildContainer.GetRazorComponentType(child);
+            var parameters = new Dictionary<string, object?> { ["Component"] = child };
+            <DynamicComponent Type="@type" Parameters="@parameters" />
+        }
+    </div>
+</CascadingValue>
