@@ -30,6 +30,7 @@ namespace AbstUI.SDL2.Components
 
         protected override void RenderContent(AbstSDLRenderContext context)
         {
+            float maxX = 0, maxY = 0;
             foreach (var child in _children)
             {
                 if (child.FrameworkNode is AbstSdlComponent comp)
@@ -45,8 +46,14 @@ namespace AbstUI.SDL2.Components
 
                     ctx.OffsetX = oldOffX;
                     ctx.OffsetY = oldOffY;
+
+                    maxX = MathF.Max(maxX, comp.X + comp.Width);
+                    maxY = MathF.Max(maxY, comp.Y + comp.Height);
                 }
             }
+
+            ContentWidth = maxX;
+            ContentHeight = maxY;
         }
 
         public override void Dispose()
