@@ -48,8 +48,9 @@ namespace LingoEngine.LGodot.Core
             _rootNode = rootNode.RootNode;
             _serviceProvider = serviceProvider;
             var fontManager = _serviceProvider.GetRequiredService<IAbstFontManager>();
-            var styleManager = _serviceProvider.GetRequiredService<IAbstGodotStyleManager>();
-            _gfxFactory = new GodotGfxFactory(fontManager, styleManager, _lingoRootNode);
+            var styleManager = _serviceProvider.GetRequiredService<IAbstStyleManager>();
+            var godotStyleManager = _serviceProvider.GetRequiredService<IAbstGodotStyleManager>();
+            _gfxFactory = new GodotGfxFactory(styleManager, fontManager, godotStyleManager, _lingoRootNode);
         }
 
         public IAbstComponentFactory GfxFactory => _gfxFactory;
