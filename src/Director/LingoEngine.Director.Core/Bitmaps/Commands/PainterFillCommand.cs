@@ -1,9 +1,9 @@
-﻿using LingoEngine.Commands;
+﻿using AbstUI.Commands;
 
 namespace LingoEngine.Director.Core.Bitmaps.Commands
 {
     /// <summary>
     /// Command to flood fill starting at the given canvas coordinate.
     /// </summary>
-    public sealed record PainterFillCommand(int X, int Y) : ILingoCommand;
+    public sealed record PainterFillCommand(int X, int Y) : IAbstCommand;
 }

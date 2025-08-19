@@ -1,4 +1,4 @@
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Movies;
 using LingoEngine.Movies.Commands;
 using LingoEngine.FrameworkCommunication;
@@ -15,7 +15,7 @@ namespace LingoEngine.Director.Core.Scores;
 public class DirScoreLabelsBar : IDisposable
 {
     private readonly DirScoreGfxValues _gfxValues;
-    private readonly ILingoCommandManager _commandManager;
+    private readonly IAbstCommandManager _commandManager;
     private readonly AbstGfxCanvas _canvasFix;
     private readonly AbstGfxCanvas _canvasOpenCollapse;
     private readonly AbstGfxCanvas _canvas;
@@ -66,7 +66,7 @@ public class DirScoreLabelsBar : IDisposable
 
 
 
-    public DirScoreLabelsBar(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, ILingoCommandManager commandManager)
+    public DirScoreLabelsBar(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, IAbstCommandManager commandManager)
     {
         _gfxValues = gfxValues;
         _commandManager = commandManager;

@@ -1,4 +1,4 @@
-﻿using LingoEngine.Commands;
+﻿using AbstUI.Commands;
 using LingoEngine.Director.Core.Scores;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.FrameworkCommunication;
@@ -23,7 +23,7 @@ namespace LingoEngine.Director.Core.Sprites
         
         IDirectorEventMediator Mediator { get; }
         ILingoFrameworkFactory Factory { get; }
-        ILingoCommandManager CommandManager { get; }
+        IAbstCommandManager CommandManager { get; }
         DirSpritesSelection SpritesSelection { get; }
         ILingoKey Key { get; }
         DirScoreManager ScoreManager { get; }
@@ -35,21 +35,21 @@ namespace LingoEngine.Director.Core.Sprites
     }
 
     public class DirSpritesManager : IDirSpritesManager, IDisposable,
-            ICommandHandler<ChangeSpriteRangeCommand>,
-            ICommandHandler<AddSpriteCommand>,
-            ICommandHandler<RemoveSpriteCommand>
+            IAbstCommandHandler<ChangeSpriteRangeCommand>,
+            IAbstCommandHandler<AddSpriteCommand>,
+            IAbstCommandHandler<RemoveSpriteCommand>
     {
         private readonly IHistoryManager _historyManager;
 
         public IDirectorEventMediator Mediator { get; }
         public ILingoFrameworkFactory Factory { get; }
-        public ILingoCommandManager CommandManager { get; }
+        public IAbstCommandManager CommandManager { get; }
         public DirSpritesSelection SpritesSelection { get; } = new();
         public DirScoreManager ScoreManager { get; }
 
         public ILingoKey Key { get; }
 
-        public DirSpritesManager(IDirectorEventMediator mediator, ILingoFrameworkFactory factory, ILingoCommandManager commandManager, DirScoreManager scoreManager, IHistoryManager historyManager)
+        public DirSpritesManager(IDirectorEventMediator mediator, ILingoFrameworkFactory factory, IAbstCommandManager commandManager, DirScoreManager scoreManager, IHistoryManager historyManager)
         {
             Mediator = mediator;
             Mediator.Subscribe(this);

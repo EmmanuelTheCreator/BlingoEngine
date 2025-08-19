@@ -1,5 +1,6 @@
-﻿using LingoEngine.Commands;
+﻿using AbstUI.Commands;
 using LingoEngine.Core;
+using AbstUI.Core;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Movies;
 using LingoEngine.Projects;
@@ -18,19 +19,19 @@ namespace LingoEngine.Setup
         private readonly LingoProxyServiceCollection _proxy;
         private readonly Dictionary<string, MovieRegistration> _Movies = new();
         private readonly List<(string Name, string FileName)> _Fonts = new();
-        private readonly List<Action<ILingoServiceProvider>> _BuildActions = new();
+        private readonly List<Action<IAbstServiceProvider>> _BuildActions = new();
         private Action<ILingoFrameworkFactory>? _FrameworkFactorySetup;
         private IServiceProvider? _serviceProvider;
-        private readonly ILingoServiceProvider _lingoServiceProvider;
+        private readonly IAbstServiceProvider _lingoServiceProvider;
         private Action<LingoProjectSettings> _projectSettingsSetup = p => { };
         private bool _hasBeenBuild = false;
         private LingoPlayer? _player;
         private Func<ILingoProjectFactory>? _makeFactoryMethod;
         private ILingoProjectFactory? _projectFactory;
         private ILingoMovie? _startupMovie;
-        public ILingoServiceProvider ServiceProvider => _lingoServiceProvider;
+        public IAbstServiceProvider ServiceProvider => _lingoServiceProvider;
 
-        public LingoEngineRegistration(IServiceCollection container, ILingoServiceProvider lingoServiceProvider)
+        public LingoEngineRegistration(IServiceCollection container, IAbstServiceProvider lingoServiceProvider)
         {
             _container = container;
             _proxy = new LingoProxyServiceCollection(container);
@@ -57,7 +58,7 @@ namespace LingoEngine.Setup
 
             if (_serviceProvider != null)
             {
-                var cmdManager = _lingoServiceProvider.GetService<ILingoCommandManager>();
+                var cmdManager = _lingoServiceProvider.GetService<IAbstCommandManager>();
                 cmdManager?.Clear(preserveNamespaceFragment);
                 var eventMediator = _lingoServiceProvider.GetService<ILingoEventMediator>();
                 eventMediator?.Clear(preserveNamespaceFragment);
@@ -148,13 +149,13 @@ namespace LingoEngine.Setup
             }
             LoadFonts(_lingoServiceProvider);
             _BuildActions.ForEach(b => b(_lingoServiceProvider));
-            _lingoServiceProvider.GetRequiredService<ILingoCommandManager>()
+            _lingoServiceProvider.GetRequiredService<IAbstCommandManager>()
                 .DiscoverAndSubscribe(_lingoServiceProvider);
             _projectFactory.LoadCastLibs(_lingoServiceProvider.GetRequiredService<ILingoCastLibsContainer>(), _player);
             _startupMovie = _projectFactory.LoadStartupMovie(_lingoServiceProvider, _player);
         }
 
-        private void LoadFonts(ILingoServiceProvider serviceProvider)
+        private void LoadFonts(IAbstServiceProvider serviceProvider)
         {
             var fontsManager = serviceProvider.GetRequiredService<IAbstFontManager>();
             foreach (var font in _Fonts)
@@ -195,7 +196,7 @@ namespace LingoEngine.Setup
             return this;
         }
 
-        public ILingoEngineRegistration AddBuildAction(Action<ILingoServiceProvider> buildAction)
+        public ILingoEngineRegistration AddBuildAction(Action<IAbstServiceProvider> buildAction)
         {
             _BuildActions.Add(buildAction);
             return this;

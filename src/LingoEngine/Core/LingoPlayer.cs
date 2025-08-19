@@ -1,7 +1,8 @@
 ﻿using System;
 using AbstUI.Primitives;
 using LingoEngine.Casts;
-using LingoEngine.Commands;
+using AbstUI.Commands;
+using AbstUI.Core;
 using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
@@ -17,15 +18,15 @@ namespace LingoEngine.Core
 
 
     public class LingoPlayer : ILingoPlayer,
-        ICommandHandler<RewindMovieCommand>,
-        ICommandHandler<PlayMovieCommand>,
-        ICommandHandler<StepFrameCommand>
+        IAbstCommandHandler<RewindMovieCommand>,
+        IAbstCommandHandler<PlayMovieCommand>,
+        IAbstCommandHandler<StepFrameCommand>
     {
         private Lazy<CsvImporter> _csvImporter = new Lazy<CsvImporter>(() => new CsvImporter());
         private readonly LingoCastLibsContainer _castLibsContainer;
         private readonly LingoSound _sound;
         private readonly ILingoWindow _window;
-        private readonly ILingoServiceProvider _serviceProvider;
+        private readonly IAbstServiceProvider _serviceProvider;
         private Action<LingoMovie> _actionOnNewMovie;
         private Dictionary<string, LingoMovieEnvironment> _moviesByName = new();
         private List<LingoMovieEnvironment> _movies = new();
@@ -80,7 +81,7 @@ namespace LingoEngine.Core
         public ILingoMovie? ActiveMovie { get; private set; }
         public event Action<ILingoMovie?>? ActiveMovieChanged;
 
-        public LingoPlayer(ILingoServiceProvider serviceProvider, ILingoFrameworkFactory factory, ILingoCastLibsContainer castLibsContainer, ILingoWindow window, ILingoClock lingoClock, ILingoSystem lingoSystem)
+        public LingoPlayer(IAbstServiceProvider serviceProvider, ILingoFrameworkFactory factory, ILingoCastLibsContainer castLibsContainer, ILingoWindow window, ILingoClock lingoClock, ILingoSystem lingoSystem)
         {
             _actionOnNewMovie = m => { };
             _serviceProvider = serviceProvider;

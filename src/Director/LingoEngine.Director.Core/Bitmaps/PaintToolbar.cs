@@ -1,5 +1,5 @@
 using AbstUI.Primitives;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.Core.Bitmaps.Commands;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.UI;
@@ -11,7 +11,7 @@ public class PaintToolbar : DirectorToolbar<PainterToolType>
 {
 
     public AColor SelectedColor { get; private set; } = new AColor(0, 0, 0);
-    public PaintToolbar(IDirectorIconManager iconManager, ILingoCommandManager commandManager, ILingoFrameworkFactory factory) : base("PaintToolbarRoot", iconManager, commandManager, factory)
+    public PaintToolbar(IDirectorIconManager iconManager, IAbstCommandManager commandManager, ILingoFrameworkFactory factory) : base("PaintToolbarRoot", iconManager, commandManager, factory)
     {
         AddToolButton(DirectorIcon.Pencil);
         AddToolButton(DirectorIcon.PaintBrush);
@@ -46,7 +46,7 @@ public class PaintToolbar : DirectorToolbar<PainterToolType>
     private void AddColorPickerBackground(AColor color) 
         => AddColorPicker(c => new PainterChangeBackgroundColorCommand(c), color);
 
-    protected void AddColorPicker(Func<AColor, ILingoCommand> toCommand, AColor color)
+    protected void AddColorPicker(Func<AColor, IAbstCommand> toCommand, AColor color)
     {
         var picker = _factory.CreateColorPicker("PaintColorPicker", color =>
         {

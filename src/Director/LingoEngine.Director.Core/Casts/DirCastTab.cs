@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Members;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.Core.Windowing.Commands;
 using LingoEngine.Director.Core.Scripts.Commands;
 using LingoEngine.Director.Core.Tools;
@@ -33,7 +33,7 @@ namespace LingoEngine.Director.Core.Casts
         private readonly AbstPanel _topBar;
         private readonly AbstStateButton _viewButton;
         private readonly ILingoCast _cast;
-        private readonly ILingoCommandManager _commandManager;
+        private readonly IAbstCommandManager _commandManager;
         private readonly ILingoFrameworkFactory _factory;
         private readonly IDirectorIconManager _iconManager;
         private readonly MemberNavigationBar _navBar;
@@ -52,7 +52,7 @@ namespace LingoEngine.Director.Core.Casts
 
         public int Width { get; private set; }
 
-        public DirCastTab(ILingoFrameworkFactory factory, ILingoCast cast, IDirectorIconManager iconManager, ILingoCommandManager commandManager, IDirectorEventMediator mediator, ILingoPlayer player)
+        public DirCastTab(ILingoFrameworkFactory factory, ILingoCast cast, IDirectorIconManager iconManager, IAbstCommandManager commandManager, IDirectorEventMediator mediator, ILingoPlayer player)
         {
             _commandManager = commandManager;
             _factory = factory;

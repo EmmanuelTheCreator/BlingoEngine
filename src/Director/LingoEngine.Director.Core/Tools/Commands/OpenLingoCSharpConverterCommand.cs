@@ -1,5 +1,5 @@
-using LingoEngine.Commands;
+using AbstUI.Commands;
 
 namespace LingoEngine.Director.Core.Tools.Commands;
 
-public sealed record OpenLingoCSharpConverterCommand : ILingoCommand;
+public sealed record OpenLingoCSharpConverterCommand : IAbstCommand;

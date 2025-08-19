@@ -1,5 +1,6 @@
 ﻿using LingoEngine.Casts;
 using LingoEngine.Core;
+using AbstUI.Core;
 using LingoEngine.Events;
 using LingoEngine.Inputs;
 using LingoEngine.Members;
@@ -491,7 +492,7 @@ namespace LingoEngine.Movies
 
 
         public LingoMovieEnvironment GetEnvironment() => _environment;
-        public ILingoServiceProvider GetServiceProvider() => _environment.GetServiceProvider();
+        public IAbstServiceProvider GetServiceProvider() => _environment.GetServiceProvider();
 
         public void StartTimer() => Timer = 0;
 

@@ -3,7 +3,7 @@ using LingoEngine.Core;
 using LingoEngine.Director.Core.Projects;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.LGodot.Gfx;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.Director.Core.Casts.Commands;
 using LingoEngine.Movies;
@@ -31,7 +31,7 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
     private readonly AbstGodotWrapPanel _iconBar;
     private Panel _bgColorPanel;
     private readonly IDirGodotWindowManager _windowManager;
-    private readonly ILingoCommandManager _commandManager;
+    private readonly IAbstCommandManager _commandManager;
     private readonly LingoPlayer _player;
 
     protected StyleBoxFlat Style = new StyleBoxFlat();
@@ -46,7 +46,7 @@ internal partial class DirGodotMainMenu : Control, IDirFrameworkMainMenuWindow
         IDirectorShortCutManager shortCutManager,
         IHistoryManager historyManager,
         IDirGodotWindowManager windowManager,
-        ILingoCommandManager commandManager,
+        IAbstCommandManager commandManager,
         DirectorMainMenu directorMainMenu, ILingoFrameworkFactory factory)
     {
         _windowManager = windowManager;

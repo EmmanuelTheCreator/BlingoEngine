@@ -1,5 +1,5 @@
 using LingoEngine.Movies;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using System;
 using LingoEngine.Sprites;
 
@@ -13,7 +13,7 @@ public sealed record ChangeSpriteRangeCommand(
     int StartEnd,
     int EndChannel,
     int EndBegin,
-    int EndEnd) : ILingoCommand
+    int EndEnd) : IAbstCommand
 {
     public Action ToUndo(Action refresh)
     {

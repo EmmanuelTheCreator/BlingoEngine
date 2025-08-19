@@ -1,4 +1,5 @@
 ﻿using LingoEngine.Core;
+using AbstUI.Core;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Projects;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +18,7 @@ namespace LingoEngine.Setup
         ILingoEngineRegistration BuildDelayed();
         LingoPlayer Build(IServiceProvider serviceProvider);
         ILingoProjectFactory BuildAndRunProject();
-        ILingoEngineRegistration AddBuildAction(Action<ILingoServiceProvider> buildAction);
+        ILingoEngineRegistration AddBuildAction(Action<IAbstServiceProvider> buildAction);
         ILingoEngineRegistration SetProjectFactory<TLingoProjectFactory>() where TLingoProjectFactory : ILingoProjectFactory, new();
         
     }

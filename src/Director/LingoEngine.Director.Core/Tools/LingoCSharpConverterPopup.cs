@@ -1,6 +1,6 @@
 using AbstUI.Components;
 using AbstUI.Primitives;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.Core.Tools.Commands;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Director.Core.Tools;
 
-public class LingoCSharpConverterPopup : ICommandHandler<OpenLingoCSharpConverterCommand>, ILingoDialog
+public class LingoCSharpConverterPopup : IAbstCommandHandler<OpenLingoCSharpConverterCommand>, ILingoDialog
 {
     protected readonly IDirectorWindowManager _windowManager;
     protected readonly ILingoFrameworkFactory _factory;

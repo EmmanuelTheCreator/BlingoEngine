@@ -5,7 +5,7 @@ using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Sprites;
 using LingoEngine.Core;
 using LingoEngine.Director.Core.Stages.Commands;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Animations;
 using AbstUI.Primitives;
@@ -33,10 +33,10 @@ public interface IDirStageManager
     LingoSpriteMotionPath? GetMotionPath(LingoSprite2D sprite);
 }
 
-public class DirStageManager : IDirStageManager, IDisposable, ICommandHandler<StageChangeBackgroundColorCommand>
+public class DirStageManager : IDirStageManager, IDisposable, IAbstCommandHandler<StageChangeBackgroundColorCommand>
 {
     private readonly IDirSpritesManager _spritesManager;
-    private readonly ILingoCommandManager _commandManager;
+    private readonly IAbstCommandManager _commandManager;
     private readonly ILingoPlayer _player;
     private readonly IHistoryManager _historyManager;
     private readonly IDirectorEventMediator _mediator;
@@ -48,7 +48,7 @@ public class DirStageManager : IDirStageManager, IDisposable, ICommandHandler<St
     private Dictionary<LingoSprite2D, float>? _initialRotations;
     private bool _rotating;
 
-    public DirStageManager(IDirSpritesManager spritesManager, ILingoCommandManager commandManager, ILingoPlayer player, IHistoryManager historyManager, IDirectorEventMediator mediator)
+    public DirStageManager(IDirSpritesManager spritesManager, IAbstCommandManager commandManager, ILingoPlayer player, IHistoryManager historyManager, IDirectorEventMediator mediator)
     {
         _spritesManager = spritesManager;
         _commandManager = commandManager;

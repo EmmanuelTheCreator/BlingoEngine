@@ -8,7 +8,7 @@ using LingoEngine.Events;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Primitives;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Sprites;
 using LingoEngine.Sounds;
@@ -61,7 +61,7 @@ namespace LingoEngine.Director.Core.Scores
         public float ScollY { get => _scollY; set => _scollY = value; }
 
 #pragma warning disable CS8618
-        public DirectorScoreWindow(IDirSpritesManager spritesManager, ILingoPlayer player, ILingoFrameworkFactory factory, DirScoreManager scoreManager, IDirectorWindowManager windowManager, ILingoColorPaletteDefinitions paletteDefinitions, ILingoCommandManager commandManager, IGlobalLingoMouse globalMouse, IDirectorEventMediator mediator) : base(factory)
+        public DirectorScoreWindow(IDirSpritesManager spritesManager, ILingoPlayer player, ILingoFrameworkFactory factory, DirScoreManager scoreManager, IDirectorWindowManager windowManager, ILingoColorPaletteDefinitions paletteDefinitions, IAbstCommandManager commandManager, IGlobalLingoMouse globalMouse, IDirectorEventMediator mediator) : base(factory)
 #pragma warning restore CS8618
         {
             _spritesManager = spritesManager;

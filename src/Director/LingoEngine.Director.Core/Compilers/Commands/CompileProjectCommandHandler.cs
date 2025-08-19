@@ -1,8 +1,8 @@
-using LingoEngine.Commands;
+using AbstUI.Commands;
 
 namespace LingoEngine.Director.Core.Compilers.Commands;
 
-public class CompileProjectCommandHandler : ICommandHandler<CompileProjectCommand>
+public class CompileProjectCommandHandler : IAbstCommandHandler<CompileProjectCommand>
 {
     private readonly LingoScriptCompiler _compiler;
 

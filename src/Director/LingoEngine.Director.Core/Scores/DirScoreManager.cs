@@ -4,7 +4,7 @@ using LingoEngine.Director.Core.Sprites;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Members;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.Core.Stages.Commands;
 using LingoEngine.Movies;
 using System.Collections.Generic;
@@ -36,7 +36,7 @@ namespace LingoEngine.Director.Core.Scores
         private readonly Dictionary<int, DirScoreChannel> _channels = new();
         private readonly List<DirScoreSprite> _selected = new();
         private readonly IDirectorEventMediator _directorEventMediator;
-        private readonly ILingoCommandManager _commandManager;
+        private readonly IAbstCommandManager _commandManager;
         private DirScoreSprite? _lastAddedSprite;
         private bool _lastMouseLeftDown;
         private bool _dragging;
@@ -59,7 +59,7 @@ namespace LingoEngine.Director.Core.Scores
         internal List<DirScoreSprite> Selected => _selected;
         internal bool LastMouseLeftDown { get => _lastMouseLeftDown; set => _lastMouseLeftDown = value; }
 
-        public DirScoreManager(ILingoFrameworkFactory factory, IDirectorEventMediator directorEventMediator, ILingoCommandManager lingoCommandManager)
+        public DirScoreManager(ILingoFrameworkFactory factory, IDirectorEventMediator directorEventMediator, IAbstCommandManager lingoCommandManager)
         {
             Factory = factory;
             _directorEventMediator = directorEventMediator;

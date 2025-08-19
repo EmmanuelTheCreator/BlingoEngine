@@ -4,7 +4,7 @@ using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.Core.Casts;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Core;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Members;
 using LingoEngine.Sprites;
 using LingoEngine.Texts;
@@ -34,7 +34,7 @@ using AbstUI.Components;
 namespace LingoEngine.Director.Core.Inspector
 {
     public class DirectorPropertyInspectorWindow : DirectorWindow<IDirFrameworkPropertyInspectorWindow>, IHasSpriteSelectedEvent, IHasMemberSelectedEvent,
-        ICommandHandler<OpenBehaviorPopupCommand>
+        IAbstCommandHandler<OpenBehaviorPopupCommand>
     {
         public enum PropetyTabNames
         {
@@ -55,7 +55,7 @@ namespace LingoEngine.Director.Core.Inspector
         private AbstLabel? _member;
         private AbstLabel? _cast;
         private LingoPlayer _player;
-        private ILingoCommandManager _commandManager;
+        private IAbstCommandManager _commandManager;
         private AbstTabContainer _tabs;
         private DirectorMemberThumbnail? _thumb;
         private AbstPanel? _header;
@@ -81,7 +81,7 @@ namespace LingoEngine.Director.Core.Inspector
 
         public record HeaderElements(AbstPanel Panel, AbstWrapPanel Header, DirectorMemberThumbnail Thumbnail);
 
-        public DirectorPropertyInspectorWindow(LingoPlayer player, ILingoCommandManager commandManager, ILingoFrameworkFactory factory, IDirectorIconManager iconManager, IDirectorEventMediator mediator, IDirectorBehaviorDescriptionManager descriptionManager, DirectorStageGuides guides, ILogger<DirectorPropertyInspectorWindow> logger) : base(factory)
+        public DirectorPropertyInspectorWindow(LingoPlayer player, IAbstCommandManager commandManager, ILingoFrameworkFactory factory, IDirectorIconManager iconManager, IDirectorEventMediator mediator, IDirectorBehaviorDescriptionManager descriptionManager, DirectorStageGuides guides, ILogger<DirectorPropertyInspectorWindow> logger) : base(factory)
         {
             _player = player;
             _commandManager = commandManager;

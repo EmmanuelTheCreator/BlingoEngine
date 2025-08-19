@@ -1,6 +1,6 @@
 using AbstUI.Primitives;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 
 namespace LingoEngine.Director.Core.Stages.Commands;
 
-public sealed record StageChangeBackgroundColorCommand(AColor OldColor, AColor NewColor) : ILingoCommand;
+public sealed record StageChangeBackgroundColorCommand(AColor OldColor, AColor NewColor) : IAbstCommand;

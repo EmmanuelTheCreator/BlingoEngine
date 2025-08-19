@@ -5,7 +5,7 @@ using LingoEngine.Projects;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.Stages;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.Core.Projects.Commands;
 using System.IO;
 using System.Linq;
@@ -16,7 +16,7 @@ namespace LingoEngine.Director.Core.Projects;
 /// <summary>
 /// Handles project level operations such as saving and loading movies.
 /// </summary>
-public class DirectorProjectManager : ICommandHandler<SaveDirProjectSettingsCommand>
+public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettingsCommand>
 {
     private readonly LingoProjectSettings _settings;
     private readonly LingoPlayer _player;

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
 
@@ -14,5 +14,5 @@ namespace LingoEngine.Director.Core.Casts.Commands;
 public sealed record CreateFilmLoopCommand(
     LingoMovie Movie,
     IEnumerable<LingoSprite> Sprites,
-    string Name) : ILingoCommand;
+    string Name) : IAbstCommand;
 

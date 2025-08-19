@@ -8,7 +8,7 @@ using LingoEngine.Events;
 using System.Collections.Generic;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.Icons;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.Core.Compilers.Commands;
 using AbstUI.Primitives;
 using AbstUI.Components;
@@ -41,7 +41,7 @@ namespace LingoEngine.Director.Core.UI
         private readonly LingoPlayer _player;
         private readonly IDirectorShortCutManager _shortCutManager;
         private readonly IHistoryManager _historyManager;
-        private readonly ILingoCommandManager _commandManager;
+        private readonly IAbstCommandManager _commandManager;
         private readonly List<ShortCutInfo> _shortCuts = new();
         private AbstMenuItem _undoItem;
         private AbstMenuItem _redoItem;
@@ -76,7 +76,7 @@ namespace LingoEngine.Director.Core.UI
         }
 
         public DirectorMainMenu(IDirectorWindowManager windowManager, DirectorProjectManager projectManager, LingoPlayer player, IDirectorShortCutManager shortCutManager,
-            IHistoryManager historyManager, IDirectorIconManager directorIconManager, ILingoCommandManager commandManager, ILingoFrameworkFactory factory) : base(factory)
+            IHistoryManager historyManager, IDirectorIconManager directorIconManager, IAbstCommandManager commandManager, ILingoFrameworkFactory factory) : base(factory)
         {
             _windowManager = windowManager;
             _projectManager = projectManager;

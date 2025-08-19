@@ -1,5 +1,5 @@
 ﻿using AbstUI.Primitives;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.Core.Bitmaps;
 using LingoEngine.Director.Core.Bitmaps.Commands;
 using LingoEngine.Director.Core.Icons;
@@ -19,7 +19,7 @@ public class StageToolbar : DirectorToolbar<StageTool>
 {
 
     public AColor SelectedColor { get; private set; } = new AColor(0, 0, 0);
-    public StageToolbar(IDirectorIconManager iconManager, ILingoCommandManager commandManager, ILingoFrameworkFactory factory) : base("StageToolbarRoot", iconManager, commandManager, factory)
+    public StageToolbar(IDirectorIconManager iconManager, IAbstCommandManager commandManager, ILingoFrameworkFactory factory) : base("StageToolbarRoot", iconManager, commandManager, factory)
     {
         AddToolButton(DirectorIcon.Pointer);
         AddToolButton(DirectorIcon.PaintRotateFree);
@@ -50,7 +50,7 @@ public class StageToolbar : DirectorToolbar<StageTool>
     private void AddColorPickerBackground(AColor color)
         => AddColorPicker(c => new PainterChangeBackgroundColorCommand(c), color);
 
-    protected void AddColorPicker(Func<AColor, ILingoCommand> toCommand, AColor color)
+    protected void AddColorPicker(Func<AColor, IAbstCommand> toCommand, AColor color)
     {
         var picker = _factory.CreateColorPicker("PaintColorPicker", color =>
         {

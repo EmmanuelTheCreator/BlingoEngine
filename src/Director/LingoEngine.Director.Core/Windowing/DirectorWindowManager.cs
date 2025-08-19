@@ -1,5 +1,5 @@
 ﻿using AbstUI.Components;
-using LingoEngine.Commands;
+using AbstUI.Commands;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Tools.Commands;
 using LingoEngine.Director.Core.Windowing.Commands;
@@ -39,9 +39,9 @@ namespace LingoEngine.Director.Core.Windowing
         void SetWindowSize(string windowCode, int stageWidth, int stageHeight);
     }
     public class DirectorWindowManager : IDirectorWindowManager,
-        ICommandHandler<OpenWindowCommand>,
-        ICommandHandler<CloseWindowCommand>,
-        ICommandHandler<ExecuteShortCutCommand>
+        IAbstCommandHandler<OpenWindowCommand>,
+        IAbstCommandHandler<CloseWindowCommand>,
+        IAbstCommandHandler<ExecuteShortCutCommand>
     {
         private readonly Dictionary<string, WindowRegistration> _windowRegistrations = new();
         private readonly IServiceProvider _serviceProvider;

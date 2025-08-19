@@ -1,4 +1,4 @@
-﻿using LingoEngine.Commands;
+﻿using AbstUI.Commands;
 using LingoEngine.Director.Core.FileSystems;
 using LingoEngine.Director.Core.Scripts.Commands;
 using LingoEngine.Projects;
@@ -11,7 +11,7 @@ namespace LingoEngine.Director.Core.Scripts
     {
     }
 
-    public class DirectorScriptsManager : IDirectorScriptsManager, ICommandHandler<OpenScriptCommand>
+    public class DirectorScriptsManager : IDirectorScriptsManager, IAbstCommandHandler<OpenScriptCommand>
     {
         private readonly IIdeLauncher _ideLauncher;
         private readonly IServiceProvider _serviceProvider;

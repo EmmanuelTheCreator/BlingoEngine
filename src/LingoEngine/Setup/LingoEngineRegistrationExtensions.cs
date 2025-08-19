@@ -1,4 +1,4 @@
-﻿using LingoEngine.Core;
+﻿using AbstUI.Core;
 using Microsoft.Extensions.DependencyInjection;
 namespace LingoEngine.Setup
 {
@@ -6,8 +6,8 @@ namespace LingoEngine.Setup
     {
         public static IServiceCollection RegisterLingoEngine(this IServiceCollection container, Action<ILingoEngineRegistration> config)
         {
-            var lingoServiceProvider = new LingoServiceProvider();
-            container.AddSingleton<ILingoServiceProvider>(lingoServiceProvider);
+            var lingoServiceProvider = new AbstServiceProvider();
+            container.AddSingleton<IAbstServiceProvider>(lingoServiceProvider);
             var engineRegistration = new LingoEngineRegistration(container, lingoServiceProvider);
             engineRegistration.RegisterCommonServices();
             container.AddSingleton<ILingoEngineRegistration>(engineRegistration);
