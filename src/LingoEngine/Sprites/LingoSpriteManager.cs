@@ -20,7 +20,7 @@ namespace LingoEngine.Sprites
         IEnumerable<TSprite> GetAllSprites();
         IEnumerable<TSprite> GetAllSpritesByChannel(int channel);
         IEnumerable<TSprite> GetAllSpritesBySpriteNumAndChannel(int spriteNumAndChannel);
-        
+
         void MoveSprite(TSprite sprite, int newFrame);
     }
 
@@ -53,7 +53,7 @@ namespace LingoEngine.Sprites
         internal abstract void BeginSprites();
         internal virtual LingoSprite? Add(int spriteNumWithChannel, int begin, int end, ILingoMember? member)
         {
-            return OnAdd(spriteNumWithChannel- SpriteNumChannelOffset, begin, end, member);
+            return OnAdd(spriteNumWithChannel - SpriteNumChannelOffset, begin, end, member);
         }
         protected abstract LingoSprite? OnAdd(int spriteNum, int begin, int end, ILingoMember? member);
         internal abstract void EndSprites();
@@ -65,7 +65,7 @@ namespace LingoEngine.Sprites
     public abstract class LingoSpriteManager<TSprite> : LingoSpriteManager
         where TSprite : LingoSprite
     {
-       
+
         protected readonly Dictionary<int, LingoSpriteChannel> _spriteChannels = new();
         protected readonly Dictionary<string, TSprite> _spritesByName = new();
         protected readonly List<TSprite> _allTimeSprites = new();
@@ -76,7 +76,7 @@ namespace LingoEngine.Sprites
         protected readonly List<TSprite> _exitedSprites = new();
 
         internal List<TSprite> AllTimeSprites => _allTimeSprites;
-       
+
 
         public override int MaxSpriteChannelCount
         {
@@ -89,7 +89,7 @@ namespace LingoEngine.Sprites
                     if (_spriteChannels.Count < _maxSpriteChannelCount)
                     {
                         for (int i = _spriteChannels.Count; i < _maxSpriteChannelCount; i++)
-                            _spriteChannels.Add(i, new LingoSpriteChannel(i,_movie));
+                            _spriteChannels.Add(i, new LingoSpriteChannel(i, _movie));
                     }
                 }
             }
@@ -98,7 +98,7 @@ namespace LingoEngine.Sprites
         public override int SpriteTotalCount => _activeSprites.Count;
         public override int SpriteMaxNumber => _activeSprites.Keys.DefaultIfEmpty(0).Max();
 
-        
+
 
         public event Action<int>? SpriteListChanged;
         protected void RaiseSpriteListChanged(int spritenumChannel) => SpriteListChanged?.Invoke(spritenumChannel);
@@ -144,6 +144,9 @@ namespace LingoEngine.Sprites
             SpriteJustCreated(sprite);
 
             configure?.Invoke(sprite);
+
+            sprite.InitialState = sprite.GetState();
+
             RaiseSpriteListChanged(sprite.SpriteNumWithChannel);
             return sprite;
         }
@@ -178,7 +181,7 @@ namespace LingoEngine.Sprites
                 return false;
             sprite.RemoveMe();
             return true;
-        } 
+        }
         internal bool RemoveSprite(LingoSprite2D sprite)
         {
             sprite.RemoveMe();
@@ -288,9 +291,9 @@ namespace LingoEngine.Sprites
 
 
 
-        public override void MuteChannel(int channel,bool state)
+        public override void MuteChannel(int channel, bool state)
         {
-            if(state)
+            if (state)
             {
                 if (!_mutedSprites.Contains(channel))
                     _mutedSprites.Add(channel);

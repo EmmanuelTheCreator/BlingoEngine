@@ -394,5 +394,57 @@ namespace LingoEngine.Sprites
             Texture = texture;
             _textureSubscription = texture.AddUser(this);
         }
+
+        protected override LingoSpriteState CreateState() => new LingoSprite2DVirtualState();
+
+        protected override void OnLoadState(LingoSpriteState state)
+        {
+            if (state is not LingoSprite2DVirtualState s) return;
+            SetMember(s.Member);
+            DisplayMember = s.DisplayMember;
+            Ink = s.Ink;
+            Hilite = s.Hilite;
+            Linked = s.Linked;
+            Loaded = s.Loaded;
+            Blend = s.Blend;
+            LocH = s.LocH;
+            LocV = s.LocV;
+            LocZ = s.LocZ;
+            Rotation = s.Rotation;
+            Skew = s.Skew;
+            FlipH = s.FlipH;
+            FlipV = s.FlipV;
+            Constraint = s.Constraint;
+            RegPoint = s.RegPoint;
+            ForeColor = s.ForeColor;
+            BackColor = s.BackColor;
+            Width = s.Width;
+            Height = s.Height;
+        }
+
+        protected override void OnGetState(LingoSpriteState state)
+        {
+            if (state is not LingoSprite2DVirtualState s) return;
+            s.Member = (LingoMember?)Member;
+            s.DisplayMember = DisplayMember;
+            s.Ink = Ink;
+            s.Hilite = Hilite;
+            s.Linked = Linked;
+            s.Loaded = Loaded;
+            s.Blend = Blend;
+            s.LocH = LocH;
+            s.LocV = LocV;
+            s.LocZ = LocZ;
+            s.Rotation = Rotation;
+            s.Skew = Skew;
+            s.FlipH = FlipH;
+            s.FlipV = FlipV;
+            s.Constraint = Constraint;
+            s.RegPoint = RegPoint;
+            s.ForeColor = ForeColor;
+            s.BackColor = BackColor;
+            s.Width = Width;
+            s.Height = Height;
+        }
     }
 }

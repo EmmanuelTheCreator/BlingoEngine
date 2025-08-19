@@ -169,11 +169,16 @@ namespace LingoEngine.Sprites
         public byte[] Thumbnail { get; set; } = new byte[] { };
         public string ModifiedBy { get; set; } = "";
 
-        public float Width { get => _frameworkSprite.Width; 
-            set => _frameworkSprite.DesiredWidth = value; 
+        public float Width
+        {
+            get => _frameworkSprite.Width;
+            set => _frameworkSprite.DesiredWidth = value;
         }
-        public float Height { get => _frameworkSprite.Height; 
-            set => _frameworkSprite.DesiredHeight = value; }
+        public float Height
+        {
+            get => _frameworkSprite.Height;
+            set => _frameworkSprite.DesiredHeight = value;
+        }
 
         public ILingoMember? GetMember() => Member;
 
@@ -237,7 +242,7 @@ namespace LingoEngine.Sprites
             if (configure != null)
                 configure(behavior);
             return behavior;
-        } 
+        }
         private void CallBehaviorForEvents<T>(Action<T> action)
         {
             foreach (var item in _behaviors.OfType<T>())
@@ -346,7 +351,7 @@ When a movie stops, events occur in the following order:
             // Subscribe all behaviors
             _behaviors.ForEach(b =>
             {
-                _eventMediator.Subscribe(b, SpriteNum + 6,true); //  we ignore mouse because it has to be within the boundingbox
+                _eventMediator.Subscribe(b, SpriteNum + 6, true); //  we ignore mouse because it has to be within the boundingbox
                 if (_movie.IsPlaying)
                     if (b is IHasBeginSpriteEvent beginSpriteEvent) beginSpriteEvent.BeginSprite();
 
@@ -364,13 +369,13 @@ When a movie stops, events occur in the following order:
         }
         internal override void DoEndSprite()
         {
-                _behaviors.ForEach(b =>
-                {
-                    // Unsubscribe all behaviors
-                    _eventMediator.Unsubscribe(b, true); //  we ignore mouse because it has to be within the boundingbox
-                    if (_movie.IsPlaying)
-                        if (b is IHasEndSpriteEvent endSpriteEvent) endSpriteEvent.EndSprite();
-                });
+            _behaviors.ForEach(b =>
+            {
+                // Unsubscribe all behaviors
+                _eventMediator.Unsubscribe(b, true); //  we ignore mouse because it has to be within the boundingbox
+                if (_movie.IsPlaying)
+                    if (b is IHasEndSpriteEvent endSpriteEvent) endSpriteEvent.EndSprite();
+            });
             FrameworkObj.Hide();
             _textureSubscription?.Release();
             _textureSubscription = null;
@@ -460,7 +465,7 @@ When a movie stops, events occur in the following order:
             _frameworkSprite.MemberChanged();
 
 
-        } 
+        }
         #endregion
 
 
@@ -547,17 +552,17 @@ When a movie stops, events occur in the following order:
             // Only respond if the sprite is active and the mouse is within the bounding box
             if (IsActive && IsMouseInsideBoundingBox(mouse.Mouse))
             {
-                
-                    CallBehaviorForEvents<IHasMouseMoveEvent>(b => b.MouseMove(mouse));
-                    _eventMediator.RaiseMouseMove(mouse);
 
-                    if (!isMouseInside)
-                    {
-                        MouseEnter(mouse); // Mouse has entered the sprite
-                        CallBehaviorForEvents<IHasMouseEnterEvent>(b => b.MouseEnter(mouse));
-                        _eventMediator.RaiseMouseEnter(mouse);
-                        isMouseInside = true;
-                    }
+                CallBehaviorForEvents<IHasMouseMoveEvent>(b => b.MouseMove(mouse));
+                _eventMediator.RaiseMouseMove(mouse);
+
+                if (!isMouseInside)
+                {
+                    MouseEnter(mouse); // Mouse has entered the sprite
+                    CallBehaviorForEvents<IHasMouseEnterEvent>(b => b.MouseEnter(mouse));
+                    _eventMediator.RaiseMouseEnter(mouse);
+                    isMouseInside = true;
+                }
             }
             else
             {
@@ -672,7 +677,7 @@ When a movie stops, events occur in the following order:
             var rect = Rect; // LingoRect.New(LocH,LocV,Width,Height);
             if (!rect.Contains(mouse.MouseLoc))
                 return false;
-            
+
             if (InkType != LingoInkType.BackgroundTransparent || Member == null)
                 return true;
 
@@ -786,6 +791,72 @@ When a movie stops, events occur in the following order:
             };
 
             return action;
+        }
+
+        protected override LingoSpriteState CreateState() => new LingoSprite2DState();
+
+        protected override void OnLoadState(LingoSpriteState state)
+        {
+            if (state is not LingoSprite2DState s) return;
+            SetMember(s.Member);
+            DisplayMember = s.DisplayMember;
+            SpritePropertiesOffset = s.SpritePropertiesOffset;
+            Ink = s.Ink;
+            Visibility = s.Visibility;
+            Hilite = s.Hilite;
+            Linked = s.Linked;
+            Loaded = s.Loaded;
+            MediaReady = s.MediaReady;
+            Blend = s.Blend;
+            LocH = s.LocH;
+            LocV = s.LocV;
+            LocZ = s.LocZ;
+            Width = s.Width;
+            Height = s.Height;
+            Rotation = s.Rotation;
+            Skew = s.Skew;
+            FlipH = s.FlipH;
+            FlipV = s.FlipV;
+            Cursor = s.Cursor;
+            Constraint = s.Constraint;
+            DirectToStage = s.DirectToStage;
+            RegPoint = s.RegPoint;
+            ForeColor = s.ForeColor;
+            BackColor = s.BackColor;
+            Editable = s.Editable;
+            IsDraggable = s.IsDraggable;
+        }
+
+        protected override void OnGetState(LingoSpriteState state)
+        {
+            if (state is not LingoSprite2DState s) return;
+            s.Member = (LingoMember?)Member;
+            s.DisplayMember = DisplayMember;
+            s.SpritePropertiesOffset = SpritePropertiesOffset;
+            s.Ink = Ink;
+            s.Visibility = Visibility;
+            s.Hilite = Hilite;
+            s.Linked = Linked;
+            s.Loaded = Loaded;
+            s.MediaReady = MediaReady;
+            s.Blend = Blend;
+            s.LocH = LocH;
+            s.LocV = LocV;
+            s.LocZ = LocZ;
+            s.Width = Width;
+            s.Height = Height;
+            s.Rotation = Rotation;
+            s.Skew = Skew;
+            s.FlipH = FlipH;
+            s.FlipV = FlipV;
+            s.Cursor = Cursor;
+            s.Constraint = Constraint;
+            s.DirectToStage = DirectToStage;
+            s.RegPoint = RegPoint;
+            s.ForeColor = ForeColor;
+            s.BackColor = BackColor;
+            s.Editable = Editable;
+            s.IsDraggable = IsDraggable;
         }
 
         public void UpdateTexture(IAbstTexture2D texture)

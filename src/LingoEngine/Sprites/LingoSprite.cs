@@ -17,7 +17,7 @@ namespace LingoEngine.Sprites
 
         public int BeginFrame
         {
-            get => _beginFrame; 
+            get => _beginFrame;
             set
             {
                 _beginFrame = value;
@@ -26,7 +26,7 @@ namespace LingoEngine.Sprites
         }
         public int EndFrame
         {
-            get => _endFrame; 
+            get => _endFrame;
             set
             {
                 _endFrame = value;
@@ -41,7 +41,7 @@ namespace LingoEngine.Sprites
                 _name = value;
                 NotifyAnimationChanged();
             }
-        }        
+        }
         /// <summary>
         /// This represents the puppetsprite controlled by script.
         /// </summary>
@@ -58,7 +58,7 @@ namespace LingoEngine.Sprites
         public bool IsSingleFrame { get; protected set; }
         public bool Lock
         {
-            get => _lock; 
+            get => _lock;
             set
             {
                 _lock = value;
@@ -67,6 +67,8 @@ namespace LingoEngine.Sprites
         }
 
         public bool IsDeleted { get; private set; }
+
+        public LingoSpriteState? InitialState { get; internal set; }
 
         public event Action? AnimationChanged;
 
@@ -128,14 +130,17 @@ namespace LingoEngine.Sprites
                 _eventMediator.Subscribe(actor, SpriteNum + 6);
                 if (actor is IHasBeginSpriteEvent begin) begin.BeginSprite();
             }
-           
+
+            if (InitialState != null)
+                LoadState(InitialState);
+
             BeginSprite();
         }
         protected virtual void BeginSprite() { }
-       
+
         internal virtual void DoEndSprite()
         {
-           
+
             foreach (var actor in _spriteActors)
             {
                 if (actor is IHasEndSpriteEvent end) end.EndSprite();
@@ -160,6 +165,36 @@ namespace LingoEngine.Sprites
             AnimationChanged?.Invoke();
         }
 
+        public void LoadState(LingoSpriteState state)
+        {
+            BeginFrame = state.BeginFrame;
+            EndFrame = state.EndFrame;
+            Name = state.Name;
+            Puppet = state.Puppet;
+            SpriteNum = state.SpriteNum;
+            Lock = state.Lock;
+            OnLoadState(state);
+        }
+
+        protected virtual void OnLoadState(LingoSpriteState state) { }
+
+        public LingoSpriteState GetState()
+        {
+            var state = CreateState();
+            state.BeginFrame = BeginFrame;
+            state.EndFrame = EndFrame;
+            state.Name = Name;
+            state.Puppet = Puppet;
+            state.SpriteNum = SpriteNum;
+            state.Lock = Lock;
+            OnGetState(state);
+            return state;
+        }
+
+        protected virtual LingoSpriteState CreateState() => new();
+
+        protected virtual void OnGetState(LingoSpriteState state) { }
+
         public virtual Action<LingoSprite> GetCloneAction()
         {
             Action<LingoSprite> action = s => { };
@@ -168,7 +203,7 @@ namespace LingoEngine.Sprites
             int begin = BeginFrame;
             int end = EndFrame;
             string name = Name;
-            
+
             action = s =>
             {
                 s.Name = name;

@@ -49,11 +49,11 @@ public class LingoSpriteSound : LingoSprite, ILingoSpriteWithMember
         base.EndSprite();
     }
 
-        public override void OnRemoveMe()
-        {
-            Sound?.ReleaseFromRefUser(this);
-            _onRemoveMe(this);
-        }
+    public override void OnRemoveMe()
+    {
+        Sound?.ReleaseFromRefUser(this);
+        _onRemoveMe(this);
+    }
 
     public override Action<LingoSprite> GetCloneAction()
     {
@@ -69,6 +69,23 @@ public class LingoSpriteSound : LingoSprite, ILingoSpriteWithMember
         };
 
         return action;
+    }
+
+    protected override LingoSpriteState CreateState() => new LingoSpriteSoundState();
+
+    protected override void OnLoadState(LingoSpriteState state)
+    {
+        if (state is not LingoSpriteSoundState s) return;
+        Channel = s.Channel;
+        Sound = s.Sound;
+        Sound?.UsedBy(this);
+    }
+
+    protected override void OnGetState(LingoSpriteState state)
+    {
+        if (state is not LingoSpriteSoundState s) return;
+        s.Channel = Channel;
+        s.Sound = Sound;
     }
 
     public ILingoMember? GetMember() => Sound;
