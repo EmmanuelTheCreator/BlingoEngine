@@ -29,4 +29,21 @@ public class LingoBatchResult
 {
     public Dictionary<string, string> ConvertedScripts { get; } = new();
     public HashSet<string> CustomMethods { get; } = new();
+    public Dictionary<string, List<MethodSignature>> Methods { get; } = new();
+    public Dictionary<string, List<PropertyInfo>> Properties { get; } = new();
 }
+
+/// <summary>
+/// Represents a converted method signature.
+/// </summary>
+public record MethodSignature(string Name, List<ParameterInfo> Parameters);
+
+/// <summary>
+/// Represents a parameter detected during conversion.
+/// </summary>
+public record ParameterInfo(string Name, string Type);
+
+/// <summary>
+/// Represents a property detected during conversion.
+/// </summary>
+public record PropertyInfo(string Name, string Type);

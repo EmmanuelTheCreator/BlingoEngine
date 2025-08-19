@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Linq;
 using LingoEngine.Lingo.Core.Tokenizer;
 
 namespace LingoEngine.Lingo.Core;
@@ -78,10 +79,13 @@ public class LingoToCSharpConverter
     {
         Errors.Clear();
         var result = new LingoBatchResult();
+        var scriptList = scripts.ToList();
         var asts = new Dictionary<string, LingoNode>();
-        var methodsPerScript = new Dictionary<string, HashSet<string>>();
+        var methodMap = new Dictionary<string, string>();
+        var propInfo = new Dictionary<string, List<(string Name, string Type, string? Default)>>();
 
-        foreach (var file in scripts)
+        // First pass: parse scripts, gather handler signatures and property names
+        foreach (var file in scriptList)
         {
             var parser = new LingoAstParser();
             try
@@ -95,36 +99,76 @@ public class LingoToCSharpConverter
                 throw;
             }
 
-            var handlers = ExtractHandlerNames(file.Source);
-            var custom = new HashSet<string>();
-            foreach (var h in handlers)
+            var signatures = ExtractHandlerSignatures(file.Source);
+            var methodSigs = new List<MethodSignature>();
+            foreach (var kv in signatures)
             {
-                if (!DefaultMethods.Contains(h))
+                var paramInfos = kv.Value.Select(p => new ParameterInfo(p, "object")).ToList();
+                methodSigs.Add(new MethodSignature(kv.Key, paramInfos));
+                if (!DefaultMethods.Contains(kv.Key) && !methodMap.ContainsKey(kv.Key))
                 {
-                    custom.Add(h);
-                    result.CustomMethods.Add(h);
+                    methodMap[kv.Key] = file.Name;
+                    result.CustomMethods.Add(kv.Key);
                 }
             }
-            methodsPerScript[file.Name] = custom;
+            result.Methods[file.Name] = methodSigs;
+
+            var propDecls = ExtractPropertyDeclarations(file.Source);
+            var propDescs = ExtractPropertyDescriptions(file.Source);
+            var fieldMap = new Dictionary<string, (string Type, string? Default)>(StringComparer.OrdinalIgnoreCase);
+            foreach (var n in propDecls)
+                fieldMap[n] = ("object", null);
+            foreach (var d in propDescs)
+                fieldMap[d.Name] = (FormatToCSharpType(d.Format), d.Default);
+
+            propInfo[file.Name] = fieldMap.Select(kv => (kv.Key, kv.Value.Type, kv.Value.Default)).ToList();
         }
 
-        var methodMap = new Dictionary<string, string>();
-        foreach (var kvp in methodsPerScript)
+        // Second pass: infer property and parameter types
+        foreach (var file in asts.Keys.ToList())
         {
-            foreach (var m in kvp.Value)
+            var fields = propInfo.TryGetValue(file, out var list) ? list.ToDictionary(x => x.Name, x => (x.Type, x.Default), StringComparer.OrdinalIgnoreCase) : new Dictionary<string, (string Type, string? Default)>(StringComparer.OrdinalIgnoreCase);
+            var source = scriptList.First(s => s.Name == file).Source;
+            var inferredProps = InferPropertyTypes(source, fields.Keys);
+            foreach (var kv in inferredProps)
             {
-                if (!methodMap.ContainsKey(m))
-                    methodMap[m] = kvp.Key;
+                if (fields.TryGetValue(kv.Key, out var existing) && existing.Type == "object")
+                    fields[kv.Key] = (kv.Value, existing.Default);
+            }
+            result.Properties[file] = fields.Select(kv => new PropertyInfo(kv.Key, kv.Value.Type)).ToList();
+
+            var methods = result.Methods.TryGetValue(file, out var msList) ? msList : new List<MethodSignature>();
+            var paramTypes = InferParameterTypes(source, methods);
+            foreach (var ms in methods)
+            {
+                if (!paramTypes.TryGetValue(ms.Name, out var map)) continue;
+                for (int i = 0; i < ms.Parameters.Count; i++)
+                {
+                    var p = ms.Parameters[i];
+                    if (map.TryGetValue(p.Name, out var type) && p.Type == "object")
+                        ms.Parameters[i] = p with { Type = type };
+                }
             }
         }
 
+        // Link SendSprite methods
         var generatedBehaviors = new Dictionary<string, string>();
         var annotator = new SendSpriteTypeResolver(methodMap, generatedBehaviors);
         foreach (var ast in asts.Values)
             ast.Accept(annotator);
 
-        foreach (var kvp in asts)
-            result.ConvertedScripts[kvp.Key] = CSharpWriter.Write(kvp.Value, methodAccessModifier);
+        // Generate final class code inserting methods
+        foreach (var script in scriptList)
+        {
+            var classCode = ConvertClass(script);
+            var methods = CSharpWriter.Write(asts[script.Name], methodAccessModifier);
+            var insertIdx = classCode.LastIndexOf('}');
+            if (insertIdx >= 0)
+                classCode = classCode[..insertIdx] + methods + classCode[insertIdx..];
+            else
+                classCode += methods;
+            result.ConvertedScripts[script.Name] = classCode;
+        }
 
         foreach (var kvp in generatedBehaviors)
             result.ConvertedScripts[kvp.Value] = GenerateSendSpriteBehaviorClass(kvp.Value, kvp.Key);
@@ -246,6 +290,26 @@ public class LingoToCSharpConverter
         return sb.ToString();
     }
 
+    private static Dictionary<string, List<string>> ExtractHandlerSignatures(string source)
+    {
+        var dict = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+        var regex = new Regex(@"(?im)^\s*on\s+(?<name>\w+)(?<params>[^\r\n]*)");
+        foreach (Match m in regex.Matches(source))
+        {
+            var name = m.Groups["name"].Value;
+            var paramStr = m.Groups["params"].Value.Trim();
+            var list = new List<string>();
+            if (!string.IsNullOrEmpty(paramStr))
+            {
+                var parts = paramStr.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var p in parts)
+                    list.Add(p.Trim());
+            }
+            dict[name] = list;
+        }
+        return dict;
+    }
+
     private static HashSet<string> ExtractHandlerNames(string source)
     {
         var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -314,21 +378,61 @@ public class LingoToCSharpConverter
                 if (m.Success)
                 {
                     var rhs = m.Groups[1].Value.Trim();
-                    result[name] = InferFromRhs(rhs);
+                    result[name] = InferTypeFromExpression(rhs);
                 }
             }
         }
         return result;
+    }
 
-        static string InferFromRhs(string rhs)
+    private static Dictionary<string, Dictionary<string, string>> InferParameterTypes(string source, IEnumerable<MethodSignature> methods)
+    {
+        var result = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
+        var methodLookup = methods.ToDictionary(m => m.Name, m => m, StringComparer.OrdinalIgnoreCase);
+        var lines = source.Split('\n');
+        string? current = null;
+        foreach (var raw in lines)
         {
-            if (Regex.IsMatch(rhs, @"^"".*""$")) return "string";
-            if (rhs.Contains("member(", StringComparison.OrdinalIgnoreCase) && rhs.Contains(").text", StringComparison.OrdinalIgnoreCase)) return "string";
-            if (Regex.IsMatch(rhs, @"^(true|false)$", RegexOptions.IgnoreCase)) return "bool";
-            if (Regex.IsMatch(rhs, @"^[-+]?[0-9]+$")) return "int";
-            if (Regex.IsMatch(rhs, @"^[-+]?[0-9]*\\.[0-9]+$")) return "float";
-            return "object";
+            var trimmed = raw.Trim();
+            var onMatch = Regex.Match(trimmed, @"(?i)^on\s+(\w+)");
+            if (onMatch.Success)
+            {
+                current = onMatch.Groups[1].Value;
+                if (!result.ContainsKey(current))
+                    result[current] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                continue;
+            }
+            if (Regex.IsMatch(trimmed, @"(?i)^end\b"))
+            {
+                current = null;
+                continue;
+            }
+            if (current == null) continue;
+            if (!methodLookup.TryGetValue(current, out var sig)) continue;
+            foreach (var param in sig.Parameters)
+            {
+                if (result[current].ContainsKey(param.Name)) continue;
+                var assign = Regex.Match(trimmed, $"(?i)^{Regex.Escape(param.Name)}\\s*=\\s*(.+)$");
+                if (assign.Success)
+                {
+                    result[current][param.Name] = InferTypeFromExpression(assign.Groups[1].Value.Trim());
+                    continue;
+                }
+                if (Regex.IsMatch(trimmed, $"{Regex.Escape(param.Name)}\\.text", RegexOptions.IgnoreCase))
+                    result[current][param.Name] = "string";
+            }
         }
+        return result;
+    }
+
+    private static string InferTypeFromExpression(string rhs)
+    {
+        if (Regex.IsMatch(rhs, @"^"".*""$")) return "string";
+        if (rhs.Contains("member(", StringComparison.OrdinalIgnoreCase) && rhs.Contains(").text", StringComparison.OrdinalIgnoreCase)) return "string";
+        if (Regex.IsMatch(rhs, @"^(true|false)$", RegexOptions.IgnoreCase)) return "bool";
+        if (Regex.IsMatch(rhs, @"^[-+]?[0-9]+$")) return "int";
+        if (Regex.IsMatch(rhs, @"^[-+]?[0-9]*\\.[0-9]+$")) return "float";
+        return "object";
     }
 
     private static string FormatToCSharpType(string fmt) => fmt switch
