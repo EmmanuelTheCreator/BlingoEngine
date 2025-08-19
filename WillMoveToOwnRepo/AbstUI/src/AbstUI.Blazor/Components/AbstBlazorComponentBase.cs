@@ -1,12 +1,10 @@
-using System.Reflection;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
-using AbstUI.Components;
 using AbstUI.Primitives;
 
 namespace AbstUI.Blazor.Components;
 
-public abstract class AbstBlazorComponentBase : ComponentBase, IAbstFrameworkLayoutNode
+public abstract class AbstBlazorComponentBase : ComponentBase, IDisposable
 {
     [Parameter] public string Name { get; set; } = string.Empty;
     [Parameter] public bool Visibility { get; set; } = true;

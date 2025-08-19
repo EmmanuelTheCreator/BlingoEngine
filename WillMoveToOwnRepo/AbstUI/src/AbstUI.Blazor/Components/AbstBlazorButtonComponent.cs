@@ -1,0 +1,68 @@
+using System;
+using AbstUI.Components;
+using AbstUI.Primitives;
+
+namespace AbstUI.Blazor.Components;
+
+public class AbstBlazorButtonComponent : IAbstFrameworkButton
+{
+    public event Action? Pressed;
+    public event Action? Changed;
+
+    private string _name = string.Empty;
+    public string Name
+    {
+        get => _name;
+        set { if (_name != value) { _name = value; Changed?.Invoke(); } }
+    }
+
+    private bool _visibility = true;
+    public bool Visibility
+    {
+        get => _visibility;
+        set { if (_visibility != value) { _visibility = value; Changed?.Invoke(); } }
+    }
+
+    private float _width;
+    public float Width
+    {
+        get => _width;
+        set { if (Math.Abs(_width - value) > float.Epsilon) { _width = value; Changed?.Invoke(); } }
+    }
+
+    private float _height;
+    public float Height
+    {
+        get => _height;
+        set { if (Math.Abs(_height - value) > float.Epsilon) { _height = value; Changed?.Invoke(); } }
+    }
+
+    private AMargin _margin;
+    public AMargin Margin
+    {
+        get => _margin;
+        set { _margin = value; Changed?.Invoke(); }
+    }
+
+    public object FrameworkNode => this;
+
+    private string _text = string.Empty;
+    public string Text
+    {
+        get => _text;
+        set { if (_text != value) { _text = value; Changed?.Invoke(); } }
+    }
+
+    private bool _enabled = true;
+    public bool Enabled
+    {
+        get => _enabled;
+        set { if (_enabled != value) { _enabled = value; Changed?.Invoke(); } }
+    }
+
+    public IAbstTexture2D? IconTexture { get; set; }
+
+    public void RaisePressed() => Pressed?.Invoke();
+
+    public void Dispose() { }
+}

@@ -1,25 +1,25 @@
-@page "/"
-@using Microsoft.AspNetCore.Components
 @using AbstUI.Blazor
 @using AbstUI.Blazor.Components
 @using AbstUI.Components
 @using LingoEngine.SDL2.GfxVisualTest
+@inject IAbstComponentFactory ComponentFactory
+@inject AbstBlazorComponentContainer ComponentContainer
 
 <PageTitle>Home</PageTitle>
 
-@if (_scene is not null)
-{
-    @_scene
-}
+<CascadingValue Value="ComponentContainer">
+    <AbstBlazorScrollContainer Component="_rootComponent" />
+</CascadingValue>
 
 @code {
-    private RenderFragment? _scene;
+    private AbstBlazorScrollContainerComponent _rootComponent = default!;
 
     protected override void OnInitialized()
     {
-        var factory = new AbstBlazorComponentFactory();
-        var scroll = (AbstScrollContainer)GfxTestScene.Build(factory);
-        var impl = (AbstBlazorComponentBase)scroll.Framework<IAbstFrameworkScrollContainer>();
-        _scene = impl.RenderFragment;
+        var root = (AbstScrollContainer)GfxTestScene.Build(ComponentFactory);
+        _rootComponent = (AbstBlazorScrollContainerComponent)root.FrameworkObj!;
+        if (_rootComponent is IAbstBlazorRegistryAware aware)
+            aware.AttachRegistry(ComponentContainer);
+        ComponentContainer.Register(_rootComponent);
     }
 }

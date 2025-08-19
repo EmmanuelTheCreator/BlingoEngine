@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using AbstUI.Components;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
@@ -6,7 +7,7 @@ using Microsoft.JSInterop;
 
 namespace AbstUI.Blazor.Components;
 
-internal class AbstBlazorWindow : AbstBlazorPanel, IAbstFrameworkWindow, IDisposable
+internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable
 {
     private readonly AbstBlazorComponentFactory _factory;
     private readonly AbstWindow _lingoWindow;
@@ -17,7 +18,7 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IAbstFrameworkWindow, IDispos
 
     [Inject] private IJSRuntime JS { get; set; } = default!;
 
-    public AbstBlazorWindow(AbstWindow window, AbstBlazorComponentFactory factory) 
+    public AbstBlazorWindow(AbstWindow window, AbstBlazorComponentFactory factory)
     {
         _lingoWindow = window;
         _factory = factory;
@@ -26,6 +27,12 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IAbstFrameworkWindow, IDispos
         //_lingoWindow.Init(this, mouse, key);
         Visibility = false;
     }
+
+    public void AddItem(IAbstFrameworkLayoutNode child) { }
+
+    public void RemoveItem(IAbstFrameworkLayoutNode child) { }
+
+    public IEnumerable<IAbstFrameworkLayoutNode> GetItems() => System.Array.Empty<IAbstFrameworkLayoutNode>();
 
 
     public string Title
@@ -65,13 +72,6 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IAbstFrameworkWindow, IDispos
         get => _borderless;
         set => _borderless = value;
     }
-
-    public new AColor BackgroundColor
-    {
-        get => base.BackgroundColor ?? AColors.White;
-        set => base.BackgroundColor = value;
-    }
-
 
     public void OnResize(int width, int height)
     {
