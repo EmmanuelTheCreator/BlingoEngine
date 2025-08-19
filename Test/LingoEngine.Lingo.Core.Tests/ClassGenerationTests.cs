@@ -48,6 +48,36 @@ public class ClassGenerationTests
     }
 
     [Fact]
+    public void NewHandlerBecomesConstructor()
+    {
+        var file = new LingoScriptFile
+        {
+            Name = "MyParent",
+            Source = string.Join('\n',
+                "property myVar",
+                "on new me, x",
+                "  myVar = x",
+                "end"),
+            Type = LingoScriptType.Parent
+        };
+        var result = _converter.Convert(file).Trim();
+        var expected = string.Join('\n',
+            "public class MyParentParentScript : LingoParentScript",
+            "{",
+            "    public object myVar;",
+            "",
+            "    private readonly GlobalVars _global;",
+            "",
+            "    public MyParentParentScript(ILingoMovieEnvironment env, GlobalVars global, object x) : base(env)",
+            "    {",
+            "        _global = global;",
+            "        myVar = x;",
+            "    }",
+            "}");
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
     public void MovieScriptGeneratesClass()
     {
         var file = new LingoScriptFile

@@ -52,8 +52,6 @@ public class LingoToCSharpConverter
         var type = DetectScriptType(source);
         var file = new LingoScriptFile { Name = script.Name, Source = source, Type = type };
 
-        var classCode = ConvertClass(file);
-
         var parser = new LingoAstParser();
         LingoNode ast;
         try
@@ -65,6 +63,17 @@ public class LingoToCSharpConverter
             LogError(script.Name, source, ex);
             throw;
         }
+
+        LingoHandlerNode? newHandler = null;
+        if (ast is LingoBlockNode block)
+        {
+            newHandler = block.Children.OfType<LingoHandlerNode>()
+                .FirstOrDefault(h => h.Handler != null && h.Handler.Name.Equals("new", StringComparison.OrdinalIgnoreCase));
+            if (newHandler != null)
+                block.Children.Remove(newHandler);
+        }
+
+        var classCode = ConvertClass(file, newHandler);
 
         var methods = CSharpWriter.Write(ast, methodAccessModifier);
         var insertIdx = classCode.LastIndexOf('}');
@@ -83,6 +92,7 @@ public class LingoToCSharpConverter
         var asts = new Dictionary<string, LingoNode>();
         var methodMap = new Dictionary<string, string>();
         var propInfo = new Dictionary<string, List<(string Name, string Type, string? Default)>>();
+        var newHandlers = new Dictionary<string, LingoHandlerNode?>();
 
         // First pass: parse scripts, gather handler signatures and property names
         foreach (var file in scriptList)
@@ -91,6 +101,14 @@ public class LingoToCSharpConverter
             try
             {
                 var ast = parser.Parse(file.Source);
+                if (ast is LingoBlockNode block)
+                {
+                    var nh = block.Children.OfType<LingoHandlerNode>()
+                        .FirstOrDefault(h => h.Handler != null && h.Handler.Name.Equals("new", StringComparison.OrdinalIgnoreCase));
+                    newHandlers[file.Name] = nh;
+                    if (nh != null)
+                        block.Children.Remove(nh);
+                }
                 asts[file.Name] = ast;
             }
             catch (Exception ex)
@@ -100,6 +118,7 @@ public class LingoToCSharpConverter
             }
 
             var signatures = ExtractHandlerSignatures(file.Source);
+            signatures.Remove("new");
             var methodSigs = new List<MethodSignature>();
             foreach (var kv in signatures)
             {
@@ -160,7 +179,8 @@ public class LingoToCSharpConverter
         // Generate final class code inserting methods
         foreach (var script in scriptList)
         {
-            var classCode = ConvertClass(script);
+            newHandlers.TryGetValue(script.Name, out var nh);
+            var classCode = ConvertClass(script, nh);
             var methods = CSharpWriter.Write(asts[script.Name], methodAccessModifier);
             var insertIdx = classCode.LastIndexOf('}');
             if (insertIdx >= 0)
@@ -182,6 +202,25 @@ public class LingoToCSharpConverter
     /// The class name is derived from the file name plus the script type suffix.
     /// </summary>
     public string ConvertClass(LingoScriptFile script)
+    {
+        LingoHandlerNode? newHandler = null;
+        try
+        {
+            var parser = new LingoAstParser();
+            var ast = parser.Parse(script.Source);
+            if (ast is LingoBlockNode block)
+                newHandler = block.Children.OfType<LingoHandlerNode>()
+                    .FirstOrDefault(h => h.Handler != null && h.Handler.Name.Equals("new", StringComparison.OrdinalIgnoreCase));
+        }
+        catch
+        {
+            // ignore parse errors here; they will surface later if needed
+        }
+
+        return ConvertClass(script, newHandler);
+    }
+
+    public string ConvertClass(LingoScriptFile script, LingoHandlerNode? newHandler)
     {
         var handlers = ExtractHandlerNames(script.Source);
         var scriptType = handlers.Contains("getPropertyDescriptionList") ? LingoScriptType.Behavior : script.Type;
@@ -245,18 +284,35 @@ public class LingoToCSharpConverter
         sb.Append($"    public {className}(ILingoMovieEnvironment env");
         if (needsGlobal)
             sb.Append(", GlobalVars global");
+        if (newHandler != null)
+        {
+            foreach (var arg in newHandler.Handler.ArgumentNames.Where(a => !a.Equals("me", StringComparison.OrdinalIgnoreCase)))
+                sb.Append($", object {arg}");
+        }
         sb.Append(") : base(env)");
 
-        if (needsGlobal)
+        if (!needsGlobal && newHandler == null)
         {
-            sb.AppendLine();
-            sb.AppendLine("    {");
-            sb.AppendLine("        _global = global;");
-            sb.AppendLine("    }");
+            sb.AppendLine(" { }");
         }
         else
         {
-            sb.AppendLine(" { }");
+            sb.AppendLine();
+            sb.AppendLine("    {");
+            if (needsGlobal)
+                sb.AppendLine("        _global = global;");
+            if (newHandler != null)
+            {
+                var methodCode = CSharpWriter.Write(newHandler);
+                var bodyStart = methodCode.IndexOf('{');
+                var bodyEnd = methodCode.LastIndexOf('}');
+                var body = bodyStart >= 0 && bodyEnd > bodyStart
+                    ? methodCode.Substring(bodyStart + 1, bodyEnd - bodyStart - 1)
+                    : string.Empty;
+                foreach (var line in body.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+                    sb.AppendLine("        " + line.Trim());
+            }
+            sb.AppendLine("    }");
         }
 
         if (hasPropDescHandler)
@@ -566,7 +622,7 @@ public class LingoToCSharpConverter
         public void Visit(LingoBlockNode n) { foreach (var c in n.Children) c.Accept(this); }
         public void Visit(LingoIfStmtNode n) { n.Condition.Accept(this); n.ThenBlock.Accept(this); if (n.HasElse) n.ElseBlock!.Accept(this); }
         public void Visit(LingoIfElseStmtNode n) { n.Condition.Accept(this); n.ThenBlock.Accept(this); n.ElseBlock.Accept(this); }
-        public void Visit(LingoPutStmtNode n) { n.Value.Accept(this); n.Target.Accept(this); }
+        public void Visit(LingoPutStmtNode n) { n.Value.Accept(this); n.Target?.Accept(this); }
         public void Visit(LingoBinaryOpNode n) { n.Left.Accept(this); n.Right.Accept(this); }
         public void Visit(LingoCaseStmtNode n) { n.Value.Accept(this); n.Otherwise?.Accept(this); }
         public void Visit(LingoTheExprNode n) { }
@@ -645,7 +701,7 @@ public class LingoToCSharpConverter
         public void Visit(LingoBlockNode n) { foreach (var c in n.Children) c.Accept(this); }
         public void Visit(LingoIfStmtNode n) { n.Condition.Accept(this); n.ThenBlock.Accept(this); if (n.HasElse) n.ElseBlock!.Accept(this); }
         public void Visit(LingoIfElseStmtNode n) { n.Condition.Accept(this); n.ThenBlock.Accept(this); n.ElseBlock.Accept(this); }
-        public void Visit(LingoPutStmtNode n) { n.Value.Accept(this); n.Target.Accept(this); }
+        public void Visit(LingoPutStmtNode n) { n.Value.Accept(this); n.Target?.Accept(this); }
         public void Visit(LingoBinaryOpNode n) { n.Left.Accept(this); n.Right.Accept(this); }
         public void Visit(LingoCaseStmtNode n) { n.Value.Accept(this); n.Otherwise?.Accept(this); }
         public void Visit(LingoTheExprNode n) { }

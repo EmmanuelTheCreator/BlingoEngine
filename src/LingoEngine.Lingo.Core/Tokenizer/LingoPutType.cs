@@ -6,6 +6,7 @@
     /// </summary>
     public enum LingoPutType
     {
+        Message,
         Into,
         Before,
         After

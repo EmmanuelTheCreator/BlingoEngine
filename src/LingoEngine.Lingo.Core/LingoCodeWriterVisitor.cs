@@ -285,10 +285,13 @@ namespace LingoEngine.Lingo.Core
         {
             Write("put ");
             node.Value.Accept(this);
-            Write(" ");
-            Write(node.Type.ToString());
-            Write(" ");
-            node.Variable.Accept(this);
+            if (node.Target != null && node.Type != LingoPutType.Message)
+            {
+                Write(" ");
+                Write(node.Type.ToString());
+                Write(" ");
+                node.Variable?.Accept(this);
+            }
         }
 
         public void Visit(LingoBinaryOpNode node)
