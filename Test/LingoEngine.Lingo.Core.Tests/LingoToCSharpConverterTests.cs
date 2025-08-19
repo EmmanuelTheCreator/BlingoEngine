@@ -146,11 +146,16 @@ public class LingoToCSharpConverterTests
         };
         var batch = _converter.Convert(scripts);
         var expected = string.Join('\n',
+            "public class B1Behavior : LingoSpriteBehavior",
+            "{",
+            "    public B1Behavior(ILingoMovieEnvironment env) : base(env) { }",
             "public void BeginSprite()",
             "{",
             "    SendSprite<B2>(2, b2 => b2.doIt());",
+            "}",
+            "",
             "}");
-        Assert.Equal(expected.Trim(), batch.ConvertedScripts["B1"].Trim());
+        Assert.Equal(expected.Trim(), batch.ConvertedScripts["B1"].Replace("\r", "").Trim());
     }
 
     [Fact]
@@ -173,11 +178,16 @@ public class LingoToCSharpConverterTests
         };
         var batch = _converter.Convert(scripts);
         var expected = string.Join('\n',
+            "public class B1Behavior : LingoSpriteBehavior",
+            "{",
+            "    public B1Behavior(ILingoMovieEnvironment env) : base(env) { }",
             "public void BeginSprite()",
             "{",
             "    SendSprite<B2>(2, b2 => b2.doIt(42));",
+            "}",
+            "",
             "}");
-        Assert.Equal(expected.Trim(), batch.ConvertedScripts["B1"].Trim());
+        Assert.Equal(expected.Trim(), batch.ConvertedScripts["B1"].Replace("\r", "").Trim());
     }
 
     [Fact]
@@ -194,11 +204,16 @@ public class LingoToCSharpConverterTests
         };
         var batch = _converter.Convert(scripts);
         var expected = string.Join('\n',
+            "public class B1Behavior : LingoSpriteBehavior",
+            "{",
+            "    public B1Behavior(ILingoMovieEnvironment env) : base(env) { }",
             "public void BeginSprite()",
             "{",
             "    SendSprite<DoItBehavior>(2, doitbehavior => doitbehavior.doIt());",
+            "}",
+            "",
             "}");
-        Assert.Equal(expected.Trim(), batch.ConvertedScripts["B1"].Trim());
+        Assert.Equal(expected.Trim(), batch.ConvertedScripts["B1"].Replace("\r", "").Trim());
         Assert.True(batch.ConvertedScripts.ContainsKey("DoItBehavior"));
         Assert.Contains("public class DoItBehavior : LingoSpriteBehavior", batch.ConvertedScripts["DoItBehavior"]);
         Assert.Contains("public object? doIt(params object?[] args) => null;", batch.ConvertedScripts["DoItBehavior"]);
@@ -224,11 +239,16 @@ public class LingoToCSharpConverterTests
         };
         var batch = _converter.Convert(scripts);
         var expected = string.Join('\n',
+            "public class P1Behavior : LingoSpriteBehavior",
+            "{",
+            "    public P1Behavior(ILingoMovieEnvironment env) : base(env) { }",
             "public void BeginSprite()",
             "{",
             "    CallMovieScript<M1>(m1 => m1.myMovieHandler());",
+            "}",
+            "",
             "}");
-        Assert.Equal(expected.Trim(), batch.ConvertedScripts["P1"].Trim());
+        Assert.Equal(expected.Trim(), batch.ConvertedScripts["P1"].Replace("\r", "").Trim());
     }
 
     [Fact]
@@ -862,6 +882,9 @@ end",
         };
         var batch = _converter.Convert(scripts);
         var expected = string.Join('\n',
+            "public class CounterBehavior : LingoSpriteBehavior",
+            "{",
+            "    public CounterBehavior(ILingoMovieEnvironment env) : base(env) { }",
             "public void Beginsprite()",
             "{",
             "    if (myValue == -1)",
@@ -890,11 +913,43 @@ end",
             "        }",
             "        myWaiter = myWaiter + 1;",
             "    }",
+            "}",
+            "",
             "}");
         Assert.Equal(expected.Trim(), batch.ConvertedScripts["Counter"].Replace("\r", "").Trim());
         Assert.True(batch.ConvertedScripts.ContainsKey("GetCounterStartDataBehavior"));
         var generated = batch.ConvertedScripts["GetCounterStartDataBehavior"];
         Assert.Contains("public class GetCounterStartDataBehavior : LingoSpriteBehavior", generated);
         Assert.Contains("public object? GetCounterStartData(params object?[] args) => null;", generated);
+    }
+
+    [Fact]
+    public void BatchStoresMethodAndPropertyInfo()
+    {
+        var scripts = new[]
+        {
+            new LingoScriptFile
+            {
+                Name = "Example",
+                Source = @"property myProp
+on myHandler a,b
+  a = 1
+  b = member(""T"").text
+end
+on getPropertyDescriptionList
+  description = [:]
+  addProp description,#myProp,[#default:1,#format:#integer,#comment:""desc""]
+  return description
+end",
+                Type = LingoScriptType.Behavior,
+            }
+};
+        var batch = _converter.Convert(scripts);
+        var sig = Assert.Single(batch.Methods["Example"].Where(m => m.Name.Equals("myHandler", System.StringComparison.OrdinalIgnoreCase)));
+        Assert.Collection(sig.Parameters,
+            p => { Assert.Equal("a", p.Name); Assert.Equal("int", p.Type); },
+                    p => { Assert.Equal("b", p.Name); Assert.Equal("string", p.Type); });
+        var prop = Assert.Single(batch.Properties["Example"].Where(p => p.Name == "myProp"));
+        Assert.Equal("int", prop.Type);
     }
 }
