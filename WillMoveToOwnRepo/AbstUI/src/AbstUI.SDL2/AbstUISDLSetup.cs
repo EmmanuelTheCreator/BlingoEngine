@@ -10,6 +10,7 @@ namespace AbstUI.SDL2
         {
             services
                 .AddSingleton<IAbstFontManager, SdlFontManager>()
+                .AddSingleton<IAbstStyleManager, AbstStyleManager>()
                 .AddSingleton<SdlFocusManager>();
 
             return services;

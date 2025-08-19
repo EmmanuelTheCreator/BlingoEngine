@@ -4,6 +4,7 @@ using AbstUI.Blazor;
 using AbstUI.Components;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
+using AbstUI.Styles;
 using LingoEngine.Bitmaps;
 using LingoEngine.Blazor.Inputs;
 using LingoEngine.Blazor.Movies;
@@ -37,11 +38,14 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
 {
     private readonly ILingoServiceProvider _services;
     private readonly List<IDisposable> _disposables = new();
-    private readonly IAbstComponentFactory _gfxFactory = new AbstBlazorComponentFactory();
+    private readonly IAbstComponentFactory _gfxFactory;
 
     public BlazorFactory(ILingoServiceProvider services)
     {
         _services = services;
+        var styleManager = _services.GetRequiredService<IAbstStyleManager>();
+        var fontManager = _services.GetRequiredService<IAbstFontManager>();
+        _gfxFactory = new AbstBlazorComponentFactory(styleManager, fontManager);
     }
 
     public LingoStage CreateStage(LingoPlayer lingoPlayer)

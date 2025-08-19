@@ -39,7 +39,9 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
     public UnityFactory(ILingoServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
-        _gfxFactory = new AbstUnityComponentFactory();
+        var styleManager = _serviceProvider.GetRequiredService<IAbstStyleManager>();
+        var fontManager = _serviceProvider.GetRequiredService<IAbstFontManager>();
+        _gfxFactory = new AbstUnityComponentFactory(styleManager, fontManager);
     }
 
     public IAbstComponentFactory GfxFactory => _gfxFactory;

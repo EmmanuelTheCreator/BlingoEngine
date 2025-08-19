@@ -11,7 +11,9 @@ public static class AbstUIImGuiSetup
 {
     public static IServiceCollection WithAbstUIImGui(this IServiceCollection services)
     {
-        services.AddSingleton<IAbstFontManager, ImGuiFontManager>();
+        services
+            .AddSingleton<IAbstFontManager, ImGuiFontManager>()
+            .AddSingleton<IAbstStyleManager, AbstStyleManager>();
         return services;
     }
 }

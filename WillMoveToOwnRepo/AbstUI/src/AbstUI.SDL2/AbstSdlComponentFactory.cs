@@ -2,13 +2,14 @@ using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.SDL2.Components;
 using AbstUI.SDL2.Styles;
+using AbstUI.Styles;
 
 namespace AbstUI.SDL2
 {
     /// <summary>
     /// Factory responsible for creating SDL specific GFX components.
     /// </summary>
-    public class AbstSdlComponentFactory : IAbstComponentFactory
+    public class AbstSdlComponentFactory : AbstComponentFactoryBase, IAbstComponentFactory
     {
         private readonly ISdlRootComponentContext _rootContext;
         private readonly SdlFontManager _fontManager;
@@ -17,7 +18,8 @@ namespace AbstUI.SDL2
         public SdlFocusManager FocusManager => _rootContext.FocusManager;
         public SdlFontManager FontManager => _fontManager;
 
-        public AbstSdlComponentFactory(ISdlRootComponentContext rootContext, SdlFontManager fontManager)
+        public AbstSdlComponentFactory(ISdlRootComponentContext rootContext, SdlFontManager fontManager, IAbstStyleManager styleManager)
+            : base(styleManager, fontManager)
         {
             _rootContext = rootContext;
             _fontManager = fontManager;
@@ -34,6 +36,7 @@ namespace AbstUI.SDL2
             var canvas = new AbstGfxCanvas();
             var impl = new AbstSdlGfxCanvas(this, _fontManager, width, height);
             canvas.Init(impl);
+            InitComponent(canvas);
             canvas.Width = width;
             canvas.Height = height;
             canvas.Name = name;
@@ -45,6 +48,7 @@ namespace AbstUI.SDL2
             var panel = new AbstWrapPanel(this);
             var impl = new AbstSdlWrapPanel(this, orientation);
             panel.Init(impl);
+            InitComponent(panel);
             panel.Name = name;
             panel.Orientation = orientation;
             return panel;
@@ -55,6 +59,7 @@ namespace AbstUI.SDL2
             var panel = new AbstPanel(this);
             var impl = new AbstSdlPanel(this);
             panel.Init(impl);
+            InitComponent(panel);
             panel.Name = name;
             return panel;
         }
@@ -65,6 +70,7 @@ namespace AbstUI.SDL2
                 throw new InvalidOperationException($"Content {content.Name} already supports layout — wrapping is unnecessary.");
             var panel = new AbstLayoutWrapper(content);
             var impl = new AbstSdlLayoutWrapper(this, panel);
+            InitComponent(panel);
             if (x != null) panel.X = x.Value;
             if (y != null) panel.Y = y.Value;
             return panel;
@@ -75,6 +81,7 @@ namespace AbstUI.SDL2
             var tab = new AbstTabContainer();
             var impl = new AbstSdlTabContainer(this);
             tab.Init(impl);
+            InitComponent(tab);
             tab.Name = name;
             return tab;
         }
@@ -85,6 +92,7 @@ namespace AbstUI.SDL2
             var impl = new AbstSdlTabItem(this, tab);
             tab.Title = title;
             tab.Name = name;
+            InitComponent(tab);
             return tab;
         }
 
@@ -93,6 +101,7 @@ namespace AbstUI.SDL2
             var scroll = new AbstScrollContainer();
             var impl = new AbstSdlScrollContainer(this);
             scroll.Init(impl);
+            InitComponent(scroll);
             scroll.Name = name;
             return scroll;
         }
@@ -102,6 +111,7 @@ namespace AbstUI.SDL2
             var slider = new AbstInputSlider<float>();
             var impl = new AbstSdlInputSlider<float>(this);
             slider.Init(impl);
+            InitComponent(slider);
             slider.Name = name;
             if (min.HasValue) slider.MinValue = min.Value;
             if (max.HasValue) slider.MaxValue = max.Value;
@@ -116,6 +126,7 @@ namespace AbstUI.SDL2
             var slider = new AbstInputSlider<int>();
             var impl = new AbstSdlInputSlider<int>(this);
             slider.Init(impl);
+            InitComponent(slider);
             slider.Name = name;
             if (min.HasValue) slider.MinValue = min.Value;
             if (max.HasValue) slider.MaxValue = max.Value;
@@ -130,6 +141,7 @@ namespace AbstUI.SDL2
             var input = new AbstInputText();
             var impl = new AbstSdlInputText(this, multiLine);
             input.Init(impl);
+            InitComponent(input);
             input.Name = name;
             input.MaxLength = maxLength;
             if (onChange != null)
@@ -158,6 +170,7 @@ namespace AbstUI.SDL2
             var input = new AbstInputNumber<TValue>();
             //var impl = new AbstSdlInputNumber<float>(_rootContext.Renderer);
             //input.Init(impl);
+            InitComponent(input);
             //input.Name = name;
             //if (min.HasValue) input.Min = min.Value;
             //if (max.HasValue) input.Max = max.Value;
@@ -169,6 +182,7 @@ namespace AbstUI.SDL2
             var spin = new AbstInputSpinBox();
             var impl = new AbstSdlSpinBox(this);
             spin.Init(impl);
+            InitComponent(spin);
             spin.Name = name;
             if (min.HasValue) spin.Min = min.Value;
             if (max.HasValue) spin.Max = max.Value;
@@ -182,6 +196,7 @@ namespace AbstUI.SDL2
             var input = new AbstInputCheckbox();
             var impl = new AbstSdlInputCheckbox(this);
             input.Init(impl);
+            InitComponent(input);
             input.Name = name;
             input.ValueChanged += () => onChange?.Invoke(input.Checked);
             return input;
@@ -192,6 +207,7 @@ namespace AbstUI.SDL2
             var input = new AbstInputCombobox();
             var impl = new AbstSdlInputCombobox(this);
             input.Init(impl);
+            InitComponent(input);
             input.Name = name;
             input.ValueChanged += () => onChange?.Invoke(input.SelectedKey);
             return input;
@@ -202,6 +218,7 @@ namespace AbstUI.SDL2
             var list = new AbstItemList();
             var impl = new AbstSdInputltemList(this);
             list.Init(impl);
+            InitComponent(list);
             list.Name = name;
             if (onChange != null)
                 list.ValueChanged += () => onChange(list.SelectedKey);
@@ -213,6 +230,7 @@ namespace AbstUI.SDL2
             var picker = new AbstColorPicker();
             var impl = new AbstSdlColorPicker(this);
             picker.Init(impl);
+            InitComponent(picker);
             picker.Name = name;
             if (onChange != null)
                 picker.ValueChanged += () => onChange(picker.Color);
@@ -224,6 +242,7 @@ namespace AbstUI.SDL2
             var label = new AbstLabel();
             var impl = new AbstSdlLabel(this);
             label.Init(impl);
+            InitComponent(label);
             label.Name = name;
             label.Text = text;
             return label;
@@ -234,6 +253,7 @@ namespace AbstUI.SDL2
             var button = new AbstButton();
             var impl = new AbstSdlButton(this);
             button.Init(impl);
+            InitComponent(button);
             button.Name = name;
             button.Text = text;
             return button;
@@ -246,6 +266,7 @@ namespace AbstUI.SDL2
             if (onChange != null)
                 button.ValueChanged += () => onChange(button.IsOn);
             button.Init(impl);
+            InitComponent(button);
             button.Name = name;
             button.Text = text;
             if (texture != null)
@@ -258,6 +279,7 @@ namespace AbstUI.SDL2
             var menu = new AbstMenu();
             var impl = new AbstSdlMenu(this, name);
             menu.Init(impl);
+            InitComponent(menu);
             return menu;
         }
 
@@ -269,6 +291,7 @@ namespace AbstUI.SDL2
             var impl = new AbstSdlWindow(win, this);
             win.Name = name;
             win.Title = title;
+            InitComponent(win);
             return win;
         }
 

@@ -1,11 +1,13 @@
 using AbstUI.SDL2;
 using AbstUI.SDL2.Styles;
+using AbstUI.Styles;
 using LingoEngine.SDL2.GfxVisualTest;
 
 using var rootContext = new TestSdlRootComponentContext();
 var fontManager = new SdlFontManager();
 fontManager.LoadAll();
-var factory = new AbstSdlComponentFactory(rootContext, fontManager);
+var styleManager = new AbstStyleManager();
+var factory = new AbstSdlComponentFactory(rootContext, fontManager, styleManager);
 
 var scroll = GfxTestScene.Build(factory);
 rootContext.ComponentContainer.Activate(((dynamic)scroll.FrameworkObj).ComponentContext);
