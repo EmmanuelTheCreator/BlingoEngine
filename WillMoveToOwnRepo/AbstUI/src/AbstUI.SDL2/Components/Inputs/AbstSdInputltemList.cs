@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using AbstUI.Primitives;
 using AbstUI.SDL2.SDLL;
-using AbstUI.SDL2.Texts;
 using AbstUI.SDL2.Styles;
 using AbstUI.Styles;
 using AbstUI.Components.Inputs;
@@ -20,10 +18,27 @@ namespace AbstUI.SDL2.Components.Inputs
         public void SetFocus(bool focus) => _focused = focus;
 
         private ISdlFontLoadedByUser? _font;
-        private SdlGlyphAtlas? _atlas;
         private int _lineHeight;
+        private int _hoverIndex = -1;
+        private int _pressedIndex = -1;
 
         public bool Enabled { get; set; } = true;
+
+        public string? Font { get; set; }
+        public int FontSize { get; set; } = 11;
+        public AColor TextColor { get; set; } = AbstDefaultColors.InputTextColor;
+
+        public AColor ItemSelectedTextColor { get; set; } = AbstDefaultColors.InputSelectionText;
+        public AColor ItemSelectedBGColor { get; set; } = AbstDefaultColors.InputAccentColor;
+        public AColor ItemSelectedBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
+
+        public AColor ItemHoverTextColor { get; set; } = AbstDefaultColors.InputTextColor;
+        public AColor ItemHoverBGColor { get; set; } = AbstDefaultColors.ListHoverColor;
+        public AColor ItemHoverBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
+
+        public AColor ItemPressedTextColor { get; set; } = AbstDefaultColors.InputSelectionText;
+        public AColor ItemPressedBGColor { get; set; } = AbstDefaultColors.InputAccentColor;
+        public AColor ItemPressedBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
 
         private readonly List<KeyValuePair<string, string>> _items = new();
         public IReadOnlyList<KeyValuePair<string, string>> Items => _items;
@@ -50,13 +65,14 @@ namespace AbstUI.SDL2.Components.Inputs
             SelectedIndex = -1;
             SelectedKey = null;
             SelectedValue = null;
+            _hoverIndex = -1;
+            _pressedIndex = -1;
             ComponentContext.QueueRedraw(this);
         }
-      
+
         private void EnsureResources(AbstSDLRenderContext ctx)
         {
-            _font ??= ctx.SdlFontManager.GetTyped(this, null, 11);
-            _atlas ??= new SdlGlyphAtlas(ctx.Renderer, _font.FontHandle);
+            _font ??= ctx.SdlFontManager.GetTyped(this, Font, FontSize);
             if (_lineHeight == 0)
             {
                 int ascent = SDL_ttf.TTF_FontAscent(_font.FontHandle);
@@ -75,24 +91,36 @@ namespace AbstUI.SDL2.Components.Inputs
             for (int i = start; i < _items.Count && y < h; i++)
             {
                 SDL.SDL_Rect rect = new SDL.SDL_Rect { x = 0, y = y, w = w, h = _lineHeight };
-                if (i == SelectedIndex)
+                AColor bg = AbstDefaultColors.Input_Bg;
+                AColor border = AbstDefaultColors.InputBorderColor;
+                AColor txt = TextColor;
+                bool isPressed = i == _pressedIndex;
+                bool isSelected = i == SelectedIndex;
+                bool isHover = i == _hoverIndex;
+                if (isPressed)
                 {
-                    var accent = AbstDefaultColors.InputAccentColor;
-                    SDL.SDL_SetRenderDrawColor(context.Renderer, accent.R, accent.G, accent.B, accent.A);
-                    SDL.SDL_RenderFillRect(context.Renderer, ref rect);
-                    SDL.SDL_Color txt = new SDL.SDL_Color { r = 255, g = 255, b = 255, a = 255 };
-                    DrawItemText(_items[i].Value, 4, y, txt, context);
+                    bg = ItemPressedBGColor;
+                    border = ItemPressedBorderColor;
+                    txt = ItemPressedTextColor;
                 }
-                else
+                else if (isSelected)
                 {
-                    SDL.SDL_SetRenderDrawColor(context.Renderer, 255, 255, 255, 255);
-                    SDL.SDL_RenderFillRect(context.Renderer, ref rect);
-                    var border = AbstDefaultColors.InputBorderColor;
-                    SDL.SDL_SetRenderDrawColor(context.Renderer, border.R, border.G, border.B, border.A);
-                    SDL.SDL_RenderDrawRect(context.Renderer, ref rect);
-                    SDL.SDL_Color txt = AbstDefaultColors.InputTextColor.ToSDLColor();
-                    DrawItemText(_items[i].Value, 4, y, txt, context);
+                    bg = ItemSelectedBGColor;
+                    border = ItemSelectedBorderColor;
+                    txt = ItemSelectedTextColor;
                 }
+                else if (isHover)
+                {
+                    bg = ItemHoverBGColor;
+                    border = ItemHoverBorderColor;
+                    txt = ItemHoverTextColor;
+                }
+
+                SDL.SDL_SetRenderDrawColor(context.Renderer, bg.R, bg.G, bg.B, bg.A);
+                SDL.SDL_RenderFillRect(context.Renderer, ref rect);
+                SDL.SDL_SetRenderDrawColor(context.Renderer, border.R, border.G, border.B, border.A);
+                SDL.SDL_RenderDrawRect(context.Renderer, ref rect);
+                DrawItemText(_items[i].Value, 4, y, new SDL.SDL_Color { r = txt.R, g = txt.G, b = txt.B, a = txt.A }, context);
                 y += _lineHeight;
             }
 
@@ -102,11 +130,16 @@ namespace AbstUI.SDL2.Components.Inputs
 
         private void DrawItemText(string text, int x, int y, SDL.SDL_Color color, AbstSDLRenderContext ctx)
         {
-            List<int> cps = new();
-            foreach (var r in text.EnumerateRunes()) cps.Add(r.Value);
-            var span = CollectionsMarshal.AsSpan(cps);
-            int baseline = y + _lineHeight - 4 - SDL_ttf.TTF_FontDescent(_font!.FontHandle);
-            _atlas!.DrawRun(span, x, baseline, color);
+            SDL_ttf.TTF_SizeUTF8(_font!.FontHandle, text, out int tw, out int th);
+            int baseline = y + _lineHeight - 4 - SDL_ttf.TTF_FontDescent(_font.FontHandle);
+            int ty = baseline - SDL_ttf.TTF_FontAscent(_font.FontHandle);
+            nint textSurf = SDL_ttf.TTF_RenderUTF8_Blended(_font.FontHandle, text, color);
+            nint textTex = SDL.SDL_CreateTextureFromSurface(ctx.Renderer, textSurf);
+            SDL.SDL_FreeSurface(textSurf);
+            SDL.SDL_SetTextureBlendMode(textTex, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
+            var dst = new SDL.SDL_Rect { x = x, y = ty, w = tw, h = th };
+            SDL.SDL_RenderCopy(ctx.Renderer, textTex, IntPtr.Zero, ref dst);
+            SDL.SDL_DestroyTexture(textTex);
         }
 
         protected override void HandleContentEvent(AbstSDLEvent e)
@@ -122,6 +155,7 @@ namespace AbstUI.SDL2.Components.Inputs
                     int idx = (int)((ev.button.y - Y + ScrollVertical) / _lineHeight);
                     if (idx >= 0 && idx < _items.Count)
                     {
+                        _pressedIndex = idx;
                         SelectedIndex = idx;
                         SelectedKey = _items[idx].Key;
                         SelectedValue = _items[idx].Value;
@@ -129,6 +163,29 @@ namespace AbstUI.SDL2.Components.Inputs
                         ComponentContext.QueueRedraw(this);
                         e.StopPropagation = true;
                     }
+                }
+            }
+            else if (ev.type == SDL.SDL_EventType.SDL_MOUSEBUTTONUP && ev.button.button == SDL.SDL_BUTTON_LEFT)
+            {
+                if (_pressedIndex != -1)
+                {
+                    _pressedIndex = -1;
+                    ComponentContext.QueueRedraw(this);
+                }
+            }
+            else if (ev.type == SDL.SDL_EventType.SDL_MOUSEMOTION)
+            {
+                int newHover = -1;
+                if (ev.motion.x >= X && ev.motion.x <= X + Width &&
+                    ev.motion.y >= Y && ev.motion.y <= Y + Height)
+                {
+                    newHover = (int)((ev.motion.y - Y + ScrollVertical) / _lineHeight);
+                    if (newHover < 0 || newHover >= _items.Count) newHover = -1;
+                }
+                if (newHover != _hoverIndex)
+                {
+                    _hoverIndex = newHover;
+                    ComponentContext.QueueRedraw(this);
                 }
             }
             else if (ev.type == SDL.SDL_EventType.SDL_KEYDOWN && _focused)
@@ -163,7 +220,6 @@ namespace AbstUI.SDL2.Components.Inputs
         public override void Dispose()
         {
             _font?.Release();
-            _atlas?.Dispose();
             base.Dispose();
         }
     }

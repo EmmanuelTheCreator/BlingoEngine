@@ -1,9 +1,8 @@
-using System.Runtime.InteropServices;
 using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.SDL2.SDLL;
-using AbstUI.SDL2.Texts;
 using AbstUI.SDL2.Styles;
+using AbstUI.Styles;
 using AbstUI.Components.Containers;
 using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Events;
@@ -17,16 +16,35 @@ namespace AbstUI.SDL2.Components.Containers
         private int _selectedIndex = -1;
         private bool _focused;
         private ISdlFontLoadedByUser? _font;
-        private SdlGlyphAtlas? _atlas;
         private nint _texture;
         private int _texW;
         private int _texH;
         private readonly List<SDL.SDL_Rect> _tabRects = new();
+        private int _hoverIndex = -1;
 
         public AMargin Margin { get; set; } = AMargin.Zero;
         public object FrameworkNode => this;
 
-      
+        public string? Font { get; set; }
+        public int FontSize { get; set; } = 12;
+        public AColor TextColor { get; set; } = AbstDefaultColors.Tab_Deselected_TextColor;
+
+        public AColor SelectedTextColor { get; set; } = AbstDefaultColors.Tab_Selected_TextColor;
+
+        public AColor TabHeaderBGColor { get; set; } = AbstDefaultColors.BG_Tabs;
+        public AColor TabHeaderBorderColor { get; set; } = AbstDefaultColors.Border_Tabs;
+
+        public AColor TabHeaderSelectedBGColor { get; set; } = AbstDefaultColors.BG_Tabs_Hover;
+        public AColor TabHeaderSelectedBorderColor { get; set; } = AbstDefaultColors.TabActiveBorder;
+
+        public AColor TabHeaderHoverBGColor { get; set; } = AbstDefaultColors.BG_Tabs_Hover;
+        public AColor TabHeaderHoverBorderColor { get; set; } = AbstDefaultColors.TabActiveBorder;
+
+        public AColor BackgroundColor { get; set; } = AbstDefaultColors.BG_WhiteMenus;
+        public AColor BorderColor { get; set; } = AbstDefaultColors.Border_Tabs;
+        public int BorderThickness { get; set; } = 1;
+
+
         public string SelectedTabName =>
             _selectedIndex >= 0 && _selectedIndex < _children.Count ? _children[_selectedIndex].Title : string.Empty;
 
@@ -43,6 +61,7 @@ namespace AbstUI.SDL2.Components.Containers
             _children.Add(content);
             if (_selectedIndex == -1)
                 _selectedIndex = 0;
+            _texture = nint.Zero;
         }
 
         public void RemoveTab(IAbstFrameworkTabItem content)
@@ -53,6 +72,7 @@ namespace AbstUI.SDL2.Components.Containers
                 _children.RemoveAt(index);
                 if (_selectedIndex >= _children.Count)
                     _selectedIndex = _children.Count - 1;
+                _texture = nint.Zero;
             }
         }
 
@@ -62,20 +82,23 @@ namespace AbstUI.SDL2.Components.Containers
         {
             _children.Clear();
             _selectedIndex = -1;
+            _texture = nint.Zero;
         }
 
         public void SelectTabByName(string tabName)
         {
             var idx = _children.FindIndex(t => t.Title == tabName);
             if (idx >= 0)
+            {
                 _selectedIndex = idx;
+                _texture = nint.Zero;
+            }
         }
 
-      
+
         private void EnsureResources(AbstSDLRenderContext ctx)
         {
-            _font ??= ctx.SdlFontManager.GetTyped(this, null, 12);
-            _atlas ??= new SdlGlyphAtlas(ctx.Renderer, _font.FontHandle);
+            _font ??= ctx.SdlFontManager.GetTyped(this, Font, FontSize);
         }
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
@@ -99,34 +122,70 @@ namespace AbstUI.SDL2.Components.Containers
 
             var prevTarget = SDL.SDL_GetRenderTarget(context.Renderer);
             SDL.SDL_SetRenderTarget(context.Renderer, _texture);
-            SDL.SDL_SetRenderDrawColor(context.Renderer, 255, 255, 255, 255);
+            SDL.SDL_SetRenderDrawColor(context.Renderer, BackgroundColor.R, BackgroundColor.G, BackgroundColor.B, BackgroundColor.A);
             SDL.SDL_RenderClear(context.Renderer);
+
+            SDL.SDL_Rect contentRect = new SDL.SDL_Rect { x = 0, y = tabHeight, w = w, h = h - tabHeight };
+            SDL.SDL_SetRenderDrawColor(context.Renderer, BackgroundColor.R, BackgroundColor.G, BackgroundColor.B, BackgroundColor.A);
+            SDL.SDL_RenderFillRect(context.Renderer, ref contentRect);
+            if (BorderThickness > 0)
+            {
+                SDL.SDL_SetRenderDrawColor(context.Renderer, BorderColor.R, BorderColor.G, BorderColor.B, BorderColor.A);
+                for (int t = 0; t < BorderThickness; t++)
+                {
+                    SDL.SDL_Rect br = new SDL.SDL_Rect
+                    {
+                        x = t,
+                        y = tabHeight + t,
+                        w = w - 2 * t,
+                        h = h - tabHeight - 2 * t
+                    };
+                    SDL.SDL_RenderDrawRect(context.Renderer, ref br);
+                }
+            }
 
             _tabRects.Clear();
             int x = 0;
             for (int i = 0; i < _children.Count; i++)
             {
                 var tab = _children[i];
-                List<int> cps = new();
-                foreach (var r in tab.Title.EnumerateRunes()) cps.Add(r.Value);
-                var span = CollectionsMarshal.AsSpan(cps);
                 int ascent = SDL_ttf.TTF_FontAscent(_font!.FontHandle);
                 int descent = SDL_ttf.TTF_FontDescent(_font.FontHandle);
-                int tw = _atlas!.MeasureWidth(span) + 10;
+                SDL_ttf.TTF_SizeUTF8(_font.FontHandle, tab.Title, out int textW, out int textH);
+                int tw = textW + 10;
                 int th = ascent - descent + 4;
                 int tabW = Math.Max(tw, 60);
                 SDL.SDL_Rect rect = new SDL.SDL_Rect { x = x, y = 0, w = tabW, h = tabHeight };
                 _tabRects.Add(rect);
+                AColor bg = TabHeaderBGColor;
+                AColor border = TabHeaderBorderColor;
+                AColor txtCol = TextColor;
                 if (i == _selectedIndex)
-                    SDL.SDL_SetRenderDrawColor(context.Renderer, 220, 220, 220, 255);
-                else
-                    SDL.SDL_SetRenderDrawColor(context.Renderer, 180, 180, 180, 255);
+                {
+                    bg = TabHeaderSelectedBGColor;
+                    border = TabHeaderSelectedBorderColor;
+                    txtCol = SelectedTextColor;
+                }
+                else if (i == _hoverIndex)
+                {
+                    bg = TabHeaderHoverBGColor;
+                    border = TabHeaderHoverBorderColor;
+                }
+                SDL.SDL_SetRenderDrawColor(context.Renderer, bg.R, bg.G, bg.B, bg.A);
                 SDL.SDL_RenderFillRect(context.Renderer, ref rect);
-                SDL.SDL_SetRenderDrawColor(context.Renderer, 0, 0, 0, 255);
+                SDL.SDL_SetRenderDrawColor(context.Renderer, border.R, border.G, border.B, border.A);
                 SDL.SDL_RenderDrawRect(context.Renderer, ref rect);
                 int baseline = rect.y + (tabHeight - th) / 2 + ascent;
-                int tx = rect.x + (tabW - (tw - 10)) / 2;
-                _atlas.DrawRun(span, tx, baseline, new SDL.SDL_Color { r = 0, g = 0, b = 0, a = 255 });
+                int tx = rect.x + (tabW - textW) / 2;
+                int ty = baseline - ascent;
+                var sdlTxtCol = new SDL.SDL_Color { r = txtCol.R, g = txtCol.G, b = txtCol.B, a = txtCol.A };
+                nint textSurf = SDL_ttf.TTF_RenderUTF8_Blended(_font.FontHandle, tab.Title, sdlTxtCol);
+                nint textTex = SDL.SDL_CreateTextureFromSurface(context.Renderer, textSurf);
+                SDL.SDL_FreeSurface(textSurf);
+                SDL.SDL_SetTextureBlendMode(textTex, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
+                var dst = new SDL.SDL_Rect { x = tx, y = ty, w = textW, h = textH };
+                SDL.SDL_RenderCopy(context.Renderer, textTex, IntPtr.Zero, ref dst);
+                SDL.SDL_DestroyTexture(textTex);
                 x += tabW;
             }
 
@@ -138,8 +197,8 @@ namespace AbstUI.SDL2.Components.Containers
                     var ctx = comp.ComponentContext;
                     var oldOffX = ctx.OffsetX;
                     var oldOffY = ctx.OffsetY;
-                    ctx.OffsetX += -X;
-                    ctx.OffsetY += -Y - tabHeight;
+                    ctx.OffsetX += -X + BorderThickness;
+                    ctx.OffsetY += -Y - tabHeight + BorderThickness;
                     ctx.RenderToTexture(context);
                     ctx.OffsetX = oldOffX;
                     ctx.OffsetY = oldOffY;
@@ -163,16 +222,41 @@ namespace AbstUI.SDL2.Components.Containers
                     if (ev.button.x >= r.x && ev.button.x <= r.x + r.w &&
                         ev.button.y >= r.y && ev.button.y <= r.y + r.h)
                     {
-                        _selectedIndex = i;
+                        if (_selectedIndex != i)
+                        {
+                            _selectedIndex = i;
+                            _texture = nint.Zero;
+                            ComponentContext.QueueRedraw(this);
+                        }
                         Factory.FocusManager.SetFocus(this);
                         e.StopPropagation = true;
                         break;
                     }
                 }
             }
+            else if (ev.type == SDL.SDL_EventType.SDL_MOUSEMOTION)
+            {
+                int newHover = -1;
+                for (int i = 0; i < _tabRects.Count; i++)
+                {
+                    var r = _tabRects[i];
+                    if (ev.motion.x >= r.x && ev.motion.x <= r.x + r.w &&
+                        ev.motion.y >= r.y && ev.motion.y <= r.y + r.h)
+                    {
+                        newHover = i;
+                        break;
+                    }
+                }
+                if (newHover != _hoverIndex)
+                {
+                    _hoverIndex = newHover;
+                    _texture = nint.Zero;
+                    ComponentContext.QueueRedraw(this);
+                }
+            }
         }
 
-       
+
 
         public override void Dispose()
         {
@@ -183,7 +267,6 @@ namespace AbstUI.SDL2.Components.Containers
                 _texture = nint.Zero;
             }
             _font?.Release();
-            _atlas?.Dispose();
             base.Dispose();
         }
     }
