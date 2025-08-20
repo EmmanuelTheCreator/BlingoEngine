@@ -44,7 +44,7 @@ namespace LingoEngine.Director.Core.Casts
             MinimumHeight = 100;
             Width = 370;
             Height = 620;
-            X = 830;
+            //X = 830;
             Y = 22;
             _tabs = factory.CreateTabContainer("CastTabs");
             _tabs.Height = Height;

@@ -1,28 +1,24 @@
 ﻿namespace LingoEngine.SDL2;
-using System;
-using LingoEngine.SDL2.Inputs;
-using AbstUI.Primitives;
 using AbstUI.Inputs;
-using LingoEngine.SDL2.Core;
-using AbstUI.SDL2.SDLL;
+using AbstUI.Primitives;
+using AbstUI.SDL2;
 using AbstUI.SDL2.Core;
+using AbstUI.SDL2.SDLL;
+using System;
 
-public abstract class AbstUISdlRootContext<TMouse> : IDisposable
+public abstract class AbstUISdlRootContext<TMouse> : IAbstSDLRootContext, IDisposable
      where TMouse : IAbstMouse
 {
 
     public nint Window { get; }
     public nint Renderer { get; }
+    public IAbstGlobalMouse GlobalMouse { get; set; }
 
-    public LingoSdlKey Key { get; set; }
-    public IAbstFrameworkMouse Mouse { get; set; }
-
-    public IAbstKey AbstKey { get; protected set; }
-    public IAbstMouse AbstMouse { get; set; }
+   
 
     public SdlFocusManager FocusManager { get; }
     public AbstSDLComponentContainer ComponentContainer { get; }
-    internal LingoSdlFactory Factory { get; set; } = null!;
+    
 
     public AbstUISdlRootContext(nint window, nint renderer, SdlFocusManager focusManager)
     {
@@ -31,8 +27,6 @@ public abstract class AbstUISdlRootContext<TMouse> : IDisposable
         FocusManager = focusManager;
         ComponentContainer = new AbstSDLComponentContainer(focusManager);
     }
-
-
 
 
 

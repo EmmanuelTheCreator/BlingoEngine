@@ -75,7 +75,7 @@ namespace AbstUI.SDL2.Components.Texts
                 var (tex, textW, textH) = CreateTextTextureBox(context.Renderer, _font!.FontHandle,FontSize, Text, (int)Width, (int)boxH, TextAlignment, col);
                 _texture = tex;
                 SDL.SDL_SetTextureBlendMode(_texture, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
-                SDL.SDL_FreeSurface(tex);
+                //SDL.SDL_FreeSurface(tex);
                 // update sizes
                 if (Width <= 0) Width = boxW;
                 if (Height <= 0) Height = boxH;

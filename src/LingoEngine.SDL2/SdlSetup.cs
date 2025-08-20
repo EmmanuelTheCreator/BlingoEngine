@@ -62,6 +62,7 @@ public static class SdlSetup
                     .AddSingleton<SdlRootContext>(provider =>
                         new SdlRootContext(sdlWindow, sdlRenderer, provider.GetRequiredService<SdlFocusManager>()))
                     .AddSingleton<ISdlRootComponentContext>(p => p.GetRequiredService<SdlRootContext>())
+                    .AddSingleton<IAbstSDLRootContext>(p => p.GetRequiredService<SdlRootContext>())
                     .AddSingleton<ILingoFrameworkFactory, LingoSdlFactory>()
                 )
             .WithFrameworkFactory(setup)

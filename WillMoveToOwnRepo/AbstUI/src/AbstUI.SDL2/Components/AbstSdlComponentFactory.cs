@@ -281,10 +281,11 @@ namespace AbstUI.SDL2.Components
         {
             var button = new AbstStateButton();
             var impl = new AbstSdlStateButton(this);
-            if (onChange != null)
-                button.ValueChanged += () => onChange(button.IsOn);
             button.Init(impl);
             InitComponent(button);
+            if (onChange != null)
+                button.ValueChanged += () => onChange(button.IsOn);
+            
             button.Name = name;
             button.Text = text;
             if (texture != null)

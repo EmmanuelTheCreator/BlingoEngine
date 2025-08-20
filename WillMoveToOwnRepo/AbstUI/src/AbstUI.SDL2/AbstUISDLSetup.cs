@@ -30,7 +30,7 @@ namespace AbstUI.SDL2
                 .AddSingleton<SdlFocusManager>()
 
 
-                //.AddSingleton<IAbstGlobalMouse, GlobalGodotAbstMouse>()
+                .AddSingleton<IAbstGlobalMouse, GlobalSDLAbstMouse>()
                 .AddSingleton<IAbstGlobalKey, GlobalSDLAbstKey>()
 
                 .WithAbstUI();

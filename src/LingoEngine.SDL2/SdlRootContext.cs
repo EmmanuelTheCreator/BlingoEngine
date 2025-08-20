@@ -1,14 +1,15 @@
 namespace LingoEngine.SDL2;
-using System;
+using AbstUI.Inputs;
+using AbstUI.SDL2.Core;
+using AbstUI.SDL2.SDLL;
 using LingoEngine.Core;
-using LingoEngine.Movies;
+using LingoEngine.Events;
 using LingoEngine.Inputs;
+using LingoEngine.Movies;
+using LingoEngine.SDL2.Core;
 using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.Stages;
-using AbstUI.Inputs;
-using LingoEngine.Events;
-using AbstUI.SDL2.SDLL;
-using AbstUI.SDL2.Core;
+using System;
 
 public class SdlRootContext : AbstUISdlRootContext<LingoMouse>, ISdlRootComponentContext
 {
@@ -16,6 +17,13 @@ public class SdlRootContext : AbstUISdlRootContext<LingoMouse>, ISdlRootComponen
     private LingoSdlMouse _sdlMouse;
     private LingoPlayer _lPlayer;
     public LingoDebugOverlay DebugOverlay { get; set; }
+    public LingoSdlKey Key { get; set; }
+    public IAbstFrameworkMouse Mouse { get; set; }
+
+    public IAbstKey AbstKey { get; protected set; }
+    public IAbstMouse AbstMouse { get; set; }
+    internal LingoSdlFactory Factory { get; set; } = null!;
+
 
     public SdlRootContext(nint window, nint renderer, SdlFocusManager focusManager) : base(window, renderer, focusManager)
     {

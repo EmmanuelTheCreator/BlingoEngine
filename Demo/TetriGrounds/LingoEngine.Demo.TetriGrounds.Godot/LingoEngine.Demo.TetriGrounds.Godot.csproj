@@ -6,6 +6,16 @@
 		<LangVersion>12</LangVersion>
 		<Platforms>AnyCPU;x64;x86</Platforms>
 	</PropertyGroup>
+
+	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+		<ProjectReference Include="..\..\..\src\Director\LingoEngine.Director.LGodot\LingoEngine.Director.LGodot.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\src\LingoEngine.LGodot\LingoEngine.LGodot.csproj" />
+		<ProjectReference Include="..\LingoEngine.Demo.TetriGrounds.Core\LingoEngine.Demo.TetriGrounds.Core.csproj" />
+	</ItemGroup>
+
+
 	<ItemGroup>
 	  <Compile Remove="obj\**" />
 	  <EmbeddedResource Remove="obj\**" />
@@ -420,11 +430,5 @@
 	  <None Include="project.godot" />
 	  <None Include="Scenes\root_node_tetri_grounds.tscn" />
 	</ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-    <ProjectReference Include="..\..\..\src\Director\LingoEngine.Director.LGodot\LingoEngine.Director.LGodot.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\src\LingoEngine.LGodot\LingoEngine.LGodot.csproj" />
-    <ProjectReference Include="..\LingoEngine.Demo.TetriGrounds.Core\LingoEngine.Demo.TetriGrounds.Core.csproj" />
-  </ItemGroup>
+ 
 </Project>
