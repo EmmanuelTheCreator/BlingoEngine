@@ -71,7 +71,28 @@ public class LingoToCSharpConverterTests
     public void PutIntoFieldConvertsToMemberTextAssignment()
     {
         var result = _converter.Convert("put woord into field \"credits\"");
-        Assert.Equal("Member(\"credits\").Text = woord;", result.Trim());
+        Assert.Equal("GetMember<ILingoMemberTextBase>(\"credits\").Text = woord;", result.Trim());
+    }
+
+    [Fact]
+    public void MemberLineAccessUsesTypedGetMember()
+    {
+        var result = _converter.Convert("member(\"MyTextMember\").line[1]");
+        Assert.Equal("GetMember<ILingoMemberTextBase>(\"MyTextMember\").Line[1]", result.Trim());
+    }
+
+    [Fact]
+    public void MemberLineConcatenationUsesTypedGetMember()
+    {
+        var lingo = @"property i,p,dirI,num
+on beginsprite me
+  num=me.spritenum
+  woord=member(""MyTextMember"").line[1] &return& member(""MyTextMember"").line[2] &return& member(""MyTextMember"").line[3]
+  
+end";
+        var file = new LingoScriptFile { Name = "MyScript", Source = lingo, Type = LingoScriptType.Behavior };
+        var result = _converter.Convert(file);
+        Assert.Contains("woord = (((GetMember<ILingoMemberTextBase>(\"MyTextMember\").Line[1] + \"\\n\") + GetMember<ILingoMemberTextBase>(\"MyTextMember\").Line[2]) + \"\\n\") + GetMember<ILingoMemberTextBase>(\"MyTextMember\").Line[3];", result.Replace("\r", ""));
     }
 
     [Fact]
@@ -316,7 +337,7 @@ public class LingoToCSharpConverterTests
     public void MemberTextAccessIsConverted()
     {
         var result = _converter.Convert("member(\"T_Text\").text");
-        Assert.Equal("Member<LingoMemberText>(\"T_Text\").Text", result.Trim());
+        Assert.Equal("GetMember<ILingoMemberTextBase>(\"T_Text\").Text", result.Trim());
     }
 
     [Fact]

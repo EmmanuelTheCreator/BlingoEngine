@@ -22,11 +22,13 @@ public class LingoToCSharpConverter
 
         var match = System.Text.RegularExpressions.Regex.Match(
             trimmed,
-            @"^member\s*\(\s*""(?<name>[^""]+)""\s*\)\.text$",
+            @"^member\s*\(\s*""(?<name>[^""]+)""\s*\)\.(?<prop>text|line|word|char)$",
             System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         if (match.Success)
         {
-            return $"Member<LingoMemberText>(\"{match.Groups["name"].Value}\").Text";
+            var prop = match.Groups["prop"].Value;
+            var pascal = char.ToUpperInvariant(prop[0]) + prop[1..];
+            return $"GetMember<ILingoMemberTextBase>(\"{match.Groups["name"].Value}\").{pascal}";
         }
 
         if (TryConvertNewMember(trimmed, out var converted))

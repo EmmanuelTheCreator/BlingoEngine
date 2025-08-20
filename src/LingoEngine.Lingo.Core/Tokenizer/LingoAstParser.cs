@@ -294,84 +294,91 @@ namespace LingoEngine.Lingo.Core.Tokenizer
 
         private LingoNode ParseExpression(bool allowEquals = true)
         {
-            var expr = ParsePrimary();
-            while (true)
+            LingoNode ParseOperand()
             {
-                if (expr is LingoVarNode sv && sv.VarName.Equals("sendSprite", StringComparison.OrdinalIgnoreCase))
+                var operand = ParsePrimary();
+                while (true)
                 {
-                    var hasParen = Match(LingoTokenType.LeftParen);
-                    var sprite = ParseExpression();
-                    Expect(LingoTokenType.Comma);
-                    var message = ParseExpression();
-                    var args = new List<LingoNode>();
-                    while (Match(LingoTokenType.Comma))
+                    if (operand is LingoVarNode sv && sv.VarName.Equals("sendSprite", StringComparison.OrdinalIgnoreCase))
                     {
-                        args.Add(ParseExpression());
-                    }
-                    if (hasParen)
-                        Expect(LingoTokenType.RightParen);
-                    LingoNode? argList = null;
-                    if (args.Count > 0)
-                        argList = new LingoDatumNode(new LingoDatum(args, LingoDatum.DatumType.ArgList));
-                    expr = new LingoSendSpriteExprNode { Sprite = sprite, Message = message, Arguments = argList };
-                }
-                else if (Match(LingoTokenType.Dot))
-                {
-                    var pTok = Expect(LingoTokenType.Identifier);
-                    expr = new LingoObjPropExprNode
-                    {
-                        Object = expr,
-                        Property = new LingoVarNode { VarName = pTok.Lexeme }
-                    };
-                }
-                else if (Match(LingoTokenType.LeftBracket))
-                {
-                    var idx = ParseExpression();
-                    Expect(LingoTokenType.RightBracket);
-                    expr = new LingoObjBracketExprNode
-                    {
-                        Object = expr,
-                        Index = idx
-                    };
-                }
-                else if (Match(LingoTokenType.LeftParen))
-                {
-                    var args = new List<LingoNode>();
-                    if (_currentToken.Type != LingoTokenType.RightParen)
-                    {
-                        args.Add(ParseExpression());
+                        var hasParen = Match(LingoTokenType.LeftParen);
+                        var sprite = ParseExpression();
+                        Expect(LingoTokenType.Comma);
+                        var message = ParseExpression();
+                        var args = new List<LingoNode>();
                         while (Match(LingoTokenType.Comma))
                         {
                             args.Add(ParseExpression());
                         }
+                        if (hasParen)
+                            Expect(LingoTokenType.RightParen);
+                        LingoNode? argList = null;
+                        if (args.Count > 0)
+                            argList = new LingoDatumNode(new LingoDatum(args, LingoDatum.DatumType.ArgList));
+                        operand = new LingoSendSpriteExprNode { Sprite = sprite, Message = message, Arguments = argList };
                     }
-                    Expect(LingoTokenType.RightParen);
-                    LingoNode argExpr;
-                    if (args.Count == 0)
-                        argExpr = new LingoBlockNode();
-                    else if (args.Count == 1)
-                        argExpr = args[0];
-                    else
-                        argExpr = new LingoDatumNode(new LingoDatum(args, LingoDatum.DatumType.ArgList));
-
-                    expr = new LingoCallNode
+                    else if (Match(LingoTokenType.Dot))
                     {
-                        Callee = expr,
-                        Arguments = argExpr
-                    };
+                        var pTok = Expect(LingoTokenType.Identifier);
+                        operand = new LingoObjPropExprNode
+                        {
+                            Object = operand,
+                            Property = new LingoVarNode { VarName = pTok.Lexeme }
+                        };
+                    }
+                    else if (Match(LingoTokenType.LeftBracket))
+                    {
+                        var idx = ParseExpression();
+                        Expect(LingoTokenType.RightBracket);
+                        operand = new LingoObjBracketExprNode
+                        {
+                            Object = operand,
+                            Index = idx
+                        };
+                    }
+                    else if (Match(LingoTokenType.LeftParen))
+                    {
+                        var args = new List<LingoNode>();
+                        if (_currentToken.Type != LingoTokenType.RightParen)
+                        {
+                            args.Add(ParseExpression());
+                            while (Match(LingoTokenType.Comma))
+                            {
+                                args.Add(ParseExpression());
+                            }
+                        }
+                        Expect(LingoTokenType.RightParen);
+                        LingoNode argExpr;
+                        if (args.Count == 0)
+                            argExpr = new LingoBlockNode();
+                        else if (args.Count == 1)
+                            argExpr = args[0];
+                        else
+                            argExpr = new LingoDatumNode(new LingoDatum(args, LingoDatum.DatumType.ArgList));
+
+                        operand = new LingoCallNode
+                        {
+                            Callee = operand,
+                            Arguments = argExpr
+                        };
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
-                else
-                {
-                    break;
-                }
+
+                return operand;
             }
+
+            var expr = ParseOperand();
 
             while (true)
             {
                 if (_currentToken.Type == LingoTokenType.Plus)
                 {
                     AdvanceToken();
-                    var right = ParsePrimary();
+                    var right = ParseOperand();
                     expr = new LingoBinaryOpNode
                     {
                         Left = expr,
@@ -382,7 +389,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 else if (_currentToken.Type == LingoTokenType.Minus)
                 {
                     AdvanceToken();
-                    var right = ParsePrimary();
+                    var right = ParseOperand();
                     expr = new LingoBinaryOpNode
                     {
                         Left = expr,
@@ -393,7 +400,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 else if (_currentToken.Type == LingoTokenType.Asterisk)
                 {
                     AdvanceToken();
-                    var right = ParsePrimary();
+                    var right = ParseOperand();
                     expr = new LingoBinaryOpNode
                     {
                         Left = expr,
@@ -404,7 +411,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 else if (_currentToken.Type == LingoTokenType.Slash)
                 {
                     AdvanceToken();
-                    var right = ParsePrimary();
+                    var right = ParseOperand();
                     expr = new LingoBinaryOpNode
                     {
                         Left = expr,
@@ -415,7 +422,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 else if (_currentToken.Type == LingoTokenType.Ampersand)
                 {
                     AdvanceToken();
-                    var right = ParsePrimary();
+                    var right = ParseOperand();
                     expr = new LingoBinaryOpNode
                     {
                         Left = expr,
@@ -426,7 +433,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 else if (_currentToken.Type == LingoTokenType.NotEquals)
                 {
                     AdvanceToken();
-                    var right = ParsePrimary();
+                    var right = ParseOperand();
                     expr = new LingoBinaryOpNode
                     {
                         Left = expr,
@@ -437,7 +444,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 else if (_currentToken.Type == LingoTokenType.GreaterThan)
                 {
                     AdvanceToken();
-                    var right = ParsePrimary();
+                    var right = ParseOperand();
                     expr = new LingoBinaryOpNode
                     {
                         Left = expr,
@@ -448,7 +455,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 else if (_currentToken.Type == LingoTokenType.GreaterOrEqual)
                 {
                     AdvanceToken();
-                    var right = ParsePrimary();
+                    var right = ParseOperand();
                     expr = new LingoBinaryOpNode
                     {
                         Left = expr,
@@ -459,7 +466,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 else if (_currentToken.Type == LingoTokenType.LessThan)
                 {
                     AdvanceToken();
-                    var right = ParsePrimary();
+                    var right = ParseOperand();
                     expr = new LingoBinaryOpNode
                     {
                         Left = expr,
@@ -470,7 +477,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 else if (_currentToken.Type == LingoTokenType.LessOrEqual)
                 {
                     AdvanceToken();
-                    var right = ParsePrimary();
+                    var right = ParseOperand();
                     expr = new LingoBinaryOpNode
                     {
                         Left = expr,
