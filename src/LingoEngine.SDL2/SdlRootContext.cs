@@ -1,6 +1,8 @@
 namespace LingoEngine.SDL2;
 using AbstUI.Inputs;
+using AbstUI.SDL2;
 using AbstUI.SDL2.Core;
+using AbstUI.SDL2.Inputs;
 using AbstUI.SDL2.SDLL;
 using LingoEngine.Core;
 using LingoEngine.Events;
@@ -11,22 +13,22 @@ using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.Stages;
 using System;
 
-public class SdlRootContext : AbstUISdlRootContext<LingoMouse>, ISdlRootComponentContext
+public class SdlRootContext : AbstUISdlRootContext<LingoMouse>
 {
     private bool _f1Pressed;
     private LingoSdlMouse _sdlMouse;
     private LingoPlayer _lPlayer;
+    private LingoClock _clock;
     public LingoDebugOverlay DebugOverlay { get; set; }
     public LingoSdlKey Key { get; set; }
     public IAbstFrameworkMouse Mouse { get; set; }
-
-    public IAbstKey AbstKey { get; protected set; }
-    public IAbstMouse AbstMouse { get; set; }
-    internal LingoSdlFactory Factory { get; set; } = null!;
-
-
-    public SdlRootContext(nint window, nint renderer, SdlFocusManager focusManager) : base(window, renderer, focusManager)
+    internal LingoSdlFactory LingoFactory { get; set; } = null!;
+    public SdlRootContext(nint window, nint renderer, SdlFocusManager focusManager, IAbstGlobalMouse globalMouse, IAbstGlobalKey globalKey)
+        : base(window, renderer, focusManager)
     {
+        GlobalMouse = globalMouse;
+        GlobalKey = globalKey;
+
         _sdlMouse = new LingoSdlMouse(new Lazy<AbstMouse<LingoMouseEvent>>(() => (LingoMouse)AbstMouse));
         Mouse = _sdlMouse;
         AbstMouse = new LingoMouse(_sdlMouse);
@@ -36,46 +38,29 @@ public class SdlRootContext : AbstUISdlRootContext<LingoMouse>, ISdlRootComponen
         AbstKey = lingoKey;
         Key.SetKeyObj(lingoKey);
     }
+
     public void Init(ILingoPlayer player)
     {
         _lPlayer = (LingoPlayer)player;
-        var overlay = new SdlDebugOverlay(Factory);
-        Factory.ComponentContainer.Activate(overlay.ComponentContext);
+        _clock = (LingoClock)_lPlayer.Clock;
+        var overlay = new SdlDebugOverlay(LingoFactory);
+        ComponentContainer.Activate(overlay.ComponentContext);
         DebugOverlay = new LingoDebugOverlay(overlay, _lPlayer);
     }
-    public void Run()
+
+    protected override void HandleEvent(SDL.SDL_Event e, ref bool running)
     {
-        var clock = (LingoClock)_lPlayer.Clock;
+        Key.ProcessEvent(e);
+        _sdlMouse.ProcessEvent(e);
+    }
 
-        bool running = true;
-        uint last = SDL.SDL_GetTicks();
-        while (running)
-        {
-            while (SDL.SDL_PollEvent(out var e) == 1)
-            {
-                if (e.type == SDL.SDL_EventType.SDL_QUIT)
-                    running = false;
-                Key.ProcessEvent(e);
-                _sdlMouse.ProcessEvent(e);
-                _frameworkMouse?.ProcessEvent(e); // todo, resolve global mouse in constructor
-                Factory.ComponentContainer.HandleEvent(e);
-            }
-            uint now = SDL.SDL_GetTicks();
-            float delta = (now - last) / 1000f;
-            last = now;
-
-            DebugOverlay.Update(delta);
-            bool f1 = _lPlayer.Key.KeyPressed((int)SDL.SDL_Keycode.SDLK_F1);
-            if (f1 && !_f1Pressed)
-                DebugOverlay.Toggle();
-            _f1Pressed = f1;
-            clock.Tick(delta);
-
-            //SDL.SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
-            //SDL.SDL_RenderClear(Renderer);
-            Factory.ComponentContainer.Render(Factory.CreateRenderContext());
-            SDL.SDL_RenderPresent(Renderer);
-        }
-        Dispose();
+    protected override void Update(float delta)
+    {
+        DebugOverlay.Update(delta);
+        bool f1 = _lPlayer.Key.KeyPressed((int)SDL.SDL_Keycode.SDLK_F1);
+        if (f1 && !_f1Pressed)
+            DebugOverlay.Toggle();
+        _f1Pressed = f1;
+        _clock.Tick(delta);
     }
 }

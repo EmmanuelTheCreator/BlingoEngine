@@ -58,10 +58,11 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
     {
         _serviceProvider = serviceProvider;
         _rootContext = rootContext;
-        _rootContext.Factory = this;
         _fontManager = (SdlFontManager)_serviceProvider.GetRequiredService<IAbstFontManager>();
         _styleManager = _serviceProvider.GetRequiredService<IAbstStyleManager>();
         _gfxFactory = (AbstSdlComponentFactory)serviceProvider.GetRequiredService<IAbstComponentFactory>();
+        _rootContext.Factory = _gfxFactory;
+        _rootContext.LingoFactory = this;
     }
 
     public IAbstComponentFactory GfxFactory => _gfxFactory;
