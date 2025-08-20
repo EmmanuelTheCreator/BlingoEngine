@@ -66,6 +66,12 @@ public abstract class AbstUISdlRootContext<TMouse> : IAbstSDLRootContext, ISdlRo
             {
                 if (e.type == SDL.SDL_EventType.SDL_QUIT)
                     running = false;
+                else if (e.type == SDL.SDL_EventType.SDL_WINDOWEVENT &&
+                         (e.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_SIZE_CHANGED ||
+                          e.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED))
+                {
+                    ComponentContainer.QueueRedrawAll();
+                }
                 _frameworkKey?.ProcessEvent(e);
                 _frameworkMouse?.ProcessEvent(e);
                 ComponentContainer.HandleEvent(e);

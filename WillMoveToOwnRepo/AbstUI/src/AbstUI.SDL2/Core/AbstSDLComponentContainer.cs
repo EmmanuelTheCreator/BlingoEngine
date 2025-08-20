@@ -41,6 +41,20 @@ public class AbstSDLComponentContainer
 
     public void Deactivate(AbstSDLComponentContext context) => _activeComponents.Remove(context);
 
+    /// <summary>
+    /// Requests a redraw for every registered component.
+    /// Useful when a global event like a window resize requires
+    /// all cached textures to be regenerated.
+    /// </summary>
+    public void QueueRedrawAll()
+    {
+        foreach (var ctx in _allComponents)
+        {
+            if (ctx.Component != null)
+                ctx.QueueRedraw(ctx.Component);
+        }
+    }
+
     public void Render(AbstSDLRenderContext renderContext)
     {
         foreach (var ctx in _activeComponents)
