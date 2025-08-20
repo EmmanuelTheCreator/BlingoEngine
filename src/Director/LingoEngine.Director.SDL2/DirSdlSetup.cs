@@ -4,12 +4,14 @@ using LingoEngine.Director.Core;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Casts;
 using LingoEngine.Director.Core.Projects;
+using LingoEngine.Director.Core.Stages;
 using AbstUI.SDL2;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using LingoEngine.Director.SDL2.Casts;
 using LingoEngine.Director.SDL2.Icons;
 using LingoEngine.Director.SDL2.UI;
+using LingoEngine.Director.SDL2.Stages;
 using LingoEngine.Projects;
 using LingoEngine.Setup;
 
@@ -26,6 +28,8 @@ namespace LingoEngine.Director.SDL2
                {
                    s.AddSingleton<DirSdlCastWindow>();
                    s.AddTransient<IDirFrameworkCastWindow>(p => p.GetRequiredService<DirSdlCastWindow>());
+                   s.AddSingleton<DirSdlStageWindow>();
+                   s.AddTransient<IDirFrameworkStageWindow>(p => p.GetRequiredService<DirSdlStageWindow>());
                    s.AddSingleton<IDirectorIconManager>(p =>
                    {
                        var mgr = new DirSdlIconManager(p.GetRequiredService<ILogger<DirSdlIconManager>>(), p.GetRequiredService<SdlRootContext>());
