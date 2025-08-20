@@ -756,6 +756,21 @@ end";
     }
 
     [Fact]
+    public void NumericSpriteIndexIsConverted()
+    {
+        var lingo = @"on test
+  sprite(263).visibility = true
+end";
+        var result = _converter.Convert(lingo);
+        var expected = string.Join('\n',
+            "public void Test()",
+            "{",
+            "    Sprite(263).Visibility = true;",
+            "}");
+        Assert.Equal(expected.Trim(), result.Trim());
+    }
+
+    [Fact]
     public void AccessModifierIsAppliedToHandlers()
     {
         var lingo = @"on test
