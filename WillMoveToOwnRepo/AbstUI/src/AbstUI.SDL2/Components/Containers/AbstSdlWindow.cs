@@ -10,7 +10,7 @@ using AbstUI.SDL2.Core;
 
 namespace AbstUI.SDL2.Components.Containers;
 
-internal class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent, IDisposable
+public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent, IDisposable
 {
     private readonly AbstSdlComponentFactory _factory;
     private IAbstWindowInternal _abstWindow;

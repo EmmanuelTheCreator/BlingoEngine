@@ -9,7 +9,7 @@ using AbstUI.SDL2.SDLL;
 
 namespace AbstUI.SDL2.Components.Containers
 {
-    internal class AbstSdlPanel : AbstSdlComponent, IAbstFrameworkPanel, IDisposable
+    public class AbstSdlPanel : AbstSdlComponent, IAbstFrameworkPanel, IDisposable
     {
         public AbstSdlPanel(AbstSdlComponentFactory factory) : base(factory)
         {
