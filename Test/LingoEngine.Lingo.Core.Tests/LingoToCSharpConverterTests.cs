@@ -123,7 +123,7 @@ public class LingoToCSharpConverterTests
             "end");
         var result = _converter.Convert(lingo);
         var expected = string.Join('\n',
-            "public void Mousedown()",
+            "public void Mousedown(LingoMouseEvent mouse)",
             "{",
             "    if (myLock == false)",
             "    {",
@@ -296,6 +296,22 @@ public class LingoToCSharpConverterTests
             "}",
             "myMembers = [\"A\", \"B\"];",
             "y = myMembers[2];");
+        Assert.Equal(expected.Trim(), result.Trim());
+    }
+
+    [Fact]
+    public void VoidpWithVoidLiteralIsConverted()
+    {
+        var lingo = string.Join('\n',
+            "if voidp(void) then",
+            "  x = 1",
+            "end if");
+        var result = _converter.Convert(lingo);
+        var expected = string.Join('\n',
+            "if (null == null)",
+            "{",
+            "    x = 1;",
+            "}");
         Assert.Equal(expected.Trim(), result.Trim());
     }
 
@@ -588,18 +604,18 @@ on mouseleave me
 end";
         var result = _converter.Convert(lingo);
         var expected = string.Join('\n',
-            "public void MouseUp()",
+            "public void MouseUp(LingoMouseEvent mouse)",
             "{",
             "    Cursor = -1;",
             "    _Movie.GoTo(\"Game\");",
             "}",
             "",
-            "public void MouseWithin()",
+            "public void MouseWithin(LingoMouseEvent mouse)",
             "{",
             "    Cursor = 280;",
             "}",
             "",
-            "public void Mouseleave()",
+            "public void Mouseleave(LingoMouseEvent mouse)",
             "{",
             "    Cursor = -1;",
             "}");
@@ -617,7 +633,7 @@ on exitFrame
 end";
         var result = _converter.Convert(lingo);
         var expected = string.Join('\n',
-            "public void MouseDown()",
+            "public void MouseDown(LingoMouseEvent mouse)",
             "{",
             "    Sprite(SpriteNum).LocH = Sprite(SpriteNum).LocH + 5;",
             "}",
@@ -897,7 +913,7 @@ end",
             "    if (myValue == -1)",
             "    {",
             "        myValue = SendSprite<GetCounterStartDataBehavior>(myDataSpriteNum, getcounterstartdatabehavior => getcounterstartdatabehavior.GetCounterStartData(myDataName));",
-            "        if (myValue == void)",
+            "        if (myValue == null)",
             "        {",
             "            myValue = 0;",
             "        }",

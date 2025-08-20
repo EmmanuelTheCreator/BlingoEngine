@@ -215,4 +215,43 @@ end",
         Assert.Contains("public string c;", result);
         Assert.Contains("public bool d;", result);
     }
+
+    [Theory]
+    [InlineData("blur", "IHasBlurEvent", null)]
+    [InlineData("focus", "IHasFocusEvent", null)]
+    [InlineData("keyDown", "IHasKeyDownEvent", "LingoKeyEvent key")]
+    [InlineData("keyUp", "IHasKeyUpEvent", "LingoKeyEvent key")]
+    [InlineData("mouseWithin", "IHasMouseWithinEvent", "LingoMouseEvent mouse")]
+    [InlineData("mouseLeave", "IHasMouseLeaveEvent", "LingoMouseEvent mouse")]
+    [InlineData("mouseDown", "IHasMouseDownEvent", "LingoMouseEvent mouse")]
+    [InlineData("mouseUp", "IHasMouseUpEvent", "LingoMouseEvent mouse")]
+    [InlineData("mouseMove", "IHasMouseMoveEvent", "LingoMouseEvent mouse")]
+    [InlineData("mouseWheel", "IHasMouseWheelEvent", "LingoMouseEvent mouse")]
+    [InlineData("mouseEnter", "IHasMouseEnterEvent", "LingoMouseEvent mouse")]
+    [InlineData("mouseExit", "IHasMouseExitEvent", "LingoMouseEvent mouse")]
+    [InlineData("beginSprite", "IHasBeginSpriteEvent", null)]
+    [InlineData("endSprite", "IHasEndSpriteEvent", null)]
+    [InlineData("stepFrame", "IHasStepFrameEvent", null)]
+    [InlineData("prepareFrame", "IHasPrepareFrameEvent", null)]
+    [InlineData("enterFrame", "IHasEnterFrameEvent", null)]
+    [InlineData("exitFrame", "IHasExitFrameEvent", null)]
+
+    public void EventHandlersImplementInterfaces(string handler, string expectedInterface, string? param)
+    {
+        var file = new LingoScriptFile
+        {
+            Name = "MyScript",
+            Source = $"on {handler} me\nend",
+            Type = LingoScriptType.Behavior
+        };
+
+        var result = _converter.Convert(file);
+        var classDecl = $"public class MyScriptBehavior : LingoSpriteBehavior, {expectedInterface}";
+        Assert.Contains(classDecl, result);
+        var methodName = char.ToUpperInvariant(handler[0]) + handler[1..];
+        if (param is null)
+            Assert.Contains($"public void {methodName}()", result);
+        else
+            Assert.Contains($"public void {methodName}({param})", result);
+    }
 }
