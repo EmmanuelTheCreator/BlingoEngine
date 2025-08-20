@@ -11,6 +11,7 @@ The tables below summarize how LingoEngine converts Lingo syntax into C#.
 | `global gVar` | `GlobalVars` singleton injected via DI |
 | `property myValue` | class field/property |
 | `me` | `this` |
+| `void` | `null` |
 | `sprite(n).locH` | `Sprite(n).LocH` |
 | `sprite(n).member = member("Name")` | `Sprite(n).SetMember("Name");` |
 | `member("Name").text` | `Member<LingoMemberText>("Name").Text` |

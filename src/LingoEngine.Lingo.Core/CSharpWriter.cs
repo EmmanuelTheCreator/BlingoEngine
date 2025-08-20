@@ -232,22 +232,56 @@ public class CSharpWriter : ILingoAstVisitor
 
         if (name.Length > 0)
         {
-            name = char.ToUpperInvariant(name[0]) + name[1..];
-            Append(_methodAccessModifier);
-            Append(" void ");
-            Append(name);
-            Append("(");
-            var args = node.Handler.ArgumentNames
-                .Where(a => !a.Equals("me", StringComparison.OrdinalIgnoreCase))
-                .Select(a => $"object {a}");
-            Append(string.Join(", ", args));
-            AppendLine(")");
-            AppendLine("{");
-            Indent();
-            node.Block.Accept(this);
-            Unindent();
-            AppendLine("}");
-            AppendLine();
+            var pascal = char.ToUpperInvariant(name[0]) + name[1..];
+            var lower = name.ToLowerInvariant();
+            string? paramDecl = lower switch
+            {
+                "blur" or "focus" => string.Empty,
+                "keydown" or "keyup" => "LingoKeyEvent key",
+                "mousedown" or "mouseup" or "mousemove" or "mousewheel" or
+                "mousewithin" or "mouseleave" or "mouseenter" or "mouseexit" => "LingoMouseEvent mouse",
+                _ => null
+            };
+
+            if (paramDecl != null)
+            {
+                Append(_methodAccessModifier);
+                Append(" void ");
+                Append(pascal);
+                Append("(");
+                Append(paramDecl);
+                AppendLine(")");
+                AppendLine("{");
+                Indent();
+                if (!string.IsNullOrEmpty(paramDecl))
+                {
+                    var paramVar = lower is "keydown" or "keyup" ? "key" : "mouse";
+                    foreach (var a in node.Handler.ArgumentNames.Where(a => !a.Equals("me", StringComparison.OrdinalIgnoreCase)))
+                        AppendLine($"var {a} = {paramVar};");
+                }
+                node.Block.Accept(this);
+                Unindent();
+                AppendLine("}");
+                AppendLine();
+            }
+            else
+            {
+                Append(_methodAccessModifier);
+                Append(" void ");
+                Append(pascal);
+                Append("(");
+                var args = node.Handler.ArgumentNames
+                    .Where(a => !a.Equals("me", StringComparison.OrdinalIgnoreCase))
+                    .Select(a => $"object {a}");
+                Append(string.Join(", ", args));
+                AppendLine(")");
+                AppendLine("{");
+                Indent();
+                node.Block.Accept(this);
+                Unindent();
+                AppendLine("}");
+                AppendLine();
+            }
         }
         else
         {
@@ -274,7 +308,13 @@ public class CSharpWriter : ILingoAstVisitor
         Append(")");
     }
 
-    public void Visit(LingoLiteralNode node) => Append(node.Value.ToString());
+    public void Visit(LingoLiteralNode node)
+    {
+        if (node.Value.Type == LingoDatum.DatumType.Void)
+            Append("null");
+        else
+            Append(node.Value.ToString());
+    }
 
     public void Visit(LingoIfStmtNode node)
     {
@@ -849,9 +889,17 @@ public class CSharpWriter : ILingoAstVisitor
     public void Visit(LingoVarNode node)
     {
         if (node.VarName.Equals("me", StringComparison.OrdinalIgnoreCase))
+        {
             Append("this");
+        }
+        else if (node.VarName.Equals("void", StringComparison.OrdinalIgnoreCase))
+        {
+            Append("null");
+        }
         else
+        {
             Append(node.VarName);
+        }
     }
 
     public void Visit(LingoBlockNode node)
