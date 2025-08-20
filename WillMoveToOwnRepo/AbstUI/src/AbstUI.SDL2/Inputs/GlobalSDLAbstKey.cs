@@ -2,13 +2,17 @@ using AbstUI.Inputs;
 
 namespace AbstUI.SDL2.Inputs
 {
-    public class GlobalSDLAbstKey : AbstKey , IAbstGlobalKey
+    public class GlobalSDLAbstKey : AbstKey, IAbstGlobalKey
     {
+        private readonly SdlKey _framework;
+
         public GlobalSDLAbstKey()
         {
-            var framework = new SdlKey();
-            Init(framework);
+            _framework = new SdlKey();
+            Init(_framework);
         }
+
+        internal SdlKey Framework => _framework;
     }
-  
+
 }

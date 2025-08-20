@@ -1,35 +1,52 @@
-﻿namespace LingoEngine.SDL2;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
-using AbstUI.SDL2;
+using AbstUI.SDL2.Components;
 using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Inputs;
 using AbstUI.SDL2.SDLL;
 using System;
 
-public abstract class AbstUISdlRootContext<TMouse> : IAbstSDLRootContext, IDisposable
-     where TMouse : IAbstMouse
+namespace AbstUI.SDL2;
+
+public abstract class AbstUISdlRootContext<TMouse> : IAbstSDLRootContext, ISdlRootComponentContext, IDisposable
+    where TMouse : IAbstMouse
 {
     private IAbstGlobalMouse _globalMouse;
-    protected AbstGodotGlobalMouse<GlobalSDLAbstMouse, AbstMouseEvent>? _frameworkMouse;
+    private IAbstGlobalKey _globalKey;
+    protected AbstSdlGlobalMouse<GlobalSDLAbstMouse, AbstMouseEvent>? _frameworkMouse;
+    protected SdlKey? _frameworkKey;
 
     public nint Window { get; }
     public nint Renderer { get; }
+
     public IAbstGlobalMouse GlobalMouse
     {
         get => _globalMouse;
         set
         {
             _globalMouse = value;
-            _frameworkMouse = ((GlobalSDLAbstMouse)_globalMouse).Framework<AbstGodotGlobalMouse<GlobalSDLAbstMouse, AbstMouseEvent>>();
+            _frameworkMouse = ((GlobalSDLAbstMouse)_globalMouse).Framework<AbstSdlGlobalMouse<GlobalSDLAbstMouse, AbstMouseEvent>>();
         }
     }
 
-
+    public IAbstGlobalKey GlobalKey
+    {
+        get => _globalKey;
+        set
+        {
+            _globalKey = value;
+            _frameworkKey = ((GlobalSDLAbstKey)_globalKey).Framework;
+        }
+    }
 
     public SdlFocusManager FocusManager { get; }
     public AbstSDLComponentContainer ComponentContainer { get; }
-    
+
+    public AbstSdlComponentFactory Factory { get; set; } = null!;
+
+    public TMouse AbstMouse { get; protected set; } = default!;
+    IAbstMouse ISdlRootComponentContext.AbstMouse => AbstMouse;
+    public IAbstKey AbstKey { get; protected set; } = null!;
 
     public AbstUISdlRootContext(nint window, nint renderer, SdlFocusManager focusManager)
     {
@@ -39,9 +56,44 @@ public abstract class AbstUISdlRootContext<TMouse> : IAbstSDLRootContext, IDispo
         ComponentContainer = new AbstSDLComponentContainer(focusManager);
     }
 
+    public virtual void Run()
+    {
+        bool running = true;
+        uint last = SDL.SDL_GetTicks();
+        while (running)
+        {
+            while (SDL.SDL_PollEvent(out var e) == 1)
+            {
+                if (e.type == SDL.SDL_EventType.SDL_QUIT)
+                    running = false;
+                _frameworkKey?.ProcessEvent(e);
+                _frameworkMouse?.ProcessEvent(e);
+                ComponentContainer.HandleEvent(e);
+                HandleEvent(e, ref running);
+            }
 
+            uint now = SDL.SDL_GetTicks();
+            float delta = (now - last) / 1000f;
+            last = now;
 
-    public void Dispose()
+            Update(delta);
+            Render();
+        }
+
+        Dispose();
+    }
+
+    protected virtual void HandleEvent(SDL.SDL_Event e, ref bool running) { }
+
+    protected virtual void Update(float delta) { }
+
+    protected virtual void Render()
+    {
+        ComponentContainer.Render(Factory.CreateRenderContext());
+        SDL.SDL_RenderPresent(Renderer);
+    }
+
+    public virtual void Dispose()
     {
         if (Renderer != nint.Zero)
         {

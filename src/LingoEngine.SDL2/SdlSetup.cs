@@ -7,6 +7,7 @@ using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2;
 using LingoEngine.Core;
 using AbstUI.SDL2.Core;
+using AbstUI.Inputs;
 
 namespace LingoEngine.SDL2;
 
@@ -60,7 +61,12 @@ public static class SdlSetup
             .ServicesMain(s => s
                     .WithAbstUISdl()
                     .AddSingleton<SdlRootContext>(provider =>
-                        new SdlRootContext(sdlWindow, sdlRenderer, provider.GetRequiredService<SdlFocusManager>()))
+                        new SdlRootContext(
+                            sdlWindow,
+                            sdlRenderer,
+                            provider.GetRequiredService<SdlFocusManager>(),
+                            provider.GetRequiredService<IAbstGlobalMouse>(),
+                            provider.GetRequiredService<IAbstGlobalKey>()))
                     .AddSingleton<ISdlRootComponentContext>(p => p.GetRequiredService<SdlRootContext>())
                     .AddSingleton<IAbstSDLRootContext>(p => p.GetRequiredService<SdlRootContext>())
                     .AddSingleton<ILingoFrameworkFactory, LingoSdlFactory>()

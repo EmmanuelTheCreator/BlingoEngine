@@ -23,8 +23,9 @@ serviceCollection
 var serviceProvier = serviceCollection.BuildServiceProvider();
 
 var factory = new AbstSdlComponentFactory(rootContext, serviceProvier);
+rootContext.Factory = factory;
 
 var scroll = GfxTestScene.Build(factory);
 rootContext.ComponentContainer.Activate(((dynamic)scroll.FrameworkObj).ComponentContext);
 
-rootContext.Run(factory);
+rootContext.Run();
