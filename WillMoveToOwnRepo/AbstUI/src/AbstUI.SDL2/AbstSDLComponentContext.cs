@@ -23,6 +23,7 @@ public class AbstSDLComponentContext : IDisposable
     public float OffsetY { get; set; }
     public bool FlipH { get; set; }
     public bool FlipV { get; set; }
+    public bool AlwaysOnTop { get; set; }
     public SDL.SDL_BlendMode BlendMode { get; set; } = SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND;
 
     internal AbstSDLComponentContext(AbstSDLComponentContainer container, IAbstSDLComponent? component = null, AbstSDLComponentContext? parent = null)

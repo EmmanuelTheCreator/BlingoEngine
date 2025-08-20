@@ -2,6 +2,7 @@ using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.SDL2.Components;
 using AbstUI.SDL2.Styles;
+using AbstUI.SDL2.Windowing;
 using AbstUI.Windowing;
 
 namespace AbstUI.SDL2
@@ -12,15 +13,18 @@ namespace AbstUI.SDL2
     public class AbstSdlComponentFactory : AbstComponentFactoryBase, IAbstComponentFactory
     {
         private readonly ISdlRootComponentContext _rootContext;
+        private readonly IAbstSdlWindowManager _windowManager;
         public readonly SdlFontManager FontManagerTyped;
 
         public ISdlRootComponentContext RootContext => _rootContext;
         public SdlFocusManager FocusManager => _rootContext.FocusManager;
+        internal IAbstSdlWindowManager WindowManager => _windowManager;
 
-        public AbstSdlComponentFactory(ISdlRootComponentContext rootContext, IServiceProvider serviceProvider)
+        public AbstSdlComponentFactory(ISdlRootComponentContext rootContext, IServiceProvider serviceProvider, IAbstFrameworkWindowManager windowManager)
             : base(serviceProvider)
         {
             _rootContext = rootContext;
+            _windowManager = (IAbstSdlWindowManager)windowManager;
             FontManagerTyped = (SdlFontManager)FontManager;
         }
 

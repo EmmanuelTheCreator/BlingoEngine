@@ -6,7 +6,7 @@ namespace AbstUI.SDL2;
 public class AbstSDLComponentContainer
 {
     private readonly List<AbstSDLComponentContext> _allComponents = new();
-    private readonly HashSet<AbstSDLComponentContext> _activeComponents = new();
+    private readonly List<AbstSDLComponentContext> _activeComponents = new();
     private readonly SdlFocusManager _focusManager;
 
     public AbstSDLComponentContainer(SdlFocusManager focusManager)
@@ -21,7 +21,23 @@ public class AbstSDLComponentContainer
         _allComponents.Remove(context);
     }
 
-    public void Activate(AbstSDLComponentContext context) => _activeComponents.Add(context);
+    public void Activate(AbstSDLComponentContext context)
+    {
+        _activeComponents.Remove(context);
+        if (context.AlwaysOnTop)
+        {
+            _activeComponents.Add(context);
+        }
+        else
+        {
+            int idx = _activeComponents.FindIndex(c => c.AlwaysOnTop);
+            if (idx >= 0)
+                _activeComponents.Insert(idx, context);
+            else
+                _activeComponents.Add(context);
+        }
+    }
+
     public void Deactivate(AbstSDLComponentContext context) => _activeComponents.Remove(context);
 
     public void Render(AbstSDLRenderContext renderContext)
@@ -38,8 +54,9 @@ public class AbstSDLComponentContainer
             _focusManager.SetFocus(null);
 
         var evt = new AbstSDLEvent(e);
-        foreach (var ctx in _activeComponents)
+        for (int i = _activeComponents.Count - 1; i >= 0; i--)
         {
+            var ctx = _activeComponents[i];
             if (ctx.Component is not IHandleSdlEvent handler)
                 continue;
 
