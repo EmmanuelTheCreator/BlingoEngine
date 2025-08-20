@@ -9,50 +9,51 @@ public static class GfxTestScene
 {
     public static IAbstNode Build(IAbstComponentFactory factory)
     {
-        var scroll = factory.CreateScrollContainer("scroll");
-        //var scroll = factory.CreateWrapPanel(AOrientation.Vertical,"scroll");
+        //var scroll = factory.CreateScrollContainer("scroll");
+        var scroll = factory.CreateWrapPanel(AOrientation.Vertical,"scroll");
         scroll.X = 20;
         scroll.Y = 20;
         scroll.Width = 760;
         scroll.Height = 560;
 
-        var panel = factory.CreatePanel("rootPanel");
-        //var panel = factory.CreateWrapPanel(AOrientation.Vertical, "scroll");
-        scroll.AddItem(panel);
-        panel.Width = 300;
-        panel.Height = 1400;
-        panel.BackgroundColor = AColor.FromRGBA(255, 10, 10, 0);
+        //var panel = factory.CreatePanel("rootPanel");
+        ////var panel = factory.CreateWrapPanel(AOrientation.Vertical, "scroll");
+        //scroll.AddItem(panel);
+        //panel.Width =500;
+        //panel.Height = 1400;
+        //panel.BackgroundColor = AColor.FromRGBA(255, 10, 10, 0);
 
         float y = 20f;
 
         void Add(IAbstNode node, float height = 40)
         {
-            panel.AddItem(node, 20, y);
+            //panel.AddItem(node, 80, y);
+            scroll.AddItem(node);
             y += height;
         }
 
-        Add(CreateLabel(factory, "label1"));
-        Add(CreateLabel(factory, "Label2 center", lbl2 =>
-        {
-            lbl2.Width = 200;
-            lbl2.TextAlignment = AbstTextAlignment.Center;
-        }));
-        Add(CreateLabel(factory, "Label3 right", lbl3 =>
-        {
-            lbl3.Width = 200;
-            lbl3.TextAlignment = AbstTextAlignment.Right;
-        }));
-        Add(CreateLabel(factory, "Label4 BIG", c => c.FontSize = 30));
+        Add(CreateLabel(factory, "label1", c => c.FontSize = 40));
+        //Add(CreateLabel(factory, "Label2 center", lbl2 =>
+        //{
+        //    lbl2.Width = 200;
+        //    lbl2.TextAlignment = AbstTextAlignment.Center;
+        //}));
+        //Add(CreateLabel(factory, "Label3 right", lbl3 =>
+        //{
+        //    lbl3.Width = 200;
+        //    lbl3.TextAlignment = AbstTextAlignment.Right;
+        //}));
+        //Add(CreateLabel(factory, "Label4 BIG", c => c.FontSize = 30));
 
-        var canvas2 = factory.CreateGfxCanvas("canvas1", 100, 50);
-        canvas2.Clear(AColor.FromRGBA(100, 100, 100, 0));
-        canvas2.DrawCircle(new APoint(50, 25), 20, AColor.FromRGBA(200, 0, 0, 255));
-        canvas2.DrawRect(new ARect(10, 10, 80, 30), AColor.FromRGBA(0, 200, 0, 255));
-        canvas2.DrawText(new APoint(5, 5), "Hallo", null, AColors.Green);
-        Add(canvas2);
-        Add(factory.CreateButton("button", "Button"));
+        //var canvas2 = factory.CreateGfxCanvas("canvas1", 100, 50);
+        //canvas2.Clear(AColor.FromRGBA(100, 100, 100, 0));
+        //canvas2.DrawCircle(new APoint(50, 25), 20, AColor.FromRGBA(200, 0, 0, 255));
+        //canvas2.DrawRect(new ARect(10, 10, 80, 30), AColor.FromRGBA(0, 200, 0, 255));
+        //canvas2.DrawText(new APoint(5, 5), "Hallo", null, AColors.Green);
+        //Add(canvas2);
+        //Add(factory.CreateButton("button", "Button"));
 
-        Add(factory.CreateStateButton("stateButton", null, "State"));
+        //Add(factory.CreateStateButton("stateButton", null, "State"));
 
         //Add(factory.CreateInputText("inputText"));
 
@@ -75,7 +76,7 @@ public static class GfxTestScene
         //var colorPicker = factory.CreateColorPicker("colorPicker");
         //Add(colorPicker, 80);
 
-        //AbstGfxCanvas canvas = factory.CreateGfxCanvas("canvas", 100, 50);
+        //var canvas = factory.CreateGfxCanvas("canvas", 100, 50);
         //canvas.Clear(AColor.FromRGBA(100, 100, 100, 255));
         //canvas.DrawRect(new ARect(10, 10, 80, 30), AColor.FromRGBA(200, 0, 0, 255));
         //Add(canvas, 60);

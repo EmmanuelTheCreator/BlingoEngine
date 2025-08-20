@@ -162,7 +162,7 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
             MeasureText(text);
         float boxW = Width > 0 ? Width : _textWidth;
         float boxH = Height > 0 ? Height : _textHeight;
-        var (tex, textW, textH) = AbstSdlLabel.CreateTextTextureBox(_sdlRootContext.Renderer, font, FontSize, text, (int)boxW, (int)boxH, Alignment, TextColor.ToSDLColor());
+        var (tex, textW, textH) = AbstSdlLabel.CreateTextTextureBox(_sdlRootContext.Renderer, font, text, (int)boxW, (int)boxH, Alignment, TextColor.ToSDLColor());
         _surface = tex;
         SDL.SDL_SetTextureBlendMode(_surface, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
         

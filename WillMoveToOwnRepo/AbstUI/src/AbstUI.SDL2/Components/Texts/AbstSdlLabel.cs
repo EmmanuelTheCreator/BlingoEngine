@@ -5,9 +5,7 @@ using AbstUI.SDL2.Core;
 using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Styles;
 using AbstUI.Texts;
-using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace AbstUI.SDL2.Components.Texts
 {
@@ -72,10 +70,11 @@ namespace AbstUI.SDL2.Components.Texts
                 // build texture
                 // render glyphs
                 SDL.SDL_Color col = FontColor.ToSDLColor();
-                var (tex, textW, textH) = CreateTextTextureBox(context.Renderer, _font!.FontHandle,FontSize, Text, (int)Width, (int)boxH, TextAlignment, col);
+                var (tex, textW, textH) = CreateTextTextureBox(context.Renderer, _font!.FontHandle,Text, (int)boxW, (int)boxH, TextAlignment, col);
                 _texture = tex;
                 SDL.SDL_SetTextureBlendMode(_texture, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
-                //SDL.SDL_FreeSurface(tex);
+                //SDL.SDL_FreeSurface(tex); // this breaks the texture, so we need keep it.
+
                 // update sizes
                 if (Width <= 0) Width = boxW;
                 if (Height <= 0) Height = boxH;
@@ -110,7 +109,7 @@ namespace AbstUI.SDL2.Components.Texts
             _font?.Release();
             base.Dispose();
         }
-        public static (nint tex, int textW, int textH) CreateTextTextureBox(nint renderer, nint fontHandle, int fontSize,string text, int boxW, int boxH, AbstTextAlignment align, SDL.SDL_Color col, bool wordWrap = true)
+        public static (nint tex, int textW, int textH) CreateTextTextureBox(nint renderer, nint fontHandle, string text, int boxW, int boxH, AbstTextAlignment align, SDL.SDL_Color col, bool wordWrap = true)
         {
             // --- local helper: wrap to width using TTF_MeasureUTF8
             static List<string> WrapLines(nint font, string t, int maxWidth)
@@ -169,8 +168,8 @@ namespace AbstUI.SDL2.Components.Texts
             var FMT = SDL.SDL_PIXELFORMAT_RGBA8888;
             nint box = SDL.SDL_CreateRGBSurfaceWithFormat(0, boxW, boxH, 32, FMT);
             if (box == nint.Zero) throw new Exception(SDL.SDL_GetError());
-            SDL.SDL_FillRect(box, nint.Zero, 0x00000000); // Transparent background
-            //SDL.SDL_FillRect(box, nint.Zero, 0xFFFFFFFF); // DEBUG white bg
+           // SDL.SDL_FillRect(box, nint.Zero, 0x00000000); // Transparent background
+            SDL.SDL_FillRect(box, nint.Zero, 0xFFFFFFFF); // DEBUG white bg
 
             // vertical start (centered)
             int startY = Math.Max(0, (boxH - totalH) / 2);
