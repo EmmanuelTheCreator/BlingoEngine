@@ -37,13 +37,13 @@ namespace LingoEngine.Director.Core.Scores
             for (int c = 1; c < _movie.MaxSpriteChannelCount; c++)
             {
                 var ch = (LingoSpriteChannel)_movie.Channel(c);
-                var header = new DirScoreChannelHeader("", c.ToString(), _gfxValues, (cHeader, state) => { if (_movie != null) ch.Visibility = state; });
+                var header = new DirScoreChannelHeader("", c.ToString(), _gfxValues, (cHeader, state) => { if (_movie != null) ch.Visibility = !state; });
                 ch.VisibilityChanged += (_, visible) =>
                 {
-                    header.SetMutedExternal(visible);
+                    header.SetMutedExternal(!visible);
                     Draw();
                 };
-                header.SetMutedExternal(ch.Visibility);
+                header.SetMutedExternal(!ch.Visibility);
                 channels.Add(header);
             }
             SetChannels(channels.ToArray());
