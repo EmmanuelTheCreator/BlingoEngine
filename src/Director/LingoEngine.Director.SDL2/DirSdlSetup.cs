@@ -3,6 +3,7 @@ using LingoEngine.Core;
 using LingoEngine.Director.Core;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Casts;
+using LingoEngine.Director.Core.Inspector;
 using LingoEngine.Director.Core.Projects;
 using LingoEngine.Director.Core.Stages;
 using AbstUI.SDL2;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using LingoEngine.Director.SDL2.Casts;
 using LingoEngine.Director.SDL2.Icons;
+using LingoEngine.Director.SDL2.Inspector;
 using LingoEngine.Director.SDL2.UI;
 using LingoEngine.Director.SDL2.Stages;
 using LingoEngine.Director.SDL2.Scores;
@@ -34,6 +36,9 @@ namespace LingoEngine.Director.SDL2
                    s.AddTransient<IDirFrameworkStageWindow>(p => p.GetRequiredService<DirSdlStageWindow>());
                    s.AddSingleton<DirSdlScoreWindow>();
                    s.AddTransient<IDirFrameworkScoreWindow>(p => p.GetRequiredService<DirSdlScoreWindow>());
+                   s.AddSingleton<DirSdlPropertyInspectorWindow>();
+                   s.AddTransient<IDirFrameworkPropertyInspectorWindow>(p => p.GetRequiredService<DirSdlPropertyInspectorWindow>());
+
                    s.AddSingleton<IDirectorIconManager>(p =>
                    {
                        var mgr = new DirSdlIconManager(p.GetRequiredService<ILogger<DirSdlIconManager>>(), p.GetRequiredService<SdlRootContext>());
