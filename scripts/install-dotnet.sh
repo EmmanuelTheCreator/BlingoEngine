@@ -14,7 +14,9 @@ fi
 # Download and run Microsoft's install script
 curl -sSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh
 chmod +x dotnet-install.sh
+# Install the latest LTS (currently .NET 8) and .NET 9 SDKs
 ./dotnet-install.sh --channel LTS
+./dotnet-install.sh --channel 9.0
 rm dotnet-install.sh
 
 echo "Installation complete. \$HOME/.dotnet has been added to your PATH."

@@ -44,6 +44,34 @@ public class AbstBlazorButtonComponent : IAbstFrameworkButton
         set { _margin = value; Changed?.Invoke(); }
     }
 
+    private AColor _borderColor;
+    public AColor BorderColor
+    {
+        get => _borderColor;
+        set { if (!_borderColor.Equals(value)) { _borderColor = value; Changed?.Invoke(); } }
+    }
+
+    private AColor _backgroundColor;
+    public AColor BackgroundColor
+    {
+        get => _backgroundColor;
+        set { if (!_backgroundColor.Equals(value)) { _backgroundColor = value; Changed?.Invoke(); } }
+    }
+
+    private AColor _backgroundHoverColor;
+    public AColor BackgroundHoverColor
+    {
+        get => _backgroundHoverColor;
+        set { if (!_backgroundHoverColor.Equals(value)) { _backgroundHoverColor = value; Changed?.Invoke(); } }
+    }
+
+    private AColor _textColor;
+    public AColor TextColor
+    {
+        get => _textColor;
+        set { if (!_textColor.Equals(value)) { _textColor = value; Changed?.Invoke(); } }
+    }
+
     public object FrameworkNode => this;
 
     private string _text = string.Empty;

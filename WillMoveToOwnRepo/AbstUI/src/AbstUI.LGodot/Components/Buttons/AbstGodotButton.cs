@@ -4,6 +4,7 @@ using AbstUI.Primitives;
 using AbstUI.Styles;
 using AbstUI.LGodot.Bitmaps;
 using AbstUI.Components.Buttons;
+using AbstUI.LGodot.Primitives;
 
 namespace AbstUI.LGodot.Components
 {
@@ -14,14 +15,28 @@ namespace AbstUI.LGodot.Components
     {
         private AMargin _margin = AMargin.Zero;
         private IAbstTexture2D? _texture;
+        private readonly StyleBoxFlat _style = new StyleBoxFlat();
+        private readonly StyleBoxFlat _styleHover = new StyleBoxFlat();
+        private readonly StyleBoxFlat _stylePressed = new StyleBoxFlat();
+        private readonly StyleBoxFlat _styleDisabled = new StyleBoxFlat();
+
+        private AColor _borderColor = AbstDefaultColors.Button_Border_Normal;
+        private AColor _backgroundColor = AbstDefaultColors.Button_Bg_Normal;
+        private AColor _backgroundHoverColor = AbstDefaultColors.Button_Bg_Hover;
+        private AColor _textColor = AColor.FromRGB(0, 0, 0);
 
         private event Action? _pressed;
-       
+
         public object FrameworkNode => this;
 
         public AbstGodotButton(AbstButton button, IAbstFontManager lingoFontManager)
         {
             button.Init(this);
+            ResetStyle(_style);
+            ResetStyle(_styleHover);
+            ResetStyle(_stylePressed);
+            ResetStyle(_styleDisabled);
+            UpdateStyle();
             Pressed += () => _pressed?.Invoke();
         }
 
@@ -31,8 +46,8 @@ namespace AbstUI.LGodot.Components
         public float Height { get => Size.Y; set { Size = new Vector2(Size.X, value); CustomMinimumSize = new Vector2(Size.X, value); } }
 
         public bool Visibility { get => Visible; set => Visible = value; }
-        
-       
+
+
         string IAbstFrameworkNode.Name { get => Name; set => Name = value; }
 
         public AMargin Margin
@@ -50,6 +65,10 @@ namespace AbstUI.LGodot.Components
 
         public new string Text { get => base.Text; set => base.Text = value; }
         public bool Enabled { get => !Disabled; set => Disabled = !value; }
+        public AColor BorderColor { get => _borderColor; set { _borderColor = value; UpdateStyle(); } }
+        public AColor BackgroundColor { get => _backgroundColor; set { _backgroundColor = value; UpdateStyle(); } }
+        public AColor BackgroundHoverColor { get => _backgroundHoverColor; set { _backgroundHoverColor = value; UpdateStyle(); } }
+        public AColor TextColor { get => _textColor; set { _textColor = value; UpdateStyle(); } }
         event Action? IAbstFrameworkButton.Pressed
         {
             add => _pressed += value;
@@ -73,7 +92,39 @@ namespace AbstUI.LGodot.Components
             base.Dispose();
         }
 
-        
-        
+        private void UpdateStyle()
+        {
+            _style.BgColor = _backgroundColor.ToGodotColor();
+            _style.BorderColor = _borderColor.ToGodotColor();
+            _style.SetBorderWidthAll(1);
+
+            _styleHover.BgColor = _backgroundHoverColor.ToGodotColor();
+            _styleHover.BorderColor = _borderColor.ToGodotColor();
+            _styleHover.SetBorderWidthAll(1);
+
+            _stylePressed.BgColor = AbstDefaultColors.Button_Bg_Pressed.ToGodotColor();
+            _stylePressed.BorderColor = _borderColor.ToGodotColor();
+            _stylePressed.SetBorderWidthAll(1);
+
+            _styleDisabled.BgColor = AbstDefaultColors.Button_Bg_Disabled.ToGodotColor();
+            _styleDisabled.BorderColor = _borderColor.ToGodotColor();
+            _styleDisabled.SetBorderWidthAll(1);
+
+            AddThemeStyleboxOverride("normal", _style);
+            AddThemeStyleboxOverride("hover", _styleHover);
+            AddThemeStyleboxOverride("pressed", _stylePressed);
+            AddThemeStyleboxOverride("focus", _stylePressed);
+            AddThemeStyleboxOverride("disabled", _styleDisabled);
+            AddThemeColorOverride("font_color", _textColor.ToGodotColor());
+        }
+
+        private static void ResetStyle(StyleBoxFlat style)
+        {
+            style.ContentMarginLeft = style.ContentMarginRight = 0;
+            style.ContentMarginTop = style.ContentMarginBottom = 0;
+            style.BorderWidthBottom = style.BorderWidthRight = style.BorderWidthLeft = style.BorderWidthTop = 0;
+            style.SetBorderWidthAll(0);
+        }
+
     }
 }

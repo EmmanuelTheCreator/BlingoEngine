@@ -5,6 +5,7 @@ using AbstUI.LGodot.Bitmaps;
 using AbstUI.Components.Inputs;
 using AbstUI.Components.Buttons;
 using AbstUI.Styles;
+using AbstUI.LGodot.Primitives;
 
 namespace AbstUI.LGodot.Components
 {
@@ -49,8 +50,8 @@ namespace AbstUI.LGodot.Components
 
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
         public float Y { get => Position.Y; set => Position = new Vector2(Position.X, value); }
-        public float Width { get => CustomMinimumSize.X; set => CustomMinimumSize = new Vector2(value, CustomMinimumSize.Y); }
-        public float Height { get => CustomMinimumSize.Y; set => CustomMinimumSize = new Vector2(CustomMinimumSize.X, value); }
+        public float Width { get => Size.X; set { Size = new Vector2(value, Size.Y); CustomMinimumSize = new Vector2(value, CustomMinimumSize.Y); } }
+        public float Height { get => Size.Y; set { Size = new Vector2(Size.X, value); CustomMinimumSize = new Vector2(CustomMinimumSize.X, value); } }
         public bool Visibility { get => Visible; set => Visible = value; }
         public bool Enabled
         {
@@ -120,7 +121,7 @@ namespace AbstUI.LGodot.Components
 
         public new void Dispose()
         {
-           
+
             Pressed -= BtnClicked;
             QueueFree();
             base.Dispose();
@@ -128,32 +129,32 @@ namespace AbstUI.LGodot.Components
 
         private void UpdateStateIcon()
         {
-            if(_texture != null && _texture is AbstGodotTexture2D tex)
+            if (_texture != null && _texture is AbstGodotTexture2D tex)
                 Icon = tex.Texture;
-             if (!IsOn && _textureOff != null && _textureOff is AbstGodotTexture2D texOff)
+            if (!IsOn && _textureOff != null && _textureOff is AbstGodotTexture2D texOff)
                 Icon = texOff.Texture;
-            
+
         }
         private void UpdateStyle()
         {
-            _style.BgColor = ToColor(_backgroundColor);
-            _style.BorderColor = ToColor(_borderColor);
-            _style.BorderWidthAll = 1;
+            _style.BgColor = _backgroundColor.ToGodotColor();
+            _style.BorderColor = _borderColor.ToGodotColor();
+            _style.SetBorderWidthAll(1);
 
-            _styleHover.BgColor = ToColor(_backgroundHoverColor);
-            _styleHover.BorderColor = ToColor(_borderHoverColor);
-            _styleHover.BorderWidthAll = 1;
+            _styleHover.BgColor = _backgroundHoverColor.ToGodotColor();
+            _styleHover.BorderColor = _borderHoverColor.ToGodotColor();
+            _styleHover.SetBorderWidthAll(1);
 
-            _stylePressed.BgColor = ToColor(_backgroundPressedColor);
-            _stylePressed.BorderColor = ToColor(_borderPressedColor);
-            _stylePressed.BorderWidthAll = 1;
+            _stylePressed.BgColor = _backgroundPressedColor.ToGodotColor();
+            _stylePressed.BorderColor = _borderPressedColor.ToGodotColor();
+            _stylePressed.SetBorderWidthAll(1);
 
             AddThemeStyleboxOverride("normal", _isOn ? _stylePressed : _style);
             AddThemeStyleboxOverride("hover", _isOn ? _stylePressed : _styleHover);
             AddThemeStyleboxOverride("pressed", _stylePressed);
             AddThemeStyleboxOverride("focus", _stylePressed);
             AddThemeStyleboxOverride("disabled", _styleDisabled);
-            AddThemeColorOverride("font_color", ToColor(_textColor));
+            AddThemeColorOverride("font_color", _textColor.ToGodotColor());
         }
 
         private void ResetStyle(StyleBoxFlat style)
@@ -170,7 +171,7 @@ namespace AbstUI.LGodot.Components
         private AColor _backgroundColor = AbstDefaultColors.Button_Bg_Normal;
         private AColor _backgroundHoverColor = AbstDefaultColors.Button_Bg_Hover;
         private AColor _backgroundPressedColor = AbstDefaultColors.Button_Bg_Pressed;
-        private AColor _textColor = AColor.FromRGB(0,0,0);
+        private AColor _textColor = AColor.FromRGB(0, 0, 0);
 
         public AColor BorderColor { get => _borderColor; set { _borderColor = value; UpdateStyle(); } }
         public AColor BorderHoverColor { get => _borderHoverColor; set { _borderHoverColor = value; UpdateStyle(); } }
@@ -180,6 +181,5 @@ namespace AbstUI.LGodot.Components
         public AColor BackgroundPressedColor { get => _backgroundPressedColor; set { _backgroundPressedColor = value; UpdateStyle(); } }
         public AColor TextColor { get => _textColor; set { _textColor = value; UpdateStyle(); } }
 
-        private static Color ToColor(AColor c) => new Color(c.R / 255f, c.G / 255f, c.B / 255f, c.A / 255f);
     }
 }
