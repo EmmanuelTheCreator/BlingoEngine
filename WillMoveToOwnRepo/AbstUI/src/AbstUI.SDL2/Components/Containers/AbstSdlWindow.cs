@@ -84,6 +84,7 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
     public AbstSdlWindow(AbstSdlComponentFactory factory) : base(factory)
     {
         _factory = factory;
+        ClipChildren = true;
         //var mouse = ((IAbstMouseInternal)factory.RootContext.AbstMouse).CreateNewInstance(window);
         //var key = ((AbstKey)factory.RootContext.AbstKey).CreateNewInstance(window);
         //_abstWindow.Init(this, mouse, key);
@@ -108,6 +109,8 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
     {
         Visibility = true;
         _factory.WindowManager.SetActiveWindow(this);
+        _abstWindow.SetPositionFromFW((int)X, (int)Y);
+        _abstWindow.ResizeFromFW(false, (int)Width, (int)Height);
         _abstWindow.RaiseWindowStateChanged(true);
     }
 
@@ -117,6 +120,7 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
 
         X = (size.X - Width) / 2f;
         Y = (size.Y - Height) / 2f;
+        _abstWindow.SetPositionFromFW((int)X, (int)Y);
         Popup();
     }
 
@@ -130,26 +134,22 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
     internal void BringToFront()
         => _factory.RootContext.ComponentContainer.Activate(ComponentContext);
 
-    public void OpenWindow()
-    {
+    public void OpenWindow() => Popup();
 
-    }
-
-    public void CloseWindow()
-    {
-
-    }
+    public void CloseWindow() => Hide();
 
     public void MoveWindow(int x, int y)
     {
         X = x;
         Y = y;
+        _abstWindow.SetPositionFromFW(x, y);
     }
 
     public void SetPositionAndSize(int x, int y, int width, int height)
     {
         X = x;
         Y = y;
+        _abstWindow.SetPositionFromFW(x, y);
         SetSize(width, height);
     }
 
@@ -162,6 +162,7 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
     {
         Width = width;
         Height = height;
+        _abstWindow.ResizeFromFW(false, width, height);
     }
 
     public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
@@ -256,6 +257,7 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
                 {
                     X = e.Event.motion.x - _dragOffsetX;
                     Y = e.Event.motion.y - _dragOffsetY;
+                    _abstWindow.SetPositionFromFW((int)X, (int)Y);
                     e.StopPropagation = true;
                 }
                 break;

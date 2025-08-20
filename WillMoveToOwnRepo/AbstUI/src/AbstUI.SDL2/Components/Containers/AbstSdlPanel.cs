@@ -18,6 +18,7 @@ namespace AbstUI.SDL2.Components.Containers
         public AColor? BackgroundColor { get; set; }
         public AColor? BorderColor { get; set; }
         public float BorderWidth { get; set; }
+        public bool ClipChildren { get; set; }
         public object FrameworkNode => this;
 
         private readonly List<IAbstFrameworkLayoutNode> _children = new();
@@ -80,6 +81,12 @@ namespace AbstUI.SDL2.Components.Containers
                 SDL.SDL_RenderClear(context.Renderer);
             }
 
+            if (ClipChildren)
+            {
+                SDL.SDL_Rect clip = new SDL.SDL_Rect { x = 0, y = 0, w = w, h = h };
+                SDL.SDL_RenderSetClipRect(context.Renderer, ref clip);
+            }
+
             foreach (var child in _children)
             {
                 if (child.FrameworkNode is AbstSdlComponent comp)
@@ -94,6 +101,9 @@ namespace AbstUI.SDL2.Components.Containers
                     ctx.OffsetY = oldOffY;
                 }
             }
+
+            if (ClipChildren)
+                SDL.SDL_RenderSetClipRect(context.Renderer, nint.Zero);
 
             if (BorderWidth > 0 && BorderColor is { } bc)
             {
