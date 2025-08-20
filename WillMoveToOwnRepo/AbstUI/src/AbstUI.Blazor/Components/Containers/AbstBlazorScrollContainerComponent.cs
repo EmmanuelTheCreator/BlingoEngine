@@ -40,6 +40,20 @@ public class AbstBlazorScrollContainerComponent : AbstBlazorComponentModelBase, 
         set { if (Math.Abs(_scrollVertical - value) > float.Epsilon) { _scrollVertical = value; RaiseChanged(); } }
     }
 
+    private AbstScrollbarMode _scollbarModeH;
+    public AbstScrollbarMode ScollbarModeH
+    {
+        get => _scollbarModeH;
+        set { if (_scollbarModeH != value) { _scollbarModeH = value; RaiseChanged(); } }
+    }
+
+    private AbstScrollbarMode _scollbarModeV;
+    public AbstScrollbarMode ScollbarModeV
+    {
+        get => _scollbarModeV;
+        set { if (_scollbarModeV != value) { _scollbarModeV = value; RaiseChanged(); } }
+    }
+
     public void AddItem(IAbstFrameworkLayoutNode child)
     {
         if (!_items.Contains(child))

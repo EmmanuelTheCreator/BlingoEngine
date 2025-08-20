@@ -9,9 +9,14 @@ namespace AbstUI.LGodot.Components
     public partial class AbstGodotScrollContainer : ScrollContainer, IAbstFrameworkScrollContainer, IDisposable
     {
         private AMargin _margin = AMargin.Zero;
+        private AbstScrollbarMode _scrollModeH = AbstScrollbarMode.Auto;
+        private AbstScrollbarMode _scrollModeV = AbstScrollbarMode.Auto;
+
         public AbstGodotScrollContainer(AbstScrollContainer container)
         {
             container.Init(this);
+            ScollbarModeH = _scrollModeH;
+            ScollbarModeV = _scrollModeV;
         }
 
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
@@ -35,6 +40,36 @@ namespace AbstUI.LGodot.Components
         {
             get => base.ClipContents;
             set => base.ClipContents = value;
+        }
+
+        public AbstScrollbarMode ScollbarModeH
+        {
+            get => _scrollModeH;
+            set
+            {
+                _scrollModeH = value;
+                HorizontalScrollMode = value switch
+                {
+                    AbstScrollbarMode.Hidden => ScrollMode.ShowNever,
+                    AbstScrollbarMode.AlwaysVisible => ScrollMode.ShowAlways,
+                    _ => ScrollMode.Auto,
+                };
+            }
+        }
+
+        public AbstScrollbarMode ScollbarModeV
+        {
+            get => _scrollModeV;
+            set
+            {
+                _scrollModeV = value;
+                VerticalScrollMode = value switch
+                {
+                    AbstScrollbarMode.Hidden => ScrollMode.ShowNever,
+                    AbstScrollbarMode.AlwaysVisible => ScrollMode.ShowAlways,
+                    _ => ScrollMode.Auto,
+                };
+            }
         }
 
         public AMargin Margin
@@ -76,6 +111,6 @@ namespace AbstUI.LGodot.Components
             base.Dispose();
         }
 
-       
+
     }
 }

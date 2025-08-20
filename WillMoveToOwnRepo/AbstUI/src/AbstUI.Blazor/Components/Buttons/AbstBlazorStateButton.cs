@@ -16,7 +16,7 @@ public partial class AbstBlazorStateButton : IAbstFrameworkStateButton
     [Parameter] public AColor BackgroundColor { get; set; } = AbstDefaultColors.Button_Bg_Normal;
     [Parameter] public AColor BackgroundHoverColor { get; set; } = AbstDefaultColors.Button_Bg_Hover;
     [Parameter] public AColor BackgroundPressedColor { get; set; } = AbstDefaultColors.Button_Bg_Pressed;
-    [Parameter] public AColor TextColor { get; set; } = AColor.FromRGB(0,0,0);
+    [Parameter] public AColor TextColor { get; set; } = AColor.FromRGB(0, 0, 0);
     public IAbstTexture2D? TextureOn { get; set; }
     public IAbstTexture2D? TextureOff { get; set; }
 
