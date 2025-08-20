@@ -2,7 +2,7 @@ using System;
 using AbstUI.Components.Buttons;
 using AbstUI.Primitives;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Buttons;
 
 public class AbstBlazorButtonComponent : IAbstFrameworkButton
 {

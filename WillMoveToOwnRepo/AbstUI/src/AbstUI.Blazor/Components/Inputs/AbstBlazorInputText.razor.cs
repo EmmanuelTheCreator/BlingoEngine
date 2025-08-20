@@ -2,9 +2,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using AbstUI.Primitives;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Inputs;
 
-public partial class AbstBlazorInputText : AbstBlazorComponentBase
+public partial class AbstBlazorInputText
 {
     private AbstBlazorInputTextComponent _component = default!;
 

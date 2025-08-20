@@ -1,7 +1,7 @@
 using System;
 using AbstUI.Components.Menus;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Menus;
 
 internal class AbstBlazorMenuItem : IAbstFrameworkMenuItem, IDisposable
 {

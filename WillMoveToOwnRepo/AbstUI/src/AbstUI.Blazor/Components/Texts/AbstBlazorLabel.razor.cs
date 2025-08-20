@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using AbstUI.Texts;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Texts;
 
-public partial class AbstBlazorLabel : AbstBlazorComponentBase
+public partial class AbstBlazorLabel
 {
     private AbstBlazorLabelComponent _component = default!;
 

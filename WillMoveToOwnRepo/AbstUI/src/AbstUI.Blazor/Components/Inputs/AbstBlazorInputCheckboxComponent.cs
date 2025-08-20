@@ -1,7 +1,7 @@
 using System;
 using AbstUI.Components.Inputs;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Inputs;
 
 public class AbstBlazorInputCheckboxComponent : AbstBlazorComponentModelBase, IAbstFrameworkInputCheckbox
 {

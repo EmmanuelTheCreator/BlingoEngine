@@ -3,7 +3,7 @@ using AbstUI.Components.Buttons;
 using AbstUI.Components.Menus;
 using AbstUI.Primitives;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Menus;
 
 internal class AbstBlazorMenu : IAbstFrameworkMenu, IDisposable
 {

@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Components;
 using AbstUI.Primitives;
 using AbstUI.Components.Inputs;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Inputs;
 
-public partial class AbstBlazorInputCombobox : AbstBlazorBaseInput, IAbstFrameworkInputCombobox
+public partial class AbstBlazorInputCombobox : IAbstFrameworkInputCombobox
 {
 
     private readonly List<KeyValuePair<string, string>> _items = new();
@@ -47,7 +47,7 @@ public partial class AbstBlazorInputCombobox : AbstBlazorBaseInput, IAbstFramewo
                 SelectedKey = null;
                 SelectedValue = null;
             }
-            ValueChanged?.Invoke();
+            ValueChangedInvoke();
         }
     }
 }

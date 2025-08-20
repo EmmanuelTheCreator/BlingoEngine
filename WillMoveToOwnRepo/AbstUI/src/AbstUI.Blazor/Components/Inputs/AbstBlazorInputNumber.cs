@@ -3,9 +3,9 @@ using AbstUI.Primitives;
 using System.Numerics;
 using AbstUI.Components.Inputs;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Inputs;
 
-public partial class AbstBlazorInputNumber<TValue> : AbstBlazorBaseInput, IAbstFrameworkInputNumber<TValue>
+public partial class AbstBlazorInputNumber<TValue> : IAbstFrameworkInputNumber<TValue>
     where TValue : INumber<TValue>
 {
     [Parameter] public TValue Value { get; set; } = TValue.Zero;

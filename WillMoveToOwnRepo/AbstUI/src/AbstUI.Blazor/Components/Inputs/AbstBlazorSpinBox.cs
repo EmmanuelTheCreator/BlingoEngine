@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using AbstUI.Components.Inputs;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Inputs;
 
-public partial class AbstBlazorSpinBox : AbstBlazorBaseInput, IAbstFrameworkSpinBox
+public partial class AbstBlazorSpinBox : IAbstFrameworkSpinBox
 {
     [Parameter] public float Value { get; set; }
     [Parameter] public float Min { get; set; }

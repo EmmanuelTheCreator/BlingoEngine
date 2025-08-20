@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Components;
 using System.Numerics;
 using AbstUI.Components.Inputs;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Inputs;
 
-public partial class AbstBlazorInputSlider<TValue> : AbstBlazorBaseInput,IAbstFrameworkInputSlider<TValue>
+public partial class AbstBlazorInputSlider<TValue> : IAbstFrameworkInputSlider<TValue>
     where TValue : INumber<TValue>
 {
     [Parameter] public TValue Value { get; set; } = TValue.Zero;

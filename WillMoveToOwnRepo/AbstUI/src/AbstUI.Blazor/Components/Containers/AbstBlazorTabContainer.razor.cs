@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Components;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Containers;
 
-public partial class AbstBlazorTabContainer : AbstBlazorComponentBase
+public partial class AbstBlazorTabContainer
 {
     private AbstBlazorTabContainerComponent _component = default!;
 

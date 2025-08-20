@@ -2,7 +2,7 @@ using AbstUI.Components.Texts;
 using AbstUI.Primitives;
 using AbstUI.Texts;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Texts;
 
 public class AbstBlazorLabelComponent : AbstBlazorComponentModelBase, IAbstFrameworkLabel
 {
