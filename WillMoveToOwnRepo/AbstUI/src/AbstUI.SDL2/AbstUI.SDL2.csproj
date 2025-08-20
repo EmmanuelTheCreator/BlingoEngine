@@ -29,9 +29,9 @@
                 <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.5" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<InternalsVisibleTo Include="AbstUI.GfxVisualTest.SDL2" />
-	</ItemGroup>
+        <ItemGroup>
+                <InternalsVisibleTo Include="AbstUI.GfxVisualTest.SDL2" />
+        </ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\AbstUI\AbstUI.csproj" />
