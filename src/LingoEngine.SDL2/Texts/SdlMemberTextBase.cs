@@ -174,7 +174,9 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
         _renderedText = Text;
         _lastWidth = Width; 
         _lastHeight = Height;
-        _lingoMemberText.RegPoint = new APoint(-Width/2, -Height/2);
+        var offstX = Alignment == AbstTextAlignment.Right
+            ? 0 : Alignment == AbstTextAlignment.Center ? 0 : -Width / 2;
+        _lingoMemberText.RegPoint = new APoint(offstX, -Height/2);
        
         // make a copy
         //var copyTextureSDL = new SdlTexture2D(SDL.SDL_CreateTextureFromSurface(_sdlRootContext.Renderer, _surface), (int)boxW, (int)boxH);

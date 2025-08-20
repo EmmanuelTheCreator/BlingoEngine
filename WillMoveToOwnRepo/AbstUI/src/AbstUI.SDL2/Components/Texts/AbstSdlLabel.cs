@@ -72,7 +72,7 @@ namespace AbstUI.SDL2.Components.Texts
                 // build texture
                 // render glyphs
                 SDL.SDL_Color col = FontColor.ToSDLColor();
-                var (tex, textW, textH) = CreateTextTextureBox(context.Renderer, _font!.FontHandle,FontSize, Text, (int)boxW, (int)boxH, TextAlignment, col);
+                var (tex, textW, textH) = CreateTextTextureBox(context.Renderer, _font!.FontHandle,FontSize, Text, (int)Width, (int)boxH, TextAlignment, col);
                 _texture = tex;
                 SDL.SDL_SetTextureBlendMode(_texture, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
                 SDL.SDL_FreeSurface(tex);
@@ -110,59 +110,132 @@ namespace AbstUI.SDL2.Components.Texts
             _font?.Release();
             base.Dispose();
         }
-        public static (nint tex,int textW, int textH) CreateTextTextureBox(nint renderer, nint fontHandle, int fontSize, string text, int boxW, int boxH, AbstTextAlignment align, SDL.SDL_Color col, bool wordWrap = true)
+        public static (nint tex, int textW, int textH) CreateTextTextureBox(nint renderer, nint fontHandle, int fontSize,string text, int boxW, int boxH, AbstTextAlignment align, SDL.SDL_Color col, bool wordWrap = true)
         {
+            // --- local helper: wrap to width using TTF_MeasureUTF8
+            static List<string> WrapLines(nint font, string t, int maxWidth)
+            {
+                var lines = new List<string>();
+                foreach (var raw in t.Replace("\r", "").Split('\n'))
+                {
+                    var s = raw;
+                    if (string.IsNullOrEmpty(s)) { lines.Add(string.Empty); continue; }
 
+                    while (s.Length > 0)
+                    {
+                        SDL_ttf.TTF_MeasureUTF8(font, s, maxWidth, out int extent, out int count);
+                        if (count <= 0 || count >= s.Length) { lines.Add(s); break; }
+
+                        int cut = s.LastIndexOf(' ', Math.Clamp(count - 1, 0, s.Length - 1), count);
+                        if (cut <= 0) cut = count;
+                        lines.Add(s[..cut].TrimEnd());
+                        s = s[cut..].TrimStart();
+                    }
+                }
+                return lines;
+            }
+
+            // choose line list
             var hasLineBreak = text.IndexOf('\n') >= 0;
-            nint textSurf =  wordWrap || hasLineBreak
-                ? SDL_ttf.TTF_RenderUTF8_Blended_Wrapped(fontHandle, text, col, (uint)(boxW+20)) // for some reason we need to add an offset of 20px to the width, otherwise it does not wrap correctly
-                : SDL_ttf.TTF_RenderUTF8_Blended(fontHandle, text, col);
-            //nint textSurf = SDL_ttf.TTF_RenderUTF8_Blended(fontHandle, text, col);
-            if (textSurf == nint.Zero) throw new Exception(SDL_ttf.TTF_GetError());
-            var ts = Marshal.PtrToStructure<SDL.SDL_Surface>(textSurf);
-            int tw = ts.w, th = ts.h;
+            List<string> lines;
+            if (wordWrap || hasLineBreak)
+            {
+                int wrapWidth = boxW > 0 ? boxW : int.MaxValue / 4;
+                lines = WrapLines(fontHandle, text, wrapWidth);
+            }
+            else
+            {
+                lines = new List<string> { text };
+            }
 
-            // fallback sizes
-            if (boxW <= 0) boxW = tw;
-            if (boxH <= 0) boxH = th;
+            // measure
+            int lineSkip = SDL_ttf.TTF_FontLineSkip(fontHandle);
+            int maxLineW = 0;
+            int maxLineH = 0;
+            foreach (var ln in lines)
+            {
+                SDL_ttf.TTF_SizeUTF8(fontHandle, ln, out int lw, out int lh);
+                if (lw > maxLineW) maxLineW = lw;
+                if (lh > maxLineH) maxLineH = lh;
+            }
+            int totalH = Math.Max(lineSkip * Math.Max(1, lines.Count), maxLineH);
+            int totalW = Math.Max(1, maxLineW);
 
-            // box surface
+            // fallback box size
+            if (boxW <= 0) boxW = totalW;
+            if (boxH <= 0) boxH = totalH;
+
+            // target surface
             var FMT = SDL.SDL_PIXELFORMAT_RGBA8888;
             nint box = SDL.SDL_CreateRGBSurfaceWithFormat(0, boxW, boxH, 32, FMT);
-            if (box == nint.Zero) { SDL.SDL_FreeSurface(textSurf); throw new Exception(SDL.SDL_GetError()); }
-            SDL.SDL_FillRect(box, nint.Zero, 0x00000000);
-            //SDL.SDL_FillRect(box, nint.Zero, 0xFFFFFFFF);
+            if (box == nint.Zero) throw new Exception(SDL.SDL_GetError());
+            SDL.SDL_FillRect(box, nint.Zero, 0x00000000); // Transparent background
+            //SDL.SDL_FillRect(box, nint.Zero, 0xFFFFFFFF); // DEBUG white bg
 
-            // dst placement
-            int dstX = align switch
-            {
-                AbstTextAlignment.Center => Math.Max(0, (boxW - tw) / 2),
-                AbstTextAlignment.Right => Math.Max(0, boxW - tw),
-                _ => 0
-            };
+            // vertical start (centered)
+            int startY = Math.Max(0, (boxH - totalH) / 2);
 
-            int dstY = Math.Max(0, (boxH - th) / 2);
+            // optional small baseline tweak (keep from your code)
             int ascent = SDL_ttf.TTF_FontAscent(fontHandle);
-            int descent = SDL_ttf.TTF_FontDescent(fontHandle);
-            var kerning = SDL_ttf.TTF_GetFontKerning(fontHandle);
-            var lineGap = SDL_ttf.TTF_FontLineSkip(fontHandle);
-            var fontHeight = SDL_ttf.TTF_FontHeight(fontHandle);
-            int tightHeight = fontHeight - ascent ;
-            var sdlFixY = tightHeight-1; 
-            //var sdlFixY = (int)MathF.Floor(fontSize/7); // 6px, SDL_ttf has a bug that it renders text too high, so we need to shift it up a bit
-            var dst = new SDL.SDL_Rect { x = dstX, y = dstY- sdlFixY, w = tw, h = th };
-            SDL.SDL_BlitSurface(textSurf, nint.Zero, box, ref dst);
+            int fontHeight = SDL_ttf.TTF_FontHeight(fontHandle);
+            int tightHeight = fontHeight - ascent;
+            int sdlFixY = tightHeight - 1;
+
+            // draw lines
+            int y = startY - sdlFixY;
+            foreach (var ln in lines)
+            {
+                nint lineSurf = SDL_ttf.TTF_RenderUTF8_Blended(fontHandle, ln, col);
+                if (lineSurf == nint.Zero) { SDL.SDL_FreeSurface(box); throw new Exception(SDL_ttf.TTF_GetError()); }
+                var ls = Marshal.PtrToStructure<SDL.SDL_Surface>(lineSurf);
+                int lw = ls.w, lh = ls.h;
+
+                int x = align switch
+                {
+                    AbstTextAlignment.Center => Math.Max(0, (boxW - lw) / 2),
+                    AbstTextAlignment.Right => Math.Max(0, boxW - lw),
+                    _ => 0
+                };
+
+                var dst = new SDL.SDL_Rect { x = x, y = y, w = lw, h = lh };
+                SDL.SDL_BlitSurface(lineSurf, nint.Zero, box, ref dst);
+                SDL.SDL_FreeSurface(lineSurf);
+
+                y += lineSkip;
+            }
 
             // texture
             nint tex = SDL.SDL_CreateTextureFromSurface(renderer, box);
+            if (tex == nint.Zero) { SDL.SDL_FreeSurface(box); throw new Exception(SDL.SDL_GetError()); }
             SDL.SDL_SetTextureBlendMode(tex, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
-            SDL.SDL_FreeSurface(box);
 
-            return (tex,tw, th);
+            SDL.SDL_FreeSurface(box);
+            return (tex, totalW, totalH);
         }
 
-     
 
+
+        /// Splits `text` into lines that fit `maxWidth` using word boundaries.
+        private static List<string> WrapLines(nint font, string text, int maxWidth)
+        {
+            var lines = new List<string>();
+            foreach (var raw in text.Replace("\r", "").Split('\n'))
+            {
+                var s = raw;
+                while (s.Length > 0)
+                {
+                    SDL_ttf.TTF_MeasureUTF8(font, s, maxWidth, out int extent, out int count);
+                    if (count <= 0 || count >= s.Length) { lines.Add(s); break; }
+                    // back off to last space for cleaner wrap
+                    int cut = s.LastIndexOf(' ', count - 1, count);
+                    if (cut <= 0) cut = count;
+                    lines.Add(s[..cut].TrimEnd());
+                    s = s[cut..].TrimStart();
+                }
+                if (raw.Length == 0) lines.Add(string.Empty);
+            }
+            return lines;
+        }
         public static string CleanText(string text)
         {
             // normalize + drop trailing newlines (matches render)
