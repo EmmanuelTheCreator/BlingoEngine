@@ -182,8 +182,10 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                     _currentToken.Type != LingoTokenType.Eof &&
                     _currentToken.Type != LingoTokenType.Return)
                 {
-                    var args = new List<LingoNode>();
-                    args.Add(ParseExpression());
+                    var args = new List<LingoNode>
+                    {
+                        ParseExpression()
+                    };
                     while (Match(LingoTokenType.Comma))
                     {
                         args.Add(ParseExpression());
@@ -798,8 +800,9 @@ namespace LingoEngine.Lingo.Core.Tokenizer
             LingoNode? elseBlock = null;
             if (_currentToken.Type == LingoTokenType.Else)
             {
+                var elseTok = _currentToken;
                 AdvanceToken(); // consume 'else'
-                if (_currentToken.Type == LingoTokenType.If)
+                if (_currentToken.Type == LingoTokenType.If && _currentToken.Line == elseTok.Line)
                 {
                     elseBlock = ParseElseIfChain();
                 }
