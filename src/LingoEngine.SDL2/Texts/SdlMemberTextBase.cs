@@ -29,14 +29,14 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
 
     public SdlTexture2D? TextureSDL => _textureSDL;
     public IAbstTexture2D? TextureLingo => _textureSDL;
-   
+
 
     public string Text { get => _text; set => _text = value; }
     public bool WordWrap { get; set; }
     public int ScrollTop { get; set; }
     public string FontName
     {
-        get => fontName; 
+        get => fontName;
         set
         {
             fontName = value;
@@ -45,7 +45,7 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     }
     public int FontSize
     {
-        get => fontSize; 
+        get => fontSize;
         set
         {
             fontSize = value;
@@ -57,8 +57,8 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     public AbstTextAlignment Alignment { get; set; }
     public int Margin { get; set; }
     public bool IsLoaded { get; private set; }
-    public int Width {get;set;}
-    public int Height {get;set;}
+    public int Width { get; set; }
+    public int Height { get; set; }
 
 
     protected SdlMemberTextBase(IAbstFontManager fontManager, ISdlRootComponentContext sdlRootContext)
@@ -71,7 +71,8 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     {
         _lingoMemberText = member;
     }
-    public void Dispose() {
+    public void Dispose()
+    {
         if (_surface != nint.Zero)
         {
             SDL.SDL_FreeSurface(_surface);
@@ -94,8 +95,8 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     public void ImportFileInto() { }
     public void PasteClipboardInto() => _lingoMemberText.Text = SdlClipboard.GetText();
     public void Preload() { IsLoaded = true; }
-    public void Unload() 
-    { 
+    public void Unload()
+    {
         IsLoaded = false;
         if (_surface != nint.Zero)
         {
@@ -104,7 +105,7 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
         }
         if (_font != null)
             _font.Release();
-        _font = null; 
+        _font = null;
     }
 
     public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
@@ -121,13 +122,16 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
 
         var text = Text ?? string.Empty;
         var color = new SDL.SDL_Color { r = TextColor.R, g = TextColor.G, b = TextColor.B, a = TextColor.A };
-        _surface = WordWrap
-            ? SDL_ttf.TTF_RenderUTF8_Blended_Wrapped(font, text, color, (uint)Math.Max(Width, 1))
+        var hasLineBreak = text.IndexOf('\n') >= 0 || text.IndexOf('\r') >= 0;
+        var wrapLength = WordWrap ? (uint)Math.Max(Width, 1) : 0;
+
+        _surface = WordWrap || hasLineBreak
+            ? SDL_ttf.TTF_RenderUTF8_Blended_Wrapped(font, text, color, wrapLength)
             : SDL_ttf.TTF_RenderUTF8_Blended(font, text, color);
 
         if (_surface == nint.Zero)
             return null;
-        
+
         var s = Marshal.PtrToStructure<SDL.SDL_Surface>(_surface);
         Width = s.w;
         Height = s.h;
