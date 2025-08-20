@@ -580,7 +580,13 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                     }
                     else
                     {
-                        expr = new LingoDatumNode(new LingoDatum("-"));
+                        var operand = ParsePrimary();
+                        expr = new LingoBinaryOpNode
+                        {
+                            Left = new LingoDatumNode(new LingoDatum(0)),
+                            Right = operand,
+                            Opcode = LingoBinaryOpcode.Subtract
+                        };
                     }
                     break;
 

@@ -46,6 +46,28 @@ public class LingoToCSharpConverterTests
     }
 
     [Fact]
+    public void UnaryMinusIsHandled()
+    {
+        var lingo = string.Join('\n',
+            "if i=99 then dirI=-dirI");
+        var result = _converter.Convert(lingo);
+        var expected = string.Join('\n',
+            "if (i == 99)",
+            "{",
+            "    dirI = -dirI;",
+            "}");
+        Assert.Equal(expected.Trim(), result.Trim());
+    }
+
+    [Fact]
+    public void MultipleReturnConstantsAreHandled()
+    {
+        var lingo = "x = \"a\" & return & \"b\" & return & \"c\"";
+        var result = _converter.Convert(lingo);
+        Assert.Equal("x = (((\"a\" + \"\\n\") + \"b\") + \"\\n\") + \"c\";", result.Trim());
+    }
+
+    [Fact]
     public void PutIntoFieldConvertsToMemberTextAssignment()
     {
         var result = _converter.Convert("put woord into field \"credits\"");
@@ -185,7 +207,7 @@ public class LingoToCSharpConverterTests
         };
         var batch = _converter.Convert(scripts);
         var expected = string.Join('\n',
-            "public class B1Behavior : LingoSpriteBehavior",
+            "public class B1Behavior : LingoSpriteBehavior, IHasBeginSpriteEvent",
             "{",
             "    public B1Behavior(ILingoMovieEnvironment env) : base(env) { }",
             "public void BeginSprite()",
@@ -217,7 +239,7 @@ public class LingoToCSharpConverterTests
         };
         var batch = _converter.Convert(scripts);
         var expected = string.Join('\n',
-            "public class B1Behavior : LingoSpriteBehavior",
+            "public class B1Behavior : LingoSpriteBehavior, IHasBeginSpriteEvent",
             "{",
             "    public B1Behavior(ILingoMovieEnvironment env) : base(env) { }",
             "public void BeginSprite()",
@@ -243,7 +265,7 @@ public class LingoToCSharpConverterTests
         };
         var batch = _converter.Convert(scripts);
         var expected = string.Join('\n',
-            "public class B1Behavior : LingoSpriteBehavior",
+            "public class B1Behavior : LingoSpriteBehavior, IHasBeginSpriteEvent",
             "{",
             "    public B1Behavior(ILingoMovieEnvironment env) : base(env) { }",
             "public void BeginSprite()",
@@ -278,7 +300,7 @@ public class LingoToCSharpConverterTests
         };
         var batch = _converter.Convert(scripts);
         var expected = string.Join('\n',
-            "public class P1Behavior : LingoSpriteBehavior",
+            "public class P1Behavior : LingoSpriteBehavior, IHasBeginSpriteEvent",
             "{",
             "    public P1Behavior(ILingoMovieEnvironment env) : base(env) { }",
             "public void BeginSprite()",
@@ -937,7 +959,7 @@ end",
         };
         var batch = _converter.Convert(scripts);
         var expected = string.Join('\n',
-            "public class CounterBehavior : LingoSpriteBehavior",
+            "public class CounterBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasExitFrameEvent",
             "{",
             "    public CounterBehavior(ILingoMovieEnvironment env) : base(env) { }",
             "public void Beginsprite()",
