@@ -1,5 +1,6 @@
 using AbstUI.Inputs;
 using AbstUI.Primitives;
+using AbstUI.SDL2.SDLL;
 
 namespace AbstUI.SDL2.Inputs
 {
@@ -50,6 +51,11 @@ namespace AbstUI.SDL2.Inputs
         public void SetCursor(AMouseCursor cursor)
         {
             
+        }
+
+        public void ProcessEvent(SDL.SDL_Event e)
+        {
+            _handler.ProcessEvent(e);
         }
     }
 }

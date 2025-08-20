@@ -57,6 +57,7 @@ public class SdlRootContext : AbstUISdlRootContext<LingoMouse>, ISdlRootComponen
                     running = false;
                 Key.ProcessEvent(e);
                 _sdlMouse.ProcessEvent(e);
+                _frameworkMouse?.ProcessEvent(e); // todo, resolve global mouse in constructor
                 Factory.ComponentContainer.HandleEvent(e);
             }
             uint now = SDL.SDL_GetTicks();
