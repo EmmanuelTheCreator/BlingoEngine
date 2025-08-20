@@ -127,10 +127,18 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
         PreloadFont();
 
         if (_font == null || string.IsNullOrWhiteSpace(_text))
+        {
+            // empty texture
+            // var fontSize = FontSize;
+            // if (fontSize < 5)
+            //     fontSize = 10;
+            //_surface = AbstSdlLabel.CreateEmptySurface(fontSize, fontSize);
+            // return new SdlTexture2D(_surface, fontSize, fontSize); 
             return null;
+        }
         var font = _font.FontHandle;
         if (font == nint.Zero) return null;
-        var text = Text ?? string.Empty;
+        var text =  Text ?? string.Empty;
         // decide final box
         if (_renderedText != text)
             MeasureText(text);

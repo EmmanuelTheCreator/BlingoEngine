@@ -188,7 +188,14 @@ namespace AbstUI.SDL2.Components.Texts
             return (w, h);
         }
 
-
+        public static nint CreateEmptySurface(int width, int height)
+        {
+            var FMT = SDL.SDL_PIXELFORMAT_RGBA8888;
+            nint surf = SDL.SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, FMT);
+            if (surf == nint.Zero) throw new Exception(SDL.SDL_GetError());
+            SDL.SDL_FillRect(surf, nint.Zero, 0x00000000); // clear to transparent
+            return surf;
+        }
 
 
         /// <summary>Returns the bounding box (w,h) for multiline text (handles \n). No wrapping.</summary>
