@@ -4,6 +4,7 @@ using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.SDL2;
 using AbstUI.SDL2.SDLL;
+using AbstUI.Styles;
 
 namespace AbstUI.SDL2.Components
 {
@@ -16,6 +17,10 @@ namespace AbstUI.SDL2.Components
         public bool Enabled { get; set; } = true;
         private TValue _value = default!;
         private bool _focused;
+        private nint _texture;
+        private int _texW;
+        private int _texH;
+        private TValue _renderedValue = default!;
         public TValue Value
         {
             get => _value;
@@ -54,9 +59,65 @@ namespace AbstUI.SDL2.Components
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
             if (!Visibility) return default;
-            return default;
+
+            int w = (int)Width;
+            int h = (int)Height;
+
+            if (_texture == nint.Zero || w != _texW || h != _texH || !Equals(_renderedValue, _value))
+            {
+                if (_texture != nint.Zero)
+                    SDL.SDL_DestroyTexture(_texture);
+
+                _texture = SDL.SDL_CreateTexture(context.Renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
+                    (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, w, h);
+                SDL.SDL_SetTextureBlendMode(_texture, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
+                _texW = w;
+                _texH = h;
+                _renderedValue = _value;
+
+                var prev = SDL.SDL_GetRenderTarget(context.Renderer);
+                SDL.SDL_SetRenderTarget(context.Renderer, _texture);
+
+                SDL.SDL_SetRenderDrawColor(context.Renderer, 0, 0, 0, 0);
+                SDL.SDL_RenderClear(context.Renderer);
+
+                // draw track
+                var trackColor = AbstDefaultColors.InputBorderColor.Lighten(0.5f);
+                SDL.SDL_SetRenderDrawColor(context.Renderer, trackColor.R, trackColor.G, trackColor.B, trackColor.A);
+                SDL.SDL_Rect track = new SDL.SDL_Rect { x = 0, y = h / 2 - 2, w = w, h = 4 };
+                SDL.SDL_RenderFillRect(context.Renderer, ref track);
+
+                // determine knob position
+                float val = Convert.ToSingle(_value);
+                float min = Convert.ToSingle(MinValue);
+                float max = Convert.ToSingle(MaxValue);
+                float t = (max - min) > 0 ? (val - min) / (max - min) : 0f;
+                if (t < 0) t = 0; if (t > 1) t = 1;
+
+                int knobW = Math.Min(10, w);
+                int knobX = (int)((w - knobW) * t);
+                SDL.SDL_Rect knob = new SDL.SDL_Rect { x = knobX, y = 0, w = knobW, h = h };
+                var accent = AbstDefaultColors.InputAccentColor;
+                SDL.SDL_SetRenderDrawColor(context.Renderer, accent.R, accent.G, accent.B, accent.A);
+                SDL.SDL_RenderFillRect(context.Renderer, ref knob);
+                var border = AbstDefaultColors.InputBorderColor;
+                SDL.SDL_SetRenderDrawColor(context.Renderer, border.R, border.G, border.B, border.A);
+                SDL.SDL_RenderDrawRect(context.Renderer, ref knob);
+
+                SDL.SDL_SetRenderTarget(context.Renderer, prev);
+            }
+
+            return _texture;
         }
 
-        public override void Dispose() => base.Dispose();
+        public override void Dispose()
+        {
+            if (_texture != nint.Zero)
+            {
+                SDL.SDL_DestroyTexture(_texture);
+                _texture = nint.Zero;
+            }
+            base.Dispose();
+        }
     }
 }

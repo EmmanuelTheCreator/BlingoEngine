@@ -2,6 +2,7 @@ using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.SDL2.Components;
 using AbstUI.SDL2.Styles;
+using AbstUI.Styles;
 using AbstUI.Windowing;
 
 namespace AbstUI.SDL2
@@ -22,6 +23,7 @@ namespace AbstUI.SDL2
         {
             _rootContext = rootContext;
             FontManagerTyped = (SdlFontManager)FontManager;
+            AbstDefaultStyles.RegisterInputStyles(StyleManager);
         }
 
         public AbstSDLComponentContext CreateContext(IAbstSDLComponent component, AbstSDLComponentContext? parent = null)
