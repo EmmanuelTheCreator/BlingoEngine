@@ -39,6 +39,38 @@ public class LingoToCSharpConverterTests
     }
 
     [Fact]
+    public void ReturnConstantIsConvertedToNewLine()
+    {
+        var result = _converter.Convert("x = \"a\" & return & \"b\"");
+        Assert.Equal("x = (\"a\" + \"\\n\") + \"b\";", result.Trim());
+    }
+
+    [Fact]
+    public void PutIntoFieldConvertsToMemberTextAssignment()
+    {
+        var result = _converter.Convert("put woord into field \"credits\"");
+        Assert.Equal("Member(\"credits\").Text = woord;", result.Trim());
+    }
+
+    [Fact]
+    public void ReturnStatementWithValueIsConverted()
+    {
+        var result = _converter.Convert("return 5");
+        Assert.Equal("return 5;", result.Trim());
+    }
+
+    [Fact]
+    public void ReturnStatementWithoutValueIsOnItsOwnLine()
+    {
+        var lingo = "return\nput 1 into x";
+        var result = _converter.Convert(lingo);
+        var expected = string.Join('\n',
+            "return;",
+            "x = 1;");
+        Assert.Equal(expected, result.Trim());
+    }
+
+    [Fact]
     public void IfStatementIsConverted()
     {
         var lingo = "if 1 then\nput 2 into x\nend if";

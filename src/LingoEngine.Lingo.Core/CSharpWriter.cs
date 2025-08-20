@@ -91,7 +91,7 @@ public class CSharpWriter : ILingoAstVisitor
         return datum.Type switch
         {
             LingoDatum.DatumType.Integer or LingoDatum.DatumType.Float => datum.AsString(),
-            LingoDatum.DatumType.String => $"\"{datum.AsString()}\"",
+            LingoDatum.DatumType.String => $"\"{EscapeString(datum.AsString())}\"",
             LingoDatum.DatumType.Symbol => $"Symbol(\"{datum.AsString()}\")",
             LingoDatum.DatumType.VarRef => datum.AsString(),
             LingoDatum.DatumType.List => datum.Value is List<LingoNode> list
