@@ -21,9 +21,10 @@ namespace AbstUI.SDL2.Components.Buttons
         private int _texH;
         private bool _renderedState;
 
-        public AbstSdlStateButton(AbstSdlComponentFactory factory) : base(factory)
-        {
-        }
+        public AMargin Margin { get; set; } = AMargin.Zero;
+        public event Action? ValueChanged;
+        public object FrameworkNode => this;
+
         public bool Enabled { get; set; } = true;
         public string Text { get; set; } = string.Empty;
         public IAbstTexture2D? TextureOn
@@ -74,11 +75,12 @@ namespace AbstUI.SDL2.Components.Buttons
                 }
             }
         }
-        public AMargin Margin { get; set; } = AMargin.Zero;
-        public event Action? ValueChanged;
-        public object FrameworkNode => this;
-
-
+      
+        public AbstSdlStateButton(AbstSdlComponentFactory factory) : base(factory)
+        {
+            Width = 20;
+            Height = 20;
+        }
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
             if (!Visibility) return default;

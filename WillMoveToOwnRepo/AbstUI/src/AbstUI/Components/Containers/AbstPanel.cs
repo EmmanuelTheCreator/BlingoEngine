@@ -56,8 +56,24 @@ namespace AbstUI.Components.Containers
         public override bool Visibility { get => Content.Visibility; set => Content.Visibility = value; }
         public override string Name { get => Content.Name; set => Content.Name = value; }
         public override AMargin Margin { get => Content.Margin; set => Content.Margin = value; }
-        public override float Width { get => Content.Width; set => Content.Width = value; }
-        public override float Height { get => Content.Height; set => Content.Height = value; }
+        public override float Width
+        {
+            get => Content.Width;
+            set
+            {
+                Content.Width = value;
+                _framework.Width = (int)value;
+            }
+        }
+        public override float Height
+        {
+            get => Content.Height;
+            set
+            {
+                Content.Height = value;
+                _framework.Height = (int)value;
+            }
+        }
 
 
         public virtual T FrameworkWrapper<T>() where T : IAbstFrameworkLayoutWrapper => (T)(object)_framework;

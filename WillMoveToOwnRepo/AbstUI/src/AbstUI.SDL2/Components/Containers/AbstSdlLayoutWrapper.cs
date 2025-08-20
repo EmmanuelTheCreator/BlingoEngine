@@ -16,15 +16,40 @@ namespace AbstUI.SDL2.Components.Containers
             _lingoLayoutWrapper.Init(this);
             var content = layoutWrapper.Content.FrameworkObj;
         }
-
+        public override float Width 
+        {
+            get => _lingoLayoutWrapper.Width;
+            set
+            {
+                _lingoLayoutWrapper.Width = value;
+                base.Width = value;
+                ComponentContext.TargetWidth = (int)value;
+            }
+        }
+        public override float Height 
+        {
+            get => _lingoLayoutWrapper.Height;
+            set
+            {
+                _lingoLayoutWrapper.Height = value;
+                base.Height = value;
+                ComponentContext.TargetHeight = (int)value;
+            }
+        }
+       
         public AMargin Margin { get; set; }
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
+            if (!Visibility)
+                return default;
             var sdlComponent = (AbstSdlComponent)_lingoLayoutWrapper.Content.FrameworkObj;
             sdlComponent.X = X;
             sdlComponent.Y = Y;
-            return sdlComponent.Render(context);
+            var renderResult = sdlComponent.Render(context);
+            ComponentContext.TargetWidth = (int)Width;
+            ComponentContext.TargetHeight = (int)Height;
+            return renderResult;
         }
     }
 }

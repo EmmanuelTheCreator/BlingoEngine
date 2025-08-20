@@ -43,7 +43,7 @@ public abstract class AbstSdlComponent : IAbstSDLComponent, IDisposable
     }
 
     private float _width;
-    public float Width
+    public virtual float Width
     {
         get => _width;
         set
@@ -54,7 +54,7 @@ public abstract class AbstSdlComponent : IAbstSDLComponent, IDisposable
     }
 
     private float _height;
-    public float Height
+    public virtual float Height
     {
         get => _height;
         set
@@ -65,7 +65,7 @@ public abstract class AbstSdlComponent : IAbstSDLComponent, IDisposable
     }
 
     private bool _visibility = true;
-    public bool Visibility
+    public virtual bool Visibility
     {
         get => _visibility;
         set

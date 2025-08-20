@@ -1,13 +1,14 @@
-using System.Numerics;
-using System.Runtime.InteropServices;
-using AbstUI.Styles;
-using AbstUI.Primitives;
-using AbstUI.Texts;
-using AbstUI.SDL2.Bitmaps;
-using AbstUI.SDL2.SDLL;
 using AbstUI.Components.Graphics;
+using AbstUI.Primitives;
+using AbstUI.SDL2.Bitmaps;
 using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Core;
+using AbstUI.SDL2.SDLL;
+using AbstUI.SDL2.Styles;
+using AbstUI.Styles;
+using AbstUI.Texts;
+using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace AbstUI.SDL2.Components.Graphics
 {
@@ -16,7 +17,7 @@ namespace AbstUI.SDL2.Components.Graphics
         public AMargin Margin { get; set; } = AMargin.Zero;
 
         private readonly AbstSdlComponentFactory _factory;
-        private readonly IAbstFontManager _fontManager;
+        private readonly SdlFontManager _fontManager;
         private readonly int _width;
         private readonly int _height;
         private nint _texture;
@@ -31,7 +32,7 @@ namespace AbstUI.SDL2.Components.Graphics
         public AbstSdlGfxCanvas(AbstSdlComponentFactory factory, IAbstFontManager fontManager, int width, int height) : base(factory)
         {
             _factory = factory;
-            _fontManager = fontManager;
+            _fontManager = (SdlFontManager)fontManager;
             _width = width;
             _height = height;
             _texture = SDL.SDL_CreateTexture(ComponentContext.Renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
@@ -121,7 +122,7 @@ namespace AbstUI.SDL2.Components.Graphics
             var f = filled;
             _drawActions.Add(() =>
             {
-                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, 255);
+                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, c.A);
                 if (f)
                     SDL.SDL_RenderFillRect(ComponentContext.Renderer, ref rct);
                 else
@@ -138,7 +139,7 @@ namespace AbstUI.SDL2.Components.Graphics
             var f = filled;
             _drawActions.Add(() =>
             {
-                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, 255);
+                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, c.A);
                 int segs = (int)(rad * 6);
                 double step = Math.PI * 2 / segs;
                 float prevX = ctr.X + rad;
@@ -168,7 +169,7 @@ namespace AbstUI.SDL2.Components.Graphics
             var c = color;
             _drawActions.Add(() =>
             {
-                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, 255);
+                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, c.A);
                 double startRad = sd * Math.PI / 180.0;
                 double endRad = ed * Math.PI / 180.0;
                 double step = (endRad - startRad) / segs;
@@ -197,7 +198,7 @@ namespace AbstUI.SDL2.Components.Graphics
             var f = filled;
             _drawActions.Add(() =>
             {
-                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, 255);
+                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, c.R, c.G, c.B, c.A);
                 for (int i = 0; i < pts.Length - 1; i++)
                     SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, pts[i].X, pts[i].Y, pts[i + 1].X, pts[i + 1].Y);
                 SDL.SDL_RenderDrawLineF(ComponentContext.Renderer, pts[^1].X, pts[^1].Y, pts[0].X, pts[0].Y);
@@ -224,9 +225,9 @@ namespace AbstUI.SDL2.Components.Graphics
             var w = width;
             _drawActions.Add(() =>
             {
-                var path = _fontManager.Get<string>(fntName ?? string.Empty);
-                if (string.IsNullOrEmpty(path)) return;
-                nint fnt = SDL_ttf.TTF_OpenFont(path, fs);
+                var font = _fontManager.GetTyped(this, fntName ?? string.Empty,fontSize);
+                if (font == null) return;
+                var fnt = font.FontHandle;
                 if (fnt == nint.Zero) return;
                 SDL.SDL_Color c = new SDL.SDL_Color { r = col?.R ?? 0, g = col?.G ?? 0, b = col?.B ?? 0, a = 255 };
 
@@ -267,7 +268,7 @@ namespace AbstUI.SDL2.Components.Graphics
                     y += th;
                 }
 
-                SDL_ttf.TTF_CloseFont(fnt);
+                font.Release();
             });
             MarkDirty();
         }

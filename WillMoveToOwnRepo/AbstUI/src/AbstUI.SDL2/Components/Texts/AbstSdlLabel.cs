@@ -76,8 +76,8 @@ namespace AbstUI.SDL2.Components.Texts
                 //SDL.SDL_FreeSurface(tex); // this breaks the texture, so we need keep it.
 
                 // update sizes
-                if (Width <= 0) Width = boxW;
-                if (Height <= 0) Height = boxH;
+                if (Width <= 0) Width = textW;
+                if (Height <= 0) Height = textH;
 
                 _measuredWidth = textW;
                 _renderedText = Text;
@@ -168,8 +168,8 @@ namespace AbstUI.SDL2.Components.Texts
             var FMT = SDL.SDL_PIXELFORMAT_RGBA8888;
             nint box = SDL.SDL_CreateRGBSurfaceWithFormat(0, boxW, boxH, 32, FMT);
             if (box == nint.Zero) throw new Exception(SDL.SDL_GetError());
-           // SDL.SDL_FillRect(box, nint.Zero, 0x00000000); // Transparent background
-            SDL.SDL_FillRect(box, nint.Zero, 0xFFFFFFFF); // DEBUG white bg
+            SDL.SDL_FillRect(box, nint.Zero, 0x00000000); // Transparent background
+           // SDL.SDL_FillRect(box, nint.Zero, 0xFFFFFFFF); // DEBUG white bg
 
             // vertical start (centered)
             int startY = Math.Max(0, (boxH - totalH) / 2);
