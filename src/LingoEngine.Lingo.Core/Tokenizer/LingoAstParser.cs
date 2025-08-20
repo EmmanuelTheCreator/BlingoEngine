@@ -330,7 +330,13 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                     }
                     else if (Match(LingoTokenType.LeftBracket))
                     {
-                        var idx = ParseExpression();
+                        var start = ParseExpression();
+                        LingoNode idx = start;
+                        if (Match(LingoTokenType.Range))
+                        {
+                            var end = ParseExpression();
+                            idx = new LingoRangeExprNode { Start = start, End = end };
+                        }
                         Expect(LingoTokenType.RightBracket);
                         operand = new LingoObjBracketExprNode
                         {

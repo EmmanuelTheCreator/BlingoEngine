@@ -370,6 +370,13 @@ namespace LingoEngine.Lingo.Core.Tokenizer
         public override void Accept(ILingoAstVisitor visitor) => visitor.Visit(this);
     }
 
+    public class LingoRangeExprNode : LingoNode
+    {
+        public LingoNode Start { get; set; } = null!;
+        public LingoNode End { get; set; } = null!;
+        public override void Accept(ILingoAstVisitor visitor) => visitor.Visit(this);
+    }
+
     public class LingoObjBracketExprNode : LingoNode
     {
         public LingoNode Object { get; set; } = null!;
