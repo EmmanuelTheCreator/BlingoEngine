@@ -21,6 +21,12 @@ namespace AbstUI.LGodot.Inputs
         {
             _lingoMouse = lingoMouse;
         }
+
+        public void SetOffset(int x, int y)
+        {
+            OffsetX = x;
+            OffsetY = y;
+        }
         public void ReplaceMouseObj(IAbstMouse lingoMouse)
         {
             _lingoMouse = new Lazy<IAbstMouseInternal>(() => (IAbstMouseInternal)lingoMouse);
@@ -40,6 +46,10 @@ namespace AbstUI.LGodot.Inputs
                 _lingoMouse.Value.DoMouseMove();
         }
         private bool wasPressed = false;
+
+        public int OffsetX { get; private set; }
+        public int OffsetY { get; private set; }
+
         public void HandleMouseButtonEvent(InputEventMouseButton mouseButtonEvent, bool isInsideRect, float x, float y)
         {
             _lingoMouse.Value.MouseH = x;

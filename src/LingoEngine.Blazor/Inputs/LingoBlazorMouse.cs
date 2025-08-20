@@ -40,6 +40,8 @@ public class LingoBlazorMouse : BlazorMouse<LingoMouseEvent>, ILingoFrameworkMou
         _ = SetCursorCss(cursor);
     }
 
+  
+
     private Task SetCursorCss(string cursor) => _scripts.SetCursor(cursor).AsTask();
 }
 

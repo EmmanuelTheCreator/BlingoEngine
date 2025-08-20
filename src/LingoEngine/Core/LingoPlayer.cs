@@ -32,10 +32,10 @@ namespace LingoEngine.Core
 
 
         private readonly LingoKey _LingoKey;
-        private readonly LingoStageMouse _Mouse;
         private readonly LingoStage _Stage;
         private readonly LingoSystem _System;
         private readonly LingoClock _clock;
+        private LingoStageMouse _Mouse;
         public ILingoFrameworkFactory Factory { get; private set; }
 
         public ILingoClock Clock => _clock;
@@ -279,6 +279,13 @@ namespace LingoEngine.Core
         public bool CanExecute(SetFrameLabelCommand command) => ActiveMovie is LingoMovie;
 
         public ILingoEventMediator GetEventMediator() => _serviceProvider.GetRequiredService<ILingoEventMediator>();
+
+        public void ReplaceMouseObj(LingoStageMouse newMouse)
+        {
+            _Mouse = newMouse;
+            foreach (var movie in _movies)
+                movie.SetMouse(newMouse);
+        }
 
 
 

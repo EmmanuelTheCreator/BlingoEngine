@@ -28,6 +28,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
     private readonly ScrollContainer _scrollContainer = new ScrollContainer();
     private readonly SelectionBox _selectionBox = new SelectionBox();
     private readonly StageBoundingBoxesOverlay _boundingBoxes;
+    private readonly LingoStageMouse _stageMouse;
     private readonly StageSpriteSummaryOverlay _spriteSummary;
     private readonly StageMotionPathOverlay _motionPath;
     private readonly DirectorStageGuides _guides;
@@ -70,10 +71,9 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         _stageChangedSubscription = _mediator.Subscribe(DirectorEventType.StagePropertiesChanged, StagePropertyChanged);
 
         var lp = (LingoPlayer)_player;
-        var stageMouse = (LingoStageMouse)lp.Mouse;
-        stageMouse.DisplaceMouse(directorStageWindow);
-        
-
+        _stageMouse = (LingoStageMouse)lp.Mouse;
+        //var newMouse = stageMouse.DisplaceMouse(directorStageWindow);
+        //lp.ReplaceMouseObj(newMouse);
 
         _spriteSummary = new StageSpriteSummaryOverlay(lp.Factory, _mediator, iconManager);
         _boundingBoxes = new StageBoundingBoxesOverlay(lp.Factory, _mediator);
@@ -296,7 +296,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
     }
     private void UpdateStagePosition()
     {
-        
+        _stageMouse.SetOffset((int)Position.X,(int)Position.Y);
         _stageLayer.Position = new Vector2((3000 - _player.Stage.Width) / 2f, (2000 - _player.Stage.Height) / 2f);
 
         _scrollContainer.ScrollHorizontal = 3000 / 2 - (int)_scrollContainer.Size.X / 2;

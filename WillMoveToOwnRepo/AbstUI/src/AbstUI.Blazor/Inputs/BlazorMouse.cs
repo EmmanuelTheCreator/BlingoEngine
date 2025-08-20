@@ -14,6 +14,9 @@ public class BlazorMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse where TAbstUIM
     private readonly IJSRuntime _js;
     private IJSObjectReference? _module;
 
+    public int OffsetX { get; private set; }
+    public int OffsetY { get; private set; }
+
     public BlazorMouse(Lazy<AbstMouse<TAbstUIMouseEvent>> mouse, IJSRuntime js)
     {
         _lingoMouse = mouse;
@@ -27,7 +30,11 @@ public class BlazorMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse where TAbstUIM
         => _ = SetCursorCss(state ? "none" : "default");
 
     public virtual void Release() { }
-
+    public void SetOffset(int x, int y)
+    {
+        OffsetX = x;
+        OffsetY = y;
+    }
     public void ReplaceMouseObj(IAbstMouse lingoMouse)
     {
         _lingoMouse = new Lazy<AbstMouse<TAbstUIMouseEvent>>(() => (AbstMouse<TAbstUIMouseEvent>)lingoMouse);

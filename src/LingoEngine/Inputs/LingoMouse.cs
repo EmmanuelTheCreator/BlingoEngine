@@ -34,6 +34,7 @@ namespace LingoEngine.Inputs
     public interface ILingoFrameworkMouse : IAbstFrameworkMouse
     {
         void SetCursor(LingoMemberBitmap? image);
+        void SetOffset(int x, int y);
     }
 
     /// <summary>
@@ -60,8 +61,13 @@ namespace LingoEngine.Inputs
         public LingoStageMouse(LingoStage lingoMovieStage, ILingoFrameworkMouse frameworkMouse)
             : base(frameworkMouse)
         {
+            Name = "LingoStageMouse";
             _lingoStage = lingoMovieStage;
         }
+
+        public void SetOffset(int x, int y) => _lingoFrameworkObj.SetOffset(x, y);
+
+
         protected override void OnDoOnAll(LingoMouseEvent eventMouse, Action<IAbstMouseEventHandler<LingoMouseEvent>, LingoMouseEvent> action)
         {
             base.OnDoOnAll(eventMouse, action);
@@ -115,6 +121,7 @@ namespace LingoEngine.Inputs
             internal ProxyLingoMouse(LingoStageMouse parent, IAbstMouseRectProvider provider)
                 : base(parent._lingoStage, parent.Framework<ILingoFrameworkMouse>())
             {
+                Name = "LingoStageMouseProxy";
                 _parent = parent;
                 _provider = provider;
                 _downSub = parent.OnMouseDown(HandleDown);
@@ -198,7 +205,7 @@ namespace LingoEngine.Inputs
 
     public class LingoMouse : AbstMouse<LingoMouseEvent>, ILingoMouse, IAbstMouseInternal
     {
-        ILingoFrameworkMouse _lingoFrameworkObj;
+        protected ILingoFrameworkMouse _lingoFrameworkObj;
 
         private readonly LingoCursor _cursor;
 
@@ -208,6 +215,7 @@ namespace LingoEngine.Inputs
         public LingoMouse(ILingoFrameworkMouse frameworkMouse)
             : base((p, type) => new LingoMouseEvent((LingoMouse)p, type), frameworkMouse)
         {
+            Name= "LingoMouse";
             _lingoFrameworkObj = frameworkMouse;
             _cursor = new LingoCursor(frameworkMouse);
         }

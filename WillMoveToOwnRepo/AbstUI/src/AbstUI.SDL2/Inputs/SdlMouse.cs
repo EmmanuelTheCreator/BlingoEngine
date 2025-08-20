@@ -10,6 +10,9 @@ public class SdlMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse
     private bool _hidden;
     protected nint _sdlCursor = nint.Zero;
 
+    public int OffsetX { get; private set; }
+    public int OffsetY { get; private set; }
+
     public SdlMouse(Lazy<AbstMouse<TAbstUIMouseEvent>> mouse)
     {
         _lingoMouse = mouse;
@@ -35,7 +38,11 @@ public class SdlMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse
         SDL.SDL_ShowCursor(state ? 0 : 1);
     }
 
-
+    public void SetOffset(int x, int y)
+    {
+        OffsetX = x;
+        OffsetY = y;
+    }
 
 
 

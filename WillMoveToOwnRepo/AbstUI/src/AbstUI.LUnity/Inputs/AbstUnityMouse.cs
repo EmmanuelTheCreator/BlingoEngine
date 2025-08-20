@@ -13,6 +13,9 @@ public class AbstUnityMouse<TAbstMouseType, TAbstUIMouseEvent> : IAbstFrameworkM
 
     private AMouseCursor _cursor = AMouseCursor.Arrow;
 
+    public int OffsetX { get; private set; }
+    public int OffsetY { get; private set; }
+
     public AbstUnityMouse(Lazy<TAbstMouseType> mouse)
     {
         _lingoMouse = mouse;
@@ -25,7 +28,11 @@ public class AbstUnityMouse<TAbstMouseType, TAbstUIMouseEvent> : IAbstFrameworkM
         _hidden = state;
     }
 
-
+    public void SetOffset(int x, int y)
+    {
+        OffsetX = x;
+        OffsetY = y;
+    }
 
     public void SetCursor(AMouseCursor value)
     {

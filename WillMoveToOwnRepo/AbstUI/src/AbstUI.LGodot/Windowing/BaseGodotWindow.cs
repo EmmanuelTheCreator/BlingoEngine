@@ -143,17 +143,17 @@ namespace AbstEngine.Director.LGodot
         public override void _Input(InputEvent @event)
         {
             base._Input(@event);
-            if (useGuiInput || !Visible) return;
+            if (useGuiInput || !Visible ||!(@event is InputEventFromWindow)) return;
             //if (!_dragging && !_resizing && !GetGlobalRect().HasPoint(GetGlobalMousePosition()))
             //    return;
             OnHandleTheEvent(@event);
         }
-        public override void _GuiInput(InputEvent @event)
-        {
-            base._GuiInput(@event);
-            if (!useGuiInput || !Visible) return;
-            OnHandleTheEvent(@event);
-        }
+        //public override void _GuiInput(InputEvent @event)
+        //{
+        //    base._GuiInput(@event);
+        //    if (!useGuiInput || !Visible) return;
+        //    OnHandleTheEvent(@event);
+        //}
         protected virtual void OnHandleTheEvent(InputEvent @event)
         {
             if (@event is InputEventKey key && key.Pressed && _historyManager != null)

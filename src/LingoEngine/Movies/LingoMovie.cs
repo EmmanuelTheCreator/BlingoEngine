@@ -22,8 +22,8 @@ namespace LingoEngine.Movies
         private ILingoFrameworkMovie _FrameworkMovie;
         private readonly LingoMovieEnvironment _environment;
         private readonly Action<LingoMovie> _onRemoveMe;
-        private readonly LingoStageMouse _lingoMouse;
         private readonly LingoClock _lingoClock;
+        private LingoStageMouse _lingoMouse;
         private int _currentFrame = 0;
         private int _NextFrame = -1;
         private int _lastFrame = 0;
@@ -513,6 +513,10 @@ namespace LingoEngine.Movies
         public LingoMember? MouseMemberUnderMouse() // todo : implement
             => null;
 
-
+        internal void SetMouse(LingoStageMouse newMouse)
+        {
+            _lingoMouse = newMouse;
+            _sprite2DManager.SetMouse(newMouse);
+        }
     }
 }

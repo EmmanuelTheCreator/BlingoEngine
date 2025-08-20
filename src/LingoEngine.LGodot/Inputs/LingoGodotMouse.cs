@@ -22,6 +22,7 @@ namespace LingoEngine.LGodot.Inputs
             DisplayServer.Singleton.CursorSetCustomImage(godotTexture.Texture, DisplayServer.CursorShape.Arrow, hotspot: Vector2.Zero);
         }
 
+       
     }
 
 }

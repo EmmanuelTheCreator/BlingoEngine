@@ -110,5 +110,12 @@ namespace LingoEngine.Movies
 
         T? ILingoMovieEnvironment.GetMember<T>(string name, int? castLibNum = null) where T : class => _castLibsContainer.GetMember<T>(name, castLibNum);
 
+        internal void SetMouse(LingoStageMouse newMouse)
+        {
+            _mouse.Unsubscribe(_eventMediator);
+            _mouse = newMouse;
+            ((LingoMovie)_movie).SetMouse(newMouse);
+            _mouse.Subscribe(_eventMediator);
+        }
     }
 }

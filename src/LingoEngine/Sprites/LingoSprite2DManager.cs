@@ -1,21 +1,22 @@
 ﻿using LingoEngine.Inputs;
 using LingoEngine.Members;
 using LingoEngine.Movies;
-using LingoEngine.Sounds;
-using System;
 
 namespace LingoEngine.Sprites
 {
     public class LingoSprite2DManager : LingoSpriteManager<LingoSprite2D> , ILingoSpriteManager<LingoSprite2D>
     {
         //protected readonly Dictionary<int, LingoSprite2D> _frameSpriteBehaviors = new();
-        protected readonly LingoStageMouse _lingoMouse;
+        protected LingoStageMouse _lingoMouse;
         internal LingoSprite2DManager(LingoMovie movie, LingoMovieEnvironment environment) : base(LingoSprite2D.SpriteNumOffset, movie, environment)
         {
             _lingoMouse = (LingoStageMouse)environment.Mouse;
         }
+        internal void SetMouse(LingoStageMouse mouse)
+        {
+            _lingoMouse = mouse;
+        }
 
-      
         public LingoSprite2D Add(int num, int begin, int end, Action<LingoSprite2D>? configure = null)
          => AddSprite(num, c =>
          {
