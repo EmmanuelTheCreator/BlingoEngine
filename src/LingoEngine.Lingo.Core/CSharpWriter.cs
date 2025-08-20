@@ -414,6 +414,17 @@ public class CSharpWriter : ILingoAstVisitor
 
     public void Visit(LingoBinaryOpNode node)
     {
+        if (node.Opcode == LingoBinaryOpcode.Subtract &&
+            node.Left is LingoDatumNode dn && dn.Datum.Type == LingoDatum.DatumType.Integer && dn.Datum.AsInt() == 0)
+        {
+            Append("-");
+            bool needsParens = node.Right is LingoBinaryOpNode;
+            if (needsParens) Append("(");
+            node.Right.Accept(this);
+            if (needsParens) Append(")");
+            return;
+        }
+
         bool needsParensLeft = node.Left is LingoBinaryOpNode;
         bool needsParensRight = node.Right is LingoBinaryOpNode;
 
