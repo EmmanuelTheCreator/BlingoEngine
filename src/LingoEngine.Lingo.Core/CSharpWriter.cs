@@ -566,6 +566,11 @@ public class CSharpWriter : ILingoAstVisitor
     {
         Append("Member(");
         node.Expr.Accept(this);
+        if (node.CastLib != null)
+        {
+            Append(", ");
+            node.CastLib.Accept(this);
+        }
         Append(")");
     }
 
@@ -582,6 +587,11 @@ public class CSharpWriter : ILingoAstVisitor
             {
                 Append("GetMember<ILingoMemberTextBase>(");
                 member.Expr.Accept(this);
+                if (member.CastLib != null)
+                {
+                    Append(", ");
+                    member.CastLib.Accept(this);
+                }
                 Append(").");
                 Append(char.ToUpperInvariant(propName[0]) + propName[1..]);
                 return;

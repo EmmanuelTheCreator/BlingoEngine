@@ -670,7 +670,7 @@ public class LingoToCSharpConverter
         public void Visit(LingoChunkExprNode n) { n.Expr.Accept(this); }
         public void Visit(LingoInverseOpNode n) { n.Expr.Accept(this); }
         public void Visit(LingoObjCallV4Node n) { n.Object.Accept(this); if (n.Name.Value != null) Methods.Add(n.Name.Value.AsString()); n.ArgList.Accept(this); }
-        public void Visit(LingoMemberExprNode n) { n.Expr.Accept(this); }
+        public void Visit(LingoMemberExprNode n) { n.Expr.Accept(this); n.CastLib?.Accept(this); }
         public void Visit(LingoObjPropExprNode n) { n.Object.Accept(this); n.Property.Accept(this); }
         public void Visit(LingoPlayCmdStmtNode n) { n.Command.Accept(this); }
         public void Visit(LingoThePropExprNode n) { n.Property.Accept(this); }
@@ -749,7 +749,7 @@ public class LingoToCSharpConverter
         public void Visit(LingoChunkExprNode n) { n.Expr.Accept(this); }
         public void Visit(LingoInverseOpNode n) { n.Expr.Accept(this); }
         public void Visit(LingoObjCallV4Node n) { n.Object.Accept(this); n.ArgList.Accept(this); }
-        public void Visit(LingoMemberExprNode n) { n.Expr.Accept(this); }
+        public void Visit(LingoMemberExprNode n) { n.Expr.Accept(this); n.CastLib?.Accept(this); }
         public void Visit(LingoObjPropExprNode n) { n.Object.Accept(this); n.Property.Accept(this); }
         public void Visit(LingoPlayCmdStmtNode n) { n.Command.Accept(this); }
         public void Visit(LingoThePropExprNode n) { n.Property.Accept(this); }

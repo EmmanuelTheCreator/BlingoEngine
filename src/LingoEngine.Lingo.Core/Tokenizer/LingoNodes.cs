@@ -274,6 +274,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
     public class LingoMemberExprNode : LingoNode
     {
         public LingoNode Expr { get; set; } = null!;
+        public LingoNode? CastLib { get; set; }
         public override void Accept(ILingoAstVisitor visitor) => visitor.Visit(this);
     }
 
