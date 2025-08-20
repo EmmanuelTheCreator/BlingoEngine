@@ -10,9 +10,7 @@ namespace AbstUI.SDL2.Components.Inputs
 {
     internal class AbstSdlColorPicker : AbstSdlComponent, IAbstFrameworkColorPicker, ISdlFocusable, IDisposable
     {
-        public AbstSdlColorPicker(AbstSdlComponentFactory factory) : base(factory)
-        {
-        }
+      
         public bool Enabled { get; set; } = true;
         public AMargin Margin { get; set; } = AMargin.Zero;
 
@@ -40,7 +38,11 @@ namespace AbstUI.SDL2.Components.Inputs
 
         public bool HasFocus => _focused;
         public void SetFocus(bool focus) => _focused = focus;
-
+        public AbstSdlColorPicker(AbstSdlComponentFactory factory) : base(factory)
+        {
+            Width = 20;
+            Height = 20;
+        }
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
             if (!Visibility)

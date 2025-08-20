@@ -15,9 +15,14 @@ namespace AbstUI.SDL2.Components.Inputs
 {
     internal class AbstSdInputltemList : AbstSdlScrollViewer, IAbstFrameworkItemList, ISdlFocusable, IDisposable
     {
-        public AbstSdInputltemList(AbstSdlComponentFactory factory) : base(factory)
-        {
-        }
+        private bool _focused;
+        public bool HasFocus => _focused;
+        public void SetFocus(bool focus) => _focused = focus;
+
+        private ISdlFontLoadedByUser? _font;
+        private SdlGlyphAtlas? _atlas;
+        private int _lineHeight;
+
         public bool Enabled { get; set; } = true;
 
         private readonly List<KeyValuePair<string, string>> _items = new();
@@ -28,6 +33,12 @@ namespace AbstUI.SDL2.Components.Inputs
 
         public event Action? ValueChanged;
         public object FrameworkNode => this;
+
+
+        public AbstSdInputltemList(AbstSdlComponentFactory factory) : base(factory)
+        {
+        }
+
         public void AddItem(string key, string value)
         {
             _items.Add(new KeyValuePair<string, string>(key, value));
@@ -41,14 +52,7 @@ namespace AbstUI.SDL2.Components.Inputs
             SelectedValue = null;
             ComponentContext.QueueRedraw(this);
         }
-        private bool _focused;
-        public bool HasFocus => _focused;
-        public void SetFocus(bool focus) => _focused = focus;
-
-        private ISdlFontLoadedByUser? _font;
-        private SdlGlyphAtlas? _atlas;
-        private int _lineHeight;
-
+      
         private void EnsureResources(AbstSDLRenderContext ctx)
         {
             _font ??= ctx.SdlFontManager.GetTyped(this, null, 11);

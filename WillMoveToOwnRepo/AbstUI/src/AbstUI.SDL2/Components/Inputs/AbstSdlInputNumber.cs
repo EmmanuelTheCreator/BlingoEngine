@@ -18,11 +18,7 @@ internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInpu
 {
     private readonly AbstSdlInputText _textInput;
 
-    public AbstSdlInputNumber(AbstSdlComponentFactory factory) : base(factory)
-    {
-        _textInput = new AbstSdlInputText(factory, false);
-        _textInput.ValueChanged += OnTextChanged;
-    }
+    
 
     public bool Enabled { get; set; } = true;
 
@@ -70,7 +66,13 @@ internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInpu
         if (v > Max) v = Max;
         return v;
     }
-
+    public AbstSdlInputNumber(AbstSdlComponentFactory factory) : base(factory)
+    {
+        _textInput = new AbstSdlInputText(factory, false);
+        _textInput.ValueChanged += OnTextChanged;
+        Width = 50;
+        Height = 20;
+    }
     private void OnTextChanged()
     {
         if (TValue.TryParse(_textInput.Text, null, out var v))

@@ -12,9 +12,7 @@ namespace AbstUI.SDL2.Components.Inputs
 {
     internal class AbstSdlInputCheckbox : AbstSdlComponent, IAbstFrameworkInputCheckbox, IHandleSdlEvent, ISdlFocusable, IDisposable
     {
-        public AbstSdlInputCheckbox(AbstSdlComponentFactory factory) : base(factory)
-        {
-        }
+      
         public bool Enabled { get; set; } = true;
         private bool _checked;
         private bool _focused;
@@ -37,7 +35,11 @@ namespace AbstUI.SDL2.Components.Inputs
         public AMargin Margin { get; set; } = AMargin.Zero;
         public event Action? ValueChanged;
         public object FrameworkNode => this;
-
+        public AbstSdlInputCheckbox(AbstSdlComponentFactory factory) : base(factory)
+        {
+            Width = 20;
+            Height = 20;
+        }
         public void HandleEvent(AbstSDLEvent e)
         {
             if (!Enabled) return;

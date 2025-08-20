@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using AbstUI.Components;
 using AbstUI.Primitives;
@@ -18,16 +16,27 @@ namespace AbstUI.SDL2.Components.Containers
         private readonly List<IAbstFrameworkTabItem> _children = new();
         private int _selectedIndex = -1;
         private bool _focused;
+        private ISdlFontLoadedByUser? _font;
+        private SdlGlyphAtlas? _atlas;
+        private nint _texture;
+        private int _texW;
+        private int _texH;
+        private readonly List<SDL.SDL_Rect> _tabRects = new();
 
         public AMargin Margin { get; set; } = AMargin.Zero;
         public object FrameworkNode => this;
 
+      
+        public string SelectedTabName =>
+            _selectedIndex >= 0 && _selectedIndex < _children.Count ? _children[_selectedIndex].Title : string.Empty;
+
+        public bool HasFocus => _focused;
+
+        public void SetFocus(bool focus) => _focused = focus;
+
         public AbstSdlTabContainer(AbstSdlComponentFactory factory) : base(factory)
         {
         }
-
-        public string SelectedTabName =>
-            _selectedIndex >= 0 && _selectedIndex < _children.Count ? _children[_selectedIndex].Title : string.Empty;
 
         public void AddTab(IAbstFrameworkTabItem content)
         {
@@ -62,13 +71,7 @@ namespace AbstUI.SDL2.Components.Containers
                 _selectedIndex = idx;
         }
 
-        private ISdlFontLoadedByUser? _font;
-        private SdlGlyphAtlas? _atlas;
-        private nint _texture;
-        private int _texW;
-        private int _texH;
-        private readonly List<SDL.SDL_Rect> _tabRects = new();
-
+      
         private void EnsureResources(AbstSDLRenderContext ctx)
         {
             _font ??= ctx.SdlFontManager.GetTyped(this, null, 12);
@@ -169,9 +172,7 @@ namespace AbstUI.SDL2.Components.Containers
             }
         }
 
-        public bool HasFocus => _focused;
-
-        public void SetFocus(bool focus) => _focused = focus;
+       
 
         public override void Dispose()
         {

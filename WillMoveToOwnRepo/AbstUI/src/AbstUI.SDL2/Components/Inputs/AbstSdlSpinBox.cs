@@ -14,12 +14,9 @@ internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IHandle
     private readonly AbstSdlInputNumber<float> _number;
     private const int ButtonWidth = 16;
 
-    public AbstSdlSpinBox(AbstSdlComponentFactory factory) : base(factory)
-    {
-        _number = new AbstSdlInputNumber<float>(factory);
-        _number.ValueChanged += () => ValueChanged?.Invoke();
-    }
-
+    public AMargin Margin { get; set; } = AMargin.Zero;
+    public object FrameworkNode => this;
+    public event Action? ValueChanged;
     public bool Enabled { get; set; } = true;
 
     public float Value
@@ -46,9 +43,14 @@ internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IHandle
         set => _number.Step = value;
     }
 
-    public AMargin Margin { get; set; } = AMargin.Zero;
-    public object FrameworkNode => this;
-    public event Action? ValueChanged;
+  
+    public AbstSdlSpinBox(AbstSdlComponentFactory factory) : base(factory)
+    {
+        _number = new AbstSdlInputNumber<float>(factory);
+        _number.ValueChanged += () => ValueChanged?.Invoke();
+        Width = 50;
+        Height = 20;
+    }
 
     public void HandleEvent(AbstSDLEvent e)
     {

@@ -24,11 +24,7 @@ namespace AbstUI.SDL2.Components.Inputs
         private ISdlFontLoadedByUser? _font;
         private SdlGlyphAtlas? _atlas;
 
-        public AbstSdlInputText(AbstSdlComponentFactory factory, bool multiLine) : base(factory)
-        {
-            _multiLine = multiLine;
-        }
-
+      
         public bool Enabled { get; set; } = true;
         private string _text = string.Empty;
         public string Text
@@ -61,6 +57,12 @@ namespace AbstUI.SDL2.Components.Inputs
         }
 
         public event Action? ValueChanged;
+        public AbstSdlInputText(AbstSdlComponentFactory factory, bool multiLine) : base(factory)
+        {
+            _multiLine = multiLine;
+            Width = 80;
+            Height = 20;
+        }
 
         private void EnsureResources(AbstSDLRenderContext ctx)
         {
