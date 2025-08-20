@@ -15,6 +15,9 @@ using LingoEngine.Members;
 using LingoEngine.Director.Core.Casts.Commands;
 using System.Linq;
 using LingoEngine.Bitmaps;
+using LingoEngine.Texts;
+using LingoEngine.FilmLoops;
+using LingoEngine.Shapes;
 
 namespace LingoEngine.Director.Core.Sprites
 {
@@ -219,7 +222,13 @@ namespace LingoEngine.Director.Core.Sprites
         {
             switch (member)
             {
-                case LingoMemberBitmap:return movie.Sprite2DManager.Add(spriteNumWithChannel - movie.Sprite2DManager.SpriteNumChannelOffset, begin,end, c => c.SetMember(member));
+                case LingoMemberShape:
+                case LingoFilmLoopMember:
+                case LingoMemberBitmap:
+                    return movie.Sprite2DManager.Add(spriteNumWithChannel - movie.Sprite2DManager.SpriteNumChannelOffset, begin,end, c => c.SetMember(member));
+                case LingoMemberText:
+                case LingoMemberField:
+                    return movie.Sprite2DManager.Add(spriteNumWithChannel - movie.Sprite2DManager.SpriteNumChannelOffset, begin,end, c => c.SetMember(member));
                 //case LingoTempoSprite:
                 case LingoColorPaletteMember memberPalette:
                     {

@@ -10,6 +10,8 @@ namespace LingoEngine.Scripts
         //LingoSpriteFrameScript Add(int frame);
         LingoFrameScriptSprite Add<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour = null, Action<LingoFrameScriptSprite>? configure = null) where TBehaviour : LingoSpriteBehavior;
         LingoFrameScriptSprite Add(int frameNumber, Action<LingoFrameScriptSprite>? configure = null);
+        bool Has(int frameNumber);
+        void Delete(int frameNumber);
     }
     internal class LingoFrameScriptSpriteManager : LingoSpriteManager<LingoFrameScriptSprite>, ILingoFrameScriptSpriteManager
     {
@@ -45,7 +47,14 @@ namespace LingoEngine.Scripts
             return sprite;
         }
 
+        public bool Has(int frameNumber) =>  _allTimeSprites.Any(s => s.BeginFrame == frameNumber);
 
+        public void Delete(int frameNumber) 
+        {
+            var sprite = _allTimeSprites.FirstOrDefault(s => s.BeginFrame == frameNumber);
+            if (sprite != null)
+                sprite.RemoveMe();
+        }
     }
 
 }

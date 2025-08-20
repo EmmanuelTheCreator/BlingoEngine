@@ -14,6 +14,7 @@ using LingoEngine.Scripts;
 using System;
 using LingoEngine.Director.Core.Inspector.Commands;
 using AbstUI.Inputs;
+using LingoEngine.Texts;
 
 namespace LingoEngine.Director.Core.Scores
 {
@@ -267,10 +268,18 @@ namespace LingoEngine.Director.Core.Scores
                     StopPreview();
                     return;
                 }
-                if (DirectorDragDropHolder.Member is LingoMemberScript { ScriptType: LingoScriptType.Behavior } script &&
-                    spriteScore?.Sprite is LingoSprite2D sprite2D)
+                if (DirectorDragDropHolder.Member is LingoMemberScript { ScriptType: LingoScriptType.Behavior } script)
                 {
-                    sprite2D.AttachBehavior(script, _commandManager);
+                    if (spriteScore?.Sprite is LingoSprite2D sprite2D)
+                        sprite2D.AttachBehavior(script, _commandManager);
+                    else if (_movie != null)
+                    {
+                        // its a frame script, so we need to create a new sprite
+                        if (!_movie.FrameScripts.Has(frameNumber))
+                        { 
+                            _movie.FrameScripts.Add(frameNumber,c =>c.SetMember(script));
+                        }
+                    }
                     DirectorDragDropHolder.EndDrag();
                     return;
                 }
@@ -485,6 +494,9 @@ namespace LingoEngine.Director.Core.Scores
             if (_movie == null) return;
             var channel = _lastPreviewChannels.LastOrDefault();
             if (channel == null) return;
+            if (member is ILingoMemberTextBase textBase && textBase.Width == 1) // bug for some unknown reason.
+                textBase.Width = 0;
+            member.Preload();
             _commandManager.Handle(new AddSpriteCommand(_movie, member, channel.SpriteNumWithChannelNum, channel.PreviewBegin, channel.PreviewEnd));
             channel.RequireRedraw();
         }

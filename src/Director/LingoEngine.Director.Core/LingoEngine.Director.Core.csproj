@@ -46,6 +46,7 @@
 
   <ItemGroup>
     <Folder Include="Media\Icons\" />
+    <Folder Include="Windowing\Commands\" />
   </ItemGroup>
 
   <ItemGroup>

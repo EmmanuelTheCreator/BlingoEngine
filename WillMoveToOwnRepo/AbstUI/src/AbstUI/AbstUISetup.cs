@@ -14,7 +14,8 @@ namespace AbstUI
                 .AddTransient<IAbstDialog, AbstDialog>()
                 .AddTransient<AbstDialog>()
                  .AddSingleton<IAbstShortCutManager, AbstShortCutManager>()
-                 .AddSingleton<IAbstWindowManager, AbstWindowManager>()
+                 .AddSingleton<AbstWindowManager>()
+                 .AddTransient(p => (IAbstWindowManager)p.GetRequiredService<AbstWindowManager>())
             //       .AddSingleton<IAbstGlobalMouse, GlobalLingoMouse>()
             //       .AddSingleton<IGlobalAbstKey, AbstKey>()
                    ;

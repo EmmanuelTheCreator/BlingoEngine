@@ -209,6 +209,8 @@ namespace LingoEngine.LGodot.Texts
             }
         }
         private bool _heightSet;
+        private bool _hasLoadedTexTure;
+
         public int Height
         {
             get => _heightSet ? (int)_defaultTextNode.LabelNode.CustomMinimumSize.Y : (int)Size.Y;
@@ -297,6 +299,7 @@ namespace LingoEngine.LGodot.Texts
         }
         public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         {
+            _hasLoadedTexTure = true;
             int w = Width > 0 ? Width : (int)Size.X;
             int h = Height > 0 ? Height : (int)Size.Y;
             if (w <= 0 || h <= 0)
@@ -381,11 +384,14 @@ namespace LingoEngine.LGodot.Texts
 
         public void Preload()
         {
+            if (!_hasLoadedTexTure)
+                RenderToTexture(LingoInkType.Copy, AColors.White);
             IsLoaded = true;
         }
 
         public void Unload()
         {
+            _hasLoadedTexTure = false;
             IsLoaded = false;
         }
 
