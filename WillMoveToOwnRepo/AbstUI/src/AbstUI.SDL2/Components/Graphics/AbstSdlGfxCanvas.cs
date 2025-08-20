@@ -225,7 +225,7 @@ namespace AbstUI.SDL2.Components.Graphics
             var w = width;
             _drawActions.Add(() =>
             {
-                var font = _fontManager.GetTyped(this, fntName ?? string.Empty,fontSize);
+                var font = _fontManager.GetTyped(this, fntName ?? string.Empty, fontSize);
                 if (font == null) return;
                 var fnt = font.FontHandle;
                 if (fnt == nint.Zero) return;
@@ -306,22 +306,37 @@ namespace AbstUI.SDL2.Components.Graphics
             var pos = position;
             _drawActions.Add(() =>
             {
-                if (tex is SdlTexture2D img)
+                switch (tex)
                 {
-
-                    nint sdlTex = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, img.Handle);
-                    if (sdlTex != nint.Zero)
-                    {
-                        SDL.SDL_Rect dst = new SDL.SDL_Rect
+                    case SdlImageTexture surface when surface.SurfaceId != nint.Zero:
                         {
-                            x = (int)pos.X,
-                            y = (int)pos.Y,
-                            w = w,
-                            h = h
-                        };
-                        SDL.SDL_RenderCopy(ComponentContext.Renderer, sdlTex, nint.Zero, ref dst);
-                        SDL.SDL_DestroyTexture(sdlTex);
-                    }
+                            nint sdlTex = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, surface.SurfaceId);
+                            if (sdlTex != nint.Zero)
+                            {
+                                SDL.SDL_Rect dst = new SDL.SDL_Rect
+                                {
+                                    x = (int)pos.X,
+                                    y = (int)pos.Y,
+                                    w = w,
+                                    h = h
+                                };
+                                SDL.SDL_RenderCopy(ComponentContext.Renderer, sdlTex, nint.Zero, ref dst);
+                                SDL.SDL_DestroyTexture(sdlTex);
+                            }
+                            break;
+                        }
+                    case SdlTexture2D img when img.Handle != nint.Zero:
+                        {
+                            SDL.SDL_Rect dst = new SDL.SDL_Rect
+                            {
+                                x = (int)pos.X,
+                                y = (int)pos.Y,
+                                w = w,
+                                h = h
+                            };
+                            SDL.SDL_RenderCopy(ComponentContext.Renderer, img.Handle, nint.Zero, ref dst);
+                            break;
+                        }
                 }
             });
             MarkDirty();
