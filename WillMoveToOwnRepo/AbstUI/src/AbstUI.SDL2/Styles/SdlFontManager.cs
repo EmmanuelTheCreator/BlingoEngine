@@ -150,20 +150,20 @@ public class SdlFontManager : IAbstFontManager
         private readonly Action<SdlLoadedFontByUser> _onRemove;
         public nint FontHandle => _fontHandle;
         public string Name { get; }
-        public int Ascent { get; }
-        public int Descent { get; }
-        public int Kerning { get; }
-        public int LineGap { get; }
-        public int FontHeight { get; }
+        //public int Ascent { get; }
+        //public int Descent { get; }
+        //public int Kerning { get; }
+        //public int LineGap { get; }
+        //public int FontHeight { get; }
         public SdlLoadedFontByUser(LoadedFontWithSize loadedFont, Action<SdlLoadedFontByUser> onRemove)
         {
             _fontHandle = loadedFont.FontHandle;
             Name = loadedFont.Name;
-            Ascent = loadedFont.Ascent;
-            Descent = loadedFont.Descent;
-            Kerning = loadedFont.Kerning;
-            LineGap = loadedFont.LineGap;
-            FontHeight = loadedFont.FontHeight;
+            //Ascent = loadedFont.Ascent;
+            //Descent = loadedFont.Descent;
+            //Kerning = loadedFont.Kerning;
+            //LineGap = loadedFont.LineGap;
+            //FontHeight = loadedFont.FontHeight;
             _onRemove = onRemove;
         }
 

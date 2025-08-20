@@ -11,7 +11,6 @@ namespace LingoEngine.Texts
 {
     public interface ILingoMemberTextBaseInteral: ILingoMemberTextBase
     {
-       
         void LoadFile();
     }
     public abstract class LingoMemberTextBase<TFrameworkType> : LingoMember, ILingoMemberTextBase, ILingoMemberTextBaseInteral
@@ -188,6 +187,7 @@ namespace LingoEngine.Texts
             _Line.SetText(text);
             _Paragraph.SetText(text);
             TextChanged = true;
+            HasChanged = true;
         }
 
         public override void ChangesHasBeenApplied()
@@ -286,7 +286,7 @@ namespace LingoEngine.Texts
         public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
           => _frameworkMember.RenderToTexture(ink, transparentColor);
 
-
+       
     }
 
 }

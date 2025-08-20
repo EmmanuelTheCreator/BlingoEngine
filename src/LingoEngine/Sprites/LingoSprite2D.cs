@@ -362,6 +362,12 @@ When a movie stops, events occur in the following order:
         {
             if (_Member != null && _Member.HasChanged)
             {
+#if DEBUG
+                if (_Member.NumberInCast == 44)
+                {
+                    
+                }
+#endif
                 _frameworkSprite.ApplyMemberChangesOnStepFrame();
                 return _Member;
             }

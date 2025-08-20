@@ -366,7 +366,8 @@ public class SdlSprite : ILingoFrameworkSprite, IAbstSDLComponent, IDisposable
 
     public void ApplyMemberChangesOnStepFrame()
     {
-
+        IsDirtyMember = true;
+        ComponentContext.QueueRedraw(this);
     }
 
 

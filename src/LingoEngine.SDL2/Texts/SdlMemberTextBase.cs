@@ -25,7 +25,7 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     private nint _surface;
     public SdlTexture2D? _textureSDL;
     private ISdlFontLoadedByUser? _font;
-    private int _fontSize;
+    private int _fontSize = 12;
     private string _fontName = string.Empty;
     private int _measuredWidth;
     private string? _renderedText;
@@ -39,7 +39,18 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     public IAbstTexture2D? TextureLingo => _textureSDL;
 
 
-    public string Text { get => _text; set => _text = AbstSdlLabel.CleanText(value); } // we need to trim the last newline to avoid text centered not rendering correctlycentered not rendering correctly
+    public string Text
+    {
+        get => _text;
+        set
+        {
+            var cleaned = AbstSdlLabel.CleanText(value);
+            if (_text == cleaned) return;
+            _text = cleaned;
+            //if (_lingoMemberText is ILingoMemberTextBaseInteral internalText)
+            //    internalText.FrameworkUpdateText(_text);
+        }
+    } // we need to trim the last newline to avoid text centered not rendering correctlycentered not rendering correctly
     public bool WordWrap { get; set; }
     public int ScrollTop { get; set; }
     public string FontName
@@ -51,17 +62,18 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
             _font = null;
         }
     }
-    public int FontSize
+    public int FontSize 
     {
         get => _fontSize;
         set
         {
+            if (_fontSize <= 0) return;
             _fontSize = value;
             _font = null;
         }
     }
     public LingoTextStyle FontStyle { get; set; }
-    public AColor TextColor { get; set; } = AColor.FromRGB(0, 0, 0);
+    public AColor TextColor { get; set; } = AColor.FromRGB(150, 150, 150); // lets take gray so its visible for white and black backgrounds
     public AbstTextAlignment Alignment { get; set; }
     public int Margin { get; set; }
     public bool IsLoaded { get; private set; }
@@ -124,6 +136,12 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
 
     public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
     {
+#if DEBUG
+        if (_lingoMemberText.NumberInCast == 44)
+        {
+
+        }
+#endif
         PreloadFont();
 
         if (_font == null || string.IsNullOrWhiteSpace(_text))
@@ -160,7 +178,7 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
        
         // make a copy
         //var copyTextureSDL = new SdlTexture2D(SDL.SDL_CreateTextureFromSurface(_sdlRootContext.Renderer, _surface), (int)boxW, (int)boxH);
-        return new SdlTexture2D(_surface, (int)boxW, (int)boxH);
+        return new SdlTexture2D(_surface, (int)boxW, (int)boxH,text);
     }
 
     private void PreloadFont()
