@@ -682,6 +682,7 @@ public class LingoToCSharpConverter
         public void Visit(LingoAssignmentStmtNode n) { n.Target.Accept(this); n.Value.Accept(this); }
         public void Visit(LingoSendSpriteStmtNode n) { n.Sprite.Accept(this); n.Message.Accept(this); n.Arguments?.Accept(this); }
         public void Visit(LingoSendSpriteExprNode n) { n.Sprite.Accept(this); n.Message.Accept(this); n.Arguments?.Accept(this); }
+        public void Visit(LingoRangeExprNode n) { n.Start.Accept(this); n.End.Accept(this); }
         public void Visit(LingoObjBracketExprNode n) { n.Object.Accept(this); n.Index.Accept(this); }
         public void Visit(LingoSpritePropExprNode n) { n.Sprite.Accept(this); n.Property.Accept(this); }
         public void Visit(LingoChunkDeleteStmtNode n) { n.Chunk.Accept(this); }
@@ -807,6 +808,7 @@ public class LingoToCSharpConverter
             n.Message.Accept(this);
             n.Arguments?.Accept(this);
         }
+        public void Visit(LingoRangeExprNode n) { n.Start.Accept(this); n.End.Accept(this); }
         public void Visit(LingoObjBracketExprNode n) { n.Object.Accept(this); n.Index.Accept(this); }
         public void Visit(LingoSpritePropExprNode n) { n.Sprite.Accept(this); n.Property.Accept(this); }
         public void Visit(LingoChunkDeleteStmtNode n) { n.Chunk.Accept(this); }

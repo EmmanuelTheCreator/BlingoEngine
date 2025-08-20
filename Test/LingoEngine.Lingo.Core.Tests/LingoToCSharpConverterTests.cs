@@ -951,6 +951,70 @@ end";
     }
 
     [Fact]
+    public void MemberCharRangeIsConverted()
+    {
+        const string src = "global scores,making\nproperty place,tempname,tempscore,win\n\non enterpress\n  addAt tempname,place,member(\"input\").char[1..5]\nend";
+        var result = _converter.Convert(src);
+        Assert.Contains("tempname.AddAt(place, GetMember<ILingoMemberTextBase>(\"input\").Char[1..5]);", result);
+    }
+
+    [Fact]
+    public void AddPropIsConvertedToPropertyListAdd()
+    {
+        const string src = "global plist\n\non test\n  addProp plist,#foo,42\nend";
+        var result = _converter.Convert(src);
+        Assert.Contains("plist.Add(Symbol(\"foo\"), 42);", result);
+    }
+
+    [Fact]
+    public void DeleteAtIsConvertedToListDeleteAt()
+    {
+        const string src = "global l\n\non test\n  deleteAt l,3\nend";
+        var result = _converter.Convert(src);
+        Assert.Contains("l.DeleteAt(3);", result);
+    }
+
+    [Fact]
+    public void GetAtIsConvertedToListGetAt()
+    {
+        const string src = "global l\n\non test\n  x = getAt(l,2)\nend";
+        var result = _converter.Convert(src);
+        Assert.Contains("x = l.GetAt(2);", result);
+    }
+
+    [Fact]
+    public void SetAtIsConvertedToListSetAt()
+    {
+        const string src = "global l\n\non test\n  setAt l,2,42\nend";
+        var result = _converter.Convert(src);
+        Assert.Contains("l.SetAt(2, 42);", result);
+    }
+
+    [Fact]
+    public void CountIsConvertedToListCount()
+    {
+        const string src = "global l\n\non test\n  x = count(l)\nend";
+        var result = _converter.Convert(src);
+        Assert.Contains("x = l.Count;", result);
+    }
+
+    [Fact]
+    public void SetPropIsConvertedToPropertyListSetProp()
+    {
+        const string src = "global plist\n\non test\n  setProp plist,#foo,42\nend";
+        var result = _converter.Convert(src);
+        Assert.Contains("plist.SetProp(Symbol(\"foo\"), 42);", result);
+    }
+
+    [Fact]
+    public void DeletePropIsConvertedToPropertyListDeleteProp()
+    {
+        const string src = "global plist\n\non test\n  deleteProp plist,#foo\nend";
+        var result = _converter.Convert(src);
+        Assert.Contains("plist.DeleteProp(Symbol(\"foo\"));", result);
+    }
+
+    [Fact]
     public void DestroyHandlerActorListIsParsed()
     {
         var lingo = @"on destroy me

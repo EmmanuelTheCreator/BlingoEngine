@@ -756,6 +756,13 @@ public class CSharpWriter : ILingoAstVisitor
 
     public void Visit(LingoNextRepeatStmtNode node) => AppendLine("continue;");
 
+    public void Visit(LingoRangeExprNode node)
+    {
+        node.Start.Accept(this);
+        Append("..");
+        node.End.Accept(this);
+    }
+
     public void Visit(LingoObjBracketExprNode node)
     {
         node.Object.Accept(this);
@@ -916,6 +923,128 @@ public class CSharpWriter : ILingoAstVisitor
                 AppendLine($"{node.Name}();");
             }
             return;
+        }
+
+        if (node.Callee is LingoVarNode func)
+        {
+            var name = func.VarName.ToLowerInvariant();
+            List<LingoNode>? args;
+            if (node.Arguments is LingoDatumNode dn &&
+                dn.Datum.Type == LingoDatum.DatumType.ArgList &&
+                dn.Datum.Value is List<LingoNode> list)
+            {
+                args = list;
+            }
+            else
+            {
+                args = new List<LingoNode> { node.Arguments };
+            }
+
+            switch (name)
+            {
+                case "add" when args.Count >= 2:
+                    args[0].Accept(this);
+                    Append(".Add(");
+                    args[1].Accept(this);
+                    AppendLine(");");
+                    return;
+                case "addat" when args.Count >= 3:
+                    args[0].Accept(this);
+                    Append(".AddAt(");
+                    args[1].Accept(this);
+                    Append(", ");
+                    args[2].Accept(this);
+                    AppendLine(");");
+                    return;
+                case "addprop" when args.Count >= 3:
+                    args[0].Accept(this);
+                    Append(".Add(");
+                    args[1].Accept(this);
+                    Append(", ");
+                    args[2].Accept(this);
+                    AppendLine(");");
+                    return;
+                case "deleteat" when args.Count >= 2:
+                    args[0].Accept(this);
+                    Append(".DeleteAt(");
+                    args[1].Accept(this);
+                    AppendLine(");");
+                    return;
+                case "getat" when args.Count >= 2:
+                    args[0].Accept(this);
+                    Append(".GetAt(");
+                    args[1].Accept(this);
+                    Append(")");
+                    return;
+                case "setat" when args.Count >= 3:
+                    args[0].Accept(this);
+                    Append(".SetAt(");
+                    args[1].Accept(this);
+                    Append(", ");
+                    args[2].Accept(this);
+                    AppendLine(");");
+                    return;
+                case "count" when args.Count >= 1:
+                    args[0].Accept(this);
+                    Append(".Count");
+                    return;
+                case "deleteone" when args.Count >= 2:
+                    args[0].Accept(this);
+                    Append(".DeleteOne(");
+                    args[1].Accept(this);
+                    AppendLine(");");
+                    return;
+                case "deleteall" when args.Count >= 1:
+                    args[0].Accept(this);
+                    AppendLine(".DeleteAll();");
+                    return;
+                case "duplicate" when args.Count >= 1:
+                    args[0].Accept(this);
+                    Append(".Duplicate()");
+                    return;
+                case "getone" when args.Count >= 1:
+                    args[0].Accept(this);
+                    Append(".GetOne()");
+                    return;
+                case "getlast" when args.Count >= 1:
+                    args[0].Accept(this);
+                    Append(".GetLast()");
+                    return;
+                case "getavalue" when args.Count >= 1:
+                    args[0].Accept(this);
+                    Append(".GetAValue()");
+                    return;
+                case "ilk" when args.Count >= 1:
+                    args[0].Accept(this);
+                    Append(".Ilk()");
+                    return;
+                case "listp" when args.Count >= 1:
+                    args[0].Accept(this);
+                    Append(".ListP()");
+                    return;
+                case "tolist" when args.Count >= 1:
+                    args[0].Accept(this);
+                    Append(".ToList()");
+                    return;
+                case "sort" when args.Count >= 1:
+                    args[0].Accept(this);
+                    AppendLine(".Sort();");
+                    return;
+                case "setprop" when args.Count >= 3:
+                    args[0].Accept(this);
+                    Append(".SetProp(");
+                    args[1].Accept(this);
+                    Append(", ");
+                    args[2].Accept(this);
+                    AppendLine(");");
+                    return;
+                case "deleteprop" when args.Count >= 2:
+                    args[0].Accept(this);
+                    Append(".DeleteProp(");
+                    args[1].Accept(this);
+                    AppendLine(");");
+                    return;
+            }
         }
 
         node.Callee.Accept(this);

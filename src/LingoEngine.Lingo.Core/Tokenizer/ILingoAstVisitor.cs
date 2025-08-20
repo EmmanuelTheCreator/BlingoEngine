@@ -38,6 +38,7 @@
         void Visit(LingoSendSpriteExprNode node);
         void Visit(LingoExitRepeatStmtNode node);
         void Visit(LingoNextRepeatStmtNode node);
+        void Visit(LingoRangeExprNode node);
         void Visit(LingoObjBracketExprNode node);
         void Visit(LingoSpritePropExprNode node);
         void Visit(LingoChunkDeleteStmtNode node);

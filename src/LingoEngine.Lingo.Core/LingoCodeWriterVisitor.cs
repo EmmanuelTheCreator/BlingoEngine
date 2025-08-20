@@ -533,6 +533,13 @@ namespace LingoEngine.Lingo.Core
             WriteLine("next repeat");
         }
 
+        public void Visit(LingoRangeExprNode node)
+        {
+            node.Start.Accept(this);
+            Write("..");
+            node.End.Accept(this);
+        }
+
         public void Visit(LingoObjBracketExprNode node)
         {
             node.Object.Accept(this);
