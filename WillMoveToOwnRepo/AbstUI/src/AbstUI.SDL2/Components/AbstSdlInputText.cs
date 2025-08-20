@@ -8,6 +8,7 @@ using AbstUI.SDL2;
 using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Texts;
 using AbstUI.SDL2.Styles;
+using AbstUI.Styles;
 
 namespace AbstUI.SDL2.Components
 {
@@ -42,10 +43,10 @@ namespace AbstUI.SDL2.Components
         }
         public int MaxLength { get; set; }
         public string? Font { get; set; }
-        public int FontSize { get; set; } = 12;
+        public int FontSize { get; set; } = 11;
         public AMargin Margin { get; set; } = AMargin.Zero;
         public object FrameworkNode => this;
-        public AColor TextColor { get; set; } = AColors.Black;
+        public AColor TextColor { get; set; } = AbstDefaultColors.InputTextColor;
 
         public bool IsMultiLine { get; set; }
 
@@ -153,7 +154,8 @@ namespace AbstUI.SDL2.Components
             };
             SDL.SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
             SDL.SDL_RenderFillRect(renderer, ref rect);
-            SDL.SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            var border = AbstDefaultColors.InputBorderColor;
+            SDL.SDL_SetRenderDrawColor(renderer, border.R, border.G, border.B, border.A);
             SDL.SDL_RenderDrawRect(renderer, ref rect);
 
             if (_atlas == null || _font == null) return default;

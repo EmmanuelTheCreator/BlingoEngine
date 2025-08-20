@@ -4,6 +4,7 @@ using AbstUI.Components;
 using AbstUI.SDL2;
 using AbstUI.SDL2.Bitmaps;
 using AbstUI.SDL2.SDLL;
+using AbstUI.Styles;
 
 namespace AbstUI.SDL2.Components
 {
@@ -14,6 +15,10 @@ namespace AbstUI.SDL2.Components
         private nint _textureOffPtr;
         private IAbstTexture2D? _textureOff;
         private bool _focused;
+        private nint _texture;
+        private int _texW;
+        private int _texH;
+        private bool _renderedState;
 
         public AbstSdlStateButton(AbstSdlComponentFactory factory) : base(factory)
         {
@@ -76,7 +81,61 @@ namespace AbstUI.SDL2.Components
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
             if (!Visibility) return default;
-            return default;
+
+            int w = (int)Width;
+            int h = (int)Height;
+
+            if (_texture == nint.Zero || w != _texW || h != _texH || _renderedState != _isOn)
+            {
+                if (_texture != nint.Zero)
+                    SDL.SDL_DestroyTexture(_texture);
+
+                _texture = SDL.SDL_CreateTexture(context.Renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
+                    (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, w, h);
+                SDL.SDL_SetTextureBlendMode(_texture, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
+                _texW = w;
+                _texH = h;
+                _renderedState = _isOn;
+
+                var prev = SDL.SDL_GetRenderTarget(context.Renderer);
+                SDL.SDL_SetRenderTarget(context.Renderer, _texture);
+
+                SDL.SDL_SetRenderDrawColor(context.Renderer, 0, 0, 0, 0);
+                SDL.SDL_RenderClear(context.Renderer);
+
+                if (_isOn && _textureOffPtr == nint.Zero)
+                {
+                    var accent = AbstDefaultColors.InputAccentColor;
+                    SDL.SDL_SetRenderDrawColor(context.Renderer, accent.R, accent.G, accent.B, accent.A);
+                    SDL.SDL_Rect bg = new SDL.SDL_Rect { x = 0, y = 0, w = w, h = h };
+                    SDL.SDL_RenderFillRect(context.Renderer, ref bg);
+                }
+
+                nint icon = _isOn ? (_textureOnPtr != nint.Zero ? _textureOnPtr : _textureOffPtr)
+                                   : (_textureOffPtr != nint.Zero ? _textureOffPtr : _textureOnPtr);
+
+                if (icon != nint.Zero)
+                {
+                    SDL.SDL_QueryTexture(icon, out _, out _, out int iw, out int ih);
+                    SDL.SDL_Rect dst = new SDL.SDL_Rect
+                    {
+                        x = (w - iw) / 2,
+                        y = (h - ih) / 2,
+                        w = iw,
+                        h = ih
+                    };
+                    SDL.SDL_RenderCopy(context.Renderer, icon, IntPtr.Zero, ref dst);
+                }
+
+                var borderColor = AbstDefaultColors.InputBorderColor;
+                SDL.SDL_SetRenderDrawColor(context.Renderer, borderColor.R, borderColor.G, borderColor.B, borderColor.A);
+                SDL.SDL_Rect border = new SDL.SDL_Rect { x = 0, y = 0, w = w, h = h };
+                SDL.SDL_RenderDrawRect(context.Renderer, ref border);
+
+                SDL.SDL_SetRenderTarget(context.Renderer, prev);
+            }
+
+            return _texture;
         }
 
         public override void Dispose()
@@ -90,6 +149,11 @@ namespace AbstUI.SDL2.Components
             {
                 SDL.SDL_DestroyTexture(_textureOffPtr);
                 _textureOffPtr = nint.Zero;
+            }
+            if (_texture != nint.Zero)
+            {
+                SDL.SDL_DestroyTexture(_texture);
+                _texture = nint.Zero;
             }
             base.Dispose();
         }
