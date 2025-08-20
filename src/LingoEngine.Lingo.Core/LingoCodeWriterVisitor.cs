@@ -423,8 +423,14 @@ namespace LingoEngine.Lingo.Core
 
         public void Visit(LingoMemberExprNode node)
         {
-            Write("member ");
+            Write("member(");
             node.Expr.Accept(this);
+            if (node.CastLib != null)
+            {
+                Write(", ");
+                node.CastLib.Accept(this);
+            }
+            Write(")");
         }
 
         public void Visit(LingoObjPropExprNode node)

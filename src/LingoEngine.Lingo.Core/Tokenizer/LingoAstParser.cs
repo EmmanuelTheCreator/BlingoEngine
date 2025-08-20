@@ -683,8 +683,13 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                     else if (name.Equals("member", StringComparison.OrdinalIgnoreCase) && Match(LingoTokenType.LeftParen))
                     {
                         var inner = ParseExpression();
+                        LingoNode? castExpr = null;
+                        if (Match(LingoTokenType.Comma))
+                        {
+                            castExpr = ParseExpression();
+                        }
                         Expect(LingoTokenType.RightParen);
-                        expr = new LingoMemberExprNode { Expr = inner };
+                        expr = new LingoMemberExprNode { Expr = inner, CastLib = castExpr };
                         while (Match(LingoTokenType.Dot))
                         {
                             var pTok = Expect(LingoTokenType.Identifier);

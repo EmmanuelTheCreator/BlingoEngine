@@ -82,6 +82,13 @@ public class LingoToCSharpConverterTests
     }
 
     [Fact]
+    public void MemberWithCastNumberIsConverted()
+    {
+        var result = _converter.Convert("member(\"boem1\",3)");
+        Assert.Equal("Member(\"boem1\", 3)", result.Trim());
+    }
+
+    [Fact]
     public void MemberLineConcatenationUsesTypedGetMember()
     {
         var lingo = @"property i,p,dirI,num
