@@ -362,9 +362,14 @@ namespace LingoEngine.LGodot.Texts
 
         private void UpdateSize()
         {
-            Size = _defaultTextNode != null ? _defaultTextNode.LabelNode.GetCombinedMinimumSize().ToAbstPoint() : (_LabelSettings.Font ?? _fontManager.GetDefaultFont<Font>()).GetMultilineStringSize(Text).ToAbstPoint();
+            var font = _LabelSettings.Font ?? _fontManager.GetDefaultFont<Font>();
+            Size = _defaultTextNode != null ? _defaultTextNode.LabelNode.GetCombinedMinimumSize().ToAbstPoint() : font.GetMultilineStringSize(Text).ToAbstPoint();
             _lingoMemberText.Width = (int)Size.X;
             _lingoMemberText.Height = (int)Size.Y;
+            var asc = font.GetAscent();
+            var height = font.GetHeight();
+            var dif = height - asc;
+            _lingoMemberText.RegPoint = new APoint(0, dif);
         }
 
         public void Erase()
