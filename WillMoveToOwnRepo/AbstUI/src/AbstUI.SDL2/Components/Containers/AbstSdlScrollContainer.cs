@@ -16,6 +16,8 @@ namespace AbstUI.SDL2.Components.Containers
 
         public object FrameworkNode => this;
 
+       
+
         private readonly List<IAbstFrameworkLayoutNode> _children = new();
 
         public void AddItem(IAbstFrameworkLayoutNode child)

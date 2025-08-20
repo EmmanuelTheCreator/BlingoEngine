@@ -12,5 +12,7 @@ namespace AbstUI.Components.Containers
         float ScrollHorizontal { get; set; }
         float ScrollVertical { get; set; }
         bool ClipContents { get; set; }
+        AbstScrollbarMode ScollbarModeH { get; set; }
+        AbstScrollbarMode ScollbarModeV { get; set; }
     }
 }

@@ -21,7 +21,7 @@ public static class GfxTestScene
         scroll.AddItem(panel);
         panel.Width = 300;
         panel.Height = 1400;
-        panel.BackgroundColor = new AColor(00, 50, 50, 255);
+        panel.BackgroundColor = AColor.FromRGBA(255, 10, 10, 0);
 
         float y = 20f;
 
@@ -45,14 +45,14 @@ public static class GfxTestScene
         Add(CreateLabel(factory, "Label4 BIG", c => c.FontSize = 30));
 
         var canvas2 = factory.CreateGfxCanvas("canvas1", 100, 50);
-        canvas2.Clear(new AColor(100, 100, 100, 255));
-        canvas2.DrawCircle(new APoint(50, 25), 20, new AColor(200, 0, 0, 255));
-        canvas2.DrawRect(new ARect(10, 10, 80, 30), new AColor(0, 200, 0, 255));
+        canvas2.Clear(AColor.FromRGBA(100, 100, 100, 0));
+        canvas2.DrawCircle(new APoint(50, 25), 20, AColor.FromRGBA(200, 0, 0, 255));
+        canvas2.DrawRect(new ARect(10, 10, 80, 30), AColor.FromRGBA(0, 200, 0, 255));
         canvas2.DrawText(new APoint(5, 5), "Hallo", null, AColors.Green);
         Add(canvas2);
         Add(factory.CreateButton("button", "Button"));
 
-        //Add(factory.CreateStateButton("stateButton", null, "State"));
+        Add(factory.CreateStateButton("stateButton", null, "State"));
 
         //Add(factory.CreateInputText("inputText"));
 
@@ -76,8 +76,8 @@ public static class GfxTestScene
         //Add(colorPicker, 80);
 
         //AbstGfxCanvas canvas = factory.CreateGfxCanvas("canvas", 100, 50);
-        //canvas.Clear(new AColor(100, 100, 100, 255));
-        //canvas.DrawRect(new ARect(10, 10, 80, 30), new AColor(200, 0, 0, 255));
+        //canvas.Clear(AColor.FromRGBA(100, 100, 100, 255));
+        //canvas.DrawRect(new ARect(10, 10, 80, 30), AColor.FromRGBA(200, 0, 0, 255));
         //Add(canvas, 60);
 
         //var list = factory.CreateItemList("itemList");

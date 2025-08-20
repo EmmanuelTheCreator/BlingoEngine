@@ -62,7 +62,7 @@ namespace AbstUI.SDL2.Components.Graphics
                 var prev = SDL.SDL_GetRenderTarget(ComponentContext.Renderer);
                 SDL.SDL_SetRenderTarget(ComponentContext.Renderer, _texture);
                 var clear = _clearColor ?? new AColor(0, 0, 0);
-                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, clear.R, clear.G, clear.B, 255);
+                SDL.SDL_SetRenderDrawColor(ComponentContext.Renderer, clear.R, clear.G, clear.B, clear.A);
                 SDL.SDL_RenderClear(ComponentContext.Renderer);
                 foreach (var action in _drawActions)
                     action();

@@ -1,13 +1,16 @@
-using System;
 using AbstUI.Components;
+using AbstUI.Components.Containers;
 using AbstUI.Primitives;
 using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
+using System;
+using static AbstUI.SDL2.SDLL.SDL;
 
 namespace AbstUI.SDL2.Components.Containers
 {
+   
     internal abstract class AbstSdlScrollViewer : AbstSdlComponent, IHandleSdlEvent, IDisposable
     {
         protected AbstSdlScrollViewer(AbstSdlComponentFactory factory) : base(factory)
@@ -18,7 +21,8 @@ namespace AbstUI.SDL2.Components.Containers
         public float ScrollHorizontal { get; set; }
         public float ScrollVertical { get; set; }
         public bool ClipContents { get; set; } = true;
-
+        public AbstScrollbarMode ScollbarModeH { get; set; }  = AbstScrollbarMode.Auto;
+        public AbstScrollbarMode ScollbarModeV { get; set; } = AbstScrollbarMode.Auto;
         protected float ContentWidth { get; set; }
         protected float ContentHeight { get; set; }
 
@@ -42,6 +46,10 @@ namespace AbstUI.SDL2.Components.Containers
         private float _dragRatioH;
         private float _dragRatioV;
 
+        public AColor Color_Handle { get; set; } = AColor.FromRGBA(100, 100, 100);
+        public AColor Color_Bars_Bg { get; set; } = AColor.FromRGBA(255, 255, 255, 0);
+        public AColor Color_ScollBorder { get; set; } = AColor.FromRGBA(255, 255, 255, 0);
+        public AColor BackgroundColor { get; set; } = AColor.FromRGBA(255, 255, 255, 0);
         protected abstract void RenderContent(AbstSDLRenderContext context);
 
         protected virtual void HandleContentEvent(AbstSDLEvent e)
@@ -51,7 +59,6 @@ namespace AbstUI.SDL2.Components.Containers
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
             if (!Visibility) return default;
-
             int w = (int)Width;
             int h = (int)Height;
             const int sbSize = 16;
@@ -62,6 +69,10 @@ namespace AbstUI.SDL2.Components.Containers
 
             _maxScrollH = MathF.Max(0, ContentWidth - viewW);
             _maxScrollV = MathF.Max(0, ContentHeight - viewH);
+            var showHScrollBar = ScollbarModeH == AbstScrollbarMode.AlwaysVisible || (ScollbarModeH == AbstScrollbarMode.Auto && _maxScrollH > 0);
+            var showVScrollBar = ScollbarModeV == AbstScrollbarMode.AlwaysVisible || (ScollbarModeV == AbstScrollbarMode.Auto && _maxScrollV > 0);
+            
+
             if (ScrollHorizontal < 0) ScrollHorizontal = 0; else if (ScrollHorizontal > _maxScrollH) ScrollHorizontal = _maxScrollH;
             if (ScrollVertical < 0) ScrollVertical = 0; else if (ScrollVertical > _maxScrollV) ScrollVertical = _maxScrollV;
 
@@ -82,11 +93,12 @@ namespace AbstUI.SDL2.Components.Containers
                     SDL.SDL_DestroyTexture(_texture);
                 _texture = SDL.SDL_CreateTexture(context.Renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
                     (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, w, h);
-                SDL.SDL_SetTextureBlendMode(_texture, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
 
                 var prevTarget = SDL.SDL_GetRenderTarget(context.Renderer);
                 SDL.SDL_SetRenderTarget(context.Renderer, _texture);
-                SDL.SDL_SetRenderDrawColor(context.Renderer, 255, 255, 255, 255);
+                SDL.SDL_SetTextureBlendMode(_texture, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
+                //SDL.SDL_SetTextureBlendMode(_texture, SDL_BlendMode.SDL_BLENDMODE_NONE);
+                SDL.SDL_SetRenderDrawColor(context.Renderer, BackgroundColor.R, BackgroundColor.G, BackgroundColor.B, BackgroundColor.A);
                 SDL.SDL_RenderClear(context.Renderer);
 
                 if (ClipContents)
@@ -100,38 +112,60 @@ namespace AbstUI.SDL2.Components.Containers
                 if (ClipContents)
                     SDL.SDL_RenderSetClipRect(context.Renderer, nint.Zero);
 
-                SDL.SDL_SetRenderDrawColor(context.Renderer, 200, 0, 0, 255);
-                SDL.SDL_Rect vbar = new SDL.SDL_Rect { x = w - sbSize, y = 0, w = sbSize, h = viewH };
-                SDL.SDL_RenderFillRect(context.Renderer, ref vbar);
+                // Draw bg scrollbars
+                SDL.SDL_SetRenderDrawColor(context.Renderer, Color_Bars_Bg.R, Color_Bars_Bg.G, Color_Bars_Bg.B, Color_Bars_Bg.A);
+               
                 SDL.SDL_Rect hbar = new SDL.SDL_Rect { x = 0, y = h - sbSize, w = viewW, h = sbSize };
-                SDL.SDL_RenderFillRect(context.Renderer, ref hbar);
+                if (showHScrollBar)
+                    SDL.SDL_RenderFillRect(context.Renderer, ref hbar);
+                SDL.SDL_Rect vbar = new SDL.SDL_Rect { x = w - sbSize, y = 0, w = sbSize, h = viewH };
+                if (showVScrollBar)
+                    SDL.SDL_RenderFillRect(context.Renderer, ref vbar);
+                
                 SDL.SDL_Rect corner = new SDL.SDL_Rect { x = w - sbSize, y = h - sbSize, w = sbSize, h = sbSize };
                 SDL.SDL_RenderFillRect(context.Renderer, ref corner);
 
+                // Draw handle
                 float vPos = _maxScrollV > 0 ? ScrollVertical / _maxScrollV * (_trackH - _handleH) : 0;
                 float hPos = _maxScrollH > 0 ? ScrollHorizontal / _maxScrollH * (_trackW - _handleW) : 0;
-                SDL.SDL_SetRenderDrawColor(context.Renderer, 120, 120, 120, 255);
-                SDL.SDL_Rect vhandle = new SDL.SDL_Rect { x = w - sbSize + 2, y = (int)(arrowSize + vPos) + 2, w = sbSize - 4, h = (int)_handleH - 4 };
-                SDL.SDL_RenderFillRect(context.Renderer, ref vhandle);
-                SDL.SDL_Rect hhandle = new SDL.SDL_Rect { x = (int)(arrowSize + hPos) + 2, y = h - sbSize + 2, w = (int)_handleW - 4, h = sbSize - 4 };
-                SDL.SDL_RenderFillRect(context.Renderer, ref hhandle);
-
-                SDL.SDL_SetRenderDrawColor(context.Renderer, 80, 80, 80, 255);
+                SDL.SDL_SetRenderDrawColor(context.Renderer, Color_Handle.R, Color_Handle.G, Color_Handle.B, Color_Handle.A);
+                if (showHScrollBar)
+                {
+                    SDL.SDL_Rect hhandle = new SDL.SDL_Rect { x = (int)(arrowSize + hPos) + 2, y = h - sbSize + 2, w = (int)_handleW - 4, h = sbSize - 4 };
+                    SDL.SDL_RenderFillRect(context.Renderer, ref hhandle);
+                }
+                if (showVScrollBar)
+                {
+                    SDL.SDL_Rect vhandle = new SDL.SDL_Rect { x = w - sbSize + 2, y = (int)(arrowSize + vPos) + 2, w = sbSize - 4, h = (int)_handleH - 4 };
+                    SDL.SDL_RenderFillRect(context.Renderer, ref vhandle);
+                }
+                
+                // draw arrows
+                SDL.SDL_SetRenderDrawColor(context.Renderer, Color_Handle.R, Color_Handle.G, Color_Handle.B, Color_Handle.A);
                 int cx = w - sbSize / 2;
                 int cy = h - sbSize / 2;
                 int ah = arrowSize - 4;
-                for (int i = 0; i < ah; i++)
-                    SDL.SDL_RenderDrawLine(context.Renderer, cx - i, 3 + i, cx + i, 3 + i);
-                for (int i = 0; i < ah; i++)
-                    SDL.SDL_RenderDrawLine(context.Renderer, cx - i, viewH - 3 - i, cx + i, viewH - 3 - i);
-                for (int i = 0; i < ah; i++)
-                    SDL.SDL_RenderDrawLine(context.Renderer, 3 + i, cy - i, 3 + i, cy + i);
-                for (int i = 0; i < ah; i++)
-                    SDL.SDL_RenderDrawLine(context.Renderer, viewW - 3 - i, cy - i, viewW - 3 - i, cy + i);
-
-                SDL.SDL_SetRenderDrawColor(context.Renderer, 50, 50, 50, 255);
-                SDL.SDL_RenderDrawRect(context.Renderer, ref vbar);
-                SDL.SDL_RenderDrawRect(context.Renderer, ref hbar);
+                if (showHScrollBar)
+                {
+                    for (int i = 0; i < ah; i++)
+                        SDL.SDL_RenderDrawLine(context.Renderer, 3 + i, cy - i, 3 + i, cy + i);
+                    for (int i = 0; i < ah; i++)
+                        SDL.SDL_RenderDrawLine(context.Renderer, viewW - 3 - i, cy - i, viewW - 3 - i, cy + i);
+                }
+                if (showVScrollBar)
+                {
+                    for (int i = 0; i < ah; i++)
+                        SDL.SDL_RenderDrawLine(context.Renderer, cx - i, 3 + i, cx + i, 3 + i);
+                    for (int i = 0; i < ah; i++)
+                        SDL.SDL_RenderDrawLine(context.Renderer, cx - i, viewH - 3 - i, cx + i, viewH - 3 - i);
+                }
+               
+                SDL.SDL_SetRenderDrawColor(context.Renderer, Color_ScollBorder.R, Color_ScollBorder.G, Color_ScollBorder.B, Color_ScollBorder.A);
+                if (showHScrollBar)
+                    SDL.SDL_RenderDrawRect(context.Renderer, ref hbar);
+                if (showVScrollBar)
+                    SDL.SDL_RenderDrawRect(context.Renderer, ref vbar);
+               
                 SDL.SDL_RenderDrawRect(context.Renderer, ref corner);
 
                 SDL.SDL_SetRenderTarget(context.Renderer, prevTarget);

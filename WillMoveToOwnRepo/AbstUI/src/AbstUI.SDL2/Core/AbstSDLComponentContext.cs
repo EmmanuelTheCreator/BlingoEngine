@@ -1,6 +1,6 @@
-using System;
 using AbstUI.SDL2.Components;
 using AbstUI.SDL2.SDLL;
+using System;
 
 namespace AbstUI.SDL2.Core;
 
@@ -68,9 +68,9 @@ public class AbstSDLComponentContext : IDisposable
             w = TargetWidth,
             h = TargetHeight
         };
-        SDL.SDL_SetTextureAlphaMod(Texture, (byte)(Blend * 255));
-        SDL.SDL_SetTextureBlendMode(Texture, BlendMode);
-        SDL.SDL_RendererFlip flip = SDL.SDL_RendererFlip.SDL_FLIP_NONE;
+            SDL.SDL_SetTextureAlphaMod(Texture, PercentToByte(Blend));
+            SDL.SDL_SetTextureBlendMode(Texture, BlendMode);
+            SDL.SDL_RendererFlip flip = SDL.SDL_RendererFlip.SDL_FLIP_NONE;
         if (FlipH)
             flip |= SDL.SDL_RendererFlip.SDL_FLIP_HORIZONTAL;
         if (FlipV)
@@ -83,4 +83,6 @@ public class AbstSDLComponentContext : IDisposable
         Texture = nint.Zero;
         _container.Unregister(this);
     }
+
+    static byte PercentToByte(float percent) => (byte)Math.Clamp(percent * 2.55f, 0, 255);
 }
