@@ -250,8 +250,12 @@ namespace LingoEngine.Lingo.Core.Tokenizer
 
                 case LingoTokenType.Return:
                     LingoNode? retValue = null;
-                    if (_currentToken.Type != LingoTokenType.End && _currentToken.Type != LingoTokenType.Eof)
+                    if (_currentToken.Type != LingoTokenType.End &&
+                        _currentToken.Type != LingoTokenType.Eof &&
+                        _currentToken.Line == keywordToken.Line)
+                    {
                         retValue = ParseExpression();
+                    }
                     return new LingoReturnStmtNode(retValue);
 
                 default:
@@ -627,6 +631,11 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                     AdvanceToken();
                     break;
 
+                case LingoTokenType.Return:
+                    expr = new LingoDatumNode(new LingoDatum("\n"));
+                    AdvanceToken();
+                    break;
+
                 case LingoTokenType.The:
                     AdvanceToken();
                     var propTok = Expect(LingoTokenType.Identifier);
@@ -672,6 +681,15 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                                 Property = new LingoVarNode { VarName = pTok.Lexeme }
                             };
                         }
+                    }
+                    else if (name.Equals("field", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var arg = ParseExpression();
+                        expr = new LingoObjPropExprNode
+                        {
+                            Object = new LingoMemberExprNode { Expr = arg },
+                            Property = new LingoVarNode { VarName = "Text" }
+                        };
                     }
                     else
                     {
