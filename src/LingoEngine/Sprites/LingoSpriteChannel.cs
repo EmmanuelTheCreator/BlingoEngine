@@ -1,4 +1,5 @@
-﻿using AbstUI.Primitives;
+﻿using System;
+using AbstUI.Primitives;
 using LingoEngine.Casts;
 using LingoEngine.Members;
 using LingoEngine.Movies;
@@ -27,7 +28,7 @@ namespace LingoEngine.Sprites
     /// </summary>
     public interface ILingoSpriteChannel : ILingoSprite
     {
-       
+
 
         /// <summary>
         /// Returns the number of a sprite channel. 
@@ -68,6 +69,7 @@ namespace LingoEngine.Sprites
         private readonly LingoMovie _movie;
         private bool _visibility = true;
         private ILingoSprite? _sprite;
+        public event Action<LingoSpriteChannel, bool>? VisibilityChanged;
         /// <inheritdoc/>
         /// <inheritdoc/>
         public int Number { get; private set; }
@@ -75,11 +77,13 @@ namespace LingoEngine.Sprites
         public bool Scripted { get; private set; }
         public bool Visibility
         {
-            get => _visibility; set
+            get => _visibility;
+            set
             {
-                if (_visibility == value) return; // avoid inifinty loop   
+                if (_visibility == value) return; // avoid inifinty loop
                 _visibility = value;
                 if (_sprite != null) _sprite.Visibility = value;
+                VisibilityChanged?.Invoke(this, value);
             }
         }
         #region Properties proxy
@@ -149,7 +153,7 @@ namespace LingoEngine.Sprites
             _movie = movie;
         }
 
-        
+
 
         public bool Puppet
         {
@@ -204,9 +208,9 @@ namespace LingoEngine.Sprites
         }
 
 
-       
 
-        
+
+
 
         public ILingoSprite SetMember(int memberNumber, int? castLibNum = null) => _sprite.SetMember(memberNumber, castLibNum);
         public ILingoSprite SetMember(string memberName, int? castLibNum = null) => _sprite.SetMember(memberName, castLibNum);
@@ -222,6 +226,6 @@ namespace LingoEngine.Sprites
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
         public bool HasSprite() => _sprite != null;
-      
+
     }
 }
