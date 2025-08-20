@@ -1,5 +1,6 @@
 ﻿using AbstUI.Inputs;
 using AbstUI.SDL2.Styles;
+using AbstUI.SDL2.Windowing;
 using AbstUI.Styles;
 using AbstUI.Windowing;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +12,8 @@ namespace AbstUI.SDL2
         public static IServiceCollection WithAbstUISdl(this IServiceCollection services)
         {
             services
+                .AddSingleton<IAbstSdlWindowManager, AbstSdlWindowManager>()
+                .AddSingleton<IAbstFrameworkWindowManager>(p => p.GetRequiredService<IAbstSdlWindowManager>())
                 .AddSingleton<AbstSdlComponentFactory>()
                 .AddTransient<IAbstComponentFactory>(p => p.GetRequiredService<AbstSdlComponentFactory>())
                 //.AddTransient<IAbstFrameworkDialog, AbstSDLDialog>()
