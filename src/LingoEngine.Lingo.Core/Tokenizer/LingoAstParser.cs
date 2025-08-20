@@ -727,33 +727,17 @@ namespace LingoEngine.Lingo.Core.Tokenizer
 
         private LingoNode ParseSpriteIndex()
         {
-            LingoNode expr;
-            if (_currentToken.Type == LingoTokenType.Me)
-            {
-                expr = new LingoVarNode { VarName = "me" };
-                AdvanceToken();
-            }
-            else if (_currentToken.Type == LingoTokenType.Identifier)
-            {
-                expr = new LingoVarNode { VarName = _currentToken.Lexeme };
-                AdvanceToken();
-            }
-            else
-            {
-                expr = new LingoErrorNode();
-            }
+            // A sprite index can be any valid expression (numbers, variables,
+            // property chains, etc.). The previous implementation only allowed
+            // identifiers or `me`, leaving the current token untouched when a
+            // number was encountered. This resulted in a parser error such as
+            // "Expected token RightParen, but got Number" for expressions like
+            // `sprite(263).property`.
 
-            while (Match(LingoTokenType.Dot))
-            {
-                var pTok = Expect(LingoTokenType.Identifier);
-                expr = new LingoObjPropExprNode
-                {
-                    Object = expr,
-                    Property = new LingoVarNode { VarName = pTok.Lexeme }
-                };
-            }
-
-            return expr;
+            // Reuse the general expression parser here so that any valid Lingo
+            // expression can serve as the sprite index and the token stream is
+            // advanced correctly.
+            return ParseExpression();
         }
 
         private LingoNode ParsePutStatement()
