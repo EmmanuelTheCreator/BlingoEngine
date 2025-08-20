@@ -571,6 +571,23 @@ public class CSharpWriter : ILingoAstVisitor
 
     public void Visit(LingoObjPropExprNode node)
     {
+        if (node.Object is LingoMemberExprNode member &&
+            node.Property is LingoVarNode propVarText)
+        {
+            var propName = propVarText.VarName;
+            if (propName.Equals("text", StringComparison.OrdinalIgnoreCase) ||
+                propName.Equals("line", StringComparison.OrdinalIgnoreCase) ||
+                propName.Equals("word", StringComparison.OrdinalIgnoreCase) ||
+                propName.Equals("char", StringComparison.OrdinalIgnoreCase))
+            {
+                Append("GetMember<ILingoMemberTextBase>(");
+                member.Expr.Accept(this);
+                Append(").");
+                Append(char.ToUpperInvariant(propName[0]) + propName[1..]);
+                return;
+            }
+        }
+
         if (node.Object is LingoVarNode objVar &&
             objVar.VarName.Equals("me", StringComparison.OrdinalIgnoreCase) &&
             node.Property is LingoVarNode propVar)
