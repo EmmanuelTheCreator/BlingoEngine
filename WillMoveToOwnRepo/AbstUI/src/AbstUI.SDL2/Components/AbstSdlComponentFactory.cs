@@ -17,6 +17,7 @@ using AbstUI.SDL2.Styles;
 using AbstUI.SDL2.Windowing;
 using AbstUI.Styles;
 using AbstUI.Windowing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AbstUI.SDL2.Components
 {
@@ -33,11 +34,11 @@ namespace AbstUI.SDL2.Components
         public SdlFocusManager FocusManager => _rootContext.FocusManager;
         internal IAbstSdlWindowManager WindowManager => _windowManager;
 
-        public AbstSdlComponentFactory(ISdlRootComponentContext rootContext, IServiceProvider serviceProvider, IAbstFrameworkWindowManager windowManager)
+        public AbstSdlComponentFactory(ISdlRootComponentContext rootContext, IServiceProvider serviceProvider)
             : base(serviceProvider)
         {
             _rootContext = rootContext;
-            _windowManager = (IAbstSdlWindowManager)windowManager;
+            _windowManager = (IAbstSdlWindowManager)serviceProvider.GetRequiredService< IAbstFrameworkWindowManager>();
             FontManagerTyped = (SdlFontManager)FontManager;
             AbstDefaultStyles.RegisterInputStyles(StyleManager);
         }

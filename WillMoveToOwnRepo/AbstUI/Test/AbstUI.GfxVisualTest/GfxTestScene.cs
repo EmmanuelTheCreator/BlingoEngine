@@ -44,13 +44,13 @@ public static class GfxTestScene
         }));
         Add(CreateLabel(factory, "Label4 BIG", c => c.FontSize = 30));
 
-        //var canvas2 = factory.CreateGfxCanvas("canvas1", 100, 50);
-        //canvas2.Clear(new AColor(100, 100, 100, 255));
-        //canvas2.DrawCircle(new APoint(50, 25), 20, new AColor(200, 0, 0, 255));
-        //canvas2.DrawRect(new ARect(10, 10, 80, 30), new AColor(0, 200, 0, 255));
-        //canvas2.DrawText(new APoint(5, 5), "Hallo", null, AColors.Green);
-        //Add(canvas2);
-        //Add(factory.CreateButton("button", "Button"));
+        var canvas2 = factory.CreateGfxCanvas("canvas1", 100, 50);
+        canvas2.Clear(new AColor(100, 100, 100, 255));
+        canvas2.DrawCircle(new APoint(50, 25), 20, new AColor(200, 0, 0, 255));
+        canvas2.DrawRect(new ARect(10, 10, 80, 30), new AColor(0, 200, 0, 255));
+        canvas2.DrawText(new APoint(5, 5), "Hallo", null, AColors.Green);
+        Add(canvas2);
+        Add(factory.CreateButton("button", "Button"));
 
         //Add(factory.CreateStateButton("stateButton", null, "State"));
 
