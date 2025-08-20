@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using AbstUI.Components.Inputs;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Inputs;
 
-public partial class AbstBlazorItemList : AbstBlazorBaseInput, IAbstFrameworkItemList
+public partial class AbstBlazorItemList : IAbstFrameworkItemList
 {
-    [Parameter] public bool Enabled { get; set; } = true;
-
     private readonly List<KeyValuePair<string, string>> _items = new();
     public IReadOnlyList<KeyValuePair<string, string>> Items => _items;
 

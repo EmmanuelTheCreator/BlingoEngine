@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Components;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Containers;
 
-public partial class AbstBlazorScrollContainer : AbstBlazorComponentBase
+public partial class AbstBlazorScrollContainer
 {
     private AbstBlazorScrollContainerComponent _component = default!;
 

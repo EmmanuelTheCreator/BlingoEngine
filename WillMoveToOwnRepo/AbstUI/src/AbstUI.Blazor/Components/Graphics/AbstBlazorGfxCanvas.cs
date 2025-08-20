@@ -7,9 +7,9 @@ using AbstUI.Primitives;
 using AbstUI.Texts;
 using AbstUI.Components.Graphics;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Graphics;
 
-public partial class AbstBlazorGfxCanvas : AbstBlazorComponentBase, IAbstFrameworkGfxCanvas
+public partial class AbstBlazorGfxCanvas : IAbstFrameworkGfxCanvas
 {
     [Parameter] public bool Pixilated { get; set; }
 

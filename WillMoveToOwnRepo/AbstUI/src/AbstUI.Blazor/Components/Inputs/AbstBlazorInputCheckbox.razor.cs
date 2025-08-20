@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Components;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Inputs;
 
-public partial class AbstBlazorInputCheckbox : AbstBlazorComponentBase
+public partial class AbstBlazorInputCheckbox
 {
     private AbstBlazorInputCheckboxComponent _component = default!;
 

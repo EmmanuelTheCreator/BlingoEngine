@@ -2,15 +2,12 @@ using Microsoft.AspNetCore.Components;
 using AbstUI.Primitives;
 using AbstUI.Components.Containers;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Containers;
 
-public partial class AbstBlazorLayoutWrapper : AbstBlazorComponentBase, IAbstFrameworkLayoutWrapper
+public partial class AbstBlazorLayoutWrapper : IAbstFrameworkLayoutWrapper
 {
     private readonly RenderFragment? _contentFragment;
     private readonly AbstLayoutWrapper _lingoLayoutWrapper;
-
-    public object FrameworkNode => this;
-
     public AbstBlazorLayoutWrapper(AbstLayoutWrapper layoutWrapper)
     {
         _lingoLayoutWrapper = layoutWrapper;

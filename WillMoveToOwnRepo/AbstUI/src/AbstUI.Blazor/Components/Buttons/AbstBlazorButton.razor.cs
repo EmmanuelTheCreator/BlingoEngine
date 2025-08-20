@@ -1,9 +1,9 @@
 using System;
 using Microsoft.AspNetCore.Components;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Buttons;
 
-public partial class AbstBlazorButton : AbstBlazorComponentBase
+public partial class AbstBlazorButton
 {
     private AbstBlazorButtonComponent _component = default!;
 

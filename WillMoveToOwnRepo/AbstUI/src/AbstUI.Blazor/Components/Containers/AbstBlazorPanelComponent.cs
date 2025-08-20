@@ -4,7 +4,7 @@ using AbstUI.Components;
 using AbstUI.Components.Containers;
 using AbstUI.Primitives;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Containers;
 
 public class AbstBlazorPanelComponent : AbstBlazorComponentModelBase, IAbstFrameworkPanel, IAbstBlazorRegistryAware
 {

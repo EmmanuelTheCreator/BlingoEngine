@@ -5,7 +5,7 @@ using AbstUI.Windowing;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Containers;
 
 internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable, IAbstFrameworkWindow
 {
@@ -19,7 +19,7 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable, IAbstFrameworkWi
 
     [Inject] private IJSRuntime JS { get; set; } = default!;
 
-  
+
 
     public string Title
     {
@@ -111,7 +111,7 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable, IAbstFrameworkWi
         _lingoWindow.RaiseWindowStateChanged(true);
     }
 
-    
+
 
     private void EnsureModule()
     {
@@ -160,5 +160,5 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable, IAbstFrameworkWi
         Height = height;
     }
 
-  
+
 }

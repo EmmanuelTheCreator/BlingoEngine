@@ -2,7 +2,7 @@ using System;
 using AbstUI.Components.Inputs;
 using AbstUI.Primitives;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Inputs;
 
 public class AbstBlazorInputTextComponent : AbstBlazorComponentModelBase, IAbstFrameworkInputText
 {

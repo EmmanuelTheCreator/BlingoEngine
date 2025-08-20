@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using AbstUI.Components.Containers;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Containers;
 
 public class AbstBlazorTabContainerComponent : AbstBlazorComponentModelBase, IAbstFrameworkTabContainer, IAbstBlazorRegistryAware
 {
