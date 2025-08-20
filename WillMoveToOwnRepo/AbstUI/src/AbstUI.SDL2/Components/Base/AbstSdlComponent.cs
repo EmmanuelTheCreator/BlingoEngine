@@ -48,8 +48,12 @@ public abstract class AbstSdlComponent : IAbstSDLComponent, IDisposable
         get => _width;
         set
         {
-            _width = value;
-            ComponentContext.TargetWidth = (int)value;
+            if (Math.Abs(_width - value) > float.Epsilon)
+            {
+                _width = value;
+                ComponentContext.TargetWidth = (int)value;
+                ComponentContext.QueueRedraw(this);
+            }
         }
     }
 
@@ -59,8 +63,12 @@ public abstract class AbstSdlComponent : IAbstSDLComponent, IDisposable
         get => _height;
         set
         {
-            _height = value;
-            ComponentContext.TargetHeight = (int)value;
+            if (Math.Abs(_height - value) > float.Epsilon)
+            {
+                _height = value;
+                ComponentContext.TargetHeight = (int)value;
+                ComponentContext.QueueRedraw(this);
+            }
         }
     }
 
