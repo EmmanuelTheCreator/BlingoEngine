@@ -2,15 +2,16 @@
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Movies;
+using LingoEngine.Sprites;
 
 namespace LingoEngine.Director.Core.Scores
 {
     public class DirScoreLeftChannelsContainer : DirScoreLeftContainer
     {
         protected LingoMovie? _movie;
-   
 
-        public DirScoreLeftChannelsContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, APoint position, IDirectorEventMediator mediator) : base(gfxValues, factory, position,10, mediator)
+
+        public DirScoreLeftChannelsContainer(DirScoreGfxValues gfxValues, ILingoFrameworkFactory factory, APoint position, IDirectorEventMediator mediator) : base(gfxValues, factory, position, 10, mediator)
         {
         }
 
@@ -35,8 +36,14 @@ namespace LingoEngine.Director.Core.Scores
             _canvas.Height = _gfxValues.ChannelHeight * _movie.MaxSpriteChannelCount;
             for (int c = 1; c < _movie.MaxSpriteChannelCount; c++)
             {
-                var ch = _movie.Channel(c);
-                var header = new DirScoreChannelHeader("", c.ToString(), _gfxValues, (c, state) => { if (_movie != null) ch.Visibility = state; });
+                var ch = (LingoSpriteChannel)_movie.Channel(c);
+                var header = new DirScoreChannelHeader("", c.ToString(), _gfxValues, (cHeader, state) => { if (_movie != null) ch.Visibility = state; });
+                ch.VisibilityChanged += (_, visible) =>
+                {
+                    header.SetMutedExternal(visible);
+                    Draw();
+                };
+                header.SetMutedExternal(ch.Visibility);
                 channels.Add(header);
             }
             SetChannels(channels.ToArray());
