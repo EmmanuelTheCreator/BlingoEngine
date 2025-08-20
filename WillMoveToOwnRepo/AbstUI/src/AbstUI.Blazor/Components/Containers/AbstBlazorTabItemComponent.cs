@@ -2,7 +2,7 @@ using System;
 using AbstUI.Components;
 using AbstUI.Components.Containers;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Containers;
 
 internal class AbstBlazorTabItemComponent : AbstBlazorComponentModelBase, IAbstFrameworkTabItem
 {

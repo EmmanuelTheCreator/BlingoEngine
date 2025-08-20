@@ -1,36 +1,35 @@
 using Microsoft.AspNetCore.Components;
-using AbstUI.Primitives;
 using AbstUI.Components.Inputs;
 
 namespace AbstUI.Blazor.Components;
 
-public abstract class AbstBlazorBaseInput : IAbstFrameworkNodeInput
+/// <summary>
+/// Base class for all Blazor input components providing common behaviour
+/// such as enabled state management and disposal handling.
+/// </summary>
+public abstract class AbstBlazorBaseInput : AbstBlazorComponentBase, IAbstFrameworkNodeInput
 {
-    private bool _isdisposed;
-   [Parameter]  public bool Enabled {get;set; }
-   [Parameter]  public float X {get;set; }
-   [Parameter]  public float Y {get;set; }
-    [Parameter] public string Name { get; set; } = "";
-   [Parameter]  public bool Visibility {get;set; }
-   [Parameter]  public float Width {get;set; }
-   [Parameter]  public float Height {get;set; }
-    [Parameter] public AMargin Margin {get;set; }
+    private bool _isDisposed;
 
-    public abstract object FrameworkNode { get; }
+    /// <summary>Whether the control is enabled.</summary>
+    [Parameter] public bool Enabled { get; set; } = true;
 
     public event Action? ValueChanged;
 
-
     protected void ValueChangedInvoke()
     {
-        if (_isdisposed) return;
+        if (_isDisposed) return;
         ValueChanged?.Invoke();
     }
-    public void Dispose()
+
+    public override void Dispose()
     {
-        if (_isdisposed) return;
-        _isdisposed = true;
+        if (_isDisposed) return;
+        _isDisposed = true;
         OnDispose();
+        base.Dispose();
     }
-    protected void OnDispose() { }
+
+    /// <summary>Hook for derived classes to dispose additional resources.</summary>
+    protected virtual void OnDispose() { }
 }

@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Components;
 using AbstUI.Primitives;
 
-namespace AbstUI.Blazor.Components;
+namespace AbstUI.Blazor.Components.Containers;
 
-public partial class AbstBlazorWrapPanel : AbstBlazorComponentBase
+public partial class AbstBlazorWrapPanel
 {
     private AbstBlazorWrapPanelComponent _component = default!;
 
