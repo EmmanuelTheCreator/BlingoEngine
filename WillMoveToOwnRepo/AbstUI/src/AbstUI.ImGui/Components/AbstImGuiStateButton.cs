@@ -3,6 +3,7 @@ using ImGuiNET;
 using AbstUI.Primitives;
 using AbstUI.Components;
 using AbstUI.ImGui.Bitmaps;
+using AbstUI.Styles;
 
 namespace AbstUI.ImGui.Components
 {
@@ -20,6 +21,20 @@ namespace AbstUI.ImGui.Components
         }
         public bool Enabled { get; set; } = true;
         public string Text { get; set; } = string.Empty;
+        private AColor _borderColor = AbstDefaultColors.Button_Border_Normal;
+        private AColor _borderHoverColor = AbstDefaultColors.Button_Border_Hover;
+        private AColor _borderPressedColor = AbstDefaultColors.Button_Border_Pressed;
+        private AColor _backgroundColor = AbstDefaultColors.Button_Bg_Normal;
+        private AColor _backgroundHoverColor = AbstDefaultColors.Button_Bg_Hover;
+        private AColor _backgroundPressedColor = AbstDefaultColors.Button_Bg_Pressed;
+        private AColor _textColor = AColor.FromRGB(0,0,0);
+        public AColor BorderColor { get => _borderColor; set => _borderColor = value; }
+        public AColor BorderHoverColor { get => _borderHoverColor; set => _borderHoverColor = value; }
+        public AColor BorderPressedColor { get => _borderPressedColor; set => _borderPressedColor = value; }
+        public AColor BackgroundColor { get => _backgroundColor; set => _backgroundColor = value; }
+        public AColor BackgroundHoverColor { get => _backgroundHoverColor; set => _backgroundHoverColor = value; }
+        public AColor BackgroundPressedColor { get => _backgroundPressedColor; set => _backgroundPressedColor = value; }
+        public AColor TextColor { get => _textColor; set => _textColor = value; }
         public IAbstTexture2D? TextureOn
         {
             get => _textureOn;

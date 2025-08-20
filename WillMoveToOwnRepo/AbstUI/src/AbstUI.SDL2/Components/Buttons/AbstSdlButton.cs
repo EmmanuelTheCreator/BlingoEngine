@@ -1,10 +1,12 @@
 using AbstUI.Primitives;
 using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Styles;
+using AbstUI.SDL2.Bitmaps;
 using AbstUI.Components.Buttons;
 using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.Core;
+using AbstUI.Styles;
 
 namespace AbstUI.SDL2.Components.Buttons
 {
@@ -12,6 +14,7 @@ namespace AbstUI.SDL2.Components.Buttons
     {
         private ISdlFontLoadedByUser? _font;
         private nint _texture;
+        private nint _iconPtr;
         private string _renderedText = string.Empty;
         private int _texW;
         private int _texH;
@@ -21,9 +24,12 @@ namespace AbstUI.SDL2.Components.Buttons
         private bool _isDirty = true;
         private string _text = string.Empty;
         private AColor _textColor = AColor.FromRGB(50, 50, 50);
-        private AColor _borderColor = AColor.FromRGB(100, 100, 100);
-        private AColor _backgroundColor = AColor.FromRGB(255, 255, 255);
-        private AColor _backgroundHoverColor = AColor.FromRGB(200, 200, 200);
+        private AColor _borderColor = AbstDefaultColors.Button_Border_Normal;
+        private AColor _borderHoverColor = AbstDefaultColors.Button_Border_Hover;
+        private AColor _borderPressedColor = AbstDefaultColors.Button_Border_Pressed;
+        private AColor _backgroundColor = AbstDefaultColors.Button_Bg_Normal;
+        private AColor _backgroundHoverColor = AbstDefaultColors.Button_Bg_Hover;
+        private AColor _backgroundPressedColor = AbstDefaultColors.Button_Bg_Pressed;
         private IAbstTexture2D? _iconTexture;
         private bool _isHover;
 
@@ -51,6 +57,21 @@ namespace AbstUI.SDL2.Components.Buttons
                 _backgroundHoverColor = value; _isDirty = true;
             }
         }
+        public AColor BorderHoverColor
+        {
+            get => _borderHoverColor;
+            set { _borderHoverColor = value; _isDirty = true; }
+        }
+        public AColor BorderPressedColor
+        {
+            get => _borderPressedColor;
+            set { _borderPressedColor = value; _isDirty = true; }
+        }
+        public AColor BackgroundPressedColor
+        {
+            get => _backgroundPressedColor;
+            set { _backgroundPressedColor = value; _isDirty = true; }
+        }
         public AColor TextColor { get => _textColor; set { _textColor = value; _isDirty = true; } }
         public AMargin Margin { get; set; } = AMargin.Zero;
         public string Text { get => _text; set { _text = value; _isDirty = true; } }
@@ -61,6 +82,15 @@ namespace AbstUI.SDL2.Components.Buttons
             set
             {
                 _iconTexture = value;
+                if (_iconPtr != nint.Zero)
+                {
+                    SDL.SDL_DestroyTexture(_iconPtr);
+                    _iconPtr = nint.Zero;
+                }
+                if (value is SdlImageTexture img)
+                {
+                    _iconPtr = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, img.SurfaceId);
+                }
                 _isDirty = true;
             }
         }
@@ -100,32 +130,54 @@ namespace AbstUI.SDL2.Components.Buttons
                 var prevTarget = SDL.SDL_GetRenderTarget(context.Renderer);
                 SDL.SDL_SetRenderTarget(context.Renderer, _texture);
 
-                var color = _isHover ? _backgroundHoverColor : _backgroundColor;
-                SDL.SDL_SetRenderDrawColor(context.Renderer, color.R, color.G, color.B, color.A);
+                var bg = _pressed ? _backgroundPressedColor : _isHover ? _backgroundHoverColor : _backgroundColor;
+                SDL.SDL_SetRenderDrawColor(context.Renderer, bg.R, bg.G, bg.B, bg.A);
                 SDL.SDL_RenderClear(context.Renderer);
-                SDL.SDL_SetRenderDrawColor(context.Renderer, BorderColor.R, BorderColor.G, BorderColor.B, BorderColor.A);
-                SDL.SDL_Rect rect = new SDL.SDL_Rect { x = 0, y = 0, w = w, h = h };
-                SDL.SDL_RenderDrawRect(context.Renderer, ref rect);
+
+                int tw = 0, th = 0, tx = 0, ty = 0;
+                if (!string.IsNullOrEmpty(Text))
+                {
+                    SDL_ttf.TTF_SizeUTF8(_font!.FontHandle, Text, out tw, out th);
+                    int baseline = (h - (SDL_ttf.TTF_FontAscent(_font.FontHandle) - SDL_ttf.TTF_FontDescent(_font.FontHandle))) / 2
+                                   + SDL_ttf.TTF_FontAscent(_font.FontHandle);
+                    ty = baseline - SDL_ttf.TTF_FontAscent(_font.FontHandle);
+                }
+
+                if (_iconPtr != nint.Zero && !string.IsNullOrEmpty(Text))
+                {
+                    SDL.SDL_QueryTexture(_iconPtr, out _, out _, out int iw, out int ih);
+                    int totalW = iw + 4 + tw;
+                    int startX = (w - totalW) / 2;
+                    SDL.SDL_Rect idst = new SDL.SDL_Rect { x = startX, y = (h - ih) / 2, w = iw, h = ih };
+                    SDL.SDL_RenderCopy(context.Renderer, _iconPtr, nint.Zero, ref idst);
+                    tx = startX + iw + 4;
+                }
+                else if (_iconPtr != nint.Zero)
+                {
+                    SDL.SDL_QueryTexture(_iconPtr, out _, out _, out int iw, out int ih);
+                    SDL.SDL_Rect idst = new SDL.SDL_Rect { x = (w - iw) / 2, y = (h - ih) / 2, w = iw, h = ih };
+                    SDL.SDL_RenderCopy(context.Renderer, _iconPtr, nint.Zero, ref idst);
+                }
+                else if (!string.IsNullOrEmpty(Text))
+                {
+                    tx = (w - tw) / 2;
+                }
 
                 if (!string.IsNullOrEmpty(Text))
                 {
-                    
-                    int ascent = SDL_ttf.TTF_FontAscent(_font!.FontHandle);
-                    int descent = SDL_ttf.TTF_FontDescent(_font.FontHandle);
-                    SDL_ttf.TTF_SizeUTF8(_font!.FontHandle, Text, out int tw, out int th);
-                    int baseline = (h - (SDL_ttf.TTF_FontAscent(_font.FontHandle) - SDL_ttf.TTF_FontDescent(_font.FontHandle))) / 2
-                                 + SDL_ttf.TTF_FontAscent(_font.FontHandle);
-                    int tx = (w - tw) / 2;
-                    int ty = baseline - SDL_ttf.TTF_FontAscent(_font.FontHandle);
-
-                    nint textSurf = SDL_ttf.TTF_RenderUTF8_Blended(_font.FontHandle, Text, TextColor.ToSDLColor());
+                    nint textSurf = SDL_ttf.TTF_RenderUTF8_Blended(_font!.FontHandle, Text, TextColor.ToSDLColor());
                     nint textTex = SDL.SDL_CreateTextureFromSurface(context.Renderer, textSurf);
                     SDL.SDL_FreeSurface(textSurf);
                     SDL.SDL_SetTextureBlendMode(textTex, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
-                    var dst = new SDL.SDL_Rect { x = tx, y = ty, w = tw, h = th };
-                    SDL.SDL_RenderCopy(context.Renderer, textTex, IntPtr.Zero, ref dst);
+                    SDL.SDL_Rect tdst = new SDL.SDL_Rect { x = tx, y = ty, w = tw, h = th };
+                    SDL.SDL_RenderCopy(context.Renderer, textTex, nint.Zero, ref tdst);
                     SDL.SDL_DestroyTexture(textTex);
                 }
+
+                var border = _pressed ? _borderPressedColor : _isHover ? _borderHoverColor : _borderColor;
+                SDL.SDL_SetRenderDrawColor(context.Renderer, border.R, border.G, border.B, border.A);
+                SDL.SDL_Rect rect = new SDL.SDL_Rect { x = 0, y = 0, w = w, h = h };
+                SDL.SDL_RenderDrawRect(context.Renderer, ref rect);
 
                 SDL.SDL_SetRenderTarget(context.Renderer, prevTarget);
                 _renderedText = Text;
@@ -133,6 +185,7 @@ namespace AbstUI.SDL2.Components.Buttons
                 _texH = h;
             }
 
+            _isDirty = false;
             return _texture;
         }
 
@@ -143,10 +196,14 @@ namespace AbstUI.SDL2.Components.Buttons
             ref var ev = ref e.Event;
             if (!HitTest(ev.button.x, ev.button.y))
             {
-                _isHover = false; 
+                if (_isHover)
+                {
+                    _isHover = false;
+                    _isDirty = true;
+                }
                 return;
             }
-                switch (ev.type)
+            switch (ev.type)
             {
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
                     if (ev.button.button == SDL.SDL_BUTTON_LEFT)
@@ -154,7 +211,7 @@ namespace AbstUI.SDL2.Components.Buttons
                         Factory.FocusManager.SetFocus(this);
                         _pressed = true;
                         e.StopPropagation = true;
-                        _isDirty = true; 
+                        _isDirty = true;
                     }
                     break;
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONUP:
@@ -167,7 +224,11 @@ namespace AbstUI.SDL2.Components.Buttons
                     }
                     break;
                 case SDL.SDL_EventType.SDL_MOUSEMOTION:
-                    _isHover = true;
+                    if (!_isHover)
+                    {
+                        _isHover = true;
+                        _isDirty = true;
+                    }
                     break;
 
             }
@@ -190,6 +251,8 @@ namespace AbstUI.SDL2.Components.Buttons
         {
             if (_texture != nint.Zero)
                 SDL.SDL_DestroyTexture(_texture);
+            if (_iconPtr != nint.Zero)
+                SDL.SDL_DestroyTexture(_iconPtr);
             _font?.Release();
             base.Dispose();
         }

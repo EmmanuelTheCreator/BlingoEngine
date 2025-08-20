@@ -4,6 +4,7 @@ using AbstUI.Components;
 using AbstUI.LGodot.Bitmaps;
 using AbstUI.Components.Inputs;
 using AbstUI.Components.Buttons;
+using AbstUI.Styles;
 
 namespace AbstUI.LGodot.Components
 {
@@ -16,8 +17,9 @@ namespace AbstUI.LGodot.Components
         private IAbstTexture2D? _texture;
         private IAbstTexture2D? _textureOff;
         private readonly StyleBoxFlat _style = new StyleBoxFlat();
+        private readonly StyleBoxFlat _styleHover = new StyleBoxFlat();
+        private readonly StyleBoxFlat _stylePressed = new StyleBoxFlat();
         private readonly StyleBoxFlat _styleDisabled = new StyleBoxFlat();
-        private readonly StyleBoxFlat _styleActive = new StyleBoxFlat();
         private Action<bool>? _onChange;
         private event Action? _onValueChanged;
 
@@ -27,19 +29,12 @@ namespace AbstUI.LGodot.Components
             ToggleMode = false;
             CustomMinimumSize = new Vector2(16, 16);
             button.Init(this);
-            _style.BgColor = Colors.Transparent;
             ResetStyle(_style);
+            ResetStyle(_styleHover);
+            ResetStyle(_stylePressed);
             ResetStyle(_styleDisabled);
-            ResetStyle(_styleActive);
-            
 
-
-
-            AddThemeStyleboxOverride("normal", _style);
-            AddThemeStyleboxOverride("hover", _style);
-            AddThemeStyleboxOverride("pressed", _style);
-            AddThemeStyleboxOverride("focus", _styleActive);
-            AddThemeStyleboxOverride("disabled", _styleDisabled);
+            UpdateStyle();
 
             //Toggled += _toggleHandler;
             Pressed += BtnClicked;
@@ -141,18 +136,24 @@ namespace AbstUI.LGodot.Components
         }
         private void UpdateStyle()
         {
-            ResetStyle(_style);
-            ResetStyle(_styleDisabled);
-            if (_isOn && _textureOff ==null)
-                _style.BgColor = Colors.DarkGray;
-            else
-                _style.BgColor = Colors.Transparent;
+            _style.BgColor = ToColor(_backgroundColor);
+            _style.BorderColor = ToColor(_borderColor);
+            _style.BorderWidthAll = 1;
 
-            
-            AddThemeStyleboxOverride("normal", _style);
-            AddThemeStyleboxOverride("hover", _style);
-            AddThemeStyleboxOverride("pressed", _style);
-            AddThemeStyleboxOverride("focus", _style);
+            _styleHover.BgColor = ToColor(_backgroundHoverColor);
+            _styleHover.BorderColor = ToColor(_borderHoverColor);
+            _styleHover.BorderWidthAll = 1;
+
+            _stylePressed.BgColor = ToColor(_backgroundPressedColor);
+            _stylePressed.BorderColor = ToColor(_borderPressedColor);
+            _stylePressed.BorderWidthAll = 1;
+
+            AddThemeStyleboxOverride("normal", _isOn ? _stylePressed : _style);
+            AddThemeStyleboxOverride("hover", _isOn ? _stylePressed : _styleHover);
+            AddThemeStyleboxOverride("pressed", _stylePressed);
+            AddThemeStyleboxOverride("focus", _stylePressed);
+            AddThemeStyleboxOverride("disabled", _styleDisabled);
+            AddThemeColorOverride("font_color", ToColor(_textColor));
         }
 
         private void ResetStyle(StyleBoxFlat style)
@@ -162,5 +163,23 @@ namespace AbstUI.LGodot.Components
             style.BorderWidthBottom = style.BorderWidthRight = style.BorderWidthLeft = style.BorderWidthTop = 0;
             style.SetBorderWidthAll(0);
         }
+
+        private AColor _borderColor = AbstDefaultColors.Button_Border_Normal;
+        private AColor _borderHoverColor = AbstDefaultColors.Button_Border_Hover;
+        private AColor _borderPressedColor = AbstDefaultColors.Button_Border_Pressed;
+        private AColor _backgroundColor = AbstDefaultColors.Button_Bg_Normal;
+        private AColor _backgroundHoverColor = AbstDefaultColors.Button_Bg_Hover;
+        private AColor _backgroundPressedColor = AbstDefaultColors.Button_Bg_Pressed;
+        private AColor _textColor = AColor.FromRGB(0,0,0);
+
+        public AColor BorderColor { get => _borderColor; set { _borderColor = value; UpdateStyle(); } }
+        public AColor BorderHoverColor { get => _borderHoverColor; set { _borderHoverColor = value; UpdateStyle(); } }
+        public AColor BorderPressedColor { get => _borderPressedColor; set { _borderPressedColor = value; UpdateStyle(); } }
+        public AColor BackgroundColor { get => _backgroundColor; set { _backgroundColor = value; UpdateStyle(); } }
+        public AColor BackgroundHoverColor { get => _backgroundHoverColor; set { _backgroundHoverColor = value; UpdateStyle(); } }
+        public AColor BackgroundPressedColor { get => _backgroundPressedColor; set { _backgroundPressedColor = value; UpdateStyle(); } }
+        public AColor TextColor { get => _textColor; set { _textColor = value; UpdateStyle(); } }
+
+        private static Color ToColor(AColor c) => new Color(c.R / 255f, c.G / 255f, c.B / 255f, c.A / 255f);
     }
 }

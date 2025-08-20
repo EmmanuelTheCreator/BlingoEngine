@@ -1,2 +1,2 @@
 @inherits AbstBlazorBaseInput
-<button @onclick="HandleClick" disabled="@(Enabled ? null : true)" style="@BuildStyle()">@Text</button>
+<button @onclick="HandleClick" @onmouseover="HandleMouseOver" @onmouseout="HandleMouseOut" @onmousedown="HandleMouseDown" @onmouseup="HandleMouseUp" disabled="@(Enabled ? null : true)" style="@BuildStyle()">@Text</button>
