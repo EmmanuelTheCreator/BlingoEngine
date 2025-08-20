@@ -1,8 +1,8 @@
 using Godot;
 using AbstUI.Primitives;
-using AbstUI.LGodot.Components;
 using AbstUI.Components.Buttons;
 using AbstUI.Components.Menus;
+using AbstUI.LGodot.Components.Menus;
 
 namespace AbstUI.LGodot.Components
 {

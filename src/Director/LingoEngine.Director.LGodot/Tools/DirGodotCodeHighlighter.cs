@@ -1,5 +1,5 @@
 using AbstUI.FrameworkCommunication;
-using AbstUI.LGodot.Components;
+using AbstUI.LGodot.Components.Inputs;
 using AbstUI.LGodot.Primitives;
 using Godot;
 using LingoEngine.Director.Core.Styles;

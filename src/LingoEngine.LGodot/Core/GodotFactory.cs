@@ -36,6 +36,7 @@ using AbstUI.Components.Inputs;
 using AbstUI.Components.Menus;
 using AbstUI.Components.Buttons;
 using AbstUI.Components.Texts;
+using AbstUI.LGodot.Components;
 
 namespace LingoEngine.LGodot.Core
 {

@@ -19,7 +19,7 @@ using AbstUI.LGodot.Bitmaps;
 using AbstUI.LGodot.Primitives;
 using AbstUI.LGodot.Components;
 using AbstEngine.Director.LGodot;
-using AbstEngine.Director.LGodot.Windowing;
+using AbstUI.LGodot.Windowing;
 
 namespace LingoEngine.Director.LGodot.Pictures;
 

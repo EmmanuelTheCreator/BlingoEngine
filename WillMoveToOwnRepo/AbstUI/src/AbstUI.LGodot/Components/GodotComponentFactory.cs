@@ -5,12 +5,12 @@ using AbstUI.Components.Graphics;
 using AbstUI.Components.Inputs;
 using AbstUI.Components.Menus;
 using AbstUI.Components.Texts;
-using AbstUI.LGodot;
-using AbstUI.LGodot.Components;
+using AbstUI.LGodot.Components.Inputs;
+using AbstUI.LGodot.Components.Menus;
 using AbstUI.LGodot.Styles;
 using AbstUI.Primitives;
 
-namespace LingoEngine.LGodot
+namespace AbstUI.LGodot.Components
 {
     /// <summary>
     /// Factory responsible for creating Godot specific GFX components.
@@ -287,7 +287,7 @@ namespace LingoEngine.LGodot
         //public AbstWindow CreateWindow(string name, string title = "")
         //{
         //    var win = new AbstWindow();
-        //    var impl = new LingoGodotWindow(win, _godotStyleManager, _rootNode);
+        //    var impl = new GodotWindow(win, _godotStyleManager, _rootNode);
         //    InitComponent(win);
         //    win.Name = name;
         //    if (!string.IsNullOrWhiteSpace(title))

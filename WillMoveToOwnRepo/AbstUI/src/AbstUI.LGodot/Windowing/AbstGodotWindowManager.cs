@@ -1,15 +1,14 @@
+using AbstEngine.Director.LGodot;
 using AbstUI.Components;
 using AbstUI.Components.Containers;
 using AbstUI.LGodot;
 using AbstUI.LGodot.Primitives;
 using AbstUI.LGodot.Styles;
-using AbstUI.LGodot.Windowing;
 using AbstUI.Styles;
 using AbstUI.Windowing;
 using Godot;
-using LingoEngine.LGodot;
 
-namespace AbstEngine.Director.LGodot.Windowing;
+namespace AbstUI.LGodot.Windowing;
 
 public interface IAbstGodotWindowManager : IAbstFrameworkWindowManager
 {
@@ -24,16 +23,16 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager
     public const int ZIndexInactiveWindow = -1000;
     public const int ZIndexInactiveWindowStage = -4000;
     private IAbstWindowManager _directorWindowManager;
-    private readonly IAbstGodotStyleManager _lingoGodotStyleManager;
+    private readonly IAbstGodotStyleManager _godotStyleManager;
     private readonly IAbstComponentFactory _frameworkFactory;
     private readonly IAbstGodotRootNode _abstGodotRootNode;
     private readonly Dictionary<string, BaseGodotWindow> _godotWindows = new();
     public BaseGodotWindow? ActiveWindow { get; private set; }
 
-    public AbstGodotWindowManager(IAbstWindowManager directorWindowManager, IAbstGodotStyleManager lingoGodotStyleManager, IAbstComponentFactory frameworkFactory, IAbstGodotRootNode abstGodotRootNode)
+    public AbstGodotWindowManager(IAbstWindowManager directorWindowManager, IAbstGodotStyleManager godotStyleManager, IAbstComponentFactory frameworkFactory, IAbstGodotRootNode abstGodotRootNode)
     {
         _directorWindowManager = directorWindowManager;
-        _lingoGodotStyleManager = lingoGodotStyleManager;
+        _godotStyleManager = godotStyleManager;
         _frameworkFactory = frameworkFactory;
         _abstGodotRootNode = abstGodotRootNode;
         directorWindowManager.Init(this);
@@ -97,7 +96,7 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager
         {
             Title = title,
             DialogText = message,
-            Theme = _lingoGodotStyleManager.GetTheme(AbstGodotThemeElementType.PopupWindow),
+            Theme = _godotStyleManager.GetTheme(AbstGodotThemeElementType.PopupWindow),
         };
 
         dialog.Confirmed += () => { onResult(true); dialog.QueueFree(); };
@@ -128,7 +127,7 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager
         var dialog = dialogAbst.FrameworkObj<AbstGodotDialog>();
         dialog.Title = title;
         dialog.Size = new Vector2I((int)panel.Width, (int)panel.Height);
-        dialog.Theme = _lingoGodotStyleManager.GetTheme(AbstGodotThemeElementType.PopupWindow);
+        dialog.Theme = _godotStyleManager.GetTheme(AbstGodotThemeElementType.PopupWindow);
         root.AddChild(dialog);
         dialog.CloseRequested += dialog.QueueFree;
         dialog.AddChild(node);
@@ -137,7 +136,7 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager
         return new AbstWindowDialogReference(dialog.QueueFree, dialog);
     }
 
-    public IAbstWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? lingoDialog = null)
+    public IAbstWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? abstDialog = null)
         where TDialog : class, IAbstDialog
     {
         var root = _abstGodotRootNode.RootNode.GetTree().Root;
@@ -154,27 +153,27 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager
         };
         node.AddThemeStyleboxOverride("panel", styleBox);
         AbstGodotDialog dialog;
-        if (lingoDialog != null)
-            dialog = lingoDialog.FrameworkObj<AbstGodotDialog>();
+        if (abstDialog != null)
+            dialog = abstDialog.FrameworkObj<AbstGodotDialog>();
         else
         {
-            lingoDialog = _frameworkFactory.CreateElement<TDialog>();
-            dialog = lingoDialog.FrameworkObj<AbstGodotDialog>();
+            abstDialog = _frameworkFactory.CreateElement<TDialog>();
+            dialog = abstDialog.FrameworkObj<AbstGodotDialog>();
         }
 
         dialog.Title = title;
         
         dialog.Size = new Vector2I((int)panel.Width, (int)panel.Height);
-        dialog.Theme = _lingoGodotStyleManager.GetTheme(AbstGodotThemeElementType.PopupWindow);
+        dialog.Theme = _godotStyleManager.GetTheme(AbstGodotThemeElementType.PopupWindow);
        
         root.AddChild(dialog);
         dialog.CloseRequested += dialog.QueueFree;
         dialog.AddChild(node);
-        //if (lingoDialog != null)
+        //if (abstDialog != null)
         //{
         //    var frameworkDialog = (IAbstFrameworkDialog)dialog;
-        //    frameworkDialog.Init(lingoDialog);
-        //    lingoDialog.Init(frameworkDialog);
+        //    frameworkDialog.Init(abstDialog);
+        //    abstDialog.Init(frameworkDialog);
         //}
         dialog.PopupCentered();
 

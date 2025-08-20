@@ -6,7 +6,7 @@ using AbstUI.Styles;
 using AbstUI.LGodot.Primitives;
 using AbstUI.Components.Inputs;
 
-namespace AbstUI.LGodot.Components
+namespace AbstUI.LGodot.Components.Inputs
 {
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkInputText"/> using composition.

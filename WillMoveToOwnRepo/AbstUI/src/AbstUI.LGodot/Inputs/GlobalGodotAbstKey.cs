@@ -1,7 +1,7 @@
+using AbstUI.Inputs;
 using AbstUI.LGodot;
-using AbstUI.LGodot.Inputs;
 
-namespace AbstUI.Inputs
+namespace AbstUI.LGodot.Inputs
 {
     public class GlobalAbstKey : AbstKey , IAbstGlobalKey
     {

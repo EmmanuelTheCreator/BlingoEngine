@@ -1,7 +1,6 @@
 using AbstUI.Components.Menus;
-using AbstUI.LGodot.Components;
 
-namespace AbstUI.LGodot.Components
+namespace AbstUI.LGodot.Components.Menus
 {
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkMenuItem"/>.
