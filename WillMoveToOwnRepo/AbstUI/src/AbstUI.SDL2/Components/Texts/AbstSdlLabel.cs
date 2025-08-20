@@ -5,11 +5,13 @@ using AbstUI.SDL2.Core;
 using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Styles;
 using AbstUI.Texts;
+using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace AbstUI.SDL2.Components.Texts
 {
-    internal class AbstSdlLabel : AbstSdlComponent, IAbstFrameworkLabel, IDisposable
+    public class AbstSdlLabel : AbstSdlComponent, IAbstFrameworkLabel, IDisposable
     {
         private float _lastWidth;
         private float _lastHeight;
@@ -19,7 +21,7 @@ namespace AbstUI.SDL2.Components.Texts
         }
         public AMargin Margin { get; set; } = AMargin.Zero;
 
-        public string Text { get; set; } = string.Empty;
+        public string Text { get => _text; set => _text = CleanText(value); } // we need to trim the last newline to avoid text centered not rendering correctly
         public int FontSize { get; set; }
         public string? Font { get; set; }
 
@@ -39,6 +41,9 @@ namespace AbstUI.SDL2.Components.Texts
         private nint _texture;
         private string _renderedText = string.Empty;
         private int _measuredWidth;
+        private int _textWidth;
+        private int _textHeight;
+        private string _text = string.Empty;
 
         private void EnsureResources(AbstSDLRenderContext ctx)
         {
@@ -47,26 +52,30 @@ namespace AbstUI.SDL2.Components.Texts
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
-            if (!Visibility || string.IsNullOrEmpty(Text))
+            if (!Visibility || string.IsNullOrEmpty(Text) )
                 return default;
 
             EnsureResources(context);
+            if (_font == null) return default;
 
             if (_texture == nint.Zero || _renderedText != Text || _lastWidth != Width || _lastHeight != Height)
             {
                 if (_texture != nint.Zero) { SDL.SDL_DestroyTexture(_texture); _texture = nint.Zero; }
 
-                var (tw, th) = MeasureText(Text);
+                if (_renderedText != Text)
+                    MeasureSDLText(_font!.FontHandle, Text);
 
                 // decide final box
-                float boxW = Width > 0 ? Width : tw;
-                float boxH = Height > 0 ? Height : th;
+                float boxW = Width > 0 ? Width : _textWidth;
+                float boxH = Height > 0 ? Height : _textHeight;
 
                 // build texture
-                var (tex, textW, textH) = CreateTextTextureBox(context, Text, (int)boxW, (int)boxH, TextAlignment);
+                // render glyphs
+                SDL.SDL_Color col = FontColor.ToSDLColor();
+                var (tex, textW, textH) = CreateTextTextureBox(context.Renderer, _font!.FontHandle,FontSize, Text, (int)boxW, (int)boxH, TextAlignment, col);
                 _texture = tex;
                 SDL.SDL_SetTextureBlendMode(_texture, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
-
+                SDL.SDL_FreeSurface(tex);
                 // update sizes
                 if (Width <= 0) Width = boxW;
                 if (Height <= 0) Height = boxH;
@@ -101,12 +110,14 @@ namespace AbstUI.SDL2.Components.Texts
             _font?.Release();
             base.Dispose();
         }
-        private (nint tex, int textW, int textH) CreateTextTextureBox(
-     AbstSDLRenderContext context, string text, int boxW, int boxH, AbstTextAlignment align)
+        public static (nint tex,int textW, int textH) CreateTextTextureBox(nint renderer, nint fontHandle, int fontSize, string text, int boxW, int boxH, AbstTextAlignment align, SDL.SDL_Color col, bool wordWrap = true)
         {
-            // render glyphs
-            SDL.SDL_Color col = FontColor.ToSDLColor();
-            nint textSurf = SDL_ttf.TTF_RenderUTF8_Blended(_font!.FontHandle, text, col);
+
+            var hasLineBreak = text.IndexOf('\n') >= 0;
+            nint textSurf =  wordWrap || hasLineBreak
+                ? SDL_ttf.TTF_RenderUTF8_Blended_Wrapped(fontHandle, text, col, (uint)(boxW+20)) // for some reason we need to add an offset of 20px to the width, otherwise it does not wrap correctly
+                : SDL_ttf.TTF_RenderUTF8_Blended(fontHandle, text, col);
+            //nint textSurf = SDL_ttf.TTF_RenderUTF8_Blended(fontHandle, text, col);
             if (textSurf == nint.Zero) throw new Exception(SDL_ttf.TTF_GetError());
             var ts = Marshal.PtrToStructure<SDL.SDL_Surface>(textSurf);
             int tw = ts.w, th = ts.h;
@@ -120,6 +131,7 @@ namespace AbstUI.SDL2.Components.Texts
             nint box = SDL.SDL_CreateRGBSurfaceWithFormat(0, boxW, boxH, 32, FMT);
             if (box == nint.Zero) { SDL.SDL_FreeSurface(textSurf); throw new Exception(SDL.SDL_GetError()); }
             SDL.SDL_FillRect(box, nint.Zero, 0x00000000);
+            //SDL.SDL_FillRect(box, nint.Zero, 0xFFFFFFFF);
 
             // dst placement
             int dstX = align switch
@@ -128,25 +140,78 @@ namespace AbstUI.SDL2.Components.Texts
                 AbstTextAlignment.Right => Math.Max(0, boxW - tw),
                 _ => 0
             };
-            int dstY = Math.Max(0, (boxH - th) / 2);
 
-            var dst = new SDL.SDL_Rect { x = dstX, y = dstY, w = tw, h = th };
+            int dstY = Math.Max(0, (boxH - th) / 2);
+            int ascent = SDL_ttf.TTF_FontAscent(fontHandle);
+            int descent = SDL_ttf.TTF_FontDescent(fontHandle);
+            var kerning = SDL_ttf.TTF_GetFontKerning(fontHandle);
+            var lineGap = SDL_ttf.TTF_FontLineSkip(fontHandle);
+            var fontHeight = SDL_ttf.TTF_FontHeight(fontHandle);
+            int tightHeight = fontHeight - ascent ;
+            var sdlFixY = tightHeight-1; 
+            //var sdlFixY = (int)MathF.Floor(fontSize/7); // 6px, SDL_ttf has a bug that it renders text too high, so we need to shift it up a bit
+            var dst = new SDL.SDL_Rect { x = dstX, y = dstY- sdlFixY, w = tw, h = th };
             SDL.SDL_BlitSurface(textSurf, nint.Zero, box, ref dst);
 
             // texture
-            nint tex = SDL.SDL_CreateTextureFromSurface(context.Renderer, box);
+            nint tex = SDL.SDL_CreateTextureFromSurface(renderer, box);
             SDL.SDL_SetTextureBlendMode(tex, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
-
-            SDL.SDL_FreeSurface(textSurf);
             SDL.SDL_FreeSurface(box);
-            return (tex, tw, th);
+
+            return (tex,tw, th);
         }
 
-        private (int w, int h) MeasureText(string text)
+     
+
+        public static string CleanText(string text)
         {
-            SDL_ttf.TTF_SizeUTF8(_font!.FontHandle, text, out int w, out int h);
+            // normalize + drop trailing newlines (matches render)
+            string s = (text ?? string.Empty).Replace("\r\n", "\n").Replace('\r', '\n');
+            int end = s.Length; 
+            while (end > 0 && s[end - 1] == '\n') end--;
+            var result = s.Substring(0, end);
+            return result;
+        }
+
+        
+        public static (int w, int h) MeasureSDLText(nint fontHandle, string text, uint wrapWidth = 0)
+        {
+            string s = text;
+
+            var col = new SDL.SDL_Color { r = 255, g = 255, b = 255, a = 255 };
+            nint surf = SDL_ttf.TTF_RenderUTF8_Blended_Wrapped(fontHandle, s, col, 0);
+            if (surf == nint.Zero) throw new Exception(SDL_ttf.TTF_GetError());
+
+            var ss = Marshal.PtrToStructure<SDL.SDL_Surface>(surf);
+            int w = ss.w, h = ss.h;
+            SDL.SDL_FreeSurface(surf);
             return (w, h);
         }
 
+
+
+
+        /// <summary>Returns the bounding box (w,h) for multiline text (handles \n). No wrapping.</summary>
+        private static (int w, int h) MeasureSDLTextOLD(nint fontHandle, string text)
+        {
+            var font = fontHandle;
+            if (string.IsNullOrEmpty(text))
+                return (0, SDL_ttf.TTF_FontHeight(font));
+
+            string[] lines = text.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+            int maxW = 0;
+            int baseH = SDL_ttf.TTF_FontHeight(font);
+            int lineSkip = SDL_ttf.TTF_FontLineSkip(font);
+
+            foreach (var line in lines)
+            {
+                var s = line.Length == 0 ? " " : line; // empty line still has height
+                SDL_ttf.TTF_SizeUTF8(font, s, out int w, out _);
+                if (w > maxW) maxW = w;
+            }
+            int totalH = baseH + (lines.Length - 1) * lineSkip;
+
+            return (200, 50);
+        }
     }
 }

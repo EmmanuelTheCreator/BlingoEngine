@@ -24,7 +24,7 @@ namespace LingoEngine.Events
         private readonly List<IHasMouseExitEvent> _mouseExits = new();
         //private readonly List<IHasBeginSpriteEvent> _beginSprites = new();
         //private readonly List<IHasEndSpriteEvent> _endSprites = new();
-        private readonly List<IHasStepFrameEvent> _stepFrames = new();
+        private readonly List<IHasStepFrameEvent> _stepFrames = new(); // must be handled by actorlist
         private readonly List<IHasPrepareFrameEvent> _prepareFrames = new();
         private readonly List<IHasEnterFrameEvent> _enterFrames = new();
         private readonly List<IHasExitFrameEvent> _exitFrames = new();
@@ -43,7 +43,17 @@ namespace LingoEngine.Events
             else
                 list.Insert(index, item);
         }
-
+        // Must be separated and handled by actorlist
+        public void SubscribeStepFrame(IHasStepFrameEvent ms, int priority = DefaultPriority)
+        {
+            _priorities[ms] = priority;
+            Insert(_stepFrames, ms);
+        }
+        public void UnsubscribeStepFrame(IHasStepFrameEvent ms, int priority = DefaultPriority)
+        {
+            _priorities[ms] = priority;
+            _stepFrames.Remove(ms);
+        }
         public void Subscribe(object ms, int priority = DefaultPriority, bool ignoreMouse = false)
         {
             _priorities[ms] = priority;
@@ -63,9 +73,8 @@ namespace LingoEngine.Events
             }
             //if (ms is IHasBeginSpriteEvent beginSpriteEvent) Insert(_beginSprites, beginSpriteEvent);
             //if (ms is IHasEndSpriteEvent endSpriteEvent) Insert(_endSprites, endSpriteEvent);
+            // NOT stepframe, it seems stepframe is only used through the actor list.
 
-            //if (ms is IHasStepFrameEvent stepFrameEvent) Insert(_stepFrames, stepFrameEvent);
-            // it seems stepframe is only used through the actor list.
             if (ms is IHasPrepareFrameEvent prepareFrameEvent) Insert(_prepareFrames, prepareFrameEvent);
             if (ms is IHasEnterFrameEvent enterFrameEvent) Insert(_enterFrames, enterFrameEvent);
             if (ms is IHasExitFrameEvent exitFrameEvent) Insert(_exitFrames, exitFrameEvent);
@@ -90,8 +99,8 @@ namespace LingoEngine.Events
             }
             //if (ms is IHasBeginSpriteEvent beginSpriteEvent) _beginSprites.Remove(beginSpriteEvent);
             //if (ms is IHasEndSpriteEvent endSpriteEvent) _endSprites.Remove(endSpriteEvent);
-            //if (ms is IHasStepFrameEvent stepFrameEvent) _stepFrames.Remove(stepFrameEvent);
-            // it seems stepframe is only used through the actor list.
+            
+            // Not stepframe it seems stepframe is only used through the actor list.
             if (ms is IHasPrepareFrameEvent prepareFrameEvent) _prepareFrames.Remove(prepareFrameEvent);
             if (ms is IHasEnterFrameEvent enterFrameEvent) _enterFrames.Remove(enterFrameEvent);
             if (ms is IHasExitFrameEvent exitFrameEvent) _exitFrames.Remove(exitFrameEvent);
@@ -123,7 +132,6 @@ namespace LingoEngine.Events
             FilterList(_mouseWheels);
             FilterList(_mouseEnters);
             FilterList(_mouseExits);
-            FilterList(_stepFrames);
             FilterList(_prepareFrames);
             FilterList(_enterFrames);
             FilterList(_exitFrames);

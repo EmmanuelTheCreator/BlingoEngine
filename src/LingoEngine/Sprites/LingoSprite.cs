@@ -1,4 +1,5 @@
 ﻿using LingoEngine.Events;
+using LingoEngine.Movies.Events;
 using LingoEngine.Sprites.Events;
 using System.Diagnostics;
 
@@ -88,22 +89,22 @@ namespace LingoEngine.Sprites
 
         #region Actors
         protected IEnumerable<T> GetActorsOfType<T>() => _spriteActors.OfType<T>();
-        public void AddActor(object actor)
+        public void AddActor(IHasStepFrameEvent actor)
         {
             _spriteActors.Add(actor);
             if (IsActive)
             {
-                _eventMediator.Subscribe(actor, SpriteNum + 6);
+                _eventMediator.SubscribeStepFrame(actor, SpriteNum + 6);
                 if (actor is IHasBeginSpriteEvent begin) begin.BeginSprite();
             }
         }
 
-        protected void RemoveActor(object actor)
+        protected void RemoveActor(IHasStepFrameEvent actor)
         {
             if (IsActive)
             {
                 if (actor is IHasEndSpriteEvent end) end.EndSprite();
-                _eventMediator.Unsubscribe(actor);
+                _eventMediator.UnsubscribeStepFrame(actor);
             }
             _spriteActors.Remove(actor);
         }

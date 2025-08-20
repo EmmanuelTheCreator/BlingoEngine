@@ -17,7 +17,7 @@ namespace LingoEngine.FilmLoops
         private readonly ILingoSprite2DLight _sprite;
         private readonly ILingoCastLibsContainer _castLibs;
         private readonly bool _isInnerPlayer;
-        private readonly ILingoEventMediator _mediator;
+        private readonly LingoEventMediator _mediator;
         private readonly List<(LingoFilmLoopMemberSprite Entry, LingoSprite2DVirtual Runtime, LingoFilmLoopPlayer? InnerPlayer)> _layers = new();
         private readonly List<LingoSprite2DVirtual> _activeLayers = new();
         private int _currentFrame;
@@ -36,7 +36,7 @@ namespace LingoEngine.FilmLoops
             _sprite = sprite;
             _castLibs = castLibs;
             _isInnerPlayer = isInnerPlayer;
-            _mediator = eventMediator;
+            _mediator = (LingoEventMediator)eventMediator;
 
         }
 
@@ -46,7 +46,7 @@ namespace LingoEngine.FilmLoops
             SetupLayers();
             ApplyFrame();
             if (!_isInnerPlayer)
-                _mediator.Subscribe(this, _sprite.SpriteNum + 6);
+                _mediator.SubscribeStepFrame(this, _sprite.SpriteNum + 6);
         }
 
         private void SetupLayers()
@@ -108,7 +108,7 @@ namespace LingoEngine.FilmLoops
         public void EndSprite()
         {
             if (!_isInnerPlayer)
-                _mediator.Unsubscribe(this);
+                _mediator.UnsubscribeStepFrame(this);
             foreach (var layer in _layers)
             {
                 layer.Runtime.RemoveMe();

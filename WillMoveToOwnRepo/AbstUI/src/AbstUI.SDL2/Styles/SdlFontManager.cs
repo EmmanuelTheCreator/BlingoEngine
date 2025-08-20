@@ -7,6 +7,7 @@ namespace AbstUI.SDL2.Styles;
 public interface ISdlFontLoadedByUser
 {
     nint FontHandle { get; }
+    string Name { get; }
     void Release();
 }
 public interface IAbstSdlFont
@@ -100,19 +101,34 @@ public class SdlFontManager : IAbstFontManager
 
     private class LoadedFontWithSize
     {
-        public nint FontHandle { get; set; }
+      
+
         private Dictionary<object, SdlLoadedFontByUser> _fontUsers = new();
         private Action<LoadedFontWithSize> _onRemove;
+
+        public nint FontHandle { get; set; }
+        public string Name { get; }
+        public int Ascent { get; }
+        public int Descent { get; }
+        public int Kerning { get; }
+        public int LineGap { get; }
+        public int FontHeight { get; }
 
         public LoadedFontWithSize(string fileName, int fontSize, Action<LoadedFontWithSize> onRemove)
         {
             _onRemove = onRemove;
             FontHandle = SDL_ttf.TTF_OpenFont(fileName, fontSize);
+            Name = Path.GetFileNameWithoutExtension(fileName) + $"_{fontSize}";
+            Ascent = SDL_ttf.TTF_FontAscent(FontHandle);
+            Descent = SDL_ttf.TTF_FontDescent(FontHandle);
+            Kerning = SDL_ttf.TTF_GetFontKerning(FontHandle);
+            LineGap = SDL_ttf.TTF_FontLineSkip(FontHandle);
+            FontHeight = SDL_ttf.TTF_FontHeight(FontHandle);
         }
 
         public ISdlFontLoadedByUser AddUser(object user)
         {
-            var subscription = new SdlLoadedFontByUser(FontHandle, f => RemoveUser(user));
+            var subscription = new SdlLoadedFontByUser(this, f => RemoveUser(user));
             _fontUsers.Add(user, subscription);
             return subscription;
         }
@@ -132,14 +148,26 @@ public class SdlFontManager : IAbstFontManager
     {
         private readonly nint _fontHandle;
         private readonly Action<SdlLoadedFontByUser> _onRemove;
-
-        public SdlLoadedFontByUser(nint fontHandle, Action<SdlLoadedFontByUser> onRemove)
+        public nint FontHandle => _fontHandle;
+        public string Name { get; }
+        public int Ascent { get; }
+        public int Descent { get; }
+        public int Kerning { get; }
+        public int LineGap { get; }
+        public int FontHeight { get; }
+        public SdlLoadedFontByUser(LoadedFontWithSize loadedFont, Action<SdlLoadedFontByUser> onRemove)
         {
-            _fontHandle = fontHandle;
+            _fontHandle = loadedFont.FontHandle;
+            Name = loadedFont.Name;
+            Ascent = loadedFont.Ascent;
+            Descent = loadedFont.Descent;
+            Kerning = loadedFont.Kerning;
+            LineGap = loadedFont.LineGap;
+            FontHeight = loadedFont.FontHeight;
             _onRemove = onRemove;
         }
 
-        public nint FontHandle => _fontHandle;
+       
 
         public void Release() => _onRemove(this);
     }

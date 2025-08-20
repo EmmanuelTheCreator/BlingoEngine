@@ -1,17 +1,18 @@
-using System.Runtime.InteropServices;
-using AbstUI.Texts;
 using AbstUI.Primitives;
+using AbstUI.SDL2.Bitmaps;
+using AbstUI.SDL2.Components.Texts;
+using AbstUI.SDL2.Core;
+using AbstUI.SDL2.SDLL;
+using AbstUI.SDL2.Styles;
+using AbstUI.Styles;
+using AbstUI.Texts;
 using LingoEngine.Bitmaps;
 using LingoEngine.Primitives;
 using LingoEngine.SDL2.Inputs;
 using LingoEngine.Sprites;
-using AbstUI.Styles;
 using LingoEngine.Texts;
 using LingoEngine.Texts.FrameworkCommunication;
-using AbstUI.SDL2.Styles;
-using AbstUI.SDL2.Bitmaps;
-using AbstUI.SDL2.SDLL;
-using AbstUI.SDL2.Core;
+using System.Runtime.InteropServices;
 
 namespace LingoEngine.SDL2.Texts;
 
@@ -24,31 +25,38 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     private nint _surface;
     public SdlTexture2D? _textureSDL;
     private ISdlFontLoadedByUser? _font;
-    private int fontSize;
-    private string fontName = string.Empty;
+    private int _fontSize;
+    private string _fontName = string.Empty;
+    private int _measuredWidth;
+    private string? _renderedText;
+    private int _lastWidth;
+    private int _lastHeight;
+    private int _textWidth;
+    private int _textHeight;
+    private int _width;
 
     public SdlTexture2D? TextureSDL => _textureSDL;
     public IAbstTexture2D? TextureLingo => _textureSDL;
 
 
-    public string Text { get => _text; set => _text = value; }
+    public string Text { get => _text; set => _text = AbstSdlLabel.CleanText(value); } // we need to trim the last newline to avoid text centered not rendering correctlycentered not rendering correctly
     public bool WordWrap { get; set; }
     public int ScrollTop { get; set; }
     public string FontName
     {
-        get => fontName;
+        get => _fontName;
         set
         {
-            fontName = value;
+            _fontName = value;// "Tahoma"; //value;
             _font = null;
         }
     }
     public int FontSize
     {
-        get => fontSize;
+        get => _fontSize;
         set
         {
-            fontSize = value;
+            _fontSize = value;
             _font = null;
         }
     }
@@ -57,8 +65,12 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     public AbstTextAlignment Alignment { get; set; }
     public int Margin { get; set; }
     public bool IsLoaded { get; private set; }
-    public int Width { get; set; }
+    public int Width { 
+        get => _width; 
+        set => _width = value; }
     public int Height { get; set; }
+    public int TextWidth => _textWidth;
+    public int TextHeight => _textHeight;
 
 
     protected SdlMemberTextBase(IAbstFontManager fontManager, ISdlRootComponentContext sdlRootContext)
@@ -114,37 +126,49 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     {
         PreloadFont();
 
-        if (_font == null)
+        if (_font == null || string.IsNullOrWhiteSpace(_text))
             return null;
         var font = _font.FontHandle;
         if (font == nint.Zero) return null;
-
-
         var text = Text ?? string.Empty;
-        var color = new SDL.SDL_Color { r = TextColor.R, g = TextColor.G, b = TextColor.B, a = TextColor.A };
-        var hasLineBreak = text.IndexOf('\n') >= 0 || text.IndexOf('\r') >= 0;
-        var wrapLength = WordWrap ? (uint)Math.Max(Width, 1) : 0;
+        // decide final box
+        if (_renderedText != text)
+            MeasureText(text);
+        float boxW = Width > 0 ? Width : _textWidth;
+        float boxH = Height > 0 ? Height : _textHeight;
+        var (tex, textW, textH) = AbstSdlLabel.CreateTextTextureBox(_sdlRootContext.Renderer, font, FontSize, text, (int)boxW, (int)boxH, Alignment, TextColor.ToSDLColor());
+        _surface = tex;
+        SDL.SDL_SetTextureBlendMode(_surface, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
+        
+        // update sizes
+        if (Width <= 0) Width = (int)boxW;
+        if (Height <= 0) Height = (int)boxH;
 
-        _surface = WordWrap || hasLineBreak
-            ? SDL_ttf.TTF_RenderUTF8_Blended_Wrapped(font, text, color, wrapLength)
-            : SDL_ttf.TTF_RenderUTF8_Blended(font, text, color);
-
-        if (_surface == nint.Zero)
-            return null;
-
-        var s = Marshal.PtrToStructure<SDL.SDL_Surface>(_surface);
-        Width = s.w;
-        Height = s.h;
-        _textureSDL = new SdlTexture2D(SDL.SDL_CreateTextureFromSurface(_sdlRootContext.Renderer, _surface), s.w, s.h);
-
+        _measuredWidth = textW;
+        _renderedText = Text;
+        _lastWidth = Width; 
+        _lastHeight = Height;
+        _lingoMemberText.RegPoint = new APoint(-Width/2, -Height/2);
+       
         // make a copy
-        var copyTextureSDL = new SdlTexture2D(SDL.SDL_CreateTextureFromSurface(_sdlRootContext.Renderer, _surface), s.w, s.h);
-        return copyTextureSDL;
+        //var copyTextureSDL = new SdlTexture2D(SDL.SDL_CreateTextureFromSurface(_sdlRootContext.Renderer, _surface), (int)boxW, (int)boxH);
+        return new SdlTexture2D(_surface, (int)boxW, (int)boxH);
     }
 
     private void PreloadFont()
     {
         if (_font == null)
-            _font = _fontManager.GetTyped(this, FontName, FontSize);
+            _font = _fontManager.GetTyped(this, FontName,FontSize);
     }
+
+   
+
+    /// <summary>Returns the bounding box (w,h) for multiline text (handles \n). No wrapping.</summary>
+    private void MeasureText(string text)
+    {
+        var (maxW, totalH) = AbstSdlLabel.MeasureSDLText(_font!.FontHandle, text);
+        _textWidth = maxW;
+        _textHeight = totalH;
+    }
+
 }
