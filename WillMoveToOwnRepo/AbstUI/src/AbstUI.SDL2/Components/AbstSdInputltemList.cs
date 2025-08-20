@@ -6,6 +6,7 @@ using AbstUI.Primitives;
 using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Texts;
 using AbstUI.SDL2.Styles;
+using AbstUI.Styles;
 
 namespace AbstUI.SDL2.Components
 {
@@ -47,7 +48,7 @@ namespace AbstUI.SDL2.Components
 
         private void EnsureResources(AbstSDLRenderContext ctx)
         {
-            _font ??= ctx.SdlFontManager.GetTyped(this, null, 12);
+            _font ??= ctx.SdlFontManager.GetTyped(this, null, 11);
             _atlas ??= new SdlGlyphAtlas(ctx.Renderer, _font.FontHandle);
             if (_lineHeight == 0)
             {
@@ -69,7 +70,8 @@ namespace AbstUI.SDL2.Components
                 SDL.SDL_Rect rect = new SDL.SDL_Rect { x = 0, y = y, w = w, h = _lineHeight };
                 if (i == SelectedIndex)
                 {
-                    SDL.SDL_SetRenderDrawColor(context.Renderer, 0, 120, 215, 255);
+                    var accent = AbstDefaultColors.InputAccentColor;
+                    SDL.SDL_SetRenderDrawColor(context.Renderer, accent.R, accent.G, accent.B, accent.A);
                     SDL.SDL_RenderFillRect(context.Renderer, ref rect);
                     SDL.SDL_Color txt = new SDL.SDL_Color { r = 255, g = 255, b = 255, a = 255 };
                     DrawItemText(_items[i].Value, 4, y, txt, context);
@@ -78,9 +80,10 @@ namespace AbstUI.SDL2.Components
                 {
                     SDL.SDL_SetRenderDrawColor(context.Renderer, 255, 255, 255, 255);
                     SDL.SDL_RenderFillRect(context.Renderer, ref rect);
-                    SDL.SDL_SetRenderDrawColor(context.Renderer, 0, 0, 0, 255);
+                    var border = AbstDefaultColors.InputBorderColor;
+                    SDL.SDL_SetRenderDrawColor(context.Renderer, border.R, border.G, border.B, border.A);
                     SDL.SDL_RenderDrawRect(context.Renderer, ref rect);
-                    SDL.SDL_Color txt = new SDL.SDL_Color { r = 0, g = 0, b = 0, a = 255 };
+                    SDL.SDL_Color txt = AbstDefaultColors.InputTextColor.ToSDLColor();
                     DrawItemText(_items[i].Value, 4, y, txt, context);
                 }
                 y += _lineHeight;

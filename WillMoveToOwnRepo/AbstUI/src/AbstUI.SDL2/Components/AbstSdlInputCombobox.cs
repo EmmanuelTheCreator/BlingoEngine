@@ -8,6 +8,7 @@ using AbstUI.SDL2;
 using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Texts;
 using AbstUI.SDL2.Styles;
+using AbstUI.Styles;
 
 namespace AbstUI.SDL2.Components
 {
@@ -19,6 +20,9 @@ namespace AbstUI.SDL2.Components
         public bool Enabled { get; set; } = true;
         public AMargin Margin { get; set; } = AMargin.Zero;
         private bool _focused;
+        public string? Font { get; set; }
+        public int FontSize { get; set; } = 11;
+        public AColor TextColor { get; set; } = AbstDefaultColors.InputTextColor;
 
         private readonly List<KeyValuePair<string, string>> _items = new();
         public IReadOnlyList<KeyValuePair<string, string>> Items => _items;
@@ -62,7 +66,7 @@ namespace AbstUI.SDL2.Components
 
         private void EnsureResources(AbstSDLRenderContext ctx)
         {
-            _font ??= ctx.SdlFontManager.GetTyped(this, null, 12);
+            _font ??= ctx.SdlFontManager.GetTyped(this, Font, FontSize);
             _atlas ??= new SdlGlyphAtlas(ctx.Renderer, _font.FontHandle);
             if (_lineHeight == 0)
             {
@@ -199,7 +203,8 @@ namespace AbstUI.SDL2.Components
                 SDL.SDL_SetRenderTarget(context.Renderer, _texture);
                 SDL.SDL_SetRenderDrawColor(context.Renderer, 255, 255, 255, 255);
                 SDL.SDL_RenderClear(context.Renderer);
-                SDL.SDL_SetRenderDrawColor(context.Renderer, 0, 0, 0, 255);
+                var border = AbstDefaultColors.InputBorderColor;
+                SDL.SDL_SetRenderDrawColor(context.Renderer, border.R, border.G, border.B, border.A);
                 SDL.SDL_Rect rect = new SDL.SDL_Rect { x = 0, y = 0, w = w, h = h };
                 SDL.SDL_RenderDrawRect(context.Renderer, ref rect);
 
@@ -211,7 +216,8 @@ namespace AbstUI.SDL2.Components
                     int ascent = SDL_ttf.TTF_FontAscent(_font!.FontHandle);
                     int descent = SDL_ttf.TTF_FontDescent(_font.FontHandle);
                     int baseline = (h - (ascent - descent)) / 2 + ascent;
-                    _atlas!.DrawRun(span, 4, baseline, new SDL.SDL_Color { r = 0, g = 0, b = 0, a = 255 });
+                    var color = TextColor.ToSDLColor();
+                    _atlas!.DrawRun(span, 4, baseline, color);
                 }
 
                 SDL.SDL_SetRenderTarget(context.Renderer, prevTarget);

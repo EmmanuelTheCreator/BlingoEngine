@@ -247,7 +247,41 @@ public class LingoToCSharpConverter
         var propDecls = ExtractPropertyDeclarations(script.Source);
 
         var sb = new System.Text.StringBuilder();
-        sb.AppendLine($"public class {className} : {baseType}{(hasPropDescHandler ? ", ILingoPropertyDescriptionList" : string.Empty)}");
+        var interfaces = new List<string>();
+        if (hasPropDescHandler)
+            interfaces.Add("ILingoPropertyDescriptionList");
+
+        var eventInterfaces = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["blur"] = "IHasBlurEvent",
+            ["focus"] = "IHasFocusEvent",
+            ["keydown"] = "IHasKeyDownEvent",
+            ["keyup"] = "IHasKeyUpEvent",
+            ["mousewithin"] = "IHasMouseWithinEvent",
+            ["mouseleave"] = "IHasMouseLeaveEvent",
+            ["mousedown"] = "IHasMouseDownEvent",
+            ["mouseup"] = "IHasMouseUpEvent",
+            ["mousemove"] = "IHasMouseMoveEvent",
+            ["mousewheel"] = "IHasMouseWheelEvent",
+            ["mouseenter"] = "IHasMouseEnterEvent",
+            ["mouseexit"] = "IHasMouseExitEvent",
+            ["beginsprite"] = "IHasBeginSpriteEvent",
+            ["endsprite"] = "IHasEndSpriteEvent",
+            ["stepframe"] = "IHasStepFrameEvent",
+            ["prepareframe"] = "IHasPrepareFrameEvent",
+            ["enterframe"] = "IHasEnterFrameEvent",
+            ["exitframe"] = "IHasExitFrameEvent"
+        };
+
+        foreach (var kv in eventInterfaces)
+        {
+            if (handlers.Contains(kv.Key))
+                interfaces.Add(kv.Value);
+        }
+
+        var interfaceSuffix = interfaces.Count > 0 ? ", " + string.Join(", ", interfaces) : string.Empty;
+
+        sb.AppendLine($"public class {className} : {baseType}{interfaceSuffix}");
         sb.AppendLine("{");
 
         var fieldMap = new Dictionary<string, (string Type, string? Default)>(StringComparer.OrdinalIgnoreCase);

@@ -36,6 +36,11 @@ namespace AbstUI.Styles
         public static AColor Input_Border = new AColor(50, 50, 50);           // Border for text inputs
         public static AColor Input_Bg = new AColor(255, 255, 255);            // Background for text inputs
 
+        // Consolidated defaults for inputs
+        public static AColor InputBorderColor = Input_Border;   // Standard border color
+        public static AColor InputTextColor = InputText;        // Default text color
+        public static AColor InputAccentColor = InputSelection; // Accent/highlight color
+
 
         // Tabs
         public static AColor BG_Tabs = new AColor(157, 172, 191);             // Inactive tabs

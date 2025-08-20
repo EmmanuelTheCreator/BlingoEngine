@@ -3,6 +3,7 @@ using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.SDL2;
 using AbstUI.SDL2.SDLL;
+using AbstUI.Styles;
 
 namespace AbstUI.SDL2.Components;
 
@@ -108,10 +109,12 @@ internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IHandle
         var renderer = context.Renderer;
         var up = GetUpRect();
         var down = GetDownRect();
-        SDL.SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
+        var accent = AbstDefaultColors.InputAccentColor;
+        SDL.SDL_SetRenderDrawColor(renderer, accent.R, accent.G, accent.B, accent.A);
         SDL.SDL_RenderFillRect(renderer, ref up);
         SDL.SDL_RenderFillRect(renderer, ref down);
-        SDL.SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        var border = AbstDefaultColors.InputBorderColor;
+        SDL.SDL_SetRenderDrawColor(renderer, border.R, border.G, border.B, border.A);
         SDL.SDL_RenderDrawRect(renderer, ref up);
         SDL.SDL_RenderDrawRect(renderer, ref down);
         // simple triangles
