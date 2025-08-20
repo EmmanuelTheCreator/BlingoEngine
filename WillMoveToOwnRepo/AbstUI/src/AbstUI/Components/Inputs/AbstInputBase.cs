@@ -1,7 +1,7 @@
 using System;
 using AbstUI.Styles.Components;
 
-namespace AbstUI.Components
+namespace AbstUI.Components.Inputs
 {
     /// <summary>
     /// Base class for all engine level input controls.

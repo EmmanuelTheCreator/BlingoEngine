@@ -2,6 +2,8 @@ using Godot;
 using AbstUI.Primitives;
 using AbstUI.Components;
 using AbstUI.LGodot.Bitmaps;
+using AbstUI.Components.Inputs;
+using AbstUI.Components.Buttons;
 
 namespace AbstUI.LGodot.Components
 {

@@ -1,4 +1,4 @@
-namespace AbstUI.Components
+namespace AbstUI.Components.Inputs
 {
     /// <summary>
     /// Common interface for all framework input controls.

@@ -1,4 +1,4 @@
-using AbstUI.Components;
+using AbstUI.Components.Texts;
 using AbstUI.Primitives;
 using AbstUI.Texts;
 

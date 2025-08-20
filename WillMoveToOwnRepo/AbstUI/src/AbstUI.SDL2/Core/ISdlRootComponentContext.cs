@@ -1,7 +1,7 @@
 using AbstUI.Primitives;
 using AbstUI.Inputs;
 
-namespace AbstUI.SDL2;
+namespace AbstUI.SDL2.Core;
 
 public interface ISdlRootComponentContext
 {

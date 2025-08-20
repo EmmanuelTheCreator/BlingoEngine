@@ -1,4 +1,4 @@
-namespace AbstUI.Inputs
+namespace AbstUI.SDL2.Inputs
 {
     //public class GlobalSDLAbstMouse : AbstMouse, IAbstGlobalMouse
     //{

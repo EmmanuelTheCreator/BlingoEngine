@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
 using AbstUI.Components;
+using AbstUI.Components.Containers;
 using AbstUI.Primitives;
+using AbstUI.SDL2.Components.Base;
+using AbstUI.SDL2.Core;
 using AbstUI.SDL2.SDLL;
 
-namespace AbstUI.SDL2.Components
+namespace AbstUI.SDL2.Components.Containers
 {
     internal class AbstSdlWrapPanel : AbstSdlComponent, IAbstFrameworkWrapPanel, IDisposable
     {

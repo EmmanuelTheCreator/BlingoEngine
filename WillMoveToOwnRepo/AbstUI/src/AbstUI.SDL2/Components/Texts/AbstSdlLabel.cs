@@ -1,11 +1,13 @@
-using AbstUI.Components;
+using AbstUI.Components.Texts;
 using AbstUI.Primitives;
+using AbstUI.SDL2.Components.Base;
+using AbstUI.SDL2.Core;
 using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Styles;
 using AbstUI.Texts;
 using System.Runtime.InteropServices;
 
-namespace AbstUI.SDL2.Components
+namespace AbstUI.SDL2.Components.Texts
 {
     internal class AbstSdlLabel : AbstSdlComponent, IAbstFrameworkLabel, IDisposable
     {
@@ -117,7 +119,7 @@ namespace AbstUI.SDL2.Components
             var FMT = SDL.SDL_PIXELFORMAT_RGBA8888;
             nint box = SDL.SDL_CreateRGBSurfaceWithFormat(0, boxW, boxH, 32, FMT);
             if (box == nint.Zero) { SDL.SDL_FreeSurface(textSurf); throw new Exception(SDL.SDL_GetError()); }
-            SDL.SDL_FillRect(box, IntPtr.Zero, 0x00000000);
+            SDL.SDL_FillRect(box, nint.Zero, 0x00000000);
 
             // dst placement
             int dstX = align switch
@@ -129,7 +131,7 @@ namespace AbstUI.SDL2.Components
             int dstY = Math.Max(0, (boxH - th) / 2);
 
             var dst = new SDL.SDL_Rect { x = dstX, y = dstY, w = tw, h = th };
-            SDL.SDL_BlitSurface(textSurf, IntPtr.Zero, box, ref dst);
+            SDL.SDL_BlitSurface(textSurf, nint.Zero, box, ref dst);
 
             // texture
             nint tex = SDL.SDL_CreateTextureFromSurface(context.Renderer, box);

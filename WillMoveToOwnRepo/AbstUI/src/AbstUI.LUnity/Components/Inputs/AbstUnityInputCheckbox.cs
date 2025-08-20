@@ -1,9 +1,10 @@
 using System;
-using AbstUI.Components;
+using AbstUI.Components.Inputs;
+using AbstUI.LUnity.Components.Base;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace AbstUI.LUnity.Components;
+namespace AbstUI.LUnity.Components.Inputs;
 
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkInputCheckbox"/>.

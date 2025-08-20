@@ -1,4 +1,4 @@
-using AbstUI.SDL2;
+using AbstUI.SDL2.Core;
 using AbstUI.Styles;
 using LingoEngine.Texts;
 using LingoEngine.Texts.FrameworkCommunication;

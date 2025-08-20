@@ -1,12 +1,14 @@
 using System;
 using System.Numerics;
-using AbstUI.Components;
+using AbstUI.Components.Inputs;
 using AbstUI.Primitives;
-using AbstUI.SDL2;
+using AbstUI.SDL2.Components.Base;
+using AbstUI.SDL2.Core;
+using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
 using AbstUI.Styles;
 
-namespace AbstUI.SDL2.Components
+namespace AbstUI.SDL2.Components.Inputs
 {
     internal class AbstSdlInputCheckbox : AbstSdlComponent, IAbstFrameworkInputCheckbox, IHandleSdlEvent, ISdlFocusable, IDisposable
     {

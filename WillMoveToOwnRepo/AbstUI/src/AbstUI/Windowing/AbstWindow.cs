@@ -1,4 +1,4 @@
-using AbstUI;
+using AbstUI.Components;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
 using Microsoft.Extensions.DependencyInjection;

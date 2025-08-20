@@ -1,14 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Texts;
 using AbstUI.SDL2.Styles;
 using AbstUI.Styles;
+using AbstUI.Components.Inputs;
+using AbstUI.SDL2.Components.Containers;
+using AbstUI.SDL2.Events;
+using AbstUI.SDL2.Core;
 
-namespace AbstUI.SDL2.Components
+namespace AbstUI.SDL2.Components.Inputs
 {
     internal class AbstSdInputltemList : AbstSdlScrollViewer, IAbstFrameworkItemList, ISdlFocusable, IDisposable
     {

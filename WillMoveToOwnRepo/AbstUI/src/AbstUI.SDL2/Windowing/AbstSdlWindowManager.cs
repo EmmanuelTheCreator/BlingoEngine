@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
-using AbstUI.Components;
 using AbstUI.Windowing;
-using AbstUI.SDL2.Components;
 using Microsoft.Extensions.DependencyInjection;
+using AbstUI.Components.Containers;
+using AbstUI.SDL2.Components.Containers;
+using AbstUI.SDL2.Components;
 
 namespace AbstUI.SDL2.Windowing
 {

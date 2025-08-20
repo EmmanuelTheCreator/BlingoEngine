@@ -1,5 +1,5 @@
 using System;
-using AbstUI.Components;
+using AbstUI.Components.Inputs;
 
 namespace AbstUI.Blazor.Components;
 

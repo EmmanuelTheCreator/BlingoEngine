@@ -1,6 +1,6 @@
 using AbstUI.Primitives;
 
-namespace AbstUI.Components
+namespace AbstUI.Components.Inputs
 {
     /// <summary>
     /// Engine level wrapper for a single line text input.

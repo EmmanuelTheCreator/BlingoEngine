@@ -1,4 +1,4 @@
-namespace AbstUI.Components
+namespace AbstUI.Components.Inputs
 {
     /// <summary>
     /// Engine level wrapper for a slider input control.

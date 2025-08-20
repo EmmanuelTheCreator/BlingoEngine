@@ -1,4 +1,4 @@
-namespace AbstUI.Components
+namespace AbstUI.Components.Menus
 {
     /// <summary>
     /// Engine level wrapper for a single menu item.

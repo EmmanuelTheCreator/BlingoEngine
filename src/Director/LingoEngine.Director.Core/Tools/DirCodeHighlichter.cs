@@ -1,4 +1,4 @@
-using AbstUI.Components;
+using AbstUI.Components.Inputs;
 using LingoEngine.FrameworkCommunication;
 
 namespace LingoEngine.Director.Core.Tools;

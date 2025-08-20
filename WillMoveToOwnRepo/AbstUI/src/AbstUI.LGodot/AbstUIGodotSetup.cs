@@ -1,5 +1,5 @@
 ﻿using AbstEngine.Director.LGodot.Windowing;
-using AbstUI;
+using AbstUI.Components;
 using AbstUI.Inputs;
 using AbstUI.LGodot.Styles;
 using AbstUI.LGodot.Windowing;

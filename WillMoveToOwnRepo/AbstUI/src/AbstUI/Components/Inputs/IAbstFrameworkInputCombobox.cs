@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace AbstUI.Components
+namespace AbstUI.Components.Inputs
 {
     /// <summary>
     /// Framework specific combo box input.

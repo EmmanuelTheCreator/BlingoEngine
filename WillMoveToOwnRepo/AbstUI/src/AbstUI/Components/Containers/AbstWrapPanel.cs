@@ -1,6 +1,6 @@
 using AbstUI.Primitives;
 
-namespace AbstUI.Components
+namespace AbstUI.Components.Containers
 {
     /// <summary>
     /// Engine level wrapper for a panel that arranges children with wrapping.

@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using AbstUI.Components;
+using AbstUI.Components.Containers;
+using AbstUI.LUnity.Components.Base;
 using AbstUI.LUnity.Primitives;
 using AbstUI.Primitives;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace AbstUI.LUnity.Components;
+namespace AbstUI.LUnity.Components.Containers;
 
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkPanel"/>.

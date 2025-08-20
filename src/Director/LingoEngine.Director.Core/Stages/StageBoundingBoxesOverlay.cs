@@ -7,7 +7,7 @@ using LingoEngine.Director.Core.Tools;
 using LingoEngine.Members;
 using LingoEngine.Texts;
 using AbstUI.Primitives;
-using AbstUI.Components;
+using AbstUI.Components.Graphics;
 
 namespace LingoEngine.Director.Core.Stages;
 

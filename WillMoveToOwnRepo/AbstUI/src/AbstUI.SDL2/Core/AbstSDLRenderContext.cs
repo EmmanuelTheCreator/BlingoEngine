@@ -1,6 +1,6 @@
 using AbstUI.SDL2.Styles;
 
-namespace AbstUI.SDL2;
+namespace AbstUI.SDL2.Core;
 public class AbstSDLRenderContext
 {
     public nint Renderer { get; }

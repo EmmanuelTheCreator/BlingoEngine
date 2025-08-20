@@ -1,4 +1,4 @@
-namespace AbstUI.Components
+namespace AbstUI.Components.Menus
 {
     /// <summary>
     /// Framework specific representation of a single menu entry.

@@ -1,8 +1,8 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using AbstUI.Primitives;
-using AbstUI.SDL2;
 using AbstUI.SDL2.Bitmaps;
+using AbstUI.SDL2.Core;
 using AbstUI.SDL2.SDLL;
 using LingoEngine.Bitmaps;
 using LingoEngine.FilmLoops;

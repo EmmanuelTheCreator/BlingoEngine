@@ -4,8 +4,8 @@ using LingoEngine.Movies;
 using LingoEngine.Primitives;
 using LingoEngine.Director.Core.Styles;
 using AbstUI.Primitives;
-using AbstUI.Components;
 using AbstUI.Inputs;
+using AbstUI.Components.Graphics;
 
 namespace LingoEngine.Director.Core.Scores;
 

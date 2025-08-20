@@ -14,7 +14,12 @@ using LingoEngine.FilmLoops;
 using AbstUI.Primitives;
 using AbstUI.Components;
 using AbstUI.Windowing;
-using AbstUI;
+using AbstUI.Components.Graphics;
+using AbstUI.Components.Containers;
+using AbstUI.Components.Inputs;
+using AbstUI.Components.Menus;
+using AbstUI.Components.Buttons;
+using AbstUI.Components.Texts;
 
 namespace LingoEngine.FrameworkCommunication
 {

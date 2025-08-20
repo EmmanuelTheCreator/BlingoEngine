@@ -1,4 +1,6 @@
-namespace AbstUI.SDL2;
+using AbstUI.SDL2.Core;
+
+namespace AbstUI.SDL2.Components;
 
 public interface IAbstSDLComponent
 {

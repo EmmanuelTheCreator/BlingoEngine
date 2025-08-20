@@ -1,11 +1,13 @@
 using System;
 using System.Numerics;
-using AbstUI.Components;
+using AbstUI.Components.Inputs;
 using AbstUI.Primitives;
-using AbstUI.SDL2;
+using AbstUI.SDL2.Components.Base;
+using AbstUI.SDL2.Core;
+using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
 
-namespace AbstUI.SDL2.Components;
+namespace AbstUI.SDL2.Components.Inputs;
 
 internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInputNumber<TValue>, IHandleSdlEvent, ISdlFocusable, IDisposable
 #if NET48

@@ -8,7 +8,7 @@ using LingoEngine.Sprites;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Bitmaps;
 using AbstUI.Primitives;
-using AbstUI.Components;
+using AbstUI.Components.Graphics;
 
 namespace LingoEngine.Director.Core.Stages;
 

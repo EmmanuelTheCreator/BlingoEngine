@@ -1,4 +1,4 @@
-using AbstUI.Components;
+using AbstUI.Components.Menus;
 using AbstUI.LGodot.Components;
 
 namespace AbstUI.LGodot.Components

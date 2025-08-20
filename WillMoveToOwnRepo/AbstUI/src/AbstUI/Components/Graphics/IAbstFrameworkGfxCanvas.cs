@@ -1,6 +1,7 @@
 using AbstUI.Primitives;
+using AbstUI.Texts;
 
-namespace AbstUI.Components
+namespace AbstUI.Components.Graphics
 {
     /// <summary>
     /// Framework specific drawing surface implementation.
@@ -15,7 +16,7 @@ namespace AbstUI.Components
         void DrawCircle(APoint center, float radius, AColor color, bool filled = true, float width = 1);
         void DrawArc(APoint center, float radius, float startDeg, float endDeg, int segments, AColor color, float width = 1);
         void DrawPolygon(IReadOnlyList<APoint> points, AColor color, bool filled = true, float width = 1);
-        void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, Texts.AbstTextAlignment alignment = default);
+        void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = default);
         void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format);
         void DrawPicture(IAbstTexture2D texture, int width, int height, APoint position);
     }

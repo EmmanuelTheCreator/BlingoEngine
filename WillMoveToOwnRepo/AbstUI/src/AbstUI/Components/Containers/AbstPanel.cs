@@ -1,6 +1,6 @@
 using AbstUI.Primitives;
 
-namespace AbstUI.Components
+namespace AbstUI.Components.Containers
 {
     /// <summary>
     /// Simple container that allows placing child nodes at arbitrary coordinates.

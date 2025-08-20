@@ -8,8 +8,8 @@ using LingoEngine.Bitmaps;
 using LingoEngine.FilmLoops;
 using AbstUI.Primitives;
 using AbstUI.Core;
-using AbstUI.Components;
 using LingoEngine.Core;
+using AbstUI.Components.Graphics;
 
 namespace LingoEngine.Director.Core.Casts;
 

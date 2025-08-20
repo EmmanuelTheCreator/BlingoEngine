@@ -1,6 +1,7 @@
+using AbstUI.SDL2.Core;
 using System;
 
-namespace AbstUI.SDL2.Components;
+namespace AbstUI.SDL2.Components.Base;
 
 /// <summary>
 /// Base class for SDL GFX components providing common geometry and visibility

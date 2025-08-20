@@ -1,4 +1,4 @@
-namespace AbstUI.SDL2;
+namespace AbstUI.SDL2.Events;
 
 internal interface IHandleSdlEvent
 {

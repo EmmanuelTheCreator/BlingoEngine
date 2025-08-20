@@ -1,6 +1,6 @@
 using AbstUI.Primitives;
 
-namespace AbstUI.Components
+namespace AbstUI.Components.Inputs
 {
     /// <summary>
     /// Framework specific single line text input.

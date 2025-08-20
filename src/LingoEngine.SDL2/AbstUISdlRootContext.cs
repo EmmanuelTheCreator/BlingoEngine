@@ -5,7 +5,7 @@ using AbstUI.Primitives;
 using AbstUI.Inputs;
 using LingoEngine.SDL2.Core;
 using AbstUI.SDL2.SDLL;
-using AbstUI.SDL2;
+using AbstUI.SDL2.Core;
 
 public abstract class AbstUISdlRootContext<TMouse> : IDisposable
      where TMouse : IAbstMouse

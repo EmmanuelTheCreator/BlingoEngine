@@ -1,9 +1,12 @@
 using System;
 using AbstUI.Components;
 using AbstUI.Primitives;
+using AbstUI.SDL2.Components.Base;
+using AbstUI.SDL2.Core;
+using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
 
-namespace AbstUI.SDL2.Components
+namespace AbstUI.SDL2.Components.Containers
 {
     internal abstract class AbstSdlScrollViewer : AbstSdlComponent, IHandleSdlEvent, IDisposable
     {
@@ -105,8 +108,8 @@ namespace AbstUI.SDL2.Components
                 SDL.SDL_Rect corner = new SDL.SDL_Rect { x = w - sbSize, y = h - sbSize, w = sbSize, h = sbSize };
                 SDL.SDL_RenderFillRect(context.Renderer, ref corner);
 
-                float vPos = _maxScrollV > 0 ? (ScrollVertical / _maxScrollV) * (_trackH - _handleH) : 0;
-                float hPos = _maxScrollH > 0 ? (ScrollHorizontal / _maxScrollH) * (_trackW - _handleW) : 0;
+                float vPos = _maxScrollV > 0 ? ScrollVertical / _maxScrollV * (_trackH - _handleH) : 0;
+                float hPos = _maxScrollH > 0 ? ScrollHorizontal / _maxScrollH * (_trackW - _handleW) : 0;
                 SDL.SDL_SetRenderDrawColor(context.Renderer, 120, 120, 120, 255);
                 SDL.SDL_Rect vhandle = new SDL.SDL_Rect { x = w - sbSize + 2, y = (int)(arrowSize + vPos) + 2, w = sbSize - 4, h = (int)_handleH - 4 };
                 SDL.SDL_RenderFillRect(context.Renderer, ref vhandle);

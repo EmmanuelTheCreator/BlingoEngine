@@ -1,4 +1,4 @@
-namespace AbstUI.Components
+namespace AbstUI.Components.Containers
 {
     /// <summary>
     /// Framework specific scroll container implementation.

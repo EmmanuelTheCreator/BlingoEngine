@@ -1,6 +1,6 @@
 using AbstUI.Primitives;
 
-namespace AbstUI.Components
+namespace AbstUI.Components.Containers
 {
     /// <summary>
     /// Framework specific layout container with wrapping behaviour.

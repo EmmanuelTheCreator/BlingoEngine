@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace AbstUI.Components
+namespace AbstUI.Components.Inputs
 {
     /// <summary>
     /// Engine level wrapper around a framework item list widget.

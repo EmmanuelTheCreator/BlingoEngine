@@ -1,5 +1,5 @@
 using System;
-using AbstUI.Components;
+using AbstUI.Components.Graphics;
 using AbstUI.Primitives;
 using LingoEngine.Animations;
 using LingoEngine.FrameworkCommunication;

@@ -13,7 +13,8 @@ using AbstUI.Primitives;
 using AbstUI.Components;
 using AbstUI.Inputs;
 using AbstUI.Windowing;
-using AbstUI;
+using AbstUI.Components.Inputs;
+using AbstUI.Components.Containers;
 
 
 namespace LingoEngine.Director.Core.Scores

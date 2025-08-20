@@ -1,7 +1,9 @@
 using System;
-using AbstUI.Components;
+using AbstUI.Components.Menus;
+using AbstUI.SDL2.Components.Base;
+using AbstUI.SDL2.Core;
 
-namespace AbstUI.SDL2.Components
+namespace AbstUI.SDL2.Components.Menus
 {
     internal class AbstSdlMenuItem : AbstSdlComponent, IAbstFrameworkMenuItem, IDisposable
     {

@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using AbstUI.Components;
+using AbstUI.Components.Containers;
 using AbstUI.Primitives;
+using AbstUI.SDL2.Components.Base;
+using AbstUI.SDL2.Core;
 
-namespace AbstUI.SDL2.Components
+namespace AbstUI.SDL2.Components.Containers
 {
     internal class AbstSdlScrollContainer : AbstSdlScrollViewer, IAbstFrameworkScrollContainer, IDisposable
     {

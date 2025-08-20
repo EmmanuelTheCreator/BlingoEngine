@@ -9,6 +9,10 @@ using System.Drawing;
 using AbstUI.Primitives;
 using AbstUI.Components;
 using AbstUI.Inputs;
+using AbstUI.Components.Graphics;
+using AbstUI.Components.Inputs;
+using AbstUI.Components.Containers;
+using AbstUI.Components.Buttons;
 
 namespace LingoEngine.Director.Core.Scores;
 

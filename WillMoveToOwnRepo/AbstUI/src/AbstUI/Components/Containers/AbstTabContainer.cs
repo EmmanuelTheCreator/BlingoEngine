@@ -1,4 +1,4 @@
-namespace AbstUI.Components
+namespace AbstUI.Components.Containers
 {
     /// <summary>
     /// Engine level wrapper around a framework tab container.

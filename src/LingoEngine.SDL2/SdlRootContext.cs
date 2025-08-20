@@ -7,8 +7,8 @@ using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.Stages;
 using AbstUI.Inputs;
 using LingoEngine.Events;
-using AbstUI.SDL2;
 using AbstUI.SDL2.SDLL;
+using AbstUI.SDL2.Core;
 
 public class SdlRootContext : AbstUISdlRootContext<LingoMouse>, ISdlRootComponentContext
 {

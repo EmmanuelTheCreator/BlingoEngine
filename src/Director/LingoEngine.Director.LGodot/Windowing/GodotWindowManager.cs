@@ -1,6 +1,6 @@
 using AbstEngine.Director.LGodot;
 using AbstEngine.Director.LGodot.Windowing;
-using AbstUI;
+using AbstUI.Components;
 using AbstUI.LGodot;
 using AbstUI.LGodot.Styles;
 using AbstUI.Windowing;

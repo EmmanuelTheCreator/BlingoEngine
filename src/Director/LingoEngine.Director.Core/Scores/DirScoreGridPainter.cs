@@ -1,4 +1,4 @@
-using AbstUI.Components;
+using AbstUI.Components.Graphics;
 using AbstUI.Primitives;
 using LingoEngine.Director.Core.Styles;
 using LingoEngine.FrameworkCommunication;

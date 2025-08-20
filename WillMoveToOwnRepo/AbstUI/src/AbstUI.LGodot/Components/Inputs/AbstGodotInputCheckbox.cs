@@ -2,6 +2,7 @@ using Godot;
 using System;
 using AbstUI.Primitives;
 using AbstUI.Components;
+using AbstUI.Components.Inputs;
 
 namespace AbstUI.LGodot.Components
 {

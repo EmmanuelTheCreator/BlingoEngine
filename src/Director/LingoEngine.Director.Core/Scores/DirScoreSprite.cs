@@ -4,7 +4,7 @@ using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.Tools;
 using System.Linq;
 using AbstUI.Primitives;
-using AbstUI.Components;
+using AbstUI.Components.Graphics;
 
 namespace LingoEngine.Director.Core.Scores
 {

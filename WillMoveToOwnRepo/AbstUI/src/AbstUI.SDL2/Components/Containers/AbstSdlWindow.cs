@@ -5,9 +5,10 @@ using AbstUI.Primitives;
 using AbstUI.Windowing;
 using AbstUI.SDL2.Styles;
 using AbstUI.SDL2.SDLL;
-using AbstUI.SDL2;
+using AbstUI.SDL2.Events;
+using AbstUI.SDL2.Core;
 
-namespace AbstUI.SDL2.Components;
+namespace AbstUI.SDL2.Components.Containers;
 
 internal class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent, IDisposable
 {

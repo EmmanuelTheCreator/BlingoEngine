@@ -2,7 +2,7 @@ using System.Numerics;
 using AbstUI.Primitives;
 using AbstUI.SDL2.SDLL;
 
-namespace AbstUI.SDL2;
+namespace AbstUI.SDL2.Styles;
 
 /// <summary>
 /// Extension helpers for converting <see cref="AColor"/> values to SDL-friendly types.

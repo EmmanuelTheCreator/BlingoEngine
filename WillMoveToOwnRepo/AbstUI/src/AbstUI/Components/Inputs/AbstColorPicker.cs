@@ -1,7 +1,7 @@
 using AbstUI.Primitives;
 using AbstUI.Styles.Components;
 
-namespace AbstUI.Components
+namespace AbstUI.Components.Inputs
 {
     /// <summary>
     /// Engine level wrapper for a color picker input.

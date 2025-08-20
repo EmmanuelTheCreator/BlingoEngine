@@ -2,7 +2,7 @@ using AbstUI.Primitives;
 using AbstUI.Texts;
 using AbstUI.Styles.Components;
 
-namespace AbstUI.Components
+namespace AbstUI.Components.Texts
 {
     /// <summary>
     /// Engine level wrapper around a framework label.

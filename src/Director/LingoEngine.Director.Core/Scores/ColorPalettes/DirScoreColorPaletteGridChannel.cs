@@ -6,8 +6,9 @@ using LingoEngine.Sprites;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Primitives;
 using AbstUI.Primitives;
-using AbstUI.Components;
 using AbstUI.Windowing;
+using AbstUI.Components.Graphics;
+using AbstUI.Components.Containers;
 
 namespace LingoEngine.Director.Core.Scores.ColorPalettes;
 

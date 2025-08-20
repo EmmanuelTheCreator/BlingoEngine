@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
-using AbstUI.Components;
+using AbstUI.Components.Inputs;
 
 namespace AbstUI.Blazor.Components;
 
-public partial class AbstBlazorItemList : IAbstFrameworkItemList
+public partial class AbstBlazorItemList : AbstBlazorBaseInput, IAbstFrameworkItemList
 {
     [Parameter] public bool Enabled { get; set; } = true;
 
@@ -16,7 +16,6 @@ public partial class AbstBlazorItemList : IAbstFrameworkItemList
     public string? SelectedKey { get; set; }
     public string? SelectedValue { get; set; }
 
-    public event Action? ValueChanged;
 
     public void AddItem(string key, string value)
     {
@@ -48,7 +47,7 @@ public partial class AbstBlazorItemList : IAbstFrameworkItemList
                 SelectedKey = null;
                 SelectedValue = null;
             }
-            ValueChanged?.Invoke();
+            ValueChangedInvoke();
         }
     }
 }

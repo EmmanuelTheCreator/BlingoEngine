@@ -25,11 +25,17 @@ using LingoEngine.FilmLoops;
 using AbstUI.Primitives;
 using AbstUI.Components;
 using AbstUI.SDL2.Styles;
-using AbstUI.SDL2;
 using LingoEngine.SDL2.Bitmaps;
 using LingoEngine.SDL2.FilmLoops;
-using AbstUI;
 using AbstUI.Windowing;
+using AbstUI.Components.Graphics;
+using AbstUI.Components.Containers;
+using AbstUI.Components.Inputs;
+using AbstUI.Components.Menus;
+using AbstUI.Components.Buttons;
+using AbstUI.Components.Texts;
+using AbstUI.SDL2.Components;
+using AbstUI.SDL2.Core;
 
 namespace LingoEngine.SDL2.Core;
 /// <inheritdoc/>

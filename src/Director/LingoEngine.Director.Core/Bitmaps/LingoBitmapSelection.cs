@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AbstUI.Primitives;
-using AbstUI.Components;
+using AbstUI.Components.Graphics;
 
 namespace LingoEngine.Director.Core.Bitmaps;
 

@@ -2,7 +2,7 @@ using AbstUI.Components;
 using AbstUI.Primitives;
 using UnityEngine;
 
-namespace AbstUI.LUnity.Components;
+namespace AbstUI.LUnity.Components.Base;
 
 /// <summary>
 /// Base Unity component providing common node properties.

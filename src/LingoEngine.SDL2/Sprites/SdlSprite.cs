@@ -7,11 +7,12 @@ using LingoEngine.Sprites;
 using LingoEngine.Texts;
 using LingoEngine.Shapes;
 using AbstUI.Primitives;
-using AbstUI.SDL2;
 using AbstUI.SDL2.Bitmaps;
 using AbstUI.SDL2.SDLL;
 using LingoEngine.SDL2.Bitmaps;
 using LingoEngine.SDL2.FilmLoops;
+using AbstUI.SDL2.Components;
+using AbstUI.SDL2.Core;
 
 namespace LingoEngine.SDL2.Sprites;
 

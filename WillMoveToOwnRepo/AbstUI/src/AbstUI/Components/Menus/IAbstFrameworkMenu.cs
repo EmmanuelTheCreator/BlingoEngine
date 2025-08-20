@@ -1,6 +1,7 @@
+using AbstUI.Components.Buttons;
 using System.Collections.Generic;
 
-namespace AbstUI.Components
+namespace AbstUI.Components.Menus
 {
     /// <summary>
     /// Framework specific menu container capable of holding menu items.

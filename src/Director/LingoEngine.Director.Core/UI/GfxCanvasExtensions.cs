@@ -1,7 +1,7 @@
 ﻿using LingoEngine.Director.Core.Styles;
 using LingoEngine.Primitives;
 using AbstUI.Primitives;
-using AbstUI.Components;
+using AbstUI.Components.Graphics;
 
 
 namespace LingoEngine.Director.Core.UI

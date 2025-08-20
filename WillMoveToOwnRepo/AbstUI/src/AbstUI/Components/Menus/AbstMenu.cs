@@ -1,4 +1,6 @@
-namespace AbstUI.Components
+using AbstUI.Components.Buttons;
+
+namespace AbstUI.Components.Menus
 {
     /// <summary>
     /// Engine level wrapper around a framework menu object.

@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using AbstUI.Components;
+using AbstUI.Components.Containers;
 
 namespace AbstUI.Blazor.Components;
 

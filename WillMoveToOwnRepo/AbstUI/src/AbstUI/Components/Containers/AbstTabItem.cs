@@ -1,4 +1,4 @@
-namespace AbstUI.Components
+namespace AbstUI.Components.Containers
 {
     /// <summary>
     /// Represents a single tab item with a title and content node.

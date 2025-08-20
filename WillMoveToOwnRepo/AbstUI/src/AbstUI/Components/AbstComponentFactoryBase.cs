@@ -1,10 +1,9 @@
-using AbstUI.Components;
 using AbstUI.FrameworkCommunication;
 using AbstUI.Styles;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
-namespace AbstUI;
+namespace AbstUI.Components;
 
 /// <summary>
 /// Base class for framework specific component factories.
@@ -106,7 +105,7 @@ public abstract class AbstComponentFactoryBase : IAbstComponentFactoryBase
         var component = _serviceProvider.GetRequiredService<TReturnType>();
         var fw = GetFrameworkFor<IFrameworkFor<TReturnType>>(component);
         if (fw is IFrameworkForInitializable<TForType> initable)
-            initable.Init((TForType)component);
+            initable.Init(component);
         if (component is IAbstNode abstNode)
             InitComponent(abstNode);
         return component;

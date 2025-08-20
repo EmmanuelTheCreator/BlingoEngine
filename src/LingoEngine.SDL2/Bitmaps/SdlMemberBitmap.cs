@@ -8,8 +8,8 @@ using System.Security.Cryptography;
 using AbstUI.Primitives;
 using AbstUI.Tools;
 using AbstUI.SDL2.SDLL;
-using AbstUI.SDL2;
 using AbstUI.SDL2.Bitmaps;
+using AbstUI.SDL2.Core;
 
 namespace LingoEngine.SDL2.Bitmaps;
 public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable

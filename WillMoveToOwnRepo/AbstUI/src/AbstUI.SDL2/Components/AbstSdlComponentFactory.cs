@@ -1,12 +1,24 @@
 using AbstUI.Components;
+using AbstUI.Components.Buttons;
+using AbstUI.Components.Containers;
+using AbstUI.Components.Graphics;
+using AbstUI.Components.Inputs;
+using AbstUI.Components.Menus;
+using AbstUI.Components.Texts;
 using AbstUI.Primitives;
-using AbstUI.SDL2.Components;
+using AbstUI.SDL2.Components.Buttons;
+using AbstUI.SDL2.Components.Containers;
+using AbstUI.SDL2.Components.Graphics;
+using AbstUI.SDL2.Components.Inputs;
+using AbstUI.SDL2.Components.Menus;
+using AbstUI.SDL2.Components.Texts;
+using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Styles;
 using AbstUI.SDL2.Windowing;
 using AbstUI.Styles;
 using AbstUI.Windowing;
 
-namespace AbstUI.SDL2
+namespace AbstUI.SDL2.Components
 {
     /// <summary>
     /// Factory responsible for creating SDL specific GFX components.

@@ -1,12 +1,13 @@
 using System.Numerics;
 using AbstUI.Primitives;
-using AbstUI.Components;
-using AbstUI.SDL2;
 using AbstUI.SDL2.Bitmaps;
 using AbstUI.SDL2.SDLL;
 using AbstUI.Styles;
+using AbstUI.Components.Buttons;
+using AbstUI.SDL2.Components.Base;
+using AbstUI.SDL2.Core;
 
-namespace AbstUI.SDL2.Components
+namespace AbstUI.SDL2.Components.Buttons
 {
     internal class AbstSdlStateButton : AbstSdlComponent, IAbstFrameworkStateButton, ISdlFocusable, IDisposable
     {
@@ -111,8 +112,8 @@ namespace AbstUI.SDL2.Components
                     SDL.SDL_RenderFillRect(context.Renderer, ref bg);
                 }
 
-                nint icon = _isOn ? (_textureOnPtr != nint.Zero ? _textureOnPtr : _textureOffPtr)
-                                   : (_textureOffPtr != nint.Zero ? _textureOffPtr : _textureOnPtr);
+                nint icon = _isOn ? _textureOnPtr != nint.Zero ? _textureOnPtr : _textureOffPtr
+                                   : _textureOffPtr != nint.Zero ? _textureOffPtr : _textureOnPtr;
 
                 if (icon != nint.Zero)
                 {
@@ -124,7 +125,7 @@ namespace AbstUI.SDL2.Components
                         w = iw,
                         h = ih
                     };
-                    SDL.SDL_RenderCopy(context.Renderer, icon, IntPtr.Zero, ref dst);
+                    SDL.SDL_RenderCopy(context.Renderer, icon, nint.Zero, ref dst);
                 }
 
                 var borderColor = AbstDefaultColors.InputBorderColor;

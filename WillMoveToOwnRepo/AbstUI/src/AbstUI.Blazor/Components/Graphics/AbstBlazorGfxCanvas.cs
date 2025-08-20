@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.Texts;
+using AbstUI.Components.Graphics;
 
 namespace AbstUI.Blazor.Components;
 

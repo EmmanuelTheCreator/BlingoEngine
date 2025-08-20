@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
-using AbstUI.Components;
 using AbstUI.Primitives;
+using AbstUI.Components.Inputs;
 
 namespace AbstUI.Blazor.Components;
 
-public partial class AbstBlazorInputCombobox : IAbstFrameworkInputCombobox
+public partial class AbstBlazorInputCombobox : AbstBlazorBaseInput, IAbstFrameworkInputCombobox
 {
-    [Parameter] public bool Enabled { get; set; } = true;
 
     private readonly List<KeyValuePair<string, string>> _items = new();
     public IReadOnlyList<KeyValuePair<string, string>> Items => _items;
@@ -17,7 +16,6 @@ public partial class AbstBlazorInputCombobox : IAbstFrameworkInputCombobox
     public string? SelectedKey { get; set; }
     public string? SelectedValue { get; set; }
 
-    public event Action? ValueChanged;
 
     public void AddItem(string key, string value)
     {

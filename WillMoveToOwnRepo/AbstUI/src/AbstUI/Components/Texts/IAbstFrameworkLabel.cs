@@ -1,7 +1,7 @@
 using AbstUI.Primitives;
 using AbstUI.Texts;
 
-namespace AbstUI.Components
+namespace AbstUI.Components.Texts
 {
     /// <summary>
     /// Framework specific label used for displaying text.

@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2;
 using LingoEngine.Core;
+using AbstUI.SDL2.Core;
 
 namespace LingoEngine.SDL2;
 

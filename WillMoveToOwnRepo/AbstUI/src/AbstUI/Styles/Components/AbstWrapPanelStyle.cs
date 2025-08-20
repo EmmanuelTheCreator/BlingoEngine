@@ -1,7 +1,7 @@
 namespace AbstUI.Styles.Components;
 
 /// <summary>
-/// Style for <see cref="AbstUI.Components.AbstWrapPanel"/>.
+/// Style for <see cref="AbstUI.Components.Containers.AbstWrapPanel"/>.
 /// </summary>
 public class AbstWrapPanelStyle : AbstContainerStyle
 {

@@ -6,9 +6,9 @@ using LingoEngine.Sprites;
 using LingoEngine.Bitmaps;
 using LingoEngine.Tools;
 using AbstUI.Primitives;
-using AbstUI.SDL2;
 using AbstUI.SDL2.Bitmaps;
 using AbstUI.SDL2.SDLL;
+using AbstUI.SDL2.Core;
 
 namespace LingoEngine.SDL2.Shapes
 {

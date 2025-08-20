@@ -1,7 +1,8 @@
 using System;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
-using AbstUI.SDL2;
+using AbstUI.SDL2.Components;
+using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Inputs;
 using AbstUI.SDL2.SDLL;
 

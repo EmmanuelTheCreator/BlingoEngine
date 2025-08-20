@@ -7,8 +7,10 @@ using LingoEngine.Projects;
 using LingoEngine.Director.Core.Projects.Commands;
 using System.IO;
 using AbstUI.Primitives;
-using AbstUI.Components;
 using AbstUI.Windowing;
+using AbstUI.Components.Inputs;
+using AbstUI.Components.Texts;
+using AbstUI.Components.Containers;
 
 namespace LingoEngine.Director.Core.Projects;
 

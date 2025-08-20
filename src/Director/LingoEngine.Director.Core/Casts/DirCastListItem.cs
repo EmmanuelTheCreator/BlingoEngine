@@ -5,8 +5,8 @@ using LingoEngine.Director.Core.Styles;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Texts;
 using AbstUI.Primitives;
-using AbstUI.Components;
 using System.Xml.Linq;
+using AbstUI.Components.Graphics;
 
 namespace LingoEngine.Director.Core.Casts
 {

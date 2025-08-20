@@ -1,8 +1,13 @@
-using AbstUI.Components;
+using AbstUI.Components.Buttons;
+using AbstUI.Components.Containers;
+using AbstUI.Components.Graphics;
+using AbstUI.Components.Inputs;
+using AbstUI.Components.Menus;
+using AbstUI.Components.Texts;
 using AbstUI.Primitives;
 using System.Reflection;
 
-namespace AbstUI
+namespace AbstUI.Components
 {
     /// <summary>
     /// Factory interface for creating engine-level GFX components.

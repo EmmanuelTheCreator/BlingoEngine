@@ -1,7 +1,7 @@
 using AbstUI.Primitives;
 using AbstUI.Texts;
 
-namespace AbstUI.Components
+namespace AbstUI.Components.Graphics
 {
     /// <summary>
     /// High level drawing surface used by the engine.

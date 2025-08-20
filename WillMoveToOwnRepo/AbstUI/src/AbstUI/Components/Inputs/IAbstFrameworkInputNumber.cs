@@ -1,7 +1,6 @@
-
 using AbstUI.Primitives;
 
-namespace AbstUI.Components
+namespace AbstUI.Components.Inputs
 {
 
     public interface IAbstFrameworkInputNumber : IAbstFrameworkNodeInput

@@ -6,6 +6,7 @@ using AbstUI.Texts;
 using AbstUI.LGodot.Texts;
 using AbstUI.LGodot.Bitmaps;
 using AbstUI.LGodot.Primitives;
+using AbstUI.Components.Graphics;
 
 namespace AbstUI.LGodot.Components
 {

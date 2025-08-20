@@ -1,6 +1,6 @@
 using AbstUI.Primitives;
 
-namespace AbstUI.Components
+namespace AbstUI.Components.Buttons
 {
     /// <summary>
     /// Engine level wrapper for a button control.

@@ -1,6 +1,7 @@
+using AbstUI.Components.Inputs;
 using AbstUI.Primitives;
 
-namespace AbstUI.Components
+namespace AbstUI.Components.Buttons
 {
     /// <summary>
     /// Framework specific toggle button control.

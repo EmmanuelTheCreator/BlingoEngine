@@ -1,5 +1,6 @@
 using System;
-using AbstUI.Components;
+using AbstUI.Components.Buttons;
+using AbstUI.Components.Menus;
 using AbstUI.Primitives;
 
 namespace AbstUI.Blazor.Components;

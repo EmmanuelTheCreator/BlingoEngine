@@ -1,11 +1,12 @@
 using System;
-using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.LUnity.Bitmaps;
 using UnityEngine;
 using UnityEngine.UI;
+using AbstUI.Components.Buttons;
+using AbstUI.LUnity.Components.Base;
 
-namespace AbstUI.LUnity.Components;
+namespace AbstUI.LUnity.Components.Buttons;
 
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkButton"/>.

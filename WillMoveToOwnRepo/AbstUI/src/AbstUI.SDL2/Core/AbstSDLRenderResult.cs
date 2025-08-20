@@ -1,4 +1,4 @@
-﻿namespace AbstUI.SDL2;
+﻿namespace AbstUI.SDL2.Core;
 
 public struct AbstSDLRenderResult
 {

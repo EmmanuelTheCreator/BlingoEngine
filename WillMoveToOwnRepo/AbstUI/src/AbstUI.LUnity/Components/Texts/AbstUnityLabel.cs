@@ -1,11 +1,12 @@
-using AbstUI.Components;
+using AbstUI.Components.Texts;
+using AbstUI.LUnity.Components.Base;
 using AbstUI.LUnity.Primitives;
 using AbstUI.Primitives;
 using AbstUI.Texts;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace AbstUI.LUnity.Components;
+namespace AbstUI.LUnity.Components.Texts;
 
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkLabel"/>.

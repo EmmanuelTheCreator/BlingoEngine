@@ -3,7 +3,7 @@ using AbstUI.Primitives;
 namespace AbstUI.Styles.Components;
 
 /// <summary>
-/// Style for <see cref="AbstUI.Components.AbstVerticalLineSeparator"/>.
+/// Style for <see cref="AbstUI.Components.Containers.AbstVerticalLineSeparator"/>.
 /// </summary>
 public class AbstVerticalLineSeparatorStyle : AbstComponentStyle
 {

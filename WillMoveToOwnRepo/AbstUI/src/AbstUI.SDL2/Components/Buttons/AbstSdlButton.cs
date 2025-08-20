@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using AbstUI.Components;
 using AbstUI.Primitives;
-using AbstUI.SDL2;
 using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Texts;
 using AbstUI.SDL2.Styles;
+using AbstUI.Components.Buttons;
+using AbstUI.SDL2.Components.Base;
+using AbstUI.SDL2.Events;
+using AbstUI.SDL2.Core;
 
-namespace AbstUI.SDL2.Components
+namespace AbstUI.SDL2.Components.Buttons
 {
     internal class AbstSdlButton : AbstSdlComponent, IAbstFrameworkButton, IHandleSdlEvent, ISdlFocusable, IDisposable
     {

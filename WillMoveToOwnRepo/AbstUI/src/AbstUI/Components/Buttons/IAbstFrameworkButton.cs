@@ -1,6 +1,6 @@
 using AbstUI.Primitives;
 
-namespace AbstUI.Components
+namespace AbstUI.Components.Buttons
 {
     /// <summary>
     /// Framework specific button control.

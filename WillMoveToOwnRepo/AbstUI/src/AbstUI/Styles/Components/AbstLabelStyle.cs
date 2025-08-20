@@ -3,7 +3,7 @@ using AbstUI.Primitives;
 namespace AbstUI.Styles.Components;
 
 /// <summary>
-/// Style for <see cref="AbstUI.Components.AbstLabel"/>.
+/// Style for <see cref="AbstUI.Components.Texts.AbstLabel"/>.
 /// </summary>
 public class AbstLabelStyle : AbstComponentStyle
 {

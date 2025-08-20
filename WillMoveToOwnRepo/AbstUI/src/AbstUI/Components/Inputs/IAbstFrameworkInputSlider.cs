@@ -1,4 +1,4 @@
-namespace AbstUI.Components
+namespace AbstUI.Components.Inputs
 {
     /// <summary>
     /// Framework specific implementation of a slider input control.

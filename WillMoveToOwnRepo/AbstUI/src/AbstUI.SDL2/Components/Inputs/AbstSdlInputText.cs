@@ -2,15 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
-using AbstUI.Components;
 using AbstUI.Primitives;
-using AbstUI.SDL2;
 using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Texts;
 using AbstUI.SDL2.Styles;
 using AbstUI.Styles;
+using AbstUI.Components.Inputs;
+using AbstUI.SDL2.Components.Base;
+using AbstUI.SDL2.Events;
+using AbstUI.SDL2.Core;
 
-namespace AbstUI.SDL2.Components
+namespace AbstUI.SDL2.Components.Inputs
 {
     internal class AbstSdlInputText : AbstSdlComponent, IAbstFrameworkInputText, IHandleSdlEvent, ISdlFocusable, IDisposable
     {
@@ -169,8 +171,8 @@ namespace AbstUI.SDL2.Components
             if (_focused)
             {
                 uint ticks = SDL.SDL_GetTicks();
-                if ((ticks - _blinkStart) > 1000) { _blinkStart = ticks; }
-                if (((ticks - _blinkStart) / 500) % 2 == 0)
+                if (ticks - _blinkStart > 1000) { _blinkStart = ticks; }
+                if ((ticks - _blinkStart) / 500 % 2 == 0)
                 {
                     int caretX = (int)X + 4 + _atlas.MeasureWidth(CollectionsMarshal.AsSpan(_codepoints).Slice(0, _caret));
                     SDL.SDL_RenderDrawLine(renderer, caretX, (int)Y + 2, caretX, (int)(Y + Height) - 2);

@@ -6,8 +6,8 @@ using LingoEngine.Sprites;
 using System.Linq;
 using System.Collections.Generic;
 using AbstUI.Primitives;
-using AbstUI.SDL2;
 using AbstUI.SDL2.SDLL;
+using AbstUI.SDL2.Core;
 
 namespace LingoEngine.SDL2.Movies;
 

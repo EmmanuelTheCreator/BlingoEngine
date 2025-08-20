@@ -1,7 +1,8 @@
 using System;
+using AbstUI.SDL2.Components;
 using AbstUI.SDL2.SDLL;
 
-namespace AbstUI.SDL2;
+namespace AbstUI.SDL2.Core;
 
 public class AbstSDLComponentContext : IDisposable
 {

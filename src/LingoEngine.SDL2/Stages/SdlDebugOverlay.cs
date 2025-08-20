@@ -1,7 +1,8 @@
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.SDL2.Core;
-using AbstUI.SDL2;
 using AbstUI.SDL2.SDLL;
+using AbstUI.SDL2.Components;
+using AbstUI.SDL2.Core;
 
 namespace LingoEngine.SDL2.Stages;
 

@@ -1,6 +1,7 @@
+using AbstUI.Components.Inputs;
 using AbstUI.Primitives;
 
-namespace AbstUI.Components
+namespace AbstUI.Components.Buttons
 {
     /// <summary>
     /// Engine level wrapper for a state (toggle) button.

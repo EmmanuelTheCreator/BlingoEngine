@@ -3,7 +3,7 @@ using AbstUI.Primitives;
 namespace AbstUI.Styles.Components;
 
 /// <summary>
-/// Style for <see cref="AbstUI.Components.AbstColorPicker"/>.
+/// Style for <see cref="AbstUI.Components.Inputs.AbstColorPicker"/>.
 /// </summary>
 public class AbstColorPickerStyle : AbstInputStyle
 {

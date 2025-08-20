@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
-using AbstUI.Components;
 using AbstUI.Primitives;
+using AbstUI.Components.Containers;
 
 namespace AbstUI.Blazor.Components;
 

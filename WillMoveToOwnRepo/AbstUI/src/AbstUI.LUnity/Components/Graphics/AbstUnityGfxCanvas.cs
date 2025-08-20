@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
-using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.LUnity.Bitmaps;
 using AbstUI.LUnity.Primitives;
 using AbstUI.Texts;
 using UnityEngine;
 using UnityEngine.UI;
+using AbstUI.Components.Graphics;
+using AbstUI.LUnity.Components.Base;
 
-namespace AbstUI.LUnity.Components;
+namespace AbstUI.LUnity.Components.Graphics;
 
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkGfxCanvas"/> that records paint actions
@@ -249,7 +250,7 @@ internal class AbstUnityGfxCanvas : AbstUnityComponent, IAbstFrameworkGfxCanvas,
         _drawActions.Add(tex =>
         {
             var rt = RenderTexture.GetTemporary(tex.width, tex.height, 0, RenderTextureFormat.ARGB32);
-            Graphics.Blit(tex, rt);
+            UnityEngine.Graphics.Blit(tex, rt);
             var prev = RenderTexture.active;
             RenderTexture.active = rt;
             GL.PushMatrix();

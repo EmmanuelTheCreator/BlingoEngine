@@ -1,6 +1,6 @@
-using AbstUI.SDL2.Inputs;
+using AbstUI.Inputs;
 
-namespace AbstUI.Inputs
+namespace AbstUI.SDL2.Inputs
 {
     public class GlobalSDLAbstKey : AbstKey , IAbstGlobalKey
     {

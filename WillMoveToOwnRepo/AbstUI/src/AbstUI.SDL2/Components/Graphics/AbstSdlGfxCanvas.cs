@@ -2,12 +2,14 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using AbstUI.Styles;
 using AbstUI.Primitives;
-using AbstUI.Components;
 using AbstUI.Texts;
 using AbstUI.SDL2.Bitmaps;
 using AbstUI.SDL2.SDLL;
+using AbstUI.Components.Graphics;
+using AbstUI.SDL2.Components.Base;
+using AbstUI.SDL2.Core;
 
-namespace AbstUI.SDL2.Components
+namespace AbstUI.SDL2.Components.Graphics
 {
     public class AbstSdlGfxCanvas : AbstSdlComponent, IAbstFrameworkGfxCanvas, IDisposable
     {

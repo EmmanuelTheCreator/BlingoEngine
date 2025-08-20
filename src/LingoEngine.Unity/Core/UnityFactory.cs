@@ -22,8 +22,13 @@ using AbstUI.Styles;
 using Microsoft.Extensions.DependencyInjection;
 using AbstUI.Primitives;
 using AbstUI.Components;
-using AbstUI.LUnity;
-using AbstUI;
+using AbstUI.Components.Graphics;
+using AbstUI.Components.Containers;
+using AbstUI.Components.Inputs;
+using AbstUI.Components.Menus;
+using AbstUI.Components.Buttons;
+using AbstUI.Components.Texts;
+using AbstUI.LUnity.Components;
 
 namespace LingoEngine.Unity.Core;
 

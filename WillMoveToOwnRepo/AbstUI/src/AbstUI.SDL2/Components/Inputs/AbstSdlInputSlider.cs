@@ -1,12 +1,14 @@
 using System;
 using System.Numerics;
-using AbstUI.Components;
+using AbstUI.Components.Inputs;
 using AbstUI.Primitives;
-using AbstUI.SDL2;
+using AbstUI.SDL2.Components.Base;
+using AbstUI.SDL2.Core;
+using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
 using AbstUI.Styles;
 
-namespace AbstUI.SDL2.Components
+namespace AbstUI.SDL2.Components.Inputs
 {
     internal class AbstSdlInputSlider<TValue> : AbstSdlComponent, IAbstFrameworkInputSlider<TValue>, IHandleSdlEvent, ISdlFocusable, IDisposable where TValue : struct
     {
@@ -91,7 +93,7 @@ namespace AbstUI.SDL2.Components
                 float val = Convert.ToSingle(_value);
                 float min = Convert.ToSingle(MinValue);
                 float max = Convert.ToSingle(MaxValue);
-                float t = (max - min) > 0 ? (val - min) / (max - min) : 0f;
+                float t = max - min > 0 ? (val - min) / (max - min) : 0f;
                 if (t < 0) t = 0; if (t > 1) t = 1;
 
                 int knobW = Math.Min(10, w);

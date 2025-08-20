@@ -1,4 +1,6 @@
-namespace AbstUI.SDL2;
+using AbstUI.SDL2.Components;
+
+namespace AbstUI.SDL2.Core;
 
 /// <summary>
 /// Manages which SDL component currently owns keyboard focus.

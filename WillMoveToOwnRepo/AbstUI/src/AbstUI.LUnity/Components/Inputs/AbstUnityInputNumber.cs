@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
-using AbstUI.Components;
+using AbstUI.Components.Inputs;
+using AbstUI.LUnity.Components.Base;
 using AbstUI.Primitives;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace AbstUI.LUnity.Components;
+namespace AbstUI.LUnity.Components.Inputs;
 
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkInputNumber{TValue}"/>.
