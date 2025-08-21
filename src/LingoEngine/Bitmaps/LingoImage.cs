@@ -1,5 +1,8 @@
 ﻿namespace LingoEngine.Bitmaps
 {
+    /// <summary>
+    /// Lingo Image interface.
+    /// </summary>
     public interface ILingoImage
     {
         public int Width { get; }

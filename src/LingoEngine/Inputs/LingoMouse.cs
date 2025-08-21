@@ -18,7 +18,7 @@ namespace LingoEngine.Inputs
         /// </summary>
         LingoSprite2D? ClickOn { get; }
         /// <summary>
-        /// Returns or sets the cast member underneath the mouse pointer.
+        /// Mouse property; returns the cast member underneath the mouse pointer. Read-only.
         /// </summary>
         LingoMember? MouseMember { get; }
         /// <summary>
@@ -31,6 +31,9 @@ namespace LingoEngine.Inputs
         /// </summary>
         ILingoMouse Unsubscribe(ILingoMouseEventHandler handler);
     }
+    /// <summary>
+    /// Lingo Framework Mouse interface.
+    /// </summary>
     public interface ILingoFrameworkMouse : IAbstFrameworkMouse
     {
         void SetCursor(LingoMemberBitmap? image);

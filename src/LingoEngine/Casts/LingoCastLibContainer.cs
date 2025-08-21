@@ -3,6 +3,9 @@ using LingoEngine.Members;
 
 namespace LingoEngine.Casts
 {
+    /// <summary>
+    /// Lingo Cast Libs Container interface.
+    /// </summary>
     public interface ILingoCastLibsContainer
     {
         ILingoCast ActiveCast { get; set; }
@@ -93,11 +96,11 @@ namespace LingoEngine.Casts
             => !castLibNum.HasValue
              ? _allMembersContainer.Member<T>(number)
              : _casts[castLibNum.Value - 1].GetMember<T>(number);
-        public ILingoMember? GetMember(int number, int? castLibNum = null)  
+        public ILingoMember? GetMember(int number, int? castLibNum = null)
             => !castLibNum.HasValue
              ? _allMembersContainer[number]
-             : _casts[castLibNum.Value - 1].Member[number]; 
-        public ILingoMember? GetMember(string name, int? castLibNum = null)  
+             : _casts[castLibNum.Value - 1].Member[number];
+        public ILingoMember? GetMember(string name, int? castLibNum = null)
             => !castLibNum.HasValue
              ? _allMembersContainer[name]
              : _casts[castLibNum.Value - 1].Member[name];

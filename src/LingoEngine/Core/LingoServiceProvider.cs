@@ -2,6 +2,9 @@ using System;
 
 namespace LingoEngine.Core
 {
+    /// <summary>
+    /// Lingo Service Provider interface.
+    /// </summary>
     public interface ILingoServiceProvider : IServiceProvider
     {
         void SetServiceProvider(IServiceProvider serviceProvider);

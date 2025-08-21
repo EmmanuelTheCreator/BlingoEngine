@@ -6,9 +6,12 @@ using System;
 
 namespace LingoEngine.Sounds
 {
+    /// <summary>
+    /// Lingo Sprite Audio Manager interface.
+    /// </summary>
     public interface ILingoSpriteAudioManager : ILingoSpriteManager<LingoSpriteSound>
     {
-        
+
 
         LingoSpriteSound Add(int channel, int startFrame, LingoMemberSound sound);
     }
@@ -20,10 +23,10 @@ namespace LingoEngine.Sounds
 
         protected override LingoSpriteSound OnCreateSprite(LingoMovie movie, Action<LingoSpriteSound> onRemove)
         {
-            var clip = new LingoSpriteSound(_environment.Sound, _environment.Events,onRemove);
+            var clip = new LingoSpriteSound(_environment.Sound, _environment.Events, onRemove);
             return clip;
         }
-   
+
 
         public LingoSpriteSound Add(int channel, int startFrame, LingoMemberSound sound)
         {
@@ -33,7 +36,7 @@ namespace LingoEngine.Sounds
 #else
             int end = Math.Clamp(startFrame + lengthFrames - 1, startFrame, _movie.FrameCount);
 #endif
-            return AddSprite(channel, "Audio "+channel, c =>
+            return AddSprite(channel, "Audio " + channel, c =>
             {
                 c.Init(channel, startFrame, end, sound);
             });
@@ -41,7 +44,7 @@ namespace LingoEngine.Sounds
         protected override LingoSprite? OnAdd(int spriteNum, int begin, int end, ILingoMember? member)
         {
             if (!(member is LingoMemberSound memberTyped)) return null;
-            var sprite = Add(spriteNum, begin,memberTyped);
+            var sprite = Add(spriteNum, begin, memberTyped);
             return sprite;
         }
         public override void MuteChannel(int channel, bool state)
@@ -51,7 +54,7 @@ namespace LingoEngine.Sounds
             if (channelS == null)
                 return;
             channelS.Mute = state;
-            
+
         }
     }
 }

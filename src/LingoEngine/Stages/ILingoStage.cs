@@ -6,6 +6,9 @@ using LingoEngine.Sprites;
 
 namespace LingoEngine.Stages
 {
+    /// <summary>
+    /// Lingo Stage interface.
+    /// </summary>
     public interface ILingoStage
     {
         LingoMovie? ActiveMovie { get; }
@@ -15,7 +18,7 @@ namespace LingoEngine.Stages
         int Width { get; set; }
 
         void AddKeyFrame(LingoSprite2D sprite);
-        
+
         T Framework<T>() where T : class, ILingoFrameworkStage;
         ILingoFrameworkStage FrameworkObj();
         LingoSpriteMotionPath? GetSpriteMotionPath(LingoSprite2D sprite);

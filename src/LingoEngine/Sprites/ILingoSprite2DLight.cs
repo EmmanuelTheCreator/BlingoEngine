@@ -6,6 +6,9 @@ using AbstUI.Primitives;
 
 namespace LingoEngine.Sprites
 {
+    /// <summary>
+    /// Lingo Sprite2 DLight interface.
+    /// </summary>
     public interface ILingoSprite2DLight
     {
         AColor BackColor { get; set; }
@@ -46,6 +49,6 @@ namespace LingoEngine.Sprites
         IReadOnlyCollection<LingoKeyFrameSetting>? GetKeyframes();
         void MoveKeyFrame(int from, int to);
         bool DeleteKeyFrame(int frame);
-       
+
     }
 }

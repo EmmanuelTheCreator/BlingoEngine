@@ -8,6 +8,9 @@ using LingoEngine.FilmLoops;
 
 namespace LingoEngine.Members
 {
+    /// <summary>
+    /// Lingo Member Factory interface.
+    /// </summary>
     public interface ILingoMemberFactory
     {
         T Member<T>(int numberInCast = 0, string name = "") where T : LingoMember;

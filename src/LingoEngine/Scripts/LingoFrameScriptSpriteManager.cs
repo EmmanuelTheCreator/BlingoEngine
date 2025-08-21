@@ -4,7 +4,10 @@ using LingoEngine.Sprites;
 
 namespace LingoEngine.Scripts
 {
-    
+
+    /// <summary>
+    /// Lingo Frame Script Sprite Manager interface.
+    /// </summary>
     public interface ILingoFrameScriptSpriteManager : ILingoSpriteManager<LingoFrameScriptSprite>
     {
         //LingoSpriteFrameScript Add(int frame);
@@ -15,14 +18,14 @@ namespace LingoEngine.Scripts
     }
     internal class LingoFrameScriptSpriteManager : LingoSpriteManager<LingoFrameScriptSprite>, ILingoFrameScriptSpriteManager
     {
-        
+
         public LingoFrameScriptSpriteManager(LingoMovie movie, LingoMovieEnvironment environment) : base(LingoFrameScriptSprite.SpriteNumOffset, movie, environment)
         {
         }
 
         //public LingoSpriteFrameScript Add(int frame) => AddSprite(6, "FrameScript_" + frame, sprite => sprite.BeginFrame = frame);
 
-        protected override LingoFrameScriptSprite OnCreateSprite(LingoMovie movie, Action<LingoFrameScriptSprite> onRemove) => new LingoFrameScriptSprite(_environment.Player,_environment.Factory, _environment.Events, onRemove);
+        protected override LingoFrameScriptSprite OnCreateSprite(LingoMovie movie, Action<LingoFrameScriptSprite> onRemove) => new LingoFrameScriptSprite(_environment.Player, _environment.Factory, _environment.Events, onRemove);
 
         public LingoFrameScriptSprite Add<TBehaviour>(int frameNumber, Action<TBehaviour>? configureBehaviour = null, Action<LingoFrameScriptSprite>? configure = null) where TBehaviour : LingoSpriteBehavior
         {
@@ -31,7 +34,7 @@ namespace LingoEngine.Scripts
             configureBehaviour?.Invoke(behaviour);
             return sprite;
         }
-        public LingoFrameScriptSprite Add(int frameNumber, Action<LingoFrameScriptSprite>? configure = null) 
+        public LingoFrameScriptSprite Add(int frameNumber, Action<LingoFrameScriptSprite>? configure = null)
         {
             var sprite = AddSprite(1, $"FrameSprite_{frameNumber}", configure);
             sprite.BeginFrame = frameNumber;
@@ -47,9 +50,9 @@ namespace LingoEngine.Scripts
             return sprite;
         }
 
-        public bool Has(int frameNumber) =>  _allTimeSprites.Any(s => s.BeginFrame == frameNumber);
+        public bool Has(int frameNumber) => _allTimeSprites.Any(s => s.BeginFrame == frameNumber);
 
-        public void Delete(int frameNumber) 
+        public void Delete(int frameNumber)
         {
             var sprite = _allTimeSprites.FirstOrDefault(s => s.BeginFrame == frameNumber);
             if (sprite != null)

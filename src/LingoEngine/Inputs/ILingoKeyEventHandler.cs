@@ -3,6 +3,9 @@ using LingoEngine.Events;
 
 namespace LingoEngine.Inputs
 {
+    /// <summary>
+    /// Lingo Key Event Handler interface.
+    /// </summary>
     public interface ILingoKeyEventHandler : IAbstKeyEventHandler<LingoKeyEvent>
     {
         new void RaiseKeyDown(LingoKeyEvent lingoKey);

@@ -1,5 +1,8 @@
 ﻿namespace LingoEngine.Members
 {
+    /// <summary>
+    /// Lingo Members Container interface.
+    /// </summary>
     public interface ILingoMembersContainer
     {
         /// <summary>
@@ -46,7 +49,7 @@
             {
                 // From the second castlib, the numbers needs to increament
                 if (_members.ContainsKey(member.Number))
-                    _members.Add((member.CastLibNum *131114)+ member.Number, member);
+                    _members.Add((member.CastLibNum * 131114) + member.Number, member);
                 else
                     _members.Add(member.Number, member);
             }
@@ -97,7 +100,7 @@
                 _membersByName.Add(name.ToLower(), member);
         }
 
-        public ILingoMember? this[int number] 
+        public ILingoMember? this[int number]
             => _members.TryGetValue(number, out var member) ? member : null;
         public ILingoMember? this[string name] => _membersByName.TryGetValue(name.ToLower(), out var theValue) ? theValue : null;
 

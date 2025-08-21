@@ -6,13 +6,16 @@ using LingoEngine.Sprites;
 namespace LingoEngine.Tempos;
 
 
+/// <summary>
+/// Lingo Tempo Sprite Manager interface.
+/// </summary>
 public interface ILingoTempoSpriteManager : ILingoSpriteManager<LingoTempoSprite>
 {
     public int Tempo { get; }
     LingoTempoSprite Add(int frameNumber, Action<LingoTempoSprite>? configure = null);
     LingoTempoSprite Add(int frameNumber, LingoTempoSpriteSettings settings);
     void ChangeTempo(LingoTempoSprite lingoTempoSprite);
-   
+
 }
 internal class LingoTempoSpriteManager : LingoSpriteManager<LingoTempoSprite>, ILingoTempoSpriteManager
 {
@@ -40,7 +43,7 @@ internal class LingoTempoSpriteManager : LingoSpriteManager<LingoTempoSprite>, I
         sprite.EndFrame = frameNumber;
         if (configure != null)
             configure(sprite);
-        
+
         return sprite;
     }
     public LingoTempoSprite Add(int frameNumber, LingoTempoSpriteSettings settings)
@@ -52,7 +55,7 @@ internal class LingoTempoSpriteManager : LingoSpriteManager<LingoTempoSprite>, I
     protected override LingoSprite? OnAdd(int spriteNum, int begin, int end, ILingoMember? member)
     {
         var sprite = Add(begin);
-     
+
         return sprite;
     }
     public void ChangeTempo(int value)
@@ -63,5 +66,5 @@ internal class LingoTempoSpriteManager : LingoSpriteManager<LingoTempoSprite>, I
     }
     public void ChangeTempo(LingoTempoSprite lingoTempoSprite) => ChangeTempo(lingoTempoSprite.Tempo);
 
-    
+
 }

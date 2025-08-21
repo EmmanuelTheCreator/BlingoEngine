@@ -1,5 +1,8 @@
 ﻿namespace LingoEngine.Events
 {
+    /// <summary>
+    /// Lingo Event Mediator interface.
+    /// </summary>
     public interface ILingoEventMediator
     {
         /// <summary>

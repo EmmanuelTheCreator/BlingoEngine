@@ -19,12 +19,19 @@ namespace LingoEngine.Events
             Mouse = mouse;
             Type = mouseEvent.Type;
             ContinuePropagation = mouseEvent.ContinuePropagation;
+
         }
     }
 
+    /// <summary>
+    /// Lingo Mouse Event Handler interface.
+    /// </summary>
     public interface ILingoMouseEventHandler : IAbstMouseEventHandler<LingoMouseEvent>
     {
     }
+    /// <summary>
+    /// Lingo Mouse Event Subscription interface.
+    /// </summary>
     public interface ILingoMouseEventSubscription
     {
         void Release();
