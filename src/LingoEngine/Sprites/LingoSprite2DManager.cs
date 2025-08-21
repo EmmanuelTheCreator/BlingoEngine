@@ -176,7 +176,8 @@ namespace LingoEngine.Sprites
 
         internal bool RollOver(int spriteNumber)
         {
-            var sprite = _activeSprites[spriteNumber];
+            if (!_activeSprites.TryGetValue(spriteNumber, out var sprite))
+                return false;
             return sprite.IsMouseInsideBoundingBox(_lingoMouse);
         }
 
