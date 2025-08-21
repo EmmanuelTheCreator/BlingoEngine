@@ -35,4 +35,10 @@ public class AbstBlazorFontManager : IAbstFontManager
         => _defaultFont = font?.ToString() ?? string.Empty;
 
     public IEnumerable<string> GetAllNames() => _loadedFonts.Keys;
+
+    public float MeasureTextWidth(string text, string fontName, int fontSize)
+        => text.Length * fontSize * 0.6f;
+
+    public FontInfo GetFontInfo(string fontName, int fontSize)
+        => new(fontSize, 0);
 }

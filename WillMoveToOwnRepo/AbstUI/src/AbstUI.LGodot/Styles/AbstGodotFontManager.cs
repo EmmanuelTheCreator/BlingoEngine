@@ -38,5 +38,21 @@ namespace AbstUI.LGodot.Styles
         public void SetDefaultFont<T>(T font) where T : class => _defaultStyle = (font as Font)!;
 
         public IEnumerable<string> GetAllNames() => _loadedFonts.Keys;
+
+        public float MeasureTextWidth(string text, string fontName, int fontSize)
+        {
+            var font = string.IsNullOrEmpty(fontName) ? _defaultStyle :
+                (_loadedFonts.TryGetValue(fontName, out var f) ? f : _defaultStyle);
+            return font.GetStringSize(text, HorizontalAlignment.Left, -1, fontSize).X;
+        }
+
+        public FontInfo GetFontInfo(string fontName, int fontSize)
+        {
+            var font = string.IsNullOrEmpty(fontName) ? _defaultStyle :
+                (_loadedFonts.TryGetValue(fontName, out var f) ? f : _defaultStyle);
+            int height = (int)font.GetHeight(fontSize);
+            int ascent = (int)font.GetAscent(fontSize);
+            return new FontInfo(height, height - ascent);
+        }
     }
 }
