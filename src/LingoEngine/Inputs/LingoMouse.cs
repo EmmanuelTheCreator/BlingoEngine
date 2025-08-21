@@ -74,7 +74,7 @@ namespace LingoEngine.Inputs
             foreach (var subscription in _subscriptions)
             {
                 action(subscription, eventMouse);
-                if (!eventMouse.ContinuePropation) return;
+                if (!eventMouse.ContinuePropagation) return;
             }
         }
         /// <summary>
@@ -100,7 +100,7 @@ namespace LingoEngine.Inputs
         // <summary>
         /// Creates a proxy mouse that forwards events within the bounds supplied by <paramref name="provider"/>.
         /// </summary>
-       
+
         public new virtual LingoStageMouse CreateNewInstance(IAbstMouseRectProvider provider)
             => new ProxyLingoMouse(this, provider);
         public virtual LingoStageMouse DisplaceMouse(IAbstMouseRectProvider provider)
@@ -200,7 +200,7 @@ namespace LingoEngine.Inputs
 
 
 
-  
+
 
 
     public class LingoMouse : AbstMouse<LingoMouseEvent>, ILingoMouse, IAbstMouseInternal
@@ -215,7 +215,7 @@ namespace LingoEngine.Inputs
         public LingoMouse(ILingoFrameworkMouse frameworkMouse)
             : base((p, type) => new LingoMouseEvent((LingoMouse)p, type), frameworkMouse)
         {
-            Name= "LingoMouse";
+            Name = "LingoMouse";
             _lingoFrameworkObj = frameworkMouse;
             _cursor = new LingoCursor(frameworkMouse);
         }
