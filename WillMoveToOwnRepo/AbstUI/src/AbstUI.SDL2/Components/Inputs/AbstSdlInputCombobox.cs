@@ -1,10 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Numerics;
-using System.Runtime.InteropServices;
 using AbstUI.Primitives;
 using AbstUI.SDL2.SDLL;
-using AbstUI.SDL2.Texts;
 using AbstUI.SDL2.Styles;
 using AbstUI.Styles;
 using AbstUI.Components.Inputs;
@@ -19,7 +15,6 @@ namespace AbstUI.SDL2.Components.Inputs
         private AbstSdlInputItemList? _popup;
         private bool _open;
         private ISdlFontLoadedByUser? _font;
-        private SdlGlyphAtlas? _atlas;
         private nint _texture;
         private int _texW;
         private int _texH;
@@ -55,7 +50,6 @@ namespace AbstUI.SDL2.Components.Inputs
         private void EnsureResources(AbstSDLRenderContext ctx)
         {
             _font ??= ctx.SdlFontManager.GetTyped(this, Font, FontSize);
-            _atlas ??= new SdlGlyphAtlas(ctx.Renderer, _font.FontHandle);
             if (_lineHeight == 0)
             {
                 int ascent = SDL_ttf.TTF_FontAscent(_font.FontHandle);
@@ -194,14 +188,19 @@ namespace AbstUI.SDL2.Components.Inputs
 
                 if (!string.IsNullOrEmpty(text))
                 {
-                    List<int> cps = new();
-                    foreach (var r in text.EnumerateRunes()) cps.Add(r.Value);
-                    var span = CollectionsMarshal.AsSpan(cps);
                     int ascent = SDL_ttf.TTF_FontAscent(_font!.FontHandle);
                     int descent = SDL_ttf.TTF_FontDescent(_font.FontHandle);
                     int baseline = (h - (ascent - descent)) / 2 + ascent;
+                    int ty = baseline - ascent;
                     var color = TextColor.ToSDLColor();
-                    _atlas!.DrawRun(span, 4, baseline, color);
+                    SDL_ttf.TTF_SizeUTF8(_font.FontHandle, text, out int tw, out int th);
+                    nint textSurf = SDL_ttf.TTF_RenderUTF8_Blended(_font.FontHandle, text, color);
+                    nint textTex = SDL.SDL_CreateTextureFromSurface(context.Renderer, textSurf);
+                    SDL.SDL_FreeSurface(textSurf);
+                    SDL.SDL_SetTextureBlendMode(textTex, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
+                    var dst = new SDL.SDL_Rect { x = 4, y = ty, w = tw, h = th };
+                    SDL.SDL_RenderCopy(context.Renderer, textTex, IntPtr.Zero, ref dst);
+                    SDL.SDL_DestroyTexture(textTex);
                 }
 
                 SDL.SDL_SetRenderTarget(context.Renderer, prevTarget);
@@ -218,7 +217,6 @@ namespace AbstUI.SDL2.Components.Inputs
             if (_texture != nint.Zero)
                 SDL.SDL_DestroyTexture(_texture);
             _font?.Release();
-            _atlas?.Dispose();
             _popup?.Dispose();
             base.Dispose();
         }
