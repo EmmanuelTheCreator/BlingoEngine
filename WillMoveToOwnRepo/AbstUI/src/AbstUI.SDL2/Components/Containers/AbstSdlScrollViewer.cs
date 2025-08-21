@@ -10,10 +10,10 @@ using static AbstUI.SDL2.SDLL.SDL;
 
 namespace AbstUI.SDL2.Components.Containers
 {
-   
+
     internal abstract class AbstSdlScrollViewer : AbstSdlComponent, IHandleSdlEvent, IDisposable
     {
-        protected AbstSdlScrollViewer(AbstSdlComponentFactory factory) : base(factory)
+        protected AbstSdlScrollViewer(AbstSdlComponentFactory factory, AbstSDLComponentContext? parent = null) : base(factory, parent)
         {
         }
 
@@ -21,7 +21,7 @@ namespace AbstUI.SDL2.Components.Containers
         public float ScrollHorizontal { get; set; }
         public float ScrollVertical { get; set; }
         public bool ClipContents { get; set; } = true;
-        public AbstScrollbarMode ScollbarModeH { get; set; }  = AbstScrollbarMode.Auto;
+        public AbstScrollbarMode ScollbarModeH { get; set; } = AbstScrollbarMode.Auto;
         public AbstScrollbarMode ScollbarModeV { get; set; } = AbstScrollbarMode.Auto;
         protected float ContentWidth { get; set; }
         protected float ContentHeight { get; set; }
@@ -71,7 +71,7 @@ namespace AbstUI.SDL2.Components.Containers
             _maxScrollV = MathF.Max(0, ContentHeight - viewH);
             var showHScrollBar = ScollbarModeH == AbstScrollbarMode.AlwaysVisible || (ScollbarModeH == AbstScrollbarMode.Auto && _maxScrollH > 0);
             var showVScrollBar = ScollbarModeV == AbstScrollbarMode.AlwaysVisible || (ScollbarModeV == AbstScrollbarMode.Auto && _maxScrollV > 0);
-            
+
 
             if (ScrollHorizontal < 0) ScrollHorizontal = 0; else if (ScrollHorizontal > _maxScrollH) ScrollHorizontal = _maxScrollH;
             if (ScrollVertical < 0) ScrollVertical = 0; else if (ScrollVertical > _maxScrollV) ScrollVertical = _maxScrollV;
@@ -114,14 +114,14 @@ namespace AbstUI.SDL2.Components.Containers
 
                 // Draw bg scrollbars
                 SDL.SDL_SetRenderDrawColor(context.Renderer, Color_Bars_Bg.R, Color_Bars_Bg.G, Color_Bars_Bg.B, Color_Bars_Bg.A);
-               
+
                 SDL.SDL_Rect hbar = new SDL.SDL_Rect { x = 0, y = h - sbSize, w = viewW, h = sbSize };
                 if (showHScrollBar)
                     SDL.SDL_RenderFillRect(context.Renderer, ref hbar);
                 SDL.SDL_Rect vbar = new SDL.SDL_Rect { x = w - sbSize, y = 0, w = sbSize, h = viewH };
                 if (showVScrollBar)
                     SDL.SDL_RenderFillRect(context.Renderer, ref vbar);
-                
+
                 SDL.SDL_Rect corner = new SDL.SDL_Rect { x = w - sbSize, y = h - sbSize, w = sbSize, h = sbSize };
                 SDL.SDL_RenderFillRect(context.Renderer, ref corner);
 
@@ -139,7 +139,7 @@ namespace AbstUI.SDL2.Components.Containers
                     SDL.SDL_Rect vhandle = new SDL.SDL_Rect { x = w - sbSize + 2, y = (int)(arrowSize + vPos) + 2, w = sbSize - 4, h = (int)_handleH - 4 };
                     SDL.SDL_RenderFillRect(context.Renderer, ref vhandle);
                 }
-                
+
                 // draw arrows
                 SDL.SDL_SetRenderDrawColor(context.Renderer, Color_Handle.R, Color_Handle.G, Color_Handle.B, Color_Handle.A);
                 int cx = w - sbSize / 2;
@@ -159,13 +159,13 @@ namespace AbstUI.SDL2.Components.Containers
                     for (int i = 0; i < ah; i++)
                         SDL.SDL_RenderDrawLine(context.Renderer, cx - i, viewH - 3 - i, cx + i, viewH - 3 - i);
                 }
-               
+
                 SDL.SDL_SetRenderDrawColor(context.Renderer, Color_ScollBorder.R, Color_ScollBorder.G, Color_ScollBorder.B, Color_ScollBorder.A);
                 if (showHScrollBar)
                     SDL.SDL_RenderDrawRect(context.Renderer, ref hbar);
                 if (showVScrollBar)
                     SDL.SDL_RenderDrawRect(context.Renderer, ref vbar);
-               
+
                 SDL.SDL_RenderDrawRect(context.Renderer, ref corner);
 
                 SDL.SDL_SetRenderTarget(context.Renderer, prevTarget);

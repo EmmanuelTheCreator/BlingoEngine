@@ -109,7 +109,7 @@ namespace AbstUI.SDL2.Components.Containers
             EnsureResources(context);
             int w = (int)Width;
             int h = (int)Height;
-            
+
 
             bool needRender = _texture == nint.Zero || _texW != w || _texH != h;
             if (needRender)
@@ -198,8 +198,8 @@ namespace AbstUI.SDL2.Components.Containers
                     var ctx = comp.ComponentContext;
                     var oldOffX = ctx.OffsetX;
                     var oldOffY = ctx.OffsetY;
-                    ctx.OffsetX += -ComponentContext.X + BorderThickness;
-                    ctx.OffsetY += -ComponentContext.Y - _tabHeight + BorderThickness;
+                    ctx.OffsetX += BorderThickness;
+                    ctx.OffsetY += _tabHeight + BorderThickness;
                     ctx.RenderToTexture(context);
                     ctx.OffsetX = oldOffX;
                     ctx.OffsetY = oldOffY;
@@ -262,7 +262,7 @@ namespace AbstUI.SDL2.Components.Containers
                     }
                     break;
             }
-    
+
             // Forward mouse events to children accounting for current scroll offset
 
             for (int i = _children.Count - 1; i >= 0 && !e.StopPropagation; i--)
@@ -271,10 +271,10 @@ namespace AbstUI.SDL2.Components.Containers
                     comp is not IHandleSdlEvent handler ||
                     !comp.Visibility)
                     continue;
-                ContainerHelpers.HandleChildEvents(comp, e, -(int)ComponentContext.X, -(int)(ComponentContext.Y + _tabHeight));
+                ContainerHelpers.HandleChildEvents(comp, e, -(int)(ComponentContext.X + BorderThickness), -(int)(ComponentContext.Y + _tabHeight + BorderThickness));
             }
         }
-        
+
 
 
 

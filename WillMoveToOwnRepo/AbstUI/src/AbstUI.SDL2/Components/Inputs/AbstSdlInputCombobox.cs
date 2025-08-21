@@ -6,12 +6,13 @@ using AbstUI.Styles;
 using AbstUI.Components.Inputs;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.Core;
+using AbstUI.SDL2.Components.Containers;
 
 namespace AbstUI.SDL2.Components.Inputs
 {
     internal class AbstSdlInputCombobox : AbstSdlSelectableCollection, IAbstFrameworkInputCombobox, IHandleSdlEvent, ISdlFocusable, IDisposable, IHasTextBackgroundBorderColor
     {
-       
+
         private AbstSdlInputItemList? _popup;
         private bool _open;
         private ISdlFontLoadedByUser? _font;
@@ -104,7 +105,7 @@ namespace AbstUI.SDL2.Components.Inputs
         {
             if (_popup == null)
             {
-                _popup = new AbstSdlInputItemList(Factory);
+                _popup = new AbstSdlInputItemList(Factory, ComponentContext);
                 foreach (var it in Items)
                     _popup.AddItem(it.Key, it.Value);
                 _popup.ValueChanged += PopupOnValueChanged;
@@ -123,14 +124,39 @@ namespace AbstUI.SDL2.Components.Inputs
             _popup.ItemPressedBackgroundColor = ItemPressedBackgroundColor;
             _popup.ItemPressedBorderColor = ItemPressedBorderColor;
 
-            _popup.X = ComponentContext.X;
-            _popup.Y = ComponentContext.Y + Height;
+            UpdatePopupPosition();
             _popup.Width = Width;
             int desired = Items.Count * _lineHeight + 2;
             _popup.Height = desired > 200 ? 200 : desired;
             _popup.Visibility = true;
             Factory.RootContext.ComponentContainer.Activate(_popup.ComponentContext);
             _open = true;
+        }
+
+        private void UpdatePopupPosition()
+        {
+            if (_popup == null) return;
+            var (sx, sy) = GetScreenPosition();
+            _popup.X = sx;
+            _popup.Y = sy + Height;
+        }
+
+        private (int x, int y) GetScreenPosition()
+        {
+            int x = 0, y = 0;
+            var ctx = ComponentContext;
+            while (ctx != null)
+            {
+                x += ctx.X;
+                y += ctx.Y;
+                if (ctx.Component is AbstSdlScrollViewer sv)
+                {
+                    x -= (int)sv.ScrollHorizontal;
+                    y -= (int)sv.ScrollVertical;
+                }
+                ctx = ctx.Parent;
+            }
+            return (x, y);
         }
 
         protected override void RenderContent(AbstSDLRenderContext context) { }
@@ -155,7 +181,7 @@ namespace AbstUI.SDL2.Components.Inputs
 
         private bool HitTest(int x, int y) => x >= ComponentContext.X && x <= ComponentContext.X + Width && y >= ComponentContext.Y && y <= ComponentContext.Y + Height;
 
-      
+
         public void SetFocus(bool focus)
         {
             _focused = focus;
@@ -164,6 +190,8 @@ namespace AbstUI.SDL2.Components.Inputs
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
+            if (_open)
+                UpdatePopupPosition();
             if (!Visibility) return default;
 
             EnsureResources(context);

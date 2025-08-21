@@ -20,7 +20,7 @@ namespace AbstUI.SDL2.Components.Inputs
         private int _hoverIndex = -1;
         private int _pressedIndex = -1;
 
-        public AbstSdlInputItemList(AbstSdlComponentFactory factory) : base(factory)
+        public AbstSdlInputItemList(AbstSdlComponentFactory factory, AbstSDLComponentContext? parent = null) : base(factory, parent)
         {
         }
 
@@ -109,8 +109,12 @@ namespace AbstUI.SDL2.Components.Inputs
             ref var ev = ref e.Event;
             if (ev.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN && ev.button.button == SDL.SDL_BUTTON_LEFT)
             {
-                if (ev.button.x >= ComponentContext.X && ev.button.x <= ComponentContext.X + Width &&
-                    ev.button.y >= ComponentContext.Y && ev.button.y <= ComponentContext.Y + Height)
+                const int sbSize = 16;
+                int viewW = (int)Width - sbSize;
+                int viewH = (int)Height - sbSize;
+                bool inside = ev.button.x >= ComponentContext.X && ev.button.x <= ComponentContext.X + viewW &&
+                              ev.button.y >= ComponentContext.Y && ev.button.y <= ComponentContext.Y + viewH;
+                if (inside)
                 {
                     Factory.FocusManager.SetFocus(this);
                     int idx = (int)((ev.button.y - ComponentContext.Y + ScrollVertical) / _lineHeight);
@@ -133,9 +137,12 @@ namespace AbstUI.SDL2.Components.Inputs
             }
             else if (ev.type == SDL.SDL_EventType.SDL_MOUSEMOTION)
             {
+                const int sbSize = 16;
+                int viewW = (int)Width - sbSize;
+                int viewH = (int)Height - sbSize;
                 int newHover = -1;
-                if (ev.motion.x >= ComponentContext.X && ev.motion.x <= ComponentContext.X + Width &&
-                    ev.motion.y >= ComponentContext.Y && ev.motion.y <= ComponentContext.Y + Height)
+                if (ev.motion.x >= ComponentContext.X && ev.motion.x <= ComponentContext.X + viewW &&
+                    ev.motion.y >= ComponentContext.Y && ev.motion.y <= ComponentContext.Y + viewH)
                 {
                     newHover = (int)((ev.motion.y - ComponentContext.Y + ScrollVertical) / _lineHeight);
                     if (newHover < 0 || newHover >= Items.Count) newHover = -1;
