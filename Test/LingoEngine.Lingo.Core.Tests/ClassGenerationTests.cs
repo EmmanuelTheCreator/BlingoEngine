@@ -216,6 +216,40 @@ end",
         Assert.Contains("public bool d;", result);
     }
 
+    [Fact]
+    public void AppendInfersLingoList()
+    {
+        var file = new LingoScriptFile
+        {
+            Name = "Score",
+            Source = @"property tempScore
+on startMovie
+  append tempScore, 5
+end",
+            Type = LingoScriptType.Behavior
+        };
+        var result = _converter.Convert(file);
+        Assert.Contains("public LingoList<int> tempScore = new();", result);
+        Assert.Contains("tempScore.Add(5);", result);
+    }
+
+    [Fact]
+    public void AddAtInfersLingoList()
+    {
+        var file = new LingoScriptFile
+        {
+            Name = "Numbers",
+            Source = @"property nums
+on startMovie
+  addAt nums, 1, 10
+end",
+            Type = LingoScriptType.Behavior
+        };
+        var result = _converter.Convert(file);
+        Assert.Contains("public LingoList<int> nums = new();", result);
+        Assert.Contains("nums.AddAt(1, 10);", result);
+    }
+
     [Theory]
     [InlineData("blur", "IHasBlurEvent", null)]
     [InlineData("focus", "IHasFocusEvent", null)]

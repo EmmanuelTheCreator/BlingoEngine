@@ -64,6 +64,25 @@ namespace LingoEngine.Primitives
         public void SetAt(int index, T value) => _items[index - 1] = value;
 
         /// <summary>
+        /// Returns the 1-based position of the value, or 0 if not found.
+        /// </summary>
+        public int GetPos(T value)
+        {
+            var index = _items.IndexOf(value);
+            return index >= 0 ? index + 1 : 0;
+        }
+
+        /// <summary>
+        /// Finds the 1-based position of the value. Alias for <see cref="GetPos"/>.
+        /// </summary>
+        public int FindPos(T value) => GetPos(value);
+
+        /// <summary>
+        /// Finds the nearest position of the value in a sorted list. Currently behaves like <see cref="GetPos"/>.
+        /// </summary>
+        public int FindPosNear(T value) => GetPos(value);
+
+        /// <summary>
         /// Removes the first occurrence of the specified item.
         /// </summary>
         public bool Remove(T item) => _items.Remove(item);

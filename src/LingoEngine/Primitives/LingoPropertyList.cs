@@ -192,6 +192,41 @@
         }
 
         /// <summary>
+        /// Gets the value associated with the key or default if not found.
+        /// </summary>
+        public TValue? GetaProp(TKey key) => _dict.TryGetValue(key, out var value) ? value : default;
+
+        /// <summary>
+        /// Gets the value associated with the key. Throws if missing.
+        /// </summary>
+        public TValue GetProp(TKey key) => _dict[key];
+
+        /// <summary>
+        /// Gets the property name at the 1-based index.
+        /// </summary>
+        public TKey GetPropAt(int index) => GetNthProp(index);
+
+        /// <summary>
+        /// Returns the 1-based index of the key, or 0 if not found.
+        /// </summary>
+        public int FindPos(TKey key) => FindIndexOfKey(key);
+
+        /// <summary>
+        /// Returns the 1-based index of the key or nearest position. Currently behaves like <see cref="FindPos"/>.
+        /// </summary>
+        public int FindPosNear(TKey key) => FindPos(key);
+
+        /// <summary>
+        /// Returns the 1-based index of the value, or 0 if not found.
+        /// </summary>
+        public int GetPos(TValue value) => FindPosValue(value);
+
+        /// <summary>
+        /// Sets the value of a property without errors if it doesn't exist.
+        /// </summary>
+        public void SetaProp(TKey key, TValue value) => SetProp(key, value);
+
+        /// <summary>
         /// Sorts keys in ascending order.
         /// </summary>
         public void SortKeysAsc() => _keyOrder.Sort();

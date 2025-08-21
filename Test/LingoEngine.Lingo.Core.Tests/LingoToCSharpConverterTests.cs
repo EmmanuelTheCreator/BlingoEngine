@@ -1038,10 +1038,66 @@ end";
     }
 
     [Fact]
+    public void AppendIsConvertedToAdd()
+    {
+        var result = _converter.Convert("append tempscore, 1");
+        Assert.Contains("tempscore.Add(1);", result);
+    }
+
+    [Fact]
     public void ReverseActorListIsConverted()
     {
         var result = _converter.Convert("reverse the actorlist(me)");
         Assert.Contains("_Movie.ActorList.Reverse(this)", result);
+    }
+
+    [Fact]
+    public void ValueFunctionIsConverted()
+    {
+        var result = _converter.Convert("value(\"5\")");
+        Assert.Contains("System.Convert.ToInt32(\"5\")", result);
+    }
+
+    [Fact]
+    public void GetPosIsConverted()
+    {
+        var result = _converter.Convert("getPos myList, 3");
+        Assert.Contains("myList.GetPos(3)", result);
+    }
+
+    [Fact]
+    public void FindPosIsConverted()
+    {
+        var result = _converter.Convert("findPos plist, #foo");
+        Assert.Contains("plist.FindPos(Symbol(\"foo\"))", result);
+    }
+
+    [Fact]
+    public void GetPropAtIsConverted()
+    {
+        var result = _converter.Convert("getPropAt plist, 2");
+        Assert.Contains("plist.GetPropAt(2)", result);
+    }
+
+    [Fact]
+    public void GetaPropIsConverted()
+    {
+        var result = _converter.Convert("getaProp plist, #foo");
+        Assert.Contains("plist.GetaProp(Symbol(\"foo\"))", result);
+    }
+
+    [Fact]
+    public void SetaPropIsConverted()
+    {
+        var result = _converter.Convert("setaProp plist, #foo, 1");
+        Assert.Contains("plist.SetaProp(Symbol(\"foo\"), 1);", result);
+    }
+
+    [Fact]
+    public void MaxIsConverted()
+    {
+        var result = _converter.Convert("max myList");
+        Assert.Contains("myList.Max()", result);
     }
 
     [Fact]
