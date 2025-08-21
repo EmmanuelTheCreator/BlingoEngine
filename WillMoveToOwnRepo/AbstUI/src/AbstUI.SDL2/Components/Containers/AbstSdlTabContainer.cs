@@ -198,8 +198,8 @@ namespace AbstUI.SDL2.Components.Containers
                     var ctx = comp.ComponentContext;
                     var oldOffX = ctx.OffsetX;
                     var oldOffY = ctx.OffsetY;
-                    ctx.OffsetX += -X + BorderThickness;
-                    ctx.OffsetY += -Y - _tabHeight + BorderThickness;
+                    ctx.OffsetX += -ComponentContext.X + BorderThickness;
+                    ctx.OffsetY += -ComponentContext.Y - _tabHeight + BorderThickness;
                     ctx.RenderToTexture(context);
                     ctx.OffsetX = oldOffX;
                     ctx.OffsetY = oldOffY;
@@ -215,45 +215,52 @@ namespace AbstUI.SDL2.Components.Containers
         public void HandleEvent(AbstSDLEvent e)
         {
             ref var ev = ref e.Event;
-            if (ev.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN && ev.button.button == SDL.SDL_BUTTON_LEFT)
+            int localX;
+            int localY;
+            switch (ev.type)
             {
-                for (int i = 0; i < _tabRects.Count; i++)
-                {
-                    var r = _tabRects[i];
-                    if (ev.button.x >= r.x && ev.button.x <= r.x + r.w &&
-                        ev.button.y >= r.y && ev.button.y <= r.y + r.h)
+                case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN when ev.button.button == SDL.SDL_BUTTON_LEFT:
+                    localX = ev.button.x - ComponentContext.X;
+                    localY = ev.button.y - ComponentContext.Y;
+                    for (int i = 0; i < _tabRects.Count; i++)
                     {
-                        if (_selectedIndex != i)
+                        var r = _tabRects[i];
+                        if (localX >= r.x && localX <= r.x + r.w &&
+                            localY >= r.y && localY <= r.y + r.h)
                         {
-                            _selectedIndex = i;
-                            _texture = nint.Zero;
-                            ComponentContext.QueueRedraw(this);
+                            if (_selectedIndex != i)
+                            {
+                                _selectedIndex = i;
+                                _texture = nint.Zero;
+                                ComponentContext.QueueRedraw(this);
+                            }
+                            Factory.FocusManager.SetFocus(this);
+                            e.StopPropagation = true;
+                            break;
                         }
-                        Factory.FocusManager.SetFocus(this);
-                        e.StopPropagation = true;
-                        break;
                     }
-                }
-            }
-            else if (ev.type == SDL.SDL_EventType.SDL_MOUSEMOTION)
-            {
-                int newHover = -1;
-                for (int i = 0; i < _tabRects.Count; i++)
-                {
-                    var r = _tabRects[i];
-                    if (ev.motion.x >= r.x && ev.motion.x <= r.x + r.w &&
-                        ev.motion.y >= r.y && ev.motion.y <= r.y + r.h)
+                    break;
+                case SDL.SDL_EventType.SDL_MOUSEMOTION:
+                    localX = ev.motion.x - ComponentContext.X;
+                    localY = ev.motion.y - ComponentContext.Y;
+                    int newHover = -1;
+                    for (int i = 0; i < _tabRects.Count; i++)
                     {
-                        newHover = i;
-                        break;
+                        var r = _tabRects[i];
+                        if (localX >= r.x && localX <= r.x + r.w &&
+                            localY >= r.y && localY <= r.y + r.h)
+                        {
+                            newHover = i;
+                            break;
+                        }
                     }
-                }
-                if (newHover != _hoverIndex)
-                {
-                    _hoverIndex = newHover;
-                    _texture = nint.Zero;
-                    ComponentContext.QueueRedraw(this);
-                }
+                    if (newHover != _hoverIndex)
+                    {
+                        _hoverIndex = newHover;
+                        _texture = nint.Zero;
+                        ComponentContext.QueueRedraw(this);
+                    }
+                    break;
             }
     
             // Forward mouse events to children accounting for current scroll offset
@@ -264,7 +271,7 @@ namespace AbstUI.SDL2.Components.Containers
                     comp is not IHandleSdlEvent handler ||
                     !comp.Visibility)
                     continue;
-                ContainerHelpers.HandleChildEvents(comp, e, 0, _tabHeight);
+                ContainerHelpers.HandleChildEvents(comp, e, -(int)ComponentContext.X, -(int)(ComponentContext.Y + _tabHeight));
             }
         }
         
