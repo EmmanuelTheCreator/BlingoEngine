@@ -6,7 +6,7 @@ namespace AbstUI.Components.Inputs
     /// <summary>
     /// Engine level wrapper for a combobox input.
     /// </summary>
-    public class AbstInputCombobox : AbstInputBase<IAbstFrameworkInputCombobox>, IAbstSdlHasSeletectableCollectionStyle, IHasTextBackgroundBorderColor
+    public class AbstInputCombobox : AbstInputBase<IAbstFrameworkInputCombobox>, IAbstSdlHasSelectableCollectionStyle, IHasTextBackgroundBorderColor
     {
         public IReadOnlyList<KeyValuePair<string, string>> Items => _framework.Items;
         public void AddItem(string key, string value) => _framework.AddItem(key, value);

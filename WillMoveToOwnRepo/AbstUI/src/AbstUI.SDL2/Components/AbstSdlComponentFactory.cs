@@ -38,7 +38,7 @@ namespace AbstUI.SDL2.Components
             : base(serviceProvider)
         {
             _rootContext = rootContext;
-            _windowManager = (IAbstSdlWindowManager)serviceProvider.GetRequiredService< IAbstFrameworkWindowManager>();
+            _windowManager = (IAbstSdlWindowManager)serviceProvider.GetRequiredService<IAbstFrameworkWindowManager>();
             FontManagerTyped = (SdlFontManager)FontManager;
             AbstDefaultStyles.RegisterInputStyles(StyleManager);
         }
@@ -234,7 +234,7 @@ namespace AbstUI.SDL2.Components
         public AbstItemList CreateItemList(string name, Action<string?>? onChange = null)
         {
             var list = new AbstItemList();
-            var impl = new AbstSdInputltemList(this);
+            var impl = new AbstSdlInputItemList(this);
             list.Init(impl);
             InitComponent(list);
             list.Name = name;
@@ -285,7 +285,7 @@ namespace AbstUI.SDL2.Components
             InitComponent(button);
             if (onChange != null)
                 button.ValueChanged += () => onChange(button.IsOn);
-            
+
             button.Name = name;
             button.Text = text;
             if (texture != null)

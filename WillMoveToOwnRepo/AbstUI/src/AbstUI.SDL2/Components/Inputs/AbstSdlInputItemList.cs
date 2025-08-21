@@ -9,7 +9,7 @@ using AbstUI.SDL2.Core;
 
 namespace AbstUI.SDL2.Components.Inputs
 {
-    internal class AbstSdInputltemList : AbstSdlSeletectableCollection, IAbstFrameworkItemList, ISdlFocusable, IDisposable
+    internal class AbstSdlInputItemList : AbstSdlSelectableCollection, IAbstFrameworkItemList, ISdlFocusable, IDisposable
     {
         private bool _focused;
         public bool HasFocus => _focused;
@@ -20,7 +20,7 @@ namespace AbstUI.SDL2.Components.Inputs
         private int _hoverIndex = -1;
         private int _pressedIndex = -1;
 
-        public AbstSdInputltemList(AbstSdlComponentFactory factory) : base(factory)
+        public AbstSdlInputItemList(AbstSdlComponentFactory factory) : base(factory)
         {
         }
 

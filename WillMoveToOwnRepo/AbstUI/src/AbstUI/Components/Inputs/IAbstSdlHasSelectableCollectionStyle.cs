@@ -2,7 +2,7 @@ using AbstUI.Primitives;
 
 namespace AbstUI.Components.Inputs;
 
-public interface IAbstSdlHasSeletectableCollectionStyle
+public interface IAbstSdlHasSelectableCollectionStyle
 {
     string? ItemFont { get; set; }
     int ItemFontSize { get; set; }

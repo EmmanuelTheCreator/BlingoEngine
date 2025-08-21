@@ -3,6 +3,7 @@ using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.Components.Inputs;
 using AbstUI.Styles;
+using AbstUI.LGodot.Primitives;
 
 namespace AbstUI.LGodot.Components
 {
@@ -55,6 +56,7 @@ namespace AbstUI.LGodot.Components
             SizeFlagsHorizontal = SizeFlags.ExpandFill;
             SizeFlagsVertical = SizeFlags.ExpandFill;
             CustomMinimumSize = new Vector2(100, 50);
+            UpdateItemStyle();
         }
 
 
@@ -119,18 +121,64 @@ namespace AbstUI.LGodot.Components
             }
         }
 
-        public string? ItemFont { get; set; }
-        public int ItemFontSize { get; set; } = 11;
-        public AColor ItemTextColor { get; set; } = AbstDefaultColors.InputTextColor;
-        public AColor ItemSelectedTextColor { get; set; } = AbstDefaultColors.InputSelectionText;
-        public AColor ItemSelectedBackgroundColor { get; set; } = AbstDefaultColors.InputAccentColor;
-        public AColor ItemSelectedBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
-        public AColor ItemHoverTextColor { get; set; } = AbstDefaultColors.InputTextColor;
-        public AColor ItemHoverBackgroundColor { get; set; } = AbstDefaultColors.ListHoverColor;
-        public AColor ItemHoverBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
-        public AColor ItemPressedTextColor { get; set; } = AbstDefaultColors.InputSelectionText;
-        public AColor ItemPressedBackgroundColor { get; set; } = AbstDefaultColors.InputAccentColor;
-        public AColor ItemPressedBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
+        private string? _itemFont;
+        private int _itemFontSize = 11;
+        private AColor _itemTextColor = AbstDefaultColors.InputTextColor;
+        private AColor _itemSelectedTextColor = AbstDefaultColors.InputSelectionText;
+        private AColor _itemSelectedBackgroundColor = AbstDefaultColors.InputAccentColor;
+        private AColor _itemSelectedBorderColor = AbstDefaultColors.InputBorderColor;
+        private AColor _itemHoverTextColor = AbstDefaultColors.InputTextColor;
+        private AColor _itemHoverBackgroundColor = AbstDefaultColors.ListHoverColor;
+        private AColor _itemHoverBorderColor = AbstDefaultColors.InputBorderColor;
+        private AColor _itemPressedTextColor = AbstDefaultColors.InputSelectionText;
+        private AColor _itemPressedBackgroundColor = AbstDefaultColors.InputAccentColor;
+        private AColor _itemPressedBorderColor = AbstDefaultColors.InputBorderColor;
+
+        public string? ItemFont { get => _itemFont; set { _itemFont = value; UpdateItemStyle(); } }
+        public int ItemFontSize { get => _itemFontSize; set { _itemFontSize = value; UpdateItemStyle(); } }
+        public AColor ItemTextColor { get => _itemTextColor; set { _itemTextColor = value; UpdateItemStyle(); } }
+        public AColor ItemSelectedTextColor { get => _itemSelectedTextColor; set { _itemSelectedTextColor = value; UpdateItemStyle(); } }
+        public AColor ItemSelectedBackgroundColor { get => _itemSelectedBackgroundColor; set { _itemSelectedBackgroundColor = value; UpdateItemStyle(); } }
+        public AColor ItemSelectedBorderColor { get => _itemSelectedBorderColor; set { _itemSelectedBorderColor = value; UpdateItemStyle(); } }
+        public AColor ItemHoverTextColor { get => _itemHoverTextColor; set { _itemHoverTextColor = value; UpdateItemStyle(); } }
+        public AColor ItemHoverBackgroundColor { get => _itemHoverBackgroundColor; set { _itemHoverBackgroundColor = value; UpdateItemStyle(); } }
+        public AColor ItemHoverBorderColor { get => _itemHoverBorderColor; set { _itemHoverBorderColor = value; UpdateItemStyle(); } }
+        public AColor ItemPressedTextColor { get => _itemPressedTextColor; set { _itemPressedTextColor = value; UpdateItemStyle(); } }
+        public AColor ItemPressedBackgroundColor { get => _itemPressedBackgroundColor; set { _itemPressedBackgroundColor = value; UpdateItemStyle(); } }
+        public AColor ItemPressedBorderColor { get => _itemPressedBorderColor; set { _itemPressedBorderColor = value; UpdateItemStyle(); } }
+
+        private void UpdateItemStyle()
+        {
+            AddThemeFontSizeOverride("font_size", _itemFontSize);
+            AddThemeColorOverride("font_color", _itemTextColor.ToGodotColor());
+            AddThemeColorOverride("font_color_hover", _itemHoverTextColor.ToGodotColor());
+            AddThemeColorOverride("font_color_selected", _itemSelectedTextColor.ToGodotColor());
+            AddThemeColorOverride("font_color_pressed", _itemPressedTextColor.ToGodotColor());
+
+            var selected = new StyleBoxFlat
+            {
+                BgColor = _itemSelectedBackgroundColor.ToGodotColor(),
+                BorderColor = _itemSelectedBorderColor.ToGodotColor()
+            };
+            selected.SetBorderWidthAll(1);
+            AddThemeStyleboxOverride("selected", selected);
+
+            var hover = new StyleBoxFlat
+            {
+                BgColor = _itemHoverBackgroundColor.ToGodotColor(),
+                BorderColor = _itemHoverBorderColor.ToGodotColor()
+            };
+            hover.SetBorderWidthAll(1);
+            AddThemeStyleboxOverride("hover", hover);
+
+            var pressed = new StyleBoxFlat
+            {
+                BgColor = _itemPressedBackgroundColor.ToGodotColor(),
+                BorderColor = _itemPressedBorderColor.ToGodotColor()
+            };
+            pressed.SetBorderWidthAll(1);
+            AddThemeStyleboxOverride("pressed", pressed);
+        }
 
         event Action? IAbstFrameworkNodeInput.ValueChanged
         {

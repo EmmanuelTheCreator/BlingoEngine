@@ -13,7 +13,7 @@ using AbstUI.SDL2.Core;
 
 namespace AbstUI.SDL2.Components.Inputs
 {
-    internal class AbstSdlInputCombobox : AbstSdlSeletectableCollection, IAbstFrameworkInputCombobox, IHandleSdlEvent, ISdlFocusable, IDisposable, IHasTextBackgroundBorderColor
+    internal class AbstSdlInputCombobox : AbstSdlSelectableCollection, IAbstFrameworkInputCombobox, IHandleSdlEvent, ISdlFocusable, IDisposable, IHasTextBackgroundBorderColor
     {
         public AbstSdlInputCombobox(AbstSdlComponentFactory factory) : base(factory)
         {
@@ -26,7 +26,7 @@ namespace AbstUI.SDL2.Components.Inputs
         public AColor BorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
         public new AColor BackgroundColor { get; set; } = AbstDefaultColors.Input_Bg;
 
-        private AbstSdInputltemList? _popup;
+        private AbstSdlInputItemList? _popup;
         private bool _open;
         private ISdlFontLoadedByUser? _font;
         private SdlGlyphAtlas? _atlas;
@@ -106,7 +106,7 @@ namespace AbstUI.SDL2.Components.Inputs
         {
             if (_popup == null)
             {
-                _popup = new AbstSdInputltemList(Factory);
+                _popup = new AbstSdlInputItemList(Factory);
                 foreach (var it in Items)
                     _popup.AddItem(it.Key, it.Value);
                 _popup.ValueChanged += PopupOnValueChanged;
