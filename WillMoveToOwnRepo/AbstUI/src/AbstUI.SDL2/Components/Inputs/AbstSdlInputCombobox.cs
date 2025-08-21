@@ -123,8 +123,8 @@ namespace AbstUI.SDL2.Components.Inputs
             _popup.ItemPressedBackgroundColor = ItemPressedBackgroundColor;
             _popup.ItemPressedBorderColor = ItemPressedBorderColor;
 
-            _popup.X = X;
-            _popup.Y = Y + Height;
+            _popup.X = ComponentContext.X;
+            _popup.Y = ComponentContext.Y + Height;
             _popup.Width = Width;
             int desired = Items.Count * _lineHeight + 2;
             _popup.Height = desired > 200 ? 200 : desired;
@@ -153,7 +153,7 @@ namespace AbstUI.SDL2.Components.Inputs
             ComponentContext.QueueRedraw(this);
         }
 
-        private bool HitTest(int x, int y) => x >= X && x <= X + Width && y >= Y && y <= Y + Height;
+        private bool HitTest(int x, int y) => x >= ComponentContext.X && x <= ComponentContext.X + Width && y >= ComponentContext.Y && y <= ComponentContext.Y + Height;
 
       
         public void SetFocus(bool focus)

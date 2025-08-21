@@ -109,11 +109,11 @@ namespace AbstUI.SDL2.Components.Inputs
             ref var ev = ref e.Event;
             if (ev.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN && ev.button.button == SDL.SDL_BUTTON_LEFT)
             {
-                if (ev.button.x >= X && ev.button.x <= X + Width &&
-                    ev.button.y >= Y && ev.button.y <= Y + Height)
+                if (ev.button.x >= ComponentContext.X && ev.button.x <= ComponentContext.X + Width &&
+                    ev.button.y >= ComponentContext.Y && ev.button.y <= ComponentContext.Y + Height)
                 {
                     Factory.FocusManager.SetFocus(this);
-                    int idx = (int)((ev.button.y - Y + ScrollVertical) / _lineHeight);
+                    int idx = (int)((ev.button.y - ComponentContext.Y + ScrollVertical) / _lineHeight);
                     if (idx >= 0 && idx < Items.Count)
                     {
                         _pressedIndex = idx;
@@ -134,10 +134,10 @@ namespace AbstUI.SDL2.Components.Inputs
             else if (ev.type == SDL.SDL_EventType.SDL_MOUSEMOTION)
             {
                 int newHover = -1;
-                if (ev.motion.x >= X && ev.motion.x <= X + Width &&
-                    ev.motion.y >= Y && ev.motion.y <= Y + Height)
+                if (ev.motion.x >= ComponentContext.X && ev.motion.x <= ComponentContext.X + Width &&
+                    ev.motion.y >= ComponentContext.Y && ev.motion.y <= ComponentContext.Y + Height)
                 {
-                    newHover = (int)((ev.motion.y - Y + ScrollVertical) / _lineHeight);
+                    newHover = (int)((ev.motion.y - ComponentContext.Y + ScrollVertical) / _lineHeight);
                     if (newHover < 0 || newHover >= Items.Count) newHover = -1;
                 }
                 if (newHover != _hoverIndex)
