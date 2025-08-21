@@ -6,7 +6,7 @@ namespace LingoEngine.Movies;
 public class LingoDebugOverlay : ILingoClockListener
 {
     private readonly ILingoFrameworkDebugOverlay _framework;
-    private bool _enabled;
+    private bool _enabled = false;
     private float _accum;
     private int _frames;
     private float _fps;

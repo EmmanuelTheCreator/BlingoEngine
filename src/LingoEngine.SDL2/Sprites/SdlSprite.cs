@@ -351,7 +351,7 @@ public class SdlSprite : ILingoFrameworkSprite, IAbstSDLComponent, IDisposable
     private void ApplyBlend()
     {
         //ComponentContext.Blend = _directToStage ? 1f : _blend;
-        ComponentContext.Blend = _directToStage ? 1f : _blend / 100;
+        ComponentContext.Blend = _directToStage ? 100 : _blend ;
     }
 
     private void UpdateContextPosition()

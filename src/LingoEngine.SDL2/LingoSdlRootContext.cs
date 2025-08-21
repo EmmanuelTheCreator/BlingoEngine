@@ -57,6 +57,7 @@ public class LingoSdlRootContext : AbstUISdlRootContext<LingoMouse>
     protected override void Update(float delta)
     {
         DebugOverlay.Update(delta);
+        DebugOverlay.Render();
         bool f1 = _lPlayer.Key.KeyPressed((int)SDL.SDL_Keycode.SDLK_F1);
         if (f1 && !_f1Pressed)
             DebugOverlay.Toggle();

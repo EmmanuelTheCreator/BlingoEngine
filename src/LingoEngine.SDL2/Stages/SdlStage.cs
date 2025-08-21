@@ -18,15 +18,17 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
     {
         _rootContext = rootContext;
         _clock = clock;
+        
     }
 
     internal LingoSdlRootContext RootContext => _rootContext;
 
-    public LingoStage LingoStage => throw new NotImplementedException();
+    public LingoStage LingoStage => _stage;
 
     internal void Init(LingoStage stage)
     {
         _stage = stage;
+        
     }
 
     internal void ShowMovie(SdlMovie movie)
