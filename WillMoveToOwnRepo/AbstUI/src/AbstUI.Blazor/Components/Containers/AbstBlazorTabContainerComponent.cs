@@ -5,15 +5,32 @@ namespace AbstUI.Blazor.Components.Containers;
 
 public class AbstBlazorTabContainerComponent : AbstBlazorComponentModelBase, IAbstFrameworkTabContainer, IAbstBlazorRegistryAware
 {
-    private AbstBlazorComponentContainer _registry = default!;
-    private AbstBlazorComponentContainer _children = default!;
+    private AbstBlazorComponentContainer _registry;
+    private readonly AbstBlazorComponentContainer _children;
     private readonly List<AbstBlazorTabItemComponent> _tabs = new();
     private int _selectedIndex = -1;
 
-    public void AttachRegistry(AbstBlazorComponentContainer registry)
+    public AbstBlazorTabContainerComponent(AbstBlazorComponentContainer registry, AbstBlazorComponentMapper mapper)
     {
         _registry = registry;
-        _children = new AbstBlazorComponentContainer(registry.Mapper);
+        _children = new AbstBlazorComponentContainer(mapper);
+    }
+
+    public void AttachRegistry(AbstBlazorComponentContainer registry)
+    {
+        if (!ReferenceEquals(_registry, registry))
+        {
+            _registry = registry;
+            foreach (var tab in _tabs)
+            {
+                if (tab.ContentFrameworkNode is { } node)
+                {
+                    if (node is IAbstBlazorRegistryAware aware)
+                        aware.AttachRegistry(_registry);
+                    _registry.Register(node);
+                }
+            }
+        }
     }
 
     public AbstBlazorComponentContainer ChildContainer => _children;

@@ -23,11 +23,13 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
 
     private readonly IAbstFontManager _fontManager;
     private readonly AbstBlazorComponentMapper _mapper;
+    private readonly AbstBlazorComponentContainer _registry;
 
-    public AbstBlazorComponentFactory(IServiceProvider serviceProvider, AbstBlazorComponentMapper mapper) : base(serviceProvider)
+    public AbstBlazorComponentFactory(IServiceProvider serviceProvider, AbstBlazorComponentMapper mapper, AbstBlazorComponentContainer registry) : base(serviceProvider)
     {
         _fontManager = FontManager;
         _mapper = mapper;
+        _registry = registry;
         _mapper.Map<AbstBlazorWrapPanelComponent, AbstBlazorWrapPanel>();
         _mapper.Map<AbstBlazorPanelComponent, AbstBlazorPanel>();
         _mapper.Map<AbstBlazorTabContainerComponent, AbstBlazorTabContainer>();
@@ -56,7 +58,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstWrapPanel CreateWrapPanel(AOrientation orientation, string name)
     {
         var panel = new AbstWrapPanel(this);
-        var impl = new AbstBlazorWrapPanelComponent();
+        var impl = new AbstBlazorWrapPanelComponent(_registry, _mapper);
         panel.Init(impl);
         InitComponent(panel);
         panel.Name = name;
@@ -67,7 +69,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstPanel CreatePanel(string name)
     {
         var panel = new AbstPanel(this);
-        var impl = new AbstBlazorPanelComponent();
+        var impl = new AbstBlazorPanelComponent(_registry, _mapper);
         panel.Init(impl);
         InitComponent(panel);
         panel.Name = name;
@@ -90,7 +92,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstTabContainer CreateTabContainer(string name)
     {
         var tab = new AbstTabContainer();
-        var impl = new AbstBlazorTabContainerComponent();
+        var impl = new AbstBlazorTabContainerComponent(_registry, _mapper);
         tab.Init(impl);
         InitComponent(tab);
         tab.Name = name;
@@ -111,7 +113,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstScrollContainer CreateScrollContainer(string name)
     {
         var scroll = new AbstScrollContainer();
-        var impl = new AbstBlazorScrollContainerComponent();
+        var impl = new AbstBlazorScrollContainerComponent(_registry, _mapper);
         scroll.Init(impl);
         InitComponent(scroll);
         scroll.Name = name;

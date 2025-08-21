@@ -8,14 +8,28 @@ namespace AbstUI.Blazor.Components.Containers;
 
 public class AbstBlazorPanelComponent : AbstBlazorComponentModelBase, IAbstFrameworkPanel, IAbstBlazorRegistryAware
 {
-    private AbstBlazorComponentContainer _registry = default!;
-    private AbstBlazorComponentContainer _children = default!;
+    private AbstBlazorComponentContainer _registry;
+    private readonly AbstBlazorComponentContainer _children;
     private readonly List<IAbstFrameworkLayoutNode> _items = new();
+
+    public AbstBlazorPanelComponent(AbstBlazorComponentContainer registry, AbstBlazorComponentMapper mapper)
+    {
+        _registry = registry;
+        _children = new AbstBlazorComponentContainer(mapper);
+    }
 
     public void AttachRegistry(AbstBlazorComponentContainer registry)
     {
-        _registry = registry;
-        _children = new AbstBlazorComponentContainer(registry.Mapper);
+        if (!ReferenceEquals(_registry, registry))
+        {
+            _registry = registry;
+            foreach (var item in _items)
+            {
+                if (item is IAbstBlazorRegistryAware aware)
+                    aware.AttachRegistry(_registry);
+                _registry.Register(item);
+            }
+        }
     }
 
     public AbstBlazorComponentContainer ChildContainer => _children;
