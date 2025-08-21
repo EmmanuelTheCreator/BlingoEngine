@@ -10,7 +10,7 @@ namespace AbstUI.Inputs
     {
         public IAbstKey AbstUIKey { get; }
         public AbstKeyEventType Type { get; }
-        public bool ContinuePropation { get; set; } = true;
+        public bool ContinuePropagation { get; set; } = true;
 
         public bool CommandDown => AbstUIKey.CommandDown;
         public bool ControlDown => AbstUIKey.ControlDown;

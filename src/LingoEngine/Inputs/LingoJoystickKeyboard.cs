@@ -136,7 +136,7 @@ namespace LingoEngine.Inputs
         }
         public void Dispose()
         {
-            
+
             _mouseDownSub.Release();
             _mouseMoveSub.Release();
             _key.Unsubscribe(this);
@@ -152,7 +152,7 @@ namespace LingoEngine.Inputs
             var height = _layout.Length * (CellSize + CellSpacing);
             _canvas.Width = width;
             _canvas.Height = height;
-           
+
             if (_window.Dialog != null)
             {
                 _window.Dialog.BackgroundColor = BackgroundColor;
@@ -365,7 +365,7 @@ namespace LingoEngine.Inputs
             }
         }
 
-       
+
 
 
         private void OnMouseMove(AbstMouseEvent e)
@@ -389,7 +389,7 @@ namespace LingoEngine.Inputs
             if (!_enableMouse) return;
             OnMouseMove(e);
             ExecuteSelectedKey();
-            e.ContinuePropation = false;
+            e.ContinuePropagation = false;
         }
 
         /// <summary>Opens the keyboard popup window at the given position or centered if none.</summary>

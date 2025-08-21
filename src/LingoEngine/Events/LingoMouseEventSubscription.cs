@@ -3,22 +3,22 @@ using LingoEngine.Inputs;
 
 namespace LingoEngine.Events
 {
-   
+
     public class LingoMouseEvent : AbstMouseEvent
     {
         public new LingoMouse Mouse { get; }
 
         public LingoMouseEvent(LingoMouse lingoMouse, AbstMouseEventType type)
-            :base(lingoMouse, type)
+            : base(lingoMouse, type)
         {
             Mouse = lingoMouse;
         }
         public LingoMouseEvent(AbstMouseEvent mouseEvent, LingoMouse mouse)
-            :base(mouse, mouseEvent.Type)
+            : base(mouse, mouseEvent.Type)
         {
             Mouse = mouse;
-            Type = mouseEvent.Type ;
-            ContinuePropation = mouseEvent.ContinuePropation ;
+            Type = mouseEvent.Type;
+            ContinuePropagation = mouseEvent.ContinuePropagation;
         }
     }
 
