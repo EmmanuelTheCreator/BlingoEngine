@@ -79,6 +79,8 @@ namespace LingoEngine.Director.Core.Scores
             Height = 360;
             MinimumHeight = 200;
             MinimumWidth = 300;
+            X = 20;
+            Y = 560;
 
             // Fix top panel
             _panelFix = factory.CreatePanel("ScoreWindowPanelFix");
@@ -240,7 +242,7 @@ namespace LingoEngine.Director.Core.Scores
                     spriteNumWithChannel = Math.Clamp(MathL.RoundToInt((yPosition + 4 + ScollY) / gfxValues.ChannelHeight), 1, 999) + 6;
                 }
             }
-           // Console.WriteLine($"Mouse Event: Frame {mouseFrame}, Channel {spriteNumWithChannel}, isInsideLeft={isInsideLeft}");
+            // Console.WriteLine($"Mouse Event: Frame {mouseFrame}, Channel {spriteNumWithChannel}, isInsideLeft={isInsideLeft}");
             if (spriteNumWithChannel <= 0)
                 return;
             if (isInsideLeft)
@@ -289,7 +291,7 @@ namespace LingoEngine.Director.Core.Scores
 
         protected override void OnResizing(bool firstLoad, int width, int height)
         {
-            base.OnResizing(firstLoad,width, height);
+            base.OnResizing(firstLoad, width, height);
             _labelsBar.OnResize(width, height);
         }
 

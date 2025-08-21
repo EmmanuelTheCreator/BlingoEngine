@@ -10,8 +10,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace LingoEngine.Director.Core.Stages
 {
     public class DirectorStageWindow : DirectorWindow<IDirFrameworkStageWindow>,
-        IAbstCommandHandler<StageToolSelectCommand>, 
-        IAbstCommandHandler<MoveSpritesCommand>, 
+        IAbstCommandHandler<StageToolSelectCommand>,
+        IAbstCommandHandler<MoveSpritesCommand>,
         IAbstCommandHandler<RotateSpritesCommand>
     {
         private readonly IHistoryManager _historyManager;
@@ -24,6 +24,12 @@ namespace LingoEngine.Director.Core.Stages
         {
             _historyManager = historyManager;
             IconBar = new StageIconBar(factory, commandManager, player, mediator, stageManager);
+            MinimumWidth = 200;
+            MinimumHeight = 150;
+            Width = 650;
+            Height = 520;
+            X = 70;
+            Y = 22;
         }
 
         private void UpdateSelectionBox() => Framework.UpdateSelectionBox();

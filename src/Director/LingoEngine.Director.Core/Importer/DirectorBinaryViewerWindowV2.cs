@@ -16,7 +16,7 @@ namespace LingoEngine.Director.Core.Importer;
 /// Experimental binary viewer window that parses test data and exposes stream annotations.
 /// </summary>
 public class DirectorBinaryViewerWindowV2 : DirectorWindow<IDirFrameworkBinaryViewerWindowV2>
-{ 
+{
     private readonly ILogger<DirectorBinaryViewerWindowV2> _logger;
 
     /// <summary>Annotations gathered from the parsed score chunk.</summary>
@@ -29,7 +29,11 @@ public class DirectorBinaryViewerWindowV2 : DirectorWindow<IDirFrameworkBinaryVi
     {
         _logger = logger;
         Width = 1400;
-        Height =  600;
+        Height = 600;
+        MinimumWidth = 200;
+        MinimumHeight = 150;
+        X = 20;
+        Y = 280;
         //LoadTestData();
     }
 
@@ -38,7 +42,7 @@ public class DirectorBinaryViewerWindowV2 : DirectorWindow<IDirFrameworkBinaryVi
         try
         {
             string path = Path.Combine(
-                "..", "..", "Libraries", "LingoEngine", "WillMoveToOwnRepo", "ProjectorRays","Test", "TestData", 
+                "..", "..", "Libraries", "LingoEngine", "WillMoveToOwnRepo", "ProjectorRays", "Test", "TestData",
                 "KeyFramesTest.dir"
                 );
             Data = File.ReadAllBytes(path);

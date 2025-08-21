@@ -109,6 +109,10 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
     {
         Width = 500;
         Height = 200;
+        MinimumWidth = 200;
+        MinimumHeight = 150;
+        X = 100;
+        Y = 100;
         _state = state;
         _resolver = resolver;
         _folderPicker = folderPicker;
