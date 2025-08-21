@@ -28,15 +28,17 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     {
         _fontManager = FontManager;
         _mapper = mapper;
-        _mapper.Map<AbstBlazorWrapPanelComponent>(typeof(AbstBlazorWrapPanel));
-        _mapper.Map<AbstBlazorPanelComponent>(typeof(AbstBlazorPanel));
-        _mapper.Map<AbstBlazorTabContainerComponent>(typeof(AbstBlazorTabContainer));
-        _mapper.Map<AbstBlazorScrollContainerComponent>(typeof(AbstBlazorScrollContainer));
-        _mapper.Map<AbstBlazorInputCheckboxComponent>(typeof(AbstBlazorInputCheckbox));
-        _mapper.Map<AbstBlazorButtonComponent>(typeof(AbstBlazorButton));
-        _mapper.Map<AbstBlazorLabelComponent>(typeof(AbstBlazorLabel));
-        _mapper.Map<AbstBlazorInputTextComponent>(typeof(AbstBlazorInputText));
-        _mapper.Map<AbstBlazorLayoutWrapper>(typeof(AbstBlazorLayoutWrapper));
+        _mapper.Map<AbstBlazorWrapPanelComponent, AbstBlazorWrapPanel>();
+        _mapper.Map<AbstBlazorPanelComponent, AbstBlazorPanel>();
+        _mapper.Map<AbstBlazorTabContainerComponent, AbstBlazorTabContainer>();
+        _mapper.Map<AbstBlazorScrollContainerComponent, AbstBlazorScrollContainer>();
+        _mapper.Map<AbstBlazorInputCheckboxComponent, AbstBlazorInputCheckbox>();
+        _mapper.Map<AbstBlazorButtonComponent, AbstBlazorButton>();
+        _mapper.Map<AbstBlazorLabelComponent, AbstBlazorLabel>();
+        _mapper.Map<AbstBlazorInputTextComponent, AbstBlazorInputText>();
+        _mapper.Map<AbstBlazorLayoutWrapper, AbstBlazorLayoutWrapper>();
+        _mapper.Map<AbstBlazorHorizontalLineSeparatorComponent, AbstBlazorHorizontalLineSeparator>();
+        _mapper.Map<AbstBlazorVerticalLineSeparatorComponent, AbstBlazorVerticalLineSeparator>();
     }
 
     public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
@@ -280,6 +282,8 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstHorizontalLineSeparator CreateHorizontalLineSeparator(string name)
     {
         var sep = new AbstHorizontalLineSeparator();
+        var impl = new AbstBlazorHorizontalLineSeparatorComponent();
+        sep.Init(impl);
         InitComponent(sep);
         sep.Name = name;
         return sep;
@@ -288,6 +292,8 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstVerticalLineSeparator CreateVerticalLineSeparator(string name)
     {
         var sep = new AbstVerticalLineSeparator();
+        var impl = new AbstBlazorVerticalLineSeparatorComponent();
+        sep.Init(impl);
         InitComponent(sep);
         sep.Name = name;
         return sep;
