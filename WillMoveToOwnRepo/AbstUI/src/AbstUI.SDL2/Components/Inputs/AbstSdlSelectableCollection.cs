@@ -12,7 +12,7 @@ namespace AbstUI.SDL2.Components.Inputs
 {
     internal abstract class AbstSdlSelectableCollection : AbstSdlScrollViewer, IAbstSdlHasSelectableCollectionStyle
     {
-        protected AbstSdlSelectableCollection(AbstSdlComponentFactory factory) : base(factory)
+        protected AbstSdlSelectableCollection(AbstSdlComponentFactory factory, AbstSDLComponentContext? parent = null) : base(factory, parent)
         {
         }
 

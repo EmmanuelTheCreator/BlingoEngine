@@ -9,10 +9,10 @@ namespace AbstUI.SDL2.Components.Base;
 /// </summary>
 public abstract class AbstSdlComponent : IAbstSDLComponent, IDisposable
 {
-    protected AbstSdlComponent(AbstSdlComponentFactory factory)
+    protected AbstSdlComponent(AbstSdlComponentFactory factory, AbstSDLComponentContext? parent = null)
     {
         Factory = factory;
-        ComponentContext = factory.CreateContext(this);
+        ComponentContext = factory.CreateContext(this, parent);
         ComponentContext.Visible = _visibility;
     }
 

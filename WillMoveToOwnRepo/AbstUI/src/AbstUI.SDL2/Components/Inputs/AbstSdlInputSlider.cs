@@ -12,7 +12,7 @@ namespace AbstUI.SDL2.Components.Inputs
 {
     internal class AbstSdlInputSlider<TValue> : AbstSdlComponent, IAbstFrameworkInputSlider<TValue>, IHandleSdlEvent, ISdlFocusable, IDisposable where TValue : struct
     {
-        
+
         public AMargin Margin { get; set; } = AMargin.Zero;
         public bool Enabled { get; set; } = true;
         private TValue _value = default!;
@@ -24,6 +24,7 @@ namespace AbstUI.SDL2.Components.Inputs
         private AColor _renderedTrackColor;
         private AColor _renderedKnobColor;
         private AColor _renderedKnobBorderColor;
+        private bool _dragging;
 
 
         public object FrameworkNode => this;
@@ -46,7 +47,7 @@ namespace AbstUI.SDL2.Components.Inputs
         public AColor KnobColor { get; set; } = AbstDefaultColors.InputAccentColor;
         public AColor KnobBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
         public event Action? ValueChanged;
-      
+
 
 
 
@@ -59,12 +60,36 @@ namespace AbstUI.SDL2.Components.Inputs
         {
             if (!Enabled) return;
             ref var ev = ref e.Event;
-            if (ev.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN && ev.button.button == SDL.SDL_BUTTON_LEFT &&
-                HitTest(ev.button.x, ev.button.y))
+            switch (ev.type)
             {
-                Factory.FocusManager.SetFocus(this);
-                e.StopPropagation = true;
+                case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN when ev.button.button == SDL.SDL_BUTTON_LEFT && HitTest(ev.button.x, ev.button.y):
+                    Factory.FocusManager.SetFocus(this);
+                    _dragging = true;
+                    UpdateValueFromMouse(ev.button.x);
+                    e.StopPropagation = true;
+                    break;
+                case SDL.SDL_EventType.SDL_MOUSEBUTTONUP when ev.button.button == SDL.SDL_BUTTON_LEFT:
+                    _dragging = false;
+                    break;
+                case SDL.SDL_EventType.SDL_MOUSEMOTION when _dragging:
+                    UpdateValueFromMouse(ev.motion.x);
+                    e.StopPropagation = true;
+                    break;
             }
+        }
+
+        private void UpdateValueFromMouse(int mx)
+        {
+            float min = Convert.ToSingle(MinValue);
+            float max = Convert.ToSingle(MaxValue);
+            float step = Convert.ToSingle(Step);
+            float t = (mx - X) / Width;
+            if (t < 0) t = 0; if (t > 1) t = 1;
+            float val = min + t * (max - min);
+            if (step > 0)
+                val = min + MathF.Round((val - min) / step) * step;
+            Value = (TValue)Convert.ChangeType(val, typeof(TValue));
+            ComponentContext.QueueRedraw(this);
         }
 
         private bool HitTest(int x, int y) => x >= X && x <= X + Width && y >= Y && y <= Y + Height;
