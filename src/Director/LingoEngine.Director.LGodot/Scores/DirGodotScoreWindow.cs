@@ -52,11 +52,6 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _player.ActiveMovieChanged += OnActiveMovieChanged;
         
         _gfxValues = _directorScoreWindow.GfxValues;
-
-        
-
-        Size = new Vector2(directorScoreWindow.Width, directorScoreWindow.Height);
-        CustomMinimumSize = Size;
         _directorScoreWindow.HeaderCollapseChanged += OnHeaderCollapseChanged;
 
         

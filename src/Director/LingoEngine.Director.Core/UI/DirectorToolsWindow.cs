@@ -6,8 +6,8 @@ namespace LingoEngine.Director.Core.UI
         {
             Width = 60;
             Height = 300;
-            MinimumWidth = 60;
-            MinimumHeight = 200;
+            MinimumWidth = 40;
+            MinimumHeight = 300;
             X = 2;
             Y = 22;
         }

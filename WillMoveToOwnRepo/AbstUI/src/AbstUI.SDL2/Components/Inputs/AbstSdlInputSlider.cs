@@ -12,9 +12,7 @@ namespace AbstUI.SDL2.Components.Inputs
 {
     internal class AbstSdlInputSlider<TValue> : AbstSdlComponent, IAbstFrameworkInputSlider<TValue>, IHandleSdlEvent, ISdlFocusable, IDisposable where TValue : struct
     {
-        public AbstSdlInputSlider(AbstSdlComponentFactory factory) : base(factory)
-        {
-        }
+        
         public AMargin Margin { get; set; } = AMargin.Zero;
         public bool Enabled { get; set; } = true;
         private TValue _value = default!;
@@ -26,6 +24,9 @@ namespace AbstUI.SDL2.Components.Inputs
         private AColor _renderedTrackColor;
         private AColor _renderedKnobColor;
         private AColor _renderedKnobBorderColor;
+
+
+        public object FrameworkNode => this;
         public TValue Value
         {
             get => _value;
@@ -45,8 +46,15 @@ namespace AbstUI.SDL2.Components.Inputs
         public AColor KnobColor { get; set; } = AbstDefaultColors.InputAccentColor;
         public AColor KnobBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
         public event Action? ValueChanged;
-        public object FrameworkNode => this;
+      
 
+
+
+        public AbstSdlInputSlider(AbstSdlComponentFactory factory) : base(factory)
+        {
+            Width = 150;
+            Height = 20;
+        }
         public void HandleEvent(AbstSDLEvent e)
         {
             if (!Enabled) return;

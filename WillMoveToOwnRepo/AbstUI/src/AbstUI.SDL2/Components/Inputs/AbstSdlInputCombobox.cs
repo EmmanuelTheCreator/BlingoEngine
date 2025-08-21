@@ -15,17 +15,7 @@ namespace AbstUI.SDL2.Components.Inputs
 {
     internal class AbstSdlInputCombobox : AbstSdlSelectableCollection, IAbstFrameworkInputCombobox, IHandleSdlEvent, ISdlFocusable, IDisposable, IHasTextBackgroundBorderColor
     {
-        public AbstSdlInputCombobox(AbstSdlComponentFactory factory) : base(factory)
-        {
-        }
-
-        private bool _focused;
-        public string? Font { get; set; }
-        public int FontSize { get; set; } = 11;
-        public AColor TextColor { get; set; } = AbstDefaultColors.InputTextColor;
-        public AColor BorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
-        public new AColor BackgroundColor { get; set; } = AbstDefaultColors.Input_Bg;
-
+       
         private AbstSdlInputItemList? _popup;
         private bool _open;
         private ISdlFontLoadedByUser? _font;
@@ -35,6 +25,20 @@ namespace AbstUI.SDL2.Components.Inputs
         private int _texH;
         private string _renderedText = string.Empty;
         private int _lineHeight;
+        private bool _focused;
+        public string? Font { get; set; }
+        public int FontSize { get; set; } = 11;
+        public AColor TextColor { get; set; } = AbstDefaultColors.InputTextColor;
+        public AColor BorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
+        public new AColor BackgroundColor { get; set; } = AbstDefaultColors.Input_Bg;
+        public bool HasFocus => _focused;
+
+
+        public AbstSdlInputCombobox(AbstSdlComponentFactory factory) : base(factory)
+        {
+            Width = 80;
+            Height = 20;
+        }
 
         public override void AddItem(string key, string value)
         {
@@ -157,7 +161,7 @@ namespace AbstUI.SDL2.Components.Inputs
 
         private bool HitTest(int x, int y) => x >= X && x <= X + Width && y >= Y && y <= Y + Height;
 
-        public bool HasFocus => _focused;
+      
         public void SetFocus(bool focus)
         {
             _focused = focus;

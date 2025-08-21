@@ -70,6 +70,7 @@ public static class GfxTestScene
         combo.AddItem("1", "One");
         combo.AddItem("2", "Two");
         combo.AddItem("3", "Three");
+        combo.SelectedIndex = 1;
         Add(combo);
 
         var slider = factory.CreateInputSliderFloat(AOrientation.Horizontal, "slider", 0, 1, 0.1f);
@@ -86,14 +87,6 @@ public static class GfxTestScene
         list.AddItem("b", "Item B B");
         list.AddItem("c", "Item C");
         Add(list, 80);
-
-        var wrap = factory.CreateWrapPanel(AOrientation.Horizontal, "wrapPanel");
-        wrap.Width = 300;
-        wrap.Height = 60;
-        wrap.AddItem(factory.CreateButton("wrapBtn1", "One"));
-        wrap.AddItem(factory.CreateButton("wrapBtn2", "Two"));
-        wrap.AddItem(factory.CreateButton("wrapBtn3", "Three"));
-        Add(wrap, 70);
 
         var tabs = factory.CreateTabContainer("tabContainer");
         tabs.Width = 300;

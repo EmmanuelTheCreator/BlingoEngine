@@ -77,8 +77,8 @@ namespace LingoEngine.Director.Core.Scores
 
             Width = 800;
             Height = 360;
-            MinimumHeight = 200;
-            MinimumWidth = 300;
+            MinimumHeight = 300;
+            MinimumWidth = 400;
             X = 20;
             Y = 560;
 

@@ -86,6 +86,10 @@ internal partial class DirGodotMainMenu : Control , IDirFrameworkMainMenuWindow
         }
        
     }
+    public void Init(IAbstWindow instance)
+    {
+        
+    }
 
     private static void StyleIconButton(Button btn)
     {
@@ -206,8 +210,5 @@ internal partial class DirGodotMainMenu : Control , IDirFrameworkMainMenuWindow
 
     public APoint GetSize() => Size.ToAbstPoint();
 
-    public void Init(IAbstWindow instance)
-    {
-        throw new NotImplementedException();
-    }
+  
 }
