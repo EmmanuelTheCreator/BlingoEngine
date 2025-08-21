@@ -3,40 +3,36 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using AbstUI.Components.Graphics;
 using AbstUI.Primitives;
 using AbstUI.Texts;
-using AbstUI.Components.Graphics;
 
 namespace AbstUI.Blazor.Components.Graphics;
 
-public partial class AbstBlazorGfxCanvas : IAbstFrameworkGfxCanvas
+public class AbstBlazorGfxCanvasComponent : AbstBlazorComponentModelBase, IAbstFrameworkGfxCanvas
 {
-    [Parameter] public bool Pixilated { get; set; }
-
+    private readonly IJSRuntime _js;
     private ElementReference _canvasRef;
     private IJSObjectReference? _module;
     private IJSObjectReference? _context;
-
     private readonly List<Func<IJSObjectReference, ValueTask>> _drawActions = new();
     private AColor? _clearColor;
     private bool _dirty;
 
+    public bool Pixilated { get; set; }
 
-    protected override string BuildStyle()
+    public AbstBlazorGfxCanvasComponent(IJSRuntime js)
     {
-        var style = base.BuildStyle();
-        if (Pixilated)
-            style += "image-rendering:pixelated;";
-        return style;
+        _js = js;
     }
 
-    [Inject] private IJSRuntime JS { get; set; } = default!;
+    internal void SetCanvas(ElementReference canvasRef) => _canvasRef = canvasRef;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    public async Task OnAfterRenderAsync()
     {
         if (_context == null)
         {
-            _module ??= await JS.InvokeAsync<IJSObjectReference>("import", "./_content/AbstUI.Blazor/scripts/abstUIScripts.js");
+            _module ??= await _js.InvokeAsync<IJSObjectReference>("import", "./_content/AbstUI.Blazor/scripts/abstUIScripts.js");
             _context = await _module.InvokeAsync<IJSObjectReference>("abstCanvas.getContext", _canvasRef, Pixilated);
         }
 
@@ -55,7 +51,7 @@ public partial class AbstBlazorGfxCanvas : IAbstFrameworkGfxCanvas
         if (!_dirty)
         {
             _dirty = true;
-            RequestRender();
+            RaiseChanged();
         }
     }
 
@@ -100,7 +96,6 @@ public partial class AbstBlazorGfxCanvas : IAbstFrameworkGfxCanvas
     {
         if (points.Count == 0)
             return;
-
         var flat = new float[points.Count * 2];
         for (int i = 0; i < points.Count; i++)
         {
@@ -142,6 +137,5 @@ public partial class AbstBlazorGfxCanvas : IAbstFrameworkGfxCanvas
         base.Dispose();
     }
 
-    private static string ToCss(AColor c)
-        => $"rgba({c.R},{c.G},{c.B},{c.A / 255f})";
+    private static string ToCss(AColor c) => $"rgba({c.R},{c.G},{c.B},{c.A / 255f})";
 }

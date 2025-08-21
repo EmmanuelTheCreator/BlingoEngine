@@ -1,4 +1,8 @@
+using AbstUI.Blazor.Components.Buttons;
 using AbstUI.Blazor.Components.Containers;
+using AbstUI.Blazor.Components.Graphics;
+using AbstUI.Blazor.Components.Inputs;
+using AbstUI.Blazor.Components.Texts;
 using AbstUI.Blazor.Styles;
 using AbstUI.Blazor.Windowing;
 using AbstUI.Components;
@@ -20,6 +24,26 @@ public static class AbstUIBlazorSetup
             .AddSingleton<AbstUIScriptResolver>()
             .AddSingleton<AbstBlazorComponentMapper>()
             .AddSingleton<AbstBlazorComponentContainer>()
+            .AddTransient<AbstBlazorWrapPanelComponent>()
+            .AddTransient<AbstBlazorPanelComponent>()
+            .AddTransient<AbstBlazorTabContainerComponent>()
+            .AddTransient<AbstBlazorTabItemComponent>()
+            .AddTransient<AbstBlazorScrollContainerComponent>()
+            .AddTransient<AbstBlazorButtonComponent>()
+            .AddTransient<AbstBlazorLabelComponent>()
+            .AddTransient<AbstBlazorInputTextComponent>()
+            .AddTransient<AbstBlazorInputCheckboxComponent>()
+            .AddTransient<AbstBlazorItemListComponent>()
+            .AddTransient<AbstBlazorLayoutWrapperComponent>()
+            .AddTransient<AbstBlazorGfxCanvasComponent>()
+            .AddTransient<AbstBlazorColorPickerComponent>()
+            .AddTransient(typeof(AbstBlazorInputNumberComponent<>))
+            .AddTransient(typeof(AbstBlazorInputSliderComponent<>))
+            .AddTransient<AbstBlazorSpinBoxComponent>()
+            .AddTransient<AbstBlazorInputComboboxComponent>()
+            .AddTransient<AbstBlazorStateButtonComponent>()
+            .AddTransient<AbstBlazorHorizontalLineSeparatorComponent>()
+            .AddTransient<AbstBlazorVerticalLineSeparatorComponent>()
             .AddSingleton<IAbstComponentFactory, AbstBlazorComponentFactory>()
             .AddSingleton<IAbstFrameworkMainWindow, AbstBlazorMainWindow>()
             .WithAbstUI();
