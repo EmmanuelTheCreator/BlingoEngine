@@ -101,9 +101,9 @@ namespace LingoEngine.Director.Core.Scores
 
 
 
-        public override void Init(IAbstFrameworkWindow frameworkWindow)
+        protected override void OnInit(IAbstFrameworkWindow frameworkWindow)
         {
-            base.Init(frameworkWindow);
+            base.OnInit(frameworkWindow);
             InitContextMenu();
             var mouse = (AbstMouse<AbstMouseEvent>)Mouse;
             _mouseSub = mouse.OnMouseEvent(HandleMouseEvent);
@@ -114,7 +114,7 @@ namespace LingoEngine.Director.Core.Scores
 
 
 
-        public override void Dispose()
+        protected override void OnDispose()
         {
             _spriteContextMenu?.Dispose();
             _mouseSub.Release();
@@ -130,7 +130,7 @@ namespace LingoEngine.Director.Core.Scores
             Sprites2DContainer.Dispose();
             _LeftTopContainer.Dispose();
             _LeftChannelContainer.Dispose();
-            base.Dispose();
+            base.OnDispose();
         }
 
 

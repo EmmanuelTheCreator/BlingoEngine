@@ -1,32 +1,34 @@
-using Godot;
-using LingoEngine.Core;
-using LingoEngine.Director.Core.Projects;
 using AbstUI.Commands;
-using LingoEngine.Director.Core.Casts.Commands;
-using LingoEngine.Movies;
-using LingoEngine.Casts;
-using LingoEngine.Members;
-using LingoEngine.Director.LGodot.Casts;
-using LingoEngine.Director.Core.UI;
-using LingoEngine.Inputs;
-using LingoEngine.FrameworkCommunication;
-using LingoEngine.Director.Core.Styles;
-using AbstUI.Primitives;
-using AbstUI.LGodot.Primitives;
-using LingoEngine.LGodot.Inputs;
-using AbstUI.LGodot.Components;
-using AbstUI.Inputs;
-using AbstUI.Windowing;
-using AbstUI.Tools;
-using AbstUI.LGodot.Windowing;
 using AbstUI.Components;
+using AbstUI.FrameworkCommunication;
+using AbstUI.Inputs;
+using AbstUI.LGodot.Components;
+using AbstUI.LGodot.Primitives;
+using AbstUI.LGodot.Windowing;
+using AbstUI.Primitives;
+using AbstUI.Tools;
+using AbstUI.Windowing;
+using Godot;
+using LingoEngine.Casts;
+using LingoEngine.Core;
+using LingoEngine.Director.Core.Casts.Commands;
+using LingoEngine.Director.Core.Projects;
+using LingoEngine.Director.Core.Styles;
+using LingoEngine.Director.Core.Texts;
+using LingoEngine.Director.Core.UI;
+using LingoEngine.Director.LGodot.Casts;
+using LingoEngine.FrameworkCommunication;
+using LingoEngine.Inputs;
+using LingoEngine.LGodot.Inputs;
+using LingoEngine.Members;
+using LingoEngine.Movies;
 
 namespace LingoEngine.Director.LGodot;
 
 /// <summary>
 /// Godot wrapper for <see cref="DirectorMainMenu"/>.
 /// </summary>
-internal partial class DirGodotMainMenu : Control , IDirFrameworkMainMenuWindow
+internal partial class DirGodotMainMenu : Control , IDirFrameworkMainMenuWindow, IFrameworkFor<DirectorMainMenu>
 {
     private readonly AbstGodotWrapPanel _menuBar;
     private readonly AbstGodotWrapPanel _iconBar;

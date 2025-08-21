@@ -3,10 +3,11 @@ using LingoEngine.Director.Core.Importer;
 using ProjectorRays.Common;
 using LingoEngine.Director.Core.Inspector;
 using AbstEngine.Director.LGodot;
+using AbstUI.FrameworkCommunication;
 
 namespace LingoEngine.Director.LGodot.Gfx;
 
-internal partial class DirGodotBinaryViewerWindowV2 : BaseGodotWindow, IDirFrameworkBinaryViewerWindowV2
+internal partial class DirGodotBinaryViewerWindowV2 : BaseGodotWindow, IDirFrameworkBinaryViewerWindowV2, IFrameworkFor<DirectorBinaryViewerWindowV2>
 {
     private readonly ScrollContainer _scroll = new();
     private readonly ScrollContainer _descScroll = new();

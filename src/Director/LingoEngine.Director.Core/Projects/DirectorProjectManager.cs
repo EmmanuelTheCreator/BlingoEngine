@@ -102,19 +102,8 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
         var states = new Dictionary<string, DirectorWindowState>();
         if (_windowManager is AbstWindowManager dm)
         {
-            foreach (var (code, window) in dm.EnumerateRegistrations())
-            {
-                dynamic fw = window.FrameworkObj;
-                try
-                {
-                    int x = (int)fw.Position.X;
-                    int y = (int)fw.Position.Y;
-                    int w = (int)fw.Size.X;
-                    int h = (int)fw.Size.Y;
-                    states[code] = new DirectorWindowState { X = x, Y = y, Width = w, Height = h };
-                }
-                catch { }
-            }
+            foreach (var (code, rect) in dm.GetRects())
+                states[code] = new DirectorWindowState { X = (int)rect.Left, Y = (int)rect.Top, Width = (int)rect.Width, Height = (int)rect.Height };
         }
 
         _dirSettings.WindowStates = states;
@@ -167,9 +156,9 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
         // Apply window states
         if (_windowManager is AbstWindowManager dm)
         {
-            foreach (var (code, window) in dm.EnumerateRegistrations())
+            foreach (var window in dm.GetWindows())
             {
-                if (!_dirSettings.WindowStates.TryGetValue(code, out var st))
+                if (!_dirSettings.WindowStates.TryGetValue(window.WindowCode, out var st))
                     continue;
 
                 window.SetPositionAndSize(st.X, st.Y, st.Width, st.Height);

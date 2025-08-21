@@ -6,10 +6,11 @@ using LingoEngine.Director.Core.Icons;
 using LingoEngine.FrameworkCommunication;
 using AbstUI.LGodot.Components;
 using AbstEngine.Director.LGodot;
+using AbstUI.FrameworkCommunication;
 
 namespace LingoEngine.Director.LGodot.Gfx;
 
-internal partial class DirGodotToolsWindow : BaseGodotWindow, IDirFrameworkToolsWindow
+internal partial class DirGodotToolsWindow : BaseGodotWindow, IDirFrameworkToolsWindow, IFrameworkFor<DirectorToolsWindow>
 {
     private StageToolbar _stageToolbar;
 

@@ -1,23 +1,26 @@
+using AbstEngine.Director.LGodot;
+using AbstUI.FrameworkCommunication;
+using AbstUI.Inputs;
+using AbstUI.LGodot.Components;
+using AbstUI.LGodot.Primitives;
+using AbstUI.Primitives;
 using Godot;
-using LingoEngine.Movies;
-using LingoEngine.LGodot.Stages;
 using LingoEngine.Core;
+using LingoEngine.Director.Core.Icons;
+using LingoEngine.Director.Core.Scores;
 using LingoEngine.Director.Core.Stages;
 using LingoEngine.Director.Core.Tools;
+using LingoEngine.Director.LGodot.Windowing;
+using LingoEngine.Inputs;
+using LingoEngine.LGodot.Inputs;
+using LingoEngine.LGodot.Stages;
+using LingoEngine.Movies;
 using LingoEngine.Sprites;
 using LingoEngine.Stages;
-using LingoEngine.Inputs;
-using LingoEngine.Director.Core.Icons;
-using AbstUI.Primitives;
-using AbstUI.LGodot.Primitives;
-using AbstUI.LGodot.Components;
-using AbstEngine.Director.LGodot;
-using LingoEngine.LGodot.Inputs;
-using AbstUI.Inputs;
 
 namespace LingoEngine.Director.LGodot.Movies;
 
-internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStageWindow
+internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStageWindow, IFrameworkFor<DirectorStageWindow>
 {
     private const int IconBarHeight = 12;
     private readonly LingoGodotStageContainer _stageContainer;
@@ -90,7 +93,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         _stageWindowBgRect.Name = "StageWindowBackgroundRect";
         _stageContainer.Container.Name = "StageContainer";
 
-        const int zIndexStageStart = DirGodotWindowManager.ZIndexInactiveWindow + 1000;
+        const int zIndexStageStart = DirGodotWindowManagerDecorator.ZIndexInactiveWindow + 1000;
 
         // Bg color for stage
         _stageWindowBgRect.Color = Colors.DarkGray;

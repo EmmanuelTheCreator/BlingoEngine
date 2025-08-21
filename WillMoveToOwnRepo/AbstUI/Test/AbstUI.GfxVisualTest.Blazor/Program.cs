@@ -13,9 +13,13 @@ namespace AbstUI.GfxVisualTest.Blazor
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-            builder.Services.WithAbstUIBlazor();
+            builder.Services.WithAbstUIBlazor();// r => 
+            //r.Register<GfxTestWindow,BlazorTestWindow>
+            //);
 
-            await builder.Build().RunAsync();
+            var app = builder.Build();
+            app.Services.WithAbstUIBlazor();
+            await app.RunAsync();
         }
     }
 }

@@ -3,10 +3,11 @@ using Godot;
 using LingoEngine.Members;
 using AbstUI.LGodot.Components;
 using AbstEngine.Director.LGodot;
+using AbstUI.FrameworkCommunication;
 
 namespace LingoEngine.Director.LGodot.Casts
 {
-    internal partial class DirGodotCastWindow : BaseGodotWindow, IDirFrameworkCastWindow
+    internal partial class DirGodotCastWindow : BaseGodotWindow, IDirFrameworkCastWindow, IFrameworkFor<DirectorCastWindow>
     {
         private readonly DirectorCastWindow _directorCastWindow;
         private readonly AbstGodotTabContainer _tabs;

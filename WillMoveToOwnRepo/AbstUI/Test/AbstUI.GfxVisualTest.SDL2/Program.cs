@@ -1,33 +1,43 @@
+using AbstUI.Components;
+using AbstUI.GfxVisualTest;
+using AbstUI.GfxVisualTest.SDL2;
 using AbstUI.SDL2;
 using AbstUI.SDL2.Components;
 using AbstUI.SDL2.Core;
-using AbstUI.SDL2.Styles;
-using AbstUI.Styles;
 using LingoEngine.SDL2.GfxVisualTest;
 using Microsoft.Extensions.DependencyInjection;
+try
+{
+    using var rootContext = new TestSdlRootComponentContext();
+    var serviceCollection = new ServiceCollection();
 
-using var rootContext = new TestSdlRootComponentContext();
-//var fontManager = new SdlFontManager();
-//fontManager.LoadAll();
-//var styleManager = new AbstStyleManager();
-var serviceCollection = new ServiceCollection();
+    serviceCollection
+        .AddSingleton<ISdlRootComponentContext>(rootContext)
+        .AddTransient<SDLTestWindow>()
+        .WithAbstUISdl()
+        .SetupGfxTest()
+        ;
 
-serviceCollection
-    .AddSingleton<ISdlRootComponentContext>(rootContext)
-    .WithAbstUISdl()
-    //.AddSingleton<IAbstStyleManager>(styleManager)
-    //.AddSingleton<IAbstFontManager>(fontManager)
-    //.AddSingleton<IAbstFrameworkWindowManager, AbstSdlWindowManager>()
-    //.AddSingleton<IAbstWindowManager, AbstWindowManager>()
-    ;
+    var serviceProvier = serviceCollection.BuildServiceProvider();
+    serviceProvier
+        .WithAbstUISdl();
 
-var serviceProvier = serviceCollection.BuildServiceProvider();
-serviceProvier.WithAbstUISdl();
-serviceProvier.GetRequiredService<IAbstFontManager>().LoadAll();
-var factory = new AbstSdlComponentFactory(rootContext, serviceProvier);
-rootContext.Factory = factory;
+    var factory = serviceProvier.GetRequiredService<IAbstComponentFactory>();
+    rootContext.Factory = (AbstSdlComponentFactory)factory;
+    factory.Register<GfxTestWindow, SDLTestWindow>();
 
-var scroll = GfxTestScene.Build(factory);
-rootContext.ComponentContainer.Activate(((dynamic)scroll.FrameworkObj).ComponentContext);
+    serviceProvier.SetupGfxTest();
 
-rootContext.Run();
+    var scroll = GfxTestScene.Build(factory);
+    rootContext.ComponentContainer.Activate(((dynamic)scroll.FrameworkObj).ComponentContext);
+
+    rootContext.Run();
+}
+catch (Exception ex)
+{
+    Console.ForegroundColor = ConsoleColor.DarkRed;
+    Console.WriteLine("An error occurred while running the SDL2 Gfx Visual Test:");
+    Console.WriteLine(ex.Message);
+    Console.WriteLine(ex);
+}
+

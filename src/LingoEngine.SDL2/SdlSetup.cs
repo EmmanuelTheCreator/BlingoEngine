@@ -72,9 +72,10 @@ public static class SdlSetup
                     .AddSingleton<ILingoFrameworkFactory, LingoSdlFactory>()
                 )
             .WithFrameworkFactory(setup)
+            .AddPreBuildAction(x => x.WithAbstUISdl())
             .AddBuildAction(b =>
             {
-                b.WithAbstUISdl();
+                
             });
     }
 }

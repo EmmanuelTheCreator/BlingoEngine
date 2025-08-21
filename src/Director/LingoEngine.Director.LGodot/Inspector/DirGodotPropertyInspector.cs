@@ -1,13 +1,15 @@
+using AbstEngine.Director.LGodot;
+using AbstUI.FrameworkCommunication;
+using AbstUI.LGodot.Components;
 using Godot;
-using LingoEngine.Director.Core.Inspector;
 using LingoEngine.Core;
 using LingoEngine.Director.Core.Icons;
-using AbstUI.LGodot.Components;
-using AbstEngine.Director.LGodot;
+using LingoEngine.Director.Core.Importer;
+using LingoEngine.Director.Core.Inspector;
 
 namespace LingoEngine.Director.LGodot.Inspector;
 
-public partial class DirGodotPropertyInspector : BaseGodotWindow, IDirFrameworkPropertyInspectorWindow
+public partial class DirGodotPropertyInspector : BaseGodotWindow, IDirFrameworkPropertyInspectorWindow, IFrameworkFor<DirectorPropertyInspectorWindow>
 {
 
     private readonly DirectorPropertyInspectorWindow _inspectorWindow;

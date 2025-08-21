@@ -1,15 +1,17 @@
-﻿using Godot;
-using LingoEngine.Director.LGodot.Importer;
+﻿using AbstEngine.Director.LGodot;
+using AbstUI.FrameworkCommunication;
+using Godot;
+using LingoEngine.Director.Core.Bitmaps;
 using LingoEngine.Director.Core.Importer;
-using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Inspector;
-using LingoEngine.Director.LGodot.Importer.TestData;
+using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
-using AbstEngine.Director.LGodot;
+using LingoEngine.Director.LGodot.Importer;
+using LingoEngine.Director.LGodot.Importer.TestData;
 
 namespace LingoEngine.Director.LGodot.Gfx
 {
-    internal partial class DirGodotBinaryViewerWindow : BaseGodotWindow, IDirFrameworkBinaryViewerWindow
+    internal partial class DirGodotBinaryViewerWindow : BaseGodotWindow, IDirFrameworkBinaryViewerWindow, IFrameworkFor<DirectorBinaryViewerWindow>
     {
         private readonly IDirectorEventMediator _mediator;
         private readonly LineEdit _pathEdit = new LineEdit();

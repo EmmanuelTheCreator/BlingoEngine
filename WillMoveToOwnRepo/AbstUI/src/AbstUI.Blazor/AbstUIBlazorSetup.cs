@@ -15,7 +15,7 @@ namespace AbstUI.Blazor;
 
 public static class AbstUIBlazorSetup
 {
-    public static IServiceCollection WithAbstUIBlazor(this IServiceCollection services)
+    public static IServiceCollection WithAbstUIBlazor(this IServiceCollection services, Action<IAbstFameworkComponentWinRegistrator>? windowRegistrations = null)
     {
         services
             .AddSingleton<IAbstFontManager, AbstBlazorFontManager>()
@@ -46,7 +46,16 @@ public static class AbstUIBlazorSetup
             .AddTransient<AbstBlazorVerticalLineSeparatorComponent>()
             .AddSingleton<IAbstComponentFactory, AbstBlazorComponentFactory>()
             .AddSingleton<IAbstFrameworkMainWindow, AbstBlazorMainWindow>()
-            .WithAbstUI();
+            .WithAbstUI(windowRegistrations);
+        return services;
+    }
+
+    public static IServiceProvider WithAbstUIBlazor(this IServiceProvider services)
+    {
+        services.WithAbstUI();// need to be first to register all the windows in the windows factory.
+        services.GetRequiredService<IAbstComponentFactory>()
+            .DiscoverInAssembly(typeof(AbstUIBlazorSetup).Assembly)
+            ;
         return services;
     }
 }

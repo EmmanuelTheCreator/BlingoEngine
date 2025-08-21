@@ -1,6 +1,8 @@
 using AbstEngine.Director.LGodot;
+using AbstUI.FrameworkCommunication;
 using AbstUI.LGodot.Components;
 using Godot;
+using LingoEngine.Director.Core.Inspector;
 using LingoEngine.Director.Core.Projects;
 using LingoEngine.Director.Core.UI;
 
@@ -9,7 +11,7 @@ namespace LingoEngine.Director.LGodot.Projects;
 /// <summary>
 /// Godot wrapper for <see cref="DirectorProjectSettingsWindow"/>.
 /// </summary>
-internal partial class DirGodotProjectSettingsWindow : BaseGodotWindow, IDirFrameworkProjectSettingsWindow
+internal partial class DirGodotProjectSettingsWindow : BaseGodotWindow, IDirFrameworkProjectSettingsWindow, IFrameworkFor<DirectorProjectSettingsWindow>
 {
     public DirGodotProjectSettingsWindow(
         DirectorProjectSettingsWindow directorWindow,

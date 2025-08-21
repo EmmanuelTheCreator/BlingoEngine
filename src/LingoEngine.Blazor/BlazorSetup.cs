@@ -1,3 +1,4 @@
+using AbstUI;
 using AbstUI.Blazor;
 using AbstUI.Core;
 using LingoEngine.Core;
@@ -9,14 +10,16 @@ namespace LingoEngine.Blazor;
 
 public static class BlazorSetup
 {
-    public static ILingoEngineRegistration WithLingoBlazorEngine(this ILingoEngineRegistration reg, Action<BlazorFactory>? setup = null)
+    public static ILingoEngineRegistration WithLingoBlazorEngine(this ILingoEngineRegistration reg, Action<BlazorFactory>? setup = null, Action<IAbstFameworkComponentWinRegistrator>? windowRegistrations = null)
     {
         LingoEngineGlobal.RunFramework = AbstEngineRunFramework.Blazor;
         reg.ServicesMain(s => s
                 .AddSingleton<ILingoFrameworkFactory, BlazorFactory>()
-                .WithAbstUIBlazor()
+                .WithAbstUIBlazor(windowRegistrations)
             )
-            .WithFrameworkFactory(setup);
+            .WithFrameworkFactory(setup)
+            .AddPreBuildAction(x => x.WithAbstUIBlazor())
+            ;
         return reg;
     }
 }

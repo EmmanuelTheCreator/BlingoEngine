@@ -1,6 +1,8 @@
+using AbstUI;
 using AbstUI.Components;
 using AbstUI.LGodot;
 using AbstUI.LGodot.Styles;
+using AbstUI.LGodot.Windowing;
 using AbstUI.Styles;
 using AbstUI.Windowing;
 using Godot;
@@ -30,6 +32,7 @@ using LingoEngine.Director.LGodot.Scores;
 using LingoEngine.Director.LGodot.Styles;
 using LingoEngine.Director.LGodot.Tools;
 using LingoEngine.Director.LGodot.UI;
+using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.LGodot;
 using LingoEngine.LGodot.Core;
 using LingoEngine.Projects;
@@ -42,18 +45,16 @@ namespace LingoEngine.Director.LGodot
 {
     public static class DirGodotSetup
     {
-        public static ILingoEngineRegistration WithDirectorGodotEngine(this ILingoEngineRegistration engineRegistration, Node rootNode, Action<DirectorProjectSettings>? directorSettingsConfig = null)
+        public static ILingoEngineRegistration WithDirectorGodotEngine(this ILingoEngineRegistration engineRegistration, Node rootNode, Action<DirectorProjectSettings>? directorSettingsConfig = null, Action<IAbstFameworkComponentWinRegistrator>? windowRegistrations = null)
         {
             LingoEngineGlobal.IsRunningDirector = true;
             engineRegistration
-                .WithLingoGodotEngine(rootNode, true)
+                .WithLingoGodotEngine(rootNode, true,null, windowRegistrations)
                 .WithDirectorEngine(directorSettingsConfig)
                 .ServicesMain(s =>
                 {
                     s
-                    .RemoveAll<IAbstFrameworkWindowManager>()
-                    .AddSingleton<IAbstFrameworkWindowManager,DirGodotWindowManager>()
-                    .AddTransient(p => (DirGodotWindowManager)p.GetRequiredService<IAbstFrameworkWindowManager>())
+                    .AddSingleton<DirGodotWindowManagerDecorator>()
                     .AddSingleton<DirectorGodotStyle>()
                     .AddSingleton<DirGodotProjectSettingsWindow>()
                     .AddSingleton<DirGodotToolsWindow>()
@@ -99,9 +100,13 @@ namespace LingoEngine.Director.LGodot
 
 
                 })
-                .AddBuildAction(p =>
+                .AddPreBuildAction(p =>
                 {
                     p.WithAbstUIGodot();
+                    p.GetRequiredService<DirGodotWindowManagerDecorator>(); // register for window events;
+                })
+                .AddBuildAction(p =>
+                {
                     var styles = p.GetRequiredService<DirectorGodotStyle>();
                     p.GetRequiredService<IAbstFontManager>().SetDefaultFont(DirectorGodotStyle.DefaultFont);
                     p.GetRequiredService<IAbstGodotStyleManager>().Register(AbstGodotThemeElementType.Tabs, styles.GetTabContainerTheme());

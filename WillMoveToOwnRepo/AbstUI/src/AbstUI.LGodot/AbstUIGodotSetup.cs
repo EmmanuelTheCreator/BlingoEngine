@@ -13,7 +13,7 @@ namespace AbstUI.LGodot
     public static class AbstUIGodotSetup
     {
        
-        public static IServiceCollection WithAbstUIGodot(this IServiceCollection services)
+        public static IServiceCollection WithAbstUIGodot(this IServiceCollection services, Action<IAbstFameworkComponentWinRegistrator>? windowRegistrations = null)
         {
             services
                 .AddSingleton<GodotComponentFactory>()
@@ -31,7 +31,7 @@ namespace AbstUI.LGodot
                 .AddTransient(p => (AbstGodotFontManager)p.GetRequiredService<IAbstFontManager>())
                 .AddTransient(p => (AbstGodotStyleManager)p.GetRequiredService<IAbstStyleManager>())
                 .AddTransient(p => (IAbstGodotStyleManager)p.GetRequiredService<IAbstStyleManager>())
-                .WithAbstUI()
+                .WithAbstUI(windowRegistrations)
                 ;
 
             return services;
@@ -39,13 +39,12 @@ namespace AbstUI.LGodot
 
         public static IServiceProvider WithAbstUIGodot(this IServiceProvider services)
         {
-            //Console.WriteLine("AbstUIGodotSetup: Is this still needed?");
+            services.WithAbstUI(); // need to be first to register all the windows in the windows factory.
             services.GetRequiredService<IAbstComponentFactory>()
                 .DiscoverInAssembly(typeof(AbstUIGodotSetup).Assembly)
                 ;
-            //services.GetRequiredService<IAbstComponentFactory>()
-            //     .Register<IAbstDialog,AbstGodotDialog>()
-            //    ;
+            var windowManager = services.GetRequiredService<IAbstGodotWindowManager>();// we need to resolve the framework window manager to link him
+           
             return services;
         }
     }

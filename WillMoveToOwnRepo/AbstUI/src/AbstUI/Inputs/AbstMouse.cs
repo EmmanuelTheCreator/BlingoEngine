@@ -84,12 +84,12 @@ namespace AbstUI.Inputs
         private void DoOnAll(List<AbstUIMouseSubscription> subscriptions, Action<IAbstMouseEventHandler<TAbstUIMouseEvent>, TAbstUIMouseEvent> action, AbstMouseEventType type)
         {
             var eventMouse = _ctorNewEvent(this, type);// new AbstUIMouseEvent(this, type);
-            foreach (var subscription in subscriptions)
+            foreach (var subscription in subscriptions.ToArray())
             {
                 subscription.Do(eventMouse);
                 if (!eventMouse.ContinuePropagation) return;
             }
-            foreach (var subscription in _mouseEvents)
+            foreach (var subscription in _mouseEvents.ToArray())
             {
                 subscription.Do(eventMouse);
                 if (!eventMouse.ContinuePropagation) return;

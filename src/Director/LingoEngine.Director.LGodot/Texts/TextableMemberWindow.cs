@@ -1,22 +1,24 @@
-﻿using Godot;
-using LingoEngine.Director.Core.Events;
-using LingoEngine.Texts;
-using LingoEngine.Members;
-using LingoEngine.Core;
-using LingoEngine.Director.Core.Icons;
-using LingoEngine.Director.Core.Texts;
+﻿using AbstEngine.Director.LGodot;
+using AbstUI.FrameworkCommunication;
+using AbstUI.LGodot.Components;
+using AbstUI.LGodot.Primitives;
 using AbstUI.Styles;
+using AbstUI.Texts;
+using Godot;
+using LingoEngine.Core;
+using LingoEngine.Director.Core.Events;
+using LingoEngine.Director.Core.Icons;
+using LingoEngine.Director.Core.Stages;
+using LingoEngine.Director.Core.Texts;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.FrameworkCommunication;
-using AbstUI.Texts;
-using AbstUI.LGodot.Primitives;
-using AbstUI.LGodot.Components;
-using AbstEngine.Director.LGodot;
+using LingoEngine.Members;
+using LingoEngine.Texts;
 
 namespace LingoEngine.Director.LGodot.Casts;
 
-internal partial class DirGodotTextableMemberWindow : BaseGodotWindow, IHasMemberSelectedEvent, IDirFrameworkTextEditWindow
+internal partial class DirGodotTextableMemberWindow : BaseGodotWindow, IHasMemberSelectedEvent, IDirFrameworkTextEditWindow, IFrameworkFor<DirectorTextEditWindow>
 {
     private const int NavigationBarHeight = 20;
     private const int ActionBarHeight = 22;

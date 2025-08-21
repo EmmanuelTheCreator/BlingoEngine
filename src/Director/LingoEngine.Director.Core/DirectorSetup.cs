@@ -16,18 +16,18 @@ using LingoEngine.Director.Core.Scripts;
 using LingoEngine.Director.Core.Sprites;
 using LingoEngine.Director.Core.Compilers;
 using LingoEngine.Director.Core.Compilers.Commands;
-using LingoEngine.Projects;
-using LingoEngine.Lingo.Core;
 using AbstUI.Commands;
-using LingoEngine.Director.Core.Tools.Commands;
 
 namespace LingoEngine.Director.Core
 {
     public static class DirectorSetup
     {
-        public static ILingoEngineRegistration WithDirectorEngine(this ILingoEngineRegistration engineRegistration, Action<DirectorProjectSettings>? directorSettingsConfig = null)
+        public static ILingoEngineRegistration WithDirectorEngine(this ILingoEngineRegistration engineRegistration,Action<DirectorProjectSettings>? directorSettingsConfig = null)
         {
-            engineRegistration.ServicesMain(s => s
+            engineRegistration
+                .RegisterWindows(r => DirectorWindowRegistrator.RegisterDirectorWindows(r))
+                .RegisterComponents(r => DirectorWindowRegistrator.RegisterDirectorComponents(r))
+                .ServicesMain(s => s
                     .AddSingleton<IDirectorEventMediator, DirectorEventMediator>()
                    
                     .AddSingleton<IHistoryManager, HistoryManager>()
@@ -78,7 +78,7 @@ namespace LingoEngine.Director.Core
             engineRegistration.AddBuildAction(
                 (serviceProvider) =>
                 {
-                    serviceProvider.RegisterDirectorWindows();
+                    //serviceProvider.RegisterDirectorWindows();
                     //serviceProvider.GetRequiredService< LingoCSharpConverterPopupHandler>();
                     // Services that needs to be resolved to subscribe to the command handler.
                     //serviceProvider.GetRequiredService<IAbstCommandManager>()

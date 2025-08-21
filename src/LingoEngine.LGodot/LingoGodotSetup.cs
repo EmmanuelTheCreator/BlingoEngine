@@ -14,7 +14,7 @@ namespace LingoEngine.LGodot
 {
     public static class LingoGodotSetup
     {
-        public static ILingoEngineRegistration WithLingoGodotEngine(this ILingoEngineRegistration engineRegistration, Node rootNode, bool withStageInWindow = false, Action<GodotFactory>? setup = null)
+        public static ILingoEngineRegistration WithLingoGodotEngine(this ILingoEngineRegistration engineRegistration, Node rootNode, bool withStageInWindow = false, Action<GodotFactory>? setup = null, Action<IAbstFameworkComponentWinRegistrator>? windowRegistrations = null)
         {
             LingoEngineGlobal.RunFramework = AbstEngineRunFramework.Godot;
             engineRegistration
@@ -26,7 +26,7 @@ namespace LingoEngine.LGodot
                         .AddSingleton<ILingoFrameworkStageContainer, LingoGodotStageContainer>()
                         .AddSingleton(p => new LingoGodotRootNode(rootNode, withStageInWindow))
                         .AddSingleton<IAbstGodotRootNode>(p => p.GetRequiredService<LingoGodotRootNode>())
-                        .WithAbstUIGodot()
+                        .WithAbstUIGodot(windowRegistrations)
                         )
                 .WithFrameworkFactory(setup)
                 

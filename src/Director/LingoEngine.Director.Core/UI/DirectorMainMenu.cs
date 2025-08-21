@@ -372,13 +372,13 @@ namespace LingoEngine.Director.Core.UI
 
 
 
-        public override void Dispose()
+        protected override void OnDispose()
         {
             _player.ActiveMovieChanged -= OnActiveMovieChanged;
             _shortCutManager.ShortCutAdded -= OnShortCutAdded;
             _shortCutManager.ShortCutRemoved -= OnShortCutRemoved;
             _player.Key.Unsubscribe(this);
-            base.Dispose();
+            base.OnDispose();
         }
 
         protected override void OnRaiseKeyDown(AbstKeyEvent key)

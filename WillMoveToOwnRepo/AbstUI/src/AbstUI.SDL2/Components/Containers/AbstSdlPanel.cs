@@ -131,7 +131,7 @@ namespace AbstUI.SDL2.Components.Containers
             }
             base.Dispose();
         }
-        public void HandleEvent(AbstSDLEvent e)
+        public virtual void HandleEvent(AbstSDLEvent e)
         {
             // Forward mouse events to children accounting for current scroll offset
 

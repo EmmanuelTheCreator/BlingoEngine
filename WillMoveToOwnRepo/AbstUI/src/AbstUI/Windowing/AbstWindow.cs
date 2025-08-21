@@ -16,6 +16,8 @@ public interface IAbstWindowInternal : IAbstWindow, IAbstNode, IDisposable
 public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEventHandler<AbstKeyEvent>, IAbstWindowInternal
     where TFrameworkWindow : IAbstFrameworkWindow, IAbstFrameworkNode
 {
+    private bool _isInitialized = false;
+    private bool _isDisposed = false;
     protected readonly IAbstComponentFactory _componentFactory;
     protected TFrameworkWindow _framework;
     public IAbstMouse Mouse { get; }
@@ -51,7 +53,6 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
     float IAbstNode.Height { get => Height; set => Height = (int)value; }
     public AMargin Margin { get; set; } = new AMargin();
 
-    private readonly Dictionary<IAbstFrameworkNode, IAbstNode> _contentMap = new();
     private IAbstNode? _content;
     public IAbstNode? Content
     {
@@ -61,10 +62,11 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
             if (_content == value) return;
             _content = value;
             var fw = value?.FrameworkObj;
-            if (fw != null)
-                _contentMap[fw] = value;
             if (_framework.Content != fw)
+            {
                 _framework.Content = fw;
+                _framework.Init(this);
+            }
         }
     }
 
@@ -83,13 +85,26 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
         Key = serviceProvider.GetRequiredService<IAbstGlobalKey>().CreateNewInstance(this);
         Key.Subscribe(this);
     }
-    public virtual void Dispose()
+    public void Dispose()
     {
+        if (_isDisposed) return;
+        _isDisposed = true;
         Key.Unsubscribe(this);
+        OnDispose();
     }
-    public virtual void Init(IAbstFrameworkWindow frameworkWindow)
+    // protected override void OnDispose()
+    protected virtual void OnDispose()
     {
+    }
+    public void Init(IAbstFrameworkWindow frameworkWindow)
+    {
+        if (_isInitialized) return;
+        _isInitialized = true;
         _framework = (TFrameworkWindow)frameworkWindow;
+        OnInit(frameworkWindow);
+    }
+    protected virtual void OnInit(IAbstFrameworkWindow frameworkWindow)
+    {
     }
 
 
@@ -160,10 +175,8 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
 
     public void SetContentFromFW(IAbstFrameworkNode? node)
     {
-        if (node != null && _contentMap.TryGetValue(node, out var lingo))
-            _content = lingo;
-        else if (node == null)
-            _content = null;
+        if (node is TFrameworkWindow window)
+            _framework = window;
     }
 
 

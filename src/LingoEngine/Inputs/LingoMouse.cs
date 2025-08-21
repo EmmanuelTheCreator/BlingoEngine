@@ -74,7 +74,7 @@ namespace LingoEngine.Inputs
         protected override void OnDoOnAll(LingoMouseEvent eventMouse, Action<IAbstMouseEventHandler<LingoMouseEvent>, LingoMouseEvent> action)
         {
             base.OnDoOnAll(eventMouse, action);
-            foreach (var subscription in _subscriptions)
+            foreach (var subscription in _subscriptions.ToArray())
             {
                 action(subscription, eventMouse);
                 if (!eventMouse.ContinuePropagation) return;

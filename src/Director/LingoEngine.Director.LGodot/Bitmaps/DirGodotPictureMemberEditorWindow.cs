@@ -1,29 +1,31 @@
-﻿using Godot;
-using LingoEngine.Director.Core.Events;
-using LingoEngine.Events;
-using LingoEngine.Members;
-using LingoEngine.Core;
-using LingoEngine.Director.Core.Tools;
-using LingoEngine.Director.Core.Bitmaps;
+﻿using AbstEngine.Director.LGodot;
 using AbstUI.Commands;
-using LingoEngine.Director.Core.Icons;
-using LingoEngine.FrameworkCommunication;
-using LingoEngine.Director.Core.UI;
-using LingoEngine.Bitmaps;
-using LingoEngine.LGodot.Bitmaps;
-using LingoEngine.Director.Core.Bitmaps.Commands;
-using LingoEngine.Director.LGodot.Bitmaps;
-using AbstUI.Primitives;
+using AbstUI.FrameworkCommunication;
 using AbstUI.Inputs;
 using AbstUI.LGodot.Bitmaps;
-using AbstUI.LGodot.Primitives;
 using AbstUI.LGodot.Components;
-using AbstEngine.Director.LGodot;
+using AbstUI.LGodot.Primitives;
 using AbstUI.LGodot.Windowing;
+using AbstUI.Primitives;
+using Godot;
+using LingoEngine.Bitmaps;
+using LingoEngine.Core;
+using LingoEngine.Director.Core.Bitmaps;
+using LingoEngine.Director.Core.Bitmaps.Commands;
+using LingoEngine.Director.Core.Casts;
+using LingoEngine.Director.Core.Events;
+using LingoEngine.Director.Core.Icons;
+using LingoEngine.Director.Core.Tools;
+using LingoEngine.Director.Core.UI;
+using LingoEngine.Director.LGodot.Bitmaps;
+using LingoEngine.Events;
+using LingoEngine.FrameworkCommunication;
+using LingoEngine.LGodot.Bitmaps;
+using LingoEngine.Members;
 
 namespace LingoEngine.Director.LGodot.Pictures;
 
-internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHasMemberSelectedEvent, IDirFrameworkBitmapEditWindow
+internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHasMemberSelectedEvent, IDirFrameworkBitmapEditWindow, IFrameworkFor<DirectorBitmapEditWindow>
 
 {
     private const int NavigationBarHeight = 20;

@@ -41,6 +41,10 @@ namespace AbstUI.SDL2
 
         public static IServiceProvider WithAbstUISdl(this IServiceProvider services)
         {
+            services.WithAbstUI(); // need to be first to register all the windows in the windows factory.
+            // We need to resolve once the SDL window manager to init
+            services.GetRequiredService<IAbstSdlWindowManager>();
+
             //Console.WriteLine("AbstUIGodotSetup: Is this still needed?");
             services.GetRequiredService<AbstSdlComponentFactory>().DiscoverInAssembly(typeof(AbstUISDLSetup).Assembly);
             //services.GetRequiredService<IAbstComponentFactory>()

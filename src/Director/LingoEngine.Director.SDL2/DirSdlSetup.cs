@@ -51,7 +51,6 @@ namespace LingoEngine.Director.SDL2
                })
                .AddBuildAction(p =>
                {
-                   p.WithAbstUISdl();
                    new LingoSdlDirectorRoot(p.GetRequiredService<LingoPlayer>(), p, p.GetRequiredService<LingoProjectSettings>());
                });
             return reg;

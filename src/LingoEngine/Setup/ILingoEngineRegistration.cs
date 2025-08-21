@@ -1,8 +1,9 @@
-﻿using LingoEngine.Core;
+﻿using AbstUI;
+using LingoEngine.Core;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Projects;
 using Microsoft.Extensions.DependencyInjection;
-using System;
+
 namespace LingoEngine.Setup
 {
     /// <summary>
@@ -20,9 +21,11 @@ namespace LingoEngine.Setup
         ILingoEngineRegistration BuildDelayed();
         LingoPlayer Build(IServiceProvider serviceProvider);
         ILingoProjectFactory BuildAndRunProject(Action<IServiceProvider>? afterStart = null);
+        ILingoEngineRegistration AddPreBuildAction(Action<IServiceProvider> buildAction);
         ILingoEngineRegistration AddBuildAction(Action<ILingoServiceProvider> buildAction);
         ILingoEngineRegistration SetProjectFactory<TLingoProjectFactory>() where TLingoProjectFactory : ILingoProjectFactory, new();
-
+        ILingoEngineRegistration RegisterWindows(Action<IAbstFameworkWindowRegistrator>? registerWindows);
+        ILingoEngineRegistration RegisterComponents(Action<IAbstFameworkComponentRegistrator>? componentWindows);
     }
 }
 

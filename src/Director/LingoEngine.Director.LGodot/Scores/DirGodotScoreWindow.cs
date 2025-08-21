@@ -1,21 +1,23 @@
-using Godot;
-using LingoEngine.Movies;
-using LingoEngine.Core;
-using LingoEngine.Director.Core.Scores;
-using LingoEngine.Director.Core.Tools;
-using AbstUI.Commands;
-using LingoEngine.Director.Core.Sprites;
-using LingoEngine.Director.LGodot.Styles;
-using AbstUI.LGodot.Primitives;
-using AbstUI.LGodot.Components;
 using AbstEngine.Director.LGodot;
+using AbstUI.Commands;
+using AbstUI.FrameworkCommunication;
+using AbstUI.LGodot.Components;
+using AbstUI.LGodot.Primitives;
+using Godot;
+using LingoEngine.Core;
+using LingoEngine.Director.Core.Projects;
+using LingoEngine.Director.Core.Scores;
+using LingoEngine.Director.Core.Sprites;
+using LingoEngine.Director.Core.Tools;
+using LingoEngine.Director.LGodot.Styles;
+using LingoEngine.Movies;
 
 namespace LingoEngine.Director.LGodot.Scores;
 
 /// <summary>
 /// Timeline overlay showing the Score channels and frames.
 /// </summary>
-public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWindow
+public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWindow, IFrameworkFor<DirectorScoreWindow>
 {
    
     

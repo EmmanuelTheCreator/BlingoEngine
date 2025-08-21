@@ -1,12 +1,13 @@
-using LingoEngine.FrameworkCommunication;
-using LingoEngine.Setup;
-using Microsoft.Extensions.DependencyInjection;
-using LingoEngine.Unity.Core;
+using AbstUI;
 using AbstUI.Core;
 using AbstUI.LUnity;
 using LingoEngine.Core;
+using LingoEngine.FrameworkCommunication;
+using LingoEngine.Setup;
 using LingoEngine.Stages;
+using LingoEngine.Unity.Core;
 using LingoEngine.Unity.Stages;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Unity;
 
@@ -20,7 +21,15 @@ public static class UnityLingoSetup
                 .AddSingleton<ILingoFrameworkStageContainer, UnityStageContainer>()
                 .WithAbstUIUnity()
             )
-           .WithFrameworkFactory(setup);
+           .WithFrameworkFactory(setup)
+           .AddPreBuildAction(x => x.WithUnityEngine())
+           ;
         return reg;
+    }
+
+    private static IServiceProvider WithUnityEngine(this IServiceProvider services)
+    {
+        services.WithAbstUIUnity();
+        return services;
     }
 }

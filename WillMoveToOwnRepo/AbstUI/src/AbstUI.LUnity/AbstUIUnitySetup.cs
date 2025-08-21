@@ -21,5 +21,13 @@ namespace AbstUI.LUnity
 
             return services;
         }
+        public static IServiceProvider WithAbstUIUnity(this IServiceProvider services)
+        {
+            services.WithAbstUI(); // need to be first to register all the windows in the windows factory.
+            services.GetRequiredService<IAbstComponentFactory>()
+                .DiscoverInAssembly(typeof(AbstUIUnitySetup).Assembly)
+                ;
+            return services;
+        }
     }
 }

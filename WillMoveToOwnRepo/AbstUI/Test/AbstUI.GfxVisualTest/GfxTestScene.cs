@@ -1,7 +1,9 @@
-using AbstUI.Texts;
 using AbstUI.Components;
-using AbstUI.Primitives;
 using AbstUI.Components.Texts;
+using AbstUI.GfxVisualTest;
+using AbstUI.Primitives;
+using AbstUI.Texts;
+using AbstUI.Windowing;
 
 namespace LingoEngine.SDL2.GfxVisualTest;
 
@@ -9,6 +11,9 @@ public static class GfxTestScene
 {
     public static IAbstNode Build(IAbstComponentFactory factory)
     {
+        var windowManager = factory.GetRequiredService<IAbstWindowManager>();
+
+
         var scroll = factory.CreateScrollContainer("scroll");
         //var scroll = factory.CreateWrapPanel(AOrientation.Vertical,"scroll");
         scroll.X = 20;
@@ -29,6 +34,7 @@ public static class GfxTestScene
         {
             panel.AddItem(node, 40, y);
             y += height;
+            
         }
 
         Add(CreateLabel(factory, "label1"),22);
@@ -64,6 +70,7 @@ public static class GfxTestScene
         {
             numClicked++;
             testBtnLabel.Text = $"Button clicked {numClicked} times";
+            windowManager.OpenWindow(GfxTestWindow.MyWindowCode);
         };
         //var btnpanel = factory.CreateWrapPanel(AOrientation.Horizontal, "scroll");
         //btnpanel.Width = 500;
@@ -85,42 +92,42 @@ public static class GfxTestScene
 
         Add(factory.CreateInputCheckbox("checkbox"));
 
-        //var combo = factory.CreateInputCombobox("combobox", null);
-        //combo.AddItem("1", "One");
-        //combo.AddItem("2", "Two");
-        //combo.AddItem("3", "Three");
-        //combo.SelectedIndex = 1;
-        //Add(combo);
+        var combo = factory.CreateInputCombobox("combobox", null);
+        combo.AddItem("1", "One");
+        combo.AddItem("2", "Two");
+        combo.AddItem("3", "Three");
+        combo.SelectedIndex = 1;
+        Add(combo);
 
-        //var slider = factory.CreateInputSliderFloat(AOrientation.Horizontal, "slider", 0, 1, 0.1f);
-        //slider.Width = 200;
-        //Add(slider, 50);
+        var slider = factory.CreateInputSliderFloat(AOrientation.Horizontal, "slider", 0, 1, 0.1f);
+        slider.Width = 200;
+        Add(slider, 50);
 
-        
 
-        //var list = factory.CreateItemList("itemList");
-        //list.Width = 120;
-        //list.Height = 60;
-        //list.AddItem("a", "Item A");
-        //list.AddItem("b", "Item B B");
-        //list.AddItem("c", "Item C");
-        //Add(list, 80);
 
-        //var tabs = factory.CreateTabContainer("tabContainer");
-        //tabs.Width = 300;
-        //tabs.Height = 120;
-        //var tab1 = factory.CreateTabItem("tab1", "First tab");
-        //var tab1Panel = factory.CreateWrapPanel(AOrientation.Vertical, "tab1panel");
-        //tab1Panel.AddItem(factory.CreateButton("tab1Btn1", "Button 1"));
-        //tab1.Content = tab1Panel;
-        //tabs.AddTab(tab1);
-        //var tab2 = factory.CreateTabItem("tab2", "Second tab");
-        //var tab2Panel = factory.CreateWrapPanel(AOrientation.Vertical, "tab2panel");
-        //tab2Panel.AddItem(factory.CreateButton("tab2Btn2", "Button 2"));
-        //tab2.Content = tab2Panel;
-        //tabs.AddTab(tab2);
+        var list = factory.CreateItemList("itemList");
+        list.Width = 120;
+        list.Height = 60;
+        list.AddItem("a", "Item A");
+        list.AddItem("b", "Item B B");
+        list.AddItem("c", "Item C");
+        Add(list, 80);
 
-        //Add(tabs, 130);
+        var tabs = factory.CreateTabContainer("tabContainer");
+        tabs.Width = 300;
+        tabs.Height = 120;
+        var tab1 = factory.CreateTabItem("tab1", "First tab");
+        var tab1Panel = factory.CreateWrapPanel(AOrientation.Vertical, "tab1panel");
+        tab1Panel.AddItem(factory.CreateButton("tab1Btn1", "Button 1"));
+        tab1.Content = tab1Panel;
+        tabs.AddTab(tab1);
+        var tab2 = factory.CreateTabItem("tab2", "Second tab");
+        var tab2Panel = factory.CreateWrapPanel(AOrientation.Vertical, "tab2panel");
+        tab2Panel.AddItem(factory.CreateButton("tab2Btn2", "Button 2"));
+        tab2.Content = tab2Panel;
+        tabs.AddTab(tab2);
+
+        Add(tabs, 130);
 
         //var menu = factory.CreateMenu("menu");
         //menu.AddItem(factory.CreateMenuItem("menuItem"));

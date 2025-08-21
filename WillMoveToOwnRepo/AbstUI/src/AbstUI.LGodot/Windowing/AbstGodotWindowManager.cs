@@ -1,7 +1,6 @@
 using AbstEngine.Director.LGodot;
 using AbstUI.Components;
 using AbstUI.Components.Containers;
-using AbstUI.LGodot;
 using AbstUI.LGodot.Primitives;
 using AbstUI.LGodot.Styles;
 using AbstUI.Styles;
@@ -10,77 +9,90 @@ using Godot;
 
 namespace AbstUI.LGodot.Windowing;
 
+
+
 public interface IAbstGodotWindowManager : IAbstFrameworkWindowManager
 {
-    void Register(BaseGodotWindow godotWindow);
-    void SetActiveWindow(BaseGodotWindow window, Vector2 mousePoint);
-
-
     BaseGodotWindow? ActiveWindow { get; }
+    Control RootNode { get; }
 }
-public class AbstGodotWindowManager : IAbstGodotWindowManager
+public class AbstGodotWindowManager : IAbstGodotWindowManager , IDisposable
 {
-    public const int ZIndexInactiveWindow = -1000;
-    public const int ZIndexInactiveWindowStage = -4000;
-    private IAbstWindowManager _directorWindowManager;
+    protected BaseGodotWindow? _lastActiveWindow;
+    private IAbstWindowManager _windowManager;
     private readonly IAbstGodotStyleManager _godotStyleManager;
     private readonly IAbstComponentFactory _frameworkFactory;
-    private readonly IAbstGodotRootNode _abstGodotRootNode;
-    private readonly Dictionary<string, BaseGodotWindow> _godotWindows = new();
-    public BaseGodotWindow? ActiveWindow { get; private set; }
 
-    public AbstGodotWindowManager(IAbstWindowManager directorWindowManager, IAbstGodotStyleManager godotStyleManager, IAbstComponentFactory frameworkFactory, IAbstGodotRootNode abstGodotRootNode)
+    public Control RootNode { get; }
+
+    private readonly Dictionary<string, Lazy<BaseGodotWindow>> _godotWindows = new();
+
+    public BaseGodotWindow? ActiveWindow => _windowManager.ActiveWindow?.FrameworkObj as BaseGodotWindow;
+
+    public AbstGodotWindowManager(IAbstWindowManager windowManager, IAbstGodotStyleManager godotStyleManager, IAbstComponentFactory frameworkFactory, IAbstGodotRootNode abstGodotRootNode)
     {
-        _directorWindowManager = directorWindowManager;
+        _windowManager = windowManager;
+        _windowManager.NewWindowCreated += NewWindowCreated;
         _godotStyleManager = godotStyleManager;
         _frameworkFactory = frameworkFactory;
-        _abstGodotRootNode = abstGodotRootNode;
-        directorWindowManager.Init(this);
+        RootNode = new Control();
+        RootNode.Name = "LingoGodotRootNode";
+        abstGodotRootNode.RootNode.AddChild(RootNode);
+        windowManager.Init(this);
     }
-    public void Register(BaseGodotWindow godotWindow)
+    public void Dispose()
     {
-        _godotWindows.Add(godotWindow.WindowCode, godotWindow);
-        godotWindow.ZIndex = ZIndexInactiveWindow;
+        _windowManager.NewWindowCreated -= NewWindowCreated;
+        _godotWindows.Clear();
     }
+
+    private void NewWindowCreated(IAbstWindow window)
+    {
+        _godotWindows.Add(window.WindowCode, new Lazy<BaseGodotWindow>(() => (BaseGodotWindow)window.FrameworkObj));
+        RootNode.AddChild(_godotWindows[window.WindowCode].Value);
+    }
+
+
 
     #region Window activation
-    public void SetActiveWindow(BaseGodotWindow window, Vector2 mousePoint)
+    //public void SetActiveWindow(BaseGodotWindow window, Vector2 mousePoint)
+    //{
+    //    if (ActiveWindow == window)
+    //        return;
+    //    if (ActiveWindow != null && ActiveWindow.GetGlobalRect().HasPoint(mousePoint))
+    //    {
+    //        // if the active window is clicked, we do not change the active window
+    //        // this is to prevent flickering when clicking on the active window
+    //        return;
+    //    }
+
+    //    SetTheActiveWindow(window);
+    //}
+
+
+    //private BaseGodotWindow? GetTopMostWindow(Vector2 mouse)
+    //{
+    //    return _godotWindows.Values
+    //                .Where(w => w.Value.Visible && w.Value.GetGlobalRect().HasPoint(mouse))
+    //                .OrderByDescending(w => w.Value.ZIndex)
+    //                .FirstOrDefault();
+    //}
+
+    public void SetActiveWindow(IAbstWindow window)
     {
-        if (ActiveWindow == window)
-            return;
-        if (ActiveWindow != null && ActiveWindow.GetGlobalRect().HasPoint(mousePoint))
-        {
-            // if the active window is clicked, we do not change the active window
-            // this is to prevent flickering when clicking on the active window
-            return;
-        }
-
-        SetTheActiveWindow(window);
-    }
-
-
-    private BaseGodotWindow? GetTopMostWindow(Vector2 mouse)
-    {
-        return _godotWindows.Values
-                    .Where(w => w.Visible && w.GetGlobalRect().HasPoint(mouse))
-                    .OrderByDescending(w => w.ZIndex)
-                    .FirstOrDefault();
-    }
-
-    public void SetActiveWindow(IAbstWindowRegistration windowRegistration)
-    {
-        var window = _godotWindows[windowRegistration.WindowCode];
-        SetTheActiveWindow(window);
+        var godotWindow = _godotWindows[window.WindowCode].Value;
+        SetTheActiveWindow(godotWindow);
     }
     protected virtual void SetTheActiveWindow(BaseGodotWindow window)
     {
-        ActiveWindow = window;
-        ActiveWindow.ZIndex = 0;
+        //if (_lastActiveWindow != null)
+        window.ZIndex = 0;
         var parent = window.GetParent();
         if (parent != null)
             parent.MoveChild(window, parent.GetChildCount() - 1);
         window.GrabFocus();
         window.QueueRedraw();
+        _lastActiveWindow = window; 
     }
 
     #endregion
@@ -88,7 +100,7 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager
 
     public IAbstWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult)
     {
-        var root = _abstGodotRootNode.RootNode.GetTree().Root;
+        var root = RootNode.GetTree().Root;
         if (root == null)
             return null;
 
@@ -109,7 +121,7 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager
 
     public IAbstWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel)
     {
-        var root = _abstGodotRootNode.RootNode.GetTree().Root;
+        var root = RootNode.GetTree().Root;
         if (root == null)
             return null;
 
@@ -139,7 +151,7 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager
     public IAbstWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? abstDialog = null)
         where TDialog : class, IAbstDialog
     {
-        var root = _abstGodotRootNode.RootNode.GetTree().Root;
+        var root = RootNode.GetTree().Root;
         if (root == null)
             return null;
 
@@ -185,7 +197,7 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager
 
     public IAbstWindowDialogReference? ShowNotification(string message, AbstUINotificationType type)
     {
-        var root = _abstGodotRootNode.RootNode.GetTree().Root;
+        var root = RootNode.GetTree().Root;
         if (root == null)
             return null;
 

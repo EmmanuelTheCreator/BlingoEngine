@@ -13,6 +13,7 @@ using AbstUI.SDL2.Components.Graphics;
 using AbstUI.SDL2.Components.Containers;
 using AbstUI.SDL2.Core;
 using Microsoft.Extensions.DependencyInjection;
+using AbstUI.SDL2.Windowing;
 
 namespace LingoEngine.Director.SDL2.Scores;
 

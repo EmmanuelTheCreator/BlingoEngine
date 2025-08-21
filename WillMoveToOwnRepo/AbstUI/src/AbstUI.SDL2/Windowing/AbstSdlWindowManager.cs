@@ -1,18 +1,11 @@
-using System;
-using System.Collections.Generic;
 using AbstUI.Windowing;
-using Microsoft.Extensions.DependencyInjection;
 using AbstUI.Components.Containers;
-using AbstUI.SDL2.Components.Containers;
-using AbstUI.SDL2.Components;
+using AbstUI.Components;
 
 namespace AbstUI.SDL2.Windowing
 {
     internal interface IAbstSdlWindowManager : IAbstFrameworkWindowManager
     {
-        void Register(AbstSdlWindow window);
-        void Unregister(AbstSdlWindow window);
-        void SetActiveWindow(AbstSdlWindow window);
         AbstSdlWindow? ActiveWindow { get; }
     }
 
@@ -24,53 +17,22 @@ namespace AbstUI.SDL2.Windowing
     internal class AbstSdlWindowManager : IAbstSdlWindowManager
     {
         private readonly IAbstWindowManager _windowManager;
-        private readonly IServiceProvider _services;
-        private readonly Dictionary<string, AbstSdlWindow> _windows = new();
-        private AbstSdlComponentFactory? _factory;
-        private bool _syncing;
+        private readonly IAbstComponentFactory _componentFactory;
 
-        public AbstSdlWindow? ActiveWindow { get; private set; }
+        public AbstSdlWindow? ActiveWindow => _windowManager.ActiveWindow?.FrameworkObj as AbstSdlWindow;
 
-        public AbstSdlWindowManager(IAbstWindowManager windowManager, IServiceProvider services)
+        public AbstSdlWindowManager(IAbstWindowManager windowManager, IAbstComponentFactory componentFactory)
         {
             _windowManager = windowManager;
-            _services = services;
+            _componentFactory = componentFactory;
             windowManager.Init(this);
         }
 
-        public void Register(AbstSdlWindow window)
-            => _windows[window.WindowCode] = window;
+       
 
-        public void Unregister(AbstSdlWindow window)
+        public void SetActiveWindow(IAbstWindow window)
         {
-            _windows.Remove(window.WindowCode);
-            if (ActiveWindow == window)
-                ActiveWindow = null;
-        }
-
-        public void SetActiveWindow(AbstSdlWindow window)
-        {
-            if (ActiveWindow == window)
-                return;
-
-            ActiveWindow = window;
-            window.BringToFront();
-
-            if (_syncing)
-                return;
-
-            _syncing = true;
-            _windowManager.SetActiveWindow(window.WindowCode);
-            _syncing = false;
-        }
-
-        public void SetActiveWindow(IAbstWindowRegistration window)
-        {
-            if (_windows.TryGetValue(window.WindowCode, out var w))
-            {
-                ActiveWindow = w;
-                w.BringToFront();
-            }
+            ((AbstSdlWindow)window.FrameworkObj).BringToFront();
         }
 
         public IAbstWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult)
@@ -78,8 +40,7 @@ namespace AbstUI.SDL2.Windowing
 
         public IAbstWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel)
         {
-            var factory = _factory ??= _services.GetRequiredService<AbstSdlComponentFactory>();
-            var dialogAbst = factory.CreateElement<IAbstDialog>();
+            var dialogAbst = _componentFactory.CreateElement<IAbstDialog>();
             var dialog = dialogAbst.FrameworkObj<AbstSdlDialog>();
             dialog.Title = title;
             dialog.SetSize((int)panel.Width, (int)panel.Height);
@@ -91,7 +52,6 @@ namespace AbstUI.SDL2.Windowing
         public IAbstWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? dialog = null)
             where TDialog : class, IAbstDialog
         {
-            var factory = _factory ??= _services.GetRequiredService<AbstSdlComponentFactory>();
             AbstSdlDialog sdlDialog;
             if (dialog != null)
             {
@@ -99,7 +59,7 @@ namespace AbstUI.SDL2.Windowing
             }
             else
             {
-                dialog = factory.CreateElement<TDialog>();
+                dialog = _componentFactory.CreateElement<TDialog>();
                 sdlDialog = dialog.FrameworkObj<AbstSdlDialog>();
             }
 

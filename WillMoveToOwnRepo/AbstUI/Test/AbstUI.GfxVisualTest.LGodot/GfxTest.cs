@@ -21,7 +21,7 @@ public partial class GfxTest : Node
         var serviceCollection = new ServiceCollection();
         ServiceProvider serviceProvider = null!;
         serviceCollection
-            .WithAbstUIGodot()
+            .WithAbstUIGodot() //w => w.Register<GfxTestWindow, GodotTestWindow>())
             .AddSingleton<IAbstGodotRootNode>(rootNode)
             //.AddSingleton<IAbstStyleManager>(styleManager)
             //.AddSingleton<IAbstFontManager>(fontManager)

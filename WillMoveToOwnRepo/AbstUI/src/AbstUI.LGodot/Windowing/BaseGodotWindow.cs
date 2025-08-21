@@ -15,7 +15,7 @@ namespace AbstEngine.Director.LGodot
     public abstract partial class BaseGodotWindow : Panel, IAbstFrameworkWindow
     {
         
-        private readonly IAbstGodotWindowManager _windowManager;
+        private readonly IAbstWindowManager _windowManager;
         private readonly IHistoryManager? _historyManager;
         //protected readonly AbstUIGodotMouse _MouseFrameworkObj;
         protected bool _dragging;
@@ -117,7 +117,7 @@ namespace AbstEngine.Director.LGodot
             // IAbstGodotWindowManager windowManager, IHistoryManager? historyManager = null
             Name = $"Window {name}";
             WindowName = name;
-            _windowManager = (IAbstGodotWindowManager)serviceProvider.GetRequiredService<IAbstFrameworkWindowManager>(); 
+            _windowManager = serviceProvider.GetRequiredService<IAbstWindowManager>(); 
             _historyManager = serviceProvider.GetRequiredService<IHistoryManager>();
 
             //MouseFilter = MouseFilterEnum.Stop;
@@ -158,7 +158,6 @@ namespace AbstEngine.Director.LGodot
             _window = (IAbstWindowInternal)instance;
             instance.Init(this);
             instance.WindowTitleHeight = TitleBarHeight;
-            _windowManager.Register(this);
             if (instance.Width > 0 && instance.Height > 0)
             {
                 Size = new Vector2(instance.Width, instance.Height);
@@ -229,7 +228,7 @@ namespace AbstEngine.Director.LGodot
                 if (!IsActiveWindow && isInsideRect)
                 {
                     _window.SetActivated(true);
-                    _windowManager.SetActiveWindow(this, GetGlobalMousePosition());
+                    _windowManager.SetActiveWindow(WindowCode); //.SetActiveWindow(this, GetGlobalMousePosition());
                 }
                 if (!IsActiveWindow)
                     return;
@@ -256,7 +255,7 @@ namespace AbstEngine.Director.LGodot
                     if (pressed && isInsideRect)
                     {
                         _window.SetActivated(true);
-                        _windowManager.SetActiveWindow(this, GetGlobalMousePosition());
+                        _windowManager.SetActiveWindow(WindowCode);  //_windowManager.SetActiveWindow(this, GetGlobalMousePosition());
                     }
                     Vector2 pos = GetLocalMousePosition();
 
@@ -376,7 +375,8 @@ namespace AbstEngine.Director.LGodot
         }
         public void EnsureInBounds()
         {
-            var viewportRect = GetViewport().GetVisibleRect();
+            var viewPort = GetViewport();
+            var viewportRect = viewPort.GetVisibleRect();
             Vector2 pos = Position;
             Vector2 size = Size;
 

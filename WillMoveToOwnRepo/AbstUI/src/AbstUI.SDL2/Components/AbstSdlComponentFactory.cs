@@ -27,18 +27,18 @@ namespace AbstUI.SDL2.Components
     public class AbstSdlComponentFactory : AbstComponentFactoryBase, IAbstComponentFactory
     {
         private readonly ISdlRootComponentContext _rootContext;
-        private readonly IAbstSdlWindowManager _windowManager;
+        private readonly Lazy<IAbstSdlWindowManager> _windowManager;
         public readonly SdlFontManager FontManagerTyped;
 
         public ISdlRootComponentContext RootContext => _rootContext;
         public SdlFocusManager FocusManager => _rootContext.FocusManager;
-        internal IAbstSdlWindowManager WindowManager => _windowManager;
+        internal IAbstSdlWindowManager WindowManager => _windowManager.Value;
 
         public AbstSdlComponentFactory(ISdlRootComponentContext rootContext, IServiceProvider serviceProvider)
             : base(serviceProvider)
         {
             _rootContext = rootContext;
-            _windowManager = (IAbstSdlWindowManager)serviceProvider.GetRequiredService<IAbstFrameworkWindowManager>();
+            _windowManager = new Lazy<IAbstSdlWindowManager>(() => (IAbstSdlWindowManager)serviceProvider.GetRequiredService<IAbstFrameworkWindowManager>());
             FontManagerTyped = (SdlFontManager)FontManager;
             AbstDefaultStyles.RegisterInputStyles(StyleManager);
         }

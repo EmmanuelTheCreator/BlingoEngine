@@ -33,7 +33,6 @@ using LingoEngine.Tempos;
 using LingoEngine.Texts;
 using LingoEngine.Transitions;
 using Microsoft.Extensions.Logging;
-using System.Numerics;
 
 namespace LingoEngine.Director.Core.Inspector
 {
@@ -103,14 +102,14 @@ namespace LingoEngine.Director.Core.Inspector
             _lastWidh = Width;
             _lastHeight = Height;
         }
-        public override void Dispose()
+        protected override void OnDispose()
         {
-            base.Dispose();
+            base.OnDispose();
             _mediator.Unsubscribe(this);
         }
-        public override void Init(IAbstFrameworkWindow frameworkWindow)
+        protected override void OnInit(IAbstFrameworkWindow frameworkWindow)
         {
-            base.Init(frameworkWindow);
+            base.OnInit(frameworkWindow);
             Title = "Property Inspector";
            
         }
@@ -299,7 +298,7 @@ namespace LingoEngine.Director.Core.Inspector
                     ;
             composer0.Finalize();
 
-            var composer = container.Compose(_factory)
+            var composer = container.Compose(_factory.ComponentFactory)
                    .Columns(4)
                    .AddTextInput("SpriteName", "Name:", sprite, s => s.Name, inputSpan: 3)
                    .Columns(8);
@@ -409,7 +408,7 @@ namespace LingoEngine.Director.Core.Inspector
                 .AddItem(container)
                 ;
 
-            container.Compose(_factory)
+            container.Compose(_factory.ComponentFactory)
                    .Columns(4)
                    .AddTextInput("MemberName", "Name:", member, s => s.Name, inputSpan: 3)
                    .Columns(4)
@@ -434,7 +433,7 @@ namespace LingoEngine.Director.Core.Inspector
                 .AddItem(container)
                 ;
 
-            container.Compose(_factory)
+            container.Compose(_factory.ComponentFactory)
                    .Columns(4)
                    .AddLabel("BitmapSize", "Dimensions: ", 2)
                    .AddLabel("BitmapSizeV", member.Width + " x " + member.Height, 2)
@@ -466,12 +465,12 @@ namespace LingoEngine.Director.Core.Inspector
             stopBtn.Pressed += () => soundChannel.Stop();
             btnPanel.AddItem(playBtn);
             btnPanel.AddItem(stopBtn);
-            var panel = _factory.CreatePanel("SoundPanel");
+            AbstPanel panel = _factory.CreatePanel("SoundPanel");
             wrap.AddItem(btnPanel);
             wrap.AddItem(panel);
 
             string duration = TimeSpan.FromSeconds(member.Length).ToString(@"hh\:mm\:ss\.fff");
-            panel.Compose(_factory)
+            panel.Compose(_factory.ComponentFactory)
                 .Columns(4)
                 .AddCheckBox("SoundLoop", "Loop:", member, m => m.Loop, 1, true, 3)
                 .AddLabel("SoundDuration", "Duration: ", 2)
@@ -544,7 +543,7 @@ namespace LingoEngine.Director.Core.Inspector
                 // We create settings to not directly remove all sprites when changing the number, but only when pressed apply to not loose sprites to fast.
                 var settings = new DirMovieUISettings(movie);
                 var rowChannels = _factory.CreatePanel("MovieChannelsRow");
-                rowChannels.Compose(_factory)
+                rowChannels.Compose(_factory.ComponentFactory)
                     .Columns(4)
                     .AddNumericInputInt("MovieChannels", "Channels:", settings, m => settings.MaxSpriteChannelCount)
                     .AddColorPicker("StageBgColor", "Color", _player.Stage, m => m.BackgroundColor)
@@ -601,7 +600,7 @@ namespace LingoEngine.Director.Core.Inspector
             var wrap = AddTab(PropetyTabNames.Cast);
             var rowChannels = _factory.CreatePanel("CastRow");
             rowChannels.Margin = new AMargin(5, 5, 0, 0);
-            rowChannels.Compose(_factory)
+            rowChannels.Compose(_factory.ComponentFactory)
                    .Columns(8)
                    .NextRow()
                    .AddNumericInputInt("CastNumber", "Number:", cast, m => m.Number, 1, true, false, 2, c => c.Enabled = false)
@@ -619,7 +618,7 @@ namespace LingoEngine.Director.Core.Inspector
             var wrap = AddTab(PropetyTabNames.Text);
             var rowChannels = _factory.CreatePanel("TextRow");
             rowChannels.Margin = new AMargin(5, 5, 0, 0);
-            rowChannels.Compose(_factory)
+            rowChannels.Compose(_factory.ComponentFactory)
                    .NextRow()
                    .Columns(8)
                    .AddNumericInputFloat("TextWidth", "W:", textMember, s => s.Width)
@@ -645,7 +644,7 @@ namespace LingoEngine.Director.Core.Inspector
             var wrap = AddTab(PropetyTabNames.Shape);
             var rowChannels = _factory.CreatePanel("ShapeRow");
             rowChannels.Margin = new AMargin(5, 5, 0, 0);
-            var composer = rowChannels.Compose(_factory)
+            var composer = rowChannels.Compose(_factory.ComponentFactory)
                    .NextRow()
                    .Columns(8)
                    .AddEnumInput<LingoMemberShape, LingoShapeType>("ShapeType", "Shape:", member, s => s.ShapeTypeInt, inputSpan: 6, labelSpan: 2)
@@ -681,7 +680,7 @@ namespace LingoEngine.Director.Core.Inspector
             var wrap = AddTab(PropetyTabNames.Guides);
             var guidesPanel = _factory.CreatePanel("GuidesPanel");
             guidesPanel.Margin = new AMargin(5, 5, 0, 0);
-            guidesPanel.Compose(_factory)
+            guidesPanel.Compose(_factory.ComponentFactory)
                    .Columns(4)
                    .AddColorPicker("GuideColor", "Color:", guides, g => g.GuidesColor)
                    .AddCheckBox("GuideVisible", "Visible:", guides, g => g.GuidesVisible)
@@ -692,7 +691,7 @@ namespace LingoEngine.Director.Core.Inspector
 
             var gridPanel = _factory.CreatePanel("GridPanel");
             gridPanel.Margin = new AMargin(5, 5, 0, 0);
-            gridPanel.Compose(_factory)
+            gridPanel.Compose(_factory.ComponentFactory)
                    .Columns(4)
                    .AddColorPicker("GridColor", "Color:", guides, g => g.GridColor)
                    .AddCheckBox("GridVisible", "Visible:", guides, g => g.GridVisible)
@@ -764,17 +763,6 @@ namespace LingoEngine.Director.Core.Inspector
 
 
         #endregion
-
-
-
-
-        public override void OpenWindow()
-        {
-            base.OpenWindow();
-        }
-
-  
-
 
        
     }

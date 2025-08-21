@@ -3,10 +3,11 @@ using LingoEngine.Core;
 using LingoEngine.Director.Core.Importer;
 using LingoEngine.Projects;
 using AbstEngine.Director.LGodot;
+using AbstUI.FrameworkCommunication;
 
 namespace LingoEngine.Director.LGodot.Gfx;
 
-internal partial class DirGodotImportExportWindow : BaseGodotWindow, IDirFrameworkImportExportWindow
+internal partial class DirGodotImportExportWindow : BaseGodotWindow, IDirFrameworkImportExportWindow, IFrameworkFor<DirectorImportExportWindow>
 {
     private readonly VBoxContainer _home = new();
     private readonly ImportLingoFilesStep _importLingoStep;

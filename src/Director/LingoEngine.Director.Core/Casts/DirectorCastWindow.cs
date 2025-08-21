@@ -51,18 +51,18 @@ namespace LingoEngine.Director.Core.Casts
             _mediator.Subscribe(this);
         }
 
-        public override void Init(IAbstFrameworkWindow frameworkWindow)
+        protected override void OnInit(IAbstFrameworkWindow frameworkWindow)
         {
-            base.Init(frameworkWindow);
+            base.OnInit(frameworkWindow);
             _mouseSub = MouseT.OnMouseEvent(OnMouseEvent);
         }
 
-        public override void Dispose()
+        protected override void OnDispose()
         {
             _mediator.Unsubscribe(this);
             _mouseSub?.Release();
             _player.ActiveMovieChanged -= OnActiveMovieChanged;
-            base.Dispose();
+            base.OnDispose();
         }
 
         private void OnActiveMovieChanged(ILingoMovie? movie)

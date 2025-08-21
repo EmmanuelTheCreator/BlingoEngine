@@ -10,6 +10,7 @@ using LingoEngine.Sprites;
 using AbstUI.Styles;
 using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Casts;
+using AbstUI;
 
 namespace LingoEngine.Setup
 {
@@ -19,6 +20,7 @@ namespace LingoEngine.Setup
         private readonly LingoProxyServiceCollection _proxy;
         private readonly Dictionary<string, MovieRegistration> _movies = new();
         private readonly List<(string Name, string FileName)> _fonts = new();
+        private readonly List<Action<IServiceProvider>> _prebuildActions = new();
         private readonly List<Action<ILingoServiceProvider>> _buildActions = new();
         private Action<ILingoFrameworkFactory>? _frameworkFactorySetup;
         private IServiceProvider? _serviceProvider;
@@ -102,6 +104,9 @@ namespace LingoEngine.Setup
         {
             _serviceProvider = serviceProvider;
             _lingoServiceProvider.SetServiceProvider(_serviceProvider);
+            foreach (var preBuild in _prebuildActions)
+                preBuild(serviceProvider);
+
             var player = _lingoServiceProvider.GetRequiredService<LingoPlayer>();
             player.SetActionOnNewMovie(ActionOnNewMovie);
             if (_frameworkFactorySetup != null)
@@ -168,7 +173,24 @@ namespace LingoEngine.Setup
             _buildActions.Add(buildAction);
             return this;
         }
+        public ILingoEngineRegistration AddPreBuildAction(Action<IServiceProvider> buildAction)
+        {
+            _prebuildActions.Add(buildAction);
+            return this;
+        }
 
+        public ILingoEngineRegistration RegisterWindows(Action<IAbstFameworkWindowRegistrator>? windowRegistrations)
+        {
+            if (windowRegistrations == null) return this;
+            AbstUISetup.WithAbstUI(windowRegistrations);
+            return this;
+        }
+        public ILingoEngineRegistration RegisterComponents(Action<IAbstFameworkComponentRegistrator>? componentRegistrations)
+        {
+            if (componentRegistrations == null) return this;
+            AbstUISetup.WithAbstUI(componentRegistrations);
+            return this;
+        }
 
         #region Projects
 
@@ -255,6 +277,8 @@ namespace LingoEngine.Setup
                 fontsManager.AddFont(font.Name, font.FileName);
             fontsManager.LoadAll();
         }
+
+       
         #endregion
 
 
