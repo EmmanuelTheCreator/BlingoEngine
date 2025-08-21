@@ -5,14 +5,14 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace AbstUI.Windowing;
 
-public interface IAbstWindowInternal : IAbstWindow, IDisposable
+public interface IAbstWindowInternal : IAbstWindow, IAbstNode, IDisposable
 {
     void ResizeFromFW(bool firstLoad, int width, int height);
     void RaiseWindowStateChanged(bool v);
     void SetPositionFromFW(int x, int y);
 }
 public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEventHandler<AbstKeyEvent>, IAbstWindowInternal
-    where TFrameworkWindow : IAbstFrameworkWindow
+    where TFrameworkWindow : IAbstFrameworkWindow, IAbstFrameworkNode
 {
     protected readonly IAbstComponentFactory _componentFactory;
     protected TFrameworkWindow _framework;
@@ -22,6 +22,9 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
 
     public TFrameworkWindow Framework => _framework;
     public IAbstFrameworkWindow FrameworkObj => _framework;
+
+    IAbstFrameworkNode IAbstNode.FrameworkObj => _framework;
+    T IAbstNode.Framework<T>() => (T)(IAbstFrameworkNode)_framework;
 
     public int WindowTitleHeight { get; set; }
     public string WindowCode { get; }
@@ -40,6 +43,13 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
     public ARect MouseOffset => ARect.New(X, Y+ WindowTitleHeight, Width, Height);
 
     public bool IsActivated { get; internal set; }
+    public string Name { get => WindowCode; set { } }
+    public bool Visibility { get => IsOpen; set { } }
+    float IAbstNode.Width { get => Width; set => Width = (int)value; }
+    float IAbstNode.Height { get => Height; set => Height = (int)value; }
+    public AMargin Margin { get; set; } = new AMargin();
+
+    
 
     public event Action<bool>? OnWindowStateChanged;
     public event Action<float, float>? OnResize;
@@ -128,4 +138,6 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
         X = x;
         Y = y;
     }
+
+    
 }

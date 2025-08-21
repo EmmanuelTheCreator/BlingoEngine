@@ -19,6 +19,7 @@ using AbstUI.Inputs;
 using AbstUI.Windowing;
 using AbstUI.Tools;
 using AbstUI.LGodot.Windowing;
+using AbstUI.Components;
 
 namespace LingoEngine.Director.LGodot;
 
@@ -45,6 +46,14 @@ internal partial class DirGodotMainMenu : Control , IDirFrameworkMainMenuWindow
     IAbstMouse IAbstFrameworkWindow.Mouse => _directorMainMenu.Mouse;
 
     public IAbstKey AbstKey => _directorMainMenu.Key;
+
+    string IAbstFrameworkNode.Name { get => Name; set => Name = value; }
+    public bool Visibility { get; set; }
+    public float Width { get; set; }
+    public float Height { get; set; }
+    public AMargin Margin { get; set; } = new AMargin();
+
+    public object FrameworkNode => throw new NotImplementedException();
 
     public DirGodotMainMenu(
         DirectorProjectManager projectManager,
@@ -206,9 +215,9 @@ internal partial class DirGodotMainMenu : Control , IDirFrameworkMainMenuWindow
         // not allowed
     }
 
-    public APoint GetPosition() => Position.ToAbstPoint();
+    public new APoint GetPosition() => Position.ToAbstPoint();
 
-    public APoint GetSize() => Size.ToAbstPoint();
+    public new APoint GetSize() => Size.ToAbstPoint();
 
   
 }

@@ -8,6 +8,7 @@ using AbstUI.Styles;
 using AbstUI.Commands;
 using AbstUI.LGodot.Inputs;
 using AbstUI.LGodot.Windowing;
+using AbstUI.Components;
 
 namespace AbstEngine.Director.LGodot
 {
@@ -19,6 +20,10 @@ namespace AbstEngine.Director.LGodot
         //protected readonly AbstUIGodotMouse _MouseFrameworkObj;
         protected bool _dragging;
         protected bool _resizing;
+        private bool _useGuiInput = false;
+        private float _wantedWidth;
+        private float _wantedHeight = 10;
+
         private readonly Label _label = new Label
         {
             Name = "WindowTextTitle",
@@ -30,10 +35,11 @@ namespace AbstEngine.Director.LGodot
         };
         protected IAbstWindowInternal _window;
         protected int TitleBarHeight = 20;
-        private int ResizeHandle = 10;
+        private int _resizeHandle = 10;
         private Vector2 _dragOffset;
         private Vector2 _resizeStartSize;
         private Vector2 _resizeStartMousePos;
+        private IAbstGodotMouseHandler _mouseFrameworkObj;
 
         protected StyleBoxFlat Style = new StyleBoxFlat();
         public string WindowCode => _window.WindowCode;
@@ -59,6 +65,36 @@ namespace AbstEngine.Director.LGodot
         public IAbstMouse Mouse => _window.Mouse;
         public IAbstMouse<AbstMouseEvent> MouseT => (IAbstMouse < AbstMouseEvent > )_window.Mouse;
         public IAbstKey AbstKey => _window.Key;
+
+        string IAbstFrameworkNode.Name { get => Name; set => Name = value; }
+        public bool Visibility { get => Visible; set => Visible = value; }
+        public float Width
+        {
+            get => Size.X;
+            set
+            {
+                _wantedWidth = value;
+                CustomMinimumSize = new Vector2(_wantedWidth, _wantedHeight);
+                Size = new Vector2(value, _wantedHeight);
+
+                var test = Size;
+
+            }
+        }
+        
+        public float Height
+        {
+            get => Size.Y;
+            set
+            {
+                _wantedHeight = Height;
+                CustomMinimumSize = new Vector2(_wantedWidth, _wantedHeight);
+                Size = new Vector2(_wantedWidth, value);
+            }
+        }
+        public AMargin Margin { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public object FrameworkNode => throw new NotImplementedException();
 
         public BaseGodotWindow(string name, IServiceProvider serviceProvider)
         {
@@ -114,7 +150,7 @@ namespace AbstEngine.Director.LGodot
             }
             if (instance.X > 0 && instance.Y>0)
                 Position = new Vector2(instance.X, instance.Y);
-            _MouseFrameworkObj = ((IAbstMouse<AbstMouseEvent>)instance.Mouse).Framework<IAbstGodotMouseHandler>();
+            _mouseFrameworkObj = ((IAbstMouse<AbstMouseEvent>)instance.Mouse).Framework<IAbstGodotMouseHandler>();
         }
        
         public override void _Draw()
@@ -124,18 +160,16 @@ namespace AbstEngine.Director.LGodot
             DrawLine(new Vector2(0, TitleBarHeight), new Vector2(Size.X, TitleBarHeight), AbstDefaultColors.Window_Title_Line_Under.ToGodotColor());
             _closeButton.Position = new Vector2(Size.X - 18, 1);
             // draw resize handle
-            DrawLine(new Vector2(Size.X - ResizeHandle, Size.Y), new Vector2(Size.X, Size.Y - ResizeHandle), Colors.DarkGray);
-            DrawLine(new Vector2(Size.X - ResizeHandle/2f, Size.Y), new Vector2(Size.X, Size.Y - ResizeHandle/2f), Colors.DarkGray);
+            DrawLine(new Vector2(Size.X - _resizeHandle, Size.Y), new Vector2(Size.X, Size.Y - _resizeHandle), Colors.DarkGray);
+            DrawLine(new Vector2(Size.X - _resizeHandle/2f, Size.Y), new Vector2(Size.X, Size.Y - _resizeHandle/2f), Colors.DarkGray);
         }
 
 
-        private bool useGuiInput = false;
-        private IAbstGodotMouseHandler _MouseFrameworkObj;
-
+       
         protected void DontUseInputInsteadOfGuiInput()
         {
             // todo : fix this
-            useGuiInput = false;
+            _useGuiInput = false;
         }
         public new APoint GetPosition() => Position.ToAbstPoint();
 
@@ -143,7 +177,7 @@ namespace AbstEngine.Director.LGodot
         public override void _Input(InputEvent @event)
         {
             base._Input(@event);
-            if (useGuiInput || !Visible ||!(@event is InputEventFromWindow)) return;
+            if (_useGuiInput || !Visible ||!(@event is InputEventFromWindow)) return;
             //if (!_dragging && !_resizing && !GetGlobalRect().HasPoint(GetGlobalMousePosition()))
             //    return;
             OnHandleTheEvent(@event);
@@ -218,7 +252,7 @@ namespace AbstEngine.Director.LGodot
                             _resizing = false;
                             _dragOffset = pos;
                         }
-                        else if (pos.X >= Size.X - ResizeHandle && pos.Y >= Size.Y - ResizeHandle)
+                        else if (pos.X >= Size.X - _resizeHandle && pos.Y >= Size.Y - _resizeHandle)
                         {
                             _resizing = true;
                             _dragging = false;

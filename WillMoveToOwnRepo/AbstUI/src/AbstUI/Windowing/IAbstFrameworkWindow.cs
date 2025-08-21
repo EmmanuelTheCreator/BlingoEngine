@@ -1,3 +1,4 @@
+using AbstUI.Components;
 using AbstUI.FrameworkCommunication;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
@@ -7,7 +8,7 @@ namespace AbstUI.Windowing
     /// <summary>
     /// Framework specific window container.
     /// </summary>
-    public interface IAbstFrameworkWindow : IFrameworkForInitializable<IAbstWindow>
+    public interface IAbstFrameworkWindow : IFrameworkForInitializable<IAbstWindow> , IAbstFrameworkNode
     {
         /// <summary>Window title.</summary>
         string Title { get; set; }

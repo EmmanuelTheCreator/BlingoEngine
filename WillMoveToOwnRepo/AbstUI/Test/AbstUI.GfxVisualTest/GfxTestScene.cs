@@ -51,9 +51,10 @@ public static class GfxTestScene
         canvas2.DrawText(new APoint(30, 15), "Hallo", null, AColors.DarkGray);
         Add(canvas2);
         y += 50;
+        var colorPicker = factory.CreateColorPicker("colorPicker");
+        Add(colorPicker, 80);
 
 
-        
         var numClicked = 0;
         var testBtnLabel = CreateLabel(factory, "Button not clicked");
         testBtnLabel.Width = 300;
@@ -95,8 +96,7 @@ public static class GfxTestScene
         slider.Width = 200;
         Add(slider, 50);
 
-        var colorPicker = factory.CreateColorPicker("colorPicker");
-        Add(colorPicker, 80);
+        
 
         var list = factory.CreateItemList("itemList");
         list.Width = 120;
@@ -109,12 +109,12 @@ public static class GfxTestScene
         var tabs = factory.CreateTabContainer("tabContainer");
         tabs.Width = 300;
         tabs.Height = 120;
-        var tab1 = factory.CreateTabItem("tab1", "First");
+        var tab1 = factory.CreateTabItem("tab1", "First tab");
         var tab1Panel = factory.CreateWrapPanel(AOrientation.Vertical, "tab1panel");
         tab1Panel.AddItem(factory.CreateButton("tab1Btn1", "Button 1"));
         tab1.Content = tab1Panel;
         tabs.AddTab(tab1);
-        var tab2 = factory.CreateTabItem("tab2", "First");
+        var tab2 = factory.CreateTabItem("tab2", "Second tab");
         var tab2Panel = factory.CreateWrapPanel(AOrientation.Vertical, "tab2panel");
         tab2Panel.AddItem(factory.CreateButton("tab2Btn2", "Button 2"));
         tab2.Content = tab2Panel;
