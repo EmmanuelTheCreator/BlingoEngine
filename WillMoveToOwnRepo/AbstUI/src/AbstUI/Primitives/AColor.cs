@@ -109,6 +109,67 @@ namespace AbstUI.Primitives
         public static AColor FromRGB(byte r, byte g, byte b, int code = -1, string name = "", byte a = 255)
             => new AColor(code, r, g, b, name, a);
         public static AColor Transparent() => new AColor { A = 0, Code = -1, R = 0, G = 0, B = 0, Name = "transparent" };
+
+        /// <summary>
+        /// Converts this color to HSV components.
+        /// H is in [0,360], S and V in [0,100].
+        /// </summary>
+        public (float h, float s, float v) ToHsv()
+        {
+            float rf = R / 255f;
+            float gf = G / 255f;
+            float bf = B / 255f;
+            float max = MathF.Max(rf, MathF.Max(gf, bf));
+            float min = MathF.Min(rf, MathF.Min(gf, bf));
+            float delta = max - min;
+            float h = 0f;
+            if (delta > 0f)
+            {
+                if (max == rf)
+                    h = 60f * (((gf - bf) / delta) % 6f);
+                else if (max == gf)
+                    h = 60f * (((bf - rf) / delta) + 2f);
+                else
+                    h = 60f * (((rf - gf) / delta) + 4f);
+            }
+            if (h < 0f) h += 360f;
+            float s = max == 0f ? 0f : delta / max;
+            float v = max;
+            s *= 100f;
+            v *= 100f;
+            return (h, s, v);
+        }
+
+        /// <summary>
+        /// Converts HSV components to an RGB color.
+        /// H is in [0,360], S and V in [0,100].
+        /// </summary>
+        public static (byte r, byte g, byte b) HsvToRgb(float h, float s, float v)
+        {
+#if NET48
+            h = MathCompat.Clamp(h, 0f, 360f);
+            s = MathCompat.Clamp(s, 0f, 100f) / 100f;
+            v = MathCompat.Clamp(v, 0f, 100f) / 100f;
+#else
+            h = Math.Clamp(h, 0f, 360f);
+            s = Math.Clamp(s, 0f, 100f) / 100f;
+            v = Math.Clamp(v, 0f, 100f) / 100f;
+#endif
+            float c = v * s;
+            float x = c * (1f - MathF.Abs((h / 60f % 2f) - 1f));
+            float m = v - c;
+            float rf, gf, bf;
+            if (h < 60f) { rf = c; gf = x; bf = 0f; }
+            else if (h < 120f) { rf = x; gf = c; bf = 0f; }
+            else if (h < 180f) { rf = 0f; gf = c; bf = x; }
+            else if (h < 240f) { rf = 0f; gf = x; bf = c; }
+            else if (h < 300f) { rf = x; gf = 0f; bf = c; }
+            else { rf = c; gf = 0f; bf = x; }
+            byte r = (byte)((rf + m) * 255f);
+            byte g = (byte)((gf + m) * 255f);
+            byte b = (byte)((bf + m) * 255f);
+            return (r, g, b);
+        }
     }
 
 }
