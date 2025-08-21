@@ -9,11 +9,14 @@ namespace AbstUI.LGodot.Components
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkInputCombobox"/>.
     /// </summary>
-    public partial class AbstGodotInputCombobox : OptionButton, IAbstFrameworkInputCombobox, IDisposable
+    public partial class AbstGodotInputCombobox : OptionButton, IAbstFrameworkInputCombobox, IHasTextBackgroundBorderColor, IDisposable
     {
         private readonly List<KeyValuePair<string, string>> _items = new();
         private AMargin _margin = AMargin.Zero;
         private Action<string?>? _onChange;
+        private AColor _textColor = AbstDefaultColors.InputTextColor;
+        private AColor _backgroundColor = AbstDefaultColors.Input_Bg;
+        private AColor _borderColor = AbstDefaultColors.InputBorderColor;
 
         private event Action? _onValueChanged;
 
@@ -44,6 +47,35 @@ namespace AbstUI.LGodot.Components
                 AddThemeConstantOverride("margin_right", (int)_margin.Right);
                 AddThemeConstantOverride("margin_top", (int)_margin.Top);
                 AddThemeConstantOverride("margin_bottom", (int)_margin.Bottom);
+            }
+        }
+        public AColor TextColor
+        {
+            get => _textColor;
+            set
+            {
+                _textColor = value;
+                AddThemeColorOverride("font_color", _textColor.ToGodotColor());
+            }
+        }
+
+        public AColor BackgroundColor
+        {
+            get => _backgroundColor;
+            set
+            {
+                _backgroundColor = value;
+                AddThemeColorOverride("background_color", _backgroundColor.ToGodotColor());
+            }
+        }
+
+        public AColor BorderColor
+        {
+            get => _borderColor;
+            set
+            {
+                _borderColor = value;
+                AddThemeColorOverride("border_color", _borderColor.ToGodotColor());
             }
         }
         public object FrameworkNode => this;

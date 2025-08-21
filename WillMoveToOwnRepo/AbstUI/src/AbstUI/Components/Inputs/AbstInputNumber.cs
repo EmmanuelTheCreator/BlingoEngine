@@ -40,7 +40,7 @@ namespace AbstUI.Components.Inputs
     /// <summary>
     /// Engine level wrapper for a numeric input field.
     /// </summary>
-    public class AbstInputNumber<TValue> : AbstInputBase<IAbstFrameworkInputNumber<TValue>>
+    public class AbstInputNumber<TValue> : AbstInputBase<IAbstFrameworkInputNumber<TValue>>, IHasTextBackgroundBorderColor
 #if NET48
         where TValue : struct
 #else
@@ -53,5 +53,8 @@ namespace AbstUI.Components.Inputs
 
         public ANumberType NumberType { get => _framework.NumberType; set => _framework.NumberType = value; }
         public int FontSize { get => _framework.FontSize; set => _framework.FontSize = value; }
+        public AColor TextColor { get => ((IHasTextBackgroundBorderColor)_framework).TextColor; set => ((IHasTextBackgroundBorderColor)_framework).TextColor = value; }
+        public AColor BackgroundColor { get => ((IHasTextBackgroundBorderColor)_framework).BackgroundColor; set => ((IHasTextBackgroundBorderColor)_framework).BackgroundColor = value; }
+        public AColor BorderColor { get => ((IHasTextBackgroundBorderColor)_framework).BorderColor; set => ((IHasTextBackgroundBorderColor)_framework).BorderColor = value; }
     }
 }

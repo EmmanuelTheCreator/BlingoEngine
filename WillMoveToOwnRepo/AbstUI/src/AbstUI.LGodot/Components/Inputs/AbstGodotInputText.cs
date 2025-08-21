@@ -11,7 +11,7 @@ namespace AbstUI.LGodot.Components.Inputs
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkInputText"/> using composition.
     /// </summary>
-    public class AbstGodotInputText : IAbstFrameworkInputText, IDisposable
+    public class AbstGodotInputText : IAbstFrameworkInputText, IHasTextBackgroundBorderColor, IDisposable
     {
         private readonly Action<string>? _onChange;
         private readonly IAbstFontManager _fontManager;
@@ -26,6 +26,8 @@ namespace AbstUI.LGodot.Components.Inputs
         private float _wantedWidth = 10;
         private float _wantedHeight = 10;
         private AColor _textColor = AColors.Black;
+        private AColor _backgroundColor = AbstDefaultColors.Input_Bg;
+        private AColor _borderColor = AbstDefaultColors.InputBorderColor;
         private bool _isMultiLine;
         public object FrameworkNode => _control;
 
@@ -229,6 +231,26 @@ namespace AbstUI.LGodot.Components.Inputs
             {
                 _textColor = value;
                 _control.AddThemeColorOverride("font_color", _textColor.ToGodotColor());
+            }
+        }
+
+        public AColor BackgroundColor
+        {
+            get => _backgroundColor;
+            set
+            {
+                _backgroundColor = value;
+                _control.AddThemeColorOverride("background_color", _backgroundColor.ToGodotColor());
+            }
+        }
+
+        public AColor BorderColor
+        {
+            get => _borderColor;
+            set
+            {
+                _borderColor = value;
+                _control.AddThemeColorOverride("border_color", _borderColor.ToGodotColor());
             }
         }
 

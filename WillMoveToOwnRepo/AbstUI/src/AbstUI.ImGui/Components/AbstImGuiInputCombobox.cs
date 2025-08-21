@@ -9,7 +9,7 @@ using AbstUI.Styles;
 
 namespace AbstUI.ImGui.Components
 {
-    internal class AbstImGuiInputCombobox : AbstImGuiComponent, IAbstFrameworkInputCombobox, IDisposable
+    internal class AbstImGuiInputCombobox : AbstImGuiComponent, IAbstFrameworkInputCombobox, IHasTextBackgroundBorderColor, IDisposable
     {
         public AbstImGuiInputCombobox(AbstImGuiComponentFactory factory) : base(factory)
         {
@@ -38,6 +38,9 @@ namespace AbstUI.ImGui.Components
 
         public event Action? ValueChanged;
         public object FrameworkNode => this;
+        public AColor TextColor { get; set; } = AColors.Black;
+        public AColor BackgroundColor { get; set; } = AbstDefaultColors.Input_Bg;
+        public AColor BorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
         public void AddItem(string key, string value)
         {
             _items.Add(new KeyValuePair<string, string>(key, value));
@@ -56,6 +59,9 @@ namespace AbstUI.ImGui.Components
             if (!Visibility) return nint.Zero;
             global::ImGuiNET.ImGui.SetCursorScreenPos(context.Origin + new Vector2(X, Y));
             global::ImGuiNET.ImGui.PushID(Name);
+            global::ImGuiNET.ImGui.PushStyleColor(ImGuiCol.Text, TextColor.ToImGuiColor());
+            global::ImGuiNET.ImGui.PushStyleColor(ImGuiCol.FrameBg, BackgroundColor.ToImGuiColor());
+            global::ImGuiNET.ImGui.PushStyleColor(ImGuiCol.Border, BorderColor.ToImGuiColor());
             if (!Enabled)
                 global::ImGuiNET.ImGui.BeginDisabled();
 
@@ -81,6 +87,7 @@ namespace AbstUI.ImGui.Components
 
             if (!Enabled)
                 global::ImGuiNET.ImGui.EndDisabled();
+            global::ImGuiNET.ImGui.PopStyleColor(3);
             global::ImGuiNET.ImGui.PopID();
             return AbstImGuiRenderResult.RequireRender();
         }

@@ -1,10 +1,11 @@
 using System;
 using AbstUI.Components.Inputs;
 using AbstUI.Primitives;
+using AbstUI.Styles;
 
 namespace AbstUI.Blazor.Components.Inputs;
 
-public class AbstBlazorInputTextComponent : AbstBlazorComponentModelBase, IAbstFrameworkInputText
+public class AbstBlazorInputTextComponent : AbstBlazorComponentModelBase, IAbstFrameworkInputText, IHasTextBackgroundBorderColor
 {
     private string _text = string.Empty;
     public string Text
@@ -39,6 +40,20 @@ public class AbstBlazorInputTextComponent : AbstBlazorComponentModelBase, IAbstF
     {
         get => _textColor;
         set { if (!_textColor.Equals(value)) { _textColor = value; RaiseChanged(); } }
+    }
+
+    private AColor _backgroundColor = AbstDefaultColors.Input_Bg;
+    public AColor BackgroundColor
+    {
+        get => _backgroundColor;
+        set { if (!_backgroundColor.Equals(value)) { _backgroundColor = value; RaiseChanged(); } }
+    }
+
+    private AColor _borderColor = AbstDefaultColors.InputBorderColor;
+    public AColor BorderColor
+    {
+        get => _borderColor;
+        set { if (!_borderColor.Equals(value)) { _borderColor = value; RaiseChanged(); } }
     }
 
     private bool _isMultiLine;

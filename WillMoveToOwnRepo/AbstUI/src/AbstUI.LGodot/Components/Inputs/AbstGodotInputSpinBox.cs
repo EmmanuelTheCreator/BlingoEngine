@@ -6,10 +6,13 @@ using AbstUI.Components.Inputs;
 
 namespace AbstUI.LGodot.Components
 {
-    public partial class AbstGodotSpinBox : SpinBox, IAbstFrameworkSpinBox, IDisposable
+    public partial class AbstGodotSpinBox : SpinBox, IAbstFrameworkSpinBox, IHasTextBackgroundBorderColor, IDisposable
     {
         private AMargin _margin = AMargin.Zero;
         private Action<float>? _onChange;
+        private AColor _textColor = AbstDefaultColors.InputTextColor;
+        private AColor _backgroundColor = AbstDefaultColors.Input_Bg;
+        private AColor _borderColor = AbstDefaultColors.InputBorderColor;
 
         public AbstGodotSpinBox(AbstInputSpinBox spin, IAbstFontManager lingoFontManager, Action<float>? onChange)
         {
@@ -52,6 +55,36 @@ namespace AbstUI.LGodot.Components
         {
             add => _onValueChanged += value;
             remove => _onValueChanged -= value;
+        }
+
+        public AColor TextColor
+        {
+            get => _textColor;
+            set
+            {
+                _textColor = value;
+                AddThemeColorOverride("font_color", _textColor.ToGodotColor());
+            }
+        }
+
+        public AColor BackgroundColor
+        {
+            get => _backgroundColor;
+            set
+            {
+                _backgroundColor = value;
+                AddThemeColorOverride("background_color", _backgroundColor.ToGodotColor());
+            }
+        }
+
+        public AColor BorderColor
+        {
+            get => _borderColor;
+            set
+            {
+                _borderColor = value;
+                AddThemeColorOverride("border_color", _borderColor.ToGodotColor());
+            }
         }
 
         public new void Dispose()

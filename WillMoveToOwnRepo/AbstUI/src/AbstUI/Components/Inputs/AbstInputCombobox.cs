@@ -6,7 +6,7 @@ namespace AbstUI.Components.Inputs
     /// <summary>
     /// Engine level wrapper for a combobox input.
     /// </summary>
-    public class AbstInputCombobox : AbstInputBase<IAbstFrameworkInputCombobox>, IAbstSdlHasSeletectableCollectionStyle
+    public class AbstInputCombobox : AbstInputBase<IAbstFrameworkInputCombobox>, IAbstSdlHasSeletectableCollectionStyle, IHasTextBackgroundBorderColor
     {
         public IReadOnlyList<KeyValuePair<string, string>> Items => _framework.Items;
         public void AddItem(string key, string value) => _framework.AddItem(key, value);
@@ -27,5 +27,9 @@ namespace AbstUI.Components.Inputs
         public AColor ItemPressedTextColor { get => _framework.ItemPressedTextColor; set => _framework.ItemPressedTextColor = value; }
         public AColor ItemPressedBackgroundColor { get => _framework.ItemPressedBackgroundColor; set => _framework.ItemPressedBackgroundColor = value; }
         public AColor ItemPressedBorderColor { get => _framework.ItemPressedBorderColor; set => _framework.ItemPressedBorderColor = value; }
+
+        public AColor TextColor { get => ((IHasTextBackgroundBorderColor)_framework).TextColor; set => ((IHasTextBackgroundBorderColor)_framework).TextColor = value; }
+        public AColor BackgroundColor { get => ((IHasTextBackgroundBorderColor)_framework).BackgroundColor; set => ((IHasTextBackgroundBorderColor)_framework).BackgroundColor = value; }
+        public AColor BorderColor { get => ((IHasTextBackgroundBorderColor)_framework).BorderColor; set => ((IHasTextBackgroundBorderColor)_framework).BorderColor = value; }
     }
 }
