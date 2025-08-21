@@ -6,10 +6,11 @@ using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
+using AbstUI.Styles;
 
 namespace AbstUI.SDL2.Components.Inputs;
 
-internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInputNumber<TValue>, IHandleSdlEvent, ISdlFocusable, IDisposable
+internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInputNumber<TValue>, IHandleSdlEvent, ISdlFocusable, IDisposable, IHasTextBackgroundBorderColor
 #if NET48
     where TValue : struct
 #else
@@ -18,7 +19,7 @@ internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInpu
 {
     private readonly AbstSdlInputText _textInput;
 
-    
+
 
     public bool Enabled { get; set; } = true;
 
@@ -58,6 +59,24 @@ internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInpu
     {
         get => _textInput.Font;
         set => _textInput.Font = value;
+    }
+
+    public AColor TextColor
+    {
+        get => _textInput.TextColor;
+        set => _textInput.TextColor = value;
+    }
+
+    public AColor BackgroundColor
+    {
+        get => _textInput.BackgroundColor;
+        set => _textInput.BackgroundColor = value;
+    }
+
+    public AColor BorderColor
+    {
+        get => _textInput.BorderColor;
+        set => _textInput.BorderColor = value;
     }
 
     private TValue Clamp(TValue v)

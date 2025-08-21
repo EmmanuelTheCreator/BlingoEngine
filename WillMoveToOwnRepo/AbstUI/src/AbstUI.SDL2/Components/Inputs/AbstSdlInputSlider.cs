@@ -23,6 +23,9 @@ namespace AbstUI.SDL2.Components.Inputs
         private int _texW;
         private int _texH;
         private TValue _renderedValue = default!;
+        private AColor _renderedTrackColor;
+        private AColor _renderedKnobColor;
+        private AColor _renderedKnobBorderColor;
         public TValue Value
         {
             get => _value;
@@ -38,6 +41,9 @@ namespace AbstUI.SDL2.Components.Inputs
         public TValue MinValue { get; set; } = default!;
         public TValue MaxValue { get; set; } = default!;
         public TValue Step { get; set; } = default!;
+        public AColor TrackColor { get; set; } = AbstDefaultColors.InputBorderColor.Lighten(0.5f);
+        public AColor KnobColor { get; set; } = AbstDefaultColors.InputAccentColor;
+        public AColor KnobBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
         public event Action? ValueChanged;
         public object FrameworkNode => this;
 
@@ -65,7 +71,9 @@ namespace AbstUI.SDL2.Components.Inputs
             int w = (int)Width;
             int h = (int)Height;
 
-            if (_texture == nint.Zero || w != _texW || h != _texH || !Equals(_renderedValue, _value))
+            if (_texture == nint.Zero || w != _texW || h != _texH || !Equals(_renderedValue, _value) ||
+                !_renderedTrackColor.Equals(TrackColor) || !_renderedKnobColor.Equals(KnobColor) ||
+                !_renderedKnobBorderColor.Equals(KnobBorderColor))
             {
                 if (_texture != nint.Zero)
                     SDL.SDL_DestroyTexture(_texture);
@@ -76,6 +84,9 @@ namespace AbstUI.SDL2.Components.Inputs
                 _texW = w;
                 _texH = h;
                 _renderedValue = _value;
+                _renderedTrackColor = TrackColor;
+                _renderedKnobColor = KnobColor;
+                _renderedKnobBorderColor = KnobBorderColor;
 
                 var prev = SDL.SDL_GetRenderTarget(context.Renderer);
                 SDL.SDL_SetRenderTarget(context.Renderer, _texture);
@@ -84,8 +95,7 @@ namespace AbstUI.SDL2.Components.Inputs
                 SDL.SDL_RenderClear(context.Renderer);
 
                 // draw track
-                var trackColor = AbstDefaultColors.InputBorderColor.Lighten(0.5f);
-                SDL.SDL_SetRenderDrawColor(context.Renderer, trackColor.R, trackColor.G, trackColor.B, trackColor.A);
+                SDL.SDL_SetRenderDrawColor(context.Renderer, TrackColor.R, TrackColor.G, TrackColor.B, TrackColor.A);
                 SDL.SDL_Rect track = new SDL.SDL_Rect { x = 0, y = h / 2 - 2, w = w, h = 4 };
                 SDL.SDL_RenderFillRect(context.Renderer, ref track);
 
@@ -99,11 +109,9 @@ namespace AbstUI.SDL2.Components.Inputs
                 int knobW = Math.Min(10, w);
                 int knobX = (int)((w - knobW) * t);
                 SDL.SDL_Rect knob = new SDL.SDL_Rect { x = knobX, y = 0, w = knobW, h = h };
-                var accent = AbstDefaultColors.InputAccentColor;
-                SDL.SDL_SetRenderDrawColor(context.Renderer, accent.R, accent.G, accent.B, accent.A);
+                SDL.SDL_SetRenderDrawColor(context.Renderer, KnobColor.R, KnobColor.G, KnobColor.B, KnobColor.A);
                 SDL.SDL_RenderFillRect(context.Renderer, ref knob);
-                var border = AbstDefaultColors.InputBorderColor;
-                SDL.SDL_SetRenderDrawColor(context.Renderer, border.R, border.G, border.B, border.A);
+                SDL.SDL_SetRenderDrawColor(context.Renderer, KnobBorderColor.R, KnobBorderColor.G, KnobBorderColor.B, KnobBorderColor.A);
                 SDL.SDL_RenderDrawRect(context.Renderer, ref knob);
 
                 SDL.SDL_SetRenderTarget(context.Renderer, prev);

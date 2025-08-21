@@ -12,7 +12,7 @@ namespace AbstUI.SDL2.Components.Inputs
 {
     internal class AbstSdlInputCheckbox : AbstSdlComponent, IAbstFrameworkInputCheckbox, IHandleSdlEvent, ISdlFocusable, IDisposable
     {
-      
+
         public bool Enabled { get; set; } = true;
         private bool _checked;
         private bool _focused;
@@ -20,6 +20,9 @@ namespace AbstUI.SDL2.Components.Inputs
         private int _texW;
         private int _texH;
         private bool _prevChecked;
+        private AColor _renderedBorderColor;
+        private AColor _renderedBackgroundColor;
+        private AColor _renderedCheckColor;
         public bool Checked
         {
             get => _checked;
@@ -33,6 +36,9 @@ namespace AbstUI.SDL2.Components.Inputs
             }
         }
         public AMargin Margin { get; set; } = AMargin.Zero;
+        public AColor BorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
+        public AColor BackgroundColor { get; set; } = AbstDefaultColors.Input_Bg;
+        public AColor CheckColor { get; set; } = AbstDefaultColors.InputAccentColor;
         public event Action? ValueChanged;
         public object FrameworkNode => this;
         public AbstSdlInputCheckbox(AbstSdlComponentFactory factory) : base(factory)
@@ -66,7 +72,9 @@ namespace AbstUI.SDL2.Components.Inputs
             int h = (int)Height;
 
             // create texture if needed
-            if (_texture == nint.Zero || w != _texW || h != _texH || _prevChecked != _checked)
+            if (_texture == nint.Zero || w != _texW || h != _texH || _prevChecked != _checked ||
+                !_renderedBorderColor.Equals(BorderColor) || !_renderedBackgroundColor.Equals(BackgroundColor) ||
+                !_renderedCheckColor.Equals(CheckColor))
             {
                 if (_texture != nint.Zero)
                     SDL.SDL_DestroyTexture(_texture);
@@ -77,6 +85,9 @@ namespace AbstUI.SDL2.Components.Inputs
                 _texW = w;
                 _texH = h;
                 _prevChecked = _checked;
+                _renderedBorderColor = BorderColor;
+                _renderedBackgroundColor = BackgroundColor;
+                _renderedCheckColor = CheckColor;
 
                 var prev = SDL.SDL_GetRenderTarget(context.Renderer);
                 SDL.SDL_SetRenderTarget(context.Renderer, _texture);
@@ -87,16 +98,16 @@ namespace AbstUI.SDL2.Components.Inputs
 
                 SDL.SDL_Rect rect = new SDL.SDL_Rect { x = 0, y = 0, w = w, h = h };
 
+                SDL.SDL_SetRenderDrawColor(context.Renderer, BackgroundColor.R, BackgroundColor.G, BackgroundColor.B, BackgroundColor.A);
+                SDL.SDL_RenderFillRect(context.Renderer, ref rect);
+
                 if (_checked)
                 {
-                    var accent = AbstDefaultColors.InputAccentColor;
-                    SDL.SDL_SetRenderDrawColor(context.Renderer, accent.R, accent.G, accent.B, accent.A);
+                    SDL.SDL_SetRenderDrawColor(context.Renderer, CheckColor.R, CheckColor.G, CheckColor.B, CheckColor.A);
                     SDL.SDL_RenderFillRect(context.Renderer, ref rect);
                 }
 
-                // draw border
-                var border = AbstDefaultColors.InputBorderColor;
-                SDL.SDL_SetRenderDrawColor(context.Renderer, border.R, border.G, border.B, border.A);
+                SDL.SDL_SetRenderDrawColor(context.Renderer, BorderColor.R, BorderColor.G, BorderColor.B, BorderColor.A);
                 SDL.SDL_RenderDrawRect(context.Renderer, ref rect);
 
                 SDL.SDL_SetRenderTarget(context.Renderer, prev);

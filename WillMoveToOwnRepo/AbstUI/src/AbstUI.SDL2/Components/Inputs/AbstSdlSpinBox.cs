@@ -9,7 +9,7 @@ using AbstUI.Styles;
 
 namespace AbstUI.SDL2.Components.Inputs;
 
-internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IHandleSdlEvent, ISdlFocusable, IDisposable
+internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IHandleSdlEvent, ISdlFocusable, IDisposable, IHasTextBackgroundBorderColor
 {
     private readonly AbstSdlInputNumber<float> _number;
     private const int ButtonWidth = 16;
@@ -18,6 +18,8 @@ internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IHandle
     public object FrameworkNode => this;
     public event Action? ValueChanged;
     public bool Enabled { get; set; } = true;
+    public AColor ButtonColor { get; set; } = AbstDefaultColors.InputAccentColor;
+    public AColor ButtonBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
 
     public float Value
     {
@@ -43,13 +45,31 @@ internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IHandle
         set => _number.Step = value;
     }
 
-  
+
     public AbstSdlSpinBox(AbstSdlComponentFactory factory) : base(factory)
     {
         _number = new AbstSdlInputNumber<float>(factory);
         _number.ValueChanged += () => ValueChanged?.Invoke();
         Width = 50;
         Height = 20;
+    }
+
+    public AColor TextColor
+    {
+        get => _number.TextColor;
+        set => _number.TextColor = value;
+    }
+
+    public AColor BackgroundColor
+    {
+        get => _number.BackgroundColor;
+        set => _number.BackgroundColor = value;
+    }
+
+    public AColor BorderColor
+    {
+        get => _number.BorderColor;
+        set => _number.BorderColor = value;
     }
 
     public void HandleEvent(AbstSDLEvent e)
@@ -113,12 +133,10 @@ internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IHandle
         var renderer = context.Renderer;
         var up = GetUpRect();
         var down = GetDownRect();
-        var accent = AbstDefaultColors.InputAccentColor;
-        SDL.SDL_SetRenderDrawColor(renderer, accent.R, accent.G, accent.B, accent.A);
+        SDL.SDL_SetRenderDrawColor(renderer, ButtonColor.R, ButtonColor.G, ButtonColor.B, ButtonColor.A);
         SDL.SDL_RenderFillRect(renderer, ref up);
         SDL.SDL_RenderFillRect(renderer, ref down);
-        var border = AbstDefaultColors.InputBorderColor;
-        SDL.SDL_SetRenderDrawColor(renderer, border.R, border.G, border.B, border.A);
+        SDL.SDL_SetRenderDrawColor(renderer, ButtonBorderColor.R, ButtonBorderColor.G, ButtonBorderColor.B, ButtonBorderColor.A);
         SDL.SDL_RenderDrawRect(renderer, ref up);
         SDL.SDL_RenderDrawRect(renderer, ref down);
         // simple triangles

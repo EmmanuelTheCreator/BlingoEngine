@@ -14,7 +14,7 @@ using AbstUI.SDL2.Core;
 
 namespace AbstUI.SDL2.Components.Inputs
 {
-    internal class AbstSdlInputText : AbstSdlComponent, IAbstFrameworkInputText, IHandleSdlEvent, ISdlFocusable, IDisposable
+    internal class AbstSdlInputText : AbstSdlComponent, IAbstFrameworkInputText, IHandleSdlEvent, ISdlFocusable, IDisposable, IHasTextBackgroundBorderColor
     {
         private readonly bool _multiLine;
         private readonly List<int> _codepoints = new();
@@ -24,7 +24,7 @@ namespace AbstUI.SDL2.Components.Inputs
         private ISdlFontLoadedByUser? _font;
         private SdlGlyphAtlas? _atlas;
 
-      
+
         public bool Enabled { get; set; } = true;
         private string _text = string.Empty;
         public string Text
@@ -45,6 +45,8 @@ namespace AbstUI.SDL2.Components.Inputs
         public AMargin Margin { get; set; } = AMargin.Zero;
         public object FrameworkNode => this;
         public AColor TextColor { get; set; } = AbstDefaultColors.InputTextColor;
+        public AColor BackgroundColor { get; set; } = AbstDefaultColors.Input_Bg;
+        public AColor BorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
 
         public bool IsMultiLine { get; set; }
 
@@ -156,10 +158,9 @@ namespace AbstUI.SDL2.Components.Inputs
                 w = (int)Width,
                 h = (int)Height
             };
-            SDL.SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+            SDL.SDL_SetRenderDrawColor(renderer, BackgroundColor.R, BackgroundColor.G, BackgroundColor.B, BackgroundColor.A);
             SDL.SDL_RenderFillRect(renderer, ref rect);
-            var border = AbstDefaultColors.InputBorderColor;
-            SDL.SDL_SetRenderDrawColor(renderer, border.R, border.G, border.B, border.A);
+            SDL.SDL_SetRenderDrawColor(renderer, BorderColor.R, BorderColor.G, BorderColor.B, BorderColor.A);
             SDL.SDL_RenderDrawRect(renderer, ref rect);
 
             if (_atlas == null || _font == null) return default;
