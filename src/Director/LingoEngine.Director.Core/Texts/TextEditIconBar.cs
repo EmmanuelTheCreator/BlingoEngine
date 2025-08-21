@@ -31,10 +31,13 @@ public class TextEditIconBar
     private readonly AbstPanel _colorDisplay;
     private readonly AbstColorPicker _colorPicker;
     private readonly AbstInputSpinBox _fontSize;
+    private readonly AbstInputSpinBox _lineHeight;
+    private readonly AbstInputSpinBox _marginLeft;
+    private readonly AbstInputSpinBox _marginRight;
     private readonly AbstInputCombobox _fontsCombo;
 
-    private readonly Dictionary<string, TextStyle> _styles = new();
-    private TextStyle _currentStyle;
+    private readonly Dictionary<string, AbstTextStyle> _styles = new();
+    private AbstTextStyle _currentStyle;
 
     private const string DefaultStyleName = "Default";
 
@@ -55,6 +58,12 @@ public class TextEditIconBar
     public event Action<string>? FontChanged;
     /// <summary>Raised when color changes.</summary>
     public event Action<AColor>? ColorChanged;
+    /// <summary>Raised when line height changes.</summary>
+    public event Action<int>? LineHeightChanged;
+    /// <summary>Raised when left margin changes.</summary>
+    public event Action<int>? MarginLeftChanged;
+    /// <summary>Raised when right margin changes.</summary>
+    public event Action<int>? MarginRightChanged;
 
     /// <summary>Returns whether bold is currently selected.</summary>
     public bool IsBold => _boldButton.IsOn;
@@ -65,25 +74,12 @@ public class TextEditIconBar
     /// <summary>Currently selected font name.</summary>
     public string SelectedFont => _fontsCombo.SelectedValue ?? string.Empty;
 
-    /// <summary>Represents a collection of style properties.</summary>
-    public class TextStyle
-    {
-        public string Name { get; set; } = string.Empty;
-        public int FontSize { get; set; }
-        public string Font { get; set; } = string.Empty;
-        public AColor Color { get; set; }
-        public AbstTextAlignment Alignment { get; set; }
-        public bool Bold { get; set; }
-        public bool Italic { get; set; }
-        public bool Underline { get; set; }
-    }
-
     public TextEditIconBar(ILingoFrameworkFactory factory)
     {
         const int actionBarHeight = 22;
 
         // Ensure default style exists
-        var defaultStyle = new TextStyle
+        var defaultStyle = new AbstTextStyle
         {
             Name = DefaultStyleName,
             FontSize = 12,
@@ -92,7 +88,10 @@ public class TextEditIconBar
             Alignment = AbstTextAlignment.Left,
             Bold = false,
             Italic = false,
-            Underline = false
+            Underline = false,
+            LineHeight = 0,
+            MarginLeft = 0,
+            MarginRight = 0
         };
         _styles.Add(defaultStyle.Name, defaultStyle);
         _currentStyle = defaultStyle;
@@ -172,6 +171,30 @@ public class TextEditIconBar
         _fontSize.Width = 50;
         container.AddItem(_fontSize);
 
+        _lineHeight = factory.CreateSpinBox("LineHeight", 0, 500, v =>
+        {
+            _currentStyle.LineHeight = (int)v;
+            LineHeightChanged?.Invoke((int)v);
+        });
+        _lineHeight.Width = 50;
+        container.AddItem(_lineHeight);
+
+        _marginLeft = factory.CreateSpinBox("MarginLeft", 0, 500, v =>
+        {
+            _currentStyle.MarginLeft = (int)v;
+            MarginLeftChanged?.Invoke((int)v);
+        });
+        _marginLeft.Width = 50;
+        container.AddItem(_marginLeft);
+
+        _marginRight = factory.CreateSpinBox("MarginRight", 0, 500, v =>
+        {
+            _currentStyle.MarginRight = (int)v;
+            MarginRightChanged?.Invoke((int)v);
+        });
+        _marginRight.Width = 50;
+        container.AddItem(_marginRight);
+
         _fontsCombo = factory.CreateInputCombobox("FontsCombo", s =>
         {
             if (s != null)
@@ -224,6 +247,27 @@ public class TextEditIconBar
         _currentStyle.FontSize = size;
     }
 
+    /// <summary>Set the current line height.</summary>
+    public void SetLineHeight(int value)
+    {
+        _lineHeight.Value = value;
+        _currentStyle.LineHeight = value;
+    }
+
+    /// <summary>Set the left margin.</summary>
+    public void SetMarginLeft(int value)
+    {
+        _marginLeft.Value = value;
+        _currentStyle.MarginLeft = value;
+    }
+
+    /// <summary>Set the right margin.</summary>
+    public void SetMarginRight(int value)
+    {
+        _marginRight.Value = value;
+        _currentStyle.MarginRight = value;
+    }
+
     /// <summary>Set the alignment state.</summary>
     public void SetAlignment(AbstTextAlignment alignment)
     {
@@ -272,6 +316,9 @@ public class TextEditIconBar
         SetBold(member.Bold);
         SetItalic(member.Italic);
         SetUnderline(member.Underline);
+        SetLineHeight(0);
+        SetMarginLeft(0);
+        SetMarginRight(0);
 
         // Update default style from member
         var style = _styles[DefaultStyleName];
@@ -282,6 +329,9 @@ public class TextEditIconBar
         style.Bold = member.Bold;
         style.Italic = member.Italic;
         style.Underline = member.Underline;
+        style.LineHeight = 0;
+        style.MarginLeft = 0;
+        style.MarginRight = 0;
 
         ApplyStyle(DefaultStyleName);
         _stylesCombo.SelectedKey = DefaultStyleName;
@@ -304,13 +354,16 @@ public class TextEditIconBar
             SetBold(style.Bold);
             SetItalic(style.Italic);
             SetUnderline(style.Underline);
+            SetLineHeight(style.LineHeight);
+            SetMarginLeft(style.MarginLeft);
+            SetMarginRight(style.MarginRight);
         }
     }
 
     private void AddStyle()
     {
         string newName = GenerateStyleName();
-        var style = new TextStyle
+        var style = new AbstTextStyle
         {
             Name = newName,
             FontSize = _currentStyle.FontSize,
@@ -319,7 +372,10 @@ public class TextEditIconBar
             Alignment = _currentStyle.Alignment,
             Bold = _currentStyle.Bold,
             Italic = _currentStyle.Italic,
-            Underline = _currentStyle.Underline
+            Underline = _currentStyle.Underline,
+            LineHeight = _currentStyle.LineHeight,
+            MarginLeft = _currentStyle.MarginLeft,
+            MarginRight = _currentStyle.MarginRight
         };
         _styles.Add(newName, style);
         RefreshStylesCombo();

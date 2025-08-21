@@ -64,7 +64,24 @@ public class SdlFontManager : IAbstFontManager
 
     public IEnumerable<string> GetAllNames() => _loadedFonts.Keys;
 
+    public float MeasureTextWidth(string text, string fontName, int fontSize)
+    {
+        var user = new object();
+        var font = GetTyped(user, string.IsNullOrEmpty(fontName) ? null : fontName, fontSize);
+        SDL_ttf.TTF_SizeUTF8(font.FontHandle, text, out int w, out _);
+        font.Release();
+        return w;
+    }
 
+    public FontInfo GetFontInfo(string fontName, int fontSize)
+    {
+        var user = new object();
+        var font = GetTyped(user, string.IsNullOrEmpty(fontName) ? null : fontName, fontSize);
+        int height = SDL_ttf.TTF_FontHeight(font.FontHandle);
+        int ascent = SDL_ttf.TTF_FontAscent(font.FontHandle);
+        font.Release();
+        return new FontInfo(height, height - ascent);
+    }
 
     // SDL Fonts
     public void InitFonts()
@@ -101,7 +118,7 @@ public class SdlFontManager : IAbstFontManager
 
     private class LoadedFontWithSize
     {
-      
+
 
         private Dictionary<object, SdlLoadedFontByUser> _fontUsers = new();
         private Action<LoadedFontWithSize> _onRemove;
@@ -167,7 +184,7 @@ public class SdlFontManager : IAbstFontManager
             _onRemove = onRemove;
         }
 
-       
+
 
         public void Release() => _onRemove(this);
     }
