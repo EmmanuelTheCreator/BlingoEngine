@@ -11,6 +11,12 @@ namespace LingoEngine.Director.Core.Texts
         public DirectorTextEditWindow(ILingoFrameworkFactory factory, IServiceProvider serviceProvider) : base(serviceProvider, DirectorMenuCodes.TextEditWindow)
         {
             IconBar = new TextEditIconBar(factory);
+            Width = 450;
+            Height = 200;
+            MinimumWidth = 200;
+            MinimumHeight = 150;
+            X = 1200;
+            Y = 700;
         }
     }
 }

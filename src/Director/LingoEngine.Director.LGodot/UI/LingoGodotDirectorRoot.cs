@@ -38,7 +38,7 @@ namespace LingoEngine.Director.LGodot.UI
 
         public LingoGodotDirectorRoot(LingoPlayer player, IServiceProvider serviceProvider, LingoProjectSettings startupProjectSettings)
         {
-            
+
             _directorParent.Name = "DirectorRoot";
             // set up root
             var parent = (Node2D)serviceProvider.GetRequiredService<LingoGodotRootNode>().RootNode;
@@ -79,8 +79,8 @@ namespace LingoEngine.Director.LGodot.UI
                 _directorParent.AddChild(item);
 
 
-            // Set all positions
-            SetDefaultPositions();
+            foreach (var item in _windows)
+                item.EnsureInBounds();
 
             // close some windows
             _projectSettingsWindow.CloseWindow();
@@ -94,32 +94,15 @@ namespace LingoEngine.Director.LGodot.UI
             {
                 var stageWidth = Math.Min(startupProjectSettings.StageWidth, 800);// scrollbars
                 var stageHeight = Math.Min(startupProjectSettings.StageHeight, 600); // bottombar
-                //var size = new Vector2(stageWidth, stageHeight);
-               // _stageWindow.Size = size;
-                //_stageWindow.CustomMinimumSize = size;
+                                                                                     //var size = new Vector2(stageWidth, stageHeight);
+                                                                                     // _stageWindow.Size = size;
+                                                                                     //_stageWindow.CustomMinimumSize = size;
                 _scoreWindow.SetThePosition(new Vector2(_scoreWindow.Position.X, 640 - 560 + stageHeight));
                 serviceProvider.GetRequiredService<IAbstWindowManager>()
                     .SetWindowSize(DirectorMenuCodes.StageWindow, stageWidth, stageHeight);
                 foreach (var item in _windows)
                     item.EnsureInBounds();
             }
-        }
-
-        private void SetDefaultPositions()
-        {
-            _stageWindow.Position = new Vector2(70, 22);
-            //_castViewer.Position = new Vector2(830, 22);
-            _scoreWindow.Position = new Vector2(20, 560);
-            //_propertyInspector.Position = new Vector2(1530, 22);
-            _toolsWindow.Position = new Vector2(2, 22);
-            _binaryViewer.Position = new Vector2(20, 120);
-            _binaryViewerV2.Position = new Vector2(20, 280);
-            _importExportWindow.Position = new Vector2(120, 120);
-            _projectSettingsWindow.Position = new Vector2(100, 100);
-            _textWindow.Position = new Vector2(1200, 700);
-            _picture.Position = new Vector2(20, 120);
-            foreach (var item in _windows)
-                item.EnsureInBounds();
         }
 
         public void Dispose()

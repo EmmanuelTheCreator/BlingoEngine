@@ -9,10 +9,14 @@ namespace LingoEngine.Director.Core.Bitmaps
             IAbstCommandHandler<PainterDrawPixelCommand>,
             IAbstCommandHandler<PainterFillCommand>
     {
-        public DirectorBitmapEditWindow(IServiceProvider serviceProvider) : base(serviceProvider, DirectorMenuCodes.PictureEditWindow) 
+        public DirectorBitmapEditWindow(IServiceProvider serviceProvider) : base(serviceProvider, DirectorMenuCodes.PictureEditWindow)
         {
             Width = 800;
             Height = 500;
+            MinimumWidth = 200;
+            MinimumHeight = 150;
+            X = 20;
+            Y = 120;
         }
         public bool CanExecute(PainterToolSelectCommand command) => true;
 
