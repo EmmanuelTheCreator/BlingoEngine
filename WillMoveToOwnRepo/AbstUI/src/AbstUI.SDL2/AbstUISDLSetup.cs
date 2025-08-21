@@ -13,7 +13,7 @@ namespace AbstUI.SDL2
 {
     public static class AbstUISDLSetup
     {
-        public static IServiceCollection WithAbstUISdl(this IServiceCollection services)
+        public static IServiceCollection WithAbstUISdl(this IServiceCollection services, Action<IAbstFameworkComponentWinRegistrator>? componentRegistrations = null)
         {
             services
                 .AddSingleton<IAbstSdlWindowManager, AbstSdlWindowManager>()
@@ -34,13 +34,15 @@ namespace AbstUI.SDL2
                 .AddSingleton<IAbstGlobalMouse, GlobalSDLAbstMouse>()
                 .AddSingleton<IAbstGlobalKey, GlobalSDLAbstKey>()
 
-                .WithAbstUI();
+                .WithAbstUI(componentRegistrations);
 
             return services;
         }
-
+        private static bool _registerd = false;
         public static IServiceProvider WithAbstUISdl(this IServiceProvider services)
         {
+            if (_registerd) return services; // only register once
+            _registerd = true;
             services.WithAbstUI(); // need to be first to register all the windows in the windows factory.
             // We need to resolve once the SDL window manager to init
             services.GetRequiredService<IAbstSdlWindowManager>();

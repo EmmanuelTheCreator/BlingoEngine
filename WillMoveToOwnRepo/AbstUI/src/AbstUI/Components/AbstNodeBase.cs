@@ -72,7 +72,8 @@ namespace AbstUI.Components
         #endregion
 
         public virtual T Framework<T>() where T : IAbstFrameworkNode => (T)(object)_framework;
-        public virtual IAbstFrameworkNode FrameworkObj => _framework;
+        public virtual IAbstFrameworkNode FrameworkObj { get => _framework; set => _framework = (TFramework)value; }
+
 
         public virtual void Init(TFramework framework) => _framework = framework;
 

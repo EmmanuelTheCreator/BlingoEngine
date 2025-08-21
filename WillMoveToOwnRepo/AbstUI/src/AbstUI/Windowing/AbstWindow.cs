@@ -27,7 +27,7 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
     public TFrameworkWindow Framework => _framework;
     public IAbstFrameworkWindow FrameworkObj => _framework;
 
-    IAbstFrameworkNode IAbstNode.FrameworkObj => _framework;
+    IAbstFrameworkNode IAbstNode.FrameworkObj { get => _framework; set => _framework = (TFrameworkWindow)value; }
     T IAbstNode.Framework<T>() => (T)(IAbstFrameworkNode)_framework;
 
     public int WindowTitleHeight { get; set; }
@@ -53,7 +53,9 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
     float IAbstNode.Height { get => Height; set => Height = (int)value; }
     public AMargin Margin { get; set; } = new AMargin();
 
-    private IAbstNode? _content;
+    protected IAbstNode? _content;
+    protected IAbstFrameworkNode? _frameworkContent;
+
     public IAbstNode? Content
     {
         get => _content;
@@ -61,10 +63,10 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
         {
             if (_content == value) return;
             _content = value;
-            var fw = value?.FrameworkObj;
-            if (_framework.Content != fw)
+            _frameworkContent = value?.FrameworkObj;
+            if (_framework.Content != _frameworkContent)
             {
-                _framework.Content = fw;
+                _framework.Content = _frameworkContent;
                 _framework.Init(this);
             }
         }
@@ -175,8 +177,7 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
 
     public void SetContentFromFW(IAbstFrameworkNode? node)
     {
-        if (node is TFrameworkWindow window)
-            _framework = window;
+        _frameworkContent = node;
     }
 
 

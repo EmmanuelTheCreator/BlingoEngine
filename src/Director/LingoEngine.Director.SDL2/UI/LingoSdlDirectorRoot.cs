@@ -24,8 +24,8 @@ namespace LingoEngine.Director.SDL2.UI
         {
             var windowManager= services.GetRequiredService<IAbstWindowManager>();
 
-            _castWindow = services.GetRequiredService<DirSdlCastWindow>();
-            _inspectorWindow = services.GetRequiredService<DirSdlPropertyInspectorWindow>();
+            //_castWindow = services.GetRequiredService<DirSdlCastWindow>();
+            //_inspectorWindow = services.GetRequiredService<DirSdlPropertyInspectorWindow>();
 
             windowManager.OpenWindow(DirectorMenuCodes.CastWindow);
             //_stageWindow = services.GetRequiredService<DirSdlStageWindow>();

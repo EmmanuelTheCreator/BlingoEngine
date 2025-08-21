@@ -1,4 +1,5 @@
-﻿using AbstUI.Components;
+﻿using AbstUI.Commands;
+using AbstUI.Components;
 using AbstUI.Tools;
 using AbstUI.Windowing;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +13,8 @@ namespace AbstUI
         public static IServiceCollection WithAbstUI(this IServiceCollection services,Action<IAbstFameworkComponentWinRegistrator>? componentRegistrations = null)
         {
             services
+                .AddSingleton<IAbstCommandManager, AbstCommandManager>()
+                .AddSingleton<IHistoryManager, HistoryManager>()
                 .AddTransient<IAbstDialog, AbstDialog>()
                 .AddTransient<AbstDialog>()
                 .AddSingleton<AbstMainWindow>()
@@ -34,9 +37,11 @@ namespace AbstUI
             if (_registrator == null) throw new InvalidOperationException("AbstUISetup has not been initialized. Call WithAbstUI first.");
             componentRegistrations(_registrator);
         }
-
+        private static bool _registerd = false;
         public static IServiceProvider WithAbstUI(this IServiceProvider services)
         {
+            if (_registerd) return services; // only register once
+            _registerd = true;
             _registrator?.RegisterAll(services);
             return services;
         }

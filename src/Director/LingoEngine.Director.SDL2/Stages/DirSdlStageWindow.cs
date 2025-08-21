@@ -1,22 +1,24 @@
-using AbstUI.Primitives;
 using AbstUI.Components;
+using AbstUI.FrameworkCommunication;
+using AbstUI.Inputs;
+using AbstUI.Primitives;
 using AbstUI.SDL2.Components;
 using AbstUI.SDL2.Components.Containers;
 using AbstUI.SDL2.Components.Graphics;
+using AbstUI.SDL2.Windowing;
 using LingoEngine.Core;
+using LingoEngine.Director.Core.Casts;
 using LingoEngine.Director.Core.Stages;
 using LingoEngine.Director.Core.Tools;
+using LingoEngine.Events;
 using LingoEngine.Inputs;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
-using LingoEngine.Events;
-using AbstUI.Inputs;
 using Microsoft.Extensions.DependencyInjection;
-using AbstUI.SDL2.Windowing;
 
 namespace LingoEngine.Director.SDL2.Stages;
 
-internal class DirSdlStageWindow : AbstSdlWindow, IDirFrameworkStageWindow, IDisposable
+internal class DirSdlStageWindow : AbstSdlWindow, IDirFrameworkStageWindow, IDisposable, IFrameworkFor<DirectorStageWindow>
 {
     private readonly DirectorStageWindow _directorStageWindow;
     private readonly IDirectorEventSubscription _stageChangedSub;

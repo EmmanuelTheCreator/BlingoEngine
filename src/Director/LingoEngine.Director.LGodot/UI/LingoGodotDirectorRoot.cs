@@ -62,44 +62,9 @@ namespace LingoEngine.Director.LGodot.UI
             godotWindowManager.RootNode.AddChild(_dirGodotMainMenu);
             //_stageWindow = serviceProvider.GetRequiredService<DirGodotStageWindow>();
             //_castViewer = serviceProvider.GetRequiredService<DirGodotCastWindow>();
-            //_scoreWindow = serviceProvider.GetRequiredService<DirGodotScoreWindow>();
-            //_propertyInspector = serviceProvider.GetRequiredService<DirGodotPropertyInspector>();
-            //_toolsWindow = serviceProvider.GetRequiredService<DirGodotToolsWindow>();
-            //_binaryViewer = serviceProvider.GetRequiredService<DirGodotBinaryViewerWindow>();
-            //_binaryViewerV2 = serviceProvider.GetRequiredService<DirGodotBinaryViewerWindowV2>();
-            //_importExportWindow = serviceProvider.GetRequiredService<DirGodotImportExportWindow>();
-            //_textWindow = serviceProvider.GetRequiredService<DirGodotTextableMemberWindow>();
-            //_picture = serviceProvider.GetRequiredService<DirGodotPictureMemberEditorWindow>();
-            //_projectSettingsWindow = serviceProvider.GetRequiredService<DirGodotProjectSettingsWindow>();
+            _scoreWindow = serviceProvider.GetRequiredService<DirGodotScoreWindow>();
 
-            //_windows.Add(_stageWindow);
-            //_windows.Add(_castViewer);
-            //_windows.Add(_scoreWindow);
-            //_windows.Add(_propertyInspector);
-            //_windows.Add(_toolsWindow);
-            //_windows.Add(_binaryViewer);
-            //_windows.Add(_binaryViewerV2);
-            //_windows.Add(_importExportWindow);
-            //_windows.Add(_textWindow);
-            //_windows.Add(_picture);
-            //_windows.Add(_projectSettingsWindow);
-
-            //_directorParent.AddChild(_dirGodotMainMenu);
-            //foreach (var item in _windows)
-            //    _directorParent.AddChild(item);
-
-
-            //foreach (var item in _windows)
-            //    item.EnsureInBounds();
-
-            //// close some windows
-            //_projectSettingsWindow.CloseWindow();
-            //_binaryViewer.CloseWindow();
-            //_binaryViewerV2.CloseWindow();
-            //_importExportWindow.CloseWindow();
-            //_textWindow.CloseWindow();
-            //_picture.CloseWindow();
-
+            // todo : execute somewhere else
             //if (startupProjectSettings.StageWidth > 0 && startupProjectSettings.StageHeight > 0)
             //{
             //    var stageWidth = Math.Min(startupProjectSettings.StageWidth, 800);// scrollbars

@@ -3,6 +3,7 @@ using AbstUI.LGodot;
 using AbstUI.LGodot.Components;
 using AbstUI.LGodot.Styles;
 using AbstUI.Styles;
+using AbstUI.Windowing;
 using Godot;
 using LingoEngine.SDL2.GfxVisualTest;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,32 +15,33 @@ public partial class GfxTest : Node
 {
     public override void _Ready()
     {
-        var rootNode = new TestRootNode(this);
-        //var fontManager = new AbstGodotFontManager();
-        //fontManager.LoadAll();
-        //var styleManager = new AbstGodotStyleManager();
-        var serviceCollection = new ServiceCollection();
-        ServiceProvider serviceProvider = null!;
-        serviceCollection
-            .WithAbstUIGodot() //w => w.Register<GfxTestWindow, GodotTestWindow>())
-            .AddSingleton<IAbstGodotRootNode>(rootNode)
-            //.AddSingleton<IAbstStyleManager>(styleManager)
-            //.AddSingleton<IAbstFontManager>(fontManager)
-            //.AddSingleton<GodotComponentFactory>()
-            //.AddTransient<IAbstComponentFactory>(p => p.GetRequiredService<GodotComponentFactory>())
-            .AddTransient<IServiceProvider>(p => serviceProvider);
-        ;
-
-        serviceProvider = serviceCollection.BuildServiceProvider();
-        serviceProvider.WithAbstUIGodot();
-
-
-        var factory = serviceProvider.GetRequiredService<GodotComponentFactory>();
-        var root = GfxTestScene.Build(factory);
-        if (root.FrameworkObj.FrameworkNode is Node node)
+        try
         {
-            AddChild(node);
+            var rootNode = new TestRootNode(this);
+            var serviceCollection = new ServiceCollection();
+            ServiceProvider serviceProvider = null!;
+            serviceCollection
+                .WithAbstUIGodot(w => w.AddSingletonWindow<GfxTestWindow, GodotTestWindow>(GfxTestWindow.MyWindowCode))
+                .AddSingleton<IAbstGodotRootNode>(rootNode)
+                .AddTransient<IServiceProvider>(p => serviceProvider);
+            ;
+
+            serviceProvider = serviceCollection.BuildServiceProvider();
+            serviceProvider.WithAbstUIGodot();
+
+            var factory = serviceProvider.GetRequiredService<GodotComponentFactory>();
+            var root = GfxTestScene.Build(factory);
+            if (root.FrameworkObj.FrameworkNode is Node node)
+            {
+                AddChild(node);
+            }
         }
+        catch (Exception ex)
+        {
+
+            throw;
+        }
+       
     }
     private class TestRootNode : IAbstGodotRootNode
     {

@@ -30,7 +30,7 @@ namespace LingoEngine.Director.Core
                 .ServicesMain(s => s
                     .AddSingleton<IDirectorEventMediator, DirectorEventMediator>()
                    
-                    .AddSingleton<IHistoryManager, HistoryManager>()
+                    
                     .AddSingleton<DirectorProjectManager>()
                     .AddSingleton<LingoScriptCompiler>()
                     .AddSingleton<DirectorProjectSettings>()

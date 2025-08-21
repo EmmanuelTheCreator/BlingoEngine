@@ -26,6 +26,12 @@ namespace AbstUI.GfxVisualTest
         {
             base.OnInit(frameworkWindow);
             var content = _componentFactory.CreateScrollContainer("scroll");
+
+            //var wrap = _componentFactory.CreatePanel("wrap");
+            //wrap.Compose(_componentFactory)
+            //    .AddLabel("Label1", "my window content test 1")
+            //    .Finalize();
+            ;
             var wrap = _componentFactory.CreateWrapPanel(AOrientation.Vertical, "wrap");
             wrap.Compose()
                 .AddLabel("Label1", "my window content test 1")

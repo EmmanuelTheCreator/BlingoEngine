@@ -13,8 +13,7 @@ try
 
     serviceCollection
         .AddSingleton<ISdlRootComponentContext>(rootContext)
-        .AddTransient<SDLTestWindow>()
-        .WithAbstUISdl()
+        .WithAbstUISdl(w => w.AddSingletonWindow<GfxTestWindow, SDLTestWindow>(GfxTestWindow.MyWindowCode))
         .SetupGfxTest()
         ;
 
@@ -24,7 +23,6 @@ try
 
     var factory = serviceProvier.GetRequiredService<IAbstComponentFactory>();
     rootContext.Factory = (AbstSdlComponentFactory)factory;
-    factory.Register<GfxTestWindow, SDLTestWindow>();
 
     serviceProvier.SetupGfxTest();
 

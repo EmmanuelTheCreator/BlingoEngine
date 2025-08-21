@@ -1,26 +1,28 @@
-using LingoEngine.Core;
-using LingoEngine.Movies;
-using LingoEngine.Director.Core.Scores;
-using LingoEngine.Director.Core.Tools;
-using LingoEngine.Director.Core.Sprites;
-using System.Collections.Generic;
 using AbstUI.Components;
 using AbstUI.Components.Containers;
 using AbstUI.Components.Graphics;
+using AbstUI.FrameworkCommunication;
 using AbstUI.Primitives;
 using AbstUI.SDL2.Components;
-using AbstUI.SDL2.Components.Graphics;
 using AbstUI.SDL2.Components.Containers;
+using AbstUI.SDL2.Components.Graphics;
 using AbstUI.SDL2.Core;
-using Microsoft.Extensions.DependencyInjection;
 using AbstUI.SDL2.Windowing;
+using LingoEngine.Core;
+using LingoEngine.Director.Core.Scores;
+using LingoEngine.Director.Core.Sprites;
+using LingoEngine.Director.Core.Stages;
+using LingoEngine.Director.Core.Tools;
+using LingoEngine.Movies;
+using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
 
 namespace LingoEngine.Director.SDL2.Scores;
 
 /// <summary>
 /// SDL2 implementation of the Director Score window.
 /// </summary>
-internal class DirSdlScoreWindow : AbstSdlWindow, IDirFrameworkScoreWindow, IDisposable
+internal class DirSdlScoreWindow : AbstSdlWindow, IDirFrameworkScoreWindow, IDisposable, IFrameworkFor<DirectorScoreWindow>
 {
     private readonly DirectorScoreWindow _directorScoreWindow;
     private readonly LingoPlayer _player;

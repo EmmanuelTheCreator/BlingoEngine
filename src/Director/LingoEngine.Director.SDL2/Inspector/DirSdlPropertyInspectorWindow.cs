@@ -1,13 +1,15 @@
 using AbstUI.Components;
+using AbstUI.FrameworkCommunication;
 using AbstUI.SDL2.Components;
 using AbstUI.SDL2.Components.Containers;
 using AbstUI.SDL2.Windowing;
 using LingoEngine.Director.Core.Inspector;
+using LingoEngine.Director.Core.Scores;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Director.SDL2.Inspector;
 
-internal class DirSdlPropertyInspectorWindow : AbstSdlWindow, IDirFrameworkPropertyInspectorWindow
+internal class DirSdlPropertyInspectorWindow : AbstSdlWindow, IDirFrameworkPropertyInspectorWindow, IFrameworkFor<DirectorPropertyInspectorWindow>
 {
     private readonly DirectorPropertyInspectorWindow _directorInspectorWindow;
     private readonly AbstSdlPanel _headerPanel;

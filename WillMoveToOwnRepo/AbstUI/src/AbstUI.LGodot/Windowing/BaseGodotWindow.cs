@@ -158,7 +158,7 @@ namespace AbstEngine.Director.LGodot
             
         }
 
-        public void Init(IAbstWindow instance)
+        public virtual void Init(IAbstWindow instance)
         {
             _window = (IAbstWindowInternal)instance;
             instance.Init(this);
@@ -171,8 +171,10 @@ namespace AbstEngine.Director.LGodot
             if (instance.X > 0 && instance.Y>0)
                 Position = new Vector2(instance.X, instance.Y);
             _mouseFrameworkObj = ((IAbstMouse<AbstMouseEvent>)instance.Mouse).Framework<IAbstGodotMouseHandler>();
+            OnInit(instance);
         }
-       
+        public virtual void OnInit(IAbstWindow instance) { }
+
         public override void _Draw()
         {
             var titleColor = IsActiveWindow ? AbstDefaultColors.Window_Title_BG_Active : AbstDefaultColors.Window_Title_BG_Inactive;

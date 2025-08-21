@@ -1,8 +1,7 @@
-using AbstUI.Commands;
 using System;
 using System.Collections.Generic;
 
-namespace LingoEngine.Director.Core.Tools
+namespace AbstUI.Commands
 {
     public class HistoryManager : IHistoryManager
     {

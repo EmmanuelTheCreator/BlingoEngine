@@ -13,7 +13,7 @@ namespace AbstUI.Components
         float Height { get; set; }
         AMargin Margin { get; set; }
         T Framework<T>() where T : IAbstFrameworkNode;
-        IAbstFrameworkNode FrameworkObj { get; }
+        IAbstFrameworkNode FrameworkObj { get; set; }
     }
     /// <summary>
     /// Engine level interface for UI nodes that can be placed within containers.

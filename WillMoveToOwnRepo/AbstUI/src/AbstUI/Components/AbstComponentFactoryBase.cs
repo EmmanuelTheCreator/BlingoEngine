@@ -92,6 +92,8 @@ public abstract class AbstComponentFactoryBase : IAbstComponentFactoryBase
         var type = typeof(TReturnType);
         var component = _serviceProvider.GetRequiredService<TReturnType>();
         var fw = GetFrameworkFor<IFrameworkFor<TReturnType>>(type);
+        if (component is IAbstNode abstNode1 && fw is IAbstFrameworkNode fwNode)
+            abstNode1.FrameworkObj = fwNode;
         if (fw is IFrameworkForInitializable<TReturnType> initable)
             initable.Init(component);
         if (component is IAbstNode abstNode)

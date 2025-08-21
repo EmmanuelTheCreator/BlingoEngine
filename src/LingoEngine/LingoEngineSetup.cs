@@ -38,7 +38,7 @@ namespace LingoEngine
                    .AddScoped<ILingoEventMediator, LingoEventMediator>()
                    // Xtras
                    .AddScoped<IBuddyAPI, BuddyAPI>()
-                   .AddSingleton<IAbstCommandManager, AbstCommandManager>()
+                   
                    .AddTransient<LingoJoystickKeyboard>()
                    ;
 

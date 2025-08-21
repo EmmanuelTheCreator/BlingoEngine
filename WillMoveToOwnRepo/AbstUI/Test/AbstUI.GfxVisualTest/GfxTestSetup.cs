@@ -15,8 +15,7 @@ namespace AbstUI.GfxVisualTest
         public static void SetupGfxTest(this IServiceProvider services)
         {
             services.GetRequiredService<IAbstFontManager>().LoadAll();
-            services.GetRequiredService<IAbstWindowManager>()
-                .Register<GfxTestWindow>(GfxTestWindow.MyWindowCode);
+            
         }
     }
 }

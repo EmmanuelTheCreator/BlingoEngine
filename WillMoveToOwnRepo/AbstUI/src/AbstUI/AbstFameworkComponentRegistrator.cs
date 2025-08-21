@@ -13,30 +13,39 @@ namespace AbstUI
 
     public interface IAbstFameworkWindowRegistrator
     {
-        IAbstFameworkWindowRegistrator AddTransient<TWindow>(string windowCode) where TWindow : class, IAbstWindow;
-        IAbstFameworkWindowRegistrator AddTransient<TWindow>(string windowCode, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null) where TWindow : class, IAbstWindow;                          
-        IAbstFameworkWindowRegistrator AddTransient<TWindow>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor) where TWindow : class, IAbstWindow;
-        IAbstFameworkWindowRegistrator AddTransient<TWindow>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null) where TWindow : class, IAbstWindow;
+        IAbstFameworkWindowRegistrator AddTransientWindow<TWindow>(string windowCode) where TWindow : class, IAbstWindow;
+        IAbstFameworkWindowRegistrator AddTransientWindow<TWindow>(string windowCode, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null) where TWindow : class, IAbstWindow;                          
+        IAbstFameworkWindowRegistrator AddTransientWindow<TWindow>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor) where TWindow : class, IAbstWindow;
+        IAbstFameworkWindowRegistrator AddTransientWindow<TWindow>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null) where TWindow : class, IAbstWindow;
 
-        IAbstFameworkWindowRegistrator AddSingleton<TWindow>(string windowCode) where TWindow : class, IAbstWindow;
-        IAbstFameworkWindowRegistrator AddSingleton<TWindow>(string windowCode, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null) where TWindow : class, IAbstWindow;
-        IAbstFameworkWindowRegistrator AddSingleton<TWindow>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor) where TWindow : class, IAbstWindow;
-        IAbstFameworkWindowRegistrator AddSingleton<TWindow>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null) where TWindow : class, IAbstWindow;
+        IAbstFameworkWindowRegistrator AddSingletonWindow<TWindow>(string windowCode) where TWindow : class, IAbstWindow;
+        
+        IAbstFameworkWindowRegistrator AddSingletonWindow<TWindow>(string windowCode, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null) where TWindow : class, IAbstWindow;
+        IAbstFameworkWindowRegistrator AddSingletonWindow<TWindow>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor) where TWindow : class, IAbstWindow;
+        IAbstFameworkWindowRegistrator AddSingletonWindow<TWindow>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null) where TWindow : class, IAbstWindow;
+
+        IAbstFameworkWindowRegistrator AddSingletonWindow<TWindow, TImpl>(string windowCode)
+            where TWindow : class, IAbstWindow
+            where TImpl : class, IFrameworkFor<TWindow>;
+        IAbstFameworkWindowRegistrator AddSingletonWindow<TWindow, TImpl>(string windowCode, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null) where TWindow : class, IAbstWindow where TImpl : class, IFrameworkFor<TWindow>;
+        IAbstFameworkWindowRegistrator AddSingletonWindow<TWindow, TImpl>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor) where TWindow : class, IAbstWindow where TImpl : class, IFrameworkFor<TWindow>;
+        IAbstFameworkWindowRegistrator AddSingletonWindow<TWindow, TImpl>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null) where TWindow : class, IAbstWindow where TImpl : class, IFrameworkFor<TWindow>;
     }
     public interface IAbstFameworkComponentRegistrator
     {
         public IAbstFameworkComponentRegistrator AddSingleton<TComponent, TFamework>()
          where TComponent : class
-         where TFamework : IFrameworkFor<TComponent>;
+         where TFamework : class, IFrameworkFor<TComponent>;
         public IAbstFameworkComponentRegistrator AddTransient<TComponent, TFamework>()
          where TComponent : class
-         where TFamework : IFrameworkFor<TComponent>;
+         where TFamework : class, IFrameworkFor<TComponent>;
     }
     public class AbstFameworkComponentRegistrator : IAbstFameworkComponentWinRegistrator
     {
         internal static AbstFameworkComponentRegistrator? I { get; private set; }
         private List<Action<IAbstWindowFactory, IAbstShortCutManager>> _windowregistrations = new();
         private List<Action<IAbstComponentFactory>> _registrations = new();
+        private List<Action<IAbstComponentFactory>> _fwregistrations = new();
         private readonly IServiceCollection _serviceCollection;
         internal AbstFameworkComponentRegistrator(IServiceCollection serviceCollection)
         {
@@ -46,28 +55,28 @@ namespace AbstUI
 
 
         #region Transients
-        public IAbstFameworkWindowRegistrator AddTransient<TWindow>(string windowCode)
+        public IAbstFameworkWindowRegistrator AddTransientWindow<TWindow>(string windowCode)
           where TWindow : class, IAbstWindow
         {
             _serviceCollection.AddTransient<TWindow>();
             _windowregistrations.Add((f, s) => f.Register<TWindow>(windowCode));
             return this;
         }
-        public IAbstFameworkWindowRegistrator AddTransient<TWindow>(string windowCode, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null)
+        public IAbstFameworkWindowRegistrator AddTransientWindow<TWindow>(string windowCode, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null)
             where TWindow : class, IAbstWindow
         {
             _serviceCollection.AddTransient<TWindow>();
             _windowregistrations.Add((f, s) => f.Register<TWindow>(windowCode, shortCutMap != null ? shortCutMap(s) : null));
             return this;
         }
-        public IAbstFameworkWindowRegistrator AddTransient<TWindow>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor)
+        public IAbstFameworkWindowRegistrator AddTransientWindow<TWindow>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor)
             where TWindow : class, IAbstWindow
         {
             _serviceCollection.AddTransient<TWindow>();
             _windowregistrations.Add((f, s) => f.Register<TWindow>(windowCode, constructor));
             return this;
         }
-        public IAbstFameworkWindowRegistrator AddTransient<TWindow>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null)
+        public IAbstFameworkWindowRegistrator AddTransientWindow<TWindow>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null)
             where TWindow : class, IAbstWindow
         {
             _serviceCollection.AddTransient<TWindow>();
@@ -80,28 +89,28 @@ namespace AbstUI
 
         #region Singletons
 
-        public IAbstFameworkWindowRegistrator AddSingleton<TWindow>(string windowCode)
+        public IAbstFameworkWindowRegistrator AddSingletonWindow<TWindow>(string windowCode)
            where TWindow : class, IAbstWindow
         {
             _serviceCollection.AddSingleton<TWindow>();
             _windowregistrations.Add((f, s) => f.Register<TWindow>(windowCode));
             return this;
         }
-        public IAbstFameworkWindowRegistrator AddSingleton<TWindow>(string windowCode, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null)
+        public IAbstFameworkWindowRegistrator AddSingletonWindow<TWindow>(string windowCode, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null)
             where TWindow : class, IAbstWindow
         {
             _serviceCollection.AddSingleton<TWindow>();
             _windowregistrations.Add((f, s) => f.Register<TWindow>(windowCode, shortCutMap != null ? shortCutMap(s) : null));
             return this;
         }
-        public IAbstFameworkWindowRegistrator AddSingleton<TWindow>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor)
+        public IAbstFameworkWindowRegistrator AddSingletonWindow<TWindow>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor)
             where TWindow : class, IAbstWindow
         {
             _serviceCollection.AddSingleton<TWindow>();
             _windowregistrations.Add((f, s) => f.Register<TWindow>(windowCode, constructor));
             return this;
         }
-        public IAbstFameworkWindowRegistrator AddSingleton<TWindow>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null)
+        public IAbstFameworkWindowRegistrator AddSingletonWindow<TWindow>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null)
             where TWindow : class, IAbstWindow
         {
             _serviceCollection.AddSingleton<TWindow>();
@@ -109,6 +118,40 @@ namespace AbstUI
             return this;
         }
 
+
+        public IAbstFameworkWindowRegistrator AddSingletonWindow<TWindow, TImpl>(string windowCode)
+             where TWindow : class, IAbstWindow
+             where TImpl : class, IFrameworkFor<TWindow>
+        {
+            _serviceCollection.AddSingleton<TImpl>();
+            _fwregistrations.Add(f => f.Register<TWindow, TImpl>());
+            return AddSingletonWindow<TWindow>(windowCode);
+        }
+        public IAbstFameworkWindowRegistrator AddSingletonWindow<TWindow, TImpl>(string windowCode, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null)
+           where TWindow : class, IAbstWindow
+            where TImpl : class, IFrameworkFor<TWindow>
+        {
+            _serviceCollection.AddSingleton<TImpl>();
+            _fwregistrations.Add(f => f.Register<TWindow, TImpl>());
+            return AddSingletonWindow<TWindow>(windowCode);
+        }
+        public IAbstFameworkWindowRegistrator AddSingletonWindow<TWindow, TImpl>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor)
+            where TWindow : class, IAbstWindow
+            where TImpl : class, IFrameworkFor<TWindow>
+        {
+            _serviceCollection.AddSingleton<TImpl>();
+            _fwregistrations.Add(f => f.Register<TWindow, TImpl>());
+            return AddSingletonWindow<TWindow>(windowCode);
+        }
+        public IAbstFameworkWindowRegistrator AddSingletonWindow<TWindow, TImpl>(string windowCode, Func<IServiceProvider, IAbstWindow> constructor, Func<IAbstShortCutManager, AbstShortCutMap>? shortCutMap = null)
+            where TWindow : class, IAbstWindow
+            where TImpl : class, IFrameworkFor<TWindow>
+        {
+            _serviceCollection.AddSingleton<TWindow>();
+            _serviceCollection.AddSingleton<TImpl>();
+            _fwregistrations.Add(f => f.Register<TWindow, TImpl>());
+            return AddSingletonWindow<TWindow>(windowCode);
+        }
         #endregion
 
 
@@ -116,17 +159,19 @@ namespace AbstUI
 
         public IAbstFameworkComponentRegistrator AddTransient<TComponent, TFamework>() 
             where TComponent :class
-            where TFamework : IFrameworkFor<TComponent>
+            where TFamework : class, IFrameworkFor<TComponent>
         {
+            _serviceCollection.AddTransient<TComponent>();
             _serviceCollection.AddTransient<TComponent>();
             _registrations.Add(f => f.Register<TComponent, TFamework>());
             return this;
         }
         public IAbstFameworkComponentRegistrator AddSingleton<TComponent, TFamework>() 
             where TComponent :class
-            where TFamework : IFrameworkFor<TComponent>
+            where TFamework : class,IFrameworkFor<TComponent>
         {
             _serviceCollection.AddSingleton<TComponent>();
+            _serviceCollection.AddSingleton<TFamework>();
             _registrations.Add(f => f.Register<TComponent, TFamework>());
             return this;
         }
@@ -140,7 +185,11 @@ namespace AbstUI
             var factory = serviceProvider.GetRequiredService<IAbstComponentFactory>();
             foreach (var registration in _registrations)
                 registration(factory);
+            foreach (var registration in _fwregistrations)
+                registration(factory);
             
         }
+
+     
     }
 }

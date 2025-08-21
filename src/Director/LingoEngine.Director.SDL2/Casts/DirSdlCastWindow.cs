@@ -4,10 +4,11 @@ using AbstUI.SDL2.Components;
 using AbstUI.SDL2.Components.Containers;
 using Microsoft.Extensions.DependencyInjection;
 using AbstUI.SDL2.Windowing;
+using AbstUI.FrameworkCommunication;
 
 namespace LingoEngine.Director.SDL2.Casts
 {
-    internal class DirSdlCastWindow : AbstSdlWindow, IDirFrameworkCastWindow
+    internal class DirSdlCastWindow : AbstSdlWindow, IDirFrameworkCastWindow , IFrameworkFor<DirectorCastWindow>
     {
         private readonly DirectorCastWindow _directorCastWindow;
         private readonly AbstSdlTabContainer _tabs;
