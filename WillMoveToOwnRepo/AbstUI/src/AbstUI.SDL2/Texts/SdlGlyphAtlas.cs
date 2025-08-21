@@ -50,6 +50,13 @@ internal sealed class SdlGlyphAtlas : IDisposable
         if (glyphSurface == nint.Zero)
             return;
 
+        // Ensure the glyph surface uses the same pixel format as the atlas texture
+        // so that channel ordering and alpha data are preserved when copying.
+        nint converted = SDL.SDL_ConvertSurfaceFormat(glyphSurface, SDL.SDL_PIXELFORMAT_RGBA8888, 0);
+        SDL.SDL_FreeSurface(glyphSurface);
+        glyphSurface = converted;
+        SDL.SDL_SetSurfaceBlendMode(glyphSurface, SDL.SDL_BlendMode.SDL_BLENDMODE_NONE);
+
         SDL.SDL_Surface surf = Marshal.PtrToStructure<SDL.SDL_Surface>(glyphSurface);
         int w = surf.w;
         int h = surf.h;
