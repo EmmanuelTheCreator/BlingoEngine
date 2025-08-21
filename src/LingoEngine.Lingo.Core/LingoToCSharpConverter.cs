@@ -304,6 +304,8 @@ public class LingoToCSharpConverter
             {
                 if (kv.Value.Default != null)
                     sb.AppendLine($"    public {kv.Value.Type} {kv.Key} = {kv.Value.Default};");
+                else if (kv.Value.Type.StartsWith("LingoList<"))
+                    sb.AppendLine($"    public {kv.Value.Type} {kv.Key} = new();");
                 else
                     sb.AppendLine($"    public {kv.Value.Type} {kv.Key};");
             }
@@ -471,6 +473,31 @@ public class LingoToCSharpConverter
                 {
                     var rhs = m.Groups[1].Value.Trim();
                     result[name] = InferTypeFromExpression(rhs);
+                    continue;
+                }
+
+                var listOp = Regex.Match(trimmed,
+                    $"(?i)^(append|add|addat|setat|setprop|setaprop|addprop)\\s+{Regex.Escape(name)}\\s*,\\s*(?:[^,]+,\\s*)?(.+)$");
+                if (listOp.Success)
+                {
+                    var rhs = listOp.Groups[2].Value.Trim();
+                    var elemType = InferTypeFromExpression(rhs);
+                    var opName = listOp.Groups[1].Value.ToLowerInvariant();
+                    if (opName.Contains("prop"))
+                        result[name] = $"LingoPropertyList<{elemType}>";
+                    else
+                        result[name] = $"LingoList<{elemType}>";
+                    continue;
+                }
+
+                var propOps = $"(?i)^(deleteprop|getprop|getaprop|getpropat|findpos|findposnear|setaprop)\\s+{Regex.Escape(name)}\\b";
+                var listOps = $"(?i)^(deleteat|deleteone|getat|getpos|count|max|min)\\s+{Regex.Escape(name)}\\b";
+                if (!result.ContainsKey(name))
+                {
+                    if (Regex.IsMatch(trimmed, propOps))
+                        result[name] = "LingoPropertyList<object>";
+                    else if (Regex.IsMatch(trimmed, listOps))
+                        result[name] = "LingoList<object>";
                 }
             }
         }
