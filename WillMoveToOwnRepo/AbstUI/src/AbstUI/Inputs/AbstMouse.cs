@@ -87,12 +87,12 @@ namespace AbstUI.Inputs
             foreach (var subscription in subscriptions)
             {
                 subscription.Do(eventMouse);
-                if (!eventMouse.ContinuePropation) return;
+                if (!eventMouse.ContinuePropagation) return;
             }
             foreach (var subscription in _mouseEvents)
             {
                 subscription.Do(eventMouse);
-                if (!eventMouse.ContinuePropation) return;
+                if (!eventMouse.ContinuePropagation) return;
             }
             OnDoOnAll(eventMouse, action);
         }
@@ -151,7 +151,7 @@ namespace AbstUI.Inputs
             internal ProxyMouse(Func<IAbstMouse, AbstMouseEventType, TAbstUIMouseEvent> ctorNewEvent, AbstMouse<TAbstUIMouseEvent> parent, IAbstMouseRectProvider provider)
                 : base(ctorNewEvent, parent.Framework<IAbstFrameworkMouse>())
             {
-                Name ="ProxyMouse";
+                Name = "ProxyMouse";
                 _parent = parent;
                 _provider = provider;
                 _downSub = parent.OnMouseDown(HandleDown);

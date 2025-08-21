@@ -77,7 +77,7 @@ namespace LingoEngine.Inputs
             foreach (var subscription in _subscriptions)
             {
                 action(subscription, eventMouse);
-                if (!eventMouse.ContinuePropation) return;
+                if (!eventMouse.ContinuePropagation) return;
             }
         }
         /// <summary>

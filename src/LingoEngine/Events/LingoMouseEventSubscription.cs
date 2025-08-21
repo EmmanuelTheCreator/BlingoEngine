@@ -18,7 +18,8 @@ namespace LingoEngine.Events
         {
             Mouse = mouse;
             Type = mouseEvent.Type;
-            ContinuePropation = mouseEvent.ContinuePropation;
+            ContinuePropagation = mouseEvent.ContinuePropagation;
+
         }
     }
 

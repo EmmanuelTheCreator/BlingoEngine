@@ -12,7 +12,7 @@ namespace AbstUI.Inputs
     {
         public IAbstMouse Mouse { get; protected set; }
         public AbstMouseEventType Type { get; protected set; }
-        public bool ContinuePropation { get; set; } = true;
+        public bool ContinuePropagation { get; set; } = true;
         public float MouseH => Mouse.MouseH;
         public float MouseV => Mouse.MouseV;
         public float WheelDelta => Mouse.WheelDelta;
@@ -24,7 +24,7 @@ namespace AbstUI.Inputs
         }
     }
 
-    public interface IAbstMouseEventHandler<TAbstUIMouseEvent> 
+    public interface IAbstMouseEventHandler<TAbstUIMouseEvent>
         where TAbstUIMouseEvent : AbstMouseEvent
     {
         void RaiseMouseDown(TAbstUIMouseEvent mouse);
