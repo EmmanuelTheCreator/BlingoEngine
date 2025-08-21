@@ -3,6 +3,7 @@ using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.Styles;
 using AbstUI.Components.Inputs;
+using AbstUI.LGodot.Primitives;
 
 namespace AbstUI.LGodot.Components
 {
@@ -26,6 +27,7 @@ namespace AbstUI.LGodot.Components
             ItemSelected += idx => _onValueChanged?.Invoke();
             _onChange = onChange;
             if (_onChange != null) ItemSelected += _ => _onChange(SelectedKey);
+            UpdatePopupStyle();
         }
 
 
@@ -125,18 +127,65 @@ namespace AbstUI.LGodot.Components
             }
         }
 
-        public string? ItemFont { get; set; }
-        public int ItemFontSize { get; set; } = 11;
-        public AColor ItemTextColor { get; set; } = AbstDefaultColors.InputTextColor;
-        public AColor ItemSelectedTextColor { get; set; } = AbstDefaultColors.InputSelectionText;
-        public AColor ItemSelectedBackgroundColor { get; set; } = AbstDefaultColors.InputAccentColor;
-        public AColor ItemSelectedBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
-        public AColor ItemHoverTextColor { get; set; } = AbstDefaultColors.InputTextColor;
-        public AColor ItemHoverBackgroundColor { get; set; } = AbstDefaultColors.ListHoverColor;
-        public AColor ItemHoverBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
-        public AColor ItemPressedTextColor { get; set; } = AbstDefaultColors.InputSelectionText;
-        public AColor ItemPressedBackgroundColor { get; set; } = AbstDefaultColors.InputAccentColor;
-        public AColor ItemPressedBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
+        private string? _itemFont;
+        private int _itemFontSize = 11;
+        private AColor _itemTextColor = AbstDefaultColors.InputTextColor;
+        private AColor _itemSelectedTextColor = AbstDefaultColors.InputSelectionText;
+        private AColor _itemSelectedBackgroundColor = AbstDefaultColors.InputAccentColor;
+        private AColor _itemSelectedBorderColor = AbstDefaultColors.InputBorderColor;
+        private AColor _itemHoverTextColor = AbstDefaultColors.InputTextColor;
+        private AColor _itemHoverBackgroundColor = AbstDefaultColors.ListHoverColor;
+        private AColor _itemHoverBorderColor = AbstDefaultColors.InputBorderColor;
+        private AColor _itemPressedTextColor = AbstDefaultColors.InputSelectionText;
+        private AColor _itemPressedBackgroundColor = AbstDefaultColors.InputAccentColor;
+        private AColor _itemPressedBorderColor = AbstDefaultColors.InputBorderColor;
+
+        public string? ItemFont { get => _itemFont; set { _itemFont = value; UpdatePopupStyle(); } }
+        public int ItemFontSize { get => _itemFontSize; set { _itemFontSize = value; UpdatePopupStyle(); } }
+        public AColor ItemTextColor { get => _itemTextColor; set { _itemTextColor = value; UpdatePopupStyle(); } }
+        public AColor ItemSelectedTextColor { get => _itemSelectedTextColor; set { _itemSelectedTextColor = value; UpdatePopupStyle(); } }
+        public AColor ItemSelectedBackgroundColor { get => _itemSelectedBackgroundColor; set { _itemSelectedBackgroundColor = value; UpdatePopupStyle(); } }
+        public AColor ItemSelectedBorderColor { get => _itemSelectedBorderColor; set { _itemSelectedBorderColor = value; UpdatePopupStyle(); } }
+        public AColor ItemHoverTextColor { get => _itemHoverTextColor; set { _itemHoverTextColor = value; UpdatePopupStyle(); } }
+        public AColor ItemHoverBackgroundColor { get => _itemHoverBackgroundColor; set { _itemHoverBackgroundColor = value; UpdatePopupStyle(); } }
+        public AColor ItemHoverBorderColor { get => _itemHoverBorderColor; set { _itemHoverBorderColor = value; UpdatePopupStyle(); } }
+        public AColor ItemPressedTextColor { get => _itemPressedTextColor; set { _itemPressedTextColor = value; UpdatePopupStyle(); } }
+        public AColor ItemPressedBackgroundColor { get => _itemPressedBackgroundColor; set { _itemPressedBackgroundColor = value; UpdatePopupStyle(); } }
+        public AColor ItemPressedBorderColor { get => _itemPressedBorderColor; set { _itemPressedBorderColor = value; UpdatePopupStyle(); } }
+
+        private void UpdatePopupStyle()
+        {
+            var popup = GetPopup();
+            popup.AddThemeFontSizeOverride("font_size", _itemFontSize);
+            popup.AddThemeColorOverride("font_color", _itemTextColor.ToGodotColor());
+            popup.AddThemeColorOverride("font_color_hover", _itemHoverTextColor.ToGodotColor());
+            popup.AddThemeColorOverride("font_color_selected", _itemSelectedTextColor.ToGodotColor());
+            popup.AddThemeColorOverride("font_color_pressed", _itemPressedTextColor.ToGodotColor());
+
+            var selected = new StyleBoxFlat
+            {
+                BgColor = _itemSelectedBackgroundColor.ToGodotColor(),
+                BorderColor = _itemSelectedBorderColor.ToGodotColor()
+            };
+            selected.SetBorderWidthAll(1);
+            popup.AddThemeStyleboxOverride("selected", selected);
+
+            var hover = new StyleBoxFlat
+            {
+                BgColor = _itemHoverBackgroundColor.ToGodotColor(),
+                BorderColor = _itemHoverBorderColor.ToGodotColor()
+            };
+            hover.SetBorderWidthAll(1);
+            popup.AddThemeStyleboxOverride("hover", hover);
+
+            var pressed = new StyleBoxFlat
+            {
+                BgColor = _itemPressedBackgroundColor.ToGodotColor(),
+                BorderColor = _itemPressedBorderColor.ToGodotColor()
+            };
+            pressed.SetBorderWidthAll(1);
+            popup.AddThemeStyleboxOverride("pressed", pressed);
+        }
 
         event Action? IAbstFrameworkNodeInput.ValueChanged
         {

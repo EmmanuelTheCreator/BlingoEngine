@@ -6,3 +6,9 @@
         <option value="@i">@item.Value</option>
     }
 </select>
+<style>
+    #@Name option { color:@ItemTextColor.ToHex(); }
+    #@Name option:hover { color:@ItemHoverTextColor.ToHex(); background-color:@ItemHoverBackgroundColor.ToHex(); }
+    #@Name option:active { color:@ItemPressedTextColor.ToHex(); background-color:@ItemPressedBackgroundColor.ToHex(); }
+    #@Name option:checked, #@Name option:selected { color:@ItemSelectedTextColor.ToHex(); background-color:@ItemSelectedBackgroundColor.ToHex(); }
+</style>

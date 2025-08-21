@@ -10,9 +10,9 @@ using AbstUI.Styles;
 
 namespace AbstUI.SDL2.Components.Inputs
 {
-    internal abstract class AbstSdlSeletectableCollection : AbstSdlScrollViewer, IAbstSdlHasSeletectableCollectionStyle
+    internal abstract class AbstSdlSelectableCollection : AbstSdlScrollViewer, IAbstSdlHasSelectableCollectionStyle
     {
-        protected AbstSdlSeletectableCollection(AbstSdlComponentFactory factory) : base(factory)
+        protected AbstSdlSelectableCollection(AbstSdlComponentFactory factory) : base(factory)
         {
         }
 

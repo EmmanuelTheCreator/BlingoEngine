@@ -3,6 +3,7 @@ using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.Styles;
 using AbstUI.Components.Inputs;
+using AbstUI.LGodot.Primitives;
 
 namespace AbstUI.LGodot.Components
 {
