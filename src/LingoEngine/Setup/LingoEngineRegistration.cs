@@ -1,6 +1,8 @@
 using LingoEngine.Core;
 using LingoEngine.FrameworkCommunication;
 using AbstUI.Commands;
+using AbstUI.Primitives;
+using AbstUI.Windowing;
 using LingoEngine.Movies;
 using LingoEngine.Projects;
 using LingoEngine.Events;
@@ -106,6 +108,7 @@ namespace LingoEngine.Setup
                 _frameworkFactorySetup(_lingoServiceProvider.GetRequiredService<ILingoFrameworkFactory>());
             _player = player;
 
+            ApplyProjectSettings();
             InitializeProject();
             _hasBeenBuild = true;
             return player;
@@ -122,7 +125,7 @@ namespace LingoEngine.Setup
             if (_projectFactory == null) throw new InvalidOperationException("Project factory has not been set up. Use AddProjectFactory<TLingoProjectFactory>() to set it up. and run Build first");
             if (_startupMovie != null)
                 _projectFactory.Run(_startupMovie, !LingoEngineGlobal.IsRunningDirector);
-            if (afterStart!= null && _serviceProvider != null) afterStart(_serviceProvider);
+            if (afterStart != null && _serviceProvider != null) afterStart(_serviceProvider);
             return _projectFactory;
         }
 
@@ -197,6 +200,7 @@ namespace LingoEngine.Setup
                 CreateProjectFactory();
                 _serviceProvider = _container.BuildServiceProvider();
                 _lingoServiceProvider.SetServiceProvider(_serviceProvider);
+                ApplyProjectSettings();
                 InitializeProject();
             }
 
@@ -210,20 +214,32 @@ namespace LingoEngine.Setup
             _projectFactory = _makeFactoryMethod();
         }
 
-        private void InitializeProject()
+        private void ApplyProjectSettings()
         {
-            if (_projectFactory == null || _serviceProvider == null || _player == null)
+            if (_serviceProvider == null || _player == null)
                 return;
 
             var settings = _serviceProvider.GetRequiredService<LingoProjectSettings>();
             _projectSettingsSetup(settings);
+
             if (settings.StageWidth > 0 && settings.StageHeight > 0)
             {
                 var stageWidth = Math.Min(settings.StageWidth, 800);
                 var stageHeight = Math.Min(settings.StageHeight, 600);
                 _player.Stage.Width = settings.StageWidth;
                 _player.Stage.Height = settings.StageHeight;
+                if (!LingoEngineGlobal.IsRunningDirector)
+                {
+                    var mainWindow = _serviceProvider.GetService<AbstMainWindow>();
+                    mainWindow?.SetSize(new APoint(stageWidth, stageHeight));
+                }
             }
+        }
+
+        private void InitializeProject()
+        {
+            if (_projectFactory == null || _serviceProvider == null || _player == null)
+                return;
             LoadFonts(_lingoServiceProvider);
             _buildActions.ForEach(b => b(_lingoServiceProvider));
             _lingoServiceProvider.GetRequiredService<IAbstCommandManager>()
@@ -238,7 +254,7 @@ namespace LingoEngine.Setup
             foreach (var font in _fonts)
                 fontsManager.AddFont(font.Name, font.FileName);
             fontsManager.LoadAll();
-        } 
+        }
         #endregion
 
 
