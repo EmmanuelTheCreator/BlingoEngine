@@ -5,7 +5,7 @@ namespace AbstUI.Components.Inputs
     /// <summary>
     /// Framework specific list widget allowing selection of items.
     /// </summary>
-    public interface IAbstFrameworkItemList : IAbstFrameworkNodeInput
+    public interface IAbstFrameworkItemList : IAbstFrameworkNodeInput, IAbstSdlHasSeletectableCollectionStyle
     {
         /// <summary>Current items in the list.</summary>
         IReadOnlyList<KeyValuePair<string, string>> Items { get; }

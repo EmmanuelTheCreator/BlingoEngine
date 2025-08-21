@@ -2,6 +2,7 @@ using Godot;
 using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.Components.Inputs;
+using AbstUI.Styles;
 
 namespace AbstUI.LGodot.Components
 {
@@ -10,7 +11,7 @@ namespace AbstUI.LGodot.Components
     /// </summary>
     public partial class AbstGodotItemList : ItemList, IAbstFrameworkItemList, IDisposable
     {
-        private readonly List<KeyValuePair<string,string>> _items = new();
+        private readonly List<KeyValuePair<string, string>> _items = new();
         private AMargin _margin = AMargin.Zero;
         private Action<string?>? _onChange;
         private event Action? _onValueChanged;
@@ -47,7 +48,7 @@ namespace AbstUI.LGodot.Components
             _onItemSelected = idx =>
             {
                 _onValueChanged?.Invoke();
-                if (idx>=0 && idx < _items.Count)
+                if (idx >= 0 && idx < _items.Count)
                     _onChange?.Invoke(_items[(int)idx].Key);
             };
             ItemSelected += _onItemSelected;
@@ -59,7 +60,7 @@ namespace AbstUI.LGodot.Components
 
         public void AddItem(string key, string value)
         {
-            _items.Add(new KeyValuePair<string,string>(key, value));
+            _items.Add(new KeyValuePair<string, string>(key, value));
             int idx = ItemCount;
             base.AddItem(value);
             SetItemMetadata(idx, key);
@@ -117,6 +118,19 @@ namespace AbstUI.LGodot.Components
                 }
             }
         }
+
+        public string? ItemFont { get; set; }
+        public int ItemFontSize { get; set; } = 11;
+        public AColor ItemTextColor { get; set; } = AbstDefaultColors.InputTextColor;
+        public AColor ItemSelectedTextColor { get; set; } = AbstDefaultColors.InputSelectionText;
+        public AColor ItemSelectedBackgroundColor { get; set; } = AbstDefaultColors.InputAccentColor;
+        public AColor ItemSelectedBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
+        public AColor ItemHoverTextColor { get; set; } = AbstDefaultColors.InputTextColor;
+        public AColor ItemHoverBackgroundColor { get; set; } = AbstDefaultColors.ListHoverColor;
+        public AColor ItemHoverBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
+        public AColor ItemPressedTextColor { get; set; } = AbstDefaultColors.InputSelectionText;
+        public AColor ItemPressedBackgroundColor { get; set; } = AbstDefaultColors.InputAccentColor;
+        public AColor ItemPressedBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
 
         event Action? IAbstFrameworkNodeInput.ValueChanged
         {

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using AbstUI.Components.Inputs;
 using AbstUI.LUnity.Components.Base;
+using AbstUI.Primitives;
+using AbstUI.Styles;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -104,6 +106,19 @@ internal class AbstUnityInputCombobox : AbstUnityComponent, IAbstFrameworkInputC
                 SelectedIndex = index;
         }
     }
+
+    public string? ItemFont { get; set; }
+    public int ItemFontSize { get; set; } = 11;
+    public AColor ItemTextColor { get; set; } = AbstDefaultColors.InputTextColor;
+    public AColor ItemSelectedTextColor { get; set; } = AbstDefaultColors.InputSelectionText;
+    public AColor ItemSelectedBackgroundColor { get; set; } = AbstDefaultColors.InputAccentColor;
+    public AColor ItemSelectedBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
+    public AColor ItemHoverTextColor { get; set; } = AbstDefaultColors.InputTextColor;
+    public AColor ItemHoverBackgroundColor { get; set; } = AbstDefaultColors.ListHoverColor;
+    public AColor ItemHoverBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
+    public AColor ItemPressedTextColor { get; set; } = AbstDefaultColors.InputSelectionText;
+    public AColor ItemPressedBackgroundColor { get; set; } = AbstDefaultColors.InputAccentColor;
+    public AColor ItemPressedBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
 
     public event Action? ValueChanged;
 

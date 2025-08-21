@@ -4,6 +4,8 @@ using System.Numerics;
 using ImGuiNET;
 using AbstUI.Components;
 using AbstUI.Primitives;
+using AbstUI.Components.Inputs;
+using AbstUI.Styles;
 
 namespace AbstUI.ImGui.Components
 {
@@ -20,6 +22,19 @@ namespace AbstUI.ImGui.Components
         public int SelectedIndex { get; set; } = -1;
         public string? SelectedKey { get; set; }
         public string? SelectedValue { get; set; }
+
+        public string? ItemFont { get; set; }
+        public int ItemFontSize { get; set; } = 11;
+        public AColor ItemTextColor { get; set; } = AbstDefaultColors.InputTextColor;
+        public AColor ItemSelectedTextColor { get; set; } = AbstDefaultColors.InputSelectionText;
+        public AColor ItemSelectedBackgroundColor { get; set; } = AbstDefaultColors.InputAccentColor;
+        public AColor ItemSelectedBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
+        public AColor ItemHoverTextColor { get; set; } = AbstDefaultColors.InputTextColor;
+        public AColor ItemHoverBackgroundColor { get; set; } = AbstDefaultColors.ListHoverColor;
+        public AColor ItemHoverBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
+        public AColor ItemPressedTextColor { get; set; } = AbstDefaultColors.InputSelectionText;
+        public AColor ItemPressedBackgroundColor { get; set; } = AbstDefaultColors.InputAccentColor;
+        public AColor ItemPressedBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
 
         public event Action? ValueChanged;
         public object FrameworkNode => this;
