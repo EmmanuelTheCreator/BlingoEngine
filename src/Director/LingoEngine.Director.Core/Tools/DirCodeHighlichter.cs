@@ -77,22 +77,25 @@ public class DirCodeHighlichter : IDisposable
             "GetPropertyDescriptionList","GetBehaviorTooltip","IsOKToAttach","GetBehaviorDescription",
             "_Movie","ActorList","Cursor","Alert",
             "MemberNum","Member","Preload","Sound",
-            "Sprite","SpriteNum","LocH","LocV","LocZ","Blend","Ink","MouseH","MouseV","Puppet",
+            "Sprite","SpriteNum","LocH","LocV","LocZ","Blend","Ink","MouseH","MouseV","Puppet","Hilite","Visibility",
             "DeleteOne","Append","GetPos","AddProp","SendSprite","VoidP","Frame","Length","Count",
             "Go","Exit",
             "Value",
             "Script","Handler",
             "StepFrame","BeginSprite","EndSprite",
             "StartMovie","StopMovie",
-            "_Mouse","MouseUp","MouseDown","MouseEnter","MouseLeave",
+            "_Mouse","MouseUp","MouseDown","MouseEnter","MouseLeave","LingoMouseEvent","MouseWithin",
+            "_Key","KeyPressed","ControlDown","ShiftDown","Focus","Blur","CharToNum",
             "NetError","NetTextResult","GetNetText",
-            "_Key","KeyPressed","ControlDown","ShiftDown",
-            "_Player",
+            "_Player","Play",
             "_Sound",
             "_System",
             "Channel","Number",
             "CastLib",
             "Put",
+        // "arrays
+            "Append","Add","AddAt","SetAt","SetProp","SetAProp","AddProp","DeleteProp","GetProp","GetAProp","GetPropAt","FindPos","FindPosNear",
+            "DeleteAt","DeleteOne","GetAt","GetPos","Count","Max","Min"
         ];
 
     public List<string> WordsCCharpCodeBuiltIn = [.. _csharpWordsDefault];
@@ -111,28 +114,40 @@ public class DirCodeHighlichter : IDisposable
     private static readonly string[] _csharpWordsCodeTypesDefault = [
             "bool","byte","sbyte","char","decimal","double","float","int","uint","nint","nuint",
             "long","ulong","object","short","ushort","string","void",
-        // NET
-        "List","Add","Remove","IndexOf",
-        // lingo
-         "APoint","ARect","AColor","Loc","Char","FromHex","Line","Word",
-            "format","AColor","Comment","Text","Symbol",
+            // NET
+            "List","Add","Remove","IndexOf","AddAt","GetAt","Count","Length","DeleteAt","SetAt","GetPos","FindPos","Clear","Contains",
+            "CopyTo","IndexOf","Insert","RemoveAt","Duplicate","Append","SetProp","SetAProp","AddProp","DeleteProp","GetProp","GetAProp","GetPropAt","FindPosNear",
+            "DeleteOne",
+             "Convert","ToInt32",
+            // lingo
+             "APoint","ARect","AColor","Loc","Char","FromHex","Line","Word",
+            "format","AColor","Comment","Text","Symbol","GetOne","GetLast","GetAValue","ListP","DeleteAll","Repeat","Sort","Min","Max",
+
             "GetPropertyDescriptionList","GetBehaviorTooltip","IsOKToAttach","GetBehaviorDescription","BehaviorPropertyDescriptionList",
+            "LingoPropertyList","LingoList",
+        
             "_Movie","Actorlist","Cursor","Alert",
-            "MemberNum","Member","Preload","Sound",
-            "Sprite","SpriteNum","LocH","LocV","LocZ","Blend","Ink","MouseH","MouseV","Puppet","ILingoSprite",
+            "MemberNum","Member","Preload","Sound","GetMember",
+            "Bitmap",
+            "Sound","Play",
+            "FilmLoop",
+            "Shape",
+            "Sprite","SpriteNum","LocH","LocV","LocZ","Blend","Ink","MouseH","MouseV","Puppet","ILingoSprite","Visibility","Hilite",
             "DeleteOne","Append","GetPos","Deleteone","Addprop","Sendsprite","Frame","Length","Count",
             "Go","GoTo",
             "Script","Handler",
             "StepFrame","BeginSprite","EndSprite",
             "StartMovie","StopMovie",
-            "_Mouse","MouseUp","MouseDown","MouseEnter","MouseLeave","LingoMouseEvent",
+            "_Mouse","MouseUp","MouseDown","MouseEnter","MouseLeave","LingoMouseEvent","MouseWithin",
+            "_Key","KeyPressed","ControlDown","ShiftDown","LingoKeyEvent","Focus","Blur",
             "NetError","NetTextResult","GetNetText",
-            "_Key","KeyPressed","ControlDown","ShiftDown","LingoKeyEvent",
             "_Player",
             "_Sound",
             "_System",
             "Channel","Number",
-            "CastLib","LingoCast","LingoInkType","ILingoMember"
+            "CastLib","LingoCast","LingoInkType","ILingoMember","ILingoMemberTextBase","GetMember",
+           
+            "ILingoMemberTextBase"
         ];
 
     public static IEnumerable<string> CaseInsensitiveWords(IEnumerable<string> words)

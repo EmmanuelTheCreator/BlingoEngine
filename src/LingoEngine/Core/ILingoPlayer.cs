@@ -165,6 +165,7 @@ namespace LingoEngine.Core
         ILingoPlayer LoadCastLibFromCsv(string castlibName, string pathAndFilenameToCsv, bool isInternal = false);
         ILingoPlayer AddCastLib(string name, bool isInternal = false, Action<ILingoCast>? configure = null);
         ILingoMovie NewMovie(string movieName, bool andActivate = true);
+       
     }
 }
 

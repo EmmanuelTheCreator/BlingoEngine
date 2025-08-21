@@ -71,5 +71,7 @@ namespace LingoEngine.Casts
         /// <param name="slot1">First slot number.</param>
         /// <param name="slot2">Second slot number.</param>
         void SwapMembers(int slot1, int slot2);
+
+        void Save();
     }
 }

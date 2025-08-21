@@ -55,6 +55,8 @@ internal partial class DirGodotMainMenu : Control , IDirFrameworkMainMenuWindow
 
     public object FrameworkNode => throw new NotImplementedException();
 
+    public IAbstFrameworkNode? Content { get; set ; }
+
     public DirGodotMainMenu(
         DirectorProjectManager projectManager,
         LingoPlayer player,

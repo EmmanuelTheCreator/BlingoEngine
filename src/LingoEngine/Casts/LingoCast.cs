@@ -10,8 +10,6 @@ using LingoEngine.Shapes;
 using LingoEngine.Sounds;
 using LingoEngine.Texts;
 using LingoEngine.Transitions;
-using System;
-using System.Linq;
 
 namespace LingoEngine.Casts
 {
@@ -159,7 +157,10 @@ namespace LingoEngine.Casts
             _MembersContainer.ChangeNumber(slot2, slot1);
             _MembersContainer.ChangeNumber(tempSlot, slot2);
         }
-
+        public void Save()
+        {
+            // todo : save castlib 
+        }
         public void Dispose() => RemoveAll();
     }
 }
