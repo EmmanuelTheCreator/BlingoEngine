@@ -12,22 +12,28 @@ namespace AbstUI.LUnity.Components.Inputs;
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkInputCombobox"/>.
 /// </summary>
-internal class AbstUnityInputCombobox : AbstUnityComponent, IAbstFrameworkInputCombobox
+internal class AbstUnityInputCombobox : AbstUnityComponent, IAbstFrameworkInputCombobox, IHasTextBackgroundBorderColor
 {
     private readonly Dropdown _dropdown;
     private readonly List<KeyValuePair<string, string>> _items = new();
+    private readonly Image _image;
     private int _selectedIndex = -1;
+    private AColor _textColor = AbstDefaultColors.InputTextColor;
+    private AColor _backgroundColor = AbstDefaultColors.Input_Bg;
+    private AColor _borderColor = AbstDefaultColors.InputBorderColor;
 
-    public AbstUnityInputCombobox() : base(CreateGameObject(out var dropdown))
+    public AbstUnityInputCombobox() : base(CreateGameObject(out var dropdown, out var image))
     {
         _dropdown = dropdown;
+        _image = image;
         _dropdown.onValueChanged.AddListener(OnSelectionChanged);
+        _image.color = _backgroundColor.ToUnityColor();
     }
 
-    private static GameObject CreateGameObject(out Dropdown dropdown)
+    private static GameObject CreateGameObject(out Dropdown dropdown, out Image image)
     {
         var go = new GameObject("Dropdown");
-        go.AddComponent<Image>();
+        image = go.AddComponent<Image>();
         dropdown = go.AddComponent<Dropdown>();
         return go;
     }
@@ -133,5 +139,32 @@ internal class AbstUnityInputCombobox : AbstUnityComponent, IAbstFrameworkInputC
         _items.Clear();
         _dropdown.options.Clear();
         SelectedIndex = -1;
+    }
+
+    public AColor TextColor
+    {
+        get => _textColor;
+        set
+        {
+            _textColor = value;
+            if (_dropdown.captionText != null)
+                _dropdown.captionText.color = value.ToUnityColor();
+        }
+    }
+
+    public AColor BackgroundColor
+    {
+        get => _backgroundColor;
+        set
+        {
+            _backgroundColor = value;
+            _image.color = value.ToUnityColor();
+        }
+    }
+
+    public AColor BorderColor
+    {
+        get => _borderColor;
+        set => _borderColor = value;
     }
 }

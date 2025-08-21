@@ -7,7 +7,7 @@ using AbstUI.Styles;
 
 namespace AbstUI.Blazor.Components.Inputs;
 
-public partial class AbstBlazorInputCombobox : IAbstFrameworkInputCombobox
+public partial class AbstBlazorInputCombobox : IAbstFrameworkInputCombobox, IHasTextBackgroundBorderColor
 {
 
     private readonly List<KeyValuePair<string, string>> _items = new();
@@ -29,6 +29,9 @@ public partial class AbstBlazorInputCombobox : IAbstFrameworkInputCombobox
     public AColor ItemPressedTextColor { get; set; } = AbstDefaultColors.InputSelectionText;
     public AColor ItemPressedBackgroundColor { get; set; } = AbstDefaultColors.InputAccentColor;
     public AColor ItemPressedBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
+    public AColor TextColor { get; set; } = AColors.Black;
+    public AColor BackgroundColor { get; set; } = AbstDefaultColors.Input_Bg;
+    public AColor BorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
 
 
     public void AddItem(string key, string value)
@@ -72,7 +75,9 @@ public partial class AbstBlazorInputCombobox : IAbstFrameworkInputCombobox
             style += $"font-family:{ItemFont};";
         if (ItemFontSize > 0)
             style += $"font-size:{ItemFontSize}px;";
-        style += $"color:{ItemTextColor.ToHex()};";
+        style += $"color:{TextColor.ToHex()};";
+        style += $"background-color:{BackgroundColor.ToHex()};";
+        style += $"border-color:{BorderColor.ToHex()};";
         return style;
     }
 }

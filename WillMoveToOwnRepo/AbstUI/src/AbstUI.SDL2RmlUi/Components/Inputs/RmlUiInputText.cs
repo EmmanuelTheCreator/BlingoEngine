@@ -1,5 +1,6 @@
 using AbstUI.Components;
 using AbstUI.Primitives;
+using AbstUI.Styles;
 using RmlUiNet;
 
 namespace AbstUI.SDL2RmlUi.Components;
@@ -7,7 +8,7 @@ namespace AbstUI.SDL2RmlUi.Components;
 /// <summary>
 /// Single-line or multi-line text input implemented with RmlUi elements.
 /// </summary>
-public class RmlUiInputText : IAbstFrameworkInputText, IDisposable
+public class RmlUiInputText : IAbstFrameworkInputText, IHasTextBackgroundBorderColor, IDisposable
 {
     private readonly ElementDocument _document;
     private Element _element;
@@ -26,6 +27,8 @@ public class RmlUiInputText : IAbstFrameworkInputText, IDisposable
     private string? _font;
     private int _fontSize;
     private AColor _textColor = AColors.Black;
+    private AColor _backgroundColor = AbstDefaultColors.Input_Bg;
+    private AColor _borderColor = AbstDefaultColors.InputBorderColor;
     private bool _isMultiLine;
     private event Action? _valueChanged;
 
@@ -73,6 +76,8 @@ public class RmlUiInputText : IAbstFrameworkInputText, IDisposable
         if (!string.IsNullOrEmpty(_font)) _element.SetProperty("font-family", _font);
         if (_fontSize != 0) _element.SetProperty("font-size", $"{_fontSize}px");
         _element.SetProperty("color", _textColor.ToHex());
+        _element.SetProperty("background-color", _backgroundColor.ToHex());
+        _element.SetProperty("border-color", _borderColor.ToHex());
 
         if (_input != null) _input.SetValue(_text);
         else _textarea?.SetInnerRml(_text);
@@ -214,6 +219,26 @@ public class RmlUiInputText : IAbstFrameworkInputText, IDisposable
         {
             _textColor = value;
             _element.SetProperty("color", value.ToHex());
+        }
+    }
+
+    public AColor BackgroundColor
+    {
+        get => _backgroundColor;
+        set
+        {
+            _backgroundColor = value;
+            _element.SetProperty("background-color", value.ToHex());
+        }
+    }
+
+    public AColor BorderColor
+    {
+        get => _borderColor;
+        set
+        {
+            _borderColor = value;
+            _element.SetProperty("border-color", value.ToHex());
         }
     }
 

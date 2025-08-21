@@ -40,6 +40,8 @@ public partial class AbstBlazorInputText
     {
         var style = base.BuildStyle();
         style += $"color:{_component.TextColor.ToHex()};";
+        style += $"background-color:{_component.BackgroundColor.ToHex()};";
+        style += $"border-color:{_component.BorderColor.ToHex()};";
         return style;
     }
 
