@@ -14,13 +14,12 @@
 <img src="Images/PropertyInspector.png" alt="Property Inspector" width="49%" /><img src="Images/TempoChange.jpg" alt="Tempo Change" width="49%" />
 
 #### Easy Lingo to C# conversion
+File by file or in batch with the lingo importer.
 
 <img src="Images/Director_CodeConverter1.jpg" alt="Easy Lingo to C# conversion" width="100%" />
 
 
----
-
-## ✨ Key Features
+## ✨ Key Features of the engine
 
 - ✅ **Lingo Script Execution** – Runs legacy Macromedia Director scripts directly in C#.
 - 🔌 **Pluggable Rendering Backends** – Clean architecture supporting:
@@ -33,10 +32,17 @@
 - ⚙️ **Service-Oriented Initialization** – Uses dependency injection and service collections for clean setup.
 - 🌍 **Cross-Platform Compatibility** – Works anywhere the .NET SDK is available.
 
+---
+
 ## Help making this project!
+
 
 > ⚠️ **Can you help us make this dream project come true?**  
 > This project is still under heavy development, and we can use some help. Reach out if you want to contribute.
+.
+.
+
+---
 
 ## ⭐ Why Use LingoEngine?
 
