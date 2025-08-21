@@ -3,6 +3,6 @@
     @for (int i = 0; i < _items.Count; i++)
     {
         var item = _items[i];
-        <option value="@i">@item.Value</option>
+        <option value="@i" style="@GetItemStyle(i)">@item.Value</option>
     }
 </select>

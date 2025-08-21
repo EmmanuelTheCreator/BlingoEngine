@@ -4,6 +4,9 @@ using System.Numerics;
 using ImGuiNET;
 using AbstUI.Components;
 using AbstUI.Primitives;
+using AbstUI.Components.Inputs;
+using AbstUI.Styles;
+using AbstUI.ImGui;
 
 namespace AbstUI.ImGui.Components
 {
@@ -34,6 +37,19 @@ namespace AbstUI.ImGui.Components
             SelectedKey = null;
             SelectedValue = null;
         }
+
+        public string? ItemFont { get; set; }
+        public int ItemFontSize { get; set; } = 11;
+        public AColor ItemTextColor { get; set; } = AbstDefaultColors.InputTextColor;
+        public AColor ItemSelectedTextColor { get; set; } = AbstDefaultColors.InputSelectionText;
+        public AColor ItemSelectedBackgroundColor { get; set; } = AbstDefaultColors.InputAccentColor;
+        public AColor ItemSelectedBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
+        public AColor ItemHoverTextColor { get; set; } = AbstDefaultColors.InputTextColor;
+        public AColor ItemHoverBackgroundColor { get; set; } = AbstDefaultColors.ListHoverColor;
+        public AColor ItemHoverBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
+        public AColor ItemPressedTextColor { get; set; } = AbstDefaultColors.InputSelectionText;
+        public AColor ItemPressedBackgroundColor { get; set; } = AbstDefaultColors.InputAccentColor;
+        public AColor ItemPressedBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
         public override void Dispose() => base.Dispose();
 
         public override AbstImGuiRenderResult Render(AbstImGuiRenderContext context)
@@ -47,6 +63,10 @@ namespace AbstUI.ImGui.Components
             if (!Enabled)
                 global::ImGuiNET.ImGui.BeginDisabled();
 
+            global::ImGuiNET.ImGui.PushStyleColor(ImGuiCol.Text, ItemTextColor.ToImGuiColor());
+            global::ImGuiNET.ImGui.PushStyleColor(ImGuiCol.Header, ItemSelectedBackgroundColor.ToImGuiColor());
+            global::ImGuiNET.ImGui.PushStyleColor(ImGuiCol.HeaderHovered, ItemHoverBackgroundColor.ToImGuiColor());
+            global::ImGuiNET.ImGui.PushStyleColor(ImGuiCol.HeaderActive, ItemPressedBackgroundColor.ToImGuiColor());
             if (global::ImGuiNET.ImGui.BeginListBox("##list", new Vector2(Width, Height)))
             {
                 for (int i = 0; i < _items.Count; i++)
@@ -65,6 +85,7 @@ namespace AbstUI.ImGui.Components
                 }
                 global::ImGuiNET.ImGui.EndListBox();
             }
+            global::ImGuiNET.ImGui.PopStyleColor(4);
 
             if (!Enabled)
                 global::ImGuiNET.ImGui.EndDisabled();

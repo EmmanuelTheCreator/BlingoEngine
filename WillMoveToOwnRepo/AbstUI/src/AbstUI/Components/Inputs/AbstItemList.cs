@@ -5,7 +5,7 @@ namespace AbstUI.Components.Inputs
     /// <summary>
     /// Engine level wrapper around a framework item list widget.
     /// </summary>
-    public class AbstItemList : AbstInputBase<IAbstFrameworkItemList>
+    public class AbstItemList : AbstSelectableCollection<IAbstFrameworkItemList>
     {
         public IReadOnlyList<KeyValuePair<string, string>> Items => _framework.Items;
         public void AddItem(string key, string value) => _framework.AddItem(key, value);
