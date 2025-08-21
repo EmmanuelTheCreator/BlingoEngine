@@ -1,8 +1,11 @@
 # LingoEngine
 
-### Director.NET
+
 
 **LingoEngine** is a modern, cross-platform C# runtime designed to emulate Macromedia Director's **Lingo** scripting language. It enables playback of original Lingo code and behaviors on top of modern rendering backends like **Godot**, **SDL2**, **Unity**, and **Blazor**, allowing legacy projects to be revived or reimagined with full flexibility.
+
+
+### Director.NET
 
 ![Director full screenshot](Images/Direcor-FullScreenshot.jpg)
 
@@ -14,8 +17,6 @@
 
 <img src="Images/Director_CodeConverter1.jpg" alt="Easy Lingo to C# conversion" width="100%" />
 
-> ⚠️ **Can you help us make this dream project come true?**  
-> This project is still under heavy development, and we can use some help. Reach out if you want to contribute.
 
 ---
 
@@ -31,6 +32,11 @@
 - 🧩 **Modular Runtime Architecture** – Clear separation of concerns: input, rendering, audio, system services, and script execution.
 - ⚙️ **Service-Oriented Initialization** – Uses dependency injection and service collections for clean setup.
 - 🌍 **Cross-Platform Compatibility** – Works anywhere the .NET SDK is available.
+
+## Help making this project!
+
+> ⚠️ **Can you help us make this dream project come true?**  
+> This project is still under heavy development, and we can use some help. Reach out if you want to contribute.
 
 ## ⭐ Why Use LingoEngine?
 
