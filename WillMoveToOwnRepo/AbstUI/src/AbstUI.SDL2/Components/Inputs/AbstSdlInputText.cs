@@ -24,6 +24,9 @@ namespace AbstUI.SDL2.Components.Inputs
         private ISdlFontLoadedByUser? _font;
         private SdlGlyphAtlas? _atlas;
         private int _scrollX;
+        private int _selectionStart = -1;
+
+        private bool HasSelection => _selectionStart != -1 && _selectionStart != _caret;
 
 
         public bool Enabled { get; set; } = true;
@@ -37,6 +40,7 @@ namespace AbstUI.SDL2.Components.Inputs
                 _codepoints.Clear();
                 foreach (var r in value.EnumerateRunes()) _codepoints.Add(r.Value);
                 _caret = _codepoints.Count;
+                _selectionStart = -1;
                 ValueChanged?.Invoke();
                 AdjustScroll();
             }
@@ -58,6 +62,8 @@ namespace AbstUI.SDL2.Components.Inputs
             _focused = focus;
             if (focus)
                 _blinkStart = SDL.SDL_GetTicks();
+            else
+                _selectionStart = -1;
         }
 
         public event Action? ValueChanged;
@@ -86,12 +92,30 @@ namespace AbstUI.SDL2.Components.Inputs
             {
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
                     Factory.FocusManager.SetFocus(this);
-                    _caret = _codepoints.Count;
+                    EnsureResources(Factory.CreateRenderContext());
+                    int innerXDown = (int)X + 4;
+                    int clickX = ev.button.x - innerXDown + _scrollX;
+                    _caret = GetCaretFromPixel(clickX);
+                    _selectionStart = _caret;
                     AdjustScroll();
                     e.StopPropagation = true;
                     break;
+                case SDL.SDL_EventType.SDL_MOUSEMOTION:
+                    if (!_focused) break;
+                    if ((ev.motion.state & SDL.SDL_BUTTON_LMASK) != 0)
+                    {
+                        EnsureResources(Factory.CreateRenderContext());
+                        int innerXMove = (int)X + 4;
+                        int x = ev.motion.x - innerXMove + _scrollX;
+                        _caret = GetCaretFromPixel(x);
+                        AdjustScroll();
+                        e.StopPropagation = true;
+                    }
+                    break;
                 case SDL.SDL_EventType.SDL_TEXTINPUT:
                     if (!_focused) break;
+                    if (HasSelection)
+                        DeleteSelection();
                     unsafe
                     {
                         fixed (byte* p = ev.text.text)
@@ -113,9 +137,19 @@ namespace AbstUI.SDL2.Components.Inputs
                 case SDL.SDL_EventType.SDL_KEYDOWN:
                     if (!_focused) break;
                     var key = ev.key.keysym.sym;
+                    SDL.SDL_Keymod mod = (SDL.SDL_Keymod)ev.key.keysym.mod;
+                    bool shift = (mod & SDL.SDL_Keymod.KMOD_SHIFT) != 0;
+                    bool ctrl = (mod & SDL.SDL_Keymod.KMOD_CTRL) != 0;
                     if (key == SDL.SDL_Keycode.SDLK_BACKSPACE)
                     {
-                        if (_caret > 0)
+                        if (HasSelection)
+                        {
+                            DeleteSelection();
+                            _text = string.Concat(_codepoints.ConvertAll(cp => char.ConvertFromUtf32(cp)));
+                            ValueChanged?.Invoke();
+                            AdjustScroll();
+                        }
+                        else if (_caret > 0)
                         {
                             _codepoints.RemoveAt(_caret - 1);
                             _caret--;
@@ -127,7 +161,14 @@ namespace AbstUI.SDL2.Components.Inputs
                     }
                     else if (key == SDL.SDL_Keycode.SDLK_DELETE)
                     {
-                        if (_caret < _codepoints.Count)
+                        if (HasSelection)
+                        {
+                            DeleteSelection();
+                            _text = string.Concat(_codepoints.ConvertAll(cp => char.ConvertFromUtf32(cp)));
+                            ValueChanged?.Invoke();
+                            AdjustScroll();
+                        }
+                        else if (_caret < _codepoints.Count)
                         {
                             _codepoints.RemoveAt(_caret);
                             _text = string.Concat(_codepoints.ConvertAll(cp => char.ConvertFromUtf32(cp)));
@@ -138,14 +179,58 @@ namespace AbstUI.SDL2.Components.Inputs
                     }
                     else if (key == SDL.SDL_Keycode.SDLK_LEFT)
                     {
-                        if (_caret > 0) _caret--;
+                        if (shift && _selectionStart == -1)
+                            _selectionStart = _caret;
+                        if (ctrl)
+                            MoveCaretPreviousWord();
+                        else if (_caret > 0)
+                            _caret--;
+                        if (!shift)
+                            _selectionStart = -1;
                         AdjustScroll();
                         e.StopPropagation = true;
                     }
                     else if (key == SDL.SDL_Keycode.SDLK_RIGHT)
                     {
-                        if (_caret < _codepoints.Count) _caret++;
+                        if (shift && _selectionStart == -1)
+                            _selectionStart = _caret;
+                        if (ctrl)
+                            MoveCaretNextWord();
+                        else if (_caret < _codepoints.Count)
+                            _caret++;
+                        if (!shift)
+                            _selectionStart = -1;
                         AdjustScroll();
+                        e.StopPropagation = true;
+                    }
+                    else if (key == SDL.SDL_Keycode.SDLK_c && ctrl)
+                    {
+                        if (HasSelection)
+                        {
+                            int start = Math.Min(_selectionStart, _caret);
+                            int end = Math.Max(_selectionStart, _caret);
+                            string sel = string.Concat(_codepoints.GetRange(start, end - start).ConvertAll(cp => char.ConvertFromUtf32(cp)));
+                            SDL.SDL_SetClipboardText(sel);
+                        }
+                        e.StopPropagation = true;
+                    }
+                    else if (key == SDL.SDL_Keycode.SDLK_v && ctrl)
+                    {
+                        string clip = SDL.SDL_HasClipboardText() == SDL.SDL_bool.SDL_TRUE ? SDL.SDL_GetClipboardText() : string.Empty;
+                        if (!string.IsNullOrEmpty(clip))
+                        {
+                            if (HasSelection)
+                                DeleteSelection();
+                            foreach (var r in clip.EnumerateRunes())
+                            {
+                                if (MaxLength > 0 && _codepoints.Count >= MaxLength) break;
+                                _codepoints.Insert(_caret, r.Value);
+                                _caret++;
+                            }
+                            _text = string.Concat(_codepoints.ConvertAll(cp => char.ConvertFromUtf32(cp)));
+                            ValueChanged?.Invoke();
+                            AdjustScroll();
+                        }
                         e.StopPropagation = true;
                     }
                     break;
@@ -175,7 +260,8 @@ namespace AbstUI.SDL2.Components.Inputs
             AdjustScroll();
 
             int ascent = SDL_ttf.TTF_FontAscent(_font.FontHandle);
-            int baseline = (int)Y + (int)Height / 2 + ascent / 2;
+            int descent = SDL_ttf.TTF_FontDescent(_font.FontHandle);
+            int baseline = (int)Y + ((int)Height + ascent + descent) / 2;
 
             var span = CollectionsMarshal.AsSpan(_codepoints);
             int innerX = (int)X + 4;
@@ -189,7 +275,31 @@ namespace AbstUI.SDL2.Components.Inputs
             };
             SDL.SDL_RenderSetClipRect(renderer, ref clip);
 
-            _atlas.DrawRun(span, innerX - _scrollX, baseline, TextColor.ToSDLColor());
+            int drawX = innerX - _scrollX;
+            if (HasSelection)
+            {
+                int selStart = Math.Min(_selectionStart, _caret);
+                int selEnd = Math.Max(_selectionStart, _caret);
+                int preWidth = _atlas.MeasureWidth(span.Slice(0, selStart));
+                int selWidth = _atlas.MeasureWidth(span.Slice(selStart, selEnd - selStart));
+                SDL.SDL_Rect selRect = new SDL.SDL_Rect
+                {
+                    x = drawX + preWidth,
+                    y = clip.y,
+                    w = selWidth,
+                    h = clip.h
+                };
+                SDL.SDL_SetRenderDrawColor(renderer, AbstDefaultColors.InputAccentColor.R, AbstDefaultColors.InputAccentColor.G, AbstDefaultColors.InputAccentColor.B, AbstDefaultColors.InputAccentColor.A);
+                SDL.SDL_RenderFillRect(renderer, ref selRect);
+
+                _atlas.DrawRun(span.Slice(0, selStart), drawX, baseline, TextColor.ToSDLColor());
+                _atlas.DrawRun(span.Slice(selStart, selEnd - selStart), drawX + preWidth, baseline, AbstDefaultColors.InputSelectionText.ToSDLColor());
+                _atlas.DrawRun(span.Slice(selEnd), drawX + preWidth + selWidth, baseline, TextColor.ToSDLColor());
+            }
+            else
+            {
+                _atlas.DrawRun(span, drawX, baseline, TextColor.ToSDLColor());
+            }
 
             if (_focused)
             {
@@ -221,6 +331,55 @@ namespace AbstUI.SDL2.Components.Inputs
             int maxScroll = Math.Max(0, textWidth - innerWidth);
             if (_scrollX > maxScroll) _scrollX = maxScroll;
             if (_scrollX < 0) _scrollX = 0;
+        }
+
+        private void DeleteSelection()
+        {
+            int start = Math.Min(_selectionStart, _caret);
+            int end = Math.Max(_selectionStart, _caret);
+            _codepoints.RemoveRange(start, end - start);
+            _caret = start;
+            _selectionStart = -1;
+        }
+
+        private int GetCaretFromPixel(int px)
+        {
+            if (_atlas == null) return _caret;
+            if (px <= 0) return 0;
+            var span = CollectionsMarshal.AsSpan(_codepoints);
+            int pos = 0;
+            for (int i = 0; i < span.Length; i++)
+            {
+                int w = _atlas.MeasureWidth(span.Slice(i, 1));
+                if (px < pos + w / 2)
+                    return i;
+                pos += w;
+            }
+            return span.Length;
+        }
+
+        private static bool IsWordChar(int cp)
+        {
+            var r = new Rune(cp);
+            return Rune.IsLetterOrDigit(r) || r.Value == '_';
+        }
+
+        private void MoveCaretPreviousWord()
+        {
+            if (_caret == 0) return;
+            int i = _caret - 1;
+            while (i > 0 && !IsWordChar(_codepoints[i])) i--;
+            while (i > 0 && IsWordChar(_codepoints[i - 1])) i--;
+            _caret = i;
+        }
+
+        private void MoveCaretNextWord()
+        {
+            int i = _caret;
+            int count = _codepoints.Count;
+            while (i < count && IsWordChar(_codepoints[i])) i++;
+            while (i < count && !IsWordChar(_codepoints[i])) i++;
+            _caret = i;
         }
 
         public override void Dispose()
