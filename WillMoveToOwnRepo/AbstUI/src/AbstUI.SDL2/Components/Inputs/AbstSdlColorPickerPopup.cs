@@ -29,7 +29,7 @@ internal class AbstSdlColorPickerPopup : AbstSdlPanel, ISdlFocusable, IHandleSdl
 
     private bool _suppress;
 
-    public AColor Color { get; private set; }
+    public AColor Color { get; private set; } = AColors.Black;
     public event Action<AColor>? ColorChanged;
 
     private const int CanvasWidth = 180;
@@ -75,6 +75,8 @@ internal class AbstSdlColorPickerPopup : AbstSdlPanel, ISdlFocusable, IHandleSdl
         _sInput.ValueChanged += HsvChanged;
         _vInput.ValueChanged += HsvChanged;
         _hexInput.ValueChanged += HexChanged;
+
+        SetColor(AColors.Black);
     }
 
     public void SetColor(AColor c)
@@ -158,28 +160,35 @@ internal class AbstSdlColorPickerPopup : AbstSdlPanel, ISdlFocusable, IHandleSdl
         int rightLabelX = 90; int rightInputX = 120;
         int inputsY = CanvasHeight + 8;
 
-        _canvas.X = 4; _canvas.Y = 4;
+        _canvas.X = X + 4; _canvas.Y = Y + 4;
 
-        _rInput.X = leftInputX; _rInput.Y = inputsY;
-        _gInput.X = leftInputX; _gInput.Y = inputsY + RowHeight;
-        _bInput.X = leftInputX; _bInput.Y = inputsY + RowHeight * 2;
-        _aInput.X = leftInputX; _aInput.Y = inputsY + RowHeight * 3;
+        _rInput.X = X + leftInputX; _rInput.Y = Y + inputsY;
+        _gInput.X = X + leftInputX; _gInput.Y = Y + inputsY + RowHeight;
+        _bInput.X = X + leftInputX; _bInput.Y = Y + inputsY + RowHeight * 2;
+        _aInput.X = X + leftInputX; _aInput.Y = Y + inputsY + RowHeight * 3;
 
-        _hInput.X = rightInputX; _hInput.Y = inputsY;
-        _sInput.X = rightInputX; _sInput.Y = inputsY + RowHeight;
-        _vInput.X = rightInputX; _vInput.Y = inputsY + RowHeight * 2;
-        _hexInput.X = rightInputX; _hexInput.Y = inputsY + RowHeight * 3;
+        _hInput.X = X + rightInputX; _hInput.Y = Y + inputsY;
+        _sInput.X = X + rightInputX; _sInput.Y = Y + inputsY + RowHeight;
+        _vInput.X = X + rightInputX; _vInput.Y = Y + inputsY + RowHeight * 2;
+        _hexInput.X = X + rightInputX; _hexInput.Y = Y + inputsY + RowHeight * 3;
 
-        DrawLabel("R", leftLabelX, inputsY, context);
-        DrawLabel("G", leftLabelX, inputsY + RowHeight, context);
-        DrawLabel("B", leftLabelX, inputsY + RowHeight * 2, context);
-        DrawLabel("A", leftLabelX, inputsY + RowHeight * 3, context);
-        DrawLabel("H", rightLabelX, inputsY, context);
-        DrawLabel("S", rightLabelX, inputsY + RowHeight, context);
-        DrawLabel("V", rightLabelX, inputsY + RowHeight * 2, context);
-        DrawLabel("Hex", rightLabelX, inputsY + RowHeight * 3, context);
+        var res = base.Render(context);
+        if (res.Texture != nint.Zero)
+        {
+            var prev = SDL.SDL_GetRenderTarget(context.Renderer);
+            SDL.SDL_SetRenderTarget(context.Renderer, res.Texture);
+            DrawLabel("R", leftLabelX, inputsY, context);
+            DrawLabel("G", leftLabelX, inputsY + RowHeight, context);
+            DrawLabel("B", leftLabelX, inputsY + RowHeight * 2, context);
+            DrawLabel("A", leftLabelX, inputsY + RowHeight * 3, context);
+            DrawLabel("H", rightLabelX, inputsY, context);
+            DrawLabel("S", rightLabelX, inputsY + RowHeight, context);
+            DrawLabel("V", rightLabelX, inputsY + RowHeight * 2, context);
+            DrawLabel("Hex", rightLabelX, inputsY + RowHeight * 3, context);
+            SDL.SDL_SetRenderTarget(context.Renderer, prev);
+        }
 
-        return base.Render(context);
+        return res;
     }
 
     private void DrawColorRect()
@@ -241,8 +250,8 @@ internal class AbstSdlColorPickerPopup : AbstSdlPanel, ISdlFocusable, IHandleSdl
                 var (r, g, b) = AColor.HsvToRgb(h, 100f, v);
                 SetColor(new AColor(r, g, b, (byte)_aInput.Value));
                 ColorChanged?.Invoke(Color);
-                e.StopPropagation = true;
             }
+            e.StopPropagation = true;
         }
     }
 }
