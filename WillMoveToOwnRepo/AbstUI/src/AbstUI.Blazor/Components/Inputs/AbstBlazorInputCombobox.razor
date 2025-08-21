@@ -1,14 +1,14 @@
 @inherits AbstBlazorBaseInput
-<select id="@Name" value="@SelectedIndex" @onchange="HandleChange" disabled="@(Enabled ? null : true)" style="@BuildStyle()">
-    @for (int i = 0; i < _items.Count; i++)
+<select id="@Name" value="@_component.SelectedIndex" @onchange="HandleChange" disabled="@(_component.Enabled ? null : true)" style="@BuildStyle()">
+    @for (int i = 0; i < _component.Items.Count; i++)
     {
-        var item = _items[i];
+        var item = _component.Items[i];
         <option value="@i">@item.Value</option>
     }
 </select>
 <style>
-    #@Name option { color:@ItemTextColor.ToHex(); }
-    #@Name option:hover { color:@ItemHoverTextColor.ToHex(); background-color:@ItemHoverBackgroundColor.ToHex(); }
-    #@Name option:active { color:@ItemPressedTextColor.ToHex(); background-color:@ItemPressedBackgroundColor.ToHex(); }
-    #@Name option:checked, #@Name option:selected { color:@ItemSelectedTextColor.ToHex(); background-color:@ItemSelectedBackgroundColor.ToHex(); }
+    #@Name option { color:@_component.ItemTextColor.ToHex(); }
+    #@Name option:hover { color:@_component.ItemHoverTextColor.ToHex(); background-color:@_component.ItemHoverBackgroundColor.ToHex(); }
+    #@Name option:active { color:@_component.ItemPressedTextColor.ToHex(); background-color:@_component.ItemPressedBackgroundColor.ToHex(); }
+    #@Name option:checked, #@Name option:selected { color:@_component.ItemSelectedTextColor.ToHex(); background-color:@_component.ItemSelectedBackgroundColor.ToHex(); }
 </style>

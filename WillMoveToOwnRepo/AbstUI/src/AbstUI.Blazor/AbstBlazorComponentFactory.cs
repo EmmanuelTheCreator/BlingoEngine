@@ -16,6 +16,7 @@ using AbstUI.Styles;
 using AbstUI.Windowing;
 using System;
 using System.Reflection.Emit;
+using Microsoft.JSInterop;
 
 namespace AbstUI.Blazor;
 
@@ -38,22 +39,20 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
         _mapper.Map<AbstBlazorButtonComponent, AbstBlazorButton>();
         _mapper.Map<AbstBlazorLabelComponent, AbstBlazorLabel>();
         _mapper.Map<AbstBlazorInputTextComponent, AbstBlazorInputText>();
-        _mapper.Map<AbstBlazorLayoutWrapper, AbstBlazorLayoutWrapper>();
-        _mapper.Map<AbstBlazorGfxCanvas, AbstBlazorGfxCanvas>();
-        _mapper.Map<AbstBlazorColorPicker, AbstBlazorColorPicker>();
+        _mapper.Map<AbstBlazorLayoutWrapperComponent, AbstBlazorLayoutWrapper>();
+        _mapper.Map<AbstBlazorGfxCanvasComponent, AbstBlazorGfxCanvas>();
+        _mapper.Map<AbstBlazorColorPickerComponent, AbstBlazorColorPicker>();
         _mapper.Map<AbstBlazorInputCheckboxComponent, AbstBlazorInputCheckbox>();
-        _mapper.Map<AbstBlazorInputNumber<int>, AbstBlazorInputNumber<int>>();
-        _mapper.Map<AbstBlazorInputNumber<float>, AbstBlazorInputNumber<float>>();
-        _mapper.Map<AbstBlazorInputNumber<decimal>, AbstBlazorInputNumber<decimal>>();
-        _mapper.Map<AbstBlazorInputSlider<int>,     AbstBlazorInputSlider<int>>();
-        _mapper.Map<AbstBlazorInputSlider<float>,   AbstBlazorInputSlider<float>>();
-        _mapper.Map<AbstBlazorInputSlider<decimal>, AbstBlazorInputSlider<decimal>>();
-        _mapper.Map<AbstBlazorInputSlider<int>,     AbstBlazorInputSlider<int>>();
-        _mapper.Map<AbstBlazorInputSlider<float>,   AbstBlazorInputSlider<float>>();
-        _mapper.Map<AbstBlazorInputSlider<decimal>, AbstBlazorInputSlider<decimal>>();
-        _mapper.Map<AbstBlazorInputTextComponent, AbstBlazorInputText>();
-        _mapper.Map<AbstBlazorItemList, AbstBlazorItemList>();
-        _mapper.Map<AbstBlazorSpinBox, AbstBlazorSpinBox>();
+        _mapper.Map<AbstBlazorInputNumberComponent<int>, AbstBlazorInputNumber<int>>();
+        _mapper.Map<AbstBlazorInputNumberComponent<float>, AbstBlazorInputNumber<float>>();
+        _mapper.Map<AbstBlazorInputNumberComponent<decimal>, AbstBlazorInputNumber<decimal>>();
+        _mapper.Map<AbstBlazorInputSliderComponent<int>, AbstBlazorInputSlider<int>>();
+        _mapper.Map<AbstBlazorInputSliderComponent<float>, AbstBlazorInputSlider<float>>();
+        _mapper.Map<AbstBlazorInputSliderComponent<decimal>, AbstBlazorInputSlider<decimal>>();
+        _mapper.Map<AbstBlazorItemListComponent, AbstBlazorItemList>();
+        _mapper.Map<AbstBlazorSpinBoxComponent, AbstBlazorSpinBox>();
+        _mapper.Map<AbstBlazorInputComboboxComponent, AbstBlazorInputCombobox>();
+        _mapper.Map<AbstBlazorStateButtonComponent, AbstBlazorStateButton>();
         _mapper.Map<AbstBlazorHorizontalLineSeparatorComponent, AbstBlazorHorizontalLineSeparator>();
         _mapper.Map<AbstBlazorVerticalLineSeparatorComponent, AbstBlazorVerticalLineSeparator>();
     }
@@ -61,7 +60,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
     {
         var canvas = new AbstGfxCanvas();
-        var impl = new AbstBlazorGfxCanvas();
+        var impl = new AbstBlazorGfxCanvasComponent(GetRequiredService<IJSRuntime>());
         canvas.Init(impl);
         InitComponent(canvas);
         canvas.Name = name;
@@ -96,7 +95,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
             throw new InvalidOperationException($"Content {content.Name} already supports layout wrapping is unnecessary.");
 
         var wrapper = new AbstLayoutWrapper(content);
-        var impl = new AbstBlazorLayoutWrapper(wrapper);
+        var impl = new AbstBlazorLayoutWrapperComponent(wrapper);
         wrapper.Init(impl);
         InitComponent(wrapper);
         if (x.HasValue) wrapper.X = x.Value;
@@ -137,7 +136,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
     {
         var slider = new AbstInputSlider<float>();
-        var impl = new AbstBlazorInputSlider<float>();
+        var impl = new AbstBlazorInputSliderComponent<float>();
         slider.Init(impl);
         InitComponent(slider);
         slider.Name = name;
@@ -152,7 +151,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
     {
         var slider = new AbstInputSlider<int>();
-        var impl = new AbstBlazorInputSlider<int>();
+        var impl = new AbstBlazorInputSliderComponent<int>();
         slider.Init(impl);
         InitComponent(slider);
         slider.Name = name;
@@ -167,7 +166,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null)
     {
         var input = new AbstInputNumber<float>();
-        var impl = new AbstBlazorInputNumber<float>();
+        var impl = new AbstBlazorInputNumberComponent<float>();
         input.Init(impl);
         InitComponent(input);
         input.Name = name;
@@ -181,7 +180,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null)
     {
         var input = new AbstInputNumber<int>();
-        var impl = new AbstBlazorInputNumber<int>();
+        var impl = new AbstBlazorInputNumberComponent<int>();
         input.Init(impl);
         InitComponent(input);
         input.Name = name;
@@ -195,7 +194,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstInputSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null)
     {
         var spin = new AbstInputSpinBox();
-        var impl = new AbstBlazorSpinBox();
+        var impl = new AbstBlazorSpinBoxComponent();
         spin.Init(impl);
         InitComponent(spin);
         spin.Name = name;
@@ -222,7 +221,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null)
     {
         var input = new AbstInputCombobox();
-        var impl = new AbstBlazorInputCombobox();
+        var impl = new AbstBlazorInputComboboxComponent();
         input.Init(impl);
         InitComponent(input);
         input.Name = name;
@@ -234,7 +233,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstItemList CreateItemList(string name, Action<string?>? onChange = null)
     {
         var list = new AbstItemList();
-        var impl = new AbstBlazorItemList();
+        var impl = GetRequiredService<AbstBlazorItemListComponent>();
         list.Init(impl);
         InitComponent(list);
         list.Name = name;
@@ -246,7 +245,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstColorPicker CreateColorPicker(string name, Action<AColor>? onChange = null)
     {
         var picker = new AbstColorPicker();
-        var impl = new AbstBlazorColorPicker();
+        var impl = new AbstBlazorColorPickerComponent();
         picker.Init(impl);
         InitComponent(picker);
         picker.Name = name;
@@ -258,7 +257,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstStateButton CreateStateButton(string name, IAbstTexture2D? texture = null, string text = "", Action<bool>? onChange = null)
     {
         var button = new AbstStateButton();
-        var impl = new AbstBlazorStateButton();
+        var impl = new AbstBlazorStateButtonComponent();
         button.Init(impl);
         InitComponent(button);
         button.Name = name;
