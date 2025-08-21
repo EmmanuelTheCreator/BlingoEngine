@@ -2,6 +2,9 @@
 
 namespace LingoEngine.Core
 {
+    /// <summary>
+    /// Lingo Timeout Object interface.
+    /// </summary>
     public interface ILingoTimeoutObject
     {
         void Forget();

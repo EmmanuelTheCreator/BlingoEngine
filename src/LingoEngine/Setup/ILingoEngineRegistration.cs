@@ -5,6 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 namespace LingoEngine.Setup
 {
+    /// <summary>
+    /// Lingo Engine Registration interface.
+    /// </summary>
     public interface ILingoEngineRegistration
     {
         ILingoEngineRegistration ServicesMain(Action<IServiceCollection> services);
@@ -19,7 +22,7 @@ namespace LingoEngine.Setup
         ILingoProjectFactory BuildAndRunProject(Action<IServiceProvider>? afterStart = null);
         ILingoEngineRegistration AddBuildAction(Action<ILingoServiceProvider> buildAction);
         ILingoEngineRegistration SetProjectFactory<TLingoProjectFactory>() where TLingoProjectFactory : ILingoProjectFactory, new();
-        
+
     }
 }
 

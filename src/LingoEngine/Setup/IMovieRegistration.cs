@@ -3,6 +3,9 @@ using LingoEngine.Movies;
 using LingoEngine.Sprites;
 namespace LingoEngine.Setup
 {
+    /// <summary>
+    /// Movie Registration interface.
+    /// </summary>
     public interface IMovieRegistration
     {
         IMovieRegistration AddBehavior<T>() where T : LingoSpriteBehavior;

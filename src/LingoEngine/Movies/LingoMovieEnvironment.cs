@@ -11,6 +11,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Movies
 {
+    /// <summary>
+    /// Lingo Movie Environment interface.
+    /// </summary>
     public interface ILingoMovieEnvironment
     {
         ILingoPlayer Player { get; }

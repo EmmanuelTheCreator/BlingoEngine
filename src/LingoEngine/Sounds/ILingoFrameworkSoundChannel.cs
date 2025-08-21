@@ -1,5 +1,8 @@
 ﻿namespace LingoEngine.Sounds
 {
+    /// <summary>
+    /// Lingo Framework Sound Channel interface.
+    /// </summary>
     public interface ILingoFrameworkSoundChannel
     {
         int SampleRate { get; }

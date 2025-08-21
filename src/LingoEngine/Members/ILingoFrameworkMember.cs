@@ -5,10 +5,16 @@ using LingoEngine.Sprites;
 
 namespace LingoEngine.Members
 {
+    /// <summary>
+    /// Lingo Framework Member Empty interface.
+    /// </summary>
     public interface ILingoFrameworkMemberEmpty : ILingoFrameworkMember
     {
 
     }
+    /// <summary>
+    /// Lingo Framework Member With Texture interface.
+    /// </summary>
     public interface ILingoFrameworkMemberWithTexture : ILingoFrameworkMember
     {
         /// <summary>
@@ -17,6 +23,9 @@ namespace LingoEngine.Members
         IAbstTexture2D? TextureLingo { get; }
         IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor);
     }
+    /// <summary>
+    /// Lingo Framework Member interface.
+    /// </summary>
     public interface ILingoFrameworkMember
     {
         /// <summary>

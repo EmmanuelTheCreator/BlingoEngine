@@ -27,7 +27,10 @@ namespace LingoEngine.Members
         Movie, WindowsMedia
     }
 
-    public interface ILingoMemberWithTexture 
+    /// <summary>
+    /// Lingo Member With Texture interface.
+    /// </summary>
+    public interface ILingoMemberWithTexture
     {
         /// <summary>
         /// The texture associated with this member, if any.

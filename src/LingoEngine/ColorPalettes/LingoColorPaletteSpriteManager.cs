@@ -4,6 +4,9 @@ using LingoEngine.Sprites;
 using System;
 
 namespace LingoEngine.ColorPalettes;
+/// <summary>
+/// Lingo Sprite Color Palette Sprite Manager interface.
+/// </summary>
 public interface ILingoSpriteColorPaletteSpriteManager : ILingoSpriteManager<LingoColorPaletteSprite>
 {
     LingoColorPaletteSprite Add(int frameNumber, LingoColorPaletteFrameSettings? settings = null);
@@ -19,7 +22,7 @@ internal class LingoSpriteColorPaletteSpriteManager : LingoSpriteManager<LingoCo
 
     protected override LingoSprite? OnAdd(int spriteNum, int begin, int end, ILingoMember? member)
     {
-        var sprite = Add(begin); 
+        var sprite = Add(begin);
         if (member is LingoColorPaletteMember memberTyped)
             sprite.SetMember(memberTyped);
         return sprite;
@@ -40,5 +43,5 @@ internal class LingoSpriteColorPaletteSpriteManager : LingoSpriteManager<LingoCo
         return sprite;
     }
 
-   
+
 }

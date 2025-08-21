@@ -3,6 +3,9 @@ using LingoEngine.Movies.Commands;
 
 namespace LingoEngine.Movies
 {
+    /// <summary>
+    /// Lingo Frame Label Manager interface.
+    /// </summary>
     public interface ILingoFrameLabelManager
     {
         event Action? LabelsChanged;

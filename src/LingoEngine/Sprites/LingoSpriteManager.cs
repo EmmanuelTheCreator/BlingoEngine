@@ -4,6 +4,9 @@ using LingoEngine.Movies;
 namespace LingoEngine.Sprites
 {
 
+    /// <summary>
+    /// Lingo Sprite Manager interface.
+    /// </summary>
     public interface ILingoSpriteManager
     {
         int MaxSpriteChannelCount { get; }
@@ -13,6 +16,9 @@ namespace LingoEngine.Sprites
         void MoveSprite(int number, int newFrame);
         void MuteChannel(int channel, bool state);
     }
+    /// <summary>
+    /// Lingo Sprite Manager interface.
+    /// </summary>
     public interface ILingoSpriteManager<TSprite> : ILingoSpriteManager
     {
 

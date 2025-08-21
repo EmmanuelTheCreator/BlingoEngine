@@ -16,6 +16,9 @@ namespace LingoEngine.ColorPalettes
 
     }
 
+    /// <summary>
+    /// Lingo Color Palette Definitions interface.
+    /// </summary>
     public interface ILingoColorPaletteDefinitions
     {
         ILingoColorPaletteDefinitions AddPalette(string name, IEnumerable<AColor> colors);
@@ -44,7 +47,7 @@ namespace LingoEngine.ColorPalettes
 
         private void CreateDefaultPalettes()
         {
-            AddPalette("System - Mac",LingoColorsPalettes.SystemMacColors());
+            AddPalette("System - Mac", LingoColorsPalettes.SystemMacColors());
             AddPalette("System - Windows", LingoColorsPalettes.WindowsSystemPalette());
             AddPalette("Rainbow", LingoColorsPalettes.RainbowPalette());
             AddPalette("Grayscale", LingoColorsPalettes.GrayscalePalette());
@@ -57,7 +60,7 @@ namespace LingoEngine.ColorPalettes
         }
 
 
-      
+
 
 
 

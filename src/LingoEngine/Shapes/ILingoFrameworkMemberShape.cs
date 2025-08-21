@@ -4,6 +4,9 @@ using LingoEngine.Primitives;
 
 namespace LingoEngine.Shapes
 {
+    /// <summary>
+    /// Lingo Framework Member Shape interface.
+    /// </summary>
     public interface ILingoFrameworkMemberShape : ILingoFrameworkMemberWithTexture
     {
         LingoList<APoint> VertexList { get; }

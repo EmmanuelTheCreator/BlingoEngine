@@ -4,9 +4,12 @@ using LingoEngine.Members;
 
 namespace LingoEngine.Texts
 {
+    /// <summary>
+    /// Lingo Member Text Base interface.
+    /// </summary>
     public interface ILingoMemberTextBase : ILingoMember, ILingoMemberWithTexture
     {
-        
+
         void ChangesHasBeenApplied();
         /// <summary>
         /// The raw text contents of the member. This property can be used to read or write the full contents.

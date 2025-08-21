@@ -1,9 +1,15 @@
 ﻿namespace LingoEngine.Core
 {
+    /// <summary>
+    /// Lingo Clock Listener interface.
+    /// </summary>
     public interface ILingoClockListener
     {
         void OnTick();
     }
+    /// <summary>
+    /// Lingo Clock interface.
+    /// </summary>
     public interface ILingoClock
     {
         int FrameRate { get; set; }

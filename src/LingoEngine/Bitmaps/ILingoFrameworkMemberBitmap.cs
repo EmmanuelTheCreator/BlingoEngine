@@ -2,6 +2,9 @@
 
 namespace LingoEngine.Bitmaps
 {
+    /// <summary>
+    /// Lingo Framework Member Bitmap interface.
+    /// </summary>
     public interface ILingoFrameworkMemberBitmap : ILingoFrameworkMemberWithTexture
     {
 

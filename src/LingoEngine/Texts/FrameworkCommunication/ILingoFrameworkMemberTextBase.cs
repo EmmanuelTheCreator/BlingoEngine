@@ -5,6 +5,9 @@ using LingoEngine.Members;
 
 namespace LingoEngine.Texts.FrameworkCommunication
 {
+    /// <summary>
+    /// Lingo Framework Member Text Base interface.
+    /// </summary>
     public interface ILingoFrameworkMemberTextBase : ILingoFrameworkMemberWithTexture
     {
         /// <summary>

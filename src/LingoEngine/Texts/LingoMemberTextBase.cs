@@ -9,7 +9,10 @@ using LingoEngine.Tools;
 
 namespace LingoEngine.Texts
 {
-    public interface ILingoMemberTextBaseInteral: ILingoMemberTextBase
+    /// <summary>
+    /// Lingo Member Text Base Interal interface.
+    /// </summary>
+    public interface ILingoMemberTextBaseInteral : ILingoMemberTextBase
     {
         void LoadFile();
     }
@@ -40,47 +43,47 @@ namespace LingoEngine.Texts
             {
                 UpdateText(value);
                 _frameworkMember.Text = value;
-                
+
             }
         }
         /// <inheritdoc/>
         public int ScrollTop
         {
             get => _frameworkMember.ScrollTop;
-            set { _frameworkMember.ScrollTop = value;  }
-            }
+            set { _frameworkMember.ScrollTop = value; }
+        }
         /// <inheritdoc/>
         public bool Editable { get; set; }
         /// <inheritdoc/>
         public bool WordWrap
         {
             get => _frameworkMember.WordWrap;
-            set { _frameworkMember.WordWrap = value;  }
-            }
+            set { _frameworkMember.WordWrap = value; }
+        }
         /// <inheritdoc/>
         public string Font
         {
             get => _frameworkMember.FontName;
-            set { _frameworkMember.FontName = value;  }
-            }
+            set { _frameworkMember.FontName = value; }
+        }
         /// <inheritdoc/>
         public int FontSize
         {
             get => _frameworkMember.FontSize;
-            set { _frameworkMember.FontSize = value;  }
+            set { _frameworkMember.FontSize = value; }
         }
 
         /// <inheritdoc/>
         public AColor TextColor
         {
             get => _frameworkMember.TextColor;
-            set { _frameworkMember.TextColor = value;  }
+            set { _frameworkMember.TextColor = value; }
         }
         /// <inheritdoc/>
         public LingoTextStyle FontStyle
         {
             get => _frameworkMember.FontStyle;
-            set { _frameworkMember.FontStyle = value;  }
+            set { _frameworkMember.FontStyle = value; }
         }
         /// <inheritdoc/>
         public bool Bold
@@ -94,7 +97,7 @@ namespace LingoEngine.Texts
                 else
                     style &= ~LingoTextStyle.Bold;
                 _frameworkMember.FontStyle = style;
-                
+
             }
         }
         /// <inheritdoc/>
@@ -109,8 +112,8 @@ namespace LingoEngine.Texts
                 else
                     style &= ~LingoTextStyle.Italic;
                 _frameworkMember.FontStyle = style;
-                
-            }   
+
+            }
         }
         /// <inheritdoc/>
         public bool Underline
@@ -124,20 +127,20 @@ namespace LingoEngine.Texts
                 else
                     style &= ~LingoTextStyle.Underline;
                 _frameworkMember.FontStyle = style;
-                
+
             }
         }
         /// <inheritdoc/>
         public AbstTextAlignment Alignment
         {
             get => _frameworkMember.Alignment;
-            set { _frameworkMember.Alignment = value;  }
+            set { _frameworkMember.Alignment = value; }
         }
         /// <inheritdoc/>
         public int Margin
         {
             get => _frameworkMember.Margin;
-            set { _frameworkMember.Margin = value;  }
+            set { _frameworkMember.Margin = value; }
         }
 
         /// <inheritdoc/>
@@ -150,20 +153,22 @@ namespace LingoEngine.Texts
         public LingoChars Char => _char;
         public override int Width
         {
-            get => base.Width; 
+            get => base.Width;
             set
             {
                 base.Width = value;
                 _frameworkMember.Width = value;
-                
+
             }
         }
-        public override int Height { get => base.Height; 
+        public override int Height
+        {
+            get => base.Height;
             set
             {
                 base.Height = value;
                 _frameworkMember.Height = value;
-                
+
             }
         }
 
@@ -176,7 +181,7 @@ namespace LingoEngine.Texts
             : base(frameworkMember, type, cast, numberInCast, name, fileName, regPoint)
         {
             _frameworkMember = frameworkMember;
-            _Line = new LingoLines(LineTextChanged); 
+            _Line = new LingoLines(LineTextChanged);
         }
         private void LineTextChanged() => Text = _Line.ToString();
 
@@ -219,15 +224,15 @@ namespace LingoEngine.Texts
             }
         }
 
-//        public void ApplyMemberChanges()
-//        {
-//#if DEBUG
-//            if (Name.Contains("scoor"))
-//            {
-//                _frameworkMember.ApplyMemberChanges();
-//            }
-//#endif
-//        }
+        //        public void ApplyMemberChanges()
+        //        {
+        //#if DEBUG
+        //            if (Name.Contains("scoor"))
+        //            {
+        //                _frameworkMember.ApplyMemberChanges();
+        //            }
+        //#endif
+        //        }
 
         public virtual void Clear()
         {
@@ -286,7 +291,7 @@ namespace LingoEngine.Texts
         public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
           => _frameworkMember.RenderToTexture(ink, transparentColor);
 
-       
+
     }
 
 }

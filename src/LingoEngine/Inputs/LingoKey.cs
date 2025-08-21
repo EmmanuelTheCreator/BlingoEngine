@@ -13,6 +13,9 @@ namespace LingoEngine.Inputs
 
         LingoKey Unsubscribe(ILingoKeyEventHandler handler);
     }
+    /// <summary>
+    /// Lingo Framework Key interface.
+    /// </summary>
     public interface ILingoFrameworkKey : IAbstFrameworkKey
     {
 

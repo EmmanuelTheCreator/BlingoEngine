@@ -1,5 +1,8 @@
 ﻿namespace LingoEngine.Core
 {
+    /// <summary>
+    /// Lingo System interface.
+    /// </summary>
     public interface ILingoSystem
     {
         /// <summary>
@@ -30,17 +33,17 @@
         /// <summary>
         ///  Get global variable
         /// </summary>
-        object? GetVariable(string name);  
+        object? GetVariable(string name);
         /// <summary>
         /// Post a system-level message
         /// </summary>
         /// <param name="message"></param>
-        void PostMessage(string message);  
+        void PostMessage(string message);
         /// <summary>
         /// Show a message to the user
         /// </summary>
         /// <param name="message"></param>
-        void ShowMessage(string message);  
+        void ShowMessage(string message);
     }
 
     public class LingoSystem : ILingoSystem

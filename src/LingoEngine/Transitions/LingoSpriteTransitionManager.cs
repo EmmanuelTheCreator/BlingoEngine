@@ -4,6 +4,9 @@ using LingoEngine.Sprites;
 
 namespace LingoEngine.Transitions;
 
+/// <summary>
+/// Lingo Sprite Transition Manager interface.
+/// </summary>
 public interface ILingoSpriteTransitionManager : ILingoSpriteManager<LingoTransitionSprite>
 {
     LingoTransitionSprite Add(int frameNumber, LingoTransitionFrameSettings? settings = null);
@@ -11,13 +14,13 @@ public interface ILingoSpriteTransitionManager : ILingoSpriteManager<LingoTransi
 }
 internal class LingoSpriteTransitionManager : LingoSpriteManager<LingoTransitionSprite>, ILingoSpriteTransitionManager
 {
- 
+
     public LingoSpriteTransitionManager(LingoMovie movie, LingoMovieEnvironment environment) : base(LingoTransitionSprite.SpriteNumOffset, movie, environment)
     {
     }
 
-    protected override LingoTransitionSprite OnCreateSprite(LingoMovie movie, Action<LingoTransitionSprite> onRemove) 
-        => new LingoTransitionSprite(_environment.Events,_environment.CastLibsContainer.ActiveCast, onRemove);
+    protected override LingoTransitionSprite OnCreateSprite(LingoMovie movie, Action<LingoTransitionSprite> onRemove)
+        => new LingoTransitionSprite(_environment.Events, _environment.CastLibsContainer.ActiveCast, onRemove);
 
     public LingoTransitionSprite Add(int frameNumber, LingoTransitionFrameSettings? settings = null)
     {
@@ -26,7 +29,7 @@ internal class LingoSpriteTransitionManager : LingoSpriteManager<LingoTransition
         sprite.EndFrame = frameNumber;
         if (settings != null)
             sprite.SetSettings(settings);
-        
+
         return sprite;
     }
 

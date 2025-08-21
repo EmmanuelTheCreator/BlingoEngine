@@ -6,6 +6,9 @@ using LingoEngine.Setup;
 using LingoEngine.Casts;
 using LingoEngine.Movies;
 
+/// <summary>
+/// Lingo Project Factory interface.
+/// </summary>
 public interface ILingoProjectFactory
 {
     void Setup(ILingoEngineRegistration engineRegistration);

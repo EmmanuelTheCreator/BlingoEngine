@@ -18,7 +18,7 @@ namespace LingoEngine.Inputs
         /// </summary>
         LingoSprite2D? ClickOn { get; }
         /// <summary>
-        /// Returns or sets the cast member underneath the mouse pointer.
+        /// Mouse property; returns the cast member underneath the mouse pointer. Read-only.
         /// </summary>
         LingoMember? MouseMember { get; }
         /// <summary>
@@ -31,6 +31,9 @@ namespace LingoEngine.Inputs
         /// </summary>
         ILingoMouse Unsubscribe(ILingoMouseEventHandler handler);
     }
+    /// <summary>
+    /// Lingo Framework Mouse interface.
+    /// </summary>
     public interface ILingoFrameworkMouse : IAbstFrameworkMouse
     {
         void SetCursor(LingoMemberBitmap? image);
@@ -100,7 +103,7 @@ namespace LingoEngine.Inputs
         // <summary>
         /// Creates a proxy mouse that forwards events within the bounds supplied by <paramref name="provider"/>.
         /// </summary>
-       
+
         public new virtual LingoStageMouse CreateNewInstance(IAbstMouseRectProvider provider)
             => new ProxyLingoMouse(this, provider);
         public virtual LingoStageMouse DisplaceMouse(IAbstMouseRectProvider provider)
@@ -200,7 +203,7 @@ namespace LingoEngine.Inputs
 
 
 
-  
+
 
 
     public class LingoMouse : AbstMouse<LingoMouseEvent>, ILingoMouse, IAbstMouseInternal
@@ -215,7 +218,7 @@ namespace LingoEngine.Inputs
         public LingoMouse(ILingoFrameworkMouse frameworkMouse)
             : base((p, type) => new LingoMouseEvent((LingoMouse)p, type), frameworkMouse)
         {
-            Name= "LingoMouse";
+            Name = "LingoMouse";
             _lingoFrameworkObj = frameworkMouse;
             _cursor = new LingoCursor(frameworkMouse);
         }
