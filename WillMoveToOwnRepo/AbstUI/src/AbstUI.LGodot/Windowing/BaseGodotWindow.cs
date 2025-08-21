@@ -66,6 +66,22 @@ namespace AbstEngine.Director.LGodot
         public IAbstMouse<AbstMouseEvent> MouseT => (IAbstMouse < AbstMouseEvent > )_window.Mouse;
         public IAbstKey AbstKey => _window.Key;
 
+        private IAbstFrameworkNode? _content;
+        public IAbstFrameworkNode? Content
+        {
+            get => _content;
+            set
+            {
+                if (_content == value) return;
+                if (_content?.FrameworkNode is Node oldNode)
+                    RemoveChild(oldNode);
+                _content = value;
+                if (_content?.FrameworkNode is Node newNode)
+                    AddChild(newNode);
+                _window.SetContentFromFW(value);
+            }
+        }
+
         string IAbstFrameworkNode.Name { get => Name; set => Name = value; }
         public bool Visibility { get => Visible; set => Visible = value; }
         public float Width

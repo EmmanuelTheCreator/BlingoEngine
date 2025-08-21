@@ -1,4 +1,5 @@
 using AbstUI.Inputs;
+using AbstUI.Components;
 
 namespace AbstUI.Windowing;
 
@@ -18,6 +19,7 @@ public interface IAbstWindow : IAbstMouseRectProvider
 
     IAbstFrameworkWindow FrameworkObj { get; }
     int WindowTitleHeight { get; set; }
+    IAbstNode? Content { get; set; }
 
     void Init(IAbstFrameworkWindow frameworkWindow);
     void OpenWindow();

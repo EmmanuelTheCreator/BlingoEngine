@@ -20,6 +20,8 @@ namespace AbstUI.Windowing
         IAbstMouse Mouse { get; }
         IAbstKey AbstKey { get; }
 
+        IAbstFrameworkNode? Content { get; set; }
+
         //IAbstMouse Mouse { get; }
         //IAbstKey Key { get; }
         void OpenWindow();
