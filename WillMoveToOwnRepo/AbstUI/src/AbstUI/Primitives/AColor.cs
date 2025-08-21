@@ -150,13 +150,16 @@ namespace AbstUI.Primitives
             h = MathCompat.Clamp(h, 0f, 360f);
             s = MathCompat.Clamp(s, 0f, 100f) / 100f;
             v = MathCompat.Clamp(v, 0f, 100f) / 100f;
+            float c = v * s;
+            float x = c * (1f - Math.Abs((h / 60f % 2f) - 1f));
 #else
             h = Math.Clamp(h, 0f, 360f);
             s = Math.Clamp(s, 0f, 100f) / 100f;
             v = Math.Clamp(v, 0f, 100f) / 100f;
-#endif
             float c = v * s;
             float x = c * (1f - MathF.Abs((h / 60f % 2f) - 1f));
+#endif
+
             float m = v - c;
             float rf, gf, bf;
             if (h < 60f) { rf = c; gf = x; bf = 0f; }

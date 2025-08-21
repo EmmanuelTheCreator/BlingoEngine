@@ -9,8 +9,8 @@
         void SetDefaultFont<T>(T font) where T : class;
         IEnumerable<string> GetAllNames();
 
-        float MeasureTextWidth(string text, string fontName, int fontSize) => text.Length * fontSize * 0.6f;
-        FontInfo GetFontInfo(string fontName, int fontSize) => new(fontSize, 0);
+        float MeasureTextWidth(string text, string fontName, int fontSize);
+        FontInfo GetFontInfo(string fontName, int fontSize);
     }
 
     public readonly record struct FontInfo(int FontHeight, int TopIndentation);

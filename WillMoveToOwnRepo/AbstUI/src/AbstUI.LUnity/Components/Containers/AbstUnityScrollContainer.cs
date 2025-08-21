@@ -17,6 +17,28 @@ internal class AbstUnityScrollContainer : AbstUnityComponent, IAbstFrameworkScro
     private readonly RectTransform _content;
     private readonly Mask _mask;
 
+    public float ScrollHorizontal
+    {
+        get => _scrollRect.horizontalNormalizedPosition;
+        set => _scrollRect.horizontalNormalizedPosition = value;
+    }
+
+    public float ScrollVertical
+    {
+        get => _scrollRect.verticalNormalizedPosition;
+        set => _scrollRect.verticalNormalizedPosition = value;
+    }
+
+    public bool ClipContents
+    {
+        get => _mask.enabled;
+        set => _mask.enabled = value;
+    }
+    public AbstScrollbarMode ScollbarModeH { get; set; } // throw new NotImplementedException();
+    public AbstScrollbarMode ScollbarModeV { get; set; } // throw new NotImplementedException();
+
+
+
     public AbstUnityScrollContainer() : base(CreateGameObject(out var scrollRect, out var content, out var mask))
     {
         _scrollRect = scrollRect;
@@ -38,25 +60,6 @@ internal class AbstUnityScrollContainer : AbstUnityComponent, IAbstFrameworkScro
         scrollRect.content = content;
         return go;
     }
-
-    public float ScrollHorizontal
-    {
-        get => _scrollRect.horizontalNormalizedPosition;
-        set => _scrollRect.horizontalNormalizedPosition = value;
-    }
-
-    public float ScrollVertical
-    {
-        get => _scrollRect.verticalNormalizedPosition;
-        set => _scrollRect.verticalNormalizedPosition = value;
-    }
-
-    public bool ClipContents
-    {
-        get => _mask.enabled;
-        set => _mask.enabled = value;
-    }
-
     public void AddItem(IAbstFrameworkLayoutNode child)
     {
         _children.Add(child);

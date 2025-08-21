@@ -18,19 +18,25 @@ namespace AbstUI.LGodot.Components
         private AColor _textColor = AbstDefaultColors.InputTextColor;
         private AColor _backgroundColor = AbstDefaultColors.Input_Bg;
         private AColor _borderColor = AbstDefaultColors.InputBorderColor;
-
+        private string? _itemFont;
+        private int _itemFontSize = 11;
+        private AColor _itemTextColor = AbstDefaultColors.InputTextColor;
+        private AColor _itemSelectedTextColor = AbstDefaultColors.InputSelectionText;
+        private AColor _itemSelectedBackgroundColor = AbstDefaultColors.InputAccentColor;
+        private AColor _itemSelectedBorderColor = AbstDefaultColors.InputBorderColor;
+        private AColor _itemHoverTextColor = AbstDefaultColors.InputTextColor;
+        private AColor _itemHoverBackgroundColor = AbstDefaultColors.ListHoverColor;
+        private AColor _itemHoverBorderColor = AbstDefaultColors.InputBorderColor;
+        private AColor _itemPressedTextColor = AbstDefaultColors.InputSelectionText;
+        private AColor _itemPressedBackgroundColor = AbstDefaultColors.InputAccentColor;
+        private AColor _itemPressedBorderColor = AbstDefaultColors.InputBorderColor;
         private event Action? _onValueChanged;
-
-        public AbstGodotInputCombobox(AbstInputCombobox input, IAbstFontManager lingoFontManager, Action<string?>? onChange)
-        {
-            input.Init(this);
-            ItemSelected += idx => _onValueChanged?.Invoke();
-            _onChange = onChange;
-            if (_onChange != null) ItemSelected += _ => _onChange(SelectedKey);
-            UpdatePopupStyle();
-        }
+        public object FrameworkNode => this;
+        public IReadOnlyList<KeyValuePair<string, string>> Items => _items;
 
 
+
+        #region Properties
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
         public float Y { get => Position.Y; set => Position = new Vector2(Position.X, value); }
         public float Width { get => Size.X; set => Size = new Vector2(value, Size.Y); }
@@ -51,37 +57,8 @@ namespace AbstUI.LGodot.Components
                 AddThemeConstantOverride("margin_bottom", (int)_margin.Bottom);
             }
         }
-        public AColor TextColor
-        {
-            get => _textColor;
-            set
-            {
-                _textColor = value;
-                AddThemeColorOverride("font_color", _textColor.ToGodotColor());
-            }
-        }
 
-        public AColor BackgroundColor
-        {
-            get => _backgroundColor;
-            set
-            {
-                _backgroundColor = value;
-                AddThemeColorOverride("background_color", _backgroundColor.ToGodotColor());
-            }
-        }
 
-        public AColor BorderColor
-        {
-            get => _borderColor;
-            set
-            {
-                _borderColor = value;
-                AddThemeColorOverride("border_color", _borderColor.ToGodotColor());
-            }
-        }
-        public object FrameworkNode => this;
-        public IReadOnlyList<KeyValuePair<string, string>> Items => _items;
         public void AddItem(string key, string value)
         {
             _items.Add(new KeyValuePair<string, string>(key, value));
@@ -127,19 +104,36 @@ namespace AbstUI.LGodot.Components
             }
         }
 
-        private string? _itemFont;
-        private int _itemFontSize = 11;
-        private AColor _itemTextColor = AbstDefaultColors.InputTextColor;
-        private AColor _itemSelectedTextColor = AbstDefaultColors.InputSelectionText;
-        private AColor _itemSelectedBackgroundColor = AbstDefaultColors.InputAccentColor;
-        private AColor _itemSelectedBorderColor = AbstDefaultColors.InputBorderColor;
-        private AColor _itemHoverTextColor = AbstDefaultColors.InputTextColor;
-        private AColor _itemHoverBackgroundColor = AbstDefaultColors.ListHoverColor;
-        private AColor _itemHoverBorderColor = AbstDefaultColors.InputBorderColor;
-        private AColor _itemPressedTextColor = AbstDefaultColors.InputSelectionText;
-        private AColor _itemPressedBackgroundColor = AbstDefaultColors.InputAccentColor;
-        private AColor _itemPressedBorderColor = AbstDefaultColors.InputBorderColor;
 
+        public AColor TextColor
+        {
+            get => _textColor;
+            set
+            {
+                _textColor = value;
+                AddThemeColorOverride("font_color", _textColor.ToGodotColor());
+            }
+        }
+
+        public AColor BackgroundColor
+        {
+            get => _backgroundColor;
+            set
+            {
+                _backgroundColor = value;
+                AddThemeColorOverride("background_color", _backgroundColor.ToGodotColor());
+            }
+        }
+
+        public AColor BorderColor
+        {
+            get => _borderColor;
+            set
+            {
+                _borderColor = value;
+                AddThemeColorOverride("border_color", _borderColor.ToGodotColor());
+            }
+        }
         public string? ItemFont { get => _itemFont; set { _itemFont = value; UpdatePopupStyle(); } }
         public int ItemFontSize { get => _itemFontSize; set { _itemFontSize = value; UpdatePopupStyle(); } }
         public AColor ItemTextColor { get => _itemTextColor; set { _itemTextColor = value; UpdatePopupStyle(); } }
@@ -153,6 +147,18 @@ namespace AbstUI.LGodot.Components
         public AColor ItemPressedBackgroundColor { get => _itemPressedBackgroundColor; set { _itemPressedBackgroundColor = value; UpdatePopupStyle(); } }
         public AColor ItemPressedBorderColor { get => _itemPressedBorderColor; set { _itemPressedBorderColor = value; UpdatePopupStyle(); } }
 
+
+        #endregion
+
+
+        public AbstGodotInputCombobox(AbstInputCombobox input, IAbstFontManager lingoFontManager, Action<string?>? onChange)
+        {
+            input.Init(this);
+            ItemSelected += idx => _onValueChanged?.Invoke();
+            _onChange = onChange;
+            if (_onChange != null) ItemSelected += _ => _onChange(SelectedKey);
+            
+        }
         private void UpdatePopupStyle()
         {
             var popup = GetPopup();
@@ -185,6 +191,15 @@ namespace AbstUI.LGodot.Components
             };
             pressed.SetBorderWidthAll(1);
             popup.AddThemeStyleboxOverride("pressed", pressed);
+
+            var normal = new StyleBoxFlat
+            {
+                BgColor = _backgroundColor.ToGodotColor(),
+                BorderColor = _borderColor.ToGodotColor()
+            };
+            popup.AddThemeStyleboxOverride("normal", normal);
+
+
         }
 
         event Action? IAbstFrameworkNodeInput.ValueChanged

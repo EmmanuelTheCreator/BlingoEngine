@@ -19,25 +19,7 @@ internal class AbstUnityButton : AbstUnityComponent, IAbstFrameworkButton
     private string _text = string.Empty;
     private IAbstTexture2D? _iconTexture;
 
-    public AbstUnityButton() : base(CreateGameObject(out var textComponent))
-    {
-        _textComponent = textComponent;
-        _button = GameObject.GetComponent<Button>();
-        _image = GameObject.GetComponent<Image>();
-        _button.onClick.AddListener(() => Pressed?.Invoke());
-    }
-
-    private static GameObject CreateGameObject(out Text text)
-    {
-        var go = new GameObject("Button");
-        go.AddComponent<Image>();
-        go.AddComponent<Button>();
-        var textGo = new GameObject("Text");
-        textGo.transform.parent = go.transform;
-        text = textGo.AddComponent<Text>();
-        return go;
-    }
-
+   
     public string Text
     {
         get => _text;
@@ -64,7 +46,30 @@ internal class AbstUnityButton : AbstUnityComponent, IAbstFrameworkButton
         }
     }
 
+    public AColor BorderColor { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    public AColor BackgroundColor { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    public AColor BackgroundHoverColor { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    public AColor TextColor { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
     public event Action? Pressed;
+    public AbstUnityButton() : base(CreateGameObject(out var textComponent))
+    {
+        _textComponent = textComponent;
+        _button = GameObject.GetComponent<Button>();
+        _image = GameObject.GetComponent<Image>();
+        _button.onClick.AddListener(() => Pressed?.Invoke());
+    }
+
+    private static GameObject CreateGameObject(out Text text)
+    {
+        var go = new GameObject("Button");
+        go.AddComponent<Image>();
+        go.AddComponent<Button>();
+        var textGo = new GameObject("Text");
+        textGo.transform.parent = go.transform;
+        text = textGo.AddComponent<Text>();
+        return go;
+    }
 
     public void Invoke() => _button.onClick.Invoke();
 }

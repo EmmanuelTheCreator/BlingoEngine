@@ -11,7 +11,7 @@ public class AbstUnityMainWindow : IAbstFrameworkMainWindow
     public string Title
     {
         get => Application.productName;
-        set => Application.productName = value;
+        set  { } // Application.productName = value;
     }
 
     public void Init(AbstMainWindow instance)

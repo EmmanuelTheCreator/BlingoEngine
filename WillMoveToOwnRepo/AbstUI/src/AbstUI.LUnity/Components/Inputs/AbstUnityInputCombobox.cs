@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using AbstUI.Components.Inputs;
 using AbstUI.LUnity.Components.Base;
+using AbstUI.LUnity.Primitives;
 using AbstUI.Primitives;
 using AbstUI.Styles;
 using UnityEngine;
@@ -22,44 +23,9 @@ internal class AbstUnityInputCombobox : AbstUnityComponent, IAbstFrameworkInputC
     private AColor _backgroundColor = AbstDefaultColors.Input_Bg;
     private AColor _borderColor = AbstDefaultColors.InputBorderColor;
 
-    public AbstUnityInputCombobox() : base(CreateGameObject(out var dropdown, out var image))
-    {
-        _dropdown = dropdown;
-        _image = image;
-        _dropdown.onValueChanged.AddListener(OnSelectionChanged);
-        _image.color = _backgroundColor.ToUnityColor();
-    }
 
-    private static GameObject CreateGameObject(out Dropdown dropdown, out Image image)
-    {
-        var go = new GameObject("Dropdown");
-        image = go.AddComponent<Image>();
-        dropdown = go.AddComponent<Dropdown>();
-        return go;
-    }
-
-    private void OnSelectionChanged(int index)
-    {
-        if (_selectedIndex == index) return;
-        _selectedIndex = index;
-        UpdateSelection(index);
-    }
-
-    private void UpdateSelection(int index)
-    {
-        if (index >= 0 && index < _items.Count)
-        {
-            SelectedKey = _items[index].Key;
-            SelectedValue = _items[index].Value;
-        }
-        else
-        {
-            SelectedKey = null;
-            SelectedValue = null;
-        }
-
-        ValueChanged?.Invoke();
-    }
+    #region Properties
+    public IReadOnlyList<KeyValuePair<string, string>> Items => _items;
 
     public bool Enabled
     {
@@ -67,7 +33,6 @@ internal class AbstUnityInputCombobox : AbstUnityComponent, IAbstFrameworkInputC
         set => _dropdown.interactable = value;
     }
 
-    public IReadOnlyList<KeyValuePair<string, string>> Items => _items;
 
     public int SelectedIndex
     {
@@ -128,6 +93,47 @@ internal class AbstUnityInputCombobox : AbstUnityComponent, IAbstFrameworkInputC
 
     public event Action? ValueChanged;
 
+
+    #endregion
+
+    public AbstUnityInputCombobox() : base(CreateGameObject(out var dropdown, out var image))
+    {
+        _dropdown = dropdown;
+        _image = image;
+        _dropdown.onValueChanged.AddListener(OnSelectionChanged);
+        _image.color = _backgroundColor.ToUnityColor();
+    }
+
+    private static GameObject CreateGameObject(out Dropdown dropdown, out Image image)
+    {
+        var go = new GameObject("Dropdown");
+        image = go.AddComponent<Image>();
+        dropdown = go.AddComponent<Dropdown>();
+        return go;
+    }
+
+    private void OnSelectionChanged(int index)
+    {
+        if (_selectedIndex == index) return;
+        _selectedIndex = index;
+        UpdateSelection(index);
+    }
+
+    private void UpdateSelection(int index)
+    {
+        if (index >= 0 && index < _items.Count)
+        {
+            SelectedKey = _items[index].Key;
+            SelectedValue = _items[index].Value;
+        }
+        else
+        {
+            SelectedKey = null;
+            SelectedValue = null;
+        }
+
+        ValueChanged?.Invoke();
+    }
     public void AddItem(string key, string value)
     {
         _items.Add(new KeyValuePair<string, string>(key, value));

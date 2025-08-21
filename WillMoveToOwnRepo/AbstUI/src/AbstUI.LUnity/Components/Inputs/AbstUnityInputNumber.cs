@@ -8,6 +8,7 @@ using AbstUI.Primitives;
 using UnityEngine;
 using UnityEngine.UI;
 using AbstUI.Styles;
+using AbstUI.LUnity.Primitives;
 
 namespace AbstUI.LUnity.Components.Inputs;
 
@@ -26,49 +27,9 @@ internal class AbstUnityInputNumber<TValue> : AbstUnityComponent, IAbstFramework
     private AColor _backgroundColor = AbstDefaultColors.Input_Bg;
     private AColor _borderColor = AbstDefaultColors.InputBorderColor;
 
-    public AbstUnityInputNumber() : base(CreateGameObject(out var input, out var text, out var image))
-    {
-        _inputField = input;
-        _textComponent = text;
-        _image = image;
-        _inputField.onValueChanged.AddListener(OnValueChanged);
-        _image.color = _backgroundColor.ToUnityColor();
-    }
 
-    private static GameObject CreateGameObject(out InputField input, out Text text, out Image image)
-    {
-        var go = new GameObject("InputNumber");
-        image = go.AddComponent<Image>();
-        input = go.AddComponent<InputField>();
-        var textGo = new GameObject("Text");
-        textGo.transform.parent = go.transform;
-        text = textGo.AddComponent<Text>();
-        input.textComponent = text;
-        return go;
-    }
+    #region Properties
 
-    private void OnValueChanged(string value)
-    {
-        if (_currentText == value)
-            return;
-        _currentText = value;
-        if (TValue.TryParse(value, CultureInfo.InvariantCulture, out var parsed))
-        {
-            parsed = TValue.Clamp(parsed, Min, Max);
-            if (!EqualityComparer<TValue>.Default.Equals(_value, parsed))
-            {
-                _value = parsed;
-                ValueChanged?.Invoke();
-            }
-            var text = _value.ToString(null, CultureInfo.InvariantCulture);
-            if (_currentText != text)
-            {
-                _currentText = text;
-                _inputField.text = text;
-                _textComponent.text = text;
-            }
-        }
-    }
 
     public bool Enabled
     {
@@ -142,5 +103,52 @@ internal class AbstUnityInputNumber<TValue> : AbstUnityComponent, IAbstFramework
     }
 
     public event Action? ValueChanged;
+
+    #endregion
+
+    public AbstUnityInputNumber() : base(CreateGameObject(out var input, out var text, out var image))
+    {
+        _inputField = input;
+        _textComponent = text;
+        _image = image;
+        _inputField.onValueChanged.AddListener(OnValueChanged);
+        _image.color = _backgroundColor.ToUnityColor();
+    }
+
+    private static GameObject CreateGameObject(out InputField input, out Text text, out Image image)
+    {
+        var go = new GameObject("InputNumber");
+        image = go.AddComponent<Image>();
+        input = go.AddComponent<InputField>();
+        var textGo = new GameObject("Text");
+        textGo.transform.parent = go.transform;
+        text = textGo.AddComponent<Text>();
+        input.textComponent = text;
+        return go;
+    }
+
+    private void OnValueChanged(string value)
+    {
+        if (_currentText == value)
+            return;
+        _currentText = value;
+        if (TValue.TryParse(value, CultureInfo.InvariantCulture, out var parsed))
+        {
+            parsed = TValue.Clamp(parsed, Min, Max);
+            if (!EqualityComparer<TValue>.Default.Equals(_value, parsed))
+            {
+                _value = parsed;
+                ValueChanged?.Invoke();
+            }
+            var text = _value.ToString(null, CultureInfo.InvariantCulture);
+            if (_currentText != text)
+            {
+                _currentText = text;
+                _inputField.text = text;
+                _textComponent.text = text;
+            }
+        }
+    }
+
 }
 

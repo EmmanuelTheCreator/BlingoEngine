@@ -11,21 +11,16 @@ namespace AbstUI.LGodot.Components
         private AMargin _margin = AMargin.Zero;
         private AbstScrollbarMode _scrollModeH = AbstScrollbarMode.Auto;
         private AbstScrollbarMode _scrollModeV = AbstScrollbarMode.Auto;
+        private readonly List<IAbstFrameworkLayoutNode> _nodes = new List<IAbstFrameworkLayoutNode>();
 
-        public AbstGodotScrollContainer(AbstScrollContainer container)
-        {
-            container.Init(this);
-            ScollbarModeH = _scrollModeH;
-            ScollbarModeV = _scrollModeV;
-        }
-
+        public object FrameworkNode => this;
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
         public float Y { get => Position.Y; set => Position = new Vector2(Position.X, value); }
         public float Width { get => Size.X; set => Size = new Vector2(value, Size.Y); }
         public float Height { get => Size.Y; set => Size = new Vector2(Size.X, value); }
         public bool Visibility { get => Visible; set => Visible = value; }
         string IAbstFrameworkNode.Name { get => Name; set => Name = value; }
-
+        public IEnumerable<IAbstFrameworkLayoutNode> GetItems() => _nodes.ToArray();
         public new float ScrollHorizontal
         {
             get => base.ScrollHorizontal;
@@ -84,10 +79,20 @@ namespace AbstUI.LGodot.Components
                 AddThemeConstantOverride("margin_bottom", (int)_margin.Bottom);
             }
         }
-        public object FrameworkNode => this;
+       
 
 
-        private readonly List<IAbstFrameworkLayoutNode> _nodes = new List<IAbstFrameworkLayoutNode>();
+        
+
+
+        public AbstGodotScrollContainer(AbstScrollContainer container)
+        {
+            container.Init(this);
+            ScollbarModeH = _scrollModeH;
+            ScollbarModeV = _scrollModeV;
+        }
+
+
         public void AddItem(IAbstFrameworkLayoutNode child)
         {
             if (child.FrameworkNode is Node node)
@@ -101,7 +106,7 @@ namespace AbstUI.LGodot.Components
             _nodes.Remove(lingoFrameworkGfxNode);
         }
 
-        public IEnumerable<IAbstFrameworkLayoutNode> GetItems() => _nodes.ToArray();
+       
 
 
 
