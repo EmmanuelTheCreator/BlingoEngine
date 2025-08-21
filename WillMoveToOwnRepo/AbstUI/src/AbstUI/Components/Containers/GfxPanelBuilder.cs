@@ -1,22 +1,17 @@
-using System;
-using System.ComponentModel;
 using System.Linq.Expressions;
-using System.Reflection.Emit;
-using AbstUI.Components.Containers;
+using AbstUI.Components;
 using AbstUI.Components.Inputs;
 using AbstUI.Primitives;
 using AbstUI.Tools;
-using LingoEngine.Director.Core.UI;
-using LingoEngine.FrameworkCommunication;
 
-namespace LingoEngine.Director.Core.Inspector
+namespace AbstUI.Components.Containers
 {
     /// <summary>
     /// Helper to fluently build sprite property forms with automatic column layout.
     /// </summary>
     public class GfxPanelBuilder
     {
-        private readonly ILingoFrameworkFactory _factory;
+        private readonly IAbstComponentFactory _factory;
         private readonly AbstPanel _panel;
         private int _columns = 1;
         private int _currentColumn;
@@ -31,7 +26,7 @@ namespace LingoEngine.Director.Core.Inspector
         private int _labelYOffset = 2; // offset for label Y position, can be adjusted if needed
 
         //private float ColumnWidth => GetLabelWidth();
-        private float ColumnWidth => (_totalWidth - (_margin * 2)) / _columns;
+        private float ColumnWidth => (_totalWidth - _margin * 2) / _columns;
 
 
         private float GetLabelWidth() => (_columns >= 4 
@@ -40,7 +35,7 @@ namespace LingoEngine.Director.Core.Inspector
 
         public float CurrentHeight => (_currentRow + 1) * _rowHeight;
 
-        public GfxPanelBuilder(AbstPanel panel, ILingoFrameworkFactory factory)
+        public GfxPanelBuilder(AbstPanel panel, IAbstComponentFactory factory)
         {
             _panel = panel;
             _factory = factory;
@@ -58,7 +53,11 @@ namespace LingoEngine.Director.Core.Inspector
         private float ComputeInputWidth(int span, bool hasLabel, bool stretch)
         {
             if (stretch)
+#if NET48_OR_GREATER
+                return (float)Math.Floor((float)(ColumnWidth * span - _gap));
+#else
                 return MathF.Floor(ColumnWidth * span - _gap);
+#endif
             else
                 return MathF.Min(ColumnWidth - _gap, 26f); // or a fixed width for tight numeric fields
         }

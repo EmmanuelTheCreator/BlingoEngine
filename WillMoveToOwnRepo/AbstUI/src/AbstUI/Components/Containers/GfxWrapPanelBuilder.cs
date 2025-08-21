@@ -1,15 +1,11 @@
-﻿using AbstUI.Components;
-using AbstUI.Components.Buttons;
-using AbstUI.Components.Containers;
+﻿using AbstUI.Components.Buttons;
 using AbstUI.Components.Inputs;
 using AbstUI.Components.Texts;
 using AbstUI.Primitives;
 using AbstUI.Tools;
-using LingoEngine.Bitmaps;
-using LingoEngine.Director.Core.Styles;
 using System.Linq.Expressions;
 
-namespace LingoEngine.Director.Core.UI
+namespace AbstUI.Components.Containers
 {
     public class GfxWrapPanelBuilderForToolBar 
     {
@@ -87,7 +83,8 @@ namespace LingoEngine.Director.Core.UI
         {
             AbstLabel label = _factory.CreateLabel(name, text);
             label.FontSize = fontSize;
-            label.FontColor = DirectorColors.TextColorLabels;
+            if (GfxPanelExtensions.DefaultTextColor.HasValue)
+                label.FontColor = GfxPanelExtensions.DefaultTextColor.Value;
             if (width.HasValue)
                 label.Width = width.Value;
             _panel.AddItem(label);

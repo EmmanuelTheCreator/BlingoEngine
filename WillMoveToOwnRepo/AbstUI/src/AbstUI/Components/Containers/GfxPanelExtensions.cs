@@ -1,25 +1,22 @@
-﻿using LingoEngine.Director.Core.Styles;
-using LingoEngine.FrameworkCommunication;
-using System.Linq.Expressions;
-using LingoEngine.Bitmaps;
-using LingoEngine.Director.Core.Inspector;
+﻿using System.Linq.Expressions;
 using AbstUI.Primitives;
 using AbstUI.Tools;
 using AbstUI.Components;
 using AbstUI.Texts;
 using AbstUI.Components.Graphics;
 using AbstUI.Components.Inputs;
-using AbstUI.Components.Containers;
 using AbstUI.Components.Buttons;
 using AbstUI.Components.Texts;
+using AbstUI.Styles;
 
 
-namespace LingoEngine.Director.Core.UI
+namespace AbstUI.Components.Containers
 {
     public static class GfxPanelExtensions
     {
-       
-        public static GfxPanelBuilder Compose(this AbstPanel panel, ILingoFrameworkFactory factory)
+        // todo : remove this!
+        public static AColor? DefaultTextColor = AbstDefaultColors.TextColorLabels;
+        public static GfxPanelBuilder Compose(this AbstPanel panel, IAbstComponentFactory factory)
         {
             var builder = new GfxPanelBuilder(panel, factory);
             return builder;
@@ -35,7 +32,8 @@ namespace LingoEngine.Director.Core.UI
         public static AbstLabel SetLabelAt(this AbstPanel container, string name, float x, float y, string? text = null, int fontSize = 11, int? labelWidth = null, AbstTextAlignment lingoTextAlignment = AbstTextAlignment.Left)
         {
             AbstLabel lbl = container.Factory.CreateLabel(name,text ??"");
-            lbl.FontColor = DirectorColors.TextColorLabels;
+            if (DefaultTextColor != null)
+                lbl.FontColor = DefaultTextColor.Value;
             lbl.FontSize = fontSize;
             if(labelWidth.HasValue)
                 lbl.Width = labelWidth.Value;
@@ -139,16 +137,16 @@ namespace LingoEngine.Director.Core.UI
         public static AbstGfxCanvas AddVLine(this AbstPanel container, string name, float x, float y, float height)
         {
             var paintPanel = container.Factory.CreateGfxCanvas(name, 2, (int)height);
-            paintPanel.DrawLine(new APoint(0, 0), new APoint(0, height), DirectorColors.LineLight, 1);
-            paintPanel.DrawLine(new APoint(1, 0), new APoint(1, height), DirectorColors.LineDark, 1);
+            paintPanel.DrawLine(new APoint(0, 0), new APoint(0, height), AbstDefaultColors.LineLight, 1);
+            paintPanel.DrawLine(new APoint(1, 0), new APoint(1, height), AbstDefaultColors.LineDark, 1);
             container.AddItem(paintPanel, x, y);
             return paintPanel;
         } 
         public static AbstGfxCanvas AddHLine(this AbstPanel container, string name, float x, float y, float width)
         {
             var paintPanel = container.Factory.CreateGfxCanvas(name, (int)width, 2);
-            paintPanel.DrawLine(new APoint(0, 0), new APoint(width, 0), DirectorColors.LineLight, 1);
-            paintPanel.DrawLine(new APoint(0, 1), new APoint(width, 1), DirectorColors.LineDark, 1);
+            paintPanel.DrawLine(new APoint(0, 0), new APoint(width, 0), AbstDefaultColors.LineLight, 1);
+            paintPanel.DrawLine(new APoint(0, 1), new APoint(width, 1), AbstDefaultColors.LineDark, 1);
             container.AddItem(paintPanel, x, y);
             return paintPanel;
         }

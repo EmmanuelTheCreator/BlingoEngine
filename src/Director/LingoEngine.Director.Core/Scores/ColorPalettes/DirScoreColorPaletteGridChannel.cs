@@ -1,7 +1,6 @@
 using LingoEngine.Movies;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Director.Core.Sprites;
-using LingoEngine.Director.Core.UI;
 using LingoEngine.Sprites;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Primitives;

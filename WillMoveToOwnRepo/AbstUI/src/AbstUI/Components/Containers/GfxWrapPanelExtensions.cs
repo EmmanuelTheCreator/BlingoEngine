@@ -1,9 +1,7 @@
-﻿using AbstUI.Components.Containers;
-using AbstUI.Components.Inputs;
+﻿using AbstUI.Components.Inputs;
 using AbstUI.Primitives;
-using LingoEngine.FrameworkCommunication;
 
-namespace LingoEngine.Director.Core.UI
+namespace AbstUI.Components.Containers
 {
     public static class GfxWrapPanelExtensions
     {

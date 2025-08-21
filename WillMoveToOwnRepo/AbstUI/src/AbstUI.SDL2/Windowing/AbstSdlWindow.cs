@@ -8,12 +8,14 @@ using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.Core;
 using AbstUI.Components;
+using AbstUI.SDL2.Components;
+using AbstUI.SDL2.Components.Containers;
 
-namespace AbstUI.SDL2.Components.Containers;
+namespace AbstUI.SDL2.Windowing;
 
 public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent, IDisposable
 {
-    private readonly AbstSdlComponentFactory _factory;
+    protected readonly AbstSdlComponentFactory _componentFactory;
     private IAbstWindowInternal _abstWindow;
     private string _title = string.Empty;
     private bool _isPopup;
@@ -99,7 +101,7 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
 
     public AbstSdlWindow(AbstSdlComponentFactory factory) : base(factory)
     {
-        _factory = factory;
+        _componentFactory = factory;
         ClipChildren = true;
         //var mouse = ((IAbstMouseInternal)factory.RootContext.AbstMouse).CreateNewInstance(window);
         //var key = ((AbstKey)factory.RootContext.AbstKey).CreateNewInstance(window);
@@ -112,7 +114,7 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
         _abstWindow = (IAbstWindowInternal)instance;
         _abstWindow.Init(this);
         instance.WindowTitleHeight = TitleBarHeight;
-        _factory.WindowManager.Register(this);
+        _componentFactory.WindowManager.Register(this);
     }
 
     // TODO :  Resize SDL window.
@@ -124,7 +126,7 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
     public void Popup()
     {
         Visibility = true;
-        _factory.WindowManager.SetActiveWindow(this);
+        _componentFactory.WindowManager.SetActiveWindow(this);
         _abstWindow.SetPositionFromFW((int)X, (int)Y);
         _abstWindow.ResizeFromFW(false, (int)Width, (int)Height);
         _abstWindow.RaiseWindowStateChanged(true);
@@ -132,7 +134,7 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
 
     public void PopupCentered()
     {
-        APoint size = _factory.RootContext.GetWindowSize();
+        APoint size = _componentFactory.RootContext.GetWindowSize();
 
         X = (size.X - Width) / 2f;
         Y = (size.Y - Height) / 2f;
@@ -143,12 +145,12 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
     public void Hide()
     {
         Visibility = false;
-        _factory.RootContext.ComponentContainer.Deactivate(ComponentContext);
+        _componentFactory.RootContext.ComponentContainer.Deactivate(ComponentContext);
         _abstWindow.RaiseWindowStateChanged(false);
     }
 
     internal void BringToFront()
-        => _factory.RootContext.ComponentContainer.Activate(ComponentContext);
+        => _componentFactory.RootContext.ComponentContainer.Activate(ComponentContext);
 
     public void OpenWindow() => Popup();
 
@@ -245,7 +247,7 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
                 int lx = e.Event.button.x - (int)X;
                 int ly = e.Event.button.y - (int)Y;
 
-                _factory.WindowManager.SetActiveWindow(this);
+                _componentFactory.WindowManager.SetActiveWindow(this);
 
                 if (lx >= _closeRect.x && lx <= _closeRect.x + _closeRect.w &&
                     ly >= _closeRect.y && ly <= _closeRect.y + _closeRect.h)
@@ -282,7 +284,7 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
 
     public override void Dispose()
     {
-        _factory.WindowManager.Unregister(this);
+        _componentFactory.WindowManager.Unregister(this);
         _font?.Release();
         base.Dispose();
     }

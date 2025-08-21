@@ -52,8 +52,9 @@ namespace AbstUI.Styles
 
         // Dividers and lines
         public static AColor DividerLines = new AColor(190, 190, 190);        // Light panel separators
-
         public static AColor LineDarker = AColor.FromHex("a0a0a0");
+        public static AColor LineLight = AColor.FromHex("f9f9f9");
+        public static AColor LineDark = AColor.FromHex("d0d0d0");
 
         // Buttons
         public static AColor Button_Bg_Normal = new AColor(240, 240, 240);      // Classic light gray

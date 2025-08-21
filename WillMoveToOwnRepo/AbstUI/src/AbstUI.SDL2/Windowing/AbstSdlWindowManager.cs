@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using AbstUI.Windowing;
 using Microsoft.Extensions.DependencyInjection;
 using AbstUI.Components.Containers;
-using AbstUI.SDL2.Components.Containers;
 using AbstUI.SDL2.Components;
 
 namespace AbstUI.SDL2.Windowing
