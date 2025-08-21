@@ -35,6 +35,8 @@ namespace AbstUI.SDL2.Components.Menus
             _fontManager = factory.FontManagerTyped;
             Visibility = false;
             ComponentContext.AlwaysOnTop = true;
+            Width = 80;
+            Height = 20;
         }
 
         public void AddItem(IAbstFrameworkMenuItem item)

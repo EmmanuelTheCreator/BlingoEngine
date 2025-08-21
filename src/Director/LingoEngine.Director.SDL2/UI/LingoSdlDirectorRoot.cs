@@ -20,17 +20,14 @@ namespace LingoEngine.Director.SDL2.UI
 
         public LingoSdlDirectorRoot(LingoPlayer player, IServiceProvider services, LingoProjectSettings settings)
         {
-            _castWindow = services.GetRequiredService<DirSdlCastWindow>();
-            _stageWindow = services.GetRequiredService<DirSdlStageWindow>();
-
-            _scoreWindow = services.GetRequiredService<DirSdlScoreWindow>();
-            _castWindow.Popup();
-            _stageWindow.Popup();
-            _scoreWindow.Popup();
-
+            //_castWindow = services.GetRequiredService<DirSdlCastWindow>();
             _inspectorWindow = services.GetRequiredService<DirSdlPropertyInspectorWindow>();
-            _castWindow.Popup();
-            _stageWindow.Popup();
+            //_stageWindow = services.GetRequiredService<DirSdlStageWindow>();
+            //_scoreWindow = services.GetRequiredService<DirSdlScoreWindow>();
+
+            //_castWindow.Popup();
+            //_stageWindow.Popup();
+            //_scoreWindow.Popup();
             _inspectorWindow.Popup();
 
         }

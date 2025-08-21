@@ -184,14 +184,13 @@ namespace AbstUI.SDL2.Components
         public AbstInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null)
             where TValue : System.Numerics.INumber<TValue>
         {
-            throw new NotImplementedException();
             var input = new AbstInputNumber<TValue>();
-            //var impl = new AbstSdlInputNumber<float>(_rootContext.Renderer);
-            //input.Init(impl);
+            var impl = new AbstSdlInputNumber<TValue>(this);
+            input.Init(impl);
             InitComponent(input);
-            //input.Name = name;
-            //if (min.HasValue) input.Min = min.Value;
-            //if (max.HasValue) input.Max = max.Value;
+            input.Name = name;
+            if (min.HasValue) input.Min = min.Value;
+            if (max.HasValue) input.Max = max.Value;
             return input;
         }
 

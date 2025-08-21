@@ -17,6 +17,8 @@ namespace AbstUI.SDL2.Components.Menus
         {
             Name = name;
             Shortcut = shortcut;
+            Width = 80;
+            Height = 20;
         }
 
         public void Invoke() => Activated?.Invoke();
