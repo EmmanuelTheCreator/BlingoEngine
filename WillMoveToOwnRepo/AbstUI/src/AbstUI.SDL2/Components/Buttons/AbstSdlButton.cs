@@ -114,7 +114,7 @@ namespace AbstUI.SDL2.Components.Buttons
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
-            if (!Visibility || !_isDirty) return default;
+            if (!Visibility || !_isDirty) return _texture;
 
             EnsureResources(context);
             int w = (int)Width;

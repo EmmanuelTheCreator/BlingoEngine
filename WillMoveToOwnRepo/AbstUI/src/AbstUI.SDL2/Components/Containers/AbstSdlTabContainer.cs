@@ -21,6 +21,7 @@ namespace AbstUI.SDL2.Components.Containers
         private int _texH;
         private readonly List<SDL.SDL_Rect> _tabRects = new();
         private int _hoverIndex = -1;
+        private int _tabHeight = 20;
 
         public AMargin Margin { get; set; } = AMargin.Zero;
         public object FrameworkNode => this;
@@ -108,7 +109,7 @@ namespace AbstUI.SDL2.Components.Containers
             EnsureResources(context);
             int w = (int)Width;
             int h = (int)Height;
-            int tabHeight = 20;
+            
 
             bool needRender = _texture == nint.Zero || _texW != w || _texH != h;
             if (needRender)
@@ -125,7 +126,7 @@ namespace AbstUI.SDL2.Components.Containers
             SDL.SDL_SetRenderDrawColor(context.Renderer, BackgroundColor.R, BackgroundColor.G, BackgroundColor.B, BackgroundColor.A);
             SDL.SDL_RenderClear(context.Renderer);
 
-            SDL.SDL_Rect contentRect = new SDL.SDL_Rect { x = 0, y = tabHeight, w = w, h = h - tabHeight };
+            SDL.SDL_Rect contentRect = new SDL.SDL_Rect { x = 0, y = _tabHeight, w = w, h = h - _tabHeight };
             SDL.SDL_SetRenderDrawColor(context.Renderer, BackgroundColor.R, BackgroundColor.G, BackgroundColor.B, BackgroundColor.A);
             SDL.SDL_RenderFillRect(context.Renderer, ref contentRect);
             if (BorderThickness > 0)
@@ -136,9 +137,9 @@ namespace AbstUI.SDL2.Components.Containers
                     SDL.SDL_Rect br = new SDL.SDL_Rect
                     {
                         x = t,
-                        y = tabHeight + t,
+                        y = _tabHeight + t,
                         w = w - 2 * t,
-                        h = h - tabHeight - 2 * t
+                        h = h - _tabHeight - 2 * t
                     };
                     SDL.SDL_RenderDrawRect(context.Renderer, ref br);
                 }
@@ -155,7 +156,7 @@ namespace AbstUI.SDL2.Components.Containers
                 int tw = textW + 10;
                 int th = ascent - descent + 4;
                 int tabW = Math.Max(tw, 60);
-                SDL.SDL_Rect rect = new SDL.SDL_Rect { x = x, y = 0, w = tabW, h = tabHeight };
+                SDL.SDL_Rect rect = new SDL.SDL_Rect { x = x, y = 0, w = tabW, h = _tabHeight };
                 _tabRects.Add(rect);
                 AColor bg = TabHeaderBGColor;
                 AColor border = TabHeaderBorderColor;
@@ -175,7 +176,7 @@ namespace AbstUI.SDL2.Components.Containers
                 SDL.SDL_RenderFillRect(context.Renderer, ref rect);
                 SDL.SDL_SetRenderDrawColor(context.Renderer, border.R, border.G, border.B, border.A);
                 SDL.SDL_RenderDrawRect(context.Renderer, ref rect);
-                int baseline = rect.y + (tabHeight - th) / 2 + ascent;
+                int baseline = rect.y + (_tabHeight - th) / 2 + ascent;
                 int tx = rect.x + (tabW - textW) / 2;
                 int ty = baseline - ascent;
                 var sdlTxtCol = new SDL.SDL_Color { r = txtCol.R, g = txtCol.G, b = txtCol.B, a = txtCol.A };
@@ -198,7 +199,7 @@ namespace AbstUI.SDL2.Components.Containers
                     var oldOffX = ctx.OffsetX;
                     var oldOffY = ctx.OffsetY;
                     ctx.OffsetX += -X + BorderThickness;
-                    ctx.OffsetY += -Y - tabHeight + BorderThickness;
+                    ctx.OffsetY += -Y - _tabHeight + BorderThickness;
                     ctx.RenderToTexture(context);
                     ctx.OffsetX = oldOffX;
                     ctx.OffsetY = oldOffY;
@@ -254,7 +255,19 @@ namespace AbstUI.SDL2.Components.Containers
                     ComponentContext.QueueRedraw(this);
                 }
             }
+    
+            // Forward mouse events to children accounting for current scroll offset
+
+            for (int i = _children.Count - 1; i >= 0 && !e.StopPropagation; i--)
+            {
+                if (_children[i].FrameworkNode is not AbstSdlComponent comp ||
+                    comp is not IHandleSdlEvent handler ||
+                    !comp.Visibility)
+                    continue;
+                ContainerHelpers.HandleChildEvents(comp, e, 0, _tabHeight);
+            }
         }
+        
 
 
 

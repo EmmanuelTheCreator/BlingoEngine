@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
 
@@ -74,7 +73,7 @@ public class AbstSDLComponentContainer
             var ctx = _activeComponents[i];
             if (ctx.Component is not IHandleSdlEvent handler)
                 continue;
-
+            var okEvent = false;
             bool inside = true;
             switch (evt.Event.type)
             {
@@ -84,22 +83,33 @@ public class AbstSDLComponentContainer
                     var by = evt.Event.button.y;
                     inside = bx >= ctx.X && bx <= ctx.X + ctx.TargetWidth &&
                              by >= ctx.Y && by <= ctx.Y + ctx.TargetHeight;
+                    okEvent = true;
                     break;
                 case SDL.SDL_EventType.SDL_MOUSEMOTION:
                     var mx = evt.Event.motion.x;
                     var my = evt.Event.motion.y;
                     inside = mx >= ctx.X && mx <= ctx.X + ctx.TargetWidth &&
                              my >= ctx.Y && my <= ctx.Y + ctx.TargetHeight;
+                    okEvent = true;
                     break;
                 case SDL.SDL_EventType.SDL_MOUSEWHEEL:
                     SDL.SDL_GetMouseState(out var wx, out var wy);
                     inside = wx >= ctx.X && wx <= ctx.X + ctx.TargetWidth &&
                              wy >= ctx.Y && wy <= ctx.Y + ctx.TargetHeight;
+                    okEvent = true;
+                    break;
+                case SDL.SDL_EventType.SDL_TEXTINPUT:
+                case SDL.SDL_EventType.SDL_KEYDOWN:
+                case SDL.SDL_EventType.SDL_KEYUP:
+                case SDL.SDL_EventType.SDL_TEXTEDITING:
+                case SDL.SDL_EventType.SDL_TEXTEDITING_EXT:
+                case SDL.SDL_EventType.SDL_CLIPBOARDUPDATE:
+                    okEvent = true;
                     break;
             }
-
-            if (inside)
+                if (inside && okEvent)
             {
+                
                 handler.HandleEvent(evt);
                 if (evt.StopPropagation)
                     break;

@@ -1,15 +1,16 @@
-using System;
-using System.Collections.Generic;
 using AbstUI.Components;
 using AbstUI.Components.Containers;
 using AbstUI.Primitives;
 using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Core;
+using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
+using System;
+using System.Collections.Generic;
 
 namespace AbstUI.SDL2.Components.Containers
 {
-    public class AbstSdlPanel : AbstSdlComponent, IAbstFrameworkPanel, IDisposable
+    public class AbstSdlPanel : AbstSdlComponent, IAbstFrameworkPanel, IDisposable, IHandleSdlEvent
     {
         public AbstSdlPanel(AbstSdlComponentFactory factory) : base(factory)
         {
@@ -130,5 +131,19 @@ namespace AbstUI.SDL2.Components.Containers
             }
             base.Dispose();
         }
+        public void HandleEvent(AbstSDLEvent e)
+        {
+            // Forward mouse events to children accounting for current scroll offset
+
+            for (int i = _children.Count - 1; i >= 0 && !e.StopPropagation; i--)
+            {
+                if (_children[i].FrameworkNode is not AbstSdlComponent comp ||
+                    comp is not IHandleSdlEvent handler ||
+                    !comp.Visibility)
+                    continue;
+                ContainerHelpers.HandleChildEvents(comp, e, (int)Margin.Left, (int)Margin.Top);
+            }
+        }
+
     }
 }

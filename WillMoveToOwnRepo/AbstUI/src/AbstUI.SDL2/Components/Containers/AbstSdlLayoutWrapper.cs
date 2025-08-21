@@ -2,10 +2,11 @@
 using AbstUI.Primitives;
 using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Core;
+using AbstUI.SDL2.Events;
 
 namespace AbstUI.SDL2.Components.Containers
 {
-    public partial class AbstSdlLayoutWrapper : AbstSdlComponent, IAbstFrameworkLayoutWrapper
+    public partial class AbstSdlLayoutWrapper : AbstSdlComponent, IAbstFrameworkLayoutWrapper, IHandleSdlEvent
     {
         private AbstLayoutWrapper _lingoLayoutWrapper;
         public object FrameworkNode => this;
@@ -50,6 +51,13 @@ namespace AbstUI.SDL2.Components.Containers
             ComponentContext.TargetWidth = (int)Width;
             ComponentContext.TargetHeight = (int)Height;
             return renderResult;
+        }
+        public void HandleEvent(AbstSDLEvent e)
+        {
+            // Forward mouse events to children accounting for current scroll offset
+            var sdlComponent = (AbstSdlComponent)_lingoLayoutWrapper.Content.FrameworkObj;
+
+            ContainerHelpers.HandleChildEvents(sdlComponent, e, (int)Margin.Left, (int)Margin.Top);
         }
     }
 }

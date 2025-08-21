@@ -1,14 +1,16 @@
-using System;
-using System.Collections.Generic;
 using AbstUI.Components;
 using AbstUI.Components.Containers;
 using AbstUI.Primitives;
 using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Core;
+using AbstUI.SDL2.Events;
+using System;
+using System.Collections.Generic;
+using static AbstUI.SDL2.SDLL.SDL;
 
 namespace AbstUI.SDL2.Components.Containers
 {
-    internal class AbstSdlScrollContainer : AbstSdlScrollViewer, IAbstFrameworkScrollContainer, IDisposable
+    internal class AbstSdlScrollContainer : AbstSdlScrollViewer, IAbstFrameworkScrollContainer, IDisposable, IHandleSdlEvent
     {
         public AbstSdlScrollContainer(AbstSdlComponentFactory factory) : base(factory)
         {
@@ -60,6 +62,22 @@ namespace AbstUI.SDL2.Components.Containers
             ContentWidth = maxX;
             ContentHeight = maxY;
         }
+
+        protected override void HandleContentEvent(AbstSDLEvent e)
+        {
+            // Forward mouse events to children accounting for current scroll offset
+            
+            for (int i = _children.Count - 1; i >= 0 && !e.StopPropagation; i--)
+            {
+                if (_children[i].FrameworkNode is not AbstSdlComponent comp ||
+                    comp is not IHandleSdlEvent handler ||
+                    !comp.Visibility)
+                    continue;
+                ContainerHelpers.HandleChildEvents(comp, e, (int)ScrollHorizontal, (int)ScrollVertical);
+            }
+        }
+
+        
 
         public override void Dispose()
         {

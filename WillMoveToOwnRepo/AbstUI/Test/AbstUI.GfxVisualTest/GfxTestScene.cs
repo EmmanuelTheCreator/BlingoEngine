@@ -21,7 +21,7 @@ public static class GfxTestScene
         scroll.AddItem(panel);
         panel.Width =500;
         panel.Height = 1400;
-        panel.BackgroundColor = AColor.FromRGBA(150, 250, 250, 255);
+        panel.BackgroundColor = AColor.FromRGBA(220, 250, 250, 255);
 
         float y = 20f;
 
@@ -31,17 +31,17 @@ public static class GfxTestScene
             y += height;
         }
 
-        Add(CreateLabel(factory, "label1"));
+        Add(CreateLabel(factory, "label1"),22);
         Add(CreateLabel(factory, "Label2 center", lbl2 =>
         {
             lbl2.Width = 200;
             lbl2.TextAlignment = AbstTextAlignment.Center;
-        }));
+        }), 22);
         Add(CreateLabel(factory, "Label3 right", lbl3 =>
         {
             lbl3.Width = 200;
             lbl3.TextAlignment = AbstTextAlignment.Right;
-        }));
+        }), 22);
         Add(CreateLabel(factory, "Label4 BIG", c => c.FontSize = 30));
 
         var canvas2 = factory.CreateGfxCanvas("canvas1", 100, 50);
@@ -52,7 +52,25 @@ public static class GfxTestScene
         Add(canvas2);
         y += 50;
 
-        Add(factory.CreateButton("button", "Button"));
+
+        
+        var numClicked = 0;
+        var testBtnLabel = CreateLabel(factory, "Button not clicked");
+        testBtnLabel.Width = 300;
+        
+        var btn1 = factory.CreateButton("button", "Button");
+        btn1.Pressed += () =>
+        {
+            numClicked++;
+            testBtnLabel.Text = $"Button clicked {numClicked} times";
+        };
+        //var btnpanel = factory.CreateWrapPanel(AOrientation.Horizontal, "scroll");
+        //btnpanel.Width = 500;
+        //btnpanel.AddItem(btn1);
+        //btnpanel.AddItem(testBtnLabel);
+        //Add(btnpanel);
+        Add(btn1,22);
+        Add(testBtnLabel,22);
 
         var stateButton = factory.CreateButton("stateButton", "State Button");
         //stateButton.IconTexture = factory.CreateTextureFromFile("Assets/Icons/heart.png");
@@ -60,7 +78,7 @@ public static class GfxTestScene
 
         Add(factory.CreateInputText("inputText"));
 
-        //Add(factory.CreateInputNumberInt("inputNumber", 0, 100));
+        Add(factory.CreateInputNumberInt("inputNumber", 0, 100));
 
         Add(factory.CreateSpinBox("spinBox", 0, 10));
 
