@@ -6,10 +6,10 @@ uid="uid://ckjccodarwcas"
 
 [deps]
 
-files=["res://Medias/Data/Members.Type.translation", "res://Medias/Data/Members.Name.translation", "res://Medias/Data/Members.Registration Point.translation", "res://Medias/Data/Members.Filename.translation"]
+files=["res://Media/Data/Members.Type.translation", "res://Media/Data/Members.Name.translation", "res://Media/Data/Members.Registration Point.translation", "res://Media/Data/Members.Filename.translation"]
 
-source_file="res://Medias/Data/Members.csv"
-dest_files=["res://Medias/Data/Members.Type.translation", "res://Medias/Data/Members.Name.translation", "res://Medias/Data/Members.Registration Point.translation", "res://Medias/Data/Members.Filename.translation"]
+source_file="res://Media/Data/Members.csv"
+dest_files=["res://Media/Data/Members.Type.translation", "res://Media/Data/Members.Name.translation", "res://Media/Data/Members.Registration Point.translation", "res://Media/Data/Members.Filename.translation"]
 
 [params]
 

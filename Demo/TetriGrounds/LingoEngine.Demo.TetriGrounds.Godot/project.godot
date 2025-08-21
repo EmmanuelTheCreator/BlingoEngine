@@ -16,9 +16,6 @@ config/features=PackedStringArray("4.5", "C#", "GL Compatibility")
 boot_splash/show_image=false
 config/icon="uid://cwac1s8duqarl"
 
-[display]
-
-
 [dotnet]
 
 project/assembly_name="LingoEngine.Demo.TetriGrounds.Godot"

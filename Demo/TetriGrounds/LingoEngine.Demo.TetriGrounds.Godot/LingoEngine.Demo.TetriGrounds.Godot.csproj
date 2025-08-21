@@ -339,11 +339,21 @@
 	  <None Include="Media\InternalExt\25.txt">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
-	  <Content Include="Media\Fonts\8PinMatrix.ttf" />
-	  <Content Include="Media\Fonts\arcade.ttf" />
-	  <Content Include="Media\Fonts\bikly.ttf" />
-	  <Content Include="Media\Fonts\earth.ttf" />
-	  <Content Include="Media\Fonts\Tahoma.ttf" />
+	  <Content Include="Media\Fonts\8PinMatrix.ttf">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Media\Fonts\arcade.ttf">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Media\Fonts\bikly.ttf">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Media\Fonts\earth.ttf">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Media\Fonts\Tahoma.ttf">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Content>
 	  <Content Include="Media\Icons\DirectorSharp_Icon.png" />
 	  <Content Include="Media\Icons\Director_Icons.png" />
 	  <Content Include="Media\Icons\General_Icons.png" />

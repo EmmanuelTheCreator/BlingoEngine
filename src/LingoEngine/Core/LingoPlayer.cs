@@ -37,7 +37,7 @@ namespace LingoEngine.Core
         private readonly LingoClock _clock;
         private LingoStageMouse _Mouse;
         public ILingoFrameworkFactory Factory { get; private set; }
-
+        public ILingoServiceProvider ServiceProvider => _serviceProvider;
         public ILingoClock Clock => _clock;
         public LingoKey Key => _LingoKey;
         public ILingoStage Stage => _Stage;

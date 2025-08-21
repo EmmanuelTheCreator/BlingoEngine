@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://7exxi1ud0omf"
-path="res://.godot/imported/17_Destroy9.png-b91f6bf88d5f4b0b6752d79a1d2bf6a9.ctex"
+path="res://.godot/imported/17_Destroy9.png-7fe41947da6dcfe0c2ff2e391f9a3742.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Medias/Data/17_Destroy9.png"
-dest_files=["res://.godot/imported/17_Destroy9.png-b91f6bf88d5f4b0b6752d79a1d2bf6a9.ctex"]
+source_file="res://Media/Data/17_Destroy9.png"
+dest_files=["res://.godot/imported/17_Destroy9.png-7fe41947da6dcfe0c2ff2e391f9a3742.ctex"]
 
 [params]
 

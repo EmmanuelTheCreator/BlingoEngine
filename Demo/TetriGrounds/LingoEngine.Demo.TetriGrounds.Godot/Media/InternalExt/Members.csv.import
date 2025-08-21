@@ -6,10 +6,10 @@ uid="uid://c1vflmxnjv02d"
 
 [deps]
 
-files=["res://Medias/InternalExt/Members.Type.translation", "res://Medias/InternalExt/Members.Name.translation", "res://Medias/InternalExt/Members.Registration Point.translation", "res://Medias/InternalExt/Members.Filename.translation"]
+files=["res://Media/InternalExt/Members.Type.translation", "res://Media/InternalExt/Members.Name.translation", "res://Media/InternalExt/Members.Registration Point.translation", "res://Media/InternalExt/Members.Filename.translation"]
 
-source_file="res://Medias/InternalExt/Members.csv"
-dest_files=["res://Medias/InternalExt/Members.Type.translation", "res://Medias/InternalExt/Members.Name.translation", "res://Medias/InternalExt/Members.Registration Point.translation", "res://Medias/InternalExt/Members.Filename.translation"]
+source_file="res://Media/InternalExt/Members.csv"
+dest_files=["res://Media/InternalExt/Members.Type.translation", "res://Media/InternalExt/Members.Name.translation", "res://Media/InternalExt/Members.Registration Point.translation", "res://Media/InternalExt/Members.Filename.translation"]
 
 [params]
 
