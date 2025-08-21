@@ -1,12 +1,18 @@
 # LingoEngine
 
+### Director.NET
+
 **LingoEngine** is a modern, cross-platform C# runtime designed to emulate Macromedia Director's **Lingo** scripting language. It enables playback of original Lingo code and behaviors on top of modern rendering backends like **Godot**, **SDL2**, **Unity**, and **Blazor**, allowing legacy projects to be revived or reimagined with full flexibility.
 
 ![Director full screenshot](Images/Direcor-FullScreenshot.jpg)
 
-<img src="Images/PropertyInspector.png" alt="Property Inspector" width="50%" />
-<img src="Images/TempoChange.jpg" alt="Tempo Change" width="50%" />
-<img src="Images/Director_CodeConverter1.jpg" alt="Tempo Change" width="50%" />
+#### Property inspector
+
+<img src="Images/PropertyInspector.png" alt="Property Inspector" width="49%" /><img src="Images/TempoChange.jpg" alt="Tempo Change" width="49%" />
+
+#### Easy Lingo to C# conversion
+
+<img src="Images/Director_CodeConverter1.jpg" alt="Easy Lingo to C# conversion" width="100%" />
 
 > ⚠️ **Can you help us make this dream project come true?**  
 > This project is still under heavy development, and we can use some help. Reach out if you want to contribute.
@@ -152,6 +158,8 @@ Please also read our [Code of Conduct](CODE_OF_CONDUCT.md).
 ## 📄 License
 
 Licensed under the [MIT License](LICENSE).
+
+> **Note:** The TetriGrounds demo's assets are not covered by the MIT License. See [Demo/TetriGrounds/LICENSE.assets.txt](Demo/TetriGrounds/LICENSE.assets.txt) for details.
 
 ---
 
