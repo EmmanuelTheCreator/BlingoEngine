@@ -67,6 +67,21 @@ internal class AbstImGuiWindow : AbstImGuiPanel, IAbstFrameworkWindow, IDisposab
         set => base.BackgroundColor = value;
     }
 
+    private IAbstFrameworkNode? _content;
+    public IAbstFrameworkNode? Content
+    {
+        get => _content;
+        set
+        {
+            if (_content == value) return;
+            RemoveAll();
+            _content = value;
+            if (value is IAbstFrameworkLayoutNode layout)
+                AddItem(layout);
+            _lingoWindow.SetContentFromFW(value);
+        }
+    }
+
 
     public void OnResize(int width, int height)
     {

@@ -7,6 +7,7 @@ using AbstUI.SDL2.Styles;
 using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.Core;
+using AbstUI.Components;
 
 namespace AbstUI.SDL2.Components.Containers;
 
@@ -80,6 +81,21 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
     public IAbstMouse Mouse => _abstWindow.Mouse;
 
     public IAbstKey AbstKey => _abstWindow.Key;
+
+    private IAbstFrameworkNode? _content;
+    public IAbstFrameworkNode? Content
+    {
+        get => _content;
+        set
+        {
+            if (_content == value) return;
+            RemoveAll();
+            _content = value;
+            if (value is IAbstFrameworkLayoutNode layout)
+                AddItem(layout);
+            _abstWindow.SetContentFromFW(value);
+        }
+    }
 
     public AbstSdlWindow(AbstSdlComponentFactory factory) : base(factory)
     {

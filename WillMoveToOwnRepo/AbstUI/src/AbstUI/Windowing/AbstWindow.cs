@@ -2,6 +2,7 @@ using AbstUI.Components;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
 
 namespace AbstUI.Windowing;
 
@@ -10,13 +11,14 @@ public interface IAbstWindowInternal : IAbstWindow, IAbstNode, IDisposable
     void ResizeFromFW(bool firstLoad, int width, int height);
     void RaiseWindowStateChanged(bool v);
     void SetPositionFromFW(int x, int y);
+    void SetContentFromFW(IAbstFrameworkNode? node);
 }
 public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEventHandler<AbstKeyEvent>, IAbstWindowInternal
     where TFrameworkWindow : IAbstFrameworkWindow, IAbstFrameworkNode
 {
     protected readonly IAbstComponentFactory _componentFactory;
     protected TFrameworkWindow _framework;
-    public IAbstMouse Mouse { get;  }
+    public IAbstMouse Mouse { get; }
     public IAbstMouse<AbstMouseEvent> MouseT => (IAbstMouse<AbstMouseEvent>)Mouse;
     public IAbstKey Key { get; }
 
@@ -40,7 +42,7 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
     public bool IsOpen => _framework.IsOpen;
     public bool IsActiveWindow => _framework.IsActiveWindow;
 
-    public ARect MouseOffset => ARect.New(X, Y+ WindowTitleHeight, Width, Height);
+    public ARect MouseOffset => ARect.New(X, Y + WindowTitleHeight, Width, Height);
 
     public bool IsActivated { get; internal set; }
     public string Name { get => WindowCode; set { } }
@@ -49,7 +51,24 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
     float IAbstNode.Height { get => Height; set => Height = (int)value; }
     public AMargin Margin { get; set; } = new AMargin();
 
-    
+    private readonly Dictionary<IAbstFrameworkNode, IAbstNode> _contentMap = new();
+    private IAbstNode? _content;
+    public IAbstNode? Content
+    {
+        get => _content;
+        set
+        {
+            if (_content == value) return;
+            _content = value;
+            var fw = value?.FrameworkObj;
+            if (fw != null)
+                _contentMap[fw] = value;
+            if (_framework.Content != fw)
+                _framework.Content = fw;
+        }
+    }
+
+
 
     public event Action<bool>? OnWindowStateChanged;
     public event Action<float, float>? OnResize;
@@ -82,7 +101,7 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
     public virtual void SetSize(int width, int height)
         => _framework.SetSize(width, height);
 
-   
+
 
 
 
@@ -122,11 +141,11 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
         OnResizing(firstLoad, width, height);
         OnResize?.Invoke(width, height);
     }
-    protected virtual void OnResizing(bool firstLoad, int width, int height) 
+    protected virtual void OnResizing(bool firstLoad, int width, int height)
     {
         Width = width;
         Height = height;
-        
+
     }
 
     void IAbstWindow.SetActivated(bool state) => IsActivated = state;
@@ -139,5 +158,13 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
         Y = y;
     }
 
-    
+    public void SetContentFromFW(IAbstFrameworkNode? node)
+    {
+        if (node != null && _contentMap.TryGetValue(node, out var lingo))
+            _content = lingo;
+        else if (node == null)
+            _content = null;
+    }
+
+
 }

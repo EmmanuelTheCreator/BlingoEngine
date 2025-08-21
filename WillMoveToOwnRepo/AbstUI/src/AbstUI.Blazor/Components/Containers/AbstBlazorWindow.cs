@@ -68,6 +68,21 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable, IAbstFrameworkWi
 
     public IAbstKey AbstKey => _abstWindow.Key;
 
+    private IAbstFrameworkNode? _content;
+    public IAbstFrameworkNode? Content
+    {
+        get => _content;
+        set
+        {
+            if (_content == value) return;
+            Component.RemoveAll();
+            _content = value;
+            if (value is IAbstFrameworkLayoutNode layout)
+                Component.AddItem(layout);
+            _lingoWindow.SetContentFromFW(value);
+        }
+    }
+
     public AbstBlazorWindow(IAbstWindow window, AbstBlazorComponentFactory factory)
     {
         _lingoWindow = (IAbstWindowInternal)window;
