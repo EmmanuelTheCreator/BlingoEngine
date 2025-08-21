@@ -31,6 +31,15 @@ public class LingoToCSharpConverter
             return $"GetMember<ILingoMemberTextBase>(\"{match.Groups["name"].Value}\").{pascal}";
         }
 
+        match = System.Text.RegularExpressions.Regex.Match(
+            trimmed,
+            @"^castLib\s*\(\s*(?<arg>[^\)]+)\s*\)\.save\s*\(\s*\)\s*$",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        if (match.Success)
+        {
+            return $"CastLib({match.Groups["arg"].Value}).Save();";
+        }
+
         if (TryConvertNewMember(trimmed, out var converted))
             return converted;
 

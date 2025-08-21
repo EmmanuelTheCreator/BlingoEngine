@@ -1220,4 +1220,23 @@ end",
         var prop = Assert.Single(batch.Properties["Example"].Where(p => p.Name == "myProp"));
         Assert.Equal("int", prop.Type);
     }
+
+    [Fact]
+    public void CastLibSaveIsConverted()
+    {
+        var result = _converter.Convert("castLib(\"scores\").save()");
+        Assert.Equal("CastLib(\"scores\").Save();", result.Trim());
+    }
+
+    [Fact]
+    public void CharToNumIsConverted()
+    {
+        var lingo = "if the key.charToNum = 8 then\nend if";
+        var result = _converter.Convert(lingo);
+        var expected = string.Join('\n',
+            "if (_Key.Key.CharToNum() == 8)",
+            "{",
+            "}");
+        Assert.Equal(expected.Trim(), result.Replace("\r", "").Trim());
+    }
 }
