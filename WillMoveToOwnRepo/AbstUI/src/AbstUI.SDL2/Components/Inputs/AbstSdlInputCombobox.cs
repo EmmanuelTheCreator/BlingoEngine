@@ -8,53 +8,23 @@ using AbstUI.SDL2.Texts;
 using AbstUI.SDL2.Styles;
 using AbstUI.Styles;
 using AbstUI.Components.Inputs;
-using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.Core;
 
 namespace AbstUI.SDL2.Components.Inputs
 {
-    internal class AbstSdlInputCombobox : AbstSdlComponent, IAbstFrameworkInputCombobox, IHandleSdlEvent, ISdlFocusable, IDisposable
+    internal class AbstSdlInputCombobox : AbstSdlSeletectableCollection, IAbstFrameworkInputCombobox, IHandleSdlEvent, ISdlFocusable, IDisposable, IHasTextBackgroundBorderColor
     {
         public AbstSdlInputCombobox(AbstSdlComponentFactory factory) : base(factory)
         {
         }
-        public bool Enabled { get; set; } = true;
-        public AMargin Margin { get; set; } = AMargin.Zero;
+
         private bool _focused;
         public string? Font { get; set; }
         public int FontSize { get; set; } = 11;
         public AColor TextColor { get; set; } = AbstDefaultColors.InputTextColor;
-
-        private readonly List<KeyValuePair<string, string>> _items = new();
-        public IReadOnlyList<KeyValuePair<string, string>> Items => _items;
-        private int _selectedIndex = -1;
-        public int SelectedIndex
-        {
-            get => _selectedIndex;
-            set
-            {
-                if (_selectedIndex == value) return;
-                _selectedIndex = value;
-                if (value >= 0 && value < _items.Count)
-                {
-                    SelectedKey = _items[value].Key;
-                    SelectedValue = _items[value].Value;
-                }
-                else
-                {
-                    SelectedKey = null;
-                    SelectedValue = null;
-                }
-                ComponentContext.QueueRedraw(this);
-                ValueChanged?.Invoke();
-            }
-        }
-        public string? SelectedKey { get; set; }
-        public string? SelectedValue { get; set; }
-
-        public event Action? ValueChanged;
-        public object FrameworkNode => this;
+        public AColor BorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
+        public new AColor BackgroundColor { get; set; } = AbstDefaultColors.Input_Bg;
 
         private AbstSdInputltemList? _popup;
         private bool _open;
@@ -65,6 +35,18 @@ namespace AbstUI.SDL2.Components.Inputs
         private int _texH;
         private string _renderedText = string.Empty;
         private int _lineHeight;
+
+        public override void AddItem(string key, string value)
+        {
+            base.AddItem(key, value);
+            _popup?.AddItem(key, value);
+        }
+
+        public override void ClearItems()
+        {
+            base.ClearItems();
+            _popup?.ClearItems();
+        }
 
         private void EnsureResources(AbstSDLRenderContext ctx)
         {
@@ -78,24 +60,7 @@ namespace AbstUI.SDL2.Components.Inputs
             }
         }
 
-        public void AddItem(string key, string value)
-        {
-            _items.Add(new KeyValuePair<string, string>(key, value));
-            _popup?.AddItem(key, value);
-            ComponentContext.QueueRedraw(this);
-        }
-
-        public void ClearItems()
-        {
-            _items.Clear();
-            _popup?.ClearItems();
-            _selectedIndex = -1;
-            SelectedKey = null;
-            SelectedValue = null;
-            ComponentContext.QueueRedraw(this);
-        }
-
-        public void HandleEvent(AbstSDLEvent e)
+        public new void HandleEvent(AbstSDLEvent e)
         {
             if (!Enabled) return;
             ref var ev = ref e.Event;
@@ -124,7 +89,7 @@ namespace AbstUI.SDL2.Components.Inputs
             {
                 if (ev.key.keysym.sym == SDL.SDL_Keycode.SDLK_DOWN)
                 {
-                    if (SelectedIndex < _items.Count - 1)
+                    if (SelectedIndex < Items.Count - 1)
                         SelectedIndex++;
                     e.StopPropagation = true;
                 }
@@ -142,20 +107,37 @@ namespace AbstUI.SDL2.Components.Inputs
             if (_popup == null)
             {
                 _popup = new AbstSdInputltemList(Factory);
-                foreach (var it in _items)
+                foreach (var it in Items)
                     _popup.AddItem(it.Key, it.Value);
                 _popup.ValueChanged += PopupOnValueChanged;
             }
 
+            _popup.ItemFont = ItemFont ?? Font;
+            _popup.ItemFontSize = ItemFontSize;
+            _popup.ItemTextColor = ItemTextColor;
+            _popup.ItemSelectedTextColor = ItemSelectedTextColor;
+            _popup.ItemSelectedBackgroundColor = ItemSelectedBackgroundColor;
+            _popup.ItemSelectedBorderColor = ItemSelectedBorderColor;
+            _popup.ItemHoverTextColor = ItemHoverTextColor;
+            _popup.ItemHoverBackgroundColor = ItemHoverBackgroundColor;
+            _popup.ItemHoverBorderColor = ItemHoverBorderColor;
+            _popup.ItemPressedTextColor = ItemPressedTextColor;
+            _popup.ItemPressedBackgroundColor = ItemPressedBackgroundColor;
+            _popup.ItemPressedBorderColor = ItemPressedBorderColor;
+
             _popup.X = X;
             _popup.Y = Y + Height;
             _popup.Width = Width;
-            int desired = _items.Count * _lineHeight + 2;
+            int desired = Items.Count * _lineHeight + 2;
             _popup.Height = desired > 200 ? 200 : desired;
             _popup.Visibility = true;
             Factory.RootContext.ComponentContainer.Activate(_popup.ComponentContext);
             _open = true;
         }
+
+        protected override void RenderContent(AbstSDLRenderContext context) { }
+
+        protected override void HandleContentEvent(AbstSDLEvent e) { }
 
         private void ClosePopup()
         {
@@ -169,9 +151,6 @@ namespace AbstUI.SDL2.Components.Inputs
         {
             if (_popup == null) return;
             SelectedIndex = _popup.SelectedIndex;
-            SelectedKey = _popup.SelectedKey;
-            SelectedValue = _popup.SelectedValue;
-            ValueChanged?.Invoke();
             ClosePopup();
             ComponentContext.QueueRedraw(this);
         }
@@ -203,11 +182,10 @@ namespace AbstUI.SDL2.Components.Inputs
 
                 var prevTarget = SDL.SDL_GetRenderTarget(context.Renderer);
                 SDL.SDL_SetRenderTarget(context.Renderer, _texture);
-                SDL.SDL_SetRenderDrawColor(context.Renderer, 255, 255, 255, 255);
+                SDL.SDL_SetRenderDrawColor(context.Renderer, BackgroundColor.R, BackgroundColor.G, BackgroundColor.B, BackgroundColor.A);
                 SDL.SDL_RenderClear(context.Renderer);
-                var border = AbstDefaultColors.InputBorderColor;
-                SDL.SDL_SetRenderDrawColor(context.Renderer, border.R, border.G, border.B, border.A);
                 SDL.SDL_Rect rect = new SDL.SDL_Rect { x = 0, y = 0, w = w, h = h };
+                SDL.SDL_SetRenderDrawColor(context.Renderer, BorderColor.R, BorderColor.G, BorderColor.B, BorderColor.A);
                 SDL.SDL_RenderDrawRect(context.Renderer, ref rect);
 
                 if (!string.IsNullOrEmpty(text))
