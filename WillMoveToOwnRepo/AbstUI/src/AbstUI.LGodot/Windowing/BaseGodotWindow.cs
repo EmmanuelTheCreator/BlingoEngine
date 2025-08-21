@@ -7,7 +7,6 @@ using AbstUI.Windowing;
 using AbstUI.Styles;
 using AbstUI.Commands;
 using AbstUI.LGodot.Inputs;
-using AbstUI.LGodot.Windowing;
 using AbstUI.Components;
 
 namespace AbstEngine.Director.LGodot
@@ -33,20 +32,23 @@ namespace AbstEngine.Director.LGodot
         {
             Name = "WindowCloseButton",
         };
-        protected IAbstWindowInternal _window;
+        protected IAbstWindowInternal _window = null!;
         protected int TitleBarHeight = 20;
         private int _resizeHandle = 10;
         private Vector2 _dragOffset;
         private Vector2 _resizeStartSize;
         private Vector2 _resizeStartMousePos;
-        private IAbstGodotMouseHandler _mouseFrameworkObj;
+        private IAbstGodotMouseHandler _mouseFrameworkObj = null!;
+
+
+        #region Properties
 
         protected StyleBoxFlat Style = new StyleBoxFlat();
         public string WindowCode => _window.WindowCode;
         public string WindowName { get; private set; }
         public string Title { get => _label.Text; set => _label.Text = value; }
         public bool IsOpen => Visible;
-        public bool IsActiveWindow => _windowManager.ActiveWindow == this;
+        public bool IsActiveWindow => _windowManager.ActiveWindow == _window;
         public AColor _backgroundColor;
         public AColor BackgroundColor
         {
@@ -63,7 +65,7 @@ namespace AbstEngine.Director.LGodot
 
 
         public IAbstMouse Mouse => _window.Mouse;
-        public IAbstMouse<AbstMouseEvent> MouseT => (IAbstMouse < AbstMouseEvent > )_window.Mouse;
+        public IAbstMouse<AbstMouseEvent> MouseT => (IAbstMouse<AbstMouseEvent>)_window.Mouse;
         public IAbstKey AbstKey => _window.Key;
 
         private IAbstFrameworkNode? _content;
@@ -97,7 +99,7 @@ namespace AbstEngine.Director.LGodot
 
             }
         }
-        
+
         public float Height
         {
             get => Size.Y;
@@ -111,6 +113,9 @@ namespace AbstEngine.Director.LGodot
         public AMargin Margin { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public object FrameworkNode => throw new NotImplementedException();
+
+        #endregion
+
 
         public BaseGodotWindow(string name, IServiceProvider serviceProvider)
         {
@@ -205,17 +210,20 @@ namespace AbstEngine.Director.LGodot
         //}
         protected virtual void OnHandleTheEvent(InputEvent @event)
         {
-            if (@event is InputEventKey key && key.Pressed && _historyManager != null)
+            if (_window.IsActivated)
             {
-                if (key.Keycode == Key.Z && key.CtrlPressed)
+                if (@event is InputEventKey key && key.Pressed && _historyManager != null)
                 {
-                    _historyManager.Undo();
-                    return;
-                }
-                if (key.Keycode == Key.Y && key.CtrlPressed)
-                {
-                    _historyManager.Redo();
-                    return;
+                    if (key.Keycode == Key.Z && key.CtrlPressed)
+                    {
+                        _historyManager.Undo();
+                        return;
+                    }
+                    if (key.Keycode == Key.Y && key.CtrlPressed)
+                    {
+                        _historyManager.Redo();
+                        return;
+                    }
                 }
             }
 
@@ -227,8 +235,9 @@ namespace AbstEngine.Director.LGodot
                 var code = this.WindowCode;
                 if (!IsActiveWindow && isInsideRect)
                 {
-                    _window.SetActivated(true);
-                    _windowManager.SetActiveWindow(WindowCode); //.SetActiveWindow(this, GetGlobalMousePosition());
+                    ActivateMe();
+                    //_window.SetActivated(true);
+                    //_windowManager.SetActiveWindow(WindowCode); //.SetActiveWindow(this, GetGlobalMousePosition());
                 }
                 if (!IsActiveWindow)
                     return;
@@ -254,8 +263,9 @@ namespace AbstEngine.Director.LGodot
                 {
                     if (pressed && isInsideRect)
                     {
-                        _window.SetActivated(true);
-                        _windowManager.SetActiveWindow(WindowCode);  //_windowManager.SetActiveWindow(this, GetGlobalMousePosition());
+                        ActivateMe();
+                        //_window.SetActivated(true);
+                        //_windowManager.SetActiveWindow(WindowCode);  //_windowManager.SetActiveWindow(this, GetGlobalMousePosition());
                     }
                     Vector2 pos = GetLocalMousePosition();
 
@@ -306,8 +316,25 @@ namespace AbstEngine.Director.LGodot
                 }
             }
         }
+        public void ActivateMe()
+        {
+            if (_windowManager.ActiveWindow == _window) return;
+            var mousePoint = GetGlobalMousePosition();
+            if (_windowManager.ActiveWindow != null)
+            {
+                var godottCurrent = (BaseGodotWindow)_windowManager.ActiveWindow.FrameworkObj;
+                if (godottCurrent.GetGlobalRect().HasPoint(mousePoint))
+                {
+                    // if the active window is clicked, we do not change the active window
+                    // this is to prevent flickering when clicking on the active window
+                    return;
+                }
+            }
 
-       
+            _window.SetActivated(true);
+            _windowManager.SetActiveWindow(WindowCode);  //_windowManager.SetActiveWindow(this, GetGlobalMousePosition());
+        }
+
         public override void _UnhandledInput(InputEvent @event)
         {
             if (@event is InputEventMouseButton mb)
