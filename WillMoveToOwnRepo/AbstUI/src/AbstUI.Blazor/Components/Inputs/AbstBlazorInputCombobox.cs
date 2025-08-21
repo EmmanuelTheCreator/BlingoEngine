@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using AbstUI.Primitives;
 using AbstUI.Components.Inputs;
+using AbstUI.Styles;
 
 namespace AbstUI.Blazor.Components.Inputs;
 
@@ -15,6 +16,19 @@ public partial class AbstBlazorInputCombobox : IAbstFrameworkInputCombobox
     public int SelectedIndex { get; set; } = -1;
     public string? SelectedKey { get; set; }
     public string? SelectedValue { get; set; }
+
+    public string? ItemFont { get; set; }
+    public int ItemFontSize { get; set; } = 11;
+    public AColor ItemTextColor { get; set; } = AbstDefaultColors.InputTextColor;
+    public AColor ItemSelectedTextColor { get; set; } = AbstDefaultColors.InputSelectionText;
+    public AColor ItemSelectedBackgroundColor { get; set; } = AbstDefaultColors.InputAccentColor;
+    public AColor ItemSelectedBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
+    public AColor ItemHoverTextColor { get; set; } = AbstDefaultColors.InputTextColor;
+    public AColor ItemHoverBackgroundColor { get; set; } = AbstDefaultColors.ListHoverColor;
+    public AColor ItemHoverBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
+    public AColor ItemPressedTextColor { get; set; } = AbstDefaultColors.InputSelectionText;
+    public AColor ItemPressedBackgroundColor { get; set; } = AbstDefaultColors.InputAccentColor;
+    public AColor ItemPressedBorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
 
 
     public void AddItem(string key, string value)
@@ -49,5 +63,16 @@ public partial class AbstBlazorInputCombobox : IAbstFrameworkInputCombobox
             }
             ValueChangedInvoke();
         }
+    }
+
+    protected override string BuildStyle()
+    {
+        var style = base.BuildStyle();
+        if (!string.IsNullOrEmpty(ItemFont))
+            style += $"font-family:{ItemFont};";
+        if (ItemFontSize > 0)
+            style += $"font-size:{ItemFontSize}px;";
+        style += $"color:{ItemTextColor.ToHex()};";
+        return style;
     }
 }

@@ -5,7 +5,7 @@ namespace AbstUI.Components.Inputs
     /// <summary>
     /// Framework specific combo box input.
     /// </summary>
-    public interface IAbstFrameworkInputCombobox : IAbstFrameworkNodeInput
+    public interface IAbstFrameworkInputCombobox : IAbstFrameworkNodeInput, IAbstSdlHasSeletectableCollectionStyle
     {
         IReadOnlyList<KeyValuePair<string, string>> Items { get; }
         void AddItem(string key, string value);
