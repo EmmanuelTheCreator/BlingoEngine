@@ -37,6 +37,8 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
         _mapper.Map<AbstBlazorLabelComponent>(typeof(AbstBlazorLabel));
         _mapper.Map<AbstBlazorInputTextComponent>(typeof(AbstBlazorInputText));
         _mapper.Map<AbstBlazorLayoutWrapper>(typeof(AbstBlazorLayoutWrapper));
+        _mapper.Map<AbstBlazorHorizontalLineSeparatorComponent>(typeof(AbstBlazorHorizontalLineSeparator));
+        _mapper.Map<AbstBlazorVerticalLineSeparatorComponent>(typeof(AbstBlazorVerticalLineSeparator));
     }
 
     public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
@@ -280,6 +282,8 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstHorizontalLineSeparator CreateHorizontalLineSeparator(string name)
     {
         var sep = new AbstHorizontalLineSeparator();
+        var impl = new AbstBlazorHorizontalLineSeparatorComponent();
+        sep.Init(impl);
         InitComponent(sep);
         sep.Name = name;
         return sep;
@@ -288,6 +292,8 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstVerticalLineSeparator CreateVerticalLineSeparator(string name)
     {
         var sep = new AbstVerticalLineSeparator();
+        var impl = new AbstBlazorVerticalLineSeparatorComponent();
+        sep.Init(impl);
         InitComponent(sep);
         sep.Name = name;
         return sep;
