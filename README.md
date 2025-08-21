@@ -4,10 +4,7 @@
 
 **LingoEngine** is a modern, cross-platform C# runtime designed to emulate Macromedia Director's **Lingo** scripting language. It enables playback of original Lingo code and behaviors on top of modern rendering backends like **Godot**, **SDL2**, **Unity**, and **Blazor**, allowing legacy projects to be revived or reimagined with full flexibility.
 
-<img src="Images/logo_godot.png" alt="Godot" width="20%" />
-<img src="Images/logo_SDL.png" alt="SDL" width="20%" />
-<img src="Images/logo_blazor.png" alt="Blazor" width="10%" />
-<img src="Images/logo_unity.jpg" alt="Unity" width="10%" />
+<img src="Images/logo_godot.png" alt="Godot" width="20%" /><img src="Images/logo_SDL.png" alt="SDL" width="20%" /><img src="Images/logo_blazor.png" alt="Blazor" width="7%" /><img src="Images/logo_Unity.jpg" alt="Unity" width="7%" />
 
 ---
 
