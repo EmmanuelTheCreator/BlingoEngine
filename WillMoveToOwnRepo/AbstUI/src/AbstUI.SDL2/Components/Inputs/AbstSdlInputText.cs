@@ -23,6 +23,7 @@ namespace AbstUI.SDL2.Components.Inputs
         private uint _blinkStart;
         private ISdlFontLoadedByUser? _font;
         private SdlGlyphAtlas? _atlas;
+        private int _scrollX;
 
 
         public bool Enabled { get; set; } = true;
@@ -37,6 +38,7 @@ namespace AbstUI.SDL2.Components.Inputs
                 foreach (var r in value.EnumerateRunes()) _codepoints.Add(r.Value);
                 _caret = _codepoints.Count;
                 ValueChanged?.Invoke();
+                AdjustScroll();
             }
         }
         public int MaxLength { get; set; }
@@ -85,6 +87,7 @@ namespace AbstUI.SDL2.Components.Inputs
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
                     Factory.FocusManager.SetFocus(this);
                     _caret = _codepoints.Count;
+                    AdjustScroll();
                     e.StopPropagation = true;
                     break;
                 case SDL.SDL_EventType.SDL_TEXTINPUT:
@@ -104,6 +107,7 @@ namespace AbstUI.SDL2.Components.Inputs
                     }
                     _text = string.Concat(_codepoints.ConvertAll(cp => char.ConvertFromUtf32(cp)));
                     ValueChanged?.Invoke();
+                    AdjustScroll();
                     e.StopPropagation = true;
                     break;
                 case SDL.SDL_EventType.SDL_KEYDOWN:
@@ -117,6 +121,7 @@ namespace AbstUI.SDL2.Components.Inputs
                             _caret--;
                             _text = string.Concat(_codepoints.ConvertAll(cp => char.ConvertFromUtf32(cp)));
                             ValueChanged?.Invoke();
+                            AdjustScroll();
                         }
                         e.StopPropagation = true;
                     }
@@ -127,17 +132,20 @@ namespace AbstUI.SDL2.Components.Inputs
                             _codepoints.RemoveAt(_caret);
                             _text = string.Concat(_codepoints.ConvertAll(cp => char.ConvertFromUtf32(cp)));
                             ValueChanged?.Invoke();
+                            AdjustScroll();
                         }
                         e.StopPropagation = true;
                     }
                     else if (key == SDL.SDL_Keycode.SDLK_LEFT)
                     {
                         if (_caret > 0) _caret--;
+                        AdjustScroll();
                         e.StopPropagation = true;
                     }
                     else if (key == SDL.SDL_Keycode.SDLK_RIGHT)
                     {
                         if (_caret < _codepoints.Count) _caret++;
+                        AdjustScroll();
                         e.StopPropagation = true;
                     }
                     break;
@@ -164,12 +172,24 @@ namespace AbstUI.SDL2.Components.Inputs
             SDL.SDL_RenderDrawRect(renderer, ref rect);
 
             if (_atlas == null || _font == null) return default;
+            AdjustScroll();
 
             int ascent = SDL_ttf.TTF_FontAscent(_font.FontHandle);
             int baseline = (int)Y + (int)Height / 2 + ascent / 2;
 
-            _atlas.DrawRun(CollectionsMarshal.AsSpan(_codepoints), (int)X + 4, baseline,
-                TextColor.ToSDLColor());
+            var span = CollectionsMarshal.AsSpan(_codepoints);
+            int innerX = (int)X + 4;
+            int innerWidth = (int)Width - 8;
+            SDL.SDL_Rect clip = new SDL.SDL_Rect
+            {
+                x = innerX,
+                y = (int)Y + 2,
+                w = innerWidth,
+                h = (int)Height - 4
+            };
+            SDL.SDL_RenderSetClipRect(renderer, ref clip);
+
+            _atlas.DrawRun(span, innerX - _scrollX, baseline, TextColor.ToSDLColor());
 
             if (_focused)
             {
@@ -177,12 +197,30 @@ namespace AbstUI.SDL2.Components.Inputs
                 if (ticks - _blinkStart > 1000) { _blinkStart = ticks; }
                 if ((ticks - _blinkStart) / 500 % 2 == 0)
                 {
-                    int caretX = (int)X + 4 + _atlas.MeasureWidth(CollectionsMarshal.AsSpan(_codepoints).Slice(0, _caret));
+                    int caretX = innerX - _scrollX + _atlas.MeasureWidth(span.Slice(0, _caret));
                     SDL.SDL_RenderDrawLine(renderer, caretX, (int)Y + 2, caretX, (int)(Y + Height) - 2);
                 }
             }
 
+            SDL.SDL_RenderSetClipRect(renderer, nint.Zero);
+
             return AbstSDLRenderResult.RequireRender();
+        }
+
+        private void AdjustScroll()
+        {
+            if (_atlas == null) return;
+            var span = CollectionsMarshal.AsSpan(_codepoints);
+            int caretPixel = _atlas.MeasureWidth(span.Slice(0, _caret));
+            int innerWidth = (int)Width - 8;
+            if (caretPixel - _scrollX > innerWidth)
+                _scrollX = caretPixel - innerWidth;
+            else if (caretPixel - _scrollX < 0)
+                _scrollX = caretPixel;
+            int textWidth = _atlas.MeasureWidth(span);
+            int maxScroll = Math.Max(0, textWidth - innerWidth);
+            if (_scrollX > maxScroll) _scrollX = maxScroll;
+            if (_scrollX < 0) _scrollX = 0;
         }
 
         public override void Dispose()

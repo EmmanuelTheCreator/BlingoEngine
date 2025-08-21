@@ -23,7 +23,7 @@ internal sealed class SdlGlyphAtlas : IDisposable
         public SDL.SDL_Rect Rect;
         public int Advance;
         public int MinX;
-        public int MaxY;
+        public int MinY;
     }
 
     private readonly Dictionary<int, Glyph> _glyphs = new();
@@ -79,14 +79,14 @@ internal sealed class SdlGlyphAtlas : IDisposable
         SDL.SDL_UpdateTexture(_texture, ref dest, surf.pixels, surf.pitch);
         SDL.SDL_FreeSurface(glyphSurface);
 
-        SDL_ttf.TTF_GlyphMetrics32(_font, (uint)codepoint, out int minx, out _, out _, out int maxy, out int advance);
+        SDL_ttf.TTF_GlyphMetrics32(_font, (uint)codepoint, out int minx, out _, out int miny, out _, out int advance);
 
         _glyphs[codepoint] = new Glyph
         {
             Rect = dest,
             Advance = advance,
             MinX = minx,
-            MaxY = maxy
+            MinY = miny
         };
 
         _nextX += w;
@@ -108,7 +108,7 @@ internal sealed class SdlGlyphAtlas : IDisposable
             SDL.SDL_Rect dst = new SDL.SDL_Rect
             {
                 x = x + g.MinX,
-                y = baselineY - g.MaxY,
+                y = baselineY + g.MinY,
                 w = src.w,
                 h = src.h
             };
