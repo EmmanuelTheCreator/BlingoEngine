@@ -181,13 +181,15 @@ namespace LingoEngine.Director.Core.Inspector
             _behaviorList.Width = _lastWidh - 15;
         }
 
-       
+
 
         public void ShowObject(object obj)
         {
             if (_tabs == null || _thumb == null)
                 return;
-            var lastSelectedTab = Enum.Parse<PropetyTabNames>(_tabs.SelectedTabName);
+            PropetyTabNames lastSelectedTab = PropetyTabNames.Movie;
+            if (!string.IsNullOrWhiteSpace(_tabs.SelectedTabName))
+                lastSelectedTab = Enum.Parse<PropetyTabNames>(_tabs.SelectedTabName);
             _tabs.ClearTabs();
             ILingoMember? member = null;
             if (obj is LingoSprite2D sp)

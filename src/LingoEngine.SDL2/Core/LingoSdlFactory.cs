@@ -43,18 +43,18 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
 {
     private readonly List<IDisposable> _disposables = new();
     private readonly ILingoServiceProvider _serviceProvider;
-    private readonly SdlRootContext _rootContext;
+    private readonly LingoSdlRootContext _rootContext;
     private readonly SdlFontManager _fontManager;
     private readonly IAbstStyleManager _styleManager;
     private readonly AbstSdlComponentFactory _gfxFactory;
     internal SdlFontManager FontManager => _fontManager;
-    internal SdlRootContext RootContext => _rootContext;
+    internal LingoSdlRootContext RootContext => _rootContext;
 
     public AbstSDLComponentContainer ComponentContainer => _rootContext.ComponentContainer;
 
     public IAbstComponentFactory ComponentFactory => _gfxFactory;
     /// <inheritdoc/>
-    public LingoSdlFactory(ILingoServiceProvider serviceProvider, SdlRootContext rootContext)
+    public LingoSdlFactory(ILingoServiceProvider serviceProvider, LingoSdlRootContext rootContext)
     {
         _serviceProvider = serviceProvider;
         _rootContext = rootContext;

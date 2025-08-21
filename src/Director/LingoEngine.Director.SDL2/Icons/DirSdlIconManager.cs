@@ -20,7 +20,7 @@ namespace LingoEngine.Director.SDL2.Icons
         private readonly ILogger _logger;
         private readonly nint _renderer;
 
-        public DirSdlIconManager(ILogger<DirSdlIconManager> logger, SdlRootContext context)
+        public DirSdlIconManager(ILogger<DirSdlIconManager> logger, LingoSdlRootContext context)
         {
             _logger = logger;
             _renderer = context.Renderer;

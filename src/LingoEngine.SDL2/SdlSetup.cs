@@ -63,15 +63,15 @@ public static class SdlSetup
         reg
             .ServicesMain(s => s
                     .WithAbstUISdl()
-                    .AddSingleton<SdlRootContext>(provider =>
-                        new SdlRootContext(
+                    .AddSingleton<LingoSdlRootContext>(provider =>
+                        new LingoSdlRootContext(
                             sdlWindow,
                             sdlRenderer,
                             provider.GetRequiredService<SdlFocusManager>(),
                             provider.GetRequiredService<IAbstGlobalMouse>(),
                             provider.GetRequiredService<IAbstGlobalKey>()))
-                    .AddSingleton<ISdlRootComponentContext>(p => p.GetRequiredService<SdlRootContext>())
-                    .AddSingleton<IAbstSDLRootContext>(p => p.GetRequiredService<SdlRootContext>())
+                    .AddSingleton<ISdlRootComponentContext>(p => p.GetRequiredService<LingoSdlRootContext>())
+                    .AddSingleton<IAbstSDLRootContext>(p => p.GetRequiredService<LingoSdlRootContext>())
                     .AddSingleton<ILingoFrameworkFactory, LingoSdlFactory>()
                 )
             .WithFrameworkFactory(setup)

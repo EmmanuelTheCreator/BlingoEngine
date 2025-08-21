@@ -46,7 +46,7 @@ namespace LingoEngine.Director.SDL2
 
                    s.AddSingleton<IDirectorIconManager>(p =>
                    {
-                       var mgr = new DirSdlIconManager(p.GetRequiredService<ILogger<DirSdlIconManager>>(), p.GetRequiredService<SdlRootContext>());
+                       var mgr = new DirSdlIconManager(p.GetRequiredService<ILogger<DirSdlIconManager>>(), p.GetRequiredService<LingoSdlRootContext>());
                        mgr.LoadSheet("Media/Icons/General_Icons.png", 20, 16, 16, 8);
                        mgr.LoadSheet("Media/Icons/Painter_Icons.png", 20, 16, 16, 8);
                        mgr.LoadSheet("Media/Icons/Painter2_Icons.png", 20, 16, 16, 8);

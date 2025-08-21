@@ -13,7 +13,7 @@ using LingoEngine.SDL2.Inputs;
 using LingoEngine.SDL2.Stages;
 using System;
 
-public class SdlRootContext : AbstUISdlRootContext<LingoMouse>
+public class LingoSdlRootContext : AbstUISdlRootContext<LingoMouse>
 {
     private bool _f1Pressed;
     private LingoSdlMouse _sdlMouse;
@@ -23,7 +23,7 @@ public class SdlRootContext : AbstUISdlRootContext<LingoMouse>
     public LingoSdlKey Key { get; set; }
     public IAbstFrameworkMouse Mouse { get; set; }
     internal LingoSdlFactory LingoFactory { get; set; } = null!;
-    public SdlRootContext(nint window, nint renderer, SdlFocusManager focusManager, IAbstGlobalMouse globalMouse, IAbstGlobalKey globalKey)
+    public LingoSdlRootContext(nint window, nint renderer, SdlFocusManager focusManager, IAbstGlobalMouse globalMouse, IAbstGlobalKey globalKey)
         : base(window, renderer, focusManager)
     {
         GlobalMouse = globalMouse;

@@ -15,7 +15,7 @@ namespace LingoEngine.Demo.TetriGrounds.SDL2
                     .SetProjectFactory<LingoEngine.Demo.TetriGrounds.Core.TetriGroundsProjectFactory>()
                     .BuildAndRunProject(sp => serviceProvider = sp)
                     );
-            serviceProvider?.GetRequiredService<SdlRootContext>().Run();
+            serviceProvider?.GetRequiredService<LingoSdlRootContext>().Run();
             SdlSetup.Dispose();
         }
     }

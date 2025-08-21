@@ -95,6 +95,10 @@ public abstract class AbstUISdlRootContext<TMouse> : IAbstSDLRootContext, ISdlRo
 
     protected virtual void Render()
     {
+        //SDL.SDL_SetRenderDrawColor(Renderer, 255, 0, 0, 255);
+        //SDL.SDL_Rect rect = new SDL.SDL_Rect { x = 100, y = 100, w = 200, h = 150 };
+        //SDL.SDL_RenderFillRect(Renderer, ref rect);
+      
         ComponentContainer.Render(Factory.CreateRenderContext());
         SDL.SDL_RenderPresent(Renderer);
     }

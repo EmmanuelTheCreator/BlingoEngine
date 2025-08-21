@@ -8,19 +8,19 @@ namespace LingoEngine.SDL2.Stages;
 public class SdlStage : ILingoFrameworkStage, IDisposable
 {
     private readonly LingoClock _clock;
-    private readonly SdlRootContext _rootContext;
+    private readonly LingoSdlRootContext _rootContext;
     private LingoStage _stage = null!;
     private readonly HashSet<SdlMovie> _movies = new();
     private SdlMovie? _activeMovie;
     public float Scale { get; set; }
 
-    public SdlStage(SdlRootContext rootContext, LingoClock clock)
+    public SdlStage(LingoSdlRootContext rootContext, LingoClock clock)
     {
         _rootContext = rootContext;
         _clock = clock;
     }
 
-    internal SdlRootContext RootContext => _rootContext;
+    internal LingoSdlRootContext RootContext => _rootContext;
 
     public LingoStage LingoStage => throw new NotImplementedException();
 
