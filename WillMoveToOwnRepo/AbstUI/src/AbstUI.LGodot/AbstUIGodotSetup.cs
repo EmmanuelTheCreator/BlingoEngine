@@ -23,6 +23,7 @@ namespace AbstUI.LGodot
                 .AddSingleton<IAbstGlobalMouse, GlobalGodotAbstMouse>()
                 .AddSingleton<IAbstGlobalKey, GlobalAbstKey>()
                 .AddSingleton<IAbstGodotWindowManager, AbstGodotWindowManager>()
+                .AddSingleton<IAbstFrameworkMainWindow, AbstGodotMainWindow>()
 
 
                 .AddSingleton<IAbstFontManager, AbstGodotFontManager>()

@@ -13,6 +13,7 @@ namespace AbstUI
             services
                 .AddTransient<IAbstDialog, AbstDialog>()
                 .AddTransient<AbstDialog>()
+                .AddSingleton<AbstMainWindow>()
                  .AddSingleton<IAbstShortCutManager, AbstShortCutManager>()
                  .AddSingleton<AbstWindowManager>()
                  .AddTransient(p => (IAbstWindowManager)p.GetRequiredService<AbstWindowManager>())

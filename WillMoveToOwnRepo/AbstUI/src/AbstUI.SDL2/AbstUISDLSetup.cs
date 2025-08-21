@@ -21,6 +21,7 @@ namespace AbstUI.SDL2
                 .AddSingleton<AbstSdlComponentFactory>()
                 .AddTransient<IAbstComponentFactory>(p => p.GetRequiredService<AbstSdlComponentFactory>())
                 //.AddTransient<IAbstFrameworkDialog, AbstSDLDialog>()
+                .AddSingleton<IAbstFrameworkMainWindow, AbstSdlMainWindow>()
 
 
                 .AddSingleton<IAbstFontManager, SdlFontManager>()

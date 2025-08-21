@@ -3,6 +3,8 @@ using AbstUI.Commands;
 using AbstUI.Windowing.Commands;
 using AbstUI.Tools;
 using AbstUI.Components.Containers;
+using AbstUI.Primitives;
+using System;
 
 namespace AbstUI.Windowing;
 
@@ -50,12 +52,14 @@ public class AbstWindowManager : IAbstWindowManager,
 {
     private readonly Dictionary<string, WindowRegistration> _windowRegistrations = new();
     private readonly IServiceProvider _serviceProvider;
+    private readonly AbstMainWindow _mainWindow;
     private IAbstFrameworkWindowManager _frameworkWindowManager = null!;
     private WindowRegistration? _activeWindow;
 
-    public AbstWindowManager(IServiceProvider serviceProvider)
+    public AbstWindowManager(IServiceProvider serviceProvider, AbstMainWindow mainWindow)
     {
         _serviceProvider = serviceProvider;
+        _mainWindow = mainWindow;
     }
 
     public void Init(IAbstFrameworkWindowManager frameworkWindowManager)
@@ -117,7 +121,7 @@ public class AbstWindowManager : IAbstWindowManager,
             throw new ArgumentException("Invalid window registration type.", nameof(window));
         if (_activeWindow != null && _activeWindow.Instance != null)
             _activeWindow.Instance.SetActivated(false);
-        
+
         registration.Instance.SetActivated(true);
         _activeWindow = registration;
         _frameworkWindowManager.SetActiveWindow(registration);
@@ -139,12 +143,14 @@ public class AbstWindowManager : IAbstWindowManager,
     public bool SwapWindowOpenState(string windowCode)
     {
         if (!_windowRegistrations.TryGetValue(windowCode, out var registration)) return false;
-        if (registration.Instance.IsOpen)
+        var instance = registration.Instance;
+        if (instance.IsOpen)
         {
-            registration.Instance.CloseWindow();
+            instance.CloseWindow();
             return true;
         }
-        registration.Instance.OpenWindow();
+        instance.OpenWindow();
+        EnsureWindowInBounds(instance);
         SetActiveWindow(registration);
         return true;
     }
@@ -152,7 +158,11 @@ public class AbstWindowManager : IAbstWindowManager,
     public bool OpenWindow(string windowCode)
     {
         if (!_windowRegistrations.TryGetValue(windowCode, out var registration)) return false;
-        registration.Instance.OpenWindow();
+        var instance = registration.Instance;
+        bool wasOpen = instance.IsOpen;
+        instance.OpenWindow();
+        if (!wasOpen)
+            EnsureWindowInBounds(instance);
         SetActiveWindow(registration);
         return true;
     }
@@ -182,6 +192,19 @@ public class AbstWindowManager : IAbstWindowManager,
     {
         if (!_windowRegistrations.TryGetValue(windowCode, out var registration)) return;
         registration.Instance.SetSize(width, height);
+    }
+
+    private void EnsureWindowInBounds(IAbstWindow window)
+    {
+        var size = _mainWindow.GetSize();
+        int maxX = (int)(size.X - window.Width);
+        int maxY = (int)(size.Y - window.Height);
+        maxX = Math.Max(0, maxX);
+        maxY = Math.Max(0, maxY);
+        int x = Math.Min(Math.Max(window.X, 0), maxX);
+        int y = Math.Min(Math.Max(window.Y, 0), maxY);
+        if (x != window.X || y != window.Y)
+            window.MoveWindow(x, y);
     }
 
     private class WindowRegistration : IAbstWindowRegistration
