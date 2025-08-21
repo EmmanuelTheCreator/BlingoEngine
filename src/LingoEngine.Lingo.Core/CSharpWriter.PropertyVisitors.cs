@@ -8,6 +8,13 @@ public partial class CSharpWriter
 {
     public void Visit(LingoObjPropExprNode node)
     {
+        if (node.Property is LingoVarNode prop && prop.VarName.Equals("charToNum", StringComparison.OrdinalIgnoreCase))
+        {
+            node.Object.Accept(this);
+            Append(".CharToNum()");
+            return;
+        }
+
         if (node.Object is LingoMemberExprNode member &&
             node.Property is LingoVarNode propVarText)
         {

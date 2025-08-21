@@ -240,10 +240,39 @@ public partial class CSharpWriter
             }
         }
 
-        node.Callee.Accept(this);
+        WriteCallExpr(node);
+        AppendLine(";");
+    }
+
+    private void WriteCallExpr(LingoCallNode node)
+    {
+        if (node.Callee is LingoVarNode func)
+        {
+            var name = func.VarName;
+            if (name.Equals("castLib", StringComparison.OrdinalIgnoreCase))
+                Append("CastLib");
+            else
+                Append(name);
+        }
+        else
+        {
+            node.Callee.Accept(this);
+        }
         Append("(");
         node.Arguments.Accept(this);
-        AppendLine(");");
+        Append(")");
+    }
+
+    private void WriteObjCallExpr(LingoObjCallNode node)
+    {
+        var name = node.Name.Value.AsString();
+        if (name.Equals("castLib", StringComparison.OrdinalIgnoreCase))
+            Append("CastLib");
+        else
+            Append(name);
+        Append("(");
+        node.ArgList.Accept(this);
+        Append(")");
     }
 }
 

@@ -168,7 +168,11 @@ public partial class CSharpWriter : ILingoAstVisitor
 
     public void Visit(LingoObjCallNode node)
     {
-        Append(node.Name.Value.AsString());
+        var name = node.Name.Value.AsString();
+        if (name.Equals("castLib", StringComparison.OrdinalIgnoreCase))
+            Append("CastLib");
+        else
+            Append(name);
         Append("(");
         node.ArgList.Accept(this);
         AppendLine(");");
@@ -206,6 +210,10 @@ public partial class CSharpWriter : ILingoAstVisitor
         else if (propLower == "frame")
         {
             Append("_Movie.CurrentFrame");
+        }
+        else if (propLower == "key")
+        {
+            Append("_Key.Key");
         }
         else
         {
@@ -344,20 +352,38 @@ public partial class CSharpWriter : ILingoAstVisitor
 
     public void Visit(LingoObjCallV4Node node)
     {
+        var methodName = node.Name.Value.AsString();
         if (node.Object is LingoVarNode objVar &&
             objVar.VarName.Equals("me", StringComparison.OrdinalIgnoreCase))
         {
-            var name = node.Name.Value.AsString();
-            Append(char.ToUpperInvariant(name[0]) + name[1..]);
+            Append(char.ToUpperInvariant(methodName[0]) + methodName[1..]);
             Append("(");
             node.ArgList.Accept(this);
             AppendLine(");");
             return;
         }
 
-        node.Object.Accept(this);
+        var startLen = _sb.Length;
+        if (node.Object is LingoCallNode callObj)
+            WriteCallExpr(callObj);
+        else if (node.Object is LingoObjCallNode objCall)
+            WriteObjCallExpr(objCall);
+        else
+            node.Object.Accept(this);
+        if (_sb.Length - startLen >= 1 && _sb[^1] == '\n')
+        {
+            if (_sb.Length - startLen >= 2 && _sb[^2] == ';')
+                _sb.Length -= 2;
+        }
+        else if (_sb.Length - startLen >= 1 && _sb[^1] == ';')
+        {
+            _sb.Length -= 1;
+        }
         Append(".");
-        Append(node.Name.Value.AsString());
+        if (methodName.Equals("save", StringComparison.OrdinalIgnoreCase))
+            Append("Save");
+        else
+            Append(methodName);
         Append("(");
         node.ArgList.Accept(this);
         AppendLine(");");
