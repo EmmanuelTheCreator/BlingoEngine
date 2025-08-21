@@ -1,20 +1,21 @@
-using System;
-using AbstUI.Components;
-using AbstUI.Primitives;
+using AbstUI.Blazor.Components.Buttons;
 using AbstUI.Blazor.Components.Containers;
+using AbstUI.Blazor.Components.Graphics;
 using AbstUI.Blazor.Components.Inputs;
 using AbstUI.Blazor.Components.Menus;
-using AbstUI.Blazor.Components.Buttons;
 using AbstUI.Blazor.Components.Texts;
-using AbstUI.Blazor.Components.Graphics;
-using AbstUI.Styles;
-using AbstUI.Windowing;
-using AbstUI.Components.Graphics;
+using AbstUI.Components;
+using AbstUI.Components.Buttons;
 using AbstUI.Components.Containers;
+using AbstUI.Components.Graphics;
 using AbstUI.Components.Inputs;
 using AbstUI.Components.Menus;
-using AbstUI.Components.Buttons;
 using AbstUI.Components.Texts;
+using AbstUI.Primitives;
+using AbstUI.Styles;
+using AbstUI.Windowing;
+using System;
+using System.Reflection.Emit;
 
 namespace AbstUI.Blazor;
 
@@ -34,11 +35,25 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
         _mapper.Map<AbstBlazorPanelComponent, AbstBlazorPanel>();
         _mapper.Map<AbstBlazorTabContainerComponent, AbstBlazorTabContainer>();
         _mapper.Map<AbstBlazorScrollContainerComponent, AbstBlazorScrollContainer>();
-        _mapper.Map<AbstBlazorInputCheckboxComponent, AbstBlazorInputCheckbox>();
         _mapper.Map<AbstBlazorButtonComponent, AbstBlazorButton>();
         _mapper.Map<AbstBlazorLabelComponent, AbstBlazorLabel>();
         _mapper.Map<AbstBlazorInputTextComponent, AbstBlazorInputText>();
         _mapper.Map<AbstBlazorLayoutWrapper, AbstBlazorLayoutWrapper>();
+        _mapper.Map<AbstBlazorGfxCanvas, AbstBlazorGfxCanvas>();
+        _mapper.Map<AbstBlazorColorPicker, AbstBlazorColorPicker>();
+        _mapper.Map<AbstBlazorInputCheckboxComponent, AbstBlazorInputCheckbox>();
+        _mapper.Map<AbstBlazorInputNumber<int>, AbstBlazorInputNumber<int>>();
+        _mapper.Map<AbstBlazorInputNumber<float>, AbstBlazorInputNumber<float>>();
+        _mapper.Map<AbstBlazorInputNumber<decimal>, AbstBlazorInputNumber<decimal>>();
+        _mapper.Map<AbstBlazorInputSlider<int>,     AbstBlazorInputSlider<int>>();
+        _mapper.Map<AbstBlazorInputSlider<float>,   AbstBlazorInputSlider<float>>();
+        _mapper.Map<AbstBlazorInputSlider<decimal>, AbstBlazorInputSlider<decimal>>();
+        _mapper.Map<AbstBlazorInputSlider<int>,     AbstBlazorInputSlider<int>>();
+        _mapper.Map<AbstBlazorInputSlider<float>,   AbstBlazorInputSlider<float>>();
+        _mapper.Map<AbstBlazorInputSlider<decimal>, AbstBlazorInputSlider<decimal>>();
+        _mapper.Map<AbstBlazorInputTextComponent, AbstBlazorInputText>();
+        _mapper.Map<AbstBlazorItemList, AbstBlazorItemList>();
+        _mapper.Map<AbstBlazorSpinBox, AbstBlazorSpinBox>();
         _mapper.Map<AbstBlazorHorizontalLineSeparatorComponent, AbstBlazorHorizontalLineSeparator>();
         _mapper.Map<AbstBlazorVerticalLineSeparatorComponent, AbstBlazorVerticalLineSeparator>();
     }
@@ -276,6 +291,8 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstMenu CreateContextMenu(object window)
     {
         var menu = new AbstMenu();
+        //var impl = new AbstBlazorMenuComponent();
+        //button.Init(impl);
         InitComponent(menu);
         menu.Name = "ContextMenu";
         return menu;
@@ -306,8 +323,9 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstButton CreateButton(string name, string text = "")
     {
         var button = new AbstButton();
+        var impl = new AbstBlazorButtonComponent();
+        button.Init(impl);
         InitComponent(button);
-
         button.Name = name;
         button.Text = text;
         return button;
@@ -316,6 +334,8 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
     public AbstLabel CreateLabel(string name, string text = "")
     {
         var label = new AbstLabel();
+        var impl = new AbstBlazorLabelComponent();
+        label.Init(impl);
         InitComponent(label);
 
         label.Name = name;

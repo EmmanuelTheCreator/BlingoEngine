@@ -1,8 +1,10 @@
+using AbstUI.Blazor.Components.Containers;
 using AbstUI.Blazor.Styles;
+using AbstUI.Blazor.Windowing;
 using AbstUI.Components;
+using AbstUI.Components.Containers;
 using AbstUI.Styles;
 using AbstUI.Windowing;
-using AbstUI.Blazor.Windowing;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AbstUI.Blazor;

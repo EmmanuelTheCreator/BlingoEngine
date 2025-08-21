@@ -85,42 +85,42 @@ public static class GfxTestScene
 
         Add(factory.CreateInputCheckbox("checkbox"));
 
-        var combo = factory.CreateInputCombobox("combobox", null);
-        combo.AddItem("1", "One");
-        combo.AddItem("2", "Two");
-        combo.AddItem("3", "Three");
-        combo.SelectedIndex = 1;
-        Add(combo);
+        //var combo = factory.CreateInputCombobox("combobox", null);
+        //combo.AddItem("1", "One");
+        //combo.AddItem("2", "Two");
+        //combo.AddItem("3", "Three");
+        //combo.SelectedIndex = 1;
+        //Add(combo);
 
-        var slider = factory.CreateInputSliderFloat(AOrientation.Horizontal, "slider", 0, 1, 0.1f);
-        slider.Width = 200;
-        Add(slider, 50);
+        //var slider = factory.CreateInputSliderFloat(AOrientation.Horizontal, "slider", 0, 1, 0.1f);
+        //slider.Width = 200;
+        //Add(slider, 50);
 
         
 
-        var list = factory.CreateItemList("itemList");
-        list.Width = 120;
-        list.Height = 60;
-        list.AddItem("a", "Item A");
-        list.AddItem("b", "Item B B");
-        list.AddItem("c", "Item C");
-        Add(list, 80);
+        //var list = factory.CreateItemList("itemList");
+        //list.Width = 120;
+        //list.Height = 60;
+        //list.AddItem("a", "Item A");
+        //list.AddItem("b", "Item B B");
+        //list.AddItem("c", "Item C");
+        //Add(list, 80);
 
-        var tabs = factory.CreateTabContainer("tabContainer");
-        tabs.Width = 300;
-        tabs.Height = 120;
-        var tab1 = factory.CreateTabItem("tab1", "First tab");
-        var tab1Panel = factory.CreateWrapPanel(AOrientation.Vertical, "tab1panel");
-        tab1Panel.AddItem(factory.CreateButton("tab1Btn1", "Button 1"));
-        tab1.Content = tab1Panel;
-        tabs.AddTab(tab1);
-        var tab2 = factory.CreateTabItem("tab2", "Second tab");
-        var tab2Panel = factory.CreateWrapPanel(AOrientation.Vertical, "tab2panel");
-        tab2Panel.AddItem(factory.CreateButton("tab2Btn2", "Button 2"));
-        tab2.Content = tab2Panel;
-        tabs.AddTab(tab2);
+        //var tabs = factory.CreateTabContainer("tabContainer");
+        //tabs.Width = 300;
+        //tabs.Height = 120;
+        //var tab1 = factory.CreateTabItem("tab1", "First tab");
+        //var tab1Panel = factory.CreateWrapPanel(AOrientation.Vertical, "tab1panel");
+        //tab1Panel.AddItem(factory.CreateButton("tab1Btn1", "Button 1"));
+        //tab1.Content = tab1Panel;
+        //tabs.AddTab(tab1);
+        //var tab2 = factory.CreateTabItem("tab2", "Second tab");
+        //var tab2Panel = factory.CreateWrapPanel(AOrientation.Vertical, "tab2panel");
+        //tab2Panel.AddItem(factory.CreateButton("tab2Btn2", "Button 2"));
+        //tab2.Content = tab2Panel;
+        //tabs.AddTab(tab2);
 
-        Add(tabs, 130);
+        //Add(tabs, 130);
 
         //var menu = factory.CreateMenu("menu");
         //menu.AddItem(factory.CreateMenuItem("menuItem"));
