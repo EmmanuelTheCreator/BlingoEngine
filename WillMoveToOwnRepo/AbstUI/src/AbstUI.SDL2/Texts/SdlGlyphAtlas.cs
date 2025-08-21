@@ -9,6 +9,8 @@ internal sealed class SdlGlyphAtlas : IDisposable
 {
     private readonly nint _renderer;
     private readonly nint _font;
+    private int _fontHeight;
+    private int _topIndent;
     private readonly int _width;
     private readonly int _height;
     private readonly nint _surface;
@@ -32,6 +34,8 @@ internal sealed class SdlGlyphAtlas : IDisposable
     {
         _renderer = renderer;
         _font = font;
+        _fontHeight = SDL_ttf.TTF_FontHeight(font);
+        _topIndent = _fontHeight- SDL_ttf.TTF_FontAscent(font);
         _width = width;
         _height = height;
         _surface = SDL.SDL_CreateRGBSurfaceWithFormat(0, width, height, 32, SDL.SDL_PIXELFORMAT_RGBA8888);
@@ -108,7 +112,7 @@ internal sealed class SdlGlyphAtlas : IDisposable
             SDL.SDL_Rect dst = new SDL.SDL_Rect
             {
                 x = x + g.MinX,
-                y = baselineY + g.MinY,
+                y = baselineY + g.MinY - _fontHeight/2- _topIndent,
                 w = src.w,
                 h = src.h
             };
