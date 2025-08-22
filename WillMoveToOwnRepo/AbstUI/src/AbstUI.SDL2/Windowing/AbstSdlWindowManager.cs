@@ -1,6 +1,8 @@
 using AbstUI.Windowing;
 using AbstUI.Components.Containers;
 using AbstUI.Components;
+using AbstUI.SDL2.SDLL;
+using System;
 
 namespace AbstUI.SDL2.Windowing
 {
@@ -36,7 +38,24 @@ namespace AbstUI.SDL2.Windowing
         }
 
         public IAbstWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult)
-            => null;
+        {
+            var buttons = new SDL.SDL_MessageBoxButtonData[]
+            {
+                new SDL.SDL_MessageBoxButtonData { buttonid = 1, text = "OK" },
+                new SDL.SDL_MessageBoxButtonData { buttonid = 0, text = "Cancel" }
+            };
+            var data = new SDL.SDL_MessageBoxData
+            {
+                flags = SDL.SDL_MessageBoxFlags.SDL_MESSAGEBOX_WARNING,
+                title = title,
+                message = message,
+                numbuttons = buttons.Length,
+                buttons = buttons
+            };
+            SDL.SDL_ShowMessageBox(ref data, out int buttonId);
+            onResult(buttonId == 1);
+            return new AbstWindowDialogReference(() => { });
+        }
 
         public IAbstWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel)
         {
@@ -71,6 +90,15 @@ namespace AbstUI.SDL2.Windowing
         }
 
         public IAbstWindowDialogReference? ShowNotification(string message, AbstUINotificationType type)
-            => null;
+        {
+            var flag = type switch
+            {
+                AbstUINotificationType.Error => SDL.SDL_MessageBoxFlags.SDL_MESSAGEBOX_ERROR,
+                AbstUINotificationType.Info => SDL.SDL_MessageBoxFlags.SDL_MESSAGEBOX_INFORMATION,
+                _ => SDL.SDL_MessageBoxFlags.SDL_MESSAGEBOX_WARNING
+            };
+            SDL.SDL_ShowSimpleMessageBox(flag, "Notification", message, IntPtr.Zero);
+            return new AbstWindowDialogReference(() => { });
+        }
     }
 }
