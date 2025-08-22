@@ -10,13 +10,14 @@ using AbstUI.SDL2.Components.Containers;
 using AbstUI.SDL2.Components;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.Core;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Windowing
 {
     /// <summary>
     /// SDL2 implementation of a generic dialog window.
     /// </summary>
-    internal class AbstSdlDialog : AbstSdlPanel, IAbstFrameworkDialog, IHandleSdlEvent, IDisposable
+    internal class AbstSdlDialog : AbstSdlPanel, IAbstFrameworkDialog, IFrameworkFor<AbstDialog>, IHandleSdlEvent, IDisposable
     {
         private readonly AbstSdlComponentFactory _factory;
         private IAbstDialog _dialog = null!;

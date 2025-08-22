@@ -47,8 +47,6 @@ namespace AbstUI.SDL2
             // We need to resolve once the SDL window manager to init
             services.GetRequiredService<IAbstSdlWindowManager>();
 
-            //Console.WriteLine("AbstUIGodotSetup: Is this still needed?");
-            services.GetRequiredService<AbstSdlComponentFactory>().DiscoverInAssembly(typeof(AbstUISDLSetup).Assembly);
             //services.GetRequiredService<IAbstComponentFactory>()
             //     .Register<IAbstDialog,AbstGodotDialog>()
             //    ;

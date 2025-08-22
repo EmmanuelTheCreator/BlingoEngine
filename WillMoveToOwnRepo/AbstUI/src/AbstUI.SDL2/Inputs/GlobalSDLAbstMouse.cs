@@ -1,6 +1,8 @@
 using AbstUI.Inputs;
 using AbstUI.Primitives;
 using AbstUI.SDL2.SDLL;
+using AbstUI.FrameworkCommunication;
+using AbstUI.Inputs;
 
 namespace AbstUI.SDL2.Inputs
 {
@@ -20,7 +22,7 @@ namespace AbstUI.SDL2.Inputs
         }
     }
 
-    public class AbstSdlGlobalMouse<TAbstMouseType, TAbstUIMouseEvent> : IAbstFrameworkMouse
+    public class AbstSdlGlobalMouse<TAbstMouseType, TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor<AbstMouse<TAbstUIMouseEvent>>
         where TAbstMouseType : AbstMouse<TAbstUIMouseEvent>
         where TAbstUIMouseEvent : AbstMouseEvent
     {

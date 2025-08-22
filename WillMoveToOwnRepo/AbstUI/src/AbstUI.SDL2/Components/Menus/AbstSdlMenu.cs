@@ -10,10 +10,11 @@ using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Styles;
 using AbstUI.Styles;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Components.Menus
 {
-    internal class AbstSdlMenu : AbstSdlComponent, IAbstFrameworkMenu, IHandleSdlEvent, IDisposable
+    internal class AbstSdlMenu : AbstSdlComponent, IAbstFrameworkMenu, IFrameworkFor<AbstMenu>, IHandleSdlEvent, IDisposable
     {
         private readonly List<AbstSdlMenuItem> _items = new();
         private readonly SdlFontManager _fontManager;

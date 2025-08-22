@@ -6,10 +6,11 @@ using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Components.Inputs
 {
-    internal class AbstSdlColorPicker : AbstSdlComponent, IAbstFrameworkColorPicker, ISdlFocusable, IHandleSdlEvent, IDisposable
+    internal class AbstSdlColorPicker : AbstSdlComponent, IAbstFrameworkColorPicker, IFrameworkFor<AbstColorPicker>, ISdlFocusable, IHandleSdlEvent, IDisposable
     {
 
         public bool Enabled { get; set; } = true;

@@ -7,10 +7,11 @@ using AbstUI.Components.Containers;
 using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.Core;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Components.Containers
 {
-    public class AbstSdlTabContainer : AbstSdlComponent, IAbstFrameworkTabContainer, IHandleSdlEvent, ISdlFocusable, IDisposable
+    public class AbstSdlTabContainer : AbstSdlComponent, IAbstFrameworkTabContainer, IFrameworkFor<AbstTabContainer>, IHandleSdlEvent, ISdlFocusable, IDisposable
     {
         private readonly List<IAbstFrameworkTabItem> _children = new();
         private int _selectedIndex = -1;
@@ -291,7 +292,7 @@ namespace AbstUI.SDL2.Components.Containers
         }
     }
 
-    public class AbstSdlTabItem : AbstSdlComponent, IAbstFrameworkTabItem
+    public class AbstSdlTabItem : AbstSdlComponent, IAbstFrameworkTabItem, IFrameworkFor<AbstTabItem>
     {
         public AbstSdlTabItem(AbstSdlComponentFactory factory, AbstTabItem tab) : base(factory)
         {

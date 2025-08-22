@@ -7,12 +7,14 @@ using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Styles;
 using AbstUI.Styles;
 using AbstUI.Texts;
+using AbstUI.Components.Graphics;
+using AbstUI.FrameworkCommunication;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
 namespace AbstUI.SDL2.Components.Graphics
 {
-    public class AbstSdlGfxCanvas : AbstSdlComponent, IAbstFrameworkGfxCanvas, IDisposable
+    public class AbstSdlGfxCanvas : AbstSdlComponent, IAbstFrameworkGfxCanvas, IFrameworkFor<AbstGfxCanvas>, IDisposable
     {
         public AMargin Margin { get; set; } = AMargin.Zero;
 

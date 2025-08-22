@@ -7,10 +7,11 @@ using AbstUI.Components.Inputs;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Components.Containers;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Components.Inputs
 {
-    internal class AbstSdlInputCombobox : AbstSdlSelectableCollection, IAbstFrameworkInputCombobox, IHandleSdlEvent, ISdlFocusable, IDisposable, IHasTextBackgroundBorderColor
+    internal class AbstSdlInputCombobox : AbstSdlSelectableCollection, IAbstFrameworkInputCombobox, IFrameworkFor<AbstInputCombobox>, IHandleSdlEvent, ISdlFocusable, IDisposable, IHasTextBackgroundBorderColor
     {
 
         private AbstSdlInputItemList? _popup;
