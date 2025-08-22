@@ -17,8 +17,8 @@ public class UnityMovie : ILingoFrameworkMovie, IDisposable
 {
     private readonly UnityStage _stage;
     private readonly Action<UnityMovie> _remove;
-    private readonly HashSet<UnitySprite2D> _drawnSprites = new();
-    private readonly HashSet<UnitySprite2D> _allSprites = new();
+    private readonly HashSet<LingoUnitySprite2D> _drawnSprites = new();
+    private readonly HashSet<LingoUnitySprite2D> _allSprites = new();
     private readonly GameObject _root;
 
     public UnityMovie(UnityStage stage, LingoMovie movie, Action<UnityMovie> remove)
@@ -50,7 +50,7 @@ public class UnityMovie : ILingoFrameworkMovie, IDisposable
 
     internal void CreateSprite<T>(T lingoSprite) where T : LingoSprite2D
     {
-        var sprite = new UnitySprite2D(lingoSprite, _root.transform,
+        var sprite = new LingoUnitySprite2D(lingoSprite, _root.transform,
             s => _drawnSprites.Add(s),
             s => _drawnSprites.Remove(s),
             s => { _drawnSprites.Remove(s); _allSprites.Remove(s); });
