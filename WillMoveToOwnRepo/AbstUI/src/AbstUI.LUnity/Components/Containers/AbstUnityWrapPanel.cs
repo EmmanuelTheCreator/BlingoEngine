@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using AbstUI.Components;
 using AbstUI.Components.Containers;
+using AbstUI.FrameworkCommunication;
 using AbstUI.LUnity.Components.Base;
 using AbstUI.Primitives;
 using UnityEngine;
@@ -11,7 +12,7 @@ namespace AbstUI.LUnity.Components.Containers;
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkWrapPanel"/>.
 /// </summary>
-internal class AbstUnityWrapPanel : AbstUnityComponent, IAbstFrameworkWrapPanel
+internal class AbstUnityWrapPanel : AbstUnityComponent, IAbstFrameworkWrapPanel, IFrameworkFor<AbstWrapPanel>
 {
     private readonly List<IAbstFrameworkNode> _children = new();
     private readonly HorizontalOrVerticalLayoutGroup _layout;

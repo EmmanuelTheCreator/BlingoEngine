@@ -7,10 +7,11 @@ using AbstUI.Components.Buttons;
 using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Events;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Components.Buttons
 {
-    internal class AbstSdlStateButton : AbstSdlComponent, IAbstFrameworkStateButton, IHandleSdlEvent, ISdlFocusable, IDisposable
+    internal class AbstSdlStateButton : AbstSdlComponent, IAbstFrameworkStateButton, IFrameworkFor<AbstStateButton>, IHandleSdlEvent, ISdlFocusable, IDisposable
     {
         private ISdlFontLoadedByUser? _font;
         private readonly SdlFontManager _fontManager;

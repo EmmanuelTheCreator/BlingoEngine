@@ -7,10 +7,11 @@ using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
 using AbstUI.Styles;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Components.Inputs;
 
-internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInputNumber<TValue>, IHandleSdlEvent, ISdlFocusable, IDisposable, IHasTextBackgroundBorderColor
+internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInputNumber<TValue>, IFrameworkFor<AbstInputNumber<TValue>>, IHandleSdlEvent, ISdlFocusable, IDisposable, IHasTextBackgroundBorderColor
 #if NET48
     where TValue : struct
 #else

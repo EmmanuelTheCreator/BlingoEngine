@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using AbstUI.Components.Containers;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.Blazor.Components.Containers;
 
-public class AbstBlazorTabContainerComponent : AbstBlazorComponentModelBase, IAbstFrameworkTabContainer, IAbstBlazorRegistryAware
+public class AbstBlazorTabContainerComponent : AbstBlazorComponentModelBase, IAbstFrameworkTabContainer, IFrameworkFor<AbstTabContainer>, IAbstBlazorRegistryAware
 {
     private AbstBlazorComponentContainer _registry;
     private readonly AbstBlazorComponentContainer _children;

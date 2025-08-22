@@ -50,6 +50,7 @@ namespace AbstUI.LGodot
             services.WithAbstUI(); // need to be first to register all the windows in the windows factory.
             var factory = services.GetRequiredService<IAbstComponentFactory>();
             factory
+
                 .Register<AbstMouse, AbstGodotMouse>()
                 .Register<GlobalGodotAbstMouse, AbstGodotGlobalMouse>()
                 .Register<AbstKey, AbstGodotKey>()
@@ -57,6 +58,7 @@ namespace AbstUI.LGodot
                 .Register<AbstMainWindow, AbstGodotMainWindow>()
                 .Register<AbstWindowManager, AbstGodotWindowManager>()
                 ;
+
             var windowManager = services.GetRequiredService<IAbstGodotWindowManager>();// we need to resolve the framework window manager to link him
 
             return services;

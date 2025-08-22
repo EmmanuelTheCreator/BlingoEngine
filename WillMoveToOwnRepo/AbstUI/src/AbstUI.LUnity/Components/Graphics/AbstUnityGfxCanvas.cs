@@ -7,6 +7,7 @@ using AbstUI.Texts;
 using UnityEngine;
 using UnityEngine.UI;
 using AbstUI.Components.Graphics;
+using AbstUI.FrameworkCommunication;
 using AbstUI.LUnity.Components.Base;
 
 namespace AbstUI.LUnity.Components.Graphics;
@@ -15,7 +16,7 @@ namespace AbstUI.LUnity.Components.Graphics;
 /// Unity implementation of <see cref="IAbstFrameworkGfxCanvas"/> that records paint actions
 /// and executes them onto a <see cref="Texture2D"/>.
 /// </summary>
-internal class AbstUnityGfxCanvas : AbstUnityComponent, IAbstFrameworkGfxCanvas, IDisposable
+internal class AbstUnityGfxCanvas : AbstUnityComponent, IAbstFrameworkGfxCanvas, IFrameworkFor<AbstGfxCanvas>, IDisposable
 {
     private readonly RawImage _image;
     private readonly Texture2D _texture;

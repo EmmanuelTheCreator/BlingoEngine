@@ -2,10 +2,11 @@ using System;
 using AbstUI.Components.Inputs;
 using AbstUI.Primitives;
 using AbstUI.Styles;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.Blazor.Components.Inputs;
 
-public class AbstBlazorInputTextComponent : AbstBlazorComponentModelBase, IAbstFrameworkInputText, IHasTextBackgroundBorderColor
+public class AbstBlazorInputTextComponent : AbstBlazorComponentModelBase, IAbstFrameworkInputText, IFrameworkFor<AbstInputText>, IHasTextBackgroundBorderColor
 {
     private string _text = string.Empty;
     public string Text

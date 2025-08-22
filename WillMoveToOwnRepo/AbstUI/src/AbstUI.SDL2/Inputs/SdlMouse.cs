@@ -1,9 +1,11 @@
 using AbstUI.Inputs;
 using AbstUI.Primitives;
 using AbstUI.SDL2.SDLL;
+using AbstUI.FrameworkCommunication;
+using AbstUI.Inputs;
 
 namespace AbstUI.SDL2.Inputs;
-public class SdlMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse
+public class SdlMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor<AbstMouse<TAbstUIMouseEvent>>
         where TAbstUIMouseEvent : AbstMouseEvent
 {
     private Lazy<AbstMouse<TAbstUIMouseEvent>> _lingoMouse;

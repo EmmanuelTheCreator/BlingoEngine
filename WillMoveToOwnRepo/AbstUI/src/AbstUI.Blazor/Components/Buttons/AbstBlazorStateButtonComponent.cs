@@ -2,10 +2,11 @@ using System;
 using AbstUI.Components.Buttons;
 using AbstUI.Primitives;
 using AbstUI.Styles;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.Blazor.Components.Buttons;
 
-public class AbstBlazorStateButtonComponent : AbstBlazorComponentModelBase, IAbstFrameworkStateButton
+public class AbstBlazorStateButtonComponent : AbstBlazorComponentModelBase, IAbstFrameworkStateButton, IFrameworkFor<AbstStateButton>
 {
     private string _text = string.Empty;
     public string Text

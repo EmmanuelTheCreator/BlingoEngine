@@ -1,8 +1,9 @@
 ﻿using AbstUI.Inputs;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LUnity.Inputs;
 
-public class AbstUIUnityKey : IAbstFrameworkKey
+public class AbstUIUnityKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
 {
     private readonly HashSet<int> _keys = new();
     private AbstKey? _lingoKey;

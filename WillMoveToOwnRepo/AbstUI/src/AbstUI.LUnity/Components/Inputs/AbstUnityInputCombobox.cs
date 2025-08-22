@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using AbstUI.Components.Inputs;
+using AbstUI.FrameworkCommunication;
 using AbstUI.LUnity.Components.Base;
 using AbstUI.LUnity.Primitives;
 using AbstUI.Primitives;
@@ -13,7 +14,7 @@ namespace AbstUI.LUnity.Components.Inputs;
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkInputCombobox"/>.
 /// </summary>
-internal class AbstUnityInputCombobox : AbstUnityComponent, IAbstFrameworkInputCombobox, IHasTextBackgroundBorderColor
+internal class AbstUnityInputCombobox : AbstUnityComponent, IAbstFrameworkInputCombobox, IFrameworkFor<AbstInputCombobox>, IHasTextBackgroundBorderColor
 {
     private readonly Dropdown _dropdown;
     private readonly List<KeyValuePair<string, string>> _items = new();

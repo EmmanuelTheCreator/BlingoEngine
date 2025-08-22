@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Numerics;
 using AbstUI.Components.Inputs;
+using AbstUI.FrameworkCommunication;
 using AbstUI.LUnity.Components.Base;
 using AbstUI.Primitives;
 using UnityEngine;
@@ -15,7 +16,7 @@ namespace AbstUI.LUnity.Components.Inputs;
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkInputNumber{TValue}"/>.
 /// </summary>
-internal class AbstUnityInputNumber<TValue> : AbstUnityComponent, IAbstFrameworkInputNumber<TValue>, IHasTextBackgroundBorderColor
+internal class AbstUnityInputNumber<TValue> : AbstUnityComponent, IAbstFrameworkInputNumber<TValue>, IFrameworkFor<AbstInputNumber<TValue>>, IHasTextBackgroundBorderColor
     where TValue : struct, INumber<TValue>
 {
     private readonly InputField _inputField;

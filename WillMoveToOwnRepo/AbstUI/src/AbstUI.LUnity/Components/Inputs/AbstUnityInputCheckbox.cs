@@ -1,5 +1,6 @@
 using System;
 using AbstUI.Components.Inputs;
+using AbstUI.FrameworkCommunication;
 using AbstUI.LUnity.Components.Base;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,7 +10,7 @@ namespace AbstUI.LUnity.Components.Inputs;
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkInputCheckbox"/>.
 /// </summary>
-internal class AbstUnityInputCheckbox : AbstUnityComponent, IAbstFrameworkInputCheckbox
+internal class AbstUnityInputCheckbox : AbstUnityComponent, IAbstFrameworkInputCheckbox, IFrameworkFor<AbstInputCheckbox>
 {
     private readonly Toggle _toggle;
     private bool _checked;

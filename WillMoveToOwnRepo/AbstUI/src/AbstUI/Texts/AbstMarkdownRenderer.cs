@@ -21,9 +21,11 @@ namespace AbstUI.Texts
     /// </summary>
     public class AbstMarkdownRenderer
     {
-        private readonly AbstGfxCanvas _canvas;
+        private AbstGfxCanvas? _canvas;
         private readonly IAbstFontManager _fontManager;
         private readonly Func<string, (byte[] data, int width, int height, APixelFormat format)>? _imageLoader;
+
+        private string _markdown = string.Empty;
 
         private string _fontFamily = "Arial";
         private int _fontSize = 12;
@@ -39,27 +41,52 @@ namespace AbstUI.Texts
 
         private Dictionary<string, AbstTextStyle> _styles = new();
 
+        /// <summary>Whether the renderer can use the optimized fast path.</summary>
+        public bool DoFastRendering { get; private set; }
+
         /// <summary>Optional set of named styles that can be referenced with {{STYLE:name}} tags.</summary>
         public IEnumerable<AbstTextStyle> Styles
         {
             get => _styles.Values;
-            set => _styles = value?.ToDictionary(s => s.Name) ?? new();
+            private set => _styles = value?.ToDictionary(s => s.Name) ?? new();
         }
 
         public AbstMarkdownRenderer(
-            AbstGfxCanvas canvas,
             IAbstFontManager fontManager,
             Func<string, (byte[] data, int width, int height, APixelFormat format)>? imageLoader = null)
         {
-            _canvas = canvas;
             _fontManager = fontManager;
             _imageLoader = imageLoader;
         }
 
-        /// <summary>Renders markdown text on the canvas starting from the given position.</summary>
-        public void Render(string markdown, APoint start)
+        /// <summary>
+        /// Sets the markdown text and available styles. Must be called before rendering.
+        /// </summary>
+        public void SetText(string markdown, IEnumerable<AbstTextStyle> styles)
         {
-            var lines = markdown.Split('\n');
+            _markdown = markdown ?? string.Empty;
+            Styles = styles;
+            _styleStack.Clear();
+            if (_styles.Count > 0)
+                ApplyStyle(_styles.Values.First());
+            DoFastRendering = _styles.Count == 1 && !HasSpecialTags(_markdown);
+        }
+
+        /// <summary>Renders markdown text on the canvas starting from the given position.</summary>
+        public void Render(AbstGfxCanvas canvas, APoint start)
+        {
+            _canvas = canvas;
+            if (_styles.Count > 0)
+                ApplyStyle(_styles.Values.First());
+            _styleStack.Clear();
+
+            if (DoFastRendering)
+            {
+                RenderFast(start);
+                return;
+            }
+
+            var lines = _markdown.Split('\n');
             var pos = start;
             var firstLine = true;
 
@@ -113,6 +140,36 @@ namespace AbstUI.Texts
                 RenderInlineText(content, new APoint(lineX, pos.Y - (firstLine ? fontInfo.TopIndentation : 0)), usedFontSize, bold, italic, underline);
                 int advance = _lineHeight > 0 ? _lineHeight : fontInfo.FontHeight + 4;
                 pos.Offset(0, advance);
+                firstLine = false;
+            }
+        }
+
+        private void RenderFast(APoint start)
+        {
+            var style = _styles.Values.First();
+            var lines = _markdown.Split('\n');
+            var pos = start;
+            var fontInfo = _fontManager.GetFontInfo(style.Font, style.FontSize);
+            int lineHeight = style.LineHeight > 0 ? style.LineHeight : fontInfo.FontHeight + 4;
+            bool firstLine = true;
+
+            foreach (var rawLine in lines)
+            {
+                var line = rawLine.TrimEnd('\r');
+                float lineWidth = EstimateWidth(line, style.FontSize);
+                float lineX = pos.X;
+                if (style.Alignment == AbstTextAlignment.Center)
+                    lineX -= lineWidth / 2f;
+                else if (style.Alignment == AbstTextAlignment.Right)
+                    lineX -= lineWidth;
+                lineX += style.MarginLeft;
+                if (style.Alignment == AbstTextAlignment.Right)
+                    lineX -= style.MarginRight;
+                else if (style.Alignment == AbstTextAlignment.Center)
+                    lineX -= style.MarginRight / 2f;
+
+                _canvas!.DrawText(new APoint(lineX, pos.Y - (firstLine ? fontInfo.TopIndentation : 0)), line, style.Font, style.Color, style.FontSize, -1, AbstTextAlignment.Left);
+                pos.Offset(0, lineHeight);
                 firstLine = false;
             }
         }
@@ -256,9 +313,9 @@ namespace AbstUI.Texts
 
                 string text = sb.ToString();
                 float width = EstimateWidth(text, fontSize);
-                _canvas.DrawText(new APoint(currentX, pos.Y), text, font, _color, fontSize, -1, AbstTextAlignment.Left);
+                _canvas!.DrawText(new APoint(currentX, pos.Y), text, font, _color, fontSize, -1, AbstTextAlignment.Left);
                 if (underline)
-                    _canvas.DrawLine(new APoint(currentX, pos.Y + fontSize), new APoint(currentX + width, pos.Y + fontSize), _color, 1);
+                    _canvas!.DrawLine(new APoint(currentX, pos.Y + fontSize), new APoint(currentX + width, pos.Y + fontSize), _color, 1);
                 currentX += width;
                 sb.Clear();
             }
@@ -342,6 +399,15 @@ namespace AbstUI.Texts
             return text;
         }
 
+        private static bool HasSpecialTags(string text)
+            => text.IndexOf("{{", StringComparison.Ordinal) >= 0
+               || text.IndexOf("}}", StringComparison.Ordinal) >= 0
+               || text.IndexOf("**", StringComparison.Ordinal) >= 0
+               || text.IndexOf("__", StringComparison.Ordinal) >= 0
+               || text.Contains('*')
+               || text.IndexOf("![", StringComparison.Ordinal) >= 0
+               || text.IndexOf('#') >= 0;
+
         private int RenderImage(string path, APoint position, int? widthOverride, int? heightOverride)
         {
             if (_imageLoader == null)
@@ -349,7 +415,7 @@ namespace AbstUI.Texts
             var (data, width, height, format) = _imageLoader(path);
             int drawWidth = widthOverride ?? width;
             int drawHeight = heightOverride ?? height;
-            _canvas.DrawPicture(data, drawWidth, drawHeight, position, format);
+            _canvas!.DrawPicture(data, drawWidth, drawHeight, position, format);
             return drawHeight;
         }
     }

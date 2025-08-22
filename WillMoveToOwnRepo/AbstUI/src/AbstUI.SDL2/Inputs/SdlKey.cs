@@ -1,9 +1,10 @@
 using AbstUI.Inputs;
 using AbstUI.SDL2.SDLL;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Inputs;
 
-public class SdlKey : IAbstFrameworkKey
+public class SdlKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
 {
     private readonly HashSet<SDL.SDL_Keycode> _keys = new();
     private AbstKey? _lingoKey;

@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using AbstUI.Components;
 using AbstUI.Components.Containers;
 using AbstUI.Primitives;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.Blazor.Components.Containers;
 
-public class AbstBlazorWrapPanelComponent : AbstBlazorComponentModelBase, IAbstFrameworkWrapPanel, IAbstBlazorRegistryAware
+public class AbstBlazorWrapPanelComponent : AbstBlazorComponentModelBase, IAbstFrameworkWrapPanel, IFrameworkFor<AbstWrapPanel>, IAbstBlazorRegistryAware
 {
     private AbstBlazorComponentContainer _registry;
     private readonly AbstBlazorComponentContainer _children;

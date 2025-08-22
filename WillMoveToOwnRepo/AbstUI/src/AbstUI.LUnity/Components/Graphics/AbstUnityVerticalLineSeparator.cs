@@ -2,13 +2,14 @@ using AbstUI.Components.Containers;
 using AbstUI.LUnity.Components.Base;
 using UnityEngine;
 using UnityEngine.UI;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LUnity.Components.Graphics;
 
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkVerticalLineSeparator"/>.
 /// </summary>
-internal sealed class AbstUnityVerticalLineSeparator : AbstUnityComponent, IAbstFrameworkVerticalLineSeparator
+internal sealed class AbstUnityVerticalLineSeparator : AbstUnityComponent, IAbstFrameworkVerticalLineSeparator, IFrameworkFor<AbstVerticalLineSeparator>
 {
     public AbstUnityVerticalLineSeparator() : base(CreateGameObject())
     {

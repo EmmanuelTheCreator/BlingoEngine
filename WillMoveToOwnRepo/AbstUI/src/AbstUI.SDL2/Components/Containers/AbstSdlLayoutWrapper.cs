@@ -3,10 +3,11 @@ using AbstUI.Primitives;
 using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Events;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Components.Containers
 {
-    public partial class AbstSdlLayoutWrapper : AbstSdlComponent, IAbstFrameworkLayoutWrapper, IHandleSdlEvent
+    public partial class AbstSdlLayoutWrapper : AbstSdlComponent, IAbstFrameworkLayoutWrapper, IFrameworkFor<AbstLayoutWrapper>, IHandleSdlEvent
     {
         private AbstLayoutWrapper _lingoLayoutWrapper;
         public object FrameworkNode => this;
@@ -17,7 +18,7 @@ namespace AbstUI.SDL2.Components.Containers
             _lingoLayoutWrapper.Init(this);
             var content = layoutWrapper.Content.FrameworkObj;
         }
-        public override float Width 
+        public override float Width
         {
             get => _lingoLayoutWrapper.Width;
             set
@@ -27,7 +28,7 @@ namespace AbstUI.SDL2.Components.Containers
                 ComponentContext.TargetWidth = (int)value;
             }
         }
-        public override float Height 
+        public override float Height
         {
             get => _lingoLayoutWrapper.Height;
             set
@@ -37,7 +38,7 @@ namespace AbstUI.SDL2.Components.Containers
                 ComponentContext.TargetHeight = (int)value;
             }
         }
-       
+
         public AMargin Margin { get; set; }
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)

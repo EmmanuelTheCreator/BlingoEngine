@@ -7,10 +7,11 @@ using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
 using AbstUI.Styles;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Components.Inputs
 {
-    internal class AbstSdlInputCheckbox : AbstSdlComponent, IAbstFrameworkInputCheckbox, IHandleSdlEvent, ISdlFocusable, IDisposable
+    internal class AbstSdlInputCheckbox : AbstSdlComponent, IAbstFrameworkInputCheckbox, IFrameworkFor<AbstInputCheckbox>, IHandleSdlEvent, ISdlFocusable, IDisposable
     {
 
         public bool Enabled { get; set; } = true;

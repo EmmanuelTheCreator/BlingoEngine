@@ -7,10 +7,11 @@ using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
 using System;
 using System.Collections.Generic;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Components.Containers
 {
-    public class AbstSdlPanel : AbstSdlComponent, IAbstFrameworkPanel, IDisposable, IHandleSdlEvent
+    public class AbstSdlPanel : AbstSdlComponent, IAbstFrameworkPanel, IFrameworkFor<AbstPanel>, IDisposable, IHandleSdlEvent
     {
         public AbstSdlPanel(AbstSdlComponentFactory factory) : base(factory)
         {

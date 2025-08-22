@@ -7,10 +7,12 @@ using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
 using AbstUI.Styles;
+using AbstUI.Components.Inputs;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Components.Inputs
 {
-    internal class AbstSdlInputSlider<TValue> : AbstSdlComponent, IAbstFrameworkInputSlider<TValue>, IHandleSdlEvent, ISdlFocusable, IDisposable where TValue : struct
+    internal class AbstSdlInputSlider<TValue> : AbstSdlComponent, IAbstFrameworkInputSlider<TValue>, IFrameworkFor<AbstInputSlider<TValue>>, IHandleSdlEvent, ISdlFocusable, IDisposable where TValue : struct
     {
 
         public AMargin Margin { get; set; } = AMargin.Zero;

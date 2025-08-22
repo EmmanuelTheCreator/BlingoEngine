@@ -6,10 +6,12 @@ using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Styles;
 using AbstUI.Texts;
 using System.Runtime.InteropServices;
+using AbstUI.Components.Texts;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Components.Texts
 {
-    public class AbstSdlLabel : AbstSdlComponent, IAbstFrameworkLabel, IDisposable
+    public class AbstSdlLabel : AbstSdlComponent, IAbstFrameworkLabel, IFrameworkFor<AbstLabel>, IDisposable
     {
         private float _lastWidth;
         private float _lastHeight;
@@ -50,7 +52,7 @@ namespace AbstUI.SDL2.Components.Texts
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
-            if (!Visibility || string.IsNullOrEmpty(Text) )
+            if (!Visibility || string.IsNullOrEmpty(Text))
                 return default;
 
             EnsureResources(context);
@@ -70,7 +72,7 @@ namespace AbstUI.SDL2.Components.Texts
                 // build texture
                 // render glyphs
                 SDL.SDL_Color col = FontColor.ToSDLColor();
-                var (tex, textW, textH) = CreateTextTextureBox(context.Renderer, _font!.FontHandle,Text, (int)boxW, (int)boxH, TextAlignment, col);
+                var (tex, textW, textH) = CreateTextTextureBox(context.Renderer, _font!.FontHandle, Text, (int)boxW, (int)boxH, TextAlignment, col);
                 _texture = tex;
                 SDL.SDL_SetTextureBlendMode(_texture, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
                 //SDL.SDL_FreeSurface(tex); // this breaks the texture, so we need keep it.
@@ -169,7 +171,7 @@ namespace AbstUI.SDL2.Components.Texts
             nint box = SDL.SDL_CreateRGBSurfaceWithFormat(0, boxW, boxH, 32, FMT);
             if (box == nint.Zero) throw new Exception(SDL.SDL_GetError());
             SDL.SDL_FillRect(box, nint.Zero, 0x00000000); // Transparent background
-           // SDL.SDL_FillRect(box, nint.Zero, 0xFFFFFFFF); // DEBUG white bg
+                                                          // SDL.SDL_FillRect(box, nint.Zero, 0xFFFFFFFF); // DEBUG white bg
 
             // vertical start (centered)
             int startY = Math.Max(0, (boxH - totalH) / 2);
@@ -239,13 +241,13 @@ namespace AbstUI.SDL2.Components.Texts
         {
             // normalize + drop trailing newlines (matches render)
             string s = (text ?? string.Empty).Replace("\r\n", "\n").Replace('\r', '\n');
-            int end = s.Length; 
+            int end = s.Length;
             while (end > 0 && s[end - 1] == '\n') end--;
             var result = s.Substring(0, end);
             return result;
         }
 
-        
+
         public static (int w, int h) MeasureSDLText(nint fontHandle, string text, uint wrapWidth = 0)
         {
             string s = text;

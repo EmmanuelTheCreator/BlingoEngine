@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using AbstUI.Components;
 using AbstUI.Components.Containers;
+using AbstUI.FrameworkCommunication;
 using AbstUI.LUnity.Components.Base;
 using AbstUI.Primitives;
 using UnityEngine;
@@ -12,7 +13,7 @@ namespace AbstUI.LUnity.Components.Containers;
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkTabContainer"/>.
 /// </summary>
-internal class AbstUnityTabContainer : AbstUnityComponent, IAbstFrameworkTabContainer
+internal class AbstUnityTabContainer : AbstUnityComponent, IAbstFrameworkTabContainer, IFrameworkFor<AbstTabContainer>
 {
     private readonly List<IAbstFrameworkTabItem> _tabs = new();
     private int _selectedIndex = -1;
@@ -74,7 +75,7 @@ internal class AbstUnityTabContainer : AbstUnityComponent, IAbstFrameworkTabCont
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkTabItem"/>.
 /// </summary>
-internal class AbstUnityTabItem : AbstUnityComponent, IAbstFrameworkTabItem
+internal class AbstUnityTabItem : AbstUnityComponent, IAbstFrameworkTabItem, IFrameworkFor<AbstTabItem>
 {
     private IAbstNode? _content;
 
