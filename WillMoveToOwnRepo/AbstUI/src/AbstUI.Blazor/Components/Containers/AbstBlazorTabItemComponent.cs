@@ -1,10 +1,11 @@
 using System;
 using AbstUI.Components;
 using AbstUI.Components.Containers;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.Blazor.Components.Containers;
 
-internal class AbstBlazorTabItemComponent : AbstBlazorComponentModelBase, IAbstFrameworkTabItem
+internal class AbstBlazorTabItemComponent : AbstBlazorComponentModelBase, IAbstFrameworkTabItem, IFrameworkFor<AbstTabItem>
 {
     private string _title = string.Empty;
     public string Title

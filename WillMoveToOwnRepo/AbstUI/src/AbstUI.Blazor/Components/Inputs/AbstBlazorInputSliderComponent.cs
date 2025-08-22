@@ -1,10 +1,11 @@
 using System;
 using System.Numerics;
 using AbstUI.Components.Inputs;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.Blazor.Components.Inputs;
 
-public class AbstBlazorInputSliderComponent<TValue> : AbstBlazorComponentModelBase, IAbstFrameworkInputSlider<TValue>
+public class AbstBlazorInputSliderComponent<TValue> : AbstBlazorComponentModelBase, IAbstFrameworkInputSlider<TValue>, IFrameworkFor<AbstInputSlider<TValue>>
     where TValue : INumber<TValue>
 {
     private TValue _value = TValue.Zero;

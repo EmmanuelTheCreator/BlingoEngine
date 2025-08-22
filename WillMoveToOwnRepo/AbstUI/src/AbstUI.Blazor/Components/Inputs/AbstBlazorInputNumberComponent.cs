@@ -3,10 +3,11 @@ using System.Numerics;
 using AbstUI.Components.Inputs;
 using AbstUI.Primitives;
 using AbstUI.Styles;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.Blazor.Components.Inputs;
 
-public class AbstBlazorInputNumberComponent<TValue> : AbstBlazorComponentModelBase, IAbstFrameworkInputNumber<TValue>, IHasTextBackgroundBorderColor
+public class AbstBlazorInputNumberComponent<TValue> : AbstBlazorComponentModelBase, IAbstFrameworkInputNumber<TValue>, IFrameworkFor<AbstInputNumber<TValue>>, IHasTextBackgroundBorderColor
     where TValue : INumber<TValue>
 {
     private TValue _value = TValue.Zero;

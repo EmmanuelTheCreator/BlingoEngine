@@ -1,10 +1,11 @@
 using System;
 using AbstUI.Components.Inputs;
 using AbstUI.Primitives;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.Blazor.Components.Inputs;
 
-public class AbstBlazorColorPickerComponent : AbstBlazorComponentModelBase, IAbstFrameworkColorPicker
+public class AbstBlazorColorPickerComponent : AbstBlazorComponentModelBase, IAbstFrameworkColorPicker, IFrameworkFor<AbstColorPicker>
 {
     private AColor _color = AColor.FromRGB(0, 0, 0);
     public AColor Color

@@ -2,10 +2,11 @@ using System;
 using AbstUI.Components.Inputs;
 using AbstUI.Primitives;
 using AbstUI.Styles;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.Blazor.Components.Inputs;
 
-public class AbstBlazorSpinBoxComponent : AbstBlazorComponentModelBase, IAbstFrameworkSpinBox, IHasTextBackgroundBorderColor
+public class AbstBlazorSpinBoxComponent : AbstBlazorComponentModelBase, IAbstFrameworkSpinBox, IFrameworkFor<AbstInputSpinBox>, IHasTextBackgroundBorderColor
 {
     private float _value;
     public float Value

@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Components;
 using AbstUI.Components.Containers;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.Blazor.Components.Containers;
 
-public class AbstBlazorLayoutWrapperComponent : AbstBlazorComponentModelBase, IAbstFrameworkLayoutWrapper
+public class AbstBlazorLayoutWrapperComponent : AbstBlazorComponentModelBase, IAbstFrameworkLayoutWrapper, IFrameworkFor<AbstLayoutWrapper>
 {
     public RenderFragment? ContentFragment { get; }
 

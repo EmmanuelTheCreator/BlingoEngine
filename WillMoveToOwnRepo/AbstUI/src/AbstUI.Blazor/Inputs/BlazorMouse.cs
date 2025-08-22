@@ -2,13 +2,14 @@ using AbstUI.Inputs;
 using AbstUI.Primitives;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.Blazor.Inputs;
 
 /// <summary>
 /// Mouse wrapper using DOM events in Blazor.
 /// </summary>
-public class BlazorMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse where TAbstUIMouseEvent : AbstMouseEvent
+public class BlazorMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor<AbstMouse<TAbstUIMouseEvent>> where TAbstUIMouseEvent : AbstMouseEvent
 {
     private Lazy<AbstMouse<TAbstUIMouseEvent>> _lingoMouse;
     private readonly IJSRuntime _js;

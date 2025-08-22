@@ -6,10 +6,11 @@ using Microsoft.JSInterop;
 using AbstUI.Components.Graphics;
 using AbstUI.Primitives;
 using AbstUI.Texts;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.Blazor.Components.Graphics;
 
-public class AbstBlazorGfxCanvasComponent : AbstBlazorComponentModelBase, IAbstFrameworkGfxCanvas
+public class AbstBlazorGfxCanvasComponent : AbstBlazorComponentModelBase, IAbstFrameworkGfxCanvas, IFrameworkFor<AbstGfxCanvas>
 {
     private readonly IJSRuntime _js;
     private ElementReference _canvasRef;

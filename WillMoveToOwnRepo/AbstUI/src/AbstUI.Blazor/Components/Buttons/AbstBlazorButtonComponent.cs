@@ -1,10 +1,11 @@
 using System;
 using AbstUI.Components.Buttons;
 using AbstUI.Primitives;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.Blazor.Components.Buttons;
 
-public class AbstBlazorButtonComponent : IAbstFrameworkButton
+public class AbstBlazorButtonComponent : IAbstFrameworkButton, IFrameworkFor<AbstButton>
 {
     public event Action? Pressed;
     public event Action? Changed;
