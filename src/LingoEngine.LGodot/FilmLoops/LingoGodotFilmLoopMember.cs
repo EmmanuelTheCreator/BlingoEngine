@@ -4,9 +4,9 @@ using LingoEngine.FilmLoops;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Members;
-using LingoEngine.Tools;
 using AbstUI.Primitives;
 using AbstUI.LGodot.Bitmaps;
+using AbstUI.LGodot.Helpers;
 
 namespace LingoEngine.LGodot.FilmLoops
 {
@@ -95,7 +95,7 @@ namespace LingoEngine.LGodot.FilmLoops
                     new Vector2(m.M11, m.M12),
                     new Vector2(m.M21, m.M22),
                     new Vector2(m.M31, m.M32));
-                BlendImage(image, srcImg, transform, info.Alpha);
+                srcImg.BlendImageTo(image, transform, info.Alpha);
 
             }
 
@@ -145,7 +145,7 @@ namespace LingoEngine.LGodot.FilmLoops
             //        new Vector2(m2.M11, m2.M12),
             //        new Vector2(m2.M21, m2.M22),
             //        new Vector2(m2.M31, m2.M32));
-            //    BlendImage(image, srcImg, transform2D, Math.Clamp(layer.Blend / 100f, 0f, 1f));
+            //    srcImg.BlendImageTo(image, transform2D, Math.Clamp(layer.Blend / 100f, 0f, 1f));
             //} 
             #endregion
 
@@ -154,81 +154,6 @@ namespace LingoEngine.LGodot.FilmLoops
             _texture = new AbstGodotTexture2D(tex);
             _texture.Name = $"Filmloop_{frame}_Member_" + _member.Name;
             return _texture;
-        }
-
-        /// <summary>
-        /// Blends <paramref name="src"/> onto <paramref name="dest"/> using the provided
-        /// transform and opacity.
-        /// </summary>
-        private unsafe static void BlendImage(Image dest, Image src, Transform2D transform, float alpha)
-        {
-            var inv = transform.AffineInverse();
-            Vector2[] pts =
-            {
-                transform * Vector2.Zero,
-                transform * new Vector2(src.GetWidth(), 0),
-                transform * new Vector2(src.GetWidth(), src.GetHeight()),
-                transform * new Vector2(0, src.GetHeight())
-            };
-            int minX = (int)MathF.Floor(pts.Min(p => p.X));
-            int maxX = (int)MathF.Ceiling(pts.Max(p => p.X));
-            int minY = (int)MathF.Floor(pts.Min(p => p.Y));
-            int maxY = (int)MathF.Ceiling(pts.Max(p => p.Y));
-
-            int destWidth = dest.GetWidth();
-            int destHeight = dest.GetHeight();
-            int srcWidth = src.GetWidth();
-            int srcHeight = src.GetHeight();
-
-            var destData = dest.GetData();
-            var srcData = src.GetData();
-
-            int destPitch = destWidth * 4;
-            int srcPitch = srcWidth * 4;
-
-            fixed (byte* pDestFixed = destData)
-            fixed (byte* pSrcFixed = srcData)
-            {
-                // captureable handles (avoid capturing fixed locals)
-                IntPtr destPtr = (IntPtr)pDestFixed;
-                IntPtr srcPtr = (IntPtr)pSrcFixed;
-
-                int totalPixels = (maxX - minX) * (maxY - minY);
-                ParallelHelper.For(minY, maxY, totalPixels, y =>
-                {
-                    if ((uint)y >= (uint)destHeight) return;
-
-                    byte* pDest = (byte*)destPtr;
-                    byte* pSrc = (byte*)srcPtr;
-
-                    int destRow = y * destPitch;
-
-                    for (int x = minX; x < maxX; x++)
-                    {
-                        if ((uint)x >= (uint)destWidth) continue;
-
-                        var srcPos = inv * new Vector2(x + 0.5f, y + 0.5f);
-                        int sx = (int)MathF.Floor(srcPos.X);
-                        int sy = (int)MathF.Floor(srcPos.Y);
-                        if ((uint)sx >= (uint)srcWidth || (uint)sy >= (uint)srcHeight)
-                            continue;
-
-                        int srcIndex = sy * srcPitch + sx * 4;
-                        int destIndex = destRow + x * 4;
-
-                        float a = pSrc[srcIndex + 3] / 255f * alpha;
-                        if (a <= 0f) continue;
-                        float invA = 1f - a;
-
-                        pDest[destIndex] = (byte)(pSrc[srcIndex] * a + pDest[destIndex] * invA);
-                        pDest[destIndex + 1] = (byte)(pSrc[srcIndex + 1] * a + pDest[destIndex + 1] * invA);
-                        pDest[destIndex + 2] = (byte)(pSrc[srcIndex + 2] * a + pDest[destIndex + 2] * invA);
-                        pDest[destIndex + 3] = (byte)(pSrc[srcIndex + 3] * a + pDest[destIndex + 3] * invA);
-                    }
-                });
-            }
-
-            dest.SetData(destWidth, destHeight, false, Image.Format.Rgba8, destData);
         }
 
 #if DEBUG
