@@ -3,18 +3,19 @@ using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.LGodot.Primitives;
 using AbstUI.Components.Containers;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Components
 {
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkPanel"/>.
     /// </summary>
-    public partial class AbstGodotPanel : Panel, IAbstFrameworkPanel, IDisposable
+    public partial class AbstGodotPanel : Panel, IAbstFrameworkPanel, IDisposable, IFrameworkFor<AbstPanel>
     {
         private AMargin _margin = AMargin.Zero;
         private AColor? _background = null;
         private AColor? _borderColor = null;
-        private float _borderWidth =0;
+        private float _borderWidth = 0;
         private readonly StyleBoxFlat _style = new StyleBoxFlat();
 
         public AbstGodotPanel(AbstPanel panel)
@@ -67,7 +68,7 @@ namespace AbstUI.LGodot.Components
 
                 }
             }
-            _nodes.Add(child);  
+            _nodes.Add(child);
         }
 
 
@@ -146,12 +147,12 @@ namespace AbstUI.LGodot.Components
 
         private void ApplyStyle()
         {
-            _style.BgColor = _background != null? _background.Value.ToGodotColor() : Colors.Transparent;
+            _style.BgColor = _background != null ? _background.Value.ToGodotColor() : Colors.Transparent;
             _style.BorderColor = _borderColor != null ? _borderColor.Value.ToGodotColor() : Colors.Transparent;
             _style.BorderWidthTop = _style.BorderWidthBottom = _style.BorderWidthLeft = _style.BorderWidthRight = (int)_borderWidth;
         }
     }
-    public partial class AbstGodotLayoutWrapper : MarginContainer, IAbstFrameworkLayoutWrapper
+    public partial class AbstGodotLayoutWrapper : MarginContainer, IAbstFrameworkLayoutWrapper, IFrameworkFor<AbstLayoutWrapper>
     {
         private AbstLayoutWrapper _lingoLayoutWrapper;
         public object FrameworkNode => this;

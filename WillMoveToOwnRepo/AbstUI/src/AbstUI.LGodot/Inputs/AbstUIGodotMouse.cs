@@ -2,17 +2,18 @@
 using static Godot.Input;
 using AbstUI.Primitives;
 using AbstUI.Inputs;
+using AbstUI.FrameworkCommunication;
 
 
 namespace AbstUI.LGodot.Inputs
 {
-    public interface IAbstGodotMouseHandler: IAbstFrameworkMouse
+    public interface IAbstGodotMouseHandler : IAbstFrameworkMouse
     {
         void HandleMouseMoveEvent(InputEventMouseMotion mouseMotionEvent, bool isInsideRect, float x, float y);
         void HandleMouseButtonEvent(InputEventMouseButton mouseButtonEvent, bool isInsideRect, float x, float y);
-        
+
     }
-    public class AbstGodotMouse : IAbstFrameworkMouse, IAbstGodotMouseHandler
+    public class AbstGodotMouse : IAbstFrameworkMouse, IAbstGodotMouseHandler, IFrameworkFor<AbstMouse>
     {
         private Lazy<IAbstMouseInternal> _lingoMouse;
         private DateTime _lastClickTime = DateTime.MinValue;

@@ -2,6 +2,7 @@ using AbstUI.LGodot;
 using AbstUI.LGodot.Inputs;
 using AbstUI.Primitives;
 using Godot;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.Inputs
 {
@@ -20,7 +21,7 @@ namespace AbstUI.Inputs
         }
     }
 
-    public partial class AbstGodotGlobalMouse : Node, IAbstFrameworkMouse, IAbstGodotMouseHandler
+    public partial class AbstGodotGlobalMouse : Node, IAbstFrameworkMouse, IAbstGodotMouseHandler, IFrameworkFor<GlobalGodotAbstMouse>
     {
         private readonly AbstGodotMouse _handler;
         private IAbstMouse? _mouse;

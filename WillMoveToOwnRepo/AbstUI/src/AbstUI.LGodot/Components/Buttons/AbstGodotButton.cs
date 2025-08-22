@@ -5,13 +5,14 @@ using AbstUI.Styles;
 using AbstUI.LGodot.Bitmaps;
 using AbstUI.Components.Buttons;
 using AbstUI.LGodot.Primitives;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Components
 {
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkButton"/>.
     /// </summary>
-    public partial class AbstGodotButton : Button, IAbstFrameworkButton, IDisposable
+    public partial class AbstGodotButton : Button, IAbstFrameworkButton, IDisposable, IFrameworkFor<AbstButton>
     {
         private AMargin _margin = AMargin.Zero;
         private IAbstTexture2D? _texture;

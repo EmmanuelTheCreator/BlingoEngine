@@ -7,6 +7,7 @@ using AbstUI.Texts;
 using AbstUI.LGodot.Texts;
 using AbstUI.LGodot.Primitives;
 using AbstUI.Components.Texts;
+using AbstUI.FrameworkCommunication;
 
 
 namespace AbstUI.LGodot.Components
@@ -14,7 +15,7 @@ namespace AbstUI.LGodot.Components
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkLabel"/>.
     /// </summary>
-    public partial class AbstGodotLabel : Label, IAbstFrameworkLabel, IDisposable
+    public partial class AbstGodotLabel : Label, IAbstFrameworkLabel, IDisposable, IFrameworkFor<AbstLabel>
     {
         private readonly IAbstFontManager _fontManager;
         private AMargin _margin = AMargin.Zero;
@@ -33,7 +34,7 @@ namespace AbstUI.LGodot.Components
         //public float Y { get => Position.Y; set => Position = new Vector2(Position.X, value); }
         public float Width { get => Size.X; set { Size = new Vector2(value, Size.Y); CustomMinimumSize = new Vector2(value, Size.Y); } }
         public float Height { get => Size.Y; set { Size = new Vector2(Size.X, value); CustomMinimumSize = new Vector2(Size.X, value); } }
-    
+
         public bool Visibility { get => Visible; set => Visible = value; }
         public AbstTextAlignment TextAlignment { get => HorizontalAlignment.ToAbst(); set => HorizontalAlignment = value.ToGodot(); }
         string IAbstFrameworkNode.Name { get => Name; set => Name = value; }

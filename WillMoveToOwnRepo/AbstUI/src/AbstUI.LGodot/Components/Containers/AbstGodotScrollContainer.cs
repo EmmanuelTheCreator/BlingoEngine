@@ -3,10 +3,11 @@ using AbstUI.Components;
 using AbstUI.Primitives;
 using System.Linq;
 using AbstUI.Components.Containers;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Components
 {
-    public partial class AbstGodotScrollContainer : ScrollContainer, IAbstFrameworkScrollContainer, IDisposable
+    public partial class AbstGodotScrollContainer : ScrollContainer, IAbstFrameworkScrollContainer, IDisposable, IFrameworkFor<AbstScrollContainer>
     {
         private AMargin _margin = AMargin.Zero;
         private AbstScrollbarMode _scrollModeH = AbstScrollbarMode.Auto;
@@ -79,10 +80,10 @@ namespace AbstUI.LGodot.Components
                 AddThemeConstantOverride("margin_bottom", (int)_margin.Bottom);
             }
         }
-       
 
 
-        
+
+
 
 
         public AbstGodotScrollContainer(AbstScrollContainer container)
@@ -106,7 +107,7 @@ namespace AbstUI.LGodot.Components
             _nodes.Remove(lingoFrameworkGfxNode);
         }
 
-       
+
 
 
 

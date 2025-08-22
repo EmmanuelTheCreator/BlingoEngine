@@ -3,7 +3,7 @@ using AbstUI.LGodot;
 
 namespace AbstUI.LGodot.Inputs
 {
-    public class GlobalAbstKey : AbstKey , IAbstGlobalKey
+    public class GlobalAbstKey : AbstKey, IAbstGlobalKey
     {
         public GlobalAbstKey(IAbstGodotRootNode rootNode)
         {
@@ -11,5 +11,5 @@ namespace AbstUI.LGodot.Inputs
             Init(framework);
         }
     }
-  
+
 }

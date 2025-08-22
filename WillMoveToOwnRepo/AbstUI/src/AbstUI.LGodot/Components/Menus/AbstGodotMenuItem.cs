@@ -1,11 +1,12 @@
 using AbstUI.Components.Menus;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Components.Menus
 {
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkMenuItem"/>.
     /// </summary>
-    public partial class AbstGodotMenuItem : IAbstFrameworkMenuItem, IDisposable
+    public partial class AbstGodotMenuItem : IAbstFrameworkMenuItem, IDisposable, IFrameworkFor<AbstMenuItem>
     {
         private readonly AbstMenuItem _abstMenuItem;
         private string _name;

@@ -3,24 +3,27 @@ using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.LGodot.Styles;
 using AbstUI.Components.Containers;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Components
 {
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkTabContainer"/>.
     /// </summary>
-    public partial class AbstGodotTabContainer : TabContainer, IAbstFrameworkTabContainer, IDisposable
+    public partial class AbstGodotTabContainer : TabContainer, IAbstFrameworkTabContainer, IDisposable, IFrameworkFor<AbstTabContainer>
     {
         private AMargin _margin = AMargin.Zero;
         private Theme _theme;
         private readonly List<IAbstFrameworkTabItem> _nodes = new List<IAbstFrameworkTabItem>();
         private readonly IAbstGodotStyleManager _lingoGodotStyleManager;
-        
+
 
 
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
         public float Y { get => Position.Y; set => Position = new Vector2(Position.X, value); }
-        public float Width { get => Size.X; 
+        public float Width
+        {
+            get => Size.X;
             set
             {
                 CustomMinimumSize = new Vector2(value, Size.Y);
@@ -51,12 +54,12 @@ namespace AbstUI.LGodot.Components
 
             // Apply the Director tab styling
             _theme = _lingoGodotStyleManager.GetTheme(AbstGodotThemeElementType.Tabs) ?? new Theme();
-            
+
             Theme = Theme;
             ClipTabs = true;
 
         }
- 
+
 
 
 
@@ -73,7 +76,7 @@ namespace AbstUI.LGodot.Components
             }
         }
 
-        
+
 
         public void AddTab(IAbstFrameworkTabItem tabItem)
         {
@@ -122,7 +125,7 @@ namespace AbstUI.LGodot.Components
             CurrentTab = _nodes.FindIndex(x => x.Title == tabName);
         }
     }
-    public partial class AbstGodotTabItem : IAbstFrameworkTabItem
+    public partial class AbstGodotTabItem : IAbstFrameworkTabItem, IFrameworkFor<AbstTabItem>
     {
         private AbstTabItem _tabItem;
         public AbstTabItem TabItem => _tabItem;
@@ -143,7 +146,7 @@ namespace AbstUI.LGodot.Components
         {
             get => ContentFrameWork.Name; set
             {
-                if (ContentFrameWork != null) 
+                if (ContentFrameWork != null)
                     ContentFrameWork.Name = value;
             }
         }

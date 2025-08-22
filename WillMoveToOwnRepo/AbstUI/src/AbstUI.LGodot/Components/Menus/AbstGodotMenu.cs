@@ -3,13 +3,14 @@ using AbstUI.Primitives;
 using AbstUI.Components.Buttons;
 using AbstUI.Components.Menus;
 using AbstUI.LGodot.Components.Menus;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Components
 {
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkMenu"/>.
     /// </summary>
-    public partial class AbstGodotMenu : PopupMenu, IAbstFrameworkMenu, IDisposable
+    public partial class AbstGodotMenu : PopupMenu, IAbstFrameworkMenu, IDisposable, IFrameworkFor<AbstMenu>
     {
         private readonly Dictionary<int, AbstGodotMenuItem> _items = new();
         private string _name;
@@ -21,7 +22,7 @@ namespace AbstUI.LGodot.Components
             _margin = AMargin.Zero;
             menu.Init(this);
             IdPressed += OnIdPressed;
-            
+
         }
 
         public new string Name { get => _name; set => _name = value; }
@@ -64,7 +65,7 @@ namespace AbstUI.LGodot.Components
             _items.Clear();
         }
 
-       
+
         public void PositionPopup(IAbstFrameworkButton button)
         {
             if (button is not Button btn)

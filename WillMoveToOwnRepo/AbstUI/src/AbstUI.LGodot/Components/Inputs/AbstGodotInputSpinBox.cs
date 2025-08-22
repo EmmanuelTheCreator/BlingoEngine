@@ -4,10 +4,11 @@ using AbstUI.Primitives;
 using AbstUI.Styles;
 using AbstUI.Components.Inputs;
 using AbstUI.LGodot.Primitives;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Components
 {
-    public partial class AbstGodotSpinBox : SpinBox, IAbstFrameworkSpinBox, IHasTextBackgroundBorderColor, IDisposable
+    public partial class AbstGodotSpinBox : SpinBox, IAbstFrameworkSpinBox, IHasTextBackgroundBorderColor, IDisposable, IFrameworkFor<AbstInputSpinBox>
     {
         private AMargin _margin = AMargin.Zero;
         private Action<float>? _onChange;

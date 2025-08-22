@@ -4,13 +4,14 @@ using AbstUI.Primitives;
 using AbstUI.Components.Inputs;
 using AbstUI.Styles;
 using AbstUI.LGodot.Primitives;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Components
 {
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkItemList"/>.
     /// </summary>
-    public partial class AbstGodotItemList : ItemList, IAbstFrameworkItemList, IDisposable
+    public partial class AbstGodotItemList : ItemList, IAbstFrameworkItemList, IDisposable, IFrameworkFor<AbstItemList>
     {
         private readonly List<KeyValuePair<string, string>> _items = new();
         private AMargin _margin = AMargin.Zero;

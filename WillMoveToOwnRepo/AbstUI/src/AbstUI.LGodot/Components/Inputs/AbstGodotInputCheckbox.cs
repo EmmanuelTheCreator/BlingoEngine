@@ -3,13 +3,14 @@ using System;
 using AbstUI.Primitives;
 using AbstUI.Components;
 using AbstUI.Components.Inputs;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Components
 {
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkInputCheckbox"/>.
     /// </summary>
-    public partial class AbstGodotInputCheckbox : CheckBox, IAbstFrameworkInputCheckbox, IDisposable
+    public partial class AbstGodotInputCheckbox : CheckBox, IAbstFrameworkInputCheckbox, IDisposable, IFrameworkFor<AbstInputCheckbox>
     {
         private AMargin _margin = AMargin.Zero;
         private Action<bool>? _onChange;

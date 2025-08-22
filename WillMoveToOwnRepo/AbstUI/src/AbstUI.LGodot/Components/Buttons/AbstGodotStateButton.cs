@@ -6,13 +6,14 @@ using AbstUI.Components.Inputs;
 using AbstUI.Components.Buttons;
 using AbstUI.Styles;
 using AbstUI.LGodot.Primitives;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Components
 {
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkStateButton"/>.
     /// </summary>
-    public partial class AbstGodotStateButton : Button, IAbstFrameworkStateButton, IDisposable
+    public partial class AbstGodotStateButton : Button, IAbstFrameworkStateButton, IDisposable, IFrameworkFor<AbstStateButton>
     {
         private AMargin _margin = AMargin.Zero;
         private IAbstTexture2D? _texture;

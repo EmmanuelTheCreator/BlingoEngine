@@ -4,13 +4,14 @@ using AbstUI.Primitives;
 using System;
 using AbstUI.LGodot.Primitives;
 using AbstUI.Components.Inputs;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Components
 {
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkColorPicker"/>.
     /// </summary>
-    public partial class AbstGodotColorPicker : ColorPickerButton, IAbstFrameworkColorPicker, IDisposable
+    public partial class AbstGodotColorPicker : ColorPickerButton, IAbstFrameworkColorPicker, IDisposable, IFrameworkFor<AbstColorPicker>
     {
         private AMargin _margin = AMargin.Zero;
         private readonly Action<AColor>? _onChange;
@@ -33,7 +34,7 @@ namespace AbstUI.LGodot.Components
 
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
         public float Y { get => Position.Y; set => Position = new Vector2(Position.X, value); }
-        public float Width { get => Size.X; set { Size = new Vector2(value, Size.Y); CustomMinimumSize = new Vector2(value, Size.Y); } } 
+        public float Width { get => Size.X; set { Size = new Vector2(value, Size.Y); CustomMinimumSize = new Vector2(value, Size.Y); } }
         public float Height { get => Size.Y; set { Size = new Vector2(Size.X, value); CustomMinimumSize = new Vector2(Size.X, value); } }
         public bool Visibility { get => Visible; set => Visible = value; }
         public bool Enabled { get => !Disabled; set => Disabled = !value; }

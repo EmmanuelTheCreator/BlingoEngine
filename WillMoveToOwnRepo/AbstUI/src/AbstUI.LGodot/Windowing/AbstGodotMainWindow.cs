@@ -1,10 +1,11 @@
 using Godot;
 using AbstUI.Primitives;
 using AbstUI.Windowing;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Windowing;
 
-public class AbstGodotMainWindow : IAbstFrameworkMainWindow
+public class AbstGodotMainWindow : IAbstFrameworkMainWindow, IFrameworkFor<AbstMainWindow>
 {
     private readonly IAbstGodotRootNode _root;
     private AbstMainWindow _window = null!;

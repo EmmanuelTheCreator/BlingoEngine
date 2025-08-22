@@ -3,12 +3,13 @@ using System;
 using AbstUI.Primitives;
 using AbstUI.Components;
 using AbstUI.Components.Inputs;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Components
 {
     /// Godot implementation of <see cref="IAbstFrameworkInputSlider{TValue}"/>.
     /// </summary>
-    public partial class AbstGodotInputSlider<TValue> : Control, IAbstFrameworkInputSlider<TValue>, System.IDisposable
+    public partial class AbstGodotInputSlider<TValue> : Control, IAbstFrameworkInputSlider<TValue>, System.IDisposable, IFrameworkFor<AbstInputSlider<TValue>>
         where TValue : struct, System.IConvertible
     {
         private readonly Slider _slider;
@@ -25,7 +26,7 @@ namespace AbstUI.LGodot.Components
             AddChild(_slider);
             slider.Init(this);
             _slider.ValueChanged += OnSliderValueChanged;
-            CustomMinimumSize = new Vector2(2,2);
+            CustomMinimumSize = new Vector2(2, 2);
             SizeFlagsHorizontal = 0;
             SizeFlagsVertical = 0;
         }

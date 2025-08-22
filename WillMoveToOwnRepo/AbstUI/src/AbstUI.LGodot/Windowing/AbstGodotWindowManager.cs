@@ -6,6 +6,7 @@ using AbstUI.LGodot.Styles;
 using AbstUI.Styles;
 using AbstUI.Windowing;
 using Godot;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Windowing;
 
@@ -16,7 +17,7 @@ public interface IAbstGodotWindowManager : IAbstFrameworkWindowManager
     BaseGodotWindow? ActiveWindow { get; }
     Control RootNode { get; }
 }
-public class AbstGodotWindowManager : IAbstGodotWindowManager , IDisposable
+public class AbstGodotWindowManager : IAbstGodotWindowManager, IDisposable, IFrameworkFor<AbstWindowManager>
 {
     protected BaseGodotWindow? _lastActiveWindow;
     private IAbstWindowManager _windowManager;
@@ -92,7 +93,7 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager , IDisposable
             parent.MoveChild(window, parent.GetChildCount() - 1);
         window.GrabFocus();
         window.QueueRedraw();
-        _lastActiveWindow = window; 
+        _lastActiveWindow = window;
     }
 
     #endregion
@@ -174,10 +175,10 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager , IDisposable
         }
 
         dialog.Title = title;
-        
+
         dialog.Size = new Vector2I((int)panel.Width, (int)panel.Height);
         dialog.Theme = _godotStyleManager.GetTheme(AbstGodotThemeElementType.PopupWindow);
-       
+
         root.AddChild(dialog);
         dialog.CloseRequested += dialog.QueueFree;
         dialog.AddChild(node);
@@ -189,11 +190,11 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager , IDisposable
         //}
         dialog.PopupCentered();
 
-        return new AbstWindowDialogReference( dialog.QueueFree, dialog);
+        return new AbstWindowDialogReference(dialog.QueueFree, dialog);
     }
 
-    
-   
+
+
 
     public IAbstWindowDialogReference? ShowNotification(string message, AbstUINotificationType type)
     {
