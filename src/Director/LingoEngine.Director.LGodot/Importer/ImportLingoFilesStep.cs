@@ -181,12 +181,7 @@ internal partial class ImportLingoFilesStep : VBoxContainer
                 string path = (string)row.GetMeta("path");
                 var opt = (OptionButton)row.GetMeta("opt");
                 var type = (LingoScriptType)opt.GetSelectedId();
-                scripts.Add(new LingoScriptFile
-                {
-                    Name = Path.GetFileNameWithoutExtension(path),
-                    Source = File.ReadAllText(path),
-                    Type = type
-                });
+                scripts.Add(new LingoScriptFile(Path.GetFileNameWithoutExtension(path),File.ReadAllText(path),type));
             }
         }
 

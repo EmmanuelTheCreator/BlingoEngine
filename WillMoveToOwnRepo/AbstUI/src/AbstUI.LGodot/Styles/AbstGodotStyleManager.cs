@@ -13,7 +13,7 @@ namespace AbstUI.LGodot.Styles
     public interface IAbstGodotStyleManager
     {
         Theme? GetTheme(AbstGodotThemeElementType type);
-        void Register(AbstGodotThemeElementType type, Theme theme);
+        IAbstGodotStyleManager Register(AbstGodotThemeElementType type, Theme theme);
     }
 
     public class AbstGodotStyleManager : AbstStyleManager, IAbstGodotStyleManager
@@ -22,7 +22,7 @@ namespace AbstUI.LGodot.Styles
         public Theme? GetTheme(AbstGodotThemeElementType type)
              => _themes.TryGetValue(type, out var theme) ? theme : null;
 
-        public void Register(AbstGodotThemeElementType type, Theme theme)
+        public IAbstGodotStyleManager Register(AbstGodotThemeElementType type, Theme theme)
         {
             if (_themes.ContainsKey(type))
             {
@@ -32,6 +32,7 @@ namespace AbstUI.LGodot.Styles
             {
                 _themes.Add(type, theme);
             }
+            return this;
         }
     }
 }

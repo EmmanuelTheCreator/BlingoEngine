@@ -31,8 +31,9 @@
                 <PackageReference Include="Unity3D.UnityEngine.UI" Version="2018.3.5.1" />
         </ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\AbstUI\AbstUI.csproj" />
-	</ItemGroup>
+        <ItemGroup>
+          <ProjectReference Include="..\AbstUI\AbstUI.csproj" />
+          <ProjectReference Include="..\..\..\..\src\LingoEngine\LingoEngine.csproj" />
+        </ItemGroup>
 
 </Project>

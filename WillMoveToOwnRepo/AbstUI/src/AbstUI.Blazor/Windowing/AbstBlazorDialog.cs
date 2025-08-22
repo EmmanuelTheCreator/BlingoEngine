@@ -1,5 +1,4 @@
 using AbstUI.Components;
-using AbstUI.Components.Containers;
 using AbstUI.Blazor.Components.Containers;
 using AbstUI.FrameworkCommunication;
 using AbstUI.Inputs;
@@ -7,17 +6,22 @@ using AbstUI.Primitives;
 using AbstUI.Windowing;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using System;
-using System.Collections.Generic;
 
 namespace AbstUI.Blazor.Windowing;
 
+public abstract class AbstBlazorDialog : AbstBlazorDialog<AbstDialog>
+{
+    protected AbstBlazorDialog(AbstBlazorComponentFactory factory) : base(factory)
+    {
+    }
+}
 /// <summary>
 /// Blazor implementation of <see cref="IAbstFrameworkDialog"/> based on Bootstrap modals.
 /// </summary>
-internal class AbstBlazorDialog : AbstBlazorPanel, IAbstFrameworkDialog, IFrameworkFor<AbstDialog>, IDisposable
+public class AbstBlazorDialog<T> : AbstBlazorPanel, IAbstFrameworkDialog<T>, IFrameworkForInitializable<T>, IDisposable
+    where T : IAbstDialog
 {
-    private readonly AbstBlazorComponentFactory _factory;
+    protected readonly AbstBlazorComponentFactory _factory;
     private IAbstDialog _dialog = null!;
     private string _title = string.Empty;
     private bool _isPopup;
@@ -62,11 +66,13 @@ internal class AbstBlazorDialog : AbstBlazorPanel, IAbstFrameworkDialog, IFramew
         Visibility = false;
     }
 
-    public void Init(IAbstDialog instance)
+    public void Init(T instance)
     {
         _dialog = instance;
         instance.Init(this);
+        OnInit(instance);
     }
+    protected virtual void OnInit(T instance) { }
 
     private void EnsureModule()
     {

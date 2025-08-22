@@ -9,11 +9,16 @@ using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LUnity.Windowing;
 
+public class AbstUnityDialog : AbstUnityDialog<AbstDialog>
+{
+   
+}
 /// <summary>
 /// Simplistic Unity implementation of <see cref="IAbstFrameworkDialog"/>.
 /// Provides basic popup behaviour for custom dialogs.
 /// </summary>
-internal class AbstUnityDialog : AbstUnityPanel, IAbstFrameworkDialog, IFrameworkFor<AbstDialog>
+public class AbstUnityDialog<TAbstDialog> : AbstUnityPanel, IAbstFrameworkDialog<TAbstDialog>, IFrameworkFor<TAbstDialog>
+    where TAbstDialog : AbstDialog
 {
     private IAbstDialog _dialog = null!;
 

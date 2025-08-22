@@ -13,7 +13,7 @@ namespace AbstUI.LUnity.Components.Containers;
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkPanel"/>.
 /// </summary>
-internal class AbstUnityPanel : AbstUnityComponent, IAbstFrameworkPanel, IFrameworkFor<AbstPanel>
+public class AbstUnityPanel : AbstUnityComponent, IAbstFrameworkPanel, IFrameworkFor<AbstPanel>
 {
     private readonly List<IAbstFrameworkLayoutNode> _children = new();
     private readonly Image _image;

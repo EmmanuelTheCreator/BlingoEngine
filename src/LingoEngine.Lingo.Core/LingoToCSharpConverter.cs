@@ -61,7 +61,7 @@ public class LingoToCSharpConverter
         Errors.Clear();
         var source = script.Source.Replace("\r", "\n");
         var type = DetectScriptType(source);
-        var file = new LingoScriptFile { Name = script.Name, Source = source, Type = type };
+        var file = new LingoScriptFile(script.Name, source, type );
 
         var parser = new LingoAstParser();
         LingoNode ast;
@@ -108,105 +108,166 @@ public class LingoToCSharpConverter
         // First pass: parse scripts, gather handler signatures and property names
         foreach (var file in scriptList)
         {
-            var parser = new LingoAstParser();
+            var fileItem = file;
+
             try
             {
-                var ast = parser.Parse(file.Source);
-                if (ast is LingoBlockNode block)
+                var parser = new LingoAstParser();
+                try
                 {
-                    var nh = block.Children.OfType<LingoHandlerNode>()
-                        .FirstOrDefault(h => h.Handler != null && h.Handler.Name.Equals("new", StringComparison.OrdinalIgnoreCase));
-                    newHandlers[file.Name] = nh;
-                    if (nh != null)
-                        block.Children.Remove(nh);
+                    var ast = parser.Parse(file.Source);
+                    if (ast is LingoBlockNode block)
+                    {
+                        var nh = block.Children.OfType<LingoHandlerNode>()
+                            .FirstOrDefault(h => h.Handler != null && h.Handler.Name.Equals("new", StringComparison.OrdinalIgnoreCase));
+                        newHandlers[file.Name] = nh;
+                        if (nh != null)
+                            block.Children.Remove(nh);
+                    }
+                    asts[file.Name] = ast;
                 }
-                asts[file.Name] = ast;
+                catch (Exception ex)
+                {
+                    LogError(file.Name, file.Source, ex);
+                    throw;
+                }
+
+                var signatures = ExtractHandlerSignatures(file.Source);
+                signatures.Remove("new");
+                var methodSigs = new List<MethodSignature>();
+                foreach (var kv in signatures)
+                {
+                    var paramInfos = kv.Value.Select(p => new ParameterInfo(p, "object")).ToList();
+                    methodSigs.Add(new MethodSignature(kv.Key, paramInfos));
+                    if (!DefaultMethods.Contains(kv.Key) && !methodMap.ContainsKey(kv.Key))
+                    {
+                        methodMap[kv.Key] = file.Name;
+                        result.CustomMethods.Add(kv.Key);
+                    }
+                }
+                result.Methods[file.Name] = methodSigs;
+
+                var propDecls = ExtractPropertyDeclarations(file.Source);
+                var propDescs = ExtractPropertyDescriptions(file.Source);
+                var fieldMap = new Dictionary<string, (string Type, string? Default)>(StringComparer.OrdinalIgnoreCase);
+                foreach (var n in propDecls)
+                    fieldMap[n] = ("object", null);
+                foreach (var d in propDescs)
+                    fieldMap[d.Name] = (FormatToCSharpType(d.Format), d.Default);
+
+                propInfo[file.Name] = fieldMap.Select(kv => (kv.Key, kv.Value.Type, kv.Value.Default)).ToList();
             }
             catch (Exception ex)
             {
-                LogError(file.Name, file.Source, ex);
-                throw;
+                fileItem.Errors += Environment.NewLine + ex.Message;
             }
-
-            var signatures = ExtractHandlerSignatures(file.Source);
-            signatures.Remove("new");
-            var methodSigs = new List<MethodSignature>();
-            foreach (var kv in signatures)
-            {
-                var paramInfos = kv.Value.Select(p => new ParameterInfo(p, "object")).ToList();
-                methodSigs.Add(new MethodSignature(kv.Key, paramInfos));
-                if (!DefaultMethods.Contains(kv.Key) && !methodMap.ContainsKey(kv.Key))
-                {
-                    methodMap[kv.Key] = file.Name;
-                    result.CustomMethods.Add(kv.Key);
-                }
-            }
-            result.Methods[file.Name] = methodSigs;
-
-            var propDecls = ExtractPropertyDeclarations(file.Source);
-            var propDescs = ExtractPropertyDescriptions(file.Source);
-            var fieldMap = new Dictionary<string, (string Type, string? Default)>(StringComparer.OrdinalIgnoreCase);
-            foreach (var n in propDecls)
-                fieldMap[n] = ("object", null);
-            foreach (var d in propDescs)
-                fieldMap[d.Name] = (FormatToCSharpType(d.Format), d.Default);
-
-            propInfo[file.Name] = fieldMap.Select(kv => (kv.Key, kv.Value.Type, kv.Value.Default)).ToList();
         }
 
         // Second pass: infer property and parameter types
         foreach (var file in asts.Keys.ToList())
         {
-            var fields = propInfo.TryGetValue(file, out var list) ? list.ToDictionary(x => x.Name, x => (x.Type, x.Default), StringComparer.OrdinalIgnoreCase) : new Dictionary<string, (string Type, string? Default)>(StringComparer.OrdinalIgnoreCase);
-            var source = scriptList.First(s => s.Name == file).Source;
-            var inferredProps = InferPropertyTypes(source, fields.Keys);
-            foreach (var kv in inferredProps)
-            {
-                if (fields.TryGetValue(kv.Key, out var existing) && existing.Type == "object")
-                    fields[kv.Key] = (kv.Value, existing.Default);
-            }
-            result.Properties[file] = fields.Select(kv => new PropertyInfo(kv.Key, kv.Value.Type)).ToList();
+            var fileItem = scripts.First(x => x.Name == file);
 
-            var methods = result.Methods.TryGetValue(file, out var msList) ? msList : new List<MethodSignature>();
-            var paramTypes = InferParameterTypes(source, methods);
-            foreach (var ms in methods)
+            try
             {
-                if (!paramTypes.TryGetValue(ms.Name, out var map)) continue;
-                for (int i = 0; i < ms.Parameters.Count; i++)
+                var fields = propInfo.TryGetValue(file, out var list) ? list.ToDictionary(x => x.Name, x => (x.Type, x.Default), StringComparer.OrdinalIgnoreCase) : new Dictionary<string, (string Type, string? Default)>(StringComparer.OrdinalIgnoreCase);
+                var source = scriptList.First(s => s.Name == file).Source;
+                var inferredProps = InferPropertyTypes(source, fields.Keys);
+                foreach (var kv in inferredProps)
                 {
-                    var p = ms.Parameters[i];
-                    if (map.TryGetValue(p.Name, out var type) && p.Type == "object")
-                        ms.Parameters[i] = p with { Type = type };
+                    if (fields.TryGetValue(kv.Key, out var existing) && existing.Type == "object")
+                        fields[kv.Key] = (kv.Value, existing.Default);
                 }
+                result.Properties[file] = fields.Select(kv => new PropertyInfo(kv.Key, kv.Value.Type)).ToList();
+
+                var methods = result.Methods.TryGetValue(file, out var msList) ? msList : new List<MethodSignature>();
+                var paramTypes = InferParameterTypes(source, methods);
+                foreach (var ms in methods)
+                {
+                    if (!paramTypes.TryGetValue(ms.Name, out var map)) continue;
+                    for (int i = 0; i < ms.Parameters.Count; i++)
+                    {
+                        var p = ms.Parameters[i];
+                        if (map.TryGetValue(p.Name, out var type) && p.Type == "object")
+                            ms.Parameters[i] = p with { Type = type };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                fileItem.Errors += Environment.NewLine + ex.Message;
             }
         }
 
         // Link SendSprite methods
         var generatedBehaviors = new Dictionary<string, string>();
         var annotator = new SendSpriteTypeResolver(methodMap, generatedBehaviors);
-        foreach (var ast in asts.Values)
-            ast.Accept(annotator);
+        foreach (var ast in asts)
+        {
+            var fileItem = scripts.First(x => x.Name == ast.Key);
+
+            try
+            {
+                ast.Value.Accept(annotator);
+            }
+            catch (Exception ex)
+            {
+                fileItem.Errors += Environment.NewLine + ex.Message;
+            }
+        }
+            
 
         // Generate final class code inserting methods
         foreach (var script in scriptList)
         {
-            newHandlers.TryGetValue(script.Name, out var nh);
-            var classCode = ConvertClass(script, nh);
-            var methods = CSharpWriter.Write(asts[script.Name], methodAccessModifier);
-            var insertIdx = classCode.LastIndexOf('}');
-            if (insertIdx >= 0)
-                classCode = classCode[..insertIdx] + methods + classCode[insertIdx..];
-            else
-                classCode += methods;
-            result.ConvertedScripts[script.Name] = classCode;
+            try
+            {
+                newHandlers.TryGetValue(script.Name, out var nh);
+                var classCode = ConvertClass(script, nh);
+                var methods = CSharpWriter.Write(asts[script.Name], methodAccessModifier);
+                var insertIdx = classCode.LastIndexOf('}');
+                if (insertIdx >= 0)
+                    classCode = classCode[..insertIdx] + methods + classCode[insertIdx..];
+                else
+                    classCode += methods;
+                result.ConvertedScripts[script.Name] = classCode;
+                script.CSharp = classCode;
+            }
+            catch (Exception ex)
+            {
+                script.Errors += Environment.NewLine + ex.Message;
+            }
+            script.Errors += GetCurrentErrorsAndFlush();
         }
 
         foreach (var kvp in generatedBehaviors)
-            result.ConvertedScripts[kvp.Value] = GenerateSendSpriteBehaviorClass(kvp.Value, kvp.Key);
+        {
+            var fileItem = scripts.First(x => x.Name == kvp.Value);
+            
+            try
+            {
+                var script = GenerateSendSpriteBehaviorClass(kvp.Value, kvp.Key);
+                result.ConvertedScripts[kvp.Value] = script;
+                fileItem.CSharp = script;
+            }
+            catch (Exception ex)
+            {
+                fileItem.Errors += Environment.NewLine+ ex.Message;
+            }
+            fileItem.Errors += GetCurrentErrorsAndFlush();
+        }
 
         return result;
     }
-
+    public string GetCurrentErrorsAndFlush()
+    {
+        var errors = string.Join("\n", Errors.Select(e =>
+           string.IsNullOrEmpty(e.File)
+               ? $"Line {e.LineNumber}: {e.LineText} - {e.Error}"
+               : $"{e.File}:{e.LineNumber}: {e.LineText} - {e.Error}"));
+        Errors.Clear();
+        return errors;
+    }
     /// <summary>
     /// Generates a minimal C# class wrapper for a single Lingo script.
     /// Only the class declaration and constructor are emitted.

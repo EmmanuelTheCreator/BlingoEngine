@@ -10,7 +10,7 @@ using System;
 
 public partial class RootNodeTetriGrounds : Node2D
 {
-    private ServiceCollection _services;
+    private ServiceCollection _services = null!;
 
     //private LingoGodotPlayerControler _controller;
     // Called when the node enters the scene tree for the first time.

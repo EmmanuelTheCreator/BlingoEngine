@@ -7,7 +7,7 @@ namespace AbstUI.LUnity.Components.Base;
 /// <summary>
 /// Base Unity component providing common node properties.
 /// </summary>
-internal class AbstUnityComponent : IAbstFrameworkLayoutNode
+public class AbstUnityComponent : IAbstFrameworkLayoutNode
 {
     protected readonly GameObject GameObject;
 

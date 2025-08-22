@@ -136,8 +136,8 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager, IDisposable, IFra
         };
         node.AddThemeStyleboxOverride("panel", styleBox);
 
-        var dialogAbst = _frameworkFactory.CreateElement<IAbstDialog>();
-        var dialog = dialogAbst.FrameworkObj<AbstGodotDialog>();
+        var dialogAbst = _frameworkFactory.CreateElement<AbstDialog>();
+        var dialog = (AbstGodotDialog)dialogAbst.FrameworkObj;
         dialog.Title = title;
         dialog.Size = new Vector2I((int)panel.Width, (int)panel.Height);
         dialog.Theme = _godotStyleManager.GetTheme(AbstGodotThemeElementType.PopupWindow);

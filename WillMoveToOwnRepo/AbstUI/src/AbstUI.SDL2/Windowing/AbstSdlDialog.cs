@@ -1,6 +1,4 @@
-using System;
 using System.Runtime.InteropServices;
-using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.Windowing;
 using AbstUI.Inputs;
@@ -14,10 +12,17 @@ using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Windowing
 {
+    public class AbstSdlDialog : AbstSdlDialog<AbstDialog>
+    {
+        public AbstSdlDialog(AbstSdlComponentFactory factory) : base(factory)
+        {
+        }
+    }
     /// <summary>
     /// SDL2 implementation of a generic dialog window.
     /// </summary>
-    internal class AbstSdlDialog : AbstSdlPanel, IAbstFrameworkDialog, IFrameworkFor<AbstDialog>, IHandleSdlEvent, IDisposable
+    public class AbstSdlDialog<TAbstDialog> : AbstSdlPanel, IAbstFrameworkDialog<TAbstDialog>, IFrameworkFor<TAbstDialog>, IHandleSdlEvent, IDisposable
+        where TAbstDialog : IAbstDialog
     {
         private readonly AbstSdlComponentFactory _factory;
         private IAbstDialog _dialog = null!;

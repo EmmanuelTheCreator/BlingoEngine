@@ -5,7 +5,12 @@ using AbstUI.Primitives;
 
 namespace AbstUI.Windowing
 {
-    public interface IAbstFrameworkDialog : IFrameworkForInitializable<IAbstDialog> , IAbstFrameworkLayoutNode
+    public interface IAbstFrameworkDialog<T> : IAbstFrameworkDialog, IFrameworkFor<T>
+        where T: IAbstDialog
+    {
+
+    }
+    public interface IAbstFrameworkDialog : IAbstFrameworkLayoutNode
     {
         /// <summary>Window title.</summary>
         string Title { get; set; }

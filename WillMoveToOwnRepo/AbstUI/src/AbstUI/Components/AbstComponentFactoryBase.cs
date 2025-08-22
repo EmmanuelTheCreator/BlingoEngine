@@ -10,7 +10,7 @@ namespace AbstUI.Components;
 /// </summary>
 public interface IAbstComponentFactoryBase
 {
-    IAbstComponentFactoryBase Register<TComponent, TFamework>() where TFamework : IFrameworkFor<TComponent>;
+    IAbstComponentFactoryBase Register<TComponent, TFramework>() where TFramework : IFrameworkFor<TComponent>;
     IAbstComponentFactoryBase DiscoverInAssembly(Assembly assembly);
     TReturnType CreateElement<TReturnType>()
         where TReturnType : notnull;

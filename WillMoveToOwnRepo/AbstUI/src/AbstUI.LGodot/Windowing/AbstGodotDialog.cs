@@ -7,9 +7,11 @@ using Godot;
 
 namespace AbstUI.LGodot.Windowing
 {
-    public partial class AbstGodotDialog : Window, IAbstFrameworkDialog, IFrameworkFor<AbstDialog>
+    public partial class AbstGodotDialog : AbstGodotDialogT<AbstDialog>, IFrameworkFor<AbstDialog>, IAbstFrameworkDialog<AbstDialog> { }
+    public partial class AbstGodotDialogT<T> : Window, IAbstFrameworkDialog<T>, IFrameworkFor<T>
+        where T: AbstDialog
     {
-        private IAbstDialog _lingoDialog;
+        private IAbstDialog _lingoDialog = null!;
 
         public AColor BackgroundColor { get; set; }
         public bool IsOpen { get; set; }
@@ -32,7 +34,7 @@ namespace AbstUI.LGodot.Windowing
 
         public event Action<bool>? OnWindowStateChanged;
 
-        public AbstGodotDialog()
+        public AbstGodotDialogT()
         {
             Exclusive = true;
             PopupWindow = true;

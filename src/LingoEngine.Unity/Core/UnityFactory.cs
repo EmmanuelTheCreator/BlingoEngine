@@ -18,6 +18,8 @@ using LingoEngine.Unity.Bitmaps;
 using LingoEngine.Unity.Movies;
 using LingoEngine.Unity.Texts;
 using LingoEngine.Unity.Sounds;
+using LingoEngine.Unity.FilmLoops;
+using LingoEngine.Unity.Shapes;
 using AbstUI.Styles;
 using Microsoft.Extensions.DependencyInjection;
 using AbstUI.Primitives;
@@ -94,8 +96,20 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
         impl.Init(member);
         return member;
     }
-    public LingoFilmLoopMember CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
-    public LingoMemberShape CreateMemberShape(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
+    public LingoFilmLoopMember CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
+    {
+        var impl = new UnityFilmLoopMember();
+        var member = new LingoFilmLoopMember((LingoCast)cast, impl, numberInCast, name, fileName ?? string.Empty, regPoint);
+        impl.Init(member);
+        return member;
+    }
+    public LingoMemberShape CreateMemberShape(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
+    {
+        var impl = new UnityMemberShape();
+        var member = new LingoMemberShape((LingoCast)cast, impl, numberInCast, name, fileName ?? string.Empty, regPoint);
+        impl.Init(member);
+        return member;
+    }
     public LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
         var fontManager = _serviceProvider.GetRequiredService<IAbstFontManager>();
@@ -114,7 +128,12 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
         _disposables.Add(impl);
         return member;
     }
-    public LingoMember CreateScript(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
+    public LingoMember CreateScript(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
+    {
+        var impl = new UnityFrameworkMemberScript();
+        var member = new LingoMemberScript(impl, (LingoCast)cast, numberInCast, name, fileName ?? string.Empty, regPoint);
+        return member;
+    }
     public LingoMember CreateEmpty(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
         var impl = new UnityFrameworkMemberEmpty();
@@ -163,26 +182,40 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
     public AbstTabContainer CreateTabContainer(string name) => _gfxFactory.CreateTabContainer(name);
     public AbstTabItem CreateTabItem(string name, string title) => _gfxFactory.CreateTabItem(name, title);
     public AbstScrollContainer CreateScrollContainer(string name) => _gfxFactory.CreateScrollContainer(name);
-    public AbstInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null) => throw new NotImplementedException();
-    public AbstInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null) => throw new NotImplementedException();
+    public AbstInputSlider<float> CreateInputSliderFloat(AOrientation orientation, string name, float? min = null, float? max = null, float? step = null, Action<float>? onChange = null)
+        => _gfxFactory.CreateInputSliderFloat(orientation, name, min, max, step, onChange);
+    public AbstInputSlider<int> CreateInputSliderInt(AOrientation orientation, string name, int? min = null, int? max = null, int? step = null, Action<int>? onChange = null)
+        => _gfxFactory.CreateInputSliderInt(orientation, name, min, max, step, onChange);
     public AbstInputText CreateInputText(string name, int maxLength = 0, Action<string>? onChange = null, bool multiLine = false)
         => _gfxFactory.CreateInputText(name, maxLength, onChange, multiLine);
-    public AbstInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null) => throw new NotImplementedException();
-    public AbstInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null) => throw new NotImplementedException();
-    public AbstInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null) where TValue : System.Numerics.INumber<TValue> => throw new NotImplementedException();
-    public AbstInputSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null) => throw new NotImplementedException();
+    public AbstInputNumber<float> CreateInputNumberFloat(string name, float? min = null, float? max = null, Action<float>? onChange = null)
+        => _gfxFactory.CreateInputNumberFloat(name, min, max, onChange);
+    public AbstInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null)
+        => _gfxFactory.CreateInputNumberInt(name, min, max, onChange);
+    public AbstInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null) where TValue : System.Numerics.INumber<TValue>
+        => _gfxFactory.CreateInputNumber(name, min, max, onChange);
+    public AbstInputSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null)
+        => _gfxFactory.CreateSpinBox(name, min, max, onChange);
     public AbstInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null) => _gfxFactory.CreateInputCheckbox(name, onChange);
     public AbstInputCombobox CreateInputCombobox(string name, Action<string?>? onChange = null) => _gfxFactory.CreateInputCombobox(name, onChange);
-    public AbstItemList CreateItemList(string name, Action<string?>? onChange = null) => throw new NotImplementedException();
-    public AbstColorPicker CreateColorPicker(string name, Action<AColor>? onChange = null) => throw new NotImplementedException();
+    public AbstItemList CreateItemList(string name, Action<string?>? onChange = null)
+        => _gfxFactory.CreateItemList(name, onChange);
+    public AbstColorPicker CreateColorPicker(string name, Action<AColor>? onChange = null)
+        => _gfxFactory.CreateColorPicker(name, onChange);
     public AbstLabel CreateLabel(string name, string text = "") => _gfxFactory.CreateLabel(name, text);
     public AbstButton CreateButton(string name, string text = "") => _gfxFactory.CreateButton(name, text);
-    public AbstStateButton CreateStateButton(string name, IAbstTexture2D? texture = null, string text = "", Action<bool>? onChange = null) => throw new NotImplementedException();
-    public AbstMenu CreateMenu(string name) => throw new NotImplementedException();
-    public AbstMenuItem CreateMenuItem(string name, string? shortcut = null) => throw new NotImplementedException();
-    public AbstMenu CreateContextMenu(object window) => throw new NotImplementedException();
-    public AbstHorizontalLineSeparator CreateHorizontalLineSeparator(string name) => throw new NotImplementedException();
-    public AbstVerticalLineSeparator CreateVerticalLineSeparator(string name) => throw new NotImplementedException();
+    public AbstStateButton CreateStateButton(string name, IAbstTexture2D? texture = null, string text = "", Action<bool>? onChange = null)
+        => _gfxFactory.CreateStateButton(name, texture, text, onChange);
+    public AbstMenu CreateMenu(string name)
+        => _gfxFactory.CreateMenu(name);
+    public AbstMenuItem CreateMenuItem(string name, string? shortcut = null)
+        => _gfxFactory.CreateMenuItem(name, shortcut);
+    public AbstMenu CreateContextMenu(object window)
+        => _gfxFactory.CreateContextMenu(window);
+    public AbstHorizontalLineSeparator CreateHorizontalLineSeparator(string name)
+        => _gfxFactory.CreateHorizontalLineSeparator(name);
+    public AbstVerticalLineSeparator CreateVerticalLineSeparator(string name)
+        => _gfxFactory.CreateVerticalLineSeparator(name);
     //public AbstWindow CreateWindow(string name, string title = "") => throw new NotImplementedException();
     #endregion
 
@@ -195,8 +228,10 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
         return sprite;
     }
 
-    public T CreateBehavior<T>(LingoMovie lingoMovie) where T : LingoSpriteBehavior => throw new NotImplementedException();
-    public T CreateMovieScript<T>(LingoMovie lingoMovie) where T : LingoMovieScript => throw new NotImplementedException();
+    public T CreateBehavior<T>(LingoMovie lingoMovie) where T : LingoSpriteBehavior
+        => lingoMovie.GetServiceProvider().GetRequiredService<T>();
+    public T CreateMovieScript<T>(LingoMovie lingoMovie) where T : LingoMovieScript
+        => lingoMovie.GetServiceProvider().GetRequiredService<T>();
 
     public void Dispose()
     {
