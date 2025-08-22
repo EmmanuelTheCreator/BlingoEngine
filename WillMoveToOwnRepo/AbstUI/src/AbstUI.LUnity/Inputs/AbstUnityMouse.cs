@@ -97,3 +97,19 @@ public class AbstUnityMouse<TAbstMouseType, TAbstUIMouseEvent> : IAbstFrameworkM
         _lingoMouse.Value.DoMouseWheel(delta);
     }
 }
+
+public class AbstUnityMouse : AbstUnityMouse<AbstMouse, AbstMouseEvent>
+{
+    private static AbstMouse? _mouse;
+
+    public AbstUnityMouse()
+        : base(new Lazy<AbstMouse>(() => _mouse!))
+    {
+    }
+
+    public new void ReplaceMouseObj(IAbstMouse lingoMouse)
+    {
+        _mouse = (AbstMouse)lingoMouse;
+        base.ReplaceMouseObj(lingoMouse);
+    }
+}

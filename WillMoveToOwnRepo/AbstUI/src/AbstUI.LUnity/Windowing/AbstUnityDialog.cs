@@ -5,6 +5,7 @@ using AbstUI.Primitives;
 using AbstUI.Windowing;
 using AbstUI.LUnity.Components.Containers;
 using AbstUI.Inputs;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LUnity.Windowing;
 
@@ -12,7 +13,7 @@ namespace AbstUI.LUnity.Windowing;
 /// Simplistic Unity implementation of <see cref="IAbstFrameworkDialog"/>.
 /// Provides basic popup behaviour for custom dialogs.
 /// </summary>
-internal class AbstUnityDialog : AbstUnityPanel, IAbstFrameworkDialog
+internal class AbstUnityDialog : AbstUnityPanel, IAbstFrameworkDialog, IFrameworkFor<AbstDialog>
 {
     private IAbstDialog _dialog = null!;
 

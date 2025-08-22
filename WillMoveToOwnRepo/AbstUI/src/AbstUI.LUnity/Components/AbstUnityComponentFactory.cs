@@ -1,3 +1,4 @@
+using UnityEngine;
 using System;
 using AbstUI.Components;
 using AbstUI.Primitives;
@@ -15,6 +16,7 @@ using AbstUI.LUnity.Components.Texts;
 using AbstUI.LUnity.Components.Buttons;
 using AbstUI.LUnity.Components.Graphics;
 
+using AbstUI.LUnity.Components.Menus;
 namespace AbstUI.LUnity.Components;
 
 /// <summary>
@@ -178,7 +180,19 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         return input;
     }
 
-    public AbstInputSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null) => throw new NotImplementedException();
+    public AbstInputSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null)
+    {
+        var spin = new AbstInputSpinBox();
+        var impl = new AbstUnityInputSpinBox();
+        if (onChange != null)
+            impl.ValueChanged += () => onChange(spin.Value);
+        spin.Init(impl);
+        InitComponent(spin);
+        spin.Name = name;
+        if (min.HasValue) spin.Min = min.Value;
+        if (max.HasValue) spin.Max = max.Value;
+        return spin;
+    }
 
     public AbstInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null)
     {
@@ -204,9 +218,29 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         return input;
     }
 
-    public AbstItemList CreateItemList(string name, Action<string?>? onChange = null) => throw new NotImplementedException();
+    public AbstItemList CreateItemList(string name, Action<string?>? onChange = null)
+    {
+        var list = new AbstItemList();
+        var impl = new AbstUnityItemList();
+        if (onChange != null)
+            impl.ValueChanged += () => onChange(impl.SelectedValue);
+        list.Init(impl);
+        InitComponent(list);
+        list.Name = name;
+        return list;
+    }
 
-    public AbstColorPicker CreateColorPicker(string name, Action<AColor>? onChange = null) => throw new NotImplementedException();
+    public AbstColorPicker CreateColorPicker(string name, Action<AColor>? onChange = null)
+    {
+        var picker = new AbstColorPicker();
+        var impl = new AbstUnityColorPicker();
+        if (onChange != null)
+            impl.ValueChanged += () => onChange(impl.Color);
+        picker.Init(impl);
+        InitComponent(picker);
+        picker.Name = name;
+        return picker;
+    }
 
     public AbstLabel CreateLabel(string name, string text = "")
     {
@@ -245,11 +279,31 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         return button;
     }
 
-    public AbstMenu CreateMenu(string name) => throw new NotImplementedException();
+    public AbstMenu CreateMenu(string name)
+    {
+        var menu = new AbstMenu();
+        var impl = new AbstUnityMenu(name);
+        menu.Init(impl);
+        InitComponent(menu);
+        menu.Name = name;
+        return menu;
+    }
 
-    public AbstMenuItem CreateMenuItem(string name, string? shortcut = null) => throw new NotImplementedException();
+    public AbstMenuItem CreateMenuItem(string name, string? shortcut = null)
+    {
+        var item = new AbstMenuItem();
+        var impl = new AbstUnityMenuItem(name, shortcut);
+        item.Init(impl);
+        return item;
+    }
 
-    public AbstMenu CreateContextMenu(object window) => throw new NotImplementedException();
+    public AbstMenu CreateContextMenu(object window)
+    {
+        var menu = CreateMenu("ContextMenu");
+        if (window is GameObject go)
+            ((GameObject)menu.Framework<AbstUnityMenu>().FrameworkNode).transform.SetParent(go.transform);
+        return menu;
+    }
 
     public AbstHorizontalLineSeparator CreateHorizontalLineSeparator(string name)
     {
