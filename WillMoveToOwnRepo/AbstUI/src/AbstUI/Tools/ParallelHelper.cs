@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace LingoEngine.Tools
+namespace AbstUI.Tools
 {
     /// <summary>
     /// Helper utilities for conditional parallel execution based on workload size.

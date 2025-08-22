@@ -1,6 +1,7 @@
 using System;
 using System.Security.Cryptography;
 using AbstUI.Primitives;
+using AbstUI.Tools;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.Tools
