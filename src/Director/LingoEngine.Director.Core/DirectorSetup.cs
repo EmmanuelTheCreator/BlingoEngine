@@ -73,10 +73,10 @@ namespace LingoEngine.Director.Core
                     .AddTransient(p => new Lazy<IDirSpritesManager>(() => p.GetRequiredService<DirSpritesManager>()))
                     // Handlers
                     .AddTransient<CompileProjectCommandHandler>()
-                    .AddSingleton<LingoCSharpConverterPopup>()
-                    .AddSingleton<LingoCSharpConverterPopupHandler>()
-                    .AddSingleton<LingoCodeImporterPopup>()
-                    .AddSingleton<LingoCodeImporterPopupHandler>()
+                    .AddTransient<LingoCSharpConverterPopup>()
+                    .AddTransient<LingoCSharpConverterPopupHandler>()
+                    .AddTransient<LingoCodeImporterPopup>()
+                    .AddTransient<LingoCodeImporterPopupHandler>()
 
                     );
             engineRegistration.AddBuildAction(

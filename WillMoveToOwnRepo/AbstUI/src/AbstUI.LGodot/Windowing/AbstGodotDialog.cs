@@ -7,7 +7,7 @@ using Godot;
 
 namespace AbstUI.LGodot.Windowing
 {
-    public partial class AbstGodotDialog : AbstGodotDialogT<AbstDialog> { }
+    public partial class AbstGodotDialog : AbstGodotDialogT<AbstDialog>, IFrameworkFor<AbstDialog>, IAbstFrameworkDialog<AbstDialog> { }
     public partial class AbstGodotDialogT<T> : Window, IAbstFrameworkDialog<T>, IFrameworkFor<T>
         where T: AbstDialog
     {

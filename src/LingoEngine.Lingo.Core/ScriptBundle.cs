@@ -7,9 +7,27 @@ namespace LingoEngine.Lingo.Core;
 /// </summary>
 public class LingoScriptFile
 {
-    public required string Name { get; init; }
-    public required string Source { get; init; }
+    /// <summary>
+    /// Filename of the script file.
+    /// </summary>
+    public string Name { get; init; }
+    /// <summary>
+    /// Source code contained in the script file.
+    /// </summary>
+    public string Source { get; init; }
+    public string CSharp { get; set; } = "";
+    /// <summary>
+    /// Script type (Parent, Behavior, Movie).
+    /// </summary>
     public LingoScriptType Type { get; init; }
+    public string Errors { get; internal set; } = "";
+
+    public LingoScriptFile(string name, string source, LingoScriptType type = LingoScriptType.Behavior)
+    {
+        Name = name;
+        Source = source;
+        Type = type;
+    }
 }
 
 /// <summary>

@@ -5,7 +5,6 @@ using LingoEngine.FrameworkCommunication;
 using LingoEngine.Lingo.Core;
 using TextCopy;
 using AbstUI.Windowing;
-using AbstUI.Inputs;
 using AbstUI.Components.Containers;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Importer.Commands;
@@ -26,12 +25,12 @@ public class LingoCSharpConverterPopupHandler : IAbstCommandHandler<OpenLingoCSh
 
     public virtual bool Handle(OpenLingoCSharpConverterCommand command)
     {
-        var component = (LingoCSharpConverterPopup)_componentFactory.CreateElement<LingoCSharpConverterPopup, IAbstDialog>();
-        _windowManager.ShowCustomDialog("Lingo to C#", component.GetFWPanel(), component);
+        var component = _componentFactory.GetRequiredService<LingoCSharpConverterPopup>();
+        _windowManager.ShowCustomDialog("Lingo to C#", component.GetFWPanel());
         return true;
     }
 }
-public class LingoCSharpConverterPopup : AbstDialog
+public class LingoCSharpConverterPopup 
 {
     protected readonly ILingoFrameworkFactory _factory;
     private readonly AbstPanel _panel;
@@ -45,22 +44,18 @@ public class LingoCSharpConverterPopup : AbstDialog
         public string Errors { get; set; } = string.Empty;
     }
 
-    public LingoCSharpConverterPopup(ILingoFrameworkFactory factory, IAbstGlobalMouse mouse, IAbstGlobalKey key)
-        :base(mouse,key)
+    public LingoCSharpConverterPopup(ILingoFrameworkFactory factory)
     {
         _factory = factory;
         var vm = new ViewModel();
         _panel = BuildPanel(vm);
+        _lingoHighlighter.Update();
+        _csharpHighlighter.Update();
     }
 
   
 
-    public override void Init(IAbstFrameworkDialog framework) 
-    {
-        base.Init(framework);
-        _lingoHighlighter.Update();
-        _csharpHighlighter.Update();
-    }
+ 
     internal IAbstFrameworkPanel GetFWPanel() => _panel.Framework<IAbstFrameworkPanel>();
     protected AbstPanel BuildPanel(ViewModel vm)
     {
