@@ -1,0 +1,11 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!129 &1
+PlayerSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 26
+  productName: AbstUI Gfx Visual Test
+  companyName: LingoEngine
+  defaultScreenWidth: 800
+  defaultScreenHeight: 600
+  fullscreenMode: 3
