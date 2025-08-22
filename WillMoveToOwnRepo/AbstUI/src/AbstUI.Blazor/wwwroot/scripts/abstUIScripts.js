@@ -141,4 +141,62 @@ export class AbstUIWindow {
         const modal = bootstrap.Modal.getOrCreateInstance(el);
         modal.hide();
     }
+
+    static showBootstrapConfirm(title, message) {
+        return new Promise(resolve => {
+            const id = `abstui-confirm-${crypto.randomUUID()}`;
+            document.body.insertAdjacentHTML('beforeend', `
+<div class="modal" tabindex="-1" id="${id}">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">${title}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body"><p>${message}</p></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="${id}-ok">OK</button>
+      </div>
+    </div>
+  </div>
+</div>`);
+            const modalEl = document.getElementById(id);
+            const modal = new bootstrap.Modal(modalEl);
+            let confirmed = false;
+            document.getElementById(`${id}-ok`).addEventListener('click', () => {
+                confirmed = true;
+                resolve(true);
+                modal.hide();
+            });
+            modalEl.addEventListener('hidden.bs.modal', () => {
+                if (!confirmed) resolve(false);
+                modalEl.remove();
+            });
+            modal.show();
+        });
+    }
+
+    static showBootstrapToast(message, type) {
+        const container = document.getElementById('abstui-toast-container') ?? (() => {
+            const div = document.createElement('div');
+            div.id = 'abstui-toast-container';
+            div.className = 'toast-container position-fixed top-0 end-0 p-3';
+            document.body.appendChild(div);
+            return div;
+        })();
+        const id = `abstui-toast-${crypto.randomUUID()}`;
+        const cls = type === 'error' ? 'bg-danger text-white' : type === 'info' ? 'bg-info text-white' : 'bg-warning text-dark';
+        container.insertAdjacentHTML('beforeend', `
+<div id="${id}" class="toast ${cls}" role="alert" aria-live="assertive" aria-atomic="true">
+  <div class="d-flex">
+    <div class="toast-body">${message}</div>
+    <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+  </div>
+</div>`);
+        const toastEl = document.getElementById(id);
+        const toast = new bootstrap.Toast(toastEl);
+        toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+        toast.show();
+    }
 }

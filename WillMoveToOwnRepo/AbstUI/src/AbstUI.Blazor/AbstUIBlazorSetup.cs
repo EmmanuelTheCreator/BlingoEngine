@@ -45,7 +45,9 @@ public static class AbstUIBlazorSetup
             .AddTransient<AbstBlazorHorizontalLineSeparatorComponent>()
             .AddTransient<AbstBlazorVerticalLineSeparatorComponent>()
             .AddSingleton<IAbstComponentFactory, AbstBlazorComponentFactory>()
+            .AddSingleton<IAbstFrameworkWindowManager, AbstBlazorWindowManager>()
             .AddSingleton<IAbstFrameworkMainWindow, AbstBlazorMainWindow>()
+            .AddTransient<IAbstFrameworkDialog, AbstBlazorDialog>()
             .WithAbstUI(windowRegistrations);
         return services;
     }
@@ -53,6 +55,11 @@ public static class AbstUIBlazorSetup
     public static IServiceProvider WithAbstUIBlazor(this IServiceProvider services)
     {
         services.WithAbstUI();// need to be first to register all the windows in the windows factory.
+        var factory = services.GetRequiredService<IAbstComponentFactory>();
+        factory
+            .Register<AbstMainWindow, AbstBlazorMainWindow>()
+            .Register<AbstWindowManager, AbstBlazorWindowManager>()
+            .Register<AbstDialog, AbstBlazorDialog>();
         return services;
     }
 }
