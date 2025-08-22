@@ -1,14 +1,16 @@
+using System.Runtime.InteropServices;
 using AbstUI.SDL2.Components;
 using AbstUI.SDL2.Core;
 using AbstUI.SDL2.SDLL;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.SDL2.Core;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace LingoEngine.SDL2.Stages;
 
 internal class SdlDebugOverlay : ILingoFrameworkDebugOverlay, IAbstSDLComponent
 {
+    private const int Width = 200;
+    private const int Height = 100;
     private nint _font;
     private SDL.SDL_Color _white;
     private nint _texture;
@@ -29,8 +31,9 @@ internal class SdlDebugOverlay : ILingoFrameworkDebugOverlay, IAbstSDLComponent
             _lines.Add((0, ""));
     }
 
-    public void Begin() {
-        
+    public void Begin()
+    {
+
     }
 
     public void ShowDebugger()
@@ -48,8 +51,8 @@ internal class SdlDebugOverlay : ILingoFrameworkDebugOverlay, IAbstSDLComponent
         return id;
     }
 
-  
-  
+
+
 
 
     private static string GetFileName() => Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + "Fonts" + Path.DirectorySeparatorChar + "Tahoma.ttf";
@@ -88,27 +91,33 @@ internal class SdlDebugOverlay : ILingoFrameworkDebugOverlay, IAbstSDLComponent
         if (_hasChanged)
         {
             _hasChanged = false;
-            // renderer can change, so update if needed
-            ComponentContext.Renderer = context.Renderer;
             if (_texture != nint.Zero)
                 SDL.SDL_DestroyTexture(_texture);
+            nint background = SDL.SDL_CreateRGBSurfaceWithFormat(0, Width, Height, 32, SDL.SDL_PIXELFORMAT_RGBA8888);
+            if (background == nint.Zero)
+                throw new Exception($"SDL_CreateRGBSurfaceWithFormat failed: {SDL.SDL_GetError()}");
+
+            SDL.SDL_Surface bgStruct = Marshal.PtrToStructure<SDL.SDL_Surface>(background);
+            uint fill = SDL.SDL_MapRGBA(bgStruct.format, 0, 0, 0, 128);
+            SDL.SDL_FillRect(background, IntPtr.Zero, fill);
+
             var finalText = string.Join('\n', _lines.Select(line => line.text));
+            if (!string.IsNullOrEmpty(finalText))
+            {
+                nint textSurface = SDL_ttf.TTF_RenderUTF8_Blended_Wrapped(_font, finalText, _white, Width);
+                if (textSurface == nint.Zero)
+                    throw new Exception($"TTF_RenderUTF8_Blended failed: {SDL.SDL_GetError()}");
+                SDL.SDL_BlitSurface(textSurface, IntPtr.Zero, background, IntPtr.Zero);
+                SDL.SDL_FreeSurface(textSurface);
+            }
 
-            if (finalText == "") return _texture;
-
-            nint surface = SDL_ttf.TTF_RenderUTF8_Blended_Wrapped(_font, finalText, _white,500);
-            if (surface == nint.Zero)
-                throw new Exception($"TTF_RenderUTF8_Blended failed: {SDL.SDL_GetError()}");
-
-            _texture = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, surface);
+            _texture = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, background);
             if (_texture == nint.Zero)
                 throw new Exception($"SDL_CreateTextureFromSurface failed: {SDL.SDL_GetError()}");
 
-            SDL.SDL_QueryTexture(_texture, out _, out _, out int w, out int h);
-            SDL.SDL_Rect dstRect = new SDL.SDL_Rect { x = 20, y = 20, w = w, h = h };
-
-            SDL.SDL_RenderCopy(ComponentContext.Renderer, _texture, nint.Zero, ref dstRect);
-            SDL.SDL_FreeSurface(surface);
+            ComponentContext.TargetWidth = Width;
+            ComponentContext.TargetHeight = Height;
+            SDL.SDL_FreeSurface(background);
         }
         return _texture;
     }
