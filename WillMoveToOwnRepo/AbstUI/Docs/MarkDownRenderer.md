@@ -41,12 +41,17 @@ This paragraph uses a predefined style.
 {{/STYLE}}
 ```
 
-Styles are provided when creating the renderer:
+Styles are supplied when preparing the renderer:
 
 ```csharp
 var styles = new Dictionary<string, AbstTextStyle>
 {
     ["quote"] = new AbstTextStyle { FontSize = 14, MarginLeft = 20, Italic = true }
 };
-var renderer = new AbstMarkdownRenderer(canvas, fontManager, imageLoader, styles);
+var renderer = new AbstMarkdownRenderer(fontManager, imageLoader);
+renderer.SetText(markdown, styles);
+renderer.Render(canvas, new APoint(0, 0));
 ```
+
+When only one style is provided and the text has no special tags, `DoFastRendering`
+is enabled and the renderer draws the text in a single fast pass.
