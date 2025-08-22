@@ -1,12 +1,13 @@
 using AbstUI.Inputs;
 using Microsoft.AspNetCore.Components.Web;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.Blazor.Inputs;
 
 /// <summary>
 /// Keyboard wrapper using standard DOM events provided by Blazor.
 /// </summary>
-public class BlazorKey : IAbstFrameworkKey
+public class BlazorKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
 {
     private readonly HashSet<string> _keys = new();
     private AbstKey? _lingoKey;

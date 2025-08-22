@@ -1,9 +1,10 @@
 using System;
 using AbstUI.Components.Menus;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.Blazor.Components.Menus;
 
-internal class AbstBlazorMenuItem : IAbstFrameworkMenuItem, IDisposable
+internal class AbstBlazorMenuItem : IAbstFrameworkMenuItem, IFrameworkFor<AbstMenuItem>, IDisposable
 {
     public string Name { get; set; } = string.Empty;
     public bool Enabled { get; set; } = true;

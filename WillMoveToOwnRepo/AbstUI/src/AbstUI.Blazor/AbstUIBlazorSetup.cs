@@ -53,9 +53,6 @@ public static class AbstUIBlazorSetup
     public static IServiceProvider WithAbstUIBlazor(this IServiceProvider services)
     {
         services.WithAbstUI();// need to be first to register all the windows in the windows factory.
-        services.GetRequiredService<IAbstComponentFactory>()
-            .DiscoverInAssembly(typeof(AbstUIBlazorSetup).Assembly)
-            ;
         return services;
     }
 }

@@ -1,10 +1,11 @@
 using AbstUI.Components.Texts;
 using AbstUI.Primitives;
 using AbstUI.Texts;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.Blazor.Components.Texts;
 
-public class AbstBlazorLabelComponent : AbstBlazorComponentModelBase, IAbstFrameworkLabel
+public class AbstBlazorLabelComponent : AbstBlazorComponentModelBase, IAbstFrameworkLabel, IFrameworkFor<AbstLabel>
 {
     private string _text = string.Empty;
     public string Text

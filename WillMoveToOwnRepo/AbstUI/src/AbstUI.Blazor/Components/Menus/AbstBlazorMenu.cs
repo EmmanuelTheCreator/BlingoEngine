@@ -2,10 +2,11 @@ using System;
 using AbstUI.Components.Buttons;
 using AbstUI.Components.Menus;
 using AbstUI.Primitives;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.Blazor.Components.Menus;
 
-internal class AbstBlazorMenu : IAbstFrameworkMenu, IDisposable
+internal class AbstBlazorMenu : IAbstFrameworkMenu, IFrameworkFor<AbstMenu>, IDisposable
 {
     public string Name { get; set; } = string.Empty;
     public bool Visibility { get; set; } = true;

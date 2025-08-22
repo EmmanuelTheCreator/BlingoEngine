@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using AbstUI.Components.Inputs;
 using AbstUI.Primitives;
 using AbstUI.Styles;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.Blazor.Components.Inputs;
 
-public class AbstBlazorItemListComponent : AbstBlazorComponentModelBase, IAbstFrameworkItemList
+public class AbstBlazorItemListComponent : AbstBlazorComponentModelBase, IAbstFrameworkItemList, IFrameworkFor<AbstItemList>
 {
     private readonly List<KeyValuePair<string, string>> _items = new();
     public IReadOnlyList<KeyValuePair<string, string>> Items => _items;
