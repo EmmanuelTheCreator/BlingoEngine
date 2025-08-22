@@ -1,26 +1,20 @@
+using AbstUI.Bitmaps;
 using AbstUI.Primitives;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace AbstUI.LUnity.Bitmaps;
 
-public class UnityTexture2D : IAbstTexture2D
+public class UnityTexture2D : AbstBaseTexture2D<Texture2D>
 {
     public Texture2D? Texture { get; private set; }
 
-    private readonly Dictionary<object, TextureSubscription> _users = new();
-    public string Name { get; set; } = string.Empty;
-
-    public UnityTexture2D(Texture2D texture, string name = "")
+    public UnityTexture2D(Texture2D texture, string name = "") : base(name)
     {
         Texture = texture;
-        Name = name;
     }
 
-    public int Width => Texture!.width;
-    public int Height => Texture!.height;
-
-    public bool IsDisposed => throw new NotImplementedException();
+    public override int Width => Texture?.width ?? 0;
+    public override int Height => Texture?.height ?? 0;
 
     public Sprite? ToSprite()
     {
@@ -29,40 +23,12 @@ public class UnityTexture2D : IAbstTexture2D
         return Sprite.Create(Texture, new Rect(0, 0, Texture.width, Texture.height), new Vector2(0.5f, 0.5f));
     }
 
-
-    public IAbstUITextureUserSubscription AddUser(object user)
+    protected override void DisposeTexture()
     {
-        var sub = new TextureSubscription(this, () => RemoveUser(user));
-        _users.Add(user, sub);
-        return sub;
-    }
-
-    private void RemoveUser(object user)
-    {
-        _users.Remove(user);
-        if (_users.Count == 0 && Texture != null)
+        if (Texture != null)
         {
             UnityEngine.Object.Destroy(Texture);
             Texture = null;
         }
-    }
-
-    public void Dispose()
-    {
-        throw new NotImplementedException();
-    }
-
-    private class TextureSubscription : IAbstUITextureUserSubscription
-    {
-        private readonly Action _onRelease;
-        public IAbstTexture2D Texture { get; }
-        public TextureSubscription(IAbstTexture2D texture, Action onRelease)
-        {
-            _onRelease = onRelease;
-            Texture = texture;
-        }
-
-
-        public void Release() => _onRelease();
     }
 }

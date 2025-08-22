@@ -1,31 +1,27 @@
-using AbstUI.Primitives;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using AbstUI.Blazor;
+using AbstUI.Bitmaps;
+using AbstUI.Primitives;
 
 namespace AbstUI.Blazor.Bitmaps;
 
 /// <summary>
-/// Texture backed by an off-screen HTML &lt;canvas&gt; element.
+/// Texture backed by an off-screen HTML <canvas> element.
 /// </summary>
-public class AbstBlazorTexture2D : IAbstTexture2D
+public class AbstBlazorTexture2D : AbstBaseTexture2D<ElementReference>
 {
     private readonly IJSRuntime _jsRuntime;
     public ElementReference Canvas { get; }
-    public int Width { get; }
-    public int Height { get; }
-    public bool IsDisposed { get; private set; }
-    public string Name { get; set; } = string.Empty;
+    public override int Width { get; }
+    public override int Height { get; }
 
-    private readonly Dictionary<object, TextureSubscription> _users = new();
-
-    protected AbstBlazorTexture2D(IJSRuntime jsRuntime, ElementReference canvas, int width, int height, string name = "")
+    protected AbstBlazorTexture2D(IJSRuntime jsRuntime, ElementReference canvas, int width, int height, string name = "") : base(name)
     {
         _jsRuntime = jsRuntime;
         Canvas = canvas;
         Width = width;
         Height = height;
-        Name = name;
     }
 
     public static async Task<AbstBlazorTexture2D> CreateAsync(IJSRuntime jsRuntime, int width, int height, string name = "")
@@ -42,27 +38,8 @@ public class AbstBlazorTexture2D : IAbstTexture2D
         return tex;
     }
 
-    public IAbstUITextureUserSubscription AddUser(object user)
+    protected override void DisposeTexture()
     {
-        if (IsDisposed)
-            throw new Exception("Texture is disposed and cannot be used anymore.");
-        var sub = new TextureSubscription(this, () => RemoveUser(user));
-        _users.Add(user, sub);
-        return sub;
-    }
-
-    private void RemoveUser(object user)
-    {
-        _users.Remove(user);
-        if (_users.Count == 0 && !IsDisposed)
-            Dispose();
-    }
-
-    public void Dispose()
-    {
-        if (IsDisposed)
-            return;
-        IsDisposed = true;
         _ = _jsRuntime.InvokeVoidAsync("abstCanvas.disposeCanvas", Canvas);
     }
 
@@ -70,18 +47,5 @@ public class AbstBlazorTexture2D : IAbstTexture2D
     {
         var ctx = await scripts.CanvasGetContext(Canvas, false);
         return await scripts.CanvasGetImageData(ctx, Width, Height);
-    }
-
-    private class TextureSubscription : IAbstUITextureUserSubscription
-    {
-        private readonly Action _onRelease;
-        public IAbstTexture2D Texture { get; }
-        public TextureSubscription(IAbstTexture2D texture, Action onRelease)
-        {
-            Texture = texture;
-            _onRelease = onRelease;
-        }
-
-        public void Release() => _onRelease();
     }
 }
