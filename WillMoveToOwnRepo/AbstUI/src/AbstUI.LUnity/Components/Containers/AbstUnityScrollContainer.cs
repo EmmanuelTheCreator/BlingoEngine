@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using AbstUI.Components;
 using AbstUI.Components.Containers;
+using AbstUI.FrameworkCommunication;
 using AbstUI.LUnity.Components.Base;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,7 +11,7 @@ namespace AbstUI.LUnity.Components.Containers;
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkScrollContainer"/>.
 /// </summary>
-internal class AbstUnityScrollContainer : AbstUnityComponent, IAbstFrameworkScrollContainer
+internal class AbstUnityScrollContainer : AbstUnityComponent, IAbstFrameworkScrollContainer, IFrameworkFor<AbstScrollContainer>
 {
     private readonly List<IAbstFrameworkLayoutNode> _children = new();
     private readonly ScrollRect _scrollRect;

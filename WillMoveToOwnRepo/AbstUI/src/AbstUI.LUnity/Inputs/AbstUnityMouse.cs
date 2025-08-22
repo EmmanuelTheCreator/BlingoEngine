@@ -1,10 +1,11 @@
 ﻿using AbstUI.Inputs;
 using AbstUI.Primitives;
 using UnityEngine;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LUnity.Inputs;
 
-public class AbstUnityMouse<TAbstMouseType, TAbstUIMouseEvent> : IAbstFrameworkMouse
+public class AbstUnityMouse<TAbstMouseType, TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor<TAbstMouseType>
         where TAbstMouseType : AbstMouse<TAbstUIMouseEvent>
         where TAbstUIMouseEvent : AbstMouseEvent
 {

@@ -32,7 +32,7 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         var canvas = new AbstGfxCanvas();
         var impl = new AbstUnityGfxCanvas(width, height);
         canvas.Init(impl);
-            InitComponent(canvas);
+        InitComponent(canvas);
         canvas.Name = name;
         canvas.Width = width;
         canvas.Height = height;
@@ -44,7 +44,7 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         var panel = new AbstWrapPanel(this);
         var impl = new AbstUnityWrapPanel(orientation);
         panel.Init(impl);
-            InitComponent(panel);
+        InitComponent(panel);
         panel.Name = name;
         panel.Orientation = orientation;
         return panel;
@@ -55,7 +55,7 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         var panel = new AbstPanel(this);
         var impl = new AbstUnityPanel();
         panel.Init(impl);
-            InitComponent(panel);
+        InitComponent(panel);
         panel.Name = name;
         return panel;
     }
@@ -63,9 +63,9 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
     public AbstLayoutWrapper CreateLayoutWrapper(IAbstNode content, float? x, float? y)
     {
         var wrapper = new AbstLayoutWrapper(content);
-        var impl = new AbstUnityLayoutWrapper();
+        var impl = new AbstUnityLayoutWrapper(wrapper);
         wrapper.Init(impl);
-            InitComponent(wrapper);
+        InitComponent(wrapper);
         if (x.HasValue) wrapper.X = x.Value;
         if (y.HasValue) wrapper.Y = y.Value;
         return wrapper;
@@ -76,7 +76,7 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         var container = new AbstTabContainer();
         var impl = new AbstUnityTabContainer();
         container.Init(impl);
-            InitComponent(container);
+        InitComponent(container);
         container.Name = name;
         return container;
     }
@@ -86,7 +86,7 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         var tab = new AbstTabItem();
         var impl = new AbstUnityTabItem();
         tab.Init(impl);
-            InitComponent(tab);
+        InitComponent(tab);
         tab.Name = name;
         tab.Title = title;
         return tab;
@@ -97,7 +97,7 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         var scroll = new AbstScrollContainer();
         var impl = new AbstUnityScrollContainer();
         scroll.Init(impl);
-            InitComponent(scroll);
+        InitComponent(scroll);
         scroll.Name = name;
         return scroll;
     }
@@ -107,7 +107,7 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         var slider = new AbstInputSlider<float>();
         var impl = new AbstUnityInputSlider<float>(orientation);
         slider.Init(impl);
-            InitComponent(slider);
+        InitComponent(slider);
         slider.Name = name;
         if (min.HasValue) slider.MinValue = min.Value;
         if (max.HasValue) slider.MaxValue = max.Value;
@@ -122,7 +122,7 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         var slider = new AbstInputSlider<int>();
         var impl = new AbstUnityInputSlider<int>(orientation);
         slider.Init(impl);
-            InitComponent(slider);
+        InitComponent(slider);
         slider.Name = name;
         if (min.HasValue) slider.MinValue = min.Value;
         if (max.HasValue) slider.MaxValue = max.Value;
@@ -143,7 +143,7 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         if (onChange != null)
             impl.ValueChanged += () => onChange(impl.Text);
         input.Init(impl);
-            InitComponent(input);
+        InitComponent(input);
         input.Name = name;
         return input;
     }
@@ -153,7 +153,7 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         var input = new AbstInputNumber<float>();
         var impl = new AbstUnityInputNumber<float>();
         input.Init(impl);
-            InitComponent(input);
+        InitComponent(input);
         input.Name = name;
         input.NumberType = ANumberType.Float;
         if (min.HasValue) input.Min = min.Value;
@@ -168,7 +168,7 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         var input = new AbstInputNumber<int>();
         var impl = new AbstUnityInputNumber<int>();
         input.Init(impl);
-            InitComponent(input);
+        InitComponent(input);
         input.Name = name;
         input.NumberType = ANumberType.Integer;
         if (min.HasValue) input.Min = min.Value;
@@ -187,7 +187,7 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         if (onChange != null)
             impl.ValueChanged += () => onChange(impl.Checked);
         input.Init(impl);
-            InitComponent(input);
+        InitComponent(input);
         input.Name = name;
         return input;
     }
@@ -199,7 +199,7 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         if (onChange != null)
             impl.ValueChanged += () => onChange(impl.SelectedValue);
         input.Init(impl);
-            InitComponent(input);
+        InitComponent(input);
         input.Name = name;
         return input;
     }
@@ -213,7 +213,7 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         var label = new AbstLabel();
         var impl = new AbstUnityLabel();
         label.Init(impl);
-            InitComponent(label);
+        InitComponent(label);
         label.Name = name;
         label.Text = text;
         return label;
@@ -224,13 +224,26 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         var button = new AbstButton();
         var impl = new AbstUnityButton();
         button.Init(impl);
-            InitComponent(button);
+        InitComponent(button);
         button.Name = name;
         button.Text = text;
         return button;
     }
 
-    public AbstStateButton CreateStateButton(string name, IAbstTexture2D? texture = null, string text = "", Action<bool>? onChange = null) => throw new NotImplementedException();
+    public AbstStateButton CreateStateButton(string name, IAbstTexture2D? texture = null, string text = "", Action<bool>? onChange = null)
+    {
+        var button = new AbstStateButton();
+        var impl = new AbstUnityStateButton();
+        if (onChange != null)
+            impl.ValueChanged += () => onChange(impl.IsOn);
+        button.Init(impl);
+        InitComponent(button);
+        button.Name = name;
+        button.Text = text;
+        if (texture != null)
+            button.TextureOn = texture;
+        return button;
+    }
 
     public AbstMenu CreateMenu(string name) => throw new NotImplementedException();
 
@@ -243,7 +256,7 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         var sep = new AbstHorizontalLineSeparator();
         var impl = new AbstUnityHorizontalLineSeparator();
         sep.Init(impl);
-            InitComponent(sep);
+        InitComponent(sep);
         sep.Name = name;
         return sep;
     }
@@ -253,7 +266,7 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         var sep = new AbstVerticalLineSeparator();
         var impl = new AbstUnityVerticalLineSeparator();
         sep.Init(impl);
-            InitComponent(sep);
+        InitComponent(sep);
         sep.Name = name;
         return sep;
     }

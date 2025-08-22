@@ -5,13 +5,14 @@ using AbstUI.Primitives;
 using AbstUI.Texts;
 using UnityEngine;
 using UnityEngine.UI;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LUnity.Components.Texts;
 
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkLabel"/>.
 /// </summary>
-internal class AbstUnityLabel : AbstUnityComponent, IAbstFrameworkLabel
+internal class AbstUnityLabel : AbstUnityComponent, IAbstFrameworkLabel, IFrameworkFor<AbstLabel>
 {
     private readonly Text _textComponent;
     private string _text = string.Empty;

@@ -1,5 +1,6 @@
 using System;
 using AbstUI.Components.Inputs;
+using AbstUI.FrameworkCommunication;
 using AbstUI.LUnity.Components.Base;
 using AbstUI.LUnity.Primitives;
 using AbstUI.Primitives;
@@ -12,7 +13,7 @@ namespace AbstUI.LUnity.Components.Inputs;
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkInputText"/>.
 /// </summary>
-internal class AbstUnityInputText : AbstUnityComponent, IAbstFrameworkInputText, IHasTextBackgroundBorderColor
+internal class AbstUnityInputText : AbstUnityComponent, IAbstFrameworkInputText, IFrameworkFor<AbstInputText>, IHasTextBackgroundBorderColor
 {
     private readonly InputField _inputField;
     private readonly Text _textComponent;

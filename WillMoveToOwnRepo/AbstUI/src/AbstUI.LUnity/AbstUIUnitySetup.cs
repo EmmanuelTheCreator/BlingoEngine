@@ -16,7 +16,9 @@ namespace AbstUI.LUnity
                 .AddSingleton<IAbstFontManager, UnityFontManager>()
                 .AddSingleton<IAbstStyleManager, AbstStyleManager>()
                 .AddSingleton<IAbstComponentFactory, AbstUnityComponentFactory>()
+                .AddSingleton<IAbstFrameworkWindowManager, AbstUnityWindowManager>()
                 .AddSingleton<IAbstFrameworkMainWindow, AbstUnityMainWindow>()
+                .AddTransient<IAbstFrameworkDialog, AbstUnityDialog>()
                 .WithAbstUI();
 
             return services;
@@ -24,9 +26,6 @@ namespace AbstUI.LUnity
         public static IServiceProvider WithAbstUIUnity(this IServiceProvider services)
         {
             services.WithAbstUI(); // need to be first to register all the windows in the windows factory.
-            services.GetRequiredService<IAbstComponentFactory>()
-                .DiscoverInAssembly(typeof(AbstUIUnitySetup).Assembly)
-                ;
             return services;
         }
     }

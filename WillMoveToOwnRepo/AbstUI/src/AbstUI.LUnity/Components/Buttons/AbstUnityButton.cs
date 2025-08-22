@@ -4,6 +4,7 @@ using AbstUI.LUnity.Bitmaps;
 using UnityEngine;
 using UnityEngine.UI;
 using AbstUI.Components.Buttons;
+using AbstUI.FrameworkCommunication;
 using AbstUI.LUnity.Components.Base;
 
 namespace AbstUI.LUnity.Components.Buttons;
@@ -11,7 +12,7 @@ namespace AbstUI.LUnity.Components.Buttons;
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkButton"/>.
 /// </summary>
-internal class AbstUnityButton : AbstUnityComponent, IAbstFrameworkButton
+internal class AbstUnityButton : AbstUnityComponent, IAbstFrameworkButton, IFrameworkFor<AbstButton>
 {
     private readonly Button _button;
     private readonly Image _image;
@@ -19,7 +20,7 @@ internal class AbstUnityButton : AbstUnityComponent, IAbstFrameworkButton
     private string _text = string.Empty;
     private IAbstTexture2D? _iconTexture;
 
-   
+
     public string Text
     {
         get => _text;
