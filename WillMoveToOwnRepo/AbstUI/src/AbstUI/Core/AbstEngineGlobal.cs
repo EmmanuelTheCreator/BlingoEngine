@@ -13,6 +13,5 @@
     public class AbstEngineGlobal
     {
         public static AbstEngineRunFramework RunFramework { get; set; } = AbstEngineRunFramework.None;
-        public static bool IsRunningDirector { get; set; }
     }
 }

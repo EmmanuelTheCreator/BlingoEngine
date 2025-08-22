@@ -31,8 +31,7 @@ run across multiple engines with minimal changes.
 `AbstEngineGlobal` stores runtime flags that are shared across backends. The
 static `RunFramework` value indicates which host (SDL2, Godot, Unity, etc.) is
 currently driving the UI and allows components to branch on framework‑specific
-behaviour. `IsRunningDirector` toggles extra features when the UI is embedded in
-the Director‑style editor.
+behaviour.
 
 ### Mouse Input
 
