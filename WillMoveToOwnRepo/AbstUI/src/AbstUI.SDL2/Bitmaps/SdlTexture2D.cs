@@ -1,49 +1,27 @@
-﻿using AbstUI.Primitives;
+using AbstUI.Primitives;
+using AbstUI.Bitmaps;
 using AbstUI.SDL2.SDLL;
 using System.Runtime.InteropServices;
 
 namespace AbstUI.SDL2.Bitmaps;
 
-public class SdlTexture2D : IAbstTexture2D
+public class SdlTexture2D : AbstBaseTexture2D<nint>
 {
     public nint Handle { get; private set; }
-    public int Width { get; }
-    public int Height { get; }
-    public bool IsDisposed { get; private set; }
-    public string Name { get; set; } = "";
+    public override int Width { get; }
+    public override int Height { get; }
 
-    private readonly Dictionary<object, TextureSubscription> _users = new();
-
-    public SdlTexture2D(nint texture, int width, int height, string name = "")
+    public SdlTexture2D(nint texture, int width, int height, string name = "") : base(name)
     {
         Handle = texture;
         Width = width;
         Height = height;
-        Name = name;
     }
 
-    public IAbstUITextureUserSubscription AddUser(object user)
+    protected override void DisposeTexture()
     {
-        if (IsDisposed) throw new Exception("Texture is disposed and cannot be used anymore.");
-        var sub = new TextureSubscription(this, () => RemoveUser(user));
-        _users.Add(user, sub);
-        return sub;
-    }
-
-    private void RemoveUser(object user)
-    {
-        _users.Remove(user);
-        if (_users.Count == 0 && Handle != nint.Zero)
-            Dispose();
-    }
-    public void Dispose()
-    {
-        if (IsDisposed)
-            return;
-        IsDisposed = true;
         if (Handle == nint.Zero)
             return;
-        //Console.WriteLine("Disposing SdlTexture2D: " + Name);
         SDL.SDL_DestroyTexture(Handle);
         Handle = nint.Zero;
     }
@@ -67,7 +45,7 @@ public class SdlTexture2D : IAbstTexture2D
         // Set up render target
         SDL.SDL_SetRenderTarget(renderer, target);
         SDL.SDL_SetTextureBlendMode(target, SDL.SDL_BlendMode.SDL_BLENDMODE_NONE);
-        SDL.SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0); // Transparent clear
+        SDL.SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         SDL.SDL_RenderClear(renderer);
 
         // Render this texture onto the target without blending
@@ -89,8 +67,6 @@ public class SdlTexture2D : IAbstTexture2D
 
         return surf; // Caller must SDL_FreeSurface(surf)
     }
-
-
 
     public IAbstTexture2D Clone(nint renderer)
     {
@@ -168,19 +144,5 @@ public class SdlTexture2D : IAbstTexture2D
         SDL.SDL_FreeSurface(surface);
         SDL.SDL_DestroyTexture(target);
     }
-
 #endif
-    private class TextureSubscription : IAbstUITextureUserSubscription
-    {
-        private readonly Action _onRelease;
-        public IAbstTexture2D Texture { get; }
-        public TextureSubscription(SdlTexture2D texture, Action onRelease)
-        {
-            Texture = texture;
-            _onRelease = onRelease;
-        }
-
-        public void Release() => _onRelease();
-    }
 }
-
