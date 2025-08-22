@@ -12,7 +12,7 @@ namespace AbstUI.LGodot
 {
     public static class AbstUIGodotSetup
     {
-       
+
         public static IServiceCollection WithAbstUIGodot(this IServiceCollection services, Action<IAbstFameworkComponentWinRegistrator>? windowRegistrations = null)
         {
             services
@@ -40,11 +40,12 @@ namespace AbstUI.LGodot
         public static IServiceProvider WithAbstUIGodot(this IServiceProvider services)
         {
             services.WithAbstUI(); // need to be first to register all the windows in the windows factory.
-            services.GetRequiredService<IAbstComponentFactory>()
-                .DiscoverInAssembly(typeof(AbstUIGodotSetup).Assembly)
-                ;
+            var factory = services.GetRequiredService<IAbstComponentFactory>();
+            factory
+                .Register<IAbstDialog, AbstGodotDialog>()
+                .Register<AbstMainWindow, AbstGodotMainWindow>();
             var windowManager = services.GetRequiredService<IAbstGodotWindowManager>();// we need to resolve the framework window manager to link him
-           
+
             return services;
         }
     }
