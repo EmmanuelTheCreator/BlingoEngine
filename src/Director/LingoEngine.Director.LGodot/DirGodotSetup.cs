@@ -2,7 +2,9 @@ using AbstUI;
 using AbstUI.Components;
 using AbstUI.LGodot;
 using AbstUI.LGodot.Styles;
+using AbstUI.LGodot.Windowing;
 using AbstUI.Styles;
+using AbstUI.Windowing;
 using Godot;
 using LingoEngine.Core;
 using LingoEngine.Director.Core;
@@ -104,12 +106,14 @@ namespace LingoEngine.Director.LGodot
                 {
                     var styles = p.GetRequiredService<DirectorGodotStyle>();
                     p.GetRequiredService<IAbstFontManager>().SetDefaultFont(DirectorGodotStyle.DefaultFont);
-                    p.GetRequiredService<IAbstGodotStyleManager>().Register(AbstGodotThemeElementType.Tabs, styles.GetTabContainerTheme());
-                    p.GetRequiredService<IAbstGodotStyleManager>().Register(AbstGodotThemeElementType.TabItem, styles.GetTabItemTheme());
-                    p.GetRequiredService<IAbstGodotStyleManager>().Register(AbstGodotThemeElementType.PopupWindow, styles.GetPopupWindowTheme());
+                    p.GetRequiredService<IAbstGodotStyleManager>()
+                           .Register(AbstGodotThemeElementType.Tabs, styles.GetTabContainerTheme())
+                           .Register(AbstGodotThemeElementType.TabItem, styles.GetTabItemTheme())
+                           .Register(AbstGodotThemeElementType.PopupWindow, styles.GetPopupWindowTheme());
                     p.GetRequiredService<IAbstComponentFactory>()
-                    .DiscoverInAssembly(typeof(DirGodotSetup).Assembly)
-                   // .Register<DirCodeHighlichter,DirGodotCodeHighlighter>()
+                        .DiscoverInAssembly(typeof(DirGodotSetup).Assembly)
+                        //.Register<IAbstDialog<>, IAbstGodotDialog<LingoCodeImporterPopup>>()
+                        // .Register<DirCodeHighlichter,DirGodotCodeHighlighter>()
                     ;
                     new LingoGodotDirectorRoot(p.GetRequiredService<LingoPlayer>(), p, p.GetRequiredService<LingoProjectSettings>());
                 });

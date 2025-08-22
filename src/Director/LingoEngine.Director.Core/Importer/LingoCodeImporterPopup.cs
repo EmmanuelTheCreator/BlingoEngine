@@ -9,12 +9,13 @@ using AbstUI.Primitives;
 using AbstUI.Commands;
 using AbstUI.Windowing;
 using LingoEngine.Director.Core.FileSystems;
-using LingoEngine.Director.Core.Tools.Commands;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Lingo.Core;
 using TextCopy;
+using LingoEngine.Director.Core.Tools;
+using LingoEngine.Director.Core.Importer.Commands;
 
-namespace LingoEngine.Director.Core.Tools;
+namespace LingoEngine.Director.Core.Importer;
 
 public class LingoCodeImporterPopupHandler : IAbstCommandHandler<OpenLingoCodeImporterCommand>
 {
@@ -31,7 +32,7 @@ public class LingoCodeImporterPopupHandler : IAbstCommandHandler<OpenLingoCodeIm
 
     public bool Handle(OpenLingoCodeImporterCommand command)
     {
-        var component = (LingoCodeImporterPopup)_componentFactory.CreateElement<LingoCodeImporterPopup, IAbstDialog>();
+        var component = _componentFactory.CreateElement<LingoCodeImporterPopup, IAbstDialog>();
         _windowManager.ShowCustomDialog("Lingo code importer", component.GetFWPanel(), component);
         return true;
     }

@@ -1,22 +1,24 @@
-using Microsoft.Extensions.DependencyInjection;
+using AbstUI.Commands;
+using AbstUI.Components;
+using AbstUI.Windowing;
+using LingoEngine.Director.Core.Bitmaps;
 using LingoEngine.Director.Core.Casts;
-using LingoEngine.Director.Core.Inspector;
-using LingoEngine.Director.Core.Scores;
-using LingoEngine.Director.Core.Stages;
+using LingoEngine.Director.Core.Compilers;
+using LingoEngine.Director.Core.Compilers.Commands;
 using LingoEngine.Director.Core.FileSystems;
-using LingoEngine.Director.Core.Projects;
 using LingoEngine.Director.Core.Importer;
+using LingoEngine.Director.Core.Inspector;
+using LingoEngine.Director.Core.Projects;
+using LingoEngine.Director.Core.Scores;
+using LingoEngine.Director.Core.Scripts;
+using LingoEngine.Director.Core.Sprites;
+using LingoEngine.Director.Core.Stages;
 using LingoEngine.Director.Core.Texts;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
-using LingoEngine.Director.Core.Bitmaps;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Setup;
-using LingoEngine.Director.Core.Scripts;
-using LingoEngine.Director.Core.Sprites;
-using LingoEngine.Director.Core.Compilers;
-using LingoEngine.Director.Core.Compilers.Commands;
-using AbstUI.Commands;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Director.Core
 {
@@ -81,6 +83,7 @@ namespace LingoEngine.Director.Core
                 (serviceProvider) =>
                 {
                     //serviceProvider.RegisterDirectorWindows();
+                    //serviceProvider.GetRequiredService<IAbstComponentFactory>();
                     //serviceProvider.GetRequiredService< LingoCSharpConverterPopupHandler>();
                     // Services that needs to be resolved to subscribe to the command handler.
                     //serviceProvider.GetRequiredService<IAbstCommandManager>()

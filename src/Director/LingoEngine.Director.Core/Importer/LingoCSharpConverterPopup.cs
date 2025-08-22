@@ -1,15 +1,16 @@
 using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.Commands;
-using LingoEngine.Director.Core.Tools.Commands;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Lingo.Core;
 using TextCopy;
 using AbstUI.Windowing;
 using AbstUI.Inputs;
 using AbstUI.Components.Containers;
+using LingoEngine.Director.Core.Tools;
+using LingoEngine.Director.Core.Importer.Commands;
 
-namespace LingoEngine.Director.Core.Tools;
+namespace LingoEngine.Director.Core.Importer;
 
 public class LingoCSharpConverterPopupHandler : IAbstCommandHandler<OpenLingoCSharpConverterCommand> 
 {
@@ -26,7 +27,6 @@ public class LingoCSharpConverterPopupHandler : IAbstCommandHandler<OpenLingoCSh
     public virtual bool Handle(OpenLingoCSharpConverterCommand command)
     {
         var component = (LingoCSharpConverterPopup)_componentFactory.CreateElement<LingoCSharpConverterPopup, IAbstDialog>();
-        
         _windowManager.ShowCustomDialog("Lingo to C#", component.GetFWPanel(), component);
         return true;
     }
