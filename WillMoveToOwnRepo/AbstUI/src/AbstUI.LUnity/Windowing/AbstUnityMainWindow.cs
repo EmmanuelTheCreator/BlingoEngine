@@ -1,17 +1,18 @@
 using UnityEngine;
 using AbstUI.Primitives;
 using AbstUI.Windowing;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LUnity.Windowing;
 
-public class AbstUnityMainWindow : IAbstFrameworkMainWindow
+public class AbstUnityMainWindow : IAbstFrameworkMainWindow, IFrameworkFor<AbstMainWindow>
 {
     private AbstMainWindow _window = null!;
 
     public string Title
     {
         get => Application.productName;
-        set  { } // Application.productName = value;
+        set { } // Application.productName = value;
     }
 
     public void Init(AbstMainWindow instance)
