@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using AbstUI.Components.Inputs;
+using AbstUI.FrameworkCommunication;
 using AbstUI.LUnity.Components.Base;
 using AbstUI.Primitives;
 using UnityEngine;
@@ -12,7 +13,7 @@ namespace AbstUI.LUnity.Components.Inputs;
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkInputSlider{TValue}"/>.
 /// </summary>
-internal class AbstUnityInputSlider<TValue> : AbstUnityComponent, IAbstFrameworkInputSlider<TValue>
+internal class AbstUnityInputSlider<TValue> : AbstUnityComponent, IAbstFrameworkInputSlider<TValue>, IFrameworkFor<AbstInputSlider<TValue>>
     where TValue : struct, INumber<TValue>
 {
     private readonly Slider _slider;

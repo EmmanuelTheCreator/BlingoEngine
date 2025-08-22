@@ -16,7 +16,9 @@ namespace AbstUI.LUnity
                 .AddSingleton<IAbstFontManager, UnityFontManager>()
                 .AddSingleton<IAbstStyleManager, AbstStyleManager>()
                 .AddSingleton<IAbstComponentFactory, AbstUnityComponentFactory>()
+                .AddSingleton<IAbstFrameworkWindowManager, AbstUnityWindowManager>()
                 .AddSingleton<IAbstFrameworkMainWindow, AbstUnityMainWindow>()
+                .AddTransient<IAbstFrameworkDialog, AbstUnityDialog>()
                 .WithAbstUI();
 
             return services;

@@ -2,13 +2,14 @@ using AbstUI.Components.Containers;
 using AbstUI.LUnity.Components.Base;
 using UnityEngine;
 using UnityEngine.UI;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LUnity.Components.Graphics;
 
 /// <summary>
 /// Unity implementation of <see cref="IAbstFrameworkHorizontalLineSeparator"/>.
 /// </summary>
-internal sealed class AbstUnityHorizontalLineSeparator : AbstUnityComponent, IAbstFrameworkHorizontalLineSeparator
+internal sealed class AbstUnityHorizontalLineSeparator : AbstUnityComponent, IAbstFrameworkHorizontalLineSeparator, IFrameworkFor<AbstHorizontalLineSeparator>
 {
     public AbstUnityHorizontalLineSeparator() : base(CreateGameObject())
     {
