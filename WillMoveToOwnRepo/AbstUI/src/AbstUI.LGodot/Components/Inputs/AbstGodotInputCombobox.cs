@@ -4,13 +4,14 @@ using AbstUI.Primitives;
 using AbstUI.Styles;
 using AbstUI.Components.Inputs;
 using AbstUI.LGodot.Primitives;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Components
 {
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkInputCombobox"/>.
     /// </summary>
-    public partial class AbstGodotInputCombobox : OptionButton, IAbstFrameworkInputCombobox, IHasTextBackgroundBorderColor, IDisposable
+    public partial class AbstGodotInputCombobox : OptionButton, IAbstFrameworkInputCombobox, IHasTextBackgroundBorderColor, IDisposable, IFrameworkFor<AbstInputCombobox>
     {
         private readonly List<KeyValuePair<string, string>> _items = new();
         private AMargin _margin = AMargin.Zero;
@@ -157,7 +158,7 @@ namespace AbstUI.LGodot.Components
             ItemSelected += idx => _onValueChanged?.Invoke();
             _onChange = onChange;
             if (_onChange != null) ItemSelected += _ => _onChange(SelectedKey);
-            
+
         }
         private void UpdatePopupStyle()
         {

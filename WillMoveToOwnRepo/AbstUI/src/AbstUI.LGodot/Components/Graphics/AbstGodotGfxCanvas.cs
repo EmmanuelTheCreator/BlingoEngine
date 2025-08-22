@@ -7,13 +7,14 @@ using AbstUI.LGodot.Texts;
 using AbstUI.LGodot.Bitmaps;
 using AbstUI.LGodot.Primitives;
 using AbstUI.Components.Graphics;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Components
 {
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkGfxCanvas"/>.
     /// </summary>
-    public partial class AbstGodotGfxCanvas : Control, IAbstFrameworkGfxCanvas, IDisposable
+    public partial class AbstGodotGfxCanvas : Control, IAbstFrameworkGfxCanvas, IDisposable, IFrameworkFor<AbstGfxCanvas>
     {
         private readonly IAbstFontManager _fontManager;
         private AMargin _margin = AMargin.Zero;
@@ -38,23 +39,26 @@ namespace AbstUI.LGodot.Components
 
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
         public float Y { get => Position.Y; set => Position = new Vector2(Position.X, value); }
-        public float Width { 
-            get => Size.X; 
-            set { 
-                Size = new Vector2(value, Size.Y); 
-                CustomMinimumSize = Size; _desiredWidth = value; 
+        public float Width
+        {
+            get => Size.X;
+            set
+            {
+                Size = new Vector2(value, Size.Y);
+                CustomMinimumSize = Size; _desiredWidth = value;
                 QueueRedraw();
-                
-            } 
+
+            }
         }
-        public float Height { 
-            get => Size.Y; 
-            set 
-            { 
+        public float Height
+        {
+            get => Size.Y;
+            set
+            {
                 Size = new Vector2(Size.X, value);
                 CustomMinimumSize = Size; _desiredHeight = value;
                 QueueRedraw();
-            } 
+            }
         }
         public bool Visibility { get => Visible; set => Visible = value; }
         public AMargin Margin
@@ -150,7 +154,7 @@ namespace AbstUI.LGodot.Components
         public void DrawPolygon(IReadOnlyList<APoint> points, AColor color, bool filled = true, float width = 1)
         {
             var arr = points.Select(p => p.ToVector2()).ToArray();
-          
+
             if (filled)
                 _drawActions.Add(() => DrawPolygon(arr, [color.ToGodotColor()]));
             else
@@ -198,11 +202,11 @@ namespace AbstUI.LGodot.Components
                 tex.Dispose();
             });
             MarkDirty();
-        } 
-        
+        }
+
         public void DrawPicture(IAbstTexture2D texture, int width, int height, APoint position)
         {
-            var tex = ((AbstGodotTexture2D)texture).Texture;    
+            var tex = ((AbstGodotTexture2D)texture).Texture;
             _drawActions.Add(() =>
             {
                 DrawTextureRect(tex, new Rect2(position.X, position.Y, width, height), false); // don't tile

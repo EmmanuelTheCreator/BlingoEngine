@@ -2,13 +2,14 @@ using Godot;
 using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.Components.Containers;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Components
 {
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkVerticalLineSeparator"/>.
     /// </summary>
-    public partial class AbstGodotVerticalLineSeparator : Control, IAbstFrameworkVerticalLineSeparator, IDisposable
+    public partial class AbstGodotVerticalLineSeparator : Control, IAbstFrameworkVerticalLineSeparator, IDisposable, IFrameworkFor<AbstVerticalLineSeparator>
     {
         private AMargin _margin = AMargin.Zero;
         private Color _lightColor;

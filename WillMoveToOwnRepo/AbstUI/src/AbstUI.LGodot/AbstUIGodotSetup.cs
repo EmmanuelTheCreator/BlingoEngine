@@ -1,6 +1,14 @@
-﻿using AbstUI.Components;
+using AbstUI.Components;
+using AbstUI.Components.Buttons;
+using AbstUI.Components.Containers;
+using AbstUI.Components.Graphics;
+using AbstUI.Components.Inputs;
+using AbstUI.Components.Menus;
+using AbstUI.Components.Texts;
 using AbstUI.Inputs;
 using AbstUI.LGodot.Components;
+using AbstUI.LGodot.Components.Inputs;
+using AbstUI.LGodot.Components.Menus;
 using AbstUI.LGodot.Inputs;
 using AbstUI.LGodot.Styles;
 using AbstUI.LGodot.Windowing;
@@ -12,7 +20,7 @@ namespace AbstUI.LGodot
 {
     public static class AbstUIGodotSetup
     {
-       
+
         public static IServiceCollection WithAbstUIGodot(this IServiceCollection services, Action<IAbstFameworkComponentWinRegistrator>? windowRegistrations = null)
         {
             services
@@ -40,11 +48,17 @@ namespace AbstUI.LGodot
         public static IServiceProvider WithAbstUIGodot(this IServiceProvider services)
         {
             services.WithAbstUI(); // need to be first to register all the windows in the windows factory.
-            services.GetRequiredService<IAbstComponentFactory>()
-                .DiscoverInAssembly(typeof(AbstUIGodotSetup).Assembly)
+            var factory = services.GetRequiredService<IAbstComponentFactory>();
+            factory
+                .Register<AbstMouse, AbstGodotMouse>()
+                .Register<GlobalGodotAbstMouse, AbstGodotGlobalMouse>()
+                .Register<AbstKey, AbstGodotKey>()
+                .Register<AbstDialog, AbstGodotDialog>()
+                .Register<AbstMainWindow, AbstGodotMainWindow>()
+                .Register<AbstWindowManager, AbstGodotWindowManager>()
                 ;
             var windowManager = services.GetRequiredService<IAbstGodotWindowManager>();// we need to resolve the framework window manager to link him
-           
+
             return services;
         }
     }

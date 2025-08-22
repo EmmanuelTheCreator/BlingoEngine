@@ -2,13 +2,14 @@ using Godot;
 using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.Components.Containers;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Components
 {
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkWrapPanel"/>.
     /// </summary>
-    public partial class AbstGodotWrapPanel : MarginContainer, IAbstFrameworkWrapPanel, IDisposable
+    public partial class AbstGodotWrapPanel : MarginContainer, IAbstFrameworkWrapPanel, IDisposable, IFrameworkFor<AbstWrapPanel>
     {
         private FlowContainer _container;
         private AOrientation _orientation;
@@ -55,8 +56,10 @@ namespace AbstUI.LGodot.Components
 
         //public SizeFlags SizeFlagsHorizontal { get => _container.SizeFlagsHorizontal; set => _container.SizeFlagsHorizontal = value; }
         //public Vector2 Position { get => _container.Position; set => _container.Position = value; }
-        string IAbstFrameworkNode.Name { get => Name; set
-                {
+        string IAbstFrameworkNode.Name
+        {
+            get => Name; set
+            {
                 Name = value; _container.Name = value + "_Flow";
             }
         }
@@ -115,7 +118,7 @@ namespace AbstUI.LGodot.Components
         {
             if (child.FrameworkNode is not Node node)
                 return;
-            
+
             if (node is Control ctrl)
                 ApplyItemMargin(ctrl);
             _container.AddChild(node);
@@ -158,12 +161,12 @@ namespace AbstUI.LGodot.Components
 
         private void ApplyMargin()
         {
-           AddThemeConstantOverride("margin_left", (int)_margin.Left);
-           AddThemeConstantOverride("margin_right", (int)_margin.Right);
-           AddThemeConstantOverride("margin_top", (int)_margin.Top);
-           AddThemeConstantOverride("margin_bottom", (int)_margin.Bottom);
+            AddThemeConstantOverride("margin_left", (int)_margin.Left);
+            AddThemeConstantOverride("margin_right", (int)_margin.Right);
+            AddThemeConstantOverride("margin_top", (int)_margin.Top);
+            AddThemeConstantOverride("margin_bottom", (int)_margin.Bottom);
         }
 
-        
+
     }
 }

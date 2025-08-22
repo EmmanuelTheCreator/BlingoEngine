@@ -1,9 +1,10 @@
 ﻿using AbstUI.Inputs;
 using Godot;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Inputs;
 
-public partial class AbstGodotKey : Node, IAbstFrameworkKey
+public partial class AbstGodotKey : Node, IAbstFrameworkKey, IFrameworkFor<AbstKey>
 {
     private readonly List<Key> _pressed = new();
     private Lazy<AbstKey> _lingoKey;

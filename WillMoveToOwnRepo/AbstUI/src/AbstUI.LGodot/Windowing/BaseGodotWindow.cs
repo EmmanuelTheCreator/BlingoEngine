@@ -13,7 +13,7 @@ namespace AbstEngine.Director.LGodot
 {
     public abstract partial class BaseGodotWindow : Panel, IAbstFrameworkWindow
     {
-        
+
         private readonly IAbstWindowManager _windowManager;
         private readonly IHistoryManager? _historyManager;
         //protected readonly AbstUIGodotMouse _MouseFrameworkObj;
@@ -122,7 +122,7 @@ namespace AbstEngine.Director.LGodot
             // IAbstGodotWindowManager windowManager, IHistoryManager? historyManager = null
             Name = $"Window {name}";
             WindowName = name;
-            _windowManager = serviceProvider.GetRequiredService<IAbstWindowManager>(); 
+            _windowManager = serviceProvider.GetRequiredService<IAbstWindowManager>();
             _historyManager = serviceProvider.GetRequiredService<IHistoryManager>();
 
             //MouseFilter = MouseFilterEnum.Stop;
@@ -139,7 +139,7 @@ namespace AbstEngine.Director.LGodot
             Style.BorderWidthRight = 1;
             Style.BorderWidthBottom = 1;
             BackgroundColor = AbstDefaultColors.BG_WhiteMenus;
-            
+
             AddChild(_closeButton);
             _closeButton.Text = "X";
             _closeButton.CustomMinimumSize = new Vector2(16, 16);
@@ -155,7 +155,7 @@ namespace AbstEngine.Director.LGodot
             //    BgColor = new Color(1, 1, 1, 1.0f) // RGBA
             //};
             //AddThemeStyleboxOverride("panel", styleBox);
-            
+
         }
 
         public virtual void Init(IAbstWindow instance)
@@ -168,7 +168,7 @@ namespace AbstEngine.Director.LGodot
                 Size = new Vector2(instance.Width, instance.Height);
                 CustomMinimumSize = Size;
             }
-            if (instance.X > 0 && instance.Y>0)
+            if (instance.X > 0 && instance.Y > 0)
                 Position = new Vector2(instance.X, instance.Y);
             _mouseFrameworkObj = ((IAbstMouse<AbstMouseEvent>)instance.Mouse).Framework<IAbstGodotMouseHandler>();
             OnInit(instance);
@@ -183,11 +183,11 @@ namespace AbstEngine.Director.LGodot
             _closeButton.Position = new Vector2(Size.X - 18, 1);
             // draw resize handle
             DrawLine(new Vector2(Size.X - _resizeHandle, Size.Y), new Vector2(Size.X, Size.Y - _resizeHandle), Colors.DarkGray);
-            DrawLine(new Vector2(Size.X - _resizeHandle/2f, Size.Y), new Vector2(Size.X, Size.Y - _resizeHandle/2f), Colors.DarkGray);
+            DrawLine(new Vector2(Size.X - _resizeHandle / 2f, Size.Y), new Vector2(Size.X, Size.Y - _resizeHandle / 2f), Colors.DarkGray);
         }
 
 
-       
+
         protected void DontUseInputInsteadOfGuiInput()
         {
             // todo : fix this
@@ -199,7 +199,7 @@ namespace AbstEngine.Director.LGodot
         public override void _Input(InputEvent @event)
         {
             base._Input(@event);
-            if (_useGuiInput || !Visible ||!(@event is InputEventFromWindow)) return;
+            if (_useGuiInput || !Visible || !(@event is InputEventFromWindow)) return;
             //if (!_dragging && !_resizing && !GetGlobalRect().HasPoint(GetGlobalMousePosition()))
             //    return;
             OnHandleTheEvent(@event);
@@ -243,8 +243,8 @@ namespace AbstEngine.Director.LGodot
                 }
                 if (!IsActiveWindow)
                     return;
-                
-               // _MouseFrameworkObj.HandleMouseButtonEvent(mouseButtonEvent, isInsideRect, mousePos.X, mousePos.Y - TitleBarHeight);
+
+                // _MouseFrameworkObj.HandleMouseButtonEvent(mouseButtonEvent, isInsideRect, mousePos.X, mousePos.Y - TitleBarHeight);
                 //Console.WriteLine(Name + ":" + mousePos.X + "x" + mousePos.Y+":"+ isInsideRect);
             }
             // Handle Mouse Motion (MouseMove)
@@ -258,7 +258,7 @@ namespace AbstEngine.Director.LGodot
 
             if (@event is InputEventMouseButton mb)
             {
-                
+
                 var pressed = mb.Pressed;
 
                 if (mb.ButtonIndex == MouseButton.Left)
@@ -375,7 +375,7 @@ namespace AbstEngine.Director.LGodot
 
         }
 
-       
+
         public virtual void OpenWindow()
         {
             Visible = true;
@@ -410,14 +410,14 @@ namespace AbstEngine.Director.LGodot
             Vector2 size = Size;
 
             if (pos.X < viewportRect.Position.X)
-                pos.X = viewportRect.Position.X +2;
+                pos.X = viewportRect.Position.X + 2;
             if (pos.Y < viewportRect.Position.Y)
                 pos.Y = viewportRect.Position.Y + 2;
 
             if (pos.X + size.X > viewportRect.Position.X + viewportRect.Size.X)
-                pos.X = viewportRect.Position.X + viewportRect.Size.X - size.X -2;
+                pos.X = viewportRect.Position.X + viewportRect.Size.X - size.X - 2;
             if (pos.Y + size.Y > viewportRect.Position.Y + viewportRect.Size.Y)
-                pos.Y = viewportRect.Position.Y + viewportRect.Size.Y - size.Y -2;
+                pos.Y = viewportRect.Position.Y + viewportRect.Size.Y - size.Y - 2;
 
             SetThePosition(pos);
         }
@@ -426,6 +426,6 @@ namespace AbstEngine.Director.LGodot
         {
             base.Dispose(disposing);
         }
-      
+
     }
 }

@@ -5,13 +5,14 @@ using AbstUI.Primitives;
 using AbstUI.Styles;
 using AbstUI.LGodot.Primitives;
 using AbstUI.Components.Inputs;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Components.Inputs
 {
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkInputText"/> using composition.
     /// </summary>
-    public class AbstGodotInputText : IAbstFrameworkInputText, IHasTextBackgroundBorderColor, IDisposable
+    public class AbstGodotInputText : IAbstFrameworkInputText, IHasTextBackgroundBorderColor, IDisposable, IFrameworkFor<AbstInputText>
     {
         private readonly Action<string>? _onChange;
         private readonly IAbstFontManager _fontManager;

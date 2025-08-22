@@ -4,13 +4,14 @@ using AbstUI.Primitives;
 using AbstUI.Styles;
 using AbstUI.Components.Inputs;
 using AbstUI.LGodot.Primitives;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Components
 {
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkInputNumber"/>.
     /// </summary>
-    public partial class AbstGodotInputNumber<TValue> : LineEdit, IAbstFrameworkInputNumber<TValue>, IHasTextBackgroundBorderColor, IDisposable
+    public partial class AbstGodotInputNumber<TValue> : LineEdit, IAbstFrameworkInputNumber<TValue>, IHasTextBackgroundBorderColor, IDisposable, IFrameworkFor<AbstInputNumber<TValue>>
         where TValue : System.Numerics.INumber<TValue>
     {
         private AMargin _margin = AMargin.Zero;
@@ -27,7 +28,7 @@ namespace AbstUI.LGodot.Components
         {
             _onChange = onChange;
             _fontManager = fontManager;
-            Func<string, (bool IsValid,TValue Value)> valueParse;
+            Func<string, (bool IsValid, TValue Value)> valueParse;
             // Switch case to set Min and Max based on type  
             switch (Type.GetTypeCode(typeof(TValue)))
             {
@@ -58,7 +59,7 @@ namespace AbstUI.LGodot.Components
                 if (!parsedValue.IsValid)
                 {
                     if (_value != null)
-                    Value = _value;
+                        Value = _value;
                     return;
                 }
                 if (_value == parsedValue.Value) return;
@@ -74,16 +75,19 @@ namespace AbstUI.LGodot.Components
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
         public float Y { get => Position.Y; set => Position = new Vector2(Position.X, value); }
         private float _wantedWidth = 10;
-        public float Width { get => Size.X;
+        public float Width
+        {
+            get => Size.X;
             set
             {
                 _wantedWidth = value;
                 CustomMinimumSize = new Vector2(_wantedWidth, _wantedHeight);
                 Size = new Vector2(value, _wantedHeight);
-                
+
                 var test = Size;
-                
-            } }
+
+            }
+        }
         private float _wantedHeight = 10;
         public float Height
         {
@@ -122,8 +126,8 @@ namespace AbstUI.LGodot.Components
                 Text = _value.ToString();
             }
         }
-        public TValue Min { get; set; } 
-        public TValue Max { get; set; } 
+        public TValue Min { get; set; }
+        public TValue Max { get; set; }
         string IAbstFrameworkNode.Name { get => Name; set => Name = value; }
         public ANumberType NumberType
         {

@@ -2,13 +2,14 @@ using Godot;
 using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.Components.Containers;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.LGodot.Components
 {
     /// <summary>
     /// Godot implementation of <see cref="IAbstFrameworkHorizontalLineSeparator"/>.
     /// </summary>
-    public partial class AbstGodotHorizontalLineSeparator : Control, IAbstFrameworkHorizontalLineSeparator, IDisposable
+    public partial class AbstGodotHorizontalLineSeparator : Control, IAbstFrameworkHorizontalLineSeparator, IDisposable, IFrameworkFor<AbstHorizontalLineSeparator>
     {
         private AMargin _margin = AMargin.Zero;
         private Color _lightColor;
@@ -21,7 +22,7 @@ namespace AbstUI.LGodot.Components
             _darkColor = new Color("#a0a0a0");
         }
 
-       
+
 
         public override void _Draw()
         {
@@ -52,7 +53,7 @@ namespace AbstUI.LGodot.Components
             get => Size.Y; set
             {
                 Size = new Vector2(Size.X, value);
-                CustomMinimumSize = new Vector2(Size.X,value);
+                CustomMinimumSize = new Vector2(Size.X, value);
             }
         }
         public bool Visibility { get => Visible; set => Visible = value; }

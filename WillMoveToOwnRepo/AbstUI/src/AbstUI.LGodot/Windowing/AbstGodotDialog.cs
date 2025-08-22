@@ -7,7 +7,7 @@ using Godot;
 
 namespace AbstUI.LGodot.Windowing
 {
-    public partial class AbstGodotDialog : Window, IAbstFrameworkDialog
+    public partial class AbstGodotDialog : Window, IAbstFrameworkDialog, IFrameworkFor<AbstDialog>
     {
         private IAbstDialog _lingoDialog;
 
@@ -15,7 +15,7 @@ namespace AbstUI.LGodot.Windowing
         public bool IsOpen { get; set; }
         public bool IsPopup { get; set; }
         public bool IsActiveWindow => IsOpen;
-        public float X { get => Position.X; set { Position = new Vector2I((int)value, Position.Y);} }
+        public float X { get => Position.X; set { Position = new Vector2I((int)value, Position.Y); } }
         public float Y { get => Position.Y; set { Position = new Vector2I(Position.X, (int)value); } }
         public bool Visibility { get; set; }
         public float Width { get; set; }
@@ -30,7 +30,7 @@ namespace AbstUI.LGodot.Windowing
 
         public IAbstKey Key => _lingoDialog.Key;
 
-        public event Action<bool>? OnWindowStateChanged;    
+        public event Action<bool>? OnWindowStateChanged;
 
         public AbstGodotDialog()
         {
@@ -70,7 +70,7 @@ namespace AbstUI.LGodot.Windowing
 
         public void Popup() => base.Popup();
 
-        public void PopupCentered() => 
+        public void PopupCentered() =>
             base.PopupCentered();
 
 
@@ -79,7 +79,7 @@ namespace AbstUI.LGodot.Windowing
 
         public IEnumerable<IAbstFrameworkLayoutNode> GetItems() =>
             GetChildren().OfType<IAbstFrameworkLayoutNode>();
-        public void RemoveItem(IAbstFrameworkLayoutNode abstFrameworkLayoutNode)=> 
+        public void RemoveItem(IAbstFrameworkLayoutNode abstFrameworkLayoutNode) =>
             base.RemoveChild(abstFrameworkLayoutNode.FrameworkNode as Node);
 
         public void SetPositionAndSize(int x, int y, int width, int height)
@@ -96,7 +96,7 @@ namespace AbstUI.LGodot.Windowing
         APoint IAbstFrameworkDialog.GetPosition()
             => new APoint(Position.X, Position.Y);
 
-        APoint IAbstFrameworkDialog.GetSize() 
+        APoint IAbstFrameworkDialog.GetSize()
             => new APoint(Size.X, Size.Y);
 
 
