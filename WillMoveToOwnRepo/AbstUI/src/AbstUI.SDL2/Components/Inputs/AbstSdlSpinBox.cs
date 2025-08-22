@@ -6,10 +6,11 @@ using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
 using AbstUI.Styles;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Components.Inputs;
 
-internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IHandleSdlEvent, ISdlFocusable, IDisposable, IHasTextBackgroundBorderColor
+internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IFrameworkFor<AbstInputSpinBox>, IHandleSdlEvent, ISdlFocusable, IDisposable, IHasTextBackgroundBorderColor
 {
     private readonly AbstSdlInputNumber<float> _number;
     private const int ButtonWidth = 16;

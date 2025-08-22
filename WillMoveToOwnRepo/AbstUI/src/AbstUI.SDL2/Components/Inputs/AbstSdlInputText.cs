@@ -11,10 +11,11 @@ using AbstUI.Components.Inputs;
 using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.Core;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Components.Inputs
 {
-    internal class AbstSdlInputText : AbstSdlComponent, IAbstFrameworkInputText, IHandleSdlEvent, ISdlFocusable, IDisposable, IHasTextBackgroundBorderColor
+    internal class AbstSdlInputText : AbstSdlComponent, IAbstFrameworkInputText, IFrameworkFor<AbstInputText>, IHandleSdlEvent, ISdlFocusable, IDisposable, IHasTextBackgroundBorderColor
     {
         private readonly bool _multiLine;
         private readonly List<int> _codepoints = new();

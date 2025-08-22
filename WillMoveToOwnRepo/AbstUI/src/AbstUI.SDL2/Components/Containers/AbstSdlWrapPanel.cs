@@ -7,10 +7,11 @@ using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
 using System;
 using System.Collections.Generic;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Components.Containers
 {
-    internal class AbstSdlWrapPanel : AbstSdlComponent, IAbstFrameworkWrapPanel, IDisposable, IHandleSdlEvent
+    internal class AbstSdlWrapPanel : AbstSdlComponent, IAbstFrameworkWrapPanel, IFrameworkFor<AbstWrapPanel>, IDisposable, IHandleSdlEvent
     {
         public AOrientation Orientation { get; set; }
         public APoint ItemMargin { get; set; }
@@ -163,6 +164,6 @@ namespace AbstUI.SDL2.Components.Containers
             }
         }
 
-      
+
     }
 }

@@ -1,10 +1,11 @@
 using AbstUI.Primitives;
 using AbstUI.SDL2.Core;
 using AbstUI.Windowing;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Windowing;
 
-internal class AbstSdlMainWindow : IAbstFrameworkMainWindow
+internal class AbstSdlMainWindow : IAbstFrameworkMainWindow, IFrameworkFor<AbstMainWindow>
 {
     private readonly ISdlRootComponentContext _context;
     private AbstMainWindow _window = null!;

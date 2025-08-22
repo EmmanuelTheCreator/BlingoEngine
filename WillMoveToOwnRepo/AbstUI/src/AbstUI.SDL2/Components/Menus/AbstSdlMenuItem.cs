@@ -2,10 +2,11 @@ using System;
 using AbstUI.Components.Menus;
 using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Core;
+using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Components.Menus
 {
-    internal class AbstSdlMenuItem : AbstSdlComponent, IAbstFrameworkMenuItem, IDisposable
+    internal class AbstSdlMenuItem : AbstSdlComponent, IAbstFrameworkMenuItem, IFrameworkFor<AbstMenuItem>, IDisposable
     {
         public bool Enabled { get; set; } = true;
         public bool CheckMark { get; set; }
