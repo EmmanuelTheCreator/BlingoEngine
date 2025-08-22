@@ -209,6 +209,10 @@ namespace LingoEngine.Director.Core.UI
             ie.Activated += () => _windowManager.OpenWindow(DirectorMenuCodes.ImportExportWindow);
             _fileMenu.AddItem(ie);
 
+            var importer = factory.CreateMenuItem("Lingo code importer");
+            importer.Activated += () => _commandManager.Handle(new OpenLingoCodeImporterCommand());
+            _fileMenu.AddItem(importer);
+
             var quit = factory.CreateMenuItem("Quit");
             quit.Activated += () => Environment.Exit(0);
             _fileMenu.AddItem(quit);

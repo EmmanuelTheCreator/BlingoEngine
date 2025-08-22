@@ -22,15 +22,15 @@ namespace LingoEngine.Director.Core
 {
     public static class DirectorSetup
     {
-        public static ILingoEngineRegistration WithDirectorEngine(this ILingoEngineRegistration engineRegistration,Action<DirectorProjectSettings>? directorSettingsConfig = null)
+        public static ILingoEngineRegistration WithDirectorEngine(this ILingoEngineRegistration engineRegistration, Action<DirectorProjectSettings>? directorSettingsConfig = null)
         {
             engineRegistration
                 .RegisterWindows(r => DirectorWindowRegistrator.RegisterDirectorWindows(r))
                 .RegisterComponents(r => DirectorWindowRegistrator.RegisterDirectorComponents(r))
                 .ServicesMain(s => s
                     .AddSingleton<IDirectorEventMediator, DirectorEventMediator>()
-                   
-                    
+
+
                     .AddSingleton<DirectorProjectManager>()
                     .AddSingleton<LingoScriptCompiler>()
                     .AddSingleton<DirectorProjectSettings>()
@@ -44,7 +44,7 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<ProjectSettingsEditorState, ProjectSettingsEditorState>()
 
                     .AddSingleton<DirectorScriptsManager>()
-                    
+
                     .AddTransient(p => new Lazy<IDirectorScriptsManager>(() => p.GetRequiredService<DirectorScriptsManager>()))
 
                     // Windows
@@ -73,7 +73,9 @@ namespace LingoEngine.Director.Core
                     .AddTransient<CompileProjectCommandHandler>()
                     .AddSingleton<LingoCSharpConverterPopup>()
                     .AddSingleton<LingoCSharpConverterPopupHandler>()
-                   
+                    .AddSingleton<LingoCodeImporterPopup>()
+                    .AddSingleton<LingoCodeImporterPopupHandler>()
+
                     );
             engineRegistration.AddBuildAction(
                 (serviceProvider) =>
@@ -85,7 +87,7 @@ namespace LingoEngine.Director.Core
                     //    .Register<LingoCSharpConverterPopupHandler, OpenLingoCSharpConverterCommand>()
                     //    .Preload<OpenLingoCSharpConverterCommand>()
                     //    ;
-                    
+
                     //serviceProvider.GetRequiredService<IAbstCommandManager>() // you forgot the canExecute?
                     //    .Register<CompileProjectCommandHandler, CompileProjectCommand>();
                     if (directorSettingsConfig != null)
