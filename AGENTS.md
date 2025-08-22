@@ -16,6 +16,8 @@ These instructions apply to the entire repository.
 ## Code Style
 - Use `dotnet format` to fix style issues when needed.
 - Prefer `rg` (ripgrep) over `grep` for searching the codebase.
+- Do not remove existing comments from code.
+- When writing new classes, place members in the order: fields, then properties, then constructors.
 
 ## Project Structure
 
