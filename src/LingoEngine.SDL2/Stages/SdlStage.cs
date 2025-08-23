@@ -1,3 +1,5 @@
+using System;
+using AbstUI.Primitives;
 using LingoEngine.Core;
 using LingoEngine.Movies;
 using LingoEngine.SDL2.Movies;
@@ -18,7 +20,7 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
     {
         _rootContext = rootContext;
         _clock = clock;
-        
+
     }
 
     internal LingoSdlRootContext RootContext => _rootContext;
@@ -28,7 +30,7 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
     internal void Init(LingoStage stage)
     {
         _stage = stage;
-        
+
     }
 
     internal void ShowMovie(SdlMovie movie)
@@ -53,6 +55,21 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
 
     public void ApplyPropertyChanges()
     {
-        
+
+    }
+
+    public IAbstTexture2D GetScreenshot()
+        => throw new NotImplementedException();
+
+    public void ShowTransition(IAbstTexture2D startTexture)
+    {
+    }
+
+    public void UpdateTransitionFrame(IAbstTexture2D texture, ARect targetRect)
+    {
+    }
+
+    public void HideTransition()
+    {
     }
 }

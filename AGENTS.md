@@ -18,6 +18,7 @@ These instructions apply to the entire repository.
 - Prefer `rg` (ripgrep) over `grep` for searching the codebase.
 - Do not remove existing comments from code.
 - When writing new classes, place members in the order: fields, then properties, then constructors.
+- Avoid adding business logic or default implementations inside interfaces to preserve .NET Framework 4.8 compatibility.
 
 ## Project Structure
 

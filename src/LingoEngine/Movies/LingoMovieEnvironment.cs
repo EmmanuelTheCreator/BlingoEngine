@@ -8,6 +8,7 @@ using LingoEngine.Projects;
 using LingoEngine.Sounds;
 using LingoEngine.Stages;
 using Microsoft.Extensions.DependencyInjection;
+using LingoEngine.Transitions;
 
 namespace LingoEngine.Movies
 {
@@ -92,7 +93,8 @@ namespace LingoEngine.Movies
             _mouse.Subscribe(_eventMediator);
             _key.Subscribe(_eventMediator);
             _castLibsContainer = lingoCastLibsContainer;
-            _movie = new LingoMovie(this, stage, _castLibsContainer, _memberFactory.Value, name, number, _eventMediator, m =>
+            var transitionPlayer = _serviceProvider.GetRequiredService<ILingoTransitionPlayer>();
+            _movie = new LingoMovie(this, stage, transitionPlayer, _castLibsContainer, _memberFactory.Value, name, number, _eventMediator, m =>
             {
                 onRemoveMe(m);
                 Dispose();

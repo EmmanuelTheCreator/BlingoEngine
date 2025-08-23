@@ -6,6 +6,7 @@ using LingoEngine.Director.Core.Scores.FrameScripts;
 using LingoEngine.Director.Core.Scores.Sounds;
 using LingoEngine.Director.Core.Scores.Tempos;
 using LingoEngine.Director.Core.Scores.Transitions;
+using LingoEngine.Transitions.TransitionLibrary;
 
 
 namespace LingoEngine.Director.Core.Scores
@@ -26,14 +27,14 @@ namespace LingoEngine.Director.Core.Scores
         }
 
 
-        public DirScoreGridTopContainer(IDirScoreManager scoreManager, ILingoColorPaletteDefinitions paletteDefinitions, Func<string, IAbstFrameworkPanel, IAbstWindowDialogReference?> showConfirmDialog)
-            :base(scoreManager, 6, showConfirmDialog) 
+        public DirScoreGridTopContainer(IDirScoreManager scoreManager, ILingoColorPaletteDefinitions paletteDefinitions, ILingoTransitionLibrary transitionLibrary, Func<string, IAbstFrameworkPanel, IAbstWindowDialogReference?> showConfirmDialog)
+            : base(scoreManager, 6, showConfirmDialog)
         {
             SetChannels(
             [
                 new DirScoreTempoGridChannel(_scoreManager),
-                new DirScoreColorPaletteGridChannel(_scoreManager,paletteDefinitions),
-                new DirScoreTransitionGridChannel(_scoreManager),
+                new DirScoreColorPaletteGridChannel(_scoreManager, paletteDefinitions),
+                new DirScoreTransitionGridChannel(_scoreManager, transitionLibrary),
                 new DirScoreAudioGridChannel(1, _scoreManager),
                 new DirScoreAudioGridChannel(2, _scoreManager),
                 new DirScoreFrameScriptGridChannel(_scoreManager),
@@ -46,7 +47,7 @@ namespace LingoEngine.Director.Core.Scores
 
         protected override DirScoreChannel? GetChannelByDisplayIndex(int index)
         {
-            if (_collapsed) return _channelsDic[_frameScriptIndex+1];
+            if (_collapsed) return _channelsDic[_frameScriptIndex + 1];
             return base.GetChannelByDisplayIndex(index);
         }
         protected void UpdateChannelsVisibility()
@@ -58,7 +59,7 @@ namespace LingoEngine.Director.Core.Scores
             UpdateChannelsPosition();
         }
 
-        
+
     }
 
 }

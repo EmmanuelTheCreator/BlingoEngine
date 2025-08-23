@@ -9,6 +9,7 @@ using AbstUI.Commands;
 using LingoEngine.Projects;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Inputs;
+using LingoEngine.Transitions.TransitionLibrary;
 
 namespace LingoEngine
 {
@@ -26,7 +27,8 @@ namespace LingoEngine
                    .AddSingleton<LingoSystem>()
                    .AddSingleton<LingoFrameLabelManager>()
                    .AddSingleton<ILingoColorPaletteDefinitions, LingoColorPaletteDefinitions>()
-                   .AddTransient<ILingoPlayer>(p => p.GetRequiredService<LingoPlayer>())
+                   .AddSingleton<ILingoTransitionLibrary, LingoTransitionLibrary>()
+                    .AddTransient<ILingoPlayer>(p => p.GetRequiredService<LingoPlayer>())
                    .AddTransient<ILingoCastLibsContainer>(p => p.GetRequiredService<LingoCastLibsContainer>())
                    .AddTransient<ILingoWindow>(p => p.GetRequiredService<LingoWindow>())
                    .AddTransient<ILingoClock>(p => p.GetRequiredService<LingoClock>())
@@ -38,7 +40,7 @@ namespace LingoEngine
                    .AddScoped<ILingoEventMediator, LingoEventMediator>()
                    // Xtras
                    .AddScoped<IBuddyAPI, BuddyAPI>()
-                   
+
                    .AddTransient<LingoJoystickKeyboard>()
                    ;
 
