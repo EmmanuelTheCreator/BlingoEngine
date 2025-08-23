@@ -64,6 +64,17 @@ public class BundleConversionTests
     }
 
     [Fact]
+    public void SpriteManagerScriptIsConverted()
+    {
+        var baseDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "Demo", "TetriGrounds", "TetriGrounds.Lingo.Original"));
+        var path = Path.Combine(baseDir, "3_SpriteManager.ls");
+        var script = new LingoScriptFile("3_SpriteManager", File.ReadAllText(path));
+        _converter.Convert(new[] { script });
+        Assert.True(string.IsNullOrEmpty(script.Errors));
+        Assert.False(string.IsNullOrWhiteSpace(script.CSharp));
+    }
+
+    [Fact]
     public void PropertyTypesAreInferredFromAssignments()
     {
         var source = @"property myMember, myMembers, myMemberNumAnim, myDestroyAnim, myColor\n" +
