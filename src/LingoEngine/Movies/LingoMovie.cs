@@ -1,4 +1,5 @@
-﻿using LingoEngine.Casts;
+using System.Linq;
+using LingoEngine.Casts;
 using LingoEngine.Core;
 using LingoEngine.Events;
 using LingoEngine.Inputs;
@@ -24,6 +25,9 @@ namespace LingoEngine.Movies
         private readonly Action<LingoMovie> _onRemoveMe;
         private readonly LingoClock _lingoClock;
         private LingoStageMouse _lingoMouse;
+        private readonly LingoStage _stage;
+        private readonly ILingoTransitionPlayer _transitionPlayer;
+        private bool _skipStepFrame;
         private int _currentFrame = 0;
         private int _NextFrame = -1;
         private int _lastFrame = 0;
@@ -106,7 +110,7 @@ namespace LingoEngine.Movies
 
 
 #pragma warning disable CS8618
-        protected internal LingoMovie(LingoMovieEnvironment environment, LingoStage movieStage, LingoCastLibsContainer castLibContainer, ILingoMemberFactory memberFactory, string name, int number, LingoEventMediator mediator, Action<LingoMovie> onRemoveMe, LingoProjectSettings projectSettings, ILingoFrameLabelManager lingoFrameLabelManager)
+        protected internal LingoMovie(LingoMovieEnvironment environment, LingoStage movieStage, ILingoTransitionPlayer transitionPlayer, LingoCastLibsContainer castLibContainer, ILingoMemberFactory memberFactory, string name, int number, LingoEventMediator mediator, Action<LingoMovie> onRemoveMe, LingoProjectSettings projectSettings, ILingoFrameLabelManager lingoFrameLabelManager)
 #pragma warning restore CS8618
         {
             _castLibContainer = castLibContainer;
@@ -120,6 +124,8 @@ namespace LingoEngine.Movies
             _MovieScripts = new(environment, mediator);
             _lingoMouse = (LingoStageMouse)environment.Mouse;
             _lingoClock = (LingoClock)environment.Clock;
+            _stage = movieStage;
+            _transitionPlayer = transitionPlayer;
 
             _sprite2DManager = new LingoSprite2DManager(this, environment);
             MaxSpriteChannelCount = projectSettings.MaxSpriteChannelCount;
@@ -238,6 +244,12 @@ namespace LingoEngine.Movies
         {
             if (_isPlaying)
             {
+                if (_transitionPlayer.IsActive)
+                {
+                    _transitionPlayer.Tick();
+                    return;
+                }
+
                 if (_waitingForInput || _waitingForCuePoint)
                     return;
 
@@ -260,6 +272,12 @@ namespace LingoEngine.Movies
 
             try
             {
+                var transitionSprite = _transitionManager.GetFrameSprite(_currentFrame);
+                if (transitionSprite != null)
+                {
+                    if (_transitionPlayer.Start(transitionSprite))
+                        _skipStepFrame = true;
+                }
                 var frameChanged = false;
                 if (_NextFrame < 0)
                 {
@@ -294,11 +312,15 @@ namespace LingoEngine.Movies
 
                 _lingoMouse.UpdateMouseState();
                 _sprite2DManager.PreStepFrame();
-                _EventMediator.RaiseStepFrame();
+                if (!_skipStepFrame)
+                    _EventMediator.RaiseStepFrame();
                 _EventMediator.RaisePrepareFrame();
                 _EventMediator.RaiseEnterFrame();
 
                 OnUpdateStage();
+                if (_transitionPlayer.IsActive)
+                    _transitionPlayer.CaptureToFrame();
+                _skipStepFrame = false;
                 if (frameChanged)
                     CurrentFrameChanged?.Invoke(_currentFrame);
 

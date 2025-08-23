@@ -38,7 +38,7 @@
 		<InternalsVisibleTo Include="LingoEngine.Lingo.Tests" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\..\WillMoveToOwnRepo\AbstUI\src\AbstUI\AbstUI.csproj" />
-	</ItemGroup>
+        <ItemGroup>
+          <ProjectReference Include="..\..\WillMoveToOwnRepo\AbstUI\src\AbstUI\AbstUI.csproj" />
+        </ItemGroup>
 </Project>

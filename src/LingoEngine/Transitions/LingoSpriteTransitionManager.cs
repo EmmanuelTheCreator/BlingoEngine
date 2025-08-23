@@ -1,3 +1,4 @@
+using System.Linq;
 using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
@@ -11,6 +12,7 @@ public interface ILingoSpriteTransitionManager : ILingoSpriteManager<LingoTransi
 {
     LingoTransitionSprite Add(int frameNumber, LingoTransitionFrameSettings? settings = null);
     LingoTransitionSprite Add(int begin, LingoTransitionMember transitionMember);
+    LingoTransitionSprite? GetFrameSprite(int frame);
 }
 internal class LingoSpriteTransitionManager : LingoSpriteManager<LingoTransitionSprite>, ILingoSpriteTransitionManager
 {
@@ -39,6 +41,9 @@ internal class LingoSpriteTransitionManager : LingoSpriteManager<LingoTransition
         sprite.SetMember(transitionMember);
         return sprite;
     }
+
+    public LingoTransitionSprite? GetFrameSprite(int frame)
+        => _allTimeSprites.FirstOrDefault(t => t.BeginFrame == frame);
 
     protected override LingoSprite? OnAdd(int spriteNum, int begin, int end, ILingoMember? member)
     {

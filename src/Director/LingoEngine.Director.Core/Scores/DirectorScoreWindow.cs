@@ -15,6 +15,7 @@ using AbstUI.Inputs;
 using AbstUI.Windowing;
 using AbstUI.Components.Inputs;
 using AbstUI.Components.Containers;
+using LingoEngine.Transitions.TransitionLibrary;
 
 
 namespace LingoEngine.Director.Core.Scores
@@ -25,6 +26,7 @@ namespace LingoEngine.Director.Core.Scores
         private readonly DirScoreManager _scoreManager;
         private readonly IAbstWindowManager _windowManager;
         private readonly ILingoColorPaletteDefinitions _paletteDefinitions;
+        private readonly ILingoTransitionLibrary _transitionLibrary;
         private readonly LingoPlayer _player;
         private readonly IAbstMouse<AbstMouseEvent> _globalMouse;
         private readonly DirScoreLabelsBar _labelsBar;
@@ -60,13 +62,14 @@ namespace LingoEngine.Director.Core.Scores
         public float ScollY { get => _scollY; set => _scollY = value; }
 
 #pragma warning disable CS8618
-        public DirectorScoreWindow(IServiceProvider serviceProvider, IDirSpritesManager spritesManager, ILingoPlayer player, ILingoFrameworkFactory factory, DirScoreManager scoreManager, IAbstWindowManager windowManager, ILingoColorPaletteDefinitions paletteDefinitions, IAbstCommandManager commandManager, IAbstGlobalMouse globalMouse, IDirectorEventMediator mediator, IAbstComponentFactory componentFactory) : base(serviceProvider, DirectorMenuCodes.ScoreWindow)
+        public DirectorScoreWindow(IServiceProvider serviceProvider, IDirSpritesManager spritesManager, ILingoPlayer player, ILingoFrameworkFactory factory, DirScoreManager scoreManager, IAbstWindowManager windowManager, ILingoColorPaletteDefinitions paletteDefinitions, ILingoTransitionLibrary transitionLibrary, IAbstCommandManager commandManager, IAbstGlobalMouse globalMouse, IDirectorEventMediator mediator, IAbstComponentFactory componentFactory) : base(serviceProvider, DirectorMenuCodes.ScoreWindow)
 #pragma warning restore CS8618
         {
             _spritesManager = spritesManager;
             _scoreManager = scoreManager;
             _windowManager = windowManager;
             _paletteDefinitions = paletteDefinitions;
+            _transitionLibrary = transitionLibrary;
             _player = (LingoPlayer)player;
             _globalMouse = (IAbstMouse<AbstMouseEvent>)globalMouse;
             _player.ActiveMovieChanged += OnActiveMovieChanged;
@@ -108,7 +111,7 @@ namespace LingoEngine.Director.Core.Scores
             var mouse = (AbstMouse<AbstMouseEvent>)Mouse;
             _mouseSub = mouse.OnMouseEvent(HandleMouseEvent);
             _globalMouseUpSub = _globalMouse.OnMouseUp(GlobalHandleMouseEvent);
-            TopContainer = new DirScoreGridTopContainer(_scoreManager, _paletteDefinitions, ShowConfirmDialog);
+            TopContainer = new DirScoreGridTopContainer(_scoreManager, _paletteDefinitions, _transitionLibrary, ShowConfirmDialog);
             Sprites2DContainer = new DirScoreGridSprites2DContainer(_scoreManager, ShowConfirmDialog);
         }
 

@@ -37,6 +37,7 @@ using AbstUI.Components.Menus;
 using AbstUI.Components.Buttons;
 using AbstUI.Components.Texts;
 using AbstUI.LGodot.Components;
+using LingoEngine.Transitions.TransitionLibrary;
 
 namespace LingoEngine.LGodot.Core
 {
@@ -321,7 +322,7 @@ namespace LingoEngine.LGodot.Core
         public AbstVerticalLineSeparator CreateVerticalLineSeparator(string name)
             => _gfxFactory.CreateVerticalLineSeparator(name);
 
-        
+
 
         #endregion
 

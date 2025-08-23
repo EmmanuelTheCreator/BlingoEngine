@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using AbstUI.Primitives;
 using LingoEngine.Core;
 using LingoEngine.Movies;
 using LingoEngine.Stages;
@@ -58,6 +59,15 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
 
     /// <inheritdoc />
     public void ApplyPropertyChanges() { }
+
+    public IAbstTexture2D GetScreenshot()
+        => throw new NotImplementedException();
+
+    public void ShowTransition(IAbstTexture2D startTexture) { }
+
+    public void UpdateTransitionFrame(IAbstTexture2D texture, ARect targetRect) { }
+
+    public void HideTransition() { }
 
     public void Dispose()
     {

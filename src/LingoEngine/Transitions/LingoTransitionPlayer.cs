@@ -1,0 +1,91 @@
+using System;
+using AbstUI.Primitives;
+using LingoEngine.Core;
+using LingoEngine.Stages;
+using LingoEngine.Transitions.TransitionLibrary;
+
+namespace LingoEngine.Transitions;
+
+internal sealed class LingoTransitionPlayer : ILingoTransitionPlayer
+{
+    private readonly LingoStage _stage;
+    private readonly LingoClock _clock;
+    private readonly ILingoTransitionLibrary _library;
+    private IAbstTexture2D? _from;
+    private IAbstTexture2D? _to;
+    private IAbstTexture2D? _current;
+    private byte[]? _fromPixels;
+    private byte[]? _toPixels;
+    private LingoBaseTransition? _transition;
+    private int _tick;
+    private int _duration;
+    private bool _waitingForToFrame;
+    private bool _isPlaying;
+
+    public bool IsActive => _isPlaying || _waitingForToFrame;
+
+    public LingoTransitionPlayer(LingoStage stage, LingoClock clock, ILingoTransitionLibrary library)
+    {
+        _stage = stage;
+        _clock = clock;
+        _library = library;
+    }
+
+    public bool Start(LingoTransitionSprite sprite)
+    {
+        _from?.Dispose();
+        _to?.Dispose();
+        _from = _to = _current = null;
+        _fromPixels = _toPixels = null;
+        _waitingForToFrame = false;
+        _isPlaying = false;
+
+        _transition = _library.Get(sprite.Member?.TransitionId ?? 1);
+        if (_transition == null)
+            return false;
+
+        _from = _stage.GetScreenshot();
+        _fromPixels = _from.GetPixels();
+        _current = _from;
+        _stage.ShowTransition(_from);
+
+        var seconds = sprite.Member?.Duration ?? 1f;
+        _duration = Math.Max(1, (int)(seconds * _clock.FrameRate));
+        _tick = 0;
+        _waitingForToFrame = true;
+        _isPlaying = false;
+        return true;
+    }
+
+    public void CaptureToFrame()
+    {
+        if (!_waitingForToFrame)
+            return;
+        _to = _stage.GetScreenshot();
+        _toPixels = _to.GetPixels();
+        _waitingForToFrame = false;
+        _isPlaying = true;
+    }
+
+    public void Tick()
+    {
+        if (!_isPlaying || _fromPixels == null || _toPixels == null || _from == null || _transition == null)
+            return;
+        _tick++;
+        float progress = (float)_tick / _duration;
+        if (progress >= 1f) progress = 1f;
+        var blended = _transition.StepFrame(_from.Width, _from.Height, _fromPixels, _toPixels, progress);
+        _current!.SetARGBPixels(blended);
+        _stage.UpdateTransitionFrame(_current, ARect.New(0, 0, _from.Width, _from.Height));
+        if (progress >= 1f)
+        {
+            _stage.HideTransition();
+            _from?.Dispose();
+            _to?.Dispose();
+            _current = _from = _to = null;
+            _fromPixels = _toPixels = null;
+            _transition = null;
+            _isPlaying = false;
+        }
+    }
+}
