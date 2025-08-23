@@ -264,7 +264,7 @@ D --> E3[Unity]
 D --> E4[Blazor]
 
 %% Director app
-subgraph A[Director Application]
+subgraph DirectorApp [Director Application]
   A1[Score]
   A2[Cast]
   A3[Property Inspector]
@@ -274,6 +274,7 @@ subgraph A[Director Application]
   A3 --> A4
   A2 --> A5
 end
+
 ```
 
 ---
