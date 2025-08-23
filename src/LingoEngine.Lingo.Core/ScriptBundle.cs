@@ -22,6 +22,8 @@ public class LingoScriptFile
     public LingoScriptType Type { get; init; }
     public string Errors { get; internal set; } = "";
 
+    public LingoScriptFile() : this(string.Empty, string.Empty) { }
+
     public LingoScriptFile(string name, string source, LingoScriptType type = LingoScriptType.Behavior)
     {
         Name = name;
