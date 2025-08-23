@@ -29,6 +29,7 @@ namespace AbstUI.SDL2.Windowing
         private string _title = string.Empty;
         private bool _isPopup;
         private bool _borderless;
+        private bool _centered;
         private ISdlFontLoadedByUser? _font;
         private SDL.SDL_Rect _closeRect;
         private const int TitleBarHeight = 24;
@@ -89,10 +90,16 @@ namespace AbstUI.SDL2.Windowing
 
         public void PopupCentered()
         {
+            _centered = true;
+            UpdateCenterPosition();
+            Popup();
+        }
+
+        private void UpdateCenterPosition()
+        {
             var size = _factory.RootContext.GetWindowSize();
             X = (size.X - Width) / 2f;
             Y = (size.Y - Height) / 2f;
-            Popup();
         }
 
         public void Hide()
@@ -101,6 +108,7 @@ namespace AbstUI.SDL2.Windowing
             ComponentContext.AlwaysOnTop = false;
             _factory.RootContext.ComponentContainer.Deactivate(ComponentContext);
             OnWindowStateChanged?.Invoke(false);
+            _centered = false;
         }
 
         public void SetPositionAndSize(int x, int y, int width, int height)
@@ -124,6 +132,8 @@ namespace AbstUI.SDL2.Windowing
         {
             if (!Visibility)
                 return default;
+            if (_centered)
+                UpdateCenterPosition();
 
             var tex = (nint)base.Render(context);
             int w = (int)Width;

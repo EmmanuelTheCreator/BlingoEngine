@@ -137,27 +137,7 @@ namespace AbstUI.SDL2.Components.Inputs
         private void UpdatePopupPosition()
         {
             if (_popup == null) return;
-            var (sx, sy) = GetScreenPosition();
-            _popup.X = sx;
-            _popup.Y = sy + Height;
-        }
-
-        private (int x, int y) GetScreenPosition()
-        {
-            int x = 0, y = 0;
-            var ctx = ComponentContext;
-            while (ctx != null)
-            {
-                x += ctx.X;
-                y += ctx.Y;
-                if (ctx.Component is AbstSdlScrollViewer sv)
-                {
-                    x -= (int)sv.ScrollHorizontal;
-                    y -= (int)sv.ScrollVertical;
-                }
-                ctx = ctx.Parent;
-            }
-            return (x, y);
+            _popup.PositionBelow(ComponentContext, Height);
         }
 
         protected override void RenderContent(AbstSDLRenderContext context) { }
