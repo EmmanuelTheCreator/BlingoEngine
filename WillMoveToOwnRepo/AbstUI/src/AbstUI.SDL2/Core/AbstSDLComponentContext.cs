@@ -9,7 +9,8 @@ public class AbstSDLComponentContext : IDisposable
     private readonly AbstSDLComponentContainer _container;
     private bool _requireRender = true;
     internal IAbstSDLComponent? Component { get; private set; }
-    internal AbstSDLComponentContext? Parent { get; }
+    internal AbstSDLComponentContext? LogicalParent { get; private set; }
+    internal AbstSDLComponentContext? VisualParent { get; private set; }
 
     public nint Texture { get; private set; }
     public nint Renderer { get; set; }
@@ -27,19 +28,29 @@ public class AbstSDLComponentContext : IDisposable
     public bool AlwaysOnTop { get; set; }
     public SDL.SDL_BlendMode BlendMode { get; set; } = SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND;
 
-    internal AbstSDLComponentContext(AbstSDLComponentContainer container, IAbstSDLComponent? component = null, AbstSDLComponentContext? parent = null)
+    internal AbstSDLComponentContext(
+        AbstSDLComponentContainer container,
+        IAbstSDLComponent? component = null,
+        AbstSDLComponentContext? parent = null)
     {
         _container = container;
-        Parent = parent;
+        LogicalParent = parent;
+        VisualParent = parent;
         Component = component;
         _container.Register(this);
+    }
+
+    internal void SetParents(AbstSDLComponentContext? logicalParent, AbstSDLComponentContext? visualParent = null)
+    {
+        LogicalParent = logicalParent;
+        VisualParent = visualParent ?? logicalParent;
     }
 
     public void QueueRedraw(IAbstSDLComponent component)
     {
         _requireRender = true;
         Component ??= component;
-        Parent?.QueueRedraw(Parent.Component!);
+        VisualParent?.QueueRedraw(VisualParent.Component!);
     }
 
     public void RenderToTexture(AbstSDLRenderContext renderContext)
@@ -68,9 +79,9 @@ public class AbstSDLComponentContext : IDisposable
             w = TargetWidth,
             h = TargetHeight
         };
-            SDL.SDL_SetTextureAlphaMod(Texture, PercentToByte(Blend));
-            SDL.SDL_SetTextureBlendMode(Texture, BlendMode);
-            SDL.SDL_RendererFlip flip = SDL.SDL_RendererFlip.SDL_FLIP_NONE;
+        SDL.SDL_SetTextureAlphaMod(Texture, PercentToByte(Blend));
+        SDL.SDL_SetTextureBlendMode(Texture, BlendMode);
+        SDL.SDL_RendererFlip flip = SDL.SDL_RendererFlip.SDL_FLIP_NONE;
         if (FlipH)
             flip |= SDL.SDL_RendererFlip.SDL_FLIP_HORIZONTAL;
         if (FlipV)

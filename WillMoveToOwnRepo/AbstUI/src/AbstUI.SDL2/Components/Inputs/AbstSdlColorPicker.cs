@@ -91,6 +91,7 @@ namespace AbstUI.SDL2.Components.Inputs
             if (_popup == null)
             {
                 _popup = new AbstSdlColorPickerPopup(Factory);
+                _popup.ComponentContext.SetParents(ComponentContext, null);
                 _popup.ColorChanged += PopupOnColorChanged;
             }
 
