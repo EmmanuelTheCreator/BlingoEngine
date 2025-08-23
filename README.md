@@ -49,10 +49,15 @@ File by file or in batch with the lingo importer.
 
 ## 🎉 Standing on the Shoulders of Giants
 
-Macromedia Director and its Lingo language were revolutionary in their time.  
+**Macromedia Director** and its **Lingo language** were revolutionary in their time.  
 They empowered an entire generation of artists, educators, and game developers to create interactive experiences long before today’s engines existed.
 
-**LingoEngine** is not here to replace Director, but to *honor its spirit* — carrying those ideas forward into the modern era so they can continue to inspire.
+Director pioneered ideas that shaped the future of digital creativity:  
+- The **stage, cast, and score** metaphor made multimedia authoring approachable  
+- The **Lingo scripting language** gave non-programmers the power to create interactivity  
+- A vibrant global community pushed the boundaries of art, education, and entertainment  
+
+**LingoEngine** is not here to replace Director, but to *honor its spirit* — carrying those ideas forward into the modern era so they can continue to inspire.  
 
 | Director’s Legacy ✨            | LingoEngine’s Contribution 🚀 |
 |--------------------------------|--------------------------------|
@@ -61,8 +66,9 @@ They empowered an entire generation of artists, educators, and game developers t
 | Enabled art, education, and indie game communities worldwide | Opens them again for exploration, study, and reuse |
 | Inspired countless developers and later tools (Flash, Unity, etc.) | Bridges history with modern ecosystems like Godot, SDL2, Unity, Blazor |
 
-> 🧡 We applaud the Director team and community:  
-> without them, there would be no LingoEngine.
+> 🧡 To the Director developers and community:  
+> we applaud your achievements, and LingoEngine exists thanks to the foundation you built.
+
 
 ---
 
@@ -240,6 +246,34 @@ To get started:
 Please include examples or documentation when appropriate.
 
 Please also read our [Code of Conduct](CODE_OF_CONDUCT.md).
+
+---
+
+## Architecture overviaw.
+
+graph TD
+
+%% Top-level flow
+A[Director Application] --> B[LingoEngine Runtime Core]
+B --> C[Services (DI)]
+B --> D[Rendering Abstraction Layer]
+D --> E1[Godot]
+D --> E2[SDL2]
+D --> E3[Unity]
+D --> E4[Blazor]
+
+%% Director app
+subgraph A[Director Application]
+  A1[Score]
+  A2[Cast]
+  A3[Property Inspector]
+  A4[Text Editing]
+  A5[.dir Importer]
+  A1 --> A2 --> A3
+  A3 --> A4
+  A2 --> A5
+end
+
 
 ---
 
