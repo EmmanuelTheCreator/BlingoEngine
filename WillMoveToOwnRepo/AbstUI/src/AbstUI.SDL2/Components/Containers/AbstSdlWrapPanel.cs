@@ -30,12 +30,20 @@ namespace AbstUI.SDL2.Components.Containers
         public void AddItem(IAbstFrameworkNode child)
         {
             if (!_children.Contains(child))
+            {
                 _children.Add(child);
+                if (child.FrameworkNode is AbstSdlComponent comp)
+                    comp.ComponentContext.SetParents(ComponentContext);
+            }
         }
 
         public void RemoveItem(IAbstFrameworkNode child)
         {
-            _children.Remove(child);
+            if (_children.Remove(child))
+            {
+                if (child.FrameworkNode is AbstSdlComponent comp)
+                    comp.ComponentContext.SetParents(null);
+            }
         }
 
         public IEnumerable<IAbstFrameworkNode> GetItems() => _children.ToArray();
@@ -49,6 +57,9 @@ namespace AbstUI.SDL2.Components.Containers
 
         public void RemoveAll()
         {
+            foreach (var child in _children)
+                if (child.FrameworkNode is AbstSdlComponent comp)
+                    comp.ComponentContext.SetParents(null);
             _children.Clear();
         }
 

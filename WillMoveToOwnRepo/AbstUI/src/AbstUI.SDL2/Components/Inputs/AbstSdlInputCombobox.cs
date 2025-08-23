@@ -107,6 +107,7 @@ namespace AbstUI.SDL2.Components.Inputs
             if (_popup == null)
             {
                 _popup = new AbstSdlInputItemList(Factory, ComponentContext);
+                _popup.ComponentContext.SetParents(ComponentContext, null);
                 foreach (var it in Items)
                     _popup.AddItem(it.Key, it.Value);
                 _popup.ValueChanged += PopupOnValueChanged;
