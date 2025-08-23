@@ -14,11 +14,12 @@ internal static class AbstSdlControlPopupExtensions
         {
             x += current.X + (int)current.OffsetX;
             y += current.Y + (int)current.OffsetY;
-            if (current.Component is AbstSdlScrollViewer sv)
-            {
-                x -= (int)sv.ScrollHorizontal;
-                y -= (int)sv.ScrollVertical;
-            }
+            // it seem if we do this, it scroll doubles and badly aligns
+            //if (current.Component is AbstSdlScrollViewer sv)
+            //{
+            //    x -= (int)sv.ScrollHorizontal;
+            //    //y -= (int)(sv.ScrollVertical/10); // + current.Y;
+            //}
             if (current.Component is AbstSdlWindow)
             {
                 y += AbstSdlWindow.TitleBarHeight;
