@@ -51,8 +51,8 @@ public sealed class TestSdlRootComponentContext : AbstUISdlRootContext<AbstMouse
 
     protected override void Render()
     {
-        //SDL.SDL_SetRenderDrawColor(Renderer, 200, 200, 150, 255);
-        //SDL.SDL_RenderClear(Renderer);
+        SDL.SDL_SetRenderDrawColor(Renderer, 200, 200, 150, 255);
+        SDL.SDL_RenderClear(Renderer);
         base.Render();
     }
 

@@ -3,6 +3,7 @@ using System.Numerics;
 using AbstUI.Components.Inputs;
 using AbstUI.Primitives;
 using AbstUI.SDL2.Components.Base;
+using AbstUI.SDL2.Components.Containers;
 using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
@@ -94,8 +95,7 @@ namespace AbstUI.SDL2.Components.Inputs
             }
 
             _popup.SetColor(Color);
-            _popup.X = X;
-            _popup.Y = Y + Height + 2;
+            UpdatePopupPosition();
             _popup.Visibility = true;
             Factory.RootContext.ComponentContainer.Activate(_popup.ComponentContext);
             _open = true;
@@ -114,8 +114,17 @@ namespace AbstUI.SDL2.Components.Inputs
             Color = c;
             ComponentContext.QueueRedraw(this);
         }
+
+        private void UpdatePopupPosition()
+        {
+            if (_popup == null) return;
+            _popup.PositionBelow(ComponentContext, Height + 2);
+        }
+
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
+            if (_open)
+                UpdatePopupPosition();
             if (!Visibility)
                 return default;
 
