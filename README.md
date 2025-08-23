@@ -255,25 +255,12 @@ Please also read our [Code of Conduct](CODE_OF_CONDUCT.md).
 graph TD
 
 %% Top-level flow
-A[Director Application] --> B[LingoEngine Runtime Core]
-B --> C[Services (DI)]
+A[Your game] --> B[LingoEngine Runtime Core]
+B --> C[Services]
 B --> D[Rendering Abstraction Layer]
 D --> E1[Godot]
 D --> E2[SDL2]
 D --> E3[Unity]
-D --> E4[Blazor]
-
-%% Director app
-subgraph DirectorApp [Director Application]
-  A1[Score]
-  A2[Cast]
-  A3[Property Inspector]
-  A4[Text Editing]
-  A5[.dir Importer]
-  A1 --> A2 --> A3
-  A3 --> A4
-  A2 --> A5
-end
 
 ```
 
