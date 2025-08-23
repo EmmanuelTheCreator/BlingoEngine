@@ -449,6 +449,27 @@ end";
     }
 
     [Fact]
+    public void SingleLineIfWithElseIsConverted()
+    {
+        var lingo = string.Join('\n',
+            "if a = 1 then x = 1",
+            "else",
+            "  x = 2",
+            "end if");
+        var result = _converter.Convert(lingo);
+        var expected = string.Join('\n',
+            "if (a == 1)",
+            "{",
+            "    x = 1;",
+            "}",
+            "else",
+            "{",
+            "    x = 2;",
+            "}");
+        Assert.Equal(expected.Trim(), result.Trim());
+    }
+
+    [Fact]
     public void NestedIfInsideElseIsConverted()
     {
         var lingo = string.Join('\n',
