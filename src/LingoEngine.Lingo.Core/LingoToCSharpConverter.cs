@@ -770,7 +770,7 @@ public class LingoToCSharpConverter
             foreach (var param in sig.Parameters)
             {
                 if (result[current].ContainsKey(param.Name)) continue;
-                var assign = Regex.Match(trimmed, @$"(?i)^{Regex.Escape(param.Name)}\s*=\s*(.+)$");
+                var assign = Regex.Match(trimmed, @$"(?i)(?:^|then\s+|;\s*){Regex.Escape(param.Name)}\s*=\s*(.+)$");
                 if (assign.Success)
                 {
                     var rhsExpr = Regex.Replace(assign.Groups[1].Value, @"--.*$", string.Empty).Trim();
@@ -785,7 +785,7 @@ public class LingoToCSharpConverter
                     continue;
                 }
 
-                var reverse = Regex.Match(trimmed, @$"(?i)^(\w+)\s*=\s*{Regex.Escape(param.Name)}\b");
+                var reverse = Regex.Match(trimmed, @$"(?i)(?:^|then\s+|;\s*)(\w+)\s*=\s*{Regex.Escape(param.Name)}\b");
                 if (reverse.Success)
                 {
                     var lhs = reverse.Groups[1].Value;

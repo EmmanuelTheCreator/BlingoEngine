@@ -110,6 +110,16 @@ public class BundleConversionTests
     }
 
     [Fact]
+    public void ParameterAssignedAfterVoidCheckIsInferred()
+    {
+        var baseDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "Demo", "TetriGrounds", "TetriGrounds.Lingo.Original"));
+        var path = Path.Combine(baseDir, "10_Block.ls");
+        var script = new LingoScriptFile("10_Block", File.ReadAllText(path), ScriptDetectionType.Parent);
+        _converter.Convert(new[] { script });
+        Assert.Contains("BlockParentScript(ILingoMovieEnvironment env, GlobalVars global, object _Gfx, int ChosenType)", script.CSharp);
+    }
+
+    [Fact]
     public void ScriptNewCallInstantiatesWithEnvAndGlobals()
     {
         var spriteMgr = new LingoScriptFile("3_SpriteManager", "on startMovie\nend", ScriptDetectionType.Parent);

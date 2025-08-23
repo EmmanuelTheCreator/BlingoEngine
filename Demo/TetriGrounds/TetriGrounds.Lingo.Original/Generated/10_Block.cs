@@ -7,7 +7,7 @@ public class BlockParentScript : LingoParentScript, IHasStepFrameEvent
 
     private readonly GlobalVars _global;
 
-    public BlockParentScript(ILingoMovieEnvironment env, GlobalVars global, object _Gfx, object ChosenType) : base(env)
+    public BlockParentScript(ILingoMovieEnvironment env, GlobalVars global, object _Gfx, int ChosenType) : base(env)
     {
         _global = global;
         if (ChosenType == null)
