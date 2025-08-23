@@ -97,4 +97,18 @@ public class BundleConversionTests
         Assert.Contains("public bool myDestroyAnim;", script.CSharp);
         Assert.Contains("public AColor myColor = AColor.FromCode(0);", script.CSharp);
     }
+
+    [Fact]
+    public void ScriptNewCallInstantiatesWithEnvAndGlobals()
+    {
+        var spriteMgr = new LingoScriptFile("3_SpriteManager", "on startMovie\nend", ScriptDetectionType.Parent);
+        var bgSource = string.Join('\n',
+            "on startMovie",
+            "  gSpriteManager = script(\"SpriteManager\")",
+            "  .new(100)",
+            "end");
+        var bg = new LingoScriptFile("2_Bg_Script", bgSource);
+        _converter.Convert(new[] { spriteMgr, bg });
+        Assert.Contains("gSpriteManager = new SpriteManagerParentScript(_env, _globalvars, 100)", bg.CSharp);
+    }
 }

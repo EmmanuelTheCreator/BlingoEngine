@@ -43,7 +43,7 @@ public void NewGame()
     // check if the game isnt set to pause
     if (objectp(myPlayerBlock)    )
     {
-        _pause = myPlayerBlock.GetPause()        ;
+        _pause = myPlayerBlock.GetPause();
         if (_pause == false)
         {
             TeminateGame();
@@ -66,19 +66,14 @@ public void StartNewGame()
 {
     if (gSpriteManager == null)
     {
-        gSpriteManager = script("SpriteManager");
-        .new(100)        ;
+        gSpriteManager = new SpriteManagerParentScript(_env, _globalvars, 100);
     }
     myWidth = 11;
     myHeight = 22;
-    myGfx = script("Gfx");
-    .new()    ;
-    myScoreManager = script("ScoreManager");
-    .new()    ;
-    myBlocks = script("Blocks");
-    .new(myGfx, myScoreManager, myWidth, myHeight)    ;
-    myPlayerBlock = script("PlayerBlock");
-    .new(myGfx, myBlocks, myScoreManager, myWidth, myHeight)    ;
+    myGfx = new GfxParentScript(_env, _globalvars);
+    myScoreManager = new ScoreManagerParentScript(_env, _globalvars);
+    myBlocks = new BlocksParentScript(_env, _globalvars, myGfx, myScoreManager, myWidth, myHeight);
+    myPlayerBlock = new PlayerBlockParentScript(_env, _globalvars, myGfx, myBlocks, myScoreManager, myWidth, myHeight);
     myPlayerBlock.createBlock();
 }
 

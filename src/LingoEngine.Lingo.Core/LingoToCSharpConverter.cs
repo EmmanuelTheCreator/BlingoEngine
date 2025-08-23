@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
 using LingoEngine.Lingo.Core.Tokenizer;
@@ -14,10 +15,31 @@ public class LingoToCSharpConverter
 {
     public List<ErrorDto> Errors { get; } = new();
 
+    private static string JoinContinuationLines(string source)
+    {
+        var lines = source.Split('\n');
+        if (lines.Length == 0) return source;
+        var sb = new StringBuilder();
+        sb.Append(lines[0]);
+        for (int i = 1; i < lines.Length; i++)
+        {
+            var line = lines[i];
+            if (line.TrimStart().StartsWith("."))
+                sb.Append(line.Trim());
+            else
+            {
+                sb.Append('\n');
+                sb.Append(line.TrimEnd());
+            }
+        }
+        return sb.ToString();
+    }
+
     public string Convert(string lingoSource, string methodAccessModifier = "public")
     {
         Errors.Clear();
         lingoSource = lingoSource.Replace("\r", "\n");
+        lingoSource = JoinContinuationLines(lingoSource);
         var trimmed = lingoSource.Trim();
 
         var match = System.Text.RegularExpressions.Regex.Match(
@@ -60,6 +82,7 @@ public class LingoToCSharpConverter
     {
         Errors.Clear();
         var source = script.Source.Replace("\r", "\n");
+        source = JoinContinuationLines(source);
         var type = script.Detection switch
         {
             ScriptDetectionType.Auto => DetectScriptType(source),
@@ -116,6 +139,7 @@ public class LingoToCSharpConverter
         foreach (var s in scriptList)
         {
             var src = s.Source.Replace("\r", "\n");
+            src = JoinContinuationLines(src);
             sourceMap[s.Name] = src;
             var st = s.Detection switch
             {
@@ -127,7 +151,12 @@ public class LingoToCSharpConverter
             };
             s.Type = st;
         }
-        var typeMap = scriptList.ToDictionary(s => s.Name, s => s.Type);
+        var typeMap = new Dictionary<string, LingoScriptType>(StringComparer.OrdinalIgnoreCase);
+        foreach (var s in scriptList)
+        {
+            typeMap[s.Name] = s.Type;
+            typeMap[SanitizeIdentifier(s.Name)] = s.Type;
+        }
 
         // First pass: parse scripts, gather handler signatures and property names
         foreach (var file in scriptList)

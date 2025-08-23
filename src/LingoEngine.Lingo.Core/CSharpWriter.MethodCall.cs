@@ -246,6 +246,35 @@ public partial class CSharpWriter
 
     private void WriteCallExpr(LingoCallNode node)
     {
+        if (node.Callee is LingoObjPropExprNode prop &&
+            prop.Property is LingoVarNode { VarName: "new" } &&
+            prop.Object is LingoCallNode { Callee: LingoVarNode { VarName: "script" }, Arguments: LingoDatumNode dn } &&
+            dn.Datum.Type == LingoDatum.DatumType.String)
+        {
+            var scriptName = dn.Datum.AsString();
+            if (_scriptTypes.TryGetValue(scriptName, out var st))
+            {
+                var suffix = st switch
+                {
+                    LingoScriptType.Movie => "MovieScript",
+                    LingoScriptType.Parent => "ParentScript",
+                    LingoScriptType.Behavior => "Behavior",
+                    _ => "Script"
+                };
+                var cls = SanitizeIdentifier(scriptName) + suffix;
+                Append("new ");
+                Append(cls);
+                Append("(_env, _globalvars");
+                if (node.Arguments is not LingoBlockNode)
+                {
+                    Append(", ");
+                    node.Arguments.Accept(this);
+                }
+                Append(")");
+                return;
+            }
+        }
+
         if (node.Callee is LingoVarNode func)
         {
             var name = func.VarName;
@@ -299,8 +328,9 @@ public partial class CSharpWriter
                 var cls = SanitizeIdentifier(scriptName) + suffix;
                 Append("new ");
                 Append(cls);
-                Append("(_env");
-                bool hasArgs = dn.Datum.Type == LingoDatum.DatumType.ArgList && dn.Datum.Value is List<LingoNode> list && list.Count > 0;
+                Append("(_env, _globalvars");
+                bool hasArgs = node.ArgList.Datum.Type == LingoDatum.DatumType.ArgList &&
+                               node.ArgList.Datum.Value is List<LingoNode> list && list.Count > 0;
                 if (hasArgs)
                 {
                     Append(", ");
