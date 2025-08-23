@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using ProjectorRays.Common;
 using ProjectorRays.Director;
+using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Globalization;
@@ -101,7 +102,7 @@ namespace ProjectorRays.CastMembers
         public float LeftMargin { get; private set; }
     }
 
-  
+
     /*
     var hex = BitConverter.ToString(view.Data, view.Offset, Math.Min(64, view.Size));
             dir.Logger.LogInformation($"XMED raw start (64 bytes): {hex}");
@@ -123,9 +124,9 @@ namespace ProjectorRays.CastMembers
         public bool Scrollable { get; set; }
         public string RtfText { get; private set; }
         public Dictionary<int, string> StyleFonts { get; } = new();
-        
+
         public string? MemberName { get; private set; }
-       
+
         public uint? FieldTextLength { get; private set; }
 
         public static RaysCastMemberTextRead FromXmedChunk(BufferView view, RaysDirectorFile dir)
@@ -136,9 +137,16 @@ namespace ProjectorRays.CastMembers
             // unknown so we treat it as opaque ASCII for now.
             var ascii = Encoding.Latin1.GetString(view.Data, view.Offset, view.Size);
             dir.Logger.LogInformation($"XMED all : {BitConverter.ToString(view.Data, view.Offset, view.Size)}");
-
-
-
+            try
+            {
+                var doc = XmedReader.Read(view);
+                result.Text = doc.Text;
+                result.Styles = doc.Runs;
+            }
+            catch (Exception ex)
+            {
+                dir.Logger.LogWarning($"XMED parse failed: {ex.Message}");
+            }
             return result;
         }
 
