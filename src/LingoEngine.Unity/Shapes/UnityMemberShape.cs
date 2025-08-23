@@ -6,6 +6,7 @@ using LingoEngine.Members;
 using AbstUI.Primitives;
 using AbstUI.LUnity.Bitmaps;
 using UnityEngine;
+using System.Linq;
 
 namespace LingoEngine.Unity.Shapes;
 
@@ -128,7 +129,7 @@ public class UnityMemberShape : ILingoFrameworkMemberShape, IDisposable
                 break;
             case LingoShapeType.PolyLine:
                 if (VertexList.Count >= 2)
-                    pixels.DrawPolyLine(w, h, VertexList, Closed, stroke);
+                    pixels.DrawPolyLine(w, h, VertexList.ToList(), Closed, stroke);
                 break;
             case LingoShapeType.RoundRect:
                 pixels.DrawRoundRect(w, h, fill, stroke, Filled, StrokeWidth);

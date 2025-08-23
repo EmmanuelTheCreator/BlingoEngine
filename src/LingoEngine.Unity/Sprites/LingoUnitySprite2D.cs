@@ -4,7 +4,13 @@ using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Members;
 using LingoEngine.Sprites;
+using LingoEngine.Texts;
+using LingoEngine.Shapes;
+using LingoEngine.FilmLoops;
 using LingoEngine.Unity.Bitmaps;
+using LingoEngine.Unity.Texts;
+using LingoEngine.Unity.Shapes;
+using LingoEngine.Unity.FilmLoops;
 using UnityEngine;
 
 namespace LingoEngine.Unity.Sprites;
@@ -38,6 +44,7 @@ public class LingoUnitySprite2D : ILingoFrameworkSprite, IDisposable
     private bool _flipV;
     private bool _directToStage;
     private int _ink;
+    private LingoFilmLoopPlayer? _filmLoopPlayer;
 
     internal bool IsDirty { get; set; } = true;
     internal bool IsDirtyMember { get; set; } = true;
@@ -181,10 +188,49 @@ public class LingoUnitySprite2D : ILingoFrameworkSprite, IDisposable
             case LingoMemberBitmap bmp:
                 var unityBmp = bmp.Framework<UnityMemberBitmap>();
                 unityBmp.Preload();
-                if (unityBmp.TextureLingo is UnityTexture2D tex)
-                    SetTexture(tex);
+                if (unityBmp.TextureLingo is UnityTexture2D texBmp)
+                    SetTexture(texBmp);
                 break;
-                // Other member types (text, fields, shapes, film loops) not yet supported.
+            case LingoFilmLoopMember flm:
+                var unityFl = flm.Framework<UnityFilmLoopMember>();
+                unityFl.Preload();
+                _filmLoopPlayer = _lingoSprite.GetFilmLoopPlayer();
+                var size = _filmLoopPlayer?.GetBoundingBox() ?? flm.GetBoundingBox();
+                _desiredWidth = size.Width;
+                _desiredHeight = size.Height;
+                Width = size.Width;
+                Height = size.Height;
+                if (_filmLoopPlayer?.Texture is UnityTexture2D texFl)
+                    SetTexture(texFl);
+                else if (unityFl.TextureLingo is UnityTexture2D texFl2)
+                    SetTexture(texFl2);
+                break;
+            case LingoMemberText text:
+                var unityText = text.Framework<UnityMemberText>();
+                unityText.Preload();
+                if (unityText.RenderToTexture(_lingoSprite.InkType, _lingoSprite.BackColor) is UnityTexture2D texText)
+                    SetTexture(texText);
+                break;
+            case LingoMemberField field:
+                var unityField = field.Framework<UnityMemberField>();
+                unityField.Preload();
+                if (unityField.RenderToTexture(_lingoSprite.InkType, _lingoSprite.BackColor) is UnityTexture2D texField)
+                    SetTexture(texField);
+                break;
+            case LingoMemberShape shape:
+                var unityShape = shape.Framework<UnityMemberShape>();
+                unityShape.Preload();
+                if (unityShape.TextureLingo is UnityTexture2D texShape)
+                    SetTexture(texShape);
+                break;
+        }
+        if (_lingoSprite.Member is { } member)
+        {
+            if (Width == 0 || Height == 0)
+            {
+                Width = member.Width;
+                Height = member.Height;
+            }
         }
         Name = _lingoSprite.GetFullName();
     }
