@@ -249,7 +249,7 @@ Please also read our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ---
 
-## Architecture overviaw.
+## Architecture overview.
 
 ```mermaid
 graph TD
@@ -261,6 +261,7 @@ B --> D[Rendering Abstraction Layer]
 D --> E1[Godot]
 D --> E2[SDL2]
 D --> E3[Unity]
+D --> E3[Blazor]
 
 ```
 
