@@ -35,9 +35,10 @@ public class LingoToCSharpConverter
         return sb.ToString();
     }
 
-    public string Convert(string lingoSource, string methodAccessModifier = "public")
+    public string Convert(string lingoSource, ConversionOptions? options = null)
     {
         Errors.Clear();
+        options ??= new ConversionOptions();
         lingoSource = lingoSource.Replace("\r", "\n");
         lingoSource = JoinContinuationLines(lingoSource);
         var trimmed = lingoSource.Trim();
@@ -69,7 +70,7 @@ public class LingoToCSharpConverter
         try
         {
             var ast = parser.Parse(lingoSource);
-            return CSharpWriter.Write(ast, methodAccessModifier);
+            return CSharpWriter.Write(ast, options.MethodAccessModifier);
         }
         catch (Exception ex)
         {
@@ -78,57 +79,16 @@ public class LingoToCSharpConverter
         }
     }
 
-    public string Convert(LingoScriptFile script, string methodAccessModifier = "public")
+    public string Convert(LingoScriptFile script, ConversionOptions? options = null)
     {
-        Errors.Clear();
-        var source = script.Source.Replace("\r", "\n");
-        source = JoinContinuationLines(source);
-        var type = script.Detection switch
-        {
-            ScriptDetectionType.Auto => DetectScriptType(source),
-            ScriptDetectionType.Behavior => LingoScriptType.Behavior,
-            ScriptDetectionType.Parent => LingoScriptType.Parent,
-            ScriptDetectionType.Movie => LingoScriptType.Movie,
-            _ => LingoScriptType.Behavior
-        };
-        script.Type = type;
-
-        var parser = new LingoAstParser();
-        LingoNode ast;
-        try
-        {
-            ast = parser.Parse(source);
-        }
-        catch (Exception ex)
-        {
-            LogError(script.Name, source, ex);
-            throw;
-        }
-
-        LingoHandlerNode? newHandler = null;
-        if (ast is LingoBlockNode block)
-        {
-            newHandler = block.Children.OfType<LingoHandlerNode>()
-                .FirstOrDefault(h => h.Handler != null && h.Handler.Name.Equals("new", StringComparison.OrdinalIgnoreCase));
-            if (newHandler != null)
-                block.Children.Remove(newHandler);
-        }
-
-        var typeMap = new Dictionary<string, LingoScriptType> { [script.Name] = script.Type };
-        var classCode = ConvertClass(script, newHandler, typeMap);
-
-        var methods = CSharpWriter.Write(ast, methodAccessModifier, typeMap);
-        var insertIdx = classCode.LastIndexOf('}');
-        if (insertIdx >= 0)
-            classCode = classCode[..insertIdx] + methods + classCode[insertIdx..];
-        else
-            classCode += methods;
-        return classCode;
+        Convert(new[] { script }, options);
+        return script.CSharp;
     }
 
-    public LingoBatchResult Convert(IEnumerable<LingoScriptFile> scripts, string methodAccessModifier = "public")
+    public LingoBatchResult Convert(IEnumerable<LingoScriptFile> scripts, ConversionOptions? options = null)
     {
         Errors.Clear();
+        options ??= new ConversionOptions();
         var result = new LingoBatchResult();
         var scriptList = scripts.ToList();
         var asts = new Dictionary<string, LingoNode>();
@@ -278,14 +238,27 @@ public class LingoToCSharpConverter
             {
                 newHandlers.TryGetValue(script.Name, out var nh);
                 var classCode = ConvertClass(script, nh, typeMap);
-                var methods = CSharpWriter.Write(asts[script.Name], methodAccessModifier, typeMap);
+                var methods = CSharpWriter.Write(asts[script.Name], options.MethodAccessModifier, typeMap);
                 var insertIdx = classCode.LastIndexOf('}');
                 if (insertIdx >= 0)
                     classCode = classCode[..insertIdx] + methods + classCode[insertIdx..];
                 else
                     classCode += methods;
-                result.ConvertedScripts[script.Name] = classCode;
-                script.CSharp = classCode;
+
+                var ns = BuildNamespace(script, options);
+                var sb = new StringBuilder();
+                sb.AppendLine("using System;");
+                sb.AppendLine("using LingoEngine.Lingo.Core;");
+                sb.AppendLine();
+                if (!string.IsNullOrWhiteSpace(ns))
+                {
+                    sb.Append("namespace ").Append(ns).AppendLine(";");
+                    sb.AppendLine();
+                }
+                sb.Append(classCode);
+                var finalCode = sb.ToString();
+                result.ConvertedScripts[script.Name] = finalCode;
+                script.CSharp = finalCode;
             }
             catch (Exception ex)
             {
@@ -301,7 +274,19 @@ public class LingoToCSharpConverter
             try
             {
                 var safeName = SanitizeIdentifier(kvp.Value);
-                var script = GenerateSendSpriteBehaviorClass(safeName, kvp.Key);
+                var scriptBody = GenerateSendSpriteBehaviorClass(safeName, kvp.Key);
+                var ns = BuildNamespace(fileItem ?? new LingoScriptFile(kvp.Value, string.Empty), options);
+                var sb = new StringBuilder();
+                sb.AppendLine("using System;");
+                sb.AppendLine("using LingoEngine.Lingo.Core;");
+                sb.AppendLine();
+                if (!string.IsNullOrWhiteSpace(ns))
+                {
+                    sb.Append("namespace ").Append(ns).AppendLine(";");
+                    sb.AppendLine();
+                }
+                sb.Append(scriptBody);
+                var script = sb.ToString();
                 result.ConvertedScripts[kvp.Value] = script;
                 if (fileItem != null)
                     fileItem.CSharp = script;
@@ -547,6 +532,26 @@ public class LingoToCSharpConverter
         if (sb.Length == 0 || !char.IsLetter(sb[0]))
             sb.Insert(0, 'L');
         return sb.ToString();
+    }
+
+    private static string BuildNamespace(LingoScriptFile script, ConversionOptions options)
+    {
+        var parts = new List<string>();
+        if (!string.IsNullOrWhiteSpace(options.Namespace))
+            parts.Add(options.Namespace);
+
+        if (!string.IsNullOrWhiteSpace(script.RelativeDirectory))
+        {
+            var dirs = script.RelativeDirectory.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var d in dirs)
+            {
+                var seg = SanitizeIdentifier(d);
+                if (seg.Length > 0)
+                    parts.Add(char.ToUpperInvariant(seg[0]) + seg[1..]);
+            }
+        }
+
+        return string.Join('.', parts);
     }
 
     private static Dictionary<string, List<string>> ExtractHandlerSignatures(string source)

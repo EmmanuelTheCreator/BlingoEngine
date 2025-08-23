@@ -1,3 +1,8 @@
+using System;
+using LingoEngine.Lingo.Core;
+
+namespace Demo.TetriGrounds;
+
 public class ScoreManagerParentScript : LingoParentScript
 {
     public int myPlayerScore;
@@ -18,7 +23,7 @@ public class ScoreManagerParentScript : LingoParentScript
         myNumberLinesTot = 0;
         myLevelUpPlusScore = 0;
         // find stqrt level
-        myLevel = System.Convert.ToInt32(GetMember<ILingoMemberTextBase>("T_StartLevel").Text);
+        myLevel = Convert.ToInt32(GetMember<ILingoMemberTextBase>("T_StartLevel").Text);
         myLevelUpNeededScore = 20 * (myLevel + 1);
         UpdateGfxScore();
         myTexts = [];

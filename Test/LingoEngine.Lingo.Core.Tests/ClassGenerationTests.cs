@@ -62,6 +62,11 @@ public class ClassGenerationTests
         };
         var result = _converter.Convert(file).Trim();
         var expected = string.Join('\n',
+            "using System;",
+            "using LingoEngine.Lingo.Core;",
+            "",
+            "namespace Generated;",
+            "",
             "public class MyParentParentScript : LingoParentScript",
             "{",
             "    public object myVar;",

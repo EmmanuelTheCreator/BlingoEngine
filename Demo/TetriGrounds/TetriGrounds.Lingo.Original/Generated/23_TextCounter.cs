@@ -1,3 +1,8 @@
+using System;
+using LingoEngine.Lingo.Core;
+
+namespace Demo.TetriGrounds;
+
 public class TextCounterBehavior : LingoSpriteBehavior, ILingoPropertyDescriptionList, IHasBeginSpriteEvent, IHasExitFrameEvent
 {
     public int myMax = 10;

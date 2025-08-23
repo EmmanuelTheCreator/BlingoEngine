@@ -1,3 +1,8 @@
+using System;
+using LingoEngine.Lingo.Core;
+
+namespace Demo.TetriGrounds;
+
 public class AnimationScriptBehavior : LingoSpriteBehavior, ILingoPropertyDescriptionList, IHasBeginSpriteEvent, IHasEndSpriteEvent, IHasStepFrameEvent
 {
     public int myEndMembernum = 10;

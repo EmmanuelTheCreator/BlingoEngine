@@ -233,7 +233,7 @@ public partial class CSharpWriter
                     Append(".Min()");
                     return;
                 case "value" when args.Count >= 1:
-                    Append("System.Convert.ToInt32(");
+                    Append("Convert.ToInt32(");
                     args[0].Accept(this);
                     Append(")");
                     return;

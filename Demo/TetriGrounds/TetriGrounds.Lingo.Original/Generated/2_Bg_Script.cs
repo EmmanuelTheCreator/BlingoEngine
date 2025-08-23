@@ -1,3 +1,8 @@
+using System;
+using LingoEngine.Lingo.Core;
+
+namespace Demo.TetriGrounds;
+
 public class Bg_ScriptBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasEndSpriteEvent
 {
     public int myPlayerBlock;

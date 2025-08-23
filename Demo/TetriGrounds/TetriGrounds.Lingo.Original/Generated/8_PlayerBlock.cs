@@ -1,3 +1,8 @@
+using System;
+using LingoEngine.Lingo.Core;
+
+namespace Demo.TetriGrounds;
+
 public class PlayerBlockParentScript : LingoParentScript, IHasStepFrameEvent
 {
     public int myGfx;

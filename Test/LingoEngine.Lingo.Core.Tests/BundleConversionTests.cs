@@ -25,9 +25,17 @@ public class BundleConversionTests
         var baseDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "Demo", "TetriGrounds", "TetriGrounds.Lingo.Original"));
         var files = Directory.GetFiles(baseDir, "*.ls");
         var scripts = files
-            .Select(f => new LingoScriptFile(Path.GetFileNameWithoutExtension(f), File.ReadAllText(f)))
+            .Select(f =>
+            {
+                var rel = Path.GetRelativePath(baseDir, Path.GetDirectoryName(f)!);
+                rel = rel == "." ? null : rel;
+                return new LingoScriptFile(Path.GetFileNameWithoutExtension(f), File.ReadAllText(f))
+                {
+                    RelativeDirectory = rel
+                };
+            })
             .ToList();
-        _converter.Convert(scripts);
+        _converter.Convert(scripts, new ConversionOptions { Namespace = "Demo.TetriGrounds" });
         var successful = scripts.Where(s => string.IsNullOrEmpty(s.Errors)).ToList();
         Assert.NotEmpty(successful);
         Assert.All(successful, s =>
@@ -50,9 +58,17 @@ public class BundleConversionTests
 
         var files = Directory.GetFiles(baseDir, "*.ls");
         var scripts = files
-            .Select(f => new LingoScriptFile(Path.GetFileNameWithoutExtension(f), File.ReadAllText(f)))
+            .Select(f =>
+            {
+                var rel = Path.GetRelativePath(baseDir, Path.GetDirectoryName(f)!);
+                rel = rel == "." ? null : rel;
+                return new LingoScriptFile(Path.GetFileNameWithoutExtension(f), File.ReadAllText(f))
+                {
+                    RelativeDirectory = rel
+                };
+            })
             .ToList();
-        _converter.Convert(scripts);
+        _converter.Convert(scripts, new ConversionOptions { Namespace = "Demo.TetriGrounds" });
 
         foreach (var script in scripts)
         {
@@ -68,8 +84,8 @@ public class BundleConversionTests
     {
         var baseDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "Demo", "TetriGrounds", "TetriGrounds.Lingo.Original"));
         var path = Path.Combine(baseDir, "3_SpriteManager.ls");
-        var script = new LingoScriptFile("3_SpriteManager", File.ReadAllText(path));
-        _converter.Convert(new[] { script });
+        var script = new LingoScriptFile("3_SpriteManager", File.ReadAllText(path)) { RelativeDirectory = null };
+        _converter.Convert(new[] { script }, new ConversionOptions { Namespace = "Demo.TetriGrounds" });
         Assert.True(string.IsNullOrEmpty(script.Errors));
         Assert.False(string.IsNullOrWhiteSpace(script.CSharp));
     }
@@ -89,7 +105,7 @@ public class BundleConversionTests
                      "  myDestroyAnim = true\n" +
                      "end";
         var script = new LingoScriptFile("10_Block", source, ScriptDetectionType.Behavior);
-        _converter.Convert(new[] { script });
+        _converter.Convert(new[] { script }, new ConversionOptions { Namespace = "Demo.TetriGrounds" });
         Assert.Contains("class BlockBehavior", script.CSharp);
         Assert.Contains("public string myMember;", script.CSharp);
         Assert.Contains("public LingoList<string> myMembers = new();", script.CSharp);
@@ -129,7 +145,18 @@ public class BundleConversionTests
             "  .new(100)",
             "end");
         var bg = new LingoScriptFile("2_Bg_Script", bgSource);
-        _converter.Convert(new[] { spriteMgr, bg });
+        _converter.Convert(new[] { spriteMgr, bg }, new ConversionOptions { Namespace = "Demo.TetriGrounds" });
         Assert.Contains("gSpriteManager = new SpriteManagerParentScript(_env, _globalvars, 100)", bg.CSharp);
+    }
+
+    [Fact]
+    public void NamespaceReflectsDirectoryStructure()
+    {
+        var script = new LingoScriptFile("My", "on startMovie\nend")
+        {
+            RelativeDirectory = Path.Combine("foo", "bar")
+        };
+        _converter.Convert(new[] { script }, new ConversionOptions { Namespace = "Base" });
+        Assert.Contains("namespace Base.Foo.Bar;", script.CSharp);
     }
 }

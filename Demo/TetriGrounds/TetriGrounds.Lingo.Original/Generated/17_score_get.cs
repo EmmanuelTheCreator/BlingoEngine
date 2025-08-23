@@ -1,3 +1,8 @@
+using System;
+using LingoEngine.Lingo.Core;
+
+namespace Demo.TetriGrounds;
+
 public class score_getParentScript : LingoParentScript, IHasStepFrameEvent
 {
     public string myURL;
@@ -40,7 +45,7 @@ public void StepFrame()
         if (myErr == "OK")
         {
             data = netTextResult(myNetID);
-            myScores = [System.Convert.ToInt32(data.Line[1]), System.Convert.ToInt32(data.Line[2])];
+            myScores = [Convert.ToInt32(data.Line[1]), Convert.ToInt32(data.Line[2])];
             OutputScores();
         }
         myDone = True;

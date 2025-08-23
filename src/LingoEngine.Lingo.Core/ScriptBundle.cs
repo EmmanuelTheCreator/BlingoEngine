@@ -15,6 +15,11 @@ public class LingoScriptFile
     /// Source code contained in the script file.
     /// </summary>
     public string Source { get; init; }
+    /// <summary>
+    /// Directory of the script relative to the conversion root.
+    /// Used to build namespaces from folder names.
+    /// </summary>
+    public string? RelativeDirectory { get; init; }
     public string CSharp { get; set; } = "";
     /// <summary>
     /// Requested script type (Auto, Parent, Behavior, Movie).

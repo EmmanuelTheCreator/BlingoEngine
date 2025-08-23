@@ -1,3 +1,8 @@
+using System;
+using LingoEngine.Lingo.Core;
+
+namespace Demo.TetriGrounds;
+
 public class OverScreenTextParentScript : LingoParentScript, IHasStepFrameEvent
 {
     public object myStartX;

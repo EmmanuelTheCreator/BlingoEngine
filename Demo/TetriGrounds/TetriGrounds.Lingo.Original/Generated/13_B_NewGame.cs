@@ -1,3 +1,8 @@
+using System;
+using LingoEngine.Lingo.Core;
+
+namespace Demo.TetriGrounds;
+
 public class NewGameBehavior : LingoSpriteBehavior, IHasMouseWithinEvent, IHasMouseLeaveEvent, IHasMouseUpEvent
 {
     public NewGameBehavior(ILingoMovieEnvironment env) : base(env) { }

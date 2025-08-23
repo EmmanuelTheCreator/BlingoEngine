@@ -1,3 +1,8 @@
+using System;
+using LingoEngine.Lingo.Core;
+
+namespace Demo.TetriGrounds;
+
 public class FontRollOverBehavior : LingoSpriteBehavior, ILingoPropertyDescriptionList, IHasMouseWithinEvent, IHasMouseLeaveEvent, IHasMouseDownEvent, IHasBeginSpriteEvent
 {
     public AColor myColor = AColor.FromCode(0,0,0);

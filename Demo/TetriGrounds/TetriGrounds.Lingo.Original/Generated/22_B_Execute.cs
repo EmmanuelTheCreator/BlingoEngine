@@ -1,3 +1,8 @@
+using System;
+using LingoEngine.Lingo.Core;
+
+namespace Demo.TetriGrounds;
+
 public class ExecuteBehavior : LingoSpriteBehavior, ILingoPropertyDescriptionList, IHasMouseLeaveEvent, IHasMouseDownEvent, IHasMouseEnterEvent, IHasBeginSpriteEvent
 {
     public string myFunction = "0";
