@@ -233,7 +233,7 @@ public partial class CSharpWriter
                     Append(".Min()");
                     return;
                 case "value" when args.Count >= 1:
-                    Append("System.Convert.ToInt32(");
+                    Append("Convert.ToInt32(");
                     args[0].Accept(this);
                     Append(")");
                     return;
@@ -246,11 +246,42 @@ public partial class CSharpWriter
 
     private void WriteCallExpr(LingoCallNode node)
     {
+        if (node.Callee is LingoObjPropExprNode prop &&
+            prop.Property is LingoVarNode { VarName: "new" } &&
+            prop.Object is LingoCallNode { Callee: LingoVarNode { VarName: "script" }, Arguments: LingoDatumNode dn } &&
+            dn.Datum.Type == LingoDatum.DatumType.String)
+        {
+            var scriptName = dn.Datum.AsString();
+            if (_scriptTypes.TryGetValue(scriptName, out var st))
+            {
+                var suffix = st switch
+                {
+                    LingoScriptType.Movie => "MovieScript",
+                    LingoScriptType.Parent => "ParentScript",
+                    LingoScriptType.Behavior => "Behavior",
+                    _ => "Script"
+                };
+                var cls = SanitizeIdentifier(scriptName) + suffix;
+                Append("new ");
+                Append(cls);
+                Append("(_env, _globalvars");
+                if (node.Arguments is not LingoBlockNode)
+                {
+                    Append(", ");
+                    node.Arguments.Accept(this);
+                }
+                Append(")");
+                return;
+            }
+        }
+
         if (node.Callee is LingoVarNode func)
         {
             var name = func.VarName;
             if (name.Equals("castLib", StringComparison.OrdinalIgnoreCase))
                 Append("CastLib");
+            else if (name.Equals("sprite", StringComparison.OrdinalIgnoreCase))
+                Append("Sprite");
             else
                 Append(name);
         }
@@ -270,6 +301,73 @@ public partial class CSharpWriter
             Append("CastLib");
         else
             Append(name);
+        Append("(");
+        node.ArgList.Accept(this);
+        Append(")");
+    }
+
+    private void WriteObjCallV4Expr(LingoObjCallV4Node node)
+    {
+        var methodName = node.Name.Value.AsString();
+
+        // script("Foo").new(args)
+        if (methodName.Equals("new", StringComparison.OrdinalIgnoreCase) &&
+            node.Object is LingoCallNode call &&
+            call.Callee is LingoVarNode { VarName: "script" } &&
+            call.Arguments is LingoDatumNode dn &&
+            dn.Datum.Type == LingoDatum.DatumType.String)
+        {
+            var scriptName = dn.Datum.AsString();
+            if (_scriptTypes.TryGetValue(scriptName, out var st))
+            {
+                var suffix = st switch
+                {
+                    LingoScriptType.Movie => "MovieScript",
+                    LingoScriptType.Parent => "ParentScript",
+                    LingoScriptType.Behavior => "Behavior",
+                    _ => "Script"
+                };
+                var cls = SanitizeIdentifier(scriptName) + suffix;
+                Append("new ");
+                Append(cls);
+                Append("(_env, _globalvars");
+                bool hasArgs = node.ArgList.Datum.Type == LingoDatum.DatumType.ArgList &&
+                               node.ArgList.Datum.Value is List<LingoNode> list && list.Count > 0;
+                if (hasArgs)
+                {
+                    Append(", ");
+                    node.ArgList.Accept(this);
+                }
+                Append(")");
+                return;
+            }
+        }
+
+        var startLen = _sb.Length;
+        if (node.Object is LingoCallNode callObj)
+            WriteCallExpr(callObj);
+        else if (node.Object is LingoObjCallNode objCall)
+            WriteObjCallExpr(objCall);
+        else
+            node.Object.Accept(this);
+        TrimSemicolon(startLen);
+
+        Append(".");
+        var lower = methodName.ToLowerInvariant();
+        var pascal = lower switch
+        {
+            "deleteone" => "DeleteOne",
+            "getpos" => "GetPos",
+            "deleteat" => "DeleteAt",
+            "getat" => "GetAt",
+            "setat" => "SetAt",
+            "count" => "Count",
+            "add" => "Add",
+            "addat" => "AddAt",
+            "addprop" => "Add",
+            _ => methodName
+        };
+        Append(pascal);
         Append("(");
         node.ArgList.Accept(this);
         Append(")");

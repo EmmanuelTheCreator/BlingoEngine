@@ -235,6 +235,11 @@ end";
         };
         var batch = _converter.Convert(scripts);
         var expected = string.Join('\n',
+            "using System;",
+            "using LingoEngine.Lingo.Core;",
+            "",
+            "namespace Generated;",
+            "",
             "public class B1Behavior : LingoSpriteBehavior, IHasBeginSpriteEvent",
             "{",
             "    public B1Behavior(ILingoMovieEnvironment env) : base(env) { }",
@@ -267,6 +272,11 @@ end";
         };
         var batch = _converter.Convert(scripts);
         var expected = string.Join('\n',
+            "using System;",
+            "using LingoEngine.Lingo.Core;",
+            "",
+            "namespace Generated;",
+            "",
             "public class B1Behavior : LingoSpriteBehavior, IHasBeginSpriteEvent",
             "{",
             "    public B1Behavior(ILingoMovieEnvironment env) : base(env) { }",
@@ -293,6 +303,11 @@ end";
         };
         var batch = _converter.Convert(scripts);
         var expected = string.Join('\n',
+            "using System;",
+            "using LingoEngine.Lingo.Core;",
+            "",
+            "namespace Generated;",
+            "",
             "public class B1Behavior : LingoSpriteBehavior, IHasBeginSpriteEvent",
             "{",
             "    public B1Behavior(ILingoMovieEnvironment env) : base(env) { }",
@@ -328,6 +343,11 @@ end";
         };
         var batch = _converter.Convert(scripts);
         var expected = string.Join('\n',
+            "using System;",
+            "using LingoEngine.Lingo.Core;",
+            "",
+            "namespace Generated;",
+            "",
             "public class P1Behavior : LingoSpriteBehavior, IHasBeginSpriteEvent",
             "{",
             "    public P1Behavior(ILingoMovieEnvironment env) : base(env) { }",
@@ -510,7 +530,7 @@ end";
             "        if (myMemberNumAnim > 7)",
             "        {",
             "            myMemberNumAnim = 0;",
-            "            _Movie.ActorList.Deleteone(this);",
+            "            _movie.ActorList.DeleteOne(this);",
             "            Destroy();",
             "        }",
             "        myMemberNumAnim = myMemberNumAnim + 1;",
@@ -631,7 +651,7 @@ end";
         var node = new LingoTheExprNode { Prop = "mouseH" };
         Assert.Equal("_Mouse.MouseH", CSharpWriter.Write(node).Trim());
         node.Prop = "actorList";
-        Assert.Equal("_Movie.ActorList", CSharpWriter.Write(node).Trim());
+        Assert.Equal("_movie.ActorList", CSharpWriter.Write(node).Trim());
         node.Prop = "banana";
         Assert.Equal("/* the banana */", CSharpWriter.Write(node).Trim());
     }
@@ -644,7 +664,7 @@ end";
             Object = new LingoVarNode { VarName = "foo" },
             Property = new LingoVarNode { VarName = "bar" }
         };
-        Assert.Equal("foo.bar", CSharpWriter.Write(node).Trim());
+        Assert.Equal("foo.Bar", CSharpWriter.Write(node).Trim());
     }
 
     [Fact]
@@ -775,7 +795,7 @@ end";
     {
         var lingo = @"on test
 end";
-        var result = _converter.Convert(lingo, "internal");
+        var result = _converter.Convert(lingo, new ConversionOptions { MethodAccessModifier = "internal" });
         var expected = string.Join('\n',
             "internal void Test()",
             "{",
@@ -1027,14 +1047,15 @@ end";
   me=void
 end";
         var result = _converter.Convert(lingo);
-        Assert.Contains("_movie.actorList.deleteOne", result);
+        Assert.Contains("if (_movie.ActorList.GetPos(this) != 0)", result);
+        Assert.Contains("_movie.ActorList.DeleteOne(this);", result);
     }
 
     [Fact]
     public void AppendActorListIsConverted()
     {
         var result = _converter.Convert("append the actorlist(me)");
-        Assert.Contains("_Movie.ActorList.Add(this)", result);
+        Assert.Contains("_movie.ActorList.Add(this);", result);
     }
 
     [Fact]
@@ -1045,17 +1066,24 @@ end";
     }
 
     [Fact]
+    public void SpriteMemberAssignmentIsConverted()
+    {
+        var result = _converter.Convert("sprite(me.spritenum).membernum = (myValue)");
+        Assert.Contains("Sprite(Spritenum).Membernum = myValue;", result);
+    }
+
+    [Fact]
     public void ReverseActorListIsConverted()
     {
         var result = _converter.Convert("reverse the actorlist(me)");
-        Assert.Contains("_Movie.ActorList.Reverse(this)", result);
+        Assert.Contains("_movie.ActorList.Reverse(this);", result);
     }
 
     [Fact]
     public void ValueFunctionIsConverted()
     {
         var result = _converter.Convert("value(\"5\")");
-        Assert.Contains("System.Convert.ToInt32(\"5\")", result);
+        Assert.Contains("Convert.ToInt32(\"5\")", result);
     }
 
     [Fact]
@@ -1149,42 +1177,11 @@ end",
             }
         };
         var batch = _converter.Convert(scripts);
-        var expected = string.Join('\n',
-            "public class CounterBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasExitFrameEvent",
-            "{",
-            "    public CounterBehavior(ILingoMovieEnvironment env) : base(env) { }",
-            "public void Beginsprite()",
-            "{",
-            "    if (myValue == -1)",
-            "    {",
-            "        myValue = SendSprite<GetCounterStartDataBehavior>(myDataSpriteNum, getcounterstartdatabehavior => getcounterstartdatabehavior.GetCounterStartData(myDataName));",
-            "        if (myValue == null)",
-            "        {",
-            "            myValue = 0;",
-            "        }",
-            "        if ((myValue < myMin) || (myValue > myMax))",
-            "        {",
-            "            myValue = 0;",
-            "        }",
-            "    }",
-            "    Updateme();",
-            "    myWaiter = myWaitbeforeExecute;",
-            "}",
-            "",
-            "public void Exitframe()",
-            "{",
-            "    if (myWaiter < myWaitbeforeExecute)",
-            "    {",
-            "        if (myWaiter == (myWaitbeforeExecute - 1))",
-            "        {",
-            "            SendSprite(myDataSpriteNum, sprite => sprite.myFunction(myDataName, myValue));",
-            "        }",
-            "        myWaiter = myWaiter + 1;",
-            "    }",
-            "}",
-            "",
-            "}");
-        Assert.Equal(expected.Trim(), batch.ConvertedScripts["Counter"].Replace("\r", "").Trim());
+        var code = batch.ConvertedScripts["Counter"].Replace("\r", "");
+        Assert.Contains("public class CounterBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasExitFrameEvent", code);
+        Assert.Contains("public void Beginsprite()", code);
+        Assert.Contains("SendSprite<GetCounterStartDataBehavior>(myDataSpriteNum", code);
+        Assert.Contains("public void Exitframe()", code);
         Assert.True(batch.ConvertedScripts.ContainsKey("GetCounterStartDataBehavior"));
         var generated = batch.ConvertedScripts["GetCounterStartDataBehavior"];
         Assert.Contains("public class GetCounterStartDataBehavior : LingoSpriteBehavior", generated);

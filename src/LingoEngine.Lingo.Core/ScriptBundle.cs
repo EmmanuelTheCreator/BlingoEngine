@@ -15,17 +15,34 @@ public class LingoScriptFile
     /// Source code contained in the script file.
     /// </summary>
     public string Source { get; init; }
+    /// <summary>
+    /// Directory of the script relative to the conversion root.
+    /// Used to build namespaces from folder names.
+    /// </summary>
+    public string? RelativeDirectory { get; init; }
     public string CSharp { get; set; } = "";
     /// <summary>
-    /// Script type (Parent, Behavior, Movie).
+    /// Requested script type (Auto, Parent, Behavior, Movie).
     /// </summary>
-    public LingoScriptType Type { get; init; }
+    public ScriptDetectionType Detection { get; init; } = ScriptDetectionType.Auto;
+    /// <summary>
+    /// Detected script type used during conversion.
+    /// </summary>
+    public LingoScriptType Type { get; set; } = LingoScriptType.Behavior;
     public string Errors { get; internal set; } = "";
 
-    public LingoScriptFile(string name, string source, LingoScriptType type = LingoScriptType.Behavior)
+    public LingoScriptFile() : this(string.Empty, string.Empty) { }
+
+    public LingoScriptFile(string name, string source, ScriptDetectionType detection = ScriptDetectionType.Auto)
     {
         Name = name;
         Source = source;
+        Detection = detection;
+    }
+
+    public LingoScriptFile(string name, string source, LingoScriptType type)
+        : this(name, source, (ScriptDetectionType)type)
+    {
         Type = type;
     }
 }
@@ -35,6 +52,17 @@ public class LingoScriptFile
 /// </summary>
 public enum LingoScriptType
 {
+    Parent,
+    Behavior,
+    Movie
+}
+
+/// <summary>
+/// Specifies how a script's type should be determined.
+/// </summary>
+public enum ScriptDetectionType
+{
+    Auto,
     Parent,
     Behavior,
     Movie

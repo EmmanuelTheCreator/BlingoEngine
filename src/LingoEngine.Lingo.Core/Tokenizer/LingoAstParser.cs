@@ -569,6 +569,12 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                     expr = new LingoDatumNode(datum);
                     break;
 
+                case LingoTokenType.Not:
+                    AdvanceToken();
+                    var notExpr = ParsePrimary();
+                    expr = new LingoNotOpNode { Expr = notExpr };
+                    break;
+
                 case LingoTokenType.Minus:
                     AdvanceToken();
                     if (_currentToken.Type == LingoTokenType.Number)
@@ -661,6 +667,12 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                     AdvanceToken();
                     var propTok = Expect(LingoTokenType.Identifier);
                     expr = new LingoTheExprNode { Prop = propTok.Lexeme };
+                    break;
+
+                case LingoTokenType.LeftParen:
+                    AdvanceToken();
+                    expr = ParseExpression();
+                    Expect(LingoTokenType.RightParen);
                     break;
 
                 case LingoTokenType.Identifier:
@@ -777,7 +789,14 @@ namespace LingoEngine.Lingo.Core.Tokenizer
             var condition = ParseExpression();
             var thenTok = Expect(LingoTokenType.Then);
 
-            if (_currentToken.Line == thenTok.Line)
+            while (_currentToken.Type == LingoTokenType.Comment &&
+                   _currentToken.Line == thenTok.Line)
+            {
+                AdvanceToken();
+            }
+
+            if (_currentToken.Line == thenTok.Line &&
+                _currentToken.Type != LingoTokenType.Comment)
             {
                 var stmt = ParseStatement();
                 var single = new LingoBlockNode();
@@ -869,14 +888,33 @@ namespace LingoEngine.Lingo.Core.Tokenizer
             {
                 AdvanceToken();
                 var varToken = Expect(LingoTokenType.Identifier);
-                Expect(LingoTokenType.Equals);
-                var start = ParseExpression();
-                Expect(LingoTokenType.To);
-                var end = ParseExpression();
-                var body = ParseBlock();
-                Expect(LingoTokenType.End);
-                Expect(LingoTokenType.Repeat);
-                return new LingoRepeatWithStmtNode(varToken.Lexeme, start, end, body);
+                if (Match(LingoTokenType.Equals))
+                {
+                    var start = ParseExpression();
+                    Expect(LingoTokenType.To);
+                    var end = ParseExpression();
+                    var body = ParseBlock();
+                    Expect(LingoTokenType.End);
+                    Expect(LingoTokenType.Repeat);
+                    return new LingoRepeatWithStmtNode(varToken.Lexeme, start, end, body);
+                }
+                else if (Match(LingoTokenType.In))
+                {
+                    var list = ParseExpression();
+                    var body = ParseBlock();
+                    Expect(LingoTokenType.End);
+                    Expect(LingoTokenType.Repeat);
+                    return new LingoRepeatWithInStmtNode
+                    {
+                        Variable = varToken.Lexeme,
+                        List = list,
+                        Body = body
+                    };
+                }
+                else
+                {
+                    throw new Exception($"Expected token Equals or In, but got {_currentToken.Type} at line {_currentToken.Line}");
+                }
             }
             else if (_currentToken.Type == LingoTokenType.Number)
             {

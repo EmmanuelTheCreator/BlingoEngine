@@ -14,19 +14,21 @@ public partial class CSharpWriter : ILingoAstVisitor
 {
     private readonly StringBuilder _sb = new();
     private readonly string _methodAccessModifier;
+    private readonly IReadOnlyDictionary<string, LingoScriptType> _scriptTypes;
     private string? _currentHandlerName;
     private int _indent;
     private bool _atLineStart = true;
 
-    public CSharpWriter(string methodAccessModifier = "public")
+    public CSharpWriter(string methodAccessModifier = "public", IReadOnlyDictionary<string, LingoScriptType>? scriptTypes = null)
     {
         _methodAccessModifier = methodAccessModifier;
+        _scriptTypes = scriptTypes ?? new Dictionary<string, LingoScriptType>();
     }
 
     /// <summary>Converts the given AST node to C#.</summary>
-    public static string Write(LingoNode node, string methodAccessModifier = "public")
+    public static string Write(LingoNode node, string methodAccessModifier = "public", IReadOnlyDictionary<string, LingoScriptType>? scriptTypes = null)
     {
-        var writer = new CSharpWriter(methodAccessModifier);
+        var writer = new CSharpWriter(methodAccessModifier, scriptTypes);
         node.Accept(writer);
         return writer._sb.ToString();
     }
@@ -120,7 +122,9 @@ public partial class CSharpWriter : ILingoAstVisitor
     public void Visit(LingoIfStmtNode node)
     {
         Append("if (");
+        var startCond = _sb.Length;
         node.Condition.Accept(this);
+        TrimSemicolon(startCond);
         AppendLine(")");
         AppendLine("{");
         Indent();
@@ -149,7 +153,9 @@ public partial class CSharpWriter : ILingoAstVisitor
     public void Visit(LingoIfElseStmtNode node)
     {
         Append("if (");
+        var startCond = _sb.Length;
         node.Condition.Accept(this);
+        TrimSemicolon(startCond);
         AppendLine(")");
         AppendLine("{");
         Indent();
@@ -190,7 +196,9 @@ public partial class CSharpWriter : ILingoAstVisitor
         {
             node.Target.Accept(this);
             Append(" = ");
+            var start = _sb.Length;
             node.Value.Accept(this);
+            TrimSemicolon(start);
             AppendLine(";");
         }
     }
@@ -205,7 +213,7 @@ public partial class CSharpWriter : ILingoAstVisitor
         }
         else if (propLower == "actorlist")
         {
-            Append("_Movie.ActorList");
+            Append("_movie.ActorList");
         }
         else if (propLower == "frame")
         {
@@ -238,7 +246,9 @@ public partial class CSharpWriter : ILingoAstVisitor
         bool needsParensRight = node.Right is LingoBinaryOpNode;
 
         if (needsParensLeft) Append("(");
+        var startLeft = _sb.Length;
         node.Left.Accept(this);
+        TrimSemicolon(startLeft);
         if (needsParensLeft) Append(")");
 
         Append(" ");
@@ -246,7 +256,9 @@ public partial class CSharpWriter : ILingoAstVisitor
         Append(" ");
 
         if (needsParensRight) Append("(");
+        var startRight = _sb.Length;
         node.Right.Accept(this);
+        TrimSemicolon(startRight);
         if (needsParensRight) Append(")");
     }
 
@@ -316,7 +328,9 @@ public partial class CSharpWriter : ILingoAstVisitor
         if (node.Value != null)
         {
             Append(" ");
+            var start = _sb.Length;
             node.Value.Accept(this);
+            TrimSemicolon(start);
         }
         AppendLine(";");
     }
@@ -352,10 +366,10 @@ public partial class CSharpWriter : ILingoAstVisitor
 
     public void Visit(LingoObjCallV4Node node)
     {
-        var methodName = node.Name.Value.AsString();
         if (node.Object is LingoVarNode objVar &&
             objVar.VarName.Equals("me", StringComparison.OrdinalIgnoreCase))
         {
+            var methodName = node.Name.Value.AsString();
             Append(char.ToUpperInvariant(methodName[0]) + methodName[1..]);
             Append("(");
             node.ArgList.Accept(this);
@@ -363,30 +377,8 @@ public partial class CSharpWriter : ILingoAstVisitor
             return;
         }
 
-        var startLen = _sb.Length;
-        if (node.Object is LingoCallNode callObj)
-            WriteCallExpr(callObj);
-        else if (node.Object is LingoObjCallNode objCall)
-            WriteObjCallExpr(objCall);
-        else
-            node.Object.Accept(this);
-        if (_sb.Length - startLen >= 1 && _sb[^1] == '\n')
-        {
-            if (_sb.Length - startLen >= 2 && _sb[^2] == ';')
-                _sb.Length -= 2;
-        }
-        else if (_sb.Length - startLen >= 1 && _sb[^1] == ';')
-        {
-            _sb.Length -= 1;
-        }
-        Append(".");
-        if (methodName.Equals("save", StringComparison.OrdinalIgnoreCase))
-            Append("Save");
-        else
-            Append(methodName);
-        Append("(");
-        node.ArgList.Accept(this);
-        AppendLine(");");
+        WriteObjCallV4Expr(node);
+        AppendLine(";");
     }
 
     public void Visit(LingoMemberExprNode node)
@@ -442,7 +434,9 @@ public partial class CSharpWriter : ILingoAstVisitor
 
         node.Target.Accept(this);
         Append(" = ");
+        var start = _sb.Length;
         node.Value.Accept(this);
+        TrimSemicolon(start);
         AppendLine(";");
     }
 
@@ -702,4 +696,36 @@ public partial class CSharpWriter : ILingoAstVisitor
     }
 
     public void Visit(LingoNextStmtNode nextStmtNode) => AppendLine("// next");
+
+    private void TrimSemicolon(int startLen)
+    {
+        if (_sb.Length - startLen >= 1 && _sb[^1] == '\n')
+        {
+            if (_sb.Length - startLen >= 2 && _sb[^2] == ';')
+                _sb.Length -= 2;
+            _atLineStart = false;
+        }
+        else if (_sb.Length - startLen >= 1 && _sb[^1] == ';')
+        {
+            _sb.Length -= 1;
+            _atLineStart = false;
+        }
+    }
+
+    private static string SanitizeIdentifier(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return "L";
+        var sb = new StringBuilder();
+        foreach (var c in name)
+        {
+            if (char.IsLetterOrDigit(c) || c == '_')
+                sb.Append(c);
+        }
+        var result = sb.ToString();
+        if (string.IsNullOrEmpty(result))
+            result = "L";
+        if (!char.IsLetter(result[0]) && result[0] != '_')
+            result = "L" + result;
+        return result;
+    }
 }

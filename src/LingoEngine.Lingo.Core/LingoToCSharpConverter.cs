@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
 using LingoEngine.Lingo.Core.Tokenizer;
@@ -14,10 +15,32 @@ public class LingoToCSharpConverter
 {
     public List<ErrorDto> Errors { get; } = new();
 
-    public string Convert(string lingoSource, string methodAccessModifier = "public")
+    private static string JoinContinuationLines(string source)
+    {
+        var lines = source.Split('\n');
+        if (lines.Length == 0) return source;
+        var sb = new StringBuilder();
+        sb.Append(lines[0]);
+        for (int i = 1; i < lines.Length; i++)
+        {
+            var line = lines[i];
+            if (line.TrimStart().StartsWith("."))
+                sb.Append(line.Trim());
+            else
+            {
+                sb.Append('\n');
+                sb.Append(line.TrimEnd());
+            }
+        }
+        return sb.ToString();
+    }
+
+    public string Convert(string lingoSource, ConversionOptions? options = null)
     {
         Errors.Clear();
+        options ??= new ConversionOptions();
         lingoSource = lingoSource.Replace("\r", "\n");
+        lingoSource = JoinContinuationLines(lingoSource);
         var trimmed = lingoSource.Trim();
 
         var match = System.Text.RegularExpressions.Regex.Match(
@@ -47,7 +70,7 @@ public class LingoToCSharpConverter
         try
         {
             var ast = parser.Parse(lingoSource);
-            return CSharpWriter.Write(ast, methodAccessModifier);
+            return CSharpWriter.Write(ast, options.MethodAccessModifier);
         }
         catch (Exception ex)
         {
@@ -56,54 +79,44 @@ public class LingoToCSharpConverter
         }
     }
 
-    public string Convert(LingoScriptFile script, string methodAccessModifier = "public")
+    public string Convert(LingoScriptFile script, ConversionOptions? options = null)
     {
-        Errors.Clear();
-        var source = script.Source.Replace("\r", "\n");
-        var type = DetectScriptType(source);
-        var file = new LingoScriptFile(script.Name, source, type );
-
-        var parser = new LingoAstParser();
-        LingoNode ast;
-        try
-        {
-            ast = parser.Parse(source);
-        }
-        catch (Exception ex)
-        {
-            LogError(script.Name, source, ex);
-            throw;
-        }
-
-        LingoHandlerNode? newHandler = null;
-        if (ast is LingoBlockNode block)
-        {
-            newHandler = block.Children.OfType<LingoHandlerNode>()
-                .FirstOrDefault(h => h.Handler != null && h.Handler.Name.Equals("new", StringComparison.OrdinalIgnoreCase));
-            if (newHandler != null)
-                block.Children.Remove(newHandler);
-        }
-
-        var classCode = ConvertClass(file, newHandler);
-
-        var methods = CSharpWriter.Write(ast, methodAccessModifier);
-        var insertIdx = classCode.LastIndexOf('}');
-        if (insertIdx >= 0)
-            classCode = classCode[..insertIdx] + methods + classCode[insertIdx..];
-        else
-            classCode += methods;
-        return classCode;
+        Convert(new[] { script }, options);
+        return script.CSharp;
     }
 
-    public LingoBatchResult Convert(IEnumerable<LingoScriptFile> scripts, string methodAccessModifier = "public")
+    public LingoBatchResult Convert(IEnumerable<LingoScriptFile> scripts, ConversionOptions? options = null)
     {
         Errors.Clear();
+        options ??= new ConversionOptions();
         var result = new LingoBatchResult();
         var scriptList = scripts.ToList();
         var asts = new Dictionary<string, LingoNode>();
         var methodMap = new Dictionary<string, string>();
         var propInfo = new Dictionary<string, List<(string Name, string Type, string? Default)>>();
         var newHandlers = new Dictionary<string, LingoHandlerNode?>();
+        var sourceMap = new Dictionary<string, string>();
+        foreach (var s in scriptList)
+        {
+            var src = s.Source.Replace("\r", "\n");
+            src = JoinContinuationLines(src);
+            sourceMap[s.Name] = src;
+            var st = s.Detection switch
+            {
+                ScriptDetectionType.Auto => DetectScriptType(src),
+                ScriptDetectionType.Behavior => LingoScriptType.Behavior,
+                ScriptDetectionType.Parent => LingoScriptType.Parent,
+                ScriptDetectionType.Movie => LingoScriptType.Movie,
+                _ => LingoScriptType.Behavior
+            };
+            s.Type = st;
+        }
+        var typeMap = new Dictionary<string, LingoScriptType>(StringComparer.OrdinalIgnoreCase);
+        foreach (var s in scriptList)
+        {
+            typeMap[s.Name] = s.Type;
+            typeMap[SanitizeIdentifier(s.Name)] = s.Type;
+        }
 
         // First pass: parse scripts, gather handler signatures and property names
         foreach (var file in scriptList)
@@ -115,7 +128,8 @@ public class LingoToCSharpConverter
                 var parser = new LingoAstParser();
                 try
                 {
-                    var ast = parser.Parse(file.Source);
+                    var source = sourceMap[file.Name];
+                    var ast = parser.Parse(source);
                     if (ast is LingoBlockNode block)
                     {
                         var nh = block.Children.OfType<LingoHandlerNode>()
@@ -128,11 +142,11 @@ public class LingoToCSharpConverter
                 }
                 catch (Exception ex)
                 {
-                    LogError(file.Name, file.Source, ex);
+                    LogError(file.Name, sourceMap[file.Name], ex);
                     throw;
                 }
 
-                var signatures = ExtractHandlerSignatures(file.Source);
+                var signatures = ExtractHandlerSignatures(sourceMap[file.Name]);
                 signatures.Remove("new");
                 var methodSigs = new List<MethodSignature>();
                 foreach (var kv in signatures)
@@ -147,8 +161,8 @@ public class LingoToCSharpConverter
                 }
                 result.Methods[file.Name] = methodSigs;
 
-                var propDecls = ExtractPropertyDeclarations(file.Source);
-                var propDescs = ExtractPropertyDescriptions(file.Source);
+                var propDecls = ExtractPropertyDeclarations(sourceMap[file.Name]);
+                var propDescs = ExtractPropertyDescriptions(sourceMap[file.Name]);
                 var fieldMap = new Dictionary<string, (string Type, string? Default)>(StringComparer.OrdinalIgnoreCase);
                 foreach (var n in propDecls)
                     fieldMap[n] = ("object", null);
@@ -171,7 +185,7 @@ public class LingoToCSharpConverter
             try
             {
                 var fields = propInfo.TryGetValue(file, out var list) ? list.ToDictionary(x => x.Name, x => (x.Type, x.Default), StringComparer.OrdinalIgnoreCase) : new Dictionary<string, (string Type, string? Default)>(StringComparer.OrdinalIgnoreCase);
-                var source = scriptList.First(s => s.Name == file).Source;
+                var source = sourceMap[file];
                 var inferredProps = InferPropertyTypes(source, fields.Keys);
                 foreach (var kv in inferredProps)
                 {
@@ -181,7 +195,7 @@ public class LingoToCSharpConverter
                 result.Properties[file] = fields.Select(kv => new PropertyInfo(kv.Key, kv.Value.Type)).ToList();
 
                 var methods = result.Methods.TryGetValue(file, out var msList) ? msList : new List<MethodSignature>();
-                var paramTypes = InferParameterTypes(source, methods);
+                var paramTypes = InferParameterTypes(source, methods, fields.ToDictionary(kv => kv.Key, kv => kv.Value.Type, StringComparer.OrdinalIgnoreCase));
                 foreach (var ms in methods)
                 {
                     if (!paramTypes.TryGetValue(ms.Name, out var map)) continue;
@@ -215,7 +229,7 @@ public class LingoToCSharpConverter
                 fileItem.Errors += Environment.NewLine + ex.Message;
             }
         }
-            
+
 
         // Generate final class code inserting methods
         foreach (var script in scriptList)
@@ -223,15 +237,28 @@ public class LingoToCSharpConverter
             try
             {
                 newHandlers.TryGetValue(script.Name, out var nh);
-                var classCode = ConvertClass(script, nh);
-                var methods = CSharpWriter.Write(asts[script.Name], methodAccessModifier);
+                var classCode = ConvertClass(script, nh, typeMap);
+                var methods = CSharpWriter.Write(asts[script.Name], options.MethodAccessModifier, typeMap);
                 var insertIdx = classCode.LastIndexOf('}');
                 if (insertIdx >= 0)
                     classCode = classCode[..insertIdx] + methods + classCode[insertIdx..];
                 else
                     classCode += methods;
-                result.ConvertedScripts[script.Name] = classCode;
-                script.CSharp = classCode;
+
+                var ns = BuildNamespace(script, options);
+                var sb = new StringBuilder();
+                sb.AppendLine("using System;");
+                sb.AppendLine("using LingoEngine.Lingo.Core;");
+                sb.AppendLine();
+                if (!string.IsNullOrWhiteSpace(ns))
+                {
+                    sb.Append("namespace ").Append(ns).AppendLine(";");
+                    sb.AppendLine();
+                }
+                sb.Append(classCode);
+                var finalCode = sb.ToString();
+                result.ConvertedScripts[script.Name] = finalCode;
+                script.CSharp = finalCode;
             }
             catch (Exception ex)
             {
@@ -242,19 +269,35 @@ public class LingoToCSharpConverter
 
         foreach (var kvp in generatedBehaviors)
         {
-            var fileItem = scripts.First(x => x.Name == kvp.Value);
-            
+            var fileItem = scripts.FirstOrDefault(x => x.Name == kvp.Value);
+
             try
             {
-                var script = GenerateSendSpriteBehaviorClass(kvp.Value, kvp.Key);
+                var safeName = SanitizeIdentifier(kvp.Value);
+                var scriptBody = GenerateSendSpriteBehaviorClass(safeName, kvp.Key);
+                var ns = BuildNamespace(fileItem ?? new LingoScriptFile(kvp.Value, string.Empty), options);
+                var sb = new StringBuilder();
+                sb.AppendLine("using System;");
+                sb.AppendLine("using LingoEngine.Lingo.Core;");
+                sb.AppendLine();
+                if (!string.IsNullOrWhiteSpace(ns))
+                {
+                    sb.Append("namespace ").Append(ns).AppendLine(";");
+                    sb.AppendLine();
+                }
+                sb.Append(scriptBody);
+                var script = sb.ToString();
                 result.ConvertedScripts[kvp.Value] = script;
-                fileItem.CSharp = script;
+                if (fileItem != null)
+                    fileItem.CSharp = script;
             }
             catch (Exception ex)
             {
-                fileItem.Errors += Environment.NewLine+ ex.Message;
+                if (fileItem != null)
+                    fileItem.Errors += Environment.NewLine + ex.Message;
             }
-            fileItem.Errors += GetCurrentErrorsAndFlush();
+            if (fileItem != null)
+                fileItem.Errors += GetCurrentErrorsAndFlush();
         }
 
         return result;
@@ -278,11 +321,14 @@ public class LingoToCSharpConverter
         LingoHandlerNode? newHandler = null;
         try
         {
+            var source = script.Source.Replace("\r", "\n");
             var parser = new LingoAstParser();
-            var ast = parser.Parse(script.Source);
+            var ast = parser.Parse(source);
             if (ast is LingoBlockNode block)
                 newHandler = block.Children.OfType<LingoHandlerNode>()
                     .FirstOrDefault(h => h.Handler != null && h.Handler.Name.Equals("new", StringComparison.OrdinalIgnoreCase));
+            var normalized = new LingoScriptFile(script.Name, source, script.Type);
+            return ConvertClass(normalized, newHandler);
         }
         catch
         {
@@ -292,9 +338,10 @@ public class LingoToCSharpConverter
         return ConvertClass(script, newHandler);
     }
 
-    public string ConvertClass(LingoScriptFile script, LingoHandlerNode? newHandler)
+    public string ConvertClass(LingoScriptFile script, LingoHandlerNode? newHandler, IReadOnlyDictionary<string, LingoScriptType>? scriptTypes = null)
     {
-        var handlers = ExtractHandlerNames(script.Source);
+        var source = script.Source.Replace("\r", "\n");
+        var handlers = ExtractHandlerNames(source);
         var scriptType = handlers.Contains("getPropertyDescriptionList") ? LingoScriptType.Behavior : script.Type;
 
         var suffix = scriptType switch
@@ -313,10 +360,10 @@ public class LingoToCSharpConverter
             _ => "LingoScriptBase"
         };
 
-        var className = script.Name + suffix;
+        var className = SanitizeIdentifier(script.Name) + suffix;
         bool hasPropDescHandler = handlers.Contains("getPropertyDescriptionList");
-        var propDescs = ExtractPropertyDescriptions(script.Source);
-        var propDecls = ExtractPropertyDeclarations(script.Source);
+        var propDescs = ExtractPropertyDescriptions(source);
+        var propDecls = ExtractPropertyDeclarations(source);
 
         var sb = new System.Text.StringBuilder();
         var interfaces = new List<string>();
@@ -362,12 +409,13 @@ public class LingoToCSharpConverter
         foreach (var d in propDescs)
             fieldMap[d.Name] = (FormatToCSharpType(d.Format), d.Default);
 
-        var inferredTypes = InferPropertyTypes(script.Source, fieldMap.Keys);
+        var inferredTypes = InferPropertyTypes(source, fieldMap.Keys);
         foreach (var kv in inferredTypes)
         {
             if (fieldMap.TryGetValue(kv.Key, out var existing) && existing.Type == "object")
                 fieldMap[kv.Key] = (kv.Value, existing.Default);
         }
+        var fieldTypes = fieldMap.ToDictionary(kv => kv.Key, kv => kv.Value.Type, StringComparer.OrdinalIgnoreCase);
         if (fieldMap.Count > 0)
         {
             foreach (var kv in fieldMap)
@@ -392,10 +440,22 @@ public class LingoToCSharpConverter
         sb.Append($"    public {className}(ILingoMovieEnvironment env");
         if (needsGlobal)
             sb.Append(", GlobalVars global");
+        Dictionary<string, string> ctorParamTypes = new(StringComparer.OrdinalIgnoreCase);
         if (newHandler != null)
         {
-            foreach (var arg in newHandler.Handler.ArgumentNames.Where(a => !a.Equals("me", StringComparison.OrdinalIgnoreCase)))
-                sb.Append($", object {arg}");
+            var argNames = newHandler.Handler.ArgumentNames.Where(a => !a.Equals("me", StringComparison.OrdinalIgnoreCase)).ToList();
+            if (argNames.Count > 0)
+            {
+                var ms = new MethodSignature("new", argNames.Select(a => new ParameterInfo(a, "object")).ToList());
+                var map = InferParameterTypes(source, new[] { ms }, fieldTypes);
+                if (map.TryGetValue("new", out var m))
+                    ctorParamTypes = m;
+            }
+            foreach (var arg in argNames)
+            {
+                var type = ctorParamTypes.TryGetValue(arg, out var t) ? t : "object";
+                sb.Append($", {type} {arg}");
+            }
         }
         sb.Append(") : base(env)");
 
@@ -411,7 +471,7 @@ public class LingoToCSharpConverter
                 sb.AppendLine("        _global = global;");
             if (newHandler != null)
             {
-                var methodCode = CSharpWriter.Write(newHandler);
+                var methodCode = CSharpWriter.Write(newHandler, "public", scriptTypes);
                 var bodyStart = methodCode.IndexOf('{');
                 var bodyEnd = methodCode.LastIndexOf('}');
                 var body = bodyStart >= 0 && bodyEnd > bodyStart
@@ -454,6 +514,46 @@ public class LingoToCSharpConverter
         return sb.ToString();
     }
 
+    private static string SanitizeIdentifier(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "L";
+        var sb = new System.Text.StringBuilder();
+        foreach (var c in name)
+        {
+            sb.Append(char.IsLetterOrDigit(c) || c == '_' ? c : '_');
+        }
+        int trim = 0;
+        while (trim < sb.Length && (char.IsDigit(sb[trim]) || sb[trim] == '_'))
+            trim++;
+        if (trim > 0)
+            sb.Remove(0, trim);
+        if (sb.Length > 2 && sb[1] == '_' && char.IsLetter(sb[0]))
+            sb.Remove(0, 2);
+        if (sb.Length == 0 || !char.IsLetter(sb[0]))
+            sb.Insert(0, 'L');
+        return sb.ToString();
+    }
+
+    private static string BuildNamespace(LingoScriptFile script, ConversionOptions options)
+    {
+        var parts = new List<string>();
+        if (!string.IsNullOrWhiteSpace(options.Namespace))
+            parts.Add(options.Namespace);
+
+        if (!string.IsNullOrWhiteSpace(script.RelativeDirectory))
+        {
+            var dirs = script.RelativeDirectory.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var d in dirs)
+            {
+                var seg = SanitizeIdentifier(d);
+                if (seg.Length > 0)
+                    parts.Add(char.ToUpperInvariant(seg[0]) + seg[1..]);
+            }
+        }
+
+        return string.Join('.', parts);
+    }
+
     private static Dictionary<string, List<string>> ExtractHandlerSignatures(string source)
     {
         var dict = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
@@ -491,13 +591,17 @@ public class LingoToCSharpConverter
         {
             var name = m.Groups["name"].Value;
             var body = m.Groups["body"].Value;
-            var defMatch = Regex.Match(body, @"#default:(?<val>[^,#\]]+)");
+            var defMatch = Regex.Match(body, @"#default:(?<val>[^#\]]+)");
             var fmtMatch = Regex.Match(body, @"#format:#(?<fmt>\w+)");
             var commentMatch = Regex.Match(body, @"#comment:""(.*?)""", RegexOptions.Singleline);
-            var def = defMatch.Success ? defMatch.Groups["val"].Value.Trim() : "0";
+            var def = defMatch.Success ? defMatch.Groups["val"].Value.Trim().TrimEnd(',') : "0";
             var fmt = fmtMatch.Success ? fmtMatch.Groups["fmt"].Value.Trim().ToLowerInvariant() : string.Empty;
+            if (Regex.IsMatch(def, @"(?i)rgb\s*\((.+)\)"))
+                def = Regex.Replace(def, @"(?i)rgb\s*\((.+)\)", "AColor.FromCode($1)");
             if (fmt == "string" || fmt == "symbol")
-                def = $"\"{Escape(def)}\"";
+                def = $"\"{Escape(def.Trim('"'))}\"";
+            else if (fmt == "color" && Regex.IsMatch(def, @"^\d+$"))
+                def = $"AColor.FromCode({def})";
             var comment = commentMatch.Success ? Escape(commentMatch.Groups[1].Value) : string.Empty;
             list.Add((name, def, comment, fmt));
         }
@@ -524,6 +628,17 @@ public class LingoToCSharpConverter
         {
             // ignore parse errors and return whatever was collected so far
         }
+
+        if (list.Count == 0)
+        {
+            var regex = new Regex(@"(?im)^\s*property\s+(.+)$");
+            foreach (Match m in regex.Matches(source))
+            {
+                var names = m.Groups[1].Value;
+                foreach (var n in names.Split(new[] { ',', ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries))
+                    list.Add(n.Trim());
+            }
+        }
         return list;
     }
 
@@ -532,17 +647,48 @@ public class LingoToCSharpConverter
         var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         var targets = new HashSet<string>(propertyNames, StringComparer.OrdinalIgnoreCase);
         var lines = source.Split('\n');
+        var locals = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         foreach (var line in lines)
         {
             var trimmed = line.Trim();
+            var anyAssign = Regex.Match(trimmed, @"(?i)^(\w+)\\s*=\\s*(.+)$");
+            if (anyAssign.Success)
+            {
+                var lhs = anyAssign.Groups[1].Value;
+                var rhsAll = anyAssign.Groups[2].Value.Trim();
+                var t = InferTypeFromExpression(rhsAll);
+                if (!targets.Contains(lhs))
+                    locals[lhs] = t;
+            }
+
             foreach (var name in targets)
             {
-                if (result.ContainsKey(name)) continue;
+                var existingType = result.TryGetValue(name, out var ex) ? ex : null;
+                if (existingType != null && existingType != "object") continue;
                 var m = Regex.Match(trimmed, $"(?i)^{Regex.Escape(name)}\\s*=\\s*(.+)$");
                 if (m.Success)
                 {
-                    var rhs = m.Groups[1].Value.Trim();
-                    result[name] = InferTypeFromExpression(rhs);
+                    var rhs = Regex.Replace(m.Groups[1].Value, @"--.*$", string.Empty).Trim();
+                    var type = InferTypeFromExpression(rhs);
+                    if (type == "object")
+                    {
+                        var idx = Regex.Match(rhs, @"^(\w+)\[");
+                        if (idx.Success)
+                        {
+                            var srcName = idx.Groups[1].Value;
+                            if (result.TryGetValue(srcName, out var srcType) && srcType.StartsWith("LingoList<"))
+                            {
+                                var elemType = Regex.Match(srcType, @"<(.*)>").Groups[1].Value;
+                                type = elemType;
+                            }
+                            else if (locals.TryGetValue(srcName, out var localType) && localType.StartsWith("LingoList<"))
+                            {
+                                var elemType = Regex.Match(localType, @"<(.*)>").Groups[1].Value;
+                                type = elemType;
+                            }
+                        }
+                    }
+                    result[name] = type;
                     continue;
                 }
 
@@ -550,7 +696,7 @@ public class LingoToCSharpConverter
                     $"(?i)^(append|add|addat|setat|setprop|setaprop|addprop)\\s+{Regex.Escape(name)}\\s*,\\s*(?:[^,]+,\\s*)?(.+)$");
                 if (listOp.Success)
                 {
-                    var rhs = listOp.Groups[2].Value.Trim();
+                    var rhs = Regex.Replace(listOp.Groups[2].Value, @"--.*$", string.Empty).Trim();
                     var elemType = InferTypeFromExpression(rhs);
                     var opName = listOp.Groups[1].Value.ToLowerInvariant();
                     if (opName.Contains("prop"))
@@ -569,12 +715,40 @@ public class LingoToCSharpConverter
                     else if (Regex.IsMatch(trimmed, listOps))
                         result[name] = "LingoList<object>";
                 }
+
+                if (!result.ContainsKey(name))
+                {
+                    var listElem = Regex.Match(trimmed, $"(?i)^{Regex.Escape(name)}\\s*=\\s*(\\w+)\\[");
+                    if (listElem.Success)
+                    {
+                        var src = listElem.Groups[1].Value;
+                        if (result.TryGetValue(src, out var srcType) && srcType.StartsWith("LingoList<"))
+                        {
+                            var elemType = Regex.Match(srcType, @"<(.*)>").Groups[1].Value;
+                            result[name] = elemType;
+                            continue;
+                        }
+                    }
+                    var direct = Regex.Match(trimmed, $"(?i)^{Regex.Escape(name)}\\s*=\\s*(\\w+)\\b");
+                    if (direct.Success)
+                    {
+                        var src = direct.Groups[1].Value;
+                        if (result.TryGetValue(src, out var srcType))
+                        {
+                            result[name] = srcType;
+                            continue;
+                        }
+                    }
+                }
             }
         }
         return result;
     }
 
-    private static Dictionary<string, Dictionary<string, string>> InferParameterTypes(string source, IEnumerable<MethodSignature> methods)
+    private static Dictionary<string, Dictionary<string, string>> InferParameterTypes(
+        string source,
+        IEnumerable<MethodSignature> methods,
+        IDictionary<string, string> propertyTypes)
     {
         var result = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
         var methodLookup = methods.ToDictionary(m => m.Name, m => m, StringComparer.OrdinalIgnoreCase);
@@ -601,12 +775,32 @@ public class LingoToCSharpConverter
             foreach (var param in sig.Parameters)
             {
                 if (result[current].ContainsKey(param.Name)) continue;
-                var assign = Regex.Match(trimmed, $"(?i)^{Regex.Escape(param.Name)}\\s*=\\s*(.+)$");
+                var assign = Regex.Match(trimmed, @$"(?i)(?:^|then\s+|;\s*){Regex.Escape(param.Name)}\s*=\s*(.+)$");
                 if (assign.Success)
                 {
-                    result[current][param.Name] = InferTypeFromExpression(assign.Groups[1].Value.Trim());
+                    var rhsExpr = Regex.Replace(assign.Groups[1].Value, @"--.*$", string.Empty).Trim();
+                    var rhsType = InferTypeFromExpression(rhsExpr);
+                    if (rhsType == "object")
+                    {
+                        var rhsVar = Regex.Match(rhsExpr, @"^(\w+)$");
+                        if (rhsVar.Success && propertyTypes.TryGetValue(rhsVar.Groups[1].Value, out var propType))
+                            rhsType = propType;
+                    }
+                    result[current][param.Name] = rhsType;
                     continue;
                 }
+
+                var reverse = Regex.Match(trimmed, @$"(?i)(?:^|then\s+|;\s*)(\w+)\s*=\s*{Regex.Escape(param.Name)}\b");
+                if (reverse.Success)
+                {
+                    var lhs = reverse.Groups[1].Value;
+                    if (propertyTypes.TryGetValue(lhs, out var propType))
+                    {
+                        result[current][param.Name] = propType;
+                        continue;
+                    }
+                }
+
                 if (Regex.IsMatch(trimmed, $"{Regex.Escape(param.Name)}\\.text", RegexOptions.IgnoreCase))
                     result[current][param.Name] = "string";
             }
@@ -616,11 +810,34 @@ public class LingoToCSharpConverter
 
     private static string InferTypeFromExpression(string rhs)
     {
-        if (Regex.IsMatch(rhs, @"^"".*""$")) return "string";
+        if (Regex.IsMatch(rhs, "^\".*\"$")) return "string";
         if (rhs.Contains("member(", StringComparison.OrdinalIgnoreCase) && rhs.Contains(").text", StringComparison.OrdinalIgnoreCase)) return "string";
+        if (Regex.IsMatch(rhs, @"(?i)^rgb\s*\(")) return "AColor";
+        if (rhs.StartsWith("[") && rhs.EndsWith("]"))
+        {
+            var inner = rhs.Substring(1, rhs.Length - 2);
+            var elems = inner.Split(',').Select(e => e.Trim()).Where(e => e.Length > 0).ToList();
+            if (elems.Count == 0) return "LingoList<object>";
+            var elemType = InferTypeFromExpression(elems[0]);
+            foreach (var e in elems.Skip(1))
+            {
+                var t = InferTypeFromExpression(e);
+                if (t != elemType)
+                {
+                    elemType = "object";
+                    break;
+                }
+            }
+            return $"LingoList<{elemType}>";
+        }
         if (Regex.IsMatch(rhs, @"^(true|false)$", RegexOptions.IgnoreCase)) return "bool";
         if (Regex.IsMatch(rhs, @"^[-+]?[0-9]+$")) return "int";
         if (Regex.IsMatch(rhs, @"^[-+]?[0-9]*\\.[0-9]+$")) return "float";
+        if (Regex.IsMatch(rhs, @"[-+*/]") && Regex.IsMatch(rhs, @"[0-9]"))
+        {
+            if (rhs.Contains('.')) return "float";
+            return "int";
+        }
         return "object";
     }
 
@@ -630,6 +847,7 @@ public class LingoToCSharpConverter
         "float" => "float",
         "boolean" => "bool",
         "string" or "symbol" => "string",
+        "color" => "AColor",
         _ => "object"
     };
 
