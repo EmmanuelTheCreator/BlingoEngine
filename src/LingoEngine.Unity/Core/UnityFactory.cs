@@ -20,6 +20,8 @@ using LingoEngine.Unity.Texts;
 using LingoEngine.Unity.Sounds;
 using LingoEngine.Unity.FilmLoops;
 using LingoEngine.Unity.Shapes;
+using LingoEngine.Unity.Scripts;
+using LingoEngine.Scripts;
 using AbstUI.Styles;
 using Microsoft.Extensions.DependencyInjection;
 using AbstUI.Primitives;
@@ -31,6 +33,7 @@ using AbstUI.Components.Menus;
 using AbstUI.Components.Buttons;
 using AbstUI.Components.Texts;
 using AbstUI.LUnity.Components;
+using Microsoft.Extensions.Logging;
 
 namespace LingoEngine.Unity.Core;
 
@@ -84,7 +87,7 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
     }
     public LingoMemberBitmap CreateMemberBitmap(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
-        var impl = new UnityMemberBitmap();
+        var impl = new UnityMemberBitmap(_serviceProvider.GetRequiredService<ILogger<UnityMemberBitmap>>());
         var member = new LingoMemberBitmap((LingoCast)cast, impl, numberInCast, name, fileName ?? string.Empty, regPoint);
         impl.Init(member);
         return member;
@@ -99,7 +102,7 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
     public LingoFilmLoopMember CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
         var impl = new UnityFilmLoopMember();
-        var member = new LingoFilmLoopMember((LingoCast)cast, impl, numberInCast, name, fileName ?? string.Empty, regPoint);
+        var member = new LingoFilmLoopMember(impl, (LingoCast)cast, numberInCast, name, fileName ?? string.Empty, regPoint);
         impl.Init(member);
         return member;
     }
@@ -113,7 +116,8 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
     public LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
         var fontManager = _serviceProvider.GetRequiredService<IAbstFontManager>();
-        var impl = new UnityMemberField(fontManager);
+        var logger = _serviceProvider.GetRequiredService<ILogger<UnityMemberField>>();
+        var impl = new UnityMemberField(fontManager, logger);
         var member = new LingoMemberField((LingoCast)cast, impl, numberInCast, name, fileName ?? string.Empty, regPoint);
         impl.Init(member);
         _disposables.Add(impl);
@@ -122,7 +126,8 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
     public LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
         var fontManager = _serviceProvider.GetRequiredService<IAbstFontManager>();
-        var impl = new UnityMemberText(fontManager);
+        var logger = _serviceProvider.GetRequiredService<ILogger<UnityMemberText>>();
+        var impl = new UnityMemberText(fontManager, logger);
         var member = new LingoMemberText((LingoCast)cast, impl, numberInCast, name, fileName ?? string.Empty, regPoint);
         impl.Init(member);
         _disposables.Add(impl);
@@ -192,8 +197,6 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
         => _gfxFactory.CreateInputNumberFloat(name, min, max, onChange);
     public AbstInputNumber<int> CreateInputNumberInt(string name, int? min = null, int? max = null, Action<int>? onChange = null)
         => _gfxFactory.CreateInputNumberInt(name, min, max, onChange);
-    public AbstInputNumber<TValue> CreateInputNumber<TValue>(string name, NullableNum<TValue> min, NullableNum<TValue> max, Action<TValue>? onChange = null) where TValue : System.Numerics.INumber<TValue>
-        => _gfxFactory.CreateInputNumber(name, min, max, onChange);
     public AbstInputSpinBox CreateSpinBox(string name, float? min = null, float? max = null, Action<float>? onChange = null)
         => _gfxFactory.CreateSpinBox(name, min, max, onChange);
     public AbstInputCheckbox CreateInputCheckbox(string name, Action<bool>? onChange = null) => _gfxFactory.CreateInputCheckbox(name, onChange);

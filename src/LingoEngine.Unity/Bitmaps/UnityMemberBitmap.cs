@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using System.Reflection;
+using Microsoft.Extensions.Logging;
 
 namespace LingoEngine.Unity.Bitmaps;
 
@@ -20,6 +21,7 @@ public class UnityMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
     private Texture2D? _texture;
     private UnityTexture2D? _textureWrapper;
     private readonly Dictionary<LingoInkType, UnityTexture2D> _inkCache = new();
+    private readonly ILogger<UnityMemberBitmap> _logger;
 
     public byte[]? ImageData { get; private set; }
     public string Format { get; private set; } = "image/unknown";
@@ -30,6 +32,11 @@ public class UnityMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
     internal Texture2D? TextureUnity => _texture;
 
     public IAbstTexture2D? TextureLingo => _textureWrapper;
+
+    public UnityMemberBitmap(ILogger<UnityMemberBitmap> logger)
+    {
+        _logger = logger;
+    }
 
     internal void Init(LingoMemberBitmap member)
     {
@@ -42,10 +49,17 @@ public class UnityMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
     {
         if (IsLoaded)
             return;
-        if (!string.IsNullOrEmpty(_member.FileName) && File.Exists(_member.FileName))
+        if (!string.IsNullOrEmpty(_member.FileName))
         {
-            var bytes = File.ReadAllBytes(_member.FileName);
-            SetImageData(bytes);
+            if (File.Exists(_member.FileName))
+            {
+                var bytes = File.ReadAllBytes(_member.FileName);
+                SetImageData(bytes);
+            }
+            else
+            {
+                _logger.LogWarning("MemberBitmap not found: {File}", _member.FileName);
+            }
         }
         IsLoaded = true;
     }

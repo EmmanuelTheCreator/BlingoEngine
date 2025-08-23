@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace LingoEngine.Unity.Inputs;
 
-public class LingoUnityMouse : AbstUnityMouse<LingoMouse, LingoMouseEvent> , ILingoFrameworkMouse
+public class LingoUnityMouse : AbstUnityMouse<LingoMouse, LingoMouseEvent>, ILingoFrameworkMouse
 {
     private LingoMemberBitmap? _cursorImage;
 

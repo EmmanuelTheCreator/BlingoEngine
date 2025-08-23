@@ -127,7 +127,8 @@ public class UnityFilmLoopMember : ILingoFrameworkMemberFilmLoop, IDisposable
             if (srcTex == null)
                 continue;
 
-            var srcPixels = srcTex.GetPixels32(info.SrcX, srcTex.height - info.SrcY - info.SrcH, info.SrcW, info.SrcH);
+            var colors = srcTex.GetPixels(info.SrcX, srcTex.height - info.SrcY - info.SrcH, info.SrcW, info.SrcH);
+            var srcPixels = Array.ConvertAll(colors, c => (Color32)c);
             if (info.DestW != info.SrcW || info.DestH != info.SrcH)
                 srcPixels = srcPixels.ScalePixels(info.SrcW, info.SrcH, info.DestW, info.DestH);
 

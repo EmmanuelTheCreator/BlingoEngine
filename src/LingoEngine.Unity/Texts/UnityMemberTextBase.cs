@@ -11,6 +11,7 @@ using LingoEngine.Texts;
 using LingoEngine.Texts.FrameworkCommunication;
 using AbstUI.LUnity.Bitmaps;
 using UnityEngine;
+using Microsoft.Extensions.Logging;
 
 namespace LingoEngine.Unity.Texts;
 
@@ -22,6 +23,7 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
     protected TText _lingoMemberText = default!;
     protected string _text = string.Empty;
     protected readonly IAbstFontManager _fontManager;
+    protected readonly ILogger _logger;
     private Texture2D? _texture;
     private UnityTexture2D? _textureWrapper;
     private string _fontName = string.Empty;
@@ -84,9 +86,10 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
 
     public IAbstTexture2D? TextureLingo => _textureWrapper;
 
-    protected UnityMemberTextBase(IAbstFontManager fontManager)
+    protected UnityMemberTextBase(IAbstFontManager fontManager, ILogger logger)
     {
         _fontManager = fontManager;
+        _logger = logger;
     }
 
     internal void Init(TText member)
@@ -108,11 +111,19 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
         return prop?.GetValue(null) as string ?? string.Empty;
     }
 
-    public string ReadText() => File.Exists(_lingoMemberText.FileName) ? File.ReadAllText(_lingoMemberText.FileName) : string.Empty;
+    public string ReadText()
+    {
+        if (File.Exists(_lingoMemberText.FileName))
+            return File.ReadAllText(_lingoMemberText.FileName);
+        _logger.LogWarning("File not found for Text: {File}", _lingoMemberText.FileName);
+        return string.Empty;
+    }
     public string ReadTextRtf()
     {
         var rtf = Path.ChangeExtension(_lingoMemberText.FileName, ".rtf");
-        return File.Exists(rtf) ? File.ReadAllText(rtf) : string.Empty;
+        if (File.Exists(rtf))
+            return File.ReadAllText(rtf);
+        return string.Empty;
     }
 
     public void CopyToClipboard() => Copy(Text);

@@ -19,6 +19,7 @@ public static class UnityLingoSetup
         reg.ServicesMain(s => s
                 .AddSingleton<ILingoFrameworkFactory, UnityFactory>()
                 .AddSingleton<ILingoFrameworkStageContainer, UnityStageContainer>()
+                .AddUnityLogging()
                 .WithAbstUIUnity()
             )
            .WithFrameworkFactory(setup)
