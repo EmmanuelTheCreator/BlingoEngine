@@ -1,10 +1,13 @@
-public class GfxBehavior : LingoSpriteBehavior
+public class GfxParentScript : LingoParentScript
 {
     public int myStartX;
     public int myStartY;
 
-    public GfxBehavior(ILingoMovieEnvironment env) : base(env)
+    private readonly GlobalVars _global;
+
+    public GfxParentScript(ILingoMovieEnvironment env, GlobalVars global) : base(env)
     {
+        _global = global;
         myStartX = 250;
         myStartY = 45;
     }

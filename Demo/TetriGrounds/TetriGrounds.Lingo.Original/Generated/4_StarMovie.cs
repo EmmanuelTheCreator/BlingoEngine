@@ -1,19 +1,22 @@
-public class StarMovieBehavior : LingoSpriteBehavior
+public class StarMovieMovieScript : LingoMovieScript
 {
-    public StarMovieBehavior(ILingoMovieEnvironment env) : base(env) { }
+    private readonly GlobalVars _global;
+
+    public StarMovieMovieScript(ILingoMovieEnvironment env, GlobalVars global) : base(env)
+    {
+        _global = global;
+    }
 public void Startmovie()
 {
     if (gSpriteManager == null)
     {
         gSpriteManager = script("SpriteManager");
-        .new(100);
-        ;
+        .new(100)        ;
     }
     if (gMousePointer == null)
     {
         gMousePointer = script("MousePointer");
-        .new(999);
-        ;
+        .new(999)        ;
     }
 }
 

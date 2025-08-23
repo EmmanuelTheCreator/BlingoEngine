@@ -1,4 +1,4 @@
-public class ScoreManagerBehavior : LingoSpriteBehavior
+public class ScoreManagerParentScript : LingoParentScript
 {
     public int myPlayerScore;
     public string myLevel;
@@ -9,8 +9,11 @@ public class ScoreManagerBehavior : LingoSpriteBehavior
     public object myBlocksDroped;
     public LingoList<object> myOverScreenText = new();
 
-    public ScoreManagerBehavior(ILingoMovieEnvironment env) : base(env)
+    private readonly GlobalVars _global;
+
+    public ScoreManagerParentScript(ILingoMovieEnvironment env, GlobalVars global) : base(env)
     {
+        _global = global;
         myPlayerScore = 0;
         myNumberLinesTot = 0;
         myLevelUpPlusScore = 0;
@@ -103,8 +106,7 @@ public void BlockFrozen()
 
 public void UpdateGfxScore()
 {
-    GetMember<ILingoMemberTextBase>("T_Score").Text = string(myPlayerScore);
-    ;
+    GetMember<ILingoMemberTextBase>("T_Score").Text = string(myPlayerScore)    ;
 }
 
 public void GetLevelup()
@@ -143,8 +145,7 @@ public void NewText(object _text)
 
 public void TextFinished(object obj)
 {
-    _pos = myOverScreenText.getpos(obj);
-    ;
+    _pos = myOverScreenText.getpos(obj)    ;
     myOverScreenText[_pos].destroy();
     myOverScreenText.deleteone(obj);
 }

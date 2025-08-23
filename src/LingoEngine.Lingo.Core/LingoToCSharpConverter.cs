@@ -60,8 +60,15 @@ public class LingoToCSharpConverter
     {
         Errors.Clear();
         var source = script.Source.Replace("\r", "\n");
-        var type = DetectScriptType(source);
-        var file = new LingoScriptFile(script.Name, source, type);
+        var type = script.Detection switch
+        {
+            ScriptDetectionType.Auto => DetectScriptType(source),
+            ScriptDetectionType.Behavior => LingoScriptType.Behavior,
+            ScriptDetectionType.Parent => LingoScriptType.Parent,
+            ScriptDetectionType.Movie => LingoScriptType.Movie,
+            _ => LingoScriptType.Behavior
+        };
+        script.Type = type;
 
         var parser = new LingoAstParser();
         LingoNode ast;
@@ -84,9 +91,10 @@ public class LingoToCSharpConverter
                 block.Children.Remove(newHandler);
         }
 
-        var classCode = ConvertClass(file, newHandler);
+        var typeMap = new Dictionary<string, LingoScriptType> { [script.Name] = script.Type };
+        var classCode = ConvertClass(script, newHandler, typeMap);
 
-        var methods = CSharpWriter.Write(ast, methodAccessModifier);
+        var methods = CSharpWriter.Write(ast, methodAccessModifier, typeMap);
         var insertIdx = classCode.LastIndexOf('}');
         if (insertIdx >= 0)
             classCode = classCode[..insertIdx] + methods + classCode[insertIdx..];
@@ -104,7 +112,22 @@ public class LingoToCSharpConverter
         var methodMap = new Dictionary<string, string>();
         var propInfo = new Dictionary<string, List<(string Name, string Type, string? Default)>>();
         var newHandlers = new Dictionary<string, LingoHandlerNode?>();
-        var sourceMap = scriptList.ToDictionary(s => s.Name, s => s.Source.Replace("\r", "\n"));
+        var sourceMap = new Dictionary<string, string>();
+        foreach (var s in scriptList)
+        {
+            var src = s.Source.Replace("\r", "\n");
+            sourceMap[s.Name] = src;
+            var st = s.Detection switch
+            {
+                ScriptDetectionType.Auto => DetectScriptType(src),
+                ScriptDetectionType.Behavior => LingoScriptType.Behavior,
+                ScriptDetectionType.Parent => LingoScriptType.Parent,
+                ScriptDetectionType.Movie => LingoScriptType.Movie,
+                _ => LingoScriptType.Behavior
+            };
+            s.Type = st;
+        }
+        var typeMap = scriptList.ToDictionary(s => s.Name, s => s.Type);
 
         // First pass: parse scripts, gather handler signatures and property names
         foreach (var file in scriptList)
@@ -225,8 +248,8 @@ public class LingoToCSharpConverter
             try
             {
                 newHandlers.TryGetValue(script.Name, out var nh);
-                var classCode = ConvertClass(script, nh);
-                var methods = CSharpWriter.Write(asts[script.Name], methodAccessModifier);
+                var classCode = ConvertClass(script, nh, typeMap);
+                var methods = CSharpWriter.Write(asts[script.Name], methodAccessModifier, typeMap);
                 var insertIdx = classCode.LastIndexOf('}');
                 if (insertIdx >= 0)
                     classCode = classCode[..insertIdx] + methods + classCode[insertIdx..];
@@ -301,7 +324,7 @@ public class LingoToCSharpConverter
         return ConvertClass(script, newHandler);
     }
 
-    public string ConvertClass(LingoScriptFile script, LingoHandlerNode? newHandler)
+    public string ConvertClass(LingoScriptFile script, LingoHandlerNode? newHandler, IReadOnlyDictionary<string, LingoScriptType>? scriptTypes = null)
     {
         var source = script.Source.Replace("\r", "\n");
         var handlers = ExtractHandlerNames(source);
@@ -421,7 +444,7 @@ public class LingoToCSharpConverter
                 sb.AppendLine("        _global = global;");
             if (newHandler != null)
             {
-                var methodCode = CSharpWriter.Write(newHandler);
+                var methodCode = CSharpWriter.Write(newHandler, "public", scriptTypes);
                 var bodyStart = methodCode.IndexOf('{');
                 var bodyEnd = methodCode.LastIndexOf('}');
                 var body = bodyStart >= 0 && bodyEnd > bodyStart

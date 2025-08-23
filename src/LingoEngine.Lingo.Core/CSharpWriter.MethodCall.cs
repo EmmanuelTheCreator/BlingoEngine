@@ -274,5 +274,71 @@ public partial class CSharpWriter
         node.ArgList.Accept(this);
         Append(")");
     }
+
+    private void WriteObjCallV4Expr(LingoObjCallV4Node node)
+    {
+        var methodName = node.Name.Value.AsString();
+
+        // script("Foo").new(args)
+        if (methodName.Equals("new", StringComparison.OrdinalIgnoreCase) &&
+            node.Object is LingoCallNode call &&
+            call.Callee is LingoVarNode { VarName: "script" } &&
+            call.Arguments is LingoDatumNode dn &&
+            dn.Datum.Type == LingoDatum.DatumType.String)
+        {
+            var scriptName = dn.Datum.AsString();
+            if (_scriptTypes.TryGetValue(scriptName, out var st))
+            {
+                var suffix = st switch
+                {
+                    LingoScriptType.Movie => "MovieScript",
+                    LingoScriptType.Parent => "ParentScript",
+                    LingoScriptType.Behavior => "Behavior",
+                    _ => "Script"
+                };
+                var cls = SanitizeIdentifier(scriptName) + suffix;
+                Append("new ");
+                Append(cls);
+                Append("(_env");
+                bool hasArgs = dn.Datum.Type == LingoDatum.DatumType.ArgList && dn.Datum.Value is List<LingoNode> list && list.Count > 0;
+                if (hasArgs)
+                {
+                    Append(", ");
+                    node.ArgList.Accept(this);
+                }
+                Append(")");
+                return;
+            }
+        }
+
+        var startLen = _sb.Length;
+        if (node.Object is LingoCallNode callObj)
+            WriteCallExpr(callObj);
+        else if (node.Object is LingoObjCallNode objCall)
+            WriteObjCallExpr(objCall);
+        else
+            node.Object.Accept(this);
+        TrimSemicolon(startLen);
+
+        Append(".");
+        var lower = methodName.ToLowerInvariant();
+        var pascal = lower switch
+        {
+            "deleteone" => "DeleteOne",
+            "getpos" => "GetPos",
+            "deleteat" => "DeleteAt",
+            "getat" => "GetAt",
+            "setat" => "SetAt",
+            "count" => "Count",
+            "add" => "Add",
+            "addat" => "AddAt",
+            "addprop" => "Add",
+            _ => methodName
+        };
+        Append(pascal);
+        Append("(");
+        node.ArgList.Accept(this);
+        Append(")");
+    }
 }
 

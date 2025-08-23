@@ -1,4 +1,4 @@
-public class MousePointerBehavior : LingoSpriteBehavior, IHasStepFrameEvent
+public class MousePointerParentScript : LingoParentScript, IHasStepFrameEvent
 {
     public object myNum;
     public object myOldX;
@@ -8,8 +8,11 @@ public class MousePointerBehavior : LingoSpriteBehavior, IHasStepFrameEvent
     public int myNumberMembers;
     public int myDir;
 
-    public MousePointerBehavior(ILingoMovieEnvironment env, object _num) : base(env)
+    private readonly GlobalVars _global;
+
+    public MousePointerParentScript(ILingoMovieEnvironment env, GlobalVars global, object _num) : base(env)
     {
+        _global = global;
         myNum = _num;
         myStartMember = 80;
         myNumberMembers = 5;

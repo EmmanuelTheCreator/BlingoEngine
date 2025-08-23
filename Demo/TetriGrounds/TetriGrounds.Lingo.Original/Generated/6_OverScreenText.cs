@@ -1,4 +1,4 @@
-public class OverScreenTextBehavior : LingoSpriteBehavior, IHasStepFrameEvent
+public class OverScreenTextParentScript : LingoParentScript, IHasStepFrameEvent
 {
     public object myStartX;
     public object myStartY;
@@ -9,8 +9,11 @@ public class OverScreenTextBehavior : LingoSpriteBehavior, IHasStepFrameEvent
     public object myParent;
     public int myLocV;
 
-    public OverScreenTextBehavior(ILingoMovieEnvironment env, object _Duration, object _text, object _myParent) : base(env)
+    private readonly GlobalVars _global;
+
+    public OverScreenTextParentScript(ILingoMovieEnvironment env, GlobalVars global, object _Duration, object _text, object _myParent) : base(env)
     {
+        _global = global;
         myDuration = _Duration;
         myText = _text;
         myCounter = 0;

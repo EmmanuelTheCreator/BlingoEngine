@@ -77,7 +77,7 @@ public class BundleConversionTests
                      "  myMemberNumAnim = 0\n" +
                      "  myDestroyAnim = true\n" +
                      "end";
-        var script = new LingoScriptFile("10_Block", source);
+        var script = new LingoScriptFile("10_Block", source, ScriptDetectionType.Behavior);
         _converter.Convert(new[] { script });
         Assert.Contains("class BlockBehavior", script.CSharp);
         Assert.Contains("public string myMember;", script.CSharp);

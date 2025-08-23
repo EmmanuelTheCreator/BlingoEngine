@@ -1,12 +1,15 @@
-public class BlockBehavior : LingoSpriteBehavior, IHasStepFrameEvent
+public class BlockParentScript : LingoParentScript, IHasStepFrameEvent
 {
     public object myMember;
     public object myNum;
     public bool myDestroyAnim;
     public int myMemberNumAnim;
 
-    public BlockBehavior(ILingoMovieEnvironment env, object _Gfx, object ChosenType) : base(env)
+    private readonly GlobalVars _global;
+
+    public BlockParentScript(ILingoMovieEnvironment env, GlobalVars global, object _Gfx, object ChosenType) : base(env)
     {
+        _global = global;
         if (ChosenType == null)
         {
         ChosenType = 1;
@@ -50,8 +53,7 @@ public void FinishBlock()
 
 public void CreateBlock()
 {
-    myNum = gSpritemanager.SAdd();
-    ;
+    myNum = gSpritemanager.SAdd()    ;
     Sprite(myNum).Member = myMember;
     Sprite(myNum).Ink = 36;
 }
