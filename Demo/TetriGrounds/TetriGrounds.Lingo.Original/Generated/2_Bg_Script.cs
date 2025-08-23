@@ -1,9 +1,9 @@
 public class Bg_ScriptBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasEndSpriteEvent
 {
-    public object myPlayerBlock;
-    public object myGfx;
-    public object myBlocks;
-    public object myScoreManager;
+    public int myPlayerBlock;
+    public int myGfx;
+    public int myBlocks;
+    public int myScoreManager;
 
     public Bg_ScriptBehavior(ILingoMovieEnvironment env) : base(env) { }
 public void Beginsprite()
@@ -43,7 +43,7 @@ public void NewGame()
     // check if the game isnt set to pause
     if (objectp(myPlayerBlock)    )
     {
-        _pause = myPlayerBlock.GetPause();
+        _pause = myPlayerBlock.GetPause()        ;
         if (_pause == false)
         {
             TeminateGame();
@@ -66,14 +66,14 @@ public void StartNewGame()
 {
     if (gSpriteManager == null)
     {
-        gSpriteManager = new SpriteManagerParentScript(_env, _globalvars, 100);
+        gSpriteManager = new SpriteManagerParentScript(_env, _globalvars, 100)        ;
     }
     myWidth = 11;
     myHeight = 22;
-    myGfx = new GfxParentScript(_env, _globalvars);
-    myScoreManager = new ScoreManagerParentScript(_env, _globalvars);
-    myBlocks = new BlocksParentScript(_env, _globalvars, myGfx, myScoreManager, myWidth, myHeight);
-    myPlayerBlock = new PlayerBlockParentScript(_env, _globalvars, myGfx, myBlocks, myScoreManager, myWidth, myHeight);
+    myGfx = new GfxParentScript(_env, _globalvars)    ;
+    myScoreManager = new ScoreManagerParentScript(_env, _globalvars)    ;
+    myBlocks = new BlocksParentScript(_env, _globalvars, myGfx, myScoreManager, myWidth, myHeight)    ;
+    myPlayerBlock = new PlayerBlockParentScript(_env, _globalvars, myGfx, myBlocks, myScoreManager, myWidth, myHeight)    ;
     myPlayerBlock.createBlock();
 }
 

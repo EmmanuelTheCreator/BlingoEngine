@@ -5,8 +5,8 @@ public class ScoreManagerParentScript : LingoParentScript
     public int myNumberLinesRemoved;
     public int myNumberLinesTot;
     public bool myLevelUp;
-    public object myLevelUpNeededScore;
-    public object myBlocksDroped;
+    public int myLevelUpNeededScore;
+    public int myBlocksDroped;
     public LingoList<object> myOverScreenText = new();
 
     private readonly GlobalVars _global;
@@ -138,8 +138,7 @@ public void NewText(object _text)
     {
         myOverScreenText = [];
     }
-    myOverScreenText.append(script("OverScreenText");
-    .new(130, _text, this);
+    myOverScreenText.append(new OverScreenTextParentScript(_env, _globalvars, 130, _text, this);
     );
 }
 

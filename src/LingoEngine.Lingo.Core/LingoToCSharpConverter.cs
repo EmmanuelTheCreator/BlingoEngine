@@ -235,7 +235,7 @@ public class LingoToCSharpConverter
                 result.Properties[file] = fields.Select(kv => new PropertyInfo(kv.Key, kv.Value.Type)).ToList();
 
                 var methods = result.Methods.TryGetValue(file, out var msList) ? msList : new List<MethodSignature>();
-                var paramTypes = InferParameterTypes(source, methods);
+                var paramTypes = InferParameterTypes(source, methods, fields.ToDictionary(kv => kv.Key, kv => kv.Value.Type, StringComparer.OrdinalIgnoreCase));
                 foreach (var ms in methods)
                 {
                     if (!paramTypes.TryGetValue(ms.Name, out var map)) continue;
@@ -430,6 +430,7 @@ public class LingoToCSharpConverter
             if (fieldMap.TryGetValue(kv.Key, out var existing) && existing.Type == "object")
                 fieldMap[kv.Key] = (kv.Value, existing.Default);
         }
+        var fieldTypes = fieldMap.ToDictionary(kv => kv.Key, kv => kv.Value.Type, StringComparer.OrdinalIgnoreCase);
         if (fieldMap.Count > 0)
         {
             foreach (var kv in fieldMap)
@@ -454,10 +455,22 @@ public class LingoToCSharpConverter
         sb.Append($"    public {className}(ILingoMovieEnvironment env");
         if (needsGlobal)
             sb.Append(", GlobalVars global");
+        Dictionary<string, string> ctorParamTypes = new(StringComparer.OrdinalIgnoreCase);
         if (newHandler != null)
         {
-            foreach (var arg in newHandler.Handler.ArgumentNames.Where(a => !a.Equals("me", StringComparison.OrdinalIgnoreCase)))
-                sb.Append($", object {arg}");
+            var argNames = newHandler.Handler.ArgumentNames.Where(a => !a.Equals("me", StringComparison.OrdinalIgnoreCase)).ToList();
+            if (argNames.Count > 0)
+            {
+                var ms = new MethodSignature("new", argNames.Select(a => new ParameterInfo(a, "object")).ToList());
+                var map = InferParameterTypes(source, new[] { ms }, fieldTypes);
+                if (map.TryGetValue("new", out var m))
+                    ctorParamTypes = m;
+            }
+            foreach (var arg in argNames)
+            {
+                var type = ctorParamTypes.TryGetValue(arg, out var t) ? t : "object";
+                sb.Append($", {type} {arg}");
+            }
         }
         sb.Append(") : base(env)");
 
@@ -645,11 +658,12 @@ public class LingoToCSharpConverter
 
             foreach (var name in targets)
             {
-                if (result.ContainsKey(name)) continue;
+                var existingType = result.TryGetValue(name, out var ex) ? ex : null;
+                if (existingType != null && existingType != "object") continue;
                 var m = Regex.Match(trimmed, $"(?i)^{Regex.Escape(name)}\\s*=\\s*(.+)$");
                 if (m.Success)
                 {
-                    var rhs = m.Groups[1].Value.Trim();
+                    var rhs = Regex.Replace(m.Groups[1].Value, @"--.*$", string.Empty).Trim();
                     var type = InferTypeFromExpression(rhs);
                     if (type == "object")
                     {
@@ -677,7 +691,7 @@ public class LingoToCSharpConverter
                     $"(?i)^(append|add|addat|setat|setprop|setaprop|addprop)\\s+{Regex.Escape(name)}\\s*,\\s*(?:[^,]+,\\s*)?(.+)$");
                 if (listOp.Success)
                 {
-                    var rhs = listOp.Groups[2].Value.Trim();
+                    var rhs = Regex.Replace(listOp.Groups[2].Value, @"--.*$", string.Empty).Trim();
                     var elemType = InferTypeFromExpression(rhs);
                     var opName = listOp.Groups[1].Value.ToLowerInvariant();
                     if (opName.Contains("prop"))
@@ -726,7 +740,10 @@ public class LingoToCSharpConverter
         return result;
     }
 
-    private static Dictionary<string, Dictionary<string, string>> InferParameterTypes(string source, IEnumerable<MethodSignature> methods)
+    private static Dictionary<string, Dictionary<string, string>> InferParameterTypes(
+        string source,
+        IEnumerable<MethodSignature> methods,
+        IDictionary<string, string> propertyTypes)
     {
         var result = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
         var methodLookup = methods.ToDictionary(m => m.Name, m => m, StringComparer.OrdinalIgnoreCase);
@@ -753,12 +770,32 @@ public class LingoToCSharpConverter
             foreach (var param in sig.Parameters)
             {
                 if (result[current].ContainsKey(param.Name)) continue;
-                var assign = Regex.Match(trimmed, $"(?i)^{Regex.Escape(param.Name)}\\s*=\\s*(.+)$");
+                var assign = Regex.Match(trimmed, @$"(?i)^{Regex.Escape(param.Name)}\s*=\s*(.+)$");
                 if (assign.Success)
                 {
-                    result[current][param.Name] = InferTypeFromExpression(assign.Groups[1].Value.Trim());
+                    var rhsExpr = Regex.Replace(assign.Groups[1].Value, @"--.*$", string.Empty).Trim();
+                    var rhsType = InferTypeFromExpression(rhsExpr);
+                    if (rhsType == "object")
+                    {
+                        var rhsVar = Regex.Match(rhsExpr, @"^(\w+)$");
+                        if (rhsVar.Success && propertyTypes.TryGetValue(rhsVar.Groups[1].Value, out var propType))
+                            rhsType = propType;
+                    }
+                    result[current][param.Name] = rhsType;
                     continue;
                 }
+
+                var reverse = Regex.Match(trimmed, @$"(?i)^(\w+)\s*=\s*{Regex.Escape(param.Name)}\b");
+                if (reverse.Success)
+                {
+                    var lhs = reverse.Groups[1].Value;
+                    if (propertyTypes.TryGetValue(lhs, out var propType))
+                    {
+                        result[current][param.Name] = propType;
+                        continue;
+                    }
+                }
+
                 if (Regex.IsMatch(trimmed, $"{Regex.Escape(param.Name)}\\.text", RegexOptions.IgnoreCase))
                     result[current][param.Name] = "string";
             }
@@ -791,6 +828,11 @@ public class LingoToCSharpConverter
         if (Regex.IsMatch(rhs, @"^(true|false)$", RegexOptions.IgnoreCase)) return "bool";
         if (Regex.IsMatch(rhs, @"^[-+]?[0-9]+$")) return "int";
         if (Regex.IsMatch(rhs, @"^[-+]?[0-9]*\\.[0-9]+$")) return "float";
+        if (Regex.IsMatch(rhs, @"[-+*/]") && Regex.IsMatch(rhs, @"[0-9]"))
+        {
+            if (rhs.Contains('.')) return "float";
+            return "int";
+        }
         return "object";
     }
 

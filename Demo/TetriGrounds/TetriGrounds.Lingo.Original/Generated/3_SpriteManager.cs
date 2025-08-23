@@ -1,13 +1,13 @@
 public class SpriteManagerParentScript : LingoParentScript
 {
-    public object pNum;
-    public object pDestroyList;
-    public object pSpritenums;
-    public object pGame;
+    public int pNum;
+    public LingoList<object> pDestroyList = new();
+    public LingoList<object> pSpritenums = new();
+    public int pGame;
 
     private readonly GlobalVars _global;
 
-    public SpriteManagerParentScript(ILingoMovieEnvironment env, GlobalVars global, object _beginningsprite) : base(env)
+    public SpriteManagerParentScript(ILingoMovieEnvironment env, GlobalVars global, int _beginningsprite) : base(env)
     {
         _global = global;
         pNum = _beginningsprite;

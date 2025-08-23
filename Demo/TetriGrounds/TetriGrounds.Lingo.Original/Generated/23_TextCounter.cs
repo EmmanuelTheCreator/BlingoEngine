@@ -7,7 +7,7 @@ public class TextCounterBehavior : LingoSpriteBehavior, ILingoPropertyDescriptio
     public int myDataSpriteNum = 1;
     public string myDataName = "1";
     public string myFunction = "70";
-    public object myWaiter;
+    public int myWaiter;
     public int myWaitbeforeExecute = 70;
 
     public TextCounterBehavior(ILingoMovieEnvironment env) : base(env) { }

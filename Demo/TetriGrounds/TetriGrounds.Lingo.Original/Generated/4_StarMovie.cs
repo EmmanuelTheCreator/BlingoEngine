@@ -10,11 +10,11 @@ public void Startmovie()
 {
     if (gSpriteManager == null)
     {
-        gSpriteManager = new SpriteManagerParentScript(_env, _globalvars, 100);
+        gSpriteManager = new SpriteManagerParentScript(_env, _globalvars, 100)        ;
     }
     if (gMousePointer == null)
     {
-        gMousePointer = new MousePointerParentScript(_env, _globalvars, 999);
+        gMousePointer = new MousePointerParentScript(_env, _globalvars, 999)        ;
     }
 }
 

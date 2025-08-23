@@ -7,7 +7,7 @@ public class AnimationScriptBehavior : LingoSpriteBehavior, ILingoPropertyDescri
     public int myDataSpriteNum = 1;
     public string myDataName = "1";
     public string myFunction = "70";
-    public object myWaiter;
+    public int myWaiter;
     public int myWaitbeforeExecute = 0;
     public bool myAnimate;
     public int mySlowDown = 1;
