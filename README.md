@@ -47,13 +47,33 @@ File by file or in batch with the lingo importer.
 
 ---
 
+## 🎉 Standing on the Shoulders of Giants
+
+Macromedia Director and its Lingo language were revolutionary in their time.  
+They empowered an entire generation of artists, educators, and game developers to create interactive experiences long before today’s engines existed.
+
+**LingoEngine** is not here to replace Director, but to *honor its spirit* — carrying those ideas forward into the modern era so they can continue to inspire.
+
+| Director’s Legacy ✨            | LingoEngine’s Contribution 🚀 |
+|--------------------------------|--------------------------------|
+| First accessible multimedia authoring tool for creatives | Keeps Lingo projects alive on modern platforms |
+| Introduced the stage, cast, score, and Lingo scripting concepts | Brings those concepts into C# and today’s engines |
+| Enabled art, education, and indie game communities worldwide | Opens them again for exploration, study, and reuse |
+| Inspired countless developers and later tools (Flash, Unity, etc.) | Bridges history with modern ecosystems like Godot, SDL2, Unity, Blazor |
+
+> 🧡 We applaud the Director team and community:  
+> without them, there would be no LingoEngine.
+
+---
+
 ## ⭐ Why Use LingoEngine?
 
-- 🚀 Port legacy Director projects to modern engines
-- 🔁 Reuse existing assets, scripts, and logic
-- 🛠️ Build hybrid projects that combine old logic with new rendering
-- 🕹️ Explore the inner workings of Director games using readable C# code
-- 💾 Preserve interactive media history with a modern toolset
+- 🚀 Port legacy Director projects to modern engines  
+- 🔁 Reuse existing assets, scripts, and logic  
+- 🛠️ Build hybrid projects that combine old logic with new rendering  
+- 🕹️ Explore the inner workings of Director games using readable C# code  
+- 💾 Preserve interactive media history with a modern toolset  
+
 
 ---
 
@@ -143,13 +163,66 @@ Documentation generated from the source code is available using [DocFX](https://
 
 ## 🧭 Roadmap
 
-| Feature                                | Status       |
-|----------------------------------------|--------------|
-| Full Lingo language support            | In Progress  |
-| Standalone Director application        | Basic support |
-| Backends: Godot, SDL2, Unity, Blazor   | ✅ Implemented |
-| Documentation & learning materials     | In Progress  |
-| Lingo bytecode (dcode) interpreter     | Experimental |
+### 🟣 LingoEngine Runtime ▓▓▓▓▓▓▓░ 70%
+The core runtime that executes Lingo scripts and connects to backends.
+
+#### Core
+| Feature                          | Status / Progress |
+|----------------------------------|-------------------|
+| Lingo Script Execution           | ✅ Stable |
+| Lingo → C# Conversion            | ███████▌░░ 75% |
+| Lingo bytecode (dcode) interpreter | ░░░░░░░░░░ Experimental |
+
+#### Backends
+| Backend                          | Status / Progress |
+|----------------------------------|-------------------|
+| Godot Backend                    | ✅ Tested, working |
+| SDL2 Backend                     | ✅ Tested, working |
+| Unity Backend                    | ██████░░░░ 70% (written, not fully tested) |
+| Blazor Backend                   | ██████░░░░ 70% (written, not fully tested) |
+
+#### Features
+| Feature                          | Status / Progress |
+|----------------------------------|-------------------|
+| FilmLoops                        | ✅ Done |
+| Transitions                      | ░░░░░░░░░░ 0% |
+| Video Playback                   | ░░░░░░░░░░ Planned (0%) |
+| Macromedia Flash Integration     | ░░░░░░░░░░ Far future (0%) |
+| LingoEngine 3D                   | ░░░░░░░░░░ Early idea (2%) |
+
+---
+
+### 🟠 Director Application ▓▓▓░░░░░ 35%
+A modern reimplementation of Director’s movie, cast, and score system on top of the runtime.
+
+#### Backends
+| Backend                          | Status / Progress |
+|----------------------------------|-------------------|
+| Godot Frontend                   | ██████░░░░ 65% |
+| SDL2 Frontend                    | █░░░░░░░░░ 15% |
+| Unity Frontend                   | ░░░░░░░░░░ Planned |
+| Blazor Frontend                  | ░░░░░░░░░░ Planned |
+
+#### Core Systems
+| Feature                          | Status / Progress |
+|----------------------------------|-------------------|
+| Score                            | ✅ Done |
+| Cast                             | ✅ Done |
+| Property Inspector               | ✅ Done |
+| Text Editing                     | █████░░░░░ 70% |
+| Picture Painter (Godot)          | ██░░░░░░░░ 30% (🎨 experimental / fun) |
+| Shape Painter                    | ░░░░░░░░░░ 0% (todo) |
+| Orion Skin                       | ░░░░░░░░░░ 0% (planned) |
+| Behavior Code Library            | ░░░░░░░░░░ 0% (planned) |
+| .dir File Importer               | ████░░░░░░ 50% |
+
+---
+
+✅ = ready and tested  
+⏳ = in progress  
+🧪 = experimental  
+🎨 = playful / for fun  
+
 
 ---
 
