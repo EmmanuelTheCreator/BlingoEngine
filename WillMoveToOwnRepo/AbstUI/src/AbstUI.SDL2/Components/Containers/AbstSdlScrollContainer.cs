@@ -82,10 +82,10 @@ namespace AbstUI.SDL2.Components.Containers
                     comp is not IHandleSdlEvent handler ||
                     !comp.Visibility)
                     continue;
-                //ContainerHelpers.HandleChildEvents(comp, e, (int)ScrollHorizontal, (int)ScrollVertical);
-                ContainerHelpers.HandleChildEvents(comp, e,
-                   (int)ScrollHorizontal - (int)X,
-                   (int)ScrollVertical - (int)Y);
+                ContainerHelpers.HandleChildEvents(comp, e, (int)ScrollHorizontal, (int)ScrollVertical);
+                //ContainerHelpers.HandleChildEvents(comp, e,
+                //   (int)ScrollHorizontal - (int)X,
+                //   (int)ScrollVertical - (int)Y);
             }
         }
 

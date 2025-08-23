@@ -160,17 +160,18 @@ internal class AbstSdlColorPickerPopup : AbstSdlPanel, ISdlFocusable, IHandleSdl
         int rightLabelX = 90; int rightInputX = 120;
         int inputsY = CanvasHeight + 8;
 
-        _canvas.X = X + 4; _canvas.Y = Y + 4;
+        _canvas.X = X+ leftInputX -15; _canvas.Y =Y+ inputsY - _canvas.Height -5;
 
-        _rInput.X = X + leftInputX; _rInput.Y = Y + inputsY;
-        _gInput.X = X + leftInputX; _gInput.Y = Y + inputsY + RowHeight;
-        _bInput.X = X + leftInputX; _bInput.Y = Y + inputsY + RowHeight * 2;
-        _aInput.X = X + leftInputX; _aInput.Y = Y + inputsY + RowHeight * 3;
+        _rInput.X = leftInputX; _rInput.Y = inputsY;
+        _gInput.X = leftInputX; _gInput.Y = inputsY + RowHeight;
+        _bInput.X = leftInputX; _bInput.Y = inputsY + RowHeight * 2;
+        _aInput.X = leftInputX; _aInput.Y = inputsY + RowHeight * 3;
 
-        _hInput.X = X + rightInputX; _hInput.Y = Y + inputsY;
-        _sInput.X = X + rightInputX; _sInput.Y = Y + inputsY + RowHeight;
-        _vInput.X = X + rightInputX; _vInput.Y = Y + inputsY + RowHeight * 2;
-        _hexInput.X = X + rightInputX; _hexInput.Y = Y + inputsY + RowHeight * 3;
+        _hInput.X = rightInputX; _hInput.Y = inputsY;
+        _sInput.X = rightInputX; _sInput.Y = inputsY + RowHeight;
+        _vInput.X = rightInputX; _vInput.Y = inputsY + RowHeight * 2;
+        _hexInput.X = rightInputX; _hexInput.Y = inputsY + RowHeight * 3;
+
 
         var res = base.Render(context);
         if (res.Texture != nint.Zero)
