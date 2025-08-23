@@ -26,6 +26,7 @@ namespace ProjectorRays.CastMembers
             public ushort FontId { get; set; }
             public RayColor ForeColor { get; set; }
             public RayColor BackColor { get; set; }
+            public byte[]? UnknownData { get; set; }
         }
 
         public static List<TextStyleRun> Parse(BufferView view)
