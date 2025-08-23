@@ -26,7 +26,7 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
     private bool _dragging;
     private int _dragOffsetX;
     private int _dragOffsetY;
-    private const int TitleBarHeight = 24;
+    internal const int TitleBarHeight = 24;
 
 
 
@@ -129,6 +129,7 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
 
     public void OpenWindow()
     {
+        BringToFront();
         Visibility = true;
         _abstWindow.SetPositionFromFW((int)X, (int)Y);
         _abstWindow.ResizeFromFW(false, (int)Width, (int)Height);
