@@ -280,6 +280,8 @@ public partial class CSharpWriter
             var name = func.VarName;
             if (name.Equals("castLib", StringComparison.OrdinalIgnoreCase))
                 Append("CastLib");
+            else if (name.Equals("sprite", StringComparison.OrdinalIgnoreCase))
+                Append("Sprite");
             else
                 Append(name);
         }

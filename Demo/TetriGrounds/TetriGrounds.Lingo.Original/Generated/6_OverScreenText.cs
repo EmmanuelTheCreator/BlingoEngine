@@ -28,7 +28,7 @@ public class OverScreenTextParentScript : LingoParentScript, IHasStepFrameEvent
         }
         Sprite(myNum).Puppet = true;
         Sprite(myNum2).Puppet = true;
-        _Movie.ActorList.Add(this);
+        _movie.ActorList.Add(this);
         Sprite(myNum).Member = Member("T_OverScreen");
         Sprite(myNum2).Member = Member("T_OverScreen2");
         Sprite(myNum).LocZ = 1000;
@@ -44,7 +44,7 @@ public void Stepframe()
     myCounter = myCounter + 1;
     if (myCounter > myDuration)
     {
-        _Movie.ActorList.Deleteone(this);
+        _movie.ActorList.DeleteOne(this);
         Sprite(myNum).Puppet = false;
         Sprite(myNum).Puppet = false;
         myParent.TextFinished(this);
@@ -54,10 +54,7 @@ public void Stepframe()
     Sprite(myNum2).LocH = 180 + 2;
     Sprite(myNum).LocV = myLocV;
     Sprite(myNum2).LocV = myLocV + 2;
-    blendd = 70 - // error
-    ;
-    (float(myCounter);
-     / myDuration) * 100// error
+    blendd = 70 - ((float(myCounter) / myDuration) * 100);
     if (blendd < 0)
     {
         blendd = 0;
@@ -68,10 +65,9 @@ public void Stepframe()
 
 public void Destroy()
 {
-    if (_Movie.ActorList.Getpos(this);
-     != 0)
+    if (_movie.ActorList.GetPos(this) != 0)
     {
-        _Movie.ActorList.Deleteone(this);
+        _movie.ActorList.DeleteOne(this);
     }
     Sprite(myNum).Blend = 100;
     Sprite(myNum2).Blend = 100;

@@ -669,6 +669,12 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                     expr = new LingoTheExprNode { Prop = propTok.Lexeme };
                     break;
 
+                case LingoTokenType.LeftParen:
+                    AdvanceToken();
+                    expr = ParseExpression();
+                    Expect(LingoTokenType.RightParen);
+                    break;
+
                 case LingoTokenType.Identifier:
                     var name = _currentToken.Lexeme;
                     AdvanceToken();

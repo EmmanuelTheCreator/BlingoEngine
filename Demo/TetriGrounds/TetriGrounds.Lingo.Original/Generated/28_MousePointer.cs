@@ -62,7 +62,7 @@ public void Refresh()
         else
         {
             myDir = // error
-            ;
+;
             // error
         }
         Sprite(myNum).Membernum = myAnimateNum + myStartMember;
@@ -74,7 +74,7 @@ public void ShowMouse()
     Sprite(myNum).Puppet = true;
     Sprite(myNum).LocZ = 1000000;
     Sprite(myNum).Member = Member("mouse0000");
-    _movie.actorList.append(this);
+    _movie.ActorList.Add(this);
 }
 
 public void Mouse_Over()
@@ -89,10 +89,9 @@ public void Mouse_Restore()
 
 public void Destroy()
 {
-    if (_movie.actorList.getpos(this);
-     > 0)
+    if (_movie.ActorList.GetPos(this) > 0)
     {
-        _movie.actorList.deleteOne(this);
+        _movie.ActorList.DeleteOne(this);
     }
 }
 

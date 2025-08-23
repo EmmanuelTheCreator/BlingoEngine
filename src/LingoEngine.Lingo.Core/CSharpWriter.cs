@@ -213,7 +213,7 @@ public partial class CSharpWriter : ILingoAstVisitor
         }
         else if (propLower == "actorlist")
         {
-            Append("_Movie.ActorList");
+            Append("_movie.ActorList");
         }
         else if (propLower == "frame")
         {
@@ -246,7 +246,9 @@ public partial class CSharpWriter : ILingoAstVisitor
         bool needsParensRight = node.Right is LingoBinaryOpNode;
 
         if (needsParensLeft) Append("(");
+        var startLeft = _sb.Length;
         node.Left.Accept(this);
+        TrimSemicolon(startLeft);
         if (needsParensLeft) Append(")");
 
         Append(" ");
@@ -254,7 +256,9 @@ public partial class CSharpWriter : ILingoAstVisitor
         Append(" ");
 
         if (needsParensRight) Append("(");
+        var startRight = _sb.Length;
         node.Right.Accept(this);
+        TrimSemicolon(startRight);
         if (needsParensRight) Append(")");
     }
 
@@ -699,10 +703,12 @@ public partial class CSharpWriter : ILingoAstVisitor
         {
             if (_sb.Length - startLen >= 2 && _sb[^2] == ';')
                 _sb.Length -= 2;
+            _atLineStart = false;
         }
         else if (_sb.Length - startLen >= 1 && _sb[^1] == ';')
         {
             _sb.Length -= 1;
+            _atLineStart = false;
         }
     }
 

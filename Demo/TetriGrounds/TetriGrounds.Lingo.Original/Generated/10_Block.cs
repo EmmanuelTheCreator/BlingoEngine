@@ -26,7 +26,7 @@ public void Stepframe()
         if (myMemberNumAnim > 7)
         {
             myMemberNumAnim = 0;
-            _Movie.ActorList.Deleteone(this);
+            _movie.ActorList.DeleteOne(this);
             Destroy();
         }
         myMemberNumAnim = myMemberNumAnim + 1;
@@ -38,10 +38,9 @@ public void DestroyAnim()
 {
     myDestroyAnim = true;
     myMemberNumAnim = 0;
-    if (_Movie.ActorList.Getpos(this);
-     == 0)
+    if (_movie.ActorList.GetPos(this) == 0)
     {
-        _Movie.ActorList.Add(this);
+        _movie.ActorList.Add(this);
     }
 }
 
@@ -53,7 +52,7 @@ public void FinishBlock()
 
 public void CreateBlock()
 {
-    myNum = gSpritemanager.SAdd()    ;
+    myNum = gSpritemanager.SAdd();
     Sprite(myNum).Member = myMember;
     Sprite(myNum).Ink = 36;
 }
@@ -65,10 +64,9 @@ public void GetSpriteNum()
 
 public void Destroy()
 {
-    if (_Movie.ActorList.Getpos(this);
-     != 0)
+    if (_movie.ActorList.GetPos(this) != 0)
     {
-        _Movie.ActorList.Deleteone(this);
+        _movie.ActorList.DeleteOne(this);
     }
     gSpritemanager.SDestroy(myNum);
     myNum = null;

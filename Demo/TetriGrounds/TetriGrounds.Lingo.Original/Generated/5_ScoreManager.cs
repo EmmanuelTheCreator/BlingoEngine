@@ -19,9 +19,7 @@ public class ScoreManagerParentScript : LingoParentScript
         myLevelUpPlusScore = 0;
         // find stqrt level
         myLevel = System.Convert.ToInt32(GetMember<ILingoMemberTextBase>("T_StartLevel").Text);
-        myLevelUpNeededScore = 20 * // error
-        ;
-        myLevel + 1// error
+        myLevelUpNeededScore = 20 * (myLevel + 1);
         UpdateGfxScore();
         myTexts = [];
         NewText("Go!");
@@ -106,7 +104,7 @@ public void BlockFrozen()
 
 public void UpdateGfxScore()
 {
-    GetMember<ILingoMemberTextBase>("T_Score").Text = string(myPlayerScore)    ;
+    GetMember<ILingoMemberTextBase>("T_Score").Text = string(myPlayerScore);
 }
 
 public void GetLevelup()
@@ -138,22 +136,22 @@ public void NewText(object _text)
     {
         myOverScreenText = [];
     }
-    myOverScreenText.append(new OverScreenTextParentScript(_env, _globalvars, 130, _text, this);
+    myOverScreenText.Add(new OverScreenTextParentScript(_env, _globalvars, 130, _text, this);
     );
 }
 
 public void TextFinished(object obj)
 {
-    _pos = myOverScreenText.getpos(obj)    ;
-    myOverScreenText[_pos].destroy();
-    myOverScreenText.deleteone(obj);
+    _pos = myOverScreenText.GetPos(obj);
+    myOverScreenText[_pos].Destroy();
+    myOverScreenText.DeleteOne(obj);
 }
 
 public void DestroyoverscreenTxt()
 {
-    for (var i = 1; i <= myOverScreenText.count; i++)
+    for (var i = 1; i <= myOverScreenText.Count; i++)
     {
-        myOverScreenText[i].destroy();
+        myOverScreenText[i].Destroy();
         myOverScreenText[i] = 0;
     }
     myOverScreenText = [];

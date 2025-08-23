@@ -28,23 +28,23 @@ public void DownloadScores()
     myErr = 0;
     myDone = False;
     scores = [];
-    myNetID = getNetText(myURL)    ;
-    _movie.actorList.add(this);
+    myNetID = getNetText(myURL);
+    _movie.ActorList.Add(this);
 }
 
 public void StepFrame()
 {
-    if (netDone(myNetID)    )
+    if (netDone(myNetID))
     {
-        myErr = netError(myNetID)        ;
+        myErr = netError(myNetID);
         if (myErr == "OK")
         {
-            data = netTextResult(myNetID)            ;
-            myScores = [System.Convert.ToInt32(data.line[1]), System.Convert.ToInt32(data.line[2])];
+            data = netTextResult(myNetID);
+            myScores = [System.Convert.ToInt32(data.Line[1]), System.Convert.ToInt32(data.Line[2])];
             OutputScores();
         }
         myDone = True;
-        _movie.actorList.deleteOne(this);
+        _movie.ActorList.DeleteOne(this);
     }
 }
 
@@ -92,15 +92,15 @@ public void GetLowestPersonalScore()
     {
         return 0;
     }
-    if (!(listp)(myScores[2])    )
+    if (!(listp)(myScores[2]))
     {
         return 0;
     }
-    if (myScores[2].count < 5)
+    if (myScores[2].Count < 5)
     {
         return 0;
     }
-    return myScores[2][myScores[2].count][2];
+    return myScores[2][myScores[2].Count][2];
 }
 
 public void SetShowType(object val)
@@ -125,10 +125,9 @@ public void IsDone()
 
 public void Destroy()
 {
-    if (_movie.actorList.getpos(this);
-     != 0)
+    if (_movie.ActorList.GetPos(this) != 0)
     {
-        _movie.actorList.deleteOne(this);
+        _movie.ActorList.DeleteOne(this);
     }
 }
 

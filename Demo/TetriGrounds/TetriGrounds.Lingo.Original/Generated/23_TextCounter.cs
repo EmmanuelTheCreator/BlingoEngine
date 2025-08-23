@@ -88,7 +88,7 @@ public void Deletee()
 
 public void Updateme()
 {
-    GetMember<ILingoMemberTextBase>(Sprite(Spritenum).Member).Text = string(myValue)    ;
+    GetMember<ILingoMemberTextBase>(Sprite(Spritenum).Member).Text = string(myValue);
     myWaiter = 0;
 }
 

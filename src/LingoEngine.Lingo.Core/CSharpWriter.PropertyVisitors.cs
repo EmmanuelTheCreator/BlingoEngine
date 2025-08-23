@@ -51,16 +51,22 @@ public partial class CSharpWriter
             Append(".");
             if (node.Property is LingoVarNode propVar2)
             {
-                var name = propVar2.VarName;
-                if (theNode.Prop.Equals("actorlist", StringComparison.OrdinalIgnoreCase) &&
-                    name.Equals("append", StringComparison.OrdinalIgnoreCase))
+                var lower = propVar2.VarName.ToLowerInvariant();
+                var pascal = lower switch
                 {
-                    Append("Add");
-                }
-                else
-                {
-                    Append(char.ToUpperInvariant(name[0]) + name[1..]);
-                }
+                    "append" => "Add",
+                    "deleteone" => "DeleteOne",
+                    "getpos" => "GetPos",
+                    "deleteat" => "DeleteAt",
+                    "getat" => "GetAt",
+                    "setat" => "SetAt",
+                    "count" => "Count",
+                    "add" => "Add",
+                    "addat" => "AddAt",
+                    "addprop" => "Add",
+                    _ => char.ToUpperInvariant(propVar2.VarName[0]) + propVar2.VarName[1..]
+                };
+                Append(pascal);
             }
             else
             {
@@ -69,9 +75,42 @@ public partial class CSharpWriter
         }
         else
         {
-            node.Object.Accept(this);
+            var start = _sb.Length;
+            if (node.Object is LingoCallNode call)
+                WriteCallExpr(call);
+            else if (node.Object is LingoObjCallNode objCall)
+                WriteObjCallExpr(objCall);
+            else if (node.Object is LingoObjCallV4Node v4)
+                WriteObjCallV4Expr(v4);
+            else
+                node.Object.Accept(this);
+            TrimSemicolon(start);
+
             Append(".");
-            node.Property.Accept(this);
+            if (node.Property is LingoVarNode propVar3)
+            {
+                var lower = propVar3.VarName.ToLowerInvariant();
+                var pascal = lower switch
+                {
+                    "actorlist" => "ActorList",
+                    "deleteone" => "DeleteOne",
+                    "getpos" => "GetPos",
+                    "deleteat" => "DeleteAt",
+                    "getat" => "GetAt",
+                    "setat" => "SetAt",
+                    "count" => "Count",
+                    "append" => "Add",
+                    "add" => "Add",
+                    "addat" => "AddAt",
+                    "addprop" => "Add",
+                    _ => char.ToUpperInvariant(propVar3.VarName[0]) + propVar3.VarName[1..]
+                };
+                Append(pascal);
+            }
+            else
+            {
+                node.Property.Accept(this);
+            }
         }
     }
 

@@ -37,11 +37,11 @@ public void Beginsprite()
 {
     if (myLock == true)
     {
-        Sprite(Spritenum).Member.color = myColorLock;
+        Sprite(Spritenum).Member.Color = myColorLock;
     }
     else
     {
-        Sprite(Spritenum).Member.color = myColor;
+        Sprite(Spritenum).Member.Color = myColor;
     }
 }
 
@@ -61,9 +61,9 @@ public void MouseWithin(LingoMouseEvent mouse)
 {
     if (myLock == false)
     {
-        if (Sprite(Spritenum).Member.color != myColorOver)
+        if (Sprite(Spritenum).Member.Color != myColorOver)
         {
-            Sprite(Spritenum).Member.color = myColorOver;
+            Sprite(Spritenum).Member.Color = myColorOver;
             Cursor = 280;
         }
     }
@@ -73,7 +73,7 @@ public void Mouseleave(LingoMouseEvent mouse)
 {
     if (myLock == false)
     {
-        Sprite(Spritenum).Member.color = myColor;
+        Sprite(Spritenum).Member.Color = myColor;
         Cursor = -1;
     }
 }
@@ -81,12 +81,12 @@ public void Mouseleave(LingoMouseEvent mouse)
 public void Lock()
 {
     myLock = True;
-    Sprite(Spritenum).Member.color = myColorLock;
+    Sprite(Spritenum).Member.Color = myColorLock;
 }
 
 public void Unlock()
 {
-    Sprite(Spritenum).Member.color = myColor;
+    Sprite(Spritenum).Member.Color = myColor;
     myLock = false;
 }
 

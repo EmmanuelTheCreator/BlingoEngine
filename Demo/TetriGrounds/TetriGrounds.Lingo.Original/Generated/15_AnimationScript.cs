@@ -83,7 +83,7 @@ public void Stepframe()
             else
             {
                 // finished anim
-                _movie.actorList.deleteOne(this);
+                _movie.ActorList.DeleteOne(this);
                 myAnimate = false;
             }
         }
@@ -98,28 +98,25 @@ public void StartAnim()
 {
     for (var i = myStartMembernum; i <= myEndMembernum; i++)
     {
-        Member(i).preload();
+        Member(i).Preload();
     }
     myAnimate = true;
     mySlowDownCounter = 0;
     myValue = myStartMembernum;
-    _movie.actorList.append(this);
+    _movie.ActorList.Add(this);
 }
 
 public void Updateme()
 {
-    Sprite(Spritenum).Membernum = // error
-    ;
-    myValue(// error);
+    Sprite(Spritenum).Membernum = myValue;
     myWaiter = 0;
 }
 
 public void Endsprite()
 {
-    if (_movie.actorList.getpos(this);
-     > 0)
+    if (_movie.ActorList.GetPos(this) > 0)
     {
-        _movie.actorList.deleteOne(this);
+        _movie.ActorList.DeleteOne(this);
     }
 }
 

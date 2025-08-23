@@ -26,7 +26,7 @@ public void Keyaction(object val)
     {
         return;
     }
-    myPlayerBlock.keyyed(val);
+    myPlayerBlock.Keyyed(val);
 }
 
 public void PauseGame()
@@ -41,9 +41,9 @@ public void PauseGame()
 public void NewGame()
 {
     // check if the game isnt set to pause
-    if (objectp(myPlayerBlock)    )
+    if (objectp(myPlayerBlock))
     {
-        _pause = myPlayerBlock.GetPause()        ;
+        _pause = myPlayerBlock.GetPause();
         if (_pause == false)
         {
             TeminateGame();
@@ -66,37 +66,37 @@ public void StartNewGame()
 {
     if (gSpriteManager == null)
     {
-        gSpriteManager = new SpriteManagerParentScript(_env, _globalvars, 100)        ;
+        gSpriteManager = new SpriteManagerParentScript(_env, _globalvars, 100);
     }
     myWidth = 11;
     myHeight = 22;
-    myGfx = new GfxParentScript(_env, _globalvars)    ;
-    myScoreManager = new ScoreManagerParentScript(_env, _globalvars)    ;
-    myBlocks = new BlocksParentScript(_env, _globalvars, myGfx, myScoreManager, myWidth, myHeight)    ;
-    myPlayerBlock = new PlayerBlockParentScript(_env, _globalvars, myGfx, myBlocks, myScoreManager, myWidth, myHeight)    ;
-    myPlayerBlock.createBlock();
+    myGfx = new GfxParentScript(_env, _globalvars);
+    myScoreManager = new ScoreManagerParentScript(_env, _globalvars);
+    myBlocks = new BlocksParentScript(_env, _globalvars, myGfx, myScoreManager, myWidth, myHeight);
+    myPlayerBlock = new PlayerBlockParentScript(_env, _globalvars, myGfx, myBlocks, myScoreManager, myWidth, myHeight);
+    myPlayerBlock.CreateBlock();
 }
 
 public void TeminateGame()
 {
     if (myPlayerBlock != 0)
     {
-        myPlayerBlock.destroy();
+        myPlayerBlock.Destroy();
     }
     myPlayerBlock = 0;
     if (myBlocks != 0)
     {
-        myBlocks.destroy();
+        myBlocks.Destroy();
     }
     myBlocks = 0;
     if (myGfx != 0)
     {
-        myGfx.destroy();
+        myGfx.Destroy();
     }
     myGfx = 0;
     if (myScoreManager != 0)
     {
-        myScoreManager.destroy();
+        myScoreManager.Destroy();
     }
     myScoreManager = 0;
 }

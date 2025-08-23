@@ -510,7 +510,7 @@ end";
             "        if (myMemberNumAnim > 7)",
             "        {",
             "            myMemberNumAnim = 0;",
-            "            _Movie.ActorList.Deleteone(this);",
+            "            _movie.ActorList.DeleteOne(this);",
             "            Destroy();",
             "        }",
             "        myMemberNumAnim = myMemberNumAnim + 1;",
@@ -631,7 +631,7 @@ end";
         var node = new LingoTheExprNode { Prop = "mouseH" };
         Assert.Equal("_Mouse.MouseH", CSharpWriter.Write(node).Trim());
         node.Prop = "actorList";
-        Assert.Equal("_Movie.ActorList", CSharpWriter.Write(node).Trim());
+        Assert.Equal("_movie.ActorList", CSharpWriter.Write(node).Trim());
         node.Prop = "banana";
         Assert.Equal("/* the banana */", CSharpWriter.Write(node).Trim());
     }
@@ -644,7 +644,7 @@ end";
             Object = new LingoVarNode { VarName = "foo" },
             Property = new LingoVarNode { VarName = "bar" }
         };
-        Assert.Equal("foo.bar", CSharpWriter.Write(node).Trim());
+        Assert.Equal("foo.Bar", CSharpWriter.Write(node).Trim());
     }
 
     [Fact]
@@ -1027,14 +1027,15 @@ end";
   me=void
 end";
         var result = _converter.Convert(lingo);
-        Assert.Contains("_movie.actorList.deleteOne", result);
+        Assert.Contains("if (_movie.ActorList.GetPos(this) != 0)", result);
+        Assert.Contains("_movie.ActorList.DeleteOne(this);", result);
     }
 
     [Fact]
     public void AppendActorListIsConverted()
     {
         var result = _converter.Convert("append the actorlist(me)");
-        Assert.Contains("_Movie.ActorList.Add(this)", result);
+        Assert.Contains("_movie.ActorList.Add(this);", result);
     }
 
     [Fact]
@@ -1045,10 +1046,17 @@ end";
     }
 
     [Fact]
+    public void SpriteMemberAssignmentIsConverted()
+    {
+        var result = _converter.Convert("sprite(me.spritenum).membernum = (myValue)");
+        Assert.Contains("Sprite(Spritenum).Membernum = myValue;", result);
+    }
+
+    [Fact]
     public void ReverseActorListIsConverted()
     {
         var result = _converter.Convert("reverse the actorlist(me)");
-        Assert.Contains("_Movie.ActorList.Reverse(this)", result);
+        Assert.Contains("_movie.ActorList.Reverse(this);", result);
     }
 
     [Fact]

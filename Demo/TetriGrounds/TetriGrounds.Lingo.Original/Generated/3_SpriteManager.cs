@@ -35,35 +35,34 @@ public void Sadd()
         if (pNum > 999)
         {
             Sprite(1000).Puppet = true;
-            Sprite(1000).Loc = point(100, 30)            ;
+            Sprite(1000).Loc = point(100, 30);
             Sprite(1000).Member = Member("TomuchSprites");
             Sprite(1000).Ink = 36;
             Sprite(1000).Blend = 100;
             Sprite(1000).LocZ = "10000000000000";
             // updatestage
             Sprite(1000).Blend = 0;
-            Sprite(1000).Loc = point(1, -40)            ;
+            Sprite(1000).Loc = point(1, -40);
             pNum = pNum - 1;
             return 0;
             return;
         }
         Sprite(pNum).Puppet = true;
-        if (pSpritenums.getpos(pNum);
-         != 0)
+        if (pSpritenums.GetPos(pNum) != 0)
         {
             pNum = pNum + 100000;
         }
-        pSpritenums.append(pNum);
+        pSpritenums.Add(pNum);
         Sprite(pNum).Ink = 36;
         return pNum;
     }
     else
     {
         // create a new from the destroyed sprite list
-        pNumDestroy = pDestroyList.getat(1)        ;
+        pNumDestroy = pDestroyList.GetAt(1);
         Sprite(pNumDestroy).Puppet = true;
-        pDestroyList.deleteone(pNumDestroy);
-        pSpritenums.append(pNumDestroy);
+        pDestroyList.DeleteOne(pNumDestroy);
+        pSpritenums.Add(pNumDestroy);
         Sprite(pNum).Ink = 36;
         return pNumDestroy;
     }
@@ -76,17 +75,16 @@ public void SDestroy(object sprNum)
     {
         SDestroyError("no spriteNum");
     }
-    if (!(integerP)(SprNum)    )
+    if (!(integerP)(SprNum))
     {
         SDestroyError("wrong SpriteNum");
     }
-    if (pSpritenums.getpos(sprNum);
-     == 0)
+    if (pSpritenums.GetPos(sprNum) == 0)
     {
         return;
     }
-    pSpritenums.deleteone(sprNum);
-    pDestroyList.add(sprNum);
+    pSpritenums.DeleteOne(sprNum);
+    pDestroyList.Add(sprNum);
     Sprite(sprNum).Member = Member("empty");
     Sprite(sprNum).LocZ = sprNum;
     Sprite(sprNum).Puppet = false;
@@ -103,8 +101,7 @@ public void GetSpritenums()
 
 public void Checksprite(object _num)
 {
-    if (pSpritenums.getone(_num);
-     > 0)
+    if (pSpritenums.Getone(_num) > 0)
     {
         return 1;
     }

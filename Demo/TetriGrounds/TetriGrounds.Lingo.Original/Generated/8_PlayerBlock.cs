@@ -67,7 +67,7 @@ public class PlayerBlockParentScript : LingoParentScript, IHasStepFrameEvent
         myY = 2;
         myWidth = 1;
         myMoving = false;
-        _level = myScoreManager.GetLevel()    ;
+        _level = myScoreManager.GetLevel();
         Calculatespeed();
         if (mySlowDown <= 1)
         {
@@ -92,7 +92,7 @@ public class PlayerBlockParentScript : LingoParentScript, IHasStepFrameEvent
 // the next block that will come
 public void Calculatespeed()
 {
-    _level = myScoreManager.GetLevel()    ;
+    _level = myScoreManager.GetLevel();
     mySlowDownFactorByLevel = 10;
     mySlowDown = 65;
     for (var i = 0; i <= _level; i++)
@@ -104,10 +104,8 @@ public void Calculatespeed()
         }
         if (mySlowDown > 1)
         {
-            mySlowDown = mySlowDown - // error
-            ;
+            mySlowDown = mySlowDown - mySlowDownFactorByLevel;
         }
-        mySlowDownFactorByLevel(// error);
     }
     Put(mySlowDown);
     // error
@@ -187,7 +185,7 @@ public void LetBlockFall()
     starting = myY;
     for (var i = starting; i <= myMaxY; i++)
     {
-        test = DownCheck()        ;
+        test = DownCheck();
         RefreshBlock();
         if (test == false)
         {
@@ -229,7 +227,7 @@ public void Stepframe()
 
 public void DownCheck()
 {
-    check = CollitionDetect(myX, myY + 1)    ;
+    check = CollitionDetect(myX, myY + 1);
     if (check == true)
     {
         FreezeBlock();
@@ -250,7 +248,7 @@ public void ResetBlock()
         foreach (var i in MySubBlocks)
         {
             _y = i[Symbol("yy")] + myY;
-            check = myBlocks.FullHorizontal(_y)            ;
+            check = myBlocks.FullHorizontal(_y);
             if (check == true)
             {
                 myBlocks.RemoveHorizontal(_y);
@@ -266,12 +264,12 @@ public void ResetBlock()
         MyScoreManager.AddDropedBlock();
         // add that there's a block dropped
         // check if we go a level up
-        levelup = MyScoreManager.GetLevelUp()        ;
+        levelup = MyScoreManager.GetLevelUp();
         if (levelup == true)
         {
             Calculatespeed();
         }
-        check = CollitionDetect(myX, myY)        ;
+        check = CollitionDetect(myX, myY);
         if (check == true)
         {
             // game finished
@@ -288,19 +286,18 @@ public void FreezeBlock()
 {
     if (myFinished == false)
     {
-        for (var i = 1; i <= MySubBlocks.count; i++)
+        for (var i = 1; i <= MySubBlocks.Count; i++)
         {
-            check = myBlocks.NewBlock(myX + MySubBlocks[i][Symbol("xx")], myY + MySubBlocks[i][Symbol("yy")], myBlockType)            ;
+            check = myBlocks.NewBlock(myX + MySubBlocks[i][Symbol("xx")], myY + MySubBlocks[i][Symbol("yy")], myBlockType);
         }
     }
 }
 
 public void CollitionDetect(object _x, object _y)
 {
-    for (var i = 1; i <= MySubBlocks.count; i++)
+    for (var i = 1; i <= MySubBlocks.Count; i++)
     {
-        if (myBlocks.IsBlock(_x + MySubBlocks[i][Symbol("xx")], _y + MySubBlocks[i][Symbol("yy")]);
-         == true)
+        if (myBlocks.IsBlock(_x + MySubBlocks[i][Symbol("xx")], _y + MySubBlocks[i][Symbol("yy")]) == true)
         {
             return true;
             break;
@@ -317,13 +314,13 @@ public void TurnBlock()
     tempBlock = [];
     collition = false;
     // prepare rotation
-    for (var i = 1; i <= MySubBlocks.count; i++)
+    for (var i = 1; i <= MySubBlocks.Count; i++)
     {
         oldx = MySubBlocks[i][Symbol("xx")];
         oldy = MySubBlocks[i][Symbol("yy")];
         newy = oldx;
         newx = -oldy;
-        tempBlock.append([newx, newy]);
+        tempBlock.Add([newx, newy]);
         // check if the block isnt over border, then move it back with 'offset'
         // right
         // if myX+newX > myMaxX-1 then
@@ -343,7 +340,7 @@ public void TurnBlock()
             collition = true;
         }
         // colition check
-        check = myBlocks.IsBlock((myX + newx) + offsetX, myY + newy)        ;
+        check = myBlocks.IsBlock((myX + newx) + offsetX, myY + newy);
         if (check == true)
         {
             collition = true;
@@ -352,7 +349,7 @@ public void TurnBlock()
     if (collition == false)
     {
         // aply new rotation
-        for (var i = 1; i <= MySubBlocks.count; i++)
+        for (var i = 1; i <= MySubBlocks.Count; i++)
         {
             MySubBlocks[i][Symbol("xx")] = tempBlock[i][1];
             MySubBlocks[i][Symbol("yy")] = tempBlock[i][2];
@@ -366,12 +363,12 @@ public void TurnBlock()
 public void Rightt()
 {
     myWaiter = myWaiter + 1;
-    check = CollitionDetect(myX + 1, myY)    ;
+    check = CollitionDetect(myX + 1, myY);
     if (check == false)
     {
         // calculate max right from block
         maxright = 0;
-        for (var i = 1; i <= MySubBlocks.count; i++)
+        for (var i = 1; i <= MySubBlocks.Count; i++)
         {
             tempx = MySubBlocks[i][Symbol("xx")];
             if (tempx > maxright)
@@ -392,12 +389,12 @@ public void Leftt()
     myWaiter = myWaiter + 1;
     // left
     // left colition
-    check = CollitionDetect(myX - 1, myY)    ;
+    check = CollitionDetect(myX - 1, myY);
     if (check == false)
     {
         // calculate max left from block
         maxleft = 0;
-        for (var i = 1; i <= MySubBlocks.count; i++)
+        for (var i = 1; i <= MySubBlocks.Count; i++)
         {
             tempx = MySubBlocks[i][Symbol("xx")];
             if (tempx < maxleft)
@@ -416,22 +413,22 @@ public void Leftt()
 // --------------------------------------
 public void StartMove()
 {
-    _Movie.ActorList.Add(this);
+    _movie.ActorList.Add(this);
     myMoving = true;
 }
 
 public void StopMove()
 {
-    _Movie.ActorList.Deleteone(this);
+    _movie.ActorList.DeleteOne(this);
     myMoving = false;
 }
 
 // --------------------------------------
 public void RefreshBlock()
 {
-    for (var i = 1; i <= MySubBlocks.count; i++)
+    for (var i = 1; i <= MySubBlocks.Count; i++)
     {
-        myGfx.PositionBlock(MySubBlocks[i][Symbol("obj")].getSpriteNum();, myX + MySubBlocks[i][Symbol("xx")], myY + MySubBlocks[i][Symbol("yy")]);
+        myGfx.PositionBlock(MySubBlocks[i][Symbol("obj")].GetSpriteNum();, myX + MySubBlocks[i][Symbol("xx")], myY + MySubBlocks[i][Symbol("yy")]);
     }
 }
 
@@ -442,11 +439,11 @@ public void CreateBlock()
     chosenBlock = myTypeBlocks[myBlockType];
     // chosenBlock = myTypeBlocks[2]
     // create subBlocks
-    for (var i = 1; i <= chosenBlock[1].count; i++)
+    for (var i = 1; i <= chosenBlock[1].Count; i++)
     {
-        MySubBlocks.append(new LingoPropertyList<object?>());
-        MySubBlocks[i][Symbol("obj")] = new BlockParentScript(_env, _globalvars, myGfx, myBlockType)        ;
-        MySubBlocks[i][Symbol("obj")].createBlock();
+        MySubBlocks.Add(new LingoPropertyList<object?>());
+        MySubBlocks[i][Symbol("obj")] = new BlockParentScript(_env, _globalvars, myGfx, myBlockType);
+        MySubBlocks[i][Symbol("obj")].CreateBlock();
         MySubBlocks[i][Symbol("xx")] = chosenBlock[1][i][1];
         MySubBlocks[i][Symbol("yy")] = chosenBlock[1][i][2];
         MySubBlocks[i][Symbol("rotating")] = chosenBlock[2][1];
@@ -459,17 +456,17 @@ public void UpdateNextBlock()
 {
     DestroyNextBlock();
     // create new
-    myNextBlockType = random(myTypeBlocks.count)    ;
+    myNextBlockType = random(myTypeBlocks.Count);
     chosenBlock = myTypeBlocks[myNextBlockType];
-    for (var i = 1; i <= chosenBlock[1].count; i++)
+    for (var i = 1; i <= chosenBlock[1].Count; i++)
     {
-        MyNextBlocks.append(new LingoPropertyList<object?>());
-        MyNextBlocks[i][Symbol("obj")] = new BlockParentScript(_env, _globalvars, myGfx, myNextBlockType)        ;
-        MyNextBlocks[i][Symbol("obj")].createBlock();
+        MyNextBlocks.Add(new LingoPropertyList<object?>());
+        MyNextBlocks[i][Symbol("obj")] = new BlockParentScript(_env, _globalvars, myGfx, myNextBlockType);
+        MyNextBlocks[i][Symbol("obj")].CreateBlock();
         MyNextBlocks[i][Symbol("xx")] = chosenBlock[1][i][1];
         MyNextBlocks[i][Symbol("yy")] = chosenBlock[1][i][2];
         MyNextBlocks[i][Symbol("rotating")] = chosenBlock[2][1];
-        myGfx.PositionBlock(MyNextBlocks[i][Symbol("obj")].getSpriteNum();, MyNextBlockHor + MyNextBlocks[i][Symbol("xx")], MyNextBlockVer + MyNextBlocks[i][Symbol("yy")]);
+        myGfx.PositionBlock(MyNextBlocks[i][Symbol("obj")].GetSpriteNum();, MyNextBlockHor + MyNextBlocks[i][Symbol("xx")], MyNextBlockVer + MyNextBlocks[i][Symbol("yy")]);
     }
 }
 
@@ -511,7 +508,7 @@ public void AddTypeBlock(object val, object _rotate)
     {
         myTypeBlocks = [];
     }
-    myTypeBlocks.append([val, [_rotate]]);
+    myTypeBlocks.Add([val, [_rotate]]);
 }
 
 // -----------------
