@@ -261,7 +261,7 @@ B --> D[Rendering Abstraction Layer]
 D --> E1[Godot]
 D --> E2[SDL2]
 D --> E3[Unity]
-D --> E3[Blazor]
+D --> E4[Blazor]
 
 ```
 
