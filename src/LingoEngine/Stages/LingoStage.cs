@@ -2,6 +2,7 @@ using LingoEngine.Members;
 using AbstUI.Primitives;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
+using LingoEngine.Animations;
 
 namespace LingoEngine.Stages;
 

@@ -196,6 +196,12 @@ namespace AbstUI.SDL2.Components.Containers
                 var tab = _children[_selectedIndex];
                 if (tab.Content?.FrameworkObj.FrameworkNode is AbstSdlComponent comp)
                 {
+                    // Ensure the tab content fills the available area when no explicit size is set
+                    if (comp.Width <= 0)
+                        comp.Width = w - BorderThickness * 2;
+                    if (comp.Height <= 0)
+                        comp.Height = h - _tabHeight - BorderThickness * 2;
+
                     var ctx = comp.ComponentContext;
                     var oldOffX = ctx.OffsetX;
                     var oldOffY = ctx.OffsetY;

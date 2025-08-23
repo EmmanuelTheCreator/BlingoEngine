@@ -68,7 +68,7 @@ namespace LingoEngine.Setup
 
         public void RegisterCommonServices()
         {
-            _container.WithGodotEngine();
+            _container.WithLingoEngineBase();
         }
 
         public ILingoEngineRegistration WithFrameworkFactory<T>(Action<T>? setup = null) where T : class, ILingoFrameworkFactory

@@ -11,6 +11,8 @@ using LingoEngine.Sounds;
 using LingoEngine.Stages;
 using LingoEngine.Tools;
 using Microsoft.Extensions.DependencyInjection;
+using LingoEngine.Transitions;
+using LingoEngine.Transitions.TransitionLibrary;
 
 namespace LingoEngine.Core
 {
@@ -145,10 +147,11 @@ namespace LingoEngine.Core
 
             // Create a new movies scope, needed for behaviours.
             var scope = _serviceProvider.CreateScope();
+            var transitionPlayer = new LingoTransitionPlayer(_Stage,_clock, _serviceProvider.GetRequiredService<ILingoTransitionLibrary>());
 
             // Create the movie.
             var movieEnv = (LingoMovieEnvironment)scope.ServiceProvider.GetRequiredService<ILingoMovieEnvironment>();
-            movieEnv.Init(name, _movies.Count + 1, this, _LingoKey, _sound, _Mouse, _Stage, _System, Clock, _castLibsContainer, scope, m =>
+            movieEnv.Init(name, _movies.Count + 1, this, _LingoKey, _sound, _Mouse, _Stage, _System, Clock, _castLibsContainer, scope, transitionPlayer, m =>
             {
                 // On remove movie
                 var movieEnvironment = m.GetEnvironment();

@@ -78,7 +78,7 @@ namespace LingoEngine.Movies
             _projectSettings = projectSettings;
         }
 
-        internal void Init(string name, int number, LingoPlayer player, LingoKey lingoKey, LingoSound sound, LingoStageMouse mouse, LingoStage stage, LingoSystem system, ILingoClock clock, LingoCastLibsContainer lingoCastLibsContainer, IServiceScope scopedServiceProvider, Action<LingoMovie> onRemoveMe)
+        internal void Init(string name, int number, LingoPlayer player, LingoKey lingoKey, LingoSound sound, LingoStageMouse mouse, LingoStage stage, LingoSystem system, ILingoClock clock, LingoCastLibsContainer lingoCastLibsContainer, IServiceScope scopedServiceProvider, ILingoTransitionPlayer transitionPlayer, Action<LingoMovie> onRemoveMe)
         {
             _scopedServiceProvider = scopedServiceProvider;
             _serviceProvider = new LingoServiceProvider();
@@ -93,7 +93,7 @@ namespace LingoEngine.Movies
             _mouse.Subscribe(_eventMediator);
             _key.Subscribe(_eventMediator);
             _castLibsContainer = lingoCastLibsContainer;
-            var transitionPlayer = _serviceProvider.GetRequiredService<ILingoTransitionPlayer>();
+           
             _movie = new LingoMovie(this, stage, transitionPlayer, _castLibsContainer, _memberFactory.Value, name, number, _eventMediator, m =>
             {
                 onRemoveMe(m);

@@ -107,7 +107,7 @@ namespace AbstUI.SDL2.Components.Inputs
             if (_popup == null)
             {
                 _popup = new AbstSdlInputItemList(Factory, ComponentContext);
-                _popup.ComponentContext.SetParents(ComponentContext, null);
+                _popup.ComponentContext.SetParents(ComponentContext,null);
                 foreach (var it in Items)
                     _popup.AddItem(it.Key, it.Value);
                 _popup.ValueChanged += PopupOnValueChanged;
@@ -130,6 +130,7 @@ namespace AbstUI.SDL2.Components.Inputs
             _popup.Width = Width;
             int desired = Items.Count * _lineHeight + 2;
             _popup.Height = desired > 200 ? 200 : desired;
+            _popup.ComponentContext.AlwaysOnTop = true;
             _popup.Visibility = true;
             Factory.RootContext.ComponentContainer.Activate(_popup.ComponentContext);
             _open = true;

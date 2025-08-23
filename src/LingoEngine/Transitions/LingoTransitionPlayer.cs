@@ -6,7 +6,7 @@ using LingoEngine.Transitions.TransitionLibrary;
 
 namespace LingoEngine.Transitions;
 
-internal sealed class LingoTransitionPlayer : ILingoTransitionPlayer
+public sealed class LingoTransitionPlayer : ILingoTransitionPlayer
 {
     private readonly LingoStage _stage;
     private readonly LingoClock _clock;

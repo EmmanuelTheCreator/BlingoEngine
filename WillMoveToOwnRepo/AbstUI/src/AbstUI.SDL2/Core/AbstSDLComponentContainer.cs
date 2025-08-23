@@ -66,7 +66,7 @@ public class AbstSDLComponentContainer
     {
         if (e.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN)
             _focusManager.SetFocus(null);
-
+        var handled = false;
         var evt = new AbstSDLEvent(e);
         for (int i = _activeComponents.Count - 1; i >= 0; i--)
         {
@@ -109,11 +109,13 @@ public class AbstSDLComponentContainer
             }
                 if (inside && okEvent)
             {
-                
+                handled = true;
                 handler.HandleEvent(evt);
                 if (evt.StopPropagation)
                     break;
             }
         }
+        if (e.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN && !handled)
+            _focusManager.SetFocus(null);
     }
 }

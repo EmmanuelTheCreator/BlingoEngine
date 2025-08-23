@@ -1,21 +1,22 @@
-﻿using LingoEngine.Core;
+﻿using AbstUI.Commands;
+using LingoEngine.Casts;
+using LingoEngine.ColorPalettes;
+using LingoEngine.Core;
 using LingoEngine.Events;
+using LingoEngine.Inputs;
+using LingoEngine.Members;
 using LingoEngine.Movies;
+using LingoEngine.Projects;
+using LingoEngine.Transitions;
+using LingoEngine.Transitions.TransitionLibrary;
 using LingoEngine.Xtras.BuddyApi;
 using Microsoft.Extensions.DependencyInjection;
-using LingoEngine.Members;
-using LingoEngine.Casts;
-using AbstUI.Commands;
-using LingoEngine.Projects;
-using LingoEngine.ColorPalettes;
-using LingoEngine.Inputs;
-using LingoEngine.Transitions.TransitionLibrary;
 
 namespace LingoEngine
 {
     internal static class LingoEngineSetup
     {
-        public static IServiceCollection WithGodotEngine(this IServiceCollection services)
+        public static IServiceCollection WithLingoEngineBase(this IServiceCollection services)
         {
 
             services
@@ -28,7 +29,9 @@ namespace LingoEngine
                    .AddSingleton<LingoFrameLabelManager>()
                    .AddSingleton<ILingoColorPaletteDefinitions, LingoColorPaletteDefinitions>()
                    .AddSingleton<ILingoTransitionLibrary, LingoTransitionLibrary>()
-                    .AddTransient<ILingoPlayer>(p => p.GetRequiredService<LingoPlayer>())
+                   .AddTransient<ILingoTransitionPlayer, LingoTransitionPlayer>()
+
+                   .AddTransient<ILingoPlayer>(p => p.GetRequiredService<LingoPlayer>())
                    .AddTransient<ILingoCastLibsContainer>(p => p.GetRequiredService<LingoCastLibsContainer>())
                    .AddTransient<ILingoWindow>(p => p.GetRequiredService<LingoWindow>())
                    .AddTransient<ILingoClock>(p => p.GetRequiredService<LingoClock>())

@@ -96,8 +96,10 @@ public static class GfxTestScene
         combo.AddItem("1", "One");
         combo.AddItem("2", "Two");
         combo.AddItem("3", "Three");
+        combo.AddItem("4", "Four");
+        combo.AddItem("5", "Five");
         combo.SelectedIndex = 1;
-        Add(combo);
+        Add(combo,100);
 
         var slider = factory.CreateInputSliderFloat(AOrientation.Horizontal, "slider", 0, 1, 0.1f);
         slider.Width = 200;

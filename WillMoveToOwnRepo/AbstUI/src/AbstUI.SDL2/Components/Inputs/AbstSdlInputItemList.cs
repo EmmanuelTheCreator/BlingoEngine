@@ -154,6 +154,15 @@ namespace AbstUI.SDL2.Components.Inputs
                     ComponentContext.QueueRedraw(this);
                 }
             }
+            else if (ev.type == SDL.SDL_EventType.SDL_MOUSEWHEEL)
+            {
+                ScrollVertical = Math.Clamp(
+                    ScrollVertical - ev.wheel.y * _lineHeight,
+                    0,
+                    MathF.Max(0, ContentHeight - Height));
+                ComponentContext.QueueRedraw(this);
+                e.StopPropagation = true;
+            }
             else if (ev.type == SDL.SDL_EventType.SDL_KEYDOWN && _focused)
             {
                 if (ev.key.keysym.sym == SDL.SDL_Keycode.SDLK_UP)

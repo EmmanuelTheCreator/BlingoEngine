@@ -53,13 +53,13 @@ public class AbstGodotTexture2D : AbstBaseTexture2D<Texture2D>
     {
         APixel.ToRGBA(argbPixels);
         var img = Image.CreateFromData(Width, Height, false, Image.Format.Rgba8, argbPixels);
-        _texture.Update(img);
+        ((ImageTexture)_texture).Update(img);
     }
 
     public override void SetRGBAPixels(byte[] rgbaPixels)
     {
         var img = Image.CreateFromData(Width, Height, false, Image.Format.Rgba8, rgbaPixels);
-        _texture.Update(img);
+        ((ImageTexture)_texture).Update(img);
     }
 
     public static AbstGodotTexture2D FromARGBPixels(int width, int height, byte[] argbPixels, string? name = null)

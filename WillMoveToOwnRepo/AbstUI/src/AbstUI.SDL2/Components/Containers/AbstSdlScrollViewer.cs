@@ -265,7 +265,7 @@ namespace AbstUI.SDL2.Components.Containers
                 ScrollVertical = Math.Clamp(ScrollVertical - ev.wheel.y * 20, 0, _maxScrollV);
                 ScrollHorizontal = Math.Clamp(ScrollHorizontal - ev.wheel.x * 20, 0, _maxScrollH);
                 ComponentContext.QueueRedraw(this);
-                //e.StopPropagation = true;
+                e.StopPropagation = true;
             }
         }
 

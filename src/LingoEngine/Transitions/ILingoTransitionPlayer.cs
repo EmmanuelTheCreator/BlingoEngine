@@ -21,13 +21,3 @@ public interface ILingoTransitionPlayer
     bool IsActive { get; }
 }
 
-/// <summary>
-/// Fallback implementation used on frameworks without transition support.
-/// </summary>
-internal sealed class NullTransitionPlayer : ILingoTransitionPlayer
-{
-    public bool IsActive => false;
-    public bool Start(LingoTransitionSprite sprite) => false;
-    public void CaptureToFrame() { }
-    public void Tick() { }
-}
