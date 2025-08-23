@@ -251,6 +251,7 @@ Please also read our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Architecture overviaw.
 
+```mermaid
 graph TD
 
 %% Top-level flow
@@ -273,7 +274,7 @@ subgraph A[Director Application]
   A3 --> A4
   A2 --> A5
 end
-
+```
 
 ---
 
