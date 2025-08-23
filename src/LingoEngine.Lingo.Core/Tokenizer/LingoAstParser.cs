@@ -799,9 +799,44 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 _currentToken.Type != LingoTokenType.Comment)
             {
                 var stmt = ParseStatement();
-                var single = new LingoBlockNode();
-                single.Children.Add(stmt);
-                return new LingoIfStmtNode(condition, single, null);
+                var stmtBlock = new LingoBlockNode();
+                stmtBlock.Children.Add(stmt);
+
+                LingoNode? singleElseBlock = null;
+
+                if (_currentToken.Type == LingoTokenType.Else)
+                {
+                    var elseTok = _currentToken;
+                    AdvanceToken(); // consume 'else'
+
+                    if (_currentToken.Type == LingoTokenType.If &&
+                        _currentToken.Line == elseTok.Line)
+                    {
+                        singleElseBlock = ParseElseIfChain();
+                    }
+                    else if (_currentToken.Line == elseTok.Line &&
+                             _currentToken.Type != LingoTokenType.Comment)
+                    {
+                        var elseStmt = ParseStatement();
+                        var singleElse = new LingoBlockNode();
+                        singleElse.Children.Add(elseStmt);
+                        singleElseBlock = singleElse;
+                    }
+                    else
+                    {
+                        singleElseBlock = ParseBlock();
+                    }
+
+                    Expect(LingoTokenType.End);
+                    Expect(LingoTokenType.If);
+                }
+                else if (_currentToken.Type == LingoTokenType.End)
+                {
+                    Expect(LingoTokenType.End);
+                    Expect(LingoTokenType.If);
+                }
+
+                return new LingoIfStmtNode(condition, stmtBlock, singleElseBlock);
             }
 
             var thenBlock = ParseBlock();
