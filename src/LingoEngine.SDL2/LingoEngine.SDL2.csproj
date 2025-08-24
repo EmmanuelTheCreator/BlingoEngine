@@ -20,6 +20,7 @@
     <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
     <PackageTags>LingoEngine SDL2</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,6 +32,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\WillMoveToOwnRepo\AbstUI\src\AbstUI.SDL2\AbstUI.SDL2.csproj" />
     <ProjectReference Include="..\LingoEngine\LingoEngine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="ReadMe.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
   <ItemGroup>

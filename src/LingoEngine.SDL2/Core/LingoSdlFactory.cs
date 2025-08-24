@@ -5,10 +5,12 @@ using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
 using LingoEngine.Members;
 using LingoEngine.Movies;
+using LingoEngine.Medias;
 using LingoEngine.SDL2.Movies;
 using LingoEngine.SDL2.Sounds;
 using LingoEngine.SDL2.Texts;
 using LingoEngine.SDL2.Shapes;
+using LingoEngine.SDL2.Medias;
 using LingoEngine.Sounds;
 using LingoEngine.Shapes;
 using LingoEngine.Texts;
@@ -104,6 +106,8 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
             Type t when t == typeof(LingoMemberField) => (CreateMemberField(cast, numberInCast, name) as T)!,
             Type t when t == typeof(LingoMemberSound) => (CreateMemberSound(cast, numberInCast, name) as T)!,
             Type t when t == typeof(LingoFilmLoopMember) => (CreateMemberFilmLoop(cast, numberInCast, name) as T)!,
+            Type t when t == typeof(LingoMemberQuickTimeMedia) => (CreateMemberQuickTimeMedia(cast, numberInCast, name) as T)!,
+            Type t when t == typeof(LingoMemberRealMedia) => (CreateMemberRealMedia(cast, numberInCast, name) as T)!,
             _ => throw new NotSupportedException()
         };
     }
@@ -131,6 +135,26 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
         var impl = new SdlMemberShape(_rootContext);
         var member = new LingoMemberShape((LingoCast)cast, impl, numberInCast, name, fileName ?? "", regPoint);
         _disposables.Add(impl);
+        return member;
+    }
+    /// <inheritdoc/>
+    public LingoMemberQuickTimeMedia CreateMemberQuickTimeMedia(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
+    {
+        var player = _serviceProvider.GetRequiredService<ISDLMediaPlayer>();
+        var impl = new SdlMemberMedia(player);
+        var member = new LingoMemberQuickTimeMedia(impl, (LingoCast)cast, numberInCast, name, fileName ?? "", regPoint);
+        impl.Init(member);
+        if (player is IDisposable disposable) _disposables.Add(disposable);
+        return member;
+    }
+    /// <inheritdoc/>
+    public LingoMemberRealMedia CreateMemberRealMedia(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
+    {
+        var player = _serviceProvider.GetRequiredService<ISDLMediaPlayer>();
+        var impl = new SdlMemberMedia(player);
+        var member = new LingoMemberRealMedia(impl, (LingoCast)cast, numberInCast, name, fileName ?? "", regPoint);
+        impl.Init(member);
+        if (player is IDisposable disposable) _disposables.Add(disposable);
         return member;
     }
     /// <inheritdoc/>

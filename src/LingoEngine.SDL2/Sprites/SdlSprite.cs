@@ -1,6 +1,7 @@
 using LingoEngine.Bitmaps;
 using LingoEngine.Members;
 using LingoEngine.FilmLoops;
+using LingoEngine.Medias;
 using LingoEngine.Primitives;
 using LingoEngine.SDL2.Core;
 using LingoEngine.Sprites;
@@ -11,12 +12,13 @@ using AbstUI.SDL2.Bitmaps;
 using AbstUI.SDL2.SDLL;
 using LingoEngine.SDL2.Bitmaps;
 using LingoEngine.SDL2.FilmLoops;
+using LingoEngine.SDL2.Medias;
 using AbstUI.SDL2.Components;
 using AbstUI.SDL2.Core;
 
 namespace LingoEngine.SDL2.Sprites;
 
-public class SdlSprite : ILingoFrameworkSprite, IAbstSDLComponent, IDisposable
+public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbstSDLComponent, IDisposable
 {
     private readonly Action<SdlSprite> _show;
     private readonly Action<SdlSprite> _hide;
@@ -161,6 +163,73 @@ public class SdlSprite : ILingoFrameworkSprite, IAbstSDLComponent, IDisposable
         }
     }
 
+    public int Duration
+    {
+        get
+        {
+            if (_lingoSprite2D.Member is LingoMemberMedia media)
+            {
+                return media.Framework<SdlMemberMedia>()?.Duration ?? 0;
+            }
+            return 0;
+        }
+    }
+
+    public int CurrentTime
+    {
+        get
+        {
+            if (_lingoSprite2D.Member is LingoMemberMedia media)
+            {
+                return media.Framework<SdlMemberMedia>()?.CurrentTime ?? 0;
+            }
+            return 0;
+        }
+        set
+        {
+            if (_lingoSprite2D.Member is LingoMemberMedia media)
+            {
+                media.Framework<SdlMemberMedia>()?.Seek(value);
+            }
+        }
+    }
+
+    public LingoMediaStatus MediaStatus
+    {
+        get
+        {
+            if (_lingoSprite2D.Member is LingoMemberMedia media)
+            {
+                return media.Framework<SdlMemberMedia>()?.MediaStatus ?? LingoMediaStatus.Closed;
+            }
+            return LingoMediaStatus.Closed;
+        }
+    }
+
+    public void Play()
+    {
+        if (_lingoSprite2D.Member is LingoMemberMedia media)
+            media.Framework<SdlMemberMedia>()?.Play();
+    }
+
+    public void Pause()
+    {
+        if (_lingoSprite2D.Member is LingoMemberMedia media)
+            media.Framework<SdlMemberMedia>()?.Pause();
+    }
+
+    public void Stop()
+    {
+        if (_lingoSprite2D.Member is LingoMemberMedia media)
+            media.Framework<SdlMemberMedia>()?.Stop();
+    }
+
+    public void Seek(int milliseconds)
+    {
+        if (_lingoSprite2D.Member is LingoMemberMedia media)
+            media.Framework<SdlMemberMedia>()?.Seek(milliseconds);
+    }
+
     public void RemoveMe() { _remove(this); Dispose(); }
     public void Dispose()
     {
@@ -247,13 +316,13 @@ public class SdlSprite : ILingoFrameworkSprite, IAbstSDLComponent, IDisposable
         //    SDL.SDL_DestroyTexture(_texture);
         _texture = nint.Zero;
         _textureOwned = false;
-        
+
         switch (_lingoSprite2D.Member)
         {
             case LingoMemberBitmap pic:
                 pic.Preload();
                 var p = pic.Framework<SdlMemberBitmap>();
-                if (pic.TextureLingo is SdlTexture2D tex2D && tex2D.Handle!= nint.Zero)
+                if (pic.TextureLingo is SdlTexture2D tex2D && tex2D.Handle != nint.Zero)
                 {
                     var texInk = p.GetTextureForInk(_lingoSprite2D.InkType, _lingoSprite2D.BackColor, ComponentContext.Renderer) as SdlTexture2D;
                     if (texInk != null && texInk.Handle != nint.Zero)
@@ -351,7 +420,7 @@ public class SdlSprite : ILingoFrameworkSprite, IAbstSDLComponent, IDisposable
     private void ApplyBlend()
     {
         //ComponentContext.Blend = _directToStage ? 1f : _blend;
-        ComponentContext.Blend = _directToStage ? 100 : _blend ;
+        ComponentContext.Blend = _directToStage ? 100 : _blend;
     }
 
     private void UpdateContextPosition()
