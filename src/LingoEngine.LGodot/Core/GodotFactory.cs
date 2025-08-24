@@ -26,6 +26,8 @@ using LingoEngine.LGodot.Scripts;
 using LingoEngine.Scripts;
 using LingoEngine.FilmLoops;
 using LingoEngine.LGodot.FilmLoops;
+using LingoEngine.Medias;
+using LingoEngine.LGodot.Medias;
 using AbstUI.Primitives;
 using AbstUI.Components;
 using AbstUI.Inputs;
@@ -103,6 +105,8 @@ namespace LingoEngine.LGodot.Core
                 Type t when t == typeof(LingoMemberSound) => (CreateMemberSound(cast, numberInCast, name) as T)!,
                 Type t when t == typeof(LingoFilmLoopMember) => (CreateMemberFilmLoop(cast, numberInCast, name) as T)!,
                 Type t when t == typeof(LingoMemberShape) => (CreateMemberShape(cast, numberInCast, name) as T)!,
+                Type t when t == typeof(LingoMemberQuickTimeMedia) => (CreateMemberQuickTimeMedia(cast, numberInCast, name) as T)!,
+                Type t when t == typeof(LingoMemberRealMedia) => (CreateMemberRealMedia(cast, numberInCast, name) as T)!,
             };
         }
         /// <inheritdoc/>
@@ -128,6 +132,24 @@ namespace LingoEngine.LGodot.Core
         {
             var impl = new LingoGodotMemberShape();
             var member = new LingoMemberShape((LingoCast)cast, impl, numberInCast, name, fileName ?? "", regPoint);
+            _disposables.Add(impl);
+            return member;
+        }
+        /// <inheritdoc/>
+        public LingoMemberQuickTimeMedia CreateMemberQuickTimeMedia(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
+        {
+            var impl = new LingoGodotMemberMedia();
+            var member = new LingoMemberQuickTimeMedia(impl, (LingoCast)cast, numberInCast, name, fileName ?? "", regPoint);
+            impl.Init(member);
+            _disposables.Add(impl);
+            return member;
+        }
+        /// <inheritdoc/>
+        public LingoMemberRealMedia CreateMemberRealMedia(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
+        {
+            var impl = new LingoGodotMemberMedia();
+            var member = new LingoMemberRealMedia(impl, (LingoCast)cast, numberInCast, name, fileName ?? "", regPoint);
+            impl.Init(member);
             _disposables.Add(impl);
             return member;
         }

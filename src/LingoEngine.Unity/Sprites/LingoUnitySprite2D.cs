@@ -7,10 +7,12 @@ using LingoEngine.Sprites;
 using LingoEngine.Texts;
 using LingoEngine.Shapes;
 using LingoEngine.FilmLoops;
+using LingoEngine.Medias;
 using LingoEngine.Unity.Bitmaps;
 using LingoEngine.Unity.Texts;
 using LingoEngine.Unity.Shapes;
 using LingoEngine.Unity.FilmLoops;
+using LingoEngine.Unity.Medias;
 using UnityEngine;
 
 namespace LingoEngine.Unity.Sprites;
@@ -19,7 +21,7 @@ namespace LingoEngine.Unity.Sprites;
 /// Unity sprite wrapper used by the engine.
 /// Mirrors the behaviour of the Godot implementation.
 /// </summary>
-public class LingoUnitySprite2D : ILingoFrameworkSprite, IDisposable
+public class LingoUnitySprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IDisposable
 {
     // Fields
     private readonly GameObject _go;
@@ -45,6 +47,7 @@ public class LingoUnitySprite2D : ILingoFrameworkSprite, IDisposable
     private bool _directToStage;
     private int _ink;
     private LingoFilmLoopPlayer? _filmLoopPlayer;
+    private VideoPlayer? _videoPlayer;
 
     internal bool IsDirty { get; set; } = true;
     internal bool IsDirtyMember { get; set; } = true;
@@ -223,6 +226,11 @@ public class LingoUnitySprite2D : ILingoFrameworkSprite, IDisposable
                 if (unityShape.TextureLingo is UnityTexture2D texShape)
                     SetTexture(texShape);
                 break;
+            case LingoMemberMedia media:
+                var unityMedia = media.Framework<LingoUnityMemberMedia>();
+                unityMedia.Preload();
+                UpdateMemberVideo(unityMedia);
+                break;
         }
         if (_lingoSprite.Member is { } member)
         {
@@ -234,6 +242,66 @@ public class LingoUnitySprite2D : ILingoFrameworkSprite, IDisposable
         }
         Name = _lingoSprite.GetFullName();
     }
+
+    private void UpdateMemberVideo(LingoUnityMemberMedia media)
+    {
+        if (_videoPlayer != null)
+        {
+            UnityEngine.Object.Destroy(_videoPlayer.gameObject);
+            _videoPlayer = null;
+        }
+
+        var go = new GameObject("VideoPlayer");
+        go.transform.parent = _go.transform;
+        var player = go.AddComponent<VideoPlayer>();
+        if (media.Url != null)
+            player.url = media.Url;
+        player.playOnAwake = false;
+        _videoPlayer = player;
+    }
+
+    /// <inheritdoc/>
+    public void Play() => _videoPlayer?.Play();
+
+    /// <inheritdoc/>
+    public void Pause() => _videoPlayer?.Pause();
+
+    /// <inheritdoc/>
+    public void Stop()
+    {
+        if (_videoPlayer == null) return;
+        _videoPlayer.Stop();
+        _videoPlayer.time = 0;
+    }
+
+    /// <inheritdoc/>
+    public void Seek(int milliseconds)
+    {
+        if (_videoPlayer == null) return;
+        _videoPlayer.time = milliseconds / 1000.0;
+    }
+
+    /// <inheritdoc/>
+    public int Duration => _videoPlayer?.clip != null ? (int)(_videoPlayer.clip.length * 1000) : 0;
+
+    /// <inheritdoc/>
+    public int CurrentTime
+    {
+        get => (int)(_videoPlayer?.time * 1000 ?? 0);
+        set
+        {
+            if (_videoPlayer != null)
+                _videoPlayer.time = value / 1000.0;
+        }
+    }
+
+    /// <inheritdoc/>
+    public LingoMediaStatus MediaStatus => _videoPlayer switch
+    {
+        null => LingoMediaStatus.Closed,
+        _ when _videoPlayer.isPlaying => LingoMediaStatus.Playing,
+        _ => LingoMediaStatus.Paused
+    };
 
     public void RemoveMe()
     {
@@ -270,6 +338,8 @@ public class LingoUnitySprite2D : ILingoFrameworkSprite, IDisposable
 
     public void Dispose()
     {
+        if (_videoPlayer != null)
+            UnityEngine.Object.Destroy(_videoPlayer.gameObject);
         GameObject.Destroy(_go);
     }
 }

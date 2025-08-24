@@ -33,6 +33,8 @@ using AbstUI.Components.Inputs;
 using AbstUI.Components.Menus;
 using AbstUI.Components.Buttons;
 using AbstUI.Components.Texts;
+using LingoEngine.Medias;
+using LingoEngine.Blazor.Medias;
 
 namespace LingoEngine.Blazor;
 
@@ -106,7 +108,13 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
 
     // The remaining factory methods are not yet required for the Blazor
     // backend. They will be implemented as the Blazor integration evolves.
-    public T CreateMember<T>(ILingoCast cast, int numberInCast, string name = "") where T : LingoMember => throw new NotImplementedException();
+    public T CreateMember<T>(ILingoCast cast, int numberInCast, string name = "") where T : LingoMember => typeof(T) switch
+    {
+        Type t when t == typeof(LingoFilmLoopMember) => (CreateMemberFilmLoop(cast, numberInCast, name) as T)!,
+        Type t when t == typeof(LingoMemberQuickTimeMedia) => (CreateMemberQuickTimeMedia(cast, numberInCast, name) as T)!,
+        Type t when t == typeof(LingoMemberRealMedia) => (CreateMemberRealMedia(cast, numberInCast, name) as T)!,
+        _ => throw new NotImplementedException()
+    };
     public LingoMemberBitmap CreateMemberBitmap(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
     public LingoMemberSound CreateMemberSound(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
     public LingoFilmLoopMember CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
@@ -122,6 +130,20 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
     public LingoMemberShape CreateMemberShape(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
     public LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
     public LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
+    public LingoMemberQuickTimeMedia CreateMemberQuickTimeMedia(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
+    {
+        var impl = new LingoBlazorMemberMedia();
+        var member = new LingoMemberQuickTimeMedia(impl, (LingoCast)cast, numberInCast, name, fileName ?? string.Empty, regPoint);
+        impl.Init(member);
+        return member;
+    }
+    public LingoMemberRealMedia CreateMemberRealMedia(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
+    {
+        var impl = new LingoBlazorMemberMedia();
+        var member = new LingoMemberRealMedia(impl, (LingoCast)cast, numberInCast, name, fileName ?? string.Empty, regPoint);
+        impl.Init(member);
+        return member;
+    }
     public LingoMember CreateScript(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
     public LingoMember CreateEmpty(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
     public LingoSound CreateSound(ILingoCastLibsContainer castLibsContainer) => throw new NotImplementedException();

@@ -5,6 +5,7 @@ using LingoEngine.Shapes;
 using LingoEngine.Texts;
 using LingoEngine.Bitmaps;
 using LingoEngine.FilmLoops;
+using LingoEngine.Medias;
 
 namespace LingoEngine.Members
 {
@@ -19,6 +20,8 @@ namespace LingoEngine.Members
         LingoFilmLoopMember FilmLoop(int numberInCast = 0, string name = "");
         LingoMemberShape Shape(int numberInCast = 0, string name = "");
         LingoMemberText Text(int numberInCast = 0, string name = "");
+        LingoMemberQuickTimeMedia QuickTimeMedia(int numberInCast = 0, string name = "");
+        LingoMemberRealMedia RealMedia(int numberInCast = 0, string name = "");
     }
 
     internal class LingoMemberFactory : ILingoMemberFactory
@@ -38,5 +41,7 @@ namespace LingoEngine.Members
         public LingoFilmLoopMember FilmLoop(int numberInCast = 0, string name = "") => _frameworkFactory.CreateMemberFilmLoop(_environment.CastLibsContainer.ActiveCast, numberInCast, name);
         public LingoMemberShape Shape(int numberInCast = 0, string name = "") => _frameworkFactory.CreateMemberShape(_environment.CastLibsContainer.ActiveCast, numberInCast, name);
         public LingoMemberText Text(int numberInCast = 0, string name = "") => _frameworkFactory.CreateMemberText(_environment.CastLibsContainer.ActiveCast, numberInCast, name);
+        public LingoMemberQuickTimeMedia QuickTimeMedia(int numberInCast = 0, string name = "") => _frameworkFactory.CreateMember<LingoMemberQuickTimeMedia>(_environment.CastLibsContainer.ActiveCast, numberInCast, name);
+        public LingoMemberRealMedia RealMedia(int numberInCast = 0, string name = "") => _frameworkFactory.CreateMember<LingoMemberRealMedia>(_environment.CastLibsContainer.ActiveCast, numberInCast, name);
     }
 }

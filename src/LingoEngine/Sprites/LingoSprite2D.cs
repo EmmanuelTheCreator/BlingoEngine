@@ -1,6 +1,7 @@
 ﻿using LingoEngine.Events;
 using LingoEngine.Inputs;
 using LingoEngine.Primitives;
+using LingoEngine.Medias;
 using LingoEngine.Animations;
 using LingoEngine.Members;
 using LingoEngine.Casts;
@@ -27,7 +28,7 @@ namespace LingoEngine.Sprites
 
         public IReadOnlyList<LingoSpriteBehavior> Behaviors => _behaviors;
 
-        
+
         private bool isMouseInside = false;
         private bool isDragging = false;
         private bool isDraggable = false;  // A flag to control dragging behavior
@@ -47,7 +48,8 @@ namespace LingoEngine.Sprites
         #region Properties
         public override int SpriteNumWithChannel => SpriteNum + SpriteNumOffset;
         internal LingoSpriteChannel? SpriteChannel { get; set; }
-       
+
+        /// <inheritdoc/>
         public T Framework<T>() where T : class, ILingoFrameworkSprite => (T)_frameworkSprite;
 
 
@@ -168,6 +170,55 @@ namespace LingoEngine.Sprites
         public byte[] Media { get; set; } = new byte[] { };
         public byte[] Thumbnail { get; set; } = new byte[] { };
         public string ModifiedBy { get; set; } = "";
+
+        /// <inheritdoc/>
+        public void Play()
+        {
+            if (_frameworkSprite is ILingoFrameworkSpriteVideo video)
+                video.Play();
+            _eventMediator.RaiseStartVideo();
+        }
+
+        /// <inheritdoc/>
+        public void Stop()
+        {
+            if (_frameworkSprite is ILingoFrameworkSpriteVideo video)
+                video.Stop();
+            _eventMediator.RaiseStopVideo();
+            _eventMediator.RaiseEndVideo();
+        }
+
+        /// <inheritdoc/>
+        public void Pause()
+        {
+            if (_frameworkSprite is ILingoFrameworkSpriteVideo video)
+                video.Pause();
+            _eventMediator.RaisePauseVideo();
+        }
+
+        /// <inheritdoc/>
+        public void Seek(int milliseconds)
+        {
+            if (_frameworkSprite is ILingoFrameworkSpriteVideo video)
+                video.Seek(milliseconds);
+        }
+
+        /// <inheritdoc/>
+        public int Duration => (_frameworkSprite as ILingoFrameworkSpriteVideo)?.Duration ?? 0;
+
+        /// <inheritdoc/>
+        public int CurrentTime
+        {
+            get => (_frameworkSprite as ILingoFrameworkSpriteVideo)?.CurrentTime ?? 0;
+            set
+            {
+                if (_frameworkSprite is ILingoFrameworkSpriteVideo video)
+                    video.CurrentTime = value;
+            }
+        }
+
+        /// <inheritdoc/>
+        public LingoMediaStatus MediaStatus => (_frameworkSprite as ILingoFrameworkSpriteVideo)?.MediaStatus ?? LingoMediaStatus.Closed;
 
         public float Width
         {
@@ -365,7 +416,7 @@ When a movie stops, events occur in the following order:
 #if DEBUG
                 if (_Member.NumberInCast == 44)
                 {
-                    
+
                 }
 #endif
                 _frameworkSprite.ApplyMemberChangesOnStepFrame();

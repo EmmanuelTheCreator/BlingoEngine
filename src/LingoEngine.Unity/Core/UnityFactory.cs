@@ -22,6 +22,8 @@ using LingoEngine.Unity.FilmLoops;
 using LingoEngine.Unity.Shapes;
 using LingoEngine.Unity.Scripts;
 using LingoEngine.Scripts;
+using LingoEngine.Medias;
+using LingoEngine.Unity.Medias;
 using AbstUI.Styles;
 using Microsoft.Extensions.DependencyInjection;
 using AbstUI.Primitives;
@@ -80,8 +82,12 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
         {
             Type t when t == typeof(LingoMemberBitmap) => (CreateMemberBitmap(cast, numberInCast, name) as T)!,
             Type t when t == typeof(LingoMemberSound) => (CreateMemberSound(cast, numberInCast, name) as T)!,
+            Type t when t == typeof(LingoFilmLoopMember) => (CreateMemberFilmLoop(cast, numberInCast, name) as T)!,
+            Type t when t == typeof(LingoMemberShape) => (CreateMemberShape(cast, numberInCast, name) as T)!,
             Type t when t == typeof(LingoMemberField) => (CreateMemberField(cast, numberInCast, name) as T)!,
             Type t when t == typeof(LingoMemberText) => (CreateMemberText(cast, numberInCast, name) as T)!,
+            Type t when t == typeof(LingoMemberQuickTimeMedia) => (CreateMemberQuickTimeMedia(cast, numberInCast, name) as T)!,
+            Type t when t == typeof(LingoMemberRealMedia) => (CreateMemberRealMedia(cast, numberInCast, name) as T)!,
             _ => throw new NotSupportedException()
         };
     }
@@ -110,6 +116,20 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
     {
         var impl = new UnityMemberShape();
         var member = new LingoMemberShape((LingoCast)cast, impl, numberInCast, name, fileName ?? string.Empty, regPoint);
+        impl.Init(member);
+        return member;
+    }
+    public LingoMemberQuickTimeMedia CreateMemberQuickTimeMedia(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
+    {
+        var impl = new LingoUnityMemberMedia();
+        var member = new LingoMemberQuickTimeMedia(impl, (LingoCast)cast, numberInCast, name, fileName ?? string.Empty, regPoint);
+        impl.Init(member);
+        return member;
+    }
+    public LingoMemberRealMedia CreateMemberRealMedia(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
+    {
+        var impl = new LingoUnityMemberMedia();
+        var member = new LingoMemberRealMedia(impl, (LingoCast)cast, numberInCast, name, fileName ?? string.Empty, regPoint);
         impl.Init(member);
         return member;
     }

@@ -5,6 +5,7 @@ using LingoEngine.Primitives;
 using LingoEngine.Texts;
 using LingoEngine.Members;
 using LingoEngine.Sprites;
+using LingoEngine.Medias;
 using LingoEngine.Bitmaps;
 using LingoEngine.LGodot.Bitmaps;
 using LingoEngine.Tools;
@@ -19,7 +20,7 @@ using AbstUI.LGodot.Primitives;
 namespace LingoEngine.LGodot.Sprites
 {
 
-    public partial class LingoGodotSprite2D : ILingoFrameworkSprite, IDisposable
+    public partial class LingoGodotSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IDisposable
     {
         private readonly CenterContainer _Container2D;
         private readonly Node2D _parentNode2D;
@@ -30,6 +31,7 @@ namespace LingoEngine.LGodot.Sprites
         private readonly LingoSprite2D _lingoSprite2D;
         private bool _wasShown;
         private LingoFilmLoopPlayer? _filmloopPlayer;
+        private VideoStreamPlayer? _videoPlayer;
         private CanvasItemMaterial _material = new();
         private int _ink;
         private AbstGodotTexture2D? _texture;
@@ -92,10 +94,16 @@ namespace LingoEngine.LGodot.Sprites
         public float Height { get; private set; }
         private float _DesiredWidth;
         private float _DesiredHeight;
-        public float DesiredWidth { get => _DesiredWidth; 
-            set { _DesiredWidth = value; IsDirty = true; } }
-        public float DesiredHeight { get => _DesiredHeight; 
-            set { _DesiredHeight = value; IsDirty = true; } }
+        public float DesiredWidth
+        {
+            get => _DesiredWidth;
+            set { _DesiredWidth = value; IsDirty = true; }
+        }
+        public float DesiredHeight
+        {
+            get => _DesiredHeight;
+            set { _DesiredHeight = value; IsDirty = true; }
+        }
 
         public float Rotation
         {
@@ -320,6 +328,13 @@ namespace LingoEngine.LGodot.Sprites
                     if (_DesiredHeight == 0) _DesiredHeight = Height;
                     IsDirty = true;
                     return;
+                case LingoMemberMedia mediaMember:
+                    RemoveLastChildElement();
+                    UpdateMemberVideo(mediaMember.Framework<LingoGodotMemberMedia>());
+                    if (_DesiredWidth == 0) _DesiredWidth = Width;
+                    if (_DesiredHeight == 0) _DesiredHeight = Height;
+                    IsDirty = true;
+                    return;
                 case LingoMemberText textMember:
                     var godotElement = textMember.Framework<LingoGodotMemberText>();
                     UpdateNodeMember(textMember, godotElement.CreateForSpriteDraw());
@@ -363,6 +378,7 @@ namespace LingoEngine.LGodot.Sprites
                 _Sprite2D.RemoveChild(_previousChildElementNode);
             _previousChildElementNode = null;
             _previousChildElement = null;
+            _videoPlayer = null;
         }
 
         private void UpdateMemberPicture(LingoGodotMemberBitmap godotPicture)
@@ -390,7 +406,7 @@ namespace LingoEngine.LGodot.Sprites
             _Sprite2D.Texture = tex.Texture;
             _texture = tex;
             // because we dont need to clone the textures, we dont need to subscribe unsubscribe to  texture.
-            _lingoSprite2D.FWTextureHasChanged(tex,false);
+            _lingoSprite2D.FWTextureHasChanged(tex, false);
             if (Width == 0 || Height == 0)
             {
                 Width = tex.Width;
@@ -409,12 +425,22 @@ namespace LingoEngine.LGodot.Sprites
             Width = size.Width;
             Height = size.Height;
             var offset = filmLoop.Offset;
-            _Sprite2D.Offset = new Vector2(Width/2f - offset.X , Height / 2f- offset.Y);
+            _Sprite2D.Offset = new Vector2(Width / 2f - offset.X, Height / 2f - offset.Y);
             _filmloopPlayer = _lingoSprite2D.GetFilmLoopPlayer();
             if (_filmloopPlayer == null) return;
             if (_filmloopPlayer.Texture is not AbstGodotTexture2D tex)
                 return;
-            TextureHasChanged(tex); 
+            TextureHasChanged(tex);
+        }
+        private void UpdateMemberVideo(LingoGodotMemberMedia media)
+        {
+            media.Preload();
+            var player = new VideoStreamPlayer
+            {
+                Stream = media.Stream
+            };
+            _videoPlayer = player;
+            UpdateNodeMember(_lingoSprite2D.Member!, player);
         }
         private ILingoMember? _previousChildElement;
         private Node? _previousChildElementNode;
@@ -459,5 +485,48 @@ namespace LingoEngine.LGodot.Sprites
             }
             return _lingoSprite2D.Member.RegPoint;
         }
+
+        /// <inheritdoc/>
+        public void Play() => _videoPlayer?.Play();
+
+        /// <inheritdoc/>
+        public void Pause() => _videoPlayer?.Pause();
+
+        /// <inheritdoc/>
+        public void Stop()
+        {
+            if (_videoPlayer == null) return;
+            _videoPlayer.Stop();
+            _videoPlayer.StreamPosition = 0;
+        }
+
+        /// <inheritdoc/>
+        public void Seek(int milliseconds)
+        {
+            if (_videoPlayer == null) return;
+            _videoPlayer.StreamPosition = milliseconds / 1000f;
+        }
+
+        /// <inheritdoc/>
+        public int Duration => (int)(_videoPlayer?.Stream?.GetLength() * 1000 ?? 0);
+
+        /// <inheritdoc/>
+        public int CurrentTime
+        {
+            get => (int)(_videoPlayer?.StreamPosition * 1000 ?? 0);
+            set
+            {
+                if (_videoPlayer != null)
+                    _videoPlayer.StreamPosition = value / 1000f;
+            }
+        }
+
+        /// <inheritdoc/>
+        public LingoMediaStatus MediaStatus => _videoPlayer switch
+        {
+            null => LingoMediaStatus.Closed,
+            _ when _videoPlayer.IsPlaying() => LingoMediaStatus.Playing,
+            _ => LingoMediaStatus.Paused
+        };
     }
 }
