@@ -19,15 +19,13 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
 {
     private readonly ILingoTransitionLibrary _transitionLibrary;
     private IAbstWindowDialogReference? _dialog;
-    private readonly IList<KeyValuePair<string, string>> _transitionOptions;
+    private readonly List<LingoBaseTransition> _transitions;
 
     public DirScoreTransitionGridChannel(IDirScoreManager scoreManager, ILingoTransitionLibrary transitionLibrary)
         : base(LingoTransitionSprite.SpriteNumOffset + 1, scoreManager)
     {
         _transitionLibrary = transitionLibrary;
-        _transitionOptions = _transitionLibrary.GetAll()
-            .Select(t => new KeyValuePair<string, string>(t.Id.ToString(), t.Name))
-            .ToList();
+        _transitions = _transitionLibrary.GetAll().ToList();
         IsSingleFrame = true;
     }
 
@@ -38,11 +36,11 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
 
     internal override void ShowCreateSpriteDialog(int frameNumber, Action<LingoSprite?> newSprite)
     {
-        var first = _transitionOptions.First();
+        var first = _transitions.First();
         var settings = new LingoTransitionFrameSettings
         {
-            TransitionId = int.Parse(first.Key),
-            TransitionName = first.Value
+            TransitionId = first.Id,
+            TransitionName = first.Name
         };
         Action okAction = () =>
         {
@@ -69,11 +67,24 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
     private void ShowDialog(LingoTransitionFrameSettings settings, Action okAction)
     {
         var panel = _scoreManager.Factory.CreatePanel("Panel Transition Sprite");
-        panel.Width = 250;
-        panel.Height = 150;
+        panel.Width = 450;
+        panel.Height = 300;
 
-        panel.SetLabelAt("TransitionLabel", 10, 10, "Transition:", 11, 80, AbstUI.Texts.AbstTextAlignment.Right);
-        panel.SetInputListAt(_transitionOptions, "TransitionList", 100, 10, 120, settings.TransitionId.ToString(), key =>
+        var categoryOptions = new List<KeyValuePair<string, string>> { new("All", "All") };
+        categoryOptions.AddRange(_transitions.Select(t => t.Category)
+            .Distinct()
+            .OrderBy(c => c)
+            .Select(c => new KeyValuePair<string, string>(c, c)));
+
+        panel.SetLabelAt("CategoryLabel", 10, 10, "Categories:");
+        var categoryList = panel.SetInputListAt(categoryOptions, "CategoryList", 10, 25, 120, "All", key =>
+        {
+            PopulateTransitions(key);
+        });
+        categoryList.Height = 200;
+
+        panel.SetLabelAt("TransitionLabel", 140, 10, "Transitions:");
+        var transitionList = panel.SetInputListAt(Array.Empty<KeyValuePair<string, string>>(), "TransitionList", 140, 25, 200, null, key =>
         {
             if (int.TryParse(key, out var id))
             {
@@ -82,10 +93,54 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
                 settings.TransitionName = tr.Name;
             }
         });
+        transitionList.Height = 200;
+
+        PopulateTransitions("All");
+
+        panel.SetLabelAt("DurationLabel", 10, 230, "Duration:");
+        panel.SetSliderAt(settings, "DurationSlider", 70, 230, 260, AOrientation.Horizontal, s => s.Duration, 1f, 30f, 0.1f);
+
+        panel.SetLabelAt("SmoothnessLabel", 10, 260, "Smoothness:");
+        panel.SetSliderAt(settings, "SmoothnessSlider", 70, 260, 260, AOrientation.Horizontal, s => s.Smoothness, 0f, 100f, 1f);
+
+        panel.SetLabelAt("AffectsLabel", 10, 290, "Affects:");
+        var affectsOptions = new[]
+        {
+            new KeyValuePair<string, string>(LingoTransitionAffects.EntireStage.ToString(), "Entire Stage"),
+            new KeyValuePair<string, string>(LingoTransitionAffects.ChangingAreaOnly.ToString(), "Changing Area Only")
+        };
+        panel.SetComboBoxAt(affectsOptions, "AffectsCombo", 70, 290, 160, settings.Affects.ToString(), key =>
+        {
+            if (Enum.TryParse<LingoTransitionAffects>(key, out var affects))
+                settings.Affects = affects;
+        });
 
         panel.AddPopupButtons(okAction, CloseDialog);
 
         _dialog = _showConfirmDialog?.Invoke("Frame Properties: Transition", (IAbstFrameworkPanel)panel.FrameworkObj);
+
+        void PopulateTransitions(string? category)
+        {
+            var filtered = _transitions
+                .Where(t => category == "All" || t.Category == category)
+                .Select(t => new KeyValuePair<string, string>(t.Id.ToString(), t.Name))
+                .ToList();
+
+            transitionList.ClearItems();
+            foreach (var item in filtered)
+                transitionList.AddItem(item.Key, item.Value);
+
+            var selectedKey = settings.TransitionId.ToString();
+            if (filtered.Any(t => t.Key == selectedKey))
+                transitionList.SelectedKey = selectedKey;
+            else if (filtered.Count > 0)
+            {
+                var firstTr = filtered[0];
+                transitionList.SelectedKey = firstTr.Key;
+                settings.TransitionId = int.Parse(firstTr.Key);
+                settings.TransitionName = firstTr.Value;
+            }
+        }
     }
 
     private void CloseDialog()
