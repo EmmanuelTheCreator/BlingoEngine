@@ -1,4 +1,5 @@
 using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Text;
 using ProjectorRays.Common;
@@ -248,8 +249,29 @@ public static class XmedReader
                             }
                             else
                             {
-                                run.UnknownData = new byte[len];
-                                Array.Copy(data, textStart, run.UnknownData, 0, len);
+                                var span = data.AsSpan(textStart, len);
+                                if (len >= 2)
+                                    run.Unknown1 = BinaryPrimitives.ReadUInt16LittleEndian(span);
+                                if (len >= 6)
+                                    run.Unknown2 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(2));
+                                if (len >= 10)
+                                    run.Unknown3 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(6));
+                                if (len >= 14)
+                                    run.Unknown4 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(10));
+                                if (len >= 18)
+                                    run.Unknown5 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(14));
+                                if (len >= 22)
+                                    run.Unknown6 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(18));
+                                if (len >= 26)
+                                    run.Unknown7 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(22));
+                                if (len >= 30)
+                                    run.Unknown8 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(26));
+                                if (len >= 34)
+                                    run.Unknown9 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(30));
+                                if (len >= 38)
+                                    run.Unknown10 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(34));
+                                if (len >= 42)
+                                    run.Unknown11 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(38));
                             }
 
                             doc.Runs.Add(run);

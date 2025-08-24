@@ -2,7 +2,6 @@
 using ProjectorRays.Common;
 using ProjectorRays.Director;
 using System;
-using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -26,7 +25,17 @@ namespace ProjectorRays.CastMembers
             public ushort FontId { get; set; }
             public RayColor ForeColor { get; set; }
             public RayColor BackColor { get; set; }
-            public byte[]? UnknownData { get; set; }
+            public ushort Unknown1 { get; set; }
+            public uint Unknown2 { get; set; }
+            public uint Unknown3 { get; set; }
+            public uint Unknown4 { get; set; }
+            public uint Unknown5 { get; set; }
+            public uint Unknown6 { get; set; }
+            public uint Unknown7 { get; set; }
+            public uint Unknown8 { get; set; }
+            public uint Unknown9 { get; set; }
+            public uint Unknown10 { get; set; }
+            public uint Unknown11 { get; set; }
         }
 
         public static List<TextStyleRun> Parse(BufferView view)
