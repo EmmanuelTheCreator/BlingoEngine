@@ -14,7 +14,7 @@ namespace ProjectorRays.director.Scores;
 /// It parses the main header and reads consecutive keyframe blocks.
 /// The result is a list of sprites each with a single keyframe.
 /// </summary>
-internal class RaysScoreFrameParserV2
+internal class RaysScoreFrameParserV2 : IRaysScoreFrameParserV2
 {
     private readonly ILogger _logger;
     private readonly RayStreamAnnotatorDecorator _annotator;
@@ -46,7 +46,7 @@ internal class RaysScoreFrameParserV2
         // Create new reader
         var newReader = new ReadStream(ctx.FrameDataBufferView, Endianness.BigEndian, annotator: Annotator);
         //LogFullScoreBytes(newReader);
-       // return new List<RaySprite>();
+        // return new List<RaySprite>();
         _reader.ReadHeader(newReader, header);
 
         _reader.ReadFrameDescriptors(ctx);
@@ -61,7 +61,7 @@ internal class RaysScoreFrameParserV2
         return ctx.Sprites;
     }
 
-  
+
     private void LogFullScoreBytes(ReadStream readerSource)
     {
         var frameBytes1 = readerSource.ReadBytes(readerSource.BytesLeft);
@@ -72,7 +72,7 @@ internal class RaysScoreFrameParserV2
         return;
     }
 
-  
+
     private void ParseBlock(ReadStream stream, int length, RayScoreHeader header, RayScoreParseContext ctx)
     {
         long end = stream.Position + length;
@@ -101,7 +101,7 @@ internal class RaysScoreFrameParserV2
 
             if (prefix >= header.SpriteSize)
             {
-                var tagMain = _reader.ReadMainTag(prefix, stream,ctx);
+                var tagMain = _reader.ReadMainTag(prefix, stream, ctx);
                 if (tagMain == null)
                 {
                     if (prefix > 1000)
@@ -137,7 +137,7 @@ internal class RaysScoreFrameParserV2
 
     //    if (tag < 0x0120 || tag > 0x01F6)
     //    {
-    //        _logger.LogInformation($"[FrameTag] Unexpected tag {tag:X} at 0x{pos:X} — possible misalignment");
+    //        _logger.LogInformation($"[FrameTag] Unexpected tag {tag:X} at 0x{pos:X} ï¿½ possible misalignment");
     //    }
     //}
 
@@ -165,11 +165,11 @@ internal class RaysScoreFrameParserV2
         sprite.Behaviors.AddRange(desc.Behaviors);
         sprite.ExtraValues.AddRange(desc.ExtraValues);
         sprite.SpriteNumber = channel;
-        ctx.AddSprite(sprite);  
+        ctx.AddSprite(sprite);
         return sprite;
     }
 
-  
+
 
     private void HandleTag(ushort tag, byte[] data, RayScoreParseContext ctx)
     {
@@ -186,7 +186,7 @@ internal class RaysScoreFrameParserV2
                 ctx.SetCurrentSprite(data[0]);
             return;
         }
-        
+
         int? channel = TryDecodeChannel(tag);
         if (channel.HasValue)
         {
@@ -200,12 +200,12 @@ internal class RaysScoreFrameParserV2
                 const ushort AdvanceFrameMask = 0x7F00;
 
                 bool createKeyframe = (flags & CreateKeyframeBit) != 0;
-                
+
                 int framesToAdvance = (flags & AdvanceFrameMask) >> 8;
 
                 if (framesToAdvance == 0)
                     framesToAdvance = 1;
-                
+
                 ctx.AdvanceFrame(framesToAdvance);
 
                 if (createKeyframe && sprite != null)

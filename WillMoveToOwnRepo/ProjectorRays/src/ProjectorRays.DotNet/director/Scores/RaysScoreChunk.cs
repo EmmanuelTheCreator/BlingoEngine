@@ -4,6 +4,7 @@ using ProjectorRays.director.Chunks;
 using ProjectorRays.director.Old;
 using ProjectorRays.director.Scores.Data;
 using ProjectorRays.Director;
+using System;
 using System.Reflection.PortableExecutable;
 using static ProjectorRays.director.Old.RaysScoreFrameParserOld;
 using static ProjectorRays.director.Scores.RaysScoreFrameParserV2;
@@ -17,11 +18,11 @@ namespace ProjectorRays.director.Scores;
 public class RaysScoreChunk : RaysChunk
 {
 
-  
+
     /// <summary>Reference to a frame behaviour script.</summary>
     public class RaysBehaviourRef
     {
-        public int CastLib {get;set;}
+        public int CastLib { get; set; }
         public int CastMmb { get; set; }
     }
 
@@ -37,11 +38,9 @@ public class RaysScoreChunk : RaysChunk
     public short Constant13;
     public short LastChannelMinus6;
     public static RayStreamAnnotatorDecorator Annotator;
-    
-    
+    public static Func<ILogger, RayStreamAnnotatorDecorator, IRaysScoreFrameParserV2> FrameParserFactory { get; set; }
+        = (logger, annotator) => new RaysScoreFrameParserV2(logger, annotator);
 
-
-   
 
     /// <summary>Default sprite data for a channel.</summary>
     //public class RaysChannelSprite
@@ -90,14 +89,14 @@ public class RaysScoreChunk : RaysChunk
         Annotator = new RayStreamAnnotatorDecorator(stream.Offset);
         Annotator.SetName(Dir.Name);
 
-        var parser = new RaysScoreFrameParserV2(Dir.Logger, Annotator);
+        var parser = FrameParserFactory(Dir.Logger, Annotator);
         try
         {
             Sprites = parser.ParseScore(stream);
         }
         catch (Exception ex)
         {
-            throw ex;
+            throw;
         }
         finally
         {
