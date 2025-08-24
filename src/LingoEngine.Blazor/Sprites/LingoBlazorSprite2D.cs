@@ -2,6 +2,9 @@ using System;
 using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Sprites;
+using LingoEngine.Medias;
+using LingoEngine.Members;
+using LingoEngine.Blazor.Medias;
 
 namespace LingoEngine.Blazor.Sprites;
 
@@ -10,13 +13,17 @@ namespace LingoEngine.Blazor.Sprites;
 /// properties and notifies the movie about visibility changes but does not
 /// perform actual rendering.
 /// </summary>
-public class LingoBlazorSprite2D : ILingoFrameworkSprite, IDisposable
+public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IDisposable
 {
     private readonly Action<LingoBlazorSprite2D> _show;
     private readonly Action<LingoBlazorSprite2D> _hide;
     private readonly Action<LingoBlazorSprite2D> _remove;
     private readonly LingoSprite2D _lingoSprite;
     private IAbstTexture2D? _texture;
+    private string? _videoUrl;
+    private int _duration;
+    private int _currentTime;
+    private LingoMediaStatus _mediaStatus;
 
     internal bool IsDirty { get; set; } = true;
     internal bool IsDirtyMember { get; set; } = true;
@@ -88,6 +95,14 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, IDisposable
                 Width = member.Width;
                 Height = member.Height;
             }
+            if (member is LingoMemberMedia media)
+            {
+                var blazorMedia = media.Framework<LingoBlazorMemberMedia>();
+                blazorMedia.Preload();
+                _videoUrl = blazorMedia.Url;
+                _duration = blazorMedia.Duration;
+                _mediaStatus = blazorMedia.MediaStatus;
+            }
             IsDirtyMember = true;
         }
     }
@@ -109,6 +124,35 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, IDisposable
         _lingoSprite.FWTextureHasChanged(texture);
         IsDirtyMember = true;
     }
+
+    /// <inheritdoc/>
+    public void Play() => _mediaStatus = LingoMediaStatus.Playing;
+
+    /// <inheritdoc/>
+    public void Stop()
+    {
+        _mediaStatus = LingoMediaStatus.Closed;
+        _currentTime = 0;
+    }
+
+    /// <inheritdoc/>
+    public void Pause() => _mediaStatus = LingoMediaStatus.Paused;
+
+    /// <inheritdoc/>
+    public void Seek(int milliseconds) => _currentTime = milliseconds;
+
+    /// <inheritdoc/>
+    public int Duration => _duration;
+
+    /// <inheritdoc/>
+    public int CurrentTime
+    {
+        get => _currentTime;
+        set => _currentTime = value;
+    }
+
+    /// <inheritdoc/>
+    public LingoMediaStatus MediaStatus => _mediaStatus;
 
     internal void Update()
     {

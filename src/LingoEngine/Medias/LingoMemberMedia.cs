@@ -1,6 +1,6 @@
 using LingoEngine.Casts;
 using LingoEngine.Members;
-using LingoEngine.Primitives;
+using AbstUI.Primitives;
 
 namespace LingoEngine.Medias
 {
@@ -20,6 +20,8 @@ namespace LingoEngine.Medias
         {
             _frameworkMedia = frameworkMember;
         }
+
+        public T Framework<T>() where T : class, ILingoFrameworkMemberMedia => (T)_frameworkMedia;
 
         public void Play() => _frameworkMedia.Play();
         public void Pause() => _frameworkMedia.Pause();
