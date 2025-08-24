@@ -191,7 +191,7 @@ The core runtime that executes Lingo scripts and connects to backends.
 | Feature                          | Status / Progress |
 |----------------------------------|-------------------|
 | FilmLoops                        | ✅ Done |
-| Transitions                      | ░░░░░░░░░░ 0% |
+| Transitions                      | ██████████ 100% |
 | Video Playback                   | ░░░░░░░░░░ Planned (0%) |
 | Macromedia Flash Integration     | ░░░░░░░░░░ Far future (0%) |
 | LingoEngine 3D                   | ░░░░░░░░░░ Early idea (2%) |

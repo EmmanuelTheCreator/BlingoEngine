@@ -4,7 +4,8 @@ namespace LingoEngine.Transitions.TransitionLibrary;
 
 public sealed class FadeTransition : LingoBaseTransition
 {
-    public FadeTransition() : base(1, "Fade", "fade", "Linear fade between frames")
+    // Builtin fade effect used as the default transition (ID 0).
+    public FadeTransition() : base(0, "Fade", "fade", "Linear fade between frames", LingoTransitionCategory.Fade)
     {
     }
 
