@@ -10,7 +10,7 @@ public sealed class ZoomTransition : LingoBaseTransition
     private readonly bool _open;
 
     public ZoomTransition(int id, string name, string code, string description, bool open)
-        : base(id, name, code, description)
+        : base(id, name, code, description, LingoTransitionCategory.Zoom)
     {
         _open = open;
     }

@@ -11,7 +11,7 @@ public sealed class RandomLinesTransition : LingoBaseTransition
     private readonly RandomLineOrientation _orientation;
 
     public RandomLinesTransition(int id, string name, string code, string description, RandomLineOrientation orientation)
-        : base(id, name, code, description)
+        : base(id, name, code, description, LingoTransitionCategory.Random)
     {
         _orientation = orientation;
     }

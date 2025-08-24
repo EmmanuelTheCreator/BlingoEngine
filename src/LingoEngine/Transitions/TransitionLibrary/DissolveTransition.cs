@@ -8,7 +8,7 @@ namespace LingoEngine.Transitions.TransitionLibrary;
 public sealed class DissolveTransition : LingoBaseTransition
 {
     public DissolveTransition(int id, string name, string code, string description)
-        : base(id, name, code, description)
+        : base(id, name, code, description, LingoTransitionCategory.Dissolve)
     {
     }
 

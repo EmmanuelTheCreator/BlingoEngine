@@ -11,7 +11,7 @@ public sealed class CenterSplitTransition : LingoBaseTransition
     private readonly SplitDirection _direction;
 
     public CenterSplitTransition(int id, string name, string code, string description, SplitOrientation orientation, SplitDirection direction)
-        : base(id, name, code, description)
+        : base(id, name, code, description, LingoTransitionCategory.Split)
     {
         _orientation = orientation;
         _direction = direction;

@@ -11,7 +11,7 @@ public sealed class BlindsTransition : LingoBaseTransition
     private const int BlindCount = 12;
 
     public BlindsTransition(int id, string name, string code, string description, BlindOrientation orientation)
-        : base(id, name, code, description)
+        : base(id, name, code, description, LingoTransitionCategory.Blinds)
     {
         _orientation = orientation;
     }

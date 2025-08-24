@@ -10,7 +10,7 @@ public sealed class CheckerboardTransition : LingoBaseTransition
     private const int CheckerCount = 16;
 
     public CheckerboardTransition(int id, string name, string code, string description)
-        : base(id, name, code, description)
+        : base(id, name, code, description, LingoTransitionCategory.Checkerboard)
     {
     }
 

@@ -10,7 +10,7 @@ public sealed class WipeTransition : LingoBaseTransition
     private readonly WipeDirection _direction;
 
     public WipeTransition(int id, string name, string code, string description, WipeDirection direction)
-        : base(id, name, code, description)
+        : base(id, name, code, description, LingoTransitionCategory.Wipe)
     {
         _direction = direction;
     }

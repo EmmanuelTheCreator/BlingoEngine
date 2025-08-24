@@ -10,7 +10,7 @@ public sealed class RevealTransition : LingoBaseTransition
     private readonly RevealDirection _direction;
 
     public RevealTransition(int id, string name, string code, string description, RevealDirection direction)
-        : base(id, name, code, description)
+        : base(id, name, code, description, LingoTransitionCategory.Reveal)
     {
         _direction = direction;
     }

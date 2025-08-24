@@ -10,7 +10,7 @@ public sealed class BoxTransition : LingoBaseTransition
     private readonly BoxDirection _direction;
 
     public BoxTransition(int id, string name, string code, string description, BoxDirection direction)
-        : base(id, name, code, description)
+        : base(id, name, code, description, LingoTransitionCategory.Box)
     {
         _direction = direction;
     }

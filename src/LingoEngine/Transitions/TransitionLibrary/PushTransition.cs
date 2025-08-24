@@ -10,7 +10,7 @@ public sealed class PushTransition : LingoBaseTransition
     private readonly PushDirection _direction;
 
     public PushTransition(int id, string name, string code, string description, PushDirection direction)
-        : base(id, name, code, description)
+        : base(id, name, code, description, LingoTransitionCategory.Push)
     {
         _direction = direction;
     }

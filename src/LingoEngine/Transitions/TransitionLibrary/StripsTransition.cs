@@ -11,7 +11,7 @@ public sealed class StripsTransition : LingoBaseTransition
     private const int StripCount = 16;
 
     public StripsTransition(int id, string name, string code, string description, StripsDirection direction)
-        : base(id, name, code, description)
+        : base(id, name, code, description, LingoTransitionCategory.Strips)
     {
         _direction = direction;
     }

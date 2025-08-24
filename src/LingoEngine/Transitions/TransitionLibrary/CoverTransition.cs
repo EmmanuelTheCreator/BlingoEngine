@@ -10,7 +10,7 @@ public sealed class CoverTransition : LingoBaseTransition
     private readonly CoverDirection _direction;
 
     public CoverTransition(int id, string name, string code, string description, CoverDirection direction)
-        : base(id, name, code, description)
+        : base(id, name, code, description, LingoTransitionCategory.Cover)
     {
         _direction = direction;
     }
