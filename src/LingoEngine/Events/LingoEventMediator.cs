@@ -1,5 +1,6 @@
 ﻿using LingoEngine.Inputs;
 using LingoEngine.Inputs.Events;
+using LingoEngine.Medias.Events;
 using LingoEngine.Movies.Events;
 using LingoEngine.Sprites;
 using AbstUI.Inputs;
@@ -32,6 +33,10 @@ namespace LingoEngine.Events
         private readonly List<IHasBlurEvent> _blurs = new();
         private readonly List<IHasKeyUpEvent> _keyUps = new();
         private readonly List<IHasKeyDownEvent> _keyDowns = new();
+        private readonly List<IHasStartVideoEvent> _startVideos = new();
+        private readonly List<IHasStopVideoEvent> _stopVideos = new();
+        private readonly List<IHasPauseVideoEvent> _pauseVideos = new();
+        private readonly List<IHasEndVideoEvent> _endVideos = new();
 
 
         private void Insert<T>(List<T> list, T item) where T : class
@@ -82,6 +87,10 @@ namespace LingoEngine.Events
             if (ms is IHasBlurEvent blurEvent) Insert(_blurs, blurEvent);
             if (ms is IHasKeyUpEvent keyUpEvent) Insert(_keyUps, keyUpEvent);
             if (ms is IHasKeyDownEvent keyDownEvent) Insert(_keyDowns, keyDownEvent);
+            if (ms is IHasStartVideoEvent startVideoEvent) Insert(_startVideos, startVideoEvent);
+            if (ms is IHasStopVideoEvent stopVideoEvent) Insert(_stopVideos, stopVideoEvent);
+            if (ms is IHasPauseVideoEvent pauseVideoEvent) Insert(_pauseVideos, pauseVideoEvent);
+            if (ms is IHasEndVideoEvent endVideoEvent) Insert(_endVideos, endVideoEvent);
         }
         public void Unsubscribe(object ms, bool ignoreMouse = false)
         {
@@ -99,7 +108,7 @@ namespace LingoEngine.Events
             }
             //if (ms is IHasBeginSpriteEvent beginSpriteEvent) _beginSprites.Remove(beginSpriteEvent);
             //if (ms is IHasEndSpriteEvent endSpriteEvent) _endSprites.Remove(endSpriteEvent);
-            
+
             // Not stepframe it seems stepframe is only used through the actor list.
             if (ms is IHasPrepareFrameEvent prepareFrameEvent) _prepareFrames.Remove(prepareFrameEvent);
             if (ms is IHasEnterFrameEvent enterFrameEvent) _enterFrames.Remove(enterFrameEvent);
@@ -108,6 +117,10 @@ namespace LingoEngine.Events
             if (ms is IHasBlurEvent blurEvent) _blurs.Remove(blurEvent);
             if (ms is IHasKeyUpEvent keyUpEvent) _keyUps.Remove(keyUpEvent);
             if (ms is IHasKeyDownEvent keyDownEvent) _keyDowns.Remove(keyDownEvent);
+            if (ms is IHasStartVideoEvent startVideoEvent) _startVideos.Remove(startVideoEvent);
+            if (ms is IHasStopVideoEvent stopVideoEvent) _stopVideos.Remove(stopVideoEvent);
+            if (ms is IHasPauseVideoEvent pauseVideoEvent) _pauseVideos.Remove(pauseVideoEvent);
+            if (ms is IHasEndVideoEvent endVideoEvent) _endVideos.Remove(endVideoEvent);
 
             _priorities.Remove(ms);
         }
@@ -139,6 +152,10 @@ namespace LingoEngine.Events
             FilterList(_blurs);
             FilterList(_keyUps);
             FilterList(_keyDowns);
+            FilterList(_startVideos);
+            FilterList(_stopVideos);
+            FilterList(_pauseVideos);
+            FilterList(_endVideos);
         }
         internal void RaisePrepareMovie() => _prepareMovies.ForEach(x => x.PrepareMovie());
         internal void RaiseStartMovie() => _startMovies.ForEach(x => x.StartMovie());
@@ -157,6 +174,10 @@ namespace LingoEngine.Events
         internal void RaiseExitFrame() => _exitFrames.ForEach(x => x.ExitFrame());
         public void RaiseFocus() => _focuss.ForEach(x => x.Focus());
         public void RaiseBlur() => _blurs.ForEach(x => x.Blur());
+        internal void RaiseStartVideo() => _startVideos.ForEach(x => x.StartVideo());
+        internal void RaiseStopVideo() => _stopVideos.ForEach(x => x.StopVideo());
+        internal void RaisePauseVideo() => _pauseVideos.ForEach(x => x.PauseVideo());
+        internal void RaiseEndVideo() => _endVideos.ForEach(x => x.EndVideo());
         public void RaiseKeyUp(LingoKeyEvent key) => _keyUps.ForEach(x => x.KeyUp(key));
         public void RaiseKeyDown(LingoKeyEvent key) => _keyDowns.ForEach(x => x.KeyDown(key));
 

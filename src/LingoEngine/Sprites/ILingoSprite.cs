@@ -1,5 +1,6 @@
 ﻿using AbstUI.Primitives;
 using LingoEngine.Casts;
+using LingoEngine.Medias;
 using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Primitives;
@@ -41,7 +42,7 @@ namespace LingoEngine.Sprites
     /// </summary>
     public interface ILingoSprite : ILingoSpriteBase
     {
-       
+
 
         /// <summary>
         /// Background color for the sprite. Read/write.
@@ -68,7 +69,7 @@ namespace LingoEngine.Sprites
         /// </summary>
         bool Editable { get; set; }
 
-       
+
 
         /// <summary>
         /// Foreground color of the sprite, often used in text. Read/write.
@@ -108,6 +109,21 @@ namespace LingoEngine.Sprites
         /// Returns TRUE if the sprite’s media is initialized and ready. Read-only.
         /// </summary>
         bool MediaReady { get; }
+        /// <summary>Starts playback of the associated media.</summary>
+        void Play();
+        /// <summary>Stops playback of the associated media.</summary>
+        void Stop();
+        /// <summary>Pauses playback of the associated media.</summary>
+        void Pause();
+        /// <summary>Seeks the media to a position measured in milliseconds.</summary>
+        /// <param name="milliseconds">Offset in milliseconds.</param>
+        void Seek(int milliseconds);
+        /// <summary>Total duration of the media in milliseconds.</summary>
+        int Duration { get; }
+        /// <summary>Current playback time in milliseconds.</summary>
+        int CurrentTime { get; set; }
+        /// <summary>Current playback status of the media.</summary>
+        LingoMediaStatus MediaStatus { get; }
         float Width { get; }
         float Height { get; }
 
@@ -121,7 +137,7 @@ namespace LingoEngine.Sprites
         /// </summary>
         string ModifiedBy { get; set; }
 
-       
+
         /// <summary>
         /// The rectangular boundary of the sprite (top-left to bottom-right). Read/write.
         /// </summary>
@@ -210,7 +226,7 @@ namespace LingoEngine.Sprites
         /// </summary>
         int Size { get; }
 
-        
+
 
         /// <summary>
         /// Returns or sets a small thumbnail representation of the sprite’s media.
@@ -222,7 +238,7 @@ namespace LingoEngine.Sprites
         /// </summary>
         bool Visibility { get; set; }
         int MemberNum { get; }
-        
+
 
 
         /// <summary>

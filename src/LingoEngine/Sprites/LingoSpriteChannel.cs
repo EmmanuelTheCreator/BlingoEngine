@@ -2,6 +2,7 @@
 using AbstUI.Primitives;
 using LingoEngine.Casts;
 using LingoEngine.Members;
+using LingoEngine.Medias;
 using LingoEngine.Movies;
 using LingoEngine.Primitives;
 
@@ -107,6 +108,13 @@ namespace LingoEngine.Sprites
         public bool Loaded => _sprite.Loaded;
         public byte[] Media { get => _sprite.Media; set => _sprite.Media = value; }
         public bool MediaReady => _sprite.MediaReady;
+        public void Play() => _sprite.Play();
+        public void Stop() => _sprite.Stop();
+        public void Pause() => _sprite.Pause();
+        public void Seek(int milliseconds) => _sprite.Seek(milliseconds);
+        public int Duration => _sprite.Duration;
+        public int CurrentTime { get => _sprite.CurrentTime; set => _sprite.CurrentTime = value; }
+        public LingoMediaStatus MediaStatus => _sprite.MediaStatus;
         public float Width => _sprite.Width;
         public float Height => _sprite.Height;
         public ILingoMember? Member
