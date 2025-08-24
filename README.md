@@ -191,8 +191,10 @@ The core runtime that executes Lingo scripts and connects to backends.
 | Feature                          | Status / Progress |
 |----------------------------------|-------------------|
 | FilmLoops                        | ✅ Done |
-| Transitions                      | ██████████ 100% |
-| Video Playback                   | ░░░░░░░░░░ Planned (0%) |
+| Transitions                      | ✅ Done |
+| Audio Playback                   | ✅ Done |
+| Sprites2D                        | ✅ Done |
+| Video Playback                   | █████████░ 90% |
 | Macromedia Flash Integration     | ░░░░░░░░░░ Far future (0%) |
 | LingoEngine 3D                   | ░░░░░░░░░░ Early idea (2%) |
 
@@ -214,10 +216,12 @@ A modern reimplementation of Director’s movie, cast, and score system on top o
 |----------------------------------|-------------------|
 | Score                            | ✅ Done |
 | Cast                             | ✅ Done |
+| Tempo                            | ✅ Done |
 | Property Inspector               | ✅ Done |
 | Text Editing                     | █████░░░░░ 70% |
 | Picture Painter (Godot)          | ██░░░░░░░░ 30% (🎨 experimental / fun) |
 | Shape Painter                    | ░░░░░░░░░░ 0% (todo) |
+| Color Palettes                   | █░░░░░░░░░ 5% |
 | Orion Skin                       | ░░░░░░░░░░ 0% (planned) |
 | Behavior Code Library            | ░░░░░░░░░░ 0% (planned) |
 | .dir File Importer               | ████░░░░░░ 50% |
