@@ -80,4 +80,49 @@ public sealed class DirectorHub : Hub
             }
         }
     }
+
+    /// <summary>
+    /// Streams keyframe information to the connected client.
+    /// </summary>
+    public async IAsyncEnumerable<KeyframeDto> StreamKeyframes([EnumeratorCancellation] CancellationToken ct)
+    {
+        var reader = _bus.Keyframes.Reader;
+        while (await reader.WaitToReadAsync(ct).ConfigureAwait(false))
+        {
+            while (reader.TryRead(out var keyframe))
+            {
+                yield return keyframe;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Streams film loop state changes to the connected client.
+    /// </summary>
+    public async IAsyncEnumerable<FilmLoopDto> StreamFilmLoops([EnumeratorCancellation] CancellationToken ct)
+    {
+        var reader = _bus.FilmLoops.Reader;
+        while (await reader.WaitToReadAsync(ct).ConfigureAwait(false))
+        {
+            while (reader.TryRead(out var loop))
+            {
+                yield return loop;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Streams sound events to the connected client.
+    /// </summary>
+    public async IAsyncEnumerable<SoundEventDto> StreamSounds([EnumeratorCancellation] CancellationToken ct)
+    {
+        var reader = _bus.Sounds.Reader;
+        while (await reader.WaitToReadAsync(ct).ConfigureAwait(false))
+        {
+            while (reader.TryRead(out var snd))
+            {
+                yield return snd;
+            }
+        }
+    }
 }

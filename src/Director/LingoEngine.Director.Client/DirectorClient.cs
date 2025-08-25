@@ -22,6 +22,15 @@ public interface IDirectorClient : IAsyncDisposable
     /// <summary>Streams sprite deltas from the host.</summary>
     IAsyncEnumerable<SpriteDeltaDto> StreamDeltasAsync(CancellationToken ct = default);
 
+    /// <summary>Streams keyframes from the host.</summary>
+    IAsyncEnumerable<KeyframeDto> StreamKeyframesAsync(CancellationToken ct = default);
+
+    /// <summary>Streams film loop state changes from the host.</summary>
+    IAsyncEnumerable<FilmLoopDto> StreamFilmLoopsAsync(CancellationToken ct = default);
+
+    /// <summary>Streams sound events from the host.</summary>
+    IAsyncEnumerable<SoundEventDto> StreamSoundsAsync(CancellationToken ct = default);
+
     /// <summary>Requests a snapshot of the current movie state.</summary>
     Task<MovieStateDto> GetMovieSnapshotAsync(CancellationToken ct = default);
 
@@ -78,6 +87,27 @@ public sealed class DirectorClient : IDirectorClient
     {
         EnsureConnected();
         return _connection!.StreamAsync<SpriteDeltaDto>("StreamDeltas", ct);
+    }
+
+    /// <inheritdoc />
+    public IAsyncEnumerable<KeyframeDto> StreamKeyframesAsync(CancellationToken ct = default)
+    {
+        EnsureConnected();
+        return _connection!.StreamAsync<KeyframeDto>("StreamKeyframes", ct);
+    }
+
+    /// <inheritdoc />
+    public IAsyncEnumerable<FilmLoopDto> StreamFilmLoopsAsync(CancellationToken ct = default)
+    {
+        EnsureConnected();
+        return _connection!.StreamAsync<FilmLoopDto>("StreamFilmLoops", ct);
+    }
+
+    /// <inheritdoc />
+    public IAsyncEnumerable<SoundEventDto> StreamSoundsAsync(CancellationToken ct = default)
+    {
+        EnsureConnected();
+        return _connection!.StreamAsync<SoundEventDto>("StreamSounds", ct);
     }
 
     /// <inheritdoc />
