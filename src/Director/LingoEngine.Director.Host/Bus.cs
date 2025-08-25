@@ -23,6 +23,18 @@ public interface IBus
     /// <summary>Channel carrying sound events.</summary>
     Channel<SoundEventDto> Sounds { get; }
 
+    /// <summary>Channel carrying tempo changes.</summary>
+    Channel<TempoDto> Tempos { get; }
+
+    /// <summary>Channel carrying color palette updates.</summary>
+    Channel<ColorPaletteDto> ColorPalettes { get; }
+
+    /// <summary>Channel carrying frame scripts.</summary>
+    Channel<FrameScriptDto> FrameScripts { get; }
+
+    /// <summary>Channel carrying transitions.</summary>
+    Channel<TransitionDto> Transitions { get; }
+
     /// <summary>Channel carrying commands from the client.</summary>
     Channel<DebugCommandDto> Commands { get; }
 }
@@ -66,6 +78,38 @@ internal sealed class Bus : IBus
 
     public Channel<SoundEventDto> Sounds { get; } =
         Channel.CreateBounded<SoundEventDto>(new BoundedChannelOptions(64)
+        {
+            SingleWriter = true,
+            SingleReader = false,
+            FullMode = BoundedChannelFullMode.DropOldest
+        });
+
+    public Channel<TempoDto> Tempos { get; } =
+        Channel.CreateBounded<TempoDto>(new BoundedChannelOptions(64)
+        {
+            SingleWriter = true,
+            SingleReader = false,
+            FullMode = BoundedChannelFullMode.DropOldest
+        });
+
+    public Channel<ColorPaletteDto> ColorPalettes { get; } =
+        Channel.CreateBounded<ColorPaletteDto>(new BoundedChannelOptions(2)
+        {
+            SingleWriter = true,
+            SingleReader = false,
+            FullMode = BoundedChannelFullMode.DropOldest
+        });
+
+    public Channel<FrameScriptDto> FrameScripts { get; } =
+        Channel.CreateBounded<FrameScriptDto>(new BoundedChannelOptions(256)
+        {
+            SingleWriter = true,
+            SingleReader = false,
+            FullMode = BoundedChannelFullMode.DropOldest
+        });
+
+    public Channel<TransitionDto> Transitions { get; } =
+        Channel.CreateBounded<TransitionDto>(new BoundedChannelOptions(64)
         {
             SingleWriter = true,
             SingleReader = false,

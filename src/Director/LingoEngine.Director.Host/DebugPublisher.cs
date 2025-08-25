@@ -22,6 +22,18 @@ public interface IDebugPublisher
     /// <summary>Attempts to publish a sound event without blocking.</summary>
     void TryPublishSound(SoundEventDto sound);
 
+    /// <summary>Attempts to publish a tempo change without blocking.</summary>
+    void TryPublishTempo(TempoDto tempo);
+
+    /// <summary>Attempts to publish a color palette without blocking.</summary>
+    void TryPublishColorPalette(ColorPaletteDto palette);
+
+    /// <summary>Attempts to publish a frame script without blocking.</summary>
+    void TryPublishFrameScript(FrameScriptDto script);
+
+    /// <summary>Attempts to publish a transition without blocking.</summary>
+    void TryPublishTransition(TransitionDto transition);
+
     /// <summary>Drains queued debug commands and applies them through the provided delegate.</summary>
     /// <param name="apply">Delegate invoked for each command.</param>
     /// <returns><c>true</c> if any command was processed; otherwise, <c>false</c>.</returns>
@@ -57,6 +69,22 @@ internal sealed class DebugPublisher : IDebugPublisher
     /// <inheritdoc />
     public void TryPublishSound(SoundEventDto sound)
         => _bus.Sounds.Writer.TryWrite(sound);
+
+    /// <inheritdoc />
+    public void TryPublishTempo(TempoDto tempo)
+        => _bus.Tempos.Writer.TryWrite(tempo);
+
+    /// <inheritdoc />
+    public void TryPublishColorPalette(ColorPaletteDto palette)
+        => _bus.ColorPalettes.Writer.TryWrite(palette);
+
+    /// <inheritdoc />
+    public void TryPublishFrameScript(FrameScriptDto script)
+        => _bus.FrameScripts.Writer.TryWrite(script);
+
+    /// <inheritdoc />
+    public void TryPublishTransition(TransitionDto transition)
+        => _bus.Transitions.Writer.TryWrite(transition);
 
     /// <inheritdoc />
     public bool TryDrainCommands(Action<DebugCommandDto> apply)

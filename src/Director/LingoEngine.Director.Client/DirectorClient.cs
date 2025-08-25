@@ -31,6 +31,18 @@ public interface IDirectorClient : IAsyncDisposable
     /// <summary>Streams sound events from the host.</summary>
     IAsyncEnumerable<SoundEventDto> StreamSoundsAsync(CancellationToken ct = default);
 
+    /// <summary>Streams tempo changes from the host.</summary>
+    IAsyncEnumerable<TempoDto> StreamTemposAsync(CancellationToken ct = default);
+
+    /// <summary>Streams color palette updates from the host.</summary>
+    IAsyncEnumerable<ColorPaletteDto> StreamColorPalettesAsync(CancellationToken ct = default);
+
+    /// <summary>Streams frame scripts from the host.</summary>
+    IAsyncEnumerable<FrameScriptDto> StreamFrameScriptsAsync(CancellationToken ct = default);
+
+    /// <summary>Streams transitions from the host.</summary>
+    IAsyncEnumerable<TransitionDto> StreamTransitionsAsync(CancellationToken ct = default);
+
     /// <summary>Requests a snapshot of the current movie state.</summary>
     Task<MovieStateDto> GetMovieSnapshotAsync(CancellationToken ct = default);
 
@@ -108,6 +120,34 @@ public sealed class DirectorClient : IDirectorClient
     {
         EnsureConnected();
         return _connection!.StreamAsync<SoundEventDto>("StreamSounds", ct);
+    }
+
+    /// <inheritdoc />
+    public IAsyncEnumerable<TempoDto> StreamTemposAsync(CancellationToken ct = default)
+    {
+        EnsureConnected();
+        return _connection!.StreamAsync<TempoDto>("StreamTempos", ct);
+    }
+
+    /// <inheritdoc />
+    public IAsyncEnumerable<ColorPaletteDto> StreamColorPalettesAsync(CancellationToken ct = default)
+    {
+        EnsureConnected();
+        return _connection!.StreamAsync<ColorPaletteDto>("StreamColorPalettes", ct);
+    }
+
+    /// <inheritdoc />
+    public IAsyncEnumerable<FrameScriptDto> StreamFrameScriptsAsync(CancellationToken ct = default)
+    {
+        EnsureConnected();
+        return _connection!.StreamAsync<FrameScriptDto>("StreamFrameScripts", ct);
+    }
+
+    /// <inheritdoc />
+    public IAsyncEnumerable<TransitionDto> StreamTransitionsAsync(CancellationToken ct = default)
+    {
+        EnsureConnected();
+        return _connection!.StreamAsync<TransitionDto>("StreamTransitions", ct);
     }
 
     /// <inheritdoc />

@@ -125,4 +125,64 @@ public sealed class DirectorHub : Hub
             }
         }
     }
+
+    /// <summary>
+    /// Streams tempo changes to the connected client.
+    /// </summary>
+    public async IAsyncEnumerable<TempoDto> StreamTempos([EnumeratorCancellation] CancellationToken ct)
+    {
+        var reader = _bus.Tempos.Reader;
+        while (await reader.WaitToReadAsync(ct).ConfigureAwait(false))
+        {
+            while (reader.TryRead(out var tempo))
+            {
+                yield return tempo;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Streams color palette updates to the connected client.
+    /// </summary>
+    public async IAsyncEnumerable<ColorPaletteDto> StreamColorPalettes([EnumeratorCancellation] CancellationToken ct)
+    {
+        var reader = _bus.ColorPalettes.Reader;
+        while (await reader.WaitToReadAsync(ct).ConfigureAwait(false))
+        {
+            while (reader.TryRead(out var palette))
+            {
+                yield return palette;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Streams frame scripts to the connected client.
+    /// </summary>
+    public async IAsyncEnumerable<FrameScriptDto> StreamFrameScripts([EnumeratorCancellation] CancellationToken ct)
+    {
+        var reader = _bus.FrameScripts.Reader;
+        while (await reader.WaitToReadAsync(ct).ConfigureAwait(false))
+        {
+            while (reader.TryRead(out var script))
+            {
+                yield return script;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Streams transitions to the connected client.
+    /// </summary>
+    public async IAsyncEnumerable<TransitionDto> StreamTransitions([EnumeratorCancellation] CancellationToken ct)
+    {
+        var reader = _bus.Transitions.Reader;
+        while (await reader.WaitToReadAsync(ct).ConfigureAwait(false))
+        {
+            while (reader.TryRead(out var transition))
+            {
+                yield return transition;
+            }
+        }
+    }
 }
