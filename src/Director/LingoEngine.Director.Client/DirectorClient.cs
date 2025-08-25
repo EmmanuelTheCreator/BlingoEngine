@@ -43,6 +43,12 @@ public interface IDirectorClient : IAsyncDisposable
     /// <summary>Streams transitions from the host.</summary>
     IAsyncEnumerable<TransitionDto> StreamTransitionsAsync(CancellationToken ct = default);
 
+    /// <summary>Streams member property updates from the host.</summary>
+    IAsyncEnumerable<MemberPropertyDto> StreamMemberPropertiesAsync(CancellationToken ct = default);
+
+    /// <summary>Streams text style updates from the host.</summary>
+    IAsyncEnumerable<TextStyleDto> StreamTextStylesAsync(CancellationToken ct = default);
+
     /// <summary>Requests a snapshot of the current movie state.</summary>
     Task<MovieStateDto> GetMovieSnapshotAsync(CancellationToken ct = default);
 
@@ -148,6 +154,20 @@ public sealed class DirectorClient : IDirectorClient
     {
         EnsureConnected();
         return _connection!.StreamAsync<TransitionDto>("StreamTransitions", ct);
+    }
+
+    /// <inheritdoc />
+    public IAsyncEnumerable<MemberPropertyDto> StreamMemberPropertiesAsync(CancellationToken ct = default)
+    {
+        EnsureConnected();
+        return _connection!.StreamAsync<MemberPropertyDto>("StreamMemberProperties", ct);
+    }
+
+    /// <inheritdoc />
+    public IAsyncEnumerable<TextStyleDto> StreamTextStylesAsync(CancellationToken ct = default)
+    {
+        EnsureConnected();
+        return _connection!.StreamAsync<TextStyleDto>("StreamTextStyles", ct);
     }
 
     /// <inheritdoc />

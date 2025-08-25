@@ -35,6 +35,12 @@ public interface IBus
     /// <summary>Channel carrying transitions.</summary>
     Channel<TransitionDto> Transitions { get; }
 
+    /// <summary>Channel carrying member property updates.</summary>
+    Channel<MemberPropertyDto> MemberProperties { get; }
+
+    /// <summary>Channel carrying text style updates.</summary>
+    Channel<TextStyleDto> TextStyles { get; }
+
     /// <summary>Channel carrying commands from the client.</summary>
     Channel<DebugCommandDto> Commands { get; }
 }
@@ -116,6 +122,21 @@ internal sealed class Bus : IBus
             FullMode = BoundedChannelFullMode.DropOldest
         });
 
+    public Channel<MemberPropertyDto> MemberProperties { get; } =
+        Channel.CreateBounded<MemberPropertyDto>(new BoundedChannelOptions(256)
+        {
+            SingleWriter = true,
+            SingleReader = false,
+            FullMode = BoundedChannelFullMode.DropOldest
+        });
+
+    public Channel<TextStyleDto> TextStyles { get; } =
+        Channel.CreateBounded<TextStyleDto>(new BoundedChannelOptions(256)
+        {
+            SingleWriter = true,
+            SingleReader = false,
+            FullMode = BoundedChannelFullMode.DropOldest
+        });
     public Channel<DebugCommandDto> Commands { get; } =
         Channel.CreateUnbounded<DebugCommandDto>(new UnboundedChannelOptions
         {

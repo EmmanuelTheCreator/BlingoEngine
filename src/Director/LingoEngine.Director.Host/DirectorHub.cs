@@ -185,4 +185,34 @@ public sealed class DirectorHub : Hub
             }
         }
     }
+
+    /// <summary>
+    /// Streams member property updates to the connected client.
+    /// </summary>
+    public async IAsyncEnumerable<MemberPropertyDto> StreamMemberProperties([EnumeratorCancellation] CancellationToken ct)
+    {
+        var reader = _bus.MemberProperties.Reader;
+        while (await reader.WaitToReadAsync(ct).ConfigureAwait(false))
+        {
+            while (reader.TryRead(out var prop))
+            {
+                yield return prop;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Streams text style updates to the connected client.
+    /// </summary>
+    public async IAsyncEnumerable<TextStyleDto> StreamTextStyles([EnumeratorCancellation] CancellationToken ct)
+    {
+        var reader = _bus.TextStyles.Reader;
+        while (await reader.WaitToReadAsync(ct).ConfigureAwait(false))
+        {
+            while (reader.TryRead(out var style))
+            {
+                yield return style;
+            }
+        }
+    }
 }

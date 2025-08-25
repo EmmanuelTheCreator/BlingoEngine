@@ -34,6 +34,12 @@ public interface IDebugPublisher
     /// <summary>Attempts to publish a transition without blocking.</summary>
     void TryPublishTransition(TransitionDto transition);
 
+    /// <summary>Attempts to publish a member property without blocking.</summary>
+    void TryPublishMemberProperty(MemberPropertyDto property);
+
+    /// <summary>Attempts to publish a text style without blocking.</summary>
+    void TryPublishTextStyle(TextStyleDto style);
+
     /// <summary>Drains queued debug commands and applies them through the provided delegate.</summary>
     /// <param name="apply">Delegate invoked for each command.</param>
     /// <returns><c>true</c> if any command was processed; otherwise, <c>false</c>.</returns>
@@ -85,6 +91,14 @@ internal sealed class DebugPublisher : IDebugPublisher
     /// <inheritdoc />
     public void TryPublishTransition(TransitionDto transition)
         => _bus.Transitions.Writer.TryWrite(transition);
+
+    /// <inheritdoc />
+    public void TryPublishMemberProperty(MemberPropertyDto property)
+        => _bus.MemberProperties.Writer.TryWrite(property);
+
+    /// <inheritdoc />
+    public void TryPublishTextStyle(TextStyleDto style)
+        => _bus.TextStyles.Writer.TryWrite(style);
 
     /// <inheritdoc />
     public bool TryDrainCommands(Action<DebugCommandDto> apply)
