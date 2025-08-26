@@ -12,7 +12,7 @@ public class XmedReaderTests
     public void ParsesHalloTextAndStyles()
     {
         var view = CreateView(XmedTestData.HalloDefault);
-        var doc = XmedReader.Read(view);
+        var doc = new XmedReader().Read(view);
         Assert.StartsWith("Hallo", doc.Text);
         Assert.Equal("Hallo", doc.Runs[0].Text);
         Assert.Contains(doc.Styles, s => s.FontName == "Arial" && s.ColorIndex == 5);
@@ -23,7 +23,7 @@ public class XmedReaderTests
     public void ParsesMultiStyleSingleLineStyles()
     {
         var view = CreateView(XmedTestData.MultiStyleSingleLine);
-        var doc = XmedReader.Read(view);
+        var doc = new XmedReader().Read(view);
         Assert.True(doc.Styles.Count > 1);
         Assert.Contains(doc.Styles, s => s.FontName == "Arcade *");
         Assert.Contains(doc.Styles, s => s.FontName == "arial");
@@ -35,7 +35,7 @@ public class XmedReaderTests
     public void ParsesWiderWidth4Text()
     {
         var view = CreateView(XmedTestData.WiderWidth4);
-        var doc = XmedReader.Read(view);
+        var doc = new XmedReader().Read(view);
         Assert.Equal("HalloHallo", doc.Text);
         Assert.Equal("Hallo", doc.Runs[0].Text);
         Assert.Equal((uint)203, doc.Width);

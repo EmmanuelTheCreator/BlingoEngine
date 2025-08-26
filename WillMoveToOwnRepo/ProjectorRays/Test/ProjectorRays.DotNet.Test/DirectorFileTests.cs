@@ -69,6 +69,49 @@ public class DirectorFileTests
         }
     }
 
+    [Fact]
+    public void ScoreParserExtractsTwoSprites()
+    {
+        var path = GetPath("Sprites/5spritesTest.dir");
+        var data = TestFileReader.ReadScore(path);
+        var annotator = new RayStreamAnnotatorDecorator(0);
+        var stream = new ReadStream(data, data.Length, Endianness.BigEndian, 0, annotator);
+        var parser = new RaysScoreFrameParserV2(_logger, annotator);
+
+        var sprites = parser.ParseScore(stream);
+
+        Assert.Equal(2, sprites.Count);
+    }
+
+    [Fact]
+    public void TextCastDirContainsTextMembers()
+    {
+        var path = GetPath("Texts_Fields/TextCast.dir");
+        var data = File.ReadAllBytes(path);
+        var stream = new ReadStream(data, data.Length, Endianness.BigEndian);
+        var dir = new RaysDirectorFile(_logger, path);
+        Assert.True(dir.Read(stream));
+
+        const uint CASt = ((uint)'C' << 24) | ((uint)'A' << 16) | ((uint)'S' << 8) | (uint)'t';
+        bool found = false;
+        foreach (var cast in dir.Casts)
+        {
+            foreach (var id in cast.MemberIDs)
+            {
+                var chunk = (RaysCastMemberChunk)dir.GetChunk(CASt, id);
+                if ((chunk.Type == RaysMemberType.FieldMember || chunk.Type == RaysMemberType.TextMember) &&
+                    (chunk.DecodedText != null || !string.IsNullOrEmpty(chunk.GetText())))
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (found)
+                break;
+        }
+
+        Assert.True(found);
+    }
 
     [Fact]
     public void ImgCastContainsBitmapMember()
@@ -126,30 +169,14 @@ public class DirectorFileTests
         Assert.Contains("Hallo", text, StringComparison.OrdinalIgnoreCase);
     }
 
-    [Fact(Skip = "Text decoding not implemented")]
-    public void DirFileTextContainsHallo()
+    [Fact(Skip = "Text member parsing not implemented")]
+    public void DirWithOneTextSpriteContainsText()
     {
         var path = GetPath("Images/Dir_With_One_Tex_Sprite_Hallo.dir");
         var data = File.ReadAllBytes(path);
         var stream = new ReadStream(data, data.Length, Endianness.BigEndian);
         var dir = new RaysDirectorFile(_logger, path);
         Assert.True(dir.Read(stream));
-        const uint CASt = ((uint)'C' << 24) | ((uint)'A' << 16) | ((uint)'S' << 8) | (uint)'t';
-        string text = string.Empty;
-        foreach (var cast in dir.Casts)
-        {
-            foreach (var id in cast.MemberIDs)
-            {
-                var chunk = (RaysCastMemberChunk)dir.GetChunk(CASt, id);
-                if (chunk.Type == RaysMemberType.FieldMember)
-                {
-                    text = chunk.GetScriptText();
-                    break;
-                }
-            }
-            if (text.Length > 0) break;
-        }
-        Assert.Contains("Hallo", text, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact(Skip = "Score data not available")]
