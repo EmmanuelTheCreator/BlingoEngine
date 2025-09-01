@@ -32,30 +32,19 @@ public class XmedReaderTests
     {
         var path = GetPath("Texts_Fields/Text_Hallo_fontsize14.cst");
         var data = File.ReadAllBytes(path);
-        var stream = new ReadStream(data, data.Length, Endianness.BigEndian);
-        var dir = new RaysDirectorFile(_logger, path);
-        Assert.True(dir.Read(stream));
-        const uint CASt = ((uint)'C' << 24) | ((uint)'A' << 16) | ((uint)'S' << 8) | (uint)'t';
-        string text = string.Empty;
-        if (dir.Casts.Count > 0)
-        {
-            foreach (var id in dir.Casts[0].MemberIDs)
-            {
-                var chunk = (RaysCastMemberChunk)dir.GetChunk(CASt, id);
-                dir.Logger.LogInformation($"CastMember Type={chunk.Type}, Name='{chunk.GetName()}', ScriptText='{chunk.GetScriptText()}'");
-                dir.Logger.LogInformation("Raw SpecificData: " + BitConverter.ToString(chunk.SpecificData.Data, chunk.SpecificData.Offset, chunk.SpecificData.Size));
-                if (chunk.Type == RaysMemberType.FieldMember)
-                {
-                    var field = (RaysCastMemberChunk)dir.GetChunk(CASt, id);
-                    if (field.DecodedText is RaysCastMemberTextRead styled)
-                    {
-                        text = styled.Text;
-                    }
-                    break;
-                }
-            }
-        }
-        Assert.Contains("Hallo", text, StringComparison.OrdinalIgnoreCase);
+        var view = CreateView(data);
+        var doc = new XmedReader().Read(view);
+        Assert.Contains("Hallo", doc.Text, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void FieldCastTextContainsHallo()
+    {
+        var path = GetPath("Texts_Fields/Field_Hallo.cst");
+        var data = File.ReadAllBytes(path);
+        var view = CreateView(data);
+        var doc = new XmedReader().Read(view);
+        Assert.Contains("Hallo", doc.Text, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -67,7 +56,7 @@ public class XmedReaderTests
         var dir = new RaysDirectorFile(_logger, path);
         Assert.True(dir.Read(stream));
     }
-   
+
 
     [Fact]
     public void RestoresScriptTextIntoMembers()
@@ -80,7 +69,7 @@ public class XmedReaderTests
 
         dir.RestoreScriptText();
 
-       // todo test it
+        // todo test it
     }
 
     [Fact]
@@ -101,7 +90,7 @@ public class XmedReaderTests
         foreach (var run in doc.Runs)
         {
             _logger.LogInformation("---------");
-            _logger.LogInformation("Text="+run.Text);
+            _logger.LogInformation("Text=" + run.Text);
             _logger.LogInformation("---------");
             _logger.LogInformation(nameof(run.Unknown1) + "=" + run.Unknown1);
             _logger.LogInformation(nameof(run.Unknown2) + "=" + run.Unknown2);

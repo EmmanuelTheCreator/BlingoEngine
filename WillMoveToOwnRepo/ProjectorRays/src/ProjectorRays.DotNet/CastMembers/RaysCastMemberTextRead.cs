@@ -147,18 +147,39 @@ namespace ProjectorRays.CastMembers
 
             // Dump the raw payload for debugging. The format is still largely
             // unknown so we treat it as opaque ASCII for now.
-            var ascii = Encoding.Latin1.GetString(view.Data, view.Offset, view.Size);
             dir.Logger.LogInformation($"XMED all : {BitConverter.ToString(view.Data, view.Offset, view.Size)}");
-            try
+
+            // Some sample files include a small preamble before the actual
+            // XMED data. Locate the "DEMX" signature to ensure the reader
+            // receives a buffer starting at the correct offset.
+            var data = view.Data;
+            int start = Array.IndexOf(data, (byte)'D', view.Offset, view.Size);
+            while (start >= 0 && start + 3 < view.Offset + view.Size)
             {
-                var doc = XmedReaderFactory().Read(view);
-                result.Text = doc.Text;
-                result.Styles = doc.Runs;
+                if (data[start + 1] == (byte)'E' && data[start + 2] == (byte)'M' && data[start + 3] == (byte)'X')
+                    break;
+                start = Array.IndexOf(data, (byte)'D', start + 1, view.Offset + view.Size - (start + 1));
             }
-            catch (Exception ex)
+
+            if (start >= 0)
             {
-                dir.Logger.LogWarning($"XMED parse failed: {ex.Message}");
+                var trimmed = new BufferView(data, start, view.Offset + view.Size - start);
+                try
+                {
+                    var doc = XmedReaderFactory().Read(trimmed);
+                    result.Text = doc.Text;
+                    result.Styles = doc.Runs;
+                }
+                catch (Exception ex)
+                {
+                    dir.Logger.LogWarning($"XMED parse failed: {ex.Message}");
+                }
             }
+            else
+            {
+                dir.Logger.LogWarning("XMED parse failed: signature not found");
+            }
+
             return result;
         }
 
