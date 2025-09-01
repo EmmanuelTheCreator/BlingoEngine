@@ -14,12 +14,18 @@ public static class GfxTestScene
         var windowManager = factory.GetRequiredService<IAbstWindowManager>();
 
 
+        
+        //var wdw = new GfxTestWindow();
+
         var scroll = factory.CreateScrollContainer("scroll");
         //var scroll = factory.CreateWrapPanel(AOrientation.Vertical,"scroll");
         scroll.X = 20;
         scroll.Y = 20;
         scroll.Width = 760;
         scroll.Height = 560;
+        //windowManager.OpenWindow(GfxTestWindow.MyWindowCode);
+        //return scroll;
+
 
         var panel = factory.CreatePanel("rootPanel");
         //var panel = factory.CreateWrapPanel(AOrientation.Vertical, "scroll");

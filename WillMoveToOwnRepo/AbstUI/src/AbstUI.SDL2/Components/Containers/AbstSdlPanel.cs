@@ -61,6 +61,8 @@ namespace AbstUI.SDL2.Components.Containers
         private nint _texture;
         private int _texW;
         private int _texH;
+        protected int _yOffset;
+        protected int _xOffset;
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
@@ -95,29 +97,7 @@ namespace AbstUI.SDL2.Components.Containers
                 SDL.SDL_RenderClear(context.Renderer);
             }
 
-            if (ClipChildren)
-            {
-                SDL.SDL_Rect clip = new SDL.SDL_Rect { x = 0, y = 0, w = w, h = h };
-                SDL.SDL_RenderSetClipRect(context.Renderer, ref clip);
-            }
-
-            foreach (var child in _children)
-            {
-                if (child.FrameworkNode is AbstSdlComponent comp)
-                {
-                    var ctx = comp.ComponentContext;
-                    var oldOffX = ctx.OffsetX;
-                    var oldOffY = ctx.OffsetY;
-                    ctx.OffsetX += -X;
-                    ctx.OffsetY += -Y;
-                    ctx.RenderToTexture(context);
-                    ctx.OffsetX = oldOffX;
-                    ctx.OffsetY = oldOffY;
-                }
-            }
-
-            if (ClipChildren)
-                SDL.SDL_RenderSetClipRect(context.Renderer, nint.Zero);
+            RenderChildren(context,0,0, w, h, _xOffset, _yOffset);
 
             if (BorderWidth > 0 && BorderColor is { } bc)
             {
@@ -134,6 +114,33 @@ namespace AbstUI.SDL2.Components.Containers
             return _texture;
         }
 
+        protected void RenderChildren(AbstSDLRenderContext context,int x, int y, int w, int h,int xOffset, int yOffset)
+        {
+            if (ClipChildren)
+            {
+                SDL.SDL_Rect clip = new SDL.SDL_Rect { x =x+ xOffset, y = y+yOffset, w = w, h = h };
+                SDL.SDL_RenderSetClipRect(context.Renderer, ref clip);
+            }
+
+            foreach (var child in _children)
+            {
+                if (child.FrameworkNode is AbstSdlComponent comp)
+                {
+                    var ctx = comp.ComponentContext;
+                    var oldOffX = ctx.OffsetX;
+                    var oldOffY = ctx.OffsetY;
+                    ctx.OffsetX += -X + xOffset;
+                    ctx.OffsetY += -Y + yOffset;
+                    ctx.RenderToTexture(context);
+                    ctx.OffsetX = oldOffX;
+                    ctx.OffsetY = oldOffY;
+                }
+            }
+
+            if (ClipChildren)
+                SDL.SDL_RenderSetClipRect(context.Renderer, nint.Zero);
+        }
+
         public override void Dispose()
         {
             RemoveAll();
@@ -147,15 +154,20 @@ namespace AbstUI.SDL2.Components.Containers
         public virtual void HandleEvent(AbstSDLEvent e)
         {
             // Forward mouse events to children accounting for current scroll offset
-
+            var oriOffsetX = e.OffsetX;
+            var oriOffsetY = e.OffsetY;
             for (int i = _children.Count - 1; i >= 0 && !e.StopPropagation; i--)
             {
                 if (_children[i].FrameworkNode is not AbstSdlComponent comp ||
                     comp is not IHandleSdlEvent handler ||
                     !comp.Visibility)
                     continue;
-                ContainerHelpers.HandleChildEvents(comp, e, (int)Margin.Left, (int)Margin.Top);
+                e.OffsetX = oriOffsetX + (int)Margin.Left - _xOffset;
+                e.OffsetY = oriOffsetY + (int)Margin.Top - _yOffset;
+                ContainerHelpers.HandleChildEvents(comp, e);
             }
+            e.OffsetX = oriOffsetX;
+            e.OffsetY = oriOffsetY;
         }
 
     }

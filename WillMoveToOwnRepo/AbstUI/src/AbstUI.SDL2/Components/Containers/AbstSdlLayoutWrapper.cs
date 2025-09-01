@@ -4,6 +4,7 @@ using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Events;
 using AbstUI.FrameworkCommunication;
+using System.ComponentModel.DataAnnotations;
 
 namespace AbstUI.SDL2.Components.Containers
 {
@@ -57,8 +58,13 @@ namespace AbstUI.SDL2.Components.Containers
         {
             // Forward mouse events to children accounting for current scroll offset
             var sdlComponent = (AbstSdlComponent)_lingoLayoutWrapper.Content.FrameworkObj;
-
-            ContainerHelpers.HandleChildEvents(sdlComponent, e, (int)Margin.Left, (int)Margin.Top);
+            var oriX = e.OffsetX;
+            var oriY = e.OffsetY;
+            e.OffsetX += (int)Margin.Left;
+            e.OffsetY += (int)Margin.Top;
+            ContainerHelpers.HandleChildEvents(sdlComponent, e);
+            e.OffsetX = oriX;
+            e.OffsetY = oriY;
         }
     }
 }

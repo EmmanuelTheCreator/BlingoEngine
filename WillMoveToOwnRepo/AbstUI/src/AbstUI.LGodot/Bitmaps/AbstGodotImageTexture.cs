@@ -17,7 +17,7 @@ public class AbstGodotTexture2D : AbstBaseTexture2D<Texture2D>
 
     public override int Width => _texture.GetWidth();
 
-    public override int Height => _texture._GetHeight();
+    public override int Height => _texture.GetHeight();
 
     protected override void DisposeTexture()
     {

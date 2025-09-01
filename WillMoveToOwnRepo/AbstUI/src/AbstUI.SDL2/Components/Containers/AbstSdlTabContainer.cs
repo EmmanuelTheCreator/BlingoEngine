@@ -1,13 +1,14 @@
 using AbstUI.Components;
+using AbstUI.Components.Containers;
+using AbstUI.FrameworkCommunication;
 using AbstUI.Primitives;
+using AbstUI.SDL2.Components.Base;
+using AbstUI.SDL2.Core;
+using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Styles;
 using AbstUI.Styles;
-using AbstUI.Components.Containers;
-using AbstUI.SDL2.Components.Base;
-using AbstUI.SDL2.Events;
-using AbstUI.SDL2.Core;
-using AbstUI.FrameworkCommunication;
+using static AbstUI.SDL2.SDLL.SDL;
 
 namespace AbstUI.SDL2.Components.Containers
 {
@@ -271,14 +272,21 @@ namespace AbstUI.SDL2.Components.Containers
             }
 
             // Forward mouse events to children accounting for current scroll offset
-
-            for (int i = _children.Count - 1; i >= 0 && !e.StopPropagation; i--)
+            if (_selectedIndex>=0)
             {
-                if (_children[i].FrameworkNode is not AbstSdlComponent comp ||
-                    comp is not IHandleSdlEvent handler ||
-                    !comp.Visibility)
-                    continue;
-                ContainerHelpers.HandleChildEvents(comp, e, -(int)(ComponentContext.X + BorderThickness), -(int)(ComponentContext.Y + _tabHeight + BorderThickness));
+                var tabItem = (AbstSdlTabItem)_children[_selectedIndex].FrameworkNode;
+                if (!tabItem.Visibility) return;
+                var oriX = e.OffsetX;
+                var oriY = e.OffsetY;
+                e.OffsetX += -(ComponentContext.X + BorderThickness);
+                e.OffsetY += -(ComponentContext.Y + _tabHeight + BorderThickness);
+                //if (e.Event.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
+                //{
+
+                //}
+                tabItem.HandleEvent(e);
+                e.OffsetX = oriX;
+                e.OffsetY = oriY;
             }
         }
 
@@ -298,7 +306,7 @@ namespace AbstUI.SDL2.Components.Containers
         }
     }
 
-    public class AbstSdlTabItem : AbstSdlComponent, IAbstFrameworkTabItem, IFrameworkFor<AbstTabItem>
+    public class AbstSdlTabItem : AbstSdlComponent, IAbstFrameworkTabItem, IFrameworkFor<AbstTabItem>, IHandleSdlEvent
     {
         public AbstSdlTabItem(AbstSdlComponentFactory factory, AbstTabItem tab) : base(factory)
         {
@@ -312,6 +320,12 @@ namespace AbstUI.SDL2.Components.Containers
         public object FrameworkNode => this;
 
         public override void Dispose() => base.Dispose();
+
+        public void HandleEvent(AbstSDLEvent e)
+        {
+            if (Content?.FrameworkObj is IHandleSdlEvent handleEvent)
+                handleEvent.HandleEvent(e);
+        }
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context) => default;
     }

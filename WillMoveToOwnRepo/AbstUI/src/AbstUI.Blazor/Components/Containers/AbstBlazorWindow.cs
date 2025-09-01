@@ -59,6 +59,7 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable, IAbstFrameworkWi
         set => _borderless = value;
     }
     public AColor BackgroundColor { get; set; }
+    public AColor BackgroundTitleColor { get; set; }
 
     public bool IsActiveWindow => _lingoWindow.IsActivated;
 

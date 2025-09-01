@@ -61,7 +61,7 @@ namespace AbstEngine.Director.LGodot
                 AddThemeStyleboxOverride("panel", Style);
             }
         }
-
+        public AColor BackgroundTitleColor { get; set; }
 
 
         public IAbstMouse Mouse => _window.Mouse;

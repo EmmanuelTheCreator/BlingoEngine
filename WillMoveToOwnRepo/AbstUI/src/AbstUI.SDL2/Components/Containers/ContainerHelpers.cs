@@ -6,7 +6,7 @@ namespace AbstUI.SDL2.Components.Containers
 {
     internal class ContainerHelpers
     {
-        public static void HandleChildEvents(AbstSdlComponent comp, AbstSDLEvent e, int xOffset, int yOffset)
+        public static void HandleChildEvents(AbstSdlComponent comp, AbstSDLEvent e)
         {
             if (comp is not IHandleSdlEvent handler)
                 return;
@@ -20,23 +20,23 @@ namespace AbstUI.SDL2.Components.Containers
                 case SDL_EventType.SDL_MOUSEBUTTONUP:
                     oldX = ev.button.x;
                     oldY = ev.button.y;
-                    ev.button.x += xOffset;
-                    ev.button.y += yOffset;
+                    ev.button.x += e.OffsetX;
+                    ev.button.y += e.OffsetY;
                     inside = ev.button.x >= comp.X && ev.button.x <= comp.X + comp.Width &&
                                 ev.button.y >= comp.Y && ev.button.y <= comp.Y + comp.Height;
                     break;
                 case SDL_EventType.SDL_MOUSEMOTION:
                     oldX = ev.motion.x;
                     oldY = ev.motion.y;
-                    ev.motion.x += xOffset;
-                    ev.motion.y += yOffset;
+                    ev.motion.x += e.OffsetX;
+                    ev.motion.y += e.OffsetY;
                     inside = ev.motion.x >= comp.X && ev.motion.x <= comp.X + comp.Width &&
                                 ev.motion.y >= comp.Y && ev.motion.y <= comp.Y + comp.Height;
                     break;
                 case SDL_EventType.SDL_MOUSEWHEEL:
                     SDL_GetMouseState(out var mx, out var my);
-                    mx += xOffset;
-                    my += yOffset;
+                    mx += e.OffsetX;
+                    my += e.OffsetY;
                     inside = mx >= comp.X && mx <= comp.X + comp.Width &&
                                 my >= comp.Y && my <= comp.Y + comp.Height;
                     break;

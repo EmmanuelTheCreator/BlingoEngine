@@ -1,5 +1,6 @@
 using AbstUI.Components;
 using AbstUI.Components.Containers;
+using AbstUI.FrameworkCommunication;
 using AbstUI.Primitives;
 using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Core;
@@ -7,7 +8,7 @@ using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
 using System;
 using System.Collections.Generic;
-using AbstUI.FrameworkCommunication;
+using static AbstUI.SDL2.SDLL.SDL;
 
 namespace AbstUI.SDL2.Components.Containers
 {
@@ -164,15 +165,28 @@ namespace AbstUI.SDL2.Components.Containers
         public void HandleEvent(AbstSDLEvent e)
         {
             // Forward mouse events to children accounting for current scroll offset
-
+            var oriX = e.OffsetX;
+            var oriY = e.OffsetY;
             for (int i = _children.Count - 1; i >= 0 && !e.StopPropagation; i--)
             {
                 if (_children[i].FrameworkNode is not AbstSdlComponent comp ||
                     comp is not IHandleSdlEvent handler ||
                     !comp.Visibility)
                     continue;
-                ContainerHelpers.HandleChildEvents(comp, e, (int)Margin.Left, (int)Margin.Top);
+               
+                e.OffsetX = oriX + (int)Margin.Left;
+                e.OffsetY = oriY + (int)Margin.Top;
+#if DEBUG
+                if (e.Event.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
+                {
+
+                }
+#endif
+                ContainerHelpers.HandleChildEvents(comp, e);
+               
             }
+            e.OffsetX = oriX;
+            e.OffsetY = oriY;
         }
 
 

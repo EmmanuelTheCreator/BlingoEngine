@@ -10,13 +10,14 @@ using AbstUI.SDL2.Core;
 using AbstUI.Components;
 using AbstUI.SDL2.Components;
 using AbstUI.SDL2.Components.Containers;
+using static AbstUI.SDL2.SDLL.SDL;
 
 namespace AbstUI.SDL2.Windowing;
 
 public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent, IDisposable
 {
     protected readonly AbstSdlComponentFactory _componentFactory;
-    private IAbstWindowInternal _abstWindow;
+    private IAbstWindowInternal _abstWindow = null!;
     private string _title = string.Empty;
     private bool _isPopup;
     private bool _borderless;
@@ -70,6 +71,7 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
 
     public string WindowCode => _abstWindow.WindowCode;
 
+    public AColor BackgroundTitleColor { get; set; } 
     public new AColor BackgroundColor
     {
         get => base.BackgroundColor ?? AColors.White;
@@ -107,6 +109,8 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
         //var key = ((AbstKey)factory.RootContext.AbstKey).CreateNewInstance(window);
         //_abstWindow.Init(this, mouse, key);
         Visibility = false;
+        BackgroundColor = AColors.White;
+        BackgroundTitleColor = AColors.LightGray;
     }
 
     public void Init(IAbstWindow instance)
@@ -121,6 +125,8 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
     public void OnResize(int width, int height)
     {
         _abstWindow.ResizeFromFW(false, width, height);
+        // updates sizes because it could be resized to minimum size
+        UpateSizeFromAbstWindow();
     }
 
 
@@ -133,7 +139,15 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
         Visibility = true;
         _abstWindow.SetPositionFromFW((int)X, (int)Y);
         _abstWindow.ResizeFromFW(false, (int)Width, (int)Height);
+        // updates sizes because it could be resized to minimum size
+        UpateSizeFromAbstWindow();
         _abstWindow.RaiseWindowStateChanged(true);
+    }
+
+    private void UpateSizeFromAbstWindow()
+    {
+        Width = ((IAbstWindow)_abstWindow).Width;
+        Height = ((IAbstWindow)_abstWindow).Height;
     }
 
     public void CloseWindow()
@@ -174,16 +188,23 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
         if (!Visibility)
             return default;
 
-        var tex = (nint)base.Render(context);
+        ClipChildren = true;
         int w = (int)Width;
+        int h = (int)Height;
 
         if (_font == null)
             _font = context.SdlFontManager.GetTyped(this, null, 14);
 
         var prev = SDL.SDL_GetRenderTarget(context.Renderer);
+
+        // Render children
+        _xOffset = (int)X;
+        _yOffset = (int)(TitleBarHeight + Y);
+        var tex = (nint)base.Render(context);
         SDL.SDL_SetRenderTarget(context.Renderer, tex);
 
-        SDL.SDL_SetRenderDrawColor(context.Renderer, 200, 200, 200, 255);
+        // Title bg
+        SDL.SDL_SetRenderDrawColor(context.Renderer, BackgroundTitleColor.R, BackgroundTitleColor.G, BackgroundTitleColor.B, BackgroundTitleColor.A);
         var bar = new SDL.SDL_Rect { x = 0, y = 0, w = w, h = TitleBarHeight };
         SDL.SDL_RenderFillRect(context.Renderer, ref bar);
 
@@ -219,6 +240,7 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
             _closeRect.x + 3, _closeRect.y + _closeRect.h - 3);
 
         SDL.SDL_SetRenderTarget(context.Renderer, prev);
+
         return tex;
     }
 
@@ -232,7 +254,7 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
             case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
                 int lx = e.Event.button.x - (int)X;
                 int ly = e.Event.button.y - (int)Y;
-
+                //Console.WriteLine($"Window {WindowCode} mouse down at {lx},{ly}");
                 _componentFactory.GetRequiredService<IAbstWindowManager>().SetActiveWindow(WindowCode);
 
                 if (lx >= _closeRect.x && lx <= _closeRect.x + _closeRect.w &&
@@ -266,8 +288,18 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
                 }
                 break;
         }
-        if (e.StopPropagation)
+        if (!e.StopPropagation)
+        {
+            e.OffsetX = -(int)X; // - _xOffset;
+            e.OffsetY = -(int)Y; // - _yOffset;
+#if DEBUG
+            if (e.Event.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
+            {
+
+            }
+#endif
             base.HandleEvent(e);
+        }
     }
 
     public override void Dispose()

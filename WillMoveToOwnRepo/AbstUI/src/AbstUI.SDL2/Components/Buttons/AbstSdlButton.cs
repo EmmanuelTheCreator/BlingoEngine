@@ -120,7 +120,7 @@ namespace AbstUI.SDL2.Components.Buttons
             EnsureResources(context);
             int w = (int)Width;
             int h = (int)Height;
-            if (_texture == nint.Zero || _texW != w || _texH != h || _renderedText != Text)
+            if (_texture == nint.Zero || _texW != w || _texH != h || _renderedText != Text || _isDirty)
             {
                 if (_texture != nint.Zero)
                     SDL.SDL_DestroyTexture(_texture);
