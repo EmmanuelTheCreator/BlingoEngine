@@ -177,5 +177,6 @@ namespace LingoEngine.LGodot.Shapes
             // TODO
             return null;
         }
+        public bool IsPixelTransparent(int x, int y) => false; // TODO
     }
 }

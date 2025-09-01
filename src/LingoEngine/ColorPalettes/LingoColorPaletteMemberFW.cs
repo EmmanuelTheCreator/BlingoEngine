@@ -1,37 +1,51 @@
 ﻿using LingoEngine.Members;
-using LingoEngine.Scripts;
 using LingoEngine.Sprites;
 
-namespace LingoEngine.LGodot.Scripts
+namespace LingoEngine.ColorPalettes
 {
-    internal class LingoFrameworkMemberScript : ILingoFrameworkMemberScript
+    public class LingoColorPaletteMemberFW : ILingoFrameworkMember
     {
+        public LingoColorPaletteMemberFW()
+        {
+        }
+
         public bool IsLoaded => true;
-        public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
+
         public void CopyToClipboard()
         {
+            
         }
 
         public void Erase()
         {
+            
         }
 
         public void ImportFileInto()
         {
+            
         }
+
+        public bool IsPixelTransparent(int x, int y) => false;
 
         public void PasteClipboardInto()
         {
+            
         }
 
         public void Preload()
         {
+            
+        }
+
+        public void ReleaseFromSprite(LingoSprite2D lingoSprite)
+        {
+            
         }
 
         public void Unload()
         {
+            
         }
-        public bool IsPixelTransparent(int x, int y) => false;
     }
 }
-

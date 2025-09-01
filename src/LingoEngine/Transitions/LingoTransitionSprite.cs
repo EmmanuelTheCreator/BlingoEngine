@@ -33,9 +33,11 @@ public class LingoTransitionSprite : LingoSprite, ILingoSpriteWithMember
     {
         if (Member == null)
         {
-            Member = _castlib.Add<LingoTransitionMember>(0, "");
+            Member = _castlib.Add<LingoTransitionMember>(0, settings.TransitionName + "_" + settings.Duration);
             Member.UsedBy(this);
         }
+        else
+            Member.Name = settings.TransitionName + "_" + settings.Duration;
         Member.SetSettings(settings);
     }
 

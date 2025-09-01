@@ -173,7 +173,7 @@ namespace LingoEngine.LGodot.FilmLoops
         }
 
         public ARect GetBoundingBox() => Member.GetBoundingBox();
-
+        public bool IsPixelTransparent(int x, int y) => false;
 
         #region Clipboard
 

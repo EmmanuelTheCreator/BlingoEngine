@@ -394,7 +394,7 @@ namespace LingoEngine.LGodot.Texts
             _hasLoadedTexTure = false;
             IsLoaded = false;
         }
-
+        public bool IsPixelTransparent(int x, int y) => false;
 
 
         #region Clipboard
@@ -413,6 +413,8 @@ namespace LingoEngine.LGodot.Texts
         }
         public void Copy(string text) => DisplayServer.ClipboardSet(text);
         public string PasteClipboard() => DisplayServer.ClipboardGet();
+
+        
 
 
         #endregion
