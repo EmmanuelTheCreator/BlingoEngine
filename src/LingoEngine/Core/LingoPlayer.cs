@@ -147,7 +147,7 @@ namespace LingoEngine.Core
 
             // Create a new movies scope, needed for behaviours.
             var scope = _serviceProvider.CreateScope();
-            var transitionPlayer = new LingoTransitionPlayer(_Stage,_clock, _serviceProvider.GetRequiredService<ILingoTransitionLibrary>());
+            var transitionPlayer = new LingoTransitionPlayer(_Stage, _clock, _serviceProvider.GetRequiredService<ILingoTransitionLibrary>());
 
             // Create the movie.
             var movieEnv = (LingoMovieEnvironment)scope.ServiceProvider.GetRequiredService<ILingoMovieEnvironment>();
@@ -255,11 +255,7 @@ namespace LingoEngine.Core
             }
             else
             {
-#if NET48
                 var target = MathCompat.Clamp(movie.Frame + offset, 1, movie.FrameCount);
-#else
-                var target = Math.Clamp(movie.Frame + offset, 1, movie.FrameCount);
-#endif
                 movie.GoToAndStop(target);
             }
             return true;

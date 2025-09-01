@@ -126,11 +126,7 @@ public static class LingoFilmLoopComposer
                 destW,
                 destH,
                 transform,
-#if NET48
                 MathCompat.Clamp(layer.Blend / 100f, 0f, 1f),
-#else
-                Math.Clamp(layer.Blend / 100f, 0f, 1f),
-#endif
                 layer.InkType,
                 layer.BackColor,
                 layer));

@@ -1,8 +1,9 @@
-#if NET48
 using System;
+using System.Runtime.CompilerServices;
 
 namespace System
 {
+#if NET48
     internal static class MathF
     {
         public const float PI = (float)Math.PI;
@@ -13,12 +14,6 @@ namespace System
         public static float Min(float x, float y) => Math.Min(x, y);
         public static float Max(float x, float y) => Math.Max(x, y);
         public static float Ceiling(float x) => (float)Math.Ceiling(x);
-    }
-
-    internal static class MathCompat
-    {
-        public static int Clamp(int value, int min, int max) => Math.Min(Math.Max(value, min), max);
-        public static float Clamp(float value, float min, float max) => Math.Min(Math.Max(value, min), max);
     }
 
     internal struct HashCode
@@ -43,5 +38,43 @@ namespace System
             return hash;
         }
     }
-}
 #endif
+
+    internal static class MathCompat
+    {
+#if NET48
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Clamp(int value, int min, int max)
+        {
+            if (value < min) return min;
+            if (value > max) return max;
+            return value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Clamp(float value, float min, float max)
+        {
+            if (value < min) return min;
+            if (value > max) return max;
+            return value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Clamp(double value, double min, double max)
+        {
+            if (value < min) return min;
+            if (value > max) return max;
+            return value;
+        }
+#else
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Clamp(int value, int min, int max) => Math.Clamp(value, min, max);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Clamp(float value, float min, float max) => Math.Clamp(value, min, max);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Clamp(double value, double min, double max) => Math.Clamp(value, min, max);
+#endif
+    }
+}

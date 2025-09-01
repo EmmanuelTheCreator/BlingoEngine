@@ -16,7 +16,7 @@ public sealed class CheckerboardTransition : LingoBaseTransition
 
     public override byte[] StepFrame(int width, int height, byte[] from, byte[] to, float progress)
     {
-        progress = Math.Clamp(progress, 0f, 1f);
+        progress = MathCompat.Clamp(progress, 0f, 1f);
         var dest = new byte[from.Length];
         Array.Copy(from, dest, from.Length);
 
