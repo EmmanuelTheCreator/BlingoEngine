@@ -35,6 +35,7 @@ public class XmedReaderTests
         var view = CreateView(data);
         var doc = new XmedReader().Read(view);
         Assert.Contains("Hallo", doc.Text, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal((ushort)14, doc.Styles[0].FontSize);
     }
 
     [Fact]
@@ -132,17 +133,7 @@ public class XmedReaderTests
 
     private static BufferView CreateView(byte[] data)
     {
-        // Test data may contain a preamble, so locate the DEMX header first.
-        var pattern = new byte[] { (byte)'D', (byte)'E', (byte)'M', (byte)'X' };
-        var start = Array.IndexOf(data, pattern[0]);
-        while (start >= 0 && start + 3 < data.Length)
-        {
-            if (data[start + 1] == pattern[1] && data[start + 2] == pattern[2] && data[start + 3] == pattern[3])
-                break;
-            start = Array.IndexOf(data, pattern[0], start + 1);
-        }
-        Assert.True(start >= 0, "XMED header not found");
-        return new BufferView(data, start, data.Length - start);
+        return new BufferView(data, 0, data.Length);
     }
 
     private static string GetPath(string fileName)

@@ -82,11 +82,25 @@ public class XmedReader : IXmedReader
     public XmedDocument Read(BufferView view)
     {
         var data = view.Data;
-        int start = view.Offset;
-        int end = start + view.Size;
+        int scanStart = view.Offset;
+        int end = scanStart + view.Size;
 
-        if (view.Size < 4 || Encoding.ASCII.GetString(data, start, 4) != "DEMX")
+        int start = -1;
+        for (int scan = scanStart; scan <= end - 4; scan++)
+        {
+            if (data[scan] == (byte)'D' && data[scan + 1] == (byte)'E' && data[scan + 2] == (byte)'M' && data[scan + 3] == (byte)'X')
+            {
+                start = scan;
+                break;
+            }
+        }
+
+        if (start < 0)
             throw new InvalidDataException("Invalid XMED chunk header");
+
+        ushort fontSize = 0;
+        if (start - 0x14 >= scanStart)
+            fontSize = BinaryPrimitives.ReadUInt16LittleEndian(data.AsSpan(start - 0x14));
 
         var doc = new XmedDocument();
         var textBuilder = new StringBuilder();
@@ -97,7 +111,8 @@ public class XmedReader : IXmedReader
         byte styleFlags = data[start + 0x1C];
         byte alignByte = data[start + 0x1D];
         doc.LineSpacing = BitConverter.ToUInt32(data, start + 0x3C);
-        ushort fontSize = BitConverter.ToUInt16(data, start + 0x40);
+        if (fontSize == 0)
+            fontSize = BitConverter.ToUInt16(data, start + 0x40);
         doc.TextLength = BitConverter.ToUInt32(data, start + 0x4C);
 
         var baseStyle = new XmedStyleDeclaration
