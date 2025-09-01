@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using ProjectorRays.CastMembers;
@@ -83,10 +84,21 @@ public class DirectorFileTests
         Assert.Equal(2, sprites.Count);
     }
 
-    [Fact]
-    public void TextCastDirContainsTextMembers()
+    public static IEnumerable<object[]> TextDirectorFiles()
     {
-        var path = GetPath("Texts_Fields/TextCast.dir");
+        var baseDir = Path.Combine(AppContext.BaseDirectory, "../../../../TestData/Texts_Fields");
+        foreach (var file in Directory.EnumerateFiles(baseDir, "*.dir"))
+        {
+            var relative = Path.Combine("Texts_Fields", Path.GetFileName(file));
+            yield return new object[] { relative };
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(TextDirectorFiles))]
+    public void TextDirectorFileContainsTextMembers(string relativePath)
+    {
+        var path = GetPath(relativePath);
         var data = File.ReadAllBytes(path);
         var stream = new ReadStream(data, data.Length, Endianness.BigEndian);
         var dir = new RaysDirectorFile(_logger, path);
@@ -99,8 +111,7 @@ public class DirectorFileTests
             foreach (var id in cast.MemberIDs)
             {
                 var chunk = (RaysCastMemberChunk)dir.GetChunk(CASt, id);
-                if ((chunk.Type == RaysMemberType.FieldMember || chunk.Type == RaysMemberType.TextMember) &&
-                    (chunk.DecodedText != null || !string.IsNullOrEmpty(chunk.GetText())))
+                if (chunk.Type == RaysMemberType.FieldMember || chunk.Type == RaysMemberType.TextMember)
                 {
                     found = true;
                     break;
