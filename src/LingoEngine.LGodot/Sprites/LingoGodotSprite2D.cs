@@ -16,6 +16,7 @@ using LingoEngine.LGodot.FilmLoops;
 using AbstUI.Primitives;
 using AbstUI.LGodot.Bitmaps;
 using AbstUI.LGodot.Primitives;
+using LingoEngine.LGodot.Medias;
 
 namespace LingoEngine.LGodot.Sprites
 {
@@ -486,11 +487,25 @@ namespace LingoEngine.LGodot.Sprites
             return _lingoSprite2D.Member.RegPoint;
         }
 
-        /// <inheritdoc/>
-        public void Play() => _videoPlayer?.Play();
+
+        #region Video/Media
 
         /// <inheritdoc/>
-        public void Pause() => _videoPlayer?.Pause();
+        public void Play()
+        {
+            if (_videoPlayer == null) return;
+            if (_videoPlayer.Paused)
+                _videoPlayer.Paused = false;
+            else
+                _videoPlayer?.Play();
+        }
+
+        /// <inheritdoc/>
+        public void Pause()
+        {
+            if (_videoPlayer != null)
+                _videoPlayer.Paused = true;
+        }
 
         /// <inheritdoc/>
         public void Stop()
@@ -508,7 +523,14 @@ namespace LingoEngine.LGodot.Sprites
         }
 
         /// <inheritdoc/>
-        public int Duration => (int)(_videoPlayer?.Stream?.GetLength() * 1000 ?? 0);
+        public int Duration
+        {
+            get
+            {
+                if (_videoPlayer == null) return 0;
+                return (int)(_videoPlayer.GetStreamLength() * 1000);
+            }
+        }
 
         /// <inheritdoc/>
         public int CurrentTime
@@ -527,6 +549,7 @@ namespace LingoEngine.LGodot.Sprites
             null => LingoMediaStatus.Closed,
             _ when _videoPlayer.IsPlaying() => LingoMediaStatus.Playing,
             _ => LingoMediaStatus.Paused
-        };
+        }; 
+        #endregion
     }
 }

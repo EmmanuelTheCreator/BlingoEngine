@@ -12,6 +12,7 @@ using AbstUI.Primitives;
 using AbstUI.Windowing;
 using AbstUI.Components.Graphics;
 using AbstUI.Components.Containers;
+using AbstUI.Components.Inputs;
 
 namespace LingoEngine.Director.Core.Scores.Transitions;
 
@@ -70,20 +71,6 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
         panel.Width = 450;
         panel.Height = 300;
 
-        var categoryOptions = new List<KeyValuePair<string, string>> { new("All", "All") };
-        categoryOptions.AddRange(_transitions.Select(t => t.Category)
-            .Distinct()
-            .OrderBy(c => c)
-            .Select(c => new KeyValuePair<string, string>(c, c)));
-
-        panel.SetLabelAt("CategoryLabel", 10, 10, "Categories:");
-        var categoryList = panel.SetInputListAt(categoryOptions, "CategoryList", 10, 25, 120, "All", key =>
-        {
-            PopulateTransitions(key);
-        });
-        categoryList.Height = 200;
-
-        panel.SetLabelAt("TransitionLabel", 140, 10, "Transitions:");
         var transitionList = panel.SetInputListAt(Array.Empty<KeyValuePair<string, string>>(), "TransitionList", 140, 25, 200, null, key =>
         {
             if (int.TryParse(key, out var id))
@@ -93,9 +80,28 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
                 settings.TransitionName = tr.Name;
             }
         });
+
+        var categoryOptions = new List<KeyValuePair<string, string>> { new("All", "All") };
+        categoryOptions.AddRange(_transitions.Select(t => t.Category)
+            .Distinct()
+            .OrderBy(c => c)
+            .Select(c => new KeyValuePair<string, string>(c, c)));
+
+        panel.SetLabelAt("CategoryLabel", 10, 10, "Categories:");
+
+        PopulateTransitions(settings, transitionList, "All");
+
+        var categoryList = panel.SetInputListAt(categoryOptions, "CategoryList", 10, 25, 120, "All", key1 =>
+        {
+            PopulateTransitions(settings, transitionList, key1);
+        });
+        categoryList.Height = 200;
+
+        panel.SetLabelAt("TransitionLabel", 140, 10, "Transitions:");
+        
         transitionList.Height = 200;
 
-        PopulateTransitions("All");
+       
 
         panel.SetLabelAt("DurationLabel", 10, 230, "Duration:");
         panel.SetSliderAt(settings, "DurationSlider", 70, 230, 260, AOrientation.Horizontal, s => s.Duration, 1f, 30f, 0.1f);
@@ -119,27 +125,28 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
 
         _dialog = _showConfirmDialog?.Invoke("Frame Properties: Transition", (IAbstFrameworkPanel)panel.FrameworkObj);
 
-        void PopulateTransitions(string? category)
+        
+    }
+    private void PopulateTransitions(LingoTransitionFrameSettings settings, AbstItemList transitionList,string? category)
+    {
+        var filtered = _transitions
+            .Where(t => category == "All" || t.Category == category)
+            .Select(t => new KeyValuePair<string, string>(t.Id.ToString(), t.Name))
+            .ToList();
+
+        transitionList.ClearItems();
+        foreach (var item in filtered)
+            transitionList.AddItem(item.Key, item.Value);
+
+        var selectedKey = settings.TransitionId.ToString();
+        if (filtered.Any(t => t.Key == selectedKey))
+            transitionList.SelectedKey = selectedKey;
+        else if (filtered.Count > 0)
         {
-            var filtered = _transitions
-                .Where(t => category == "All" || t.Category == category)
-                .Select(t => new KeyValuePair<string, string>(t.Id.ToString(), t.Name))
-                .ToList();
-
-            transitionList.ClearItems();
-            foreach (var item in filtered)
-                transitionList.AddItem(item.Key, item.Value);
-
-            var selectedKey = settings.TransitionId.ToString();
-            if (filtered.Any(t => t.Key == selectedKey))
-                transitionList.SelectedKey = selectedKey;
-            else if (filtered.Count > 0)
-            {
-                var firstTr = filtered[0];
-                transitionList.SelectedKey = firstTr.Key;
-                settings.TransitionId = int.Parse(firstTr.Key);
-                settings.TransitionName = firstTr.Value;
-            }
+            var firstTr = filtered[0];
+            transitionList.SelectedKey = firstTr.Key;
+            settings.TransitionId = int.Parse(firstTr.Key);
+            settings.TransitionName = firstTr.Value;
         }
     }
 

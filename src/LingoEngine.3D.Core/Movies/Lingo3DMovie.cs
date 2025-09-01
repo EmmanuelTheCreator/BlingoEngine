@@ -5,6 +5,7 @@ using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Projects;
 using LingoEngine.Stages;
+using LingoEngine.Transitions;
 
 namespace LingoEngine.L3D.Core.Movies;
 
@@ -13,15 +14,12 @@ namespace LingoEngine.L3D.Core.Movies;
 /// </summary>
 public class Lingo3DMovie : LingoMovie
 {
+   
+
     public string Active3dRenderer { get; set; } = string.Empty;
     public string Preferred3dRenderer { get; set; } = string.Empty;
 
-    public Lingo3DMovie(LingoMovieEnvironment environment, LingoStage movieStage,
-        LingoCastLibsContainer castLibContainer, ILingoMemberFactory memberFactory,
-        string name, int number, LingoEventMediator mediator,
-        Action<LingoMovie> onRemoveMe, LingoProjectSettings projectSettings, ILingoFrameLabelManager lingoFrameLabelManager)
-        : base(environment, movieStage, castLibContainer, memberFactory, name,
-            number, mediator, onRemoveMe, projectSettings , lingoFrameLabelManager)
+    protected internal Lingo3DMovie(LingoMovieEnvironment environment, LingoStage movieStage, ILingoTransitionPlayer transitionPlayer, LingoCastLibsContainer castLibContainer, ILingoMemberFactory memberFactory, string name, int number, LingoEventMediator mediator, Action<LingoMovie> onRemoveMe, LingoProjectSettings projectSettings, ILingoFrameLabelManager lingoFrameLabelManager) : base(environment, movieStage, transitionPlayer, castLibContainer, memberFactory, name, number, mediator, onRemoveMe, projectSettings, lingoFrameLabelManager)
     {
     }
 }
