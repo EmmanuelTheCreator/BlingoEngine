@@ -5,14 +5,12 @@ using LingoEngine.Movies;
 using LingoEngine.Transitions;
 using LingoEngine.Transitions.TransitionLibrary;
 using LingoEngine.Director.Core.Sprites;
-using LingoEngine.Director.Core.Windowing;
-using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using AbstUI.Primitives;
 using AbstUI.Windowing;
-using AbstUI.Components.Graphics;
 using AbstUI.Components.Containers;
 using AbstUI.Components.Inputs;
+using AbstUI.Components.Texts;
 
 namespace LingoEngine.Director.Core.Scores.Transitions;
 
@@ -20,7 +18,37 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
 {
     private readonly ILingoTransitionLibrary _transitionLibrary;
     private IAbstWindowDialogReference? _dialog;
+    private float _duration;
+    private float _smoothness;
+    private AbstInputSlider<float>? _smoothnessSlider;
+    private AbstLabel? _smoothnessVal;
+    private AbstInputSlider<float>? _durationSlider;
+    private AbstLabel? _durationVal;
     private readonly List<LingoBaseTransition> _transitions;
+
+    /// <summary>
+    /// Duration in Seconds from 0 to 30 seconds
+    /// </summary>
+    public float Duration
+    {
+        get => _duration;
+        set
+        {
+            _duration = value;
+            if (_durationVal != null) _durationVal.Text = value.ToString();
+            if (_durationSlider != null) _durationSlider.Value = value;
+        }
+    }
+    public float Smoothness
+    {
+        get => _smoothness;
+        set
+        {
+            _smoothness = value;
+            if (_smoothnessVal != null) _smoothnessVal.Text = value.ToString();
+            if (_smoothnessSlider != null) _smoothnessSlider.Value = value;
+        }
+    }
 
     public DirScoreTransitionGridChannel(IDirScoreManager scoreManager, ILingoTransitionLibrary transitionLibrary)
         : base(LingoTransitionSprite.SpriteNumOffset + 1, scoreManager)
@@ -45,6 +73,7 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
         };
         Action okAction = () =>
         {
+            SetNewValues(settings);
             var sprite = _manager!.Add(frameNumber, settings);
             newSprite(sprite);
             _hasDirtySpriteList = true;
@@ -59,17 +88,24 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
         var settings = transitionSprite.GetSettings() ?? new LingoTransitionFrameSettings();
         Action okAction = () =>
         {
+            SetNewValues(settings);
             transitionSprite.SetSettings(settings);
             MarkDirty();
         };
         ShowDialog(settings, okAction);
     }
 
+    private void SetNewValues(LingoTransitionFrameSettings settings)
+    {
+        settings.Duration = Duration;
+        settings.Smoothness = Smoothness;
+    }
+
     private void ShowDialog(LingoTransitionFrameSettings settings, Action okAction)
     {
         var panel = _scoreManager.Factory.CreatePanel("Panel Transition Sprite");
         panel.Width = 450;
-        panel.Height = 300;
+        panel.Height = 350;
 
         var transitionList = panel.SetInputListAt(Array.Empty<KeyValuePair<string, string>>(), "TransitionList", 140, 25, 200, null, key =>
         {
@@ -104,10 +140,12 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
        
 
         panel.SetLabelAt("DurationLabel", 10, 230, "Duration:");
-        panel.SetSliderAt(settings, "DurationSlider", 70, 230, 260, AOrientation.Horizontal, s => s.Duration, 1f, 30f, 0.1f);
+        _durationSlider = panel.SetSliderAt(this, "DurationSlider", 70, 230, 210, AOrientation.Horizontal, s => s.Duration, 1f, 30f, 0.1f);
+        _durationVal = panel.SetLabelAt("DurationVal", 290, 230, "0");
 
         panel.SetLabelAt("SmoothnessLabel", 10, 260, "Smoothness:");
-        panel.SetSliderAt(settings, "SmoothnessSlider", 70, 260, 260, AOrientation.Horizontal, s => s.Smoothness, 0f, 100f, 1f);
+        _smoothnessSlider = panel.SetSliderAt(this, "SmoothnessSlider", 70, 260, 210, AOrientation.Horizontal, s => s.Smoothness, 0f, 100f, 1f);
+        _smoothnessVal = panel.SetLabelAt("SmoothnessVal", 290, 260, "0");
 
         panel.SetLabelAt("AffectsLabel", 10, 290, "Affects:");
         var affectsOptions = new[]
@@ -124,7 +162,8 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
         panel.AddPopupButtons(okAction, CloseDialog);
 
         _dialog = _showConfirmDialog?.Invoke("Frame Properties: Transition", (IAbstFrameworkPanel)panel.FrameworkObj);
-
+        Smoothness = settings.Smoothness;
+        Duration = settings.Duration;
         
     }
     private void PopulateTransitions(LingoTransitionFrameSettings settings, AbstItemList transitionList,string? category)

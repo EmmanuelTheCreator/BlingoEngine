@@ -29,11 +29,11 @@ namespace LingoEngine.Transitions
         public void SetSettings(LingoTransitionFrameSettings settings)
         {
             TransitionId = settings.TransitionId;
-            Affects = Affects;
-            TransitionId = TransitionId;
-            Duration = Duration;
-            Smoothness = Smoothness;
-            TransitionName = TransitionName;
+            Affects = settings.Affects;
+            TransitionId = settings.TransitionId;
+            Duration = settings.Duration;
+            Smoothness = settings.Smoothness;
+            TransitionName = settings.TransitionName;
         }
 
         public LingoTransitionFrameSettings GetSettings()

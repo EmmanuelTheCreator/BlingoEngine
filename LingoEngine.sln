@@ -25,7 +25,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LingoEngine.Lingo.Core", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LingoEngine.Lingo.Core.Tests", "Test\LingoEngine.Lingo.Core.Tests\LingoEngine.Lingo.Core.Tests.csproj", "{14F3B01A-EF1E-4EA9-834D-594AE01541D2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GodotEngine", "GodotEngine", "{3AA856C9-CA3F-4C36-8D8E-90C760E726CF}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "LingoEngine", "LingoEngine", "{3AA856C9-CA3F-4C36-8D8E-90C760E726CF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TetriGrounds", "TetriGrounds", "{1C86A253-18C3-48D2-8819-99254C79E608}"
 EndProject
