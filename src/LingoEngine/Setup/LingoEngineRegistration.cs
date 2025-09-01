@@ -19,7 +19,7 @@ namespace LingoEngine.Setup
         private readonly IServiceCollection _container;
         private readonly LingoProxyServiceCollection _proxy;
         private readonly Dictionary<string, MovieRegistration> _movies = new();
-        private readonly List<(string Name, string FileName)> _fonts = new();
+        private readonly List<(string Name, AbstFontStyle Style, string FileName)> _fonts = new();
         private readonly List<Action<IServiceProvider>> _prebuildActions = new();
         private readonly List<Action<ILingoServiceProvider>> _buildActions = new();
         private Action<ILingoFrameworkFactory>? _frameworkFactorySetup;
@@ -162,9 +162,9 @@ namespace LingoEngine.Setup
             return this;
         }
 
-        public ILingoEngineRegistration AddFont(string name, string pathAndName)
+        public ILingoEngineRegistration AddFont(string name, string pathAndName, AbstFontStyle style = AbstFontStyle.Regular)
         {
-            _fonts.Add((name, pathAndName));
+            _fonts.Add((name, style, pathAndName));
             return this;
         }
 
@@ -274,7 +274,7 @@ namespace LingoEngine.Setup
         {
             var fontsManager = serviceProvider.GetRequiredService<IAbstFontManager>();
             foreach (var font in _fonts)
-                fontsManager.AddFont(font.Name, font.FileName);
+                fontsManager.AddFont(font.Name, font.FileName, font.Style);
             fontsManager.LoadAll();
         }
 
