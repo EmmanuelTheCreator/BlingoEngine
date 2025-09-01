@@ -139,6 +139,8 @@ namespace ProjectorRays.CastMembers
 
         public uint? FieldTextLength { get; private set; }
 
+        public static Func<IXmedReader> XmedReaderFactory { get; set; } = () => new XmedReader();
+
         public static RaysCastMemberTextRead FromXmedChunk(BufferView view, RaysDirectorFile dir)
         {
             var result = new RaysCastMemberTextRead();
@@ -149,7 +151,7 @@ namespace ProjectorRays.CastMembers
             dir.Logger.LogInformation($"XMED all : {BitConverter.ToString(view.Data, view.Offset, view.Size)}");
             try
             {
-                var doc = XmedReader.Read(view);
+                var doc = XmedReaderFactory().Read(view);
                 result.Text = doc.Text;
                 result.Styles = doc.Runs;
             }

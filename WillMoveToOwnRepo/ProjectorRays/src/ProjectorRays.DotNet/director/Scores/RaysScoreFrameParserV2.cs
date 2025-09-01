@@ -14,7 +14,7 @@ namespace ProjectorRays.director.Scores;
 /// It parses the main header and reads consecutive keyframe blocks.
 /// The result is a list of sprites each with a single keyframe.
 /// </summary>
-internal class RaysScoreFrameParserV2 : IRaysScoreFrameParserV2
+public class RaysScoreFrameParserV2 : IRaysScoreFrameParserV2
 {
     private readonly ILogger _logger;
     private readonly RayStreamAnnotatorDecorator _annotator;

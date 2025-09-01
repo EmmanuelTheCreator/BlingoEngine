@@ -77,9 +77,9 @@ public sealed class XmedStyleMapEntry
 /// documented, but this reader extracts plain text and the most obvious style
 /// information so that callers can experiment with the data.
 /// </summary>
-public static class XmedReader
+public class XmedReader : IXmedReader
 {
-    public static XmedDocument Read(BufferView view)
+    public XmedDocument Read(BufferView view)
     {
         var data = view.Data;
         int start = view.Offset;
