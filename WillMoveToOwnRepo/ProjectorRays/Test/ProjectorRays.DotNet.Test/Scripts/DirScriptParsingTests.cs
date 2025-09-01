@@ -4,11 +4,12 @@ using ProjectorRays.Common;
 using ProjectorRays.director;
 using ProjectorRays.director.Chunks;
 using ProjectorRays.Director;
+using ProjectorRays.DotNet.Test.TestData;
 using ProjectorRays.IO;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace ProjectorRays.DotNet.Test;
+namespace ProjectorRays.DotNet.Test.Scripts;
 
 public class DirScriptParsingTests
 {
@@ -20,7 +21,7 @@ public class DirScriptParsingTests
         _logger = factory.CreateLogger<DirScriptParsingTests>();
     }
 
-    [Fact(Skip = "Embedded hex data is incomplete")]
+    [Fact]
     public void CanParseScriptFromHex()
     {
         var data = DirectorHexData.DirData;
@@ -38,7 +39,7 @@ public class DirScriptParsingTests
         dir.ParseScripts();
         dir.RestoreScriptText();
 
-        const uint CASt = ((uint)'C' << 24) | ((uint)'A' << 16) | ((uint)'S' << 8) | (uint)'t';
+        const uint CASt = (uint)'C' << 24 | (uint)'A' << 16 | (uint)'S' << 8 | 't';
 
         string expected = "on mousedown me\n" +
                           "  sprite(me.spritenum).locH = sprite(me.spritenum).locH  +5\n" +

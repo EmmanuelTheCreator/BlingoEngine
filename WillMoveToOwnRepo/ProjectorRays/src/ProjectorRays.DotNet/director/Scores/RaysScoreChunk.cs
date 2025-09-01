@@ -100,7 +100,9 @@ public class RaysScoreChunk : RaysChunk
         }
         finally
         {
+#if DEBUG
             System.IO.File.WriteAllText("c:\\temp\\director\\tes.md", StreamAnnotationMarkdownWriter.WriteMarkdown(Annotator, stream.Data));
+#endif
 
         }
         return;

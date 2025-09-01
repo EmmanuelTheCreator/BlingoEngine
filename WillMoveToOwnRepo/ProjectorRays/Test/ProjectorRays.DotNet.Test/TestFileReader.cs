@@ -6,6 +6,7 @@ using ProjectorRays.CastMembers;
 using ProjectorRays.Common;
 using ProjectorRays.Director;
 using ProjectorRays.director.Scores;
+using ProjectorRays.DotNet.Test.XMED;
 
 namespace ProjectorRays.DotNet.Test;
 
@@ -25,7 +26,11 @@ public static class TestFileReader
 
         return bytes.ToArray();
     }
-
+    public static bool ScoreExists(string xmedFile)
+    {
+        var dump = Path.ChangeExtension(xmedFile, ".score.txt");
+        return File.Exists(dump);
+    }
     public static byte[] ReadScore(string dirFile)
     {
         var dump = Path.ChangeExtension(dirFile, ".score.txt");
@@ -50,6 +55,11 @@ public static class TestFileReader
         return ReadHexFile(dump);
     }
 
+    public static bool XmedExists(string xmedFile)
+    {
+        var dump = Path.ChangeExtension(xmedFile, ".xmed.txt");
+        return File.Exists(dump);
+    }
     public static byte[] ReadXmed(string xmedFile)
     {
         var dump = Path.ChangeExtension(xmedFile, ".xmed.txt");

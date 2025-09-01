@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace ProjectorRays.DotNet.Test;
+namespace ProjectorRays.DotNet.Test.TestData;
 
 public static class DirectorHexData
 {

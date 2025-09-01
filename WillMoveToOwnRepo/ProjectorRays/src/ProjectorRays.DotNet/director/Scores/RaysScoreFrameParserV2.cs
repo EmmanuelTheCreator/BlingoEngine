@@ -55,8 +55,8 @@ public class RaysScoreFrameParserV2 : IRaysScoreFrameParserV2
         _logger.LogDebug($"Score header: size={header.ActualSize} frames={header.HighestFrame} channels={header.ChannelCount}");
 
         //ParseBlock(newReader, header.ActualSize - 20, header, ctx);
-        ParseBlock(newReader, newReader.Size, header, ctx);
-        LinkKeyFrames(ctx);
+        //ParseBlock(newReader, newReader.Size, header, ctx);
+        //LinkKeyFrames(ctx);
 
         return ctx.Sprites;
     }

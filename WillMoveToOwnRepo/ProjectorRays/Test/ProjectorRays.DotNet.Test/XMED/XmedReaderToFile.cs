@@ -4,7 +4,7 @@ using System.Text;
 using ProjectorRays.CastMembers;
 using ProjectorRays.Common;
 
-namespace ProjectorRays.DotNet.Test;
+namespace ProjectorRays.DotNet.Test.XMED;
 
 public class XmedReaderToFile : IXmedReader
 {
