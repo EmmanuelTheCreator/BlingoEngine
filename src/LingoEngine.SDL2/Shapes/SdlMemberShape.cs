@@ -256,6 +256,6 @@ namespace LingoEngine.SDL2.Shapes
         }
         #endregion
 
-
+        public bool IsPixelTransparent(int x, int y) => false;
     }
 }

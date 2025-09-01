@@ -139,13 +139,13 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
 
        
 
-        panel.SetLabelAt("DurationLabel", 10, 230, "Duration:");
-        _durationSlider = panel.SetSliderAt(this, "DurationSlider", 90, 230, 190, AOrientation.Horizontal, s => s.Duration, 1f, 30f, 0.1f);
-        _durationVal = panel.SetLabelAt("DurationVal", 290, 230, "0");
+        panel.SetLabelAt("DurationLabel", 10, 230, "Duration (secs):");
+        _durationSlider = panel.SetSliderAt(this, "DurationSlider", 100, 230, 190, AOrientation.Horizontal, s => s.Duration, 1f, 30f, 0.1f);
+        _durationVal = panel.SetLabelAt("DurationVal", 310, 230, "0");
 
         panel.SetLabelAt("SmoothnessLabel", 10, 260, "Smoothness:");
-        _smoothnessSlider = panel.SetSliderAt(this, "SmoothnessSlider", 90, 260, 190, AOrientation.Horizontal, s => s.Smoothness, 0f, 100f, 1f);
-        _smoothnessVal = panel.SetLabelAt("SmoothnessVal", 290, 260, "0");
+        _smoothnessSlider = panel.SetSliderAt(this, "SmoothnessSlider", 100, 260, 190, AOrientation.Horizontal, s => s.Smoothness, 0f, 100f, 1f);
+        _smoothnessVal = panel.SetLabelAt("SmoothnessVal", 310, 260, "0");
 
         panel.SetLabelAt("AffectsLabel", 10, 290, "Affects:");
         var affectsOptions = new[]

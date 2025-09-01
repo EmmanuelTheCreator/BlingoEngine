@@ -110,7 +110,7 @@ internal partial class DirGodotTextableMemberWindow : BaseGodotWindow, IHasMembe
         _textEdit.Text = textMember.Text.Replace("\r", "\r\n");
         _textEdit.AddThemeColorOverride("font_color", textMember.TextColor.ToGodotColor());
         _textEdit.AddThemeConstantOverride("font_size", textMember.FontSize);
-        var font = _lingoFontManager.Get<Font>(textMember.Font);
+        var font = _lingoFontManager.Get<Font>(textMember.Font, textMember.FontStyle.ToAbstUI());
         if (font != null)
             _textEdit.AddThemeFontOverride("font", font);
 
@@ -162,18 +162,20 @@ internal partial class DirGodotTextableMemberWindow : BaseGodotWindow, IHasMembe
     private void ApplyStyleToEditor()
     {
         var fontName = _iconBar.SelectedFont;
-        var font = _lingoFontManager.Get<Font>(fontName);
-        if (font != null)
-        {
-            var variation = new FontVariation { BaseFont = font };
-            TextServer.FontStyle fs = 0;
+        //if (font != null)
+        //{
+        //    var variation = new FontVariation { BaseFont = font };
+        AbstFontStyle fs = AbstFontStyle.Regular;
             if (_iconBar.IsBold)
-                fs |= TextServer.FontStyle.Bold;
+                fs |= AbstFontStyle.Bold;
             if (_iconBar.IsItalic)
-                fs |= TextServer.FontStyle.Italic;
+                fs |= AbstFontStyle.Italic;
             // variation.FontStyle = fs;
             //_textEdit.AddThemeFontOverride("font", variation);
-        }
+        //}
+        var font = _lingoFontManager.Get<Font>(fontName, fs);
+        if (font != null)
+            _textEdit.AddThemeFontOverride("font", font);
         //_textEdit.UnderlineMode = _iconBar.IsUnderline ? UnderlineMode.Always : UnderlineMode.Disabled;
     }
 

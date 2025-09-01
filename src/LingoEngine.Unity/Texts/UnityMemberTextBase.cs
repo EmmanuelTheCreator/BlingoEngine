@@ -175,4 +175,6 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
         _textureWrapper = new UnityTexture2D(_texture);
         return _textureWrapper;
     }
+
+    public bool IsPixelTransparent(int x, int y) => false;
 }

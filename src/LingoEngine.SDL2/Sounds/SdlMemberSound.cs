@@ -50,4 +50,6 @@ public class SdlMemberSound : ILingoFrameworkMemberSound, IDisposable
         }
         IsLoaded = false;
     }
+
+    public bool IsPixelTransparent(int x, int y) => false;
 }

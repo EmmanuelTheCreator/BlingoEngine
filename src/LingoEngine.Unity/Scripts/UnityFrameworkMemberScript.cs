@@ -14,4 +14,5 @@ internal class UnityFrameworkMemberScript : ILingoFrameworkMemberScript
     public void PasteClipboardInto() { }
     public void Preload() { }
     public void Unload() { }
+    public bool IsPixelTransparent(int x, int y) => false;
 }

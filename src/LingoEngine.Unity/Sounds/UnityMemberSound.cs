@@ -87,4 +87,6 @@ public class UnityMemberSound : ILingoFrameworkMemberSound, IDisposable
         // AudioClip creation is not supported in this package; return null.
         return null;
     }
+
+    public bool IsPixelTransparent(int x, int y) => false;
 }

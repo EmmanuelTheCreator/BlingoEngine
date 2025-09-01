@@ -62,4 +62,5 @@ public class LingoBlazorMemberSound : ILingoFrameworkMemberSound, IDisposable
     }
 
     public void Dispose() => Unload();
+    public bool IsPixelTransparent(int x, int y) => false;
 }

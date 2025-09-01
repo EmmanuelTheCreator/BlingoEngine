@@ -205,5 +205,5 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
 #endif
     public void Dispose() { Unload(); }
 
-
+    public bool IsPixelTransparent(int x, int y) => false;
 }

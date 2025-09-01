@@ -106,4 +106,5 @@ public class LingoBlazorMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposa
     }
 
     public void Dispose() => _texture?.Dispose();
+    public bool IsPixelTransparent(int x, int y) => false;
 }

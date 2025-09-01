@@ -198,5 +198,5 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
         _textWidth = maxW;
         _textHeight = totalH;
     }
-
+    public bool IsPixelTransparent(int x, int y) => false;
 }
