@@ -149,35 +149,15 @@ namespace ProjectorRays.CastMembers
             // unknown so we treat it as opaque ASCII for now.
             dir.Logger.LogInformation($"XMED all : {BitConverter.ToString(view.Data, view.Offset, view.Size)}");
 
-            // Some sample files include a small preamble before the actual
-            // XMED data. Locate the "DEMX" signature to ensure the reader
-            // receives a buffer starting at the correct offset.
-            var data = view.Data;
-            int start = Array.IndexOf(data, (byte)'D', view.Offset, view.Size);
-            while (start >= 0 && start + 3 < view.Offset + view.Size)
+            try
             {
-                if (data[start + 1] == (byte)'E' && data[start + 2] == (byte)'M' && data[start + 3] == (byte)'X')
-                    break;
-                start = Array.IndexOf(data, (byte)'D', start + 1, view.Offset + view.Size - (start + 1));
+                var doc = XmedReaderFactory().Read(view);
+                result.Text = doc.Text;
+                result.Styles = doc.Runs;
             }
-
-            if (start >= 0)
+            catch (Exception ex)
             {
-                var trimmed = new BufferView(data, start, view.Offset + view.Size - start);
-                try
-                {
-                    var doc = XmedReaderFactory().Read(trimmed);
-                    result.Text = doc.Text;
-                    result.Styles = doc.Runs;
-                }
-                catch (Exception ex)
-                {
-                    dir.Logger.LogWarning($"XMED parse failed: {ex.Message}");
-                }
-            }
-            else
-            {
-                dir.Logger.LogWarning("XMED parse failed: signature not found");
+                dir.Logger.LogWarning($"XMED parse failed: {ex.Message}");
             }
 
             return result;

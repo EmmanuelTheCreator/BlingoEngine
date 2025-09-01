@@ -133,7 +133,17 @@ public class XmedReaderTests
 
     private static BufferView CreateView(byte[] data)
     {
-        return new BufferView(data, 0, data.Length);
+        int start = Array.IndexOf(data, (byte)'D');
+        while (start >= 0 && start + 3 < data.Length)
+        {
+            if (data[start + 1] == (byte)'E' && data[start + 2] == (byte)'M' && data[start + 3] == (byte)'X')
+            {
+                int offset = Math.Max(0, start - 0x14);
+                return new BufferView(data, offset, data.Length - offset);
+            }
+            start = Array.IndexOf(data, (byte)'D', start + 1);
+        }
+        throw new InvalidDataException("XMED signature not found");
     }
 
     private static string GetPath(string fileName)
