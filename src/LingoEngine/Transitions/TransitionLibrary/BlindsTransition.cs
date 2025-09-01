@@ -21,7 +21,7 @@ public sealed class BlindsTransition : LingoBaseTransition
         var dest = new byte[from.Length];
         Array.Copy(from, dest, from.Length);
 
-        progress = Math.Clamp(progress, 0f, 1f);
+        progress = MathCompat.Clamp(progress, 0f, 1f);
 
         if (_orientation == BlindOrientation.Horizontal)
         {

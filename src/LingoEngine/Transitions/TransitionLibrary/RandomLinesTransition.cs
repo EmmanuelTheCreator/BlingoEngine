@@ -18,7 +18,7 @@ public sealed class RandomLinesTransition : LingoBaseTransition
 
     public override byte[] StepFrame(int width, int height, byte[] from, byte[] to, float progress)
     {
-        progress = Math.Clamp(progress, 0f, 1f);
+        progress = MathCompat.Clamp(progress, 0f, 1f);
         var dest = (byte[])from.Clone();
 
         int lines = _orientation == RandomLineOrientation.Horizontal ? height : width;

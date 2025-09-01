@@ -21,7 +21,7 @@ public sealed class WipeTransition : LingoBaseTransition
         var dest = new byte[length];
         Array.Copy(from, dest, length);
 
-        progress = Math.Clamp(progress, 0f, 1f);
+        progress = MathCompat.Clamp(progress, 0f, 1f);
 
         switch (_direction)
         {

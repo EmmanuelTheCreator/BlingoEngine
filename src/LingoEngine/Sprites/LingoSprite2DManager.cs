@@ -4,7 +4,7 @@ using LingoEngine.Movies;
 
 namespace LingoEngine.Sprites
 {
-    public class LingoSprite2DManager : LingoSpriteManager<LingoSprite2D> , ILingoSpriteManager<LingoSprite2D>
+    public class LingoSprite2DManager : LingoSpriteManager<LingoSprite2D>, ILingoSpriteManager<LingoSprite2D>
     {
         //protected readonly Dictionary<int, LingoSprite2D> _frameSpriteBehaviors = new();
         protected LingoStageMouse _lingoMouse;
@@ -38,7 +38,7 @@ namespace LingoEngine.Sprites
 
         protected override LingoSprite? OnAdd(int spriteNum, int begin, int end, ILingoMember? member)
         {
-            var sprite = AddSprite(spriteNum, begin, end,0,0,null);
+            var sprite = AddSprite(spriteNum, begin, end, 0, 0, null);
             if (member != null)
                 sprite.SetMember(member);
             return sprite;
@@ -67,7 +67,7 @@ namespace LingoEngine.Sprites
             _spriteChannels[newChannel].SetSprite(spriteTyped);
             _activeSprites[sprite.SpriteNum] = spriteTyped;
 
-            RaiseSpriteListChanged(sprite.SpriteNum+SpriteNumChannelOffset);
+            RaiseSpriteListChanged(sprite.SpriteNum + SpriteNumChannelOffset);
         }
 
 
@@ -83,7 +83,7 @@ namespace LingoEngine.Sprites
         protected override void OnBeginSprite(LingoSprite2D sprite)
         {
             sprite.FrameworkObj.Show();
-            
+
             if (!_lingoMouse.IsSubscribed(sprite))
                 _lingoMouse.Subscribe(sprite);
             base.OnBeginSprite(sprite);
@@ -93,7 +93,7 @@ namespace LingoEngine.Sprites
             base.OnEndSprite(sprite);
             if (_lingoMouse.IsSubscribed(sprite))
                 _lingoMouse.Unsubscribe(sprite);
-            
+
         }
 
 
@@ -166,7 +166,7 @@ namespace LingoEngine.Sprites
             var sprite = _spriteChannels.Values.FirstOrDefault(x => x.Name == name);
             if (sprite == null) return;
             actionOnSprite(sprite);
-        } 
+        }
         #endregion
 
 
@@ -191,22 +191,14 @@ namespace LingoEngine.Sprites
         {
             if (!_activeSprites.TryGetValue(spriteNumber, out var sprite))
                 return pos;
-#if NET48
             return (int)MathCompat.Clamp(pos, sprite.Left, sprite.Right);
-#else
-            return (int)Math.Clamp(pos, sprite.Left, sprite.Right);
-#endif
         }
 
         internal int ConstrainV(int spriteNumber, int pos)
         {
             if (!_activeSprites.TryGetValue(spriteNumber, out var sprite))
                 return pos;
-#if NET48
             return (int)MathCompat.Clamp(pos, sprite.Top, sprite.Bottom);
-#else
-            return (int)Math.Clamp(pos, sprite.Top, sprite.Bottom);
-#endif
         }
 
         internal LingoSprite2D? GetSpriteUnderMouse(bool skipLockedSprites = false)
@@ -230,7 +222,7 @@ namespace LingoEngine.Sprites
 
         internal LingoSprite2D? GetSpriteAtPoint(float x, float y, bool skipLockedSprites = false)
             => GetSpritesAtPoint(x, y, skipLockedSprites).FirstOrDefault();
-       
+
         internal int GetMaxLocZ() => _activeSpritesOrdered.Max(x => x.LocZ);
 
 
