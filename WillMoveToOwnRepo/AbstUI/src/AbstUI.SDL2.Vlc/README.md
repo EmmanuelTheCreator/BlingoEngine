@@ -1,4 +1,4 @@
-# LingoEngine.SDL2.Vlc
+# AbstUI.SDL2.Vlc
 
 This module provides LibVLC-based media playback for the SDL2 backend.
 

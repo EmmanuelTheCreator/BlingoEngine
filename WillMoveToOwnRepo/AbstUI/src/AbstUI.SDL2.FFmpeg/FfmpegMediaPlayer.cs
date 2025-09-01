@@ -1,7 +1,7 @@
+using AbstUI.SDL2.Medias;
 using FFMpegCore;
-using LingoEngine.SDL2.Medias;
 
-namespace LingoEngine.SDL2.FFmpeg.Medias;
+namespace AbstUI.SDL2.FFmpeg;
 
 public sealed class FfmpegMediaPlayer : ISDLMediaPlayer, IDisposable
 {

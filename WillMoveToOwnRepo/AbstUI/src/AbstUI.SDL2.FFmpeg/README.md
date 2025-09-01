@@ -1,4 +1,4 @@
-# LingoEngine.SDL2.FFmpeg
+# AbstUI.SDL2.FFmpeg
 
 FFmpeg-based media playback utilities for the SDL2 backend.
 

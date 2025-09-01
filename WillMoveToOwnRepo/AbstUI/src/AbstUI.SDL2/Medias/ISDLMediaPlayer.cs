@@ -1,4 +1,4 @@
-namespace LingoEngine.SDL2.Medias;
+namespace AbstUI.SDL2.Medias;
 
 public enum SdlMediaPlayerStatus
 {

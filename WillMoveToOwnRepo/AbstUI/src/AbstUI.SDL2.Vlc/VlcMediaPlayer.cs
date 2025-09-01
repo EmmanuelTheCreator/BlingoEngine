@@ -1,7 +1,7 @@
+using AbstUI.SDL2.Medias;
 using LibVLCSharp.Shared;
-using LingoEngine.SDL2.Medias;
 
-namespace LingoEngine.SDL2.Vlc.Medias;
+namespace AbstUI.SDL2.Vlc;
 
 public sealed class VlcMediaPlayer : ISDLMediaPlayer, IDisposable
 {
@@ -16,7 +16,7 @@ public sealed class VlcMediaPlayer : ISDLMediaPlayer, IDisposable
 
     public VlcMediaPlayer()
     {
-        global::LibVLCSharp.Shared.Core.Initialize();
+        LibVLCSharp.Shared.Core.Initialize();
         _libVlc = new LibVLC();
         _mediaPlayer = new MediaPlayer(_libVlc);
 
