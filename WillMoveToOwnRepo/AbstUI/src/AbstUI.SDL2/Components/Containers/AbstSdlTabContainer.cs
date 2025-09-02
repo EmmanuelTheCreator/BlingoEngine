@@ -227,13 +227,11 @@ namespace AbstUI.SDL2.Components.Containers
         public void HandleEvent(AbstSDLEvent e)
         {
             var ev = e.Event;
-            int localX;
-            int localY;
+            float localX = e.ComponentLeft;
+            float localY = e.ComponentTop;
             switch (ev.type)
             {
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN when ev.button.button == SDL.SDL_BUTTON_LEFT:
-                    localX = ev.button.x - ComponentContext.X;
-                    localY = ev.button.y - ComponentContext.Y;
                     for (int i = 0; i < _tabRects.Count; i++)
                     {
                         var r = _tabRects[i];
@@ -253,8 +251,6 @@ namespace AbstUI.SDL2.Components.Containers
                     }
                     break;
                 case SDL.SDL_EventType.SDL_MOUSEMOTION:
-                    localX = ev.motion.x - ComponentContext.X;
-                    localY = ev.motion.y - ComponentContext.Y;
                     int newHover = -1;
                     for (int i = 0; i < _tabRects.Count; i++)
                     {
@@ -282,8 +278,8 @@ namespace AbstUI.SDL2.Components.Containers
                 if (!tabItem.Visibility) return;
                 var oriX = e.OffsetX;
                 var oriY = e.OffsetY;
-                e.OffsetX += -(ComponentContext.X + BorderThickness);
-                e.OffsetY += -(ComponentContext.Y + _tabHeight + BorderThickness);
+                e.OffsetX += - BorderThickness;
+                e.OffsetY += -(_tabHeight + BorderThickness);
                 //if (e.Event.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
                 //{
 

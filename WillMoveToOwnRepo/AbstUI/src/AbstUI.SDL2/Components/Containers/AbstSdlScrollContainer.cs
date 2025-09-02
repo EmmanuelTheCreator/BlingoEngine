@@ -77,28 +77,8 @@ namespace AbstUI.SDL2.Components.Containers
         protected override void HandleContentEvent(AbstSDLEvent e)
         {
             // Forward mouse events to children accounting for current scroll offset
-            Console.WriteLine(e.Event.type);
+            //Console.WriteLine(e.Event.type);
             ContainerHelpers.HandleChildEvents(_children, e, -ScrollHorizontal + X, -ScrollVertical + Y);
-
-            //var oriX = e.OffsetX;
-            //var oriY = e.OffsetY;
-            //e.OffsetX = oriX + (int)(ScrollHorizontal - X);
-            //e.OffsetY = oriY + (int)(ScrollVertical - Y);
-            //for (int i = _children.Count - 1; i >= 0 && !e.StopPropagation; i--)
-            //{
-            //    if (_children[i].FrameworkNode is not AbstSdlComponent comp ||
-            //        comp is not IHandleSdlEvent handler ||
-            //        !comp.Visibility)
-            //        continue;
-
-            //    ContainerHelpers.HandleChildEvents(comp, e);
-
-            //    //ContainerHelpers.HandleChildEvents(comp, e,
-            //    //   (int)ScrollHorizontal - (int)X,
-            //    //   (int)ScrollVertical - (int)Y);
-            //}
-            //e.OffsetX = oriX;
-            //e.OffsetY = oriY;
         }
 
 

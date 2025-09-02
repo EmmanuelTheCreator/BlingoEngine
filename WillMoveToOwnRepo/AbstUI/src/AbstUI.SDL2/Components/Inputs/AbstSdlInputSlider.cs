@@ -27,7 +27,7 @@ namespace AbstUI.SDL2.Components.Inputs
         private AColor _renderedKnobColor;
         private AColor _renderedKnobBorderColor;
         private bool _dragging;
-
+        private bool _isHover;
 
         public object FrameworkNode => this;
         public TValue Value
@@ -58,34 +58,42 @@ namespace AbstUI.SDL2.Components.Inputs
             Width = 150;
             Height = 20;
         }
+        public virtual bool CanHandleEvent(AbstSDLEvent e)
+        {
+            return Enabled && (e.IsInside || (_isHover && e.Event.type == SDL.SDL_EventType.SDL_MOUSEMOTION) || !e.HasCoordinates);
+        }
         public void HandleEvent(AbstSDLEvent e)
         {
             if (!Enabled) return;
-            ref var ev = ref e.Event;
+            var ev = e.Event;
             switch (ev.type)
             {
-                case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN when ev.button.button == SDL.SDL_BUTTON_LEFT && HitTest(ev.button.x, ev.button.y):
+                case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN when ev.button.button == SDL.SDL_BUTTON_LEFT && e.IsInside:
                     Factory.FocusManager.SetFocus(this);
                     _dragging = true;
-                    UpdateValueFromMouse(ev.button.x);
+                    UpdateValueFromMouse(e.ComponentLeft);
                     e.StopPropagation = true;
                     break;
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONUP when ev.button.button == SDL.SDL_BUTTON_LEFT:
                     _dragging = false;
                     break;
-                case SDL.SDL_EventType.SDL_MOUSEMOTION when _dragging:
-                    UpdateValueFromMouse(ev.motion.x);
-                    e.StopPropagation = true;
+                case SDL.SDL_EventType.SDL_MOUSEMOTION:
+                    _isHover = e.IsInside;
+                    if (_dragging)
+                    {
+                        UpdateValueFromMouse(e.ComponentLeft);
+                        e.StopPropagation = true;
+                    }
                     break;
             }
         }
 
-        private void UpdateValueFromMouse(int mx)
+        private void UpdateValueFromMouse(float mx)
         {
             float min = Convert.ToSingle(MinValue);
             float max = Convert.ToSingle(MaxValue);
             float step = Convert.ToSingle(Step);
-            float t = (mx - X) / Width;
+            float t = (mx) / Width;
             if (t < 0) t = 0; if (t > 1) t = 1;
             float val = min + t * (max - min);
             if (step > 0)

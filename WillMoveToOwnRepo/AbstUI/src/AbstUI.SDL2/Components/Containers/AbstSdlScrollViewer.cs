@@ -184,7 +184,7 @@ namespace AbstUI.SDL2.Components.Containers
             HandleContentEvent(e);
             if (e.StopPropagation) return;
 
-            ref var ev = ref e.Event;
+            var ev = e.Event;
             const int sbSize = 16;
             const int arrowSize = 8;
             const int step = 20;

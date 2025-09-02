@@ -63,13 +63,15 @@ namespace AbstUI.SDL2.Components.Inputs
         {
             return Enabled && (e.IsInside || (_isHover && e.Event.type == SDL.SDL_EventType.SDL_MOUSEMOTION) || !e.HasCoordinates);
         }
-        public new void HandleEvent(AbstSDLEvent e)
+        //public new void HandleEvent(AbstSDLEvent e)
+        protected override void HandleContentEvent(AbstSDLEvent e)
         {
+
             if (!Enabled) return;
             var ev = e.Event;
             if (ev.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN && ev.button.button == SDL.SDL_BUTTON_LEFT)
             {
-                bool inside = HitTest(ev.button.x, ev.button.y);
+                bool inside = e.IsInside;
                 if (inside)
                 {
                     Factory.FocusManager.SetFocus(this);
@@ -151,7 +153,6 @@ namespace AbstUI.SDL2.Components.Inputs
 
         protected override void RenderContent(AbstSDLRenderContext context) { }
 
-        protected override void HandleContentEvent(AbstSDLEvent e) { }
 
         private void ClosePopup()
         {
@@ -175,7 +176,7 @@ namespace AbstUI.SDL2.Components.Inputs
         public void SetFocus(bool focus)
         {
             _focused = focus;
-            if (!focus) ClosePopup();
+            //if (!focus) ClosePopup();
         }
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
