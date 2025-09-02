@@ -17,15 +17,15 @@ namespace AbstUI.SDL2.Components.Inputs
         public bool Enabled { get; set; } = true;
         public AMargin Margin { get; set; } = AMargin.Zero;
 
-        private AColor _color;
+        private AColor _color = AColors.White;
         private AColor _renderedColor;
         private bool _focused;
         private nint _texture;
         private int _texW;
         private int _texH;
         private AbstSdlColorPickerPopup? _popup;
-        private bool _open;
-        public AColor Color
+        private bool _isOpen;
+        public AColor Color 
         {
             get => _color;
             set
@@ -45,36 +45,36 @@ namespace AbstUI.SDL2.Components.Inputs
         public void SetFocus(bool focus)
         {
             _focused = focus;
-            if (!focus) ClosePopup();
+            //if (!focus) ClosePopup();
         }
         public AbstSdlColorPicker(AbstSdlComponentFactory factory) : base(factory)
         {
             Width = 20;
             Height = 20;
         }
-
+        public virtual bool CanHandleEvent(AbstSDLEvent e) => true;
         public void HandleEvent(AbstSDLEvent e)
         {
             if (!Enabled) return;
-            ref var ev = ref e.Event;
+            var ev = e.Event;
             if (ev.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN && ev.button.button == SDL.SDL_BUTTON_LEFT)
             {
-                bool inside = HitTest(ev.button.x, ev.button.y);
+                bool inside = e.IsInside;
                 if (inside)
                 {
                     Factory.FocusManager.SetFocus(this);
-                    if (_open) ClosePopup();
+                    if (_isOpen) ClosePopup();
                     else OpenPopup();
                     e.StopPropagation = true;
                 }
-                else if (_open && _popup is { } pop)
+                else if (_isOpen && _popup is { } pop)
                 {
                     if (!(ev.button.x >= pop.X && ev.button.x <= pop.X + pop.Width &&
                           ev.button.y >= pop.Y && ev.button.y <= pop.Y + pop.Height))
                         ClosePopup();
                 }
             }
-            else if (ev.type == SDL.SDL_EventType.SDL_KEYDOWN && _open)
+            else if (ev.type == SDL.SDL_EventType.SDL_KEYDOWN && _isOpen)
             {
                 if (ev.key.keysym.sym == SDL.SDL_Keycode.SDLK_ESCAPE)
                 {
@@ -83,8 +83,6 @@ namespace AbstUI.SDL2.Components.Inputs
                 }
             }
         }
-
-        private bool HitTest(int x, int y) => x >= X && x <= X + Width && y >= Y && y <= Y + Height;
 
         private void OpenPopup()
         {
@@ -99,7 +97,7 @@ namespace AbstUI.SDL2.Components.Inputs
             UpdatePopupPosition();
             _popup.Visibility = true;
             Factory.RootContext.ComponentContainer.Activate(_popup.ComponentContext);
-            _open = true;
+            _isOpen = true;
         }
 
         private void ClosePopup()
@@ -107,7 +105,7 @@ namespace AbstUI.SDL2.Components.Inputs
             if (_popup == null) return;
             _popup.Visibility = false;
             Factory.RootContext.ComponentContainer.Deactivate(_popup.ComponentContext);
-            _open = false;
+            _isOpen = false;
         }
 
         private void PopupOnColorChanged(AColor c)
@@ -124,7 +122,7 @@ namespace AbstUI.SDL2.Components.Inputs
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
-            if (_open)
+            if (_isOpen)
                 UpdatePopupPosition();
             if (!Visibility)
                 return default;
@@ -146,11 +144,12 @@ namespace AbstUI.SDL2.Components.Inputs
                 var prev = SDL.SDL_GetRenderTarget(context.Renderer);
                 SDL.SDL_SetRenderTarget(context.Renderer, _texture);
 
-                SDL.SDL_SetRenderDrawColor(context.Renderer, Color.R, Color.G, Color.B, Color.A);
                 SDL.SDL_RenderClear(context.Renderer);
+                SDL.SDL_Rect r = new SDL.SDL_Rect { x = 0, y = 0, w = w, h = h };
+                SDL.SDL_SetRenderDrawColor(context.Renderer, Color.R, Color.G, Color.B, Color.A);
+                SDL.SDL_RenderFillRect(context.Renderer, ref r);
 
                 SDL.SDL_SetRenderDrawColor(context.Renderer, 0, 0, 0, 255);
-                SDL.SDL_Rect r = new SDL.SDL_Rect { x = 0, y = 0, w = w, h = h };
                 SDL.SDL_RenderDrawRect(context.Renderer, ref r);
 
                 SDL.SDL_SetRenderTarget(context.Renderer, prev);

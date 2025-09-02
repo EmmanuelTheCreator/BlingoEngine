@@ -161,7 +161,7 @@ namespace AbstUI.SDL2.Components.Containers
             SDL.SDL_SetRenderTarget(context.Renderer, prevTarget);
             return _texture;
         }
-
+        public bool CanHandleEvent(AbstSDLEvent e) => e.IsInside || !e.HasCoordinates;
         public void HandleEvent(AbstSDLEvent e)
         {
             // Forward mouse events to children accounting for current scroll offset

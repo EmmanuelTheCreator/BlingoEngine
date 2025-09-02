@@ -127,7 +127,7 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
     internal void Render()
     {
         if (_activeMovie == null) return;
-        var context = _factory.CreateRenderContext();
+        var context = _factory.CreateRenderContext(null, System.Numerics.Vector2.Zero);
 
         RenderSprites(context);
 

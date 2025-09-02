@@ -17,8 +17,10 @@ public static class GfxTestScene
         
         //var wdw = new GfxTestWindow();
 
-        var scroll = factory.CreateScrollContainer("scroll");
+        var scroll = factory.CreateScrollContainer("scroll_root");
+        //
         //var scroll = factory.CreateWrapPanel(AOrientation.Vertical,"scroll");
+        //var scroll = factory.CreatePanel("scroll");
         scroll.X = 20;
         scroll.Y = 20;
         scroll.Width = 760;
@@ -34,16 +36,17 @@ public static class GfxTestScene
         panel.Height = 1400;
         panel.BackgroundColor = AColor.FromRGBA(220, 250, 250, 255);
 
-        float y = 20f;
+        float y = 0; // 20f + 100;
 
         void Add(IAbstNode node, float height = 40)
         {
+            //panel.AddItem(node);
             panel.AddItem(node, 40, y);
             y += height;
             
         }
 
-        Add(CreateLabel(factory, "label1"),22);
+        Add(CreateLabel(factory, "label1"), 22);
         Add(CreateLabel(factory, "Label2 center", lbl2 =>
         {
             lbl2.Width = 200;
@@ -62,6 +65,8 @@ public static class GfxTestScene
         canvas2.DrawRect(new ARect(10, 10, 80, 30), AColor.FromRGBA(0, 200, 0, 255));
         canvas2.DrawText(new APoint(30, 15), "Hallo", null, AColors.DarkGray);
         Add(canvas2);
+        
+
         y += 50;
         var colorPicker = factory.CreateColorPicker("colorPicker");
         Add(colorPicker, 80);
@@ -70,7 +75,7 @@ public static class GfxTestScene
         var numClicked = 0;
         var testBtnLabel = CreateLabel(factory, "Button not clicked");
         testBtnLabel.Width = 300;
-        
+
         var btn1 = factory.CreateButton("button", "Button");
         btn1.Pressed += () =>
         {
@@ -78,21 +83,25 @@ public static class GfxTestScene
             testBtnLabel.Text = $"Button clicked {numClicked} times";
             windowManager.OpenWindow(GfxTestWindow.MyWindowCode);
         };
-        //var btnpanel = factory.CreateWrapPanel(AOrientation.Horizontal, "scroll");
-        //btnpanel.Width = 500;
-        //btnpanel.AddItem(btn1);
-        //btnpanel.AddItem(testBtnLabel);
-        //Add(btnpanel);
+        var btnpanel = factory.CreateWrapPanel(AOrientation.Horizontal, "scroll");
+        btnpanel.Width = 500;
+        btnpanel.AddItem(btn1);
+        btnpanel.AddItem(testBtnLabel);
+        Add(btnpanel);
         Add(btn1,22);
-        Add(testBtnLabel,22);
+
+        //Add(testBtnLabel,22);
 
         var stateButton = factory.CreateButton("stateButton", "State Button");
         //stateButton.IconTexture = factory.CreateTextureFromFile("Assets/Icons/heart.png");
         Add(stateButton);
 
-        Add(factory.CreateInputText("inputText"));
+        var txt1 = factory.CreateInputText("inputText");
+        txt1.Text = "test";
+        Add(txt1);
 
         Add(factory.CreateInputNumberInt("inputNumber", 0, 100));
+        return scroll;
 
         Add(factory.CreateSpinBox("spinBox", 0, 10));
 

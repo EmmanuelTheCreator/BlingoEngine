@@ -5,14 +5,20 @@ using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
-using System;
-using System.Collections.Generic;
 using AbstUI.FrameworkCommunication;
+using AbstUI.SDL2.Bitmaps;
 
 namespace AbstUI.SDL2.Components.Containers
 {
     public class AbstSdlPanel : AbstSdlComponent, IAbstFrameworkPanel, IFrameworkFor<AbstPanel>, IDisposable, IHandleSdlEvent
     {
+
+        private nint _texture;
+        private int _texW;
+        private int _texH;
+        protected int _yOffset;
+        protected int _xOffset;
+
         public AbstSdlPanel(AbstSdlComponentFactory factory) : base(factory)
         {
         }
@@ -57,12 +63,6 @@ namespace AbstUI.SDL2.Components.Containers
             }
             _children.Clear();
         }
-
-        private nint _texture;
-        private int _texW;
-        private int _texH;
-        protected int _yOffset;
-        protected int _xOffset;
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
@@ -109,7 +109,11 @@ namespace AbstUI.SDL2.Components.Containers
                     rect.x++; rect.y++; rect.w -= 2; rect.h -= 2;
                 }
             }
-
+            //if (_children.Count > 0)
+            //{
+            //    var t = new SdlTexture2D(_texture, w, h, "test");
+            //    t.DebugWriteToDiskInc(context.Renderer);
+            //}
             SDL.SDL_SetRenderTarget(context.Renderer, prevTarget);
             return _texture;
         }
@@ -151,23 +155,28 @@ namespace AbstUI.SDL2.Components.Containers
             }
             base.Dispose();
         }
+        public virtual bool CanHandleEvent(AbstSDLEvent e) => e.IsInside || !e.HasCoordinates;
         public virtual void HandleEvent(AbstSDLEvent e)
         {
             // Forward mouse events to children accounting for current scroll offset
-            var oriOffsetX = e.OffsetX;
-            var oriOffsetY = e.OffsetY;
-            for (int i = _children.Count - 1; i >= 0 && !e.StopPropagation; i--)
-            {
-                if (_children[i].FrameworkNode is not AbstSdlComponent comp ||
-                    comp is not IHandleSdlEvent handler ||
-                    !comp.Visibility)
-                    continue;
-                e.OffsetX = oriOffsetX + (int)Margin.Left - _xOffset;
-                e.OffsetY = oriOffsetY + (int)Margin.Top - _yOffset;
-                ContainerHelpers.HandleChildEvents(comp, e);
-            }
-            e.OffsetX = oriOffsetX;
-            e.OffsetY = oriOffsetY;
+            ContainerHelpers.HandleChildEvents(_children, e, -X - _xOffset - (int)Margin.Left, -Y - _yOffset - (int)Margin.Top);
+            //var oriOffsetX = e.OffsetX;
+            //var oriOffsetY = e.OffsetY;
+            //for (int i = _children.Count - 1; i >= 0 && !e.StopPropagation; i--)
+            //{
+            //    if (_children[i].FrameworkNode is not AbstSdlComponent comp ||
+            //        comp is not IHandleSdlEvent handler ||
+            //        !comp.Visibility)
+            //        continue;
+            //    if (comp is IAbstFrameworkLayoutNode layoutNode)
+            //    {
+            //        e.OffsetX = oriOffsetX + (int)Margin.Left - _xOffset - layoutNode.X;
+            //        e.OffsetY = oriOffsetY + (int)Margin.Top - _yOffset - layoutNode.Y;
+            //    }
+            //    ContainerHelpers.HandleChildEvents(comp, e);
+            //}
+            //e.OffsetX = oriOffsetX;
+            //e.OffsetY = oriOffsetY;
         }
 
     }

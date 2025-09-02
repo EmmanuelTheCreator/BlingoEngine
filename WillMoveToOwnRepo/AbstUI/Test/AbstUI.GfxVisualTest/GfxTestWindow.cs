@@ -25,14 +25,14 @@ namespace AbstUI.GfxVisualTest
         protected override void OnInit(IAbstFrameworkWindow frameworkWindow)
         {
             base.OnInit(frameworkWindow);
-            var content = _componentFactory.CreateScrollContainer("scroll");
+            var content = _componentFactory.CreateScrollContainer("scroll2");
 
             //var wrap = _componentFactory.CreatePanel("wrap");
             ////wrap.Compose(_componentFactory)
             ////    .AddLabel("Label1", "my window content test 1")
             ////    .Finalize();
             ////;
-            var wrap = _componentFactory.CreateWrapPanel(AOrientation.Vertical, "wrap");
+            var wrap = _componentFactory.CreateWrapPanel(AOrientation.Vertical, "wrap2");
             wrap.Width = 550;
             wrap.Height = 280;
             //wrap.Compose()

@@ -46,8 +46,8 @@ namespace AbstUI.SDL2.Components
         public AbstSDLComponentContext CreateContext(IAbstSDLComponent component, AbstSDLComponentContext? parent = null)
             => new(_rootContext.ComponentContainer, component, parent) { Renderer = _rootContext.Renderer };
 
-        public AbstSDLRenderContext CreateRenderContext(IAbstSDLComponent? component = null)
-            => new(_rootContext.Renderer, System.Numerics.Vector2.Zero, FontManagerTyped);
+        public AbstSDLRenderContext CreateRenderContext(AbstSDLRenderContext? parent, System.Numerics.Vector2 origin)
+            => new(_rootContext.Renderer, origin, FontManagerTyped, parent);
 
         public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
         {

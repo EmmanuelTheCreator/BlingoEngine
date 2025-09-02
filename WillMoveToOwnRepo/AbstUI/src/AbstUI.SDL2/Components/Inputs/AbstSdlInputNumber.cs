@@ -105,7 +105,7 @@ internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInpu
             }
         }
     }
-
+    
     public void HandleEvent(AbstSDLEvent e)
     {
         if (!Enabled) return;

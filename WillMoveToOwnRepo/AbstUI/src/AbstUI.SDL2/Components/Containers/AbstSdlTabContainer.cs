@@ -29,6 +29,7 @@ namespace AbstUI.SDL2.Components.Containers
         public object FrameworkNode => this;
 
         public string? Font { get; set; }
+        public bool Enabled { get; set; } = true;
         public int FontSize { get; set; } = 12;
         public AColor TextColor { get; set; } = AbstDefaultColors.Tab_Deselected_TextColor;
 
@@ -219,10 +220,13 @@ namespace AbstUI.SDL2.Components.Containers
             _texH = h;
             return _texture;
         }
-
+        public virtual bool CanHandleEvent(AbstSDLEvent e)
+        {
+            return Enabled && (e.IsInside || !e.HasCoordinates);
+        }
         public void HandleEvent(AbstSDLEvent e)
         {
-            ref var ev = ref e.Event;
+            var ev = e.Event;
             int localX;
             int localY;
             switch (ev.type)

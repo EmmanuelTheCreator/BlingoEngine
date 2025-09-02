@@ -241,8 +241,8 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
     public AbstSDLComponentContext CreateContext(IAbstSDLComponent component, AbstSDLComponentContext? parent = null)
         => _gfxFactory.CreateContext(component, parent);
 
-    public AbstSDLRenderContext CreateRenderContext(IAbstSDLComponent? component = null)
-        => _gfxFactory.CreateRenderContext(component);
+    public AbstSDLRenderContext CreateRenderContext(AbstSDLRenderContext? parent, System.Numerics.Vector2 origin)
+        => _gfxFactory.CreateRenderContext(parent, origin);
     /// <inheritdoc/>
     public LingoStageMouse CreateMouse(LingoStage stage)
     {
