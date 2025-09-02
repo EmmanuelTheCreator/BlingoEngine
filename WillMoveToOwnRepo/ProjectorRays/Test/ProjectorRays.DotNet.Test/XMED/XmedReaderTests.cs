@@ -3,6 +3,7 @@ using ProjectorRays.CastMembers;
 using ProjectorRays.Common;
 using ProjectorRays.director.Chunks;
 using ProjectorRays.Director;
+using ProjectorRays.DotNet.Test;
 using ProjectorRays.DotNet.Test.TestData;
 using ProjectorRays.IO;
 using System;
@@ -43,6 +44,16 @@ public class XmedReaderTests
     {
         var path = GetPath("Texts_Fields/Field_Hallo.cst");
         var data = File.ReadAllBytes(path);
+        var view = CreateView(data);
+        var doc = new XmedReader().Read(view);
+        Assert.Contains("Hallo", doc.Text, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void FieldXmedTextContainsHallo()
+    {
+        var path = GetPath("Texts_Fields/Field_Hallo.xmed.txt");
+        var data = TestFileReader.ReadHexFile(path);
         var view = CreateView(data);
         var doc = new XmedReader().Read(view);
         Assert.Contains("Hallo", doc.Text, StringComparison.OrdinalIgnoreCase);
