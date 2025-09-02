@@ -24,6 +24,8 @@ namespace AbstUI.SDL2.Components.Inputs
         private AColor _renderedBorderColor;
         private AColor _renderedBackgroundColor;
         private AColor _renderedCheckColor;
+        private bool _isHover;
+
         public bool Checked
         {
             get => _checked;
@@ -47,20 +49,26 @@ namespace AbstUI.SDL2.Components.Inputs
             Width = 20;
             Height = 20;
         }
+
+        public virtual bool CanHandleEvent(AbstSDLEvent e)
+        {
+            return Enabled && (e.IsInside || (_isHover && e.Event.type == SDL.SDL_EventType.SDL_MOUSEMOTION) || !e.HasCoordinates);
+        }
         public void HandleEvent(AbstSDLEvent e)
         {
             if (!Enabled) return;
-            ref var ev = ref e.Event;
-            if (ev.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN && ev.button.button == SDL.SDL_BUTTON_LEFT &&
-                HitTest(ev.button.x, ev.button.y))
+            var ev = e.Event;
+            if (ev.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN && ev.button.button == SDL.SDL_BUTTON_LEFT && e.IsInside)
             {
                 Factory.FocusManager.SetFocus(this);
                 Checked = !Checked;
                 e.StopPropagation = true;
+                return;
             }
+            if (e.Event.type == SDL.SDL_EventType.SDL_MOUSEMOTION)
+                _isHover = e.IsInside;
         }
 
-        private bool HitTest(int x, int y) => x >= X && x <= X + Width && y >= Y && y <= Y + Height;
 
         public bool HasFocus => _focused;
         public void SetFocus(bool focus) => _focused = focus;

@@ -90,6 +90,7 @@ internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInpu
     {
         _textInput = new AbstSdlInputText(factory, false);
         _textInput.ValueChanged += OnTextChanged;
+        _textInput.TextValidate = str => str.All(s => char.IsDigit(s) || s == '-' || s == '+' || s == '.' || s == 'e' || s == 'E');
         Width = 50;
         Height = 20;
     }
@@ -105,7 +106,10 @@ internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInpu
             }
         }
     }
-    
+    public virtual bool CanHandleEvent(AbstSDLEvent e)
+    {
+        return Enabled && (e.IsInside || !e.HasCoordinates);
+    }
     public void HandleEvent(AbstSDLEvent e)
     {
         if (!Enabled) return;
@@ -113,7 +117,7 @@ internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInpu
         _textInput.HandleEvent(e);
         if (e.StopPropagation) return;
 
-        ref var ev = ref e.Event;
+        var ev = e.Event;
 
         if (ev.type == SDL.SDL_EventType.SDL_MOUSEWHEEL)
         {

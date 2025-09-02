@@ -13,7 +13,7 @@ namespace AbstUI.SDL2.Components.Inputs
 {
     internal class AbstSdlInputCombobox : AbstSdlSelectableCollection, IAbstFrameworkInputCombobox, IFrameworkFor<AbstInputCombobox>, IHandleSdlEvent, ISdlFocusable, IDisposable, IHasTextBackgroundBorderColor
     {
-
+        private bool _isHover;
         private AbstSdlInputItemList? _popup;
         private bool _open;
         private ISdlFontLoadedByUser? _font;
@@ -59,11 +59,14 @@ namespace AbstUI.SDL2.Components.Inputs
                 _lineHeight = ascent - descent + 4;
             }
         }
-
+        public override bool CanHandleEvent(AbstSDLEvent e)
+        {
+            return Enabled && (e.IsInside || (_isHover && e.Event.type == SDL.SDL_EventType.SDL_MOUSEMOTION) || !e.HasCoordinates);
+        }
         public new void HandleEvent(AbstSDLEvent e)
         {
             if (!Enabled) return;
-            ref var ev = ref e.Event;
+            var ev = e.Event;
             if (ev.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN && ev.button.button == SDL.SDL_BUTTON_LEFT)
             {
                 bool inside = HitTest(ev.button.x, ev.button.y);
@@ -99,6 +102,10 @@ namespace AbstUI.SDL2.Components.Inputs
                         SelectedIndex--;
                     e.StopPropagation = true;
                 }
+            }
+            else if (ev.type == SDL.SDL_EventType.SDL_MOUSEMOTION)
+            {
+                _isHover = e.IsInside;
             }
         }
 

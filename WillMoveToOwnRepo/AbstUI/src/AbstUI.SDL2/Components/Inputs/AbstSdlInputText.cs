@@ -57,9 +57,12 @@ namespace AbstUI.SDL2.Components.Inputs
         public virtual AColor BackgroundColor { get; set; } = AbstDefaultColors.Input_Bg;
         public virtual AColor BorderColor { get; set; } = AbstDefaultColors.InputBorderColor;
 
+        public Func<string, bool> TextValidate { get; set; } = s => true;
         public virtual bool IsMultiLine { get; set; }
 
         public bool HasFocus => _focused;
+
+
         public void SetFocus(bool focus)
         {
             _focused = focus;
@@ -249,7 +252,7 @@ namespace AbstUI.SDL2.Components.Inputs
                     break;
             }
         }
-        protected virtual bool IsAllowedText(string text) => true;
+        protected virtual bool IsAllowedText(string text) => TextValidate(text);
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
@@ -294,21 +297,25 @@ namespace AbstUI.SDL2.Components.Inputs
             {
                 int selStart = Math.Min(_selectionStart, _caret);
                 int selEnd = Math.Max(_selectionStart, _caret);
-                int preWidth = _atlas.MeasureWidth(span.Slice(0, selStart));
-                int selWidth = _atlas.MeasureWidth(span.Slice(selStart, selEnd - selStart));
-                SDL.SDL_Rect selRect = new SDL.SDL_Rect
+                var length = selEnd - selStart;
+                if (length >= 0)
                 {
-                    x = drawX + preWidth,
-                    y = clip.y,
-                    w = selWidth,
-                    h = clip.h
-                };
-                SDL.SDL_SetRenderDrawColor(renderer, AbstDefaultColors.InputAccentColor.R, AbstDefaultColors.InputAccentColor.G, AbstDefaultColors.InputAccentColor.B, AbstDefaultColors.InputAccentColor.A);
-                SDL.SDL_RenderFillRect(renderer, ref selRect);
+                    int preWidth = _atlas.MeasureWidth(span.Slice(0, selStart));
+                    int selWidth = _atlas.MeasureWidth(span.Slice(selStart, length));
+                    SDL.SDL_Rect selRect = new SDL.SDL_Rect
+                    {
+                        x = drawX + preWidth,
+                        y = clip.y,
+                        w = selWidth,
+                        h = clip.h
+                    };
+                    SDL.SDL_SetRenderDrawColor(renderer, AbstDefaultColors.InputAccentColor.R, AbstDefaultColors.InputAccentColor.G, AbstDefaultColors.InputAccentColor.B, AbstDefaultColors.InputAccentColor.A);
+                    SDL.SDL_RenderFillRect(renderer, ref selRect);
 
-                _atlas.DrawRun(span.Slice(0, selStart), drawX, baseline, TextColor.ToSDLColor());
-                _atlas.DrawRun(span.Slice(selStart, selEnd - selStart), drawX + preWidth, baseline, AbstDefaultColors.InputSelectionText.ToSDLColor());
-                _atlas.DrawRun(span.Slice(selEnd), drawX + preWidth + selWidth, baseline, TextColor.ToSDLColor());
+                    _atlas.DrawRun(span.Slice(0, selStart), drawX, baseline, TextColor.ToSDLColor());
+                    _atlas.DrawRun(span.Slice(selStart, selEnd - selStart), drawX + preWidth, baseline, AbstDefaultColors.InputSelectionText.ToSDLColor());
+                    _atlas.DrawRun(span.Slice(selEnd), drawX + preWidth + selWidth, baseline, TextColor.ToSDLColor());
+                }
             }
             else
             {

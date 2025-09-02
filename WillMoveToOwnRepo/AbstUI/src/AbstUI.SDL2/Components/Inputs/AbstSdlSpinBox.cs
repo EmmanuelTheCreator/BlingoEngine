@@ -72,28 +72,22 @@ internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IFramew
         get => _number.BorderColor;
         set => _number.BorderColor = value;
     }
-
+    public virtual bool CanHandleEvent(AbstSDLEvent e)
+    {
+        return Enabled && (e.IsInside || !e.HasCoordinates);
+    }
     public void HandleEvent(AbstSDLEvent e)
     {
         if (!Enabled) return;
 
-        SDL.SDL_GetMouseState(out var mx, out var my);
-
-        ref var ev = ref e.Event;
+        var ev = e.Event;
 
         if (ev.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN)
         {
-            var upRect = GetUpRect();
-            var downRect = GetDownRect();
-            if (PointInRect(mx, my, upRect))
+            if (e.IsInside && e.ComponentLeft >= Width - ButtonWidth)
             {
-                Value += Step;
-                e.StopPropagation = true;
-                return;
-            }
-            if (PointInRect(mx, my, downRect))
-            {
-                Value -= Step;
+                var dir = e.ComponentTop > Height / 2 ? -1 : 1;
+                Value += Step * dir;
                 e.StopPropagation = true;
                 return;
             }
@@ -118,8 +112,6 @@ internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IFramew
         h = (int)Height / 2
     };
 
-    private static bool PointInRect(int x, int y, SDL.SDL_Rect r)
-        => x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h;
 
     public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
     {

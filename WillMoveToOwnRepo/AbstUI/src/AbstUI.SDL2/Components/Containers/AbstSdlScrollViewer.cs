@@ -178,7 +178,7 @@ namespace AbstUI.SDL2.Components.Containers
 
             return _texture;
         }
-
+        public virtual bool CanHandleEvent(AbstSDLEvent e) => true;
         public void HandleEvent(AbstSDLEvent e)
         {
             HandleContentEvent(e);
