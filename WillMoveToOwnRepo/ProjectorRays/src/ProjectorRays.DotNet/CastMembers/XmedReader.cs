@@ -82,24 +82,15 @@ public class XmedReader : IXmedReader
     public XmedDocument Read(BufferView view)
     {
         var data = view.Data;
-        int scanStart = view.Offset;
-        int end = scanStart + view.Size;
+        int start = view.Offset;
+        int end = start + view.Size;
 
-        int start = -1;
-        for (int scan = scanStart; scan <= end - 4; scan++)
-        {
-            if (data[scan] == (byte)'D' && data[scan + 1] == (byte)'E' && data[scan + 2] == (byte)'M' && data[scan + 3] == (byte)'X')
-            {
-                start = scan;
-                break;
-            }
-        }
-
-        if (start < 0)
+        if (view.Size < 4 || data[start] != (byte)'D' || data[start + 1] != (byte)'E' ||
+            data[start + 2] != (byte)'M' || data[start + 3] != (byte)'X')
             throw new InvalidDataException("Invalid XMED chunk header");
 
         ushort fontSize = 0;
-        if (start - 0x14 >= scanStart)
+        if (start >= 0x14)
             fontSize = BinaryPrimitives.ReadUInt16LittleEndian(data.AsSpan(start - 0x14));
 
         var doc = new XmedDocument();
