@@ -5,6 +5,7 @@ using Godot;
 using LingoEngine.Core;
 using LingoEngine.Movies;
 using LingoEngine.Stages;
+using static Godot.OpenXRCompositionLayer;
 
 namespace LingoEngine.LGodot.Movies
 {
@@ -181,9 +182,9 @@ namespace LingoEngine.LGodot.Movies
             var texx = _stageSV.GetTexture().GetImage();
             ImageTexture tex2 = ImageTexture.CreateFromImage(texx);
            var wrap2 = new AbstGodotTexture2D(tex2, $"StageShot_{_activeMovie!.CurrentFrame}");
-//#if DEBUG
-//            wrap2.DebugWriteToDisk();
-//#endif
+#if DEBUG
+            wrap2.DebugWriteToDiskInc();
+#endif
             return wrap2;
         }
 
@@ -192,6 +193,9 @@ namespace LingoEngine.LGodot.Movies
 
         public void ShowTransition(IAbstTexture2D startTexture)
         {
+#if DEBUG
+            AbstGodotTexture2D.ResetDebuggerInc();
+#endif
             var godotTex = (AbstGodotTexture2D)startTexture;
             // keep the ImageTexture reference, just assign it once
             _transitionSprite.Texture = godotTex.Texture;

@@ -20,6 +20,7 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer, IDisposable
     private int _tick;
     private int _duration;
     private bool _waitingForToFrame;
+    private bool _isCapturingToFrame;
     private bool _isPlaying;
 
     public bool IsActive => _isPlaying || _waitingForToFrame;
@@ -57,14 +58,10 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer, IDisposable
         _tick = 0;
         _waitingForToFrame = true;
         _isPlaying = false;
-        
+        _isCapturingToFrame = false;
         return true;
     }
-    /// <summary>Captures the destination frame once it has been rendered.</summary>
-    public void CaptureToFrame()
-    {
-        _stage.RequestNextFrameScreenshot(CaptureToFrame);
-    }
+   
     private void CaptureToFrame(IAbstTexture2D texture2D)
     {
         if (!_waitingForToFrame)
@@ -78,6 +75,13 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer, IDisposable
     
     public void Tick()
     {
+        if (_toPixels == null)
+        {
+            if (_isCapturingToFrame) return;
+            _isCapturingToFrame = true;
+            _stage.RequestNextFrameScreenshot(CaptureToFrame);
+            return;
+        }
         if (!_isPlaying || _fromPixels == null || _toPixels == null || _from == null || _transition == null)
             return;
         _tick++;

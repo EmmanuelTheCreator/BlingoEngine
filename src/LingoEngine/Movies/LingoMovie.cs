@@ -273,12 +273,7 @@ namespace LingoEngine.Movies
 
             try
             {
-                var transitionSprite = _transitionManager.GetFrameSprite(_currentFrame);
-                if (transitionSprite != null)
-                {
-                    if (_transitionPlayer.Start(transitionSprite))
-                        _skipStepFrame = true;
-                }
+                
                 var frameChanged = false;
                 if (_nextFrame < 0)
                 {
@@ -294,6 +289,14 @@ namespace LingoEngine.Movies
 
                 if (frameChanged)
                 {
+
+                    var transitionSprite = _transitionManager.GetFrameSprite(_currentFrame);
+                    if (transitionSprite != null)
+                    {
+                        if (_transitionPlayer.Start(transitionSprite))
+                            _skipStepFrame = true;
+                    }
+
                     // update the list with all ended, and all the new started sprites.
                     _sprite2DManager.UpdateActiveSprites(_currentFrame, _lastFrame);
                     _spriteManagers.ForEach(x => x.UpdateActiveSprites(_currentFrame, _lastFrame));
@@ -319,8 +322,6 @@ namespace LingoEngine.Movies
                 _EventMediator.RaiseEnterFrame();
 
                 OnUpdateStage();
-                if (_transitionPlayer.IsActive)
-                    _transitionPlayer.CaptureToFrame();
                 _skipStepFrame = false;
                 if (frameChanged)
                     CurrentFrameChanged?.Invoke(_currentFrame);

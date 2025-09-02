@@ -246,11 +246,13 @@ public class SdlTexture2D : AbstBaseTexture2D<nint>
 
 
 #if DEBUG
-    private static nint _incremeterDebug = 0;
+    private static int _incrementerDebug = 0;
+
+    public static void ResetDebuggerInc() => _incrementerDebug = 0;
     public void DebugWriteToDiskInc(nint renderer)
     {
-        _incremeterDebug++;
-        DebugToDisk(renderer, Handle, $"{Name}_{_incremeterDebug}");
+        _incrementerDebug++;
+        DebugToDisk(renderer, Handle, $"{Name}_{_incrementerDebug}");
     }
 
     public void DebugWriteToDisk(nint renderer)

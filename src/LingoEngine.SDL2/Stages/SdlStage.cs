@@ -1,4 +1,4 @@
-using AbstUI.Primitives;
+﻿using AbstUI.Primitives;
 using AbstUI.SDL2.Bitmaps;
 using AbstUI.SDL2.SDLL;
 using LingoEngine.Core;
@@ -18,12 +18,14 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
     private LingoStage _stage = null!;
     private readonly HashSet<SdlMovie> _movies = new();
     private SdlMovie? _activeMovie;
-    private IAbstTexture2D? _transitionFrame;
+    private SdlTexture2D? _transitionFrame;
     private ARect _transitionRect;
     /// <summary>
     /// screenshot of the previous frame
     /// </summary>
-    private IAbstTexture2D? _startFrame;
+    private SdlTexture2D? _startFrame;
+    private nint _spritesTexture;
+
     public float Scale { get; set; }
 
     public SdlStage(LingoSdlRootContext rootContext, LingoClock clock, LingoSdlFactory factory)
@@ -31,6 +33,7 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
         _rootContext = rootContext;
         _clock = clock;
         _factory = factory;
+       
     }
 
     internal LingoSdlRootContext RootContext => _rootContext;
@@ -40,7 +43,6 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
     internal void Init(LingoStage stage)
     {
         _stage = stage;
-
     }
 
     internal void ShowMovie(SdlMovie movie)
@@ -57,50 +59,52 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
         _activeMovie?.Hide();
         if (lingoMovie == null) { _activeMovie = null; return; }
         var movie = lingoMovie.Framework<SdlMovie>();
+        if (_activeMovie == movie) return;
         _activeMovie = movie;
+
+        if (_spritesTexture != nint.Zero)
+            SDL.SDL_DestroyTexture(_spritesTexture);
+        _spritesTexture = SDL.SDL_CreateTexture(_factory.RootContext.Renderer, SDL.SDL_PIXELFORMAT_RGBA8888, (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, _stage.Width, _stage.Height);
         movie.Show();
     }
 
-    public void Dispose() { _movies.Clear(); }
+    public void Dispose()
+    { 
+        _movies.Clear();
+        if (_spritesTexture != nint.Zero)
+            SDL.SDL_DestroyTexture(_spritesTexture);
+    }
 
     public void ApplyPropertyChanges()
     {
 
     }
-    public void RequestNextFrameScreenshot(Action<IAbstTexture2D> onCaptured, bool excludeTransitionOverlay = true)
+    public void RequestNextFrameScreenshot(Action<IAbstTexture2D> onCaptured)
     {
         onCaptured(GetScreenshot());
     }
     public IAbstTexture2D GetScreenshot()
     {
-        var ctx = _factory.CreateRenderContext();
-        int w = _stage.Width, h = _stage.Height;
-
-        nint tex = RenderToTexture(ctx.Renderer, w, h, () =>
-        {
-            SDL.SDL_SetRenderDrawColor(ctx.Renderer, 0, 0, 0, 255);
-            SDL.SDL_RenderClear(ctx.Renderer);
-            _factory.ComponentContainer.Render(ctx);
-            _activeMovie!.RenderSprites(ctx);
-        });
-
-        var texture = new SdlTexture2D(tex, w, h, "StageShot_"+_activeMovie!.CurrentFrame, ctx.Renderer); // caller owns
-        //texture.DebugWriteToDisk(ctx.Renderer);
-        return texture;
+        var texture = new SdlTexture2D(_spritesTexture, _stage.Width, _stage.Height, "StageShot_"+_activeMovie!.CurrentFrame, _factory.RootContext.Renderer);
+        var clone = (SdlTexture2D)texture.Clone();
+//#if DEBUG
+//        clone.DebugWriteToDiskInc(_factory.RootContext.Renderer);
+//#endif
+        return clone;
     }
 
 
     public void ShowTransition(IAbstTexture2D startTexture)
     {
         _startFrame?.Dispose();
-        _startFrame = startTexture; // already a screenshot from GetScreenshot()
+        _startFrame = (SdlTexture2D)startTexture.Clone(); 
         _isTransitioning = true;
     }
 
 
     public void UpdateTransitionFrame(IAbstTexture2D texture, ARect targetRect)
     {
-        _transitionFrame = texture;
+        _transitionFrame = (SdlTexture2D)texture;
         _transitionRect = targetRect;
         Render();
     }
@@ -113,53 +117,69 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
         _transitionFrame = null;
         _startFrame?.Dispose();
         _startFrame = null;
+       
+#if DEBUG
+        SdlTexture2D.ResetDebuggerInc();
+#endif
     }
 
 
     internal void Render()
     {
+        if (_activeMovie == null) return;
         var context = _factory.CreateRenderContext();
-        var w = _stage.Width;
-        var h = _stage.Height;
 
-        nint frameTex = RenderToTexture(context.Renderer, w, h, () =>
+        RenderSprites(context);
+
+        nint frameTex = RenderToTexture(context.Renderer, _stage.Width, _stage.Height, () =>
         {
-            SDL.SDL_SetRenderDrawColor(context.Renderer, 0, 0, 0, 255);
-            SDL.SDL_RenderClear(context.Renderer);
-
-            if (_isTransitioning && _startFrame is SdlTexture2D s0)
-            {
-                // draw previous frame (full)
-                var full = new SDL.SDL_Rect { x = 0, y = 0, w = w, h = h };
-                SDL.SDL_RenderCopy(context.Renderer, s0.Handle, IntPtr.Zero, ref full);
-
-                // overlay current/next transition chunk in its rect (if provided)
-                if (_transitionFrame is SdlTexture2D s1)
-                {
-                    var dst = new SDL.SDL_Rect
-                    {
-                        x = (int)_transitionRect.Left,
-                        y = (int)_transitionRect.Top,
-                        w = (int)_transitionRect.Width,
-                        h = (int)_transitionRect.Height
-                    };
-                    SDL.SDL_RenderCopy(context.Renderer, s1.Handle, IntPtr.Zero, ref dst);
-                }
-            }
+            if (_isTransitioning)
+                RenderTransitionFrame(context);
             else
             {
-                // normal render
-                _factory.ComponentContainer.Render(context);
-                _activeMovie!.RenderSprites(context);
+                var full = new SDL.SDL_Rect { x = 0, y = 0, w = _stage.Width, h = _stage.Height };
+                SDL.SDL_RenderCopy(context.Renderer, _spritesTexture, IntPtr.Zero, ref full);
             }
         });
 
         SDL.SDL_SetRenderTarget(context.Renderer, nint.Zero);
         SDL.SDL_RenderCopy(context.Renderer, frameTex, IntPtr.Zero, IntPtr.Zero);
         SDL.SDL_RenderPresent(context.Renderer);
-
         SDL.SDL_DestroyTexture(frameTex);
     }
+
+    private void RenderSprites(AbstUI.SDL2.Core.AbstSDLRenderContext context)
+    {
+        nint prev = SDL.SDL_GetRenderTarget(context.Renderer);
+        SDL.SDL_SetRenderTarget(context.Renderer, _spritesTexture);
+        SDL.SDL_SetRenderDrawColor(context.Renderer, _stage.BackgroundColor.R, _stage.BackgroundColor.G, _stage.BackgroundColor.B, _stage.BackgroundColor.A);
+        SDL.SDL_RenderClear(context.Renderer);
+        _factory.ComponentContainer.Render(context);
+        _activeMovie!.RenderSprites(context);
+        SDL.SDL_SetRenderTarget(context.Renderer, prev);
+    }
+
+    private void RenderTransitionFrame(AbstUI.SDL2.Core.AbstSDLRenderContext context)
+    {
+        if (_startFrame != null)
+        {
+            var full = new SDL.SDL_Rect { x = 0, y = 0, w = _stage.Width, h = _stage.Height };
+            SDL.SDL_RenderCopy(context.Renderer, _startFrame.Handle, IntPtr.Zero, ref full);
+        }
+        if (_transitionFrame != null)
+        {
+            var dst = new SDL.SDL_Rect
+            {
+                x = (int)_transitionRect.Left,
+                y = (int)_transitionRect.Top,
+                w = (int)_transitionRect.Width,
+                h = (int)_transitionRect.Height
+            };
+            SDL.SDL_RenderCopy(context.Renderer, _transitionFrame.Handle, IntPtr.Zero, ref dst);
+        }
+    }
+
+
 
     /// Renders with 'draw' into a target texture and returns it.
     static nint RenderToTexture(nint renderer, int width, int height, Action draw)

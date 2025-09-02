@@ -11,10 +11,6 @@ public interface ILingoTransitionPlayer : IDisposable
     /// <returns><c>true</c> if the transition was successfully started; otherwise, <c>false</c>.</returns>
     bool Start(LingoTransitionSprite sprite);
 
-    /// <summary>Captures the destination frame once it has been rendered.</summary>
-    void CaptureToFrame();
-
-
     /// <summary>Advances the transition by one tick.</summary>
     void Tick();
 

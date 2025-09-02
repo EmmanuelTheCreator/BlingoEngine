@@ -73,7 +73,7 @@ public class AbstGodotTexture2D : AbstBaseTexture2D<Texture2D>
 
 #if DEBUG
     private static int _incrementerDebug = 0;
-
+    public static void ResetDebuggerInc() => _incrementerDebug = 0;
     public void DebugWriteToDiskInc()
     {
         _incrementerDebug++;
