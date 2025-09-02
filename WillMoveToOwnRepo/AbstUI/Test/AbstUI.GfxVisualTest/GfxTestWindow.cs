@@ -35,12 +35,12 @@ namespace AbstUI.GfxVisualTest
             var wrap = _componentFactory.CreateWrapPanel(AOrientation.Vertical, "wrap2");
             wrap.Width = 550;
             wrap.Height = 280;
-            //wrap.Compose()
-            //    .AddLabel("Label1", "my window content test 1")
-            //    .AddLabel("Label2", "my window content test 2")
-            //    .AddLabel("Label3", "my window content test 3")
-            //    .Finalize();
-            //;
+            wrap.Compose()
+                .AddLabel("Label1", "my window content test 1")
+                .AddLabel("Label2", "my window content test 2")
+                .AddLabel("Label3", "my window content test 3")
+                .Finalize();
+            ;
 
             var btn11 = _componentFactory.CreateButton("btn1", "Button 1");
             wrap.AddItem(btn11);

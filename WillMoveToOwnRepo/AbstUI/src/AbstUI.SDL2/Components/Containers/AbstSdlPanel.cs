@@ -29,7 +29,7 @@ namespace AbstUI.SDL2.Components.Containers
         public bool ClipChildren { get; set; }
         public object FrameworkNode => this;
 
-        private readonly List<IAbstFrameworkLayoutNode> _children = new();
+        protected readonly List<IAbstFrameworkLayoutNode> _children = new();
 
         public void AddItem(IAbstFrameworkLayoutNode child)
         {
@@ -160,23 +160,6 @@ namespace AbstUI.SDL2.Components.Containers
         {
             // Forward mouse events to children accounting for current scroll offset
             ContainerHelpers.HandleChildEvents(_children, e, -X - _xOffset - (int)Margin.Left, -Y - _yOffset - (int)Margin.Top);
-            //var oriOffsetX = e.OffsetX;
-            //var oriOffsetY = e.OffsetY;
-            //for (int i = _children.Count - 1; i >= 0 && !e.StopPropagation; i--)
-            //{
-            //    if (_children[i].FrameworkNode is not AbstSdlComponent comp ||
-            //        comp is not IHandleSdlEvent handler ||
-            //        !comp.Visibility)
-            //        continue;
-            //    if (comp is IAbstFrameworkLayoutNode layoutNode)
-            //    {
-            //        e.OffsetX = oriOffsetX + (int)Margin.Left - _xOffset - layoutNode.X;
-            //        e.OffsetY = oriOffsetY + (int)Margin.Top - _yOffset - layoutNode.Y;
-            //    }
-            //    ContainerHelpers.HandleChildEvents(comp, e);
-            //}
-            //e.OffsetX = oriOffsetX;
-            //e.OffsetY = oriOffsetY;
         }
 
     }

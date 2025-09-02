@@ -26,7 +26,7 @@ public static class GfxTestScene
         scroll.Width = 760;
         scroll.Height = 560;
         //windowManager.OpenWindow(GfxTestWindow.MyWindowCode);
-        //return scroll;
+       // return scroll;
 
 
         var panel = factory.CreatePanel("rootPanel");

@@ -295,15 +295,18 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
         }
         if (!e.StopPropagation)
         {
-            e.OffsetX = -(int)X; // - _xOffset;
-            e.OffsetY = -(int)Y; // - _yOffset;
+            //e.OffsetX = -(int)X; // - _xOffset;
+            //e.OffsetY = -(int)Y; // - _yOffset;
 #if DEBUG
             if (e.Event.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
             {
 
             }
 #endif
-            base.HandleEvent(e);
+            ContainerHelpers.HandleChildEvents(_children, e, X-Margin.Left, Y - Margin.Top+TitleBarHeight);
+            //_xOffset = -(int)X;
+            //_yOffset = -(int)(Y + TitleBarHeight);
+            //base.HandleEvent(e);
         }
     }
 
