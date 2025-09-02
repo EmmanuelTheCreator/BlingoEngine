@@ -17,6 +17,7 @@ public interface ILingoStage
     int Width { get; set; }
     int X { get; set; }
     int Y { get; set; }
+    bool IsDirty { get; }
     LingoMember? MouseMemberUnderMouse { get; }
 
     void AddKeyFrame(LingoSprite2D sprite);
@@ -30,7 +31,7 @@ public interface ILingoStage
     void UpdateKeyFrame(LingoSprite2D sprite);
 
 
-    void RequestNextFrameScreenshot(Action<IAbstTexture2D> onCaptured, bool excludeTransitionOverlay = true);
+    void RequestNextFrameScreenshot(Action<IAbstTexture2D> onCaptured);
     /// <summary>Captures the current contents of the stage.</summary>
     IAbstTexture2D GetScreenshot();
 
@@ -42,4 +43,8 @@ public interface ILingoStage
 
     /// <summary>Hides the transition overlay and returns rendering to sprites.</summary>
     void HideTransition();
+    /// <summary>
+    /// Dirty has been applied, clear the flag.
+    /// </summary>
+    void StageChangedApplied();
 }
