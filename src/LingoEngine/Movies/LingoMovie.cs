@@ -149,6 +149,7 @@ namespace LingoEngine.Movies
         public void Dispose()
         {
             RemoveMe();
+            _transitionPlayer.Dispose();
         }
         public void RemoveMe()
         {

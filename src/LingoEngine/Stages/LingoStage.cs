@@ -15,6 +15,8 @@ public class LingoStage : ILingoStage
 
     public int Width { get; set; } = 640;
     public int Height { get; set; } = 480;
+    public int X { get; set; } = 0;
+    public int Y { get; set; } = 0;
     public AColor BackgroundColor { get; set; }
 
     public LingoMovie? ActiveMovie { get; private set; }
@@ -85,7 +87,8 @@ public class LingoStage : ILingoStage
         return sprite.CallActor<Animations.LingoSpriteAnimator, Animations.LingoSpriteMotionPath>(
             a => a.GetMotionPath(sprite.BeginFrame, sprite.EndFrame));
     }
-
+    public void RequestNextFrameScreenshot(Action<IAbstTexture2D> onCaptured, bool excludeTransitionOverlay = true)
+        => _lingoFrameworkMovieStage.RequestNextFrameScreenshot(onCaptured, excludeTransitionOverlay);
     public IAbstTexture2D GetScreenshot()
         => _lingoFrameworkMovieStage.GetScreenshot();
 

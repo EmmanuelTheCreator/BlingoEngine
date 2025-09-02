@@ -6,7 +6,7 @@ using LingoEngine.Transitions.TransitionLibrary;
 
 namespace LingoEngine.Transitions;
 
-public sealed class LingoTransitionPlayer : ILingoTransitionPlayer
+public sealed class LingoTransitionPlayer : ILingoTransitionPlayer, IDisposable
 {
     private readonly LingoStage _stage;
     private readonly LingoClock _clock;
@@ -46,7 +46,10 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer
 
         _from = _stage.GetScreenshot();
         _fromPixels = _from.GetPixels();
-        _current = _from;
+
+        // make a copy we can mutate
+        _current = _from.Clone();
+
         _stage.ShowTransition(_from);
 
         var seconds = sprite.Member?.Duration ?? 1f;
@@ -54,19 +57,25 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer
         _tick = 0;
         _waitingForToFrame = true;
         _isPlaying = false;
+        
         return true;
     }
-
+    /// <summary>Captures the destination frame once it has been rendered.</summary>
     public void CaptureToFrame()
+    {
+        _stage.RequestNextFrameScreenshot(CaptureToFrame);
+    }
+    private void CaptureToFrame(IAbstTexture2D texture2D)
     {
         if (!_waitingForToFrame)
             return;
-        _to = _stage.GetScreenshot();
+        //_to = _stage.GetScreenshot();
+        _to = texture2D;
         _toPixels = _to.GetPixels();
         _waitingForToFrame = false;
         _isPlaying = true;
     }
-
+    
     public void Tick()
     {
         if (!_isPlaying || _fromPixels == null || _toPixels == null || _from == null || _transition == null)
@@ -75,17 +84,25 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer
         float progress = (float)_tick / _duration;
         if (progress >= 1f) progress = 1f;
         var blended = _transition.StepFrame(_from.Width, _from.Height, _fromPixels, _toPixels, progress);
-        _current!.SetARGBPixels(blended);
+        _current!.SetRGBAPixels(blended);
         _stage.UpdateTransitionFrame(_current, ARect.New(0, 0, _from.Width, _from.Height));
         if (progress >= 1f)
         {
             _stage.HideTransition();
             _from?.Dispose();
             _to?.Dispose();
+            _current?.Dispose();
             _current = _from = _to = null;
             _fromPixels = _toPixels = null;
             _transition = null;
             _isPlaying = false;
         }
+    }
+
+    public void Dispose()
+    {
+        _from?.Dispose();
+        _to?.Dispose();
+        _current?.Dispose();
     }
 }

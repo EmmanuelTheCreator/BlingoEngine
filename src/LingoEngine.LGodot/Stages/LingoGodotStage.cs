@@ -1,7 +1,7 @@
-using Godot;
-using AbstUI.Primitives;
 using AbstUI.LGodot.Bitmaps;
 using AbstUI.LGodot.Primitives;
+using AbstUI.Primitives;
+using Godot;
 using LingoEngine.Core;
 using LingoEngine.Movies;
 using LingoEngine.Stages;
@@ -10,6 +10,8 @@ namespace LingoEngine.LGodot.Movies
 {
     public partial class LingoGodotStage : Node2D, ILingoFrameworkStage, IDisposable
     {
+        private Action<IAbstTexture2D>? _pendingShot;
+        private bool _pendingExcludeOverlay;
         private LingoStage _LingoStage;
         private readonly LingoClock _lingoClock;
         private readonly LingoDebugOverlay _overlay;
@@ -21,9 +23,10 @@ namespace LingoEngine.LGodot.Movies
         private Node2D _spriteLayer = null!;
         private CanvasLayer _transitionLayer = null!;
         private Sprite2D _transitionSprite = null!;
-
         float ILingoFrameworkStage.Scale { get => base.Scale.X; set => base.Scale = new Vector2(value, value); }
         public LingoStage LingoStage => _LingoStage;
+        public int X { get => LingoStage.X; set => LingoStage.X = value; }
+        public int Y { get => LingoStage.Y; set => LingoStage.Y = value; }
 
         public LingoGodotStage(LingoPlayer lingoPlayer)
         {
@@ -42,6 +45,7 @@ namespace LingoEngine.LGodot.Movies
 
         public override void _Ready()
         {
+            _transitionSprite.Position = new Vector2(X + LingoStage.Width / 2, Y + LingoStage.Height/2);
             base._Ready();
         }
         public override void _Process(double delta)
@@ -57,7 +61,14 @@ namespace LingoEngine.LGodot.Movies
                 _f1Down = f1;
                 _overlay.Render();
             }
+
+            // fulfill deferred screenshot after this frame's draw
+            if (_pendingShot != null)
+                TakePendingScreenshot();
         }
+
+     
+
         internal void Init(LingoStage lingoInstance, LingoPlayer lingoPlayer)
         {
             _LingoStage = lingoInstance;
@@ -106,36 +117,80 @@ namespace LingoEngine.LGodot.Movies
         {
         }
 
+
+        public void RequestNextFrameScreenshot(Action<IAbstTexture2D> onCaptured, bool excludeTransitionOverlay = true)
+        {
+            _pendingShot = onCaptured;
+            _pendingExcludeOverlay = excludeTransitionOverlay;
+            _tickWait = 0;
+        }
+        private int _tickWait = 0;
+        private void TakePendingScreenshot()
+        {
+            _tickWait++;
+            if (_tickWait < 2)
+                return; // wait one frame
+            // take shot; avoid flicker by not reassigning textures
+            var wrap = GetScreenshot();
+            if (_pendingShot != null)
+                _pendingShot(wrap);
+            _pendingShot = null;
+            _transitionLayer.Visible = true;
+        }
         public IAbstTexture2D GetScreenshot()
         {
-            bool wasVisible = _transitionLayer.Visible;
+            // hide overlay during grab
+            bool was = _transitionLayer.Visible;
             _transitionLayer.Visible = false;
-            var img = GetViewport().GetTexture().GetImage();
-            _transitionLayer.Visible = wasVisible;
-            var tex = ImageTexture.CreateFromImage(img);
-            return new AbstGodotTexture2D(tex);
+            //_spriteLayer.Visible = true;
+            var viewport = _spriteLayer.GetViewport();
+            Rect2 vis2 = viewport.GetVisibleRect();
+            var texx = viewport.GetTexture().GetImage();
+            var region2 = texx.GetRegion(new Rect2I(X, Y, LingoStage.Width, LingoStage.Height));
+            ImageTexture tex2 = ImageTexture.CreateFromImage(region2);
+            _transitionLayer.Visible = true;
+           var wrap2 = new AbstGodotTexture2D(tex2, $"StageShot_{_activeMovie!.CurrentFrame}");
+
+#if DEBUG
+            wrap2.DebugWriteToDisk();
+#endif
+            return wrap2;
         }
+
+
+
 
         public void ShowTransition(IAbstTexture2D startTexture)
         {
             if (startTexture is AbstGodotTexture2D godotTex)
             {
+                // keep the ImageTexture reference, just assign it once
                 _transitionSprite.Texture = godotTex.Texture;
                 _transitionSprite.RegionEnabled = true;
                 _transitionSprite.RegionRect = new Rect2(0, 0, startTexture.Width, startTexture.Height);
+                //var wrap2 = new AbstGodotTexture2D(_transitionSprite.Texture, $"StageShot_{_activeMovie!.CurrentFrame}");
+                //wrap2.DebugWriteToDiskInc();
+                //QueueRedraw();
+                //_transitionSprite.QueueRedraw();
             }
-            _transitionLayer.Visible = true;
+            _transitionLayer.Visible = false;
+            //_spriteLayer.Visible = false;
         }
+
 
         public void UpdateTransitionFrame(IAbstTexture2D texture, ARect targetRect)
         {
-            if (texture is AbstGodotTexture2D godotTex)
+            if (texture is AbstGodotTexture2D godotTex &&
+                _transitionSprite.Texture is ImageTexture imgTex)
             {
-                _transitionSprite.Texture = godotTex.Texture;
+                // reuse existing ImageTexture, update its data
+                imgTex.Update(godotTex.Texture.GetImage());
                 _transitionSprite.RegionEnabled = true;
                 _transitionSprite.RegionRect = targetRect.ToRect2();
+                //godotTex.DebugWriteToDiskInc();
             }
         }
+
 
         public void HideTransition()
         {

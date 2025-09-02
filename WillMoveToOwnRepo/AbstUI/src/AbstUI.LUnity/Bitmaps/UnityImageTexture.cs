@@ -31,4 +31,9 @@ public class UnityTexture2D : AbstBaseTexture2D<Texture2D>
             Texture = null;
         }
     }
+
+    public override byte[] GetPixels()
+    {
+        throw new NotImplementedException();
+    }
 }

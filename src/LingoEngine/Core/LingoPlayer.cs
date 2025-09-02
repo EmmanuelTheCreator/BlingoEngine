@@ -18,7 +18,7 @@ namespace LingoEngine.Core
 {
 
 
-    public class LingoPlayer : ILingoPlayer,
+    public class LingoPlayer : ILingoPlayer,IDisposable,
         IAbstCommandHandler<RewindMovieCommand>,
         IAbstCommandHandler<PlayMovieCommand>,
         IAbstCommandHandler<StepFrameCommand>
@@ -95,6 +95,10 @@ namespace LingoEngine.Core
             _LingoKey = Factory.CreateKey();
             _Stage = Factory.CreateStage(this);
             _Mouse = Factory.CreateMouse(_Stage);
+        }
+        public void Dispose()
+        {
+            // todo
         }
         public void LoadStage(int width, int height, AColor backgroundColor)
         {
@@ -285,6 +289,8 @@ namespace LingoEngine.Core
             foreach (var movie in _movies)
                 movie.SetMouse(newMouse);
         }
+
+       
 
 
 

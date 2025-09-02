@@ -1,4 +1,4 @@
-using AbstUI.Bitmaps;
+﻿using AbstUI.Bitmaps;
 using AbstUI.Primitives;
 using AbstUI.Tools;
 using Godot;
@@ -27,40 +27,41 @@ public class AbstGodotTexture2D : AbstBaseTexture2D<Texture2D>
     public override byte[] GetPixels()
     {
         var img = _texture.GetImage();
-        img.Convert(Image.Format.Rgba8);
-        var rgba = img.GetData();
-        var argb = new byte[rgba.Length];
-        for (int i = 0; i < rgba.Length; i += 4)
-        {
-            argb[i] = rgba[i + 3];
-            argb[i + 1] = rgba[i];
-            argb[i + 2] = rgba[i + 1];
-            argb[i + 3] = rgba[i + 2];
-        }
-        return argb;
+        if (img == null) return Array.Empty<byte>();
+        img.Convert(Image.Format.Rgba8);              // ensure RGBA8
+        return img.GetData();                         // return RGBA (no channel swap)
     }
 
-    public IAbstTexture2D Clone()
+
+    public override IAbstTexture2D Clone()
     {
         // Get the pixel data from the existing texture
         Image img = _texture.GetImage(); // This returns a copy of the image data
         ImageTexture newTex = ImageTexture.CreateFromImage(img);
 
-        return new AbstGodotTexture2D(newTex);
+        return new AbstGodotTexture2D(newTex,Name+"_Clone");
     }
 
     public override void SetARGBPixels(byte[] argbPixels)
     {
-        APixel.ToRGBA(argbPixels);
-        var img = Image.CreateFromData(Width, Height, false, Image.Format.Rgba8, argbPixels);
+        if (argbPixels == null || argbPixels.Length != Width * Height * 4)
+            throw new ArgumentException("Expected ARGB8888 buffer.", nameof(argbPixels));
+
+        APixel.ToRGBA(argbPixels);                    // ARGB -> RGBA (in place)
+        using var img = Image.CreateFromData(Width, Height, false, Image.Format.Rgba8, argbPixels);
         ((ImageTexture)_texture).Update(img);
     }
 
+
     public override void SetRGBAPixels(byte[] rgbaPixels)
     {
-        var img = Image.CreateFromData(Width, Height, false, Image.Format.Rgba8, rgbaPixels);
+        if (rgbaPixels == null || rgbaPixels.Length != Width * Height * 4)
+            throw new ArgumentException("Expected RGBA8888 buffer.", nameof(rgbaPixels));
+
+        using var img = Image.CreateFromData(Width, Height, false, Image.Format.Rgba8, rgbaPixels);
         ((ImageTexture)_texture).Update(img);
     }
+
 
     public static AbstGodotTexture2D FromARGBPixels(int width, int height, byte[] argbPixels, string? name = null)
     {
@@ -69,4 +70,34 @@ public class AbstGodotTexture2D : AbstBaseTexture2D<Texture2D>
         var tex = ImageTexture.CreateFromImage(img);
         return new AbstGodotTexture2D(tex, name ?? string.Empty);
     }
+
+#if DEBUG
+    private static int _incrementerDebug = 0;
+
+    public void DebugWriteToDiskInc()
+    {
+        _incrementerDebug++;
+        DebugToDisk(Texture, $"{Name}_{_incrementerDebug}");
+    }
+
+    public void DebugWriteToDisk()
+        => DebugToDisk(Texture, Name);
+
+    public static void DebugToDisk(Texture2D texture, string fileName)
+        => DebugToDisk(texture, "", fileName);
+
+    public static void DebugToDisk(Texture2D texture, string folder, string fileName)
+    {
+        if (texture == null)
+            throw new Exception("DebugToDisk: texture is null.");
+
+        var fn = $"C:/temp/director/{(!string.IsNullOrWhiteSpace(folder) ? folder + "/" : "")}Godot_{fileName}.png";
+        if (File.Exists(fn)) File.Delete(fn);
+
+        var img = texture.GetImage();
+        img.Convert(Image.Format.Rgba8); // ensure standard format
+        img.SavePng(fn);
+    }
+#endif
+
 }

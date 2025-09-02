@@ -48,4 +48,9 @@ public class AbstBlazorTexture2D : AbstBaseTexture2D<ElementReference>
         var ctx = await scripts.CanvasGetContext(Canvas, false);
         return await scripts.CanvasGetImageData(ctx, Width, Height);
     }
+
+    public override byte[] GetPixels()
+    {
+        throw new NotImplementedException();
+    }
 }

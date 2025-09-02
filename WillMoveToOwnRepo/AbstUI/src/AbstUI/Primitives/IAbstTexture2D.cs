@@ -33,5 +33,7 @@ public interface IAbstTexture2D : IDisposable
     /// </summary>
     void SetRGBAPixels(byte[] rgbaPixels);
 
+    IAbstTexture2D Clone();
+
 }
 

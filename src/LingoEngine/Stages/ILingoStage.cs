@@ -14,8 +14,10 @@ public interface ILingoStage
     LingoMovie? ActiveMovie { get; }
     AColor BackgroundColor { get; set; }
     int Height { get; set; }
-    LingoMember? MouseMemberUnderMouse { get; }
     int Width { get; set; }
+    int X { get; set; }
+    int Y { get; set; }
+    LingoMember? MouseMemberUnderMouse { get; }
 
     void AddKeyFrame(LingoSprite2D sprite);
 
@@ -27,6 +29,8 @@ public interface ILingoStage
     void SetSpriteTweenOptions(LingoSprite2D sprite, bool positionEnabled, bool sizeEnabled, bool rotationEnabled, bool skewEnabled, bool foregroundColorEnabled, bool backgroundColorEnabled, bool blendEnabled, float curvature, bool continuousAtEnds, bool speedSmooth, float easeIn, float easeOut);
     void UpdateKeyFrame(LingoSprite2D sprite);
 
+
+    void RequestNextFrameScreenshot(Action<IAbstTexture2D> onCaptured, bool excludeTransitionOverlay = true);
     /// <summary>Captures the current contents of the stage.</summary>
     IAbstTexture2D GetScreenshot();
 

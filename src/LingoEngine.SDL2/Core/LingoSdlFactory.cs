@@ -205,7 +205,7 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
     public LingoStage CreateStage(LingoPlayer player)
     {
         _rootContext.Init(player);
-        var impl = new SdlStage(_rootContext, (LingoClock)player.Clock);
+        var impl = new SdlStage(_rootContext, (LingoClock)player.Clock, this);
         var stage = new LingoStage(impl);
         impl.Init(stage);
         _disposables.Add(impl);

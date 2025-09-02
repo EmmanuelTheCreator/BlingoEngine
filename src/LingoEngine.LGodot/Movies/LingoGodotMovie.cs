@@ -15,6 +15,8 @@ namespace LingoEngine.LGodot.Movies
         private HashSet<LingoGodotSprite2D> _drawnSprites = new();
         private HashSet<LingoGodotSprite2D> _allSprites = new();
 
+        public int CurrentFrame => _LingoMovie.CurrentFrame;
+
         public Node2D GetNode2D() => _MovieNode2D;
 
 #pragma warning disable CS8618         

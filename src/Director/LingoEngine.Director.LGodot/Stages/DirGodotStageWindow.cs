@@ -47,6 +47,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
     private AbstGodotGfxCanvas _boundingBoxesCanvas;
     private AbstGodotGfxCanvas _motionPathCanvas;
     private AbstGodotGfxCanvas _guidesCanvas;
+    private int _borderWidth;
 
     public DirGodotStageWindow(ILingoFrameworkStageContainer stageContainer, IDirectorEventMediator directorEventMediator, IServiceProvider serviceProvider, ILingoPlayer player, DirectorStageWindow directorStageWindow, DirectorStageGuides guides, DirStageManager stageManager, IDirectorIconManager iconManager)
         : base( "Stage", serviceProvider)
@@ -80,8 +81,8 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         _motionPath = new StageMotionPathOverlay(lp.Factory);
         _guides = guides;
         _guides.Draw();
-
-        Size = new Vector2(640 + 10, 480 + 5 + IconBarHeight + TitleBarHeight);
+        _borderWidth = 5;
+        Size = new Vector2(640 + (_borderWidth * 2), 480 + _borderWidth + IconBarHeight + TitleBarHeight);
         CustomMinimumSize = Size;
         // Give all nodes clear names for easier debugging
         Name = "DirGodotStageWindow";
@@ -107,6 +108,8 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         //_stageBgRect.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         //_stageBgRect.SizeFlagsVertical = SizeFlags.ExpandFill;
         _stageBgRect.ZIndex = zIndexStageStart - 1; // Ensure it is behind everything else
+        _stageContainer.Stage.X = (int)_window.X+ _borderWidth;
+        _stageContainer.Stage.Y = (int)_window.Y + TitleBarHeight;
 
         _spriteSummaryCanvas = _spriteSummary.Canvas.Framework<AbstGodotGfxCanvas>();
         _boundingBoxesCanvas = _boundingBoxes.Canvas.Framework<AbstGodotGfxCanvas>();
@@ -302,6 +305,8 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         _scrollContainer.ScrollHorizontal = 3000 / 2 - (int)_scrollContainer.Size.X / 2;
         _scrollContainer.ScrollVertical = 2000 / 2 - (int)_scrollContainer.Size.Y / 2;
         SetScale(1);
+        _stageContainer.Stage.X = (int)_window.X + _borderWidth;
+        _stageContainer.Stage.Y = (int)_window.Y + TitleBarHeight;
         //var min = _scrollContainer.GetVScrollBar().MinValue;
         //var max = _scrollContainer.GetVScrollBar().MaxValue;
         //var range = max - min;
