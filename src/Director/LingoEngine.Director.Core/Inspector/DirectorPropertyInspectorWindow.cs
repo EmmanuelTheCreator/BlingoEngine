@@ -102,6 +102,10 @@ namespace LingoEngine.Director.Core.Inspector
             Y = 22;
             _lastWidh = Width;
             _lastHeight = Height;
+            _tabs = _factory.CreateTabContainer("InspectorTabs");
+            _tabs.Y = HeaderHeight;
+            _rootPanel = _factory.CreatePanel("InspectorRoot");
+            _rootPanel.BackgroundColor = DirectorColors.BG_WhiteMenus;
         }
         protected override void OnDispose()
         {
@@ -112,19 +116,10 @@ namespace LingoEngine.Director.Core.Inspector
         {
             base.OnInit(frameworkWindow);
             Title = "Property Inspector";
-
-        }
-        public void Init(int titleBarHeight)
-        {
             CreateHeaderElements();
-            _tabs = _factory.CreateTabContainer("InspectorTabs");
             CreateBehaviorPanel();
 
             _headerPanel.Y = 0;
-            _tabs.Y = HeaderHeight;
-
-            _rootPanel = _factory.CreatePanel("InspectorRoot");
-            _rootPanel.Y = titleBarHeight;
             _rootPanel.AddItem(_headerPanel);
             _rootPanel.AddItem(_tabs);
             Content = _rootPanel;
@@ -155,6 +150,7 @@ namespace LingoEngine.Director.Core.Inspector
 
 
             var header = _factory.CreatePanel("HeaderPanel");
+            header.BackgroundColor = DirectorColors.BG_WhiteMenus;
             header.AddItem(thumbPanel);
             header.AddItem(container);
 

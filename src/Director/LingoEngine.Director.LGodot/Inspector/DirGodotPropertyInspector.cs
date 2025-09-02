@@ -15,10 +15,6 @@ public partial class DirGodotPropertyInspector : BaseGodotWindow, IDirFrameworkP
     {
         _inspectorWindow = inspectorWindow;
         Init(_inspectorWindow);
-        _inspectorWindow.Init(TitleBarHeight);
-        CustomMinimumSize = Size;
-
-        _inspectorWindow.ResizeFromFW(true, (int)Size.X, (int)Size.Y - TitleBarHeight);
     }
 
 }

@@ -171,9 +171,9 @@ internal partial class DirGodotBinaryViewerWindowV2 : BaseGodotWindow, IDirFrame
         }
     }
 
-    protected override void OnResizing(Vector2 size)
+    protected override void OnResizing(bool firstResize, Vector2 size)
     {
-        base.OnResizing(size);
+        base.OnResizing(firstResize, size);
         _scroll.Size = new Vector2(size.X - 200, size.Y - TitleBarHeight);
         _descScroll.Size = new Vector2(200, size.Y - TitleBarHeight);
     }

@@ -20,7 +20,7 @@ internal class DirSdlPropertyInspectorWindow : AbstSdlWindow, IDirFrameworkPrope
         Init(_directorInspectorWindow);
         _directorInspectorWindow.Init(TitleBarHeight);
 
-        _directorInspectorWindow.ResizeFromFW(true, (int)Width, (int)Height - TitleBarHeight);
+        _directorInspectorWindow.ResizingContentFromFW(true, (int)Width, (int)Height - TitleBarHeight);
     }
 }
 

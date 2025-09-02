@@ -189,9 +189,9 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         iconBarPanel.OffsetBottom = 0;
     }
 
-    protected override void OnResizing(Vector2 size)
+    protected override void OnResizing(bool firstResize, Vector2 size)
     {
-        base.OnResizing(size);
+        base.OnResizing(firstResize, size);
         _stageWindowBgRect.CustomMinimumSize = size;
     }
     public override void SetSize(int width, int height)

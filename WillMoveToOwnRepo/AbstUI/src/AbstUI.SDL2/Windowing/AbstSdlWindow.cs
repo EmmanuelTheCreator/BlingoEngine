@@ -117,16 +117,22 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
     {
         if (instance == _abstWindow) return;
         _abstWindow = (IAbstWindowInternal)instance;
-        //_abstWindow.Init(this);
+        _abstWindow.Init(this);
         instance.WindowTitleHeight = TitleBarHeight;
+        //OnResize(true, (int)Width, (int)Height);
     }
 
     // TODO :  Resize SDL window.
-    public void OnResize(int width, int height)
+    private void Resize(bool firstResize, int width, int height)
     {
-        _abstWindow.ResizeFromFW(false, width, height);
+        OnResize(firstResize, width, height - TitleBarHeight);
+        _abstWindow.ResizingContentFromFW(false, width, height - TitleBarHeight);
         // updates sizes because it could be resized to minimum size
         UpateSizeFromAbstWindow();
+    }
+    protected virtual void OnResize(bool firstResize, int width, int height)
+    {
+       
     }
 
 
@@ -138,9 +144,8 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
         BringToFront();
         Visibility = true;
         _abstWindow.SetPositionFromFW((int)X, (int)Y);
-        _abstWindow.ResizeFromFW(false, (int)Width, (int)Height);
         // updates sizes because it could be resized to minimum size
-        UpateSizeFromAbstWindow();
+        Resize(true, (int)Width, (int)Height);
         _abstWindow.RaiseWindowStateChanged(true);
     }
 
@@ -180,7 +185,7 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
     {
         Width = width;
         Height = height;
-        _abstWindow.ResizeFromFW(false, width, height);
+        _abstWindow.ResizingContentFromFW(false, width, height);
     }
 
     public override AbstSDLRenderResult Render(AbstSDLRenderContext context)

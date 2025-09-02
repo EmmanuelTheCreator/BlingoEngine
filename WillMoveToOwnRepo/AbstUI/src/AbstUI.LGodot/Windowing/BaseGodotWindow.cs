@@ -79,7 +79,14 @@ namespace AbstEngine.Director.LGodot
                     RemoveChild(oldNode);
                 _content = value;
                 if (_content?.FrameworkNode is Node newNode)
+                {
                     AddChild(newNode);
+                    if (_content?.FrameworkNode is Node2D newNode2D)
+                        newNode2D.Position = new Vector2(0, TitleBarHeight);
+                    else if (_content?.FrameworkNode is Control control)
+                        control.Position = new Vector2(0, TitleBarHeight);
+                }
+                
                 _window.SetContentFromFW(value);
             }
         }
@@ -172,6 +179,7 @@ namespace AbstEngine.Director.LGodot
                 Position = new Vector2(instance.X, instance.Y);
             _mouseFrameworkObj = ((IAbstMouse<AbstMouseEvent>)instance.Mouse).Framework<IAbstGodotMouseHandler>();
             OnInit(instance);
+            
         }
         public virtual void OnInit(IAbstWindow instance) { }
 
@@ -308,11 +316,11 @@ namespace AbstEngine.Director.LGodot
                     var newSize = _resizeStartSize + delta;
 
                     // Optional: clamp minimum size
-                    newSize.X = Mathf.Max(newSize.X, 100);
-                    newSize.Y = Mathf.Max(newSize.Y, 100);
+                    newSize.X = Mathf.Max(newSize.X, _window.MinimumWidth);
+                    newSize.Y = Mathf.Max(newSize.Y, _window.MinimumHeight);
 
                     Size = newSize;
-                    OnResizing(Size);
+                    OnResizing(false, newSize);
                     CustomMinimumSize = newSize;
                     QueueRedraw();
                 }
@@ -360,19 +368,20 @@ namespace AbstEngine.Director.LGodot
                     var newSize = _resizeStartSize + mouseDelta;
 
                     // Clamp minimum size
-                    newSize.X = Mathf.Max(newSize.X, 100);
-                    newSize.Y = Mathf.Max(newSize.Y, 100);
+                    newSize.X = Mathf.Max(newSize.X, _window.MinimumWidth);
+                    newSize.Y = Mathf.Max(newSize.Y, _window.MinimumHeight);
 
                     Size = newSize;
-                    OnResizing(Size);
+                    OnResizing(false, Size);
                     CustomMinimumSize = newSize;
                     QueueRedraw();
                 }
             }
         }
-        protected virtual void OnResizing(Vector2 size)
+        protected virtual void OnResizing(bool firstResize,Vector2 size)
         {
-
+            var contentSize = new Vector2I((int)size.X,(int) size.Y - TitleBarHeight);
+            _window.ResizingContentFromFW(firstResize, contentSize.X, contentSize.Y);
         }
 
 
@@ -380,6 +389,7 @@ namespace AbstEngine.Director.LGodot
         {
             Visible = true;
             EnsureInBounds();
+            OnResizing(true, Size);
         }
         public virtual void CloseWindow() => Visible = false;
         public virtual void MoveWindow(int x, int y) => Position = new Vector2(x, y);

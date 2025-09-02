@@ -119,9 +119,9 @@ internal partial class DirGodotTextableMemberWindow : BaseGodotWindow, IHasMembe
         ApplyStyleToEditor();
     }
 
-    protected override void OnResizing(Vector2 size)
+    protected override void OnResizing(bool firstResize, Vector2 size)
     {
-        base.OnResizing(size);
+        base.OnResizing(firstResize, size);
         _iconBar.OnResizing(size.X, size.Y);
         _navBar.Panel.Width = size.X;
         _navBar.Panel.Height = NavigationBarHeight;

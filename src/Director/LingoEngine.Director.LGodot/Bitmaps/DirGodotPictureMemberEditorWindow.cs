@@ -428,9 +428,9 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
         }
     }
 
-    protected override void OnResizing(Vector2 size)
+    protected override void OnResizing(bool firstResize, Vector2 size)
     {
-        base.OnResizing(size);
+        base.OnResizing(firstResize, size);
         _navBar.Panel.Width = size.X;
         _navBar.Panel.Height = NavigationBarHeight;
         _iconBar.Position = new Vector2(0, NavigationBarHeight + TitleBarHeight);

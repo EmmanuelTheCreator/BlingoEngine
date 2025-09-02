@@ -105,7 +105,7 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable, IAbstFrameworkWi
     {
         Width = width;
         Height = height;
-        _lingoWindow.ResizeFromFW(false, width, height);
+        _lingoWindow.ResizingContentFromFW(false, width, height);
     }
 
     public void Popup()
