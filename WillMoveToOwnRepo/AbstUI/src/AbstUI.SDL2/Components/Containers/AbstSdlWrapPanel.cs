@@ -6,6 +6,7 @@ using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
+using System.Linq;
 
 namespace AbstUI.SDL2.Components.Containers
 {
@@ -16,7 +17,22 @@ namespace AbstUI.SDL2.Components.Containers
         public AMargin Margin { get; set; }
         public object FrameworkNode => this;
 
-        private readonly List<IAbstFrameworkNode> _children = new();
+        private class ChildData
+        {
+            public ChildData(IAbstFrameworkNode node)
+            {
+                Node = node;
+                Dirty = true;
+            }
+
+            public IAbstFrameworkNode Node { get; }
+            public float X { get; set; }
+            public float Y { get; set; }
+            public bool Dirty { get; set; }
+        }
+
+        private readonly List<ChildData> _children = new();
+        private bool _layoutDirty = true;
 
         public AbstSdlWrapPanel(AbstSdlComponentFactory factory, AOrientation orientation) : base(factory)
         {
@@ -27,38 +43,120 @@ namespace AbstUI.SDL2.Components.Containers
 
         public void AddItem(IAbstFrameworkNode child)
         {
-            if (!_children.Contains(child))
-            {
-                _children.Add(child);
-                if (child.FrameworkNode is AbstSdlComponent comp)
-                    comp.ComponentContext.SetParents(ComponentContext);
-            }
+            if (_children.Any(c => ReferenceEquals(c.Node, child)))
+                return;
+
+            _children.Add(new ChildData(child));
+            if (child.FrameworkNode is AbstSdlComponent comp)
+                comp.ComponentContext.SetParents(ComponentContext);
+
+            _layoutDirty = true;
         }
 
         public void RemoveItem(IAbstFrameworkNode child)
         {
-            if (_children.Remove(child))
-            {
-                if (child.FrameworkNode is AbstSdlComponent comp)
-                    comp.ComponentContext.SetParents(null);
-            }
+            var entry = _children.FirstOrDefault(c => ReferenceEquals(c.Node, child));
+            if (entry == null)
+                return;
+
+            if (entry.Node.FrameworkNode is AbstSdlComponent comp)
+                comp.ComponentContext.SetParents(null);
+
+            _children.Remove(entry);
+            _layoutDirty = true;
         }
 
-        public IEnumerable<IAbstFrameworkNode> GetItems() => _children.ToArray();
+        public IEnumerable<IAbstFrameworkNode> GetItems() => _children.Select(c => c.Node).ToArray();
 
         public IAbstFrameworkNode? GetItem(int index)
         {
             if (index < 0 || index >= _children.Count)
                 return null;
-            return _children[index];
+            return _children[index].Node;
         }
 
         public void RemoveAll()
         {
             foreach (var child in _children)
-                if (child.FrameworkNode is AbstSdlComponent comp)
+                if (child.Node.FrameworkNode is AbstSdlComponent comp)
                     comp.ComponentContext.SetParents(null);
             _children.Clear();
+            _layoutDirty = true;
+        }
+
+        public void MarkChildDirty(IAbstFrameworkNode child)
+        {
+            var entry = _children.FirstOrDefault(c => ReferenceEquals(c.Node, child));
+            if (entry != null)
+            {
+                entry.Dirty = true;
+                _layoutDirty = true;
+            }
+        }
+
+        private void RecalculateLayout()
+        {
+            if (!_layoutDirty)
+                return;
+
+            float curX = 0;
+            float curY = 0;
+            float lineSize = 0;
+            foreach (var child in _children)
+            {
+                var node = child.Node;
+                var margin = node.Margin;
+                float childW = node.Width + margin.Left + margin.Right;
+                float childH = node.Height + margin.Top + margin.Bottom;
+
+                float targetX;
+                float targetY;
+
+                if (Orientation == AOrientation.Horizontal)
+                {
+                    if (curX + childW > Width)
+                    {
+                        curX = 0;
+                        curY += lineSize + ItemMargin.Y;
+                        lineSize = 0;
+                    }
+                    targetX = curX + margin.Left;
+                    targetY = curY + margin.Top;
+                    curX += childW + ItemMargin.X;
+                    lineSize = Math.Max(lineSize, childH);
+                }
+                else
+                {
+                    if (curY + childH > Height)
+                    {
+                        curY = 0;
+                        curX += lineSize + ItemMargin.X;
+                        lineSize = 0;
+                    }
+                    targetX = curX + margin.Left;
+                    targetY = curY + margin.Top;
+                    curY += childH + ItemMargin.Y;
+                    lineSize = Math.Max(lineSize, childW);
+                }
+
+                child.X = targetX;
+                child.Y = targetY;
+
+                if (node is IAbstFrameworkLayoutNode layout)
+                {
+                    layout.X = targetX;
+                    layout.Y = targetY;
+                }
+                else if (node.FrameworkNode is AbstSdlComponent comp)
+                {
+                    comp.X = targetX;
+                    comp.Y = targetY;
+                }
+
+                child.Dirty = false;
+            }
+
+            _layoutDirty = false;
         }
 
         public override void Dispose()
@@ -95,64 +193,18 @@ namespace AbstUI.SDL2.Components.Containers
                 _texH = h;
             }
 
+            RecalculateLayout();
+
             var prevTarget = SDL.SDL_GetRenderTarget(context.Renderer);
             SDL.SDL_SetRenderTarget(context.Renderer, _texture);
             SDL.SDL_SetRenderDrawColor(context.Renderer, 0, 0, 0, 0);
             SDL.SDL_RenderClear(context.Renderer);
 
-            float curX = 0;
-            float curY = 0;
-            float lineSize = 0;
             foreach (var child in _children)
             {
-                var margin = child.Margin;
-                float childW = child.Width + margin.Left + margin.Right;
-                float childH = child.Height + margin.Top + margin.Bottom;
-
-                float targetX;
-                float targetY;
-
-                if (Orientation == AOrientation.Horizontal)
-                {
-                    if (curX + childW > Width)
-                    {
-                        curX = 0;
-                        curY += lineSize + ItemMargin.Y;
-                        lineSize = 0;
-                    }
-                    targetX = curX + margin.Left;
-                    targetY = curY + margin.Top;
-                    curX += childW + ItemMargin.X;
-                    lineSize = Math.Max(lineSize, childH);
-                }
-                else
-                {
-                    if (curY + childH > Height)
-                    {
-                        curY = 0;
-                        curX += lineSize + ItemMargin.X;
-                        lineSize = 0;
-                    }
-                    targetX = curX + margin.Left;
-                    targetY = curY + margin.Top;
-                    curY += childH + ItemMargin.Y;
-                    lineSize = Math.Max(lineSize, childW);
-                }
-
-                var comp = child.FrameworkNode as AbstSdlComponent;
-
-                if (child is IAbstFrameworkLayoutNode layout)
-                {
-                    layout.X = targetX;
-                    layout.Y = targetY;
-                }
-                else if (comp != null)
-                {
-                    comp.X = targetX;
-                    comp.Y = targetY;
-                }
-
-                comp?.ComponentContext.RenderToTexture(context);
+                if (child.Node.FrameworkNode is not AbstSdlComponent comp)
+                    continue;
+                comp.ComponentContext.RenderToTexture(context);
             }
 
             SDL.SDL_SetRenderTarget(context.Renderer, prevTarget);
@@ -161,8 +213,9 @@ namespace AbstUI.SDL2.Components.Containers
         public bool CanHandleEvent(AbstSDLEvent e) => e.IsInside || !e.HasCoordinates;
         public void HandleEvent(AbstSDLEvent e)
         {
-            //ContainerHelpers.HandleChildEvents(_children,e, Margin.Left, Margin.Top);
-            ContainerHelpers.HandleChildEvents(_children, e, -X  - (int)Margin.Left, -Y - (int)Margin.Top);
+            RecalculateLayout();
+            var nodes = _children.Select(c => c.Node).ToList();
+            ContainerHelpers.HandleChildEvents(nodes, e, -X - (int)Margin.Left, -Y - (int)Margin.Top);
             //            // Forward mouse events to children accounting for current scroll offset
             //            var oriX = e.OffsetX;
             //            var oriY = e.OffsetY;
