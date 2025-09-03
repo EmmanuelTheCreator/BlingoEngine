@@ -8,7 +8,7 @@ namespace AbstUI.Texts;
 public class AbstTextStyle
 {
     public string Name { get; set; } = string.Empty;
-    public int FontSize { get; set; }
+    public int FontSize { get; set; } 
     public string Font { get; set; } = string.Empty;
     public AColor Color { get; set; } = AColors.Black;
     public AbstTextAlignment Alignment { get; set; } = AbstTextAlignment.Left;

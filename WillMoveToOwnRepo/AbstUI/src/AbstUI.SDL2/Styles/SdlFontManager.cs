@@ -148,6 +148,7 @@ public class SdlFontManager : IAbstFontManager
 
         public ISdlFontLoadedByUser AddUser(object user)
         {
+            if (_fontUsers.ContainsKey(user)) return _fontUsers[user];
             var subscription = new SdlLoadedFontByUser(this, f => RemoveUser(user));
             _fontUsers.Add(user, subscription);
             return subscription;

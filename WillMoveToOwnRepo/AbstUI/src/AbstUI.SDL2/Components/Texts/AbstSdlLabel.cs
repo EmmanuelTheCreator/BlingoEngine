@@ -6,7 +6,6 @@ using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Styles;
 using AbstUI.Texts;
 using System.Runtime.InteropServices;
-using AbstUI.Components.Texts;
 using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Components.Texts

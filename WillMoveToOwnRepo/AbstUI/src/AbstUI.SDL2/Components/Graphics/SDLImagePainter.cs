@@ -27,8 +27,9 @@ namespace AbstUI.SDL2.Components.Graphics
         public SDLImagePainter(IAbstFontManager fontManager, int width, int height, nint renderer)
         {
             _fontManager = (SdlFontManager)fontManager;
-            Width = width > 0 ? width : 100;
-            Height = height > 0 ? height : 100;
+            Width = width > 0 ? Math.Min(width, 4096): 10;
+            Height = height > 0 ? Math.Min(height, 4096) : 10;
+            
             _texture = SDL.SDL_CreateTexture(renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
                 (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, Width, Height);
             _dirty = true;
@@ -61,19 +62,15 @@ namespace AbstUI.SDL2.Components.Graphics
                     }
                 }
             }
-
+            newWidth = Math.Min(newWidth, 4096) ;
+            newHeight = Math.Min(newHeight, 4096);
             if (newWidth > Width || newHeight > Height)
             {
+                SDL.SDL_DestroyTexture(_texture);
                 var nw = Math.Max(Width, newWidth);
                 var nh = Math.Max(Height, newHeight);
                 var newTex = SDL.SDL_CreateTexture(Renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
                     (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, nw, nh);
-                SDL.SDL_SetRenderTarget(Renderer, newTex);
-                SDL.SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 0);
-                SDL.SDL_RenderClear(Renderer);
-                var srcRect = new SDL.SDL_Rect { x = 0, y = 0, w = Width, h = Height };
-                SDL.SDL_RenderCopy(Renderer, _texture, nint.Zero, ref srcRect);
-                SDL.SDL_DestroyTexture(_texture);
                 _texture = newTex;
                 Width = nw;
                 Height = nh;
@@ -276,71 +273,55 @@ namespace AbstUI.SDL2.Components.Graphics
             MarkDirty();
         }
 
-        public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular)
+        public void DrawText(APoint position, string text, string? fontNamee = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular)
         {
             var pos = position;
             var txt = text;
-            var fntName = font;
+            var fntName = fontNamee;
             var col = color;
             var fs = fontSize;
+            if (fs==0) fs = 12;
             var w = width;
+            var font = _fontManager.GetTyped(this, fntName ?? string.Empty, fs, style);
+            if (font == null) return;
+            var fnt = font.FontHandle;
+            if (fnt == nint.Zero) { font.Release(); return; }
+
+            string RenderLine(string line)
+            {
+                if (w >= 0)
+                {
+                    while (line.Length > 0 && SDL_ttf.TTF_SizeUTF8(fnt, line, out int tw, out _) == 0 && tw > w)
+                        line = line.Substring(0, line.Length - 1);
+                }
+                return line;
+            }
+
+            string[] lines = txt.Split('\n');
+            int maxW = 0;
+            int totalH = 0;
+            foreach (var ln in lines)
+            {
+                var line = RenderLine(ln);
+                if (SDL_ttf.TTF_SizeUTF8(fnt, line, out int tw, out int th) == 0)
+                {
+                    if (tw > maxW) maxW = tw;
+                    totalH += th;
+                }
+            }
+
             _drawActions.Add((
                 () =>
                 {
                     if (!AutoResize) return null;
-                    var font = _fontManager.GetTyped(this, fntName ?? string.Empty, fs, style);
-                    if (font == null) return null;
-                    var fnt = font.FontHandle;
-                    if (fnt == nint.Zero) { font.Release(); return null; }
 
-                    string RenderLine(string line)
-                    {
-                        if (w >= 0)
-                        {
-                            while (line.Length > 0 && SDL_ttf.TTF_SizeUTF8(fnt, line, out int tw, out _) == 0 && tw > w)
-                            {
-                                line = line.Substring(0, line.Length - 1);
-                            }
-                        }
-                        return line;
-                    }
-
-                    string[] lines = txt.Split('\n');
-                    int maxW = 0;
-                    int totalH = 0;
-                    foreach (var ln in lines)
-                    {
-                        var line = RenderLine(ln);
-                        if (SDL_ttf.TTF_SizeUTF8(fnt, line, out int tw, out int th) == 0)
-                        {
-                            if (tw > maxW) maxW = tw;
-                            totalH += th;
-                        }
-                    }
-                    font.Release();
-                    return EnsureCapacity((int)pos.X + maxW, (int)pos.Y + totalH);
+                    int needW = (w >= 0) ? Math.Max(maxW, w) : maxW;
+                    return EnsureCapacity((int)pos.X + needW, (int)pos.Y + totalH);
                 },
                 () =>
                 {
-                    var font = _fontManager.GetTyped(this, fntName ?? string.Empty, fs, style);
-                    if (font == null) return;
-                    var fnt = font.FontHandle;
-                    if (fnt == nint.Zero) return;
                     SDL.SDL_Color c = new SDL.SDL_Color { r = col?.R ?? 0, g = col?.G ?? 0, b = col?.B ?? 0, a = 255 };
-
-                    string RenderLine(string line)
-                    {
-                        if (w >= 0)
-                        {
-                            while (line.Length > 0 && SDL_ttf.TTF_SizeUTF8(fnt, line, out int tw, out _) == 0 && tw > w)
-                            {
-                                line = line.Substring(0, line.Length - 1);
-                            }
-                        }
-                        return line;
-                    }
-
-                    string[] lines = txt.Split('\n');
+                   
                     List<(nint surf, int w, int h)> surfaces = new();
                     foreach (var ln in lines)
                     {
@@ -352,20 +333,29 @@ namespace AbstUI.SDL2.Components.Graphics
                     }
 
                     int y = (int)pos.Y;
+                    int boxW = w >= 0 ? w : Math.Max(0, Width - (int)pos.X);
+
                     foreach (var (s, tw, th) in surfaces)
                     {
                         nint tex = SDL.SDL_CreateTextureFromSurface(Renderer, s);
                         if (tex != nint.Zero)
                         {
-                            SDL.SDL_Rect dst = new SDL.SDL_Rect { x = (int)pos.X, y = y, w = tw, h = th };
+                            int startX = (int)pos.X;
+                            if (boxW > 0)
+                            {
+                                switch (alignment)
+                                {
+                                    case AbstTextAlignment.Center: startX += Math.Max(0, (boxW - tw) / 2); break;
+                                    case AbstTextAlignment.Right: startX += Math.Max(0, boxW - tw); break;
+                                }
+                            }
+                            SDL.SDL_Rect dst = new SDL.SDL_Rect { x = startX, y = y, w = tw, h = th };
                             SDL.SDL_RenderCopy(Renderer, tex, nint.Zero, ref dst);
                             SDL.SDL_DestroyTexture(tex);
                         }
                         SDL.SDL_FreeSurface(s);
                         y += th;
                     }
-
-                    font.Release();
                 }
             ));
             MarkDirty();
@@ -470,9 +460,16 @@ namespace AbstUI.SDL2.Components.Graphics
         {
             Render();
             var texture = new SdlTexture2D(_texture, Width, Height, name ?? $"Texture_{Width}x{Height}");
-            //SdlTexture2D textureClone = (SdlTexture2D)texture.Clone(Renderer);
-            //texture.Dispose();
-            //textureClone.DebugWriteToDiskInc(Renderer);
+            if (_texture != nint.Zero)
+            {
+                //SdlTexture2D textureClone = (SdlTexture2D)texture.Clone(Renderer);
+                //texture.Dispose();
+                //texture.DebugWriteToDiskInc(Renderer);
+            }
+            else
+            {
+                // image to big, ignore
+            }
             return texture;
         }
 

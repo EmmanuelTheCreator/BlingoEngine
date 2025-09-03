@@ -33,6 +33,7 @@ namespace LingoEngine.Texts
         private IAbstTexture2D? _texture;
         
         private bool _hasLoadedTexTure;
+        private IAbstUITextureUserSubscription? _textureUser;
 
         public T Framework<T>() where T : class, TFrameworkType => (T)_frameworkMember;
 
@@ -158,7 +159,13 @@ namespace LingoEngine.Texts
         public LingoChars Char => _char;
         public override int Width
         {
-            get => base.Width;
+            get
+            {
+                if (!_hasLoadedTexTure && base.Width <= 0)
+                    RenderText();
+                return base.Width;
+            }
+
             set
             {
                 base.Width = value;
@@ -168,7 +175,13 @@ namespace LingoEngine.Texts
         }
         public override int Height
         {
-            get => base.Height;
+            get
+            {
+                if (!_hasLoadedTexTure && base.Height <= 0)
+                    RenderText();
+                return base.Height;
+            }
+
             set
             {
                 base.Height = value;
@@ -216,9 +229,10 @@ namespace LingoEngine.Texts
         {
 
 #if DEBUG
-            if (FileName.Contains("scoor"))
-            {
-            }
+            //if (!FileName.Contains("scoor"))
+            //{
+            //    return;
+            //}
 #endif
             Text = _frameworkMember.ReadText();
             var rtf = _frameworkMember.ReadTextRtf();
@@ -235,7 +249,7 @@ namespace LingoEngine.Texts
                     Alignment = rtfInfo.Alignment;
                 }
             }
-            RenderText();
+            
         }
         public void RequireRedraw()
         {
@@ -246,12 +260,16 @@ namespace LingoEngine.Texts
             RenderText();
             return _texture;
         }
-
+        private bool _isRendering;
         private void RenderText()
         {
-            if (_hasLoadedTexTure) return;
+            if (_isRendering || _hasLoadedTexTure) return;
+            _isRendering = true;
             if (_texture != null)
+            {
+                _textureUser?.Release();
                 _texture.Dispose();
+            }
             var style = new AbstTextStyle();
             style.Bold = (FontStyle & LingoTextStyle.Bold) != 0;
             style.Italic = (FontStyle & LingoTextStyle.Italic) != 0;
@@ -272,7 +290,9 @@ namespace LingoEngine.Texts
             _texture = painter.GetTexture("Text_" + Name);
             if (Width <= 0) Width = _texture.Width;
             if (Height <= 0) Height = _texture.Height;
-            _hasLoadedTexTure = true; 
+            _hasLoadedTexTure = true;
+            _textureUser = _texture.AddUser(this);
+            _isRendering = false;
         }
 
         //        public void ApplyMemberChanges()
