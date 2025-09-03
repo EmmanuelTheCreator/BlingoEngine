@@ -13,7 +13,7 @@ namespace AbstUI.SDL2.Components.Graphics
     {
         private readonly SdlFontManager _fontManager;
         private nint _texture;
-        private readonly List<Action> _drawActions = new();
+        private readonly List<(Func<APoint?> GetTotalSize, Action DrawAction)> _drawActions = new();
         private AColor? _clearColor;
         protected bool _dirty;
 
@@ -21,13 +21,13 @@ namespace AbstUI.SDL2.Components.Graphics
         public int Width { get; set; }
         public int Height { get; set; }
         public bool Pixilated { get; set; }
-        public bool AutoResize { get; set; }
+        public bool AutoResize { get; set; } = true;
         public nint Texture => _texture;
 
         public SDLImagePainter(IAbstFontManager fontManager, int width, int height, nint renderer)
         {
             _fontManager = (SdlFontManager)fontManager;
-            Width = width >0 ? width:100;
+            Width = width > 0 ? width : 100;
             Height = height > 0 ? height : 100;
             _texture = SDL.SDL_CreateTexture(renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
                 (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, Width, Height);
@@ -45,18 +45,49 @@ namespace AbstUI.SDL2.Components.Graphics
 
         public void Render()
         {
-            if (_dirty)
+            if (!_dirty) return;
+
+            var newWidth = Width;
+            var newHeight = Height;
+            if (AutoResize)
             {
-                var prev = SDL.SDL_GetRenderTarget(Renderer);
-                SDL.SDL_SetRenderTarget(Renderer, _texture);
-                var clear = _clearColor ?? AColor.FromRGBA(0, 0, 0,0);
-                SDL.SDL_SetRenderDrawColor(Renderer, clear.R, clear.G, clear.B, clear.A);
-                SDL.SDL_RenderClear(Renderer);
-                foreach (var action in _drawActions)
-                    action();
-                SDL.SDL_SetRenderTarget(Renderer, prev);
-                _dirty = false;
+                foreach (var a in _drawActions)
+                {
+                    var newSize = a.GetTotalSize();
+                    if (newSize != null && (newSize.Value.X > newWidth || newSize.Value.Y > newHeight))
+                    {
+                        newWidth = (int)MathF.Max(newWidth, newSize.Value.X);
+                        newHeight = (int)MathF.Max(newHeight, newSize.Value.Y);
+                    }
+                }
             }
+
+            if (newWidth > Width || newHeight > Height)
+            {
+                var nw = Math.Max(Width, newWidth);
+                var nh = Math.Max(Height, newHeight);
+                var newTex = SDL.SDL_CreateTexture(Renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
+                    (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, nw, nh);
+                SDL.SDL_SetRenderTarget(Renderer, newTex);
+                SDL.SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 0);
+                SDL.SDL_RenderClear(Renderer);
+                var srcRect = new SDL.SDL_Rect { x = 0, y = 0, w = Width, h = Height };
+                SDL.SDL_RenderCopy(Renderer, _texture, nint.Zero, ref srcRect);
+                SDL.SDL_DestroyTexture(_texture);
+                _texture = newTex;
+                Width = nw;
+                Height = nh;
+            }
+
+            var prev = SDL.SDL_GetRenderTarget(Renderer);
+            SDL.SDL_SetRenderTarget(Renderer, _texture);
+            var clear = _clearColor ?? AColor.FromRGBA(0, 0, 0, 0);
+            SDL.SDL_SetRenderDrawColor(Renderer, clear.R, clear.G, clear.B, clear.A);
+            SDL.SDL_RenderClear(Renderer);
+            foreach (var action in _drawActions)
+                action.DrawAction();
+            SDL.SDL_SetRenderTarget(Renderer, prev);
+            _dirty = false;
         }
 
 
@@ -73,11 +104,14 @@ namespace AbstUI.SDL2.Components.Graphics
         {
             var p = point;
             var c = color;
-            _drawActions.Add(() =>
-            {
-                SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, 255);
-                SDL.SDL_RenderDrawPointF(Renderer, p.X, p.Y);
-            });
+            _drawActions.Add((
+                () => AutoResize ? EnsureCapacity((int)p.X + 1, (int)p.Y + 1) : null,
+                () =>
+                {
+                    SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, 255);
+                    SDL.SDL_RenderDrawPointF(Renderer, p.X, p.Y);
+                }
+            ));
             MarkDirty();
         }
 
@@ -86,33 +120,51 @@ namespace AbstUI.SDL2.Components.Graphics
             var s = start;
             var e = end;
             var c = color;
-            _drawActions.Add(() =>
-            {
-                SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, 255);
-                SDL.SDL_RenderDrawLineF(Renderer, s.X, s.Y, e.X, e.Y);
-            });
+            _drawActions.Add((
+                () =>
+                {
+                    if (!AutoResize) return null;
+                    int maxX = (int)MathF.Ceiling(MathF.Max(s.X, e.X)) + 1;
+                    int maxY = (int)MathF.Ceiling(MathF.Max(s.Y, e.Y)) + 1;
+                    return EnsureCapacity(maxX, maxY);
+                },
+                () =>
+                {
+                    SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, 255);
+                    SDL.SDL_RenderDrawLineF(Renderer, s.X, s.Y, e.X, e.Y);
+                }
+            ));
             MarkDirty();
         }
 
         public void DrawRect(ARect rect, AColor color, bool filled = true, float width = 1)
         {
-            var rct = new SDL.SDL_Rect
-            {
-                x = (int)rect.Left,
-                y = (int)rect.Top,
-                w = (int)rect.Width,
-                h = (int)rect.Height
-            };
+            var r = rect;
             var c = color;
             var f = filled;
-            _drawActions.Add(() =>
-            {
-                SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, c.A);
-                if (f)
-                    SDL.SDL_RenderFillRect(Renderer, ref rct);
-                else
-                    SDL.SDL_RenderDrawRect(Renderer, ref rct);
-            });
+            _drawActions.Add((
+                () =>
+                {
+                    if (!AutoResize) return null;
+                    int x = (int)r.Left, y = (int)r.Top, w = (int)r.Width, h = (int)r.Height;
+                    return EnsureCapacity(x + w, y + h);
+                },
+                () =>
+                {
+                    var rct = new SDL.SDL_Rect
+                    {
+                        x = (int)r.Left,
+                        y = (int)r.Top,
+                        w = (int)r.Width,
+                        h = (int)r.Height
+                    };
+                    SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, c.A);
+                    if (f)
+                        SDL.SDL_RenderFillRect(Renderer, ref rct);
+                    else
+                        SDL.SDL_RenderDrawRect(Renderer, ref rct);
+                }
+            ));
             MarkDirty();
         }
 
@@ -122,25 +174,28 @@ namespace AbstUI.SDL2.Components.Graphics
             var rad = radius;
             var c = color;
             var f = filled;
-            _drawActions.Add(() =>
-            {
-                SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, c.A);
-                int segs = (int)(rad * 6);
-                double step = Math.PI * 2 / segs;
-                float prevX = ctr.X + rad;
-                float prevY = ctr.Y;
-                for (int i = 1; i <= segs; i++)
+            _drawActions.Add((
+                () => AutoResize ? EnsureCapacity((int)ctr.X + (int)MathF.Ceiling(rad) + 1, (int)ctr.Y + (int)MathF.Ceiling(rad) + 1) : null,
+                () =>
                 {
-                    double angle = step * i;
-                    float x = ctr.X + (float)(rad * Math.Cos(angle));
-                    float y = ctr.Y + (float)(rad * Math.Sin(angle));
-                    SDL.SDL_RenderDrawLineF(Renderer, prevX, prevY, x, y);
-                    if (f)
-                        SDL.SDL_RenderDrawLineF(Renderer, ctr.X, ctr.Y, x, y);
-                    prevX = x;
-                    prevY = y;
+                    SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, c.A);
+                    int segs = (int)(rad * 6);
+                    double step = Math.PI * 2 / segs;
+                    float prevX = ctr.X + rad;
+                    float prevY = ctr.Y;
+                    for (int i = 1; i <= segs; i++)
+                    {
+                        double angle = step * i;
+                        float x = ctr.X + (float)(rad * Math.Cos(angle));
+                        float y = ctr.Y + (float)(rad * Math.Sin(angle));
+                        SDL.SDL_RenderDrawLineF(Renderer, prevX, prevY, x, y);
+                        if (f)
+                            SDL.SDL_RenderDrawLineF(Renderer, ctr.X, ctr.Y, x, y);
+                        prevX = x;
+                        prevY = y;
+                    }
                 }
-            });
+            ));
             MarkDirty();
         }
 
@@ -152,24 +207,32 @@ namespace AbstUI.SDL2.Components.Graphics
             var ed = endDeg;
             var segs = segments;
             var c = color;
-            _drawActions.Add(() =>
-            {
-                SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, c.A);
-                double startRad = sd * Math.PI / 180.0;
-                double endRad = ed * Math.PI / 180.0;
-                double step = (endRad - startRad) / segs;
-                float prevX = ctr.X + (float)(rad * Math.Cos(startRad));
-                float prevY = ctr.Y + (float)(rad * Math.Sin(startRad));
-                for (int i = 1; i <= segs; i++)
+            _drawActions.Add((
+                () =>
                 {
-                    double ang = startRad + i * step;
-                    float x = ctr.X + (float)(rad * Math.Cos(ang));
-                    float y = ctr.Y + (float)(rad * Math.Sin(ang));
-                    SDL.SDL_RenderDrawLineF(Renderer, prevX, prevY, x, y);
-                    prevX = x;
-                    prevY = y;
+                    if (!AutoResize) return null;
+                    int cx = (int)ctr.X, cy = (int)ctr.Y, r = (int)MathF.Ceiling(rad);
+                    return EnsureCapacity(cx + r + 1, cy + r + 1);
+                },
+                () =>
+                {
+                    SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, c.A);
+                    double startRad = sd * Math.PI / 180.0;
+                    double endRad = ed * Math.PI / 180.0;
+                    double step = (endRad - startRad) / segs;
+                    float prevX = ctr.X + (float)(rad * Math.Cos(startRad));
+                    float prevY = ctr.Y + (float)(rad * Math.Sin(startRad));
+                    for (int i = 1; i <= segs; i++)
+                    {
+                        double ang = startRad + i * step;
+                        float x = ctr.X + (float)(rad * Math.Cos(ang));
+                        float y = ctr.Y + (float)(rad * Math.Sin(ang));
+                        SDL.SDL_RenderDrawLineF(Renderer, prevX, prevY, x, y);
+                        prevX = x;
+                        prevY = y;
+                    }
                 }
-            });
+            ));
             MarkDirty();
         }
 
@@ -181,22 +244,35 @@ namespace AbstUI.SDL2.Components.Graphics
                 pts[i] = points[i];
             var c = color;
             var f = filled;
-            _drawActions.Add(() =>
-            {
-                SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, c.A);
-                for (int i = 0; i < pts.Length - 1; i++)
-                    SDL.SDL_RenderDrawLineF(Renderer, pts[i].X, pts[i].Y, pts[i + 1].X, pts[i + 1].Y);
-                SDL.SDL_RenderDrawLineF(Renderer, pts[^1].X, pts[^1].Y, pts[0].X, pts[0].Y);
-                if (f)
+            _drawActions.Add((
+                () =>
                 {
-                    var p0 = pts[0];
-                    for (int i = 1; i < pts.Length - 1; i++)
+                    if (!AutoResize) return null;
+                    int maxX = 0, maxY = 0;
+                    foreach (var p in pts)
                     {
-                        SDL.SDL_RenderDrawLineF(Renderer, p0.X, p0.Y, pts[i].X, pts[i].Y);
-                        SDL.SDL_RenderDrawLineF(Renderer, p0.X, p0.Y, pts[i + 1].X, pts[i + 1].Y);
+                        if (p.X > maxX) maxX = (int)p.X;
+                        if (p.Y > maxY) maxY = (int)p.Y;
+                    }
+                    return EnsureCapacity(maxX + 1, maxY + 1);
+                },
+                () =>
+                {
+                    SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, c.A);
+                    for (int i = 0; i < pts.Length - 1; i++)
+                        SDL.SDL_RenderDrawLineF(Renderer, pts[i].X, pts[i].Y, pts[i + 1].X, pts[i + 1].Y);
+                    SDL.SDL_RenderDrawLineF(Renderer, pts[^1].X, pts[^1].Y, pts[0].X, pts[0].Y);
+                    if (f)
+                    {
+                        var p0 = pts[0];
+                        for (int i = 1; i < pts.Length - 1; i++)
+                        {
+                            SDL.SDL_RenderDrawLineF(Renderer, p0.X, p0.Y, pts[i].X, pts[i].Y);
+                            SDL.SDL_RenderDrawLineF(Renderer, p0.X, p0.Y, pts[i + 1].X, pts[i + 1].Y);
+                        }
                     }
                 }
-            });
+            ));
             MarkDirty();
         }
 
@@ -208,53 +284,90 @@ namespace AbstUI.SDL2.Components.Graphics
             var col = color;
             var fs = fontSize;
             var w = width;
-            _drawActions.Add(() =>
-            {
-                var font = _fontManager.GetTyped(this, fntName ?? string.Empty, fontSize, style);
-                if (font == null) return;
-                var fnt = font.FontHandle;
-                if (fnt == nint.Zero) return;
-                SDL.SDL_Color c = new SDL.SDL_Color { r = col?.R ?? 0, g = col?.G ?? 0, b = col?.B ?? 0, a = 255 };
-
-                string RenderLine(string line)
+            _drawActions.Add((
+                () =>
                 {
-                    if (w >= 0)
+                    if (!AutoResize) return null;
+                    var font = _fontManager.GetTyped(this, fntName ?? string.Empty, fs, style);
+                    if (font == null) return null;
+                    var fnt = font.FontHandle;
+                    if (fnt == nint.Zero) { font.Release(); return null; }
+
+                    string RenderLine(string line)
                     {
-                        while (line.Length > 0 && SDL_ttf.TTF_SizeUTF8(fnt, line, out int tw, out _) == 0 && tw > w)
+                        if (w >= 0)
                         {
-                            line = line.Substring(0, line.Length - 1);
+                            while (line.Length > 0 && SDL_ttf.TTF_SizeUTF8(fnt, line, out int tw, out _) == 0 && tw > w)
+                            {
+                                line = line.Substring(0, line.Length - 1);
+                            }
+                        }
+                        return line;
+                    }
+
+                    string[] lines = txt.Split('\n');
+                    int maxW = 0;
+                    int totalH = 0;
+                    foreach (var ln in lines)
+                    {
+                        var line = RenderLine(ln);
+                        if (SDL_ttf.TTF_SizeUTF8(fnt, line, out int tw, out int th) == 0)
+                        {
+                            if (tw > maxW) maxW = tw;
+                            totalH += th;
                         }
                     }
-                    return line;
-                }
-
-                string[] lines = txt.Split('\n');
-                List<(nint surf, int w, int h)> surfaces = new();
-                foreach (var ln in lines)
+                    font.Release();
+                    return EnsureCapacity((int)pos.X + maxW, (int)pos.Y + totalH);
+                },
+                () =>
                 {
-                    var line = RenderLine(ln);
-                    nint s = SDL_ttf.TTF_RenderUTF8_Blended(fnt, line, c);
-                    if (s == nint.Zero) continue;
-                    var sur = SDL.PtrToStructure<SDL.SDL_Surface>(s);
-                    surfaces.Add((s, sur.w, sur.h));
-                }
+                    var font = _fontManager.GetTyped(this, fntName ?? string.Empty, fs, style);
+                    if (font == null) return;
+                    var fnt = font.FontHandle;
+                    if (fnt == nint.Zero) return;
+                    SDL.SDL_Color c = new SDL.SDL_Color { r = col?.R ?? 0, g = col?.G ?? 0, b = col?.B ?? 0, a = 255 };
 
-                int y = (int)pos.Y;
-                foreach (var (s, tw, th) in surfaces)
-                {
-                    nint tex = SDL.SDL_CreateTextureFromSurface(Renderer, s);
-                    if (tex != nint.Zero)
+                    string RenderLine(string line)
                     {
-                        SDL.SDL_Rect dst = new SDL.SDL_Rect { x = (int)pos.X, y = y, w = tw, h = th };
-                        SDL.SDL_RenderCopy(Renderer, tex, nint.Zero, ref dst);
-                        SDL.SDL_DestroyTexture(tex);
+                        if (w >= 0)
+                        {
+                            while (line.Length > 0 && SDL_ttf.TTF_SizeUTF8(fnt, line, out int tw, out _) == 0 && tw > w)
+                            {
+                                line = line.Substring(0, line.Length - 1);
+                            }
+                        }
+                        return line;
                     }
-                    SDL.SDL_FreeSurface(s);
-                    y += th;
-                }
 
-                font.Release();
-            });
+                    string[] lines = txt.Split('\n');
+                    List<(nint surf, int w, int h)> surfaces = new();
+                    foreach (var ln in lines)
+                    {
+                        var line = RenderLine(ln);
+                        nint s = SDL_ttf.TTF_RenderUTF8_Blended(fnt, line, c);
+                        if (s == nint.Zero) continue;
+                        var sur = SDL.PtrToStructure<SDL.SDL_Surface>(s);
+                        surfaces.Add((s, sur.w, sur.h));
+                    }
+
+                    int y = (int)pos.Y;
+                    foreach (var (s, tw, th) in surfaces)
+                    {
+                        nint tex = SDL.SDL_CreateTextureFromSurface(Renderer, s);
+                        if (tex != nint.Zero)
+                        {
+                            SDL.SDL_Rect dst = new SDL.SDL_Rect { x = (int)pos.X, y = y, w = tw, h = th };
+                            SDL.SDL_RenderCopy(Renderer, tex, nint.Zero, ref dst);
+                            SDL.SDL_DestroyTexture(tex);
+                        }
+                        SDL.SDL_FreeSurface(s);
+                        y += th;
+                    }
+
+                    font.Release();
+                }
+            ));
             MarkDirty();
         }
 
@@ -265,22 +378,25 @@ namespace AbstUI.SDL2.Components.Graphics
             var h = height;
             var pos = position;
             var fmt = format;
-            _drawActions.Add(() =>
-            {
-                fmt.GetMasks(out uint rmask, out uint gmask, out uint bmask, out uint amask, out int bpp);
-                var handle = GCHandle.Alloc(dat, GCHandleType.Pinned);
-                nint surf = SDL.SDL_CreateRGBSurfaceFrom(handle.AddrOfPinnedObject(), w, h, bpp, w * (bpp / 8), rmask, gmask, bmask, amask);
-                if (surf == nint.Zero) { handle.Free(); return; }
-                nint tex = SDL.SDL_CreateTextureFromSurface(Renderer, surf);
-                if (tex != nint.Zero)
+            _drawActions.Add((
+                () => AutoResize ? EnsureCapacity((int)pos.X + w, (int)pos.Y + h) : null,
+                () =>
                 {
-                    SDL.SDL_Rect dst = new SDL.SDL_Rect { x = (int)pos.X, y = (int)pos.Y, w = w, h = h };
-                    SDL.SDL_RenderCopy(Renderer, tex, nint.Zero, ref dst);
-                    SDL.SDL_DestroyTexture(tex);
+                    fmt.GetMasks(out uint rmask, out uint gmask, out uint bmask, out uint amask, out int bpp);
+                    var handle = GCHandle.Alloc(dat, GCHandleType.Pinned);
+                    nint surf = SDL.SDL_CreateRGBSurfaceFrom(handle.AddrOfPinnedObject(), w, h, bpp, w * (bpp / 8), rmask, gmask, bmask, amask);
+                    if (surf == nint.Zero) { handle.Free(); return; }
+                    nint tex = SDL.SDL_CreateTextureFromSurface(Renderer, surf);
+                    if (tex != nint.Zero)
+                    {
+                        SDL.SDL_Rect dst = new SDL.SDL_Rect { x = (int)pos.X, y = (int)pos.Y, w = w, h = h };
+                        SDL.SDL_RenderCopy(Renderer, tex, nint.Zero, ref dst);
+                        SDL.SDL_DestroyTexture(tex);
+                    }
+                    SDL.SDL_FreeSurface(surf);
+                    handle.Free();
                 }
-                SDL.SDL_FreeSurface(surf);
-                handle.Free();
-            });
+            ));
             MarkDirty();
         }
         public void DrawPicture(IAbstTexture2D texture, int width, int height, APoint position)
@@ -289,14 +405,50 @@ namespace AbstUI.SDL2.Components.Graphics
             var w = width;
             var h = height;
             var pos = position;
-            _drawActions.Add(() =>
-            {
-                switch (tex)
+            _drawActions.Add((
+                () =>
                 {
-                    case SdlImageTexture surface when surface.SurfaceId != nint.Zero:
-                        {
-                            nint sdlTex = SDL.SDL_CreateTextureFromSurface(Renderer, surface.SurfaceId);
-                            if (sdlTex != nint.Zero)
+                    if (!AutoResize) return null;
+                    switch (tex)
+                    {
+                        case SdlImageTexture surface when surface.SurfaceId != nint.Zero:
+                            {
+                                int copyW = Math.Min(w, surface.Width);
+                                int copyH = Math.Min(h, surface.Height);
+                                return EnsureCapacity((int)pos.X + copyW, (int)pos.Y + copyH);
+                            }
+                        case SdlTexture2D img when img.Handle != nint.Zero:
+                            {
+                                int copyW = Math.Min(w, img.Width);
+                                int copyH = Math.Min(h, img.Height);
+                                return EnsureCapacity((int)pos.X + copyW, (int)pos.Y + copyH);
+                            }
+                        default:
+                            return null;
+                    }
+                },
+                () =>
+                {
+                    switch (tex)
+                    {
+                        case SdlImageTexture surface when surface.SurfaceId != nint.Zero:
+                            {
+                                nint sdlTex = SDL.SDL_CreateTextureFromSurface(Renderer, surface.SurfaceId);
+                                if (sdlTex != nint.Zero)
+                                {
+                                    SDL.SDL_Rect dst = new SDL.SDL_Rect
+                                    {
+                                        x = (int)pos.X,
+                                        y = (int)pos.Y,
+                                        w = w,
+                                        h = h
+                                    };
+                                    SDL.SDL_RenderCopy(Renderer, sdlTex, nint.Zero, ref dst);
+                                    SDL.SDL_DestroyTexture(sdlTex);
+                                }
+                                break;
+                            }
+                        case SdlTexture2D img when img.Handle != nint.Zero:
                             {
                                 SDL.SDL_Rect dst = new SDL.SDL_Rect
                                 {
@@ -305,25 +457,12 @@ namespace AbstUI.SDL2.Components.Graphics
                                     w = w,
                                     h = h
                                 };
-                                SDL.SDL_RenderCopy(Renderer, sdlTex, nint.Zero, ref dst);
-                                SDL.SDL_DestroyTexture(sdlTex);
+                                SDL.SDL_RenderCopy(Renderer, img.Handle, nint.Zero, ref dst);
+                                break;
                             }
-                            break;
-                        }
-                    case SdlTexture2D img when img.Handle != nint.Zero:
-                        {
-                            SDL.SDL_Rect dst = new SDL.SDL_Rect
-                            {
-                                x = (int)pos.X,
-                                y = (int)pos.Y,
-                                w = w,
-                                h = h
-                            };
-                            SDL.SDL_RenderCopy(Renderer, img.Handle, nint.Zero, ref dst);
-                            break;
-                        }
+                    }
                 }
-            });
+            ));
             MarkDirty();
         }
 
@@ -335,6 +474,14 @@ namespace AbstUI.SDL2.Components.Graphics
             //texture.Dispose();
             //textureClone.DebugWriteToDiskInc(Renderer);
             return texture;
+        }
+
+        private APoint? EnsureCapacity(int minW, int minH)
+        {
+            int newW = Math.Max(Width, minW);
+            int newH = Math.Max(Height, minH);
+            if (newW == Width && newH == Height) return null;
+            return new APoint(newW, newH);
         }
     }
 }
