@@ -62,13 +62,13 @@ namespace AbstUI.SDL2.Components.Containers
             }
             
             e.CalulateIsInside(comp.Width, comp.Height);
-            if (comp.Name.Contains("btn1"))
-            {
-                Console.WriteLine($"Even0 {ev.type} at {e.ComponentLeft}x{e.ComponentTop}\t({e.OffsetX}x{e.OffsetY}) inside={e.IsInside} \t {comp.Name}");
-            }
+            //if (comp.Name.Contains("btn1"))
+            //{
+            //    Console.WriteLine($"Even0 {ev.type} at {e.ComponentLeft}x{e.ComponentTop}\t({e.OffsetX}x{e.OffsetY}) inside={e.IsInside} \t {comp.Name}");
+            //}
             if (handler.CanHandleEvent(e))
             {
-                Console.WriteLine($"Even1 {ev.type} at {e.ComponentLeft}x{e.ComponentTop}\t({e.OffsetX}x{e.OffsetY}) inside={e.IsInside} \t {comp.Name}");
+                //Console.WriteLine($"Even1 {ev.type} at {e.ComponentLeft}x{e.ComponentTop}\t({e.OffsetX}x{e.OffsetY}) inside={e.IsInside} \t {comp.Name}");
                 if (comp.Name.Contains("wrap2"))
                 {
 

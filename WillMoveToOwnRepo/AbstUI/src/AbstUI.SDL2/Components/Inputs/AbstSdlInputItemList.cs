@@ -20,7 +20,7 @@ namespace AbstUI.SDL2.Components.Inputs
         private int _lineHeight;
         private int _hoverIndex = -1;
         private int _pressedIndex = -1;
-        private bool _isHover;
+        protected bool _isHover;
 
         public AbstSdlInputItemList(AbstSdlComponentFactory factory, AbstSDLComponentContext? parent = null) : base(factory, parent)
         {

@@ -29,82 +29,82 @@ public static class GfxTestScene
        // return scroll;
 
 
-        var panel = factory.CreatePanel("rootPanel");
-        //var panel = factory.CreateWrapPanel(AOrientation.Vertical, "scroll");
+        //var panel = factory.CreatePanel("rootPanel");
+        var panel = factory.CreateWrapPanel(AOrientation.Vertical, "scroll");
         scroll.AddItem(panel);
         panel.Width =500;
         panel.Height = 1400;
-        panel.BackgroundColor = AColor.FromRGBA(220, 250, 250, 255);
+        //panel.BackgroundColor = AColor.FromRGBA(220, 250, 250, 255);
 
         float y = 0; // 20f + 100;
 
         void Add(IAbstNode node, float height = 40)
         {
-            //panel.AddItem(node);
-            panel.AddItem(node, 40, y);
+            panel.AddItem(node);
+            //panel.AddItem(node, 40, y);
             y += height;
             
         }
 
-        Add(CreateLabel(factory, "label1"), 22);
-        Add(CreateLabel(factory, "Label2 center", lbl2 =>
-        {
-            lbl2.Width = 200;
-            lbl2.TextAlignment = AbstTextAlignment.Center;
-        }), 22);
-        Add(CreateLabel(factory, "Label3 right", lbl3 =>
-        {
-            lbl3.Width = 200;
-            lbl3.TextAlignment = AbstTextAlignment.Right;
-        }), 22);
-        Add(CreateLabel(factory, "Label4 BIG", c => c.FontSize = 30));
+        //Add(CreateLabel(factory, "label1"), 22);
+        //Add(CreateLabel(factory, "Label2 center", lbl2 =>
+        //{
+        //    lbl2.Width = 200;
+        //    lbl2.TextAlignment = AbstTextAlignment.Center;
+        //}), 22);
+        //Add(CreateLabel(factory, "Label3 right", lbl3 =>
+        //{
+        //    lbl3.Width = 200;
+        //    lbl3.TextAlignment = AbstTextAlignment.Right;
+        //}), 22);
+        //Add(CreateLabel(factory, "Label4 BIG", c => c.FontSize = 30));
 
-        var canvas2 = factory.CreateGfxCanvas("canvas1", 100, 50);
-        canvas2.Clear(AColor.FromRGBA(100, 100, 100, 0));
-        canvas2.DrawCircle(new APoint(50, 25), 20, AColor.FromRGBA(200, 0, 0, 255));
-        canvas2.DrawRect(new ARect(10, 10, 80, 30), AColor.FromRGBA(0, 200, 0, 255));
-        canvas2.DrawText(new APoint(30, 15), "Hallo", null, AColors.DarkGray);
-        Add(canvas2);
-
-
-        y += 50;
-        var colorPicker = factory.CreateColorPicker("colorPicker");
-        Add(colorPicker, 80);
+        //var canvas2 = factory.CreateGfxCanvas("canvas1", 100, 50);
+        //canvas2.Clear(AColor.FromRGBA(100, 100, 100, 0));
+        //canvas2.DrawCircle(new APoint(50, 25), 20, AColor.FromRGBA(200, 0, 0, 255));
+        //canvas2.DrawRect(new ARect(10, 10, 80, 30), AColor.FromRGBA(0, 200, 0, 255));
+        //canvas2.DrawText(new APoint(30, 15), "Hallo", null, AColors.DarkGray);
+        //Add(canvas2);
 
 
-        var numClicked = 0;
-        var testBtnLabel = CreateLabel(factory, "Button not clicked");
-        testBtnLabel.Width = 300;
+        //y += 50;
+        //var colorPicker = factory.CreateColorPicker("colorPicker");
+        //Add(colorPicker, 80);
 
-        var btn1 = factory.CreateButton("button", "Button");
-        btn1.Pressed += () =>
-        {
-            numClicked++;
-            testBtnLabel.Text = $"Button clicked {numClicked} times";
-            windowManager.OpenWindow(GfxTestWindow.MyWindowCode);
-        };
-        var btnpanel = factory.CreateWrapPanel(AOrientation.Horizontal, "scroll");
-        btnpanel.Width = 500;
-        btnpanel.AddItem(btn1);
-        btnpanel.AddItem(testBtnLabel);
-        Add(btnpanel);
-        Add(btn1, 22);
+
+        //var numClicked = 0;
+        //var testBtnLabel = CreateLabel(factory, "Button not clicked");
+        //testBtnLabel.Width = 300;
+
+        //var btn1 = factory.CreateButton("button", "Button");
+        //btn1.Pressed += () =>
+        //{
+        //    numClicked++;
+        //    testBtnLabel.Text = $"Button clicked {numClicked} times";
+        //    windowManager.OpenWindow(GfxTestWindow.MyWindowCode);
+        //};
+        //var btnpanel = factory.CreateWrapPanel(AOrientation.Horizontal, "scroll");
+        //btnpanel.Width = 500;
+        //btnpanel.AddItem(btn1);
+        //btnpanel.AddItem(testBtnLabel);
+        //Add(btnpanel);
+        //Add(btn1, 22);
 
         //Add(testBtnLabel,22);
 
-        var stateButton = factory.CreateButton("stateButton", "State Button");
-        //stateButton.IconTexture = factory.CreateTextureFromFile("Assets/Icons/heart.png");
-        Add(stateButton);
+        //var stateButton = factory.CreateButton("stateButton", "State Button");
+        ////stateButton.IconTexture = factory.CreateTextureFromFile("Assets/Icons/heart.png");
+        //Add(stateButton);
 
-        var txt1 = factory.CreateInputText("inputText");
-        txt1.Text = "test";
-        Add(txt1);
+        //var txt1 = factory.CreateInputText("inputText");
+        //txt1.Text = "test";
+        //Add(txt1);
 
-        Add(factory.CreateInputNumberInt("inputNumber", 0, 100));
+        //Add(factory.CreateInputNumberInt("inputNumber", 0, 100));
 
-        Add(factory.CreateSpinBox("spinBox", 0, 10));
+        //Add(factory.CreateSpinBox("spinBox", 0, 10));
 
-        Add(factory.CreateInputCheckbox("checkbox"));
+        //Add(factory.CreateInputCheckbox("checkbox"));
 
         var combo = factory.CreateInputCombobox("combobox", null);
         combo.AddItem("1", "One");
@@ -114,7 +114,7 @@ public static class GfxTestScene
         combo.AddItem("5", "Five");
         combo.SelectedIndex = 1;
         Add(combo, 100);
-
+        return scroll;
         var slider = factory.CreateInputSliderFloat(AOrientation.Horizontal, "slider", 0, 1, 0.1f);
         slider.Width = 200;
         Add(slider, 50);

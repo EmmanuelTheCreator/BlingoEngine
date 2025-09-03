@@ -35,8 +35,8 @@ internal class AbstUnityScrollContainer : AbstUnityComponent, IAbstFrameworkScro
         get => _mask.enabled;
         set => _mask.enabled = value;
     }
-    public AbstScrollbarMode ScollbarModeH { get; set; } // throw new NotImplementedException();
-    public AbstScrollbarMode ScollbarModeV { get; set; } // throw new NotImplementedException();
+    public AbstScrollbarMode ScrollbarModeH { get; set; } // throw new NotImplementedException();
+    public AbstScrollbarMode ScrollbarModeV { get; set; } // throw new NotImplementedException();
 
 
 

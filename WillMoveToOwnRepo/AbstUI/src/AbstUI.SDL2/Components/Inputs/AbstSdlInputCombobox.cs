@@ -13,7 +13,7 @@ namespace AbstUI.SDL2.Components.Inputs
 {
     internal class AbstSdlInputCombobox : AbstSdlSelectableCollection, IAbstFrameworkInputCombobox, IFrameworkFor<AbstInputCombobox>, IHandleSdlEvent, ISdlFocusable, IDisposable, IHasTextBackgroundBorderColor
     {
-        private bool _isHover;
+        protected bool _isHover;
         private AbstSdlInputItemList? _popup;
         private bool _open;
         private ISdlFontLoadedByUser? _font;
@@ -115,7 +115,7 @@ namespace AbstUI.SDL2.Components.Inputs
         {
             if (_popup == null)
             {
-                _popup = new AbstSdlInputItemList(Factory, ComponentContext);
+                _popup = new PopupCombo(Factory, ComponentContext);
                 _popup.ComponentContext.SetParents(ComponentContext,null);
                 foreach (var it in Items)
                     _popup.AddItem(it.Key, it.Value);
@@ -238,6 +238,34 @@ namespace AbstUI.SDL2.Components.Inputs
             _font?.Release();
             _popup?.Dispose();
             base.Dispose();
+        }
+
+
+
+
+
+
+        private class PopupCombo : AbstSdlInputItemList
+        {
+            public PopupCombo(AbstSdlComponentFactory factory, AbstSDLComponentContext? parent = null) : base(factory, parent)
+            {
+            }
+
+            public override bool CanHandleEvent(AbstSDLEvent e)
+            {
+                
+                return Enabled && (e.IsInside || (_isHover && e.Event.type == SDL.SDL_EventType.SDL_MOUSEMOTION) || !e.HasCoordinates);
+            }
+            public override void HandleEvent(AbstSDLEvent e)
+            {
+                var xx = X;
+                var yy = Y;
+                e.OffsetX = -X;// + ScrollHorizontal;
+                e.OffsetY = -Y;// + ScrollVertical;
+                e.CalulateIsInside(Width, Height);
+                Console.WriteLine($"Even0 {e.Event.type} at {e.ComponentLeft}x{e.ComponentTop}\t({e.OffsetX}x{e.OffsetY}) inside={e.IsInside} \t{X}x{Y}\tMouse={e.MouseX}x{e.MouseY}");
+                base.HandleEvent(e);
+            }
         }
     }
 }

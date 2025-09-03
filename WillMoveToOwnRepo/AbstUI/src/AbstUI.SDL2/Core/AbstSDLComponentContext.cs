@@ -11,7 +11,7 @@ public class AbstSDLComponentContext : IDisposable
     internal IAbstSDLComponent? Component { get; private set; }
     internal AbstSDLComponentContext? LogicalParent { get; private set; }
     internal AbstSDLComponentContext? VisualParent { get; private set; }
-
+    public event Action<IAbstSDLComponent> ? OnRequestRedraw;
     public nint Texture { get; private set; }
     public nint Renderer { get; set; }
     public int TargetWidth { get; set; }
@@ -51,6 +51,7 @@ public class AbstSDLComponentContext : IDisposable
         _requireRender = true;
         Component ??= component;
         VisualParent?.QueueRedraw(VisualParent.Component!);
+        OnRequestRedraw?.Invoke(component);
     }
 
     public void RenderToTexture(AbstSDLRenderContext renderContext)

@@ -22,7 +22,7 @@ namespace AbstUI.Components.Containers
         public float ScrollHorizontal { get => _framework.ScrollHorizontal; set => _framework.ScrollHorizontal = value; }
         public float ScrollVertical { get => _framework.ScrollVertical; set => _framework.ScrollVertical = value; }
         public bool ClipContents { get => _framework.ClipContents; set => _framework.ClipContents = value; }
-        public AbstScrollbarMode ScollbarModeH { get => _framework.ScollbarModeH; set => _framework.ScollbarModeH = value; }
-        public AbstScrollbarMode ScollbarModeV { get => _framework.ScollbarModeV; set => _framework.ScollbarModeV = value; }
+        public AbstScrollbarMode ScollbarModeH { get => _framework.ScrollbarModeH; set => _framework.ScrollbarModeH = value; }
+        public AbstScrollbarMode ScollbarModeV { get => _framework.ScrollbarModeV; set => _framework.ScrollbarModeV = value; }
     }
 }

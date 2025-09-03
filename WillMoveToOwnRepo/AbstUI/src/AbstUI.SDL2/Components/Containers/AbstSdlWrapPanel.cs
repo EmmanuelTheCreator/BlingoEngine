@@ -6,12 +6,14 @@ using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
-using System.Linq;
 
 namespace AbstUI.SDL2.Components.Containers
 {
     internal class AbstSdlWrapPanel : AbstSdlComponent, IAbstFrameworkWrapPanel, IFrameworkFor<AbstWrapPanel>, IDisposable, IHandleSdlEvent
     {
+        private nint _texture;
+        private int _texW;
+        private int _texH;
         public AOrientation Orientation { get; set; }
         public APoint ItemMargin { get; set; }
         public AMargin Margin { get; set; }
@@ -22,13 +24,13 @@ namespace AbstUI.SDL2.Components.Containers
             public ChildData(IAbstFrameworkNode node)
             {
                 Node = node;
-                Dirty = true;
+                IsDirty = true;
             }
 
             public IAbstFrameworkNode Node { get; }
             public float X { get; set; }
             public float Y { get; set; }
-            public bool Dirty { get; set; }
+            public bool IsDirty { get; set; }
         }
 
         private readonly List<ChildData> _children = new();
@@ -39,7 +41,21 @@ namespace AbstUI.SDL2.Components.Containers
             Orientation = orientation;
             ItemMargin = new APoint(0, 0);
             Margin = AMargin.Zero;
+            ComponentContext.OnRequestRedraw += RequestRedraw; 
         }
+        public override void Dispose()
+        {
+            ComponentContext.OnRequestRedraw -= RequestRedraw;
+            RemoveAll();
+            if (_texture != nint.Zero)
+            {
+                SDL.SDL_DestroyTexture(_texture);
+                _texture = nint.Zero;
+            }
+            base.Dispose();
+        }
+
+        private void RequestRedraw(IAbstSDLComponent component) => _layoutDirty = true;
 
         public void AddItem(IAbstFrameworkNode child)
         {
@@ -89,7 +105,7 @@ namespace AbstUI.SDL2.Components.Containers
             var entry = _children.FirstOrDefault(c => ReferenceEquals(c.Node, child));
             if (entry != null)
             {
-                entry.Dirty = true;
+                entry.IsDirty = true;
                 _layoutDirty = true;
             }
         }
@@ -153,26 +169,14 @@ namespace AbstUI.SDL2.Components.Containers
                     comp.Y = targetY;
                 }
 
-                child.Dirty = false;
+                child.IsDirty = false;
             }
 
             _layoutDirty = false;
         }
 
-        public override void Dispose()
-        {
-            RemoveAll();
-            if (_texture != nint.Zero)
-            {
-                SDL.SDL_DestroyTexture(_texture);
-                _texture = nint.Zero;
-            }
-            base.Dispose();
-        }
-
-        private nint _texture;
-        private int _texW;
-        private int _texH;
+      
+      
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {

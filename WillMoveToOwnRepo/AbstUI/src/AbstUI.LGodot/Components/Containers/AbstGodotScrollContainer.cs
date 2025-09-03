@@ -38,7 +38,7 @@ namespace AbstUI.LGodot.Components
             set => base.ClipContents = value;
         }
 
-        public AbstScrollbarMode ScollbarModeH
+        public AbstScrollbarMode ScrollbarModeH
         {
             get => _scrollModeH;
             set
@@ -53,7 +53,7 @@ namespace AbstUI.LGodot.Components
             }
         }
 
-        public AbstScrollbarMode ScollbarModeV
+        public AbstScrollbarMode ScrollbarModeV
         {
             get => _scrollModeV;
             set
@@ -89,8 +89,8 @@ namespace AbstUI.LGodot.Components
         public AbstGodotScrollContainer(AbstScrollContainer container)
         {
             container.Init(this);
-            ScollbarModeH = _scrollModeH;
-            ScollbarModeV = _scrollModeV;
+            ScrollbarModeH = _scrollModeH;
+            ScrollbarModeV = _scrollModeV;
         }
 
 

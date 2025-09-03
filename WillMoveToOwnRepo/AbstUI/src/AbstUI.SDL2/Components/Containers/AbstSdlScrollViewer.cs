@@ -21,8 +21,8 @@ namespace AbstUI.SDL2.Components.Containers
         public float ScrollHorizontal { get; set; }
         public float ScrollVertical { get; set; }
         public bool ClipContents { get; set; } = true;
-        public AbstScrollbarMode ScollbarModeH { get; set; } = AbstScrollbarMode.Auto;
-        public AbstScrollbarMode ScollbarModeV { get; set; } = AbstScrollbarMode.Auto;
+        public AbstScrollbarMode ScrollbarModeH { get; set; } = AbstScrollbarMode.Auto;
+        public AbstScrollbarMode ScrollbarModeV { get; set; } = AbstScrollbarMode.Auto;
         protected float ContentWidth { get; set; }
         protected float ContentHeight { get; set; }
 
@@ -69,8 +69,8 @@ namespace AbstUI.SDL2.Components.Containers
 
             _maxScrollH = MathF.Max(0, ContentWidth - viewW);
             _maxScrollV = MathF.Max(0, ContentHeight - viewH);
-            var showHScrollBar = ScollbarModeH == AbstScrollbarMode.AlwaysVisible || (ScollbarModeH == AbstScrollbarMode.Auto && _maxScrollH > 0);
-            var showVScrollBar = ScollbarModeV == AbstScrollbarMode.AlwaysVisible || (ScollbarModeV == AbstScrollbarMode.Auto && _maxScrollV > 0);
+            var showHScrollBar = ScrollbarModeH == AbstScrollbarMode.AlwaysVisible || (ScrollbarModeH == AbstScrollbarMode.Auto && _maxScrollH > 0);
+            var showVScrollBar = ScrollbarModeV == AbstScrollbarMode.AlwaysVisible || (ScrollbarModeV == AbstScrollbarMode.Auto && _maxScrollV > 0);
 
 
             if (ScrollHorizontal < 0) ScrollHorizontal = 0; else if (ScrollHorizontal > _maxScrollH) ScrollHorizontal = _maxScrollH;
@@ -179,7 +179,7 @@ namespace AbstUI.SDL2.Components.Containers
             return _texture;
         }
         public virtual bool CanHandleEvent(AbstSDLEvent e) => true;
-        public void HandleEvent(AbstSDLEvent e)
+        public virtual void HandleEvent(AbstSDLEvent e)
         {
             HandleContentEvent(e);
             if (e.StopPropagation) return;
