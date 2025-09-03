@@ -2,6 +2,7 @@
 using ProjectorRays.Common;
 using ProjectorRays.Director;
 using System.Text;
+using System.Xml.Linq;
 
 namespace ProjectorRays.director.Chunks;
 
@@ -101,5 +102,14 @@ public class RaysCastListChunk : RaysListChunk
             e.WriteJSON(json);
         json.EndArray();
         json.EndObject();
+    }
+    public override void LogInfo(StringBuilder sb, int indentation)
+    {
+        base.LogInfo(sb, indentation);
+        foreach (var e in Entries) { 
+            sb.AppendLine($"{new string(' ', indentation + 2)}---------------");
+            e.LogInfo(sb, indentation + 2);
+            sb.AppendLine($"{new string(' ', indentation + 2)}---------------");
+        }
     }
 }

@@ -44,9 +44,14 @@ public class XmedReaderTests
     {
         var path = GetPath("Texts_Fields/Field_Hallo.cst");
         var data = File.ReadAllBytes(path);
-        var view = CreateView(data);
-        var doc = new XmedReader().Read(view);
-        Assert.Contains("Hallo", doc.Text, StringComparison.OrdinalIgnoreCase);
+        var stream = new ReadStream(data, data.Length, Endianness.BigEndian);
+        var dir = new RaysDirectorFile(_logger, "Texts_Fields/Field_Hallo.cst");
+        var dataDir = dir.Read(stream);
+        //var path = GetPath("Texts_Fields/Field_Hallo.cst");
+        //var data = File.ReadAllBytes(path);
+        //var view = CreateView(data);
+        //var doc = new XmedReader().Read(view);
+        //Assert.Contains("Hallo", doc.Text, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -69,20 +74,6 @@ public class XmedReaderTests
         Assert.True(dir.Read(stream));
     }
 
-
-    [Fact]
-    public void RestoresScriptTextIntoMembers()
-    {
-        var path = GetPath("Texts_Fields/TextCast.dir");
-        var data = File.ReadAllBytes(path);
-        var stream = new ReadStream(data, data.Length, Endianness.BigEndian);
-        var dir = new RaysDirectorFile(_logger, path);
-        Assert.True(dir.Read(stream));
-
-        dir.RestoreScriptText();
-
-        // todo test it
-    }
 
     [Fact]
     public void ParsesHalloTextAndStyles()

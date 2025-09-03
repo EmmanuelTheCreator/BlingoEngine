@@ -2,6 +2,8 @@
 using ProjectorRays.CastMembers;
 using ProjectorRays.Common;
 using ProjectorRays.Director;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 namespace ProjectorRays.director.Chunks;
 
@@ -53,6 +55,18 @@ public class RaysCastChunk : RaysChunk
             json.WriteVal(id);
         json.EndArray();
         json.EndObject();
+    }
+    public override void LogInfo(StringBuilder sb, int indentation)
+    {
+        sb.AppendLine($"{new string(' ', indentation)}-----------Begin CAST---------------------");
+        base.LogInfo(sb, indentation);
+        sb.AppendLine($"{new string(' ', indentation)}Name: {Name}");
+        sb.AppendLine($"{new string(' ', indentation)}memberIDs: {string.Join(',', MemberIDs)}");
+        foreach (var member in Members.Values)
+        {
+            member.LogInfo(sb, indentation + 2);
+        }
+        sb.AppendLine($"{new string(' ', indentation)}-----------End CAST---------------------");
     }
 
     /// <summary>
@@ -121,50 +135,68 @@ public class RaysCastChunk : RaysChunk
                 continue;
             }
 
-            var member = (RaysCastMemberChunk)Dir.GetChunk(RaysDirectorFile.FOURCC('C', 'A', 'S', 't'), chunkID);
-            member.Id = (ushort)(i + minMember);
-            // Look for XMED chunk for styled text/field members
-            if (member.Type == RaysMemberType.TextMember || member.Type == RaysMemberType.FieldMember)
+            ReadMember(id, minMember, i, sectionID, chunkID);
+        }
+    }
+
+    private void ReadMember(int id, ushort minMember, int i, int sectionID, int chunkID)
+    {
+        var member = Dir.GetCastMember(chunkID); //(RaysCastMemberChunk)Dir.GetChunk(RaysDirectorFile.FOURCC('C', 'A', 'S', 't'), chunkID);
+        member.Id = (ushort)(i + minMember);
+        // Look for XMED chunk for styled text/field members
+        if (member.Type == RaysMemberType.TextMember || member.Type == RaysMemberType.FieldMember)
+        {
+            Dir.Logger.LogInformation($"Checking for XMED: CastID={id}, ResourceID={sectionID}");
+            var xmedInt = RaysDirectorFile.FOURCC('X', 'M', 'E', 'D');
+            var test = Dir.TryGetChunkTest(xmedInt);
+            var xmedKey = Dir.KeyTable!.Entries.FirstOrDefault(e =>
+                e.FourCC == xmedInt && e.ResourceID == sectionID);
+
+
+            ChunkInfo? xmedInfo = null;
+
+            if (xmedKey != null && Dir.ChunkExists(xmedKey.FourCC, xmedKey.SectionID))
             {
-                Dir.Logger.LogInformation($"Checking for XMED: CastID={id}, ResourceID={sectionID}");
-
-                var xmedKey = Dir.KeyTable!.Entries.FirstOrDefault(e =>
-                    e.FourCC == RaysDirectorFile.FOURCC('X', 'M', 'E', 'D') && e.ResourceID == sectionID);
-
-                ChunkInfo? xmedInfo = null;
-
-                if (xmedKey != null && Dir.ChunkExists(xmedKey.FourCC, xmedKey.SectionID))
-                {
-                    xmedInfo = Dir.ChunkInfoMap.GetValueOrDefault(xmedKey.SectionID);
-                    Dir.Logger.LogInformation($"XMED found via KEY* for ResourceID={sectionID}, SectionID={xmedKey.SectionID}");
-                }
-                else
-                {
-                    xmedInfo = Dir.ChunkInfoMap.Values.FirstOrDefault(c =>
-                        c.FourCC == RaysDirectorFile.FOURCC('X', 'M', 'E', 'D') &&
-                        Dir.ChunkExists(c.FourCC, c.Id));
-
-                    if (xmedInfo != null)
-                        Dir.Logger.LogInformation($"XMED fallback found: FourCC=XMED, SectionID={xmedInfo.Id}");
-                }
+                xmedInfo = Dir.GetChunkOrDefault(xmedKey.SectionID);
+                Dir.Logger.LogInformation($"XMED found via KEY* for ResourceID={sectionID}, SectionID={xmedKey.SectionID}");
+            }
+            else
+            {
+                //xmedInfo = Dir.ChunkInfoMap.Values.FirstOrDefault(c =>
+                //    c.FourCC == RaysDirectorFile.FOURCC('X', 'M', 'E', 'D') &&
+                //    Dir.ChunkExists(c.FourCC, c.Id));
+                xmedInfo = Dir.GetFirstXMED();
 
                 if (xmedInfo != null)
-                {
-                    var xmedChunk = (RaysXmedChunk)Dir.GetChunk(xmedInfo.FourCC, xmedInfo.Id);
-                    var xmedText = RaysCastMemberTextRead.FromXmedChunk(xmedChunk.Data, Dir);
-                    member.DecodedText = xmedText;
-                }
+                    Dir.Logger.LogInformation($"XMED fallback found: FourCC=XMED, SectionID={xmedInfo.Id}");
             }
 
-            Members[member.Id] = member;
-
-            uint scriptId = member.GetScriptID();
-            if (scriptId != 0 && Dir.ChunkExists(RaysDirectorFile.FOURCC('L', 's', 'c', 'r'), (int)scriptId))
+            if (xmedInfo != null)
             {
-                var scriptChunk = (RaysScriptChunk)Dir.GetChunk(RaysDirectorFile.FOURCC('L', 's', 'c', 'r'), (int)scriptId);
+                var xmedChunk = (RaysXmedChunk)Dir.GetChunk(xmedInfo.FourCC, xmedInfo.Id);
+                var xmedText = RaysCastMemberTextRead.FromXmedChunk(xmedChunk.Data, Dir);
+                member.DecodedText = xmedText;
+            }
+        }
+
+        Members[member.Id] = member;
+
+        uint scriptId = member.GetScriptID();
+        if (scriptId != 0)
+        {
+            var scriptChunk = Dir.GetScriptChunk((int)scriptId);
+            if (scriptChunk != null)
+            {
                 member.Script = scriptChunk;
                 scriptChunk.Member = member;
             }
+
         }
+        //if (scriptId != 0 && Dir.ChunkExists(RaysDirectorFile.FOURCC('L', 's', 'c', 'r'), (int)scriptId))
+        //{
+        //    var scriptChunk = (RaysScriptChunk)Dir.GetChunk(RaysDirectorFile.FOURCC('L', 's', 'c', 'r'), (int)scriptId);
+        //    member.Script = scriptChunk;
+        //    scriptChunk.Member = member;
+        //}
     }
 }

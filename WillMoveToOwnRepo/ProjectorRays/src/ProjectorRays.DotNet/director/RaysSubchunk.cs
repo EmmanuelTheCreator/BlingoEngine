@@ -1,4 +1,5 @@
 ﻿using ProjectorRays.Common;
+using System.Text;
 
 namespace ProjectorRays.Director;
 
@@ -21,6 +22,16 @@ public class CastListEntry
         json.WriteField("maxMember", MaxMember);
         json.WriteField("id", Id);
         json.EndObject();
+    }
+
+    public virtual void LogInfo(StringBuilder sb, int indentation)
+    {
+        sb.AppendLine($"{new string(' ', indentation)}Name: '{Name}'");
+        sb.AppendLine($"{new string(' ', indentation)}FilePath: '{FilePath}'");
+        sb.AppendLine($"{new string(' ', indentation)}PreloadSettings: {PreloadSettings}");
+        sb.AppendLine($"{new string(' ', indentation)}MinMember: {MinMember}");
+        sb.AppendLine($"{new string(' ', indentation)}MaxMember: {MaxMember}");
+        sb.AppendLine($"{new string(' ', indentation)}Id: {Id}");
     }
 }
 

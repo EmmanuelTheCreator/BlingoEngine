@@ -1,8 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using ProjectorRays.Common;
 using ProjectorRays.director.Scores;
+using ProjectorRays.director.Scores.Data;
 using ProjectorRays.Director;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Xunit;
 using Xunit.Abstractions;
@@ -24,30 +27,50 @@ namespace ProjectorRays.DotNet.Test.Sprites
         }
 
         [Fact]
-        public void WritesScoreBytesToFile()
+        public void Test5spritesTest()
         {
             var path = GetPath("Sprites/5spritesTest.dir");
-            var output = Path.ChangeExtension(path, ".score.txt");
-            if (File.Exists(output)) File.Delete(output);
-
-            var previous = RaysScoreChunk.FrameParserFactory;
-            try
-            {
-                RaysScoreChunk.FrameParserFactory = (logger, annotator) => new RaysScoreFrameParserV2ToFile(logger, annotator, path);
-                var data = File.ReadAllBytes(path);
-                var stream = new ReadStream(data, data.Length, Endianness.BigEndian);
-                var dir = new RaysDirectorFile(_logger, path);
-                Assert.True(dir.Read(stream));
-                Assert.True(File.Exists(output));
-            }
-            finally
-            {
-                RaysScoreChunk.FrameParserFactory = previous;
-            }
+            var sprites = ReadSprites(path);
+            sprites.Count.Should().Be(5);
+            sprites[0].StartFrame.Should().Be(1);
+            sprites[0].EndFrame.Should().Be(3);
+            sprites[1].StartFrame.Should().Be(4);
+            sprites[1].EndFrame.Should().Be(6);
+            sprites[2].StartFrame.Should().Be(7);
+            sprites[2].EndFrame.Should().Be(12);
+            sprites[3].StartFrame.Should().Be(10);
+            sprites[3].EndFrame.Should().Be(12);
+            sprites[4].StartFrame.Should().Be(13);
+            sprites[4].EndFrame.Should().Be(15);
+        }
+        [Fact]
+        public void TestLockedSprites()
+        {
+            var path = GetPath("Sprites/SpriteLock.dir");
+            var sprites = ReadSprites(path);
+            sprites[0].IsLocked.Should().BeFalse();
+            sprites[1].IsLocked.Should().BeTrue();
+            sprites[2].IsLocked.Should().BeFalse();
+            sprites[3].IsLocked.Should().BeFalse();
+            sprites[4].IsLocked.Should().BeFalse();
+            sprites[5].IsLocked.Should().BeTrue();
+        }
+        [Fact]
+        public void HasBehavior()
+        {
+            var path = GetPath("Behaviors/5spritesTest_With_Behavior.dir");
+            var sprites = ReadSprites(path);
+            sprites[0].Behaviors.Count.Should().Be(1);
         }
 
-       
-
+        private List<RaySprite> ReadSprites(string path)
+        {
+            var score = TestFileReader.ReadScore(path);
+            var parser = new RaysScoreFrameParserV2(_logger, new RayStreamAnnotatorDecorator(0));
+            var stream = new ReadStream(score, score.Length, Endianness.BigEndian);
+            var sprites = parser.ParseScore(stream);
+            return sprites;
+        }
 
         private static string GetPath(string fileName)
         {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using ProjectorRays.CastMembers;
@@ -17,7 +18,9 @@ public class XmedReaderToFile : IXmedReader
 
     public XmedDocument Read(BufferView view)
     {
+        var binData = new List<byte>();
         string path = Path.ChangeExtension(_sourceFile, ".xmed.txt");
+        string path2 = Path.ChangeExtension(_sourceFile, ".xmed.bin");
         using var writer = new StreamWriter(path, false, Encoding.UTF8);
         var data = view.Data;
         int start = view.Offset;
@@ -30,9 +33,11 @@ public class XmedReaderToFile : IXmedReader
             {
                 if (j > 0) sb.Append(' ');
                 sb.Append(data[i + j].ToString("X2"));
+                binData.Add(data[i + j]);
             }
             writer.WriteLine(sb.ToString());
         }
+        File.WriteAllBytes(path2, binData.ToArray());
         return new XmedDocument();
     }
 }

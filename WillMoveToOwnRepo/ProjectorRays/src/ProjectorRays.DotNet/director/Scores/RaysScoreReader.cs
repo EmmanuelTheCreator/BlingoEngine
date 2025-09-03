@@ -214,10 +214,10 @@ internal class RaysScoreReader
         }
     }
    
-    public RaySprite CreateChannelSprite(ReadStream stream, RayScoreParseContext ctx)
+    public RaySprite CreateChannelSprite(ReadStream stream, RayScoreParseContext ctx, RaySprite sprite)
     {
         var startPos = stream.Pos;
-        var sprite = new RaySprite();
+        //var sprite = new RaySprite();
         var keys = ctx.GetAnnotationKeys();
         //var flags1 = stream.ReadUint8();
 
