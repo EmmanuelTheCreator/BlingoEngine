@@ -147,8 +147,8 @@ namespace ProjectorRays.CastMembers
 
             // Dump the raw payload for debugging. The format is still largely
             // unknown so we treat it as opaque ASCII for now.
-            var ascii = Encoding.Latin1.GetString(view.Data, view.Offset, view.Size);
             dir.Logger.LogInformation($"XMED all : {BitConverter.ToString(view.Data, view.Offset, view.Size)}");
+
             try
             {
                 var doc = XmedReaderFactory().Read(view);
@@ -159,6 +159,7 @@ namespace ProjectorRays.CastMembers
             {
                 dir.Logger.LogWarning($"XMED parse failed: {ex.Message}");
             }
+
             return result;
         }
 

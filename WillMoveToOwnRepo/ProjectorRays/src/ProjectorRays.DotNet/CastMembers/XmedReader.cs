@@ -85,8 +85,13 @@ public class XmedReader : IXmedReader
         int start = view.Offset;
         int end = start + view.Size;
 
-        if (view.Size < 4 || Encoding.ASCII.GetString(data, start, 4) != "DEMX")
+        if (view.Size < 4 || data[start] != (byte)'D' || data[start + 1] != (byte)'E' ||
+            data[start + 2] != (byte)'M' || data[start + 3] != (byte)'X')
             throw new InvalidDataException("Invalid XMED chunk header");
+
+        ushort fontSize = 0;
+        if (start >= 0x14)
+            fontSize = BinaryPrimitives.ReadUInt16LittleEndian(data.AsSpan(start - 0x14));
 
         var doc = new XmedDocument();
         var textBuilder = new StringBuilder();
@@ -97,7 +102,8 @@ public class XmedReader : IXmedReader
         byte styleFlags = data[start + 0x1C];
         byte alignByte = data[start + 0x1D];
         doc.LineSpacing = BitConverter.ToUInt32(data, start + 0x3C);
-        ushort fontSize = BitConverter.ToUInt16(data, start + 0x40);
+        if (fontSize == 0)
+            fontSize = BitConverter.ToUInt16(data, start + 0x40);
         doc.TextLength = BitConverter.ToUInt32(data, start + 0x4C);
 
         var baseStyle = new XmedStyleDeclaration
