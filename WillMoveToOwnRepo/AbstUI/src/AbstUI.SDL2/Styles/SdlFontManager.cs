@@ -50,7 +50,9 @@ public class SdlFontManager : IAbstFontManager
       public ISdlFontLoadedByUser GetTyped(object fontUser, string? name, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
       {
           if (string.IsNullOrEmpty(name)) return _loadedFonts[("default", style)].Get(fontUser, fontSize);
-          return _loadedFonts[(name, style)].Get(fontUser, fontSize);
+          if(_loadedFonts.ContainsKey((name, style)) == false)
+            return _loadedFonts[("default", style)].Get(fontUser, fontSize);
+        return _loadedFonts[(name, style)].Get(fontUser, fontSize);
       }
 
       public T GetDefaultFont<T>() where T : class

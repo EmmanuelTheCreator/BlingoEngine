@@ -5,7 +5,6 @@ using AbstUI.Components.Inputs;
 using AbstUI.Components.Menus;
 using AbstUI.Components.Texts;
 using AbstUI.Primitives;
-using System.Reflection;
 
 namespace AbstUI.Components
 {
@@ -14,6 +13,7 @@ namespace AbstUI.Components
     /// </summary>
     public interface IAbstComponentFactory : IAbstComponentFactoryBase
     {
+        IAbstImagePainter CreateImagePainter(int width = 0, int height = 0);
         AbstGfxCanvas CreateGfxCanvas(string name, int width, int height);
         AbstWrapPanel CreateWrapPanel(AOrientation orientation, string name);
         AbstPanel CreatePanel(string name);

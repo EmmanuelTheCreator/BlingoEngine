@@ -6,6 +6,7 @@ using LingoEngine.Members;
 using LingoEngine.Primitives;
 using LingoEngine.Texts.FrameworkCommunication;
 using LingoEngine.Tools;
+using AbstUI.Components;
 
 namespace LingoEngine.Texts
 {
@@ -19,6 +20,7 @@ namespace LingoEngine.Texts
     public abstract class LingoMemberTextBase<TFrameworkType> : LingoMember, ILingoMemberTextBase, ILingoMemberTextBaseInteral
         where TFrameworkType : ILingoFrameworkMemberTextBase
     {
+        private readonly IAbstComponentFactory _componentFactory;
         protected readonly TFrameworkType _frameworkMember;
         protected int _selectionStart;
         protected int _selectionEnd;
@@ -28,6 +30,9 @@ namespace LingoEngine.Texts
         protected LingoWords _word = new LingoWords("");
         protected LingoChars _char = new LingoChars();
         protected LingoParagraphs _Paragraph = new LingoParagraphs();
+        private IAbstTexture2D? _texture;
+        
+        private bool _hasLoadedTexTure;
 
         public T Framework<T>() where T : class, TFrameworkType => (T)_frameworkMember;
 
@@ -177,11 +182,18 @@ namespace LingoEngine.Texts
 
 
 
-        public LingoMemberTextBase(LingoMemberType type, LingoCast cast, TFrameworkType frameworkMember, int numberInCast, string name = "", string fileName = "", APoint regPoint = default)
+        public LingoMemberTextBase(LingoMemberType type, LingoCast cast, TFrameworkType frameworkMember, int numberInCast, IAbstComponentFactory componentFactory, string name = "", string fileName = "", APoint regPoint = default)
             : base(frameworkMember, type, cast, numberInCast, name, fileName, regPoint)
         {
+            _componentFactory = componentFactory;
             _frameworkMember = frameworkMember;
             _Line = new LingoLines(LineTextChanged);
+            
+        }
+
+        public void InitDefaults()
+        {
+            FontSize = 12;
         }
         private void LineTextChanged() => Text = _Line.ToString();
 
@@ -202,6 +214,7 @@ namespace LingoEngine.Texts
         }
         public virtual void LoadFile()
         {
+
 #if DEBUG
             if (FileName.Contains("scoor"))
             {
@@ -217,11 +230,49 @@ namespace LingoEngine.Texts
                     if (rtfInfo.Size > 0) FontSize = rtfInfo.Size;
                     if (rtfInfo.Color != null) TextColor = rtfInfo.Color.Value;
                     if (rtfInfo.Style != LingoTextStyle.None) FontStyle = rtfInfo.Style;
-                    if (!string.IsNullOrWhiteSpace(rtfInfo.FontName)) Font = rtfInfo.FontName;
+                    if (!string.IsNullOrWhiteSpace(rtfInfo.FontName)) Font = rtfInfo.FontName!;
                     if (string.IsNullOrWhiteSpace(Text)) Text = rtfInfo.Text;
                     Alignment = rtfInfo.Alignment;
                 }
             }
+            RenderText();
+        }
+        public void RequireRedraw()
+        {
+            _hasLoadedTexTure = false;
+        }
+        public IAbstTexture2D? GetTexture()
+        {
+            RenderText();
+            return _texture;
+        }
+
+        private void RenderText()
+        {
+            if (_hasLoadedTexTure) return;
+            if (_texture != null)
+                _texture.Dispose();
+            var style = new AbstTextStyle();
+            style.Bold = (FontStyle & LingoTextStyle.Bold) != 0;
+            style.Italic = (FontStyle & LingoTextStyle.Italic) != 0;
+            style.Underline = (FontStyle & LingoTextStyle.Underline) != 0;
+            style.Font = Font ?? "";
+            style.FontSize = FontSize;
+            style.Color = TextColor;
+            style.Alignment = Alignment;
+            var markDownRenderer = new AbstMarkdownRenderer(_frameworkMember.FontManager);
+            //if (!Name.Contains("HighScoresS"))
+            //{
+            //    return;
+
+            //}
+            markDownRenderer.SetText(Text.Replace('\r', '\n'), [style]);
+            var painter = _componentFactory.CreateImagePainter(Width, Height);
+            markDownRenderer.Render(painter, new APoint(2, 3));
+            _texture = painter.GetTexture("Text_" + Name);
+            if (Width <= 0) Width = _texture.Width;
+            if (Height <= 0) Height = _texture.Height;
+            _hasLoadedTexTure = true; 
         }
 
         //        public void ApplyMemberChanges()
@@ -289,9 +340,11 @@ namespace LingoEngine.Texts
         }
 
         public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
-          => _frameworkMember.RenderToTexture(ink, transparentColor);
-
-
+        {
+            if (_texture != null)
+                return _texture;
+            return _frameworkMember.RenderToTexture(ink, transparentColor);
+        }
     }
 
 }

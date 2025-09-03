@@ -171,7 +171,7 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
     public LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
         var impl = new SdlMemberField(_serviceProvider.GetRequiredService<IAbstFontManager>(), _rootContext);
-        var member = new LingoMemberField((LingoCast)cast, impl, numberInCast, name, fileName ?? "", regPoint);
+        var member = new LingoMemberField((LingoCast)cast, impl, numberInCast, ComponentFactory, name, fileName ?? "", regPoint);
         impl.Init(member);
         _disposables.Add(impl);
         return member;
@@ -180,7 +180,7 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
     public LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
         var impl = new SdlMemberText(_serviceProvider.GetRequiredService<IAbstFontManager>(), _rootContext);
-        var member = new LingoMemberText((LingoCast)cast, impl, numberInCast, name, fileName ?? "", regPoint);
+        var member = new LingoMemberText((LingoCast)cast, impl, numberInCast,ComponentFactory, name, fileName ?? "", regPoint);
         impl.Init(member);
         _disposables.Add(impl);
         return member;

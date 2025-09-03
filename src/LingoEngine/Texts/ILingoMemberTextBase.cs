@@ -65,6 +65,9 @@ namespace LingoEngine.Texts
         /// Selects a range of characters within the text. 1-based inclusive range.
         /// </summary>
         void SetSelection(int start, int end);
+        void RequireRedraw();
+        void InitDefaults();
+        IAbstTexture2D? GetTexture();
 
 
 

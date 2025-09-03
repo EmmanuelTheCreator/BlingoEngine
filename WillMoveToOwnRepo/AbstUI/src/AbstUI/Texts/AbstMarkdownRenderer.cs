@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using AbstUI.Components.Graphics;
@@ -21,7 +18,7 @@ namespace AbstUI.Texts
     /// </summary>
     public class AbstMarkdownRenderer
     {
-        private AbstGfxCanvas? _canvas;
+        private IAbstImagePainter? _canvas;
         private readonly IAbstFontManager _fontManager;
         private readonly Func<string, (byte[] data, int width, int height, APixelFormat format)>? _imageLoader;
 
@@ -73,7 +70,7 @@ namespace AbstUI.Texts
         }
 
         /// <summary>Renders markdown text on the canvas starting from the given position.</summary>
-        public void Render(AbstGfxCanvas canvas, APoint start)
+        public void Render(IAbstImagePainter canvas, APoint start)
         {
             _canvas = canvas;
             if (_styles.Count > 0)
@@ -95,6 +92,8 @@ namespace AbstUI.Texts
                 var line = rawLine.TrimEnd('\r');
                 ApplyLeadingStyle(ref line);
                 ProcessTags(ref line);
+                if (_fontSize <= 0)
+                    _fontSize = 12;
 
                 // determine header level
                 int headerLevel = 0;
@@ -149,28 +148,56 @@ namespace AbstUI.Texts
             var style = _styles.Values.First();
             var lines = _markdown.Split('\n');
             var pos = start;
-            var fontInfo = _fontManager.GetFontInfo(style.Font, style.FontSize);
+            var fontSize = style.FontSize;
+            if (fontSize <= 0) fontSize = 12;
+            var fontInfo = _fontManager.GetFontInfo(style.Font, fontSize);
             int lineHeight = style.LineHeight > 0 ? style.LineHeight : fontInfo.FontHeight + 4;
             bool firstLine = true;
 
-            foreach (var rawLine in lines)
+            // 1) measure max width of all lines
+            float fullWidth = 0f;
+           
+            var lineWidths = new List<float>(lines.Length);
+            foreach (var raw in lines)
             {
-                var line = rawLine.TrimEnd('\r');
-                float lineWidth = EstimateWidth(line, style.FontSize);
-                float lineX = pos.X;
-                if (style.Alignment == AbstTextAlignment.Center)
-                    lineX -= lineWidth / 2f;
-                else if (style.Alignment == AbstTextAlignment.Right)
-                    lineX -= lineWidth;
-                lineX += style.MarginLeft;
-                if (style.Alignment == AbstTextAlignment.Right)
-                    lineX -= style.MarginRight;
-                else if (style.Alignment == AbstTextAlignment.Center)
-                    lineX -= style.MarginRight / 2f;
+                var line = raw.TrimEnd('\r');
+                var lineWidth = EstimateWidth(line, fontSize);
+                lineWidths.Add(lineWidth);
+                fullWidth = MathF.Max(fullWidth, lineWidth);
+            }
+            // include margins in the box width, if you want the right edge to respect MarginRight:
+            float contentWidth = MathF.Max(0, fullWidth);
+            float originX = pos.X + style.MarginLeft;
 
-                _canvas!.DrawText(new APoint(lineX, pos.Y - (firstLine ? fontInfo.TopIndentation : 0)), line, style.Font, style.Color, style.FontSize, -1, AbstTextAlignment.Left);
+            var lineIndex = 0;
+            foreach (var raw in lines)
+            {
+                var line = raw.TrimEnd('\r');
+                float lineW = lineWidths[lineIndex];
+
+                // align within the measured content box (same right edge for every line)
+                float xOff = 0f;
+                switch (style.Alignment)
+                {
+                    case AbstTextAlignment.Center:
+                        xOff = (contentWidth - lineW) * 0.5f;
+                        break;
+                    case AbstTextAlignment.Right:
+                        xOff = (contentWidth - lineW);
+                        break;
+                    default:
+                        xOff = 0f;
+                        break;
+                }
+
+                float lineX = originX + xOff;
+                _canvas!.DrawText(
+                    new APoint(lineX, pos.Y - (firstLine ? fontInfo.TopIndentation : 0)),
+                    line, style.Font, style.Color, style.FontSize, -1, style.Alignment);
+
                 pos.Offset(0, lineHeight);
                 firstLine = false;
+                lineIndex++;
             }
         }
 
@@ -390,7 +417,9 @@ namespace AbstUI.Texts
         }
 
         private float EstimateWidth(string text, int fontSize)
-            => _fontManager.MeasureTextWidth(text, _fontFamily, fontSize);
+        {
+            return _fontManager.MeasureTextWidth(text, _fontFamily, fontSize);
+        }
 
         private static string StripFormatting(string text)
         {

@@ -5,6 +5,7 @@ using AbstUI.Components.Graphics;
 using AbstUI.Components.Inputs;
 using AbstUI.Components.Menus;
 using AbstUI.Components.Texts;
+using AbstUI.LGodot.Components.Graphics;
 using AbstUI.LGodot.Components.Inputs;
 using AbstUI.LGodot.Components.Menus;
 using AbstUI.LGodot.Styles;
@@ -26,7 +27,8 @@ namespace AbstUI.LGodot.Components
             _godotStyleManager = godotStyleManager;
             _rootNode = rootNode;
         }
-
+        public IAbstImagePainter CreateImagePainter(int width = 0, int height = 0)
+           => new GodotImagePainter((AbstGodotFontManager)FontManager, width, height);
         public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
         {
             var canvas = new AbstGfxCanvas();

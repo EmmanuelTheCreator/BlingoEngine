@@ -6,6 +6,8 @@ namespace AbstUI.LGodot.Styles
 {
     public class AbstGodotFontManager : IAbstFontManager
     {
+        private readonly Dictionary<(string FontName, int Size), Dictionary<long, Image>> _atlasCache = new();
+
         private readonly List<(string Name, AbstFontStyle Style, string FileName)> _fontsToLoad = new();
         private readonly Dictionary<(string Name, AbstFontStyle Style), FontFile> _loadedFonts = new();
         public AbstGodotFontManager()
@@ -30,9 +32,16 @@ namespace AbstUI.LGodot.Styles
             _fontsToLoad.Clear();
         }
         public T? Get<T>(string name, AbstFontStyle style = AbstFontStyle.Regular) where T : class
-             => _loadedFonts.TryGetValue((name, style), out var fontt) ? fontt as T : null;
+        {
+            return _loadedFonts.TryGetValue((name, style), out FontFile? fontt) ? fontt as T : null;
+        }
+
         public FontFile GetTyped(string name, AbstFontStyle style = AbstFontStyle.Regular)
             => _loadedFonts[(name, style)];
+        public FontFile? GetTypedOrDefault(string name, AbstFontStyle style = AbstFontStyle.Regular)
+        {
+            return _loadedFonts.TryGetValue((name, style), out var fontt) ? fontt : (FontFile)_defaultStyle;
+        }
 
         private Font _defaultStyle = ThemeDB.FallbackFont;
         public T GetDefaultFont<T>() where T : class => (_defaultStyle as T)!;
@@ -54,6 +63,16 @@ namespace AbstUI.LGodot.Styles
             int height = (int)font.GetHeight(fontSize);
             int ascent = (int)font.GetAscent(fontSize);
             return new FontInfo(height, height - ascent);
+        }
+
+        public Dictionary<long, Image> GetAtlasCache(string fontName, int fontSize)
+        {
+            if (!_atlasCache.TryGetValue((fontName, fontSize), out var atlasCache))
+            {
+                atlasCache = new Dictionary<long, Image>();
+                _atlasCache[(fontName , fontSize)] = atlasCache;
+            }
+            return atlasCache;
         }
     }
 }

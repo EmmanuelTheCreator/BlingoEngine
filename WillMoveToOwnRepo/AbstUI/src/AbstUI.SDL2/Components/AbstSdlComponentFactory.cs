@@ -49,6 +49,9 @@ namespace AbstUI.SDL2.Components
         public AbstSDLRenderContext CreateRenderContext(AbstSDLRenderContext? parent, System.Numerics.Vector2 origin)
             => new(_rootContext.Renderer, origin, FontManagerTyped, parent);
 
+        public IAbstImagePainter CreateImagePainter(int width = 0, int height = 0)
+            =>  new SDLImagePainter(FontManager,width,height, RootContext.Renderer);
+
         public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
         {
             var canvas = new AbstGfxCanvas();

@@ -220,5 +220,89 @@ namespace AbstUI.LGodot.Components
             QueueFree();
             base.Dispose();
         }
+
+
+        public IAbstTexture2D GetTexture(string? name = null)
+        {
+            var sizeI = new Vector2I((int)Size.X, (int)Size.Y);
+
+            // Temporary holder in the tree (required for SubViewport to render)
+            var holder = new Node { Name = "__tmp_vp_holder" + name };
+            var tree = Engine.GetMainLoop() as SceneTree ?? throw new InvalidOperationException("No SceneTree available.");
+
+
+            tree.Root.AddChild(holder);
+
+            var vp = new SubViewport
+            {
+                Disable3D = true,
+                TransparentBg = true,
+                RenderTargetUpdateMode = SubViewport.UpdateMode.Once,
+                Size = sizeI
+            };
+            holder.AddChild(vp);
+
+            // Duplicate this Control so we don't move the original
+            var clone = (Control)Duplicate((int)DuplicateFlags.UseInstantiation);
+            clone.Position = Vector2.Zero;
+            clone.Size = Size;
+            vp.AddChild(clone);
+
+            // Force one render
+            RenderingServer.ForceDraw();
+
+            using var img = vp.GetTexture().GetImage();
+            img.Convert(Image.Format.Rgba8);
+            var tex = ImageTexture.CreateFromImage(img);
+
+            // Cleanup
+            clone.QueueFree();
+            vp.QueueFree();
+            holder.QueueFree();
+
+            var texture = new AbstGodotTexture2D(tex, name ?? $"{Name}_Snapshot");
+            //texture.DebugWriteToDisk();
+            return texture;
+        }
+
     }
+
+    public partial class OffscreenRenderer : Node
+    {
+        private SubViewport _vp = null!;
+
+        public override void _EnterTree()
+        {
+            _vp = new SubViewport
+            {
+                Disable3D = true,
+                TransparentBg = true,
+                RenderTargetUpdateMode = SubViewport.UpdateMode.Once,
+                Size = new Vector2I(2, 2)
+            };
+            AddChild(_vp);
+            //Visible = false;
+            ProcessMode = ProcessModeEnum.Always;
+        }
+
+        public Texture2D RenderControl(Control source, Vector2I size)
+        {
+            _vp.Size = size;
+
+            var clone = (Control)source.Duplicate((int)DuplicateFlags.UseInstantiation);
+            clone.Position = Vector2.Zero;
+            clone.Size = size;
+            _vp.AddChild(clone);
+
+            RenderingServer.ForceDraw();
+
+            using var img = _vp.GetTexture().GetImage();
+            img.Convert(Image.Format.Rgba8);
+            var tex = ImageTexture.CreateFromImage(img);
+
+            clone.QueueFree();
+            return tex;
+        }
+    }
+
 }

@@ -29,6 +29,8 @@ namespace AbstUI.Components.Graphics
             => _framework.DrawPicture(texture, width, height, position);
         public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)
             => _framework.DrawPicture(data, width, height, position, format);
+        public IAbstTexture2D GetTexture(string? name = null) 
+            => _framework.GetTexture(name);
     }
 
 }

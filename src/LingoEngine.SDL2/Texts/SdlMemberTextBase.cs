@@ -84,6 +84,7 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     public int TextWidth => _textWidth;
     public int TextHeight => _textHeight;
 
+    public IAbstFontManager FontManager => _fontManager;
 
     protected SdlMemberTextBase(IAbstFontManager fontManager, ISdlRootComponentContext sdlRootContext)
     {

@@ -138,7 +138,7 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
         var fontManager = _serviceProvider.GetRequiredService<IAbstFontManager>();
         var logger = _serviceProvider.GetRequiredService<ILogger<UnityMemberField>>();
         var impl = new UnityMemberField(fontManager, logger);
-        var member = new LingoMemberField((LingoCast)cast, impl, numberInCast, name, fileName ?? string.Empty, regPoint);
+        var member = new LingoMemberField((LingoCast)cast, impl, numberInCast, ComponentFactory, name, fileName ?? string.Empty, regPoint);
         impl.Init(member);
         _disposables.Add(impl);
         return member;
@@ -148,7 +148,7 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
         var fontManager = _serviceProvider.GetRequiredService<IAbstFontManager>();
         var logger = _serviceProvider.GetRequiredService<ILogger<UnityMemberText>>();
         var impl = new UnityMemberText(fontManager, logger);
-        var member = new LingoMemberText((LingoCast)cast, impl, numberInCast, name, fileName ?? string.Empty, regPoint);
+        var member = new LingoMemberText((LingoCast)cast, impl, numberInCast, ComponentFactory, name, fileName ?? string.Empty, regPoint);
         impl.Init(member);
         _disposables.Add(impl);
         return member;

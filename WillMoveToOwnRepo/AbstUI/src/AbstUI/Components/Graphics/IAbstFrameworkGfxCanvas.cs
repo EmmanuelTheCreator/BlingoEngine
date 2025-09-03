@@ -19,5 +19,6 @@ namespace AbstUI.Components.Graphics
         void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = default);
         void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format);
         void DrawPicture(IAbstTexture2D texture, int width, int height, APoint position);
+        IAbstTexture2D GetTexture(string? name = null);
     }
 }
