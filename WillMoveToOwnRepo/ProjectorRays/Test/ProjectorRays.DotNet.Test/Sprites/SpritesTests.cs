@@ -43,6 +43,15 @@ namespace ProjectorRays.DotNet.Test.Sprites
             sprites[4].StartFrame.Should().Be(13);
             sprites[4].EndFrame.Should().Be(15);
         }
+
+        [Fact]
+        public void TestTetriGrounds()
+        {
+            var baseDir = AppContext.BaseDirectory;
+            var path = Path.Combine(baseDir, "../../../../../../../", "Demo","TetriGrounds","TetriGrounds.dir");
+            var sprites = ReadSprites(path);
+            //sprites.Count.Should().BeGreaterThan(40);
+        }
         [Fact]
         public void TestLockedSprites()
         {
