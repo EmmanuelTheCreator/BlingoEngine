@@ -65,7 +65,10 @@ namespace AbstUI.Tools
         {
             if (expression.Body is MemberExpression memberExpr && memberExpr.Member is PropertyInfo prop)
             {
-                return (target, value) => prop.SetValue(target, value);
+                return (target, value) =>
+                {
+                    prop.SetValue(target, value);
+                };
             }
 
             if (expression.Body is UnaryExpression { Operand: MemberExpression unaryMember } && unaryMember.Member is PropertyInfo propInfo)

@@ -39,6 +39,7 @@ namespace AbstUI.SDL2.Components.Inputs
             get => _text;
             set
             {
+                if (_text == value) return;
                 _text = value ?? string.Empty;
                 _codepoints.Clear();
                 foreach (var r in value.EnumerateRunes()) _codepoints.Add(r.Value);

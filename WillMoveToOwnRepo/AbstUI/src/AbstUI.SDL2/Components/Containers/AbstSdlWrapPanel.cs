@@ -67,6 +67,7 @@ namespace AbstUI.SDL2.Components.Containers
                 comp.ComponentContext.SetParents(ComponentContext);
 
             _layoutDirty = true;
+            RequestRedraw(this);
         }
 
         public void RemoveItem(IAbstFrameworkNode child)
@@ -80,6 +81,7 @@ namespace AbstUI.SDL2.Components.Containers
 
             _children.Remove(entry);
             _layoutDirty = true;
+            RequestRedraw(this);
         }
 
         public IEnumerable<IAbstFrameworkNode> GetItems() => _children.Select(c => c.Node).ToArray();
@@ -98,6 +100,7 @@ namespace AbstUI.SDL2.Components.Containers
                     comp.ComponentContext.SetParents(null);
             _children.Clear();
             _layoutDirty = true;
+            RequestRedraw(this);
         }
 
         public void MarkChildDirty(IAbstFrameworkNode child)

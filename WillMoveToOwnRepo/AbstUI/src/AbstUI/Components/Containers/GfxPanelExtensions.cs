@@ -44,7 +44,10 @@ namespace AbstUI.Components.Containers
         public static AbstInputText SetInputTextAt<T>(this AbstPanel container, T element, string name, float x, float y, int width, Expression<Func<T,string?>> property, int maxLength = 0)
         {
             Action<T, string?> setter = property.CompileSetter();
-            var control = container.Factory.CreateInputText(name, maxLength,x => setter(element,x));
+            var control = container.Factory.CreateInputText(name, maxLength,x =>
+            {
+                setter(element, x);
+            });
             control.Text = property.CompileGetter()(element)?.ToString() ?? string.Empty;
             control.Width = width;
             container.AddItem(control, x, y);

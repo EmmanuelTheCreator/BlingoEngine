@@ -21,12 +21,13 @@ namespace AbstUI.SDL2.Components.Containers
 
         public void AddItem(IAbstFrameworkLayoutNode child)
         {
-            if (!_children.Contains(child))
-            {
-                _children.Add(child);
-                if (child.FrameworkNode is AbstSdlComponent comp)
-                    comp.ComponentContext.SetParents(ComponentContext);
-            }
+            if (_children.Contains(child))
+                return;
+            
+            _children.Add(child);
+            if (child.FrameworkNode is AbstSdlComponent comp)
+                comp.ComponentContext.SetParents(ComponentContext);
+            ComponentContext.QueueRedraw(this);
         }
 
         public void RemoveItem(IAbstFrameworkLayoutNode child)
@@ -35,6 +36,7 @@ namespace AbstUI.SDL2.Components.Containers
             {
                 if (child.FrameworkNode is AbstSdlComponent comp)
                     comp.ComponentContext.SetParents(null);
+                ComponentContext.QueueRedraw(this);
             }
         }
 

@@ -66,6 +66,7 @@ namespace AbstUI.SDL2.Components.Containers
             if (_selectedIndex == -1)
                 _selectedIndex = 0;
             _texture = nint.Zero;
+            ComponentContext.QueueRedraw(this);
         }
 
         public void RemoveTab(IAbstFrameworkTabItem content)
@@ -77,7 +78,9 @@ namespace AbstUI.SDL2.Components.Containers
                 if (_selectedIndex >= _children.Count)
                     _selectedIndex = _children.Count - 1;
                 _texture = nint.Zero;
+                ComponentContext.QueueRedraw(this);
             }
+
         }
 
         public IEnumerable<IAbstFrameworkTabItem> GetTabs() => _children.ToArray();
@@ -87,6 +90,7 @@ namespace AbstUI.SDL2.Components.Containers
             _children.Clear();
             _selectedIndex = -1;
             _texture = nint.Zero;
+            ComponentContext.QueueRedraw(this);
         }
 
         public void SelectTabByName(string tabName)

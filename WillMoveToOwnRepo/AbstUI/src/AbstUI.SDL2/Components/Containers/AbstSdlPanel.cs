@@ -19,9 +19,7 @@ namespace AbstUI.SDL2.Components.Containers
         protected int _yOffset;
         protected int _xOffset;
 
-        public AbstSdlPanel(AbstSdlComponentFactory factory) : base(factory)
-        {
-        }
+       
         public AMargin Margin { get; set; } = AMargin.Zero;
         public AColor? BackgroundColor { get; set; }
         public AColor? BorderColor { get; set; }
@@ -31,14 +29,26 @@ namespace AbstUI.SDL2.Components.Containers
 
         protected readonly List<IAbstFrameworkLayoutNode> _children = new();
 
+
+        public AbstSdlPanel(AbstSdlComponentFactory factory) : base(factory)
+        {
+            //ComponentContext.OnRequestRedraw += RequestRedraw;
+        }
+
+        //private void RequestRedraw(IAbstSDLComponent component)
+        //{
+            
+        //}
+
         public void AddItem(IAbstFrameworkLayoutNode child)
         {
-            if (!_children.Contains(child))
-            {
-                _children.Add(child);
-                if (child.FrameworkNode is AbstSdlComponent comp)
-                    comp.ComponentContext.SetParents(ComponentContext);
-            }
+            if (_children.Contains(child))
+                return;
+            
+            _children.Add(child);
+            if (child.FrameworkNode is AbstSdlComponent comp)
+                comp.ComponentContext.SetParents(ComponentContext);
+            ComponentContext.QueueRedraw(this);
         }
 
         public IEnumerable<IAbstFrameworkLayoutNode> GetItems() => _children.ToArray();
@@ -50,6 +60,7 @@ namespace AbstUI.SDL2.Components.Containers
                 if (child.FrameworkNode is AbstSdlComponent comp)
                     comp.ComponentContext.SetParents(null);
                 (child as IDisposable)?.Dispose();
+                ComponentContext.QueueRedraw(this);
             }
         }
 
@@ -62,6 +73,7 @@ namespace AbstUI.SDL2.Components.Containers
                 (child as IDisposable)?.Dispose();
             }
             _children.Clear();
+            ComponentContext.QueueRedraw(this);
         }
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)

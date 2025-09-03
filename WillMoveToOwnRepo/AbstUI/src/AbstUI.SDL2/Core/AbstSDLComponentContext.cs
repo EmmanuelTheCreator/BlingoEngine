@@ -49,8 +49,7 @@ public class AbstSDLComponentContext : IDisposable
     public void QueueRedraw(IAbstSDLComponent component)
     {
         _requireRender = true;
-        Component ??= component;
-        VisualParent?.QueueRedraw(VisualParent.Component!);
+        VisualParent?.QueueRedraw(component);
         OnRequestRedraw?.Invoke(component);
     }
 

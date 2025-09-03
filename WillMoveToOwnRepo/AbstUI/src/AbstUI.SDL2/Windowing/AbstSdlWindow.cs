@@ -129,6 +129,7 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
         _abstWindow.ResizingContentFromFW(false, width, height - TitleBarHeight);
         // updates sizes because it could be resized to minimum size
         UpateSizeFromAbstWindow();
+        ComponentContext.QueueRedraw(this);
     }
     protected virtual void OnResize(bool firstResize, int width, int height)
     {

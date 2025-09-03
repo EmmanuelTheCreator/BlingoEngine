@@ -337,17 +337,25 @@ namespace LingoEngine.Director.Core.Casts
                 if (_openingEditor) return;
                 _openingEditor = true;
             }
-            string? windowCode = member switch
+            try
             {
-                ILingoMemberTextBase => DirectorMenuCodes.TextEditWindow,
-                LingoMemberBitmap => DirectorMenuCodes.PictureEditWindow,
-                LingoMemberScript => null,
-                _ => null
-            };
-            if (windowCode != null)
-                _commandManager.Handle(new OpenWindowCommand(windowCode));
-            else if (member is LingoMemberScript script)
-                _commandManager.Handle(new OpenScriptCommand(script));
+                string? windowCode = member switch
+                {
+                    ILingoMemberTextBase => DirectorMenuCodes.TextEditWindow,
+                    LingoMemberBitmap => DirectorMenuCodes.PictureEditWindow,
+                    LingoMemberScript => null,
+                    _ => null
+                };
+                if (windowCode != null)
+                    _commandManager.Handle(new OpenWindowCommand(windowCode));
+                else if (member is LingoMemberScript script)
+                    _commandManager.Handle(new OpenScriptCommand(script));
+            }
+            catch (Exception ex)
+            {
+                // todo : add logging
+            }
+
         }
     }
 }
