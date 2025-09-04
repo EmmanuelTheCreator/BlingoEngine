@@ -66,7 +66,9 @@ namespace LingoEngine.Lingo.Core.Tokenizer
         Handler,
         Until,
         Forever,
-        Times
+        Times,
+        Case,
+        Otherwise
     }
     /// <summary>
     /// Represents a token in the Lingo source code.
@@ -136,7 +138,9 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 { "not", LingoTokenType.Not },
                 { "loop", LingoTokenType.Repeat },
                 { "forever", LingoTokenType.Forever },
-                { "times", LingoTokenType.Times }
+                { "times", LingoTokenType.Times },
+                { "case", LingoTokenType.Case },
+                { "otherwise", LingoTokenType.Otherwise }
             };
 
         public LingoTokenizer(string source)
