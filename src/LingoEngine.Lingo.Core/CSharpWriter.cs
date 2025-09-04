@@ -308,6 +308,7 @@ public partial class CSharpWriter : ILingoAstVisitor
             AppendLine(":");
             Indent();
             label.Block?.Accept(this);
+            AppendLine("break;");
             Unindent();
             label = label.NextLabel;
         }
@@ -316,6 +317,7 @@ public partial class CSharpWriter : ILingoAstVisitor
             AppendLine("default:");
             Indent();
             node.Otherwise.Accept(this);
+            AppendLine("break;");
             Unindent();
         }
         Unindent();
@@ -712,6 +714,8 @@ public partial class CSharpWriter : ILingoAstVisitor
         {
             if (_sb.Length - startLen >= 2 && _sb[^2] == ';')
                 _sb.Length -= 2;
+            else if (_sb.Length - startLen >= 3 && _sb[^2] == '\r' && _sb[^3] == ';')
+                _sb.Length -= 3;
             _atLineStart = false;
         }
         else if (_sb.Length - startLen >= 1 && _sb[^1] == ';')
