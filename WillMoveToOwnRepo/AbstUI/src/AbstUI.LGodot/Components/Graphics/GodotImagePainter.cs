@@ -68,9 +68,9 @@ public partial class GodotImagePainter : IAbstImagePainter
         if (height == 0) height = 10;
         Width = width;
         Height = height;
-        _control = new DrawingControl(() =>_dirty = false)
+        _control = new DrawingControl(() => _dirty = false)
         {
-           
+
             Size = new Vector2(width, height),
             CustomMinimumSize = new Vector2(width, height)
         };
@@ -119,7 +119,7 @@ public partial class GodotImagePainter : IAbstImagePainter
             if (newWidth > Width || newHeight > Height)
                 Resize(Math.Max(Width, newWidth), Math.Max(Height, newHeight));
         }
-       
+
         _control.QueueRedraw();
     }
 
@@ -247,9 +247,10 @@ public partial class GodotImagePainter : IAbstImagePainter
                 if (!AutoResize || string.IsNullOrEmpty(txt)) return null;
                 if (!txt.Contains('\n'))
                 {
-                    float tw = width >= 0 ? width : fontGodot.GetStringSize(txt, alignment.ToGodot(), width, fontSize).X;
-                    float th = fontGodot.GetHeight(fontSize);
-                    return new APoint((int)(pos.X + tw), (int)(pos.Y + th));
+                    float measuredW = fontGodot.GetStringSize(txt, alignment.ToGodot(), width, fontSize).X;
+                    float w = width >= 0 ? MathF.Max(width, measuredW) : measuredW;
+                    float h = fontGodot.GetHeight(fontSize);
+                    return new APoint((int)(pos.X + w), (int)(pos.Y + h));
                 }
                 else
                 {
@@ -258,8 +259,8 @@ public partial class GodotImagePainter : IAbstImagePainter
                     float maxW = 0;
                     foreach (var line in lines)
                         maxW = MathF.Max(maxW, fontGodot.GetStringSize(line, alignment.ToGodot(), width, fontSize).X);
+                    float w = width >= 0 ? MathF.Max(width, maxW) : maxW;
                     float h = lineHeight * lines.Length;
-                    float w = width >= 0 ? width : maxW;
                     return new APoint((int)(pos.X + w), (int)(pos.Y + h));
                 }
             },
@@ -267,18 +268,20 @@ public partial class GodotImagePainter : IAbstImagePainter
             {
                 if (!txt.Contains('\n'))
                 {
-                    int w = width >= 0 ? width : -1;
-                    control.DrawString(fontGodot, pos.ToVector2(), txt, alignment.ToGodot(), w, fontSize, col);
+                    int wBox = width >= 0 ? width : -1;
+                    var p = new Vector2(pos.X, pos.Y + fontGodot.GetAscent(fontSize));
+                    control.DrawString(fontGodot, p, txt, alignment.ToGodot(), wBox, fontSize, col);
                 }
                 else
                 {
                     var lines = txt.Split('\n');
-                    var lineHeight = fontGodot.GetHeight(fontSize);
+                    float lineHeight = fontGodot.GetHeight(fontSize);
+                    float ascent = fontGodot.GetAscent(fontSize);
                     for (int i = 0; i < lines.Length; i++)
                     {
-                        var p = new Vector2(pos.X, pos.Y + i * lineHeight);
-                        int w = width >= 0 ? width : -1;
-                        control.DrawString(fontGodot, p, lines[i], alignment.ToGodot(), w, fontSize, col);
+                        var p = new Vector2(pos.X, pos.Y + ascent + i * lineHeight);
+                        int wBox = width >= 0 ? width : -1;
+                        control.DrawString(fontGodot, p, lines[i], alignment.ToGodot(), wBox, fontSize, col);
                     }
                 }
             }
@@ -298,14 +301,16 @@ public partial class GodotImagePainter : IAbstImagePainter
             () =>
             {
                 if (!AutoResize || string.IsNullOrEmpty(txt)) return null;
-                float tw = width >= 0 ? width : fontGodot.GetStringSize(txt, alignment.ToGodot(), width, fontSize).X;
-                float th = height >= 0 ? height : fontGodot.GetHeight(fontSize);
-                return new APoint((int)(pos.X + tw), (int)(pos.Y + th));
+                float measuredW = fontGodot.GetStringSize(txt, alignment.ToGodot(), width, fontSize).X;
+                float w = width >= 0 ? MathF.Max(width, measuredW) : measuredW;
+                float h = height >= 0 ? height : fontGodot.GetHeight(fontSize);
+                return new APoint((int)(pos.X + w), (int)(pos.Y + h));
             },
             control =>
             {
-                int w = width >= 0 ? width : -1;
-                control.DrawString(fontGodot, pos.ToVector2(), txt, alignment.ToGodot(), w, fontSize, col);
+                int wBox = width >= 0 ? width : -1;
+                var p = new Vector2(pos.X, pos.Y + fontGodot.GetAscent(fontSize));
+                control.DrawString(fontGodot, p, txt, alignment.ToGodot(), wBox, fontSize, col);
             }
         ));
         MarkDirty();
@@ -359,7 +364,7 @@ public partial class GodotImagePainter : IAbstImagePainter
             foreach (var action in DrawActions)
                 action.DrawAction(this);
             _resetDirty();
-            
+
         }
 
         private static Node? _holder;
@@ -404,7 +409,7 @@ public partial class GodotImagePainter : IAbstImagePainter
             //    dst.QueueRedraw();
             //}
 
-            RenderingServer.ForceDraw(true,2);
+            RenderingServer.ForceDraw(true, 2);
 
             using var img = vp.GetTexture().GetImage();
             img.Convert(Image.Format.Rgba8);
