@@ -269,7 +269,7 @@ namespace LingoEngine.Tools
             var colorTableMatch = Regex.Match(rtfContent, @"\\colortbl(?<colortbl>[^}]+)}");
             var table = colorTableMatch.Groups["colortbl"].Value;
             baseIndex = table.StartsWith(";") ? 1 : 0;
-            return Regex.Matches(table, @"\\red(?<r>\d+)\\green(?<g>\d+)\\blue(?<b>\d+);")
+            return Regex.Matches(table, @"\\red(?<r>\d+)\\green(?<g>\d+)\s*\\blue(?<b>\d+);")
                 .Cast<Match>()
                 .Select(m => new AColor(-1, byte.Parse(m.Groups["r"].Value), byte.Parse(m.Groups["g"].Value), byte.Parse(m.Groups["b"].Value)))
                 .ToList();

@@ -346,42 +346,40 @@ namespace AbstUI.SDL2.Components.Graphics
                 return line;
             }
 
-            string[] lines = txt.Split('\n');
+            var rawLines = txt.Split('\n');
+            var lines = new string[rawLines.Length];
+            for (int i = 0; i < rawLines.Length; i++)
+                lines[i] = RenderLine(rawLines[i]);
             int maxW = 0;
-            int totalH = 0;
-            foreach (var ln in lines)
+            foreach (var line in lines)
             {
-                var line = RenderLine(ln);
-                if (SDL_ttf.TTF_SizeUTF8(fnt, line, out int tw, out int th) == 0)
-                {
-                    if (tw > maxW) maxW = tw;
-                    totalH += th;
-                }
+                if (SDL_ttf.TTF_SizeUTF8(fnt, line, out int tw, out _) == 0 && tw > maxW)
+                    maxW = tw;
             }
+            int lineSkip = SDL_ttf.TTF_FontLineSkip(fnt);
+            int ascent = SDL_ttf.TTF_FontAscent(fnt);
+            int totalH = lines.Length * lineSkip;
 
             _drawActions.Add((
                 () =>
                 {
                     if (!AutoResize) return null;
-
                     int needW = (w >= 0) ? Math.Max(maxW, w) : maxW;
-                    return EnsureCapacity((int)pos.X + needW, (int)pos.Y + totalH);
+                    return EnsureCapacity((int)pos.X + needW, (int)(pos.Y - ascent + totalH));
                 },
                 () =>
                 {
                     SDL.SDL_Color c = new SDL.SDL_Color { r = col?.R ?? 0, g = col?.G ?? 0, b = col?.B ?? 0, a = 255 };
 
                     List<(nint surf, int w, int h)> surfaces = new();
-                    foreach (var ln in lines)
+                    foreach (var line in lines)
                     {
-                        var line = RenderLine(ln);
                         nint s = SDL_ttf.TTF_RenderUTF8_Blended(fnt, line, c);
                         if (s == nint.Zero) continue;
                         var sur = SDL.PtrToStructure<SDL.SDL_Surface>(s);
                         surfaces.Add((s, sur.w, sur.h));
                     }
-
-                    int y = (int)pos.Y;
+                    int y = (int)pos.Y - ascent;
                     int boxW = w >= 0 ? w : Math.Max(0, Width - (int)pos.X);
 
                     foreach (var (s, tw, th) in surfaces)
@@ -402,11 +400,11 @@ namespace AbstUI.SDL2.Components.Graphics
                             SDL.SDL_RenderCopy(Renderer, tex, nint.Zero, ref dst);
                             SDL.SDL_DestroyTexture(tex);
                         }
-                        SDL.SDL_FreeSurface(s);
-                        y += th;
+                        y += lineSkip;
                     }
                 }
             ));
+            font.Release();
             MarkDirty();
         }
 
@@ -425,26 +423,26 @@ namespace AbstUI.SDL2.Components.Graphics
             var fnt = font.FontHandle;
             if (fnt == nint.Zero) { font.Release(); return; }
 
+            int ascent = SDL_ttf.TTF_FontAscent(fnt);
+            int lineHeight = SDL_ttf.TTF_FontHeight(fnt);
+
             _drawActions.Add((
                 () =>
                 {
                     if (!AutoResize) return null;
                     int calcW = w;
                     int calcH = h;
-                    if (calcW < 0 || calcH < 0)
+                    if (SDL_ttf.TTF_SizeUTF8(fnt, txt, out int tw, out _) == 0)
                     {
-                        if (SDL_ttf.TTF_SizeUTF8(fnt, txt, out int tw, out int th) == 0)
-                        {
-                            if (calcW < 0) calcW = tw;
-                            if (calcH < 0) calcH = th;
-                        }
-                        else
-                        {
-                            if (calcW < 0) calcW = 0;
-                            if (calcH < 0) calcH = fs;
-                        }
+                        calcW = (w >= 0) ? Math.Max(w, tw) : tw;
+                        calcH = (h >= 0) ? h : lineHeight;
                     }
-                    return EnsureCapacity((int)pos.X + calcW, (int)pos.Y + calcH);
+                    else
+                    {
+                        if (calcW < 0) calcW = 0;
+                        if (calcH < 0) calcH = lineHeight;
+                    }
+                    return EnsureCapacity((int)pos.X + calcW, (int)(pos.Y - ascent + calcH));
                 },
                 () =>
                 {
@@ -468,7 +466,7 @@ namespace AbstUI.SDL2.Components.Graphics
                                     break;
                             }
                         }
-                        SDL.SDL_Rect dst = new SDL.SDL_Rect { x = startX, y = (int)pos.Y, w = sur.w, h = sur.h };
+                        SDL.SDL_Rect dst = new SDL.SDL_Rect { x = startX, y = (int)pos.Y - ascent, w = sur.w, h = sur.h };
                         SDL.SDL_RenderCopy(Renderer, tex, nint.Zero, ref dst);
                         SDL.SDL_DestroyTexture(tex);
                     }
@@ -478,7 +476,6 @@ namespace AbstUI.SDL2.Components.Graphics
             font.Release();
             MarkDirty();
         }
-
         public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)
         {
             var dat = data;

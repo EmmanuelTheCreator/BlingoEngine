@@ -1,4 +1,8 @@
+using System.Collections.Generic;
 using System.Linq;
+using AbstUI.Components.Graphics;
+using AbstUI.Primitives;
+using AbstUI.Styles;
 using AbstUI.Texts;
 using LingoEngine.Tools;
 using Xunit;
@@ -253,11 +257,28 @@ public class RtfToMarkdownTests
     [Fact]
     public void Convert_HandlesColorIndexWithoutLeadingSemicolon()
     {
-        const string rtf = "{\\rtf1\\ansi\\deff0 {\\fonttbl{\\f0\\fswiss Arial;}{\\f1\\fnil Arcade *;}{\\f2\\fnil Earth *;}}{\\colortbl\\red0\\green0\\blue0;\\red255\\green0\r\n\\blue0;}{\\stylesheet{\\s0\\fs24 Normal Text;}}\\pard \\f0\\fs24{\\pard \\f2\\fs36\\cf1\\qc New }{\\pard \\b\\f2\\fs36\\cf1\\qc Highscore!!!}{\\pard \r\n\\f2\\fs36\\cf1\\qc\\par\r\n}{\\pard \\f2\\fs28\\cf1\\qc Enter your }{\\pard \\f2\\fs36\\cf1\\qc Name}}";
+        const string rtf = "{\\rtf1\\ansi\\deff0 {\\fonttbl{\\f0\\fswiss Arial;}{\\f1\\fnil Arcade *;}{\\f2\\fnil Earth *;}}{\\colortbl\\red0\\green0\\blue0;\\red255\\green0\r\n\\blue0;}{\\stylesheet{\\s0\\fs24 Normal Text;}}\\pard \\f0\\fs24{\\pard \\f2\\fs36\\cf1\\qc New }{\\pard \\b\\f2\\fs36\\cf1\\qc Highscore!!!}{\\pard \r\n\\f2\\fs36\\cf1\\qc\\par\r\n}{\\pard \r\n\\f2\\fs28\\cf1\\qc Enter your }{\\pard \\f2\\fs36\\cf1\\qc Name}}";
 
         var data = RtfToMarkdown.Convert(rtf);
 
         var expected = "{{FONT-FAMILY:Earth}}{{FONT-SIZE:18}}{{COLOR:#FF0000}}{{ALIGN:center}}New **Highscore!!!**\n{{FONT-SIZE:14}}Enter your {{FONT-SIZE:18}}Name";
         Assert.Equal(expected, data.Markdown);
+    }
+
+    [Fact]
+    public void Convert_HandlesColorIndexWithoutLeadingSemicolon_HasExpectedSize()
+    {
+        const string rtf = "{\\rtf1\\ansi\\deff0 {\\fonttbl{\\f0\\fswiss Arial;}{\\f1\\fnil Arcade *;}{\\f2\\fnil Earth *;}}{\\colortbl\\red0\\green0\\blue0;\\red255\\green0\r\n\\blue0;}{\\stylesheet{\\s0\\fs24 Normal Text;}}\\pard \\f0\\fs24{\\pard \\f2\\fs36\\cf1\\qc New }{\\pard \\b\\f2\\fs36\\cf1\\qc Highscore!!!}{\\pard \r\n\\f2\\fs36\\cf1\\qc\\par\r\n}{\\pard \r\n\\f2\\fs28\\cf1\\qc Enter your }{\\pard \\f2\\fs36\\cf1\\qc Name}}";
+
+        var data = RtfToMarkdown.Convert(rtf);
+
+        var fontManager = new TestFontManager();
+        var renderer = new AbstMarkdownRenderer(fontManager);
+        renderer.SetText(data);
+
+        var painter = new SizeRecordingPainter { AutoResize = true };
+        renderer.Render(painter, new APoint(0, 0));
+
+        Assert.True(painter.Height >= 36);
     }
 }
