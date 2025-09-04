@@ -357,6 +357,50 @@ public class UnityImagePainter : IAbstImagePainter
         MarkDirty();
     }
 
+    public void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular)
+    {
+        var pos = position; var txt = text; var col = (color ?? new AColor(0, 0, 0)).ToUnityColor();
+        var fnt = font; var fs = fontSize; var w = width; var h = height; var align = alignment; var st = style;
+        _drawActions.Add((
+            () =>
+            {
+                if (!AutoResize) return null;
+                float textW = w >= 0 ? w : _fontManager.MeasureTextWidth(txt, fnt ?? string.Empty, fs);
+                int textH = h >= 0 ? h : _fontManager.GetFontInfo(fnt ?? string.Empty, fs).Height;
+                return EnsureCapacity((int)(pos.X + textW), (int)(pos.Y + textH));
+            },
+            tex =>
+            {
+                var rt = RenderTexture.GetTemporary(tex.width, tex.height, 0, RenderTextureFormat.ARGB32);
+                UnityEngine.Graphics.Blit(tex, rt);
+                var prev = RenderTexture.active;
+                RenderTexture.active = rt;
+                GL.PushMatrix();
+                GL.LoadPixelMatrix(0, tex.width, tex.height, 0);
+                var gstyle = new GUIStyle
+                {
+                    font = fnt != null ? _fontManager.Get<Font>(fnt, st) ?? _fontManager.GetDefaultFont<Font>() : _fontManager.GetDefaultFont<Font>(),
+                    fontSize = fs,
+                    normal = new GUIStyleState { textColor = col }
+                };
+                gstyle.alignment = align switch
+                {
+                    AbstTextAlignment.Center => TextAnchor.MiddleCenter,
+                    AbstTextAlignment.Right => TextAnchor.MiddleRight,
+                    _ => TextAnchor.UpperLeft
+                };
+                var rect = new Rect(pos.X, pos.Y, w >= 0 ? w : tex.width, h >= 0 ? h : tex.height);
+                GUI.Label(rect, txt, gstyle);
+                GL.PopMatrix();
+                tex.ReadPixels(new Rect(0, 0, tex.width, tex.height), 0, 0);
+                tex.Apply();
+                RenderTexture.active = prev;
+                RenderTexture.ReleaseTemporary(rt);
+            }
+        ));
+        MarkDirty();
+    }
+
     public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)
     {
         var dat = data; var w = width; var h = height; var pos = position; var fmt = format;

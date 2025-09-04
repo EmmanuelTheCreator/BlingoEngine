@@ -373,6 +373,75 @@ namespace AbstUI.SDL2.Components.Graphics
             MarkDirty();
         }
 
+        public void DrawSingleLine(APoint position, string text, string? fontName = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular)
+        {
+            var pos = position;
+            var txt = text;
+            var fntName = fontName;
+            var col = color;
+            var fs = fontSize;
+            if (fs == 0) fs = 12;
+            var w = width;
+            var h = height;
+            var font = _fontManager.GetTyped(this, fntName ?? string.Empty, fs, style);
+            if (font == null) return;
+            var fnt = font.FontHandle;
+            if (fnt == nint.Zero) { font.Release(); return; }
+
+            _drawActions.Add((
+                () =>
+                {
+                    if (!AutoResize) return null;
+                    int calcW = w;
+                    int calcH = h;
+                    if (calcW < 0 || calcH < 0)
+                    {
+                        if (SDL_ttf.TTF_SizeUTF8(fnt, txt, out int tw, out int th) == 0)
+                        {
+                            if (calcW < 0) calcW = tw;
+                            if (calcH < 0) calcH = th;
+                        }
+                        else
+                        {
+                            if (calcW < 0) calcW = 0;
+                            if (calcH < 0) calcH = fs;
+                        }
+                    }
+                    return EnsureCapacity((int)pos.X + calcW, (int)pos.Y + calcH);
+                },
+                () =>
+                {
+                    SDL.SDL_Color c = new SDL.SDL_Color { r = col?.R ?? 0, g = col?.G ?? 0, b = col?.B ?? 0, a = 255 };
+                    nint s = SDL_ttf.TTF_RenderUTF8_Blended(fnt, txt, c);
+                    if (s == nint.Zero) return;
+                    var sur = SDL.PtrToStructure<SDL.SDL_Surface>(s);
+                    nint tex = SDL.SDL_CreateTextureFromSurface(Renderer, s);
+                    if (tex != nint.Zero)
+                    {
+                        int startX = (int)pos.X;
+                        if (w >= 0)
+                        {
+                            switch (alignment)
+                            {
+                                case AbstTextAlignment.Center:
+                                    startX += Math.Max(0, (w - sur.w) / 2);
+                                    break;
+                                case AbstTextAlignment.Right:
+                                    startX += Math.Max(0, w - sur.w);
+                                    break;
+                            }
+                        }
+                        SDL.SDL_Rect dst = new SDL.SDL_Rect { x = startX, y = (int)pos.Y, w = sur.w, h = sur.h };
+                        SDL.SDL_RenderCopy(Renderer, tex, nint.Zero, ref dst);
+                        SDL.SDL_DestroyTexture(tex);
+                    }
+                    SDL.SDL_FreeSurface(s);
+                }
+            ));
+            font.Release();
+            MarkDirty();
+        }
+
         public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)
         {
             var dat = data;

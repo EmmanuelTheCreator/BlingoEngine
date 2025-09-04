@@ -196,9 +196,9 @@ namespace AbstUI.Texts
                     fontStyle |= AbstFontStyle.Bold;
                 if (style.Italic)
                     fontStyle |= AbstFontStyle.Italic;
-                _canvas!.DrawText(
+                _canvas!.DrawSingleLine(
                     new APoint(lineX, pos.Y - (firstLine ? fontInfo.TopIndentation : 0)),
-                    line, style.Font, style.Color, style.FontSize, -1, style.Alignment, fontStyle);
+                    line, style.Font, style.Color, style.FontSize, (int)MathF.Ceiling(lineW), fontInfo.FontHeight, style.Alignment, fontStyle);
 
                 pos.Offset(0, lineHeight);
                 firstLine = false;
@@ -337,12 +337,13 @@ namespace AbstUI.Texts
                     return;
                 string text = sb.ToString();
                 float width = EstimateWidth(text, fontSize);
+                var fontInfo = _fontManager.GetFontInfo(_fontFamily, fontSize);
                 var fontStyle = AbstFontStyle.Regular;
                 if (bold)
                     fontStyle |= AbstFontStyle.Bold;
                 if (italic)
                     fontStyle |= AbstFontStyle.Italic;
-                _canvas!.DrawText(new APoint(currentX, pos.Y), text, _fontFamily, _color, fontSize, -1, _alignment, fontStyle);
+                _canvas!.DrawSingleLine(new APoint(currentX, pos.Y), text, _fontFamily, _color, fontSize, (int)MathF.Ceiling(width), fontInfo.FontHeight, _alignment, fontStyle);
                 if (underline)
                     _canvas!.DrawLine(new APoint(currentX, pos.Y + fontSize), new APoint(currentX + width, pos.Y + fontSize), _color, 1);
                 currentX += width;

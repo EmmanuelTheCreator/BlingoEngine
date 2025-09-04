@@ -481,6 +481,126 @@ namespace AbstUI.LGodot.Components.Graphics
 
             MarkDirty();
         }
+        public void DrawSingleLine(APoint position, string text, string? fontName = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular)
+        {
+            var pos = position;
+            var txt = text ?? string.Empty;
+            var fntName = fontName;
+            var col = color ?? new AColor(0, 0, 0, 255);
+            var fs = Math.Max(1, fontSize);
+            var w = width;
+            var h = height;
+
+            _drawActions.Add((
+                () =>
+                {
+                    if (!AutoResize) return null;
+                    if (w >= 0 && h >= 0)
+                        return EnsureCapacity((int)pos.X + w, (int)pos.Y + h);
+
+                    int needW = w;
+                    int needH = h >= 0 ? h : fs;
+                    var font = _fontManager.GetTypedOrDefault(fntName ?? string.Empty, style);
+                    if (font != null && !string.IsNullOrEmpty(txt) && (w < 0 || h < 0))
+                    {
+                        var rids = font.GetRids();
+                        var fr = (Rid)rids[0];
+                        var ts = TextServerManager.GetPrimaryInterface();
+                        var shaped = ts.CreateShapedText();
+                        ts.ShapedTextAddString(shaped, txt, rids, fs);
+                        ts.ShapedTextShape(shaped);
+                        var lineSize = ts.ShapedTextGetSize(shaped);
+                        if (w < 0) needW = (int)MathF.Ceiling(lineSize.X);
+                        if (h < 0)
+                        {
+                            var ascent = ts.FontGetAscent(fr, fs);
+                            var descent = ts.FontGetDescent(fr, fs);
+                            needH = (int)MathF.Ceiling((float)(ascent + descent));
+                        }
+                        ts.FreeRid(shaped);
+                    }
+                    else
+                    {
+                        if (w < 0) needW = 0;
+                    }
+                    return EnsureCapacity((int)pos.X + (needW >= 0 ? needW : 0), (int)pos.Y + (needH >= 0 ? needH : fs));
+                },
+                img =>
+                {
+                    var font = _fontManager.GetTypedOrDefault(fntName ?? string.Empty, style);
+                    if (font == null || string.IsNullOrEmpty(txt)) return;
+                    fntName = font.FontName;
+                    var sizeKey = new Vector2I(fs, 0);
+                    var rids = font.GetRids();
+                    var fr = (Rid)rids[0];
+                    var atlasCache = _fontManager.GetAtlasCache(fntName!, fs);
+                    var tint = col.ToGodotColor();
+                    var imgW = (uint)img.GetWidth();
+                    var imgH = (uint)img.GetHeight();
+                    var ts = TextServerManager.GetPrimaryInterface();
+
+                    var shaped = ts.CreateShapedText();
+                    ts.ShapedTextAddString(shaped, txt, rids, fs);
+                    ts.ShapedTextShape(shaped);
+
+                    var lineSize = ts.ShapedTextGetSize(shaped);
+                    float lineW = lineSize.X;
+                    var ascent = ts.FontGetAscent(fr, fs);
+                    var descent = ts.FontGetDescent(fr, fs);
+                    float xOff = 0f;
+                    if (w >= 0)
+                    {
+                        if (alignment == AbstTextAlignment.Center) xOff = MathF.Max(0, (w - lineW) * 0.5f);
+                        else if (alignment == AbstTextAlignment.Right) xOff = MathF.Max(0, w - lineW);
+                    }
+
+                    double penX = 0.0;
+                    foreach (Godot.Collections.Dictionary g in ts.ShapedTextGetGlyphs(shaped))
+                    {
+                        int glyphIndex = (int)g["index"];
+                        var advance = (float)g["advance"];
+                        var offset = (Vector2)g["offset"];
+                        penX += advance;
+
+                        var texIdx = ts.FontGetGlyphTextureIdx(fr, sizeKey, glyphIndex);
+                        if (texIdx < 0) continue;
+
+                        if (!atlasCache.TryGetValue(texIdx, out var atlas))
+                        {
+                            var aimg = ts.FontGetTextureImage(fr, sizeKey, texIdx);
+                            if (aimg == null || aimg.IsEmpty()) { continue; }
+                            aimg.Convert(Image.Format.Rgba8);
+                            atlasCache[texIdx] = aimg;
+                        }
+                        var srcImg = atlasCache[texIdx];
+
+                        var uv = ts.FontGetGlyphUVRect(fr, sizeKey, glyphIndex);
+                        int sx = (int)uv.Position.X, sy = (int)uv.Position.Y;
+                        int sw = (int)uv.Size.X, sh = (int)uv.Size.Y;
+                        if (sw <= 0 || sh <= 0) continue;
+
+                        int dx = (int)MathF.Floor((float)(pos.X + xOff + penX + offset.X - advance));
+                        int baseline = (int)MathF.Floor((float)(pos.Y + ascent));
+                        int dy = (int)MathF.Floor(baseline - offset.Y - sh);
+
+                        for (int yy = 0; yy < sh; yy++)
+                        {
+                            int ty = dy + yy; if ((uint)ty >= imgH) continue;
+                            for (int xx = 0; xx < sw; xx++)
+                            {
+                                int tx = dx + xx; if ((uint)tx >= imgW) continue;
+                                var sp = srcImg.GetPixel(sx + xx, sy + yy);
+                                float a = sp.A * tint.A; if (a <= 0f) continue;
+                                img.SetPixel(tx, ty, new Color(tint.R, tint.G, tint.B, a));
+                            }
+                        }
+                    }
+
+                    ts.FreeRid(shaped);
+                }
+            ));
+            MarkDirty();
+        }
         private static string TrimToWidth(string line, int maxW, TextServer ts, Godot.Collections.Array<Rid> rids, long sizeKey)
         {
             if (maxW < 0 || string.IsNullOrEmpty(line)) return line;
