@@ -5,32 +5,18 @@ using System.Linq;
 using System.Collections.Generic;
 using AbstUI.Primitives;
 using AbstUI.Texts;
-using LingoEngine.Texts;
 
 namespace LingoEngine.Tools
 {
     public static class RtfToMarkdown
     {
-        public record RtfSegment
-        {
-            public string? FontName { get; set; } = "";
-            public int Size { get; set; }
-            public AColor? Color { get; set; }
-            public string Text { get; set; } = "";
-            public AbstTextAlignment Alignment { get; set; } = AbstTextAlignment.Left;
-            public LingoTextStyle Style { get; set; } = LingoTextStyle.None;
-            public int MarginLeft { get; set; }
-            public int MarginRight { get; set; }
-            public int StyleId { get; set; } = -1;
-        }
-
         private record StyleDef(AbstTextStyle Style, bool HasFont, bool HasSize, bool HasColor);
 
         /// <summary>
         /// Converts an RTF string into the custom AbstMarkdown format used by <see cref="AbstMarkdownRenderer"/>.
         /// Returns the Markdown string along with the style segments and stylesheet definitions used to build it.
         /// </summary>
-        public static (string markdown, List<RtfSegment> segments, Dictionary<string, AbstTextStyle> styles) Convert(string rtfContent)
+        public static AbstMarkdownData Convert(string rtfContent)
         {
             var fontEntries = ParseFontTable(rtfContent);
             var colorEntries = ParseColorTable(rtfContent);
@@ -39,7 +25,7 @@ namespace LingoEngine.Tools
             var segments = ParseSegments(rtfContent, fontEntries, colorEntries);
 
             var sb = new StringBuilder();
-            RtfSegment? prev = null;
+            AbstMDSegment? prev = null;
             foreach (var seg in segments)
             {
                 AbstTextStyle? styleDef = null;
@@ -67,29 +53,36 @@ namespace LingoEngine.Tools
                 if (prev == null || seg.Alignment != prev.Alignment)
                     sb.Append("{{ALIGN:" + seg.Alignment.ToString().ToLowerInvariant() + "}}");
 
-                var text = ApplyStyle(seg.Text, seg.Style);
+                var text = ApplyStyle(seg.Text, seg);
                 sb.Append(text);
                 if (seg.StyleId >= 0)
                     sb.Append("{{/STYLE}}");
                 prev = seg;
             }
-            return (sb.ToString(), segments, styles);
-        }
 
-        private static string ApplyStyle(string text, LingoTextStyle style)
+            var plainText = string.Concat(segments.Select(s => s.Text));
+            return new AbstMarkdownData
+            {
+                Markdown = sb.ToString(),
+                PlainText = plainText,
+                Segments = segments,
+                Styles = styles
+            };
+        }
+        private static string ApplyStyle(string text, AbstMDSegment seg)
         {
-            if ((style & LingoTextStyle.Bold) != 0)
+            if (seg.Bold)
                 text = $"**{text}**";
-            if ((style & LingoTextStyle.Italic) != 0)
+            if (seg.Italic)
                 text = $"*{text}*";
-            if ((style & LingoTextStyle.Underline) != 0)
+            if (seg.Underline)
                 text = $"__{text}__";
             return text;
         }
 
-        private static List<RtfSegment> ParseSegments(string rtfContent, Dictionary<int, string> fontEntries, List<AColor> colorEntries)
+        private static List<AbstMDSegment> ParseSegments(string rtfContent, Dictionary<int, string> fontEntries, List<AColor> colorEntries)
         {
-            var segments = new List<RtfSegment>();
+            var segments = new List<AbstMDSegment>();
 
             var sheet = ExtractGroup(rtfContent, "\\stylesheet");
             if (!string.IsNullOrEmpty(sheet))
@@ -134,31 +127,31 @@ namespace LingoEngine.Tools
                     colorL = colorEntries[colorIndex - 1];
                 }
 
-                var style = LingoTextStyle.None;
-                if (Regex.IsMatch(match.Value, @"\\b(?!0)"))
-                    style |= LingoTextStyle.Bold;
-                if (Regex.IsMatch(match.Value, @"\\i(?!0)"))
-                    style |= LingoTextStyle.Italic;
-                if (Regex.IsMatch(match.Value, @"\\ul(?!none|\d)"))
-                    style |= LingoTextStyle.Underline;
+                bool bold = Regex.IsMatch(match.Value, @"\\b(?!0)");
+                bool italic = Regex.IsMatch(match.Value, @"\\i(?!0)");
+                bool underline = Regex.IsMatch(match.Value, @"\\ul(?!none|\d)");
 
-                var textContent = match.Groups["text"].Value;
-                textContent = Regex.Replace(textContent, @"\\'([0-9a-fA-F]{2})", m => ((char)System.Convert.ToInt32(m.Groups[1].Value, 16)).ToString());
-                textContent = textContent.Replace("\\par", "\n").Replace("\\tab", "\t").Replace("\\\\", "\\");
+                var rawText = match.Groups["text"].Value;
+                bool isParagraph = rawText.Contains("\\par");
+                var textContent = Regex.Replace(rawText, @"\\'([0-9a-fA-F]{2})", m => ((char)System.Convert.ToInt32(m.Groups[1].Value, 16)).ToString());
+                textContent = textContent.Replace("\\par", "\n").Replace("\\tab", "\t").Replace("\\\\", "\\").TrimStart();
 
                 var styleId = match.Groups["s"].Success ? int.Parse(match.Groups["s"].Value) : -1;
 
-                segments.Add(new RtfSegment
+                segments.Add(new AbstMDSegment
                 {
                     FontName = !string.IsNullOrWhiteSpace(fontName) ? fontName.TrimEnd('*').Trim() : null,
                     Size = System.Convert.ToInt32(fontSizeHalfPoints / 2f),
                     Color = colorL,
                     Text = textContent,
                     Alignment = alignment,
-                    Style = style,
+                    Bold = bold,
+                    Italic = italic,
+                    Underline = underline,
                     MarginLeft = marginLeft,
                     MarginRight = marginRight,
-                    StyleId = styleId
+                    StyleId = styleId,
+                    IsParagraph = isParagraph
                 });
             }
 
