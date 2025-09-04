@@ -4,7 +4,7 @@ using LingoEngine.Members;
 using LingoEngine.Tools;
 using Xunit;
 using AbstUI.Resources;
-
+namespace LingoEngine.Tests;
 public class CsvImporterTests
 {
     [Fact]

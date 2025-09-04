@@ -263,7 +263,7 @@ namespace AbstUI.SDL2.Components.Inputs
                 e.OffsetX = -X;// + ScrollHorizontal;
                 e.OffsetY = -Y;// + ScrollVertical;
                 e.CalulateIsInside(Width, Height);
-                Console.WriteLine($"Even0 {e.Event.type} at {e.ComponentLeft}x{e.ComponentTop}\t({e.OffsetX}x{e.OffsetY}) inside={e.IsInside} \t{X}x{Y}\tMouse={e.MouseX}x{e.MouseY}");
+                //Console.WriteLine($"Even0 {e.Event.type} at {e.ComponentLeft}x{e.ComponentTop}\t({e.OffsetX}x{e.OffsetY}) inside={e.IsInside} \t{X}x{Y}\tMouse={e.MouseX}x{e.MouseY}");
                 base.HandleEvent(e);
             }
         }

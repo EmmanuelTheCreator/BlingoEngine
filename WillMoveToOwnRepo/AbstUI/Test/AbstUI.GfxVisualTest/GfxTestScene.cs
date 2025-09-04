@@ -46,65 +46,72 @@ public static class GfxTestScene
             
         }
 
-        //Add(CreateLabel(factory, "label1"), 22);
-        //Add(CreateLabel(factory, "Label2 center", lbl2 =>
-        //{
-        //    lbl2.Width = 200;
-        //    lbl2.TextAlignment = AbstTextAlignment.Center;
-        //}), 22);
-        //Add(CreateLabel(factory, "Label3 right", lbl3 =>
-        //{
-        //    lbl3.Width = 200;
-        //    lbl3.TextAlignment = AbstTextAlignment.Right;
-        //}), 22);
-        //Add(CreateLabel(factory, "Label4 BIG", c => c.FontSize = 30));
+        Add(CreateLabel(factory, "label1"), 22);
+        Add(CreateLabel(factory, "Label2 center", lbl2 =>
+        {
+            lbl2.Width = 200;
+            lbl2.TextAlignment = AbstTextAlignment.Center;
+        }), 22);
+        Add(CreateLabel(factory, "Label3 right", lbl3 =>
+        {
+            lbl3.Width = 200;
+            lbl3.TextAlignment = AbstTextAlignment.Right;
+        }), 22);
+        Add(CreateLabel(factory, "Label4 BIG", c => c.FontSize = 30));
 
-        //var canvas2 = factory.CreateGfxCanvas("canvas1", 100, 50);
-        //canvas2.Clear(AColor.FromRGBA(100, 100, 100, 0));
-        //canvas2.DrawCircle(new APoint(50, 25), 20, AColor.FromRGBA(200, 0, 0, 255));
-        //canvas2.DrawRect(new ARect(10, 10, 80, 30), AColor.FromRGBA(0, 200, 0, 255));
-        //canvas2.DrawText(new APoint(30, 15), "Hallo", null, AColors.DarkGray);
-        //Add(canvas2);
-
-
-        //y += 50;
-        //var colorPicker = factory.CreateColorPicker("colorPicker");
-        //Add(colorPicker, 80);
+        var canvas2 = factory.CreateGfxCanvas("canvas1", 100, 50);
+        canvas2.Clear(AColor.FromRGBA(100, 100, 100, 0));
+        canvas2.DrawCircle(new APoint(50, 25), 20, AColor.FromRGBA(200, 0, 0, 255));
+        canvas2.DrawRect(new ARect(10, 10, 80, 30), AColor.FromRGBA(0, 200, 0, 255));
+        canvas2.DrawText(new APoint(30, 15), "Hallo", null, AColors.DarkGray);
+        Add(canvas2);
 
 
-        //var numClicked = 0;
-        //var testBtnLabel = CreateLabel(factory, "Button not clicked");
-        //testBtnLabel.Width = 300;
+        y += 50;
+        var colorPicker = factory.CreateColorPicker("colorPicker");
+        Add(colorPicker, 80);
 
-        //var btn1 = factory.CreateButton("button", "Button");
-        //btn1.Pressed += () =>
-        //{
-        //    numClicked++;
-        //    testBtnLabel.Text = $"Button clicked {numClicked} times";
-        //    windowManager.OpenWindow(GfxTestWindow.MyWindowCode);
-        //};
-        //var btnpanel = factory.CreateWrapPanel(AOrientation.Horizontal, "scroll");
-        //btnpanel.Width = 500;
-        //btnpanel.AddItem(btn1);
-        //btnpanel.AddItem(testBtnLabel);
-        //Add(btnpanel);
-        //Add(btn1, 22);
 
-        //Add(testBtnLabel,22);
+        var numClicked = 0;
+        var testBtnLabel = CreateLabel(factory, "Button not clicked");
+        testBtnLabel.Width = 300;
 
-        //var stateButton = factory.CreateButton("stateButton", "State Button");
-        ////stateButton.IconTexture = factory.CreateTextureFromFile("Assets/Icons/heart.png");
-        //Add(stateButton);
+        var btn1 = factory.CreateButton("button", "Button");
+        btn1.Pressed += () =>
+        {
+            numClicked++;
+            testBtnLabel.Text = $"Button clicked {numClicked} times";
+            windowManager.OpenWindow(GfxTestWindow.MyWindowCode);
+        };
+        var btnpanel = factory.CreateWrapPanel(AOrientation.Horizontal, "scroll");
+        btnpanel.Width = 500;
+        btnpanel.AddItem(btn1);
+        btnpanel.AddItem(testBtnLabel);
+        Add(btnpanel);
+        Add(btn1, 22);
 
-        //var txt1 = factory.CreateInputText("inputText");
-        //txt1.Text = "test";
-        //Add(txt1);
+        Add(testBtnLabel, 22);
 
-        //Add(factory.CreateInputNumberInt("inputNumber", 0, 100));
+        var stateButton = factory.CreateButton("stateButton", "State Button");
+        //stateButton.IconTexture = factory.CreateTextureFromFile("Assets/Icons/heart.png");
+        Add(stateButton);
 
-        //Add(factory.CreateSpinBox("spinBox", 0, 10));
+        var txt1 = factory.CreateInputText("inputText");
+        txt1.Text = "test";
+        Add(txt1);
+        var txtMulti = factory.CreateInputText("inputTextMulti");
+        txtMulti.IsMultiLine = true;
+        txtMulti.Height = 50;
+        txtMulti.Width = 200;
+        txtMulti.Text = "test\nother line\n other line 2";
+        Add(txtMulti);
 
-        //Add(factory.CreateInputCheckbox("checkbox"));
+
+        Add(factory.CreateInputNumberInt("inputNumber", 0, 100));
+
+        Add(factory.CreateSpinBox("spinBox", 0, 10));
+
+        Add(factory.CreateInputCheckbox("checkbox"));
 
         var combo = factory.CreateInputCombobox("combobox", null);
         combo.AddItem("1", "One");
@@ -114,7 +121,7 @@ public static class GfxTestScene
         combo.AddItem("5", "Five");
         combo.SelectedIndex = 1;
         Add(combo, 100);
-        return scroll;
+        //return scroll;
         var slider = factory.CreateInputSliderFloat(AOrientation.Horizontal, "slider", 0, 1, 0.1f);
         slider.Width = 200;
         Add(slider, 50);

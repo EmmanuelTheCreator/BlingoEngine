@@ -2,7 +2,7 @@ using System.Linq;
 using AbstUI.Texts;
 using LingoEngine.Tools;
 using Xunit;
-
+namespace LingoEngine.Tests;
 public class RtfToMarkdownTests
 {
     [Fact]
