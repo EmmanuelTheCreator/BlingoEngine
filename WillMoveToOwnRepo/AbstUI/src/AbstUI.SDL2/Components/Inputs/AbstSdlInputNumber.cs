@@ -142,6 +142,8 @@ internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInpu
                 return;
             }
         }
+        if (e.StopPropagation)
+            ComponentContext.QueueRedraw(this);
     }
 
 
