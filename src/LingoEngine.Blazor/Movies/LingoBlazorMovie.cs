@@ -21,6 +21,7 @@ namespace LingoEngine.Blazor.Movies;
 public class LingoBlazorMovie : ILingoFrameworkMovie, IDisposable
 {
     private readonly LingoBlazorStage _stage;
+    private readonly LingoMovie _movie;
     private readonly Action<LingoBlazorMovie> _remove;
     private readonly HashSet<LingoBlazorSprite2D> _drawnSprites = new();
     private readonly HashSet<LingoBlazorSprite2D> _allSprites = new();
@@ -33,6 +34,7 @@ public class LingoBlazorMovie : ILingoFrameworkMovie, IDisposable
     public LingoBlazorMovie(LingoBlazorStage stage, LingoMovie movie, Action<LingoBlazorMovie> remove, AbstUIScriptResolver scripts)
     {
         _stage = stage;
+        _movie = movie;
         _remove = remove;
         _scripts = scripts;
         _width = stage.LingoStage.Width;
@@ -84,6 +86,10 @@ public class LingoBlazorMovie : ILingoFrameworkMovie, IDisposable
     {
         _remove(this);
     }
+
+    public int CurrentFrame => _movie.CurrentFrame;
+
+    internal IJSObjectReference? Context => _ctx;
 
     public APoint GetGlobalMousePosition() => (0, 0);
 

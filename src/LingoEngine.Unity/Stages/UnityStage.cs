@@ -1,6 +1,8 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using AbstUI.Primitives;
+using AbstUI.LUnity.Bitmaps;
 using LingoEngine.Core;
 using LingoEngine.Movies;
 using LingoEngine.Stages;
@@ -63,8 +65,22 @@ public class UnityStage : MonoBehaviour, ILingoFrameworkStage, IDisposable
     {
     }
 
+    public void RequestNextFrameScreenshot(Action<IAbstTexture2D> onCaptured)
+    {
+        StartCoroutine(CaptureNextFrame(onCaptured));
+    }
+
+    private IEnumerator CaptureNextFrame(Action<IAbstTexture2D> onCaptured)
+    {
+        yield return null; // wait until the next frame renders
+        onCaptured(GetScreenshot());
+    }
+
     public IAbstTexture2D GetScreenshot()
-        => throw new NotImplementedException();
+    {
+        var tex = new Texture2D(_stage.Width, _stage.Height);
+        return new UnityTexture2D(tex, $"StageShot_{_activeMovie?.CurrentFrame ?? 0}");
+    }
 
     public void ShowTransition(IAbstTexture2D startTexture) { }
 
