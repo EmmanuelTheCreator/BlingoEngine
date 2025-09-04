@@ -28,6 +28,7 @@ public class CsvImporterTests
     }
     private class TestResourceManager : IAbstResourceManager
     {
+        public bool FileExists(string fileName) => File.Exists(fileName);
         public string? ReadTextFile(string fileName) => File.Exists(fileName) ? File.ReadAllText(fileName) : null;
 
         public byte[]? ReadBytes(string fileName) => File.Exists(fileName) ? File.ReadAllBytes(fileName) : null;

@@ -278,7 +278,7 @@ namespace LingoEngine.LGodot.Texts
                 godotTexture.DebugWriteToDisk();
                 newNode.Node2D.Size = new Vector2(godotTexture.Width, godotTexture.Height);
                 newNode.Node2D.CustomMinimumSize = new Vector2(godotTexture.Width, godotTexture.Height);
-                newNode.Node2D.Texture = _texture.Texture; 
+                newNode.Node2D.Texture = _texture.Texture;
 
             }
             return newNode.Node2D;
@@ -294,7 +294,7 @@ namespace LingoEngine.LGodot.Texts
         }
 
 
-       
+
         public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         {
             //_hasLoadedTexTure = true;
@@ -339,13 +339,6 @@ namespace LingoEngine.LGodot.Texts
                 return "";
             }
             return file;
-        }
-        public string ReadTextRtf()
-        {
-            var rtfVersion = GodotHelper.ReadFile(_lingoMemberText.FileName.Replace(".txt", ".rtf"));
-            if (rtfVersion == null)
-                return "";
-            return rtfVersion;
         }
         private void UpdateText(string value)
         {
@@ -414,7 +407,7 @@ namespace LingoEngine.LGodot.Texts
         public void Copy(string text) => DisplayServer.ClipboardSet(text);
         public string PasteClipboard() => DisplayServer.ClipboardGet();
 
-        
+
 
 
         #endregion

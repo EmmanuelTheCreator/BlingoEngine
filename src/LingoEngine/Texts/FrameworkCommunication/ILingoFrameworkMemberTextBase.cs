@@ -44,7 +44,6 @@ namespace LingoEngine.Texts.FrameworkCommunication
 
 
         string ReadText();
-        string ReadTextRtf();
 
     }
 }
