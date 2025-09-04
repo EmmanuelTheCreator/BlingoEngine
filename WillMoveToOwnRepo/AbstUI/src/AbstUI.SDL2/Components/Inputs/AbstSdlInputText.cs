@@ -102,7 +102,7 @@ namespace AbstUI.SDL2.Components.Inputs
             {
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
                     Factory.FocusManager.SetFocus(this);
-                    EnsureResources(Factory.FontManagerTyped,Factory.RootContext.Renderer);
+                    EnsureResources(Factory.FontManagerTyped, Factory.RootContext.Renderer);
                     int innerXDown = (int)X + 4;
                     int clickX = ev.button.x - innerXDown + _scrollX;
                     _caret = GetCaretFromPixel(clickX);
@@ -212,6 +212,26 @@ namespace AbstUI.SDL2.Components.Inputs
                             MoveCaretNextWord();
                         else if (_caret < _codepoints.Count)
                             _caret++;
+                        if (!shift)
+                            _selectionStart = -1;
+                        AdjustScroll();
+                        e.StopPropagation = true;
+                    }
+                    else if (key == SDL.SDL_Keycode.SDLK_HOME)
+                    {
+                        if (shift && _selectionStart == -1)
+                            _selectionStart = _caret;
+                        _caret = 0;
+                        if (!shift)
+                            _selectionStart = -1;
+                        AdjustScroll();
+                        e.StopPropagation = true;
+                    }
+                    else if (key == SDL.SDL_Keycode.SDLK_END)
+                    {
+                        if (shift && _selectionStart == -1)
+                            _selectionStart = _caret;
+                        _caret = _codepoints.Count;
                         if (!shift)
                             _selectionStart = -1;
                         AdjustScroll();
