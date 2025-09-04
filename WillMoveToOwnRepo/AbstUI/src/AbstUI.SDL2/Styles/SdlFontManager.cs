@@ -81,9 +81,10 @@ public class SdlFontManager : IAbstFontManager
         var user = new object();
         var font = GetTyped(user, string.IsNullOrEmpty(fontName) ? null : fontName, fontSize);
         int height = SDL_ttf.TTF_FontHeight(font.FontHandle);
-        int ascent = SDL_ttf.TTF_FontAscent(font.FontHandle);
+        int lineSkip = SDL_ttf.TTF_FontLineSkip(font.FontHandle);
         font.Release();
-        return new FontInfo(height, height - ascent);
+        int lineGap = lineSkip - height;
+        return new FontInfo(height, lineGap);
     }
 
     // SDL Fonts

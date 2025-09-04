@@ -211,13 +211,13 @@ public class BlazorImagePainter : IAbstImagePainter
     public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular)
     {
         var pos = position; var txt = text; var fnt = font; var col = color ?? AColors.Black; var fs = fontSize; var w = width; var align = alignment;
+        var fi = _fontManager.GetFontInfo(fnt ?? string.Empty, fs);
         _drawActions.Add((
             () =>
             {
                 if (!AutoResize) return null;
                 float textW = w >= 0 ? w : _fontManager.MeasureTextWidth(txt, fnt ?? string.Empty, fs);
-                var fi = _fontManager.GetFontInfo(fnt ?? string.Empty, fs);
-                return EnsureCapacity((int)(pos.X + textW), (int)(pos.Y + fi.FontHeight));
+                return EnsureCapacity((int)(pos.X + textW), (int)(pos.Y + fi.FontHeight - fi.TopIndentation));
             },
             ctx =>
             {
@@ -227,7 +227,7 @@ public class BlazorImagePainter : IAbstImagePainter
                     AbstTextAlignment.Right => "right",
                     _ => "left"
                 };
-                return _scripts.CanvasDrawText(ctx, pos.X, pos.Y, txt, fnt ?? string.Empty, ToCss(col), fs, alignStr);
+                return _scripts.CanvasDrawText(ctx, pos.X, pos.Y - fi.TopIndentation, txt, fnt ?? string.Empty, ToCss(col), fs, alignStr);
             }
         ));
         MarkDirty();
@@ -236,12 +236,13 @@ public class BlazorImagePainter : IAbstImagePainter
     public void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular)
     {
         var pos = position; var txt = text; var fnt = font; var col = color ?? AColors.Black; var fs = fontSize; var w = width; var h = height; var align = alignment;
+        var fi = _fontManager.GetFontInfo(fnt ?? string.Empty, fs);
         _drawActions.Add((
             () =>
             {
                 if (!AutoResize) return null;
                 int needW = w >= 0 ? w : (int)_fontManager.MeasureTextWidth(txt, fnt ?? string.Empty, fs);
-                int needH = h >= 0 ? h : _fontManager.GetFontInfo(fnt ?? string.Empty, fs).FontHeight;
+                int needH = h >= 0 ? h : fi.FontHeight - fi.TopIndentation;
                 return EnsureCapacity((int)(pos.X + needW), (int)(pos.Y + needH));
             },
             ctx =>
@@ -252,7 +253,7 @@ public class BlazorImagePainter : IAbstImagePainter
                     AbstTextAlignment.Right => "right",
                     _ => "left"
                 };
-                return _scripts.CanvasDrawText(ctx, pos.X, pos.Y, txt, fnt ?? string.Empty, ToCss(col), fs, alignStr);
+                return _scripts.CanvasDrawText(ctx, pos.X, pos.Y - fi.TopIndentation, txt, fnt ?? string.Empty, ToCss(col), fs, alignStr);
             }
         ));
         MarkDirty();

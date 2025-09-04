@@ -334,6 +334,7 @@ namespace AbstUI.SDL2.Components.Graphics
             if (font == null) return;
             var fnt = font.FontHandle;
             if (fnt == nint.Zero) { font.Release(); return; }
+            var fi = _fontManager.GetFontInfo(fntName ?? string.Empty, fs);
 
             string RenderLine(string line)
             {
@@ -347,7 +348,7 @@ namespace AbstUI.SDL2.Components.Graphics
 
             string[] lines = txt.Split('\n');
             int maxW = 0;
-            int totalH = 0;
+            int totalH = -fi.TopIndentation;
             foreach (var ln in lines)
             {
                 var line = RenderLine(ln);
@@ -380,7 +381,7 @@ namespace AbstUI.SDL2.Components.Graphics
                         surfaces.Add((s, sur.w, sur.h));
                     }
 
-                    int y = (int)pos.Y;
+                    int y = (int)pos.Y - fi.TopIndentation;
                     int boxW = w >= 0 ? w : Math.Max(0, Width - (int)pos.X);
 
                     foreach (var (s, tw, th) in surfaces)
@@ -443,7 +444,7 @@ namespace AbstUI.SDL2.Components.Graphics
                             if (calcH < 0) calcH = fs;
                         }
                     }
-                    return EnsureCapacity((int)pos.X + calcW, (int)pos.Y + calcH);
+                    return EnsureCapacity((int)pos.X + calcW, (int)pos.Y + calcH - fi.TopIndentation);
                 },
                 () =>
                 {
@@ -467,7 +468,7 @@ namespace AbstUI.SDL2.Components.Graphics
                                     break;
                             }
                         }
-                        SDL.SDL_Rect dst = new SDL.SDL_Rect { x = startX, y = (int)pos.Y, w = sur.w, h = sur.h };
+                        SDL.SDL_Rect dst = new SDL.SDL_Rect { x = startX, y = (int)pos.Y - fi.TopIndentation, w = sur.w, h = sur.h };
                         SDL.SDL_RenderCopy(Renderer, tex, nint.Zero, ref dst);
                         SDL.SDL_DestroyTexture(tex);
                     }

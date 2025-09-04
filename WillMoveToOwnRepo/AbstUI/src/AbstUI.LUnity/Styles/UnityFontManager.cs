@@ -62,8 +62,9 @@ namespace AbstUI.LUnity.Styles;
                 (_loadedFonts.TryGetValue((fontName, AbstFontStyle.Regular), out var f) ? f : _defaultFont);
         font.RequestCharactersInTexture(" ", fontSize, FontStyle.Normal);
         font.GetCharacterInfo(' ', out var info, fontSize);
-        int height = Mathf.CeilToInt(info.glyphHeight);
-        int top = Mathf.CeilToInt(info.glyphHeight - info.maxY);
-        return new FontInfo(height, top);
+        int glyphHeight = Mathf.CeilToInt(info.glyphHeight);
+        int lineHeight = Mathf.CeilToInt(font.lineHeight * (fontSize / (float)font.fontSize));
+        int lineGap = Math.Max(0, lineHeight - glyphHeight);
+        return new FontInfo(glyphHeight, lineGap);
     }
 }

@@ -368,6 +368,7 @@ namespace AbstUI.LGodot.Components.Graphics
             var col = color ?? new AColor(0, 0, 0, 255);
             var fs = Math.Max(1, fontSize);
             var w = width;
+            var fi = _fontManager.GetFontInfo(fntName ?? string.Empty, fs);
 
             _drawActions.Add((
                 // Prepass: measure & request capacity
@@ -386,14 +387,12 @@ namespace AbstUI.LGodot.Components.Graphics
 
                     var size = ts.ShapedTextGetSize(shaped);
                     int tw = (int)MathF.Ceiling(size.X);
-                    // int th = (int)MathF.Ceiling(size.Y);
                     int th = (int)MathF.Ceiling((float)(ts.FontGetAscent(fontRid, fs) + ts.FontGetDescent(fontRid, fs)));
 
-                    // If a max width is provided, we still reserve at least that box width
                     if (w >= 0) tw = Math.Max(tw, w);
 
                     var needW = (int)pos.X + tw;
-                    var needH = (int)pos.Y + th;
+                    var needH = (int)pos.Y + th - fi.TopIndentation;
 
                     ts.FreeRid(shaped);
                     return EnsureCapacity(needW, needH);
@@ -406,7 +405,7 @@ namespace AbstUI.LGodot.Components.Graphics
                     // it is possible to have a fallback font when not found
                     fntName = font.FontName;
                     var lines = txt.Split('\n');
-                    int y = (int)pos.Y;
+                    int y = (int)pos.Y - fi.TopIndentation;
                     var sizeKey = new Vector2I(fs, 0);
                     var rids = font.GetRids();
                     var fr = (Rid)rids[0];
@@ -416,17 +415,10 @@ namespace AbstUI.LGodot.Components.Graphics
                     var imgH = (uint)img.GetHeight();
                     var ts = TextServerManager.GetPrimaryInterface();
 
-                    // derive box width: explicit width or remaining image width
                     int boxW = w >= 0 ? w : Math.Max(0, (int)imgW - (int)pos.X);
-
-                    var asc = font.GetAscent();
-                    var height = font.GetHeight();
-                    var lineYOffset = height - asc;
-
-                    var isFirstLine = true;
                     foreach (var raw in lines)
                     {
-                        var line = TrimToWidth(raw, boxW, ts, rids, fs);   // <= see helper below
+                        var line = TrimToWidth(raw, boxW, ts, rids, fs);
 
                         var shaped = ts.CreateShapedText();
                         ts.ShapedTextAddString(shaped, line, rids, fs);
@@ -436,7 +428,7 @@ namespace AbstUI.LGodot.Components.Graphics
                         float lineW = lineSize.X;
                         var ascent = ts.FontGetAscent(fr, fs);
                         var descent = ts.FontGetDescent(fr, fs);
-                        var baseline = isFirstLine ? y + ascent - descent + 2 : y + ascent; //+2 is a FIX for some fonts
+                        var baseline = y + ascent;
 
                         // per-line horizontal alignment
                         float xOff = 0f;
@@ -488,9 +480,7 @@ namespace AbstUI.LGodot.Components.Graphics
                         }
 
                         ts.FreeRid(shaped);
-                        y += (int)MathF.Ceiling((float)(ascent + descent));  // advance to next line
-                        isFirstLine = false;
-
+                        y += (int)MathF.Ceiling((float)(ascent + descent));
                     }
                 }
 
@@ -507,6 +497,7 @@ namespace AbstUI.LGodot.Components.Graphics
             var fs = Math.Max(1, fontSize);
             var w = width;
             var h = height;
+            var fi = _fontManager.GetFontInfo(fntName ?? string.Empty, fs);
 
             _drawActions.Add((
                 () =>
@@ -540,7 +531,7 @@ namespace AbstUI.LGodot.Components.Graphics
                     {
                         if (w < 0) needW = 0;
                     }
-                    return EnsureCapacity((int)pos.X + (needW >= 0 ? needW : 0), (int)pos.Y + (needH >= 0 ? needH : fs));
+                    return EnsureCapacity((int)pos.X + (needW >= 0 ? needW : 0), (int)pos.Y + (needH >= 0 ? needH : fs) - fi.TopIndentation);
                 },
                 img =>
                 {
@@ -597,7 +588,7 @@ namespace AbstUI.LGodot.Components.Graphics
                         if (sw <= 0 || sh <= 0) continue;
 
                         int dx = (int)MathF.Floor((float)(pos.X + xOff + penX + offset.X - advance));
-                        int baseline = (int)MathF.Floor((float)(pos.Y + ascent));
+                        int baseline = (int)MathF.Floor((float)(pos.Y - fi.TopIndentation + ascent));
                         int dy = (int)MathF.Floor(baseline - offset.Y - sh);
 
                         for (int yy = 0; yy < sh; yy++)

@@ -62,7 +62,9 @@ namespace AbstUI.LGodot.Styles
                 (_loadedFonts.TryGetValue((fontName, AbstFontStyle.Regular), out var f) ? f : _defaultStyle);
             int height = (int)font.GetHeight(fontSize);
             int ascent = (int)font.GetAscent(fontSize);
-            return new FontInfo(height, height - ascent);
+            int descent = (int)font.GetDescent(fontSize);
+            int lineGap = height - (ascent + descent);
+            return new FontInfo(height, lineGap);
         }
 
         public Dictionary<long, Image> GetAtlasCache(string fontName, int fontSize)

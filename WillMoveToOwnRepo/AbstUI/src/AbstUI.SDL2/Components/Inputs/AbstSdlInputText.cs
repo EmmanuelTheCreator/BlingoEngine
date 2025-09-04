@@ -370,7 +370,10 @@ namespace AbstUI.SDL2.Components.Inputs
 
             int ascent = SDL_ttf.TTF_FontAscent(_font.FontHandle);
             int descent = SDL_ttf.TTF_FontDescent(_font.FontHandle);
-            int lineHeight = SDL_ttf.TTF_FontHeight(_font.FontHandle) - (_multiLine ? 1 : 0);
+            int lineSkip = SDL_ttf.TTF_FontLineSkip(_font.FontHandle);
+            int fontHeight = SDL_ttf.TTF_FontHeight(_font.FontHandle);
+            int lineGap = lineSkip - fontHeight;
+            int lineHeight = fontHeight;
             var span = CollectionsMarshal.AsSpan(_codepoints);
             int innerX = (int)X + 4;
             int innerY = (int)Y + 2;
@@ -388,11 +391,11 @@ namespace AbstUI.SDL2.Components.Inputs
             int firstLineY;
             if (_multiLine)
             {
-                firstLineY = innerY - _scrollY;
+                firstLineY = innerY - _scrollY - lineGap;
             }
             else
             {
-                int baseline = (int)Y + ((int)Height + ascent + descent) / 2;
+                int baseline = (int)Y + ((int)Height + ascent + descent) / 2 - lineGap;
                 firstLineY = baseline - ascent - _scrollY;
             }
 
@@ -469,7 +472,10 @@ namespace AbstUI.SDL2.Components.Inputs
             GetCaretPixel(out int caretX, out int caretY);
             int innerWidth = (int)Width - 8;
             int innerHeight = (int)Height - 4;
-            int lineHeight = SDL_ttf.TTF_FontHeight(_font.FontHandle) - (_multiLine ? 1 : 0);
+            int lineSkip = SDL_ttf.TTF_FontLineSkip(_font.FontHandle);
+            int fontHeight = SDL_ttf.TTF_FontHeight(_font.FontHandle);
+            int lineGap = lineSkip - fontHeight;
+            int lineHeight = fontHeight;
             if (caretX - _scrollX > innerWidth)
                 _scrollX = caretX - innerWidth;
             else if (caretX - _scrollX < 0)
@@ -514,10 +520,13 @@ namespace AbstUI.SDL2.Components.Inputs
         {
             if (_atlas == null || _font == null) return _caret;
             var span = CollectionsMarshal.AsSpan(_codepoints);
-            int lineHeight = SDL_ttf.TTF_FontHeight(_font.FontHandle) - (_multiLine ? 1 : 0);
+            int lineSkip = SDL_ttf.TTF_FontLineSkip(_font.FontHandle);
+            int fontHeight = SDL_ttf.TTF_FontHeight(_font.FontHandle);
+            int lineGap = lineSkip - fontHeight;
+            int lineHeight = fontHeight;
             if (px <= 0 && py <= 0 && span.Length == 0) return 0;
 
-            int lineIndex = py / lineHeight;
+            int lineIndex = (py + lineGap) / lineHeight;
             if (lineIndex < 0) lineIndex = 0;
             int currentLine = 0;
             int index = 0;
@@ -551,7 +560,10 @@ namespace AbstUI.SDL2.Components.Inputs
             y = 0;
             if (_atlas == null || _font == null) return;
             var span = CollectionsMarshal.AsSpan(_codepoints);
-            int lineHeight = SDL_ttf.TTF_FontHeight(_font.FontHandle) - (_multiLine ? 1 : 0);
+            int lineSkip = SDL_ttf.TTF_FontLineSkip(_font.FontHandle);
+            int fontHeight = SDL_ttf.TTF_FontHeight(_font.FontHandle);
+            int lineGap = lineSkip - fontHeight;
+            int lineHeight = fontHeight;
             int lineStart = 0;
             int line = 0;
             for (int i = 0; i < _caret; i++)
