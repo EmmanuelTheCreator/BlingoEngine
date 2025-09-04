@@ -317,12 +317,6 @@ namespace AbstUI.Texts
                 width += segW;
                 segments.Add(new TextSegment(text, style.Font, style.FontSize, style.Color, style.Bold, style.Italic, style.Underline));
                 sb.Clear();
-                if (firstSegment)
-                {
-                    firstFontLocal = style.Font;
-                    firstSizeLocal = style.FontSize;
-                    firstSegment = false;
-                }
             }
 
             while (i < content.Length)

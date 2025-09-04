@@ -250,4 +250,14 @@ public class RtfToMarkdownTests
         Assert.Equal(18, data.Segments[0].LineHeight);
     }
 
+    [Fact]
+    public void Convert_HandlesColorIndexWithoutLeadingSemicolon()
+    {
+        const string rtf = "{\\rtf1\\ansi\\deff0 {\\fonttbl{\\f0\\fswiss Arial;}{\\f1\\fnil Arcade *;}{\\f2\\fnil Earth *;}}{\\colortbl\\red0\\green0\\blue0;\\red255\\green0\\blue0;}{\\stylesheet{\\s0\\fs24 Normal Text;}}\\pard \\f0\\fs24{\\pard \\f2\\fs36\\cf1\\qc New }{\\pard \\b\\f2\\fs36\\cf1\\qc Highscore!!!}{\\pard \\f2\\fs36\\cf1\\qc\\par }{\\pard \\f2\\fs28\\cf1\\qc Enter your }{\\pard \\f2\\fs36\\cf1\\qc Name}}";
+
+        var data = RtfToMarkdown.Convert(rtf);
+
+        var expected = "{{FONT-FAMILY:Earth}}{{FONT-SIZE:18}}{{COLOR:#FF0000}}{{ALIGN:center}}New **Highscore!!!**\n{{FONT-SIZE:14}}Enter your {{FONT-SIZE:18}}Name";
+        Assert.Equal(expected, data.Markdown);
+    }
 }

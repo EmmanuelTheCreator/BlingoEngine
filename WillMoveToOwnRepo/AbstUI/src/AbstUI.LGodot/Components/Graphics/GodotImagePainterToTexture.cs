@@ -476,7 +476,7 @@ namespace AbstUI.LGodot.Components.Graphics
                             if (sw <= 0 || sh <= 0) continue;
 
                             int dx = (int)MathF.Floor((float)(pos.X + xOff + penX + offset.X - advance));
-                            int dy = (int)MathF.Floor((float)(baseline - offset.Y - sh));
+                            int dy = (int)MathF.Floor((float)(baseline - offset.Y));
 
                             for (int yy = 0; yy < sh; yy++)
                             {
@@ -601,7 +601,7 @@ namespace AbstUI.LGodot.Components.Graphics
 
                         int dx = (int)MathF.Floor((float)(pos.X + xOff + penX + offset.X - advance));
                         int baseline = (int)MathF.Floor((float)(pos.Y + ascent));
-                        int dy = (int)MathF.Floor(baseline - offset.Y - sh);
+                        int dy = (int)MathF.Floor(baseline - offset.Y);
 
                         for (int yy = 0; yy < sh; yy++)
                         {
