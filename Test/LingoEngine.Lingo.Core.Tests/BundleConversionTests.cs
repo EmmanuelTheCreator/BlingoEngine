@@ -122,7 +122,7 @@ public class BundleConversionTests
         var script = new LingoScriptFile("3_SpriteManager", File.ReadAllText(path), ScriptDetectionType.Parent);
         _converter.Convert(new[] { script });
         Assert.Contains("public int pNum;", script.CSharp);
-        Assert.Contains("SpriteManagerParentScript(ILingoMovieEnvironment env, GlobalVars global, int _beginningsprite)", script.CSharp, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("SpriteManagerParent(ILingoMovieEnvironment env, GlobalVars global, int _beginningsprite)", script.CSharp, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -132,7 +132,7 @@ public class BundleConversionTests
         var path = Path.Combine(baseDir, "10_Block.ls");
         var script = new LingoScriptFile("10_Block", File.ReadAllText(path), ScriptDetectionType.Parent);
         _converter.Convert(new[] { script });
-        Assert.Contains("BlockParentScript(ILingoMovieEnvironment env, GlobalVars global, object _Gfx, int ChosenType)", script.CSharp);
+        Assert.Contains("BlockParent(ILingoMovieEnvironment env, GlobalVars global, object _Gfx, int ChosenType)", script.CSharp);
     }
 
     [Fact]
@@ -146,7 +146,7 @@ public class BundleConversionTests
             "end");
         var bg = new LingoScriptFile("2_Bg_Script", bgSource);
         _converter.Convert(new[] { spriteMgr, bg }, new ConversionOptions { Namespace = "Demo.TetriGrounds" });
-        Assert.Contains("gSpriteManager = new SpriteManagerParentScript(_env, _globalvars, 100)", bg.CSharp);
+        Assert.Contains("gSpriteManager = new SpriteManagerParent(_env, _globalvars, 100)", bg.CSharp);
     }
 
     [Fact]

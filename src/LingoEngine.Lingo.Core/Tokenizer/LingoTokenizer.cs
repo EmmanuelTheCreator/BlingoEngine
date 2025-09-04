@@ -186,7 +186,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 ':' => MakeToken(LingoTokenType.Colon),
                 ';' => MakeToken(LingoTokenType.Semicolon),
                 '+' => MakeToken(LingoTokenType.Plus),
-                '&' => MakeToken(LingoTokenType.Ampersand),
+                '&' => Match('&') ? MakeToken(LingoTokenType.Ampersand) : MakeToken(LingoTokenType.Ampersand),
                 '-' => Peek() == '-' ? Comment() : MakeToken(LingoTokenType.Minus),
                 '*' => MakeToken(LingoTokenType.Asterisk),
                 '/' => MakeToken(LingoTokenType.Slash),

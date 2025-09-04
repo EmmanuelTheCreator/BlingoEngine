@@ -835,6 +835,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                     Expect(LingoTokenType.End);
                     Expect(LingoTokenType.If);
                 }
+                // single-line 'if' without explicit 'end if'
 
                 return new LingoIfStmtNode(condition, stmtBlock, singleElseBlock);
             }

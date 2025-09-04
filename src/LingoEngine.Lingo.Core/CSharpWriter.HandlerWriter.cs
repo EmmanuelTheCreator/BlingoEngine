@@ -158,7 +158,18 @@ public partial class CSharpWriter
                 Append("(");
                 var args = node.Handler.ArgumentNames
                     .Where(a => !a.Equals("me", StringComparison.OrdinalIgnoreCase))
-                    .Select(a => $"object {a}");
+                    .Select(a =>
+                    {
+                        var type = "object";
+                        if (_methodSignatures != null &&
+                            _methodSignatures.TryGetValue(name, out var sig))
+                        {
+                            var param = sig.Parameters.FirstOrDefault(p => p.Name.Equals(a, StringComparison.OrdinalIgnoreCase));
+                            if (param != null)
+                                type = param.Type;
+                        }
+                        return $"{type} {a}";
+                    });
                 Append(string.Join(", ", args));
                 AppendLine(")");
                 AppendLine("{");

@@ -15,20 +15,29 @@ public partial class CSharpWriter : ILingoAstVisitor
     private readonly StringBuilder _sb = new();
     private readonly string _methodAccessModifier;
     private readonly IReadOnlyDictionary<string, LingoScriptType> _scriptTypes;
+    private readonly IReadOnlyDictionary<string, MethodSignature>? _methodSignatures;
     private string? _currentHandlerName;
     private int _indent;
     private bool _atLineStart = true;
 
-    public CSharpWriter(string methodAccessModifier = "public", IReadOnlyDictionary<string, LingoScriptType>? scriptTypes = null)
+    public CSharpWriter(
+        string methodAccessModifier = "public",
+        IReadOnlyDictionary<string, LingoScriptType>? scriptTypes = null,
+        IReadOnlyDictionary<string, MethodSignature>? methodSignatures = null)
     {
         _methodAccessModifier = methodAccessModifier;
         _scriptTypes = scriptTypes ?? new Dictionary<string, LingoScriptType>();
+        _methodSignatures = methodSignatures;
     }
 
     /// <summary>Converts the given AST node to C#.</summary>
-    public static string Write(LingoNode node, string methodAccessModifier = "public", IReadOnlyDictionary<string, LingoScriptType>? scriptTypes = null)
+    public static string Write(
+        LingoNode node,
+        string methodAccessModifier = "public",
+        IReadOnlyDictionary<string, LingoScriptType>? scriptTypes = null,
+        IReadOnlyDictionary<string, MethodSignature>? methodSignatures = null)
     {
-        var writer = new CSharpWriter(methodAccessModifier, scriptTypes);
+        var writer = new CSharpWriter(methodAccessModifier, scriptTypes, methodSignatures);
         node.Accept(writer);
         return writer._sb.ToString();
     }

@@ -238,7 +238,10 @@ public class LingoToCSharpConverter
             {
                 newHandlers.TryGetValue(script.Name, out var nh);
                 var classCode = ConvertClass(script, nh, typeMap);
-                var methods = CSharpWriter.Write(asts[script.Name], options.MethodAccessModifier, typeMap);
+                var sigMap = result.Methods.TryGetValue(script.Name, out var msList)
+                    ? msList.ToDictionary(m => m.Name, m => m, StringComparer.OrdinalIgnoreCase)
+                    : new Dictionary<string, MethodSignature>(StringComparer.OrdinalIgnoreCase);
+                var methods = CSharpWriter.Write(asts[script.Name], options.MethodAccessModifier, typeMap, sigMap);
                 var insertIdx = classCode.LastIndexOf('}');
                 if (insertIdx >= 0)
                     classCode = classCode[..insertIdx] + methods + classCode[insertIdx..];
@@ -347,7 +350,7 @@ public class LingoToCSharpConverter
         var suffix = scriptType switch
         {
             LingoScriptType.Movie => "MovieScript",
-            LingoScriptType.Parent => "ParentScript",
+            LingoScriptType.Parent => "Parent",
             LingoScriptType.Behavior => "Behavior",
             _ => "Script"
         };
@@ -802,7 +805,18 @@ public class LingoToCSharpConverter
                 }
 
                 if (Regex.IsMatch(trimmed, $"{Regex.Escape(param.Name)}\\.text", RegexOptions.IgnoreCase))
+                {
                     result[current][param.Name] = "string";
+                    continue;
+                }
+
+                var concatPattern1 = "\"[^\"]*\"\\s*(?:&&|&)\\s*" + Regex.Escape(param.Name) + "\\b";
+                var concatPattern2 = Regex.Escape(param.Name) + "\\s*(?:&&|&)\\s*\"";
+                if (Regex.IsMatch(trimmed, concatPattern1, RegexOptions.IgnoreCase) ||
+                    Regex.IsMatch(trimmed, concatPattern2, RegexOptions.IgnoreCase))
+                {
+                    result[current][param.Name] = "string";
+                }
             }
         }
         return result;
