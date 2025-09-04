@@ -15,9 +15,9 @@ public class AbstMarkdownRendererTests
         public TestFontManager(int topIndent = 0)
             => _topIndent = topIndent;
 
-          public IAbstFontManager AddFont(string name, string pathAndName, AbstFontStyle style = AbstFontStyle.Regular) => this;
-          public void LoadAll() { }
-          public T? Get<T>(string name, AbstFontStyle style = AbstFontStyle.Regular) where T : class => null;
+        public IAbstFontManager AddFont(string name, string pathAndName, AbstFontStyle style = AbstFontStyle.Regular) => this;
+        public void LoadAll() { }
+        public T? Get<T>(string name, AbstFontStyle style = AbstFontStyle.Regular) where T : class => null;
         public T GetDefaultFont<T>() where T : class => null!;
         public void SetDefaultFont<T>(T font) where T : class { }
         public IEnumerable<string> GetAllNames() => System.Array.Empty<string>();
@@ -25,19 +25,14 @@ public class AbstMarkdownRendererTests
         public FontInfo GetFontInfo(string fontName, int fontSize) => new(fontSize, _topIndent);
     }
 
-    private class RecordingCanvas : IAbstFrameworkGfxCanvas
+    private class RecordingPainter : IAbstImagePainter
     {
         public List<APoint> TextPositions { get; } = new();
 
+        public int Height { get; set; }
+        public int Width { get; set; }
         public bool Pixilated { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public bool Visibility { get; set; } = true;
-        public float Width { get; set; }
-        public float Height { get; set; }
-        public AMargin Margin { get; set; }
-        public float X { get; set; }
-        public float Y { get; set; }
-        public object FrameworkNode => this;
+        public bool AutoResize { get; set; }
 
         public void Clear(AColor color) { }
         public void SetPixel(APoint point, AColor color) { }
@@ -46,10 +41,12 @@ public class AbstMarkdownRendererTests
         public void DrawCircle(APoint center, float radius, AColor color, bool filled = true, float width = 1) { }
         public void DrawArc(APoint center, float radius, float startDeg, float endDeg, int segments, AColor color, float width = 1) { }
         public void DrawPolygon(IReadOnlyList<APoint> points, AColor color, bool filled = true, float width = 1) { }
-        public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = default)
+        public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular)
             => TextPositions.Add(position);
         public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format) { }
         public void DrawPicture(IAbstTexture2D texture, int width, int height, APoint position) { }
+        public IAbstTexture2D GetTexture(string? name = null) => null!;
+        public void Render() { }
         public void Dispose() { }
     }
 
@@ -96,15 +93,13 @@ public class AbstMarkdownRendererTests
         renderer.SetText("Hello world", new[] { style });
         Assert.True(renderer.DoFastRendering);
 
-        var recording = new RecordingCanvas();
-        var canvas = new AbstGfxCanvas();
-        canvas.Init(recording);
+        var painter = new RecordingPainter();
 
         var start = new APoint(0, 20);
-        renderer.Render(canvas, start);
+        renderer.Render(painter, start);
 
-        Assert.Single(recording.TextPositions);
-        Assert.Equal(start.Y - 4, recording.TextPositions[0].Y);
+        Assert.Single(painter.TextPositions);
+        Assert.Equal(start.Y - 4, painter.TextPositions[0].Y);
     }
 
     [Fact]
@@ -115,17 +110,15 @@ public class AbstMarkdownRendererTests
         renderer.SetText("Line1\nLine2\nLine3", new[] { style });
         Assert.True(renderer.DoFastRendering);
 
-        var recording = new RecordingCanvas();
-        var canvas = new AbstGfxCanvas();
-        canvas.Init(recording);
+        var painter = new RecordingPainter();
 
         var start = new APoint(0, 20);
-        renderer.Render(canvas, start);
+        renderer.Render(painter, start);
 
-        Assert.Equal(3, recording.TextPositions.Count);
+        Assert.Equal(3, painter.TextPositions.Count);
         int lineHeight = style.FontSize + 4;
-        Assert.Equal(start.Y - 4, recording.TextPositions[0].Y);
-        Assert.Equal(start.Y + lineHeight, recording.TextPositions[1].Y);
+        Assert.Equal(start.Y - 4, painter.TextPositions[0].Y);
+        Assert.Equal(start.Y + lineHeight, painter.TextPositions[1].Y);
     }
 
     [Fact]
@@ -136,15 +129,13 @@ public class AbstMarkdownRendererTests
         renderer.SetText("Hello#", new[] { style });
         Assert.False(renderer.DoFastRendering);
 
-        var recording = new RecordingCanvas();
-        var canvas = new AbstGfxCanvas();
-        canvas.Init(recording);
+        var painter = new RecordingPainter();
 
         var start = new APoint(0, 20);
-        renderer.Render(canvas, start);
+        renderer.Render(painter, start);
 
-        Assert.Single(recording.TextPositions);
-        Assert.Equal(start.Y - 4, recording.TextPositions[0].Y);
+        Assert.Single(painter.TextPositions);
+        Assert.Equal(start.Y - 4, painter.TextPositions[0].Y);
     }
 
     [Fact]
@@ -155,16 +146,14 @@ public class AbstMarkdownRendererTests
         renderer.SetText("Line1#\nLine2\nLine3", new[] { style });
         Assert.False(renderer.DoFastRendering);
 
-        var recording = new RecordingCanvas();
-        var canvas = new AbstGfxCanvas();
-        canvas.Init(recording);
+        var painter = new RecordingPainter();
 
         var start = new APoint(0, 20);
-        renderer.Render(canvas, start);
+        renderer.Render(painter, start);
 
-        Assert.Equal(3, recording.TextPositions.Count);
+        Assert.Equal(3, painter.TextPositions.Count);
         int lineHeight = style.FontSize + 4;
-        Assert.Equal(start.Y - 4, recording.TextPositions[0].Y);
-        Assert.Equal(start.Y + lineHeight, recording.TextPositions[1].Y);
+        Assert.Equal(start.Y - 4, painter.TextPositions[0].Y);
+        Assert.Equal(start.Y + lineHeight, painter.TextPositions[1].Y);
     }
 }
