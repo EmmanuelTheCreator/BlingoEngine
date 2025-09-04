@@ -215,8 +215,8 @@ namespace AbstUI.SDL2.Components.Containers
             _dragRatioV = _maxScrollV / MathF.Max(1, _trackH - _handleH);
 
             bool needRender = _texture == nint.Zero || _texW != w || _texH != h ||
-                               _lastScrollH != ScrollHorizontal || _lastScrollV != ScrollVertical;
-            if (needRender)
+                               _lastScrollH != ScrollHorizontal || _lastScrollV != ScrollVertical || ComponentContext.HasModifiedChildren();
+            //if (needRender)
             {
                 if (_texture != nint.Zero)
                     SDL.SDL_DestroyTexture(_texture);
@@ -367,6 +367,7 @@ namespace AbstUI.SDL2.Components.Containers
                         e.StopPropagation = true;
                     }
                 }
+               
             }
             else if (ev.type == SDL.SDL_EventType.SDL_MOUSEBUTTONUP && ev.button.button == SDL.SDL_BUTTON_LEFT)
             {
@@ -396,6 +397,7 @@ namespace AbstUI.SDL2.Components.Containers
                 ComponentContext.QueueRedraw(this);
                 e.StopPropagation = true;
             }
+            if (e.StopPropagation) ComponentContext.QueueRedraw(this);
         }
 
         public override void Dispose()

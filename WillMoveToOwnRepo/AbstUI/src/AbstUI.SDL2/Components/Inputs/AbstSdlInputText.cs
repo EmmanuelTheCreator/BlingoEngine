@@ -202,7 +202,7 @@ namespace AbstUI.SDL2.Components.Inputs
 
             SDL.SDL_RenderSetClipRect(renderer, nint.Zero);
 
-            return _focused ? AbstSDLRenderResult.RequireRender() : default;
+            return AbstSDLRenderResult.RequireRender();
         }
 
 
