@@ -12,7 +12,7 @@ public struct AbstSDLRenderResult
     };
 
     public static implicit operator AbstSDLRenderResult(nint texture)
-       => new AbstSDLRenderResult { Texture = texture, DoRender = texture != nint.Zero };
+       => new AbstSDLRenderResult { Texture = texture, DoRender = false };
 
     public static explicit operator nint(AbstSDLRenderResult r) => r.Texture;
 }
