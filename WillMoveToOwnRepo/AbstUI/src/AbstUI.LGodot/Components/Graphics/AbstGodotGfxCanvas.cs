@@ -18,14 +18,7 @@ namespace AbstUI.LGodot.Components
         private readonly GodotImagePainter _painter;
         private AMargin _margin = AMargin.Zero;
 
-        public AbstGodotGfxCanvas(AbstGfxCanvas canvas, IAbstFontManager fontManager, int width, int height)
-        {
-            _painter = new GodotImagePainter((AbstGodotFontManager)fontManager, width, height);
-            canvas.Init(this);
-            Size = new Vector2(width, height);
-            MouseFilter = MouseFilterEnum.Ignore;
-            AddChild(_painter.Control);
-        }
+       
 
         public bool Pixilated
         {
@@ -77,8 +70,27 @@ namespace AbstUI.LGodot.Components
             }
         }
 
-        public new string Name { get => base.Name; set => base.Name = value; }
+        public new string Name
+        {
+            get => base.Name;
+            set
+            {
+                base.Name = value;
+                _painter.Name = value + "_Painter";
+            }
+        }
         public object FrameworkNode => this;
+
+
+
+        public AbstGodotGfxCanvas(AbstGfxCanvas canvas, IAbstFontManager fontManager, int width, int height)
+        {
+            _painter = new GodotImagePainter((AbstGodotFontManager)fontManager, width, height);
+            canvas.Init(this);
+            Size = new Vector2(width, height);
+            MouseFilter = MouseFilterEnum.Ignore;
+            AddChild(_painter.Control);
+        }
 
         public override void _Draw()
         {

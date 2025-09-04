@@ -21,7 +21,7 @@ public class UnityImagePainter : IAbstImagePainter
     public int MaxHeight { get; set; } = 16384;
     private int _width;
     private int _height;
-
+    public string Name { get; set; } = "";
     public int Width
     {
         get => _width;
@@ -50,7 +50,7 @@ public class UnityImagePainter : IAbstImagePainter
         get => _texture.filterMode == FilterMode.Point;
         set => _texture.filterMode = value ? FilterMode.Point : FilterMode.Bilinear;
     }
-    public bool AutoResize { get; set; } = true;
+    public bool AutoResize { get; set; } = false;
     public Texture2D Texture => _texture;
 
     public UnityImagePainter(IAbstFontManager fontManager, int width = 0, int height = 0)

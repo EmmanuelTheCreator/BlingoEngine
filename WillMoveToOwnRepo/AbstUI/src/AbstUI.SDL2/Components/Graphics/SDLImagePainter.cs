@@ -48,8 +48,9 @@ namespace AbstUI.SDL2.Components.Graphics
         }
 
         public bool Pixilated { get; set; }
-        public bool AutoResize { get; set; } = true;
+        public bool AutoResize { get; set; } = false;
         public nint Texture => _texture;
+        public string Name { get; set; } = "";
 
         public SDLImagePainter(IAbstFontManager fontManager, int width, int height, nint renderer)
         {
@@ -581,7 +582,7 @@ namespace AbstUI.SDL2.Components.Graphics
             {
                 //SdlTexture2D textureClone = (SdlTexture2D)texture.Clone(Renderer);
                 //texture.Dispose();
-                //texture.DebugWriteToDiskInc(Renderer);
+                //texture.DebugWriteToDisk(Renderer);
             }
             else
             {

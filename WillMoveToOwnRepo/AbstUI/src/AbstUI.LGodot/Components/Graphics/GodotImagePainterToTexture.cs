@@ -12,35 +12,25 @@ using Godot;
 
 namespace AbstUI.LGodot.Components.Graphics
 {
-    public class GodotImagePainter : IAbstImagePainter
+    public class GodotImagePainterToTexture : IAbstImagePainter
     {
         private readonly List<(Func<APoint?> GetTotalSize, Action<Image> DrawAction)> _drawActions = new();
         private readonly AbstGodotFontManager _fontManager;
         private Image _img;
         private ImageTexture _tex;
-        private readonly TextureRect _control;
         private AColor? _clearColor;
         private bool _dirty;
 
         public int Width { get; private set; }
         public int Height { get; private set; }
-        private bool _pixilated;
-        public bool Pixilated
-        {
-            get => _pixilated;
-            set
-            {
-                _pixilated = value;
-                _control.TextureFilter = value ? CanvasItem.TextureFilterEnum.Nearest : CanvasItem.TextureFilterEnum.Linear;
-            }
-        }
-        public Control Control => _control;
-        public bool AutoResize { get; set; } = false;
+        public bool Pixilated { get; set; }
+        public Texture2D Texture => _tex;
+        public bool AutoResize { get; set; } = true;
         int IAbstImagePainter.Height { get => Height; set => Resize(Width, value); }
         int IAbstImagePainter.Width { get => Width; set => Resize(value, Height); }
         public string Name { get; set; } = "";
 
-        public GodotImagePainter(AbstGodotFontManager fontManager, int width = 0, int height = 0)
+        public GodotImagePainterToTexture(AbstGodotFontManager fontManager, int width = 0, int height = 0)
         {
             _fontManager = fontManager;
             if (width == 0) width = 10;
@@ -50,14 +40,6 @@ namespace AbstUI.LGodot.Components.Graphics
             _img = Image.CreateEmpty(width, height, false, Image.Format.Rgba8);
             _img.Fill(new Color(0, 0, 0, 0));
             _tex = ImageTexture.CreateFromImage(_img);
-            _control = new TextureRect
-            {
-                Texture = _tex,
-                MouseFilter = Control.MouseFilterEnum.Ignore,
-                CustomMinimumSize = new Vector2(width, height),
-                Size = new Vector2(width, height)
-            };
-            Pixilated = false;
             _dirty = true;
         }
 
@@ -67,8 +49,6 @@ namespace AbstUI.LGodot.Components.Graphics
                 return;
             Width = width;
             Height = height;
-            _control.Size = new Vector2(width, height);
-            _control.CustomMinimumSize = _control.Size;
             MarkDirty();
         }
 
@@ -76,7 +56,6 @@ namespace AbstUI.LGodot.Components.Graphics
         {
             _tex?.Dispose();
             _img?.Dispose();
-            _control.QueueFree();
         }
 
         private void MarkDirty() => _dirty = true;
@@ -123,19 +102,18 @@ namespace AbstUI.LGodot.Components.Graphics
 
                 _tex?.Dispose();
                 _tex = ImageTexture.CreateFromImage(_img);
-                _control.Texture = _tex;
-                _control.Size = new Vector2(nw, nh);
-                _control.CustomMinimumSize = _control.Size;
 
                 Width = nw;
                 Height = nh;
             }
 
-            foreach (var a in _drawActions) a.DrawAction(_img);
+            foreach (var a in _drawActions)
+            {
+                //Console.WriteLine(Width+"x"+Height+":"+a.DrawAction.Method.Name);
+                a.DrawAction(_img);
+            }
 
             _tex.Update(_img);
-            _control.Texture = _tex;
-            _control.QueueRedraw();
             _dirty = false;
         }
         public void Clear(AColor color)

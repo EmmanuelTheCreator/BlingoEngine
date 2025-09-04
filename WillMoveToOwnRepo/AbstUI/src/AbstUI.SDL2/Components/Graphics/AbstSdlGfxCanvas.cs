@@ -21,6 +21,15 @@ namespace AbstUI.SDL2.Components.Graphics
 
         public object FrameworkNode => this;
 
+        public override string Name
+        {
+            get => base.Name;
+            set
+            {
+                base.Name = value;
+                _painter.Name = value + "_Painter";
+            }
+        }
         public bool Pixilated
         {
             get => _painter.Pixilated;

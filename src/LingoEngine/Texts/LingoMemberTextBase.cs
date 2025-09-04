@@ -327,6 +327,7 @@ namespace LingoEngine.Texts
                 markDownRenderer.SetText(_markdown.Replace('\r', '\n'), [style]);
             }
             var painter = _componentFactory.CreateImagePainter(Width, Height);
+            painter.AutoResize = true;
             markDownRenderer.Render(painter, new APoint(2, 3));
             _texture = painter.GetTexture("Text_" + Name);
             if (Width <= 0) Width = _texture.Width;

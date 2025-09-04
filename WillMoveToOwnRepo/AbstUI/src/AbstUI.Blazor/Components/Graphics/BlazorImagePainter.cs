@@ -30,6 +30,8 @@ public class BlazorImagePainter : IAbstImagePainter
     public int MaxHeight { get; set; } = 16384;
     public int Width { get; set; }
     public int Height { get; set; }
+
+    public string Name { get; set; } = "";
     public bool Pixilated
     {
         get => _pixilated;
@@ -43,7 +45,7 @@ public class BlazorImagePainter : IAbstImagePainter
             }
         }
     }
-    public bool AutoResize { get; set; } = true;
+    public bool AutoResize { get; set; } = false;
 
     public BlazorImagePainter(IAbstFontManager fontManager, IJSRuntime jsRuntime, AbstUIScriptResolver scripts, int width = 0, int height = 0)
     {

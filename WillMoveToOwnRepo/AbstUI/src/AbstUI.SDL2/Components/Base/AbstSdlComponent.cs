@@ -75,7 +75,7 @@ public abstract class AbstSdlComponent : IAbstSDLComponent, IDisposable
         }
     }
 
-    public string Name { get; set; } = string.Empty;
+    public virtual string Name { get; set; } = string.Empty;
 
 
     protected AbstSdlComponent(AbstSdlComponentFactory factory, AbstSDLComponentContext? parent = null)

@@ -10,6 +10,7 @@ namespace AbstUI.Components.Graphics
         int Width { get; set; }
         bool Pixilated { get; set; }
         bool AutoResize { get; set; }
+        string Name { get; set; }
 
         void Clear(AColor color);
         void DrawArc(APoint center, float radius, float startDeg, float endDeg, int segments, AColor color, float width = 1);
