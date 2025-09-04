@@ -12,6 +12,7 @@ public class AbstMDSegment
     public bool Bold { get; set; }
     public bool Italic { get; set; }
     public bool Underline { get; set; }
+    public int LineHeight { get; set; }
     public int MarginLeft { get; set; }
     public int MarginRight { get; set; }
     public int StyleId { get; set; } = -1;

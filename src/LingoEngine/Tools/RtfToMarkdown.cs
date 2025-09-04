@@ -25,7 +25,7 @@ namespace LingoEngine.Tools
 
             if (segments.Select(s => s.StyleId).All(id => id < 0))
             {
-                var distinct = segments.Select(s => (s.FontName, s.Size, s.Color?.ToHex(), s.Alignment, s.MarginLeft, s.MarginRight)).Distinct().Count();
+                var distinct = segments.Select(s => (s.FontName, s.Size, s.Color?.ToHex(), s.Alignment, s.MarginLeft, s.MarginRight, s.LineHeight)).Distinct().Count();
                 if (distinct == 1 && segments.Count > 0)
                 {
                     var seg = segments[0];
@@ -36,6 +36,7 @@ namespace LingoEngine.Tools
                         FontSize = seg.Size,
                         Color = seg.Color ?? AColors.Black,
                         Alignment = seg.Alignment,
+                        LineHeight = seg.LineHeight,
                         MarginLeft = seg.MarginLeft,
                         MarginRight = seg.MarginRight
                     };
@@ -203,10 +204,25 @@ namespace LingoEngine.Tools
                     rawText = rawText.Replace(riMatch.Value, string.Empty);
                 }
 
+                var expndMatch = Regex.Match(rawText, @"\\expnd(-?\d+)");
+                if (expndMatch.Success)
+                    rawText = rawText.Replace(expndMatch.Value, string.Empty);
+                var slMatch = Regex.Match(rawText, @"\\sl(-?\d+)");
+                int lineHeight = 0;
+                if (slMatch.Success)
+                {
+                    lineHeight = int.Parse(slMatch.Groups[1].Value) / 20;
+                    rawText = rawText.Replace(slMatch.Value, string.Empty);
+                }
+
                 rawText = Regex.Replace(rawText, @"\\tx-?\d*", string.Empty);
 
                 var textContent = Regex.Replace(rawText, @"\\'([0-9a-fA-F]{2})", m => ((char)System.Convert.ToInt32(m.Groups[1].Value, 16)).ToString());
-                textContent = textContent.Replace("\\par", "\n").Replace("\\tab", "\t").Replace("\\\\", "\\").TrimStart();
+                textContent = Regex.Replace(textContent, @"\\u(-?\d+)\??", m => ((char)int.Parse(m.Groups[1].Value)).ToString());
+                textContent = textContent.Replace("\\par", "\n").Replace("\\tab", "\t").Replace("\\\\", "\\");
+                textContent = Regex.Replace(textContent, @"\\([{}:])", "$1");
+                if (textContent.StartsWith(" "))
+                    textContent = textContent[1..];
 
                 var styleId = match.Groups["s"].Success ? int.Parse(match.Groups["s"].Value) : -1;
 
@@ -222,6 +238,7 @@ namespace LingoEngine.Tools
                     Underline = underline,
                     MarginLeft = marginLeft,
                     MarginRight = marginRight,
+                    LineHeight = lineHeight,
                     StyleId = styleId,
                     IsParagraph = isParagraph
                 });
@@ -290,6 +307,10 @@ namespace LingoEngine.Tools
                         hasColor = true;
                     }
                 }
+
+                var slMatch = Regex.Match(def, @"\\sl(-?\d+)");
+                if (slMatch.Success)
+                    style.LineHeight = int.Parse(slMatch.Groups[1].Value) / 20;
 
                 var qMatch = Regex.Match(def, @"\\q(l|r|c|j)");
                 if (qMatch.Success)

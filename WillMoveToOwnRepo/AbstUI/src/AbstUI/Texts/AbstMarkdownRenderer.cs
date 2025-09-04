@@ -143,7 +143,7 @@ namespace AbstUI.Texts
 
                 var fontInfo = _fontManager.GetFontInfo(_fontFamily, usedFontSize);
                 RenderInlineText(content, new APoint(lineX, pos.Y - (firstLine ? fontInfo.TopIndentation : 0)), usedFontSize, bold, italic, underline);
-                int advance = _lineHeight > 0 ? _lineHeight : fontInfo.FontHeight + 4;
+                int advance = _lineHeight > 0 ? _lineHeight : usedFontSize;
                 pos.Offset(0, advance);
                 firstLine = false;
             }
@@ -157,7 +157,7 @@ namespace AbstUI.Texts
             var fontSize = style.FontSize;
             if (fontSize <= 0) fontSize = 12;
             var fontInfo = _fontManager.GetFontInfo(style.Font, fontSize);
-            int lineHeight = style.LineHeight > 0 ? style.LineHeight : fontInfo.FontHeight + 4;
+            int lineHeight = style.LineHeight > 0 ? style.LineHeight : fontSize;
             bool firstLine = true;
 
             // 1) measure max width of all lines

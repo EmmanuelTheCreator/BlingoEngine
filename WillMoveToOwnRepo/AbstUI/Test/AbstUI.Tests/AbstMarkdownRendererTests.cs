@@ -33,6 +33,7 @@ public class AbstMarkdownRendererTests
         public int Width { get; set; }
         public bool Pixilated { get; set; }
         public bool AutoResize { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         public void Clear(AColor color) { }
         public void SetPixel(APoint point, AColor color) { }
@@ -118,7 +119,7 @@ public class AbstMarkdownRendererTests
         renderer.Render(painter, start);
 
         Assert.Equal(3, painter.TextPositions.Count);
-        int lineHeight = style.FontSize + 4;
+        int lineHeight = style.FontSize;
         Assert.Equal(start.Y - 4, painter.TextPositions[0].Y);
         Assert.Equal(start.Y + lineHeight, painter.TextPositions[1].Y);
     }
@@ -154,8 +155,44 @@ public class AbstMarkdownRendererTests
         renderer.Render(painter, start);
 
         Assert.Equal(3, painter.TextPositions.Count);
-        int lineHeight = style.FontSize + 4;
+        int lineHeight = style.FontSize;
         Assert.Equal(start.Y - 4, painter.TextPositions[0].Y);
         Assert.Equal(start.Y + lineHeight, painter.TextPositions[1].Y);
+    }
+
+    [Fact]
+    public void FastRender_UsesExplicitLineHeight()
+    {
+        var renderer = CreateRenderer(topIndent: 4);
+        var style = CreateDefaultStyle();
+        style.LineHeight = 20;
+        renderer.SetText("Line1\nLine2", new[] { style });
+        Assert.True(renderer.DoFastRendering);
+
+        var painter = new RecordingPainter();
+        var start = new APoint(0, 20);
+        renderer.Render(painter, start);
+
+        Assert.Equal(2, painter.TextPositions.Count);
+        Assert.Equal(start.Y - 4, painter.TextPositions[0].Y);
+        Assert.Equal(start.Y + style.LineHeight, painter.TextPositions[1].Y);
+    }
+
+    [Fact]
+    public void SlowRender_UsesExplicitLineHeight()
+    {
+        var renderer = CreateRenderer(topIndent: 4);
+        var style = CreateDefaultStyle();
+        style.LineHeight = 20;
+        renderer.SetText("Line1#\nLine2", new[] { style });
+        Assert.False(renderer.DoFastRendering);
+
+        var painter = new RecordingPainter();
+        var start = new APoint(0, 20);
+        renderer.Render(painter, start);
+
+        Assert.Equal(2, painter.TextPositions.Count);
+        Assert.Equal(start.Y - 4, painter.TextPositions[0].Y);
+        Assert.Equal(start.Y + style.LineHeight, painter.TextPositions[1].Y);
     }
 }
