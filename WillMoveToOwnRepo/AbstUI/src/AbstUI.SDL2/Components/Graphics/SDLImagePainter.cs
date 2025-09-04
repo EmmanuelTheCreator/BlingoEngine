@@ -18,10 +18,35 @@ namespace AbstUI.SDL2.Components.Graphics
         protected bool _dirty;
         private readonly int _maxWidth;
         private readonly int _maxHeight;
+        private int _width;
+        private int _height;
 
         public nint Renderer { get; }
-        public int Width { get; set; }
-        public int Height { get; set; }
+
+        public int Width
+        {
+            get => _width;
+            set
+            {
+                if (_width == value)
+                    return;
+                _width = value;
+                MarkDirty();
+            }
+        }
+
+        public int Height
+        {
+            get => _height;
+            set
+            {
+                if (_height == value)
+                    return;
+                _height = value;
+                MarkDirty();
+            }
+        }
+
         public bool Pixilated { get; set; }
         public bool AutoResize { get; set; } = true;
         public nint Texture => _texture;
@@ -30,13 +55,24 @@ namespace AbstUI.SDL2.Components.Graphics
         {
             _fontManager = (SdlFontManager)fontManager;
             (_maxWidth, _maxHeight) = GetMaxTexSize(renderer);
-            Width = width > 0 ? Math.Min(width, _maxWidth) : 10;
-            Height = height > 0 ? Math.Min(height, _maxHeight) : 10;
+            _width = width > 0 ? Math.Min(width, _maxWidth) : 10;
+            _height = height > 0 ? Math.Min(height, _maxHeight) : 10;
 
             _texture = SDL.SDL_CreateTexture(renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
-                (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, Width, Height);
+                (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, _width, _height);
             _dirty = true;
             Renderer = renderer;
+        }
+
+        public void Resize(int width, int height)
+        {
+            width = Math.Min(width, _maxWidth);
+            height = Math.Min(height, _maxHeight);
+            if (Width == width && Height == height)
+                return;
+            _width = width;
+            _height = height;
+            MarkDirty();
         }
 
         /// <summary>

@@ -35,7 +35,8 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
     public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
     {
         var canvas = new AbstGfxCanvas();
-        var impl = new AbstUnityGfxCanvas(width, height);
+        var painter = (UnityImagePainter)CreateImagePainter(width, height);
+        var impl = new AbstUnityGfxCanvas(painter);
         canvas.Init(impl);
         InitComponent(canvas);
         canvas.Name = name;

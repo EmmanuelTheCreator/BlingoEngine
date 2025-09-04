@@ -19,8 +19,32 @@ public class UnityImagePainter : IAbstImagePainter
 
     public int MaxWidth { get; set; } = 16384;
     public int MaxHeight { get; set; } = 16384;
-    public int Width { get; set; }
-    public int Height { get; set; }
+    private int _width;
+    private int _height;
+
+    public int Width
+    {
+        get => _width;
+        set
+        {
+            if (_width == value)
+                return;
+            _width = value;
+            MarkDirty();
+        }
+    }
+
+    public int Height
+    {
+        get => _height;
+        set
+        {
+            if (_height == value)
+                return;
+            _height = value;
+            MarkDirty();
+        }
+    }
     public bool Pixilated
     {
         get => _texture.filterMode == FilterMode.Point;
@@ -32,14 +56,25 @@ public class UnityImagePainter : IAbstImagePainter
     public UnityImagePainter(IAbstFontManager fontManager, int width = 0, int height = 0)
     {
         _fontManager = (UnityFontManager)fontManager;
-        Width = width > 0 ? Math.Min(width, MaxWidth) : 10;
-        Height = height > 0 ? Math.Min(height, MaxHeight) : 10;
-        _texture = new Texture2D(Width, Height, TextureFormat.RGBA32, false)
+        _width = width > 0 ? Math.Min(width, MaxWidth) : 10;
+        _height = height > 0 ? Math.Min(height, MaxHeight) : 10;
+        _texture = new Texture2D(_width, _height, TextureFormat.RGBA32, false)
         {
             filterMode = FilterMode.Point
         };
         ClearTexture();
         _dirty = true;
+    }
+
+    public void Resize(int width, int height)
+    {
+        width = Math.Min(width, MaxWidth);
+        height = Math.Min(height, MaxHeight);
+        if (Width == width && Height == height)
+            return;
+        _width = width;
+        _height = height;
+        MarkDirty();
     }
 
     private void ClearTexture()
