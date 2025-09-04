@@ -5,6 +5,11 @@ namespace AbstUI.SDL2.Resources
 {
     public class SdlResourceManager : IAbstResourceManager
     {
+        public bool FileExists(string fileName)
+        {
+            return File.Exists(fileName);
+        }
+
         public string? ReadTextFile(string fileName)
         {
             return File.Exists(fileName) ? File.ReadAllText(fileName) : null;

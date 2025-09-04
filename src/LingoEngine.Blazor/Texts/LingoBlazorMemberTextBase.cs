@@ -189,12 +189,6 @@ public abstract class LingoBlazorMemberTextBase<TText> : ILingoFrameworkMemberTe
 
     public string ReadText() => File.Exists(_lingoMemberText.FileName) ? File.ReadAllText(_lingoMemberText.FileName) : string.Empty;
 
-    public string ReadTextRtf()
-    {
-        var rtf = Path.ChangeExtension(_lingoMemberText.FileName, ".rtf");
-        return File.Exists(rtf) ? File.ReadAllText(rtf) : string.Empty;
-    }
-
     public void CopyToClipboard() => Copy(Text);
 
     public void Erase()

@@ -77,7 +77,7 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
             RequireRedraw();
         }
     }
-    public int FontSize 
+    public int FontSize
     {
         get => _fontSize;
         set
@@ -173,11 +173,6 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     public void Copy(string text) => SdlClipboard.SetText(text);
     public string PasteClipboard() => SdlClipboard.GetText();
     public string ReadText() => File.Exists(_lingoMemberText.FileName) ? File.ReadAllText(_lingoMemberText.FileName) : string.Empty;
-    public string ReadTextRtf()
-    {
-        var rtf = Path.ChangeExtension(_lingoMemberText.FileName, ".rtf");
-        return File.Exists(rtf) ? File.ReadAllText(rtf) : string.Empty;
-    }
     public void CopyToClipboard() => SdlClipboard.SetText(Text);
     public void Erase() { Unload(); }
     public void ImportFileInto() { }
@@ -251,10 +246,10 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     private void PreloadFont()
     {
         if (_font == null)
-            _font = _fontManager.GetTyped(this, FontName,FontSize);
+            _font = _fontManager.GetTyped(this, FontName, FontSize);
     }
 
-   
+
 
     /// <summary>Returns the bounding box (w,h) for multiline text (handles \n). No wrapping.</summary>
     private void MeasureText(string text)

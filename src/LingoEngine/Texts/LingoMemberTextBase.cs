@@ -5,7 +5,6 @@ using LingoEngine.Casts;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
 using LingoEngine.Texts.FrameworkCommunication;
-using LingoEngine.Tools;
 using AbstUI.Components;
 using System.Collections.Generic;
 using System.Text;
@@ -284,21 +283,6 @@ namespace LingoEngine.Texts
             //}
 #endif
             Text = _frameworkMember.ReadText();
-            var rtf = _frameworkMember.ReadTextRtf();
-            if (!string.IsNullOrWhiteSpace(rtf))
-            {
-                var rtfInfo = RtfExtracter.Parse(rtf);
-                if (rtfInfo != null)
-                {
-                    if (rtfInfo.Size > 0) FontSize = rtfInfo.Size;
-                    if (rtfInfo.Color != null) TextColor = rtfInfo.Color.Value;
-                    if (rtfInfo.Style != LingoTextStyle.None) FontStyle = rtfInfo.Style;
-                    if (!string.IsNullOrWhiteSpace(rtfInfo.FontName)) Font = rtfInfo.FontName!;
-                    if (string.IsNullOrWhiteSpace(Text)) Text = rtfInfo.Text;
-                    Alignment = rtfInfo.Alignment;
-                }
-            }
-
         }
         public void RequireRedraw()
         {

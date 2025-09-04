@@ -118,13 +118,6 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
         _logger.LogWarning("File not found for Text: {File}", _lingoMemberText.FileName);
         return string.Empty;
     }
-    public string ReadTextRtf()
-    {
-        var rtf = Path.ChangeExtension(_lingoMemberText.FileName, ".rtf");
-        if (File.Exists(rtf))
-            return File.ReadAllText(rtf);
-        return string.Empty;
-    }
 
     public void CopyToClipboard() => Copy(Text);
     public void Erase()

@@ -72,7 +72,19 @@ namespace LingoEngine.Tools
                 var fileName = Path.Combine(rootFolder, fn);
                 var newMember = cast.Add(row.Type, row.Number, row.Name, fileName, row.RegPoint);
                 if (newMember is ILingoMemberTextBaseInteral textbased)
-                    textbased.LoadFile();
+                {
+                    var rtfFile = Path.ChangeExtension(fileName, ".rtf");
+                    if (_resourceManager.FileExists(rtfFile) && newMember is ILingoMemberTextBase textMember)
+                    {
+                        var rtfContent = _resourceManager.ReadTextFile(rtfFile) ?? string.Empty;
+                        var md = RtfToMarkdown.Convert(rtfContent);
+                        textMember.SetTextMD(md);
+                    }
+                    else
+                    {
+                        textbased.LoadFile();
+                    }
+                }
             }
         }
         public IReadOnlyCollection<CsvRow> ImportCsvCastFile(string filePath, bool skipFirstLine = true)

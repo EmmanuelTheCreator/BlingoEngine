@@ -5,6 +5,12 @@ namespace AbstUI.LGodot.Resources
 {
     public class AbstGodotResourceManager : IAbstResourceManager
     {
+        public bool FileExists(string fileName)
+        {
+            var filePath = GodotHelper.EnsureGodotUrl(fileName);
+            return Godot.FileAccess.FileExists(filePath);
+        }
+
         public string? ReadTextFile(string fileName) => GodotHelper.ReadFile(fileName);
 
         public byte[]? ReadBytes(string fileName)
