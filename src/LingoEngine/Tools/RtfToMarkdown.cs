@@ -19,9 +19,9 @@ namespace LingoEngine.Tools
         public static AbstMarkdownData Convert(string rtfContent)
         {
             var fontEntries = ParseFontTable(rtfContent);
-            var colorEntries = ParseColorTable(rtfContent);
-            var styleMap = ParseStyles(rtfContent, fontEntries, colorEntries);
-            var segments = ParseSegments(rtfContent, fontEntries, colorEntries);
+            var colorEntries = ParseColorTable(rtfContent, out int colorOffset);
+            var styleMap = ParseStyles(rtfContent, fontEntries, colorEntries, colorOffset);
+            var segments = ParseSegments(rtfContent, fontEntries, colorEntries, colorOffset);
 
             if (segments.Select(s => s.StyleId).All(id => id < 0))
             {
@@ -99,10 +99,14 @@ namespace LingoEngine.Tools
             if (currentStyle != null)
                 sb.Append("{{/STYLE}}");
 
-            var plainText = string.Concat(segments.Select(s => s.Text));
+            var markdown = Regex.Replace(sb.ToString(), @"\n{2,}", "\n");
+            markdown = Regex.Replace(markdown, @"\n\s+", "\n");
+            var plainTextRaw = string.Concat(segments.Select(s => s.Text));
+            var plainText = Regex.Replace(plainTextRaw, @"\n{2,}", "\n");
+            plainText = Regex.Replace(plainText, @"\n\s+", "\n");
             return new AbstMarkdownData
             {
-                Markdown = sb.ToString(),
+                Markdown = markdown,
                 PlainText = plainText,
                 Segments = segments,
                 Styles = styles
@@ -119,7 +123,7 @@ namespace LingoEngine.Tools
             return text;
         }
 
-        private static List<AbstMDSegment> ParseSegments(string rtfContent, Dictionary<int, string> fontEntries, List<AColor> colorEntries)
+        private static List<AbstMDSegment> ParseSegments(string rtfContent, Dictionary<int, string> fontEntries, List<AColor> colorEntries, int colorOffset)
         {
             var segments = new List<AbstMDSegment>();
 
@@ -162,9 +166,10 @@ namespace LingoEngine.Tools
 
                 fontEntries.TryGetValue(fontIndex, out var fontName);
                 AColor? colorL = null;
-                if (colorIndex - 1 >= 0 && colorIndex - 1 < colorEntries.Count)
+                int mappedIndex = colorIndex - colorOffset;
+                if (mappedIndex >= 0 && mappedIndex < colorEntries.Count)
                 {
-                    colorL = colorEntries[colorIndex - 1];
+                    colorL = colorEntries[mappedIndex];
                 }
 
                 bool bold = Regex.IsMatch(match.Value, @"\\b(?!0)");
@@ -259,16 +264,18 @@ namespace LingoEngine.Tools
                         return cleaned;
                     });
 
-        private static List<AColor> ParseColorTable(string rtfContent)
+        private static List<AColor> ParseColorTable(string rtfContent, out int baseIndex)
         {
             var colorTableMatch = Regex.Match(rtfContent, @"\\colortbl(?<colortbl>[^}]+)}");
-            return Regex.Matches(colorTableMatch.Groups["colortbl"].Value, @"\\red(?<r>\d+)\\green(?<g>\d+)\\blue(?<b>\d+);")
+            var table = colorTableMatch.Groups["colortbl"].Value;
+            baseIndex = table.StartsWith(";") ? 1 : 0;
+            return Regex.Matches(table, @"\\red(?<r>\d+)\\green(?<g>\d+)\\blue(?<b>\d+);")
                 .Cast<Match>()
                 .Select(m => new AColor(-1, byte.Parse(m.Groups["r"].Value), byte.Parse(m.Groups["g"].Value), byte.Parse(m.Groups["b"].Value)))
                 .ToList();
         }
 
-        private static Dictionary<string, StyleDef> ParseStyles(string rtfContent, Dictionary<int, string> fontEntries, List<AColor> colorEntries)
+        private static Dictionary<string, StyleDef> ParseStyles(string rtfContent, Dictionary<int, string> fontEntries, List<AColor> colorEntries, int colorOffset)
         {
             var styles = new Dictionary<string, StyleDef>();
             var sheet = ExtractGroup(rtfContent, "\\stylesheet");
@@ -300,7 +307,7 @@ namespace LingoEngine.Tools
                 var cfMatch = Regex.Match(def, @"\\cf(\d+)");
                 if (cfMatch.Success)
                 {
-                    int idx = int.Parse(cfMatch.Groups[1].Value) - 1;
+                    int idx = int.Parse(cfMatch.Groups[1].Value) - colorOffset;
                     if (idx >= 0 && idx < colorEntries.Count)
                     {
                         style.Color = colorEntries[idx];
