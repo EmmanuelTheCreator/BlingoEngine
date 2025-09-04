@@ -159,5 +159,95 @@ public class RtfToMarkdownTests
         Assert.Equal("GAME OVER", data.PlainText);
         Assert.Equal(28, data.Styles["0"].MarginRight);
     }
-}
 
+
+    [Fact]
+    public void Convert_HandlesActionKeyInstructions()
+    {
+        var rtf = @"{\rtf1\ansi\deff0 {\fonttbl{\f0\fswiss Arial;}{\f1\fnil Tahoma *;}}{\colortbl\red0\green0\blue0;\red102\green102\blue102;\red255\green0 \blue0;\red153\green153\blue153;\red187\green187\blue187;\red0\green0\blue224;\red224\green0\blue0;\red224\green0\blue224;}{\stylesheet
+{\s0\fs24 Normal Text;}}\pard \f0\fs24{\pard \i\f1\cf3\expnd4\sl240 Actionkey}{\pard \b\i\f1\cf3\expnd4\sl240  = }{\pard \b\i\f1\cf4\expnd4\sl240 Space}{\pard \b\i\f1\cf3\expnd4\sl240\par
+}{\pard \i\f1\cf3\expnd4\sl240 Press }{\pard \b\i\f1\cf4\expnd4\sl240 P}{\pard \b\i\f1\cf3\expnd4\sl240  }{\pard \i\f1\cf3\expnd4
+\sl240 for Pause}{\pard \b\i\f1\cf3\expnd4\sl240\par
+}{\pard \i\f1\cf3\expnd4\sl240 Press }{\pard \b\i\f1\cf4\expnd4\sl240 S }{\pard \i\f1\cf3\expnd4\sl240 to stop}{\pard \b\i\f1\cf3
+\expnd4\sl240\par
+}{\pard \i\f1\cf3\expnd4\sl240 Press }{\pard \b\i\f1\cf4\expnd4\sl240 ESC}{\pard \b\i\f1\cf3\expnd4\sl240  }{\pard \i\f1\cf3\expnd4
+\sl240 to Quit}}";
+
+        var data = RtfToMarkdown.Convert(rtf);
+
+        Assert.Contains("Actionkey = Space", data.PlainText);
+        Assert.Contains("Press P", data.PlainText);
+        Assert.Contains("for Pause", data.PlainText);
+        Assert.Contains("Press S", data.PlainText);
+        Assert.Contains("to stop", data.PlainText);
+        Assert.Contains("Press ESC", data.PlainText);
+        Assert.Contains("to Quit", data.PlainText);
+    }
+
+    [Fact]
+    public void Convert_HandlesConstructionKitRtf()
+    {
+        var rtf = @"{\rtf1\ansi\deff0 {\fonttbl{\f0\fswiss Arial;}{\f1\fnil Tahoma *;}{\f2\fnil Bikly *;}{\f3\fnil Earth *;}{\f4\fnil Bikly;}{\f5\fnil Arcade *;}
+}{\colortbl\red0\green0\blue0;\red255\green0\blue0;\red170\green170\blue170;\red255\green255\blue255;\red0\green0\blue224;\red224
+\green0\blue0;\red224\green0\blue224;}{\stylesheet{\s0\fs24 Normal Text;}}\pard \f0\fs24{\pard \b\i\f5\fs36\cf3\sl380 Construction Kit}
+}";
+
+        var data = RtfToMarkdown.Convert(rtf);
+
+        Assert.Equal("Construction Kit", data.PlainText);
+    }
+
+    [Fact]
+    public void Convert_HandlesColonEscapes()
+    {
+        var rtf = @"{\rtf1\ansi\deff0 {\fonttbl{\f0\fswiss Arial;}{\f1\fmodern Courier;}}{\colortbl\red0\green0\blue0;\red128\green128\blue128;}{\stylesheet
+{\s0\fs24 Normal Text;}}\pard \f0\fs24{\f1\cf1 ..................................................\:\:Multi BALLS\:\:....................................................
+\par
+..................................................\:\:Black Balls\:\:....................................................}{\pard 
+\plain\f1\fs24\par
+ }{\pard \f1\cf1 ....................................................\:\:Expand\:\:........................................................
+\par
+...................................................\:\:XTRA Balls\:\:.....................................................}{\pard 
+\plain\f1\fs24\par
+}{\pard \f1\cf1 ...................................................\:\:Slow Down\:\:.......................................................}
+{\pard \plain\f1\fs24\par
+}{\pard \f1\cf1 .....................................................\:\:Shoot\:\:...........................................................}
+{\pard \plain\f1\fs24\par
+}{\pard \f1\cf1 ....................................................\:\:Speed Up\:\:......................................................}
+{\pard \plain\f1\fs24\par
+}{\pard \f1\cf1 ......................................................\:\:Magnetic\:\:...................................................}
+{\pard \plain\f1\fs24\par
+}{\pard \f1\cf1 ......................................................\:\:Live\:\:..........................................................}
+{\pard \plain\f1\fs24\par
+}{\pard \f1\cf1 ......................................................\:\:Gates\:\:..........................................................}
+}";
+
+        var data = RtfToMarkdown.Convert(rtf);
+
+        Assert.Contains("::Multi BALLS::", data.PlainText);
+        Assert.Contains("::Black Balls::", data.PlainText);
+        Assert.DoesNotContain("\\", data.PlainText);
+    }
+
+    [Fact]
+    public void Convert_PreservesLeadingTab()
+    {
+        var rtf = "{\\rtf1\\ansi{\\fonttbl{\\f0 Arial;}}{\\colortbl;\\red0\\green0\\blue0;}{\\f0\\fs24\\cf1\\tabAfter}}";
+
+        var data = RtfToMarkdown.Convert(rtf);
+
+        Assert.Equal("\tAfter", data.PlainText);
+    }
+
+    [Fact]
+    public void Convert_ParsesLineHeight()
+    {
+        var rtf = "{\\rtf1\\ansi{\\fonttbl{\\f0 Arial;}}{\\colortbl;\\red0\\green0\\blue0;}\\pard{\\f0\\fs24\\cf1\\sl360 line}}";
+
+        var data = RtfToMarkdown.Convert(rtf);
+
+        Assert.Equal("line", data.PlainText);
+        Assert.Equal(18, data.Segments[0].LineHeight);
+    }
+
+}
