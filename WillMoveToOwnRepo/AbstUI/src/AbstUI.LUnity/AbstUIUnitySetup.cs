@@ -5,6 +5,8 @@ using AbstUI.LUnity.Windowing;
 using AbstUI.Inputs;
 using AbstUI.LUnity.Inputs;
 using AbstUI.Styles;
+using AbstUI.Resources;
+using AbstUI.LUnity.Resources;
 using AbstUI.Windowing;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +19,7 @@ namespace AbstUI.LUnity
             services
                 .AddSingleton<IAbstFontManager, UnityFontManager>()
                 .AddSingleton<IAbstStyleManager, AbstStyleManager>()
+                .AddSingleton<IAbstResourceManager, UnityResourceManager>()
                 .AddSingleton<IAbstComponentFactory, AbstUnityComponentFactory>()
                 .AddSingleton<IAbstFrameworkWindowManager, AbstUnityWindowManager>()
                 .AddSingleton<IAbstFrameworkMainWindow, AbstUnityMainWindow>()

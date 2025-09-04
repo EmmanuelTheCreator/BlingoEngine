@@ -1,5 +1,7 @@
 using AbstUI.ImGui.Styles;
 using AbstUI.Styles;
+using AbstUI.Resources;
+using AbstUI.ImGui.Resources;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AbstUI.ImGui;
@@ -13,7 +15,8 @@ public static class AbstUIImGuiSetup
     {
         services
             .AddSingleton<IAbstFontManager, ImGuiFontManager>()
-            .AddSingleton<IAbstStyleManager, AbstStyleManager>();
+            .AddSingleton<IAbstStyleManager, AbstStyleManager>()
+            .AddSingleton<IAbstResourceManager, ImGuiResourceManager>();
         return services;
     }
 }

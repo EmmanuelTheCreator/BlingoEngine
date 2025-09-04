@@ -2,6 +2,7 @@
 using AbstUI.Primitives;
 using LingoEngine.Casts;
 using AbstUI.Commands;
+using AbstUI.Resources;
 using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
@@ -18,12 +19,12 @@ namespace LingoEngine.Core
 {
 
 
-    public class LingoPlayer : ILingoPlayer,IDisposable,
+    public class LingoPlayer : ILingoPlayer, IDisposable,
         IAbstCommandHandler<RewindMovieCommand>,
         IAbstCommandHandler<PlayMovieCommand>,
         IAbstCommandHandler<StepFrameCommand>
     {
-        private Lazy<CsvImporter> _csvImporter = new Lazy<CsvImporter>(() => new CsvImporter());
+        private readonly Lazy<CsvImporter> _csvImporter;
         private readonly LingoCastLibsContainer _castLibsContainer;
         private readonly LingoSound _sound;
         private readonly ILingoWindow _window;
@@ -82,8 +83,9 @@ namespace LingoEngine.Core
         public ILingoMovie? ActiveMovie { get; private set; }
         public event Action<ILingoMovie?>? ActiveMovieChanged;
 
-        public LingoPlayer(ILingoServiceProvider serviceProvider, ILingoFrameworkFactory factory, ILingoCastLibsContainer castLibsContainer, ILingoWindow window, ILingoClock lingoClock, ILingoSystem lingoSystem)
+        public LingoPlayer(ILingoServiceProvider serviceProvider, ILingoFrameworkFactory factory, ILingoCastLibsContainer castLibsContainer, ILingoWindow window, ILingoClock lingoClock, ILingoSystem lingoSystem, IAbstResourceManager resourceManager)
         {
+            _csvImporter = new Lazy<CsvImporter>(() => new CsvImporter(resourceManager));
             _actionOnNewMovie = m => { };
             _serviceProvider = serviceProvider;
             Factory = factory;
@@ -290,7 +292,7 @@ namespace LingoEngine.Core
                 movie.SetMouse(newMouse);
         }
 
-       
+
 
 
 

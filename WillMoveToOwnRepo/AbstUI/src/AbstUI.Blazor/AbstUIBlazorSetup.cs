@@ -8,6 +8,8 @@ using AbstUI.Blazor.Windowing;
 using AbstUI.Components;
 using AbstUI.Components.Containers;
 using AbstUI.Styles;
+using AbstUI.Resources;
+using AbstUI.Blazor.Resources;
 using AbstUI.Windowing;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,6 +22,7 @@ public static class AbstUIBlazorSetup
         services
             .AddSingleton<IAbstFontManager, AbstBlazorFontManager>()
             .AddSingleton<IAbstStyleManager, AbstStyleManager>()
+            .AddSingleton<IAbstResourceManager, BlazorResourceManager>()
             .AddSingleton<IAbstBlazorStyleManager, AbstBlazorStyleManager>()
             .AddSingleton<AbstUIScriptResolver>()
             .AddSingleton<AbstBlazorComponentMapper>()
