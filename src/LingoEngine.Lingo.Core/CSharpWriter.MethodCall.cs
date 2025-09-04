@@ -9,11 +9,20 @@ public partial class CSharpWriter
 {
     public void Visit(LingoCallNode node)
     {
-        if (node.Callee is LingoVarNode varNode && varNode.VarName.Equals("voidp", StringComparison.OrdinalIgnoreCase))
+        if (node.Callee is LingoVarNode varNode)
         {
-            node.Arguments.Accept(this);
-            Append(" == null");
-            return;
+            if (varNode.VarName.Equals("voidp", StringComparison.OrdinalIgnoreCase))
+            {
+                node.Arguments.Accept(this);
+                Append(" == null");
+                return;
+            }
+            if (varNode.VarName.Equals("objectp", StringComparison.OrdinalIgnoreCase))
+            {
+                node.Arguments.Accept(this);
+                Append(" != null");
+                return;
+            }
         }
 
         if (!string.IsNullOrEmpty(node.Name))
@@ -257,7 +266,7 @@ public partial class CSharpWriter
                 var suffix = st switch
                 {
                     LingoScriptType.Movie => "MovieScript",
-                    LingoScriptType.Parent => "ParentScript",
+                    LingoScriptType.Parent => "Parent",
                     LingoScriptType.Behavior => "Behavior",
                     _ => "Script"
                 };
@@ -323,7 +332,7 @@ public partial class CSharpWriter
                 var suffix = st switch
                 {
                     LingoScriptType.Movie => "MovieScript",
-                    LingoScriptType.Parent => "ParentScript",
+                    LingoScriptType.Parent => "Parent",
                     LingoScriptType.Behavior => "Behavior",
                     _ => "Script"
                 };

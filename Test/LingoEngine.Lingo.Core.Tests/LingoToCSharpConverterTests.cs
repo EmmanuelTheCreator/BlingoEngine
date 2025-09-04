@@ -1155,7 +1155,7 @@ end";
         var lingo = "on new me\nend";
         var file = new LingoScriptFile { Name = "MyParent", Source = lingo, Type = LingoScriptType.Behavior };
         var result = _converter.Convert(file);
-        Assert.Contains("class MyParentParentScript : LingoParentScript", result);
+        Assert.Contains("class MyParentParent : LingoParentScript", result);
     }
 
     [Fact]
@@ -1165,6 +1165,18 @@ end";
         var file = new LingoScriptFile { Name = "MyMovie", Source = lingo, Type = LingoScriptType.Behavior };
         var result = _converter.Convert(file);
         Assert.Contains("class MyMovieMovieScript : LingoMovieScript", result);
+    }
+
+    [Fact]
+    public void AlertConcatenationProducesStringParameter()
+    {
+        var lingo = @"on SDestroyError me,para
+  alert ""SpriteDistroy received ""&&para
+end";
+        var file = new LingoScriptFile { Name = "Test", Source = lingo, Type = LingoScriptType.Behavior };
+        var result = _converter.Convert(file);
+        Assert.Contains("public void SDestroyError(string para)", result);
+        Assert.Contains("alert(\"SpriteDistroy received \" + para);", result);
     }
 
     [Fact]
@@ -1178,8 +1190,12 @@ end";
                 Source = @"on Beginsprite me
   if myValue=-1 then
     myValue = sendsprite(myDataSpriteNum ,#GetCounterStartData,myDataName)
-    if myValue=void then myValue =0
-    if myValue < myMin or myValue>myMax then myValue=0
+    if myValue=void then
+      myValue =0
+    end if
+    if myValue < myMin or myValue>myMax then
+      myValue=0
+    end if
   end if
   me.Updateme()
   myWaiter = myWaitbeforeExecute

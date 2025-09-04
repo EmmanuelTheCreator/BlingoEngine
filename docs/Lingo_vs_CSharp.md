@@ -59,13 +59,13 @@ dependency injection container when the script is created.
 
 ```csharp
 // Example parent script
-public class BlockParentScript : LingoParentScript
+public class BlockParent : LingoParentScript
 {
     private readonly GlobalVars _global;
 
     // ILingoMovieEnvironment is provided by the runtime; GlobalVars comes
     // from the service container
-    public BlockParentScript(ILingoMovieEnvironment env, GlobalVars global)
+    public BlockParent(ILingoMovieEnvironment env, GlobalVars global)
         : base(env)
     {
         _global = global;
@@ -75,7 +75,7 @@ public class BlockParentScript : LingoParentScript
 
 Scripts are registered with the container using helpers such as
 `AddScriptsFromAssembly()` or `AddMovieScript<T>()`. When Lingo code executes
-`new(script "BlockParentScript")`, LingoEngine retrieves the constructor from the
+`new(script "Block")`, LingoEngine retrieves the constructor from the
 container and supplies any required services automatically.
 
 

@@ -61,7 +61,7 @@ public class MyGameProjectFactory : ILingoProjectFactory
 
                 // .AddMovieScript<StartMoviesScript>()    // Movie script
                 // .AddBehavior<MouseDownNavigateBehavior>() // Behavior
-                // .AddParentScript<BlockParentScript>()     // Parent script
+                // .AddParentScript<BlockParent>()     // Parent script
             )
             .ServicesLingo(s => s
                 .AddSingleton<ITetriGroundsCore, TetriGroundsCore>()
