@@ -69,6 +69,12 @@ namespace AbstUI.Texts
             DoFastRendering = _styles.Count == 1 && !HasSpecialTags(_markdown);
         }
 
+        /// <summary>
+        /// Sets the markdown data including precomputed styles and segments.
+        /// </summary>
+        public void SetText(AbstMarkdownData data)
+            => SetText(data.Markdown, data.Styles.Values);
+
         /// <summary>Renders markdown text on the canvas starting from the given position.</summary>
         public void Render(IAbstImagePainter canvas, APoint start)
         {
