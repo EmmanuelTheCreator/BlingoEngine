@@ -274,22 +274,12 @@ internal class AbstUnityGfxCanvas : AbstUnityComponent, IAbstFrameworkGfxCanvas,
         MarkDirty();
     }
 
-    private static TextureFormat ToUnityFormat(APixelFormat format) => format switch
-    {
-        APixelFormat.Rgba8888 => TextureFormat.RGBA32,
-        APixelFormat.Rgb888 => TextureFormat.RGB24,
-        APixelFormat.Rgb5650 or APixelFormat.Rgb5550 => TextureFormat.RGB565,
-        APixelFormat.Rgba5551 => TextureFormat.ARGB4444,
-        APixelFormat.Rgba4444 => TextureFormat.RGBA4444,
-        _ => TextureFormat.RGBA32
-    };
-
     public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)
     {
         var dat = data; var w = width; var h = height; var pos = position; var fmt = format;
         _drawActions.Add(tex =>
         {
-            var t = new Texture2D(w, h, ToUnityFormat(fmt), false);
+            var t = new Texture2D(w, h, fmt.ToUnityFormat(), false);
             t.LoadRawTextureData(dat);
             t.Apply();
             var colors = t.GetPixels(0, 0, w, h);
