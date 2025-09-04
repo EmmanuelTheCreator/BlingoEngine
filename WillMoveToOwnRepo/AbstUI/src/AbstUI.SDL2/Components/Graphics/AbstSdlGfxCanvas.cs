@@ -4,6 +4,7 @@ using AbstUI.Primitives;
 using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Core;
 using AbstUI.Styles;
+using AbstUI.Texts;
 
 namespace AbstUI.SDL2.Components.Graphics
 {

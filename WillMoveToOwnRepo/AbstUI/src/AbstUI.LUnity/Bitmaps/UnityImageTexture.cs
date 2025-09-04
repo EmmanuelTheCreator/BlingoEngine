@@ -36,4 +36,19 @@ public class UnityTexture2D : AbstBaseTexture2D<Texture2D>
     {
         throw new NotImplementedException();
     }
+
+    public override void SetARGBPixels(byte[] argbPixels)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void SetRGBAPixels(byte[] rgbaPixels)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override IAbstTexture2D Clone()
+    {
+        throw new NotImplementedException();
+    }
 }

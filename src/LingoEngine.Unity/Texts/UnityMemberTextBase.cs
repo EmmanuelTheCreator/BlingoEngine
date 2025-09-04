@@ -86,6 +86,8 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
 
     public IAbstTexture2D? TextureLingo => _textureWrapper;
 
+    public IAbstFontManager FontManager => throw new NotImplementedException();
+
     protected UnityMemberTextBase(IAbstFontManager fontManager, ILogger logger)
     {
         _fontManager = fontManager;

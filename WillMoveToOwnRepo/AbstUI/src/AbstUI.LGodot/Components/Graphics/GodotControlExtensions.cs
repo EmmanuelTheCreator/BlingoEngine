@@ -1,7 +1,9 @@
 using System;
 using AbstUI.Bitmaps;
 using AbstUI.LGodot.Bitmaps;
+using AbstUI.Primitives;
 using Godot;
+using static Godot.Node;
 
 namespace AbstUI.LGodot.Components.Graphics;
 

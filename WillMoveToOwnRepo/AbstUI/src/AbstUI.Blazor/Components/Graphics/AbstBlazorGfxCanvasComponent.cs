@@ -139,4 +139,9 @@ public class AbstBlazorGfxCanvasComponent : AbstBlazorComponentModelBase, IAbstF
     }
 
     private static string ToCss(AColor c) => $"rgba({c.R},{c.G},{c.B},{c.A / 255f})";
+
+    public IAbstTexture2D GetTexture(string? name = null)
+    {
+        throw new NotImplementedException();
+    }
 }

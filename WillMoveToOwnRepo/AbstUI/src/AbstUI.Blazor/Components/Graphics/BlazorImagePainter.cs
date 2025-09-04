@@ -21,7 +21,7 @@ public class BlazorImagePainter : IAbstImagePainter
     private readonly AbstUIScriptResolver _scripts;
     private AbstBlazorTexture2D _texture;
     private IJSObjectReference? _context;
-    private readonly List<(Func<APoint?> GetTotalSize, Func<IJSObjectReference, Task> DrawAction)> _drawActions = new();
+    private readonly List<(Func<APoint?> GetTotalSize, Func<IJSObjectReference, ValueTask> DrawAction)> _drawActions = new();
     private AColor? _clearColor;
     private bool _dirty;
     private bool _pixilated;

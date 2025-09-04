@@ -4,6 +4,7 @@ using AbstUI.Blazor;
 using AbstUI.Blazor.Bitmaps;
 using AbstUI.Blazor.Primitives;
 using AbstUI.Primitives;
+using AbstUI.Styles;
 using AbstUI.Texts;
 using LingoEngine.Bitmaps;
 using LingoEngine.Primitives;
@@ -182,6 +183,8 @@ public abstract class LingoBlazorMemberTextBase<TText> : ILingoFrameworkMemberTe
         }
     }
     public IAbstTexture2D? TextureLingo => _texture;
+
+    public IAbstFontManager FontManager => throw new NotImplementedException();
 
     public void Copy(string text) => _js.InvokeVoidAsync("navigator.clipboard.writeText", text).AsTask().GetAwaiter().GetResult();
 

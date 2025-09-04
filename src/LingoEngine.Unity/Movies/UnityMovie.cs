@@ -20,7 +20,9 @@ public class UnityMovie : ILingoFrameworkMovie, IDisposable
     private readonly HashSet<LingoUnitySprite2D> _drawnSprites = new();
     private readonly HashSet<LingoUnitySprite2D> _allSprites = new();
     private readonly GameObject _root;
+    private readonly LingoMovie _movie;
 
+    public int CurrentFrame => _movie.CurrentFrame;
     public UnityMovie(UnityStage stage, LingoMovie movie, Action<UnityMovie> remove)
     {
         _stage = stage;
@@ -28,6 +30,7 @@ public class UnityMovie : ILingoFrameworkMovie, IDisposable
         _root = new GameObject("MovieRoot");
         _root.transform.parent = stage.transform;
         stage.ShowMovie(this);
+        _movie = movie;
     }
 
     internal void Show()

@@ -22,8 +22,9 @@ namespace AbstUI.LUnity.Styles;
     {
             foreach (var font in _fontsToLoad)
             {
-                // Try loading from Resources first; fall back to built-in Arial
-                var loaded = Resources.Load<Font>(font.FileName) ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
+            // Try loading from Resources first; fall back to built-in Tahoma
+
+            var loaded = UnityEngine.Resources.Load<Font>(font.FileName) ?? UnityEngine.Resources.GetBuiltinResource<Font>("Tahoma.ttf");
                 _loadedFonts[(font.Name, font.Style)] = loaded;
             }
         _fontsToLoad.Clear();
@@ -34,7 +35,7 @@ namespace AbstUI.LUnity.Styles;
 
         public Font GetTyped(string name, AbstFontStyle style = AbstFontStyle.Regular) => _loadedFonts[(name, style)];
 
-    private Font _defaultFont = Resources.GetBuiltinResource<Font>("Tahoma.ttf");
+    private Font _defaultFont = UnityEngine.Resources.GetBuiltinResource<Font>("Tahoma.ttf");
 
     public T GetDefaultFont<T>() where T : class => (_defaultFont as T)!;
 

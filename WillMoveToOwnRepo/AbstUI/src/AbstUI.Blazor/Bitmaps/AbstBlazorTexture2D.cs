@@ -53,4 +53,19 @@ public class AbstBlazorTexture2D : AbstBaseTexture2D<ElementReference>
     {
         throw new NotImplementedException();
     }
+
+    public override void SetARGBPixels(byte[] argbPixels)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void SetRGBAPixels(byte[] rgbaPixels)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override IAbstTexture2D Clone()
+    {
+        throw new NotImplementedException();
+    }
 }

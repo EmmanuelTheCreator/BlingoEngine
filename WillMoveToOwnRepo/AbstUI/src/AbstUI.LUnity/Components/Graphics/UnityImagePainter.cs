@@ -212,14 +212,15 @@ public class UnityImagePainter : IAbstImagePainter
     public void DrawRect(ARect rect, AColor color, bool filled = true, float width = 1)
     {
         var r = rect; var col = color.ToUnityColor(); var w = width;
+        
         _drawActions.Add((
-            () => AutoResize ? EnsureCapacity((int)r.X + r.Width, (int)r.Y + r.Height) : null,
+            () => AutoResize? EnsureCapacity((int)(r.Left + r.Width), (int)(r.Top + r.Height)) : null,
             tex =>
             {
-                int x0 = Mathf.RoundToInt(r.X);
-                int y0 = Mathf.RoundToInt(r.Y);
-                int x1 = x0 + r.Width;
-                int y1 = y0 + r.Height;
+                int x0 = Mathf.RoundToInt(r.Left);
+                int y0 = Mathf.RoundToInt(r.Top);
+                int x1 =  (int)(x0 + r.Width);
+                int y1 = (int)(y0 + r.Height);
                 if (filled)
                 {
                     for (int y = y0; y < y1; y++)
@@ -358,7 +359,7 @@ public class UnityImagePainter : IAbstImagePainter
                 if (!AutoResize) return null;
                 float textW = w >= 0 ? w : _fontManager.MeasureTextWidth(txt, fnt ?? string.Empty, fs);
                 var fi = _fontManager.GetFontInfo(fnt ?? string.Empty, fs);
-                return EnsureCapacity((int)(pos.X + textW), (int)(pos.Y + fi.Height));
+                return EnsureCapacity((int)(pos.X + textW), (int)(pos.Y + fi.FontHeight));
             },
             tex =>
             {
@@ -401,7 +402,7 @@ public class UnityImagePainter : IAbstImagePainter
             {
                 if (!AutoResize) return null;
                 float textW = w >= 0 ? w : _fontManager.MeasureTextWidth(txt, fnt ?? string.Empty, fs);
-                int textH = h >= 0 ? h : _fontManager.GetFontInfo(fnt ?? string.Empty, fs).Height;
+                int textH = h >= 0 ? h : _fontManager.GetFontInfo(fnt ?? string.Empty, fs).FontHeight;
                 return EnsureCapacity((int)(pos.X + textW), (int)(pos.Y + textH));
             },
             tex =>

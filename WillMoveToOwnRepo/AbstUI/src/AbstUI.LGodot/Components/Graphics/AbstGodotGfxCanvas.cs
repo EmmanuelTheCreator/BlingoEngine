@@ -76,7 +76,7 @@ namespace AbstUI.LGodot.Components
             }
         }
 
-        string IAbstFrameworkNode.Name { get => Name; set => Name = value; }
+        public new string Name { get => base.Name; set => base.Name = value; }
         public object FrameworkNode => this;
 
         public override void _Draw()

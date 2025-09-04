@@ -30,6 +30,9 @@ public class SdlFontManager : IAbstFontManager
           {
               var tahoma = Path.Combine(AppContext.BaseDirectory, "Fonts", "Tahoma.ttf");
               _loadedFonts.Add(("default", AbstFontStyle.Regular), new AbstSdlFont(this, "Tahoma", tahoma));
+              _loadedFonts.Add(("default", AbstFontStyle.Italic), new AbstSdlFont(this, "Tahoma", tahoma));
+              _loadedFonts.Add(("default", AbstFontStyle.Bold), new AbstSdlFont(this, "Tahoma", tahoma));
+              _loadedFonts.Add(("default", AbstFontStyle.BoldItalic), new AbstSdlFont(this, "Tahoma", tahoma));
               _loadedFonts.Add(("Tahoma", AbstFontStyle.Regular), new AbstSdlFont(this, "Tahoma", tahoma));
           }
 
@@ -159,8 +162,9 @@ public class SdlFontManager : IAbstFontManager
             if (_fontUsers.Count == 0)
             {
                 _onRemove(this);
-                SDL_ttf.TTF_CloseFont(FontHandle);
-                FontHandle = nint.Zero;
+                // do not close font here, it will be closed in SdlFontManager
+                //SDL_ttf.TTF_CloseFont(FontHandle);
+                //FontHandle = nint.Zero;
             }
         }
     }
