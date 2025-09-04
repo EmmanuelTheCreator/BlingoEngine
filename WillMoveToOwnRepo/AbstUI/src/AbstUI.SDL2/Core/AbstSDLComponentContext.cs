@@ -1,6 +1,7 @@
 using AbstUI.SDL2.Components;
 using AbstUI.SDL2.SDLL;
 using System;
+using System.ComponentModel;
 
 namespace AbstUI.SDL2.Core;
 
@@ -45,6 +46,16 @@ public class AbstSDLComponentContext : IDisposable
     {
         LogicalParent = logicalParent;
         VisualParent = visualParent ?? logicalParent;
+        if (_requireRender && Component != null && VisualParent != null)
+            VisualParent.QueueRedrawFromChild(Component);
+    }
+    
+    public void QueueRedraw(IAbstSDLComponent component)
+    {
+        if (_requireRender) return;
+        _requireRender = true;
+        VisualParent?.QueueRedrawFromChild(component);
+        OnRequestRedraw?.Invoke(component);
     }
     public void QueueRedrawFromChild(IAbstSDLComponent component)
     {
@@ -53,13 +64,7 @@ public class AbstSDLComponentContext : IDisposable
         _modifiedChildren.Add(component);
         _requireRender = true;
     }
-    public void QueueRedraw(IAbstSDLComponent component)
-    {
-        if (_requireRender) return;
-        _requireRender = true;
-        VisualParent?.QueueRedrawFromChild(component);
-        OnRequestRedraw?.Invoke(component);
-    }
+
     public bool HasModifiedChildren() => _modifiedChildren.Any();
     public IEnumerable<IAbstSDLComponent> GetModifiedChildren() => _modifiedChildren;
 

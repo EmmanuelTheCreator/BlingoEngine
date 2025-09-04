@@ -213,10 +213,14 @@ namespace AbstUI.SDL2.Components.Containers
             _handleH = MathF.Min(_handleH, _trackH);
             _dragRatioH = _maxScrollH / MathF.Max(1, _trackW - _handleW);
             _dragRatioV = _maxScrollV / MathF.Max(1, _trackH - _handleH);
+            var hasModifiedChildren = ComponentContext.HasModifiedChildren();
+            if (hasModifiedChildren)
+            {
 
+            }
             bool needRender = _texture == nint.Zero || _texW != w || _texH != h ||
-                               _lastScrollH != ScrollHorizontal || _lastScrollV != ScrollVertical || ComponentContext.HasModifiedChildren();
-            //if (needRender)
+                               _lastScrollH != ScrollHorizontal || _lastScrollV != ScrollVertical || hasModifiedChildren;
+            if (needRender)
             {
                 if (_texture != nint.Zero)
                     SDL.SDL_DestroyTexture(_texture);

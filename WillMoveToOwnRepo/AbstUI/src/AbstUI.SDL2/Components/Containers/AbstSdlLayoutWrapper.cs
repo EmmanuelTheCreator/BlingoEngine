@@ -21,6 +21,9 @@ namespace AbstUI.SDL2.Components.Containers
             var content = layoutWrapper.Content.FrameworkObj;
             Name = content.Name + "_Wrapper";
             _canHandleEvent = layoutWrapper.Content.FrameworkObj is IHandleSdlEvent;
+            if (content is AbstSdlComponent sdlComponent)
+                sdlComponent.ComponentContext.SetParents(ComponentContext);
+            
         }
         public override float Width
         {
