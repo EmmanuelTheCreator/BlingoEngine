@@ -49,20 +49,22 @@ namespace AbstUI.LGodot.Styles
 
         public IEnumerable<string> GetAllNames() => _loadedFonts.Keys.Select(k => k.Name).Distinct();
 
-        public float MeasureTextWidth(string text, string fontName, int fontSize)
+        public float MeasureTextWidth(string text, string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
         {
-            var font = string.IsNullOrEmpty(fontName) ? _defaultStyle :
-                (_loadedFonts.TryGetValue((fontName, AbstFontStyle.Regular), out var f) ? f : _defaultStyle);
+            var font = string.IsNullOrEmpty(fontName)
+                ? _defaultStyle
+                : (_loadedFonts.TryGetValue((fontName, style), out var f) ? f : _defaultStyle);
             return font.GetStringSize(text, HorizontalAlignment.Left, -1, fontSize).X;
         }
 
-        public FontInfo GetFontInfo(string fontName, int fontSize)
+        public FontInfo GetFontInfo(string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
         {
-            var font = string.IsNullOrEmpty(fontName) ? _defaultStyle :
-                (_loadedFonts.TryGetValue((fontName, AbstFontStyle.Regular), out var f) ? f : _defaultStyle);
+            var font = string.IsNullOrEmpty(fontName)
+                ? _defaultStyle
+                : (_loadedFonts.TryGetValue((fontName, style), out var f) ? f : _defaultStyle);
             int height = (int)font.GetHeight(fontSize);
             int ascent = (int)font.GetAscent(fontSize);
-            return new FontInfo(height, height - ascent);
+            return new FontInfo(height, ascent);
         }
 
         public Dictionary<long, Image> GetAtlasCache(string fontName, int fontSize)

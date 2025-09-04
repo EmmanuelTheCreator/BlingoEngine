@@ -12,11 +12,13 @@ public class AbstMarkdownRendererTests
     {
         private readonly int _topIndent;
         private readonly Dictionary<string, int> _topIndents;
+        private readonly Dictionary<string, int> _extraHeights;
 
-        public TestFontManager(int topIndent = 0, Dictionary<string, int>? topIndents = null)
+        public TestFontManager(int topIndent = 0, Dictionary<string, int>? topIndents = null, Dictionary<string, int>? extraHeights = null)
         {
             _topIndent = topIndent;
             _topIndents = topIndents ?? new();
+            _extraHeights = extraHeights ?? new();
         }
 
         public IAbstFontManager AddFont(string name, string pathAndName, AbstFontStyle style = AbstFontStyle.Regular) => this;
@@ -25,11 +27,13 @@ public class AbstMarkdownRendererTests
         public T GetDefaultFont<T>() where T : class => null!;
         public void SetDefaultFont<T>(T font) where T : class { }
         public IEnumerable<string> GetAllNames() => System.Array.Empty<string>();
-        public float MeasureTextWidth(string text, string fontName, int fontSize) => text.Length * fontSize;
-        public FontInfo GetFontInfo(string fontName, int fontSize)
+        public float MeasureTextWidth(string text, string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular) => text.Length * fontSize;
+        public FontInfo GetFontInfo(string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
         {
-            int indent = _topIndents.TryGetValue(fontName, out var ti) ? ti : _topIndent;
-            return new(fontSize, indent);
+            int ascent = _topIndents.TryGetValue(fontName, out var ti) ? ti : _topIndent;
+            int extra = _extraHeights.TryGetValue(fontName, out var h) ? h : 0;
+            return new(fontSize + extra, ascent);
+
         }
     }
 
@@ -68,8 +72,9 @@ public class AbstMarkdownRendererTests
         public void Dispose() { }
     }
 
-    private static AbstMarkdownRenderer CreateRenderer(int topIndent = 0, Dictionary<string, int>? topIndents = null)
-        => new(new TestFontManager(topIndent, topIndents));
+    private static AbstMarkdownRenderer CreateRenderer(int topIndent = 0, Dictionary<string, int>? topIndents = null, Dictionary<string, int>? extraHeights = null)
+        => new(new TestFontManager(topIndent, topIndents, extraHeights));
+
 
     private static AbstTextStyle CreateDefaultStyle()
         => new() { Name = "default", Font = "Arial", FontSize = 12, Color = AColors.Black };
@@ -249,5 +254,38 @@ public class AbstMarkdownRendererTests
         Assert.Equal(16, painter.TextPositions[0].Y);
         Assert.Equal(10, painter.TextPositions[1].Y);
         Assert.Equal(16, painter.TextPositions[2].Y);
+
+    }
+
+    [Fact]
+    public void SlowRender_RespectsFontHeight_ForLineAdvance()
+    {
+        var renderer = CreateRenderer(extraHeights: new() { ["Arial"] = 4 });
+        renderer.SetText("Line1#\nLine2", new[] { CreateDefaultStyle() });
+        Assert.False(renderer.DoFastRendering);
+
+        var painter = new RecordingPainter();
+        renderer.Render(painter, new APoint(0, 0));
+
+        Assert.Equal(2, painter.TextPositions.Count);
+        Assert.Equal(0, painter.TextPositions[0].Y);
+        Assert.Equal(16, painter.TextPositions[1].Y);
+    }
+
+    [Fact]
+    public void SlowRender_SkipsEmptyLines()
+    {
+        var renderer = CreateRenderer(topIndent: 4);
+        var style = CreateDefaultStyle();
+        renderer.SetText("Line1#\n\nLine3", new[] { style });
+        Assert.False(renderer.DoFastRendering);
+
+        var painter = new RecordingPainter();
+        renderer.Render(painter, new APoint(0, 20));
+
+        Assert.Equal(2, painter.TextPositions.Count);
+        Assert.Equal(16, painter.TextPositions[0].Y);
+        Assert.Equal(40, painter.TextPositions[1].Y);
+
     }
 }
