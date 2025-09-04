@@ -10,7 +10,7 @@ namespace LingoEngine.Tools
 {
     public static class RtfToMarkdown
     {
-        private record StyleDef(AbstTextStyle Style, bool HasFont, bool HasSize, bool HasColor);
+        private record StyleDef(AbstTextStyle Style, bool HasFont, bool HasSize, bool HasColor, bool HasAlignment);
 
         /// <summary>
         /// Converts an RTF string into the custom AbstMarkdown format used by <see cref="AbstMarkdownRenderer"/>.
@@ -21,27 +21,65 @@ namespace LingoEngine.Tools
             var fontEntries = ParseFontTable(rtfContent);
             var colorEntries = ParseColorTable(rtfContent);
             var styleMap = ParseStyles(rtfContent, fontEntries, colorEntries);
-            var styles = styleMap.ToDictionary(kv => kv.Key, kv => kv.Value.Style);
             var segments = ParseSegments(rtfContent, fontEntries, colorEntries);
+
+            if (segments.Select(s => s.StyleId).All(id => id < 0))
+            {
+                var distinct = segments.Select(s => (s.FontName, s.Size, s.Color?.ToHex(), s.Alignment, s.MarginLeft, s.MarginRight)).Distinct().Count();
+                if (distinct == 1 && segments.Count > 0)
+                {
+                    var seg = segments[0];
+                    var style = new AbstTextStyle
+                    {
+                        Name = "0",
+                        Font = seg.FontName,
+                        FontSize = seg.Size,
+                        Color = seg.Color ?? AColors.Black,
+                        Alignment = seg.Alignment,
+                        MarginLeft = seg.MarginLeft,
+                        MarginRight = seg.MarginRight
+                    };
+                    styleMap["0"] = new StyleDef(style, true, true, seg.Color != null, true);
+                    foreach (var s in segments)
+                    {
+                        s.StyleId = 0;
+                    }
+                }
+            }
+
+            var styles = styleMap.ToDictionary(kv => kv.Key, kv => kv.Value.Style);
 
             var sb = new StringBuilder();
             AbstMDSegment? prev = null;
+            string? currentStyle = null;
             foreach (var seg in segments)
             {
-                AbstTextStyle? styleDef = null;
                 bool styleHasFont = false;
                 bool styleHasSize = false;
                 bool styleHasColor = false;
+                bool styleHasAlignment = false;
                 if (seg.StyleId >= 0)
                 {
-                    sb.Append("{{STYLE:" + seg.StyleId + "}}");
-                    if (styleMap.TryGetValue(seg.StyleId.ToString(), out var meta))
+                    var id = seg.StyleId.ToString();
+                    if (currentStyle != id)
                     {
-                        styleDef = meta.Style;
+                        if (currentStyle != null)
+                            sb.Append("{{/STYLE}}");
+                        sb.Append("{{STYLE:" + id + "}}");
+                        currentStyle = id;
+                    }
+                    if (styleMap.TryGetValue(id, out var meta))
+                    {
                         styleHasFont = meta.HasFont;
                         styleHasSize = meta.HasSize;
                         styleHasColor = meta.HasColor;
+                        styleHasAlignment = meta.HasAlignment;
                     }
+                }
+                else if (currentStyle != null)
+                {
+                    sb.Append("{{/STYLE}}");
+                    currentStyle = null;
                 }
 
                 if (!styleHasFont && (prev == null || seg.FontName != prev.FontName))
@@ -50,15 +88,15 @@ namespace LingoEngine.Tools
                     sb.Append("{{FONT-SIZE:" + seg.Size + "}}");
                 if (!styleHasColor && (prev == null || (seg.Color?.ToHex() != prev.Color?.ToHex())))
                     sb.Append("{{COLOR:" + (seg.Color?.ToHex() ?? "#000000") + "}}");
-                if (prev == null || seg.Alignment != prev.Alignment)
+                if (!styleHasAlignment && (prev == null || seg.Alignment != prev.Alignment))
                     sb.Append("{{ALIGN:" + seg.Alignment.ToString().ToLowerInvariant() + "}}");
 
                 var text = ApplyStyle(seg.Text, seg);
                 sb.Append(text);
-                if (seg.StyleId >= 0)
-                    sb.Append("{{/STYLE}}");
                 prev = seg;
             }
+            if (currentStyle != null)
+                sb.Append("{{/STYLE}}");
 
             var plainText = string.Concat(segments.Select(s => s.Text));
             return new AbstMarkdownData
@@ -97,22 +135,23 @@ namespace LingoEngine.Tools
                 return segments;
 
             var alignmentMatch = Regex.Match(rtfContent, @"\\q(l|r|j|c)\b");
-            AbstTextAlignment alignment = AbstTextAlignment.Left;
+            AbstTextAlignment defaultAlignment = AbstTextAlignment.Left;
             if (alignmentMatch.Success)
             {
-                switch (alignmentMatch.Groups[1].Value)
+                defaultAlignment = alignmentMatch.Groups[1].Value switch
                 {
-                    case "l": alignment = AbstTextAlignment.Left; break;
-                    case "r": alignment = AbstTextAlignment.Right; break;
-                    case "c": alignment = AbstTextAlignment.Center; break;
-                    case "j": alignment = AbstTextAlignment.Justified; break;
-                }
+                    "l" => AbstTextAlignment.Left,
+                    "r" => AbstTextAlignment.Right,
+                    "c" => AbstTextAlignment.Center,
+                    "j" => AbstTextAlignment.Justified,
+                    _ => AbstTextAlignment.Left
+                };
             }
 
             var marginLeftMatch = Regex.Match(rtfContent, @"\\li(?<val>-?\d+)");
             var marginRightMatch = Regex.Match(rtfContent, @"\\ri(?<val>-?\d+)");
-            int marginLeft = marginLeftMatch.Success ? int.Parse(marginLeftMatch.Groups["val"].Value) / 20 : 0;
-            int marginRight = marginRightMatch.Success ? int.Parse(marginRightMatch.Groups["val"].Value) / 20 : 0;
+            int defaultMarginLeft = marginLeftMatch.Success ? int.Parse(marginLeftMatch.Groups["val"].Value) / 20 : 0;
+            int defaultMarginRight = marginRightMatch.Success ? int.Parse(marginRightMatch.Groups["val"].Value) / 20 : 0;
 
             foreach (Match match in blockMatches.Cast<Match>())
             {
@@ -133,6 +172,39 @@ namespace LingoEngine.Tools
 
                 var rawText = match.Groups["text"].Value;
                 bool isParagraph = rawText.Contains("\\par");
+
+                var alignMatch = Regex.Match(rawText, @"\\q(l|r|j|c)\b");
+                AbstTextAlignment alignment = defaultAlignment;
+                if (alignMatch.Success)
+                {
+                    alignment = alignMatch.Groups[1].Value switch
+                    {
+                        "l" => AbstTextAlignment.Left,
+                        "r" => AbstTextAlignment.Right,
+                        "c" => AbstTextAlignment.Center,
+                        "j" => AbstTextAlignment.Justified,
+                        _ => AbstTextAlignment.Left
+                    };
+                    rawText = rawText.Replace(alignMatch.Value, string.Empty);
+                }
+
+                var liMatch = Regex.Match(rawText, @"\\li(-?\d+)");
+                int marginLeft = defaultMarginLeft;
+                if (liMatch.Success)
+                {
+                    marginLeft = int.Parse(liMatch.Groups[1].Value) / 20;
+                    rawText = rawText.Replace(liMatch.Value, string.Empty);
+                }
+                var riMatch = Regex.Match(rawText, @"\\ri(-?\d+)");
+                int marginRight = defaultMarginRight;
+                if (riMatch.Success)
+                {
+                    marginRight = int.Parse(riMatch.Groups[1].Value) / 20;
+                    rawText = rawText.Replace(riMatch.Value, string.Empty);
+                }
+
+                rawText = Regex.Replace(rawText, @"\\tx-?\d*", string.Empty);
+
                 var textContent = Regex.Replace(rawText, @"\\'([0-9a-fA-F]{2})", m => ((char)System.Convert.ToInt32(m.Groups[1].Value, 16)).ToString());
                 textContent = textContent.Replace("\\par", "\n").Replace("\\tab", "\t").Replace("\\\\", "\\").TrimStart();
 
@@ -192,7 +264,7 @@ namespace LingoEngine.Tools
                 var id = m.Groups["id"].Value;
                 var def = m.Groups["def"].Value;
                 var style = new AbstTextStyle { Name = id };
-                bool hasFont = false, hasSize = false, hasColor = false;
+                bool hasFont = false, hasSize = false, hasColor = false, hasAlignment = false;
 
                 var fMatch = Regex.Match(def, @"\\f(\d+)");
                 if (fMatch.Success && fontEntries.TryGetValue(int.Parse(fMatch.Groups[1].Value), out var fontName))
@@ -230,6 +302,7 @@ namespace LingoEngine.Tools
                         "j" => AbstTextAlignment.Justified,
                         _ => AbstTextAlignment.Left
                     };
+                    hasAlignment = true;
                 }
 
                 if (Regex.IsMatch(def, @"\\b(?!0)")) style.Bold = true;
@@ -243,7 +316,7 @@ namespace LingoEngine.Tools
                 if (riMatch.Success)
                     style.MarginRight = int.Parse(riMatch.Groups[1].Value) / 20;
 
-                styles[id] = new StyleDef(style, hasFont, hasSize, hasColor);
+                styles[id] = new StyleDef(style, hasFont, hasSize, hasColor, hasAlignment);
             }
 
             return styles;

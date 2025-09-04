@@ -12,7 +12,7 @@ public class RtfToMarkdownTests
 
         var data = RtfToMarkdown.Convert(rtf);
 
-        Assert.Equal("{{FONT-FAMILY:Arial}}{{FONT-SIZE:12}}{{COLOR:#000000}}{{ALIGN:left}}plain**bold***italic*__underline__", data.Markdown);
+        Assert.Equal("{{STYLE:0}}plain**bold***italic*__underline__{{/STYLE}}", data.Markdown);
         Assert.Equal(new[]
         {
             (false, false, false),
@@ -20,6 +20,10 @@ public class RtfToMarkdownTests
             (false, true, false),
             (false, false, true)
         }, data.Segments.Select(s => (s.Bold, s.Italic, s.Underline)));
+        Assert.True(data.Styles.ContainsKey("0"));
+        Assert.Equal("Arial", data.Styles["0"].Font);
+        Assert.Equal(12, data.Styles["0"].FontSize);
+        Assert.Equal("#000000", data.Styles["0"].Color.ToHex());
     }
 
     [Fact]
@@ -48,9 +52,9 @@ public class RtfToMarkdownTests
 
         var data = RtfToMarkdown.Convert(rtf);
 
-        Assert.Equal("{{FONT-FAMILY:Arial}}{{FONT-SIZE:12}}{{COLOR:#000000}}{{ALIGN:right}}right", data.Markdown);
+        Assert.Equal("{{STYLE:0}}right{{/STYLE}}", data.Markdown);
         Assert.Single(data.Segments);
-        Assert.Equal(AbstTextAlignment.Right, data.Segments[0].Alignment);
+        Assert.Equal(AbstTextAlignment.Right, data.Styles["0"].Alignment);
     }
 
     [Fact]
@@ -60,9 +64,9 @@ public class RtfToMarkdownTests
 
         var data = RtfToMarkdown.Convert(rtf);
 
-        Assert.Equal("{{FONT-FAMILY:Arial}}{{FONT-SIZE:12}}{{COLOR:#000000}}{{ALIGN:center}}center", data.Markdown);
+        Assert.Equal("{{STYLE:0}}center{{/STYLE}}", data.Markdown);
         Assert.Single(data.Segments);
-        Assert.Equal(AbstTextAlignment.Center, data.Segments[0].Alignment);
+        Assert.Equal(AbstTextAlignment.Center, data.Styles["0"].Alignment);
     }
 
     [Fact]
@@ -73,8 +77,9 @@ public class RtfToMarkdownTests
         var data = RtfToMarkdown.Convert(rtf);
 
         Assert.Single(data.Segments);
-        Assert.Equal(10, data.Segments[0].MarginLeft);
-        Assert.Equal(20, data.Segments[0].MarginRight);
+        Assert.Equal("{{STYLE:0}}margin{{/STYLE}}", data.Markdown);
+        Assert.Equal(10, data.Styles["0"].MarginLeft);
+        Assert.Equal(20, data.Styles["0"].MarginRight);
         Assert.False(data.Segments[0].Bold);
         Assert.False(data.Segments[0].Italic);
         Assert.False(data.Segments[0].Underline);
@@ -109,6 +114,50 @@ public class RtfToMarkdownTests
         Assert.Equal("Arial", data.Styles["1"].Font);
         Assert.Equal(12, data.Styles["1"].FontSize);
         Assert.Equal("#FF0000", data.Styles["1"].Color.ToHex());
+    }
+
+    [Fact]
+    public void Convert_ParsesControlWords_ScoreText()
+    {
+        var rtf = "{\\rtf1\\ansi\\deff0 {\\fonttbl{\\f0\\fswiss Arial;}{\\f1\\fmodern Courier;}{\\f2\\fnil Earth *;}{\\f3\\fnil 8Pin Matrix *;}{\\f4\\fnil Anke Print;}" +
+                  "{\\f5\\fnil Arcade *;}{\\f6\\fnil Arcade *;}}{\\colortbl\\red0\\green0\\blue0;\\red128\\green128\\blue128;\\red170\\green0\\blue0;\\red255\\green0\\blue0;}{\\stylesheet{\\s0\\fs24 Normal Text;}}" +
+                  "\\pard \\f0\\fs24{\\pard \\b\\f6\\fs60\\cf3\\qr\\tx HI-SCORES}}";
+
+        var data = RtfToMarkdown.Convert(rtf);
+
+        var expected = "{{STYLE:0}}**HI-SCORES**{{/STYLE}}";
+        Assert.Equal(expected, data.Markdown);
+        Assert.Equal("HI-SCORES", data.PlainText);
+        Assert.Equal(AbstTextAlignment.Right, data.Styles["0"].Alignment);
+    }
+
+    [Fact]
+    public void Convert_ParsesControlWords_NumberText()
+    {
+        var rtf = "{\\rtf1\\ansi\\deff0 {\\fonttbl{\\f0\\fswiss Arial;}{\\f1\\fmodern Courier;}{\\f2\\fnil Earth *;}{\\f3\\fnil 8Pin Matrix *;}{\\f4\\fnil Anke Print;}" +
+                  "{\\f5\\fnil Arcade *;}{\\f6\\fnil Arcade *;}}{\\colortbl\\red0\\green0\\blue0;\\red128\\green128\\blue128;\\red170\\green0\\blue0;\\red255\\green0\\blue0;}{\\stylesheet{\\s0\\fs24 Normal Text;}}" +
+                  "\\pard \\f0\\fs24{\\pard \\b\\f6\\fs72\\cf3\\qr\\tx 1}}";
+
+        var data = RtfToMarkdown.Convert(rtf);
+
+        var expected = "{{STYLE:0}}**1**{{/STYLE}}";
+        Assert.Equal(expected, data.Markdown);
+        Assert.Equal("1", data.PlainText);
+        Assert.Equal(AbstTextAlignment.Right, data.Styles["0"].Alignment);
+    }
+
+    [Fact]
+    public void Convert_ParsesControlWords_MarginRight()
+    {
+        var rtf = "{\\rtf1\\ansi\\deff0 {\\fonttbl{\\f0\\fswiss Arial;}{\\f1\\fmodern Courier;}{\\f2\\fnil Earth *;}}{\\colortbl\\red0\\green0\\blue0;\\red128\\green128\\blue128;\\red0\\green0\\blue224;\\red224\\green0\\blue0;\\red224\\green0\\blue224;}{\\stylesheet{\\s0\\fs24 Normal Text;}}" +
+                  "\\pard \\f0\\fs24{\\pard \\b\\f2\\fs48\\cf1\\ri560 GAME OVER}}";
+
+        var data = RtfToMarkdown.Convert(rtf);
+
+        var expected = "{{STYLE:0}}**GAME OVER**{{/STYLE}}";
+        Assert.Equal(expected, data.Markdown);
+        Assert.Equal("GAME OVER", data.PlainText);
+        Assert.Equal(28, data.Styles["0"].MarginRight);
     }
 }
 
