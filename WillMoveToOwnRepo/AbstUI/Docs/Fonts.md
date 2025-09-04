@@ -32,7 +32,7 @@ Each font manager maintains a default font used when no name is provided. This d
 
 All font managers expose methods to measure text width and obtain basic metrics:
 
-- `MeasureTextWidth(string text, string fontName, int fontSize)`
-- `GetFontInfo(string fontName, int fontSize)`
+- `MeasureTextWidth(string text, string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)`
+- `GetFontInfo(string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)`
 
 These APIs respect the previously added fonts and their styles, enabling consistent text layout across backends.

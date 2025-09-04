@@ -428,7 +428,6 @@ namespace AbstUI.LGodot.Components.Graphics
                     var height = font.GetHeight();
                     var lineYOffset = height - asc;
 
-                    var isFirstLine = true;
                     foreach (var raw in lines)
                     {
                         var line = TrimToWidth(raw, boxW, ts, rids, fs);   // <= see helper below
@@ -441,7 +440,7 @@ namespace AbstUI.LGodot.Components.Graphics
                         float lineW = lineSize.X;
                         var ascent = ts.FontGetAscent(fr, fs);
                         var descent = ts.FontGetDescent(fr, fs);
-                        var baseline = isFirstLine ? y + ascent - descent + 2 : y + ascent; //+2 is a FIX for some fonts
+                        var baseline = y + ascent;
 
                         // per-line horizontal alignment
                         float xOff = 0f;
@@ -494,7 +493,6 @@ namespace AbstUI.LGodot.Components.Graphics
 
                         ts.FreeRid(shaped);
                         y += (int)MathF.Ceiling((float)(ascent + descent));  // advance to next line
-                        isFirstLine = false;
 
                     }
                 }
