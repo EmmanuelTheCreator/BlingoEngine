@@ -9,13 +9,16 @@ namespace AbstUI.LGodot.Components.Graphics;
 
 public static class GodotControlExtensions
 {
-    public static IAbstTexture2D CreateAbstTexture(this Control control, string? name = null)
+    public static AbstGodotTexture2D CreateAbstTexture(this Control control, string? name = null)
     {
         var sizeI = new Vector2I((int)control.Size.X, (int)control.Size.Y);
 
         var holder = new Node { Name = "__tmp_vp_holder" + name };
         var tree = Engine.GetMainLoop() as SceneTree ?? throw new InvalidOperationException("No SceneTree available.");
-        tree.Root.AddChild(holder);
+        if (tree.Root.IsNodeReady())
+            tree.Root.AddChild(holder);
+        else
+            tree.Root.CallDeferred(MethodName.AddChild, holder);
 
         var vp = new SubViewport
         {
@@ -30,6 +33,15 @@ public static class GodotControlExtensions
         clone.Position = Vector2.Zero;
         clone.Size = control.Size;
         vp.AddChild(clone);
+
+        // copy draw snapshot into the clone
+        //if (control is GodotImagePainter.DrawingControl src && clone is GodotImagePainter.DrawingControl dst)
+        //{
+        //    dst.ClearColorProxy = src.ClearColorProxy;
+        //    // shallow copy is fine; actions are immutable closures over value-types/strings
+        //    dst.Actions = new List<(Func<APoint?>, Action<GodotImagePainter.DrawingControl>)>(src.Actions);
+        //    dst.QueueRedraw();
+        //}
 
         RenderingServer.ForceDraw();
 

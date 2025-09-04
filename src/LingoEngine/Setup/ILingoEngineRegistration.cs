@@ -22,6 +22,7 @@ namespace LingoEngine.Setup
         ILingoEngineRegistration BuildDelayed();
         LingoPlayer Build(IServiceProvider serviceProvider);
         ILingoProjectFactory BuildAndRunProject(Action<IServiceProvider>? afterStart = null);
+        ILingoProjectFactory RunProject(Action<IServiceProvider>? afterStart = null);
         ILingoEngineRegistration AddPreBuildAction(Action<IServiceProvider> buildAction);
         ILingoEngineRegistration AddBuildAction(Action<ILingoServiceProvider> buildAction);
         ILingoEngineRegistration SetProjectFactory<TLingoProjectFactory>() where TLingoProjectFactory : ILingoProjectFactory, new();

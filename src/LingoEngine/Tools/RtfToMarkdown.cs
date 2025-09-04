@@ -222,7 +222,7 @@ namespace LingoEngine.Tools
                 textContent = textContent.Replace("\\par", "\n").Replace("\\tab", "\t").Replace("\\\\", "\\");
                 textContent = Regex.Replace(textContent, @"\\([{}:])", "$1");
                 if (textContent.StartsWith(" "))
-                    textContent = textContent[1..];
+                    textContent = textContent.Substring(1);
 
                 var styleId = match.Groups["s"].Success ? int.Parse(match.Groups["s"].Value) : -1;
 

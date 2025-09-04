@@ -14,6 +14,7 @@ namespace AbstUI.Components
     public interface IAbstComponentFactory : IAbstComponentFactoryBase
     {
         IAbstImagePainter CreateImagePainter(int width = 0, int height = 0);
+        IAbstImagePainter CreateImagePainterToTexture(int width = 0, int height = 0);
         AbstGfxCanvas CreateGfxCanvas(string name, int width, int height);
         AbstWrapPanel CreateWrapPanel(AOrientation orientation, string name);
         AbstPanel CreatePanel(string name);
