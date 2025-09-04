@@ -13,6 +13,8 @@ using AbstUI.LGodot.Inputs;
 using AbstUI.LGodot.Styles;
 using AbstUI.LGodot.Windowing;
 using AbstUI.Styles;
+using AbstUI.Resources;
+using AbstUI.LGodot.Resources;
 using AbstUI.Windowing;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -36,6 +38,7 @@ namespace AbstUI.LGodot
 
                 .AddSingleton<IAbstFontManager, AbstGodotFontManager>()
                 .AddSingleton<IAbstStyleManager, AbstGodotStyleManager>()
+                .AddSingleton<IAbstResourceManager, AbstGodotResourceManager>()
                 .AddTransient(p => (AbstGodotFontManager)p.GetRequiredService<IAbstFontManager>())
                 .AddTransient(p => (AbstGodotStyleManager)p.GetRequiredService<IAbstStyleManager>())
                 .AddTransient(p => (IAbstGodotStyleManager)p.GetRequiredService<IAbstStyleManager>())
