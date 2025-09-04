@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
+using AbstUI.Bitmaps;
 using AbstUI.Primitives;
 using LingoEngine.Core;
 using LingoEngine.Movies;
 using LingoEngine.Stages;
 using LingoEngine.Blazor.Movies;
+using Microsoft.JSInterop;
+using AbstUI.Blazor;
+using AbstUI.Blazor.Bitmaps;
 
 namespace LingoEngine.Blazor.Stages;
 
@@ -15,6 +19,8 @@ namespace LingoEngine.Blazor.Stages;
 public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
 {
     private readonly LingoClock _clock;
+    private readonly IJSRuntime _js;
+    private readonly AbstUIScriptResolver _scripts;
     private readonly HashSet<LingoBlazorMovie> _movies = new();
     private LingoBlazorMovie? _activeMovie;
     private LingoStage _stage = null!;
@@ -23,9 +29,11 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
 
     public float Scale { get; set; } = 1f;
 
-    public LingoBlazorStage(LingoClock clock)
+    public LingoBlazorStage(LingoClock clock, IJSRuntime js, AbstUIScriptResolver scripts)
     {
         _clock = clock;
+        _js = js;
+        _scripts = scripts;
     }
 
     internal void Init(LingoStage stage)
@@ -60,8 +68,22 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
     /// <inheritdoc />
     public void ApplyPropertyChanges() { }
 
+    public void RequestNextFrameScreenshot(Action<IAbstTexture2D> onCaptured)
+    {
+        onCaptured(GetScreenshot());
+    }
+
     public IAbstTexture2D GetScreenshot()
-        => throw new NotImplementedException();
+    {
+        if (_activeMovie?.Context is not IJSObjectReference ctx)
+            return new NullTexture(_stage.Width, _stage.Height, $"StageShot_{_activeMovie?.CurrentFrame ?? 0}");
+
+        var data = _scripts.CanvasGetImageData(ctx, _stage.Width, _stage.Height).GetAwaiter().GetResult();
+        return AbstBlazorTexture2D
+            .CreateFromPixelDataAsync(_js, _scripts, data, _stage.Width, _stage.Height,
+                $"StageShot_{_activeMovie.CurrentFrame}")
+            .GetAwaiter().GetResult();
+    }
 
     public void ShowTransition(IAbstTexture2D startTexture) { }
 
@@ -74,5 +96,33 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
         foreach (var m in _movies)
             m.Dispose();
         _movies.Clear();
+    }
+
+    private sealed class NullTexture : AbstBaseTexture2D<object>
+    {
+        private byte[] _pixels;
+
+        public NullTexture(int width, int height, string name) : base(name)
+        {
+            Width = width;
+            Height = height;
+            _pixels = new byte[width * height * 4];
+        }
+
+        public override int Width { get; }
+        public override int Height { get; }
+
+        protected override void DisposeTexture() { }
+
+        public override byte[] GetPixels() => _pixels;
+        public override void SetARGBPixels(byte[] argbPixels) => _pixels = argbPixels;
+        public override void SetRGBAPixels(byte[] rgbaPixels) => _pixels = rgbaPixels;
+
+        public override IAbstTexture2D Clone()
+        {
+            var clone = new NullTexture(Width, Height, Name);
+            clone._pixels = (byte[])_pixels.Clone();
+            return clone;
+        }
     }
 }
