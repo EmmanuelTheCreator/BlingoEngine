@@ -260,6 +260,12 @@ namespace LingoEngine.Texts
             RenderText();
             return _texture;
         }
+        public override void Preload()
+        {
+            base.Preload();
+            RenderText();
+        }
+
         private bool _isRendering;
         private void RenderText()
         {
@@ -361,6 +367,7 @@ namespace LingoEngine.Texts
 
         public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         {
+            RenderText();
             if (_texture != null)
                 return _texture;
             return _frameworkMember.RenderToTexture(ink, transparentColor);
