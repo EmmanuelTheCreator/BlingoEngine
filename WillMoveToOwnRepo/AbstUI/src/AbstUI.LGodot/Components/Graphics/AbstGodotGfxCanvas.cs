@@ -18,7 +18,7 @@ namespace AbstUI.LGodot.Components
         private readonly GodotImagePainter _painter;
         private AMargin _margin = AMargin.Zero;
 
-       
+
 
         public bool Pixilated
         {
@@ -89,12 +89,11 @@ namespace AbstUI.LGodot.Components
             canvas.Init(this);
             Size = new Vector2(width, height);
             MouseFilter = MouseFilterEnum.Ignore;
-            AddChild(_painter.Control);
+            AddChild(_painter.GodotControl);
         }
 
         public override void _Draw()
         {
-            _painter.Render();
             if (Size.X != _painter.Width || Size.Y != _painter.Height)
             {
                 Size = new Vector2(_painter.Width, _painter.Height);
