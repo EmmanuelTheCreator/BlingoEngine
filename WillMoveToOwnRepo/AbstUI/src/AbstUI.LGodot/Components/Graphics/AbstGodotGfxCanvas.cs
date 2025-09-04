@@ -24,6 +24,7 @@ namespace AbstUI.LGodot.Components
             canvas.Init(this);
             Size = new Vector2(width, height);
             MouseFilter = MouseFilterEnum.Ignore;
+            AddChild(_painter.Control);
         }
 
         public bool Pixilated
@@ -87,7 +88,6 @@ namespace AbstUI.LGodot.Components
                 Size = new Vector2(_painter.Width, _painter.Height);
                 CustomMinimumSize = Size;
             }
-            DrawTexture(_painter.Texture, Vector2.Zero);
         }
 
         public void Clear(AColor color)

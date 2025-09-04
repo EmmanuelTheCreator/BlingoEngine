@@ -18,13 +18,23 @@ namespace AbstUI.LGodot.Components.Graphics
         private readonly AbstGodotFontManager _fontManager;
         private Image _img;
         private ImageTexture _tex;
+        private readonly TextureRect _control;
         private AColor? _clearColor;
         private bool _dirty;
 
         public int Width { get; private set; }
         public int Height { get; private set; }
-        public bool Pixilated { get; set; }
-        public Texture2D Texture => _tex;
+        private bool _pixilated;
+        public bool Pixilated
+        {
+            get => _pixilated;
+            set
+            {
+                _pixilated = value;
+                _control.TextureFilter = value ? CanvasItem.TextureFilterEnum.Nearest : CanvasItem.TextureFilterEnum.Linear;
+            }
+        }
+        public Control Control => _control;
         public bool AutoResize { get; set; } = true;
         int IAbstImagePainter.Height { get => Height; set => Resize(Width, value); }
         int IAbstImagePainter.Width { get => Width; set => Resize(value, Height); }
@@ -39,6 +49,14 @@ namespace AbstUI.LGodot.Components.Graphics
             _img = Image.CreateEmpty(width, height, false, Image.Format.Rgba8);
             _img.Fill(new Color(0, 0, 0, 0));
             _tex = ImageTexture.CreateFromImage(_img);
+            _control = new TextureRect
+            {
+                Texture = _tex,
+                MouseFilter = Control.MouseFilterEnum.Ignore,
+                CustomMinimumSize = new Vector2(width, height),
+                Size = new Vector2(width, height)
+            };
+            Pixilated = false;
             _dirty = true;
         }
 
@@ -48,6 +66,8 @@ namespace AbstUI.LGodot.Components.Graphics
                 return;
             Width = width;
             Height = height;
+            _control.Size = new Vector2(width, height);
+            _control.CustomMinimumSize = _control.Size;
             MarkDirty();
         }
 
@@ -55,6 +75,7 @@ namespace AbstUI.LGodot.Components.Graphics
         {
             _tex?.Dispose();
             _img?.Dispose();
+            _control.QueueFree();
         }
 
         private void MarkDirty() => _dirty = true;
@@ -101,6 +122,9 @@ namespace AbstUI.LGodot.Components.Graphics
 
                 _tex?.Dispose();
                 _tex = ImageTexture.CreateFromImage(_img);
+                _control.Texture = _tex;
+                _control.Size = new Vector2(nw, nh);
+                _control.CustomMinimumSize = _control.Size;
 
                 Width = nw;
                 Height = nh;
@@ -109,6 +133,8 @@ namespace AbstUI.LGodot.Components.Graphics
             foreach (var a in _drawActions) a.DrawAction(_img);
 
             _tex.Update(_img);
+            _control.Texture = _tex;
+            _control.QueueRedraw();
             _dirty = false;
         }
         public void Clear(AColor color)
@@ -644,6 +670,8 @@ namespace AbstUI.LGodot.Components.Graphics
                 img =>
             {
                 var src = Image.CreateFromData(w, h, false, fmt.ToGodotFormat(), dat);
+                if (src.GetFormat() != img.GetFormat())
+                    src.Convert(img.GetFormat());
                 img.BlitRect(src, new Rect2I(0, 0, w, h), new Vector2I((int)pos.X, (int)pos.Y));
                 src.Dispose();
             }
@@ -670,6 +698,8 @@ namespace AbstUI.LGodot.Components.Graphics
                          img =>
                     {
                         using var srcImg = gtex.Texture.GetImage();
+                        if (srcImg.GetFormat() != img.GetFormat())
+                            srcImg.Convert(img.GetFormat());
                         img.BlitRect(srcImg, new Rect2I(0, 0, Math.Min(w, srcImg.GetWidth()), Math.Min(h, srcImg.GetHeight())),
                                      new Vector2I((int)pos.X, (int)pos.Y));
                     }
