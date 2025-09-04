@@ -29,6 +29,9 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
     {
     }
 
+    public IAbstImagePainter CreateImagePainter(int width = 0, int height = 0)
+        => new UnityImagePainter(FontManager, width, height);
+
     public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
     {
         var canvas = new AbstGfxCanvas();
