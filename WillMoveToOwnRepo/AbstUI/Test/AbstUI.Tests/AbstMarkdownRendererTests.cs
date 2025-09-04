@@ -43,6 +43,8 @@ public class AbstMarkdownRendererTests
         public void DrawPolygon(IReadOnlyList<APoint> points, AColor color, bool filled = true, float width = 1) { }
         public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular)
             => TextPositions.Add(position);
+        public void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular)
+            => TextPositions.Add(position);
         public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format) { }
         public void DrawPicture(IAbstTexture2D texture, int width, int height, APoint position) { }
         public IAbstTexture2D GetTexture(string? name = null) => null!;

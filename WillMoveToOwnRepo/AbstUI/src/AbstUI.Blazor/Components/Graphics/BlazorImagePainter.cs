@@ -233,6 +233,31 @@ public class BlazorImagePainter : IAbstImagePainter
         MarkDirty();
     }
 
+    public void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular)
+    {
+        var pos = position; var txt = text; var fnt = font; var col = color ?? AColors.Black; var fs = fontSize; var w = width; var h = height; var align = alignment;
+        _drawActions.Add((
+            () =>
+            {
+                if (!AutoResize) return null;
+                int needW = w >= 0 ? w : (int)_fontManager.MeasureTextWidth(txt, fnt ?? string.Empty, fs);
+                int needH = h >= 0 ? h : _fontManager.GetFontInfo(fnt ?? string.Empty, fs).FontHeight;
+                return EnsureCapacity((int)(pos.X + needW), (int)(pos.Y + needH));
+            },
+            ctx =>
+            {
+                var alignStr = align switch
+                {
+                    AbstTextAlignment.Center => "center",
+                    AbstTextAlignment.Right => "right",
+                    _ => "left"
+                };
+                return _scripts.CanvasDrawText(ctx, pos.X, pos.Y, txt, fnt ?? string.Empty, ToCss(col), fs, alignStr);
+            }
+        ));
+        MarkDirty();
+    }
+
     public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)
     {
         var dat = data; var w = width; var h = height; var pos = position;
