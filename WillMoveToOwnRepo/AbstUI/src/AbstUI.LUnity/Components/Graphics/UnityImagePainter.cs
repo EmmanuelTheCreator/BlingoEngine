@@ -17,6 +17,8 @@ public class UnityImagePainter : IAbstImagePainter
     private AColor? _clearColor;
     private bool _dirty;
 
+    public int MaxWidth { get; set; } = 16384;
+    public int MaxHeight { get; set; } = 16384;
     public int Width { get; set; }
     public int Height { get; set; }
     public bool Pixilated
@@ -30,8 +32,8 @@ public class UnityImagePainter : IAbstImagePainter
     public UnityImagePainter(IAbstFontManager fontManager, int width = 0, int height = 0)
     {
         _fontManager = (UnityFontManager)fontManager;
-        Width = width > 0 ? Math.Min(width, 4096) : 10;
-        Height = height > 0 ? Math.Min(height, 4096) : 10;
+        Width = width > 0 ? Math.Min(width, MaxWidth) : 10;
+        Height = height > 0 ? Math.Min(height, MaxHeight) : 10;
         _texture = new Texture2D(Width, Height, TextureFormat.RGBA32, false)
         {
             filterMode = FilterMode.Point
@@ -76,8 +78,8 @@ public class UnityImagePainter : IAbstImagePainter
                 }
             }
         }
-        newWidth = Math.Min(newWidth, 4096);
-        newHeight = Math.Min(newHeight, 4096);
+        newWidth = Math.Min(newWidth, MaxWidth);
+        newHeight = Math.Min(newHeight, MaxHeight);
         if (newWidth > Width || newHeight > Height)
         {
             var nw = Math.Max(Width, newWidth);

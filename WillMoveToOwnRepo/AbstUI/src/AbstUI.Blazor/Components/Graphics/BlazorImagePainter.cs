@@ -26,6 +26,8 @@ public class BlazorImagePainter : IAbstImagePainter
     private bool _dirty;
     private bool _pixilated;
 
+    public int MaxWidth { get; set; } = 16384;
+    public int MaxHeight { get; set; } = 16384;
     public int Width { get; set; }
     public int Height { get; set; }
     public bool Pixilated
@@ -48,8 +50,8 @@ public class BlazorImagePainter : IAbstImagePainter
         _fontManager = fontManager;
         _jsRuntime = jsRuntime;
         _scripts = scripts;
-        Width = width > 0 ? Math.Min(width, 4096) : 10;
-        Height = height > 0 ? Math.Min(height, 4096) : 10;
+        Width = width > 0 ? Math.Min(width, MaxWidth) : 10;
+        Height = height > 0 ? Math.Min(height, MaxHeight) : 10;
         _texture = AbstBlazorTexture2D.CreateAsync(jsRuntime, Width, Height, $"BlazorImage_{Width}x{Height}").GetAwaiter().GetResult();
         _context = _scripts.CanvasGetContext(_texture.Canvas, Pixilated).GetAwaiter().GetResult();
         _dirty = true;
@@ -82,8 +84,8 @@ public class BlazorImagePainter : IAbstImagePainter
             }
         }
 
-        newWidth = Math.Min(newWidth, 4096);
-        newHeight = Math.Min(newHeight, 4096);
+        newWidth = Math.Min(newWidth, MaxWidth);
+        newHeight = Math.Min(newHeight, MaxHeight);
         if (newWidth > Width || newHeight > Height)
         {
             _texture.Dispose();

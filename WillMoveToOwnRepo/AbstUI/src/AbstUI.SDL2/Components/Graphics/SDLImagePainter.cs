@@ -16,6 +16,8 @@ namespace AbstUI.SDL2.Components.Graphics
         private readonly List<(Func<APoint?> GetTotalSize, Action DrawAction)> _drawActions = new();
         private AColor? _clearColor;
         protected bool _dirty;
+        private readonly int _maxWidth;
+        private readonly int _maxHeight;
 
         public nint Renderer { get; }
         public int Width { get; set; }
@@ -27,13 +29,23 @@ namespace AbstUI.SDL2.Components.Graphics
         public SDLImagePainter(IAbstFontManager fontManager, int width, int height, nint renderer)
         {
             _fontManager = (SdlFontManager)fontManager;
-            Width = width > 0 ? Math.Min(width, 4096): 10;
-            Height = height > 0 ? Math.Min(height, 4096) : 10;
-            
+            (_maxWidth, _maxHeight) = GetMaxTexSize(renderer);
+            Width = width > 0 ? Math.Min(width, _maxWidth) : 10;
+            Height = height > 0 ? Math.Min(height, _maxHeight) : 10;
+
             _texture = SDL.SDL_CreateTexture(renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
                 (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, Width, Height);
             _dirty = true;
             Renderer = renderer;
+        }
+
+        /// <summary>
+        /// Query once at startup
+        /// </summary>
+        public static (int W, int H) GetMaxTexSize(nint renderer)
+        {
+            SDL.SDL_GetRendererInfo(renderer, out var info);
+            return ((int)info.max_texture_width, (int)info.max_texture_height);
         }
         public void Dispose()
         {
@@ -62,8 +74,8 @@ namespace AbstUI.SDL2.Components.Graphics
                     }
                 }
             }
-            newWidth = Math.Min(newWidth, 4096) ;
-            newHeight = Math.Min(newHeight, 4096);
+            newWidth = Math.Min(newWidth, _maxWidth);
+            newHeight = Math.Min(newHeight, _maxHeight);
             if (newWidth > Width || newHeight > Height)
             {
                 SDL.SDL_DestroyTexture(_texture);
@@ -280,7 +292,7 @@ namespace AbstUI.SDL2.Components.Graphics
             var fntName = fontNamee;
             var col = color;
             var fs = fontSize;
-            if (fs==0) fs = 12;
+            if (fs == 0) fs = 12;
             var w = width;
             var font = _fontManager.GetTyped(this, fntName ?? string.Empty, fs, style);
             if (font == null) return;
@@ -321,7 +333,7 @@ namespace AbstUI.SDL2.Components.Graphics
                 () =>
                 {
                     SDL.SDL_Color c = new SDL.SDL_Color { r = col?.R ?? 0, g = col?.G ?? 0, b = col?.B ?? 0, a = 255 };
-                   
+
                     List<(nint surf, int w, int h)> surfaces = new();
                     foreach (var ln in lines)
                     {
