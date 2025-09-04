@@ -25,6 +25,7 @@ namespace AbstUI.SDL2.Components.Inputs
         private ISdlFontLoadedByUser? _font;
         private SdlGlyphAtlas? _atlas;
         private int _scrollX;
+        private int _scrollY;
         private int _selectionStart = -1;
 
         private bool HasSelection => _selectionStart != -1 && _selectionStart != _caret;
@@ -73,6 +74,27 @@ namespace AbstUI.SDL2.Components.Inputs
                 _selectionStart = -1;
         }
 
+        public void SetCaretPosition(int position)
+        {
+            _caret = Math.Clamp(position, 0, _codepoints.Count);
+            _selectionStart = -1;
+            AdjustScroll();
+        }
+
+        public void SetSelection(int start, int end)
+        {
+            _selectionStart = Math.Clamp(start, 0, _codepoints.Count);
+            _caret = Math.Clamp(end, 0, _codepoints.Count);
+            if (_selectionStart == _caret)
+                _selectionStart = -1;
+            AdjustScroll();
+        }
+
+        public void SetSelection(Range range)
+        {
+            SetSelection(range.Start.GetOffset(_codepoints.Count), range.End.GetOffset(_codepoints.Count));
+        }
+
         public event Action? ValueChanged;
         public AbstSdlInputText(AbstSdlComponentFactory factory, bool multiLine) : base(factory)
         {
@@ -102,10 +124,12 @@ namespace AbstUI.SDL2.Components.Inputs
             {
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
                     Factory.FocusManager.SetFocus(this);
-                    EnsureResources(Factory.FontManagerTyped,Factory.RootContext.Renderer);
+                    EnsureResources(Factory.FontManagerTyped, Factory.RootContext.Renderer);
                     int innerXDown = (int)X + 4;
+                    int innerYDown = (int)Y + 2;
                     int clickX = ev.button.x - innerXDown + _scrollX;
-                    _caret = GetCaretFromPixel(clickX);
+                    int clickY = ev.button.y - innerYDown + _scrollY;
+                    _caret = GetCaretFromPixel(clickX, clickY);
                     _selectionStart = _caret;
                     AdjustScroll();
                     e.StopPropagation = true;
@@ -117,8 +141,10 @@ namespace AbstUI.SDL2.Components.Inputs
                     {
                         EnsureResources(Factory.FontManagerTyped, Factory.RootContext.Renderer);
                         int innerXMove = (int)X + 4;
+                        int innerYMove = (int)Y + 2;
                         int x = ev.motion.x - innerXMove + _scrollX;
-                        _caret = GetCaretFromPixel(x);
+                        int y = ev.motion.y - innerYMove + _scrollY;
+                        _caret = GetCaretFromPixel(x, y);
                         AdjustScroll();
                         e.StopPropagation = true;
                     }
@@ -154,6 +180,7 @@ namespace AbstUI.SDL2.Components.Inputs
                     SDL.SDL_Keymod mod = (SDL.SDL_Keymod)ev.key.keysym.mod;
                     bool shift = (mod & SDL.SDL_Keymod.KMOD_SHIFT) != 0;
                     bool ctrl = (mod & SDL.SDL_Keymod.KMOD_CTRL) != 0;
+                    bool alt = (mod & SDL.SDL_Keymod.KMOD_ALT) != 0;
                     if (key == SDL.SDL_Keycode.SDLK_BACKSPACE)
                     {
                         if (HasSelection)
@@ -201,6 +228,7 @@ namespace AbstUI.SDL2.Components.Inputs
                             _caret--;
                         if (!shift)
                             _selectionStart = -1;
+                        _blinkStart = SDL.SDL_GetTicks();
                         AdjustScroll();
                         e.StopPropagation = true;
                     }
@@ -212,6 +240,69 @@ namespace AbstUI.SDL2.Components.Inputs
                             MoveCaretNextWord();
                         else if (_caret < _codepoints.Count)
                             _caret++;
+                        if (!shift)
+                            _selectionStart = -1;
+                        _blinkStart = SDL.SDL_GetTicks();
+                        AdjustScroll();
+                        e.StopPropagation = true;
+                    }
+                    else if (key == SDL.SDL_Keycode.SDLK_HOME)
+                    {
+                        if (shift && _selectionStart == -1)
+                            _selectionStart = _caret;
+                        if (_multiLine)
+                            _caret = GetLineStart(_caret);
+                        else
+                            _caret = 0;
+                        if (!shift)
+                            _selectionStart = -1;
+                        _blinkStart = SDL.SDL_GetTicks();
+                        AdjustScroll();
+                        e.StopPropagation = true;
+                    }
+                    else if (key == SDL.SDL_Keycode.SDLK_END)
+                    {
+                        if (shift && _selectionStart == -1)
+                            _selectionStart = _caret;
+                        if (_multiLine)
+                            _caret = GetLineEnd(_caret);
+                        else
+                            _caret = _codepoints.Count;
+                        if (!shift)
+                            _selectionStart = -1;
+                        _blinkStart = SDL.SDL_GetTicks();
+                        AdjustScroll();
+                        e.StopPropagation = true;
+                    }
+                    else if ((key == SDL.SDL_Keycode.SDLK_RETURN || key == SDL.SDL_Keycode.SDLK_KP_ENTER) && _multiLine && !alt)
+                    {
+                        if (HasSelection)
+                            DeleteSelection();
+                        if (MaxLength <= 0 || _codepoints.Count < MaxLength)
+                        {
+                            _codepoints.Insert(_caret, '\n');
+                            _caret++;
+                            _text = string.Concat(_codepoints.ConvertAll(cp => char.ConvertFromUtf32(cp)));
+                            ValueChanged?.Invoke();
+                            AdjustScroll();
+                        }
+                        e.StopPropagation = true;
+                    }
+                    else if (key == SDL.SDL_Keycode.SDLK_UP && _multiLine)
+                    {
+                        if (shift && _selectionStart == -1)
+                            _selectionStart = _caret;
+                        MoveCaretVertical(-1);
+                        if (!shift)
+                            _selectionStart = -1;
+                        AdjustScroll();
+                        e.StopPropagation = true;
+                    }
+                    else if (key == SDL.SDL_Keycode.SDLK_DOWN && _multiLine)
+                    {
+                        if (shift && _selectionStart == -1)
+                            _selectionStart = _caret;
+                        MoveCaretVertical(1);
                         if (!shift)
                             _selectionStart = -1;
                         AdjustScroll();
@@ -279,48 +370,78 @@ namespace AbstUI.SDL2.Components.Inputs
 
             int ascent = SDL_ttf.TTF_FontAscent(_font.FontHandle);
             int descent = SDL_ttf.TTF_FontDescent(_font.FontHandle);
-            int baseline = (int)Y + ((int)Height + ascent + descent) / 2;
-
+            int lineHeight = SDL_ttf.TTF_FontHeight(_font.FontHandle) - (_multiLine ? 1 : 0);
             var span = CollectionsMarshal.AsSpan(_codepoints);
             int innerX = (int)X + 4;
+            int innerY = (int)Y + 2;
             int innerWidth = (int)Width - 8;
+            int innerHeight = (int)Height - 4;
             SDL.SDL_Rect clip = new SDL.SDL_Rect
             {
                 x = innerX,
-                y = (int)Y + 2,
+                y = innerY,
                 w = innerWidth,
-                h = (int)Height - 4
+                h = innerHeight
             };
             SDL.SDL_RenderSetClipRect(renderer, ref clip);
 
-            int drawX = innerX - _scrollX;
-            if (HasSelection)
+            int firstLineY;
+            if (_multiLine)
             {
-                int selStart = Math.Min(_selectionStart, _caret);
-                int selEnd = Math.Max(_selectionStart, _caret);
-                var length = selEnd - selStart;
-                if (length >= 0)
-                {
-                    int preWidth = _atlas.MeasureWidth(span.Slice(0, selStart));
-                    int selWidth = _atlas.MeasureWidth(span.Slice(selStart, length));
-                    SDL.SDL_Rect selRect = new SDL.SDL_Rect
-                    {
-                        x = drawX + preWidth,
-                        y = clip.y,
-                        w = selWidth,
-                        h = clip.h
-                    };
-                    SDL.SDL_SetRenderDrawColor(renderer, AbstDefaultColors.InputAccentColor.R, AbstDefaultColors.InputAccentColor.G, AbstDefaultColors.InputAccentColor.B, AbstDefaultColors.InputAccentColor.A);
-                    SDL.SDL_RenderFillRect(renderer, ref selRect);
-
-                    _atlas.DrawRun(span.Slice(0, selStart), drawX, baseline, TextColor.ToSDLColor());
-                    _atlas.DrawRun(span.Slice(selStart, selEnd - selStart), drawX + preWidth, baseline, AbstDefaultColors.InputSelectionText.ToSDLColor());
-                    _atlas.DrawRun(span.Slice(selEnd), drawX + preWidth + selWidth, baseline, TextColor.ToSDLColor());
-                }
+                firstLineY = innerY - _scrollY;
             }
             else
             {
-                _atlas.DrawRun(span, drawX, baseline, TextColor.ToSDLColor());
+                int baseline = (int)Y + ((int)Height + ascent + descent) / 2;
+                firstLineY = baseline - ascent - _scrollY;
+            }
+
+            int drawX = innerX - _scrollX;
+            int drawY = firstLineY;
+            int index = 0;
+            while (index <= span.Length)
+            {
+                int lineEnd = index;
+                while (lineEnd < span.Length && span[lineEnd] != '\n') lineEnd++;
+                var lineSpan = span.Slice(index, lineEnd - index);
+
+                if (HasSelection)
+                {
+                    int selStart = Math.Min(_selectionStart, _caret);
+                    int selEnd = Math.Max(_selectionStart, _caret);
+                    int lineSelStart = Math.Max(selStart, index);
+                    int lineSelEnd = Math.Min(selEnd, lineEnd);
+                    if (lineSelStart < lineSelEnd)
+                    {
+                        int preWidth = _atlas.MeasureWidth(lineSpan.Slice(0, lineSelStart - index));
+                        int selWidth = _atlas.MeasureWidth(lineSpan.Slice(lineSelStart - index, lineSelEnd - lineSelStart));
+                        SDL.SDL_Rect selRect = new SDL.SDL_Rect
+                        {
+                            x = drawX + preWidth,
+                            y = drawY,
+                            w = selWidth,
+                            h = lineHeight
+                        };
+                        SDL.SDL_SetRenderDrawColor(renderer, AbstDefaultColors.InputAccentColor.R, AbstDefaultColors.InputAccentColor.G, AbstDefaultColors.InputAccentColor.B, AbstDefaultColors.InputAccentColor.A);
+                        SDL.SDL_RenderFillRect(renderer, ref selRect);
+
+                        _atlas.DrawRun(lineSpan.Slice(0, lineSelStart - index), drawX, drawY + ascent, TextColor.ToSDLColor());
+                        _atlas.DrawRun(lineSpan.Slice(lineSelStart - index, lineSelEnd - lineSelStart), drawX + preWidth, drawY + ascent, AbstDefaultColors.InputSelectionText.ToSDLColor());
+                        _atlas.DrawRun(lineSpan.Slice(lineSelEnd - index), drawX + preWidth + selWidth, drawY + ascent, TextColor.ToSDLColor());
+                    }
+                    else
+                    {
+                        _atlas.DrawRun(lineSpan, drawX, drawY + ascent, TextColor.ToSDLColor());
+                    }
+                }
+                else
+                {
+                    _atlas.DrawRun(lineSpan, drawX, drawY + ascent, TextColor.ToSDLColor());
+                }
+
+                if (lineEnd >= span.Length) break;
+                index = lineEnd + 1;
+                drawY += lineHeight;
             }
 
             if (_focused)
@@ -329,8 +450,10 @@ namespace AbstUI.SDL2.Components.Inputs
                 if (ticks - _blinkStart > 1000) { _blinkStart = ticks; }
                 if ((ticks - _blinkStart) / 500 % 2 == 0)
                 {
-                    int caretX = innerX - _scrollX + _atlas.MeasureWidth(span.Slice(0, _caret));
-                    SDL.SDL_RenderDrawLine(renderer, caretX, (int)Y + 2, caretX, (int)(Y + Height) - 2);
+                    GetCaretPixel(out int cx, out int cy);
+                    int drawCx = innerX - _scrollX + cx;
+                    int drawCy = firstLineY + cy;
+                    SDL.SDL_RenderDrawLine(renderer, drawCx, drawCy, drawCx, drawCy + lineHeight);
                 }
             }
 
@@ -341,18 +464,41 @@ namespace AbstUI.SDL2.Components.Inputs
 
         protected virtual void AdjustScroll()
         {
-            if (_atlas == null) return;
+            if (_atlas == null || _font == null) return;
             var span = CollectionsMarshal.AsSpan(_codepoints);
-            int caretPixel = _atlas.MeasureWidth(span.Slice(0, _caret));
+            GetCaretPixel(out int caretX, out int caretY);
             int innerWidth = (int)Width - 8;
-            if (caretPixel - _scrollX > innerWidth)
-                _scrollX = caretPixel - innerWidth;
-            else if (caretPixel - _scrollX < 0)
-                _scrollX = caretPixel;
-            int textWidth = _atlas.MeasureWidth(span);
-            int maxScroll = Math.Max(0, textWidth - innerWidth);
-            if (_scrollX > maxScroll) _scrollX = maxScroll;
+            int innerHeight = (int)Height - 4;
+            int lineHeight = SDL_ttf.TTF_FontHeight(_font.FontHandle) - (_multiLine ? 1 : 0);
+            if (caretX - _scrollX > innerWidth)
+                _scrollX = caretX - innerWidth;
+            else if (caretX - _scrollX < 0)
+                _scrollX = caretX;
+            if (caretY - _scrollY > innerHeight - lineHeight)
+                _scrollY = caretY - (innerHeight - lineHeight);
+            else if (caretY - _scrollY < 0)
+                _scrollY = caretY;
+
+            int maxWidth = 0;
+            int lines = 1;
+            int index = 0;
+            while (index <= span.Length)
+            {
+                int lineEnd = index;
+                while (lineEnd < span.Length && span[lineEnd] != '\n') lineEnd++;
+                int w = _atlas.MeasureWidth(span.Slice(index, lineEnd - index));
+                if (w > maxWidth) maxWidth = w;
+                if (lineEnd >= span.Length) break;
+                lines++;
+                index = lineEnd + 1;
+            }
+            int textHeight = lines * lineHeight;
+            int maxScrollX = Math.Max(0, maxWidth - innerWidth);
+            int maxScrollY = Math.Max(0, textHeight - innerHeight);
+            if (_scrollX > maxScrollX) _scrollX = maxScrollX;
+            if (_scrollY > maxScrollY) _scrollY = maxScrollY;
             if (_scrollX < 0) _scrollX = 0;
+            if (_scrollY < 0) _scrollY = 0;
         }
 
         protected virtual void DeleteSelection()
@@ -364,20 +510,133 @@ namespace AbstUI.SDL2.Components.Inputs
             _selectionStart = -1;
         }
 
-        protected virtual int GetCaretFromPixel(int px)
+        protected virtual int GetCaretFromPixel(int px, int py)
         {
-            if (_atlas == null) return _caret;
-            if (px <= 0) return 0;
+            if (_atlas == null || _font == null) return _caret;
             var span = CollectionsMarshal.AsSpan(_codepoints);
-            int pos = 0;
-            for (int i = 0; i < span.Length; i++)
+            int lineHeight = SDL_ttf.TTF_FontHeight(_font.FontHandle) - (_multiLine ? 1 : 0);
+            if (px <= 0 && py <= 0 && span.Length == 0) return 0;
+
+            int lineIndex = py / lineHeight;
+            if (lineIndex < 0) lineIndex = 0;
+            int currentLine = 0;
+            int index = 0;
+            int lineStart = 0;
+            while (index < span.Length && currentLine < lineIndex)
             {
-                int w = _atlas.MeasureWidth(span.Slice(i, 1));
+                if (span[index] == '\n')
+                {
+                    currentLine++;
+                    lineStart = index + 1;
+                }
+                index++;
+            }
+            int lineEnd = lineStart;
+            while (lineEnd < span.Length && span[lineEnd] != '\n') lineEnd++;
+            var lineSpan = span.Slice(lineStart, lineEnd - lineStart);
+            int pos = 0;
+            for (int i = 0; i < lineSpan.Length; i++)
+            {
+                int w = _atlas.MeasureWidth(lineSpan.Slice(i, 1));
                 if (px < pos + w / 2)
-                    return i;
+                    return lineStart + i;
                 pos += w;
             }
-            return span.Length;
+            return lineStart + lineSpan.Length;
+        }
+
+        protected virtual void GetCaretPixel(out int x, out int y)
+        {
+            x = 0;
+            y = 0;
+            if (_atlas == null || _font == null) return;
+            var span = CollectionsMarshal.AsSpan(_codepoints);
+            int lineHeight = SDL_ttf.TTF_FontHeight(_font.FontHandle) - (_multiLine ? 1 : 0);
+            int lineStart = 0;
+            int line = 0;
+            for (int i = 0; i < _caret; i++)
+            {
+                if (span[i] == '\n')
+                {
+                    lineStart = i + 1;
+                    line++;
+                }
+            }
+            y = line * lineHeight;
+            x = _atlas.MeasureWidth(span.Slice(lineStart, _caret - lineStart));
+        }
+
+        protected virtual int GetLineStart(int index)
+        {
+            var span = CollectionsMarshal.AsSpan(_codepoints);
+            int start = 0;
+            for (int i = 0; i < index && i < span.Length; i++)
+                if (span[i] == '\n') start = i + 1;
+            return start;
+        }
+
+        protected virtual int GetLineEnd(int index)
+        {
+            var span = CollectionsMarshal.AsSpan(_codepoints);
+            int i = index;
+            while (i < span.Length && span[i] != '\n') i++;
+            return i;
+        }
+
+        protected virtual void MoveCaretVertical(int lines)
+        {
+            if (_atlas == null || _font == null) return;
+            var span = CollectionsMarshal.AsSpan(_codepoints);
+            GetCaretPixel(out int caretX, out _);
+            int targetLine = 0;
+            int lineStart = 0;
+            int line = 0;
+            for (int i = 0; i < _caret; i++)
+            {
+                if (span[i] == '\n')
+                {
+                    line++;
+                    lineStart = i + 1;
+                }
+            }
+            targetLine = line + lines;
+            if (targetLine < 0)
+            {
+                _caret = 0;
+                return;
+            }
+            int index = 0;
+            int currentLine = 0;
+            int start = 0;
+            while (index < span.Length && currentLine < targetLine)
+            {
+                if (span[index] == '\n')
+                {
+                    currentLine++;
+                    start = index + 1;
+                }
+                index++;
+            }
+            if (currentLine < targetLine)
+            {
+                _caret = span.Length;
+                return;
+            }
+            int end = start;
+            while (end < span.Length && span[end] != '\n') end++;
+            var lineSpan = span.Slice(start, end - start);
+            int pos = 0;
+            for (int i = 0; i < lineSpan.Length; i++)
+            {
+                int w = _atlas.MeasureWidth(lineSpan.Slice(i, 1));
+                if (caretX < pos + w / 2)
+                {
+                    _caret = start + i;
+                    return;
+                }
+                pos += w;
+            }
+            _caret = start + lineSpan.Length;
         }
 
         protected virtual bool IsWordChar(int cp)

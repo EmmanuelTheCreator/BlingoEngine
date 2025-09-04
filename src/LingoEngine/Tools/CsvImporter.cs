@@ -4,15 +4,19 @@ using LingoEngine.Members;
 using LingoEngine.Texts;
 using System;
 using System.IO;
-using System.Reflection;
 using System.Text;
-using System.Xml.Linq;
+using AbstUI.Resources;
 
 namespace LingoEngine.Tools
 {
     public class CsvImporter
     {
+        private readonly IAbstResourceManager _resourceManager;
 
+        public CsvImporter(IAbstResourceManager resourceManager)
+        {
+            _resourceManager = resourceManager;
+        }
 
         public record CsvRow
         {
@@ -44,13 +48,14 @@ namespace LingoEngine.Tools
             foreach (var row in csv)
             {
                 var fn = row.FileName;
-                if (string.IsNullOrWhiteSpace(row.FileName)) {
+                if (string.IsNullOrWhiteSpace(row.FileName))
+                {
                     var ext = ".png";
                     switch (row.Type)
                     {
                         case LingoMemberType.Text:
                             ext = ".txt";
-                            break; 
+                            break;
                         case LingoMemberType.Field:
                             ext = ".txt";
                             break;
@@ -61,13 +66,25 @@ namespace LingoEngine.Tools
                             ext = ".cs";
                             break;
                     }
-                    var name = row.Name.Length <1?"":"_"+ row.Name;
+                    var name = row.Name.Length < 1 ? "" : "_" + row.Name;
                     fn = row.Number + name + ext;
                 }
                 var fileName = Path.Combine(rootFolder, fn);
-                var newMember = cast.Add(row.Type,row.Number, row.Name, fileName, row.RegPoint);
-                if (newMember is  ILingoMemberTextBaseInteral textbased)
-                    textbased.LoadFile();
+                var newMember = cast.Add(row.Type, row.Number, row.Name, fileName, row.RegPoint);
+                if (newMember is ILingoMemberTextBaseInteral textbased)
+                {
+                    var rtfFile = Path.ChangeExtension(fileName, ".rtf");
+                    if (_resourceManager.FileExists(rtfFile) && newMember is ILingoMemberTextBase textMember)
+                    {
+                        var rtfContent = _resourceManager.ReadTextFile(rtfFile) ?? string.Empty;
+                        var md = RtfToMarkdown.Convert(rtfContent);
+                        textMember.SetTextMD(md);
+                    }
+                    else
+                    {
+                        textbased.LoadFile();
+                    }
+                }
             }
         }
         public IReadOnlyCollection<CsvRow> ImportCsvCastFile(string filePath, bool skipFirstLine = true)
@@ -82,7 +99,7 @@ namespace LingoEngine.Tools
                 var registration = row[3].TrimStart('(').TrimEnd(')').Split(',').Select(int.Parse).ToArray();
                 var fileName = row[4];
                 var type1 = LingoMemberType.Unknown;
-                Enum.TryParse(type,true, out type1);
+                Enum.TryParse(type, true, out type1);
                 returnData.Add(new CsvRow(number, type1, name, (registration[0], registration[1]), fileName));
             }
             return returnData;
@@ -91,8 +108,14 @@ namespace LingoEngine.Tools
         public List<string[]> Import(string filePath, bool skipFirstLine = true)
         {
             var rows = new List<string[]>();
+            var content = _resourceManager.ReadTextFile(filePath);
+            if (content == null)
+                return rows;
+
+            using var reader = new StringReader(content);
+            string? line;
             var hasSkipped = false;
-            foreach (var line in File.ReadLines(filePath))
+            while ((line = reader.ReadLine()) != null)
             {
                 if (string.IsNullOrWhiteSpace(line))
                     continue;

@@ -29,10 +29,14 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
     {
     }
 
+    public IAbstImagePainter CreateImagePainter(int width = 0, int height = 0)
+        => new UnityImagePainter(FontManager, width, height);
+
     public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
     {
         var canvas = new AbstGfxCanvas();
-        var impl = new AbstUnityGfxCanvas(width, height);
+        var painter = (UnityImagePainter)CreateImagePainter(width, height);
+        var impl = new AbstUnityGfxCanvas(painter);
         canvas.Init(impl);
         InitComponent(canvas);
         canvas.Name = name;

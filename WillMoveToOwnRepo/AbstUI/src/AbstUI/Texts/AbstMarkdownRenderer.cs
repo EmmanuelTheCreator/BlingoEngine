@@ -69,6 +69,12 @@ namespace AbstUI.Texts
             DoFastRendering = _styles.Count == 1 && !HasSpecialTags(_markdown);
         }
 
+        /// <summary>
+        /// Sets the markdown data including precomputed styles and segments.
+        /// </summary>
+        public void SetText(AbstMarkdownData data)
+            => SetText(data.Markdown, data.Styles.Values);
+
         /// <summary>Renders markdown text on the canvas starting from the given position.</summary>
         public void Render(IAbstImagePainter canvas, APoint start)
         {
@@ -156,7 +162,7 @@ namespace AbstUI.Texts
 
             // 1) measure max width of all lines
             float fullWidth = 0f;
-           
+
             var lineWidths = new List<float>(lines.Length);
             foreach (var raw in lines)
             {
@@ -191,9 +197,14 @@ namespace AbstUI.Texts
                 }
 
                 float lineX = originX + xOff;
-                _canvas!.DrawText(
+                var fontStyle = AbstFontStyle.Regular;
+                if (style.Bold)
+                    fontStyle |= AbstFontStyle.Bold;
+                if (style.Italic)
+                    fontStyle |= AbstFontStyle.Italic;
+                _canvas!.DrawSingleLine(
                     new APoint(lineX, pos.Y - (firstLine ? fontInfo.TopIndentation : 0)),
-                    line, style.Font, style.Color, style.FontSize, -1, style.Alignment);
+                    line, style.Font, style.Color, style.FontSize, (int)MathF.Ceiling(lineW), fontInfo.FontHeight, style.Alignment, fontStyle);
 
                 pos.Offset(0, lineHeight);
                 firstLine = false;
@@ -330,17 +341,15 @@ namespace AbstUI.Texts
             {
                 if (sb.Length == 0)
                     return;
-                string font = _fontFamily;
-                if (bold && italic)
-                    font += " BoldItalic";
-                else if (bold)
-                    font += " Bold";
-                else if (italic)
-                    font += " Italic";
-
                 string text = sb.ToString();
                 float width = EstimateWidth(text, fontSize);
-                _canvas!.DrawText(new APoint(currentX, pos.Y), text, font, _color, fontSize, -1, AbstTextAlignment.Left);
+                var fontInfo = _fontManager.GetFontInfo(_fontFamily, fontSize);
+                var fontStyle = AbstFontStyle.Regular;
+                if (bold)
+                    fontStyle |= AbstFontStyle.Bold;
+                if (italic)
+                    fontStyle |= AbstFontStyle.Italic;
+                _canvas!.DrawSingleLine(new APoint(currentX, pos.Y), text, _fontFamily, _color, fontSize, (int)MathF.Ceiling(width), fontInfo.FontHeight, _alignment, fontStyle);
                 if (underline)
                     _canvas!.DrawLine(new APoint(currentX, pos.Y + fontSize), new APoint(currentX + width, pos.Y + fontSize), _color, 1);
                 currentX += width;

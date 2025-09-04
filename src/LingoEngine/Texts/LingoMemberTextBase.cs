@@ -5,8 +5,9 @@ using LingoEngine.Casts;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
 using LingoEngine.Texts.FrameworkCommunication;
-using LingoEngine.Tools;
 using AbstUI.Components;
+using System.Collections.Generic;
+using System.Text;
 
 namespace LingoEngine.Texts
 {
@@ -25,13 +26,17 @@ namespace LingoEngine.Texts
         protected int _selectionStart;
         protected int _selectionEnd;
         protected string _selectedText = "";
+        protected string _markdown = "";
+        protected AbstMarkdownData? _mdData;
 
         protected LingoLines _Line;
         protected LingoWords _word = new LingoWords("");
         protected LingoChars _char = new LingoChars();
         protected LingoParagraphs _Paragraph = new LingoParagraphs();
+        private string _paragraphSourceText = string.Empty;
+        private bool _paragraphParsed;
         private IAbstTexture2D? _texture;
-        
+
         private bool _hasLoadedTexTure;
         private IAbstUITextureUserSubscription? _textureUser;
 
@@ -47,10 +52,21 @@ namespace LingoEngine.Texts
             get => _frameworkMember.Text;
             set
             {
+                _mdData = null;
+                _markdown = value;
                 UpdateText(value);
                 _frameworkMember.Text = value;
 
             }
+        }
+
+        /// <inheritdoc/>
+        public void SetTextMD(AbstMarkdownData data)
+        {
+            _mdData = data;
+            _markdown = data.Markdown;
+            UpdateText(data.PlainText);
+            _frameworkMember.Text = data.PlainText;
         }
         /// <inheritdoc/>
         public int ScrollTop
@@ -154,7 +170,38 @@ namespace LingoEngine.Texts
         /// <inheritdoc/>
         public LingoWords Word => _word;
         /// <inheritdoc/>
-        public LingoParagraphs Paragraph => _Paragraph;
+        public LingoParagraphs Paragraph
+        {
+            get
+            {
+                if (!_paragraphParsed)
+                {
+                    if (_mdData != null)
+                    {
+                        var paragraphs = new List<string>();
+                        var sb = new StringBuilder();
+                        foreach (var seg in _mdData.Segments)
+                        {
+                            sb.Append(seg.Text);
+                            if (seg.IsParagraph)
+                            {
+                                paragraphs.Add(sb.ToString().TrimEnd('\n', '\r'));
+                                sb.Clear();
+                            }
+                        }
+                        if (sb.Length > 0)
+                            paragraphs.Add(sb.ToString().TrimEnd('\n', '\r'));
+                        _Paragraph.SetText(string.Join("\n", paragraphs));
+                    }
+                    else
+                    {
+                        _Paragraph.SetText(_paragraphSourceText);
+                    }
+                    _paragraphParsed = true;
+                }
+                return _Paragraph;
+            }
+        }
         /// <inheritdoc/>
         public LingoChars Char => _char;
         public override int Width
@@ -201,7 +248,7 @@ namespace LingoEngine.Texts
             _componentFactory = componentFactory;
             _frameworkMember = frameworkMember;
             _Line = new LingoLines(LineTextChanged);
-            
+
         }
 
         public void InitDefaults()
@@ -215,7 +262,8 @@ namespace LingoEngine.Texts
             _char.SetText(text);
             _word.SetText(text);
             _Line.SetText(text);
-            _Paragraph.SetText(text);
+            _paragraphSourceText = text;
+            _paragraphParsed = false;
             TextChanged = true;
             HasChanged = true;
         }
@@ -235,21 +283,6 @@ namespace LingoEngine.Texts
             //}
 #endif
             Text = _frameworkMember.ReadText();
-            var rtf = _frameworkMember.ReadTextRtf();
-            if (!string.IsNullOrWhiteSpace(rtf))
-            {
-                var rtfInfo = RtfExtracter.Parse(rtf);
-                if (rtfInfo != null)
-                {
-                    if (rtfInfo.Size > 0) FontSize = rtfInfo.Size;
-                    if (rtfInfo.Color != null) TextColor = rtfInfo.Color.Value;
-                    if (rtfInfo.Style != LingoTextStyle.None) FontStyle = rtfInfo.Style;
-                    if (!string.IsNullOrWhiteSpace(rtfInfo.FontName)) Font = rtfInfo.FontName!;
-                    if (string.IsNullOrWhiteSpace(Text)) Text = rtfInfo.Text;
-                    Alignment = rtfInfo.Alignment;
-                }
-            }
-            
         }
         public void RequireRedraw()
         {
@@ -276,21 +309,23 @@ namespace LingoEngine.Texts
                 _textureUser?.Release();
                 _texture.Dispose();
             }
-            var style = new AbstTextStyle();
-            style.Bold = (FontStyle & LingoTextStyle.Bold) != 0;
-            style.Italic = (FontStyle & LingoTextStyle.Italic) != 0;
-            style.Underline = (FontStyle & LingoTextStyle.Underline) != 0;
-            style.Font = Font ?? "";
-            style.FontSize = FontSize;
-            style.Color = TextColor;
-            style.Alignment = Alignment;
             var markDownRenderer = new AbstMarkdownRenderer(_frameworkMember.FontManager);
-            //if (!Name.Contains("HighScoresS"))
-            //{
-            //    return;
-
-            //}
-            markDownRenderer.SetText(Text.Replace('\r', '\n'), [style]);
+            if (_mdData != null)
+            {
+                markDownRenderer.SetText(_mdData);
+            }
+            else
+            {
+                var style = new AbstTextStyle();
+                style.Bold = (FontStyle & LingoTextStyle.Bold) != 0;
+                style.Italic = (FontStyle & LingoTextStyle.Italic) != 0;
+                style.Underline = (FontStyle & LingoTextStyle.Underline) != 0;
+                style.Font = Font ?? "";
+                style.FontSize = FontSize;
+                style.Color = TextColor;
+                style.Alignment = Alignment;
+                markDownRenderer.SetText(_markdown.Replace('\r', '\n'), [style]);
+            }
             var painter = _componentFactory.CreateImagePainter(Width, Height);
             markDownRenderer.Render(painter, new APoint(2, 3));
             _texture = painter.GetTexture("Text_" + Name);

@@ -3,6 +3,7 @@ using System.Linq;
 using LingoEngine.Members;
 using LingoEngine.Tools;
 using Xunit;
+using AbstUI.Resources;
 
 public class CsvImporterTests
 {
@@ -14,7 +15,7 @@ public class CsvImporterTests
         var tempFile = Path.GetTempFileName();
         File.WriteAllText(tempFile, csvContent);
 
-        var importer = new CsvImporter();
+        var importer = new CsvImporter(new TestResourceManager());
         var rows = importer.ImportCsvCastFile(tempFile);
 
         var row = Assert.Single(rows);
@@ -24,5 +25,12 @@ public class CsvImporterTests
         Assert.Equal(1, row.RegPoint.X);
         Assert.Equal(2, row.RegPoint.Y);
         Assert.Equal("sample.txt", row.FileName);
+    }
+    private class TestResourceManager : IAbstResourceManager
+    {
+        public bool FileExists(string fileName) => File.Exists(fileName);
+        public string? ReadTextFile(string fileName) => File.Exists(fileName) ? File.ReadAllText(fileName) : null;
+
+        public byte[]? ReadBytes(string fileName) => File.Exists(fileName) ? File.ReadAllBytes(fileName) : null;
     }
 }

@@ -6,6 +6,8 @@ using AbstUI.SDL2.Inputs;
 using AbstUI.SDL2.Styles;
 using AbstUI.SDL2.Windowing;
 using AbstUI.Styles;
+using AbstUI.Resources;
+using AbstUI.SDL2.Resources;
 using AbstUI.Windowing;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,6 +28,7 @@ namespace AbstUI.SDL2
 
                 .AddSingleton<IAbstFontManager, SdlFontManager>()
                 .AddSingleton<IAbstStyleManager, AbstStyleManager>()
+                .AddSingleton<IAbstResourceManager, SdlResourceManager>()
                 .AddTransient(p => (SdlFontManager)p.GetRequiredService<IAbstFontManager>())
                 .AddTransient(p => (AbstStyleManager)p.GetRequiredService<IAbstStyleManager>())
                 .AddSingleton<SdlFocusManager>()
