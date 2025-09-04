@@ -14,20 +14,20 @@ namespace AbstUI.LGodot.Components.Graphics
 {
     public class GodotImagePainter : IAbstImagePainter
     {
-        private readonly List<(Func<APoint?> GetTotalSize,Action<Image> DrawAction)> _drawActions = new();
+        private readonly List<(Func<APoint?> GetTotalSize, Action<Image> DrawAction)> _drawActions = new();
         private readonly AbstGodotFontManager _fontManager;
         private Image _img;
         private ImageTexture _tex;
         private AColor? _clearColor;
         private bool _dirty;
-       
+
         public int Width { get; private set; }
         public int Height { get; private set; }
         public bool Pixilated { get; set; }
         public Texture2D Texture => _tex;
         public bool AutoResize { get; set; } = true;
-        int IAbstImagePainter.Height { get => Height; set => Height = value; }
-        int IAbstImagePainter.Width { get => Width; set => Width = value; }
+        int IAbstImagePainter.Height { get => Height; set => Resize(Width, value); }
+        int IAbstImagePainter.Width { get => Width; set => Resize(value, Height); }
 
         public GodotImagePainter(AbstGodotFontManager fontManager, int width = 0, int height = 0)
         {
@@ -40,6 +40,15 @@ namespace AbstUI.LGodot.Components.Graphics
             _img.Fill(new Color(0, 0, 0, 0));
             _tex = ImageTexture.CreateFromImage(_img);
             _dirty = true;
+        }
+
+        public void Resize(int width, int height)
+        {
+            if (Width == width && Height == height)
+                return;
+            Width = width;
+            Height = height;
+            MarkDirty();
         }
 
         public void Dispose()
@@ -113,24 +122,26 @@ namespace AbstUI.LGodot.Components.Graphics
         {
             var p = point; var c = color;
             _drawActions.Add((
-                () => AutoResize? EnsureCapacity((int)p.X + 1, (int)p.Y + 1) :null,
+                () => AutoResize ? EnsureCapacity((int)p.X + 1, (int)p.Y + 1) : null,
                 img =>
             {
                 if ((uint)p.X < (uint)img.GetWidth() && (uint)p.Y < (uint)img.GetHeight())
                     img.SetPixel((int)p.X, (int)p.Y, new Color(c.R / 255f, c.G / 255f, c.B / 255f, c.A / 255f));
-            }));
+            }
+            ));
             MarkDirty();
         }
 
         public void DrawLine(APoint start, APoint end, AColor color, float width = 1)
         {
             var s = start; var e = end; var col = color;
-            _drawActions.Add((() => {
+            _drawActions.Add((() =>
+            {
                 if (!AutoResize) return null;
                 int maxX = (int)MathF.Ceiling(MathF.Max(s.X, e.X)) + 1;
                 int maxY = (int)MathF.Ceiling(MathF.Max(s.Y, e.Y)) + 1;
-                return EnsureCapacity(maxX, maxY); 
-            } 
+                return EnsureCapacity(maxX, maxY);
+            }
             ,
             img =>
             {
@@ -148,7 +159,8 @@ namespace AbstUI.LGodot.Components.Graphics
                     if (e2 >= dy) { err += dy; x0 += sx; }
                     if (e2 <= dx) { err += dx; y0 += sy; }
                 }
-            }));
+            }
+            ));
             MarkDirty();
         }
 
@@ -160,11 +172,11 @@ namespace AbstUI.LGodot.Components.Graphics
                 if (!AutoResize) return null;
                 int x = (int)r.Left, y = (int)r.Top, w = (int)r.Width, h = (int)r.Height;
                 return EnsureCapacity(x + w, y + h);
-            },img =>
+            }, img =>
             {
                 var c = new Color(col.R / 255f, col.G / 255f, col.B / 255f, col.A / 255f);
                 int x = (int)r.Left, y = (int)r.Top, w = (int)r.Width, h = (int)r.Height;
-                
+
                 if (w <= 0 || h <= 0) return;
                 if (f)
                 {
@@ -197,7 +209,8 @@ namespace AbstUI.LGodot.Components.Graphics
                         }
                     }
                 }
-            }));
+            }
+            ));
             MarkDirty();
         }
 
@@ -206,7 +219,7 @@ namespace AbstUI.LGodot.Components.Graphics
             var ctr = center; var rad = Math.Max(0, radius); var col = color; var f = filled;
             int cx = (int)ctr.X, cy = (int)ctr.Y, r = (int)Math.Round(rad);
             _drawActions.Add((
-                () => AutoResize? EnsureCapacity(cx + r + 1, cy + r + 1) : null,
+                () => AutoResize ? EnsureCapacity(cx + r + 1, cy + r + 1) : null,
                 img =>
             {
                 var c = new Color(col.R / 255f, col.G / 255f, col.B / 255f, col.A / 255f);
@@ -228,7 +241,8 @@ namespace AbstUI.LGodot.Components.Graphics
                     y++; err += 1 + 2 * y;
                     if (2 * (err - x) + 1 > 0) { x--; err += 1 - 2 * x; }
                 }
-            }));
+            }
+            ));
             MarkDirty();
         }
 
@@ -236,7 +250,8 @@ namespace AbstUI.LGodot.Components.Graphics
         {
             var ctr = center; var rad = radius; var sd = startDeg; var ed = endDeg; var segs = Math.Max(1, segments); var col = color;
             _drawActions.Add((
-                ()=> {
+                () =>
+                {
                     if (!AutoResize) return null;
                     int cx = (int)ctr.X, cy = (int)ctr.Y, r = (int)MathF.Ceiling(rad);
                     return EnsureCapacity(cx + r + 1, cy + r + 1);
@@ -270,7 +285,8 @@ namespace AbstUI.LGodot.Components.Graphics
                     }
                     px = x; py = y;
                 }
-            }));
+            }
+            ));
             MarkDirty();
         }
 
@@ -339,7 +355,8 @@ namespace AbstUI.LGodot.Components.Graphics
                             img.SetPixel(x, y, c);
                     }
                 }
-            }));
+            }
+            ));
             MarkDirty();
         }
 
@@ -419,7 +436,7 @@ namespace AbstUI.LGodot.Components.Graphics
                         float lineW = lineSize.X;
                         var ascent = ts.FontGetAscent(fr, fs);
                         var descent = ts.FontGetDescent(fr, fs);
-                        var baseline = isFirstLine? y + ascent - descent+2 : y + ascent; //+2 is a FIX for some fonts
+                        var baseline = isFirstLine ? y + ascent - descent + 2 : y + ascent; //+2 is a FIX for some fonts
 
                         // per-line horizontal alignment
                         float xOff = 0f;
@@ -473,7 +490,7 @@ namespace AbstUI.LGodot.Components.Graphics
                         ts.FreeRid(shaped);
                         y += (int)MathF.Ceiling((float)(ascent + descent));  // advance to next line
                         isFirstLine = false;
-                        
+
                     }
                 }
 
@@ -623,13 +640,14 @@ namespace AbstUI.LGodot.Components.Graphics
         {
             var dat = data; var w = width; var h = height; var pos = position; var fmt = format;
             _drawActions.Add((
-                () => AutoResize? EnsureCapacity((int)pos.X + w, (int)pos.Y + h) : null,
+                () => AutoResize ? EnsureCapacity((int)pos.X + w, (int)pos.Y + h) : null,
                 img =>
             {
                 var src = Image.CreateFromData(w, h, false, fmt.ToGodotFormat(), dat);
                 img.BlitRect(src, new Rect2I(0, 0, w, h), new Vector2I((int)pos.X, (int)pos.Y));
                 src.Dispose();
-            }));
+            }
+            ));
             MarkDirty();
         }
 
@@ -654,7 +672,8 @@ namespace AbstUI.LGodot.Components.Graphics
                         using var srcImg = gtex.Texture.GetImage();
                         img.BlitRect(srcImg, new Rect2I(0, 0, Math.Min(w, srcImg.GetWidth()), Math.Min(h, srcImg.GetHeight())),
                                      new Vector2I((int)pos.X, (int)pos.Y));
-                    }));
+                    }
+                    ));
                     break;
                 default:
                     throw new NotSupportedException("Unsupported texture type for GodotImagePainter.");
