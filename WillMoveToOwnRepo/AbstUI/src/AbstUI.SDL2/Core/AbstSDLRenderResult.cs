@@ -11,6 +11,7 @@ public struct AbstSDLRenderResult
         Texture = nint.Zero
     };
 
+    // Returning a valid texture requests a single redraw.
     public static implicit operator AbstSDLRenderResult(nint texture)
        => new AbstSDLRenderResult { Texture = texture, DoRender = texture != nint.Zero };
 

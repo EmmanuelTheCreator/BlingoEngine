@@ -48,6 +48,7 @@ namespace AbstUI.SDL2.Components.Inputs
                 _selectionStart = -1;
                 ValueChanged?.Invoke();
                 AdjustScroll();
+                ComponentContext.QueueRedraw(this);
             }
         }
         public virtual int MaxLength { get; set; }
@@ -65,7 +66,7 @@ namespace AbstUI.SDL2.Components.Inputs
         public bool HasFocus => _focused;
 
 
-        
+
         public event Action? ValueChanged;
         public AbstSdlInputText(AbstSdlComponentFactory factory, bool multiLine) : base(factory)
         {
@@ -281,6 +282,9 @@ namespace AbstUI.SDL2.Components.Inputs
                     HandleKeyDown(e, ev);
                     break;
             }
+
+            if (e.StopPropagation)
+                ComponentContext.QueueRedraw(this);
         }
 
         private void HandleKeyDown(AbstSDLEvent e, SDL.SDL_Event ev)
@@ -454,7 +458,7 @@ namespace AbstUI.SDL2.Components.Inputs
 
         protected virtual bool IsAllowedText(string text) => TextValidate(text);
 
-       
+
         protected virtual void AdjustScroll()
         {
             if (_atlas == null || _font == null) return;
@@ -662,6 +666,7 @@ namespace AbstUI.SDL2.Components.Inputs
                 _blinkStart = SDL.SDL_GetTicks();
             else
                 _selectionStart = -1;
+            ComponentContext.QueueRedraw(this);
         }
 
         public void SetCaretPosition(int position)
@@ -669,6 +674,7 @@ namespace AbstUI.SDL2.Components.Inputs
             _caret = Math.Clamp(position, 0, _codepoints.Count);
             _selectionStart = -1;
             AdjustScroll();
+            ComponentContext.QueueRedraw(this);
         }
 
         public void SetSelection(int start, int end)
@@ -678,6 +684,7 @@ namespace AbstUI.SDL2.Components.Inputs
             if (_selectionStart == _caret)
                 _selectionStart = -1;
             AdjustScroll();
+            ComponentContext.QueueRedraw(this);
         }
 
         public void SetSelection(Range range)
@@ -685,6 +692,6 @@ namespace AbstUI.SDL2.Components.Inputs
             SetSelection(range.Start.GetOffset(_codepoints.Count), range.End.GetOffset(_codepoints.Count));
         }
 
-       
+
     }
 }

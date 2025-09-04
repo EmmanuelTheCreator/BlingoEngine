@@ -17,12 +17,90 @@ namespace AbstUI.SDL2.Components.Containers
         {
         }
 
-        public AMargin Margin { get; set; } = AMargin.Zero;
-        public float ScrollHorizontal { get; set; }
-        public float ScrollVertical { get; set; }
-        public bool ClipContents { get; set; } = true;
-        public AbstScrollbarMode ScrollbarModeH { get; set; } = AbstScrollbarMode.Auto;
-        public AbstScrollbarMode ScrollbarModeV { get; set; } = AbstScrollbarMode.Auto;
+        private AMargin _margin = AMargin.Zero;
+        public AMargin Margin
+        {
+            get => _margin;
+            set
+            {
+                if (!_margin.Equals(value))
+                {
+                    _margin = value;
+                    ComponentContext.QueueRedraw(this);
+                }
+            }
+        }
+
+        private float _scrollHorizontal;
+        public float ScrollHorizontal
+        {
+            get => _scrollHorizontal;
+            set
+            {
+                if (Math.Abs(_scrollHorizontal - value) > float.Epsilon)
+                {
+                    _scrollHorizontal = value;
+                    ComponentContext.QueueRedraw(this);
+                }
+            }
+        }
+
+        private float _scrollVertical;
+        public float ScrollVertical
+        {
+            get => _scrollVertical;
+            set
+            {
+                if (Math.Abs(_scrollVertical - value) > float.Epsilon)
+                {
+                    _scrollVertical = value;
+                    ComponentContext.QueueRedraw(this);
+                }
+            }
+        }
+
+        private bool _clipContents = true;
+        public bool ClipContents
+        {
+            get => _clipContents;
+            set
+            {
+                if (_clipContents != value)
+                {
+                    _clipContents = value;
+                    ComponentContext.QueueRedraw(this);
+                }
+            }
+        }
+
+        private AbstScrollbarMode _scrollbarModeH = AbstScrollbarMode.Auto;
+        public AbstScrollbarMode ScrollbarModeH
+        {
+            get => _scrollbarModeH;
+            set
+            {
+                if (_scrollbarModeH != value)
+                {
+                    _scrollbarModeH = value;
+                    ComponentContext.QueueRedraw(this);
+                }
+            }
+        }
+
+        private AbstScrollbarMode _scrollbarModeV = AbstScrollbarMode.Auto;
+        public AbstScrollbarMode ScrollbarModeV
+        {
+            get => _scrollbarModeV;
+            set
+            {
+                if (_scrollbarModeV != value)
+                {
+                    _scrollbarModeV = value;
+                    ComponentContext.QueueRedraw(this);
+                }
+            }
+        }
+
         protected float ContentWidth { get; set; }
         protected float ContentHeight { get; set; }
 
@@ -46,10 +124,61 @@ namespace AbstUI.SDL2.Components.Containers
         private float _dragRatioH;
         private float _dragRatioV;
 
-        public AColor Color_Handle { get; set; } = AColor.FromRGBA(100, 100, 100);
-        public AColor Color_Bars_Bg { get; set; } = AColor.FromRGBA(255, 255, 255, 0);
-        public AColor Color_ScollBorder { get; set; } = AColor.FromRGBA(255, 255, 255, 0);
-        public AColor BackgroundColor { get; set; } = AColor.FromRGBA(255, 255, 255, 0);
+        private AColor _colorHandle = AColor.FromRGBA(100, 100, 100);
+        public AColor Color_Handle
+        {
+            get => _colorHandle;
+            set
+            {
+                if (!_colorHandle.Equals(value))
+                {
+                    _colorHandle = value;
+                    ComponentContext.QueueRedraw(this);
+                }
+            }
+        }
+
+        private AColor _colorBarsBg = AColor.FromRGBA(255, 255, 255, 0);
+        public AColor Color_Bars_Bg
+        {
+            get => _colorBarsBg;
+            set
+            {
+                if (!_colorBarsBg.Equals(value))
+                {
+                    _colorBarsBg = value;
+                    ComponentContext.QueueRedraw(this);
+                }
+            }
+        }
+
+        private AColor _colorScollBorder = AColor.FromRGBA(255, 255, 255, 0);
+        public AColor Color_ScollBorder
+        {
+            get => _colorScollBorder;
+            set
+            {
+                if (!_colorScollBorder.Equals(value))
+                {
+                    _colorScollBorder = value;
+                    ComponentContext.QueueRedraw(this);
+                }
+            }
+        }
+
+        private AColor _backgroundColor = AColor.FromRGBA(255, 255, 255, 0);
+        public AColor BackgroundColor
+        {
+            get => _backgroundColor;
+            set
+            {
+                if (!_backgroundColor.Equals(value))
+                {
+                    _backgroundColor = value;
+                    ComponentContext.QueueRedraw(this);
+                }
+            }
+        }
         protected abstract void RenderContent(AbstSDLRenderContext context);
 
         protected virtual void HandleContentEvent(AbstSDLEvent e)
@@ -86,7 +215,7 @@ namespace AbstUI.SDL2.Components.Containers
             _dragRatioV = _maxScrollV / MathF.Max(1, _trackH - _handleH);
 
             bool needRender = _texture == nint.Zero || _texW != w || _texH != h ||
-                               _lastScrollH != ScrollHorizontal || _lastScrollV != ScrollVertical;
+                               _lastScrollH != ScrollHorizontal || _lastScrollV != ScrollVertical || ComponentContext.HasModifiedChildren();
             //if (needRender)
             {
                 if (_texture != nint.Zero)
@@ -238,6 +367,7 @@ namespace AbstUI.SDL2.Components.Containers
                         e.StopPropagation = true;
                     }
                 }
+               
             }
             else if (ev.type == SDL.SDL_EventType.SDL_MOUSEBUTTONUP && ev.button.button == SDL.SDL_BUTTON_LEFT)
             {
@@ -267,6 +397,7 @@ namespace AbstUI.SDL2.Components.Containers
                 ComponentContext.QueueRedraw(this);
                 e.StopPropagation = true;
             }
+            if (e.StopPropagation) ComponentContext.QueueRedraw(this);
         }
 
         public override void Dispose()

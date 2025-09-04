@@ -25,6 +25,6 @@ namespace AbstUI.SDL2.Components.Menus
         public void Invoke() => Activated?.Invoke();
         public override void Dispose() => base.Dispose();
 
-        public override AbstSDLRenderResult Render(AbstSDLRenderContext context) => AbstSDLRenderResult.RequireRender();
+        public override AbstSDLRenderResult Render(AbstSDLRenderContext context) => default;
     }
 }

@@ -50,6 +50,7 @@ internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IFramew
     public AbstSdlSpinBox(AbstSdlComponentFactory factory) : base(factory)
     {
         _number = new AbstSdlInputNumber<float>(factory);
+        _number.ComponentContext.SetParents(ComponentContext);
         _number.ValueChanged += () => ValueChanged?.Invoke();
         Width = 50;
         Height = 20;
@@ -89,11 +90,14 @@ internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IFramew
                 var dir = e.ComponentTop > Height / 2 ? -1 : 1;
                 Value += Step * dir;
                 e.StopPropagation = true;
+                ComponentContext.QueueRedraw(this);
                 return;
             }
         }
 
         _number.HandleEvent(e);
+        if (e.StopPropagation)
+            ComponentContext.QueueRedraw(this);
     }
 
     private SDL.SDL_Rect GetUpRect() => new SDL.SDL_Rect
@@ -121,7 +125,7 @@ internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IFramew
         _number.Y = Y;
         _number.Width = Width - ButtonWidth;
         _number.Height = Height;
-        _number.Render(context);
+        var result = _number.Render(context);
 
         var renderer = context.Renderer;
         var up = GetUpRect();
@@ -138,7 +142,7 @@ internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IFramew
         SDL.SDL_RenderDrawLine(renderer, down.x + 3, down.y + 3, down.x + down.w / 2, down.y + down.h - 3);
         SDL.SDL_RenderDrawLine(renderer, down.x + down.w - 3, down.y + 3, down.x + down.w / 2, down.y + down.h - 3);
 
-        return AbstSDLRenderResult.RequireRender();
+        return result;
     }
 
     public override void Dispose()

@@ -114,6 +114,7 @@ namespace AbstUI.Texts
                     }
                 }
 
+
                 var segments = ParseInlineSegments(content, usedFontSize, headerBold || _currentStyle.Bold, _currentStyle.Italic, _currentStyle.Underline, out float lineWidth);
 
                 if (segments.Count > 0)
@@ -146,6 +147,7 @@ namespace AbstUI.Texts
                     int lineHeight = _currentStyle.LineHeight > 0 ? _currentStyle.LineHeight : usedFontSize;
                     pos.Offset(0, lineHeight);
                 }
+
             }
         }
 
@@ -170,12 +172,14 @@ namespace AbstUI.Texts
             foreach (var raw in lines)
             {
                 var line = raw.TrimEnd('\r');
+
                 var fontStyleForWidth = AbstFontStyle.Regular;
                 if (style.Bold)
                     fontStyleForWidth |= AbstFontStyle.Bold;
                 if (style.Italic)
                     fontStyleForWidth |= AbstFontStyle.Italic;
                 var lineWidth = EstimateWidth(line, style.Font, fontSize, fontStyleForWidth);
+
                 lineWidths.Add(lineWidth);
                 fullWidth = MathF.Max(fullWidth, lineWidth);
             }
@@ -255,8 +259,10 @@ namespace AbstUI.Texts
             }
         }
 
+
         private float EstimateWidth(string text, string fontFamily, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
             => _fontManager.MeasureTextWidth(text, fontFamily, fontSize, style);
+
 
         private static bool HasSpecialTags(string text)
             => text.IndexOf("{{", StringComparison.Ordinal) >= 0
@@ -280,7 +286,9 @@ namespace AbstUI.Texts
 
         private record TextSegment(string Text, string FontFamily, int FontSize, AColor Color, bool Bold, bool Italic, bool Underline);
 
+
         private List<TextSegment> ParseInlineSegments(string content, int initialFontSize, bool initialBold, bool initialItalic, bool initialUnderline, out float totalWidth)
+
         {
             int i = 0;
             var segments = new List<TextSegment>();
@@ -295,17 +303,26 @@ namespace AbstUI.Texts
 
             var localStack = new Stack<AbstTextStyle>(_styleStack.Select(s => s.Clone()).Reverse());
 
+
             void Flush()
             {
                 if (sb.Length == 0) return;
                 string text = sb.ToString();
+
                 var styleFlags = AbstFontStyle.Regular;
                 if (style.Bold) styleFlags |= AbstFontStyle.Bold;
                 if (style.Italic) styleFlags |= AbstFontStyle.Italic;
                 float segW = EstimateWidth(text, style.Font, style.FontSize, styleFlags);
+
                 width += segW;
                 segments.Add(new TextSegment(text, style.Font, style.FontSize, style.Color, style.Bold, style.Italic, style.Underline));
                 sb.Clear();
+                if (firstSegment)
+                {
+                    firstFontLocal = style.Font;
+                    firstSizeLocal = style.FontSize;
+                    firstSegment = false;
+                }
             }
 
             while (i < content.Length)
@@ -318,6 +335,7 @@ namespace AbstUI.Texts
                         Flush();
                         string tag = content.Substring(i + 2, end - i - 2);
                         if (tag.StartsWith("FONT-SIZE:", StringComparison.OrdinalIgnoreCase))
+
                         {
                             if (int.TryParse(tag.Substring(10), out var sz))
                                 style.FontSize = sz;
@@ -343,6 +361,7 @@ namespace AbstUI.Texts
                         }
                         else if (tag.StartsWith("STYLE:", StringComparison.OrdinalIgnoreCase))
                         {
+
                             var name = tag.Substring(6).Trim();
                             localStack.Push(style.Clone());
                             if (_styles.TryGetValue(name, out var s))
@@ -389,6 +408,8 @@ namespace AbstUI.Texts
             foreach (var s in localStack.Reverse())
                 _styleStack.Push(s);
 
+
+
             totalWidth = width;
             return segments;
         }
@@ -400,11 +421,13 @@ namespace AbstUI.Texts
             float baselineY = topLeft.Y + firstInfo.TopIndentation;
             foreach (var seg in segments)
             {
+
                 var segStyle = AbstFontStyle.Regular;
                 if (seg.Bold) segStyle |= AbstFontStyle.Bold;
                 if (seg.Italic) segStyle |= AbstFontStyle.Italic;
                 float width = EstimateWidth(seg.Text, seg.FontFamily, seg.FontSize, segStyle);
                 var fontInfo = _fontManager.GetFontInfo(seg.FontFamily, seg.FontSize, segStyle);
+
                 float topY = baselineY - fontInfo.TopIndentation;
                 var fontStyle = AbstFontStyle.Regular;
                 if (seg.Bold)

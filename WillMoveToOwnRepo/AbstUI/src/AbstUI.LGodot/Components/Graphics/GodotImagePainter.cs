@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using AbstUI.Bitmaps;
 using AbstUI.Components.Graphics;
 using AbstUI.LGodot.Bitmaps;
 using AbstUI.LGodot.Primitives;
@@ -17,16 +13,25 @@ namespace AbstUI.LGodot.Components.Graphics;
 public partial class GodotImagePainter : IAbstImagePainter
 {
     private readonly AbstGodotFontManager _fontManager;
-    private readonly List<(Func<APoint?> GetTotalSize, Action DrawAction)> _drawActions = new();
+    private readonly List<(Func<APoint?> GetTotalSize, Action<DrawingControl> DrawAction)> _drawActions = new();
     private readonly DrawingControl _control;
     private AColor? _clearColor;
     private bool _dirty;
+    private string _name = string.Empty;
+    private int _height;
+    private int _width;
 
-    public int Width { get; private set; }
-    public int Height { get; private set; }
     public bool AutoResize { get; set; }
-    public string Name { get; set; } = string.Empty;
-
+    public string Name
+    {
+        get => _name;
+        set
+        {
+            if (_name == value) return;
+            _name = value;
+            _control.Name = value;
+        }
+    }
     public bool Pixilated
     {
         get => _control.TextureFilter == CanvasItem.TextureFilterEnum.Nearest;
@@ -35,8 +40,26 @@ public partial class GodotImagePainter : IAbstImagePainter
 
     public Control GodotControl => _control;
 
-    int IAbstImagePainter.Height { get => Height; set => Resize(Width, value); }
-    int IAbstImagePainter.Width { get => Width; set => Resize(value, Height); }
+    public int Height
+    {
+        get => _height;
+        set
+        {
+            if (_height == value) return;
+            _height = value;
+            Resize(Width, value);
+        }
+    }
+    public int Width
+    {
+        get => _width;
+        set
+        {
+            if (_width == value) return;
+            _width = value;
+            Resize(value, Height);
+        }
+    }
 
     public GodotImagePainter(AbstGodotFontManager fontManager, int width = 0, int height = 0)
     {
@@ -45,12 +68,13 @@ public partial class GodotImagePainter : IAbstImagePainter
         if (height == 0) height = 10;
         Width = width;
         Height = height;
-        _control = new DrawingControl(this)
+        _control = new DrawingControl(() =>_dirty = false)
         {
-            MouseFilter = Control.MouseFilterEnum.Ignore,
+           
             Size = new Vector2(width, height),
             CustomMinimumSize = new Vector2(width, height)
         };
+        _control.DrawActions = _drawActions;
     }
 
     public void Resize(int width, int height)
@@ -95,19 +119,23 @@ public partial class GodotImagePainter : IAbstImagePainter
             if (newWidth > Width || newHeight > Height)
                 Resize(Math.Max(Width, newWidth), Math.Max(Height, newHeight));
         }
+       
         _control.QueueRedraw();
     }
 
     public IAbstTexture2D GetTexture(string? name = null)
     {
         Render();
-        return _control.CreateAbstTexture(name);
+        var texture = _control.CreateAbstTexture2(name ?? Name);
+        texture.DebugWriteToDiskInc();
+        return texture;
     }
 
     public void Clear(AColor color)
     {
         _drawActions.Clear();
         _clearColor = color;
+        _control.ClearColorProxy = color.ToGodotColor();
         MarkDirty();
     }
 
@@ -117,7 +145,7 @@ public partial class GodotImagePainter : IAbstImagePainter
         var c = color.ToGodotColor();
         _drawActions.Add((
             () => AutoResize ? new APoint(p.X + 1, p.Y + 1) : null,
-            () => _control.DrawRect(new Rect2(p.X, p.Y, 1, 1), c, true)));
+            (control) => control.DrawRect(new Rect2(p.X, p.Y, 1, 1), c, true)));
         MarkDirty();
     }
 
@@ -132,7 +160,7 @@ public partial class GodotImagePainter : IAbstImagePainter
                 int maxY = (int)MathF.Ceiling(MathF.Max(s.Y, e.Y)) + 1;
                 return new APoint(maxX, maxY);
             },
-            () => _control.DrawLine(s.ToVector2(), e.ToVector2(), c, width)));
+             (control) => control.DrawLine(s.ToVector2(), e.ToVector2(), c, width)));
         MarkDirty();
     }
 
@@ -141,13 +169,13 @@ public partial class GodotImagePainter : IAbstImagePainter
         var r = rect; var c = color.ToGodotColor();
         _drawActions.Add((
             () => AutoResize ? new APoint(r.Left + r.Width, r.Top + r.Height) : null,
-            () =>
+            control =>
             {
                 var godotRect = r.ToRect2();
                 if (filled)
-                    _control.DrawRect(godotRect, c, true);
+                    control.DrawRect(godotRect, c, true);
                 else
-                    _control.DrawRect(godotRect, c, false, width);
+                    control.DrawRect(godotRect, c, false, width);
             }
         ));
         MarkDirty();
@@ -158,12 +186,12 @@ public partial class GodotImagePainter : IAbstImagePainter
         var ctr = center; var c = color.ToGodotColor();
         _drawActions.Add((
             () => AutoResize ? new APoint((int)(ctr.X + radius + 1), (int)(ctr.Y + radius + 1)) : null,
-            () =>
+            control =>
             {
                 if (filled)
-                    _control.DrawCircle(ctr.ToVector2(), radius, c);
+                    control.DrawCircle(ctr.ToVector2(), radius, c);
                 else
-                    _control.DrawArc(ctr.ToVector2(), radius, 0, 360, 32, c, width);
+                    control.DrawArc(ctr.ToVector2(), radius, 0, 360, 32, c, width);
             }
         ));
         MarkDirty();
@@ -174,7 +202,7 @@ public partial class GodotImagePainter : IAbstImagePainter
         var ctr = center; var c = color.ToGodotColor();
         _drawActions.Add((
             () => AutoResize ? new APoint((int)(ctr.X + radius + 1), (int)(ctr.Y + radius + 1)) : null,
-            () => _control.DrawArc(ctr.ToVector2(), radius, startDeg, endDeg, segments, c, width)));
+             (control) => control.DrawArc(ctr.ToVector2(), radius, startDeg, endDeg, segments, c, width)));
         MarkDirty();
     }
 
@@ -194,13 +222,13 @@ public partial class GodotImagePainter : IAbstImagePainter
                 }
                 return new APoint(maxX + 1, maxY + 1);
             },
-            () =>
+            control =>
             {
                 var arr = pts.Select(p => p.ToVector2()).ToArray();
                 if (filled)
-                    _control.DrawPolygon(arr, new[] { c });
+                    control.DrawPolygon(arr, new[] { c });
                 else
-                    _control.DrawPolyline(arr, c, width, true);
+                    control.DrawPolyline(arr, c, width, true);
             }
         ));
         MarkDirty();
@@ -235,12 +263,12 @@ public partial class GodotImagePainter : IAbstImagePainter
                     return new APoint((int)(pos.X + w), (int)(pos.Y + h));
                 }
             },
-            () =>
+            control =>
             {
                 if (!txt.Contains('\n'))
                 {
                     int w = width >= 0 ? width : -1;
-                    _control.DrawString(fontGodot, pos.ToVector2(), txt, alignment.ToGodot(), w, fontSize, col);
+                    control.DrawString(fontGodot, pos.ToVector2(), txt, alignment.ToGodot(), w, fontSize, col);
                 }
                 else
                 {
@@ -250,7 +278,7 @@ public partial class GodotImagePainter : IAbstImagePainter
                     {
                         var p = new Vector2(pos.X, pos.Y + i * lineHeight);
                         int w = width >= 0 ? width : -1;
-                        _control.DrawString(fontGodot, p, lines[i], alignment.ToGodot(), w, fontSize, col);
+                        control.DrawString(fontGodot, p, lines[i], alignment.ToGodot(), w, fontSize, col);
                     }
                 }
             }
@@ -274,10 +302,10 @@ public partial class GodotImagePainter : IAbstImagePainter
                 float th = height >= 0 ? height : fontGodot.GetHeight(fontSize);
                 return new APoint((int)(pos.X + tw), (int)(pos.Y + th));
             },
-            () =>
+            control =>
             {
                 int w = width >= 0 ? width : -1;
-                _control.DrawString(fontGodot, pos.ToVector2(), txt, alignment.ToGodot(), w, fontSize, col);
+                control.DrawString(fontGodot, pos.ToVector2(), txt, alignment.ToGodot(), w, fontSize, col);
             }
         ));
         MarkDirty();
@@ -291,9 +319,9 @@ public partial class GodotImagePainter : IAbstImagePainter
         var pos = position;
         _drawActions.Add((
             () => AutoResize ? new APoint((int)(pos.X + width), (int)(pos.Y + height)) : null,
-            () =>
+            control =>
             {
-                _control.DrawTexture(tex, pos.ToVector2());
+                control.DrawTexture(tex, pos.ToVector2());
                 tex.Dispose();
             }
         ));
@@ -306,28 +334,87 @@ public partial class GodotImagePainter : IAbstImagePainter
         var pos = position;
         _drawActions.Add((
             () => AutoResize ? new APoint((int)(pos.X + width), (int)(pos.Y + height)) : null,
-            () => _control.DrawTextureRect(tex, new Rect2(pos.X, pos.Y, width, height), false)));
+             (control) => control.DrawTextureRect(tex, new Rect2(pos.X, pos.Y, width, height), false)));
         MarkDirty();
     }
 
     private sealed partial class DrawingControl : Control
     {
-        private readonly GodotImagePainter _parent;
-        public DrawingControl(GodotImagePainter parent)
+        public List<(Func<APoint?> GetTotalSize, Action<DrawingControl> DrawAction)> DrawActions = new();
+        private readonly Action _resetDirty;
+
+        public Color? ClearColorProxy { get; set; }
+        public DrawingControl(Action resetDirty)
         {
-            _parent = parent;
+            _resetDirty = resetDirty;
+            MouseFilter = MouseFilterEnum.Ignore;
         }
 
         public override void _Draw()
         {
-            if (_parent._clearColor.HasValue)
+            if (ClearColorProxy.HasValue)
             {
-                var c = _parent._clearColor.Value.ToGodotColor();
-                DrawRect(new Rect2(0, 0, _parent.Width, _parent.Height), c, true);
+                DrawRect(new Rect2(0, 0, Size.X, Size.Y), ClearColorProxy.Value, true);
             }
-            foreach (var action in _parent._drawActions)
-                action.DrawAction();
-            _parent._dirty = false;
+            foreach (var action in DrawActions)
+                action.DrawAction(this);
+            _resetDirty();
+            
+        }
+
+        private static Node? _holder;
+        private static SubViewport? _scratchVp;
+        public AbstGodotTexture2D CreateAbstTexture2(string? name = null)
+        {
+            var control = this;
+            var sizeI = new Vector2I((int)control.Size.X, (int)control.Size.Y);
+
+            var holder = new Node { Name = "__tmp_vp_holder" + name };
+            var tree = Engine.GetMainLoop() as SceneTree ?? throw new InvalidOperationException("No SceneTree available.");
+            if (tree.Root.IsNodeReady())
+                tree.Root.AddChild(holder);
+            else
+                tree.Root.CallDeferred(MethodName.AddChild, holder);
+
+            var vp = new SubViewport
+            {
+                Disable3D = true,
+                TransparentBg = true,
+                RenderTargetUpdateMode = SubViewport.UpdateMode.Once,
+                Size = sizeI
+            };
+            holder.AddChild(vp);
+
+            // copy draw snapshot into the clone
+            var clone = new DrawingControl(() => { });
+            clone.Position = Vector2.Zero;
+            clone.Size = control.Size;
+            clone.CustomMinimumSize = control.CustomMinimumSize;
+            clone.DrawActions = new(control.DrawActions);
+            clone.Visible = true;
+            clone.QueueRedraw();
+            vp.AddChild(clone);
+
+
+            //if (control is DrawingControl src && clone is DrawingControl dst)
+            //{
+            //    dst.ClearColorProxy = src.ClearColorProxy;
+            //    // shallow copy is fine; actions are immutable closures over value-types/strings
+            //    dst.DrawActions = [.. src.DrawActions];
+            //    dst.QueueRedraw();
+            //}
+
+            RenderingServer.ForceDraw(true,2);
+
+            using var img = vp.GetTexture().GetImage();
+            img.Convert(Image.Format.Rgba8);
+            var tex = ImageTexture.CreateFromImage(img);
+
+            clone.QueueFree();
+            vp.QueueFree();
+            holder.QueueFree();
+
+            return new AbstGodotTexture2D(tex, name ?? $"{control.Name}_Snapshot");
         }
     }
 }

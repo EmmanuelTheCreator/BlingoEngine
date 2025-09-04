@@ -29,6 +29,9 @@ namespace AbstUI.LGodot.Components
         }
         public IAbstImagePainter CreateImagePainter(int width = 0, int height = 0)
            => new GodotImagePainter((AbstGodotFontManager)FontManager, width, height);
+        public IAbstImagePainter CreateImagePainterToTexture(int width = 0, int height = 0)
+           => new GodotImagePainterToTexture((AbstGodotFontManager)FontManager, width, height);
+           
         public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
         {
             var canvas = new AbstGfxCanvas();

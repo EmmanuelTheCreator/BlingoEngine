@@ -51,6 +51,8 @@ namespace AbstUI.SDL2.Components
 
         public IAbstImagePainter CreateImagePainter(int width = 0, int height = 0)
             =>  new SDLImagePainter(FontManager,width,height, RootContext.Renderer);
+        public IAbstImagePainter CreateImagePainterToTexture(int width = 0, int height = 0)
+            =>  new SDLImagePainter(FontManager,width,height, RootContext.Renderer);
 
         public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
         {

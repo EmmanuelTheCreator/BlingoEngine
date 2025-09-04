@@ -59,6 +59,8 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
 
     public IAbstImagePainter CreateImagePainter(int width = 0, int height = 0)
         => new BlazorImagePainter(FontManager, GetRequiredService<IJSRuntime>(), GetRequiredService<AbstUIScriptResolver>(), width, height);
+    public IAbstImagePainter CreateImagePainterToTexture(int width = 0, int height = 0)
+        => new BlazorImagePainter(FontManager, GetRequiredService<IJSRuntime>(), GetRequiredService<AbstUIScriptResolver>(), width, height);
 
     public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
     {

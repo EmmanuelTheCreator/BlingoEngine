@@ -33,6 +33,7 @@ public class AbstMarkdownRendererTests
             int ascent = _topIndents.TryGetValue(fontName, out var ti) ? ti : _topIndent;
             int extra = _extraHeights.TryGetValue(fontName, out var h) ? h : 0;
             return new(fontSize + extra, ascent);
+
         }
     }
 
@@ -73,6 +74,7 @@ public class AbstMarkdownRendererTests
 
     private static AbstMarkdownRenderer CreateRenderer(int topIndent = 0, Dictionary<string, int>? topIndents = null, Dictionary<string, int>? extraHeights = null)
         => new(new TestFontManager(topIndent, topIndents, extraHeights));
+
 
     private static AbstTextStyle CreateDefaultStyle()
         => new() { Name = "default", Font = "Arial", FontSize = 12, Color = AColors.Black };
@@ -252,6 +254,7 @@ public class AbstMarkdownRendererTests
         Assert.Equal(16, painter.TextPositions[0].Y);
         Assert.Equal(10, painter.TextPositions[1].Y);
         Assert.Equal(16, painter.TextPositions[2].Y);
+
     }
 
     [Fact]
@@ -283,5 +286,6 @@ public class AbstMarkdownRendererTests
         Assert.Equal(2, painter.TextPositions.Count);
         Assert.Equal(16, painter.TextPositions[0].Y);
         Assert.Equal(40, painter.TextPositions[1].Y);
+
     }
 }

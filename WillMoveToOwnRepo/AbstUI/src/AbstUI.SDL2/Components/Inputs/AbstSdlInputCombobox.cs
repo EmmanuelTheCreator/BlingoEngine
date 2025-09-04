@@ -107,8 +107,12 @@ namespace AbstUI.SDL2.Components.Inputs
             }
             else if (ev.type == SDL.SDL_EventType.SDL_MOUSEMOTION)
             {
+                if (_isHover != e.IsInside)
+                    ComponentContext.QueueRedraw(this);
                 _isHover = e.IsInside;
             }
+            if (e.StopPropagation)
+                ComponentContext.QueueRedraw(this);
         }
 
         private void OpenPopup()
@@ -160,6 +164,7 @@ namespace AbstUI.SDL2.Components.Inputs
             _popup.Visibility = false;
             Factory.RootContext.ComponentContainer.Deactivate(_popup.ComponentContext);
             _open = false;
+             ComponentContext.QueueRedraw(this);
         }
 
         private void PopupOnValueChanged()
@@ -175,6 +180,8 @@ namespace AbstUI.SDL2.Components.Inputs
 
         public void SetFocus(bool focus)
         {
+            if (_focused != focus)
+                ComponentContext.QueueRedraw(this);
             _focused = focus;
             //if (!focus) ClosePopup();
         }
@@ -265,7 +272,10 @@ namespace AbstUI.SDL2.Components.Inputs
                 e.CalulateIsInside(Width, Height);
                 //Console.WriteLine($"Even0 {e.Event.type} at {e.ComponentLeft}x{e.ComponentTop}\t({e.OffsetX}x{e.OffsetY}) inside={e.IsInside} \t{X}x{Y}\tMouse={e.MouseX}x{e.MouseY}");
                 base.HandleEvent(e);
+                if (e.StopPropagation)
+                    ComponentContext.QueueRedraw(this);
             }
+            
         }
     }
 }
