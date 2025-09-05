@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using AbstUI.Components.Graphics;
 using AbstUI.Primitives;
 using AbstUI.Styles;
@@ -316,6 +317,27 @@ public class RtfToMarkdownTests
         style1.Alignment.Should().Be(AbstTextAlignment.Center);
         var style2 = data.Styles["2"];
         style2.FontSize.Should().Be(14);
+    }
+
+    [Fact]
+    public void Convert_IncludesStyleSheetTag_WhenRequested()
+    {
+        var rtf = "{\\rtf1\\ansi{\\fonttbl{\\f0 Arial;}}{\\colortbl;\\red0\\green0\\blue0;}{\\f0\\fs24\\cf1 text}}";
+
+        var data = RtfToMarkdown.Convert(rtf, includeStyleSheet: true);
+
+        data.Markdown.Should().StartWith("{{STYLE-SHEET:");
+        var prefix = "{{STYLE-SHEET:";
+        var jsonEnd = data.Markdown.IndexOf("}}", prefix.Length, StringComparison.Ordinal);
+        jsonEnd.Should().BeGreaterThan(0);
+        var end = data.Markdown.IndexOf("}}", jsonEnd + 2, StringComparison.Ordinal);
+        end.Should().BeGreaterThan(0);
+        var json = data.Markdown.Substring(prefix.Length, jsonEnd - prefix.Length + 2);
+        var sheet = JsonSerializer.Deserialize<Dictionary<string, MarkdownStyleSheetTTO>>(json);
+        sheet.Should().NotBeNull();
+        sheet!["0"].FontFamily.Should().Be("Arial");
+        sheet["0"].FontSize.Should().Be(12);
+        sheet["0"].Color.Should().BeNull();
     }
 
     [Fact]

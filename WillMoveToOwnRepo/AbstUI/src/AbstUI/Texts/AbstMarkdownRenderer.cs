@@ -4,6 +4,7 @@ using AbstUI.Styles;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace AbstUI.Texts
@@ -54,6 +55,9 @@ namespace AbstUI.Texts
         /// </summary>
         public void SetText(string markdown, IEnumerable<AbstTextStyle> styles)
         {
+            if (TryExtractStyleSheet(ref markdown, out var parsed))
+                styles = parsed;
+
             _markdown = markdown ?? string.Empty;
             Styles = styles;
             _styleStack.Clear();
@@ -62,6 +66,12 @@ namespace AbstUI.Texts
             var fastProbe = StripLeadingParaTags(_markdown);
             DoFastRendering = _styles.Count == 1 && !HasSpecialTags(fastProbe);
         }
+
+        /// <summary>
+        /// Sets markdown text that may include an embedded stylesheet tag.
+        /// </summary>
+        public void SetText(string markdown)
+            => SetText(markdown, Enumerable.Empty<AbstTextStyle>());
         private static string StripLeadingParaTags(string s)
         {
             if (string.IsNullOrEmpty(s)) return string.Empty;
@@ -76,6 +86,53 @@ namespace AbstUI.Texts
         /// </summary>
         public void SetText(AbstMarkdownData data)
             => SetText(data.Markdown, data.Styles.Values);
+
+        private static bool TryExtractStyleSheet(ref string markdown, out IEnumerable<AbstTextStyle> styles)
+        {
+            styles = Enumerable.Empty<AbstTextStyle>();
+            const string tag = "{{STYLE-SHEET:";
+            if (!markdown.StartsWith(tag, StringComparison.Ordinal))
+                return false;
+            int jsonEnd = markdown.IndexOf("}}", tag.Length, StringComparison.Ordinal);
+            if (jsonEnd < 0)
+                return false;
+            int end = markdown.IndexOf("}}", jsonEnd + 2, StringComparison.Ordinal);
+            if (end < 0)
+                return false;
+            var json = markdown.Substring(tag.Length, jsonEnd - tag.Length + 2);
+            try
+            {
+                var sheet = JsonSerializer.Deserialize<Dictionary<string, MarkdownStyleSheetTTO>>(json);
+                if (sheet == null)
+                    return false;
+                styles = sheet.Select(kv => new AbstTextStyle
+                {
+                    Name = kv.Key,
+                    Font = kv.Value.FontFamily ?? string.Empty,
+                    FontSize = kv.Value.FontSize ?? 0,
+                    Color = kv.Value.Color != null ? AColor.FromHex(kv.Value.Color) : AColors.Black,
+                    Alignment = kv.Value.TextAlign?.ToLowerInvariant() switch
+                    {
+                        "center" => AbstTextAlignment.Center,
+                        "right" => AbstTextAlignment.Right,
+                        "justify" or "justified" => AbstTextAlignment.Justified,
+                        _ => AbstTextAlignment.Left
+                    },
+                    Bold = kv.Value.FontWeight?.Equals("bold", StringComparison.OrdinalIgnoreCase) == true,
+                    Italic = kv.Value.FontStyle?.Equals("italic", StringComparison.OrdinalIgnoreCase) == true,
+                    Underline = kv.Value.TextDecoration?.Equals("underline", StringComparison.OrdinalIgnoreCase) == true,
+                    LineHeight = kv.Value.LineHeight ?? 0,
+                    MarginLeft = kv.Value.MarginLeft ?? 0,
+                    MarginRight = kv.Value.MarginRight ?? 0
+                }).ToList();
+                markdown = markdown[(end + 2)..];
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
         /// <summary>Renders markdown text on the canvas starting from the given position.</summary>
         public void Render(IAbstImagePainter canvas, APoint start)

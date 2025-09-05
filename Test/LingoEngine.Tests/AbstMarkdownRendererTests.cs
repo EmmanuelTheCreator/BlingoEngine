@@ -66,4 +66,17 @@ public class AbstMarkdownRendererTests
         data.Markdown.Should().Be(expected);
         painter.Height.Should().BeGreaterThanOrEqualTo(18);
     }
+
+    [Fact]
+    public void Render_ParsesEmbeddedStyleSheet()
+    {
+        var rtf = "{\\rtf1\\ansi{\\fonttbl{\\f0 Arial;}}{\\colortbl;\\red0\\green0\\blue0;}{\\f0\\fs40\\cf1 big}}";
+        var data = RtfToMarkdown.Convert(rtf, includeStyleSheet: true);
+        var fontManager = new TestFontManager();
+        var renderer = new AbstMarkdownRenderer(fontManager);
+        var painter = new RecordingPainter { AutoResize = true };
+        renderer.SetText(data.Markdown);
+        renderer.Render(painter, new APoint(0, 0));
+        painter.FontSizes[0].Should().Be(20);
+    }
 }
