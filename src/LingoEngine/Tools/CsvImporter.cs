@@ -71,6 +71,7 @@ namespace LingoEngine.Tools
                     fn = row.Number + name + ext;
                 }
                 var fileName = Path.Combine(rootFolder, fn);
+
                 var newMember = cast.Add(row.Type, row.Number, row.Name, fileName, row.RegPoint);
                 if (newMember is ILingoMemberTextBase textMember)
                 {
@@ -81,19 +82,21 @@ namespace LingoEngine.Tools
                         var mdContent = _resourceManager.ReadTextFile(mdFile) ?? string.Empty;
                         var markDownData = AbstMarkdownReader.Read(mdContent);
                         textMember.SetTextMD(markDownData);
+#if DEBUG
+                        //if (newMember.Name.Contains("scoor"))
+                        //{
+                        //    textMember.Preload();
+                        //}
+#endif
+                        
                     }
                     else if (_resourceManager.FileExists(rtfFile))
                     {
                         var rtfContent = _resourceManager.ReadTextFile(rtfFile) ?? string.Empty;
                         var md = RtfToMarkdown.Convert(rtfContent, true);
-
                         textMember.SetTextMD(md);
 #if DEBUG
                         File.WriteAllText(mdFile, md.Markdown);
-                        if (md.PlainText.Contains("\\") || newMember.Name.Contains("entername"))
-                        {
-                            textMember.Preload();
-                        }
 #endif
                     }
                     else

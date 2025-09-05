@@ -234,14 +234,16 @@ namespace AbstUI.Texts
             foreach (var raw in lines)
             {
                 var line = raw.TrimEnd('\r');
-
-                var fontStyleForWidth = AbstFontStyle.Regular;
-                if (style.Bold)
-                    fontStyleForWidth |= AbstFontStyle.Bold;
-                if (style.Italic)
-                    fontStyleForWidth |= AbstFontStyle.Italic;
-                var lineWidth = EstimateWidth(line, style.Font, fontSize, fontStyleForWidth);
-
+                float lineWidth = 0;
+                if (line != "")
+                {
+                    var fontStyleForWidth = AbstFontStyle.Regular;
+                    if (style.Bold)
+                        fontStyleForWidth |= AbstFontStyle.Bold;
+                    if (style.Italic)
+                        fontStyleForWidth |= AbstFontStyle.Italic;
+                    lineWidth = EstimateWidth(line, style.Font, fontSize, fontStyleForWidth);
+                }
                 lineWidths.Add(lineWidth);
                 fullWidth = MathF.Max(fullWidth, lineWidth);
             }

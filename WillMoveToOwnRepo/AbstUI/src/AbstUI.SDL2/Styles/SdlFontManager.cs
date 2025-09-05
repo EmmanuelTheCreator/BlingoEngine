@@ -31,6 +31,9 @@ public class SdlFontManager : IAbstFontManager
         {
             var tahoma = Path.Combine(AppContext.BaseDirectory, "Fonts", "Tahoma.ttf");
             _loadedFonts.Add((DefaultFontName, AbstFontStyle.Regular), new AbstSdlFont(this, "Tahoma", tahoma));
+            _loadedFonts.Add((DefaultFontName, AbstFontStyle.Bold), new AbstSdlFont(this, "Tahoma", tahoma));
+            _loadedFonts.Add((DefaultFontName, AbstFontStyle.BoldItalic), new AbstSdlFont(this, "Tahoma", tahoma));
+            _loadedFonts.Add((DefaultFontName, AbstFontStyle.Italic), new AbstSdlFont(this, "Tahoma", tahoma));
             _loadedFonts.Add(("tahoma", AbstFontStyle.Regular), new AbstSdlFont(this, "Tahoma", tahoma));
         }
 
