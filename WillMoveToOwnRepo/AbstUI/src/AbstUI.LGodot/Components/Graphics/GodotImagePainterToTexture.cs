@@ -693,7 +693,9 @@ namespace AbstUI.LGodot.Components.Graphics
             Render();
             // ImageTexture already updated
             var texture = new AbstGodotTexture2D(_tex, name ?? $"GodotImage_{Width}x{Height}");
+#if DEBUG
             texture.DebugWriteToDisk();
+#endif
             return texture;
         }
         private APoint? EnsureCapacity(int minW, int minH)

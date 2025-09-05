@@ -14,8 +14,6 @@ public class SdlImagePainterBaselineTests
     [Fact]
     public void DescenderGlyphExtendsBelowBaseline()
     {
-        Directory.CreateDirectory("C:/temp/director");
-
         SDL.SDL_SetHint("SDL_RENDER_DRIVER", "software");
         SDL.SDL_SetHint("SDL_VIDEODRIVER", "dummy");
         if (SDL.SDL_Init(SDL.SDL_INIT_VIDEO) != 0)
