@@ -243,6 +243,14 @@ namespace LingoEngine.Tools
             if (!string.IsNullOrEmpty(sheet))
                 rtfContent = rtfContent.Replace(sheet, string.Empty);
 
+            var fonttbl = ExtractGroup(rtfContent, "\\fonttbl");
+            if (!string.IsNullOrEmpty(fonttbl))
+                rtfContent = rtfContent.Replace(fonttbl, string.Empty);
+
+            var colortbl = ExtractGroup(rtfContent, "\\colortbl");
+            if (!string.IsNullOrEmpty(colortbl))
+                rtfContent = rtfContent.Replace(colortbl, string.Empty);
+
             var blockMatches = Regex.Matches(
                 rtfContent,
                 @"{[^{}]*?(?:\\plain)?[^{}]*?(?:\\s(?<s>\d+))?[^{}]*?\\f(?<f>\d+)[^{}]*?(?:\\fs(?<fs>\d+))?[^{}]*?\\cf(?<cf>\d+)[^{}]*?(?<text>(?:\\.|[^{}\\])+)}",
@@ -250,6 +258,8 @@ namespace LingoEngine.Tools
 
             if (blockMatches.Count == 0)
                 return segments;
+
+            int lastIndex = 0;
 
             var alignmentMatch = Regex.Match(rtfContent, @"\\q(l|r|j|c)\b");
             AbstTextAlignment defaultAlignment = AbstTextAlignment.Left;
@@ -272,6 +282,14 @@ namespace LingoEngine.Tools
 
             foreach (Match match in blockMatches.Cast<Match>())
             {
+                var gap = rtfContent.Substring(lastIndex, match.Index - lastIndex);
+                int gapPars = Regex.Matches(gap, @"\\par").Count;
+                if (gapPars > 0 && segments.Count > 0)
+                {
+                    segments[^1].Text += new string('\n', gapPars);
+                    segments[^1].IsParagraph = true;
+                }
+
                 int fontIndex = int.Parse(match.Groups["f"].Value);
                 int fontSizeHalfPoints = match.Groups["fs"].Success ? int.Parse(match.Groups["fs"].Value) : 24;
                 int colorIndex = int.Parse(match.Groups["cf"].Value);
@@ -338,6 +356,8 @@ namespace LingoEngine.Tools
                 textContent = Regex.Replace(textContent, @"\\u(-?\d+)\??", m => ((char)int.Parse(m.Groups[1].Value)).ToString());
                 textContent = textContent.Replace("\\par", "\n").Replace("\\tab", "\t").Replace("\\\\", "\\");
                 textContent = Regex.Replace(textContent, @"\\([{}:])", "$1");
+                if (isParagraph && string.IsNullOrEmpty(textContent))
+                    textContent = "\n";
                 if (textContent.StartsWith(" "))
                     textContent = textContent.Substring(1);
 
@@ -359,6 +379,15 @@ namespace LingoEngine.Tools
                     StyleId = styleId,
                     IsParagraph = isParagraph
                 });
+                lastIndex = match.Index + match.Length;
+            }
+
+            var tailGap = rtfContent.Substring(lastIndex);
+            int tailPars = Regex.Matches(tailGap, @"\\par").Count;
+            if (tailPars > 0 && segments.Count > 0)
+            {
+                segments[^1].Text += new string('\n', tailPars);
+                segments[^1].IsParagraph = true;
             }
 
             return segments;
