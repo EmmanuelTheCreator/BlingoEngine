@@ -63,7 +63,8 @@ public partial class GfxTest : Node
 
         painter.Name = "h";
         //painter.DrawRect(ARect.New(0, 0, 80, 30), AColors.Red);
-        painter.DrawText(new APoint(50, 90), "Stage\nother longer text\nmore text", "Tahoma", AColors.Black, 32,-1,Texts.AbstTextAlignment.Right);
+        //painter.DrawText(new APoint(50, 90), "Stage\nother longer text\nmore text", "Tahoma", AColors.Black, 32,-1,Texts.AbstTextAlignment.Right);
+        painter.DrawSingleLine(new APoint(0, 0), "Stage", "Earth", AColors.Black, 32,-1,-1, Texts.AbstTextAlignment.Right);
         painter.Render();
         painter.GetTexture();
     }

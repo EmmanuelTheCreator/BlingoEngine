@@ -368,7 +368,7 @@ namespace AbstUI.SDL2.Components.Graphics
                 {
                     if (!AutoResize) return null;
                     int needW = (w >= 0) ? Math.Max(maxW, w) : maxW;
-                    return EnsureCapacity((int)pos.X + needW, (int)(pos.Y - ascent + totalH));
+                    return EnsureCapacity((int)(pos.X + needW), (int)(pos.Y + totalH));
                 },
                 () =>
                 {
@@ -382,7 +382,8 @@ namespace AbstUI.SDL2.Components.Graphics
                         var sur = SDL.PtrToStructure<SDL.SDL_Surface>(s);
                         surfaces.Add((s, sur.w, sur.h));
                     }
-                    int y = (int)pos.Y - ascent;
+                    //int y = (int)pos.Y - ascent;
+                    int y = (int)pos.Y;                     // was: pos.Y - ascent
                     int boxW = w >= 0 ? w : Math.Max(0, Width - (int)pos.X);
 
                     foreach (var (s, tw, th) in surfaces)
@@ -445,7 +446,8 @@ namespace AbstUI.SDL2.Components.Graphics
                         if (calcW < 0) calcW = 0;
                         if (calcH < 0) calcH = lineHeight;
                     }
-                    return EnsureCapacity((int)pos.X + calcW, (int)(pos.Y - ascent + calcH));
+                    //return EnsureCapacity((int)pos.X + calcW, (int)(pos.Y - ascent + calcH));
+                    return EnsureCapacity((int)pos.X + calcW, (int)pos.Y + calcH);
                 },
                 () =>
                 {
@@ -469,7 +471,8 @@ namespace AbstUI.SDL2.Components.Graphics
                                     break;
                             }
                         }
-                        SDL.SDL_Rect dst = new SDL.SDL_Rect { x = startX, y = (int)pos.Y - ascent, w = sur.w, h = sur.h };
+                        //SDL.SDL_Rect dst = new SDL.SDL_Rect { x = startX, y = (int)pos.Y - ascent, w = sur.w, h = sur.h };
+                        SDL.SDL_Rect dst = new SDL.SDL_Rect { x = startX, y = (int)pos.Y, w = sur.w, h = sur.h };
                         SDL.SDL_RenderCopy(Renderer, tex, nint.Zero, ref dst);
                         SDL.SDL_DestroyTexture(tex);
                     }
