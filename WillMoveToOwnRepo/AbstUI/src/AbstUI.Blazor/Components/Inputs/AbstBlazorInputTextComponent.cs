@@ -9,6 +9,8 @@ namespace AbstUI.Blazor.Components.Inputs;
 public class AbstBlazorInputTextComponent : AbstBlazorComponentModelBase, IAbstFrameworkInputText, IFrameworkFor<AbstInputText>, IHasTextBackgroundBorderColor
 {
     private string _text = string.Empty;
+    private int _caret;
+    private int _selectionStart = -1;
     public string Text
     {
         get => _text;
@@ -62,6 +64,51 @@ public class AbstBlazorInputTextComponent : AbstBlazorComponentModelBase, IAbstF
     {
         get => _isMultiLine;
         set { if (_isMultiLine != value) { _isMultiLine = value; RaiseChanged(); } }
+    }
+
+    public bool HasSelection => _selectionStart != -1 && _selectionStart != _caret;
+
+    public void DeleteSelection()
+    {
+        if (!HasSelection) return;
+        int start = Math.Min(_selectionStart, _caret);
+        int end = Math.Max(_selectionStart, _caret);
+        _text = _text.Remove(start, end - start);
+        _caret = start;
+        _selectionStart = -1;
+        RaiseChanged();
+        RaiseValueChanged();
+    }
+
+    public void SetCaretPosition(int position)
+    {
+        _caret = Math.Clamp(position, 0, _text.Length);
+        _selectionStart = -1;
+    }
+
+    public int GetCaretPosition() => _caret;
+
+    public void SetSelection(int start, int end)
+    {
+        _selectionStart = Math.Clamp(start, 0, _text.Length);
+        _caret = Math.Clamp(end, 0, _text.Length);
+        if (_selectionStart == _caret)
+            _selectionStart = -1;
+    }
+
+    public void SetSelection(Range range)
+    {
+        SetSelection(range.Start.GetOffset(_text.Length), range.End.GetOffset(_text.Length));
+    }
+
+    public void InsertText(string text)
+    {
+        if (HasSelection)
+            DeleteSelection();
+        _text = _text.Insert(_caret, text);
+        _caret += text.Length;
+        RaiseChanged();
+        RaiseValueChanged();
     }
 
     private bool _enabled = true;
