@@ -365,143 +365,102 @@ namespace AbstUI.LGodot.Components.Graphics
             MarkDirty();
         }
 
-        public void DrawText(APoint position, string text, string? fontName = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular)
+
+        #region Draw Text
+
+        public void DrawText(APoint position, string text, string? fontName = null, AColor? color = null,
+                      int fontSize = 12, int width = -1, AbstTextAlignment alignment = default,
+                      AbstFontStyle style = AbstFontStyle.Regular)
         {
             var pos = position;
             var txt = text ?? string.Empty;
             var fntName = fontName;
             var col = color ?? new AColor(0, 0, 0, 255);
             var fs = Math.Max(1, fontSize);
-            var w = width;
+            int boxWCache = -1; // computed width for alignment when AutoResize
+            var font = _fontManager.GetTypedOrDefault(fntName ?? string.Empty, style);
+            if (font == null || string.IsNullOrEmpty(txt)) return;
+            fntName = font.FontName;
 
             _drawActions.Add((
-                // Prepass: measure & request capacity
+                // measure pass
                 () =>
                 {
-                    if (!AutoResize) return null;
-                    var font = _fontManager.GetTypedOrDefault(fntName ?? string.Empty, style);
-                    if (font == null || string.IsNullOrEmpty(txt)) return null;
-                    var fontRids = font.GetRids();
-                    var fontRid = fontRids.First();
-                    var ts = TextServerManager.GetPrimaryInterface();
-                    Rid shaped = ts.CreateShapedText();
-                    var sizeKey = new Vector2I(fs, 0);
-                    ts.ShapedTextAddString(shaped, txt, fontRids, fs);
-                    ts.ShapedTextShape(shaped);
-
-                    var size = ts.ShapedTextGetSize(shaped);
-                    int tw = (int)MathF.Ceiling(size.X);
-                    // int th = (int)MathF.Ceiling(size.Y);
-                    int th = (int)MathF.Ceiling((float)(ts.FontGetAscent(fontRid, fs) + ts.FontGetDescent(fontRid, fs)));
-
-                    // If a max width is provided, we still reserve at least that box width
-                    if (w >= 0) tw = Math.Max(tw, w);
-
-                    var needW = (int)pos.X + tw;
-                    var needH = (int)pos.Y + th;
-
-                    ts.FreeRid(shaped);
-                    return EnsureCapacity(needW, needH);
+                    return DrawTextSize(width, style, pos, txt, font, fntName, fs, ref boxWCache);
                 },
-                // Draw pass: blit glyph bitmaps tinted by 'color'
+                // draw pass
                 img =>
                 {
-                    var font = _fontManager.GetTypedOrDefault(fntName ?? string.Empty, style);
-                    if (font == null || string.IsNullOrEmpty(txt)) return;
-                    // it is possible to have a fallback font when not found
-                    fntName = font.FontName;
-                    var lines = txt.Split('\n');
-                    int y = (int)pos.Y;
-                    var sizeKey = new Vector2I(fs, 0);
-                    var rids = font.GetRids();
-                    var fr = (Rid)rids[0];
-                    var atlasCache = _fontManager.GetAtlasCache(fntName!, fs);
-                    var tint = col.ToGodotColor();
-                    var imgW = (uint)img.GetWidth();
-                    var imgH = (uint)img.GetHeight();
-                    var ts = TextServerManager.GetPrimaryInterface();
-
-                    // derive box width: explicit width or remaining image width
-                    int boxW = w >= 0 ? w : Math.Max(0, (int)imgW - (int)pos.X);
-
-                    var asc = font.GetAscent();
-                    var height = font.GetHeight();
-                    var lineYOffset = height - asc;
-
-                    foreach (var raw in lines)
+                    bool flowControl = DrawTextInner(alignment, style, img, pos, txt, font, fntName, col, fs, boxWCache);
+                    if (!flowControl)
                     {
-                        var line = TrimToWidth(raw, boxW, ts, rids, fs);   // <= see helper below
-
-                        var shaped = ts.CreateShapedText();
-                        ts.ShapedTextAddString(shaped, line, rids, fs);
-                        ts.ShapedTextShape(shaped);
-
-                        var lineSize = ts.ShapedTextGetSize(shaped);
-                        float lineW = lineSize.X;
-                        var ascent = ts.FontGetAscent(fr, fs);
-                        var descent = ts.FontGetDescent(fr, fs);
-                        var baseline = y + ascent;
-
-                        // per-line horizontal alignment
-                        float xOff = 0f;
-                        if (boxW > 0)
-                        {
-                            if (alignment == AbstTextAlignment.Center) xOff = MathF.Max(0, (boxW - lineW) * 0.5f);
-                            else if (alignment == AbstTextAlignment.Right) xOff = MathF.Max(0, boxW - lineW);
-                        }
-
-                        double penX = 0.0;
-                        foreach (Godot.Collections.Dictionary g in ts.ShapedTextGetGlyphs(shaped))
-                        {
-                            int glyphIndex = (int)g["index"];
-                            var advance = (float)g["advance"];
-                            var offset = (Vector2)g["offset"];
-                            penX += advance;
-
-                            var texIdx = ts.FontGetGlyphTextureIdx(fr, sizeKey, glyphIndex);
-                            if (texIdx < 0) continue;
-
-                            if (!atlasCache.TryGetValue(texIdx, out var atlas))
-                            {
-                                var aimg = ts.FontGetTextureImage(fr, sizeKey, texIdx);
-                                if (aimg == null || aimg.IsEmpty()) { continue; }
-                                aimg.Convert(Image.Format.Rgba8);
-                                atlasCache[texIdx] = aimg;
-                            }
-                            var srcImg = atlasCache[texIdx];
-
-                            var uv = ts.FontGetGlyphUVRect(fr, sizeKey, glyphIndex);
-                            int sx = (int)uv.Position.X, sy = (int)uv.Position.Y;
-                            int sw = (int)uv.Size.X, sh = (int)uv.Size.Y;
-                            if (sw <= 0 || sh <= 0) continue;
-
-                            int dx = (int)MathF.Floor((float)(pos.X + xOff + penX + offset.X - advance));
-                            int dy = (int)MathF.Floor((float)(baseline - offset.Y));
-
-                            for (int yy = 0; yy < sh; yy++)
-                            {
-                                int ty = dy + yy; if ((uint)ty >= imgH) continue;
-                                for (int xx = 0; xx < sw; xx++)
-                                {
-                                    int tx = dx + xx; if ((uint)tx >= imgW) continue;
-                                    var sp = srcImg.GetPixel(sx + xx, sy + yy);
-                                    float a = sp.A * tint.A; if (a <= 0f) continue;
-                                    img.SetPixel(tx, ty, new Color(tint.R, tint.G, tint.B, a));
-                                }
-                            }
-                        }
-
-                        ts.FreeRid(shaped);
-                        y += (int)MathF.Ceiling((float)(ascent + descent));  // advance to next line
-
+                        return;
                     }
                 }
-
             ));
 
             MarkDirty();
         }
-        public void DrawSingleLine(APoint position, string text, string? fontName = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular)
+
+        private bool DrawTextInner(AbstTextAlignment alignment, AbstFontStyle style, Image img, APoint pos, string txt, FontFile font, string? fntName, AColor col, int fs, int boxWCache)
+        {
+
+            var ts = TextServerManager.GetPrimaryInterface();
+            var rids = font.GetRids();
+
+            int y = (int)pos.Y;
+            foreach (var line in txt.Split('\n'))
+            {
+                // measure vertical advance
+                var shaped = ts.CreateShapedText();
+                ts.ShapedTextAddString(shaped, line, rids, fs);
+                ts.ShapedTextShape(shaped);
+                int advH = (int)MathF.Ceiling((float)(ts.ShapedTextGetAscent(shaped) + ts.ShapedTextGetDescent(shaped)));
+                ts.FreeRid(shaped);
+
+                // reuse single-line renderer with computed box width
+                DrawSingleLineInner(alignment, style, img, new APoint(pos.X, y), line,font, fntName!, col, fs, boxWCache);
+
+                y += advH;
+            }
+
+            return true;
+        }
+
+        private APoint? DrawTextSize(int width, AbstFontStyle style, APoint pos, string txt,
+                             FontFile font, string fntName, int fs, ref int boxWCache)
+        {
+            if (!AutoResize || string.IsNullOrEmpty(txt)) return null;
+
+            var ts = TextServerManager.GetPrimaryInterface();
+            var rids = font.GetRids();
+
+            int maxLineW = 0, totalH = 0;
+            foreach (var line in txt.Split('\n'))
+            {
+                var shaped = ts.CreateShapedText();
+                ts.ShapedTextAddString(shaped, line, rids, fs);
+                ts.ShapedTextShape(shaped);
+
+                maxLineW = Math.Max(maxLineW, (int)MathF.Ceiling(ts.ShapedTextGetSize(shaped).X));
+                totalH += (int)MathF.Ceiling((float)(ts.ShapedTextGetAscent(shaped) + ts.ShapedTextGetDescent(shaped)));
+
+                ts.FreeRid(shaped);
+            }
+
+            // when width < 0: align against current canvas width (remaining space), not just maxLineW
+            int canvasW = Math.Max(0, Width - (int)pos.X);
+            boxWCache = (width >= 0) ? Math.Max(width, maxLineW) : Math.Max(canvasW, maxLineW);
+
+            return EnsureCapacity((int)pos.X + boxWCache, (int)pos.Y + totalH);
+        }
+
+
+        #endregion
+
+        #region Single line
+
+        public void DrawSingleLine(APoint position, string text,  string? fontName = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular)
         {
             var pos = position;
             var txt = text ?? string.Empty;
@@ -510,117 +469,158 @@ namespace AbstUI.LGodot.Components.Graphics
             var fs = Math.Max(1, fontSize);
             var w = width;
             var h = height;
+            var font = _fontManager.GetTypedOrDefault(fntName ?? string.Empty, style);
+            if (font == null || string.IsNullOrEmpty(txt)) return;
+            fntName = font.FontName;
 
             _drawActions.Add((
                 () =>
                 {
-                    if (!AutoResize) return null;
-                    if (w >= 0 && h >= 0)
-                        return EnsureCapacity((int)pos.X + w, (int)pos.Y + h);
-
-                    int needW = w;
-                    int needH = h >= 0 ? h : fs;
-                    var font = _fontManager.GetTypedOrDefault(fntName ?? string.Empty, style);
-                    if (font != null && !string.IsNullOrEmpty(txt) && (w < 0 || h < 0))
-                    {
-                        var rids = font.GetRids();
-                        var fr = (Rid)rids[0];
-                        var ts = TextServerManager.GetPrimaryInterface();
-                        var shaped = ts.CreateShapedText();
-                        ts.ShapedTextAddString(shaped, txt, rids, fs);
-                        ts.ShapedTextShape(shaped);
-                        var lineSize = ts.ShapedTextGetSize(shaped);
-                        if (w < 0) needW = (int)MathF.Ceiling(lineSize.X);
-                        if (h < 0)
-                        {
-                            var ascent = ts.FontGetAscent(fr, fs);
-                            var descent = ts.FontGetDescent(fr, fs);
-                            needH = (int)MathF.Ceiling((float)(ascent + descent));
-                        }
-                        ts.FreeRid(shaped);
-                    }
-                    else
-                    {
-                        if (w < 0) needW = 0;
-                    }
-                    return EnsureCapacity((int)pos.X + (needW >= 0 ? needW : 0), (int)pos.Y + (needH >= 0 ? needH : fs));
+                    return DrawSingleLineCalculateSize(style, pos, txt, font, fntName, fs, w, h);
                 },
                 img =>
                 {
-                    var font = _fontManager.GetTypedOrDefault(fntName ?? string.Empty, style);
-                    if (font == null || string.IsNullOrEmpty(txt)) return;
-                    fntName = font.FontName;
-                    var sizeKey = new Vector2I(fs, 0);
-                    var rids = font.GetRids();
-                    var fr = (Rid)rids[0];
-                    var atlasCache = _fontManager.GetAtlasCache(fntName!, fs);
-                    var tint = col.ToGodotColor();
-                    var imgW = (uint)img.GetWidth();
-                    var imgH = (uint)img.GetHeight();
-                    var ts = TextServerManager.GetPrimaryInterface();
-
-                    var shaped = ts.CreateShapedText();
-                    ts.ShapedTextAddString(shaped, txt, rids, fs);
-                    ts.ShapedTextShape(shaped);
-
-                    var lineSize = ts.ShapedTextGetSize(shaped);
-                    float lineW = lineSize.X;
-                    var ascent = ts.FontGetAscent(fr, fs);
-                    var descent = ts.FontGetDescent(fr, fs);
-                    float xOff = 0f;
-                    if (w >= 0)
+                    bool flowControl = DrawSingleLineInner(alignment, style, img, pos, txt, font, fntName, col, fs, w);
+                    if (!flowControl)
                     {
-                        if (alignment == AbstTextAlignment.Center) xOff = MathF.Max(0, (w - lineW) * 0.5f);
-                        else if (alignment == AbstTextAlignment.Right) xOff = MathF.Max(0, w - lineW);
+                        return;
                     }
-
-                    double penX = 0.0;
-                    foreach (Godot.Collections.Dictionary g in ts.ShapedTextGetGlyphs(shaped))
-                    {
-                        int glyphIndex = (int)g["index"];
-                        var advance = (float)g["advance"];
-                        var offset = (Vector2)g["offset"];
-                        penX += advance;
-
-                        var texIdx = ts.FontGetGlyphTextureIdx(fr, sizeKey, glyphIndex);
-                        if (texIdx < 0) continue;
-
-                        if (!atlasCache.TryGetValue(texIdx, out var atlas))
-                        {
-                            var aimg = ts.FontGetTextureImage(fr, sizeKey, texIdx);
-                            if (aimg == null || aimg.IsEmpty()) { continue; }
-                            aimg.Convert(Image.Format.Rgba8);
-                            atlasCache[texIdx] = aimg;
-                        }
-                        var srcImg = atlasCache[texIdx];
-
-                        var uv = ts.FontGetGlyphUVRect(fr, sizeKey, glyphIndex);
-                        int sx = (int)uv.Position.X, sy = (int)uv.Position.Y;
-                        int sw = (int)uv.Size.X, sh = (int)uv.Size.Y;
-                        if (sw <= 0 || sh <= 0) continue;
-
-                        int dx = (int)MathF.Floor((float)(pos.X + xOff + penX + offset.X - advance));
-                        int baseline = (int)MathF.Floor((float)(pos.Y + ascent));
-                        int dy = (int)MathF.Floor(baseline - offset.Y);
-
-                        for (int yy = 0; yy < sh; yy++)
-                        {
-                            int ty = dy + yy; if ((uint)ty >= imgH) continue;
-                            for (int xx = 0; xx < sw; xx++)
-                            {
-                                int tx = dx + xx; if ((uint)tx >= imgW) continue;
-                                var sp = srcImg.GetPixel(sx + xx, sy + yy);
-                                float a = sp.A * tint.A; if (a <= 0f) continue;
-                                img.SetPixel(tx, ty, new Color(tint.R, tint.G, tint.B, a));
-                            }
-                        }
-                    }
-
-                    ts.FreeRid(shaped);
                 }
             ));
             MarkDirty();
         }
+
+        private APoint? DrawSingleLineCalculateSize(AbstFontStyle style, APoint pos, string txt, FontFile font, string? fntName, int fs, int w, int h)
+        {
+            // Auto-resize needs baseline offset too
+            if (!AutoResize) return null;
+            if (w >= 0 && h >= 0)
+                return EnsureCapacity((int)pos.X + w, (int)pos.Y + h);
+
+            int needW = w;
+            int needH = h >= 0 ? h : fs;
+
+            if (font != null && !string.IsNullOrEmpty(txt) && (w < 0 || h < 0))
+            {
+                var rids = font.GetRids();
+                var fr = (Rid)rids[0];
+                var ts = TextServerManager.GetPrimaryInterface();
+
+                var shaped = ts.CreateShapedText();
+                ts.ShapedTextAddString(shaped, txt, rids, fs);
+                ts.ShapedTextShape(shaped);
+
+                var lineSize = ts.ShapedTextGetSize(shaped);
+                if (w < 0) needW = (int)MathF.Ceiling(lineSize.X);
+
+                if (h < 0)
+                {
+                    var ascent = ts.FontGetAscent(fr, fs);
+                    var descent = ts.FontGetDescent(fr, fs);
+                    var baseFrac = ts.FontGetBaselineOffset(fr); // 0..1 of font height
+                    var fontH = ascent + descent;
+                    var totalH = fontH + MathF.Abs((float)(baseFrac * fontH));
+                    needH = (int)MathF.Ceiling((float)totalH);
+                }
+
+                ts.FreeRid(shaped);
+            }
+            else
+            {
+                if (w < 0) needW = 0;
+            }
+
+            return EnsureCapacity(
+                (int)pos.X + Math.Max(0, needW),
+                (int)pos.Y + Math.Max(0, needH)
+            );
+        }
+
+        private bool DrawSingleLineInner(AbstTextAlignment alignment, AbstFontStyle style, Image img, APoint pos, string txt, FontFile font, string fntName, AColor col, int fs, int w)
+        {
+            
+            var sizeKey = new Vector2I(fs, 0);
+            var rids = font.GetRids();
+            var fr = (Rid)rids[0];
+            var atlasCache = _fontManager.GetAtlasCache(fntName!, fs);
+            var tint = col.ToGodotColor();
+            var imgW = (uint)img.GetWidth();
+            var imgH = (uint)img.GetHeight();
+            var ts = TextServerManager.GetPrimaryInterface();
+
+            var shaped = ts.CreateShapedText();
+            ts.ShapedTextAddString(shaped, txt, rids, fs);
+            ts.ShapedTextShape(shaped);
+
+            var lineSize = ts.ShapedTextGetSize(shaped);
+            float lineW = lineSize.X;
+            // 1) Compute baseline correctly (FontGetBaselineOffset is a FRACTION of font height)
+            var ascent = ts.FontGetAscent(fr, fs);
+            var descent = ts.FontGetDescent(fr, fs);
+            var baseFrac = ts.FontGetBaselineOffset(fr); // 0..1 of font height
+            var baseline = (int)MathF.Floor((float)(pos.Y + ascent + baseFrac * (ascent + descent)));
+
+            int boxW = (w >= 0) ? w : Math.Max(0, (int)imgW - (int)pos.X); // auto width = remaining canvas
+            float xOff = 0f;
+            if (alignment == AbstTextAlignment.Center) xOff = MathF.Max(0, (boxW - lineW) * 0.5f);
+            else if (alignment == AbstTextAlignment.Right) xOff = MathF.Max(0, boxW - lineW);
+
+            double penX = 0.0;
+            foreach (Godot.Collections.Dictionary g in ts.ShapedTextGetGlyphs(shaped))
+            {
+                int glyphIndex = (int)g["index"];
+                float advance = (float)g["advance"];
+
+                // optional sub-pixel shaping offset from the shaper:
+                var shapeOff = (Vector2)g["offset"];
+
+                // static glyph offset/bearing from the font:
+                var glyphOff = ts.FontGetGlyphOffset(fr, sizeKey, glyphIndex);
+
+                var texIdx = ts.FontGetGlyphTextureIdx(fr, sizeKey, glyphIndex);
+                if (texIdx < 0) { penX += advance; continue; }
+
+                if (!atlasCache.TryGetValue(texIdx, out var atlas))
+                {
+                    var aimg = ts.FontGetTextureImage(fr, sizeKey, texIdx);
+                    if (aimg == null || aimg.IsEmpty()) { penX += advance; continue; }
+                    aimg.Convert(Image.Format.Rgba8);
+                    atlasCache[texIdx] = aimg;
+                }
+                var srcImg = atlasCache[texIdx];
+
+                var uv = ts.FontGetGlyphUVRect(fr, sizeKey, glyphIndex);
+                int sx = (int)uv.Position.X, sy = (int)uv.Position.Y;
+                int sw = (int)uv.Size.X, sh = (int)uv.Size.Y;
+                if (sw <= 0 || sh <= 0) { penX += advance; continue; }
+
+                // 3) Place bitmap at pen + offsets (no “- advance”, we advance AFTER drawing)
+                int dx = (int)MathF.Floor((float)(pos.X + xOff + penX + shapeOff.X + glyphOff.X));
+                int dy = (int)MathF.Floor((float)(baseline + shapeOff.Y + glyphOff.Y));
+
+                // blit...
+                for (int yy = 0; yy < sh; yy++)
+                {
+                    int ty = dy + yy; if ((uint)ty >= imgH) continue;
+                    for (int xx = 0; xx < sw; xx++)
+                    {
+                        int tx = dx + xx; if ((uint)tx >= imgW) continue;
+                        var sp = srcImg.GetPixel(sx + xx, sy + yy);
+                        float a = sp.A * tint.A; if (a <= 0f) continue;
+                        img.SetPixel(tx, ty, new Color(tint.R, tint.G, tint.B, a));
+                    }
+                }
+
+                penX += advance; // 4) advance AFTER drawing
+            }
+
+            ts.FreeRid(shaped);
+            return true;
+        }
+
+        #endregion
+
+
         private static string TrimToWidth(string line, int maxW, TextServer ts, Godot.Collections.Array<Rid> rids, long sizeKey)
         {
             if (maxW < 0 || string.IsNullOrEmpty(line)) return line;
