@@ -228,20 +228,22 @@ namespace AbstUI.SDL2.Components.Graphics
                 () =>
                 {
                     SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, c.A);
-                    int segs = (int)(rad * 6);
-                    double step = Math.PI * 2 / segs;
-                    float prevX = ctr.X + rad;
-                    float prevY = ctr.Y;
-                    for (int i = 1; i <= segs; i++)
+                    int r = (int)MathF.Ceiling(rad);
+                    for (int dy = -r; dy <= r; dy++)
                     {
-                        double angle = step * i;
-                        float x = ctr.X + (float)(rad * Math.Cos(angle));
-                        float y = ctr.Y + (float)(rad * Math.Sin(angle));
-                        SDL.SDL_RenderDrawLineF(Renderer, prevX, prevY, x, y);
+                        float dyf = dy;
+                        if (MathF.Abs(dyf) > rad) continue;
+                        float y = ctr.Y + dyf;
+                        float dx = (float)MathF.Sqrt(MathF.Max(0, rad * rad - dyf * dyf));
                         if (f)
-                            SDL.SDL_RenderDrawLineF(Renderer, ctr.X, ctr.Y, x, y);
-                        prevX = x;
-                        prevY = y;
+                        {
+                            SDL.SDL_RenderDrawLineF(Renderer, ctr.X - dx, y, ctr.X + dx, y);
+                        }
+                        else
+                        {
+                            SDL.SDL_RenderDrawPointF(Renderer, ctr.X - dx, y);
+                            SDL.SDL_RenderDrawPointF(Renderer, ctr.X + dx, y);
+                        }
                     }
                 }
             ));
