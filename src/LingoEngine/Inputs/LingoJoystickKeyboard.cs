@@ -230,7 +230,7 @@ namespace LingoEngine.Inputs
                     var border = selected ? SelectedColor : BorderColor;
                     _canvas.DrawRect(ARect.New(x, y, CellSize, CellSize), border, false, 1);
                     var label = key switch { "SPACE" => "Space", "BACKSPACE" => "<-", "ENTER" => "OK", "ESC" => "Esc", _ => key };
-                    _canvas.DrawText(new APoint(x + 2, y + 20), label, FontName, TextColor, FontSize, CellSize - 4, AbstTextAlignment.Center);
+                    _canvas.DrawText(new APoint(x + 2, y + 10), label, FontName, TextColor, FontSize, CellSize - 4, AbstTextAlignment.Center);
                 }
             }
         }

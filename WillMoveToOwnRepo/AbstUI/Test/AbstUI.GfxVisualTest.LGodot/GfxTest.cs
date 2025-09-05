@@ -20,7 +20,7 @@ public partial class GfxTest : Node
     {
         try
         {
-            RunTest();
+            //RunTest();
             var rootNode = new TestRootNode(this);
             var serviceCollection = new ServiceCollection();
             ServiceProvider serviceProvider = null!;

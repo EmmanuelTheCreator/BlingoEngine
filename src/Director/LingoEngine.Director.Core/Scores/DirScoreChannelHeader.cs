@@ -38,9 +38,9 @@ namespace LingoEngine.Director.Core.Scores
             var y = Y;
 
 
-            canvas.DrawText(new APoint(xOffset + 20 + 25, y + 11), Icon, null, _textColor, 10);
+            canvas.DrawText(new APoint(xOffset + 10 + 25, y ), Icon, null, _textColor, 10);
             if (!string.IsNullOrEmpty(Label))
-                canvas.DrawText(new APoint(xOffset + 20 + 2, y + 11), Label, null, _textColor, 10, 45, AbstUI.Texts.AbstTextAlignment.Right);
+                canvas.DrawText(new APoint(xOffset + 10 + 2, y), Label, null, _textColor, 10, 45, AbstUI.Texts.AbstTextAlignment.Right);
 
             // Visibility rect
             var btnWidth = 8;

@@ -223,7 +223,7 @@ public class DirScoreLabelsBar : IDisposable
             _activeFrameLabel.DrawOnCanvas(_canvas, _gfxValues.LabelsBarHeight, x, AColors.Black);
             //Console.WriteLine("DirScoreLabelsBar.Draw():" + _dragFrame + ":" + x+":"+ _activeFrameLabel.Name+":"+ _activeFrameLabel.Frame);
             _canvas.DrawRect(new ARect(x-20, 0, x, _gfxValues.LabelsBarHeight), AColors.White, true);
-            _canvas.DrawText(new APoint(x-18, 13), _dragFrame.ToString(),null,AColors.Gray,9);
+            _canvas.DrawText(new APoint(x-18, 3), _dragFrame.ToString(),null,AColors.Gray,9);
         }
     }
 
@@ -471,7 +471,7 @@ public class DirScoreLabelsBar : IDisposable
             };
             _canvas.DrawRect(new ARect(x, 0, x + WidthPx, labelsBarHeight), AColors.White, true);
             _canvas.DrawPolygon(pts, color);
-            _canvas.DrawText(new APoint(x + 12, 12), Name, null, color, 10);
+            _canvas.DrawText(new APoint(x + 12, 2), Name, null, color, 10);
         }
     }
 

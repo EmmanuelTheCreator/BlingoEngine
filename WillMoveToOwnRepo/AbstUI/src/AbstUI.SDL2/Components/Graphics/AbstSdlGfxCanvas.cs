@@ -100,7 +100,10 @@ namespace AbstUI.SDL2.Components.Graphics
         public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12,
             int width = -1, AbstTextAlignment alignment = default)
             => _painter.DrawText(position, text, font, color, fontSize, width, alignment);
-
+        public void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12,
+            int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left,
+            AbstFontStyle style = AbstFontStyle.Regular)
+            => _painter.DrawSingleLine(position, text, font, color, fontSize, width, height, alignment, style);
         public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)
             => _painter.DrawPicture(data, width, height, position, format);
 

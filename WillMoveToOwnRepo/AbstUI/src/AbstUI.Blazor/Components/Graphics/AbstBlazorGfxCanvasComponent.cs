@@ -1,12 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using AbstUI.Components.Graphics;
+using AbstUI.FrameworkCommunication;
+using AbstUI.Primitives;
+using AbstUI.Styles;
+using AbstUI.Texts;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using AbstUI.Components.Graphics;
-using AbstUI.Primitives;
-using AbstUI.Texts;
-using AbstUI.FrameworkCommunication;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace AbstUI.Blazor.Components.Graphics;
 
@@ -119,7 +121,21 @@ public class AbstBlazorGfxCanvasComponent : AbstBlazorComponentModelBase, IAbstF
         _drawActions.Add(ctx => _module!.InvokeVoidAsync("abstCanvas.drawText", ctx, position.X, position.Y, text, font, col, fontSize, align));
         MarkDirty();
     }
-
+    public void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12,
+            int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left,
+            AbstFontStyle style = AbstFontStyle.Regular)
+    {
+        //var col = ToCss(color ?? AColors.Black);
+        //var align = alignment switch
+        //{
+        //    AbstTextAlignment.Center => "center",
+        //    AbstTextAlignment.Right => "right",
+        //    _ => "left"
+        //};
+        //_drawActions.Add(ctx => _module!.InvokeVoidAsync("abstCanvas.drawText", ctx, position.X, position.Y, text, font, col, fontSize, align));
+        //MarkDirty();
+        throw new NotImplementedException();
+    }
     public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)
     {
         _drawActions.Add(ctx => _module!.InvokeVoidAsync("abstCanvas.drawPictureData", ctx, data, width, height, position.X, position.Y));

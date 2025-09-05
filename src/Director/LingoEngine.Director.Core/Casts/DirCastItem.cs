@@ -97,7 +97,7 @@ public class DirCastItem : IDirCastItem
             label = $"{_member.NumberInCast}. {_member.Name}";
         else
             label = _slotNumber.ToString();
-        _canvas.DrawText(new APoint(2, Height - LabelHeight + 10), label, null, _selected ? AColors.White : AColors.Black, 8, Width - 4);
+        _canvas.DrawText(new APoint(2, Height - LabelHeight ), label, null, _selected ? AColors.White : AColors.Black, 8, Width - 4);
 
 
 
