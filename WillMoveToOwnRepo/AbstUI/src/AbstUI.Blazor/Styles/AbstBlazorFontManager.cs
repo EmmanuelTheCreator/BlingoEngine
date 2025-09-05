@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using AbstUI.Styles;
 using System.Linq;
 
@@ -27,7 +28,15 @@ public class AbstBlazorFontManager : IAbstFontManager
     }
 
     public T? Get<T>(string name, AbstFontStyle style = AbstFontStyle.Regular) where T : class
-        => _loadedFonts.TryGetValue((name, style), out var font) ? font as T : null;
+    {
+        if (string.IsNullOrEmpty(name))
+            return _defaultFont as T;
+        if (_loadedFonts.TryGetValue((name, style), out var font))
+            return font as T;
+        if (_loadedFonts.TryGetValue((name, AbstFontStyle.Regular), out font))
+            return font as T;
+        return _defaultFont as T;
+    }
 
     public T GetDefaultFont<T>() where T : class
         => (_defaultFont as T)!;
@@ -38,8 +47,14 @@ public class AbstBlazorFontManager : IAbstFontManager
     public IEnumerable<string> GetAllNames() => _loadedFonts.Keys.Select(k => k.Name).Distinct();
 
     public float MeasureTextWidth(string text, string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
-        => text.Length * fontSize * 0.6f;
+    {
+        _ = Get<string>(fontName, style);
+        return text.Length * fontSize * 0.6f;
+    }
 
     public FontInfo GetFontInfo(string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
-        => new(fontSize, fontSize);
+    {
+        _ = Get<string>(fontName, style);
+        return new(fontSize, fontSize);
+    }
 }
