@@ -32,7 +32,7 @@ namespace LingoEngine.Tools
                     var style = new AbstTextStyle
                     {
                         Name = "0",
-                        Font = seg.FontName,
+                        Font = seg.FontName ??"",
                         FontSize = seg.Size,
                         Color = seg.Color ?? AColors.Black,
                         Alignment = seg.Alignment,
@@ -99,7 +99,7 @@ namespace LingoEngine.Tools
                             var style = new AbstTextStyle
                             {
                                 Name = newId.ToString(),
-                                Font = seg.FontName,
+                                Font = seg.FontName ?? string.Empty,
                                 FontSize = seg.Size,
                                 Color = seg.Color ?? AColors.Black,
                                 Alignment = seg.Alignment,

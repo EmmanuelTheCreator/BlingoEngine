@@ -22,6 +22,10 @@ namespace AbstUI.LGodot.Components
         private AColor _backgroundColor = AbstDefaultColors.Input_Bg;
         private AColor _borderColor = AbstDefaultColors.InputBorderColor;
 
+        private float _wantedWidth = 10;
+        private float _wantedHeight = 10;
+        private TValue _value = default!;
+
         private event Action _onValueChanged;
 
         public AbstGodotInputNumber(AbstInputNumber<TValue> input, IAbstFontManager fontManager, Action<TValue>? onChange)
@@ -74,7 +78,7 @@ namespace AbstUI.LGodot.Components
 
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
         public float Y { get => Position.Y; set => Position = new Vector2(Position.X, value); }
-        private float _wantedWidth = 10;
+        
         public float Width
         {
             get => Size.X;
@@ -88,7 +92,7 @@ namespace AbstUI.LGodot.Components
 
             }
         }
-        private float _wantedHeight = 10;
+       
         public float Height
         {
             get => Size.Y;
@@ -114,8 +118,7 @@ namespace AbstUI.LGodot.Components
 
         public bool Visibility { get => Visible; set => Visible = value; }
         public bool Enabled { get => Editable; set => Editable = value; }
-
-        private TValue _value;
+       
         public TValue Value
         {
             get => _value; set

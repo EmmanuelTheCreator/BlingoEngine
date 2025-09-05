@@ -48,25 +48,36 @@ if ! command -v dotnet >/dev/null 2>&1; then
   chmod +x /tmp/dotnet-install.sh
 fi
 
-# Install .NET 8 runtime (for Godot 4.5 mono)
-if ! ls /usr/share/dotnet/shared/Microsoft.NETCore.App/ | grep -q '^8\.0\.'; then
+# Install .NET 8 runtime
+if ! ls /usr/share/dotnet/shared/Microsoft.NETCore.App/ 2>/dev/null | grep -q '^8\.0\.'; then
   /tmp/dotnet-install.sh --version 8.0.8 --runtime dotnet --install-dir /usr/share/dotnet
 fi
 
-# Install .NET 9 runtime (for Blazor)
-if ! ls /usr/share/dotnet/shared/Microsoft.NETCore.App/ | grep -q '^9\.0\.'; then
+# Install .NET 9 runtime
+if ! ls /usr/share/dotnet/shared/Microsoft.NETCore.App/ 2>/dev/null | grep -q '^9\.0\.'; then
   /tmp/dotnet-install.sh --channel 9.0 --runtime dotnet --install-dir /usr/share/dotnet
 fi
 
-# Add global symlink
-sudo ln -sf /usr/share/dotnet/dotnet /usr/local/bin/dotnet
+# --- .NET SDKs (needed for dotnet tool install) ---
+if ! dotnet --list-sdks 2>/dev/null | grep -q '^8\.'; then
+  /tmp/dotnet-install.sh --channel LTS --install-dir /usr/share/dotnet
+fi
+if ! dotnet --list-sdks 2>/dev/null | grep -q '^9\.'; then
+  /tmp/dotnet-install.sh --channel 9.0 --install-dir /usr/share/dotnet
+fi
 
-# Install dotnet-format global tool
+# Add global symlink + env
+sudo ln -sf /usr/share/dotnet/dotnet /usr/local/bin/dotnet
+export DOTNET_ROOT=/usr/share/dotnet
 export PATH="$PATH:$HOME/.dotnet/tools"
-dotnet tool install -g dotnet-format || true
+
+# Install/update dotnet-format
+dotnet tool install -g dotnet-format || dotnet tool update -g dotnet-format
 
 dotnet --list-runtimes
+dotnet --list-sdks
 dotnet format --version
+
 
 
 # --- Godot (dev/alpha/beta via GODOT_URL) ---

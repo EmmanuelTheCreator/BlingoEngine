@@ -34,7 +34,6 @@ namespace AbstUI.SDL2.Components.Texts
 
         public object FrameworkNode => this;
 
-        public event Action? ValueChanged;
 
         private ISdlFontLoadedByUser? _font;
         private nint _texture;

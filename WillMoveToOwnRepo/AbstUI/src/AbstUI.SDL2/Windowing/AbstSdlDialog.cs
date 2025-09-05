@@ -32,7 +32,7 @@ namespace AbstUI.SDL2.Windowing
         private bool _centered;
         private ISdlFontLoadedByUser? _font;
         private SDL.SDL_Rect _closeRect;
-        private const int TitleBarHeight = 24;
+        public const int TitleBarHeight = 24;
 
         public AbstSdlDialog(AbstSdlComponentFactory factory) : base(factory)
         {
@@ -184,7 +184,7 @@ namespace AbstUI.SDL2.Windowing
             return tex;
         }
 
-        public void HandleEvent(AbstSDLEvent e)
+        public override void HandleEvent(AbstSDLEvent e)
         {
             if (!Visibility)
                 return;

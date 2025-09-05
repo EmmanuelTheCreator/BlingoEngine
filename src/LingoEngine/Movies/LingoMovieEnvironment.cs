@@ -35,17 +35,17 @@ namespace LingoEngine.Movies
     }
     public class LingoMovieEnvironment : ILingoMovieEnvironment, IDisposable
     {
-        private LingoPlayer _player;
-        private LingoKey _key;
-        private LingoSound _sound;
-        private LingoStageMouse _mouse;
-        private LingoSystem _system;
-        private ILingoClock _clock;
-        private ILingoMovie _movie;
-        private LingoCastLibsContainer _castLibsContainer;
-        private LingoEventMediator _eventMediator;
-        private IServiceScope _scopedServiceProvider;
-        private ILingoServiceProvider _serviceProvider;
+        private LingoPlayer _player = null!;
+        private LingoKey _key = null!;
+        private LingoSound _sound = null!;
+        private LingoStageMouse _mouse = null!;
+        private LingoSystem _system = null!;
+        private ILingoClock _clock = null!;
+        private ILingoMovie _movie = null!;
+        private LingoCastLibsContainer _castLibsContainer = null!;
+        private LingoEventMediator _eventMediator = null!;
+        private IServiceScope _scopedServiceProvider = null!;
+        private ILingoServiceProvider _serviceProvider = null!;
         private readonly ILingoFrameworkFactory _factory;
         private readonly LingoProjectSettings _projectSettings;
         private readonly Lazy<ILingoMemberFactory> _memberFactory;
@@ -111,9 +111,9 @@ namespace LingoEngine.Movies
         public ILingoCast? GetCastLib(int number) => _castLibsContainer[number];
         public ILingoCast? GetCastLib(string name) => _castLibsContainer[name];
 
-        T? ILingoMovieEnvironment.GetMember<T>(int number, int? castLibNum = null) where T : class => _castLibsContainer.GetMember<T>(number, castLibNum);
+        T? ILingoMovieEnvironment.GetMember<T>(int number, int? castLibNum) where T : class => _castLibsContainer.GetMember<T>(number, castLibNum);
 
-        T? ILingoMovieEnvironment.GetMember<T>(string name, int? castLibNum = null) where T : class => _castLibsContainer.GetMember<T>(name, castLibNum);
+        T? ILingoMovieEnvironment.GetMember<T>(string name, int? castLibNum) where T : class => _castLibsContainer.GetMember<T>(name, castLibNum);
 
         internal void SetMouse(LingoStageMouse newMouse)
         {

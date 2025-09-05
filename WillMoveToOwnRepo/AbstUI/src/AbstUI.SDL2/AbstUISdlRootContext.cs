@@ -11,8 +11,8 @@ namespace AbstUI.SDL2;
 public abstract class AbstUISdlRootContext<TMouse> : IAbstSDLRootContext, ISdlRootComponentContext, IDisposable
     where TMouse : IAbstMouse
 {
-    private IAbstGlobalMouse _globalMouse;
-    private IAbstGlobalKey _globalKey;
+    private IAbstGlobalMouse _globalMouse = null!;
+    private IAbstGlobalKey _globalKey = null!;
     protected AbstSdlGlobalMouse<GlobalSDLAbstMouse, AbstMouseEvent>? _frameworkMouse;
     protected SdlKey? _frameworkKey;
 

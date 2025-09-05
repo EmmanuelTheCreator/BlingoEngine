@@ -15,9 +15,9 @@
     /// <summary>
     /// A property list implementation that mimics Lingo's propList behavior, preserving insertion order.
     /// </summary>
-    public class LingoPropertyList<TKey, TValue> : IDictionary<TKey, TValue> where TKey : notnull
+    public class LingoPropertyList<TKey, TValue> : IDictionary<TKey, TValue?> where TKey : notnull
     {
-        private readonly Dictionary<TKey, TValue> _dict = new();
+        private readonly Dictionary<TKey, TValue?> _dict = new();
         private readonly List<TKey> _keyOrder = new();
 #if NET48
         private static readonly Random _random = new Random();
@@ -26,7 +26,7 @@
         /// <summary>
         /// Gets or sets the value associated with the specified key.
         /// </summary>
-        public TValue this[TKey key]
+        public TValue? this[TKey key]
         {
             get => _dict[key];
             set
@@ -40,7 +40,7 @@
         /// <summary>
         /// Gets or sets the value at the specified 1-based index.
         /// </summary>
-        public TValue this[int index]
+        public TValue? this[int index]
         {
             get => GetAt(index);
             set => SetAt(index, value);
@@ -61,7 +61,7 @@
         /// <summary>
         /// Sets the value at a 1-based index.
         /// </summary>
-        public void SetAt(int index, TValue value)
+        public void SetAt(int index, TValue? value)
         {
             if (index < 1 || index > _keyOrder.Count)
                 throw new IndexOutOfRangeException("LingoPropertyList is 1-based.");
@@ -69,7 +69,7 @@
         }
 
         /// <inheritdoc/>
-        public void Add(TKey key, TValue value)
+        public void Add(TKey key, TValue? value)
         {
             if (!_dict.ContainsKey(key))
                 _keyOrder.Add(key);
@@ -95,7 +95,7 @@
         public bool TryGetValue(TKey key, out TValue value) => _dict.TryGetValue(key, out value!);
 
         /// <inheritdoc/>
-        public void Add(KeyValuePair<TKey, TValue> item) => Add(item.Key, item.Value);
+        public void Add(KeyValuePair<TKey, TValue?> item) => Add(item.Key, item.Value);
 
         /// <inheritdoc/>
         public void Clear()
@@ -105,17 +105,17 @@
         }
 
         /// <inheritdoc/>
-        public bool Contains(KeyValuePair<TKey, TValue> item) => _dict.ContainsKey(item.Key);
+        public bool Contains(KeyValuePair<TKey, TValue?> item) => _dict.ContainsKey(item.Key);
 
         /// <inheritdoc/>
-        public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) =>
+        public void CopyTo(KeyValuePair<TKey, TValue?>[] array, int arrayIndex) =>
             throw new NotSupportedException();
 
         /// <inheritdoc/>
-        public bool Remove(KeyValuePair<TKey, TValue> item) => Remove(item.Key);
+        public bool Remove(KeyValuePair<TKey, TValue?> item) => Remove(item.Key);
 
         /// <inheritdoc/>
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _dict.GetEnumerator();
+        public IEnumerator<KeyValuePair<TKey, TValue?>> GetEnumerator() => _dict.GetEnumerator();
 
         /// <inheritdoc/>
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -124,7 +124,7 @@
         public ICollection<TKey> Keys => _dict.Keys;
 
         /// <inheritdoc/>
-        public ICollection<TValue> Values => _dict.Values;
+        public ICollection<TValue?> Values => _dict.Values;
 
         /// <inheritdoc/>
         public int Count => _dict.Count;
@@ -184,7 +184,7 @@
         /// </summary>
         public int FindPosValue(TValue value)
         {
-            var key = _keyOrder.FirstOrDefault(k => EqualityComparer<TValue>.Default.Equals(_dict[k], value));
+            var key = _keyOrder.FirstOrDefault(k => EqualityComparer<TValue?>.Default.Equals(_dict[k], value));
             if (key is null || !_dict.ContainsKey(key))
                 return 0;
 
@@ -199,7 +199,7 @@
         /// <summary>
         /// Gets the value associated with the key. Throws if missing.
         /// </summary>
-        public TValue GetProp(TKey key) => _dict[key];
+        public TValue? GetProp(TKey key) => _dict[key];
 
         /// <summary>
         /// Gets the property name at the 1-based index.
@@ -239,12 +239,12 @@
         /// <summary>
         /// Sorts key order based on their corresponding values in ascending order.
         /// </summary>
-        public void SortByValuesAsc() => _keyOrder.Sort((a, b) => Comparer<TValue>.Default.Compare(_dict[a], _dict[b]));
+        public void SortByValuesAsc() => _keyOrder.Sort((a, b) => Comparer<TValue?>.Default.Compare(_dict[a], _dict[b]));
 
         /// <summary>
         /// Sorts key order based on their corresponding values in descending order.
         /// </summary>
-        public void SortByValuesDesc() => _keyOrder.Sort((a, b) => Comparer<TValue>.Default.Compare(_dict[b], _dict[a]));
+        public void SortByValuesDesc() => _keyOrder.Sort((a, b) => Comparer<TValue?>.Default.Compare(_dict[b], _dict[a]));
 
         /// <summary>
         /// Sorts using a custom key comparer.
@@ -254,14 +254,14 @@
         /// <summary>
         /// Sorts using a custom value comparer.
         /// </summary>
-        public void SortByValues(IComparer<TValue> comparer) => _keyOrder.Sort((a, b) => comparer.Compare(_dict[a], _dict[b]));
+        public void SortByValues(IComparer<TValue?> comparer) => _keyOrder.Sort((a, b) => comparer.Compare(_dict[a], _dict[b]));
 
         /// <summary>
         /// Duplicates the current property list.
         /// </summary>
-        public LingoPropertyList<TKey, TValue> Duplicate()
+        public LingoPropertyList<TKey, TValue?> Duplicate()
         {
-            var copy = new LingoPropertyList<TKey, TValue>();
+            var copy = new LingoPropertyList<TKey, TValue?>();
             foreach (var key in _keyOrder)
                 copy.Add(key, _dict[key]);
             return copy;
@@ -297,7 +297,7 @@
         /// <summary>
         /// Returns the internal dictionary copy.
         /// </summary>
-        public Dictionary<TKey, TValue> AsDictionary() => new(_dict);
+        public Dictionary<TKey, TValue?> AsDictionary() => new(_dict);
 
         /// <summary>
         /// Gets the nth key (1-based).
@@ -307,17 +307,17 @@
         /// <summary>
         /// Gets the nth value (1-based).
         /// </summary>
-        public TValue GetNthValue(int index) => _dict[_keyOrder[index - 1]];
+        public TValue? GetNthValue(int index) => _dict[_keyOrder[index - 1]];
 
         /// <summary>
         /// Gets the first value.
         /// </summary>
-        public TValue GetOne() => _dict[_keyOrder[0]];
+        public TValue? GetOne() => _dict[_keyOrder[0]];
 
         /// <summary>
         /// Gets the last value.
         /// </summary>
-        public TValue GetLast()
+        public TValue? GetLast()
 #if NET48
             => _dict[_keyOrder[_keyOrder.Count - 1]];
 #else
@@ -340,12 +340,12 @@
         /// <summary>
         /// Gets a random value.
         /// </summary>
-        public TValue GetAValue() => _dict[GetAProp()];
+        public TValue? GetAValue() => _dict[GetAProp()];
 
         /// <summary>
         /// Gets the value at 1-based index.
         /// </summary>
-        public TValue GetValueAt(int index) => GetNthValue(index);
+        public TValue? GetValueAt(int index) => GetNthValue(index);
 
         /// <summary>
         /// Sets a random property.
@@ -359,12 +359,12 @@
         /// <summary>
         /// Converts values to list.
         /// </summary>
-        public List<TValue> ToList() => _keyOrder.Select(key => _dict[key]).ToList();
+        public List<TValue?> ToList() => _keyOrder.Select(key => _dict[key]).ToList();
 
         /// <summary>
         /// Converts values to list (alias).
         /// </summary>
-        public List<TValue> ToValueList() => ToList();
+        public List<TValue?> ToValueList() => ToList();
 
         /// <summary>
         /// Converts keys to list (alias).
@@ -382,12 +382,12 @@
         /// <summary>
         /// Sorts values ascending.
         /// </summary>
-        public void SortByValue() => _keyOrder.Sort((a, b) => Comparer<TValue>.Default.Compare(_dict[a], _dict[b]));
+        public void SortByValue() => _keyOrder.Sort((a, b) => Comparer<TValue?>.Default.Compare(_dict[a], _dict[b]!));
 
         /// <summary>
         /// Repeats an action over all key-value pairs.
         /// </summary>
-        public void Repeat(Action<TKey, TValue> action)
+        public void Repeat(Action<TKey, TValue?> action)
         {
             foreach (var key in _keyOrder)
                 action(key, _dict[key]);
@@ -396,7 +396,7 @@
         /// <summary>
         /// Repeats a callback that can stop iteration early.
         /// </summary>
-        public void RepeatWith(Func<TKey, TValue, bool> callback)
+        public void RepeatWith(Func<TKey, TValue?, bool> callback)
         {
             foreach (var key in _keyOrder)
             {
@@ -408,7 +408,7 @@
         /// <summary>
         /// Merges another property list into this one.
         /// </summary>
-        public void Merge(LingoPropertyList<TKey, TValue> other)
+        public void Merge(LingoPropertyList<TKey, TValue?> other)
         {
             foreach (var key in other._keyOrder)
             {
@@ -452,7 +452,7 @@
         /// </summary>
         public bool DeleteOne(TValue value)
         {
-            var key = _keyOrder.FirstOrDefault(k => EqualityComparer<TValue>.Default.Equals(_dict[k], value));
+            var key = _keyOrder.FirstOrDefault(k => EqualityComparer<TValue?>.Default.Equals(_dict[k], value));
             if (key != null)
                 return Remove(key);
             return false;

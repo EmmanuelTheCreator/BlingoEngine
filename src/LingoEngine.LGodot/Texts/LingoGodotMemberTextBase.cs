@@ -19,7 +19,7 @@ namespace LingoEngine.LGodot.Texts
     public abstract class LingoGodotMemberTextBase<TLingoText> : ILingoFrameworkMemberTextBase, IDisposable
          where TLingoText : ILingoMemberTextBase
     {
-        protected TLingoText _lingoMemberText;
+        protected TLingoText _lingoMemberText = null!;
         protected string _text = "";
         protected IAbstFontManager _fontManager;
         protected readonly ILogger _logger;

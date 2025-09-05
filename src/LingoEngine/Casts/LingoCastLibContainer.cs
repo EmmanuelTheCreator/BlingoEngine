@@ -32,7 +32,7 @@ namespace LingoEngine.Casts
         private Dictionary<string, LingoMember> _allMembersByName = new();
         private Dictionary<string, LingoCast> _castsByName = new();
         private List<LingoCast> _casts = new();
-        private ILingoCast activeCast;
+        private ILingoCast _activeCast = null!;
         private readonly LingoMembersContainer _allMembersContainer;
         private readonly ILingoFrameworkFactory _factory;
 
@@ -41,10 +41,10 @@ namespace LingoEngine.Casts
 
         public ILingoCast ActiveCast
         {
-            get => activeCast; set
+            get => _activeCast; set
             {
                 if (_casts.Contains(value))
-                    activeCast = value;
+                    _activeCast = value;
             }
         }
         public LingoCastLibsContainer(ILingoFrameworkFactory factory)
@@ -75,8 +75,8 @@ namespace LingoEngine.Casts
             castTyped.Dispose();
             _casts.Remove(castTyped);
             _castsByName.Remove(nameL);
-            if (activeCast == cast && _casts.Count > 0)
-                activeCast = _casts[0];
+            if (_activeCast == cast && _casts.Count > 0)
+                _activeCast = _casts[0];
 
             return cast;
         }

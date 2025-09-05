@@ -52,7 +52,7 @@ namespace LingoEngine.Movies
             if (existingLabel != null)
                 _scoreLabels.Remove(existingLabel);
             if (!string.IsNullOrEmpty(name))
-                _scoreLabels[name] = frameNumber;
+                _scoreLabels[name!] = frameNumber;
             LabelsChanged?.Invoke();
         }
 

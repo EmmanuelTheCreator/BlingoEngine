@@ -15,7 +15,7 @@ namespace LingoEngine.Sprites
         private int _beginFrame;
         private int _endFrame;
         private string _name = string.Empty;
-        protected ILingoFrameworkSprite _frameworkSprite;
+        protected ILingoFrameworkSprite _frameworkSprite = null!;
         public ILingoFrameworkSprite FrameworkObj => _frameworkSprite;
         
         public int BeginFrame

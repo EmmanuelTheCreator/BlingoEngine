@@ -1,5 +1,3 @@
-using System;
-using System.Numerics;
 using AbstUI.Components.Inputs;
 using AbstUI.Primitives;
 using AbstUI.SDL2.Components.Base;
@@ -7,7 +5,6 @@ using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
 using AbstUI.Styles;
-using AbstUI.Components.Inputs;
 using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Components.Inputs

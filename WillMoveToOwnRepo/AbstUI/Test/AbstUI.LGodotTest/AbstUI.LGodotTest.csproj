@@ -1,10 +1,12 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <IsTestProject>true</IsTestProject>
-  </PropertyGroup>
+<Project Sdk="Godot.NET.Sdk/4.5.0-dev.5">
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<EnableDynamicLoading>true</EnableDynamicLoading>
+		<RootNamespace>Ark.Godot</RootNamespace>
+		<Nullable>enable</Nullable>
+		<LangVersion>12</LangVersion>
+		<Platforms>AnyCPU;x64;x86</Platforms>
+	</PropertyGroup>
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />

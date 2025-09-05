@@ -3,7 +3,7 @@
     public class LingoParagraphs
     {
         private bool _hasParsed = false;
-        private string _text;
+        private string _text = string.Empty;
         private string[] _lines = [];
         public string this[int index]
         {

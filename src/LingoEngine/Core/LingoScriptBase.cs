@@ -103,13 +103,13 @@ namespace LingoEngine.Core
 
         // list
         protected LingoList<TValue> List<TValue>() => new LingoList<TValue>();
-        protected TValue GetAt<TValue>(LingoPropertyList<TValue> list,int number) => list.GetAt(number);
+        protected TValue? GetAt<TValue>(LingoPropertyList<TValue> list,int number) => list.GetAt(number);
         protected void SetAt<TValue>(LingoPropertyList<TValue> list,int number, TValue value) => list.SetAt(number, value);
         protected void DeleteAt<TValue>(LingoPropertyList<TValue> list,int number, TValue value) => list.DeleteAt(number);
 
         // Property list
         protected LingoPropertyList<TValue> PropList<TValue>() => new LingoPropertyList<TValue>();
-        protected TValue GetAt<TValue>(LingoList<TValue> list,int number) => list.GetAt(number);
+        protected TValue? GetAt<TValue>(LingoList<TValue> list,int number) => list.GetAt(number);
         protected void SetAt<TValue>(LingoList<TValue> list,int number, TValue value) => list.SetAt(number, value);
         protected void DeleteAt<TValue>(LingoList<TValue> list,int number, TValue value) => list.DeleteAt(number);
         

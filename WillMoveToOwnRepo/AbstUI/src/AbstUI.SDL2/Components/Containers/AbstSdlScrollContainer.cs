@@ -71,7 +71,7 @@ namespace AbstUI.SDL2.Components.Containers
             ContentHeight = maxY;
         }
 
-        public bool CanHandleEvent(AbstSDLEvent e)
+        public override bool CanHandleEvent(AbstSDLEvent e)
         {
             return true;
         }

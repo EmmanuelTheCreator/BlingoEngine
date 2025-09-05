@@ -43,7 +43,7 @@ namespace AbstUI.SDL2.Components.Inputs
                 if (_text == value) return;
                 _text = value ?? string.Empty;
                 _codepoints.Clear();
-                foreach (var r in value.EnumerateRunes()) _codepoints.Add(r.Value);
+                foreach (var r in _text.EnumerateRunes()) _codepoints.Add(r.Value);
                 _caret = _codepoints.Count;
                 _selectionStart = -1;
                 ValueChanged?.Invoke();

@@ -35,7 +35,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text;
 #endregion
-
+#pragma warning disable CS8603 // Possible null reference return.
+#pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
 namespace AbstUI.SDL2.SDLL
 {
     public static class SDL
@@ -51,7 +53,7 @@ namespace AbstUI.SDL2.SDLL
 #if NET6_0_OR_GREATER
         internal static T PtrToStructure<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)] T>(nint ptr)
         {
-            return Marshal.PtrToStructure<T>(ptr);
+            return Marshal.PtrToStructure<T>(ptr)!;
         }
 
         internal static T GetDelegateForFunctionPointer<T>(nint ptr) where T : Delegate
@@ -503,6 +505,7 @@ namespace AbstUI.SDL2.SDLL
         private static extern nint INTERNAL_SDL_GetPlatform();
         public static string SDL_GetPlatform()
         {
+
             return UTF8_ToManaged(INTERNAL_SDL_GetPlatform());
         }
 
@@ -1197,6 +1200,7 @@ namespace AbstUI.SDL2.SDLL
             }
             else
             {
+
                 callback = null;
             }
         }

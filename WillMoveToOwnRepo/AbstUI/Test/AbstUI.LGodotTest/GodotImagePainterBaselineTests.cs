@@ -9,7 +9,7 @@ namespace AbstUI.LGodotTest;
 
 public class GodotImagePainterBaselineTests
 {
-    [Fact(Skip = "Requires Godot runtime")]
+    [Fact]
     public void DescenderGlyphExtendsBelowBaseline()
     {
         Directory.CreateDirectory("C:/temp/director");
