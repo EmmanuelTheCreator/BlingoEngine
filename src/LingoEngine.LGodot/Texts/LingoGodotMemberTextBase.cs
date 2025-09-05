@@ -330,16 +330,7 @@ namespace LingoEngine.LGodot.Texts
             return _texture;
         }
 
-        public string ReadText()
-        {
-            var file = GodotHelper.ReadFile(_lingoMemberText.FileName);
-            if (file == null)
-            {
-                _logger.LogWarning("File not found for Text :" + _lingoMemberText.FileName);
-                return "";
-            }
-            return file;
-        }
+       
         private void UpdateText(string value)
         {
             if (_text == value) return;

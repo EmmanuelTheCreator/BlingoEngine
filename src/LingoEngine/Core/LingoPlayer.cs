@@ -34,22 +34,22 @@ namespace LingoEngine.Core
         private List<LingoMovieEnvironment> _movies = new();
 
 
-        private readonly LingoKey _LingoKey;
-        private readonly LingoStage _Stage;
-        private readonly LingoSystem _System;
+        private readonly LingoKey _lingoKey;
+        private readonly LingoStage _stage;
+        private readonly LingoSystem _system;
         private readonly LingoClock _clock;
-        private LingoStageMouse _Mouse;
+        private LingoStageMouse _mouse;
         public ILingoFrameworkFactory Factory { get; private set; }
         public ILingoServiceProvider ServiceProvider => _serviceProvider;
         public ILingoClock Clock => _clock;
-        public LingoKey Key => _LingoKey;
-        public ILingoStage Stage => _Stage;
+        public LingoKey Key => _lingoKey;
+        public ILingoStage Stage => _stage;
         /// <inheritdoc/>
         public ILingoCast ActiveCastLib => _castLibsContainer.ActiveCast;
 
         /// <inheritdoc/>
         public ILingoSound Sound => _sound;
-        public ILingoStageMouse Mouse => _Mouse;
+        public ILingoStageMouse Mouse => _mouse;
 
 
         /// <inheritdoc/>
@@ -93,10 +93,10 @@ namespace LingoEngine.Core
             _sound = Factory.CreateSound(_castLibsContainer);
             _window = window;
             _clock = (LingoClock)lingoClock;
-            _System = (LingoSystem)lingoSystem;
-            _LingoKey = Factory.CreateKey();
-            _Stage = Factory.CreateStage(this);
-            _Mouse = Factory.CreateMouse(_Stage);
+            _system = (LingoSystem)lingoSystem;
+            _lingoKey = Factory.CreateKey();
+            _stage = Factory.CreateStage(this);
+            _mouse = Factory.CreateMouse(_stage);
         }
         public void Dispose()
         {
@@ -153,11 +153,11 @@ namespace LingoEngine.Core
 
             // Create a new movies scope, needed for behaviours.
             var scope = _serviceProvider.CreateScope();
-            var transitionPlayer = new LingoTransitionPlayer(_Stage, _clock, _serviceProvider.GetRequiredService<ILingoTransitionLibrary>());
+            var transitionPlayer = new LingoTransitionPlayer(_stage, _clock, _serviceProvider.GetRequiredService<ILingoTransitionLibrary>());
 
             // Create the movie.
             var movieEnv = (LingoMovieEnvironment)scope.ServiceProvider.GetRequiredService<ILingoMovieEnvironment>();
-            movieEnv.Init(name, _movies.Count + 1, this, _LingoKey, _sound, _Mouse, _Stage, _System, Clock, _castLibsContainer, scope, transitionPlayer, m =>
+            movieEnv.Init(name, _movies.Count + 1, this, _lingoKey, _sound, _mouse, _stage, _system, Clock, _castLibsContainer, scope, transitionPlayer, m =>
             {
                 // On remove movie
                 var movieEnvironment = m.GetEnvironment();
@@ -170,7 +170,7 @@ namespace LingoEngine.Core
             _movies.Add(movieEnv);
             _moviesByName.Add(name, movieEnv);
 
-            Factory.AddMovie(_Stage, movieTyped);
+            Factory.AddMovie(_stage, movieTyped);
 
             // Add all movieScripts
             _actionOnNewMovie(movieTyped);
@@ -196,7 +196,7 @@ namespace LingoEngine.Core
         public ILingoPlayer LoadCastLibFromCsv(string castlibName, string pathAndFilenameToCsv, bool isInternal = false)
         {
             var castLib = _castLibsContainer.AddCast(castlibName, isInternal);
-            _csvImporter.Value.ImportInCastFromCsvFile(castLib, pathAndFilenameToCsv);
+            _csvImporter.Value.ImportInCastFromCsvFile(castLib, pathAndFilenameToCsv,true, x=> Console.WriteLine("WARNING:"+x));
             return this;
         }
 
@@ -216,7 +216,7 @@ namespace LingoEngine.Core
         public void SetActiveMovie(LingoMovie? movie)
         {
             ActiveMovie = movie;
-            _Stage.SetActiveMovie(movie);
+            _stage.SetActiveMovie(movie);
             ActiveMovieChanged?.Invoke(movie);
         }
 
@@ -287,7 +287,7 @@ namespace LingoEngine.Core
 
         public void ReplaceMouseObj(LingoStageMouse newMouse)
         {
-            _Mouse = newMouse;
+            _mouse = newMouse;
             foreach (var movie in _movies)
                 movie.SetMouse(newMouse);
         }

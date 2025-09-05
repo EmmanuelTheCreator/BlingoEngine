@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Text;
 using AbstUI.Resources;
+using AbstUI.Texts;
 
 namespace LingoEngine.Tools
 {
@@ -41,7 +42,7 @@ namespace LingoEngine.Tools
         ///     Number,Type,Name,Registration Point,Filename
         ///     1,bitmap,BallB,"(5, 5)",
         /// </summary>
-        public void ImportInCastFromCsvFile(ILingoCast cast, string filePath, bool skipFirstLine = true)
+        public void ImportInCastFromCsvFile(ILingoCast cast, string filePath, bool skipFirstLine = true, Action<string>? logWarningMethod = null)
         {
             var rootFolder = Path.GetDirectoryName(GetRelativePath(Environment.CurrentDirectory, filePath)) ?? "";
             var csv = ImportCsvCastFile(filePath, skipFirstLine);
@@ -71,19 +72,20 @@ namespace LingoEngine.Tools
                 }
                 var fileName = Path.Combine(rootFolder, fn);
                 var newMember = cast.Add(row.Type, row.Number, row.Name, fileName, row.RegPoint);
-                if (newMember is ILingoMemberTextBase textMember && newMember is ILingoMemberTextBaseInteral textbased)
+                if (newMember is ILingoMemberTextBase textMember)
                 {
                     var mdFile = Path.ChangeExtension(fileName, ".md");
                     var rtfFile = Path.ChangeExtension(fileName, ".rtf");
                     if (_resourceManager.FileExists(mdFile))
                     {
                         var mdContent = _resourceManager.ReadTextFile(mdFile) ?? string.Empty;
-                        textMember.Text = mdContent;
+                        var markDownData = AbstMarkdownReader.Read(mdContent);
+                        textMember.SetTextMD(markDownData);
                     }
                     else if (_resourceManager.FileExists(rtfFile))
                     {
                         var rtfContent = _resourceManager.ReadTextFile(rtfFile) ?? string.Empty;
-                        var md = RtfToMarkdown.Convert(rtfContent);
+                        var md = RtfToMarkdown.Convert(rtfContent, true);
 
                         textMember.SetTextMD(md);
 #if DEBUG
@@ -96,7 +98,13 @@ namespace LingoEngine.Tools
                     }
                     else
                     {
-                        textbased.LoadFile();
+                        var file = _resourceManager.ReadTextFile(textMember.FileName) ?? string.Empty;
+                        if (file == null)
+                        {
+                            logWarningMethod?.Invoke("File not found for Text :" + textMember.FileName);
+                            continue;
+                        }
+                        textMember.Text = file;
                     }
                 }
             }
