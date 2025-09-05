@@ -20,8 +20,8 @@ public class SdlImagePainterBaselineTests
 
 
             painter.Name = "h";
-            painter.DrawRect(ARect.New(0, 0, 80, 30), AColors.Red);
-            painter.DrawText(new APoint(0, 0), "halooo", "Tahoma",AColors.Black,32);
+            //painter.DrawRect(ARect.New(0, 0, 80, 30), AColors.Red);
+            painter.DrawSingleLine(new APoint(0, 0), "halooo", "Tahoma",AColors.Black,32);
             painter.Render();
             var hTex = (SdlTexture2D)painter.GetTexture("h");
             var hPixels = hTex.GetPixels(renderer);
@@ -30,7 +30,7 @@ public class SdlImagePainterBaselineTests
 
             painter.Name = "p";
             painter.Clear(new AColor(0, 0, 0, 0));
-            painter.DrawText(new APoint(0, 0), "p", fontSize: 32);
+            painter.DrawSingleLine(new APoint(0, 0), "p", fontSize: 32);
             painter.Render();
             var pTex = (SdlTexture2D)painter.GetTexture("p");
             var pPixels = pTex.GetPixels(renderer);

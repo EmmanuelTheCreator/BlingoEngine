@@ -78,6 +78,23 @@ fi
 chmod +x "$GODOT_BIN"
 ln -sf "$GODOT_BIN" "$HOME/.local/bin/godot"
 
+# Stable path for all users
+sudo ln -sf "$GODOT_BIN" /usr/local/bin/godot
+
+# Export for current shell
+export GODOT_BIN=/usr/local/bin/godot
+
+# Persist for future shells (Linux)
+sudo tee /etc/profile.d/godot-bin.sh >/dev/null <<'EOF'
+export GODOT_BIN=/usr/local/bin/godot
+EOF
+sudo chmod 644 /etc/profile.d/godot-bin.sh
+
+# CI-friendly: if env file mechanisms exist, write them too
+[ -n "${GITHUB_ENV:-}" ] && echo "GODOT_BIN=/usr/local/bin/godot" >> "$GITHUB_ENV"
+[ -n "${BASH_ENV:-}" ] && echo 'export GODOT_BIN=/usr/local/bin/godot' >> "$BASH_ENV"
+
+
 # ---------- Prints ----------
 echo
 dotnet --info || true

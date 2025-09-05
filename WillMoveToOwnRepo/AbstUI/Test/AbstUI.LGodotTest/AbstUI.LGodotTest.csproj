@@ -1,11 +1,14 @@
-<Project Sdk="Godot.NET.Sdk/4.5.0-dev.5">
+﻿<Project Sdk="Godot.NET.Sdk/4.5.0-dev.5">
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<EnableDynamicLoading>true</EnableDynamicLoading>
 		<RootNamespace>Ark.Godot</RootNamespace>
 		<Nullable>enable</Nullable>
 		<LangVersion>12</LangVersion>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 		<Platforms>AnyCPU;x64;x86</Platforms>
+		<!--Disable warning of invalid/incompatible GodotSharp version-->
+		<NoWarn>NU1605</NoWarn>
 	</PropertyGroup>
         <ItemGroup>
           <Content Include="Media\Fonts\8PinMatrix.ttf">
@@ -27,6 +30,12 @@
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="FluentAssertions" Version="8.6.0" />
+    <PackageReference Include="gdUnit4.api" Version="5.0.0" />
+	<PackageReference Include="gdUnit4.test.adapter" Version="3.0.0" />
+    <PackageReference Include="gdUnit4.analyzers" Version="1.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="xunit" Version="2.5.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
@@ -45,5 +54,6 @@
     <None Include="Media\Fonts\bikly.ttf.import" />
     <None Include="Media\Fonts\earth.ttf.import" />
     <None Include="Media\Fonts\Tahoma.ttf.import" />
+    <None Include="ReadMe.md" />
   </ItemGroup>
 </Project>

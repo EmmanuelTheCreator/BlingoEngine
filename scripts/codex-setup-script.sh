@@ -100,10 +100,27 @@ GODOT_BIN="$(sudo find "$dest" -type f \( -name 'Godot_*linux_x86_64*' -o -name 
 if [ -n "$GODOT_BIN" ]; then
   sudo chmod +x "$GODOT_BIN"
   sudo ln -sf "$GODOT_BIN" /usr/local/bin/godot
+  
 else
   echo "Godot binary not found under $dest. Contents:" >&2
   sudo find "$dest" -maxdepth 2 -print >&2
   exit 1
 fi
+# Stable path for all users
+sudo ln -sf "$GODOT_BIN" /usr/local/bin/godot
+
+# Export for current shell
+export GODOT_BIN=/usr/local/bin/godot
+
+# Persist for future shells (Linux)
+sudo tee /etc/profile.d/godot-bin.sh >/dev/null <<'EOF'
+export GODOT_BIN=/usr/local/bin/godot
+EOF
+sudo chmod 644 /etc/profile.d/godot-bin.sh
+
+# CI-friendly: if env file mechanisms exist, write them too
+[ -n "${GITHUB_ENV:-}" ] && echo "GODOT_BIN=/usr/local/bin/godot" >> "$GITHUB_ENV"
+[ -n "${BASH_ENV:-}" ] && echo 'export GODOT_BIN=/usr/local/bin/godot' >> "$BASH_ENV"
+
 
 godot --version
