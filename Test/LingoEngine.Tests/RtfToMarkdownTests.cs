@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AbstUI.Components.Graphics;
@@ -16,7 +17,7 @@ public class RtfToMarkdownTests
 
         var data = RtfToMarkdown.Convert(rtf);
 
-        Assert.Equal("{{STYLE:0}}plain**bold***italic*__underline__{{/STYLE}}", data.Markdown);
+        Assert.Equal("{{PARA:0}}plain**bold***italic*__underline__", data.Markdown);
         Assert.Equal(new[]
         {
             (false, false, false),
@@ -37,7 +38,7 @@ public class RtfToMarkdownTests
 
         var data = RtfToMarkdown.Convert(rtf);
 
-        var expected = "{{FONT-FAMILY:Arial}}{{FONT-SIZE:12}}{{COLOR:#000000}}{{ALIGN:left}}line1\n{{COLOR:#0000FF}}*line2*";
+        var expected = "{{PARA:0}}line1\n{{PARA:0}}{{COLOR:#0000FF}}*line2*";
         Assert.Equal(expected, data.Markdown);
         Assert.Equal(new[]
         {
@@ -56,7 +57,7 @@ public class RtfToMarkdownTests
 
         var data = RtfToMarkdown.Convert(rtf);
 
-        Assert.Equal("{{STYLE:0}}right{{/STYLE}}", data.Markdown);
+        Assert.Equal("{{PARA:0}}right", data.Markdown);
         Assert.Single(data.Segments);
         Assert.Equal(AbstTextAlignment.Right, data.Styles["0"].Alignment);
     }
@@ -68,7 +69,7 @@ public class RtfToMarkdownTests
 
         var data = RtfToMarkdown.Convert(rtf);
 
-        Assert.Equal("{{STYLE:0}}center{{/STYLE}}", data.Markdown);
+        Assert.Equal("{{PARA:0}}center", data.Markdown);
         Assert.Single(data.Segments);
         Assert.Equal(AbstTextAlignment.Center, data.Styles["0"].Alignment);
     }
@@ -81,7 +82,7 @@ public class RtfToMarkdownTests
         var data = RtfToMarkdown.Convert(rtf);
 
         Assert.Single(data.Segments);
-        Assert.Equal("{{STYLE:0}}margin{{/STYLE}}", data.Markdown);
+        Assert.Equal("{{PARA:0}}margin", data.Markdown);
         Assert.Equal(10, data.Styles["0"].MarginLeft);
         Assert.Equal(20, data.Styles["0"].MarginRight);
         Assert.False(data.Segments[0].Bold);
@@ -96,7 +97,7 @@ public class RtfToMarkdownTests
 
         var data = RtfToMarkdown.Convert(rtf);
 
-        Assert.Equal("{{STYLE:1}}{{FONT-FAMILY:Arial}}{{FONT-SIZE:12}}{{ALIGN:left}}text1{{/STYLE}}{{STYLE:2}}text2{{/STYLE}}", data.Markdown);
+        Assert.Equal("{{PARA:1}}{{FONT-FAMILY:Arial}}{{FONT-SIZE:12}}{{ALIGN:left}}text1{{STYLE:2}}text2{{/STYLE}}", data.Markdown);
         Assert.Equal(1, data.Segments[0].StyleId);
         Assert.Equal(2, data.Segments[1].StyleId);
         Assert.True(data.Styles.ContainsKey("1"));
@@ -112,7 +113,7 @@ public class RtfToMarkdownTests
 
         var data = RtfToMarkdown.Convert(rtf);
 
-        Assert.Equal("{{STYLE:1}}{{ALIGN:left}}text{{/STYLE}}", data.Markdown);
+        Assert.Equal("{{PARA:1}}{{ALIGN:left}}text", data.Markdown);
         Assert.Equal(1, data.Segments[0].StyleId);
         Assert.True(data.Styles.ContainsKey("1"));
         Assert.Equal("Arial", data.Styles["1"].Font);
@@ -129,7 +130,7 @@ public class RtfToMarkdownTests
 
         var data = RtfToMarkdown.Convert(rtf);
 
-        var expected = "{{STYLE:0}}**HI-SCORES**{{/STYLE}}";
+        var expected = "{{PARA:0}}**HI-SCORES**";
         Assert.Equal(expected, data.Markdown);
         Assert.Equal("HI-SCORES", data.PlainText);
         Assert.Equal(AbstTextAlignment.Right, data.Styles["0"].Alignment);
@@ -144,7 +145,7 @@ public class RtfToMarkdownTests
 
         var data = RtfToMarkdown.Convert(rtf);
 
-        var expected = "{{STYLE:0}}**1**{{/STYLE}}";
+        var expected = "{{PARA:0}}**1**";
         Assert.Equal(expected, data.Markdown);
         Assert.Equal("1", data.PlainText);
         Assert.Equal(AbstTextAlignment.Right, data.Styles["0"].Alignment);
@@ -158,7 +159,7 @@ public class RtfToMarkdownTests
 
         var data = RtfToMarkdown.Convert(rtf);
 
-        var expected = "{{STYLE:0}}**GAME OVER**{{/STYLE}}";
+        var expected = "{{PARA:0}}**GAME OVER**";
         Assert.Equal(expected, data.Markdown);
         Assert.Equal("GAME OVER", data.PlainText);
         Assert.Equal(28, data.Styles["0"].MarginRight);
@@ -228,6 +229,31 @@ public class RtfToMarkdownTests
 
         var data = RtfToMarkdown.Convert(rtf);
 
+        var expected = "{{PARA:0}}..................................................::Multi BALLS::........................."
+                     + "..........................."
+                     + "\n"
+                     + "{{PARA:0}}..................................................::Black Balls::........................."
+                     + "...............................................................................::Expand::..........."
+                     + "............................................."
+                     + "\n"
+                     + "{{PARA:0}}...................................................::XTRA Balls::........................."
+                     + "...............................................................................::Slow Down::........"
+                     + "...................................................................................................."
+                     + "::Shoot::..........................................................................................."
+                     + "....................::Speed Up::...................................................................."
+                     + "........................................::Magnetic::................................................"
+                     + ".........................................................::Live::..................................."
+                     + ".............................................................................::Gates::.............."
+                     + "............................................";
+        Assert.Equal(expected, data.Markdown);
+
+        Assert.Single(data.Styles);
+        Assert.All(data.Segments, s => Assert.Equal(0, s.StyleId));
+        var style = data.Styles["0"];
+        Assert.Equal("Courier", style.Font);
+        Assert.Equal(12, style.FontSize);
+        Assert.Equal("#808080", style.Color.ToHex());
+        Assert.Equal(AbstTextAlignment.Left, style.Alignment);
         Assert.Contains("::Multi BALLS::", data.PlainText);
         Assert.Contains("::Black Balls::", data.PlainText);
         Assert.DoesNotContain("\\", data.PlainText);
@@ -261,8 +287,14 @@ public class RtfToMarkdownTests
 
         var data = RtfToMarkdown.Convert(rtf);
 
-        var expected = "{{FONT-FAMILY:Earth}}{{FONT-SIZE:18}}{{COLOR:#FF0000}}{{ALIGN:center}}New **Highscore!!!**\n{{FONT-SIZE:14}}Enter your {{FONT-SIZE:18}}Name";
+        var expected = "{{PARA:1}}New **Highscore!!!**\n{{PARA}}{{FONT-SIZE:14}}Enter your {{FONT-SIZE:18}}Name";
         Assert.Equal(expected, data.Markdown);
+
+        var style = data.Styles["1"];
+        Assert.Equal("Earth", style.Font);
+        Assert.Equal(18, style.FontSize);
+        Assert.Equal("#FF0000", style.Color.ToHex());
+        Assert.Equal(AbstTextAlignment.Center, style.Alignment);
     }
 
     [Fact]
@@ -279,6 +311,37 @@ public class RtfToMarkdownTests
         var painter = new SizeRecordingPainter { AutoResize = true };
         renderer.Render(painter, new APoint(0, 0));
 
-        Assert.True(painter.Height >= 36);
+        var expected = "{{PARA:1}}New **Highscore!!!**\n{{PARA}}{{FONT-SIZE:14}}Enter your {{FONT-SIZE:18}}Name";
+        Assert.Equal(expected, data.Markdown);
+        Assert.True(painter.Height >= 18);
+    }
+
+    [Fact]
+    public void Convert_ConvertsUnicodeCharacters()
+    {
+        var rtf = "{\\rtf1\\ansi\\uc0\\deff0 {\\fonttbl{\\f0\\fswiss Arial;}{\\f1\\fnil Tahoma;}}{\\colortbl;\\red153\\green153\\blue153;}{\\stylesheet{\\s0\\fs24 Normal Text;}}\\pard \\f0\\fs24{\\pard \\f1\\fs24\\cf1 \\u169 2005 by Emmanuel The Creator\\par}}";
+
+        var data = RtfToMarkdown.Convert(rtf);
+
+        Assert.Equal("© 2005 by Emmanuel The Creator\n", data.PlainText);
+    }
+
+    [Fact]
+    public void Convert_UsesSingleRightAlignedGrayTahomaStyle()
+    {
+        var rtf = "{\\rtf1\\ansi\\deff0 {\\fonttbl{\\f0\\fswiss Arial;}{\\f1\\fnil Tahoma;}}{\\colortbl\\red0\\green0\\blue0;\\red153\\green153\\blue153;}{\\stylesheet{\\s0\\fs24 Normal Text;}}\\pard\\qr \\f0\\fs24{\\f1\\fs24\\cf1 nele\\par\nnele\\par\nMichael\\par\nMichael\\par\nnele\\par\nnele\\par\nManu\\par\nMichael\\par\nMichael\\par\nLaura\\par}}";
+
+        var data = RtfToMarkdown.Convert(rtf);
+
+        var expected = "{{PARA:0}}nele\n{{PARA:0}}nele\n{{PARA:0}}Michael\n{{PARA:0}}Michael\n{{PARA:0}}nele\n{{PARA:0}}nele\n{{PARA:0}}Manu\n{{PARA:0}}Michael\n{{PARA:0}}Michael\n{{PARA:0}}Laura\n{{PARA:0}}";
+        Assert.Equal(expected, data.Markdown);
+        Assert.Single(data.Styles);
+        Assert.True(data.Segments.All(s => s.StyleId == 0));
+        Assert.True(data.Segments.All(s => s.IsParagraph));
+        var style = data.Styles["0"];
+        Assert.Equal("Tahoma", style.Font);
+        Assert.Equal(12, style.FontSize);
+        Assert.Equal("#999999", style.Color.ToHex());
+        Assert.Equal(AbstTextAlignment.Right, style.Alignment);
     }
 }
