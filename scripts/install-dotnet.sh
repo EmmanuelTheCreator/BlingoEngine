@@ -7,8 +7,14 @@ if [[ ":$PATH:" != *":$HOME/.dotnet:"* ]]; then
 fi
 
 if command -v dotnet >/dev/null 2>&1; then
-  echo ".NET SDK already installed: $(dotnet --version)"
-  exit 0
+  if DOTNET_VERSION=$(dotnet --version 2>/dev/null); then
+    DOTNET_MAJOR="${DOTNET_VERSION%%.*}"
+    if [[ "$DOTNET_MAJOR" -ge 8 ]]; then
+      echo ".NET SDK already installed: $DOTNET_VERSION"
+      exit 0
+    fi
+  fi
+  echo "Existing dotnet installation is insufficient. Installing required SDKs..."
 fi
 
 # Download and run Microsoft's install script
