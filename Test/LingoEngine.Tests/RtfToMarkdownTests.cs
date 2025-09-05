@@ -229,10 +229,31 @@ public class RtfToMarkdownTests
 
         var data = RtfToMarkdown.Convert(rtf);
 
-        Console.WriteLine(data.Markdown);
+        var expected = "{{PARA:0}}..................................................::Multi BALLS::........................."
+                     + "..........................."
+                     + "\n"
+                     + "{{PARA:0}}..................................................::Black Balls::........................."
+                     + "...............................................................................::Expand::..........."
+                     + "............................................."
+                     + "\n"
+                     + "{{PARA:0}}...................................................::XTRA Balls::........................."
+                     + "...............................................................................::Slow Down::........"
+                     + "...................................................................................................."
+                     + "::Shoot::..........................................................................................."
+                     + "....................::Speed Up::...................................................................."
+                     + "........................................::Magnetic::................................................"
+                     + ".........................................................::Live::..................................."
+                     + ".............................................................................::Gates::.............."
+                     + "............................................";
+        Assert.Equal(expected, data.Markdown);
 
         Assert.Single(data.Styles);
         Assert.All(data.Segments, s => Assert.Equal(0, s.StyleId));
+        var style = data.Styles["0"];
+        Assert.Equal("Courier", style.Font);
+        Assert.Equal(12, style.FontSize);
+        Assert.Equal("#808080", style.Color.ToHex());
+        Assert.Equal(AbstTextAlignment.Left, style.Alignment);
         Assert.Contains("::Multi BALLS::", data.PlainText);
         Assert.Contains("::Black Balls::", data.PlainText);
         Assert.DoesNotContain("\\", data.PlainText);
@@ -268,6 +289,12 @@ public class RtfToMarkdownTests
 
         var expected = "{{PARA:1}}New **Highscore!!!**\n{{PARA}}{{FONT-SIZE:14}}Enter your {{FONT-SIZE:18}}Name";
         Assert.Equal(expected, data.Markdown);
+
+        var style = data.Styles["1"];
+        Assert.Equal("Earth", style.Font);
+        Assert.Equal(18, style.FontSize);
+        Assert.Equal("#FF0000", style.Color.ToHex());
+        Assert.Equal(AbstTextAlignment.Center, style.Alignment);
     }
 
     [Fact]
@@ -283,7 +310,9 @@ public class RtfToMarkdownTests
 
         var painter = new SizeRecordingPainter { AutoResize = true };
         renderer.Render(painter, new APoint(0, 0));
-        Console.WriteLine(painter.Height);
+
+        var expected = "{{PARA:1}}New **Highscore!!!**\n{{PARA}}{{FONT-SIZE:14}}Enter your {{FONT-SIZE:18}}Name";
+        Assert.Equal(expected, data.Markdown);
         Assert.True(painter.Height >= 18);
     }
 
