@@ -1,7 +1,41 @@
-using System.Text.Json.Serialization;
 
 namespace AbstUI.Texts;
+#if NET48
+using Newtonsoft.Json;
+public class MarkdownStyleSheetTTO
+{
+    [JsonProperty("font-family")]
+    public string? FontFamily { get; set; }
 
+    [JsonProperty("font-size")]
+    public int? FontSize { get; set; }
+
+    [JsonProperty("color")]
+    public string? Color { get; set; }
+
+    [JsonProperty("text-align")]
+    public string? TextAlign { get; set; }
+
+    [JsonProperty("font-weight")]
+    public string? FontWeight { get; set; }
+
+    [JsonProperty("font-style")]
+    public string? FontStyle { get; set; }
+
+    [JsonProperty("text-decoration")]
+    public string? TextDecoration { get; set; }
+
+    [JsonProperty("line-height")]
+    public int? LineHeight { get; set; }
+
+    [JsonProperty("margin-left")]
+    public int? MarginLeft { get; set; }
+
+    [JsonProperty("margin-right")]
+    public int? MarginRight { get; set; }
+}
+#else
+using System.Text.Json.Serialization;
 public class MarkdownStyleSheetTTO
 {
     [JsonPropertyName("font-family")]
@@ -34,3 +68,5 @@ public class MarkdownStyleSheetTTO
     [JsonPropertyName("margin-right")]
     public int? MarginRight { get; set; }
 }
+#endif
+

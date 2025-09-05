@@ -147,7 +147,7 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
                 if (!string.IsNullOrWhiteSpace(FolderName))
                     path = Path.GetRelativePath(FolderName, path);
                 CsProjFile = path;
-            }, "*.csproj ; C# Project Files"), c => c.Width = 80)
+            }, "*.csproj ; C# Project Files", CsProjFile), c => c.Width = 80)
             // Preview
             .NewLine("PeviewRow")
             .AddLabel("PreviewLabel", GetSlnPreview(), 11, null, c => { _slnPreviewLabel = c; })
@@ -160,14 +160,14 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
             .Configure(c => _vsPathRow = c)
             .AddLabel("VsPathLabel", "VS Path", 11, 100)
             .AddTextInput("VsPathEdit", this, s => s.VisualStudioPath, 200, c => _VsPathEdit = c)
-            .AddButton("VsBrowse", "Browse...", () => _folderPicker.PickFolder(path => VisualStudioPath = path), c => c.Width = 80)
+            .AddButton("VsBrowse", "Browse...", () => _folderPicker.PickFolder(path => VisualStudioPath = path,VisualStudioPath), c => c.Width = 80)
             .AddButton("VsAuto", "Auto", () => VisualStudioPath = _resolver.AutoDetectVisualStudioPath() ?? string.Empty, c => c.Width = 80)
             // VS Code path
             .NewLine("VSCodePathRow")
             .Configure(c => _vsCodePathRow = c)
             .AddLabel("VSCodePathLabel", "VS Code Path", 11, 100)
             .AddTextInput("VSCodePathEdit", this, s => s.VisualStudioCodePath, 200, c => _VSCodePathEdit = c)
-            .AddButton("CodeBrowse", "Browse...", () => _folderPicker.PickFolder(path => VisualStudioCodePath = path), c => c.Width = 80)
+            .AddButton("CodeBrowse", "Browse...", () => _folderPicker.PickFolder(path => VisualStudioCodePath = path, VisualStudioCodePath), c => c.Width = 80)
             .AddButton("CodeAuto", "Auto", () => VisualStudioCodePath = _resolver.AutoDetectVSCodePath() ?? string.Empty, c => c.Width = 80)
             // Save & Apply buttons
             .NewLine("ButtonRow")

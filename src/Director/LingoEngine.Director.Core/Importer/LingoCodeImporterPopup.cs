@@ -107,7 +107,7 @@ public class LingoCodeImporterPopup
                     {
                         folderInput.Text = path;
                         ShowFiles(path);
-                    });
+                    }, folderInput.Text);
         };
         _folderPanel.AddItem(browse);
         var open = _factory.CreateButton("OpenButton", "Open");

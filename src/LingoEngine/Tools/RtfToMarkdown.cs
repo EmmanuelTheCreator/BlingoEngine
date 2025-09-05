@@ -3,8 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+
 using AbstUI.Primitives;
 using AbstUI.Texts;
 
@@ -231,10 +230,19 @@ namespace LingoEngine.Tools
                         tto.MarginRight = s.MarginRight;
                     return tto;
                 });
-                var json = JsonSerializer.Serialize(sheet, new JsonSerializerOptions
+#if NET48
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(
+                sheet,
+                new Newtonsoft.Json.JsonSerializerSettings
                 {
-                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                    NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
                 });
+#else
+                var json = System.Text.Json.JsonSerializer.Serialize(sheet, new System.Text.Json.JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                });
+#endif
                 markdown = $"{{{{STYLE-SHEET:{json}}}}}" + markdown;
             }
 

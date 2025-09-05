@@ -13,14 +13,15 @@ public partial class GodotFilePicker : IDirFilePicker
         _directorRoot = directorRoot;
     }
 
-    public void PickFile(Action<string> onPicked, string filter)
+    public void PickFile(Action<string> onPicked, string filter, string? currentFile = null)
     {
 #if USE_WINDOWS_FEATURES
         var dialog = new FileDialog
         {
             Access = FileDialog.AccessEnum.Filesystem,
             FileMode = FileDialog.FileModeEnum.OpenFile,
-            Filters = new[] { filter }
+            Filters = new[] { filter },
+            CurrentFile = currentFile
         };
 
         dialog.FileSelected += h => onPicked(h);

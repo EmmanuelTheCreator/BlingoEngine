@@ -1,11 +1,10 @@
 using AbstUI.Components.Graphics;
 using AbstUI.Primitives;
 using AbstUI.Styles;
-using System.Linq;
+
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Text.Json;
-using System.Threading.Tasks;
+
 
 namespace AbstUI.Texts
 {
@@ -102,7 +101,11 @@ namespace AbstUI.Texts
             var json = markdown.Substring(tag.Length, jsonEnd - tag.Length + 2);
             try
             {
-                var sheet = JsonSerializer.Deserialize<Dictionary<string, MarkdownStyleSheetTTO>>(json);
+#if NET48
+                var sheet = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, MarkdownStyleSheetTTO>>(json);
+#else
+                var sheet = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, MarkdownStyleSheetTTO>>(json);
+#endif
                 if (sheet == null)
                     return false;
                 styles = sheet.Select(kv => new AbstTextStyle
@@ -125,7 +128,7 @@ namespace AbstUI.Texts
                     MarginLeft = kv.Value.MarginLeft ?? 0,
                     MarginRight = kv.Value.MarginRight ?? 0
                 }).ToList();
-                markdown = markdown[(end + 2)..];
+                markdown = markdown.Substring(end + 2);
                 return true;
             }
             catch
