@@ -39,7 +39,7 @@ public class RtfToMarkdownTests
 
         var data = RtfToMarkdown.Convert(rtf);
 
-        var expected = "{{PARA:0}}line1\n{{PARA:0}}{{COLOR:#0000FF}}*line2*";
+        var expected = "{{PARA:0}}line1\n{{PARA:1}}*line2*";
         data.Markdown.Should().Be(expected);
         data.Segments.Select(s => (s.Bold, s.Italic, s.Underline)).Should().Equal(new[]
         {
@@ -48,7 +48,28 @@ public class RtfToMarkdownTests
         });
         data.Segments[0].IsParagraph.Should().BeTrue();
         data.Segments[1].IsParagraph.Should().BeFalse();
+        data.Segments[0].StyleId.Should().Be(0);
+        data.Segments[1].StyleId.Should().Be(1);
+        data.Styles["1"].Color.ToHex().Should().Be("#0000FF");
         data.PlainText.Should().Be("line1\nline2");
+    }
+
+    [Fact]
+    public void Convert_ReusesStylesAcrossParagraphs()
+    {
+        var rtf = "{\\rtf1\\ansi{\\fonttbl{\\f0 Arial;}}{\\colortbl;\\red0\\green0\\blue0;}" +
+                  "{\\f0\\fs24\\cf1 one\\par}" +
+                  "{\\f0\\fs28\\cf1 two\\par}" +
+                  "{\\f0\\fs24\\cf1 one again}}";
+
+        var data = RtfToMarkdown.Convert(rtf);
+
+        var expected = "{{PARA:0}}one\n{{PARA:1}}two\n{{PARA:0}}one again";
+        data.Markdown.Should().Be(expected);
+        data.Segments.Select(s => s.StyleId).Should().Equal(new[] { 0, 1, 0 });
+        data.Styles.Should().HaveCount(2);
+        data.Styles["0"].FontSize.Should().Be(12);
+        data.Styles["1"].FontSize.Should().Be(14);
     }
 
     [Fact]
@@ -288,14 +309,18 @@ public class RtfToMarkdownTests
 
         var data = RtfToMarkdown.Convert(rtf);
 
-        var expected = "{{PARA:1}}New **Highscore!!!**\n{{PARA}}{{FONT-SIZE:14}}Enter your {{FONT-SIZE:18}}Name";
+        var expected = "{{PARA:1}}New **Highscore!!!**\n{{PARA:2}}Enter your {{FONT-SIZE:18}}Name";
         data.Markdown.Should().Be(expected);
 
-        var style = data.Styles["1"];
-        style.Font.Should().Be("Earth");
-        style.FontSize.Should().Be(18);
-        style.Color.ToHex().Should().Be("#FF0000");
-        style.Alignment.Should().Be(AbstTextAlignment.Center);
+        data.Styles.Should().ContainKey("1");
+        data.Styles.Should().ContainKey("2");
+        var style1 = data.Styles["1"];
+        style1.Font.Should().Be("Earth");
+        style1.FontSize.Should().Be(18);
+        style1.Color.ToHex().Should().Be("#FF0000");
+        style1.Alignment.Should().Be(AbstTextAlignment.Center);
+        var style2 = data.Styles["2"];
+        style2.FontSize.Should().Be(14);
     }
 
     [Fact]
@@ -312,7 +337,7 @@ public class RtfToMarkdownTests
         var painter = new SizeRecordingPainter { AutoResize = true };
         renderer.Render(painter, new APoint(0, 0));
 
-        var expected = "{{PARA:1}}New **Highscore!!!**\n{{PARA}}{{FONT-SIZE:14}}Enter your {{FONT-SIZE:18}}Name";
+        var expected = "{{PARA:1}}New **Highscore!!!**\n{{PARA:2}}Enter your {{FONT-SIZE:18}}Name";
         data.Markdown.Should().Be(expected);
         painter.Height.Should().BeGreaterThanOrEqualTo(18);
     }
