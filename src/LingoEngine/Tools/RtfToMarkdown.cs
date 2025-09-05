@@ -48,39 +48,129 @@ namespace LingoEngine.Tools
                 }
             }
 
-            var styles = styleMap.ToDictionary(kv => kv.Key, kv => kv.Value.Style);
+            if (segments.Count > 0 && segments[0].StyleId < 0)
+            {
+                int newId = 0;
+                while (styleMap.ContainsKey(newId.ToString()))
+                    newId++;
+                var first = segments[0];
+                var style = new AbstTextStyle
+                {
+                    Name = newId.ToString(),
+                    Font = first.FontName,
+                    FontSize = first.Size,
+                    Color = first.Color ?? AColors.Black,
+                    Alignment = first.Alignment,
+                    LineHeight = first.LineHeight,
+                    MarginLeft = first.MarginLeft,
+                    MarginRight = first.MarginRight
+                };
+                styleMap[style.Name] = new StyleDef(style, true, true, first.Color != null, true);
+                first.StyleId = newId;
+            }
 
             var sb = new StringBuilder();
             AbstMDSegment? prev = null;
             string? currentStyle = null;
-            foreach (var seg in segments)
+            bool styleOpened = false;
+            for (int i = 0; i < segments.Count; i++)
             {
+                var seg = segments[i];
                 bool styleHasFont = false;
                 bool styleHasSize = false;
                 bool styleHasColor = false;
                 bool styleHasAlignment = false;
-                if (seg.StyleId >= 0)
+
+                bool isParagraphStart = i == 0 || (prev?.IsParagraph == true);
+                if (isParagraphStart)
                 {
-                    var id = seg.StyleId.ToString();
-                    if (currentStyle != id)
+                    if (seg.StyleId < 0)
                     {
-                        if (currentStyle != null)
-                            sb.Append("{{/STYLE}}");
-                        sb.Append("{{STYLE:" + id + "}}");
-                        currentStyle = id;
+                        var match = styleMap.FirstOrDefault(kv => StyleMatches(kv.Value.Style, seg));
+                        if (match.Value != null)
+                        {
+                            seg.StyleId = int.Parse(match.Key);
+                        }
+                        else
+                        {
+                            int newId = 0;
+                            while (styleMap.ContainsKey(newId.ToString()))
+                                newId++;
+                            var style = new AbstTextStyle
+                            {
+                                Name = newId.ToString(),
+                                Font = seg.FontName,
+                                FontSize = seg.Size,
+                                Color = seg.Color ?? AColors.Black,
+                                Alignment = seg.Alignment,
+                                LineHeight = seg.LineHeight,
+                                MarginLeft = seg.MarginLeft,
+                                MarginRight = seg.MarginRight
+                            };
+                            styleMap[style.Name] = new StyleDef(style, true, true, seg.Color != null, true);
+                            seg.StyleId = newId;
+                        }
                     }
-                    if (styleMap.TryGetValue(id, out var meta))
+
+                    var paraTag = seg.StyleId >= 0 ? $"{{{{PARA:{seg.StyleId}}}}}" : "{{PARA}}";
+                    if (i == 0)
+                        sb.Append(paraTag);
+                    else
+                    {
+                        var idx = sb.ToString().LastIndexOf("{{PARA", StringComparison.Ordinal);
+                        if (idx >= 0)
+                        {
+                            var end = sb.ToString().IndexOf("}}", idx, StringComparison.Ordinal);
+                            if (end >= 0)
+                            {
+                                sb.Remove(idx, end - idx + 2);
+                                sb.Insert(idx, paraTag);
+                            }
+                        }
+                    }
+
+                    if (seg.StyleId >= 0 && styleMap.TryGetValue(seg.StyleId.ToString(), out var meta))
                     {
                         styleHasFont = meta.HasFont;
                         styleHasSize = meta.HasSize;
                         styleHasColor = meta.HasColor;
                         styleHasAlignment = meta.HasAlignment;
+                        currentStyle = seg.StyleId.ToString();
+                    }
+                    else
+                    {
+                        currentStyle = null;
                     }
                 }
-                else if (currentStyle != null)
+                else
                 {
-                    sb.Append("{{/STYLE}}");
-                    currentStyle = null;
+                    if (seg.StyleId >= 0)
+                    {
+                        var id = seg.StyleId.ToString();
+                        if (currentStyle != id)
+                        {
+                            if (styleOpened)
+                                sb.Append("{{/STYLE}}");
+                            sb.Append("{{STYLE:" + id + "}}");
+                            styleOpened = true;
+                            currentStyle = id;
+                        }
+                        if (styleMap.TryGetValue(id, out var meta))
+                        {
+                            styleHasFont = meta.HasFont;
+                            styleHasSize = meta.HasSize;
+                            styleHasColor = meta.HasColor;
+                            styleHasAlignment = meta.HasAlignment;
+                        }
+                    }
+                    else
+                    {
+                        if (styleOpened)
+                            sb.Append("{{/STYLE}}");
+                        styleOpened = false;
+                        currentStyle = null;
+                        // (No style meta, but check for parameter diff below)
+                    }
                 }
 
                 if (!styleHasFont && (prev == null || seg.FontName != prev.FontName))
@@ -93,12 +183,20 @@ namespace LingoEngine.Tools
                     sb.Append("{{ALIGN:" + seg.Alignment.ToString().ToLowerInvariant() + "}}");
 
                 var text = ApplyStyle(seg.Text, seg);
+                text = text.Replace("\r\n", "\n");
+                text = Regex.Replace(text, @"\n{2,}", "\n");
+                if (seg.IsParagraph)
+                {
+                    var paraTag = seg.StyleId >= 0 ? $"{{{{PARA:{seg.StyleId}}}}}" : "{{PARA}}";
+                    text = text.Replace("\n", "\n" + paraTag);
+                }
                 sb.Append(text);
                 prev = seg;
             }
-            if (currentStyle != null)
+            if (styleOpened)
                 sb.Append("{{/STYLE}}");
 
+            var styles = styleMap.ToDictionary(kv => kv.Key, kv => kv.Value.Style);
             var markdown = Regex.Replace(sb.ToString(), @"\n{2,}", "\n");
             markdown = Regex.Replace(markdown, @"\n\s+", "\n");
             var plainTextRaw = string.Concat(segments.Select(s => s.Text));
@@ -123,6 +221,20 @@ namespace LingoEngine.Tools
             return text;
         }
 
+        private static bool StyleMatches(AbstTextStyle style, AbstMDSegment seg)
+        {
+            var styleColor = style.Color.ToHex();
+            var segColor = (seg.Color ?? AColors.Black).ToHex();
+
+            return string.Equals(style.Font, seg.FontName, StringComparison.OrdinalIgnoreCase)
+                && style.FontSize == seg.Size
+                && string.Equals(styleColor, segColor, StringComparison.OrdinalIgnoreCase)
+                && style.Alignment == seg.Alignment
+                && style.MarginLeft == seg.MarginLeft
+                && style.MarginRight == seg.MarginRight
+                && style.LineHeight == seg.LineHeight;
+        }
+
         private static List<AbstMDSegment> ParseSegments(string rtfContent, Dictionary<int, string> fontEntries, List<AColor> colorEntries, int colorOffset)
         {
             var segments = new List<AbstMDSegment>();
@@ -131,6 +243,14 @@ namespace LingoEngine.Tools
             if (!string.IsNullOrEmpty(sheet))
                 rtfContent = rtfContent.Replace(sheet, string.Empty);
 
+            var fonttbl = ExtractGroup(rtfContent, "\\fonttbl");
+            if (!string.IsNullOrEmpty(fonttbl))
+                rtfContent = rtfContent.Replace(fonttbl, string.Empty);
+
+            var colortbl = ExtractGroup(rtfContent, "\\colortbl");
+            if (!string.IsNullOrEmpty(colortbl))
+                rtfContent = rtfContent.Replace(colortbl, string.Empty);
+
             var blockMatches = Regex.Matches(
                 rtfContent,
                 @"{[^{}]*?(?:\\plain)?[^{}]*?(?:\\s(?<s>\d+))?[^{}]*?\\f(?<f>\d+)[^{}]*?(?:\\fs(?<fs>\d+))?[^{}]*?\\cf(?<cf>\d+)[^{}]*?(?<text>(?:\\.|[^{}\\])+)}",
@@ -138,6 +258,8 @@ namespace LingoEngine.Tools
 
             if (blockMatches.Count == 0)
                 return segments;
+
+            int lastIndex = 0;
 
             var alignmentMatch = Regex.Match(rtfContent, @"\\q(l|r|j|c)\b");
             AbstTextAlignment defaultAlignment = AbstTextAlignment.Left;
@@ -160,6 +282,14 @@ namespace LingoEngine.Tools
 
             foreach (Match match in blockMatches.Cast<Match>())
             {
+                var gap = rtfContent.Substring(lastIndex, match.Index - lastIndex);
+                int gapPars = Regex.Matches(gap, @"\\par").Count;
+                if (gapPars > 0 && segments.Count > 0)
+                {
+                    segments[^1].Text += new string('\n', gapPars);
+                    segments[^1].IsParagraph = true;
+                }
+
                 int fontIndex = int.Parse(match.Groups["f"].Value);
                 int fontSizeHalfPoints = match.Groups["fs"].Success ? int.Parse(match.Groups["fs"].Value) : 24;
                 int colorIndex = int.Parse(match.Groups["cf"].Value);
@@ -226,6 +356,8 @@ namespace LingoEngine.Tools
                 textContent = Regex.Replace(textContent, @"\\u(-?\d+)\??", m => ((char)int.Parse(m.Groups[1].Value)).ToString());
                 textContent = textContent.Replace("\\par", "\n").Replace("\\tab", "\t").Replace("\\\\", "\\");
                 textContent = Regex.Replace(textContent, @"\\([{}:])", "$1");
+                if (isParagraph && string.IsNullOrEmpty(textContent))
+                    textContent = "\n";
                 if (textContent.StartsWith(" "))
                     textContent = textContent.Substring(1);
 
@@ -247,6 +379,15 @@ namespace LingoEngine.Tools
                     StyleId = styleId,
                     IsParagraph = isParagraph
                 });
+                lastIndex = match.Index + match.Length;
+            }
+
+            var tailGap = rtfContent.Substring(lastIndex);
+            int tailPars = Regex.Matches(tailGap, @"\\par").Count;
+            if (tailPars > 0 && segments.Count > 0)
+            {
+                segments[^1].Text += new string('\n', tailPars);
+                segments[^1].IsParagraph = true;
             }
 
             return segments;
