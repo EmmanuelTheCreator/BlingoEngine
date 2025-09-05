@@ -81,7 +81,7 @@ namespace AbstUI.Texts
                 return;
             }
 
-            var markdown = Regex.Replace(_markdown, @"\n(?=\{\{PARA(?::\d+)?\}\})", string.Empty);
+            var markdown = Regex.Replace(_markdown, @"\n{2,}(?=\{\{PARA(?::\d+)?\}\})", "\n");
             var lines = markdown.Split('\n');
             var pos = start;
 
