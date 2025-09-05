@@ -220,7 +220,7 @@ namespace AbstUI.SDL2.Components.Containers
             }
             bool needRender = _texture == nint.Zero || _texW != w || _texH != h ||
                                _lastScrollH != ScrollHorizontal || _lastScrollV != ScrollVertical || hasModifiedChildren;
-            if (needRender)
+            //if (needRender)
             {
                 if (_texture != nint.Zero)
                     SDL.SDL_DestroyTexture(_texture);

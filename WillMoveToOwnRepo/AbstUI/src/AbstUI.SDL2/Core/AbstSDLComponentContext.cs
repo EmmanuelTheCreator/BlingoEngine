@@ -63,6 +63,8 @@ public class AbstSDLComponentContext : IDisposable
             return;
         _modifiedChildren.Add(component);
         _requireRender = true;
+        VisualParent?.QueueRedrawFromChild(Component ?? component);
+        OnRequestRedraw?.Invoke(component);
     }
 
     public bool HasModifiedChildren() => _modifiedChildren.Any();

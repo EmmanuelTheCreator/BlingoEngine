@@ -1,76 +1,12 @@
 using System.Collections.Generic;
-using AbstUI.Components.Graphics;
-using AbstUI.Styles;
 using AbstUI.Texts;
 using AbstUI.Primitives;
+using AbstUI.Tests.Common;
 
 namespace AbstUI.Tests;
-
-public class AbstMarkdownRendererTests
+public partial class AbstMarkdownRendererTests
 {
-    private class TestFontManager : IAbstFontManager
-    {
-        private readonly int _topIndent;
-        private readonly Dictionary<string, int> _topIndents;
-        private readonly Dictionary<string, int> _extraHeights;
-
-        public TestFontManager(int topIndent = 0, Dictionary<string, int>? topIndents = null, Dictionary<string, int>? extraHeights = null)
-        {
-            _topIndent = topIndent;
-            _topIndents = topIndents ?? new();
-            _extraHeights = extraHeights ?? new();
-        }
-
-        public IAbstFontManager AddFont(string name, string pathAndName, AbstFontStyle style = AbstFontStyle.Regular) => this;
-        public void LoadAll() { }
-        public T? Get<T>(string name, AbstFontStyle style = AbstFontStyle.Regular) where T : class => null;
-        public T GetDefaultFont<T>() where T : class => null!;
-        public void SetDefaultFont<T>(T font) where T : class { }
-        public IEnumerable<string> GetAllNames() => System.Array.Empty<string>();
-        public float MeasureTextWidth(string text, string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular) => text.Length * fontSize;
-        public FontInfo GetFontInfo(string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
-        {
-            int ascent = _topIndents.TryGetValue(fontName, out var ti) ? ti : _topIndent;
-            int extra = _extraHeights.TryGetValue(fontName, out var h) ? h : 0;
-            return new(fontSize + extra, ascent);
-
-        }
-    }
-
-    private class RecordingPainter : IAbstImagePainter
-    {
-        public List<APoint> TextPositions { get; } = new();
-        public List<int> FontSizes { get; } = new();
-
-        public int Height { get; set; }
-        public int Width { get; set; }
-        public bool Pixilated { get; set; }
-        public bool AutoResize { get; set; }
-        public string Name { get; set; } = string.Empty;
-
-        public void Clear(AColor color) { }
-        public void SetPixel(APoint point, AColor color) { }
-        public void DrawLine(APoint start, APoint end, AColor color, float width = 1) { }
-        public void DrawRect(ARect rect, AColor color, bool filled = true, float width = 1) { }
-        public void DrawCircle(APoint center, float radius, AColor color, bool filled = true, float width = 1) { }
-        public void DrawArc(APoint center, float radius, float startDeg, float endDeg, int segments, AColor color, float width = 1) { }
-        public void DrawPolygon(IReadOnlyList<APoint> points, AColor color, bool filled = true, float width = 1) { }
-        public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular)
-        {
-            TextPositions.Add(position);
-            FontSizes.Add(fontSize);
-        }
-        public void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular)
-        {
-            TextPositions.Add(position);
-            FontSizes.Add(fontSize);
-        }
-        public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format) { }
-        public void DrawPicture(IAbstTexture2D texture, int width, int height, APoint position) { }
-        public IAbstTexture2D GetTexture(string? name = null) => null!;
-        public void Render() { }
-        public void Dispose() { }
-    }
+   
 
     private static AbstMarkdownRenderer CreateRenderer(int topIndent = 0, Dictionary<string, int>? topIndents = null, Dictionary<string, int>? extraHeights = null)
         => new(new TestFontManager(topIndent, topIndents, extraHeights));

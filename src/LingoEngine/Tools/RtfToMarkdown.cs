@@ -286,8 +286,8 @@ namespace LingoEngine.Tools
                 int gapPars = Regex.Matches(gap, @"\\par").Count;
                 if (gapPars > 0 && segments.Count > 0)
                 {
-                    segments[^1].Text += new string('\n', gapPars);
-                    segments[^1].IsParagraph = true;
+                    segments[segments.Count - 1].Text += new string('\n', gapPars);
+                    segments[segments.Count - 1].IsParagraph = true;
                 }
 
                 int fontIndex = int.Parse(match.Groups["f"].Value);
@@ -386,8 +386,8 @@ namespace LingoEngine.Tools
             int tailPars = Regex.Matches(tailGap, @"\\par").Count;
             if (tailPars > 0 && segments.Count > 0)
             {
-                segments[^1].Text += new string('\n', tailPars);
-                segments[^1].IsParagraph = true;
+                segments[segments.Count - 1].Text += new string('\n', tailPars);
+                segments[segments.Count - 1].IsParagraph = true;
             }
 
             return segments;
