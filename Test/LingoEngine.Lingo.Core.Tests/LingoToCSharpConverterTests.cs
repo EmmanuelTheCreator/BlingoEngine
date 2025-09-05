@@ -247,7 +247,7 @@ end";
             "    public B1Behavior(ILingoMovieEnvironment env) : base(env) { }",
             "public void BeginSprite()",
             "{",
-            "    SendSprite<B2>(2, b2 => b2.doIt());",
+            "    SendSprite<B2Behavior>(2, b2behavior => b2behavior.doIt());",
             "}",
             "",
             "}");
@@ -284,7 +284,7 @@ end";
             "    public B1Behavior(ILingoMovieEnvironment env) : base(env) { }",
             "public void BeginSprite()",
             "{",
-            "    SendSprite<B2>(2, b2 => b2.doIt(42));",
+            "    SendSprite<B2Behavior>(2, b2behavior => b2behavior.doIt(42));",
             "}",
             "",
             "}");
@@ -355,7 +355,7 @@ end";
             "    public P1Behavior(ILingoMovieEnvironment env) : base(env) { }",
             "public void BeginSprite()",
             "{",
-            "    CallMovieScript<M1>(m1 => m1.myMovieHandler());",
+            "    CallMovieScript<M1Behavior>(m1behavior => m1behavior.myMovieHandler());",
             "}",
             "",
             "}");

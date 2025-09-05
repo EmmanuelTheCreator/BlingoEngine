@@ -154,6 +154,39 @@ public class ClassGenerationTests
     }
 
     [Fact]
+    public void ClassNameStripsLsSuffix()
+    {
+        var file = new LingoScriptFile
+        {
+            Name = "Stop_Menu_ls",
+            Source = string.Empty,
+            Type = LingoScriptType.Behavior
+        };
+        var result = _converter.ConvertClass(file);
+        Assert.Contains("class Stop_MenuBehavior", result);
+    }
+
+    [Fact]
+    public void CustomSuffixesAreApplied()
+    {
+        var settings = new LingoToCSharpConverterSettings
+        {
+            BehaviorSuffix = "Beh",
+            ParentSuffix = "Par",
+            MovieScriptSuffix = "Mov"
+        };
+        var converter = new LingoToCSharpConverter(settings);
+
+        var b = converter.ConvertClass(new LingoScriptFile { Name = "Foo_ls", Source = "", Type = LingoScriptType.Behavior });
+        var p = converter.ConvertClass(new LingoScriptFile { Name = "Bar_ls", Source = "", Type = LingoScriptType.Parent });
+        var m = converter.ConvertClass(new LingoScriptFile { Name = "Baz_ls", Source = "", Type = LingoScriptType.Movie });
+
+        Assert.Contains("class FooBeh", b);
+        Assert.Contains("class BarPar", p);
+        Assert.Contains("class BazMov", m);
+    }
+
+    [Fact]
     public void ScriptWithFullPropertyDescriptionListCreatesBehaviorClass()
     {
         var file = new LingoScriptFile
