@@ -71,16 +71,23 @@ namespace LingoEngine.Tools
                 }
                 var fileName = Path.Combine(rootFolder, fn);
                 var newMember = cast.Add(row.Type, row.Number, row.Name, fileName, row.RegPoint);
-                if (newMember is ILingoMemberTextBaseInteral textbased)
+                if (newMember is ILingoMemberTextBase textMember && newMember is ILingoMemberTextBaseInteral textbased)
                 {
+                    var mdFile = Path.ChangeExtension(fileName, ".md");
                     var rtfFile = Path.ChangeExtension(fileName, ".rtf");
-                    if (_resourceManager.FileExists(rtfFile) && newMember is ILingoMemberTextBase textMember)
+                    if (_resourceManager.FileExists(mdFile))
+                    {
+                        var mdContent = _resourceManager.ReadTextFile(mdFile) ?? string.Empty;
+                        textMember.Text = mdContent;
+                    }
+                    else if (_resourceManager.FileExists(rtfFile))
                     {
                         var rtfContent = _resourceManager.ReadTextFile(rtfFile) ?? string.Empty;
                         var md = RtfToMarkdown.Convert(rtfContent);
-                   
+
                         textMember.SetTextMD(md);
 #if DEBUG
+                        File.WriteAllText(mdFile, md.Markdown);
                         if (md.PlainText.Contains("\\") || newMember.Name.Contains("entername"))
                         {
                             textMember.Preload();
