@@ -81,7 +81,8 @@ namespace AbstUI.Texts
                 return;
             }
 
-            var lines = _markdown.Split('\n');
+            var markdown = Regex.Replace(_markdown, @"\n(?=\{\{PARA(?::\d+)?\}\})", string.Empty);
+            var lines = markdown.Split('\n');
             var pos = start;
 
             foreach (var rawLine in lines)
@@ -232,7 +233,19 @@ namespace AbstUI.Texts
             while (true)
             {
                 var trimmed = line.TrimStart();
-                if (trimmed.StartsWith("{{STYLE:", StringComparison.Ordinal))
+                if (trimmed.StartsWith("{{PARA", StringComparison.Ordinal))
+                {
+                    int start = line.IndexOf("{{PARA", StringComparison.Ordinal);
+                    int end = line.IndexOf("}}", start + 6, StringComparison.Ordinal);
+                    if (end == -1)
+                        break;
+                    var idPart = line.Substring(start + 6, end - (start + 6)).TrimStart(':').Trim();
+                    _styleStack.Clear();
+                    if (idPart.Length > 0 && _styles.TryGetValue(idPart, out var paraStyle))
+                        ApplyStyle(paraStyle);
+                    line = line.Remove(start, end - start + 2);
+                }
+                else if (trimmed.StartsWith("{{STYLE:", StringComparison.Ordinal))
                 {
                     int start = line.IndexOf("{{STYLE:", StringComparison.Ordinal);
                     int end = line.IndexOf("}}", start + 8, StringComparison.Ordinal);
