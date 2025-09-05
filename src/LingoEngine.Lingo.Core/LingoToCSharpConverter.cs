@@ -13,7 +13,16 @@ namespace LingoEngine.Lingo.Core;
 /// </summary>
 public class LingoToCSharpConverter
 {
+    private readonly LingoToCSharpConverterSettings _settings;
+
     public List<ErrorDto> Errors { get; } = new();
+
+    public LingoToCSharpConverter() : this(new LingoToCSharpConverterSettings()) { }
+
+    public LingoToCSharpConverter(LingoToCSharpConverterSettings settings)
+    {
+        _settings = settings;
+    }
 
     private static string JoinContinuationLines(string source)
     {
@@ -70,7 +79,7 @@ public class LingoToCSharpConverter
         try
         {
             var ast = parser.Parse(lingoSource);
-            return CSharpWriter.Write(ast, options.MethodAccessModifier);
+            return CSharpWriter.Write(ast, options.MethodAccessModifier, settings: _settings);
         }
         catch (Exception ex)
         {
@@ -115,7 +124,8 @@ public class LingoToCSharpConverter
         foreach (var s in scriptList)
         {
             typeMap[s.Name] = s.Type;
-            typeMap[SanitizeIdentifier(s.Name)] = s.Type;
+            typeMap[CSharpName.SanitizeIdentifier(s.Name)] = s.Type;
+            typeMap[CSharpName.NormalizeScriptName(s.Name)] = s.Type;
         }
 
         // First pass: parse scripts, gather handler signatures and property names
@@ -155,7 +165,8 @@ public class LingoToCSharpConverter
                     methodSigs.Add(new MethodSignature(kv.Key, paramInfos));
                     if (!DefaultMethods.Contains(kv.Key) && !methodMap.ContainsKey(kv.Key))
                     {
-                        methodMap[kv.Key] = file.Name;
+                        var className = CSharpName.ComposeName(file.Name, file.Type, _settings);
+                        methodMap[kv.Key] = className;
                         result.CustomMethods.Add(kv.Key);
                     }
                 }
@@ -215,7 +226,7 @@ public class LingoToCSharpConverter
 
         // Link SendSprite methods
         var generatedBehaviors = new Dictionary<string, string>();
-        var annotator = new SendSpriteTypeResolver(methodMap, generatedBehaviors);
+        var annotator = new SendSpriteTypeResolver(methodMap, generatedBehaviors, _settings);
         foreach (var ast in asts)
         {
             var fileItem = scripts.First(x => x.Name == ast.Key);
@@ -241,7 +252,7 @@ public class LingoToCSharpConverter
                 var sigMap = result.Methods.TryGetValue(script.Name, out var msList)
                     ? msList.ToDictionary(m => m.Name, m => m, StringComparer.OrdinalIgnoreCase)
                     : new Dictionary<string, MethodSignature>(StringComparer.OrdinalIgnoreCase);
-                var methods = CSharpWriter.Write(asts[script.Name], options.MethodAccessModifier, typeMap, sigMap);
+                var methods = CSharpWriter.Write(asts[script.Name], options.MethodAccessModifier, typeMap, sigMap, _settings);
                 var insertIdx = classCode.LastIndexOf('}');
                 if (insertIdx >= 0)
                     classCode = classCode[..insertIdx] + methods + classCode[insertIdx..];
@@ -276,7 +287,7 @@ public class LingoToCSharpConverter
 
             try
             {
-                var safeName = SanitizeIdentifier(kvp.Value);
+                var safeName = CSharpName.SanitizeIdentifier(kvp.Value);
                 var scriptBody = GenerateSendSpriteBehaviorClass(safeName, kvp.Key);
                 var ns = BuildNamespace(fileItem ?? new LingoScriptFile(kvp.Value, string.Empty), options);
                 var sb = new StringBuilder();
@@ -347,14 +358,6 @@ public class LingoToCSharpConverter
         var handlers = ExtractHandlerNames(source);
         var scriptType = handlers.Contains("getPropertyDescriptionList") ? LingoScriptType.Behavior : script.Type;
 
-        var suffix = scriptType switch
-        {
-            LingoScriptType.Movie => "MovieScript",
-            LingoScriptType.Parent => "Parent",
-            LingoScriptType.Behavior => "Behavior",
-            _ => "Script"
-        };
-
         var baseType = scriptType switch
         {
             LingoScriptType.Movie => "LingoMovieScript",
@@ -363,7 +366,7 @@ public class LingoToCSharpConverter
             _ => "LingoScriptBase"
         };
 
-        var className = SanitizeIdentifier(script.Name) + suffix;
+        var className = CSharpName.ComposeName(script.Name, scriptType, _settings);
         bool hasPropDescHandler = handlers.Contains("getPropertyDescriptionList");
         var propDescs = ExtractPropertyDescriptions(source);
         var propDecls = ExtractPropertyDeclarations(source);
@@ -474,7 +477,7 @@ public class LingoToCSharpConverter
                 sb.AppendLine("        _global = global;");
             if (newHandler != null)
             {
-                var methodCode = CSharpWriter.Write(newHandler, "public", scriptTypes);
+                var methodCode = CSharpWriter.Write(newHandler, "public", scriptTypes, settings: _settings);
                 var bodyStart = methodCode.IndexOf('{');
                 var bodyEnd = methodCode.LastIndexOf('}');
                 var body = bodyStart >= 0 && bodyEnd > bodyStart
@@ -517,26 +520,6 @@ public class LingoToCSharpConverter
         return sb.ToString();
     }
 
-    private static string SanitizeIdentifier(string name)
-    {
-        if (string.IsNullOrWhiteSpace(name)) return "L";
-        var sb = new System.Text.StringBuilder();
-        foreach (var c in name)
-        {
-            sb.Append(char.IsLetterOrDigit(c) || c == '_' ? c : '_');
-        }
-        int trim = 0;
-        while (trim < sb.Length && (char.IsDigit(sb[trim]) || sb[trim] == '_'))
-            trim++;
-        if (trim > 0)
-            sb.Remove(0, trim);
-        if (sb.Length > 2 && sb[1] == '_' && char.IsLetter(sb[0]))
-            sb.Remove(0, 2);
-        if (sb.Length == 0 || !char.IsLetter(sb[0]))
-            sb.Insert(0, 'L');
-        return sb.ToString();
-    }
-
     private static string BuildNamespace(LingoScriptFile script, ConversionOptions options)
     {
         var parts = new List<string>();
@@ -548,7 +531,7 @@ public class LingoToCSharpConverter
             var dirs = script.RelativeDirectory.Split(new[] { '/', '\\' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var d in dirs)
             {
-                var seg = SanitizeIdentifier(d);
+                var seg = CSharpName.SanitizeIdentifier(d);
                 if (seg.Length > 0)
                     parts.Add(char.ToUpperInvariant(seg[0]) + seg[1..]);
             }
@@ -1049,10 +1032,12 @@ public class LingoToCSharpConverter
     {
         private readonly Dictionary<string, string> _methodMap;
         private readonly Dictionary<string, string> _generated;
-        public SendSpriteTypeResolver(Dictionary<string, string> methodMap, Dictionary<string, string> generated)
+        private readonly LingoToCSharpConverterSettings _settings;
+        public SendSpriteTypeResolver(Dictionary<string, string> methodMap, Dictionary<string, string> generated, LingoToCSharpConverterSettings settings)
         {
             _methodMap = methodMap;
             _generated = generated;
+            _settings = settings;
         }
         public void Visit(LingoHandlerNode n) => n.Block.Accept(this);
         public void Visit(LingoCommentNode n) { }
@@ -1102,7 +1087,8 @@ public class LingoToCSharpConverter
                 {
                     if (!_generated.TryGetValue(name, out var className))
                     {
-                        className = char.ToUpperInvariant(name[0]) + name[1..] + "Behavior";
+                        var pascal = char.ToUpperInvariant(name[0]) + name[1..];
+                        className = CSharpName.ComposeName(pascal, LingoScriptType.Behavior, _settings);
                         _generated[name] = className;
                     }
                     _methodMap[name] = className;
@@ -1126,7 +1112,8 @@ public class LingoToCSharpConverter
                 {
                     if (!_generated.TryGetValue(name, out var className))
                     {
-                        className = char.ToUpperInvariant(name[0]) + name[1..] + "Behavior";
+                        var pascal = char.ToUpperInvariant(name[0]) + name[1..];
+                        className = CSharpName.ComposeName(pascal, LingoScriptType.Behavior, _settings);
                         _generated[name] = className;
                     }
                     _methodMap[name] = className;

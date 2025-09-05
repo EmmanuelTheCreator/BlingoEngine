@@ -16,6 +16,7 @@ public partial class CSharpWriter : ILingoAstVisitor
     private readonly string _methodAccessModifier;
     private readonly IReadOnlyDictionary<string, LingoScriptType> _scriptTypes;
     private readonly IReadOnlyDictionary<string, MethodSignature>? _methodSignatures;
+    private readonly LingoToCSharpConverterSettings _settings;
     private string? _currentHandlerName;
     private int _indent;
     private bool _atLineStart = true;
@@ -23,11 +24,13 @@ public partial class CSharpWriter : ILingoAstVisitor
     public CSharpWriter(
         string methodAccessModifier = "public",
         IReadOnlyDictionary<string, LingoScriptType>? scriptTypes = null,
-        IReadOnlyDictionary<string, MethodSignature>? methodSignatures = null)
+        IReadOnlyDictionary<string, MethodSignature>? methodSignatures = null,
+        LingoToCSharpConverterSettings? settings = null)
     {
         _methodAccessModifier = methodAccessModifier;
         _scriptTypes = scriptTypes ?? new Dictionary<string, LingoScriptType>();
         _methodSignatures = methodSignatures;
+        _settings = settings ?? new LingoToCSharpConverterSettings();
     }
 
     /// <summary>Converts the given AST node to C#.</summary>
@@ -35,9 +38,10 @@ public partial class CSharpWriter : ILingoAstVisitor
         LingoNode node,
         string methodAccessModifier = "public",
         IReadOnlyDictionary<string, LingoScriptType>? scriptTypes = null,
-        IReadOnlyDictionary<string, MethodSignature>? methodSignatures = null)
+        IReadOnlyDictionary<string, MethodSignature>? methodSignatures = null,
+        LingoToCSharpConverterSettings? settings = null)
     {
-        var writer = new CSharpWriter(methodAccessModifier, scriptTypes, methodSignatures);
+        var writer = new CSharpWriter(methodAccessModifier, scriptTypes, methodSignatures, settings);
         node.Accept(writer);
         return writer._sb.ToString();
     }
@@ -725,20 +729,4 @@ public partial class CSharpWriter : ILingoAstVisitor
         }
     }
 
-    private static string SanitizeIdentifier(string name)
-    {
-        if (string.IsNullOrEmpty(name)) return "L";
-        var sb = new StringBuilder();
-        foreach (var c in name)
-        {
-            if (char.IsLetterOrDigit(c) || c == '_')
-                sb.Append(c);
-        }
-        var result = sb.ToString();
-        if (string.IsNullOrEmpty(result))
-            result = "L";
-        if (!char.IsLetter(result[0]) && result[0] != '_')
-            result = "L" + result;
-        return result;
-    }
 }
