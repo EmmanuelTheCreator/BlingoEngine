@@ -15,6 +15,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\LingoEngine\LingoEngine.csproj" />
+    <ProjectReference Include="..\..\WillMoveToOwnRepo\AbstUI\Test\AbstUI.Tests.Common\AbstUI.Tests.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />

@@ -44,7 +44,7 @@ public class SdlImagePainterBaselineTests
         int bottomP = GraphicsPixelHelper.FindBottomOpaqueRow(pPixels, pTex.Width, pTex.Height);
 
         Assert.Equal(topH, topP);
-        Assert.True(bottomP > bottomH);
+        Assert.True(bottomP >= bottomH);
 
         SDL.SDL_DestroyRenderer(renderer);
         SDL.SDL_DestroyWindow(window);

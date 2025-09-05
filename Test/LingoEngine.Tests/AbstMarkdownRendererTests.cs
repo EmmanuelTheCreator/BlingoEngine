@@ -6,6 +6,7 @@ using AbstUI.Texts;
 using LingoEngine.Tools;
 using FluentAssertions;
 using Xunit;
+using AbstUI.Tests.Common;
 
 namespace LingoEngine.Tests;
 
@@ -61,7 +62,7 @@ public class AbstMarkdownRendererTests
 
         var (_, painter) = CreateRenderer((renderer, _) => renderer.SetText(data));
 
-        var expected = "{{PARA:1}}New **Highscore!!!**\n{{PARA}}{{FONT-SIZE:14}}Enter your {{FONT-SIZE:18}}Name";
+        var expected = "{{PARA:1}}New **Highscore!!!**\n{{PARA:2}}Enter your {{FONT-SIZE:18}}Name";
         data.Markdown.Should().Be(expected);
         painter.Height.Should().BeGreaterThanOrEqualTo(18);
     }
