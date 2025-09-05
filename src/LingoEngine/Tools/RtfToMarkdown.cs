@@ -48,39 +48,82 @@ namespace LingoEngine.Tools
                 }
             }
 
+            if (segments.Count > 0 && segments[0].StyleId < 0)
+            {
+                int newId = 0;
+                while (styleMap.ContainsKey(newId.ToString()))
+                    newId++;
+                var first = segments[0];
+                var style = new AbstTextStyle
+                {
+                    Name = newId.ToString(),
+                    Font = first.FontName,
+                    FontSize = first.Size,
+                    Color = first.Color ?? AColors.Black,
+                    Alignment = first.Alignment,
+                    LineHeight = first.LineHeight,
+                    MarginLeft = first.MarginLeft,
+                    MarginRight = first.MarginRight
+                };
+                styleMap[style.Name] = new StyleDef(style, true, true, first.Color != null, true);
+                first.StyleId = newId;
+            }
+
             var styles = styleMap.ToDictionary(kv => kv.Key, kv => kv.Value.Style);
 
             var sb = new StringBuilder();
             AbstMDSegment? prev = null;
             string? currentStyle = null;
-            foreach (var seg in segments)
+            bool styleOpened = false;
+            for (int i = 0; i < segments.Count; i++)
             {
+                var seg = segments[i];
                 bool styleHasFont = false;
                 bool styleHasSize = false;
                 bool styleHasColor = false;
                 bool styleHasAlignment = false;
-                if (seg.StyleId >= 0)
+
+                if (i == 0)
                 {
-                    var id = seg.StyleId.ToString();
-                    if (currentStyle != id)
-                    {
-                        if (currentStyle != null)
-                            sb.Append("{{/STYLE}}");
-                        sb.Append("{{STYLE:" + id + "}}");
-                        currentStyle = id;
-                    }
-                    if (styleMap.TryGetValue(id, out var meta))
+                    var paraTag = seg.StyleId >= 0 ? $"{{{{PARA:{seg.StyleId}}}}}" : "{{PARA}}";
+                    sb.Append(paraTag);
+                    if (seg.StyleId >= 0 && styleMap.TryGetValue(seg.StyleId.ToString(), out var meta))
                     {
                         styleHasFont = meta.HasFont;
                         styleHasSize = meta.HasSize;
                         styleHasColor = meta.HasColor;
                         styleHasAlignment = meta.HasAlignment;
+                        currentStyle = seg.StyleId.ToString();
                     }
                 }
-                else if (currentStyle != null)
+                else
                 {
-                    sb.Append("{{/STYLE}}");
-                    currentStyle = null;
+                    if (seg.StyleId >= 0)
+                    {
+                        var id = seg.StyleId.ToString();
+                        if (currentStyle != id)
+                        {
+                            if (styleOpened)
+                                sb.Append("{{/STYLE}}");
+                            sb.Append("{{STYLE:" + id + "}}");
+                            styleOpened = true;
+                            currentStyle = id;
+                        }
+                        if (styleMap.TryGetValue(id, out var meta))
+                        {
+                            styleHasFont = meta.HasFont;
+                            styleHasSize = meta.HasSize;
+                            styleHasColor = meta.HasColor;
+                            styleHasAlignment = meta.HasAlignment;
+                        }
+                    }
+                    else
+                    {
+                        if (styleOpened)
+                            sb.Append("{{/STYLE}}");
+                        styleOpened = false;
+                        currentStyle = null;
+                    }
                 }
 
                 if (!styleHasFont && (prev == null || seg.FontName != prev.FontName))
@@ -93,10 +136,17 @@ namespace LingoEngine.Tools
                     sb.Append("{{ALIGN:" + seg.Alignment.ToString().ToLowerInvariant() + "}}");
 
                 var text = ApplyStyle(seg.Text, seg);
+                text = text.Replace("\r\n", "\n");
+                text = Regex.Replace(text, @"\n{2,}", "\n");
+                if (seg.IsParagraph)
+                {
+                    var paraTag = seg.StyleId >= 0 ? $"{{{{PARA:{seg.StyleId}}}}}" : "{{PARA}}";
+                    text = text.Replace("\n", "\n" + paraTag);
+                }
                 sb.Append(text);
                 prev = seg;
             }
-            if (currentStyle != null)
+            if (styleOpened)
                 sb.Append("{{/STYLE}}");
 
             var markdown = Regex.Replace(sb.ToString(), @"\n{2,}", "\n");
