@@ -34,11 +34,13 @@ public class Program
 
             serviceProvier.SetupGfxTest();
 
+            //RunTest(rootContext.Renderer);
+            //RunTest2(rootContext.Renderer);
+
+
             var scroll = GfxTestScene.Build(factory);
             rootContext.ComponentContainer.Activate(((dynamic)scroll.FrameworkObj).ComponentContext);
 
-            //RunTest(rootContext.Renderer);
-            //RunTest2(rootContext.Renderer);
             
             rootContext.Run();
         }
@@ -58,8 +60,10 @@ public class Program
         using var painter = new SDLImagePainter(fontManager, 300, 0, renderer);
         painter.AutoResize = true;
 
-        var text = "{{PARA:1}}New Highscore!!! Enter your Name";
-        markDownRender.SetText(text, new[] { new AbstTextStyle { Name = "1", Font = "Earth", FontSize = 12 } }); 
+        var text = "{{STYLE-SHEET:{\"0\":{\"font-family\":\"Arcade\",\"font-size\":30,\"color\":\"#FF0000\",\"text-align\":\"right\"}}}}{{PARA:0}}**HI-SCORES**";
+        markDownRender.SetText(text); 
+        //var text = "{{PARA:1}}New Highscore!!! Enter your Name";
+        //markDownRender.SetText(text, new[] { new AbstTextStyle { Name = "1", Font = "Earth", FontSize = 12 } }); 
         //var text = "{{PARA:1}}New **Highscore!!!**\n{{PARA:2}}Enter your {{FONT-SIZE:32}}Name";
         //markDownRender.SetText(text, new [] { new AbstTextStyle { Name = "1", Font = "Earth", FontSize = 12, Alignment= AbstTextAlignment.Right }, new AbstTextStyle { Name = "2", Font = "Tahoma", FontSize = 14 } });
         //var text = "{{PARA:1}}Enter your {{FONT-SIZE:32}}NamejyJ";
