@@ -81,8 +81,38 @@ namespace AbstUI.Texts
                 return;
             }
 
+            // --- PASS 1: measure max line width with style progression ---
             var markdown = Regex.Replace(_markdown, @"\n{2,}(?=\{\{PARA(?::\d+)?\}\})", "\n");
             var lines = markdown.Split('\n');
+
+            if (_styles.Count > 0) ApplyStyle(_styles.Values.First());
+            _styleStack.Clear();
+
+            float maxWidth = 0f;
+            foreach (var raw in lines)
+            {
+                var line = raw.TrimEnd('\r');
+                ApplyLeadingStyle(ref line);
+
+                int headerLevel = 0;
+                while (headerLevel < line.Length && line[headerLevel] == '#') headerLevel++;
+                var content = headerLevel > 0 ? line.Substring(headerLevel).TrimStart() : line;
+                if (string.IsNullOrWhiteSpace(content)) continue;
+
+                int usedFontSize = headerLevel > 0 ? 32 - (headerLevel - 1) * 4 : _currentStyle.FontSize;
+                bool headerBold = headerLevel > 0;
+
+                _ = ParseInlineSegments(content, usedFontSize,
+                    headerBold || _currentStyle.Bold, _currentStyle.Italic, _currentStyle.Underline,
+                    out float lw);
+
+                if (lw > maxWidth) maxWidth = lw;
+            }
+
+            // reset for actual render
+            if (_styles.Count > 0) ApplyStyle(_styles.Values.First());
+            _styleStack.Clear();
+
             var pos = start;
 
             foreach (var rawLine in lines)
@@ -97,6 +127,8 @@ namespace AbstUI.Texts
                 while (headerLevel < line.Length && line[headerLevel] == '#')
                     headerLevel++;
                 var content = headerLevel > 0 ? line.Substring(headerLevel).TrimStart() : line;
+                if (string.IsNullOrWhiteSpace(content))
+                    continue;
 
                 int usedFontSize = headerLevel > 0 ? 32 - (headerLevel - 1) * 4 : _currentStyle.FontSize;
                 bool headerBold = headerLevel > 0;
@@ -120,23 +152,28 @@ namespace AbstUI.Texts
 
                 if (segments.Count > 0)
                 {
-                    float lineX = pos.X;
-                    if (_currentStyle.Alignment == AbstTextAlignment.Center)
-                        lineX -= lineWidth / 2f;
-                    else if (_currentStyle.Alignment == AbstTextAlignment.Right)
-                        lineX -= lineWidth;
-                    lineX += _currentStyle.MarginLeft;
-                    if (_currentStyle.Alignment == AbstTextAlignment.Right)
-                        lineX -= _currentStyle.MarginRight;
-                    else if (_currentStyle.Alignment == AbstTextAlignment.Center)
-                        lineX -= _currentStyle.MarginRight / 2f;
+                    var boxW = (_canvas is { } c && c.Width > 0) ? c.Width : (int)MathF.Ceiling(maxWidth);
+
+                    float lineX = pos.X + _currentStyle.MarginLeft;
+                    switch (_currentStyle.Alignment)
+                    {
+                        case AbstTextAlignment.Center:
+                            lineX += (boxW - lineWidth) * 0.5f;
+                            break;
+                        case AbstTextAlignment.Right:
+                            lineX += (boxW - lineWidth) - _currentStyle.MarginRight;
+                            break;
+                        default:
+                            break;
+                    }
+
 
                     var firstSeg = segments[0];
                     var firstStyle = AbstFontStyle.Regular;
                     if (firstSeg.Bold) firstStyle |= AbstFontStyle.Bold;
                     if (firstSeg.Italic) firstStyle |= AbstFontStyle.Italic;
                     var fontInfo = _fontManager.GetFontInfo(firstSeg.FontFamily, firstSeg.FontSize, firstStyle);
-                    RenderSegments(segments, new APoint(lineX, pos.Y - fontInfo.TopIndentation));
+                    RenderSegments(segments, new APoint(lineX, pos.Y)); // - fontInfo.TopIndentation));
 
                     int lineHeight = _currentStyle.LineHeight > 0
                         ? _currentStyle.LineHeight
@@ -216,8 +253,10 @@ namespace AbstUI.Texts
                 if (style.Italic)
                     fontStyle |= AbstFontStyle.Italic;
                 _canvas!.DrawSingleLine(
-                    new APoint(lineX, pos.Y - (firstLine ? fontInfo.TopIndentation : 0)),
-                    line, style.Font, style.Color, style.FontSize, (int)MathF.Ceiling(lineW), fontInfo.FontHeight, style.Alignment, fontStyle);
+    new APoint(lineX, pos.Y),
+    line, style.Font, style.Color, style.FontSize,
+    (int)MathF.Ceiling(lineW), fontInfo.FontHeight,
+    AbstTextAlignment.Left, fontStyle);
 
                 pos.Offset(0, lineHeight);
                 firstLine = false;
@@ -424,28 +463,31 @@ namespace AbstUI.Texts
         private void RenderSegments(List<TextSegment> segments, APoint topLeft)
         {
             float currentX = topLeft.X;
-            var firstInfo = _fontManager.GetFontInfo(segments[0].FontFamily, segments[0].FontSize);
-            float baselineY = topLeft.Y + firstInfo.TopIndentation;
+            float topY = topLeft.Y; // top-left, not baseline
+
             foreach (var seg in segments)
             {
-
                 var segStyle = AbstFontStyle.Regular;
                 if (seg.Bold) segStyle |= AbstFontStyle.Bold;
                 if (seg.Italic) segStyle |= AbstFontStyle.Italic;
+
                 float width = EstimateWidth(seg.Text, seg.FontFamily, seg.FontSize, segStyle);
                 var fontInfo = _fontManager.GetFontInfo(seg.FontFamily, seg.FontSize, segStyle);
 
-                float topY = baselineY - fontInfo.TopIndentation;
-                var fontStyle = AbstFontStyle.Regular;
-                if (seg.Bold)
-                    fontStyle |= AbstFontStyle.Bold;
-                if (seg.Italic)
-                    fontStyle |= AbstFontStyle.Italic;
-                _canvas!.DrawSingleLine(new APoint(currentX, topY), seg.Text, seg.FontFamily, seg.Color, seg.FontSize, (int)MathF.Ceiling(width), fontInfo.FontHeight, _currentStyle.Alignment, fontStyle);
+                _canvas!.DrawSingleLine(
+                    new APoint(currentX, topY),
+                    seg.Text, seg.FontFamily, seg.Color, seg.FontSize,
+                    (int)MathF.Ceiling(width), fontInfo.FontHeight,
+                    AbstTextAlignment.Left, segStyle);
+
                 if (seg.Underline)
-                    _canvas!.DrawLine(new APoint(currentX, topY + seg.FontSize), new APoint(currentX + width, topY + seg.FontSize), seg.Color, 1);
+                    _canvas!.DrawLine(new APoint(currentX, topY + seg.FontSize),
+                                      new APoint(currentX + width, topY + seg.FontSize),
+                                      seg.Color, 1);
+
                 currentX += width;
             }
         }
+
     }
 }
