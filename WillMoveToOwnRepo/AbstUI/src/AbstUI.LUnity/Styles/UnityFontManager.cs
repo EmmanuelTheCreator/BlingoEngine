@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 using AbstUI.Styles;
 using System.Linq;
 
@@ -31,9 +32,26 @@ internal class UnityFontManager : IAbstFontManager
     }
 
     public T? Get<T>(string name, AbstFontStyle style = AbstFontStyle.Regular) where T : class
-        => _loadedFonts.TryGetValue((name, style), out var f) ? f as T : null;
+    {
+        if (string.IsNullOrEmpty(name))
+            return _defaultFont as T;
+        if (_loadedFonts.TryGetValue((name, style), out var f))
+            return f as T;
+        if (_loadedFonts.TryGetValue((name, AbstFontStyle.Regular), out f))
+            return f as T;
+        return _defaultFont as T;
+    }
 
-    public Font GetTyped(string name, AbstFontStyle style = AbstFontStyle.Regular) => _loadedFonts[(name, style)];
+    public Font GetTyped(string name, AbstFontStyle style = AbstFontStyle.Regular)
+    {
+        if (string.IsNullOrEmpty(name))
+            return _defaultFont;
+        if (_loadedFonts.TryGetValue((name, style), out var f))
+            return f;
+        if (_loadedFonts.TryGetValue((name, AbstFontStyle.Regular), out f))
+            return f;
+        return _defaultFont;
+    }
 
     private Font _defaultFont = UnityEngine.Resources.GetBuiltinResource<Font>("Tahoma.ttf");
 
@@ -46,7 +64,8 @@ internal class UnityFontManager : IAbstFontManager
     public float MeasureTextWidth(string text, string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
     {
         var font = string.IsNullOrEmpty(fontName) ? _defaultFont :
-            (_loadedFonts.TryGetValue((fontName, style), out var f) ? f : _defaultFont);
+            (_loadedFonts.TryGetValue((fontName, style), out var f) ? f :
+            (_loadedFonts.TryGetValue((fontName, AbstFontStyle.Regular), out f) ? f : _defaultFont));
         var unityStyle = FontStyle.Normal;
         if ((style & AbstFontStyle.Bold) != 0) unityStyle |= FontStyle.Bold;
         if ((style & AbstFontStyle.Italic) != 0) unityStyle |= FontStyle.Italic;
@@ -63,7 +82,8 @@ internal class UnityFontManager : IAbstFontManager
     public FontInfo GetFontInfo(string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
     {
         var font = string.IsNullOrEmpty(fontName) ? _defaultFont :
-            (_loadedFonts.TryGetValue((fontName, style), out var f) ? f : _defaultFont);
+            (_loadedFonts.TryGetValue((fontName, style), out var f) ? f :
+            (_loadedFonts.TryGetValue((fontName, AbstFontStyle.Regular), out f) ? f : _defaultFont));
         var unityStyle = FontStyle.Normal;
         if ((style & AbstFontStyle.Bold) != 0) unityStyle |= FontStyle.Bold;
         if ((style & AbstFontStyle.Italic) != 0) unityStyle |= FontStyle.Italic;
