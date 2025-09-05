@@ -113,5 +113,49 @@ internal class AbstUnityInputText : AbstUnityComponent, IAbstFrameworkInputText,
         set => _inputField.lineType = value ? InputField.LineType.MultiLineNewline : InputField.LineType.SingleLine;
     }
 
+    public bool HasSelection => _inputField.selectionAnchorPosition != _inputField.selectionFocusPosition;
+
+    public void DeleteSelection()
+    {
+        if (!HasSelection) return;
+        int start = Math.Min(_inputField.selectionAnchorPosition, _inputField.selectionFocusPosition);
+        int end = Math.Max(_inputField.selectionAnchorPosition, _inputField.selectionFocusPosition);
+        Text = _text.Remove(start, end - start);
+        SetCaretPosition(start);
+    }
+
+    public void SetCaretPosition(int position)
+    {
+        int pos = Math.Clamp(position, 0, _text.Length);
+        _inputField.caretPosition = pos;
+        _inputField.selectionAnchorPosition = pos;
+        _inputField.selectionFocusPosition = pos;
+    }
+
+    public int GetCaretPosition() => _inputField.caretPosition;
+
+    public void SetSelection(int start, int end)
+    {
+        int s = Math.Clamp(start, 0, _text.Length);
+        int e = Math.Clamp(end, 0, _text.Length);
+        _inputField.selectionAnchorPosition = s;
+        _inputField.selectionFocusPosition = e;
+        _inputField.caretPosition = e;
+    }
+
+    public void SetSelection(Range range)
+    {
+        SetSelection(range.Start.GetOffset(_text.Length), range.End.GetOffset(_text.Length));
+    }
+
+    public void InsertText(string text)
+    {
+        if (HasSelection)
+            DeleteSelection();
+        int pos = _inputField.caretPosition;
+        Text = _text.Insert(pos, text);
+        SetCaretPosition(pos + text.Length);
+    }
+
     public event Action? ValueChanged;
 }

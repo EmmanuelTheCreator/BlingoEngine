@@ -1,3 +1,4 @@
+using System;
 using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.Styles;
@@ -31,6 +32,8 @@ public class RmlUiInputText : IAbstFrameworkInputText, IHasTextBackgroundBorderC
     private AColor _borderColor = AbstDefaultColors.InputBorderColor;
     private bool _isMultiLine;
     private event Action? _valueChanged;
+    private int _caret;
+    private int _selectionStart = -1;
 
     public RmlUiInputText(ElementDocument document, bool multiLine)
     {
@@ -251,6 +254,51 @@ public class RmlUiInputText : IAbstFrameworkInputText, IHasTextBackgroundBorderC
             _isMultiLine = value;
             InitElement(_isMultiLine);
         }
+    }
+
+    public bool HasSelection => _selectionStart != -1 && _selectionStart != _caret;
+
+    public void DeleteSelection()
+    {
+        if (!HasSelection) return;
+        int start = Math.Min(_selectionStart, _caret);
+        int end = Math.Max(_selectionStart, _caret);
+        _text = _text.Remove(start, end - start);
+        if (_input != null) _input.SetValue(_text); else _textarea?.SetInnerRml(_text);
+        _caret = start;
+        _selectionStart = -1;
+        _valueChanged?.Invoke();
+    }
+
+    public void SetCaretPosition(int position)
+    {
+        _caret = Math.Clamp(position, 0, _text.Length);
+        _selectionStart = -1;
+    }
+
+    public int GetCaretPosition() => _caret;
+
+    public void SetSelection(int start, int end)
+    {
+        _selectionStart = Math.Clamp(start, 0, _text.Length);
+        _caret = Math.Clamp(end, 0, _text.Length);
+        if (_selectionStart == _caret)
+            _selectionStart = -1;
+    }
+
+    public void SetSelection(Range range)
+    {
+        SetSelection(range.Start.GetOffset(_text.Length), range.End.GetOffset(_text.Length));
+    }
+
+    public void InsertText(string text)
+    {
+        if (HasSelection)
+            DeleteSelection();
+        _text = _text.Insert(_caret, text);
+        if (_input != null) _input.SetValue(_text); else _textarea?.SetInnerRml(_text);
+        _caret += text.Length;
+        _valueChanged?.Invoke();
     }
 
     public event Action? ValueChanged

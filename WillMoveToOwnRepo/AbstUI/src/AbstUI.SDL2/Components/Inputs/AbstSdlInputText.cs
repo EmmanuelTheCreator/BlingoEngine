@@ -28,7 +28,7 @@ namespace AbstUI.SDL2.Components.Inputs
         private int _scrollY;
         private int _selectionStart = -1;
 
-        private bool HasSelection => _selectionStart != -1 && _selectionStart != _caret;
+        public bool HasSelection => _selectionStart != -1 && _selectionStart != _caret;
 
 
         public bool Enabled { get; set; } = true;
@@ -498,7 +498,7 @@ namespace AbstUI.SDL2.Components.Inputs
             if (_scrollY < 0) _scrollY = 0;
         }
 
-        protected virtual void DeleteSelection()
+        public virtual void DeleteSelection()
         {
             int start = Math.Min(_selectionStart, _caret);
             int end = Math.Max(_selectionStart, _caret);
@@ -677,6 +677,11 @@ namespace AbstUI.SDL2.Components.Inputs
             ComponentContext.QueueRedraw(this);
         }
 
+        public int GetCaretPosition()
+        {
+            return _caret;
+        }
+
         public void SetSelection(int start, int end)
         {
             _selectionStart = Math.Clamp(start, 0, _codepoints.Count);
@@ -690,6 +695,20 @@ namespace AbstUI.SDL2.Components.Inputs
         public void SetSelection(Range range)
         {
             SetSelection(range.Start.GetOffset(_codepoints.Count), range.End.GetOffset(_codepoints.Count));
+        }
+
+        public void InsertText(string text)
+        {
+            if (HasSelection)
+                DeleteSelection();
+            foreach (var rune in text.EnumerateRunes())
+            {
+                _codepoints.Insert(_caret, rune.Value);
+                _caret++;
+            }
+            ValueChanged?.Invoke();
+            AdjustScroll();
+            ComponentContext.QueueRedraw(this);
         }
 
 
