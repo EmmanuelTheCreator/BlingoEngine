@@ -69,8 +69,6 @@ namespace LingoEngine.Tools
                 first.StyleId = newId;
             }
 
-            var styles = styleMap.ToDictionary(kv => kv.Key, kv => kv.Value.Style);
-
             var sb = new StringBuilder();
             AbstMDSegment? prev = null;
             string? currentStyle = null;
@@ -83,10 +81,54 @@ namespace LingoEngine.Tools
                 bool styleHasColor = false;
                 bool styleHasAlignment = false;
 
-                if (i == 0)
+                bool isParagraphStart = i == 0 || (prev?.IsParagraph == true);
+                if (isParagraphStart)
                 {
+                    if (seg.StyleId < 0)
+                    {
+                        var match = styleMap.FirstOrDefault(kv => StyleMatches(kv.Value.Style, seg));
+                        if (match.Value != null)
+                        {
+                            seg.StyleId = int.Parse(match.Key);
+                        }
+                        else
+                        {
+                            int newId = 0;
+                            while (styleMap.ContainsKey(newId.ToString()))
+                                newId++;
+                            var style = new AbstTextStyle
+                            {
+                                Name = newId.ToString(),
+                                Font = seg.FontName,
+                                FontSize = seg.Size,
+                                Color = seg.Color ?? AColors.Black,
+                                Alignment = seg.Alignment,
+                                LineHeight = seg.LineHeight,
+                                MarginLeft = seg.MarginLeft,
+                                MarginRight = seg.MarginRight
+                            };
+                            styleMap[style.Name] = new StyleDef(style, true, true, seg.Color != null, true);
+                            seg.StyleId = newId;
+                        }
+                    }
+
                     var paraTag = seg.StyleId >= 0 ? $"{{{{PARA:{seg.StyleId}}}}}" : "{{PARA}}";
-                    sb.Append(paraTag);
+                    if (i == 0)
+                        sb.Append(paraTag);
+                    else
+                    {
+                        var idx = sb.ToString().LastIndexOf("{{PARA", StringComparison.Ordinal);
+                        if (idx >= 0)
+                        {
+                            var end = sb.ToString().IndexOf("}}", idx, StringComparison.Ordinal);
+                            if (end >= 0)
+                            {
+                                sb.Remove(idx, end - idx + 2);
+                                sb.Insert(idx, paraTag);
+                            }
+                        }
+                    }
+
                     if (seg.StyleId >= 0 && styleMap.TryGetValue(seg.StyleId.ToString(), out var meta))
                     {
                         styleHasFont = meta.HasFont;
@@ -94,6 +136,10 @@ namespace LingoEngine.Tools
                         styleHasColor = meta.HasColor;
                         styleHasAlignment = meta.HasAlignment;
                         currentStyle = seg.StyleId.ToString();
+                    }
+                    else
+                    {
+                        currentStyle = null;
                     }
                 }
                 else
@@ -123,6 +169,7 @@ namespace LingoEngine.Tools
                             sb.Append("{{/STYLE}}");
                         styleOpened = false;
                         currentStyle = null;
+                        // (No style meta, but check for parameter diff below)
                     }
                 }
 
@@ -149,6 +196,7 @@ namespace LingoEngine.Tools
             if (styleOpened)
                 sb.Append("{{/STYLE}}");
 
+            var styles = styleMap.ToDictionary(kv => kv.Key, kv => kv.Value.Style);
             var markdown = Regex.Replace(sb.ToString(), @"\n{2,}", "\n");
             markdown = Regex.Replace(markdown, @"\n\s+", "\n");
             var plainTextRaw = string.Concat(segments.Select(s => s.Text));
@@ -171,6 +219,20 @@ namespace LingoEngine.Tools
             if (seg.Underline)
                 text = $"__{text}__";
             return text;
+        }
+
+        private static bool StyleMatches(AbstTextStyle style, AbstMDSegment seg)
+        {
+            var styleColor = style.Color.ToHex();
+            var segColor = (seg.Color ?? AColors.Black).ToHex();
+
+            return string.Equals(style.Font, seg.FontName, StringComparison.OrdinalIgnoreCase)
+                && style.FontSize == seg.Size
+                && string.Equals(styleColor, segColor, StringComparison.OrdinalIgnoreCase)
+                && style.Alignment == seg.Alignment
+                && style.MarginLeft == seg.MarginLeft
+                && style.MarginRight == seg.MarginRight
+                && style.LineHeight == seg.LineHeight;
         }
 
         private static List<AbstMDSegment> ParseSegments(string rtfContent, Dictionary<int, string> fontEntries, List<AColor> colorEntries, int colorOffset)
