@@ -55,15 +55,15 @@ public class Program
     {
         var fontManager = CreateFontManager();  
         var markDownRender = new AbstMarkdownRenderer(fontManager);
-        using var painter = new SDLImagePainter(fontManager, 0, 0, renderer);
+        using var painter = new SDLImagePainter(fontManager, 300, 0, renderer);
         painter.AutoResize = true;
 
         //var text = "New Highscore!!! Enter your Name";
         //markDownRender.SetText(text, new[] { new AbstTextStyle { Name = "1", Font = "Earth", FontSize = 12 } }); 
-        // var text = "{{PARA:1}}New **Highscore!!!**\n{{PARA:2}}Enter your {{FONT-SIZE:18}}Name";
-        //markDownRender.SetText(text, new [] { new AbstTextStyle { Name = "1", Font = "Earth", FontSize = 12, Alignment= AbstTextAlignment.Right }, new AbstTextStyle { Name = "2", Font = "Tahoma", FontSize = 14 } });
-        var text = "{{PARA:1}}Enter your {{FONT-SIZE:32}}Name";
-        markDownRender.SetText(text, new [] { new AbstTextStyle { Name = "1", Font = "Tahoma", FontSize = 12 }});
+        var text = "{{PARA:1}}New **Highscore!!!**\n{{PARA:2}}Enter your {{FONT-SIZE:32}}Name";
+        markDownRender.SetText(text, new [] { new AbstTextStyle { Name = "1", Font = "Earth", FontSize = 12, Alignment= AbstTextAlignment.Right }, new AbstTextStyle { Name = "2", Font = "Tahoma", FontSize = 14 } });
+        //var text = "{{PARA:1}}Enter your {{FONT-SIZE:32}}NamejyJ";
+        //markDownRender.SetText(text, new [] { new AbstTextStyle { Name = "1", Font = "Tahoma", FontSize = 12 }});
         markDownRender.Render(painter, new APoint(0,0));
         painter.GetTexture();
     }
