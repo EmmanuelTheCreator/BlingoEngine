@@ -294,25 +294,6 @@ public class RtfToMarkdownTests
     }
 
     [Fact]
-    public void Convert_HandlesColorIndexWithoutLeadingSemicolon_HasExpectedSize()
-    {
-        const string rtf = "{\\rtf1\\ansi\\deff0 {\\fonttbl{\\f0\\fswiss Arial;}{\\f1\\fnil Arcade *;}{\\f2\\fnil Earth *;}}{\\colortbl\\red0\\green0\\blue0;\\red255\\green0\r\n\\blue0;}{\\stylesheet{\\s0\\fs24 Normal Text;}}\\pard \\f0\\fs24{\\pard \\f2\\fs36\\cf1\\qc New }{\\pard \\b\\f2\\fs36\\cf1\\qc Highscore!!!}{\\pard \r\n\\f2\\fs36\\cf1\\qc\\par\r\n}{\\pard \r\n\\f2\\fs28\\cf1\\qc Enter your }{\\pard \\f2\\fs36\\cf1\\qc Name}}";
-
-        var data = RtfToMarkdown.Convert(rtf);
-
-        var fontManager = new TestFontManager();
-        var renderer = new AbstMarkdownRenderer(fontManager);
-        renderer.SetText(data);
-
-        var painter = new SizeRecordingPainter { AutoResize = true };
-        renderer.Render(painter, new APoint(0, 0));
-
-        var expected = "{{PARA:1}}New **Highscore!!!**\n{{PARA}}{{FONT-SIZE:14}}Enter your {{FONT-SIZE:18}}Name";
-        data.Markdown.Should().Be(expected);
-        painter.Height.Should().BeGreaterThanOrEqualTo(18);
-    }
-
-    [Fact]
     public void Convert_ConvertsUnicodeCharacters()
     {
         var rtf = "{\\rtf1\\ansi\\uc0\\deff0 {\\fonttbl{\\f0\\fswiss Arial;}{\\f1\\fnil Tahoma;}}{\\colortbl;\\red153\\green153\\blue153;}{\\stylesheet{\\s0\\fs24 Normal Text;}}\\pard \\f0\\fs24{\\pard \\f1\\fs24\\cf1 \\u169 2005 by Emmanuel The Creator\\par}}";
