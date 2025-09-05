@@ -204,34 +204,40 @@ namespace LingoEngine.Texts
         }
         /// <inheritdoc/>
         public LingoChars Char => _char;
+        private int _width;
         public override int Width
         {
             get
             {
                 if (!_hasLoadedTexTure && base.Width <= 0)
                     RenderText();
-                return base.Width;
+                return _width;
             }
 
             set
             {
+                if (_width == value) return;
+                _width = value;
                 base.Width = value;
                 _frameworkMember.Width = value;
 
             }
         }
+        private int _height;
         public override int Height
         {
             get
             {
-                if (!_hasLoadedTexTure && base.Height <= 0)
+                if (!_hasLoadedTexTure && _height <= 0)
                     RenderText();
-                return base.Height;
+                return _height;
             }
 
             set
             {
+                if (_height == value) return;
                 base.Height = value;
+                _height = value;
                 _frameworkMember.Height = value;
 
             }
