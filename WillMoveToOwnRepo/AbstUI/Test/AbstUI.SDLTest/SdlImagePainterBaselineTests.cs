@@ -12,11 +12,13 @@ public class SdlImagePainterBaselineTests
     [Fact]
     public void DescenderGlyphExtendsBelowBaseline()
     {
+
         SdlTestHost.Run((window, renderer, fontManager) =>
         {
             using var painter = new SDLImagePainter(fontManager, 64, 64, renderer);
 
             painter.DrawText(new APoint(0, 0), "h", fontSize: 32);
+            painter.Render();
             var hTex = (SdlTexture2D)painter.GetTexture("h");
             var hPixels = hTex.GetPixels(renderer);
             int topH = GraphicsPixelHelper.FindTopOpaqueRow(hPixels, hTex.Width, hTex.Height);
@@ -24,6 +26,7 @@ public class SdlImagePainterBaselineTests
 
             painter.Clear(new AColor(0, 0, 0, 0));
             painter.DrawText(new APoint(0, 0), "p", fontSize: 32);
+            painter.Render();
             var pTex = (SdlTexture2D)painter.GetTexture("p");
             var pPixels = pTex.GetPixels(renderer);
             int topP = GraphicsPixelHelper.FindTopOpaqueRow(pPixels, pTex.Width, pTex.Height);
@@ -32,5 +35,6 @@ public class SdlImagePainterBaselineTests
             topH.Should().Be(topP);
             bottomP.Should().BeGreaterThanOrEqualTo(bottomH);
         });
+
     }
 }

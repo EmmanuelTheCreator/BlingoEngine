@@ -12,8 +12,6 @@ public class GodotImagePainterBaselineTests
     [Fact]
     public void DescenderGlyphExtendsBelowBaseline()
     {
-        Directory.CreateDirectory("C:/temp/director");
-
         var fm = new AbstGodotFontManager();
         using var painter = new GodotImagePainterToTexture(fm, 64, 64);
 

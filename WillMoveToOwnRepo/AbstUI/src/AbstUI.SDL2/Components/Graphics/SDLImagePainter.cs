@@ -579,7 +579,9 @@ namespace AbstUI.SDL2.Components.Graphics
             {
                 //SdlTexture2D textureClone = (SdlTexture2D)texture.Clone(Renderer);
                 //texture.Dispose();
+#if DEBUG
                 texture.DebugWriteToDisk(Renderer);
+#endif
             }
             else
             {
