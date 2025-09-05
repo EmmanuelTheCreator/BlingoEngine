@@ -59,9 +59,18 @@ namespace AbstUI.Texts
             _styleStack.Clear();
             if (_styles.Count > 0)
                 ApplyStyle(_styles.Values.First());
-            DoFastRendering = _styles.Count == 1 && !HasSpecialTags(_markdown);
+            var fastProbe = StripLeadingParaTags(_markdown);
+            DoFastRendering = _styles.Count == 1 && !HasSpecialTags(fastProbe);
         }
-
+        private static string StripLeadingParaTags(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return string.Empty;
+            // remove one or more leading PARA tags at the start of each line
+            return Regex.Replace(
+                s,
+                @"(?m)^[ \t]*(\{\{PARA(?::[^}]*)?\}\}[ \t]*)+",
+                "");
+        }
         /// <summary>
         /// Sets the markdown data including precomputed styles and segments.
         /// </summary>
