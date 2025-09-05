@@ -3,7 +3,14 @@
 These instructions apply to the entire repository.
 
 ## Environment
-- The project targets **.NET 8**. If the `dotnet` CLI isn't available, install it with `./scripts/install-dotnet.sh` and ensure `$HOME/.dotnet` is on your `PATH`.
+- The project requires **.NET 8 (LTS)** for Godot and **.NET 9** for Blazor.
+- If the `dotnet` CLI isn’t available, run `./scripts/install-packages-linux.sh`.  
+  This script will:
+  - Install required system packages (SDL2, X11/GL, etc.).
+  - Install .NET SDKs (8 and 9) into `$HOME/.dotnet`.
+  - Install the `dotnet-format` tool.
+  - Download and link the Godot Mono editor/runtime.
+- Ensure `$HOME/.dotnet` and `$HOME/.dotnet/tools` and `$HOME/.local/bin` are on your `PATH`.
 
 ## Testing
 - Run tests only for the projects affected by your changes; do not run the entire solution.

@@ -49,19 +49,25 @@ if ! command -v dotnet >/dev/null 2>&1; then
 fi
 
 # Install .NET 8 runtime (for Godot 4.5 mono)
-if [ ! -d /usr/share/dotnet/shared/Microsoft.NETCore.App/8.0.* ]; then
+if ! ls /usr/share/dotnet/shared/Microsoft.NETCore.App/ | grep -q '^8\.0\.'; then
   /tmp/dotnet-install.sh --version 8.0.8 --runtime dotnet --install-dir /usr/share/dotnet
 fi
 
 # Install .NET 9 runtime (for Blazor)
-if [ ! -d /usr/share/dotnet/shared/Microsoft.NETCore.App/9.0.* ]; then
+if ! ls /usr/share/dotnet/shared/Microsoft.NETCore.App/ | grep -q '^9\.0\.'; then
   /tmp/dotnet-install.sh --channel 9.0 --runtime dotnet --install-dir /usr/share/dotnet
 fi
 
 # Add global symlink
 sudo ln -sf /usr/share/dotnet/dotnet /usr/local/bin/dotnet
 
+# Install dotnet-format global tool
+export PATH="$PATH:$HOME/.dotnet/tools"
+dotnet tool install -g dotnet-format || true
+
 dotnet --list-runtimes
+dotnet format --version
+
 
 # --- Godot (dev/alpha/beta via GODOT_URL) ---
 # Example: https://github.com/godotengine/godot-builds/releases/download/4.5-dev5/Godot_v4.5-dev5_mono_linux_x86_64.zip

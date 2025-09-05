@@ -5,7 +5,7 @@ using AbstUI.LGodot.Components.Graphics;
 using AbstUI.LGodot.Styles;
 using AbstUI.Tests.Common;
 
-namespace AbstUI.LGodotText;
+namespace AbstUI.LGodotTest;
 
 public class GodotImagePainterBaselineTests
 {
