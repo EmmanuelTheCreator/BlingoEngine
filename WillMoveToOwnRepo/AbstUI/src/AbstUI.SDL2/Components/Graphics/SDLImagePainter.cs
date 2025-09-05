@@ -56,6 +56,9 @@ namespace AbstUI.SDL2.Components.Graphics
         {
             _fontManager = (SdlFontManager)fontManager;
             (_maxWidth, _maxHeight) = GetMaxTexSize(renderer);
+            // if running tests, this is 0
+            if (_maxWidth == 0) _maxWidth = 2048;
+            if (_maxHeight == 0) _maxHeight = 2048;
             _width = width > 0 ? Math.Min(width, _maxWidth) : 10;
             _height = height > 0 ? Math.Min(height, _maxHeight) : 10;
 

@@ -7,6 +7,13 @@
 		<LangVersion>12</LangVersion>
 		<Platforms>AnyCPU;x64;x86</Platforms>
 	</PropertyGroup>
+	<ItemGroup>
+	  <Content Include="Media\Fonts\8PinMatrix.ttf" />
+	  <Content Include="Media\Fonts\arcade.ttf" />
+	  <Content Include="Media\Fonts\bikly.ttf" />
+	  <Content Include="Media\Fonts\earth.ttf" />
+	  <Content Include="Media\Fonts\Tahoma.ttf" />
+	</ItemGroup>
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
@@ -20,5 +27,12 @@
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Media\Fonts\8PinMatrix.ttf.import" />
+    <None Include="Media\Fonts\arcade.ttf.import" />
+    <None Include="Media\Fonts\bikly.ttf.import" />
+    <None Include="Media\Fonts\earth.ttf.import" />
+    <None Include="Media\Fonts\Tahoma.ttf.import" />
   </ItemGroup>
 </Project>

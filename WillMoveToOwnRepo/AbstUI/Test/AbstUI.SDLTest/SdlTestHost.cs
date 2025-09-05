@@ -9,8 +9,6 @@ public static class SdlTestHost
 {
     public static void Run(Action<IntPtr, IntPtr, SdlFontManager> test)
     {
-        Directory.CreateDirectory("C:/temp/director");
-
         SDL.SDL_SetHint("SDL_RENDER_DRIVER", "software");
         SDL.SDL_SetHint("SDL_VIDEODRIVER", "dummy");
         if (SDL.SDL_Init(SDL.SDL_INIT_VIDEO) != 0)
@@ -22,6 +20,13 @@ public static class SdlTestHost
         var renderer = SDL.SDL_CreateRenderer(window, -1, 0);
 
         var fontManager = new SdlFontManager();
+        fontManager
+             .AddFont("Arcade", Path.Combine("Media", "Fonts", "arcade.ttf"))
+             .AddFont("Bikly", Path.Combine("Media", "Fonts", "bikly.ttf"))
+             .AddFont("8Pin Matrix", Path.Combine("Media", "Fonts", "8PinMatrix.ttf"))
+             .AddFont("Earth", Path.Combine("Media", "Fonts", "earth.ttf"))
+             .AddFont("Tahoma", Path.Combine("Media", "Fonts", "Tahoma.ttf"))
+             ;
         fontManager.LoadAll();
 
         try

@@ -28,6 +28,7 @@ public class GodotImagePainterBaselineTests
         int topP = GraphicsPixelHelper.FindTopOpaqueRow(pPixels, pTex.Width, pTex.Height);
         int bottomP = GraphicsPixelHelper.FindBottomOpaqueRow(pPixels, pTex.Width, pTex.Height);
 
+        
         Assert.Equal(topH, topP);
         Assert.True(bottomP >= bottomH);
     }
