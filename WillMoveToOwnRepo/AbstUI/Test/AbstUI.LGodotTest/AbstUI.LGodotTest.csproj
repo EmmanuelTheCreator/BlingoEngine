@@ -7,15 +7,26 @@
 		<LangVersion>12</LangVersion>
 		<Platforms>AnyCPU;x64;x86</Platforms>
 	</PropertyGroup>
-	<ItemGroup>
-	  <Content Include="Media\Fonts\8PinMatrix.ttf" />
-	  <Content Include="Media\Fonts\arcade.ttf" />
-	  <Content Include="Media\Fonts\bikly.ttf" />
-	  <Content Include="Media\Fonts\earth.ttf" />
-	  <Content Include="Media\Fonts\Tahoma.ttf" />
-	</ItemGroup>
+        <ItemGroup>
+          <Content Include="Media\Fonts\8PinMatrix.ttf">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          </Content>
+          <Content Include="Media\Fonts\arcade.ttf">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          </Content>
+          <Content Include="Media\Fonts\bikly.ttf">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          </Content>
+          <Content Include="Media\Fonts\earth.ttf">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          </Content>
+          <Content Include="Media\Fonts\Tahoma.ttf">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          </Content>
+        </ItemGroup>
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="FluentAssertions" Version="8.6.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="xunit" Version="2.5.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
