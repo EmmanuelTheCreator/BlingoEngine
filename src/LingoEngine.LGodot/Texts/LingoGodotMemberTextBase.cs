@@ -19,7 +19,7 @@ namespace LingoEngine.LGodot.Texts
     public abstract class LingoGodotMemberTextBase<TLingoText> : ILingoFrameworkMemberTextBase, IDisposable
          where TLingoText : ILingoMemberTextBase
     {
-        protected TLingoText _lingoMemberText = null!;
+        protected TLingoText _lingoMemberText = default!;
         protected string _text = "";
         protected IAbstFontManager _fontManager;
         protected readonly ILogger _logger;
@@ -202,7 +202,6 @@ namespace LingoEngine.LGodot.Texts
             }
         }
         private bool _heightSet;
-        private bool _hasLoadedTexTure;
 
         public int Height
         {
@@ -217,6 +216,7 @@ namespace LingoEngine.LGodot.Texts
 
         #endregion
 
+        private bool _hasLoadedTexTure;
 
         public LingoGodotMemberTextBase(IAbstFontManager lingoFontManager, ILogger logger)
         {

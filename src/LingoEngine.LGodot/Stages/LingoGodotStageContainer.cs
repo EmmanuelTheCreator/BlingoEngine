@@ -6,8 +6,7 @@ namespace LingoEngine.LGodot.Stages
 {
     public class LingoGodotStageContainer : ILingoFrameworkStageContainer
     {
-        private bool _stageSet;
-        private Node? _Root;
+        private Node? _root;
         private Node2D _stageContainer = new Node2D();
         private LingoGodotStage? _stage1;
 
@@ -21,9 +20,9 @@ namespace LingoEngine.LGodot.Stages
         {
             _stageContainer.Name = "StageContainer";
             _stageContainer.ZAsRelative = true;
-            _Root = lingoGodotRootNode.RootNode;
+            _root = lingoGodotRootNode.RootNode;
             if (!lingoGodotRootNode.WithStageInWindow)
-                _Root.AddChild(_stageContainer);
+                _root.AddChild(_stageContainer);
            
         }
         

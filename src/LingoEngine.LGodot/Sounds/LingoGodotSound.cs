@@ -5,7 +5,7 @@ namespace LingoEngine.LGodot.Sounds
 {
     public class LingoGodotSound : ILingoFrameworkSound
     {
-        private LingoSound _lingoSound;
+        private LingoSound _lingoSound = null!;
         private List<LingoSoundDevice> _soundDeviceList = new List<LingoSoundDevice>();
 
         // Property to get or set the sound devices list

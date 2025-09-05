@@ -9,7 +9,7 @@ namespace LingoEngine.LGodot.Sounds
 
         private AudioStreamPlayer _audioPlayer;
         private AudioEffectPanner _audioEffectPanner;
-        private LingoSoundChannel _lingoSoundChannel;
+        private LingoSoundChannel _lingoSoundChannel = null!;
 
         public int ChannelNumber { get; private set; }
 

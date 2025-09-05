@@ -16,10 +16,10 @@ using System;
 public class LingoSdlRootContext : AbstUISdlRootContext<LingoMouse>
 {
     private bool _f1Pressed;
-    private LingoSdlMouse _sdlMouse;
-    private LingoPlayer _lPlayer;
-    private LingoClock _clock;
-    public LingoDebugOverlay DebugOverlay { get; set; }
+    private LingoSdlMouse _sdlMouse = null!;
+    private LingoPlayer _lPlayer = null!;
+    private LingoClock _clock = null!;
+    public LingoDebugOverlay DebugOverlay { get; set; } = null!;
     public LingoSdlKey Key { get; set; }
     public IAbstFrameworkMouse Mouse { get; set; }
     internal LingoSdlFactory LingoFactory { get; set; } = null!;

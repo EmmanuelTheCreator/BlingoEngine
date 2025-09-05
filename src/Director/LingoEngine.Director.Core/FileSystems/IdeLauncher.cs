@@ -143,6 +143,9 @@ namespace LingoEngine.Director.Core.FileSystems
 
             try
             {
+                if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+                    return;
+#pragma warning disable CA1416 // Validate platform compatibility
                 using var searcher = new System.Management.ManagementObjectSearcher(
                     "SELECT CommandLine FROM Win32_Process WHERE Name = 'devenv.exe'");
 
@@ -166,6 +169,7 @@ namespace LingoEngine.Director.Core.FileSystems
                         }
                     }
                 }
+#pragma warning restore CA1416 // Validate platform compatibility
             }
             catch
             {

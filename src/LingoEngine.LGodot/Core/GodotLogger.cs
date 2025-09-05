@@ -3,7 +3,6 @@ using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using Godot;
 using Microsoft.Extensions.DependencyInjection;
-using System.Runtime.InteropServices;
 #if GODOT_WINDOWS
 using System;
 using System.Runtime.InteropServices;
