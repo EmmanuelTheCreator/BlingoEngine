@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using AbstUI.LGodot.Styles;
+using Godot;
 
 namespace AbstUI.LGodotTest;
 
@@ -8,6 +9,7 @@ public static class GodotTestHost
 {
     public static void Run(Action<AbstGodotFontManager> test)
     {
+        AbstGodotFontManager.IsRunningInTest = true;
         var fontManager = new AbstGodotFontManager();
         fontManager
             .AddFont("Arcade", Path.Combine("Media", "Fonts", "arcade.ttf"))

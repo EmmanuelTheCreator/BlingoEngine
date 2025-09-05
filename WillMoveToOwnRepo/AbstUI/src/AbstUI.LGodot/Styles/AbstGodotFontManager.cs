@@ -1,15 +1,19 @@
 ﻿using AbstUI.Styles;
 using Godot;
-using System.Linq;
+
 
 namespace AbstUI.LGodot.Styles
 {
     public class AbstGodotFontManager : IAbstFontManager
     {
+        public static bool IsRunningInTest { get; set; }
         private readonly Dictionary<(string FontName, int Size), Dictionary<long, Image>> _atlasCache = new();
 
         private readonly List<(string Name, AbstFontStyle Style, string FileName)> _fontsToLoad = new();
         private readonly Dictionary<(string Name, AbstFontStyle Style), FontFile> _loadedFonts = new();
+
+        private Font _defaultStyle = ThemeDB.FallbackFont; //!IsRunningInTest? ThemeDB.FallbackFont : null!;
+
         public AbstGodotFontManager()
         {
 
@@ -43,7 +47,7 @@ namespace AbstUI.LGodot.Styles
             return _loadedFonts.TryGetValue((name, style), out var fontt) ? fontt : (FontFile)_defaultStyle;
         }
 
-        private Font _defaultStyle = ThemeDB.FallbackFont;
+        
         public T GetDefaultFont<T>() where T : class => (_defaultStyle as T)!;
         public void SetDefaultFont<T>(T font) where T : class => _defaultStyle = (font as Font)!;
 

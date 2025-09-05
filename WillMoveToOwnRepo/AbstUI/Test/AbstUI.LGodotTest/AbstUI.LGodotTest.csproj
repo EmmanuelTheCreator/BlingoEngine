@@ -49,11 +49,13 @@
     <Using Include="Xunit" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="AbstUIGodotTestScene.tscn" />
     <None Include="Media\Fonts\8PinMatrix.ttf.import" />
     <None Include="Media\Fonts\arcade.ttf.import" />
     <None Include="Media\Fonts\bikly.ttf.import" />
     <None Include="Media\Fonts\earth.ttf.import" />
     <None Include="Media\Fonts\Tahoma.ttf.import" />
+    <None Include="project.godot" />
     <None Include="ReadMe.md" />
   </ItemGroup>
 </Project>

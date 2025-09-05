@@ -78,7 +78,14 @@ namespace LingoEngine.Tools
                     {
                         var rtfContent = _resourceManager.ReadTextFile(rtfFile) ?? string.Empty;
                         var md = RtfToMarkdown.Convert(rtfContent);
+                   
                         textMember.SetTextMD(md);
+#if DEBUG
+                        if (md.PlainText.Contains("\\") || newMember.Name.Contains("entername"))
+                        {
+                            textMember.Preload();
+                        }
+#endif
                     }
                     else
                     {

@@ -1,0 +1,2 @@
+﻿55455
+C:/Program Files/Godot/Godot_v4.5-dev5_mono_win64.exe
