@@ -21,7 +21,8 @@ public partial class GodotImagePainter : IAbstImagePainter
     private int _height;
     private int _width;
 
-    public bool AutoResize { get; set; }
+    public bool AutoResizeWidth { get; set; } = false;
+    public bool AutoResizeHeight { get; set; } = true;
     public string Name
     {
         get => _name;
@@ -103,7 +104,7 @@ public partial class GodotImagePainter : IAbstImagePainter
     public void Render()
     {
         if (!_dirty) return;
-        if (AutoResize)
+        if (AutoResizeWidth || AutoResizeHeight)
         {
             int newWidth = Width;
             int newHeight = Height;
@@ -112,12 +113,15 @@ public partial class GodotImagePainter : IAbstImagePainter
                 var size = getSize?.Invoke();
                 if (size != null)
                 {
-                    if (size.Value.X > newWidth) newWidth = (int)size.Value.X;
-                    if (size.Value.Y > newHeight) newHeight = (int)size.Value.Y;
+                    if (AutoResizeWidth && size.Value.X > newWidth)
+                        newWidth = (int)size.Value.X;
+                    if (AutoResizeHeight && size.Value.Y > newHeight)
+                        newHeight = (int)size.Value.Y;
                 }
             }
             if (newWidth > Width || newHeight > Height)
-                Resize(Math.Max(Width, newWidth), Math.Max(Height, newHeight));
+                Resize(AutoResizeWidth ? Math.Max(Width, newWidth) : Width,
+                       AutoResizeHeight ? Math.Max(Height, newHeight) : Height);
         }
 
         _control.QueueRedraw();
@@ -144,7 +148,7 @@ public partial class GodotImagePainter : IAbstImagePainter
         var p = point;
         var c = color.ToGodotColor();
         _drawActions.Add((
-            () => AutoResize ? new APoint(p.X + 1, p.Y + 1) : null,
+            () => (AutoResizeWidth || AutoResizeHeight) ? new APoint(p.X + 1, p.Y + 1) : null,
             (control) => control.DrawRect(new Rect2(p.X, p.Y, 1, 1), c, true)));
         MarkDirty();
     }
@@ -155,7 +159,7 @@ public partial class GodotImagePainter : IAbstImagePainter
         _drawActions.Add((
             () =>
             {
-                if (!AutoResize) return null;
+                if (!AutoResizeWidth && !AutoResizeHeight) return null;
                 int maxX = (int)MathF.Ceiling(MathF.Max(s.X, e.X)) + 1;
                 int maxY = (int)MathF.Ceiling(MathF.Max(s.Y, e.Y)) + 1;
                 return new APoint(maxX, maxY);
@@ -168,7 +172,7 @@ public partial class GodotImagePainter : IAbstImagePainter
     {
         var r = rect; var c = color.ToGodotColor();
         _drawActions.Add((
-            () => AutoResize ? new APoint(r.Left + r.Width, r.Top + r.Height) : null,
+            () => (AutoResizeWidth || AutoResizeHeight) ? new APoint(r.Left + r.Width, r.Top + r.Height) : null,
             control =>
             {
                 var godotRect = r.ToRect2();
@@ -185,7 +189,7 @@ public partial class GodotImagePainter : IAbstImagePainter
     {
         var ctr = center; var c = color.ToGodotColor();
         _drawActions.Add((
-            () => AutoResize ? new APoint((int)(ctr.X + radius + 1), (int)(ctr.Y + radius + 1)) : null,
+            () => (AutoResizeWidth || AutoResizeHeight) ? new APoint((int)(ctr.X + radius + 1), (int)(ctr.Y + radius + 1)) : null,
             control =>
             {
                 if (filled)
@@ -201,7 +205,7 @@ public partial class GodotImagePainter : IAbstImagePainter
     {
         var ctr = center; var c = color.ToGodotColor();
         _drawActions.Add((
-            () => AutoResize ? new APoint((int)(ctr.X + radius + 1), (int)(ctr.Y + radius + 1)) : null,
+            () => (AutoResizeWidth || AutoResizeHeight) ? new APoint((int)(ctr.X + radius + 1), (int)(ctr.Y + radius + 1)) : null,
              (control) => control.DrawArc(ctr.ToVector2(), radius, startDeg, endDeg, segments, c, width)));
         MarkDirty();
     }
@@ -213,7 +217,7 @@ public partial class GodotImagePainter : IAbstImagePainter
         _drawActions.Add((
             () =>
             {
-                if (!AutoResize) return null;
+                if (!AutoResizeWidth && !AutoResizeHeight) return null;
                 int maxX = 0, maxY = 0;
                 foreach (var p in pts)
                 {
@@ -244,7 +248,7 @@ public partial class GodotImagePainter : IAbstImagePainter
         _drawActions.Add((
             () =>
             {
-                if (!AutoResize || string.IsNullOrEmpty(txt)) return null;
+                if ((!AutoResizeWidth && !AutoResizeHeight) || string.IsNullOrEmpty(txt)) return null;
                 if (!txt.Contains('\n'))
                 {
                     float measuredW = fontGodot.GetStringSize(txt, alignment.ToGodot(), width, fontSize).X;
@@ -300,7 +304,7 @@ public partial class GodotImagePainter : IAbstImagePainter
         _drawActions.Add((
             () =>
             {
-                if (!AutoResize || string.IsNullOrEmpty(txt)) return null;
+                if ((!AutoResizeWidth && !AutoResizeHeight) || string.IsNullOrEmpty(txt)) return null;
                 float measuredW = fontGodot.GetStringSize(txt, alignment.ToGodot(), width, fontSize).X;
                 float w = width >= 0 ? MathF.Max(width, measuredW) : measuredW;
                 float h = height >= 0 ? height : fontGodot.GetHeight(fontSize);
@@ -323,7 +327,7 @@ public partial class GodotImagePainter : IAbstImagePainter
         if (tex == null) return;
         var pos = position;
         _drawActions.Add((
-            () => AutoResize ? new APoint((int)(pos.X + width), (int)(pos.Y + height)) : null,
+            () => (AutoResizeWidth || AutoResizeHeight) ? new APoint((int)(pos.X + width), (int)(pos.Y + height)) : null,
             control =>
             {
                 control.DrawTexture(tex, pos.ToVector2());
@@ -338,7 +342,7 @@ public partial class GodotImagePainter : IAbstImagePainter
         var tex = ((AbstGodotTexture2D)texture).Texture;
         var pos = position;
         _drawActions.Add((
-            () => AutoResize ? new APoint((int)(pos.X + width), (int)(pos.Y + height)) : null,
+            () => (AutoResizeWidth || AutoResizeHeight) ? new APoint((int)(pos.X + width), (int)(pos.Y + height)) : null,
              (control) => control.DrawTextureRect(tex, new Rect2(pos.X, pos.Y, width, height), false)));
         MarkDirty();
     }

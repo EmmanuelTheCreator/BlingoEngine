@@ -24,7 +24,7 @@ public class AbstMarkdownRendererTests
         var renderer = new AbstMarkdownRenderer(fontManager);
         var style = new AbstTextStyle { Name = "1", Font = "Arial", FontSize = 12 };
         (configure ?? ApplyDefaultMarkdown)(renderer, style);
-        var painter = new RecordingPainter { AutoResize = true };
+        var painter = new RecordingPainter { AutoResizeWidth = true, AutoResizeHeight = true };
         renderer.Render(painter, new APoint(0, 0));
         return (renderer, painter);
     }
@@ -74,7 +74,7 @@ public class AbstMarkdownRendererTests
         var data = RtfToMarkdown.Convert(rtf, includeStyleSheet: true);
         var fontManager = new TestFontManager();
         var renderer = new AbstMarkdownRenderer(fontManager);
-        var painter = new RecordingPainter { AutoResize = true };
+        var painter = new RecordingPainter { AutoResizeWidth = true, AutoResizeHeight = true };
         renderer.SetText(data.Markdown);
         renderer.Render(painter, new APoint(0, 0));
         painter.FontSizes[0].Should().Be(20);

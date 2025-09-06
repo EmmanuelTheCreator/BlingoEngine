@@ -9,7 +9,8 @@ namespace AbstUI.Components.Graphics
         int Height { get; set; }
         int Width { get; set; }
         bool Pixilated { get; set; }
-        bool AutoResize { get; set; }
+        bool AutoResizeWidth { get; set; }
+        bool AutoResizeHeight { get; set; }
         string Name { get; set; }
 
         void Clear(AColor color);

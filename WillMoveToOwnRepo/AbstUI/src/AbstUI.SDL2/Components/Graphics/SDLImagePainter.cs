@@ -48,7 +48,8 @@ namespace AbstUI.SDL2.Components.Graphics
         }
 
         public bool Pixilated { get; set; }
-        public bool AutoResize { get; set; } = false;
+        public bool AutoResizeWidth { get; set; } = false;
+        public bool AutoResizeHeight { get; set; } = true;
         public nint Texture => _texture;
         public string Name { get; set; } = "";
 
@@ -102,15 +103,17 @@ namespace AbstUI.SDL2.Components.Graphics
 
             var newWidth = Width;
             var newHeight = Height;
-            if (AutoResize)
+            if (AutoResizeWidth || AutoResizeHeight)
             {
                 foreach (var a in _drawActions)
                 {
                     var newSize = a.GetTotalSize();
-                    if (newSize != null && (newSize.Value.X > newWidth || newSize.Value.Y > newHeight))
+                    if (newSize != null)
                     {
-                        newWidth = (int)MathF.Max(newWidth, newSize.Value.X);
-                        newHeight = (int)MathF.Max(newHeight, newSize.Value.Y);
+                        if (AutoResizeWidth && newSize.Value.X > newWidth)
+                            newWidth = (int)MathF.Max(newWidth, newSize.Value.X);
+                        if (AutoResizeHeight && newSize.Value.Y > newHeight)
+                            newHeight = (int)MathF.Max(newHeight, newSize.Value.Y);
                     }
                 }
             }
@@ -119,8 +122,8 @@ namespace AbstUI.SDL2.Components.Graphics
             if (newWidth > Width || newHeight > Height)
             {
                 SDL.SDL_DestroyTexture(_texture);
-                var nw = Math.Max(Width, newWidth);
-                var nh = Math.Max(Height, newHeight);
+                var nw = AutoResizeWidth ? Math.Max(Width, newWidth) : Width;
+                var nh = AutoResizeHeight ? Math.Max(Height, newHeight) : Height;
                 var newTex = SDL.SDL_CreateTexture(Renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
                     (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, nw, nh);
                 _texture = newTex;
@@ -154,7 +157,7 @@ namespace AbstUI.SDL2.Components.Graphics
             var p = point;
             var c = color;
             _drawActions.Add((
-                () => AutoResize ? EnsureCapacity((int)p.X + 1, (int)p.Y + 1) : null,
+                () => (AutoResizeWidth || AutoResizeHeight) ? EnsureCapacity((int)p.X + 1, (int)p.Y + 1) : null,
                 () =>
                 {
                     SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, 255);
@@ -172,7 +175,7 @@ namespace AbstUI.SDL2.Components.Graphics
             _drawActions.Add((
                 () =>
                 {
-                    if (!AutoResize) return null;
+                    if (!AutoResizeWidth && !AutoResizeHeight) return null;
                     int maxX = (int)MathF.Ceiling(MathF.Max(s.X, e.X)) + 1;
                     int maxY = (int)MathF.Ceiling(MathF.Max(s.Y, e.Y)) + 1;
                     return EnsureCapacity(maxX, maxY);
@@ -194,7 +197,7 @@ namespace AbstUI.SDL2.Components.Graphics
             _drawActions.Add((
                 () =>
                 {
-                    if (!AutoResize) return null;
+                    if (!AutoResizeWidth && !AutoResizeHeight) return null;
                     int x = (int)r.Left, y = (int)r.Top, w = (int)r.Width, h = (int)r.Height;
                     return EnsureCapacity(x + w, y + h);
                 },
@@ -224,7 +227,7 @@ namespace AbstUI.SDL2.Components.Graphics
             var c = color;
             var f = filled;
             _drawActions.Add((
-                () => AutoResize ? EnsureCapacity((int)ctr.X + (int)MathF.Ceiling(rad) + 1, (int)ctr.Y + (int)MathF.Ceiling(rad) + 1) : null,
+                () => (AutoResizeWidth || AutoResizeHeight) ? EnsureCapacity((int)ctr.X + (int)MathF.Ceiling(rad) + 1, (int)ctr.Y + (int)MathF.Ceiling(rad) + 1) : null,
                 () =>
                 {
                     SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, c.A);
@@ -261,7 +264,7 @@ namespace AbstUI.SDL2.Components.Graphics
             _drawActions.Add((
                 () =>
                 {
-                    if (!AutoResize) return null;
+                    if (!AutoResizeWidth && !AutoResizeHeight) return null;
                     int cx = (int)ctr.X, cy = (int)ctr.Y, r = (int)MathF.Ceiling(rad);
                     return EnsureCapacity(cx + r + 1, cy + r + 1);
                 },
@@ -298,7 +301,7 @@ namespace AbstUI.SDL2.Components.Graphics
             _drawActions.Add((
                 () =>
                 {
-                    if (!AutoResize) return null;
+                    if (!AutoResizeWidth && !AutoResizeHeight) return null;
                     int maxX = 0, maxY = 0;
                     foreach (var p in pts)
                     {
@@ -368,7 +371,7 @@ namespace AbstUI.SDL2.Components.Graphics
             _drawActions.Add((
                 () =>
                 {
-                    if (!AutoResize) return null;
+                    if (!AutoResizeWidth && !AutoResizeHeight) return null;
                     int needW = (w >= 0) ? Math.Max(maxW, w) : maxW;
                     return EnsureCapacity((int)(pos.X + needW), (int)(pos.Y + totalH));
                 },
@@ -435,7 +438,7 @@ namespace AbstUI.SDL2.Components.Graphics
             _drawActions.Add((
                 () =>
                 {
-                    if (!AutoResize) return null;
+                    if (!AutoResizeWidth && !AutoResizeHeight) return null;
                     int calcW = w;
                     int calcH = h;
                     if (SDL_ttf.TTF_SizeUTF8(fnt, txt, out int tw, out _) == 0)
@@ -492,7 +495,7 @@ namespace AbstUI.SDL2.Components.Graphics
             var pos = position;
             var fmt = format;
             _drawActions.Add((
-                () => AutoResize ? EnsureCapacity((int)pos.X + w, (int)pos.Y + h) : null,
+                () => (AutoResizeWidth || AutoResizeHeight) ? EnsureCapacity((int)pos.X + w, (int)pos.Y + h) : null,
                 () =>
                 {
                     fmt.GetMasks(out uint rmask, out uint gmask, out uint bmask, out uint amask, out int bpp);
@@ -521,7 +524,7 @@ namespace AbstUI.SDL2.Components.Graphics
             _drawActions.Add((
                 () =>
                 {
-                    if (!AutoResize) return null;
+                    if (!AutoResizeWidth && !AutoResizeHeight) return null;
                     switch (tex)
                     {
                         case SdlImageTexture surface when surface.SurfaceId != nint.Zero:

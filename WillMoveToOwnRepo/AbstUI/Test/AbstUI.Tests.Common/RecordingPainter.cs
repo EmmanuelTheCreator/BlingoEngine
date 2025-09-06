@@ -15,7 +15,8 @@ public class RecordingPainter : IAbstImagePainter
     public int Height { get; set; }
     public int Width { get; set; }
     public bool Pixilated { get; set; }
-    public bool AutoResize { get; set; }
+    public bool AutoResizeWidth { get; set; } = false;
+    public bool AutoResizeHeight { get; set; } = true;
     public string Name { get; set; } = string.Empty;
 
     public void Clear(AColor color) { }
