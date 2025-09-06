@@ -16,6 +16,12 @@ public abstract class AbstImagePainter<TTexture> : IAbstImagePainter
     private int _width;
     private int _height;
 
+    // Grid rendering support
+    protected readonly Dictionary<(int X, int Y), TTexture> _tiles = new();
+    protected readonly HashSet<(int X, int Y)> _dirtyTiles = new();
+    protected int _offsetX;
+    protected int _offsetY;
+
     protected AbstImagePainter(int width, int height, int maxWidth, int maxHeight)
     {
         _maxWidth = maxWidth == 0 ? 2048 : maxWidth;
@@ -52,7 +58,37 @@ public abstract class AbstImagePainter<TTexture> : IAbstImagePainter
     public bool AutoResizeHeight { get; set; } = true;
     public string Name { get; set; } = string.Empty;
 
-    protected void MarkDirty() => _dirty = true;
+    public bool UseTextureGrid { get; set; }
+    public int TileSize { get; set; } = 128;
+
+    protected int OffsetX => _offsetX;
+    protected int OffsetY => _offsetY;
+
+    protected void MarkDirty()
+    {
+        _dirty = true;
+        if (UseTextureGrid)
+        {
+            int tilesX = (Width + TileSize - 1) / TileSize;
+            int tilesY = (Height + TileSize - 1) / TileSize;
+            for (int x = 0; x < tilesX; x++)
+                for (int y = 0; y < tilesY; y++)
+                    _dirtyTiles.Add((x, y));
+        }
+    }
+
+    protected void MarkDirty(APoint position, APoint size)
+    {
+        _dirty = true;
+        if (!UseTextureGrid) return;
+        int startX = Math.Max(0, (int)MathF.Floor(position.X / TileSize));
+        int startY = Math.Max(0, (int)MathF.Floor(position.Y / TileSize));
+        int endX = Math.Max(0, (int)MathF.Floor((position.X + size.X - 1) / TileSize));
+        int endY = Math.Max(0, (int)MathF.Floor((position.Y + size.Y - 1) / TileSize));
+        for (int x = startX; x <= endX; x++)
+            for (int y = startY; y <= endY; y++)
+                _dirtyTiles.Add((x, y));
+    }
 
     public void Clear(AColor color)
     {
@@ -73,7 +109,14 @@ public abstract class AbstImagePainter<TTexture> : IAbstImagePainter
 
     public void Render()
     {
-        if (!_dirty) return;
+        if (!UseTextureGrid)
+        {
+            if (!_dirty) return;
+        }
+        else
+        {
+            if (_dirtyTiles.Count == 0) return;
+        }
 
         var newWidth = Width;
         var newHeight = Height;
@@ -95,24 +138,72 @@ public abstract class AbstImagePainter<TTexture> : IAbstImagePainter
         var targetHeight = AutoResizeHeight ? Math.Max(Height, newHeight) : Height;
         targetWidth = Math.Min(targetWidth, _maxWidth);
         targetHeight = Math.Min(targetHeight, _maxHeight);
-        if (targetWidth != Width || targetHeight != Height)
+        if (!UseTextureGrid)
         {
-            ResizeTexture(targetWidth, targetHeight);
-            _width = targetWidth;
-            _height = targetHeight;
+            if (targetWidth != Width || targetHeight != Height)
+            {
+                ResizeTexture(targetWidth, targetHeight);
+                _width = targetWidth;
+                _height = targetHeight;
+            }
+
+            BeginRender(_clearColor ?? AColor.FromRGBA(0, 0, 0, 0));
+            foreach (var action in _drawActions)
+                action.Execute(Target);
+            EndRender();
+            _dirty = false;
+            return;
         }
 
-        BeginRender(_clearColor ?? AColor.FromRGBA(0, 0, 0, 0));
-        foreach (var action in _drawActions)
-            action.Execute(Target);
-        EndRender();
+        _width = targetWidth;
+        _height = targetHeight;
+        var clearColor = _clearColor ?? AColor.FromRGBA(0, 0, 0, 0);
+        foreach (var tilePos in _dirtyTiles)
+        {
+            int ox = tilePos.X * TileSize;
+            int oy = tilePos.Y * TileSize;
+            int tw = Math.Min(TileSize, _width - ox);
+            int th = Math.Min(TileSize, _height - oy);
+            if (!_tiles.TryGetValue(tilePos, out var tex) || tex == null || tex.Equals(default(TTexture)))
+            {
+                tex = CreateTileTexture(tw, th);
+                _tiles[tilePos] = tex;
+            }
+
+            UseTexture(tex);
+            _offsetX = ox;
+            _offsetY = oy;
+            BeginRender(clearColor);
+            foreach (var action in _drawActions)
+            {
+                if (action.Position.X + action.Size.X <= ox || action.Position.X >= ox + tw ||
+                    action.Position.Y + action.Size.Y <= oy || action.Position.Y >= oy + th)
+                    continue;
+                action.Execute(tex);
+            }
+            EndRender();
+        }
+        _offsetX = 0;
+        _offsetY = 0;
+        _dirtyTiles.Clear();
         _dirty = false;
     }
 
     protected abstract void BeginRender(AColor clearColor);
     protected abstract void EndRender();
     protected abstract void ResizeTexture(int width, int height);
+    protected virtual TTexture CreateTileTexture(int width, int height) => default!;
+    protected virtual void DestroyTileTexture(TTexture texture) { }
+    protected virtual void UseTexture(TTexture texture) { }
     protected abstract TTexture Target { get; }
+
+    protected void DisposeTiles()
+    {
+        foreach (var tex in _tiles.Values)
+            DestroyTileTexture(tex);
+        _tiles.Clear();
+        _dirtyTiles.Clear();
+    }
 
     public abstract void SetPixel(APoint point, AColor color);
     public abstract void DrawLine(APoint start, APoint end, AColor color, float width = 1);

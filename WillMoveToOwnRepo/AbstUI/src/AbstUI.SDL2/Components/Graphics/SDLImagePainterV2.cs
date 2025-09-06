@@ -5,6 +5,7 @@ using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Styles;
 using AbstUI.Styles;
 using AbstUI.Texts;
+using System;
 using System.Runtime.InteropServices;
 
 namespace AbstUI.SDL2.Components.Graphics;
@@ -15,13 +16,18 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
     private nint _texture;
     private nint _prevTarget;
 
-    public SDLImagePainterV2(IAbstFontManager fontManager, int width, int height, nint renderer)
+    public SDLImagePainterV2(IAbstFontManager fontManager, int width, int height, nint renderer, bool useTextureGrid = false, int tileSize = 128)
         : base(width, height, GetMaxTexSize(renderer).W, GetMaxTexSize(renderer).H)
     {
         _fontManager = (SdlFontManager)fontManager;
         Renderer = renderer;
-        _texture = SDL.SDL_CreateTexture(renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
-            (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, Width, Height);
+        UseTextureGrid = useTextureGrid;
+        TileSize = tileSize;
+        if (!UseTextureGrid)
+        {
+            _texture = SDL.SDL_CreateTexture(renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
+                (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, Width, Height);
+        }
     }
 
     public nint Renderer { get; }
@@ -36,6 +42,7 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
 
     public override void Dispose()
     {
+        DisposeTiles();
         if (_texture != nint.Zero)
         {
             SDL.SDL_DestroyTexture(_texture);
@@ -64,6 +71,23 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
             (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, width, height);
     }
 
+    protected override nint CreateTileTexture(int width, int height)
+    {
+        return SDL.SDL_CreateTexture(Renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
+            (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, width, height);
+    }
+
+    protected override void DestroyTileTexture(nint texture)
+    {
+        if (texture != nint.Zero)
+            SDL.SDL_DestroyTexture(texture);
+    }
+
+    protected override void UseTexture(nint texture)
+    {
+        _texture = texture;
+    }
+
     public override void SetPixel(APoint point, AColor color)
     {
         var p = point;
@@ -72,9 +96,9 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
         _drawActions.Add(new DrawAction(AutoResizeWidth || AutoResizeHeight, resizePos, new APoint(1, 1), _ =>
         {
             SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, 255);
-            SDL.SDL_RenderDrawPointF(Renderer, p.X, p.Y);
+            SDL.SDL_RenderDrawPointF(Renderer, p.X - OffsetX, p.Y - OffsetY);
         }));
-        MarkDirty();
+        MarkDirty(resizePos, new APoint(1, 1));
     }
 
     public override void DrawLine(APoint start, APoint end, AColor color, float width = 1)
@@ -84,12 +108,14 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
         var c = color;
         int maxX = (int)MathF.Ceiling(MathF.Max(s.X, e.X)) + 1;
         int maxY = (int)MathF.Ceiling(MathF.Max(s.Y, e.Y)) + 1;
-        _drawActions.Add(new DrawAction(AutoResizeWidth || AutoResizeHeight, new APoint(0, 0), new APoint(maxX, maxY), _ =>
+        var pos = new APoint(0, 0);
+        var size = new APoint(maxX, maxY);
+        _drawActions.Add(new DrawAction(AutoResizeWidth || AutoResizeHeight, pos, size, _ =>
         {
             SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, 255);
-            SDL.SDL_RenderDrawLineF(Renderer, s.X, s.Y, e.X, e.Y);
+            SDL.SDL_RenderDrawLineF(Renderer, s.X - OffsetX, s.Y - OffsetY, e.X - OffsetX, e.Y - OffsetY);
         }));
-        MarkDirty();
+        MarkDirty(pos, size);
     }
 
     public override void DrawRect(ARect rect, AColor color, bool filled = true, float width = 1)
@@ -103,8 +129,8 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
         {
             var rct = new SDL.SDL_Rect
             {
-                x = (int)r.Left,
-                y = (int)r.Top,
+                x = (int)r.Left - OffsetX,
+                y = (int)r.Top - OffsetY,
                 w = (int)r.Width,
                 h = (int)r.Height
             };
@@ -114,7 +140,7 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
             else
                 SDL.SDL_RenderDrawRect(Renderer, ref rct);
         }));
-        MarkDirty();
+        MarkDirty(resizePos, size);
     }
 
     public override void DrawCircle(APoint center, float radius, AColor color, bool filled = true, float width = 1)
@@ -133,20 +159,20 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
             {
                 float dyf = dy;
                 if (MathF.Abs(dyf) > rad) continue;
-                float y = ctr.Y + dyf;
+                float y = ctr.Y + dyf - OffsetY;
                 float dx = (float)MathF.Sqrt(MathF.Max(0, rad * rad - dyf * dyf));
                 if (f)
                 {
-                    SDL.SDL_RenderDrawLineF(Renderer, ctr.X - dx, y, ctr.X + dx, y);
+                    SDL.SDL_RenderDrawLineF(Renderer, ctr.X - dx - OffsetX, y, ctr.X + dx - OffsetX, y);
                 }
                 else
                 {
-                    SDL.SDL_RenderDrawPointF(Renderer, ctr.X - dx, y);
-                    SDL.SDL_RenderDrawPointF(Renderer, ctr.X + dx, y);
+                    SDL.SDL_RenderDrawPointF(Renderer, ctr.X - dx - OffsetX, y);
+                    SDL.SDL_RenderDrawPointF(Renderer, ctr.X + dx - OffsetX, y);
                 }
             }
         }));
-        MarkDirty();
+        MarkDirty(resizePos, size);
     }
 
     public override void DrawArc(APoint center, float radius, float startDeg, float endDeg, int segments, AColor color, float width = 1)
@@ -166,19 +192,19 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
             float startRad = MathF.PI * sd / 180f;
             float endRad = MathF.PI * ed / 180f;
             float step = (endRad - startRad) / segs;
-            float prevX = ctr.X + rad * MathF.Cos(startRad);
-            float prevY = ctr.Y + rad * MathF.Sin(startRad);
+            float prevX = ctr.X + rad * MathF.Cos(startRad) - OffsetX;
+            float prevY = ctr.Y + rad * MathF.Sin(startRad) - OffsetY;
             for (int i = 1; i <= segs; i++)
             {
                 double ang = startRad + i * step;
-                float x = ctr.X + (float)(rad * Math.Cos(ang));
-                float y = ctr.Y + (float)(rad * Math.Sin(ang));
+                float x = ctr.X + (float)(rad * Math.Cos(ang)) - OffsetX;
+                float y = ctr.Y + (float)(rad * Math.Sin(ang)) - OffsetY;
                 SDL.SDL_RenderDrawLineF(Renderer, prevX, prevY, x, y);
                 prevX = x;
                 prevY = y;
             }
         }));
-        MarkDirty();
+        MarkDirty(resizePos, size);
     }
 
     public override void DrawPolygon(IReadOnlyList<APoint> points, AColor color, bool filled = true, float width = 1)
@@ -204,19 +230,19 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
         {
             SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, c.A);
             for (int i = 0; i < pts.Length - 1; i++)
-                SDL.SDL_RenderDrawLineF(Renderer, pts[i].X, pts[i].Y, pts[i + 1].X, pts[i + 1].Y);
-            SDL.SDL_RenderDrawLineF(Renderer, pts[^1].X, pts[^1].Y, pts[0].X, pts[0].Y);
+                SDL.SDL_RenderDrawLineF(Renderer, pts[i].X - OffsetX, pts[i].Y - OffsetY, pts[i + 1].X - OffsetX, pts[i + 1].Y - OffsetY);
+            SDL.SDL_RenderDrawLineF(Renderer, pts[^1].X - OffsetX, pts[^1].Y - OffsetY, pts[0].X - OffsetX, pts[0].Y - OffsetY);
             if (f)
             {
                 var p0 = pts[0];
                 for (int i = 1; i < pts.Length - 1; i++)
                 {
-                    SDL.SDL_RenderDrawLineF(Renderer, p0.X, p0.Y, pts[i].X, pts[i].Y);
-                    SDL.SDL_RenderDrawLineF(Renderer, p0.X, p0.Y, pts[i + 1].X, pts[i + 1].Y);
+                    SDL.SDL_RenderDrawLineF(Renderer, p0.X - OffsetX, p0.Y - OffsetY, pts[i].X - OffsetX, pts[i].Y - OffsetY);
+                    SDL.SDL_RenderDrawLineF(Renderer, p0.X - OffsetX, p0.Y - OffsetY, pts[i + 1].X - OffsetX, pts[i + 1].Y - OffsetY);
                 }
             }
         }));
-        MarkDirty();
+        MarkDirty(pos, size);
     }
 
     public override void DrawText(APoint position, string text, string? fontNamee = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular)
@@ -271,8 +297,7 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
                 var sur = SDL.PtrToStructure<SDL.SDL_Surface>(s);
                 surfaces.Add((s, sur.w, sur.h));
             }
-            //int y = (int)pos.Y - ascent;
-            int y = (int)pos.Y; // was: pos.Y - ascent
+            int y = (int)pos.Y - OffsetY; // was: pos.Y - ascent
             int boxW = w >= 0 ? w : Math.Max(0, Width - (int)pos.X);
 
             foreach (var (s, tw, th) in surfaces)
@@ -289,7 +314,7 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
                             case AbstTextAlignment.Right: startX += Math.Max(0, boxW - tw); break;
                         }
                     }
-                    SDL.SDL_Rect dst = new SDL.SDL_Rect { x = startX, y = y, w = tw, h = th };
+                    SDL.SDL_Rect dst = new SDL.SDL_Rect { x = startX - OffsetX, y = y, w = tw, h = th };
                     SDL.SDL_RenderCopy(Renderer, tex, nint.Zero, ref dst);
                     SDL.SDL_DestroyTexture(tex);
                 }
@@ -297,7 +322,7 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
             }
         }));
         font.Release();
-        MarkDirty();
+        MarkDirty(resizePos, size);
     }
 
     public override void DrawSingleLine(APoint position, string text, string? fontName = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular)
@@ -354,15 +379,14 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
                             break;
                     }
                 }
-                //SDL.SDL_Rect dst = new SDL.SDL_Rect { x = startX, y = (int)pos.Y - ascent, w = sur.w, h = sur.h };
-                SDL.SDL_Rect dst = new SDL.SDL_Rect { x = startX, y = (int)pos.Y, w = sur.w, h = sur.h };
+                SDL.SDL_Rect dst = new SDL.SDL_Rect { x = startX - OffsetX, y = (int)pos.Y - OffsetY, w = sur.w, h = sur.h };
                 SDL.SDL_RenderCopy(Renderer, tex, nint.Zero, ref dst);
                 SDL.SDL_DestroyTexture(tex);
             }
             SDL.SDL_FreeSurface(s);
         }));
         font.Release();
-        MarkDirty();
+        MarkDirty(resizePos, size);
     }
 
     public override void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)
@@ -373,7 +397,8 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
         var pos = position;
         var fmt = format;
         var resizePos = new APoint((int)pos.X, (int)pos.Y);
-        _drawActions.Add(new DrawAction(AutoResizeWidth || AutoResizeHeight, resizePos, new APoint(w, h), _ =>
+        var size = new APoint(w, h);
+        _drawActions.Add(new DrawAction(AutoResizeWidth || AutoResizeHeight, resizePos, size, _ =>
         {
             fmt.GetMasks(out uint rmask, out uint gmask, out uint bmask, out uint amask, out int bpp);
             var handle = GCHandle.Alloc(dat, GCHandleType.Pinned);
@@ -382,14 +407,14 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
             nint tex = SDL.SDL_CreateTextureFromSurface(Renderer, surf);
             if (tex != nint.Zero)
             {
-                SDL.SDL_Rect dst = new SDL.SDL_Rect { x = (int)pos.X, y = (int)pos.Y, w = w, h = h };
+                SDL.SDL_Rect dst = new SDL.SDL_Rect { x = (int)pos.X - OffsetX, y = (int)pos.Y - OffsetY, w = w, h = h };
                 SDL.SDL_RenderCopy(Renderer, tex, nint.Zero, ref dst);
                 SDL.SDL_DestroyTexture(tex);
             }
             SDL.SDL_FreeSurface(surf);
             handle.Free();
         }));
-        MarkDirty();
+        MarkDirty(resizePos, size);
     }
 
     public override void DrawPicture(IAbstTexture2D texture, int width, int height, APoint position)
@@ -431,8 +456,8 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
                         {
                             SDL.SDL_Rect dst = new SDL.SDL_Rect
                             {
-                                x = (int)pos.X,
-                                y = (int)pos.Y,
+                                x = (int)pos.X - OffsetX,
+                                y = (int)pos.Y - OffsetY,
                                 w = w,
                                 h = h
                             };
@@ -445,8 +470,8 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
                     {
                         SDL.SDL_Rect dst = new SDL.SDL_Rect
                         {
-                            x = (int)pos.X,
-                            y = (int)pos.Y,
+                            x = (int)pos.X - OffsetX,
+                            y = (int)pos.Y - OffsetY,
                             w = w,
                             h = h
                         };
@@ -455,11 +480,14 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
                     }
             }
         }));
-        MarkDirty();
+        MarkDirty(resizePos, size);
     }
 
     public override IAbstTexture2D GetTexture(string? name = null)
     {
+        if (UseTextureGrid)
+            throw new NotSupportedException("UseTextureGrid enabled - retrieve tiles separately.");
+
         Render();
         var texture = new SdlTexture2D(_texture, Width, Height, name ?? $"Texture_{Width}x{Height}");
         if (_texture != nint.Zero)
