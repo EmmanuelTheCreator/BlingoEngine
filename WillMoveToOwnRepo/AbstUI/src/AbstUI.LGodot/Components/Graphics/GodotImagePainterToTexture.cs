@@ -25,7 +25,8 @@ namespace AbstUI.LGodot.Components.Graphics
         public int Height { get; private set; }
         public bool Pixilated { get; set; }
         public Texture2D Texture => _tex;
-        public bool AutoResize { get; set; } = true;
+        public bool AutoResizeWidth { get; set; } = false;
+        public bool AutoResizeHeight { get; set; } = true;
         int IAbstImagePainter.Height { get => Height; set => Resize(Width, value); }
         int IAbstImagePainter.Width { get => Width; set => Resize(value, Height); }
         public string Name { get; set; } = "";
@@ -67,31 +68,26 @@ namespace AbstUI.LGodot.Components.Graphics
                 var c = _clearColor.Value;
                 _img.Fill(new Color(c.R / 255f, c.G / 255f, c.B / 255f, c.A / 255f));
             }
-            var maxSize = new APoint(Width, Height);
-            var newWidth = 0;
-            var newHeight = 0;
-            if (AutoResize)
+            var newWidth = Width;
+            var newHeight = Height;
+            if (AutoResizeWidth || AutoResizeHeight)
             {
                 foreach (var a in _drawActions)
                 {
                     var newSize = a.GetTotalSize();
-                    if (newSize != null && (newSize.Value.X > newWidth || newSize.Value.Y > newHeight))
+                    if (newSize != null)
                     {
-                        newWidth = (int)MathF.Max(newWidth, newSize.Value.X);
-                        newHeight = (int)MathF.Max(newHeight, newSize.Value.Y);
+                        if (AutoResizeWidth && newSize.Value.X > newWidth)
+                            newWidth = (int)MathF.Max(newWidth, newSize.Value.X);
+                        if (AutoResizeHeight && newSize.Value.Y > newHeight)
+                            newHeight = (int)MathF.Max(newHeight, newSize.Value.Y);
                     }
                 }
             }
-            else
-            {
-                newWidth = Width;
-                newHeight = Height;
-            }
-            // inside Render(), after computing newWidth/newHeight
             if (newWidth > Width || newHeight > Height)
             {
-                var nw = Math.Max(Width, newWidth);
-                var nh = Math.Max(Height, newHeight);
+                var nw = AutoResizeWidth ? Math.Max(Width, newWidth) : Width;
+                var nh = AutoResizeHeight ? Math.Max(Height, newHeight) : Height;
 
                 var newImg = Image.CreateEmpty(nw, nh, false, Image.Format.Rgba8);
                 newImg.Fill(new Color(0, 0, 0, 0));
@@ -127,7 +123,7 @@ namespace AbstUI.LGodot.Components.Graphics
         {
             var p = point; var c = color;
             _drawActions.Add((
-                () => AutoResize ? EnsureCapacity((int)p.X + 1, (int)p.Y + 1) : null,
+                () => (AutoResizeWidth || AutoResizeHeight) ? EnsureCapacity((int)p.X + 1, (int)p.Y + 1) : null,
                 img =>
             {
                 if ((uint)p.X < (uint)img.GetWidth() && (uint)p.Y < (uint)img.GetHeight())
@@ -142,7 +138,7 @@ namespace AbstUI.LGodot.Components.Graphics
             var s = start; var e = end; var col = color;
             _drawActions.Add((() =>
             {
-                if (!AutoResize) return null;
+                if (!AutoResizeWidth && !AutoResizeHeight) return null;
                 int maxX = (int)MathF.Ceiling(MathF.Max(s.X, e.X)) + 1;
                 int maxY = (int)MathF.Ceiling(MathF.Max(s.Y, e.Y)) + 1;
                 return EnsureCapacity(maxX, maxY);
@@ -174,7 +170,7 @@ namespace AbstUI.LGodot.Components.Graphics
             var r = rect; var col = color; var f = filled;
             _drawActions.Add((() =>
             {
-                if (!AutoResize) return null;
+                if (!AutoResizeWidth && !AutoResizeHeight) return null;
                 int x = (int)r.Left, y = (int)r.Top, w = (int)r.Width, h = (int)r.Height;
                 return EnsureCapacity(x + w, y + h);
             }, img =>
@@ -224,7 +220,7 @@ namespace AbstUI.LGodot.Components.Graphics
             var ctr = center; var rad = Math.Max(0, radius); var col = color; var f = filled;
             int cx = (int)ctr.X, cy = (int)ctr.Y, r = (int)Math.Round(rad);
             _drawActions.Add((
-                () => AutoResize ? EnsureCapacity(cx + r + 1, cy + r + 1) : null,
+                () => (AutoResizeWidth || AutoResizeHeight) ? EnsureCapacity(cx + r + 1, cy + r + 1) : null,
                 img =>
             {
                 var c = new Color(col.R / 255f, col.G / 255f, col.B / 255f, col.A / 255f);
@@ -257,7 +253,7 @@ namespace AbstUI.LGodot.Components.Graphics
             _drawActions.Add((
                 () =>
                 {
-                    if (!AutoResize) return null;
+                    if (!AutoResizeWidth && !AutoResizeHeight) return null;
                     int cx = (int)ctr.X, cy = (int)ctr.Y, r = (int)MathF.Ceiling(rad);
                     return EnsureCapacity(cx + r + 1, cy + r + 1);
                 },
@@ -303,7 +299,7 @@ namespace AbstUI.LGodot.Components.Graphics
             _drawActions.Add((
                 () =>
                 {
-                    if (!AutoResize) return null;
+                    if (!AutoResizeWidth && !AutoResizeHeight) return null;
                     int maxX = 0, maxY = 0;
                     foreach (var p in pts) { if (p.X > maxX) maxX = (int)p.X; if (p.Y > maxY) maxY = (int)p.Y; }
                     return EnsureCapacity(maxX + 1, maxY + 1);
@@ -377,7 +373,7 @@ namespace AbstUI.LGodot.Components.Graphics
             var fntName = fontName;
             var col = color ?? new AColor(0, 0, 0, 255);
             var fs = Math.Max(1, fontSize);
-            int boxWCache = -1; // computed width for alignment when AutoResize
+            int boxWCache = -1; // computed width for alignment when AutoResizeWidth
             var font = _fontManager.GetTypedOrDefault(fntName ?? string.Empty, style);
             if (font == null || string.IsNullOrEmpty(txt)) return;
             fntName = font.FontName;
@@ -419,7 +415,7 @@ namespace AbstUI.LGodot.Components.Graphics
                 ts.FreeRid(shaped);
 
                 // reuse single-line renderer with computed box width
-                DrawSingleLineInner(alignment, style, img, new APoint(pos.X, y), line,font, fntName!, col, fs, boxWCache);
+                DrawSingleLineInner(alignment, style, img, new APoint(pos.X, y), line, font, fntName!, col, fs, boxWCache);
 
                 y += advH;
             }
@@ -430,7 +426,7 @@ namespace AbstUI.LGodot.Components.Graphics
         private APoint? DrawTextSize(int width, AbstFontStyle style, APoint pos, string txt,
                              FontFile font, string fntName, int fs, ref int boxWCache)
         {
-            if (!AutoResize || string.IsNullOrEmpty(txt)) return null;
+            if ((!AutoResizeWidth && !AutoResizeHeight) || string.IsNullOrEmpty(txt)) return null;
 
             var ts = TextServerManager.GetPrimaryInterface();
             var rids = font.GetRids();
@@ -460,7 +456,7 @@ namespace AbstUI.LGodot.Components.Graphics
 
         #region Single line
 
-        public void DrawSingleLine(APoint position, string text,  string? fontName = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular)
+        public void DrawSingleLine(APoint position, string text, string? fontName = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular)
         {
             var pos = position;
             var txt = text ?? string.Empty;
@@ -493,7 +489,7 @@ namespace AbstUI.LGodot.Components.Graphics
         private APoint? DrawSingleLineCalculateSize(AbstFontStyle style, APoint pos, string txt, FontFile font, string? fntName, int fs, int w, int h)
         {
             // Auto-resize needs baseline offset too
-            if (!AutoResize) return null;
+            if (!AutoResizeWidth && !AutoResizeHeight) return null;
             if (w >= 0 && h >= 0)
                 return EnsureCapacity((int)pos.X + w, (int)pos.Y + h);
 
@@ -538,7 +534,7 @@ namespace AbstUI.LGodot.Components.Graphics
 
         private bool DrawSingleLineInner(AbstTextAlignment alignment, AbstFontStyle style, Image img, APoint pos, string txt, FontFile font, string fntName, AColor col, int fs, int w)
         {
-            
+
             var sizeKey = new Vector2I(fs, 0);
             var rids = font.GetRids();
             var fr = (Rid)rids[0];
@@ -643,7 +639,7 @@ namespace AbstUI.LGodot.Components.Graphics
         {
             var dat = data; var w = width; var h = height; var pos = position; var fmt = format;
             _drawActions.Add((
-                () => AutoResize ? EnsureCapacity((int)pos.X + w, (int)pos.Y + h) : null,
+                () => (AutoResizeWidth || AutoResizeHeight) ? EnsureCapacity((int)pos.X + w, (int)pos.Y + h) : null,
                 img =>
             {
                 var src = Image.CreateFromData(w, h, false, fmt.ToGodotFormat(), dat);
@@ -665,7 +661,7 @@ namespace AbstUI.LGodot.Components.Graphics
                     _drawActions.Add((
                          () =>
                          {
-                             if (!AutoResize) return null;
+                             if (!AutoResizeWidth && !AutoResizeHeight) return null;
                              int gw = gtex.Texture.GetWidth();
                              int gh = gtex.Texture.GetHeight();
                              int copyW = Math.Min(w, gw);
