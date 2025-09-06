@@ -33,7 +33,7 @@ namespace LingoEngine.Director.LGodot.UI
         private readonly DirGodotBinaryViewerWindow _binaryViewer;
         private readonly DirGodotBinaryViewerWindowV2 _binaryViewerV2;
         private readonly DirGodotImportExportWindow _importExportWindow;
-        private readonly DirGodotTextableMemberWindow _textWindow;
+        private readonly DirGodotTextableMemberWindowV2 _textWindow;
         private readonly DirGodotPictureMemberEditorWindow _picture;
         private List<BaseGodotWindow> _windows = new List<BaseGodotWindow>();
 
