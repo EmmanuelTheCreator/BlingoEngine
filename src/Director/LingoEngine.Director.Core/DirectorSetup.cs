@@ -61,7 +61,7 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<DirectorBinaryViewerWindow>()
                     .AddSingleton<DirectorBinaryViewerWindowV2>()
                     .AddSingleton<DirectorStageWindow>()
-                    .AddSingleton<DirectorTextEditWindow>()
+                    .AddSingleton<DirectorTextEditWindowV2>()
                     .AddSingleton<DirectorBitmapEditWindow>()
                     .AddSingleton<DirectorImportExportWindow>()
                     .AddSingleton<DirStageManager>()

@@ -74,6 +74,12 @@ public class TextEditIconBar
     /// <summary>Currently selected font name.</summary>
     public string SelectedFont => _fontsCombo.SelectedValue ?? string.Empty;
 
+    /// <summary>Enumerates all defined text styles.</summary>
+    public IEnumerable<AbstTextStyle> Styles => _styles.Values;
+
+    /// <summary>Returns the style at the current caret position.</summary>
+    public AbstTextStyle CurrentStyle => _currentStyle;
+
     public TextEditIconBar(ILingoFrameworkFactory factory)
     {
         const int actionBarHeight = 22;
@@ -341,6 +347,50 @@ public class TextEditIconBar
     {
         Panel.Width = x;
     }
+
+    /// <summary>
+    /// Ensure a style with the given name exists. If missing, a new style
+    /// is created from the current toolbar values and added to the list.
+    /// </summary>
+    public AbstTextStyle EnsureStyle(string name)
+    {
+        if (!_styles.TryGetValue(name, out var style))
+        {
+            style = new AbstTextStyle
+            {
+                Name = name,
+                FontSize = _currentStyle.FontSize,
+                Font = _currentStyle.Font,
+                Color = _currentStyle.Color,
+                Alignment = _currentStyle.Alignment,
+                Bold = _currentStyle.Bold,
+                Italic = _currentStyle.Italic,
+                Underline = _currentStyle.Underline,
+                LineHeight = _currentStyle.LineHeight,
+                MarginLeft = _currentStyle.MarginLeft,
+                MarginRight = _currentStyle.MarginRight
+            };
+            _styles.Add(name, style);
+            RefreshStylesCombo();
+        }
+        return style;
+    }
+
+    /// <summary>
+    /// Create a new style based on the current settings and return its name.
+    /// An optional configure action allows adjusting the new style.
+    /// </summary>
+    public string CreateStyle(Action<AbstTextStyle>? configure = null)
+    {
+        string newName = GenerateStyleName();
+        var style = EnsureStyle(newName);
+        configure?.Invoke(style);
+        return newName;
+    }
+
+    /// <summary>Try to get a style by name.</summary>
+    public bool TryGetStyle(string name, out AbstTextStyle style)
+        => _styles.TryGetValue(name, out style);
 
     private void ApplyStyle(string name)
     {
