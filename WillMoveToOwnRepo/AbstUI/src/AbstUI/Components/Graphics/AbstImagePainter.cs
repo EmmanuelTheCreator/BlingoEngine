@@ -6,7 +6,7 @@ namespace AbstUI.Components.Graphics;
 
 public abstract class AbstImagePainter<TTexture> : IAbstImagePainter
 {
-    public readonly record struct DrawAction(bool NeedResize, APoint Position, APoint Size, Action<TTexture> Execute);
+    public readonly record struct DrawAction(bool NeedResize, APoint Position, APoint Size, ARect? SrcRect, ARect? DestRect, Action<TTexture, ARect?, ARect?> Execute);
 
     protected readonly List<DrawAction> _drawActions = new();
     private AColor? _clearColor;
@@ -18,6 +18,7 @@ public abstract class AbstImagePainter<TTexture> : IAbstImagePainter
 
     // Grid rendering support
     protected readonly Dictionary<(int X, int Y), TTexture> _tiles = new();
+    protected readonly Dictionary<(int X, int Y), List<DrawAction>> _tileActions = new();
     protected readonly HashSet<(int X, int Y)> _dirtyTiles = new();
     protected int _offsetX;
     protected int _offsetY;
@@ -64,6 +65,32 @@ public abstract class AbstImagePainter<TTexture> : IAbstImagePainter
     protected int OffsetX => _offsetX;
     protected int OffsetY => _offsetY;
 
+    protected void AddDrawAction(DrawAction action)
+    {
+        _drawActions.Add(action);
+        _dirty = true;
+        if (!UseTextureGrid) return;
+        int startX = Math.Max(0, (int)MathF.Floor(action.Position.X / TileSize));
+        int startY = Math.Max(0, (int)MathF.Floor(action.Position.Y / TileSize));
+        int endX = Math.Max(0, (int)MathF.Floor((action.Position.X + action.Size.X - 1) / TileSize));
+        int endY = Math.Max(0, (int)MathF.Floor((action.Position.Y + action.Size.Y - 1) / TileSize));
+        for (int x = startX; x <= endX; x++)
+            for (int y = startY; y <= endY; y++)
+                AddTileAction((x, y), action);
+    }
+
+    protected void AddTileAction((int X, int Y) tile, DrawAction action)
+    {
+        if (!_tileActions.TryGetValue(tile, out var list))
+        {
+            list = new List<DrawAction>();
+            _tileActions[tile] = list;
+        }
+        list.Add(action);
+        _dirtyTiles.Add(tile);
+        _dirty = true;
+    }
+
     protected void MarkDirty()
     {
         _dirty = true;
@@ -93,6 +120,7 @@ public abstract class AbstImagePainter<TTexture> : IAbstImagePainter
     public void Clear(AColor color)
     {
         _drawActions.Clear();
+        _tileActions.Clear();
         _clearColor = color;
         MarkDirty();
     }
@@ -149,7 +177,7 @@ public abstract class AbstImagePainter<TTexture> : IAbstImagePainter
 
             BeginRender(_clearColor ?? AColor.FromRGBA(0, 0, 0, 0));
             foreach (var action in _drawActions)
-                action.Execute(Target);
+                action.Execute(Target, action.SrcRect, action.DestRect);
             EndRender();
             _dirty = false;
             return;
@@ -174,12 +202,10 @@ public abstract class AbstImagePainter<TTexture> : IAbstImagePainter
             _offsetX = ox;
             _offsetY = oy;
             BeginRender(clearColor);
-            foreach (var action in _drawActions)
+            if (_tileActions.TryGetValue(tilePos, out var actions))
             {
-                if (action.Position.X + action.Size.X <= ox || action.Position.X >= ox + tw ||
-                    action.Position.Y + action.Size.Y <= oy || action.Position.Y >= oy + th)
-                    continue;
-                action.Execute(tex);
+                foreach (var action in actions)
+                    action.Execute(tex, action.SrcRect, action.DestRect);
             }
             EndRender();
         }
