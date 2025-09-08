@@ -50,6 +50,14 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
         }
     }
 
+    public int RectX { get; set; }
+
+    public int RectY { get; set; }
+
+    public int RectWidth { get; set; }
+
+    public int RectHeight { get; set; }
+
     public DirScoreTransitionGridChannel(IDirScoreManager scoreManager, ILingoTransitionLibrary transitionLibrary)
         : base(LingoTransitionSprite.SpriteNumOffset + 1, scoreManager)
     {
@@ -99,6 +107,7 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
     {
         settings.Duration = Duration;
         settings.Smoothness = Smoothness;
+        settings.Rect = ARect.New(RectX, RectY, RectWidth, RectHeight);
     }
 
     private void ShowDialog(LingoTransitionFrameSettings settings, Action okAction)
@@ -134,10 +143,10 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
         categoryList.Height = 200;
 
         panel.SetLabelAt("TransitionLabel", 140, 10, "Transitions:");
-        
+
         transitionList.Height = 200;
 
-       
+
 
         panel.SetLabelAt("DurationLabel", 10, 230, "Duration (secs):");
         _durationSlider = panel.SetSliderAt(this, "DurationSlider", 100, 230, 190, AOrientation.Horizontal, s => s.Duration, 1f, 30f, 0.1f);
@@ -151,12 +160,29 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
         var affectsOptions = new[]
         {
             new KeyValuePair<string, string>(LingoTransitionAffects.EntireStage.ToString(), "Entire Stage"),
-            new KeyValuePair<string, string>(LingoTransitionAffects.ChangingAreaOnly.ToString(), "Changing Area Only")
+            new KeyValuePair<string, string>(LingoTransitionAffects.ChangingAreaOnly.ToString(), "Changing Area Only"),
+            new KeyValuePair<string, string>(LingoTransitionAffects.Custom.ToString(), "Custom")
         };
+        var xLabel = panel.SetLabelAt("RectXLabel", 240, 275, "X:");
+        var xInput = panel.SetInputNumberAt(this, "RectX", 240, 290, 40, s => s.RectX, 0, null);
+        var yLabel = panel.SetLabelAt("RectYLabel", 285, 275, "Y:");
+        var yInput = panel.SetInputNumberAt(this, "RectY", 285, 290, 40, s => s.RectY, 0, null);
+        var wLabel = panel.SetLabelAt("RectWLabel", 330, 275, "W:");
+        var wInput = panel.SetInputNumberAt(this, "RectWidth", 330, 290, 40, s => s.RectWidth, 1, null);
+        var hLabel = panel.SetLabelAt("RectHLabel", 375, 275, "H:");
+        var hInput = panel.SetInputNumberAt(this, "RectHeight", 375, 290, 40, s => s.RectHeight, 1, null);
+        void ToggleRectInputs(bool visible)
+        {
+            xLabel.Visible = xInput.Visible = yLabel.Visible = yInput.Visible = wLabel.Visible = wInput.Visible = hLabel.Visible = hInput.Visible = visible;
+        }
+        ToggleRectInputs(settings.Affects == LingoTransitionAffects.Custom);
         panel.SetComboBoxAt(affectsOptions, "AffectsCombo", 70, 290, 160, settings.Affects.ToString(), key =>
         {
             if (Enum.TryParse<LingoTransitionAffects>(key, out var affects))
+            {
                 settings.Affects = affects;
+                ToggleRectInputs(affects == LingoTransitionAffects.Custom);
+            }
         });
 
         panel.AddPopupButtons(okAction, CloseDialog);
@@ -164,9 +190,13 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
         _dialog = _showConfirmDialog?.Invoke("Frame Properties: Transition", (IAbstFrameworkPanel)panel.FrameworkObj);
         Smoothness = settings.Smoothness;
         Duration = settings.Duration;
-        
+        RectX = (int)settings.Rect.Left;
+        RectY = (int)settings.Rect.Top;
+        RectWidth = (int)settings.Rect.Width;
+        RectHeight = (int)settings.Rect.Height;
+
     }
-    private void PopulateTransitions(LingoTransitionFrameSettings settings, AbstItemList transitionList,string? category)
+    private void PopulateTransitions(LingoTransitionFrameSettings settings, AbstItemList transitionList, string? category)
     {
         var filtered = _transitions
             .Where(t => category == "All" || t.Category == category)
