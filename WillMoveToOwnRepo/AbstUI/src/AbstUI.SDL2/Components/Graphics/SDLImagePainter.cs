@@ -62,9 +62,18 @@ namespace AbstUI.SDL2.Components.Graphics
             if (_maxHeight == 0) _maxHeight = 2048;
             _width = width > 0 ? Math.Min(width, _maxWidth) : 10;
             _height = height > 0 ? Math.Min(height, _maxHeight) : 10;
-
+            if (width == 0)
+            {
+                AutoResizeWidth = true;
+                width = 10;
+            }
+            if (height == 0)
+            {
+                AutoResizeHeight = true;
+                height = 10;
+            }
             _texture = SDL.SDL_CreateTexture(renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
-                (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, _width, _height);
+                (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, width, height);
             _dirty = true;
             Renderer = renderer;
         }

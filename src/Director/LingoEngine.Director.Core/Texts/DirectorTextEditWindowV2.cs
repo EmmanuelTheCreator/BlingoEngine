@@ -30,7 +30,7 @@ namespace LingoEngine.Director.Core.Texts
         private ILingoMemberTextBase? _member;
         private IAbstImagePainter _painter;
         private MemberNavigationBar<ILingoMemberTextBase> _navBar;
-
+        private bool _isSettingMemberValues = false;
         public TextEditIconBar IconBar { get; }
         public AbstTextStyle CurrentStyle => IconBar.CurrentStyle;
         public AbstPanel RootPanel => _rootPanel;
@@ -165,8 +165,8 @@ namespace LingoEngine.Director.Core.Texts
             IconBar.OnResizing(width, height);
             _rootPanel.Width = width;
             _rootPanel.Height = height-10;
-            var contentHeight = height - IconBar.Panel.Height -40;
-            var innerWidth = width - 20;
+            var contentHeight = (int)(height - IconBar.Panel.Height -40);
+            var innerWidth = (int)(width - 20);
             _markdownScroller.Width = innerWidth / 2;
             _markdownScroller.Height = (int)contentHeight;
             _markdownInput.Width = innerWidth / 2;
@@ -177,15 +177,20 @@ namespace LingoEngine.Director.Core.Texts
 
         public void SetMemberValues(ILingoMemberTextBase textMember)
         {
+            if (_isSettingMemberValues) return;
+            _isSettingMemberValues = true;
             _member = textMember;
             _markdownInput.Text = textMember.Text;
+            
             IconBar.SetMemberValues(textMember);
             RenderMarkdown(_markdownInput.Text);
             _navBar.SetMember(textMember);
+            _isSettingMemberValues = false;
         }
 
         private void OnTextChanged(string text)
         {
+            if (_isSettingMemberValues) return;
             if (_member != null)
                 _member.Text = text;
             ScheduleRender(text);
@@ -193,6 +198,7 @@ namespace LingoEngine.Director.Core.Texts
 
         private void SyncMemberText()
         {
+            if (_isSettingMemberValues) return;
             if (_member != null)
                 _member.Text = _markdownInput.Text;
         }

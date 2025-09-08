@@ -65,10 +65,21 @@ public partial class GodotImagePainter : IAbstImagePainter
     public GodotImagePainter(AbstGodotFontManager fontManager, int width = 0, int height = 0)
     {
         _fontManager = fontManager;
-        if (width == 0) width = 10;
-        if (height == 0) height = 10;
+        if (width == 0)
+            AutoResizeWidth = true;
+        if (height == 0) AutoResizeHeight = true;
         Width = width;
         Height = height;
+        if (width == 0)
+        {
+            AutoResizeWidth = true;
+            width = 10;
+        }
+        if (height == 0)
+        {
+            AutoResizeHeight = true;
+            height = 10;
+        }
         _control = new DrawingControl(() => _dirty = false)
         {
 

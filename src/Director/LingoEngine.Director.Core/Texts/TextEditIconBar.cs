@@ -37,11 +37,15 @@ public class TextEditIconBar
     private AbstInputSpinBox _marginLeft;
     private AbstInputSpinBox _marginRight;
     private AbstInputCombobox _fontsCombo;
+    private bool _isSettingMemberValues;
+
+    private ILingoMemberTextBase? _member;
+    private bool _isAligning;
 
     private readonly Dictionary<string, AbstTextStyle> _styles = new();
     private readonly ILingoFrameworkFactory _factory;
     private AbstTextStyle _currentStyle;
-
+    private AbstInputNumber<int> _memberWidth;
     public const string DefaultStyleName = "Default";
 
     /// <summary>Container panel holding the toolbar items.</summary>
@@ -67,6 +71,7 @@ public class TextEditIconBar
     public event Action<int>? MarginLeftChanged;
     /// <summary>Raised when right margin changes.</summary>
     public event Action<int>? MarginRightChanged;
+    public event Action<int>? MemberWidthChanged;
 
     /// <summary>Returns whether bold is currently selected.</summary>
     public bool IsBold => _boldButton.IsOn;
@@ -151,16 +156,19 @@ public class TextEditIconBar
     {
         _boldButton = factory.CreateStateButton("Bold", null, "B", v =>
         {
+            if (_isSettingMemberValues) return;
             _currentStyle.Bold = v;
             BoldChanged?.Invoke(v);
         });
         _italicButton = factory.CreateStateButton("Italic", null, "I", v =>
         {
+            if (_isSettingMemberValues) return;
             _currentStyle.Italic = v;
             ItalicChanged?.Invoke(v);
         });
         _underlineButton = factory.CreateStateButton("Underline", null, "U", v =>
         {
+            if (_isSettingMemberValues) return;
             _currentStyle.Underline = v;
             UnderlineChanged?.Invoke(v);
         });
@@ -175,21 +183,25 @@ public class TextEditIconBar
     {
         _alignLeft = factory.CreateStateButton("AlignLeft", null, "L", _ =>
         {
+            if (_isSettingMemberValues) return;
             SetAlignment(AbstTextAlignment.Left);
             AlignmentChanged?.Invoke(AbstTextAlignment.Left);
         });
         _alignCenter = factory.CreateStateButton("AlignCenter", null, "C", _ =>
         {
+            if (_isSettingMemberValues) return;
             SetAlignment(AbstTextAlignment.Center);
             AlignmentChanged?.Invoke(AbstTextAlignment.Center);
         });
         _alignRight = factory.CreateStateButton("AlignRight", null, "R", _ =>
         {
+            if (_isSettingMemberValues) return;
             SetAlignment(AbstTextAlignment.Right);
             AlignmentChanged?.Invoke(AbstTextAlignment.Right);
         });
         _alignJustified = factory.CreateStateButton("AlignJustified", null, "J", _ =>
         {
+            if (_isSettingMemberValues) return;
             SetAlignment(AbstTextAlignment.Justified);
             AlignmentChanged?.Invoke(AbstTextAlignment.Justified);
         });
@@ -202,8 +214,22 @@ public class TextEditIconBar
 
     private void CreateFontButtons(ILingoFrameworkFactory factory, int actionBarHeight, AbstWrapPanel container)
     {
+        _memberWidth = factory.CreateInputNumberInt("MEmberWidth", 0, 800, v =>
+        {
+            if (_member == null || _isSettingMemberValues)
+                return;
+            
+            _member.Width = v;
+            MemberWidthChanged?.Invoke(v);
+        });
+        _memberWidth.Width = 40;
+        container.AddItem(CreateLabel("LabelMEmber Width", "Width:"));
+        container.AddItem(_memberWidth);
+
+
         _fontSize = factory.CreateInputNumberInt("FontSize", 1, 200, v =>
         {
+            if (_isSettingMemberValues) return;
             _currentStyle.FontSize = (int)v;
             FontSizeChanged?.Invoke((int)v);
         });
@@ -213,6 +239,7 @@ public class TextEditIconBar
 
         _lineHeight = factory.CreateInputNumberInt("LineHeight", 0, 500, v =>
         {
+            if (_isSettingMemberValues) return;
             _currentStyle.LineHeight = (int)v;
             LineHeightChanged?.Invoke((int)v);
         });
@@ -222,6 +249,7 @@ public class TextEditIconBar
 
         _marginLeft = factory.CreateSpinBox("MarginLeft", 0, 500, v =>
         {
+            if (_isSettingMemberValues) return;
             _currentStyle.MarginLeft = (int)v;
             MarginLeftChanged?.Invoke((int)v);
         });
@@ -231,6 +259,7 @@ public class TextEditIconBar
 
         _marginRight = factory.CreateSpinBox("MarginRight", 0, 500, v =>
         {
+            if (_isSettingMemberValues) return;
             _currentStyle.MarginRight = (int)v;
             MarginRightChanged?.Invoke((int)v);
         });
@@ -239,6 +268,7 @@ public class TextEditIconBar
 
         _fontsCombo = factory.CreateInputCombobox("FontsCombo", s =>
         {
+            if (_isSettingMemberValues) return;
             if (s != null)
             {
                 _currentStyle.Font = s;
@@ -250,6 +280,7 @@ public class TextEditIconBar
 
         _colorPicker = factory.CreateColorPicker("ColorPicker", c =>
         {
+            if (_isSettingMemberValues) return;
             _currentStyle.Color = c;
             ColorChanged?.Invoke(c);
         });
@@ -310,7 +341,8 @@ public class TextEditIconBar
         _currentStyle.MarginRight = value;
     }
 
-    private bool _isAligning;
+   
+
     /// <summary>Set the alignment state.</summary>
     public void SetAlignment(AbstTextAlignment alignment)
     {
@@ -354,6 +386,7 @@ public class TextEditIconBar
     /// </summary>
     public void SetMemberValues(ILingoMemberTextBase member)
     {
+        _isSettingMemberValues = true;
         SetFontSize(member.FontSize);
         SetFont(member.Font);
         SetColor(member.TextColor);
@@ -380,6 +413,9 @@ public class TextEditIconBar
 
         ApplyStyle(DefaultStyleName);
         _stylesCombo.SelectedKey = DefaultStyleName;
+        _member = member;
+        _memberWidth.Value = member.Width;
+        _isSettingMemberValues = false;
     }
 
     public void OnResizing(float x, float y)
@@ -393,25 +429,25 @@ public class TextEditIconBar
     /// </summary>
     public AbstTextStyle EnsureStyle(string name)
     {
-        if (!_styles.TryGetValue(name, out var style))
+        if (_styles.TryGetValue(name, out var style))
+            return style;
+        
+        style = new AbstTextStyle
         {
-            style = new AbstTextStyle
-            {
-                Name = name,
-                FontSize = _currentStyle.FontSize,
-                Font = _currentStyle.Font,
-                Color = _currentStyle.Color,
-                Alignment = _currentStyle.Alignment,
-                Bold = _currentStyle.Bold,
-                Italic = _currentStyle.Italic,
-                Underline = _currentStyle.Underline,
-                LineHeight = _currentStyle.LineHeight,
-                MarginLeft = _currentStyle.MarginLeft,
-                MarginRight = _currentStyle.MarginRight
-            };
-            _styles.Add(name, style);
-            RefreshStylesCombo();
-        }
+            Name = name,
+            FontSize = _currentStyle.FontSize,
+            Font = _currentStyle.Font,
+            Color = _currentStyle.Color,
+            Alignment = _currentStyle.Alignment,
+            Bold = _currentStyle.Bold,
+            Italic = _currentStyle.Italic,
+            Underline = _currentStyle.Underline,
+            LineHeight = _currentStyle.LineHeight,
+            MarginLeft = _currentStyle.MarginLeft,
+            MarginRight = _currentStyle.MarginRight
+        };
+        _styles.Add(name, style);
+        RefreshStylesCombo();
         return style;
     }
 

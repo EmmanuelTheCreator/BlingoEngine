@@ -34,10 +34,19 @@ namespace AbstUI.LGodot.Components.Graphics
         public GodotImagePainterToTexture(AbstGodotFontManager fontManager, int width = 0, int height = 0)
         {
             _fontManager = fontManager;
-            if (width == 0) width = 10;
-            if (height == 0) height = 10;
+            
             Width = width;
             Height = height;
+            if (width == 0)
+            {
+                AutoResizeWidth = true;
+                width = 10;
+            }
+            if (height == 0)
+            {
+                AutoResizeHeight = true;
+                height = 10;
+            }
             _img = Image.CreateEmpty(width, height, false, Image.Format.Rgba8);
             _img.Fill(new Color(0, 0, 0, 0));
             _tex = ImageTexture.CreateFromImage(_img);
@@ -68,8 +77,8 @@ namespace AbstUI.LGodot.Components.Graphics
                 var c = _clearColor.Value;
                 _img.Fill(new Color(c.R / 255f, c.G / 255f, c.B / 255f, c.A / 255f));
             }
-            var newWidth = Width;
-            var newHeight = Height;
+            var newWidth = Width>0? Width:10;
+            var newHeight = Height>0?Height:10;
             if (AutoResizeWidth || AutoResizeHeight)
             {
                 foreach (var a in _drawActions)
@@ -84,6 +93,8 @@ namespace AbstUI.LGodot.Components.Graphics
                     }
                 }
             }
+            if (newWidth == 0) newWidth = 10;
+            if (newHeight == 0) newHeight = 10;
             if (newWidth > Width || newHeight > Height)
             {
                 var nw = AutoResizeWidth ? Math.Max(Width, newWidth) : Width;

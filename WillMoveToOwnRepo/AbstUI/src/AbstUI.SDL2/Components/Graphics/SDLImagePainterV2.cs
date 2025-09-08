@@ -25,8 +25,18 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
         TileSize = tileSize;
         if (!UseTextureGrid)
         {
+            if (width == 0)
+            {
+                AutoResizeWidth = true;
+                width = 10;
+            }
+            if (height == 0)
+            {
+                AutoResizeHeight = true;
+                height = 10;
+            }
             _texture = SDL.SDL_CreateTexture(renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
-                (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, Width, Height);
+                (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, width, height);
         }
     }
 
