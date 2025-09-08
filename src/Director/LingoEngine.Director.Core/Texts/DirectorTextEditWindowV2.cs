@@ -193,7 +193,8 @@ namespace LingoEngine.Director.Core.Texts
         {
             _previewTexture?.Dispose();
             using var painter = _factory.ComponentFactory.CreateImagePainterToTexture((int)_previewCanvas.Width, (int)_previewCanvas.Height);
-            painter.AutoResize = true;
+            painter.AutoResizeWidth = false;
+            painter.AutoResizeHeight = true;
             _renderer.Reset();
             _renderer.SetText(text, IconBar.Styles);
             _renderer.Render(painter, new APoint(0, 0));

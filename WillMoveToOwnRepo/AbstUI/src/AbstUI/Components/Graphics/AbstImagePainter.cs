@@ -70,10 +70,17 @@ public abstract class AbstImagePainter<TTexture> : IAbstImagePainter
         _drawActions.Add(action);
         _dirty = true;
         if (!UseTextureGrid) return;
+#if NET48
+        int startX = Math.Max(0, (int)Math.Floor((action.Position.X / TileSize)));
+        int startY = Math.Max(0, (int)Math.Floor((action.Position.Y / TileSize)));
+        int endX = Math.Max(0, (int)Math.Floor((action.Position.X + action.Size.X - 1) / TileSize));
+        int endY = Math.Max(0, (int)Math.Floor((action.Position.Y + action.Size.Y - 1) / TileSize));
+#else
         int startX = Math.Max(0, (int)MathF.Floor(action.Position.X / TileSize));
         int startY = Math.Max(0, (int)MathF.Floor(action.Position.Y / TileSize));
         int endX = Math.Max(0, (int)MathF.Floor((action.Position.X + action.Size.X - 1) / TileSize));
         int endY = Math.Max(0, (int)MathF.Floor((action.Position.Y + action.Size.Y - 1) / TileSize));
+#endif
         for (int x = startX; x <= endX; x++)
             for (int y = startY; y <= endY; y++)
                 AddTileAction((x, y), action);
@@ -108,10 +115,17 @@ public abstract class AbstImagePainter<TTexture> : IAbstImagePainter
     {
         _dirty = true;
         if (!UseTextureGrid) return;
+#if NET48
+       int startX = Math.Max(0, (int)Math.Floor(position.X / TileSize));
+        int startY = Math.Max(0, (int)Math.Floor(position.Y / TileSize));
+        int endX = Math.Max(0, (int)Math.Floor((position.X + size.X - 1) / TileSize));
+        int endY = Math.Max(0, (int)Math.Floor((position.Y + size.Y - 1) / TileSize));
+#else
         int startX = Math.Max(0, (int)MathF.Floor(position.X / TileSize));
         int startY = Math.Max(0, (int)MathF.Floor(position.Y / TileSize));
         int endX = Math.Max(0, (int)MathF.Floor((position.X + size.X - 1) / TileSize));
         int endY = Math.Max(0, (int)MathF.Floor((position.Y + size.Y - 1) / TileSize));
+#endif
         for (int x = startX; x <= endX; x++)
             for (int y = startY; y <= endY; y++)
                 _dirtyTiles.Add((x, y));
