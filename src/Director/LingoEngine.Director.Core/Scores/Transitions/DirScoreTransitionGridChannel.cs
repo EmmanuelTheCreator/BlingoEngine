@@ -173,7 +173,7 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
         var hInput = panel.SetInputNumberAt(this, "RectHeight", 375, 290, 40, s => s.RectHeight, 1, null);
         void ToggleRectInputs(bool visible)
         {
-            xLabel.Visible = xInput.Visible = yLabel.Visible = yInput.Visible = wLabel.Visible = wInput.Visible = hLabel.Visible = hInput.Visible = visible;
+            xLabel.Visibility = xInput.Visibility = yLabel.Visibility = yInput.Visibility = wLabel.Visibility = wInput.Visibility = hLabel.Visibility = hInput.Visibility = visible;
         }
         ToggleRectInputs(settings.Affects == LingoTransitionAffects.Custom);
         panel.SetComboBoxAt(affectsOptions, "AffectsCombo", 70, 290, 160, settings.Affects.ToString(), key =>
