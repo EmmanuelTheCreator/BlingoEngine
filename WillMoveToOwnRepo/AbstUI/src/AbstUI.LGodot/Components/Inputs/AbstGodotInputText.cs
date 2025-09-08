@@ -392,6 +392,7 @@ namespace AbstUI.LGodot.Components.Inputs
             }
             else if (_textEdit != null)
             {
+                var (line, column) = GetLineColumn(pos);
                 _textEdit.SetCaretLine(line);
                 _textEdit.SetCaretColumn(column);
                 _textEdit.Deselect();
@@ -420,13 +421,29 @@ namespace AbstUI.LGodot.Components.Inputs
             }
             else if (_textEdit != null)
             {
+            x
                 if (startLine != endLine || startColumn != endColumn)
                     _textEdit.Select(startLine, startColumn, endLine, endColumn);
                 else
                     _textEdit.Deselect();
                 _textEdit.SetCaretLine(endLine);
                 _textEdit.SetCaretColumn(endColumn);
-            }
+=======
+                if (start != end)
+                {
+                    var (startLine, startCol) = GetLineColumn(start);
+                    var (endLine, endCol) = GetLineColumn(end);
+                    _textEdit.Select(startLine, startCol, endLine, endCol);
+                }
+                else
+                {
+                    _textEdit.Deselect();
+                }
+                var (line, column) = GetLineColumn(end);
+                _textEdit.SetCaretLine(line);
+                _textEdit.SetCaretColumn(column);
+X
+}
         }
 
         public void InsertText(string text)
