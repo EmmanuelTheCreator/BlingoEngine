@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "TetriGrounds.Godot.4.5": {
+    "TetriGrounds.Godot.4.5-dev5": {
       "commandName": "Executable",
-      "executablePath": "C:\\Program Files\\Godot\\Godot_v4.5-rc1_mono_win64.exe",
+      "executablePath": "C:\\Program Files\\Godot\\Godot_v4.5-dev5_mono_win64.exe",
       "workingDirectory": ".",
       "nativeDebugging": true
     },
