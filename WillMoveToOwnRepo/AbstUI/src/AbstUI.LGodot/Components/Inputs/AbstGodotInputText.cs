@@ -34,93 +34,8 @@ namespace AbstUI.LGodot.Components.Inputs
         private int _selectionStart = -1;
         public object FrameworkNode => _control;
 
-        public AbstGodotInputText(AbstInputText input, IAbstFontManager fontManager, Action<string>? onChange, bool multiLine = false)
-        {
-            _onChange = onChange;
-            _fontManager = fontManager;
-            IsMultiLine = multiLine;
-            _control = InitControl(multiLine);
+        #region Properties
 
-            input.Init(this);
-        }
-
-        private Control InitControl(bool multiLine)
-        {
-            if (_lineEdit != null)
-                _lineEdit.TextChanged -= OnLineEditTextChanged;
-            if (_textEdit != null)
-                _textEdit.TextChanged -= OnTextEditTextChanged;
-            if (_control != null)
-                _control.Ready -= ControlReady;
-            _lineEdit = null;
-            _textEdit = null;
-            if (multiLine)
-            {
-                _textEdit = new TextEdit();
-                _control = _textEdit;
-            }
-            else
-            {
-                _lineEdit = new LineEdit();
-                _control = _lineEdit;
-            }
-
-            _control.CustomMinimumSize = new Vector2(2, 2);
-            _control.SizeFlagsHorizontal = 0;
-            _control.SizeFlagsVertical = 0;
-
-            if (_lineEdit != null)
-                _lineEdit.TextChanged += OnLineEditTextChanged;
-            if (_textEdit != null)
-                _textEdit.TextChanged += OnTextEditTextChanged;
-
-            _control.Ready += ControlReady;
-            return _control;
-        }
-
-        private void ControlReady()
-        {
-            _control.CustomMinimumSize = new Vector2(_wantedWidth, _wantedHeight);
-            _control.Size = new Vector2(_wantedWidth, _wantedHeight);
-        }
-
-
-        private void OnLineEditTextChanged(string _)
-        {
-            _text = _lineEdit?.Text ?? string.Empty;
-            _caret = _text.Length;
-            _selectionStart = -1;
-            _onValueChanged?.Invoke();
-            _onChange?.Invoke(Text);
-        }
-
-        private void OnTextEditTextChanged()
-        {
-            _text = _textEdit?.Text ?? string.Empty;
-            _caret = _text.Length;
-            _selectionStart = -1;
-            _onValueChanged?.Invoke();
-            _onChange?.Invoke(Text);
-        }
-
-        private (int line, int column) GetLineColumn(int index)
-        {
-            int line = 0;
-            int column = 0;
-            for (int i = 0; i < index && i < _text.Length; i++)
-            {
-                if (_text[i] == '\n')
-                {
-                    line++;
-                    column = 0;
-                }
-                else
-                {
-                    column++;
-                }
-            }
-            return (line, column);
-        }
 
         public float X
         {
@@ -222,6 +137,9 @@ namespace AbstUI.LGodot.Components.Inputs
         }
 
         private int _fontSize;
+        private int _caretColumn;
+        private int _caretLine;
+
         public int FontSize
         {
             get => _fontSize;
@@ -308,6 +226,126 @@ namespace AbstUI.LGodot.Components.Inputs
 
         public bool HasSelection => _selectionStart != -1 && _selectionStart != _caret;
 
+        #endregion
+
+
+
+        public AbstGodotInputText(AbstInputText input, IAbstFontManager fontManager, Action<string>? onChange, bool multiLine = false)
+        {
+            _onChange = onChange;
+            _fontManager = fontManager;
+            IsMultiLine = multiLine;
+            _control = InitControl(multiLine);
+
+            input.Init(this);
+        }
+
+        private Control InitControl(bool multiLine)
+        {
+            if (_lineEdit != null)
+            {
+                _lineEdit.TextChanged -= OnLineEditTextChanged;
+                
+            }
+            if (_textEdit != null)
+            {
+                _textEdit.TextChanged -= OnTextEditTextChanged;
+                _textEdit.CaretChanged -= _textEdit_CaretChanged;
+            }
+            if (_control != null)
+                _control.Ready -= ControlReady;
+            _lineEdit = null;
+            _textEdit = null;
+            if (multiLine)
+            {
+                _textEdit = new TextEdit();
+                _control = _textEdit;
+            }
+            else
+            {
+                _lineEdit = new LineEdit();
+                _control = _lineEdit;
+            }
+
+            _control.CustomMinimumSize = new Vector2(2, 2);
+            _control.SizeFlagsHorizontal = 0;
+            _control.SizeFlagsVertical = 0;
+
+            if (_lineEdit != null)
+                _lineEdit.TextChanged += OnLineEditTextChanged;
+            if (_textEdit != null)
+            {
+                _textEdit.TextChanged += OnTextEditTextChanged;
+                _textEdit.CaretChanged += _textEdit_CaretChanged;
+            }
+
+            _control.Ready += ControlReady;
+            return _control;
+        }
+
+       
+
+        private void ControlReady()
+        {
+            _control.CustomMinimumSize = new Vector2(_wantedWidth, _wantedHeight);
+            _control.Size = new Vector2(_wantedWidth, _wantedHeight);
+        }
+        public void Dispose()
+        {
+            if (_lineEdit != null)
+                _lineEdit.TextChanged -= OnLineEditTextChanged;
+            if (_textEdit != null)
+            {
+                _textEdit.TextChanged -= OnTextEditTextChanged;
+                _textEdit.CaretChanged -= _textEdit_CaretChanged;
+            }
+
+            _control.QueueFree();
+        }
+
+        private void OnLineEditTextChanged(string _)
+        {
+            _text = _lineEdit?.Text ?? string.Empty;
+            _caret = _text.Length;
+            _selectionStart = -1;
+            _onValueChanged?.Invoke();
+            _onChange?.Invoke(Text);
+        }
+        private void _textEdit_CaretChanged()
+        {
+            if (_textEdit == null) return;
+            _caretColumn = _textEdit.GetCaretColumn();
+            _caretLine = _textEdit.GetCaretLine();
+        }
+        private void OnTextEditTextChanged()
+        {
+            _text = _textEdit?.Text ?? string.Empty;
+            _selectionStart = -1;
+            _onValueChanged?.Invoke();
+            _onChange?.Invoke(Text);
+        }
+
+        private (int line, int column) GetLineColumn(int index)
+        {
+            int line = 0;
+            int column = 0;
+            for (int i = 0; i < index && i < _text.Length; i++)
+            {
+                if (_text[i] == '\n')
+                {
+                    line++;
+                    column = 0;
+                }
+                else
+                {
+                    column++;
+                }
+            }
+            return (line, column);
+        }
+
+
+
         public void DeleteSelection()
         {
             if (!HasSelection) return;
@@ -326,8 +364,8 @@ namespace AbstUI.LGodot.Components.Inputs
             {
                 _textEdit!.Text = _text;
                 var (line, column) = GetLineColumn(_caret);
-                _textEdit.Call("set_caret_line", line);
-                _textEdit.Call("set_caret_column", column);
+                _textEdit.SetCaretLine(line);
+                _textEdit.SetCaretColumn(column);
                 _textEdit.Call("deselect");
             }
             _onValueChanged?.Invoke();
@@ -346,8 +384,8 @@ namespace AbstUI.LGodot.Components.Inputs
             else
             {
                 var (line, column) = GetLineColumn(_caret);
-                _textEdit!.Call("set_caret_line", line);
-                _textEdit.Call("set_caret_column", column);
+                _textEdit!.SetCaretLine(line);
+                _textEdit.SetCaretColumn(column);
                 _textEdit.Call("deselect");
             }
         }
@@ -382,8 +420,8 @@ namespace AbstUI.LGodot.Components.Inputs
                     _textEdit!.Call("deselect");
                 }
                 var (line, column) = GetLineColumn(_caret);
-                _textEdit.Call("set_caret_line", line);
-                _textEdit.Call("set_caret_column", column);
+                _textEdit.SetCaretLine(line);
+                _textEdit.SetCaretColumn(column);
             }
         }
 
@@ -408,8 +446,8 @@ namespace AbstUI.LGodot.Components.Inputs
             {
                 _textEdit!.Text = _text;
                 var (line, column) = GetLineColumn(_caret);
-                _textEdit.Call("set_caret_line", line);
-                _textEdit.Call("set_caret_column", column);
+                _textEdit.SetCaretLine(line);
+                _textEdit.SetCaretColumn(column);
                 _textEdit.Call("deselect");
             }
             _onValueChanged?.Invoke();
@@ -422,15 +460,7 @@ namespace AbstUI.LGodot.Components.Inputs
             remove => _onValueChanged -= value;
         }
 
-        public void Dispose()
-        {
-            if (_lineEdit != null)
-                _lineEdit.TextChanged -= OnLineEditTextChanged;
-            if (_textEdit != null)
-                _textEdit.TextChanged -= OnTextEditTextChanged;
-
-            _control.QueueFree();
-        }
+       
     }
 }
 
