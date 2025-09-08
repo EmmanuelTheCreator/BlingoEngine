@@ -45,7 +45,8 @@ public class BlazorImagePainter : IAbstImagePainter
             }
         }
     }
-    public bool AutoResize { get; set; } = false;
+    public bool AutoResizeWidth { get; set; } = false;
+    public bool AutoResizeHeight { get; set; } = true;
 
     public BlazorImagePainter(IAbstFontManager fontManager, IJSRuntime jsRuntime, AbstUIScriptResolver scripts, int width = 0, int height = 0)
     {
@@ -73,15 +74,17 @@ public class BlazorImagePainter : IAbstImagePainter
 
         var newWidth = Width;
         var newHeight = Height;
-        if (AutoResize)
+        if (AutoResizeWidth || AutoResizeHeight)
         {
             foreach (var a in _drawActions)
             {
                 var ns = a.GetTotalSize();
-                if (ns != null && (ns.Value.X > newWidth || ns.Value.Y > newHeight))
+                if (ns != null)
                 {
-                    newWidth = (int)MathF.Max(newWidth, ns.Value.X);
-                    newHeight = (int)MathF.Max(newHeight, ns.Value.Y);
+                    if (AutoResizeWidth && ns.Value.X > newWidth)
+                        newWidth = (int)MathF.Max(newWidth, ns.Value.X);
+                    if (AutoResizeHeight && ns.Value.Y > newHeight)
+                        newHeight = (int)MathF.Max(newHeight, ns.Value.Y);
                 }
             }
         }
@@ -91,10 +94,12 @@ public class BlazorImagePainter : IAbstImagePainter
         if (newWidth > Width || newHeight > Height)
         {
             _texture.Dispose();
-            _texture = AbstBlazorTexture2D.CreateAsync(_jsRuntime, newWidth, newHeight, $"BlazorImage_{newWidth}x{newHeight}").GetAwaiter().GetResult();
+            var nw = AutoResizeWidth ? newWidth : Width;
+            var nh = AutoResizeHeight ? newHeight : Height;
+            _texture = AbstBlazorTexture2D.CreateAsync(_jsRuntime, nw, nh, $"BlazorImage_{nw}x{nh}").GetAwaiter().GetResult();
             _context = _scripts.CanvasGetContext(_texture.Canvas, Pixilated).GetAwaiter().GetResult();
-            Width = newWidth;
-            Height = newHeight;
+            Width = nw;
+            Height = nh;
         }
 
         var ctx = _context!;
@@ -116,7 +121,7 @@ public class BlazorImagePainter : IAbstImagePainter
     {
         var p = point; var c = color;
         _drawActions.Add((
-            () => AutoResize ? EnsureCapacity((int)p.X + 1, (int)p.Y + 1) : null,
+            () => (AutoResizeWidth || AutoResizeHeight) ? EnsureCapacity((int)p.X + 1, (int)p.Y + 1) : null,
             ctx => _scripts.CanvasSetPixel(ctx, (int)p.X, (int)p.Y, ToCss(c))
         ));
         MarkDirty();
@@ -128,7 +133,7 @@ public class BlazorImagePainter : IAbstImagePainter
         _drawActions.Add((
             () =>
             {
-                if (!AutoResize) return null;
+                if (!AutoResizeWidth && !AutoResizeHeight) return null;
                 int maxX = (int)MathF.Ceiling(MathF.Max(s.X, e.X)) + 1;
                 int maxY = (int)MathF.Ceiling(MathF.Max(s.Y, e.Y)) + 1;
                 return EnsureCapacity(maxX, maxY);
@@ -142,7 +147,7 @@ public class BlazorImagePainter : IAbstImagePainter
     {
         var r = rect; var c = color; var w = (int)MathF.Max(1, width); var f = filled;
         _drawActions.Add((
-            () => AutoResize ? EnsureCapacity((int)r.Right, (int)r.Bottom) : null,
+            () => (AutoResizeWidth || AutoResizeHeight) ? EnsureCapacity((int)r.Right, (int)r.Bottom) : null,
             ctx => _scripts.CanvasDrawRect(ctx, r.Left, r.Top, r.Width, r.Height, ToCss(c), f, w)
         ));
         MarkDirty();
@@ -154,7 +159,7 @@ public class BlazorImagePainter : IAbstImagePainter
         _drawActions.Add((
             () =>
             {
-                if (!AutoResize) return null;
+                if (!AutoResizeWidth && !AutoResizeHeight) return null;
                 int maxX = (int)MathF.Ceiling(ctr.X + rad) + 1;
                 int maxY = (int)MathF.Ceiling(ctr.Y + rad) + 1;
                 return EnsureCapacity(maxX, maxY);
@@ -170,7 +175,7 @@ public class BlazorImagePainter : IAbstImagePainter
         _drawActions.Add((
             () =>
             {
-                if (!AutoResize) return null;
+                if (!AutoResizeWidth && !AutoResizeHeight) return null;
                 int maxX = (int)MathF.Ceiling(ctr.X + rad) + 1;
                 int maxY = (int)MathF.Ceiling(ctr.Y + rad) + 1;
                 return EnsureCapacity(maxX, maxY);
@@ -187,7 +192,7 @@ public class BlazorImagePainter : IAbstImagePainter
         _drawActions.Add((
             () =>
             {
-                if (!AutoResize) return null;
+                if (!AutoResizeWidth && !AutoResizeHeight) return null;
                 float maxX = 0; float maxY = 0;
                 foreach (var p in pts)
                 {
@@ -216,7 +221,7 @@ public class BlazorImagePainter : IAbstImagePainter
         _drawActions.Add((
             () =>
             {
-                if (!AutoResize) return null;
+                if (!AutoResizeWidth && !AutoResizeHeight) return null;
                 float textW = w >= 0 ? w : _fontManager.MeasureTextWidth(txt, fnt ?? string.Empty, fs);
                 var fi = _fontManager.GetFontInfo(fnt ?? string.Empty, fs);
                 return EnsureCapacity((int)(pos.X + textW), (int)(pos.Y + fi.FontHeight));
@@ -241,7 +246,7 @@ public class BlazorImagePainter : IAbstImagePainter
         _drawActions.Add((
             () =>
             {
-                if (!AutoResize) return null;
+                if (!AutoResizeWidth && !AutoResizeHeight) return null;
                 int needW = w >= 0 ? w : (int)_fontManager.MeasureTextWidth(txt, fnt ?? string.Empty, fs);
                 int needH = h >= 0 ? h : _fontManager.GetFontInfo(fnt ?? string.Empty, fs).FontHeight;
                 return EnsureCapacity((int)(pos.X + needW), (int)(pos.Y + needH));
@@ -264,7 +269,7 @@ public class BlazorImagePainter : IAbstImagePainter
     {
         var dat = data; var w = width; var h = height; var pos = position;
         _drawActions.Add((
-            () => AutoResize ? EnsureCapacity((int)pos.X + w, (int)pos.Y + h) : null,
+            () => (AutoResizeWidth || AutoResizeHeight) ? EnsureCapacity((int)pos.X + w, (int)pos.Y + h) : null,
             ctx => _scripts.CanvasDrawPictureData(ctx, dat, w, h, (int)pos.X, (int)pos.Y)
         ));
         MarkDirty();
@@ -274,7 +279,7 @@ public class BlazorImagePainter : IAbstImagePainter
     {
         var tex = texture; var w = width; var h = height; var pos = position;
         _drawActions.Add((
-            () => AutoResize ? EnsureCapacity((int)pos.X + w, (int)pos.Y + h) : null,
+            () => (AutoResizeWidth || AutoResizeHeight) ? EnsureCapacity((int)pos.X + w, (int)pos.Y + h) : null,
             async ctx =>
             {
                 if (tex is AbstBlazorTexture2D btex)

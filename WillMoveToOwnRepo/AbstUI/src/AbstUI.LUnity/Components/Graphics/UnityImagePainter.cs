@@ -50,7 +50,8 @@ public class UnityImagePainter : IAbstImagePainter
         get => _texture.filterMode == FilterMode.Point;
         set => _texture.filterMode = value ? FilterMode.Point : FilterMode.Bilinear;
     }
-    public bool AutoResize { get; set; } = false;
+    public bool AutoResizeWidth { get; set; } = false;
+    public bool AutoResizeHeight { get; set; } = true;
     public Texture2D Texture => _texture;
 
     public UnityImagePainter(IAbstFontManager fontManager, int width = 0, int height = 0)
@@ -101,15 +102,17 @@ public class UnityImagePainter : IAbstImagePainter
 
         var newWidth = Width;
         var newHeight = Height;
-        if (AutoResize)
+        if (AutoResizeWidth || AutoResizeHeight)
         {
             foreach (var a in _drawActions)
             {
                 var newSize = a.GetTotalSize();
-                if (newSize != null && (newSize.Value.X > newWidth || newSize.Value.Y > newHeight))
+                if (newSize != null)
                 {
-                    newWidth = (int)MathF.Max(newWidth, newSize.Value.X);
-                    newHeight = (int)MathF.Max(newHeight, newSize.Value.Y);
+                    if (AutoResizeWidth && newSize.Value.X > newWidth)
+                        newWidth = (int)MathF.Max(newWidth, newSize.Value.X);
+                    if (AutoResizeHeight && newSize.Value.Y > newHeight)
+                        newHeight = (int)MathF.Max(newHeight, newSize.Value.Y);
                 }
             }
         }
@@ -117,8 +120,8 @@ public class UnityImagePainter : IAbstImagePainter
         newHeight = Math.Min(newHeight, MaxHeight);
         if (newWidth > Width || newHeight > Height)
         {
-            var nw = Math.Max(Width, newWidth);
-            var nh = Math.Max(Height, newHeight);
+            var nw = AutoResizeWidth ? Math.Max(Width, newWidth) : Width;
+            var nh = AutoResizeHeight ? Math.Max(Height, newHeight) : Height;
             var newTex = new Texture2D(nw, nh, TextureFormat.RGBA32, false)
             {
                 filterMode = _texture.filterMode
@@ -167,7 +170,7 @@ public class UnityImagePainter : IAbstImagePainter
     {
         var p = point; var c = color.ToUnityColor();
         _drawActions.Add((
-            () => AutoResize ? EnsureCapacity((int)p.X + 1, (int)p.Y + 1) : null,
+            () => (AutoResizeWidth || AutoResizeHeight) ? EnsureCapacity((int)p.X + 1, (int)p.Y + 1) : null,
             tex => SetPixel(tex, (int)p.X, (int)p.Y, c)
         ));
         MarkDirty();
@@ -199,7 +202,7 @@ public class UnityImagePainter : IAbstImagePainter
         _drawActions.Add((
             () =>
             {
-                if (!AutoResize) return null;
+                if (!AutoResizeWidth && !AutoResizeHeight) return null;
                 float maxX = MathF.Max(s.X, e.X);
                 float maxY = MathF.Max(s.Y, e.Y);
                 return EnsureCapacity((int)maxX + 1, (int)maxY + 1);
@@ -212,14 +215,14 @@ public class UnityImagePainter : IAbstImagePainter
     public void DrawRect(ARect rect, AColor color, bool filled = true, float width = 1)
     {
         var r = rect; var col = color.ToUnityColor(); var w = width;
-        
+
         _drawActions.Add((
-            () => AutoResize? EnsureCapacity((int)(r.Left + r.Width), (int)(r.Top + r.Height)) : null,
+            () => (AutoResizeWidth || AutoResizeHeight) ? EnsureCapacity((int)(r.Left + r.Width), (int)(r.Top + r.Height)) : null,
             tex =>
             {
                 int x0 = Mathf.RoundToInt(r.Left);
                 int y0 = Mathf.RoundToInt(r.Top);
-                int x1 =  (int)(x0 + r.Width);
+                int x1 = (int)(x0 + r.Width);
                 int y1 = (int)(y0 + r.Height);
                 if (filled)
                 {
@@ -243,7 +246,7 @@ public class UnityImagePainter : IAbstImagePainter
     {
         var c = center; var rad = Mathf.RoundToInt(radius); var col = color.ToUnityColor(); var w = width; var f = filled;
         _drawActions.Add((
-            () => AutoResize ? EnsureCapacity((int)c.X + rad + 1, (int)c.Y + rad + 1) : null,
+            () => (AutoResizeWidth || AutoResizeHeight) ? EnsureCapacity((int)c.X + rad + 1, (int)c.Y + rad + 1) : null,
             tex =>
             {
                 int cx = Mathf.RoundToInt(c.X);
@@ -273,7 +276,7 @@ public class UnityImagePainter : IAbstImagePainter
         _drawActions.Add((
             () =>
             {
-                if (!AutoResize) return null;
+                if (!AutoResizeWidth && !AutoResizeHeight) return null;
                 return EnsureCapacity((int)c.X + (int)MathF.Ceiling(rad) + 1, (int)c.Y + (int)MathF.Ceiling(rad) + 1);
             },
             tex =>
@@ -328,7 +331,7 @@ public class UnityImagePainter : IAbstImagePainter
         _drawActions.Add((
             () =>
             {
-                if (!AutoResize) return null;
+                if (!AutoResizeWidth && !AutoResizeHeight) return null;
                 float maxX = pts.Max(p => p.X);
                 float maxY = pts.Max(p => p.Y);
                 return EnsureCapacity((int)maxX + 1, (int)maxY + 1);
@@ -356,7 +359,7 @@ public class UnityImagePainter : IAbstImagePainter
         _drawActions.Add((
             () =>
             {
-                if (!AutoResize) return null;
+                if (!AutoResizeWidth && !AutoResizeHeight) return null;
                 float textW = w >= 0 ? w : _fontManager.MeasureTextWidth(txt, fnt ?? string.Empty, fs);
                 var fi = _fontManager.GetFontInfo(fnt ?? string.Empty, fs);
                 return EnsureCapacity((int)(pos.X + textW), (int)(pos.Y + fi.FontHeight));
@@ -400,7 +403,7 @@ public class UnityImagePainter : IAbstImagePainter
         _drawActions.Add((
             () =>
             {
-                if (!AutoResize) return null;
+                if (!AutoResizeWidth && !AutoResizeHeight) return null;
                 float textW = w >= 0 ? w : _fontManager.MeasureTextWidth(txt, fnt ?? string.Empty, fs);
                 int textH = h >= 0 ? h : _fontManager.GetFontInfo(fnt ?? string.Empty, fs).FontHeight;
                 return EnsureCapacity((int)(pos.X + textW), (int)(pos.Y + textH));
@@ -441,7 +444,7 @@ public class UnityImagePainter : IAbstImagePainter
     {
         var dat = data; var w = width; var h = height; var pos = position; var fmt = format;
         _drawActions.Add((
-            () => AutoResize ? EnsureCapacity((int)pos.X + w, (int)pos.Y + h) : null,
+            () => (AutoResizeWidth || AutoResizeHeight) ? EnsureCapacity((int)pos.X + w, (int)pos.Y + h) : null,
             tex =>
             {
                 var t = new Texture2D(w, h, fmt.ToUnityFormat(), false);
@@ -467,7 +470,7 @@ public class UnityImagePainter : IAbstImagePainter
                 _drawActions.Add((
                     () =>
                     {
-                        if (!AutoResize) return null;
+                        if (!AutoResizeWidth && !AutoResizeHeight) return null;
                         int copyW = Math.Min(w, src.width);
                         int copyH = Math.Min(h, src.height);
                         return EnsureCapacity((int)pos.X + copyW, (int)pos.Y + copyH);

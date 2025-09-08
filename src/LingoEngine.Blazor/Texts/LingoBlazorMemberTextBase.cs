@@ -190,7 +190,6 @@ public abstract class LingoBlazorMemberTextBase<TText> : ILingoFrameworkMemberTe
 
     public string PasteClipboard() => _js.InvokeAsync<string>("navigator.clipboard.readText").AsTask().GetAwaiter().GetResult();
 
-    public string ReadText() => File.Exists(_lingoMemberText.FileName) ? File.ReadAllText(_lingoMemberText.FileName) : string.Empty;
 
     public void CopyToClipboard() => Copy(Text);
 

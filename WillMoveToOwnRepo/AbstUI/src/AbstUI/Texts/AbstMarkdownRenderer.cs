@@ -1,10 +1,10 @@
 using AbstUI.Components.Graphics;
 using AbstUI.Primitives;
 using AbstUI.Styles;
-using System.Linq;
+
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+
 
 namespace AbstUI.Texts
 {
@@ -40,7 +40,7 @@ namespace AbstUI.Texts
             get => _styles.Values;
             private set => _styles = value?.ToDictionary(s => s.Name) ?? new();
         }
-
+       
         public AbstMarkdownRenderer(
             IAbstFontManager fontManager,
             Func<string, (byte[] data, int width, int height, APixelFormat format)>? imageLoader = null)
@@ -48,12 +48,21 @@ namespace AbstUI.Texts
             _fontManager = fontManager;
             _imageLoader = imageLoader;
         }
-
+        public void Reset()
+        {
+            _styles.Clear();
+            _styleStack.Clear();
+            DoFastRendering = false;
+            _markdown = string.Empty;
+        }
         /// <summary>
         /// Sets the markdown text and available styles. Must be called before rendering.
         /// </summary>
         public void SetText(string markdown, IEnumerable<AbstTextStyle> styles)
         {
+            if (AbstMarkdownReader.TryExtractStyleSheet(ref markdown, out var parsed))
+                styles = parsed;
+
             _markdown = markdown ?? string.Empty;
             Styles = styles;
             _styleStack.Clear();
@@ -62,6 +71,12 @@ namespace AbstUI.Texts
             var fastProbe = StripLeadingParaTags(_markdown);
             DoFastRendering = _styles.Count == 1 && !HasSpecialTags(fastProbe);
         }
+
+        /// <summary>
+        /// Sets markdown text that may include an embedded stylesheet tag.
+        /// </summary>
+        public void SetText(string markdown)
+            => SetText(markdown, Enumerable.Empty<AbstTextStyle>());
         private static string StripLeadingParaTags(string s)
         {
             if (string.IsNullOrEmpty(s)) return string.Empty;
@@ -76,6 +91,8 @@ namespace AbstUI.Texts
         /// </summary>
         public void SetText(AbstMarkdownData data)
             => SetText(data.Markdown, data.Styles.Values);
+
+        
 
         /// <summary>Renders markdown text on the canvas starting from the given position.</summary>
         public void Render(IAbstImagePainter canvas, APoint start)
@@ -209,7 +226,6 @@ namespace AbstUI.Texts
             if (style.Italic) baseStyle |= AbstFontStyle.Italic;
             var fontInfo = _fontManager.GetFontInfo(style.Font, fontSize, baseStyle);
             int lineHeight = style.LineHeight > 0 ? style.LineHeight : fontInfo.FontHeight;
-            bool firstLine = true;
 
             // 1) measure max width of all lines
             float fullWidth = 0f;
@@ -218,14 +234,16 @@ namespace AbstUI.Texts
             foreach (var raw in lines)
             {
                 var line = raw.TrimEnd('\r');
-
-                var fontStyleForWidth = AbstFontStyle.Regular;
-                if (style.Bold)
-                    fontStyleForWidth |= AbstFontStyle.Bold;
-                if (style.Italic)
-                    fontStyleForWidth |= AbstFontStyle.Italic;
-                var lineWidth = EstimateWidth(line, style.Font, fontSize, fontStyleForWidth);
-
+                float lineWidth = 0;
+                if (line != "")
+                {
+                    var fontStyleForWidth = AbstFontStyle.Regular;
+                    if (style.Bold)
+                        fontStyleForWidth |= AbstFontStyle.Bold;
+                    if (style.Italic)
+                        fontStyleForWidth |= AbstFontStyle.Italic;
+                    lineWidth = EstimateWidth(line, style.Font, fontSize, fontStyleForWidth);
+                }
                 lineWidths.Add(lineWidth);
                 fullWidth = MathF.Max(fullWidth, lineWidth);
             }
@@ -260,14 +278,10 @@ namespace AbstUI.Texts
                     fontStyle |= AbstFontStyle.Bold;
                 if (style.Italic)
                     fontStyle |= AbstFontStyle.Italic;
-                _canvas!.DrawSingleLine(
-    new APoint(lineX, pos.Y),
-    line, style.Font, style.Color, style.FontSize,
-    (int)MathF.Ceiling(lineW), fontInfo.FontHeight,
-    AbstTextAlignment.Left, fontStyle);
+                _canvas!.DrawSingleLine( new APoint(lineX, pos.Y),line, style.Font, style.Color, style.FontSize, 
+                    (int)MathF.Ceiling(lineW), fontInfo.FontHeight,AbstTextAlignment.Left, fontStyle);
 
                 pos.Offset(0, lineHeight);
-                firstLine = false;
                 lineIndex++;
             }
         }
@@ -497,6 +511,6 @@ namespace AbstUI.Texts
             }
         }
 
-
+        
     }
 }

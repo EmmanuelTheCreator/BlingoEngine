@@ -172,7 +172,6 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     }
     public void Copy(string text) => SdlClipboard.SetText(text);
     public string PasteClipboard() => SdlClipboard.GetText();
-    public string ReadText() => File.Exists(_lingoMemberText.FileName) ? File.ReadAllText(_lingoMemberText.FileName) : string.Empty;
     public void CopyToClipboard() => SdlClipboard.SetText(Text);
     public void Erase() { Unload(); }
     public void ImportFileInto() { }

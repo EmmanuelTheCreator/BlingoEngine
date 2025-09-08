@@ -43,7 +43,5 @@ namespace LingoEngine.Texts.FrameworkCommunication
         string PasteClipboard();
 
 
-        string ReadText();
-
     }
 }

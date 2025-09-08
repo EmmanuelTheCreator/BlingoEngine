@@ -18,7 +18,8 @@ public class GodotImagePainterBaselineTests
         GodotTestHost.Run(fontManager =>
         {
             using var painter = new GodotImagePainterToTexture(fontManager, 64, 64);
-            painter.AutoResize = true;
+            painter.AutoResizeWidth = true;
+            painter.AutoResizeHeight = true;
 
             painter.Name = "h";
             //painter.DrawRect(ARect.New(0, 0, 80, 30), AColors.Red);

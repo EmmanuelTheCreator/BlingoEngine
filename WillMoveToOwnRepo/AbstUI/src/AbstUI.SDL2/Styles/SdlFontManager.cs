@@ -17,6 +17,7 @@ public interface IAbstSdlFont
 }
 public class SdlFontManager : IAbstFontManager
 {
+    public const string DefaultFontName = "default";
     private readonly List<(string Name, AbstFontStyle Style, string FileName)> _fontsToLoad = new();
     private readonly Dictionary<(string Name, AbstFontStyle Style), AbstSdlFont> _loadedFonts = new();
     public IAbstFontManager AddFont(string name, string pathAndName, AbstFontStyle style = AbstFontStyle.Regular)
@@ -29,11 +30,11 @@ public class SdlFontManager : IAbstFontManager
         if (_loadedFonts.Count == 0)
         {
             var tahoma = Path.Combine(AppContext.BaseDirectory, "Fonts", "Tahoma.ttf");
-            _loadedFonts.Add(("default", AbstFontStyle.Regular), new AbstSdlFont(this, "Tahoma", tahoma));
-            _loadedFonts.Add(("default", AbstFontStyle.Italic), new AbstSdlFont(this, "Tahoma", tahoma));
-            _loadedFonts.Add(("default", AbstFontStyle.Bold), new AbstSdlFont(this, "Tahoma", tahoma));
-            _loadedFonts.Add(("default", AbstFontStyle.BoldItalic), new AbstSdlFont(this, "Tahoma", tahoma));
-            _loadedFonts.Add(("Tahoma", AbstFontStyle.Regular), new AbstSdlFont(this, "Tahoma", tahoma));
+            _loadedFonts.Add((DefaultFontName, AbstFontStyle.Regular), new AbstSdlFont(this, "Tahoma", tahoma));
+            _loadedFonts.Add((DefaultFontName, AbstFontStyle.Bold), new AbstSdlFont(this, "Tahoma", tahoma));
+            _loadedFonts.Add((DefaultFontName, AbstFontStyle.BoldItalic), new AbstSdlFont(this, "Tahoma", tahoma));
+            _loadedFonts.Add((DefaultFontName, AbstFontStyle.Italic), new AbstSdlFont(this, "Tahoma", tahoma));
+            _loadedFonts.Add(("tahoma", AbstFontStyle.Regular), new AbstSdlFont(this, "Tahoma", tahoma));
         }
 
         foreach (var font in _fontsToLoad)
@@ -41,7 +42,7 @@ public class SdlFontManager : IAbstFontManager
             var path = Path.IsPathRooted(font.FileName)
                 ? font.FileName
                 : Path.Combine(AppContext.BaseDirectory, font.FileName.Replace("\\", "/"));
-            _loadedFonts[(font.Name, font.Style)] = new AbstSdlFont(this, font.Name, path);
+            _loadedFonts[(font.Name.ToLower(), font.Style)] = new AbstSdlFont(this, font.Name, path);
         }
 
         _fontsToLoad.Clear();
@@ -49,23 +50,35 @@ public class SdlFontManager : IAbstFontManager
 
     }
     public T? Get<T>(string name, AbstFontStyle style = AbstFontStyle.Regular) where T : class
-        => _loadedFonts.TryGetValue((name, style), out var f) ? f as T : null;
+    {
+        if (string.IsNullOrEmpty(name)) return null;
+        var nameLower = name.ToLower();
+        if (_loadedFonts.ContainsKey((nameLower, style)))
+            return _loadedFonts[(nameLower, style)] as T;
+        if (_loadedFonts.ContainsKey((nameLower, AbstFontStyle.Regular)))
+            return _loadedFonts[(nameLower, AbstFontStyle.Regular)] as T;
+        return null;
+    }
+
     public ISdlFontLoadedByUser GetTyped(object fontUser, string? name, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
     {
-        if (string.IsNullOrEmpty(name)) return _loadedFonts[("default", style)].Get(fontUser, fontSize);
-        if (_loadedFonts.ContainsKey((name, style)) == false)
-            return _loadedFonts[("default", style)].Get(fontUser, fontSize);
-        return _loadedFonts[(name, style)].Get(fontUser, fontSize);
+        if (string.IsNullOrEmpty(name)) return _loadedFonts[(DefaultFontName, style)].Get(fontUser, fontSize);
+        var nameLower = name.ToLower();
+        if (_loadedFonts.ContainsKey((nameLower, style)))
+            return _loadedFonts[(nameLower, style)].Get(fontUser, fontSize);
+        if (_loadedFonts.ContainsKey((nameLower, AbstFontStyle.Regular)))
+            return _loadedFonts[(nameLower, AbstFontStyle.Regular)].Get(fontUser, fontSize);
+        return _loadedFonts[(DefaultFontName, style)].Get(fontUser, fontSize);
     }
 
     public T GetDefaultFont<T>() where T : class
-        => _loadedFonts.TryGetValue(("default", AbstFontStyle.Regular), out var f) ? (f as T)! : throw new KeyNotFoundException("Default font not found");
+        => _loadedFonts.TryGetValue((DefaultFontName, AbstFontStyle.Regular), out var f) ? (f as T)! : throw new KeyNotFoundException("Default font not found");
 
     public void SetDefaultFont<T>(T font) where T : class
     {
         if (font is not IAbstSdlFont sdlFont)
             throw new ArgumentException("Font must be of type IAbstSdlFont", nameof(font));
-        _loadedFonts[("default", AbstFontStyle.Regular)] = (AbstSdlFont)sdlFont;
+        _loadedFonts[(DefaultFontName, AbstFontStyle.Regular)] = (AbstSdlFont)sdlFont;
     }
 
     public IEnumerable<string> GetAllNames() => _loadedFonts.Keys.Select(k => k.Name).Distinct();

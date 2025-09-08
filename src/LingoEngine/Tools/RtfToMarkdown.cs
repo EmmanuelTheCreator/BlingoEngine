@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
 using System.Collections.Generic;
+
 using AbstUI.Primitives;
 using AbstUI.Texts;
 
@@ -16,7 +17,7 @@ namespace LingoEngine.Tools
         /// Converts an RTF string into the custom AbstMarkdown format used by <see cref="AbstMarkdownRenderer"/>.
         /// Returns the Markdown string along with the style segments and stylesheet definitions used to build it.
         /// </summary>
-        public static AbstMarkdownData Convert(string rtfContent)
+        public static AbstMarkdownData Convert(string rtfContent, bool includeStyleSheet = false)
         {
             var fontEntries = ParseFontTable(rtfContent);
             var colorEntries = ParseColorTable(rtfContent, out int colorOffset);
@@ -32,7 +33,7 @@ namespace LingoEngine.Tools
                     var style = new AbstTextStyle
                     {
                         Name = "0",
-                        Font = seg.FontName ??"",
+                        Font = seg.FontName ?? "",
                         FontSize = seg.Size,
                         Color = seg.Color ?? AColors.Black,
                         Alignment = seg.Alignment,
@@ -199,6 +200,52 @@ namespace LingoEngine.Tools
             var styles = styleMap.ToDictionary(kv => kv.Key, kv => kv.Value.Style);
             var markdown = Regex.Replace(sb.ToString(), @"\n{2,}", "\n");
             markdown = Regex.Replace(markdown, @"\n\s+", "\n");
+
+            if (includeStyleSheet)
+            {
+                var sheet = styles.ToDictionary(kv => kv.Key, kv =>
+                {
+                    var s = kv.Value;
+                    var tto = new MarkdownStyleSheetTTO();
+                    if (!string.IsNullOrEmpty(s.Font))
+                        tto.FontFamily = s.Font;
+                    if (s.FontSize > 0)
+                        tto.FontSize = s.FontSize;
+                    var hex = s.Color.ToHex();
+                    if (!string.Equals(hex, "#000000", StringComparison.OrdinalIgnoreCase))
+                        tto.Color = hex;
+                    if (s.Alignment != AbstTextAlignment.Left)
+                        tto.TextAlign = s.Alignment.ToString().ToLowerInvariant();
+                    if (s.Bold)
+                        tto.FontWeight = "bold";
+                    if (s.Italic)
+                        tto.FontStyle = "italic";
+                    if (s.Underline)
+                        tto.TextDecoration = "underline";
+                    if (s.LineHeight > 0)
+                        tto.LineHeight = s.LineHeight;
+                    if (s.MarginLeft != 0)
+                        tto.MarginLeft = s.MarginLeft;
+                    if (s.MarginRight != 0)
+                        tto.MarginRight = s.MarginRight;
+                    return tto;
+                });
+#if NET48
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(
+                sheet,
+                new Newtonsoft.Json.JsonSerializerSettings
+                {
+                    NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
+                });
+#else
+                var json = System.Text.Json.JsonSerializer.Serialize(sheet, new System.Text.Json.JsonSerializerOptions
+                {
+                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
+                });
+#endif
+                markdown = $"{{{{STYLE-SHEET:{json}}}}}" + markdown;
+            }
+
             var plainTextRaw = string.Concat(segments.Select(s => s.Text));
             var plainText = Regex.Replace(plainTextRaw, @"\n{2,}", "\n");
             plainText = Regex.Replace(plainText, @"\n\s+", "\n");

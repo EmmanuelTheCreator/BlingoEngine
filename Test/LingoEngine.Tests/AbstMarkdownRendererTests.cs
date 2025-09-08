@@ -24,7 +24,7 @@ public class AbstMarkdownRendererTests
         var renderer = new AbstMarkdownRenderer(fontManager);
         var style = new AbstTextStyle { Name = "1", Font = "Arial", FontSize = 12 };
         (configure ?? ApplyDefaultMarkdown)(renderer, style);
-        var painter = new RecordingPainter { AutoResize = true };
+        var painter = new RecordingPainter { AutoResizeWidth = true, AutoResizeHeight = true };
         renderer.Render(painter, new APoint(0, 0));
         return (renderer, painter);
     }
@@ -65,5 +65,18 @@ public class AbstMarkdownRendererTests
         var expected = "{{PARA:1}}New **Highscore!!!**\n{{PARA:2}}Enter your {{FONT-SIZE:18}}Name";
         data.Markdown.Should().Be(expected);
         painter.Height.Should().BeGreaterThanOrEqualTo(18);
+    }
+
+    [Fact]
+    public void Render_ParsesEmbeddedStyleSheet()
+    {
+        var rtf = "{\\rtf1\\ansi{\\fonttbl{\\f0 Arial;}}{\\colortbl;\\red0\\green0\\blue0;}{\\f0\\fs40\\cf1 big}}";
+        var data = RtfToMarkdown.Convert(rtf, includeStyleSheet: true);
+        var fontManager = new TestFontManager();
+        var renderer = new AbstMarkdownRenderer(fontManager);
+        var painter = new RecordingPainter { AutoResizeWidth = true, AutoResizeHeight = true };
+        renderer.SetText(data.Markdown);
+        renderer.Render(painter, new APoint(0, 0));
+        painter.FontSizes[0].Should().Be(20);
     }
 }

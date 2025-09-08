@@ -11,7 +11,7 @@ using AbstUI.Texts;
 using LingoEngine.SDL2.GfxVisualTest;
 using Microsoft.Extensions.DependencyInjection;
 public class Program
-{     
+{
     public static void Main(string[] args)
     {
         try
@@ -34,12 +34,14 @@ public class Program
 
             serviceProvier.SetupGfxTest();
 
+            //RunTest(rootContext.Renderer);
+            //RunTest2(rootContext.Renderer);
+
+
             var scroll = GfxTestScene.Build(factory);
             rootContext.ComponentContainer.Activate(((dynamic)scroll.FrameworkObj).ComponentContext);
 
-            //RunTest(rootContext.Renderer);
-            //RunTest2(rootContext.Renderer);
-            
+
             rootContext.Run();
         }
         catch (Exception ex)
@@ -53,18 +55,21 @@ public class Program
 
     private static void RunTest2(nint renderer)
     {
-        var fontManager = CreateFontManager();  
+        var fontManager = CreateFontManager();
         var markDownRender = new AbstMarkdownRenderer(fontManager);
         using var painter = new SDLImagePainter(fontManager, 300, 0, renderer);
-        painter.AutoResize = true;
+        painter.AutoResizeWidth = true;
+        painter.AutoResizeHeight = true;
 
-        var text = "{{PARA:1}}New Highscore!!! Enter your Name";
-        markDownRender.SetText(text, new[] { new AbstTextStyle { Name = "1", Font = "Earth", FontSize = 12 } }); 
+        var text = "{{STYLE-SHEET:{\"0\":{\"font-family\":\"Arcade\",\"font-size\":30,\"color\":\"#FF0000\",\"text-align\":\"right\"}}}}{{PARA:0}}**HI-SCORES**";
+        markDownRender.SetText(text);
+        //var text = "{{PARA:1}}New Highscore!!! Enter your Name";
+        //markDownRender.SetText(text, new[] { new AbstTextStyle { Name = "1", Font = "Earth", FontSize = 12 } }); 
         //var text = "{{PARA:1}}New **Highscore!!!**\n{{PARA:2}}Enter your {{FONT-SIZE:32}}Name";
         //markDownRender.SetText(text, new [] { new AbstTextStyle { Name = "1", Font = "Earth", FontSize = 12, Alignment= AbstTextAlignment.Right }, new AbstTextStyle { Name = "2", Font = "Tahoma", FontSize = 14 } });
         //var text = "{{PARA:1}}Enter your {{FONT-SIZE:32}}NamejyJ";
         //markDownRender.SetText(text, new [] { new AbstTextStyle { Name = "1", Font = "Tahoma", FontSize = 12 }});
-        markDownRender.Render(painter, new APoint(0,0));
+        markDownRender.Render(painter, new APoint(0, 0));
         painter.GetTexture();
     }
     private static void RunTest(nint renderer)
@@ -72,7 +77,8 @@ public class Program
         SdlFontManager fontManager = CreateFontManager();
 
         using var painter = new SDLImagePainter(fontManager, 0, 0, renderer);
-        painter.AutoResize = true;
+        painter.AutoResizeWidth = true;
+        painter.AutoResizeHeight = true;
 
         painter.Name = "h";
         //painter.DrawRect(ARect.New(0, 0, 80, 30), AColors.Red);

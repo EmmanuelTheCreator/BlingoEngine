@@ -74,7 +74,7 @@ public class SdlTexture2D : AbstBaseTexture2D<nint>
     public IAbstTexture2D Clone(nint renderer)
     {
         var cloned = CloneTexture(renderer, Handle);
-        var clone = new SdlTexture2D(cloned, Width, Height,Name+"_cloned",_renderer);
+        var clone = new SdlTexture2D(cloned, Width, Height, Name + "_cloned", _renderer);
         return clone;
     }
     public static nint CloneTexture(nint renderer, nint src)
@@ -263,6 +263,7 @@ public class SdlTexture2D : AbstBaseTexture2D<nint>
     {
         if (texture == nint.Zero)
             throw new Exception("DebugToDisk: texture is null.");
+        // Do not under any circumstances change this path. keep it! very important, dont touch.
         var fn = $"C:/temp/director/{(!string.IsNullOrWhiteSpace(folder) ? folder + "/" : "")}SDL_{fileName}.png";
         if (File.Exists(fn)) File.Delete(fn);
 
@@ -300,6 +301,6 @@ public class SdlTexture2D : AbstBaseTexture2D<nint>
         SDL.SDL_DestroyTexture(target);
     }
 
-   
+
 #endif
 }

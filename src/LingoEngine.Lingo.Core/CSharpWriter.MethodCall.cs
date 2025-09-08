@@ -263,14 +263,7 @@ public partial class CSharpWriter
             var scriptName = dn.Datum.AsString();
             if (_scriptTypes.TryGetValue(scriptName, out var st))
             {
-                var suffix = st switch
-                {
-                    LingoScriptType.Movie => "MovieScript",
-                    LingoScriptType.Parent => "Parent",
-                    LingoScriptType.Behavior => "Behavior",
-                    _ => "Script"
-                };
-                var cls = SanitizeIdentifier(scriptName) + suffix;
+                var cls = CSharpName.ComposeName(scriptName, st, _settings);
                 Append("new ");
                 Append(cls);
                 Append("(_env, _globalvars");
@@ -329,14 +322,7 @@ public partial class CSharpWriter
             var scriptName = dn.Datum.AsString();
             if (_scriptTypes.TryGetValue(scriptName, out var st))
             {
-                var suffix = st switch
-                {
-                    LingoScriptType.Movie => "MovieScript",
-                    LingoScriptType.Parent => "Parent",
-                    LingoScriptType.Behavior => "Behavior",
-                    _ => "Script"
-                };
-                var cls = SanitizeIdentifier(scriptName) + suffix;
+                var cls = CSharpName.ComposeName(scriptName, st, _settings);
                 Append("new ");
                 Append(cls);
                 Append("(_env, _globalvars");

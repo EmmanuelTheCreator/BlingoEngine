@@ -113,14 +113,7 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
         return prop?.GetValue(null) as string ?? string.Empty;
     }
 
-    public string ReadText()
-    {
-        if (File.Exists(_lingoMemberText.FileName))
-            return File.ReadAllText(_lingoMemberText.FileName);
-        _logger.LogWarning("File not found for Text: {File}", _lingoMemberText.FileName);
-        return string.Empty;
-    }
-
+   
     public void CopyToClipboard() => Copy(Text);
     public void Erase()
     {

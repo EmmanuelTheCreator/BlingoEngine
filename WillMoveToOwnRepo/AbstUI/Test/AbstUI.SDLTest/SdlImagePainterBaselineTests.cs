@@ -16,12 +16,13 @@ public class SdlImagePainterBaselineTests
         SdlTestHost.Run((window, renderer, fontManager) =>
         {
             using var painter = new SDLImagePainter(fontManager, 64, 64, renderer);
-            painter.AutoResize = true;
+            painter.AutoResizeWidth = true;
+            painter.AutoResizeHeight = true;
 
 
             painter.Name = "h";
             //painter.DrawRect(ARect.New(0, 0, 80, 30), AColors.Red);
-            painter.DrawSingleLine(new APoint(0, 0), "halooo", "Tahoma",AColors.Black,32);
+            painter.DrawSingleLine(new APoint(0, 0), "halooo", "Tahoma", AColors.Black, 32);
             painter.Render();
             var hTex = (SdlTexture2D)painter.GetTexture("h");
             var hPixels = hTex.GetPixels(renderer);
