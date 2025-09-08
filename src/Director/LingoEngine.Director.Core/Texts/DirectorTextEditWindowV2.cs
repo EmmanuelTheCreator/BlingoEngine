@@ -1,18 +1,19 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
 using AbstUI.Components.Containers;
 using AbstUI.Components.Graphics;
 using AbstUI.Components.Inputs;
 using AbstUI.Primitives;
-using AbstUI.Texts;
 using AbstUI.Styles;
+using AbstUI.Texts;
 using AbstUI.Windowing;
+using LingoEngine.Core;
+using LingoEngine.Director.Core.Icons;
+using LingoEngine.Director.Core.Styles;
+using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
-using LingoEngine.Director.Core.Windowing;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Texts;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace LingoEngine.Director.Core.Texts
 {
@@ -21,38 +22,63 @@ namespace LingoEngine.Director.Core.Texts
         private readonly AbstInputText _markdownInput;
         private readonly AbstGfxCanvas _previewCanvas;
         private readonly AbstMarkdownRenderer _renderer;
-        private readonly AbstWrapPanel _rootPanel;
+        private readonly AbstPanel _rootPanel;
+        private readonly AbstScrollContainer _markdownScroller;
         private CancellationTokenSource? _renderCts;
         private IAbstTexture2D? _previewTexture;
         private SynchronizationContext? _uiContext;
         private ILingoMemberTextBase? _member;
+        private IAbstImagePainter _painter;
+        private MemberNavigationBar<ILingoMemberTextBase> _navBar;
 
         public TextEditIconBar IconBar { get; }
         public AbstTextStyle CurrentStyle => IconBar.CurrentStyle;
-        public AbstWrapPanel RootPanel => _rootPanel;
+        public AbstPanel RootPanel => _rootPanel;
 
-        public DirectorTextEditWindowV2(ILingoFrameworkFactory factory, IServiceProvider serviceProvider) : base(serviceProvider, DirectorMenuCodes.TextEditWindow)
+        public DirectorTextEditWindowV2(ILingoFrameworkFactory factory, IServiceProvider serviceProvider, IDirectorEventMediator mediator, ILingoPlayer player, IDirectorIconManager iconManager) : base(serviceProvider, DirectorMenuCodes.TextEditWindow)
         {
-            IconBar = new TextEditIconBar(factory);
             var fontManager = factory.ComponentFactory.GetRequiredService<IAbstFontManager>();
+            _navBar = new MemberNavigationBar<ILingoMemberTextBase>(mediator, player, iconManager, factory, 20);
+            IconBar = new TextEditIconBar(factory);
             _renderer = new AbstMarkdownRenderer(fontManager);
             IconBar.SetFonts(fontManager.GetAllNames());
-            _rootPanel = factory.CreateWrapPanel(AOrientation.Vertical, "TextEditWindowV2Root");
-            _rootPanel.AddItem(IconBar.Panel);
-
+            _rootPanel = factory.CreatePanel("TextEditWindowV2Root");
+            _rootPanel.BackgroundColor = DirectorColors.BG_WhiteMenus;
+            _rootPanel.AddItem(_navBar.Panel,0,0);
+            _rootPanel.AddItem(IconBar.Panel,0,25);
+            //_previewTexture?.Dispose();
             var columns = factory.CreateWrapPanel(AOrientation.Horizontal, "TextEditWindowV2Columns");
-            _rootPanel.AddItem(columns);
+            _rootPanel.AddItem(columns,0,50);
 
             _markdownInput = factory.CreateInputText("MarkdownInput", onChange: OnTextChanged, multiLine: true);
             _markdownInput.Width = 400;
             _markdownInput.Height = 400;
+          
             columns.AddItem(_markdownInput);
 
             _previewCanvas = factory.CreateGfxCanvas("MarkdownPreview", 400, 400);
-            _previewCanvas.Width = 400;
-            _previewCanvas.Height = 400;
-            columns.AddItem(_previewCanvas);
+            _markdownScroller = factory.CreateScrollContainer("MakdownScroller");
+            _markdownScroller.Width = 400;
+            _markdownScroller.Height = 400;
+            _markdownScroller.AddItem(_previewCanvas);
+            _markdownScroller.ClipContents = true;
+            columns.AddItem(_markdownScroller);
+            _painter = _factory.ComponentFactory.CreateImagePainterToTexture((int)_previewCanvas.Width, (int)_previewCanvas.Height);
+            _painter.AutoResizeWidth = true;
+            _painter.AutoResizeHeight = true;
 
+            ConfigureIconBar();
+
+            Width = 820;
+            Height = 520;
+            MinimumWidth = 400;
+            MinimumHeight = 460;
+            X = 50;
+            Y = 700;
+        }
+
+        private void ConfigureIconBar()
+        {
             IconBar.BoldChanged += v =>
             {
                 if (v)
@@ -114,13 +140,6 @@ namespace LingoEngine.Director.Core.Texts
                     ScheduleRender(_markdownInput.Text);
                 }
             };
-
-            Width = 820;
-            Height = 480;
-            MinimumWidth = 400;
-            MinimumHeight = 460;
-            X = 1000;
-            Y = 700;
         }
 
         protected override void OnInit(IAbstFrameworkWindow frameworkWindow)
@@ -135,6 +154,8 @@ namespace LingoEngine.Director.Core.Texts
             _renderCts?.Cancel();
             _renderCts?.Dispose();
             _previewTexture?.Dispose();
+            _painter?.Dispose();
+            _markdownScroller?.Dispose();    
             base.OnDispose();
         }
 
@@ -143,11 +164,14 @@ namespace LingoEngine.Director.Core.Texts
             base.OnResizing(firstLoad, width, height);
             IconBar.OnResizing(width, height);
             _rootPanel.Width = width;
-            _rootPanel.Height = height;
-            var contentHeight = height - IconBar.Panel.Height;
-            _markdownInput.Width = width / 2;
+            _rootPanel.Height = height-10;
+            var contentHeight = height - IconBar.Panel.Height -40;
+            var innerWidth = width - 20;
+            _markdownScroller.Width = innerWidth / 2;
+            _markdownScroller.Height = (int)contentHeight;
+            _markdownInput.Width = innerWidth / 2;
             _markdownInput.Height = contentHeight;
-            _previewCanvas.Width = width / 2;
+            _previewCanvas.Width = innerWidth / 2;
             _previewCanvas.Height = contentHeight;
         }
 
@@ -157,6 +181,7 @@ namespace LingoEngine.Director.Core.Texts
             _markdownInput.Text = textMember.Text;
             IconBar.SetMemberValues(textMember);
             RenderMarkdown(_markdownInput.Text);
+            _navBar.SetMember(textMember);
         }
 
         private void OnTextChanged(string text)
@@ -191,14 +216,14 @@ namespace LingoEngine.Director.Core.Texts
 
         private void RenderMarkdown(string text)
         {
-            _previewTexture?.Dispose();
-            using var painter = _factory.ComponentFactory.CreateImagePainterToTexture((int)_previewCanvas.Width, (int)_previewCanvas.Height);
-            painter.AutoResizeWidth = false;
-            painter.AutoResizeHeight = true;
+            _painter.Clear(AColors.Transparent);
+            _painter.AutoResizeWidth = false;
+            _painter.AutoResizeHeight = true;
+            _painter.Render();
             _renderer.Reset();
             _renderer.SetText(text, IconBar.Styles);
-            _renderer.Render(painter, new APoint(0, 0));
-            _previewTexture = painter.GetTexture("MarkdownPreview");
+            _renderer.Render(_painter, new APoint(0, 0));
+            _previewTexture = _painter.GetTexture("MarkdownPreview");
             _previewCanvas.Clear(AColors.White);
             if (_previewTexture != null)
                 _previewCanvas.DrawPicture(_previewTexture, _previewTexture.Width, _previewTexture.Height, new APoint(0, 0));
