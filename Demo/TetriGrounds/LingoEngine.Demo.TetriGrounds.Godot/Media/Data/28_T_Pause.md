@@ -1,0 +1,1 @@
+{{STYLE-SHEET:{"0":{"font-family":"Tahoma","font-size":36,"color":"#999966","text-align":"center"}}}}{{PARA:0}}**Pause...**

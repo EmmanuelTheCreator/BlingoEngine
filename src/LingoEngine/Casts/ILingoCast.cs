@@ -51,9 +51,9 @@ namespace LingoEngine.Casts
         event Action<ILingoMember>? MemberNameChanged;
 
 
-        public T? GetMember<T>(int number) where T : class, ILingoMember;
+        public T? GetMember<T>(int number) where T : ILingoMember;
         /// <inheritdoc/>
-        public T? GetMember<T>(string name) where T : class, ILingoMember;
+        public T? GetMember<T>(string name) where T : ILingoMember;
         ILingoMembersContainer Member { get; }
 
         /// <summary>

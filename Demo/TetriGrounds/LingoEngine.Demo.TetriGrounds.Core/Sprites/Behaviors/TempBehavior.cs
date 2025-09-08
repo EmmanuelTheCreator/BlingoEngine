@@ -1,5 +1,6 @@
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
+#pragma warning disable IDE1006 // Naming Styles
 
 namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 {

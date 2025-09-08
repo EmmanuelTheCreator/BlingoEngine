@@ -17,6 +17,7 @@ namespace LingoEngine.Primitives
         public static LingoSymbol Video = new LingoSymbol("video");
         public static LingoSymbol Audio = new LingoSymbol("audio");
         public static LingoSymbol Bitmap = new LingoSymbol("bitmap");
+        public static LingoSymbol Color = new LingoSymbol("color");
 
 
         private static readonly ConcurrentDictionary<string, LingoSymbol> _symbolTable = new();

@@ -198,9 +198,9 @@ namespace LingoEngine.Movies
         public bool TryGetAllTimeSprite(int number, out LingoSprite2D? sprite) => _sprite2DManager.TryGetAllTimeSprite(number, out sprite);
         public void SetSpriteMember(int number, string memberName) => _sprite2DManager.SetSpriteMember(number, memberName);
         public void SetSpriteMember(int number, int memberNumber) => _sprite2DManager.SetSpriteMember(number, memberNumber);
-        public void SendSprite<T>(int spriteNumber, Action<T> actionOnSpriteBehaviour) where T : LingoSpriteBehavior => _sprite2DManager.SendSprite(spriteNumber, actionOnSpriteBehaviour);
-        public bool TrySendSprite<T>(int spriteNumber, Action<T> actionOnSpriteBehaviour) where T : LingoSpriteBehavior => _sprite2DManager.TrySendSprite(spriteNumber, actionOnSpriteBehaviour);
-        public TResult? SendSprite<T, TResult>(int spriteNumber, Func<T, TResult> actionOnSpriteBehaviour) where T : LingoSpriteBehavior => _sprite2DManager.SendSprite<T, TResult>(spriteNumber, actionOnSpriteBehaviour);
+        public void SendSprite<T>(int spriteNumber, Action<T> actionOnSpriteBehaviour) where T : ILingoSpriteBehavior => _sprite2DManager.SendSprite(spriteNumber, actionOnSpriteBehaviour);
+        public bool TrySendSprite<T>(int spriteNumber, Action<T> actionOnSpriteBehaviour) where T : ILingoSpriteBehavior => _sprite2DManager.TrySendSprite(spriteNumber, actionOnSpriteBehaviour);
+        public TResult? SendSprite<T, TResult>(int spriteNumber, Func<T, TResult> actionOnSpriteBehaviour) where T : ILingoSpriteBehavior => _sprite2DManager.SendSprite<T, TResult>(spriteNumber, actionOnSpriteBehaviour);
         public void SendSprite(string name, Action<ILingoSpriteChannel> actionOnSprite) => _sprite2DManager.SendSprite(name, actionOnSprite);
         public void SendSprite(int spriteNumber, Action<ILingoSpriteChannel> actionOnSprite) => _sprite2DManager.SendSprite(spriteNumber, actionOnSprite);
         public void SendAllSprites(Action<ILingoSpriteChannel> actionOnSprite) => _sprite2DManager.SendAllSprites(actionOnSprite);
@@ -503,12 +503,12 @@ namespace LingoEngine.Movies
             _movieScripts.Add<T>();
             return this;
         }
-        public void CallMovieScript<T>(Action<T> action) where T : LingoMovieScript
+        public void CallMovieScript<T>(Action<T> action) where T : ILingoMovieScript
             => _movieScripts.Call(action);
-        public TResult? CallMovieScript<T, TResult>(Func<T, TResult> action) where T : LingoMovieScript
+        public TResult? CallMovieScript<T, TResult>(Func<T, TResult> action) where T : ILingoMovieScript
             => _movieScripts.Call(action);
 
-        private void CallOnAllMovieScripts(Action<LingoMovieScript> actionOnAll)
+        private void CallOnAllMovieScripts(Action<ILingoMovieScript> actionOnAll)
             => _movieScripts.CallAll(actionOnAll);
 
         #endregion

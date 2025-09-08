@@ -6,7 +6,7 @@ namespace AbstUI.Primitives
     /// Represents a color value in the AbstUI system, supporting palette index, RGB, and optional name.
     /// Platform-agnostic.
     /// </summary>
-    public struct AColor
+    public struct AColor : IEquatable<AColor>
     {
         public int Code { get; set; }           // AbstUI palette index (0–255) or -1 for custom
         public string Name { get; set; }        // Optional name ("Red", etc.)
@@ -173,6 +173,40 @@ namespace AbstUI.Primitives
             byte b = (byte)((bf + m) * 255f);
             return (r, g, b);
         }
+
+        public bool Equals(AColor other)
+        {
+            return Code == other.Code
+                && R == other.R
+                && G == other.G
+                && B == other.B
+                && A == other.A
+                && string.Equals(Name, other.Name, StringComparison.Ordinal);
+        }
+
+        public override bool Equals(object? obj) => obj is AColor other && Equals(other);
+
+        public static bool operator ==(AColor left, AColor right) => left.Equals(right);
+        public static bool operator !=(AColor left, AColor right) => !left.Equals(right);
+
+        public override int GetHashCode()
+        {
+#if NET48
+    unchecked
+    {
+        int hash = Code;
+        hash = (hash * 397) ^ R;
+        hash = (hash * 397) ^ G;
+        hash = (hash * 397) ^ B;
+        hash = (hash * 397) ^ A;
+        hash = (hash * 397) ^ (Name != null ? StringComparer.Ordinal.GetHashCode(Name) : 0);
+        return hash;
+    }
+#else
+            return HashCode.Combine(Code, R, G, B, A, Name is null ? 0 : StringComparer.Ordinal.GetHashCode(Name));
+#endif
+        }
+
     }
 
 }

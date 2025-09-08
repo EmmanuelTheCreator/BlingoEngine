@@ -45,7 +45,7 @@ internal class DummyTextMember : ILingoMemberTextBase, ILingoMemberTextBaseInter
     public string Font { get; set; } = string.Empty;
     public int FontSize { get; set; }
     public LingoTextStyle FontStyle { get; set; }
-    public AColor TextColor { get; set; }
+    public AColor Color { get; set; }
     public bool Bold { get; set; }
     public bool Italic { get; set; }
     public bool Underline { get; set; }

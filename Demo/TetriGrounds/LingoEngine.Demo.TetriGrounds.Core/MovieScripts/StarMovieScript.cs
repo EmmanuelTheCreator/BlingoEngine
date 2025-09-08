@@ -1,5 +1,4 @@
 using LingoEngine.Movies;
-using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Movies.Events;
 
 namespace LingoEngine.Demo.TetriGrounds.Core.MovieScripts
@@ -16,18 +15,25 @@ namespace LingoEngine.Demo.TetriGrounds.Core.MovieScripts
 
         public void StartMovie()
         {
-            var sp = ((LingoMovie)_Movie).GetServiceProvider();
-            var env = sp.GetRequiredService<ILingoMovieEnvironment>();
-            _global.SpriteManager = new ParentScripts.SpriteManagerParentScript(env);
-            _global.SpriteManager.Init(100);
-            _global.MousePointer = new ParentScripts.MousePointer(env);
-            _global.MousePointer.Init(0);
+            if (_global.SpriteManager == null)
+            {
+                _global.SpriteManager = new ParentScripts.SpriteManager(_env);
+                _global.SpriteManager.Init(100);
+            }
+            if (_global.MousePointer == null)
+            {
+                _global.MousePointer = new ParentScripts.MousePointer(_env);
+                _global.MousePointer.Init(0);
+            }
         }
 
         public void StopMovie()
         {
+            _global.SpriteManager?.Destroy();
+            _global.MousePointer?.Destroy();
             _global.SpriteManager = null;
             _global.MousePointer = null;
+            _Movie.ActorList.Clear();   
         }
 
         public string ReplaceSpaces(string str, int leng)

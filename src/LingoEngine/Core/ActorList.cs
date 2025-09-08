@@ -6,6 +6,15 @@ namespace LingoEngine.Core
     {
         private List<IHasStepFrameEvent> _actors = new();
         public void Add(IHasStepFrameEvent actor) => _actors.Add(actor);
+
+        public void Clear()
+        {
+            _actors.Clear();
+        }
+
+        public int GetPos(IHasStepFrameEvent actor) => _actors.IndexOf(actor)+1;
+
+
         public void Remove(IHasStepFrameEvent actor) => _actors.Remove(actor);
 
         internal void Invoke()

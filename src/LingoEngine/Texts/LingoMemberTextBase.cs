@@ -89,7 +89,7 @@ namespace LingoEngine.Texts
         }
 
         /// <inheritdoc/>
-        public AColor TextColor
+        public AColor Color
         {
             get => _frameworkMember.TextColor;
             set { _frameworkMember.TextColor = value; }
@@ -321,7 +321,7 @@ namespace LingoEngine.Texts
                     if (style1.Value.Underline) FontStyle |= LingoTextStyle.Underline;
                     Font = style1.Value.Font;
                     FontSize = style1.Value.FontSize;
-                    TextColor = style1.Value.Color;
+                    Color = style1.Value.Color;
                     Alignment = style1.Value.Alignment;
                 }
             }
@@ -333,7 +333,7 @@ namespace LingoEngine.Texts
                 style.Underline = (FontStyle & LingoTextStyle.Underline) != 0;
                 style.Font = Font ?? "";
                 style.FontSize = FontSize;
-                style.Color = TextColor;
+                style.Color = Color;
                 style.Alignment = Alignment;
                 _markDownRenderer.SetText(_markdown.Replace('\r', '\n'), [style]);
             }

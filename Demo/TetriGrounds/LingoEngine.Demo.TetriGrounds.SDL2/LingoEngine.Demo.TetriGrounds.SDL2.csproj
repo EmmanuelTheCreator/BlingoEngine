@@ -70,70 +70,70 @@
     <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\1_Parameters.txt" Link="Media\Data\1_Parameters.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\20_T_Score.txt" Link="Media\Data\20_T_Score.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\20_T_Score.md" Link="Media\Data\20_T_Score.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\21_T_data.txt" Link="Media\Data\21_T_data.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\21_T_data.md" Link="Media\Data\21_T_data.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\22_T_OverScreen.txt" Link="Media\Data\22_T_OverScreen.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\22_T_OverScreen.md" Link="Media\Data\22_T_OverScreen.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\23_T_OverScreen2.txt" Link="Media\Data\23_T_OverScreen2.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\23_T_OverScreen2.md" Link="Media\Data\23_T_OverScreen2.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\24_T_InternetScoresNames.txt" Link="Media\Data\24_T_InternetScoresNames.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\24_T_InternetScoresNames.md" Link="Media\Data\24_T_InternetScoresNames.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\25_T_NewGame.txt" Link="Media\Data\25_T_NewGame.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\25_T_NewGame.md" Link="Media\Data\25_T_NewGame.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\26_T_Menu.txt" Link="Media\Data\26_T_Menu.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\26_T_Menu.md" Link="Media\Data\26_T_Menu.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\27_T_Pause.txt" Link="Media\Data\27_T_Pause.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\27_T_Pause.md" Link="Media\Data\27_T_Pause.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\28_T_Pause.txt" Link="Media\Data\28_T_Pause.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\28_T_Pause.md" Link="Media\Data\28_T_Pause.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\29_T_InternetScores.txt" Link="Media\Data\29_T_InternetScores.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\29_T_InternetScores.md" Link="Media\Data\29_T_InternetScores.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\2_Bg.png" Link="Media\Data\2_Bg.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\30_PlayerName.txt" Link="Media\Data\30_PlayerName.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\30_PlayerName.md" Link="Media\Data\30_PlayerName.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\31.txt" Link="Media\Data\31.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\31.md" Link="Media\Data\31.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\32.txt" Link="Media\Data\32.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\32.md" Link="Media\Data\32.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\33.txt" Link="Media\Data\33.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\33.md" Link="Media\Data\33.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\34.txt" Link="Media\Data\34.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\34.md" Link="Media\Data\34.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\35_B_more.png" Link="Media\Data\35_B_more.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\36_T_StartLevel.txt" Link="Media\Data\36_T_StartLevel.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\36_T_StartLevel.md" Link="Media\Data\36_T_StartLevel.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\37_B_back.png" Link="Media\Data\37_B_back.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\38_T_StartLines.txt" Link="Media\Data\38_T_StartLines.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\38_T_StartLines.md" Link="Media\Data\38_T_StartLines.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\39.txt" Link="Media\Data\39.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\39.md" Link="Media\Data\39.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\40.txt" Link="Media\Data\40.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\40.md" Link="Media\Data\40.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\43_B_Play.png" Link="Media\Data\43_B_Play.png">
@@ -220,7 +220,7 @@
     <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\6_Game.png" Link="Media\Data\6_Game.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\7.txt" Link="Media\Data\7.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\7.md" Link="Media\Data\7.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\70_bell0002.png" Link="Media\Data\70_bell0002.png">
@@ -253,7 +253,7 @@
     <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\79_bell0011.png" Link="Media\Data\79_bell0011.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\8.txt" Link="Media\Data\8.txt">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\8.md" Link="Media\Data\8.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\80_bell0012.png" Link="Media\Data\80_bell0012.png">
@@ -373,76 +373,76 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\20_T_Score.rtf" Link="Media\Data\20_T_Score.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\20_T_Score.md" Link="Media\Data\20_T_Score.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\21_T_data.rtf" Link="Media\Data\21_T_data.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\21_T_data.md" Link="Media\Data\21_T_data.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\22_T_OverScreen.rtf" Link="Media\Data\22_T_OverScreen.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\22_T_OverScreen.md" Link="Media\Data\22_T_OverScreen.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\23_T_OverScreen2.rtf" Link="Media\Data\23_T_OverScreen2.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\23_T_OverScreen2.md" Link="Media\Data\23_T_OverScreen2.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\24_T_InternetScoresNames.rtf" Link="Media\Data\24_T_InternetScoresNames.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\24_T_InternetScoresNames.md" Link="Media\Data\24_T_InternetScoresNames.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\25_T_NewGame.rtf" Link="Media\Data\25_T_NewGame.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\25_T_NewGame.md" Link="Media\Data\25_T_NewGame.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\26_T_Menu.rtf" Link="Media\Data\26_T_Menu.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\26_T_Menu.md" Link="Media\Data\26_T_Menu.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\27_T_Pause.rtf" Link="Media\Data\27_T_Pause.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\27_T_Pause.md" Link="Media\Data\27_T_Pause.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\28_T_Pause.rtf" Link="Media\Data\28_T_Pause.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\28_T_Pause.md" Link="Media\Data\28_T_Pause.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\29_T_InternetScores.rtf" Link="Media\Data\29_T_InternetScores.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\29_T_InternetScores.md" Link="Media\Data\29_T_InternetScores.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\30_PlayerName.rtf" Link="Media\Data\30_PlayerName.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\30_PlayerName.md" Link="Media\Data\30_PlayerName.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\31.rtf" Link="Media\Data\31.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\31.md" Link="Media\Data\31.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\32.rtf" Link="Media\Data\32.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\32.md" Link="Media\Data\32.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\33.rtf" Link="Media\Data\33.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\33.md" Link="Media\Data\33.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\34.rtf" Link="Media\Data\34.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\34.md" Link="Media\Data\34.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\36_T_StartLevel.rtf" Link="Media\Data\36_T_StartLevel.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\36_T_StartLevel.md" Link="Media\Data\36_T_StartLevel.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\38_T_StartLines.rtf" Link="Media\Data\38_T_StartLines.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\38_T_StartLines.md" Link="Media\Data\38_T_StartLines.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\39.rtf" Link="Media\Data\39.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\39.md" Link="Media\Data\39.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\40.rtf" Link="Media\Data\40.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\40.md" Link="Media\Data\40.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\7.rtf" Link="Media\Data\7.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\7.md" Link="Media\Data\7.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\8.rtf" Link="Media\Data\8.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\8.md" Link="Media\Data\8.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\Members.csv" Link="Media\Data\Members.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\InternalExt\24.rtf" Link="Media\InternalExt\24.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\InternalExt\24.md" Link="Media\InternalExt\24.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\InternalExt\25.rtf" Link="Media\InternalExt\25.rtf">
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\InternalExt\25.md" Link="Media\InternalExt\25.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\InternalExt\Members.csv" Link="Media\InternalExt\Members.csv">

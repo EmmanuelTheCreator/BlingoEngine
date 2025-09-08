@@ -1,0 +1,1 @@
+{{STYLE-SHEET:{"0":{"font-family":"Tahoma","font-size":32,"color":"#999933","text-align":"right"}}}}{{PARA:0}}**2**

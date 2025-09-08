@@ -4,27 +4,31 @@ using LingoEngine.Demo.TetriGrounds.Core.ParentScripts;
 using LingoEngine.Sprites;
 using LingoEngine.Movies.Events;
 using LingoEngine.Sprites.Events;
+#pragma warning disable IDE1006 // Naming Styles
 
 namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 {
     // Converted from 2_Bg Script.ls
-    public class BgScriptBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasExitFrameEvent
+    public class BgScriptBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasExitFrameEvent, IHasEndSpriteEvent
     {
-        private PlayerBlockParentScript? myPlayerBlock;
-        private GfxParentScript? myGfx;
-        private BlocksParentScript? myBlocks;
-        private ScoreManagerParentScript? myScoreManager;
+        private PlayerBlockScript? myPlayerBlock;
+        private GfxScript? myGfx;
+        private BlocksScript? myBlocks;
+        private ScoreManagerScript? myScoreManager;
         private readonly GlobalVars _global;
-        ILingoMovieEnvironment _env;
+
+        private int myWidth;
+        private int myHeight;
         public BgScriptBehavior(ILingoMovieEnvironment env, GlobalVars global) : base(env)
         {
-            _env = env;
             _global = global;
         }
 
         public void BeginSprite()
         {
-            // if no player block hide a sprite (not implemented)
+            var sprite35 = Sprite(35);
+            if (myPlayerBlock != null && sprite35.HasSprite())
+                Sprite(35).Blend = 0;
         }
 
         public void ExitFrame()
@@ -39,7 +43,8 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 
         public void KeyAction(int val, int val2)
         {
-            myPlayerBlock?.Keyyed(val);
+            if (myPlayerBlock == null) return;
+            myPlayerBlock.Keyyed(val);
         }
 
         public void PauseGame() => myPlayerBlock?.PauseGame();
@@ -48,8 +53,11 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
         {
             if (myPlayerBlock != null)
             {
-                // var _pause = myPlayerBlock.GetPause()
-                // if(_pause==false) { teminateGame(); StartNewGame(); }
+                var _pause = myPlayerBlock.GetPause();
+                if(_pause==false) { 
+                    TeminateGame(); 
+                    StartNewGame(); 
+                }
             }
             else
             {
@@ -58,19 +66,24 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             }
         }
 
+        public void EndSprite()
+        {
+            TeminateGame();
+        }
+
         public void StartNewGame()
         {
             if (_global.SpriteManager == null)
             {
-                _global.SpriteManager = new SpriteManagerParentScript(_env);
+                _global.SpriteManager = new SpriteManager(_env);
                 _global.SpriteManager.Init(100);
             }
             myWidth = 11;
             myHeight = 22;
-            myGfx = new GfxParentScript(_env);
-            myScoreManager = new ScoreManagerParentScript(_env, _global);
-            myBlocks = new BlocksParentScript(_env, _global, myGfx, myScoreManager, myWidth, myHeight);
-            myPlayerBlock = new PlayerBlockParentScript(_env, _global, myGfx, myBlocks, myScoreManager, myWidth, myHeight);
+            myGfx = new GfxScript(_env);
+            myScoreManager = new ScoreManagerScript(_env, _global);
+            myBlocks = new BlocksScript(_env, _global, myGfx, myScoreManager, myWidth, myHeight);
+            myPlayerBlock = new PlayerBlockScript(_env, _global, myGfx, myBlocks, myScoreManager, myWidth, myHeight);
             myPlayerBlock.CreateBlock();
         }
 
@@ -88,8 +101,8 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 
         public void SpaceBar() => myPlayerBlock?.LetBlockFall();
 
-        private int myWidth;
-        private int myHeight;
+       
+
 
        
     }

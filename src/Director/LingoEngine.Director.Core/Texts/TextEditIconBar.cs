@@ -389,7 +389,7 @@ public class TextEditIconBar
         _isSettingMemberValues = true;
         SetFontSize(member.FontSize);
         SetFont(member.Font);
-        SetColor(member.TextColor);
+        SetColor(member.Color);
         SetAlignment(member.Alignment);
         SetBold(member.Bold);
         SetItalic(member.Italic);
@@ -402,7 +402,7 @@ public class TextEditIconBar
         var style = _styles[DefaultStyleName];
         style.FontSize = member.FontSize;
         style.Font = member.Font;
-        style.Color = member.TextColor;
+        style.Color = member.Color;
         style.Alignment = member.Alignment;
         style.Bold = member.Bold;
         style.Italic = member.Italic;

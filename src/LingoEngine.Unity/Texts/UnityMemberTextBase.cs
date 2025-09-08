@@ -158,7 +158,7 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
         Height = height;
         _lingoMemberText.Width = width;
         _lingoMemberText.Height = height;
-        _lingoMemberText.RegPoint = new APoint(0, -height / 2);
+        //_lingoMemberText.RegPoint = new APoint(0, -height / 2);
 
         _textureWrapper = new UnityTexture2D(_texture);
         return _textureWrapper;

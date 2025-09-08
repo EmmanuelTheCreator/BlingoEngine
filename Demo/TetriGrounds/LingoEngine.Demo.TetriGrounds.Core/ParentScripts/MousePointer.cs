@@ -2,7 +2,7 @@ using LingoEngine.Core;
 using LingoEngine.Movies;
 using LingoEngine.Movies.Events;
 using LingoEngine.Primitives;
-
+#pragma warning disable IDE1006 // Naming Styles
 namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
 {
     // Converted from 28_MousePointer.ls

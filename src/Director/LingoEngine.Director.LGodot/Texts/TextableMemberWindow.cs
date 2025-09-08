@@ -76,7 +76,7 @@ internal partial class DirGodotTextableMemberWindow : BaseGodotWindow, IHasMembe
         {
             _textEdit.AddThemeColorOverride("font_color", c.ToGodotColor());
             if (_member != null)
-                _member.TextColor = c;
+                _member.Color = c;
         };
 
         _iconBar.SetFonts(_lingoFontManager.GetAllNames());
@@ -108,7 +108,7 @@ internal partial class DirGodotTextableMemberWindow : BaseGodotWindow, IHasMembe
     {
         _member = textMember;
         _textEdit.Text = textMember.Text.Replace("\r", "\r\n");
-        _textEdit.AddThemeColorOverride("font_color", textMember.TextColor.ToGodotColor());
+        _textEdit.AddThemeColorOverride("font_color", textMember.Color.ToGodotColor());
         _textEdit.AddThemeConstantOverride("font_size", textMember.FontSize);
         var font = _lingoFontManager.Get<Font>(textMember.Font, textMember.FontStyle.ToAbstUI());
         if (font != null)

@@ -5,6 +5,7 @@ using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Sprites.Events;
 using LingoEngine.Texts;
+#pragma warning disable IDE1006 // Naming Styles
 
 namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 {

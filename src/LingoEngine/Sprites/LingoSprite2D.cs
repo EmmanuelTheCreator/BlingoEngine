@@ -29,10 +29,10 @@ namespace LingoEngine.Sprites
         public IReadOnlyList<LingoSpriteBehavior> Behaviors => _behaviors;
 
 
-        private bool isMouseInside = false;
-        private bool isDragging = false;
-        private bool isDraggable = false;  // A flag to control dragging behavior
-        private LingoMember? _Member;
+        private bool _isMouseInside = false;
+        private bool _isDragging = false;
+        private bool _isDraggable = false;  // A flag to control dragging behavior
+        private LingoMember? _member;
         private Action<LingoSprite2D>? _onRemoveMe;
         private bool _isFocus = false;
         private IAbstUITextureUserSubscription? _textureSubscription;
@@ -140,7 +140,7 @@ namespace LingoEngine.Sprites
 
 
 
-        public ILingoMember? Member { get => _Member; set => SetMember(value); }
+        public ILingoMember? Member { get => _member; set => SetMember(value); }
         public LingoCast? Cast { get; private set; }
 
 
@@ -148,8 +148,8 @@ namespace LingoEngine.Sprites
 
         public bool IsDraggable
         {
-            get => isDraggable;
-            set => isDraggable = value;
+            get => _isDraggable;
+            set => _isDraggable = value;
         }
 
         public AColor Color { get; set; }
@@ -243,7 +243,7 @@ namespace LingoEngine.Sprites
 
         private APoint GetRegPointOffset()
         {
-            if (_Member is { } member)
+            if (_member is { } member)
             {
                 var baseOffset = member.CenterOffsetFromRegPoint();
                 if (member.Width != 0 && member.Height != 0)
@@ -411,16 +411,16 @@ When a movie stops, events occur in the following order:
         }
         internal virtual LingoMember? DoPreStepFrame()
         {
-            if (_Member != null && _Member.HasChanged)
+            if (_member != null && _member.HasChanged)
             {
 #if DEBUG
-                if (_Member.NumberInCast == 44)
+                if (_member.NumberInCast == 44)
                 {
 
                 }
 #endif
                 _frameworkSprite.ApplyMemberChangesOnStepFrame();
-                return _Member;
+                return _member;
             }
             return null;
         }
@@ -437,7 +437,7 @@ When a movie stops, events occur in the following order:
             _textureSubscription?.Release();
             _textureSubscription = null;
             // Release the old member link with this sprite
-            _Member?.ReleaseFromRefUser(this);
+            _member?.ReleaseFromRefUser(this);
             base.DoEndSprite();
         }
 
@@ -473,20 +473,20 @@ When a movie stops, events occur in the following order:
         }
         public ILingoSprite SetMember(ILingoMember? member)
         {
-            if (_Member == member) return this;
-            var _lastMember = _Member;
-            if (_Member != null && (_Member.Type == LingoMemberType.Script || _Member.Type == LingoMemberType.Sound || _Member.Type == LingoMemberType.Transition || _Member.Type == LingoMemberType.Unknown || _Member.Type == LingoMemberType.Palette || _Member.Type == LingoMemberType.Movie || _Member.Type == LingoMemberType.Font || _Member.Type == LingoMemberType.Cursor))
+            if (_member == member) return this;
+            var _lastMember = _member;
+            if (_member != null && (_member.Type == LingoMemberType.Script || _member.Type == LingoMemberType.Sound || _member.Type == LingoMemberType.Transition || _member.Type == LingoMemberType.Unknown || _member.Type == LingoMemberType.Palette || _member.Type == LingoMemberType.Movie || _member.Type == LingoMemberType.Font || _member.Type == LingoMemberType.Cursor))
                 return this;
             // Release the old member link with this sprite
-            if (member != _Member)
+            if (member != _member)
             {
-                _Member?.ReleaseFromRefUser(this);
+                _member?.ReleaseFromRefUser(this);
             }
-            _Member = member as LingoMember;
-            if (_Member != null)
+            _member = member as LingoMember;
+            if (_member != null)
             {
-                _Member.UsedBy(this);
-                RegPoint = _Member.RegPoint;
+                _member.UsedBy(this);
+                RegPoint = _member.RegPoint;
             }
             if (member is LingoFilmLoopMember filmLoop)
             {
@@ -502,7 +502,7 @@ When a movie stops, events occur in the following order:
         private void MemberHasChanged()
         {
             var existingPlayer = GetActorsOfType<LingoFilmLoopPlayer>().FirstOrDefault();
-            if (_Member is LingoFilmLoopMember)
+            if (_member is LingoFilmLoopMember)
             {
                 if (existingPlayer == null)
                 {
@@ -613,25 +613,25 @@ When a movie stops, events occur in the following order:
                 CallBehaviorForEvents<IHasMouseMoveEvent>(b => b.MouseMove(mouse));
                 _eventMediator.RaiseMouseMove(mouse);
 
-                if (!isMouseInside)
+                if (!_isMouseInside)
                 {
                     MouseEnter(mouse); // Mouse has entered the sprite
                     CallBehaviorForEvents<IHasMouseEnterEvent>(b => b.MouseEnter(mouse));
                     _eventMediator.RaiseMouseEnter(mouse);
-                    isMouseInside = true;
+                    _isMouseInside = true;
                 }
             }
             else
             {
-                if (isMouseInside)
+                if (_isMouseInside)
                 {
                     MouseExit(mouse); // Mouse has exited the sprite
                     CallBehaviorForEvents<IHasMouseExitEvent>(b => b.MouseExit(mouse));
                     _eventMediator.RaiseMouseExit(mouse);
-                    isMouseInside = false;
+                    _isMouseInside = false;
                 }
             }
-            if (IsActive && isDraggable && isDragging)
+            if (IsActive && _isDraggable && _isDragging)
                 DoMouseDrag(mouse);
         }
         public virtual void MouseMove(LingoMouseEvent mouse)
@@ -662,9 +662,9 @@ When a movie stops, events occur in the following order:
         }
         public void RaiseMouseDown(LingoMouseEvent mouse)
         {
-            if (isDraggable && IsMouseInsideBoundingBox(mouse.Mouse))
-                isDragging = true;
-            if (isMouseInside)
+            if (_isDraggable && IsMouseInsideBoundingBox(mouse.Mouse))
+                _isDragging = true;
+            if (_isMouseInside)
             {
                 MouseDown(mouse);
                 CallBehaviorForEvents<IHasMouseDownEvent>(b => b.MouseDown(mouse));
@@ -675,9 +675,9 @@ When a movie stops, events occur in the following order:
         protected virtual void MouseDown(LingoMouseEvent mouse) { }
         public void RaiseMouseUp(LingoMouseEvent mouse)
         {
-            if (isDragging && isDragging)
-                isDragging = false;
-            if (isMouseInside)
+            if (_isDragging && _isDragging)
+                _isDragging = false;
+            if (_isMouseInside)
             {
                 MouseUp(mouse);
                 CallBehaviorForEvents<IHasMouseUpEvent>(b => b.MouseUp(mouse));
@@ -687,7 +687,7 @@ When a movie stops, events occur in the following order:
         protected virtual void MouseUp(LingoMouseEvent mouse) { }
         public void RaiseMouseWheel(LingoMouseEvent mouse)
         {
-            if (isMouseInside)
+            if (_isMouseInside)
             {
                 CallBehaviorForEvents<IHasMouseWheelEvent>(b => b.MouseWheel(mouse));
                 _eventMediator.RaiseMouseWheel(mouse);
@@ -762,15 +762,15 @@ When a movie stops, events occur in the following order:
         public bool IsPointInsideBoundingBox(float x, float y)
             => Rect.Contains((x, y));
 
-        internal void CallBehavior<T>(Action<T> actionOnSpriteBehaviour) where T : LingoSpriteBehavior
+        internal void CallBehavior<T>(Action<T> actionOnSpriteBehaviour) where T : ILingoSpriteBehavior
         {
-            var behavior = _behaviors.FirstOrDefault(x => x is T) as T;
+            var behavior = _behaviors.OfType<T>().FirstOrDefault();
             if (behavior == null) return;
             actionOnSpriteBehaviour(behavior);
         }
-        internal TResult? CallBehavior<T, TResult>(Func<T, TResult> actionOnSpriteBehaviour) where T : LingoSpriteBehavior
+        internal TResult? CallBehavior<T, TResult>(Func<T, TResult> actionOnSpriteBehaviour) where T : ILingoSpriteBehavior
         {
-            var behavior = _behaviors.FirstOrDefault(x => x is T) as T;
+            var behavior = _behaviors.OfType<T>().FirstOrDefault();
             if (behavior == null) return default;
             return actionOnSpriteBehaviour(behavior);
         }
@@ -781,7 +781,7 @@ When a movie stops, events occur in the following order:
 
         public override void OnRemoveMe()
         {
-            _Member?.ReleaseFromRefUser(this);
+            _member?.ReleaseFromRefUser(this);
             _frameworkSprite.RemoveMe();
             if (_onRemoveMe != null)
                 _onRemoveMe(this);
@@ -789,7 +789,7 @@ When a movie stops, events occur in the following order:
 
         public void MemberHasBeenRemoved()
         {
-            _Member = null;
+            _member = null;
         }
 
         public void SetOnRemoveMe(Action<LingoSprite2D> onRemoveMe) => _onRemoveMe = onRemoveMe;

@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using AbstUI.Primitives;
 using LingoEngine.Primitives;
 
 namespace LingoEngine.Sprites;
@@ -30,6 +31,13 @@ public class BehaviorPropertyDescriptionList : LingoPropertyList<LingoPropertyDe
         where TBehavior : LingoSpriteBehavior
     {
         var stringProp = new LingoPropertyDescription<TBehavior, bool>(behavior, LingoSymbol.Boolean, comment, property, @default);
+        Add(stringProp.Key, stringProp);
+        return this;
+    }
+    public BehaviorPropertyDescriptionList Add<TBehavior>(TBehavior behavior, Expression<Func<TBehavior, AColor>> property, string? comment = null, AColor @default =  new AColor())
+        where TBehavior : LingoSpriteBehavior
+    {
+        var stringProp = new LingoPropertyDescription<TBehavior, AColor>(behavior, LingoSymbol.Color, comment, property, @default);
         Add(stringProp.Key, stringProp);
         return this;
     }

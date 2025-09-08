@@ -19,33 +19,33 @@
         /// </summary>
         /// <param name="number">The cast member number (1-based).</param>
         /// <returns>The specified cast member.</returns>
-        T? Member<T>(int number) where T : class, ILingoMember;
-        T? Member<T>(string name) where T : class, ILingoMember;
+        T? Member<T>(int number) where T : ILingoMember;
+        T? Member<T>(string name) where T : ILingoMember;
         event Action<ILingoMember>? MemberAdded;
         event Action<ILingoMember>? MemberDeleted;
     }
 
     internal class LingoMembersContainer : ILingoMembersContainer
     {
-        private readonly Dictionary<int, LingoMember> _members = new();
-        private readonly bool containerForAll;
-        private readonly Dictionary<string, LingoMember> _membersByName;
+        private readonly Dictionary<int, ILingoMember> _members = new();
+        private readonly bool _containerForAll;
+        private readonly Dictionary<string, ILingoMember> _membersByName;
 
         public event Action<ILingoMember>? MemberAdded;
         public event Action<ILingoMember>? MemberDeleted;
         /// <summary>
         /// Returns a copy array
         /// </summary>
-        internal IReadOnlyCollection<LingoMember> All => _members.Values.ToArray();
+        internal IReadOnlyCollection<ILingoMember> All => _members.Values.ToArray();
         public int Count => _members.Count;
-        internal LingoMembersContainer(bool containerForAll, Dictionary<string, LingoMember>? membersByName = null)
+        internal LingoMembersContainer(bool containerForAll, Dictionary<string, ILingoMember>? membersByName = null)
         {
-            this.containerForAll = containerForAll;
+            this._containerForAll = containerForAll;
             _membersByName = membersByName ?? new();
         }
         internal void Add(LingoMember member)
         {
-            if (containerForAll && member.CastLibNum > 1)
+            if (_containerForAll && member.CastLibNum > 1)
             {
                 // From the second castlib, the numbers needs to increament
                 if (_members.ContainsKey(member.Number))
@@ -65,10 +65,10 @@
             MemberAdded?.Invoke(member);
         }
 
-        internal void Remove(LingoMember member)
+        internal void Remove(ILingoMember member)
         {
             var name = member.Name.ToLower();
-            if (containerForAll)
+            if (_containerForAll)
                 _members.Remove(member.Number);
             else
                 _members.Remove(member.NumberInCast);
@@ -79,14 +79,14 @@
 
         internal void ChangeNumber(int oldNumber, int newNumber)
         {
-            if (oldNumber == newNumber || containerForAll)
+            if (oldNumber == newNumber || _containerForAll)
                 return;
 
             if (_members.TryGetValue(oldNumber, out var member))
             {
                 _members.Remove(oldNumber);
                 _members[newNumber] = member;
-                member.NumberInCast = newNumber;
+                ((LingoMember)member).NumberInCast = newNumber;
             }
         }
 
@@ -104,8 +104,20 @@
             => _members.TryGetValue(number, out var member) ? member : null;
         public ILingoMember? this[string name] => _membersByName.TryGetValue(name.ToLower(), out var theValue) ? theValue : null;
 
-        public T? Member<T>(int number) where T : class, ILingoMember => _members.TryGetValue(number, out var member) ? member as T : null;
-        public T? Member<T>(string name) where T : class, ILingoMember => _membersByName.TryGetValue(name.ToLower(), out var theValue) ? theValue as T : null;
+        public T? Member<T>(int number) where T : ILingoMember
+        {
+            if (!_members.TryGetValue(number, out ILingoMember? member)) return default;
+            if (member is T tMember) return tMember;
+            return default;
+        }
+
+        public T? Member<T>(string name) where T : ILingoMember
+        {
+            if (!_membersByName.TryGetValue(name.ToLower(System.Globalization.CultureInfo.CurrentCulture), out var member)) return default;
+            if (member is T tMember) return tMember;
+            return default;
+        }
+
         public int GetNextNumber(int castNumber, int numberInCast)
         {
             if (castNumber > 0)

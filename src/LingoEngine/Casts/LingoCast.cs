@@ -24,7 +24,7 @@ namespace LingoEngine.Casts
 
         private readonly LingoCastLibsContainer _castLibsContainer;
         private readonly ILingoFrameworkFactory _factory;
-        private readonly LingoMembersContainer _MembersContainer = new(false);
+        private readonly LingoMembersContainer _membersContainer = new(false);
 
         /// <inheritdoc/>
         public string Name { get; set; }
@@ -39,10 +39,10 @@ namespace LingoEngine.Casts
         /// <inheritdoc/>
         public CastMemberSelection? Selection { get; set; } = null;
 
-        public ILingoMembersContainer Member => _MembersContainer;
+        public ILingoMembersContainer Member => _membersContainer;
 
-        public event Action<ILingoMember>? MemberAdded { add => _MembersContainer.MemberAdded +=value; remove => _MembersContainer.MemberAdded -= value; }
-        public event Action<ILingoMember>? MemberDeleted { add => _MembersContainer.MemberDeleted += value; remove => _MembersContainer.MemberDeleted -= value; }
+        public event Action<ILingoMember>? MemberAdded { add => _membersContainer.MemberAdded +=value; remove => _membersContainer.MemberAdded -= value; }
+        public event Action<ILingoMember>? MemberDeleted { add => _membersContainer.MemberDeleted += value; remove => _membersContainer.MemberDeleted -= value; }
         public event Action<ILingoMember>? MemberNameChanged;
         
 
@@ -56,9 +56,9 @@ namespace LingoEngine.Casts
         }
 
         /// <inheritdoc/>
-        public T? GetMember<T>(int number) where T : class, ILingoMember => _MembersContainer[number] as T;
+        public T? GetMember<T>(int number) where T : ILingoMember => _membersContainer.Member<T>(number);
         /// <inheritdoc/>
-        public T? GetMember<T>(string name) where T : class, ILingoMember => _MembersContainer[name] as T;
+        public T? GetMember<T>(string name) where T : ILingoMember => _membersContainer.Member<T>(name);
         /// <inheritdoc/>
         internal ILingoCast Add(LingoMember member)
         {
@@ -69,25 +69,25 @@ namespace LingoEngine.Casts
             }
 #endif
             _castLibsContainer.AddMember(member);
-            _MembersContainer.Add(member);
+            _membersContainer.Add(member);
             return this;
         }
-        public ILingoCast Remove(LingoMember member)
+        public ILingoCast Remove(ILingoMember member)
         {
             member.Dispose();
 
             _castLibsContainer.RemoveMember(member);
-            _MembersContainer.Remove(member);
+            _membersContainer.Remove(member);
             return this;
         }
         internal void MemberNameHasChanged(string oldName, LingoMember member)
         {
             _castLibsContainer.MemberNameChanged(oldName, member);
-            _MembersContainer.MemberNameChanged(oldName, member);
+            _membersContainer.MemberNameChanged(oldName, member);
             MemberNameChanged?.Invoke(member);
         }
         /// <inheritdoc/>
-        public int FindEmpty() => _MembersContainer.FindEmpty();
+        public int FindEmpty() => _membersContainer.FindEmpty();
         internal int GetUniqueNumber(int numberInCast)
         {
             //if (Number == 1 ? ((member.CastLibNum - 1) * 131114 : numberInCast : _cast.GetUniqueNumber();
@@ -96,7 +96,7 @@ namespace LingoEngine.Casts
 
         internal void RemoveAll()
         {
-            var allMembers = _MembersContainer.All;
+            var allMembers = _membersContainer.All;
             foreach (var member in allMembers)
                 Remove(member);
         }
@@ -146,16 +146,16 @@ namespace LingoEngine.Casts
                     return LingoMemberType.Unknown;
             }
         }
-        public IEnumerable<ILingoMember> GetAll() => _MembersContainer.All;
+        public IEnumerable<ILingoMember> GetAll() => _membersContainer.All;
 
         public void SwapMembers(int slot1, int slot2)
         {
             if (slot1 == slot2) return;
 
-            var tempSlot = _MembersContainer.FindEmpty();
-            _MembersContainer.ChangeNumber(slot1, tempSlot);
-            _MembersContainer.ChangeNumber(slot2, slot1);
-            _MembersContainer.ChangeNumber(tempSlot, slot2);
+            var tempSlot = _membersContainer.FindEmpty();
+            _membersContainer.ChangeNumber(slot1, tempSlot);
+            _membersContainer.ChangeNumber(slot2, slot1);
+            _membersContainer.ChangeNumber(tempSlot, slot2);
         }
         public void Save()
         {

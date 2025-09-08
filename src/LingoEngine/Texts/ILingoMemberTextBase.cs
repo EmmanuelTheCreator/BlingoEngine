@@ -118,7 +118,7 @@ namespace LingoEngine.Texts
         /// Text color in a Lingo-compatible color format.
         /// Corresponds to Lingo's textColor property.
         /// </summary>
-        AColor TextColor { get; set; }
+        AColor Color { get; set; }
 
         /// <summary>
         /// Gets or sets whether the text is bold.

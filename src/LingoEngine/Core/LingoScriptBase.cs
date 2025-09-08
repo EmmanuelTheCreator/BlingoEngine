@@ -14,15 +14,19 @@ using System.Numerics;
 namespace LingoEngine.Core
 {
 
+    public interface ILingoScriptBase
+    {
+        
+    }
 
     // https://usermanual.wiki/adobe/drmx2004scripting.537266374.pdf
     /// <summary>
     /// Base class representing built-in language features available to all Lingo scripts.
     /// This includes global objects (e.g., the mouse, the sound) and core functions (e.g., point(), random(), symbol()).
     /// </summary>
-    public abstract class LingoScriptBase
+    public abstract class LingoScriptBase : ILingoScriptBase
     {
-        private readonly ILingoMovieEnvironment _env;
+        protected readonly ILingoMovieEnvironment _env;
         private static readonly Random _random = new Random();
         protected LingoScriptBase(ILingoMovieEnvironment env)
         {
@@ -133,7 +137,7 @@ namespace LingoEngine.Core
         protected ILingoMember? Member(string name, string castlibName)
             => _env.CastLibsContainer[castlibName].GetMember<ILingoMember>(name);
 
-        protected T? Member<T>(string name, int? castlibNumber = null) where T : LingoMember
+        protected T? Member<T>(string name, int? castlibNumber = null) where T : ILingoMember
              => !castlibNumber.HasValue
                 ? _env.CastLibsContainer.GetMember<T>(name)
                 : _env.CastLibsContainer[castlibNumber.Value].GetMember<T>(name);
@@ -177,9 +181,9 @@ namespace LingoEngine.Core
         protected void SendSprite(int spriteNumber, Action<ILingoSpriteChannel> actionOnSprite) => _Movie.SendSprite(spriteNumber, actionOnSprite);
         protected void SendSprite<T>(int spriteNumber, Action<T> actionOnSprite) where T : LingoSpriteBehavior => _Movie.SendSprite(spriteNumber, actionOnSprite);
         protected bool TrySendSprite<T>(int spriteNumber, Action<T> actionOnSprite) where T : LingoSpriteBehavior => _Movie.TrySendSprite(spriteNumber, actionOnSprite);
-        protected TResult? SendSprite<T, TResult>(int spriteNumber, Func<T, TResult> actionOnSprite) where T : LingoSpriteBehavior => _Movie.SendSprite(spriteNumber, actionOnSprite);
-        protected void CallMovieScript<T>(Action<T> action) where T : LingoMovieScript => _Movie.CallMovieScript(action);
-        protected TResult? CallMovieScript<T, TResult>(Func<T, TResult> action) where T : LingoMovieScript => _Movie.CallMovieScript(action);
+        protected TResult? SendSprite<T, TResult>(int spriteNumber, Func<T, TResult> actionOnSprite) where T : ILingoSpriteBehavior => _Movie.SendSprite(spriteNumber, actionOnSprite);
+        protected void CallMovieScript<T>(Action<T> action) where T : ILingoMovieScript => _Movie.CallMovieScript(action);
+        protected TResult? CallMovieScript<T, TResult>(Func<T, TResult> action) where T : ILingoMovieScript => _Movie.CallMovieScript(action);
         protected LingoList<ILingoSpriteChannel> SpritesUnderPoint(APoint point)
             => new LingoList<ILingoSpriteChannel>(_Movie.GetSpritesAtPoint(point.X, point.Y).Select(s => (ILingoSpriteChannel)s));
 

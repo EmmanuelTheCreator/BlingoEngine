@@ -88,7 +88,7 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
     {
         var textColor = AColor.FromHex("#999966");
         var text = player.CastLib(2).GetMember<LingoMemberText>("T_data");
-        text!.TextColor = textColor;
+        text!.Color = textColor;
     }
     public void InitSprites()
     {

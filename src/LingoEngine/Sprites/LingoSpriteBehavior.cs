@@ -4,7 +4,13 @@ using LingoEngine.Scripts;
 
 namespace LingoEngine.Sprites
 {
-    public abstract class LingoSpriteBehavior : LingoScriptBase
+    public interface ILingoSpriteBehavior : ILingoScriptBase
+    {
+        LingoSprite2D GetSprite();
+        string Name { get; set; }
+        LingoMemberScript? ScriptMember { get; }
+    }
+    public abstract class LingoSpriteBehavior : LingoScriptBase, ILingoSpriteBehavior
     {
         protected LingoSprite2D Me;
         public LingoSprite2D GetSprite() => Me;
