@@ -1,8 +1,14 @@
 {
   "profiles": {
-    "AbstUI.GfxVisualTest.LGodot": {
+    "AbstUI.GfxVisualTest.LGodot.4.5": {
       "commandName": "Executable",
-      "executablePath": "C:\\Program Files\\Godot\\Godot_v4.5-dev5_mono_win64.exe",
+      "executablePath": "C:\\Program Files\\Godot\\Godot_v4.5-rc1_mono_win64.exe",
+      "workingDirectory": ".",
+      "nativeDebugging": true
+    },
+    "AbstUI.GfxVisualTest.LGodot.4.4": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Program Files\\Godot\\Godot_v4.4.1-stable_mono_win64.exe",
       "workingDirectory": ".",
       "nativeDebugging": true
     }

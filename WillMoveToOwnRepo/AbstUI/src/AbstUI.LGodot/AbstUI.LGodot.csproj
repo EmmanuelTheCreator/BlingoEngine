@@ -1,10 +1,10 @@
-﻿<Project Sdk="Godot.NET.Sdk/4.5.0-dev.5">
+﻿<Project Sdk="Godot.NET.Sdk/$(GodotSdkVersion)">
 
         <PropertyGroup>
                 <OutputType>Library</OutputType>
                 <TargetFramework>net8</TargetFramework>
                 <!-- Use netstandard for compatibility -->
-                <GodotVersion>4.5.0-dev.5</GodotVersion>
+                <GodotVersion>$(GodotSdkVersion)</GodotVersion>
                 <LangVersion>12</LangVersion>
                 <Nullable>enable</Nullable>
                 <ImplicitUsings>enable</ImplicitUsings>
@@ -12,6 +12,7 @@
                 <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
                 <!-- Specify the Godot version -->
         </PropertyGroup>
+
 
         <PropertyGroup>
                 <!-- NuGet Packaging Metadata -->

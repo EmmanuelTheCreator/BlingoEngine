@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 run/main_scene="res://AbstUITestScene.tscn"
-config/features=PackedStringArray("4.5", "C#")
+config/features=PackedStringArray("4.5", "4.4", "C#", "GL Compatibility")
 
 [dotnet]
 
