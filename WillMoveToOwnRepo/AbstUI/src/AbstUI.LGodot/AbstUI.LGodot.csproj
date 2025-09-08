@@ -1,10 +1,10 @@
-﻿<Project Sdk="Godot.NET.Sdk/$(GodotSdkVersion)">
+<Project Sdk="Godot.NET.Sdk/4.5.0-dev.5">
 
         <PropertyGroup>
                 <OutputType>Library</OutputType>
                 <TargetFramework>net8</TargetFramework>
                 <!-- Use netstandard for compatibility -->
-                <GodotVersion>$(GodotSdkVersion)</GodotVersion>
+                <GodotVersion>4.5.0-dev.5</GodotVersion>
                 <LangVersion>12</LangVersion>
                 <Nullable>enable</Nullable>
                 <ImplicitUsings>enable</ImplicitUsings>
