@@ -347,9 +347,9 @@ namespace AbstUI.LGodot.Components.Inputs
                 int end = GetIndexFromLineColumn(endLine, endCol);
                 _text = _text.Remove(start, end - start);
                 _textEdit.Text = _text;
-                _textEdit.Call("set_caret_line", startLine);
-                _textEdit.Call("set_caret_column", startCol);
-                _textEdit.Call("deselect");
+                _textEdit.SetCaretLine(startLine);
+                _textEdit.SetCaretColumn(startCol);
+                _textEdit.Deselect();
             }
             else
             {
@@ -371,9 +371,9 @@ namespace AbstUI.LGodot.Components.Inputs
             else if (_textEdit != null)
             {
                 var (line, column) = GetLineColumn(pos);
-                _textEdit.Call("set_caret_line", line);
-                _textEdit.Call("set_caret_column", column);
-                _textEdit.Call("deselect");
+                _textEdit.SetCaretLine(line);
+                _textEdit.SetCaretColumn(column);
+                _textEdit.Deselect();
             }
         }
 
@@ -409,15 +409,15 @@ namespace AbstUI.LGodot.Components.Inputs
                 {
                     var (startLine, startCol) = GetLineColumn(start);
                     var (endLine, endCol) = GetLineColumn(end);
-                    _textEdit.Call("select", startLine, startCol, endLine, endCol);
+                    _textEdit.Select(startLine, startCol, endLine, endCol);
                 }
                 else
                 {
-                    _textEdit.Call("deselect");
+                    _textEdit.Deselect();
                 }
                 var (line, column) = GetLineColumn(end);
-                _textEdit.Call("set_caret_line", line);
-                _textEdit.Call("set_caret_column", column);
+                _textEdit.SetCaretLine(line);
+                _textEdit.SetCaretColumn(column);
             }
         }
 
@@ -442,9 +442,9 @@ namespace AbstUI.LGodot.Components.Inputs
             {
                 _textEdit.Text = _text;
                 var (line, column) = GetLineColumn(caret + text.Length);
-                _textEdit.Call("set_caret_line", line);
-                _textEdit.Call("set_caret_column", column);
-                _textEdit.Call("deselect");
+                _textEdit.SetCaretLine(line);
+                _textEdit.SetCaretColumn(column);
+                _textEdit.Deselect();
             }
             _onValueChanged?.Invoke();
             _onChange?.Invoke(Text);
