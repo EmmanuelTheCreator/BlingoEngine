@@ -32,8 +32,8 @@ public class TextEditIconBar
     private AbstStateButton _italicButton;
     private AbstStateButton _underlineButton;
     private AbstColorPicker _colorPicker;
-    private AbstInputSpinBox _fontSize;
-    private AbstInputSpinBox _lineHeight;
+    private AbstInputNumber<int> _fontSize;
+    private AbstInputNumber<int> _lineHeight;
     private AbstInputSpinBox _marginLeft;
     private AbstInputSpinBox _marginRight;
     private AbstInputCombobox _fontsCombo;
@@ -142,7 +142,7 @@ public class TextEditIconBar
         _removeStyleButton.Pressed += RemoveCurrentStyle;
         container.AddItem(_removeStyleButton);
 
-        container.AddVLine("VLine1");
+        container.AddVLine("VLine1",16,2);
 
         _stylesCombo.SelectedKey = DefaultStyleName;
     }
@@ -168,7 +168,7 @@ public class TextEditIconBar
         container.AddItem(_boldButton);
         container.AddItem(_italicButton);
         container.AddItem(_underlineButton);
-        container.AddVLine("VLine3");
+        container.AddVLine("VLine3",16,2);
     }
 
     private void CreateAlignment(ILingoFrameworkFactory factory, AbstWrapPanel container)
@@ -197,26 +197,26 @@ public class TextEditIconBar
         container.AddItem(_alignCenter);
         container.AddItem(_alignRight);
         container.AddItem(_alignJustified);
-        container.AddVLine("VLine2");
+        container.AddVLine("VLine2",16,2);
     }
 
     private void CreateFontButtons(ILingoFrameworkFactory factory, int actionBarHeight, AbstWrapPanel container)
     {
-        _fontSize = factory.CreateSpinBox("FontSize", 1, 200, v =>
+        _fontSize = factory.CreateInputNumberInt("FontSize", 1, 200, v =>
         {
             _currentStyle.FontSize = (int)v;
             FontSizeChanged?.Invoke((int)v);
         });
-        _fontSize.Width = 50;
+        _fontSize.Width = 30;
         container.AddItem(CreateLabel("LabelFontSize", "FontSize:"));
         container.AddItem(_fontSize);
 
-        _lineHeight = factory.CreateSpinBox("LineHeight", 0, 500, v =>
+        _lineHeight = factory.CreateInputNumberInt("LineHeight", 0, 500, v =>
         {
             _currentStyle.LineHeight = (int)v;
             LineHeightChanged?.Invoke((int)v);
         });
-        _lineHeight.Width = 50;
+        _lineHeight.Width = 30;
         container.AddItem(CreateLabel("LabelLineHeight", "LineHeight:"));
         container.AddItem(_lineHeight);
 
@@ -225,7 +225,7 @@ public class TextEditIconBar
             _currentStyle.MarginLeft = (int)v;
             MarginLeftChanged?.Invoke((int)v);
         });
-        _marginLeft.Width = 50;
+        _marginLeft.Width = 30;
         container.AddItem(CreateLabel("LabelMargin", "Margin:"));
         container.AddItem(_marginLeft);
 
@@ -234,7 +234,7 @@ public class TextEditIconBar
             _currentStyle.MarginRight = (int)v;
             MarginRightChanged?.Invoke((int)v);
         });
-        _marginRight.Width = 50;
+        _marginRight.Width = 30;
         container.AddItem(_marginRight);
 
         _fontsCombo = factory.CreateInputCombobox("FontsCombo", s =>
