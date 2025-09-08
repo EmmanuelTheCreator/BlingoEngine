@@ -146,10 +146,10 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer, IDisposable
 
     private static ARect ClampRect(ARect rect, int width, int height)
     {
-        int x = (int)Math.Clamp(rect.Left, 0, width);
-        int y = (int)Math.Clamp(rect.Top, 0, height);
-        int w = (int)Math.Clamp(rect.Width, 0, width - x);
-        int h = (int)Math.Clamp(rect.Height, 0, height - y);
+        int x = (int)MathCompat.Clamp(rect.Left, 0, width);
+        int y = (int)MathCompat.Clamp(rect.Top, 0, height);
+        int w = (int)MathCompat.Clamp(rect.Width, 0, width - x);
+        int h = (int)MathCompat.Clamp(rect.Height, 0, height - y);
         return ARect.New(x, y, w, h);
     }
 
