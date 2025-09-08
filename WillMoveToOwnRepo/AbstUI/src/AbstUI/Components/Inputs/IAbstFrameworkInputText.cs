@@ -20,10 +20,10 @@ namespace AbstUI.Components.Inputs
 
         bool HasSelection { get; }
         void DeleteSelection();
-        void SetCaretPosition(int position);
-        int GetCaretPosition();
-        void SetSelection(int start, int end);
-        void SetSelection(Range range);
+        void SetCaretPosition(int line, int column);
+        (int line, int column) GetCaretPosition();
+        void SetSelection(int startLine, int startColumn, int endLine, int endColumn);
+        event Action<int, int>? OnCaretChanged;
         void InsertText(string text);
     }
 }

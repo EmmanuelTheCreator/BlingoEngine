@@ -6,6 +6,7 @@ using AbstUI.Components.Containers;
 using AbstUI.Components.Graphics;
 using AbstUI.Components.Inputs;
 using AbstUI.Primitives;
+using AbstUI.Components.Texts;
 using AbstUI.Texts;
 using AbstUI.Styles;
 using AbstUI.Windowing;
@@ -22,6 +23,7 @@ namespace LingoEngine.Director.Core.Texts
         private readonly AbstGfxCanvas _previewCanvas;
         private readonly AbstMarkdownRenderer _renderer;
         private readonly AbstWrapPanel _rootPanel;
+        private readonly AbstLabel _caretLabel;
         private CancellationTokenSource? _renderCts;
         private IAbstTexture2D? _previewTexture;
         private SynchronizationContext? _uiContext;
@@ -52,6 +54,10 @@ namespace LingoEngine.Director.Core.Texts
             _previewCanvas.Width = 400;
             _previewCanvas.Height = 400;
             columns.AddItem(_previewCanvas);
+
+            _caretLabel = factory.CreateLabel("CaretLabel", "Ln:0 Ch:0");
+            _rootPanel.AddItem(_caretLabel);
+            _markdownInput.OnCaretChanged += (l, c) => _caretLabel.Text = $"Ln:{l} Ch:{c}";
 
             IconBar.BoldChanged += v =>
             {
@@ -138,6 +144,37 @@ namespace LingoEngine.Director.Core.Texts
             base.OnDispose();
         }
 
+        private static int GetIndexFromLineColumn(string text, int line, int column)
+        {
+            int idx = 0;
+            int currentLine = 0;
+            while (idx < text.Length && currentLine < line)
+            {
+                if (text[idx++] == '\n')
+                    currentLine++;
+            }
+            return Math.Clamp(idx + column, 0, text.Length);
+        }
+
+        private static (int line, int column) GetLineColumn(string text, int index)
+        {
+            int line = 0;
+            int column = 0;
+            for (int i = 0; i < index && i < text.Length; i++)
+            {
+                if (text[i] == '\n')
+                {
+                    line++;
+                    column = 0;
+                }
+                else
+                {
+                    column++;
+                }
+            }
+            return (line, column);
+        }
+
         protected override void OnResizing(bool firstLoad, int width, int height)
         {
             base.OnResizing(firstLoad, width, height);
@@ -193,7 +230,8 @@ namespace LingoEngine.Director.Core.Texts
         {
             _previewTexture?.Dispose();
             using var painter = _factory.ComponentFactory.CreateImagePainterToTexture((int)_previewCanvas.Width, (int)_previewCanvas.Height);
-            painter.AutoResize = true;
+            painter.AutoResizeWidth = true;
+            painter.AutoResizeHeight = true;
             _renderer.Reset();
             _renderer.SetText(text, IconBar.Styles);
             _renderer.Render(painter, new APoint(0, 0));
@@ -205,8 +243,9 @@ namespace LingoEngine.Director.Core.Texts
 
         private AbstTextStyle EnsureParagraphStyle()
         {
-            int caret = _markdownInput.GetCaretPosition();
+            var (caretLine, caretCol) = _markdownInput.GetCaretPosition();
             var text = _markdownInput.Text;
+            int caret = GetIndexFromLineColumn(text, caretLine, caretCol);
             int lineStart = text.LastIndexOf('\n', Math.Max(0, caret - 1)) + 1;
             int lineEnd = text.IndexOf('\n', caret);
             if (lineEnd < 0) lineEnd = text.Length;
@@ -225,7 +264,8 @@ namespace LingoEngine.Director.Core.Texts
                 string tag = $"{{{{PARA:{styleName}}}}}";
                 text = text.Insert(lineStart, tag);
                 _markdownInput.Text = text;
-                _markdownInput.SetCaretPosition(caret + tag.Length);
+                var (nl, nc) = GetLineColumn(text, caret + tag.Length);
+                _markdownInput.SetCaretPosition(nl, nc);
                 SyncMemberText();
                 inserted = true;
             }
@@ -239,19 +279,23 @@ namespace LingoEngine.Director.Core.Texts
         private void InsertAroundSelection(string prefix, string suffix)
         {
             var text = _markdownInput.Text;
-            int end = _markdownInput.GetCaretPosition();
+            var (endLine, endCol) = _markdownInput.GetCaretPosition();
+            int end = GetIndexFromLineColumn(text, endLine, endCol);
             if (_markdownInput.HasSelection)
             {
                 _markdownInput.DeleteSelection();
-                int start = _markdownInput.GetCaretPosition();
+                var (startLine, startCol) = _markdownInput.GetCaretPosition();
+                int start = GetIndexFromLineColumn(_markdownInput.Text, startLine, startCol);
                 var selected = text.Substring(start, end - start);
                 _markdownInput.InsertText(prefix + selected + suffix);
-                _markdownInput.SetCaretPosition(start + prefix.Length + selected.Length + suffix.Length);
+                var (nl, nc) = GetLineColumn(_markdownInput.Text, start + prefix.Length + selected.Length + suffix.Length);
+                _markdownInput.SetCaretPosition(nl, nc);
             }
             else
             {
                 _markdownInput.InsertText(prefix + suffix);
-                _markdownInput.SetCaretPosition(end + prefix.Length);
+                var (nl, nc) = GetLineColumn(_markdownInput.Text, end + prefix.Length);
+                _markdownInput.SetCaretPosition(nl, nc);
             }
             SyncMemberText();
             ScheduleRender(_markdownInput.Text);

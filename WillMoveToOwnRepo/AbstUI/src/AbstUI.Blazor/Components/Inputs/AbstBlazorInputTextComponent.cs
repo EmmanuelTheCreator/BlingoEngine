@@ -11,6 +11,7 @@ public class AbstBlazorInputTextComponent : AbstBlazorComponentModelBase, IAbstF
     private string _text = string.Empty;
     private int _caret;
     private int _selectionStart = -1;
+    private event Action<int, int>? _onCaretChanged;
     public string Text
     {
         get => _text;
@@ -80,25 +81,21 @@ public class AbstBlazorInputTextComponent : AbstBlazorComponentModelBase, IAbstF
         RaiseValueChanged();
     }
 
-    public void SetCaretPosition(int position)
+    public void SetCaretPosition(int line, int column)
     {
-        _caret = Math.Clamp(position, 0, _text.Length);
+        _caret = Math.Clamp(column, 0, _text.Length);
         _selectionStart = -1;
+        _onCaretChanged?.Invoke(0, _caret);
     }
 
-    public int GetCaretPosition() => _caret;
+    public (int line, int column) GetCaretPosition() => (0, _caret);
 
-    public void SetSelection(int start, int end)
+    public void SetSelection(int startLine, int startColumn, int endLine, int endColumn)
     {
-        _selectionStart = Math.Clamp(start, 0, _text.Length);
-        _caret = Math.Clamp(end, 0, _text.Length);
+        _selectionStart = Math.Clamp(startColumn, 0, _text.Length);
+        _caret = Math.Clamp(endColumn, 0, _text.Length);
         if (_selectionStart == _caret)
             _selectionStart = -1;
-    }
-
-    public void SetSelection(Range range)
-    {
-        SetSelection(range.Start.GetOffset(_text.Length), range.End.GetOffset(_text.Length));
     }
 
     public void InsertText(string text)
@@ -109,6 +106,7 @@ public class AbstBlazorInputTextComponent : AbstBlazorComponentModelBase, IAbstF
         _caret += text.Length;
         RaiseChanged();
         RaiseValueChanged();
+        _onCaretChanged?.Invoke(0, _caret);
     }
 
     private bool _enabled = true;
@@ -120,4 +118,10 @@ public class AbstBlazorInputTextComponent : AbstBlazorComponentModelBase, IAbstF
 
     public event Action? ValueChanged;
     public void RaiseValueChanged() => ValueChanged?.Invoke();
+
+    event Action<int, int>? IAbstFrameworkInputText.OnCaretChanged
+    {
+        add => _onCaretChanged += value;
+        remove => _onCaretChanged -= value;
+    }
 }

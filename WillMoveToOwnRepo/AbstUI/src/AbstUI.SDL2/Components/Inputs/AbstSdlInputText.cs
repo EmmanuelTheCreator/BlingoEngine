@@ -19,7 +19,7 @@ namespace AbstUI.SDL2.Components.Inputs
     {
         private bool _multiLine;
         private readonly List<int> _codepoints = new();
-        private int _caret;
+        private int _caretIndex;
         private bool _focused;
         private uint _blinkStart;
         private ISdlFontLoadedByUser? _font;
@@ -27,8 +27,9 @@ namespace AbstUI.SDL2.Components.Inputs
         private int _scrollX;
         private int _scrollY;
         private int _selectionStart = -1;
+        private event Action<int, int>? _onCaretChanged;
 
-        public bool HasSelection => _selectionStart != -1 && _selectionStart != _caret;
+        public bool HasSelection => _selectionStart != -1 && _selectionStart != _caretIndex;
 
 
         public bool Enabled { get; set; } = true;
@@ -44,7 +45,7 @@ namespace AbstUI.SDL2.Components.Inputs
                 _text = value ?? string.Empty;
                 _codepoints.Clear();
                 foreach (var r in _text.EnumerateRunes()) _codepoints.Add(r.Value);
-                _caret = _codepoints.Count;
+                _caretIndex = _codepoints.Count;
                 _selectionStart = -1;
                 ValueChanged?.Invoke();
                 AdjustScroll();
@@ -150,8 +151,8 @@ namespace AbstUI.SDL2.Components.Inputs
 
                 if (HasSelection)
                 {
-                    int selStart = Math.Min(_selectionStart, _caret);
-                    int selEnd = Math.Max(_selectionStart, _caret);
+                    int selStart = Math.Min(_selectionStart, _caretIndex);
+                    int selEnd = Math.Max(_selectionStart, _caretIndex);
                     int lineSelStart = Math.Max(selStart, index);
                     int lineSelEnd = Math.Min(selEnd, lineEnd);
                     if (lineSelStart < lineSelEnd)
@@ -232,8 +233,8 @@ namespace AbstUI.SDL2.Components.Inputs
                     int innerYDown = (int)Y + 2;
                     int clickX = (int)(e.ComponentLeft + _scrollX);
                     int clickY = (int)(e.ComponentTop + _scrollY);
-                    _caret = GetCaretFromPixel(clickX, clickY);
-                    _selectionStart = _caret;
+                    _caretIndex = GetCaretFromPixel(clickX, clickY);
+                    _selectionStart = _caretIndex;
                     AdjustScroll();
                     e.StopPropagation = true;
                     break;
@@ -247,7 +248,7 @@ namespace AbstUI.SDL2.Components.Inputs
                         int innerYMove = (int)Y + 2;
                         int x = (int)(e.ComponentLeft + _scrollX);
                         int y = (int)(e.ComponentTop + _scrollY);
-                        _caret = GetCaretFromPixel(x, y);
+                        _caretIndex = GetCaretFromPixel(x, y);
                         AdjustScroll();
                         e.StopPropagation = true;
                     }
@@ -266,8 +267,8 @@ namespace AbstUI.SDL2.Components.Inputs
                                 foreach (var r in s.EnumerateRunes())
                                 {
                                     if (MaxLength > 0 && _codepoints.Count >= MaxLength) break;
-                                    _codepoints.Insert(_caret, r.Value);
-                                    _caret++;
+                                    _codepoints.Insert(_caretIndex, r.Value);
+                                    _caretIndex++;
                                 }
                             }
                         }
@@ -303,10 +304,10 @@ namespace AbstUI.SDL2.Components.Inputs
                     ValueChanged?.Invoke();
                     AdjustScroll();
                 }
-                else if (_caret > 0)
+                else if (_caretIndex > 0)
                 {
-                    _codepoints.RemoveAt(_caret - 1);
-                    _caret--;
+                    _codepoints.RemoveAt(_caretIndex - 1);
+                    _caretIndex--;
                     _text = string.Concat(_codepoints.ConvertAll(cp => char.ConvertFromUtf32(cp)));
                     ValueChanged?.Invoke();
                     AdjustScroll();
@@ -322,9 +323,9 @@ namespace AbstUI.SDL2.Components.Inputs
                     ValueChanged?.Invoke();
                     AdjustScroll();
                 }
-                else if (_caret < _codepoints.Count)
+                else if (_caretIndex < _codepoints.Count)
                 {
-                    _codepoints.RemoveAt(_caret);
+                    _codepoints.RemoveAt(_caretIndex);
                     _text = string.Concat(_codepoints.ConvertAll(cp => char.ConvertFromUtf32(cp)));
                     ValueChanged?.Invoke();
                     AdjustScroll();
@@ -334,11 +335,11 @@ namespace AbstUI.SDL2.Components.Inputs
             else if (key == SDL.SDL_Keycode.SDLK_LEFT)
             {
                 if (shift && _selectionStart == -1)
-                    _selectionStart = _caret;
+                    _selectionStart = _caretIndex;
                 if (ctrl)
                     MoveCaretPreviousWord();
-                else if (_caret > 0)
-                    _caret--;
+                else if (_caretIndex > 0)
+                    _caretIndex--;
                 if (!shift)
                     _selectionStart = -1;
                 _blinkStart = SDL.SDL_GetTicks();
@@ -348,11 +349,11 @@ namespace AbstUI.SDL2.Components.Inputs
             else if (key == SDL.SDL_Keycode.SDLK_RIGHT)
             {
                 if (shift && _selectionStart == -1)
-                    _selectionStart = _caret;
+                    _selectionStart = _caretIndex;
                 if (ctrl)
                     MoveCaretNextWord();
-                else if (_caret < _codepoints.Count)
-                    _caret++;
+                else if (_caretIndex < _codepoints.Count)
+                    _caretIndex++;
                 if (!shift)
                     _selectionStart = -1;
                 _blinkStart = SDL.SDL_GetTicks();
@@ -362,11 +363,11 @@ namespace AbstUI.SDL2.Components.Inputs
             else if (key == SDL.SDL_Keycode.SDLK_HOME)
             {
                 if (shift && _selectionStart == -1)
-                    _selectionStart = _caret;
+                    _selectionStart = _caretIndex;
                 if (_multiLine)
-                    _caret = GetLineStart(_caret);
+                    _caretIndex = GetLineStart(_caretIndex);
                 else
-                    _caret = 0;
+                    _caretIndex = 0;
                 if (!shift)
                     _selectionStart = -1;
                 _blinkStart = SDL.SDL_GetTicks();
@@ -376,11 +377,11 @@ namespace AbstUI.SDL2.Components.Inputs
             else if (key == SDL.SDL_Keycode.SDLK_END)
             {
                 if (shift && _selectionStart == -1)
-                    _selectionStart = _caret;
+                    _selectionStart = _caretIndex;
                 if (_multiLine)
-                    _caret = GetLineEnd(_caret);
+                    _caretIndex = GetLineEnd(_caretIndex);
                 else
-                    _caret = _codepoints.Count;
+                    _caretIndex = _codepoints.Count;
                 if (!shift)
                     _selectionStart = -1;
                 _blinkStart = SDL.SDL_GetTicks();
@@ -393,8 +394,8 @@ namespace AbstUI.SDL2.Components.Inputs
                     DeleteSelection();
                 if (MaxLength <= 0 || _codepoints.Count < MaxLength)
                 {
-                    _codepoints.Insert(_caret, '\n');
-                    _caret++;
+                    _codepoints.Insert(_caretIndex, '\n');
+                    _caretIndex++;
                     _text = string.Concat(_codepoints.ConvertAll(cp => char.ConvertFromUtf32(cp)));
                     ValueChanged?.Invoke();
                     AdjustScroll();
@@ -404,7 +405,7 @@ namespace AbstUI.SDL2.Components.Inputs
             else if (key == SDL.SDL_Keycode.SDLK_UP && _multiLine)
             {
                 if (shift && _selectionStart == -1)
-                    _selectionStart = _caret;
+                    _selectionStart = _caretIndex;
                 MoveCaretVertical(-1);
                 if (!shift)
                     _selectionStart = -1;
@@ -414,7 +415,7 @@ namespace AbstUI.SDL2.Components.Inputs
             else if (key == SDL.SDL_Keycode.SDLK_DOWN && _multiLine)
             {
                 if (shift && _selectionStart == -1)
-                    _selectionStart = _caret;
+                    _selectionStart = _caretIndex;
                 MoveCaretVertical(1);
                 if (!shift)
                     _selectionStart = -1;
@@ -425,8 +426,8 @@ namespace AbstUI.SDL2.Components.Inputs
             {
                 if (HasSelection)
                 {
-                    int start = Math.Min(_selectionStart, _caret);
-                    int end = Math.Max(_selectionStart, _caret);
+                    int start = Math.Min(_selectionStart, _caretIndex);
+                    int end = Math.Max(_selectionStart, _caretIndex);
                     string sel = string.Concat(_codepoints.GetRange(start, end - start).ConvertAll(cp => char.ConvertFromUtf32(cp)));
                     SDL.SDL_SetClipboardText(sel);
                 }
@@ -444,8 +445,8 @@ namespace AbstUI.SDL2.Components.Inputs
                         foreach (var r in clip.EnumerateRunes())
                         {
                             if (MaxLength > 0 && _codepoints.Count >= MaxLength) break;
-                            _codepoints.Insert(_caret, r.Value);
-                            _caret++;
+                            _codepoints.Insert(_caretIndex, r.Value);
+                            _caretIndex++;
                         }
                         _text = string.Concat(_codepoints.ConvertAll(cp => char.ConvertFromUtf32(cp)));
                         ValueChanged?.Invoke();
@@ -500,16 +501,18 @@ namespace AbstUI.SDL2.Components.Inputs
 
         public virtual void DeleteSelection()
         {
-            int start = Math.Min(_selectionStart, _caret);
-            int end = Math.Max(_selectionStart, _caret);
+            int start = Math.Min(_selectionStart, _caretIndex);
+            int end = Math.Max(_selectionStart, _caretIndex);
             _codepoints.RemoveRange(start, end - start);
-            _caret = start;
+            _caretIndex = start;
             _selectionStart = -1;
+            var (line, col) = GetLineColumn(_caretIndex);
+            _onCaretChanged?.Invoke(line, col);
         }
 
         protected virtual int GetCaretFromPixel(int px, int py)
         {
-            if (_atlas == null || _font == null) return _caret;
+            if (_atlas == null || _font == null) return _caretIndex;
             var span = CollectionsMarshal.AsSpan(_codepoints);
             int lineHeight = SDL_ttf.TTF_FontHeight(_font.FontHandle) - (_multiLine ? 1 : 0);
             if (px <= 0 && py <= 0 && span.Length == 0) return 0;
@@ -551,7 +554,7 @@ namespace AbstUI.SDL2.Components.Inputs
             int lineHeight = SDL_ttf.TTF_FontHeight(_font.FontHandle) - (_multiLine ? 1 : 0);
             int lineStart = 0;
             int line = 0;
-            for (int i = 0; i < _caret; i++)
+            for (int i = 0; i < _caretIndex; i++)
             {
                 if (span[i] == '\n')
                 {
@@ -560,7 +563,7 @@ namespace AbstUI.SDL2.Components.Inputs
                 }
             }
             y = line * lineHeight;
-            x = _atlas.MeasureWidth(span.Slice(lineStart, _caret - lineStart));
+            x = _atlas.MeasureWidth(span.Slice(lineStart, _caretIndex - lineStart));
         }
 
         protected virtual int GetLineStart(int index)
@@ -588,7 +591,7 @@ namespace AbstUI.SDL2.Components.Inputs
             int targetLine = 0;
             int lineStart = 0;
             int line = 0;
-            for (int i = 0; i < _caret; i++)
+            for (int i = 0; i < _caretIndex; i++)
             {
                 if (span[i] == '\n')
                 {
@@ -599,7 +602,7 @@ namespace AbstUI.SDL2.Components.Inputs
             targetLine = line + lines;
             if (targetLine < 0)
             {
-                _caret = 0;
+                _caretIndex = 0;
                 return;
             }
             int index = 0;
@@ -616,7 +619,7 @@ namespace AbstUI.SDL2.Components.Inputs
             }
             if (currentLine < targetLine)
             {
-                _caret = span.Length;
+                _caretIndex = span.Length;
                 return;
             }
             int end = start;
@@ -628,12 +631,12 @@ namespace AbstUI.SDL2.Components.Inputs
                 int w = _atlas.MeasureWidth(lineSpan.Slice(i, 1));
                 if (caretX < pos + w / 2)
                 {
-                    _caret = start + i;
+                    _caretIndex = start + i;
                     return;
                 }
                 pos += w;
             }
-            _caret = start + lineSpan.Length;
+            _caretIndex = start + lineSpan.Length;
         }
 
         protected virtual bool IsWordChar(int cp)
@@ -644,20 +647,20 @@ namespace AbstUI.SDL2.Components.Inputs
 
         protected virtual void MoveCaretPreviousWord()
         {
-            if (_caret == 0) return;
-            int i = _caret - 1;
+            if (_caretIndex == 0) return;
+            int i = _caretIndex - 1;
             while (i > 0 && !IsWordChar(_codepoints[i])) i--;
             while (i > 0 && IsWordChar(_codepoints[i - 1])) i--;
-            _caret = i;
+            _caretIndex = i;
         }
 
         protected virtual void MoveCaretNextWord()
         {
-            int i = _caret;
+            int i = _caretIndex;
             int count = _codepoints.Count;
             while (i < count && IsWordChar(_codepoints[i])) i++;
             while (i < count && !IsWordChar(_codepoints[i])) i++;
-            _caret = i;
+            _caretIndex = i;
         }
         public void SetFocus(bool focus)
         {
@@ -669,32 +672,61 @@ namespace AbstUI.SDL2.Components.Inputs
             ComponentContext.QueueRedraw(this);
         }
 
-        public void SetCaretPosition(int position)
+        private (int line, int column) GetLineColumn(int index)
         {
-            _caret = Math.Clamp(position, 0, _codepoints.Count);
+            var span = CollectionsMarshal.AsSpan(_codepoints);
+            int line = 0;
+            int column = 0;
+            for (int i = 0; i < index && i < span.Length; i++)
+            {
+                if (span[i] == '\n')
+                {
+                    line++;
+                    column = 0;
+                }
+                else
+                {
+                    column++;
+                }
+            }
+            return (line, column);
+        }
+
+        private int GetIndexFromLineColumn(int line, int column)
+        {
+            var span = CollectionsMarshal.AsSpan(_codepoints);
+            int idx = 0;
+            int currentLine = 0;
+            while (idx < span.Length && currentLine < line)
+            {
+                if (span[idx++] == '\n')
+                    currentLine++;
+            }
+            return Math.Clamp(idx + column, 0, span.Length);
+        }
+
+        public void SetCaretPosition(int line, int column)
+        {
+            _caretIndex = GetIndexFromLineColumn(line, column);
             _selectionStart = -1;
             AdjustScroll();
             ComponentContext.QueueRedraw(this);
+            _onCaretChanged?.Invoke(line, column);
         }
 
-        public int GetCaretPosition()
+        public (int line, int column) GetCaretPosition()
         {
-            return _caret;
+            return GetLineColumn(_caretIndex);
         }
 
-        public void SetSelection(int start, int end)
+        public void SetSelection(int startLine, int startColumn, int endLine, int endColumn)
         {
-            _selectionStart = Math.Clamp(start, 0, _codepoints.Count);
-            _caret = Math.Clamp(end, 0, _codepoints.Count);
-            if (_selectionStart == _caret)
+            _selectionStart = GetIndexFromLineColumn(startLine, startColumn);
+            _caretIndex = GetIndexFromLineColumn(endLine, endColumn);
+            if (_selectionStart == _caretIndex)
                 _selectionStart = -1;
             AdjustScroll();
             ComponentContext.QueueRedraw(this);
-        }
-
-        public void SetSelection(Range range)
-        {
-            SetSelection(range.Start.GetOffset(_codepoints.Count), range.End.GetOffset(_codepoints.Count));
         }
 
         public void InsertText(string text)
@@ -703,12 +735,19 @@ namespace AbstUI.SDL2.Components.Inputs
                 DeleteSelection();
             foreach (var rune in text.EnumerateRunes())
             {
-                _codepoints.Insert(_caret, rune.Value);
-                _caret++;
+                _codepoints.Insert(_caretIndex, rune.Value);
+                _caretIndex++;
             }
             ValueChanged?.Invoke();
             AdjustScroll();
             ComponentContext.QueueRedraw(this);
+            var (line, col) = GetLineColumn(_caretIndex);
+            _onCaretChanged?.Invoke(line, col);
+        }
+        event Action<int, int>? IAbstFrameworkInputText.OnCaretChanged
+        {
+            add => _onCaretChanged += value;
+            remove => _onCaretChanged -= value;
         }
 
 

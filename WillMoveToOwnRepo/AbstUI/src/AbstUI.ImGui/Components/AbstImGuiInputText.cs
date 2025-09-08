@@ -11,6 +11,7 @@ namespace AbstUI.ImGui.Components
     {
         private int _caret;
         private int _selectionStart = -1;
+        private event Action<int, int>? _onCaretChanged;
 
         public AbstImGuiInputText(AbstImGuiComponentFactory factory, bool multiLine) : base(factory)
         {
@@ -53,25 +54,21 @@ namespace AbstUI.ImGui.Components
             ValueChanged?.Invoke();
         }
 
-        public void SetCaretPosition(int position)
+        public void SetCaretPosition(int line, int column)
         {
-            _caret = Math.Clamp(position, 0, _text.Length);
+            _caret = Math.Clamp(column, 0, _text.Length);
             _selectionStart = -1;
+            _onCaretChanged?.Invoke(0, _caret);
         }
 
-        public int GetCaretPosition() => _caret;
+        public (int line, int column) GetCaretPosition() => (0, _caret);
 
-        public void SetSelection(int start, int end)
+        public void SetSelection(int startLine, int startColumn, int endLine, int endColumn)
         {
-            _selectionStart = Math.Clamp(start, 0, _text.Length);
-            _caret = Math.Clamp(end, 0, _text.Length);
+            _selectionStart = Math.Clamp(startColumn, 0, _text.Length);
+            _caret = Math.Clamp(endColumn, 0, _text.Length);
             if (_selectionStart == _caret)
                 _selectionStart = -1;
-        }
-
-        public void SetSelection(Range range)
-        {
-            SetSelection(range.Start.GetOffset(_text.Length), range.End.GetOffset(_text.Length));
         }
 
         public void InsertText(string text)
@@ -84,6 +81,12 @@ namespace AbstUI.ImGui.Components
         }
 
         public event Action? ValueChanged;
+
+        event Action<int, int>? IAbstFrameworkInputText.OnCaretChanged
+        {
+            add => _onCaretChanged += value;
+            remove => _onCaretChanged -= value;
+        }
 
         public override AbstImGuiRenderResult Render(AbstImGuiRenderContext context)
         {

@@ -22,6 +22,7 @@ internal class AbstUnityInputText : AbstUnityComponent, IAbstFrameworkInputText,
     private AColor _textColor = new(0, 0, 0);
     private AColor _backgroundColor = AbstDefaultColors.Input_Bg;
     private AColor _borderColor = AbstDefaultColors.InputBorderColor;
+    private event Action<int, int>? _onCaretChanged;
 
     public AbstUnityInputText() : base(CreateGameObject(out var input, out var text, out var image))
     {
@@ -121,31 +122,27 @@ internal class AbstUnityInputText : AbstUnityComponent, IAbstFrameworkInputText,
         int start = Math.Min(_inputField.selectionAnchorPosition, _inputField.selectionFocusPosition);
         int end = Math.Max(_inputField.selectionAnchorPosition, _inputField.selectionFocusPosition);
         Text = _text.Remove(start, end - start);
-        SetCaretPosition(start);
+        SetCaretPosition(0, start);
     }
 
-    public void SetCaretPosition(int position)
+    public void SetCaretPosition(int line, int column)
     {
-        int pos = Math.Clamp(position, 0, _text.Length);
+        int pos = Math.Clamp(column, 0, _text.Length);
         _inputField.caretPosition = pos;
         _inputField.selectionAnchorPosition = pos;
         _inputField.selectionFocusPosition = pos;
+        _onCaretChanged?.Invoke(0, pos);
     }
 
-    public int GetCaretPosition() => _inputField.caretPosition;
+    public (int line, int column) GetCaretPosition() => (0, _inputField.caretPosition);
 
-    public void SetSelection(int start, int end)
+    public void SetSelection(int startLine, int startColumn, int endLine, int endColumn)
     {
-        int s = Math.Clamp(start, 0, _text.Length);
-        int e = Math.Clamp(end, 0, _text.Length);
+        int s = Math.Clamp(startColumn, 0, _text.Length);
+        int e = Math.Clamp(endColumn, 0, _text.Length);
         _inputField.selectionAnchorPosition = s;
         _inputField.selectionFocusPosition = e;
         _inputField.caretPosition = e;
-    }
-
-    public void SetSelection(Range range)
-    {
-        SetSelection(range.Start.GetOffset(_text.Length), range.End.GetOffset(_text.Length));
     }
 
     public void InsertText(string text)
@@ -158,4 +155,10 @@ internal class AbstUnityInputText : AbstUnityComponent, IAbstFrameworkInputText,
     }
 
     public event Action? ValueChanged;
+
+    event Action<int, int>? IAbstFrameworkInputText.OnCaretChanged
+    {
+        add => _onCaretChanged += value;
+        remove => _onCaretChanged -= value;
+    }
 }
