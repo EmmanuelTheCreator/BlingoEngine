@@ -140,7 +140,44 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
             else
                 SDL.SDL_RenderDrawRect(Renderer, ref rct);
         });
-        AddDrawAction(action);
+        if (!UseTextureGrid || !f)
+        {
+            AddDrawAction(action);
+            return;
+        }
+
+        _drawActions.Add(action);
+        MarkDirty(resizePos, size);
+        int startX = Math.Max(0, (int)MathF.Floor(r.Left / TileSize));
+        int startY = Math.Max(0, (int)MathF.Floor(r.Top / TileSize));
+        int endX = Math.Max(0, (int)MathF.Floor((r.Left + r.Width - 1) / TileSize));
+        int endY = Math.Max(0, (int)MathF.Floor((r.Top + r.Height - 1) / TileSize));
+        for (int tx = startX; tx <= endX; tx++)
+        {
+            for (int ty = startY; ty <= endY; ty++)
+            {
+                int ox = tx * TileSize;
+                int oy = ty * TileSize;
+                int ix = (int)Math.Max(r.Left, ox);
+                int iy = (int)Math.Max(r.Top, oy);
+                int iw = Math.Min((int)(r.Left + r.Width), ox + TileSize) - ix;
+                int ih = Math.Min((int)(r.Top + r.Height), oy + TileSize) - iy;
+                if (iw <= 0 || ih <= 0) continue;
+                var tileAction = new DrawAction(false, resizePos, size, null, null, (_, _, _) =>
+                {
+                    var tr = new SDL.SDL_Rect
+                    {
+                        x = ix - ox,
+                        y = iy - oy,
+                        w = iw,
+                        h = ih
+                    };
+                    SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, c.A);
+                    SDL.SDL_RenderFillRect(Renderer, ref tr);
+                });
+                AddTileAction((tx, ty), tileAction);
+            }
+        }
     }
 
     public override void DrawCircle(APoint center, float radius, AColor color, bool filled = true, float width = 1)
@@ -172,7 +209,42 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
                 }
             }
         });
-        AddDrawAction(action);
+        if (!UseTextureGrid || !f)
+        {
+            AddDrawAction(action);
+            return;
+        }
+
+        _drawActions.Add(action);
+        MarkDirty(resizePos, size);
+        int startX = Math.Max(0, (int)MathF.Floor((ctr.X - rad) / TileSize));
+        int startY = Math.Max(0, (int)MathF.Floor((ctr.Y - rad) / TileSize));
+        int endX = Math.Max(0, (int)MathF.Floor((ctr.X + rad - 1) / TileSize));
+        int endY = Math.Max(0, (int)MathF.Floor((ctr.Y + rad - 1) / TileSize));
+        for (int tx = startX; tx <= endX; tx++)
+        {
+            for (int ty = startY; ty <= endY; ty++)
+            {
+                int ox = tx * TileSize;
+                int oy = ty * TileSize;
+                int minDy = Math.Max((int)MathF.Ceiling(oy - ctr.Y), -r);
+                int maxDy = Math.Min((int)MathF.Floor(oy + TileSize - ctr.Y - 1), r);
+                if (minDy > maxDy) continue;
+                var tileAction = new DrawAction(false, resizePos, size, null, null, (_, _, _) =>
+                {
+                    SDL.SDL_SetRenderDrawColor(Renderer, c.R, c.G, c.B, c.A);
+                    for (int dy = minDy; dy <= maxDy; dy++)
+                    {
+                        float dyf = dy;
+                        if (MathF.Abs(dyf) > rad) continue;
+                        float y = ctr.Y + dyf - oy;
+                        float dx = (float)MathF.Sqrt(MathF.Max(0, rad * rad - dyf * dyf));
+                        SDL.SDL_RenderDrawLineF(Renderer, ctr.X - dx - ox, y, ctr.X + dx - ox, y);
+                    }
+                });
+                AddTileAction((tx, ty), tileAction);
+            }
+        }
     }
 
     public override void DrawArc(APoint center, float radius, float startDeg, float endDeg, int segments, AColor color, float width = 1)
@@ -320,9 +392,9 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
                 }
                 y += lineSkip;
             }
+            font.Release();
         });
         AddDrawAction(action);
-        font.Release();
     }
 
     public override void DrawSingleLine(APoint position, string text, string? fontName = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular)
@@ -384,9 +456,9 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
                 SDL.SDL_DestroyTexture(tex);
             }
             SDL.SDL_FreeSurface(s);
+            font.Release();
         });
         AddDrawAction(action);
-        font.Release();
     }
 
     public override void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)

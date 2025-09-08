@@ -137,15 +137,6 @@ public abstract class AbstImagePainter<TTexture> : IAbstImagePainter
 
     public void Render()
     {
-        if (!UseTextureGrid)
-        {
-            if (!_dirty) return;
-        }
-        else
-        {
-            if (_dirtyTiles.Count == 0) return;
-        }
-
         var newWidth = Width;
         var newHeight = Height;
         if (AutoResizeWidth || AutoResizeHeight)
@@ -166,8 +157,12 @@ public abstract class AbstImagePainter<TTexture> : IAbstImagePainter
         var targetHeight = AutoResizeHeight ? Math.Max(Height, newHeight) : Height;
         targetWidth = Math.Min(targetWidth, _maxWidth);
         targetHeight = Math.Min(targetHeight, _maxHeight);
+
         if (!UseTextureGrid)
         {
+            if (!_dirty && targetWidth == _width && targetHeight == _height)
+                return;
+
             if (targetWidth != Width || targetHeight != Height)
             {
                 ResizeTexture(targetWidth, targetHeight);
@@ -182,6 +177,9 @@ public abstract class AbstImagePainter<TTexture> : IAbstImagePainter
             _dirty = false;
             return;
         }
+
+        if (_dirtyTiles.Count == 0 && targetWidth == _width && targetHeight == _height)
+            return;
 
         _width = targetWidth;
         _height = targetHeight;
