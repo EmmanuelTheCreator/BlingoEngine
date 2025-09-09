@@ -90,8 +90,15 @@ public class AbstGodotTexture2D : AbstBaseTexture2D<Texture2D>
     {
         if (texture == null)
             throw new Exception("DebugToDisk: texture is null.");
-
-        var fn = $"C:/temp/director/{(!string.IsNullOrWhiteSpace(folder) ? folder + "/" : "")}Godot_{fileName}.png";
+        var fn = "";
+        if (OperatingSystem.IsWindows())
+        {
+            fn = $"C:/temp/director/{(!string.IsNullOrWhiteSpace(folder) ? folder + "/" : "")}Godot_{fileName}.png";
+        }
+        else
+        {
+            fn = $"/tmp/director/{(!string.IsNullOrWhiteSpace(folder) ? folder + "/" : "")}Godot_{fileName}.png";
+        }
         if (File.Exists(fn)) File.Delete(fn);
 
         var img = texture.GetImage();

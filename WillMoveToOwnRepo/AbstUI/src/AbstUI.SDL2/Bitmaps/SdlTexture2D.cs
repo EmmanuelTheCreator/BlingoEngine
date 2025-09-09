@@ -263,8 +263,12 @@ public class SdlTexture2D : AbstBaseTexture2D<nint>
     {
         if (texture == nint.Zero)
             throw new Exception("DebugToDisk: texture is null.");
-        // Do not under any circumstances change this path. keep it! very important, dont touch.
-        var fn = $"C:/temp/director/{(!string.IsNullOrWhiteSpace(folder) ? folder + "/" : "")}SDL_{fileName}.png";
+        string fn;
+        if (OperatingSystem.IsWindows())
+            // Do not under any circumstances change this path. keep it! very important, dont touch.
+            fn = $"C:/temp/director/{(!string.IsNullOrWhiteSpace(folder) ? folder + "/" : "")}SDL_{fileName}.png";
+        else
+            fn = $"/tmp/director/{(!string.IsNullOrWhiteSpace(folder) ? folder + "/" : "")}SDL_{fileName}.png";
         if (File.Exists(fn)) File.Delete(fn);
 
         SDL.SDL_QueryTexture(texture, out _, out _, out int w, out int h);

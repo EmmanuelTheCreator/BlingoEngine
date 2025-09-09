@@ -87,9 +87,9 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
     {
         var texture = new SdlTexture2D(_spritesTexture, _stage.Width, _stage.Height, "StageShot_" + _activeMovie!.CurrentFrame, _factory.RootContext.Renderer);
         var clone = (SdlTexture2D)texture.Clone();
-        //#if DEBUG
-        //        clone.DebugWriteToDiskInc(_factory.RootContext.Renderer);
-        //#endif
+#if DEBUG
+       // clone.DebugWriteToDiskInc(_factory.RootContext.Renderer);
+#endif
         return clone;
     }
 
@@ -106,6 +106,9 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
     {
         _transitionFrame = (SdlTexture2D)texture;
         _transitionRect = targetRect;
+#if DEBUG
+      //  _transitionFrame.DebugWriteToDisk(_factory.RootContext.Renderer);
+#endif
         Render();
     }
 

@@ -701,7 +701,7 @@ namespace AbstUI.LGodot.Components.Graphics
             // ImageTexture already updated
             var texture = new AbstGodotTexture2D(_tex, name ?? $"GodotImage_{Width}x{Height}");
 #if DEBUG
-            texture.DebugWriteToDisk();
+            //texture.DebugWriteToDisk();
 #endif
             return texture;
         }

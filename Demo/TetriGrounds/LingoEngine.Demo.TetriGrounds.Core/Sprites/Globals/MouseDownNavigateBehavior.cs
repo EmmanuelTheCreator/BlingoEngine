@@ -34,7 +34,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Globals
                 { this, x => x.FrameOffsetWhenDone, "FrameOffset When Done" },
                 { this, x => x.FrameOffsetOnClick, "FrameOffset On Click" }
             };
-        public string? GetBehaviorDescription() => "Navigate on mpusedown";
+        public string? GetBehaviorDescription() => "Navigate on mousedown";
         public string? GetBehaviorTooltip() => "Navigate to the next frame on mouse down, and stay on the current frame for a number of ticks before navigating again.";
         public bool IsOKToAttach(LingoSymbol spriteType, int spriteNum) => true;
 

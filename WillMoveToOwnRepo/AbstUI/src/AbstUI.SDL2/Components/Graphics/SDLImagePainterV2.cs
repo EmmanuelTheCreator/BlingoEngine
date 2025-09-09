@@ -671,7 +671,7 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
         if (_texture != nint.Zero)
         {
 #if DEBUG
-            texture.DebugWriteToDisk(Renderer);
+            //texture.DebugWriteToDisk(Renderer);
 #endif
         }
         else

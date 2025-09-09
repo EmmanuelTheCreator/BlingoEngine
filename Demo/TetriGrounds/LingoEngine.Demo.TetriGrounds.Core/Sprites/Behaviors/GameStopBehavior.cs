@@ -5,6 +5,8 @@ using LingoEngine.Movies;
 using LingoEngine.Movies.Events;
 using LingoEngine.Sprites;
 using LingoEngine.Sprites.Events;
+using LingoEngine.Texts;
+using System.ComponentModel.DataAnnotations;
 #pragma warning disable IDE1006 // Naming Styles
 
 namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
@@ -27,32 +29,34 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 
         public void BeginSprite()
         {
-            // original lingo loaded key codes from a parameters text member
-            // here we simply use some defaults as the cast system is not implemented
-            key1 = 38; // Up
-            key2 = 39; // Right
-            key3 = 40; // Down
-            key4 = 37; // Left
-            key5 = 90; // Z
-            key6 = 88; // X
-
-            key7 = 38;
-            key8 = 39;
-            key9 = 40;
-            key10 = 37;
-            key11 = 90;
-            key12 = 88;
-
+            var parameters = Member<ILingoMemberTextBase>("parameters")!;
+            var test = parameters.Line[21].Word(2);
+            key1  = Convert.ToInt32(parameters.Line[21].Word(2)); // Up
+            key2  = Convert.ToInt32(parameters.Line[21].Word(5)); // Right
+            key3  = Convert.ToInt32(parameters.Line[21].Word(3)); // Down
+            key4  = Convert.ToInt32(parameters.Line[21].Word(4)); // Left
+            key5  = Convert.ToInt32(parameters.Line[21].Word(6)); // Action1
+            key6  = Convert.ToInt32(parameters.Line[21].Word(7)); // Action2
+            key7  = Convert.ToInt32(parameters.Line[22].Word(2)); // Up
+            key8  = Convert.ToInt32(parameters.Line[22].Word(5)); // Right
+            key9  = Convert.ToInt32(parameters.Line[22].Word(3)); // Down
+            key10 = Convert.ToInt32(parameters.Line[22].Word(4)); // Left
+            key11 = Convert.ToInt32(parameters.Line[22].Word(6)); // Action1
+            key12 = Convert.ToInt32(parameters.Line[22].Word(7)); // Action2
             oldkey1 = 9;
+            // nothing for player1
             oldkey1Act1 = 0;
             oldkey1Act2 = 0;
             oldkey2 = 9;
+            // nothing for player2
             oldkey2Act1 = 0;
             oldkey2Act2 = 0;
             pPlayer1 = 1;
             pPlayer2 = 0;
             myTargetSprite = 4;
         }
+
+
 
         public void KeyDown(LingoKeyEvent key)
         {

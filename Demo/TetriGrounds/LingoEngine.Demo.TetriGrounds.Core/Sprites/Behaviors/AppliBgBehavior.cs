@@ -10,7 +10,7 @@ using System.ComponentModel;
 namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 {
     // Converted from 16_AppliBg.ls
-    public class AppliBgBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasExitFrameEvent, IHasEndSpriteEvent, IOverScreenTextParent
+    public class AppliBgBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasExitFrameEvent, IHasEndSpriteEvent, IOverScreenTextParent, IHasCounterStartData
     {
         private int _pos;
         private int lowest;

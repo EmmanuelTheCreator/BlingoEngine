@@ -9,6 +9,8 @@ using LingoEngine.Texts;
 
 namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 {
+   
+
     // Converted from 23_TextCounter.ls
     public class TextCounterBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasExitFrameEvent, ILingoPropertyDescriptionList
     {
@@ -22,15 +24,39 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
         public string myFunction = "";
 
         private int myWaiter;
+        private LingoMemberText? _textMember;
 
         public TextCounterBehavior(ILingoMovieEnvironment env) : base(env){}
 
+        public BehaviorPropertyDescriptionList? GetPropertyDescriptionList()
+        {
+            return new BehaviorPropertyDescriptionList()
+                .Add(this, x => x.myMin, "Min Value:", 0)
+                .Add(this, x => x.myMax, "Max Value:", 10)
+                .Add(this, x => x.myValue, "My Start Value:", -1)
+                .Add(this, x => x.myStep, "My step:", 1)
+                .Add(this, x => x.myDataSpriteNum, "My Sprite that contains info\n(set value to -1):", 1)
+                .Add(this, x => x.myDataName, "Name Info:", "1")
+                .Add(this, x => x.myWaitbeforeExecute, "WaitTime before execute:", 70)
+                .Add(this, x => x.myFunction, "function to execute:", "70");
+        }
+
+        public string? GetBehaviorDescription() => "A simple counter that can be increased or decreased with limits.";
+
+
+        public string? GetBehaviorTooltip() => "A simple counter that can be increased or decreased with limits.";
+
+        public bool IsOKToAttach(LingoSymbol spriteType, int spriteNum) => true;
+
+
         public void BeginSprite()
         {
+            _textMember = Me.Member as LingoMemberText;
             if (myValue == -1)
             {
-                myValue = SendSprite<AppliBgBehavior, int>(myDataSpriteNum,
-                    c => c.GetCounterStartData(myDataName));
+                myValue = SendSprite<IHasCounterStartData, int>(myDataSpriteNum, c => c.GetCounterStartData(myDataName));
+                if (myValue <= 0) myValue = 0;
+                if (myValue < myMin || myValue > myMax) myValue = 0;
             }
             UpdateMe();
             myWaiter = myWaitbeforeExecute;
@@ -41,9 +67,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             if (myWaiter < myWaitbeforeExecute)
             {
                 if (myWaiter == myWaitbeforeExecute - 1)
-                {
                     SendSprite(myDataSpriteNum, s => ((IHasLingoMessage)s)?.HandleMessage(myFunction, myDataName, myValue));
-                }
                 myWaiter++;
             }
         }
@@ -68,34 +92,11 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 
         private void UpdateMe()
         {
-            if (Me.Member is LingoMemberText txt)
-            {
-                txt.Text = myValue.ToString();
-            }
+            if (_textMember != null)
+                _textMember.Text = myValue.ToString();
             myWaiter = 0;
         }
 
-        public BehaviorPropertyDescriptionList? GetPropertyDescriptionList()
-        {
-            return new BehaviorPropertyDescriptionList()
-                .Add(this, x => x.myMin, "Min Value:", 0)
-                .Add(this, x => x.myMax, "Max Value:", 10)
-                .Add(this, x => x.myValue, "My Start Value:", -1)
-                .Add(this, x => x.myStep, "My step:", 1)
-                .Add(this, x => x.myDataSpriteNum, "My Sprite that contains info\n(set value to -1):", 1)
-                .Add(this, x => x.myDataName, "Name Info:", "1")
-                .Add(this, x => x.myWaitbeforeExecute, "WaitTime before execute:", 70)
-                .Add(this, x => x.myFunction, "function to execute:", "70");
-        }
-
-        public string? GetBehaviorDescription() => "Todo add description";
-
-
-        public string? GetBehaviorTooltip() => "";
-
-        public bool IsOKToAttach(LingoSymbol spriteType, int spriteNum)
-        {
-            return true;
-        }
+      
     }
 }

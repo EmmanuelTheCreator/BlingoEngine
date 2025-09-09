@@ -142,7 +142,9 @@ public partial class GodotImagePainter : IAbstImagePainter
     {
         Render();
         var texture = _control.CreateAbstTexture2(name ?? Name);
-        texture.DebugWriteToDiskInc();
+#if DEBUG
+        //texture.DebugWriteToDiskInc();
+#endif
         return texture;
     }
 
