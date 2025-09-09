@@ -32,17 +32,19 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             if (Sprite(myNum).Puppet)
             {
                 myNum = 46;
-                myNum = 47;
+                myNum2 = 47;
                 LocV = 130;
             }
-            Sprite(myNum).Puppet = true;
-            Sprite(myNum2).Puppet = true;
-            Sprite(myNum).SetMember("T_OverScreen");
-            Sprite(myNum2).SetMember("T_OverScreen2");
-            Sprite(myNum).LocZ = 1000;
-            Sprite(myNum2).LocZ = 999;
-            Sprite(myNum).Ink = 36;
-            Sprite(myNum2).Ink = 36;
+            var over1 = Sprite(myNum);
+            var over2 = Sprite(myNum2);
+            over1.Puppet = true;
+            over2.Puppet = true;
+            over1.SetMember("T_OverScreen");
+            over2.SetMember("T_OverScreen2");
+            over1.LocZ = 1000;
+            over2.LocZ = 999;
+            over1.Ink = 36;
+            over2.Ink = 36;
             Member<LingoMemberText>("T_OverScreen")!.Text = Text;
             Member<LingoMemberText>("T_OverScreen2")!.Text = Text;
         }
@@ -54,9 +56,9 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             myCounter += 1;
             if (myCounter > Duration)
             {
-                _Movie.ActorList.Remove(this);
-                Sprite(myNum).Puppet = false;
-                Sprite(myNum2).Puppet = false;
+                //_Movie.ActorList.Remove(this);
+                //Sprite(myNum).Puppet = false;
+                //Sprite(myNum2).Puppet = false;
                 Parent?.TextFinished(this);
                 return;
             }
@@ -74,8 +76,8 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
 
         public void Destroy()
         {
-            if (_Movie.ActorList.GetPos(this) > 0) return;
-            _Movie.ActorList.Remove(this);
+            if (_Movie.ActorList.GetPos(this) > 0) 
+                _Movie.ActorList.Remove(this);
             Sprite(myNum).Puppet = false;
             Sprite(myNum2).Puppet = false;
         }

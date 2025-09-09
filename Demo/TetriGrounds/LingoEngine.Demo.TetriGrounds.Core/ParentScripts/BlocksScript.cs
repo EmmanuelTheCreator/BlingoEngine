@@ -54,7 +54,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             var txt = Member<LingoMemberText>("T_StartLines");
             if (txt != null) int.TryParse(txt.Text, out nmbrLines);
             if (nmbrLines > myHeight - 5) nmbrLines = myHeight - 5;
-            nmbrLines = 1; // for testing
+            //nmbrLines = 1; // for testing
             for (int yy = myHeight; yy > myHeight - nmbrLines; yy--)
             {
                 bool empty = false;
@@ -133,37 +133,39 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             myFinishedBlocksVert = 1;
             myFinishedBlocksHori = 1;
             _Movie.ActorList.Add(this);
+            
         }
 
         public void StepFrame()
         {
             if (!myFinishedBlocks) return;
-            for (; myFinishedBlocksHori <= myBlocks.Count; myFinishedBlocksHori++)
+            if (myFinishedBlocksVert > myBlocks[myFinishedBlocksHori].Count)
             {
-                if (myFinishedBlocksVert <= myBlocks[myFinishedBlocksHori].Count)
-                {
-                    var b = myBlocks[myFinishedBlocksHori][myFinishedBlocksVert];
-                    b?.FinishBlock();
-                }
-                else
-                {
-                    myFinishedBlocks = false;
-                    _Movie.ActorList.Remove(this);
-                    break;
-                }
+                myFinishedBlocks = false;
+                _Movie.ActorList.Remove(this);
+                return;
+            }
+            for (int i = 0; i < myBlocks.Count; i++)
+            {
+                myFinishedBlocksHori = i+1;
+                var b = myBlocks[myFinishedBlocksHori][myFinishedBlocksVert];
+                b?.FinishBlock();
             }
             myFinishedBlocksVert += 1;
         }
 
         public void DestroyBlocks()
         {
-            foreach (var col in myBlocks)
+            var clone = myBlocks.ToArray();
+            foreach (var col in clone)
             {
                 if (col == null) continue;
-                foreach (BlockScript? b in col)
+                var cloneCol = col.ToArray();
+                foreach (BlockScript? b in cloneCol)
                 {
                     b?.Destroy();
-                    myBlocks[col.IndexOf(b)] = null!;
+                    var index = col.IndexOf(b);
+                    col[index] = null;
                 }
             }
         }

@@ -8,6 +8,7 @@ using LingoEngine.Projects;
 using LingoEngine.Setup;
 using LingoEngine.Texts;
 using Microsoft.Extensions.DependencyInjection;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace LingoEngine.Demo.TetriGrounds.Core;
 
@@ -122,6 +123,16 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
 
         var castData = _movie.CastLib["Data"];
 
+        castData.Member["T_data"]!.Width = 191;
+        castData.Member["T_NewGame"]!.Width = 48;
+        castData.Member["T_Score"]!.Width = 99;
+        castData.Member["T_OverScreen"]!.Width = 366;
+        castData.Member["T_OverScreen2"]!.Width = 366;
+        castData.Member["T_InternetScoresNames"]!.Width = 65;
+        castData.Member["T_InternetScores"]!.Width = 37;
+        castData.Member["T_InternetScoresNamesP"]!.Width = 69;
+        castData.Member["T_InternetScoresP"]!.Width = 37;
+
         var MyBG = _movie.Member["Game"];
         _movie.AddFrameBehavior<GameStopBehavior>(60);
         //_movie.AddFrameBehavior<WaiterFrameScript>(1);
@@ -137,11 +148,9 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         // Button play
         _movie.AddSprite(9, 60, 64, 519, 343).SetMember("B_Play").AddBehavior<ButtonStartGameBehavior>(); // Button play
         var memberT_NewGame = _movie.Member["T_NewGame"];
-        memberT_NewGame!.Width = 48;
         _movie.AddSprite(11, 60, 64, 497, 334).SetMember(memberT_NewGame); // Text New Game on Button
 
         var memberScore = _movie.Member["T_Score"];
-        memberScore!.Width = 99;
         _movie.AddSprite(12, 60, 64, 486, 148).SetMember(memberScore); 
 
 
@@ -159,11 +168,7 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
                 b.myWaitbeforeExecute = 0;
                 //b.myFunction = 70;
             });
-
-        castData.Member["T_InternetScoresNames"]!.Width = 65;
-        castData.Member["T_InternetScores"]!.Width = 37;
-        castData.Member["T_InternetScoresNamesP"]!.Width = 69;
-        castData.Member["T_InternetScoresP"]!.Width = 37;
+       
         _movie.AddSprite(24, 59, 64, 94, 129).SetMember("T_InternetScoresNames"); 
         _movie.AddSprite(25, 59, 64, 159, 132).SetMember("T_InternetScores"); 
         _movie.AddSprite(26, 59, 64, 91, 50).SetMember(39,2); // Text highscores

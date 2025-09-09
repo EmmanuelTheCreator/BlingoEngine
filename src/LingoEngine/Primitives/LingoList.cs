@@ -103,9 +103,9 @@ namespace LingoEngine.Primitives
         public void CopyTo(T[] array, int arrayIndex) => _items.CopyTo(array, arrayIndex);
 
         /// <summary>
-        /// Gets the zero-based index of the item (for compatibility).
+        /// Gets the 1-based index of the item 
         /// </summary>
-        public int IndexOf(T item) => _items.IndexOf(item);
+        public int IndexOf(T item) => _items.IndexOf(item)+1;
 
         /// <summary>
         /// Inserts an item at the specified zero-based index (not Lingo style).

@@ -50,12 +50,12 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             }
             else // create a new from the destroyed sprite list
             {
-                int num = pDestroyList[0];
-                _Movie.PuppetSprite(num, true);
+                int pNumDestroy = pDestroyList[0];
+                _Movie.PuppetSprite(pNumDestroy, true);
                 pDestroyList.RemoveAt(0);
-                pSpriteNums.Add(num);
-                Sprite(pNum).Ink = 36;
-                return num;
+                pSpriteNums.Add(pNumDestroy);
+                Sprite(pNumDestroy).Ink = 36;
+                return pNumDestroy;
             }
         }
 

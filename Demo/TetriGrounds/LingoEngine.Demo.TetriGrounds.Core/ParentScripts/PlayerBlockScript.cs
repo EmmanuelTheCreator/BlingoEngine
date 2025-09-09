@@ -230,7 +230,8 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
                 myFinished = true;
                 myBlocks.FinishedBlocks();
                 StopMove();
-                SendSprite<AppliBgBehavior>(1, s => s.GameFinished(myScoreManager.GetScore()));
+                _global.GameIsRunning = false;
+                //SendSprite<AppliBgBehavior>(1, s => s.GameFinished(myScoreManager.GetScore()));
             }
         }
 

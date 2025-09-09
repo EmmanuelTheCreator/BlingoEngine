@@ -1,1 +1,1 @@
-{{STYLE-SHEET:{"0":{"font-size":12}}}}
+{{STYLE-SHEET:{"0":{"font-family":"Tahoma","font-size":36,"color":"#000000","text-align":"center"}}}}{{PARA:0}}**Go!**
