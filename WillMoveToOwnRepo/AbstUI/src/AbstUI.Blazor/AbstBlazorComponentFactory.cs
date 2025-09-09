@@ -111,7 +111,8 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
             throw new InvalidOperationException($"Content {content.Name} already supports layout wrapping is unnecessary.");
 
         var wrapper = new AbstLayoutWrapper(content);
-        var impl = new AbstBlazorLayoutWrapperComponent(wrapper);
+        var impl = new AbstBlazorLayoutWrapperComponent(_registry, _mapper);
+        impl.SetContent((IAbstFrameworkNode)content.FrameworkObj);
         wrapper.Init(impl);
         InitComponent(wrapper);
         if (x.HasValue) wrapper.X = x.Value;
