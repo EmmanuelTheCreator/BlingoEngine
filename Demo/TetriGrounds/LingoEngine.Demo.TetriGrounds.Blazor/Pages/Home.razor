@@ -1,7 +1,31 @@
-﻿@page "/"
+﻿@using AbstUI
+@using AbstUI.Blazor
+@using AbstUI.Blazor.Components
+@using AbstUI.Blazor.Components.Containers
+@using AbstUI.Blazor.Components.Inputs
+@using AbstUI.Components
+@using AbstUI.Components.Containers
+@inject IAbstComponentFactory ComponentFactory
+@inject AbstBlazorComponentContainer ComponentContainer
+@page "/"
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<CascadingValue Value="ComponentContainer">
+    <AbstInputComponent>
+        <AbstBlazorScrollContainer Component="_rootComponent" />
+    </AbstInputComponent>
+</CascadingValue>
 
-Welcome to your new app.
+@code {
+    private AbstBlazorScrollContainerComponent _rootComponent = default!;
+
+    protected override void OnInitialized()
+    {
+        // var root = (AbstScrollContainer)GfxTestScene.Build(ComponentFactory);
+        // _rootComponent = (AbstBlazorScrollContainerComponent)root.FrameworkObj!;
+        // if (_rootComponent is IAbstBlazorRegistryAware aware)
+        //     aware.AttachRegistry(ComponentContainer);
+        // ComponentContainer.Register(_rootComponent);
+    }
+}

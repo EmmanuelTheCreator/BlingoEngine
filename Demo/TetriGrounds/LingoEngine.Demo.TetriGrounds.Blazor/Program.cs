@@ -18,7 +18,6 @@ namespace LingoEngine.Demo.TetriGrounds.Blazor
             builder.Services.RegisterLingoEngine(c =>
             {
                 lingoEngineReg = c
-                // TODO
                       .WithLingoBlazorEngine()
                      .SetProjectFactory<LingoEngine.Demo.TetriGrounds.Core.TetriGroundsProjectFactory>()
                     .BuildDelayed();

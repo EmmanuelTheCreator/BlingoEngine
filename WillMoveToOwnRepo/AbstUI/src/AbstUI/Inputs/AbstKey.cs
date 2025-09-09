@@ -94,7 +94,7 @@ namespace AbstUI.Inputs
         /// </summary>
         public IAbstKey CreateNewInstance(IAbstActivationProvider provider) => new ProxyKey(this, provider);
 
-        internal T Framework<T>() where T : IAbstFrameworkKey => (T)_frameworkObj;
+        public T Framework<T>() where T : IAbstFrameworkKey => (T)_frameworkObj;
 
         public bool ControlDown => _frameworkObj.ControlDown;
         public bool CommandDown => _frameworkObj.CommandDown;
