@@ -61,6 +61,16 @@ namespace AbstUI.ImGui
             return panel;
         }
 
+        public AbstZoomBox CreateZoomBox(string name)
+        {
+            var box = new AbstZoomBox();
+            var impl = new AbstImGuiZoomBox(this);
+            box.Init(impl);
+            InitComponent(box);
+            box.Name = name;
+            return box;
+        }
+
         public AbstLayoutWrapper CreateLayoutWrapper(IAbstNode content, float? x, float? y)
         {
             if (content is IAbstLayoutNode)

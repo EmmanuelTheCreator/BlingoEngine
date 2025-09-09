@@ -28,6 +28,7 @@ public static class AbstUIBlazorSetup
             .AddSingleton<AbstBlazorComponentMapper>()
             .AddSingleton<AbstBlazorComponentContainer>()
             .AddTransient<AbstBlazorWrapPanelComponent>()
+            .AddTransient<AbstBlazorZoomBoxComponent>()
             .AddTransient<AbstBlazorPanelComponent>()
             .AddTransient<AbstBlazorTabContainerComponent>()
             .AddTransient<AbstBlazorTabItemComponent>()

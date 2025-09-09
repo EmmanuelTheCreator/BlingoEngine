@@ -18,6 +18,7 @@ namespace AbstUI.Components
         AbstGfxCanvas CreateGfxCanvas(string name, int width, int height);
         AbstWrapPanel CreateWrapPanel(AOrientation orientation, string name);
         AbstPanel CreatePanel(string name);
+        AbstZoomBox CreateZoomBox(string name);
         AbstLayoutWrapper CreateLayoutWrapper(IAbstNode content, float? x, float? y);
         AbstTabContainer CreateTabContainer(string name);
         AbstTabItem CreateTabItem(string name, string title);
@@ -40,6 +41,6 @@ namespace AbstUI.Components
         AbstMenu CreateContextMenu(object window);
         AbstHorizontalLineSeparator CreateHorizontalLineSeparator(string name);
         AbstVerticalLineSeparator CreateVerticalLineSeparator(string name);
-        
+
     }
 }

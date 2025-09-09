@@ -22,7 +22,7 @@ public class SelectionCanvas
         _canvas.Width = member.Width * scale;
         _canvas.Height = member.Height * scale;
         _canvas.Clear(AColors.Transparent);
-        selection.Prepare(_canvas, member.Width, member.Height);
+        selection.Prepare((int)_canvas.Width, (int)_canvas.Height, member.Width, member.Height);
         var color = DirectorColors.BitmapSelectionFill;
 
         foreach (var px in selection.SelectedPixels)

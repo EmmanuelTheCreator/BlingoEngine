@@ -31,7 +31,7 @@ namespace AbstUI.LGodot.Components
            => new GodotImagePainter((AbstGodotFontManager)FontManager, width, height);
         public IAbstImagePainter CreateImagePainterToTexture(int width = 0, int height = 0)
            => new GodotImagePainterToTexture((AbstGodotFontManager)FontManager, width, height);
-           
+
         public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
         {
             var canvas = new AbstGfxCanvas();
@@ -60,6 +60,15 @@ namespace AbstUI.LGodot.Components
             InitComponent(panel);
             panel.Name = name;
             return panel;
+        }
+
+        public AbstZoomBox CreateZoomBox(string name)
+        {
+            var box = new AbstZoomBox();
+            var impl = new AbstGodotZoomBox(box);
+            InitComponent(box);
+            box.Name = name;
+            return box;
         }
 
         public AbstLayoutWrapper CreateLayoutWrapper(IAbstNode content, float? x, float? y)

@@ -68,6 +68,16 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         return panel;
     }
 
+    public AbstZoomBox CreateZoomBox(string name)
+    {
+        var box = new AbstZoomBox();
+        var impl = new AbstUnityZoomBox();
+        box.Init(impl);
+        InitComponent(box);
+        box.Name = name;
+        return box;
+    }
+
     public AbstLayoutWrapper CreateLayoutWrapper(IAbstNode content, float? x, float? y)
     {
         var wrapper = new AbstLayoutWrapper(content);

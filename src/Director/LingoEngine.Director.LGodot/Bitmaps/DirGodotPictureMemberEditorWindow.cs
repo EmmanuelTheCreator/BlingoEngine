@@ -59,7 +59,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
     private PicturePainter? _painter;
     private readonly PaintToolbar _paintToolbar;
     private int _brushSize = 1;
-    private readonly LingoBitmapSelection _selection = new();
+    private LingoBitmapSelection _selection = new();
     private Vector2I _selectStart;
     private Vector2 _lastMousePos;
 
@@ -83,7 +83,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
         _historyManager = historyManager;
         _mediator.Subscribe(this);
         Init(directorPictureEditWindow);
-        
+
 
         _navBar = new MemberNavigationBar<LingoMemberBitmap>(_mediator, _player, _iconManager, factory, NavigationBarHeight);
         AddChild(_navBar.Panel.Framework<AbstGodotWrapPanel>());
@@ -406,6 +406,7 @@ internal partial class DirGodotPictureMemberEditorWindow : BaseGodotWindow, IHas
         selNode.OffsetTop = -h / 2f;
         selNode.OffsetRight = w / 2f;
         selNode.OffsetBottom = h / 2f;
+        _selection = new LingoBitmapSelection();
     }
 
     private void RedrawRegPointCanvas()

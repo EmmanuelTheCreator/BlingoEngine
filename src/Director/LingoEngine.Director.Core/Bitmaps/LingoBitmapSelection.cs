@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using AbstUI.Primitives;
-using AbstUI.Components.Graphics;
 
 namespace LingoEngine.Director.Core.Bitmaps;
 
@@ -23,9 +22,13 @@ public class LingoBitmapSelection
     private APoint _canvasHalf;
     private APoint _offset;
 
-    public void Prepare(AbstGfxCanvas canvas, int memberWidth, int memberHeight)
+    public LingoBitmapSelection()
     {
-        _canvasHalf = new APoint(canvas.Width / 2f, canvas.Height / 2f);
+    }
+
+    public void Prepare(int canvasWidth, int canvasHeight, int memberWidth, int memberHeight)
+    {
+        _canvasHalf = new APoint(canvasWidth / 2f, canvasHeight / 2f);
         var imageHalf = new APoint(memberWidth / 2f, memberHeight / 2f);
         _offset = _canvasHalf - imageHalf;
     }
