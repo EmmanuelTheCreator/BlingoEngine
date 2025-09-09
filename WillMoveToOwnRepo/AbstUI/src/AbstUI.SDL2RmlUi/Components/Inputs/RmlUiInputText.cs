@@ -32,8 +32,8 @@ public class RmlUiInputText : IAbstFrameworkInputText, IHasTextBackgroundBorderC
     private AColor _borderColor = AbstDefaultColors.InputBorderColor;
     private bool _isMultiLine;
     private event Action? _valueChanged;
-    private int _caret;
-    private int _selectionStart = -1;
+    private int _caretIndex;
+    private int _selectionStartIndex = -1;
 
     public RmlUiInputText(ElementDocument document, bool multiLine)
     {
@@ -256,55 +256,93 @@ public class RmlUiInputText : IAbstFrameworkInputText, IHasTextBackgroundBorderC
         }
     }
 
-    public bool HasSelection => _selectionStart != -1 && _selectionStart != _caret;
+    public bool HasSelection => _selectionStartIndex != -1 && _selectionStartIndex != _caretIndex;
 
     public void DeleteSelection()
     {
         if (!HasSelection) return;
-        int start = Math.Min(_selectionStart, _caret);
-        int end = Math.Max(_selectionStart, _caret);
+        int start = Math.Min(_selectionStartIndex, _caretIndex);
+        int end = Math.Max(_selectionStartIndex, _caretIndex);
         _text = _text.Remove(start, end - start);
         if (_input != null) _input.SetValue(_text); else _textarea?.SetInnerRml(_text);
-        _caret = start;
-        _selectionStart = -1;
+        _caretIndex = start;
+        _selectionStartIndex = -1;
         _valueChanged?.Invoke();
+        var (line, column) = GetLineColumn(start);
+        OnCaretChanged?.Invoke(line, column);
     }
 
-    public void SetCaretPosition(int position)
+    public void SetCaretPosition(int line, int column)
     {
-        _caret = Math.Clamp(position, 0, _text.Length);
-        _selectionStart = -1;
+        _caretIndex = GetOffset(line, column);
+        _selectionStartIndex = -1;
+        OnCaretChanged?.Invoke(line, column);
     }
 
-    public int GetCaretPosition() => _caret;
-
-    public void SetSelection(int start, int end)
+    public (int line, int column) GetCaretPosition()
     {
-        _selectionStart = Math.Clamp(start, 0, _text.Length);
-        _caret = Math.Clamp(end, 0, _text.Length);
-        if (_selectionStart == _caret)
-            _selectionStart = -1;
+        return GetLineColumn(_caretIndex);
     }
 
-    public void SetSelection(Range range)
+    public void SetSelection(int startLine, int startColumn, int endLine, int endColumn)
     {
-        SetSelection(range.Start.GetOffset(_text.Length), range.End.GetOffset(_text.Length));
+        _selectionStartIndex = GetOffset(startLine, startColumn);
+        _caretIndex = GetOffset(endLine, endColumn);
+        if (_selectionStartIndex == _caretIndex)
+            _selectionStartIndex = -1;
+        OnCaretChanged?.Invoke(endLine, endColumn);
     }
 
     public void InsertText(string text)
     {
         if (HasSelection)
             DeleteSelection();
-        _text = _text.Insert(_caret, text);
+        _text = _text.Insert(_caretIndex, text);
         if (_input != null) _input.SetValue(_text); else _textarea?.SetInnerRml(_text);
-        _caret += text.Length;
+        _caretIndex += text.Length;
         _valueChanged?.Invoke();
+        var (line, column) = GetLineColumn(_caretIndex);
+        OnCaretChanged?.Invoke(line, column);
     }
 
     public event Action? ValueChanged
     {
         add => _valueChanged += value;
         remove => _valueChanged -= value;
+    }
+
+    public event Action<int, int>? OnCaretChanged;
+
+    private (int line, int column) GetLineColumn(int index)
+    {
+        index = Math.Clamp(index, 0, _text.Length);
+        int line = 0;
+        int column = 0;
+        for (int i = 0; i < index; i++)
+        {
+            if (_text[i] == '\n')
+            {
+                line++;
+                column = 0;
+            }
+            else
+            {
+                column++;
+            }
+        }
+        return (line, column);
+    }
+
+    private int GetOffset(int line, int column)
+    {
+        int index = 0;
+        int currentLine = 0;
+        while (index < _text.Length && currentLine < line)
+        {
+            if (_text[index] == '\n') currentLine++;
+            index++;
+        }
+        return Math.Clamp(index + column, 0, _text.Length);
     }
 
     public void Dispose() { }

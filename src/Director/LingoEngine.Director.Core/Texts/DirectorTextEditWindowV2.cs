@@ -1,6 +1,7 @@
 using AbstUI.Components.Containers;
 using AbstUI.Components.Graphics;
 using AbstUI.Components.Inputs;
+using AbstUI.Components.Texts;
 using AbstUI.Primitives;
 using AbstUI.Styles;
 using AbstUI.Texts;
@@ -12,6 +13,7 @@ using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Texts;
+using System;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -31,6 +33,7 @@ namespace LingoEngine.Director.Core.Texts
         private IAbstImagePainter _painter;
         private MemberNavigationBar<ILingoMemberTextBase> _navBar;
         private bool _isSettingMemberValues = false;
+        private readonly AbstLabel _caretLabel;
         public TextEditIconBar IconBar { get; }
         public AbstTextStyle CurrentStyle => IconBar.CurrentStyle;
         public AbstPanel RootPanel => _rootPanel;
@@ -50,12 +53,6 @@ namespace LingoEngine.Director.Core.Texts
             var columns = factory.CreateWrapPanel(AOrientation.Horizontal, "TextEditWindowV2Columns");
             _rootPanel.AddItem(columns,0,50);
 
-            _markdownInput = factory.CreateInputText("MarkdownInput", onChange: OnTextChanged, multiLine: true);
-            _markdownInput.Width = 400;
-            _markdownInput.Height = 400;
-          
-            columns.AddItem(_markdownInput);
-
             _previewCanvas = factory.CreateGfxCanvas("MarkdownPreview", 400, 400);
             _markdownScroller = factory.CreateScrollContainer("MakdownScroller");
             _markdownScroller.Width = 400;
@@ -68,6 +65,15 @@ namespace LingoEngine.Director.Core.Texts
             _painter.AutoResizeHeight = true;
 
             ConfigureIconBar();
+
+            _markdownInput = factory.CreateInputText("MarkdownInput", onChange: OnTextChanged, multiLine: true);
+            _markdownInput.Width = 400;
+            _markdownInput.Height = 400;
+            columns.AddItem(_markdownInput);
+
+            _caretLabel = factory.CreateLabel("CaretPositionLabel", "Ln:0 Ch:0");
+            _rootPanel.AddItem(_caretLabel, 0, 475);
+            _markdownInput.OnCaretChanged += (l, c) => _caretLabel.Text = $"Ln:{l} Ch:{c}";
 
             Width = 820;
             Height = 520;
@@ -173,6 +179,7 @@ namespace LingoEngine.Director.Core.Texts
             _markdownInput.Height = contentHeight;
             _previewCanvas.Width = innerWidth / 2;
             _previewCanvas.Height = contentHeight;
+            _caretLabel.Y = height - 25;
         }
 
         public void SetMemberValues(ILingoMemberTextBase textMember)
@@ -237,8 +244,9 @@ namespace LingoEngine.Director.Core.Texts
 
         private AbstTextStyle EnsureParagraphStyle()
         {
-            int caret = _markdownInput.GetCaretPosition();
+            var (caretLine, caretColumn) = _markdownInput.GetCaretPosition();
             var text = _markdownInput.Text;
+            int caret = GetOffset(text, caretLine, caretColumn);
             int lineStart = text.LastIndexOf('\n', Math.Max(0, caret - 1)) + 1;
             int lineEnd = text.IndexOf('\n', caret);
             if (lineEnd < 0) lineEnd = text.Length;
@@ -257,7 +265,9 @@ namespace LingoEngine.Director.Core.Texts
                 string tag = $"{{{{PARA:{styleName}}}}}";
                 text = text.Insert(lineStart, tag);
                 _markdownInput.Text = text;
-                _markdownInput.SetCaretPosition(caret + tag.Length);
+                int newCaret = caret + tag.Length;
+                var (nLine, nCol) = GetLineColumn(text, newCaret);
+                _markdownInput.SetCaretPosition(nLine, nCol);
                 SyncMemberText();
                 inserted = true;
             }
@@ -271,22 +281,61 @@ namespace LingoEngine.Director.Core.Texts
         private void InsertAroundSelection(string prefix, string suffix)
         {
             var text = _markdownInput.Text;
-            int end = _markdownInput.GetCaretPosition();
+            var (endLine, endCol) = _markdownInput.GetCaretPosition();
             if (_markdownInput.HasSelection)
             {
+                var endIndex = GetOffset(text, endLine, endCol);
                 _markdownInput.DeleteSelection();
-                int start = _markdownInput.GetCaretPosition();
-                var selected = text.Substring(start, end - start);
+                var (startLine, startCol) = _markdownInput.GetCaretPosition();
+                int startIndex = GetOffset(text, startLine, startCol);
+                var selected = text.Substring(startIndex, endIndex - startIndex);
                 _markdownInput.InsertText(prefix + selected + suffix);
-                _markdownInput.SetCaretPosition(start + prefix.Length + selected.Length + suffix.Length);
+                int newIndex = startIndex + prefix.Length + selected.Length + suffix.Length;
+                var (nLine, nCol) = GetLineColumn(_markdownInput.Text, newIndex);
+                _markdownInput.SetCaretPosition(nLine, nCol);
             }
             else
             {
                 _markdownInput.InsertText(prefix + suffix);
-                _markdownInput.SetCaretPosition(end + prefix.Length);
+                int endIndex = GetOffset(text, endLine, endCol);
+                int newIndex = endIndex + prefix.Length;
+                var (nLine, nCol) = GetLineColumn(_markdownInput.Text, newIndex);
+                _markdownInput.SetCaretPosition(nLine, nCol);
             }
             SyncMemberText();
             ScheduleRender(_markdownInput.Text);
+        }
+
+        private static int GetOffset(string text, int line, int column)
+        {
+            int index = 0;
+            int currentLine = 0;
+            while (index < text.Length && currentLine < line)
+            {
+                if (text[index] == '\n')
+                    currentLine++;
+                index++;
+            }
+            return Math.Clamp(index + column, 0, text.Length);
+        }
+
+        private static (int line, int column) GetLineColumn(string text, int index)
+        {
+            int line = 0;
+            int column = 0;
+            for (int i = 0; i < index && i < text.Length; i++)
+            {
+                if (text[i] == '\n')
+                {
+                    line++;
+                    column = 0;
+                }
+                else
+                {
+                    column++;
+                }
+            }
+            return (line, column);
         }
     }
 }
