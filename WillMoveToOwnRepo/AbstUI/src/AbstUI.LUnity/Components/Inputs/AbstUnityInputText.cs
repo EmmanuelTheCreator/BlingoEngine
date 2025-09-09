@@ -50,6 +50,8 @@ internal class AbstUnityInputText : AbstUnityComponent, IAbstFrameworkInputText,
         _text = value;
         _textComponent.text = value;
         ValueChanged?.Invoke();
+        var (line, column) = GetLineColumn(_inputField.caretPosition);
+        OnCaretChanged?.Invoke(line, column);
     }
 
     public bool Enabled
@@ -121,31 +123,32 @@ internal class AbstUnityInputText : AbstUnityComponent, IAbstFrameworkInputText,
         int start = Math.Min(_inputField.selectionAnchorPosition, _inputField.selectionFocusPosition);
         int end = Math.Max(_inputField.selectionAnchorPosition, _inputField.selectionFocusPosition);
         Text = _text.Remove(start, end - start);
-        SetCaretPosition(start);
+        var (line, column) = GetLineColumn(start);
+        SetCaretPosition(line, column);
     }
 
-    public void SetCaretPosition(int position)
+    public void SetCaretPosition(int line, int column)
     {
-        int pos = Math.Clamp(position, 0, _text.Length);
+        int pos = GetOffset(line, column);
         _inputField.caretPosition = pos;
         _inputField.selectionAnchorPosition = pos;
         _inputField.selectionFocusPosition = pos;
+        OnCaretChanged?.Invoke(line, column);
     }
 
-    public int GetCaretPosition() => _inputField.caretPosition;
-
-    public void SetSelection(int start, int end)
+    public (int line, int column) GetCaretPosition()
     {
-        int s = Math.Clamp(start, 0, _text.Length);
-        int e = Math.Clamp(end, 0, _text.Length);
+        return GetLineColumn(_inputField.caretPosition);
+    }
+
+    public void SetSelection(int startLine, int startColumn, int endLine, int endColumn)
+    {
+        int s = GetOffset(startLine, startColumn);
+        int e = GetOffset(endLine, endColumn);
         _inputField.selectionAnchorPosition = s;
         _inputField.selectionFocusPosition = e;
         _inputField.caretPosition = e;
-    }
-
-    public void SetSelection(Range range)
-    {
-        SetSelection(range.Start.GetOffset(_text.Length), range.End.GetOffset(_text.Length));
+        OnCaretChanged?.Invoke(endLine, endColumn);
     }
 
     public void InsertText(string text)
@@ -154,8 +157,42 @@ internal class AbstUnityInputText : AbstUnityComponent, IAbstFrameworkInputText,
             DeleteSelection();
         int pos = _inputField.caretPosition;
         Text = _text.Insert(pos, text);
-        SetCaretPosition(pos + text.Length);
+        var (line, column) = GetLineColumn(pos + text.Length);
+        SetCaretPosition(line, column);
+    }
+
+    private (int line, int column) GetLineColumn(int index)
+    {
+        index = Math.Clamp(index, 0, _text.Length);
+        int line = 0;
+        int column = 0;
+        for (int i = 0; i < index; i++)
+        {
+            if (_text[i] == '\n')
+            {
+                line++;
+                column = 0;
+            }
+            else
+            {
+                column++;
+            }
+        }
+        return (line, column);
+    }
+
+    private int GetOffset(int line, int column)
+    {
+        int index = 0;
+        int currentLine = 0;
+        while (index < _text.Length && currentLine < line)
+        {
+            if (_text[index] == '\n') currentLine++;
+            index++;
+        }
+        return Math.Clamp(index + column, 0, _text.Length);
     }
 
     public event Action? ValueChanged;
+    public event Action<int, int>? OnCaretChanged;
 }
