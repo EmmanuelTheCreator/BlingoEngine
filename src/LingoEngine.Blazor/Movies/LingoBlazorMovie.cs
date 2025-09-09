@@ -28,19 +28,21 @@ public class LingoBlazorMovie : ILingoFrameworkMovie, IDisposable
     private readonly AbstUIScriptResolver _scripts;
     private readonly int _width;
     private readonly int _height;
+    private readonly LingoBlazorRootPanel _rootPanel;
     private ElementReference _canvas;
     private IJSObjectReference? _ctx;
 
-    public LingoBlazorMovie(LingoBlazorStage stage, LingoMovie movie, Action<LingoBlazorMovie> remove, AbstUIScriptResolver scripts)
+    public LingoBlazorMovie(LingoBlazorStage stage, LingoMovie movie, Action<LingoBlazorMovie> remove, AbstUIScriptResolver scripts, LingoBlazorRootPanel rootPanel)
     {
         _stage = stage;
         _movie = movie;
         _remove = remove;
         _scripts = scripts;
+        _rootPanel = rootPanel;
         _width = stage.LingoStage.Width;
         _height = stage.LingoStage.Height;
         _canvas = _scripts.CanvasCreateCanvas(_width, _height).GetAwaiter().GetResult();
-        _scripts.CanvasAddToBody(_canvas).GetAwaiter().GetResult();
+        _scripts.CanvasAddToElement(_rootPanel.Root, _canvas).GetAwaiter().GetResult();
         _ctx = _scripts.CanvasGetContext(_canvas, true).GetAwaiter().GetResult();
         _scripts.CanvasSetVisible(_canvas, false).GetAwaiter().GetResult();
     }

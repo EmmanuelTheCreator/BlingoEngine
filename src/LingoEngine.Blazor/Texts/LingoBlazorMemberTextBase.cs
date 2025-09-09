@@ -25,6 +25,7 @@ public abstract class LingoBlazorMemberTextBase<TText> : ILingoFrameworkMemberTe
     protected TText _lingoMemberText = default!;
     private readonly IJSRuntime _js;
     private readonly AbstUIScriptResolver _scripts;
+    private readonly IAbstFontManager _fontManager;
     private AbstBlazorTexture2D? _texture;
     private bool _dirty;
 
@@ -40,10 +41,11 @@ public abstract class LingoBlazorMemberTextBase<TText> : ILingoFrameworkMemberTe
     private int _width;
     private int _height;
 
-    public LingoBlazorMemberTextBase(IJSRuntime js, AbstUIScriptResolver scripts)
+    public LingoBlazorMemberTextBase(IJSRuntime js, AbstUIScriptResolver scripts, IAbstFontManager fontManager)
     {
         _js = js;
         _scripts = scripts;
+        _fontManager = fontManager;
     }
 
     internal void Init(TText member) => _lingoMemberText = member;
@@ -184,7 +186,7 @@ public abstract class LingoBlazorMemberTextBase<TText> : ILingoFrameworkMemberTe
     }
     public IAbstTexture2D? TextureLingo => _texture;
 
-    public IAbstFontManager FontManager => throw new NotImplementedException();
+    public IAbstFontManager FontManager => _fontManager;
 
     public void Copy(string text) => _js.InvokeVoidAsync("navigator.clipboard.writeText", text).AsTask().GetAwaiter().GetResult();
 

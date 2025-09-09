@@ -33,6 +33,9 @@ public class AbstUIScriptResolver : IAsyncDisposable
     public async ValueTask CanvasAddToBody(ElementReference canvas)
         => await (await GetModuleAsync()).InvokeVoidAsync("abstCanvas.addCanvasToBody", canvas);
 
+    public async ValueTask CanvasAddToElement(ElementReference element, ElementReference canvas)
+        => await (await GetModuleAsync()).InvokeVoidAsync("abstCanvas.addCanvasToElement", element, canvas);
+
     public async ValueTask CanvasSetVisible(ElementReference canvas, bool visible)
         => await (await GetModuleAsync()).InvokeVoidAsync("abstCanvas.setCanvasVisible", canvas, visible);
 
@@ -75,7 +78,7 @@ public class AbstUIScriptResolver : IAsyncDisposable
     public async ValueTask SetCursor(string cursor)
         => await (await GetModuleAsync()).InvokeVoidAsync("AbstUIKey.setCursor", cursor);
     public async ValueTask<ScrollData> GetScrollPosition(string elementRef)
-        => await (await GetModuleAsync()).InvokeAsync< ScrollData>("AbstScrollContainer.getScrollPosition", elementRef);
+        => await (await GetModuleAsync()).InvokeAsync<ScrollData>("AbstScrollContainer.getScrollPosition", elementRef);
 
     public async ValueTask ShowBootstrapModal(string id)
         => await (await GetModuleAsync()).InvokeVoidAsync("AbstUIWindow.showBootstrapModal", id);
