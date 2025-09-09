@@ -860,7 +860,7 @@ When a movie stops, events occur in the following order:
 
         protected override void OnLoadState(LingoSpriteState state)
         {
-            if (state is not LingoSprite2DState s) return;
+            if (state is not LingoSprite2DState s || Puppet) return;
             if (s.Width > 0) Width = s.Width;
             if (s.Height > 0) Height = s.Height;
             //SetMember(s.Member); // Gives problems in SDL

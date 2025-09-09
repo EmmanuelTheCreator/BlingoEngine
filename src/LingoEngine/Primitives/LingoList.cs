@@ -18,7 +18,7 @@ namespace LingoEngine.Primitives
             get {
                 if (index < 1 || index > _items.Count)
                     return default!;
-                return _items[index];
+                return _items[index-1];
             }
             set => SetAt(index, value);
         }

@@ -105,6 +105,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             {
                 Sprite(35).Blend = 0;
                 myPause = false;
+                Sprite(35).LocZ = 35;
             }
             else
             {

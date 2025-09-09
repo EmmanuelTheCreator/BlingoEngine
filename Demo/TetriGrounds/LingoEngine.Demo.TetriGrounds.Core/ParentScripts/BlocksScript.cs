@@ -1,6 +1,7 @@
 using LingoEngine.Core;
 using LingoEngine.Movies;
 using LingoEngine.Movies.Events;
+using LingoEngine.Primitives;
 using LingoEngine.Texts;
 using System.Collections.Generic;
 #pragma warning disable IDE1006 // Naming Styles
@@ -15,7 +16,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
         private readonly GlobalVars _global;
         private readonly GfxScript myGfx;
         private readonly ScoreManagerScript myScoreManager;
-        private readonly List<List<BlockScript?>> myBlocks = new();
+        private readonly LingoList<LingoList<BlockScript?>> myBlocks = new();
         private int myWidth;
         private int myHeight;
         private bool myFinishedBlocks;
@@ -36,10 +37,10 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
         private void InitGrid(int width, int height)
         {
             myBlocks.Clear();
-            for (int j = 0; j < width; j++)
+            for (int j = 1; j <= width; j++)
             {
-                var col = new List<BlockScript?>();
-                for (int i = 0; i < height; i++) col.Add(null);
+                var col = new LingoList<BlockScript?>();
+                for (int i = 1; i <= height; i++) col.Add(null);
                 myBlocks.Add(col);
             }
             myWidth = width;
@@ -49,11 +50,12 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
         private void CreateStartLines()
         {
             myNmbrTypes = 7;
-            int NmbrLines = 0;
+            int nmbrLines = 0;
             var txt = Member<LingoMemberText>("T_StartLines");
-            if (txt != null) int.TryParse(txt.Text, out NmbrLines);
-            if (NmbrLines > myHeight - 5) NmbrLines = myHeight - 5;
-            for (int yy = myHeight; yy > myHeight - NmbrLines; yy--)
+            if (txt != null) int.TryParse(txt.Text, out nmbrLines);
+            if (nmbrLines > myHeight - 5) nmbrLines = myHeight - 5;
+            nmbrLines = 1; // for testing
+            for (int yy = myHeight; yy > myHeight - nmbrLines; yy--)
             {
                 bool empty = false;
                 for (int xx = 1; xx < myWidth; xx++)
@@ -86,15 +88,18 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
         public bool FullHorizontal(int y)
         {
             for (int i = 1; i < myWidth; i++)
-                if (myBlocks[i][y] == null)
+            {
+                var block = myBlocks[i][y];
+                if (block == null)
                     return false;
+            }
             return true;
         }
 
         public void RemoveHorizontal(int y)
         {
             myScoreManager.LineRemoved();
-            for (int i = 1; i < myWidth; i++)
+            for (int i = 1; i <= myWidth; i++)
             {
                 var b = myBlocks[i][y];
                 if (b != null)
@@ -106,7 +111,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             //  fall down all the blocks above
             for (int j = y; j >= 2; j--)
             {
-                for (int i = 1; i < myWidth; i++)
+                for (int i = 1; i <= myWidth; i++)
                 {
                     var up = myBlocks[i][j - 1];
                     if (up != null)
@@ -135,9 +140,9 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             if (!myFinishedBlocks) return;
             for (; myFinishedBlocksHori <= myBlocks.Count; myFinishedBlocksHori++)
             {
-                if (myFinishedBlocksVert <= myBlocks[myFinishedBlocksHori - 1].Count)
+                if (myFinishedBlocksVert <= myBlocks[myFinishedBlocksHori].Count)
                 {
-                    var b = myBlocks[myFinishedBlocksHori - 1][myFinishedBlocksVert - 1];
+                    var b = myBlocks[myFinishedBlocksHori][myFinishedBlocksVert];
                     b?.FinishBlock();
                 }
                 else
@@ -152,7 +157,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
 
         public void DestroyBlocks()
         {
-            foreach (List<BlockScript?> col in myBlocks)
+            foreach (var col in myBlocks)
             {
                 if (col == null) continue;
                 foreach (BlockScript? b in col)

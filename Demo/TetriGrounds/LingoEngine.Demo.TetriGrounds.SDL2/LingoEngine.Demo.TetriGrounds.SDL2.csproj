@@ -160,7 +160,7 @@
     <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\22_Destroy6.png" Link="Media\Data\22_Destroy6.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\23_Destroy7.png" Link="Media\Data\23_Destroy7.png">
+    <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\23_Destroy8.png" Link="Media\Data\23_Destroy8.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\24_Destroy9.png" Link="Media\Data\24_Destroy9.png">
