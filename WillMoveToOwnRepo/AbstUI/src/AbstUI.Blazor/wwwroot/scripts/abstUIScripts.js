@@ -121,6 +121,19 @@ export class abstCanvas {
     }
 }
 
+export class AbstScrollContainer {
+     static getScrollPosition(elementId) {
+        let element = document.getElementById(elementId);
+         if (element == null) return null;
+            return {
+                scrollTop: element.scrollTop,
+                scrollLeft: element.scrollLeft,
+                scrollHeight: element.scrollHeight,
+                clientHeight: element.clientHeight
+            };
+        }
+}
+
 export class AbstUIKey {
     static setCursor(cursor) {
         document.body.style.cursor = cursor;

@@ -74,6 +74,8 @@ public class AbstUIScriptResolver : IAsyncDisposable
 
     public async ValueTask SetCursor(string cursor)
         => await (await GetModuleAsync()).InvokeVoidAsync("AbstUIKey.setCursor", cursor);
+    public async ValueTask<ScrollData> GetScrollPosition(string elementRef)
+        => await (await GetModuleAsync()).InvokeAsync< ScrollData>("AbstScrollContainer.getScrollPosition", elementRef);
 
     public async ValueTask ShowBootstrapModal(string id)
         => await (await GetModuleAsync()).InvokeVoidAsync("AbstUIWindow.showBootstrapModal", id);
@@ -88,6 +90,14 @@ public class AbstUIScriptResolver : IAsyncDisposable
             var module = await _moduleTask;
             await module.DisposeAsync();
         }
+    }
+
+    public class ScrollData
+    {
+        public double ScrollTop { get; set; }
+        public double ScrollLeft { get; set; }
+        public double ScrollHeight { get; set; }
+        public double ClientHeight { get; set; }
     }
 }
 

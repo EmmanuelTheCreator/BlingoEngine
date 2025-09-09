@@ -1,10 +1,17 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace AbstUI.Blazor.Components.Containers;
 
 public partial class AbstBlazorScrollContainer
 {
+    public string NameUnique { get; private set; }
+
     private AbstBlazorScrollContainerComponent _component = default!;
+    private ElementReference myDiv;
+
+    [Inject]
+    AbstUIScriptResolver _scripts { get; set; } = default!;
 
     [CascadingParameter]
     private AbstBlazorComponentContainer ComponentContainer { get; set; } = default!;
@@ -12,9 +19,11 @@ public partial class AbstBlazorScrollContainer
     [Parameter]
     public AbstBlazorScrollContainerComponent Component { get; set; } = default!;
 
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        NameUnique = Guid.NewGuid().ToString();
         _component = Component;
         SyncFromComponent();
         _component.Changed += OnComponentChanged;
@@ -24,6 +33,13 @@ public partial class AbstBlazorScrollContainer
     {
         SyncFromComponent();
         RequestRender();
+    }
+
+    public async Task Scrolling(MouseEventArgs evt)
+    {
+        var scrollPosition = await _scripts.GetScrollPosition(NameUnique);
+        _component.ScrollHorizontal = (float)scrollPosition.ScrollLeft;
+        _component.ScrollVertical = (float)scrollPosition.ScrollTop;
     }
 
     private void SyncFromComponent()
