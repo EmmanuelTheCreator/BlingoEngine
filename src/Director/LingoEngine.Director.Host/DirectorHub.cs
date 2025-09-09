@@ -1,6 +1,9 @@
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
+using LingoEngine.Core;
 using LingoEngine.Director.Contracts;
+using LingoEngine.IO;
+using LingoEngine.Movies;
 using Microsoft.AspNetCore.SignalR;
 
 namespace LingoEngine.Director.Host;
@@ -11,12 +14,18 @@ namespace LingoEngine.Director.Host;
 public sealed class DirectorHub : Hub
 {
     private readonly IBus _bus;
+    private readonly ILingoPlayer _player;
     private static readonly ConcurrentDictionary<string, DateTime> _heartbeats = new();
 
     /// <summary>Initializes a new instance of the <see cref="DirectorHub"/> class.</summary>
-    public DirectorHub(IBus bus) => _bus = bus;
+    public DirectorHub(IBus bus, ILingoPlayer player)
+    {
+        _bus = bus;
+        _player = player;
+    }
 
-    // Client->Server
+    
+    #region Client->Server
     /// <summary>
     /// Initializes a new debug session.
     /// </summary>
@@ -48,9 +57,30 @@ public sealed class DirectorHub : Hub
     /// Returns a snapshot of the current movie state.
     /// </summary>
     public Task<MovieStateDto> GetMovieSnapshot()
-        => Task.FromResult(new MovieStateDto(0, 0, false));
+    {
+        if (_player.ActiveMovie is not null)
+        {
+            return Task.FromResult(new MovieStateDto(
+                Frame: _player.ActiveMovie.CurrentFrame,
+                Tempo: _player.ActiveMovie.Tempo,
+                IsPlaying: _player.ActiveMovie.IsPlaying));
+        }
+        return Task.FromResult(new MovieStateDto(0, 0, false));
+    }
+    public Task<MovieJsonDto> GetMovie()
+    {
+        if (_player.ActiveMovie == null)
+            return Task.FromResult(new MovieJsonDto(""));
+        var dto = new JsonStateRepository().Serialize((LingoMovie)_player.ActiveMovie,"");
+       
+        return Task.FromResult(new MovieJsonDto(dto));
+    }
 
-    // Server->Client (streams)
+    #endregion
+
+
+    #region Server->Client (streams)
+
     /// <summary>
     /// Streams stage frame snapshots to the connected client.
     /// </summary>
@@ -214,5 +244,8 @@ public sealed class DirectorHub : Hub
                 yield return style;
             }
         }
-    }
+    } 
+    #endregion
+
+
 }

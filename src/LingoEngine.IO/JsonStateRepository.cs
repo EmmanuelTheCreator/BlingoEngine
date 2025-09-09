@@ -19,17 +19,31 @@ using AbstUI.Primitives;
 
 namespace LingoEngine.IO;
 
-public class JsonStateRepository
+public interface IJsonStateRepository
+{
+    LingoMovie Load(LingoProjectDTO dto, LingoPlayer player, string resourceDir);
+    LingoMovie Load(LingoStageDTO stageDto, LingoMovieDTO movieDto, LingoPlayer player, string resourceDir);
+    LingoMovie Load(string filePath, LingoPlayer player);
+    void Save(string filePath, LingoMovie movie);
+}
+
+public class JsonStateRepository : IJsonStateRepository
 {
     public void Save(string filePath, LingoMovie movie)
     {
         var dir = Path.GetDirectoryName(filePath);
         if (string.IsNullOrEmpty(dir))
             dir = Directory.GetCurrentDirectory();
+        string json = Serialize(movie, dir);
+        File.WriteAllText(filePath, json);
+    }
+
+    public string Serialize(LingoMovie movie, string dir)
+    {
         var dto = ToDto(movie, dir);
         var options = new JsonSerializerOptions { WriteIndented = true };
         var json = JsonSerializer.Serialize(dto, options);
-        File.WriteAllText(filePath, json);
+        return json;
     }
 
     public LingoMovie Load(string filePath, LingoPlayer player)
@@ -39,9 +53,14 @@ public class JsonStateRepository
             dir = Directory.GetCurrentDirectory();
 
         var json = File.ReadAllText(filePath);
-        var dto = JsonSerializer.Deserialize<LingoProjectDTO>(json) ?? throw new Exception("Invalid movie file");
+        LingoProjectDTO dto = Deserialize(json);
 
         return Load(dto, player, dir);
+    }
+
+    public LingoProjectDTO Deserialize(string json)
+    {
+        return JsonSerializer.Deserialize<LingoProjectDTO>(json) ?? throw new Exception("Invalid movie file");
     }
 
     public LingoMovie Load(LingoProjectDTO dto, LingoPlayer player, string resourceDir)
@@ -642,7 +661,7 @@ public class JsonStateRepository
 
     private static string SavePicture(LingoMemberBitmap picture, string dir)
     {
-        if (picture.ImageData == null)
+        if (picture.ImageData == null || string.IsNullOrWhiteSpace(dir))
             return string.Empty;
 
         var ext = GetPictureExtension(picture);
@@ -654,6 +673,7 @@ public class JsonStateRepository
 
     private static string SaveSound(LingoMemberSound sound, string dir)
     {
+        if (string.IsNullOrWhiteSpace(dir)) return string.Empty;
         var source = !string.IsNullOrEmpty(sound.FileName) && File.Exists(sound.FileName)
             ? sound.FileName
             : sound.LinkedFilePath;

@@ -11,6 +11,7 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\LingoEngine.IO\LingoEngine.IO.csproj" />
     <ProjectReference Include="..\\..\\LingoEngine\\LingoEngine.csproj" />
     <ProjectReference Include="..\\LingoEngine.Director.Contracts\\LingoEngine.Director.Contracts.csproj" />
     <PackageReference Include="System.Threading.Channels" Version="8.*" />

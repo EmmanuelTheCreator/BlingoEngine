@@ -51,6 +51,7 @@ public interface IDirectorClient : IAsyncDisposable
 
     /// <summary>Requests a snapshot of the current movie state.</summary>
     Task<MovieStateDto> GetMovieSnapshotAsync(CancellationToken ct = default);
+    Task<MovieJsonDto> GetMovieAsync(CancellationToken ct = default);
 
     /// <summary>Sends a debug command to the host.</summary>
     Task SendCommandAsync(DebugCommandDto cmd, CancellationToken ct = default);
@@ -175,6 +176,12 @@ public sealed class DirectorClient : IDirectorClient
     {
         EnsureConnected();
         return _connection!.InvokeAsync<MovieStateDto>("GetMovieSnapshot", ct);
+    }
+    /// <inheritdoc />
+    public Task<MovieJsonDto> GetMovieAsync(CancellationToken ct = default)
+    {
+        EnsureConnected();
+        return _connection!.InvokeAsync<MovieJsonDto>("GetMovie", ct);
     }
 
     /// <inheritdoc />
