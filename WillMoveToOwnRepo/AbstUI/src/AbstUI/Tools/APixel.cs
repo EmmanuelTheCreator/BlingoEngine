@@ -45,6 +45,40 @@ public static class APixel
     }
 
     /// <summary>
+    /// Extracts a rectangular pixel region from <paramref name="src"/> into a new buffer.
+    /// </summary>
+    public static byte[] GetRectPixels(byte[] src, int width, ARect rect)
+    {
+        int x = (int)rect.Left;
+        int y = (int)rect.Top;
+        int w = (int)rect.Width;
+        int h = (int)rect.Height;
+        var result = new byte[w * h * 4];
+        for (int row = 0; row < h; row++)
+        {
+            int srcIdx = ((y + row) * width + x) * 4;
+            Buffer.BlockCopy(src, srcIdx, result, row * w * 4, w * 4);
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Writes pixel data from <paramref name="src"/> into the rectangle of <paramref name="dest"/>.
+    /// </summary>
+    public static void SetRectPixels(byte[] src, byte[] dest, int destWidth, ARect rect)
+    {
+        int x = (int)rect.Left;
+        int y = (int)rect.Top;
+        int w = (int)rect.Width;
+        int h = (int)rect.Height;
+        for (int row = 0; row < h; row++)
+        {
+            int destIdx = ((y + row) * destWidth + x) * 4;
+            Buffer.BlockCopy(src, row * w * 4, dest, destIdx, w * 4);
+        }
+    }
+
+    /// <summary>
     /// Computes the smallest rectangle that contains all differing pixels between two buffers.
     /// </summary>
     public static ARect ComputeDifferenceRect(int width, int height, byte[] from, byte[] to)
