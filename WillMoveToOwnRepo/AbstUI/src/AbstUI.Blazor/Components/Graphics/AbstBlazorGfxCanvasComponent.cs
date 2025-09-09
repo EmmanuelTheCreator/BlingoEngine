@@ -1,4 +1,7 @@
 using AbstUI.Components.Graphics;
+using AbstUI.Bitmaps;
+using AbstUI.Blazor;
+using AbstUI.Blazor.Bitmaps;
 using AbstUI.FrameworkCommunication;
 using AbstUI.Primitives;
 using AbstUI.Styles;
@@ -125,16 +128,15 @@ public class AbstBlazorGfxCanvasComponent : AbstBlazorComponentModelBase, IAbstF
             int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left,
             AbstFontStyle style = AbstFontStyle.Regular)
     {
-        //var col = ToCss(color ?? AColors.Black);
-        //var align = alignment switch
-        //{
-        //    AbstTextAlignment.Center => "center",
-        //    AbstTextAlignment.Right => "right",
-        //    _ => "left"
-        //};
-        //_drawActions.Add(ctx => _module!.InvokeVoidAsync("abstCanvas.drawText", ctx, position.X, position.Y, text, font, col, fontSize, align));
-        //MarkDirty();
-        throw new NotImplementedException();
+        var col = ToCss(color ?? AColors.Black);
+        var align = alignment switch
+        {
+            AbstTextAlignment.Center => "center",
+            AbstTextAlignment.Right => "right",
+            _ => "left"
+        };
+        _drawActions.Add(ctx => _module!.InvokeVoidAsync("abstCanvas.drawText", ctx, position.X, position.Y, text, font, col, fontSize, align));
+        MarkDirty();
     }
     public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)
     {
@@ -158,6 +160,19 @@ public class AbstBlazorGfxCanvasComponent : AbstBlazorComponentModelBase, IAbstF
 
     public IAbstTexture2D GetTexture(string? name = null)
     {
-        throw new NotImplementedException();
+        if (_context == null)
+            throw new InvalidOperationException("Canvas context not initialized.");
+
+        var scripts = new AbstUIScriptResolver(_js);
+        try
+        {
+            var data = scripts.CanvasGetImageData(_context, (int)Width, (int)Height).GetAwaiter().GetResult();
+            return AbstBlazorTexture2D.CreateFromPixelDataAsync(_js, scripts, data, (int)Width, (int)Height, name ?? string.Empty)
+                .GetAwaiter().GetResult();
+        }
+        finally
+        {
+            scripts.DisposeAsync().GetAwaiter().GetResult();
+        }
     }
 }
