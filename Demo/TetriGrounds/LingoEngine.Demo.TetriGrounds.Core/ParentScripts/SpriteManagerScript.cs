@@ -44,7 +44,8 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
                 if (pSpriteNums.Contains(pNum))
                     pNum += 100000;
                 pSpriteNums.Add(pNum);
-                Sprite(pNum).Ink = 36;
+                var sprite = Sprite(pNum);
+                sprite.Ink = 36;
                 return pNum;
             }
             else // create a new from the destroyed sprite list

@@ -1,5 +1,6 @@
 using LingoEngine.Members;
 using LingoEngine.Movies;
+using System.Collections.Generic;
 
 namespace LingoEngine.Sprites
 {
@@ -37,7 +38,7 @@ namespace LingoEngine.Sprites
         protected readonly LingoMovieEnvironment _environment;
         protected readonly LingoMovie _movie;
         protected readonly List<int> _mutedSprites = new List<int>();
-
+       
         protected int _maxSpriteNum = 0;
         protected int _maxSpriteChannelCount;
 
@@ -75,7 +76,7 @@ namespace LingoEngine.Sprites
         protected readonly Dictionary<int, LingoSpriteChannel> _spriteChannels = new();
         protected readonly Dictionary<string, TSprite> _spritesByName = new();
         protected readonly List<TSprite> _allTimeSprites = new();
-
+        protected readonly List<TSprite> _newPuppetSprites = new();
         protected readonly Dictionary<int, TSprite> _activeSprites = new();
         protected readonly List<TSprite> _activeSpritesOrdered = new();
         protected readonly List<TSprite> _enteredSprites = new();
@@ -133,6 +134,8 @@ namespace LingoEngine.Sprites
         {
             var sprite = OnCreateSprite(_movie, s =>
             {
+                // On Remove
+                _newPuppetSprites.Remove(s);
                 var index = _allTimeSprites.IndexOf(s);
                 if (index > -1)
                 {
@@ -339,6 +342,15 @@ namespace LingoEngine.Sprites
                     prev = Math.Max(prev, sp.EndFrame);
             }
             return prev;
+        }
+
+        internal void DoPuppetSprites()
+        {
+            if (_newPuppetSprites.Count == 0) return;
+            foreach (var sprite in _newPuppetSprites)
+                if (sprite.Puppet) // Important, ensure is still puppet, it can be changed programmatically.
+                    OnBeginSprite(sprite);
+            _newPuppetSprites.Clear();
         }
     }
 }

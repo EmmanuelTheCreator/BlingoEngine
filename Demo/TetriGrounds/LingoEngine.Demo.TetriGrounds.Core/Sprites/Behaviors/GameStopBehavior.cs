@@ -22,9 +22,11 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
         private int oldkey1, oldkey2, oldkey1Act1, oldkey1Act2, oldkey2Act1, oldkey2Act2;
         private int pPlayer1, pPlayer2;
         private int myTargetSprite;
+        private readonly GlobalVars _global;
 
-        public GameStopBehavior(ILingoMovieEnvironment env) : base(env)
+        public GameStopBehavior(ILingoMovieEnvironment env, GlobalVars global) : base(env)
         {
+            _global = global;
         }
 
         public void BeginSprite()
@@ -60,6 +62,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 
         public void KeyDown(LingoKeyEvent key)
         {
+            if (!_global.GameIsRunning) return;
             if (key.KeyPressed(35)) SendSprite<BgScriptBehavior>(myTargetSprite, s => s.PauseGame());
             if (key.KeyPressed(49)) SendSprite<BgScriptBehavior>(myTargetSprite, s => s.SpaceBar());
         }

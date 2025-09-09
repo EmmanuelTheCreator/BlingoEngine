@@ -3,6 +3,8 @@ using LingoEngine.Movies;
 using LingoEngine.Movies.Events;
 using LingoEngine.Texts;
 using System.Collections.Generic;
+#pragma warning disable IDE1006 // Naming Styles
+
 
 namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
 {
@@ -151,11 +153,14 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
         public void DestroyBlocks()
         {
             foreach (List<BlockScript?> col in myBlocks)
+            {
+                if (col == null) continue;
                 foreach (BlockScript? b in col)
                 {
                     b?.Destroy();
                     myBlocks[col.IndexOf(b)] = null!;
                 }
+            }
         }
 
         public void Destroy()

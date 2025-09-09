@@ -73,6 +73,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 
         public void StartNewGame()
         {
+            _global.GameIsRunning = true;
             if (_global.SpriteManager == null)
             {
                 _global.SpriteManager = new SpriteManager(_env);
@@ -89,6 +90,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 
         public void TeminateGame()
         {
+            _global.GameIsRunning = false;
             myPlayerBlock?.Destroy();
             myBlocks?.Destroy();
             myGfx?.Destroy();

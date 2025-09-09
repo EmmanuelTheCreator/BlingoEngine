@@ -225,6 +225,8 @@ namespace LingoEngine.LGodot.Sprites
 
         public void Show()
         {
+            if (_isDisposed) 
+                return;
             if (!_wasShown)
             {
                 _wasShown = true;
@@ -235,6 +237,7 @@ namespace LingoEngine.LGodot.Sprites
         }
         public void Hide()
         {
+            if (_isDisposed) return;
             if (!_wasShown)
                 return;
             _wasShown = false;

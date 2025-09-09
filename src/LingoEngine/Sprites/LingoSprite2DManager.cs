@@ -8,6 +8,7 @@ namespace LingoEngine.Sprites
     {
         //protected readonly Dictionary<int, LingoSprite2D> _frameSpriteBehaviors = new();
         protected LingoStageMouse _lingoMouse;
+        
         internal LingoSprite2DManager(LingoMovie movie, LingoMovieEnvironment environment) : base(LingoSprite2D.SpriteNumOffset, movie, environment)
         {
             _lingoMouse = (LingoStageMouse)environment.Mouse;
@@ -24,6 +25,8 @@ namespace LingoEngine.Sprites
              c.EndFrame = end;
              c.LocZ = num;
              configure?.Invoke(c);
+             if (c.Puppet)
+                 _newPuppetSprites.Add(c);
          });
         internal LingoSprite2D AddSprite(int num, int begin, int end, float x, float y, Action<LingoSprite2D>? configure = null)
            => AddSprite(num, c =>
@@ -34,6 +37,8 @@ namespace LingoEngine.Sprites
                c.LocV = y;
                c.LocZ = num;
                configure?.Invoke(c);
+               if (c.Puppet)
+                   _newPuppetSprites.Add(c);
            });
 
         protected override LingoSprite? OnAdd(int spriteNum, int begin, int end, ILingoMember? member)
@@ -225,6 +230,6 @@ namespace LingoEngine.Sprites
 
         internal int GetMaxLocZ() => _activeSpritesOrdered.Max(x => x.LocZ);
 
-
+       
     }
 }

@@ -6,15 +6,36 @@ using LingoEngine.Movies;
 
 namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 {
-    internal class ButtonStartGameBehavior : LingoSpriteBehavior, IHasMouseDownEvent
+    internal class ButtonStartGameBehavior : LingoSpriteBehavior, IHasMouseDownEvent, IHasKeyDownEvent
     {
-        public ButtonStartGameBehavior(ILingoMovieEnvironment env) : base(env)
+        private readonly GlobalVars _global;
+
+        public ButtonStartGameBehavior(ILingoMovieEnvironment env, GlobalVars global) : base(env)
         {
+            _global = global;
         }
+
+       
 
         public void MouseDown(LingoMouseEvent mouse)
         {
+            StartNewGame();
+        }
+        public void KeyDown(LingoKeyEvent key)
+        {
+            var code = key.Key;
+            Console.WriteLine($"Key Down: {code}: {key.KeyCode} ");
+            if (key.Key == "Enter")
+                StartNewGame(); 
+        }
+
+        private void StartNewGame()
+        {
+            if (_global.GameIsRunning)
+                return;
             SendSprite<BgScriptBehavior>(4, s => s.NewGame());
         }
+
+
     }
 }

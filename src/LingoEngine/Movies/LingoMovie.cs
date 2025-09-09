@@ -309,7 +309,12 @@ namespace LingoEngine.Movies
                     _sprite2DManager.BeginSprites();
                     _spriteManagers.ForEach(x => x.BeginSprites());
                 }
-                _lastFrame = _currentFrame;
+                else
+                {
+                    // Are there new puppet sprites set.
+                    _sprite2DManager.DoPuppetSprites();
+                }
+                    _lastFrame = _currentFrame;
 
                 if (_needToRaiseStartMovie)
                     _EventMediator.RaiseStartMovie();
