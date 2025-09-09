@@ -1,4 +1,14 @@
+@using Microsoft.AspNetCore.Components
+@using System.Collections.Generic
 @inherits AbstBlazorComponentBase
-<div id="@Name" style="@BuildWrapperStyle()">
-    @_component.ContentFragment
-</div>
+
+<CascadingValue Value="_component.ChildContainer">
+    <div id="@Name" style="@BuildWrapperStyle()">
+        @if (_component.ContentFrameworkNode is { } node)
+        {
+            var type = _component.ChildContainer.GetRazorComponentType(node);
+            var parameters = new Dictionary<string, object?> { ["Component"] = node };
+            <DynamicComponent Type="@type" Parameters="@parameters" />
+        }
+    </div>
+</CascadingValue>
