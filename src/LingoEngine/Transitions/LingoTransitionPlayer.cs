@@ -1,5 +1,6 @@
 using System;
 using AbstUI.Primitives;
+using AbstUI.Tools;
 using LingoEngine.Core;
 using LingoEngine.Stages;
 using LingoEngine.Transitions.TransitionLibrary;
@@ -55,7 +56,7 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer, IDisposable
         _computeDiffRect = affects == LingoTransitionAffects.ChangingAreaOnly;
         if (affects == LingoTransitionAffects.Custom)
         {
-            _targetRect = ClampRect(sprite.Member!.Rect, _from.Width, _from.Height);
+            _targetRect = sprite.Member!.Rect.Clamp(_from.Width, _from.Height);
         }
         else
         {
@@ -84,7 +85,7 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer, IDisposable
         _toPixels = _to.GetPixels();
         if (_computeDiffRect)
         {
-            _targetRect = ComputeDiffRect(_from!.Width, _from.Height, _fromPixels!, _toPixels);
+            _targetRect = APixel.ComputeDifferenceRect(_from!.Width, _from.Height, _fromPixels!, _toPixels);
             if (_targetRect.Width <= 0 || _targetRect.Height <= 0)
                 _targetRect = ARect.New(0, 0, _from.Width, _from.Height);
         }
@@ -99,58 +100,10 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer, IDisposable
             return _toPixels ?? _fromPixels ?? Array.Empty<byte>();
 
         var width = _from!.Width;
-        var rect = ClampRect(_targetRect, width, _from.Height);
+        var rect = _targetRect.Clamp(width, _from.Height);
         var result = (byte[])_fromPixels.Clone();
-        CopyRectPixels(_toPixels, result, width, rect);
+        APixel.CopyRectPixels(_toPixels, result, width, rect);
         return result;
-    }
-
-    private static void CopyRectPixels(byte[] src, byte[] dest, int width, ARect rect)
-    {
-        int x = (int)rect.Left;
-        int y = (int)rect.Top;
-        int w = (int)rect.Width;
-        int h = (int)rect.Height;
-        for (int row = 0; row < h; row++)
-        {
-            int srcIdx = ((y + row) * width + x) * 4;
-            Buffer.BlockCopy(src, srcIdx, dest, srcIdx, w * 4);
-        }
-    }
-
-    private static ARect ComputeDiffRect(int width, int height, byte[] from, byte[] to)
-    {
-        int minX = width;
-        int minY = height;
-        int maxX = -1;
-        int maxY = -1;
-        for (int y = 0; y < height; y++)
-        {
-            int rowIndex = y * width * 4;
-            for (int x = 0; x < width; x++)
-            {
-                int idx = rowIndex + x * 4;
-                if (from[idx] != to[idx] || from[idx + 1] != to[idx + 1] || from[idx + 2] != to[idx + 2] || from[idx + 3] != to[idx + 3])
-                {
-                    if (x < minX) minX = x;
-                    if (y < minY) minY = y;
-                    if (x > maxX) maxX = x;
-                    if (y > maxY) maxY = y;
-                }
-            }
-        }
-        if (maxX < minX || maxY < minY)
-            return ARect.New(0, 0, width, height);
-        return ARect.New(minX, minY, maxX - minX + 1, maxY - minY + 1);
-    }
-
-    private static ARect ClampRect(ARect rect, int width, int height)
-    {
-        int x = (int)MathCompat.Clamp(rect.Left, 0, width);
-        int y = (int)MathCompat.Clamp(rect.Top, 0, height);
-        int w = (int)MathCompat.Clamp(rect.Width, 0, width - x);
-        int h = (int)MathCompat.Clamp(rect.Height, 0, height - y);
-        return ARect.New(x, y, w, h);
     }
 
     public void Tick()
@@ -169,7 +122,7 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer, IDisposable
         if (progress >= 1f) progress = 1f;
         var blended = _transition.StepFrame(_from.Width, _from.Height, _fromPixels, _targetPixels, progress);
         _current!.SetRGBAPixels(blended);
-        _stage.UpdateTransitionFrame(_current, ARect.New(0, 0, _from.Width, _from.Height));
+        _stage.UpdateTransitionFrame(_current, _targetRect);
         if (progress >= 1f)
         {
             _stage.HideTransition();
