@@ -239,7 +239,10 @@ namespace LingoEngine.LGodot.Sprites
                 return;
             _wasShown = false;
             _hideMethod(this);
-            _Container2D.GetParent().RemoveChild(_Container2D);
+            var parent = _Container2D.GetParent();
+            parent.RemoveChild(_Container2D);
+            if (parent is Node2D node2D)
+                node2D.QueueRedraw();
         }
 
         public void SetPosition(APoint lingoPoint)

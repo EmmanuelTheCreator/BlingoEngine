@@ -188,7 +188,7 @@ namespace LingoEngine.LGodot.Movies
             ImageTexture tex2 = ImageTexture.CreateFromImage(texx);
             var wrap2 = new AbstGodotTexture2D(tex2, $"StageShot_{_activeMovie!.CurrentFrame}");
 #if DEBUG
-            wrap2.DebugWriteToDiskInc();
+            //wrap2.DebugWriteToDiskInc();
 #endif
             return wrap2;
         }
@@ -207,6 +207,7 @@ namespace LingoEngine.LGodot.Movies
             _transitionStartSprite.Visible = true;
 
             var img = godotTex.Texture.GetImage();
+           // godotTex.DebugWriteToDiskInc();
             var overlayTex = ImageTexture.CreateFromImage(img);
             _transitionSprite.Texture = overlayTex;
             _transitionSprite.RegionEnabled = true;
@@ -227,7 +228,9 @@ namespace LingoEngine.LGodot.Movies
                 _transitionSprite.Position = new Vector2(targetRect.Left + targetRect.Width / 2f,
                     targetRect.Top + targetRect.Height / 2f);
                 _transitionSprite.Visible = true;
+#if DEBUG
                 //godotTex.DebugWriteToDiskInc();
+#endif
             }
         }
 

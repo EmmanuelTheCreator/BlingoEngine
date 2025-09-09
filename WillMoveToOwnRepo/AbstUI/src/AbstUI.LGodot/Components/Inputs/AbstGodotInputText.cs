@@ -244,12 +244,13 @@ namespace AbstUI.LGodot.Components.Inputs
             if (_lineEdit != null)
             {
                 _lineEdit.TextChanged -= OnLineEditTextChanged;
-                
+                _lineEdit.FocusExited -= OnTextEdit_FocusExited;
             }
             if (_textEdit != null)
             {
                 _textEdit.TextChanged -= OnTextEditTextChanged;
                 _textEdit.CaretChanged -= _textEdit_CaretChanged;
+                _textEdit.FocusExited -= OnTextEdit_FocusExited;
             }
             if (_control != null)
                 _control.Ready -= ControlReady;
@@ -259,10 +260,12 @@ namespace AbstUI.LGodot.Components.Inputs
             {
                 _textEdit = new TextEdit();
                 _control = _textEdit;
+                _textEdit.DeselectOnFocusLossEnabled = false;
             }
             else
             {
                 _lineEdit = new LineEdit();
+                _lineEdit.DeselectOnFocusLossEnabled = false;
                 _control = _lineEdit;
             }
 
@@ -271,37 +274,49 @@ namespace AbstUI.LGodot.Components.Inputs
             _control.SizeFlagsVertical = 0;
 
             if (_lineEdit != null)
+            {
                 _lineEdit.TextChanged += OnLineEditTextChanged;
+                _lineEdit.FocusExited += OnTextEdit_FocusExited;
+            }
             if (_textEdit != null)
             {
                 _textEdit.TextChanged += OnTextEditTextChanged;
                 _textEdit.CaretChanged += _textEdit_CaretChanged;
+                _textEdit.FocusExited += OnTextEdit_FocusExited;
             }
 
             _control.Ready += ControlReady;
             return _control;
         }
 
-       
+
+        public void Dispose()
+        {
+            if (_lineEdit != null)
+            {
+                _lineEdit.TextChanged -= OnLineEditTextChanged;
+                _lineEdit.FocusExited -= OnTextEdit_FocusExited;
+            }
+            if (_textEdit != null)
+            {
+                _textEdit.TextChanged -= OnTextEditTextChanged;
+                _textEdit.CaretChanged -= _textEdit_CaretChanged;
+                _textEdit.FocusExited -= OnTextEdit_FocusExited;
+            }
+
+            _control.QueueFree();
+        }
+        private void OnTextEdit_FocusExited()
+        {
+            var selection = GetCaretPosition();
+            var hasSelection = HasSelection;
+        }
 
         private void ControlReady()
         {
             _control.CustomMinimumSize = new Vector2(_wantedWidth, _wantedHeight);
             _control.Size = new Vector2(_wantedWidth, _wantedHeight);
         }
-        public void Dispose()
-        {
-            if (_lineEdit != null)
-                _lineEdit.TextChanged -= OnLineEditTextChanged;
-            if (_textEdit != null)
-            {
-                _textEdit.TextChanged -= OnTextEditTextChanged;
-                _textEdit.CaretChanged -= _textEdit_CaretChanged;
-            }
-
-            _control.QueueFree();
-        }
-
         private void OnLineEditTextChanged(string _)
         {
             _text = _lineEdit?.Text ?? string.Empty;

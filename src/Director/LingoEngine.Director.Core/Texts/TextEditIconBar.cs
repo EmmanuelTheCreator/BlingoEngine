@@ -34,8 +34,8 @@ public class TextEditIconBar
     private AbstColorPicker _colorPicker;
     private AbstInputNumber<int> _fontSize;
     private AbstInputNumber<int> _lineHeight;
-    private AbstInputSpinBox _marginLeft;
-    private AbstInputSpinBox _marginRight;
+    private AbstInputNumber<int> _marginLeft;
+    private AbstInputNumber<int> _marginRight;
     private AbstInputCombobox _fontsCombo;
     private bool _isSettingMemberValues;
 
@@ -214,7 +214,7 @@ public class TextEditIconBar
 
     private void CreateFontButtons(ILingoFrameworkFactory factory, int actionBarHeight, AbstWrapPanel container)
     {
-        _memberWidth = factory.CreateInputNumberInt("MEmberWidth", 0, 800, v =>
+        _memberWidth = factory.CreateInputNumberInt("MemberWidth", 0, 800, v =>
         {
             if (_member == null || _isSettingMemberValues)
                 return;
@@ -222,8 +222,8 @@ public class TextEditIconBar
             _member.Width = v;
             MemberWidthChanged?.Invoke(v);
         });
-        _memberWidth.Width = 40;
-        container.AddItem(CreateLabel("LabelMEmber Width", "Width:"));
+        _memberWidth.Width = 35;
+        container.AddItem(CreateLabel("LabelMember Width", "Width:"));
         container.AddItem(_memberWidth);
 
 
@@ -233,7 +233,7 @@ public class TextEditIconBar
             _currentStyle.FontSize = (int)v;
             FontSizeChanged?.Invoke((int)v);
         });
-        _fontSize.Width = 30;
+        _fontSize.Width = 25;
         container.AddItem(CreateLabel("LabelFontSize", "FontSize:"));
         container.AddItem(_fontSize);
 
@@ -243,11 +243,11 @@ public class TextEditIconBar
             _currentStyle.LineHeight = (int)v;
             LineHeightChanged?.Invoke((int)v);
         });
-        _lineHeight.Width = 30;
+        _lineHeight.Width = 25;
         container.AddItem(CreateLabel("LabelLineHeight", "LineHeight:"));
         container.AddItem(_lineHeight);
 
-        _marginLeft = factory.CreateSpinBox("MarginLeft", 0, 500, v =>
+        _marginLeft = factory.CreateInputNumberInt("MarginLeft", 0, 500, v =>
         {
             if (_isSettingMemberValues) return;
             _currentStyle.MarginLeft = (int)v;
@@ -257,7 +257,7 @@ public class TextEditIconBar
         container.AddItem(CreateLabel("LabelMargin", "Margin:"));
         container.AddItem(_marginLeft);
 
-        _marginRight = factory.CreateSpinBox("MarginRight", 0, 500, v =>
+        _marginRight = factory.CreateInputNumberInt("MarginRight", 0, 500, v =>
         {
             if (_isSettingMemberValues) return;
             _currentStyle.MarginRight = (int)v;

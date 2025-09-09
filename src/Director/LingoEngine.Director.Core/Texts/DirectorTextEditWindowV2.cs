@@ -1,3 +1,4 @@
+using AbstUI.Components;
 using AbstUI.Components.Containers;
 using AbstUI.Components.Graphics;
 using AbstUI.Components.Inputs;
@@ -34,6 +35,8 @@ namespace LingoEngine.Director.Core.Texts
         private MemberNavigationBar<ILingoMemberTextBase> _navBar;
         private bool _isSettingMemberValues = false;
         private readonly AbstLabel _caretLabel;
+        private readonly AbstLayoutWrapper _caretLabelContainer;
+
         public TextEditIconBar IconBar { get; }
         public AbstTextStyle CurrentStyle => IconBar.CurrentStyle;
         public AbstPanel RootPanel => _rootPanel;
@@ -72,7 +75,7 @@ namespace LingoEngine.Director.Core.Texts
             columns.AddItem(_markdownInput);
 
             _caretLabel = factory.CreateLabel("CaretPositionLabel", "Ln:0 Ch:0");
-            _rootPanel.AddItem(_caretLabel, 0, 475);
+            _caretLabelContainer = (AbstLayoutWrapper)_rootPanel.AddItem(_caretLabel, 0, 475);
             _markdownInput.OnCaretChanged += (l, c) => _caretLabel.Text = $"Ln:{l} Ch:{c}";
 
             Width = 820;
@@ -179,7 +182,7 @@ namespace LingoEngine.Director.Core.Texts
             _markdownInput.Height = contentHeight;
             _previewCanvas.Width = innerWidth / 2;
             _previewCanvas.Height = contentHeight;
-            _caretLabel.Y = height - 25;
+            _caretLabelContainer.Y = height - 25;
         }
 
         public void SetMemberValues(ILingoMemberTextBase textMember)
