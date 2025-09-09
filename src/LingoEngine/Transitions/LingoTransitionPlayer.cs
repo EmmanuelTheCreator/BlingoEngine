@@ -18,6 +18,8 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer, IDisposable
     private byte[]? _fromPixels;
     private byte[]? _toPixels;
     private byte[]? _targetPixels;
+    private byte[]? _fromRectPixels;
+    private byte[]? _currentPixels;
     private ARect _targetRect;
     private bool _computeDiffRect;
     private LingoBaseTransition? _transition;
@@ -41,7 +43,7 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer, IDisposable
         _from?.Dispose();
         _to?.Dispose();
         _from = _to = _current = null;
-        _fromPixels = _toPixels = _targetPixels = null;
+        _fromPixels = _toPixels = _targetPixels = _fromRectPixels = _currentPixels = null;
         _waitingForToFrame = false;
         _isPlaying = false;
 
@@ -51,6 +53,7 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer, IDisposable
 
         _from = _stage.GetScreenshot();
         _fromPixels = _from.GetPixels();
+        _currentPixels = (byte[])_fromPixels.Clone();
 
         var affects = sprite.Member?.Affects ?? LingoTransitionAffects.EntireStage;
         _computeDiffRect = affects == LingoTransitionAffects.ChangingAreaOnly;
@@ -89,21 +92,10 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer, IDisposable
             if (_targetRect.Width <= 0 || _targetRect.Height <= 0)
                 _targetRect = ARect.New(0, 0, _from.Width, _from.Height);
         }
-        _targetPixels = PrepareTargetPixels();
+        _fromRectPixels = APixel.GetRectPixels(_fromPixels!, _from!.Width, _targetRect);
+        _targetPixels = APixel.GetRectPixels(_toPixels, _from.Width, _targetRect);
         _waitingForToFrame = false;
         _isPlaying = true;
-    }
-
-    private byte[] PrepareTargetPixels()
-    {
-        if (_fromPixels == null || _toPixels == null)
-            return _toPixels ?? _fromPixels ?? Array.Empty<byte>();
-
-        var width = _from!.Width;
-        var rect = _targetRect.Clamp(width, _from.Height);
-        var result = (byte[])_fromPixels.Clone();
-        APixel.CopyRectPixels(_toPixels, result, width, rect);
-        return result;
     }
 
     public void Tick()
@@ -115,13 +107,14 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer, IDisposable
             _stage.RequestNextFrameScreenshot(CaptureToFrame);
             return;
         }
-        if (!_isPlaying || _fromPixels == null || _targetPixels == null || _from == null || _transition == null)
+        if (!_isPlaying || _fromRectPixels == null || _targetPixels == null || _from == null || _transition == null || _currentPixels == null)
             return;
         _tick++;
         float progress = (float)_tick / _duration;
         if (progress >= 1f) progress = 1f;
-        var blended = _transition.StepFrame(_from.Width, _from.Height, _fromPixels, _targetPixels, progress);
-        _current!.SetRGBAPixels(blended);
+        var blended = _transition.StepFrame((int)_targetRect.Width, (int)_targetRect.Height, _fromRectPixels, _targetPixels, progress);
+        APixel.SetRectPixels(blended, _currentPixels, _from.Width, _targetRect);
+        _current!.SetRGBAPixels(_currentPixels);
         _stage.UpdateTransitionFrame(_current, _targetRect);
         if (progress >= 1f)
         {
@@ -130,7 +123,7 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer, IDisposable
             _to?.Dispose();
             _current?.Dispose();
             _current = _from = _to = null;
-            _fromPixels = _toPixels = _targetPixels = null;
+            _fromPixels = _toPixels = _targetPixels = _fromRectPixels = _currentPixels = null;
             _transition = null;
             _computeDiffRect = false;
             _targetRect = ARect.New(0, 0, 0, 0);
