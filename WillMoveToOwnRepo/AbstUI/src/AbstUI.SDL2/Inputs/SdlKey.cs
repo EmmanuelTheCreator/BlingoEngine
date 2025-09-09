@@ -4,6 +4,7 @@ using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Inputs;
 
+
 public class SdlKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
 {
     private readonly HashSet<SDL.SDL_Keycode> _keys = new();
@@ -18,14 +19,14 @@ public class SdlKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
         if (e.type == SDL.SDL_EventType.SDL_KEYDOWN && e.key.repeat == 0)
         {
             _keys.Add(e.key.keysym.sym);
-            _lastCode = (int)e.key.keysym.sym;
+            _lastCode = SdlKeyCodeMap.ToLingo(e.key.keysym.sym);
             _lastKey = SDL.SDL_GetKeyName(e.key.keysym.sym);
             _lingoKey?.DoKeyDown();
         }
         else if (e.type == SDL.SDL_EventType.SDL_KEYUP)
         {
             _keys.Remove(e.key.keysym.sym);
-            _lastCode = (int)e.key.keysym.sym;
+            _lastCode = SdlKeyCodeMap.ToLingo(e.key.keysym.sym);
             _lastKey = SDL.SDL_GetKeyName(e.key.keysym.sym);
             _lingoKey?.DoKeyUp();
         }
@@ -46,9 +47,13 @@ public class SdlKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
         _ => false
     };
 
-    public bool KeyPressed(char key) => _keys.Contains((SDL.SDL_Keycode)char.ToUpperInvariant(key));
+    public bool KeyPressed(char key)
+    {
+        int lingoCode = char.IsLetter(key) ? char.ToUpperInvariant(key) : key;
+        return _keys.Contains(SdlKeyCodeMap.ToSDL(lingoCode));
+    }
 
-    public bool KeyPressed(int keyCode) => _keys.Contains((SDL.SDL_Keycode)keyCode);
+    public bool KeyPressed(int keyCode) => _keys.Contains(SdlKeyCodeMap.ToSDL(keyCode));
 
     public string Key => _lastKey;
     public int KeyCode => _lastCode;

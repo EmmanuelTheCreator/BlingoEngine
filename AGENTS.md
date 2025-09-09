@@ -21,7 +21,10 @@ These instructions apply to the entire repository.
  - Other visual test projects such as `WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.*` are also manual console apps; build or run them with `dotnet build`/`dotnet run` rather than `dotnet test`.
 
 ## Code Style
-- Use `dotnet format` to fix style issues when needed.
+ - Use `dotnet format` to fix style issues when needed.
+  - Format only the project that owns your changes:
+
+    `dotnet format <path/to/project.csproj> --include <relative/path/to/file.cs> -v diagnostic`
 - Prefer `rg` (ripgrep) over `grep` for searching the codebase.
 - Do not remove existing comments from code.
 - When writing new classes, place members in the order: fields, then properties, then constructors.

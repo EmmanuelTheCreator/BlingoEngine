@@ -31,14 +31,14 @@ public partial class AbstGodotKey : Node, IAbstFrameworkKey, IFrameworkFor<AbstK
             {
                 if (!_pressed.Contains(k.Keycode))
                     _pressed.Add(k.Keycode);
-                _lastCode = (int)k.Keycode;
+                _lastCode = GodotKeyCodeMap.ToLingo(k.Keycode);
                 _lastKey = k.KeyLabel.ToString();
                 _lingoKey.Value.DoKeyDown();
             }
             else
             {
                 _pressed.Remove(k.Keycode);
-                _lastCode = (int)k.Keycode;
+                _lastCode = GodotKeyCodeMap.ToLingo(k.Keycode);
                 _lastKey = k.KeyLabel.ToString();
                 _lingoKey.Value.DoKeyUp();
             }
@@ -61,10 +61,10 @@ public partial class AbstGodotKey : Node, IAbstFrameworkKey, IFrameworkFor<AbstK
     };
 
     public bool KeyPressed(char key)
-        => _pressed.Contains((Key)char.ToUpperInvariant(key));
+        => _pressed.Contains(GodotKeyCodeMap.ToGodot(char.IsLetter(key) ? char.ToUpperInvariant(key) : key));
 
     public bool KeyPressed(int keyCode)
-        => _pressed.Contains((Key)keyCode);
+        => _pressed.Contains(GodotKeyCodeMap.ToGodot(keyCode));
 
     public string Key => _lastKey;
     public int KeyCode => _lastCode;
