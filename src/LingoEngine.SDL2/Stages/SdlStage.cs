@@ -33,7 +33,7 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
         _rootContext = rootContext;
         _clock = clock;
         _factory = factory;
-       
+
     }
 
     internal LingoSdlRootContext RootContext => _rootContext;
@@ -69,7 +69,7 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
     }
 
     public void Dispose()
-    { 
+    {
         _movies.Clear();
         if (_spritesTexture != nint.Zero)
             SDL.SDL_DestroyTexture(_spritesTexture);
@@ -85,11 +85,11 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
     }
     public IAbstTexture2D GetScreenshot()
     {
-        var texture = new SdlTexture2D(_spritesTexture, _stage.Width, _stage.Height, "StageShot_"+_activeMovie!.CurrentFrame, _factory.RootContext.Renderer);
+        var texture = new SdlTexture2D(_spritesTexture, _stage.Width, _stage.Height, "StageShot_" + _activeMovie!.CurrentFrame, _factory.RootContext.Renderer);
         var clone = (SdlTexture2D)texture.Clone();
-//#if DEBUG
-//        clone.DebugWriteToDiskInc(_factory.RootContext.Renderer);
-//#endif
+        //#if DEBUG
+        //        clone.DebugWriteToDiskInc(_factory.RootContext.Renderer);
+        //#endif
         return clone;
     }
 
@@ -97,7 +97,7 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
     public void ShowTransition(IAbstTexture2D startTexture)
     {
         _startFrame?.Dispose();
-        _startFrame = (SdlTexture2D)startTexture.Clone(); 
+        _startFrame = (SdlTexture2D)startTexture.Clone();
         _isTransitioning = true;
     }
 
@@ -117,7 +117,7 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
         _transitionFrame = null;
         _startFrame?.Dispose();
         _startFrame = null;
-       
+
 #if DEBUG
         SdlTexture2D.ResetDebuggerInc();
 #endif
@@ -168,14 +168,15 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
         }
         if (_transitionFrame != null)
         {
-            var dst = new SDL.SDL_Rect
+            var src = new SDL.SDL_Rect
             {
                 x = (int)_transitionRect.Left,
                 y = (int)_transitionRect.Top,
                 w = (int)_transitionRect.Width,
                 h = (int)_transitionRect.Height
             };
-            SDL.SDL_RenderCopy(context.Renderer, _transitionFrame.Handle, IntPtr.Zero, ref dst);
+            var dst = src;
+            SDL.SDL_RenderCopy(context.Renderer, _transitionFrame.Handle, ref src, ref dst);
         }
     }
 
@@ -200,5 +201,5 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
         return tex;
     }
 
-   
+
 }

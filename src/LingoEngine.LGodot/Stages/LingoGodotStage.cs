@@ -26,6 +26,7 @@ namespace LingoEngine.LGodot.Movies
         private SubViewportContainer _stageSVC = null!;
         private Node2D _stageRoot = null!;
         private Node2D _spriteLayer = null!;
+        private Sprite2D _transitionStartSprite = null!;
         private Sprite2D _transitionSprite = null!;
         float ILingoFrameworkStage.Scale { get => base.Scale.X; set => base.Scale = new Vector2(value, value); }
         public LingoStage LingoStage => _lingoStage;
@@ -36,8 +37,8 @@ namespace LingoEngine.LGodot.Movies
         {
             _lingoClock = (LingoClock)lingoPlayer.Clock;
             _overlay = new LingoDebugOverlay(new Core.LingoGodotDebugOverlay(this), lingoPlayer);
-           
-            
+
+
             _stageSV = new SubViewport
             {
                 Disable3D = true,
@@ -63,13 +64,15 @@ namespace LingoEngine.LGodot.Movies
             _spriteLayer = new Node2D { Name = "SpriteLayer" };
             _stageRoot.AddChild(_spriteLayer);
 
-            _transitionSprite = new Sprite2D();
+            _transitionStartSprite = new Sprite2D { Visible = false, ZIndex = 1000 };
+            AddChild(_transitionStartSprite);
+            _transitionSprite = new Sprite2D { Visible = false, ZIndex = 1001 };
             AddChild(_transitionSprite);
         }
 
         public override void _Ready()
         {
-            
+
             base._Ready();
         }
         public override void _Process(double delta)
@@ -89,7 +92,7 @@ namespace LingoEngine.LGodot.Movies
             }
         }
 
-     
+
 
         internal void Init(LingoStage lingoInstance, LingoPlayer lingoPlayer)
         {
@@ -105,7 +108,9 @@ namespace LingoEngine.LGodot.Movies
             _stageSVC.CustomMinimumSize = new Vector2(_lingoStage.Width, _lingoStage.Height);
             _bg.Size = new Vector2(_lingoStage.Width, _lingoStage.Height);
             _bg.CustomMinimumSize = new Vector2(_lingoStage.Width, _lingoStage.Height);
-            _transitionSprite.Position = new Vector2(LingoStage.Width / 2, LingoStage.Height / 2);
+            var center = new Vector2(LingoStage.Width / 2f, LingoStage.Height / 2f);
+            _transitionStartSprite.Position = center;
+            _transitionSprite.Position = center;
         }
 
         internal void ShowMovie(LingoGodotMovie lingoGodotMovie)
@@ -158,7 +163,7 @@ namespace LingoEngine.LGodot.Movies
                 RenderingServer.FramePostDraw += OnFramePostDraw_Screenshot; // capture & restore
             }
         }
-       
+
         private void OnFramePostDraw_Screenshot()
         {
             try
@@ -176,12 +181,12 @@ namespace LingoEngine.LGodot.Movies
             }
         }
 
-       
+
         public IAbstTexture2D GetScreenshot()
         {
             var texx = _stageSV.GetTexture().GetImage();
             ImageTexture tex2 = ImageTexture.CreateFromImage(texx);
-           var wrap2 = new AbstGodotTexture2D(tex2, $"StageShot_{_activeMovie!.CurrentFrame}");
+            var wrap2 = new AbstGodotTexture2D(tex2, $"StageShot_{_activeMovie!.CurrentFrame}");
 #if DEBUG
             wrap2.DebugWriteToDiskInc();
 #endif
@@ -197,11 +202,17 @@ namespace LingoEngine.LGodot.Movies
             AbstGodotTexture2D.ResetDebuggerInc();
 #endif
             var godotTex = (AbstGodotTexture2D)startTexture;
-            // keep the ImageTexture reference, just assign it once
-            _transitionSprite.Texture = godotTex.Texture;
+            _transitionStartSprite.Texture = godotTex.Texture;
+            _transitionStartSprite.Position = new Vector2(startTexture.Width / 2f, startTexture.Height / 2f);
+            _transitionStartSprite.Visible = true;
+
+            var img = godotTex.Texture.GetImage();
+            var overlayTex = ImageTexture.CreateFromImage(img);
+            _transitionSprite.Texture = overlayTex;
             _transitionSprite.RegionEnabled = true;
             _transitionSprite.RegionRect = new Rect2(0, 0, startTexture.Width, startTexture.Height);
-            _transitionSprite.Visible = true;
+            _transitionSprite.Position = new Vector2(startTexture.Width / 2f, startTexture.Height / 2f);
+            _transitionSprite.Visible = false;
         }
 
 
@@ -212,8 +223,10 @@ namespace LingoEngine.LGodot.Movies
             {
                 // reuse existing ImageTexture, update its data
                 imgTex.Update(godotTex.Texture.GetImage());
-                _transitionSprite.RegionEnabled = true;
                 _transitionSprite.RegionRect = targetRect.ToRect2();
+                _transitionSprite.Position = new Vector2(targetRect.Left + targetRect.Width / 2f,
+                    targetRect.Top + targetRect.Height / 2f);
+                _transitionSprite.Visible = true;
                 //godotTex.DebugWriteToDiskInc();
             }
         }
@@ -221,6 +234,8 @@ namespace LingoEngine.LGodot.Movies
 
         public void HideTransition()
         {
+            _transitionStartSprite.Texture = null;
+            _transitionStartSprite.Visible = false;
             _transitionSprite.Texture = null;
             _transitionSprite.Visible = false;
         }
