@@ -34,6 +34,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
         _registry = registry;
         _mapper.Map<AbstBlazorWrapPanelComponent, AbstBlazorWrapPanel>();
         _mapper.Map<AbstBlazorPanelComponent, AbstBlazorPanel>();
+        _mapper.Map<AbstBlazorZoomBoxComponent, AbstBlazorPanel>();
         _mapper.Map<AbstBlazorTabContainerComponent, AbstBlazorTabContainer>();
         _mapper.Map<AbstBlazorScrollContainerComponent, AbstBlazorScrollContainer>();
         _mapper.Map<AbstBlazorButtonComponent, AbstBlazorButton>();
@@ -93,6 +94,16 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
         InitComponent(panel);
         panel.Name = name;
         return panel;
+    }
+
+    public AbstZoomBox CreateZoomBox(string name)
+    {
+        var box = new AbstZoomBox();
+        var impl = new AbstBlazorZoomBoxComponent(_registry, _mapper);
+        box.Init(impl);
+        InitComponent(box);
+        box.Name = name;
+        return box;
     }
     public AbstLayoutWrapper CreateLayoutWrapper(IAbstNode content, float? x, float? y)
     {
