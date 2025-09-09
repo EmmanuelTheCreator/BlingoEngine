@@ -11,6 +11,12 @@ using LingoEngine.Blazor.Movies;
 using LingoEngine.Blazor.Sprites;
 using LingoEngine.Blazor.Stages;
 using LingoEngine.Blazor.FilmLoops;
+using LingoEngine.Blazor.Bitmaps;
+using LingoEngine.Blazor.Shapes;
+using LingoEngine.Blazor.Sounds;
+using LingoEngine.Blazor.Texts;
+using LingoEngine.Blazor.Scripts;
+using LingoEngine.Blazor.Core;
 using LingoEngine.Casts;
 using LingoEngine.Core;
 using LingoEngine.FrameworkCommunication;
@@ -24,8 +30,10 @@ using LingoEngine.Sprites;
 using LingoEngine.Stages;
 using LingoEngine.Texts;
 using LingoEngine.Events;
+using LingoEngine.Scripts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
+using System.Net.Http;
 using AbstUI.Windowing;
 using AbstUI.Components.Graphics;
 using AbstUI.Components.Containers;
@@ -75,7 +83,8 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
     {
         var blazorStage = stage.Framework<LingoBlazorStage>();
         var scripts = _services.GetRequiredService<AbstUIScriptResolver>();
-        var impl = new LingoBlazorMovie(blazorStage, lingoMovie, m => _disposables.Remove(m), scripts);
+        var root = _services.GetRequiredService<LingoBlazorRootPanel>();
+        var impl = new LingoBlazorMovie(blazorStage, lingoMovie, m => _disposables.Remove(m), scripts, root);
         lingoMovie.Init(impl);
         _disposables.Add(impl);
         return lingoMovie;
@@ -117,8 +126,26 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
         Type t when t == typeof(LingoMemberRealMedia) => (CreateMemberRealMedia(cast, numberInCast, name) as T)!,
         _ => throw new NotImplementedException()
     };
-    public LingoMemberBitmap CreateMemberBitmap(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
-    public LingoMemberSound CreateMemberSound(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
+    public LingoMemberBitmap CreateMemberBitmap(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
+    {
+        var js = _services.GetRequiredService<IJSRuntime>();
+        var scripts = _services.GetRequiredService<AbstUIScriptResolver>();
+        var http = _services.GetRequiredService<HttpClient>();
+        var impl = new LingoBlazorMemberBitmap(js, scripts, http);
+        var member = new LingoMemberBitmap((LingoCast)cast, impl, numberInCast, name, fileName ?? string.Empty, regPoint);
+        impl.Init(member);
+        _disposables.Add(impl);
+        return member;
+    }
+    public LingoMemberSound CreateMemberSound(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
+    {
+        var http = _services.GetRequiredService<HttpClient>();
+        var impl = new LingoBlazorMemberSound(http);
+        var member = new LingoMemberSound(impl, (LingoCast)cast, numberInCast, name, fileName ?? string.Empty);
+        impl.Init(member);
+        _disposables.Add(impl);
+        return member;
+    }
     public LingoFilmLoopMember CreateMemberFilmLoop(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
         var js = _services.GetRequiredService<IJSRuntime>();
@@ -129,9 +156,38 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
         _disposables.Add(impl);
         return member;
     }
-    public LingoMemberShape CreateMemberShape(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
-    public LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
-    public LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
+    public LingoMemberShape CreateMemberShape(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
+    {
+        var js = _services.GetRequiredService<IJSRuntime>();
+        var scripts = _services.GetRequiredService<AbstUIScriptResolver>();
+        var impl = new LingoBlazorMemberShape(js, scripts);
+        var member = new LingoMemberShape((LingoCast)cast, impl, numberInCast, name, fileName ?? string.Empty, regPoint);
+        impl.Init(member);
+        _disposables.Add(impl);
+        return member;
+    }
+    public LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
+    {
+        var js = _services.GetRequiredService<IJSRuntime>();
+        var scripts = _services.GetRequiredService<AbstUIScriptResolver>();
+        var fonts = _services.GetRequiredService<IAbstFontManager>();
+        var impl = new LingoBlazorMemberField(js, scripts, fonts);
+        var member = new LingoMemberField((LingoCast)cast, impl, numberInCast, ComponentFactory, name, fileName ?? string.Empty, regPoint);
+        impl.Init(member);
+        _disposables.Add(impl);
+        return member;
+    }
+    public LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
+    {
+        var js = _services.GetRequiredService<IJSRuntime>();
+        var scripts = _services.GetRequiredService<AbstUIScriptResolver>();
+        var fonts = _services.GetRequiredService<IAbstFontManager>();
+        var impl = new LingoBlazorMemberText(js, scripts, fonts);
+        var member = new LingoMemberText((LingoCast)cast, impl, numberInCast, ComponentFactory, name, fileName ?? string.Empty, regPoint);
+        impl.Init(member);
+        _disposables.Add(impl);
+        return member;
+    }
     public LingoMemberQuickTimeMedia CreateMemberQuickTimeMedia(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
         var impl = new LingoBlazorMemberMedia();
@@ -146,10 +202,32 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
         impl.Init(member);
         return member;
     }
-    public LingoMember CreateScript(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
-    public LingoMember CreateEmpty(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default) => throw new NotImplementedException();
-    public LingoSound CreateSound(ILingoCastLibsContainer castLibsContainer) => throw new NotImplementedException();
-    public LingoSoundChannel CreateSoundChannel(int number) => throw new NotImplementedException();
+    public LingoMember CreateScript(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
+    {
+        var impl = new LingoBlazorMemberScript();
+        var member = new LingoMemberScript(impl, (LingoCast)cast, numberInCast, name, fileName ?? string.Empty, regPoint);
+        return member;
+    }
+    public LingoMember CreateEmpty(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
+    {
+        var impl = new BlazorFrameworkMemberEmpty();
+        var member = new LingoMember(impl, LingoMemberType.Empty, (LingoCast)cast, numberInCast, name, fileName ?? string.Empty, regPoint);
+        return member;
+    }
+    public LingoSound CreateSound(ILingoCastLibsContainer castLibsContainer)
+    {
+        var impl = new LingoBlazorSound();
+        var sound = new LingoSound(impl, castLibsContainer, this);
+        impl.Init(sound);
+        return sound;
+    }
+    public LingoSoundChannel CreateSoundChannel(int number)
+    {
+        var impl = new LingoBlazorSoundChannel(number);
+        var channel = new LingoSoundChannel(impl, number);
+        impl.Init(channel);
+        return channel;
+    }
     public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height) => _gfxFactory.CreateGfxCanvas(name, width, height);
     public AbstWrapPanel CreateWrapPanel(AOrientation orientation, string name) => _gfxFactory.CreateWrapPanel(orientation, name);
     public AbstPanel CreatePanel(string name) => _gfxFactory.CreatePanel(name);
@@ -175,8 +253,10 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
     public AbstMenu CreateContextMenu(object window) => _gfxFactory.CreateContextMenu(window);
     public AbstHorizontalLineSeparator CreateHorizontalLineSeparator(string name) => _gfxFactory.CreateHorizontalLineSeparator(name);
     public AbstVerticalLineSeparator CreateVerticalLineSeparator(string name) => _gfxFactory.CreateVerticalLineSeparator(name);
-    public T CreateBehavior<T>(LingoMovie lingoMovie) where T : LingoSpriteBehavior => throw new NotImplementedException();
-    public T CreateMovieScript<T>(LingoMovie lingoMovie) where T : LingoMovieScript => throw new NotImplementedException();
+    public T CreateBehavior<T>(LingoMovie lingoMovie) where T : LingoSpriteBehavior
+        => lingoMovie.GetServiceProvider().GetRequiredService<T>();
+    public T CreateMovieScript<T>(LingoMovie lingoMovie) where T : LingoMovieScript
+        => lingoMovie.GetServiceProvider().GetRequiredService<T>();
 
     public void Dispose()
     {

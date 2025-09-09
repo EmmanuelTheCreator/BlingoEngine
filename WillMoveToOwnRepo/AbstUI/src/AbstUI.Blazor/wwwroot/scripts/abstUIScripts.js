@@ -16,6 +16,12 @@ export class abstCanvas {
         document.body.appendChild(canvas);
     }
 
+    static addCanvasToElement(element, canvas) {
+        if (element && canvas) {
+            element.appendChild(canvas);
+        }
+    }
+
     static setCanvasVisible(canvas, visible) {
         canvas.style.display = visible ? 'block' : 'none';
     }

@@ -1,0 +1,16 @@
+@using Microsoft.AspNetCore.Components
+@inject LingoEngine.Blazor.Movies.LingoBlazorRootPanel RootPanel
+
+<div @ref="_root"></div>
+
+@code {
+    private ElementReference _root;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            RootPanel.SetRoot(_root);
+        }
+    }
+}
