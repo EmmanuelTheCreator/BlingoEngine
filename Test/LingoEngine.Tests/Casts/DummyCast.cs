@@ -33,8 +33,8 @@ internal class DummyCast : ILingoCast
 
     // methods
     public void Dispose() { }
-    public T? GetMember<T>(int number) where T : class, ILingoMember => null;
-    public T? GetMember<T>(string name) where T : class, ILingoMember => null;
+    public T? GetMember<T>(int number) where T :  ILingoMember => default;
+    public T? GetMember<T>(string name) where T : ILingoMember => default;
     public int FindEmpty() => 1;
     public ILingoMember Add(LingoMemberType type, int numberInCast, string name, string fileName = "", APoint regPoint = default)
     {
@@ -55,8 +55,8 @@ internal class DummyCast : ILingoCast
         public ILingoMember? this[string name] => null;
         public event Action<ILingoMember>? MemberAdded;
         public event Action<ILingoMember>? MemberDeleted;
-        public T? Member<T>(int number) where T : class, ILingoMember => null;
-        public T? Member<T>(string name) where T : class, ILingoMember => null;
+        public T? Member<T>(int number) where T : ILingoMember => default;
+        public T? Member<T>(string name) where T : ILingoMember => default;
     }
 }
 

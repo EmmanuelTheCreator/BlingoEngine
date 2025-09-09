@@ -62,7 +62,7 @@ namespace AbstUI.Texts
         {
             if (AbstMarkdownReader.TryExtractStyleSheet(ref markdown, out var parsed))
                 styles = parsed;
-
+            
             _markdown = markdown ?? string.Empty;
             Styles = styles;
             _styleStack.Clear();
@@ -217,7 +217,10 @@ namespace AbstUI.Texts
         private void RenderFast(APoint start)
         {
             var style = _styles.Values.First();
-            var lines = _markdown.Split('\n');
+
+            var textOnly = AbstMarkdownReader.RetrieveTextOnly(_markdown);
+
+            var lines = textOnly.Split('\n');
             var pos = start;
             var fontSize = style.FontSize;
             if (fontSize <= 0) fontSize = 12;

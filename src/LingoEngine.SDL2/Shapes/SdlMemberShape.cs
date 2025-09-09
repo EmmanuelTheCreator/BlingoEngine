@@ -97,16 +97,26 @@ namespace LingoEngine.SDL2.Shapes
             IsLoaded = false;
         }
 
-        public void Dispose() { Unload(); }
+        public void Dispose() 
+        {
+            Unload(); 
+        }
 
         public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
 
 
         public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         {
+            
             if (_texture == null)
                 Preload();
-            return _texture;
+            else if (_texture.IsDisposed)
+            {
+                _texture = null;
+                IsLoaded = false;
+                Preload();
+            }
+            return _texture?.Clone(_sdlRootContext.Renderer);
         }
 
 

@@ -299,8 +299,10 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbs
     {
         if (_lingoSprite2D.Member is { } member)
         {
-            Width = member.Width;
-            Height = member.Height;
+            if(Width ==0)
+                Width = member.Width;
+            if (Height == 0)
+                Height = member.Height;
         }
         IsDirtyMember = true;
         ComponentContext.QueueRedraw(this);

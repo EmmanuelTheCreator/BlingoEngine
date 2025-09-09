@@ -81,14 +81,19 @@ namespace LingoEngine.Tools
                     {
                         var mdContent = _resourceManager.ReadTextFile(mdFile) ?? string.Empty;
                         var markDownData = AbstMarkdownReader.Read(mdContent);
+#if DEBUG
+                        if (mdFile.Contains("39_xtraNames"))
+                        {
+                        }
+#endif
                         textMember.SetTextMD(markDownData);
 #if DEBUG
-                        //if (newMember.Name.Contains("scoor"))
-                        //{
-                        //    textMember.Preload();
-                        //}
+                        if (mdFile.Contains("39_xtraNames"))
+                        {
+                            textMember.Preload();
+                        }
 #endif
-                        
+
                     }
                     else if (_resourceManager.FileExists(rtfFile))
                     {

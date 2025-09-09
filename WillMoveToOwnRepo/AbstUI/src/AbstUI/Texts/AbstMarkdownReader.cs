@@ -52,8 +52,12 @@ namespace AbstUI.Texts
                 // 7. Remove underline __text__ → keep only "text"
                 text = Regex.Replace(text, @"__(.*?)__", "$1");
 
-                // 8. Collapse multiple spaces/newlines
-                text = Regex.Replace(text, @"\s+", " ");
+                // 8. Collapse multiple spaces (but keep newlines)
+                text = Regex.Replace(text, @"[^\S\r\n]+", " ");
+
+                // 9. Collapse 3+ newlines into 2 (keep paragraph separation)
+                text = Regex.Replace(text, @"(\r?\n){3,}", "\n\n");
+
 
                 return text.Trim();
             }

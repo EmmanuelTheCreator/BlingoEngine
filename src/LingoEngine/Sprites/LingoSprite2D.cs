@@ -399,6 +399,11 @@ When a movie stops, events occur in the following order:
 
         internal override void DoBeginSprite()
         {
+            if (_textureSubscription == null && _member != null)
+            {
+                _member.UsedBy(this);
+                MemberHasChanged();
+            }
             // Subscribe all behaviors
             _behaviors.ForEach(b =>
             {
