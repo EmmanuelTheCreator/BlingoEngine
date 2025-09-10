@@ -27,6 +27,8 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
     private readonly AbstUIScriptResolver _scripts;
     private readonly HashSet<LingoBlazorMovie> _movies = new();
     private LingoBlazorMovie? _activeMovie;
+
+    public event Action? Changed;
     private LingoStage _stage = null!;
 
     private readonly CancellationTokenSource _loopCts = new();
@@ -66,11 +68,13 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
         if (lingoMovie == null)
         {
             _activeMovie = null;
+            Changed?.Invoke();
             return;
         }
         var movie = lingoMovie.Framework<LingoBlazorMovie>();
         _activeMovie = movie;
         movie.Show();
+        Changed?.Invoke();
     }
 
     /// <inheritdoc />
@@ -83,14 +87,7 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
 
     public IAbstTexture2D GetScreenshot()
     {
-        if (_activeMovie?.Context is not IJSObjectReference ctx)
-            return new NullTexture(_stage.Width, _stage.Height, $"StageShot_{_activeMovie?.CurrentFrame ?? 0}");
-
-        var data = _scripts.CanvasGetImageData(ctx, _stage.Width, _stage.Height).GetAwaiter().GetResult();
-        return AbstBlazorTexture2D
-            .CreateFromPixelDataAsync(_js, _scripts, data, _stage.Width, _stage.Height,
-                $"StageShot_{_activeMovie.CurrentFrame}")
-            .GetAwaiter().GetResult();
+        return new NullTexture(_stage.Width, _stage.Height, $"StageShot_{_activeMovie?.CurrentFrame ?? 0}");
     }
 
     public void ShowTransition(IAbstTexture2D startTexture)
@@ -98,26 +95,13 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
         _transitionStart?.Dispose();
         _transitionStart = (AbstBlazorTexture2D)startTexture.Clone();
         _isTransitioning = true;
-        if (_activeMovie?.Context is IJSObjectReference ctx)
-        {
-            ctx.InvokeVoidAsync("drawImage", _transitionStart.Canvas, 0, 0, _stage.Width, _stage.Height)
-                .GetAwaiter().GetResult();
-        }
+        // Transition drawing not implemented in DOM composition yet.
     }
 
     public void UpdateTransitionFrame(IAbstTexture2D texture, ARect targetRect)
     {
-        if (!_isTransitioning || _activeMovie?.Context is not IJSObjectReference ctx)
+        if (!_isTransitioning)
             return;
-        if (_transitionStart != null)
-            ctx.InvokeVoidAsync("drawImage", _transitionStart.Canvas, 0, 0, _stage.Width, _stage.Height)
-                .GetAwaiter().GetResult();
-        if (texture is AbstBlazorTexture2D tex)
-        {
-            ctx.InvokeVoidAsync("drawImage", tex.Canvas,
-                targetRect.Left, targetRect.Top, targetRect.Width, targetRect.Height)
-                .GetAwaiter().GetResult();
-        }
     }
 
     public void HideTransition()
@@ -126,6 +110,7 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
         _transitionStart?.Dispose();
         _transitionStart = null;
         _activeMovie?.UpdateStage();
+        Changed?.Invoke();
     }
 
     public void Dispose()
@@ -192,4 +177,6 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
             return clone;
         }
     }
+
+    internal LingoBlazorMovie? ActiveMovie => _activeMovie;
 }

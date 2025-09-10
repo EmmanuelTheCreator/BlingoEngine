@@ -72,7 +72,9 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
     {
         var js = _services.GetRequiredService<IJSRuntime>();
         var scripts = _services.GetRequiredService<AbstUIScriptResolver>();
+        var root = _services.GetRequiredService<LingoBlazorRootPanel>();
         var impl = new LingoBlazorStage((LingoClock)lingoPlayer.Clock, js, scripts);
+        root.Stage = impl;
         var stage = new LingoStage(impl);
         impl.Init(stage);
         _disposables.Add(impl);
