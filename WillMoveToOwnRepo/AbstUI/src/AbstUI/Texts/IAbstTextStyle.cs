@@ -18,4 +18,5 @@ public interface IAbstTextStyle
     int LineHeight { get; set; }
     int MarginLeft { get; set; }
     int MarginRight { get; set; }
+    int LetterSpacing { get; set; }
 }

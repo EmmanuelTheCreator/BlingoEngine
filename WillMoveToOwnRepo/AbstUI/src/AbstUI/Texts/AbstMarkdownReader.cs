@@ -15,53 +15,53 @@ namespace AbstUI.Texts
             {
                 data.Markdown = markdownContent;
                 data.Styles = styles.ToDictionary(x => x.Name);
-            } 
+            }
             data.PlainText = RetrieveTextOnly(data.Markdown);
             return data;
         }
 
-     
-            /// <summary>
-            /// Removes Markdown and custom {{...}} tags, leaving only plain text.
-            /// </summary>
-            public static string RetrieveTextOnly(string markdown)
-            {
-                if (string.IsNullOrEmpty(markdown))
-                    return string.Empty;
 
-                var text = markdown;
+        /// <summary>
+        /// Removes Markdown and custom {{...}} tags, leaving only plain text.
+        /// </summary>
+        public static string RetrieveTextOnly(string markdown)
+        {
+            if (string.IsNullOrEmpty(markdown))
+                return string.Empty;
 
-                // 1. Remove custom {{...}} tags
-                text = Regex.Replace(text, @"\{\{.*?\}\}", string.Empty, RegexOptions.Singleline);
+            var text = markdown;
 
-                // 2. Remove images ![alt](url)
-                text = Regex.Replace(text, @"!\[.*?\]\(.*?\)", string.Empty);
+            // 1. Remove custom {{...}} tags
+            text = Regex.Replace(text, @"\{\{.*?\}\}", string.Empty, RegexOptions.Singleline);
 
-                // 3. Replace links [text](url) → keep only "text"
-                text = Regex.Replace(text, @"\[(.*?)\]\(.*?\)", "$1");
+            // 2. Remove images ![alt](url)
+            text = Regex.Replace(text, @"!\[.*?\]\(.*?\)", string.Empty);
 
-                // 4. Remove headings (#, ##, ###) → keep only text
-                text = Regex.Replace(text, @"^\s{0,3}#{1,6}\s*", string.Empty, RegexOptions.Multiline);
+            // 3. Replace links [text](url) → keep only "text"
+            text = Regex.Replace(text, @"\[(.*?)\]\(.*?\)", "$1");
 
-                // 5. Remove bold **text** → keep only "text"
-                text = Regex.Replace(text, @"\*\*(.*?)\*\*", "$1");
+            // 4. Remove headings (#, ##, ###) → keep only text
+            text = Regex.Replace(text, @"^\s{0,3}#{1,6}\s*", string.Empty, RegexOptions.Multiline);
 
-                // 6. Remove italic *text* → keep only "text"
-                text = Regex.Replace(text, @"\*(.*?)\*", "$1");
+            // 5. Remove bold **text** → keep only "text"
+            text = Regex.Replace(text, @"\*\*(.*?)\*\*", "$1");
 
-                // 7. Remove underline __text__ → keep only "text"
-                text = Regex.Replace(text, @"__(.*?)__", "$1");
+            // 6. Remove italic *text* → keep only "text"
+            text = Regex.Replace(text, @"\*(.*?)\*", "$1");
 
-                // 8. Collapse multiple spaces (but keep newlines)
-                text = Regex.Replace(text, @"[^\S\r\n]+", " ");
+            // 7. Remove underline __text__ → keep only "text"
+            text = Regex.Replace(text, @"__(.*?)__", "$1");
 
-                // 9. Collapse 3+ newlines into 2 (keep paragraph separation)
-                text = Regex.Replace(text, @"(\r?\n){3,}", "\n\n");
+            // 8. Collapse multiple spaces (but keep newlines)
+            text = Regex.Replace(text, @"[^\S\r\n]+", " ");
+
+            // 9. Collapse 3+ newlines into 2 (keep paragraph separation)
+            text = Regex.Replace(text, @"(\r?\n){3,}", "\n\n");
 
 
-                return text.Trim();
-            }
-        
+            return text.Trim();
+        }
+
 
         public static bool TryExtractStyleSheet(ref string markdown, out IEnumerable<AbstTextStyle> styles)
         {
@@ -103,7 +103,8 @@ namespace AbstUI.Texts
                     Underline = kv.Value.TextDecoration?.Equals("underline", StringComparison.OrdinalIgnoreCase) == true,
                     LineHeight = kv.Value.LineHeight ?? 0,
                     MarginLeft = kv.Value.MarginLeft ?? 0,
-                    MarginRight = kv.Value.MarginRight ?? 0
+                    MarginRight = kv.Value.MarginRight ?? 0,
+                    LetterSpacing = kv.Value.LetterSpacing ?? 0
                 }).ToList();
                 markdown = markdown.Substring(end + 2);
                 return true;

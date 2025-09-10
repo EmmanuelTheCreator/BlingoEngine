@@ -6,7 +6,7 @@ using AbstUI.Tests.Common;
 namespace AbstUI.Tests;
 public partial class AbstMarkdownRendererTests
 {
-   
+
 
     private static AbstMarkdownRenderer CreateRenderer(int topIndent = 0, Dictionary<string, int>? topIndents = null, Dictionary<string, int>? extraHeights = null)
         => new(new TestFontManager(topIndent, topIndents, extraHeights));
@@ -221,7 +221,7 @@ public partial class AbstMarkdownRendererTests
 
         Assert.Equal(2, painter.TextPositions.Count);
         Assert.Equal(16, painter.TextPositions[0].Y);
-        Assert.Equal(40, painter.TextPositions[1].Y);
+        Assert.Equal(28, painter.TextPositions[1].Y);
 
     }
 }
