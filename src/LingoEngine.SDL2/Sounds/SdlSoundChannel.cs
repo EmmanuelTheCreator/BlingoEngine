@@ -9,7 +9,7 @@ public class SdlSoundChannel : ILingoFrameworkSoundChannel, IDisposable
 {
     private static readonly Dictionary<int, SdlSoundChannel> _channels = new();
     private static readonly SDL_mixer.ChannelFinishedDelegate _channelFinishedCallback = OnChannelFinished;
-
+    private bool _desiredStateStop = false;
     static SdlSoundChannel()
     {
         SDL_mixer.Mix_ChannelFinished(_channelFinishedCallback);
@@ -63,6 +63,7 @@ public class SdlSoundChannel : ILingoFrameworkSoundChannel, IDisposable
         IsPlaying = true;
         CurrentTime = StartTime;
         _elapsedTimer.Restart();
+        _desiredStateStop = false;
     }
 
     public void PlayNow(LingoMemberSound member)
@@ -76,16 +77,19 @@ public class SdlSoundChannel : ILingoFrameworkSoundChannel, IDisposable
         IsPlaying = true;
         CurrentTime = StartTime;
         _elapsedTimer.Restart();
+        _desiredStateStop = false;
     }
 
     public void Stop()
     {
+        _desiredStateStop = true;
         SDL_mixer.Mix_HaltChannel(ChannelNumber);
         if (_chunk != nint.Zero)
         {
             SDL_mixer.Mix_FreeChunk(_chunk);
             _chunk = nint.Zero;
         }
+        
         IsPlaying = false;
         CurrentTime = 0;
         _elapsedTimer.Reset();
@@ -115,6 +119,12 @@ public class SdlSoundChannel : ILingoFrameworkSoundChannel, IDisposable
 
     public void Repeat()
     {
+        if (_desiredStateStop)
+            return;
+        if (_chunk == nint.Zero && _currentFile != null)
+        {
+            _chunk = SDL_mixer.Mix_LoadWAV(_currentFile);
+        }
         if (_chunk != nint.Zero)
         {
             SDL_mixer.Mix_HaltChannel(ChannelNumber);
