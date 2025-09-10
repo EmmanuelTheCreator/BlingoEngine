@@ -65,12 +65,30 @@ public class LingoBlazorMovie : ILingoFrameworkMovie, IDisposable
         _scripts.CanvasClear(_ctx, _stage.LingoStage.BackgroundColor.ToCss(), _width, _height).GetAwaiter().GetResult();
         foreach (var s in _drawnSprites.OrderBy(s => s.ZIndex))
         {
-            if (s.Texture is not AbstBlazorTexture2D tex) continue;
             var drawW = s.DesiredWidth > 0 ? s.DesiredWidth : s.Width;
             var drawH = s.DesiredHeight > 0 ? s.DesiredHeight : s.Height;
             var x = s.X - s.RegPoint.X;
             var y = s.Y - s.RegPoint.Y;
-            _ctx.InvokeVoidAsync("drawImage", tex.Canvas, x, y, drawW, drawH).GetAwaiter().GetResult();
+
+            _ctx.InvokeVoidAsync("save").GetAwaiter().GetResult();
+            _scripts.CanvasSetGlobalAlpha(_ctx, s.Blend).GetAwaiter().GetResult();
+            var centerX = x + drawW / 2;
+            var centerY = y + drawH / 2;
+            _ctx.InvokeVoidAsync("translate", centerX, centerY).GetAwaiter().GetResult();
+            _ctx.InvokeVoidAsync("scale", s.FlipH ? -1 : 1, s.FlipV ? -1 : 1).GetAwaiter().GetResult();
+            if (Math.Abs(s.Rotation) > 0.001)
+                _ctx.InvokeVoidAsync("rotate", s.Rotation * Math.PI / 180.0).GetAwaiter().GetResult();
+            if (s.Texture is AbstBlazorTexture2D tex)
+            {
+                _ctx.InvokeVoidAsync("drawImage", tex.Canvas, -drawW / 2, -drawH / 2, drawW, drawH).GetAwaiter().GetResult();
+            }
+            else if (s.Video is not null)
+            {
+                _ctx.InvokeVoidAsync("drawImage", s.Video, -drawW / 2, -drawH / 2, drawW, drawH).GetAwaiter().GetResult();
+                var ct = _scripts.MediaGetCurrentTime(s.Video).GetAwaiter().GetResult();
+                s.UpdateCurrentTime(ct);
+            }
+            _ctx.InvokeVoidAsync("restore").GetAwaiter().GetResult();
             s.Update();
         }
     }
@@ -80,7 +98,8 @@ public class LingoBlazorMovie : ILingoFrameworkMovie, IDisposable
         var sprite = new LingoBlazorSprite2D(lingoSprite,
             s => _drawnSprites.Add(s),
             s => _drawnSprites.Remove(s),
-            s => { _drawnSprites.Remove(s); _allSprites.Remove(s); });
+            s => { _drawnSprites.Remove(s); _allSprites.Remove(s); },
+            _scripts);
         _allSprites.Add(sprite);
     }
 

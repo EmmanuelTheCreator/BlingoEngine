@@ -5,6 +5,9 @@ using LingoEngine.Sprites;
 using LingoEngine.Medias;
 using LingoEngine.Members;
 using LingoEngine.Blazor.Medias;
+using Microsoft.JSInterop;
+using AbstUI.Blazor;
+using LingoEngine.Blazor.Util;
 
 namespace LingoEngine.Blazor.Sprites;
 
@@ -19,8 +22,11 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
     private readonly Action<LingoBlazorSprite2D> _hide;
     private readonly Action<LingoBlazorSprite2D> _remove;
     private readonly LingoSprite2D _lingoSprite;
+    private readonly AbstUIScriptResolver _scripts;
     private IAbstTexture2D? _texture;
     private string? _videoUrl;
+    private IJSObjectReference? _video;
+    private DotNetObjectReference<object>? _videoRef;
     private int _duration;
     private int _currentTime;
     private LingoMediaStatus _mediaStatus;
@@ -31,11 +37,13 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
     public LingoBlazorSprite2D(LingoSprite2D sprite,
         Action<LingoBlazorSprite2D> show,
         Action<LingoBlazorSprite2D> hide,
-        Action<LingoBlazorSprite2D> remove)
+        Action<LingoBlazorSprite2D> remove,
+        AbstUIScriptResolver scripts)
     {
         _show = show;
         _hide = hide;
         _remove = remove;
+        _scripts = scripts;
         _lingoSprite = sprite;
         sprite.Init(this);
         ZIndex = sprite.SpriteNum;
@@ -100,7 +108,14 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
                 var blazorMedia = media.Framework<LingoBlazorMemberMedia>();
                 blazorMedia.Preload();
                 _videoUrl = blazorMedia.Url;
-                _duration = blazorMedia.Duration;
+                if (_videoUrl != null)
+                {
+                    _videoRef?.Dispose();
+                    _videoRef = DotNetObjectReference.Create<object>(this);
+                    var id = ElementIdGenerator.Create(_lingoSprite.Member?.Name ?? "video");
+                    _video = _scripts.MediaCreateVideo(id, _videoUrl, _videoRef).GetAwaiter().GetResult();
+                    _duration = (int)_scripts.MediaGetDuration(_video).GetAwaiter().GetResult();
+                }
                 _mediaStatus = blazorMedia.MediaStatus;
             }
             IsDirtyMember = true;
@@ -126,20 +141,37 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
     }
 
     /// <inheritdoc/>
-    public void Play() => _mediaStatus = LingoMediaStatus.Playing;
+    public void Play()
+    {
+        if (_video != null)
+            _scripts.MediaPlayVideo(_video).GetAwaiter().GetResult();
+        _mediaStatus = LingoMediaStatus.Playing;
+    }
 
     /// <inheritdoc/>
     public void Stop()
     {
+        if (_video != null)
+            _scripts.MediaStopVideo(_video).GetAwaiter().GetResult();
         _mediaStatus = LingoMediaStatus.Closed;
         _currentTime = 0;
     }
 
     /// <inheritdoc/>
-    public void Pause() => _mediaStatus = LingoMediaStatus.Paused;
+    public void Pause()
+    {
+        if (_video != null)
+            _scripts.MediaPauseVideo(_video).GetAwaiter().GetResult();
+        _mediaStatus = LingoMediaStatus.Paused;
+    }
 
     /// <inheritdoc/>
-    public void Seek(int milliseconds) => _currentTime = milliseconds;
+    public void Seek(int milliseconds)
+    {
+        if (_video != null)
+            _scripts.MediaSeekVideo(_video, milliseconds / 1000.0).GetAwaiter().GetResult();
+        _currentTime = milliseconds;
+    }
 
     /// <inheritdoc/>
     public int Duration => _duration;
@@ -148,7 +180,12 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
     public int CurrentTime
     {
         get => _currentTime;
-        set => _currentTime = value;
+        set
+        {
+            if (_video != null)
+                _scripts.MediaSeekVideo(_video, value / 1000.0).GetAwaiter().GetResult();
+            _currentTime = value;
+        }
     }
 
     /// <inheritdoc/>
@@ -161,6 +198,17 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
     }
 
     internal IAbstTexture2D? Texture => _texture;
+    internal IJSObjectReference? Video => _video;
 
-    public void Dispose() => _remove(this);
+    internal void UpdateCurrentTime(double ms) => _currentTime = (int)ms;
+
+    [JSInvokable]
+    public void OnVideoEnded() => _lingoSprite.Stop();
+
+    public void Dispose()
+    {
+        _video?.DisposeAsync().GetAwaiter().GetResult();
+        _videoRef?.Dispose();
+        _remove(this);
+    }
 }
