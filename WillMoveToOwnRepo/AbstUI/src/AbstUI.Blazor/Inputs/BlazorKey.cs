@@ -10,6 +10,7 @@ namespace AbstUI.Blazor.Inputs;
 public class BlazorKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
 {
     private readonly HashSet<string> _keys = new();
+    private readonly HashSet<string> _codes = new();
     private AbstKey? _lingoKey;
     private string _lastKey = string.Empty;
     private int _lastCode;
@@ -19,16 +20,18 @@ public class BlazorKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
     public void KeyDown(KeyboardEventArgs e)
     {
         _keys.Add(e.Key);
+        _codes.Add(e.Code);
         _lastKey = e.Key;
-        _lastCode = e.Key.Length == 1 ? char.ToUpperInvariant(e.Key[0]) : 0;
+        _lastCode = BlazorKeyCodeMap.ToLingo(e.Code);
         _lingoKey?.DoKeyDown();
     }
 
     public void KeyUp(KeyboardEventArgs e)
     {
         _keys.Remove(e.Key);
+        _codes.Remove(e.Code);
         _lastKey = e.Key;
-        _lastCode = e.Key.Length == 1 ? char.ToUpperInvariant(e.Key[0]) : 0;
+        _lastCode = BlazorKeyCodeMap.ToLingo(e.Code);
         _lingoKey?.DoKeyUp();
     }
 
@@ -39,17 +42,18 @@ public class BlazorKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
 
     public bool KeyPressed(AbstUIKeyType key) => key switch
     {
-        AbstUIKeyType.BACKSPACE => _keys.Contains("Backspace"),
-        AbstUIKeyType.ENTER or AbstUIKeyType.RETURN => _keys.Contains("Enter"),
-        AbstUIKeyType.QUOTE => _keys.Contains("'"),
-        AbstUIKeyType.SPACE => _keys.Contains(" "),
-        AbstUIKeyType.TAB => _keys.Contains("Tab"),
+        AbstUIKeyType.BACKSPACE => _codes.Contains("Backspace"),
+        AbstUIKeyType.ENTER or AbstUIKeyType.RETURN => _codes.Contains("Enter"),
+        AbstUIKeyType.QUOTE => _codes.Contains("Quote"),
+        AbstUIKeyType.SPACE => _codes.Contains("Space"),
+        AbstUIKeyType.TAB => _codes.Contains("Tab"),
         _ => false
     };
+    public bool KeyPressed(char key)
+        => _codes.Contains(BlazorKeyCodeMap.ToBlazor(char.IsLetter(key) ? char.ToUpperInvariant(key) : key));
 
-    public bool KeyPressed(char key) => _keys.Contains(key.ToString().ToUpperInvariant());
-
-    public bool KeyPressed(int keyCode) => _keys.Contains(((char)keyCode).ToString().ToUpperInvariant());
+    public bool KeyPressed(int keyCode)
+        => _codes.Contains(BlazorKeyCodeMap.ToBlazor(keyCode));
 
     public string Key => _lastKey;
     public int KeyCode => _lastCode;
