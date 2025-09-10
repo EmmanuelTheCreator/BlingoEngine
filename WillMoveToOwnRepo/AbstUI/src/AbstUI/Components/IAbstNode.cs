@@ -12,6 +12,7 @@ namespace AbstUI.Components
         float Width { get; set; }
         float Height { get; set; }
         AMargin Margin { get; set; }
+        int ZIndex { get; set; }
         T Framework<T>() where T : IAbstFrameworkNode;
         IAbstFrameworkNode FrameworkObj { get; set; }
     }

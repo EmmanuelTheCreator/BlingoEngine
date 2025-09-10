@@ -20,6 +20,7 @@ namespace AbstUI.Components
 
         public virtual float Width { get => _framework.Width; set => _framework.Width = value; }
         public virtual float Height { get => _framework.Height; set => _framework.Height = value; }
+        public virtual int ZIndex { get => _framework.ZIndex; set => _framework.ZIndex = value; }
 
         #region Styling
         /// <summary>

@@ -64,6 +64,12 @@ public abstract class AbstSdlComponent : IAbstSDLComponent, IDisposable
         }
     }
 
+    public virtual int ZIndex
+    {
+        get => ComponentContext.ZIndex;
+        set => ComponentContext.SetZIndex(value);
+    }
+
     private bool _visibility = true;
     public virtual bool Visibility
     {

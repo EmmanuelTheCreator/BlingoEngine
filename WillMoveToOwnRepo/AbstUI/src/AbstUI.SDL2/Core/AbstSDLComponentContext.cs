@@ -28,6 +28,7 @@ public class AbstSDLComponentContext : IDisposable
     public bool FlipH { get; set; }
     public bool FlipV { get; set; }
     public bool AlwaysOnTop { get; set; }
+    public int ZIndex { get; private set; }
     public SDL.SDL_BlendMode BlendMode { get; set; } = SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND;
 
     internal AbstSDLComponentContext(
@@ -40,6 +41,12 @@ public class AbstSDLComponentContext : IDisposable
         VisualParent = parent;
         Component = component;
         _container.Register(this);
+    }
+
+    public void SetZIndex(int zIndex)
+    {
+        ZIndex = zIndex;
+        _container.Activate(this);
     }
 
     internal void SetParents(AbstSDLComponentContext? logicalParent, AbstSDLComponentContext? visualParent = null)

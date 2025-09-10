@@ -24,18 +24,13 @@ public class AbstSDLComponentContainer
     public void Activate(AbstSDLComponentContext context)
     {
         _activeComponents.Remove(context);
-        if (context.AlwaysOnTop)
-        {
-            _activeComponents.Add(context);
-        }
+        int idx = _activeComponents.FindIndex(c =>
+            (c.AlwaysOnTop && !context.AlwaysOnTop) ||
+            (c.AlwaysOnTop == context.AlwaysOnTop && c.ZIndex > context.ZIndex));
+        if (idx >= 0)
+            _activeComponents.Insert(idx, context);
         else
-        {
-            int idx = _activeComponents.FindIndex(c => c.AlwaysOnTop);
-            if (idx >= 0)
-                _activeComponents.Insert(idx, context);
-            else
-                _activeComponents.Add(context);
-        }
+            _activeComponents.Add(context);
     }
 
     public void Deactivate(AbstSDLComponentContext context) => _activeComponents.Remove(context);

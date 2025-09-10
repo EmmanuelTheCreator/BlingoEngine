@@ -51,6 +51,7 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
     public bool Visibility { get => IsOpen; set { } }
     float IAbstNode.Width { get => Width; set => Width = (int)value; }
     float IAbstNode.Height { get => Height; set => Height = (int)value; }
+    public int ZIndex { get => _framework.ZIndex; set => _framework.ZIndex = value; }
     public AMargin Margin { get; set; } = new AMargin();
 
     protected IAbstNode? _content;
