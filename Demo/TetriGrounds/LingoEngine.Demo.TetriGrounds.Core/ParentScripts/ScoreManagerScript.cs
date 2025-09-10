@@ -32,7 +32,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             _memberScore = Member<LingoMemberText>("T_Score")!;
             _memberTData = Member<LingoMemberText>("T_data")!;
             myLevel = txt != null && int.TryParse(txt.Text, out var lvl) ? lvl : 1;
-            myLevelUpNeededScore = 20 * (myLevel + 1);
+            myLevelUpNeededScore = 200 * (myLevel + 1);
             UpdateGfxScore();
             NewText("Go!");
             Refresh();
@@ -48,34 +48,35 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
                 case 4: LineRemoved4(); break;
             }
             myNumberLinesRemoved = 0;
-            // check fot level up (its the number of blocks droped)
+            // check for level up (its the number of blocks droped)
             if (myBlocksDroped > myLevelUpNeededScore)
             {
                 SendSprite<AnimationScriptBehavior>(22, x => x.StartAnim());
                 myLevelUp = true;
                 myLevel += 1;
                 NewText($"Level {myLevel} !!");
-                myLevelUpNeededScore += 20;
+                myLevelUpNeededScore += 2000;
+                myPlayerScore += 200 * myLevel;
             }
             UpdateGfxScore();
             _memberTData.Text =  $"Level {myLevel}";
         }
 
-        public void LineRemoved1() => myPlayerScore += 5 + myLevel;
+        public void LineRemoved1() => myPlayerScore += 80 * myLevel;
         public void LineRemoved2() {
             _Player.SoundPlayRowsDeleted(2);
-            NewText("2 Lines Removed!!"); myPlayerScore += 12 + myLevel; 
+            NewText("2 Lines Removed!!"); myPlayerScore += 120 * myLevel; 
         }
         public void LineRemoved3() { 
             _Player.SoundPlayRowsDeleted(3);
-            NewText("3 Lines Removed!!"); myPlayerScore += 20 + myLevel; 
+            NewText("3 Lines Removed!!"); myPlayerScore += 180 * myLevel; 
         }
         public void LineRemoved4() {
             _Player.SoundPlayRowsDeleted(4);
-            NewText("Wooow, 4 Lines Removed!!"); myPlayerScore += 30 + myLevel; 
+            NewText("Wooow, 4 Lines Removed!!"); myPlayerScore += 320 * myLevel; 
         }
 
-        public void AddDropedBlock() => myBlocksDroped += 1;
+        public void AddDropedBlock(bool hardDrop) => myBlocksDroped += hardDrop? 4:0;
         public void LineRemoved() 
         { 
             myNumberLinesRemoved += 1; 
@@ -83,7 +84,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
         }
         public void BlockFrozen() 
         { 
-            myPlayerScore += 1; 
+            myPlayerScore += 4; 
             Refresh(); 
         }
         public void UpdateGfxScore() => _memberScore.Text = myPlayerScore.ToString();

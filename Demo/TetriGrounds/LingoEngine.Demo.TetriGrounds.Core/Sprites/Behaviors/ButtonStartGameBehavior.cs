@@ -38,6 +38,8 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             _Player.RunDelayed(_Player.SoundPlayGo, 100);
             
             _Player.SoundStopNature();
+            Sprite(9).Visibility = false; // hide start button
+            Sprite(11).Visibility = false; // hide start button
             _global.MousePointer!.HideMouse();
             SendSprite<BgScriptBehavior>(4, s => s.NewGame());
         }

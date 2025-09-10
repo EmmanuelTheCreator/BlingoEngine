@@ -26,10 +26,10 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 
         public void BeginSprite()
         {
-            var sprite35 = Sprite(35);
-            if (myPlayerBlock != null && sprite35.HasSprite())
-                Sprite(35).Blend = 0;
+            if (myPlayerBlock != null)
+                myPlayerBlock.HidePause();
             _Player.SoundPlayGong();
+            
         }
 
         public void ExitFrame()

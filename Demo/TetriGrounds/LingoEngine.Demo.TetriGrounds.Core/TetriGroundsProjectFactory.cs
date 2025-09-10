@@ -163,8 +163,8 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         castData.Member["T_data"]!.Width = 191;
         castData.Member["T_NewGame"]!.Width = 48;
         castData.Member["T_Score"]!.Width = 99;
-        castData.Member["T_OverScreen"]!.Width = 366;
-        castData.Member["T_OverScreen2"]!.Width = 366;
+        castData.Member["T_OverScreen"]!.Width = 446;
+        castData.Member["T_OverScreen2"]!.Width = 446;
         castData.Member["T_InternetScoresNames"]!.Width = 65;
         castData.Member["T_InternetScores"]!.Width = 37;
         castData.Member["T_InternetScoresNamesP"]!.Width = 69;
@@ -246,7 +246,7 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         _movie.AddSprite(28, 59, 64, 94, 113).SetMember(41, 2); // Text personal
         _movie.AddSprite(29, 59, 64, 95, 313).SetMember("T_InternetScoresNamesP");
         _movie.AddSprite(30, 59, 64, 151, 313).SetMember("T_InternetScoresP");
-        _movie.AddSprite(35, 61, 64, 323, 238).SetMember("alert");
+        _movie.AddSprite(35, 59, 64, 323, 238,c => c.Blend = 0).SetMember("alert").Visibility = false;
         // Start Animation
         var logoSprite1 = (ILingoSprite2DLight)_movie.AddSprite(3, 2, 53, 600, 60).SetMember("TetriGrounds_s");
         logoSprite1.AddKeyframes(

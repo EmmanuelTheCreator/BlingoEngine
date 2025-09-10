@@ -75,6 +75,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             UpdateNextBlock();
             StartMove();
             myStopKeyAction = false;
+            HidePause();
         }
 
         private void CalculateSpeed()
@@ -102,19 +103,23 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
         public void PauseGame()
         {
             if (myPause)
-            {
-                Sprite(35).Blend = 0;
-                myPause = false;
-                Sprite(35).LocZ = 35;
-            }
+                HidePause();
             else
             {
                 Sprite(35).Blend = 100;
+                Sprite(35).Visibility = true;
+                myPause = false;
                 Sprite(35).LocZ = 1010;
                 myPause = true;
             }
         }
-
+        internal void HidePause()
+        {
+            Sprite(35).Blend = 0;
+            Sprite(35).Visibility = false;
+            myPause = false;
+            Sprite(35).LocZ = 35;
+        }
         private void MoveBlock(int val)
         {
             if (myFinished) return;
@@ -150,12 +155,15 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             }
         }
 
+        /// <summary>
+        /// Hard drop
+        /// </summary>
         public void LetBlockFall()
         {
             int starting = myY;
             for (int i = starting; i <= myMaxY; i++)
             {
-                bool test = DownCheck(myY);
+                bool test = DownCheck(myY, true);
                 RefreshBlock();
                 if (!test) break;
             }
@@ -177,7 +185,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             if (myWaiter + addon > mySlowDown)
             {
                 myWaiter = 0;
-                DownCheck(myY);
+                DownCheck(myY,false);
                 RefreshBlock();
             }
             else
@@ -186,14 +194,14 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             }
         }
 
-        private bool DownCheck(int rowsLeft)
+        private bool DownCheck(int rowsLeft, bool hardDrop)
         {
             bool check = CollitionDetect(myX, myY + 1);
             if (check)
             {
                 _Player.SoundPlayBlockDown((int)Math.Floor((float)((float)rowsLeft / myMaxY) *10));
                 FreezeBlock();
-                ResetBlock();
+                ResetBlock(hardDrop);
                 return false;
             }
             else
@@ -203,7 +211,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             }
         }
 
-        private void ResetBlock()
+        private void ResetBlock(bool hardDrop)
         {
             if (myFinished)
                 return;
@@ -220,7 +228,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             myY = 2;
             myX = myMaxX / 2;
             myScoreManager.BlockFrozen();// add score when you freeze a block
-            myScoreManager.AddDropedBlock(); // add that there's a block dropped
+            myScoreManager.AddDropedBlock(hardDrop); // add that there's a block dropped
 
             // check if we go a level up
             if (myScoreManager.GetLevelUp())
@@ -245,6 +253,8 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             StopMove();
             _global.GameIsRunning = false;
             _global.MousePointer!.ShowMouse();
+            Sprite(9).Visibility = true; // show start button
+            Sprite(11).Visibility = true; // show start button
 
             // play sounds
             _Player.SoundPlayDied();
@@ -434,5 +444,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             DestroyBlock();
             StopMove();
         }
+
+      
     }
 }
