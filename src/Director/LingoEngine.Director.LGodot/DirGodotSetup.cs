@@ -10,6 +10,7 @@ using LingoEngine.Core;
 using LingoEngine.Director.Core;
 using LingoEngine.Director.Core.Bitmaps;
 using LingoEngine.Director.Core.Casts;
+using LingoEngine.Director.Core.Behaviors;
 using LingoEngine.Director.Core.FileSystems;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Importer;
@@ -21,6 +22,7 @@ using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.Texts;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.LGodot.Casts;
+using LingoEngine.Director.LGodot.Behaviors;
 using LingoEngine.Director.LGodot.FileSystems;
 using LingoEngine.Director.LGodot.Gfx;
 using LingoEngine.Director.LGodot.Icons;
@@ -59,6 +61,7 @@ namespace LingoEngine.Director.LGodot
                     .AddSingleton<DirGodotCastWindow>()
                     .AddSingleton<DirGodotScoreWindow>()
                     .AddSingleton<DirGodotStageWindow>()
+                    .AddSingleton<DirGodotBehaviorLibraryWindow>()
                     .AddSingleton<DirGodotBinaryViewerWindow>()
                     .AddSingleton<DirGodotBinaryViewerWindowV2>()
                     .AddSingleton<DirGodotImportExportWindow>()
@@ -89,6 +92,7 @@ namespace LingoEngine.Director.LGodot
                     s.AddTransient<IDirFrameworkCastWindow>(p => p.GetRequiredService<DirGodotCastWindow>());
                     s.AddTransient<IDirFrameworkScoreWindow>(p => p.GetRequiredService<DirGodotScoreWindow>());
                     s.AddTransient<IDirFrameworkStageWindow>(p => p.GetRequiredService<DirGodotStageWindow>());
+                    s.AddTransient<IDirFrameworkBehaviorLibraryWindow>(p => p.GetRequiredService<DirGodotBehaviorLibraryWindow>());
                     s.AddTransient<IDirFrameworkBinaryViewerWindow>(p => p.GetRequiredService<DirGodotBinaryViewerWindow>());
                     s.AddTransient<IDirFrameworkBinaryViewerWindowV2>(p => p.GetRequiredService<DirGodotBinaryViewerWindowV2>());
                     s.AddTransient<IDirFrameworkPropertyInspectorWindow>(p => p.GetRequiredService<DirGodotPropertyInspector>());

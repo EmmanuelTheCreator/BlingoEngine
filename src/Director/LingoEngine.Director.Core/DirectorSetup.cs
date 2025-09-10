@@ -12,6 +12,8 @@ using LingoEngine.Director.Core.Projects;
 using LingoEngine.Director.Core.Scores;
 using LingoEngine.Director.Core.Scripts;
 using LingoEngine.Director.Core.Sprites;
+using LingoEngine.Director.Core.Sprites.Behaviors;
+using LingoEngine.Director.Core.Behaviors;
 using LingoEngine.Director.Core.Stages;
 using LingoEngine.Director.Core.Texts;
 using LingoEngine.Director.Core.Tools;
@@ -19,6 +21,7 @@ using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Setup;
 using Microsoft.Extensions.DependencyInjection;
+using LingoEngine.Sprites.BehaviorLibrary;
 
 namespace LingoEngine.Director.Core
 {
@@ -57,6 +60,7 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<DirectorCastWindow>()
                     .AddSingleton<DirectorScoreWindow>()
                     .AddSingleton<DirectorPropertyInspectorWindow>()
+                    .AddSingleton<DirectorBehaviorLibraryWindow>()
                     .AddSingleton<DirectorStageGuides>()
                     .AddSingleton<DirectorBinaryViewerWindow>()
                     .AddSingleton<DirectorBinaryViewerWindowV2>()
@@ -85,14 +89,9 @@ namespace LingoEngine.Director.Core
                     //serviceProvider.RegisterDirectorWindows();
                     //serviceProvider.GetRequiredService<IAbstComponentFactory>();
                     //serviceProvider.GetRequiredService< LingoCSharpConverterPopupHandler>();
-                    // Services that needs to be resolved to subscribe to the command handler.
-                    //serviceProvider.GetRequiredService<IAbstCommandManager>()
-                    //    .Register<LingoCSharpConverterPopupHandler, OpenLingoCSharpConverterCommand>()
-                    //    .Preload<OpenLingoCSharpConverterCommand>()
-                    //    ;
+                    var behaviorLib = serviceProvider.GetRequiredService<ILingoBehaviorLibrary>();
+                    behaviorLib.Register(new LingoBehaviorDefinition("GetServerIP", typeof(Sprites.Behaviors.GetServerIPBehavior), "Network"));
 
-                    //serviceProvider.GetRequiredService<IAbstCommandManager>() // you forgot the canExecute?
-                    //    .Register<CompileProjectCommandHandler, CompileProjectCommand>();
                     if (directorSettingsConfig != null)
                     {
                         //var settings = new DirectorProjectSettings();

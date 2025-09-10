@@ -43,10 +43,12 @@ else
     "Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.SDL2"
     "Test/LingoEngine.SDL2.GfxVisualTest"
     "WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.SDL2"
+    "src/Director/LingoEngine.Director.Runner.SDL2"
+    "src/Director/LingoEngine.Director.Runner.Godot"
   )
   for proj in "${PROJECTS[@]}"; do
     if [ -d "$proj" ]; then
-      for config in Debug Release; do
+      for config in Debug DebugWithDirector Release; do
         TARGET="$proj/bin/$config/net8.0"
         mkdir -p "$TARGET"
         cp "$LIB_DIR"/* "$TARGET/" 2>/dev/null || true
