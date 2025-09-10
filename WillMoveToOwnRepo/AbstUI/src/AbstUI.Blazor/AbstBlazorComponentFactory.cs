@@ -34,7 +34,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
         _registry = registry;
         _mapper.Map<AbstBlazorWrapPanelComponent, AbstBlazorWrapPanel>();
         _mapper.Map<AbstBlazorPanelComponent, AbstBlazorPanel>();
-        _mapper.Map<AbstBlazorZoomBoxComponent, AbstBlazorPanel>();
+        _mapper.Map<AbstBlazorZoomBoxComponent, AbstBlazorZoomBox>();
         _mapper.Map<AbstBlazorTabContainerComponent, AbstBlazorTabContainer>();
         _mapper.Map<AbstBlazorScrollContainerComponent, AbstBlazorScrollContainer>();
         _mapper.Map<AbstBlazorButtonComponent, AbstBlazorButton>();
