@@ -75,6 +75,54 @@ public class AbstUIScriptResolver : IAsyncDisposable
     public async ValueTask CanvasSetGlobalAlpha(IJSObjectReference ctx, double alpha)
         => await (await GetModuleAsync()).InvokeVoidAsync("abstCanvas.setGlobalAlpha", ctx, alpha);
 
+    public async ValueTask<IJSObjectReference> MediaCreateVideo(string id, string url, DotNetObjectReference<object> dotNetHelper)
+        => await (await GetModuleAsync()).InvokeAsync<IJSObjectReference>("abstMedia.createVideo", id, url, dotNetHelper);
+
+    public async ValueTask MediaPlayVideo(IJSObjectReference video)
+        => await (await GetModuleAsync()).InvokeVoidAsync("abstMedia.playVideo", video);
+
+    public async ValueTask MediaPauseVideo(IJSObjectReference video)
+        => await (await GetModuleAsync()).InvokeVoidAsync("abstMedia.pauseVideo", video);
+
+    public async ValueTask MediaStopVideo(IJSObjectReference video)
+        => await (await GetModuleAsync()).InvokeVoidAsync("abstMedia.stopVideo", video);
+
+    public async ValueTask MediaSeekVideo(IJSObjectReference video, double seconds)
+        => await (await GetModuleAsync()).InvokeVoidAsync("abstMedia.seekVideo", video, seconds);
+
+    public async ValueTask<double> MediaGetDuration(IJSObjectReference video)
+        => await (await GetModuleAsync()).InvokeAsync<double>("abstMedia.getDuration", video);
+
+    public async ValueTask<double> MediaGetCurrentTime(IJSObjectReference video)
+        => await (await GetModuleAsync()).InvokeAsync<double>("abstMedia.getCurrentTime", video);
+
+    public async ValueTask<IJSObjectReference> AudioCreate(string id, DotNetObjectReference<object> dotNetHelper)
+        => await (await GetModuleAsync()).InvokeAsync<IJSObjectReference>("abstMedia.createAudio", id, dotNetHelper);
+
+    public async ValueTask AudioPlay(IJSObjectReference audio, string url)
+        => await (await GetModuleAsync()).InvokeVoidAsync("abstMedia.playAudio", audio, url);
+
+    public async ValueTask AudioPause(IJSObjectReference audio)
+        => await (await GetModuleAsync()).InvokeVoidAsync("abstMedia.pauseAudio", audio);
+
+    public async ValueTask AudioStop(IJSObjectReference audio)
+        => await (await GetModuleAsync()).InvokeVoidAsync("abstMedia.stopAudio", audio);
+
+    public async ValueTask AudioResume(IJSObjectReference audio)
+        => await (await GetModuleAsync()).InvokeVoidAsync("abstMedia.resumeAudio", audio);
+
+    public async ValueTask AudioSeek(IJSObjectReference audio, double seconds)
+        => await (await GetModuleAsync()).InvokeVoidAsync("abstMedia.seekAudio", audio, seconds);
+
+    public async ValueTask<double> AudioGetCurrentTime(IJSObjectReference audio)
+        => await (await GetModuleAsync()).InvokeAsync<double>("abstMedia.getCurrentTimeAudio", audio);
+
+    public async ValueTask AudioSetVolume(IJSObjectReference audio, double volume)
+        => await (await GetModuleAsync()).InvokeVoidAsync("abstMedia.setVolumeAudio", audio, volume);
+
+    public async ValueTask MediaBeep()
+        => await (await GetModuleAsync()).InvokeVoidAsync("abstMedia.beep");
+
     public async ValueTask SetCursor(string cursor)
         => await (await GetModuleAsync()).InvokeVoidAsync("AbstUIKey.setCursor", cursor);
     public async ValueTask<ScrollData> GetScrollPosition(string elementRef)

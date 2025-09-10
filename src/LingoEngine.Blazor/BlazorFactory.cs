@@ -216,14 +216,16 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
     }
     public LingoSound CreateSound(ILingoCastLibsContainer castLibsContainer)
     {
-        var impl = new LingoBlazorSound();
+        var scripts = _services.GetRequiredService<AbstUIScriptResolver>();
+        var impl = new LingoBlazorSound(scripts);
         var sound = new LingoSound(impl, castLibsContainer, this);
         impl.Init(sound);
         return sound;
     }
     public LingoSoundChannel CreateSoundChannel(int number)
     {
-        var impl = new LingoBlazorSoundChannel(number);
+        var scripts = _services.GetRequiredService<AbstUIScriptResolver>();
+        var impl = new LingoBlazorSoundChannel(number, scripts);
         var channel = new LingoSoundChannel(impl, number);
         impl.Init(channel);
         return channel;
