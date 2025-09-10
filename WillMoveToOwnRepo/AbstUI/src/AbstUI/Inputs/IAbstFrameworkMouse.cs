@@ -7,6 +7,7 @@ namespace AbstUI.Inputs
     /// </summary>
     public interface IAbstFrameworkMouse
     {
+        
 
         /// <summary>Shows or hides the mouse cursor.</summary>
         void HideMouse(bool state);
@@ -17,5 +18,6 @@ namespace AbstUI.Inputs
         void Release();
         void ReplaceMouseObj(IAbstMouse lingoMouse);
         void SetCursor(AMouseCursor cursor);
+        AMouseCursor GetCursor();
     }
 }

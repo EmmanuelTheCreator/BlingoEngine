@@ -22,6 +22,7 @@ public class LingoSdlMouse : SdlMouse<LingoMouseEvent> , ILingoFrameworkMouse
     public override void SetCursor(AMouseCursor value)
     {
         _cursor = value;
+        base.SetCursor(value);
     }
     public void SetCursor(LingoMemberBitmap? image)
     {

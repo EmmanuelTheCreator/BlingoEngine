@@ -79,6 +79,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             Sprite(myNum).SetMember(myMembers[0]);
             _Movie.ActorList.Add(this);
             Sprite(myNum).Visibility = true;
+            _Mouse.SetCursor(AbstUI.Primitives.AMouseCursor.Hidden);
         }
         public void HideMouse()
         {

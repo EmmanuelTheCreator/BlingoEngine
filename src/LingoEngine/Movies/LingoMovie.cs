@@ -12,6 +12,7 @@ using LingoEngine.Transitions;
 using LingoEngine.Tempos;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Scripts;
+using AbstUI.Primitives;
 
 namespace LingoEngine.Movies
 {
@@ -366,6 +367,8 @@ namespace LingoEngine.Movies
 
         private void OnStop()
         {
+            // on stop always restore the mouse to arrow
+            _lingoMouse.SetCursor(AMouseCursor.Arrow);
             _isPlaying = false;
             PlayStateChanged?.Invoke(false);
             _environment.Sound.StopAll();

@@ -45,13 +45,13 @@ namespace AbstUI.SDL2.Inputs
 
         public void HideMouse(bool state) => _handler.HideMouse(state);
 
-        public void SetCursor(AMouseCursor cursor)
-        {
-        }
+        public void SetCursor(AMouseCursor cursor) => _handler.SetCursor(cursor);
+        public AMouseCursor GetCursor() => _handler.GetCursor();
 
         public void ProcessEvent(SDL.SDL_Event e)
         {
             _handler.ProcessEvent(e);
         }
+
     }
 }

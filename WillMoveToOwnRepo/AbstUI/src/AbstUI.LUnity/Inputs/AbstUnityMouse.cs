@@ -40,6 +40,7 @@ public class AbstUnityMouse<TAbstMouseType, TAbstUIMouseEvent> : IAbstFrameworkM
         _cursor = value;
         Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
     }
+    public AMouseCursor GetCursor() => _cursor;
 
     public void Release()
     {
@@ -96,6 +97,8 @@ public class AbstUnityMouse<TAbstMouseType, TAbstUIMouseEvent> : IAbstFrameworkM
     {
         _lingoMouse.Value.DoMouseWheel(delta);
     }
+
+    
 }
 
 public class AbstUnityMouse : AbstUnityMouse<AbstMouse, AbstMouseEvent>

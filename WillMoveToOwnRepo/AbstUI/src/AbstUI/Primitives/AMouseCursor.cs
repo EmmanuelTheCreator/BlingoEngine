@@ -88,5 +88,9 @@
         /// Indicates a custom cursor image should be used.
         /// </summary>
         Custom = 100,
+        /// <summary>
+        /// Hides the cursor
+        /// </summary>
+        Hidden = 200,
     }
 }

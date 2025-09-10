@@ -10,6 +10,7 @@ public class SdlMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor<Ab
     private Lazy<AbstMouse<TAbstUIMouseEvent>> _lingoMouse;
     private bool _hidden;
     protected nint _sdlCursor = nint.Zero;
+    private AMouseCursor _lastCursor = AMouseCursor.Arrow;
 
     public int OffsetX { get; private set; }
     public int OffsetY { get; private set; }
@@ -108,6 +109,16 @@ public class SdlMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor<Ab
     }
     public virtual void SetCursor(AMouseCursor value)
     {
+        _lastCursor = value;
+        if (value == AMouseCursor.Hidden)
+        {
+            HideMouse(true);
+            return;
+        }
+        else if (_hidden)
+        {
+            HideMouse(false);
+        }
         SDL.SDL_SystemCursor sysCursor = value switch
         {
             AMouseCursor.Cross => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_CROSSHAIR,
@@ -125,6 +136,7 @@ public class SdlMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor<Ab
             AMouseCursor.Help => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW,
             AMouseCursor.Wait => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_WAIT,
             AMouseCursor.NotAllowed => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_NO,
+            AMouseCursor.Hidden => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_NO,
             _ => SDL.SDL_SystemCursor.SDL_SYSTEM_CURSOR_ARROW
         };
 
@@ -135,6 +147,5 @@ public class SdlMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor<Ab
         SDL.SDL_SetCursor(_sdlCursor);
     }
 
-
-
+    public AMouseCursor GetCursor() => _hidden? AMouseCursor.Hidden : _lastCursor;
 }

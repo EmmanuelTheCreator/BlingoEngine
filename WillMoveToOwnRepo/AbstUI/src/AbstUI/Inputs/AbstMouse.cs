@@ -118,6 +118,8 @@ namespace AbstUI.Inputs
         {
             _frameworkObj.SetCursor(cursorType);
         }
+        public virtual AMouseCursor GetCursor()
+            => _frameworkObj.GetCursor();
 
         private class AbstUIMouseSubscription : IAbstMouseSubscription
         {
