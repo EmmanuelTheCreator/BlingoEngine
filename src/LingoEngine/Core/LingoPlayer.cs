@@ -99,6 +99,7 @@ namespace LingoEngine.Core
             _lingoKey = Factory.CreateKey();
             _stage = Factory.CreateStage(this);
             _mouse = Factory.CreateMouse(_stage);
+            _uiContext = SynchronizationContext.Current;
         }
         public void Dispose()
         {
@@ -112,7 +113,7 @@ namespace LingoEngine.Core
             Stage.Width = width;
             Stage.Height = height;
             Stage.BackgroundColor = backgroundColor;
-            _uiContext = SynchronizationContext.Current;
+            
         }
 
         /// <inheritdoc/>
@@ -228,10 +229,7 @@ namespace LingoEngine.Core
 
         void ILingoPlayer.SetActiveMovie(ILingoMovie? movie) => SetActiveMovie(movie as LingoMovie);
 
-        internal void LoadMovieScripts(IEnumerable<LingoMovieScript> enumerable)
-        {
-            throw new NotImplementedException();
-        }
+        
 
         internal void SetActionOnNewMovie(Action<LingoMovie> actionOnNewMovie)
         {

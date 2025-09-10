@@ -30,6 +30,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             {
                 _counter = 0;
                 _counterText += 30;
+                _member.FontStyle = LingoTextStyle.Italic;
                 _member!.Text = _counterText.ToString();
 
             }

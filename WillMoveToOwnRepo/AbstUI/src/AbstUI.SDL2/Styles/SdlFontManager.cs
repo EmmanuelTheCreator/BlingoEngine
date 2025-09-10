@@ -22,7 +22,16 @@ public class SdlFontManager : IAbstFontManager
     private readonly Dictionary<(string Name, AbstFontStyle Style), AbstSdlFont> _loadedFonts = new();
     public IAbstFontManager AddFont(string name, string pathAndName, AbstFontStyle style = AbstFontStyle.Regular)
     {
+        if (_fontsToLoad.Contains((name, style, pathAndName)))
+            _fontsToLoad.Remove((name, style, pathAndName));
         _fontsToLoad.Add((name, style, pathAndName));
+        // Add automatic all styles if Regular is added
+        if (style == AbstFontStyle.Regular)
+        {
+            _fontsToLoad.Add((name, AbstFontStyle.Bold, pathAndName));
+            _fontsToLoad.Add((name, AbstFontStyle.Italic, pathAndName));
+            _fontsToLoad.Add((name, AbstFontStyle.BoldItalic, pathAndName));
+        }
         return this;
     }
     public void LoadAll()
@@ -30,11 +39,14 @@ public class SdlFontManager : IAbstFontManager
         if (_loadedFonts.Count == 0)
         {
             var tahoma = Path.Combine(AppContext.BaseDirectory, "Fonts", "Tahoma.ttf");
-            _loadedFonts.Add((DefaultFontName, AbstFontStyle.Regular), new AbstSdlFont(this, "Tahoma", tahoma));
-            _loadedFonts.Add((DefaultFontName, AbstFontStyle.Bold), new AbstSdlFont(this, "Tahoma", tahoma));
-            _loadedFonts.Add((DefaultFontName, AbstFontStyle.BoldItalic), new AbstSdlFont(this, "Tahoma", tahoma));
-            _loadedFonts.Add((DefaultFontName, AbstFontStyle.Italic), new AbstSdlFont(this, "Tahoma", tahoma));
-            _loadedFonts.Add(("tahoma", AbstFontStyle.Regular), new AbstSdlFont(this, "Tahoma", tahoma));
+            _loadedFonts.Add((DefaultFontName, AbstFontStyle.Regular), new AbstSdlFont(this, "Tahoma", tahoma, AbstFontStyle.Regular));
+            _loadedFonts.Add((DefaultFontName, AbstFontStyle.Bold), new AbstSdlFont(this, "Tahoma", tahoma, AbstFontStyle.Bold));
+            _loadedFonts.Add((DefaultFontName, AbstFontStyle.BoldItalic), new AbstSdlFont(this, "Tahoma", tahoma, AbstFontStyle.BoldItalic));
+            _loadedFonts.Add((DefaultFontName, AbstFontStyle.Italic), new AbstSdlFont(this, "Tahoma", tahoma, AbstFontStyle.Italic));
+            _loadedFonts.Add(("tahoma", AbstFontStyle.Regular), new AbstSdlFont(this, "Tahoma", tahoma, AbstFontStyle.Regular));
+            _loadedFonts.Add(("tahoma", AbstFontStyle.Bold), new AbstSdlFont(this, "Tahoma", tahoma, AbstFontStyle.Bold));
+            _loadedFonts.Add(("tahoma", AbstFontStyle.Italic), new AbstSdlFont(this, "Tahoma", tahoma, AbstFontStyle.Italic));
+            _loadedFonts.Add(("tahoma", AbstFontStyle.BoldItalic), new AbstSdlFont(this, "Tahoma", tahoma, AbstFontStyle.BoldItalic));
         }
 
         foreach (var font in _fontsToLoad)
@@ -42,13 +54,15 @@ public class SdlFontManager : IAbstFontManager
             var path = Path.IsPathRooted(font.FileName)
                 ? font.FileName
                 : Path.Combine(AppContext.BaseDirectory, font.FileName.Replace("\\", "/"));
-            _loadedFonts[(font.Name.ToLower(), font.Style)] = new AbstSdlFont(this, font.Name, path);
+            _loadedFonts[(font.Name.ToLower(), font.Style)] = new AbstSdlFont(this, font.Name, path, font.Style);
         }
 
         _fontsToLoad.Clear();
         InitFonts();
 
     }
+
+   
     public T? Get<T>(string name, AbstFontStyle style = AbstFontStyle.Regular) where T : class
     {
         if (string.IsNullOrEmpty(name)) return null;
@@ -115,11 +129,13 @@ public class SdlFontManager : IAbstFontManager
     {
         private Dictionary<int, LoadedFontWithSize> _loadedFontSizes = new();
         public string FileName { get; private set; }
+        public AbstFontStyle Style { get; }
         public string Name { get; private set; }
 
-        internal AbstSdlFont(SdlFontManager fontManager, string name, string fontFileName)
+        internal AbstSdlFont(SdlFontManager fontManager, string name, string fontFileName, AbstFontStyle style)
         {
             FileName = fontFileName;
+            Style = style;
             Name = name.Trim();
         }
 
@@ -128,7 +144,7 @@ public class SdlFontManager : IAbstFontManager
         {
             if (!_loadedFontSizes.TryGetValue(fontSize, out var loadedFont))
             {
-                loadedFont = new LoadedFontWithSize(FileName, fontSize, f => _loadedFontSizes.Remove(fontSize));
+                loadedFont = new LoadedFontWithSize(FileName, fontSize, f => _loadedFontSizes.Remove(fontSize), Style);
                 _loadedFontSizes[fontSize] = loadedFont;
             }
             return loadedFont.AddUser(fontUser);
@@ -150,10 +166,23 @@ public class SdlFontManager : IAbstFontManager
         public int LineGap { get; }
         public int FontHeight { get; }
 
-        public LoadedFontWithSize(string fileName, int fontSize, Action<LoadedFontWithSize> onRemove)
+        public LoadedFontWithSize(string fileName, int fontSize, Action<LoadedFontWithSize> onRemove, AbstFontStyle style)
         {
             _onRemove = onRemove;
             FontHandle = SDL_ttf.TTF_OpenFont(fileName, fontSize);
+            if ((int)style > 0)
+            {
+
+            }
+            var sdlFontStyle = style switch
+            {
+                AbstFontStyle.Regular => 0,
+                AbstFontStyle.Bold => SDL_ttf.TTF_STYLE_BOLD,
+                AbstFontStyle.Italic => SDL_ttf.TTF_STYLE_ITALIC,
+                AbstFontStyle.BoldItalic => SDL_ttf.TTF_STYLE_BOLD | SDL_ttf.TTF_STYLE_ITALIC,
+                _ => 0
+            };
+            SDL_ttf.TTF_SetFontStyle(FontHandle, sdlFontStyle);
             Name = Path.GetFileNameWithoutExtension(fileName) + $"_{fontSize}";
             Ascent = SDL_ttf.TTF_FontAscent(FontHandle);
             Descent = SDL_ttf.TTF_FontDescent(FontHandle);

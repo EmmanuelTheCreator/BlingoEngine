@@ -9,6 +9,10 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
     // Converted from 5_ScoreManager.ls
     public class ScoreManagerScript : LingoParentScript, IOverScreenTextParent
     {
+        private readonly LingoMemberText _memberScore;
+        private readonly LingoMemberText _memberTData;
+        private readonly List<OverScreenTextScript> myOverScreenText = new();
+        private readonly GlobalVars _global;
         private int myPlayerScore;
         private int myLevel;
         private int myNumberLinesRemoved;
@@ -16,8 +20,6 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
         private bool myLevelUp;
         private int myLevelUpNeededScore;
         private int myBlocksDroped;
-        private readonly List<OverScreenTextScript> myOverScreenText = new();
-        private readonly GlobalVars _global;
 
         public ScoreManagerScript(ILingoMovieEnvironment env, GlobalVars global) : base(env)
         {
@@ -27,7 +29,9 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             myLevelUp = false;
             myBlocksDroped = 0;
             var txt = Member<LingoMemberText>("T_StartLevel");
-            myLevel = txt != null && int.TryParse(txt.Text, out var lvl) ? lvl : 0;
+            _memberScore = Member<LingoMemberText>("T_Score")!;
+            _memberTData = Member<LingoMemberText>("T_data")!;
+            myLevel = txt != null && int.TryParse(txt.Text, out var lvl) ? lvl : 1;
             myLevelUpNeededScore = 20 * (myLevel + 1);
             UpdateGfxScore();
             NewText("Go!");
@@ -54,7 +58,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
                 myLevelUpNeededScore += 20;
             }
             UpdateGfxScore();
-            Member<LingoMemberText>("T_data")!.Text =  $"Level {myLevel}";
+            _memberTData.Text =  $"Level {myLevel}";
         }
 
         public void LineRemoved1() => myPlayerScore += 5 + myLevel;
@@ -82,7 +86,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             myPlayerScore += 1; 
             Refresh(); 
         }
-        public void UpdateGfxScore() => Member<LingoMemberText>("T_Score")!.Text = myPlayerScore.ToString();
+        public void UpdateGfxScore() => _memberScore.Text = myPlayerScore.ToString();
         public bool GetLevelUp() 
         { 
             var t = myLevelUp; 

@@ -106,7 +106,15 @@ namespace LingoEngine.Sprites
         }
         public float LocH { get => _frameworkSprite.X; set => _frameworkSprite.X = value; }
         public float LocV { get => _frameworkSprite.Y; set => _frameworkSprite.Y = value; }
-        public int LocZ { get => _frameworkSprite.ZIndex; set => _frameworkSprite.ZIndex = value; }
+        public int LocZ
+        {
+            get => _frameworkSprite.ZIndex;
+            set
+            {
+                
+                _frameworkSprite.ZIndex = value;
+            }
+        }
         public APoint Loc { get => (_frameworkSprite.X, _frameworkSprite.Y); set => _frameworkSprite.SetPosition(value); }
 
         public float Rotation { get => _frameworkSprite.Rotation; set => _frameworkSprite.Rotation = value; }

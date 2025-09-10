@@ -118,7 +118,7 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
     }
     public void InitSprites()
     {
-        if (_movie == null) return;
+        //if (_movie == null) return;
         //TestTextChanging();
         //return;
 
@@ -208,8 +208,10 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
 
     private void TestTextChanging()
     {
-        var castData = _movie.CastLib["Data"];
-        castData.Member["T_data"]!.Width = 191;
+        var castData = _movie!.CastLib["Data"];
+        var textMember = castData.GetMember<ILingoMemberTextBase>("T_data")!;
+        textMember.Width = 191;
+        
         _movie.AddSprite(2, 2, 10, 441, 92).SetMember("Block1");
         var sprite = _movie.AddSprite(3, 2, 10, 441, 92).SetMember("T_data"); // level
         _movie!.AddFrameBehavior<TestTetrigroundsBehavior>(5);

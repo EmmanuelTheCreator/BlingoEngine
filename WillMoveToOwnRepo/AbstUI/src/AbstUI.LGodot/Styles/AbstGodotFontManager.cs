@@ -23,17 +23,35 @@ namespace AbstUI.LGodot.Styles
 
         public IAbstFontManager AddFont(string name, string pathAndName, AbstFontStyle style = AbstFontStyle.Regular)
         {
+            if (_fontsToLoad.Contains((name, style, pathAndName)))
+                _fontsToLoad.Remove((name, style, pathAndName));
             _fontsToLoad.Add((name, style, pathAndName));
+            // Add automatic all styles if Regular is added
+            if (style == AbstFontStyle.Regular)
+            {
+                _fontsToLoad.Add((name, AbstFontStyle.Bold, pathAndName));
+                _fontsToLoad.Add((name, AbstFontStyle.Italic, pathAndName));
+                _fontsToLoad.Add((name, AbstFontStyle.BoldItalic, pathAndName));
+            }
             return this;
         }
         public void LoadAll()
         {
-            foreach (var font in _fontsToLoad)
+            foreach (var fontTriple in _fontsToLoad)
             {
-                var fontFile = GD.Load<FontFile>($"res://{font.FileName}");
+                var fontFile = GD.Load<FontFile>($"res://{fontTriple.FileName}");
                 if (fontFile == null)
-                    throw new Exception("Font file not found:" + font.Name + ":" + font.FileName);
-                _loadedFonts[(font.Name, font.Style)] = fontFile;
+                    throw new Exception("Font file not found:" + fontTriple.Name + ":" + fontTriple.FileName);
+
+                TextServer.FontStyle fontStyle1 = fontTriple.Style switch
+                {
+                    AbstFontStyle.Italic => TextServer.FontStyle.Italic,
+                    AbstFontStyle.Bold => TextServer.FontStyle.Bold,
+                    AbstFontStyle.BoldItalic => TextServer.FontStyle.Bold | TextServer.FontStyle.Italic,
+                    _ => 0,
+                };
+                fontFile.FontStyle = fontStyle1;
+                _loadedFonts[(fontTriple.Name, fontTriple.Style)] = fontFile;
             }
             _fontsToLoad.Clear();
         }

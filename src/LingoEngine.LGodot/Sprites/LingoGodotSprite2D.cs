@@ -68,7 +68,10 @@ namespace LingoEngine.LGodot.Sprites
             set
             {
                 if (_zIndex == value) return;
-                _zIndex = value;
+                if (value > 4096) _zIndex = 4096;
+                else if (value < -4096) _zIndex = -4096;
+                else
+                    _zIndex = value;
                 ApplyZIndex();
             }
         }

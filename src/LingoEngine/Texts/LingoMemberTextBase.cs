@@ -36,6 +36,8 @@ namespace LingoEngine.Texts
         private string _paragraphSourceText = string.Empty;
         private bool _paragraphParsed;
         private IAbstTexture2D? _texture;
+        private bool _isRendering;
+        private AbstTextStyle _mdStyle = new AbstTextStyle();
 
         private bool _hasLoadedTexTure;
         private IAbstUITextureUserSubscription? _textureUser;
@@ -73,32 +75,52 @@ namespace LingoEngine.Texts
         public bool WordWrap
         {
             get => _frameworkMember.WordWrap;
-            set { _frameworkMember.WordWrap = value; }
+            set { 
+                if (_frameworkMember.WordWrap == value) return;
+                _frameworkMember.WordWrap = value;
+                UpdateMDStyle();
+            }
         }
         /// <inheritdoc/>
         public string Font
         {
             get => _frameworkMember.FontName;
-            set { _frameworkMember.FontName = value; }
+            set { 
+                if (_frameworkMember.FontName == value) return;
+                _frameworkMember.FontName = value;
+                UpdateMDStyle();
+            }
         }
         /// <inheritdoc/>
         public int FontSize
         {
             get => _frameworkMember.FontSize;
-            set { _frameworkMember.FontSize = value; }
+            set {
+                if (_frameworkMember.FontSize == value) return;
+                _frameworkMember.FontSize = value; 
+                UpdateMDStyle();
+            }
         }
 
         /// <inheritdoc/>
         public AColor Color
         {
             get => _frameworkMember.TextColor;
-            set { _frameworkMember.TextColor = value; }
+            set { 
+                if (_frameworkMember.TextColor == value) return;
+                _frameworkMember.TextColor = value;
+                UpdateMDStyle();
+            }
         }
         /// <inheritdoc/>
         public LingoTextStyle FontStyle
         {
             get => _frameworkMember.FontStyle;
-            set { _frameworkMember.FontStyle = value; }
+            set {
+                if (_frameworkMember.FontStyle == value) return;
+                _frameworkMember.FontStyle = value;
+                UpdateMDStyle();
+            }
         }
         /// <inheritdoc/>
         public bool Bold
@@ -112,7 +134,7 @@ namespace LingoEngine.Texts
                 else
                     style &= ~LingoTextStyle.Bold;
                 _frameworkMember.FontStyle = style;
-
+                UpdateMDStyle();
             }
         }
         /// <inheritdoc/>
@@ -127,7 +149,7 @@ namespace LingoEngine.Texts
                 else
                     style &= ~LingoTextStyle.Italic;
                 _frameworkMember.FontStyle = style;
-
+                UpdateMDStyle();
             }
         }
         /// <inheritdoc/>
@@ -142,20 +164,28 @@ namespace LingoEngine.Texts
                 else
                     style &= ~LingoTextStyle.Underline;
                 _frameworkMember.FontStyle = style;
-
+                UpdateMDStyle();
             }
         }
         /// <inheritdoc/>
         public AbstTextAlignment Alignment
         {
             get => _frameworkMember.Alignment;
-            set { _frameworkMember.Alignment = value; }
+            set { 
+                if (_frameworkMember.Alignment == value) return;
+                _frameworkMember.Alignment = value;
+                UpdateMDStyle();
+            }
         }
         /// <inheritdoc/>
         public int Margin
         {
             get => _frameworkMember.Margin;
-            set { _frameworkMember.Margin = value; }
+            set {
+                if (_frameworkMember.Margin == value) return;
+                _frameworkMember.Margin = value;
+                UpdateMDStyle();
+            }
         }
 
         /// <inheritdoc/>
@@ -297,7 +327,8 @@ namespace LingoEngine.Texts
             UpdateText(data.PlainText);
             _frameworkMember.Text = data.PlainText;
         }
-        private bool _isRendering;
+        
+
         private void RenderText()
         {
             if (_isRendering || _hasLoadedTexTure) return;
@@ -312,29 +343,12 @@ namespace LingoEngine.Texts
             {
                 _markDownRenderer.SetText(_mdData);
                 if (_mdData.Styles.Count > 0)
-                {
-                    var style1 = _mdData.Styles.First();
-                    FontStyle = LingoTextStyle.None;
-                    if (style1.Value.Bold) FontStyle |= LingoTextStyle.Bold;
-                    if (style1.Value.Italic) FontStyle |= LingoTextStyle.Italic;
-                    if (style1.Value.Underline) FontStyle |= LingoTextStyle.Underline;
-                    Font = style1.Value.Font;
-                    FontSize = style1.Value.FontSize;
-                    Color = style1.Value.Color;
-                    Alignment = style1.Value.Alignment;
-                }
+                    UpdateMDStyle(_mdData.Styles.First());
             }
             else
             {
-                var style = new AbstTextStyle();
-                style.Bold = (FontStyle & LingoTextStyle.Bold) != 0;
-                style.Italic = (FontStyle & LingoTextStyle.Italic) != 0;
-                style.Underline = (FontStyle & LingoTextStyle.Underline) != 0;
-                style.Font = Font ?? "";
-                style.FontSize = FontSize;
-                style.Color = Color;
-                style.Alignment = Alignment;
-                _markDownRenderer.SetText(_markdown.Replace('\r', '\n'), [style]);
+                UpdateMDStyle();
+                _markDownRenderer.SetText(_markdown.Replace('\r', '\n'), [_mdStyle]);
             }
             var painter = _componentFactory.CreateImagePainterToTexture(Width, Height);
             if (Width == 10)
@@ -352,6 +366,35 @@ namespace LingoEngine.Texts
             _textureUser = _texture.AddUser(this);
             _isRendering = false;
         }
+
+        private bool _skipStyleUpdate = false;
+        private void UpdateMDStyle(KeyValuePair<string, AbstTextStyle> style1)
+        {
+            _skipStyleUpdate = true;
+            FontStyle = LingoTextStyle.None;
+            if (style1.Value.Bold) FontStyle |= LingoTextStyle.Bold;
+            if (style1.Value.Italic) FontStyle |= LingoTextStyle.Italic;
+            if (style1.Value.Underline) FontStyle |= LingoTextStyle.Underline;
+            Font = style1.Value.Font;
+            FontSize = style1.Value.FontSize;
+            Color = style1.Value.Color;
+            Alignment = style1.Value.Alignment;
+            _skipStyleUpdate = false;
+            UpdateMDStyle();
+        }
+
+        private void UpdateMDStyle()
+        {
+            if (_skipStyleUpdate) return;
+            _mdStyle.Bold = (FontStyle & LingoTextStyle.Bold) != 0;
+            _mdStyle.Italic = (FontStyle & LingoTextStyle.Italic) != 0;
+            _mdStyle.Underline = (FontStyle & LingoTextStyle.Underline) != 0;
+            _mdStyle.Font = Font ?? "";
+            _mdStyle.FontSize = FontSize;
+            _mdStyle.Color = Color;
+            _mdStyle.Alignment = Alignment;
+        }
+
         public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         {
             RenderText();

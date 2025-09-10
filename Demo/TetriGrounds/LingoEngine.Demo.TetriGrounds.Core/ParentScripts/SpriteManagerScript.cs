@@ -20,21 +20,21 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             pSpriteNums.Clear();
             pGame = null;
         }
-
+        private int MaxSpriteNum = 900;
         public int Sadd()
         {
             if (pDestroyList.Count == 0) // are there destroyed sprites
             {
                 pNum += 1; // create a new one
                 // check if we are at the maximum
-                if (pNum > 999)
+                if (pNum > MaxSpriteNum-1)
                 {
-                    var spr = Sprite(1000);
-                    _Movie.PuppetSprite(1000, true);
+                    var spr = Sprite(MaxSpriteNum);
+                    _Movie.PuppetSprite(MaxSpriteNum, true);
                     spr.Loc = Point(100, 30);
                     spr.SetMember("TomuchSprites");
                     spr.Blend = 100;
-                    spr.LocZ = 1000;
+                    spr.LocZ = MaxSpriteNum;
                     spr.Blend = 0;
                     spr.Loc = Point(1, -40);
                     pNum -= 1;
