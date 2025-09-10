@@ -32,6 +32,7 @@ namespace LingoEngine.Movies
         private int _nextFrame = -1;
         private int _lastFrame = 0;
         private bool _isPlaying = false;
+        
 
         private bool _needToRaiseStartMovie = false;
         private LingoCastLibsContainer _castLibContainer;
@@ -148,6 +149,7 @@ namespace LingoEngine.Movies
         }
         public void Dispose()
         {
+            
             RemoveMe();
             _transitionPlayer.Dispose();
         }
@@ -273,7 +275,7 @@ namespace LingoEngine.Movies
 
             try
             {
-                
+
                 var frameChanged = false;
                 if (_nextFrame < 0)
                 {
@@ -286,7 +288,6 @@ namespace LingoEngine.Movies
                     _currentFrame = _nextFrame;
                     _nextFrame = -1;
                 }
-
                 if (frameChanged)
                 {
 
@@ -314,7 +315,7 @@ namespace LingoEngine.Movies
                     // Are there new puppet sprites set.
                     _sprite2DManager.DoPuppetSprites();
                 }
-                    _lastFrame = _currentFrame;
+                _lastFrame = _currentFrame;
 
                 if (_needToRaiseStartMovie)
                     _EventMediator.RaiseStartMovie();
@@ -547,5 +548,7 @@ namespace LingoEngine.Movies
             _lingoMouse = newMouse;
             _sprite2DManager.SetMouse(newMouse);
         }
+
+       
     }
 }

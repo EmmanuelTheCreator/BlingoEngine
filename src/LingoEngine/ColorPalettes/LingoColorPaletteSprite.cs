@@ -36,6 +36,8 @@ public class LingoColorPaletteSprite : LingoSprite, ILingoSpriteWithMember
     public LingoColorPaletteMember? Member { get; set; }
     override public int SpriteNumWithChannel => SpriteNumOffset + SpriteNum;
 
+
+
     public LingoColorPaletteSprite(ILingoEventMediator mediator, ILingoCast activeCastlib, Action<LingoColorPaletteSprite> removeMe) : base(mediator)
     {
         _activeCastlib = activeCastlib;
@@ -93,4 +95,14 @@ public class LingoColorPaletteSprite : LingoSprite, ILingoSpriteWithMember
     }
 
     public ILingoMember? GetMember() => Member;
+
+    ILingoMember? ILingoSpriteWithMember.GetMember()
+    {
+        throw new NotImplementedException();
+    }
+
+    void IMemberRefUser.MemberHasBeenRemoved()
+    {
+        throw new NotImplementedException();
+    }
 }

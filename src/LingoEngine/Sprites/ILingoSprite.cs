@@ -34,6 +34,8 @@ namespace LingoEngine.Sprites
         bool Puppet { get; set; }
 
         bool Lock { get; set; }
+
+        internal bool IsPuppetCached { get; set; }
     }
 
     /// <summary>

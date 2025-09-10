@@ -11,7 +11,7 @@ namespace LingoEngine.Sprites
         //protected readonly ILingoMovieEnvironment _environment;
         protected readonly LingoEventMediator _eventMediator;
         private readonly List<object> _spriteActors = new();
-        private bool _lock;
+        protected bool _lock;
         private int _beginFrame;
         private int _endFrame;
         private string _name = string.Empty;
@@ -72,6 +72,7 @@ namespace LingoEngine.Sprites
         public bool IsDeleted { get; private set; }
 
         public LingoSpriteState? InitialState { get; set; }
+        bool ILingoSpriteBase.IsPuppetCached { get; set; }
 
         public event Action? AnimationChanged;
 
