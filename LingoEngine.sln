@@ -97,7 +97,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AbstUI", "AbstUI", "{6729DC
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{F9E08507-70FB-B3F2-704E-984CC7F56961}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbstUI.LGodotText", "WillMoveToOwnRepo\AbstUI\Test\AbstUI.LGodotText\AbstUI.LGodotText.csproj", "{CF6D2221-10E3-4809-AD86-26E27117905C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbstUI.LGodotTest", "WillMoveToOwnRepo\AbstUI\Test\AbstUI.LGodotTest\AbstUI.LGodotTest.csproj", "{CF6D2221-10E3-4809-AD86-26E27117905C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbstUI.SDLTest", "WillMoveToOwnRepo\AbstUI\Test\AbstUI.SDLTest\AbstUI.SDLTest.csproj", "{38DE1713-B438-4960-A522-61B7BA81E925}"
 EndProject
