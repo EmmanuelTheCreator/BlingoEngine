@@ -1,7 +1,7 @@
 using Godot;
 using LingoEngine.Setup;
 using LingoEngine.LGodot;
-#if DEBUG_WITH_DIRECTOR
+#if DEBUG
 using LingoEngine.Director.Core.Projects;
 using LingoEngine.Director.LGodot;
 #endif
@@ -23,7 +23,7 @@ public partial class RootNodeTetriGrounds : Node2D
  var style = serviceProvider.GetRequiredService<LingoGodotStyle>();
  this.Theme = style.Theme;
 */
-#if DEBUG_WITH_DIRECTOR
+#if DEBUG
             ProjectSettings.SetSetting("display/window/stretch/mode", "disabled");
             ProjectSettings.SetSetting("display/window/stretch/aspect", "ignore");
             DisplayServer.WindowSetSize(new Vector2I(1600, 970));
@@ -45,7 +45,7 @@ public partial class RootNodeTetriGrounds : Node2D
             _services = new ServiceCollection();
             _services.RegisterLingoEngine(c => c
 
-#if DEBUG_WITH_DIRECTOR
+#if DEBUG
                     .WithDirectorGodotEngine(this)
                      .AddBuildAction(b =>
                      {
