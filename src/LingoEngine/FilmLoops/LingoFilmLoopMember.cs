@@ -104,14 +104,13 @@ namespace LingoEngine.FilmLoops
         /// <summary>
         /// Adds a sprite to the film loop timeline.
         /// </summary>
-        /// <param name="channel">Sprite channel inside the film loop.</param>
-        /// <param name="beginFrame">First frame on which the sprite is shown.</param>
-        /// <param name="endFrame">Last frame on which the sprite is shown.</param>
-        /// <param name="sprite">The sprite to add.</param>
-        public void AddSprite(LingoFilmLoopMemberSprite sprite)
+        public LingoFilmLoopMemberSprite AddSprite(ILingoMember member, int channel, int begin, int end, int locH = 0, int locV = 0)
+         => AddSprite(new LingoFilmLoopMemberSprite(member, channel, begin, end, locH, locV));
+        public LingoFilmLoopMemberSprite AddSprite(LingoFilmLoopMemberSprite sprite)
         {
             SpriteEntries.Add(sprite);
             FrameCount = Math.Max(FrameCount, sprite.EndFrame);
+            return sprite;
         }
         /// <summary>
         /// Adds a sound to one of the film loop audio channels.

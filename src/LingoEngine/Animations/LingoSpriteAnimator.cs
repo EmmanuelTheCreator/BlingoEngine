@@ -21,13 +21,14 @@ namespace LingoEngine.Animations
 
 
 
-        public LingoSpriteAnimator(ILingoSprite2DLight sprite, ILingoSpritesPlayer spritesPlayer, ILingoEventMediator mediator, LingoSpriteAnimatorProperties? spriteAnimatorProperties = null)
+        public LingoSpriteAnimator(ILingoSprite2DLight sprite, ILingoSpritesPlayer spritesPlayer, ILingoEventMediator mediator, LingoSpriteAnimatorProperties? spriteAnimatorProperties , bool autoSubscribeEvents)
         {
             _sprite = sprite;
             _spritesPlayer = spritesPlayer;
             _mediator = mediator;
             _properties = spriteAnimatorProperties ?? new LingoSpriteAnimatorProperties();
-            _mediator.Subscribe(this, sprite.SpriteNum + 6);
+            if (autoSubscribeEvents)
+                _mediator.Subscribe(this, sprite.SpriteNum + 6);
         }
 
         public void SetTweenOptions(bool positionEnabled, bool sizeEnabled, bool rotationEnabled, bool skewEnabled,

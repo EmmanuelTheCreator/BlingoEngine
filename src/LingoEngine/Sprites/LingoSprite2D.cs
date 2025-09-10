@@ -316,7 +316,7 @@ namespace LingoEngine.Sprites
             var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
             if (animator == null)
             {
-                animator = new LingoSpriteAnimator(this, _movie, _eventMediator);
+                animator = new LingoSpriteAnimator(this, _movie, _eventMediator,null,false);
                 AddActor(animator);
             }
 
@@ -326,7 +326,7 @@ namespace LingoEngine.Sprites
         {
             var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
             if (animator != null) throw new Exception("Animator already set");
-            animator = new LingoSpriteAnimator(this, _movie, eventMediator, animatorProps);
+            animator = new LingoSpriteAnimator(this, _movie, eventMediator, animatorProps,false);
             AddActor(animator);
         }
         #endregion

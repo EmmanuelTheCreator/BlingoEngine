@@ -1,15 +1,21 @@
 using AbstUI.Primitives;
+using LingoEngine.Animations;
 using LingoEngine.Casts;
 using LingoEngine.Core;
 using LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors;
 using LingoEngine.Demo.TetriGrounds.Core.Sprites.Globals;
+using LingoEngine.FilmLoops;
 using LingoEngine.Members;
 using LingoEngine.Movies;
+using LingoEngine.Primitives;
 using LingoEngine.Projects;
 using LingoEngine.Setup;
 using LingoEngine.Sounds;
+using LingoEngine.Sprites;
 using LingoEngine.Texts;
 using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel.DataAnnotations;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LingoEngine.Demo.TetriGrounds.Core;
 
@@ -18,6 +24,7 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
     public const string MovieName = "Aaark Noid";
     private LingoProjectSettings _settings;
     private ILingoMovie? _movie;
+    private LingoPlayer _lingoPlayer;
 
     public void Setup(ILingoEngineRegistration config)
     {
@@ -54,6 +61,7 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
 
     public void LoadCastLibs(ILingoCastLibsContainer castlibContainer, LingoPlayer lingoPlayer)
     {
+        _lingoPlayer = lingoPlayer;
         lingoPlayer
             .LoadCastLibFromCsv("InternalExt", Path.Combine("Media", "InternalExt", "Members.csv"), true)
             .LoadCastLibFromCsv("Data", Path.Combine("Media", "Data", "Members.csv"));
@@ -112,14 +120,16 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
     }
     public void InitMembers(LingoPlayer player)
     {
-        var textColor = AColor.FromHex("#999966");
-        var text = player.CastLib(2).GetMember<LingoMemberText>("T_data");
-        text!.Color = textColor;
+        //var textColor = AColor.FromHex("#999966");
+        //var text = player.CastLib(2).GetMember<LingoMemberText>("T_data");
+        //text!.Color = textColor;
+        CreateBirdFilmLoop(player);
     }
     public void InitSprites()
     {
         //if (_movie == null) return;
         //TestTextChanging();
+        //TestFilmLoops();
         //return;
 
         //_movie.AddSprite(1, 1, 64, 519, 343).SetMember("bell0039")
@@ -161,6 +171,8 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         castData.Member["T_InternetScoresP"]!.Width = 37;
 
         var MyBG = _movie.Member["Game"];
+        var memberLoading = _movie.CastLib.GetMember<ILingoMemberTextBase>(56,2)!;
+        memberLoading.Width = 473;
         _movie.AddFrameBehavior<GameStopBehavior>(60);
         //_movie.AddFrameBehavior<WaiterFrameScript>(1);
         //_movie.AddFrameBehavior<StayOnFrameFrameScript>(4);
@@ -204,6 +216,56 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         _movie.AddSprite(29, 59, 64, 95, 313).SetMember("T_InternetScoresNamesP");
         _movie.AddSprite(30, 59, 64, 151, 313).SetMember("T_InternetScoresP");
         _movie.AddSprite(35, 61, 64, 323, 238).SetMember("alert");
+        // Start Animation
+        var logoSprite1 = (ILingoSprite2DLight)_movie.AddSprite(3, 2, 53, 600, 60).SetMember("TetriGrounds_s");
+        logoSprite1.AddKeyframes(
+            new LingoKeyFrameSetting { Frame = 1, Position = new APoint(600, 60),Blend =10 },
+            new LingoKeyFrameSetting { Frame = 10, Position = new APoint(306, 124),Blend =100 },
+            new LingoKeyFrameSetting { Frame = 20, Position = new APoint(356, 237),Blend =100 },
+            (22,366,252),(24,356,237));
+        var loadingSprite1 = (ILingoSprite2DLight)_movie.AddSprite(2, 19, 53, 132,268).SetMember(memberLoading);
+        var birdSprite1 = (ILingoSprite2DLight)_movie.AddSprite(6, 2, 31, 751,394).SetMember("BirdAnim");
+        birdSprite1.AddKeyframes((1,751,394), (16, 444, 273), (31, -33, 316));
+
+    }
+    private void CreateBirdFilmLoop(ILingoPlayer lingoPlayer)
+    {
+        var dataCastlib = lingoPlayer.CastLib("Data")!;
+        var birdAnim = dataCastlib.GetMember<LingoFilmLoopMember>("BirdAnim")!;
+        birdAnim.Loop = true;
+        birdAnim.AddSprite(dataCastlib.Member["mouse0000"]!, 1, 1, 1);
+        birdAnim.AddSprite(dataCastlib.Member["mouse0001"]!, 1, 2, 2);
+        birdAnim.AddSprite(dataCastlib.Member["mouse0002"]!, 1, 3, 3);
+        birdAnim.AddSprite(dataCastlib.Member["mouse0003"]!, 1, 4, 4);
+        birdAnim.AddSprite(dataCastlib.Member["mouse0004"]!, 1, 5, 5);
+        birdAnim.AddSprite(dataCastlib.Member["mouse0005"]!, 1, 6, 6);
+        birdAnim.AddSprite(dataCastlib.Member["mouse0004"]!, 1, 7, 7);
+        birdAnim.AddSprite(dataCastlib.Member["mouse0003"]!, 1, 8, 8);
+        birdAnim.AddSprite(dataCastlib.Member["mouse0002"]!, 1, 9, 9);
+        birdAnim.AddSprite(dataCastlib.Member["mouse0001"]!, 1, 10, 10);
+        birdAnim.AddSprite(dataCastlib.Member["mouse0000"]!, 1, 11, 11);
+    }
+
+    private void TestFilmLoops()
+    {
+        _movie!.AddSprite(5, 3, 299, 50, 150, c =>
+        {
+            c.Name = "BirdAnim2";
+            //c.AddKeyframes((7, 70, 250), (15, 80, 250), (20, 50, 150));
+        }).SetMember("BirdAnim");
+        var birdAnim = _lingoPlayer!.CastLib("Data")!.GetMember<LingoFilmLoopMember>("BirdAnim")!;
+        var spritebirds= new LingoFilmLoopMemberSprite(birdAnim)
+        {
+            LocH = 0,
+            LocV = 0,
+            InkType = LingoInkType.Matte,
+            BeginFrame = 1,
+            EndFrame = 60,
+            Channel = 1,
+            Name = "birdV_Root"
+        };
+
+        _movie.AddFrameBehavior<StayOnFrameFrameScript>(20);
     }
 
     private void TestTextChanging()
