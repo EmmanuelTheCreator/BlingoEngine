@@ -43,6 +43,8 @@ else
     "Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.SDL2"
     "Test/LingoEngine.SDL2.GfxVisualTest"
     "WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.SDL2"
+    "src/Director/LingoEngine.Director.Runner.SDL2"
+    "src/Director/LingoEngine.Director.Runner.Godot"
   )
   for proj in "${PROJECTS[@]}"; do
     if [ -d "$proj" ]; then

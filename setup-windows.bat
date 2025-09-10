@@ -51,7 +51,7 @@ if not exist "%LIB_DIR%" (
 )
 
 echo Copying SDL2 libraries for %ARCH%...
-set PROJECTS="Demo\TetriGrounds\LingoEngine.Demo.TetriGrounds.SDL2" "Test\LingoEngine.SDL2.GfxVisualTest" "WillMoveToOwnRepo\AbstUI\Test\AbstUI.GfxVisualTest.SDL2"
+set PROJECTS="Demo\TetriGrounds\LingoEngine.Demo.TetriGrounds.SDL2" "Test\LingoEngine.SDL2.GfxVisualTest" "WillMoveToOwnRepo\AbstUI\Test\AbstUI.GfxVisualTest.SDL2" "src\Director\LingoEngine.Director.Runner.SDL2" "src\Director\LingoEngine.Director.Runner.Godot"
 for %%P in (%PROJECTS%) do (
     if exist "%ROOT%%%~P" (
         for %%C in (Debug Release) do (

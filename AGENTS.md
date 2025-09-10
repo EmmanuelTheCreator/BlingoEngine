@@ -49,6 +49,8 @@ These instructions apply to the entire repository.
 | src/Director/LingoEngine.Director.Host/LingoEngine.Director.Host.csproj | SignalR host for Director tooling |
 | src/Director/LingoEngine.Director.SDL2/LingoEngine.Director.SDL2.csproj | SDL2 integration for Director tooling |
 | src/Director/LingoEngine.Director.LGodot/LingoEngine.Director.LGodot.csproj | Godot integration for Director tooling |
+| src/Director/LingoEngine.Director.Runner.SDL2/LingoEngine.Director.Runner.SDL2.csproj | Standalone SDL2 runner for Director tooling |
+| src/Director/LingoEngine.Director.Runner.Godot/LingoEngine.Director.Runner.Godot.csproj | Standalone Godot runner for Director tooling |
 | Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Core/LingoEngine.Demo.TetriGrounds.Core.csproj | Shared code for the TetriGrounds demo |
 | Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.SDL2/LingoEngine.Demo.TetriGrounds.SDL2.csproj | SDL2-based TetriGrounds demo |
 | Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Blazor/LingoEngine.Demo.TetriGrounds.Blazor.csproj | Blazor-based TetriGrounds demo |
