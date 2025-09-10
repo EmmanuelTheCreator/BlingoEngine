@@ -54,7 +54,7 @@ echo Copying SDL2 libraries for %ARCH%...
 set PROJECTS="Demo\TetriGrounds\LingoEngine.Demo.TetriGrounds.SDL2" "Test\LingoEngine.SDL2.GfxVisualTest" "WillMoveToOwnRepo\AbstUI\Test\AbstUI.GfxVisualTest.SDL2" "src\Director\LingoEngine.Director.Runner.SDL2" "src\Director\LingoEngine.Director.Runner.Godot"
 for %%P in (%PROJECTS%) do (
     if exist "%ROOT%%%~P" (
-        for %%C in (Debug Release) do (
+        for %%C in (Debug DebugWithDirector Release) do (
             if not exist "%ROOT%%%~P\bin\%%C\net8.0" mkdir "%ROOT%%%~P\bin\%%C\net8.0"
             copy /Y "%LIB_DIR%\*" "%ROOT%%%~P\bin\%%C\net8.0" >nul
         )
