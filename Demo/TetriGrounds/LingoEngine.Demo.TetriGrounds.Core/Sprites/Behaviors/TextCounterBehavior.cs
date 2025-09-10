@@ -12,16 +12,31 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
    
 
     // Converted from 23_TextCounter.ls
-    public class TextCounterBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasExitFrameEvent, ILingoPropertyDescriptionList
+    public class TextCounterBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasExitFrameEvent, ILingoPropertyDescriptionList, IHasLingoMessage
     {
-        public int myMax = 10;
-        public int myMin = 0;
-        public int myValue = -1;
-        public int myStep = 1;
-        public int myDataSpriteNum = 1;
-        public string myDataName = "";
-        public int myWaitbeforeExecute = 70;
-        public string myFunction = "";
+        public int myMax { get; set; } = 10;
+        public int myMin { get; set; } = 0;
+        /// <summary>
+        /// My Start Value
+        /// </summary>
+        public int myValue { get; set; } = -1;
+        public int myStep { get; set; } = 1;
+        /// <summary>
+        /// My Sprite that contains info\n(set value to -1)
+        /// </summary>
+        public int myDataSpriteNum { get; set; } = 1;
+        /// <summary>
+        /// Name Info
+        /// </summary>
+        public string myDataName { get; set; } = "";
+        /// <summary>
+        /// WaitTime before execute
+        /// </summary>
+        public int myWaitbeforeExecute { get; set; } = 70;
+        /// <summary>
+        /// function to execute
+        /// </summary>
+        public string myFunction { get; set; } = "";
 
         private int myWaiter;
         private LingoMemberText? _textMember;
@@ -54,9 +69,12 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             _textMember = Me.Member as LingoMemberText;
             if (myValue == -1)
             {
-                myValue = SendSprite<IHasCounterStartData, int>(myDataSpriteNum, c => c.GetCounterStartData(myDataName));
-                if (myValue <= 0) myValue = 0;
-                if (myValue < myMin || myValue > myMax) myValue = 0;
+                if (myDataSpriteNum > 0)
+                {
+                    myValue = SendSprite<IHasCounterStartData, int>(myDataSpriteNum, c => c.GetCounterStartData(myDataName));
+                    if (myValue <= 0) myValue = 0;
+                    if (myValue < myMin || myValue > myMax) myValue = 0;
+                }
             }
             UpdateMe();
             myWaiter = myWaitbeforeExecute;
@@ -64,10 +82,11 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 
         public void ExitFrame()
         {
+            if (myDataSpriteNum <= 0) return;
             if (myWaiter < myWaitbeforeExecute)
             {
                 if (myWaiter == myWaitbeforeExecute - 1)
-                    SendSprite(myDataSpriteNum, s => ((IHasLingoMessage)s)?.HandleMessage(myFunction, myDataName, myValue));
+                    SendSprite<ExecuteBehavior>(myDataSpriteNum, s => s.HandleMessage(myFunction, myDataName, myValue));
                 myWaiter++;
             }
         }
@@ -97,6 +116,15 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             myWaiter = 0;
         }
 
-      
+        public void HandleMessage(string myFunction, params object[]? parameters)
+        {
+            switch (myFunction)
+            {
+                case "Addd": Addd(); break;
+                case "Deletee": Deletee(); break;
+                default:
+                    break;
+            }
+        }
     }
 }
