@@ -6,6 +6,18 @@
     <Nullable>enable</Nullable>
     <LangVersion>12</LangVersion>
   </PropertyGroup>
+  <PropertyGroup>
+    <!-- NuGet Packaging Metadata -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>LingoEngine.Director.Runner.SDL2</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Emmanuel The Creator</Authors>
+    <Company>The Community</Company>
+    <Description>Standalone SDL2 runner for the LingoEngine Director.</Description>
+    <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
+    <PackageTags>LingoEngine Director SDL2</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../LingoEngine.Director.SDL2/LingoEngine.Director.SDL2.csproj" />
     <ProjectReference Include="../LingoEngine.Director.Host/LingoEngine.Director.Host.csproj" />

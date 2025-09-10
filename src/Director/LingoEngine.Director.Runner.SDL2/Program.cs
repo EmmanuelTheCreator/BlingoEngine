@@ -8,7 +8,7 @@ var services = new ServiceCollection();
 services.RegisterLingoEngine(c =>
 {
     c.WithDirectorHostServer();
-    c.WithDirectorSdlEngine("Director Runner", 1280, 720);
+    c.WithDirectorSdlEngine("Director c#", 1280, 720);
 });
 var sp = services.BuildServiceProvider();
 sp.GetRequiredService<ILingoEngineRegistration>().Build(sp);
