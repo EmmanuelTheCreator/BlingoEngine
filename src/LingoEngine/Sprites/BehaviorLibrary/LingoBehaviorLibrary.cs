@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 namespace LingoEngine.Sprites.BehaviorLibrary;
 
 public class LingoBehaviorLibrary : ILingoBehaviorLibrary
@@ -18,8 +14,11 @@ public class LingoBehaviorLibrary : ILingoBehaviorLibrary
 
     public IEnumerable<LingoBehaviorDefinition> Search(string searchTerm)
     {
-        return _behaviors.Where(b => b.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)
-            || b.Category.Contains(searchTerm, StringComparison.OrdinalIgnoreCase));
+        var term  = searchTerm?.ToLower() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(term))
+            return new List<LingoBehaviorDefinition>();
+        return _behaviors.Where(b => b.Name.ToLower().Contains(term)
+            || b.Category.Contains(term));
     }
 
     public IEnumerable<string> GetCategories()
