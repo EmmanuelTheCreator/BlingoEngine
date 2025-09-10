@@ -27,7 +27,8 @@ namespace LingoEngine.LGodot.Sounds
         internal void Init(LingoMemberSound memberSound)
         {
             _lingoMemberSound = memberSound;
-            Preload();
+            if (!string.IsNullOrWhiteSpace(memberSound.FileName))
+                Preload();
             //_lingoMemberSound.CreationDate = new FileInfo(Format).LastWriteTime;
         }
 
@@ -54,6 +55,7 @@ namespace LingoEngine.LGodot.Sounds
         public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
         public void Preload()
         {
+            if (_lingoMemberSound == null) return;// need to be initialized first
             if (IsLoaded) return;
             IsLoaded = true;
             AudioStream = GD.Load<AudioStream>($"res://{_lingoMemberSound.FileName}");

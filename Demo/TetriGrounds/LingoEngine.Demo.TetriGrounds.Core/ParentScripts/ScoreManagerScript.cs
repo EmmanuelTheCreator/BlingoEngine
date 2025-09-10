@@ -58,9 +58,18 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
         }
 
         public void LineRemoved1() => myPlayerScore += 5 + myLevel;
-        public void LineRemoved2() { NewText("2 Lines Removed!!"); myPlayerScore += 12 + myLevel; }
-        public void LineRemoved3() { NewText("3 Lines Removed!!"); myPlayerScore += 20 + myLevel; }
-        public void LineRemoved4() { NewText("Wooow, 4 Lines Removed!!"); myPlayerScore += 30 + myLevel; }
+        public void LineRemoved2() {
+            _Player.SoundPlayRowsDeleted(2);
+            NewText("2 Lines Removed!!"); myPlayerScore += 12 + myLevel; 
+        }
+        public void LineRemoved3() { 
+            _Player.SoundPlayRowsDeleted(3);
+            NewText("3 Lines Removed!!"); myPlayerScore += 20 + myLevel; 
+        }
+        public void LineRemoved4() {
+            _Player.SoundPlayRowsDeleted(4);
+            NewText("Wooow, 4 Lines Removed!!"); myPlayerScore += 30 + myLevel; 
+        }
 
         public void AddDropedBlock() => myBlocksDroped += 1;
         public void LineRemoved() 

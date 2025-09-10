@@ -229,6 +229,8 @@ namespace LingoEngine.Members
         private readonly ILingoFrameworkMember _frameworkMember;
         private readonly List<IMemberRefUser> _linkedMemberRefUsers = new();
         private bool _hasBeenDisposed;
+        private string _fileName;
+
         public ILingoFrameworkMember FrameworkObj => _frameworkMember;
 
         /// <inheritdoc/>
@@ -267,7 +269,15 @@ namespace LingoEngine.Members
         /// <inheritdoc/>
         public string Comments { get; set; }
         /// <inheritdoc/>
-        public string FileName { get; set; }
+        public string FileName
+        {
+            get => _fileName;
+            set
+            {
+                if (_fileName == value) return;
+                _fileName = value;
+            }
+        }
         /// <inheritdoc/>
         public LingoMemberType Type { get; private set; }
         public int NumberInCast { get; internal set; }

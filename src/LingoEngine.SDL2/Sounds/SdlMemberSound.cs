@@ -27,10 +27,15 @@ public class SdlMemberSound : ILingoFrameworkMemberSound, IDisposable
     public void PasteClipboardInto() { }
     public void Preload()
     {
+        if (_member == null) return;// need to be initialized first
         if (IsLoaded) return;
         if (!File.Exists(_member.FileName))
             return;
-
+        if (_chunk != nint.Zero)
+        {
+            SDL_mixer.Mix_FreeChunk(_chunk);
+            _chunk = nint.Zero;
+        }
         _chunk = SDL_mixer.Mix_LoadWAV(_member.FileName);
         if (_chunk == nint.Zero)
             return;

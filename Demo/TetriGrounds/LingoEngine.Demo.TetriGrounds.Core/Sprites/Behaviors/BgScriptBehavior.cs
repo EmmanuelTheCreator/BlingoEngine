@@ -29,6 +29,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             var sprite35 = Sprite(35);
             if (myPlayerBlock != null && sprite35.HasSprite())
                 Sprite(35).Blend = 0;
+            _Player.SoundPlayGong();
         }
 
         public void ExitFrame()

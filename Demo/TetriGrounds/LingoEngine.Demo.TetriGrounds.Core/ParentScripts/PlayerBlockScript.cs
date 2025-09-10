@@ -155,7 +155,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             int starting = myY;
             for (int i = starting; i <= myMaxY; i++)
             {
-                bool test = DownCheck();
+                bool test = DownCheck(myY);
                 RefreshBlock();
                 if (!test) break;
             }
@@ -177,7 +177,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             if (myWaiter + addon > mySlowDown)
             {
                 myWaiter = 0;
-                DownCheck();
+                DownCheck(myY);
                 RefreshBlock();
             }
             else
@@ -186,11 +186,12 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             }
         }
 
-        private bool DownCheck()
+        private bool DownCheck(int rowsLeft)
         {
             bool check = CollitionDetect(myX, myY + 1);
             if (check)
             {
+                _Player.SoundPlayBlockDown((int)Math.Floor((float)((float)rowsLeft / myMaxY) *10));
                 FreezeBlock();
                 ResetBlock();
                 return false;
@@ -223,9 +224,15 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
 
             // check if we go a level up
             if (myScoreManager.GetLevelUp())
+            {
+                _Player.SoundPlayGong();
+                _Player.SoundPlayLevelUp();
                 CalculateSpeed();
+            }
             if (CollitionDetect(myX, myY))
             {
+                _Player.SoundPlayTerminated();
+                _Player.SoundPlayDied();
                 myScoreManager.GameFinished();
                 myFinished = true;
                 myBlocks.FinishedBlocks();

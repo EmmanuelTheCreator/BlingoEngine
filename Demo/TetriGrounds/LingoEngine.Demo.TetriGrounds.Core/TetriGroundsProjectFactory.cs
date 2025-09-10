@@ -3,9 +3,11 @@ using LingoEngine.Casts;
 using LingoEngine.Core;
 using LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors;
 using LingoEngine.Demo.TetriGrounds.Core.Sprites.Globals;
+using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Projects;
 using LingoEngine.Setup;
+using LingoEngine.Sounds;
 using LingoEngine.Texts;
 using Microsoft.Extensions.DependencyInjection;
 using static System.Net.Mime.MediaTypeNames;
@@ -56,6 +58,28 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         lingoPlayer
             .LoadCastLibFromCsv("InternalExt", Path.Combine("Media", "InternalExt", "Members.csv"), true)
             .LoadCastLibFromCsv("Data", Path.Combine("Media", "Data", "Members.csv"));
+        lingoPlayer.AddCastLib("Sounds",true,c =>
+        {
+            c.Add(LingoMemberType.Sound, 0, "S_Click", Path.Combine("Media", "Sounds", "click.mp3"));
+            c.Add(LingoMemberType.Sound, 0, "S_BtnStart", Path.Combine("Media", "Sounds", "btnstart.mp3"));
+            c.Add(LingoMemberType.Sound, 0, "S_Gong", Path.Combine("Media", "Sounds", "gong.mp3"));
+            c.Add(LingoMemberType.Sound, 0, "S_DeleteRow", Path.Combine("Media", "Sounds", "deleterow.mp3"));
+            c.Add(LingoMemberType.Sound, 0, "S_GO", Path.Combine("Media", "Sounds", "go.mp3"));
+            c.Add(LingoMemberType.Sound, 0, "S_LevelUp", Path.Combine("Media", "Sounds", "level_up.mp3"));
+            c.Add(LingoMemberType.Sound, 0, "S_Shhh1", Path.Combine("Media", "Sounds", "shhh1.mp3"));
+            c.Add(LingoMemberType.Sound, 0, "S_Terminated", Path.Combine("Media", "Sounds", "terminated.mp3"));
+            c.Add(LingoMemberType.Sound, 0, "S_Died", Path.Combine("Media", "Sounds", "die.mp3"));
+
+            c.Add(LingoMemberType.Sound, 0, "S_BlockFall1", Path.Combine("Media", "Sounds", "blockfall_1.mp3"));
+            c.Add(LingoMemberType.Sound, 0, "S_BlockFall2", Path.Combine("Media", "Sounds", "blockfall_2.mp3"));
+            c.Add(LingoMemberType.Sound, 0, "S_BlockFall3", Path.Combine("Media", "Sounds", "blockfall_3.mp3"));
+            c.Add(LingoMemberType.Sound, 0, "S_BlockFall4", Path.Combine("Media", "Sounds", "blockfall_4.mp3"));
+            c.Add(LingoMemberType.Sound, 0, "S_BlockFall5", Path.Combine("Media", "Sounds", "blockfall_5.mp3"));
+
+            c.Add(LingoMemberType.Sound, 0, "S_RowsDeleted_2", Path.Combine("Media", "Sounds", "rows_deleted_2.mp3"));
+            c.Add(LingoMemberType.Sound, 0, "S_RowsDeleted_3", Path.Combine("Media", "Sounds", "rows_deleted_3.mp3"));
+            c.Add(LingoMemberType.Sound, 0, "S_RowsDeleted_4", Path.Combine("Media", "Sounds", "rows_deleted_4.mp3"));
+        });
         InitMembers(lingoPlayer);
     }
     public ILingoMovie? LoadStartupMovie(ILingoServiceProvider serviceProvider, LingoPlayer lingoPlayer)
