@@ -1,10 +1,9 @@
 using Godot;
 using LingoEngine.Setup;
 using LingoEngine.LGodot;
-#if DEBUG
+#if DEBUG_WITH_DIRECTOR
 using LingoEngine.Director.Core.Projects;
 using LingoEngine.Director.LGodot;
-#else
 #endif
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -24,16 +23,16 @@ public partial class RootNodeTetriGrounds : Node2D
  var style = serviceProvider.GetRequiredService<LingoGodotStyle>();
  this.Theme = style.Theme;
 */
-#if DEBUG
+#if DEBUG_WITH_DIRECTOR
             ProjectSettings.SetSetting("display/window/stretch/mode", "disabled");
             ProjectSettings.SetSetting("display/window/stretch/aspect", "ignore");
             DisplayServer.WindowSetSize(new Vector2I(1600, 970));
 #else
-            ProjectSettings.SetSetting("display/window/size/initial_position_type","3");
-            ProjectSettings.SetSetting("display/window/stretch/mode","canvas_items");
+            ProjectSettings.SetSetting("display/window/size/initial_position_type", "3");
+            ProjectSettings.SetSetting("display/window/stretch/mode", "canvas_items");
             ProjectSettings.SetSetting("display/window/stretch/aspect", "keep");
             DisplayServer.WindowSetSize(new Vector2I(730, 546));
-#endif            
+#endif
             //DisplayServer.WindowSetPosition((DisplayServer.ScreenGetSize() - DisplayServer.WindowGetSize()) / 2);
 
             var screenSize = DisplayServer.ScreenGetSize();
@@ -45,8 +44,8 @@ public partial class RootNodeTetriGrounds : Node2D
             DisplayServer.WindowSetPosition(centeredPos);
             _services = new ServiceCollection();
             _services.RegisterLingoEngine(c => c
-            
-#if DEBUG
+
+#if DEBUG_WITH_DIRECTOR
                     .WithDirectorGodotEngine(this)
                      .AddBuildAction(b =>
                      {

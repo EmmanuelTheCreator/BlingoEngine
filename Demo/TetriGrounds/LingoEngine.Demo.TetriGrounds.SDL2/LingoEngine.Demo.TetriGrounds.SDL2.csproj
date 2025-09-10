@@ -7,7 +7,19 @@
     <Nullable>enable</Nullable>
     <StartupObject>LingoEngine.Demo.TetriGrounds.SDL2.Program</StartupObject>
     <Platforms>AnyCPU;x64;x86</Platforms>
+    <Configurations>Debug;Release;DebugWithDirector</Configurations>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'DebugWithDirector'">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE;DEBUG_WITH_DIRECTOR</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'DebugWithDirector'">
+    <ProjectReference Include="..\..\..\src\Director\LingoEngine.Director.SDL2\LingoEngine.Director.SDL2.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\100_bell0039.png" Link="Media\Data\100_bell0039.png">
