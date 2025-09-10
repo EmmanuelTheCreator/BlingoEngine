@@ -18,8 +18,12 @@ public abstract class AbstSdlComponent : IAbstSDLComponent, IDisposable
         get => _x;
         set
         {
-            _x = value;
-            ComponentContext.X = (int)value;
+            if (Math.Abs(_x - value) > float.Epsilon)
+            {
+                _x = value;
+                ComponentContext.X = (int)value;
+                ComponentContext.QueueRedraw(this);
+            }
         }
     }
 
@@ -29,8 +33,12 @@ public abstract class AbstSdlComponent : IAbstSDLComponent, IDisposable
         get => _y;
         set
         {
-            _y = value;
-            ComponentContext.Y = (int)value;
+            if (Math.Abs(_y - value) > float.Epsilon)
+            {
+                _y = value;
+                ComponentContext.Y = (int)value;
+                ComponentContext.QueueRedraw(this);
+            }
         }
     }
 
@@ -67,7 +75,14 @@ public abstract class AbstSdlComponent : IAbstSDLComponent, IDisposable
     public virtual int ZIndex
     {
         get => ComponentContext.ZIndex;
-        set => ComponentContext.SetZIndex(value);
+        set
+        {
+            if (ComponentContext.ZIndex != value)
+            {
+                ComponentContext.SetZIndex(value);
+                ComponentContext.QueueRedraw(this);
+            }
+        }
     }
 
     private bool _visibility = true;
@@ -76,8 +91,12 @@ public abstract class AbstSdlComponent : IAbstSDLComponent, IDisposable
         get => _visibility;
         set
         {
-            _visibility = value;
-            ComponentContext.Visible = value;
+            if (_visibility != value)
+            {
+                _visibility = value;
+                ComponentContext.Visible = value;
+                ComponentContext.QueueRedraw(this);
+            }
         }
     }
 
