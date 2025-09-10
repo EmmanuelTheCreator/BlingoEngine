@@ -14,15 +14,33 @@
                 <Optimize>false</Optimize>
                 <DefineConstants>DEBUG;TRACE;DEBUG_WITH_DIRECTOR</DefineConstants>
         </PropertyGroup>
-
+	<PropertyGroup Condition="'$(Configuration)'=='Debug' AND '$(UseDirector)'=='true'">
+		<DefineConstants>$(DefineConstants);DEBUG_WITH_DIRECTOR</DefineConstants>
+	</PropertyGroup>
         <ItemGroup Condition="'$(Configuration)' == 'DebugWithDirector'">
                 <ProjectReference Include="..\..\..\src\Director\LingoEngine.Director.LGodot\LingoEngine.Director.LGodot.csproj" />
+				<ProjectReference Include="..\..\..\src\Director\LingoEngine.Director.Core\LingoEngine.Director.Core.csproj" />
         </ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\src\LingoEngine.LGodot\LingoEngine.LGodot.csproj" />
 		<ProjectReference Include="..\LingoEngine.Demo.TetriGrounds.Core\LingoEngine.Demo.TetriGrounds.Core.csproj" />
 	</ItemGroup>
-
+	<ItemGroup>
+		<None Include="Media\Data\Members.csv">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="Media\InternalExt\24.md">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="Media\InternalExt\25.md">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="Media\InternalExt\Members.csv">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="project.godot" />
+		<None Include="Scenes\root_node_tetri_grounds.tscn" />
+	</ItemGroup>
 
 	<ItemGroup>
 	  <Compile Remove="obj\**" />
@@ -168,21 +186,9 @@
 	  <Content Include="Media\Icons\Painter_Icons.png" />
 	  <Content Include="Properties\launchSettings.json" />
 	</ItemGroup>
-	<ItemGroup>
-	  <None Include="Media\Data\Members.csv">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Include="Media\InternalExt\24.md">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Include="Media\InternalExt\25.md">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Include="Media\InternalExt\Members.csv">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Include="project.godot" />
-	  <None Include="Scenes\root_node_tetri_grounds.tscn" />
-	</ItemGroup>
+	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+	  <Exec Command="echo CONFIG=$(Configuration)  DEFS=$(DefineConstants)" />
+	</Target>
+	
  
 </Project>

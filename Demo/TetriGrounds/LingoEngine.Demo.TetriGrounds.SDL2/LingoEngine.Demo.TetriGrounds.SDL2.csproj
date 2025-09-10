@@ -19,7 +19,20 @@
 
   <ItemGroup Condition="'$(Configuration)' == 'DebugWithDirector'">
     <ProjectReference Include="..\..\..\src\Director\LingoEngine.Director.SDL2\LingoEngine.Director.SDL2.csproj" />
+    <ProjectReference Include="..\..\..\src\Director\LingoEngine.Director.Core\LingoEngine.Director.Core.csproj" />
   </ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\src\LingoEngine.SDL2\LingoEngine.SDL2.csproj" />
+		<ProjectReference Include="..\LingoEngine.Demo.TetriGrounds.Core\LingoEngine.Demo.TetriGrounds.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Media\Data\" />
+		<Folder Include="Media\InternalExt\" />
+		<Folder Include="Media\Icons\" />
+		<Folder Include="Media\Fonts\" />
+	</ItemGroup>
 
   <ItemGroup>
     <Content Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\100_bell0039.png" Link="Media\Data\100_bell0039.png">
@@ -309,17 +322,7 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\src\LingoEngine.SDL2\LingoEngine.SDL2.csproj" />
-    <ProjectReference Include="..\LingoEngine.Demo.TetriGrounds.Core\LingoEngine.Demo.TetriGrounds.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Media\Data\" />
-    <Folder Include="Media\InternalExt\" />
-    <Folder Include="Media\Icons\" />
-    <Folder Include="Media\Fonts\" />
-  </ItemGroup>
+  
 
   <ItemGroup>
     <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\10.md" Link="Media\Data\10.md">
