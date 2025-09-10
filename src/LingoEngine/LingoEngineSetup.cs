@@ -9,6 +9,7 @@ using LingoEngine.Movies;
 using LingoEngine.Projects;
 using LingoEngine.Transitions;
 using LingoEngine.Transitions.TransitionLibrary;
+using LingoEngine.Sprites.BehaviorLibrary;
 using LingoEngine.Xtras.BuddyApi;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -29,6 +30,7 @@ namespace LingoEngine
                    .AddSingleton<LingoFrameLabelManager>()
                    .AddSingleton<ILingoColorPaletteDefinitions, LingoColorPaletteDefinitions>()
                    .AddSingleton<ILingoTransitionLibrary, LingoTransitionLibrary>()
+                   .AddSingleton<ILingoBehaviorLibrary, LingoBehaviorLibrary>()
                    .AddTransient<ILingoTransitionPlayer, LingoTransitionPlayer>()
 
                    .AddTransient<ILingoPlayer>(p => p.GetRequiredService<LingoPlayer>())
