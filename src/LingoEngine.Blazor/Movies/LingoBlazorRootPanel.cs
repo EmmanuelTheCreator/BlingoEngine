@@ -1,25 +1,19 @@
-using Microsoft.AspNetCore.Components;
+using AbstUI.Components;
+using LingoEngine.Blazor.Stages;
+using AbstUI.Blazor.Components.Containers;
 
 namespace LingoEngine.Blazor.Movies;
 
 /// <summary>
-/// Holds a reference to the root DOM element where Lingo movies
-/// should insert their canvases.
+/// Holds the root AbstUI panel used to compose the Blazor stage.
 /// </summary>
 public class LingoBlazorRootPanel
 {
-    private ElementReference _root;
+    public AbstBlazorPanelComponent Component { get; }
+    public LingoBlazorStage? Stage { get; set; }
 
-    /// <summary>
-    /// Gets the root element reference.
-    /// </summary>
-    public ElementReference Root => _root;
-
-    /// <summary>
-    /// Updates the root element reference. Called by the root component
-    /// once it has been rendered.
-    /// </summary>
-    /// <param name="element">The element that should host movie canvases.</param>
-    public void SetRoot(ElementReference element) => _root = element;
+    public LingoBlazorRootPanel(IAbstComponentFactory factory)
+    {
+        Component = factory.CreatePanel("LingoRoot").Framework<AbstBlazorPanelComponent>();
+    }
 }
-

@@ -34,6 +34,14 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
     internal bool IsDirty { get; set; } = true;
     internal bool IsDirtyMember { get; set; } = true;
 
+    public event Action? Changed;
+
+    private void MakeDirty()
+    {
+        IsDirty = true;
+        Changed?.Invoke();
+    }
+
     public LingoBlazorSprite2D(LingoSprite2D sprite,
         Action<LingoBlazorSprite2D> show,
         Action<LingoBlazorSprite2D> hide,
@@ -58,41 +66,41 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
         {
             _visible = value;
             if (value) _show(this); else _hide(this);
-            IsDirty = true;
+            MakeDirty();
         }
     }
     private bool _visible;
 
     private float _blend = 1f;
-    public float Blend { get => _blend; set { _blend = value; IsDirty = true; } }
+    public float Blend { get => _blend; set { _blend = value; MakeDirty(); } }
     private float _x;
-    public float X { get => _x; set { _x = value; IsDirty = true; } }
+    public float X { get => _x; set { _x = value; MakeDirty(); } }
     private float _y;
-    public float Y { get => _y; set { _y = value; IsDirty = true; } }
+    public float Y { get => _y; set { _y = value; MakeDirty(); } }
     public float Width { get; private set; }
     public float Height { get; private set; }
     private string _name = string.Empty;
-    public string Name { get => _name; set { _name = value; IsDirty = true; } }
+    public string Name { get => _name; set { _name = value; MakeDirty(); } }
     private APoint _regPoint;
-    public APoint RegPoint { get => _regPoint; set { _regPoint = value; IsDirty = true; } }
+    public APoint RegPoint { get => _regPoint; set { _regPoint = value; MakeDirty(); } }
     private float _desiredHeight;
-    public float DesiredHeight { get => _desiredHeight; set { _desiredHeight = value; IsDirty = true; } }
+    public float DesiredHeight { get => _desiredHeight; set { _desiredHeight = value; MakeDirty(); } }
     private float _desiredWidth;
-    public float DesiredWidth { get => _desiredWidth; set { _desiredWidth = value; IsDirty = true; } }
+    public float DesiredWidth { get => _desiredWidth; set { _desiredWidth = value; MakeDirty(); } }
     private int _zIndex;
-    public int ZIndex { get => _zIndex; set { _zIndex = value; IsDirty = true; } }
+    public int ZIndex { get => _zIndex; set { _zIndex = value; MakeDirty(); } }
     private float _rotation;
-    public float Rotation { get => _rotation; set { _rotation = value; IsDirty = true; } }
+    public float Rotation { get => _rotation; set { _rotation = value; MakeDirty(); } }
     private float _skew;
-    public float Skew { get => _skew; set { _skew = value; IsDirty = true; } }
+    public float Skew { get => _skew; set { _skew = value; MakeDirty(); } }
     private bool _flipH;
-    public bool FlipH { get => _flipH; set { _flipH = value; IsDirty = true; } }
+    public bool FlipH { get => _flipH; set { _flipH = value; MakeDirty(); } }
     private bool _flipV;
-    public bool FlipV { get => _flipV; set { _flipV = value; IsDirty = true; } }
+    public bool FlipV { get => _flipV; set { _flipV = value; MakeDirty(); } }
     private bool _directToStage;
-    public bool DirectToStage { get => _directToStage; set { _directToStage = value; IsDirty = true; } }
+    public bool DirectToStage { get => _directToStage; set { _directToStage = value; MakeDirty(); } }
     private int _ink;
-    public int Ink { get => _ink; set { _ink = value; IsDirty = true; } }
+    public int Ink { get => _ink; set { _ink = value; MakeDirty(); } }
 
     public void MemberChanged()
     {
@@ -119,6 +127,7 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
                 _mediaStatus = blazorMedia.MediaStatus;
             }
             IsDirtyMember = true;
+            MakeDirty();
         }
     }
 
@@ -138,6 +147,7 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
         }
         _lingoSprite.FWTextureHasChanged(texture);
         IsDirtyMember = true;
+        MakeDirty();
     }
 
     /// <inheritdoc/>

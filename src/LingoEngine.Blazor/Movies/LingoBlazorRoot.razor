@@ -1,16 +1,11 @@
-@using Microsoft.AspNetCore.Components
-@inject LingoEngine.Blazor.Movies.LingoBlazorRootPanel RootPanel
+@using AbstUI.Blazor.Components.Containers
+@using LingoEngine.Blazor.Movies
+@using LingoEngine.Blazor.Stages
+@inject LingoBlazorRootPanel RootPanel
 
-<div @ref="_root"></div>
-
-@code {
-    private ElementReference _root;
-
-    protected override void OnAfterRender(bool firstRender)
+<AbstBlazorPanel Component="RootPanel.Component">
+    @if (RootPanel.Stage is not null)
     {
-        if (firstRender)
-        {
-            RootPanel.SetRoot(_root);
-        }
+        <LingoBlazorStageView Stage="RootPanel.Stage" />
     }
-}
+</AbstBlazorPanel>
