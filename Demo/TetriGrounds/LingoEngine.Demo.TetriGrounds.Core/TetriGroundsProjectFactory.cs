@@ -10,7 +10,6 @@ using LingoEngine.Setup;
 using LingoEngine.Sounds;
 using LingoEngine.Texts;
 using Microsoft.Extensions.DependencyInjection;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace LingoEngine.Demo.TetriGrounds.Core;
 
@@ -69,6 +68,7 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
             c.Add(LingoMemberType.Sound, 0, "S_Shhh1", Path.Combine("Media", "Sounds", "shhh1.mp3"));
             c.Add(LingoMemberType.Sound, 0, "S_Terminated", Path.Combine("Media", "Sounds", "terminated.mp3"));
             c.Add(LingoMemberType.Sound, 0, "S_Died", Path.Combine("Media", "Sounds", "die.mp3"));
+            c.Add(LingoMemberType.Sound, 0, "S_Nature", Path.Combine("Media", "Sounds", "nature.mp3"));
 
             c.Add(LingoMemberType.Sound, 0, "S_BlockFall1", Path.Combine("Media", "Sounds", "blockfall_1.mp3"));
             c.Add(LingoMemberType.Sound, 0, "S_BlockFall2", Path.Combine("Media", "Sounds", "blockfall_2.mp3"));
@@ -80,6 +80,7 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
             c.Add(LingoMemberType.Sound, 0, "S_RowsDeleted_3", Path.Combine("Media", "Sounds", "rows_deleted_3.mp3"));
             c.Add(LingoMemberType.Sound, 0, "S_RowsDeleted_4", Path.Combine("Media", "Sounds", "rows_deleted_4.mp3"));
         });
+        lingoPlayer.CastLib("Sounds").GetMember<LingoMemberSound>("S_Nature")!.Loop = true;
         InitMembers(lingoPlayer);
     }
     public ILingoMovie? LoadStartupMovie(ILingoServiceProvider serviceProvider, LingoPlayer lingoPlayer)
@@ -118,7 +119,8 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
     public void InitSprites()
     {
         if (_movie == null) return;
-
+        //TestTextChanging();
+        //return;
 
         //_movie.AddSprite(1, 1, 64, 519, 343).SetMember("bell0039")
         //    .AddBehavior<AnimationScriptBehavior>(b =>
@@ -147,6 +149,7 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
 
         var castData = _movie.CastLib["Data"];
 
+        
         castData.Member["T_data"]!.Width = 191;
         castData.Member["T_NewGame"]!.Width = 48;
         castData.Member["T_Score"]!.Width = 99;
@@ -201,6 +204,15 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         _movie.AddSprite(29, 59, 64, 95, 313).SetMember("T_InternetScoresNamesP");
         _movie.AddSprite(30, 59, 64, 151, 313).SetMember("T_InternetScoresP");
         _movie.AddSprite(35, 61, 64, 323, 238).SetMember("alert");
+    }
+
+    private void TestTextChanging()
+    {
+        var castData = _movie.CastLib["Data"];
+        castData.Member["T_data"]!.Width = 191;
+        _movie.AddSprite(2, 2, 10, 441, 92).SetMember("Block1");
+        var sprite = _movie.AddSprite(3, 2, 10, 441, 92).SetMember("T_data"); // level
+        _movie!.AddFrameBehavior<TestTetrigroundsBehavior>(5);
     }
 
     private void TestPuppetSprite()

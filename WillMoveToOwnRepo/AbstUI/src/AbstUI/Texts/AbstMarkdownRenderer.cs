@@ -104,7 +104,7 @@ namespace AbstUI.Texts
 
             if (DoFastRendering)
             {
-                RenderFast(start);
+                RenderFast(start, canvas.AutoResizeWidth ?0: canvas.Width);
                 return;
             }
 
@@ -214,7 +214,7 @@ namespace AbstUI.Texts
             }
         }
 
-        private void RenderFast(APoint start)
+        private void RenderFast(APoint start, int canvasWidth)
         {
             var style = _styles.Values.First();
 
@@ -232,12 +232,13 @@ namespace AbstUI.Texts
 
             // 1) measure max width of all lines
             float fullWidth = 0f;
-
+            
             var lineWidths = new List<float>(lines.Length);
             foreach (var raw in lines)
             {
                 var line = raw.TrimEnd('\r');
                 float lineWidth = 0;
+
                 if (line != "")
                 {
                     var fontStyleForWidth = AbstFontStyle.Regular;
@@ -247,9 +248,12 @@ namespace AbstUI.Texts
                         fontStyleForWidth |= AbstFontStyle.Italic;
                     lineWidth = EstimateWidth(line, style.Font, fontSize, fontStyleForWidth);
                 }
+
                 lineWidths.Add(lineWidth);
                 fullWidth = MathF.Max(fullWidth, lineWidth);
             }
+           if (canvasWidth > 0)
+                fullWidth = canvasWidth;
             // include margins in the box width, if you want the right edge to respect MarginRight:
             float contentWidth = MathF.Max(0, fullWidth);
             float originX = pos.X + style.MarginLeft;

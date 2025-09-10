@@ -7,21 +7,32 @@ namespace LingoEngine.SDL2.Sounds;
 
 public class SdlSoundChannel : ILingoFrameworkSoundChannel, IDisposable
 {
-    private static readonly Dictionary<int, SdlSoundChannel> Channels = new();
-    private static readonly SDL_mixer.ChannelFinishedDelegate ChannelFinishedCallback = OnChannelFinished;
+    private static readonly Dictionary<int, SdlSoundChannel> _channels = new();
+    private static readonly SDL_mixer.ChannelFinishedDelegate _channelFinishedCallback = OnChannelFinished;
 
     static SdlSoundChannel()
     {
-        SDL_mixer.Mix_ChannelFinished(ChannelFinishedCallback);
+        SDL_mixer.Mix_ChannelFinished(_channelFinishedCallback);
     }
 
     private readonly Stopwatch _elapsedTimer = new();
     private LingoSoundChannel _lingoSoundChannel = null!;
     private nint _chunk = nint.Zero;
     private string? _currentFile;
+    private int _volume;
+
     public int ChannelNumber { get; }
     public int SampleRate => 44100;
-    public int Volume { get; set; }
+    public int Volume
+    {
+        get => _volume;
+        set
+        {
+            _volume = value;
+            var newValue = (Volume / 100f) * SDL_mixer.MIX_MAX_VOLUME;
+            SDL_mixer.Mix_Volume(ChannelNumber, (int)newValue);
+        }
+    }
     public int Pan { get; set; }
     public float CurrentTime { get; set; }
     public bool IsPlaying { get; private set; }
@@ -38,7 +49,7 @@ public class SdlSoundChannel : ILingoFrameworkSoundChannel, IDisposable
     internal void Init(LingoSoundChannel channel)
     {
         _lingoSoundChannel = channel;
-        Channels[ChannelNumber] = this;
+        _channels[ChannelNumber] = this;
     }
 
     public void PlayFile(string stringFilePath)
@@ -114,7 +125,7 @@ public class SdlSoundChannel : ILingoFrameworkSoundChannel, IDisposable
     }
     private static void OnChannelFinished(int channel)
     {
-        if (Channels.TryGetValue(channel, out var ch))
+        if (_channels.TryGetValue(channel, out var ch))
         {
             ch.IsPlaying = false;
             if (ch._chunk != nint.Zero)

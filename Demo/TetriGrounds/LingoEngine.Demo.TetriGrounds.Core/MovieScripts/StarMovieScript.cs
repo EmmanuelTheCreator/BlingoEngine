@@ -1,3 +1,4 @@
+using LingoEngine.Demo.TetriGrounds.Core.ParentScripts;
 using LingoEngine.Movies;
 using LingoEngine.Movies.Events;
 
@@ -17,14 +18,15 @@ namespace LingoEngine.Demo.TetriGrounds.Core.MovieScripts
         {
             if (_global.SpriteManager == null)
             {
-                _global.SpriteManager = new ParentScripts.SpriteManager(_env);
+                _global.SpriteManager = new SpriteManager(_env);
                 _global.SpriteManager.Init(100);
             }
             if (_global.MousePointer == null)
             {
-                _global.MousePointer = new ParentScripts.MousePointer(_env);
-                _global.MousePointer.Init(0);
+                _global.MousePointer = new MousePointer(_env);
+                _global.MousePointer.Init(90);
             }
+            _Player.SoundPlayNature();
         }
 
         public void StopMovie()

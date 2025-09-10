@@ -369,6 +369,9 @@
     <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\die.mp3" Link="Media\Sounds\die.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\nature.mp3" Link="Media\Sounds\nature.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   

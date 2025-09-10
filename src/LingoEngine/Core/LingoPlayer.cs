@@ -32,13 +32,15 @@ namespace LingoEngine.Core
         private Action<LingoMovie> _actionOnNewMovie;
         private Dictionary<string, LingoMovieEnvironment> _moviesByName = new();
         private List<LingoMovieEnvironment> _movies = new();
-
+        private List<CancellationTokenSource> _delayedActionsCts = new();
 
         private readonly LingoKey _lingoKey;
         private readonly LingoStage _stage;
         private readonly LingoSystem _system;
         private readonly LingoClock _clock;
         private LingoStageMouse _mouse;
+        private SynchronizationContext? _uiContext;
+
         public ILingoFrameworkFactory Factory { get; private set; }
         public ILingoServiceProvider ServiceProvider => _serviceProvider;
         public ILingoClock Clock => _clock;
@@ -101,12 +103,16 @@ namespace LingoEngine.Core
         public void Dispose()
         {
             // todo
+            foreach (var cts in _delayedActionsCts)
+                cts.Cancel();
+            _delayedActionsCts.Clear();
         }
         public void LoadStage(int width, int height, AColor backgroundColor)
         {
             Stage.Width = width;
             Stage.Height = height;
             Stage.BackgroundColor = backgroundColor;
+            _uiContext = SynchronizationContext.Current;
         }
 
         /// <inheritdoc/>
@@ -298,6 +304,23 @@ namespace LingoEngine.Core
 
 
         #endregion
+
+        public void RunDelayed(Action action, int milliseconds, CancellationTokenSource? cts = null)
+        {
+            cts ??= new CancellationTokenSource();
+            _delayedActionsCts.Add(cts);
+            Task.Delay(milliseconds, cts.Token).ContinueWith(t =>
+            {
+                if (!t.IsCanceled)
+                {
+                    if (_uiContext != null)
+                        _uiContext.Post(_ => action(), null);
+                    else
+                        action();
+                }
+                _delayedActionsCts.Remove(cts); 
+            }, TaskScheduler.Default);
+        }
     }
 }
 

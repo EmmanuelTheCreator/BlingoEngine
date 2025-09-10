@@ -29,12 +29,12 @@ namespace LingoEngine.Demo.TetriGrounds.Core
                         })
                         .ForMovie(TetriGroundsProjectFactory.MovieName, s => s
                             .AddScriptsFromAssembly()
+                            //.AddMovieScript<StarMovieScript>()
+                        // As an example, you can add them manually too:
 
-                            // As an example, you can add them manually too:
-
-                            // .AddMovieScript<StartMoviesScript>() => MovieScript
-                            // .AddBehavior<MouseDownNavigateBehavior>()  -> Behavior
-                            // .AddParentScript<BlockParentScript>() -> Parent script
+                        // .AddMovieScript<StartMoviesScript>() => MovieScript
+                        // .AddBehavior<MouseDownNavigateBehavior>()  -> Behavior
+                        // .AddParentScript<BlockParentScript>() -> Parent script
                         );
                     registration(config);
                 }

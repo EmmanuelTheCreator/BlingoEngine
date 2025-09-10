@@ -318,7 +318,10 @@ namespace LingoEngine.Movies
                 _lastFrame = _currentFrame;
 
                 if (_needToRaiseStartMovie)
+                {
                     _EventMediator.RaiseStartMovie();
+                    _needToRaiseStartMovie = false;
+                }
 
                 _lingoMouse.UpdateMouseState();
                 _sprite2DManager.PreStepFrame();
@@ -357,7 +360,7 @@ namespace LingoEngine.Movies
             _isPlaying = true;
             PlayStateChanged?.Invoke(true);
             //OnTick();
-            _needToRaiseStartMovie = false;
+            //_needToRaiseStartMovie = false;
 
         }
 

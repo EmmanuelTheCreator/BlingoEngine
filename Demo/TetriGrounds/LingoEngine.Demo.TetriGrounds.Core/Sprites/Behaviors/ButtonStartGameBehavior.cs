@@ -35,9 +35,10 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             if (_global.GameIsRunning)
                 return;
             _Player.SoundPlayBtnStart();
-            _Player.SoundPlayGo();
-
-
+            _Player.RunDelayed(_Player.SoundPlayGo, 100);
+            
+            _Player.SoundStopNature();
+            _global.MousePointer!.HideMouse();
             SendSprite<BgScriptBehavior>(4, s => s.NewGame());
         }
 

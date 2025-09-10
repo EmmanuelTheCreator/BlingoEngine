@@ -231,15 +231,26 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             }
             if (CollitionDetect(myX, myY))
             {
-                _Player.SoundPlayTerminated();
-                _Player.SoundPlayDied();
-                myScoreManager.GameFinished();
-                myFinished = true;
-                myBlocks.FinishedBlocks();
-                StopMove();
-                _global.GameIsRunning = false;
-                //SendSprite<AppliBgBehavior>(1, s => s.GameFinished(myScoreManager.GetScore()));
+                // Game is teriinated
+                GameTerminated();
             }
+        }
+
+        private void GameTerminated()
+        {
+            
+            myScoreManager.GameFinished();
+            myFinished = true;
+            myBlocks.FinishedBlocks();
+            StopMove();
+            _global.GameIsRunning = false;
+            _global.MousePointer!.ShowMouse();
+
+            // play sounds
+            _Player.SoundPlayDied();
+            _Player.RunDelayed(_Player.SoundPlayNature, 900);
+            _Player.RunDelayed(_Player.SoundPlayTerminated, 500);
+            //SendSprite<AppliBgBehavior>(1, s => s.GameFinished(myScoreManager.GetScore()));
         }
 
         private void FreezeBlock()

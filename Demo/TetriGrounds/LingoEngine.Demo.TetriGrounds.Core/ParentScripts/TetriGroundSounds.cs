@@ -14,7 +14,14 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
         public static void SoundPlayShhh1(this ILingoPlayer player) => player.Sound.PuppetSound(3, "S_Shhh1");
         public static void SoundPlayTerminated(this ILingoPlayer player) => player.Sound.PuppetSound(4, "S_Terminated");
         public static void SoundPlayDied(this ILingoPlayer player) => player.Sound.PuppetSound(2, "S_Died");
-        
+        public static void SoundPlayNature(this ILingoPlayer player)
+        {
+            player.Sound.Channel(1)!.Volume = 40;
+            player.Sound.PuppetSound(1, "S_Nature");
+        }
+
+        public static void SoundStopNature(this ILingoPlayer player) => player.Sound.Channel(1)!.Stop();
+
 
         public static void SoundPlayRowsDeleted(this ILingoPlayer player, int rows)
         {
@@ -33,7 +40,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             if (soundId < 1) soundId = 1;
             if (soundId > 5) soundId = 5;
             var sound = "S_BlockFall" + soundId.ToString();
-            Console.WriteLine($"Play sound {sound} {rowsPercentLeft}");
+            //Console.WriteLine($"Play sound {sound} {rowsPercentLeft}");
             player.Sound.PuppetSound(5, sound);
         }
     }

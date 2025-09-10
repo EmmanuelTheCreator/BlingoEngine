@@ -305,7 +305,6 @@ namespace LingoEngine.Texts
             if (_texture != null)
             {
                 _textureUser?.Release();
-                _texture.Dispose();
             }
 
             _markDownRenderer.Reset();
@@ -341,7 +340,8 @@ namespace LingoEngine.Texts
             if (Width == 10)
             {
 
-            }    
+            }
+            painter.Width = Width;
             painter.AutoResizeWidth = Width == 0;
             painter.AutoResizeHeight = true; // Width > 0
             _markDownRenderer.Render(painter, new APoint(0, 0));
