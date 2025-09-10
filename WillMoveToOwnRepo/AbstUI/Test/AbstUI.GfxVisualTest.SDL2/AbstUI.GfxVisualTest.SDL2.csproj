@@ -6,8 +6,29 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="..\AbstUI.LGodotTest\Media\Fonts\8PinMatrix.ttf" Link="Media\Fonts\8PinMatrix.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\AbstUI.LGodotTest\Media\Fonts\arcade.ttf" Link="Media\Fonts\arcade.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\AbstUI.LGodotTest\Media\Fonts\bikly.ttf" Link="Media\Fonts\bikly.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\AbstUI.LGodotTest\Media\Fonts\earth.ttf" Link="Media\Fonts\earth.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\AbstUI.LGodotTest\Media\Fonts\Tahoma.ttf" Link="Media\Fonts\Tahoma.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\src\AbstUI.SDL2\AbstUI.SDL2.csproj" />
     <ProjectReference Include="..\..\src\AbstUI\AbstUI.csproj" />
     <ProjectReference Include="..\AbstUI.GfxVisualTest\AbstUI.GfxVisualTest.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Media\Fonts\" />
+    <Folder Include="Media\Fonts\" />
   </ItemGroup>
 </Project>

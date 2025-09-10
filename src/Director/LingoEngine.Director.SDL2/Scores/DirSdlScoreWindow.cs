@@ -106,7 +106,7 @@ internal class DirSdlScoreWindow : AbstSdlWindow, IDirFrameworkScoreWindow, IDis
 
         Width = directorScoreWindow.Width;
         Height = directorScoreWindow.Height;
-        _directorScoreWindow.ResizeFromFW(true, (int)Width, (int)Height - TitleBarHeight);
+        _directorScoreWindow.ResizingContentFromFW(true, (int)Width, (int)Height - TitleBarHeight);
         RepositionBars(true);
     }
 
@@ -149,7 +149,7 @@ internal class DirSdlScoreWindow : AbstSdlWindow, IDirFrameworkScoreWindow, IDis
         _leftChannelsScroller.Height = _masterScroller.Height;
 
         UpdateScrollSize();
-        _directorScoreWindow.ResizeFromFW(firstLoad, (int)Width, (int)Height - TitleBarHeight);
+        _directorScoreWindow.ResizingContentFromFW(firstLoad, (int)Width, (int)Height - TitleBarHeight);
     }
 
     private void UpdateScrollSize()

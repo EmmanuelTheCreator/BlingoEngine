@@ -16,6 +16,12 @@ export class abstCanvas {
         document.body.appendChild(canvas);
     }
 
+    static addCanvasToElement(element, canvas) {
+        if (element && canvas) {
+            element.appendChild(canvas);
+        }
+    }
+
     static setCanvasVisible(canvas, visible) {
         canvas.style.display = visible ? 'block' : 'none';
     }
@@ -121,6 +127,19 @@ export class abstCanvas {
     }
 }
 
+export class AbstScrollContainer {
+     static getScrollPosition(elementId) {
+        let element = document.getElementById(elementId);
+         if (element == null) return null;
+            return {
+                scrollTop: element.scrollTop,
+                scrollLeft: element.scrollLeft,
+                scrollHeight: element.scrollHeight,
+                clientHeight: element.clientHeight
+            };
+        }
+}
+
 export class AbstUIKey {
     static setCursor(cursor) {
         document.body.style.cursor = cursor;
@@ -198,5 +217,45 @@ export class AbstUIWindow {
         const toast = new bootstrap.Toast(toastEl);
         toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
         toast.show();
+    }
+}
+
+export class abstMedia {
+    static createVideo(id, url, dotNetHelper) {
+        const video = document.createElement('video');
+        video.id = id;
+        video.src = url;
+        video.addEventListener('ended', () => dotNetHelper.invokeMethodAsync('OnVideoEnded'));
+        video.load();
+        return video;
+    }
+    static playVideo(video) { video.play(); }
+    static pauseVideo(video) { video.pause(); }
+    static stopVideo(video) { video.pause(); video.currentTime = 0; }
+    static seekVideo(video, seconds) { video.currentTime = seconds; }
+    static getDuration(video) { return isNaN(video.duration) ? 0 : video.duration * 1000.0; }
+    static getCurrentTime(video) { return video.currentTime * 1000.0; }
+
+    static createAudio(id, dotNetHelper) {
+        const audio = new Audio();
+        audio.id = id;
+        audio.addEventListener('ended', () => dotNetHelper.invokeMethodAsync('OnSoundEnded'));
+        return audio;
+    }
+    static playAudio(audio, url) { audio.src = url; audio.play(); }
+    static pauseAudio(audio) { audio.pause(); }
+    static stopAudio(audio) { audio.pause(); audio.currentTime = 0; }
+    static resumeAudio(audio) { audio.play(); }
+    static seekAudio(audio, seconds) { audio.currentTime = seconds; }
+    static getCurrentTimeAudio(audio) { return audio.currentTime * 1000.0; }
+    static setVolumeAudio(audio, volume) { audio.volume = volume; }
+    static beep() {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        osc.type = 'square';
+        osc.frequency.value = 440;
+        osc.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.2);
     }
 }

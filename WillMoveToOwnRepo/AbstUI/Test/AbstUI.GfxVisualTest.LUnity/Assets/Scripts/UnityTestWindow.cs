@@ -20,6 +20,7 @@ public sealed class UnityTestWindow : IFrameworkTestWindow
     // Properties
     public string Title { get; set; } = string.Empty;
     public AColor BackgroundColor { get; set; } = AColors.White;
+    public AColor BackgroundTitleColor { get; set; } = AColors.LightGray;
     public bool IsActiveWindow => _isOpen;
     public bool IsOpen => _isOpen;
     public IAbstMouse Mouse => _instance.Mouse;

@@ -30,7 +30,7 @@ internal class AbstUnityWindow : AbstUnityPanel, IAbstFrameworkWindow
         get => base.BackgroundColor ?? AColors.White;
         set => base.BackgroundColor = value;
     }
-
+    public AColor BackgroundTitleColor { get; set; }
     public bool IsActiveWindow => Visibility;
     public bool IsOpen => Visibility;
 
@@ -79,6 +79,6 @@ internal class AbstUnityWindow : AbstUnityPanel, IAbstFrameworkWindow
     {
         Width = width;
         Height = height;
-        _internalWindow.ResizeFromFW(false, width, height);
+        _internalWindow.ResizingContentFromFW(false, width, height);
     }
 }

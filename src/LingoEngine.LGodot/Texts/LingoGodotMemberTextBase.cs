@@ -19,38 +19,33 @@ namespace LingoEngine.LGodot.Texts
     public abstract class LingoGodotMemberTextBase<TLingoText> : ILingoFrameworkMemberTextBase, IDisposable
          where TLingoText : ILingoMemberTextBase
     {
-        protected TLingoText _lingoMemberText;
+        protected TLingoText _lingoMemberText = default!;
         protected string _text = "";
         protected IAbstFontManager _fontManager;
         protected readonly ILogger _logger;
-        protected LabelSettings _LabelSettings = new LabelSettings();
 
         private GodotMemberTextNode _defaultTextNode;
         private List<GodotMemberTextNode> _usedNodes = new List<GodotMemberTextNode>();
         private AbstGodotTexture2D? _texture;
         public IAbstTexture2D? TextureLingo => _texture;
         public AbstGodotTexture2D? TextureGodot => _texture;
-
+        public IAbstFontManager FontManager => _fontManager;
         internal class GodotMemberTextNode
         {
-            protected readonly CenterContainer _parentNode;
-            protected readonly Label _labelNode;
+            protected readonly TextureRect _parentNode;
+            //protected readonly Label _labelNode;
             private readonly int _index;
 
-            public Label LabelNode => _labelNode;
-            public Node Node2D => _parentNode;
+            public TextureRect LabelNode => _parentNode;
+            public TextureRect Node2D => _parentNode;
 
-            public GodotMemberTextNode(int index, LabelSettings labelSettings)
+            public GodotMemberTextNode(int index)
             {
-                _parentNode = new CenterContainer();
-                _labelNode = new Label();
-                _labelNode.LabelSettings = labelSettings;
-                _parentNode.AddChild(_labelNode);
+                _parentNode = new TextureRect();
                 _index = index;
             }
             public void Dispose()
             {
-                _labelNode.Dispose();
                 _parentNode.Dispose();
             }
 
@@ -62,23 +57,32 @@ namespace LingoEngine.LGodot.Texts
 
 
 
-
+        private void RequireRedraw()
+        {
+            _lingoMemberText.RequireRedraw();
+        }
 
         #region Properties
 
         public string Text { get => _text; set { UpdateText(value); } }
 
+        public bool _wordWrap;
         public bool WordWrap
         {
-            get => _defaultTextNode.LabelNode.AutowrapMode != TextServer.AutowrapMode.Off;
-            set { Apply(x => x.LabelNode.AutowrapMode = value ? TextServer.AutowrapMode.Word : TextServer.AutowrapMode.Off); }
+            get => _wordWrap;
+            set
+            {
+                if (_wordWrap == value) return;
+                _wordWrap = value;
+                RequireRedraw();
+            }
         }
 
-        public int ScrollTop
-        {
-            get => _defaultTextNode.LabelNode.LinesSkipped;
-            set { Apply(x => x.LabelNode.LinesSkipped = value); }
-        }
+        public int ScrollTop { get; set; }
+        //{
+        //    get => _defaultTextNode.LabelNode.LinesSkipped;
+        //    set { Apply(x => x.LabelNode.LinesSkipped = value); }
+        //}
 
         private LingoTextStyle _textStyle = LingoTextStyle.None;
 
@@ -87,31 +91,32 @@ namespace LingoEngine.LGodot.Texts
             get => _textStyle;
             set
             {
+                if (_textStyle == value) return;
                 _textStyle = value;
-                if (_textStyle != LingoTextStyle.None)
-                {
-                    // todo : implement a way for rtf
+                //if (_textStyle != LingoTextStyle.None)
+                //{
+                //    // todo : implement a way for rtf
 
-                    var rtl = new RichTextLabel();
-                    // Bold/Italic handled via FontStyle
-                    TextServer.FontStyle style = 0; // _LabelSettings.Font.GetFontStyle();
+                //    var rtl = new RichTextLabel();
+                //    // Bold/Italic handled via FontStyle
+                //    TextServer.FontStyle style = 0; // _LabelSettings.Font.GetFontStyle();
 
-                    if (value.HasFlag(LingoTextStyle.Bold))
-                        style |= TextServer.FontStyle.Bold;
+                //    if (value.HasFlag(LingoTextStyle.Bold))
+                //        style |= TextServer.FontStyle.Bold;
 
-                    if (value.HasFlag(LingoTextStyle.Italic))
-                        style |= TextServer.FontStyle.Italic;
-                    //_LabelSettings.Font.Styl();
+                //    if (value.HasFlag(LingoTextStyle.Italic))
+                //        style |= TextServer.FontStyle.Italic;
+                //    //_LabelSettings.Font.Styl();
 
 
-                    //rtl.FontStyle = style;
+                //    //rtl.FontStyle = style;
 
-                    //// Underline handled separately
-                    //_LabelSettings.UnderlineMode = value.HasFlag(LingoTextStyle.Underline)
-                    //    ? UnderlineMode.Always
-                    //    : UnderlineMode.Disabled;
+                //    //// Underline handled separately
+                //    //_LabelSettings.UnderlineMode = value.HasFlag(LingoTextStyle.Underline)
+                //    //    ? UnderlineMode.Always
+                //    //    : UnderlineMode.Disabled;
 
-                }
+                //}
 
                 UpdateSize();
             }
@@ -123,6 +128,7 @@ namespace LingoEngine.LGodot.Texts
             get => _margin;
             set
             {
+                if (_margin == value) return;
                 _margin = value;
                 Apply(x =>
                 {
@@ -134,28 +140,15 @@ namespace LingoEngine.LGodot.Texts
 
             }
         }
+        public AbstTextAlignment _alignment;
         public AbstTextAlignment Alignment
         {
-            get
-            {
-                return _defaultTextNode.LabelNode.HorizontalAlignment switch
-                {
-                    HorizontalAlignment.Left => AbstTextAlignment.Left,
-                    HorizontalAlignment.Center => AbstTextAlignment.Center,
-                    HorizontalAlignment.Right => AbstTextAlignment.Right,
-                    _ => AbstTextAlignment.Left // Default fallback
-                };
-            }
+            get => _alignment;
             set
             {
-                var align = value switch
-                {
-                    AbstTextAlignment.Left => HorizontalAlignment.Left,
-                    AbstTextAlignment.Center => HorizontalAlignment.Center,
-                    AbstTextAlignment.Right => HorizontalAlignment.Right,
-                    _ => HorizontalAlignment.Left // Default fallback
-                };
-                Apply(x => x.LabelNode.HorizontalAlignment = align);
+                if (_alignment == value) return;
+                _alignment = value;
+                RequireRedraw();
             }
         }
 
@@ -165,20 +158,21 @@ namespace LingoEngine.LGodot.Texts
             get => _lingoColor;
             set
             {
+                if (_lingoColor.Equals(value)) return;
                 _lingoColor = value;
-                _LabelSettings.SetAbstColor(value);
+                RequireRedraw();
 
             }
         }
+        public int _fontSize;
         public int FontSize
         {
-            get => _LabelSettings.FontSize;
+            get => _fontSize;
             set
             {
-
-                _LabelSettings.SetAbstFontSize(value);
+                if (_fontSize == value) return;
+                _fontSize = value;
                 UpdateSize();
-
             }
         }
 
@@ -188,10 +182,9 @@ namespace LingoEngine.LGodot.Texts
             get => _fontName;
             set
             {
+                if (_fontName == value) return;
                 _fontName = value;
-                _LabelSettings.SetAbstFont(_fontManager, value);
                 UpdateSize();
-
             }
         }
 
@@ -209,7 +202,6 @@ namespace LingoEngine.LGodot.Texts
             }
         }
         private bool _heightSet;
-        private bool _hasLoadedTexTure;
 
         public int Height
         {
@@ -220,64 +212,17 @@ namespace LingoEngine.LGodot.Texts
                 _heightSet = true;
             }
         }
+
+
         #endregion
 
+        private bool _hasLoadedTexTure;
 
-        protected Node CreateForSpriteDraw(LingoGodotMemberTextBase<TLingoText> copiedNode)
-        {
-            var newNode = new GodotMemberTextNode(_usedNodes.Count + 1, _LabelSettings);
-
-
-            if (!string.IsNullOrWhiteSpace(_lingoMemberText?.Name))
-                newNode.SetName(_lingoMemberText.Name);
-
-            newNode.LabelNode.Text = _text;
-            newNode.LabelNode.AutowrapMode = _defaultTextNode.LabelNode.AutowrapMode;
-            newNode.LabelNode.LinesSkipped = _defaultTextNode.LabelNode.LinesSkipped;
-            newNode.LabelNode.HorizontalAlignment = _defaultTextNode.LabelNode.HorizontalAlignment;
-            newNode.LabelNode.CustomMinimumSize = _defaultTextNode.LabelNode.CustomMinimumSize;
-            newNode.LabelNode.AddThemeConstantOverride("margin_left", _margin);
-            newNode.LabelNode.AddThemeConstantOverride("margin_right", _margin);
-            newNode.LabelNode.AddThemeConstantOverride("margin_top", _margin);
-            newNode.LabelNode.AddThemeConstantOverride("margin_bottom", _margin);
-
-
-            _usedNodes.Add(newNode);
-
-            // Ensure new nodes inherit current text settings.
-            Apply(x =>
-            {
-                x.LabelNode.Text = _text;
-                x.LabelNode.AutowrapMode = WordWrap ? TextServer.AutowrapMode.Word : TextServer.AutowrapMode.Off;
-                x.LabelNode.LinesSkipped = ScrollTop;
-                x.LabelNode.HorizontalAlignment = Alignment switch
-                {
-                    AbstTextAlignment.Center => HorizontalAlignment.Center,
-                    AbstTextAlignment.Right => HorizontalAlignment.Right,
-                    _ => HorizontalAlignment.Left
-                };
-            });
-
-            return newNode.Node2D;
-        }
-        public void ReleaseFromSprite(LingoSprite2D lingoSprite)
-        {
-            if (lingoSprite.Member == null) return;
-            var godotNode = lingoSprite.Framework<LingoGodotSprite2D>().ChildMemberNode;
-            if (godotNode == null) return;
-            var nodeLocal = _usedNodes.FirstOrDefault(x => x.Node2D == godotNode);
-            if (nodeLocal != null)
-                _usedNodes.Remove(nodeLocal);
-        }
-
-
-#pragma warning disable CS8618
         public LingoGodotMemberTextBase(IAbstFontManager lingoFontManager, ILogger logger)
-#pragma warning restore CS8618
         {
             _fontManager = lingoFontManager;
             _logger = logger;
-            _defaultTextNode = new GodotMemberTextNode(1, _LabelSettings);
+            _defaultTextNode = new GodotMemberTextNode(1);
             _usedNodes.Add(_defaultTextNode);
         }
         public void Dispose()
@@ -296,64 +241,102 @@ namespace LingoEngine.LGodot.Texts
                 foreach (var usedNode in _usedNodes)
                     usedNode.SetName(lingoInstance.Name);
             }
+            lingoInstance.InitDefaults();
         }
+
+
+        protected Node CreateForSpriteDraw(LingoGodotMemberTextBase<TLingoText> copiedNode)
+        {
+            var newNode = new GodotMemberTextNode(_usedNodes.Count + 1);
+            //var newNode = new Control(); // _usedNodes.Count + 1, _LabelSettings);
+
+
+            if (!string.IsNullOrWhiteSpace(_lingoMemberText?.Name))
+                newNode.SetName(_lingoMemberText.Name);
+
+            //newNode.LabelNode.Text = _text;
+            //newNode.LabelNode.AutowrapMode = _defaultTextNode.LabelNode.AutowrapMode;
+            //newNode.LabelNode.LinesSkipped = _defaultTextNode.LabelNode.LinesSkipped;
+            //newNode.LabelNode.HorizontalAlignment = _defaultTextNode.LabelNode.HorizontalAlignment;
+            //newNode.LabelNode.CustomMinimumSize = _defaultTextNode.LabelNode.CustomMinimumSize;
+            //newNode.LabelNode.AddThemeConstantOverride("margin_left", _margin);
+            //newNode.LabelNode.AddThemeConstantOverride("margin_right", _margin);
+            //newNode.LabelNode.AddThemeConstantOverride("margin_top", _margin);
+            //newNode.LabelNode.AddThemeConstantOverride("margin_bottom", _margin);
+
+
+            newNode.LabelNode.AddThemeConstantOverride("margin_left", _margin);
+            newNode.LabelNode.AddThemeConstantOverride("margin_right", _margin);
+            newNode.LabelNode.AddThemeConstantOverride("margin_top", _margin);
+            newNode.LabelNode.AddThemeConstantOverride("margin_bottom", _margin);
+
+            _usedNodes.Add(newNode);
+            IAbstTexture2D? texture = _lingoMemberText!.GetTexture();
+            if (texture is AbstGodotTexture2D godotTexture)
+            {
+                _texture = godotTexture;
+                godotTexture.DebugWriteToDisk();
+                newNode.Node2D.Size = new Vector2(godotTexture.Width, godotTexture.Height);
+                newNode.Node2D.CustomMinimumSize = new Vector2(godotTexture.Width, godotTexture.Height);
+                newNode.Node2D.Texture = _texture.Texture;
+
+            }
+            return newNode.Node2D;
+        }
+        public void ReleaseFromSprite(LingoSprite2D lingoSprite)
+        {
+            if (lingoSprite.Member == null) return;
+            var godotNode = lingoSprite.Framework<LingoGodotSprite2D>().ChildMemberNode;
+            if (godotNode == null) return;
+            var nodeLocal = _usedNodes.FirstOrDefault(x => x.Node2D == godotNode);
+            if (nodeLocal != null)
+                _usedNodes.Remove(nodeLocal);
+        }
+
+
+
         public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         {
-            _hasLoadedTexTure = true;
-            int w = Width > 0 ? Width : (int)Size.X;
-            int h = Height > 0 ? Height : (int)Size.Y;
-            if (w <= 0 || h <= 0)
-                w = h = 1;
-            var viewport = new SubViewport
-            {
-                Size = new Vector2I(w, h),
-                TransparentBg = true,
-                RenderTargetUpdateMode = SubViewport.UpdateMode.Once
-            };
-            var label = new Label
-            {
-                LabelSettings = _LabelSettings,
-                Text = Text,
-                Size = new Vector2(w, h)
-            };
-            label.AutowrapMode = WordWrap ? TextServer.AutowrapMode.Word : TextServer.AutowrapMode.Off;
-            label.HorizontalAlignment = Alignment switch
-            {
-                AbstTextAlignment.Center => HorizontalAlignment.Center,
-                AbstTextAlignment.Right => HorizontalAlignment.Right,
-                _ => HorizontalAlignment.Left
-            };
-            viewport.AddChild(label);
-            var img = viewport.GetTexture().GetImage();
-            viewport.Dispose();
-            var tex = ImageTexture.CreateFromImage(img);
-            _texture = new AbstGodotTexture2D(tex);
+            //_hasLoadedTexTure = true;
+            //int w = Width > 0 ? Width : (int)Size.X;
+            //int h = Height > 0 ? Height : (int)Size.Y;
+            //if (w <= 0 || h <= 0)
+            //    w = h = 1;
+            //var viewport = new SubViewport
+            //{
+            //    Size = new Vector2I(w, h),
+            //    TransparentBg = true,
+            //    RenderTargetUpdateMode = SubViewport.UpdateMode.Once
+            //};
+            //var label = new Label
+            //{
+            //    LabelSettings = _LabelSettings,
+            //    Text = Text,
+            //    Size = new Vector2(w, h)
+            //};
+            //label.AutowrapMode = WordWrap ? TextServer.AutowrapMode.Word : TextServer.AutowrapMode.Off;
+            //label.HorizontalAlignment = Alignment switch
+            //{
+            //    AbstTextAlignment.Center => HorizontalAlignment.Center,
+            //    AbstTextAlignment.Right => HorizontalAlignment.Right,
+            //    _ => HorizontalAlignment.Left
+            //};
+            //viewport.AddChild(label);
+            //var img = viewport.GetTexture().GetImage();
+            //viewport.Dispose();
+            //var tex = ImageTexture.CreateFromImage(img);
+            //_texture = new AbstGodotTexture2D(tex);
+            //return _texture;
             return _texture;
         }
 
-        public string ReadText()
-        {
-            var file = GodotHelper.ReadFile(_lingoMemberText.FileName);
-            if (file == null)
-            {
-                _logger.LogWarning("File not found for Text :" + _lingoMemberText.FileName);
-                return "";
-            }
-            return file;
-        }
-        public string ReadTextRtf()
-        {
-            var rtfVersion = GodotHelper.ReadFile(_lingoMemberText.FileName.Replace(".txt", ".rtf"));
-            if (rtfVersion == null)
-                return "";
-            return rtfVersion;
-        }
+       
         private void UpdateText(string value)
         {
             if (_text == value) return;
             _text = value;
-            foreach (var item in _usedNodes)
-                item.LabelNode.Text = value;
+            //foreach (var item in _usedNodes)
+            //    item.LabelNode.Text = value;
             UpdateSize();
 
         }
@@ -365,14 +348,15 @@ namespace LingoEngine.LGodot.Texts
 
         private void UpdateSize()
         {
-            var font = _LabelSettings.Font ?? _fontManager.GetDefaultFont<Font>();
-            Size = _defaultTextNode != null ? _defaultTextNode.LabelNode.GetCombinedMinimumSize().ToAbstPoint() : font.GetMultilineStringSize(Text).ToAbstPoint();
-            _lingoMemberText.Width = (int)Size.X;
-            _lingoMemberText.Height = (int)Size.Y;
-            var asc = font.GetAscent();
-            var height = font.GetHeight();
-            var dif = height - asc;
-            _lingoMemberText.RegPoint = new APoint(0, dif);
+            //var font = _LabelSettings.Font ?? _fontManager.GetDefaultFont<Font>();
+            //Size = _defaultTextNode != null ? _defaultTextNode.LabelNode.GetCombinedMinimumSize().ToAbstPoint() : font.GetMultilineStringSize(Text).ToAbstPoint();
+            //_lingoMemberText.Width = (int)Size.X;
+            //_lingoMemberText.Height = (int)Size.Y;
+            //var asc = font.GetAscent();
+            //var height = font.GetHeight();
+            //var dif = height - asc;
+            //_lingoMemberText.RegPoint = new APoint(0, dif);
+            RequireRedraw();
         }
 
         public void Erase()
@@ -384,8 +368,8 @@ namespace LingoEngine.LGodot.Texts
 
         public void Preload()
         {
-            if (!_hasLoadedTexTure)
-                RenderToTexture(LingoInkType.Copy, AColors.White);
+            //if (!_hasLoadedTexTure)
+            //    RenderToTexture(LingoInkType.Copy, AColors.White);
             IsLoaded = true;
         }
 
@@ -394,7 +378,7 @@ namespace LingoEngine.LGodot.Texts
             _hasLoadedTexTure = false;
             IsLoaded = false;
         }
-
+        public bool IsPixelTransparent(int x, int y) => false;
 
 
         #region Clipboard
@@ -413,6 +397,8 @@ namespace LingoEngine.LGodot.Texts
         }
         public void Copy(string text) => DisplayServer.ClipboardSet(text);
         public string PasteClipboard() => DisplayServer.ClipboardGet();
+
+
 
 
         #endregion

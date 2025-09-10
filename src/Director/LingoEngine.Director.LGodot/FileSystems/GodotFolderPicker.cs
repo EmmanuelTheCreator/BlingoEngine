@@ -13,15 +13,15 @@ namespace LingoEngine.Director.LGodot.FileSystems
             _directorRoot = directorRoot;
         }
 
-        public void PickFolder(Action<string> onPicked)
+        public void PickFolder(Action<string> onPicked, string? currentFolder = null)
         {
 #if USE_WINDOWS_FEATURES
         var dialog = new FileDialog
         {
             Access = FileDialog.AccessEnum.Filesystem,
             FileMode = FileDialog.FileModeEnum.OpenDir,
+            CurrentPath = currentFolder,
         };
-
         dialog.DirSelected += h =>
         {
             onPicked(h);

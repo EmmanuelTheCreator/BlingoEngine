@@ -34,6 +34,7 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
         _registry = registry;
         _mapper.Map<AbstBlazorWrapPanelComponent, AbstBlazorWrapPanel>();
         _mapper.Map<AbstBlazorPanelComponent, AbstBlazorPanel>();
+        _mapper.Map<AbstBlazorZoomBoxComponent, AbstBlazorZoomBox>();
         _mapper.Map<AbstBlazorTabContainerComponent, AbstBlazorTabContainer>();
         _mapper.Map<AbstBlazorScrollContainerComponent, AbstBlazorScrollContainer>();
         _mapper.Map<AbstBlazorButtonComponent, AbstBlazorButton>();
@@ -56,6 +57,11 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
         _mapper.Map<AbstBlazorHorizontalLineSeparatorComponent, AbstBlazorHorizontalLineSeparator>();
         _mapper.Map<AbstBlazorVerticalLineSeparatorComponent, AbstBlazorVerticalLineSeparator>();
     }
+
+    public IAbstImagePainter CreateImagePainter(int width = 0, int height = 0)
+        => new BlazorImagePainter(FontManager, GetRequiredService<IJSRuntime>(), GetRequiredService<AbstUIScriptResolver>(), width, height);
+    public IAbstImagePainter CreateImagePainterToTexture(int width = 0, int height = 0)
+        => new BlazorImagePainter(FontManager, GetRequiredService<IJSRuntime>(), GetRequiredService<AbstUIScriptResolver>(), width, height);
 
     public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
     {
@@ -89,13 +95,24 @@ public class AbstBlazorComponentFactory : AbstComponentFactoryBase, IAbstCompone
         panel.Name = name;
         return panel;
     }
+
+    public AbstZoomBox CreateZoomBox(string name)
+    {
+        var box = new AbstZoomBox();
+        var impl = new AbstBlazorZoomBoxComponent(_registry, _mapper);
+        box.Init(impl);
+        InitComponent(box);
+        box.Name = name;
+        return box;
+    }
     public AbstLayoutWrapper CreateLayoutWrapper(IAbstNode content, float? x, float? y)
     {
         if (content is IAbstLayoutNode)
             throw new InvalidOperationException($"Content {content.Name} already supports layout wrapping is unnecessary.");
 
         var wrapper = new AbstLayoutWrapper(content);
-        var impl = new AbstBlazorLayoutWrapperComponent(wrapper);
+        var impl = new AbstBlazorLayoutWrapperComponent(_registry, _mapper);
+        impl.SetContent((IAbstFrameworkNode)content.FrameworkObj);
         wrapper.Init(impl);
         InitComponent(wrapper);
         if (x.HasValue) wrapper.X = x.Value;

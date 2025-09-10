@@ -2,6 +2,7 @@
 using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Members;
+using AbstUI.Styles;
 
 namespace LingoEngine.Texts.FrameworkCommunication
 {
@@ -31,6 +32,7 @@ namespace LingoEngine.Texts.FrameworkCommunication
         int Margin { get; set; }
         int Width { get; set; }
         int Height { get; set; }
+        IAbstFontManager FontManager { get; }
 
 
         /// <summary>
@@ -40,9 +42,6 @@ namespace LingoEngine.Texts.FrameworkCommunication
 
         string PasteClipboard();
 
-
-        string ReadText();
-        string ReadTextRtf();
 
     }
 }

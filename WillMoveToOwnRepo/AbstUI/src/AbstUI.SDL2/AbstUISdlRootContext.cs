@@ -11,8 +11,8 @@ namespace AbstUI.SDL2;
 public abstract class AbstUISdlRootContext<TMouse> : IAbstSDLRootContext, ISdlRootComponentContext, IDisposable
     where TMouse : IAbstMouse
 {
-    private IAbstGlobalMouse _globalMouse;
-    private IAbstGlobalKey _globalKey;
+    private IAbstGlobalMouse _globalMouse = null!;
+    private IAbstGlobalKey _globalKey = null!;
     protected AbstSdlGlobalMouse<GlobalSDLAbstMouse, AbstMouseEvent>? _frameworkMouse;
     protected SdlKey? _frameworkKey;
 
@@ -99,7 +99,7 @@ public abstract class AbstUISdlRootContext<TMouse> : IAbstSDLRootContext, ISdlRo
         //SDL.SDL_Rect rect = new SDL.SDL_Rect { x = 100, y = 100, w = 200, h = 150 };
         //SDL.SDL_RenderFillRect(Renderer, ref rect);
       
-        ComponentContainer.Render(Factory.CreateRenderContext());
+        ComponentContainer.Render(Factory.CreateRenderContext(null, System.Numerics.Vector2.Zero));
         SDL.SDL_RenderPresent(Renderer);
     }
 

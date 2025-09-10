@@ -1,18 +1,15 @@
 using AbstEngine.Director.LGodot;
 using AbstUI.FrameworkCommunication;
-using AbstUI.Inputs;
 using AbstUI.LGodot.Components;
 using AbstUI.LGodot.Primitives;
 using AbstUI.Primitives;
 using Godot;
 using LingoEngine.Core;
 using LingoEngine.Director.Core.Icons;
-using LingoEngine.Director.Core.Scores;
 using LingoEngine.Director.Core.Stages;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.LGodot.Windowing;
 using LingoEngine.Inputs;
-using LingoEngine.LGodot.Inputs;
 using LingoEngine.LGodot.Stages;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
@@ -50,6 +47,7 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
     private AbstGodotGfxCanvas _boundingBoxesCanvas;
     private AbstGodotGfxCanvas _motionPathCanvas;
     private AbstGodotGfxCanvas _guidesCanvas;
+    private int _borderWidth;
 
     public DirGodotStageWindow(ILingoFrameworkStageContainer stageContainer, IDirectorEventMediator directorEventMediator, IServiceProvider serviceProvider, ILingoPlayer player, DirectorStageWindow directorStageWindow, DirectorStageGuides guides, DirStageManager stageManager, IDirectorIconManager iconManager)
         : base( "Stage", serviceProvider)
@@ -83,8 +81,8 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         _motionPath = new StageMotionPathOverlay(lp.Factory);
         _guides = guides;
         _guides.Draw();
-
-        Size = new Vector2(640 + 10, 480 + 5 + IconBarHeight + TitleBarHeight);
+        _borderWidth = 5;
+        Size = new Vector2(640 + (_borderWidth * 2), 480 + _borderWidth + IconBarHeight + TitleBarHeight);
         CustomMinimumSize = Size;
         // Give all nodes clear names for easier debugging
         Name = "DirGodotStageWindow";
@@ -110,6 +108,8 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         //_stageBgRect.SizeFlagsHorizontal = SizeFlags.ExpandFill;
         //_stageBgRect.SizeFlagsVertical = SizeFlags.ExpandFill;
         _stageBgRect.ZIndex = zIndexStageStart - 1; // Ensure it is behind everything else
+        _stageContainer.Stage.X = (int)_window.X+ _borderWidth;
+        _stageContainer.Stage.Y = (int)_window.Y + TitleBarHeight;
 
         _spriteSummaryCanvas = _spriteSummary.Canvas.Framework<AbstGodotGfxCanvas>();
         _boundingBoxesCanvas = _boundingBoxes.Canvas.Framework<AbstGodotGfxCanvas>();
@@ -189,9 +189,9 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         iconBarPanel.OffsetBottom = 0;
     }
 
-    protected override void OnResizing(Vector2 size)
+    protected override void OnResizing(bool firstResize, Vector2 size)
     {
-        base.OnResizing(size);
+        base.OnResizing(firstResize, size);
         _stageWindowBgRect.CustomMinimumSize = size;
     }
     public override void SetSize(int width, int height)
@@ -305,6 +305,8 @@ internal partial class DirGodotStageWindow : BaseGodotWindow, IDirFrameworkStage
         _scrollContainer.ScrollHorizontal = 3000 / 2 - (int)_scrollContainer.Size.X / 2;
         _scrollContainer.ScrollVertical = 2000 / 2 - (int)_scrollContainer.Size.Y / 2;
         SetScale(1);
+        _stageContainer.Stage.X = (int)_window.X + _borderWidth;
+        _stageContainer.Stage.Y = (int)_window.Y + TitleBarHeight;
         //var min = _scrollContainer.GetVScrollBar().MinValue;
         //var max = _scrollContainer.GetVScrollBar().MaxValue;
         //var range = max - min;

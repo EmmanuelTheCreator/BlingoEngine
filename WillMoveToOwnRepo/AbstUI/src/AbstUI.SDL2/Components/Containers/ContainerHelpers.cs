@@ -1,65 +1,79 @@
-﻿using AbstUI.SDL2.Components.Base;
+﻿using AbstUI.Components;
+using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Events;
-using static AbstUI.SDL2.SDLL.SDL;
 
 namespace AbstUI.SDL2.Components.Containers
 {
     internal class ContainerHelpers
     {
-        public static void HandleChildEvents(AbstSdlComponent comp, AbstSDLEvent e, int xOffset, int yOffset)
+        public static void HandleChildEvents(List<IAbstFrameworkNode> _children, AbstSDLEvent e, float offsetX, float offsetY)
+        {
+            // Forward mouse events to children accounting for current scroll offset
+            var oriOffsetX = e.OffsetX;
+            var oriOffsetY = e.OffsetY;
+            for (int i = _children.Count - 1; i >= 0 && !e.StopPropagation; i--)
+            {
+                var comp = _children[i].FrameworkNode as AbstSdlComponent;
+                HandleChild(e, offsetX, offsetY, oriOffsetX, oriOffsetY, comp);
+            }
+            e.OffsetX = oriOffsetX;
+            e.OffsetY = oriOffsetY;
+        }
+        public static void HandleChildEvents(List<IAbstFrameworkLayoutNode> _children, AbstSDLEvent e, float offsetX, float offsetY)
+        {
+            // Forward mouse events to children accounting for current scroll offset
+            var oriOffsetX = e.OffsetX;
+            var oriOffsetY = e.OffsetY;
+            for (int i = _children.Count - 1; i >= 0 && !e.StopPropagation; i--)
+            {
+                var comp = _children[i].FrameworkNode as AbstSdlComponent;
+                HandleChild(e, offsetX, offsetY, oriOffsetX, oriOffsetY, comp);
+            }
+            e.OffsetX = oriOffsetX;
+            e.OffsetY = oriOffsetY;
+        }
+
+        private static void HandleChild(AbstSDLEvent e, float offsetX, float offsetY, float oriOffsetX, float oriOffsetY, AbstSdlComponent? comp)
+        {
+            if (comp == null || comp is not IHandleSdlEvent handler || !comp.Visibility)
+                return;
+            
+            if (comp is IAbstFrameworkLayoutNode layoutNode)
+            {
+                e.OffsetX = oriOffsetX - offsetX - layoutNode.X;
+                e.OffsetY = oriOffsetY - offsetY - layoutNode.Y;
+            }
+            else
+            {
+                e.OffsetX = oriOffsetX - offsetX - comp.X;
+                e.OffsetY = oriOffsetY - offsetY - comp.Y;
+            }
+                HandleChildEvents(comp, e);
+        }
+
+        public static void HandleChildEvents(AbstSdlComponent comp, AbstSDLEvent e)
         {
             if (comp is not IHandleSdlEvent handler)
                 return;
-            ref var ev = ref e.Event;
-            bool inside = true;
-            int oldX = 0, oldY = 0;
-
-            switch (ev.type)
+            var ev = e.Event;
+            if (ev.type == SDLL.SDL.SDL_EventType.SDL_MOUSEWHEEL)
             {
-                case SDL_EventType.SDL_MOUSEBUTTONDOWN:
-                case SDL_EventType.SDL_MOUSEBUTTONUP:
-                    oldX = ev.button.x;
-                    oldY = ev.button.y;
-                    ev.button.x += xOffset;
-                    ev.button.y += yOffset;
-                    inside = ev.button.x >= comp.X && ev.button.x <= comp.X + comp.Width &&
-                                ev.button.y >= comp.Y && ev.button.y <= comp.Y + comp.Height;
-                    break;
-                case SDL_EventType.SDL_MOUSEMOTION:
-                    oldX = ev.motion.x;
-                    oldY = ev.motion.y;
-                    ev.motion.x += xOffset;
-                    ev.motion.y += yOffset;
-                    inside = ev.motion.x >= comp.X && ev.motion.x <= comp.X + comp.Width &&
-                                ev.motion.y >= comp.Y && ev.motion.y <= comp.Y + comp.Height;
-                    break;
-                case SDL_EventType.SDL_MOUSEWHEEL:
-                    SDL_GetMouseState(out var mx, out var my);
-                    mx += xOffset;
-                    my += yOffset;
-                    inside = mx >= comp.X && mx <= comp.X + comp.Width &&
-                                my >= comp.Y && my <= comp.Y + comp.Height;
-                    break;
-                default:
-                    inside = true;
-                    break;
+
             }
-
-            if (inside)
-                handler.HandleEvent(e);
-
-            // Restore event coordinates for next child
-            switch (ev.type)
+            
+            e.CalulateIsInside(comp.Width, comp.Height);
+            //if (comp.Name.Contains("btn1"))
+            //{
+            //    Console.WriteLine($"Even0 {ev.type} at {e.ComponentLeft}x{e.ComponentTop}\t({e.OffsetX}x{e.OffsetY}) inside={e.IsInside} \t {comp.Name}");
+            //}
+            if (handler.CanHandleEvent(e))
             {
-                case SDL_EventType.SDL_MOUSEBUTTONDOWN:
-                case SDL_EventType.SDL_MOUSEBUTTONUP:
-                    ev.button.x = oldX;
-                    ev.button.y = oldY;
-                    break;
-                case SDL_EventType.SDL_MOUSEMOTION:
-                    ev.motion.x = oldX;
-                    ev.motion.y = oldY;
-                    break;
+                //Console.WriteLine($"Even1 {ev.type} at {e.ComponentLeft}x{e.ComponentTop}\t({e.OffsetX}x{e.OffsetY}) inside={e.IsInside} \t {comp.Name}");
+                if (comp.Name.Contains("wrap2"))
+                {
+
+                }
+                handler.HandleEvent(e);
             }
         }
     }

@@ -19,7 +19,7 @@ namespace LingoEngine.ColorPalettes
         public LingoColorPaletteAction Action { get; set; } = LingoColorPaletteAction.PaletteTransition;
         public LingoColorPaletteTransitionOption TransitionOption { get; set; } = LingoColorPaletteTransitionOption.DontFade;
         public LingoColorPaletteCycleOption CycleOption { get; set; } = LingoColorPaletteCycleOption.AutoReverse;
-        public LingoColorPaletteMember(LingoCast cast, int numberInCast, string name = "", string fileName = "", APoint regPoint = default) : base(null, LingoMemberType.Palette , cast, numberInCast, name, fileName, regPoint)
+        public LingoColorPaletteMember(LingoCast cast, int numberInCast, string name = "", string fileName = "", APoint regPoint = default) : base(new LingoColorPaletteMemberFW(), LingoMemberType.Palette , cast, numberInCast, name, fileName, regPoint)
         {
         }
 

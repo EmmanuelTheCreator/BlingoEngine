@@ -1,6 +1,7 @@
 using AbstUI.SDL2.Components;
 using AbstUI.SDL2.SDLL;
 using System;
+using System.ComponentModel;
 
 namespace AbstUI.SDL2.Core;
 
@@ -11,7 +12,8 @@ public class AbstSDLComponentContext : IDisposable
     internal IAbstSDLComponent? Component { get; private set; }
     internal AbstSDLComponentContext? LogicalParent { get; private set; }
     internal AbstSDLComponentContext? VisualParent { get; private set; }
-
+    private HashSet<IAbstSDLComponent> _modifiedChildren = new();
+    public event Action<IAbstSDLComponent> ? OnRequestRedraw;
     public nint Texture { get; private set; }
     public nint Renderer { get; set; }
     public int TargetWidth { get; set; }
@@ -44,14 +46,29 @@ public class AbstSDLComponentContext : IDisposable
     {
         LogicalParent = logicalParent;
         VisualParent = visualParent ?? logicalParent;
+        if (_requireRender && Component != null && VisualParent != null)
+            VisualParent.QueueRedrawFromChild(Component);
     }
-
+    
     public void QueueRedraw(IAbstSDLComponent component)
     {
+        if (_requireRender) return;
         _requireRender = true;
-        Component ??= component;
-        VisualParent?.QueueRedraw(VisualParent.Component!);
+        VisualParent?.QueueRedrawFromChild(component);
+        OnRequestRedraw?.Invoke(component);
     }
+    public void QueueRedrawFromChild(IAbstSDLComponent component)
+    {
+        if (_modifiedChildren.Contains(component))
+            return;
+        _modifiedChildren.Add(component);
+        _requireRender = true;
+        VisualParent?.QueueRedrawFromChild(Component ?? component);
+        OnRequestRedraw?.Invoke(component);
+    }
+
+    public bool HasModifiedChildren() => _modifiedChildren.Any();
+    public IEnumerable<IAbstSDLComponent> GetModifiedChildren() => _modifiedChildren;
 
     public void RenderToTexture(AbstSDLRenderContext renderContext)
     {
@@ -65,6 +82,7 @@ public class AbstSDLComponentContext : IDisposable
             var renderResult = Component.Render(renderContext);
             Texture = renderResult.Texture;
             _requireRender = renderResult.DoRender;
+            _modifiedChildren.Clear();
         }
 
         if (Texture == nint.Zero)

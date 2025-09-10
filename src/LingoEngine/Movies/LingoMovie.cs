@@ -20,7 +20,7 @@ namespace LingoEngine.Movies
     public class LingoMovie : ILingoMovie, ILingoClockListener, IDisposable
     {
         private readonly ILingoMemberFactory _memberFactory;
-        private ILingoFrameworkMovie _FrameworkMovie;
+        private ILingoFrameworkMovie _frameworkMovie;
         private readonly LingoMovieEnvironment _environment;
         private readonly Action<LingoMovie> _onRemoveMe;
         private readonly LingoClock _lingoClock;
@@ -29,7 +29,7 @@ namespace LingoEngine.Movies
         private readonly ILingoTransitionPlayer _transitionPlayer;
         private bool _skipStepFrame;
         private int _currentFrame = 0;
-        private int _NextFrame = -1;
+        private int _nextFrame = -1;
         private int _lastFrame = 0;
         private bool _isPlaying = false;
 
@@ -37,7 +37,7 @@ namespace LingoEngine.Movies
         private LingoCastLibsContainer _castLibContainer;
         private readonly LingoFrameLabelManager _frameLabelManager;
         private readonly LingoSprite2DManager _sprite2DManager;
-        private bool _IsManualUpdateStage;
+        private bool _isManualUpdateStage;
         public event Action<int>? Sprite2DListChanged { add => _sprite2DManager.SpriteListChanged += value; remove => _sprite2DManager.SpriteListChanged -= value; }
 
         private readonly LingoSpriteAudioManager _audioManager;
@@ -48,14 +48,14 @@ namespace LingoEngine.Movies
 
         // Movie Script subscriptions
         private readonly ActorList _actorList = new ActorList();
-        private readonly LingoMovieScriptContainer _MovieScripts;
+        private readonly LingoMovieScriptContainer _movieScripts;
         private readonly List<LingoSpriteManager> _spriteManagers = new();
 
 
         #region Properties
 
-        public ILingoFrameworkMovie FrameworkObj => _FrameworkMovie;
-        public T Framework<T>() where T : class, ILingoFrameworkMovie => (T)_FrameworkMovie;
+        public ILingoFrameworkMovie FrameworkObj => _frameworkMovie;
+        public T Framework<T>() where T : class, ILingoFrameworkMovie => (T)_frameworkMovie;
 
         public ILingoSpriteAudioManager Audio => _audioManager;
         public ILingoSpriteTransitionManager Transitions => _transitionManager;
@@ -121,7 +121,7 @@ namespace LingoEngine.Movies
             Name = name;
             Number = number;
             _EventMediator = mediator;
-            _MovieScripts = new(environment, mediator);
+            _movieScripts = new(environment, mediator);
             _lingoMouse = (LingoStageMouse)environment.Mouse;
             _lingoClock = (LingoClock)environment.Clock;
             _stage = movieStage;
@@ -144,11 +144,12 @@ namespace LingoEngine.Movies
         }
         public void Init(ILingoFrameworkMovie frameworkMovie)
         {
-            _FrameworkMovie = frameworkMovie;
+            _frameworkMovie = frameworkMovie;
         }
         public void Dispose()
         {
             RemoveMe();
+            _transitionPlayer.Dispose();
         }
         public void RemoveMe()
         {
@@ -197,9 +198,9 @@ namespace LingoEngine.Movies
         public bool TryGetAllTimeSprite(int number, out LingoSprite2D? sprite) => _sprite2DManager.TryGetAllTimeSprite(number, out sprite);
         public void SetSpriteMember(int number, string memberName) => _sprite2DManager.SetSpriteMember(number, memberName);
         public void SetSpriteMember(int number, int memberNumber) => _sprite2DManager.SetSpriteMember(number, memberNumber);
-        public void SendSprite<T>(int spriteNumber, Action<T> actionOnSpriteBehaviour) where T : LingoSpriteBehavior => _sprite2DManager.SendSprite(spriteNumber, actionOnSpriteBehaviour);
-        public bool TrySendSprite<T>(int spriteNumber, Action<T> actionOnSpriteBehaviour) where T : LingoSpriteBehavior => _sprite2DManager.TrySendSprite(spriteNumber, actionOnSpriteBehaviour);
-        public TResult? SendSprite<T, TResult>(int spriteNumber, Func<T, TResult> actionOnSpriteBehaviour) where T : LingoSpriteBehavior => _sprite2DManager.SendSprite<T, TResult>(spriteNumber, actionOnSpriteBehaviour);
+        public void SendSprite<T>(int spriteNumber, Action<T> actionOnSpriteBehaviour) where T : ILingoSpriteBehavior => _sprite2DManager.SendSprite(spriteNumber, actionOnSpriteBehaviour);
+        public bool TrySendSprite<T>(int spriteNumber, Action<T> actionOnSpriteBehaviour) where T : ILingoSpriteBehavior => _sprite2DManager.TrySendSprite(spriteNumber, actionOnSpriteBehaviour);
+        public TResult? SendSprite<T, TResult>(int spriteNumber, Func<T, TResult> actionOnSpriteBehaviour) where T : ILingoSpriteBehavior => _sprite2DManager.SendSprite<T, TResult>(spriteNumber, actionOnSpriteBehaviour);
         public void SendSprite(string name, Action<ILingoSpriteChannel> actionOnSprite) => _sprite2DManager.SendSprite(name, actionOnSprite);
         public void SendSprite(int spriteNumber, Action<ILingoSpriteChannel> actionOnSprite) => _sprite2DManager.SendSprite(spriteNumber, actionOnSprite);
         public void SendAllSprites(Action<ILingoSpriteChannel> actionOnSprite) => _sprite2DManager.SendAllSprites(actionOnSprite);
@@ -228,7 +229,7 @@ namespace LingoEngine.Movies
         public void Go(string label)
         {
             if (_frameLabelManager.ScoreLabels.TryGetValue(label, out var scoreLabel))
-                _NextFrame = scoreLabel;
+                _nextFrame = scoreLabel;
         }
 
         public void GoTo(int frame) => Go(frame);
@@ -237,7 +238,7 @@ namespace LingoEngine.Movies
         {
             if (frame <= 0)
                 throw new ArgumentOutOfRangeException(nameof(frame));
-            _NextFrame = frame;
+            _nextFrame = frame;
         }
 
         public void OnTick()
@@ -258,7 +259,7 @@ namespace LingoEngine.Movies
                     _delayTicks--;
                     return;
                 }
-                if (_IsManualUpdateStage)
+                if (_isManualUpdateStage)
                     OnUpdateStage();
                 else
                     AdvanceFrame();
@@ -272,27 +273,30 @@ namespace LingoEngine.Movies
 
             try
             {
-                var transitionSprite = _transitionManager.GetFrameSprite(_currentFrame);
-                if (transitionSprite != null)
-                {
-                    if (_transitionPlayer.Start(transitionSprite))
-                        _skipStepFrame = true;
-                }
+                
                 var frameChanged = false;
-                if (_NextFrame < 0)
+                if (_nextFrame < 0)
                 {
                     frameChanged = true;
                     _currentFrame++;
                 }
                 else
                 {
-                    frameChanged = _currentFrame != _NextFrame;
-                    _currentFrame = _NextFrame;
-                    _NextFrame = -1;
+                    frameChanged = _currentFrame != _nextFrame;
+                    _currentFrame = _nextFrame;
+                    _nextFrame = -1;
                 }
 
                 if (frameChanged)
                 {
+
+                    var transitionSprite = _transitionManager.GetFrameSprite(_currentFrame);
+                    if (transitionSprite != null)
+                    {
+                        if (_transitionPlayer.Start(transitionSprite))
+                            _skipStepFrame = true;
+                    }
+
                     // update the list with all ended, and all the new started sprites.
                     _sprite2DManager.UpdateActiveSprites(_currentFrame, _lastFrame);
                     _spriteManagers.ForEach(x => x.UpdateActiveSprites(_currentFrame, _lastFrame));
@@ -305,7 +309,12 @@ namespace LingoEngine.Movies
                     _sprite2DManager.BeginSprites();
                     _spriteManagers.ForEach(x => x.BeginSprites());
                 }
-                _lastFrame = _currentFrame;
+                else
+                {
+                    // Are there new puppet sprites set.
+                    _sprite2DManager.DoPuppetSprites();
+                }
+                    _lastFrame = _currentFrame;
 
                 if (_needToRaiseStartMovie)
                     _EventMediator.RaiseStartMovie();
@@ -318,8 +327,6 @@ namespace LingoEngine.Movies
                 _EventMediator.RaiseEnterFrame();
 
                 OnUpdateStage();
-                if (_transitionPlayer.IsActive)
-                    _transitionPlayer.CaptureToFrame();
                 _skipStepFrame = false;
                 if (frameChanged)
                     CurrentFrameChanged?.Invoke(_currentFrame);
@@ -453,7 +460,7 @@ namespace LingoEngine.Movies
                 // already handles begin/end sprite events when the playhead
                 // moves to a new frame, so reuse it by setting the next frame
                 // and manually advancing once.
-                _NextFrame = frame;
+                _nextFrame = frame;
                 AdvanceFrame();
                 _isPlaying = false;
                 PlayStateChanged?.Invoke(false);
@@ -465,15 +472,15 @@ namespace LingoEngine.Movies
         public void UpdateStage()
         {
             // a manual update stage needs to run on same framerate, it means that the head player will not advance
-            _IsManualUpdateStage = true;
+            _isManualUpdateStage = true;
         }
         private void OnUpdateStage()
         {
 
             Timer++;
             _actorList.Invoke();
-            _FrameworkMovie.UpdateStage();
-            _IsManualUpdateStage = false;
+            _frameworkMovie.UpdateStage();
+            _isManualUpdateStage = false;
         }
         #endregion
 
@@ -498,16 +505,16 @@ namespace LingoEngine.Movies
         public ILingoMovie AddMovieScript<T>()
             where T : LingoMovieScript
         {
-            _MovieScripts.Add<T>();
+            _movieScripts.Add<T>();
             return this;
         }
-        public void CallMovieScript<T>(Action<T> action) where T : LingoMovieScript
-            => _MovieScripts.Call(action);
-        public TResult? CallMovieScript<T, TResult>(Func<T, TResult> action) where T : LingoMovieScript
-            => _MovieScripts.Call(action);
+        public void CallMovieScript<T>(Action<T> action) where T : ILingoMovieScript
+            => _movieScripts.Call(action);
+        public TResult? CallMovieScript<T, TResult>(Func<T, TResult> action) where T : ILingoMovieScript
+            => _movieScripts.Call(action);
 
-        private void CallOnAllMovieScripts(Action<LingoMovieScript> actionOnAll)
-            => _MovieScripts.CallAll(actionOnAll);
+        private void CallOnAllMovieScripts(Action<ILingoMovieScript> actionOnAll)
+            => _movieScripts.CallAll(actionOnAll);
 
         #endregion
 

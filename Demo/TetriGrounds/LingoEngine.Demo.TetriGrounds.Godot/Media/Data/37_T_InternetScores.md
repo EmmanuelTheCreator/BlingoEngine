@@ -1,0 +1,11 @@
+{{STYLE-SHEET:{"0":{"font-family":"Tahoma","font-size":12,"color":"#999999","text-align":"right"}}}}{{PARA:0}}**1700
+{{PARA:0}}1682
+{{PARA:0}}1673
+{{PARA:0}}1586
+{{PARA:0}}1397
+{{PARA:0}}1371
+{{PARA:0}}1349
+{{PARA:0}}1157
+{{PARA:0}}1110
+{{PARA:0}}867
+{{PARA:0}}**

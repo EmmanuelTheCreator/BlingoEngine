@@ -13,7 +13,7 @@ namespace AbstUI.Windowing
         /// <summary>Window title.</summary>
         string Title { get; set; }
         AColor BackgroundColor { get; set; }
-
+        AColor BackgroundTitleColor { get; set; }
         bool IsActiveWindow { get; }
         bool IsOpen { get; }
 

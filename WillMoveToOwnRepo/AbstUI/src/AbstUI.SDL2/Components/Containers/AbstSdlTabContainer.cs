@@ -1,13 +1,14 @@
 using AbstUI.Components;
+using AbstUI.Components.Containers;
+using AbstUI.FrameworkCommunication;
 using AbstUI.Primitives;
+using AbstUI.SDL2.Components.Base;
+using AbstUI.SDL2.Core;
+using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Styles;
 using AbstUI.Styles;
-using AbstUI.Components.Containers;
-using AbstUI.SDL2.Components.Base;
-using AbstUI.SDL2.Events;
-using AbstUI.SDL2.Core;
-using AbstUI.FrameworkCommunication;
+using static AbstUI.SDL2.SDLL.SDL;
 
 namespace AbstUI.SDL2.Components.Containers
 {
@@ -28,6 +29,7 @@ namespace AbstUI.SDL2.Components.Containers
         public object FrameworkNode => this;
 
         public string? Font { get; set; }
+        public bool Enabled { get; set; } = true;
         public int FontSize { get; set; } = 12;
         public AColor TextColor { get; set; } = AbstDefaultColors.Tab_Deselected_TextColor;
 
@@ -64,6 +66,7 @@ namespace AbstUI.SDL2.Components.Containers
             if (_selectedIndex == -1)
                 _selectedIndex = 0;
             _texture = nint.Zero;
+            ComponentContext.QueueRedraw(this);
         }
 
         public void RemoveTab(IAbstFrameworkTabItem content)
@@ -75,7 +78,9 @@ namespace AbstUI.SDL2.Components.Containers
                 if (_selectedIndex >= _children.Count)
                     _selectedIndex = _children.Count - 1;
                 _texture = nint.Zero;
+                ComponentContext.QueueRedraw(this);
             }
+
         }
 
         public IEnumerable<IAbstFrameworkTabItem> GetTabs() => _children.ToArray();
@@ -85,6 +90,7 @@ namespace AbstUI.SDL2.Components.Containers
             _children.Clear();
             _selectedIndex = -1;
             _texture = nint.Zero;
+            ComponentContext.QueueRedraw(this);
         }
 
         public void SelectTabByName(string tabName)
@@ -218,17 +224,18 @@ namespace AbstUI.SDL2.Components.Containers
             _texH = h;
             return _texture;
         }
-
+        public virtual bool CanHandleEvent(AbstSDLEvent e)
+        {
+            return Enabled && (e.IsInside || !e.HasCoordinates);
+        }
         public void HandleEvent(AbstSDLEvent e)
         {
-            ref var ev = ref e.Event;
-            int localX;
-            int localY;
+            var ev = e.Event;
+            float localX = e.ComponentLeft;
+            float localY = e.ComponentTop;
             switch (ev.type)
             {
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN when ev.button.button == SDL.SDL_BUTTON_LEFT:
-                    localX = ev.button.x - ComponentContext.X;
-                    localY = ev.button.y - ComponentContext.Y;
                     for (int i = 0; i < _tabRects.Count; i++)
                     {
                         var r = _tabRects[i];
@@ -248,8 +255,6 @@ namespace AbstUI.SDL2.Components.Containers
                     }
                     break;
                 case SDL.SDL_EventType.SDL_MOUSEMOTION:
-                    localX = ev.motion.x - ComponentContext.X;
-                    localY = ev.motion.y - ComponentContext.Y;
                     int newHover = -1;
                     for (int i = 0; i < _tabRects.Count; i++)
                     {
@@ -271,14 +276,21 @@ namespace AbstUI.SDL2.Components.Containers
             }
 
             // Forward mouse events to children accounting for current scroll offset
-
-            for (int i = _children.Count - 1; i >= 0 && !e.StopPropagation; i--)
+            if (_selectedIndex>=0)
             {
-                if (_children[i].FrameworkNode is not AbstSdlComponent comp ||
-                    comp is not IHandleSdlEvent handler ||
-                    !comp.Visibility)
-                    continue;
-                ContainerHelpers.HandleChildEvents(comp, e, -(int)(ComponentContext.X + BorderThickness), -(int)(ComponentContext.Y + _tabHeight + BorderThickness));
+                var tabItem = (AbstSdlTabItem)_children[_selectedIndex].FrameworkNode;
+                if (!tabItem.Visibility) return;
+                var oriX = e.OffsetX;
+                var oriY = e.OffsetY;
+                e.OffsetX += - BorderThickness;
+                e.OffsetY += -(_tabHeight + BorderThickness);
+                //if (e.Event.type == SDL_EventType.SDL_MOUSEBUTTONDOWN)
+                //{
+
+                //}
+                tabItem.HandleEvent(e);
+                e.OffsetX = oriX;
+                e.OffsetY = oriY;
             }
         }
 
@@ -298,7 +310,7 @@ namespace AbstUI.SDL2.Components.Containers
         }
     }
 
-    public class AbstSdlTabItem : AbstSdlComponent, IAbstFrameworkTabItem, IFrameworkFor<AbstTabItem>
+    public class AbstSdlTabItem : AbstSdlComponent, IAbstFrameworkTabItem, IFrameworkFor<AbstTabItem>, IHandleSdlEvent
     {
         public AbstSdlTabItem(AbstSdlComponentFactory factory, AbstTabItem tab) : base(factory)
         {
@@ -312,6 +324,12 @@ namespace AbstUI.SDL2.Components.Containers
         public object FrameworkNode => this;
 
         public override void Dispose() => base.Dispose();
+
+        public void HandleEvent(AbstSDLEvent e)
+        {
+            if (Content?.FrameworkObj is IHandleSdlEvent handleEvent)
+                handleEvent.HandleEvent(e);
+        }
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context) => default;
     }

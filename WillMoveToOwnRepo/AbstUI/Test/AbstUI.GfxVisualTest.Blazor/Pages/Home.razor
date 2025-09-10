@@ -2,6 +2,7 @@
 @using AbstUI.Blazor
 @using AbstUI.Blazor.Components
 @using AbstUI.Blazor.Components.Containers
+@using AbstUI.Blazor.Components.Inputs
 @using AbstUI.Components
 @using AbstUI.Components.Containers
 @using LingoEngine.SDL2.GfxVisualTest
@@ -12,7 +13,9 @@
 <PageTitle>Home</PageTitle>
 
 <CascadingValue Value="ComponentContainer">
-    <AbstBlazorScrollContainer Component="_rootComponent" />
+    <AbstInputComponent>
+        <AbstBlazorScrollContainer Component="_rootComponent" />
+    </AbstInputComponent>
 </CascadingValue>
 
 @code {

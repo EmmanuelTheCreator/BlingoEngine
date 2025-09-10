@@ -1,5 +1,6 @@
 using System.Buffers.Binary;
 using System.Collections.Generic;
+using System.Text;
 using ProjectorRays.Common;
 using ProjectorRays.Director;
 
@@ -42,5 +43,10 @@ public abstract class RaysChunk
         json.StartObject();
         json.WriteField("chunkType", ChunkType.ToString());
         json.EndObject();
+    }
+
+    public virtual void LogInfo(StringBuilder sb, int indentation)
+    {
+        sb.AppendLine($"{new string(' ',indentation)}ChunkType: {ChunkType}");
     }
 }

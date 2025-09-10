@@ -1,5 +1,6 @@
 ﻿using AbstUI;
 using LingoEngine.Core;
+using AbstUI.Styles;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Projects;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +14,7 @@ namespace LingoEngine.Setup
     {
         ILingoEngineRegistration ServicesMain(Action<IServiceCollection> services);
         ILingoEngineRegistration ServicesLingo(Action<IServiceCollection> services);
-        ILingoEngineRegistration AddFont(string name, string pathAndName);
+        ILingoEngineRegistration AddFont(string name, string pathAndName, AbstFontStyle style = AbstFontStyle.Regular);
         ILingoEngineRegistration ForMovie(string name, Action<IMovieRegistration> action);
         ILingoEngineRegistration WithFrameworkFactory<T>(Action<T>? setup = null) where T : class, ILingoFrameworkFactory;
         ILingoEngineRegistration WithProjectSettings(Action<LingoProjectSettings> setup);
@@ -21,6 +22,7 @@ namespace LingoEngine.Setup
         ILingoEngineRegistration BuildDelayed();
         LingoPlayer Build(IServiceProvider serviceProvider);
         ILingoProjectFactory BuildAndRunProject(Action<IServiceProvider>? afterStart = null);
+        ILingoProjectFactory RunProject(Action<IServiceProvider>? afterStart = null);
         ILingoEngineRegistration AddPreBuildAction(Action<IServiceProvider> buildAction);
         ILingoEngineRegistration AddBuildAction(Action<ILingoServiceProvider> buildAction);
         ILingoEngineRegistration SetProjectFactory<TLingoProjectFactory>() where TLingoProjectFactory : ILingoProjectFactory, new();

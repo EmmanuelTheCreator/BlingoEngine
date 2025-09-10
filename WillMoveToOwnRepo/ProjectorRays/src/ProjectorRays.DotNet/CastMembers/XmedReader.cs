@@ -77,16 +77,21 @@ public sealed class XmedStyleMapEntry
 /// documented, but this reader extracts plain text and the most obvious style
 /// information so that callers can experiment with the data.
 /// </summary>
-public static class XmedReader
+public class XmedReader : IXmedReader
 {
-    public static XmedDocument Read(BufferView view)
+    public XmedDocument Read(BufferView view)
     {
         var data = view.Data;
         int start = view.Offset;
         int end = start + view.Size;
 
-        if (view.Size < 4 || Encoding.ASCII.GetString(data, start, 4) != "DEMX")
+        if (view.Size < 4 || data[start] != (byte)'D' || data[start + 1] != (byte)'E' ||
+            data[start + 2] != (byte)'M' || data[start + 3] != (byte)'X')
             throw new InvalidDataException("Invalid XMED chunk header");
+
+        ushort fontSize = 0;
+        if (start >= 0x14)
+            fontSize = BinaryPrimitives.ReadUInt16LittleEndian(data.AsSpan(start - 0x14));
 
         var doc = new XmedDocument();
         var textBuilder = new StringBuilder();
@@ -97,7 +102,8 @@ public static class XmedReader
         byte styleFlags = data[start + 0x1C];
         byte alignByte = data[start + 0x1D];
         doc.LineSpacing = BitConverter.ToUInt32(data, start + 0x3C);
-        ushort fontSize = BitConverter.ToUInt16(data, start + 0x40);
+        if (fontSize == 0)
+            fontSize = BitConverter.ToUInt16(data, start + 0x40);
         doc.TextLength = BitConverter.ToUInt32(data, start + 0x4C);
 
         var baseStyle = new XmedStyleDeclaration
@@ -251,27 +257,27 @@ public static class XmedReader
                             {
                                 var span = data.AsSpan(textStart, len);
                                 if (len >= 2)
-                                    run.Unknown1 = BinaryPrimitives.ReadUInt16LittleEndian(span);
+                                    run.Unknown1 = BinaryPrimitives.ReadUInt16BigEndian(span);
                                 if (len >= 6)
-                                    run.Unknown2 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(2));
+                                    run.Unknown2 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(2));
                                 if (len >= 10)
-                                    run.Unknown3 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(6));
+                                    run.Unknown3 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(6));
                                 if (len >= 14)
-                                    run.Unknown4 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(10));
+                                    run.Unknown4 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(10));
                                 if (len >= 18)
-                                    run.Unknown5 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(14));
+                                    run.Unknown5 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(14));
                                 if (len >= 22)
-                                    run.Unknown6 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(18));
+                                    run.Unknown6 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(18));
                                 if (len >= 26)
-                                    run.Unknown7 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(22));
+                                    run.Unknown7 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(22));
                                 if (len >= 30)
-                                    run.Unknown8 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(26));
+                                    run.Unknown8 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(26));
                                 if (len >= 34)
-                                    run.Unknown9 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(30));
+                                    run.Unknown9 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(30));
                                 if (len >= 38)
-                                    run.Unknown10 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(34));
+                                    run.Unknown10 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(34));
                                 if (len >= 42)
-                                    run.Unknown11 = BinaryPrimitives.ReadUInt32LittleEndian(span.Slice(38));
+                                    run.Unknown11 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(38));
                             }
 
                             doc.Runs.Add(run);

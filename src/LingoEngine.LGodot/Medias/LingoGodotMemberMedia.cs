@@ -1,31 +1,55 @@
-using Godot;
+﻿using Godot;
 using LingoEngine.Medias;
 using LingoEngine.Sprites;
-using LingoEngine.Members;
 using AbstUI.LGodot.Helpers;
 
 namespace LingoEngine.LGodot.Medias
 {
-    public class LingoGodotMemberMedia : ILingoFrameworkMemberMedia
+    public class LingoGodotMemberMedia : ILingoFrameworkMemberMedia, IDisposable
     {
         private LingoMemberMedia _member = null!;
         internal VideoStream? Stream { get; private set; }
 
         public bool IsLoaded { get; private set; }
+
+        private VideoStreamPlayer _player;
+
         public int Duration { get; private set; }
         public int CurrentTime { get; set; }
         public LingoMediaStatus MediaStatus { get; private set; } = LingoMediaStatus.Closed;
 
+        public LingoGodotMemberMedia()
+        {
+            _player = new VideoStreamPlayer();
+        }
+
         internal void Init(LingoMemberMedia member)
         {
             _member = member;
+            
             Preload();
         }
 
-        public void Play() => MediaStatus = LingoMediaStatus.Playing;
-        public void Pause() => MediaStatus = LingoMediaStatus.Paused;
+        public void Play()
+        {
+            if (_player.Paused)
+            {
+                _player.Paused = false;
+            }
+            else
+                _player.Play();
+            MediaStatus = LingoMediaStatus.Playing;
+        }
+
+        public void Pause()
+        {
+            _player.Paused = true;
+            MediaStatus = LingoMediaStatus.Paused;
+        }
+
         public void Stop()
         {
+            _player.Stop();
             MediaStatus = LingoMediaStatus.Closed;
             CurrentTime = 0;
         }
@@ -45,7 +69,9 @@ namespace LingoEngine.LGodot.Medias
             Stream = ResourceLoader.Load<VideoStream>(filePath);
             if (Stream != null)
             {
-                Duration = (int)(Stream.GetLength() * 1000);
+                _player.Stream = Stream;
+                double seconds = _player.GetStreamLength();
+                Duration = (int)(seconds * 1000); // seconds → ms
                 MediaStatus = LingoMediaStatus.Opened;
             }
             IsLoaded = true;
@@ -53,11 +79,18 @@ namespace LingoEngine.LGodot.Medias
 
         public void Unload()
         {
+            Stream?.Dispose();
             Stream = null;
             IsLoaded = false;
             MediaStatus = LingoMediaStatus.Closed;
         }
 
         public bool IsPixelTransparent(int x, int y) => false;
+
+        public void Dispose()
+        {
+            Unload();
+            _player.Dispose();
+        }
     }
 }

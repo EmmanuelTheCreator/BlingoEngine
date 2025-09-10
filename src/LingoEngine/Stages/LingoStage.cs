@@ -12,10 +12,22 @@ namespace LingoEngine.Stages;
 public class LingoStage : ILingoStage
 {
     private readonly ILingoFrameworkStage _lingoFrameworkMovieStage;
-
+    private AColor _backgroundColor;
+    public bool IsDirty { get; private set; }
     public int Width { get; set; } = 640;
     public int Height { get; set; } = 480;
-    public AColor BackgroundColor { get; set; }
+    public int X { get; set; } = 0;
+    public int Y { get; set; } = 0;
+    public AColor BackgroundColor
+    {
+        get => _backgroundColor;
+        set
+        {
+            if (_backgroundColor.Equals(value)) return;
+            _backgroundColor = value;
+            IsDirty = true;
+        }
+    }
 
     public LingoMovie? ActiveMovie { get; private set; }
     public LingoMember? MouseMemberUnderMouse
@@ -79,13 +91,14 @@ public class LingoStage : ILingoStage
         return ActiveMovie.GetSpriteUnderMouse(skipLockedSprites);
     }
 
-    public Animations.LingoSpriteMotionPath? GetSpriteMotionPath(LingoSprite2D sprite)
+    public LingoSpriteMotionPath? GetSpriteMotionPath(LingoSprite2D sprite)
     {
         if (sprite == null) return null;
-        return sprite.CallActor<Animations.LingoSpriteAnimator, Animations.LingoSpriteMotionPath>(
+        return sprite.CallActor<LingoSpriteAnimator, LingoSpriteMotionPath>(
             a => a.GetMotionPath(sprite.BeginFrame, sprite.EndFrame));
     }
-
+    public void RequestNextFrameScreenshot(Action<IAbstTexture2D> onCaptured)
+        => _lingoFrameworkMovieStage.RequestNextFrameScreenshot(onCaptured);
     public IAbstTexture2D GetScreenshot()
         => _lingoFrameworkMovieStage.GetScreenshot();
 
@@ -97,4 +110,9 @@ public class LingoStage : ILingoStage
 
     public void HideTransition()
         => _lingoFrameworkMovieStage.HideTransition();
+
+    public void StageChangedApplied()
+    {
+        IsDirty = false;
+    }
 }

@@ -75,6 +75,13 @@ internal class RayScoreParseContext
         var sprite = Sprites.FirstOrDefault(x => x.SpriteNumber == channel && x.StartFrame <= frame && x.EndFrame >= frame);
         return sprite;
     }
+    private int _lastSpriteIndex = 0;
+    internal RaySprite? GetNextSprite()
+    {
+        var nextSprite = Sprites.ElementAtOrDefault(_lastSpriteIndex);
+        _lastSpriteIndex++;
+        return nextSprite;
+    }
     public RaySprite GetOrCreateSprite(int channel)
     {
         // todo : smarter system based on begin sprite and end sprite
@@ -143,5 +150,5 @@ internal class RayScoreParseContext
         FrameScripts.Add(behaviourRefs);
     }
 
-    
+   
 }

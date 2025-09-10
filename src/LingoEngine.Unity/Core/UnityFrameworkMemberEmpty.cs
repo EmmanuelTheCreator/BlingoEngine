@@ -20,4 +20,5 @@ public class UnityFrameworkMemberEmpty : ILingoFrameworkMemberEmpty
     public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
 
     public void Unload() { }
+    public bool IsPixelTransparent(int x, int y) => false;
 }

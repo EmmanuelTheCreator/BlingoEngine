@@ -9,6 +9,9 @@ namespace AbstUI.ImGui.Components
 {
     internal class AbstImGuiInputText : AbstImGuiComponent, IAbstFrameworkInputText, IHasTextBackgroundBorderColor, IDisposable
     {
+        private int _caretIndex;
+        private int _selectionStartIndex = -1;
+
         public AbstImGuiInputText(AbstImGuiComponentFactory factory, bool multiLine) : base(factory)
         {
         }
@@ -37,7 +40,87 @@ namespace AbstUI.ImGui.Components
 
         public bool IsMultiLine { get; set; }
 
+        public bool HasSelection => _selectionStartIndex != -1 && _selectionStartIndex != _caretIndex;
+
+        public void DeleteSelection()
+        {
+            if (!HasSelection) return;
+            int start = Math.Min(_selectionStartIndex, _caretIndex);
+            int end = Math.Max(_selectionStartIndex, _caretIndex);
+            _text = _text.Remove(start, end - start);
+            _caretIndex = start;
+            _selectionStartIndex = -1;
+            ValueChanged?.Invoke();
+            var (line, column) = GetLineColumn(start);
+            OnCaretChanged?.Invoke(line, column);
+        }
+
+        public void SetCaretPosition(int line, int column)
+        {
+            _caretIndex = GetOffset(line, column);
+            _selectionStartIndex = -1;
+            OnCaretChanged?.Invoke(line, column);
+        }
+
+        public (int line, int column) GetCaretPosition()
+        {
+            return GetLineColumn(_caretIndex);
+        }
+
+        public void SetSelection(int startLine, int startColumn, int endLine, int endColumn)
+        {
+            _selectionStartIndex = GetOffset(startLine, startColumn);
+            _caretIndex = GetOffset(endLine, endColumn);
+            if (_selectionStartIndex == _caretIndex)
+                _selectionStartIndex = -1;
+            OnCaretChanged?.Invoke(endLine, endColumn);
+        }
+
+        public void InsertText(string text)
+        {
+            if (HasSelection)
+                DeleteSelection();
+            _text = _text.Insert(_caretIndex, text);
+            _caretIndex += text.Length;
+            ValueChanged?.Invoke();
+            var (line, column) = GetLineColumn(_caretIndex);
+            OnCaretChanged?.Invoke(line, column);
+        }
+
+        private (int line, int column) GetLineColumn(int index)
+        {
+            index = Math.Clamp(index, 0, _text.Length);
+            int line = 0;
+            int column = 0;
+            for (int i = 0; i < index; i++)
+            {
+                if (_text[i] == '\n')
+                {
+                    line++;
+                    column = 0;
+                }
+                else
+                {
+                    column++;
+                }
+            }
+            return (line, column);
+        }
+
+        private int GetOffset(int line, int column)
+        {
+            int index = 0;
+            int currentLine = 0;
+            while (index < _text.Length && currentLine < line)
+            {
+                if (_text[index] == '\n') currentLine++;
+                index++;
+            }
+            return Math.Clamp(index + column, 0, _text.Length);
+        }
+
         public event Action? ValueChanged;
+        public event Action<int, int>? OnCaretChanged;
 
         public override AbstImGuiRenderResult Render(AbstImGuiRenderContext context)
         {
@@ -56,7 +139,13 @@ namespace AbstUI.ImGui.Components
 
             uint cap = MaxLength > 0 ? (uint)MaxLength : 1024u;
             if (global::ImGuiNET.ImGui.InputText("##text", ref _text, cap))
+            {
+                _caretIndex = _text.Length;
+                _selectionStartIndex = -1;
                 ValueChanged?.Invoke();
+                var (line, column) = GetLineColumn(_caretIndex);
+                OnCaretChanged?.Invoke(line, column);
+            }
 
             if (!Enabled) global::ImGuiNET.ImGui.EndDisabled();
             global::ImGuiNET.ImGui.PopStyleColor(3);

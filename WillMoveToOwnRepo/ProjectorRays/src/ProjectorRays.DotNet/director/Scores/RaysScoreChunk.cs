@@ -6,6 +6,7 @@ using ProjectorRays.director.Scores.Data;
 using ProjectorRays.Director;
 using System;
 using System.Reflection.PortableExecutable;
+using System.Text;
 using static ProjectorRays.director.Old.RaysScoreFrameParserOld;
 using static ProjectorRays.director.Scores.RaysScoreFrameParserV2;
 
@@ -100,7 +101,9 @@ public class RaysScoreChunk : RaysChunk
         }
         finally
         {
+#if DEBUG
             System.IO.File.WriteAllText("c:\\temp\\director\\tes.md", StreamAnnotationMarkdownWriter.WriteMarkdown(Annotator, stream.Data));
+#endif
 
         }
         return;
@@ -196,5 +199,20 @@ public class RaysScoreChunk : RaysChunk
         }
         json.EndArray();
         json.EndObject();
+    }
+
+    public override void LogInfo(StringBuilder sb, int indentation)
+    {
+        base.LogInfo(sb, indentation);
+        foreach (var s in Sprites)
+        {
+            sb.AppendLine($"{new string(' ', indentation)}-----SpriteNum: {s.SpriteNumber}----");
+            sb.AppendLine($"{new string(' ', indentation)}Time: {s.StartFrame} -> {s.EndFrame}");
+            sb.AppendLine($"{new string(' ', indentation)}MemberCastLib: {s.MemberCastLib}, MemberNum: {s.MemberNum}");
+            sb.AppendLine($"{new string(' ', indentation)}Loc:  {s.LocH}x{s.LocV} ({s.LocZ}");
+            sb.AppendLine($"{new string(' ', indentation)}Size: {s.Width}x{s.Height}");
+            // todo
+            sb.AppendLine($"{new string(' ', indentation)}---------------------------------");
+        }
     }
 }

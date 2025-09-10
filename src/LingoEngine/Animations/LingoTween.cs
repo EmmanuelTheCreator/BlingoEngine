@@ -115,14 +115,14 @@ namespace LingoEngine.Animations
         {
             if (typeof(T) == typeof(float))
             {
-                float aa = (float)(object)a;
-                float bb = (float)(object)b;
+                float aa = (float)(object)a!;
+                float bb = (float)(object)b!;
                 return (T)(object)(aa + (bb - aa) * t);
             }
             if (typeof(T) == typeof(APoint))
             {
-                var pa = (APoint)(object)a;
-                var pb = (APoint)(object)b;
+                var pa = (APoint)(object)a!;
+                var pb = (APoint)(object)b!;
                 return (T)(object)(pa + (pb - pa) * t);
             }
             return t < 1 ? a : b;

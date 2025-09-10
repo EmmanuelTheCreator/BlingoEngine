@@ -2,8 +2,10 @@ using LingoEngine.Events;
 using LingoEngine.Inputs;
 using LingoEngine.Inputs.Events;
 using LingoEngine.Movies;
+using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Sprites.Events;
+#pragma warning disable IDE1006 // Naming Styles
 
 namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 {
@@ -12,7 +14,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
         void HandleMessage(string myFunction, params object[]? parameters );
     }
     // Converted from 22_B_Execute.ls
-    public class ExecuteBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasMouseEnterEvent, IHasMouseLeaveEvent, IHasMouseDownEvent
+    public class ExecuteBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasMouseEnterEvent, IHasMouseLeaveEvent, IHasMouseDownEvent, ILingoPropertyDescriptionList
     {
         public string myFunction = "";
         public int mySpriteNum = 4;
@@ -23,9 +25,32 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
         public bool myEnableMouseRollOver = true;
         public int myStartMember;
         public int myRollOverMember;
-        public string myRollOverMemberCastLib = "";
+        public int myRollOverMemberCastLib;
+        private readonly GlobalVars _globalVars;
 
-        public ExecuteBehavior(ILingoMovieEnvironment env) : base(env){}
+        public ExecuteBehavior(ILingoMovieEnvironment env, GlobalVars globalVars) : base(env)
+        {
+            _globalVars = globalVars;
+        }
+
+        public BehaviorPropertyDescriptionList? GetPropertyDescriptionList()
+        {
+            return new BehaviorPropertyDescriptionList()
+                .Add(this, x => x.myFunction, "Function:", "0")
+                .Add(this, x => x.mySpriteNum, "Sprite Num:", 4)
+                .Add(this, x => x.myVar1, "Var 1:", 0)
+                .Add(this, x => x.myVar2, "Var 2:", 0)
+                .Add(this, x => x.myEnableMouseClick, "Enable Mouseclick:", true)
+                .Add(this, x => x.myEnableMouseRollOver, "Enable Mouse rollover:", true)
+                .Add(this, x => x.myRollOverMember, "Rollover member:", 0)
+                .Add(this, x => x.myRollOverMemberCastLib, "Rollover Castlib ('0' for auto):", 0)
+            ;
+        }
+        public string? GetBehaviorDescription() => "Execute a function on mouse click";
+
+        public string? GetBehaviorTooltip() => "Execute a function on mouse click";
+
+        public bool IsOKToAttach(LingoSymbol spriteType, int spriteNum) => true;
 
         public void BeginSprite()
         {
@@ -40,13 +65,16 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
         {
             if (!myLock)
             {
-                if (myEnableMouseRollOver)
+                if (myEnableMouseRollOver && _globalVars.MousePointer != null)
                 {
-                    // gMousePointer.Mouse_Over(); not implemented
+                    _globalVars.MousePointer.Mouse_Over();
                 }
                 if (myRollOverMember > 0)
                 {
-                    Me.MemberNum = myRollOverMember;
+                    if (myRollOverMemberCastLib == 0)
+                        Me.Member = Member(myRollOverMember);
+                    else
+                        Me.Member = Member(myRollOverMember, myRollOverMemberCastLib);
                 }
                 else if (myRollOverMember == -1)
                 {
@@ -59,13 +87,13 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
         {
             if (!myLock)
             {
-                if (myEnableMouseRollOver)
+                if (myEnableMouseRollOver && _globalVars.MousePointer != null)
                 {
-                    // gMousePointer.Mouse_Restore();
+                    _globalVars.MousePointer.Mouse_Restore();
                 }
                 if (myRollOverMember > 0)
                 {
-                    Me.MemberNum = myStartMember;
+                    Me.Member = Member(myStartMember);
                 }
                 else if (myRollOverMember == -1)
                 {
@@ -85,5 +113,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 
         public void Lock() => myLock = true;
         public void UnLock() => myLock = false;
+
+       
     }
 }

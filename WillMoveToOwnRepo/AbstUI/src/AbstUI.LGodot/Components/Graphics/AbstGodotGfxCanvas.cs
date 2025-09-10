@@ -1,40 +1,29 @@
-using Godot;
-using AbstUI.Styles;
-using AbstUI.Primitives;
-using AbstUI.Components;
-using AbstUI.Texts;
-using AbstUI.LGodot.Texts;
-using AbstUI.LGodot.Bitmaps;
-using AbstUI.LGodot.Primitives;
+using System;
 using AbstUI.Components.Graphics;
 using AbstUI.FrameworkCommunication;
+using AbstUI.Primitives;
+using AbstUI.Texts;
+using AbstUI.Styles;
+using AbstUI.LGodot.Components.Graphics;
+using AbstUI.LGodot.Styles;
+using Godot;
 
 namespace AbstUI.LGodot.Components
 {
     /// <summary>
-    /// Godot implementation of <see cref="IAbstFrameworkGfxCanvas"/>.
+    /// Godot implementation of <see cref="IAbstFrameworkGfxCanvas"/> that wraps a <see cref="GodotImagePainter"/>.
     /// </summary>
     public partial class AbstGodotGfxCanvas : Control, IAbstFrameworkGfxCanvas, IDisposable, IFrameworkFor<AbstGfxCanvas>
     {
-        private readonly IAbstFontManager _fontManager;
+        private readonly GodotImagePainter _painter;
         private AMargin _margin = AMargin.Zero;
-        private float _desiredWidth = 0;
-        private float _desiredHeight = 0;
-        private Color? _clearColor;
-        private bool _dirty;
-        private readonly List<Action> _drawActions = new();
-        public AbstGodotGfxCanvas(AbstGfxCanvas canvas, IAbstFontManager fontManager, int width, int height)
-        {
-            _fontManager = fontManager;
-            canvas.Init(this);
-            Size = new Vector2(width, height);
-            MouseFilter = MouseFilterEnum.Ignore;
-            //TextureFilter = TextureFilterEnum.Nearest; // Use nearest neighbor for pixel art style
-        }
+
+
+
         public bool Pixilated
         {
-            get => TextureFilter == TextureFilterEnum.Nearest;
-            set => TextureFilter = value ? TextureFilterEnum.Nearest : TextureFilterEnum.Linear;
+            get => _painter.Pixilated;
+            set => _painter.Pixilated = value;
         }
 
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
@@ -44,23 +33,30 @@ namespace AbstUI.LGodot.Components
             get => Size.X;
             set
             {
+                if (Math.Abs(Size.X - value) < float.Epsilon)
+                    return;
                 Size = new Vector2(value, Size.Y);
-                CustomMinimumSize = Size; _desiredWidth = value;
+                CustomMinimumSize = Size;
+                _painter.Resize((int)value, _painter.Height);
                 QueueRedraw();
-
             }
         }
+
         public float Height
         {
             get => Size.Y;
             set
             {
+                if (Math.Abs(Size.Y - value) < float.Epsilon)
+                    return;
                 Size = new Vector2(Size.X, value);
-                CustomMinimumSize = Size; _desiredHeight = value;
+                CustomMinimumSize = Size;
+                _painter.Resize(_painter.Width, (int)value);
                 QueueRedraw();
             }
         }
         public bool Visibility { get => Visible; set => Visible = value; }
+
         public AMargin Margin
         {
             get => _margin;
@@ -74,151 +70,111 @@ namespace AbstUI.LGodot.Components
             }
         }
 
-        string IAbstFrameworkNode.Name { get => Name; set => Name = value; }
-        public object FrameworkNode => this;
-        private void MarkDirty()
+        public new string Name
         {
-            if (!_dirty)
+            get => base.Name;
+            set
             {
-                _dirty = true;
-                //Console.WriteLine(Name + ":MarkDirty()");
-                QueueRedraw();
+                base.Name = value;
+                _painter.Name = value + "_Painter";
             }
+        }
+        public object FrameworkNode => this;
+
+
+
+        public AbstGodotGfxCanvas(AbstGfxCanvas canvas, IAbstFontManager fontManager, int width, int height)
+        {
+            _painter = new GodotImagePainter((AbstGodotFontManager)fontManager, width, height);
+            canvas.Init(this);
+            Size = new Vector2(width, height);
+            MouseFilter = MouseFilterEnum.Ignore;
+            AddChild(_painter.GodotControl);
         }
 
         public override void _Draw()
         {
-            //Console.WriteLine(Name + ":_Draw()");
-            if (_clearColor.HasValue)
+            if (Size.X != _painter.Width || Size.Y != _painter.Height)
             {
-                DrawRect(new Rect2(0, 0, _desiredWidth, _desiredHeight), _clearColor.Value, true);
-                Size = new Vector2(_desiredWidth, _desiredHeight);
-                CustomMinimumSize = Size; // Set the minimum size to the desired size
+                Size = new Vector2(_painter.Width, _painter.Height);
+                CustomMinimumSize = Size;
             }
-            foreach (var drawAction in _drawActions)
-                drawAction();
-
-            // Keep the draw actions so that the canvas can redraw itself when
-            // becoming visible again (e.g. when switching tabs).  They will be
-            // cleared when a new Clear() call is issued via <see cref="Clear"/>.
-            _dirty = false;
         }
 
         public void Clear(AColor color)
         {
-            _drawActions.Clear();
-            _clearColor = color.ToGodotColor();
-            MarkDirty();
+            _painter.Clear(color);
+            QueueRedraw();
         }
 
         public void SetPixel(APoint point, AColor color)
         {
-            _drawActions.Add(() => DrawRect(new Rect2(point.X, point.Y, 1, 1), color.ToGodotColor(), true));
-            MarkDirty();
+            _painter.SetPixel(point, color);
+            QueueRedraw();
         }
 
         public void DrawLine(APoint start, APoint end, AColor color, float width = 1)
         {
-            _drawActions.Add(() => base.DrawLine(start.ToVector2(), end.ToVector2(), color.ToGodotColor(), width));
-            MarkDirty();
+            _painter.DrawLine(start, end, color, width);
+            QueueRedraw();
         }
 
         public void DrawRect(ARect rect, AColor color, bool filled = true, float width = 1)
         {
-            var godotRect = rect.ToRect2();
-            var godotColor = color.ToGodotColor();
-
-            if (filled)
-                _drawActions.Add(() => DrawRect(godotRect, godotColor, true));
-            else
-                _drawActions.Add(() => DrawRect(godotRect, godotColor, false, width));
-            MarkDirty();
+            _painter.DrawRect(rect, color, filled, width);
+            QueueRedraw();
         }
 
         public void DrawCircle(APoint center, float radius, AColor color, bool filled = true, float width = 1)
         {
-            if (filled)
-                _drawActions.Add(() => base.DrawCircle(center.ToVector2(), radius, color.ToGodotColor()));
-            else
-                _drawActions.Add(() => DrawArc(center.ToVector2(), radius, 0, 360, 32, color.ToGodotColor(), width));
-
-            MarkDirty();
+            _painter.DrawCircle(center, radius, color, filled, width);
+            QueueRedraw();
         }
 
         public void DrawArc(APoint center, float radius, float startDeg, float endDeg, int segments, AColor color, float width = 1)
         {
-            _drawActions.Add(() => DrawArc(center.ToVector2(), radius, startDeg, endDeg, segments, color.ToGodotColor(), width));
-            MarkDirty();
+            _painter.DrawArc(center, radius, startDeg, endDeg, segments, color, width);
+            QueueRedraw();
         }
 
         public void DrawPolygon(IReadOnlyList<APoint> points, AColor color, bool filled = true, float width = 1)
         {
-            var arr = points.Select(p => p.ToVector2()).ToArray();
-
-            if (filled)
-                _drawActions.Add(() => DrawPolygon(arr, [color.ToGodotColor()]));
-            else
-                _drawActions.Add(() => DrawPolyline(arr, color.ToGodotColor(), width, true));
-            MarkDirty();
+            _painter.DrawPolygon(points, color, filled, width);
+            QueueRedraw();
         }
 
-        public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = AbstTextAlignment.Left)
+        public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12,
+            int width = -1, AbstTextAlignment alignment = default)
         {
-            Font fontGodot = _fontManager.Get<FontFile>(font ?? "") ?? ThemeDB.FallbackFont;
-            Color col = color.HasValue ? color.Value.ToGodotColor() : Colors.Black;
-
-            if (!text.Contains('\n'))
-            {
-                int w = width >= 0 ? width : -1;
-                _drawActions.Add(() => DrawString(fontGodot, position.ToVector2(), text, alignment.ToGodot(), w, fontSize, col));
-            }
-            else
-            {
-                var lines = text.Split('\n');
-                _drawActions.Add(() =>
-                {
-                    var lineHeight = fontGodot.GetHeight();
-                    for (int i = 0; i < lines.Length; i++)
-                    {
-                        Vector2 pos = new Vector2(position.X, position.Y + i * lineHeight);
-                        int w = width >= 0 ? width : -1;
-                        DrawString(fontGodot, pos, lines[i], alignment.ToGodot(), w, fontSize, col);
-                    }
-                });
-            }
-
-            MarkDirty();
+            _painter.DrawText(position, text, font, color, fontSize, width, alignment);
+            QueueRedraw();
         }
-
-
+        public void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12,
+            int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left,
+            AbstFontStyle style = AbstFontStyle.Regular)
+        {
+            _painter.DrawSingleLine(position, text, font, color, fontSize, width, height, alignment, style);
+            QueueRedraw();
+        }
         public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)
         {
-            var img = Image.CreateFromData(width, height, false, format.ToGodotFormat(), data);
-            var tex = ImageTexture.CreateFromImage(img);
-            if (tex == null) return;
-            _drawActions.Add(() =>
-            {
-                DrawTexture(tex, position.ToVector2());
-                tex.Dispose();
-            });
-            MarkDirty();
+            _painter.DrawPicture(data, width, height, position, format);
+            QueueRedraw();
         }
 
         public void DrawPicture(IAbstTexture2D texture, int width, int height, APoint position)
         {
-            var tex = ((AbstGodotTexture2D)texture).Texture;
-            _drawActions.Add(() =>
-            {
-                DrawTextureRect(tex, new Rect2(position.X, position.Y, width, height), false); // don't tile
-            });
-            MarkDirty();
+            _painter.DrawPicture(texture, width, height, position);
+            QueueRedraw();
         }
+
+        public IAbstTexture2D GetTexture(string? name = null) => _painter.GetTexture(name);
 
         public new void Dispose()
         {
-            _drawActions.Clear();
-            QueueFree();
+            _painter.Dispose();
             base.Dispose();
         }
     }
 }
+

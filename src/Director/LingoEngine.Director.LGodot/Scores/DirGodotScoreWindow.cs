@@ -115,6 +115,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     private float _topHeight = 0;
     private void RepositionBars(bool firstLoad = false)
     {
+        if (_gfxValues == null) return;
         float barsHeight = _topCollapsed ? _gfxValues.ChannelHeight : _gfxValues.ChannelHeight * 6;
         _directorScoreWindow.FrameHeader.Canvas.X = 0;
         _directorScoreWindow.FrameHeader.Canvas.Y = barsHeight + _gfxValues.LabelsBarHeight+2;
@@ -124,7 +125,7 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
         _leftChannelsScollClipper.Position = new Vector2(0, topHeight);
         _lastPosV = -1;
         UpdateScrollSize();
-        _directorScoreWindow.ResizeFromFW(firstLoad,(int)Size.X,(int)Size.Y-TitleBarHeight);
+        _directorScoreWindow.ResizingContentFromFW(firstLoad,(int)Size.X,(int)Size.Y-TitleBarHeight);
     }
 
     public override void _Process(double delta)
@@ -213,10 +214,10 @@ public partial class DirGodotScoreWindow : BaseGodotWindow, IDirFrameworkScoreWi
     }
 
 
-    protected override void OnResizing(Vector2 size)
+    protected override void OnResizing(bool firstResize, Vector2 size)
     {
-        base.OnResizing(size);
-        RepositionBars();
+        base.OnResizing(firstResize,size);
+        RepositionBars(firstResize);
     }
 
     //public override void _Input(InputEvent @event)

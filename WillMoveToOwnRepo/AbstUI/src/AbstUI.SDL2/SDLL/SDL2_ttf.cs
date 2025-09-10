@@ -25,7 +25,8 @@
  *
  */
 #endregion
-
+#pragma warning disable CS8603 // Possible null reference return.
+#pragma warning disable IDE1006 // Naming Styles
 #region Using Statements
 using System;
 using System.Runtime.InteropServices;

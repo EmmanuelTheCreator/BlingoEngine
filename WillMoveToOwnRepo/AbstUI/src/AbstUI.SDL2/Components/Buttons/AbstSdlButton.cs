@@ -120,7 +120,7 @@ namespace AbstUI.SDL2.Components.Buttons
             EnsureResources(context);
             int w = (int)Width;
             int h = (int)Height;
-            if (_texture == nint.Zero || _texW != w || _texH != h || _renderedText != Text)
+            if (_texture == nint.Zero || _texW != w || _texH != h || _renderedText != Text || _isDirty)
             {
                 if (_texture != nint.Zero)
                     SDL.SDL_DestroyTexture(_texture);
@@ -190,12 +190,17 @@ namespace AbstUI.SDL2.Components.Buttons
             return _texture;
         }
 
-        public void HandleEvent(AbstSDLEvent e)
+        public virtual bool CanHandleEvent(AbstSDLEvent e)
+        {
+            return Enabled && (e.IsInside || (_isHover && e.Event.type == SDL.SDL_EventType.SDL_MOUSEMOTION));
+        }
+
+        public virtual void HandleEvent(AbstSDLEvent e)
         {
             if (!Enabled) return;
 
-            ref var ev = ref e.Event;
-            if (!HitTest(ev.button.x, ev.button.y))
+            var ev = e.Event;
+            if (!e.IsInside)
             {
                 if (_isHover)
                 {

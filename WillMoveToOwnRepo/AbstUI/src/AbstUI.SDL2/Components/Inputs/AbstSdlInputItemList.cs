@@ -20,6 +20,7 @@ namespace AbstUI.SDL2.Components.Inputs
         private int _lineHeight;
         private int _hoverIndex = -1;
         private int _pressedIndex = -1;
+        protected bool _isHover;
 
         public AbstSdlInputItemList(AbstSdlComponentFactory factory, AbstSDLComponentContext? parent = null) : base(factory, parent)
         {
@@ -103,22 +104,26 @@ namespace AbstUI.SDL2.Components.Inputs
             SDL.SDL_RenderCopy(ctx.Renderer, textTex, IntPtr.Zero, ref dst);
             SDL.SDL_DestroyTexture(textTex);
         }
-
+        public override bool CanHandleEvent(AbstSDLEvent e)
+        {
+            return Enabled && (e.IsInside || (_isHover && e.Event.type == SDL.SDL_EventType.SDL_MOUSEMOTION) || !e.HasCoordinates);
+        }
         protected override void HandleContentEvent(AbstSDLEvent e)
         {
             if (!Enabled) return;
-            ref var ev = ref e.Event;
+            var ev = e.Event;
             if (ev.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN && ev.button.button == SDL.SDL_BUTTON_LEFT)
             {
                 const int sbSize = 16;
                 int viewW = (int)Width - sbSize;
                 int viewH = (int)Height - sbSize;
-                bool inside = ev.button.x >= ComponentContext.X && ev.button.x <= ComponentContext.X + viewW &&
-                              ev.button.y >= ComponentContext.Y && ev.button.y <= ComponentContext.Y + viewH;
+                //bool inside = ev.button.x >= ComponentContext.X && ev.button.x <= ComponentContext.X + viewW &&
+                //              ev.button.y >= ComponentContext.Y && ev.button.y <= ComponentContext.Y + viewH;
+                var inside = e.IsInside && e.ComponentLeft < viewW;
                 if (inside)
                 {
                     Factory.FocusManager.SetFocus(this);
-                    int idx = (int)((ev.button.y - ComponentContext.Y + ScrollVertical) / _lineHeight);
+                    int idx = (int)((e.ComponentTop + ScrollVertical) / _lineHeight);
                     if (idx >= 0 && idx < Items.Count)
                     {
                         _pressedIndex = idx;
@@ -138,14 +143,16 @@ namespace AbstUI.SDL2.Components.Inputs
             }
             else if (ev.type == SDL.SDL_EventType.SDL_MOUSEMOTION)
             {
+                _isHover = e.IsInside;
                 const int sbSize = 16;
                 int viewW = (int)Width - sbSize;
                 int viewH = (int)Height - sbSize;
                 int newHover = -1;
-                if (ev.motion.x >= ComponentContext.X && ev.motion.x <= ComponentContext.X + viewW &&
-                    ev.motion.y >= ComponentContext.Y && ev.motion.y <= ComponentContext.Y + viewH)
+                //if (ev.motion.x >= ComponentContext.X && ev.motion.x <= ComponentContext.X + viewW &&
+                //    ev.motion.y >= ComponentContext.Y && ev.motion.y <= ComponentContext.Y + viewH)
+                if (e.IsInside && e.ComponentLeft < viewW)
                 {
-                    newHover = (int)((ev.motion.y - ComponentContext.Y + ScrollVertical) / _lineHeight);
+                    newHover = (int)((e.ComponentTop  + ScrollVertical) / _lineHeight);
                     if (newHover < 0 || newHover >= Items.Count) newHover = -1;
                 }
                 if (newHover != _hoverIndex)
@@ -154,15 +161,15 @@ namespace AbstUI.SDL2.Components.Inputs
                     ComponentContext.QueueRedraw(this);
                 }
             }
-            else if (ev.type == SDL.SDL_EventType.SDL_MOUSEWHEEL)
-            {
-                ScrollVertical = Math.Clamp(
-                    ScrollVertical - ev.wheel.y * _lineHeight,
-                    0,
-                    MathF.Max(0, ContentHeight - Height));
-                ComponentContext.QueueRedraw(this);
-                e.StopPropagation = true;
-            }
+            //else if (ev.type == SDL.SDL_EventType.SDL_MOUSEWHEEL)
+            //{
+            //    ScrollVertical = Math.Clamp(
+            //        ScrollVertical - ev.wheel.y * _lineHeight,
+            //        0,
+            //        MathF.Max(0, ContentHeight - Height));
+            //    ComponentContext.QueueRedraw(this);
+            //    e.StopPropagation = true;
+            //}
             else if (ev.type == SDL.SDL_EventType.SDL_KEYDOWN && _focused)
             {
                 if (ev.key.keysym.sym == SDL.SDL_Keycode.SDLK_UP)

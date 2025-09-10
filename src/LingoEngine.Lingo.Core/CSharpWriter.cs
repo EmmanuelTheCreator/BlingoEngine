@@ -15,20 +15,33 @@ public partial class CSharpWriter : ILingoAstVisitor
     private readonly StringBuilder _sb = new();
     private readonly string _methodAccessModifier;
     private readonly IReadOnlyDictionary<string, LingoScriptType> _scriptTypes;
+    private readonly IReadOnlyDictionary<string, MethodSignature>? _methodSignatures;
+    private readonly LingoToCSharpConverterSettings _settings;
     private string? _currentHandlerName;
     private int _indent;
     private bool _atLineStart = true;
 
-    public CSharpWriter(string methodAccessModifier = "public", IReadOnlyDictionary<string, LingoScriptType>? scriptTypes = null)
+    public CSharpWriter(
+        string methodAccessModifier = "public",
+        IReadOnlyDictionary<string, LingoScriptType>? scriptTypes = null,
+        IReadOnlyDictionary<string, MethodSignature>? methodSignatures = null,
+        LingoToCSharpConverterSettings? settings = null)
     {
         _methodAccessModifier = methodAccessModifier;
         _scriptTypes = scriptTypes ?? new Dictionary<string, LingoScriptType>();
+        _methodSignatures = methodSignatures;
+        _settings = settings ?? new LingoToCSharpConverterSettings();
     }
 
     /// <summary>Converts the given AST node to C#.</summary>
-    public static string Write(LingoNode node, string methodAccessModifier = "public", IReadOnlyDictionary<string, LingoScriptType>? scriptTypes = null)
+    public static string Write(
+        LingoNode node,
+        string methodAccessModifier = "public",
+        IReadOnlyDictionary<string, LingoScriptType>? scriptTypes = null,
+        IReadOnlyDictionary<string, MethodSignature>? methodSignatures = null,
+        LingoToCSharpConverterSettings? settings = null)
     {
-        var writer = new CSharpWriter(methodAccessModifier, scriptTypes);
+        var writer = new CSharpWriter(methodAccessModifier, scriptTypes, methodSignatures, settings);
         node.Accept(writer);
         return writer._sb.ToString();
     }
@@ -299,6 +312,7 @@ public partial class CSharpWriter : ILingoAstVisitor
             AppendLine(":");
             Indent();
             label.Block?.Accept(this);
+            AppendLine("break;");
             Unindent();
             label = label.NextLabel;
         }
@@ -307,6 +321,7 @@ public partial class CSharpWriter : ILingoAstVisitor
             AppendLine("default:");
             Indent();
             node.Otherwise.Accept(this);
+            AppendLine("break;");
             Unindent();
         }
         Unindent();
@@ -703,6 +718,8 @@ public partial class CSharpWriter : ILingoAstVisitor
         {
             if (_sb.Length - startLen >= 2 && _sb[^2] == ';')
                 _sb.Length -= 2;
+            else if (_sb.Length - startLen >= 3 && _sb[^2] == '\r' && _sb[^3] == ';')
+                _sb.Length -= 3;
             _atLineStart = false;
         }
         else if (_sb.Length - startLen >= 1 && _sb[^1] == ';')
@@ -712,20 +729,4 @@ public partial class CSharpWriter : ILingoAstVisitor
         }
     }
 
-    private static string SanitizeIdentifier(string name)
-    {
-        if (string.IsNullOrEmpty(name)) return "L";
-        var sb = new StringBuilder();
-        foreach (var c in name)
-        {
-            if (char.IsLetterOrDigit(c) || c == '_')
-                sb.Append(c);
-        }
-        var result = sb.ToString();
-        if (string.IsNullOrEmpty(result))
-            result = "L";
-        if (!char.IsLetter(result[0]) && result[0] != '_')
-            result = "L" + result;
-        return result;
-    }
 }

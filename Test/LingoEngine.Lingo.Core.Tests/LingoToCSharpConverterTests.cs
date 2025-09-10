@@ -3,6 +3,8 @@ using LingoEngine.Lingo.Core;
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text;
 using Xunit;
 
 namespace LingoEngine.Lingo.Core.Tests;
@@ -245,7 +247,7 @@ end";
             "    public B1Behavior(ILingoMovieEnvironment env) : base(env) { }",
             "public void BeginSprite()",
             "{",
-            "    SendSprite<B2>(2, b2 => b2.doIt());",
+            "    SendSprite<B2Behavior>(2, b2behavior => b2behavior.doIt());",
             "}",
             "",
             "}");
@@ -282,7 +284,7 @@ end";
             "    public B1Behavior(ILingoMovieEnvironment env) : base(env) { }",
             "public void BeginSprite()",
             "{",
-            "    SendSprite<B2>(2, b2 => b2.doIt(42));",
+            "    SendSprite<B2Behavior>(2, b2behavior => b2behavior.doIt(42));",
             "}",
             "",
             "}");
@@ -353,7 +355,7 @@ end";
             "    public P1Behavior(ILingoMovieEnvironment env) : base(env) { }",
             "public void BeginSprite()",
             "{",
-            "    CallMovieScript<M1>(m1 => m1.myMovieHandler());",
+            "    CallMovieScript<M1Behavior>(m1behavior => m1behavior.myMovieHandler());",
             "}",
             "",
             "}");
@@ -658,10 +660,13 @@ end";
             "{",
             "    case 1:",
             "        DoOne();",
+            "        break;",
             "    case 2:",
             "        DoTwo();",
+            "        break;",
             "    default:",
             "        DoDefault();",
+            "        break;",
             "}");
         Assert.Equal(expected, result);
     }
@@ -675,6 +680,18 @@ end";
         Assert.Equal("_movie.ActorList", CSharpWriter.Write(node).Trim());
         node.Prop = "banana";
         Assert.Equal("/* the banana */", CSharpWriter.Write(node).Trim());
+    }
+
+    [Fact]
+    public void TrimSemicolonHandlesWindowsNewLine()
+    {
+        var writer = new CSharpWriter();
+        var sbField = typeof(CSharpWriter).GetField("_sb", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var sb = (StringBuilder)sbField.GetValue(writer)!;
+        sb.Append("foo;\r\n");
+        var method = typeof(CSharpWriter).GetMethod("TrimSemicolon", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        method.Invoke(writer, new object[] { 0 });
+        Assert.Equal("foo", sb.ToString());
     }
 
     [Fact]
@@ -1155,7 +1172,7 @@ end";
         var lingo = "on new me\nend";
         var file = new LingoScriptFile { Name = "MyParent", Source = lingo, Type = LingoScriptType.Behavior };
         var result = _converter.Convert(file);
-        Assert.Contains("class MyParentParentScript : LingoParentScript", result);
+        Assert.Contains("class MyParentParent : LingoParentScript", result);
     }
 
     [Fact]
@@ -1165,6 +1182,18 @@ end";
         var file = new LingoScriptFile { Name = "MyMovie", Source = lingo, Type = LingoScriptType.Behavior };
         var result = _converter.Convert(file);
         Assert.Contains("class MyMovieMovieScript : LingoMovieScript", result);
+    }
+
+    [Fact]
+    public void AlertConcatenationProducesStringParameter()
+    {
+        var lingo = @"on SDestroyError me,para
+  alert ""SpriteDistroy received ""&&para
+end";
+        var file = new LingoScriptFile { Name = "Test", Source = lingo, Type = LingoScriptType.Behavior };
+        var result = _converter.Convert(file);
+        Assert.Contains("public void SDestroyError(string para)", result);
+        Assert.Contains("alert(\"SpriteDistroy received \" + para);", result);
     }
 
     [Fact]
@@ -1178,8 +1207,12 @@ end";
                 Source = @"on Beginsprite me
   if myValue=-1 then
     myValue = sendsprite(myDataSpriteNum ,#GetCounterStartData,myDataName)
-    if myValue=void then myValue =0
-    if myValue < myMin or myValue>myMax then myValue=0
+    if myValue=void then
+      myValue =0
+    end if
+    if myValue < myMin or myValue>myMax then
+      myValue=0
+    end if
   end if
   me.Updateme()
   myWaiter = myWaitbeforeExecute
@@ -1237,6 +1270,42 @@ end",
                     p => { Assert.Equal("b", p.Name); Assert.Equal("string", p.Type); });
         var prop = Assert.Single(batch.Properties["Example"].Where(p => p.Name == "myProp"));
         Assert.Equal("int", prop.Type);
+    }
+
+    [Fact]
+    public void RefreshCaseIsConverted()
+    {
+        var lingo = @"on refresh me
+  case myNumberLinesRemoved of
+    1:me.LineRemoved1()
+    2:me.LineRemoved2()
+    3:me.LineRemoved3()
+    4:me.LineRemoved4()
+  end case
+end";
+        var file = new LingoScriptFile { Name = "Test", Source = lingo, Type = LingoScriptType.Behavior };
+        var result = _converter.Convert(file).Replace("\r", "");
+        Assert.Contains("switch (myNumberLinesRemoved)", result);
+        Assert.Matches("case 1:\\s*LineRemoved1\\(\\);\\s*break;", result);
+        Assert.Matches("case 2:\\s*LineRemoved2\\(\\);\\s*break;", result);
+        Assert.Matches("case 3:\\s*LineRemoved3\\(\\);\\s*break;", result);
+        Assert.Matches("case 4:\\s*LineRemoved4\\(\\);\\s*break;", result);
+    }
+
+    [Fact]
+    public void DestroyIfLineIsConverted()
+    {
+        var lingo = @"on destroy me
+  if the actorlist.getpos(me) <>0 then deleteone the actorlist (me)
+  gSpritemanager.SDestroy(myNum)
+end";
+        var file = new LingoScriptFile { Name = "Test", Source = lingo, Type = LingoScriptType.Behavior };
+        var result = _converter.Convert(file).Replace("\r", "");
+        Assert.Contains("public void Destroy()", result);
+        var ifPattern = @"if \(_movie.ActorList.GetPos\(this\) != 0\)\s*\{\s*_movie.ActorList.DeleteOne\(this\);\s*\}";
+        Assert.Matches(ifPattern, result);
+        Assert.DoesNotMatch(@"if \(_movie.ActorList.GetPos\(this\) != 0\);", result);
+        Assert.Contains("gSpritemanager.SDestroy(myNum);", result);
     }
 
     [Fact]

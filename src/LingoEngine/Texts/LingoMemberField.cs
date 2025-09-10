@@ -1,4 +1,5 @@
 ﻿
+using AbstUI.Components;
 using AbstUI.Primitives;
 using LingoEngine.Casts;
 using LingoEngine.Members;
@@ -21,7 +22,7 @@ namespace LingoEngine.Texts
         public bool IsFocused => _isFocused;
 
 
-        public LingoMemberField(LingoCast cast, ILingoFrameworkMemberField frameworkMember, int numberInCast, string name = "", string fileName = "", APoint regPoint = default) : base(LingoMemberType.Field, cast, frameworkMember, numberInCast, name, fileName, regPoint)
+        public LingoMemberField(LingoCast cast, ILingoFrameworkMemberField frameworkMember, int numberInCast, IAbstComponentFactory componentFactory, string name = "", string fileName = "", APoint regPoint = default) : base(LingoMemberType.Field, cast, frameworkMember, numberInCast, componentFactory, name, fileName, regPoint)
         {
         }
 

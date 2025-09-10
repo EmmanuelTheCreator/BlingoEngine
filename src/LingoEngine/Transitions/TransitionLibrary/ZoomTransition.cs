@@ -17,7 +17,7 @@ public sealed class ZoomTransition : LingoBaseTransition
 
     public override byte[] StepFrame(int width, int height, byte[] from, byte[] to, float progress)
     {
-        progress = Math.Clamp(progress, 0f, 1f);
+        progress = MathCompat.Clamp(progress, 0f, 1f);
         var dest = _open ? (byte[])from.Clone() : (byte[])to.Clone();
         var source = _open ? to : from;
 

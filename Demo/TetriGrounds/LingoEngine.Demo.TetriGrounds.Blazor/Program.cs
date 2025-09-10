@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using LingoEngine.Setup;
-//using LingoEngine.Blazor;
+using LingoEngine.Blazor;
 
 namespace LingoEngine.Demo.TetriGrounds.Blazor
 {
@@ -18,9 +18,8 @@ namespace LingoEngine.Demo.TetriGrounds.Blazor
             builder.Services.RegisterLingoEngine(c =>
             {
                 lingoEngineReg = c
-                // TODO
-                    //  .WithLingoBlazorEngine()
-                    // .SetProjectFactory<LingoEngine.Demo.TetriGrounds.Core.TetriGroundsProjectFactory>()
+                      .WithLingoBlazorEngine()
+                     .SetProjectFactory<LingoEngine.Demo.TetriGrounds.Core.TetriGroundsProjectFactory>()
                     .BuildDelayed();
             });
             var app = builder.Build();

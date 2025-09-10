@@ -31,6 +31,7 @@ namespace LingoEngine.LGodot.Scripts
         public void Unload()
         {
         }
+        public bool IsPixelTransparent(int x, int y) => false;
     }
 }
 

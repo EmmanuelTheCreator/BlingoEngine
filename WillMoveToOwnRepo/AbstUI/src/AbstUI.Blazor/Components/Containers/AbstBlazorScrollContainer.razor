@@ -3,7 +3,7 @@
 @inherits AbstBlazorComponentBase
 
 <CascadingValue Value="_component.ChildContainer">
-    <div id="@Name" style="@BuildScrollStyle()">
+    <div @ref="myDiv" id="@NameUnique" style="@BuildScrollStyle()" onscroll="@Scrolling">
         @foreach (var child in _component.GetItems())
         {
             var type = _component.ChildContainer.GetRazorComponentType(child);

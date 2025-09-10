@@ -9,11 +9,20 @@ public partial class CSharpWriter
 {
     public void Visit(LingoCallNode node)
     {
-        if (node.Callee is LingoVarNode varNode && varNode.VarName.Equals("voidp", StringComparison.OrdinalIgnoreCase))
+        if (node.Callee is LingoVarNode varNode)
         {
-            node.Arguments.Accept(this);
-            Append(" == null");
-            return;
+            if (varNode.VarName.Equals("voidp", StringComparison.OrdinalIgnoreCase))
+            {
+                node.Arguments.Accept(this);
+                Append(" == null");
+                return;
+            }
+            if (varNode.VarName.Equals("objectp", StringComparison.OrdinalIgnoreCase))
+            {
+                node.Arguments.Accept(this);
+                Append(" != null");
+                return;
+            }
         }
 
         if (!string.IsNullOrEmpty(node.Name))
@@ -254,14 +263,7 @@ public partial class CSharpWriter
             var scriptName = dn.Datum.AsString();
             if (_scriptTypes.TryGetValue(scriptName, out var st))
             {
-                var suffix = st switch
-                {
-                    LingoScriptType.Movie => "MovieScript",
-                    LingoScriptType.Parent => "ParentScript",
-                    LingoScriptType.Behavior => "Behavior",
-                    _ => "Script"
-                };
-                var cls = SanitizeIdentifier(scriptName) + suffix;
+                var cls = CSharpName.ComposeName(scriptName, st, _settings);
                 Append("new ");
                 Append(cls);
                 Append("(_env, _globalvars");
@@ -320,14 +322,7 @@ public partial class CSharpWriter
             var scriptName = dn.Datum.AsString();
             if (_scriptTypes.TryGetValue(scriptName, out var st))
             {
-                var suffix = st switch
-                {
-                    LingoScriptType.Movie => "MovieScript",
-                    LingoScriptType.Parent => "ParentScript",
-                    LingoScriptType.Behavior => "Behavior",
-                    _ => "Script"
-                };
-                var cls = SanitizeIdentifier(scriptName) + suffix;
+                var cls = CSharpName.ComposeName(scriptName, st, _settings);
                 Append("new ");
                 Append(cls);
                 Append("(_env, _globalvars");

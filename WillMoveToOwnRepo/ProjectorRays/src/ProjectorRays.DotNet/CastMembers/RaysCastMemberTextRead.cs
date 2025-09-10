@@ -139,17 +139,19 @@ namespace ProjectorRays.CastMembers
 
         public uint? FieldTextLength { get; private set; }
 
+        public static Func<IXmedReader> XmedReaderFactory { get; set; } = () => new XmedReader();
+
         public static RaysCastMemberTextRead FromXmedChunk(BufferView view, RaysDirectorFile dir)
         {
             var result = new RaysCastMemberTextRead();
 
             // Dump the raw payload for debugging. The format is still largely
             // unknown so we treat it as opaque ASCII for now.
-            var ascii = Encoding.Latin1.GetString(view.Data, view.Offset, view.Size);
             dir.Logger.LogInformation($"XMED all : {BitConverter.ToString(view.Data, view.Offset, view.Size)}");
+
             try
             {
-                var doc = XmedReader.Read(view);
+                var doc = XmedReaderFactory().Read(view);
                 result.Text = doc.Text;
                 result.Styles = doc.Runs;
             }
@@ -157,6 +159,7 @@ namespace ProjectorRays.CastMembers
             {
                 dir.Logger.LogWarning($"XMED parse failed: {ex.Message}");
             }
+
             return result;
         }
 

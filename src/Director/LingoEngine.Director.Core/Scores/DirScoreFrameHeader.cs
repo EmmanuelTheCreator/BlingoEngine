@@ -41,12 +41,12 @@ public class DirScoreFrameHeader : IDisposable
 
         int frameCount = _movie.FrameCount;
         // draw first frame number
-        _canvas.DrawText(new APoint(1, 13), "1", null, AColors.Gray, 10);
+        _canvas.DrawText(new APoint(1, 3), "1", null, AColors.Gray, 10);
         for (int f = 0; f <= frameCount; f++)
         {
             float x = _gfxValues.LeftMargin + f * _gfxValues.FrameWidth;
             if ((f + 1) % 5 == 0)
-                _canvas.DrawText(new APoint(x + 1, 13), (f + 1).ToString(), null, AColors.Gray, 10);
+                _canvas.DrawText(new APoint(x + 1, 3), (f + 1).ToString(), null, AColors.Gray, 10);
         }
         _canvas.DrawLine(new APoint(0, 0), new APoint(_canvas.Width, 0), DirectorColors.LineLight, 1);
         _canvas.DrawLine(new APoint(0, _gfxValues.ChannelFramesHeight), new APoint(_canvas.Width, _gfxValues.ChannelFramesHeight), DirectorColors.LineDark, 1);

@@ -1,11 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using AbstUI.Components.Graphics;
 using AbstUI.Primitives;
 using AbstUI.Styles;
+
+using System.Text;
+using System.Text.RegularExpressions;
+
 
 namespace AbstUI.Texts
 {
@@ -21,22 +20,13 @@ namespace AbstUI.Texts
     /// </summary>
     public class AbstMarkdownRenderer
     {
-        private AbstGfxCanvas? _canvas;
+        private IAbstImagePainter? _canvas;
         private readonly IAbstFontManager _fontManager;
         private readonly Func<string, (byte[] data, int width, int height, APixelFormat format)>? _imageLoader;
 
         private string _markdown = string.Empty;
 
-        private string _fontFamily = "Arial";
-        private int _fontSize = 12;
-        private AbstTextAlignment _alignment = AbstTextAlignment.Left;
-        private AColor _color = AColors.Black;
-        private int _lineHeight;
-        private int _marginLeft;
-        private int _marginRight;
-        private bool _styleBold;
-        private bool _styleItalic;
-        private bool _styleUnderline;
+        private readonly AbstTextStyle _currentStyle = new() { Font = "Arial", FontSize = 12, Color = AColors.Black, Alignment = AbstTextAlignment.Left };
         private readonly Stack<AbstTextStyle> _styleStack = new();
 
         private Dictionary<string, AbstTextStyle> _styles = new();
@@ -50,7 +40,7 @@ namespace AbstUI.Texts
             get => _styles.Values;
             private set => _styles = value?.ToDictionary(s => s.Name) ?? new();
         }
-
+       
         public AbstMarkdownRenderer(
             IAbstFontManager fontManager,
             Func<string, (byte[] data, int width, int height, APixelFormat format)>? imageLoader = null)
@@ -58,22 +48,54 @@ namespace AbstUI.Texts
             _fontManager = fontManager;
             _imageLoader = imageLoader;
         }
-
+        public void Reset()
+        {
+            _styles.Clear();
+            _styleStack.Clear();
+            DoFastRendering = false;
+            _markdown = string.Empty;
+        }
         /// <summary>
         /// Sets the markdown text and available styles. Must be called before rendering.
         /// </summary>
         public void SetText(string markdown, IEnumerable<AbstTextStyle> styles)
         {
+            if (AbstMarkdownReader.TryExtractStyleSheet(ref markdown, out var parsed))
+                styles = parsed;
+            
             _markdown = markdown ?? string.Empty;
             Styles = styles;
             _styleStack.Clear();
             if (_styles.Count > 0)
                 ApplyStyle(_styles.Values.First());
-            DoFastRendering = _styles.Count == 1 && !HasSpecialTags(_markdown);
+            var fastProbe = StripLeadingParaTags(_markdown);
+            DoFastRendering = _styles.Count == 1 && !HasSpecialTags(fastProbe);
         }
 
+        /// <summary>
+        /// Sets markdown text that may include an embedded stylesheet tag.
+        /// </summary>
+        public void SetText(string markdown)
+            => SetText(markdown, Enumerable.Empty<AbstTextStyle>());
+        private static string StripLeadingParaTags(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return string.Empty;
+            // remove one or more leading PARA tags at the start of each line
+            return Regex.Replace(
+                s,
+                @"(?m)^[ \t]*(\{\{PARA(?::[^}]*)?\}\}[ \t]*)+",
+                "");
+        }
+        /// <summary>
+        /// Sets the markdown data including precomputed styles and segments.
+        /// </summary>
+        public void SetText(AbstMarkdownData data)
+            => SetText(data.Markdown, data.Styles.Values);
+
+        
+
         /// <summary>Renders markdown text on the canvas starting from the given position.</summary>
-        public void Render(AbstGfxCanvas canvas, APoint start)
+        public void Render(IAbstImagePainter canvas, APoint start)
         {
             _canvas = canvas;
             if (_styles.Count > 0)
@@ -86,133 +108,215 @@ namespace AbstUI.Texts
                 return;
             }
 
-            var lines = _markdown.Split('\n');
+            // --- PASS 1: measure max line width with style progression ---
+            var markdown = Regex.Replace(_markdown, @"\n{2,}(?=\{\{PARA(?::\d+)?\}\})", "\n");
+            var lines = markdown.Split('\n');
+
+            if (_styles.Count > 0) ApplyStyle(_styles.Values.First());
+            _styleStack.Clear();
+
+            float maxWidth = 0f;
+            foreach (var raw in lines)
+            {
+                var line = raw.TrimEnd('\r');
+                ApplyLeadingStyle(ref line);
+
+                int headerLevel = 0;
+                while (headerLevel < line.Length && line[headerLevel] == '#') headerLevel++;
+                var content = headerLevel > 0 ? line.Substring(headerLevel).TrimStart() : line;
+                if (string.IsNullOrWhiteSpace(content)) continue;
+
+                int usedFontSize = headerLevel > 0 ? 32 - (headerLevel - 1) * 4 : _currentStyle.FontSize;
+                bool headerBold = headerLevel > 0;
+
+                _ = ParseInlineSegments(content, usedFontSize,
+                    headerBold || _currentStyle.Bold, _currentStyle.Italic, _currentStyle.Underline,
+                    out float lw);
+
+                if (lw > maxWidth) maxWidth = lw;
+            }
+
+            // reset for actual render
+            if (_styles.Count > 0) ApplyStyle(_styles.Values.First());
+            _styleStack.Clear();
+
             var pos = start;
-            var firstLine = true;
 
             foreach (var rawLine in lines)
             {
                 var line = rawLine.TrimEnd('\r');
                 ApplyLeadingStyle(ref line);
-                ProcessTags(ref line);
+                if (_currentStyle.FontSize <= 0)
+                    _currentStyle.FontSize = 12;
 
-                // determine header level
                 int headerLevel = 0;
                 while (headerLevel < line.Length && line[headerLevel] == '#')
                     headerLevel++;
                 var content = headerLevel > 0 ? line.Substring(headerLevel).TrimStart() : line;
+                if (string.IsNullOrWhiteSpace(content))
+                    continue;
 
-                int usedFontSize = headerLevel > 0 ? 32 - (headerLevel - 1) * 4 : _fontSize;
+                int usedFontSize = headerLevel > 0 ? 32 - (headerLevel - 1) * 4 : _currentStyle.FontSize;
                 bool headerBold = headerLevel > 0;
 
-                if (content.StartsWith("!["))
+                var segments = ParseInlineSegments(content, usedFontSize,
+                    headerBold || _currentStyle.Bold, _currentStyle.Italic, _currentStyle.Underline,
+                    out float lineWidth);
+
+                // >>> baseline alignment fix starts here <<<
+                int maxAscent = 0, maxDescent = 0;
+                foreach (var s in segments)
                 {
-                    var match = Regex.Match(content, @"!\[[^\]]*\]\(([^)\s]+)(?:\s+size=(\d+)x(\d+))?\)");
-                    if (match.Success)
-                    {
-                        string path = match.Groups[1].Value;
-                        int? w = match.Groups[2].Success ? int.Parse(match.Groups[2].Value) : null;
-                        int? h = match.Groups[3].Success ? int.Parse(match.Groups[3].Value) : null;
-                        int renderedHeight = RenderImage(path, pos, w, h);
-                        pos.Offset(0, renderedHeight + 4);
-                        continue;
-                    }
+                    var flags = AbstFontStyle.Regular;
+                    if (s.Bold) flags |= AbstFontStyle.Bold;
+                    if (s.Italic) flags |= AbstFontStyle.Italic;
+                    var fi = _fontManager.GetFontInfo(s.FontFamily, s.FontSize, flags);
+                    maxAscent = Math.Max(maxAscent, fi.TopIndentation);
+                    maxDescent = Math.Max(maxDescent, fi.FontHeight - fi.TopIndentation);
                 }
+                int lineHeight = _currentStyle.LineHeight > 0 ? _currentStyle.LineHeight : (maxAscent + maxDescent);
+                // >>> baseline alignment fix ends here <<<
 
-                var plain = StripFormatting(content);
-                float lineWidth = EstimateWidth(plain, usedFontSize);
-                float lineX = pos.X;
-                if (_alignment == AbstTextAlignment.Center)
-                    lineX -= lineWidth / 2f;
-                else if (_alignment == AbstTextAlignment.Right)
-                    lineX -= lineWidth;
-                lineX += _marginLeft;
-                if (_alignment == AbstTextAlignment.Right)
-                    lineX -= _marginRight;
-                else if (_alignment == AbstTextAlignment.Center)
-                    lineX -= _marginRight / 2f;
+                if (segments.Count > 0)
+                {
+                    // Use the widest known box for alignment
+                    var boxW = (_canvas is { } c && c.Width > 0)
+                        ? c.Width
+                        : (int)MathF.Ceiling(MathF.Max(maxWidth, lineWidth)); // ensure box >= current line
 
-                bool bold = headerBold || _styleBold;
-                bool italic = _styleItalic;
-                bool underline = _styleUnderline;
+                    float lineX = pos.X + _currentStyle.MarginLeft;
+                    switch (_currentStyle.Alignment)
+                    {
+                        case AbstTextAlignment.Center:
+                            lineX += (boxW - lineWidth) * 0.5f;
+                            break;
+                        case AbstTextAlignment.Right:
+                            lineX += (boxW - lineWidth) - _currentStyle.MarginRight;
+                            break;
+                        default:
+                            break;
+                    }
 
-                var fontInfo = _fontManager.GetFontInfo(_fontFamily, usedFontSize);
-                RenderInlineText(content, new APoint(lineX, pos.Y - (firstLine ? fontInfo.TopIndentation : 0)), usedFontSize, bold, italic, underline);
-                int advance = _lineHeight > 0 ? _lineHeight : fontInfo.FontHeight + 4;
-                pos.Offset(0, advance);
-                firstLine = false;
+                    // never render off-canvas
+                    if (lineX < 0) lineX = 0f;
+
+
+
+                    var baselineY = pos.Y + maxAscent;
+                    RenderSegments(segments, new APoint(lineX, baselineY));
+
+                    pos.Offset(0, lineHeight);
+                }
+                else
+                {
+                    pos.Offset(0, lineHeight);
+                }
             }
         }
 
         private void RenderFast(APoint start)
         {
             var style = _styles.Values.First();
-            var lines = _markdown.Split('\n');
+
+            var textOnly = AbstMarkdownReader.RetrieveTextOnly(_markdown);
+
+            var lines = textOnly.Split('\n');
             var pos = start;
-            var fontInfo = _fontManager.GetFontInfo(style.Font, style.FontSize);
-            int lineHeight = style.LineHeight > 0 ? style.LineHeight : fontInfo.FontHeight + 4;
-            bool firstLine = true;
+            var fontSize = style.FontSize;
+            if (fontSize <= 0) fontSize = 12;
+            var baseStyle = AbstFontStyle.Regular;
+            if (style.Bold) baseStyle |= AbstFontStyle.Bold;
+            if (style.Italic) baseStyle |= AbstFontStyle.Italic;
+            var fontInfo = _fontManager.GetFontInfo(style.Font, fontSize, baseStyle);
+            int lineHeight = style.LineHeight > 0 ? style.LineHeight : fontInfo.FontHeight;
 
-            foreach (var rawLine in lines)
+            // 1) measure max width of all lines
+            float fullWidth = 0f;
+
+            var lineWidths = new List<float>(lines.Length);
+            foreach (var raw in lines)
             {
-                var line = rawLine.TrimEnd('\r');
-                float lineWidth = EstimateWidth(line, style.FontSize);
-                float lineX = pos.X;
-                if (style.Alignment == AbstTextAlignment.Center)
-                    lineX -= lineWidth / 2f;
-                else if (style.Alignment == AbstTextAlignment.Right)
-                    lineX -= lineWidth;
-                lineX += style.MarginLeft;
-                if (style.Alignment == AbstTextAlignment.Right)
-                    lineX -= style.MarginRight;
-                else if (style.Alignment == AbstTextAlignment.Center)
-                    lineX -= style.MarginRight / 2f;
+                var line = raw.TrimEnd('\r');
+                float lineWidth = 0;
+                if (line != "")
+                {
+                    var fontStyleForWidth = AbstFontStyle.Regular;
+                    if (style.Bold)
+                        fontStyleForWidth |= AbstFontStyle.Bold;
+                    if (style.Italic)
+                        fontStyleForWidth |= AbstFontStyle.Italic;
+                    lineWidth = EstimateWidth(line, style.Font, fontSize, fontStyleForWidth);
+                }
+                lineWidths.Add(lineWidth);
+                fullWidth = MathF.Max(fullWidth, lineWidth);
+            }
+            // include margins in the box width, if you want the right edge to respect MarginRight:
+            float contentWidth = MathF.Max(0, fullWidth);
+            float originX = pos.X + style.MarginLeft;
 
-                _canvas!.DrawText(new APoint(lineX, pos.Y - (firstLine ? fontInfo.TopIndentation : 0)), line, style.Font, style.Color, style.FontSize, -1, AbstTextAlignment.Left);
+            var lineIndex = 0;
+            foreach (var raw in lines)
+            {
+                var line = raw.TrimEnd('\r');
+                float lineW = lineWidths[lineIndex];
+
+                // align within the measured content box (same right edge for every line)
+                float xOff = 0f;
+                switch (style.Alignment)
+                {
+                    case AbstTextAlignment.Center:
+                        xOff = (contentWidth - lineW) * 0.5f;
+                        break;
+                    case AbstTextAlignment.Right:
+                        xOff = (contentWidth - lineW);
+                        break;
+                    default:
+                        xOff = 0f;
+                        break;
+                }
+
+                float lineX = originX + xOff;
+                var fontStyle = AbstFontStyle.Regular;
+                if (style.Bold)
+                    fontStyle |= AbstFontStyle.Bold;
+                if (style.Italic)
+                    fontStyle |= AbstFontStyle.Italic;
+                _canvas!.DrawSingleLine( new APoint(lineX, pos.Y),line, style.Font, style.Color, style.FontSize, 
+                    (int)MathF.Ceiling(lineW), fontInfo.FontHeight,AbstTextAlignment.Left, fontStyle);
+
                 pos.Offset(0, lineHeight);
-                firstLine = false;
+                lineIndex++;
             }
         }
 
         private void ApplyStyle(AbstTextStyle style)
-        {
-            _fontSize = style.FontSize;
-            _fontFamily = style.Font;
-            _color = style.Color;
-            _alignment = style.Alignment;
-            _styleBold = style.Bold;
-            _styleItalic = style.Italic;
-            _styleUnderline = style.Underline;
-            _lineHeight = style.LineHeight;
-            _marginLeft = style.MarginLeft;
-            _marginRight = style.MarginRight;
-        }
+            => _currentStyle.CopyFrom(style);
 
         private void ApplyLeadingStyle(ref string line)
         {
             while (true)
             {
                 var trimmed = line.TrimStart();
-                if (trimmed.StartsWith("{{STYLE:", StringComparison.Ordinal))
+                if (trimmed.StartsWith("{{PARA", StringComparison.Ordinal))
+                {
+                    int start = line.IndexOf("{{PARA", StringComparison.Ordinal);
+                    int end = line.IndexOf("}}", start + 6, StringComparison.Ordinal);
+                    if (end == -1)
+                        break;
+                    var idPart = line.Substring(start + 6, end - (start + 6)).TrimStart(':').Trim();
+                    _styleStack.Clear();
+                    if (idPart.Length > 0 && _styles.TryGetValue(idPart, out var paraStyle))
+                        ApplyStyle(paraStyle);
+                    line = line.Remove(start, end - start + 2);
+                }
+                else if (trimmed.StartsWith("{{STYLE:", StringComparison.Ordinal))
                 {
                     int start = line.IndexOf("{{STYLE:", StringComparison.Ordinal);
                     int end = line.IndexOf("}}", start + 8, StringComparison.Ordinal);
                     if (end == -1)
                         break;
                     var name = line.Substring(start + 8, end - (start + 8)).Trim();
-                    _styleStack.Push(new AbstTextStyle
-                    {
-                        FontSize = _fontSize,
-                        Font = _fontFamily,
-                        Color = _color,
-                        Alignment = _alignment,
-                        Bold = _styleBold,
-                        Italic = _styleItalic,
-                        Underline = _styleUnderline,
-                        LineHeight = _lineHeight,
-                        MarginLeft = _marginLeft,
-                        MarginRight = _marginRight
-                    });
+                    _styleStack.Push(_currentStyle.Clone());
                     if (_styles.TryGetValue(name, out var style))
                         ApplyStyle(style);
                     line = line.Remove(start, end - start + 2);
@@ -232,172 +336,10 @@ namespace AbstUI.Texts
             }
         }
 
-        private void ProcessTags(ref string line)
-        {
-            int index = 0;
-            while (true)
-            {
-                int start = line.IndexOf("{{", index, StringComparison.Ordinal);
-                if (start == -1)
-                    break;
-                int end = line.IndexOf("}}", start + 2, StringComparison.Ordinal);
-                if (end == -1)
-                    break;
 
-                string tag = line.Substring(start + 2, end - start - 2);
-                if (tag.StartsWith("STYLE", StringComparison.OrdinalIgnoreCase))
-                {
-                    index = end + 2;
-                    continue;
-                }
-                ApplyTag(tag);
-                line = line.Remove(start, end - start + 2);
-            }
-        }
+        private float EstimateWidth(string text, string fontFamily, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
+            => _fontManager.MeasureTextWidth(text, fontFamily, fontSize, style);
 
-        private void ApplyTag(string tag)
-        {
-            if (tag.StartsWith("FONT-SIZE:", StringComparison.OrdinalIgnoreCase))
-            {
-                if (int.TryParse(tag.Substring(10), out var size))
-                    _fontSize = size;
-            }
-            else if (tag.StartsWith("FONT-FAMILY:", StringComparison.OrdinalIgnoreCase))
-            {
-                _fontFamily = tag.Substring(12);
-            }
-            else if (tag.StartsWith("ALIGN:", StringComparison.OrdinalIgnoreCase))
-            {
-                var val = tag.Substring(6).Trim().ToLowerInvariant();
-                _alignment = val switch
-                {
-                    "center" => AbstTextAlignment.Center,
-                    "right" => AbstTextAlignment.Right,
-                    "justify" or "justified" => AbstTextAlignment.Justified,
-                    _ => AbstTextAlignment.Left,
-                };
-            }
-            else if (tag.StartsWith("COLOR:", StringComparison.OrdinalIgnoreCase))
-            {
-                try
-                {
-                    _color = AColor.FromHex(tag.Substring(6).Trim());
-                }
-                catch
-                {
-                    // ignore invalid color
-                }
-            }
-        }
-
-        private void RenderInlineText(string content, APoint pos, int fontSize, bool initialBold, bool initialItalic, bool initialUnderline)
-        {
-            int i = 0;
-            bool bold = initialBold;
-            bool italic = initialItalic;
-            bool underline = initialUnderline;
-            var sb = new StringBuilder();
-            float currentX = pos.X;
-
-            void Flush()
-            {
-                if (sb.Length == 0)
-                    return;
-                string font = _fontFamily;
-                if (bold && italic)
-                    font += " BoldItalic";
-                else if (bold)
-                    font += " Bold";
-                else if (italic)
-                    font += " Italic";
-
-                string text = sb.ToString();
-                float width = EstimateWidth(text, fontSize);
-                _canvas!.DrawText(new APoint(currentX, pos.Y), text, font, _color, fontSize, -1, AbstTextAlignment.Left);
-                if (underline)
-                    _canvas!.DrawLine(new APoint(currentX, pos.Y + fontSize), new APoint(currentX + width, pos.Y + fontSize), _color, 1);
-                currentX += width;
-                sb.Clear();
-            }
-
-            while (i < content.Length)
-            {
-                if (content.IndexOf("{{STYLE:", i, StringComparison.Ordinal) == i)
-                {
-                    int end = content.IndexOf("}}", i + 8, StringComparison.Ordinal);
-                    if (end != -1)
-                    {
-                        Flush();
-                        var name = content.Substring(i + 8, end - (i + 8)).Trim();
-                        _styleStack.Push(new AbstTextStyle
-                        {
-                            FontSize = _fontSize,
-                            Font = _fontFamily,
-                            Color = _color,
-                            Alignment = _alignment,
-                            Bold = bold,
-                            Italic = italic,
-                            Underline = underline,
-                            LineHeight = _lineHeight,
-                            MarginLeft = _marginLeft,
-                            MarginRight = _marginRight
-                        });
-                        if (_styles.TryGetValue(name, out var style))
-                            ApplyStyle(style);
-                        bold = _styleBold;
-                        italic = _styleItalic;
-                        underline = _styleUnderline;
-                        i = end + 2;
-                        continue;
-                    }
-                }
-                if (content.IndexOf("{{STYLE}}", i, StringComparison.Ordinal) == i || content.IndexOf("{{/STYLE}}", i, StringComparison.Ordinal) == i)
-                {
-                    Flush();
-                    if (_styleStack.Count > 0)
-                        ApplyStyle(_styleStack.Pop());
-                    bold = _styleBold;
-                    italic = _styleItalic;
-                    underline = _styleUnderline;
-                    i += content.IndexOf("{{STYLE}}", i, StringComparison.Ordinal) == i ? 9 : 10;
-                    continue;
-                }
-                if (content.IndexOf("**", i, StringComparison.Ordinal) == i)
-                {
-                    Flush();
-                    bold = !bold;
-                    i += 2;
-                    continue;
-                }
-                if (content.IndexOf("__", i, StringComparison.Ordinal) == i)
-                {
-                    Flush();
-                    underline = !underline;
-                    i += 2;
-                    continue;
-                }
-                if (content[i] == '*')
-                {
-                    Flush();
-                    italic = !italic;
-                    i++;
-                    continue;
-                }
-                sb.Append(content[i]);
-                i++;
-            }
-            Flush();
-        }
-
-        private float EstimateWidth(string text, int fontSize)
-            => _fontManager.MeasureTextWidth(text, _fontFamily, fontSize);
-
-        private static string StripFormatting(string text)
-        {
-            text = Regex.Replace(text, @"!\[[^\]]*\]\([^)]+\)", string.Empty);
-            text = text.Replace("**", string.Empty).Replace("*", string.Empty).Replace("__", string.Empty);
-            return text;
-        }
 
         private static bool HasSpecialTags(string text)
             => text.IndexOf("{{", StringComparison.Ordinal) >= 0
@@ -418,5 +360,160 @@ namespace AbstUI.Texts
             _canvas!.DrawPicture(data, drawWidth, drawHeight, position, format);
             return drawHeight;
         }
+
+        private record TextSegment(string Text, string FontFamily, int FontSize, AColor Color, bool Bold, bool Italic, bool Underline);
+
+
+        private List<TextSegment> ParseInlineSegments(string content, int initialFontSize, bool initialBold, bool initialItalic, bool initialUnderline, out float totalWidth)
+
+        {
+            int i = 0;
+            var segments = new List<TextSegment>();
+            var sb = new StringBuilder();
+            float width = 0f;
+
+            var style = _currentStyle.Clone();
+            style.FontSize = initialFontSize;
+            style.Bold = initialBold;
+            style.Italic = initialItalic;
+            style.Underline = initialUnderline;
+
+            var localStack = new Stack<AbstTextStyle>(_styleStack.Select(s => s.Clone()).Reverse());
+
+
+            void Flush()
+            {
+                if (sb.Length == 0) return;
+                string text = sb.ToString();
+
+                var styleFlags = AbstFontStyle.Regular;
+                if (style.Bold) styleFlags |= AbstFontStyle.Bold;
+                if (style.Italic) styleFlags |= AbstFontStyle.Italic;
+                float segW = EstimateWidth(text, style.Font, style.FontSize, styleFlags);
+
+                width += segW;
+                segments.Add(new TextSegment(text, style.Font, style.FontSize, style.Color, style.Bold, style.Italic, style.Underline));
+                sb.Clear();
+            }
+
+            while (i < content.Length)
+            {
+                if (content.IndexOf("{{", i, StringComparison.Ordinal) == i)
+                {
+                    int end = content.IndexOf("}}", i + 2, StringComparison.Ordinal);
+                    if (end != -1)
+                    {
+                        Flush();
+                        string tag = content.Substring(i + 2, end - i - 2);
+                        if (tag.StartsWith("FONT-SIZE:", StringComparison.OrdinalIgnoreCase))
+
+                        {
+                            if (int.TryParse(tag.Substring(10), out var sz))
+                                style.FontSize = sz;
+                        }
+                        else if (tag.StartsWith("FONT-FAMILY:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            style.Font = tag.Substring(12);
+                        }
+                        else if (tag.StartsWith("COLOR:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            try { style.Color = AColor.FromHex(tag.Substring(6).Trim()); } catch { }
+                        }
+                        else if (tag.StartsWith("ALIGN:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            var val = tag.Substring(6).Trim().ToLowerInvariant();
+                            style.Alignment = val switch
+                            {
+                                "center" => AbstTextAlignment.Center,
+                                "right" => AbstTextAlignment.Right,
+                                "justify" or "justified" => AbstTextAlignment.Justified,
+                                _ => AbstTextAlignment.Left,
+                            };
+                        }
+                        else if (tag.StartsWith("STYLE:", StringComparison.OrdinalIgnoreCase))
+                        {
+
+                            var name = tag.Substring(6).Trim();
+                            localStack.Push(style.Clone());
+                            if (_styles.TryGetValue(name, out var s))
+                                style.CopyFrom(s);
+                        }
+                        else if (tag.Equals("STYLE", StringComparison.OrdinalIgnoreCase) || tag.Equals("/STYLE", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (localStack.Count > 0)
+                                style.CopyFrom(localStack.Pop());
+                        }
+                        i = end + 2;
+                        continue;
+                    }
+                }
+                if (content.IndexOf("**", i, StringComparison.Ordinal) == i)
+                {
+                    Flush();
+                    style.Bold = !style.Bold;
+                    i += 2;
+                    continue;
+                }
+                if (content.IndexOf("__", i, StringComparison.Ordinal) == i)
+                {
+                    Flush();
+                    style.Underline = !style.Underline;
+                    i += 2;
+                    continue;
+                }
+                if (content[i] == '*')
+                {
+                    Flush();
+                    style.Italic = !style.Italic;
+                    i++;
+                    continue;
+                }
+                sb.Append(content[i]);
+                i++;
+            }
+            Flush();
+
+            _currentStyle.CopyFrom(style);
+
+            _styleStack.Clear();
+            foreach (var s in localStack.Reverse())
+                _styleStack.Push(s);
+
+
+
+            totalWidth = width;
+            return segments;
+        }
+
+        private void RenderSegments(List<TextSegment> segments, APoint baseline)
+        {
+            float currentX = baseline.X;
+            foreach (var seg in segments)
+            {
+                var segStyle = AbstFontStyle.Regular;
+                if (seg.Bold) segStyle |= AbstFontStyle.Bold;
+                if (seg.Italic) segStyle |= AbstFontStyle.Italic;
+
+                float width = EstimateWidth(seg.Text, seg.FontFamily, seg.FontSize, segStyle);
+                var fi = _fontManager.GetFontInfo(seg.FontFamily, seg.FontSize, segStyle);
+
+                float topY = baseline.Y - fi.TopIndentation;
+
+                _canvas!.DrawSingleLine(
+                    new APoint(currentX, topY),
+                    seg.Text, seg.FontFamily, seg.Color, seg.FontSize,
+                    (int)MathF.Ceiling(width), fi.FontHeight,
+                    AbstTextAlignment.Left, segStyle);
+
+                if (seg.Underline)
+                    _canvas!.DrawLine(new APoint(currentX, baseline.Y + 1),
+                                      new APoint(currentX + width, baseline.Y + 1),
+                                      seg.Color, 1);
+
+                currentX += width;
+            }
+        }
+
+        
     }
 }

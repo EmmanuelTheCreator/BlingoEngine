@@ -14,7 +14,7 @@ namespace ProjectorRays.director.Scores;
 /// It parses the main header and reads consecutive keyframe blocks.
 /// The result is a list of sprites each with a single keyframe.
 /// </summary>
-internal class RaysScoreFrameParserV2 : IRaysScoreFrameParserV2
+public class RaysScoreFrameParserV2 : IRaysScoreFrameParserV2
 {
     private readonly ILogger _logger;
     private readonly RayStreamAnnotatorDecorator _annotator;
@@ -50,17 +50,46 @@ internal class RaysScoreFrameParserV2 : IRaysScoreFrameParserV2
         _reader.ReadHeader(newReader, header);
 
         _reader.ReadFrameDescriptors(ctx);
+        GenerateSprites(ctx);
         _reader.ReadBehaviors(ctx);
 
         _logger.LogDebug($"Score header: size={header.ActualSize} frames={header.HighestFrame} channels={header.ChannelCount}");
-
-        //ParseBlock(newReader, header.ActualSize - 20, header, ctx);
-        ParseBlock(newReader, newReader.Size, header, ctx);
-        LinkKeyFrames(ctx);
-
+        try
+        {
+            //ParseBlock(newReader, header.ActualSize - 20, header, ctx);
+            ParseBlock(newReader, newReader.Size, header, ctx);
+            LinkKeyFrames(ctx);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error parsing score blocks:"+ex.Message);
+        }
+      
         return ctx.Sprites;
     }
 
+    private void GenerateSprites(RayScoreParseContext ctx)
+    {
+        foreach (var channelToDescriptor in ctx.ChannelToDescriptor)
+        {
+            
+            var sprite = new RaySprite
+            {
+                SpriteNumber = channelToDescriptor.Value.Channel ,
+                StartFrame = channelToDescriptor.Value.StartFrame,
+                EndFrame = channelToDescriptor.Value.EndFrame,
+                FlipH = channelToDescriptor.Value.FlipH,
+                FlipV = channelToDescriptor.Value.FlipV,
+                Editable = channelToDescriptor.Value.Editable,
+                Moveable = channelToDescriptor.Value.Moveable,
+                Trails = channelToDescriptor.Value.Trails,
+                IsLocked = channelToDescriptor.Value.IsLocked,
+                Behaviors = channelToDescriptor.Value.Behaviors.ToList(),
+                ExtraValues = channelToDescriptor.Value.ExtraValues.ToList()
+            };
+            ctx.AddSprite(sprite);
+        }
+    }
 
     private void LogFullScoreBytes(ReadStream readerSource)
     {
@@ -145,27 +174,38 @@ internal class RaysScoreFrameParserV2 : IRaysScoreFrameParserV2
     private RaySprite ParseSpriteBlock(ReadStream stream, RayScoreHeader header, RayScoreParseContext ctx, int length = -1)
     {
         //RayKeyframeBlock block = ReadSprite(stream, header, ctx, length);
-        var sprite = _reader.CreateChannelSprite(stream, ctx);
+        var sprite = ctx.GetNextSprite();
+        if (sprite == null)
+        {
+            sprite = new RaySprite();
+            ctx.AddSprite(sprite);
+        }
+        sprite = _reader.CreateChannelSprite(stream, ctx, sprite);
 
         int channel = ctx.CurrentSpriteNum + 6;
-        RayScoreIntervalDescriptor desc;
-        if (ctx.ChannelToDescriptor.TryGetValue(channel, out var known))
-            desc = known;
-        else
-        {
-            _logger.LogError($"No descriptor found for channel {channel} at frame {ctx.CurrentFrame}. Creating default descriptor.");
-            desc = new RayScoreIntervalDescriptor
-            {
-                StartFrame = ctx.CurrentFrame,
-                EndFrame = ctx.CurrentFrame,
-                Channel = channel
-            };
-        }
+        //RayScoreIntervalDescriptor desc;
+        //if (ctx.ChannelToDescriptor.TryGetValue(channel, out var known))
+        //    desc = known;
+        //else
+        //{
+        //    _logger.LogError($"No descriptor found for channel {channel} at frame {ctx.CurrentFrame}. Creating default descriptor.");
+        //    desc = new RayScoreIntervalDescriptor
+        //    {
+        //        StartFrame = ctx.CurrentFrame,
+        //        EndFrame = ctx.CurrentFrame,
+        //        Channel = channel
+        //    };
+        //}
 
-        sprite.Behaviors.AddRange(desc.Behaviors);
-        sprite.ExtraValues.AddRange(desc.ExtraValues);
-        sprite.SpriteNumber = channel;
-        ctx.AddSprite(sprite);
+        //sprite.Behaviors.AddRange(desc.Behaviors);
+        //sprite.ExtraValues.AddRange(desc.ExtraValues);
+        if (sprite.SpriteNumber != channel)
+        {
+            _logger.LogWarning($"Sprite number mismatch: expected {channel}, but got {sprite.SpriteNumber}. Correcting.");
+            //sprite.SpriteNumber = channel;
+        }
+        //sprite.SpriteNumber = channel;
+        
         return sprite;
     }
 

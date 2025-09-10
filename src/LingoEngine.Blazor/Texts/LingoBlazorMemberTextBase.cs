@@ -4,6 +4,7 @@ using AbstUI.Blazor;
 using AbstUI.Blazor.Bitmaps;
 using AbstUI.Blazor.Primitives;
 using AbstUI.Primitives;
+using AbstUI.Styles;
 using AbstUI.Texts;
 using LingoEngine.Bitmaps;
 using LingoEngine.Primitives;
@@ -11,6 +12,7 @@ using LingoEngine.Sprites;
 using LingoEngine.Texts;
 using LingoEngine.Texts.FrameworkCommunication;
 using Microsoft.JSInterop;
+using LingoEngine.Blazor.Util;
 
 namespace LingoEngine.Blazor.Texts;
 
@@ -24,8 +26,11 @@ public abstract class LingoBlazorMemberTextBase<TText> : ILingoFrameworkMemberTe
     protected TText _lingoMemberText = default!;
     private readonly IJSRuntime _js;
     private readonly AbstUIScriptResolver _scripts;
+    private readonly IAbstFontManager _fontManager;
     private AbstBlazorTexture2D? _texture;
     private bool _dirty;
+    private byte[]? _pixelData;
+    private int _stride;
 
     private string _text = string.Empty;
     private bool _wordWrap;
@@ -39,10 +44,11 @@ public abstract class LingoBlazorMemberTextBase<TText> : ILingoFrameworkMemberTe
     private int _width;
     private int _height;
 
-    public LingoBlazorMemberTextBase(IJSRuntime js, AbstUIScriptResolver scripts)
+    public LingoBlazorMemberTextBase(IJSRuntime js, AbstUIScriptResolver scripts, IAbstFontManager fontManager)
     {
         _js = js;
         _scripts = scripts;
+        _fontManager = fontManager;
     }
 
     internal void Init(TText member) => _lingoMemberText = member;
@@ -183,17 +189,12 @@ public abstract class LingoBlazorMemberTextBase<TText> : ILingoFrameworkMemberTe
     }
     public IAbstTexture2D? TextureLingo => _texture;
 
+    public IAbstFontManager FontManager => _fontManager;
+
     public void Copy(string text) => _js.InvokeVoidAsync("navigator.clipboard.writeText", text).AsTask().GetAwaiter().GetResult();
 
     public string PasteClipboard() => _js.InvokeAsync<string>("navigator.clipboard.readText").AsTask().GetAwaiter().GetResult();
 
-    public string ReadText() => File.Exists(_lingoMemberText.FileName) ? File.ReadAllText(_lingoMemberText.FileName) : string.Empty;
-
-    public string ReadTextRtf()
-    {
-        var rtf = Path.ChangeExtension(_lingoMemberText.FileName, ".rtf");
-        return File.Exists(rtf) ? File.ReadAllText(rtf) : string.Empty;
-    }
 
     public void CopyToClipboard() => Copy(Text);
 
@@ -214,11 +215,13 @@ public abstract class LingoBlazorMemberTextBase<TText> : ILingoFrameworkMemberTe
         IsLoaded = false;
         _texture?.Dispose();
         _texture = null;
+        _pixelData = null;
     }
 
     public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
 
-    public bool IsPixelTransparent(int x, int y) => false;
+    public bool IsPixelTransparent(int x, int y)
+        => PixelDataUtils.IsTransparent(_pixelData, _stride, Width, Height, x, y);
 
     public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
     {
@@ -240,6 +243,8 @@ public abstract class LingoBlazorMemberTextBase<TText> : ILingoFrameworkMemberTe
             _ => "left"
         };
         _scripts.CanvasDrawText(ctx, Margin, Margin + FontSize, Text, FontName, color, FontSize, align).GetAwaiter().GetResult();
+        _pixelData = _scripts.CanvasGetImageData(ctx, w, h).GetAwaiter().GetResult();
+        _stride = w * 4;
         IsLoaded = true;
         _dirty = false;
         return _texture;

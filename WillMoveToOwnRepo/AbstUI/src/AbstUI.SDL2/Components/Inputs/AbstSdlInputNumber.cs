@@ -34,14 +34,14 @@ internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInpu
             if (!_value.Equals(v))
             {
                 _value = v;
-                _textInput.Text = v.ToString();
+                _textInput.Text = v.ToString() ??string.Empty;
                 ValueChanged?.Invoke();
             }
         }
     }
 
-    public TValue Min { get; set; }
-    public TValue Max { get; set; }
+    public TValue Min { get; set; } = default!;
+    public TValue Max { get; set; } = default!;
 
     public TValue Step { get; set; } = TValue.One;
 
@@ -90,6 +90,7 @@ internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInpu
     {
         _textInput = new AbstSdlInputText(factory, false);
         _textInput.ValueChanged += OnTextChanged;
+        _textInput.TextValidate = str => str.All(s => char.IsDigit(s) || s == '-' || s == '+' || s == '.' || s == 'e' || s == 'E');
         Width = 50;
         Height = 20;
     }
@@ -105,7 +106,10 @@ internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInpu
             }
         }
     }
-
+    public virtual bool CanHandleEvent(AbstSDLEvent e)
+    {
+        return Enabled && (e.IsInside || !e.HasCoordinates);
+    }
     public void HandleEvent(AbstSDLEvent e)
     {
         if (!Enabled) return;
@@ -113,7 +117,7 @@ internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInpu
         _textInput.HandleEvent(e);
         if (e.StopPropagation) return;
 
-        ref var ev = ref e.Event;
+        var ev = e.Event;
 
         if (ev.type == SDL.SDL_EventType.SDL_MOUSEWHEEL)
         {
@@ -138,6 +142,8 @@ internal class AbstSdlInputNumber<TValue> : AbstSdlComponent, IAbstFrameworkInpu
                 return;
             }
         }
+        if (e.StopPropagation)
+            ComponentContext.QueueRedraw(this);
     }
 
 

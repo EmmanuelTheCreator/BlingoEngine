@@ -93,7 +93,7 @@ internal class DirSdlStageWindow : AbstSdlWindow, IDirFrameworkStageWindow, IDis
 
         Width = _stagePanel.Width;
         Height = TitleBarHeight + _stagePanel.Height + _iconBarPanel.Height;
-        _directorStageWindow.ResizeFromFW(true, (int)Width, (int)Height - TitleBarHeight - (int)_iconBarPanel.Height);
+        _directorStageWindow.ResizingContentFromFW(true, (int)Width, (int)Height - TitleBarHeight - (int)_iconBarPanel.Height);
 
         _stageChangedSub = mediator.Subscribe(DirectorEventType.StagePropertiesChanged, () =>
         {
@@ -110,7 +110,7 @@ internal class DirSdlStageWindow : AbstSdlWindow, IDirFrameworkStageWindow, IDis
             _selectionCanvas.Height = _stagePanel.Height;
             Width = _stagePanel.Width;
             Height = TitleBarHeight + _stagePanel.Height + _iconBarPanel.Height;
-            _directorStageWindow.ResizeFromFW(false, (int)Width, (int)Height - TitleBarHeight - (int)_iconBarPanel.Height);
+            _directorStageWindow.ResizingContentFromFW(false, (int)Width, (int)Height - TitleBarHeight - (int)_iconBarPanel.Height);
             return true;
         });
 

@@ -16,6 +16,7 @@ using LingoEngine.LGodot.FilmLoops;
 using AbstUI.Primitives;
 using AbstUI.LGodot.Bitmaps;
 using AbstUI.LGodot.Primitives;
+using LingoEngine.LGodot.Medias;
 
 namespace LingoEngine.LGodot.Sprites
 {
@@ -41,11 +42,24 @@ namespace LingoEngine.LGodot.Sprites
         internal bool IsDirtyMember { get; set; } = true;
         private float _x;
         private float _y;
-        public float X { get => _x; set { _x = value; IsDirty = true; } }
+        public float X { get => _x; 
+            set {
+                if (_x == value) return;
+                _x = value; 
+                if (_lingoSprite2D.SpriteNum == 101)
+                {
+
+                }
+                SetDirty(); 
+            } 
+        }
         public float Y
         {
             get => _y;
-            set { _y = value; IsDirty = true; }
+            set {
+                if (_y == value) return;
+                _y = value; 
+                SetDirty(); }
         }
         private int _zIndex;
         public int ZIndex
@@ -53,13 +67,26 @@ namespace LingoEngine.LGodot.Sprites
             get => _zIndex;
             set
             {
+                if (_zIndex == value) return;
                 _zIndex = value;
                 ApplyZIndex();
             }
         }
-        public APoint RegPoint { get => (_Container2D.Position.X, _Container2D.Position.Y); set { _Container2D.Position = new Vector2(value.X, value.Y); IsDirty = true; } }
+        public APoint RegPoint { get => (_Container2D.Position.X, _Container2D.Position.Y); 
+            set {
+                if (_x == value.X && _y == value.Y) return;
+                _Container2D.Position = new Vector2(value.X, value.Y); 
+                SetDirty(); } }
 
-        public bool Visibility { get => _Container2D.Visible; set => _Container2D.Visible = value; }
+        public bool Visibility
+        {
+            get => _Container2D.Visible;
+            set
+            {
+                if (_Container2D.Visible == value) return;
+                _Container2D.Visible = value;
+            }
+        }
         public ILingoCast? Cast { get; private set; }
 
         private float _blend = 1f;
@@ -68,6 +95,7 @@ namespace LingoEngine.LGodot.Sprites
             get => _blend;
             set
             {
+                if (_blend == value) return;
                 _blend = value;
                 ApplyBlend();
             }
@@ -92,23 +120,33 @@ namespace LingoEngine.LGodot.Sprites
 
         public float Width { get; private set; }
         public float Height { get; private set; }
-        private float _DesiredWidth;
-        private float _DesiredHeight;
+        private float _desiredWidth;
+        private float _desiredHeight;
         public float DesiredWidth
         {
-            get => _DesiredWidth;
-            set { _DesiredWidth = value; IsDirty = true; }
+            get => _desiredWidth;
+            set {
+                if (_desiredWidth == value) return;
+                _desiredWidth = value; SetDirty(); }
         }
         public float DesiredHeight
         {
-            get => _DesiredHeight;
-            set { _DesiredHeight = value; IsDirty = true; }
+            get => _desiredHeight;
+            set {
+                if (_desiredHeight == value) return;
+                _desiredHeight = value; SetDirty(); 
+            }
         }
 
         public float Rotation
         {
             get => Mathf.RadToDeg(_Sprite2D.Rotation);
-            set => _Sprite2D.Rotation = Mathf.DegToRad(value);
+            set
+            {
+                var val = Mathf.DegToRad(value);
+                if (_Sprite2D.Rotation == val) return;
+                _Sprite2D.Rotation = Mathf.DegToRad(value);
+            }
         }
         public float Skew { get; set; }
         public bool FlipH { get => _Sprite2D.FlipH; set => _Sprite2D.FlipH = value; }
@@ -130,6 +168,7 @@ namespace LingoEngine.LGodot.Sprites
             get => _ink;
             set
             {
+                if (_ink == value) return;
                 _ink = value;
                 ApplyInk();
             }
@@ -145,7 +184,7 @@ namespace LingoEngine.LGodot.Sprites
             var col = _Sprite2D.SelfModulate;
             float alpha = Mathf.Clamp(_blend / 100f, 0f, 1f);
             _Sprite2D.SelfModulate = new Color(col.R, col.G, col.B, _directToStage ? 1f : alpha);
-            IsDirty = true;
+            SetDirty();
         }
 
         private void ApplyInk()
@@ -224,6 +263,8 @@ namespace LingoEngine.LGodot.Sprites
 
         public void Show()
         {
+            if (_isDisposed) 
+                return;
             if (!_wasShown)
             {
                 _wasShown = true;
@@ -234,18 +275,28 @@ namespace LingoEngine.LGodot.Sprites
         }
         public void Hide()
         {
+            if (_isDisposed) return;
             if (!_wasShown)
                 return;
             _wasShown = false;
             _hideMethod(this);
-            _Container2D.GetParent().RemoveChild(_Container2D);
+            var parent = _Container2D.GetParent();
+            parent.RemoveChild(_Container2D);
+            if (parent is Node2D node2D)
+                node2D.QueueRedraw();
         }
 
         public void SetPosition(APoint lingoPoint)
         {
             _x = lingoPoint.X;
             _y = lingoPoint.Y;
+            SetDirty();
+        }
+
+        private void SetDirty()
+        {
             IsDirty = true;
+            _Container2D.QueueRedraw();
         }
 
         public void MemberChanged()
@@ -287,20 +338,21 @@ namespace LingoEngine.LGodot.Sprites
                 // update complex properties
                 if (_texture != null)
                 {
-                    if (_DesiredWidth != Width || _DesiredHeight != Height)
+                    if (_desiredWidth != Width || _desiredHeight != Height)
                     {
                         UpdateSizeFromTexture();
-                        Width = _DesiredWidth;
-                        Height = _DesiredHeight;
-                        Resize(_DesiredWidth, _DesiredHeight);
+                        Width = _desiredWidth;
+                        Height = _desiredHeight;
+                        Resize(_desiredWidth, _desiredHeight);
                     }
                 }
                 IsDirty = false;
+                //Console.WriteLine($"{_lingoSprite2D.SpriteNum}: {_lingoSprite2D.Member?.Name}: {_x}: {_y}");
             }
             // todo: move this 2 lines in IsDirty if test
             var offset = GetRegPointOffset();
             _Sprite2D.Position = new Vector2(_x - offset.X, _y - offset.Y);
-
+            
         }
 
 
@@ -316,24 +368,24 @@ namespace LingoEngine.LGodot.Sprites
                     RemoveLastChildElement();
                     UpdateMemberPicture(pictureMember.Framework<LingoGodotMemberBitmap>());
                     //UpdateSizeFromTexture();
-                    if (_DesiredWidth == 0) _DesiredWidth = Width;
-                    if (_DesiredHeight == 0) _DesiredHeight = Height;
-                    IsDirty = true;
+                    if (_desiredWidth == 0) _desiredWidth = Width;
+                    if (_desiredHeight == 0) _desiredHeight = Height;
+                    SetDirty();
                     return;
                 case LingoFilmLoopMember flm:
                     RemoveLastChildElement();
                     UpdateMemberFilmLoop(flm.Framework<LingoGodotFilmLoopMember>());
                     //UpdateSizeFromTexture();
-                    if (_DesiredWidth == 0) _DesiredWidth = Width;
-                    if (_DesiredHeight == 0) _DesiredHeight = Height;
-                    IsDirty = true;
+                    if (_desiredWidth == 0) _desiredWidth = Width;
+                    if (_desiredHeight == 0) _desiredHeight = Height;
+                    SetDirty();
                     return;
                 case LingoMemberMedia mediaMember:
                     RemoveLastChildElement();
                     UpdateMemberVideo(mediaMember.Framework<LingoGodotMemberMedia>());
-                    if (_DesiredWidth == 0) _DesiredWidth = Width;
-                    if (_DesiredHeight == 0) _DesiredHeight = Height;
-                    IsDirty = true;
+                    if (_desiredWidth == 0) _desiredWidth = Width;
+                    if (_desiredHeight == 0) _desiredHeight = Height;
+                    SetDirty();
                     return;
                 case LingoMemberText textMember:
                     var godotElement = textMember.Framework<LingoGodotMemberText>();
@@ -420,8 +472,8 @@ namespace LingoEngine.LGodot.Sprites
         private void UpdateMemberFilmLoop(LingoGodotFilmLoopMember filmLoop)
         {
             var size = filmLoop.GetBoundingBox();
-            _DesiredHeight = size.Height;
-            _DesiredWidth = size.Width;
+            _desiredHeight = size.Height;
+            _desiredWidth = size.Width;
             Width = size.Width;
             Height = size.Height;
             var offset = filmLoop.Offset;
@@ -456,8 +508,8 @@ namespace LingoEngine.LGodot.Sprites
             _Sprite2D.AddChild(godotElement);
             _previousChildElementNode = godotElement;
             _previousChildElement = member;
-            _DesiredWidth = member.Width;
-            _DesiredHeight = member.Height;
+            _desiredWidth = member.Width;
+            _desiredHeight = member.Height;
         }
 
         public void Resize(float targetWidth, float targetHeight)
@@ -486,11 +538,25 @@ namespace LingoEngine.LGodot.Sprites
             return _lingoSprite2D.Member.RegPoint;
         }
 
-        /// <inheritdoc/>
-        public void Play() => _videoPlayer?.Play();
+
+        #region Video/Media
 
         /// <inheritdoc/>
-        public void Pause() => _videoPlayer?.Pause();
+        public void Play()
+        {
+            if (_videoPlayer == null) return;
+            if (_videoPlayer.Paused)
+                _videoPlayer.Paused = false;
+            else
+                _videoPlayer?.Play();
+        }
+
+        /// <inheritdoc/>
+        public void Pause()
+        {
+            if (_videoPlayer != null)
+                _videoPlayer.Paused = true;
+        }
 
         /// <inheritdoc/>
         public void Stop()
@@ -508,7 +574,14 @@ namespace LingoEngine.LGodot.Sprites
         }
 
         /// <inheritdoc/>
-        public int Duration => (int)(_videoPlayer?.Stream?.GetLength() * 1000 ?? 0);
+        public int Duration
+        {
+            get
+            {
+                if (_videoPlayer == null) return 0;
+                return (int)(_videoPlayer.GetStreamLength() * 1000);
+            }
+        }
 
         /// <inheritdoc/>
         public int CurrentTime
@@ -527,6 +600,7 @@ namespace LingoEngine.LGodot.Sprites
             null => LingoMediaStatus.Closed,
             _ when _videoPlayer.IsPlaying() => LingoMediaStatus.Playing,
             _ => LingoMediaStatus.Paused
-        };
+        }; 
+        #endregion
     }
 }

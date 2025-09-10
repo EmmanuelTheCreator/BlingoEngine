@@ -1,12 +1,18 @@
 using LingoEngine.Movies;
 using LingoEngine.Movies.Events;
+using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Sprites.Events;
+#pragma warning disable IDE1006 // Naming Styles
 
 namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 {
+    public interface IHasCounterStartData : ILingoSpriteBehavior
+    {
+        int GetCounterStartData(string data);
+    }
     // Converted from 15_AnimationScript.ls
-    public class AnimationScriptBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasStepFrameEvent, IHasEndSpriteEvent
+    public class AnimationScriptBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasStepFrameEvent, IHasEndSpriteEvent, ILingoPropertyDescriptionList
     {
         public int myEndMembernum = 10;
         public int myStartMembernum = 0;
@@ -23,12 +29,34 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 
         public AnimationScriptBehavior(ILingoMovieEnvironment env) : base(env) {}
 
+        public BehaviorPropertyDescriptionList? GetPropertyDescriptionList()
+        {
+            return new BehaviorPropertyDescriptionList()
+                .Add(this, x => x.myStartMembernum, "My Start membernum:", 0)
+                .Add(this, x => x.myEndMembernum, "My End membernum:", 10)
+                .Add(this, x => x.myValue, "My Start Value:", -1)
+                .Add(this, x => x.mySlowDown, "mySlowDown:", 1)
+                .Add(this, x => x.myDataSpriteNum, "My Sprite that contains info\\n(set value to -1):", 1)
+                .Add(this, x => x.myDataName, "Name Info:", "1")
+                .Add(this, x => x.myWaitbeforeExecute, "WaitTime before execute:", 0)
+                .Add(this, x => x.myFunction, "function to execute:", "70")
+            ;
+        }
+        public string? GetBehaviorDescription() => "Controls sprite animation based on member numbers and timing.";
+
+        public string? GetBehaviorTooltip() => "Controls sprite animation based on member numbers and timing.";
+
+        public bool IsOKToAttach(LingoSymbol spriteType, int spriteNum) => true;
+
+
         public void BeginSprite()
         {
             if (myValue == -1 || myValue < myStartMembernum || myValue > myEndMembernum)
             {
-                // not implemented: get start data from another sprite
-                myValue = myStartMembernum;
+                myValue = SendSprite<IHasCounterStartData,int>(myDataSpriteNum, s => s.GetCounterStartData(myDataName));
+                if (myValue <= 0) myValue = 0;
+                if (myValue < myStartMembernum || myValue> myEndMembernum)
+                    myValue = myStartMembernum;
             }
             UpdateMe();
             myWaiter = myWaitbeforeExecute;
@@ -50,6 +78,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
                     }
                     else
                     {
+                        //  finished anim
                         // loop
                         //myValue = myStartMembernum;
                         // END
@@ -64,8 +93,14 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             }
         }
 
-        private void StartAnim()
+        public void StartAnim()
         {
+            for (var i = myStartMembernum; i <= myEndMembernum; i++)
+            {
+                var member = Member(i);
+                if (member != null)
+                    member.Preload();
+            }
             myAnimate = true;
             mySlowDownCounter = 0;
             myValue = myStartMembernum;
@@ -80,7 +115,10 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 
         public void EndSprite()
         {
-            _Movie.ActorList.Remove(this);
+            if (_Movie.ActorList.GetPos(this) > 0)
+                _Movie.ActorList.Remove(this);
         }
+
+     
     }
 }

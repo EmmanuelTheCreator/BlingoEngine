@@ -1,8 +1,9 @@
-﻿using System.Text;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using ProjectorRays.CastMembers;
 using ProjectorRays.Common;
 using ProjectorRays.Director;
+using System.Text;
+using System.Xml.Linq;
 
 namespace ProjectorRays.director.Chunks;
 
@@ -20,6 +21,7 @@ public class RaysCastMemberChunk : RaysChunk
     public RaysScriptChunk? Script;
 
     public RaysCastMemberTextRead DecodedText { get; internal set; }
+    public BufferView InfoView { get; private set; }
 
     public RaysCastMemberChunk(RaysDirectorFile? dir) : base(dir, ChunkType.CastMemberChunk)
     {
@@ -28,29 +30,29 @@ public class RaysCastMemberChunk : RaysChunk
 
     public override void Read(ReadStream stream)
     {
-        Dir.Logger.LogInformation($"Reading CastMemberChunk at stream.Pos={stream.Pos}");
+        //Dir.Logger.LogInformation($"Reading CastMemberChunk at stream.Pos={stream.Pos}");
 
-        var raw = stream.ReadByteView(12);
-        Dir.Logger.LogInformation("Raw CastMember header bytes: " + BitConverter.ToString(raw.Data, raw.Offset, raw.Size));
+        //var raw = stream.ReadByteView(12);
+        //Dir.Logger.LogInformation("Raw CastMember header bytes: " + BitConverter.ToString(raw.Data, raw.Offset, raw.Size));
 
-        stream.Seek(stream.Pos - 12); // rewind
+        //stream.Seek(stream.Pos - 12); // rewind
         // Respect the movie's byte order for configuration data as well.
         //stream.Endianness = Dir?.Endianness ?? Endianness.BigEndian;
         Type = (RaysMemberType)stream.ReadUint32();
         InfoLen = stream.ReadUint32();
         SpecificDataLen = stream.ReadUint32();
         Dir.Logger.LogTrace($"CastMember InfoLen={InfoLen}, SpecificDataLen={SpecificDataLen}, Stream.Pos={stream.Pos}, Stream.Size={stream.Size}");
-        var infoView = stream.ReadByteView((int)InfoLen);
-        Dir.Logger.LogTrace($"infoView.Size={infoView.Size}");
-
+        InfoView = stream.ReadByteView((int)InfoLen);
+        Dir.Logger.LogInformation("InfoView:\r\n" + InfoView.LogHex()); 
         if (InfoLen > 0)
         {
-            var infoStream = new ReadStream(stream.ReadByteView((int)InfoLen), stream.Endianness);
+            var infoStream = new ReadStream(InfoView, stream.Endianness);
             Info = new RaysCastInfoChunk(Dir);
-            Info.Read(infoStream);
+            Info.ReadV2(infoStream);
         }
         HasFlags1 = false;
         SpecificData = stream.ReadByteView((int)SpecificDataLen);
+        //Dir.Logger.LogInformation("SpecificData:\r\n" + SpecificData.LogHex());
     }
 
     public override void WriteJSON(RaysJSONWriter json)
@@ -64,6 +66,21 @@ public class RaysCastMemberChunk : RaysChunk
             Info.WriteJSON(json);
         }
         json.EndObject();
+    }
+    public override void LogInfo(StringBuilder sb, int indentation)
+    {
+        sb.AppendLine($"{new string(' ', indentation)}---------------------------");
+        base.LogInfo(sb, indentation);
+        sb.AppendLine($"{new string(' ', indentation)}type: {Type}");
+        sb.AppendLine($"{new string(' ', indentation)}Id: {Id}");
+        if (Info != null) Info.LogInfo(sb, indentation + 2);
+        sb.AppendLine($"{new string(' ', indentation)}SpecificDataLen: {SpecificDataLen}");
+        sb.AppendLine($"{new string(' ', indentation)}SpecificData (as text): '{GetText()}'");
+        sb.AppendLine($"{new string(' ', indentation)}-----------");
+        if (Script != null) Script.LogInfo(sb, indentation + 2);
+
+        sb.AppendLine($"{SpecificData.LogHex()}");
+        sb.AppendLine($"{new string(' ', indentation)}---------------------------");
     }
 
     public uint GetScriptID() => Info?.ScriptId ?? 0;

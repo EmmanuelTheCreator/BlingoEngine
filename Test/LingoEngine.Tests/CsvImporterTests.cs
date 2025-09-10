@@ -1,8 +1,21 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using AbstUI.Primitives;
+using AbstUI.Resources;
+using AbstUI.Texts;
+using LingoEngine.Casts;
 using LingoEngine.Members;
+using LingoEngine.Texts;
 using LingoEngine.Tools;
+using LingoEngine.Core;
+using LingoEngine.Primitives;
+using LingoEngine.Sprites;
+using LingoEngine.Tests.Casts;
 using Xunit;
+
+namespace LingoEngine.Tests;
 
 public class CsvImporterTests
 {
@@ -14,7 +27,7 @@ public class CsvImporterTests
         var tempFile = Path.GetTempFileName();
         File.WriteAllText(tempFile, csvContent);
 
-        var importer = new CsvImporter();
+        var importer = new CsvImporter(new TestResourceManager());
         var rows = importer.ImportCsvCastFile(tempFile);
 
         var row = Assert.Single(rows);
@@ -24,5 +37,64 @@ public class CsvImporterTests
         Assert.Equal(1, row.RegPoint.X);
         Assert.Equal(2, row.RegPoint.Y);
         Assert.Equal("sample.txt", row.FileName);
+    }
+    [Fact]
+    public void ImportInCastFromCsvFile_PrefersMarkdown()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+
+        var csvPath = Path.Combine(tempDir, "cast.csv");
+        var baseFile = Path.Combine(tempDir, "sample.txt");
+        var mdPath = Path.ChangeExtension(baseFile, ".md");
+        var rtfPath = Path.ChangeExtension(baseFile, ".rtf");
+
+        File.WriteAllText(csvPath, "Number,Type,Name,Registration Point,Filename\n1,Text,Sample,\"(0, 0)\",sample.txt");
+        File.WriteAllText(mdPath, "md text");
+        File.WriteAllText(rtfPath, "{\\rtf1\\ansi{\\fonttbl{\\f0 Arial;}}{\\colortbl;\\red0\\green0\\blue0;}{\\f0\\fs24\\cf1 rtf}} ");
+
+        var cast = new DummyCast();
+        var importer = new CsvImporter(new TestResourceManager());
+
+        importer.ImportInCastFromCsvFile(cast, csvPath);
+
+        var member = Assert.IsType<DummyTextMember>(cast.LastAddedMember);
+        Assert.Equal("md text", member.Text);
+        Assert.False(member.LoadFileCalled);
+    }
+
+#if DEBUG
+    [Fact]
+    public void ImportInCastFromCsvFile_CreatesMarkdownWhenReadingRtf()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        Directory.CreateDirectory(tempDir);
+
+        var csvPath = Path.Combine(tempDir, "cast.csv");
+        var baseFile = Path.Combine(tempDir, "sample.txt");
+        var mdPath = Path.ChangeExtension(baseFile, ".md");
+        var rtfPath = Path.ChangeExtension(baseFile, ".rtf");
+
+        File.WriteAllText(csvPath, "Number,Type,Name,Registration Point,Filename\n1,Text,Sample,\"(0, 0)\",sample.txt");
+        var rtf = "{\\rtf1\\ansi{\\fonttbl{\\f0 Arial;}}{\\colortbl;\\red0\\green0\\blue0;}{\\f0\\fs24\\cf1 Hello}}";
+        File.WriteAllText(rtfPath, rtf);
+
+        var cast = new DummyCast();
+        var importer = new CsvImporter(new TestResourceManager());
+
+        importer.ImportInCastFromCsvFile(cast, csvPath);
+
+        var member = Assert.IsType<DummyTextMember>(cast.LastAddedMember);
+        Assert.Equal("{{PARA:0}}Hello", member.Text);
+        Assert.True(File.Exists(mdPath));
+    }
+#endif
+
+    private class TestResourceManager : IAbstResourceManager
+    {
+        public bool FileExists(string fileName) => File.Exists(fileName);
+        public string? ReadTextFile(string fileName) => File.Exists(fileName) ? File.ReadAllText(fileName) : null;
+
+        public byte[]? ReadBytes(string fileName) => File.Exists(fileName) ? File.ReadAllBytes(fileName) : null;
     }
 }

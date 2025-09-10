@@ -20,10 +20,15 @@ Custom tags are wrapped in double braces to avoid clashing with standard Markdow
 - `{{ALIGN:left|center|right|justify}}` – set text alignment
 - `{{COLOR:#RRGGBB}}` – set text color
 - `{{STYLE:name}}` and `{{/STYLE}}` – push and pop a named style supplied by the host application
+- `{{PARA:id}}` – start a new paragraph using the style with identifier `id`; `{{PARA}}` starts a new paragraph without changing style
 
 Example:
 
 ```
+{{PARA:0}}First paragraph
+{{PARA:1}}Second paragraph using style 1
+{{PARA}}Third paragraph keeps the current style
+
 {{FONT-FAMILY:Arial}}
 {{FONT-SIZE:18}}
 # Heading

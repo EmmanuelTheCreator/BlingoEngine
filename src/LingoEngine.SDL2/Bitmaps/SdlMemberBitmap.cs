@@ -18,6 +18,7 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
     private nint _surface = nint.Zero;
     private SDL.SDL_Surface _surfacePtr;
     private SdlTexture2D? _texture;
+    private IAbstUITextureUserSubscription? _textureSubscription;
     private readonly Dictionary<LingoInkType, SdlTexture2D> _inkTextures = new();
     private readonly ISdlRootComponentContext _sdlRootContext;
 
@@ -49,7 +50,11 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
         var fullFileName = Directory.GetCurrentDirectory() + Path.DirectorySeparatorChar + _member.FileName;
         if (!File.Exists(fullFileName))
             return;
-
+        if (_textureSubscription != null)
+        {
+            _textureSubscription.Release();
+            _textureSubscription = null;
+        }
         _surface = SDL_image.IMG_Load(fullFileName);
         if (_surface == nint.Zero)
             return;
@@ -65,17 +70,21 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
         _member.Width = Width;
         _member.Height = Height;
         _texture = new SdlTexture2D(SDL.SDL_CreateTextureFromSurface(_sdlRootContext.Renderer, _surface), Width, Height);
+        _textureSubscription = _texture.AddUser(this);
         IsLoaded = true;
     }
 
     public void Unload()
     {
+        _textureSubscription?.Release();
+        _textureSubscription = null;
         ClearCache();
         if (_surface != nint.Zero)
         {
             SDL.SDL_FreeSurface(_surface);
             _surface = nint.Zero;
         }
+
         _texture = null;
         IsLoaded = false;
     }

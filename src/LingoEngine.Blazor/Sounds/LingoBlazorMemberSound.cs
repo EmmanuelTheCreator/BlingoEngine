@@ -13,6 +13,7 @@ public class LingoBlazorMemberSound : ILingoFrameworkMemberSound, IDisposable
     private readonly HttpClient _httpClient;
     private LingoMemberSound _member = null!;
     private byte[]? _data;
+    internal string? Url { get; private set; }
 
     public bool Stereo { get; private set; }
     public double Length { get; private set; }
@@ -41,6 +42,7 @@ public class LingoBlazorMemberSound : ILingoFrameworkMemberSound, IDisposable
             return;
         if (!string.IsNullOrEmpty(_member.FileName))
         {
+            Url = _member.FileName;
             try
             {
                 _data = _httpClient.GetByteArrayAsync(_member.FileName).GetAwaiter().GetResult();
@@ -62,4 +64,5 @@ public class LingoBlazorMemberSound : ILingoFrameworkMemberSound, IDisposable
     }
 
     public void Dispose() => Unload();
+    public bool IsPixelTransparent(int x, int y) => false;
 }

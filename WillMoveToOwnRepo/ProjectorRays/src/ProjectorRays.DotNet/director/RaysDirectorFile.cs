@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.IO;
 using ProjectorRays.Common;
 using ProjectorRays.LingoDec;
 using ProjectorRays.IO;
@@ -7,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using ProjectorRays.director.Chunks;
 using ProjectorRays.director;
 using ProjectorRays.director.Scores;
+using System.Text;
 
 namespace ProjectorRays.Director;
 
@@ -22,38 +21,25 @@ public class ChunkInfo
 
 public class RaysDirectorFile : ChunkResolver
 {
-    private int _ilsBodyOffset;
-    private byte[] _ilsBuf = Array.Empty<byte>();
-
-    private readonly Dictionary<int, byte[]> _cachedChunkBufs = new();
-    private readonly Dictionary<int, BufferView> _cachedChunkViews = new();
-    public ReadStream? Stream;
-    public RaysKeyTableChunk? KeyTable;
-    public RaysConfigChunk? Config;
-
-    public Endianness Endianness;
-    public string FverVersionString = string.Empty;
-    public uint Version;
-    public bool DotSyntax;
-    public uint Codec;
-    public bool Afterburned;
-
-    public Dictionary<uint, List<int>> ChunkIDsByFourCC = new();
-    public Dictionary<int, ChunkInfo> ChunkInfoMap = new();
-    public Dictionary<int, RaysChunk> DeserializedChunks = new();
-
-    public List<RaysCastChunk> Casts = new();
-
-    public RaysScoreChunk? Score;
-
-    public RaysInitialMapChunk? InitialMap;
-    public RaysMemoryMapChunk? MemoryMap;
-    public ILogger Logger;
+    private RaysDataBlockReader _raysDataBlockReader;
+    public RaysKeyTableChunk? KeyTable { get; set; }
+    public RaysConfigChunk? Config { get; set; }
+    public List<RaysCastChunk> Casts { get; set; } = new();
+    public RaysScoreChunk? Score { get; set; }
+    public ILogger Logger { get; set; }
     public string Name{ get; set; }
+    public bool DotSyntax { get; private set; }
+    public uint Version => _raysDataBlockReader.Version;
+    public Endianness Endianness => _raysDataBlockReader.Endianness;
+
     public static uint FOURCC(char a, char b, char c, char d)
         => ((uint)a << 24) | ((uint)b << 16) | ((uint)c << 8) | (uint)d;
 
-    public RaysDirectorFile(ILogger logger, string name = "") { Logger = logger; Name = name; }
+    public RaysDirectorFile(ILogger logger, string name = "") 
+    {
+        Logger = logger; Name = name;
+        _raysDataBlockReader = new RaysDataBlockReader(this);
+    }
 
     /// <summary>
     /// Entry point for loading a Director movie. Depending on the codec this
@@ -65,33 +51,12 @@ public class RaysDirectorFile : ChunkResolver
         //var rawBytes = stream.ReadByteView(stream.Size);
         //Logger.LogInformation.WriteLine("Raw CASt chunk bytes: " + BitConverter.ToString(rawBytes.Data, rawBytes.Offset, rawBytes.Size));
         //stream.Seek(0); // reset
-        Stream = stream;
-        stream.Endianness = Endianness.BigEndian;
-        uint metaFourCC = stream.ReadUint32();
-        if (metaFourCC == FOURCC('X', 'F', 'I', 'R'))
-            stream.Endianness = Endianness.LittleEndian;
-        Endianness = stream.Endianness;
-        Logger.LogInformation($"File endianness: {Endianness}");
-
+        //Stream = stream;
         
-
-        stream.ReadUint32(); // meta length
-        Codec = stream.ReadUint32();
-
-        if (Codec == FOURCC('M', 'V', '9', '3') || Codec == FOURCC('M', 'C', '9', '5'))
+        (bool flowControl, bool value) = _raysDataBlockReader.Read(stream);
+        if (!flowControl)
         {
-            ReadMemoryMap();
-        }
-        else if (Codec == FOURCC('F', 'G', 'D', 'M') || Codec == FOURCC('F', 'G', 'D', 'C'))
-        {
-            Afterburned = true;
-            if (!ReadAfterburnerMap())
-                return false;
-        }
-        else
-        {
-            // unsupported codec
-            return false;
+            return value;
         }
 
         if (!ReadKeyTable()) return false;
@@ -103,174 +68,29 @@ public class RaysDirectorFile : ChunkResolver
     }
 
 
-    public bool ChunkExists(uint fourCC, int id)
-    {
-        return ChunkInfoMap.ContainsKey(id) && ChunkInfoMap[id].FourCC == fourCC;
-    }
-
-    private void AddChunkInfo(ChunkInfo info)
-    {
-        ChunkInfoMap[info.Id] = info;
-        if (!ChunkIDsByFourCC.TryGetValue(info.FourCC, out var list))
-        {
-            list = new List<int>();
-            ChunkIDsByFourCC[info.FourCC] = list;
-        }
-        list.Add(info.Id);
-    }
-
-    /// <summary>
-    /// Load the standard movie memory map. This resolves the initial and
-    /// memory map chunks so subsequent chunk lookups know their offsets.
-    /// </summary>
-    private void ReadMemoryMap()
-    {
-        InitialMap = (RaysInitialMapChunk)ReadChunk(FOURCC('i','m','a','p'));
-        DeserializedChunks[1] = InitialMap;
-
-        Stream!.Seek((int)InitialMap.MmapOffset);
-        MemoryMap = (RaysMemoryMapChunk)ReadChunk(FOURCC('m','m','a','p'));
-        DeserializedChunks[2] = MemoryMap;
-
-        for (int i = 0; i < MemoryMap.MapArray.Count; i++)
-        {
-            var entry = MemoryMap.MapArray[i];
-            if (entry.FourCC == FOURCC('f','r','e','e') || entry.FourCC == FOURCC('j','u','n','k'))
-                continue;
-
-            ChunkInfo info = new()
-            {
-                Id = i,
-                FourCC = entry.FourCC,
-                Len = entry.Len,
-                UncompressedLen = entry.Len,
-                Offset = entry.Offset,
-                CompressionID = LingoGuidConstants.NULL_COMPRESSION_GUID
-            };
-            AddChunkInfo(info);
-            Logger.LogInformation($"Registering chunk {Common.RaysUtil.FourCCToString(info.FourCC)} with ID {info.Id}");
-        }
-    }
-
-    /// <summary>
-    /// Parse the Afterburner resource table used by protected movies. This
-    /// mirrors the C++ implementation and decodes the zlib-compressed mapping
-    /// tables describing every chunk in the file.
-    /// </summary>
-    private bool ReadAfterburnerMap()
-    {
-        var s = Stream!;
-        if (s.ReadUint32() != FOURCC('F','v','e','r')) return false;
-        uint fverLength = s.ReadVarInt();
-        int start = s.Pos;
-        uint fverVersion = s.ReadVarInt();
-        if (fverVersion >= 0x401)
-        {
-            s.ReadVarInt();
-            s.ReadVarInt();
-        }
-        if (fverVersion >= 0x501)
-        {
-            byte len = s.ReadUint8();
-            FverVersionString = s.ReadString(len);
-        }
-        int end = s.Pos;
-        if (end - start != fverLength)
-            s.Seek(start + (int)fverLength);
-
-        if (s.ReadUint32() != FOURCC('F','c','d','r')) return false;
-        uint fcdrLength = s.ReadVarInt();
-        byte[] fcdrBuf = new byte[fcdrLength * 10];
-        int fcdrUncomp = s.ReadZlibBytes((int)fcdrLength, fcdrBuf, fcdrBuf.Length);
-        if (fcdrUncomp <= 0) return false;
-        var fcdrStream = new ReadStream(fcdrBuf, fcdrUncomp, Endianness);
-        ushort compCount = fcdrStream.ReadUint16();
-        var compIDs = new List<RayGuid>();
-        for (int i = 0; i < compCount; i++)
-        {
-            var id = new RayGuid();
-            id.Read(fcdrStream);
-            compIDs.Add(id);
-        }
-        for (int i = 0; i < compCount; i++)
-            fcdrStream.ReadCString();
-
-        if (s.ReadUint32() != FOURCC('A','B','M','P')) return false;
-        uint abmpLength = s.ReadVarInt();
-        int abmpEnd = s.Pos + (int)abmpLength;
-        uint abmpCompressionType = s.ReadVarInt();
-        uint abmpUncompLen = s.ReadVarInt();
-        byte[] abmpBuf = new byte[abmpUncompLen];
-        int abmpActual = s.ReadZlibBytes(abmpEnd - s.Pos, abmpBuf, abmpBuf.Length);
-        if (abmpActual <= 0) return false;
-        var abmpStream = new ReadStream(abmpBuf, abmpActual, Endianness);
-
-        abmpStream.ReadVarInt();
-        abmpStream.ReadVarInt();
-        uint resCount = abmpStream.ReadVarInt();
-        for (int i = 0; i < resCount; i++)
-        {
-            int resId = (int)abmpStream.ReadVarInt();
-            int offset = (int)abmpStream.ReadVarInt();
-            uint compSize = abmpStream.ReadVarInt();
-            uint uncompSize = abmpStream.ReadVarInt();
-            uint compType = abmpStream.ReadVarInt();
-            uint tag = abmpStream.ReadUint32();
-
-            ChunkInfo info = new()
-            {
-                Id = resId,
-                FourCC = tag,
-                Len = compSize,
-                UncompressedLen = uncompSize,
-                Offset = offset,
-                CompressionID = compIDs[(int)compType]
-            };
-            AddChunkInfo(info);
-        }
-
-        if (!ChunkInfoMap.ContainsKey(2)) return false;
-        if (s.ReadUint32() != FOURCC('F','G','E','I')) return false;
-        var ilsInfo = ChunkInfoMap[2];
-        s.ReadVarInt();
-        _ilsBodyOffset = s.Pos;
-        _ilsBuf = new byte[ilsInfo.UncompressedLen];
-        int ilsActual = s.ReadZlibBytes((int)ilsInfo.Len, _ilsBuf, _ilsBuf.Length);
-        var ilsStream = new ReadStream(_ilsBuf, ilsActual, Endianness);
-        while (!ilsStream.Eof)
-        {
-            int resId = (int)ilsStream.ReadVarInt();
-            var info = ChunkInfoMap[resId];
-            _cachedChunkViews[resId] = ilsStream.ReadByteView((int)info.Len);
-        }
-
-        return true;
-    }
+  
 
     private bool ReadKeyTable()
     {
-        var info = GetFirstChunkInfo(FOURCC('K','E','Y','*'));
-        if (info == null) return false;
-        KeyTable = (RaysKeyTableChunk)GetChunk(info.FourCC, info.Id);
-        return true;
+        KeyTable = _raysDataBlockReader.GetKeyTable(); // GetFirstChunkInfo(FOURCC('K','E','Y','*'));
+        return KeyTable != null;
     }
 
     private bool ReadConfig()
     {
-        var info = GetFirstChunkInfo(FOURCC('D','R','C','F')) ?? GetFirstChunkInfo(FOURCC('V','W','C','F'));
-        if (info == null) return false;
-        Config = (RaysConfigChunk)GetChunk(info.FourCC, info.Id);
-        Version = RaysUtilities.HumanVersion((uint)Config.DirectorVersion);
-        DotSyntax = Version >= 700;
+        Config = _raysDataBlockReader.GetConfig();
+        if (Config == null) return false;
+        _raysDataBlockReader.Version = RaysUtilities.HumanVersion((uint)Config.DirectorVersion);
+        DotSyntax = _raysDataBlockReader.Version >= 700;
         return true;
     }
 
     private bool ReadCasts()
     {
         bool internalCast = true;
-        if (Version >= 500)
+        if (_raysDataBlockReader.Version >= 500)
         {
-            var info = GetFirstChunkInfo(FOURCC('M','C','s','L'));
+            var info = _raysDataBlockReader.GetFirstMCsL(); // GetFirstChunkInfo(FOURCC('M','C','s','L'));
             if (info != null)
             {
                 var castList = (RaysCastListChunk)GetChunk(info.FourCC, info.Id);
@@ -282,7 +102,7 @@ public class RaysDirectorFile : ChunkResolver
                         { sectionID = keyEntry.SectionID; break; }
                     if (sectionID > 0)
                     {
-                        var cast = (RaysCastChunk)GetChunk(FOURCC('C','A','S','*'), sectionID);
+                        var cast = _raysDataBlockReader.GetCastStar(sectionID)!;  // (RaysCastChunk)GetChunk(FOURCC('C','A','S','*'), sectionID);
                         cast.Populate(entry.Name, entry.Id, entry.MinMember);
                         Casts.Add(cast);
                     }
@@ -296,7 +116,7 @@ public class RaysDirectorFile : ChunkResolver
         }
         //var info5 = ChunkInfoMap[7];
         //Logger.LogTrace($"CAS* Compression: {info5.CompressionID}");
-        var def = GetFirstChunkInfo(FOURCC('C','A','S','*'));
+        var def = _raysDataBlockReader.GetFirstCast(); // GetFirstChunkInfo(FOURCC('C','A','S','*'));
         //if (def != null)
         //{
         //    var cast = (CastChunk)GetChunk(def.FourCC, def.Id);
@@ -308,6 +128,9 @@ public class RaysDirectorFile : ChunkResolver
             // You expect a CastChunk, but chunk type must actually be 'CAS*'
             var cast = (RaysCastChunk)GetChunk(FOURCC('C', 'A', 'S', '*'), def.Id);
             cast.Populate(internalCast ? "Internal" : "External", 1024, (ushort)Config!.MinMember);
+            var sb = new StringBuilder();
+            cast.LogInfo(sb, 2);
+            Logger.LogInformation(sb.ToString());
             Casts.Add(cast);
         }
 
@@ -320,150 +143,22 @@ public class RaysDirectorFile : ChunkResolver
     /// </summary>
     private void ReadScore()
     {
-        var info = GetFirstChunkInfo(FOURCC('V','W','S','C'));
+        var info = _raysDataBlockReader.GetFirstScore(); // .GetFirstChunkInfo(FOURCC('V','W','S','C'));
         if (info != null)
         {
             Score = (RaysScoreChunk)GetChunk(info.FourCC, info.Id);
         }
     }
+    public bool ChunkExists(uint fourCC, int id) => _raysDataBlockReader.ChunkExists(fourCC, id);
 
-    private ChunkInfo? GetFirstChunkInfo(uint fourCC)
-    {
-        if (ChunkIDsByFourCC.TryGetValue(fourCC, out var list) && list.Count > 0)
-            return ChunkInfoMap[list[0]];
-        return null;
-    }
-
-    public RaysChunk GetChunk(uint fourCC, int id)
-    {
-        if (DeserializedChunks.TryGetValue(id, out var chunk))
-            return chunk;
-
-        BufferView view = GetChunkData(fourCC, id);
-        chunk = MakeChunk(fourCC, view);
-        DeserializedChunks[id] = chunk;
-        return chunk;
-    }
-
-    private BufferView GetChunkData(uint fourCC, int id)
-    {
-        if (!ChunkInfoMap.TryGetValue(id, out var info))
-            throw new IOException($"Could not find chunk {id}");
-        if (fourCC != info.FourCC)
-            throw new IOException($"Expected chunk {id} to be '{Common.RaysUtil.FourCCToString(fourCC)}' but is '{Common.RaysUtil.FourCCToString(info.FourCC)}'");
-
-        if (_cachedChunkViews.TryGetValue(id, out var view))
-            return view;
-
-        var s = Stream!;
-        if (Afterburned)
-        {
-            s.Seek(info.Offset + _ilsBodyOffset);
-            if (info.Len == 0 && info.UncompressedLen == 0)
-                _cachedChunkViews[id] = s.ReadByteView((int)info.Len);
-            else if (CompressionImplemented(info.CompressionID))
-            {
-                int actual = -1;
-                _cachedChunkBufs[id] = new byte[info.UncompressedLen];
-                if (info.CompressionID.Equals(LingoGuidConstants.ZLIB_COMPRESSION_GUID))
-                    actual = s.ReadZlibBytes((int)info.Len, _cachedChunkBufs[id], _cachedChunkBufs[id].Length);
-                else if (info.CompressionID.Equals(LingoGuidConstants.SND_COMPRESSION_GUID))
-                {
-                    // Sound decompression not implemented
-                    BufferView chunkView = s.ReadByteView((int)info.Len);
-                    _cachedChunkViews[id] = chunkView;
-                    actual = chunkView.Size;
-                }
-                if (actual < 0) throw new IOException($"Chunk {id}: Could not decompress");
-                _cachedChunkViews[id] = new BufferView(_cachedChunkBufs[id], actual);
-            }
-            else if (info.CompressionID.Equals(LingoGuidConstants.FONTMAP_COMPRESSION_GUID))
-            {
-                _cachedChunkViews[id] = RaysFontMap.GetFontMap((int)Version);
-            }
-            else
-            {
-                _cachedChunkViews[id] = s.ReadByteView((int)info.Len);
-            }
-        }
-        else
-        {
-            s.Seek(info.Offset);
-            _cachedChunkViews[id] = ReadChunkData(fourCC, info.Len);
-        }
-
-        return _cachedChunkViews[id];
-    }
-
-    private RaysChunk ReadChunk(uint fourCC, uint len = uint.MaxValue)
-    {
-        BufferView view = ReadChunkData(fourCC, len);
-        return MakeChunk(fourCC, view);
-    }
-
-    private BufferView ReadChunkData(uint fourCC, uint len)
-    {
-        var s = Stream!;
-        int offset = s.Pos;
-        uint validFourCC = s.ReadUint32();
-        uint validLen = s.ReadUint32();
-        if (len == uint.MaxValue) len = validLen;
-        if (fourCC != validFourCC || len != validLen)
-            throw new IOException($"At offset {offset} expected '{Common.RaysUtil.FourCCToString(fourCC)}' chunk len {len} but got '{Common.RaysUtil.FourCCToString(validFourCC)}' len {validLen}");
-        return s.ReadByteView((int)len);
-    }
-
-    private RaysChunk MakeChunk(uint fourCC, BufferView view)
-    {
-        //Logger.LogInformation($"Reading chunk FourCC={ProjectorRays.Common.Util.FourCCToString(fourCC)}, Offset={view.Offset}, Length={view.Size}");
-        //Logger.LogInformation($"Chunk bytes:\n{view.LogHex(256,view.Size)}");
-
-        RaysChunk chunk = fourCC switch
-        {
-            var v when v == FOURCC('i', 'm', 'a', 'p') => new RaysInitialMapChunk(this),
-            var v when v == FOURCC('m', 'm', 'a', 'p') => new RaysMemoryMapChunk(this),
-            var v when v == FOURCC('C', 'A', 'S', '*') => new RaysCastChunk(this),
-            var v when v == FOURCC('C', 'A', 'S', 't') => new RaysCastMemberChunk(this),
-            var v when v == FOURCC('K', 'E', 'Y', '*') => new RaysKeyTableChunk(this),
-            var v when v == FOURCC('L', 'c', 't', 'x') || v == FOURCC('L', 'c', 't', 'X') => new RaysScriptContextChunk(this),
-            var v when v == FOURCC('L', 'n', 'a', 'm') => new RaysScriptNamesChunk(this),
-            var v when v == FOURCC('L', 's', 'c', 'r') => new RaysScriptChunk(this),
-            var v when v == FOURCC('V', 'W', 'C', 'F') || v == FOURCC('D', 'R', 'C', 'F') => new RaysConfigChunk(this),
-            var v when v == FOURCC('M', 'C', 's', 'L') => new RaysCastListChunk(this),
-            var v when v == FOURCC('V', 'W', 'S', 'C') => new RaysScoreChunk(this),
-            var v when v == FOURCC('X', 'M', 'E', 'D') => new RaysXmedChunk(this, ChunkType.StyledText),
-            _ => throw new IOException($"Could not deserialize '{Common.RaysUtil.FourCCToString(fourCC)}' chunk")
-        };
-
-
-        var isBig = IsAlwaysBigEndian(fourCC) ;
-        if (isBig)
-        {
-
-        }
-        var chunkStream = new ReadStream(view, isBig ? Endianness.BigEndian : Endianness);
-        chunk.Read(chunkStream);
-        return chunk;
-    }
-    private static bool IsAlwaysBigEndian(uint fourCC) => fourCC switch
-    {
-        var v when v == FOURCC('C', 'A', 'S', '*') => true,
-        var v when v == FOURCC('C', 'A', 'S', 't') => true,
-        var v when v == FOURCC('M', 'C', 's', 'L') => true,
-        _ => false
-    };
-    public RaysScript? GetScript(int id)
-    {
-        var chunk = (RaysScriptChunk)GetChunk(FOURCC('L','s','c','r'), id);
-        return chunk.Script;
-    }
-
-    public ScriptNames? GetScriptNames(int id)
-    {
-        var chunk = (RaysScriptNamesChunk)GetChunk(FOURCC('L','n','a','m'), id);
-        return chunk.Names;
-    }
-
+    public ChunkInfo? GetChunkOrDefault(int id) => _raysDataBlockReader.GetChunkOrDefault(id);
+    public RaysCastMemberChunk? GetCastMember(int id) => _raysDataBlockReader.GetCastMember(id);
+    public RaysChunk GetChunk(uint fourCC, int id) => _raysDataBlockReader.GetChunk(fourCC, id);
+    public RaysScript? GetScript(int id) => _raysDataBlockReader.GetScript(id)?.Script;
+    public RaysScriptChunk? GetScriptChunk(int id) => _raysDataBlockReader.GetScript(id);
+    public ScriptNames? GetScriptNames(int id) => _raysDataBlockReader.GetScriptNames(id)?.Names;
+    public ChunkInfo? GetFirstXMED() => _raysDataBlockReader.GetFirstXMED();
+    internal ChunkInfo? TryGetChunkTest(uint fourCC) => _raysDataBlockReader.TryGetChunkTest(fourCC);
     /// <summary>
     /// Parse all scripts referenced by every cast so the bytecode is converted
     /// into a minimal AST. This mirrors the C++ <c>parseScripts()</c> helper.
@@ -503,6 +198,5 @@ public class RaysDirectorFile : ChunkResolver
         }
     }
 
-    private static bool CompressionImplemented(RayGuid id) =>
-        id.Equals(LingoGuidConstants.ZLIB_COMPRESSION_GUID) || id.Equals(LingoGuidConstants.SND_COMPRESSION_GUID);
+   
 }

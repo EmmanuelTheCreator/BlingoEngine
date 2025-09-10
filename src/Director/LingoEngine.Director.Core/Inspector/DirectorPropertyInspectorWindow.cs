@@ -64,6 +64,7 @@ namespace LingoEngine.Director.Core.Inspector
         private AbstPanel? _header;
         private IDirectorIconManager _iconManager;
         private AbstPanel _headerPanel;
+        private AbstPanel _rootPanel;
         private IDirectorEventMediator _mediator;
         private readonly IDirectorBehaviorDescriptionManager _descriptionManager;
         private readonly ILogger<DirectorPropertyInspectorWindow> _logger;
@@ -101,6 +102,10 @@ namespace LingoEngine.Director.Core.Inspector
             Y = 22;
             _lastWidh = Width;
             _lastHeight = Height;
+            _tabs = _factory.CreateTabContainer("InspectorTabs");
+            _tabs.Y = HeaderHeight;
+            _rootPanel = _factory.CreatePanel("InspectorRoot");
+            _rootPanel.BackgroundColor = DirectorColors.BG_WhiteMenus;
         }
         protected override void OnDispose()
         {
@@ -111,18 +116,18 @@ namespace LingoEngine.Director.Core.Inspector
         {
             base.OnInit(frameworkWindow);
             Title = "Property Inspector";
-           
-        }
-        public void Init(int titleBarHeight)
-        {
             CreateHeaderElements();
-            _tabs = _factory.CreateTabContainer("InspectorTabs");
             CreateBehaviorPanel();
-            
+
+            _headerPanel.Y = 0;
+            _rootPanel.AddItem(_headerPanel);
+            _rootPanel.AddItem(_tabs);
+            Content = _rootPanel;
+
             AddMovieTab(_player.ActiveMovie);
         }
 
-      
+
         private AbstPanel CreateHeaderElements()
         {
             var thumb = new DirectorMemberThumbnail(36, 36, _factory, _iconManager);
@@ -145,6 +150,7 @@ namespace LingoEngine.Director.Core.Inspector
 
 
             var header = _factory.CreatePanel("HeaderPanel");
+            header.BackgroundColor = DirectorColors.BG_WhiteMenus;
             header.AddItem(thumbPanel);
             header.AddItem(container);
 
@@ -157,9 +163,9 @@ namespace LingoEngine.Director.Core.Inspector
             return _headerPanel;
         }
 
-        
 
-       
+
+
 
 
         public void SpriteSelected(ILingoSpriteBase sprite) => ShowObject(sprite);
@@ -174,6 +180,9 @@ namespace LingoEngine.Director.Core.Inspector
             if (_tabs == null || _header == null)
                 return;
 
+            _rootPanel.Width = width;
+            _rootPanel.Height = height;
+            _headerPanel.Width = width;
             _header.Width = width - 10;
             _header.Height = HeaderHeight;
             _tabs.Width = width - 10;
@@ -224,13 +233,13 @@ namespace LingoEngine.Director.Core.Inspector
                     AddGuidesTab(_guides);
                     if (sp2.Member != null)
                         AddMemberTabs(sp2.Member);
-                    
+
                     break;
                 case ILingoMember member2:
                     AddMemberTabs(member2);
                     AddCastTab(member2.Cast);
                     break;
-                case ILingoCast cast:AddCastTab(cast);break;
+                case ILingoCast cast: AddCastTab(cast); break;
                 case LingoSpriteSound sound:
                     AddSpriteTab(sound);
                     if (sound.Sound != null)
@@ -239,18 +248,18 @@ namespace LingoEngine.Director.Core.Inspector
                         AddSoundTab(sound.Sound);
                     }
                     break;
-                case LingoTempoSprite tempo:AddSpriteTab(tempo);break;
-                case LingoColorPaletteSprite colorPalette:AddSpriteTab(colorPalette);if (colorPalette.Member != null) AddMemberTabs(colorPalette.Member); break;
-                case LingoTransitionSprite transition:AddSpriteTab(transition);if (transition.Member != null) AddMemberTabs(transition.Member); break;
-                case LingoFrameScriptSprite frameScript:AddSpriteTab(frameScript);if (frameScript.Member != null) AddMemberTabs(frameScript.Member); break;
+                case LingoTempoSprite tempo: AddSpriteTab(tempo); break;
+                case LingoColorPaletteSprite colorPalette: AddSpriteTab(colorPalette); if (colorPalette.Member != null) AddMemberTabs(colorPalette.Member); break;
+                case LingoTransitionSprite transition: AddSpriteTab(transition); if (transition.Member != null) AddMemberTabs(transition.Member); break;
+                case LingoFrameScriptSprite frameScript: AddSpriteTab(frameScript); if (frameScript.Member != null) AddMemberTabs(frameScript.Member); break;
 
                 default:
                     //AddTab(obj.GetType().Name, obj);
                     break;
             }
             if (obj is LingoSprite && _player.ActiveMovie != null)
-                  AddMovieTab(_player.ActiveMovie);
-            
+                AddMovieTab(_player.ActiveMovie);
+
             try
             {
                 if (_tabs.GetChildren().Any(x => x.Name == lastSelectedTab.ToString()))
@@ -258,23 +267,23 @@ namespace LingoEngine.Director.Core.Inspector
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error selecting tab:" + lastSelectedTab+":"+ex.Message);
+                _logger.LogError(ex, "Error selecting tab:" + lastSelectedTab + ":" + ex.Message);
             }
         }
 
-      
+
 
         private void AddMemberTabs(ILingoMember member)
         {
             AddMemberTab(member);
             switch (member)
             {
-                case LingoMemberText text:AddTextTab(text);break;
-                case LingoMemberField text:AddTextTab(text);break;
-                case LingoMemberBitmap pic:AddBitmapTab(pic);break;
-                case LingoMemberSound sound:AddSoundTab(sound);break;
-                case LingoMemberShape shape:AddShapeTab(shape);break;
-                case LingoFilmLoopMember film:AddTab(PropetyTabNames.FilmLoop, film);break;
+                case LingoMemberText text: AddTextTab(text); break;
+                case LingoMemberField text: AddTextTab(text); break;
+                case LingoMemberBitmap pic: AddBitmapTab(pic); break;
+                case LingoMemberSound sound: AddSoundTab(sound); break;
+                case LingoMemberShape shape: AddShapeTab(shape); break;
+                case LingoFilmLoopMember film: AddTab(PropetyTabNames.FilmLoop, film); break;
             }
         }
 
@@ -310,7 +319,7 @@ namespace LingoEngine.Director.Core.Inspector
                        .AddNumericInputFloat("SpriteLocV", "Y:", sprite2D, s => s.LocV)
                        .AddNumericInputFloat("SpriteLocZ", "Z:", sprite2D, s => s.LocZ, inputSpan: 3)
                        .AddNumericInputFloat("SpriteLeft", "L:", sprite2D, s => s.Left)
-                       .AddNumericInputFloat("SpriteTop", "T:",  sprite2D, s => s.Top)
+                       .AddNumericInputFloat("SpriteTop", "T:", sprite2D, s => s.Top)
                        .AddNumericInputFloat("SpriteRight", "R:", sprite2D, s => s.Right)
                        .AddNumericInputFloat("SpriteBottom", "B:", sprite2D, s => s.Bottom)
                        .AddNumericInputFloat("SpriteWidth", "W:", sprite2D, s => s.Width)
@@ -324,24 +333,25 @@ namespace LingoEngine.Director.Core.Inspector
                    ;
             _behaviorList.ClearItems();
             _behaviors.Clear();
-            if (sprite is LingoSprite2D sprite2D1) {
+            if (sprite is LingoSprite2D sprite2D1)
+            {
                 composer
                    .AddNumericInputFloat("SpriteRotation", "Rotation:", sprite2D1, s => s.Rotation, labelSpan: 3)
                    .AddNumericInputFloat("SpriteSkew", "Skew:", sprite2D1, s => s.Skew, inputSpan: 1, labelSpan: 3)
                    .AddColorPicker("SpriteForeColor", "Foreground:", sprite2D1, s => s.ForeColor, inputSpan: 1, labelSpan: 3)
                    .AddColorPicker("SpriteBackColor", "Background:", sprite2D1, s => s.BackColor, inputSpan: 1, labelSpan: 3)
-                  
+
                 ;
                 var index = 0;
                 _behaviors = sprite2D1.Behaviors.ToDictionary(b =>
                 {
                     index++;
-                    return $"{index}.{b.Name} {(b.ScriptMember != null? $"{b.ScriptMember.CastLibNum},{b.ScriptMember.NumberInCast}":"")}";
+                    return $"{index}.{b.Name} {(b.ScriptMember != null ? $"{b.ScriptMember.CastLibNum},{b.ScriptMember.NumberInCast}" : "")}";
                 });
             }
             if (sprite is LingoFrameScriptSprite frameScript && frameScript.Behavior != null)
-                _behaviors.Add("1."+frameScript.Behavior.Name + $"{(frameScript.Member != null ? $"{frameScript.Member.CastLibNum},{frameScript.Member.NumberInCast}" : "")}", frameScript.Behavior);
-            
+                _behaviors.Add("1." + frameScript.Behavior.Name + $"{(frameScript.Member != null ? $"{frameScript.Member.CastLibNum},{frameScript.Member.NumberInCast}" : "")}", frameScript.Behavior);
+
             foreach (var item in _behaviors)
                 _behaviorList.AddItem(item.Key, item.Value.Name);
 
@@ -513,7 +523,7 @@ namespace LingoEngine.Director.Core.Inspector
                 //    };
                 //})
                 //.NewLine("t")
-                .AddLabel("StageSizeLbl","Stage size:")
+                .AddLabel("StageSizeLbl", "Stage size:")
                 .AddNumericInputInt("MovieStageWidth", _player.Stage, m => m.Width, 40)
                 .AddLabel("StageSizeLblX", "x")
                 .AddNumericInputInt("MovieStageHeight", _player.Stage, m => m.Height, 40)
@@ -766,6 +776,6 @@ namespace LingoEngine.Director.Core.Inspector
 
         #endregion
 
-       
+
     }
 }

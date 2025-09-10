@@ -1,12 +1,13 @@
 using System;
 using AbstUI.Primitives;
+using AbstUI.Tools;
 using LingoEngine.Core;
 using LingoEngine.Stages;
 using LingoEngine.Transitions.TransitionLibrary;
 
 namespace LingoEngine.Transitions;
 
-public sealed class LingoTransitionPlayer : ILingoTransitionPlayer
+public sealed class LingoTransitionPlayer : ILingoTransitionPlayer, IDisposable
 {
     private readonly LingoStage _stage;
     private readonly LingoClock _clock;
@@ -16,10 +17,16 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer
     private IAbstTexture2D? _current;
     private byte[]? _fromPixels;
     private byte[]? _toPixels;
+    private byte[]? _targetPixels;
+    private byte[]? _fromRectPixels;
+    private byte[]? _currentPixels;
+    private ARect _targetRect;
+    private bool _computeDiffRect;
     private LingoBaseTransition? _transition;
     private int _tick;
     private int _duration;
     private bool _waitingForToFrame;
+    private bool _isCapturingToFrame;
     private bool _isPlaying;
 
     public bool IsActive => _isPlaying || _waitingForToFrame;
@@ -36,7 +43,7 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer
         _from?.Dispose();
         _to?.Dispose();
         _from = _to = _current = null;
-        _fromPixels = _toPixels = null;
+        _fromPixels = _toPixels = _targetPixels = _fromRectPixels = _currentPixels = null;
         _waitingForToFrame = false;
         _isPlaying = false;
 
@@ -46,7 +53,22 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer
 
         _from = _stage.GetScreenshot();
         _fromPixels = _from.GetPixels();
-        _current = _from;
+        _currentPixels = (byte[])_fromPixels.Clone();
+
+        var affects = sprite.Member?.Affects ?? LingoTransitionAffects.EntireStage;
+        _computeDiffRect = affects == LingoTransitionAffects.ChangingAreaOnly;
+        if (affects == LingoTransitionAffects.Custom)
+        {
+            _targetRect = sprite.Member!.Rect.Clamp(_from.Width, _from.Height);
+        }
+        else
+        {
+            _targetRect = ARect.New(0, 0, _from.Width, _from.Height);
+        }
+
+        // make a copy we can mutate
+        _current = _from.Clone();
+
         _stage.ShowTransition(_from);
 
         var seconds = sprite.Member?.Duration ?? 1f;
@@ -54,38 +76,65 @@ public sealed class LingoTransitionPlayer : ILingoTransitionPlayer
         _tick = 0;
         _waitingForToFrame = true;
         _isPlaying = false;
+        _isCapturingToFrame = false;
         return true;
     }
 
-    public void CaptureToFrame()
+    private void CaptureToFrame(IAbstTexture2D texture2D)
     {
         if (!_waitingForToFrame)
             return;
-        _to = _stage.GetScreenshot();
+        _to = texture2D;
         _toPixels = _to.GetPixels();
+        if (_computeDiffRect)
+        {
+            _targetRect = APixel.ComputeDifferenceRect(_from!.Width, _from.Height, _fromPixels!, _toPixels);
+            if (_targetRect.Width <= 0 || _targetRect.Height <= 0)
+                _targetRect = ARect.New(0, 0, _from.Width, _from.Height);
+        }
+        _fromRectPixels = APixel.GetRectPixels(_fromPixels!, _from!.Width, _targetRect);
+        _targetPixels = APixel.GetRectPixels(_toPixels, _from.Width, _targetRect);
         _waitingForToFrame = false;
         _isPlaying = true;
     }
 
     public void Tick()
     {
-        if (!_isPlaying || _fromPixels == null || _toPixels == null || _from == null || _transition == null)
+        if (_toPixels == null)
+        {
+            if (_isCapturingToFrame) return;
+            _isCapturingToFrame = true;
+            _stage.RequestNextFrameScreenshot(CaptureToFrame);
+            return;
+        }
+        if (!_isPlaying || _fromRectPixels == null || _targetPixels == null || _from == null || _transition == null || _currentPixels == null)
             return;
         _tick++;
         float progress = (float)_tick / _duration;
         if (progress >= 1f) progress = 1f;
-        var blended = _transition.StepFrame(_from.Width, _from.Height, _fromPixels, _toPixels, progress);
-        _current!.SetARGBPixels(blended);
-        _stage.UpdateTransitionFrame(_current, ARect.New(0, 0, _from.Width, _from.Height));
+        var blended = _transition.StepFrame((int)_targetRect.Width, (int)_targetRect.Height, _fromRectPixels, _targetPixels, progress);
+        APixel.SetRectPixels(blended, _currentPixels, _from.Width, _targetRect);
+        _current!.SetRGBAPixels(_currentPixels);
+        _stage.UpdateTransitionFrame(_current, _targetRect);
         if (progress >= 1f)
         {
             _stage.HideTransition();
             _from?.Dispose();
             _to?.Dispose();
+            _current?.Dispose();
             _current = _from = _to = null;
-            _fromPixels = _toPixels = null;
+            _fromPixels = _toPixels = _targetPixels = _fromRectPixels = _currentPixels = null;
             _transition = null;
+            _computeDiffRect = false;
+            _targetRect = ARect.New(0, 0, 0, 0);
             _isPlaying = false;
         }
+    }
+
+    public void Dispose()
+    {
+        _from?.Dispose();
+        _to?.Dispose();
+        _current?.Dispose();
     }
 }

@@ -166,7 +166,7 @@ namespace LingoEngine.LGodot.Core
         public LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
         {
             var godotInstance = new LingoGodotMemberField(_serviceProvider.GetRequiredService<IAbstFontManager>(), _serviceProvider.GetRequiredService<ILogger<LingoGodotMemberField>>());
-            var lingoInstance = new LingoMemberField((LingoCast)cast, godotInstance, numberInCast, name, fileName ?? "", regPoint);
+            var lingoInstance = new LingoMemberField((LingoCast)cast, godotInstance, numberInCast, ComponentFactory, name, fileName ?? "", regPoint);
             godotInstance.Init(lingoInstance);
             _disposables.Add(godotInstance);
             return lingoInstance;
@@ -175,7 +175,7 @@ namespace LingoEngine.LGodot.Core
         public LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
         {
             var godotInstance = new LingoGodotMemberText(_serviceProvider.GetRequiredService<IAbstFontManager>(), _serviceProvider.GetRequiredService<ILogger<LingoGodotMemberText>>());
-            var lingoInstance = new LingoMemberText((LingoCast)cast, godotInstance, numberInCast, name, fileName ?? "", regPoint);
+            var lingoInstance = new LingoMemberText((LingoCast)cast, godotInstance, numberInCast, ComponentFactory, name, fileName ?? "", regPoint);
             godotInstance.Init(lingoInstance);
             _disposables.Add(godotInstance);
             return lingoInstance;

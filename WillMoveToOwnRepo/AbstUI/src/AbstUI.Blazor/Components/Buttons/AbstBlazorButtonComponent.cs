@@ -52,7 +52,7 @@ public class AbstBlazorButtonComponent : IAbstFrameworkButton, IFrameworkFor<Abs
         set { if (!_borderColor.Equals(value)) { _borderColor = value; Changed?.Invoke(); } }
     }
 
-    private AColor _backgroundColor;
+    private AColor _backgroundColor = AColors.White;
     public AColor BackgroundColor
     {
         get => _backgroundColor;
@@ -66,7 +66,7 @@ public class AbstBlazorButtonComponent : IAbstFrameworkButton, IFrameworkFor<Abs
         set { if (!_backgroundHoverColor.Equals(value)) { _backgroundHoverColor = value; Changed?.Invoke(); } }
     }
 
-    private AColor _textColor;
+    private AColor _textColor = AColors.Black;
     public AColor TextColor
     {
         get => _textColor;

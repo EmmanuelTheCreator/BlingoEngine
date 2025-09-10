@@ -236,7 +236,8 @@ internal class AbstSdlColorPickerPopup : AbstSdlPanel, ISdlFocusable, IHandleSdl
         base.Dispose();
     }
 
-    public void HandleEvent(AbstSDLEvent e)
+    public override bool CanHandleEvent(AbstSDLEvent e) => true; // e.IsInside || Open;
+    public override void HandleEvent(AbstSDLEvent e)
     {
         ref var ev = ref e.Event;
         if (ev.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN && ev.button.button == SDL.SDL_BUTTON_LEFT)

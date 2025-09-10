@@ -1,0 +1,16 @@
+; Minimal Godot project file for AbstUI.GfxVisualTest.LGodot
+config_version=5
+
+[application]
+run/main_scene="res://AbstUIGodotTestScene.tscn"
+config/name="AbstUI.LGodotTest"
+config/features=PackedStringArray("4.5", "C#", "GL Compatibility")
+config/icon="res://icon.svg"
+
+[dotnet]
+project/assembly_name="AbstUI.GfxVisualTest.LGodot"
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+2d/snap/snap_2d_transforms_to_pixel=true

@@ -5,6 +5,9 @@ using LingoEngine.Sprites;
 using LingoEngine.Medias;
 using LingoEngine.Members;
 using LingoEngine.Blazor.Medias;
+using Microsoft.JSInterop;
+using AbstUI.Blazor;
+using LingoEngine.Blazor.Util;
 
 namespace LingoEngine.Blazor.Sprites;
 
@@ -19,8 +22,11 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
     private readonly Action<LingoBlazorSprite2D> _hide;
     private readonly Action<LingoBlazorSprite2D> _remove;
     private readonly LingoSprite2D _lingoSprite;
+    private readonly AbstUIScriptResolver _scripts;
     private IAbstTexture2D? _texture;
     private string? _videoUrl;
+    private IJSObjectReference? _video;
+    private DotNetObjectReference<object>? _videoRef;
     private int _duration;
     private int _currentTime;
     private LingoMediaStatus _mediaStatus;
@@ -28,14 +34,24 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
     internal bool IsDirty { get; set; } = true;
     internal bool IsDirtyMember { get; set; } = true;
 
+    public event Action? Changed;
+
+    private void MakeDirty()
+    {
+        IsDirty = true;
+        Changed?.Invoke();
+    }
+
     public LingoBlazorSprite2D(LingoSprite2D sprite,
         Action<LingoBlazorSprite2D> show,
         Action<LingoBlazorSprite2D> hide,
-        Action<LingoBlazorSprite2D> remove)
+        Action<LingoBlazorSprite2D> remove,
+        AbstUIScriptResolver scripts)
     {
         _show = show;
         _hide = hide;
         _remove = remove;
+        _scripts = scripts;
         _lingoSprite = sprite;
         sprite.Init(this);
         ZIndex = sprite.SpriteNum;
@@ -50,41 +66,41 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
         {
             _visible = value;
             if (value) _show(this); else _hide(this);
-            IsDirty = true;
+            MakeDirty();
         }
     }
     private bool _visible;
 
     private float _blend = 1f;
-    public float Blend { get => _blend; set { _blend = value; IsDirty = true; } }
+    public float Blend { get => _blend; set { _blend = value; MakeDirty(); } }
     private float _x;
-    public float X { get => _x; set { _x = value; IsDirty = true; } }
+    public float X { get => _x; set { _x = value; MakeDirty(); } }
     private float _y;
-    public float Y { get => _y; set { _y = value; IsDirty = true; } }
+    public float Y { get => _y; set { _y = value; MakeDirty(); } }
     public float Width { get; private set; }
     public float Height { get; private set; }
     private string _name = string.Empty;
-    public string Name { get => _name; set { _name = value; IsDirty = true; } }
+    public string Name { get => _name; set { _name = value; MakeDirty(); } }
     private APoint _regPoint;
-    public APoint RegPoint { get => _regPoint; set { _regPoint = value; IsDirty = true; } }
+    public APoint RegPoint { get => _regPoint; set { _regPoint = value; MakeDirty(); } }
     private float _desiredHeight;
-    public float DesiredHeight { get => _desiredHeight; set { _desiredHeight = value; IsDirty = true; } }
+    public float DesiredHeight { get => _desiredHeight; set { _desiredHeight = value; MakeDirty(); } }
     private float _desiredWidth;
-    public float DesiredWidth { get => _desiredWidth; set { _desiredWidth = value; IsDirty = true; } }
+    public float DesiredWidth { get => _desiredWidth; set { _desiredWidth = value; MakeDirty(); } }
     private int _zIndex;
-    public int ZIndex { get => _zIndex; set { _zIndex = value; IsDirty = true; } }
+    public int ZIndex { get => _zIndex; set { _zIndex = value; MakeDirty(); } }
     private float _rotation;
-    public float Rotation { get => _rotation; set { _rotation = value; IsDirty = true; } }
+    public float Rotation { get => _rotation; set { _rotation = value; MakeDirty(); } }
     private float _skew;
-    public float Skew { get => _skew; set { _skew = value; IsDirty = true; } }
+    public float Skew { get => _skew; set { _skew = value; MakeDirty(); } }
     private bool _flipH;
-    public bool FlipH { get => _flipH; set { _flipH = value; IsDirty = true; } }
+    public bool FlipH { get => _flipH; set { _flipH = value; MakeDirty(); } }
     private bool _flipV;
-    public bool FlipV { get => _flipV; set { _flipV = value; IsDirty = true; } }
+    public bool FlipV { get => _flipV; set { _flipV = value; MakeDirty(); } }
     private bool _directToStage;
-    public bool DirectToStage { get => _directToStage; set { _directToStage = value; IsDirty = true; } }
+    public bool DirectToStage { get => _directToStage; set { _directToStage = value; MakeDirty(); } }
     private int _ink;
-    public int Ink { get => _ink; set { _ink = value; IsDirty = true; } }
+    public int Ink { get => _ink; set { _ink = value; MakeDirty(); } }
 
     public void MemberChanged()
     {
@@ -100,10 +116,18 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
                 var blazorMedia = media.Framework<LingoBlazorMemberMedia>();
                 blazorMedia.Preload();
                 _videoUrl = blazorMedia.Url;
-                _duration = blazorMedia.Duration;
+                if (_videoUrl != null)
+                {
+                    _videoRef?.Dispose();
+                    _videoRef = DotNetObjectReference.Create<object>(this);
+                    var id = ElementIdGenerator.Create(_lingoSprite.Member?.Name ?? "video");
+                    _video = _scripts.MediaCreateVideo(id, _videoUrl, _videoRef).GetAwaiter().GetResult();
+                    _duration = (int)_scripts.MediaGetDuration(_video).GetAwaiter().GetResult();
+                }
                 _mediaStatus = blazorMedia.MediaStatus;
             }
             IsDirtyMember = true;
+            MakeDirty();
         }
     }
 
@@ -123,23 +147,41 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
         }
         _lingoSprite.FWTextureHasChanged(texture);
         IsDirtyMember = true;
+        MakeDirty();
     }
 
     /// <inheritdoc/>
-    public void Play() => _mediaStatus = LingoMediaStatus.Playing;
+    public void Play()
+    {
+        if (_video != null)
+            _scripts.MediaPlayVideo(_video).GetAwaiter().GetResult();
+        _mediaStatus = LingoMediaStatus.Playing;
+    }
 
     /// <inheritdoc/>
     public void Stop()
     {
+        if (_video != null)
+            _scripts.MediaStopVideo(_video).GetAwaiter().GetResult();
         _mediaStatus = LingoMediaStatus.Closed;
         _currentTime = 0;
     }
 
     /// <inheritdoc/>
-    public void Pause() => _mediaStatus = LingoMediaStatus.Paused;
+    public void Pause()
+    {
+        if (_video != null)
+            _scripts.MediaPauseVideo(_video).GetAwaiter().GetResult();
+        _mediaStatus = LingoMediaStatus.Paused;
+    }
 
     /// <inheritdoc/>
-    public void Seek(int milliseconds) => _currentTime = milliseconds;
+    public void Seek(int milliseconds)
+    {
+        if (_video != null)
+            _scripts.MediaSeekVideo(_video, milliseconds / 1000.0).GetAwaiter().GetResult();
+        _currentTime = milliseconds;
+    }
 
     /// <inheritdoc/>
     public int Duration => _duration;
@@ -148,7 +190,12 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
     public int CurrentTime
     {
         get => _currentTime;
-        set => _currentTime = value;
+        set
+        {
+            if (_video != null)
+                _scripts.MediaSeekVideo(_video, value / 1000.0).GetAwaiter().GetResult();
+            _currentTime = value;
+        }
     }
 
     /// <inheritdoc/>
@@ -161,6 +208,17 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
     }
 
     internal IAbstTexture2D? Texture => _texture;
+    internal IJSObjectReference? Video => _video;
 
-    public void Dispose() => _remove(this);
+    internal void UpdateCurrentTime(double ms) => _currentTime = (int)ms;
+
+    [JSInvokable]
+    public void OnVideoEnded() => _lingoSprite.Stop();
+
+    public void Dispose()
+    {
+        _video?.DisposeAsync().GetAwaiter().GetResult();
+        _videoRef?.Dispose();
+        _remove(this);
+    }
 }

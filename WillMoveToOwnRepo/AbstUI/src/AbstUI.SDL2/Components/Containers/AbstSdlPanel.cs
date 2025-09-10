@@ -5,17 +5,21 @@ using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Events;
 using AbstUI.SDL2.SDLL;
-using System;
-using System.Collections.Generic;
 using AbstUI.FrameworkCommunication;
+using AbstUI.SDL2.Bitmaps;
 
 namespace AbstUI.SDL2.Components.Containers
 {
     public class AbstSdlPanel : AbstSdlComponent, IAbstFrameworkPanel, IFrameworkFor<AbstPanel>, IDisposable, IHandleSdlEvent
     {
-        public AbstSdlPanel(AbstSdlComponentFactory factory) : base(factory)
-        {
-        }
+
+        private nint _texture;
+        private int _texW;
+        private int _texH;
+        protected int _yOffset;
+        protected int _xOffset;
+
+       
         public AMargin Margin { get; set; } = AMargin.Zero;
         public AColor? BackgroundColor { get; set; }
         public AColor? BorderColor { get; set; }
@@ -23,16 +27,28 @@ namespace AbstUI.SDL2.Components.Containers
         public bool ClipChildren { get; set; }
         public object FrameworkNode => this;
 
-        private readonly List<IAbstFrameworkLayoutNode> _children = new();
+        protected readonly List<IAbstFrameworkLayoutNode> _children = new();
+
+
+        public AbstSdlPanel(AbstSdlComponentFactory factory) : base(factory)
+        {
+            //ComponentContext.OnRequestRedraw += RequestRedraw;
+        }
+
+        //private void RequestRedraw(IAbstSDLComponent component)
+        //{
+            
+        //}
 
         public void AddItem(IAbstFrameworkLayoutNode child)
         {
-            if (!_children.Contains(child))
-            {
-                _children.Add(child);
-                if (child.FrameworkNode is AbstSdlComponent comp)
-                    comp.ComponentContext.SetParents(ComponentContext);
-            }
+            if (_children.Contains(child))
+                return;
+            
+            _children.Add(child);
+            if (child.FrameworkNode is AbstSdlComponent comp)
+                comp.ComponentContext.SetParents(ComponentContext);
+            ComponentContext.QueueRedraw(this);
         }
 
         public IEnumerable<IAbstFrameworkLayoutNode> GetItems() => _children.ToArray();
@@ -44,6 +60,7 @@ namespace AbstUI.SDL2.Components.Containers
                 if (child.FrameworkNode is AbstSdlComponent comp)
                     comp.ComponentContext.SetParents(null);
                 (child as IDisposable)?.Dispose();
+                ComponentContext.QueueRedraw(this);
             }
         }
 
@@ -56,11 +73,8 @@ namespace AbstUI.SDL2.Components.Containers
                 (child as IDisposable)?.Dispose();
             }
             _children.Clear();
+            ComponentContext.QueueRedraw(this);
         }
-
-        private nint _texture;
-        private int _texW;
-        private int _texH;
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
@@ -95,29 +109,7 @@ namespace AbstUI.SDL2.Components.Containers
                 SDL.SDL_RenderClear(context.Renderer);
             }
 
-            if (ClipChildren)
-            {
-                SDL.SDL_Rect clip = new SDL.SDL_Rect { x = 0, y = 0, w = w, h = h };
-                SDL.SDL_RenderSetClipRect(context.Renderer, ref clip);
-            }
-
-            foreach (var child in _children)
-            {
-                if (child.FrameworkNode is AbstSdlComponent comp)
-                {
-                    var ctx = comp.ComponentContext;
-                    var oldOffX = ctx.OffsetX;
-                    var oldOffY = ctx.OffsetY;
-                    ctx.OffsetX += -X;
-                    ctx.OffsetY += -Y;
-                    ctx.RenderToTexture(context);
-                    ctx.OffsetX = oldOffX;
-                    ctx.OffsetY = oldOffY;
-                }
-            }
-
-            if (ClipChildren)
-                SDL.SDL_RenderSetClipRect(context.Renderer, nint.Zero);
+            RenderChildren(context,0,0, w, h, _xOffset, _yOffset);
 
             if (BorderWidth > 0 && BorderColor is { } bc)
             {
@@ -129,9 +121,40 @@ namespace AbstUI.SDL2.Components.Containers
                     rect.x++; rect.y++; rect.w -= 2; rect.h -= 2;
                 }
             }
-
+            //if (_children.Count > 0)
+            //{
+            //    var t = new SdlTexture2D(_texture, w, h, "test");
+            //    t.DebugWriteToDiskInc(context.Renderer);
+            //}
             SDL.SDL_SetRenderTarget(context.Renderer, prevTarget);
             return _texture;
+        }
+
+        protected void RenderChildren(AbstSDLRenderContext context,int x, int y, int w, int h,int xOffset, int yOffset)
+        {
+            if (ClipChildren)
+            {
+                SDL.SDL_Rect clip = new SDL.SDL_Rect { x =x+ xOffset, y = y+yOffset, w = w, h = h };
+                SDL.SDL_RenderSetClipRect(context.Renderer, ref clip);
+            }
+
+            foreach (var child in _children)
+            {
+                if (child.FrameworkNode is AbstSdlComponent comp)
+                {
+                    var ctx = comp.ComponentContext;
+                    var oldOffX = ctx.OffsetX;
+                    var oldOffY = ctx.OffsetY;
+                    ctx.OffsetX += -X + xOffset;
+                    ctx.OffsetY += -Y + yOffset;
+                    ctx.RenderToTexture(context);
+                    ctx.OffsetX = oldOffX;
+                    ctx.OffsetY = oldOffY;
+                }
+            }
+
+            if (ClipChildren)
+                SDL.SDL_RenderSetClipRect(context.Renderer, nint.Zero);
         }
 
         public override void Dispose()
@@ -144,18 +167,11 @@ namespace AbstUI.SDL2.Components.Containers
             }
             base.Dispose();
         }
+        public virtual bool CanHandleEvent(AbstSDLEvent e) => e.IsInside || !e.HasCoordinates;
         public virtual void HandleEvent(AbstSDLEvent e)
         {
             // Forward mouse events to children accounting for current scroll offset
-
-            for (int i = _children.Count - 1; i >= 0 && !e.StopPropagation; i--)
-            {
-                if (_children[i].FrameworkNode is not AbstSdlComponent comp ||
-                    comp is not IHandleSdlEvent handler ||
-                    !comp.Visibility)
-                    continue;
-                ContainerHelpers.HandleChildEvents(comp, e, (int)Margin.Left, (int)Margin.Top);
-            }
+            ContainerHelpers.HandleChildEvents(_children, e, -X - _xOffset - (int)Margin.Left, -Y - _yOffset - (int)Margin.Top);
         }
 
     }

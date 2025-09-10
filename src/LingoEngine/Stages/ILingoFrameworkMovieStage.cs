@@ -16,6 +16,7 @@ public interface ILingoFrameworkStage
     void ApplyPropertyChanges();
 
     float Scale { get; set; }
+    void RequestNextFrameScreenshot(Action<IAbstTexture2D> onCaptured);
 
     /// <summary>Captures a screenshot of the current stage.</summary>
     IAbstTexture2D GetScreenshot();

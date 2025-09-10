@@ -8,25 +8,27 @@ namespace LingoEngine.LGodot.Movies
 {
     public partial class LingoGodotMovie : ILingoFrameworkMovie, IDisposable
     {
-        private Node2D _MovieNode2D;
-        private LingoMovie _LingoMovie;
+        private Node2D _movieNode2D;
+        private LingoMovie _lingoMovie;
         private LingoGodotStage _stage;
         private readonly Action<LingoGodotMovie> _removeMethod;
         private HashSet<LingoGodotSprite2D> _drawnSprites = new();
         private HashSet<LingoGodotSprite2D> _allSprites = new();
 
-        public Node2D GetNode2D() => _MovieNode2D;
+        public int CurrentFrame => _lingoMovie.CurrentFrame;
+
+        public Node2D GetNode2D() => _movieNode2D;
 
 #pragma warning disable CS8618         
         public LingoGodotMovie(LingoGodotStage stage, LingoMovie lingoInstance, Action<LingoGodotMovie> removeMethod)
 #pragma warning restore CS8618 
         {
             _stage = stage;
-            _LingoMovie = lingoInstance;
+            _lingoMovie = lingoInstance;
             _removeMethod = removeMethod;
 
-            _MovieNode2D = new Node2D();
-            _MovieNode2D.Name = "MovieRoot";
+            _movieNode2D = new Node2D();
+            _movieNode2D.Name = "MovieRoot";
             //_MovieNode2D.Position = new Vector2(640/2, 480/2);
 
             stage.ShowMovie(this);
@@ -49,7 +51,7 @@ namespace LingoEngine.LGodot.Movies
 
         internal void CreateSprite<T>(T lingoSprite) where T : LingoSprite2D
         {
-            var godotSprite = new LingoGodotSprite2D(lingoSprite, _MovieNode2D, s =>
+            var godotSprite = new LingoGodotSprite2D(lingoSprite, _movieNode2D, s =>
             {
                 // Show Sprite
                 _drawnSprites.Add(s);
@@ -71,12 +73,12 @@ namespace LingoEngine.LGodot.Movies
         public void RemoveMe()
         {
             _removeMethod(this);
-            _MovieNode2D.GetParent().RemoveChild(_MovieNode2D);
-            _MovieNode2D.Dispose();
+            _movieNode2D.GetParent().RemoveChild(_movieNode2D);
+            _movieNode2D.Dispose();
         }
         APoint ILingoFrameworkMovie.GetGlobalMousePosition()
         {
-            var pos = _MovieNode2D.GetGlobalMousePosition();
+            var pos = _movieNode2D.GetGlobalMousePosition();
             return (pos.X, pos.Y);
         }
 

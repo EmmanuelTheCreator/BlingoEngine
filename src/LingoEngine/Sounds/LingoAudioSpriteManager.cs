@@ -31,11 +31,7 @@ namespace LingoEngine.Sounds
         public LingoSpriteSound Add(int channel, int startFrame, LingoMemberSound sound)
         {
             int lengthFrames = (int)Math.Ceiling(sound.Length * _movie.Tempo);
-#if NET48
             int end = MathCompat.Clamp(startFrame + lengthFrames - 1, startFrame, _movie.FrameCount);
-#else
-            int end = Math.Clamp(startFrame + lengthFrames - 1, startFrame, _movie.FrameCount);
-#endif
             return AddSprite(channel, "Audio " + channel, c =>
             {
                 c.Init(channel, startFrame, end, sound);

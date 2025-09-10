@@ -3,10 +3,7 @@ using LingoEngine.SDL2.Sprites;
 using LingoEngine.SDL2.Stages;
 using LingoEngine.SDL2.Core;
 using LingoEngine.Sprites;
-using System.Linq;
-using System.Collections.Generic;
 using AbstUI.Primitives;
-using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Core;
 
 namespace LingoEngine.SDL2.Movies;
@@ -19,6 +16,8 @@ public class SdlMovie : ILingoFrameworkMovie, IDisposable
     private readonly HashSet<SdlSprite> _allSprites = new();
     private readonly LingoSdlFactory _factory;
     private LingoMovie _movie;
+
+    public int CurrentFrame => _movie.CurrentFrame;
 
     public SdlMovie(SdlStage stage, LingoSdlFactory factory, LingoMovie movie, Action<SdlMovie> removeMethod)
     {
@@ -34,16 +33,11 @@ public class SdlMovie : ILingoFrameworkMovie, IDisposable
 
     public void UpdateStage()
     {
-        var context = _factory.CreateRenderContext();
-        Render(context);
+        _stage.Render();
     }
 
-    public void Render(AbstSDLRenderContext context)
+    internal void RenderSprites(AbstSDLRenderContext context)
     {
-        SDL.SDL_SetRenderDrawColor(context.Renderer, 0, 0, 0, 255);
-        SDL.SDL_RenderClear(context.Renderer);
-        _factory.ComponentContainer.Render(context);
-
         foreach (var s in _drawnSprites.OrderBy(s => s.ZIndex))
         {
             s.ComponentContext.RenderToTexture(context);

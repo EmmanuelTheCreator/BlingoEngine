@@ -8,6 +8,7 @@ using LingoEngine.Projects;
 using LingoEngine.Setup;
 using LingoEngine.Texts;
 using Microsoft.Extensions.DependencyInjection;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace LingoEngine.Demo.TetriGrounds.Core;
 
@@ -88,7 +89,7 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
     {
         var textColor = AColor.FromHex("#999966");
         var text = player.CastLib(2).GetMember<LingoMemberText>("T_data");
-        text!.TextColor = textColor;
+        text!.Color = textColor;
     }
     public void InitSprites()
     {
@@ -117,8 +118,20 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         //    .AddBehavior<ButtonStartGameBehavior>();
         //_movie.AddFrameBehavior<GameStopBehavior>(10);
         //return;
+        //TestPuppetSprite();
+        //return;
 
-        
+        var castData = _movie.CastLib["Data"];
+
+        castData.Member["T_data"]!.Width = 191;
+        castData.Member["T_NewGame"]!.Width = 48;
+        castData.Member["T_Score"]!.Width = 99;
+        castData.Member["T_OverScreen"]!.Width = 366;
+        castData.Member["T_OverScreen2"]!.Width = 366;
+        castData.Member["T_InternetScoresNames"]!.Width = 65;
+        castData.Member["T_InternetScores"]!.Width = 37;
+        castData.Member["T_InternetScoresNamesP"]!.Width = 69;
+        castData.Member["T_InternetScoresP"]!.Width = 37;
 
         var MyBG = _movie.Member["Game"];
         _movie.AddFrameBehavior<GameStopBehavior>(60);
@@ -126,20 +139,28 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         //_movie.AddFrameBehavior<StayOnFrameFrameScript>(4);
         //_movie.AddFrameBehavior<MouseDownNavigateWithStayBehavior>(11, b => b.TickWait = 60);
         _movie.AddFrameBehavior<MouseDownNavigateWithStayBehavior>(2, b => { b.TickWait = 1; b.FrameOffsetOnClick = 40; });
+        
         _movie.AddSprite(4, 54, 64, 336, 241).AddBehavior<BgScriptBehavior>().SetMember("Game");// BG GAme
         _movie.AddSprite(5, 56, 64, 591, 36, c => { c.Width = 193; c.Height = 35; }).SetMember("TetriGrounds_s"); // LOGO
-        _movie.AddSprite(6, 59, 64, 503, 438).SetMember(7, 2); // copyright text
+        _movie.AddSprite(6, 59, 64, 503, 438).SetMember(9, 2); // copyright text
         var sprite = _movie.AddSprite(7, 60, 64, 441, 92).SetMember("T_data"); // level
         
+        // Button play
         _movie.AddSprite(9, 60, 64, 519, 343).SetMember("B_Play").AddBehavior<ButtonStartGameBehavior>(); // Button play
+        var memberT_NewGame = _movie.Member["T_NewGame"];
+        _movie.AddSprite(11, 60, 64, 497, 334).SetMember(memberT_NewGame); // Text New Game on Button
+
+        var memberScore = _movie.Member["T_Score"];
+        _movie.AddSprite(12, 60, 64, 486, 148).SetMember(memberScore); 
+
 
         _movie.AddSprite(22, 55, 64, 463, 62).SetMember("bell0039") // Bell anim
             .AddBehavior<AnimationScriptBehavior>(b =>
             {
-                b.myStartMembernum = 67;
-                b.myEndMembernum = 108;
-                b.mySlowDown = 2;
-                b.myValue = -1;
+                b.myStartMembernum = 100;
+                b.myEndMembernum = 140;
+                b.myValue =  100;
+                b.mySlowDown = 2; 
                 // My Sprite that contains info
                 b.myDataSpriteNum = 1;
                 // Name Info
@@ -147,9 +168,20 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
                 b.myWaitbeforeExecute = 0;
                 //b.myFunction = 70;
             });
-        _movie.AddSprite(28, 59, 64, 94, 297).SetMember(32,2); // Text personal
+       
+        _movie.AddSprite(24, 59, 64, 94, 129).SetMember("T_InternetScoresNames"); 
+        _movie.AddSprite(25, 59, 64, 159, 132).SetMember("T_InternetScores"); 
+        _movie.AddSprite(26, 59, 64, 91, 50).SetMember(39,2); // Text highscores
+        _movie.AddSprite(27, 59, 64, 91, 50).SetMember(39,2); // Text All
+        _movie.AddSprite(28, 59, 64, 94, 113).SetMember(41,2); // Text personal
         _movie.AddSprite(29, 59, 64, 95, 313).SetMember("T_InternetScoresNamesP");
         _movie.AddSprite(30, 59, 64, 151, 313).SetMember("T_InternetScoresP");
         _movie.AddSprite(35, 61, 64, 323, 238).SetMember("alert");
+    }
+
+    private void TestPuppetSprite()
+    {
+        _movie!.AddSprite(5, 2, 64, 519, 343).SetMember("B_Play").AddBehavior<ButtonStartGameBehavior>(); // Button play
+        _movie.AddFrameBehavior<StayOnFrameFrameScript>(10);
     }
 }

@@ -8,7 +8,7 @@ namespace AbstUI.Windowing;
 
 public interface IAbstWindowInternal : IAbstWindow, IAbstNode, IDisposable
 {
-    void ResizeFromFW(bool firstLoad, int width, int height);
+    void ResizingContentFromFW(bool firstLoad, int width, int height);
     void RaiseWindowStateChanged(bool v);
     void SetPositionFromFW(int x, int y);
     void SetContentFromFW(IAbstFrameworkNode? node);
@@ -151,7 +151,7 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
     }
     protected virtual bool AllowContextMenu() => IsActiveWindow;
 
-    public void ResizeFromFW(bool firstLoad, int width, int height)
+    public void ResizingContentFromFW(bool firstLoad, int width, int height)
     {
         if (width < MinimumWidth) width = MinimumWidth;
         if (height < MinimumHeight) height = MinimumHeight;
@@ -162,7 +162,6 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
     {
         Width = width;
         Height = height;
-
     }
 
     void IAbstWindow.SetActivated(bool state) => IsActivated = state;

@@ -168,15 +168,13 @@ namespace LingoEngine.Sprites
             get => _puppet;
             set
             {
+                if (_puppet == value) return;
                 _puppet = value;
                 Scripted = value; // if puppet is set, we are scripted
                 if (value)
                 {
                     if (_sprite == null)
-                    {
-                        _sprite = _movie.AddSprite(Number, 1, _movie.FrameCount, 0, 0);
-                        _sprite.Puppet = value;
-                    }
+                        _sprite = _movie.AddSprite(Number, 1, _movie.FrameCount, 0, 0,c => c.Puppet = true);
                 }
                 else
                 {
@@ -187,6 +185,8 @@ namespace LingoEngine.Sprites
                         typed.RemoveMe();
                         //_movie.RemoveSprite(_sprite);
                         _sprite = null;
+                        _puppet = false;
+                        Scripted = false;
                     }
                 }
             }

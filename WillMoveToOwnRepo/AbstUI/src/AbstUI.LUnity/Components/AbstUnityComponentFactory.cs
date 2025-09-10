@@ -29,10 +29,16 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
     {
     }
 
+    public IAbstImagePainter CreateImagePainter(int width = 0, int height = 0)
+        => new UnityImagePainter(FontManager, width, height);
+    public IAbstImagePainter CreateImagePainterToTexture(int width = 0, int height = 0)
+        => new UnityImagePainter(FontManager, width, height);
+
     public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
     {
         var canvas = new AbstGfxCanvas();
-        var impl = new AbstUnityGfxCanvas(width, height);
+        var painter = (UnityImagePainter)CreateImagePainter(width, height);
+        var impl = new AbstUnityGfxCanvas(painter);
         canvas.Init(impl);
         InitComponent(canvas);
         canvas.Name = name;
@@ -60,6 +66,16 @@ public class AbstUnityComponentFactory : AbstComponentFactoryBase, IAbstComponen
         InitComponent(panel);
         panel.Name = name;
         return panel;
+    }
+
+    public AbstZoomBox CreateZoomBox(string name)
+    {
+        var box = new AbstZoomBox();
+        var impl = new AbstUnityZoomBox();
+        box.Init(impl);
+        InitComponent(box);
+        box.Name = name;
+        return box;
     }
 
     public AbstLayoutWrapper CreateLayoutWrapper(IAbstNode content, float? x, float? y)

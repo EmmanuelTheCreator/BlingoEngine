@@ -12,7 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src\LingoEngine.Blazor\LingoEngine.Blazor.csproj" />
     <ProjectReference Include="..\..\..\src\LingoEngine\LingoEngine.csproj" />
+    <ProjectReference Include="..\LingoEngine.Demo.TetriGrounds.Core\LingoEngine.Demo.TetriGrounds.Core.csproj" />
 	  <!--<ProjectReference Include="..\..\..\src\LingoEngine.Blazor\LingoEngine.Blazor.csproj" />
     <ProjectReference Include="..\LingoEngine.Demo.TetriGrounds.Core\LingoEngine.Demo.TetriGrounds.Core.csproj" />-->
   </ItemGroup>

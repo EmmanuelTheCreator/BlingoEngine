@@ -17,6 +17,11 @@ namespace LingoEngine.Texts
         string Text { get; set; }
 
         /// <summary>
+        /// Sets the contents using pre-parsed markdown data.
+        /// </summary>
+        void SetTextMD(AbstMarkdownData data);
+
+        /// <summary>
         /// Returns or sets individual lines of the text, 1-based indexing.
         /// </summary>
         LingoLines Line { get; }
@@ -65,6 +70,9 @@ namespace LingoEngine.Texts
         /// Selects a range of characters within the text. 1-based inclusive range.
         /// </summary>
         void SetSelection(int start, int end);
+        void RequireRedraw();
+        void InitDefaults();
+        IAbstTexture2D? GetTexture();
 
 
 
@@ -110,7 +118,7 @@ namespace LingoEngine.Texts
         /// Text color in a Lingo-compatible color format.
         /// Corresponds to Lingo's textColor property.
         /// </summary>
-        AColor TextColor { get; set; }
+        AColor Color { get; set; }
 
         /// <summary>
         /// Gets or sets whether the text is bold.

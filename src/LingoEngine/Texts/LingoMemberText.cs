@@ -1,4 +1,5 @@
 ﻿
+using AbstUI.Components;
 using AbstUI.Primitives;
 using LingoEngine.Casts;
 using LingoEngine.Members;
@@ -8,7 +9,7 @@ namespace LingoEngine.Texts
 {
     public class LingoMemberText : LingoMemberTextBase<ILingoFrameworkMemberText>, ILingoMemberText
     {
-        public LingoMemberText(LingoCast cast, ILingoFrameworkMemberText frameworkMember, int numberInCast, string name = "", string fileName = "", APoint regPoint = default) : base(LingoMemberType.Text,cast, frameworkMember, numberInCast, name, fileName, regPoint)
+        public LingoMemberText(LingoCast cast, ILingoFrameworkMemberText frameworkMember, int numberInCast, IAbstComponentFactory componentFactory, string name = "", string fileName = "", APoint regPoint = default) : base(LingoMemberType.Text,cast, frameworkMember, numberInCast, componentFactory, name, fileName, regPoint)
         {
         }
 

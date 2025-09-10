@@ -1,20 +1,29 @@
-﻿using AbstUI.Styles;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using AbstUI.Styles;
 using Godot;
 
 namespace AbstUI.LGodot.Styles
 {
     public class AbstGodotFontManager : IAbstFontManager
     {
-        private readonly List<(string Name, string FileName)> _fontsToLoad = new();
-        private readonly Dictionary<string, FontFile> _loadedFonts = new();
+        public static bool IsRunningInTest { get; set; }
+        private readonly Dictionary<(string FontName, int Size), Dictionary<long, Image>> _atlasCache = new();
+
+        private readonly List<(string Name, AbstFontStyle Style, string FileName)> _fontsToLoad = new();
+        private readonly Dictionary<(string Name, AbstFontStyle Style), FontFile> _loadedFonts = new();
+
+        private Font _defaultStyle = ThemeDB.FallbackFont; //!IsRunningInTest? ThemeDB.FallbackFont : null!;
+
         public AbstGodotFontManager()
         {
 
         }
 
-        public IAbstFontManager AddFont(string name, string pathAndName)
+        public IAbstFontManager AddFont(string name, string pathAndName, AbstFontStyle style = AbstFontStyle.Regular)
         {
-            _fontsToLoad.Add((name, pathAndName));
+            _fontsToLoad.Add((name, style, pathAndName));
             return this;
         }
         public void LoadAll()
@@ -24,35 +33,72 @@ namespace AbstUI.LGodot.Styles
                 var fontFile = GD.Load<FontFile>($"res://{font.FileName}");
                 if (fontFile == null)
                     throw new Exception("Font file not found:" + font.Name + ":" + font.FileName);
-                _loadedFonts.Add(font.Name, fontFile);
+                _loadedFonts[(font.Name, font.Style)] = fontFile;
             }
             _fontsToLoad.Clear();
         }
-        public T? Get<T>(string name) where T : class
-             => _loadedFonts.TryGetValue(name, out var fontt) ? fontt as T : null;
-        public FontFile GetTyped(string name)
-            => _loadedFonts[name];
+        public T? Get<T>(string name, AbstFontStyle style = AbstFontStyle.Regular) where T : class
+        {
+            if (string.IsNullOrEmpty(name))
+                return _defaultStyle as T;
+            if (_loadedFonts.TryGetValue((name, style), out var fontt))
+                return fontt as T;
+            if (_loadedFonts.TryGetValue((name, AbstFontStyle.Regular), out fontt))
+                return fontt as T;
+            return _defaultStyle as T;
+        }
 
-        private Font _defaultStyle = ThemeDB.FallbackFont;
+        public FontFile GetTyped(string name, AbstFontStyle style = AbstFontStyle.Regular)
+        {
+            if (_loadedFonts.TryGetValue((name, style), out var fontt))
+                return fontt;
+            if (_loadedFonts.TryGetValue((name, AbstFontStyle.Regular), out fontt))
+                return fontt;
+            return (FontFile)_defaultStyle;
+        }
+        public FontFile? GetTypedOrDefault(string name, AbstFontStyle style = AbstFontStyle.Regular)
+        {
+            if (_loadedFonts.TryGetValue((name, style), out var fontt))
+                return fontt;
+            if (_loadedFonts.TryGetValue((name, AbstFontStyle.Regular), out fontt))
+                return fontt;
+            return (FontFile)_defaultStyle;
+        }
+
         public T GetDefaultFont<T>() where T : class => (_defaultStyle as T)!;
         public void SetDefaultFont<T>(T font) where T : class => _defaultStyle = (font as Font)!;
 
-        public IEnumerable<string> GetAllNames() => _loadedFonts.Keys;
+        public IEnumerable<string> GetAllNames() => _loadedFonts.Keys.Select(k => k.Name).Distinct();
 
-        public float MeasureTextWidth(string text, string fontName, int fontSize)
+        public float MeasureTextWidth(string text, string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
         {
-            var font = string.IsNullOrEmpty(fontName) ? _defaultStyle :
-                (_loadedFonts.TryGetValue(fontName, out var f) ? f : _defaultStyle);
+            var font = string.IsNullOrEmpty(fontName)
+                ? _defaultStyle
+                : (_loadedFonts.TryGetValue((fontName, style), out var f) ? f :
+                (_loadedFonts.TryGetValue((fontName, AbstFontStyle.Regular), out f) ? f : _defaultStyle));
             return font.GetStringSize(text, HorizontalAlignment.Left, -1, fontSize).X;
         }
 
-        public FontInfo GetFontInfo(string fontName, int fontSize)
+        public FontInfo GetFontInfo(string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
         {
-            var font = string.IsNullOrEmpty(fontName) ? _defaultStyle :
-                (_loadedFonts.TryGetValue(fontName, out var f) ? f : _defaultStyle);
+            var font = string.IsNullOrEmpty(fontName)
+                ? _defaultStyle
+                : (_loadedFonts.TryGetValue((fontName, style), out var f) ? f :
+                (_loadedFonts.TryGetValue((fontName, AbstFontStyle.Regular), out f) ? f : _defaultStyle));
             int height = (int)font.GetHeight(fontSize);
             int ascent = (int)font.GetAscent(fontSize);
-            return new FontInfo(height, height - ascent);
+            return new FontInfo(height, ascent);
+        }
+
+        public Dictionary<long, Image> GetAtlasCache(string fontName, int fontSize)
+        {
+            if (!_atlasCache.TryGetValue((fontName, fontSize), out var atlasCache))
+            {
+                atlasCache = new Dictionary<long, Image>();
+                _atlasCache[(fontName, fontSize)] = atlasCache;
+            }
+            return atlasCache;
         }
     }
 }
+

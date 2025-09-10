@@ -86,6 +86,8 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
 
     public IAbstTexture2D? TextureLingo => _textureWrapper;
 
+    public IAbstFontManager FontManager => throw new NotImplementedException();
+
     protected UnityMemberTextBase(IAbstFontManager fontManager, ILogger logger)
     {
         _fontManager = fontManager;
@@ -111,21 +113,7 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
         return prop?.GetValue(null) as string ?? string.Empty;
     }
 
-    public string ReadText()
-    {
-        if (File.Exists(_lingoMemberText.FileName))
-            return File.ReadAllText(_lingoMemberText.FileName);
-        _logger.LogWarning("File not found for Text: {File}", _lingoMemberText.FileName);
-        return string.Empty;
-    }
-    public string ReadTextRtf()
-    {
-        var rtf = Path.ChangeExtension(_lingoMemberText.FileName, ".rtf");
-        if (File.Exists(rtf))
-            return File.ReadAllText(rtf);
-        return string.Empty;
-    }
-
+   
     public void CopyToClipboard() => Copy(Text);
     public void Erase()
     {
@@ -170,9 +158,11 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
         Height = height;
         _lingoMemberText.Width = width;
         _lingoMemberText.Height = height;
-        _lingoMemberText.RegPoint = new APoint(0, -height / 2);
+        //_lingoMemberText.RegPoint = new APoint(0, -height / 2);
 
         _textureWrapper = new UnityTexture2D(_texture);
         return _textureWrapper;
     }
+
+    public bool IsPixelTransparent(int x, int y) => false;
 }

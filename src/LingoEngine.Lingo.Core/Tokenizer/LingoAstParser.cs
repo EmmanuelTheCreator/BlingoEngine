@@ -94,6 +94,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 case LingoTokenType.Next:
                 case LingoTokenType.Repeat:
                 case LingoTokenType.Return:
+                case LingoTokenType.Case:
                     return ParseKeywordStatement();
                 default:
                     AdvanceToken();
@@ -259,6 +260,9 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                         retValue = ParseExpression();
                     }
                     return new LingoReturnStmtNode(retValue);
+
+                case LingoTokenType.Case:
+                    return ParseCaseStatement();
 
                 default:
                     return new LingoDatumNode(new LingoDatum(keywordToken.Lexeme));
@@ -835,6 +839,7 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                     Expect(LingoTokenType.End);
                     Expect(LingoTokenType.If);
                 }
+                // single-line 'if' without explicit 'end if'
 
                 return new LingoIfStmtNode(condition, stmtBlock, singleElseBlock);
             }
@@ -971,8 +976,51 @@ namespace LingoEngine.Lingo.Core.Tokenizer
             }
         }
 
-    }
+        private LingoCaseLabelNode ParseCaseLabel()
+        {
+            var value = ParseExpression();
+            Expect(LingoTokenType.Colon);
+            var block = new LingoBlockNode();
+            block.Children.Add(ParseStatement());
+            return new LingoCaseLabelNode { Value = value, Block = block };
+        }
 
+        private LingoNode ParseCaseStatement()
+        {
+            var value = ParseExpression();
+            Expect(LingoTokenType.Of);
+            var first = ParseCaseLabel();
+            var current = first;
+            while (_currentToken.Type != LingoTokenType.End &&
+                   _currentToken.Type != LingoTokenType.Otherwise &&
+                   _currentToken.Type != LingoTokenType.Eof)
+            {
+                var nextLabel = ParseCaseLabel();
+                current.NextLabel = nextLabel;
+                current = nextLabel;
+            }
+
+            LingoOtherwiseNode? otherwise = null;
+            if (_currentToken.Type == LingoTokenType.Otherwise)
+            {
+                AdvanceToken();
+                if (_currentToken.Type == LingoTokenType.Colon)
+                    AdvanceToken();
+                var block = new LingoBlockNode();
+                while (_currentToken.Type != LingoTokenType.End &&
+                       _currentToken.Type != LingoTokenType.Eof)
+                {
+                    block.Children.Add(ParseStatement());
+                }
+                otherwise = new LingoOtherwiseNode { Block = block };
+            }
+
+            Expect(LingoTokenType.End);
+            Expect(LingoTokenType.Case);
+            return new LingoCaseStmtNode { Value = value, FirstLabel = first, Otherwise = otherwise };
+        }
+
+    }
 
 
 }

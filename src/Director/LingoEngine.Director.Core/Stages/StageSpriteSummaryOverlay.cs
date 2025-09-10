@@ -86,7 +86,7 @@ public class StageSpriteSummaryOverlay : IHasSpriteSelectedEvent, IDisposable
         _canvas.Y = sp.Rect.Bottom;
 
         _canvas.DrawRect(ARect.New(0, 0, width, height), AColors.LightGray, true);
-        var bugFixGodotNotUnderstandY = 12;
+        var bugFixGodotNotUnderstandY = 2;
 
         for (int i = 0; i < lines.Length; i++)
         {

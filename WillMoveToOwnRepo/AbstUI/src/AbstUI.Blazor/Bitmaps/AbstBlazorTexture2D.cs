@@ -3,6 +3,7 @@ using Microsoft.JSInterop;
 using AbstUI.Blazor;
 using AbstUI.Bitmaps;
 using AbstUI.Primitives;
+using AbstUI.Tools;
 
 namespace AbstUI.Blazor.Bitmaps;
 
@@ -47,5 +48,59 @@ public class AbstBlazorTexture2D : AbstBaseTexture2D<ElementReference>
     {
         var ctx = await scripts.CanvasGetContext(Canvas, false);
         return await scripts.CanvasGetImageData(ctx, Width, Height);
+    }
+
+    public override byte[] GetPixels()
+    {
+        var scripts = new AbstUIScriptResolver(_jsRuntime);
+        try
+        {
+            return GetPixelDataAsync(scripts).GetAwaiter().GetResult();
+        }
+        finally
+        {
+            scripts.DisposeAsync().GetAwaiter().GetResult();
+        }
+    }
+
+    public override void SetARGBPixels(byte[] argbPixels)
+    {
+        if (argbPixels == null || argbPixels.Length != Width * Height * 4)
+            throw new ArgumentException("Expected ARGB8888 buffer with Width*Height*4 bytes.", nameof(argbPixels));
+
+        Tools.APixel.ToRGBA(argbPixels);
+        SetRGBAPixels(argbPixels);
+    }
+
+    public override void SetRGBAPixels(byte[] rgbaPixels)
+    {
+        if (rgbaPixels == null || rgbaPixels.Length != Width * Height * 4)
+            throw new ArgumentException("Expected RGBA8888 buffer with Width*Height*4 bytes.", nameof(rgbaPixels));
+
+        var scripts = new AbstUIScriptResolver(_jsRuntime);
+        try
+        {
+            var ctx = scripts.CanvasGetContext(Canvas, false).GetAwaiter().GetResult();
+            scripts.CanvasDrawPictureData(ctx, rgbaPixels, Width, Height, 0, 0).GetAwaiter().GetResult();
+        }
+        finally
+        {
+            scripts.DisposeAsync().GetAwaiter().GetResult();
+        }
+    }
+
+    public override IAbstTexture2D Clone()
+    {
+        var scripts = new AbstUIScriptResolver(_jsRuntime);
+        try
+        {
+            var data = GetPixelDataAsync(scripts).GetAwaiter().GetResult();
+            return CreateFromPixelDataAsync(_jsRuntime, scripts, data, Width, Height, Name + "_Clone")
+                .GetAwaiter().GetResult();
+        }
+        finally
+        {
+            scripts.DisposeAsync().GetAwaiter().GetResult();
+        }
     }
 }

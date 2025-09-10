@@ -25,31 +25,34 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbs
     private readonly Action<SdlSprite> _remove;
     private readonly LingoSprite2D _lingoSprite2D;
     public AbstSDLComponentContext ComponentContext { get; }
+    internal bool _somethingChanged;
     internal bool IsDirty { get; set; } = true;
     internal bool IsDirtyMember { get; set; } = true;
 
     private nint _texture = nint.Zero;
+    private nint _lastTexture = nint.Zero;
     private bool _textureOwned;
+    private int _zIndex;
+    private bool _directToStage;
+    private int _ink;
+    private SDL.SDL_BlendMode _blendMode = SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND;
+    private float _rotation;
+    private float _skew;
+    private APoint _regPoint;
+    private bool _visibility;
+    private float _blend = 1f;
+    private float _x;
+    private float _y;
+    private float _width;
+    private float _height;
 
     private readonly LingoSdlFactory _factory;
 
-    public SdlSprite(LingoSprite2D sprite, LingoSdlFactory factory, Action<SdlSprite> show, Action<SdlSprite> hide, Action<SdlSprite> remove)
-    {
-        _lingoSprite2D = sprite;
-        _factory = factory;
-        ComponentContext = factory.CreateContext(this);
-        _show = show;
-        _hide = hide;
-        _remove = remove;
-        sprite.Init(this);
-        _zIndex = sprite.SpriteNum;
-        _directToStage = sprite.DirectToStage;
-        _ink = sprite.Ink;
-        ApplyBlend();
-        ApplyInk();
-    }
+    #region Properties
+    public string Name { get; set; } = string.Empty;
+    public float DesiredHeight { get; set; }
+    public float DesiredWidth { get; set; }
 
-    private bool _visibility;
     public bool Visibility
     {
         get => _visibility;
@@ -57,21 +60,19 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbs
         {
             _visibility = value;
             ComponentContext.Visible = value;
+            _somethingChanged = true;
         }
     }
-
-    private float _blend = 1f;
     public float Blend
     {
         get => _blend;
         set
         {
             _blend = value;
+            _somethingChanged = true;
             ApplyBlend();
         }
     }
-
-    private float _x;
     public float X
     {
         get => _x;
@@ -81,8 +82,6 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbs
             UpdateContextPosition();
         }
     }
-
-    private float _y;
     public float Y
     {
         get => _y;
@@ -92,8 +91,6 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbs
             UpdateContextPosition();
         }
     }
-
-    private float _width;
     public float Width
     {
         get => _width;
@@ -104,8 +101,6 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbs
             UpdateContextPosition();
         }
     }
-
-    private float _height;
     public float Height
     {
         get => _height;
@@ -116,29 +111,57 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbs
             UpdateContextPosition();
         }
     }
-    public string Name { get; set; } = string.Empty;
-    public APoint RegPoint { get; set; }
-    public float DesiredHeight { get; set; }
-    public float DesiredWidth { get; set; }
-    private int _zIndex;
+    public APoint RegPoint
+    {
+        get => _regPoint;
+        set
+        {
+            _regPoint = value;
+            _somethingChanged = true;
+        }
+    }
     public int ZIndex
     {
         get => _zIndex;
-        set { _zIndex = value; }
+        set { _zIndex = value; _somethingChanged = true; }
     }
-    public float Rotation { get; set; }
-    public float Skew { get; set; }
+    public float Rotation
+    {
+        get => _rotation;
+        set
+        {
+            _rotation = value;
+            _somethingChanged = true;
+        }
+    }
+    public float Skew
+    {
+        get => _skew;
+        set
+        {
+            _skew = value;
+            _somethingChanged = true;
+        }
+    }
     public bool FlipH
     {
         get => ComponentContext.FlipH;
-        set => ComponentContext.FlipH = value;
+        set
+        {
+            ComponentContext.FlipH = value;
+            _somethingChanged = true;
+        }
     }
     public bool FlipV
     {
         get => ComponentContext.FlipV;
-        set => ComponentContext.FlipV = value;
+        set
+        {
+            ComponentContext.FlipV = value;
+            _somethingChanged = true;
+        }
     }
-    private bool _directToStage;
+
     public bool DirectToStage
     {
         get => _directToStage;
@@ -150,14 +173,15 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbs
         }
     }
 
-    private int _ink;
-    private SDL.SDL_BlendMode _blendMode = SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND;
+
+
     public int Ink
     {
         get => _ink;
         set
         {
             _ink = value;
+            _somethingChanged = true;
             ApplyInk();
             ComponentContext.QueueRedraw(this);
         }
@@ -206,30 +230,24 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbs
         }
     }
 
-    public void Play()
-    {
-        if (_lingoSprite2D.Member is LingoMemberMedia media)
-            media.Framework<SdlMemberMedia>()?.Play();
-    }
+    #endregion
 
-    public void Pause()
+    public SdlSprite(LingoSprite2D sprite, LingoSdlFactory factory, Action<SdlSprite> show, Action<SdlSprite> hide, Action<SdlSprite> remove)
     {
-        if (_lingoSprite2D.Member is LingoMemberMedia media)
-            media.Framework<SdlMemberMedia>()?.Pause();
+        _lingoSprite2D = sprite;
+        _factory = factory;
+        ComponentContext = factory.CreateContext(this);
+        _show = show;
+        _hide = hide;
+        _remove = remove;
+        sprite.Init(this);
+        _zIndex = sprite.SpriteNum;
+        _directToStage = sprite.DirectToStage;
+        _ink = sprite.Ink;
+        ApplyBlend();
+        ApplyInk();
     }
-
-    public void Stop()
-    {
-        if (_lingoSprite2D.Member is LingoMemberMedia media)
-            media.Framework<SdlMemberMedia>()?.Stop();
-    }
-
-    public void Seek(int milliseconds)
-    {
-        if (_lingoSprite2D.Member is LingoMemberMedia media)
-            media.Framework<SdlMemberMedia>()?.Seek(milliseconds);
-    }
-
+  
     public void RemoveMe() { _remove(this); Dispose(); }
     public void Dispose()
     {
@@ -243,12 +261,14 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbs
     {
         Visibility = true;
         _show(this);
+        _somethingChanged = true;
     }
 
     public void Hide()
     {
         Visibility = false;
         _hide(this);
+        _somethingChanged = true;
     }
     public void SetPosition(APoint point) { X = point.X; Y = point.Y; }
 
@@ -256,8 +276,10 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbs
     {
         if (_lingoSprite2D.Member is { } member)
         {
-            Width = member.Width;
-            Height = member.Height;
+            if(Width ==0)
+                Width = member.Width;
+            if (Height == 0)
+                Height = member.Height;
         }
         IsDirtyMember = true;
         ComponentContext.QueueRedraw(this);
@@ -277,6 +299,11 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbs
 
     public AbstSDLRenderResult Render(AbstSDLRenderContext context)
     {
+        if (!IsDirty && !IsDirtyMember && !_somethingChanged)
+        {
+            return _lastTexture;
+        }
+        _somethingChanged = false;
         Update();
         ComponentContext.Renderer = context.Renderer;
         if (_texture == nint.Zero)
@@ -306,6 +333,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbs
         ComponentContext.OffsetX = -offset.X;
         ComponentContext.OffsetY = -offset.Y;
         UpdateContextPosition();
+        _lastTexture = _texture;
         return _texture;
     }
 
@@ -421,6 +449,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbs
     {
         //ComponentContext.Blend = _directToStage ? 1f : _blend;
         ComponentContext.Blend = _directToStage ? 100 : _blend;
+        _somethingChanged = true;
     }
 
     private void UpdateContextPosition()
@@ -429,6 +458,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbs
         int y = (int)(_y - ComponentContext.TargetHeight / 2f);
         ComponentContext.X = x;
         ComponentContext.Y = y;
+        _somethingChanged = true;
     }
 
     public void Resize(float w, float h) { Width = w; Height = h; }
@@ -439,5 +469,32 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbs
         ComponentContext.QueueRedraw(this);
     }
 
+
+
+    #region Media
+    public void Play()
+    {
+        if (_lingoSprite2D.Member is LingoMemberMedia media)
+            media.Framework<SdlMemberMedia>()?.Play();
+    }
+
+    public void Pause()
+    {
+        if (_lingoSprite2D.Member is LingoMemberMedia media)
+            media.Framework<SdlMemberMedia>()?.Pause();
+    }
+
+    public void Stop()
+    {
+        if (_lingoSprite2D.Member is LingoMemberMedia media)
+            media.Framework<SdlMemberMedia>()?.Stop();
+    }
+
+    public void Seek(int milliseconds)
+    {
+        if (_lingoSprite2D.Member is LingoMemberMedia media)
+            media.Framework<SdlMemberMedia>()?.Seek(milliseconds);
+    } 
+    #endregion
 
 }

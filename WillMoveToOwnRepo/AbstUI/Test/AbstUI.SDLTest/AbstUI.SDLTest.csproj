@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\AbstUI.LGodotTest\Media\Fonts\8PinMatrix.ttf" Link="Media\Fonts\8PinMatrix.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\AbstUI.LGodotTest\Media\Fonts\arcade.ttf" Link="Media\Fonts\arcade.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\AbstUI.LGodotTest\Media\Fonts\bikly.ttf" Link="Media\Fonts\bikly.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\AbstUI.LGodotTest\Media\Fonts\earth.ttf" Link="Media\Fonts\earth.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\AbstUI.LGodotTest\Media\Fonts\Tahoma.ttf" Link="Media\Fonts\Tahoma.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="FluentAssertions" Version="8.6.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="xunit" Version="2.5.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/AbstUI/AbstUI.csproj" />
+    <ProjectReference Include="../../src/AbstUI.SDL2/AbstUI.SDL2.csproj" />
+    <ProjectReference Include="../AbstUI.Tests.Common/AbstUI.Tests.Common.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Media\Fonts\" />
+  </ItemGroup>
+</Project>

@@ -32,6 +32,8 @@ public class RaysScoreFrameParserV2ToFile : IRaysScoreFrameParserV2
     private void WriteHex(byte[] data)
     {
         string path = Path.ChangeExtension(_sourceFile, ".score.txt");
+        string path2 = Path.ChangeExtension(_sourceFile, ".score.bin");
+        File.WriteAllBytes(path2, data);
         using var writer = new StreamWriter(path, false, Encoding.UTF8);
         for (int i = 0; i < data.Length; i += 32)
         {

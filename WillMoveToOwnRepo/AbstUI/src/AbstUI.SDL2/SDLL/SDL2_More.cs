@@ -1,4 +1,6 @@
-﻿using System;
+﻿#pragma warning disable CS8603 // Possible null reference return.
+#pragma warning disable IDE1006 // Naming Styles
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;

@@ -1,3 +1,4 @@
+using System;
 using AbstUI.Primitives;
 
 namespace AbstUI.Components.Inputs
@@ -16,5 +17,14 @@ namespace AbstUI.Components.Inputs
         /// </summary>
         AColor TextColor { get; set; }
         bool IsMultiLine { get; set; }
+
+        bool HasSelection { get; }
+        void DeleteSelection();
+        void SetCaretPosition(int line, int column);
+        (int line, int column) GetCaretPosition();
+        void SetSelection(int startLine, int startColumn, int endLine, int endColumn);
+        void InsertText(string text);
+
+        event Action<int, int>? OnCaretChanged;
     }
 }

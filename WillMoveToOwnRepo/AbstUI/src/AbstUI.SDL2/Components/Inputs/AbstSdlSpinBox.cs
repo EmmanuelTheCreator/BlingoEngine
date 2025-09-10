@@ -50,6 +50,7 @@ internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IFramew
     public AbstSdlSpinBox(AbstSdlComponentFactory factory) : base(factory)
     {
         _number = new AbstSdlInputNumber<float>(factory);
+        _number.ComponentContext.SetParents(ComponentContext);
         _number.ValueChanged += () => ValueChanged?.Invoke();
         Width = 50;
         Height = 20;
@@ -72,34 +73,31 @@ internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IFramew
         get => _number.BorderColor;
         set => _number.BorderColor = value;
     }
-
+    public virtual bool CanHandleEvent(AbstSDLEvent e)
+    {
+        return Enabled && (e.IsInside || !e.HasCoordinates);
+    }
     public void HandleEvent(AbstSDLEvent e)
     {
         if (!Enabled) return;
 
-        SDL.SDL_GetMouseState(out var mx, out var my);
-
-        ref var ev = ref e.Event;
+        var ev = e.Event;
 
         if (ev.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN)
         {
-            var upRect = GetUpRect();
-            var downRect = GetDownRect();
-            if (PointInRect(mx, my, upRect))
+            if (e.IsInside && e.ComponentLeft >= Width - ButtonWidth)
             {
-                Value += Step;
+                var dir = e.ComponentTop > Height / 2 ? -1 : 1;
+                Value += Step * dir;
                 e.StopPropagation = true;
-                return;
-            }
-            if (PointInRect(mx, my, downRect))
-            {
-                Value -= Step;
-                e.StopPropagation = true;
+                ComponentContext.QueueRedraw(this);
                 return;
             }
         }
 
         _number.HandleEvent(e);
+        if (e.StopPropagation)
+            ComponentContext.QueueRedraw(this);
     }
 
     private SDL.SDL_Rect GetUpRect() => new SDL.SDL_Rect
@@ -118,8 +116,6 @@ internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IFramew
         h = (int)Height / 2
     };
 
-    private static bool PointInRect(int x, int y, SDL.SDL_Rect r)
-        => x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h;
 
     public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
     {
@@ -129,7 +125,7 @@ internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IFramew
         _number.Y = Y;
         _number.Width = Width - ButtonWidth;
         _number.Height = Height;
-        _number.Render(context);
+        var result = _number.Render(context);
 
         var renderer = context.Renderer;
         var up = GetUpRect();
@@ -146,7 +142,7 @@ internal class AbstSdlSpinBox : AbstSdlComponent, IAbstFrameworkSpinBox, IFramew
         SDL.SDL_RenderDrawLine(renderer, down.x + 3, down.y + 3, down.x + down.w / 2, down.y + down.h - 3);
         SDL.SDL_RenderDrawLine(renderer, down.x + down.w - 3, down.y + 3, down.x + down.w / 2, down.y + down.h - 3);
 
-        return AbstSDLRenderResult.RequireRender();
+        return result;
     }
 
     public override void Dispose()

@@ -46,8 +46,13 @@ namespace AbstUI.SDL2.Components
         public AbstSDLComponentContext CreateContext(IAbstSDLComponent component, AbstSDLComponentContext? parent = null)
             => new(_rootContext.ComponentContainer, component, parent) { Renderer = _rootContext.Renderer };
 
-        public AbstSDLRenderContext CreateRenderContext(IAbstSDLComponent? component = null)
-            => new(_rootContext.Renderer, System.Numerics.Vector2.Zero, FontManagerTyped);
+        public AbstSDLRenderContext CreateRenderContext(AbstSDLRenderContext? parent, System.Numerics.Vector2 origin)
+            => new(_rootContext.Renderer, origin, FontManagerTyped, parent);
+
+        public IAbstImagePainter CreateImagePainter(int width = 0, int height = 0)
+            => new SDLImagePainter(FontManager, width, height, RootContext.Renderer);
+        public IAbstImagePainter CreateImagePainterToTexture(int width = 0, int height = 0)
+            => new SDLImagePainter(FontManager, width, height, RootContext.Renderer);
 
         public AbstGfxCanvas CreateGfxCanvas(string name, int width, int height)
         {
@@ -80,6 +85,16 @@ namespace AbstUI.SDL2.Components
             InitComponent(panel);
             panel.Name = name;
             return panel;
+        }
+
+        public AbstZoomBox CreateZoomBox(string name)
+        {
+            var box = new AbstZoomBox();
+            var impl = new AbstSdlZoomBox(this);
+            box.Init(impl);
+            InitComponent(box);
+            box.Name = name;
+            return box;
         }
 
         public AbstLayoutWrapper CreateLayoutWrapper(IAbstNode content, float? x, float? y)

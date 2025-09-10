@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using ProjectorRays.Common;
 using ProjectorRays.Director;
+using System.Text;
+using System.Xml.Linq;
 
 namespace ProjectorRays.director.Chunks;
 
@@ -40,5 +42,12 @@ public class RaysConfigChunk : RaysChunk
         json.WriteField("minMember", MinMember);
         json.WriteField("directorVersion", DirectorVersion);
         json.EndObject();
+    }
+    public override void LogInfo(StringBuilder sb, int indentation)
+    {
+        base.LogInfo(sb, indentation);
+        sb.AppendLine($"{new string(' ', indentation)}FileVersion: {FileVersion}");
+        sb.AppendLine($"{new string(' ', indentation)}MinMember: {MinMember}");
+        sb.AppendLine($"{new string(' ', indentation)}DirectorVersion: {DirectorVersion}");
     }
 }

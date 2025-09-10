@@ -13,7 +13,7 @@ namespace AbstUI.SDL2.Components.Inputs
 {
     internal class AbstSdlInputCombobox : AbstSdlSelectableCollection, IAbstFrameworkInputCombobox, IFrameworkFor<AbstInputCombobox>, IHandleSdlEvent, ISdlFocusable, IDisposable, IHasTextBackgroundBorderColor
     {
-
+        protected bool _isHover;
         private AbstSdlInputItemList? _popup;
         private bool _open;
         private ISdlFontLoadedByUser? _font;
@@ -59,14 +59,19 @@ namespace AbstUI.SDL2.Components.Inputs
                 _lineHeight = ascent - descent + 4;
             }
         }
-
-        public new void HandleEvent(AbstSDLEvent e)
+        public override bool CanHandleEvent(AbstSDLEvent e)
         {
+            return Enabled && (e.IsInside || (_isHover && e.Event.type == SDL.SDL_EventType.SDL_MOUSEMOTION) || !e.HasCoordinates);
+        }
+        //public new void HandleEvent(AbstSDLEvent e)
+        protected override void HandleContentEvent(AbstSDLEvent e)
+        {
+
             if (!Enabled) return;
-            ref var ev = ref e.Event;
+            var ev = e.Event;
             if (ev.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN && ev.button.button == SDL.SDL_BUTTON_LEFT)
             {
-                bool inside = HitTest(ev.button.x, ev.button.y);
+                bool inside = e.IsInside;
                 if (inside)
                 {
                     Factory.FocusManager.SetFocus(this);
@@ -100,13 +105,21 @@ namespace AbstUI.SDL2.Components.Inputs
                     e.StopPropagation = true;
                 }
             }
+            else if (ev.type == SDL.SDL_EventType.SDL_MOUSEMOTION)
+            {
+                if (_isHover != e.IsInside)
+                    ComponentContext.QueueRedraw(this);
+                _isHover = e.IsInside;
+            }
+            if (e.StopPropagation)
+                ComponentContext.QueueRedraw(this);
         }
 
         private void OpenPopup()
         {
             if (_popup == null)
             {
-                _popup = new AbstSdlInputItemList(Factory, ComponentContext);
+                _popup = new PopupCombo(Factory, ComponentContext);
                 _popup.ComponentContext.SetParents(ComponentContext,null);
                 foreach (var it in Items)
                     _popup.AddItem(it.Key, it.Value);
@@ -144,7 +157,6 @@ namespace AbstUI.SDL2.Components.Inputs
 
         protected override void RenderContent(AbstSDLRenderContext context) { }
 
-        protected override void HandleContentEvent(AbstSDLEvent e) { }
 
         private void ClosePopup()
         {
@@ -152,6 +164,7 @@ namespace AbstUI.SDL2.Components.Inputs
             _popup.Visibility = false;
             Factory.RootContext.ComponentContainer.Deactivate(_popup.ComponentContext);
             _open = false;
+             ComponentContext.QueueRedraw(this);
         }
 
         private void PopupOnValueChanged()
@@ -167,8 +180,10 @@ namespace AbstUI.SDL2.Components.Inputs
 
         public void SetFocus(bool focus)
         {
+            if (_focused != focus)
+                ComponentContext.QueueRedraw(this);
             _focused = focus;
-            if (!focus) ClosePopup();
+            //if (!focus) ClosePopup();
         }
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
@@ -230,6 +245,37 @@ namespace AbstUI.SDL2.Components.Inputs
             _font?.Release();
             _popup?.Dispose();
             base.Dispose();
+        }
+
+
+
+
+
+
+        private class PopupCombo : AbstSdlInputItemList
+        {
+            public PopupCombo(AbstSdlComponentFactory factory, AbstSDLComponentContext? parent = null) : base(factory, parent)
+            {
+            }
+
+            public override bool CanHandleEvent(AbstSDLEvent e)
+            {
+                
+                return Enabled && (e.IsInside || (_isHover && e.Event.type == SDL.SDL_EventType.SDL_MOUSEMOTION) || !e.HasCoordinates);
+            }
+            public override void HandleEvent(AbstSDLEvent e)
+            {
+                var xx = X;
+                var yy = Y;
+                e.OffsetX = -X;// + ScrollHorizontal;
+                e.OffsetY = -Y;// + ScrollVertical;
+                e.CalulateIsInside(Width, Height);
+                //Console.WriteLine($"Even0 {e.Event.type} at {e.ComponentLeft}x{e.ComponentTop}\t({e.OffsetX}x{e.OffsetY}) inside={e.IsInside} \t{X}x{Y}\tMouse={e.MouseX}x{e.MouseY}");
+                base.HandleEvent(e);
+                if (e.StopPropagation)
+                    ComponentContext.QueueRedraw(this);
+            }
+            
         }
     }
 }

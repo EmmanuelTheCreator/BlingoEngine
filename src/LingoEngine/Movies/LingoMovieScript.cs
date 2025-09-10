@@ -2,7 +2,10 @@
 
 namespace LingoEngine.Movies
 {
-    public class LingoMovieScript : LingoScriptBase
+    public interface ILingoMovieScript : ILingoScriptBase
+    {
+    }
+    public class LingoMovieScript : LingoScriptBase , ILingoMovieScript
     {
         public LingoMovieScript(ILingoMovieEnvironment env) : base(env)
         {

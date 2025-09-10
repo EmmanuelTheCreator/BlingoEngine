@@ -1,12 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using AbstUI.Components.Graphics;
+using AbstUI.Bitmaps;
+using AbstUI.Blazor;
+using AbstUI.Blazor.Bitmaps;
+using AbstUI.FrameworkCommunication;
+using AbstUI.Primitives;
+using AbstUI.Styles;
+using AbstUI.Texts;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using AbstUI.Components.Graphics;
-using AbstUI.Primitives;
-using AbstUI.Texts;
-using AbstUI.FrameworkCommunication;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace AbstUI.Blazor.Components.Graphics;
 
@@ -119,7 +124,20 @@ public class AbstBlazorGfxCanvasComponent : AbstBlazorComponentModelBase, IAbstF
         _drawActions.Add(ctx => _module!.InvokeVoidAsync("abstCanvas.drawText", ctx, position.X, position.Y, text, font, col, fontSize, align));
         MarkDirty();
     }
-
+    public void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12,
+            int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left,
+            AbstFontStyle style = AbstFontStyle.Regular)
+    {
+        var col = ToCss(color ?? AColors.Black);
+        var align = alignment switch
+        {
+            AbstTextAlignment.Center => "center",
+            AbstTextAlignment.Right => "right",
+            _ => "left"
+        };
+        _drawActions.Add(ctx => _module!.InvokeVoidAsync("abstCanvas.drawText", ctx, position.X, position.Y, text, font, col, fontSize, align));
+        MarkDirty();
+    }
     public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)
     {
         _drawActions.Add(ctx => _module!.InvokeVoidAsync("abstCanvas.drawPictureData", ctx, data, width, height, position.X, position.Y));
@@ -139,4 +157,22 @@ public class AbstBlazorGfxCanvasComponent : AbstBlazorComponentModelBase, IAbstF
     }
 
     private static string ToCss(AColor c) => $"rgba({c.R},{c.G},{c.B},{c.A / 255f})";
+
+    public IAbstTexture2D GetTexture(string? name = null)
+    {
+        if (_context == null)
+            throw new InvalidOperationException("Canvas context not initialized.");
+
+        var scripts = new AbstUIScriptResolver(_js);
+        try
+        {
+            var data = scripts.CanvasGetImageData(_context, (int)Width, (int)Height).GetAwaiter().GetResult();
+            return AbstBlazorTexture2D.CreateFromPixelDataAsync(_js, scripts, data, (int)Width, (int)Height, name ?? string.Empty)
+                .GetAwaiter().GetResult();
+        }
+        finally
+        {
+            scripts.DisposeAsync().GetAwaiter().GetResult();
+        }
+    }
 }

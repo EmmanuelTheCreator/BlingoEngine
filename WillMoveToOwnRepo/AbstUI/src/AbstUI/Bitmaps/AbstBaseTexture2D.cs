@@ -44,20 +44,10 @@ public abstract class AbstBaseTexture2D<TFrameworkTexture> : IAbstTexture2D
 
     protected abstract void DisposeTexture();
 
-    public virtual byte[] GetPixels()
-    {
-        throw new NotImplementedException();
-    }
-
-    public virtual void SetARGBPixels(byte[] argbPixels)
-    {
-        throw new NotImplementedException();
-    }
-
-    public virtual void SetRGBAPixels(byte[] rgbaPixels)
-    {
-        throw new NotImplementedException();
-    }
+    public abstract byte[] GetPixels();
+    public abstract void SetARGBPixels(byte[] argbPixels);
+    public abstract void SetRGBAPixels(byte[] rgbaPixels);
+    public abstract IAbstTexture2D Clone();
 
     protected class TextureSubscription : IAbstUITextureUserSubscription
     {

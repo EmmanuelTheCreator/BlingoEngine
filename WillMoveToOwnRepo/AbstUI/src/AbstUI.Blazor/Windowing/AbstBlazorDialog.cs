@@ -9,7 +9,7 @@ using Microsoft.JSInterop;
 
 namespace AbstUI.Blazor.Windowing;
 
-public abstract class AbstBlazorDialog : AbstBlazorDialog<AbstDialog>
+public class AbstBlazorDialog : AbstBlazorDialog<AbstDialog>
 {
     protected AbstBlazorDialog(AbstBlazorComponentFactory factory) : base(factory)
     {

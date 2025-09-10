@@ -1,0 +1,45 @@
+@implements IDisposable
+@using AbstUI.Blazor
+@using LingoEngine.Blazor.Sprites
+@using AbstUI.Blazor.Bitmaps
+@inject AbstUIScriptResolver Scripts
+
+<div @ref="_host" style="@BuildStyle()"></div>
+
+@code {
+    [Parameter] public LingoBlazorSprite2D Sprite { get; set; } = default!;
+    private ElementReference _host;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        Sprite.Changed += OnSpriteChanged;
+    }
+
+    private void OnSpriteChanged() => InvokeAsync(StateHasChanged);
+
+    private string BuildStyle()
+    {
+        var drawW = Sprite.DesiredWidth > 0 ? Sprite.DesiredWidth : Sprite.Width;
+        var drawH = Sprite.DesiredHeight > 0 ? Sprite.DesiredHeight : Sprite.Height;
+        var x = Sprite.X - Sprite.RegPoint.X;
+        var y = Sprite.Y - Sprite.RegPoint.Y;
+        var scaleX = Sprite.FlipH ? -1 : 1;
+        var scaleY = Sprite.FlipV ? -1 : 1;
+        var transform = $"translate({Sprite.RegPoint.X}px,{Sprite.RegPoint.Y}px) rotate({Sprite.Rotation}deg) scale({scaleX},{scaleY}) translate(-{Sprite.RegPoint.X}px,-{Sprite.RegPoint.Y}px)";
+        var style = $"position:absolute;left:{x}px;top:{y}px;width:{drawW}px;height:{drawH}px;z-index:{Sprite.ZIndex};opacity:{Sprite.Blend};transform:{transform};";
+        if (!Sprite.Visibility) style += "display:none;";
+        return style;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (Sprite.Texture is AbstBlazorTexture2D tex)
+            await Scripts.CanvasAddToElement(_host, tex.Canvas);
+    }
+
+    public void Dispose()
+    {
+        Sprite.Changed -= OnSpriteChanged;
+    }
+}

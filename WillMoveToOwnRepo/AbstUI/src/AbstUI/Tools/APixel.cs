@@ -1,4 +1,5 @@
 using System;
+using AbstUI.Primitives;
 
 namespace AbstUI.Tools;
 
@@ -25,5 +26,84 @@ public static class APixel
             argbPixels[idx + 2] = b;
             argbPixels[idx + 3] = a;
         });
+    }
+
+    /// <summary>
+    /// Copies a rectangular region of pixels from <paramref name="src"/> to <paramref name="dest"/>.
+    /// </summary>
+    public static void CopyRectPixels(byte[] src, byte[] dest, int width, ARect rect)
+    {
+        int x = (int)rect.Left;
+        int y = (int)rect.Top;
+        int w = (int)rect.Width;
+        int h = (int)rect.Height;
+        for (int row = 0; row < h; row++)
+        {
+            int srcIdx = ((y + row) * width + x) * 4;
+            Buffer.BlockCopy(src, srcIdx, dest, srcIdx, w * 4);
+        }
+    }
+
+    /// <summary>
+    /// Extracts a rectangular pixel region from <paramref name="src"/> into a new buffer.
+    /// </summary>
+    public static byte[] GetRectPixels(byte[] src, int width, ARect rect)
+    {
+        int x = (int)rect.Left;
+        int y = (int)rect.Top;
+        int w = (int)rect.Width;
+        int h = (int)rect.Height;
+        var result = new byte[w * h * 4];
+        for (int row = 0; row < h; row++)
+        {
+            int srcIdx = ((y + row) * width + x) * 4;
+            Buffer.BlockCopy(src, srcIdx, result, row * w * 4, w * 4);
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Writes pixel data from <paramref name="src"/> into the rectangle of <paramref name="dest"/>.
+    /// </summary>
+    public static void SetRectPixels(byte[] src, byte[] dest, int destWidth, ARect rect)
+    {
+        int x = (int)rect.Left;
+        int y = (int)rect.Top;
+        int w = (int)rect.Width;
+        int h = (int)rect.Height;
+        for (int row = 0; row < h; row++)
+        {
+            int destIdx = ((y + row) * destWidth + x) * 4;
+            Buffer.BlockCopy(src, row * w * 4, dest, destIdx, w * 4);
+        }
+    }
+
+    /// <summary>
+    /// Computes the smallest rectangle that contains all differing pixels between two buffers.
+    /// </summary>
+    public static ARect ComputeDifferenceRect(int width, int height, byte[] from, byte[] to)
+    {
+        int minX = width;
+        int minY = height;
+        int maxX = -1;
+        int maxY = -1;
+        for (int y = 0; y < height; y++)
+        {
+            int rowIndex = y * width * 4;
+            for (int x = 0; x < width; x++)
+            {
+                int idx = rowIndex + x * 4;
+                if (from[idx] != to[idx] || from[idx + 1] != to[idx + 1] || from[idx + 2] != to[idx + 2] || from[idx + 3] != to[idx + 3])
+                {
+                    if (x < minX) minX = x;
+                    if (y < minY) minY = y;
+                    if (x > maxX) maxX = x;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+        if (maxX < minX || maxY < minY)
+            return ARect.New(0, 0, width, height);
+        return ARect.New(minX, minY, maxX - minX + 1, maxY - minY + 1);
     }
 }

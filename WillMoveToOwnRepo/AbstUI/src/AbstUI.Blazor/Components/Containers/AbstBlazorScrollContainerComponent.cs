@@ -56,14 +56,14 @@ public class AbstBlazorScrollContainerComponent : AbstBlazorComponentModelBase, 
     }
 
     private AbstScrollbarMode _scollbarModeH;
-    public AbstScrollbarMode ScollbarModeH
+    public AbstScrollbarMode ScrollbarModeH
     {
         get => _scollbarModeH;
         set { if (_scollbarModeH != value) { _scollbarModeH = value; RaiseChanged(); } }
     }
 
     private AbstScrollbarMode _scollbarModeV;
-    public AbstScrollbarMode ScollbarModeV
+    public AbstScrollbarMode ScrollbarModeV
     {
         get => _scollbarModeV;
         set { if (_scollbarModeV != value) { _scollbarModeV = value; RaiseChanged(); } }

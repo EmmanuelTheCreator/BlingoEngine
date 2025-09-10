@@ -27,7 +27,7 @@ namespace LingoEngine.Director.Core.Windowing
                 .AddSingletonWindow<DirectorBinaryViewerWindow>(DirectorMenuCodes.BinaryViewerWindow)
                 .AddSingletonWindow<DirectorBinaryViewerWindowV2>(DirectorMenuCodes.BinaryViewerWindowV2)
                 .AddSingletonWindow<DirectorStageWindow>(DirectorMenuCodes.StageWindow, s => s.CreateShortCut(DirectorMenuCodes.StageWindow, "Ctrl+1", sc => new ExecuteShortCutCommand(sc)))
-                .AddSingletonWindow<DirectorTextEditWindow>(DirectorMenuCodes.TextEditWindow, s => s.CreateShortCut(DirectorMenuCodes.TextEditWindow, "Ctrl+T", sc => new ExecuteShortCutCommand(sc)))
+                .AddSingletonWindow<DirectorTextEditWindowV2>(DirectorMenuCodes.TextEditWindow, s => s.CreateShortCut(DirectorMenuCodes.TextEditWindow, "Ctrl+T", sc => new ExecuteShortCutCommand(sc)))
                 .AddSingletonWindow<DirectorBitmapEditWindow>(DirectorMenuCodes.PictureEditWindow, s => s.CreateShortCut(DirectorMenuCodes.PictureEditWindow, "Ctrl+5", sc => new ExecuteShortCutCommand(sc)))
                 .AddSingletonWindow<DirectorImportExportWindow>(DirectorMenuCodes.ImportExportWindow)
                 // .Register<DirectorMainMenu>(DirectorMenuCodes.MainMenu)

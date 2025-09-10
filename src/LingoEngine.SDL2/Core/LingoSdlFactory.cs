@@ -38,6 +38,7 @@ using AbstUI.Components.Buttons;
 using AbstUI.Components.Texts;
 using AbstUI.SDL2.Components;
 using AbstUI.SDL2.Core;
+using AbstUI.SDL2.Medias;
 
 namespace LingoEngine.SDL2.Core;
 /// <inheritdoc/>
@@ -170,7 +171,7 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
     public LingoMemberField CreateMemberField(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
         var impl = new SdlMemberField(_serviceProvider.GetRequiredService<IAbstFontManager>(), _rootContext);
-        var member = new LingoMemberField((LingoCast)cast, impl, numberInCast, name, fileName ?? "", regPoint);
+        var member = new LingoMemberField((LingoCast)cast, impl, numberInCast, ComponentFactory, name, fileName ?? "", regPoint);
         impl.Init(member);
         _disposables.Add(impl);
         return member;
@@ -179,7 +180,7 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
     public LingoMemberText CreateMemberText(ILingoCast cast, int numberInCast, string name = "", string? fileName = null, APoint regPoint = default)
     {
         var impl = new SdlMemberText(_serviceProvider.GetRequiredService<IAbstFontManager>(), _rootContext);
-        var member = new LingoMemberText((LingoCast)cast, impl, numberInCast, name, fileName ?? "", regPoint);
+        var member = new LingoMemberText((LingoCast)cast, impl, numberInCast,ComponentFactory, name, fileName ?? "", regPoint);
         impl.Init(member);
         _disposables.Add(impl);
         return member;
@@ -204,7 +205,7 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
     public LingoStage CreateStage(LingoPlayer player)
     {
         _rootContext.Init(player);
-        var impl = new SdlStage(_rootContext, (LingoClock)player.Clock);
+        var impl = new SdlStage(_rootContext, (LingoClock)player.Clock, this);
         var stage = new LingoStage(impl);
         impl.Init(stage);
         _disposables.Add(impl);
@@ -240,8 +241,8 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
     public AbstSDLComponentContext CreateContext(IAbstSDLComponent component, AbstSDLComponentContext? parent = null)
         => _gfxFactory.CreateContext(component, parent);
 
-    public AbstSDLRenderContext CreateRenderContext(IAbstSDLComponent? component = null)
-        => _gfxFactory.CreateRenderContext(component);
+    public AbstSDLRenderContext CreateRenderContext(AbstSDLRenderContext? parent, System.Numerics.Vector2 origin)
+        => _gfxFactory.CreateRenderContext(parent, origin);
     /// <inheritdoc/>
     public LingoStageMouse CreateMouse(LingoStage stage)
     {

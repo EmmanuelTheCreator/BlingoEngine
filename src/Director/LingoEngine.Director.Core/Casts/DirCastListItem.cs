@@ -41,7 +41,7 @@ namespace LingoEngine.Director.Core.Casts
             var member = Member;
             var textColor = AColors.Black;
             var bgColor = AColors.White;
-            var vPosText = 12;
+            var vPosText = 2;
             if (_selected)
             {
                 bgColor = DirectorColors.BlueSelectColor;

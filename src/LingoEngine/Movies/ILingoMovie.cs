@@ -194,8 +194,8 @@ namespace LingoEngine.Movies
         int Number { get; }
 
         #region MovieScripts
-        void CallMovieScript<T>(Action<T> action) where T : LingoMovieScript;
-        TResult? CallMovieScript<T, TResult>(Func<T, TResult> action) where T : LingoMovieScript;
+        void CallMovieScript<T>(Action<T> action) where T : ILingoMovieScript;
+        TResult? CallMovieScript<T, TResult>(Func<T, TResult> action) where T : ILingoMovieScript;
         ILingoMovie AddMovieScript<T>() where T : LingoMovieScript;
         #endregion
 
@@ -306,9 +306,9 @@ namespace LingoEngine.Movies
 
         void SendSprite(string name, Action<ILingoSpriteChannel> actionOnSprite);
         void SendSprite(int number, Action<ILingoSpriteChannel> actionOnSprite);
-        void SendSprite<T>(int spriteNumber, Action<T> actionOnSprite) where T : LingoSpriteBehavior;
-        bool TrySendSprite<T>(int spriteNumber, Action<T> actionOnSprite) where T : LingoSpriteBehavior;
-        TResult? SendSprite<T, TResult>(int spriteNumber, Func<T, TResult> actionOnSprite) where T : LingoSpriteBehavior;
+        void SendSprite<T>(int spriteNumber, Action<T> actionOnSprite) where T : ILingoSpriteBehavior;
+        bool TrySendSprite<T>(int spriteNumber, Action<T> actionOnSprite) where T : ILingoSpriteBehavior;
+        TResult? SendSprite<T, TResult>(int spriteNumber, Func<T, TResult> actionOnSprite) where T : ILingoSpriteBehavior;
         #endregion
 
         #region Members

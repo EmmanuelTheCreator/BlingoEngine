@@ -10,6 +10,8 @@ namespace AbstUI.SDL2.Components.Containers
     public partial class AbstSdlLayoutWrapper : AbstSdlComponent, IAbstFrameworkLayoutWrapper, IFrameworkFor<AbstLayoutWrapper>, IHandleSdlEvent
     {
         private AbstLayoutWrapper _lingoLayoutWrapper;
+        private readonly bool _canHandleEvent;
+
         public object FrameworkNode => this;
 
         public AbstSdlLayoutWrapper(AbstSdlComponentFactory factory, AbstLayoutWrapper layoutWrapper) : base(factory)
@@ -17,6 +19,11 @@ namespace AbstUI.SDL2.Components.Containers
             _lingoLayoutWrapper = layoutWrapper;
             _lingoLayoutWrapper.Init(this);
             var content = layoutWrapper.Content.FrameworkObj;
+            Name = content.Name + "_Wrapper";
+            _canHandleEvent = layoutWrapper.Content.FrameworkObj is IHandleSdlEvent;
+            if (content is AbstSdlComponent sdlComponent)
+                sdlComponent.ComponentContext.SetParents(ComponentContext);
+            
         }
         public override float Width
         {
@@ -53,12 +60,18 @@ namespace AbstUI.SDL2.Components.Containers
             ComponentContext.TargetHeight = (int)Height;
             return renderResult;
         }
+        public bool CanHandleEvent(AbstSDLEvent e) => _canHandleEvent;
         public void HandleEvent(AbstSDLEvent e)
         {
             // Forward mouse events to children accounting for current scroll offset
             var sdlComponent = (AbstSdlComponent)_lingoLayoutWrapper.Content.FrameworkObj;
-
-            ContainerHelpers.HandleChildEvents(sdlComponent, e, (int)Margin.Left, (int)Margin.Top);
+            var oriX = e.OffsetX;
+            var oriY = e.OffsetY;
+            e.OffsetX += (int)Margin.Left;
+            e.OffsetY += (int)Margin.Top;
+            ContainerHelpers.HandleChildEvents(sdlComponent, e);
+            e.OffsetX = oriX;
+            e.OffsetY = oriY;
         }
     }
 }

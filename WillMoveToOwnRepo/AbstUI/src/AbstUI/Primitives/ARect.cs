@@ -66,6 +66,22 @@
             return new ARect(Left + dx, Top + dy, Right - dx, Bottom - dy);
         }
 
+        public ARect Clamp(int width, int height)
+        {
+#if NET48
+            int x = (int)MathCompat.Clamp(Left, 0, width);
+            int y = (int)MathCompat.Clamp(Top, 0, height);
+            int w = (int)MathCompat.Clamp(Width, 0, width - x);
+            int h = (int)MathCompat.Clamp(Height, 0, height - y);
+#else
+            int x = (int)Math.Clamp(Left, 0, width);
+            int y = (int)Math.Clamp(Top, 0, height);
+            int w = (int)Math.Clamp(Width, 0, width - x);
+            int h = (int)Math.Clamp(Height, 0, height - y);
+#endif
+            return New(x, y, w, h);
+        }
+
         public override string ToString() =>
             $"Rect({Left}, {Top}, {Right}, {Bottom})";
 

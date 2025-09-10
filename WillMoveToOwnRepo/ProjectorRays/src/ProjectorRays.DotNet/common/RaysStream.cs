@@ -59,6 +59,15 @@ public class BufferView
 
         return sb.ToString();
     }
+    public byte[] ToArray(int? length = 0)
+    {
+        if (length == null || length <= 0)
+            length = _size;
+        int limit = Math.Min(_size, length.Value);
+        var result = new byte[limit];
+        Array.Copy(_data, _offset, result, 0, limit);
+        return result;
+    }
 }
 
 public class RaysStream : BufferView
@@ -414,6 +423,13 @@ public class ReadStream : RaysStream
         }
 
         return sb.ToString();
+    }
+    public ReadStream ToNewReader(int length = 256)
+    {
+        int limit = Math.Min(_data.Length, length);
+        var newData = new byte[limit];  
+        Array.Copy(_data, _offset, newData, 0, limit);
+        return new ReadStream(newData, limit, Endianness);
     }
     public ReadStream Clone()
     {

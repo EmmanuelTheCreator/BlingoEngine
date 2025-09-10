@@ -56,8 +56,9 @@ namespace LingoEngine.Events
         }
         public void UnsubscribeStepFrame(IHasStepFrameEvent ms, int priority = DefaultPriority)
         {
-            _priorities[ms] = priority;
+            //_priorities[ms] = priority;
             _stepFrames.Remove(ms);
+            _priorities.Remove(ms);
         }
         public void Subscribe(object ms, int priority = DefaultPriority, bool ignoreMouse = false)
         {
@@ -78,7 +79,7 @@ namespace LingoEngine.Events
             }
             //if (ms is IHasBeginSpriteEvent beginSpriteEvent) Insert(_beginSprites, beginSpriteEvent);
             //if (ms is IHasEndSpriteEvent endSpriteEvent) Insert(_endSprites, endSpriteEvent);
-            // NOT stepframe, it seems stepframe is only used through the actor list.
+            // NOT stepframe, stepframe is only used through the actor list and may NOT be here.
 
             if (ms is IHasPrepareFrameEvent prepareFrameEvent) Insert(_prepareFrames, prepareFrameEvent);
             if (ms is IHasEnterFrameEvent enterFrameEvent) Insert(_enterFrames, enterFrameEvent);

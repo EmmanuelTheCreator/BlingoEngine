@@ -1,0 +1,14 @@
+63f7b34db8d8cdea90c76aacccf841ec
+::res://::1755505445
+AbstUITestScene.tscn::PackedScene::-1::1755505446::0::1::::<><><>0<>0<><>::res://GfxTest.cs
+GfxTest.cs::CSharpScript::4604221869862113837::1757075720::0::1::::<>Node<><>0<>0<><>::
+GodotTestWindow.cs::CSharpScript::4891134801848350757::1755802026::0::1::::<>Panel<><>0<>0<><>::
+::res://Media/::1757074579
+::res://Media/Fonts/::1757074579
+8PinMatrix.ttf::FontFile::5827324157792362626::1749568544::1757075790::1::::<><><>0<>0<>6ba4e0c38a7dca9c33fd293fab1b9989<>res://.godot/imported/8PinMatrix.ttf-7befc118421d0980c3d0d57808fd03b9.fontdata::
+arcade.ttf::FontFile::4351037049886985049::1749568544::1757075790::1::::<><><>0<>0<>5b658f779b752de9d6fe08221f5cdbfa<>res://.godot/imported/arcade.ttf-fd181cbf0fde4b99395dc7e3e8e368ef.fontdata::
+bikly.ttf::FontFile::4678999403918066882::1749568544::1757075790::1::::<><><>0<>0<>870092a538cec0a9a4f5afd074be8d40<>res://.godot/imported/bikly.ttf-44be63be9418d9f965710dd0afb2024e.fontdata::
+earth.ttf::FontFile::5186394355483826848::1749568544::1757075790::1::::<><><>0<>0<>386b8294255120063b3d25b245478edc<>res://.godot/imported/earth.ttf-b3eb5d0d66df0be46a900d0c30cef360.fontdata::
+Tahoma.ttf::FontFile::5686953796581616939::1749568544::1757075790::1::::<><><>0<>0<>410ffbabb4e936eb40408f44192c6364<>res://.godot/imported/Tahoma.ttf-2cf13aee3dc1b4498f1e77636a99b1f4.fontdata::
+::res://Properties/::1755507706
+launchSettings.json::JSON::-1::1757073156::0::1::::<><><>0<>0<><>::

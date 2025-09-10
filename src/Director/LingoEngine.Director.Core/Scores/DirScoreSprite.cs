@@ -158,7 +158,7 @@ namespace LingoEngine.Director.Core.Scores
                 labelLeft = 0;
             }
             // Draw name
-            canvas.DrawText(new APoint(X + labelLeft, 11), name, null, AColors.Black, 9, (int)labelWidth);
+            canvas.DrawText(new APoint(X + labelLeft, 1), name, null, AColors.Black, 9, (int)labelWidth);
             var keyFrames = Sprite2D?.GetKeyframes();
             if (keyFrames != null)
             {

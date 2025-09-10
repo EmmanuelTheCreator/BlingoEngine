@@ -44,6 +44,7 @@ internal partial class DirGodotMainMenu : Control , IDirFrameworkMainMenuWindow,
     public bool IsActiveWindow => true;
     public string Title { get; set; }
     public AColor BackgroundColor { get; set; }
+    public AColor BackgroundTitleColor { get; set; }
 
     IAbstMouse IAbstFrameworkWindow.Mouse => _directorMainMenu.Mouse;
 

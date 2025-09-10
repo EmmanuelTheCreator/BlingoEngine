@@ -1,6 +1,4 @@
-@inherits AbstBlazorComponentBase
-<div tabindex="0" style="@BuildStyle()"
-     @onmousemove="Mouse.MouseMove"
+<div @onmousemove="Mouse.MouseMove"
      @onmousedown="Mouse.MouseDown"
      @onmouseup="Mouse.MouseUp"
      @onwheel="Mouse.Wheel"
@@ -8,4 +6,3 @@
      @onkeyup="Key.KeyUp">
     @ChildContent
 </div>
-

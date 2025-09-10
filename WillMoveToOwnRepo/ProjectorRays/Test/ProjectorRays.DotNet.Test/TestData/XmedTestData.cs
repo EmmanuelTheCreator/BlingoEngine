@@ -1,4 +1,4 @@
-namespace LingoEngine.Director.LGodot.Importer.TestData
+namespace ProjectorRays.DotNet.Test.TestData
 {
     internal static class XmedTestData
     {

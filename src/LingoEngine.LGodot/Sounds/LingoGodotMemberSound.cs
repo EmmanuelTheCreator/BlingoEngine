@@ -77,5 +77,7 @@ namespace LingoEngine.LGodot.Sounds
             AudioStream?.Dispose();
             IsLoaded = false;
         }
+
+        public bool IsPixelTransparent(int x, int y) => false;
     }
 }
