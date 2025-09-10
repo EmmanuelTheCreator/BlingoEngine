@@ -48,7 +48,7 @@ public class AbstSDLComponentContext : IDisposable
         ZIndex = zIndex;
         _container.Activate(this);
         if (Component != null)
-            QueueRedraw(Component);
+            VisualParent?.QueueRedrawFromChild(Component);
     }
 
     internal void SetParents(AbstSDLComponentContext? logicalParent, AbstSDLComponentContext? visualParent = null)

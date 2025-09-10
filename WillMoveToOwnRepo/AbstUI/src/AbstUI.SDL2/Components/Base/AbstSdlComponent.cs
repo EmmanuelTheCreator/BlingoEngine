@@ -22,7 +22,7 @@ public abstract class AbstSdlComponent : IAbstSDLComponent, IDisposable
             {
                 _x = value;
                 ComponentContext.X = (int)value;
-                ComponentContext.QueueRedraw(this);
+                ComponentContext.VisualParent?.QueueRedrawFromChild(this);
             }
         }
     }
@@ -37,7 +37,7 @@ public abstract class AbstSdlComponent : IAbstSDLComponent, IDisposable
             {
                 _y = value;
                 ComponentContext.Y = (int)value;
-                ComponentContext.QueueRedraw(this);
+                ComponentContext.VisualParent?.QueueRedrawFromChild(this);
             }
         }
     }
@@ -80,7 +80,6 @@ public abstract class AbstSdlComponent : IAbstSDLComponent, IDisposable
             if (ComponentContext.ZIndex != value)
             {
                 ComponentContext.SetZIndex(value);
-                ComponentContext.QueueRedraw(this);
             }
         }
     }
