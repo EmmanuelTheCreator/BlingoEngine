@@ -175,8 +175,6 @@ namespace AbstUI.Texts
                     maxDescent = Math.Max(maxDescent, fi.FontHeight - fi.TopIndentation);
                 }
                 int lineHeight = _currentStyle.LineHeight > 0 ? _currentStyle.LineHeight : (maxAscent + maxDescent);
-                if (segments.Count == 0)
-                    lineHeight = _currentStyle.LineHeight > 0 ? _currentStyle.LineHeight : _fontManager.GetFontInfo(_currentStyle.Font, _currentStyle.FontSize, AbstFontStyle.Regular).FontHeight;
                 // >>> baseline alignment fix ends here <<<
 
                 if (segments.Count > 0)
@@ -204,7 +202,7 @@ namespace AbstUI.Texts
 
 
 
-                    var baselineY = pos.Y;
+                    var baselineY = pos.Y + maxAscent;
                     RenderSegments(segments, new APoint(lineX, baselineY));
 
                     pos.Offset(0, lineHeight);
@@ -262,7 +260,6 @@ namespace AbstUI.Texts
             float originX = pos.X + style.MarginLeft;
 
             var lineIndex = 0;
-            int topIndent = fontInfo.TopIndentation;
             foreach (var raw in lines)
             {
                 var line = raw.TrimEnd('\r');
@@ -289,11 +286,10 @@ namespace AbstUI.Texts
                     fontStyle |= AbstFontStyle.Bold;
                 if (style.Italic)
                     fontStyle |= AbstFontStyle.Italic;
-                _canvas!.DrawSingleLine(new APoint(lineX, pos.Y - topIndent), line, style.Font, style.Color, style.FontSize,
+                _canvas!.DrawSingleLine(new APoint(lineX, pos.Y), line, style.Font, style.Color, style.FontSize,
                     (int)MathF.Ceiling(lineW), fontInfo.FontHeight, AbstTextAlignment.Left, fontStyle);
 
                 pos.Offset(0, lineHeight);
-                topIndent = 0;
                 lineIndex++;
             }
         }
