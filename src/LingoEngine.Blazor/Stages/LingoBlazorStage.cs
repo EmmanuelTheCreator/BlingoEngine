@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AbstUI.Bitmaps;
 using AbstUI.Primitives;
+using AbstUI.Components;
 using LingoEngine.Core;
 using LingoEngine.Movies;
 using LingoEngine.Stages;
@@ -12,6 +13,7 @@ using LingoEngine.Blazor.Movies;
 using Microsoft.JSInterop;
 using AbstUI.Blazor;
 using AbstUI.Blazor.Bitmaps;
+using AbstUI.Blazor.Inputs;
 
 namespace LingoEngine.Blazor.Stages;
 
@@ -25,6 +27,11 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
     private readonly LingoClock _clock;
     private readonly IJSRuntime _js;
     private readonly AbstUIScriptResolver _scripts;
+    private readonly LingoBlazorRootPanel _root;
+    private readonly LingoDebugOverlay _overlay;
+    private readonly LingoPlayer _player;
+    private bool _f1Down;
+    private static readonly int F1Code = BlazorKeyCodeMap.ToLingo("F1");
     private readonly HashSet<LingoBlazorMovie> _movies = new();
     private LingoBlazorMovie? _activeMovie;
 
@@ -41,11 +48,14 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
 
     public float Scale { get; set; } = 1f;
 
-    public LingoBlazorStage(LingoClock clock, IJSRuntime js, AbstUIScriptResolver scripts)
+    public LingoBlazorStage(LingoPlayer player, IJSRuntime js, AbstUIScriptResolver scripts, LingoBlazorRootPanel root, IAbstComponentFactory factory)
     {
-        _clock = clock;
+        _player = player;
+        _clock = (LingoClock)player.Clock;
         _js = js;
         _scripts = scripts;
+        _root = root;
+        _overlay = new LingoDebugOverlay(new LingoBlazorDebugOverlay(root, factory), player);
         _loopTask = Task.Run(RenderLoopAsync);
     }
 
@@ -133,6 +143,12 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
             var delta = (float)(now - last).TotalSeconds;
             last = now;
             _clock.Tick(delta);
+            _overlay.Update(delta);
+            bool f1 = _player.Key.KeyPressed(F1Code);
+            if (f1 && !_f1Down)
+                _overlay.Toggle();
+            _f1Down = f1;
+            _overlay.Render();
             if (!_isTransitioning)
                 _activeMovie?.UpdateStage();
             if (_nextShot != null)
