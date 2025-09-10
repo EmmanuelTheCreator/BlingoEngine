@@ -3,6 +3,7 @@ using LingoEngine.Core;
 using LingoEngine.Director.Core;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Casts;
+using LingoEngine.Director.Core.Behaviors;
 using LingoEngine.Director.Core.Inspector;
 using LingoEngine.Director.Core.Projects;
 using LingoEngine.Director.Core.Stages;
@@ -10,6 +11,7 @@ using AbstUI.SDL2;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using LingoEngine.Director.SDL2.Casts;
+using LingoEngine.Director.SDL2.Behaviors;
 using LingoEngine.Director.SDL2.Icons;
 using LingoEngine.Director.SDL2.Inspector;
 using LingoEngine.Director.SDL2.UI;
@@ -28,20 +30,22 @@ namespace LingoEngine.Director.SDL2
             LingoEngineGlobal.IsRunningDirector = true;
             reg.WithLingoSdlEngine(windowTitle, width, height)
                .WithDirectorEngine(directorSettings)
-               .RegisterComponents(c => 
+               .RegisterComponents(c =>
                     c
                         .AddSingleton<DirectorCastWindow, DirSdlCastWindow>()
                         .AddSingleton<DirectorStageWindow, DirSdlStageWindow>()
                         .AddSingleton<DirectorScoreWindow, DirSdlScoreWindow>()
                         .AddSingleton<DirectorPropertyInspectorWindow, DirSdlPropertyInspectorWindow>()
+                        .AddSingleton<DirectorBehaviorLibraryWindow, DirSdlBehaviorLibraryWindow>()
                     )
                .ServicesMain(s =>
                {
                    s
-                    .AddTransient<IDirFrameworkCastWindow>(p => p.GetRequiredService<DirSdlCastWindow>())
-                    .AddTransient<IDirFrameworkStageWindow>(p => p.GetRequiredService<DirSdlStageWindow>())
-                    .AddTransient<IDirFrameworkScoreWindow>(p => p.GetRequiredService<DirSdlScoreWindow>())
-                    .AddTransient<IDirFrameworkPropertyInspectorWindow>(p => p.GetRequiredService<DirSdlPropertyInspectorWindow>())
+                        .AddTransient<IDirFrameworkCastWindow>(p => p.GetRequiredService<DirSdlCastWindow>())
+                        .AddTransient<IDirFrameworkStageWindow>(p => p.GetRequiredService<DirSdlStageWindow>())
+                        .AddTransient<IDirFrameworkScoreWindow>(p => p.GetRequiredService<DirSdlScoreWindow>())
+                        .AddTransient<IDirFrameworkPropertyInspectorWindow>(p => p.GetRequiredService<DirSdlPropertyInspectorWindow>())
+                        .AddTransient<IDirFrameworkBehaviorLibraryWindow>(p => p.GetRequiredService<DirSdlBehaviorLibraryWindow>())
                     ;
 
                    s.AddSingleton<IDirectorIconManager>(p =>

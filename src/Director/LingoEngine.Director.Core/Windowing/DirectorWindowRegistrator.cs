@@ -1,6 +1,7 @@
 ﻿using AbstUI;
 using LingoEngine.Director.Core.Bitmaps;
 using LingoEngine.Director.Core.Casts;
+using LingoEngine.Director.Core.Behaviors;
 using LingoEngine.Director.Core.Importer;
 using LingoEngine.Director.Core.Inspector;
 using LingoEngine.Director.Core.Projects;
@@ -22,13 +23,14 @@ namespace LingoEngine.Director.Core.Windowing
                 .AddSingletonWindow<DirectorCastWindow>(DirectorMenuCodes.CastWindow, s => s.CreateShortCut(DirectorMenuCodes.CastWindow, "Ctrl+3", sc => new ExecuteShortCutCommand(sc)))
                 .AddSingletonWindow<DirectorScoreWindow>(DirectorMenuCodes.ScoreWindow, s => s.CreateShortCut(DirectorMenuCodes.ScoreWindow, "Ctrl+4", sc => new ExecuteShortCutCommand(sc)))
                 .AddSingletonWindow<DirectorPropertyInspectorWindow>(DirectorMenuCodes.PropertyInspector, s => s.CreateShortCut(DirectorMenuCodes.PropertyInspector, "Ctrl+Alt+S", sc => new ExecuteShortCutCommand(sc)))
+                .AddSingletonWindow<DirectorBehaviorLibraryWindow>(DirectorMenuCodes.BehaviorLibraryWindow)
                 .AddSingletonWindow<DirectorBinaryViewerWindow>(DirectorMenuCodes.BinaryViewerWindow)
                 .AddSingletonWindow<DirectorBinaryViewerWindowV2>(DirectorMenuCodes.BinaryViewerWindowV2)
                 .AddSingletonWindow<DirectorStageWindow>(DirectorMenuCodes.StageWindow, s => s.CreateShortCut(DirectorMenuCodes.StageWindow, "Ctrl+1", sc => new ExecuteShortCutCommand(sc)))
                 .AddSingletonWindow<DirectorTextEditWindow>(DirectorMenuCodes.TextEditWindow, s => s.CreateShortCut(DirectorMenuCodes.TextEditWindow, "Ctrl+T", sc => new ExecuteShortCutCommand(sc)))
                 .AddSingletonWindow<DirectorBitmapEditWindow>(DirectorMenuCodes.PictureEditWindow, s => s.CreateShortCut(DirectorMenuCodes.PictureEditWindow, "Ctrl+5", sc => new ExecuteShortCutCommand(sc)))
                 .AddSingletonWindow<DirectorImportExportWindow>(DirectorMenuCodes.ImportExportWindow)
-               // .Register<DirectorMainMenu>(DirectorMenuCodes.MainMenu)
+                // .Register<DirectorMainMenu>(DirectorMenuCodes.MainMenu)
                 ;
 
             return registrator;

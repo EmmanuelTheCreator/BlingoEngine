@@ -10,6 +10,7 @@ using LingoEngine.Core;
 using LingoEngine.Director.Core;
 using LingoEngine.Director.Core.Bitmaps;
 using LingoEngine.Director.Core.Casts;
+using LingoEngine.Director.Core.Behaviors;
 using LingoEngine.Director.Core.FileSystems;
 using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Importer;
@@ -20,6 +21,7 @@ using LingoEngine.Director.Core.Stages;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.LGodot.Casts;
+using LingoEngine.Director.LGodot.Behaviors;
 using LingoEngine.Director.LGodot.FileSystems;
 using LingoEngine.Director.LGodot.Gfx;
 using LingoEngine.Director.LGodot.Icons;
@@ -46,7 +48,7 @@ namespace LingoEngine.Director.LGodot
         {
             LingoEngineGlobal.IsRunningDirector = true;
             engineRegistration
-                .WithLingoGodotEngine(rootNode, true,null, windowRegistrations)
+                .WithLingoGodotEngine(rootNode, true, null, windowRegistrations)
                 .WithDirectorEngine(directorSettingsConfig)
                 .ServicesMain(s =>
                 {
@@ -58,6 +60,7 @@ namespace LingoEngine.Director.LGodot
                     .AddSingleton<DirGodotCastWindow>()
                     .AddSingleton<DirGodotScoreWindow>()
                     .AddSingleton<DirGodotStageWindow>()
+                    .AddSingleton<DirGodotBehaviorLibraryWindow>()
                     .AddSingleton<DirGodotBinaryViewerWindow>()
                     .AddSingleton<DirGodotBinaryViewerWindowV2>()
                     .AddSingleton<DirGodotImportExportWindow>()
@@ -71,7 +74,7 @@ namespace LingoEngine.Director.LGodot
 
                     .AddTransient<DirCodeHighlichter>()
                     .AddTransient<DirGodotCodeHighlighter>()
-                    
+
                     //.AddSingleton<AbstGodotFrameworkFactory>()
                     .AddSingleton<IDirectorIconManager>(p =>
                     {
@@ -88,12 +91,13 @@ namespace LingoEngine.Director.LGodot
                     s.AddTransient<IDirFrameworkCastWindow>(p => p.GetRequiredService<DirGodotCastWindow>());
                     s.AddTransient<IDirFrameworkScoreWindow>(p => p.GetRequiredService<DirGodotScoreWindow>());
                     s.AddTransient<IDirFrameworkStageWindow>(p => p.GetRequiredService<DirGodotStageWindow>());
+                    s.AddTransient<IDirFrameworkBehaviorLibraryWindow>(p => p.GetRequiredService<DirGodotBehaviorLibraryWindow>());
                     s.AddTransient<IDirFrameworkBinaryViewerWindow>(p => p.GetRequiredService<DirGodotBinaryViewerWindow>());
                     s.AddTransient<IDirFrameworkBinaryViewerWindowV2>(p => p.GetRequiredService<DirGodotBinaryViewerWindowV2>());
                     s.AddTransient<IDirFrameworkPropertyInspectorWindow>(p => p.GetRequiredService<DirGodotPropertyInspector>());
                     s.AddTransient<IDirFrameworkBitmapEditWindow>(p => p.GetRequiredService<DirGodotPictureMemberEditorWindow>());
                     s.AddTransient<IDirFrameworkImportExportWindow>(p => p.GetRequiredService<DirGodotImportExportWindow>());
-                    
+
 
 
                 })
@@ -112,8 +116,8 @@ namespace LingoEngine.Director.LGodot
                            .Register(AbstGodotThemeElementType.PopupWindow, styles.GetPopupWindowTheme());
                     p.GetRequiredService<IAbstComponentFactory>()
                         .DiscoverInAssembly(typeof(DirGodotSetup).Assembly)
-                        //.Register<IAbstDialog<>, IAbstGodotDialog<LingoCodeImporterPopup>>()
-                        // .Register<DirCodeHighlichter,DirGodotCodeHighlighter>()
+                    //.Register<IAbstDialog<>, IAbstGodotDialog<LingoCodeImporterPopup>>()
+                    // .Register<DirCodeHighlichter,DirGodotCodeHighlighter>()
                     ;
                     new LingoGodotDirectorRoot(p.GetRequiredService<LingoPlayer>(), p, p.GetRequiredService<LingoProjectSettings>());
                 });

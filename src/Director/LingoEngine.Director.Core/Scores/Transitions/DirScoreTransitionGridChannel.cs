@@ -76,13 +76,6 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
             .OrderBy(c => c)
             .Select(c => new KeyValuePair<string, string>(c, c)));
 
-        panel.SetLabelAt("CategoryLabel", 10, 10, "Categories:");
-        var categoryList = panel.SetInputListAt(categoryOptions, "CategoryList", 10, 25, 120, "All", key =>
-        {
-            PopulateTransitions(key);
-        });
-        categoryList.Height = 200;
-
         panel.SetLabelAt("TransitionLabel", 140, 10, "Transitions:");
         var transitionList = panel.SetInputListAt(Array.Empty<KeyValuePair<string, string>>(), "TransitionList", 140, 25, 200, null, key =>
         {
@@ -94,6 +87,13 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
             }
         });
         transitionList.Height = 200;
+
+        panel.SetLabelAt("CategoryLabel", 10, 10, "Categories:");
+        var categoryList = panel.SetInputListAt(categoryOptions, "CategoryList", 10, 25, 120, "All", key =>
+        {
+            PopulateTransitions(key);
+        });
+        categoryList.Height = 200;
 
         PopulateTransitions("All");
 
