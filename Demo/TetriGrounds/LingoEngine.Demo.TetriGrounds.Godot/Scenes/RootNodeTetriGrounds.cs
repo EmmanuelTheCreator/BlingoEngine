@@ -1,5 +1,6 @@
 using Godot;
 using LingoEngine.Setup;
+using LingoEngine.LGodot;
 #if DEBUG
 using LingoEngine.Director.Core.Projects;
 using LingoEngine.Director.LGodot;
