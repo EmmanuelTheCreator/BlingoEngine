@@ -1,0 +1,8 @@
+config_version=5
+
+[application]
+config/name="Director Runner"
+run/main_scene="res://Scenes/director_runner.tscn"
+
+[dotnet]
+project/assembly_name="LingoEngine.Director.Runner.Godot"

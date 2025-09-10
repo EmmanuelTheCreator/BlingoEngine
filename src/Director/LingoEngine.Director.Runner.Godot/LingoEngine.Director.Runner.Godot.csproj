@@ -1,0 +1,18 @@
+<Project Sdk="Godot.NET.Sdk/4.5.0-dev.5">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <Nullable>enable</Nullable>
+    <LangVersion>12</LangVersion>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../LingoEngine.Director.LGodot/LingoEngine.Director.LGodot.csproj" />
+    <ProjectReference Include="../LingoEngine.Director.Host/LingoEngine.Director.Host.csproj" />
+    <ProjectReference Include="../../LingoEngine.LGodot/LingoEngine.LGodot.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.godot" />
+    <None Include="Scenes/director_runner.tscn" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>12</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../LingoEngine.Director.SDL2/LingoEngine.Director.SDL2.csproj" />
+    <ProjectReference Include="../LingoEngine.Director.Host/LingoEngine.Director.Host.csproj" />
+    <ProjectReference Include="../../LingoEngine.SDL2/LingoEngine.SDL2.csproj" />
+  </ItemGroup>
+</Project>
