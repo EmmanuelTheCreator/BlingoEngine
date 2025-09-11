@@ -213,8 +213,9 @@ namespace LingoEngine.Lingo.Core
                 case '\x03': Write("ENTER"); break;
                 case '\x08': Write("BACKSPACE"); break;
                 case '\t': Write("TAB"); break;
-                case '\r': Write("RETURN"); break;
+                case '\n': Write("RETURN"); break;
                 case '"': Write("QUOTE"); break;
+                case ' ': Write("SPACE"); break;
                 default: Write('"' + c.ToString() + '"'); break;
             }
         }

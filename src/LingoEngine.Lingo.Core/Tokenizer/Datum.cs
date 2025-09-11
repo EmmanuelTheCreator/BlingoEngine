@@ -155,8 +155,9 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                     '\x03' => "ENTER",
                     '\x08' => "BACKSPACE",
                     '\t' => "TAB",
-                    '\r' => "RETURN",
+                    '\n' => "RETURN",
                     '"' => "QUOTE",
+                    ' ' => "SPACE",
                     _ => "\"" + value + "\""
                 };
             }
