@@ -43,6 +43,7 @@ These instructions apply to the entire repository.
 | src/LingoEngine.LGodot/LingoEngine.LGodot.csproj | Godot engine integration layer |
 | src/LingoEngine.3D.Core/LingoEngine.3D.Core.csproj | Core components for 3D features |
 | src/LingoEngine.Blazor/LingoEngine.Blazor.csproj | Blazor integration layer |
+| src/LingoEngine.VerboseLanguage/LingoEngine.VerboseLanguage.csproj | Verbose fluent API for the Lingo language |
 | src/Director/LingoEngine.Director.Core/LingoEngine.Director.Core.csproj | Editor tooling reminiscent of Macromedia Director |
 | src/Director/LingoEngine.Director.Contracts/LingoEngine.Director.Contracts.csproj | Shared contracts for Director tooling |
 | src/Director/LingoEngine.Director.Client/LingoEngine.Director.Client.csproj | Client library for Director tooling |
