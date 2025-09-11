@@ -15,7 +15,7 @@ public class LingoBlazorSoundChannel : ILingoFrameworkSoundChannel, IDisposable
 {
     private LingoSoundChannel _channel = null!;
     private readonly AbstUIScriptResolver _scripts;
-    private IJSObjectReference? _audio;
+    private Lazy<IJSObjectReference> _audio;
     private DotNetObjectReference<object>? _audioRef;
 
     public LingoBlazorSoundChannel(int number, AbstUIScriptResolver scripts)
@@ -24,13 +24,18 @@ public class LingoBlazorSoundChannel : ILingoFrameworkSoundChannel, IDisposable
         _scripts = scripts;
         _audioRef = DotNetObjectReference.Create<object>(this);
         var id = ElementIdGenerator.Create(number.ToString());
-        _audio = _scripts.AudioCreate(id, _audioRef).GetAwaiter().GetResult();
+        _audio = new Lazy<IJSObjectReference>(() =>  _scripts.AudioCreate(id, _audioRef).GetAwaiter().GetResult());
     }
 
     public int ChannelNumber { get; }
     public int SampleRate => 44100;
     private int _volume;
-    public int Volume { get => _volume; set { _volume = value; _scripts.AudioSetVolume(_audio!, value / 255.0).GetAwaiter().GetResult(); } }
+    public int Volume { get => _volume; 
+        set 
+        { 
+            if (_volume == value) return;
+            _volume = value;
+            _scripts.AudioSetVolume(_audio.Value, value / 255.0).GetAwaiter().GetResult(); } }
     public int Pan { get; set; }
     private float _currentTime;
     public float CurrentTime
@@ -38,7 +43,8 @@ public class LingoBlazorSoundChannel : ILingoFrameworkSoundChannel, IDisposable
         get => _currentTime;
         set
         {
-            _scripts.AudioSeek(_audio!, value);
+            if (_currentTime == value) return;
+            _scripts.AudioSeek(_audio.Value, value).GetAwaiter().GetResult();
             _currentTime = value;
         }
     }
@@ -55,18 +61,18 @@ public class LingoBlazorSoundChannel : ILingoFrameworkSoundChannel, IDisposable
     {
         if (!IsPlaying)
         {
-            _scripts.AudioResume(_audio!).GetAwaiter().GetResult();
+            _scripts.AudioResume(_audio.Value).GetAwaiter().GetResult();
             IsPlaying = true;
         }
         else
         {
-            _scripts.AudioPause(_audio!).GetAwaiter().GetResult();
+            _scripts.AudioPause(_audio.Value).GetAwaiter().GetResult();
             IsPlaying = false;
         }
     }
     public void PlayFile(string stringFilePath)
     {
-        _scripts.AudioPlay(_audio!, stringFilePath).GetAwaiter().GetResult();
+        _scripts.AudioPlay(_audio.Value, stringFilePath).GetAwaiter().GetResult();
         IsPlaying = true;
     }
     public void PlayNow(LingoMemberSound member)
@@ -74,24 +80,24 @@ public class LingoBlazorSoundChannel : ILingoFrameworkSoundChannel, IDisposable
         var url = member.Framework<LingoBlazorMemberSound>().Url;
         if (url != null)
         {
-            _scripts.AudioPlay(_audio!, url).GetAwaiter().GetResult();
+            _scripts.AudioPlay(_audio.Value, url).GetAwaiter().GetResult();
             IsPlaying = true;
         }
     }
     public void Repeat()
     {
-        _scripts.AudioSeek(_audio!, StartTime);
-        _scripts.AudioResume(_audio!).GetAwaiter().GetResult();
+        _scripts.AudioSeek(_audio.Value, StartTime).GetAwaiter().GetResult() ;
+        _scripts.AudioResume(_audio.Value).GetAwaiter().GetResult();
         IsPlaying = true;
     }
     public void Rewind()
     {
-        _scripts.AudioSeek(_audio!, 0);
+        _scripts.AudioSeek(_audio.Value, 0).GetAwaiter().GetResult();
         _currentTime = 0;
     }
     public void Stop()
     {
-        _scripts.AudioStop(_audio!).GetAwaiter().GetResult();
+        _scripts.AudioStop(_audio.Value).GetAwaiter().GetResult();
         IsPlaying = false;
         _currentTime = 0;
     }
@@ -106,7 +112,7 @@ public class LingoBlazorSoundChannel : ILingoFrameworkSoundChannel, IDisposable
 
     public void Dispose()
     {
-        _audio?.DisposeAsync().GetAwaiter().GetResult();
+        _audio.Value.DisposeAsync().GetAwaiter().GetResult();
         _audioRef?.Dispose();
     }
 }

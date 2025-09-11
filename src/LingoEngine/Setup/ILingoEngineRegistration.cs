@@ -22,7 +22,8 @@ namespace LingoEngine.Setup
         ILingoEngineRegistration WithGlobalVars<TGlobalVars>(Action<TGlobalVars>? setup = null) where TGlobalVars : LingoGlobalVars, new();
         LingoPlayer Build();
         ILingoEngineRegistration BuildDelayed();
-        LingoPlayer Build(IServiceProvider serviceProvider);
+        LingoPlayer Build(IServiceProvider serviceProvider, bool allowInitializeProject = true);
+        void InitializeProject();
         ILingoProjectFactory BuildAndRunProject(Action<IServiceProvider>? afterStart = null);
         ILingoProjectFactory RunProject(Action<IServiceProvider>? afterStart = null);
         ILingoEngineRegistration AddPreBuildAction(Action<IServiceProvider> buildAction);

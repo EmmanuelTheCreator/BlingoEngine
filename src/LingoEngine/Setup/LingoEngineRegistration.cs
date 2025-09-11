@@ -128,7 +128,7 @@ namespace LingoEngine.Setup
             return Build(_serviceProvider);
         }
 
-        public LingoPlayer Build(IServiceProvider serviceProvider)
+        public LingoPlayer Build(IServiceProvider serviceProvider, bool allowInitializeProject = true)
         {
             _serviceProvider = serviceProvider;
             _lingoServiceProvider.SetServiceProvider(_serviceProvider);
@@ -142,7 +142,8 @@ namespace LingoEngine.Setup
             _player = player;
 
             ApplyProjectSettings();
-            InitializeProject();
+            if (allowInitializeProject)
+                InitializeProject();
             _hasBeenBuild = true;
             return player;
         }
@@ -294,7 +295,7 @@ namespace LingoEngine.Setup
             }
         }
 
-        private void InitializeProject()
+        public void InitializeProject()
         {
             if (_projectFactory == null || _serviceProvider == null || _player == null)
                 return;
@@ -302,7 +303,7 @@ namespace LingoEngine.Setup
             _buildActions.ForEach(b => b(_lingoServiceProvider));
             _lingoServiceProvider.GetRequiredService<IAbstCommandManager>()
                 .DiscoverAndSubscribe(_lingoServiceProvider);
-            _projectFactory.LoadCastLibs(_lingoServiceProvider.GetRequiredService<LingoCastLibsContainer>(), _player);
+            _projectFactory.LoadCastLibs(_player.CastLibs, _player);
             _startupMovie = _projectFactory.LoadStartupMovie(_lingoServiceProvider, _player);
         }
 
