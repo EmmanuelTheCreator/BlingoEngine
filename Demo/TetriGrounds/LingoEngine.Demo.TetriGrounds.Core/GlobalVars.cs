@@ -1,6 +1,8 @@
-﻿namespace LingoEngine.Demo.TetriGrounds.Core
+using LingoEngine.Core;
+
+namespace LingoEngine.Demo.TetriGrounds.Core
 {
-    public class GlobalVars
+    public class GlobalVars : LingoGlobalVars
     {
         public string LastInfo { get; internal set; } = "";
 
@@ -10,3 +12,4 @@
         public bool GameIsRunning { get; internal set; }
     }
 }
+

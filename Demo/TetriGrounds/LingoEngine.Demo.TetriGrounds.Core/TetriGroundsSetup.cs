@@ -1,10 +1,11 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Movies;
 using LingoEngine.Demo.TetriGrounds.Core.MovieScripts;
 using LingoEngine.Demo.TetriGrounds.Core.Sprites.Globals;
 using LingoEngine.Demo.TetriGrounds.Core.ParentScripts;
 using LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors;
 using LingoEngine.Setup;
+using LingoEngine.Core;
 
 namespace LingoEngine.Demo.TetriGrounds.Core
 {
@@ -29,21 +30,23 @@ namespace LingoEngine.Demo.TetriGrounds.Core
                         })
                         .ForMovie(TetriGroundsProjectFactory.MovieName, s => s
                             .AddScriptsFromAssembly()
-                            //.AddMovieScript<StarMovieScript>()
+                        //.AddMovieScript<StarMovieScript>()
                         // As an example, you can add them manually too:
 
                         // .AddMovieScript<StartMoviesScript>() => MovieScript
                         // .AddBehavior<MouseDownNavigateBehavior>()  -> Behavior
                         // .AddParentScript<BlockParentScript>() -> Parent script
-                        );
+                        )
+                        .WithGlobalVars<GlobalVars>();
                     registration(config);
                 }
                 )
                 .AddSingleton<IArkCore, TetriGroundsCore>()
-                .AddSingleton<GlobalVars>()
+                .AddSingleton(sp => (GlobalVars)sp.GetRequiredService<LingoGlobalVars>())
                 ;
             return services;
         }
-        
+
     }
 }
+

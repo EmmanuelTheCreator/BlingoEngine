@@ -10,6 +10,7 @@ using LingoEngine.Texts;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Numerics;
+using AbstUI.Primitives;
 
 namespace LingoEngine.Core
 {
