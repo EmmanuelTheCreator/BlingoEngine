@@ -242,7 +242,7 @@ public abstract class LingoBlazorMemberTextBase<TText> : ILingoFrameworkMemberTe
             AbstTextAlignment.Right => "right",
             _ => "left"
         };
-        _scripts.CanvasDrawText(ctx, Margin, Margin + FontSize, Text, FontName, color, FontSize, align).GetAwaiter().GetResult();
+        _scripts.CanvasDrawText(ctx, Margin, Margin + FontSize, Text, FontName, color, FontSize, align, 0).GetAwaiter().GetResult();
         _pixelData = _scripts.CanvasGetImageData(ctx, w, h).GetAwaiter().GetResult();
         _stride = w * 4;
         IsLoaded = true;

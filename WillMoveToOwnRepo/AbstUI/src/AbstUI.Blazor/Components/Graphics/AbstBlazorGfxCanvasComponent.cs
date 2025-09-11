@@ -112,7 +112,7 @@ public class AbstBlazorGfxCanvasComponent : AbstBlazorComponentModelBase, IAbstF
         MarkDirty();
     }
 
-    public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = default)
+    public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = default, int letterSpacing = 0)
     {
         var col = ToCss(color ?? AColors.Black);
         var align = alignment switch
@@ -121,12 +121,12 @@ public class AbstBlazorGfxCanvasComponent : AbstBlazorComponentModelBase, IAbstF
             AbstTextAlignment.Right => "right",
             _ => "left"
         };
-        _drawActions.Add(ctx => _module!.InvokeVoidAsync("abstCanvas.drawText", ctx, position.X, position.Y, text, font, col, fontSize, align));
+        _drawActions.Add(ctx => _module!.InvokeVoidAsync("abstCanvas.drawText", ctx, position.X, position.Y, text, font, col, fontSize, align, letterSpacing));
         MarkDirty();
     }
     public void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12,
             int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left,
-            AbstFontStyle style = AbstFontStyle.Regular)
+            AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)
     {
         var col = ToCss(color ?? AColors.Black);
         var align = alignment switch
@@ -135,7 +135,7 @@ public class AbstBlazorGfxCanvasComponent : AbstBlazorComponentModelBase, IAbstF
             AbstTextAlignment.Right => "right",
             _ => "left"
         };
-        _drawActions.Add(ctx => _module!.InvokeVoidAsync("abstCanvas.drawText", ctx, position.X, position.Y, text, font, col, fontSize, align));
+        _drawActions.Add(ctx => _module!.InvokeVoidAsync("abstCanvas.drawText", ctx, position.X, position.Y, text, font, col, fontSize, align, letterSpacing));
         MarkDirty();
     }
     public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)

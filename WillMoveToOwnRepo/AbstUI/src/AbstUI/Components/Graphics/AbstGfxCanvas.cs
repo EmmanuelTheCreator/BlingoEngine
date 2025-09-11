@@ -24,12 +24,12 @@ namespace AbstUI.Components.Graphics
             => _framework.DrawArc(center, radius, startDeg, endDeg, segments, color, width);
         public void DrawPolygon(IReadOnlyList<APoint> points, AColor color, bool filled = true, float width = 1)
             => _framework.DrawPolygon(points, color, filled, width);
-        public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = AbstTextAlignment.Left)
-            => _framework.DrawText(position, text, font, color, fontSize, width, alignment);
+        public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, int letterSpacing = 0)
+            => _framework.DrawText(position, text, font, color, fontSize, width, alignment, letterSpacing);
         public void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12,
             int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left,
-            AbstFontStyle style = AbstFontStyle.Regular)
-            => _framework.DrawSingleLine(position, text, font, color, fontSize, width, height, alignment, style);
+            AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)
+            => _framework.DrawSingleLine(position, text, font, color, fontSize, width, height, alignment, style, letterSpacing);
         public void DrawPicture(IAbstTexture2D texture, int width, int height, APoint position)
             => _framework.DrawPicture(texture, width, height, position);
         public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)

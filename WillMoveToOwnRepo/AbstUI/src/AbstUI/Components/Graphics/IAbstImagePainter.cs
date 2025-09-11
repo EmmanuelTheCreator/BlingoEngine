@@ -21,8 +21,8 @@ namespace AbstUI.Components.Graphics
         void DrawPicture(IAbstTexture2D texture, int width, int height, APoint position);
         void DrawPolygon(IReadOnlyList<APoint> points, AColor color, bool filled = true, float width = 1);
         void DrawRect(ARect rect, AColor color, bool filled = true, float width = 1);
-        void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular);
-        void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular);
+        void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0);
+        void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0);
         void SetPixel(APoint point, AColor color);
         IAbstTexture2D GetTexture(string? name = null);
         void Render();

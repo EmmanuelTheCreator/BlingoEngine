@@ -327,7 +327,7 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
         AddDrawAction(action);
     }
 
-    public override void DrawText(APoint position, string text, string? fontNamee = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular)
+    public override void DrawText(APoint position, string text, string? fontNamee = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)
     {
         var pos = position;
         var txt = text;
@@ -407,7 +407,7 @@ public class SDLImagePainterV2 : AbstImagePainter<nint>
         AddDrawAction(action);
     }
 
-    public override void DrawSingleLine(APoint position, string text, string? fontName = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular)
+    public override void DrawSingleLine(APoint position, string text, string? fontName = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)
     {
         var pos = position;
         var txt = text;

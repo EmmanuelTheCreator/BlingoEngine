@@ -103,13 +103,22 @@ export class abstCanvas {
         }
     }
 
-    static drawText(ctx, x, y, text, font, color, fontSize, alignment) {
+    static drawText(ctx, x, y, text, font, color, fontSize, alignment, letterSpacing = 0) {
         ctx.fillStyle = color;
         ctx.font = font || (fontSize + 'px sans-serif');
         ctx.textAlign = alignment;
         const lines = text.split('\n');
         for (let i = 0; i < lines.length; i++) {
-            ctx.fillText(lines[i], x, y + i * fontSize);
+            const line = lines[i];
+            if (letterSpacing !== 0) {
+                let lx = x;
+                for (const ch of line) {
+                    ctx.fillText(ch, lx, y + i * fontSize);
+                    lx += ctx.measureText(ch).width + letterSpacing;
+                }
+            } else {
+                ctx.fillText(line, x, y + i * fontSize);
+            }
         }
     }
 

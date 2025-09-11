@@ -287,7 +287,7 @@ namespace AbstUI.Texts
                 if (style.Italic)
                     fontStyle |= AbstFontStyle.Italic;
                 _canvas!.DrawSingleLine(new APoint(lineX, pos.Y), line, style.Font, style.Color, style.FontSize,
-                    (int)MathF.Ceiling(lineW), fontInfo.FontHeight, AbstTextAlignment.Left, fontStyle);
+                    (int)MathF.Ceiling(lineW), fontInfo.FontHeight, AbstTextAlignment.Left, fontStyle, style.LetterSpacing);
 
                 pos.Offset(0, lineHeight);
                 lineIndex++;

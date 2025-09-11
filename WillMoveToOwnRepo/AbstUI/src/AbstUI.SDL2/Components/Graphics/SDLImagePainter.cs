@@ -339,13 +339,14 @@ namespace AbstUI.SDL2.Components.Graphics
             MarkDirty();
         }
 
-        public void DrawText(APoint position, string text, string? fontNamee = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular)
+        public void DrawText(APoint position, string text, string? fontNamee = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)
         {
             var pos = position;
             var txt = text;
             var fntName = fontNamee;
             var col = color;
             var fs = fontSize;
+            var ls = letterSpacing;
             if (fs == 0) fs = 12;
             var w = width;
             var font = _fontManager.GetTyped(this, fntName ?? string.Empty, fs, style);
@@ -357,7 +358,7 @@ namespace AbstUI.SDL2.Components.Graphics
             {
                 if (w >= 0)
                 {
-                    while (line.Length > 0 && SDL_ttf.TTF_SizeUTF8(fnt, line, out int tw, out _) == 0 && tw > w)
+                    while (line.Length > 0 && SDL_ttf.TTF_SizeUTF8(fnt, line, out int tw, out _) == 0 && tw + ls * Math.Max(0, line.Length - 1) > w)
                         line = line.Substring(0, line.Length - 1);
                 }
                 return line;
@@ -370,8 +371,12 @@ namespace AbstUI.SDL2.Components.Graphics
             int maxW = 0;
             foreach (var line in lines)
             {
-                if (SDL_ttf.TTF_SizeUTF8(fnt, line, out int tw, out _) == 0 && tw > maxW)
-                    maxW = tw;
+                if (SDL_ttf.TTF_SizeUTF8(fnt, line, out int tw, out _) == 0)
+                {
+                    tw += ls * Math.Max(0, line.Length - 1);
+                    if (tw > maxW)
+                        maxW = tw;
+                }
             }
             int lineSkip = SDL_ttf.TTF_FontLineSkip(fnt);
             int ascent = SDL_ttf.TTF_FontAscent(fnt);
@@ -387,22 +392,49 @@ namespace AbstUI.SDL2.Components.Graphics
                 () =>
                 {
                     SDL.SDL_Color c = new SDL.SDL_Color { r = col?.R ?? 0, g = col?.G ?? 0, b = col?.B ?? 0, a = 255 };
-
-                    List<(nint surf, int w, int h)> surfaces = new();
-                    foreach (var line in lines)
-                    {
-                        nint s = SDL_ttf.TTF_RenderUTF8_Blended(fnt, line, c);
-                        if (s == nint.Zero) continue;
-                        var sur = SDL.PtrToStructure<SDL.SDL_Surface>(s);
-                        surfaces.Add((s, sur.w, sur.h));
-                    }
-                    //int y = (int)pos.Y - ascent;
                     int y = (int)pos.Y;                     // was: pos.Y - ascent
                     int boxW = w >= 0 ? w : Math.Max(0, Width - (int)pos.X);
 
-                    foreach (var (s, tw, th) in surfaces)
+                    foreach (var line in lines)
                     {
-                        nint tex = SDL.SDL_CreateTextureFromSurface(Renderer, s);
+                        nint s = SDL_ttf.TTF_RenderUTF8_Blended(fnt, line, c);
+                        if (s == nint.Zero)
+                        {
+                            y += lineSkip;
+                            continue;
+                        }
+
+                        var sur = SDL.PtrToStructure<SDL.SDL_Surface>(s);
+                        int drawW = sur.w;
+                        nint drawSurf = s;
+
+                        if (ls != 0 && line.Length > 1)
+                        {
+                            var pf = SDL.PtrToStructure<SDL.SDL_PixelFormat>(sur.format);
+                            drawW += ls * (line.Length - 1);
+                            nint spaced = SDL.SDL_CreateRGBSurfaceWithFormat(0, drawW, sur.h, pf.BitsPerPixel, pf.format);
+                            if (spaced != nint.Zero)
+                            {
+                                int prev = 0, srcX = 0, dstX = 0;
+                                for (int i = 0; i < line.Length; i++)
+                                {
+                                    SDL_ttf.TTF_SizeUTF8(fnt, line[..(i + 1)], out int upto, out _);
+                                    int cw = upto - prev;
+                                    var srcRect = new SDL.SDL_Rect { x = srcX, y = 0, w = cw, h = sur.h };
+                                    var dstRect = new SDL.SDL_Rect { x = dstX, y = 0, w = cw, h = sur.h };
+                                    SDL.SDL_BlitSurface(s, ref srcRect, spaced, ref dstRect);
+                                    srcX += cw;
+                                    dstX += cw + ls;
+                                    prev = upto;
+                                }
+                                drawSurf = spaced;
+                            }
+                        }
+
+                        nint tex = SDL.SDL_CreateTextureFromSurface(Renderer, drawSurf);
+                        if (drawSurf != s) SDL.SDL_FreeSurface(drawSurf);
+                        SDL.SDL_FreeSurface(s);
+
                         if (tex != nint.Zero)
                         {
                             int startX = (int)pos.X;
@@ -410,14 +442,15 @@ namespace AbstUI.SDL2.Components.Graphics
                             {
                                 switch (alignment)
                                 {
-                                    case AbstTextAlignment.Center: startX += Math.Max(0, (boxW - tw) / 2); break;
-                                    case AbstTextAlignment.Right: startX += Math.Max(0, boxW - tw); break;
+                                    case AbstTextAlignment.Center: startX += Math.Max(0, (boxW - drawW) / 2); break;
+                                    case AbstTextAlignment.Right: startX += Math.Max(0, boxW - drawW); break;
                                 }
                             }
-                            SDL.SDL_Rect dst = new SDL.SDL_Rect { x = startX, y = y, w = tw, h = th };
+                            SDL.SDL_Rect dst = new SDL.SDL_Rect { x = startX, y = y, w = drawW, h = sur.h };
                             SDL.SDL_RenderCopy(Renderer, tex, nint.Zero, ref dst);
                             SDL.SDL_DestroyTexture(tex);
                         }
+
                         y += lineSkip;
                     }
                 }
@@ -426,7 +459,7 @@ namespace AbstUI.SDL2.Components.Graphics
             MarkDirty();
         }
 
-        public void DrawSingleLine(APoint position, string text, string? fontName = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular)
+        public void DrawSingleLine(APoint position, string text, string? fontName = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)
         {
             var pos = position;
             var txt = text;
@@ -436,6 +469,7 @@ namespace AbstUI.SDL2.Components.Graphics
             if (fs == 0) fs = 12;
             var w = width;
             var h = height;
+            var ls = letterSpacing;
             var font = _fontManager.GetTyped(this, fntName ?? string.Empty, fs, style);
             if (font == null) return;
             var fnt = font.FontHandle;
@@ -452,6 +486,7 @@ namespace AbstUI.SDL2.Components.Graphics
                     int calcH = h;
                     if (SDL_ttf.TTF_SizeUTF8(fnt, txt, out int tw, out _) == 0)
                     {
+                        tw += ls * Math.Max(0, txt.Length - 1);
                         calcW = (w >= 0) ? Math.Max(w, tw) : tw;
                         calcH = (h >= 0) ? h : lineHeight;
                     }
@@ -469,7 +504,35 @@ namespace AbstUI.SDL2.Components.Graphics
                     nint s = SDL_ttf.TTF_RenderUTF8_Blended(fnt, txt, c);
                     if (s == nint.Zero) return;
                     var sur = SDL.PtrToStructure<SDL.SDL_Surface>(s);
-                    nint tex = SDL.SDL_CreateTextureFromSurface(Renderer, s);
+                    int drawW = sur.w;
+                    nint drawSurf = s;
+
+                    if (ls != 0 && txt.Length > 1)
+                    {
+                        var pf = SDL.PtrToStructure<SDL.SDL_PixelFormat>(sur.format);
+                        drawW += ls * (txt.Length - 1);
+                        nint spaced = SDL.SDL_CreateRGBSurfaceWithFormat(0, drawW, sur.h, pf.BitsPerPixel, pf.format);
+                        if (spaced != nint.Zero)
+                        {
+                            int prev = 0, srcX = 0, dstX = 0;
+                            for (int i = 0; i < txt.Length; i++)
+                            {
+                                SDL_ttf.TTF_SizeUTF8(fnt, txt[..(i + 1)], out int upto, out _);
+                                int cw = upto - prev;
+                                var srcRect = new SDL.SDL_Rect { x = srcX, y = 0, w = cw, h = sur.h };
+                                var dstRect = new SDL.SDL_Rect { x = dstX, y = 0, w = cw, h = sur.h };
+                                SDL.SDL_BlitSurface(s, ref srcRect, spaced, ref dstRect);
+                                srcX += cw;
+                                dstX += cw + ls;
+                                prev = upto;
+                            }
+                            drawSurf = spaced;
+                        }
+                    }
+
+                    nint tex = SDL.SDL_CreateTextureFromSurface(Renderer, drawSurf);
+                    if (drawSurf != s) SDL.SDL_FreeSurface(drawSurf);
+                    SDL.SDL_FreeSurface(s);
                     if (tex != nint.Zero)
                     {
                         int startX = (int)pos.X;
@@ -478,19 +541,17 @@ namespace AbstUI.SDL2.Components.Graphics
                             switch (alignment)
                             {
                                 case AbstTextAlignment.Center:
-                                    startX += Math.Max(0, (w - sur.w) / 2);
+                                    startX += Math.Max(0, (w - drawW) / 2);
                                     break;
                                 case AbstTextAlignment.Right:
-                                    startX += Math.Max(0, w - sur.w);
+                                    startX += Math.Max(0, w - drawW);
                                     break;
                             }
                         }
-                        //SDL.SDL_Rect dst = new SDL.SDL_Rect { x = startX, y = (int)pos.Y - ascent, w = sur.w, h = sur.h };
-                        SDL.SDL_Rect dst = new SDL.SDL_Rect { x = startX, y = (int)pos.Y, w = sur.w, h = sur.h };
+                        SDL.SDL_Rect dst = new SDL.SDL_Rect { x = startX, y = (int)pos.Y, w = drawW, h = sur.h };
                         SDL.SDL_RenderCopy(Renderer, tex, nint.Zero, ref dst);
                         SDL.SDL_DestroyTexture(tex);
                     }
-                    SDL.SDL_FreeSurface(s);
                 }
             ));
             font.Release();
