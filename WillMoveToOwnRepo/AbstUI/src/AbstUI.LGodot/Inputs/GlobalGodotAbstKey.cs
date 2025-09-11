@@ -9,6 +9,7 @@ namespace AbstUI.LGodot.Inputs
         {
             var framework = new AbstGodotKey(rootNode.RootNode, new Lazy<AbstKey>(() => this));
             Init(framework);
+            framework.SetKeyObj(this);
         }
     }
 

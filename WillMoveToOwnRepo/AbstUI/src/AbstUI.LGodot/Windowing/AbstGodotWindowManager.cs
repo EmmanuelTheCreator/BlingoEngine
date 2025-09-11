@@ -139,6 +139,11 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager, IDisposable, IFra
 
         var dialogAbst = _frameworkFactory.CreateElement<AbstDialog>();
         var dialog = (AbstGodotDialog)dialogAbst.FrameworkObj;
+        dialog.SetBackgroundColorMethod(col =>
+        {
+            styleBox.BgColor = col.ToGodotColor();
+            //node.AddThemeStyleboxOverride("panel", styleBox);
+        });
         dialog.Title = title;
         dialog.Size = new Vector2I((int)panel.Width, (int)panel.Height);
         dialog.Theme = _godotStyleManager.GetTheme(AbstGodotThemeElementType.PopupWindow);
@@ -182,7 +187,11 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager, IDisposable, IFra
         }
 
         dialog.Title = title;
-
+        dialog.SetBackgroundColorMethod(col =>
+        {
+            styleBox.BgColor = col.ToGodotColor();
+            //node.AddThemeStyleboxOverride("panel", styleBox);
+        });
         dialog.Size = new Vector2I((int)panel.Width, (int)panel.Height);
         dialog.Theme = _godotStyleManager.GetTheme(AbstGodotThemeElementType.PopupWindow);
 

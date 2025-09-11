@@ -173,7 +173,6 @@ namespace AbstUI.Inputs
             _canvas = _factory.CreateGfxCanvas("LingoJoystickKeyboardCanvas", width, height);
             _canvas.X = Margin;
             _canvas.Y = Margin;
-            _canvas.DrawRect(ARect.New(0, 0, 80, 80), AColors.Magenta, true);
             _root.AddItem(_canvas);
         }
 
