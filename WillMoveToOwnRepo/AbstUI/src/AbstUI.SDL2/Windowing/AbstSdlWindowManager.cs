@@ -3,6 +3,8 @@ using AbstUI.Components.Containers;
 using AbstUI.Components;
 using AbstUI.SDL2.SDLL;
 using System;
+using AbstUI.FrameworkCommunication;
+using AbstUI.Primitives;
 
 namespace AbstUI.SDL2.Windowing
 {
@@ -16,7 +18,7 @@ namespace AbstUI.SDL2.Windowing
     /// placeholder that tracks active windows but does not provide
     /// OS level dialogs or notifications.
     /// </summary>
-    internal class AbstSdlWindowManager : IAbstSdlWindowManager
+    internal class AbstSdlWindowManager : IAbstSdlWindowManager, IFrameworkFor<AbstWindowManager>
     {
         private readonly IAbstWindowManager _windowManager;
         private readonly IAbstComponentFactory _componentFactory;
@@ -57,18 +59,25 @@ namespace AbstUI.SDL2.Windowing
             return new AbstWindowDialogReference(() => { });
         }
 
-        public IAbstWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel)
+        public IAbstWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel, APoint? position = null)
         {
-            var dialogAbst = _componentFactory.CreateElement<IAbstDialog>();
-            var dialog = dialogAbst.FrameworkObj<AbstSdlDialog>();
+            var dialogAbst = _componentFactory.CreateElement<AbstDialog>();
+            var dialog = (AbstSdlDialog)dialogAbst.FrameworkObj; // dialogAbst.FrameworkObj<AbstSdlDialog>();
+            dialog.Init(dialogAbst);
             dialog.Title = title;
             dialog.SetSize((int)panel.Width, (int)panel.Height);
             dialog.AddItem(panel);
-            dialog.PopupCentered();
+            if (position == null)
+                dialog.PopupCentered();
+            else
+            {
+                dialog.SetPositionAndSize((int)position.Value.X, (int)position.Value.Y, (int)panel.Width, (int)panel.Height);
+                dialog.Popup();
+            }
             return new AbstWindowDialogReference(() => { dialog.Hide(); dialog.Dispose(); }, dialog);
         }
 
-        public IAbstWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? dialog = null)
+        public IAbstWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? dialog = null, APoint? position = null)
             where TDialog : class, IAbstDialog
         {
             AbstSdlDialog sdlDialog;
@@ -81,11 +90,18 @@ namespace AbstUI.SDL2.Windowing
                 dialog = _componentFactory.CreateElement<TDialog>();
                 sdlDialog = dialog.FrameworkObj<AbstSdlDialog>();
             }
+            sdlDialog.Init(dialog);
 
             sdlDialog.Title = title;
             sdlDialog.SetSize((int)panel.Width, (int)panel.Height);
             sdlDialog.AddItem(panel);
-            sdlDialog.PopupCentered();
+            if (position == null)
+                dialog.PopupCentered();
+            else
+            {
+                sdlDialog.SetPositionAndSize((int)position.Value.X, (int)position.Value.Y, (int)panel.Width, (int)panel.Height);
+                dialog.Popup();
+            }
             return new AbstWindowDialogReference(() => { sdlDialog.Hide(); sdlDialog.Dispose(); }, sdlDialog);
         }
 

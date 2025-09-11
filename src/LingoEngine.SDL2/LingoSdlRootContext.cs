@@ -20,6 +20,9 @@ public class LingoSdlRootContext : AbstUISdlRootContext<LingoMouse>
     private LingoPlayer _lPlayer = null!;
     private LingoClock _clock = null!;
     public LingoDebugOverlay DebugOverlay { get; set; } = null!;
+
+    private Lazy<SdlStage> _stage;
+
     public LingoSdlKey Key { get; set; }
     public IAbstFrameworkMouse Mouse { get; set; }
     internal LingoSdlFactory LingoFactory { get; set; } = null!;
@@ -37,6 +40,7 @@ public class LingoSdlRootContext : AbstUISdlRootContext<LingoMouse>
         var lingoKey = new LingoKey(Key);
         AbstKey = lingoKey;
         Key.SetKeyObj(lingoKey);
+        _stage = new Lazy<SdlStage>(() => _lPlayer.Stage.Framework<SdlStage>());
     }
 
     public void Init(ILingoPlayer player)
@@ -46,6 +50,7 @@ public class LingoSdlRootContext : AbstUISdlRootContext<LingoMouse>
         var overlay = new SdlDebugOverlay(LingoFactory);
         ComponentContainer.Activate(overlay.ComponentContext);
         DebugOverlay = new LingoDebugOverlay(overlay, _lPlayer);
+       
     }
 
     protected override void HandleEvent(SDL.SDL_Event e, ref bool running)
@@ -63,5 +68,20 @@ public class LingoSdlRootContext : AbstUISdlRootContext<LingoMouse>
             DebugOverlay.Toggle();
         _f1Pressed = f1;
         _clock.Tick(delta);
+
+    }
+
+    protected override void Render()
+    {
+        //SDL.SDL_SetRenderDrawColor(Renderer, 255, 0, 0, 255);
+        //SDL.SDL_Rect rect = new SDL.SDL_Rect { x = 100, y = 100, w = 200, h = 150 };
+        //SDL.SDL_RenderFillRect(Renderer, ref rect);
+        var stageTexture = _stage.Value.LastTexture;
+        SDL.SDL_SetRenderTarget(Renderer, nint.Zero);
+
+        SDL.SDL_RenderCopy(Renderer, stageTexture, IntPtr.Zero, IntPtr.Zero);
+        ComponentContainer.Render(Factory.CreateRenderContext(null, System.Numerics.Vector2.Zero));
+        SDL.SDL_RenderPresent(Renderer);
+        
     }
 }

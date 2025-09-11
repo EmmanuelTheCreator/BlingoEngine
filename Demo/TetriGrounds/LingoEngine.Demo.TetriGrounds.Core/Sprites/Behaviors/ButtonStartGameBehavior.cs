@@ -3,6 +3,7 @@ using LingoEngine.Sprites;
 using LingoEngine.Events;
 using LingoEngine.Movies;
 using LingoEngine.Demo.TetriGrounds.Core.ParentScripts;
+using AbstUI.Primitives;
 #pragma warning disable IDE1006 // Naming Styles
 
 namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
@@ -32,6 +33,10 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 
         private void StartNewGame()
         {
+           // var keyboard = CreateJoystickKeyboard(c => c.Title = "Type your name",AbstUI.Inputs.AbstJoystickKeyboard.KeyboardLayoutType.Azerty,true,new APoint(40,30));
+            
+           //// keyboard.Open();
+           // return;
             if (_global.GameIsRunning)
                 return;
             _Player.SoundPlayBtnStart();

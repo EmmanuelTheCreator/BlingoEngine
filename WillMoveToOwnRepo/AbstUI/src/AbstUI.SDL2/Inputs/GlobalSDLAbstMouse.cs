@@ -21,7 +21,7 @@ namespace AbstUI.SDL2.Inputs
         }
     }
 
-    public class AbstSdlGlobalMouse<TAbstMouseType, TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor<AbstMouse<TAbstUIMouseEvent>>
+    public class AbstSdlGlobalMouse<TAbstMouseType, TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor<GlobalSDLAbstMouse>
         where TAbstMouseType : AbstMouse<TAbstUIMouseEvent>
         where TAbstUIMouseEvent : AbstMouseEvent
     {

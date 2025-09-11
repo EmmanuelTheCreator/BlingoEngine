@@ -102,6 +102,7 @@ public abstract class AbstUISdlRootContext<TMouse> : IAbstSDLRootContext, ISdlRo
         ComponentContainer.Render(Factory.CreateRenderContext(null, System.Numerics.Vector2.Zero));
         SDL.SDL_RenderPresent(Renderer);
     }
+    
 
     public virtual void Dispose()
     {

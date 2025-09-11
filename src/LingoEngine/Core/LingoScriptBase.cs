@@ -9,6 +9,7 @@ using LingoEngine.Sprites;
 using Microsoft.Extensions.Logging;
 using System.Numerics;
 using AbstUI.Primitives;
+using AbstUI.Inputs;
 
 namespace LingoEngine.Core
 {
@@ -206,6 +207,9 @@ namespace LingoEngine.Core
         protected void StartTimer() => _env.Movie.StartTimer();
         protected int Timer => _env.Movie.Timer;
         #endregion
+
+        protected IAbstJoystickKeyboard CreateJoystickKeyboard(Action<AbstJoystickKeyboard>? configure = null, AbstJoystickKeyboard.KeyboardLayoutType layoutType = AbstJoystickKeyboard.KeyboardLayoutType.Azerty, bool showEscapeKey = false, APoint? position = null) 
+            => ((LingoPlayer)_Player).Factory.ComponentFactory.CreateJoystickKeyboard(configure, layoutType, showEscapeKey, position);
     }
 
 }

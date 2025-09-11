@@ -1,29 +1,84 @@
 using AbstUI.Texts;
 using AbstUI.Primitives;
-using LingoEngine.FrameworkCommunication;
-using AbstUI.Inputs;
 using AbstUI.Windowing;
 using AbstUI.Components.Graphics;
 using AbstUI.Components.Containers;
+using AbstUI.Components;
 
-namespace LingoEngine.Inputs
+namespace AbstUI.Inputs
 {
+    
+    public static class AbstJoystickKeyboardExtensions
+    {
+        public static IAbstJoystickKeyboard CreateJoystickKeyboard(this IAbstComponentFactory factory,Action<AbstJoystickKeyboard>? configure = null, AbstJoystickKeyboard.KeyboardLayoutType layoutType = AbstJoystickKeyboard.KeyboardLayoutType.Azerty, bool showEscapeKey = false, APoint? position = null)
+        {
+            IAbstWindowManager windowManager = factory.GetRequiredService<IAbstWindowManager>();
+            var keyboard = new AbstJoystickKeyboard(factory, layoutType, showEscapeKey);
+            configure?.Invoke(keyboard);
+            var rootNode = keyboard.RootFrameworkNode;
+            var window = windowManager.ShowCustomDialog(keyboard.Title, rootNode, position)!;
+            keyboard.SetWindow(window);
+            return keyboard;
+        }
+    }
     /// <summary>
     /// On-screen keyboard navigated via joystick.
     /// Supports letters, digits, space and backspace.
     /// </summary>
-    public class LingoJoystickKeyboard : IAbstKeyEventHandler<AbstKeyEvent>, IDisposable
+    public interface IAbstJoystickKeyboard
     {
-        private readonly ILingoFrameworkFactory _factory;
+        AColor BackgroundColor { get; set; }
+        AColor BorderColor { get; set; }
+        int CellSize { get; set; }
+        int CellSpacing { get; set; }
+        string? FontName { get; set; }
+        int FontSize { get; set; }
+        int Margin { get; set; }
+        int MaxLength { get; set; }
+        IAbstFrameworkPanel RootFrameworkNode { get; }
+        AColor? SelectedBackgroundColor { get; set; }
+        AColor SelectedColor { get; set; }
+        bool ShowTitleBar { get; set; }
+        string Text { get; }
+        AColor TextColor { get; set; }
+        string Title { get; set; }
+
+        event Action? Closed;
+        event Action? EnterPressed;
+        event Action<string>? KeySelected;
+        event Action<string>? TextChanged;
+
+        void Close();
+        void Dispose();
+        void EnableKey(bool enableNumbers, bool enableLetters, bool enableSpecialKeys);
+        void EnableMouse(bool state);
+        string ExecuteSelectedKey();
+        string GetSelectedKey();
+        void MoveDown();
+        void MoveLeft();
+        void MoveRight();
+        void MoveUp();
+        void Open(APoint? position = null);
+        void RaiseKeyDown(AbstKeyEvent key);
+        void RaiseKeyUp(AbstKeyEvent key);
+        void SetWhiteTheme();
+        void SetWindow(IAbstWindowDialogReference window);
+        void UpdateStyle();
+    }
+
+    /// <inheritdoc/>
+    public class AbstJoystickKeyboard : IAbstKeyEventHandler<AbstKeyEvent>, IDisposable, IAbstJoystickKeyboard
+    {
+        private readonly IAbstComponentFactory _factory;
         private readonly string[][] _layout;
         private readonly int _cols;
-        private readonly IAbstWindowDialogReference _window;
         private readonly AbstGfxCanvas _canvas;
-
-        private readonly IAbstMouseSubscription _mouseDownSub;
-        private readonly IAbstMouseSubscription _mouseMoveSub;
-        private readonly IAbstMouse<AbstMouseEvent> _mouse;
-        private readonly AbstKey _key;
+        private readonly AbstPanel _root;
+        private IAbstWindowDialogReference _window = null!;
+        private IAbstMouseSubscription _mouseDownSub = null!;
+        private IAbstMouseSubscription _mouseMoveSub = null!;
+        private IAbstMouse<AbstMouseEvent> _mouse = null!;
+        private AbstKey _key = null!;
         private int _selectedRow;
         private int _selectedCol;
         private bool _enableMouse = true;
@@ -31,14 +86,15 @@ namespace LingoEngine.Inputs
         private bool _enableKeyLetters = true;
         private bool _enableKeySpecial = true;
 
-        public void SetWhiteTheme()
+        public IAbstFrameworkPanel RootFrameworkNode => _root.Framework<IAbstFrameworkPanel>();
+
+        public enum KeyboardLayoutType
         {
-            SelectedColor = AColors.Black;
-            SelectedBackgroundColor = AColors.LightGray;
-            BackgroundColor = AColors.White;
-            BorderColor = AColors.LightGray;
-            TextColor = AColors.Black;
+            Azerty,
+            Qwerty
         }
+
+
 
         /// <summary>Color used for the border of the selected key.</summary>
         public AColor SelectedColor { get; set; } = AColors.White;
@@ -99,28 +155,38 @@ namespace LingoEngine.Inputs
         public event Action<string>? KeySelected;
 
         /// <summary>Supported keyboard layouts.</summary>
-        public enum LingoKeyboardLayoutType
-        {
-            Azerty,
-            Qwerty
-        }
 
-        public LingoJoystickKeyboard(ILingoFrameworkFactory factory, IAbstWindowManager windowManager, LingoKeyboardLayoutType layoutType = LingoKeyboardLayoutType.Azerty, bool showEscapeKey = false)
+
+        public AbstJoystickKeyboard(IAbstComponentFactory factory, KeyboardLayoutType layoutType = KeyboardLayoutType.Azerty, bool showEscapeKey = false)
         {
             _factory = factory;
-            _layout = layoutType == LingoKeyboardLayoutType.Azerty ? BuildAzertyLayout(showEscapeKey) : BuildQwertyLayout(showEscapeKey);
+            _layout = layoutType == KeyboardLayoutType.Azerty ? BuildAzertyLayout(showEscapeKey) : BuildQwertyLayout(showEscapeKey);
             _cols = _layout.Max(r => r.Length);
             var width = _cols * (CellSize + CellSpacing);
             var height = _layout.Length * (CellSize + CellSpacing);
             //_window = _factory.CreateWindow("LingoJoystickKeyboard", _title);
-            var _root = _factory.CreatePanel("LingoJoystickKeyboardPanel");
+            _root = _factory.CreatePanel("LingoJoystickKeyboardPanel");
             _root.Width = width + Margin * 2;
             _root.Height = height + Margin * 2;
             _canvas = _factory.CreateGfxCanvas("LingoJoystickKeyboardCanvas", width, height);
             _canvas.X = Margin;
             _canvas.Y = Margin;
+            _canvas.DrawRect(ARect.New(0, 0, 80, 80), AColors.Magenta, true);
             _root.AddItem(_canvas);
-            _window = windowManager.ShowCustomDialog(_title, _root.Framework<IAbstFrameworkPanel>())!;
+        }
+
+        public void SetWhiteTheme()
+        {
+            SelectedColor = AColors.Black;
+            SelectedBackgroundColor = AColors.LightGray;
+            BackgroundColor = AColors.White;
+            BorderColor = AColors.LightGray;
+            TextColor = AColors.Black;
+        }
+
+        public void SetWindow(IAbstWindowDialogReference window)
+        {
+            _window = window;
             if (_window.Dialog == null) throw new Exception("Dialog is null in subscription for keyboard");
             _mouse = (IAbstMouse<AbstMouseEvent>)_window.Dialog.Mouse;
             _key = (AbstKey)_window.Dialog.Key;
@@ -134,6 +200,7 @@ namespace LingoEngine.Inputs
             //_window.Height = height + Margin * 2;
             _window.Dialog.BackgroundColor = BackgroundColor;
         }
+
         public void Dispose()
         {
 

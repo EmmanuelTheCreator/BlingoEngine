@@ -10,6 +10,7 @@ using AbstUI.SDL2.Core;
 using AbstUI.Inputs;
 using AbstUI;
 
+
 namespace LingoEngine.SDL2;
 
 public static class SdlSetup
@@ -76,9 +77,6 @@ public static class SdlSetup
                 )
             .WithFrameworkFactory(setup)
             .AddPreBuildAction(x => x.WithAbstUISdl())
-            .AddBuildAction(b =>
-            {
-                
-            });
+            ;
     }
 }
