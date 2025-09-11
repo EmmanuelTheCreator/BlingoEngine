@@ -251,8 +251,8 @@ public abstract class AbstImagePainter<TTexture> : IAbstImagePainter
     public abstract void DrawPolygon(IReadOnlyList<APoint> points, AColor color, bool filled = true, float width = 1);
     public abstract void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format);
     public abstract void DrawPicture(IAbstTexture2D texture, int width, int height, APoint position);
-    public abstract void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular);
-    public abstract void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular);
+    public abstract void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0);
+    public abstract void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0);
     public abstract IAbstTexture2D GetTexture(string? name = null);
     public abstract void Dispose();
 }

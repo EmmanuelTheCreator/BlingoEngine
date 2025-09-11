@@ -34,7 +34,7 @@ namespace AbstUI.LGodot.Components.Graphics
         public GodotImagePainterToTexture(AbstGodotFontManager fontManager, int width = 0, int height = 0)
         {
             _fontManager = fontManager;
-            
+
             Width = width;
             Height = height;
             if (width == 0)
@@ -77,8 +77,8 @@ namespace AbstUI.LGodot.Components.Graphics
                 var c = _clearColor.Value;
                 _img.Fill(new Color(c.R / 255f, c.G / 255f, c.B / 255f, c.A / 255f));
             }
-            var newWidth = Width>0? Width:10;
-            var newHeight = Height>0?Height:10;
+            var newWidth = Width > 0 ? Width : 10;
+            var newHeight = Height > 0 ? Height : 10;
             if (AutoResizeWidth || AutoResizeHeight)
             {
                 foreach (var a in _drawActions)
@@ -377,7 +377,7 @@ namespace AbstUI.LGodot.Components.Graphics
 
         public void DrawText(APoint position, string text, string? fontName = null, AColor? color = null,
                       int fontSize = 12, int width = -1, AbstTextAlignment alignment = default,
-                      AbstFontStyle style = AbstFontStyle.Regular)
+                      AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)
         {
             var pos = position;
             var txt = text ?? string.Empty;
@@ -393,12 +393,12 @@ namespace AbstUI.LGodot.Components.Graphics
                 // measure pass
                 () =>
                 {
-                    return DrawTextSize(width, style, pos, txt, font, fntName, fs, ref boxWCache);
+                    return DrawTextSize(width, style, pos, txt, font, fntName, fs, ref boxWCache, letterSpacing);
                 },
                 // draw pass
                 img =>
                 {
-                    bool flowControl = DrawTextInner(alignment, style, img, pos, txt, font, fntName, col, fs, boxWCache);
+                    bool flowControl = DrawTextInner(alignment, style, img, pos, txt, font, fntName, col, fs, boxWCache, letterSpacing);
                     if (!flowControl)
                     {
                         return;
@@ -409,7 +409,7 @@ namespace AbstUI.LGodot.Components.Graphics
             MarkDirty();
         }
 
-        private bool DrawTextInner(AbstTextAlignment alignment, AbstFontStyle style, Image img, APoint pos, string txt, FontFile font, string? fntName, AColor col, int fs, int boxWCache)
+        private bool DrawTextInner(AbstTextAlignment alignment, AbstFontStyle style, Image img, APoint pos, string txt, FontFile font, string? fntName, AColor col, int fs, int boxWCache, int letterSpacing)
         {
 
             var ts = TextServerManager.GetPrimaryInterface();
@@ -426,7 +426,7 @@ namespace AbstUI.LGodot.Components.Graphics
                 ts.FreeRid(shaped);
 
                 // reuse single-line renderer with computed box width
-                DrawSingleLineInner(alignment, style, img, new APoint(pos.X, y), line, font, fntName!, col, fs, boxWCache);
+                DrawSingleLineInner(alignment, style, img, new APoint(pos.X, y), line, font, fntName!, col, fs, boxWCache, letterSpacing);
 
                 y += advH;
             }
@@ -435,7 +435,7 @@ namespace AbstUI.LGodot.Components.Graphics
         }
 
         private APoint? DrawTextSize(int width, AbstFontStyle style, APoint pos, string txt,
-                             FontFile font, string fntName, int fs, ref int boxWCache)
+                             FontFile font, string fntName, int fs, ref int boxWCache, int letterSpacing)
         {
             if ((!AutoResizeWidth && !AutoResizeHeight) || string.IsNullOrEmpty(txt)) return null;
 
@@ -449,7 +449,8 @@ namespace AbstUI.LGodot.Components.Graphics
                 ts.ShapedTextAddString(shaped, line, rids, fs);
                 ts.ShapedTextShape(shaped);
 
-                maxLineW = Math.Max(maxLineW, (int)MathF.Ceiling(ts.ShapedTextGetSize(shaped).X));
+                int lineW = (int)MathF.Ceiling(ts.ShapedTextGetSize(shaped).X) + letterSpacing * Math.Max(0, line.Length - 1);
+                maxLineW = Math.Max(maxLineW, lineW);
                 totalH += (int)MathF.Ceiling((float)(ts.ShapedTextGetAscent(shaped) + ts.ShapedTextGetDescent(shaped)));
 
                 ts.FreeRid(shaped);
@@ -467,7 +468,7 @@ namespace AbstUI.LGodot.Components.Graphics
 
         #region Single line
 
-        public void DrawSingleLine(APoint position, string text, string? fontName = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular)
+        public void DrawSingleLine(APoint position, string text, string? fontName = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)
         {
             var pos = position;
             var txt = text ?? string.Empty;
@@ -483,11 +484,11 @@ namespace AbstUI.LGodot.Components.Graphics
             _drawActions.Add((
                 () =>
                 {
-                    return DrawSingleLineCalculateSize(style, pos, txt, font, fntName, fs, w, h);
+                    return DrawSingleLineCalculateSize(style, pos, txt, font, fntName, fs, w, h, letterSpacing);
                 },
                 img =>
                 {
-                    bool flowControl = DrawSingleLineInner(alignment, style, img, pos, txt, font, fntName, col, fs, w);
+                    bool flowControl = DrawSingleLineInner(alignment, style, img, pos, txt, font, fntName, col, fs, w, letterSpacing);
                     if (!flowControl)
                     {
                         return;
@@ -497,7 +498,7 @@ namespace AbstUI.LGodot.Components.Graphics
             MarkDirty();
         }
 
-        private APoint? DrawSingleLineCalculateSize(AbstFontStyle style, APoint pos, string txt, FontFile font, string? fntName, int fs, int w, int h)
+        private APoint? DrawSingleLineCalculateSize(AbstFontStyle style, APoint pos, string txt, FontFile font, string? fntName, int fs, int w, int h, int letterSpacing)
         {
             // Auto-resize needs baseline offset too
             if (!AutoResizeWidth && !AutoResizeHeight) return null;
@@ -518,7 +519,7 @@ namespace AbstUI.LGodot.Components.Graphics
                 ts.ShapedTextShape(shaped);
 
                 var lineSize = ts.ShapedTextGetSize(shaped);
-                if (w < 0) needW = (int)MathF.Ceiling(lineSize.X);
+                if (w < 0) needW = (int)MathF.Ceiling(lineSize.X) + letterSpacing * Math.Max(0, txt.Length - 1);
 
                 if (h < 0)
                 {
@@ -543,7 +544,7 @@ namespace AbstUI.LGodot.Components.Graphics
             );
         }
 
-        private bool DrawSingleLineInner(AbstTextAlignment alignment, AbstFontStyle style, Image img, APoint pos, string txt, FontFile font, string fntName, AColor col, int fs, int w)
+        private bool DrawSingleLineInner(AbstTextAlignment alignment, AbstFontStyle style, Image img, APoint pos, string txt, FontFile font, string fntName, AColor col, int fs, int w, int letterSpacing)
         {
 
             var sizeKey = new Vector2I(fs, 0);
@@ -560,7 +561,7 @@ namespace AbstUI.LGodot.Components.Graphics
             ts.ShapedTextShape(shaped);
 
             var lineSize = ts.ShapedTextGetSize(shaped);
-            float lineW = lineSize.X;
+            float lineW = lineSize.X + letterSpacing * Math.Max(0, txt.Length - 1);
             // 1) Compute baseline correctly (FontGetBaselineOffset is a FRACTION of font height)
             var ascent = ts.FontGetAscent(fr, fs);
             var descent = ts.FontGetDescent(fr, fs);
@@ -618,7 +619,7 @@ namespace AbstUI.LGodot.Components.Graphics
                     }
                 }
 
-                penX += advance; // 4) advance AFTER drawing
+                penX += advance + letterSpacing; // 4) advance AFTER drawing
             }
 
             ts.FreeRid(shaped);

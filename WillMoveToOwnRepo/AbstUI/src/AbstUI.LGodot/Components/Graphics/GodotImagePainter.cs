@@ -252,7 +252,7 @@ public partial class GodotImagePainter : IAbstImagePainter
     }
 
     public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12,
-        int width = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular)
+        int width = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)
     {
         var pos = position;
         var txt = text;
@@ -264,7 +264,7 @@ public partial class GodotImagePainter : IAbstImagePainter
                 if ((!AutoResizeWidth && !AutoResizeHeight) || string.IsNullOrEmpty(txt)) return null;
                 if (!txt.Contains('\n'))
                 {
-                    float measuredW = fontGodot.GetStringSize(txt, alignment.ToGodot(), width, fontSize).X;
+                    float measuredW = fontGodot.GetStringSize(txt, alignment.ToGodot(), width, fontSize).X + letterSpacing * Math.Max(0, txt.Length - 1);
                     float w = width >= 0 ? MathF.Max(width, measuredW) : measuredW;
                     float h = fontGodot.GetHeight(fontSize);
                     return new APoint((int)(pos.X + w), (int)(pos.Y + h));
@@ -275,7 +275,7 @@ public partial class GodotImagePainter : IAbstImagePainter
                     float lineHeight = fontGodot.GetHeight(fontSize);
                     float maxW = 0;
                     foreach (var line in lines)
-                        maxW = MathF.Max(maxW, fontGodot.GetStringSize(line, alignment.ToGodot(), width, fontSize).X);
+                        maxW = MathF.Max(maxW, fontGodot.GetStringSize(line, alignment.ToGodot(), width, fontSize).X + letterSpacing * Math.Max(0, line.Length - 1));
                     float w = width >= 0 ? MathF.Max(width, maxW) : maxW;
                     float h = lineHeight * lines.Length;
                     return new APoint((int)(pos.X + w), (int)(pos.Y + h));
@@ -286,8 +286,33 @@ public partial class GodotImagePainter : IAbstImagePainter
                 if (!txt.Contains('\n'))
                 {
                     int wBox = width >= 0 ? width : -1;
-                    var p = new Vector2(pos.X, pos.Y + fontGodot.GetAscent(fontSize));
-                    control.DrawString(fontGodot, p, txt, alignment.ToGodot(), wBox, fontSize, col);
+                    float ascent = fontGodot.GetAscent(fontSize);
+                    if (letterSpacing == 0)
+                    {
+                        var p = new Vector2(pos.X, pos.Y + ascent);
+                        control.DrawString(fontGodot, p, txt, alignment.ToGodot(), wBox, fontSize, col);
+                    }
+                    else
+                    {
+                        float lineW = fontGodot.GetStringSize(txt, alignment.ToGodot(), width, fontSize).X + letterSpacing * Math.Max(0, txt.Length - 1);
+                        float startX = pos.X;
+                        if (wBox > 0)
+                        {
+                            switch (alignment)
+                            {
+                                case AbstTextAlignment.Center: startX += MathF.Max(0, (wBox - lineW) / 2); break;
+                                case AbstTextAlignment.Right: startX += MathF.Max(0, wBox - lineW); break;
+                            }
+                        }
+                        float x = startX;
+                        foreach (var ch in txt)
+                        {
+                            string s = ch.ToString();
+                            float cw = fontGodot.GetStringSize(s, HorizontalAlignment.Left, -1, fontSize).X;
+                            control.DrawString(fontGodot, new Vector2(x, pos.Y + ascent), s, HorizontalAlignment.Left, -1, fontSize, col);
+                            x += cw + letterSpacing;
+                        }
+                    }
                 }
                 else
                 {
@@ -296,9 +321,34 @@ public partial class GodotImagePainter : IAbstImagePainter
                     float ascent = fontGodot.GetAscent(fontSize);
                     for (int i = 0; i < lines.Length; i++)
                     {
-                        var p = new Vector2(pos.X, pos.Y + ascent + i * lineHeight);
                         int wBox = width >= 0 ? width : -1;
-                        control.DrawString(fontGodot, p, lines[i], alignment.ToGodot(), wBox, fontSize, col);
+                        if (letterSpacing == 0)
+                        {
+                            var p = new Vector2(pos.X, pos.Y + ascent + i * lineHeight);
+                            control.DrawString(fontGodot, p, lines[i], alignment.ToGodot(), wBox, fontSize, col);
+                        }
+                        else
+                        {
+                            string line = lines[i];
+                            float lineW = fontGodot.GetStringSize(line, alignment.ToGodot(), width, fontSize).X + letterSpacing * Math.Max(0, line.Length - 1);
+                            float startX = pos.X;
+                            if (wBox > 0)
+                            {
+                                switch (alignment)
+                                {
+                                    case AbstTextAlignment.Center: startX += MathF.Max(0, (wBox - lineW) / 2); break;
+                                    case AbstTextAlignment.Right: startX += MathF.Max(0, wBox - lineW); break;
+                                }
+                            }
+                            float x = startX;
+                            foreach (var ch in line)
+                            {
+                                string s = ch.ToString();
+                                float cw = fontGodot.GetStringSize(s, HorizontalAlignment.Left, -1, fontSize).X;
+                                control.DrawString(fontGodot, new Vector2(x, pos.Y + ascent + i * lineHeight), s, HorizontalAlignment.Left, -1, fontSize, col);
+                                x += cw + letterSpacing;
+                            }
+                        }
                     }
                 }
             }
@@ -308,7 +358,7 @@ public partial class GodotImagePainter : IAbstImagePainter
 
     public void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12,
         int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left,
-        AbstFontStyle style = AbstFontStyle.Regular)
+        AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)
     {
         var pos = position;
         var txt = text;
@@ -318,7 +368,7 @@ public partial class GodotImagePainter : IAbstImagePainter
             () =>
             {
                 if ((!AutoResizeWidth && !AutoResizeHeight) || string.IsNullOrEmpty(txt)) return null;
-                float measuredW = fontGodot.GetStringSize(txt, alignment.ToGodot(), width, fontSize).X;
+                float measuredW = fontGodot.GetStringSize(txt, alignment.ToGodot(), width, fontSize).X + letterSpacing * Math.Max(0, txt.Length - 1);
                 float w = width >= 0 ? MathF.Max(width, measuredW) : measuredW;
                 float h = height >= 0 ? height : fontGodot.GetHeight(fontSize);
                 return new APoint((int)(pos.X + w), (int)(pos.Y + h));
@@ -326,8 +376,33 @@ public partial class GodotImagePainter : IAbstImagePainter
             control =>
             {
                 int wBox = width >= 0 ? width : -1;
-                var p = new Vector2(pos.X, pos.Y + fontGodot.GetAscent(fontSize));
-                control.DrawString(fontGodot, p, txt, alignment.ToGodot(), wBox, fontSize, col);
+                float ascent = fontGodot.GetAscent(fontSize);
+                if (letterSpacing == 0)
+                {
+                    var p = new Vector2(pos.X, pos.Y + ascent);
+                    control.DrawString(fontGodot, p, txt, alignment.ToGodot(), wBox, fontSize, col);
+                }
+                else
+                {
+                    float lineW = fontGodot.GetStringSize(txt, alignment.ToGodot(), width, fontSize).X + letterSpacing * Math.Max(0, txt.Length - 1);
+                    float startX = pos.X;
+                    if (wBox > 0)
+                    {
+                        switch (alignment)
+                        {
+                            case AbstTextAlignment.Center: startX += MathF.Max(0, (wBox - lineW) / 2); break;
+                            case AbstTextAlignment.Right: startX += MathF.Max(0, wBox - lineW); break;
+                        }
+                    }
+                    float x = startX;
+                    foreach (var ch in txt)
+                    {
+                        string s = ch.ToString();
+                        float cw = fontGodot.GetStringSize(s, HorizontalAlignment.Left, -1, fontSize).X;
+                        control.DrawString(fontGodot, new Vector2(x, pos.Y + ascent), s, HorizontalAlignment.Left, -1, fontSize, col);
+                        x += cw + letterSpacing;
+                    }
+                }
             }
         ));
         MarkDirty();

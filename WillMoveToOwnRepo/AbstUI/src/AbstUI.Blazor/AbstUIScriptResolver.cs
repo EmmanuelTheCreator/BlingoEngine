@@ -63,8 +63,8 @@ public class AbstUIScriptResolver : IAsyncDisposable
     public async ValueTask CanvasDrawPolygon(IJSObjectReference ctx, double[] points, string color, bool filled, int width)
         => await (await GetModuleAsync()).InvokeVoidAsync("abstCanvas.drawPolygon", ctx, points, color, filled, width);
 
-    public async ValueTask CanvasDrawText(IJSObjectReference ctx, double x, double y, string text, string font, string color, int fontSize, string alignment)
-        => await (await GetModuleAsync()).InvokeVoidAsync("abstCanvas.drawText", ctx, x, y, text, font, color, fontSize, alignment);
+    public async ValueTask CanvasDrawText(IJSObjectReference ctx, double x, double y, string text, string font, string color, int fontSize, string alignment, int letterSpacing = 0)
+        => await (await GetModuleAsync()).InvokeVoidAsync("abstCanvas.drawText", ctx, x, y, text, font, color, fontSize, alignment, letterSpacing);
 
     public async ValueTask CanvasDrawPictureData(IJSObjectReference ctx, byte[] data, int width, int height, int x, int y)
         => await (await GetModuleAsync()).InvokeVoidAsync("abstCanvas.drawPictureData", ctx, data, width, height, x, y);
