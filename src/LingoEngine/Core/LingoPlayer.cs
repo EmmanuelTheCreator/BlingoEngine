@@ -29,6 +29,7 @@ namespace LingoEngine.Core
         private readonly LingoSound _sound;
         private readonly ILingoWindow _window;
         private readonly ILingoServiceProvider _serviceProvider;
+        private readonly LingoGlobalVars _globals;
         private Action<LingoMovie> _actionOnNewMovie;
         private Dictionary<string, LingoMovieEnvironment> _moviesByName = new();
         private List<LingoMovieEnvironment> _movies = new();
@@ -85,7 +86,7 @@ namespace LingoEngine.Core
         public ILingoMovie? ActiveMovie { get; private set; }
         public event Action<ILingoMovie?>? ActiveMovieChanged;
 
-        public LingoPlayer(ILingoServiceProvider serviceProvider, ILingoFrameworkFactory factory, ILingoCastLibsContainer castLibsContainer, ILingoWindow window, ILingoClock lingoClock, ILingoSystem lingoSystem, IAbstResourceManager resourceManager)
+        public LingoPlayer(ILingoServiceProvider serviceProvider, ILingoFrameworkFactory factory, ILingoCastLibsContainer castLibsContainer, ILingoWindow window, ILingoClock lingoClock, ILingoSystem lingoSystem, IAbstResourceManager resourceManager, LingoGlobalVars globals)
         {
             _csvImporter = new Lazy<CsvImporter>(() => new CsvImporter(resourceManager));
             _actionOnNewMovie = m => { };
@@ -100,6 +101,7 @@ namespace LingoEngine.Core
             _stage = Factory.CreateStage(this);
             _mouse = Factory.CreateMouse(_stage);
             _uiContext = SynchronizationContext.Current;
+            _globals = globals;
         }
         public void Dispose()
         {
@@ -113,7 +115,7 @@ namespace LingoEngine.Core
             Stage.Width = width;
             Stage.Height = height;
             Stage.BackgroundColor = backgroundColor;
-            
+
         }
 
         /// <inheritdoc/>
@@ -170,7 +172,7 @@ namespace LingoEngine.Core
                 var movieEnvironment = m.GetEnvironment();
                 _movies.Remove(movieEnvironment);
                 _moviesByName.Remove(m.Name);
-            });
+            }, _globals);
             var movieTyped = (LingoMovie)movieEnv.Movie;
 
             // Add him
@@ -203,7 +205,7 @@ namespace LingoEngine.Core
         public ILingoPlayer LoadCastLibFromCsv(string castlibName, string pathAndFilenameToCsv, bool isInternal = false)
         {
             var castLib = _castLibsContainer.AddCast(castlibName, isInternal);
-            _csvImporter.Value.ImportInCastFromCsvFile(castLib, pathAndFilenameToCsv,true, x=> Console.WriteLine("WARNING:"+x));
+            _csvImporter.Value.ImportInCastFromCsvFile(castLib, pathAndFilenameToCsv, true, x => Console.WriteLine("WARNING:" + x));
             return this;
         }
 
@@ -229,7 +231,7 @@ namespace LingoEngine.Core
 
         void ILingoPlayer.SetActiveMovie(ILingoMovie? movie) => SetActiveMovie(movie as LingoMovie);
 
-        
+
 
         internal void SetActionOnNewMovie(Action<LingoMovie> actionOnNewMovie)
         {
@@ -316,7 +318,7 @@ namespace LingoEngine.Core
                     else
                         action();
                 }
-                _delayedActionsCts.Remove(cts); 
+                _delayedActionsCts.Remove(cts);
             }, TaskScheduler.Default);
         }
     }

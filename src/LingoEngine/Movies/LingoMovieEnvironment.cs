@@ -8,6 +8,7 @@ using LingoEngine.Projects;
 using LingoEngine.Sounds;
 using LingoEngine.Stages;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using LingoEngine.Transitions;
 
 namespace LingoEngine.Movies
@@ -26,6 +27,8 @@ namespace LingoEngine.Movies
         ILingoClock Clock { get; }
         ILingoFrameworkFactory Factory { get; }
         ILingoEventMediator Events { get; }
+        ILogger Logger { get; }
+        LingoGlobalVars Globals { get; }
 
         ILingoCast? GetCastLib(int number);
         ILingoCast? GetCastLib(string name);
@@ -50,6 +53,8 @@ namespace LingoEngine.Movies
         private readonly LingoProjectSettings _projectSettings;
         private readonly Lazy<ILingoMemberFactory> _memberFactory;
         private readonly ILingoServiceProvider _rootServiceProvider;
+        private readonly ILogger<LingoMovieEnvironment> _logger;
+        private LingoGlobalVars _globals = null!;
         public ILingoEventMediator Events => _eventMediator;
 
         public ILingoPlayer Player => _player;
@@ -67,18 +72,21 @@ namespace LingoEngine.Movies
         public ILingoClock Clock => _clock;
 
         public ILingoFrameworkFactory Factory => _factory;
+        public ILogger Logger => _logger;
+        public LingoGlobalVars Globals => _globals;
 
-#pragma warning disable CS8618 
-#pragma warning restore CS8618 
-        public LingoMovieEnvironment(ILingoServiceProvider rootServiceProvider, ILingoFrameworkFactory factory, LingoProjectSettings projectSettings)
+#pragma warning disable CS8618
+#pragma warning restore CS8618
+        public LingoMovieEnvironment(ILingoServiceProvider rootServiceProvider, ILingoFrameworkFactory factory, LingoProjectSettings projectSettings, ILogger<LingoMovieEnvironment> logger)
         {
             _memberFactory = rootServiceProvider.GetRequiredService<Lazy<ILingoMemberFactory>>();
             _rootServiceProvider = rootServiceProvider;
             _factory = factory;
             _projectSettings = projectSettings;
+            _logger = logger;
         }
 
-        internal void Init(string name, int number, LingoPlayer player, LingoKey lingoKey, LingoSound sound, LingoStageMouse mouse, LingoStage stage, LingoSystem system, ILingoClock clock, LingoCastLibsContainer lingoCastLibsContainer, IServiceScope scopedServiceProvider, ILingoTransitionPlayer transitionPlayer, Action<LingoMovie> onRemoveMe)
+        internal void Init(string name, int number, LingoPlayer player, LingoKey lingoKey, LingoSound sound, LingoStageMouse mouse, LingoStage stage, LingoSystem system, ILingoClock clock, LingoCastLibsContainer lingoCastLibsContainer, IServiceScope scopedServiceProvider, ILingoTransitionPlayer transitionPlayer, Action<LingoMovie> onRemoveMe, LingoGlobalVars globals)
         {
             _scopedServiceProvider = scopedServiceProvider;
             _serviceProvider = new LingoServiceProvider();
@@ -90,10 +98,11 @@ namespace LingoEngine.Movies
             _mouse = mouse;
             _system = system;
             _clock = clock;
+            _globals = globals;
             _mouse.Subscribe(_eventMediator);
             _key.Subscribe(_eventMediator);
             _castLibsContainer = lingoCastLibsContainer;
-           
+
             _movie = new LingoMovie(this, stage, transitionPlayer, _castLibsContainer, _memberFactory.Value, name, number, _eventMediator, m =>
             {
                 onRemoveMe(m);

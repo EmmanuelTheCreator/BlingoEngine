@@ -11,6 +11,8 @@ using AbstUI.Styles;
 using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Casts;
 using AbstUI;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Linq;
 
 namespace LingoEngine.Setup
 {
@@ -85,6 +87,18 @@ namespace LingoEngine.Setup
             return this;
         }
 
+        public ILingoEngineRegistration WithGlobalVars<TGlobalVars>(Action<TGlobalVars>? setup = null) where TGlobalVars : LingoGlobalVars
+        {
+            _container.RemoveAll<LingoGlobalVars>();
+            _container.AddSingleton<LingoGlobalVars>(sp =>
+            {
+                var globals = ActivatorUtilities.CreateInstance<TGlobalVars>(sp);
+                setup?.Invoke(globals);
+                return globals;
+            });
+            return this;
+        }
+
         public ILingoEngineRegistration BuildDelayed()
         {
             if (_hasBeenBuild && _player != null) return this;
@@ -96,6 +110,7 @@ namespace LingoEngine.Setup
         {
             if (_hasBeenBuild && _player != null) return _player;
             CreateProjectFactory();
+            EnsureGlobalVars();
             _serviceProvider = _container.BuildServiceProvider();
             return Build(_serviceProvider);
         }
@@ -236,6 +251,14 @@ namespace LingoEngine.Setup
             _projectFactory = _makeFactoryMethod();
         }
 
+        internal void EnsureGlobalVars()
+        {
+            if (!_container.Any(s => s.ServiceType == typeof(LingoGlobalVars)))
+            {
+                WithGlobalVars<LingoGlobalVars>();
+            }
+        }
+
         private void ApplyProjectSettings()
         {
             if (_serviceProvider == null || _player == null)
@@ -278,7 +301,7 @@ namespace LingoEngine.Setup
             fontsManager.LoadAll();
         }
 
-       
+
         #endregion
 
 
