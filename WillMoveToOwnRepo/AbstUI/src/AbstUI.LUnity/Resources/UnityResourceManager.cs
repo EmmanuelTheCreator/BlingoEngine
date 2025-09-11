@@ -3,21 +3,8 @@ using AbstUI.Resources;
 
 namespace AbstUI.LUnity.Resources
 {
-    public class UnityResourceManager : IAbstResourceManager
+    public class UnityResourceManager : AbstResourceManager
     {
-        public bool FileExists(string fileName)
-        {
-            return File.Exists(fileName);
-        }
-
-        public string? ReadTextFile(string fileName)
-        {
-            return File.Exists(fileName) ? File.ReadAllText(fileName) : null;
-        }
-
-        public byte[]? ReadBytes(string fileName)
-        {
-            return File.Exists(fileName) ? File.ReadAllBytes(fileName) : null;
-        }
+       
     }
 }

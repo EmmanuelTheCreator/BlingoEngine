@@ -10,6 +10,8 @@ namespace LingoEngine.Demo.TetriGrounds.Core
         public ParentScripts.SpriteManager? SpriteManager { get; set; }
         public ParentScripts.MousePointer? MousePointer { get; set; }
         public bool GameIsRunning { get; internal set; }
+        public string PlayerName { get; internal set; } = "";
+        public TetrigroundsRootJson.ScoresContent Scores { get; internal set; } = new();
 
         protected override void OnClearGlobals()
         {
@@ -20,5 +22,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core
             LastInfo = string.Empty;
         }
     }
+
+
 }
 

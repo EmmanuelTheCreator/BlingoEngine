@@ -12,7 +12,7 @@ using AbstUI.FrameworkCommunication;
 
 namespace AbstUI.SDL2.Windowing
 {
-    public class AbstSdlDialog : AbstSdlDialog<AbstDialog>
+    public partial class AbstSdlDialog : AbstSdlDialog<AbstDialog>, IFrameworkFor<AbstDialog>, IAbstFrameworkDialog<AbstDialog> 
     {
         public AbstSdlDialog(AbstSdlComponentFactory factory) : base(factory)
         {
@@ -34,11 +34,7 @@ namespace AbstUI.SDL2.Windowing
         private SDL.SDL_Rect _closeRect;
         public const int TitleBarHeight = 24;
 
-        public AbstSdlDialog(AbstSdlComponentFactory factory) : base(factory)
-        {
-            _factory = factory;
-            Visibility = false;
-        }
+        #region Properties
 
         public string Title
         {
@@ -63,16 +59,30 @@ namespace AbstUI.SDL2.Windowing
         public bool Borderless
         {
             get => _borderless;
-            set => _borderless = value;
+            set
+            {
+                if (_borderless == value) return;
+                _borderless = value;
+                Height = Borderless ? Height : Height + TitleBarHeight;
+            }
         }
 
         public bool IsActiveWindow => Visibility;
 
         public IAbstMouse Mouse => _dialog.Mouse;
 
-        public IAbstKey Key => _dialog.Key;
+        public IAbstKey Key => _dialog.Key; 
+        #endregion
 
         public event Action<bool>? OnWindowStateChanged;
+
+        public AbstSdlDialog(AbstSdlComponentFactory factory) : base(factory)
+        {
+            _factory = factory;
+            Visibility = false;
+            ClipChildren = true;
+        }
+
 
         public void Init(IAbstDialog instance)
         {
@@ -120,12 +130,12 @@ namespace AbstUI.SDL2.Windowing
 
         public APoint GetPosition() => new APoint(X, Y);
 
-        public APoint GetSize() => new APoint(Width, Height);
+        public APoint GetSize() => new APoint(Width, Borderless?Height - TitleBarHeight : Height);
 
         public void SetSize(int width, int height)
         {
             Width = width;
-            Height = height;
+            Height = Borderless? height+ TitleBarHeight: height;
         }
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
@@ -134,53 +144,58 @@ namespace AbstUI.SDL2.Windowing
                 return default;
             if (_centered)
                 UpdateCenterPosition();
-
+            _xOffset = (int)X;
+            _yOffset = (int)(Borderless?Y: Y+TitleBarHeight);
             var tex = (nint)base.Render(context);
+            
             int w = (int)Width;
 
             if (_font == null)
                 _font = context.SdlFontManager.GetTyped(this, null, 14);
 
-            var prev = SDL.SDL_GetRenderTarget(context.Renderer);
-            SDL.SDL_SetRenderTarget(context.Renderer, tex);
-
-            // title bar
-            SDL.SDL_SetRenderDrawColor(context.Renderer, 200, 200, 200, 255);
-            var bar = new SDL.SDL_Rect { x = 0, y = 0, w = w, h = TitleBarHeight };
-            SDL.SDL_RenderFillRect(context.Renderer, ref bar);
-
-            // draw title
-            if (!string.IsNullOrEmpty(_title))
+            if (!Borderless)
             {
-                SDL.SDL_Color col = new SDL.SDL_Color { r = 0, g = 0, b = 0, a = 255 };
-                nint surf = SDL_ttf.TTF_RenderUTF8_Blended(_font!.FontHandle, _title, col);
-                if (surf != nint.Zero)
+                var prev = SDL.SDL_GetRenderTarget(context.Renderer);
+                SDL.SDL_SetRenderTarget(context.Renderer, tex);
+                // title bar
+                SDL.SDL_SetRenderDrawColor(context.Renderer, 200, 200, 200, 255);
+                var bar = new SDL.SDL_Rect { x = 0, y = 0, w = w, h = TitleBarHeight };
+                SDL.SDL_RenderFillRect(context.Renderer, ref bar);
+
+                // draw title
+                if (!string.IsNullOrEmpty(_title))
                 {
-                    var s = Marshal.PtrToStructure<SDL.SDL_Surface>(surf);
-                    nint t = SDL.SDL_CreateTextureFromSurface(context.Renderer, surf);
-                    SDL.SDL_FreeSurface(surf);
-                    var dst = new SDL.SDL_Rect
+                    SDL.SDL_Color col = new SDL.SDL_Color { r = 0, g = 0, b = 0, a = 255 };
+                    nint surf = SDL_ttf.TTF_RenderUTF8_Blended(_font!.FontHandle, _title, col);
+                    if (surf != nint.Zero)
                     {
-                        x = 4,
-                        y = (TitleBarHeight - s.h) / 2,
-                        w = s.w,
-                        h = s.h
-                    };
-                    SDL.SDL_RenderCopy(context.Renderer, t, nint.Zero, ref dst);
-                    SDL.SDL_DestroyTexture(t);
+                        var s = Marshal.PtrToStructure<SDL.SDL_Surface>(surf);
+                        nint t = SDL.SDL_CreateTextureFromSurface(context.Renderer, surf);
+                        SDL.SDL_FreeSurface(surf);
+                        var dst = new SDL.SDL_Rect
+                        {
+                            x = 4,
+                            y = (TitleBarHeight - s.h) / 2,
+                            w = s.w,
+                            h = s.h
+                        };
+                        SDL.SDL_RenderCopy(context.Renderer, t, nint.Zero, ref dst);
+                        SDL.SDL_DestroyTexture(t);
+                    }
                 }
+
+                // close button
+                int btnSize = TitleBarHeight - 4;
+                _closeRect = new SDL.SDL_Rect { x = w - btnSize - 2, y = 2, w = btnSize, h = btnSize };
+                SDL.SDL_SetRenderDrawColor(context.Renderer, 180, 0, 0, 255);
+                SDL.SDL_RenderFillRect(context.Renderer, ref _closeRect);
+                SDL.SDL_SetRenderDrawColor(context.Renderer, 255, 255, 255, 255);
+                SDL.SDL_RenderDrawLine(context.Renderer, _closeRect.x + 3, _closeRect.y + 3, _closeRect.x + _closeRect.w - 3, _closeRect.y + _closeRect.h - 3);
+                SDL.SDL_RenderDrawLine(context.Renderer, _closeRect.x + _closeRect.w - 3, _closeRect.y + 3, _closeRect.x + 3, _closeRect.y + _closeRect.h - 3);
+                SDL.SDL_SetRenderTarget(context.Renderer, prev);
             }
+            //base.Render(context);
 
-            // close button
-            int btnSize = TitleBarHeight - 4;
-            _closeRect = new SDL.SDL_Rect { x = w - btnSize - 2, y = 2, w = btnSize, h = btnSize };
-            SDL.SDL_SetRenderDrawColor(context.Renderer, 180, 0, 0, 255);
-            SDL.SDL_RenderFillRect(context.Renderer, ref _closeRect);
-            SDL.SDL_SetRenderDrawColor(context.Renderer, 255, 255, 255, 255);
-            SDL.SDL_RenderDrawLine(context.Renderer, _closeRect.x + 3, _closeRect.y + 3, _closeRect.x + _closeRect.w - 3, _closeRect.y + _closeRect.h - 3);
-            SDL.SDL_RenderDrawLine(context.Renderer, _closeRect.x + _closeRect.w - 3, _closeRect.y + 3, _closeRect.x + 3, _closeRect.y + _closeRect.h - 3);
-
-            SDL.SDL_SetRenderTarget(context.Renderer, prev);
             return tex;
         }
 
@@ -188,18 +203,26 @@ namespace AbstUI.SDL2.Windowing
         {
             if (!Visibility)
                 return;
-
-            if (e.Event.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN)
+            e.OffsetX = -X;
+            e.OffsetY = -Y;
+            e.CalulateIsInside(Width,Height);
+            if (!Borderless)
             {
-                int lx = e.Event.button.x - (int)X;
-                int ly = e.Event.button.y - (int)Y;
-                if (lx >= _closeRect.x && lx <= _closeRect.x + _closeRect.w &&
-                    ly >= _closeRect.y && ly <= _closeRect.y + _closeRect.h)
+                //Console.WriteLine($"{e.MouseX}x{e.MouseY} {e.OffsetX}x{e.OffsetY} Inside={e.IsInside}\t {e.ComponentLeft}x{e.ComponentTop} \tSize={Width}x{Height}");
+                if (e.Event.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN)
                 {
-                    Hide();
-                    e.StopPropagation = true;
+                    var lx = e.ComponentLeft;
+                    var ly = e.ComponentTop;
+                    if (lx >= _closeRect.x && lx <= _closeRect.x + _closeRect.w &&
+                        ly >= _closeRect.y && ly <= _closeRect.y + _closeRect.h)
+                    {
+                        Hide();
+                        e.StopPropagation = true;
+                        return;
+                    }
                 }
             }
+            base.HandleEvent(e);
         }
 
         public override void Dispose()

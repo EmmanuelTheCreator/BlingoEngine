@@ -6,6 +6,7 @@
     <LangVersion>12</LangVersion>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <RootNamespace>LingoEngine.L3D.Core</RootNamespace>
+	  <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../LingoEngine/LingoEngine.csproj" />

@@ -9,6 +9,7 @@ using LingoEngine.Sprites;
 using Microsoft.Extensions.Logging;
 using System.Numerics;
 using AbstUI.Primitives;
+using AbstUI.Inputs;
 
 namespace LingoEngine.Core
 {
@@ -19,8 +20,6 @@ namespace LingoEngine.Core
         void Trace(string message);
         void Log(string message);
         T Global<T>() where T : LingoGlobalVars;
-        void ClearGlobals();
-        void ShowGlobals();
         ILingoPlayer Player { get; }
     }
 
@@ -138,8 +137,8 @@ namespace LingoEngine.Core
         public void Trace(string message) => _logger.LogTrace(message);
         public void Log(string message) => _logger.LogInformation(message);
         public T Global<T>() where T : LingoGlobalVars => (T)_globals;
-        public void ClearGlobals() => _globals.ClearGlobals();
-        public void ShowGlobals() => _globals.ShowGlobals(_logger);
+        protected void ClearGlobals() => _globals.ClearGlobals();
+        protected void ShowGlobals() => _globals.ShowGlobals(_logger);
 
 
         #region Members
@@ -206,6 +205,9 @@ namespace LingoEngine.Core
         protected void StartTimer() => _env.Movie.StartTimer();
         protected int Timer => _env.Movie.Timer;
         #endregion
+
+        protected IAbstJoystickKeyboard CreateJoystickKeyboard(Action<AbstJoystickKeyboard>? configure = null, AbstJoystickKeyboard.KeyboardLayoutType layoutType = AbstJoystickKeyboard.KeyboardLayoutType.Azerty, bool showEscapeKey = false, APoint? position = null) 
+            => ((LingoPlayer)_Player).Factory.ComponentFactory.CreateJoystickKeyboard(configure, layoutType, showEscapeKey, position);
     }
 
 }

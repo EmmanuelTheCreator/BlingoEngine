@@ -9,6 +9,7 @@
 		<Platforms>AnyCPU;x64;x86</Platforms>
 		<!--Disable warning of invalid/incompatible GodotSharp version-->
 		<NoWarn>NU1605</NoWarn>
+		<Configurations>Debug;Release</Configurations>
 	</PropertyGroup>
         <ItemGroup>
           <Content Include="Media\Fonts\8PinMatrix.ttf">

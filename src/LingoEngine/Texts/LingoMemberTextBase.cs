@@ -55,10 +55,11 @@ namespace LingoEngine.Texts
             set
             {
                 _mdData = null;
-                _markdown = value;
-                UpdateText(value);
-                _frameworkMember.Text = value;
-
+                var newValue = value.Replace("\r\n","\r");
+                _markdown = newValue;
+                UpdateText(newValue);
+                _frameworkMember.Text = newValue;
+                Height = 0; // force re-render
             }
         }
 
@@ -361,7 +362,7 @@ namespace LingoEngine.Texts
             _markDownRenderer.Render(painter, new APoint(0, 0));
             _texture = painter.GetTexture("Text_" + Name);
             if (Width <= 0) Width = _texture.Width;
-            if (Height <= 0) Height = _texture.Height;
+            Height = _texture.Height;
             _hasLoadedTexTure = true;
             _textureUser = _texture.AddUser(this);
             _isRendering = false;

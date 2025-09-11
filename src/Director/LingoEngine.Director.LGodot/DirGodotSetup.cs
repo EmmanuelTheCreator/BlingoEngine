@@ -105,7 +105,7 @@ namespace LingoEngine.Director.LGodot
                 })
                 .AddPreBuildAction(p =>
                 {
-                    p.WithAbstUIGodot();
+                    //p.WithAbstUIGodot();
                     p.GetRequiredService<DirGodotWindowManagerDecorator>(); // register for window events;
                 })
                 .AddBuildAction(p =>

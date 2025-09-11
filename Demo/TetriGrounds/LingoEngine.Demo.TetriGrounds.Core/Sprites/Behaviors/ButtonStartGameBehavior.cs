@@ -16,8 +16,6 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             _global = global;
         }
 
-       
-
         public void MouseDown(LingoMouseEvent mouse)
         {
             StartNewGame();
@@ -32,6 +30,8 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 
         private void StartNewGame()
         {
+            //SendSprite<EnterHighScoreBehavior>(38, x => x.Show());
+            //return;
             if (_global.GameIsRunning)
                 return;
             _Player.SoundPlayBtnStart();

@@ -1,14 +1,6 @@
 using AbstUI.Components;
-using AbstUI.Components.Buttons;
-using AbstUI.Components.Containers;
-using AbstUI.Components.Graphics;
-using AbstUI.Components.Inputs;
-using AbstUI.Components.Menus;
-using AbstUI.Components.Texts;
 using AbstUI.Inputs;
 using AbstUI.LGodot.Components;
-using AbstUI.LGodot.Components.Inputs;
-using AbstUI.LGodot.Components.Menus;
 using AbstUI.LGodot.Inputs;
 using AbstUI.LGodot.Styles;
 using AbstUI.LGodot.Windowing;
@@ -17,14 +9,19 @@ using AbstUI.Resources;
 using AbstUI.LGodot.Resources;
 using AbstUI.Windowing;
 using Microsoft.Extensions.DependencyInjection;
+using AbstUI.Core;
 
 namespace AbstUI.LGodot
 {
     public static class AbstUIGodotSetup
     {
-
+        public static bool IsRegisteredServices = false;
+        public static bool IsRegistered = false;
         public static IServiceCollection WithAbstUIGodot(this IServiceCollection services, Action<IAbstFameworkComponentWinRegistrator>? windowRegistrations = null)
         {
+            if (IsRegisteredServices) return services;
+            AbstEngineGlobal.RunFramework = AbstEngineRunFramework.Godot;
+            IsRegisteredServices = true;
             services
                 .AddSingleton<GodotComponentFactory>()
                 .AddTransient<IAbstComponentFactory>(p => p.GetRequiredService<GodotComponentFactory>())
@@ -47,9 +44,11 @@ namespace AbstUI.LGodot
 
             return services;
         }
-
+        
         public static IServiceProvider WithAbstUIGodot(this IServiceProvider services)
         {
+            if (IsRegistered) return services;
+            IsRegistered = true;
             services.WithAbstUI(); // need to be first to register all the windows in the windows factory.
             var factory = services.GetRequiredService<IAbstComponentFactory>();
             factory

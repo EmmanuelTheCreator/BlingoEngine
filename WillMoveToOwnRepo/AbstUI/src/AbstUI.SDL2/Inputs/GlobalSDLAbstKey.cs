@@ -10,6 +10,7 @@ namespace AbstUI.SDL2.Inputs
         {
             _framework = new SdlKey();
             Init(_framework);
+            _framework.SetKeyObj(this);
         }
 
         internal SdlKey Framework => _framework;

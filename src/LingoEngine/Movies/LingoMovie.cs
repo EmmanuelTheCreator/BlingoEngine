@@ -13,6 +13,7 @@ using LingoEngine.Tempos;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Scripts;
 using AbstUI.Primitives;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Movies
 {
@@ -529,6 +530,7 @@ namespace LingoEngine.Movies
 
         public LingoMovieEnvironment GetEnvironment() => _environment;
         public ILingoServiceProvider GetServiceProvider() => _environment.GetServiceProvider();
+        public T GetRequiredService<T>() where T : notnull => _environment.GetServiceProvider().GetRequiredService<T>();
 
         public void StartTimer() => Timer = 0;
 

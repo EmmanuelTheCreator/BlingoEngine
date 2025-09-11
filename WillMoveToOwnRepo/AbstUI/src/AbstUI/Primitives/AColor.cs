@@ -104,8 +104,8 @@ namespace AbstUI.Primitives
         /// <summary>
         /// Creates a AbstUIColor from an RGB tuple.
         /// </summary>
-        public static AColor FromRGBA(byte r, byte g, byte b, byte a = 255)
-            => new AColor(-1, r, g, b, "", a);
+        public static AColor FromRGBA(byte r, byte g, byte b, byte a = 255) => new AColor(-1, r, g, b, "", a);
+        public static AColor New(byte r, byte g, byte b, byte a = 255) => new AColor(-1, r, g, b, "", a);
         public static AColor FromRGB(byte r, byte g, byte b, int code = -1, string name = "", byte a = 255)
             => new AColor(code, r, g, b, name, a);
         public static AColor Transparent() => new AColor { A = 0, Code = -1, R = 0, G = 0, B = 0, Name = "transparent" };

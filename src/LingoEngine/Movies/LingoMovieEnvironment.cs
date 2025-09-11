@@ -7,9 +7,10 @@ using LingoEngine.Members;
 using LingoEngine.Projects;
 using LingoEngine.Sounds;
 using LingoEngine.Stages;
+using LingoEngine.Transitions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using LingoEngine.Transitions;
+using System;
 
 namespace LingoEngine.Movies
 {
@@ -35,6 +36,8 @@ namespace LingoEngine.Movies
         internal ILingoCastLibsContainer CastLibsContainer { get; }
         T? GetMember<T>(int number, int? castLibNum = null) where T : class, ILingoMember;
         T? GetMember<T>(string name, int? castLibNum = null) where T : class, ILingoMember;
+
+        T GetRequiredService<T>() where T : notnull;
     }
     public class LingoMovieEnvironment : ILingoMovieEnvironment, IDisposable
     {
@@ -110,6 +113,7 @@ namespace LingoEngine.Movies
             }, _projectSettings, _rootServiceProvider.GetRequiredService<ILingoFrameLabelManager>());
         }
         internal ILingoServiceProvider GetServiceProvider() => _serviceProvider;
+        public T GetRequiredService<T>() where T : notnull => _serviceProvider.GetRequiredService<T>();
         public void Dispose()
         {
             _mouse.Unsubscribe(_eventMediator);

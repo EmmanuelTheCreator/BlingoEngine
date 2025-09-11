@@ -5,5 +5,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	  <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 </Project>

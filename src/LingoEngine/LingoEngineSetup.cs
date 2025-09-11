@@ -12,6 +12,7 @@ using LingoEngine.Transitions.TransitionLibrary;
 using LingoEngine.Sprites.BehaviorLibrary;
 using LingoEngine.Xtras.BuddyApi;
 using Microsoft.Extensions.DependencyInjection;
+using AbstUI;
 
 namespace LingoEngine
 {
@@ -45,8 +46,6 @@ namespace LingoEngine
                    .AddScoped<ILingoEventMediator, LingoEventMediator>()
                    // Xtras
                    .AddScoped<IBuddyAPI, BuddyAPI>()
-
-                   .AddTransient<LingoJoystickKeyboard>()
                    ;
 
             return services;
