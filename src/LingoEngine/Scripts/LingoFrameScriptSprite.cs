@@ -6,6 +6,7 @@ using LingoEngine.Members;
 using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Core;
+using Microsoft.Extensions.DependencyInjection;
 
 
 namespace LingoEngine.Scripts;
@@ -13,7 +14,7 @@ namespace LingoEngine.Scripts;
 public class LingoFrameScriptSprite : LingoSprite, ILingoSpriteWithMember
 {
     public const int SpriteNumOffset = 5;
-    private readonly ILingoPlayer player;
+    private readonly ILingoPlayer _player;
     private readonly ILingoFrameworkFactory _frameworkFactory;
     private Action<LingoFrameScriptSprite> _onRemoveMe;
   
@@ -28,7 +29,7 @@ public class LingoFrameScriptSprite : LingoSprite, ILingoSpriteWithMember
     public LingoFrameScriptSprite(ILingoPlayer player,ILingoFrameworkFactory frameworkFactory, ILingoEventMediator eventMediator, Action<LingoFrameScriptSprite> onRemoveMe) : base(eventMediator)
 #pragma warning restore CS8618 
     {
-        this.player = player;
+        _player = player;
         _frameworkFactory = frameworkFactory;
         _onRemoveMe = onRemoveMe;
         IsSingleFrame = true;
@@ -71,8 +72,8 @@ public class LingoFrameScriptSprite : LingoSprite, ILingoSpriteWithMember
     }
     internal T SetBehavior<T>() where T : LingoSpriteBehavior
     {
-        if (player.ActiveMovie == null) throw new Exception("No active movie found to set behavior on.");
-        var behavior = _frameworkFactory.CreateBehavior<T>((LingoMovie)player.ActiveMovie);
+        if (_player.ActiveMovie == null) throw new Exception("No active movie found to set behavior on.");
+        var behavior = ((LingoPlayer)_player).ServiceProvider.GetRequiredService<T>();
         Behavior = behavior;
         
         //Behavior.SetMe(this);

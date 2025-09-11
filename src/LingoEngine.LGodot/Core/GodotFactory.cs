@@ -67,8 +67,6 @@ namespace LingoEngine.LGodot.Core
 
         public IAbstComponentFactory ComponentFactory => _gfxFactory;
 
-        public T CreateBehavior<T>(LingoMovie lingoMovie) where T : LingoSpriteBehavior => lingoMovie.GetServiceProvider().GetRequiredService<T>();
-        public T CreateMovieScript<T>(LingoMovie lingoMovie) where T : LingoMovieScript => lingoMovie.GetServiceProvider().GetRequiredService<T>();
 
         #region Sound
 

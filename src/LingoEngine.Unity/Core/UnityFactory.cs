@@ -251,11 +251,7 @@ public class UnityFactory : ILingoFrameworkFactory, IDisposable
         return sprite;
     }
 
-    public T CreateBehavior<T>(LingoMovie lingoMovie) where T : LingoSpriteBehavior
-        => lingoMovie.GetServiceProvider().GetRequiredService<T>();
-    public T CreateMovieScript<T>(LingoMovie lingoMovie) where T : LingoMovieScript
-        => lingoMovie.GetServiceProvider().GetRequiredService<T>();
-
+  
     public void Dispose()
     {
         foreach (var d in _disposables)

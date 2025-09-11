@@ -8,11 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Director.SDL2.Behaviors;
 
-internal class DirSdlBehaviorLibraryWindow : AbstSdlWindow, IDirFrameworkBehaviorLibraryWindow, IFrameworkFor<DirectorBehaviorLibraryWindow>
+internal class DirSdlBehaviorInspectorWindow : AbstSdlWindow, IDirFrameworkBehaviorInspectorWindow, IFrameworkFor<DirBehaviorInspectorWindow>
 {
-    private readonly DirectorBehaviorLibraryWindow _directorWindow;
+    private readonly DirBehaviorInspectorWindow _directorWindow;
 
-    public DirSdlBehaviorLibraryWindow(DirectorBehaviorLibraryWindow directorWindow, IServiceProvider services)
+    public DirSdlBehaviorInspectorWindow(DirBehaviorInspectorWindow directorWindow, IServiceProvider services)
         : base((AbstSdlComponentFactory)services.GetRequiredService<IAbstComponentFactory>())
     {
         _directorWindow = directorWindow;

@@ -60,7 +60,7 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<DirectorCastWindow>()
                     .AddSingleton<DirectorScoreWindow>()
                     .AddSingleton<DirectorPropertyInspectorWindow>()
-                    .AddSingleton<DirectorBehaviorLibraryWindow>()
+                    .AddSingleton<DirBehaviorInspectorWindow>()
                     .AddSingleton<DirectorStageGuides>()
                     .AddSingleton<DirectorBinaryViewerWindow>()
                     .AddSingleton<DirectorBinaryViewerWindowV2>()

@@ -23,7 +23,7 @@ namespace LingoEngine.Director.Core.Windowing
                 .AddSingletonWindow<DirectorCastWindow>(DirectorMenuCodes.CastWindow, s => s.CreateShortCut(DirectorMenuCodes.CastWindow, "Ctrl+3", sc => new ExecuteShortCutCommand(sc)))
                 .AddSingletonWindow<DirectorScoreWindow>(DirectorMenuCodes.ScoreWindow, s => s.CreateShortCut(DirectorMenuCodes.ScoreWindow, "Ctrl+4", sc => new ExecuteShortCutCommand(sc)))
                 .AddSingletonWindow<DirectorPropertyInspectorWindow>(DirectorMenuCodes.PropertyInspector, s => s.CreateShortCut(DirectorMenuCodes.PropertyInspector, "Ctrl+Alt+S", sc => new ExecuteShortCutCommand(sc)))
-                .AddSingletonWindow<DirectorBehaviorLibraryWindow>(DirectorMenuCodes.BehaviorLibraryWindow)
+                .AddSingletonWindow<DirBehaviorInspectorWindow>(DirectorMenuCodes.BehaviorInspectorWindow)
                 .AddSingletonWindow<DirectorBinaryViewerWindow>(DirectorMenuCodes.BinaryViewerWindow)
                 .AddSingletonWindow<DirectorBinaryViewerWindowV2>(DirectorMenuCodes.BinaryViewerWindowV2)
                 .AddSingletonWindow<DirectorStageWindow>(DirectorMenuCodes.StageWindow, s => s.CreateShortCut(DirectorMenuCodes.StageWindow, "Ctrl+1", sc => new ExecuteShortCutCommand(sc)))

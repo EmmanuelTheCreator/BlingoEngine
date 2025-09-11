@@ -36,7 +36,7 @@ namespace LingoEngine.Director.SDL2
                         .AddSingleton<DirectorStageWindow, DirSdlStageWindow>()
                         .AddSingleton<DirectorScoreWindow, DirSdlScoreWindow>()
                         .AddSingleton<DirectorPropertyInspectorWindow, DirSdlPropertyInspectorWindow>()
-                        .AddSingleton<DirectorBehaviorLibraryWindow, DirSdlBehaviorLibraryWindow>()
+                        .AddSingleton<DirBehaviorInspectorWindow, DirSdlBehaviorInspectorWindow>()
                     )
                .ServicesMain(s =>
                {
@@ -45,7 +45,7 @@ namespace LingoEngine.Director.SDL2
                         .AddTransient<IDirFrameworkStageWindow>(p => p.GetRequiredService<DirSdlStageWindow>())
                         .AddTransient<IDirFrameworkScoreWindow>(p => p.GetRequiredService<DirSdlScoreWindow>())
                         .AddTransient<IDirFrameworkPropertyInspectorWindow>(p => p.GetRequiredService<DirSdlPropertyInspectorWindow>())
-                        .AddTransient<IDirFrameworkBehaviorLibraryWindow>(p => p.GetRequiredService<DirSdlBehaviorLibraryWindow>())
+                        .AddTransient<IDirFrameworkBehaviorInspectorWindow>(p => p.GetRequiredService<DirSdlBehaviorInspectorWindow>())
                     ;
 
                    s.AddSingleton<IDirectorIconManager>(p =>

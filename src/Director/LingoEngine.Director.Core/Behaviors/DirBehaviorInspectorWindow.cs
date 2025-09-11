@@ -11,10 +11,11 @@ using LingoEngine.FrameworkCommunication;
 using LingoEngine.Sprites;
 using LingoEngine.Sprites.BehaviorLibrary;
 using LingoEngine.Core;
+using AbstUI.Windowing;
 
 namespace LingoEngine.Director.Core.Behaviors;
 
-public class DirectorBehaviorLibraryWindow : DirectorWindow<IDirFrameworkBehaviorLibraryWindow>
+public class DirBehaviorInspectorWindow : DirectorWindow<IDirFrameworkBehaviorInspectorWindow>
 {
     private readonly ILingoBehaviorLibrary _library;
     private readonly LingoPlayer _player;
@@ -25,9 +26,9 @@ public class DirectorBehaviorLibraryWindow : DirectorWindow<IDirFrameworkBehavio
     private readonly AbstLabel _description;
     private readonly Dictionary<string, LingoBehaviorDefinition> _behaviorMap = new();
 
-    public DirectorBehaviorLibraryWindow(IServiceProvider serviceProvider,
+    public DirBehaviorInspectorWindow(IServiceProvider serviceProvider,
         ILingoBehaviorLibrary library,
-        LingoPlayer player) : base(serviceProvider, DirectorMenuCodes.BehaviorLibraryWindow)
+        LingoPlayer player) : base(serviceProvider, DirectorMenuCodes.BehaviorInspectorWindow)
     {
         _library = library;
         _player = player;
@@ -51,10 +52,15 @@ public class DirectorBehaviorLibraryWindow : DirectorWindow<IDirFrameworkBehavio
         _description.Width = 280;
         _root.AddItem(_description);
 
-        Content = _root;
+        
 
         PopulateCategories();
         PopulateBehaviors(null);
+    }
+    protected override void OnInit(IAbstFrameworkWindow frameworkWindow)
+    {
+        base.OnInit(frameworkWindow);
+        Content = _root;
     }
 
     private void PopulateCategories()

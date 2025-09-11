@@ -258,11 +258,6 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
     public AbstMenu CreateContextMenu(object window) => _gfxFactory.CreateContextMenu(window);
     public AbstHorizontalLineSeparator CreateHorizontalLineSeparator(string name) => _gfxFactory.CreateHorizontalLineSeparator(name);
     public AbstVerticalLineSeparator CreateVerticalLineSeparator(string name) => _gfxFactory.CreateVerticalLineSeparator(name);
-    public T CreateBehavior<T>(LingoMovie lingoMovie) where T : LingoSpriteBehavior
-        => lingoMovie.GetServiceProvider().GetRequiredService<T>();
-    public T CreateMovieScript<T>(LingoMovie lingoMovie) where T : LingoMovieScript
-        => lingoMovie.GetServiceProvider().GetRequiredService<T>();
-
     public void Dispose()
     {
         foreach (var d in _disposables)

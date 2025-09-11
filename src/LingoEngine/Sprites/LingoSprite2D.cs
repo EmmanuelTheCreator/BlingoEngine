@@ -13,6 +13,7 @@ using LingoEngine.FrameworkCommunication;
 using System.Diagnostics;
 using LingoEngine.Inputs.Events;
 using AbstUI.Primitives;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Sprites
 {
@@ -244,7 +245,7 @@ namespace LingoEngine.Sprites
         }
         public T SetBehavior<T>(Action<T>? configure = null) where T : LingoSpriteBehavior
         {
-            var behavior = _frameworkFactory.CreateBehavior<T>(_movie);
+            var behavior = _movie.GetServiceProvider().GetRequiredService<T>();
             behavior.SetMe(this);
             _behaviors.Add(behavior);
             if (configure != null)
