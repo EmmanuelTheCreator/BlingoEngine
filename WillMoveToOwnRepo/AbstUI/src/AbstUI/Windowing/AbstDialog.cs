@@ -1,10 +1,11 @@
 ﻿using AbstUI.Components;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace AbstUI.Windowing
 {
-    public class AbstDialog : AbstNodeLayoutBase<IAbstFrameworkDialog>, IAbstDialog , IAbstMouseRectProvider
+    public class AbstDialog : AbstNodeLayoutBase<IAbstFrameworkDialog>, IAbstDialog , IAbstMouseRectProvider, IAbstKeyEventHandler<AbstKeyEvent>
     {
         T IAbstDialog.FrameworkObj<T>() => (T)_framework;
         public string Title { get => _framework.Title; set => _framework.Title = value; }
@@ -35,9 +36,20 @@ namespace AbstUI.Windowing
         {
             Mouse = mouse.CreateNewInstance(this);
             Key = key.CreateNewInstance(this);
+            //Mouse = serviceProvider.GetRequiredService<IAbstGlobalMouse>().CreateNewInstance(this);
+            //Key = serviceProvider.GetRequiredService<IAbstGlobalKey>().CreateNewInstance(this);
+            Key.Subscribe(this);
         }
 
+        public virtual void RaiseKeyDown(AbstKeyEvent key)
+        {
+            
+        }
 
+        public virtual void RaiseKeyUp(AbstKeyEvent key)
+        {
+            
+        }
         public IAbstDialog AddItem(IAbstNode node)
         {
             _framework.AddItem(node.Framework<IAbstFrameworkLayoutNode>());
@@ -71,7 +83,7 @@ namespace AbstUI.Windowing
 
         public void RaiseWindowStateChanged(bool state) => OnWindowStateChanged?.Invoke(state);
 
-        
+       
     }
 }
 

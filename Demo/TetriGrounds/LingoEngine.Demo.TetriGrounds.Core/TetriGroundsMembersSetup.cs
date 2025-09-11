@@ -43,6 +43,9 @@ namespace LingoEngine.Demo.TetriGrounds.Core
             castData.Member["T_InternetScoresP"]!.Width = 37;
             castData.Member["T_StartLevel"]!.Width = 26;
             castData.Member["T_StartLines"]!.Width = 26;
+            castData.Member["PlayerName"]!.Width = 100;
+            castData.Member["T_InputText"]!.Width = 300;
+            castData.Member["T_PopupTitle"]!.Width = 300;
 
 
         }

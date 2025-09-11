@@ -171,6 +171,10 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         _movie.AddSprite(5, 56, 64, 591, 36, c => { c.Width = 193; c.Height = 35; }).SetMember("TetriGrounds_s"); // LOGO
         _movie.AddSprite(6, 59, 64, 503, 438).SetMember(9, 2); // copyright text
         var sprite = _movie.AddSprite(7, 60, 64, 441, 92).SetMember("T_data"); // level
+        
+        
+
+
 
         // Button play
         _movie.AddSprite(9, 60, 64, 519, 343).SetMember("B_Play").AddBehavior<ButtonStartGameBehavior>(); // Button play
@@ -232,7 +236,7 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         _movie.AddSprite(28, 59, 64, 94, 113).SetMember(41, 2); // Text personal
         _movie.AddSprite(29, 59, 64, 95, 313).SetMember("T_InternetScoresNamesP");
         _movie.AddSprite(30, 59, 64, 151, 313).SetMember("T_InternetScoresP");
-        _movie.AddSprite(35, 59, 64, 323, 238, c => c.Blend = 0).SetMember("alert").Visibility = false;
+        _movie.AddSprite(35, 59, 64, 363, 238, c => c.Blend = 0).SetMember("pause").Visibility = false;
         // Start Animation
         var memberLoading = _movie.CastLib.GetMember<ILingoMemberTextBase>(56, 2)!;
         var logoSprite1 = (ILingoSprite2DLight)_movie.AddSprite(3, 2, 53, 600, 60).SetMember("TetriGrounds_s");
@@ -245,6 +249,9 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         var birdSprite1 = (ILingoSprite2DLight)_movie.AddSprite(6, 2, 31, 751, 394).SetMember("BirdAnim");
         birdSprite1.AddKeyframes((1, 751, 394), (16, 444, 273), (31, -33, 316));
 
+        _movie.AddSprite(36, 59, 64, 363, 238,c => {c.LocZ = 500;}).SetMember("alert"); //.Visibility = false;
+        _movie.AddSprite(37, 59, 64, 200, 200,c => {c.LocZ = 502;}).SetMember("T_PopupTitle"); // the player name text member
+        _movie.AddSprite(38, 59, 64, 200, 230,c => { c.LocZ = 502; }).SetMember("T_InputText").AddBehavior<EnterHighScoreBehavior>(c => c.SetSpriteNums([36,37,38])); // the player name text member
     }
 
 

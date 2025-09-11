@@ -12,6 +12,11 @@ public class SdlKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
     private string _lastKey = string.Empty;
     private int _lastCode;
 
+    public SdlKey()
+    {
+        
+    }
+
     public void SetKeyObj(AbstKey key) => _lingoKey = key;
 
     public void ProcessEvent(SDL.SDL_Event e)

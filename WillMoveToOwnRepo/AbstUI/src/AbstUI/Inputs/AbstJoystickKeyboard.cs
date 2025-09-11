@@ -17,6 +17,7 @@ namespace AbstUI.Inputs
             configure?.Invoke(keyboard);
             var rootNode = keyboard.RootFrameworkNode;
             var window = windowManager.ShowCustomDialog(keyboard.Title, rootNode, position)!;
+            window.Dialog!.Borderless = true;
             keyboard.SetWindow(window);
             return keyboard;
         }
@@ -113,6 +114,7 @@ namespace AbstUI.Inputs
         public int Margin { get; set; } = 5;
         public int FontSize { get; set; } = 12;
         public int CellSize { get; set; } = 32;
+        public bool FirstLetterUpper { get; set; } = true;
 
         private string _title = "Keyboard";
 
@@ -223,7 +225,7 @@ namespace AbstUI.Inputs
             if (_window.Dialog != null)
             {
                 _window.Dialog.BackgroundColor = BackgroundColor;
-                _window.Dialog.SetSize(width, height);
+                _window.Dialog.SetSize(width+10, height);
             }
             DrawKeyboard();
         }
@@ -378,7 +380,13 @@ namespace AbstUI.Inputs
             else
             {
                 if (Text.Length + value.Length <= MaxLength)
+                {
+                    value = value.ToLower();
+                    if (FirstLetterUpper && ((Text.Length == 0 && value.Length == 1) || (Text.Length >2 && Text[Text.Length-1] == ' ')))
+                        value = value.ToUpperInvariant();
                     Text += value;
+                }
+            
             }
 
             TextChanged?.Invoke(value);
@@ -413,7 +421,7 @@ namespace AbstUI.Inputs
                     break;
                 case "ENTER":
                 case "RETURN":
-                    ExecuteSelectedKey();
+                    EnterPressed?.Invoke();
                     break;
                 case "SPACE":
                     ProcessInput(" ");

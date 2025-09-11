@@ -130,12 +130,12 @@ namespace AbstUI.SDL2.Windowing
 
         public APoint GetPosition() => new APoint(X, Y);
 
-        public APoint GetSize() => new APoint(Width, Height);
+        public APoint GetSize() => new APoint(Width, Borderless?Height - TitleBarHeight : Height);
 
         public void SetSize(int width, int height)
         {
             Width = width;
-            Height = Borderless? height : height+ TitleBarHeight;
+            Height = Borderless? height+ TitleBarHeight: height;
         }
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
@@ -145,7 +145,7 @@ namespace AbstUI.SDL2.Windowing
             if (_centered)
                 UpdateCenterPosition();
             _xOffset = (int)X;
-            _yOffset = (int)(Y+TitleBarHeight);
+            _yOffset = (int)(Borderless?Y: Y+TitleBarHeight);
             var tex = (nint)base.Render(context);
             
             int w = (int)Width;
@@ -153,10 +153,10 @@ namespace AbstUI.SDL2.Windowing
             if (_font == null)
                 _font = context.SdlFontManager.GetTyped(this, null, 14);
 
-            var prev = SDL.SDL_GetRenderTarget(context.Renderer);
-            SDL.SDL_SetRenderTarget(context.Renderer, tex);
             if (!Borderless)
             {
+                var prev = SDL.SDL_GetRenderTarget(context.Renderer);
+                SDL.SDL_SetRenderTarget(context.Renderer, tex);
                 // title bar
                 SDL.SDL_SetRenderDrawColor(context.Renderer, 200, 200, 200, 255);
                 var bar = new SDL.SDL_Rect { x = 0, y = 0, w = w, h = TitleBarHeight };
@@ -192,8 +192,8 @@ namespace AbstUI.SDL2.Windowing
                 SDL.SDL_SetRenderDrawColor(context.Renderer, 255, 255, 255, 255);
                 SDL.SDL_RenderDrawLine(context.Renderer, _closeRect.x + 3, _closeRect.y + 3, _closeRect.x + _closeRect.w - 3, _closeRect.y + _closeRect.h - 3);
                 SDL.SDL_RenderDrawLine(context.Renderer, _closeRect.x + _closeRect.w - 3, _closeRect.y + 3, _closeRect.x + 3, _closeRect.y + _closeRect.h - 3);
+                SDL.SDL_SetRenderTarget(context.Renderer, prev);
             }
-            SDL.SDL_SetRenderTarget(context.Renderer, prev);
             //base.Render(context);
 
             return tex;

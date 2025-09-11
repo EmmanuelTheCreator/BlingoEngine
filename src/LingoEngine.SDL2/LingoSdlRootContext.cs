@@ -57,6 +57,7 @@ public class LingoSdlRootContext : AbstUISdlRootContext<LingoMouse>
     {
         Key.ProcessEvent(e);
         _sdlMouse.ProcessEvent(e);
+        base.HandleEvent(e, ref running);
     }
 
     protected override void Update(float delta)

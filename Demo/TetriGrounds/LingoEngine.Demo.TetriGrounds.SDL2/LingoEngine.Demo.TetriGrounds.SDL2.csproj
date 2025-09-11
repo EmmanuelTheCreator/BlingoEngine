@@ -216,6 +216,9 @@
     <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\53_alert.png" Link="Media\Data\53_alert.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\54_pause.png" Link="Media\Data\54_pause.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\58_Block1.png" Link="Media\Data\58_Block1.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -380,6 +383,12 @@
     <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\10.md" Link="Media\Data\10.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\11_T_InputText.md" Link="Media\Data\11_T_InputText.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+	  <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\12_T_PopupTitle.md" Link="Media\Data\12_T_PopupTitle.md">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
     <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Data\27_T_Score.md" Link="Media\Data\27_T_Score.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

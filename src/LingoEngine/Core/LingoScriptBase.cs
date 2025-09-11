@@ -20,8 +20,6 @@ namespace LingoEngine.Core
         void Trace(string message);
         void Log(string message);
         T Global<T>() where T : LingoGlobalVars;
-        void ClearGlobals();
-        void ShowGlobals();
         ILingoPlayer Player { get; }
     }
 
@@ -139,8 +137,8 @@ namespace LingoEngine.Core
         public void Trace(string message) => _logger.LogTrace(message);
         public void Log(string message) => _logger.LogInformation(message);
         public T Global<T>() where T : LingoGlobalVars => (T)_globals;
-        public void ClearGlobals() => _globals.ClearGlobals();
-        public void ShowGlobals() => _globals.ShowGlobals(_logger);
+        protected void ClearGlobals() => _globals.ClearGlobals();
+        protected void ShowGlobals() => _globals.ShowGlobals(_logger);
 
 
         #region Members
