@@ -38,7 +38,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             //// myStop = true
             //myCheckStartData = true;
             //mySendStartData = script("StartData_save").New();
-            Cursor = 200;
+            //Cursor = 200;
             // myHsUp.postScore(member("PlayerName").text, 10000)
         }
 

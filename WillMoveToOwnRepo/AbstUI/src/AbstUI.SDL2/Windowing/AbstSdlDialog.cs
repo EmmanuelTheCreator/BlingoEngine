@@ -64,6 +64,7 @@ namespace AbstUI.SDL2.Windowing
                 if (_borderless == value) return;
                 _borderless = value;
                 Height = Borderless ? Height : Height + TitleBarHeight;
+                ComponentContext.TargetHeight = (int)Height;
             }
         }
 
@@ -136,6 +137,7 @@ namespace AbstUI.SDL2.Windowing
         {
             Width = width;
             Height = Borderless? height+ TitleBarHeight: height;
+            ComponentContext.TargetHeight = (int)Height;
         }
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
@@ -144,10 +146,13 @@ namespace AbstUI.SDL2.Windowing
                 return default;
             if (_centered)
                 UpdateCenterPosition();
+            var previousX = _xOffset;
+            var previousY = _yOffset;
             _xOffset = (int)X;
             _yOffset = (int)(Borderless?Y: Y+TitleBarHeight);
             var tex = (nint)base.Render(context);
-            
+            _xOffset = previousX;
+            _yOffset = previousY;
             int w = (int)Width;
 
             if (_font == null)
@@ -206,9 +211,9 @@ namespace AbstUI.SDL2.Windowing
             e.OffsetX = -X;
             e.OffsetY = -Y;
             e.CalulateIsInside(Width,Height);
+            // Console.WriteLine($"{e.MouseX}x{e.MouseY} {e.OffsetX}x{e.OffsetY} Inside={e.IsInside}\t {e.ComponentLeft}x{e.ComponentTop} \tSize={Width}x{Height}");
             if (!Borderless)
             {
-                //Console.WriteLine($"{e.MouseX}x{e.MouseY} {e.OffsetX}x{e.OffsetY} Inside={e.IsInside}\t {e.ComponentLeft}x{e.ComponentTop} \tSize={Width}x{Height}");
                 if (e.Event.type == SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN)
                 {
                     var lx = e.ComponentLeft;

@@ -52,8 +52,9 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             }
             if (changed)
             {
-                Sprite(myNum).LocH = _Mouse.MouseH + 17;
-                Sprite(myNum).LocV = _Mouse.MouseV + 10;
+                var sprite = Sprite(myNum);
+                sprite.SetMember(myMembers[myAnimateNum]);
+                
                 if (myDir == 1)
                 {
                     if (myAnimateNum < myNumberMembers)
@@ -68,7 +69,8 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
                     else
                         myDir = 1;
                 }
-                Sprite(myNum).SetMember(myMembers[myAnimateNum]);
+                sprite.LocH = _Mouse.MouseH + 22;
+                sprite.LocV = _Mouse.MouseV;
             }
         }
 
