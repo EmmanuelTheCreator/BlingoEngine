@@ -31,9 +31,9 @@ namespace LingoEngine.VerboseLanguage
 
         public ILingoVerbosePutInto Into => this;
 
-        public void Field(string memberName, string? castlibName = null) => DoOnMember<ILingoMemberField>(memberName, castlibName, field => field.Text = _value?.ToString() ?? "");
+        public void Field(string memberName, string? castlibName = null) => DoOnMember<ILingoMemberTextBase>(memberName, castlibName, field => field.Text = _value?.ToString() ?? "");
        
-        public void Field(string memberName, int castlib) => DoOnMember<ILingoMemberField>(memberName, castlib, field => field.Text = _value?.ToString() ?? "");
+        public void Field(string memberName, int castlib) => DoOnMember<ILingoMemberTextBase>(memberName, castlib, field => field.Text = _value?.ToString() ?? "");
 
         public void ToLog() => _player.ServiceProvider.GetRequiredService<ILogger<LingoVerbosePut>>().LogInformation("Put: {Value}", _value?.ToString() ?? "null");
 

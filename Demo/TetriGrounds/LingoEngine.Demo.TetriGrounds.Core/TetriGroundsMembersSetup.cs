@@ -16,8 +16,21 @@ namespace LingoEngine.Demo.TetriGrounds.Core
             var castData = _player.CastLib("Data");
 
             // The verbose language
-            Set(the => the.WidthMember.Of.Member("T_data")).To(191);
-            Set(the => the.WidthMember.Of.Member(56,2)).To(473); // text memberLoading
+            Set(The().WidthMember.Of.Member("T_data")).To(191);
+            Set(The().WidthMember.Of.Member(56,2)).To(473); // text memberLoading
+
+            // Lingo : put round into field "round"
+            // var round = 20;
+            // Put(round).Into.Field("round");
+            // var roundText = Get(The().Text.Of.Member("round"));
+
+            // put the Text of member "Paul Robeson" into member "How Deep"
+            //Put(The().Text.Of.Member("Paul Robeson")).Into.Field("How Deep");
+
+            //var test = Not(The().Visibility.Of.Sprite(3));
+
+            //var whichSprite = 3;
+            //Set(The().Visibility.Of.Sprite(whichSprite)).Value = Not(The().Visibility.Of.Sprite(whichSprite));
 
             //castData.Member["T_data"]!.Width = 191;
             castData.Member["T_NewGame"]!.Width = 48;
