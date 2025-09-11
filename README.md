@@ -6,6 +6,12 @@
 
 <img src="Images/logo_godot.png" alt="Godot" width="20%" /><img src="Images/logo_SDL.png" alt="SDL" width="20%" /><img src="Images/logo_blazor.png" alt="Blazor" width="7%" /><img src="Images/logo_Unity.jpg" alt="Unity" width="7%" />
 
+Looking for a more expressive C# syntax? The `LingoEngine.VerboseLanguage` package offers a fluent API that mirrors classic Lingo statements.
+
+```bash
+dotnet add package LingoEngine.VerboseLanguage
+```
+
 ---
 
 ### Director.NET
