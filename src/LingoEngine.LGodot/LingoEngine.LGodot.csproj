@@ -11,6 +11,7 @@
                 <Platforms>AnyCPU;x64;x86</Platforms>
                 <AssemblyName>LingoEngine.LGodot</AssemblyName>
                 <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+	  <Configurations>Debug;Release</Configurations>
                 <!-- Specify the Godot version -->
         </PropertyGroup>
   <PropertyGroup>

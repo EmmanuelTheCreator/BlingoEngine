@@ -379,6 +379,7 @@ namespace AbstUI.Inputs
             }
             else
             {
+                if (Text.Length == 0 && value == " ") return; // no leading space
                 if (Text.Length + value.Length <= MaxLength)
                 {
                     value = value.ToLower();
@@ -421,7 +422,8 @@ namespace AbstUI.Inputs
                     break;
                 case "ENTER":
                 case "RETURN":
-                    EnterPressed?.Invoke();
+                    //EnterPressed?.Invoke();
+                    ExecuteSelectedKey();
                     break;
                 case "SPACE":
                     ProcessInput(" ");

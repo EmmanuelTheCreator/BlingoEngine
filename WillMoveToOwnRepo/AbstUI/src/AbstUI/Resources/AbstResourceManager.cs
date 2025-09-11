@@ -23,6 +23,8 @@ namespace AbstUI.Resources
         public virtual void StorageWrite<T>(string key, T data)
         {
             string saveData = Serialize(data); 
+            if (!Directory.Exists(ProjectFolder))
+                Directory.CreateDirectory(ProjectFolder);
             File.WriteAllText(CreateFilename(key), saveData);
         }
 
@@ -41,7 +43,7 @@ namespace AbstUI.Resources
 #if NET48
             return Newtonsoft.Json.JsonConvert.SerializeObject(data);
 #else
-            return System.Text.Json.JsonSerializer.Serialize(data);
+            return System.Text.Json.JsonSerializer.Serialize(data, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
 #endif
         }
 

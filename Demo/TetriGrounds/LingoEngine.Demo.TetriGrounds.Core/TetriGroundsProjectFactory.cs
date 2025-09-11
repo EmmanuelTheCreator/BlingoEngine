@@ -3,6 +3,7 @@ using AbstUI.Resources;
 using LingoEngine.Animations;
 using LingoEngine.Casts;
 using LingoEngine.Core;
+using LingoEngine.Demo.TetriGrounds.Core.ParentScripts;
 using LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors;
 using LingoEngine.Demo.TetriGrounds.Core.Sprites.Globals;
 using LingoEngine.FilmLoops;
@@ -54,6 +55,7 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
                 )
                 .ServicesLingo(s => s
                     .AddSingleton<IArkCore, TetriGroundsCore>()
+                    .AddSingleton<ScoresRepository>()
                     )
                 ;
     }
@@ -64,7 +66,6 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
     {
 
         _lingoPlayer = lingoPlayer;
-        lingoPlayer.ServiceProvider.GetRequiredService<IAbstResourceManager>().ProjectFolder = "TetriGrounds";
 
         lingoPlayer
             .LoadCastLibFromCsv("InternalExt", Path.Combine("Media", "InternalExt", "Members.csv"), true)
@@ -97,8 +98,8 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
     }
     public ILingoMovie? LoadStartupMovie(ILingoServiceProvider serviceProvider, LingoPlayer lingoPlayer)
     {
-        
         _movie = LoadMovie(lingoPlayer);
+        
         return _movie;
     }
     public void Run(ILingoMovie movie, bool autoPlayMovie)
@@ -109,8 +110,9 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
 
     public ILingoMovie LoadMovie(ILingoPlayer lingoPlayer)
     {
-
         _movie = lingoPlayer.NewMovie(MovieName);
+        _movie.GetRequiredService<IAbstResourceManager>().ProjectFolder = "TetriGrounds";
+        _movie.GetRequiredService<ScoresRepository>().LoadHighScores(_movie);
         AddLabels();
         InitSprites();
         return _movie;

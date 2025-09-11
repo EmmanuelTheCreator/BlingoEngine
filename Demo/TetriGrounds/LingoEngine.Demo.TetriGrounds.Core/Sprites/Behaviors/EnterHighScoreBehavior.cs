@@ -4,6 +4,7 @@ using LingoEngine.Movies;
 using LingoEngine.Sprites;
 using LingoEngine.Sprites.Events;
 using LingoEngine.Texts;
+using System.Xml.Linq;
 
 namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 {
@@ -15,6 +16,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
         private IAbstJoystickKeyboard? _keyboard;
         private IEnumerable<int> _spriteNums = [];
         private string _name = "";
+        private Action<string>? _onNameEntered;
 
         public EnterHighScoreBehavior(ILingoMovieEnvironment env, GlobalVars global) : base(env)
         {
@@ -39,8 +41,9 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
         }
         public string GetName() => _name;
 
-        public void Show()
+        public void Show(Action<string> onNameEntered)
         {
+            _onNameEntered = onNameEntered;
             if (_inputText == null || _popupTitle == null || _inputText ==null) return;
             _keyboard = CreateJoystickKeyboard(c => c.Title = "Type your name", AbstJoystickKeyboard.KeyboardLayoutType.Azerty, false, new APoint(170, 310));
             _keyboard.BackgroundColor = AColor.FromHex("#42432dAA");
@@ -51,7 +54,8 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             _keyboard.KeySelected += KeySelected;
             _keyboard.Closed += Closed;
             _keyboard.EnterPressed += EnterPressed;
-            
+            _name = "";
+            _inputText.Text = "";
             _popupTitle.Text = "New highscore! Type your name:";
             foreach (var sn in _spriteNums)
                 Sprite(sn).Visibility = true;
@@ -63,6 +67,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             _name = _keyboard.Text;
             _global.PlayerName = _keyboard.Text;
             _keyboard.Close();
+            _onNameEntered?.Invoke(_name);
         }
 
         private void Closed()

@@ -10,6 +10,7 @@
                 <ImplicitUsings>enable</ImplicitUsings>
                 <Platforms>AnyCPU;x64;x86</Platforms>
                 <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+			<Configurations>Debug;Release</Configurations>
                 <!-- Specify the Godot version -->
         </PropertyGroup>
 

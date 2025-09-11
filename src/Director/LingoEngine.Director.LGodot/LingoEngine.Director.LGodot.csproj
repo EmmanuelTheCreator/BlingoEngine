@@ -9,6 +9,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <Platforms>AnyCPU;x64;x86</Platforms>
+	  <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
   <PropertyGroup>
     <!-- NuGet Packaging Metadata -->

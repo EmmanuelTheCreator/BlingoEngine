@@ -18,12 +18,13 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
         private BlocksScript? myBlocks;
         private ScoreManagerScript? myScoreManager;
         private readonly GlobalVars _global;
-
+        private readonly ScoresRepository _scoresRepository;
         private int myWidth;
         private int myHeight;
-        public BgScriptBehavior(ILingoMovieEnvironment env, GlobalVars global) : base(env)
+        public BgScriptBehavior(ILingoMovieEnvironment env, GlobalVars global, ScoresRepository scoresRepository) : base(env)
         {
             _global = global;
+            _scoresRepository = scoresRepository;
         }
 
         public void BeginSprite()
@@ -85,7 +86,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             myWidth = 11;
             myHeight = 22;
             myGfx = new GfxScript(_env);
-            myScoreManager = new ScoreManagerScript(_env, _global);
+            myScoreManager = new ScoreManagerScript(_env, _global, _scoresRepository);
             myBlocks = new BlocksScript(_env, _global, myGfx, myScoreManager, myWidth, myHeight);
             myPlayerBlock = new PlayerBlockScript(_env, _global, myGfx, myBlocks, myScoreManager, myWidth, myHeight);
             myPlayerBlock.CreateBlock();

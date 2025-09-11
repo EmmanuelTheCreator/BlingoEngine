@@ -1,9 +1,8 @@
+using AbstUI.Resources;
 using LingoEngine.Core;
 using LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors;
 using LingoEngine.Movies;
 using LingoEngine.Texts;
-using System;
-using System.Collections.Generic;
 #pragma warning disable IDE1006 // Naming Styles
 namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
 {
@@ -14,6 +13,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
         private readonly LingoMemberText _memberTData;
         private readonly List<OverScreenTextScript> myOverScreenText = new();
         private readonly GlobalVars _global;
+        private readonly ScoresRepository _scoresRepository;
         private int myPlayerScore;
         private int myLevel;
         private int myNumberLinesRemoved;
@@ -22,11 +22,16 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
         private int myLevelUpNeededScore;
         private int myBlocksDroped;
         private DateTime myLastLineClear = DateTime.MinValue;
+        private DateTime _started = DateTime.MinValue;
+        private TimeSpan _elapsed;
         private readonly TimeSpan myComboDuration = TimeSpan.FromSeconds(2);
 
-        public ScoreManagerScript(ILingoMovieEnvironment env, GlobalVars global) : base(env)
+        public bool IsNewHighScore { get; private set; }
+
+        public ScoreManagerScript(ILingoMovieEnvironment env, GlobalVars global, ScoresRepository scoresRepository) : base(env)
         {
             _global = global;
+            _scoresRepository = scoresRepository;
             myPlayerScore = 0;
             myNumberLinesTot = 0;
             myLevelUp = false;
@@ -36,8 +41,10 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             _memberTData = Member<LingoMemberText>("T_data")!;
             myLevel = txt != null && int.TryParse(txt.Text, out var lvl) ? lvl : 1;
             myLevelUpNeededScore = 200 * (myLevel + 1);
+
             UpdateGfxScore();
             NewText("Go!");
+            _started = DateTime.UtcNow;
             Refresh();
         }
 
@@ -107,14 +114,33 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             myPlayerScore += 4;
             Refresh();
         }
-        public void UpdateGfxScore() => _memberScore.Text = myPlayerScore.ToString();
+        public void UpdateGfxScore()
+        {
+            _memberScore.Text = myPlayerScore.ToString();
+            IsNewHighScore = myPlayerScore > _scoresRepository.LowestScore;
+        }
+
         public bool GetLevelUp()
         {
             var t = myLevelUp;
             myLevelUp = false;
             return t;
         }
-        public void GameFinished() => NewText("You're Terminated....");
+        public void GameFinished()
+        {
+            NewText("You're Terminated....");
+            _elapsed = (DateTime.UtcNow - _started);
+            if (IsNewHighScore)
+            {
+                SendSprite<EnterHighScoreBehavior>(38, x => x.Show(name =>
+                {
+                    if (string.IsNullOrWhiteSpace(name))
+                        name = "Anonymous";
+                    _scoresRepository.StoreScore(name, myPlayerScore, myLevel, _started, _elapsed);
+                }));
+            }
+        }
+
         public int GetLevel() => myLevel;
         public int GetScore() => myPlayerScore;
         // -----------------------------
@@ -140,5 +166,11 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
         }
         // -----------------------------
         public void Destroy() => DestroyOverScreenTxt();
+        // -----------------------------
+
+        
+
+
+       
     }
 }
