@@ -18,6 +18,7 @@ public class AbstTextStyle : IAbstTextStyle
     public int LineHeight { get; set; }
     public int MarginLeft { get; set; }
     public int MarginRight { get; set; }
+    public int LetterSpacing { get; set; }
 
     /// <summary>Creates a deep copy of this style.</summary>
     public AbstTextStyle Clone()
@@ -33,7 +34,8 @@ public class AbstTextStyle : IAbstTextStyle
             Underline = Underline,
             LineHeight = LineHeight,
             MarginLeft = MarginLeft,
-            MarginRight = MarginRight
+            MarginRight = MarginRight,
+            LetterSpacing = LetterSpacing
         };
 
     /// <summary>Copies all style properties from another style instance.</summary>
@@ -50,5 +52,6 @@ public class AbstTextStyle : IAbstTextStyle
         LineHeight = style.LineHeight;
         MarginLeft = style.MarginLeft;
         MarginRight = style.MarginRight;
+        LetterSpacing = style.LetterSpacing;
     }
 }

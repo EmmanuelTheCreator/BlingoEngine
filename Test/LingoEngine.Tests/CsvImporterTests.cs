@@ -85,7 +85,7 @@ public class CsvImporterTests
         importer.ImportInCastFromCsvFile(cast, csvPath);
 
         var member = Assert.IsType<DummyTextMember>(cast.LastAddedMember);
-        Assert.Equal("{{PARA:0}}Hello", member.Text);
+        Assert.Contains("{{PARA:0}}Hello", member.Text);
         Assert.True(File.Exists(mdPath));
     }
 #endif

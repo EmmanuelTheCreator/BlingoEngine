@@ -26,7 +26,7 @@ namespace AbstUI.Texts
 
         private string _markdown = string.Empty;
 
-        private readonly AbstTextStyle _currentStyle = new() { Font = "Arial", FontSize = 12, Color = AColors.Black, Alignment = AbstTextAlignment.Left };
+        private readonly AbstTextStyle _currentStyle = new() { Font = "Arial", FontSize = 12, Color = AColors.Black, Alignment = AbstTextAlignment.Left, LetterSpacing = 0 };
         private readonly Stack<AbstTextStyle> _styleStack = new();
 
         private Dictionary<string, AbstTextStyle> _styles = new();
@@ -40,7 +40,7 @@ namespace AbstUI.Texts
             get => _styles.Values;
             private set => _styles = value?.ToDictionary(s => s.Name) ?? new();
         }
-       
+
         public AbstMarkdownRenderer(
             IAbstFontManager fontManager,
             Func<string, (byte[] data, int width, int height, APixelFormat format)>? imageLoader = null)
@@ -62,7 +62,7 @@ namespace AbstUI.Texts
         {
             if (AbstMarkdownReader.TryExtractStyleSheet(ref markdown, out var parsed))
                 styles = parsed;
-            
+
             _markdown = markdown ?? string.Empty;
             Styles = styles;
             _styleStack.Clear();
@@ -92,7 +92,7 @@ namespace AbstUI.Texts
         public void SetText(AbstMarkdownData data)
             => SetText(data.Markdown, data.Styles.Values);
 
-        
+
 
         /// <summary>Renders markdown text on the canvas starting from the given position.</summary>
         public void Render(IAbstImagePainter canvas, APoint start)
@@ -104,7 +104,7 @@ namespace AbstUI.Texts
 
             if (DoFastRendering)
             {
-                RenderFast(start, canvas.AutoResizeWidth ?0: canvas.Width);
+                RenderFast(start, canvas.AutoResizeWidth ? 0 : canvas.Width);
                 return;
             }
 
@@ -232,7 +232,7 @@ namespace AbstUI.Texts
 
             // 1) measure max width of all lines
             float fullWidth = 0f;
-            
+
             var lineWidths = new List<float>(lines.Length);
             foreach (var raw in lines)
             {
@@ -247,12 +247,13 @@ namespace AbstUI.Texts
                     if (style.Italic)
                         fontStyleForWidth |= AbstFontStyle.Italic;
                     lineWidth = EstimateWidth(line, style.Font, fontSize, fontStyleForWidth);
+                    lineWidth += style.LetterSpacing * Math.Max(0, line.Length - 1);
                 }
 
                 lineWidths.Add(lineWidth);
                 fullWidth = MathF.Max(fullWidth, lineWidth);
             }
-           if (canvasWidth > 0)
+            if (canvasWidth > 0)
                 fullWidth = canvasWidth;
             // include margins in the box width, if you want the right edge to respect MarginRight:
             float contentWidth = MathF.Max(0, fullWidth);
@@ -285,8 +286,8 @@ namespace AbstUI.Texts
                     fontStyle |= AbstFontStyle.Bold;
                 if (style.Italic)
                     fontStyle |= AbstFontStyle.Italic;
-                _canvas!.DrawSingleLine( new APoint(lineX, pos.Y),line, style.Font, style.Color, style.FontSize, 
-                    (int)MathF.Ceiling(lineW), fontInfo.FontHeight,AbstTextAlignment.Left, fontStyle);
+                _canvas!.DrawSingleLine(new APoint(lineX, pos.Y), line, style.Font, style.Color, style.FontSize,
+                    (int)MathF.Ceiling(lineW), fontInfo.FontHeight, AbstTextAlignment.Left, fontStyle);
 
                 pos.Offset(0, lineHeight);
                 lineIndex++;
@@ -365,7 +366,7 @@ namespace AbstUI.Texts
             return drawHeight;
         }
 
-        private record TextSegment(string Text, string FontFamily, int FontSize, AColor Color, bool Bold, bool Italic, bool Underline);
+        private record TextSegment(string Text, string FontFamily, int FontSize, AColor Color, bool Bold, bool Italic, bool Underline, int LetterSpacing);
 
 
         private List<TextSegment> ParseInlineSegments(string content, int initialFontSize, bool initialBold, bool initialItalic, bool initialUnderline, out float totalWidth)
@@ -394,9 +395,10 @@ namespace AbstUI.Texts
                 if (style.Bold) styleFlags |= AbstFontStyle.Bold;
                 if (style.Italic) styleFlags |= AbstFontStyle.Italic;
                 float segW = EstimateWidth(text, style.Font, style.FontSize, styleFlags);
+                segW += style.LetterSpacing * Math.Max(0, text.Length - 1);
 
                 width += segW;
-                segments.Add(new TextSegment(text, style.Font, style.FontSize, style.Color, style.Bold, style.Italic, style.Underline));
+                segments.Add(new TextSegment(text, style.Font, style.FontSize, style.Color, style.Bold, style.Italic, style.Underline, style.LetterSpacing));
                 sb.Clear();
             }
 
@@ -433,6 +435,11 @@ namespace AbstUI.Texts
                                 "justify" or "justified" => AbstTextAlignment.Justified,
                                 _ => AbstTextAlignment.Left,
                             };
+                        }
+                        else if (tag.StartsWith("LETTER-SPACING:", StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (int.TryParse(tag.Substring(15), out var ls))
+                                style.LetterSpacing = ls;
                         }
                         else if (tag.StartsWith("STYLE:", StringComparison.OrdinalIgnoreCase))
                         {
@@ -499,6 +506,7 @@ namespace AbstUI.Texts
                 if (seg.Italic) segStyle |= AbstFontStyle.Italic;
 
                 float width = EstimateWidth(seg.Text, seg.FontFamily, seg.FontSize, segStyle);
+                width += seg.LetterSpacing * Math.Max(0, seg.Text.Length - 1);
                 var fi = _fontManager.GetFontInfo(seg.FontFamily, seg.FontSize, segStyle);
 
                 float topY = baseline.Y - fi.TopIndentation;
@@ -518,6 +526,6 @@ namespace AbstUI.Texts
             }
         }
 
-        
+
     }
 }

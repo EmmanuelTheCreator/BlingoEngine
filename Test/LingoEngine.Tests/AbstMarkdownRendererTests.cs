@@ -79,4 +79,17 @@ public class AbstMarkdownRendererTests
         renderer.Render(painter, new APoint(0, 0));
         painter.FontSizes[0].Should().Be(20);
     }
+
+    [Fact]
+    public void Render_IncludesLetterSpacingInWidth()
+    {
+        var fontManager = new TestFontManager();
+        var renderer = new AbstMarkdownRenderer(fontManager);
+        var style = new AbstTextStyle { Name = "1", Font = "Arial", FontSize = 10, LetterSpacing = 2 };
+        renderer.SetText("AB", new[] { style });
+        var painter = new RecordingPainter { AutoResizeWidth = true, AutoResizeHeight = true };
+        renderer.Render(painter, new APoint(0, 0));
+        painter.TextCalls.Should().HaveCount(1);
+        painter.TextCalls[0].Width.Should().Be(22);
+    }
 }
