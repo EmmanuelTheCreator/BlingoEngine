@@ -90,11 +90,11 @@ public class CsvImporterTests
     }
 #endif
 
-    private class TestResourceManager : IAbstResourceManager
+    private class TestResourceManager : AbstResourceManager
     {
-        public bool FileExists(string fileName) => File.Exists(fileName);
-        public string? ReadTextFile(string fileName) => File.Exists(fileName) ? File.ReadAllText(fileName) : null;
+        public override bool FileExists(string fileName) => File.Exists(fileName);
+        public override string? ReadTextFile(string fileName) => File.Exists(fileName) ? File.ReadAllText(fileName) : null;
 
-        public byte[]? ReadBytes(string fileName) => File.Exists(fileName) ? File.ReadAllBytes(fileName) : null;
+        public override byte[]? ReadBytes(string fileName) => File.Exists(fileName) ? File.ReadAllBytes(fileName) : null;
     }
 }

@@ -16,8 +16,6 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             _global = global;
         }
 
-       
-
         public void MouseDown(LingoMouseEvent mouse)
         {
             StartNewGame();

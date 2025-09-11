@@ -10,6 +10,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core
         public ParentScripts.SpriteManager? SpriteManager { get; set; }
         public ParentScripts.MousePointer? MousePointer { get; set; }
         public bool GameIsRunning { get; internal set; }
+        public string PlayerName { get; internal set; } = "";
 
         protected override void OnClearGlobals()
         {
@@ -20,5 +21,18 @@ namespace LingoEngine.Demo.TetriGrounds.Core
             LastInfo = string.Empty;
         }
     }
+    public class ScoresContent
+    {
+        public DateTime LastUpdated { get; set; }
+        public record ScoreEntry(string PlayerName, int Score, DateTime when, DateTime duration);
+        public List<ScoresContent.ScoreEntry> Scores { get; set; } = [];
+    }
+    public class TetrigroundsRootJson
+    {
+        public ScoresContent Scores { get; set; } = new();
+        public string Version { get; set; } = "1.0";
+    }
+
+
 }
 

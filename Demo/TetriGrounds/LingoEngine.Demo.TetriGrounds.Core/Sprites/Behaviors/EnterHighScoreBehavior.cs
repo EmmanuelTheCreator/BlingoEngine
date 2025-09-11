@@ -1,9 +1,9 @@
-﻿using LingoEngine.Sprites;
-using LingoEngine.Movies;
+﻿using AbstUI.Inputs;
 using AbstUI.Primitives;
+using LingoEngine.Movies;
+using LingoEngine.Sprites;
 using LingoEngine.Sprites.Events;
 using LingoEngine.Texts;
-using AbstUI.Inputs;
 
 namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 {
@@ -13,7 +13,8 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
         private ILingoMemberTextBase? _inputText;
         private ILingoMemberTextBase? _popupTitle;
         private IAbstJoystickKeyboard? _keyboard;
-        private IEnumerable<int> _spriteNums;
+        private IEnumerable<int> _spriteNums = [];
+        private string _name = "";
 
         public EnterHighScoreBehavior(ILingoMovieEnvironment env, GlobalVars global) : base(env)
         {
@@ -36,6 +37,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
                 _keyboard = null!;
             }
         }
+        public string GetName() => _name;
 
         public void Show()
         {
@@ -58,6 +60,8 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
         private void EnterPressed()
         {
             if (_keyboard == null) return;
+            _name = _keyboard.Text;
+            _global.PlayerName = _keyboard.Text;
             _keyboard.Close();
         }
 
