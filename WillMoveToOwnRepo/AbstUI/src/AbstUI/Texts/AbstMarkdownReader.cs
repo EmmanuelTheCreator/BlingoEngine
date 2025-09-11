@@ -21,46 +21,46 @@ namespace AbstUI.Texts
         }
 
 
-        /// <summary>
-        /// Removes Markdown and custom {{...}} tags, leaving only plain text.
-        /// </summary>
-        public static string RetrieveTextOnly(string markdown)
-        {
-            if (string.IsNullOrEmpty(markdown))
-                return string.Empty;
+            /// <summary>
+            /// Removes Markdown and custom {{...}} tags, leaving only plain text.
+            /// </summary>
+            public static string RetrieveTextOnly(string markdown)
+            {
+                if (string.IsNullOrEmpty(markdown))
+                    return string.Empty;
 
-            var text = markdown;
+                var text = markdown;
 
-            // 1. Remove custom {{...}} tags
-            text = Regex.Replace(text, @"\{\{.*?\}\}", string.Empty, RegexOptions.Singleline);
+                // 1. Remove custom {{...}} tags
+                text = Regex.Replace(text, @"\{\{.*?\}\}", string.Empty, RegexOptions.Singleline);
 
-            // 2. Remove images ![alt](url)
-            text = Regex.Replace(text, @"!\[.*?\]\(.*?\)", string.Empty);
+                // 2. Remove images ![alt](url)
+                text = Regex.Replace(text, @"!\[.*?\]\(.*?\)", string.Empty);
 
-            // 3. Replace links [text](url) → keep only "text"
-            text = Regex.Replace(text, @"\[(.*?)\]\(.*?\)", "$1");
+                // 3. Replace links [text](url) → keep only "text"
+                text = Regex.Replace(text, @"\[(.*?)\]\(.*?\)", "$1");
 
-            // 4. Remove headings (#, ##, ###) → keep only text
-            text = Regex.Replace(text, @"^\s{0,3}#{1,6}\s*", string.Empty, RegexOptions.Multiline);
+                // 4. Remove headings (#, ##, ###) → keep only text
+                text = Regex.Replace(text, @"^\s{0,3}#{1,6}\s*", string.Empty, RegexOptions.Multiline);
 
-            // 5. Remove bold **text** → keep only "text"
-            text = Regex.Replace(text, @"\*\*(.*?)\*\*", "$1");
+                // 5. Remove bold **text** → keep only "text"
+                text = Regex.Replace(text, @"\*\*(.*?)\*\*", "$1");
 
-            // 6. Remove italic *text* → keep only "text"
-            text = Regex.Replace(text, @"\*(.*?)\*", "$1");
+                // 6. Remove italic *text* → keep only "text"
+                text = Regex.Replace(text, @"\*(.*?)\*", "$1");
 
-            // 7. Remove underline __text__ → keep only "text"
-            text = Regex.Replace(text, @"__(.*?)__", "$1");
+                // 7. Remove underline __text__ → keep only "text"
+                text = Regex.Replace(text, @"__(.*?)__", "$1");
 
-            // 8. Collapse multiple spaces (but keep newlines)
-            text = Regex.Replace(text, @"[^\S\r\n]+", " ");
+                // 8. Collapse multiple spaces (but keep newlines)
+                text = Regex.Replace(text, @"[^\S\r\n]+", " ");
 
-            // 9. Collapse 3+ newlines into 2 (keep paragraph separation)
-            text = Regex.Replace(text, @"(\r?\n){3,}", "\n\n");
+                // 9. Collapse 3+ newlines into 2 (keep paragraph separation)
+                text = Regex.Replace(text, @"(\r?\n){3,}", "\n\n");
 
 
-            return text.Trim();
-        }
+                return text.Trim();
+            }
 
 
         public static bool TryExtractStyleSheet(ref string markdown, out IEnumerable<AbstTextStyle> styles)
