@@ -144,9 +144,9 @@ namespace AbstUI.LGodot.Components
         }
 
         public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12,
-            int width = -1, AbstTextAlignment alignment = default, int letterSpacing = 0)
+            int width = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)
         {
-            _painter.DrawText(position, text, font, color, fontSize, width, alignment, AbstFontStyle.Regular, letterSpacing);
+            _painter.DrawText(position, text, font, color, fontSize, width, alignment, style, letterSpacing);
             QueueRedraw();
         }
         public void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12,

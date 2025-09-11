@@ -14,6 +14,7 @@ public class BlazorMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor
     private Lazy<AbstMouse<TAbstUIMouseEvent>> _lingoMouse;
     private readonly IJSRuntime _js;
     private IJSObjectReference? _module;
+    private AMouseCursor _lastCursor = AMouseCursor.Arrow;
 
     public int OffsetX { get; private set; }
     public int OffsetY { get; private set; }
@@ -98,6 +99,7 @@ public class BlazorMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor
 
     public void SetCursor(AMouseCursor value)
     {
+        _lastCursor = value;
         var cursor = value switch
         {
             AMouseCursor.Cross => "crosshair",
@@ -119,10 +121,13 @@ public class BlazorMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor
         };
         _ = SetCursorCss(cursor);
     }
+    public AMouseCursor GetCursor() => _lastCursor;
 
     private async Task SetCursorCss(string cursor)
     {
         _module ??= await _js.InvokeAsync<IJSObjectReference>("import", "./_content/AbstUI.Blazor/scripts/abstUIScripts.js");
         await _module.InvokeVoidAsync("AbstUIKey.setCursor", cursor);
     }
+
+   
 }

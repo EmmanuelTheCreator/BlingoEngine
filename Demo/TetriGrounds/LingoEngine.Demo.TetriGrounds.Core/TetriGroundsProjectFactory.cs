@@ -13,8 +13,7 @@ using LingoEngine.Setup;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
 using LingoEngine.Texts;
-using System.ComponentModel.DataAnnotations;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Demo.TetriGrounds.Core;
 
@@ -23,11 +22,12 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
     public const string MovieName = "Aaark Noid";
     private LingoProjectSettings _settings;
     private ILingoMovie? _movie;
-    private LingoPlayer _lingoPlayer;
+    private LingoPlayer? _lingoPlayer;
 
     public void Setup(ILingoEngineRegistration config)
     {
         config
+            .WithGlobalVars<GlobalVars>()
             //.AddFont("Arcade", Path.Combine("Media", "Fonts", "arcade.ttf"))
             //.AddFont("Bikly", Path.Combine("Media", "Fonts", "bikly.ttf"))
             //.AddFont("8Pin Matrix", Path.Combine("Media", "Fonts", "8PinMatrix.ttf"))
@@ -37,9 +37,9 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
                 {
                     s.ProjectFolder = "TetriGrounds";
                     s.ProjectName = "TetriGrounds";
-                    s.MaxSpriteChannelCount = 300;
+                    s.MaxSpriteChannelCount = 800;
                     s.StageWidth = 730;
-                    s.StageHeight = 547;
+                    s.StageHeight = 500; // original : 547
                 })
                 .ForMovie(MovieName, s => s
                     .AddScriptsFromAssembly()
@@ -49,7 +49,11 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
                 // .AddMovieScript<StartMoviesScript>() => MovieScript
                 // .AddBehavior<MouseDownNavigateBehavior>()  -> Behavior
                 // .AddParentScript<BlockParentScript>() -> Parent script
-                );
+                )
+                .ServicesLingo(s => s
+                    .AddSingleton<IArkCore, TetriGroundsCore>()
+                    )
+                ;
     }
 
 
@@ -122,7 +126,8 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
     }
     public void InitSprites()
     {
-        //if (_movie == null) return;
+        if (_movie == null) return;
+
         //TestTextChanging();
         //TestFilmLoops();
         //return;

@@ -37,8 +37,8 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Godot.NET.Sdk" Version="4.5.0-dev.5" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.6" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.8" />
+		    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.9" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\AbstUI\AbstUI.csproj" />

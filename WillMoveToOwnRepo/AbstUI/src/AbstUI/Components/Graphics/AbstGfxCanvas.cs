@@ -24,8 +24,8 @@ namespace AbstUI.Components.Graphics
             => _framework.DrawArc(center, radius, startDeg, endDeg, segments, color, width);
         public void DrawPolygon(IReadOnlyList<APoint> points, AColor color, bool filled = true, float width = 1)
             => _framework.DrawPolygon(points, color, filled, width);
-        public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, int letterSpacing = 0)
-            => _framework.DrawText(position, text, font, color, fontSize, width, alignment, letterSpacing);
+        public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)
+            => _framework.DrawText(position, text, font, color, fontSize, width, alignment, style, letterSpacing);
         public void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12,
             int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left,
             AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)

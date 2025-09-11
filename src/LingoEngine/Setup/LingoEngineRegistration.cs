@@ -90,12 +90,13 @@ namespace LingoEngine.Setup
         public ILingoEngineRegistration WithGlobalVars<TGlobalVars>(Action<TGlobalVars>? setup = null) where TGlobalVars : LingoGlobalVars
         {
             _container.RemoveAll<LingoGlobalVars>();
-            _container.AddSingleton<LingoGlobalVars>(sp =>
+            _container.AddSingleton(sp =>
             {
                 var globals = ActivatorUtilities.CreateInstance<TGlobalVars>(sp);
                 setup?.Invoke(globals);
                 return globals;
             });
+            _container.AddSingleton< LingoGlobalVars>(sp => sp.GetRequiredService<TGlobalVars>());
             return this;
         }
 
@@ -251,7 +252,7 @@ namespace LingoEngine.Setup
             _projectFactory = _makeFactoryMethod();
         }
 
-        internal void EnsureGlobalVars()
+        private void EnsureGlobalVars()
         {
             if (!_container.Any(s => s.ServiceType == typeof(LingoGlobalVars)))
             {

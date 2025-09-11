@@ -458,6 +458,9 @@
     <None Include="..\LingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\gong.mp3" Link="Media\Sounds\gong.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="..\README.md" Link="README.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   

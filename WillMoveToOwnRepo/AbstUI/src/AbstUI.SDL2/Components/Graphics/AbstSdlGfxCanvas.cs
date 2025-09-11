@@ -98,8 +98,8 @@ namespace AbstUI.SDL2.Components.Graphics
             => _painter.DrawPolygon(points, color, filled, width);
 
         public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12,
-            int width = -1, AbstTextAlignment alignment = default, int letterSpacing = 0)
-            => _painter.DrawText(position, text, font, color, fontSize, width, alignment, AbstFontStyle.Regular, letterSpacing);
+            int width = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)
+            => _painter.DrawText(position, text, font, color, fontSize, width, alignment, style, letterSpacing);
         public void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12,
             int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left,
             AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)

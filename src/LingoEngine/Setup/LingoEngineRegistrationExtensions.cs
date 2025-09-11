@@ -12,7 +12,7 @@ namespace LingoEngine.Setup
             engineRegistration.RegisterCommonServices();
             container.AddSingleton<ILingoEngineRegistration>(engineRegistration);
             config(engineRegistration);
-            engineRegistration.EnsureGlobalVars();
+           
             return container;
         }
     }
