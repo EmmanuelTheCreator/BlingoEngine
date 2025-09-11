@@ -28,19 +28,35 @@ public class LingoToCSharpConverter
     {
         var lines = source.Split('\n');
         if (lines.Length == 0) return source;
+
         var sb = new StringBuilder();
-        sb.Append(lines[0]);
-        for (int i = 1; i < lines.Length; i++)
+        var previousContinues = false;
+
+        for (int i = 0; i < lines.Length; i++)
         {
             var line = lines[i];
-            if (line.TrimStart().StartsWith("."))
-                sb.Append(line.Trim());
+            var trimmedEnd = line.TrimEnd();
+
+            if (previousContinues)
+                sb.Append(trimmedEnd.TrimStart());
             else
             {
-                sb.Append('\n');
-                sb.Append(line.TrimEnd());
+                if (i > 0)
+                    sb.Append('\n');
+                sb.Append(trimmedEnd);
+            }
+
+            if (trimmedEnd.EndsWith("\\"))
+            {
+                sb.Length--; // remove trailing backslash
+                previousContinues = true;
+            }
+            else
+            {
+                previousContinues = false;
             }
         }
+
         return sb.ToString();
     }
 

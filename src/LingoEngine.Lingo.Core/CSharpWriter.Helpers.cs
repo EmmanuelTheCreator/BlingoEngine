@@ -35,6 +35,10 @@ public partial class CSharpWriter
     private static string EscapeString(string s) => s
         .Replace("\\", "\\\\")
         .Replace("\"", "\\\"")
-        .Replace("\n", "\\n");
+        .Replace("\n", "\\n")
+        .Replace("\r", "\\r")
+        .Replace("\t", "\\t")
+        .Replace("\b", "\\b")
+        .Replace("\u0003", "\\u0003");
 }
 
