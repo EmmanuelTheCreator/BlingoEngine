@@ -21,8 +21,8 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
         private bool myLevelUp;
         private int myLevelUpNeededScore;
         private int myBlocksDroped;
-        private DateTime _lastLineClear = DateTime.MinValue;
-        private readonly TimeSpan _comboDuration = TimeSpan.FromSeconds(2);
+        private DateTime myLastLineClear = DateTime.MinValue;
+        private readonly TimeSpan myComboDuration = TimeSpan.FromSeconds(2);
 
         public ScoreManagerScript(ILingoMovieEnvironment env, GlobalVars global) : base(env)
         {
@@ -54,15 +54,15 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             if (linesThisTurn > 0)
             {
                 var now = DateTime.UtcNow;
-                if (now - _lastLineClear <= _comboDuration)
+                if (now - myLastLineClear <= myComboDuration)
                 {
                     myPlayerScore += 20 * myLevel * linesThisTurn;
                 }
-                _lastLineClear = now;
+                myLastLineClear = now;
             }
             else
             {
-                _lastLineClear = DateTime.MinValue;
+                myLastLineClear = DateTime.MinValue;
             }
             myNumberLinesRemoved = 0;
             // check for level up (its the number of blocks droped)
