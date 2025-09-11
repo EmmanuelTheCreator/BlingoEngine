@@ -1,9 +1,11 @@
+using LingoEngine.Demo.TetriGrounds.Core.ParentScripts;
 using LingoEngine.Events;
 using LingoEngine.Movies;
-using LingoEngine.Demo.TetriGrounds.Core.ParentScripts;
-using LingoEngine.Sprites;
 using LingoEngine.Movies.Events;
+using LingoEngine.Sprites;
 using LingoEngine.Sprites.Events;
+using LingoEngine.VerboseLanguage;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 #pragma warning disable IDE1006 // Naming Styles
 
 namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
@@ -39,7 +41,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
         public void ActionKey(object val)
         {
             // debug output
-            Put(val);
+            this.Put(val).ToLog();
         }
 
         public void KeyAction(int val, int val2)

@@ -87,7 +87,7 @@ namespace LingoEngine.Setup
             return this;
         }
 
-        public ILingoEngineRegistration WithGlobalVars<TGlobalVars>(Action<TGlobalVars>? setup = null) where TGlobalVars : LingoGlobalVars
+        public ILingoEngineRegistration WithGlobalVarsR<TGlobalVars>(Action<TGlobalVars>? setup = null) where TGlobalVars : LingoGlobalVars
         {
             _container.RemoveAll<LingoGlobalVars>();
             _container.AddSingleton(sp =>
@@ -95,6 +95,18 @@ namespace LingoEngine.Setup
                 var globals = ActivatorUtilities.CreateInstance<TGlobalVars>(sp);
                 setup?.Invoke(globals);
                 return globals;
+            });
+            _container.AddSingleton< LingoGlobalVars>(sp => sp.GetRequiredService<TGlobalVars>());
+            return this;
+        }
+        public ILingoEngineRegistration WithGlobalVars<TGlobalVars>(Action<TGlobalVars>? setup = null) where TGlobalVars : LingoGlobalVars, new()
+        {
+            _container.RemoveAll<LingoGlobalVars>();
+            _container.AddSingleton(sp =>
+            {
+                var globals = new TGlobalVars();
+                setup?.Invoke(globals);
+                return new TGlobalVars();
             });
             _container.AddSingleton< LingoGlobalVars>(sp => sp.GetRequiredService<TGlobalVars>());
             return this;

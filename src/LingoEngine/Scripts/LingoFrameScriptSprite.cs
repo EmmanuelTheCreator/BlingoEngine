@@ -73,7 +73,7 @@ public class LingoFrameScriptSprite : LingoSprite, ILingoSpriteWithMember
     internal T SetBehavior<T>() where T : LingoSpriteBehavior
     {
         if (_player.ActiveMovie == null) throw new Exception("No active movie found to set behavior on.");
-        var behavior = ((LingoPlayer)_player).ServiceProvider.GetRequiredService<T>();
+        var behavior = ((LingoMovie)_player.ActiveMovie).GetServiceProvider().GetRequiredService<T>();
         Behavior = behavior;
         
         //Behavior.SetMe(this);

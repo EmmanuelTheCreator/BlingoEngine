@@ -126,8 +126,8 @@ namespace LingoEngine.Sprites
         int CurrentTime { get; set; }
         /// <summary>Current playback status of the media.</summary>
         LingoMediaStatus MediaStatus { get; }
-        float Width { get; }
-        float Height { get; }
+        float Width { get; set; }
+        float Height { get; set; }
 
         /// <summary>
         /// Gets the cast member associated with this sprite. 

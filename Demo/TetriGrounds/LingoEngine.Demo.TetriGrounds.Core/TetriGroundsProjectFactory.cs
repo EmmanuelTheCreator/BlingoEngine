@@ -157,24 +157,10 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         //TestPuppetSprite();
         //return;
 
+        new TetriGroundsMembersSetup(_lingoPlayer!).InitMembers();
         var castData = _movie.CastLib["Data"];
-
-
-        castData.Member["T_data"]!.Width = 191;
-        castData.Member["T_NewGame"]!.Width = 48;
-        castData.Member["T_Score"]!.Width = 99;
-        castData.Member["T_OverScreen"]!.Width = 446;
-        castData.Member["T_OverScreen2"]!.Width = 446;
-        castData.Member["T_InternetScoresNames"]!.Width = 65;
-        castData.Member["T_InternetScores"]!.Width = 37;
-        castData.Member["T_InternetScoresNamesP"]!.Width = 69;
-        castData.Member["T_InternetScoresP"]!.Width = 37;
-        castData.Member["T_StartLevel"]!.Width = 26;
-        castData.Member["T_StartLines"]!.Width = 26;
-
         var MyBG = _movie.Member["Game"];
-        var memberLoading = _movie.CastLib.GetMember<ILingoMemberTextBase>(56, 2)!;
-        memberLoading.Width = 473;
+        
         _movie.AddFrameBehavior<GameStopBehavior>(60);
         //_movie.AddFrameBehavior<WaiterFrameScript>(1);
         //_movie.AddFrameBehavior<StayOnFrameFrameScript>(4);
@@ -248,6 +234,7 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         _movie.AddSprite(30, 59, 64, 151, 313).SetMember("T_InternetScoresP");
         _movie.AddSprite(35, 59, 64, 323, 238, c => c.Blend = 0).SetMember("alert").Visibility = false;
         // Start Animation
+        var memberLoading = _movie.CastLib.GetMember<ILingoMemberTextBase>(56, 2)!;
         var logoSprite1 = (ILingoSprite2DLight)_movie.AddSprite(3, 2, 53, 600, 60).SetMember("TetriGrounds_s");
         logoSprite1.AddKeyframes(
             new LingoKeyFrameSetting { Frame = 1, Position = new APoint(600, 60), Blend = 10 },

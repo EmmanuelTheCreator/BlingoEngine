@@ -117,8 +117,8 @@ namespace LingoEngine.Sprites
         public int Duration => _sprite.Duration;
         public int CurrentTime { get => _sprite.CurrentTime; set => _sprite.CurrentTime = value; }
         public LingoMediaStatus MediaStatus => _sprite.MediaStatus;
-        public float Width => _sprite.Width;
-        public float Height => _sprite.Height;
+        public float Width { get => _sprite.Width; set => _sprite.Width = value; }
+        public float Height { get => _sprite.Height; set => _sprite.Height = value; }
         public ILingoMember? Member
         {
             get => _sprite.Member;

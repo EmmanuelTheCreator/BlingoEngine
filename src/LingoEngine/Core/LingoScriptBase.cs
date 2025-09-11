@@ -6,15 +6,14 @@ using LingoEngine.Movies;
 using LingoEngine.Primitives;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
-using LingoEngine.Texts;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Numerics;
 using AbstUI.Primitives;
 
 namespace LingoEngine.Core
 {
 
+   
     public interface ILingoScriptBase
     {
         void Trace(string message);
@@ -22,7 +21,10 @@ namespace LingoEngine.Core
         T Global<T>() where T : LingoGlobalVars;
         void ClearGlobals();
         void ShowGlobals();
+        ILingoPlayer Player { get; }
     }
+
+  
 
     // https://usermanual.wiki/adobe/drmx2004scripting.537266374.pdf
     /// <summary>
@@ -35,11 +37,15 @@ namespace LingoEngine.Core
         private readonly ILogger _logger;
         private LingoGlobalVars _globals;
         private static readonly Random _random = new Random();
+        public ILingoPlayer Player => _env.Player;
+
+
         protected LingoScriptBase(ILingoMovieEnvironment env)
         {
             _env = env;
             _logger = env.Logger;
             _globals = env.Globals;
+            
         }
 
         // Global objects ("the mouse", etc.)
@@ -107,8 +113,7 @@ namespace LingoEngine.Core
 
         #endregion
 
-        protected void Put(object obj) => Console.WriteLine(obj);
-
+      
 
 
 
@@ -182,12 +187,7 @@ namespace LingoEngine.Core
             return member as T;
         }
 
-        protected void PutTextIntoField(string name, string text)
-        {
-            var field = TryMember<ILingoMemberField>(name);
-            if (field != null)
-                field.Text = text;
-        }
+       
         #endregion
 
 

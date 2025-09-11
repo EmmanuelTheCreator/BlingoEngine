@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Transitions;
 using LingoEngine.Transitions.TransitionLibrary;
 
+
 namespace LingoEngine.Core
 {
 
@@ -48,6 +49,7 @@ namespace LingoEngine.Core
         public LingoKey Key => _lingoKey;
         public ILingoStage Stage => _stage;
         /// <inheritdoc/>
+        public ILingoCastLibsContainer CastLibs => _castLibsContainer;
         public ILingoCast ActiveCastLib => _castLibsContainer.ActiveCast;
 
         /// <inheritdoc/>
@@ -84,6 +86,9 @@ namespace LingoEngine.Core
         /// <inheritdoc/>
         bool ILingoPlayer.SafePlayer { get; set; }
         public ILingoMovie? ActiveMovie { get; private set; }
+
+       
+
         public event Action<ILingoMovie?>? ActiveMovieChanged;
 
         public LingoPlayer(ILingoServiceProvider serviceProvider, ILingoFrameworkFactory factory, ILingoCastLibsContainer castLibsContainer, ILingoWindow window, ILingoClock lingoClock, ILingoSystem lingoSystem, IAbstResourceManager resourceManager, LingoGlobalVars globals)
