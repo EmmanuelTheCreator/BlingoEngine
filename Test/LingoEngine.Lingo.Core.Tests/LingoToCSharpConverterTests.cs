@@ -207,7 +207,7 @@ end";
             "end");
         var result = _converter.Convert(lingo);
         var expected = string.Join('\n',
-            "public void Mousedown(LingoMouseEvent mouse)",
+            "public void MouseDown(LingoMouseEvent mouse)",
             "{",
             "    if (myLock == false)",
             "    {",
@@ -546,7 +546,7 @@ on new me,_Gfx,ChosenType
 end";
         var result = _converter.Convert(lingo);
         var expected = string.Join('\n',
-            "public void Stepframe()",
+            "public void StepFrame()",
             "{",
             "    if (myDestroyAnim == true)",
             "    {",
@@ -783,7 +783,7 @@ end";
             "    Cursor = 280;",
             "}",
             "",
-            "public void Mouseleave(LingoMouseEvent mouse)",
+            "public void MouseLeave(LingoMouseEvent mouse)",
             "{",
             "    Cursor = -1;",
             "}");
@@ -1233,9 +1233,9 @@ end",
         var batch = _converter.Convert(scripts);
         var code = batch.ConvertedScripts["Counter"].Replace("\r", "");
         Assert.Contains("public class CounterBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasExitFrameEvent", code);
-        Assert.Contains("public void Beginsprite()", code);
+        Assert.Contains("public void BeginSprite()", code);
         Assert.Contains("SendSprite<GetCounterStartDataBehavior>(myDataSpriteNum", code);
-        Assert.Contains("public void Exitframe()", code);
+        Assert.Contains("public void ExitFrame()", code);
         Assert.True(batch.ConvertedScripts.ContainsKey("GetCounterStartDataBehavior"));
         var generated = batch.ConvertedScripts["GetCounterStartDataBehavior"];
         Assert.Contains("public class GetCounterStartDataBehavior : LingoSpriteBehavior", generated);
