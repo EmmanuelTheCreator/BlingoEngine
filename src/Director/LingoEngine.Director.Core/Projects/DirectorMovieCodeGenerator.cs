@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using System.Text.Json;
+using System.Collections.Generic;
 using LingoEngine.IO;
 using LingoEngine.IO.Data.DTO;
 using LingoEngine.Movies;
@@ -96,7 +97,7 @@ public class DirectorMovieCodeGenerator
             if (SkipMemberProperty(prop.Name))
                 continue;
             var value = prop.GetValue(dto);
-            if (value == null)
+            if (value == null || IsDefaultValue(value))
                 continue;
             sb.AppendLine($"            member{idx}.{prop.Name} = {FormatValue(value)};");
         }
@@ -124,31 +125,36 @@ public class DirectorMovieCodeGenerator
             var memberNum = member?.NumberInCast ?? sp.MemberNum;
             sb.AppendLine($"        movie.AddSprite({sp.SpriteNum}, {sp.BeginFrame}, {sp.EndFrame}, {FormatFloat(sp.LocH)}, {FormatFloat(sp.LocV)}, s =>");
             sb.AppendLine("        {");
-            var props = string.Join(" ", new[]
+            var props = new List<string>();
+            void AddProp(object? val, string assignment)
             {
-                $"s.Name = {FormatValue(sp.Name)};",
-                $"s.DisplayMember = {sp.DisplayMember};",
-                $"s.SpritePropertiesOffset = {sp.SpritePropertiesOffset};",
-                $"s.Puppet = {sp.Puppet.ToString().ToLowerInvariant()};",
-                $"s.Lock = {sp.Lock.ToString().ToLowerInvariant()};",
-                $"s.Visibility = {sp.Visibility.ToString().ToLowerInvariant()};",
-                $"s.LocZ = {sp.LocZ};",
-                $"s.Rotation = {FormatFloat(sp.Rotation)};",
-                $"s.Skew = {FormatFloat(sp.Skew)};",
-                $"s.RegPoint = new APoint({sp.RegPoint.X}, {sp.RegPoint.Y});",
-                $"s.Ink = {sp.Ink};",
-                $"s.ForeColor = new AColor({sp.ForeColor.R}, {sp.ForeColor.G}, {sp.ForeColor.B}, {sp.ForeColor.A});",
-                $"s.BackColor = new AColor({sp.BackColor.R}, {sp.BackColor.G}, {sp.BackColor.B}, {sp.BackColor.A});",
-                $"s.Blend = {FormatFloat(sp.Blend)};",
-                $"s.Editable = {sp.Editable.ToString().ToLowerInvariant()};",
-                $"s.FlipH = {sp.FlipH.ToString().ToLowerInvariant()};",
-                $"s.FlipV = {sp.FlipV.ToString().ToLowerInvariant()};",
-                $"s.ScoreColor = {sp.ScoreColor};",
-                $"s.Width = {FormatFloat(sp.Width)};",
-                $"s.Height = {FormatFloat(sp.Height)};",
-                $"s.Member = movie.CastLib.GetMember({memberNum}, {castNum}) as LingoMember;"
-            });
-            sb.AppendLine($"            {props}");
+                if (!IsDefaultValue(val))
+                    props.Add(assignment);
+            }
+
+            AddProp(sp.Name, $"s.Name = {FormatValue(sp.Name)};");
+            AddProp(sp.DisplayMember, $"s.DisplayMember = {FormatValue(sp.DisplayMember)};");
+            AddProp(sp.SpritePropertiesOffset, $"s.SpritePropertiesOffset = {FormatValue(sp.SpritePropertiesOffset)};");
+            AddProp(sp.Puppet, $"s.Puppet = {FormatValue(sp.Puppet)};");
+            AddProp(sp.Lock, $"s.Lock = {FormatValue(sp.Lock)};");
+            AddProp(sp.Visibility, $"s.Visibility = {FormatValue(sp.Visibility)};");
+            AddProp(sp.LocZ, $"s.LocZ = {FormatValue(sp.LocZ)};");
+            AddProp(sp.Rotation, $"s.Rotation = {FormatValue(sp.Rotation)};");
+            AddProp(sp.Skew, $"s.Skew = {FormatValue(sp.Skew)};");
+            AddProp(sp.RegPoint, $"s.RegPoint = {FormatValue(sp.RegPoint)};");
+            AddProp(sp.Ink, $"s.Ink = {FormatValue(sp.Ink)};");
+            AddProp(sp.ForeColor, $"s.ForeColor = {FormatValue(sp.ForeColor)};");
+            AddProp(sp.BackColor, $"s.BackColor = {FormatValue(sp.BackColor)};");
+            AddProp(sp.Blend, $"s.Blend = {FormatValue(sp.Blend)};");
+            AddProp(sp.Editable, $"s.Editable = {FormatValue(sp.Editable)};");
+            AddProp(sp.FlipH, $"s.FlipH = {FormatValue(sp.FlipH)};");
+            AddProp(sp.FlipV, $"s.FlipV = {FormatValue(sp.FlipV)};");
+            AddProp(sp.ScoreColor, $"s.ScoreColor = {FormatValue(sp.ScoreColor)};");
+            AddProp(sp.Width, $"s.Width = {FormatValue(sp.Width)};");
+            AddProp(sp.Height, $"s.Height = {FormatValue(sp.Height)};");
+            props.Add($"s.Member = movie.CastLib.GetMember({memberNum}, {castNum}) as LingoMember;");
+
+            sb.AppendLine($"            {string.Join(" ", props)}");
             sb.AppendLine("        });");
         }
         sb.AppendLine("    }");
@@ -206,6 +212,19 @@ public class DirectorMovieCodeGenerator
         "ImageFile" or "SoundFile" or "Bytes" => true,
         _ => false
     };
+
+
+    protected virtual bool IsDefaultValue(object? value)
+    {
+        if (value == null)
+            return true;
+        if (value is string s)
+            return string.IsNullOrEmpty(s);
+        var type = value.GetType();
+        if (!type.IsValueType)
+            return false;
+        return value.Equals(System.Activator.CreateInstance(type));
+    }
 
 
     protected virtual string FormatValue(object value)
