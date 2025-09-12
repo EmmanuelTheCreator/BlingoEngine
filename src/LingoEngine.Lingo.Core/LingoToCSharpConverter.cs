@@ -968,11 +968,13 @@ public class LingoToCSharpConverter
         return LingoScriptType.Behavior;
     }
 
-    private static readonly HashSet<string> DefaultMethods = new(
-        new[]{"StepFrame","PrepareFrame","EnterFrame","ExitFrame","BeginSprite",
-               "EndSprite","MouseDown","MouseUp","MouseMove","MouseEnter",
-               "MouseLeave","MouseWithin","MouseExit","PrepareMovie","StartMovie",
-               "StopMovie","KeyDown","KeyUp","Focus","Blur"});
+    private static readonly HashSet<string> DefaultMethods = new(new[]
+        {
+            "StepFrame","PrepareFrame","EnterFrame","ExitFrame","BeginSprite",
+            "EndSprite","MouseDown","MouseUp","MouseMove","MouseEnter",
+            "MouseLeave","MouseWithin","MouseExit","PrepareMovie","StartMovie",
+            "StopMovie","KeyDown","KeyUp","Focus","Blur"
+        }, StringComparer.OrdinalIgnoreCase);
 
     private class CustomMethodCollector : ILingoAstVisitor
     {
