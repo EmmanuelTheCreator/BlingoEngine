@@ -10,6 +10,7 @@ using LingoEngine.SDL2.Bitmaps;
 using LingoEngine.SDL2.Inputs;
 using LingoEngine.Sprites;
 using AbstUI.Tools;
+using System.Threading.Tasks;
 
 
 namespace LingoEngine.SDL2.FilmLoops;
@@ -47,7 +48,15 @@ public class SdlMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposable
     /// <summary>Marks the film loop as loaded.</summary>
     public void Preload()
     {
+        if (IsLoaded)
+            return;
         IsLoaded = true;
+    }
+
+    public Task PreloadAsync()
+    {
+        Preload();
+        return Task.CompletedTask;
     }
 
     /// <summary>Releases any GPU resources held by the film loop.</summary>

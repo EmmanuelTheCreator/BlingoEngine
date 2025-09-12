@@ -24,6 +24,7 @@ public static class BlazorSetup
             )
             .WithFrameworkFactory(setup)
             .AddPreBuildAction(x => x.WithAbstUIBlazor())
+            .AddBuildAction(sp => sp.GetRequiredService<LingoPlayer>().MediaRequiresAsyncPreload = true)
             ;
         return reg;
     }

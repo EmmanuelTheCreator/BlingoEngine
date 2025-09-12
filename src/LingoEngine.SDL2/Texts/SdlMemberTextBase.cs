@@ -11,6 +11,7 @@ using LingoEngine.SDL2.Inputs;
 using LingoEngine.Sprites;
 using LingoEngine.Texts;
 using LingoEngine.Texts.FrameworkCommunication;
+using System.Threading.Tasks;
 
 namespace LingoEngine.SDL2.Texts;
 
@@ -176,7 +177,18 @@ public abstract class SdlMemberTextBase<TText> : ILingoFrameworkMemberTextBase, 
     public void Erase() { Unload(); }
     public void ImportFileInto() { }
     public void PasteClipboardInto() => _lingoMemberText.Text = SdlClipboard.GetText();
-    public void Preload() { IsLoaded = true; }
+    public void Preload()
+    {
+        if (IsLoaded)
+            return;
+        IsLoaded = true;
+    }
+
+    public Task PreloadAsync()
+    {
+        Preload();
+        return Task.CompletedTask;
+    }
     public void Unload()
     {
         IsLoaded = false;

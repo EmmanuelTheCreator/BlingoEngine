@@ -1,5 +1,6 @@
 using LingoEngine.Members;
 using LingoEngine.Sprites;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Unity.Core;
 
@@ -15,7 +16,13 @@ public class UnityFrameworkMemberEmpty : ILingoFrameworkMemberEmpty
 
     public void PasteClipboardInto() { }
 
-    public void Preload() { }
+    public void Preload()
+    {
+        if (IsLoaded)
+            return;
+    }
+
+    public Task PreloadAsync() => Task.CompletedTask;
 
     public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
 

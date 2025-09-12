@@ -9,6 +9,7 @@ using LingoEngine.Tools;
 using Microsoft.Extensions.Logging;
 using AbstUI.LGodot.Helpers;
 using AbstUI.LGodot.Bitmaps;
+using System.Threading.Tasks;
 
 namespace LingoEngine.LGodot.Bitmaps
 {
@@ -55,7 +56,7 @@ namespace LingoEngine.LGodot.Bitmaps
             _lingoMemberPicture = lingoInstance;
             CreateTexture();
         }
-       
+
         public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
 
 
@@ -88,6 +89,12 @@ namespace LingoEngine.LGodot.Bitmaps
                 return;
         }
 
+        public Task PreloadAsync()
+        {
+            Preload();
+            return Task.CompletedTask;
+        }
+
         public void Unload()
         {
             ClearCache();
@@ -102,7 +109,7 @@ namespace LingoEngine.LGodot.Bitmaps
             _image?.Dispose();
             _texture?.Texture.Dispose();
         }
-      
+
         public void ImportFileInto()
         {
         }

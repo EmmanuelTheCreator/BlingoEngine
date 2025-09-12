@@ -10,6 +10,7 @@ using AbstUI.Tools;
 using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Bitmaps;
 using AbstUI.SDL2.Core;
+using System.Threading.Tasks;
 
 namespace LingoEngine.SDL2.Bitmaps;
 public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
@@ -72,6 +73,12 @@ public class SdlMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
         _texture = new SdlTexture2D(SDL.SDL_CreateTextureFromSurface(_sdlRootContext.Renderer, _surface), Width, Height);
         _textureSubscription = _texture.AddUser(this);
         IsLoaded = true;
+    }
+
+    public Task PreloadAsync()
+    {
+        Preload();
+        return Task.CompletedTask;
     }
 
     public void Unload()

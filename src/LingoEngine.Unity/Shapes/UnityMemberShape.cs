@@ -7,6 +7,7 @@ using AbstUI.Primitives;
 using AbstUI.LUnity.Bitmaps;
 using UnityEngine;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Unity.Shapes;
 
@@ -143,6 +144,12 @@ public class UnityMemberShape : ILingoFrameworkMemberShape, IDisposable
         _texture = new UnityTexture2D(tex, "Shape");
         IsLoaded = true;
         IsDirty = false;
+    }
+
+    public Task PreloadAsync()
+    {
+        Preload();
+        return Task.CompletedTask;
     }
 
     /// <inheritdoc/>

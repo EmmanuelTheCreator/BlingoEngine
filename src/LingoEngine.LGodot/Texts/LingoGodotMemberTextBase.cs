@@ -13,6 +13,7 @@ using AbstUI.LGodot.Helpers;
 using AbstUI.LGodot.Texts;
 using AbstUI.LGodot.Bitmaps;
 using AbstUI.LGodot.Primitives;
+using System.Threading.Tasks;
 
 namespace LingoEngine.LGodot.Texts
 {
@@ -330,7 +331,7 @@ namespace LingoEngine.LGodot.Texts
             return _texture;
         }
 
-       
+
         private void UpdateText(string value)
         {
             if (_text == value) return;
@@ -368,9 +369,17 @@ namespace LingoEngine.LGodot.Texts
 
         public void Preload()
         {
+            if (IsLoaded)
+                return;
             //if (!_hasLoadedTexTure)
             //    RenderToTexture(LingoInkType.Copy, AColors.White);
             IsLoaded = true;
+        }
+
+        public Task PreloadAsync()
+        {
+            Preload();
+            return Task.CompletedTask;
         }
 
         public void Unload()

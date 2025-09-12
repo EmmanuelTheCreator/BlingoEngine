@@ -11,6 +11,7 @@ using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Tools;
 using UnityEngine;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Unity.FilmLoops;
 
@@ -53,7 +54,18 @@ public class UnityFilmLoopMember : ILingoFrameworkMemberFilmLoop, IDisposable
     public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
 
     /// <inheritdoc/>
-    public void Preload() => IsLoaded = true;
+    public void Preload()
+    {
+        if (IsLoaded)
+            return;
+        IsLoaded = true;
+    }
+
+    public Task PreloadAsync()
+    {
+        Preload();
+        return Task.CompletedTask;
+    }
 
     /// <inheritdoc/>
     public void Unload()

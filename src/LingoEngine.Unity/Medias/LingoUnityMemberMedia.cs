@@ -3,6 +3,7 @@ using System.IO;
 using LingoEngine.Medias;
 using LingoEngine.Members;
 using LingoEngine.Sprites;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Unity.Medias;
 
@@ -54,6 +55,12 @@ public class LingoUnityMemberMedia : ILingoFrameworkMemberMedia
             MediaStatus = LingoMediaStatus.Opened;
         }
         IsLoaded = true;
+    }
+
+    public Task PreloadAsync()
+    {
+        Preload();
+        return Task.CompletedTask;
     }
 
     public void Unload()

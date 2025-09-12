@@ -1,6 +1,7 @@
 ﻿using Godot;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
+using System.Threading.Tasks;
 
 namespace LingoEngine.LGodot.Sounds
 {
@@ -68,6 +69,12 @@ namespace LingoEngine.LGodot.Sounds
             StreamName = AudioStream._GetStreamName();
             Stereo = !AudioStream.IsMonophonic();
             _lingoMemberSound.Size = (long)AudioStream._GetLength() * 44100;
+        }
+
+        public Task PreloadAsync()
+        {
+            Preload();
+            return Task.CompletedTask;
         }
 
         public void Unload()

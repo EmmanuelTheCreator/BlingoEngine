@@ -69,11 +69,11 @@ public class MyGameProjectFactory : ILingoProjectFactory
             );
     }
 
-    public void LoadCastLibs(ILingoCastLibsContainer castlibs, LingoPlayer player)
-        => player.LoadCastLibFromCsv("Data", Path.Combine("Media", "Data", "Members.csv"));
+    public async Task LoadCastLibsAsync(ILingoCastLibsContainer castlibs, LingoPlayer player)
+        => await player.LoadCastLibFromCsvAsync("Data", Path.Combine("Media", "Data", "Members.csv"));
 
-    public ILingoMovie? LoadStartupMovie(ILingoServiceProvider services, LingoPlayer player)
-        => player.NewMovie("Intro");
+    public Task<ILingoMovie?> LoadStartupMovieAsync(ILingoServiceProvider services, LingoPlayer player)
+        => Task.FromResult<ILingoMovie?>(player.NewMovie("Intro"));
 
     public void Run(ILingoMovie movie, bool autoPlayMovie)
     {
@@ -84,8 +84,8 @@ public class MyGameProjectFactory : ILingoProjectFactory
 
 This implementation defines four required methods:
 - `Setup(ILingoEngineRegistration config)` registers fonts, project settings (including the 640×480 stage), movies, and services.
-- `LoadCastLibs(ILingoCastLibsContainer castlibs, LingoPlayer player)` loads external cast libraries using the provided player.
-- `LoadStartupMovie(ILingoServiceProvider services, LingoPlayer player)` chooses the movie that starts first.
+- `LoadCastLibsAsync(ILingoCastLibsContainer castlibs, LingoPlayer player)` loads external cast libraries using the provided player.
+- `LoadStartupMovieAsync(ILingoServiceProvider services, LingoPlayer player)` chooses the movie that starts first.
 - `Run(ILingoMovie movie, bool autoPlayMovie)` finalizes startup and optionally plays the movie automatically.
 
 ### Set properties of members

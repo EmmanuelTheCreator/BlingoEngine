@@ -9,6 +9,7 @@ using AbstUI.Primitives;
 using AbstUI.SDL2.Bitmaps;
 using AbstUI.SDL2.SDLL;
 using AbstUI.SDL2.Core;
+using System.Threading.Tasks;
 
 namespace LingoEngine.SDL2.Shapes
 {
@@ -87,6 +88,12 @@ namespace LingoEngine.SDL2.Shapes
             IsLoaded = true;
         }
 
+        public Task PreloadAsync()
+        {
+            Preload();
+            return Task.CompletedTask;
+        }
+
         public void Unload()
         {
             if (_surface != nint.Zero)
@@ -97,9 +104,9 @@ namespace LingoEngine.SDL2.Shapes
             IsLoaded = false;
         }
 
-        public void Dispose() 
+        public void Dispose()
         {
-            Unload(); 
+            Unload();
         }
 
         public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
@@ -107,7 +114,7 @@ namespace LingoEngine.SDL2.Shapes
 
         public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         {
-            
+
             if (_texture == null)
                 Preload();
             else if (_texture.IsDisposed)

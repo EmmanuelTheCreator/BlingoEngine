@@ -3,6 +3,7 @@ using System.IO;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
 using UnityEngine;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Unity.Sounds;
 
@@ -38,6 +39,12 @@ public class UnityMemberSound : ILingoFrameworkMemberSound, IDisposable
         Stereo = stereo;
         _member.Size = size;
         IsLoaded = true;
+    }
+
+    public Task PreloadAsync()
+    {
+        Preload();
+        return Task.CompletedTask;
     }
 
     public void Unload()

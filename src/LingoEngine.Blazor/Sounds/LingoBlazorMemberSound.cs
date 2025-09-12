@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Blazor.Sounds;
 
@@ -36,7 +37,9 @@ public class LingoBlazorMemberSound : ILingoFrameworkMemberSound, IDisposable
 
     public void Erase() => Unload();
 
-    public void Preload()
+    public void Preload() => PreloadAsync().GetAwaiter().GetResult();
+
+    public async Task PreloadAsync()
     {
         if (IsLoaded)
             return;
@@ -45,7 +48,7 @@ public class LingoBlazorMemberSound : ILingoFrameworkMemberSound, IDisposable
             Url = _member.FileName;
             try
             {
-                _data = _httpClient.GetByteArrayAsync(_member.FileName).GetAwaiter().GetResult();
+                _data = await _httpClient.GetByteArrayAsync(_member.FileName);
                 _member.Size = _data.Length;
                 Length = _data.Length / 44100.0;
                 Stereo = true;

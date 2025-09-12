@@ -1,5 +1,6 @@
 using LingoEngine.Scripts;
 using LingoEngine.Sprites;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Blazor.Scripts;
 
@@ -14,7 +15,15 @@ public class LingoBlazorMemberScript : ILingoFrameworkMemberScript
     public void Erase() { }
     public void ImportFileInto() { }
     public void PasteClipboardInto() { }
-    public void Preload() { }
+    public void Preload()
+    {
+        if (IsLoaded)
+            return;
+    }
+    public Task PreloadAsync()
+    {
+        return Task.CompletedTask;
+    }
     public void Unload() { }
     public bool IsPixelTransparent(int x, int y) => false;
 }
