@@ -164,7 +164,6 @@ public class JsonStateRepository : IJsonStateRepository
 
         sprite = movie.AddSprite(sDto.SpriteNum, sDto.Name, s =>
         {
-            s.Puppet = sDto.Puppet;
             s.Lock = sDto.Lock;
             s.Visibility = sDto.Visibility;
             s.BeginFrame = sDto.BeginFrame;
@@ -306,7 +305,7 @@ public class JsonStateRepository : IJsonStateRepository
             UserName = movie.UserName,
             CompanyName = movie.CompanyName,
             Casts = movie.CastLib.GetAll().Select(c => ToDto((LingoCast)c, options)).ToList(),
-            Sprites = GetAllSprites(movie).Select(ToDto).ToList()
+            Sprites = movie.GetAll2DSpritesToStore().Select(ToDto).ToList()
         };
     }
 
@@ -451,7 +450,6 @@ public class JsonStateRepository : IJsonStateRepository
             MemberNum = state.Member?.NumberInCast ?? sprite.MemberNum,
             DisplayMember = state.DisplayMember,
             SpritePropertiesOffset = state.SpritePropertiesOffset,
-            Puppet = sprite.Puppet,
             Lock = sprite.Lock,
             Visibility = sprite.Visibility,
             LocH = state.LocH,
@@ -497,7 +495,6 @@ public class JsonStateRepository : IJsonStateRepository
             SpriteNum = sprite.SpriteNum,
             MemberNum = state.Member?.NumberInCast ?? sprite.MemberNum,
             DisplayMember = state.DisplayMember,
-            Puppet = sprite.Puppet,
             Lock = sprite.Lock,
             LocH = state.LocH,
             LocV = state.LocV,
@@ -565,13 +562,7 @@ public class JsonStateRepository : IJsonStateRepository
         return dto;
     }
 
-    private static IEnumerable<LingoSprite2D> GetAllSprites(LingoMovie movie)
-    {
-        var field = typeof(LingoMovie).GetField("_allTimeSprites", BindingFlags.NonPublic | BindingFlags.Instance);
-        if (field?.GetValue(movie) is IEnumerable<LingoSprite2D> sprites)
-            return sprites.Where(x => !x.Puppet && !x.IsDeleted);
-        return Enumerable.Empty<LingoSprite2D>();
-    }
+
 
     private static IEnumerable<object> GetSpriteActors(LingoSprite2D sprite)
     {

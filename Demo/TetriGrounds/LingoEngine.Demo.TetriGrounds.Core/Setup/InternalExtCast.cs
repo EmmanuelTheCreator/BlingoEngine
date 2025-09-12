@@ -16,7 +16,7 @@ using AbstUI.Primitives;
 
 public class InternalExtCast : ILingoCastLibBuilder
 {
-    public void Build(ILingoCastLibsContainer castLibs)
+    public async Task BuildAsync(ILingoCastLibsContainer castLibs)
     {
         var cast = castLibs.AddCast(@"InternalExt", false);
         var member1 = (LingoMemberScript)cast.Add(LingoMemberType.Script, 1, @"Game stop", @"Media\InternalExt\1_Game stop.cs", new APoint(0f, 0f));

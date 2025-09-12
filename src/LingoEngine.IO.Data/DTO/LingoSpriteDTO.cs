@@ -8,7 +8,6 @@ public class LingoSpriteDTO
     public int MemberNum { get; set; }
     public int DisplayMember { get; set; }
     public int SpritePropertiesOffset { get; set; }
-    public bool Puppet { get; set; }
     public bool Lock { get; set; }
     public bool Visibility { get; set; }
     public float LocH { get; set; }

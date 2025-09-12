@@ -5,16 +5,16 @@ namespace LingoEngine.Core;
 
 public interface ILingoCastLibBuilder
 {
-    void Build(ILingoCastLibsContainer castLibs);
+    Task BuildAsync(ILingoCastLibsContainer castLibs);
 }
 
 public interface ILingoScoreBuilder
 {
-    void Build(ILingoMovie movie);
+    Task BuildAsync(ILingoMovie movie);
 }
 
 public interface ILingoMovieBuilder
 {
-    ILingoMovie Build(ILingoPlayer player);
+    Task<ILingoMovie> BuildAsync(ILingoPlayer player);
 }
 

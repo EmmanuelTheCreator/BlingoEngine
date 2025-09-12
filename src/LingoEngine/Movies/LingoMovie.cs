@@ -557,6 +557,9 @@ namespace LingoEngine.Movies
             _sprite2DManager.SetMouse(newMouse);
         }
 
-       
+        public IEnumerable<LingoSprite2D> GetAll2DSpritesToStore()
+        {
+            return Sprite2DManager.AllTimeSprites.Where(x => !x.Puppet && !x.IsDeleted);
+        }
     }
 }

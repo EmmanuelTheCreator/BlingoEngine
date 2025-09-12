@@ -12,4 +12,8 @@
     <ProjectReference Include="..\..\..\src\LingoEngine\LingoEngine.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Setup\" />
+  </ItemGroup>
+
 </Project>

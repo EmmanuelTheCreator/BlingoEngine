@@ -6,14 +6,14 @@ using LingoEngine.Movies;
 
 public class MovieBuilder : ILingoMovieBuilder
 {
-    public ILingoMovie Build(ILingoPlayer player)
+    public async Task<ILingoMovie> BuildAsync(ILingoPlayer player)
     {
-        player.CastLibs.LoadCastLibFromBuilder(new InternalExtCast());
-        player.CastLibs.LoadCastLibFromBuilder(new DataCast());
-        player.CastLibs.LoadCastLibFromBuilder(new SoundsCast());
+        await player.LoadAsync<InternalExtCast>();
+        await player.LoadAsync<DataCast>();
+        await player.LoadAsync<SoundsCast>();
         var movie = player.NewMovie(@"Aaark Noid");
         movie.Tempo = 30;
-        new ScoreBuilder().Build(movie);
+        await new ScoreBuilder().BuildAsync(movie);
         return movie;
     }
 }

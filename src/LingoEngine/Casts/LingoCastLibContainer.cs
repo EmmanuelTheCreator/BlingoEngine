@@ -139,6 +139,6 @@ namespace LingoEngine.Casts
         public IEnumerable<ILingoCast> GetAll() => _casts;
 
         public void LoadCastLibFromBuilder(ILingoCastLibBuilder builder)
-            => builder.Build(this);
+            => builder.BuildAsync(this);
     }
 }

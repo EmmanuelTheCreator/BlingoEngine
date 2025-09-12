@@ -164,7 +164,6 @@ internal static class DirectorRaysDtoExtensions
             MemberNum = f.SpriteNumber,
             // todo : DisplayMember = f.DisplayMember,
             SpritePropertiesOffset = f.SpritePropertiesOffset,
-            Puppet = false,
             Lock = false,
             Visibility = true,
             LocH = f.LocH,
@@ -174,8 +173,8 @@ internal static class DirectorRaysDtoExtensions
             Skew = f.Skew,
             RegPoint = new LingoPointDTO(),
             Ink = f.Ink,
-            ForeColor = new LingoColorDTO { Code = f.ForeColor },
-            BackColor = new LingoColorDTO { Code = f.BackColor },
+            ForeColor = new LingoColorDTO { Code = f.ForeColor }, // todo: map color
+            BackColor = new LingoColorDTO { Code = f.BackColor }, // todo : map color
             Blend = f.Blend,
             Editable = f.Editable,
             FlipH = f.FlipH,

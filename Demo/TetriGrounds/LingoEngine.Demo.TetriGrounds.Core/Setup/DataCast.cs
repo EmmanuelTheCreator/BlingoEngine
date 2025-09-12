@@ -16,7 +16,7 @@ using AbstUI.Primitives;
 
 public class DataCast : ILingoCastLibBuilder
 {
-    public void Build(ILingoCastLibsContainer castLibs)
+    public async Task BuildAsync(ILingoCastLibsContainer castLibs)
     {
         var cast = castLibs.AddCast(@"Data", false);
         var member1 = (LingoMemberText)cast.Add(LingoMemberType.Text, 1, @"Parameters", @"Media\Data\1_Parameters.txt", new APoint(0f, 0f));

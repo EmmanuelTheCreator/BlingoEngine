@@ -198,8 +198,8 @@ namespace LingoEngine.Core
             return movieEnv.Movie;
         }
 
-        public ILingoMovie LoadMovie(ILingoMovieBuilder builder)
-            => builder.Build(this);
+        public Task<ILingoMovie> LoadMovieAsync(ILingoMovieBuilder builder)
+            => builder.BuildAsync(this);
 
         public void CloseMovie(ILingoMovie movie)
         {
@@ -223,7 +223,12 @@ namespace LingoEngine.Core
             await _csvImporter.Value.ImportInCastFromCsvFileAsync(castLib, pathAndFilenameToCsv, true, x => Console.WriteLine("WARNING:" + x));
             return this;
         }
-
+        public async Task<ILingoPlayer> LoadAsync<TLingoCastLibBuilder>() where TLingoCastLibBuilder : class, ILingoCastLibBuilder, new()
+        {
+            var builder = new TLingoCastLibBuilder();
+            await builder.BuildAsync(_castLibsContainer);
+            return this;
+        }
         public ILingoPlayer AddCastLib(string name, bool isInternal = false, Action<ILingoCast>? configure = null)
         {
             var castLib = _castLibsContainer.AddCast(name, isInternal);

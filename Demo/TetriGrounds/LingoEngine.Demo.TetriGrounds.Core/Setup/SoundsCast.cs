@@ -16,7 +16,7 @@ using AbstUI.Primitives;
 
 public class SoundsCast : ILingoCastLibBuilder
 {
-    public void Build(ILingoCastLibsContainer castLibs)
+    public async Task BuildAsync(ILingoCastLibsContainer castLibs)
     {
         var cast = castLibs.AddCast(@"Sounds", false);
         var member1 = (LingoMemberSound)cast.Add(LingoMemberType.Sound, 1, @"S_Click", @"Media\Sounds\click.mp3", new APoint(0f, 0f));
