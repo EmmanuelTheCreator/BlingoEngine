@@ -50,6 +50,29 @@ public class RaysCastMemberChunk : RaysChunk
             var infoStream = new ReadStream(InfoView, stream.Endianness);
             Info = new RaysCastInfoChunk(Dir);
             Info.Read(infoStream);
+            if (string.IsNullOrEmpty(Info.Name))
+            {
+                var data = InfoView.Data;
+                int start = InfoView.Offset;
+                int end = start + InfoView.Size;
+                for (int i = start; i < end - 1; i++)
+                {
+                    int len = data[i];
+                    if (len <= 0 || i + 1 + len > end)
+                        continue;
+                    bool ascii = true;
+                    for (int j = 0; j < len; j++)
+                    {
+                        var b = data[i + 1 + j];
+                        if (b < 0x20 || b > 0x7E) { ascii = false; break; }
+                    }
+                    if (ascii)
+                    {
+                        Info.Name = System.Text.Encoding.UTF8.GetString(data, i + 1, len);
+                        break;
+                    }
+                }
+            }
         }
         HasFlags1 = false;
         SpecificData = stream.ReadByteView((int)SpecificDataLen);
