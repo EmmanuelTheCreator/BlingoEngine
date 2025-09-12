@@ -43,7 +43,7 @@ public class RaysCastMemberChunk : RaysChunk
         SpecificDataLen = stream.ReadUint32();
         Dir.Logger.LogTrace($"CastMember InfoLen={InfoLen}, SpecificDataLen={SpecificDataLen}, Stream.Pos={stream.Pos}, Stream.Size={stream.Size}");
         InfoView = stream.ReadByteView((int)InfoLen);
-        Dir.Logger.LogInformation("InfoView:\r\n" + InfoView.LogHex()); 
+        Dir.Logger.LogInformation("InfoView:\r\n" + InfoView.LogHex());
         if (InfoLen > 0)
         {
             var infoStream = new ReadStream(InfoView, stream.Endianness);
@@ -87,31 +87,24 @@ public class RaysCastMemberChunk : RaysChunk
     public string GetScriptText() => Info?.ScriptSrcText ?? string.Empty;
     public void SetScriptText(string val) { if (Info != null) Info.ScriptSrcText = val; }
     public string GetName() => Info?.Name ?? string.Empty;
-    public static string ExtractTextFromMember(RaysCastMemberChunk member)
-    {
-        var bytes = member.SpecificData.Data.AsSpan(member.SpecificData.Offset, member.SpecificData.Size);
-        int nullPos = bytes.IndexOf((byte)0);
-        if (nullPos >= 0)
-            bytes = bytes.Slice(0, nullPos);
-
-        return Encoding.UTF8.GetString(bytes);
-    }
     public string GetText()
     {
+        if (!string.IsNullOrEmpty(DecodedText?.Text))
+            return DecodedText.Text;
+
         if (Type == RaysMemberType.TextMember || Type == RaysMemberType.FieldMember)
         {
             var span = SpecificData.Data.AsSpan(SpecificData.Offset, SpecificData.Size);
-            // If Pascal-style string (length byte + text)
-            if (span.Length > 1 && span[0] <= span.Length - 1)
-                return Encoding.UTF8.GetString(span.Slice(1, span[0]));
 
-            // If null-terminated string
+            if (span.Length > 1 && span[0] <= span.Length - 1)
+                return Encoding.Latin1.GetString(span.Slice(1, span[0]));
+
             int len = span.IndexOf((byte)0);
             if (len < 0) len = span.Length;
 
-            var text = Encoding.UTF8.GetString(span.Slice(0, len));
-            return text;
+            return Encoding.Latin1.GetString(span.Slice(0, len));
         }
+
         return string.Empty;
     }
 }

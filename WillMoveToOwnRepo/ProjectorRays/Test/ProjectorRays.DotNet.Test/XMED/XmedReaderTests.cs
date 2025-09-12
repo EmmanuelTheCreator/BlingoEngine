@@ -122,6 +122,17 @@ public class XmedReaderTests
     }
 
     [Fact]
+    public void CastMemberReadIncludesStyleDeclarations()
+    {
+        var path = GetPath("Texts_Fields/Text_Single_Line_Multi_Style.xmed.txt");
+        var data = TestFileReader.ReadHexFile(path);
+        var view = CreateView(data);
+        var dir = new RaysDirectorFile(_logger, path);
+        var read = RaysCastMemberTextRead.FromXmedChunk(view, dir);
+        Assert.True(read.StyleDeclarations.Count > 1);
+    }
+
+    [Fact]
     public void ParsesWiderWidth4Text()
     {
         var view = CreateView(XmedTestData.WiderWidth4);
