@@ -181,6 +181,6 @@ services.RegisterLingoEngine(cfg => cfg
 #endif
 ```
 
-See [SDLSetup](SDLSetup.md) and [GodotSetup](GodotSetup.md) for framework
+See [SDLSetup](../SDLSetup.md) and [GodotSetup](../GodotSetup.md) for framework
 specific notes.
 
