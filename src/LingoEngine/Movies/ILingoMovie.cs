@@ -339,7 +339,9 @@ namespace LingoEngine.Movies
       
         int GetNextSpriteStart(int channel, int frame);
         int GetPrevSpriteEnd(int channel, int frame);
+        ILingoServiceProvider GetServiceProvider();
+        T GetRequiredService<T>() where T: notnull;
 
-       
+
     }
 }

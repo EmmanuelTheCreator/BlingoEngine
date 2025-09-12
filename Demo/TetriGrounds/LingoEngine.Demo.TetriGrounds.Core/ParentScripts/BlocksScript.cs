@@ -98,6 +98,8 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
 
         public void RemoveHorizontal(int y)
         {
+
+            _Player.SoundPlayRemoveRow();
             myScoreManager.LineRemoved();
             for (int i = 1; i <= myWidth; i++)
             {

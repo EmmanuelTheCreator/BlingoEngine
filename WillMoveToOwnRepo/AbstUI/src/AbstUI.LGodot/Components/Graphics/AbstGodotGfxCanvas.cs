@@ -144,16 +144,16 @@ namespace AbstUI.LGodot.Components
         }
 
         public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12,
-            int width = -1, AbstTextAlignment alignment = default)
+            int width = -1, AbstTextAlignment alignment = default, AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)
         {
-            _painter.DrawText(position, text, font, color, fontSize, width, alignment);
+            _painter.DrawText(position, text, font, color, fontSize, width, alignment, style, letterSpacing);
             QueueRedraw();
         }
         public void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12,
             int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left,
-            AbstFontStyle style = AbstFontStyle.Regular)
+            AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)
         {
-            _painter.DrawSingleLine(position, text, font, color, fontSize, width, height, alignment, style);
+            _painter.DrawSingleLine(position, text, font, color, fontSize, width, height, alignment, style, letterSpacing);
             QueueRedraw();
         }
         public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)

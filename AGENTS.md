@@ -43,12 +43,15 @@ These instructions apply to the entire repository.
 | src/LingoEngine.LGodot/LingoEngine.LGodot.csproj | Godot engine integration layer |
 | src/LingoEngine.3D.Core/LingoEngine.3D.Core.csproj | Core components for 3D features |
 | src/LingoEngine.Blazor/LingoEngine.Blazor.csproj | Blazor integration layer |
+| src/LingoEngine.VerboseLanguage/LingoEngine.VerboseLanguage.csproj | Verbose fluent API for the Lingo language |
 | src/Director/LingoEngine.Director.Core/LingoEngine.Director.Core.csproj | Editor tooling reminiscent of Macromedia Director |
 | src/Director/LingoEngine.Director.Contracts/LingoEngine.Director.Contracts.csproj | Shared contracts for Director tooling |
 | src/Director/LingoEngine.Director.Client/LingoEngine.Director.Client.csproj | Client library for Director tooling |
 | src/Director/LingoEngine.Director.Host/LingoEngine.Director.Host.csproj | SignalR host for Director tooling |
 | src/Director/LingoEngine.Director.SDL2/LingoEngine.Director.SDL2.csproj | SDL2 integration for Director tooling |
 | src/Director/LingoEngine.Director.LGodot/LingoEngine.Director.LGodot.csproj | Godot integration for Director tooling |
+| src/Director/LingoEngine.Director.Runner.SDL2/LingoEngine.Director.Runner.SDL2.csproj | Standalone SDL2 runner for Director tooling |
+| src/Director/LingoEngine.Director.Runner.Godot/LingoEngine.Director.Runner.Godot.csproj | Standalone Godot runner for Director tooling |
 | Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Core/LingoEngine.Demo.TetriGrounds.Core.csproj | Shared code for the TetriGrounds demo |
 | Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.SDL2/LingoEngine.Demo.TetriGrounds.SDL2.csproj | SDL2-based TetriGrounds demo |
 | Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Blazor/LingoEngine.Demo.TetriGrounds.Blazor.csproj | Blazor-based TetriGrounds demo |

@@ -10,6 +10,7 @@ using AbstUI.Resources;
 using AbstUI.SDL2.Resources;
 using AbstUI.Windowing;
 using Microsoft.Extensions.DependencyInjection;
+using AbstUI.Core;
 
 namespace AbstUI.SDL2
 {
@@ -17,12 +18,14 @@ namespace AbstUI.SDL2
     {
         public static IServiceCollection WithAbstUISdl(this IServiceCollection services, Action<IAbstFameworkComponentWinRegistrator>? componentRegistrations = null)
         {
+            AbstEngineGlobal.RunFramework = AbstEngineRunFramework.SDL2;
             services
                 .AddSingleton<IAbstSdlWindowManager, AbstSdlWindowManager>()
                 .AddSingleton<IAbstFrameworkWindowManager>(p => p.GetRequiredService<IAbstSdlWindowManager>())
                 .AddSingleton<AbstSdlComponentFactory>()
                 .AddTransient<IAbstComponentFactory>(p => p.GetRequiredService<AbstSdlComponentFactory>())
-                //.AddTransient<IAbstFrameworkDialog, AbstSDLDialog>()
+                .AddTransient<IAbstFrameworkDialog, AbstSdlDialog>()
+                .AddTransient<AbstSdlDialog>()
                 .AddSingleton<IAbstFrameworkMainWindow, AbstSdlMainWindow>()
 
 
@@ -50,9 +53,14 @@ namespace AbstUI.SDL2
             // We need to resolve once the SDL window manager to init
             services.GetRequiredService<IAbstSdlWindowManager>();
 
-            //services.GetRequiredService<IAbstComponentFactory>()
-            //     .Register<IAbstDialog,AbstGodotDialog>()
-            //    ;
+            services.GetRequiredService<IAbstComponentFactory>()
+                //.Register<GlobalSDLAbstMouse, AbstSdlGlobalMouse>()
+                .Register<AbstKey, SdlKey>()
+                .Register<AbstDialog, AbstSdlDialog>()
+                .Register<AbstMainWindow, AbstSdlMainWindow>()
+                .Register<AbstWindowManager, AbstSdlWindowManager>()
+                ;
+            ;
             return services;
         }
     }

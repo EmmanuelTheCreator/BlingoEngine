@@ -7,6 +7,7 @@ using AbstUI.Styles;
 using AbstUI.Windowing;
 using Godot;
 using AbstUI.FrameworkCommunication;
+using AbstUI.Primitives;
 
 namespace AbstUI.LGodot.Windowing;
 
@@ -120,7 +121,7 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager, IDisposable, IFra
         return new AbstWindowDialogReference(dialog.QueueFree);
     }
 
-    public IAbstWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel)
+    public IAbstWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel, APoint? position = null)
     {
         var root = RootNode.GetTree().Root;
         if (root == null)
@@ -138,18 +139,29 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager, IDisposable, IFra
 
         var dialogAbst = _frameworkFactory.CreateElement<AbstDialog>();
         var dialog = (AbstGodotDialog)dialogAbst.FrameworkObj;
+        dialog.SetBackgroundColorMethod(col =>
+        {
+            styleBox.BgColor = col.ToGodotColor();
+            //node.AddThemeStyleboxOverride("panel", styleBox);
+        });
         dialog.Title = title;
         dialog.Size = new Vector2I((int)panel.Width, (int)panel.Height);
         dialog.Theme = _godotStyleManager.GetTheme(AbstGodotThemeElementType.PopupWindow);
         root.AddChild(dialog);
         dialog.CloseRequested += dialog.QueueFree;
         dialog.AddChild(node);
-        dialog.PopupCentered();
+        if (position == null)
+            dialog.PopupCentered();
+        else
+        {
+            dialog.SetPositionAndSize((int)position.Value.X, (int)position.Value.Y, (int)panel.Width, (int)panel.Height);
+            dialog.Popup();
+        }
 
         return new AbstWindowDialogReference(dialog.QueueFree, dialog);
     }
 
-    public IAbstWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? abstDialog = null)
+    public IAbstWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? abstDialog = null, APoint? position = null)
         where TDialog : class, IAbstDialog
     {
         var root = RootNode.GetTree().Root;
@@ -175,7 +187,11 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager, IDisposable, IFra
         }
 
         dialog.Title = title;
-
+        dialog.SetBackgroundColorMethod(col =>
+        {
+            styleBox.BgColor = col.ToGodotColor();
+            //node.AddThemeStyleboxOverride("panel", styleBox);
+        });
         dialog.Size = new Vector2I((int)panel.Width, (int)panel.Height);
         dialog.Theme = _godotStyleManager.GetTheme(AbstGodotThemeElementType.PopupWindow);
 
@@ -188,7 +204,13 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager, IDisposable, IFra
         //    frameworkDialog.Init(abstDialog);
         //    abstDialog.Init(frameworkDialog);
         //}
-        dialog.PopupCentered();
+        if (position == null)
+            dialog.PopupCentered();
+        else
+        {
+            dialog.SetPositionAndSize((int)position.Value.X, (int)position.Value.Y, (int)panel.Width, (int)panel.Height);
+            dialog.Popup();
+        }
 
         return new AbstWindowDialogReference(dialog.QueueFree, dialog);
     }

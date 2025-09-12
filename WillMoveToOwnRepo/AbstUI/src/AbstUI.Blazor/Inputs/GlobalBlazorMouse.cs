@@ -57,5 +57,10 @@ namespace AbstUI.Blazor.Inputs
         public void MouseUp(MouseEventArgs e) => _handler.MouseUp(e);
 
         public void Wheel(WheelEventArgs e) => _handler.Wheel(e);
+
+        public AMouseCursor GetCursor()
+        {
+            return AMouseCursor.Arrow;
+        }
     }
 }

@@ -207,7 +207,7 @@ end";
             "end");
         var result = _converter.Convert(lingo);
         var expected = string.Join('\n',
-            "public void Mousedown(LingoMouseEvent mouse)",
+            "public void MouseDown(LingoMouseEvent mouse)",
             "{",
             "    if (myLock == false)",
             "    {",
@@ -546,7 +546,7 @@ on new me,_Gfx,ChosenType
 end";
         var result = _converter.Convert(lingo);
         var expected = string.Join('\n',
-            "public void Stepframe()",
+            "public void StepFrame()",
             "{",
             "    if (myDestroyAnim == true)",
             "    {",
@@ -783,7 +783,7 @@ end";
             "    Cursor = 280;",
             "}",
             "",
-            "public void Mouseleave(LingoMouseEvent mouse)",
+            "public void MouseLeave(LingoMouseEvent mouse)",
             "{",
             "    Cursor = -1;",
             "}");
@@ -1233,9 +1233,9 @@ end",
         var batch = _converter.Convert(scripts);
         var code = batch.ConvertedScripts["Counter"].Replace("\r", "");
         Assert.Contains("public class CounterBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasExitFrameEvent", code);
-        Assert.Contains("public void Beginsprite()", code);
+        Assert.Contains("public void BeginSprite()", code);
         Assert.Contains("SendSprite<GetCounterStartDataBehavior>(myDataSpriteNum", code);
-        Assert.Contains("public void Exitframe()", code);
+        Assert.Contains("public void ExitFrame()", code);
         Assert.True(batch.ConvertedScripts.ContainsKey("GetCounterStartDataBehavior"));
         var generated = batch.ConvertedScripts["GetCounterStartDataBehavior"];
         Assert.Contains("public class GetCounterStartDataBehavior : LingoSpriteBehavior", generated);
@@ -1264,11 +1264,11 @@ end",
             }
 };
         var batch = _converter.Convert(scripts);
-        var sig = Assert.Single(batch.Methods["Example"].Where(m => m.Name.Equals("myHandler", System.StringComparison.OrdinalIgnoreCase)));
+        var sig = Assert.Single(batch.Methods["Example"], m => m.Name.Equals("myHandler", System.StringComparison.OrdinalIgnoreCase));
         Assert.Collection(sig.Parameters,
             p => { Assert.Equal("a", p.Name); Assert.Equal("int", p.Type); },
                     p => { Assert.Equal("b", p.Name); Assert.Equal("string", p.Type); });
-        var prop = Assert.Single(batch.Properties["Example"].Where(p => p.Name == "myProp"));
+        var prop = Assert.Single(batch.Properties["Example"], p => p.Name == "myProp");
         Assert.Equal("int", prop.Type);
     }
 
@@ -1325,5 +1325,42 @@ end";
             "{",
             "}");
         Assert.Equal(expected.Trim(), result.Replace("\r", "").Trim());
+    }
+
+    [Fact]
+    public void HandlerArgumentsWithOrWithoutParensAreEquivalent()
+    {
+        var lingoNoParens = string.Join('\n',
+            "on addThem a, b",
+            "c = a + b",
+            "end");
+        var lingoParens = string.Join('\n',
+            "on addThem(a, b)",
+            "c = a + b",
+            "end");
+        var file1 = new LingoScriptFile { Name = "Test", Source = lingoNoParens, Type = LingoScriptType.Behavior };
+        var file2 = new LingoScriptFile { Name = "Test", Source = lingoParens, Type = LingoScriptType.Behavior };
+        var result1 = _converter.Convert(file1);
+        var result2 = _converter.Convert(file2);
+        Assert.Equal(result1, result2);
+        Assert.Contains("addThem(", result1, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void LineContinuationBackslashIsHandled()
+    {
+        var lingo = "tTexture = member(\"3D\").model(\"box\") \\\n.shader.texture";
+        var result = _converter.Convert(lingo).Trim();
+        Assert.Contains("Member(\"3D\").Model(\"box\").Shader.Texture", result);
+    }
+
+    [Fact]
+    public void KeyboardConstantsAreConverted()
+    {
+        Assert.Equal("x = \"\\b\";", _converter.Convert("x = BACKSPACE").Trim());
+        Assert.Equal("x = \"\\u0003\";", _converter.Convert("x = ENTER").Trim());
+        Assert.Equal("x = \"\\\"\";", _converter.Convert("x = QUOTE").Trim());
+        Assert.Equal("x = \" \";", _converter.Convert("x = SPACE").Trim());
+        Assert.Equal("x = \"\\t\";", _converter.Convert("x = TAB").Trim());
     }
 }

@@ -1,5 +1,4 @@
-﻿using AbstUI.Primitives;
-using LingoEngine.Bitmaps;
+﻿using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
 using LingoEngine.Inputs;
 using LingoEngine.Members;
@@ -7,17 +6,24 @@ using LingoEngine.Movies;
 using LingoEngine.Primitives;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
-using LingoEngine.Texts;
-using System;
+using Microsoft.Extensions.Logging;
 using System.Numerics;
+using AbstUI.Primitives;
+using AbstUI.Inputs;
 
 namespace LingoEngine.Core
 {
 
+   
     public interface ILingoScriptBase
     {
-        
+        void Trace(string message);
+        void Log(string message);
+        T Global<T>() where T : LingoGlobalVars;
+        ILingoPlayer Player { get; }
     }
+
+  
 
     // https://usermanual.wiki/adobe/drmx2004scripting.537266374.pdf
     /// <summary>
@@ -27,10 +33,18 @@ namespace LingoEngine.Core
     public abstract class LingoScriptBase : ILingoScriptBase
     {
         protected readonly ILingoMovieEnvironment _env;
+        private readonly ILogger _logger;
+        private LingoGlobalVars _globals;
         private static readonly Random _random = new Random();
+        public ILingoPlayer Player => _env.Player;
+
+
         protected LingoScriptBase(ILingoMovieEnvironment env)
         {
             _env = env;
+            _logger = env.Logger;
+            _globals = env.Globals;
+            
         }
 
         // Global objects ("the mouse", etc.)
@@ -47,8 +61,8 @@ namespace LingoEngine.Core
         protected ILingoSystem _System => _env.System;
 
         #endregion
-        protected LingoMemberBitmap? CursorImage { get  => _env.Mouse.Cursor.Image; set => _env.Mouse.Cursor.Image = value; }
-        protected int Cursor { get  => _env.Mouse.Cursor.Cursor; set => _env.Mouse.Cursor.Cursor = value; }
+        protected LingoMemberBitmap? CursorImage { get => _env.Mouse.Cursor.Image; set => _env.Mouse.Cursor.Image = value; }
+        protected int Cursor { get => _env.Mouse.Cursor.Cursor; set => _env.Mouse.Cursor.Cursor = value; }
 
 
         // We dont need scripts in c#
@@ -98,28 +112,33 @@ namespace LingoEngine.Core
 
         #endregion
 
-        protected void Put(object obj) => Console.WriteLine(obj);
-        
-        
+      
+
 
 
         #region Lists
 
         // list
         protected LingoList<TValue> List<TValue>() => new LingoList<TValue>();
-        protected TValue? GetAt<TValue>(LingoPropertyList<TValue> list,int number) => list.GetAt(number);
-        protected void SetAt<TValue>(LingoPropertyList<TValue> list,int number, TValue value) => list.SetAt(number, value);
-        protected void DeleteAt<TValue>(LingoPropertyList<TValue> list,int number, TValue value) => list.DeleteAt(number);
+        protected TValue? GetAt<TValue>(LingoPropertyList<TValue> list, int number) => list.GetAt(number);
+        protected void SetAt<TValue>(LingoPropertyList<TValue> list, int number, TValue value) => list.SetAt(number, value);
+        protected void DeleteAt<TValue>(LingoPropertyList<TValue> list, int number, TValue value) => list.DeleteAt(number);
 
         // Property list
         protected LingoPropertyList<TValue> PropList<TValue>() => new LingoPropertyList<TValue>();
-        protected TValue? GetAt<TValue>(LingoList<TValue> list,int number) => list.GetAt(number);
-        protected void SetAt<TValue>(LingoList<TValue> list,int number, TValue value) => list.SetAt(number, value);
-        protected void DeleteAt<TValue>(LingoList<TValue> list,int number, TValue value) => list.DeleteAt(number);
-        
+        protected TValue? GetAt<TValue>(LingoList<TValue> list, int number) => list.GetAt(number);
+        protected void SetAt<TValue>(LingoList<TValue> list, int number, TValue value) => list.SetAt(number, value);
+        protected void DeleteAt<TValue>(LingoList<TValue> list, int number, TValue value) => list.DeleteAt(number);
+
 
 
         #endregion
+
+        public void Trace(string message) => _logger.LogTrace(message);
+        public void Log(string message) => _logger.LogInformation(message);
+        public T Global<T>() where T : LingoGlobalVars => (T)_globals;
+        protected void ClearGlobals() => _globals.ClearGlobals();
+        protected void ShowGlobals() => _globals.ShowGlobals(_logger);
 
 
         #region Members
@@ -155,7 +174,7 @@ namespace LingoEngine.Core
             var member = _Movie.CastLib.GetMember(number, castLib ?? 1) as T;
             if (member != null && action != null)
                 action(member);
-            
+
             return member as T;
         }
         protected T? TryMember<T>(string name, int? castLib = null, Action<T>? action = null) where T : class, ILingoMember
@@ -163,24 +182,19 @@ namespace LingoEngine.Core
             var member = _Movie.CastLib.GetMember(name, castLib ?? 1) as T;
             if (member != null && action != null)
                 action(member);
-            
+
             return member as T;
         }
 
-        protected void PutTextIntoField(string name, string text)
-        {
-            var field = TryMember<ILingoMemberField>(name);
-            if (field != null)
-                field.Text = text;
-        }
+       
         #endregion
 
 
         #region Movie methods
         protected void SendSprite(string name, Action<ILingoSpriteChannel> actionOnSprite) => _Movie.SendSprite(name, actionOnSprite);
         protected void SendSprite(int spriteNumber, Action<ILingoSpriteChannel> actionOnSprite) => _Movie.SendSprite(spriteNumber, actionOnSprite);
-        protected void SendSprite<T>(int spriteNumber, Action<T> actionOnSprite) where T : LingoSpriteBehavior => _Movie.SendSprite(spriteNumber, actionOnSprite);
-        protected bool TrySendSprite<T>(int spriteNumber, Action<T> actionOnSprite) where T : LingoSpriteBehavior => _Movie.TrySendSprite(spriteNumber, actionOnSprite);
+        protected void SendSprite<T>(int spriteNumber, Action<T> actionOnSprite) where T : ILingoSpriteBehavior => _Movie.SendSprite(spriteNumber, actionOnSprite);
+        protected bool TrySendSprite<T>(int spriteNumber, Action<T> actionOnSprite) where T : ILingoSpriteBehavior => _Movie.TrySendSprite(spriteNumber, actionOnSprite);
         protected TResult? SendSprite<T, TResult>(int spriteNumber, Func<T, TResult> actionOnSprite) where T : ILingoSpriteBehavior => _Movie.SendSprite(spriteNumber, actionOnSprite);
         protected void CallMovieScript<T>(Action<T> action) where T : ILingoMovieScript => _Movie.CallMovieScript(action);
         protected TResult? CallMovieScript<T, TResult>(Func<T, TResult> action) where T : ILingoMovieScript => _Movie.CallMovieScript(action);
@@ -189,8 +203,11 @@ namespace LingoEngine.Core
 
         protected void UpdateStage() => _Movie.UpdateStage();
         protected void StartTimer() => _env.Movie.StartTimer();
-        protected int Timer => _env.Movie.Timer; 
+        protected int Timer => _env.Movie.Timer;
         #endregion
+
+        protected IAbstJoystickKeyboard CreateJoystickKeyboard(Action<AbstJoystickKeyboard>? configure = null, AbstJoystickKeyboard.KeyboardLayoutType layoutType = AbstJoystickKeyboard.KeyboardLayoutType.Azerty, bool showEscapeKey = false, APoint? position = null) 
+            => ((LingoPlayer)_Player).Factory.ComponentFactory.CreateJoystickKeyboard(configure, layoutType, showEscapeKey, position);
     }
 
 }

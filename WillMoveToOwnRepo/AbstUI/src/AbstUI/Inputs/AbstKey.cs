@@ -77,9 +77,11 @@ namespace AbstUI.Inputs
     public class AbstKey : IAbstKey
     {
         private HashSet<IAbstKeyEventHandler<AbstKeyEvent>> _subscriptions = new();
-        private IAbstFrameworkKey _frameworkObj;
+        private IAbstFrameworkKey _frameworkObj = null!;
 
-        public AbstKey() { }
+        public AbstKey() 
+        { 
+        }
         public AbstKey(IAbstFrameworkKey frameworkObj)
         {
             _frameworkObj = frameworkObj;

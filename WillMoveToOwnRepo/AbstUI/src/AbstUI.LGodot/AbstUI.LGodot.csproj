@@ -10,6 +10,7 @@
                 <ImplicitUsings>enable</ImplicitUsings>
                 <Platforms>AnyCPU;x64;x86</Platforms>
                 <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+			<Configurations>Debug;Release</Configurations>
                 <!-- Specify the Godot version -->
         </PropertyGroup>
 
@@ -37,8 +38,8 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Godot.NET.Sdk" Version="4.5.0-dev.5" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.6" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
+		    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.9" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\AbstUI\AbstUI.csproj" />

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using LingoEngine.Casts;
 using LingoEngine.Movies;
 using LingoEngine.Sounds;
@@ -33,6 +34,11 @@ namespace LingoEngine.Core
         /// Lingo: the sound
         /// </summary>
         ILingoSound Sound { get; }
+
+        /// <summary>
+        /// Indicates whether media assets must be preloaded asynchronously before use.
+        /// </summary>
+        bool MediaRequiresAsyncPreload { get; set; }
 
         /// <summary>
         /// Indicates the sprite channel number of the sprite whose script is currently executing.
@@ -106,13 +112,14 @@ namespace LingoEngine.Core
         /// Lingo: the productVersion
         /// </summary>
         Version ProductVersion { get; set; }
-
+        ILingoCastLibsContainer CastLibs { get; }
         /// <summary>
         /// Specifies a handler hook (function) to override the default alert display behavior.
         /// Lingo: the alertHook
         /// </summary>
         Func<string> AlertHook { get; set; }
         ILingoStage Stage { get; }
+        
 
         /// <summary>
         /// Displays a system alert dialog.
@@ -163,9 +170,15 @@ namespace LingoEngine.Core
         ILingoCast CastLib(int number);
         ILingoCast CastLib(string name);
         ILingoPlayer LoadCastLibFromCsv(string castlibName, string pathAndFilenameToCsv, bool isInternal = false);
+        Task<ILingoPlayer> LoadAsync<TLingoCastLibBuilder>() where TLingoCastLibBuilder : class, ILingoCastLibBuilder, new();
+        Task<ILingoPlayer> LoadCastLibFromCsvAsync(string castlibName, string pathAndFilenameToCsv, bool isInternal = false);
         ILingoPlayer AddCastLib(string name, bool isInternal = false, Action<ILingoCast>? configure = null);
         ILingoMovie NewMovie(string movieName, bool andActivate = true);
-       
+        Task<ILingoMovie> LoadMovieAsync(ILingoMovieBuilder builder);
+
+        void RunDelayed(Action action, int milliseconds, CancellationTokenSource? cts = null);
+
+
     }
 }
 

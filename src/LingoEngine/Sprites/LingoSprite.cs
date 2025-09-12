@@ -11,11 +11,13 @@ namespace LingoEngine.Sprites
         //protected readonly ILingoMovieEnvironment _environment;
         protected readonly LingoEventMediator _eventMediator;
         private readonly List<object> _spriteActors = new();
-        private bool _lock;
+        protected bool _lock;
         private int _beginFrame;
         private int _endFrame;
         private string _name = string.Empty;
         protected ILingoFrameworkSprite _frameworkSprite = null!;
+        private bool _isActive;
+
         public ILingoFrameworkSprite FrameworkObj => _frameworkSprite;
         
         public int BeginFrame
@@ -57,7 +59,16 @@ namespace LingoEngine.Sprites
         /// <summary>
         /// Whether this sprite is currently active (i.e., the playhead is within its frame span).
         /// </summary>
-        public bool IsActive { get; internal set; }
+        public bool IsActive
+        {
+            get => _isActive;
+            internal set
+            {
+                if (_isActive == value) return;
+                _isActive = value;
+
+            }
+        }
         public bool IsSingleFrame { get; protected set; }
         public bool Lock
         {
@@ -72,6 +83,7 @@ namespace LingoEngine.Sprites
         public bool IsDeleted { get; private set; }
 
         public LingoSpriteState? InitialState { get; set; }
+        bool ILingoSpriteBase.IsPuppetCached { get; set; }
 
         public event Action? AnimationChanged;
 
@@ -135,6 +147,7 @@ namespace LingoEngine.Sprites
             {
                 _eventMediator.Subscribe(actor, SpriteNum + 6);
                 if (actor is IHasBeginSpriteEvent begin) begin.BeginSprite();
+                if (actor is IHasStepFrameEvent stepframe) _eventMediator.SubscribeStepFrame(stepframe, SpriteNum + 6);
             }
 
            
@@ -149,6 +162,7 @@ namespace LingoEngine.Sprites
             foreach (var actor in _spriteActors)
             {
                 if (actor is IHasEndSpriteEvent end) end.EndSprite();
+                if (actor is IHasStepFrameEvent stepframe) _eventMediator.UnsubscribeStepFrame(stepframe, SpriteNum + 6);
                 _eventMediator.Unsubscribe(actor);
             }
             EndSprite();
@@ -193,7 +207,7 @@ namespace LingoEngine.Sprites
             return action;
         }
 
-        public void LoadState(LingoSpriteState state)
+        public virtual void LoadState(LingoSpriteState state)
         {
             Name = state.Name;
             OnLoadState(state);

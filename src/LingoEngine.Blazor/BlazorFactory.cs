@@ -72,7 +72,10 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
     {
         var js = _services.GetRequiredService<IJSRuntime>();
         var scripts = _services.GetRequiredService<AbstUIScriptResolver>();
-        var impl = new LingoBlazorStage((LingoClock)lingoPlayer.Clock, js, scripts);
+        var root = _services.GetRequiredService<LingoBlazorRootPanel>();
+        var container = _services.GetRequiredService<ILingoFrameworkStageContainer>();
+        var impl = new LingoBlazorStage(lingoPlayer, js, scripts, root, _gfxFactory);
+        container.SetStage(impl);
         var stage = new LingoStage(impl);
         impl.Init(stage);
         _disposables.Add(impl);
@@ -216,14 +219,16 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
     }
     public LingoSound CreateSound(ILingoCastLibsContainer castLibsContainer)
     {
-        var impl = new LingoBlazorSound();
+        var scripts = _services.GetRequiredService<AbstUIScriptResolver>();
+        var impl = new LingoBlazorSound(scripts);
         var sound = new LingoSound(impl, castLibsContainer, this);
         impl.Init(sound);
         return sound;
     }
     public LingoSoundChannel CreateSoundChannel(int number)
     {
-        var impl = new LingoBlazorSoundChannel(number);
+        var scripts = _services.GetRequiredService<AbstUIScriptResolver>();
+        var impl = new LingoBlazorSoundChannel(number, scripts);
         var channel = new LingoSoundChannel(impl, number);
         impl.Init(channel);
         return channel;
@@ -253,11 +258,6 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
     public AbstMenu CreateContextMenu(object window) => _gfxFactory.CreateContextMenu(window);
     public AbstHorizontalLineSeparator CreateHorizontalLineSeparator(string name) => _gfxFactory.CreateHorizontalLineSeparator(name);
     public AbstVerticalLineSeparator CreateVerticalLineSeparator(string name) => _gfxFactory.CreateVerticalLineSeparator(name);
-    public T CreateBehavior<T>(LingoMovie lingoMovie) where T : LingoSpriteBehavior
-        => lingoMovie.GetServiceProvider().GetRequiredService<T>();
-    public T CreateMovieScript<T>(LingoMovie lingoMovie) where T : LingoMovieScript
-        => lingoMovie.GetServiceProvider().GetRequiredService<T>();
-
     public void Dispose()
     {
         foreach (var d in _disposables)

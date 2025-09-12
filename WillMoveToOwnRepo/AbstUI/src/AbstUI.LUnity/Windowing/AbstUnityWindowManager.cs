@@ -43,18 +43,24 @@ internal class AbstUnityWindowManager : IAbstFrameworkWindowManager, IFrameworkF
         return new AbstWindowDialogReference(() => { });
     }
 
-    public IAbstWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel)
+    public IAbstWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel, APoint? position = null)
     {
         var dialogAbst = _componentFactory.CreateElement<IAbstDialog>();
         var dialog = dialogAbst.FrameworkObj<AbstUnityDialog>();
         dialog.Title = title;
         dialog.SetSize((int)panel.Width, (int)panel.Height);
         dialog.AddItem(panel);
-        dialog.PopupCentered();
+        if (position == null)
+            dialog.PopupCentered();
+        else
+        {
+            dialog.SetPositionAndSize((int)position.Value.X, (int)position.Value.Y, (int)panel.Width, (int)panel.Height);
+            dialog.Popup();
+        }
         return new AbstWindowDialogReference(dialog.Hide, dialog);
     }
 
-    public IAbstWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? dialog = null)
+    public IAbstWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? dialog = null, APoint? position = null)
         where TDialog : class, IAbstDialog
     {
         AbstUnityDialog unityDialog;
@@ -71,7 +77,13 @@ internal class AbstUnityWindowManager : IAbstFrameworkWindowManager, IFrameworkF
         unityDialog.Title = title;
         unityDialog.SetSize((int)panel.Width, (int)panel.Height);
         unityDialog.AddItem(panel);
-        unityDialog.PopupCentered();
+        if (position == null)
+            unityDialog.PopupCentered();
+        else
+        {
+            unityDialog.SetPositionAndSize((int)position.Value.X, (int)position.Value.Y, (int)panel.Width, (int)panel.Height);
+            unityDialog.Popup();
+        }
         return new AbstWindowDialogReference(unityDialog.Hide, unityDialog);
     }
 

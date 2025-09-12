@@ -682,60 +682,81 @@ namespace LingoEngine.Lingo.Core.Tokenizer
                 case LingoTokenType.Identifier:
                     var name = _currentToken.Lexeme;
                     AdvanceToken();
-                    if (name.Equals("sprite", StringComparison.OrdinalIgnoreCase) && Match(LingoTokenType.LeftParen))
+                    var upper = name.ToUpperInvariant();
+                    switch (upper)
                     {
-                        var indexExpr = ParseSpriteIndex();
-                        Expect(LingoTokenType.RightParen);
-                        if (Match(LingoTokenType.Dot))
-                        {
-                            var pTok = Expect(LingoTokenType.Identifier);
-                            expr = new LingoSpritePropExprNode
+                        case "BACKSPACE":
+                            expr = new LingoDatumNode(new LingoDatum("\b"));
+                            break;
+                        case "ENTER":
+                            expr = new LingoDatumNode(new LingoDatum("\u0003"));
+                            break;
+                        case "QUOTE":
+                            expr = new LingoDatumNode(new LingoDatum("\""));
+                            break;
+                        case "SPACE":
+                            expr = new LingoDatumNode(new LingoDatum(" "));
+                            break;
+                        case "TAB":
+                            expr = new LingoDatumNode(new LingoDatum("\t"));
+                            break;
+                        default:
+                            if (name.Equals("sprite", StringComparison.OrdinalIgnoreCase) && Match(LingoTokenType.LeftParen))
                             {
-                                Sprite = indexExpr,
-                                Property = new LingoVarNode { VarName = pTok.Lexeme }
-                            };
-                        }
-                        else
-                        {
-                            expr = new LingoCallNode
+                                var indexExpr = ParseSpriteIndex();
+                                Expect(LingoTokenType.RightParen);
+                                if (Match(LingoTokenType.Dot))
+                                {
+                                    var pTok = Expect(LingoTokenType.Identifier);
+                                    expr = new LingoSpritePropExprNode
+                                    {
+                                        Sprite = indexExpr,
+                                        Property = new LingoVarNode { VarName = pTok.Lexeme }
+                                    };
+                                }
+                                else
+                                {
+                                    expr = new LingoCallNode
+                                    {
+                                        Callee = new LingoVarNode { VarName = name },
+                                        Arguments = indexExpr
+                                    };
+                                }
+                            }
+                            else if (name.Equals("member", StringComparison.OrdinalIgnoreCase) && Match(LingoTokenType.LeftParen))
                             {
-                                Callee = new LingoVarNode { VarName = name },
-                                Arguments = indexExpr
-                            };
-                        }
-                    }
-                    else if (name.Equals("member", StringComparison.OrdinalIgnoreCase) && Match(LingoTokenType.LeftParen))
-                    {
-                        var inner = ParseExpression();
-                        LingoNode? castExpr = null;
-                        if (Match(LingoTokenType.Comma))
-                        {
-                            castExpr = ParseExpression();
-                        }
-                        Expect(LingoTokenType.RightParen);
-                        expr = new LingoMemberExprNode { Expr = inner, CastLib = castExpr };
-                        while (Match(LingoTokenType.Dot))
-                        {
-                            var pTok = Expect(LingoTokenType.Identifier);
-                            expr = new LingoObjPropExprNode
+                                var inner = ParseExpression();
+                                LingoNode? castExpr = null;
+                                if (Match(LingoTokenType.Comma))
+                                {
+                                    castExpr = ParseExpression();
+                                }
+                                Expect(LingoTokenType.RightParen);
+                                expr = new LingoMemberExprNode { Expr = inner, CastLib = castExpr };
+                                while (Match(LingoTokenType.Dot))
+                                {
+                                    var pTok = Expect(LingoTokenType.Identifier);
+                                    expr = new LingoObjPropExprNode
+                                    {
+                                        Object = expr,
+                                        Property = new LingoVarNode { VarName = pTok.Lexeme }
+                                    };
+                                }
+                            }
+                            else if (name.Equals("field", StringComparison.OrdinalIgnoreCase))
                             {
-                                Object = expr,
-                                Property = new LingoVarNode { VarName = pTok.Lexeme }
-                            };
-                        }
-                    }
-                    else if (name.Equals("field", StringComparison.OrdinalIgnoreCase))
-                    {
-                        var arg = ParseExpression();
-                        expr = new LingoObjPropExprNode
-                        {
-                            Object = new LingoMemberExprNode { Expr = arg },
-                            Property = new LingoVarNode { VarName = "Text" }
-                        };
-                    }
-                    else
-                    {
-                        expr = new LingoVarNode { VarName = name };
+                                var arg = ParseExpression();
+                                expr = new LingoObjPropExprNode
+                                {
+                                    Object = new LingoMemberExprNode { Expr = arg },
+                                    Property = new LingoVarNode { VarName = "Text" }
+                                };
+                            }
+                            else
+                            {
+                                expr = new LingoVarNode { VarName = name };
+                            }
+                            break;
                     }
                     break;
 

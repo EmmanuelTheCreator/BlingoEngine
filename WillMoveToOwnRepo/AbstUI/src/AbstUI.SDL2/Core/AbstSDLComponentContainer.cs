@@ -86,6 +86,7 @@ public class AbstSDLComponentContainer
                     inside = mx >= ctx.X && mx <= ctx.X + ctx.TargetWidth &&
                              my >= ctx.Y && my <= ctx.Y + ctx.TargetHeight;
                     okEvent = true;
+                    //Console.WriteLine($"Source: {mx}x{my}\t{ctx.X}x{ctx.Y} {inside}");
                     break;
                 case SDL.SDL_EventType.SDL_MOUSEWHEEL:
                     SDL.SDL_GetMouseState(out var wx, out var wy);
@@ -102,7 +103,7 @@ public class AbstSDLComponentContainer
                     okEvent = true;
                     break;
             }
-                if (inside && okEvent)
+            if (inside && okEvent)
             {
                 handled = true;
                 handler.HandleEvent(evt);

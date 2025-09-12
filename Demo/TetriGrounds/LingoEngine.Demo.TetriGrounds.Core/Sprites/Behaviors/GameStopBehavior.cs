@@ -69,7 +69,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 
         public void MouseEnter(LingoMouseEvent mouse)
         {
-            Cursor = 200;
+            //Cursor = 200;
         }
 
         public void ExitFrame()

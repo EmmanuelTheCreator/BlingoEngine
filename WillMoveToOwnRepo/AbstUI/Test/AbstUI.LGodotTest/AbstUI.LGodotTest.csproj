@@ -9,6 +9,7 @@
 		<Platforms>AnyCPU;x64;x86</Platforms>
 		<!--Disable warning of invalid/incompatible GodotSharp version-->
 		<NoWarn>NU1605</NoWarn>
+		<Configurations>Debug;Release</Configurations>
 	</PropertyGroup>
         <ItemGroup>
           <Content Include="Media\Fonts\8PinMatrix.ttf">
@@ -37,8 +38,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="xunit" Version="2.5.3" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/AbstUI/AbstUI.csproj" />

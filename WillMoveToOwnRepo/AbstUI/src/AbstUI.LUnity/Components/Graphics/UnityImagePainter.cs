@@ -352,7 +352,7 @@ public class UnityImagePainter : IAbstImagePainter
         MarkDirty();
     }
 
-    public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular)
+    public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)
     {
         var pos = position; var txt = text; var col = (color ?? new AColor(0, 0, 0)).ToUnityColor();
         var fnt = font; var fs = fontSize; var w = width; var align = alignment; var st = style;
@@ -396,15 +396,15 @@ public class UnityImagePainter : IAbstImagePainter
         MarkDirty();
     }
 
-    public void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular)
+    public void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left, AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)
     {
         var pos = position; var txt = text; var col = (color ?? new AColor(0, 0, 0)).ToUnityColor();
-        var fnt = font; var fs = fontSize; var w = width; var h = height; var align = alignment; var st = style;
+        var fnt = font; var fs = fontSize; var w = width; var h = height; var align = alignment; var st = style; var ls = letterSpacing;
         _drawActions.Add((
             () =>
             {
                 if (!AutoResizeWidth && !AutoResizeHeight) return null;
-                float textW = w >= 0 ? w : _fontManager.MeasureTextWidth(txt, fnt ?? string.Empty, fs);
+                float textW = w >= 0 ? w : _fontManager.MeasureTextWidth(txt, fnt ?? string.Empty, fs) + ls * Math.Max(0, txt.Length - 1);
                 int textH = h >= 0 ? h : _fontManager.GetFontInfo(fnt ?? string.Empty, fs).FontHeight;
                 return EnsureCapacity((int)(pos.X + textW), (int)(pos.Y + textH));
             },

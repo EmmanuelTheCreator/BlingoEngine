@@ -53,6 +53,7 @@ namespace LingoEngine.LGodot
         public void SetCursor(LingoMemberBitmap? image) => _handler.SetCursor(image);
 
         public void SetCursor(AMouseCursor value) => _handler.SetCursor(value);
+        public AMouseCursor GetCursor() => _handler.GetCursor();
 
         public override void _Input(InputEvent @event)
         {
@@ -96,7 +97,7 @@ namespace LingoEngine.LGodot
             }
         }
 
-       
+        
     }
 
 }

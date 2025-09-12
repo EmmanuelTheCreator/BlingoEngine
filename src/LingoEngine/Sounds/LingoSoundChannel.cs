@@ -187,6 +187,8 @@ namespace LingoEngine.Sounds
             }
         }
 
+        public bool ContinuousLoopSound { get; private set; }
+
         public LingoSoundChannel(ILingoFrameworkSoundChannel frameworkSoundChannel, int number)
         {
             _frameworkSoundChannel = frameworkSoundChannel;
@@ -253,6 +255,7 @@ namespace LingoEngine.Sounds
             if (loopStartTime > -1) LoopStartTime = loopStartTime;
             if (loopEndTime > -1) LoopEndTime = loopEndTime;
             if (preloadTime > -1) PreloadTime = preloadTime;
+            ContinuousLoopSound = Member.Loop;
             PlayNow(Member);
         }
         private void PlayNow(LingoMemberSound member)
@@ -314,7 +317,13 @@ namespace LingoEngine.Sounds
             }
             else
             {
-                Status = LingoSoundChannelStatus.Idle;
+                if (ContinuousLoopSound)
+                {
+                    _frameworkSoundChannel.Repeat();
+                    Status = LingoSoundChannelStatus.Playing;
+                }
+                else
+                    Status = LingoSoundChannelStatus.Idle;
             }
 
         }

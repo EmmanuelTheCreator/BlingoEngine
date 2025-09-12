@@ -13,6 +13,7 @@ using LingoEngine.FrameworkCommunication;
 using System.Diagnostics;
 using LingoEngine.Inputs.Events;
 using AbstUI.Primitives;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Sprites
 {
@@ -106,7 +107,15 @@ namespace LingoEngine.Sprites
         }
         public float LocH { get => _frameworkSprite.X; set => _frameworkSprite.X = value; }
         public float LocV { get => _frameworkSprite.Y; set => _frameworkSprite.Y = value; }
-        public int LocZ { get => _frameworkSprite.ZIndex; set => _frameworkSprite.ZIndex = value; }
+        public int LocZ
+        {
+            get => _frameworkSprite.ZIndex;
+            set
+            {
+                
+                _frameworkSprite.ZIndex = value;
+            }
+        }
         public APoint Loc { get => (_frameworkSprite.X, _frameworkSprite.Y); set => _frameworkSprite.SetPosition(value); }
 
         public float Rotation { get => _frameworkSprite.Rotation; set => _frameworkSprite.Rotation = value; }
@@ -171,37 +180,6 @@ namespace LingoEngine.Sprites
         public byte[] Thumbnail { get; set; } = new byte[] { };
         public string ModifiedBy { get; set; } = "";
 
-        /// <inheritdoc/>
-        public void Play()
-        {
-            if (_frameworkSprite is ILingoFrameworkSpriteVideo video)
-                video.Play();
-            _eventMediator.RaiseStartVideo();
-        }
-
-        /// <inheritdoc/>
-        public void Stop()
-        {
-            if (_frameworkSprite is ILingoFrameworkSpriteVideo video)
-                video.Stop();
-            _eventMediator.RaiseStopVideo();
-            _eventMediator.RaiseEndVideo();
-        }
-
-        /// <inheritdoc/>
-        public void Pause()
-        {
-            if (_frameworkSprite is ILingoFrameworkSpriteVideo video)
-                video.Pause();
-            _eventMediator.RaisePauseVideo();
-        }
-
-        /// <inheritdoc/>
-        public void Seek(int milliseconds)
-        {
-            if (_frameworkSprite is ILingoFrameworkSpriteVideo video)
-                video.Seek(milliseconds);
-        }
 
         /// <inheritdoc/>
         public int Duration => (_frameworkSprite as ILingoFrameworkSpriteVideo)?.Duration ?? 0;
@@ -233,29 +211,9 @@ namespace LingoEngine.Sprites
 
         public ILingoMember? GetMember() => Member;
 
-
+        bool ILingoSpriteBase.IsPuppetCached { get; set; }  
         #endregion
 
-        private void ApplyBlend()
-        {
-            _frameworkSprite.Blend = _directToStage ? 1f : _blend;
-        }
-
-        private APoint GetRegPointOffset()
-        {
-            if (_member is { } member)
-            {
-                var baseOffset = member.CenterOffsetFromRegPoint();
-                if (member.Width != 0 && member.Height != 0)
-                {
-                    float scaleX = Width / member.Width;
-                    float scaleY = Height / member.Height;
-                    return new APoint(baseOffset.X * scaleX, baseOffset.Y * scaleY);
-                }
-                return baseOffset;
-            }
-            return new APoint();
-        }
 
 
 
@@ -287,7 +245,7 @@ namespace LingoEngine.Sprites
         }
         public T SetBehavior<T>(Action<T>? configure = null) where T : LingoSpriteBehavior
         {
-            var behavior = _frameworkFactory.CreateBehavior<T>(_movie);
+            var behavior = _movie.GetServiceProvider().GetRequiredService<T>();
             behavior.SetMe(this);
             _behaviors.Add(behavior);
             if (configure != null)
@@ -359,7 +317,7 @@ namespace LingoEngine.Sprites
             var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
             if (animator == null)
             {
-                animator = new LingoSpriteAnimator(this, _movie, _eventMediator);
+                animator = new LingoSpriteAnimator(this, _movie, _eventMediator,null,false);
                 AddActor(animator);
             }
 
@@ -369,7 +327,7 @@ namespace LingoEngine.Sprites
         {
             var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
             if (animator != null) throw new Exception("Animator already set");
-            animator = new LingoSpriteAnimator(this, _movie, eventMediator, animatorProps);
+            animator = new LingoSpriteAnimator(this, _movie, eventMediator, animatorProps,false);
             AddActor(animator);
         }
         #endregion
@@ -454,6 +412,26 @@ When a movie stops, events occur in the following order:
         public bool PointInSprite(APoint point)
         {
             return Rect.Contains(point);
+        }
+        private void ApplyBlend()
+        {
+            _frameworkSprite.Blend = _directToStage ? 1f : _blend;
+        }
+
+        private APoint GetRegPointOffset()
+        {
+            if (_member is { } member)
+            {
+                var baseOffset = member.CenterOffsetFromRegPoint();
+                if (member.Width != 0 && member.Height != 0)
+                {
+                    float scaleX = Width / member.Width;
+                    float scaleY = Height / member.Height;
+                    return new APoint(baseOffset.X * scaleX, baseOffset.Y * scaleY);
+                }
+                return baseOffset;
+            }
+            return new APoint();
         }
 
 
@@ -932,6 +910,85 @@ When a movie stops, events occur in the following order:
                 else
                     _textureSubscription = null;
             }
+        }
+
+
+        #region Media/Video
+        /// <inheritdoc/>
+        public void Play()
+        {
+            if (_frameworkSprite is ILingoFrameworkSpriteVideo video)
+            {
+                if (MediaStatus == LingoMediaStatus.Playing) return;
+                video.Play();
+                _eventMediator.RaiseStartVideo();
+            }
+        }
+
+        /// <inheritdoc/>
+        public void Stop()
+        {
+            if (_frameworkSprite is ILingoFrameworkSpriteVideo video)
+            {
+                if (MediaStatus == LingoMediaStatus.Error || MediaStatus == LingoMediaStatus.Closed) return;
+                video.Stop();
+                _eventMediator.RaiseStopVideo();
+                _eventMediator.RaiseEndVideo();
+            }
+        }
+
+        /// <inheritdoc/>
+        public void Pause()
+        {
+            if (_frameworkSprite is ILingoFrameworkSpriteVideo video)
+            {
+                video.Pause();
+                _eventMediator.RaisePauseVideo();
+            }
+        }
+
+        /// <inheritdoc/>
+        public void Seek(int milliseconds)
+        {
+            if (_frameworkSprite is ILingoFrameworkSpriteVideo video)
+                video.Seek(milliseconds);
+        }
+
+        #endregion
+
+        internal void Reset()
+        {
+            Stop();
+
+            Width = 0;
+            Height = 0;
+            LocH = 0;
+            LocV = 0;
+            LocZ = SpriteNum;
+            FlipH = false;
+            FlipV = false;
+            Rotation = 0;
+            Skew = 0;
+            Blend = 100;
+            InkType = LingoInkType.Copy;
+            Editable = false;
+            IsDraggable = false;
+            ForeColor = AColors.Black;
+            BackColor = AColors.White;
+            Loaded = false;
+            Linked = false;
+            MediaReady = false;
+            SetMember(null);
+
+            // fields
+            _behaviors.Clear();
+            _isMouseInside = false;
+            _isDragging = false;
+            _isFocus = false;
+            _previousCursor = null;
+
+            // base class
+            _lock = false;
         }
     }
 }

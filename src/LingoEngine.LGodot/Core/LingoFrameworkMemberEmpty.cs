@@ -1,5 +1,6 @@
 ﻿using LingoEngine.Members;
 using LingoEngine.Sprites;
+using System.Threading.Tasks;
 
 namespace LingoEngine.LGodot.Core
 {
@@ -25,7 +26,11 @@ namespace LingoEngine.LGodot.Core
 
         public void Preload()
         {
+            if (IsLoaded)
+                return;
         }
+
+        public Task PreloadAsync() => Task.CompletedTask;
 
         public void Unload()
         {

@@ -127,7 +127,7 @@ namespace LingoEngine.Sprites
         #region SendSprite
         internal void SendSprite(int spriteNumber, Action<ILingoSpriteChannel> actionOnSprite)
         {
-            var sprite = _spriteChannels.Values.FirstOrDefault(x => x.SpriteNum == spriteNumber);
+            var sprite = _spriteChannels.Values.FirstOrDefault(x => x.Number == spriteNumber);
             if (sprite == null) return;
             actionOnSprite(sprite);
         }

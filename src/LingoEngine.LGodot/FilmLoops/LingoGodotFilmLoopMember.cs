@@ -7,6 +7,7 @@ using LingoEngine.Members;
 using AbstUI.Primitives;
 using AbstUI.LGodot.Bitmaps;
 using AbstUI.LGodot.Helpers;
+using System.Threading.Tasks;
 
 namespace LingoEngine.LGodot.FilmLoops
 {
@@ -37,7 +38,15 @@ namespace LingoEngine.LGodot.FilmLoops
         public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
         public void Preload()
         {
+            if (IsLoaded)
+                return;
             IsLoaded = true;
+        }
+
+        public Task PreloadAsync()
+        {
+            Preload();
+            return Task.CompletedTask;
         }
 
         public void Unload()

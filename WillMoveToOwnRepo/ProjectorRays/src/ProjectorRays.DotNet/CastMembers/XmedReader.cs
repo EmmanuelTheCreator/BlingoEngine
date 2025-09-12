@@ -97,7 +97,7 @@ public class XmedReader : IXmedReader
         var textBuilder = new StringBuilder();
 
         // Basic style information stored near the start of the chunk.  Offsets
-        // are derived from XMED_Offsets.md.
+        // are derived from docs/DirDissasembly/XMED_Offsets.md.
         doc.Width = BitConverter.ToUInt32(data, start + 0x18);
         byte styleFlags = data[start + 0x1C];
         byte alignByte = data[start + 0x1D];
@@ -245,6 +245,10 @@ public class XmedReader : IXmedReader
                             {
                                 run.FontName = currentStyle.FontName;
                                 run.ForeColor = new RayColor(currentStyle.ColorIndex, currentStyle.ColorIndex, currentStyle.ColorIndex);
+                                run.FontSize = currentStyle.FontSize == 0 ? fontSize : currentStyle.FontSize;
+                                run.Bold = currentStyle.Bold;
+                                run.Italic = currentStyle.Italic;
+                                run.Underline = currentStyle.Underline;
                             }
 
                             if (printable)

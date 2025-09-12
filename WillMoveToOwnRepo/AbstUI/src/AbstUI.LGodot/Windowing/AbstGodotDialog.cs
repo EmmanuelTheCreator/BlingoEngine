@@ -7,13 +7,27 @@ using Godot;
 
 namespace AbstUI.LGodot.Windowing
 {
-    public partial class AbstGodotDialog : AbstGodotDialogT<AbstDialog>, IFrameworkFor<AbstDialog>, IAbstFrameworkDialog<AbstDialog> { }
+    public partial class AbstGodotDialog : AbstGodotDialogT<AbstDialog>, IFrameworkForInitializable<AbstDialog>, IAbstFrameworkDialog<AbstDialog>
+    {
+        
+    }
     public partial class AbstGodotDialogT<T> : Window, IAbstFrameworkDialog<T>, IFrameworkFor<T>
         where T: AbstDialog
     {
         private IAbstDialog _lingoDialog = null!;
+        private Action<AColor> _setBackgroundColorMethod = c => { };
+        private AColor _backgroundColor;
 
-        public AColor BackgroundColor { get; set; }
+        public AColor BackgroundColor
+        {
+            get => _backgroundColor;
+            set
+            {
+                if (_backgroundColor == value) return;
+                _backgroundColor = value;
+                _setBackgroundColorMethod(value);
+            }
+        }
         public bool IsOpen { get; set; }
         public bool IsPopup { get; set; }
         public bool IsActiveWindow => IsOpen;
@@ -39,6 +53,8 @@ namespace AbstUI.LGodot.Windowing
             Exclusive = true;
             PopupWindow = true;
             Unresizable = true;
+            TransparentBg = true;
+            Transparent = true;
             //AlwaysOnTop = true; // <- blocks combo boxes
             ReplaceIconColor(this, "close", new Color("#777777"));
             ReplaceIconColor(this, "close_hl", Colors.Black);
@@ -57,7 +73,7 @@ namespace AbstUI.LGodot.Windowing
             OnWindowStateChanged?.Invoke(false);
         }
 
-        public virtual void Init(IAbstDialog lingoDialog)
+        public virtual void Init(AbstDialog lingoDialog)
         {
             _lingoDialog = lingoDialog;
             lingoDialog.Init(this);
@@ -69,7 +85,10 @@ namespace AbstUI.LGodot.Windowing
             base.Dispose(disposing);
         }
 
-
+        public override void _Ready()
+        {
+            //RenderingServer.SetDefaultClearColor(new Color(0,0,0,0)); // RGB [0..1]
+        }
         public void Popup() => base.Popup();
 
         public void PopupCentered() =>
@@ -127,5 +146,7 @@ namespace AbstUI.LGodot.Windowing
 
             return tinted;
         }
+
+        internal void SetBackgroundColorMethod(Action<AColor> value) => _setBackgroundColorMethod = value;
     }
 }

@@ -94,6 +94,7 @@ namespace AbstUI.Inputs
         IAbstMouse CreateNewInstance(IAbstMouseRectProvider provider);
        
         void SetCursor(AMouseCursor cursor);
+        AMouseCursor GetCursor();
     }
     public interface IAbstMouseInternal : IAbstMouse
     {

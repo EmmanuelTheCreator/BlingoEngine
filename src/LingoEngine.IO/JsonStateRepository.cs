@@ -1,21 +1,20 @@
-using System.Text.Json;
-using System.Reflection;
-using System.Collections.Generic;
-using LingoEngine.Movies;
-using LingoEngine.Core;
-using LingoEngine.Texts;
-using LingoEngine.Sounds;
-using LingoEngine.IO.Data.DTO;
-using LingoEngine.Animations;
-using LingoEngine.Primitives;
-using System.Linq;
-using LingoEngine.Members;
-using LingoEngine.Casts;
-using LingoEngine.Sprites;
-using LingoEngine.FilmLoops;
-using LingoEngine.Bitmaps;
-using LingoEngine.Events;
 using AbstUI.Primitives;
+using LingoEngine.Animations;
+using LingoEngine.Bitmaps;
+using LingoEngine.Casts;
+using LingoEngine.Core;
+using LingoEngine.Events;
+using LingoEngine.FilmLoops;
+using LingoEngine.IO.Data.DTO;
+using LingoEngine.Members;
+using LingoEngine.Movies;
+using LingoEngine.Primitives;
+using LingoEngine.Sounds;
+using LingoEngine.Sprites;
+using LingoEngine.Texts;
+using System.Reflection;
+using System.Text.Json;
+using static LingoEngine.IO.JsonStateRepository;
 
 namespace LingoEngine.IO;
 
@@ -24,26 +23,34 @@ public interface IJsonStateRepository
     LingoMovie Load(LingoProjectDTO dto, LingoPlayer player, string resourceDir);
     LingoMovie Load(LingoStageDTO stageDto, LingoMovieDTO movieDto, LingoPlayer player, string resourceDir);
     LingoMovie Load(string filePath, LingoPlayer player);
-    void Save(string filePath, LingoMovie movie);
+    (string JsonString, LingoMovieDTO MovieDto) Save(string filePath, LingoMovie movie, MovieStoreOptions? options = null);
 }
 
 public class JsonStateRepository : IJsonStateRepository
 {
-    public void Save(string filePath, LingoMovie movie)
+    public class MovieStoreOptions
+    {
+        public bool WithMedia { get; set; }
+        public string TargetDirectory { get; set; } = "";
+    }
+    public (string JsonString, LingoMovieDTO MovieDto) Save(string filePath, LingoMovie movie, MovieStoreOptions? options = null)
     {
         var dir = Path.GetDirectoryName(filePath);
         if (string.IsNullOrEmpty(dir))
             dir = Directory.GetCurrentDirectory();
-        string json = Serialize(movie, dir);
-        File.WriteAllText(filePath, json);
+        if (options == null) options = new();
+        options.TargetDirectory = dir;
+        var jsonTuple = Serialize(movie, options);
+        File.WriteAllText(filePath, jsonTuple.JsonString);
+        return jsonTuple;
     }
 
-    public string Serialize(LingoMovie movie, string dir)
+    public (string JsonString, LingoMovieDTO MovieDto) Serialize(LingoMovie movie, MovieStoreOptions options)
     {
-        var dto = ToDto(movie, dir);
-        var options = new JsonSerializerOptions { WriteIndented = true };
-        var json = JsonSerializer.Serialize(dto, options);
-        return json;
+        var dto = ToDto(movie, options);
+        var joptions = new JsonSerializerOptions { WriteIndented = true };
+        var json = JsonSerializer.Serialize(dto, joptions);
+        return (json, dto);
     }
 
     public LingoMovie Load(string filePath, LingoPlayer player)
@@ -83,7 +90,7 @@ public class JsonStateRepository : IJsonStateRepository
     {
         player.LoadStage(dtoStage.Width, dtoStage.Height, FromDto(dtoStage.BackgroundColor));
     }
-    private static LingoMovie BuildMovieFromDto(LingoMovieDTO dto, LingoPlayer player, string dir)
+    private static LingoMovie BuildMovieFromDto(LingoMovieDTO dto, LingoPlayer player, string resourceDir)
     {
         ILingoEventMediator mediator = player.GetEventMediator();
         var movie = (LingoMovie)player.NewMovie(dto.Name);
@@ -107,9 +114,9 @@ public class JsonStateRepository : IJsonStateRepository
                 var reg = new APoint(memDto.RegPoint.X, memDto.RegPoint.Y);
                 string fileName = memDto.FileName;
                 if (memDto is LingoMemberPictureDTO pic && !string.IsNullOrEmpty(pic.ImageFile))
-                    fileName = Path.Combine(dir, pic.ImageFile);
+                    fileName = Path.Combine(resourceDir, pic.ImageFile);
                 if (memDto is LingoMemberSoundDTO snd && !string.IsNullOrEmpty(snd.SoundFile))
-                    fileName = Path.Combine(dir, snd.SoundFile);
+                    fileName = Path.Combine(resourceDir, snd.SoundFile);
 
                 var member = (LingoMember)cast.Add((LingoMemberType)memDto.Type, memDto.NumberInCast, memDto.Name, fileName, reg);
                 member.Width = memDto.Width;
@@ -119,9 +126,9 @@ public class JsonStateRepository : IJsonStateRepository
                 member.PurgePriority = memDto.PurgePriority;
 
                 if (member is LingoMemberText txt && memDto is LingoMemberTextDTO txtDto)
-                    txt.Text = txtDto.Text;
+                    txt.SetTextMD(txtDto.MarkDownText);
                 if (member is LingoMemberField fld && memDto is LingoMemberFieldDTO fldDto)
-                    fld.Text = fldDto.Text;
+                    fld.SetTextMD(fldDto.MarkDownText);
                 if (member is LingoMemberSound sndMem && memDto is LingoMemberSoundDTO sndDto)
                 {
                     sndMem.Loop = sndDto.Loop;
@@ -157,7 +164,6 @@ public class JsonStateRepository : IJsonStateRepository
 
         sprite = movie.AddSprite(sDto.SpriteNum, sDto.Name, s =>
         {
-            s.Puppet = sDto.Puppet;
             s.Lock = sDto.Lock;
             s.Visibility = sDto.Visibility;
             s.BeginFrame = sDto.BeginFrame;
@@ -286,7 +292,7 @@ public class JsonStateRepository : IJsonStateRepository
         return animator;
     }
 
-    private static LingoMovieDTO ToDto(LingoMovie movie, string dir)
+    private static LingoMovieDTO ToDto(LingoMovie movie, MovieStoreOptions options)
     {
         return new LingoMovieDTO
         {
@@ -298,12 +304,12 @@ public class JsonStateRepository : IJsonStateRepository
             Copyright = movie.Copyright,
             UserName = movie.UserName,
             CompanyName = movie.CompanyName,
-            Casts = movie.CastLib.GetAll().Select(c => ToDto((LingoCast)c, dir)).ToList(),
-            Sprites = GetAllSprites(movie).Select(ToDto).ToList()
+            Casts = movie.CastLib.GetAll().Select(c => ToDto((LingoCast)c, options)).ToList(),
+            Sprites = movie.GetAll2DSpritesToStore().Select(ToDto).ToList()
         };
     }
 
-    private static LingoCastDTO ToDto(LingoCast cast, string dir)
+    private static LingoCastDTO ToDto(LingoCast cast, MovieStoreOptions options)
     {
         return new LingoCastDTO
         {
@@ -311,11 +317,11 @@ public class JsonStateRepository : IJsonStateRepository
             FileName = cast.FileName,
             Number = cast.Number,
             PreLoadMode = (PreLoadModeTypeDTO)cast.PreLoadMode,
-            Members = cast.GetAll().Select(m => ToDto(m, dir)).ToList()
+            Members = cast.GetAll().Select(m => ToDto(m, options)).ToList()
         };
     }
 
-    private static LingoMemberDTO ToDto(ILingoMember member, string dir)
+    private static LingoMemberDTO ToDto(ILingoMember member, MovieStoreOptions options)
     {
         var baseDto = new LingoMemberDTO
         {
@@ -349,8 +355,7 @@ public class JsonStateRepository : IJsonStateRepository
                 Comments = baseDto.Comments,
                 FileName = baseDto.FileName,
                 PurgePriority = baseDto.PurgePriority,
-                IsFocused = field.IsFocused,
-                Text = field.Text
+                MarkDownText = field.InitialMarkdown != null? field.InitialMarkdown.Markdown :  field.Text
             },
             LingoMemberSound sound => new LingoMemberSoundDTO
             {
@@ -371,7 +376,7 @@ public class JsonStateRepository : IJsonStateRepository
                 Loop = sound.Loop,
                 IsLinked = sound.IsLinked,
                 LinkedFilePath = sound.LinkedFilePath,
-                SoundFile = SaveSound(sound, dir)
+                SoundFile = SaveSound(sound, options)
             },
             LingoMemberText text => new LingoMemberTextDTO
             {
@@ -387,7 +392,7 @@ public class JsonStateRepository : IJsonStateRepository
                 Comments = baseDto.Comments,
                 FileName = baseDto.FileName,
                 PurgePriority = baseDto.PurgePriority,
-                Text = text.Text
+                MarkDownText = text.InitialMarkdown != null ? text.InitialMarkdown.Markdown : text.Text
             },
             LingoMemberBitmap picture => new LingoMemberPictureDTO
             {
@@ -403,7 +408,7 @@ public class JsonStateRepository : IJsonStateRepository
                 Comments = baseDto.Comments,
                 FileName = baseDto.FileName,
                 PurgePriority = baseDto.PurgePriority,
-                ImageFile = SavePicture(picture, dir)
+                ImageFile = SavePicture(picture, options)
             },
             LingoFilmLoopMember filmLoop => new LingoMemberFilmLoopDTO
             {
@@ -445,7 +450,6 @@ public class JsonStateRepository : IJsonStateRepository
             MemberNum = state.Member?.NumberInCast ?? sprite.MemberNum,
             DisplayMember = state.DisplayMember,
             SpritePropertiesOffset = state.SpritePropertiesOffset,
-            Puppet = sprite.Puppet,
             Lock = sprite.Lock,
             Visibility = sprite.Visibility,
             LocH = state.LocH,
@@ -491,7 +495,6 @@ public class JsonStateRepository : IJsonStateRepository
             SpriteNum = sprite.SpriteNum,
             MemberNum = state.Member?.NumberInCast ?? sprite.MemberNum,
             DisplayMember = state.DisplayMember,
-            Puppet = sprite.Puppet,
             Lock = sprite.Lock,
             LocH = state.LocH,
             LocV = state.LocV,
@@ -559,13 +562,7 @@ public class JsonStateRepository : IJsonStateRepository
         return dto;
     }
 
-    private static IEnumerable<LingoSprite2D> GetAllSprites(LingoMovie movie)
-    {
-        var field = typeof(LingoMovie).GetField("_allTimeSprites", BindingFlags.NonPublic | BindingFlags.Instance);
-        if (field?.GetValue(movie) is IEnumerable<LingoSprite2D> sprites)
-            return sprites;
-        return Enumerable.Empty<LingoSprite2D>();
-    }
+
 
     private static IEnumerable<object> GetSpriteActors(LingoSprite2D sprite)
     {
@@ -659,21 +656,21 @@ public class JsonStateRepository : IJsonStateRepository
         };
     }
 
-    private static string SavePicture(LingoMemberBitmap picture, string dir)
+    private static string SavePicture(LingoMemberBitmap picture, MovieStoreOptions options)
     {
-        if (picture.ImageData == null || string.IsNullOrWhiteSpace(dir))
+        if (picture.ImageData == null || string.IsNullOrWhiteSpace(options.TargetDirectory) || !options.WithMedia)
             return string.Empty;
 
         var ext = GetPictureExtension(picture);
         var name = $"{picture.NumberInCast}_{SanitizeFileName(picture.Name)}.{ext}";
-        var path = Path.Combine(dir, name);
+        var path = Path.Combine(options.TargetDirectory, name);
         File.WriteAllBytes(path, picture.ImageData);
         return name;
     }
 
-    private static string SaveSound(LingoMemberSound sound, string dir)
+    private static string SaveSound(LingoMemberSound sound, MovieStoreOptions options)
     {
-        if (string.IsNullOrWhiteSpace(dir)) return string.Empty;
+        if (string.IsNullOrWhiteSpace(options.TargetDirectory)) return string.Empty;
         var source = !string.IsNullOrEmpty(sound.FileName) && File.Exists(sound.FileName)
             ? sound.FileName
             : sound.LinkedFilePath;
@@ -682,7 +679,8 @@ public class JsonStateRepository : IJsonStateRepository
 
         var ext = GetSoundExtension(source);
         var name = $"{sound.NumberInCast}_{SanitizeFileName(sound.Name)}{ext}";
-        var dest = Path.Combine(dir, name);
+        if (!options.WithMedia) return name;
+        var dest = Path.Combine(options.TargetDirectory, name);
         File.Copy(source, dest, true);
         return name;
     }

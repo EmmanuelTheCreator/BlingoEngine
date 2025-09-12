@@ -138,12 +138,34 @@ internal class AbstImGuiGfxCanvas : AbstImGuiComponent, IAbstFrameworkGfxCanvas,
         MarkDirty();
     }
 
-    public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = default)
+    public void DrawText(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12, int width = -1, AbstTextAlignment alignment = default, int letterSpacing = 0)
     {
         var c = color ?? AColors.Black;
         _drawActions.Add((dl, origin) =>
-            dl.AddText(origin + ToVec2(position), ToU32(c), text));
+        {
+            var start = origin + ToVec2(position);
+            if (letterSpacing != 0)
+            {
+                float x = start.X;
+                foreach (var ch in text)
+                {
+                    dl.AddText(new Vector2(x, start.Y), ToU32(c), ch.ToString());
+                    x += ImGui.CalcTextSize(ch.ToString()).X + letterSpacing;
+                }
+            }
+            else
+            {
+                dl.AddText(start, ToU32(c), text);
+            }
+        });
         MarkDirty();
+    }
+
+    public void DrawSingleLine(APoint position, string text, string? font = null, AColor? color = null, int fontSize = 12,
+        int width = -1, int height = -1, AbstTextAlignment alignment = AbstTextAlignment.Left,
+        AbstFontStyle style = AbstFontStyle.Regular, int letterSpacing = 0)
+    {
+        DrawText(position, text, font, color, fontSize, width, alignment, letterSpacing);
     }
 
     public void DrawPicture(byte[] data, int width, int height, APoint position, APixelFormat format)

@@ -28,7 +28,6 @@ namespace LingoEngine.Director.Core.Texts
         private readonly AbstPanel _rootPanel;
         private readonly AbstScrollContainer _markdownScroller;
         private CancellationTokenSource? _renderCts;
-        private IAbstTexture2D? _previewTexture;
         private SynchronizationContext? _uiContext;
         private ILingoMemberTextBase? _member;
         private IAbstImagePainter _painter;
@@ -50,11 +49,11 @@ namespace LingoEngine.Director.Core.Texts
             IconBar.SetFonts(fontManager.GetAllNames());
             _rootPanel = factory.CreatePanel("TextEditWindowV2Root");
             _rootPanel.BackgroundColor = DirectorColors.BG_WhiteMenus;
-            _rootPanel.AddItem(_navBar.Panel,0,0);
-            _rootPanel.AddItem(IconBar.Panel,0,25);
-            //_previewTexture?.Dispose();
+            _rootPanel.AddItem(_navBar.Panel, 0, 0);
+            _rootPanel.AddItem(IconBar.Panel, 0, 25);
+            // Previously disposed preview texture here; no longer required.
             var columns = factory.CreateWrapPanel(AOrientation.Horizontal, "TextEditWindowV2Columns");
-            _rootPanel.AddItem(columns,0,50);
+            _rootPanel.AddItem(columns, 0, 50);
 
             _previewCanvas = factory.CreateGfxCanvas("MarkdownPreview", 400, 400);
             _markdownScroller = factory.CreateScrollContainer("MakdownScroller");
@@ -162,9 +161,8 @@ namespace LingoEngine.Director.Core.Texts
         {
             _renderCts?.Cancel();
             _renderCts?.Dispose();
-            _previewTexture?.Dispose();
             _painter?.Dispose();
-            _markdownScroller?.Dispose();    
+            _markdownScroller?.Dispose();
             base.OnDispose();
         }
 
@@ -173,8 +171,8 @@ namespace LingoEngine.Director.Core.Texts
             base.OnResizing(firstLoad, width, height);
             IconBar.OnResizing(width, height);
             _rootPanel.Width = width;
-            _rootPanel.Height = height-10;
-            var contentHeight = (int)(height - IconBar.Panel.Height -40);
+            _rootPanel.Height = height - 10;
+            var contentHeight = (int)(height - IconBar.Panel.Height - 40);
             var innerWidth = (int)(width - 20);
             _markdownScroller.Width = innerWidth / 2;
             _markdownScroller.Height = (int)contentHeight;
@@ -191,7 +189,7 @@ namespace LingoEngine.Director.Core.Texts
             _isSettingMemberValues = true;
             _member = textMember;
             _markdownInput.Text = textMember.Text;
-            
+
             IconBar.SetMemberValues(textMember);
             RenderMarkdown(_markdownInput.Text);
             _navBar.SetMember(textMember);
@@ -239,10 +237,10 @@ namespace LingoEngine.Director.Core.Texts
             _renderer.Reset();
             _renderer.SetText(text, IconBar.Styles);
             _renderer.Render(_painter, new APoint(0, 0));
-            _previewTexture = _painter.GetTexture("MarkdownPreview");
+            var previewTexture = _painter.GetTexture("MarkdownPreview");
             _previewCanvas.Clear(AColors.White);
-            if (_previewTexture != null)
-                _previewCanvas.DrawPicture(_previewTexture, _previewTexture.Width, _previewTexture.Height, new APoint(0, 0));
+            if (previewTexture != null)
+                _previewCanvas.DrawPicture(previewTexture, previewTexture.Width, previewTexture.Height, new APoint(0, 0));
         }
 
         private AbstTextStyle EnsureParagraphStyle()

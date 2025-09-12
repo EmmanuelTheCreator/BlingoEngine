@@ -6,7 +6,7 @@ using AbstUI.Tests.Common;
 namespace AbstUI.Tests;
 public partial class AbstMarkdownRendererTests
 {
-   
+
 
     private static AbstMarkdownRenderer CreateRenderer(int topIndent = 0, Dictionary<string, int>? topIndents = null, Dictionary<string, int>? extraHeights = null)
         => new(new TestFontManager(topIndent, topIndents, extraHeights));
@@ -58,7 +58,7 @@ public partial class AbstMarkdownRendererTests
         renderer.Render(painter, start);
 
         Assert.Single(painter.TextPositions);
-        Assert.Equal(start.Y - 4, painter.TextPositions[0].Y);
+        Assert.Equal(start.Y, painter.TextPositions[0].Y);
     }
 
     [Fact]
@@ -76,7 +76,7 @@ public partial class AbstMarkdownRendererTests
 
         Assert.Equal(3, painter.TextPositions.Count);
         int lineHeight = style.FontSize;
-        Assert.Equal(start.Y - 4, painter.TextPositions[0].Y);
+        Assert.Equal(start.Y, painter.TextPositions[0].Y);
         Assert.Equal(start.Y + lineHeight, painter.TextPositions[1].Y);
     }
 
@@ -94,7 +94,7 @@ public partial class AbstMarkdownRendererTests
         renderer.Render(painter, start);
 
         Assert.Single(painter.TextPositions);
-        Assert.Equal(start.Y - 4, painter.TextPositions[0].Y);
+        Assert.Equal(start.Y, painter.TextPositions[0].Y);
     }
 
     [Fact]
@@ -112,8 +112,8 @@ public partial class AbstMarkdownRendererTests
 
         Assert.Equal(3, painter.TextPositions.Count);
         int lineHeight = style.FontSize;
-        Assert.Equal(start.Y - 4, painter.TextPositions[0].Y);
-        Assert.Equal(start.Y + lineHeight - 4, painter.TextPositions[1].Y);
+        Assert.Equal(start.Y, painter.TextPositions[0].Y);
+        Assert.Equal(start.Y + lineHeight, painter.TextPositions[1].Y);
     }
 
     [Fact]
@@ -130,7 +130,7 @@ public partial class AbstMarkdownRendererTests
         renderer.Render(painter, start);
 
         Assert.Equal(2, painter.TextPositions.Count);
-        Assert.Equal(start.Y - 4, painter.TextPositions[0].Y);
+        Assert.Equal(start.Y, painter.TextPositions[0].Y);
         Assert.Equal(start.Y + style.LineHeight, painter.TextPositions[1].Y);
     }
 
@@ -148,8 +148,8 @@ public partial class AbstMarkdownRendererTests
         renderer.Render(painter, start);
 
         Assert.Equal(2, painter.TextPositions.Count);
-        Assert.Equal(start.Y - 4, painter.TextPositions[0].Y);
-        Assert.Equal(start.Y + style.LineHeight - 4, painter.TextPositions[1].Y);
+        Assert.Equal(start.Y, painter.TextPositions[0].Y);
+        Assert.Equal(start.Y + style.LineHeight, painter.TextPositions[1].Y);
     }
 
     [Fact]
@@ -187,9 +187,9 @@ public partial class AbstMarkdownRendererTests
         renderer.Render(painter, new APoint(0, 20));
 
         Assert.Equal(3, painter.TextPositions.Count);
-        Assert.Equal(16, painter.TextPositions[0].Y);
-        Assert.Equal(10, painter.TextPositions[1].Y);
-        Assert.Equal(16, painter.TextPositions[2].Y);
+        Assert.Equal(26, painter.TextPositions[0].Y);
+        Assert.Equal(20, painter.TextPositions[1].Y);
+        Assert.Equal(26, painter.TextPositions[2].Y);
 
     }
 
@@ -220,8 +220,8 @@ public partial class AbstMarkdownRendererTests
         renderer.Render(painter, new APoint(0, 20));
 
         Assert.Equal(2, painter.TextPositions.Count);
-        Assert.Equal(16, painter.TextPositions[0].Y);
-        Assert.Equal(40, painter.TextPositions[1].Y);
+        Assert.Equal(20, painter.TextPositions[0].Y);
+        Assert.Equal(32, painter.TextPositions[1].Y);
 
     }
 }

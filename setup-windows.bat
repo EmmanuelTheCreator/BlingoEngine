@@ -51,15 +51,18 @@ if not exist "%LIB_DIR%" (
 )
 
 echo Copying SDL2 libraries for %ARCH%...
-set PROJECTS="Demo\TetriGrounds\LingoEngine.Demo.TetriGrounds.SDL2" "Test\LingoEngine.SDL2.GfxVisualTest" "WillMoveToOwnRepo\AbstUI\Test\AbstUI.GfxVisualTest.SDL2"
+set PROJECTS="Demo\TetriGrounds\LingoEngine.Demo.TetriGrounds.SDL2" "Test\LingoEngine.SDL2.GfxVisualTest" "WillMoveToOwnRepo\AbstUI\Test\AbstUI.GfxVisualTest.SDL2" "src\Director\LingoEngine.Director.Runner.SDL2" "src\Director\LingoEngine.Director.Runner.Godot"
 for %%P in (%PROJECTS%) do (
     if exist "%ROOT%%%~P" (
-        for %%C in (Debug Release) do (
+        for %%C in (Debug DebugWithDirector Release) do (
             if not exist "%ROOT%%%~P\bin\%%C\net8.0" mkdir "%ROOT%%%~P\bin\%%C\net8.0"
             copy /Y "%LIB_DIR%\*" "%ROOT%%%~P\bin\%%C\net8.0" >nul
         )
     )
 )
+
+echo.
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Add-Type -AssemblyName System.Windows.Forms; $dlg=New-Object System.Windows.Forms.OpenFileDialog; $dlg.Filter='Godot executable|Godot*.exe'; if($dlg.ShowDialog() -eq 'OK'){ $path=$dlg.FileName; $settingsPath='.vscode/settings.json'; $json=Get-Content $settingsPath | ConvertFrom-Json; $json.'godotTools.editorPath.godot4'=$path; $json | ConvertTo-Json | Set-Content $settingsPath; $ver=[regex]::Match((Split-Path $path -Leaf), 'Godot_v([^_]+)_').Groups[1].Value; & 'scripts\\SetGodotVersion.ps1' $ver } else { Write-Host 'No Godot executable selected.' }"
 
 echo Setup complete.
 endlocal

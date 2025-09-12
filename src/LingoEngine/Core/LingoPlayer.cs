@@ -14,6 +14,8 @@ using LingoEngine.Tools;
 using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Transitions;
 using LingoEngine.Transitions.TransitionLibrary;
+using System.Threading.Tasks;
+
 
 namespace LingoEngine.Core
 {
@@ -29,27 +31,32 @@ namespace LingoEngine.Core
         private readonly LingoSound _sound;
         private readonly ILingoWindow _window;
         private readonly ILingoServiceProvider _serviceProvider;
+        private readonly LingoGlobalVars _globals;
         private Action<LingoMovie> _actionOnNewMovie;
         private Dictionary<string, LingoMovieEnvironment> _moviesByName = new();
         private List<LingoMovieEnvironment> _movies = new();
-
+        private List<CancellationTokenSource> _delayedActionsCts = new();
 
         private readonly LingoKey _lingoKey;
         private readonly LingoStage _stage;
         private readonly LingoSystem _system;
         private readonly LingoClock _clock;
         private LingoStageMouse _mouse;
+        private SynchronizationContext? _uiContext;
+
         public ILingoFrameworkFactory Factory { get; private set; }
         public ILingoServiceProvider ServiceProvider => _serviceProvider;
         public ILingoClock Clock => _clock;
         public LingoKey Key => _lingoKey;
         public ILingoStage Stage => _stage;
         /// <inheritdoc/>
+        public ILingoCastLibsContainer CastLibs => _castLibsContainer;
         public ILingoCast ActiveCastLib => _castLibsContainer.ActiveCast;
 
         /// <inheritdoc/>
         public ILingoSound Sound => _sound;
         public ILingoStageMouse Mouse => _mouse;
+        public bool MediaRequiresAsyncPreload { get; set; }
 
 
         /// <inheritdoc/>
@@ -81,11 +88,13 @@ namespace LingoEngine.Core
         /// <inheritdoc/>
         bool ILingoPlayer.SafePlayer { get; set; }
         public ILingoMovie? ActiveMovie { get; private set; }
+
+
         public event Action<ILingoMovie?>? ActiveMovieChanged;
 
-        public LingoPlayer(ILingoServiceProvider serviceProvider, ILingoFrameworkFactory factory, ILingoCastLibsContainer castLibsContainer, ILingoWindow window, ILingoClock lingoClock, ILingoSystem lingoSystem, IAbstResourceManager resourceManager)
+        public LingoPlayer(ILingoServiceProvider serviceProvider, ILingoFrameworkFactory factory, ILingoCastLibsContainer castLibsContainer, ILingoWindow window, ILingoClock lingoClock, ILingoSystem lingoSystem, IAbstResourceManager resourceManager, LingoGlobalVars globals)
         {
-            _csvImporter = new Lazy<CsvImporter>(() => new CsvImporter(resourceManager));
+            _csvImporter = new Lazy<CsvImporter>(() => new CsvImporter(resourceManager, MediaRequiresAsyncPreload));
             _actionOnNewMovie = m => { };
             _serviceProvider = serviceProvider;
             Factory = factory;
@@ -97,16 +106,22 @@ namespace LingoEngine.Core
             _lingoKey = Factory.CreateKey();
             _stage = Factory.CreateStage(this);
             _mouse = Factory.CreateMouse(_stage);
+            _uiContext = SynchronizationContext.Current;
+            _globals = globals;
         }
         public void Dispose()
         {
             // todo
+            foreach (var cts in _delayedActionsCts)
+                cts.Cancel();
+            _delayedActionsCts.Clear();
         }
         public void LoadStage(int width, int height, AColor backgroundColor)
         {
             Stage.Width = width;
             Stage.Height = height;
             Stage.BackgroundColor = backgroundColor;
+
         }
 
         /// <inheritdoc/>
@@ -163,7 +178,7 @@ namespace LingoEngine.Core
                 var movieEnvironment = m.GetEnvironment();
                 _movies.Remove(movieEnvironment);
                 _moviesByName.Remove(m.Name);
-            });
+            }, _globals);
             var movieTyped = (LingoMovie)movieEnv.Movie;
 
             // Add him
@@ -182,6 +197,10 @@ namespace LingoEngine.Core
             }
             return movieEnv.Movie;
         }
+
+        public Task<ILingoMovie> LoadMovieAsync(ILingoMovieBuilder builder)
+            => builder.BuildAsync(this);
+
         public void CloseMovie(ILingoMovie movie)
         {
             var typed = (LingoMovie)movie;
@@ -195,11 +214,21 @@ namespace LingoEngine.Core
         /// </summary>
         public ILingoPlayer LoadCastLibFromCsv(string castlibName, string pathAndFilenameToCsv, bool isInternal = false)
         {
-            var castLib = _castLibsContainer.AddCast(castlibName, isInternal);
-            _csvImporter.Value.ImportInCastFromCsvFile(castLib, pathAndFilenameToCsv,true, x=> Console.WriteLine("WARNING:"+x));
-            return this;
+            return LoadCastLibFromCsvAsync(castlibName, pathAndFilenameToCsv, isInternal).GetAwaiter().GetResult();
         }
 
+        public async Task<ILingoPlayer> LoadCastLibFromCsvAsync(string castlibName, string pathAndFilenameToCsv, bool isInternal = false)
+        {
+            var castLib = _castLibsContainer.AddCast(castlibName, isInternal);
+            await _csvImporter.Value.ImportInCastFromCsvFileAsync(castLib, pathAndFilenameToCsv, true, x => Console.WriteLine("WARNING:" + x));
+            return this;
+        }
+        public async Task<ILingoPlayer> LoadAsync<TLingoCastLibBuilder>() where TLingoCastLibBuilder : class, ILingoCastLibBuilder, new()
+        {
+            var builder = new TLingoCastLibBuilder();
+            await builder.BuildAsync(_castLibsContainer);
+            return this;
+        }
         public ILingoPlayer AddCastLib(string name, bool isInternal = false, Action<ILingoCast>? configure = null)
         {
             var castLib = _castLibsContainer.AddCast(name, isInternal);
@@ -222,10 +251,7 @@ namespace LingoEngine.Core
 
         void ILingoPlayer.SetActiveMovie(ILingoMovie? movie) => SetActiveMovie(movie as LingoMovie);
 
-        internal void LoadMovieScripts(IEnumerable<LingoMovieScript> enumerable)
-        {
-            throw new NotImplementedException();
-        }
+
 
         internal void SetActionOnNewMovie(Action<LingoMovie> actionOnNewMovie)
         {
@@ -298,6 +324,23 @@ namespace LingoEngine.Core
 
 
         #endregion
+
+        public void RunDelayed(Action action, int milliseconds, CancellationTokenSource? cts = null)
+        {
+            cts ??= new CancellationTokenSource();
+            _delayedActionsCts.Add(cts);
+            Task.Delay(milliseconds, cts.Token).ContinueWith(t =>
+            {
+                if (!t.IsCanceled)
+                {
+                    if (_uiContext != null)
+                        _uiContext.Post(_ => action(), null);
+                    else
+                        action();
+                }
+                _delayedActionsCts.Remove(cts);
+            }, TaskScheduler.Default);
+        }
     }
 }
 

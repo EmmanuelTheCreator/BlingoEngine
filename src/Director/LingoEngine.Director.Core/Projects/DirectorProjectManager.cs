@@ -1,16 +1,18 @@
+using AbstUI.Commands;
+using AbstUI.Windowing;
 using LingoEngine.Core;
+using LingoEngine.Director.Core.Projects;
+using LingoEngine.Director.Core.Projects.Commands;
+using LingoEngine.Director.Core.Stages;
+using LingoEngine.Director.Core.UI;
+using LingoEngine.Director.Core.Windowing;
 using LingoEngine.IO;
 using LingoEngine.Movies;
 using LingoEngine.Projects;
-using LingoEngine.Director.Core.UI;
-using LingoEngine.Director.Core.Windowing;
-using LingoEngine.Director.Core.Stages;
-using AbstUI.Commands;
-using LingoEngine.Director.Core.Projects.Commands;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
-using AbstUI.Windowing;
+using System.Runtime;
 
 namespace LingoEngine.Director.Core.Projects;
 
@@ -55,13 +57,17 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
         }
         if (_player.ActiveMovie is not LingoMovie movie)
             return;
-
-        Directory.CreateDirectory(_settings.ProjectFolder);
-        var path = _settings.GetMoviePath(_settings.ProjectName);
-        _repo.Save(path, movie);
+        var settingsPath = GetSettingsPath();
+        if (!Directory.Exists(settingsPath))
+            Directory.CreateDirectory(settingsPath);
+        var path = GetMoviePath(_settings.ProjectName);
+        var jsonTuple = _repo.Save(path, movie);
 
         SaveDirectorSettings();
         SaveProjectSettings();
+
+        var generator = new DirectorMovieCodeGenerator();
+        generator.Generate(jsonTuple.MovieDto, GetCodeSetupPath());
     }
 
     public void LoadMovie()
@@ -71,7 +77,7 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
             _windowManager.OpenWindow(DirectorMenuCodes.ProjectSettingsWindow);
             return;
         }
-        var path = _settings.GetMoviePath(_settings.ProjectName);
+        var path = GetMoviePath(_settings.ProjectName);
         if (!File.Exists(path))
             return;
 
@@ -80,6 +86,14 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
 
         LoadProjectSettings();
         LoadDirectorSettings();
+    }
+    private string GetSettingsPath() => Path.Combine(_settings.ProjectFolder, "Settings");
+    private string GetCodeSetupPath() => Path.Combine(_settings.CodeFolder, "Setup");
+
+    public string GetMoviePath(string movieName)
+    {
+        var file = movieName + ".json";
+        return Path.Combine(GetSettingsPath(), file);
     }
 
     private void SaveDirectorSettings()
@@ -108,13 +122,13 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
 
         _dirSettings.WindowStates = states;
 
-        var settingsPath = Path.Combine(_settings.ProjectFolder, _settings.ProjectName + ".director.json");
+        var settingsPath = Path.Combine(GetSettingsPath(), _settings.ProjectName + ".director.json");
         _settingsRepo.Save(settingsPath, _dirSettings);
     }
 
     private void LoadDirectorSettings()
     {
-        var settingsPath = Path.Combine(_settings.ProjectFolder, _settings.ProjectName + ".director.json");
+        var settingsPath = Path.Combine(GetSettingsPath(), _settings.ProjectName + ".director.json");
         var loaded = _settingsRepo.Load(settingsPath);
 
         // Copy into runtime settings object
@@ -168,13 +182,13 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
 
     private void SaveProjectSettings()
     {
-        var settingsPath = Path.Combine(_settings.ProjectFolder, _settings.ProjectName + ".lingo.json");
+        var settingsPath = Path.Combine(GetSettingsPath(), _settings.ProjectName + ".lingo.json");
         _projectSettingsRepo.Save(settingsPath, _settings);
     }
 
     private void LoadProjectSettings()
     {
-        var settingsPath = Path.Combine(_settings.ProjectFolder, _settings.ProjectName + ".lingo.json");
+        var settingsPath = Path.Combine(GetSettingsPath(), _settings.ProjectName + ".lingo.json");
         var loaded = _projectSettingsRepo.Load(settingsPath);
         _settings.CodeFolder = loaded.CodeFolder;
         _settings.MaxSpriteChannelCount = loaded.MaxSpriteChannelCount;
@@ -184,11 +198,9 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
 
     public bool Handle(SaveDirProjectSettingsCommand command)
     {
-        var dirPath = Path.Combine(command.ProjectSettings.ProjectFolder, command.ProjectSettings.ProjectName + ".director.json");
-        var projPath = Path.Combine(command.ProjectSettings.ProjectFolder, command.ProjectSettings.ProjectName + ".lingo.json");
-
-        _settingsRepo.Save(dirPath, command.DirSettings);
-        _projectSettingsRepo.Save(projPath, command.ProjectSettings);
+        _settings.ProjectName = command.ProjectSettings.ProjectName;
+        _settings.ProjectFolder = command.ProjectSettings.ProjectFolder;
+        SaveProjectSettings();
         return true;
     }
 }

@@ -5,6 +5,7 @@ using LingoEngine.Primitives;
 using LingoEngine.Shapes;
 using LingoEngine.Sprites;
 using AbstUI.LGodot.Primitives;
+using System.Threading.Tasks;
 
 namespace LingoEngine.LGodot.Shapes
 {
@@ -19,8 +20,9 @@ namespace LingoEngine.LGodot.Shapes
 
         public bool IsLoaded { get; private set; }
         public bool IsDirty { get; private set; } = true;
-        public LingoList<APoint> VertexList 
-        { get => _vertexList;
+        public LingoList<APoint> VertexList
+        {
+            get => _vertexList;
             set
             {
                 _vertexList = value;
@@ -28,8 +30,9 @@ namespace LingoEngine.LGodot.Shapes
                 IsLoaded = false;
             }
         }
-        public LingoShapeType ShapeType { 
-            get => _shapeType; 
+        public LingoShapeType ShapeType
+        {
+            get => _shapeType;
             set
             {
                 _shapeType = value;
@@ -37,13 +40,15 @@ namespace LingoEngine.LGodot.Shapes
                 IsLoaded = false;
             }
         }
-        public AColor FillColor { get => _fillColor; 
+        public AColor FillColor
+        {
+            get => _fillColor;
             set
             {
                 _fillColor = value;
                 IsDirty = true;
                 IsLoaded = false;
-            } 
+            }
         }
         public AColor EndColor { get; set; } = AColor.FromRGB(255, 255, 255);
         public AColor StrokeColor { get; set; } = AColor.FromRGB(0, 0, 0);
@@ -52,7 +57,7 @@ namespace LingoEngine.LGodot.Shapes
         public bool AntiAlias { get; set; } = true;
         public float Width { get => width; set { width = value; } }
         public float Height { get => height; set => height = value; }
-        public (int TL, int TR, int BR, int BL) CornerRadius { get; set; }  = (5, 5, 5, 5);
+        public (int TL, int TR, int BR, int BL) CornerRadius { get; set; } = (5, 5, 5, 5);
         public bool Filled { get; set; } = true;
 
         public IAbstTexture2D? TextureLingo => null;
@@ -104,19 +109,19 @@ namespace LingoEngine.LGodot.Shapes
                     break;
 
                 case LingoShapeType.Rectangle:
-                    DrawRect(new Rect2(0,0, new Vector2(Width, Height)), fill, Filled);
+                    DrawRect(new Rect2(0, 0, new Vector2(Width, Height)), fill, Filled);
                     break;
 
                 case LingoShapeType.Oval:
-                    DrawCircle(new Vector2(Width/2, Height/2),Width, fill, Filled);
+                    DrawCircle(new Vector2(Width / 2, Height / 2), Width, fill, Filled);
                     break;
 
                 case LingoShapeType.RoundRect:
-                    var rect = new Rect2(0,0, new Vector2(Width,Height));
+                    var rect = new Rect2(0, 0, new Vector2(Width, Height));
 
                     var stylebox = new StyleBoxFlat
                     {
-                        BgColor = Filled?fill: Colors.Transparent,
+                        BgColor = Filled ? fill : Colors.Transparent,
                         CornerRadiusTopLeft = CornerRadius.TL,
                         CornerRadiusTopRight = CornerRadius.TR,
                         CornerRadiusBottomLeft = CornerRadius.BL,
@@ -128,8 +133,8 @@ namespace LingoEngine.LGodot.Shapes
                     break;
             }
 
-           
-            
+
+
             IsDirty = false;
         }
 
@@ -140,12 +145,20 @@ namespace LingoEngine.LGodot.Shapes
         public void Erase() { VertexList.Clear(); }
         public void ImportFileInto() { }
         public void PasteClipboardInto() { }
-        public void Preload() 
-        { 
-            IsLoaded = true; 
+        public void Preload()
+        {
+            if (IsLoaded)
+                return;
+            IsLoaded = true;
+        }
+
+        public Task PreloadAsync()
+        {
+            Preload();
+            return Task.CompletedTask;
         }
         public void Unload() { IsLoaded = false; IsDirty = true; }
-        public new void Dispose() 
+        public new void Dispose()
         {
             base.Dispose();
         }

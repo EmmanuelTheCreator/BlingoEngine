@@ -129,6 +129,7 @@ namespace LingoEngine.Director.Core.UI
                 .AddButton("Show" + DirectorMenuCodes.PictureEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.PictureEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowPaint))
                 .AddButton("Show" + DirectorMenuCodes.ShapeEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.ShapeEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowPath))
                 .AddButton("Show" + DirectorMenuCodes.TextEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.TextEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowText))
+                
             //.AddVLine("VLine4", 16, 2)
             //.AddButton("Show"+ DirectorMenuCodes.TextEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.TextEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowText))
             ;
@@ -297,6 +298,10 @@ namespace LingoEngine.Director.Core.UI
             var paint = factory.CreateMenuItem("Paint  \tCTRL+5");
             paint.Activated += () => _windowManager.OpenWindow(DirectorMenuCodes.PictureEditWindow);
             _windowMenu.AddItem(paint);
+
+            var behaviorInspectorWindow = factory.CreateMenuItem("Behavior Inspector \tCTRL+5");
+            behaviorInspectorWindow.Activated += () => _windowManager.OpenWindow(DirectorMenuCodes.BehaviorInspectorWindow);
+            _windowMenu.AddItem(behaviorInspectorWindow);
         }
 
 

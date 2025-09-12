@@ -4,7 +4,7 @@ namespace ProjectorRays.director.Scores;
 
 /// <summary>
 /// Tag definitions used in Director score keyframes.
-/// Sizes are based on observations in docs/director_keyframe_tags.md
+/// Sizes are based on observations in docs/DirDissasembly/director_keyframe_tags.md
 /// </summary>
 internal static class RayScoreTagsV2
 {

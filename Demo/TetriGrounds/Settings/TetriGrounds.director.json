@@ -1,0 +1,105 @@
+{
+  "VisualStudioPath": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\devenv.exe",
+  "VisualStudioCodePath": "C:\\Program Files\\Microsoft VS Code\\Code.exe",
+  "PreferredIde": 0,
+  "CsProjFile": "LingoEngine.Demo.TetriGrounds.Core\\LingoEngine.Demo.TetriGrounds.Core.csproj",
+  "GuidesColor": {
+    "Code": 3,
+    "Name": "blue",
+    "R": 0,
+    "G": 0,
+    "B": 255,
+    "A": 255
+  },
+  "GuidesVisible": true,
+  "GuidesSnap": false,
+  "GuidesLocked": false,
+  "VerticalGuides": [],
+  "HorizontalGuides": [],
+  "GridColor": {
+    "Code": 7,
+    "Name": "gray",
+    "R": 128,
+    "G": 128,
+    "B": 128,
+    "A": 255
+  },
+  "GridVisible": false,
+  "GridSnap": false,
+  "GridWidth": 32,
+  "GridHeight": 32,
+  "WindowStates": {
+    "ProjectSettingsWindow": {
+      "X": 100,
+      "Y": 100,
+      "Width": 500,
+      "Height": 200
+    },
+    "ToolsWindow": {
+      "X": 2,
+      "Y": 22,
+      "Width": 60,
+      "Height": 300
+    },
+    "CastWindow": {
+      "X": 830,
+      "Y": 22,
+      "Width": 370,
+      "Height": 620
+    },
+    "ScoreWindow": {
+      "X": 20,
+      "Y": 560,
+      "Width": 800,
+      "Height": 340
+    },
+    "PropertyInspector": {
+      "X": 1338,
+      "Y": 22,
+      "Width": 260,
+      "Height": 430
+    },
+    "BehaviorInspectorWindow": {
+      "X": 0,
+      "Y": 0,
+      "Width": 300,
+      "Height": 400
+    },
+    "BinaryViewerWindow": {
+      "X": 20,
+      "Y": 120,
+      "Width": 1400,
+      "Height": 600
+    },
+    "BinaryViewerWindowV2": {
+      "X": 20,
+      "Y": 280,
+      "Width": 1400,
+      "Height": 600
+    },
+    "StageWindow": {
+      "X": 70,
+      "Y": 22,
+      "Width": 650,
+      "Height": 497
+    },
+    "TextEditWindow": {
+      "X": 50,
+      "Y": 700,
+      "Width": 820,
+      "Height": 520
+    },
+    "PictureEditWindow": {
+      "X": 20,
+      "Y": 120,
+      "Width": 800,
+      "Height": 500
+    },
+    "ImportExportWindow": {
+      "X": 120,
+      "Y": 120,
+      "Width": 400,
+      "Height": 300
+    }
+  }
+}

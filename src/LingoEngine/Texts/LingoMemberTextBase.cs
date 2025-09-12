@@ -8,6 +8,7 @@ using LingoEngine.Texts.FrameworkCommunication;
 using AbstUI.Components;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Texts
 {
@@ -26,6 +27,8 @@ namespace LingoEngine.Texts
         protected int _selectionEnd;
         protected string _selectedText = "";
         protected string _markdown = "";
+
+
         protected AbstMarkdownData? _mdData;
 
         protected LingoLines _Line;
@@ -36,12 +39,15 @@ namespace LingoEngine.Texts
         private string _paragraphSourceText = string.Empty;
         private bool _paragraphParsed;
         private IAbstTexture2D? _texture;
+        private bool _isRendering;
+        private AbstTextStyle _mdStyle = new AbstTextStyle();
 
         private bool _hasLoadedTexTure;
         private IAbstUITextureUserSubscription? _textureUser;
 
         public T Framework<T>() where T : class, TFrameworkType => (T)_frameworkMember;
 
+        public AbstMarkdownData? InitialMarkdown { get;  set; }
         public bool TextChanged { get; private set; }
 
         #region Properties
@@ -53,10 +59,11 @@ namespace LingoEngine.Texts
             set
             {
                 _mdData = null;
-                _markdown = value;
-                UpdateText(value);
-                _frameworkMember.Text = value;
-
+                var newValue = value.Replace("\r\n", "\r");
+                _markdown = newValue;
+                UpdateText(newValue);
+                _frameworkMember.Text = newValue;
+                Height = 0; // force re-render
             }
         }
 
@@ -73,32 +80,57 @@ namespace LingoEngine.Texts
         public bool WordWrap
         {
             get => _frameworkMember.WordWrap;
-            set { _frameworkMember.WordWrap = value; }
+            set
+            {
+                if (_frameworkMember.WordWrap == value) return;
+                _frameworkMember.WordWrap = value;
+                UpdateMDStyle();
+            }
         }
         /// <inheritdoc/>
         public string Font
         {
             get => _frameworkMember.FontName;
-            set { _frameworkMember.FontName = value; }
+            set
+            {
+                if (_frameworkMember.FontName == value) return;
+                _frameworkMember.FontName = value;
+                UpdateMDStyle();
+            }
         }
         /// <inheritdoc/>
         public int FontSize
         {
             get => _frameworkMember.FontSize;
-            set { _frameworkMember.FontSize = value; }
+            set
+            {
+                if (_frameworkMember.FontSize == value) return;
+                _frameworkMember.FontSize = value;
+                UpdateMDStyle();
+            }
         }
 
         /// <inheritdoc/>
         public AColor Color
         {
             get => _frameworkMember.TextColor;
-            set { _frameworkMember.TextColor = value; }
+            set
+            {
+                if (_frameworkMember.TextColor == value) return;
+                _frameworkMember.TextColor = value;
+                UpdateMDStyle();
+            }
         }
         /// <inheritdoc/>
         public LingoTextStyle FontStyle
         {
             get => _frameworkMember.FontStyle;
-            set { _frameworkMember.FontStyle = value; }
+            set
+            {
+                if (_frameworkMember.FontStyle == value) return;
+                _frameworkMember.FontStyle = value;
+                UpdateMDStyle();
+            }
         }
         /// <inheritdoc/>
         public bool Bold
@@ -112,7 +144,7 @@ namespace LingoEngine.Texts
                 else
                     style &= ~LingoTextStyle.Bold;
                 _frameworkMember.FontStyle = style;
-
+                UpdateMDStyle();
             }
         }
         /// <inheritdoc/>
@@ -127,7 +159,7 @@ namespace LingoEngine.Texts
                 else
                     style &= ~LingoTextStyle.Italic;
                 _frameworkMember.FontStyle = style;
-
+                UpdateMDStyle();
             }
         }
         /// <inheritdoc/>
@@ -142,20 +174,30 @@ namespace LingoEngine.Texts
                 else
                     style &= ~LingoTextStyle.Underline;
                 _frameworkMember.FontStyle = style;
-
+                UpdateMDStyle();
             }
         }
         /// <inheritdoc/>
         public AbstTextAlignment Alignment
         {
             get => _frameworkMember.Alignment;
-            set { _frameworkMember.Alignment = value; }
+            set
+            {
+                if (_frameworkMember.Alignment == value) return;
+                _frameworkMember.Alignment = value;
+                UpdateMDStyle();
+            }
         }
         /// <inheritdoc/>
         public int Margin
         {
             get => _frameworkMember.Margin;
-            set { _frameworkMember.Margin = value; }
+            set
+            {
+                if (_frameworkMember.Margin == value) return;
+                _frameworkMember.Margin = value;
+                UpdateMDStyle();
+            }
         }
 
         /// <inheritdoc/>
@@ -284,20 +326,30 @@ namespace LingoEngine.Texts
             RenderText();
             return _texture;
         }
-        public override void Preload()
+        public override void Preload() => PreloadAsync().GetAwaiter().GetResult();
+
+        public override async Task PreloadAsync()
         {
-            base.Preload();
+            await base.PreloadAsync();
             RenderText();
         }
         /// <inheritdoc/>
+        public void SetTextMD(string markdownText)
+        {
+            var markdown = AbstMarkdownReader.Read(markdownText);
+            SetTextMD(markdown);
+        }
         public void SetTextMD(AbstMarkdownData data)
         {
+            if (InitialMarkdown == null)
+                InitialMarkdown = data;
             _mdData = data;
             _markdown = data.Markdown;
             UpdateText(data.PlainText);
             _frameworkMember.Text = data.PlainText;
         }
-        private bool _isRendering;
+
+
         private void RenderText()
         {
             if (_isRendering || _hasLoadedTexTure) return;
@@ -305,7 +357,6 @@ namespace LingoEngine.Texts
             if (_texture != null)
             {
                 _textureUser?.Release();
-                _texture.Dispose();
             }
 
             _markDownRenderer.Reset();
@@ -313,45 +364,58 @@ namespace LingoEngine.Texts
             {
                 _markDownRenderer.SetText(_mdData);
                 if (_mdData.Styles.Count > 0)
-                {
-                    var style1 = _mdData.Styles.First();
-                    FontStyle = LingoTextStyle.None;
-                    if (style1.Value.Bold) FontStyle |= LingoTextStyle.Bold;
-                    if (style1.Value.Italic) FontStyle |= LingoTextStyle.Italic;
-                    if (style1.Value.Underline) FontStyle |= LingoTextStyle.Underline;
-                    Font = style1.Value.Font;
-                    FontSize = style1.Value.FontSize;
-                    Color = style1.Value.Color;
-                    Alignment = style1.Value.Alignment;
-                }
+                    UpdateMDStyle(_mdData.Styles.First());
             }
             else
             {
-                var style = new AbstTextStyle();
-                style.Bold = (FontStyle & LingoTextStyle.Bold) != 0;
-                style.Italic = (FontStyle & LingoTextStyle.Italic) != 0;
-                style.Underline = (FontStyle & LingoTextStyle.Underline) != 0;
-                style.Font = Font ?? "";
-                style.FontSize = FontSize;
-                style.Color = Color;
-                style.Alignment = Alignment;
-                _markDownRenderer.SetText(_markdown.Replace('\r', '\n'), [style]);
+                UpdateMDStyle();
+                _markDownRenderer.SetText(_markdown.Replace('\r', '\n'), [_mdStyle]);
             }
             var painter = _componentFactory.CreateImagePainterToTexture(Width, Height);
             if (Width == 10)
             {
 
-            }    
+            }
+            painter.Width = Width;
             painter.AutoResizeWidth = Width == 0;
             painter.AutoResizeHeight = true; // Width > 0
             _markDownRenderer.Render(painter, new APoint(0, 0));
             _texture = painter.GetTexture("Text_" + Name);
             if (Width <= 0) Width = _texture.Width;
-            if (Height <= 0) Height = _texture.Height;
+            Height = _texture.Height;
             _hasLoadedTexTure = true;
             _textureUser = _texture.AddUser(this);
             _isRendering = false;
         }
+
+        private bool _skipStyleUpdate = false;
+        private void UpdateMDStyle(KeyValuePair<string, AbstTextStyle> style1)
+        {
+            _skipStyleUpdate = true;
+            FontStyle = LingoTextStyle.None;
+            if (style1.Value.Bold) FontStyle |= LingoTextStyle.Bold;
+            if (style1.Value.Italic) FontStyle |= LingoTextStyle.Italic;
+            if (style1.Value.Underline) FontStyle |= LingoTextStyle.Underline;
+            Font = style1.Value.Font;
+            FontSize = style1.Value.FontSize;
+            Color = style1.Value.Color;
+            Alignment = style1.Value.Alignment;
+            _skipStyleUpdate = false;
+            UpdateMDStyle();
+        }
+
+        private void UpdateMDStyle()
+        {
+            if (_skipStyleUpdate) return;
+            _mdStyle.Bold = (FontStyle & LingoTextStyle.Bold) != 0;
+            _mdStyle.Italic = (FontStyle & LingoTextStyle.Italic) != 0;
+            _mdStyle.Underline = (FontStyle & LingoTextStyle.Underline) != 0;
+            _mdStyle.Font = Font ?? "";
+            _mdStyle.FontSize = FontSize;
+            _mdStyle.Color = Color;
+            _mdStyle.Alignment = Alignment;
+        }
+
         public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
         {
             RenderText();

@@ -18,6 +18,12 @@ namespace AbstUI.LGodot.Inputs
         private Lazy<IAbstMouseInternal> _lingoMouse;
         private DateTime _lastClickTime = DateTime.MinValue;
         private const double DOUBLE_CLICK_TIME_LIMIT = 0.25;  // 250 milliseconds for double-click detection
+        private bool _wasPressed = false;
+        public static AMouseCursor LastCursor { get; protected set; } = AMouseCursor.Arrow;
+
+        public int OffsetX { get; private set; }
+        public int OffsetY { get; private set; }
+
         public AbstGodotMouse(Lazy<IAbstMouseInternal> lingoMouse)
         {
             _lingoMouse = lingoMouse;
@@ -46,10 +52,7 @@ namespace AbstUI.LGodot.Inputs
             if (isInsideRect)
                 _lingoMouse.Value.DoMouseMove();
         }
-        private bool wasPressed = false;
-
-        public int OffsetX { get; private set; }
-        public int OffsetY { get; private set; }
+      
 
         public void HandleMouseButtonEvent(InputEventMouseButton mouseButtonEvent, bool isInsideRect, float x, float y)
         {
@@ -68,7 +71,7 @@ namespace AbstUI.LGodot.Inputs
                 // mouse down must be inside rect, mouse up may not
                 if (isInsideRect && x > 0 && y > 0)
                 {
-                    wasPressed = true;
+                    _wasPressed = true;
                     if (mouseButtonEvent.ButtonIndex == MouseButton.Left)
                     {
                         // Handle Left Button Down
@@ -92,9 +95,9 @@ namespace AbstUI.LGodot.Inputs
                 }
             }
             // Handle Mouse Up event
-            else if (wasPressed)
+            else if (_wasPressed)
             {
-                wasPressed = false;
+                _wasPressed = false;
                 if (mouseButtonEvent.ButtonIndex == MouseButton.Left)
                 {
                     _lingoMouse.Value.MouseDown = false;
@@ -130,16 +133,21 @@ namespace AbstUI.LGodot.Inputs
 
         public void HideMouse(bool state)
         {
+            LastCursor = state? AMouseCursor.Hidden: AMouseCursor.Arrow;
             MouseMode = state ? MouseModeEnum.Hidden : MouseModeEnum.Visible;
         }
-
+        public AMouseCursor GetCursor() => MouseMode== MouseModeEnum.Hidden? AMouseCursor.Hidden: LastCursor;
         public void SetCursor(AMouseCursor cursor)
         {
-            if (cursor == AMouseCursor.Blank)
+            if (LastCursor == cursor) return;
+            LastCursor = cursor;
+            if (cursor == AMouseCursor.Blank || cursor == AMouseCursor.Hidden)
             {
                 MouseMode = MouseModeEnum.Hidden;
                 return;
             }
+            Console.WriteLine($"Swap cursor: {cursor}");
+            MouseMode = MouseModeEnum.Visible;
             var godotCursor = ToGodotCursor(cursor);
             DisplayServer.Singleton.CursorSetShape(godotCursor);
 
@@ -171,7 +179,7 @@ namespace AbstUI.LGodot.Inputs
             };
         }
 
-
+       
     }
 
 }

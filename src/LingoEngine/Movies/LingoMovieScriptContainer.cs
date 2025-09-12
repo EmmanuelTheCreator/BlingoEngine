@@ -1,5 +1,7 @@
 ﻿
+using LingoEngine.Core;
 using LingoEngine.Events;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Movies
 {
@@ -16,7 +18,7 @@ namespace LingoEngine.Movies
         }
         public void Add<T>() where T : LingoMovieScript
         {
-            var ms = _movieEnvironment.Factory.CreateMovieScript<T>((LingoMovie)_movieEnvironment.Movie);
+            var ms = ((LingoMovie)_movieEnvironment.Movie).GetServiceProvider().GetRequiredService<T>();
             _movieScripts.Add(typeof(T), ms);
             _eventMediator.Subscribe(ms);
         }

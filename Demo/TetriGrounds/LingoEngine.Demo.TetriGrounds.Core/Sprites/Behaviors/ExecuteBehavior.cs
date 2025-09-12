@@ -9,12 +9,12 @@ using LingoEngine.Sprites.Events;
 
 namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 {
-    public interface IHasLingoMessage
+    public interface IHasLingoMessage : ILingoSpriteBehavior
     {
         void HandleMessage(string myFunction, params object[]? parameters );
     }
     // Converted from 22_B_Execute.ls
-    public class ExecuteBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasMouseEnterEvent, IHasMouseLeaveEvent, IHasMouseDownEvent, ILingoPropertyDescriptionList
+    public class ExecuteBehavior : LingoSpriteBehavior, IHasBeginSpriteEvent, IHasMouseEnterEvent, IHasMouseLeaveEvent, IHasMouseDownEvent, ILingoPropertyDescriptionList, IHasLingoMessage
     {
         public string myFunction = "";
         public int mySpriteNum = 4;
@@ -107,13 +107,16 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             if (!myLock && myEnableMouseClick)
             {
                 if (string.IsNullOrEmpty(myFunction)) return;
-                SendSprite(mySpriteNum, s => ((IHasLingoMessage)s)?.HandleMessage(myFunction, myVar1, myVar2));
+                SendSprite<IHasLingoMessage>(mySpriteNum, s => s?.HandleMessage(myFunction, myVar1, myVar2));
             }
         }
 
         public void Lock() => myLock = true;
         public void UnLock() => myLock = false;
 
-       
+        public void HandleMessage(string myFunction, params object[]? parameters)
+        {
+            
+        }
     }
 }

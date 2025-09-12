@@ -1,7 +1,9 @@
+using LingoEngine.Bitmaps;
 using LingoEngine.Core;
+using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Movies.Events;
-using LingoEngine.Primitives;
+
 #pragma warning disable IDE1006 // Naming Styles
 namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
 {
@@ -15,6 +17,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
         private int myStartMember;
         private int myNumberMembers;
         private int myDir;
+        private List<ILingoMember> myMembers = new();   
 
         public MousePointer(ILingoMovieEnvironment env) : base(env) { }
 
@@ -25,6 +28,10 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             myNumberMembers = 5;
             myAnimateNum = 0;
             myDir = 1;
+            for (int i = 0; i <= 5; i++)
+            {
+                myMembers.Add(_Movie.GetMember<LingoMemberBitmap>("mouse000" + i)!);
+            }
             ShowMouse();
         }
 
@@ -45,8 +52,9 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
             }
             if (changed)
             {
-                Sprite(myNum).LocH = _Mouse.MouseH + 17;
-                Sprite(myNum).LocV = _Mouse.MouseV + 10;
+                var sprite = Sprite(myNum);
+                sprite.SetMember(myMembers[myAnimateNum]);
+                
                 if (myDir == 1)
                 {
                     if (myAnimateNum < myNumberMembers)
@@ -61,7 +69,8 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
                     else
                         myDir = 1;
                 }
-                Sprite(myNum).SetMember(myAnimateNum + myStartMember);
+                sprite.LocH = _Mouse.MouseH + 22;
+                sprite.LocV = _Mouse.MouseV;
             }
         }
 
@@ -69,8 +78,16 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
         {
             _Movie.PuppetSprite(myNum, true);
             Sprite(myNum).LocZ = 1000000;
-            Sprite(myNum).SetMember("mouse0000");
+            Sprite(myNum).SetMember(myMembers[0]);
             _Movie.ActorList.Add(this);
+            Sprite(myNum).Visibility = true;
+            _Mouse.SetCursor(AbstUI.Primitives.AMouseCursor.Hidden);
+        }
+        public void HideMouse()
+        {
+            //_Movie.PuppetSprite(myNum, false);
+            _Movie.ActorList.Remove(this);
+            Sprite(myNum).Visibility = false;
         }
 
         public void Mouse_Over() { }

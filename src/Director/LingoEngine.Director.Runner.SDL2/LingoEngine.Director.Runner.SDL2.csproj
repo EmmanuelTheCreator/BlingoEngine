@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>12</LangVersion>
+	  <Configurations>Debug;Release</Configurations>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- NuGet Packaging Metadata -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>LingoEngine.Director.Runner.SDL2</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Emmanuel The Creator</Authors>
+    <Company>The Community</Company>
+    <Description>Standalone SDL2 runner for the LingoEngine Director.</Description>
+    <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
+    <PackageTags>LingoEngine Director SDL2</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../LingoEngine.Director.SDL2/LingoEngine.Director.SDL2.csproj" />
+    <ProjectReference Include="../LingoEngine.Director.Host/LingoEngine.Director.Host.csproj" />
+    <ProjectReference Include="../../LingoEngine.SDL2/LingoEngine.SDL2.csproj" />
+  </ItemGroup>
+</Project>

@@ -4,6 +4,7 @@ using AbstUI.Styles;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Projects;
 using Microsoft.Extensions.DependencyInjection;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Setup
 {
@@ -18,9 +19,15 @@ namespace LingoEngine.Setup
         ILingoEngineRegistration ForMovie(string name, Action<IMovieRegistration> action);
         ILingoEngineRegistration WithFrameworkFactory<T>(Action<T>? setup = null) where T : class, ILingoFrameworkFactory;
         ILingoEngineRegistration WithProjectSettings(Action<LingoProjectSettings> setup);
+        ILingoEngineRegistration WithGlobalVarsR<TGlobalVars>(Action<TGlobalVars>? setup = null) where TGlobalVars : LingoGlobalVars;
+        ILingoEngineRegistration WithGlobalVars<TGlobalVars>(Action<TGlobalVars>? setup = null) where TGlobalVars : LingoGlobalVars, new();
         LingoPlayer Build();
+        Task<LingoPlayer> BuildAsync();
         ILingoEngineRegistration BuildDelayed();
-        LingoPlayer Build(IServiceProvider serviceProvider);
+        LingoPlayer Build(IServiceProvider serviceProvider, bool allowInitializeProject = true);
+        Task<LingoPlayer> BuildAsync(IServiceProvider serviceProvider, bool allowInitializeProject = true);
+        void InitializeProject();
+        Task InitializeProjectAsync();
         ILingoProjectFactory BuildAndRunProject(Action<IServiceProvider>? afterStart = null);
         ILingoProjectFactory RunProject(Action<IServiceProvider>? afterStart = null);
         ILingoEngineRegistration AddPreBuildAction(Action<IServiceProvider> buildAction);

@@ -53,6 +53,7 @@ namespace AbstUI.Inputs
         public void Release() => GetParent()?.RemoveChild(this);
         public void HideMouse(bool state) => _handler.HideMouse(state);
         public void SetCursor(AMouseCursor value) => _handler.SetCursor(value);
+        public AMouseCursor GetCursor() => _handler.GetCursor();
 
         public void HandleMouseMoveEvent(InputEventMouseMotion mouseMotionEvent, bool isInsideRect, float x, float y)
             => _handler.HandleMouseMoveEvent(mouseMotionEvent, isInsideRect, x, y);

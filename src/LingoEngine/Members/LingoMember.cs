@@ -5,6 +5,7 @@ using LingoEngine.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Members
 {
@@ -176,6 +177,7 @@ namespace LingoEngine.Members
         /// Lingo: preload member
         /// </summary>
         void Preload();
+        Task PreloadAsync();
 
         /// <summary>
         /// Unloads the cast member from memory.
@@ -229,6 +231,8 @@ namespace LingoEngine.Members
         private readonly ILingoFrameworkMember _frameworkMember;
         private readonly List<IMemberRefUser> _linkedMemberRefUsers = new();
         private bool _hasBeenDisposed;
+        private string _fileName;
+
         public ILingoFrameworkMember FrameworkObj => _frameworkMember;
 
         /// <inheritdoc/>
@@ -267,7 +271,15 @@ namespace LingoEngine.Members
         /// <inheritdoc/>
         public string Comments { get; set; }
         /// <inheritdoc/>
-        public string FileName { get; set; }
+        public string FileName
+        {
+            get => _fileName;
+            set
+            {
+                if (_fileName == value) return;
+                _fileName = value;
+            }
+        }
         /// <inheritdoc/>
         public LingoMemberType Type { get; private set; }
         public int NumberInCast { get; internal set; }
@@ -304,6 +316,7 @@ namespace LingoEngine.Members
         public virtual void CopyToClipBoard() => _frameworkMember.CopyToClipboard();
         public virtual void PasteClipBoardInto() => _frameworkMember.PasteClipboardInto();
         public virtual void Preload() => _frameworkMember.Preload();
+        public virtual Task PreloadAsync() => _frameworkMember.PreloadAsync();
         public virtual void Unload() => _frameworkMember.Unload();
 
         public ILingoMember Duplicate(int? newNumber = null)

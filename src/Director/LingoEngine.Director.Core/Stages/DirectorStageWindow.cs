@@ -1,11 +1,15 @@
 using AbstUI.Commands;
+using AbstUI.Inputs;
+using AbstUI.Primitives;
 using LingoEngine.Core;
 using LingoEngine.Director.Core.Stages.Commands;
 using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.FrameworkCommunication;
+using LingoEngine.Movies;
 using Microsoft.Extensions.DependencyInjection;
+using System.Numerics;
 
 namespace LingoEngine.Director.Core.Stages
 {
@@ -14,7 +18,12 @@ namespace LingoEngine.Director.Core.Stages
         IAbstCommandHandler<MoveSpritesCommand>,
         IAbstCommandHandler<RotateSpritesCommand>
     {
+        private readonly ILingoPlayer _player;
         private readonly IHistoryManager _historyManager;
+        private readonly IAbstMouseSubscription _mouseMoveSub;
+        private bool _lastInside = false;
+        private AMouseCursor _lastMouseCursor = AMouseCursor.Arrow;
+        private ILingoMovie? _currentMovie;
 
         public StageTool SelectedTool { get; private set; }
 
@@ -22,6 +31,7 @@ namespace LingoEngine.Director.Core.Stages
 
         public DirectorStageWindow(IServiceProvider serviceProvider, IHistoryManager historyManager, ILingoFrameworkFactory factory, IAbstCommandManager commandManager, ILingoPlayer player, IDirectorEventMediator mediator, IDirStageManager stageManager) : base(serviceProvider, DirectorMenuCodes.StageWindow)
         {
+            _player = player;
             _historyManager = historyManager;
             IconBar = new StageIconBar(factory, commandManager, player, mediator, stageManager);
             MinimumWidth = 200;
@@ -30,7 +40,24 @@ namespace LingoEngine.Director.Core.Stages
             Height = 520;
             X = 70;
             Y = 22;
+
+            _mouseMoveSub = MouseT.OnMouseMove(OnMouseMove);
+            player.ActiveMovieChanged += Player_ActiveMovieChanged;
         }
+
+        private void Player_ActiveMovieChanged(Movies.ILingoMovie? obj)
+        {
+             _currentMovie = obj;
+        }
+
+        protected override void OnDispose()
+        {
+            _player.ActiveMovieChanged -= Player_ActiveMovieChanged;
+            _mouseMoveSub.Release();
+            base.OnDispose();
+        }
+
+      
 
         private void UpdateSelectionBox() => Framework.UpdateSelectionBox();
         private void UpdateBoundingBoxes() => Framework.UpdateBoundingBoxes();
@@ -65,6 +92,33 @@ namespace LingoEngine.Director.Core.Stages
             UpdateSelectionBox();
             UpdateBoundingBoxes();
             return true;
+        }
+
+      
+
+        private void OnMouseMove(AbstMouseEvent e)
+        {
+            var windowRect = ARect.New(20, 20, Width-40, Height-40);
+            var isInside = windowRect.Contains(new APoint(e.MouseH, e.MouseV));
+            if (_lastInside == isInside) return;
+            _lastInside = isInside;
+            if (_currentMovie != null && !_currentMovie.IsPlaying)
+            {
+                MouseT.SetCursor(AMouseCursor.Arrow);
+                return;
+            }
+            //Console.WriteLine($"Swap Isinside {isInside}");
+            var cursor = MouseT.GetCursor();
+            if (!isInside)
+            {
+                _lastMouseCursor = cursor;
+                MouseT.SetCursor(AMouseCursor.Arrow);
+            }
+            else
+            {
+                // inside
+                MouseT.SetCursor(_lastMouseCursor);
+            }
         }
     }
 }

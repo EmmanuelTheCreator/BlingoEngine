@@ -12,6 +12,8 @@ using LingoEngine.Sprites;
 using LingoEngine.Texts;
 using LingoEngine.Texts.FrameworkCommunication;
 using Microsoft.JSInterop;
+using LingoEngine.Blazor.Util;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Blazor.Texts;
 
@@ -28,6 +30,8 @@ public abstract class LingoBlazorMemberTextBase<TText> : ILingoFrameworkMemberTe
     private readonly IAbstFontManager _fontManager;
     private AbstBlazorTexture2D? _texture;
     private bool _dirty;
+    private byte[]? _pixelData;
+    private int _stride;
 
     private string _text = string.Empty;
     private bool _wordWrap;
@@ -205,18 +209,31 @@ public abstract class LingoBlazorMemberTextBase<TText> : ILingoFrameworkMemberTe
 
     public void PasteClipboardInto() => Text = PasteClipboard();
 
-    public void Preload() => IsLoaded = true;
+    public void Preload()
+    {
+        if (IsLoaded)
+            return;
+        IsLoaded = true;
+    }
+
+    public Task PreloadAsync()
+    {
+        Preload();
+        return Task.CompletedTask;
+    }
 
     public void Unload()
     {
         IsLoaded = false;
         _texture?.Dispose();
         _texture = null;
+        _pixelData = null;
     }
 
     public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
 
-    public bool IsPixelTransparent(int x, int y) => false;
+    public bool IsPixelTransparent(int x, int y)
+        => PixelDataUtils.IsTransparent(_pixelData, _stride, Width, Height, x, y);
 
     public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
     {
@@ -237,7 +254,9 @@ public abstract class LingoBlazorMemberTextBase<TText> : ILingoFrameworkMemberTe
             AbstTextAlignment.Right => "right",
             _ => "left"
         };
-        _scripts.CanvasDrawText(ctx, Margin, Margin + FontSize, Text, FontName, color, FontSize, align).GetAwaiter().GetResult();
+        _scripts.CanvasDrawText(ctx, Margin, Margin + FontSize, Text, FontName, color, FontSize, align, 0).GetAwaiter().GetResult();
+        _pixelData = _scripts.CanvasGetImageData(ctx, w, h).GetAwaiter().GetResult();
+        _stride = w * 4;
         IsLoaded = true;
         _dirty = false;
         return _texture;

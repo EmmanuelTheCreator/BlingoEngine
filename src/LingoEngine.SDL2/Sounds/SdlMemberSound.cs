@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
 using AbstUI.SDL2.SDLL;
+using System.Threading.Tasks;
 
 namespace LingoEngine.SDL2.Sounds;
 
@@ -27,10 +28,15 @@ public class SdlMemberSound : ILingoFrameworkMemberSound, IDisposable
     public void PasteClipboardInto() { }
     public void Preload()
     {
+        if (_member == null) return;// need to be initialized first
         if (IsLoaded) return;
         if (!File.Exists(_member.FileName))
             return;
-
+        if (_chunk != nint.Zero)
+        {
+            SDL_mixer.Mix_FreeChunk(_chunk);
+            _chunk = nint.Zero;
+        }
         _chunk = SDL_mixer.Mix_LoadWAV(_member.FileName);
         if (_chunk == nint.Zero)
             return;
@@ -40,6 +46,12 @@ public class SdlMemberSound : ILingoFrameworkMemberSound, IDisposable
         Length = fi.Length / 44100.0;
         Stereo = true;
         IsLoaded = true;
+    }
+
+    public Task PreloadAsync()
+    {
+        Preload();
+        return Task.CompletedTask;
     }
     public void Unload()
     {

@@ -1,7 +1,7 @@
 using LingoEngine.Medias;
 using LingoEngine.Members;
 using LingoEngine.Sprites;
-using System.IO;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Blazor.Medias;
 
@@ -45,11 +45,16 @@ public class LingoBlazorMemberMedia : ILingoFrameworkMemberMedia
             return;
         if (!string.IsNullOrEmpty(_member.FileName))
         {
-            var fullPath = Path.GetFullPath(_member.FileName);
-            Url = new System.Uri(fullPath).AbsoluteUri;
+            Url = _member.FileName;
             MediaStatus = LingoMediaStatus.Opened;
         }
         IsLoaded = true;
+    }
+
+    public Task PreloadAsync()
+    {
+        Preload();
+        return Task.CompletedTask;
     }
 
     public void Unload()

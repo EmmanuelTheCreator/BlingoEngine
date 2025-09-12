@@ -1,9 +1,11 @@
+using LingoEngine.Demo.TetriGrounds.Core.ParentScripts;
 using LingoEngine.Events;
 using LingoEngine.Movies;
-using LingoEngine.Demo.TetriGrounds.Core.ParentScripts;
-using LingoEngine.Sprites;
 using LingoEngine.Movies.Events;
+using LingoEngine.Sprites;
 using LingoEngine.Sprites.Events;
+using LingoEngine.VerboseLanguage;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 #pragma warning disable IDE1006 // Naming Styles
 
 namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
@@ -16,19 +18,21 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
         private BlocksScript? myBlocks;
         private ScoreManagerScript? myScoreManager;
         private readonly GlobalVars _global;
-
+        private readonly ScoresRepository _scoresRepository;
         private int myWidth;
         private int myHeight;
-        public BgScriptBehavior(ILingoMovieEnvironment env, GlobalVars global) : base(env)
+        public BgScriptBehavior(ILingoMovieEnvironment env, GlobalVars global, ScoresRepository scoresRepository) : base(env)
         {
             _global = global;
+            _scoresRepository = scoresRepository;
         }
 
         public void BeginSprite()
         {
-            var sprite35 = Sprite(35);
-            if (myPlayerBlock != null && sprite35.HasSprite())
-                Sprite(35).Blend = 0;
+            if (myPlayerBlock != null)
+                myPlayerBlock.HidePause();
+            _Player.SoundPlayGong();
+            
         }
 
         public void ExitFrame()
@@ -38,7 +42,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
         public void ActionKey(object val)
         {
             // debug output
-            Put(val);
+            this.Put(val).ToLog();
         }
 
         public void KeyAction(int val, int val2)
@@ -82,7 +86,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             myWidth = 11;
             myHeight = 22;
             myGfx = new GfxScript(_env);
-            myScoreManager = new ScoreManagerScript(_env, _global);
+            myScoreManager = new ScoreManagerScript(_env, _global, _scoresRepository);
             myBlocks = new BlocksScript(_env, _global, myGfx, myScoreManager, myWidth, myHeight);
             myPlayerBlock = new PlayerBlockScript(_env, _global, myGfx, myBlocks, myScoreManager, myWidth, myHeight);
             myPlayerBlock.CreateBlock();

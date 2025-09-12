@@ -70,11 +70,7 @@ public class LingoSdlFactory : ILingoFrameworkFactory, IDisposable
 
     public IAbstComponentFactory GfxFactory => _gfxFactory;
     /// <inheritdoc/>
-    public T CreateBehavior<T>(LingoMovie movie) where T : LingoSpriteBehavior
-        => movie.GetServiceProvider().GetRequiredService<T>();
-    /// <inheritdoc/>
-    public T CreateMovieScript<T>(LingoMovie movie) where T : LingoMovieScript
-        => movie.GetServiceProvider().GetRequiredService<T>();
+ 
 
     #region Sound
     /// <inheritdoc/>

@@ -1,3 +1,4 @@
+using System.Linq;
 using LingoEngine.Lingo.Core;
 using Xunit;
 
@@ -310,20 +311,31 @@ end",
 
     public void EventHandlersImplementInterfaces(string handler, string expectedInterface, string? param)
     {
-        var file = new LingoScriptFile
+        var methodName = expectedInterface[4..^5];
+        var variants = new[]
         {
-            Name = "MyScript",
-            Source = $"on {handler} me\nend",
-            Type = LingoScriptType.Behavior
+            handler,
+            handler.ToLowerInvariant(),
+            handler.ToUpperInvariant(),
+            new string(handler.Select((c, i) => i % 2 == 0 ? char.ToUpperInvariant(c) : char.ToLowerInvariant(c)).ToArray())
         };
 
-        var result = _converter.Convert(file);
-        var classDecl = $"public class MyScriptBehavior : LingoSpriteBehavior, {expectedInterface}";
-        Assert.Contains(classDecl, result);
-        var methodName = char.ToUpperInvariant(handler[0]) + handler[1..];
-        if (param is null)
-            Assert.Contains($"public void {methodName}()", result);
-        else
-            Assert.Contains($"public void {methodName}({param})", result);
+        foreach (var h in variants)
+        {
+            var file = new LingoScriptFile
+            {
+                Name = "MyScript",
+                Source = $"on {h} me\nend",
+                Type = LingoScriptType.Behavior
+            };
+
+            var result = _converter.Convert(file);
+            var classDecl = $"public class MyScriptBehavior : LingoSpriteBehavior, {expectedInterface}";
+            Assert.Contains(classDecl, result);
+            if (param is null)
+                Assert.Contains($"public void {methodName}()", result);
+            else
+                Assert.Contains($"public void {methodName}({param})", result);
+        }
     }
 }

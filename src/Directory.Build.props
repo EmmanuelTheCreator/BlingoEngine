@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup Condition="'$(Configuration)'=='DebugWithDirector'">
+    <DefineConstants>$(DefineConstants);DEBUG_WITH_DIRECTOR</DefineConstants>
+  </PropertyGroup>
+</Project>

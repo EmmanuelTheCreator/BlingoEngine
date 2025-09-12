@@ -14,8 +14,8 @@ public interface IAbstFrameworkWindowManager
     
     void SetActiveWindow(IAbstWindow window);
     IAbstWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult);
-    IAbstWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel);
-    IAbstWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? dialog = null)
+    IAbstWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel, APoint? position = null);
+    IAbstWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? dialog = null, APoint? position = null)
         where TDialog : class, IAbstDialog;
     IAbstWindowDialogReference? ShowNotification(string message, AbstUINotificationType type);
 }
@@ -38,8 +38,8 @@ public interface IAbstWindowManager
     void Init(IAbstFrameworkWindowManager frameworkWindowManager);
     void SetActiveWindow(string windowCode);
     IAbstWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult);
-    IAbstWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel);
-    IAbstWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? dialog = null)
+    IAbstWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel, APoint? position = null);
+    IAbstWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? dialog = null, APoint? position = null)
         where TDialog : class, IAbstDialog;
     IAbstWindowDialogReference? ShowNotification(string message, AbstUINotificationType type);
     void SetWindowSize(string windowCode, int width, int height);
@@ -102,12 +102,12 @@ public class AbstWindowManager : IAbstWindowManager, IDisposable,
     public IAbstWindowDialogReference? ShowConfirmDialog(string title, string message, Action<bool> onResult)
         => _frameworkWindowManager.ShowConfirmDialog(title, message, onResult);
 
-    public IAbstWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel)
-        => _frameworkWindowManager.ShowCustomDialog(title, panel);
+    public IAbstWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel, APoint? position = null)
+        => _frameworkWindowManager.ShowCustomDialog(title, panel,position);
 
-    public IAbstWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? dialog = null)
+    public IAbstWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? dialog = null, APoint? position = null)
         where TDialog : class, IAbstDialog
-        => _frameworkWindowManager.ShowCustomDialog<TDialog>(title, panel, dialog);
+        => _frameworkWindowManager.ShowCustomDialog<TDialog>(title, panel, dialog, position);
 
     public IAbstWindowDialogReference? ShowNotification(string message, AbstUINotificationType type)
         => _frameworkWindowManager.ShowNotification(message, type);

@@ -43,16 +43,39 @@ else
     "Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.SDL2"
     "Test/LingoEngine.SDL2.GfxVisualTest"
     "WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.SDL2"
+    "src/Director/LingoEngine.Director.Runner.SDL2"
+    "src/Director/LingoEngine.Director.Runner.Godot"
   )
   for proj in "${PROJECTS[@]}"; do
     if [ -d "$proj" ]; then
-      for config in Debug Release; do
+      for config in Debug DebugWithDirector Release; do
         TARGET="$proj/bin/$config/net8.0"
         mkdir -p "$TARGET"
         cp "$LIB_DIR"/* "$TARGET/" 2>/dev/null || true
       done
     fi
   done
+fi
+
+GODOT_PATH=""
+if command -v zenity >/dev/null 2>&1; then
+  GODOT_PATH=$(zenity --file-selection --title="Select Godot executable" 2>/dev/null || true)
+fi
+if [ -z "$GODOT_PATH" ]; then
+  read -p "Enter path to Godot executable: " GODOT_PATH
+fi
+
+if [ -n "$GODOT_PATH" ]; then
+  GODOT_VERSION=$(basename "$GODOT_PATH" | sed -E 's/^Godot_v([^_]+)_.+$/\1/')
+  python3 - "$GODOT_PATH" <<'PY'
+import json,sys,os
+path=sys.argv[1]
+settings_path=os.path.join('.vscode','settings.json')
+with open(settings_path) as f: data=json.load(f)
+data['godotTools.editorPath.godot4']=path
+with open(settings_path,'w') as f: json.dump(data,f,indent=4)
+PY
+  ./scripts/SetGodotVersion.sh "$GODOT_VERSION"
 fi
 
 echo "Setup complete."

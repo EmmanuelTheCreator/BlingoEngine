@@ -7,16 +7,19 @@ using System.IO;
 using System.Text;
 using AbstUI.Resources;
 using AbstUI.Texts;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Tools
 {
     public class CsvImporter
     {
         private readonly IAbstResourceManager _resourceManager;
+        private readonly bool _mediaRequiresAsyncPreload;
 
-        public CsvImporter(IAbstResourceManager resourceManager)
+        public CsvImporter(IAbstResourceManager resourceManager, bool mediaRequiresAsyncPreload = false)
         {
             _resourceManager = resourceManager;
+            _mediaRequiresAsyncPreload = mediaRequiresAsyncPreload;
         }
 
         public record CsvRow
@@ -42,10 +45,13 @@ namespace LingoEngine.Tools
         ///     Number,Type,Name,Registration Point,Filename
         ///     1,bitmap,BallB,"(5, 5)",
         /// </summary>
-        public void ImportInCastFromCsvFile(ILingoCast cast, string filePath, bool skipFirstLine = true, Action<string>? logWarningMethod = null)
+        public void ImportInCastFromCsvFile(ILingoCast cast, string filePath, bool skipFirstLine = true, Action<string>? logWarningMethod = null) =>
+            ImportInCastFromCsvFileAsync(cast, filePath, skipFirstLine, logWarningMethod).GetAwaiter().GetResult();
+
+        public async Task ImportInCastFromCsvFileAsync(ILingoCast cast, string filePath, bool skipFirstLine = true, Action<string>? logWarningMethod = null)
         {
             var rootFolder = Path.GetDirectoryName(GetRelativePath(Environment.CurrentDirectory, filePath)) ?? "";
-            var csv = ImportCsvCastFile(filePath, skipFirstLine);
+            var csv = await ImportCsvCastFileAsync(filePath, skipFirstLine);
             foreach (var row in csv)
             {
                 var fn = row.FileName;
@@ -77,9 +83,9 @@ namespace LingoEngine.Tools
                 {
                     var mdFile = Path.ChangeExtension(fileName, ".md");
                     var rtfFile = Path.ChangeExtension(fileName, ".rtf");
-                    if (_resourceManager.FileExists(mdFile))
+                    if (await _resourceManager.FileExistsAsync(mdFile))
                     {
-                        var mdContent = _resourceManager.ReadTextFile(mdFile) ?? string.Empty;
+                        var mdContent = await _resourceManager.ReadTextFileAsync(mdFile) ?? string.Empty;
                         var markDownData = AbstMarkdownReader.Read(mdContent);
 #if DEBUG
                         if (mdFile.Contains("39_xtraNames"))
@@ -95,9 +101,9 @@ namespace LingoEngine.Tools
 #endif
 
                     }
-                    else if (_resourceManager.FileExists(rtfFile))
+                    else if (await _resourceManager.FileExistsAsync(rtfFile))
                     {
-                        var rtfContent = _resourceManager.ReadTextFile(rtfFile) ?? string.Empty;
+                        var rtfContent = await _resourceManager.ReadTextFileAsync(rtfFile) ?? string.Empty;
                         var md = RtfToMarkdown.Convert(rtfContent, true);
                         textMember.SetTextMD(md);
 #if DEBUG
@@ -106,7 +112,7 @@ namespace LingoEngine.Tools
                     }
                     else
                     {
-                        var file = _resourceManager.ReadTextFile(textMember.FileName) ?? string.Empty;
+                        var file = await _resourceManager.ReadTextFileAsync(textMember.FileName) ?? string.Empty;
                         if (file == null)
                         {
                             logWarningMethod?.Invoke("File not found for Text :" + textMember.FileName);
@@ -115,12 +121,15 @@ namespace LingoEngine.Tools
                         textMember.Text = file;
                     }
                 }
+
+                if (_mediaRequiresAsyncPreload)
+                    await newMember.PreloadAsync();
             }
         }
-        public IReadOnlyCollection<CsvRow> ImportCsvCastFile(string filePath, bool skipFirstLine = true)
+        public async Task<IReadOnlyCollection<CsvRow>> ImportCsvCastFileAsync(string filePath, bool skipFirstLine = true)
         {
             var returnData = new List<CsvRow>();
-            var csv = Import(filePath, skipFirstLine);
+            var csv = await ImportAsync(filePath, skipFirstLine);
             foreach (var row in csv)
             {
                 var number = Convert.ToInt32(row[0]);
@@ -135,10 +144,13 @@ namespace LingoEngine.Tools
             return returnData;
         }
 
-        public List<string[]> Import(string filePath, bool skipFirstLine = true)
+        public IReadOnlyCollection<CsvRow> ImportCsvCastFile(string filePath, bool skipFirstLine = true) =>
+            ImportCsvCastFileAsync(filePath, skipFirstLine).GetAwaiter().GetResult();
+
+        public async Task<List<string[]>> ImportAsync(string filePath, bool skipFirstLine = true)
         {
             var rows = new List<string[]>();
-            var content = _resourceManager.ReadTextFile(filePath);
+            var content = await _resourceManager.ReadTextFileAsync(filePath);
             if (content == null)
                 return rows;
 
@@ -160,6 +172,9 @@ namespace LingoEngine.Tools
 
             return rows;
         }
+
+        public List<string[]> Import(string filePath, bool skipFirstLine = true) =>
+            ImportAsync(filePath, skipFirstLine).GetAwaiter().GetResult();
 
         private string[] ParseCsvLine(string line)
         {

@@ -11,7 +11,7 @@ namespace LingoEngine.Tools
 {
     public static class RtfToMarkdown
     {
-        private record StyleDef(AbstTextStyle Style, bool HasFont, bool HasSize, bool HasColor, bool HasAlignment);
+        private record StyleDef(AbstTextStyle Style, bool HasFont, bool HasSize, bool HasColor, bool HasAlignment, bool HasLetterSpacing);
 
         /// <summary>
         /// Converts an RTF string into the custom AbstMarkdown format used by <see cref="AbstMarkdownRenderer"/>.
@@ -26,7 +26,7 @@ namespace LingoEngine.Tools
 
             if (segments.Select(s => s.StyleId).All(id => id < 0))
             {
-                var distinct = segments.Select(s => (s.FontName, s.Size, s.Color?.ToHex(), s.Alignment, s.MarginLeft, s.MarginRight, s.LineHeight)).Distinct().Count();
+                var distinct = segments.Select(s => (s.FontName, s.Size, s.Color?.ToHex(), s.Alignment, s.MarginLeft, s.MarginRight, s.LineHeight, s.LetterSpacing)).Distinct().Count();
                 if (distinct == 1 && segments.Count > 0)
                 {
                     var seg = segments[0];
@@ -39,9 +39,10 @@ namespace LingoEngine.Tools
                         Alignment = seg.Alignment,
                         LineHeight = seg.LineHeight,
                         MarginLeft = seg.MarginLeft,
-                        MarginRight = seg.MarginRight
+                        MarginRight = seg.MarginRight,
+                        LetterSpacing = seg.LetterSpacing
                     };
-                    styleMap["0"] = new StyleDef(style, true, true, seg.Color != null, true);
+                    styleMap["0"] = new StyleDef(style, true, true, seg.Color != null, true, seg.LetterSpacing != 0);
                     foreach (var s in segments)
                     {
                         s.StyleId = 0;
@@ -64,9 +65,10 @@ namespace LingoEngine.Tools
                     Alignment = first.Alignment,
                     LineHeight = first.LineHeight,
                     MarginLeft = first.MarginLeft,
-                    MarginRight = first.MarginRight
+                    MarginRight = first.MarginRight,
+                    LetterSpacing = first.LetterSpacing
                 };
-                styleMap[style.Name] = new StyleDef(style, true, true, first.Color != null, true);
+                styleMap[style.Name] = new StyleDef(style, true, true, first.Color != null, true, first.LetterSpacing != 0);
                 first.StyleId = newId;
             }
 
@@ -81,6 +83,7 @@ namespace LingoEngine.Tools
                 bool styleHasSize = false;
                 bool styleHasColor = false;
                 bool styleHasAlignment = false;
+                bool styleHasLetterSpacing = false;
 
                 bool isParagraphStart = i == 0 || (prev?.IsParagraph == true);
                 if (isParagraphStart)
@@ -106,9 +109,10 @@ namespace LingoEngine.Tools
                                 Alignment = seg.Alignment,
                                 LineHeight = seg.LineHeight,
                                 MarginLeft = seg.MarginLeft,
-                                MarginRight = seg.MarginRight
+                                MarginRight = seg.MarginRight,
+                                LetterSpacing = seg.LetterSpacing
                             };
-                            styleMap[style.Name] = new StyleDef(style, true, true, seg.Color != null, true);
+                            styleMap[style.Name] = new StyleDef(style, true, true, seg.Color != null, true, seg.LetterSpacing != 0);
                             seg.StyleId = newId;
                         }
                     }
@@ -136,6 +140,7 @@ namespace LingoEngine.Tools
                         styleHasSize = meta.HasSize;
                         styleHasColor = meta.HasColor;
                         styleHasAlignment = meta.HasAlignment;
+                        styleHasLetterSpacing = meta.HasLetterSpacing;
                         currentStyle = seg.StyleId.ToString();
                     }
                     else
@@ -162,6 +167,7 @@ namespace LingoEngine.Tools
                             styleHasSize = meta.HasSize;
                             styleHasColor = meta.HasColor;
                             styleHasAlignment = meta.HasAlignment;
+                            styleHasLetterSpacing = meta.HasLetterSpacing;
                         }
                     }
                     else
@@ -182,6 +188,8 @@ namespace LingoEngine.Tools
                     sb.Append("{{COLOR:" + (seg.Color?.ToHex() ?? "#000000") + "}}");
                 if (!styleHasAlignment && (prev == null || seg.Alignment != prev.Alignment))
                     sb.Append("{{ALIGN:" + seg.Alignment.ToString().ToLowerInvariant() + "}}");
+                if (!styleHasLetterSpacing && seg.LetterSpacing != 0 && (prev == null || seg.LetterSpacing != prev.LetterSpacing))
+                    sb.Append("{{LETTER-SPACING:" + seg.LetterSpacing + "}}");
 
                 var text = ApplyStyle(seg.Text, seg);
                 text = text.Replace("\r\n", "\n");
@@ -228,6 +236,8 @@ namespace LingoEngine.Tools
                         tto.MarginLeft = s.MarginLeft;
                     if (s.MarginRight != 0)
                         tto.MarginRight = s.MarginRight;
+                    if (s.LetterSpacing != 0)
+                        tto.LetterSpacing = s.LetterSpacing;
                     return tto;
                 });
 #if NET48
@@ -279,7 +289,8 @@ namespace LingoEngine.Tools
                 && style.Alignment == seg.Alignment
                 && style.MarginLeft == seg.MarginLeft
                 && style.MarginRight == seg.MarginRight
-                && style.LineHeight == seg.LineHeight;
+                && style.LineHeight == seg.LineHeight
+                && style.LetterSpacing == seg.LetterSpacing;
         }
 
         private static List<AbstMDSegment> ParseSegments(string rtfContent, Dictionary<int, string> fontEntries, List<AColor> colorEntries, int colorOffset)
@@ -386,9 +397,22 @@ namespace LingoEngine.Tools
                     rawText = rawText.Replace(riMatch.Value, string.Empty);
                 }
 
-                var expndMatch = Regex.Match(rawText, @"\\expnd(-?\d+)");
+                var expndMatch = Regex.Match(rawText, @"\\expndtw(-?\d+)");
+                int letterSpacing = 0;
                 if (expndMatch.Success)
+                {
+                    letterSpacing = int.Parse(expndMatch.Groups[1].Value) / 20;
                     rawText = rawText.Replace(expndMatch.Value, string.Empty);
+                }
+                else
+                {
+                    var expndMatch2 = Regex.Match(rawText, @"\\expnd(-?\d+)");
+                    if (expndMatch2.Success)
+                    {
+                        letterSpacing = int.Parse(expndMatch2.Groups[1].Value) / 2;
+                        rawText = rawText.Replace(expndMatch2.Value, string.Empty);
+                    }
+                }
                 var slMatch = Regex.Match(rawText, @"\\sl(-?\d+)");
                 int lineHeight = 0;
                 if (slMatch.Success)
@@ -424,7 +448,8 @@ namespace LingoEngine.Tools
                     MarginRight = marginRight,
                     LineHeight = lineHeight,
                     StyleId = styleId,
-                    IsParagraph = isParagraph
+                    IsParagraph = isParagraph,
+                    LetterSpacing = letterSpacing
                 });
                 lastIndex = match.Index + match.Length;
             }
@@ -476,7 +501,7 @@ namespace LingoEngine.Tools
                 var id = m.Groups["id"].Value;
                 var def = m.Groups["def"].Value;
                 var style = new AbstTextStyle { Name = id };
-                bool hasFont = false, hasSize = false, hasColor = false, hasAlignment = false;
+                bool hasFont = false, hasSize = false, hasColor = false, hasAlignment = false, hasLetterSpacing = false;
 
                 var fMatch = Regex.Match(def, @"\\f(\d+)");
                 if (fMatch.Success && fontEntries.TryGetValue(int.Parse(fMatch.Groups[1].Value), out var fontName))
@@ -507,6 +532,13 @@ namespace LingoEngine.Tools
                 if (slMatch.Success)
                     style.LineHeight = int.Parse(slMatch.Groups[1].Value) / 20;
 
+                var expndMatch = Regex.Match(def, @"\\expndtw(-?\d+)");
+                if (expndMatch.Success)
+                {
+                    style.LetterSpacing = int.Parse(expndMatch.Groups[1].Value) / 20;
+                    hasLetterSpacing = true;
+                }
+
                 var qMatch = Regex.Match(def, @"\\q(l|r|c|j)");
                 if (qMatch.Success)
                 {
@@ -532,7 +564,7 @@ namespace LingoEngine.Tools
                 if (riMatch.Success)
                     style.MarginRight = int.Parse(riMatch.Groups[1].Value) / 20;
 
-                styles[id] = new StyleDef(style, hasFont, hasSize, hasColor, hasAlignment);
+                styles[id] = new StyleDef(style, hasFont, hasSize, hasColor, hasAlignment, hasLetterSpacing);
             }
 
             return styles;

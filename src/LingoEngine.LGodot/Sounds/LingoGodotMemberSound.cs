@@ -1,6 +1,7 @@
 ﻿using Godot;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
+using System.Threading.Tasks;
 
 namespace LingoEngine.LGodot.Sounds
 {
@@ -27,7 +28,8 @@ namespace LingoEngine.LGodot.Sounds
         internal void Init(LingoMemberSound memberSound)
         {
             _lingoMemberSound = memberSound;
-            Preload();
+            if (!string.IsNullOrWhiteSpace(memberSound.FileName))
+                Preload();
             //_lingoMemberSound.CreationDate = new FileInfo(Format).LastWriteTime;
         }
 
@@ -54,6 +56,7 @@ namespace LingoEngine.LGodot.Sounds
         public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
         public void Preload()
         {
+            if (_lingoMemberSound == null) return;// need to be initialized first
             if (IsLoaded) return;
             IsLoaded = true;
             AudioStream = GD.Load<AudioStream>($"res://{_lingoMemberSound.FileName}");
@@ -66,6 +69,12 @@ namespace LingoEngine.LGodot.Sounds
             StreamName = AudioStream._GetStreamName();
             Stereo = !AudioStream.IsMonophonic();
             _lingoMemberSound.Size = (long)AudioStream._GetLength() * 44100;
+        }
+
+        public Task PreloadAsync()
+        {
+            Preload();
+            return Task.CompletedTask;
         }
 
         public void Unload()

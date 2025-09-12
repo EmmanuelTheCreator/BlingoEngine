@@ -63,8 +63,8 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
                 return;
             }
             LocV += 2;
-            Sprite(myNum).LocH = 180;
-            Sprite(myNum2).LocH = 182;
+            Sprite(myNum).LocH = 140;
+            Sprite(myNum2).LocH = 142;
             Sprite(myNum).LocV = LocV;
             Sprite(myNum2).LocV = LocV + 2;
             float blend = 70f - (float)myCounter / Duration * 100f;

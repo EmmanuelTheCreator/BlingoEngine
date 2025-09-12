@@ -242,7 +242,7 @@ namespace LingoEngine.Sprites
             var animator = GetActorsOfType<LingoSpriteAnimator>().FirstOrDefault();
             if (animator == null)
             {
-                animator = new LingoSpriteAnimator(this, _spritesPlayer, _eventMediator, animatorProperties);
+                animator = new LingoSpriteAnimator(this, _spritesPlayer, _eventMediator, animatorProperties, true);
                 AddActor(animator);
             }
 

@@ -9,6 +9,31 @@ public partial class CSharpWriter
 {
     private record PropDesc(string Name, string Comment, string DefaultValue);
 
+    private static readonly Dictionary<string, string> _knownHandlerNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["blur"] = "Blur",
+        ["focus"] = "Focus",
+        ["keydown"] = "KeyDown",
+        ["keyup"] = "KeyUp",
+        ["mousewithin"] = "MouseWithin",
+        ["mouseleave"] = "MouseLeave",
+        ["mousedown"] = "MouseDown",
+        ["mouseup"] = "MouseUp",
+        ["mousemove"] = "MouseMove",
+        ["mousewheel"] = "MouseWheel",
+        ["mouseenter"] = "MouseEnter",
+        ["mouseexit"] = "MouseExit",
+        ["beginsprite"] = "BeginSprite",
+        ["endsprite"] = "EndSprite",
+        ["stepframe"] = "StepFrame",
+        ["prepareframe"] = "PrepareFrame",
+        ["enterframe"] = "EnterFrame",
+        ["exitframe"] = "ExitFrame",
+        ["preparemovie"] = "PrepareMovie",
+        ["startmovie"] = "StartMovie",
+        ["stopmovie"] = "StopMovie"
+    };
+
     private static string FormatDefault(LingoDatum datum, string? format)
     {
         var value = datum.AsString();
@@ -118,7 +143,9 @@ public partial class CSharpWriter
 
         if (name.Length > 0)
         {
-            var pascal = char.ToUpperInvariant(name[0]) + name[1..];
+            string pascal = _knownHandlerNames.TryGetValue(name, out var canonical)
+                ? canonical
+                : char.ToUpperInvariant(name[0]) + name[1..];
             var lower = name.ToLowerInvariant();
             string? paramDecl = lower switch
             {

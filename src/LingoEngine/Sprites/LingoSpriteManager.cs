@@ -38,7 +38,8 @@ namespace LingoEngine.Sprites
         protected readonly LingoMovieEnvironment _environment;
         protected readonly LingoMovie _movie;
         protected readonly List<int> _mutedSprites = new List<int>();
-       
+        
+
         protected int _maxSpriteNum = 0;
         protected int _maxSpriteChannelCount;
 
@@ -70,7 +71,7 @@ namespace LingoEngine.Sprites
 
 
     public abstract class LingoSpriteManager<TSprite> : LingoSpriteManager
-        where TSprite : LingoSprite
+        where TSprite : LingoSprite, ILingoSpriteBase
     {
 
         protected readonly Dictionary<int, LingoSpriteChannel> _spriteChannels = new();
@@ -81,6 +82,7 @@ namespace LingoEngine.Sprites
         protected readonly List<TSprite> _activeSpritesOrdered = new();
         protected readonly List<TSprite> _enteredSprites = new();
         protected readonly List<TSprite> _exitedSprites = new();
+        private Dictionary<int, TSprite> _deletedPuppetSpritesCache = new();
 
         internal List<TSprite> AllTimeSprites => _allTimeSprites;
 
@@ -252,8 +254,9 @@ namespace LingoEngine.Sprites
 
             foreach (var sprite in _activeSpritesOrdered.ToArray()) // make a copy of the array
             {
+                
                 bool stillActive = sprite.BeginFrame <= currentFrame && sprite.EndFrame >= currentFrame;
-                if (!stillActive)
+                if (!stillActive || sprite.IsPuppetCached)
                 {
                     _exitedSprites.Add(sprite);
                     _activeSprites.Remove(sprite.SpriteNum);
@@ -267,6 +270,7 @@ namespace LingoEngine.Sprites
                 var isActive = sprite.BeginFrame <= currentFrame && sprite.EndFrame >= currentFrame;
                 if (isActive)
                 {
+                    if (sprite.IsPuppetCached) continue;
                     sprite.IsActive = true;
                     _enteredSprites.Add(sprite);
                     if (_activeSprites.TryGetValue(sprite.SpriteNum, out var existingSprite))
@@ -281,7 +285,7 @@ namespace LingoEngine.Sprites
             foreach (var sprite in _exitedSprites)
                 sprite.IsActive = false;
         }
-
+        
         protected virtual void SpriteEntered(TSprite sprite)
         {
             //_spriteChannels[sprite.SpriteNum].SetSprite(sprite);
@@ -352,5 +356,44 @@ namespace LingoEngine.Sprites
                     OnBeginSprite(sprite);
             _newPuppetSprites.Clear();
         }
+
+
+        #region Deleted PuppetSprite cache
+        internal void PuppetSpriteCacheAdd(int number, TSprite sprite)
+        {
+            if (!_deletedPuppetSpritesCache.ContainsKey(number))
+            {
+                sprite.IsPuppetCached = true;
+                _deletedPuppetSpritesCache.Add(number, sprite);
+                _allTimeSprites.Remove(sprite);
+            }
+        }
+
+        internal TSprite? PuppetSpriteCacheTryGet(int channel)
+        {
+            if (_deletedPuppetSpritesCache.TryGetValue(channel, out var sprite))
+            {
+                sprite.IsPuppetCached = false;
+                _allTimeSprites.Add(sprite);
+                return sprite;
+            }
+            return null;
+        }
+
+        private void DeleteAllCachedPuppetSprites()
+        {
+            foreach (var sprite in _deletedPuppetSpritesCache.Values.ToList())
+                DeletePuppetSprite(sprite);
+            _deletedPuppetSpritesCache.Clear();
+            
+        }
+        private void DeletePuppetSprite(TSprite sprite)
+        {
+            //var channel = (LingoSpriteChannel)Channel(sprite.SpriteNumWithChannel);
+            //channel.RemoveSprite();
+            sprite.DoEndSprite();
+            sprite.RemoveMe();
+        }
+        #endregion
     }
 }

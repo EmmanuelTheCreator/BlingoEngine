@@ -6,6 +6,12 @@
 
 <img src="Images/logo_godot.png" alt="Godot" width="20%" /><img src="Images/logo_SDL.png" alt="SDL" width="20%" /><img src="Images/logo_blazor.png" alt="Blazor" width="7%" /><img src="Images/logo_Unity.jpg" alt="Unity" width="7%" />
 
+Looking for a more expressive C# syntax? The `LingoEngine.VerboseLanguage` package offers a fluent API that mirrors classic Lingo statements.
+
+```bash
+dotnet add package LingoEngine.VerboseLanguage
+```
+
 ---
 
 ### Director.NET
@@ -148,18 +154,18 @@ Swap to the Godot backend by using `.WithLingoGodotEngine(...)`.
 ### Guides
 
 - [Getting Started](docs/GettingStarted.md)
-- [Lingo vs C# Differences](docs/Lingo_vs_CSharp.md)
-- [Architecture Overview](docs/Architecture.md)
+- [Lingo vs C# Differences](docs/design/Lingo_vs_CSharp.md)
+- [Architecture Overview](docs/design/Architecture.md)
 - [Godot Setup](docs/GodotSetup.md)
 - [SDL2 Setup](docs/SDLSetup.md)
 - [Blazor Demo](docs/BlazorDemo.md)
-- [Project Setup](docs/ProjectSetup.md)
+- [Project Setup](docs/design/ProjectSetup.md)
 - [Progress Log](docs/Progress.md)
-- [Director Keyframe Tags](docs/director_keyframe_tags.md)
+- [Director Keyframe Tags](docs/DirDissasembly/director_keyframe_tags.md)
 - [Director Lingo MX2004 Scripting Guide](docs/Director_Lingo_mx2004_scripting.pdf)
-- [XMED File Comparisons](docs/XMED_FileComparisons.md)
-- [XMED Offsets](docs/XMED_Offsets.md)
-- [Text Styling Example](docs/Text_Multi_Line_Multi_Style.md)
+- [XMED File Comparisons](docs/DirDissasembly/XMED_FileComparisons.md)
+- [XMED Offsets](docs/DirDissasembly/XMED_Offsets.md)
+- [Text Styling Example](docs/DirDissasembly/Text_Multi_Line_Multi_Style.md)
 
 ### API Reference
 

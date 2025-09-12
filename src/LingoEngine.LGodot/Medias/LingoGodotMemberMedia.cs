@@ -2,6 +2,7 @@
 using LingoEngine.Medias;
 using LingoEngine.Sprites;
 using AbstUI.LGodot.Helpers;
+using System.Threading.Tasks;
 
 namespace LingoEngine.LGodot.Medias
 {
@@ -26,7 +27,7 @@ namespace LingoEngine.LGodot.Medias
         internal void Init(LingoMemberMedia member)
         {
             _member = member;
-            
+
             Preload();
         }
 
@@ -75,6 +76,12 @@ namespace LingoEngine.LGodot.Medias
                 MediaStatus = LingoMediaStatus.Opened;
             }
             IsLoaded = true;
+        }
+
+        public Task PreloadAsync()
+        {
+            Preload();
+            return Task.CompletedTask;
         }
 
         public void Unload()

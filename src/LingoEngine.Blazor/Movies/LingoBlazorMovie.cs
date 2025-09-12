@@ -2,21 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AbstUI.Blazor;
-using AbstUI.Blazor.Primitives;
-using AbstUI.Blazor.Bitmaps;
 using AbstUI.Primitives;
 using LingoEngine.Blazor.Sprites;
 using LingoEngine.Blazor.Stages;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
-using Microsoft.JSInterop;
-using Microsoft.AspNetCore.Components;
 
 namespace LingoEngine.Blazor.Movies;
 
 /// <summary>
 /// Lightweight movie container for the Blazor backend. It keeps track of
-/// sprites and exposes basic lifecycle hooks used by the engine.
+/// sprites and exposes basic lifecycle hooks used by the engine. Instead of
+/// rendering to a single canvas the movie now composes sprite canvases in the
+/// DOM.
 /// </summary>
 public class LingoBlazorMovie : ILingoFrameworkMovie, IDisposable
 {
@@ -29,8 +27,8 @@ public class LingoBlazorMovie : ILingoFrameworkMovie, IDisposable
     private readonly int _width;
     private readonly int _height;
     private readonly LingoBlazorRootPanel _rootPanel;
-    private ElementReference _canvas;
-    private IJSObjectReference? _ctx;
+
+    public event Action? Changed;
 
     public LingoBlazorMovie(LingoBlazorStage stage, LingoMovie movie, Action<LingoBlazorMovie> remove, AbstUIScriptResolver scripts, LingoBlazorRootPanel rootPanel)
     {
@@ -41,46 +39,37 @@ public class LingoBlazorMovie : ILingoFrameworkMovie, IDisposable
         _rootPanel = rootPanel;
         _width = stage.LingoStage.Width;
         _height = stage.LingoStage.Height;
-        _canvas = _scripts.CanvasCreateCanvas(_width, _height).GetAwaiter().GetResult();
-        _scripts.CanvasAddToElement(_rootPanel.Root, _canvas).GetAwaiter().GetResult();
-        _ctx = _scripts.CanvasGetContext(_canvas, true).GetAwaiter().GetResult();
-        _scripts.CanvasSetVisible(_canvas, false).GetAwaiter().GetResult();
     }
 
     internal void Show()
     {
         _stage.ShowMovie(this);
-        _scripts.CanvasSetVisible(_canvas, true).GetAwaiter().GetResult();
+        Changed?.Invoke();
     }
 
     internal void Hide()
     {
-        _scripts.CanvasSetVisible(_canvas, false).GetAwaiter().GetResult();
         _stage.HideMovie(this);
+        Changed?.Invoke();
     }
 
     public void UpdateStage()
     {
-        if (_ctx == null) return;
-        _scripts.CanvasClear(_ctx, _stage.LingoStage.BackgroundColor.ToCss(), _width, _height).GetAwaiter().GetResult();
-        foreach (var s in _drawnSprites.OrderBy(s => s.ZIndex))
+        foreach (var s in _drawnSprites)
         {
-            if (s.Texture is not AbstBlazorTexture2D tex) continue;
-            var drawW = s.DesiredWidth > 0 ? s.DesiredWidth : s.Width;
-            var drawH = s.DesiredHeight > 0 ? s.DesiredHeight : s.Height;
-            var x = s.X - s.RegPoint.X;
-            var y = s.Y - s.RegPoint.Y;
-            _ctx.InvokeVoidAsync("drawImage", tex.Canvas, x, y, drawW, drawH).GetAwaiter().GetResult();
             s.Update();
         }
+        Changed?.Invoke();
     }
 
     internal void CreateSprite<T>(T lingoSprite) where T : LingoSprite2D
     {
         var sprite = new LingoBlazorSprite2D(lingoSprite,
-            s => _drawnSprites.Add(s),
-            s => _drawnSprites.Remove(s),
-            s => { _drawnSprites.Remove(s); _allSprites.Remove(s); });
+            s => { _drawnSprites.Add(s); Changed?.Invoke(); },
+            s => { _drawnSprites.Remove(s); Changed?.Invoke(); },
+            s => { _drawnSprites.Remove(s); _allSprites.Remove(s); Changed?.Invoke(); },
+            _scripts);
+        sprite.Changed += () => Changed?.Invoke();
         _allSprites.Add(sprite);
     }
 
@@ -91,14 +80,16 @@ public class LingoBlazorMovie : ILingoFrameworkMovie, IDisposable
 
     public int CurrentFrame => _movie.CurrentFrame;
 
-    internal IJSObjectReference? Context => _ctx;
+    internal IEnumerable<LingoBlazorSprite2D> VisibleSprites => _drawnSprites.OrderBy(s => s.ZIndex);
+
+    public int WidthPx => _width;
+    public int HeightPx => _height;
 
     public APoint GetGlobalMousePosition() => (0, 0);
 
     public void Dispose()
     {
         Hide();
-        _scripts.CanvasDisposeCanvas(_canvas).GetAwaiter().GetResult();
         RemoveMe();
     }
 }

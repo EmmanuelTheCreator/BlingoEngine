@@ -9,7 +9,7 @@ namespace LingoEngine.Lingo.Core;
 
 /// <summary>
 /// Converts Lingo source into C# following the mapping rules documented at
-/// https://github.com/EmmanuelTheCreator/LingoEngine/blob/main/docs/Lingo_vs_CSharp.md.
+/// https://github.com/EmmanuelTheCreator/LingoEngine/blob/main/docs/design/Lingo_vs_CSharp.md.
 /// </summary>
 public class LingoToCSharpConverter
 {
@@ -28,19 +28,35 @@ public class LingoToCSharpConverter
     {
         var lines = source.Split('\n');
         if (lines.Length == 0) return source;
+
         var sb = new StringBuilder();
-        sb.Append(lines[0]);
-        for (int i = 1; i < lines.Length; i++)
+        var previousContinues = false;
+
+        for (int i = 0; i < lines.Length; i++)
         {
             var line = lines[i];
-            if (line.TrimStart().StartsWith("."))
-                sb.Append(line.Trim());
+            var trimmedEnd = line.TrimEnd();
+
+            if (previousContinues)
+                sb.Append(trimmedEnd.TrimStart());
             else
             {
-                sb.Append('\n');
-                sb.Append(line.TrimEnd());
+                if (i > 0)
+                    sb.Append('\n');
+                sb.Append(trimmedEnd);
+            }
+
+            if (trimmedEnd.EndsWith("\\"))
+            {
+                sb.Length--; // remove trailing backslash
+                previousContinues = true;
+            }
+            else
+            {
+                previousContinues = false;
             }
         }
+
         return sb.ToString();
     }
 
@@ -952,11 +968,13 @@ public class LingoToCSharpConverter
         return LingoScriptType.Behavior;
     }
 
-    private static readonly HashSet<string> DefaultMethods = new(
-        new[]{"StepFrame","PrepareFrame","EnterFrame","ExitFrame","BeginSprite",
-               "EndSprite","MouseDown","MouseUp","MouseMove","MouseEnter",
-               "MouseLeave","MouseWithin","MouseExit","PrepareMovie","StartMovie",
-               "StopMovie","KeyDown","KeyUp","Focus","Blur"});
+    private static readonly HashSet<string> DefaultMethods = new(new[]
+        {
+            "StepFrame","PrepareFrame","EnterFrame","ExitFrame","BeginSprite",
+            "EndSprite","MouseDown","MouseUp","MouseMove","MouseEnter",
+            "MouseLeave","MouseWithin","MouseExit","PrepareMovie","StartMovie",
+            "StopMovie","KeyDown","KeyUp","Focus","Blur"
+        }, StringComparer.OrdinalIgnoreCase);
 
     private class CustomMethodCollector : ILingoAstVisitor
     {

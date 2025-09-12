@@ -4,6 +4,7 @@ using LingoEngine.Movies.Events;
 using LingoEngine.Sprites;
 using LingoEngine.Sprites.Events;
 using LingoEngine.Texts;
+using LingoEngine.VerboseLanguage;
 using System.ComponentModel;
 #pragma warning disable IDE1006 // Naming Styles
 
@@ -37,14 +38,14 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
             //// myStop = true
             //myCheckStartData = true;
             //mySendStartData = script("StartData_save").New();
-            Cursor = 200;
+            //Cursor = 200;
             // myHsUp.postScore(member("PlayerName").text, 10000)
         }
 
 
         public void DataLoaded(string data, object obj)
         {
-            Put(data);
+            this.Put(data).ToLog();
             if (data == "")
             {
                 _Movie.GoTo(2);

@@ -17,4 +17,5 @@ public class AbstMDSegment
     public int MarginRight { get; set; }
     public int StyleId { get; set; } = -1;
     public bool IsParagraph { get; set; }
+    public int LetterSpacing { get; set; }
 }

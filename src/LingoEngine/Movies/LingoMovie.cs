@@ -12,6 +12,8 @@ using LingoEngine.Transitions;
 using LingoEngine.Tempos;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Scripts;
+using AbstUI.Primitives;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LingoEngine.Movies
 {
@@ -32,6 +34,7 @@ namespace LingoEngine.Movies
         private int _nextFrame = -1;
         private int _lastFrame = 0;
         private bool _isPlaying = false;
+        
 
         private bool _needToRaiseStartMovie = false;
         private LingoCastLibsContainer _castLibContainer;
@@ -148,6 +151,7 @@ namespace LingoEngine.Movies
         }
         public void Dispose()
         {
+            
             RemoveMe();
             _transitionPlayer.Dispose();
         }
@@ -273,7 +277,7 @@ namespace LingoEngine.Movies
 
             try
             {
-                
+
                 var frameChanged = false;
                 if (_nextFrame < 0)
                 {
@@ -286,7 +290,6 @@ namespace LingoEngine.Movies
                     _currentFrame = _nextFrame;
                     _nextFrame = -1;
                 }
-
                 if (frameChanged)
                 {
 
@@ -314,10 +317,13 @@ namespace LingoEngine.Movies
                     // Are there new puppet sprites set.
                     _sprite2DManager.DoPuppetSprites();
                 }
-                    _lastFrame = _currentFrame;
+                _lastFrame = _currentFrame;
 
                 if (_needToRaiseStartMovie)
+                {
                     _EventMediator.RaiseStartMovie();
+                    _needToRaiseStartMovie = false;
+                }
 
                 _lingoMouse.UpdateMouseState();
                 _sprite2DManager.PreStepFrame();
@@ -356,12 +362,14 @@ namespace LingoEngine.Movies
             _isPlaying = true;
             PlayStateChanged?.Invoke(true);
             //OnTick();
-            _needToRaiseStartMovie = false;
+            //_needToRaiseStartMovie = false;
 
         }
 
         private void OnStop()
         {
+            // on stop always restore the mouse to arrow
+            _lingoMouse.SetCursor(AMouseCursor.Arrow);
             _isPlaying = false;
             PlayStateChanged?.Invoke(false);
             _environment.Sound.StopAll();
@@ -522,6 +530,7 @@ namespace LingoEngine.Movies
 
         public LingoMovieEnvironment GetEnvironment() => _environment;
         public ILingoServiceProvider GetServiceProvider() => _environment.GetServiceProvider();
+        public T GetRequiredService<T>() where T : notnull => _environment.GetServiceProvider().GetRequiredService<T>();
 
         public void StartTimer() => Timer = 0;
 
@@ -546,6 +555,11 @@ namespace LingoEngine.Movies
         {
             _lingoMouse = newMouse;
             _sprite2DManager.SetMouse(newMouse);
+        }
+
+        public IEnumerable<LingoSprite2D> GetAll2DSpritesToStore()
+        {
+            return Sprite2DManager.AllTimeSprites.Where(x => !x.Puppet && !x.IsDeleted);
         }
     }
 }

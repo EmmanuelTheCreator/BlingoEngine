@@ -74,16 +74,24 @@ namespace LingoEngine.FilmLoops
             }
         }
 
-        private LingoFilmLoopMemberSprite()
+        public LingoFilmLoopMemberSprite()
         {
             // We need an animator to precalculate the path and bounding boxes.
             _animatorProperties = new LingoSpriteAnimatorProperties();
         }
 
-        public LingoFilmLoopMemberSprite(ILingoMember? member = null) : this()
+        public LingoFilmLoopMemberSprite(ILingoMember member, int channel=0, int begin = 0, int end = 0, int locH = 0, int locV=0) : this()
         {
             if (member != null)
                 SetMember(member);
+            BeginFrame = begin;
+            EndFrame = end;
+            Channel = channel;
+            LocH = locH;
+            LocV = locV;
+            Width = 50;
+            Height = 50;
+            InkType = LingoInkType.Matte;
         }
 
         public LingoFilmLoopMemberSprite(LingoSprite2D sp, int channel, int begin, int end)
@@ -110,7 +118,7 @@ namespace LingoEngine.FilmLoops
             BackColor = sp.BackColor;
             Width = sp.Width;
             Height = sp.Height;
-            InkType = sp.InkType;
+           // InkType = sp.InkType;
             DisplayMember = sp.DisplayMember;
             SpriteNum = sp.SpriteNum;
             Hilite = sp.Hilite;

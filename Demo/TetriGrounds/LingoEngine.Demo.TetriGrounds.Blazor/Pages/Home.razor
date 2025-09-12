@@ -13,12 +13,23 @@
 
 <CascadingValue Value="ComponentContainer">
     <AbstInputComponent>
-        <AbstBlazorScrollContainer Component="_rootComponent" />
+        @* <AbstBlazorScrollContainer Component="_rootComponent" /> *@
     </AbstInputComponent>
 </CascadingValue>
 
 @code {
     private AbstBlazorScrollContainerComponent _rootComponent = default!;
+
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            Program.LingoEngineReg!.InitializeProject();
+            Program.LingoEngineReg!.RunProject();
+        }
+    }
 
     protected override void OnInitialized()
     {

@@ -6,6 +6,7 @@ using AbstUI.Blazor.Components.Containers;
 using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
+using AbstUI.Primitives;
 
 namespace AbstUI.Blazor.Windowing;
 
@@ -44,18 +45,24 @@ internal class AbstBlazorWindowManager : IAbstFrameworkWindowManager, IFramework
         return new AbstWindowDialogReference(() => { });
     }
 
-    public IAbstWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel)
+    public IAbstWindowDialogReference? ShowCustomDialog(string title, IAbstFrameworkPanel panel, APoint? position = null)
     {
         var dialogAbst = _factory.CreateElement<IAbstDialog>();
         var dialog = dialogAbst.FrameworkObj<AbstBlazorDialog>();
         dialog.Title = title;
         dialog.SetSize((int)panel.Width, (int)panel.Height);
         dialog.AddItem(panel);
-        dialog.PopupCentered();
+        if (position == null)
+            dialog.PopupCentered();
+        else
+        {
+            dialog.SetPositionAndSize((int)position.Value.X, (int)position.Value.Y, (int)panel.Width, (int)panel.Height);
+            dialog.Popup();
+        }
         return new AbstWindowDialogReference(() => { dialog.Hide(); dialog.Dispose(); }, dialog);
     }
 
-    public IAbstWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? dialog = null)
+    public IAbstWindowDialogReference? ShowCustomDialog<TDialog>(string title, IAbstFrameworkPanel panel, TDialog? dialog = null, APoint? position = null)
         where TDialog : class, IAbstDialog
     {
         AbstBlazorDialog blazorDialog;
@@ -70,7 +77,13 @@ internal class AbstBlazorWindowManager : IAbstFrameworkWindowManager, IFramework
         blazorDialog.Title = title;
         blazorDialog.SetSize((int)panel.Width, (int)panel.Height);
         blazorDialog.AddItem(panel);
-        blazorDialog.PopupCentered();
+        if (position == null)
+            blazorDialog.PopupCentered();
+        else
+        {
+            blazorDialog.SetPositionAndSize((int)position.Value.X, (int)position.Value.Y, (int)panel.Width, (int)panel.Height);
+            blazorDialog.Popup();
+        }
         return new AbstWindowDialogReference(() => { blazorDialog.Hide(); blazorDialog.Dispose(); }, blazorDialog);
     }
 

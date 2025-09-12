@@ -1,0 +1,1 @@
+{{STYLE-SHEET:{"0":{"font-family":"Tahoma","font-size":20,"color":"#cccccc","text-align":"center"}}}}{{PARA:0}}Input text

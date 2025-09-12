@@ -7,6 +7,8 @@ using ProjectorRays.Common;
 using ProjectorRays.Director;
 using ProjectorRays.director.Scores;
 using ProjectorRays.DotNet.Test.XMED;
+using System.Linq;
+using System.Text;
 
 namespace ProjectorRays.DotNet.Test;
 
@@ -80,5 +82,37 @@ public static class TestFileReader
         }
 
         return ReadHexFile(dump);
+    }
+
+    public static void ReadHeader(string file)
+    {
+        var dump = Path.ChangeExtension(file, ".header.txt");
+
+        var data = File.ReadAllBytes(file);
+        var stream = new ReadStream(data, data.Length, Endianness.BigEndian);
+        uint magic = stream.ReadUint32();
+        if (magic == RaysDirectorFile.FOURCC('X', 'F', 'I', 'R'))
+            stream.Endianness = Endianness.LittleEndian;
+        uint fileLen = stream.ReadUint32();
+        uint codec = stream.ReadUint32();
+        stream.Seek(0);
+
+        using var factory = LoggerFactory.Create(builder => { });
+        var dir = new RaysDirectorFile(factory.CreateLogger("Header"), file);
+        dir.Read(stream, parseChunks: false);
+        var infos = dir.ChunkInfos.Values.OrderBy(c => c.Offset);
+        using var writer = new StreamWriter(dump, false, Encoding.UTF8);
+        writer.WriteLine("[HEADER]");
+        writer.WriteLine($"{0:X8} {RaysUtil.FourCCToString(magic, escape: false)}");
+        writer.WriteLine($"{4:X8} {fileLen}");
+        writer.WriteLine($"{8:X8} {RaysUtil.FourCCToString(codec, escape: false)}");
+        writer.WriteLine();
+        writer.WriteLine("[CHUNKS]");
+        writer.WriteLine("# Offset FourCC Len UncompressedLen Id");
+        foreach (var info in infos)
+        {
+            string fourCC = RaysUtil.FourCCToString(info.FourCC, escape: false);
+            writer.WriteLine($"{info.Offset:X8} {fourCC} {info.Len} {info.UncompressedLen} {info.Id}");
+        }
     }
 }

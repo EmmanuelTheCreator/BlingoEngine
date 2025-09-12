@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using AbstUI.Bitmaps;
 using AbstUI.Primitives;
+using AbstUI.Components;
 using LingoEngine.Core;
 using LingoEngine.Movies;
 using LingoEngine.Stages;
@@ -9,31 +13,50 @@ using LingoEngine.Blazor.Movies;
 using Microsoft.JSInterop;
 using AbstUI.Blazor;
 using AbstUI.Blazor.Bitmaps;
+using AbstUI.Blazor.Inputs;
 
 namespace LingoEngine.Blazor.Stages;
 
 /// <summary>
-/// Minimal Blazor stage implementation. It tracks movies and delegates
-/// activation to the engine without providing a concrete rendering surface.
+/// Blazor stage implementation that drives the engine clock, renders
+/// the active movie to an off-screen canvas and supports transition
+/// overlays.
 /// </summary>
 public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
 {
     private readonly LingoClock _clock;
     private readonly IJSRuntime _js;
     private readonly AbstUIScriptResolver _scripts;
+    private readonly LingoBlazorRootPanel _root;
+    private readonly LingoDebugOverlay _overlay;
+    private readonly LingoPlayer _player;
+    private bool _f1Down;
+    private static readonly int F1Code = BlazorKeyCodeMap.ToLingo("F1");
     private readonly HashSet<LingoBlazorMovie> _movies = new();
     private LingoBlazorMovie? _activeMovie;
+
+    public event Action? Changed;
     private LingoStage _stage = null!;
+
+    private readonly CancellationTokenSource _loopCts = new();
+    private readonly Task _loopTask;
+    private Action<IAbstTexture2D>? _nextShot;
+    private bool _isTransitioning;
+    private AbstBlazorTexture2D? _transitionStart;
 
     public LingoStage LingoStage => _stage;
 
     public float Scale { get; set; } = 1f;
 
-    public LingoBlazorStage(LingoClock clock, IJSRuntime js, AbstUIScriptResolver scripts)
+    public LingoBlazorStage(LingoPlayer player, IJSRuntime js, AbstUIScriptResolver scripts, LingoBlazorRootPanel root, IAbstComponentFactory factory)
     {
-        _clock = clock;
+        _player = player;
+        _clock = (LingoClock)player.Clock;
         _js = js;
         _scripts = scripts;
+        _root = root;
+        _overlay = new LingoDebugOverlay(new LingoBlazorDebugOverlay(root, factory), player);
+        _loopTask = Task.Run(RenderLoopAsync);
     }
 
     internal void Init(LingoStage stage)
@@ -46,10 +69,7 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
         _movies.Add(movie);
     }
 
-    internal void HideMovie(LingoBlazorMovie movie)
-    {
-        _movies.Remove(movie);
-    }
+    internal void HideMovie(LingoBlazorMovie movie) => _movies.Remove(movie);
 
     /// <inheritdoc />
     public void SetActiveMovie(LingoMovie? lingoMovie)
@@ -58,11 +78,13 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
         if (lingoMovie == null)
         {
             _activeMovie = null;
+            Changed?.Invoke();
             return;
         }
         var movie = lingoMovie.Framework<LingoBlazorMovie>();
         _activeMovie = movie;
         movie.Show();
+        Changed?.Invoke();
     }
 
     /// <inheritdoc />
@@ -70,32 +92,78 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
 
     public void RequestNextFrameScreenshot(Action<IAbstTexture2D> onCaptured)
     {
-        onCaptured(GetScreenshot());
+        _nextShot = onCaptured;
     }
 
     public IAbstTexture2D GetScreenshot()
     {
-        if (_activeMovie?.Context is not IJSObjectReference ctx)
-            return new NullTexture(_stage.Width, _stage.Height, $"StageShot_{_activeMovie?.CurrentFrame ?? 0}");
-
-        var data = _scripts.CanvasGetImageData(ctx, _stage.Width, _stage.Height).GetAwaiter().GetResult();
-        return AbstBlazorTexture2D
-            .CreateFromPixelDataAsync(_js, _scripts, data, _stage.Width, _stage.Height,
-                $"StageShot_{_activeMovie.CurrentFrame}")
-            .GetAwaiter().GetResult();
+        return new NullTexture(_stage.Width, _stage.Height, $"StageShot_{_activeMovie?.CurrentFrame ?? 0}");
     }
 
-    public void ShowTransition(IAbstTexture2D startTexture) { }
+    public void ShowTransition(IAbstTexture2D startTexture)
+    {
+        _transitionStart?.Dispose();
+        _transitionStart = (AbstBlazorTexture2D)startTexture.Clone();
+        _isTransitioning = true;
+        // Transition drawing not implemented in DOM composition yet.
+    }
 
-    public void UpdateTransitionFrame(IAbstTexture2D texture, ARect targetRect) { }
+    public void UpdateTransitionFrame(IAbstTexture2D texture, ARect targetRect)
+    {
+        if (!_isTransitioning)
+            return;
+    }
 
-    public void HideTransition() { }
+    public void HideTransition()
+    {
+        _isTransitioning = false;
+        _transitionStart?.Dispose();
+        _transitionStart = null;
+        _activeMovie?.UpdateStage();
+        Changed?.Invoke();
+    }
 
     public void Dispose()
     {
+        _loopCts.Cancel();
+        try { _loopTask.Wait(); } catch { }
         foreach (var m in _movies)
             m.Dispose();
         _movies.Clear();
+        _transitionStart?.Dispose();
+    }
+
+    private async Task RenderLoopAsync()
+    {
+        var sw = Stopwatch.StartNew();
+        var last = sw.Elapsed;
+        while (!_loopCts.IsCancellationRequested)
+        {
+            var now = sw.Elapsed;
+            var delta = (float)(now - last).TotalSeconds;
+            last = now;
+            _clock.Tick(delta);
+            _overlay.Update(delta);
+            bool f1 = _player.Key.KeyPressed(F1Code);
+            if (f1 && !_f1Down)
+                _overlay.Toggle();
+            _f1Down = f1;
+            _overlay.Render();
+            if (!_isTransitioning)
+                _activeMovie?.UpdateStage();
+            if (_nextShot != null)
+            {
+                var shot = GetScreenshot();
+                var cb = _nextShot;
+                _nextShot = null;
+                cb(shot);
+            }
+            try
+            {
+                await Task.Delay(16, _loopCts.Token);
+            }
+            catch (TaskCanceledException) { }
+        }
     }
 
     private sealed class NullTexture : AbstBaseTexture2D<object>
@@ -125,4 +193,6 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
             return clone;
         }
     }
+
+    internal LingoBlazorMovie? ActiveMovie => _activeMovie;
 }

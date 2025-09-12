@@ -126,10 +126,12 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
 #endif
     }
 
+    private nint _lastTexture = nint.Zero;
+    public nint LastTexture => _lastTexture;
 
-    internal void Render()
+    internal nint Render()
     {
-        if (_activeMovie == null) return;
+        if (_activeMovie == null) return nint.Zero;
         var context = _factory.CreateRenderContext(null, System.Numerics.Vector2.Zero);
 
         RenderSprites(context);
@@ -144,11 +146,10 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
                 SDL.SDL_RenderCopy(context.Renderer, _spritesTexture, IntPtr.Zero, ref full);
             }
         });
-
-        SDL.SDL_SetRenderTarget(context.Renderer, nint.Zero);
-        SDL.SDL_RenderCopy(context.Renderer, frameTex, IntPtr.Zero, IntPtr.Zero);
-        SDL.SDL_RenderPresent(context.Renderer);
-        SDL.SDL_DestroyTexture(frameTex);
+        if (_lastTexture != nint.Zero)
+            SDL.SDL_DestroyTexture(_lastTexture);
+        _lastTexture = frameTex;
+        return frameTex;
     }
 
     private void RenderSprites(AbstUI.SDL2.Core.AbstSDLRenderContext context)

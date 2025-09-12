@@ -15,12 +15,12 @@ namespace AbstUI.Texts
             {
                 data.Markdown = markdownContent;
                 data.Styles = styles.ToDictionary(x => x.Name);
-            } 
+            }
             data.PlainText = RetrieveTextOnly(data.Markdown);
             return data;
         }
 
-     
+
             /// <summary>
             /// Removes Markdown and custom {{...}} tags, leaving only plain text.
             /// </summary>
@@ -61,7 +61,7 @@ namespace AbstUI.Texts
 
                 return text.Trim();
             }
-        
+
 
         public static bool TryExtractStyleSheet(ref string markdown, out IEnumerable<AbstTextStyle> styles)
         {
@@ -103,7 +103,8 @@ namespace AbstUI.Texts
                     Underline = kv.Value.TextDecoration?.Equals("underline", StringComparison.OrdinalIgnoreCase) == true,
                     LineHeight = kv.Value.LineHeight ?? 0,
                     MarginLeft = kv.Value.MarginLeft ?? 0,
-                    MarginRight = kv.Value.MarginRight ?? 0
+                    MarginRight = kv.Value.MarginRight ?? 0,
+                    LetterSpacing = kv.Value.LetterSpacing ?? 0
                 }).ToList();
                 markdown = markdown.Substring(end + 2);
                 return true;

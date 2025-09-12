@@ -87,6 +87,8 @@ namespace LingoEngine.Sprites
                 VisibilityChanged?.Invoke(this, value);
             }
         }
+        bool ILingoSpriteBase.IsPuppetCached { get; set; }
+
         #region Properties proxy
 
         // Let it crach when there is no sprite set.
@@ -115,8 +117,8 @@ namespace LingoEngine.Sprites
         public int Duration => _sprite.Duration;
         public int CurrentTime { get => _sprite.CurrentTime; set => _sprite.CurrentTime = value; }
         public LingoMediaStatus MediaStatus => _sprite.MediaStatus;
-        public float Width => _sprite.Width;
-        public float Height => _sprite.Height;
+        public float Width { get => _sprite.Width; set => _sprite.Width = value; }
+        public float Height { get => _sprite.Height; set => _sprite.Height = value; }
         public ILingoMember? Member
         {
             get => _sprite.Member;
@@ -174,19 +176,35 @@ namespace LingoEngine.Sprites
                 if (value)
                 {
                     if (_sprite == null)
-                        _sprite = _movie.AddSprite(Number, 1, _movie.FrameCount, 0, 0,c => c.Puppet = true);
+                    {
+                        var spriteCached = _movie.Sprite2DManager.PuppetSpriteCacheTryGet(Number);
+                        if (spriteCached != null)
+                        {
+                            _sprite = spriteCached;
+                            _sprite.Puppet = true;
+                        }
+                        else
+                            _sprite = _movie.AddSprite(Number, 1, _movie.FrameCount, 0, 0, c => c.Puppet = true);
+                    }
                 }
                 else
                 {
                     if (_sprite != null)
                     {
-                        var typed = ((LingoSprite)_sprite);
-                        typed.DoEndSprite();
-                        typed.RemoveMe();
-                        //_movie.RemoveSprite(_sprite);
-                        _sprite = null;
                         _puppet = false;
-                        Scripted = false;
+                        _sprite.Puppet = false;
+                        _sprite.Member = null;
+                        if (_sprite is LingoSprite2D sprite2D)
+                        {
+                            sprite2D.Reset();
+                            _movie.Sprite2DManager.PuppetSpriteCacheAdd(Number, sprite2D);
+                        }
+                        _sprite = null;
+                        //var typed = ((LingoSprite)_sprite);
+                        //typed.DoEndSprite();
+                        //typed.RemoveMe();
+                        ////_movie.RemoveSprite(_sprite);
+                        //_sprite = null;
                     }
                 }
             }

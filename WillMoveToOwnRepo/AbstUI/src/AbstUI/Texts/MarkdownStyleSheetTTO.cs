@@ -33,6 +33,9 @@ public class MarkdownStyleSheetTTO
 
     [JsonProperty("margin-right")]
     public int? MarginRight { get; set; }
+
+    [JsonProperty("letter-spacing")]
+    public int? LetterSpacing { get; set; }
 }
 #else
 using System.Text.Json.Serialization;
@@ -67,6 +70,9 @@ public class MarkdownStyleSheetTTO
 
     [JsonPropertyName("margin-right")]
     public int? MarginRight { get; set; }
+
+    [JsonPropertyName("letter-spacing")]
+    public int? LetterSpacing { get; set; }
 }
 #endif
 
