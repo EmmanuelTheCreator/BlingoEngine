@@ -48,7 +48,7 @@ namespace ProjectorRays.DotNet.Test.Sprites
         public void TestTetriGrounds()
         {
             var baseDir = AppContext.BaseDirectory;
-            var path = Path.Combine(baseDir, "../../../../../../../", "Demo","TetriGrounds","TetriGrounds.dir");
+            var path = Path.Combine(baseDir, "../../../../../../../", "Demo", "TetriGrounds", "TetriGrounds.dir");
             var sprites = ReadSprites(path);
             //sprites.Count.Should().BeGreaterThan(40);
         }
