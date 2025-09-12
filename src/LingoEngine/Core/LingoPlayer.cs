@@ -90,7 +90,6 @@ namespace LingoEngine.Core
         public ILingoMovie? ActiveMovie { get; private set; }
 
 
-
         public event Action<ILingoMovie?>? ActiveMovieChanged;
 
         public LingoPlayer(ILingoServiceProvider serviceProvider, ILingoFrameworkFactory factory, ILingoCastLibsContainer castLibsContainer, ILingoWindow window, ILingoClock lingoClock, ILingoSystem lingoSystem, IAbstResourceManager resourceManager, LingoGlobalVars globals)

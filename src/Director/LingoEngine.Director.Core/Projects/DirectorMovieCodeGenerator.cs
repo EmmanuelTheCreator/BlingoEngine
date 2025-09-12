@@ -81,7 +81,7 @@ public class DirectorMovieCodeGenerator
     {
         var sb = new StringBuilder();
         var typeName = Enum.GetName(typeof(LingoMemberTypeDTO), dto.Type) ?? "Unknown";
-        sb.AppendLine($"        var member{idx} = ({MemberClass(dto.Type)})cast.Add(LingoMemberType.{typeName}, {dto.NumberInCast}, {FormatValue(dto.Name)}, {FormatValue(dto.FileName)}, new APoint({dto.RegPoint.X}, {dto.RegPoint.Y}));");
+        sb.AppendLine($"        var member{idx} = ({MemberClass(dto.Type)})cast.Add(LingoMemberType.{typeName}, {dto.NumberInCast}, {FormatValue(dto.Name)}, {FormatValue(dto.FileName)}, new APoint({CleanFloat(dto.RegPoint.X)}, {CleanFloat(dto.RegPoint.Y)}));");
         foreach (var prop in dto.GetType().GetProperties())
         {
             if (prop.Name == "MarkDownText")
@@ -104,7 +104,7 @@ public class DirectorMovieCodeGenerator
         }
         return sb.ToString();
     }
-
+    private static string CleanFloat(float value) => value.ToString().Replace(',', '.')+"f";
     public virtual string GenerateScoreClass(LingoMovieDTO movie)
     {
         var sb = new StringBuilder();

@@ -112,13 +112,14 @@ namespace LingoEngine.Core
         /// Lingo: the productVersion
         /// </summary>
         Version ProductVersion { get; set; }
-
+        ILingoCastLibsContainer CastLibs { get; }
         /// <summary>
         /// Specifies a handler hook (function) to override the default alert display behavior.
         /// Lingo: the alertHook
         /// </summary>
         Func<string> AlertHook { get; set; }
         ILingoStage Stage { get; }
+        
 
         /// <summary>
         /// Displays a system alert dialog.
