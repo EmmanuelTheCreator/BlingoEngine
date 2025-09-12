@@ -12,7 +12,7 @@ This short guide explains the layout of the repository and how to run the test s
 | `src/Director` | Standalone Director application re‑implementation (basic movie, cast, and score features working) |
 | `Demo/TetriGrounds` | Sample game showing usage with both backends |
 
-🔎 For a detailed technical overview, see the [Architecture guide](Architecture.md).
+🔎 For a detailed technical overview, see the [Architecture guide](design/Architecture.md).
 
 ## 🧪 Running Tests
 

@@ -9,7 +9,7 @@ namespace LingoEngine.Lingo.Core;
 
 /// <summary>
 /// Converts Lingo source into C# following the mapping rules documented at
-/// https://github.com/EmmanuelTheCreator/LingoEngine/blob/main/docs/Lingo_vs_CSharp.md.
+/// https://github.com/EmmanuelTheCreator/LingoEngine/blob/main/docs/design/Lingo_vs_CSharp.md.
 /// </summary>
 public class LingoToCSharpConverter
 {
