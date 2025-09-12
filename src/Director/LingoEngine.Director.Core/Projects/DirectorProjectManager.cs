@@ -7,6 +7,7 @@ using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.Stages;
 using AbstUI.Commands;
 using LingoEngine.Director.Core.Projects.Commands;
+using LingoEngine.Director.Core.Projects;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
@@ -62,6 +63,9 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
 
         SaveDirectorSettings();
         SaveProjectSettings();
+
+        var generator = new DirectorMovieCodeGenerator();
+        generator.Generate(movie, _settings.ProjectFolder);
     }
 
     public void LoadMovie()
