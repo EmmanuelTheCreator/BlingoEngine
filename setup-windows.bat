@@ -61,5 +61,8 @@ for %%P in (%PROJECTS%) do (
     )
 )
 
+echo.
+powershell -NoProfile -ExecutionPolicy Bypass -Command "Add-Type -AssemblyName System.Windows.Forms; $dlg=New-Object System.Windows.Forms.OpenFileDialog; $dlg.Filter='Godot executable|Godot*.exe'; if($dlg.ShowDialog() -eq 'OK'){ $path=$dlg.FileName; $settingsPath='.vscode/settings.json'; $json=Get-Content $settingsPath | ConvertFrom-Json; $json.'godotTools.editorPath.godot4'=$path; $json | ConvertTo-Json | Set-Content $settingsPath; $ver=[regex]::Match((Split-Path $path -Leaf), 'Godot_v([^_]+)_').Groups[1].Value; & 'scripts\\SetGodotVersion.ps1' $ver } else { Write-Host 'No Godot executable selected.' }"
+
 echo Setup complete.
 endlocal
