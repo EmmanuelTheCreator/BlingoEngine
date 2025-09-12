@@ -13,8 +13,7 @@ Today, Shockwave games are no longer playable on the modern web, and the origina
 - If you have a `.dcr` (published Shockwave movie) or `.dxr` (protected Director movie), ProjectorRays can generate a `.dir` (editable Director movie).
 - If you have a `.cct` (published Shockwave cast) or `.cxt` (protected Director cast), ProjectorRays can generate a `.cst` (editable Director cast).
 
-ProjectorRays is a work in progress. If you encounter any issues, please report them on the [issue tracker](https://github.com/ProjectorRays/ProjectorRays/issues).
-
+ProjectorRays is a work in progress. 
 ---
 
 ## Credits
