@@ -23,9 +23,5 @@ public class LingoProjectSettings
 
     }
 
-    public string GetMoviePath(string movieName)
-    {
-        var file = movieName + ".json";
-        return Path.Combine(ProjectFolder, file);
-    }
+   
 }

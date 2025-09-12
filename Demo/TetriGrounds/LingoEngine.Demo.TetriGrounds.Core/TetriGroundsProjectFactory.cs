@@ -39,8 +39,10 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
             //.AddFont("Tahoma", Path.Combine("Media", "Fonts", "Tahoma.ttf"))
             .WithProjectSettings(s =>
                 {
-                    s.ProjectFolder = "TetriGrounds";
+                    s.ProjectFolder = "..\\";
                     s.ProjectName = "TetriGrounds";
+                    s.CodeFolder = "..\\LingoEngine.Demo.TetriGrounds.Core\\";
+                    s.MaxSpriteChannelCount = 300;
                     s.MaxSpriteChannelCount = 800;
                     s.StageWidth = 730;
                     s.StageHeight = 500; // original : 547

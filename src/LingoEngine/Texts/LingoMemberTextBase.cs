@@ -27,6 +27,8 @@ namespace LingoEngine.Texts
         protected int _selectionEnd;
         protected string _selectedText = "";
         protected string _markdown = "";
+
+
         protected AbstMarkdownData? _mdData;
 
         protected LingoLines _Line;
@@ -45,6 +47,7 @@ namespace LingoEngine.Texts
 
         public T Framework<T>() where T : class, TFrameworkType => (T)_frameworkMember;
 
+        public AbstMarkdownData? InitialMarkdown { get;  set; }
         public bool TextChanged { get; private set; }
 
         #region Properties
@@ -331,8 +334,15 @@ namespace LingoEngine.Texts
             RenderText();
         }
         /// <inheritdoc/>
+        public void SetTextMD(string markdownText)
+        {
+            var markdown = AbstMarkdownReader.Read(markdownText);
+            SetTextMD(markdown);
+        }
         public void SetTextMD(AbstMarkdownData data)
         {
+            if (InitialMarkdown == null)
+                InitialMarkdown = data;
             _mdData = data;
             _markdown = data.Markdown;
             UpdateText(data.PlainText);

@@ -95,7 +95,7 @@ internal static class DirectorRaysDtoExtensions
             Comments = baseDto.Comments,
             FileName = baseDto.FileName,
             PurgePriority = baseDto.PurgePriority,
-            Text = mem.GetText()
+            MarkDownText = mem.GetText()
         };
 
     private static LingoMemberPictureDTO ToPictureDto(this RaysCastMemberChunk mem, LingoMemberDTO baseDto, LingoCastDTO cast, DirFilesContainerDTO resources)
