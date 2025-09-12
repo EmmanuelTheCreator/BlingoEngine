@@ -14,6 +14,7 @@ using LingoEngine.Tools;
 using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Transitions;
 using LingoEngine.Transitions.TransitionLibrary;
+using System.Threading.Tasks;
 
 
 namespace LingoEngine.Core
@@ -87,7 +88,7 @@ namespace LingoEngine.Core
         bool ILingoPlayer.SafePlayer { get; set; }
         public ILingoMovie? ActiveMovie { get; private set; }
 
-       
+
 
         public event Action<ILingoMovie?>? ActiveMovieChanged;
 
@@ -209,8 +210,13 @@ namespace LingoEngine.Core
         /// </summary>
         public ILingoPlayer LoadCastLibFromCsv(string castlibName, string pathAndFilenameToCsv, bool isInternal = false)
         {
+            return LoadCastLibFromCsvAsync(castlibName, pathAndFilenameToCsv, isInternal).GetAwaiter().GetResult();
+        }
+
+        public async Task<ILingoPlayer> LoadCastLibFromCsvAsync(string castlibName, string pathAndFilenameToCsv, bool isInternal = false)
+        {
             var castLib = _castLibsContainer.AddCast(castlibName, isInternal);
-            _csvImporter.Value.ImportInCastFromCsvFile(castLib, pathAndFilenameToCsv, true, x => Console.WriteLine("WARNING:" + x));
+            await _csvImporter.Value.ImportInCastFromCsvFileAsync(castLib, pathAndFilenameToCsv, true, x => Console.WriteLine("WARNING:" + x));
             return this;
         }
 

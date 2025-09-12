@@ -13,6 +13,7 @@ using LingoEngine.Casts;
 using AbstUI;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Setup
 {
@@ -96,7 +97,7 @@ namespace LingoEngine.Setup
                 setup?.Invoke(globals);
                 return globals;
             });
-            _container.AddSingleton< LingoGlobalVars>(sp => sp.GetRequiredService<TGlobalVars>());
+            _container.AddSingleton<LingoGlobalVars>(sp => sp.GetRequiredService<TGlobalVars>());
             return this;
         }
         public ILingoEngineRegistration WithGlobalVars<TGlobalVars>(Action<TGlobalVars>? setup = null) where TGlobalVars : LingoGlobalVars, new()
@@ -108,7 +109,7 @@ namespace LingoEngine.Setup
                 setup?.Invoke(globals);
                 return new TGlobalVars();
             });
-            _container.AddSingleton< LingoGlobalVars>(sp => sp.GetRequiredService<TGlobalVars>());
+            _container.AddSingleton<LingoGlobalVars>(sp => sp.GetRequiredService<TGlobalVars>());
             return this;
         }
 
@@ -119,16 +120,21 @@ namespace LingoEngine.Setup
             return this;
         }
 
-        public LingoPlayer Build()
+        public LingoPlayer Build() => BuildAsync().GetAwaiter().GetResult();
+
+        public async Task<LingoPlayer> BuildAsync()
         {
             if (_hasBeenBuild && _player != null) return _player;
             CreateProjectFactory();
             EnsureGlobalVars();
             _serviceProvider = _container.BuildServiceProvider();
-            return Build(_serviceProvider);
+            return await BuildAsync(_serviceProvider);
         }
 
         public LingoPlayer Build(IServiceProvider serviceProvider, bool allowInitializeProject = true)
+            => BuildAsync(serviceProvider, allowInitializeProject).GetAwaiter().GetResult();
+
+        public async Task<LingoPlayer> BuildAsync(IServiceProvider serviceProvider, bool allowInitializeProject = true)
         {
             _serviceProvider = serviceProvider;
             _lingoServiceProvider.SetServiceProvider(_serviceProvider);
@@ -143,7 +149,7 @@ namespace LingoEngine.Setup
 
             ApplyProjectSettings();
             if (allowInitializeProject)
-                InitializeProject();
+                await InitializeProjectAsync();
             _hasBeenBuild = true;
             return player;
         }
@@ -295,7 +301,9 @@ namespace LingoEngine.Setup
             }
         }
 
-        public void InitializeProject()
+        public void InitializeProject() => InitializeProjectAsync().GetAwaiter().GetResult();
+
+        public async Task InitializeProjectAsync()
         {
             if (_projectFactory == null || _serviceProvider == null || _player == null)
                 return;
@@ -303,8 +311,8 @@ namespace LingoEngine.Setup
             _buildActions.ForEach(b => b(_lingoServiceProvider));
             _lingoServiceProvider.GetRequiredService<IAbstCommandManager>()
                 .DiscoverAndSubscribe(_lingoServiceProvider);
-            _projectFactory.LoadCastLibs(_player.CastLibs, _player);
-            _startupMovie = _projectFactory.LoadStartupMovie(_lingoServiceProvider, _player);
+            await _projectFactory.LoadCastLibsAsync(_player.CastLibs, _player);
+            _startupMovie = await _projectFactory.LoadStartupMovieAsync(_lingoServiceProvider, _player);
         }
 
         private void LoadFonts(ILingoServiceProvider serviceProvider)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using LingoEngine.Casts;
 using LingoEngine.Movies;
 using LingoEngine.Sounds;
@@ -163,6 +164,7 @@ namespace LingoEngine.Core
         ILingoCast CastLib(int number);
         ILingoCast CastLib(string name);
         ILingoPlayer LoadCastLibFromCsv(string castlibName, string pathAndFilenameToCsv, bool isInternal = false);
+        Task<ILingoPlayer> LoadCastLibFromCsvAsync(string castlibName, string pathAndFilenameToCsv, bool isInternal = false);
         ILingoPlayer AddCastLib(string name, bool isInternal = false, Action<ILingoCast>? configure = null);
         ILingoMovie NewMovie(string movieName, bool andActivate = true);
 

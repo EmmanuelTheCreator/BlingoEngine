@@ -17,6 +17,7 @@ using LingoEngine.Sprites;
 using LingoEngine.Texts;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Demo.TetriGrounds.Core;
 
@@ -62,14 +63,13 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
 
 
 
-    public void LoadCastLibs(ILingoCastLibsContainer castlibContainer, LingoPlayer lingoPlayer)
+    public async Task LoadCastLibsAsync(ILingoCastLibsContainer castlibContainer, LingoPlayer lingoPlayer)
     {
 
         _lingoPlayer = lingoPlayer;
 
-        lingoPlayer
-            .LoadCastLibFromCsv("InternalExt", Path.Combine("Media", "InternalExt", "Members.csv"), true)
-            .LoadCastLibFromCsv("Data", Path.Combine("Media", "Data", "Members.csv"));
+        await lingoPlayer.LoadCastLibFromCsvAsync("InternalExt", Path.Combine("Media", "InternalExt", "Members.csv"), true);
+        await lingoPlayer.LoadCastLibFromCsvAsync("Data", Path.Combine("Media", "Data", "Members.csv"));
         lingoPlayer.AddCastLib("Sounds", true, c =>
         {
             c.Add(LingoMemberType.Sound, 0, "S_Click", Path.Combine("Media", "Sounds", "click.mp3"));
@@ -96,11 +96,11 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         lingoPlayer.CastLib("Sounds").GetMember<LingoMemberSound>("S_Nature")!.Loop = true;
         InitMembers(lingoPlayer);
     }
-    public ILingoMovie? LoadStartupMovie(ILingoServiceProvider serviceProvider, LingoPlayer lingoPlayer)
+    public Task<ILingoMovie?> LoadStartupMovieAsync(ILingoServiceProvider serviceProvider, LingoPlayer lingoPlayer)
     {
         _movie = LoadMovie(lingoPlayer);
-        
-        return _movie;
+
+        return Task.FromResult<ILingoMovie?>(_movie);
     }
     public void Run(ILingoMovie movie, bool autoPlayMovie)
     {
@@ -167,7 +167,7 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         new TetriGroundsMembersSetup(_lingoPlayer!).InitMembers();
         var castData = _movie.CastLib["Data"];
         var MyBG = _movie.Member["Game"];
-        
+
         _movie.AddFrameBehavior<GameStopBehavior>(60);
         //_movie.AddFrameBehavior<WaiterFrameScript>(1);
         //_movie.AddFrameBehavior<StayOnFrameFrameScript>(4);
@@ -178,8 +178,8 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         _movie.AddSprite(5, 56, 64, 591, 36, c => { c.Width = 193; c.Height = 35; }).SetMember("TetriGrounds_s"); // LOGO
         _movie.AddSprite(6, 59, 64, 503, 438).SetMember(9, 2); // copyright text
         var sprite = _movie.AddSprite(7, 60, 64, 441, 92).SetMember("T_data"); // level
-        
-        
+
+
 
 
 
@@ -256,9 +256,9 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         var birdSprite1 = (ILingoSprite2DLight)_movie.AddSprite(6, 2, 31, 751, 394).SetMember("BirdAnim");
         birdSprite1.AddKeyframes((1, 751, 394), (16, 444, 273), (31, -33, 316));
 
-        _movie.AddSprite(36, 59, 64, 363, 238,c => {c.LocZ = 500;}).SetMember("alert"); //.Visibility = false;
-        _movie.AddSprite(37, 59, 64, 200, 200,c => {c.LocZ = 502;}).SetMember("T_PopupTitle"); // the player name text member
-        _movie.AddSprite(38, 59, 64, 200, 230,c => { c.LocZ = 502; }).SetMember("T_InputText").AddBehavior<EnterHighScoreBehavior>(c => c.SetSpriteNums([36,37,38])); // the player name text member
+        _movie.AddSprite(36, 59, 64, 363, 238, c => { c.LocZ = 500; }).SetMember("alert"); //.Visibility = false;
+        _movie.AddSprite(37, 59, 64, 200, 200, c => { c.LocZ = 502; }).SetMember("T_PopupTitle"); // the player name text member
+        _movie.AddSprite(38, 59, 64, 200, 230, c => { c.LocZ = 502; }).SetMember("T_InputText").AddBehavior<EnterHighScoreBehavior>(c => c.SetSpriteNums([36, 37, 38])); // the player name text member
     }
 
 
