@@ -20,7 +20,7 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable, IAbstFrameworkWi
     [Inject] private IJSRuntime JS { get; set; } = default!;
 
 
-
+    public int ZIndex { get; set; }
     public string Title
     {
         get => _title;

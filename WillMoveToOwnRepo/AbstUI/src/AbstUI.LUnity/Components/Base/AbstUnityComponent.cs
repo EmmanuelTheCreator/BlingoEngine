@@ -15,7 +15,7 @@ public class AbstUnityComponent : IAbstFrameworkLayoutNode
     {
         GameObject = gameObject ?? new GameObject("AbstUIComponent", typeof(RectTransform));
     }
-
+    public int ZIndex { get; set; }
     public string Name
     {
         get => GameObject.name;

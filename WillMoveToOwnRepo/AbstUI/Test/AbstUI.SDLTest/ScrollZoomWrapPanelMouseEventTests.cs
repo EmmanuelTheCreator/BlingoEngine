@@ -150,6 +150,12 @@ public class ScrollZoomWrapPanelMouseEventTests
         public bool MiddleMouseDown => false;
         public float WheelDelta { get; set; }
         public IAbstMouse CreateNewInstance(IAbstMouseRectProvider provider) => this;
+
+        public AMouseCursor GetCursor()
+        {
+            throw new NotImplementedException();
+        }
+
         public void SetCursor(AMouseCursor cursor) { }
     }
 

@@ -71,9 +71,9 @@ public sealed class DirectorHub : Hub
     {
         if (_player.ActiveMovie == null)
             return Task.FromResult(new MovieJsonDto(""));
-        var dto = new JsonStateRepository().Serialize((LingoMovie)_player.ActiveMovie,"");
+        var dtoTuplet = new JsonStateRepository().Serialize((LingoMovie)_player.ActiveMovie,new JsonStateRepository.MovieStoreOptions { });
        
-        return Task.FromResult(new MovieJsonDto(dto));
+        return Task.FromResult(new MovieJsonDto(dtoTuplet.JsonString));
     }
 
     #endregion

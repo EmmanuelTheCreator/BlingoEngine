@@ -37,7 +37,7 @@ namespace AbstUI.LGodot.Windowing
         public float Width { get; set; }
         public float Height { get; set; }
         public AMargin Margin { get; set; }
-
+        public int ZIndex { get; set; }
         public object FrameworkNode => this;
 
         string IAbstFrameworkNode.Name { get => Name; set => Name = value; }

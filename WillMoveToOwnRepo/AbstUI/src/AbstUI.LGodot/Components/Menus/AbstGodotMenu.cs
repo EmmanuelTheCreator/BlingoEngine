@@ -32,6 +32,7 @@ namespace AbstUI.LGodot.Components
         public float Width { get => Size.X; set => Size = new Vector2I((int)value, Size.Y); }
         public float Height { get => Size.Y; set => Size = new Vector2I(Size.X, (int)value); }
         public bool Visibility { get => Visible; set => Visible = value; }
+        public int ZIndex { get; set; } 
 
         public AMargin Margin
         {

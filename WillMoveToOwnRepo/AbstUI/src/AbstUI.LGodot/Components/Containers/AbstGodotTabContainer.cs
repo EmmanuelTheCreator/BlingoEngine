@@ -134,7 +134,7 @@ namespace AbstUI.LGodot.Components
 
         // To make a better way for styling
         public static float TabItemTopHeight { get; set; } = 22;
-
+        public int ZIndex { get => ContentFrameWork.ZIndex; set => ContentFrameWork.ZIndex = value; }
         public float X { get => ContentFrameWork.X; set => ContentFrameWork.X = value; }
         public float Y { get => ContentFrameWork.Y; set => ContentFrameWork.Y = value; }
         public float Width { get => ContentFrameWork.Width; set => ContentFrameWork.Width = value; }

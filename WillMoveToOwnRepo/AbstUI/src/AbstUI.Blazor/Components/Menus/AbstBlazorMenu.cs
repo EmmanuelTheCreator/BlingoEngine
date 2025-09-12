@@ -17,6 +17,8 @@ internal class AbstBlazorMenu : IAbstFrameworkMenu, IFrameworkFor<AbstMenu>, IDi
     public float Y { get; set; }
     public object FrameworkNode => this;
 
+    public int ZIndex { get; set; }
+
     public AbstBlazorMenu(AbstBlazorComponentFactory factory, string name)
     {
         Name = name;

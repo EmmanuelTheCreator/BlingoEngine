@@ -12,6 +12,8 @@ public partial class AbstBlazorPanel
     [Parameter]
     public AbstBlazorPanelComponent Component { get; set; } = default!;
 
+    public int ZIndex { get; set; }
+
     protected override void OnInitialized()
     {
         base.OnInitialized();

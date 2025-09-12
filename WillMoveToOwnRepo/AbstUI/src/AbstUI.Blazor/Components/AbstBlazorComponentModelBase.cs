@@ -10,6 +10,7 @@ public abstract class AbstBlazorComponentModelBase : IAbstFrameworkLayoutNode
     protected void RaiseChanged() => Changed?.Invoke();
 
     private string _name = string.Empty;
+
     public string Name
     {
         get => _name;
@@ -59,6 +60,8 @@ public abstract class AbstBlazorComponentModelBase : IAbstFrameworkLayoutNode
     }
 
     public object FrameworkNode => this;
+
+    public int ZIndex { get; set; }
 
     public virtual void Dispose() { }
 }

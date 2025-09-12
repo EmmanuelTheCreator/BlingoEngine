@@ -75,7 +75,7 @@ namespace AbstUI.LGodot.Components.Inputs
             get => _control.Visible;
             set => _control.Visible = value;
         }
-
+       
         public bool Enabled
         {
             get => _lineEdit?.Editable ?? _textEdit?.Editable ?? true;
@@ -96,6 +96,20 @@ namespace AbstUI.LGodot.Components.Inputs
                 _text = value;
                 if (_lineEdit != null) _lineEdit.Text = value;
                 if (_textEdit != null) _textEdit.Text = value;
+            }
+        }
+        public int ZIndex
+        {
+            get => _zIndex;
+            set
+            {
+                _zIndex = value;
+                var val = _zIndex;
+                if (val > 4028) val = 4028;
+                if (val < -4028) val = -4028;
+
+                if (_lineEdit != null) _lineEdit.ZIndex = val;
+                if (_textEdit != null) _textEdit.ZIndex = val;
             }
         }
 
@@ -138,6 +152,7 @@ namespace AbstUI.LGodot.Components.Inputs
         private int _fontSize;
         private int _caretColumn;
         private int _caretLine;
+        private int _zIndex;
 
         public int FontSize
         {

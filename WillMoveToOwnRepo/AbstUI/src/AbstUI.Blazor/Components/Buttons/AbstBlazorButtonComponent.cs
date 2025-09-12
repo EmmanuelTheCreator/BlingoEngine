@@ -9,7 +9,7 @@ public class AbstBlazorButtonComponent : IAbstFrameworkButton, IFrameworkFor<Abs
 {
     public event Action? Pressed;
     public event Action? Changed;
-
+    public int ZIndex { get; set; }
     private string _name = string.Empty;
     public string Name
     {

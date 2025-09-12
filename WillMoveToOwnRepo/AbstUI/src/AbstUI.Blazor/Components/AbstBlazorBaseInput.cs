@@ -13,6 +13,7 @@ public abstract class AbstBlazorBaseInput : AbstBlazorComponentBase, IAbstFramew
 
     /// <summary>Whether the control is enabled.</summary>
     [Parameter] public bool Enabled { get; set; } = true;
+    public int ZIndex { get; set; }
 
     public event Action? ValueChanged;
 
