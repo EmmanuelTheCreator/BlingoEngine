@@ -69,19 +69,17 @@ public class DirectorMovieCodeGenerator
         sb.AppendLine("using AbstUI.Primitives;");
         sb.AppendLine();
         var className = Sanitize(cast.Name) + "Cast";
-        sb.AppendLine($"public static class {className}");
+        sb.AppendLine($"public class {className} : ILingoCastLibBuilder");
         sb.AppendLine("{");
-        sb.AppendLine("    public static void Build(LingoPlayer player)");
+        sb.AppendLine("    public void Build(ILingoCastLibsContainer castLibs)");
         sb.AppendLine("    {");
-        sb.AppendLine($"        player.AddCastLib({FormatValue(cast.Name)}, false, cast =>");
-        sb.AppendLine("        {");
+        sb.AppendLine($"        var cast = castLibs.AddCast({FormatValue(cast.Name)}, false);");
         var idx = 0;
         foreach (var m in cast.Members)
         {
             idx++;
             sb.Append(GenerateMember(m, idx));
         }
-        sb.AppendLine("        });");
         sb.AppendLine("    }");
         sb.AppendLine("}");
         return sb.ToString();
@@ -91,7 +89,7 @@ public class DirectorMovieCodeGenerator
     {
         var sb = new StringBuilder();
         var typeName = Enum.GetName(typeof(LingoMemberTypeDTO), dto.Type) ?? "Unknown";
-        sb.AppendLine($"            var member{idx} = ({MemberClass(dto.Type)})cast.Add(LingoMemberType.{typeName}, {dto.NumberInCast}, {FormatValue(dto.Name)}, {FormatValue(dto.FileName)}, new APoint({dto.RegPoint.X}, {dto.RegPoint.Y}));");
+        sb.AppendLine($"        var member{idx} = ({MemberClass(dto.Type)})cast.Add(LingoMemberType.{typeName}, {dto.NumberInCast}, {FormatValue(dto.Name)}, {FormatValue(dto.FileName)}, new APoint({dto.RegPoint.X}, {dto.RegPoint.Y}));");
         foreach (var prop in dto.GetType().GetProperties())
         {
             if (SkipMemberProperty(prop.Name))
@@ -99,7 +97,7 @@ public class DirectorMovieCodeGenerator
             var value = prop.GetValue(dto);
             if (value == null || IsDefaultValue(value))
                 continue;
-            sb.AppendLine($"            member{idx}.{prop.Name} = {FormatValue(value)};");
+            sb.AppendLine($"        member{idx}.{prop.Name} = {FormatValue(value)};");
         }
         return sb.ToString();
     }
@@ -108,14 +106,15 @@ public class DirectorMovieCodeGenerator
     {
         var sb = new StringBuilder();
         sb.Append(Header);
+        sb.AppendLine("using LingoEngine.Core;");
         sb.AppendLine("using LingoEngine.Movies;");
         sb.AppendLine("using LingoEngine.Sprites;");
         sb.AppendLine("using LingoEngine.Members;");
         sb.AppendLine("using AbstUI.Primitives;");
         sb.AppendLine();
-        sb.AppendLine("public static class ScoreBuilder");
+        sb.AppendLine("public class ScoreBuilder : ILingoScoreBuilder");
         sb.AppendLine("{");
-        sb.AppendLine("    public static void Build(LingoMovie movie)");
+        sb.AppendLine("    public void Build(ILingoMovie movie)");
         sb.AppendLine("    {");
         foreach (var sp in movie.Sprites)
         {
@@ -169,13 +168,13 @@ public class DirectorMovieCodeGenerator
         sb.AppendLine("using LingoEngine.Core;");
         sb.AppendLine("using LingoEngine.Movies;");
         sb.AppendLine();
-        sb.AppendLine("public static class MovieBuilder");
+        sb.AppendLine("public class MovieBuilder : ILingoMovieBuilder");
         sb.AppendLine("{");
-        sb.AppendLine("    public static LingoMovie Build(LingoPlayer player)");
+        sb.AppendLine("    public ILingoMovie Build(ILingoPlayer player)");
         sb.AppendLine("    {");
         foreach (var cast in movie.Casts)
-            sb.AppendLine($"        {Sanitize(cast.Name)}Cast.Build(player);");
-        sb.AppendLine($"        var movie = (LingoMovie)player.NewMovie({FormatValue(movie.Name)});");
+            sb.AppendLine($"        player.CastLibs.LoadCastLibFromBuilder(new {Sanitize(cast.Name)}Cast());");
+        sb.AppendLine($"        var movie = player.NewMovie({FormatValue(movie.Name)});");
         sb.AppendLine($"        movie.Tempo = {movie.Tempo};");
         if (!string.IsNullOrWhiteSpace(movie.About))
             sb.AppendLine($"        movie.About = {FormatValue(movie.About)};");
@@ -185,7 +184,7 @@ public class DirectorMovieCodeGenerator
             sb.AppendLine($"        movie.UserName = {FormatValue(movie.UserName)};");
         if (!string.IsNullOrWhiteSpace(movie.CompanyName))
             sb.AppendLine($"        movie.CompanyName = {FormatValue(movie.CompanyName)};");
-        sb.AppendLine("        ScoreBuilder.Build(movie);");
+        sb.AppendLine("        new ScoreBuilder().Build(movie);");
         sb.AppendLine("        return movie;");
         sb.AppendLine("    }");
         sb.AppendLine("}");
