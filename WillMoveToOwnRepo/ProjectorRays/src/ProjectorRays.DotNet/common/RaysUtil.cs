@@ -6,14 +6,15 @@ namespace ProjectorRays.Common;
 
 public static class RaysUtil
 {
-    public static string FourCCToString(uint fourcc)
+    public static string FourCCToString(uint fourcc, bool escape = true)
     {
         char[] chars = new char[4];
-        chars[0] = (char)(fourcc >> 24);
-        chars[1] = (char)(fourcc >> 16);
-        chars[2] = (char)(fourcc >> 8);
-        chars[3] = (char)fourcc;
-        return EscapeString(new string(chars));
+        chars[0] = (char)((fourcc >> 24) & 0xFF);
+        chars[1] = (char)((fourcc >> 16) & 0xFF);
+        chars[2] = (char)((fourcc >> 8) & 0xFF);
+        chars[3] = (char)(fourcc & 0xFF);
+        var str = new string(chars);
+        return escape ? EscapeString(str) : str;
     }
 
     public static string FloatToString(double value)
