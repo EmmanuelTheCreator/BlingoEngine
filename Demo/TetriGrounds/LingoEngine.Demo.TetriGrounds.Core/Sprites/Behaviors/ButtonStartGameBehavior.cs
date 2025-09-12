@@ -30,8 +30,8 @@ namespace LingoEngine.Demo.TetriGrounds.Core.Sprites.Behaviors
 
         private void StartNewGame()
         {
-            SendSprite<EnterHighScoreBehavior>(38, x => x.Show(t => { }));
-            return;
+            //SendSprite<EnterHighScoreBehavior>(38, x => x.Show(t => { }));
+            //return;
             if (_global.GameIsRunning)
                 return;
             _Player.SoundPlayBtnStart();
