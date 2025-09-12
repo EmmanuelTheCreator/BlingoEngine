@@ -127,6 +127,10 @@ namespace ProjectorRays.CastMembers
 
         public string Text { get; set; } = string.Empty;
         public List<TextStyleRun> Styles { get; set; } = new();
+        public List<XmedStyleDeclaration> StyleDeclarations { get; } = new();
+        public List<XmedStyleMapEntry> StyleMapEntries { get; } = new();
+        public uint Width { get; set; }
+        public uint LineSpacing { get; set; }
         public List<TextPart> TextParts { get; set; } = new();
         public int TextLength { get; private set; }
         public bool WordWrap { get; set; }
@@ -154,6 +158,11 @@ namespace ProjectorRays.CastMembers
                 var doc = XmedReaderFactory().Read(view);
                 result.Text = doc.Text;
                 result.Styles = doc.Runs;
+                result.StyleDeclarations.AddRange(doc.Styles);
+                result.StyleMapEntries.AddRange(doc.MapEntries);
+                result.Width = doc.Width;
+                result.LineSpacing = doc.LineSpacing;
+                result.TextLength = (int)doc.TextLength;
             }
             catch (Exception ex)
             {

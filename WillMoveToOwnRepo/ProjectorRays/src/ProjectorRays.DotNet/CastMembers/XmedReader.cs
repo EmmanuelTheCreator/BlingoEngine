@@ -245,6 +245,10 @@ public class XmedReader : IXmedReader
                             {
                                 run.FontName = currentStyle.FontName;
                                 run.ForeColor = new RayColor(currentStyle.ColorIndex, currentStyle.ColorIndex, currentStyle.ColorIndex);
+                                run.FontSize = currentStyle.FontSize == 0 ? fontSize : currentStyle.FontSize;
+                                run.Bold = currentStyle.Bold;
+                                run.Italic = currentStyle.Italic;
+                                run.Underline = currentStyle.Underline;
                             }
 
                             if (printable)
