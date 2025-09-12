@@ -145,6 +145,16 @@ public class RaysCastChunk : RaysChunk
     {
         var member = Dir.GetCastMember(chunkID); //(RaysCastMemberChunk)Dir.GetChunk(RaysDirectorFile.FOURCC('C', 'A', 'S', 't'), chunkID);
         member.Id = (ushort)(i + minMember);
+
+        // Decode specific script metadata such as behavior/parent/movie type
+        if (member.Type == RaysMemberType.ScriptMember)
+        {
+            var smStream = new ReadStream(member.SpecificData, Endianness.BigEndian);
+            var scriptMember = new RaysScriptMember(Dir);
+            scriptMember.Read(smStream);
+            member.Member = scriptMember;
+        }
+
         // Look for XMED chunk for styled text/field members
         if (member.Type == RaysMemberType.TextMember || member.Type == RaysMemberType.FieldMember)
         {
