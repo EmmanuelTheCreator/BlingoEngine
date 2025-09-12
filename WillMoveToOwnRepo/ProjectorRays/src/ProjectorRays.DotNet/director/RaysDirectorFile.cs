@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using ProjectorRays.director.Chunks;
 using ProjectorRays.director;
 using ProjectorRays.director.Scores;
+using System.Collections.Generic;
 using System.Text;
 
 namespace ProjectorRays.Director;
@@ -27,15 +28,16 @@ public class RaysDirectorFile : ChunkResolver
     public List<RaysCastChunk> Casts { get; set; } = new();
     public RaysScoreChunk? Score { get; set; }
     public ILogger Logger { get; set; }
-    public string Name{ get; set; }
+    public string Name { get; set; }
     public bool DotSyntax { get; private set; }
     public uint Version => _raysDataBlockReader.Version;
     public Endianness Endianness => _raysDataBlockReader.Endianness;
+    public IReadOnlyDictionary<int, ChunkInfo> ChunkInfos => _raysDataBlockReader.ChunkInfoMap;
 
     public static uint FOURCC(char a, char b, char c, char d)
         => ((uint)a << 24) | ((uint)b << 16) | ((uint)c << 8) | (uint)d;
 
-    public RaysDirectorFile(ILogger logger, string name = "") 
+    public RaysDirectorFile(ILogger logger, string name = "")
     {
         Logger = logger; Name = name;
         _raysDataBlockReader = new RaysDataBlockReader(this);
@@ -46,29 +48,35 @@ public class RaysDirectorFile : ChunkResolver
     /// will either read the standard memory map or the Afterburner tables.
     /// Returns <c>true</c> on success.
     /// </summary>
-    public virtual bool Read(ReadStream stream)
+    public virtual bool Read(ReadStream stream, bool parseChunks = true, bool parseScore = true)
     {
         //var rawBytes = stream.ReadByteView(stream.Size);
         //Logger.LogInformation.WriteLine("Raw CASt chunk bytes: " + BitConverter.ToString(rawBytes.Data, rawBytes.Offset, rawBytes.Size));
         //stream.Seek(0); // reset
         //Stream = stream;
-        
+
         (bool flowControl, bool value) = _raysDataBlockReader.Read(stream);
         if (!flowControl)
         {
             return value;
         }
 
-        if (!ReadKeyTable()) return false;
-        if (!ReadConfig()) return false;
-        if (!ReadCasts()) return false;
-        ReadScore();
+        if (parseChunks)
+        {
+            if (!ReadKeyTable()) return false;
+            if (!ReadConfig()) return false;
+            if (!ReadCasts()) return false;
+            if (parseScore)
+            {
+                ReadScore();
+            }
+        }
 
         return true;
     }
 
 
-  
+
 
     private bool ReadKeyTable()
     {
@@ -98,7 +106,7 @@ public class RaysDirectorFile : ChunkResolver
                 {
                     int sectionID = -1;
                     foreach (var keyEntry in KeyTable!.Entries)
-                        if (keyEntry.CastID == entry.Id && keyEntry.FourCC == FOURCC('C','A','S','*'))
+                        if (keyEntry.CastID == entry.Id && keyEntry.FourCC == FOURCC('C', 'A', 'S', '*'))
                         { sectionID = keyEntry.SectionID; break; }
                     if (sectionID > 0)
                     {
@@ -186,9 +194,9 @@ public class RaysDirectorFile : ChunkResolver
             {
                 uint id = pair.Key;
                 var script = pair.Value;
-                if (!ChunkExists(FOURCC('L','s','c','r'), (int)id))
+                if (!ChunkExists(FOURCC('L', 's', 'c', 'r'), (int)id))
                     continue;
-                var scriptChunk = (RaysScriptChunk)GetChunk(FOURCC('L','s','c','r'), (int)id);
+                var scriptChunk = (RaysScriptChunk)GetChunk(FOURCC('L', 's', 'c', 'r'), (int)id);
                 var member = scriptChunk.Member;
                 if (member != null)
                 {
@@ -198,5 +206,5 @@ public class RaysDirectorFile : ChunkResolver
         }
     }
 
-   
+
 }
