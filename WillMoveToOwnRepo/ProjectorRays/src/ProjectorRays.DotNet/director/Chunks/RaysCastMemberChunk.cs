@@ -19,6 +19,7 @@ public class RaysCastMemberChunk : RaysChunk
     public byte Flags1;
     public ushort Id;
     public RaysScriptChunk? Script;
+    public BufferView ImageData = BufferView.Empty;
 
     public RaysCastMemberTextRead DecodedText { get; internal set; }
     public BufferView InfoView { get; private set; }
@@ -48,7 +49,7 @@ public class RaysCastMemberChunk : RaysChunk
         {
             var infoStream = new ReadStream(InfoView, stream.Endianness);
             Info = new RaysCastInfoChunk(Dir);
-            Info.ReadV2(infoStream);
+            Info.Read(infoStream);
         }
         HasFlags1 = false;
         SpecificData = stream.ReadByteView((int)SpecificDataLen);
@@ -75,7 +76,7 @@ public class RaysCastMemberChunk : RaysChunk
         sb.AppendLine($"{new string(' ', indentation)}Id: {Id}");
         if (Info != null) Info.LogInfo(sb, indentation + 2);
         sb.AppendLine($"{new string(' ', indentation)}SpecificDataLen: {SpecificDataLen}");
-        sb.AppendLine($"{new string(' ', indentation)}SpecificData (as text): '{GetText()}'");
+        sb.AppendLine($"{new string(' ', indentation)}SpecificData (as text): '{DecodedText?.Text}'");
         sb.AppendLine($"{new string(' ', indentation)}-----------");
         if (Script != null) Script.LogInfo(sb, indentation + 2);
 
@@ -87,24 +88,4 @@ public class RaysCastMemberChunk : RaysChunk
     public string GetScriptText() => Info?.ScriptSrcText ?? string.Empty;
     public void SetScriptText(string val) { if (Info != null) Info.ScriptSrcText = val; }
     public string GetName() => Info?.Name ?? string.Empty;
-    public string GetText()
-    {
-        if (!string.IsNullOrEmpty(DecodedText?.Text))
-            return DecodedText.Text;
-
-        if (Type == RaysMemberType.TextMember || Type == RaysMemberType.FieldMember)
-        {
-            var span = SpecificData.Data.AsSpan(SpecificData.Offset, SpecificData.Size);
-
-            if (span.Length > 1 && span[0] <= span.Length - 1)
-                return Encoding.Latin1.GetString(span.Slice(1, span[0]));
-
-            int len = span.IndexOf((byte)0);
-            if (len < 0) len = span.Length;
-
-            return Encoding.Latin1.GetString(span.Slice(0, len));
-        }
-
-        return string.Empty;
-    }
 }

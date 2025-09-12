@@ -155,6 +155,20 @@ namespace ProjectorRays.CastMembers
 
             try
             {
+                var data = view.Data;
+                int sig = -1;
+                for (int i = 0; i <= data.Length - 4; i++)
+                {
+                    if (data[i] == (byte)'D' && data[i + 1] == (byte)'E' &&
+                        data[i + 2] == (byte)'M' && data[i + 3] == (byte)'X')
+                    {
+                        sig = i;
+                        break;
+                    }
+                }
+                if (sig >= 0)
+                    view = new BufferView(data, sig, data.Length - sig);
+
                 var doc = XmedReaderFactory().Read(view);
                 result.Text = doc.Text;
                 result.Styles = doc.Runs;

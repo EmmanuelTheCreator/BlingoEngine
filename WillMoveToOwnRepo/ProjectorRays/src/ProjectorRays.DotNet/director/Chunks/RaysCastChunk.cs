@@ -4,6 +4,7 @@ using ProjectorRays.Common;
 using ProjectorRays.Director;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
+using System.Linq;
 
 namespace ProjectorRays.director.Chunks;
 
@@ -13,6 +14,7 @@ public class RaysCastChunk : RaysChunk
     public string Name = string.Empty;
     public Dictionary<ushort, RaysCastMemberChunk> Members = new();
     public RaysScriptContextChunk? Lctx;
+    private int _nextMideIndex;
 
     public RaysCastChunk(RaysDirectorFile? dir) : base(dir, ChunkType.CastChunk) { }
 
@@ -129,9 +131,9 @@ public class RaysCastChunk : RaysChunk
             }
 
 
-            if (!Dir.ChunkExists(RaysDirectorFile.FOURCC('C', 'A', 'S', 't'), sectionID))
+            if (!Dir.ChunkExists(RaysDirectorFile.FOURCC('C', 'A', 'S', 't'), chunkID))
             {
-                Dir.Logger.LogInformation($"Missing cast member chunk: {sectionID}");
+                Dir.Logger.LogInformation($"Missing cast member chunk: {chunkID}");
                 continue;
             }
 
@@ -162,10 +164,7 @@ public class RaysCastChunk : RaysChunk
             }
             else
             {
-                //xmedInfo = Dir.ChunkInfoMap.Values.FirstOrDefault(c =>
-                //    c.FourCC == RaysDirectorFile.FOURCC('X', 'M', 'E', 'D') &&
-                //    Dir.ChunkExists(c.FourCC, c.Id));
-                xmedInfo = Dir.GetFirstXMED();
+                xmedInfo = Dir.GetLastXMED();
 
                 if (xmedInfo != null)
                     Dir.Logger.LogInformation($"XMED fallback found: FourCC=XMED, SectionID={xmedInfo.Id}");
@@ -176,6 +175,30 @@ public class RaysCastChunk : RaysChunk
                 var xmedChunk = (RaysXmedChunk)Dir.GetChunk(xmedInfo.FourCC, xmedInfo.Id);
                 var xmedText = RaysCastMemberTextRead.FromXmedChunk(xmedChunk.Data, Dir);
                 member.DecodedText = xmedText;
+            }
+        }
+        else if (member.Type == RaysMemberType.BitmapMember || member.Type == RaysMemberType.PictureMember)
+        {
+            var mideInt = RaysDirectorFile.FOURCC('e', 'd', 'i', 'M');
+            ChunkInfo? mideInfo = null;
+            var mideKey = Dir.KeyTable!.Entries.FirstOrDefault(e =>
+                e.FourCC == mideInt && e.ResourceID == sectionID);
+            if (mideKey != null && Dir.ChunkExists(mideKey.FourCC, mideKey.SectionID))
+            {
+                mideInfo = Dir.GetChunkOrDefault(mideKey.SectionID);
+            }
+            else
+            {
+                var mides = Dir.ChunkInfos.Values.Where(c => c.FourCC == mideInt).OrderBy(c => c.Id).ToList();
+                if (_nextMideIndex < mides.Count)
+                {
+                    mideInfo = mides[_nextMideIndex++];
+                }
+            }
+            if (mideInfo != null)
+            {
+                var mideChunk = (RaysBinaryChunk)Dir.GetChunk(mideInfo.FourCC, mideInfo.Id);
+                member.ImageData = mideChunk.Data;
             }
         }
 

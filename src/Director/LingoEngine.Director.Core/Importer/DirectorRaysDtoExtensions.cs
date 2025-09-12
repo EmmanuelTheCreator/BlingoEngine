@@ -7,7 +7,7 @@ namespace LingoEngine.Director.Core.Importer;
 
 internal static class DirectorRaysDtoExtensions
 {
-    public static (LingoStageDTO Stage,LingoMovieDTO Movie) ToDto(this RaysDirectorFile dir, string movieName, DirFilesContainerDTO resources)
+    public static (LingoStageDTO Stage, LingoMovieDTO Movie) ToDto(this RaysDirectorFile dir, string movieName, DirFilesContainerDTO resources)
     {
         var stage = new LingoStageDTO
         {
@@ -31,7 +31,7 @@ internal static class DirectorRaysDtoExtensions
                 movie.Sprites.Add(f.ToDto());
         }
 
-        return (stage,movie);
+        return (stage, movie);
     }
 
     public static LingoCastDTO ToDto(this RaysCastChunk cast, int number, DirFilesContainerDTO resources)
@@ -95,7 +95,7 @@ internal static class DirectorRaysDtoExtensions
             Comments = baseDto.Comments,
             FileName = baseDto.FileName,
             PurgePriority = baseDto.PurgePriority,
-            MarkDownText = mem.GetText()
+            MarkDownText = mem.DecodedText?.Text ?? string.Empty
         };
 
     private static LingoMemberPictureDTO ToPictureDto(this RaysCastMemberChunk mem, LingoMemberDTO baseDto, LingoCastDTO cast, DirFilesContainerDTO resources)
@@ -117,7 +117,8 @@ internal static class DirectorRaysDtoExtensions
             PurgePriority = baseDto.PurgePriority,
             ImageFile = file
         };
-        var bytes = mem.SpecificData.Data.AsSpan(mem.SpecificData.Offset, mem.SpecificData.Size).ToArray();
+        var source = mem.ImageData.Size > 0 ? mem.ImageData : mem.SpecificData;
+        var bytes = source.Data.AsSpan(source.Offset, source.Size).ToArray();
         resources.Files.Add(new DirFileResourceDTO
         {
             CastName = cast.Name,
