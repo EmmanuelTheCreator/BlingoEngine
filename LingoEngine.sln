@@ -97,6 +97,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbstUI.SDLTest", "WillMoveT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbstUI.Tests.Common", "WillMoveToOwnRepo\AbstUI\Test\AbstUI.Tests.Common\AbstUI.Tests.Common.csproj", "{4858CDB2-3114-45F7-AEEC-29D5BBBD7EC1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbstUI.LGodotTest", "WillMoveToOwnRepo\AbstUI\Test\AbstUI.LGodotTest\AbstUI.LGodotTest.csproj", "{CF6D2221-10E3-4809-AD86-26E27117905C}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LingoEngine.Director.Runner.Godot", "src\Director\LingoEngine.Director.Runner.Godot\LingoEngine.Director.Runner.Godot.csproj", "{AEA73682-24E8-4F63-8FCC-F92F8E2519C2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LingoEngine.Director.Runner.SDL2", "src\Director\LingoEngine.Director.Runner.SDL2\LingoEngine.Director.Runner.SDL2.csproj", "{D01FD5F4-2535-4FF4-B48C-6DE4FF057B4D}"

@@ -12,6 +12,7 @@ namespace AbstUI.Components
 
         /// <summary>Margin around the node.</summary>
         AMargin Margin { get; set; }
+        int ZIndex { get; set; }
         object FrameworkNode { get; }
     }
     /// <summary>

@@ -13,7 +13,7 @@ public class AbstSDLComponentContext : IDisposable
     internal AbstSDLComponentContext? LogicalParent { get; private set; }
     internal AbstSDLComponentContext? VisualParent { get; private set; }
     private HashSet<IAbstSDLComponent> _modifiedChildren = new();
-    public event Action<IAbstSDLComponent> ? OnRequestRedraw;
+    public event Action<IAbstSDLComponent>? OnRequestRedraw;
     public nint Texture { get; private set; }
     public nint Renderer { get; set; }
     public int TargetWidth { get; set; }
@@ -28,6 +28,7 @@ public class AbstSDLComponentContext : IDisposable
     public bool FlipH { get; set; }
     public bool FlipV { get; set; }
     public bool AlwaysOnTop { get; set; }
+    public int ZIndex { get; private set; }
     public SDL.SDL_BlendMode BlendMode { get; set; } = SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND;
 
     internal AbstSDLComponentContext(
@@ -42,6 +43,14 @@ public class AbstSDLComponentContext : IDisposable
         _container.Register(this);
     }
 
+    public void SetZIndex(int zIndex)
+    {
+        ZIndex = zIndex;
+        _container.Activate(this);
+        if (Component != null)
+            VisualParent?.QueueRedrawFromChild(Component);
+    }
+
     internal void SetParents(AbstSDLComponentContext? logicalParent, AbstSDLComponentContext? visualParent = null)
     {
         LogicalParent = logicalParent;
@@ -49,7 +58,7 @@ public class AbstSDLComponentContext : IDisposable
         if (_requireRender && Component != null && VisualParent != null)
             VisualParent.QueueRedrawFromChild(Component);
     }
-    
+
     public void QueueRedraw(IAbstSDLComponent component)
     {
         if (_requireRender) return;
