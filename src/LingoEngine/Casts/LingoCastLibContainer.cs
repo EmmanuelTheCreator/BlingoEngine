@@ -1,5 +1,6 @@
 ﻿using LingoEngine.FrameworkCommunication;
 using LingoEngine.Members;
+using LingoEngine.Core;
 
 namespace LingoEngine.Casts
 {
@@ -24,6 +25,7 @@ namespace LingoEngine.Casts
         ILingoCast GetCast(int number);
         string GetCastName(int number);
         IEnumerable<ILingoCast> GetAll();
+        void LoadCastLibFromBuilder(ILingoCastLibBuilder builder);
     }
 
 
@@ -135,5 +137,8 @@ namespace LingoEngine.Casts
         internal int GetNextCastNumber() => _casts.Count + 1;
 
         public IEnumerable<ILingoCast> GetAll() => _casts;
+
+        public void LoadCastLibFromBuilder(ILingoCastLibBuilder builder)
+            => builder.Build(this);
     }
 }

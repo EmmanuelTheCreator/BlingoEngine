@@ -172,6 +172,7 @@ namespace LingoEngine.Core
         Task<ILingoPlayer> LoadCastLibFromCsvAsync(string castlibName, string pathAndFilenameToCsv, bool isInternal = false);
         ILingoPlayer AddCastLib(string name, bool isInternal = false, Action<ILingoCast>? configure = null);
         ILingoMovie NewMovie(string movieName, bool andActivate = true);
+        ILingoMovie LoadMovie(ILingoMovieBuilder builder);
 
         void RunDelayed(Action action, int milliseconds, CancellationTokenSource? cts = null);
 

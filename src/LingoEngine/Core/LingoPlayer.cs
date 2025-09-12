@@ -198,6 +198,10 @@ namespace LingoEngine.Core
             }
             return movieEnv.Movie;
         }
+
+        public ILingoMovie LoadMovie(ILingoMovieBuilder builder)
+            => builder.Build(this);
+
         public void CloseMovie(ILingoMovie movie)
         {
             var typed = (LingoMovie)movie;
