@@ -10,6 +10,7 @@ using LingoEngine.Primitives;
 using LingoEngine.Shapes;
 using LingoEngine.Sprites;
 using Microsoft.JSInterop;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Blazor.Shapes;
 
@@ -93,6 +94,12 @@ public class LingoBlazorMemberShape : ILingoFrameworkMemberShape, IDisposable
         _pixelData = _texture.GetPixelDataAsync(_scripts).GetAwaiter().GetResult();
         _stride = w * 4;
         IsLoaded = true;
+    }
+
+    public Task PreloadAsync()
+    {
+        Preload();
+        return Task.CompletedTask;
     }
 
     public void Unload()

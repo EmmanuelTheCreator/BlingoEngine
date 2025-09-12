@@ -8,6 +8,7 @@ using LingoEngine.Texts.FrameworkCommunication;
 using AbstUI.Components;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Texts
 {
@@ -55,7 +56,7 @@ namespace LingoEngine.Texts
             set
             {
                 _mdData = null;
-                var newValue = value.Replace("\r\n","\r");
+                var newValue = value.Replace("\r\n", "\r");
                 _markdown = newValue;
                 UpdateText(newValue);
                 _frameworkMember.Text = newValue;
@@ -76,7 +77,8 @@ namespace LingoEngine.Texts
         public bool WordWrap
         {
             get => _frameworkMember.WordWrap;
-            set { 
+            set
+            {
                 if (_frameworkMember.WordWrap == value) return;
                 _frameworkMember.WordWrap = value;
                 UpdateMDStyle();
@@ -86,7 +88,8 @@ namespace LingoEngine.Texts
         public string Font
         {
             get => _frameworkMember.FontName;
-            set { 
+            set
+            {
                 if (_frameworkMember.FontName == value) return;
                 _frameworkMember.FontName = value;
                 UpdateMDStyle();
@@ -96,9 +99,10 @@ namespace LingoEngine.Texts
         public int FontSize
         {
             get => _frameworkMember.FontSize;
-            set {
+            set
+            {
                 if (_frameworkMember.FontSize == value) return;
-                _frameworkMember.FontSize = value; 
+                _frameworkMember.FontSize = value;
                 UpdateMDStyle();
             }
         }
@@ -107,7 +111,8 @@ namespace LingoEngine.Texts
         public AColor Color
         {
             get => _frameworkMember.TextColor;
-            set { 
+            set
+            {
                 if (_frameworkMember.TextColor == value) return;
                 _frameworkMember.TextColor = value;
                 UpdateMDStyle();
@@ -117,7 +122,8 @@ namespace LingoEngine.Texts
         public LingoTextStyle FontStyle
         {
             get => _frameworkMember.FontStyle;
-            set {
+            set
+            {
                 if (_frameworkMember.FontStyle == value) return;
                 _frameworkMember.FontStyle = value;
                 UpdateMDStyle();
@@ -172,7 +178,8 @@ namespace LingoEngine.Texts
         public AbstTextAlignment Alignment
         {
             get => _frameworkMember.Alignment;
-            set { 
+            set
+            {
                 if (_frameworkMember.Alignment == value) return;
                 _frameworkMember.Alignment = value;
                 UpdateMDStyle();
@@ -182,7 +189,8 @@ namespace LingoEngine.Texts
         public int Margin
         {
             get => _frameworkMember.Margin;
-            set {
+            set
+            {
                 if (_frameworkMember.Margin == value) return;
                 _frameworkMember.Margin = value;
                 UpdateMDStyle();
@@ -315,9 +323,11 @@ namespace LingoEngine.Texts
             RenderText();
             return _texture;
         }
-        public override void Preload()
+        public override void Preload() => PreloadAsync().GetAwaiter().GetResult();
+
+        public override async Task PreloadAsync()
         {
-            base.Preload();
+            await base.PreloadAsync();
             RenderText();
         }
         /// <inheritdoc/>
@@ -328,7 +338,7 @@ namespace LingoEngine.Texts
             UpdateText(data.PlainText);
             _frameworkMember.Text = data.PlainText;
         }
-        
+
 
         private void RenderText()
         {

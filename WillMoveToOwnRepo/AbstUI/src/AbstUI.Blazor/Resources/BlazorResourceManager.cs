@@ -1,7 +1,7 @@
 using AbstUI.Resources;
 using System.Net;
 using System.Net.Http.Headers;
-using static System.Net.WebRequestMethods;
+using System.Threading.Tasks;
 
 namespace AbstUI.Blazor.Resources
 {
@@ -9,16 +9,15 @@ namespace AbstUI.Blazor.Resources
     {
         private readonly HttpClient _httpClient;
 
-        public BlazorResourceManager(HttpClient  httpClient)
+        public BlazorResourceManager(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
-
-        public override string? ReadTextFile(string fileName)
+        public override async Task<string?> ReadTextFileAsync(string fileName)
         {
             try
             {
-                var content = _httpClient.GetStringAsync(fileName).GetAwaiter().GetResult();
+                var content = await _httpClient.GetStringAsync(fileName);
                 return content;
             }
             catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
@@ -27,13 +26,15 @@ namespace AbstUI.Blazor.Resources
             }
         }
 
-        public override bool FileExists(string fileName)
+        public override string? ReadTextFile(string fileName) => ReadTextFileAsync(fileName).GetAwaiter().GetResult();
+
+        public override async Task<bool> FileExistsAsync(string fileName)
         {
             // Try HEAD first (cheap if the server supports it)
             try
             {
                 using var head = new HttpRequestMessage(HttpMethod.Head, fileName);
-                using var resp = _httpClient.SendAsync(head, HttpCompletionOption.ResponseHeadersRead).GetAwaiter().GetResult();
+                using var resp = await _httpClient.SendAsync(head, HttpCompletionOption.ResponseHeadersRead);
                 if (resp.StatusCode == HttpStatusCode.NotFound) return false;
                 if (resp.IsSuccessStatusCode) return true;
                 // fall through to GET on 405/other statuses
@@ -46,13 +47,25 @@ namespace AbstUI.Blazor.Resources
             // Fallback: GET headers / first byte only
             using var get = new HttpRequestMessage(HttpMethod.Get, fileName);
             get.Headers.Range = new RangeHeaderValue(0, 0); // request 1 byte if supported
-            using var resp2 = _httpClient.SendAsync(get, HttpCompletionOption.ResponseHeadersRead).GetAwaiter().GetResult();
+            using var resp2 = await _httpClient.SendAsync(get, HttpCompletionOption.ResponseHeadersRead);
             return resp2.IsSuccessStatusCode;
         }
-        public override byte[]? ReadBytes(string fileName)
+
+        public override bool FileExists(string fileName) => FileExistsAsync(fileName).GetAwaiter().GetResult();
+
+        public override async Task<byte[]?> ReadBytesAsync(string fileName)
         {
-            return _httpClient.GetByteArrayAsync(fileName).GetAwaiter().GetResult();
+            try
+            {
+                return await _httpClient.GetByteArrayAsync(fileName);
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
         }
-        
+
+        public override byte[]? ReadBytes(string fileName) => ReadBytesAsync(fileName).GetAwaiter().GetResult();
+
     }
 }

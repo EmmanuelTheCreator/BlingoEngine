@@ -2,6 +2,7 @@
 using LingoEngine.Casts;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Bitmaps
 {
@@ -10,7 +11,7 @@ namespace LingoEngine.Bitmaps
     /// Represents a bitmap or picture cast member in a Director movie.
     /// Lingo: member("name").type = #bitmap or #picture
     /// </summary>
-    public class LingoMemberBitmap : LingoMember , ILingoMemberWithTexture
+    public class LingoMemberBitmap : LingoMember, ILingoMemberWithTexture
     {
         private readonly ILingoFrameworkMemberBitmap _lingoFrameworkMemberPicture;
 
@@ -65,6 +66,7 @@ namespace LingoEngine.Bitmaps
         /// Corresponds to: member.picture.preload
         /// </summary>
         public override void Preload() => _lingoFrameworkMemberPicture.Preload();
+        public override Task PreloadAsync() => _lingoFrameworkMemberPicture.PreloadAsync();
 
         /// <summary>
         /// Unloads the picture from memory using <see cref="ILingoFrameworkMemberBitmap.Unload"/>.

@@ -2,6 +2,7 @@
 using LingoEngine.Bitmaps;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Members
 {
@@ -38,6 +39,7 @@ namespace LingoEngine.Members
         void ImportFileInto();
         void PasteClipboardInto();
         void Preload();
+        Task PreloadAsync();
         void ReleaseFromSprite(LingoSprite2D lingoSprite);
         void Unload();
 

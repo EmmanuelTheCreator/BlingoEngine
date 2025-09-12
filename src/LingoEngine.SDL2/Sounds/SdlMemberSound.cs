@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
 using AbstUI.SDL2.SDLL;
+using System.Threading.Tasks;
 
 namespace LingoEngine.SDL2.Sounds;
 
@@ -45,6 +46,12 @@ public class SdlMemberSound : ILingoFrameworkMemberSound, IDisposable
         Length = fi.Length / 44100.0;
         Stereo = true;
         IsLoaded = true;
+    }
+
+    public Task PreloadAsync()
+    {
+        Preload();
+        return Task.CompletedTask;
     }
     public void Unload()
     {

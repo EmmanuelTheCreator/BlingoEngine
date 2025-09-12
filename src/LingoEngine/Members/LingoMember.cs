@@ -5,6 +5,7 @@ using LingoEngine.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Members
 {
@@ -176,6 +177,7 @@ namespace LingoEngine.Members
         /// Lingo: preload member
         /// </summary>
         void Preload();
+        Task PreloadAsync();
 
         /// <summary>
         /// Unloads the cast member from memory.
@@ -314,6 +316,7 @@ namespace LingoEngine.Members
         public virtual void CopyToClipBoard() => _frameworkMember.CopyToClipboard();
         public virtual void PasteClipBoardInto() => _frameworkMember.PasteClipboardInto();
         public virtual void Preload() => _frameworkMember.Preload();
+        public virtual Task PreloadAsync() => _frameworkMember.PreloadAsync();
         public virtual void Unload() => _frameworkMember.Unload();
 
         public ILingoMember Duplicate(int? newNumber = null)

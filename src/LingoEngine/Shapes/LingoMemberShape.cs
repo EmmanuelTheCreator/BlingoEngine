@@ -3,6 +3,7 @@ using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
 using LingoEngine.Members;
 using LingoEngine.Primitives;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Shapes
 {
@@ -43,6 +44,7 @@ namespace LingoEngine.Shapes
         }
 
         public override void Preload() => _framework.Preload();
+        public override Task PreloadAsync() => _framework.PreloadAsync();
 
         public IAbstTexture2D? RenderToTexture(LingoInkType ink, AColor transparentColor)
            => _framework.RenderToTexture(ink, transparentColor);

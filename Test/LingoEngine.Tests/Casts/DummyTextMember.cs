@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using AbstUI.Primitives;
 using AbstUI.Texts;
 using LingoEngine.Casts;
@@ -65,6 +66,11 @@ internal class DummyTextMember : ILingoMemberTextBase, ILingoMemberTextBaseInter
     public void Move() { }
     public void PasteClipBoardInto() { }
     public void Preload() { Preloaded = true; }
+    public Task PreloadAsync()
+    {
+        Preload();
+        return Task.CompletedTask;
+    }
     public void Unload() { }
     public ILingoMember Duplicate(int? newNumber = null) => this;
     public ILingoMember? GetMemberInCastByOffset(int numberOffset) => null;
@@ -99,6 +105,7 @@ internal class DummyTextMember : ILingoMemberTextBase, ILingoMemberTextBaseInter
         public void ImportFileInto() { }
         public void PasteClipboardInto() { }
         public void Preload() { }
+        public Task PreloadAsync() => Task.CompletedTask;
         public void ReleaseFromSprite(LingoSprite2D lingoSprite) { }
         public void Unload() { }
         public bool IsPixelTransparent(int x, int y) => false;

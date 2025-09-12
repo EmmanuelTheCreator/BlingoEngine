@@ -1,6 +1,7 @@
 using LingoEngine.Medias;
 using LingoEngine.Members;
 using LingoEngine.Sprites;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Blazor.Medias;
 
@@ -48,6 +49,12 @@ public class LingoBlazorMemberMedia : ILingoFrameworkMemberMedia
             MediaStatus = LingoMediaStatus.Opened;
         }
         IsLoaded = true;
+    }
+
+    public Task PreloadAsync()
+    {
+        Preload();
+        return Task.CompletedTask;
     }
 
     public void Unload()

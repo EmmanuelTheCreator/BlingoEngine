@@ -12,6 +12,7 @@ using LingoEngine.Texts.FrameworkCommunication;
 using AbstUI.LUnity.Bitmaps;
 using UnityEngine;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Unity.Texts;
 
@@ -113,7 +114,7 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
         return prop?.GetValue(null) as string ?? string.Empty;
     }
 
-   
+
     public void CopyToClipboard() => Copy(Text);
     public void Erase()
     {
@@ -122,7 +123,18 @@ public abstract class UnityMemberTextBase<TText> : ILingoFrameworkMemberTextBase
     }
     public void ImportFileInto() { }
     public void PasteClipboardInto() => _lingoMemberText.Text = PasteClipboard();
-    public void Preload() { _isLoaded = true; }
+    public void Preload()
+    {
+        if (_isLoaded)
+            return;
+        _isLoaded = true;
+    }
+
+    public Task PreloadAsync()
+    {
+        Preload();
+        return Task.CompletedTask;
+    }
     public void Unload()
     {
         _isLoaded = false;

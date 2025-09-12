@@ -12,6 +12,7 @@ using System.IO;
 using UnityEngine;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Unity.Bitmaps;
 
@@ -62,6 +63,12 @@ public class UnityMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
             }
         }
         IsLoaded = true;
+    }
+
+    public Task PreloadAsync()
+    {
+        Preload();
+        return Task.CompletedTask;
     }
 
     public void Unload()

@@ -13,6 +13,7 @@ using AbstUI.Tools;
 using Microsoft.JSInterop;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Blazor.Bitmaps;
 
@@ -56,13 +57,18 @@ public class LingoBlazorMemberBitmap : ILingoFrameworkMemberBitmap, IDisposable
 
     public void Preload()
     {
+        PreloadAsync().GetAwaiter().GetResult();
+    }
+
+    public async Task PreloadAsync()
+    {
         if (IsLoaded)
             return;
         if (!string.IsNullOrEmpty(_member.FileName))
         {
             try
             {
-                var bytes = _httpClient.GetByteArrayAsync(_member.FileName).GetAwaiter().GetResult();
+                var bytes = await _httpClient.GetByteArrayAsync(_member.FileName);
                 SetImageData(bytes);
             }
             catch { }

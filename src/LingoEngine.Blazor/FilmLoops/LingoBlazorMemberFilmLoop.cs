@@ -9,6 +9,7 @@ using LingoEngine.Members;
 using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using Microsoft.JSInterop;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Blazor.FilmLoops;
 
@@ -44,7 +45,15 @@ public class LingoBlazorMemberFilmLoop : ILingoFrameworkMemberFilmLoop, IDisposa
 
     public void Preload()
     {
+        if (IsLoaded)
+            return;
         IsLoaded = true;
+    }
+
+    public Task PreloadAsync()
+    {
+        Preload();
+        return Task.CompletedTask;
     }
 
     public void Unload()

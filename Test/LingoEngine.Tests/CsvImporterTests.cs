@@ -14,6 +14,7 @@ using LingoEngine.Primitives;
 using LingoEngine.Sprites;
 using LingoEngine.Tests.Casts;
 using Xunit;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Tests;
 
@@ -39,7 +40,7 @@ public class CsvImporterTests
         Assert.Equal("sample.txt", row.FileName);
     }
     [Fact]
-    public void ImportInCastFromCsvFile_PrefersMarkdown()
+    public async Task ImportInCastFromCsvFile_PrefersMarkdown()
     {
         var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(tempDir);
@@ -56,7 +57,7 @@ public class CsvImporterTests
         var cast = new DummyCast();
         var importer = new CsvImporter(new TestResourceManager());
 
-        importer.ImportInCastFromCsvFile(cast, csvPath);
+        await importer.ImportInCastFromCsvFileAsync(cast, csvPath);
 
         var member = Assert.IsType<DummyTextMember>(cast.LastAddedMember);
         Assert.Equal("md text", member.Text);
@@ -65,7 +66,7 @@ public class CsvImporterTests
 
 #if DEBUG
     [Fact]
-    public void ImportInCastFromCsvFile_CreatesMarkdownWhenReadingRtf()
+    public async Task ImportInCastFromCsvFile_CreatesMarkdownWhenReadingRtf()
     {
         var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(tempDir);
@@ -82,7 +83,7 @@ public class CsvImporterTests
         var cast = new DummyCast();
         var importer = new CsvImporter(new TestResourceManager());
 
-        importer.ImportInCastFromCsvFile(cast, csvPath);
+        await importer.ImportInCastFromCsvFileAsync(cast, csvPath);
 
         var member = Assert.IsType<DummyTextMember>(cast.LastAddedMember);
         Assert.Contains("{{PARA:0}}Hello", member.Text);

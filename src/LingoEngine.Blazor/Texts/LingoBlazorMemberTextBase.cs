@@ -13,6 +13,7 @@ using LingoEngine.Texts;
 using LingoEngine.Texts.FrameworkCommunication;
 using Microsoft.JSInterop;
 using LingoEngine.Blazor.Util;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Blazor.Texts;
 
@@ -208,7 +209,18 @@ public abstract class LingoBlazorMemberTextBase<TText> : ILingoFrameworkMemberTe
 
     public void PasteClipboardInto() => Text = PasteClipboard();
 
-    public void Preload() => IsLoaded = true;
+    public void Preload()
+    {
+        if (IsLoaded)
+            return;
+        IsLoaded = true;
+    }
+
+    public Task PreloadAsync()
+    {
+        Preload();
+        return Task.CompletedTask;
+    }
 
     public void Unload()
     {

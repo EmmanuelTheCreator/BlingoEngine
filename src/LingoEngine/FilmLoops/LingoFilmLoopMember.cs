@@ -7,6 +7,7 @@ using LingoEngine.Bitmaps;
 using LingoEngine.Events;
 using System;
 using AbstUI.Primitives;
+using System.Threading.Tasks;
 
 namespace LingoEngine.FilmLoops
 {
@@ -56,7 +57,7 @@ namespace LingoEngine.FilmLoops
             set => _frameworkFilmLoop.Loop = value;
         }
 
-        
+
 
         public LingoFilmLoopMember(ILingoFrameworkMemberFilmLoop frameworkMember, LingoCast cast, int numberInCast, string name = "", string fileName = "", APoint regPoint = default)
             : base(frameworkMember, LingoMemberType.FilmLoop, cast, numberInCast, name, fileName, regPoint)
@@ -70,10 +71,12 @@ namespace LingoEngine.FilmLoops
             HasChanged = true;
         }
 
-        public override void Preload()
+        public override void Preload() => PreloadAsync().GetAwaiter().GetResult();
+        public override async Task PreloadAsync()
         {
-            if (_isLoaded) return;
-            _frameworkFilmLoop.Preload();
+            if (_isLoaded)
+                return;
+            await _frameworkFilmLoop.PreloadAsync();
             UpdateSize();
             _isLoaded = true;
         }
