@@ -15,7 +15,10 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
     private bool _connected;
     private ListView? _logList;
     private Window? _uiWin;
+    private View? _workspace;
+    private PropertyInspector? _propertyInspector;
     private ScoreView? _scoreView;
+    private StatusItem? _infoItem;
 
     public DirectorConsoleClient()
     {
@@ -47,6 +50,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
             new MenuBarItem("_Window", new[]
             {
                 new MenuItem("_Score", string.Empty, ShowScore),
+                new MenuItem("_Cast", string.Empty, ShowCast),
                 new MenuItem("_Stage", string.Empty, () => MessageBox.Query("Stage", "Not implemented.", "Ok")),
                 new MenuItem("_Property Window", string.Empty, ShowPropertyInspector)
             }),
@@ -60,8 +64,23 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
             X = 0,
             Y = 1,
             Width = Dim.Percent(75),
+            Height = Dim.Fill() - 1
+        };
+        _workspace = new View
+        {
+            X = 0,
+            Y = 0,
+            Width = Dim.Percent(70),
             Height = Dim.Fill()
         };
+        _propertyInspector = new PropertyInspector
+        {
+            X = Pos.Percent(70),
+            Y = 0,
+            Width = Dim.Fill(),
+            Height = Dim.Fill()
+        };
+        _uiWin.Add(_workspace, _propertyInspector);
         top.Add(_uiWin);
 
         var logWin = new Window("Logs")
@@ -69,7 +88,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
             X = Pos.Percent(75),
             Y = 1,
             Width = Dim.Fill(),
-            Height = Dim.Fill()
+            Height = Dim.Fill() - 1
         };
         _logList = new ListView(_logs)
         {
@@ -78,24 +97,19 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
         };
         logWin.Add(_logList);
         top.Add(logWin);
+
+        _infoItem = new StatusItem(Key.Null, "Frame:0 Channel:0 Sprite:- Member:", null);
+        var status = new StatusBar(new[] { _infoItem });
+        top.Add(status);
+
+        ShowScore();
     }
 
-    private void ShowPropertyInspector()
-    {
-        var inspector = new PropertyInspector
-        {
-            X = Pos.Center(),
-            Y = Pos.Center(),
-            Width = 40,
-            Height = 15
-        };
-        Application.Top.Add(inspector);
-        inspector.SetFocus();
-    }
+    private void ShowPropertyInspector() => _propertyInspector?.SetFocus();
 
     private void ShowScore()
     {
-        _uiWin?.RemoveAll();
+        _workspace?.RemoveAll();
         _scoreView = new ScoreView
         {
             Width = Dim.Fill(),
@@ -103,8 +117,30 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
         };
         _scoreView.SpriteSelected += (ch, st) => Log($"spriteSelected {ch}:{st}");
         _scoreView.PlayFromHere += f => Log($"Play from {f}");
-        _uiWin?.Add(_scoreView);
+        _scoreView.InfoChanged += UpdateInfo;
+        _workspace?.Add(_scoreView);
         _scoreView.SetFocus();
+        _scoreView.TriggerInfo();
+    }
+
+    private void ShowCast()
+    {
+        _workspace?.RemoveAll();
+        var castView = new CastView
+        {
+            Width = Dim.Fill(),
+            Height = Dim.Fill()
+        };
+        _workspace?.Add(castView);
+        castView.SetFocus();
+    }
+
+    private void UpdateInfo(int frame, int channel, int? sprite, string? member)
+    {
+        if (_infoItem != null)
+        {
+            _infoItem.Title = $"Frame:{frame} Channel:{channel} Sprite:{(sprite?.ToString() ?? "-")} Member:{member ?? string.Empty}";
+        }
     }
 
     private static void SetTurboPascalTheme()

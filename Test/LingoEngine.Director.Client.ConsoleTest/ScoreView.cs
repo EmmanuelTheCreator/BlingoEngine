@@ -17,17 +17,19 @@ internal sealed class ScoreView : View
     private int _playFrame;
     private readonly List<SpriteBlock> _sprites = new()
     {
-        new SpriteBlock(1, 1, 60),
-        new SpriteBlock(2, 1, 60),
-        new SpriteBlock(3, 1, 60),
-        new SpriteBlock(4, 1, 60),
-        new SpriteBlock(5, 1, 60)
+        new SpriteBlock(1, 1, 60, 1, "Greeting"),
+        new SpriteBlock(2, 1, 60, 2, "Info"),
+        new SpriteBlock(3, 1, 60, 3, "Box"),
+        new SpriteBlock(4, 1, 60, 4, "Greeting"),
+        new SpriteBlock(5, 1, 60, 5, "Info")
     };
 
     public ScoreView()
     {
         CanFocus = true;
     }
+
+    public event Action<int, int, int?, string?>? InfoChanged;
 
     public override bool ProcessKey(KeyEvent keyEvent)
     {
@@ -72,6 +74,7 @@ internal sealed class ScoreView : View
         _cursorChannel = Math.Clamp(_cursorChannel + dy, 0, ChannelCount - 1);
         EnsureVisible();
         SetNeedsDisplay();
+        NotifyInfoChanged();
     }
 
     private void EnsureVisible()
@@ -241,6 +244,7 @@ internal sealed class ScoreView : View
                 {
                     _sprites.Remove(sprite);
                     SetNeedsDisplay();
+                    NotifyInfoChanged();
                 }
                 break;
             case "Add Keyframe":
@@ -257,6 +261,7 @@ internal sealed class ScoreView : View
                     {
                         sprite.Start = val.Value;
                         SetNeedsDisplay();
+                        NotifyInfoChanged();
                     }
                 }
                 break;
@@ -268,6 +273,7 @@ internal sealed class ScoreView : View
                     {
                         sprite.End = val.Value;
                         SetNeedsDisplay();
+                        NotifyInfoChanged();
                     }
                 }
                 break;
@@ -278,6 +284,7 @@ internal sealed class ScoreView : View
                 if (sprite != null)
                 {
                     SpriteSelected?.Invoke(sprite.Channel, sprite.Start);
+                    NotifyInfoChanged();
                 }
                 break;
         }
@@ -296,8 +303,10 @@ internal sealed class ScoreView : View
             if (int.TryParse(begin.Text.ToString(), out var b) &&
                 int.TryParse(end.Text.ToString(), out var e))
             {
-                _sprites.Add(new SpriteBlock(_cursorChannel + 1, b, e));
+                var num = _sprites.Count + 1;
+                _sprites.Add(new SpriteBlock(_cursorChannel + 1, b, e, num, member.Text.ToString()));
                 SetNeedsDisplay();
+                NotifyInfoChanged();
             }
             Application.RequestStop();
         };
@@ -342,6 +351,14 @@ internal sealed class ScoreView : View
         return null;
     }
 
+    private void NotifyInfoChanged()
+    {
+        var sprite = FindSprite(_cursorChannel + 1, _cursorFrame + 1);
+        InfoChanged?.Invoke(_cursorFrame + 1, _cursorChannel + 1, sprite?.Number, sprite?.MemberName);
+    }
+
+    public void TriggerInfo() => NotifyInfoChanged();
+
     public event Action<int, int>? SpriteSelected;
 
     public event Action<int>? PlayFromHere;
@@ -351,12 +368,16 @@ internal sealed class ScoreView : View
         public int Channel { get; set; }
         public int Start { get; set; }
         public int End { get; set; }
+        public int Number { get; }
+        public string MemberName { get; }
 
-        public SpriteBlock(int channel, int start, int end)
+        public SpriteBlock(int channel, int start, int end, int number, string memberName)
         {
             Channel = channel;
             Start = start;
             End = end;
+            Number = number;
+            MemberName = memberName;
         }
     }
 }
