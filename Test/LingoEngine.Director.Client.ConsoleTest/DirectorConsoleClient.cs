@@ -12,6 +12,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
     private readonly CancellationTokenSource _cts = new();
     private readonly Layout _layout;
     private bool _running = true;
+    private MenuState _menu = MenuState.Root;
 
     public DirectorConsoleClient()
     {
@@ -63,7 +64,43 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
         }
 
         var key = Console.ReadKey(true);
-        switch (key.Key)
+        switch (_menu)
+        {
+            case MenuState.Root:
+                await HandleRootInputAsync(key.Key);
+                break;
+            case MenuState.MovieControl:
+                await HandleMovieInputAsync(key.Key);
+                break;
+        }
+    }
+
+    private void Render()
+    {
+        var menuText = _menu switch
+        {
+            MenuState.Root =>
+                "[bold]Director Client Test[/]\n\n" +
+                "[1] Send ping\n" +
+                "[2] Send pause command\n" +
+                "[3] Movie controls\n" +
+                "[Q] Quit\n",
+            MenuState.MovieControl =>
+                "[bold]Movie Controls[/]\n\n" +
+                "[1] Play\n" +
+                "[2] Stop\n" +
+                "[3] Go to frame\n" +
+                "[B] Back\n",
+            _ => string.Empty
+        };
+
+        _layout["Menu"].Update(new Panel(menuText).Border(BoxBorder.Rounded).Header("Menu"));
+        _layout["Logs"].Update(new Panel(string.Join('\n', _logs)).Border(BoxBorder.Rounded).Header("Logs"));
+    }
+
+    private async Task HandleRootInputAsync(ConsoleKey key)
+    {
+        switch (key)
         {
             case ConsoleKey.D1:
             case ConsoleKey.NumPad1:
@@ -75,6 +112,10 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
                 await _client.SendCommandAsync(new PauseCmd());
                 Log("Sent PauseCmd.");
                 break;
+            case ConsoleKey.D3:
+            case ConsoleKey.NumPad3:
+                _menu = MenuState.MovieControl;
+                break;
             case ConsoleKey.Q:
             case ConsoleKey.Escape:
                 _running = false;
@@ -82,14 +123,33 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
         }
     }
 
-    private void Render()
+    private async Task HandleMovieInputAsync(ConsoleKey key)
     {
-        var menuText = "[bold]Director Client Test[/]\n\n" +
-                       "[1] Send ping\n" +
-                       "[2] Send pause command\n" +
-                       "[Q] Quit\n";
-        _layout["Menu"].Update(new Panel(menuText).Border(BoxBorder.Rounded).Header("Menu"));
-        _layout["Logs"].Update(new Panel(string.Join('\n', _logs)).Border(BoxBorder.Rounded).Header("Logs"));
+        switch (key)
+        {
+            case ConsoleKey.D1:
+            case ConsoleKey.NumPad1:
+                await _client.SendCommandAsync(new ResumeCmd());
+                Log("Sent ResumeCmd.");
+                break;
+            case ConsoleKey.D2:
+            case ConsoleKey.NumPad2:
+                await _client.SendCommandAsync(new PauseCmd());
+                Log("Sent PauseCmd.");
+                break;
+            case ConsoleKey.D3:
+            case ConsoleKey.NumPad3:
+                AnsiConsole.Cursor.Show();
+                var frame = AnsiConsole.Ask<int>("Target frame:");
+                AnsiConsole.Cursor.Hide();
+                await _client.SendCommandAsync(new GoToFrameCmd(frame));
+                Log($"Sent GoToFrameCmd {frame}.");
+                break;
+            case ConsoleKey.B:
+            case ConsoleKey.Escape:
+                _menu = MenuState.Root;
+                break;
+        }
     }
 
     private void Log(string message)
@@ -105,5 +165,11 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
     {
         _cts.Cancel();
         await _client.DisposeAsync();
+    }
+
+    private enum MenuState
+    {
+        Root,
+        MovieControl
     }
 }
