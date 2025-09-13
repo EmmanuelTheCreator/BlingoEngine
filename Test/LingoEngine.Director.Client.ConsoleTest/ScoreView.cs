@@ -183,7 +183,7 @@ internal sealed class ScoreView : ScrollView
             var pos = LabelWidth + _playFrame - offsetX - label.Length + 1;
             if (pos >= LabelWidth)
             {
-                Driver.SetAttribute(Application.Driver.MakeAttribute(Color.BrightRed, Color.Blue));
+                Driver.SetAttribute(Application.Driver.MakeAttribute(Color.BrightRed, Color.BrightBlue));
                 Move(pos, 0);
                 Driver.AddStr(label);
                 Driver.SetAttribute(ColorScheme.Normal);
@@ -204,7 +204,7 @@ internal sealed class ScoreView : ScrollView
                 continue;
             }
             var y = channelIdx - offsetY + 1;
-            Driver.SetAttribute(Application.Driver.MakeAttribute(Color.Black, Color.BrightBlue));
+            Driver.SetAttribute(Application.Driver.MakeAttribute(Color.White, Color.Blue));
             for (var f = start; f <= end; f++)
             {
                 Move(LabelWidth + f - offsetX, y);
@@ -217,7 +217,7 @@ internal sealed class ScoreView : ScrollView
         var cursorY = _cursorChannel - offsetY + 1;
         if (cursorX >= LabelWidth && cursorX < w && cursorY >= 1 && cursorY < h)
         {
-            Driver.SetAttribute(Application.Driver.MakeAttribute(Color.BrightGreen, Color.Black));
+            Driver.SetAttribute(Application.Driver.MakeAttribute(Color.Black, Color.White));
             Move(cursorX, cursorY);
             Driver.AddRune('X');
             Driver.SetAttribute(ColorScheme.Normal);

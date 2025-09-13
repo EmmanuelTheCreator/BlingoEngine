@@ -27,7 +27,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
     public Task RunAsync()
     {
         Application.Init();
-        SetTurboPascalTheme();
+        SetNortonTheme();
         BuildUi();
         Application.Run();
         Application.Shutdown();
@@ -150,19 +150,29 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
         }
     }
 
-    private static void SetTurboPascalTheme()
+    private static void SetNortonTheme()
     {
         var baseScheme = new ColorScheme
         {
-            Normal = Application.Driver.MakeAttribute(Color.White, Color.Blue),
-            Focus = Application.Driver.MakeAttribute(Color.Black, Color.Cyan),
-            HotNormal = Application.Driver.MakeAttribute(Color.BrightYellow, Color.Blue),
-            HotFocus = Application.Driver.MakeAttribute(Color.BrightYellow, Color.Cyan),
-            Disabled = Application.Driver.MakeAttribute(Color.DarkGray, Color.Blue)
+            Normal = Application.Driver.MakeAttribute(Color.White, Color.BrightBlue),
+            Focus = Application.Driver.MakeAttribute(Color.Black, Color.White),
+            HotNormal = Application.Driver.MakeAttribute(Color.BrightYellow, Color.BrightBlue),
+            HotFocus = Application.Driver.MakeAttribute(Color.BrightYellow, Color.White),
+            Disabled = Application.Driver.MakeAttribute(Color.Gray, Color.BrightBlue)
         };
         Colors.Base = baseScheme;
-        Colors.Menu = baseScheme;
         Colors.Dialog = baseScheme;
+        Colors.Error = baseScheme;
+        var menuScheme = new ColorScheme
+        {
+            Normal = Application.Driver.MakeAttribute(Color.Black, Color.Gray),
+            Focus = Application.Driver.MakeAttribute(Color.Black, Color.White),
+            HotNormal = Application.Driver.MakeAttribute(Color.BrightYellow, Color.Gray),
+            HotFocus = Application.Driver.MakeAttribute(Color.BrightYellow, Color.White),
+            Disabled = Application.Driver.MakeAttribute(Color.DarkGray, Color.Gray)
+        };
+        Colors.Menu = menuScheme;
+        Colors.TopLevel = baseScheme;
         if (Application.Top is { } top)
         {
             top.ColorScheme = baseScheme;
