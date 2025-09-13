@@ -1,0 +1,58 @@
+using System.Collections.Generic;
+using System.Data;
+using Terminal.Gui;
+
+namespace LingoEngine.Director.Client.ConsoleTest;
+
+internal sealed class CastView : View
+{
+    private readonly TabView _tabs;
+    public event Action<CastMemberInfo>? MemberSelected;
+
+    public CastView(Dictionary<string, List<CastMemberInfo>> casts)
+    {
+        CanFocus = true;
+        _tabs = new TabView
+        {
+            Width = Dim.Fill(),
+            Height = Dim.Fill()
+        };
+        Add(_tabs);
+
+        var first = true;
+        foreach (var cast in casts)
+        {
+            var members = cast.Value;
+            var tableView = new TableView
+            {
+                Width = Dim.Fill(),
+                Height = Dim.Fill(),
+                Table = CreateTable(members)
+            };
+            tableView.CellActivated += e =>
+            {
+                if (e.Row >= 0 && e.Row < members.Count)
+                {
+                    MemberSelected?.Invoke(members[e.Row]);
+                }
+            };
+            _tabs.AddTab(new TabView.Tab(cast.Key, tableView), first);
+            first = false;
+        }
+    }
+
+    private static DataTable CreateTable(IEnumerable<CastMemberInfo> members)
+    {
+        var table = new DataTable();
+        table.Columns.Add("Name");
+        table.Columns.Add("Number", typeof(int));
+        table.Columns.Add("Type");
+        table.Columns.Add("Modified");
+        table.Columns.Add("Comment");
+        foreach (var member in members)
+        {
+            table.Rows.Add(member.Name, member.Number, member.Type, member.Modified, member.Comment);
+        }
+        return table;
+    }
+}
