@@ -1,13 +1,13 @@
 # Director Host Server
 
-The `LingoEngine.Director.Host` library exposes a SignalR-based debug host for the Director tooling. It can be added to any application that configures the LingoEngine via `ILingoEngineRegistration`.
+The `LingoEngine.Net.Host` library exposes a SignalR-based debug host for the Director tooling. It can be added to any application that configures the LingoEngine via `ILingoEngineRegistration`.
 
 ## Usage
 
-Reference the **LingoEngine.Director.Host** project and enable the host when registering the engine:
+Reference the **LingoEngine.Net.Host** project and enable the host when registering the engine:
 
 ```csharp
-using LingoEngine.Director.Host;
+using LingoEngine.Net.Host;
 using LingoEngine.Setup;
 
 var registration = LingoEngineSetup.Create();

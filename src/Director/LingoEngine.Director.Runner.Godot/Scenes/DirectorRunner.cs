@@ -1,6 +1,6 @@
 using Godot;
 using LingoEngine.Director.LGodot;
-using LingoEngine.Director.Host;
+using LingoEngine.Net.Host;
 using LingoEngine.Setup;
 using Microsoft.Extensions.DependencyInjection;
 
