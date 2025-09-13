@@ -14,7 +14,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
     private int _port = 61699;
     private bool _connected;
     private ListView? _logList;
-    private readonly string[] _movieInputs = { "Greeting", "Info", "Box" };
+    private Window? _uiWin;
 
     public DirectorConsoleClient()
     {
@@ -23,6 +23,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
     public Task RunAsync()
     {
         Application.Init();
+        SetTurboPascalTheme();
         BuildUi();
         Application.Run();
         Application.Shutdown();
@@ -44,7 +45,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
             new MenuBarItem("_Edit", Array.Empty<MenuItem>()),
             new MenuBarItem("_Window", new[]
             {
-                new MenuItem("_Score", string.Empty, ShowScoreMenu),
+                new MenuItem("_Score", string.Empty, ShowScore),
                 new MenuItem("_Stage", string.Empty, () => MessageBox.Query("Stage", "Not implemented.", "Ok")),
                 new MenuItem("_Property Window", string.Empty, () => MessageBox.Query("Property", "Not implemented.", "Ok"))
             }),
@@ -53,18 +54,18 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
 
         top.Add(menu);
 
-        var uiWin = new Window("UI")
+        _uiWin = new Window("UI")
         {
             X = 0,
             Y = 1,
-            Width = Dim.Percent(70),
+            Width = Dim.Percent(75),
             Height = Dim.Fill()
         };
-        top.Add(uiWin);
+        top.Add(_uiWin);
 
         var logWin = new Window("Logs")
         {
-            X = Pos.Percent(70),
+            X = Pos.Percent(75),
             Y = 1,
             Width = Dim.Fill(),
             Height = Dim.Fill()
@@ -78,18 +79,35 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
         top.Add(logWin);
     }
 
-    private void ShowScoreMenu()
+    private void ShowScore()
     {
-        var list = new ListView(_movieInputs)
+        _uiWin?.RemoveAll();
+        var score = new ScoreView
         {
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
-        var close = new Button("Close");
-        close.Clicked += () => Application.RequestStop();
-        var dialog = new Dialog("Score", 40, 10, close);
-        dialog.Add(list);
-        Application.Run(dialog);
+        _uiWin?.Add(score);
+        score.SetFocus();
+    }
+
+    private static void SetTurboPascalTheme()
+    {
+        var baseScheme = new ColorScheme
+        {
+            Normal = Application.Driver.MakeAttribute(Color.White, Color.Blue),
+            Focus = Application.Driver.MakeAttribute(Color.Black, Color.Cyan),
+            HotNormal = Application.Driver.MakeAttribute(Color.BrightYellow, Color.Blue),
+            HotFocus = Application.Driver.MakeAttribute(Color.BrightYellow, Color.Cyan),
+            Disabled = Application.Driver.MakeAttribute(Color.DarkGray, Color.Blue)
+        };
+        Colors.Base = baseScheme;
+        Colors.Menu = baseScheme;
+        Colors.Dialog = baseScheme;
+        if (Application.Top is { } top)
+        {
+            top.ColorScheme = baseScheme;
+        }
     }
 
     private async Task ToggleConnectionAsync()
