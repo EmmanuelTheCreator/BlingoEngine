@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using LingoEngine.Director.Contracts;
+using LingoEngine.IO.Data.DTO;
 
 namespace LingoEngine.Director.Client.ConsoleTest;
 
@@ -16,17 +17,12 @@ public static class TestMovieBuilder
     /// <summary>
     /// Provides sample sprite channel data.
     /// </summary>
-    public static IReadOnlyList<SpriteInfo> BuildSprites() => new List<SpriteInfo>
+    public static IReadOnlyList<LingoSpriteDTO> BuildSprites() => new List<LingoSpriteDTO>
     {
-        new SpriteInfo(1, 1, 60, 1, "Greeting"),
-        new SpriteInfo(2, 1, 60, 2, "Info"),
-        new SpriteInfo(3, 1, 60, 3, "Box"),
-        new SpriteInfo(4, 1, 60, 4, "Greeting"),
-        new SpriteInfo(5, 1, 60, 5, "Info"),
+        new() { Name = "Greeting", SpriteNum = 1, MemberNum = 1, BeginFrame = 1, EndFrame = 60 },
+        new() { Name = "Info", SpriteNum = 2, MemberNum = 2, BeginFrame = 1, EndFrame = 60 },
+        new() { Name = "Box", SpriteNum = 3, MemberNum = 3, BeginFrame = 1, EndFrame = 60 },
+        new() { Name = "Greeting", SpriteNum = 4, MemberNum = 1, BeginFrame = 1, EndFrame = 60 },
+        new() { Name = "Info", SpriteNum = 5, MemberNum = 2, BeginFrame = 1, EndFrame = 60 },
     };
-
-    /// <summary>
-    /// Describes a sprite block inside the score.
-    /// </summary>
-    public sealed record SpriteInfo(int Channel, int Start, int End, int Number, string MemberName);
 }

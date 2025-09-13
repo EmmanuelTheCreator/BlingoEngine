@@ -59,7 +59,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
 
         top.Add(menu);
 
-        _uiWin = new Window("UI")
+        _uiWin = new Window("Score")
         {
             X = 0,
             Y = 1,
@@ -109,6 +109,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
 
     private void ShowScore()
     {
+        _uiWin!.Title = "Score";
         _workspace?.RemoveAll();
         _scoreView = new ScoreView
         {
@@ -125,6 +126,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
 
     private void ShowCast()
     {
+        _uiWin!.Title = "Cast";
         _workspace?.RemoveAll();
         var castView = new CastView(TestCastBuilder.BuildCastData())
         {
@@ -219,6 +221,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
         };
         var dialog = new Dialog("Host Port", 25, 7, ok);
         dialog.Add(new Label("Port:") { X = 1, Y = 1 }, portField);
+        portField.SetFocus();
         Application.Run(dialog);
     }
 

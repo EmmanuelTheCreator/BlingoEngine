@@ -19,7 +19,7 @@ internal sealed class ScoreView : ScrollView
     public ScoreView()
     {
         _sprites = TestMovieBuilder.BuildSprites()
-            .Select(s => new SpriteBlock(s.Channel, s.Start, s.End, s.Number, s.MemberName))
+            .Select(s => new SpriteBlock(s.SpriteNum, s.BeginFrame, s.EndFrame, s.SpriteNum, s.Name))
             .ToList();
         CanFocus = true;
         ContentSize = new Size(FrameCount + LabelWidth, ChannelCount + 1);
@@ -340,7 +340,7 @@ internal sealed class ScoreView : ScrollView
                 int.TryParse(end.Text.ToString(), out var e))
             {
                 var num = _sprites.Count + 1;
-                _sprites.Add(new SpriteBlock(_cursorChannel + 1, b, e, num, member.Text.ToString()));
+                _sprites.Add(new SpriteBlock(_cursorChannel + 1, b, e, num, member.Text?.ToString() ?? string.Empty));
                 SetNeedsDisplay();
                 NotifyInfoChanged();
             }
@@ -353,6 +353,7 @@ internal sealed class ScoreView : ScrollView
             new Label("LocH:") { X = 1, Y = 5 }, locH,
             new Label("LocV:") { X = 1, Y = 7 }, locV,
             new Label("MemberName:") { X = 1, Y = 9 }, member);
+        begin.SetFocus();
         Application.Run(dialog);
     }
 
@@ -371,6 +372,7 @@ internal sealed class ScoreView : ScrollView
         };
         var dialog = new Dialog(title, 30, 7, ok);
         dialog.Add(new Label(prompt) { X = 1, Y = 1 }, field);
+        field.SetFocus();
         Application.Run(dialog);
         return result;
     }
