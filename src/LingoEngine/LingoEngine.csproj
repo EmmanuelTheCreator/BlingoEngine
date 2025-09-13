@@ -13,6 +13,9 @@
     <Compile Remove="Gfx\**" />
     <EmbeddedResource Remove="Gfx\**" />
     <None Remove="Gfx\**" />
+    <Compile Remove="Net\**" />
+    <EmbeddedResource Remove="Net\**" />
+    <None Remove="Net\**" />
   </ItemGroup>
 
 
