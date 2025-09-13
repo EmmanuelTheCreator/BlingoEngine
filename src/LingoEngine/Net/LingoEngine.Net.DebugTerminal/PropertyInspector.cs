@@ -14,6 +14,8 @@ internal sealed class PropertyInspector : Window
     private readonly TableView _memberTableView;
     private readonly TabView.Tab _memberTab;
 
+    public event Action<string, string>? PropertyChanged;
+
     public PropertyInspector() : base("Properties")
     {
         _tabs = new TabView
@@ -68,6 +70,7 @@ internal sealed class PropertyInspector : Window
             if (newValue != null)
             {
                 _memberTable.Rows[args.Row][1] = newValue;
+                PropertyChanged?.Invoke(spec.Name, newValue);
             }
             _memberTableView.SetNeedsDisplay();
         };
@@ -152,7 +155,7 @@ internal sealed class PropertyInspector : Window
         _tabs.AddTab(new TabView.Tab(title, view), _tabs.Tabs.Count == 0);
     }
 
-    private static TableView BuildPropertyTableView(PropertySpec[] props)
+    private TableView BuildPropertyTableView(PropertySpec[] props)
     {
         var table = new DataTable();
         table.Columns.Add("Property");
@@ -179,6 +182,7 @@ internal sealed class PropertyInspector : Window
             if (newValue != null)
             {
                 table.Rows[args.Row][1] = newValue;
+                PropertyChanged?.Invoke(spec.Name, newValue);
             }
             view.SetNeedsDisplay();
         };

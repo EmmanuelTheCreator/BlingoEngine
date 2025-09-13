@@ -19,6 +19,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
     private PropertyInspector? _propertyInspector;
     private ScoreView? _scoreView;
     private StatusItem? _infoItem;
+    private int? _selectedSprite;
 
     public DirectorConsoleClient()
     {
@@ -80,6 +81,14 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
+        _propertyInspector.PropertyChanged += (n, v) =>
+        {
+            Log($"propertyChanged {n}={v}");
+            if (_selectedSprite.HasValue && _client != null)
+            {
+                _ = _client.SendCommandAsync(new SetSpritePropCmd(_selectedSprite.Value, n, v));
+            }
+        };
         _uiWin.Add(_workspace, _propertyInspector);
         top.Add(_uiWin);
 
@@ -116,7 +125,11 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
             Width = Dim.Fill(),
             Height = Dim.Fill(),
         };
-        _scoreView.SpriteSelected += (ch, st) => Log($"spriteSelected {ch}:{st}");
+        _scoreView.SpriteSelected += n =>
+        {
+            Log($"spriteSelected {n}");
+            _selectedSprite = n;
+        };
         _scoreView.PlayFromHere += f => Log($"Play from {f}");
         _scoreView.InfoChanged += UpdateInfo;
         _workspace?.Add(_scoreView);
@@ -162,13 +175,26 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
-        stage.Attach(_scoreView);
-        _scoreView.SpriteSelected += (ch, st) => Log($"spriteSelected {ch}:{st}");
+        stage.SpriteSelected += n =>
+        {
+            Log($"spriteSelected {n}");
+            _selectedSprite = n;
+            stage.SetSelectedSprite(n);
+            _scoreView.SelectSprite(n);
+        };
+        _scoreView.SpriteSelected += n =>
+        {
+            Log($"spriteSelected {n}");
+            _selectedSprite = n;
+            stage.SetSelectedSprite(n);
+            _scoreView.SelectSprite(n);
+        };
         _scoreView.PlayFromHere += f => Log($"Play from {f}");
         _scoreView.InfoChanged += (f, ch, sp, mem) =>
         {
             UpdateInfo(f, ch, sp, mem);
             stage.SetFrame(f);
+            stage.RequestRedraw();
         };
 
         _workspace?.Add(stage, _scoreView);
