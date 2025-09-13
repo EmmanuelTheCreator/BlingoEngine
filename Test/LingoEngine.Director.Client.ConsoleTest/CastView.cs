@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Data;
+using LingoEngine.IO.Data.DTO;
 using Terminal.Gui;
 
 namespace LingoEngine.Director.Client.ConsoleTest;
@@ -7,9 +8,9 @@ namespace LingoEngine.Director.Client.ConsoleTest;
 internal sealed class CastView : View
 {
     private readonly TabView _tabs;
-    public event Action<CastMemberInfo>? MemberSelected;
+    public event Action<LingoMemberDTO>? MemberSelected;
 
-    public CastView(Dictionary<string, List<CastMemberInfo>> casts)
+    public CastView(Dictionary<string, List<LingoMemberDTO>> casts)
     {
         CanFocus = true;
         _tabs = new TabView
@@ -41,17 +42,16 @@ internal sealed class CastView : View
         }
     }
 
-    private static DataTable CreateTable(IEnumerable<CastMemberInfo> members)
+    private static DataTable CreateTable(IEnumerable<LingoMemberDTO> members)
     {
         var table = new DataTable();
         table.Columns.Add("Name");
         table.Columns.Add("Number", typeof(int));
         table.Columns.Add("Type");
-        table.Columns.Add("Modified");
         table.Columns.Add("Comment");
         foreach (var member in members)
         {
-            table.Rows.Add(member.Name, member.Number, member.Type, member.Modified, member.Comment);
+            table.Rows.Add(member.Name, member.Number, member.Type.ToString(), member.Comments);
         }
         return table;
     }

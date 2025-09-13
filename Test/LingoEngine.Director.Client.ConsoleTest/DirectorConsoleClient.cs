@@ -27,7 +27,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
     public Task RunAsync()
     {
         Application.Init();
-        SetTurboPascalTheme();
+        SetNortonTheme();
         BuildUi();
         Application.Run();
         Application.Shutdown();
@@ -59,7 +59,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
 
         top.Add(menu);
 
-        _uiWin = new Window("UI")
+        _uiWin = new Window("Score")
         {
             X = 0,
             Y = 1,
@@ -109,6 +109,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
 
     private void ShowScore()
     {
+        _uiWin!.Title = "Score";
         _workspace?.RemoveAll();
         _scoreView = new ScoreView
         {
@@ -125,6 +126,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
 
     private void ShowCast()
     {
+        _uiWin!.Title = "Cast";
         _workspace?.RemoveAll();
         var castView = new CastView(TestCastBuilder.BuildCastData())
         {
@@ -148,19 +150,29 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
         }
     }
 
-    private static void SetTurboPascalTheme()
+    private static void SetNortonTheme()
     {
         var baseScheme = new ColorScheme
         {
-            Normal = Application.Driver.MakeAttribute(Color.White, Color.Blue),
-            Focus = Application.Driver.MakeAttribute(Color.Black, Color.Cyan),
-            HotNormal = Application.Driver.MakeAttribute(Color.BrightYellow, Color.Blue),
-            HotFocus = Application.Driver.MakeAttribute(Color.BrightYellow, Color.Cyan),
-            Disabled = Application.Driver.MakeAttribute(Color.DarkGray, Color.Blue)
+            Normal = Application.Driver.MakeAttribute(Color.White, Color.BrightBlue),
+            Focus = Application.Driver.MakeAttribute(Color.Black, Color.White),
+            HotNormal = Application.Driver.MakeAttribute(Color.BrightYellow, Color.BrightBlue),
+            HotFocus = Application.Driver.MakeAttribute(Color.BrightYellow, Color.White),
+            Disabled = Application.Driver.MakeAttribute(Color.Gray, Color.BrightBlue)
         };
         Colors.Base = baseScheme;
-        Colors.Menu = baseScheme;
         Colors.Dialog = baseScheme;
+        Colors.Error = baseScheme;
+        var menuScheme = new ColorScheme
+        {
+            Normal = Application.Driver.MakeAttribute(Color.Black, Color.Gray),
+            Focus = Application.Driver.MakeAttribute(Color.Black, Color.White),
+            HotNormal = Application.Driver.MakeAttribute(Color.BrightYellow, Color.Gray),
+            HotFocus = Application.Driver.MakeAttribute(Color.BrightYellow, Color.White),
+            Disabled = Application.Driver.MakeAttribute(Color.DarkGray, Color.Gray)
+        };
+        Colors.Menu = menuScheme;
+        Colors.TopLevel = baseScheme;
         if (Application.Top is { } top)
         {
             top.ColorScheme = baseScheme;
@@ -219,6 +231,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
         };
         var dialog = new Dialog("Host Port", 25, 7, ok);
         dialog.Add(new Label("Port:") { X = 1, Y = 1 }, portField);
+        portField.SetFocus();
         Application.Run(dialog);
     }
 
