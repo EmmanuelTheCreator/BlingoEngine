@@ -32,6 +32,11 @@ public class TestCastBuilder : ILingoCastLibBuilder
         shape.StrokeColor = new AColor(0, 0, 0, 255);
         shape.StrokeWidth = 1;
         shape.Filled = true;
+        var cast2 = castLibs.AddCast("ExtraCast");
+        var note = (LingoMemberText)cast2.Add(LingoMemberType.Text, 1, "Note");
+        note.Text = "Hello from extra cast";
+        note.Width = 80;
+        note.Height = 20;
 
         return Task.CompletedTask;
     }
