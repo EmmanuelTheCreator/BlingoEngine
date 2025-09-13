@@ -1,52 +1,157 @@
-using System.Collections.Concurrent;
 using LingoEngine.Director.Client;
 using LingoEngine.Director.Contracts;
-using Spectre.Console;
+using Terminal.Gui;
+using Timer = System.Timers.Timer;
 
 namespace LingoEngine.Director.Client.ConsoleTest;
 
 public sealed class DirectorConsoleClient : IAsyncDisposable
 {
-    private readonly DirectorClient _client = new();
-    private readonly ConcurrentQueue<string> _logs = new();
-    private readonly CancellationTokenSource _cts = new();
-    private readonly Layout _layout;
-    private bool _running = true;
-    private MenuState _menu = MenuState.Root;
+    private DirectorClient? _client;
+    private readonly List<string> _logs = new();
+    private CancellationTokenSource _cts = new();
+    private Timer? _heartbeatTimer;
+    private int _port = 61699;
+    private bool _connected;
+    private ListView? _logList;
+    private readonly string[] _movieInputs = { "Greeting", "Info", "Box" };
 
     public DirectorConsoleClient()
     {
-        _layout = new Layout("Root")
-            .SplitColumns(
-                new Layout("Menu").Ratio(1),
-                new Layout("Logs").Ratio(2));
     }
 
-    public async Task RunAsync()
+    public Task RunAsync()
     {
-        var hubUrl = new Uri("http://localhost:61699/director");
-        await _client.ConnectAsync(hubUrl, new HelloDto("test-project", "console", "1.0"));
-        _ = Task.Run(ReceiveFramesAsync);
+        Application.Init();
+        BuildUi();
+        Application.Run();
+        Application.Shutdown();
+        return Task.CompletedTask;
+    }
 
-        AnsiConsole.Cursor.Hide();
-        await AnsiConsole.Live(_layout).StartAsync(async ctx =>
+    private void BuildUi()
+    {
+        var top = Application.Top;
+
+        var menu = new MenuBar(new[]
         {
-            while (_running)
+            new MenuBarItem("_Host", new[]
             {
-                Render();
-                ctx.Refresh();
-                await HandleInputAsync();
-                await Task.Delay(100);
-            }
+                new MenuItem("_Connect/Disconnect", string.Empty, async () => await ToggleConnectionAsync()),
+                new MenuItem("_Host Port", string.Empty, SetPort),
+                new MenuItem("_Quit", string.Empty, () => Application.RequestStop())
+            }),
+            new MenuBarItem("_Edit", Array.Empty<MenuItem>()),
+            new MenuBarItem("_Window", new[]
+            {
+                new MenuItem("_Score", string.Empty, ShowScoreMenu),
+                new MenuItem("_Stage", string.Empty, () => MessageBox.Query("Stage", "Not implemented.", "Ok")),
+                new MenuItem("_Property Window", string.Empty, () => MessageBox.Query("Property", "Not implemented.", "Ok"))
+            }),
+            new MenuBarItem("_Help", Array.Empty<MenuItem>())
         });
-        AnsiConsole.Cursor.Show();
+
+        top.Add(menu);
+
+        var uiWin = new Window("UI")
+        {
+            X = 0,
+            Y = 1,
+            Width = Dim.Percent(70),
+            Height = Dim.Fill()
+        };
+        top.Add(uiWin);
+
+        var logWin = new Window("Logs")
+        {
+            X = Pos.Percent(70),
+            Y = 1,
+            Width = Dim.Fill(),
+            Height = Dim.Fill()
+        };
+        _logList = new ListView(_logs)
+        {
+            Width = Dim.Fill(),
+            Height = Dim.Fill()
+        };
+        logWin.Add(_logList);
+        top.Add(logWin);
+    }
+
+    private void ShowScoreMenu()
+    {
+        var list = new ListView(_movieInputs)
+        {
+            Width = Dim.Fill(),
+            Height = Dim.Fill()
+        };
+        var close = new Button("Close");
+        close.Clicked += () => Application.RequestStop();
+        var dialog = new Dialog("Score", 40, 10, close);
+        dialog.Add(list);
+        Application.Run(dialog);
+    }
+
+    private async Task ToggleConnectionAsync()
+    {
+        if (!_connected)
+        {
+            _client = new DirectorClient();
+            var hubUrl = new Uri($"http://localhost:{_port}/director");
+            await _client.ConnectAsync(hubUrl, new HelloDto("test-project", "console", "1.0"));
+            _connected = true;
+            Log("Connected.");
+            _cts = new CancellationTokenSource();
+            _ = Task.Run(ReceiveFramesAsync);
+            _heartbeatTimer = new Timer(1000);
+            _heartbeatTimer.Elapsed += async (_, _) => await _client.SendHeartbeatAsync();
+            _heartbeatTimer.AutoReset = true;
+            _heartbeatTimer.Start();
+        }
+        else
+        {
+            _cts.Cancel();
+            _heartbeatTimer?.Stop();
+            _heartbeatTimer?.Dispose();
+            _heartbeatTimer = null;
+            if (_client != null)
+            {
+                await _client.DisposeAsync();
+                _client = null;
+            }
+            _connected = false;
+            Log("Disconnected.");
+        }
+    }
+
+    private void SetPort()
+    {
+        var portField = new TextField(_port.ToString())
+        {
+            X = 1,
+            Y = 1,
+            Width = 10
+        };
+        var ok = new Button("Ok", is_default: true);
+        ok.Clicked += () =>
+        {
+            if (int.TryParse(portField.Text.ToString(), out var p))
+            {
+                _port = p;
+                Log($"Port set to {_port}.");
+            }
+            Application.RequestStop();
+        };
+        var dialog = new Dialog("Host Port", 25, 7, ok);
+        dialog.Add(new Label("Port:") { X = 1, Y = 1 }, portField);
+        Application.Run(dialog);
     }
 
     private async Task ReceiveFramesAsync()
     {
         try
         {
-            await foreach (var frame in _client.StreamFramesAsync(_cts.Token))
+            await foreach (var frame in _client!.StreamFramesAsync(_cts.Token))
             {
                 Log($"Frame {frame.FrameId}");
             }
@@ -56,120 +161,37 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
         }
     }
 
-    private async Task HandleInputAsync()
-    {
-        if (!Console.KeyAvailable)
-        {
-            return;
-        }
-
-        var key = Console.ReadKey(true);
-        switch (_menu)
-        {
-            case MenuState.Root:
-                await HandleRootInputAsync(key.Key);
-                break;
-            case MenuState.MovieControl:
-                await HandleMovieInputAsync(key.Key);
-                break;
-        }
-    }
-
-    private void Render()
-    {
-        var menuText = _menu switch
-        {
-            MenuState.Root =>
-                "[bold]Director Client Test[/]\n\n" +
-                "[1] Send ping\n" +
-                "[2] Send pause command\n" +
-                "[3] Movie controls\n" +
-                "[Q] Quit\n",
-            MenuState.MovieControl =>
-                "[bold]Movie Controls[/]\n\n" +
-                "[1] Play\n" +
-                "[2] Stop\n" +
-                "[3] Go to frame\n" +
-                "[B] Back\n",
-            _ => string.Empty
-        };
-
-        _layout["Menu"].Update(new Panel(menuText).Border(BoxBorder.Rounded).Header("Menu"));
-        _layout["Logs"].Update(new Panel(string.Join('\n', _logs)).Border(BoxBorder.Rounded).Header("Logs"));
-    }
-
-    private async Task HandleRootInputAsync(ConsoleKey key)
-    {
-        switch (key)
-        {
-            case ConsoleKey.D1:
-            case ConsoleKey.NumPad1:
-                await _client.SendHeartbeatAsync();
-                Log("Sent heartbeat.");
-                break;
-            case ConsoleKey.D2:
-            case ConsoleKey.NumPad2:
-                await _client.SendCommandAsync(new PauseCmd());
-                Log("Sent PauseCmd.");
-                break;
-            case ConsoleKey.D3:
-            case ConsoleKey.NumPad3:
-                _menu = MenuState.MovieControl;
-                break;
-            case ConsoleKey.Q:
-            case ConsoleKey.Escape:
-                _running = false;
-                break;
-        }
-    }
-
-    private async Task HandleMovieInputAsync(ConsoleKey key)
-    {
-        switch (key)
-        {
-            case ConsoleKey.D1:
-            case ConsoleKey.NumPad1:
-                await _client.SendCommandAsync(new ResumeCmd());
-                Log("Sent ResumeCmd.");
-                break;
-            case ConsoleKey.D2:
-            case ConsoleKey.NumPad2:
-                await _client.SendCommandAsync(new PauseCmd());
-                Log("Sent PauseCmd.");
-                break;
-            case ConsoleKey.D3:
-            case ConsoleKey.NumPad3:
-                AnsiConsole.Cursor.Show();
-                var frame = AnsiConsole.Ask<int>("Target frame:");
-                AnsiConsole.Cursor.Hide();
-                await _client.SendCommandAsync(new GoToFrameCmd(frame));
-                Log($"Sent GoToFrameCmd {frame}.");
-                break;
-            case ConsoleKey.B:
-            case ConsoleKey.Escape:
-                _menu = MenuState.Root;
-                break;
-        }
-    }
-
     private void Log(string message)
     {
-        _logs.Enqueue($"[{DateTime.Now:HH:mm:ss}] {message}");
-        while (_logs.Count > 20)
+        void AddLog()
         {
-            _logs.TryDequeue(out _);
+            _logs.Add($"[{DateTime.Now:HH:mm:ss}] {message}");
+            if (_logs.Count > 100)
+            {
+                _logs.RemoveAt(0);
+            }
+            _logList?.SetSource(_logs.ToList());
+            _logList?.MoveEnd();
+        }
+
+        if (Application.MainLoop is { } loop)
+        {
+            loop.Invoke(AddLog);
+        }
+        else
+        {
+            AddLog();
         }
     }
 
     public async ValueTask DisposeAsync()
     {
         _cts.Cancel();
-        await _client.DisposeAsync();
-    }
-
-    private enum MenuState
-    {
-        Root,
-        MovieControl
+        _heartbeatTimer?.Dispose();
+        if (_client != null)
+        {
+            await _client.DisposeAsync();
+        }
     }
 }
+
