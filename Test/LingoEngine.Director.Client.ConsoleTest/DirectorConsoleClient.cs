@@ -126,10 +126,15 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
     private void ShowCast()
     {
         _workspace?.RemoveAll();
-        var castView = new CastView
+        var castView = new CastView(TestCastBuilder.BuildCastData())
         {
             Width = Dim.Fill(),
             Height = Dim.Fill()
+        };
+        castView.MemberSelected += m =>
+        {
+            Log($"memberSelected {m.Name}");
+            _propertyInspector?.ShowMember(m);
         };
         _workspace?.Add(castView);
         castView.SetFocus();

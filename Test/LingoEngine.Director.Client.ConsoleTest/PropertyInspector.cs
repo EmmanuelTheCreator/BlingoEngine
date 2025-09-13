@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Terminal.Gui;
 
 namespace LingoEngine.Director.Client.ConsoleTest;
@@ -5,6 +6,9 @@ namespace LingoEngine.Director.Client.ConsoleTest;
 internal sealed class PropertyInspector : Window
 {
     private readonly TabView _tabs;
+    private readonly List<string> _memberItems = new();
+    private readonly ListView _memberList;
+    private readonly TabView.Tab _memberTab;
 
     public PropertyInspector() : base("Properties")
     {
@@ -17,14 +21,40 @@ internal sealed class PropertyInspector : Window
         AddTab("Sprite", new[]
         {
             "Lock", "FlipH", "FlipV", "Name", "X", "Y", "Z", "Left", "Top", "Right", "Bottom", "Width", "Height",
-            "Ink", "Blend", "StartFrame", "EndFrame", "Rotation", "Skew", "ForeColor", "BackColor", "Behaviors"
+            "Ink", "Blend", "StartFrame", "EndFrame", "Rotation", "Skew", "ForeColor", "BackColor", "Behaviors",
         });
-        AddTab("Member", new[] { "Name", "Size", "Created", "Modified", "FileName", "Comments" });
+
+        _memberList = new ListView(_memberItems)
+        {
+            Width = Dim.Fill(),
+            Height = Dim.Fill(),
+        };
+        _memberList.OpenSelectedItem += args =>
+        {
+            var line = _memberItems[args.Item];
+            var idx = line.IndexOf(':');
+            var name = idx >= 0 ? line[..idx] : line;
+            var value = idx >= 0 ? line[(idx + 1)..].Trim() : string.Empty;
+            var field = new TextField(value)
+            {
+                X = 12,
+                Y = 1,
+                Width = 20,
+            };
+            var ok = new Button("Ok", true);
+            ok.Clicked += () => Application.RequestStop();
+            var dialog = new Dialog($"Edit {name}", 40, 7, ok);
+            dialog.Add(new Label(name + ":") { X = 1, Y = 1 }, field);
+            Application.Run(dialog);
+        };
+        _memberTab = new TabView.Tab("Member", _memberList);
+        _tabs.AddTab(_memberTab, false);
+
         AddTab("Bitmap", new[] { "Dimensions", "Highlight", "RegPointX", "RegPointY" });
         AddTab("Sound", new[] { "Loop", "Duration", "SampleRate", "BitDepth", "Channels", "Play", "Stop" });
         AddTab("Movie", new[]
         {
-            "StageWidth", "StageHeight", "Resolution", "Channels", "BackgroundColor", "About", "Copyright"
+            "StageWidth", "StageHeight", "Resolution", "Channels", "BackgroundColor", "About", "Copyright",
         });
         AddTab("Cast", new[] { "Number", "Name" });
         AddTab("Text", new[] { "Width", "Height", "Edit" });
@@ -32,7 +62,7 @@ internal sealed class PropertyInspector : Window
         AddTab("Guides", new[]
         {
             "GuidesColor", "GuidesVisible", "GuidesSnap", "GuidesLock", "GridColor", "GridVisible", "GridSnap",
-            "AddVerticalGuide", "AddHorizontalGuide", "RemoveGuides", "GridWidth", "GridHeight"
+            "AddVerticalGuide", "AddHorizontalGuide", "RemoveGuides", "GridWidth", "GridHeight",
         });
         AddTab("Behavior", new[] { "Behaviors" });
         AddTab("FilmLoop", new[] { "Framing", "Loop", "FrameCount" });
@@ -60,7 +90,7 @@ internal sealed class PropertyInspector : Window
             {
                 X = 12,
                 Y = 1,
-                Width = 20
+                Width = 20,
             };
             var ok = new Button("Ok", true);
             ok.Clicked += () => Application.RequestStop();
@@ -69,5 +99,17 @@ internal sealed class PropertyInspector : Window
             Application.Run(dialog);
         };
         return list;
+    }
+
+    public void ShowMember(CastMemberInfo member)
+    {
+        _memberItems.Clear();
+        _memberItems.Add($"Name: {member.Name}");
+        _memberItems.Add($"Number: {member.Number}");
+        _memberItems.Add($"Type: {member.Type}");
+        _memberItems.Add($"Modified: {member.Modified}");
+        _memberItems.Add($"Comment: {member.Comment}");
+        _memberList.SetSource(_memberItems.ToList());
+        _tabs.SelectedTab = _memberTab;
     }
 }
