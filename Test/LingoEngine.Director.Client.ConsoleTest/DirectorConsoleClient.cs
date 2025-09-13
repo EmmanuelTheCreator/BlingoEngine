@@ -51,7 +51,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
             {
                 new MenuItem("_Score", string.Empty, ShowScore),
                 new MenuItem("_Cast", string.Empty, ShowCast),
-                new MenuItem("_Stage", string.Empty, () => MessageBox.Query("Stage", "Not implemented.", "Ok")),
+                new MenuItem("_Stage", string.Empty, ShowStage),
                 new MenuItem("_Property Window", string.Empty, ShowPropertyInspector)
             }),
             new MenuBarItem("_Help", Array.Empty<MenuItem>())
@@ -140,6 +140,40 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
         };
         _workspace?.Add(castView);
         castView.SetFocus();
+    }
+
+    private void ShowStage()
+    {
+        _uiWin!.Title = "Stage";
+        _workspace?.RemoveAll();
+
+        var stage = new StageView
+        {
+            X = 0,
+            Y = 0,
+            Width = Dim.Fill(),
+            Height = Dim.Percent(75)
+        };
+
+        _scoreView = new ScoreView
+        {
+            X = 0,
+            Y = Pos.Percent(75),
+            Width = Dim.Fill(),
+            Height = Dim.Fill()
+        };
+        stage.Attach(_scoreView);
+        _scoreView.SpriteSelected += (ch, st) => Log($"spriteSelected {ch}:{st}");
+        _scoreView.PlayFromHere += f => Log($"Play from {f}");
+        _scoreView.InfoChanged += (f, ch, sp, mem) =>
+        {
+            UpdateInfo(f, ch, sp, mem);
+            stage.SetFrame(f);
+        };
+
+        _workspace?.Add(stage, _scoreView);
+        _scoreView.SetFocus();
+        _scoreView.TriggerInfo();
     }
 
     private void UpdateInfo(int frame, int channel, int? sprite, string? member)

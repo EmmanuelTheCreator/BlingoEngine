@@ -19,10 +19,10 @@ public static class TestMovieBuilder
     /// </summary>
     public static IReadOnlyList<LingoSpriteDTO> BuildSprites() => new List<LingoSpriteDTO>
     {
-        new() { Name = "Greeting", SpriteNum = 1, MemberNum = 1, BeginFrame = 1, EndFrame = 60 },
-        new() { Name = "Info", SpriteNum = 2, MemberNum = 2, BeginFrame = 1, EndFrame = 60 },
-        new() { Name = "Box", SpriteNum = 3, MemberNum = 3, BeginFrame = 1, EndFrame = 60 },
-        new() { Name = "Greeting", SpriteNum = 4, MemberNum = 1, BeginFrame = 1, EndFrame = 60 },
-        new() { Name = "Info", SpriteNum = 5, MemberNum = 2, BeginFrame = 1, EndFrame = 60 },
+        new() { Name = "Greeting", SpriteNum = 1, MemberNum = 1, BeginFrame = 1, EndFrame = 60, LocH = 100, LocV = 100 },
+        new() { Name = "Info", SpriteNum = 2, MemberNum = 2, BeginFrame = 1, EndFrame = 60, LocH = 300, LocV = 200 },
+        new() { Name = "Box", SpriteNum = 3, MemberNum = 3, BeginFrame = 1, EndFrame = 60, LocH = 400, LocV = 300 },
+        new() { Name = "Greeting", SpriteNum = 4, MemberNum = 1, BeginFrame = 1, EndFrame = 60, LocH = 150, LocV = 400 },
+        new() { Name = "Info", SpriteNum = 5, MemberNum = 2, BeginFrame = 1, EndFrame = 60, LocH = 500, LocV = 120 },
     };
 }

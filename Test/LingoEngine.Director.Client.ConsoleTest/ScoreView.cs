@@ -80,6 +80,7 @@ internal sealed class ScoreView : ScrollView
                 SetNeedsDisplay();
                 NotifyInfoChanged();
             }
+            ClampContentOffset();
             return true;
         }
         if (me.Flags.HasFlag(MouseFlags.Button3Clicked))
@@ -95,9 +96,24 @@ internal sealed class ScoreView : ScrollView
                 NotifyInfoChanged();
                 ShowActionMenu();
             }
+            ClampContentOffset();
             return true;
         }
-        return base.MouseEvent(me);
+        var handled = base.MouseEvent(me);
+        ClampContentOffset();
+        return handled;
+    }
+
+    private void ClampContentOffset()
+    {
+        var offset = ContentOffset;
+        var visibleFrames = Bounds.Width - LabelWidth;
+        var visibleChannels = Bounds.Height - 1;
+        var maxX = Math.Max(0, FrameCount - visibleFrames);
+        var maxY = Math.Max(0, ChannelCount - visibleChannels);
+        offset.X = Math.Clamp(offset.X, 0, maxX);
+        offset.Y = Math.Clamp(offset.Y, 0, maxY);
+        ContentOffset = offset;
     }
 
     private void MoveCursor(int dx, int dy)
@@ -281,6 +297,7 @@ internal sealed class ScoreView : ScrollView
                     _sprites.Remove(sprite);
                     SetNeedsDisplay();
                     NotifyInfoChanged();
+                    NotifySpriteChanged();
                 }
                 break;
             case "Add Keyframe":
@@ -298,6 +315,7 @@ internal sealed class ScoreView : ScrollView
                         sprite.Start = val.Value;
                         SetNeedsDisplay();
                         NotifyInfoChanged();
+                        NotifySpriteChanged();
                     }
                 }
                 break;
@@ -310,6 +328,7 @@ internal sealed class ScoreView : ScrollView
                         sprite.End = val.Value;
                         SetNeedsDisplay();
                         NotifyInfoChanged();
+                        NotifySpriteChanged();
                     }
                 }
                 break;
@@ -343,6 +362,7 @@ internal sealed class ScoreView : ScrollView
                 _sprites.Add(new SpriteBlock(_cursorChannel + 1, b, e, num, member.Text?.ToString() ?? string.Empty));
                 SetNeedsDisplay();
                 NotifyInfoChanged();
+                NotifySpriteChanged();
             }
             Application.RequestStop();
         };
@@ -397,9 +417,13 @@ internal sealed class ScoreView : ScrollView
 
     public void TriggerInfo() => NotifyInfoChanged();
 
+    private void NotifySpriteChanged() => SpriteChanged?.Invoke();
+
     public event Action<int, int>? SpriteSelected;
 
     public event Action<int>? PlayFromHere;
+
+    public event Action? SpriteChanged;
 
     private sealed class SpriteBlock
     {
