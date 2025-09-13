@@ -14,6 +14,7 @@ internal sealed class ScoreView : View
     private int _cursorFrame;
     private int _vOffset;
     private int _hOffset;
+    private int _playFrame;
     private readonly List<SpriteBlock> _sprites = new()
     {
         new SpriteBlock(1, 1, 60),
@@ -57,6 +58,9 @@ internal sealed class ScoreView : View
                 return true;
             case Key.CursorRight:
                 MoveCursor(step, 0);
+                return true;
+            case Key.Enter:
+                ShowActionMenu();
                 return true;
         }
         return base.ProcessKey(keyEvent);
@@ -133,6 +137,20 @@ internal sealed class ScoreView : View
             }
         }
 
+        if (_playFrame >= _hOffset && _playFrame < _hOffset + visibleFrames)
+        {
+            var frame = _playFrame + 1;
+            var label = frame.ToString();
+            var pos = LabelWidth + _playFrame - _hOffset - label.Length + 1;
+            if (pos >= LabelWidth)
+            {
+                Driver.SetAttribute(Application.Driver.MakeAttribute(Color.BrightRed, Color.Blue));
+                Move(pos, 0);
+                Driver.AddStr(label);
+                Driver.SetAttribute(ColorScheme.Normal);
+            }
+        }
+
         foreach (var sprite in _sprites)
         {
             var channelIdx = sprite.Channel - 1;
@@ -160,12 +178,185 @@ internal sealed class ScoreView : View
         var cursorY = _cursorChannel - _vOffset + 1;
         if (cursorX >= LabelWidth && cursorX < w && cursorY >= 1 && cursorY < h)
         {
-            Driver.SetAttribute(Application.Driver.MakeAttribute(Color.BrightRed, Color.Black));
+            Driver.SetAttribute(Application.Driver.MakeAttribute(Color.BrightGreen, Color.Black));
             Move(cursorX, cursorY);
             Driver.AddRune('X');
             Driver.SetAttribute(ColorScheme.Normal);
         }
     }
 
-    private sealed record SpriteBlock(int Channel, int Start, int End);
+    public void SetPlayFrame(int frame)
+    {
+        _playFrame = Math.Clamp(frame, 0, FrameCount - 1);
+        SetNeedsDisplay();
+    }
+
+    private void ShowActionMenu()
+    {
+        var sprite = FindSprite(_cursorChannel + 1, _cursorFrame + 1);
+        string[] items;
+        if (sprite == null)
+        {
+            items = new[] { "Create Sprite" };
+        }
+        else
+        {
+            items = new[]
+            {
+                "Delete Sprite",
+                "Add Keyframe",
+                "Move Keyframe",
+                "Change Start",
+                "Change End",
+                "Play From Here",
+                "Select Sprite"
+            };
+        }
+
+        var list = new ListView(items)
+        {
+            Width = Dim.Fill(),
+            Height = Dim.Fill()
+        };
+        var dialog = new Dialog("Score", 30, items.Length + 4);
+        dialog.Add(list);
+        list.OpenSelectedItem += args =>
+        {
+            var choice = items[args.Item];
+            Application.RequestStop();
+            HandleAction(choice, sprite);
+        };
+        Application.Run(dialog);
+    }
+
+    private void HandleAction(string action, SpriteBlock? sprite)
+    {
+        switch (action)
+        {
+            case "Create Sprite":
+                CreateSpriteDialog();
+                break;
+            case "Delete Sprite":
+                if (sprite != null)
+                {
+                    _sprites.Remove(sprite);
+                    SetNeedsDisplay();
+                }
+                break;
+            case "Add Keyframe":
+                PromptForInt("Add Keyframe", "Frame:");
+                break;
+            case "Move Keyframe":
+                PromptForInt("Move Keyframe", "Frame:");
+                break;
+            case "Change Start":
+                if (sprite != null)
+                {
+                    var val = PromptForInt("Change Start", "Start:");
+                    if (val.HasValue)
+                    {
+                        sprite.Start = val.Value;
+                        SetNeedsDisplay();
+                    }
+                }
+                break;
+            case "Change End":
+                if (sprite != null)
+                {
+                    var val = PromptForInt("Change End", "End:");
+                    if (val.HasValue)
+                    {
+                        sprite.End = val.Value;
+                        SetNeedsDisplay();
+                    }
+                }
+                break;
+            case "Play From Here":
+                PlayFromHere?.Invoke(_cursorFrame + 1);
+                break;
+            case "Select Sprite":
+                if (sprite != null)
+                {
+                    SpriteSelected?.Invoke(sprite.Channel, sprite.Start);
+                }
+                break;
+        }
+    }
+
+    private void CreateSpriteDialog()
+    {
+        var begin = new TextField("1") { X = 14, Y = 1, Width = 10 };
+        var end = new TextField("1") { X = 14, Y = 3, Width = 10 };
+        var locH = new TextField("0") { X = 14, Y = 5, Width = 10 };
+        var locV = new TextField("0") { X = 14, Y = 7, Width = 10 };
+        var member = new TextField("member") { X = 14, Y = 9, Width = 20 };
+        var ok = new Button("Ok", true);
+        ok.Clicked += () =>
+        {
+            if (int.TryParse(begin.Text.ToString(), out var b) &&
+                int.TryParse(end.Text.ToString(), out var e))
+            {
+                _sprites.Add(new SpriteBlock(_cursorChannel + 1, b, e));
+                SetNeedsDisplay();
+            }
+            Application.RequestStop();
+        };
+        var dialog = new Dialog("Create Sprite", 40, 15, ok);
+        dialog.Add(
+            new Label("Begin:") { X = 1, Y = 1 }, begin,
+            new Label("End:") { X = 1, Y = 3 }, end,
+            new Label("LocH:") { X = 1, Y = 5 }, locH,
+            new Label("LocV:") { X = 1, Y = 7 }, locV,
+            new Label("MemberName:") { X = 1, Y = 9 }, member);
+        Application.Run(dialog);
+    }
+
+    private int? PromptForInt(string title, string prompt)
+    {
+        int? result = null;
+        var field = new TextField("0") { X = 12, Y = 1, Width = 10 };
+        var ok = new Button("Ok", true);
+        ok.Clicked += () =>
+        {
+            if (int.TryParse(field.Text.ToString(), out var v))
+            {
+                result = v;
+            }
+            Application.RequestStop();
+        };
+        var dialog = new Dialog(title, 30, 7, ok);
+        dialog.Add(new Label(prompt) { X = 1, Y = 1 }, field);
+        Application.Run(dialog);
+        return result;
+    }
+
+    private SpriteBlock? FindSprite(int channel, int frame)
+    {
+        foreach (var sprite in _sprites)
+        {
+            if (sprite.Channel == channel && frame >= sprite.Start && frame <= sprite.End)
+            {
+                return sprite;
+            }
+        }
+        return null;
+    }
+
+    public event Action<int, int>? SpriteSelected;
+
+    public event Action<int>? PlayFromHere;
+
+    private sealed class SpriteBlock
+    {
+        public int Channel { get; set; }
+        public int Start { get; set; }
+        public int End { get; set; }
+
+        public SpriteBlock(int channel, int start, int end)
+        {
+            Channel = channel;
+            Start = start;
+            End = end;
+        }
+    }
 }

@@ -15,6 +15,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
     private bool _connected;
     private ListView? _logList;
     private Window? _uiWin;
+    private ScoreView? _scoreView;
 
     public DirectorConsoleClient()
     {
@@ -47,7 +48,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
             {
                 new MenuItem("_Score", string.Empty, ShowScore),
                 new MenuItem("_Stage", string.Empty, () => MessageBox.Query("Stage", "Not implemented.", "Ok")),
-                new MenuItem("_Property Window", string.Empty, () => MessageBox.Query("Property", "Not implemented.", "Ok"))
+                new MenuItem("_Property Window", string.Empty, ShowPropertyInspector)
             }),
             new MenuBarItem("_Help", Array.Empty<MenuItem>())
         });
@@ -79,16 +80,31 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
         top.Add(logWin);
     }
 
+    private void ShowPropertyInspector()
+    {
+        var inspector = new PropertyInspector
+        {
+            X = Pos.Center(),
+            Y = Pos.Center(),
+            Width = 40,
+            Height = 15
+        };
+        Application.Top.Add(inspector);
+        inspector.SetFocus();
+    }
+
     private void ShowScore()
     {
         _uiWin?.RemoveAll();
-        var score = new ScoreView
+        _scoreView = new ScoreView
         {
             Width = Dim.Fill(),
-            Height = Dim.Fill()
+            Height = Dim.Fill(),
         };
-        _uiWin?.Add(score);
-        score.SetFocus();
+        _scoreView.SpriteSelected += (ch, st) => Log($"spriteSelected {ch}:{st}");
+        _scoreView.PlayFromHere += f => Log($"Play from {f}");
+        _uiWin?.Add(_scoreView);
+        _scoreView.SetFocus();
     }
 
     private static void SetTurboPascalTheme()
@@ -172,6 +188,15 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
             await foreach (var frame in _client!.StreamFramesAsync(_cts.Token))
             {
                 Log($"Frame {frame.FrameId}");
+                var f = (int)frame.FrameId;
+                if (Application.MainLoop is { } loop)
+                {
+                    loop.Invoke(() => _scoreView?.SetPlayFrame(f));
+                }
+                else
+                {
+                    _scoreView?.SetPlayFrame(f);
+                }
             }
         }
         catch (OperationCanceledException)
