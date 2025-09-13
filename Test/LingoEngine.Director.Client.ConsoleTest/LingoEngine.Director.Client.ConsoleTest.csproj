@@ -12,6 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Director/LingoEngine.Director.Client/LingoEngine.Director.Client.csproj" />
-    <ProjectReference Include="../../src/LingoEngine/LingoEngine.csproj" />
+    <ProjectReference Include="../../src/Director/LingoEngine.Director.Contracts/LingoEngine.Director.Contracts.csproj" />
   </ItemGroup>
 </Project>

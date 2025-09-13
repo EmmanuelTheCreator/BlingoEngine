@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Terminal.Gui;
 
 namespace LingoEngine.Director.Client.ConsoleTest;
 
-internal sealed class ScoreView : View
+internal sealed class ScoreView : ScrollView
 {
     private const int ChannelCount = 100;
     private const int FrameCount = 600;
@@ -12,21 +13,18 @@ internal sealed class ScoreView : View
 
     private int _cursorChannel;
     private int _cursorFrame;
-    private int _vOffset;
-    private int _hOffset;
     private int _playFrame;
-    private readonly List<SpriteBlock> _sprites = new()
-    {
-        new SpriteBlock(1, 1, 60, 1, "Greeting"),
-        new SpriteBlock(2, 1, 60, 2, "Info"),
-        new SpriteBlock(3, 1, 60, 3, "Box"),
-        new SpriteBlock(4, 1, 60, 4, "Greeting"),
-        new SpriteBlock(5, 1, 60, 5, "Info")
-    };
+    private readonly List<SpriteBlock> _sprites;
 
     public ScoreView()
     {
+        _sprites = TestMovieBuilder.BuildSprites()
+            .Select(s => new SpriteBlock(s.Channel, s.Start, s.End, s.Number, s.MemberName))
+            .ToList();
         CanFocus = true;
+        ContentSize = new Size(FrameCount + LabelWidth, ChannelCount + 1);
+        ShowVerticalScrollIndicator = true;
+        ShowHorizontalScrollIndicator = true;
     }
 
     public event Action<int, int, int?, string?>? InfoChanged;
@@ -68,6 +66,40 @@ internal sealed class ScoreView : View
         return base.ProcessKey(keyEvent);
     }
 
+    public override bool MouseEvent(MouseEvent me)
+    {
+        if (me.Flags.HasFlag(MouseFlags.Button1Clicked))
+        {
+            var frame = ContentOffset.X + me.X - LabelWidth;
+            var channel = ContentOffset.Y + me.Y - 1;
+            if (frame >= 0 && frame < FrameCount && channel >= 0 && channel < ChannelCount)
+            {
+                _cursorFrame = frame;
+                _cursorChannel = channel;
+                EnsureVisible();
+                SetNeedsDisplay();
+                NotifyInfoChanged();
+            }
+            return true;
+        }
+        if (me.Flags.HasFlag(MouseFlags.Button3Clicked))
+        {
+            var frame = ContentOffset.X + me.X - LabelWidth;
+            var channel = ContentOffset.Y + me.Y - 1;
+            if (frame >= 0 && frame < FrameCount && channel >= 0 && channel < ChannelCount)
+            {
+                _cursorFrame = frame;
+                _cursorChannel = channel;
+                EnsureVisible();
+                SetNeedsDisplay();
+                NotifyInfoChanged();
+                ShowActionMenu();
+            }
+            return true;
+        }
+        return base.MouseEvent(me);
+    }
+
     private void MoveCursor(int dx, int dy)
     {
         _cursorFrame = Math.Clamp(_cursorFrame + dx, 0, FrameCount - 1);
@@ -81,22 +113,24 @@ internal sealed class ScoreView : View
     {
         var visibleFrames = Bounds.Width - LabelWidth;
         var visibleChannels = Bounds.Height - 1;
-        if (_cursorFrame < _hOffset)
+        var offset = ContentOffset;
+        if (_cursorFrame < offset.X)
         {
-            _hOffset = _cursorFrame;
+            offset.X = _cursorFrame;
         }
-        else if (_cursorFrame >= _hOffset + visibleFrames)
+        else if (_cursorFrame >= offset.X + visibleFrames)
         {
-            _hOffset = _cursorFrame - visibleFrames + 1;
+            offset.X = _cursorFrame - visibleFrames + 1;
         }
-        if (_cursorChannel < _vOffset)
+        if (_cursorChannel < offset.Y)
         {
-            _vOffset = _cursorChannel;
+            offset.Y = _cursorChannel;
         }
-        else if (_cursorChannel >= _vOffset + visibleChannels)
+        else if (_cursorChannel >= offset.Y + visibleChannels)
         {
-            _vOffset = _cursorChannel - visibleChannels + 1;
+            offset.Y = _cursorChannel - visibleChannels + 1;
         }
+        ContentOffset = offset;
     }
 
     public override void Redraw(Rect bounds)
@@ -116,18 +150,20 @@ internal sealed class ScoreView : View
 
         var visibleFrames = w - LabelWidth;
         var visibleChannels = h - 1;
+        var offsetX = ContentOffset.X;
+        var offsetY = ContentOffset.Y;
 
-        for (var i = 0; i < visibleChannels && _vOffset + i < ChannelCount; i++)
+        for (var i = 0; i < visibleChannels && offsetY + i < ChannelCount; i++)
         {
-            var channel = _vOffset + i + 1;
+            var channel = offsetY + i + 1;
             Move(0, i + 1);
             var label = channel.ToString().PadLeft(LabelWidth - 1);
             Driver.AddStr(label + "|");
         }
 
-        for (var f = 0; f < visibleFrames && _hOffset + f < FrameCount; f++)
+        for (var f = 0; f < visibleFrames && offsetX + f < FrameCount; f++)
         {
-            var frame = _hOffset + f + 1;
+            var frame = offsetX + f + 1;
             if (frame % 10 == 0)
             {
                 var label = frame.ToString();
@@ -140,11 +176,11 @@ internal sealed class ScoreView : View
             }
         }
 
-        if (_playFrame >= _hOffset && _playFrame < _hOffset + visibleFrames)
+        if (_playFrame >= offsetX && _playFrame < offsetX + visibleFrames)
         {
             var frame = _playFrame + 1;
             var label = frame.ToString();
-            var pos = LabelWidth + _playFrame - _hOffset - label.Length + 1;
+            var pos = LabelWidth + _playFrame - offsetX - label.Length + 1;
             if (pos >= LabelWidth)
             {
                 Driver.SetAttribute(Application.Driver.MakeAttribute(Color.BrightRed, Color.Blue));
@@ -157,28 +193,28 @@ internal sealed class ScoreView : View
         foreach (var sprite in _sprites)
         {
             var channelIdx = sprite.Channel - 1;
-            if (channelIdx < _vOffset || channelIdx >= _vOffset + visibleChannels)
+            if (channelIdx < offsetY || channelIdx >= offsetY + visibleChannels)
             {
                 continue;
             }
-            var start = Math.Max(sprite.Start - 1, _hOffset);
-            var end = Math.Min(sprite.End - 1, _hOffset + visibleFrames - 1);
-            if (end < _hOffset || start > _hOffset + visibleFrames - 1)
+            var start = Math.Max(sprite.Start - 1, offsetX);
+            var end = Math.Min(sprite.End - 1, offsetX + visibleFrames - 1);
+            if (end < offsetX || start > offsetX + visibleFrames - 1)
             {
                 continue;
             }
-            var y = channelIdx - _vOffset + 1;
+            var y = channelIdx - offsetY + 1;
             Driver.SetAttribute(Application.Driver.MakeAttribute(Color.Black, Color.BrightBlue));
             for (var f = start; f <= end; f++)
             {
-                Move(LabelWidth + f - _hOffset, y);
+                Move(LabelWidth + f - offsetX, y);
                 Driver.AddRune(' ');
             }
             Driver.SetAttribute(ColorScheme.Normal);
         }
 
-        var cursorX = LabelWidth + _cursorFrame - _hOffset;
-        var cursorY = _cursorChannel - _vOffset + 1;
+        var cursorX = LabelWidth + _cursorFrame - offsetX;
+        var cursorY = _cursorChannel - offsetY + 1;
         if (cursorX >= LabelWidth && cursorX < w && cursorY >= 1 && cursorY < h)
         {
             Driver.SetAttribute(Application.Driver.MakeAttribute(Color.BrightGreen, Color.Black));
