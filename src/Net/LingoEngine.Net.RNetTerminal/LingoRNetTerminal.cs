@@ -5,7 +5,7 @@ using Timer = System.Timers.Timer;
 
 namespace LingoEngine.Net.RNetTerminal;
 
-public sealed class DirectorConsoleClient : IAsyncDisposable
+public sealed class LingoRNetTerminal : IAsyncDisposable
 {
     private LingoRNetClient? _client;
     private readonly List<string> _logs = new();
@@ -21,7 +21,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
     private StatusItem? _infoItem;
     private int? _selectedSprite;
 
-    public DirectorConsoleClient()
+    public LingoRNetTerminal()
     {
     }
 
@@ -87,6 +87,14 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
             if (_selectedSprite.HasValue && _client != null)
             {
                 _ = _client.SendCommandAsync(new SetSpritePropCmd(_selectedSprite.Value, n, v));
+            }
+        };
+        _propertyInspector.KeyPress += args =>
+        {
+            if (args.KeyEvent.Key == Key.Tab && _workspace?.Subviews.Count > 0)
+            {
+                _workspace.Subviews[0].SetFocus();
+                args.Handled = true;
             }
         };
         _uiWin.Add(_workspace, _propertyInspector);
@@ -217,7 +225,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
             Normal = Application.Driver.MakeAttribute(Color.White, Color.BrightBlue),
             Focus = Application.Driver.MakeAttribute(Color.Black, Color.White),
             HotNormal = Application.Driver.MakeAttribute(Color.BrightYellow, Color.BrightBlue),
-            HotFocus = Application.Driver.MakeAttribute(Color.BrightYellow, Color.White),
+            HotFocus = Application.Driver.MakeAttribute(Color.Black, Color.White),
             Disabled = Application.Driver.MakeAttribute(Color.Gray, Color.BrightBlue)
         };
         Colors.Base = baseScheme;
@@ -228,7 +236,7 @@ public sealed class DirectorConsoleClient : IAsyncDisposable
             Normal = Application.Driver.MakeAttribute(Color.Black, Color.Gray),
             Focus = Application.Driver.MakeAttribute(Color.Black, Color.White),
             HotNormal = Application.Driver.MakeAttribute(Color.BrightYellow, Color.Gray),
-            HotFocus = Application.Driver.MakeAttribute(Color.BrightYellow, Color.White),
+            HotFocus = Application.Driver.MakeAttribute(Color.Black, Color.White),
             Disabled = Application.Driver.MakeAttribute(Color.DarkGray, Color.Gray)
         };
         Colors.Menu = menuScheme;

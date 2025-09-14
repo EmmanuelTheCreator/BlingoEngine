@@ -9,7 +9,7 @@ internal sealed class ScoreView : ScrollView
 {
     private const int SpriteChannelCount = 100;
     private const int FrameCount = 600;
-    private const int LabelWidth = 4;
+    private readonly int _labelWidth;
     private static readonly string[] SpecialChannels =
     {
         "Tempo",
@@ -44,12 +44,13 @@ internal sealed class ScoreView : ScrollView
         _sprites = TestMovieBuilder.BuildSprites()
             .Select(s => new SpriteBlock(s.SpriteNum, s.BeginFrame, s.EndFrame, s.SpriteNum, s.Name))
             .ToList();
+        _labelWidth = Math.Max(SpecialChannels.Max(s => s.Length), SpriteChannelCount.ToString().Length) + 1;
         CanFocus = true;
         ColorScheme = new ColorScheme
         {
             Normal = Application.Driver.MakeAttribute(Color.White, Color.DarkGray)
         };
-        ContentSize = new Size(FrameCount + LabelWidth, TotalChannels + 1);
+        ContentSize = new Size(FrameCount + _labelWidth, TotalChannels + 1);
         ShowVerticalScrollIndicator = true;
         ShowHorizontalScrollIndicator = true;
     }
@@ -105,7 +106,7 @@ internal sealed class ScoreView : ScrollView
     {
         if (me.Flags.HasFlag(MouseFlags.Button1Clicked))
         {
-            var frame = ContentOffset.X + me.X - LabelWidth;
+            var frame = ContentOffset.X + me.X - _labelWidth;
             var channel = ContentOffset.Y + me.Y - 1;
             if (frame >= 0 && frame < FrameCount && channel >= 0 && channel < TotalChannels)
             {
@@ -114,13 +115,14 @@ internal sealed class ScoreView : ScrollView
                 EnsureVisible();
                 SetNeedsDisplay();
                 NotifyInfoChanged();
+                SetFocus();
             }
             ClampContentOffset();
             return true;
         }
         if (me.Flags.HasFlag(MouseFlags.Button3Clicked))
         {
-            var frame = ContentOffset.X + me.X - LabelWidth;
+            var frame = ContentOffset.X + me.X - _labelWidth;
             var channel = ContentOffset.Y + me.Y - 1;
             if (frame >= 0 && frame < FrameCount && channel >= 0 && channel < TotalChannels)
             {
@@ -129,6 +131,7 @@ internal sealed class ScoreView : ScrollView
                 EnsureVisible();
                 SetNeedsDisplay();
                 NotifyInfoChanged();
+                SetFocus();
                 ShowActionMenu();
             }
             ClampContentOffset();
@@ -142,7 +145,7 @@ internal sealed class ScoreView : ScrollView
     private void ClampContentOffset()
     {
         var offset = ContentOffset;
-        var visibleFrames = Bounds.Width - LabelWidth;
+        var visibleFrames = Bounds.Width - _labelWidth;
         var visibleChannels = Bounds.Height - 1;
         var maxX = Math.Max(0, FrameCount - visibleFrames);
         var maxY = Math.Max(0, TotalChannels - visibleChannels);
@@ -162,7 +165,7 @@ internal sealed class ScoreView : ScrollView
 
     private void EnsureVisible()
     {
-        var visibleFrames = Bounds.Width - LabelWidth;
+        var visibleFrames = Bounds.Width - _labelWidth;
         var visibleChannels = Bounds.Height - 1;
         var offset = ContentOffset;
         if (_cursorFrame < offset.X)
@@ -199,7 +202,7 @@ internal sealed class ScoreView : ScrollView
             }
         }
 
-        var visibleFrames = w - LabelWidth;
+        var visibleFrames = w - _labelWidth;
         var visibleChannels = h - 1;
         var offsetX = ContentOffset.X;
         var offsetY = ContentOffset.Y;
@@ -218,7 +221,7 @@ internal sealed class ScoreView : ScrollView
                 var chNum = channelIndex - SpecialChannels.Length + 1;
                 label = chNum.ToString();
             }
-            label = label.PadLeft(LabelWidth - 1);
+            label = label.PadLeft(_labelWidth - 1);
             Driver.AddStr(label + "|");
         }
 
@@ -228,8 +231,8 @@ internal sealed class ScoreView : ScrollView
             if (frame % 10 == 0)
             {
                 var label = frame.ToString();
-                var pos = LabelWidth + f - label.Length + 1;
-                if (pos >= LabelWidth)
+                var pos = _labelWidth + f - label.Length + 1;
+                if (pos >= _labelWidth)
                 {
                     Move(pos, 0);
                     Driver.AddStr(label);
@@ -241,8 +244,8 @@ internal sealed class ScoreView : ScrollView
         {
             var frame = _playFrame + 1;
             var label = frame.ToString();
-            var pos = LabelWidth + _playFrame - offsetX - label.Length + 1;
-            if (pos >= LabelWidth)
+            var pos = _labelWidth + _playFrame - offsetX - label.Length + 1;
+            if (pos >= _labelWidth)
             {
                 Driver.SetAttribute(Application.Driver.MakeAttribute(Color.BrightRed, Color.BrightBlue));
                 Move(pos, 0);
@@ -269,7 +272,7 @@ internal sealed class ScoreView : ScrollView
             Driver.SetAttribute(Application.Driver.MakeAttribute(Color.White, bg));
             for (var f = start; f <= end; f++)
             {
-                Move(LabelWidth + f - offsetX, y);
+                Move(_labelWidth + f - offsetX, y);
                 Driver.AddRune(' ');
             }
             Driver.SetAttribute(Application.Driver.MakeAttribute(Color.Black, bg));
@@ -280,15 +283,15 @@ internal sealed class ScoreView : ScrollView
                 {
                     continue;
                 }
-                Move(LabelWidth + idx - offsetX, y);
+                Move(_labelWidth + idx - offsetX, y);
                 Driver.AddRune('o');
             }
             Driver.SetAttribute(ColorScheme.Normal);
         }
 
-        var cursorX = LabelWidth + _cursorFrame - offsetX;
+        var cursorX = _labelWidth + _cursorFrame - offsetX;
         var cursorY = _cursorChannel - offsetY + 1;
-        if (cursorX >= LabelWidth && cursorX < w && cursorY >= 1 && cursorY < h)
+        if (cursorX >= _labelWidth && cursorX < w && cursorY >= 1 && cursorY < h)
         {
             Driver.SetAttribute(Application.Driver.MakeAttribute(Color.Black, Color.White));
             Move(cursorX, cursorY);
