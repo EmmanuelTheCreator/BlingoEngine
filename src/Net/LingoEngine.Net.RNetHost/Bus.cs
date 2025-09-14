@@ -4,7 +4,7 @@ using LingoEngine.Net.RNetContracts;
 namespace LingoEngine.Net.RNetHost;
 
 /// <summary>
-/// Channels used to communicate between the Director runtime and the SignalR hub.
+/// Channels used to communicate between the Lingo engine runtime and the SignalR hub.
 /// </summary>
 public interface IBus
 {
@@ -40,6 +40,15 @@ public interface IBus
 
     /// <summary>Channel carrying text style updates.</summary>
     Channel<TextStyleDto> TextStyles { get; }
+
+    /// <summary>Channel carrying movie property updates.</summary>
+    Channel<MoviePropertyDto> MovieProperties { get; }
+
+    /// <summary>Channel carrying stage property updates.</summary>
+    Channel<StagePropertyDto> StageProperties { get; }
+
+    /// <summary>Channel carrying sprite collection change events.</summary>
+    Channel<SpriteCollectionEventDto> SpriteCollectionEvents { get; }
 
     /// <summary>Channel carrying commands from the client.</summary>
     Channel<DebugCommandDto> Commands { get; }
@@ -132,6 +141,29 @@ internal sealed class Bus : IBus
 
     public Channel<TextStyleDto> TextStyles { get; } =
         Channel.CreateBounded<TextStyleDto>(new BoundedChannelOptions(256)
+        {
+            SingleWriter = true,
+            SingleReader = false,
+            FullMode = BoundedChannelFullMode.DropOldest
+        });
+    public Channel<MoviePropertyDto> MovieProperties { get; } =
+        Channel.CreateBounded<MoviePropertyDto>(new BoundedChannelOptions(64)
+        {
+            SingleWriter = true,
+            SingleReader = false,
+            FullMode = BoundedChannelFullMode.DropOldest
+        });
+
+    public Channel<StagePropertyDto> StageProperties { get; } =
+        Channel.CreateBounded<StagePropertyDto>(new BoundedChannelOptions(64)
+        {
+            SingleWriter = true,
+            SingleReader = false,
+            FullMode = BoundedChannelFullMode.DropOldest
+        });
+
+    public Channel<SpriteCollectionEventDto> SpriteCollectionEvents { get; } =
+        Channel.CreateBounded<SpriteCollectionEventDto>(new BoundedChannelOptions(64)
         {
             SingleWriter = true,
             SingleReader = false,

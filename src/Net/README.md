@@ -1,8 +1,9 @@
 # RNet
 
 **RNet** stands for *Remote Net* and provides a lightweight protocol for driving a LingoEngine movie from another process.
-It is built on top of SignalR and streams movie state, frame data, and debug commands so tools can control a running movie like a
-remote control.
+It is built on top of SignalR and streams movie state, frame data, and debug commands so tools can control a running movie like a remote control.
+
+RNet hooks directly into **LingoEngine**, enabling any project using the core engine to be remotely controlled.
 
 The projects in this folder implement the different pieces of the system:
 

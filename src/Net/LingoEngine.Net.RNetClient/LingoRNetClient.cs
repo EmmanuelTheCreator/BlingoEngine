@@ -46,6 +46,15 @@ public interface ILingoRNetClient : IAsyncDisposable
     /// <summary>Streams member property updates from the host.</summary>
     IAsyncEnumerable<MemberPropertyDto> StreamMemberPropertiesAsync(CancellationToken ct = default);
 
+    /// <summary>Streams movie property updates from the host.</summary>
+    IAsyncEnumerable<MoviePropertyDto> StreamMoviePropertiesAsync(CancellationToken ct = default);
+
+    /// <summary>Streams stage property updates from the host.</summary>
+    IAsyncEnumerable<StagePropertyDto> StreamStagePropertiesAsync(CancellationToken ct = default);
+
+    /// <summary>Streams sprite collection change events from the host.</summary>
+    IAsyncEnumerable<SpriteCollectionEventDto> StreamSpriteCollectionEventsAsync(CancellationToken ct = default);
+
     /// <summary>Streams text style updates from the host.</summary>
     IAsyncEnumerable<TextStyleDto> StreamTextStylesAsync(CancellationToken ct = default);
 
@@ -162,6 +171,27 @@ public sealed class LingoRNetClient : ILingoRNetClient
     {
         EnsureConnected();
         return _connection!.StreamAsync<MemberPropertyDto>("StreamMemberProperties", ct);
+    }
+
+    /// <inheritdoc />
+    public IAsyncEnumerable<MoviePropertyDto> StreamMoviePropertiesAsync(CancellationToken ct = default)
+    {
+        EnsureConnected();
+        return _connection!.StreamAsync<MoviePropertyDto>("StreamMovieProperties", ct);
+    }
+
+    /// <inheritdoc />
+    public IAsyncEnumerable<StagePropertyDto> StreamStagePropertiesAsync(CancellationToken ct = default)
+    {
+        EnsureConnected();
+        return _connection!.StreamAsync<StagePropertyDto>("StreamStageProperties", ct);
+    }
+
+    /// <inheritdoc />
+    public IAsyncEnumerable<SpriteCollectionEventDto> StreamSpriteCollectionEventsAsync(CancellationToken ct = default)
+    {
+        EnsureConnected();
+        return _connection!.StreamAsync<SpriteCollectionEventDto>("StreamSpriteCollectionEvents", ct);
     }
 
     /// <inheritdoc />

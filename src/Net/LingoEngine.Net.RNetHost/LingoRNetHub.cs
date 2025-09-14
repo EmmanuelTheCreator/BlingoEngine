@@ -24,7 +24,7 @@ public sealed class LingoRNetHub : Hub
         _player = player;
     }
 
-    
+
     #region Client->Server
     /// <summary>
     /// Initializes a new debug session.
@@ -71,8 +71,8 @@ public sealed class LingoRNetHub : Hub
     {
         if (_player.ActiveMovie == null)
             return Task.FromResult(new MovieJsonDto(""));
-        var dtoTuplet = new JsonStateRepository().Serialize((LingoMovie)_player.ActiveMovie,new JsonStateRepository.MovieStoreOptions { });
-       
+        var dtoTuplet = new JsonStateRepository().Serialize((LingoMovie)_player.ActiveMovie, new JsonStateRepository.MovieStoreOptions { });
+
         return Task.FromResult(new MovieJsonDto(dtoTuplet.JsonString));
     }
 
@@ -232,6 +232,51 @@ public sealed class LingoRNetHub : Hub
     }
 
     /// <summary>
+    /// Streams movie property updates to the connected client.
+    /// </summary>
+    public async IAsyncEnumerable<MoviePropertyDto> StreamMovieProperties([EnumeratorCancellation] CancellationToken ct)
+    {
+        var reader = _bus.MovieProperties.Reader;
+        while (await reader.WaitToReadAsync(ct).ConfigureAwait(false))
+        {
+            while (reader.TryRead(out var prop))
+            {
+                yield return prop;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Streams stage property updates to the connected client.
+    /// </summary>
+    public async IAsyncEnumerable<StagePropertyDto> StreamStageProperties([EnumeratorCancellation] CancellationToken ct)
+    {
+        var reader = _bus.StageProperties.Reader;
+        while (await reader.WaitToReadAsync(ct).ConfigureAwait(false))
+        {
+            while (reader.TryRead(out var prop))
+            {
+                yield return prop;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Streams sprite collection change events to the connected client.
+    /// </summary>
+    public async IAsyncEnumerable<SpriteCollectionEventDto> StreamSpriteCollectionEvents([EnumeratorCancellation] CancellationToken ct)
+    {
+        var reader = _bus.SpriteCollectionEvents.Reader;
+        while (await reader.WaitToReadAsync(ct).ConfigureAwait(false))
+        {
+            while (reader.TryRead(out var evt))
+            {
+                yield return evt;
+            }
+        }
+    }
+
+    /// <summary>
     /// Streams text style updates to the connected client.
     /// </summary>
     public async IAsyncEnumerable<TextStyleDto> StreamTextStyles([EnumeratorCancellation] CancellationToken ct)
@@ -244,7 +289,7 @@ public sealed class LingoRNetHub : Hub
                 yield return style;
             }
         }
-    } 
+    }
     #endregion
 
 

@@ -127,6 +127,39 @@ void RNetClient::StreamMemberProperties(std::function<void(const MemberPropertyD
     }
 }
 
+void RNetClient::StreamMovieProperties(std::function<void(const MoviePropertyDto&)> handler)
+{
+    if (_connection)
+    {
+        _connection->on("StreamMovieProperties", [handler](const MoviePropertyDto& dto)
+        {
+            handler(dto);
+        });
+    }
+}
+
+void RNetClient::StreamStageProperties(std::function<void(const StagePropertyDto&)> handler)
+{
+    if (_connection)
+    {
+        _connection->on("StreamStageProperties", [handler](const StagePropertyDto& dto)
+        {
+            handler(dto);
+        });
+    }
+}
+
+void RNetClient::StreamSpriteCollectionEvents(std::function<void(const SpriteCollectionEventDto&)> handler)
+{
+    if (_connection)
+    {
+        _connection->on("StreamSpriteCollectionEvents", [handler](const SpriteCollectionEventDto& dto)
+        {
+            handler(dto);
+        });
+    }
+}
+
 void RNetClient::StreamTextStyles(std::function<void(const TextStyleDto&)> handler)
 {
     if (_connection)

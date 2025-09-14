@@ -6,12 +6,12 @@ using Microsoft.Extensions.Hosting;
 namespace LingoEngine.Net.RNetHost;
 
 /// <summary>
-/// Hosts the debugging SignalR server within the RNet process.
+/// Hosts the SignalR server within the RNet process.
 /// </summary>
-public interface IDebugServer
+public interface IRNetServer
 {
     /// <summary>Provides access to the publisher used by the game loop.</summary>
-    IDebugPublisher Publisher { get; }
+    IRNetPublisher Publisher { get; }
 
     /// <summary>Starts the server on the specified URL without blocking.</summary>
     Task StartAsync(string url, CancellationToken ct = default);
@@ -21,16 +21,16 @@ public interface IDebugServer
 }
 
 /// <summary>
-/// Default implementation of <see cref="IDebugServer"/>.
+/// Default implementation of <see cref="IRNetServer"/>.
 /// </summary>
-public sealed class DebugServer : IDebugServer
+public sealed class RNetServer : IRNetServer
 {
     private WebApplication? _app;
     private CancellationTokenSource? _cts;
 
     /// <inheritdoc />
-    public IDebugPublisher Publisher
-        => _app?.Services.GetRequiredService<IDebugPublisher>()
+    public IRNetPublisher Publisher
+        => _app?.Services.GetRequiredService<IRNetPublisher>()
            ?? throw new InvalidOperationException("Server not started.");
 
     /// <inheritdoc />
@@ -47,7 +47,7 @@ public sealed class DebugServer : IDebugServer
         builder.WebHost.UseKestrel();
         builder.WebHost.UseUrls(url);
         builder.Services.AddSingleton<IBus, Bus>();
-        builder.Services.AddSingleton<IDebugPublisher, DebugPublisher>();
+        builder.Services.AddSingleton<IRNetPublisher, RNetPublisher>();
         builder.Services.AddSignalR();
 
         var app = builder.Build();

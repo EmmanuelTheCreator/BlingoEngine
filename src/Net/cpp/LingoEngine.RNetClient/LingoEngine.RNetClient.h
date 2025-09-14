@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <variant>
+#include <optional>
 #include <functional>
 #include <memory>
 
@@ -43,6 +44,21 @@ struct SpriteDeltaDto {
     int Ink;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SpriteDeltaDto, Frame, SpriteNum, Z, MemberId, LocH, LocV, Width, Height, Rotation, Skew, Blend, Ink);
+
+struct SpriteDto {
+    int SpriteNum;
+    int Z;
+    int MemberId;
+    int LocH;
+    int LocV;
+    int Width;
+    int Height;
+    int Rotation;
+    int Skew;
+    int Blend;
+    int Ink;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SpriteDto, SpriteNum, Z, MemberId, LocH, LocV, Width, Height, Rotation, Skew, Blend, Ink);
 
 struct KeyframeDto {
     int Frame;
@@ -93,11 +109,41 @@ struct TransitionDto {
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TransitionDto, Frame, Type, Duration);
 
 struct MemberPropertyDto {
+    int CastLibNum;
+    int NumberInCast;
     std::string MemberName;
     std::string Prop;
     std::string Value;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MemberPropertyDto, MemberName, Prop, Value);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MemberPropertyDto, CastLibNum, NumberInCast, MemberName, Prop, Value);
+
+struct MoviePropertyDto {
+    std::string Prop;
+    std::string Value;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MoviePropertyDto, Prop, Value);
+
+struct StagePropertyDto {
+    std::string Prop;
+    std::string Value;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(StagePropertyDto, Prop, Value);
+
+enum class SpriteCollectionEventType { Added, Removed, Cleared };
+NLOHMANN_JSON_SERIALIZE_ENUM(SpriteCollectionEventType,
+    {
+        {SpriteCollectionEventType::Added, "Added"},
+        {SpriteCollectionEventType::Removed, "Removed"},
+        {SpriteCollectionEventType::Cleared, "Cleared"},
+    });
+
+struct SpriteCollectionEventDto {
+    std::string Manager;
+    SpriteCollectionEventType Event;
+    int SpriteNum;
+    std::optional<SpriteDto> Sprite;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SpriteCollectionEventDto, Manager, Event, SpriteNum, Sprite);
 
 struct TextStyleDto {
     std::string MemberName;
@@ -169,6 +215,9 @@ public:
     void StreamFrameScripts(std::function<void(const FrameScriptDto&)> handler);
     void StreamTransitions(std::function<void(const TransitionDto&)> handler);
     void StreamMemberProperties(std::function<void(const MemberPropertyDto&)> handler);
+    void StreamMovieProperties(std::function<void(const MoviePropertyDto&)> handler);
+    void StreamStageProperties(std::function<void(const StagePropertyDto&)> handler);
+    void StreamSpriteCollectionEvents(std::function<void(const SpriteCollectionEventDto&)> handler);
     void StreamTextStyles(std::function<void(const TextStyleDto&)> handler);
 
     MovieStateDto GetMovieSnapshot();
