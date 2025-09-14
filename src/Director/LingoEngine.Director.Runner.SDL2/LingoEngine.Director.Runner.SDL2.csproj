@@ -21,7 +21,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../LingoEngine.Director.SDL2/LingoEngine.Director.SDL2.csproj" />
-    <ProjectReference Include="../../LingoEngine/Net/LingoEngine.Net.Host/LingoEngine.Net.Host.csproj" />
+    <ProjectReference Include="../../Net/LingoEngine.Net.RNetHost/LingoEngine.Net.RNetHost.csproj" />
     <ProjectReference Include="../../LingoEngine.SDL2/LingoEngine.SDL2.csproj" />
   </ItemGroup>
 </Project>
