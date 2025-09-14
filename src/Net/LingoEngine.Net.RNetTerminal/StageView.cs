@@ -29,7 +29,7 @@ internal sealed class StageView : View
         CanFocus = true;
         ColorScheme = new ColorScheme
         {
-            Normal = Application.Driver.MakeAttribute(Color.White, Color.Gray)
+            Normal = Application.Driver.MakeAttribute(Color.White, Color.Black)
         };
         _sprites = TestMovieBuilder.BuildSprites();
         foreach (var m in TestCastBuilder.BuildCastData().SelectMany(c => c.Value))
@@ -120,7 +120,7 @@ internal sealed class StageView : View
             for (var x = 0; x < w; x++)
             {
                 var col = colors[x, y];
-                Driver.SetAttribute(Application.Driver.MakeAttribute(col, Color.Gray));
+                Driver.SetAttribute(Application.Driver.MakeAttribute(col, Color.Black));
                 Driver.AddRune(chars[x, y] == '\0' ? ' ' : chars[x, y]);
             }
         }

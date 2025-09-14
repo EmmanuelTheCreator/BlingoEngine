@@ -57,7 +57,19 @@ internal sealed class PropertyInspector : Window
             Width = Dim.Fill(),
             Height = Dim.Fill(),
             Table = _memberTable,
+            FullRowSelect = true
         };
+        _memberTableView.Style.ShowVerticalCellLines = false;
+        _memberTableView.SelectedColumn = 1;
+        _memberTableView.SelectedCellChanged += _ => _memberTableView.SelectedColumn = 1;
+        _memberTableView.KeyPress += e =>
+        {
+            if (e.KeyEvent.Key == Key.CursorLeft || e.KeyEvent.Key == Key.CursorRight)
+            {
+                e.Handled = true;
+            }
+        };
+        _memberTableView.Style.ColumnStyles.Add(_memberTable.Columns[1], new TableView.ColumnStyle { Alignment = TextAlignment.Right });
         _memberTableView.CellActivated += args =>
         {
             var spec = _memberSpecs[args.Row];
@@ -169,7 +181,19 @@ internal sealed class PropertyInspector : Window
             Width = Dim.Fill(),
             Height = Dim.Fill(),
             Table = table,
+            FullRowSelect = true
         };
+        view.Style.ShowVerticalCellLines = false;
+        view.SelectedColumn = 1;
+        view.SelectedCellChanged += _ => view.SelectedColumn = 1;
+        view.KeyPress += e =>
+        {
+            if (e.KeyEvent.Key == Key.CursorLeft || e.KeyEvent.Key == Key.CursorRight)
+            {
+                e.Handled = true;
+            }
+        };
+        view.Style.ColumnStyles.Add(table.Columns[1], new TableView.ColumnStyle { Alignment = TextAlignment.Right });
         view.CellActivated += args =>
         {
             var spec = props[args.Row];
