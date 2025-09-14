@@ -19,6 +19,84 @@
             "request": "launch",
             "project": "${workspaceFolder}/Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Godot",
             "preLaunchTask": "build"
+        },
+        {
+            "name": "Launch Demo Blazor",
+            "type": "blazorwasm",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Blazor",
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "Launch RNet Terminal",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/Net/LingoEngine.Net.RNetTerminal/bin/Debug/net8.0/LingoEngine.Net.RNetTerminal.dll",
+            "cwd": "${workspaceFolder}/src/Net/LingoEngine.Net.RNetTerminal",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Launch Director Runner SDL2",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/Director/LingoEngine.Director.Runner.SDL2/bin/Debug/net8.0/LingoEngine.Director.Runner.SDL2.dll",
+            "cwd": "${workspaceFolder}/src/Director/LingoEngine.Director.Runner.SDL2",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Launch Director Runner Godot",
+            "type": "godot",
+            "request": "launch",
+            "project": "${workspaceFolder}/src/Director/LingoEngine.Director.Runner.Godot",
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "Launch SDL2 Visual Test",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/Test/LingoEngine.SDL2.GfxVisualTest/bin/Debug/net8.0/LingoEngine.SDL2.GfxVisualTest.dll",
+            "cwd": "${workspaceFolder}/Test/LingoEngine.SDL2.GfxVisualTest",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Launch AbstUI Visual Test SDL2",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.SDL2/bin/Debug/net8.0/AbstUI.GfxVisualTest.SDL2.dll",
+            "cwd": "${workspaceFolder}/WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.SDL2",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Launch AbstUI Visual Test ImGui",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.ImGui/bin/Debug/net8.0/AbstUI.GfxVisualTest.ImGui.dll",
+            "cwd": "${workspaceFolder}/WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.ImGui",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Launch AbstUI Visual Test Godot",
+            "type": "godot",
+            "request": "launch",
+            "project": "${workspaceFolder}/WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.LGodot",
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "Launch AbstUI Visual Test Blazor",
+            "type": "blazorwasm",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.Blazor",
+            "preLaunchTask": "build"
         }
     ]
 }
