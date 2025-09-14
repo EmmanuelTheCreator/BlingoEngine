@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <OutputType>Library</OutputType>
+          <Configurations>Debug;Release</Configurations>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- NuGet Packaging Metadata -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>LingoEngine.Net.RNetHost</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Emmanuel The Creator</Authors>
+    <Company>The Community</Company>
+    <Description>SignalR host exposing a LingoEngine instance over RNet.</Description>
+    <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
+    <PackageTags>LingoEngine RNet Host</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\\..\\LingoEngine.IO\\LingoEngine.IO.csproj" />
+    <ProjectReference Include="..\\..\\LingoEngine\\LingoEngine.csproj" />
+    <ProjectReference Include="..\\LingoEngine.Net.RNetContracts\\LingoEngine.Net.RNetContracts.csproj" />
+    <PackageReference Include="System.Threading.Channels" Version="8.*" />
+  </ItemGroup>
+</Project>

@@ -53,13 +53,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LingoEngine.Blazor", "src\L
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LingoEngine.Director.SDL2", "src\Director\LingoEngine.Director.SDL2\LingoEngine.Director.SDL2.csproj", "{286A9356-30A2-4E09-BC0D-367BF42E3434}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LingoEngine.Net.Contracts", "src\LingoEngine\Net\LingoEngine.Net.Contracts\LingoEngine.Net.Contracts.csproj", "{E95391E9-19E1-420D-9EDA-200F4741C64A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LingoEngine.Net.RNetContracts", "src\Net\LingoEngine.Net.RNetContracts\LingoEngine.Net.RNetContracts.csproj", "{E95391E9-19E1-420D-9EDA-200F4741C64A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LingoEngine.Net.Host", "src\LingoEngine\Net\LingoEngine.Net.Host\LingoEngine.Net.Host.csproj", "{836AEB7C-53D0-49CE-A6FB-A0CB06136631}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LingoEngine.Net.RNetHost", "src\Net\LingoEngine.Net.RNetHost\LingoEngine.Net.RNetHost.csproj", "{836AEB7C-53D0-49CE-A6FB-A0CB06136631}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LingoEngine.Tests", "Test\LingoEngine.Tests\LingoEngine.Tests.csproj", "{D8B763BA-FB6F-4ABD-8EEC-6532010F58FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LingoEngine.Net.Client", "src\LingoEngine\Net\LingoEngine.Net.Client\LingoEngine.Net.Client.csproj", "{3866E9AB-FF4A-4C5F-B724-605F04866CC1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LingoEngine.Net.RNetClient", "src\Net\LingoEngine.Net.RNetClient\LingoEngine.Net.RNetClient.csproj", "{3866E9AB-FF4A-4C5F-B724-605F04866CC1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AbstUI", "AbstUI", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
@@ -103,7 +103,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LingoEngine.Director.Runner
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VisualTest", "VisualTest", "{9E8DA46F-4CCE-4A96-B923-C33EF74C6BA9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LingoEngine.Net.DebugTerminal", "src\LingoEngine\Net\LingoEngine.Net.DebugTerminal\LingoEngine.Net.DebugTerminal.csproj", "{A643D1C9-0CA6-4147-A6F1-A92043CA6D1B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LingoEngine.Net.RNetTerminal", "src\Net\LingoEngine.Net.RNetTerminal\LingoEngine.Net.RNetTerminal.csproj", "{A643D1C9-0CA6-4147-A6F1-A92043CA6D1B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
