@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using LingoEngine.IO.Data.DTO;
 using Terminal.Gui;
 
 namespace LingoEngine.Net.RNetTerminal;
@@ -9,6 +11,7 @@ internal sealed class ScoreView : ScrollView
 {
     private const int SpriteChannelCount = 100;
     private const int FrameCount = 600;
+    private const int StageWidth = 640;
     private readonly int _labelWidth;
     private static readonly string[] SpecialChannels =
     {
@@ -35,6 +38,7 @@ internal sealed class ScoreView : ScrollView
     private int _cursorFrame;
     private int _playFrame;
     private readonly List<SpriteBlock> _sprites;
+    private readonly Dictionary<int, LingoMemberDTO> _members;
     private int? _selectedSprite;
 
     private int TotalChannels => SpriteChannelCount + SpecialChannels.Length;
@@ -42,8 +46,9 @@ internal sealed class ScoreView : ScrollView
     public ScoreView()
     {
         _sprites = TestMovieBuilder.BuildSprites()
-            .Select(s => new SpriteBlock(s.SpriteNum, s.BeginFrame, s.EndFrame, s.SpriteNum, s.Name))
+            .Select(s => new SpriteBlock(s.SpriteNum, s.BeginFrame, s.EndFrame, s.SpriteNum, s.MemberNum, s.Name, s.Width))
             .ToList();
+        _members = TestCastBuilder.BuildCastData().SelectMany(c => c.Value).ToDictionary(m => m.Number);
         _labelWidth = Math.Max(SpecialChannels.Max(s => s.Length), SpriteChannelCount.ToString().Length) + 1;
         CanFocus = true;
         ColorScheme = new ColorScheme
@@ -137,6 +142,34 @@ internal sealed class ScoreView : ScrollView
             ClampContentOffset();
             return true;
         }
+        if (me.Flags.HasFlag(MouseFlags.WheeledUp))
+        {
+            ContentOffset = new Point(ContentOffset.X, ContentOffset.Y - 1);
+            ClampContentOffset();
+            SetNeedsDisplay();
+            return true;
+        }
+        if (me.Flags.HasFlag(MouseFlags.WheeledDown))
+        {
+            ContentOffset = new Point(ContentOffset.X, ContentOffset.Y + 1);
+            ClampContentOffset();
+            SetNeedsDisplay();
+            return true;
+        }
+        if (me.Flags.HasFlag(MouseFlags.WheeledLeft))
+        {
+            ContentOffset = new Point(ContentOffset.X - 1, ContentOffset.Y);
+            ClampContentOffset();
+            SetNeedsDisplay();
+            return true;
+        }
+        if (me.Flags.HasFlag(MouseFlags.WheeledRight))
+        {
+            ContentOffset = new Point(ContentOffset.X + 1, ContentOffset.Y);
+            ClampContentOffset();
+            SetNeedsDisplay();
+            return true;
+        }
         var handled = base.MouseEvent(me);
         ClampContentOffset();
         return handled;
@@ -176,7 +209,7 @@ internal sealed class ScoreView : ScrollView
         {
             offset.X = _cursorFrame;
         }
-        else if (_cursorFrame >= offset.X + visibleFrames)
+        else if (_cursorFrame >= offset.X + visibleFrames - 1)
         {
             offset.X = _cursorFrame - visibleFrames + 1;
         }
@@ -184,7 +217,7 @@ internal sealed class ScoreView : ScrollView
         {
             offset.Y = _cursorChannel;
         }
-        else if (_cursorChannel >= offset.Y + visibleChannels)
+        else if (_cursorChannel >= offset.Y + visibleChannels - 1)
         {
             offset.Y = _cursorChannel - visibleChannels + 1;
         }
@@ -281,6 +314,18 @@ internal sealed class ScoreView : ScrollView
             {
                 Move(_labelWidth + f - offsetX, y);
                 Driver.AddRune(' ');
+            }
+            if (_members.TryGetValue(sprite.MemberNum, out var member) && member.Type == LingoMemberTypeDTO.Text)
+            {
+                var maxChars = Math.Max(1, (int)(sprite.Width / StageWidth * (end - start + 1)));
+                var text = member.Name;
+                var len = Math.Min(text.Length, Math.Min(maxChars, end - start + 1));
+                Driver.SetAttribute(Application.Driver.MakeAttribute(Color.Black, bg));
+                for (var i = 0; i < len; i++)
+                {
+                    Move(_labelWidth + start + i - offsetX, y);
+                    Driver.AddRune(text[i]);
+                }
             }
             Driver.SetAttribute(Application.Driver.MakeAttribute(Color.Black, bg));
             foreach (var kf in sprite.Keyframes.Keys)
@@ -381,7 +426,7 @@ internal sealed class ScoreView : ScrollView
                     var val = PromptForInt("Add Keyframe", "Frame:");
                     if (val.HasValue)
                     {
-                        sprite.Keyframes[val.Value] = new HashSet<string>();
+                        sprite.Keyframes[val.Value] = new Dictionary<string, double>();
                         EditKeyframeDialog(sprite, val.Value);
                         SetNeedsDisplay();
                         NotifySpriteChanged();
@@ -466,7 +511,11 @@ internal sealed class ScoreView : ScrollView
             {
                 var num = _sprites.Count + 1;
                 var ch = _cursorChannel + 1 - SpecialChannels.Length;
-                _sprites.Add(new SpriteBlock(ch, b, e, num, member.Text?.ToString() ?? string.Empty));
+                var name = member.Text?.ToString() ?? string.Empty;
+                var memberEntry = _members.Values.FirstOrDefault(m => m.Name == name);
+                var memberNum = memberEntry?.Number ?? 0;
+                var width = memberEntry?.Width ?? 1;
+                _sprites.Add(new SpriteBlock(ch, b, e, num, memberNum, name, width));
                 SetNeedsDisplay();
                 NotifyInfoChanged();
                 NotifySpriteChanged();
@@ -508,29 +557,42 @@ internal sealed class ScoreView : ScrollView
     {
         if (!sprite.Keyframes.TryGetValue(frame, out var props))
         {
-            props = new HashSet<string>();
+            props = new Dictionary<string, double>();
             sprite.Keyframes[frame] = props;
         }
-        var checks = new List<CheckBox>();
+        var rows = new List<(CheckBox cb, TextField field, string name)>();
         for (var i = 0; i < TweenProperties.Length; i++)
         {
             var name = TweenProperties[i];
-            var cb = new CheckBox(name) { X = 1, Y = i + 1, Checked = props.Contains(name) };
-            checks.Add(cb);
+            var cb = new CheckBox(name) { X = 1, Y = i + 1, Checked = props.ContainsKey(name) };
+            var field = new TextField(props.TryGetValue(name, out var val) ? val.ToString(CultureInfo.InvariantCulture) : "0")
+            {
+                X = 15,
+                Y = i + 1,
+                Width = 10,
+                Visible = cb.Checked
+            };
+            cb.Toggled += _ => field.Visible = cb.Checked;
+            rows.Add((cb, field, name));
         }
         var ok = new Button("Ok", true);
         ok.Clicked += () =>
         {
-            sprite.Keyframes[frame] = checks
-                .Where(c => c.Checked)
-                .Select(c => c.Text.ToString() ?? string.Empty)
-                .ToHashSet();
+            var result = new Dictionary<string, double>();
+            foreach (var (cb, field, name) in rows)
+            {
+                if (cb.Checked && double.TryParse(field.Text.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var val))
+                {
+                    result[name] = val;
+                }
+            }
+            sprite.Keyframes[frame] = result;
             Application.RequestStop();
         };
-        var dialog = new Dialog("Keyframe", 30, TweenProperties.Length + 4, ok);
-        foreach (var cb in checks)
+        var dialog = new Dialog("Keyframe", 40, TweenProperties.Length + 4, ok);
+        foreach (var (cb, field, _) in rows)
         {
-            dialog.Add(cb);
+            dialog.Add(cb, field);
         }
         Application.Run(dialog);
     }
@@ -583,18 +645,22 @@ internal sealed class ScoreView : ScrollView
         public int Start { get; set; }
         public int End { get; set; }
         public int Number { get; }
+        public int MemberNum { get; }
         public string MemberName { get; }
-        public Dictionary<int, HashSet<string>> Keyframes { get; } = new();
+        public float Width { get; }
+        public Dictionary<int, Dictionary<string, double>> Keyframes { get; } = new();
 
-        public SpriteBlock(int channel, int start, int end, int number, string memberName)
+        public SpriteBlock(int channel, int start, int end, int number, int memberNum, string memberName, float width)
         {
             Channel = channel;
             Start = start;
             End = end;
             Number = number;
+            MemberNum = memberNum;
             MemberName = memberName;
-            Keyframes[start] = new HashSet<string>();
-            Keyframes[end] = new HashSet<string>();
+            Width = width;
+            Keyframes[start] = new Dictionary<string, double>();
+            Keyframes[end] = new Dictionary<string, double>();
         }
     }
 }

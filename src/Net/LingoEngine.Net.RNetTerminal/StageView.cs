@@ -11,7 +11,7 @@ internal sealed class StageView : View
     private const int MovieWidth = 640;
     private const int MovieHeight = 480;
     private readonly IReadOnlyList<LingoSpriteDTO> _sprites;
-    private readonly Dictionary<int, string> _memberNames = new();
+    private readonly Dictionary<int, LingoMemberDTO> _members = new();
     private int _frame;
     private int? _selectedSprite;
     private static readonly Color[] OverlapColors =
@@ -34,7 +34,7 @@ internal sealed class StageView : View
         _sprites = TestMovieBuilder.BuildSprites();
         foreach (var m in TestCastBuilder.BuildCastData().SelectMany(c => c.Value))
         {
-            _memberNames[m.Number] = m.Name;
+            _members[m.Number] = m;
         }
     }
 
@@ -75,10 +75,9 @@ internal sealed class StageView : View
                      .Where(s => s.BeginFrame <= _frame && _frame <= s.EndFrame)
                      .OrderBy(s => s.LocZ))
         {
-            var ch = ' ';
-            if (_memberNames.TryGetValue(sprite.MemberNum, out var name) && !string.IsNullOrEmpty(name))
+            if (!_members.TryGetValue(sprite.MemberNum, out var member))
             {
-                ch = name[0];
+                continue;
             }
             var x = (int)(sprite.LocH / MovieWidth * w);
             var y = (int)(sprite.LocV / MovieHeight * h);
@@ -89,26 +88,45 @@ internal sealed class StageView : View
                 sw = 1;
                 sh = 1;
             }
-            for (var dy = 0; dy < sh; dy++)
+            if (member.Type == LingoMemberTypeDTO.Text)
             {
-                for (var dx = 0; dx < sw; dx++)
+                var text = member.Name;
+                var count = Math.Min(sw, text.Length);
+                for (var i = 0; i < count; i++)
                 {
-                    var sx = x + dx;
-                    var sy = y + dy;
+                    var sx = x + i;
+                    var sy = y;
                     if (sx < 0 || sx >= w || sy < 0 || sy >= h)
                     {
                         continue;
                     }
                     counts[sx, sy]++;
-                    chars[sx, sy] = ch;
-                    if (_selectedSprite.HasValue && sprite.SpriteNum == _selectedSprite.Value)
+                    chars[sx, sy] = text[i];
+                    var bg = _selectedSprite.HasValue && sprite.SpriteNum == _selectedSprite.Value
+                        ? Color.Blue
+                        : OverlapColors[Math.Min(counts[sx, sy] - 1, OverlapColors.Length - 1)];
+                    colors[sx, sy] = bg;
+                }
+            }
+            else
+            {
+                var ch = member.Name.Length > 0 ? member.Name[0] : ' ';
+                for (var dy = 0; dy < sh; dy++)
+                {
+                    for (var dx = 0; dx < sw; dx++)
                     {
-                        colors[sx, sy] = Color.Blue;
-                    }
-                    else
-                    {
-                        var idx = Math.Min(counts[sx, sy] - 1, OverlapColors.Length - 1);
-                        colors[sx, sy] = OverlapColors[idx];
+                        var sx = x + dx;
+                        var sy = y + dy;
+                        if (sx < 0 || sx >= w || sy < 0 || sy >= h)
+                        {
+                            continue;
+                        }
+                        counts[sx, sy]++;
+                        chars[sx, sy] = ch;
+                        var bg = _selectedSprite.HasValue && sprite.SpriteNum == _selectedSprite.Value
+                            ? Color.Blue
+                            : OverlapColors[Math.Min(counts[sx, sy] - 1, OverlapColors.Length - 1)];
+                        colors[sx, sy] = bg;
                     }
                 }
             }
@@ -120,7 +138,7 @@ internal sealed class StageView : View
             for (var x = 0; x < w; x++)
             {
                 var col = colors[x, y];
-                Driver.SetAttribute(Application.Driver.MakeAttribute(col, Color.Black));
+                Driver.SetAttribute(Application.Driver.MakeAttribute(Color.Black, col));
                 Driver.AddRune(chars[x, y] == '\0' ? ' ' : chars[x, y]);
             }
         }
