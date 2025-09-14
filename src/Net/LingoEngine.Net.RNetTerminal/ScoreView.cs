@@ -74,107 +74,129 @@ internal sealed class ScoreView : ScrollView
 
     public override bool ProcessKey(KeyEvent keyEvent)
     {
-        var step = 1;
-        var key = keyEvent.Key;
-        var ctrl = (key & Key.CtrlMask) != 0;
-        var shift = (key & Key.ShiftMask) != 0;
-        var keyNoMods = key & ~Key.CtrlMask & ~Key.ShiftMask & ~Key.AltMask;
-        if (ctrl && shift)
+        try
         {
-            step = 20;
-        }
-        else if (ctrl)
-        {
-            step = 10;
-        }
+            var step = 1;
+            var key = keyEvent.Key;
+            var ctrl = (key & Key.CtrlMask) != 0;
+            var shift = (key & Key.ShiftMask) != 0;
+            var keyNoMods = key & ~Key.CtrlMask & ~Key.ShiftMask & ~Key.AltMask;
+            if (ctrl && shift)
+            {
+                step = 20;
+            }
+            else if (ctrl)
+            {
+                step = 10;
+            }
 
-        switch (keyNoMods)
-        {
-            case Key.CursorUp:
-                MoveCursor(0, -step);
-                return true;
-            case Key.CursorDown:
-                MoveCursor(0, step);
-                return true;
-            case Key.CursorLeft:
-                MoveCursor(-step, 0);
-                return true;
-            case Key.CursorRight:
-                MoveCursor(step, 0);
-                return true;
-            case Key.Enter:
-                ShowActionMenu();
-                return true;
+            switch (keyNoMods)
+            {
+                case Key.CursorUp:
+                    MoveCursor(0, -step);
+                    return true;
+                case Key.CursorDown:
+                    MoveCursor(0, step);
+                    return true;
+                case Key.CursorLeft:
+                    MoveCursor(-step, 0);
+                    return true;
+                case Key.CursorRight:
+                    MoveCursor(step, 0);
+                    return true;
+                case Key.Enter:
+                    ShowActionMenu();
+                    return true;
+            }
+            return base.ProcessKey(keyEvent);
         }
-        return base.ProcessKey(keyEvent);
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"ProcessKey error: {ex}");
+            return false;
+        }
     }
 
     public override bool MouseEvent(MouseEvent me)
     {
-        if (me.Flags.HasFlag(MouseFlags.Button1Clicked))
+        try
         {
-            var frame = ContentOffset.X + me.X - _labelWidth;
-            var channel = ContentOffset.Y + me.Y - 1;
-            if (frame >= 0 && frame < FrameCount && channel >= 0 && channel < TotalChannels)
+            var scrollBarWidth = ShowVerticalScrollIndicator ? 1 : 0;
+            var scrollBarHeight = ShowHorizontalScrollIndicator ? 1 : 0;
+            var contentW = Bounds.Width - scrollBarWidth;
+            var contentH = Bounds.Height - scrollBarHeight;
+            var inContent = me.X < contentW && me.Y < contentH;
+
+            if (inContent && me.Flags.HasFlag(MouseFlags.Button1Clicked))
             {
-                _cursorFrame = frame;
-                _cursorChannel = channel;
-                EnsureVisible();
-                SetNeedsDisplay();
-                NotifyInfoChanged();
-                SetFocus();
+                var frame = ContentOffset.X + me.X - _labelWidth;
+                var channel = ContentOffset.Y + me.Y - 1;
+                if (frame >= 0 && frame < FrameCount && channel >= 0 && channel < TotalChannels)
+                {
+                    _cursorFrame = frame;
+                    _cursorChannel = channel;
+                    EnsureVisible();
+                    SetNeedsDisplay();
+                    NotifyInfoChanged();
+                    SetFocus();
+                }
+                ClampContentOffset();
+                return true;
             }
-            ClampContentOffset();
-            return true;
-        }
-        if (me.Flags.HasFlag(MouseFlags.Button3Clicked))
-        {
-            var frame = ContentOffset.X + me.X - _labelWidth;
-            var channel = ContentOffset.Y + me.Y - 1;
-            if (frame >= 0 && frame < FrameCount && channel >= 0 && channel < TotalChannels)
+            if (inContent && me.Flags.HasFlag(MouseFlags.Button3Clicked))
             {
-                _cursorFrame = frame;
-                _cursorChannel = channel;
-                EnsureVisible();
-                SetNeedsDisplay();
-                NotifyInfoChanged();
-                SetFocus();
-                ShowActionMenu();
+                var frame = ContentOffset.X + me.X - _labelWidth;
+                var channel = ContentOffset.Y + me.Y - 1;
+                if (frame >= 0 && frame < FrameCount && channel >= 0 && channel < TotalChannels)
+                {
+                    _cursorFrame = frame;
+                    _cursorChannel = channel;
+                    EnsureVisible();
+                    SetNeedsDisplay();
+                    NotifyInfoChanged();
+                    SetFocus();
+                    ShowActionMenu();
+                }
+                ClampContentOffset();
+                return true;
             }
+            if (me.Flags.HasFlag(MouseFlags.WheeledUp))
+            {
+                ContentOffset = new Point(ContentOffset.X, ContentOffset.Y - 1);
+                ClampContentOffset();
+                SetNeedsDisplay();
+                return true;
+            }
+            if (me.Flags.HasFlag(MouseFlags.WheeledDown))
+            {
+                ContentOffset = new Point(ContentOffset.X, ContentOffset.Y + 1);
+                ClampContentOffset();
+                SetNeedsDisplay();
+                return true;
+            }
+            if (me.Flags.HasFlag(MouseFlags.WheeledLeft))
+            {
+                ContentOffset = new Point(ContentOffset.X - 1, ContentOffset.Y);
+                ClampContentOffset();
+                SetNeedsDisplay();
+                return true;
+            }
+            if (me.Flags.HasFlag(MouseFlags.WheeledRight))
+            {
+                ContentOffset = new Point(ContentOffset.X + 1, ContentOffset.Y);
+                ClampContentOffset();
+                SetNeedsDisplay();
+                return true;
+            }
+            var handled = base.MouseEvent(me);
             ClampContentOffset();
-            return true;
+            return handled;
         }
-        if (me.Flags.HasFlag(MouseFlags.WheeledUp))
+        catch (Exception ex)
         {
-            ContentOffset = new Point(ContentOffset.X, ContentOffset.Y - 1);
-            ClampContentOffset();
-            SetNeedsDisplay();
-            return true;
+            Console.Error.WriteLine($"MouseEvent error: {ex}");
+            return false;
         }
-        if (me.Flags.HasFlag(MouseFlags.WheeledDown))
-        {
-            ContentOffset = new Point(ContentOffset.X, ContentOffset.Y + 1);
-            ClampContentOffset();
-            SetNeedsDisplay();
-            return true;
-        }
-        if (me.Flags.HasFlag(MouseFlags.WheeledLeft))
-        {
-            ContentOffset = new Point(ContentOffset.X - 1, ContentOffset.Y);
-            ClampContentOffset();
-            SetNeedsDisplay();
-            return true;
-        }
-        if (me.Flags.HasFlag(MouseFlags.WheeledRight))
-        {
-            ContentOffset = new Point(ContentOffset.X + 1, ContentOffset.Y);
-            ClampContentOffset();
-            SetNeedsDisplay();
-            return true;
-        }
-        var handled = base.MouseEvent(me);
-        ClampContentOffset();
-        return handled;
     }
 
     private void ClampContentOffset()
