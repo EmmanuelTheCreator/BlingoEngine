@@ -1,4 +1,5 @@
-﻿using LingoEngine.Casts;
+using AbstUI;
+using LingoEngine.Casts;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Core;
 using LingoEngine.Members;
@@ -14,7 +15,7 @@ namespace LingoEngine.Movies
     /// Represents the Lingo _movie object, providing control over playback, navigation, and transitions.
     /// Lingo equivalents are noted for each member.
     /// </summary>
-    public interface ILingoMovie : ILingoSpritesPlayer
+    public interface ILingoMovie : ILingoSpritesPlayer, IHasPropertyChanged
     {
         /// <summary>
         /// Gets the name of the movie.
@@ -34,8 +35,6 @@ namespace LingoEngine.Movies
         /// </summary>
         int FrameCount { get; }
 
-        
-
         /// <summary>
         /// Gets or sets the tempo (frames per second) of the movie.
         /// Lingo: the tempo
@@ -48,14 +47,14 @@ namespace LingoEngine.Movies
         bool IsPlaying { get; }
 
 
-        string About { get; set; } 
-        string Copyright { get; set; } 
-        string UserName { get; set; } 
+        string About { get; set; }
+        string Copyright { get; set; }
+        string UserName { get; set; }
         string CompanyName { get; set; }
 
-        ILingoSpriteAudioManager Audio {get;}
-        ILingoSpriteTransitionManager Transitions {get;}
-        ILingoTempoSpriteManager Tempos {get;}
+        ILingoSpriteAudioManager Audio { get; }
+        ILingoSpriteTransitionManager Transitions { get; }
+        ILingoTempoSpriteManager Tempos { get; }
         ILingoSpriteColorPaletteSpriteManager ColorPalettes { get; }
 
         /// <summary>
@@ -182,10 +181,10 @@ namespace LingoEngine.Movies
         /// Lingo: constrainV
         /// </summary>
         int ConstrainV(int spriteNumber, int pos);
-        
+
         void UpdateStage();
         ILingoSpriteChannel Channel(int channelNumber);
-        ActorList ActorList { get;  }
+        ActorList ActorList { get; }
         LingoTimeOutList TimeOutList { get; }
         /// <summary>
         /// The number/index of this Score within the movie.
@@ -322,7 +321,7 @@ namespace LingoEngine.Movies
         /// Lingo : // newBitmap = _movie.newMember(#bitmap)
         /// </summary>
         ILingoMemberFactory New { get; }
-        
+
 
         #endregion
         /// <summary>
@@ -336,11 +335,11 @@ namespace LingoEngine.Movies
         void SetScoreLabel(int frameNumber, string name);
         void PuppetSprite(int myNum, bool state);
 
-      
+
         int GetNextSpriteStart(int channel, int frame);
         int GetPrevSpriteEnd(int channel, int frame);
         ILingoServiceProvider GetServiceProvider();
-        T GetRequiredService<T>() where T: notnull;
+        T GetRequiredService<T>() where T : notnull;
 
 
     }

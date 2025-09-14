@@ -47,7 +47,7 @@ namespace LingoEngine.Texts
 
         public T Framework<T>() where T : class, TFrameworkType => (T)_frameworkMember;
 
-        public AbstMarkdownData? InitialMarkdown { get;  set; }
+        public AbstMarkdownData? InitialMarkdown { get; set; }
         public bool TextChanged { get; private set; }
 
         #region Properties
@@ -58,12 +58,15 @@ namespace LingoEngine.Texts
             get => _frameworkMember.Text;
             set
             {
-                _mdData = null;
                 var newValue = value.Replace("\r\n", "\r");
+                if (_frameworkMember.Text == newValue)
+                    return;
+                _mdData = null;
                 _markdown = newValue;
                 UpdateText(newValue);
                 _frameworkMember.Text = newValue;
                 Height = 0; // force re-render
+                OnPropertyChanged();
             }
         }
 
@@ -72,19 +75,32 @@ namespace LingoEngine.Texts
         public int ScrollTop
         {
             get => _frameworkMember.ScrollTop;
-            set { _frameworkMember.ScrollTop = value; }
+            set
+            {
+                if (_frameworkMember.ScrollTop == value)
+                    return;
+                _frameworkMember.ScrollTop = value;
+                OnPropertyChanged();
+            }
         }
         /// <inheritdoc/>
-        public bool Editable { get; set; }
+        private bool _editable;
+        public bool Editable
+        {
+            get => _editable;
+            set => SetProperty(ref _editable, value);
+        }
         /// <inheritdoc/>
         public bool WordWrap
         {
             get => _frameworkMember.WordWrap;
             set
             {
-                if (_frameworkMember.WordWrap == value) return;
+                if (_frameworkMember.WordWrap == value)
+                    return;
                 _frameworkMember.WordWrap = value;
                 UpdateMDStyle();
+                OnPropertyChanged();
             }
         }
         /// <inheritdoc/>
@@ -93,9 +109,11 @@ namespace LingoEngine.Texts
             get => _frameworkMember.FontName;
             set
             {
-                if (_frameworkMember.FontName == value) return;
+                if (_frameworkMember.FontName == value)
+                    return;
                 _frameworkMember.FontName = value;
                 UpdateMDStyle();
+                OnPropertyChanged();
             }
         }
         /// <inheritdoc/>
@@ -104,9 +122,11 @@ namespace LingoEngine.Texts
             get => _frameworkMember.FontSize;
             set
             {
-                if (_frameworkMember.FontSize == value) return;
+                if (_frameworkMember.FontSize == value)
+                    return;
                 _frameworkMember.FontSize = value;
                 UpdateMDStyle();
+                OnPropertyChanged();
             }
         }
 
@@ -116,9 +136,11 @@ namespace LingoEngine.Texts
             get => _frameworkMember.TextColor;
             set
             {
-                if (_frameworkMember.TextColor == value) return;
+                if (_frameworkMember.TextColor == value)
+                    return;
                 _frameworkMember.TextColor = value;
                 UpdateMDStyle();
+                OnPropertyChanged();
             }
         }
         /// <inheritdoc/>
@@ -127,9 +149,11 @@ namespace LingoEngine.Texts
             get => _frameworkMember.FontStyle;
             set
             {
-                if (_frameworkMember.FontStyle == value) return;
+                if (_frameworkMember.FontStyle == value)
+                    return;
                 _frameworkMember.FontStyle = value;
                 UpdateMDStyle();
+                OnPropertyChanged();
             }
         }
         /// <inheritdoc/>
@@ -138,6 +162,8 @@ namespace LingoEngine.Texts
             get => (_frameworkMember.FontStyle & LingoTextStyle.Bold) != 0;
             set
             {
+                if (Bold == value)
+                    return;
                 var style = _frameworkMember.FontStyle;
                 if (value)
                     style |= LingoTextStyle.Bold;
@@ -145,6 +171,8 @@ namespace LingoEngine.Texts
                     style &= ~LingoTextStyle.Bold;
                 _frameworkMember.FontStyle = style;
                 UpdateMDStyle();
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(FontStyle));
             }
         }
         /// <inheritdoc/>
@@ -153,6 +181,8 @@ namespace LingoEngine.Texts
             get => (_frameworkMember.FontStyle & LingoTextStyle.Italic) != 0;
             set
             {
+                if (Italic == value)
+                    return;
                 var style = _frameworkMember.FontStyle;
                 if (value)
                     style |= LingoTextStyle.Italic;
@@ -160,6 +190,8 @@ namespace LingoEngine.Texts
                     style &= ~LingoTextStyle.Italic;
                 _frameworkMember.FontStyle = style;
                 UpdateMDStyle();
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(FontStyle));
             }
         }
         /// <inheritdoc/>
@@ -168,6 +200,8 @@ namespace LingoEngine.Texts
             get => (_frameworkMember.FontStyle & LingoTextStyle.Underline) != 0;
             set
             {
+                if (Underline == value)
+                    return;
                 var style = _frameworkMember.FontStyle;
                 if (value)
                     style |= LingoTextStyle.Underline;
@@ -175,6 +209,8 @@ namespace LingoEngine.Texts
                     style &= ~LingoTextStyle.Underline;
                 _frameworkMember.FontStyle = style;
                 UpdateMDStyle();
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(FontStyle));
             }
         }
         /// <inheritdoc/>
@@ -183,9 +219,11 @@ namespace LingoEngine.Texts
             get => _frameworkMember.Alignment;
             set
             {
-                if (_frameworkMember.Alignment == value) return;
+                if (_frameworkMember.Alignment == value)
+                    return;
                 _frameworkMember.Alignment = value;
                 UpdateMDStyle();
+                OnPropertyChanged();
             }
         }
         /// <inheritdoc/>
@@ -194,9 +232,11 @@ namespace LingoEngine.Texts
             get => _frameworkMember.Margin;
             set
             {
-                if (_frameworkMember.Margin == value) return;
+                if (_frameworkMember.Margin == value)
+                    return;
                 _frameworkMember.Margin = value;
                 UpdateMDStyle();
+                OnPropertyChanged();
             }
         }
 
@@ -257,6 +297,7 @@ namespace LingoEngine.Texts
                 _frameworkMember.Width = value;
                 //if (_width>0 && !_hasLoadedTexTure)
                 //    RenderText();
+                OnPropertyChanged();
             }
         }
         private int _height;
@@ -275,6 +316,7 @@ namespace LingoEngine.Texts
                 base.Height = value;
                 _height = value;
                 _frameworkMember.Height = value;
+                OnPropertyChanged();
 
             }
         }

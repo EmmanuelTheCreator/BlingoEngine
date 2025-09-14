@@ -1,4 +1,5 @@
 using System.Linq;
+using AbstUI.Primitives;
 using LingoEngine.Casts;
 using LingoEngine.Core;
 using LingoEngine.Events;
@@ -12,8 +13,10 @@ using LingoEngine.Transitions;
 using LingoEngine.Tempos;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Scripts;
-using AbstUI.Primitives;
 using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 
 namespace LingoEngine.Movies
 {
@@ -34,7 +37,7 @@ namespace LingoEngine.Movies
         private int _nextFrame = -1;
         private int _lastFrame = 0;
         private bool _isPlaying = false;
-        
+
 
         private bool _needToRaiseStartMovie = false;
         private LingoCastLibsContainer _castLibContainer;
@@ -73,16 +76,42 @@ namespace LingoEngine.Movies
         public int Number { get; private set; }
 
 
-        public string About { get; set; } = string.Empty;
-        public string Copyright { get; set; } = string.Empty;
-        public string UserName { get; set; } = string.Empty;
-        public string CompanyName { get; set; } = string.Empty;
+        private string _about = string.Empty;
+        private string _copyright = string.Empty;
+        private string _userName = string.Empty;
+        private string _companyName = string.Empty;
+
+        public string About
+        {
+            get => _about;
+            set => SetProperty(ref _about, value);
+        }
+        public string Copyright
+        {
+            get => _copyright;
+            set => SetProperty(ref _copyright, value);
+        }
+        public string UserName
+        {
+            get => _userName;
+            set => SetProperty(ref _userName, value);
+        }
+        public string CompanyName
+        {
+            get => _companyName;
+            set => SetProperty(ref _companyName, value);
+        }
 
         private readonly LingoEventMediator _EventMediator;
 
         public int Frame => _currentFrame;
         public int CurrentFrame => _currentFrame;
-        public int FrameCount => 620;
+        private int _frameCount = 620;
+        public int FrameCount
+        {
+            get => _frameCount;
+            private set => SetProperty(ref _frameCount, value);
+        }
         public int Timer { get; private set; }
         public int SpriteTotalCount => _sprite2DManager.SpriteTotalCount;
         public int SpriteMaxNumber => _sprite2DManager.SpriteMaxNumber;
@@ -103,6 +132,7 @@ namespace LingoEngine.Movies
         }
         public bool IsPlaying => _isPlaying;
 
+        public event PropertyChangedEventHandler? PropertyChanged;
         public event Action<bool>? PlayStateChanged;
         public event Action<int>? CurrentFrameChanged;
 
@@ -151,7 +181,7 @@ namespace LingoEngine.Movies
         }
         public void Dispose()
         {
-            
+
             RemoveMe();
             _transitionPlayer.Dispose();
         }
@@ -281,17 +311,17 @@ namespace LingoEngine.Movies
                 var frameChanged = false;
                 if (_nextFrame < 0)
                 {
-                    frameChanged = true;
-                    _currentFrame++;
+                    var newFrame = _currentFrame + 1;
+                    frameChanged = SetProperty(ref _currentFrame, newFrame, nameof(CurrentFrame));
                 }
                 else
                 {
-                    frameChanged = _currentFrame != _nextFrame;
-                    _currentFrame = _nextFrame;
+                    frameChanged = SetProperty(ref _currentFrame, _nextFrame, nameof(CurrentFrame));
                     _nextFrame = -1;
                 }
                 if (frameChanged)
                 {
+                    OnPropertyChanged(nameof(Frame));
 
                     var transitionSprite = _transitionManager.GetFrameSprite(_currentFrame);
                     if (transitionSprite != null)
@@ -359,7 +389,7 @@ namespace LingoEngine.Movies
             // PrepareFrame
             // BeginSprite
             // StartMovie
-            _isPlaying = true;
+            SetProperty(ref _isPlaying, true, nameof(IsPlaying));
             PlayStateChanged?.Invoke(true);
             //OnTick();
             //_needToRaiseStartMovie = false;
@@ -370,7 +400,7 @@ namespace LingoEngine.Movies
         {
             // on stop always restore the mouse to arrow
             _lingoMouse.SetCursor(AMouseCursor.Arrow);
-            _isPlaying = false;
+            SetProperty(ref _isPlaying, false, nameof(IsPlaying));
             PlayStateChanged?.Invoke(false);
             _environment.Sound.StopAll();
             //_spriteManager.EndSprites();
@@ -470,7 +500,7 @@ namespace LingoEngine.Movies
                 // and manually advancing once.
                 _nextFrame = frame;
                 AdvanceFrame();
-                _isPlaying = false;
+                SetProperty(ref _isPlaying, false, nameof(IsPlaying));
                 PlayStateChanged?.Invoke(false);
                 _environment.Sound.StopAll();
             }
@@ -556,6 +586,20 @@ namespace LingoEngine.Movies
             _lingoMouse = newMouse;
             _sprite2DManager.SetMouse(newMouse);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value))
+                return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         public IEnumerable<LingoSprite2D> GetAll2DSpritesToStore()
         {

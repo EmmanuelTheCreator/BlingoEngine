@@ -1,10 +1,13 @@
-﻿using AbstUI.Primitives;
+﻿using AbstUI;
+using AbstUI.Primitives;
 using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
 using LingoEngine.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace LingoEngine.Members
@@ -45,7 +48,7 @@ namespace LingoEngine.Members
     /// Cast members can contain media (e.g., images, sounds, video) or scripts (behaviors, movie scripts).
     /// Corresponds to Lingo: member "Name" or member x
     /// </summary>
-    public interface ILingoMember : IDisposable
+    public interface ILingoMember : IDisposable, IHasPropertyChanged
     {
         /// <summary>
         /// Retrieves the framework object like godot, unity or SDL
@@ -224,7 +227,7 @@ namespace LingoEngine.Members
     ///     cast library.
     /// </summary>
     [DebuggerDisplay("Member:{Number}:Cast={CastLibNum},{NumberInCast}:{Type}:{Name}:Size={Width}x{Height}")]
-    public class LingoMember : ILingoMember
+    public class LingoMember : ILingoMember, IHasPropertyChanged
     {
         protected readonly LingoCast _cast;
         private string _name = string.Empty;
@@ -232,6 +235,7 @@ namespace LingoEngine.Members
         private readonly List<IMemberRefUser> _linkedMemberRefUsers = new();
         private bool _hasBeenDisposed;
         private string _fileName;
+        private string _comments = string.Empty;
 
         public ILingoFrameworkMember FrameworkObj => _frameworkMember;
 
@@ -241,10 +245,11 @@ namespace LingoEngine.Members
             get => _name;
             set
             {
+                if (_name == value) return;
                 var oldName = _name;
-                var changed = _name != value;
                 _name = value;
-                if (_cast != null && changed && !string.IsNullOrWhiteSpace(_name)) _cast.MemberNameHasChanged(oldName, this);
+                if (_cast != null && !string.IsNullOrWhiteSpace(_name)) _cast.MemberNameHasChanged(oldName, this);
+                OnPropertyChanged();
                 MemberChanged?.Invoke();
             }
         }
@@ -255,30 +260,50 @@ namespace LingoEngine.Members
         /// <inheritdoc/>
         public DateTime ModifiedDate { get; set; }
         /// <inheritdoc/>
-        public bool Hilite { get; private set; }
+        private bool _hilite;
+        public bool Hilite
+        {
+            get => _hilite;
+            private set => SetProperty(ref _hilite, value);
+        }
         /// <inheritdoc/>
         public int CastLibNum { get; private set; }
         /// <inheritdoc/>
-        public APoint RegPoint { get; set; }
+        private APoint _regPoint;
+        public APoint RegPoint
+        {
+            get => _regPoint;
+            set => SetProperty(ref _regPoint, value);
+        }
         /// <inheritdoc/>
         public int PurgePriority { get; set; }
         /// <inheritdoc/>
-        public virtual int Width { get; set; }
+        private int _width;
+        public virtual int Width
+        {
+            get => _width;
+            set => SetProperty(ref _width, value);
+        }
         /// <inheritdoc/>
-        public virtual int Height { get; set; }
+        private int _height;
+        public virtual int Height
+        {
+            get => _height;
+            set => SetProperty(ref _height, value);
+        }
         /// <inheritdoc/>
         public long Size { get; set; }
         /// <inheritdoc/>
-        public string Comments { get; set; }
+        public string Comments
+        {
+            get => _comments;
+            set => SetProperty(ref _comments, value);
+        }
         /// <inheritdoc/>
         public string FileName
         {
             get => _fileName;
-            set
-            {
-                if (_fileName == value) return;
-                _fileName = value;
-            }
+            set => SetProperty(ref _fileName, value);
         }
         /// <inheritdoc/>
         public LingoMemberType Type { get; private set; }
@@ -287,6 +312,7 @@ namespace LingoEngine.Members
         public ILingoCast Cast { get => _cast; }
         public bool HasChanged { get; internal set; }
 
+        public event PropertyChangedEventHandler? PropertyChanged;
         public event Action? MemberChanged;
 
         /// <inheritdoc/>
@@ -350,6 +376,20 @@ namespace LingoEngine.Members
         {
             return _cast.Member[Number + numberOffset];
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value))
+                return false;
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         internal void UsedBy(IMemberRefUser refUser)
         {

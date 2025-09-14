@@ -1,4 +1,5 @@
-﻿using AbstUI.Primitives;
+﻿using AbstUI;
+using AbstUI.Primitives;
 using LingoEngine.Casts;
 using LingoEngine.Medias;
 using LingoEngine.Members;
@@ -11,7 +12,7 @@ namespace LingoEngine.Sprites
     /// Represents a base sprite in the score.
     /// Mirrors Lingo’s sprite object functionality.
     /// </summary>
-    public interface ILingoSpriteBase
+    public interface ILingoSpriteBase : IHasPropertyChanged
     {
         /// <summary>
         /// The frame number at which the sprite appears. Read/write.

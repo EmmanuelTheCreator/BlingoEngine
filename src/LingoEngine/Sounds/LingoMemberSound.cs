@@ -22,7 +22,12 @@ namespace LingoEngine.Sounds
         /// Indicates whether this sound loops by default.
         /// Lingo: the loop of member
         /// </summary>
-        public bool Loop { get; set; } = false;
+        private bool _loop;
+        public bool Loop
+        {
+            get => _loop;
+            set => SetProperty(ref _loop, value);
+        }
 
         /// <summary>
         /// Whether this member is externally linked (not embedded).
@@ -36,10 +41,10 @@ namespace LingoEngine.Sounds
         public string LinkedFilePath { get; set; } = string.Empty;
 
         public LingoMemberSound(ILingoFrameworkMemberSound lingoMemberSound, LingoCast cast, int numberInCast, string name = "", string fileName = "")
-            : base(lingoMemberSound, LingoMemberType.Sound,cast, numberInCast, name, fileName)
+            : base(lingoMemberSound, LingoMemberType.Sound, cast, numberInCast, name, fileName)
         {
             _lingoFrameworkMemberSound = lingoMemberSound;
-           
+
         }
         protected override LingoMember OnDuplicate(int newNumber)
         {
