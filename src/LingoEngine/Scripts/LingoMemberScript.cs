@@ -9,7 +9,12 @@ namespace LingoEngine.Scripts
 {
     public class LingoMemberScript : LingoMember
     {
-        public LingoScriptType ScriptType { get; set; } = LingoScriptType.Behavior;
+        private LingoScriptType _scriptType = LingoScriptType.Behavior;
+        public LingoScriptType ScriptType
+        {
+            get => _scriptType;
+            set => SetProperty(ref _scriptType, value);
+        }
         public string? BehaviorTypeName { get; private set; }
 
         public LingoMemberScript(ILingoFrameworkMember frameworkMember, LingoCast cast, int numberInCast, string name = "", string fileName = "", APoint regPoint = default)

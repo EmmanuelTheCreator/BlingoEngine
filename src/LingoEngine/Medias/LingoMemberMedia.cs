@@ -12,7 +12,17 @@ namespace LingoEngine.Medias
         private readonly ILingoFrameworkMemberMedia _frameworkMedia;
 
         public int Duration => _frameworkMedia.Duration;
-        public int CurrentTime { get => _frameworkMedia.CurrentTime; set => _frameworkMedia.CurrentTime = value; }
+        public int CurrentTime
+        {
+            get => _frameworkMedia.CurrentTime;
+            set
+            {
+                if (_frameworkMedia.CurrentTime == value)
+                    return;
+                _frameworkMedia.CurrentTime = value;
+                OnPropertyChanged();
+            }
+        }
         public LingoMediaStatus MediaStatus => _frameworkMedia.MediaStatus;
 
         public LingoMemberMedia(ILingoFrameworkMemberMedia frameworkMember, LingoMemberType type, LingoCast cast, int numberInCast, string name = "", string fileName = "", APoint regPoint = default)

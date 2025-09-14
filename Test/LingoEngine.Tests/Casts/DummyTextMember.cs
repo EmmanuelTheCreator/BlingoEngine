@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using AbstUI.Primitives;
 using AbstUI.Texts;
@@ -96,6 +97,8 @@ internal class DummyTextMember : ILingoMemberTextBase, ILingoMemberTextBaseInter
     public void ChangesHasBeenApplied() { }
     public void LoadFile() { LoadFileCalled = true; }
     public void SetFileName(string name) => _fileName = name;
+
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     private class DummyFrameworkMember : ILingoFrameworkMember
     {

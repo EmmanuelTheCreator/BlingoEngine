@@ -15,17 +15,135 @@ namespace LingoEngine.Shapes
         private readonly ILingoFrameworkMemberShape _framework;
 
         public LingoList<APoint> VertexList => _framework.VertexList;
-        public LingoShapeType ShapeType { get => _framework.ShapeType; set => _framework.ShapeType = value; }
-        public int ShapeTypeInt { get => (int)ShapeType; set => ShapeType = (LingoShapeType)value; }
-        public AColor FillColor { get => _framework.FillColor; set => _framework.FillColor = value; }
-        public AColor EndColor { get => _framework.EndColor; set => _framework.EndColor = value; }
-        public AColor StrokeColor { get => _framework.StrokeColor; set => _framework.StrokeColor = value; }
-        public int StrokeWidth { get => _framework.StrokeWidth; set => _framework.StrokeWidth = value; }
-        public bool Closed { get => _framework.Closed; set => _framework.Closed = value; }
-        public bool AntiAlias { get => _framework.AntiAlias; set => _framework.AntiAlias = value; }
-        public override int Width { get => Convert.ToInt32(_framework.Width); set => _framework.Width = value; }
-        public override int Height { get => Convert.ToInt32(_framework.Height); set => _framework.Height = value; }
-        public bool Filled { get => _framework.Filled; set => _framework.Filled = value; }
+
+        public LingoShapeType ShapeType
+        {
+            get => _framework.ShapeType;
+            set
+            {
+                if (_framework.ShapeType == value)
+                    return;
+                _framework.ShapeType = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ShapeTypeInt));
+            }
+        }
+
+        public int ShapeTypeInt
+        {
+            get => (int)ShapeType;
+            set => ShapeType = (LingoShapeType)value;
+        }
+
+        public AColor FillColor
+        {
+            get => _framework.FillColor;
+            set
+            {
+                if (_framework.FillColor == value)
+                    return;
+                _framework.FillColor = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public AColor EndColor
+        {
+            get => _framework.EndColor;
+            set
+            {
+                if (_framework.EndColor == value)
+                    return;
+                _framework.EndColor = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public AColor StrokeColor
+        {
+            get => _framework.StrokeColor;
+            set
+            {
+                if (_framework.StrokeColor == value)
+                    return;
+                _framework.StrokeColor = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int StrokeWidth
+        {
+            get => _framework.StrokeWidth;
+            set
+            {
+                if (_framework.StrokeWidth == value)
+                    return;
+                _framework.StrokeWidth = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool Closed
+        {
+            get => _framework.Closed;
+            set
+            {
+                if (_framework.Closed == value)
+                    return;
+                _framework.Closed = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool AntiAlias
+        {
+            get => _framework.AntiAlias;
+            set
+            {
+                if (_framework.AntiAlias == value)
+                    return;
+                _framework.AntiAlias = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public override int Width
+        {
+            get => Convert.ToInt32(_framework.Width);
+            set
+            {
+                if (Convert.ToInt32(_framework.Width) == value)
+                    return;
+                _framework.Width = value;
+                base.Width = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public override int Height
+        {
+            get => Convert.ToInt32(_framework.Height);
+            set
+            {
+                if (Convert.ToInt32(_framework.Height) == value)
+                    return;
+                _framework.Height = value;
+                base.Height = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool Filled
+        {
+            get => _framework.Filled;
+            set
+            {
+                if (_framework.Filled == value)
+                    return;
+                _framework.Filled = value;
+                OnPropertyChanged();
+            }
+        }
 
         public IAbstTexture2D? TextureLingo => _framework.TextureLingo;
 

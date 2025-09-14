@@ -14,15 +14,51 @@ public enum LingoTransitionAffects
 
 public class LingoTransitionMember : LingoMember
 {
-    public int TransitionId { get; set; }
-    public string TransitionName { get; set; } = "";
+    private int _transitionId;
+    private string _transitionName = "";
     /// <summary>
     /// Duration in Seconds from 0 to 30 seconds
     /// </summary>
-    public float Duration { get; set; }
-    public float Smoothness { get; set; }
-    public LingoTransitionAffects Affects { get; set; } = LingoTransitionAffects.ChangingAreaOnly;
-    public ARect Rect { get; set; }
+    private float _duration;
+    private float _smoothness;
+    private LingoTransitionAffects _affects = LingoTransitionAffects.ChangingAreaOnly;
+    private ARect _rect;
+
+    public int TransitionId
+    {
+        get => _transitionId;
+        set => SetProperty(ref _transitionId, value);
+    }
+
+    public string TransitionName
+    {
+        get => _transitionName;
+        set => SetProperty(ref _transitionName, value);
+    }
+
+    public float Duration
+    {
+        get => _duration;
+        set => SetProperty(ref _duration, value);
+    }
+
+    public float Smoothness
+    {
+        get => _smoothness;
+        set => SetProperty(ref _smoothness, value);
+    }
+
+    public LingoTransitionAffects Affects
+    {
+        get => _affects;
+        set => SetProperty(ref _affects, value);
+    }
+
+    public ARect Rect
+    {
+        get => _rect;
+        set => SetProperty(ref _rect, value);
+    }
 
     public LingoTransitionMember(LingoCast cast, int numberInCast, string name = "", string fileName = "", APoint regPoint = default)
         : base(new LingoTransitionMemberFW(), LingoMemberType.Transition, cast, numberInCast, name, fileName, regPoint)

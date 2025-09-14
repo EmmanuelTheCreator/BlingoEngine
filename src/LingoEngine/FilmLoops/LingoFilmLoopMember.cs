@@ -27,7 +27,12 @@ namespace LingoEngine.FilmLoops
         public List<LingoFilmLoopMemberSprite> SpriteEntries { get; } = new();
         public List<SoundEntry> SoundEntries { get; } = new();
 
-        public int FrameCount { get; private set; }
+        private int _frameCount;
+        public int FrameCount
+        {
+            get => _frameCount;
+            private set => SetProperty(ref _frameCount, value);
+        }
         public IAbstTexture2D? TextureLingo => _frameworkFilmLoop.TextureLingo;
 
 
@@ -44,7 +49,13 @@ namespace LingoEngine.FilmLoops
         public LingoFilmLoopFraming Framing
         {
             get => _frameworkFilmLoop.Framing;
-            set => _frameworkFilmLoop.Framing = value;
+            set
+            {
+                if (_frameworkFilmLoop.Framing == value)
+                    return;
+                _frameworkFilmLoop.Framing = value;
+                OnPropertyChanged();
+            }
         }
 
         /// <summary>
@@ -54,7 +65,13 @@ namespace LingoEngine.FilmLoops
         public bool Loop
         {
             get => _frameworkFilmLoop.Loop;
-            set => _frameworkFilmLoop.Loop = value;
+            set
+            {
+                if (_frameworkFilmLoop.Loop == value)
+                    return;
+                _frameworkFilmLoop.Loop = value;
+                OnPropertyChanged();
+            }
         }
 
 

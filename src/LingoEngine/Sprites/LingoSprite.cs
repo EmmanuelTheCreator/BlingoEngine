@@ -1,12 +1,16 @@
-﻿using LingoEngine.Events;
+﻿using AbstUI;
+using LingoEngine.Events;
 using LingoEngine.Movies.Events;
 using LingoEngine.Sprites.Events;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace LingoEngine.Sprites
 {
     [DebuggerDisplay("LingoSprite:{SpriteNum}) {Name}")]
-    public abstract class LingoSprite : ILingoSpriteBase
+    public abstract class LingoSprite : ILingoSpriteBase, IHasPropertyChanged
     {
         //protected readonly ILingoMovieEnvironment _environment;
         protected readonly LingoEventMediator _eventMediator;
@@ -17,14 +21,16 @@ namespace LingoEngine.Sprites
         private string _name = string.Empty;
         protected ILingoFrameworkSprite _frameworkSprite = null!;
         private bool _isActive;
+        private bool _puppet;
 
         public ILingoFrameworkSprite FrameworkObj => _frameworkSprite;
-        
+
         public int BeginFrame
         {
             get => _beginFrame;
             set
             {
+                if (_beginFrame == value) return;
                 _beginFrame = value;
                 NotifyAnimationChanged();
             }
@@ -34,6 +40,7 @@ namespace LingoEngine.Sprites
             get => _endFrame;
             set
             {
+                if (_endFrame == value) return;
                 _endFrame = value;
                 NotifyAnimationChanged();
             }
@@ -43,6 +50,7 @@ namespace LingoEngine.Sprites
         {
             get => _name; set
             {
+                if (_name == value) return;
                 _name = value;
                 NotifyAnimationChanged();
             }
@@ -50,7 +58,16 @@ namespace LingoEngine.Sprites
         /// <summary>
         /// This represents the puppetsprite controlled by script.
         /// </summary>
-        public bool Puppet { get; set; }
+        public bool Puppet
+        {
+            get => _puppet;
+            set
+            {
+                if (_puppet == value) return;
+                _puppet = value;
+                OnPropertyChanged();
+            }
+        }
 
         public int SpriteNum { get; protected set; }
         public abstract int SpriteNumWithChannel { get; }
@@ -66,7 +83,7 @@ namespace LingoEngine.Sprites
             {
                 if (_isActive == value) return;
                 _isActive = value;
-
+                OnPropertyChanged();
             }
         }
         public bool IsSingleFrame { get; protected set; }
@@ -75,6 +92,7 @@ namespace LingoEngine.Sprites
             get => _lock;
             set
             {
+                if (_lock == value) return;
                 _lock = value;
                 NotifyAnimationChanged();
             }
@@ -85,6 +103,7 @@ namespace LingoEngine.Sprites
         public LingoSpriteState? InitialState { get; set; }
         bool ILingoSpriteBase.IsPuppetCached { get; set; }
 
+        public event PropertyChangedEventHandler? PropertyChanged;
         public event Action? AnimationChanged;
 
         public LingoSprite(ILingoEventMediator eventMediator)
@@ -150,7 +169,7 @@ namespace LingoEngine.Sprites
                 if (actor is IHasStepFrameEvent stepframe) _eventMediator.SubscribeStepFrame(stepframe, SpriteNum + 6);
             }
 
-           
+
 
             BeginSprite();
         }
@@ -179,10 +198,16 @@ namespace LingoEngine.Sprites
         }
         public abstract void OnRemoveMe();
 
-        protected void NotifyAnimationChanged()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void NotifyAnimationChanged([CallerMemberName] string? propertyName = null)
         {
+            OnPropertyChanged(propertyName);
             AnimationChanged?.Invoke();
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
 
 

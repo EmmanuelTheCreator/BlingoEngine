@@ -3,19 +3,44 @@ using AbstUI.Primitives;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
 using LingoEngine.Animations;
+using AbstUI;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace LingoEngine.Stages;
 
 /// <summary>
 /// You have one stage for all movies
 /// </summary>
-public class LingoStage : ILingoStage
+public class LingoStage : ILingoStage, IHasPropertyChanged
 {
     private readonly ILingoFrameworkStage _lingoFrameworkMovieStage;
     private AColor _backgroundColor;
     public bool IsDirty { get; private set; }
-    public int Width { get; set; } = 640;
-    public int Height { get; set; } = 480;
+    private int _width = 640;
+    public int Width
+    {
+        get => _width;
+        set
+        {
+            if (_width == value) return;
+            _width = value;
+            IsDirty = true;
+            OnPropertyChanged();
+        }
+    }
+    private int _height = 480;
+    public int Height
+    {
+        get => _height;
+        set
+        {
+            if (_height == value) return;
+            _height = value;
+            IsDirty = true;
+            OnPropertyChanged();
+        }
+    }
     public int X { get; set; } = 0;
     public int Y { get; set; } = 0;
     public AColor BackgroundColor
@@ -115,4 +140,10 @@ public class LingoStage : ILingoStage
     {
         IsDirty = false;
     }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

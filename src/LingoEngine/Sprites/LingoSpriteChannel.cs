@@ -1,4 +1,7 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using AbstUI;
 using AbstUI.Primitives;
 using LingoEngine.Casts;
 using LingoEngine.Members;
@@ -64,13 +67,14 @@ namespace LingoEngine.Sprites
         void RemoveScriptedSprite();
     }
 
-    public class LingoSpriteChannel : ILingoSpriteChannel
+    public class LingoSpriteChannel : ILingoSpriteChannel, IHasPropertyChanged
     {
         private bool _puppet;
         private readonly LingoMovie _movie;
         private bool _visibility = true;
         private ILingoSprite? _sprite;
         public event Action<LingoSpriteChannel, bool>? VisibilityChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         /// <inheritdoc/>
         /// <inheritdoc/>
         public int Number { get; private set; }
@@ -85,6 +89,7 @@ namespace LingoEngine.Sprites
                 _visibility = value;
                 if (_sprite != null) _sprite.Visibility = value;
                 VisibilityChanged?.Invoke(this, value);
+                OnPropertyChanged();
             }
         }
         bool ILingoSpriteBase.IsPuppetCached { get; set; }
@@ -207,6 +212,7 @@ namespace LingoEngine.Sprites
                         //_sprite = null;
                     }
                 }
+                OnPropertyChanged();
             }
         }
 
@@ -252,6 +258,10 @@ namespace LingoEngine.Sprites
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
 
         public bool HasSprite() => _sprite != null;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
     }
 }
