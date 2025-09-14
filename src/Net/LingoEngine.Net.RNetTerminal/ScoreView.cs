@@ -145,8 +145,10 @@ internal sealed class ScoreView : ScrollView
     private void ClampContentOffset()
     {
         var offset = ContentOffset;
-        var visibleFrames = Bounds.Width - _labelWidth;
-        var visibleChannels = Bounds.Height - 1;
+        var scrollBarWidth = ShowVerticalScrollIndicator ? 1 : 0;
+        var scrollBarHeight = ShowHorizontalScrollIndicator ? 1 : 0;
+        var visibleFrames = Math.Max(0, Bounds.Width - _labelWidth - scrollBarWidth);
+        var visibleChannels = Math.Max(0, Bounds.Height - 1 - scrollBarHeight);
         var maxX = Math.Max(0, FrameCount - visibleFrames);
         var maxY = Math.Max(0, TotalChannels - visibleChannels);
         offset.X = Math.Clamp(offset.X, 0, maxX);
@@ -165,8 +167,10 @@ internal sealed class ScoreView : ScrollView
 
     private void EnsureVisible()
     {
-        var visibleFrames = Bounds.Width - _labelWidth;
-        var visibleChannels = Bounds.Height - 1;
+        var scrollBarWidth = ShowVerticalScrollIndicator ? 1 : 0;
+        var scrollBarHeight = ShowHorizontalScrollIndicator ? 1 : 0;
+        var visibleFrames = Math.Max(0, Bounds.Width - _labelWidth - scrollBarWidth);
+        var visibleChannels = Math.Max(0, Bounds.Height - 1 - scrollBarHeight);
         var offset = ContentOffset;
         if (_cursorFrame < offset.X)
         {
@@ -185,13 +189,16 @@ internal sealed class ScoreView : ScrollView
             offset.Y = _cursorChannel - visibleChannels + 1;
         }
         ContentOffset = offset;
+        ClampContentOffset();
     }
 
     public override void Redraw(Rect bounds)
     {
         base.Redraw(bounds);
-        var w = Bounds.Width;
-        var h = Bounds.Height;
+        var scrollBarWidth = ShowVerticalScrollIndicator ? 1 : 0;
+        var scrollBarHeight = ShowHorizontalScrollIndicator ? 1 : 0;
+        var w = Bounds.Width - scrollBarWidth;
+        var h = Bounds.Height - scrollBarHeight;
         Driver.SetAttribute(ColorScheme.Normal);
         for (var y = 0; y < h; y++)
         {
@@ -202,8 +209,8 @@ internal sealed class ScoreView : ScrollView
             }
         }
 
-        var visibleFrames = w - _labelWidth;
-        var visibleChannels = h - 1;
+        var visibleFrames = Math.Max(0, w - _labelWidth);
+        var visibleChannels = Math.Max(0, h - 1);
         var offsetX = ContentOffset.X;
         var offsetY = ContentOffset.Y;
 
