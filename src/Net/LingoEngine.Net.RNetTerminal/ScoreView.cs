@@ -48,7 +48,9 @@ internal sealed class ScoreView : ScrollView
         _sprites = TestMovieBuilder.BuildSprites()
             .Select(s => new SpriteBlock(s.SpriteNum, s.BeginFrame, s.EndFrame, s.SpriteNum, s.MemberNum, s.Name, s.Width))
             .ToList();
-        _members = TestCastBuilder.BuildCastData().SelectMany(c => c.Value).ToDictionary(m => m.Number);
+        _members = TestCastBuilder.BuildCastData()
+            .SelectMany(c => c.Value)
+            .ToDictionary(MemberKey);
         _labelWidth = Math.Max(SpecialChannels.Max(s => s.Length), SpriteChannelCount.ToString().Length) + 1;
         CanFocus = true;
         ColorScheme = new ColorScheme
@@ -638,6 +640,9 @@ internal sealed class ScoreView : ScrollView
     public event Action<int>? PlayFromHere;
 
     public event Action? SpriteChanged;
+
+    private static int MemberKey(LingoMemberDTO member)
+        => (member.CastLibNum << 16) | member.NumberInCast;
 
     private sealed class SpriteBlock
     {

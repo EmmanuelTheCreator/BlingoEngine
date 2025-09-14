@@ -36,8 +36,9 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     {
         Application.Init();
         SetNortonTheme();
-        BuildUi();
         ShowStartupDialog();
+        Application.Begin(new Toplevel());
+        BuildUi();
         Application.Run();
         Application.Shutdown();
         return Task.CompletedTask;
