@@ -19,12 +19,15 @@ public static class TestMovieBuilder
     /// </summary>
     public static IReadOnlyList<LingoSpriteDTO> BuildSprites() => new List<LingoSpriteDTO>
     {
-        new() { Name = "Greeting", SpriteNum = 1, MemberNum = 1, BeginFrame = 1, EndFrame = 60, LocH = 100, LocV = 100 },
-        new() { Name = "Info", SpriteNum = 2, MemberNum = 2, BeginFrame = 1, EndFrame = 60, LocH = 300, LocV = 200 },
-        new() { Name = "Box", SpriteNum = 3, MemberNum = 3, BeginFrame = 1, EndFrame = 60, LocH = 400, LocV = 300 },
-        new() { Name = "Greeting", SpriteNum = 4, MemberNum = 1, BeginFrame = 1, EndFrame = 60, LocH = 150, LocV = 400 },
-        new() { Name = "Info", SpriteNum = 5, MemberNum = 2, BeginFrame = 1, EndFrame = 60, LocH = 500, LocV = 120 },
-        new() { Name = "score", SpriteNum = 6, MemberNum = 4, BeginFrame = 1, EndFrame = 60, LocH = 50, LocV = 50, Width = 100, Height = 20 },
-        new() { Name = "Img30x80", SpriteNum = 7, MemberNum = 5, BeginFrame = 1, EndFrame = 60, LocH = 250, LocV = 350, Width = 30, Height = 80 },
+        new() { Name = "Greeting", SpriteNum = 1, MemberNum = MemberKey(1, 1), BeginFrame = 1, EndFrame = 60, LocH = 100, LocV = 100 },
+        new() { Name = "Info", SpriteNum = 2, MemberNum = MemberKey(1, 2), BeginFrame = 1, EndFrame = 60, LocH = 300, LocV = 200 },
+        new() { Name = "Box", SpriteNum = 3, MemberNum = MemberKey(1, 3), BeginFrame = 1, EndFrame = 60, LocH = 400, LocV = 300 },
+        new() { Name = "Greeting", SpriteNum = 4, MemberNum = MemberKey(1, 1), BeginFrame = 1, EndFrame = 60, LocH = 150, LocV = 400 },
+        new() { Name = "Info", SpriteNum = 5, MemberNum = MemberKey(1, 2), BeginFrame = 1, EndFrame = 60, LocH = 500, LocV = 120 },
+        new() { Name = "score", SpriteNum = 6, MemberNum = MemberKey(1, 4), BeginFrame = 1, EndFrame = 60, LocH = 50, LocV = 50, Width = 100, Height = 20 },
+        new() { Name = "Img30x80", SpriteNum = 7, MemberNum = MemberKey(1, 5), BeginFrame = 1, EndFrame = 60, LocH = 250, LocV = 350, Width = 30, Height = 80 },
     };
+
+    private static int MemberKey(int castLibNum, int numberInCast)
+        => (castLibNum << 16) | numberInCast;
 }

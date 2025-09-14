@@ -34,7 +34,7 @@ internal sealed class StageView : View
         _sprites = TestMovieBuilder.BuildSprites();
         foreach (var m in TestCastBuilder.BuildCastData().SelectMany(c => c.Value))
         {
-            _members[m.Number] = m;
+            _members[MemberKey(m)] = m;
         }
     }
 
@@ -173,4 +173,7 @@ internal sealed class StageView : View
         }
         return base.MouseEvent(me);
     }
+
+    private static int MemberKey(LingoMemberDTO member)
+        => (member.CastLibNum << 16) | member.NumberInCast;
 }
