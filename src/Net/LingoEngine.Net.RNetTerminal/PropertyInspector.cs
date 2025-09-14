@@ -30,8 +30,8 @@ internal sealed class PropertyInspector : Window
             new PropertySpec("FlipH", typeof(bool)),
             new PropertySpec("FlipV", typeof(bool)),
             new PropertySpec("Name", typeof(string)),
-            new PropertySpec("X", typeof(int)),
-            new PropertySpec("Y", typeof(int)),
+            new PropertySpec("LocH", typeof(int)),
+            new PropertySpec("LocV", typeof(int)),
             new PropertySpec("Z", typeof(int)),
             new PropertySpec("Left", typeof(int)),
             new PropertySpec("Top", typeof(int)),
@@ -59,6 +59,7 @@ internal sealed class PropertyInspector : Window
             Table = _memberTable,
             FullRowSelect = true
         };
+        _memberTableView.Style.AlwaysShowHeaders = false;
         _memberTableView.Style.ShowVerticalCellLines = false;
         _memberTableView.SelectedColumn = 1;
         _memberTableView.SelectedCellChanged += _ => _memberTableView.SelectedColumn = 1;
@@ -174,7 +175,7 @@ internal sealed class PropertyInspector : Window
         table.Columns.Add("Value");
         for (var i = 0; i < props.Length; i++)
         {
-            table.Rows.Add(props[i].Name, string.Empty);
+            table.Rows.Add(props[i].Name, GetDefaultValue(props[i].Type));
         }
         var view = new TableView
         {
@@ -183,6 +184,7 @@ internal sealed class PropertyInspector : Window
             Table = table,
             FullRowSelect = true
         };
+        view.Style.AlwaysShowHeaders = false;
         view.Style.ShowVerticalCellLines = false;
         view.SelectedColumn = 1;
         view.SelectedCellChanged += _ => view.SelectedColumn = 1;
@@ -211,6 +213,19 @@ internal sealed class PropertyInspector : Window
             view.SetNeedsDisplay();
         };
         return view;
+    }
+
+    private static string GetDefaultValue(Type type)
+    {
+        if (type == typeof(bool))
+        {
+            return bool.FalseString;
+        }
+        if (type == typeof(int) || type == typeof(float))
+        {
+            return "0";
+        }
+        return string.Empty;
     }
 
     private static string? EditValue(Type type, string name, string value)
@@ -298,14 +313,30 @@ internal sealed class PropertyInspector : Window
         return result;
     }
 
-    public void ShowMember(LingoMemberDTO member)
+    public void ShowMember(LingoMemberDTO? member)
     {
         _memberTable.Rows.Clear();
         _memberSpecs.Clear();
+        if (member == null)
+        {
+            _memberTableView.SetNeedsDisplay();
+            return;
+        }
+
         AddMember("Name", member.Name, typeof(string));
         AddMember("Number", member.Number.ToString(), typeof(int), true);
+        AddMember("CastLibNum", member.CastLibNum.ToString(), typeof(int), true);
+        AddMember("NumberInCast", member.NumberInCast.ToString(), typeof(int), true);
         AddMember("Type", member.Type.ToString(), typeof(string), true);
+        AddMember("RegPointX", member.RegPoint.X.ToString(), typeof(float), true);
+        AddMember("RegPointY", member.RegPoint.Y.ToString(), typeof(float), true);
+        AddMember("Width", member.Width.ToString(), typeof(int), true);
+        AddMember("Height", member.Height.ToString(), typeof(int), true);
+        AddMember("Size", member.Size.ToString(), typeof(int), true);
         AddMember("Comment", member.Comments, typeof(string));
+        AddMember("FileName", member.FileName, typeof(string), true);
+        AddMember("PurgePriority", member.PurgePriority.ToString(), typeof(int), true);
+
         _memberTableView.SetNeedsDisplay();
         _tabs.SelectedTab = _memberTab;
     }

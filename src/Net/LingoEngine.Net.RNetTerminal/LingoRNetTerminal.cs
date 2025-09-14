@@ -1,3 +1,4 @@
+using LingoEngine.IO.Data.DTO;
 using LingoEngine.Net.RNetClient;
 using LingoEngine.Net.RNetContracts;
 using Terminal.Gui;
@@ -11,7 +12,9 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     private readonly List<string> _logs = new();
     private CancellationTokenSource _cts = new();
     private Timer? _heartbeatTimer;
-    private int _port = 61699;
+    private readonly RNetTerminalSettings _settings;
+    private readonly Dictionary<string, List<LingoMemberDTO>> _castData;
+    private int _port;
     private bool _connected;
     private ListView? _logList;
     private Window? _uiWin;
@@ -23,6 +26,9 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
 
     public LingoRNetTerminal()
     {
+        _settings = RNetTerminalSettings.Load();
+        _port = _settings.Port;
+        _castData = TestCastBuilder.BuildCastData();
     }
 
     public Task RunAsync()
@@ -30,6 +36,7 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         Application.Init();
         SetNortonTheme();
         BuildUi();
+        ShowStartupDialog();
         Application.Run();
         Application.Shutdown();
         return Task.CompletedTask;
@@ -122,6 +129,39 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         ShowScore();
     }
 
+    private void ShowStartupDialog()
+    {
+        var portField = new TextField(_port.ToString())
+        {
+            X = 1,
+            Y = 2,
+            Width = 10
+        };
+        var standalone = new Button("Run Standalone", true);
+        standalone.Clicked += () => Application.RequestStop();
+        var connect = new Button("Connect");
+        connect.Clicked += async () =>
+        {
+            if (int.TryParse(portField.Text.ToString(), out var p))
+            {
+                _port = p;
+                SaveSettings();
+            }
+            await ToggleConnectionAsync();
+            Application.RequestStop();
+        };
+        var dialog = new Dialog("Start Mode", 40, 8, standalone, connect);
+        dialog.Add(new Label("Port:") { X = 1, Y = 2 }, portField);
+        portField.SetFocus();
+        Application.Run(dialog);
+    }
+
+    private void SaveSettings()
+    {
+        _settings.Port = _port;
+        _settings.Save();
+    }
+
     private void ShowPropertyInspector() => _propertyInspector?.SetFocus();
 
     private void ShowScore()
@@ -149,7 +189,7 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     {
         _uiWin!.Title = "Cast";
         _workspace?.RemoveAll();
-        var castView = new CastView(TestCastBuilder.BuildCastData())
+        var castView = new CastView(_castData)
         {
             Width = Dim.Fill(),
             Height = Dim.Fill()
@@ -216,6 +256,26 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         {
             _infoItem.Title = $"Frame:{frame} Channel:{channel} Sprite:{(sprite?.ToString() ?? "-")} Member:{member ?? string.Empty}";
         }
+
+        if (_propertyInspector != null)
+        {
+            _propertyInspector.ShowMember(member != null ? FindMember(member) : null);
+        }
+    }
+
+    private LingoMemberDTO? FindMember(string name)
+    {
+        foreach (var cast in _castData.Values)
+        {
+            foreach (var m in cast)
+            {
+                if (m.Name == name)
+                {
+                    return m;
+                }
+            }
+        }
+        return null;
     }
 
     private static void SetNortonTheme()
@@ -235,8 +295,8 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         {
             Normal = Application.Driver.MakeAttribute(Color.Black, Color.Gray),
             Focus = Application.Driver.MakeAttribute(Color.Black, Color.White),
-            HotNormal = Application.Driver.MakeAttribute(Color.BrightYellow, Color.Gray),
-            HotFocus = Application.Driver.MakeAttribute(Color.Black, Color.White),
+            HotNormal = Application.Driver.MakeAttribute(Color.Green, Color.Gray),
+            HotFocus = Application.Driver.MakeAttribute(Color.Green, Color.White),
             Disabled = Application.Driver.MakeAttribute(Color.DarkGray, Color.Gray)
         };
         Colors.Menu = menuScheme;
@@ -293,6 +353,7 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             if (int.TryParse(portField.Text.ToString(), out var p))
             {
                 _port = p;
+                SaveSettings();
                 Log($"Port set to {_port}.");
             }
             Application.RequestStop();
