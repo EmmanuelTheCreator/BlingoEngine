@@ -40,7 +40,7 @@ public sealed class DirectorRNetClient :
     public bool Handle(ConnectRNetClientCommand command)
     {
         var uri = new Uri($"http://localhost:{_config.Port}/director");
-        _client.ConnectAsync(uri, new HelloDto("director", "client", "1.0")).GetAwaiter().GetResult();
+        _client.ConnectAsync(uri, new HelloDto("director", "client", "1.0","")).GetAwaiter().GetResult();
         return true;
     }
 

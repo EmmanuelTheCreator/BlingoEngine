@@ -8,10 +8,9 @@ namespace LingoEngine.Net.RNetTerminal;
 
 internal sealed class StageView : View
 {
-    private const int MovieWidth = 640;
-    private const int MovieHeight = 480;
-    private readonly IReadOnlyList<LingoSpriteDTO> _sprites;
-    private readonly Dictionary<int, LingoMemberDTO> _members = new();
+    private int _movieWidth;
+    private int _movieHeight;
+    private IReadOnlyList<LingoSpriteDTO> _sprites = Array.Empty<LingoSpriteDTO>();
     private int _frame;
     private SpriteRef? _selectedSprite;
     private static readonly Color[] OverlapColors =
@@ -22,6 +21,7 @@ internal sealed class StageView : View
         Color.BrightYellow
     };
 
+
     public event Action<int, int>? SpriteSelected;
 
     public StageView()
@@ -31,23 +31,40 @@ internal sealed class StageView : View
         {
             Normal = Application.Driver.MakeAttribute(Color.White, Color.Black)
         };
-        _sprites = TestMovieBuilder.BuildSprites();
-        foreach (var m in TestCastBuilder.BuildCastData().SelectMany(c => c.Value))
+        var store = TerminalDataStore.Instance;
+        _frame = store.GetFrame();
+        _selectedSprite = store.GetSelectedSprite();
+        store.FrameChanged += f =>
         {
-            _members[MemberKey(m)] = m;
-        }
+            _frame = f;
+            SetNeedsDisplay();
+        };
+        store.SelectedSpriteChanged += s =>
+        {
+            _selectedSprite = s;
+            SetNeedsDisplay();
+        };
+        store.SpritesChanged += ReloadData;
+        store.CastsChanged += ReloadData;
+        store.SpriteChanged += _ => SetNeedsDisplay();
+        store.MemberChanged += _ => SetNeedsDisplay();
+        ReloadData();
     }
 
-    public void SetFrame(int frame)
-    {
-        _frame = frame;
-    }
 
     public void RequestRedraw() => SetNeedsDisplay();
 
     public void SetSelectedSprite(SpriteRef? sprite)
     {
         _selectedSprite = sprite;
+}
+    private void ReloadData()
+    {
+        var store = TerminalDataStore.Instance;
+        _movieWidth = store.StageWidth;
+        _movieHeight = store.StageHeight;
+        _sprites = store.GetSprites();
+
         SetNeedsDisplay();
     }
 
@@ -75,14 +92,15 @@ internal sealed class StageView : View
                      .Where(s => s.BeginFrame <= _frame && _frame <= s.EndFrame)
                      .OrderBy(s => s.LocZ))
         {
-            if (!_members.TryGetValue(sprite.MemberNum, out var member))
+            var member = TerminalDataStore.Instance.FindMember(sprite.MemberNum);
+            if (member == null)
             {
                 continue;
             }
-            var x = (int)(sprite.LocH / MovieWidth * w);
-            var y = (int)(sprite.LocV / MovieHeight * h);
-            var sw = (int)(sprite.Width / MovieWidth * w);
-            var sh = (int)(sprite.Height / MovieHeight * h);
+            var x = (int)(sprite.LocH / _movieWidth * w);
+            var y = (int)(sprite.LocV / _movieHeight * h);
+            var sw = (int)(sprite.Width / _movieWidth * w);
+            var sh = (int)(sprite.Height / _movieHeight * h);
             if (sw <= 0 || sh <= 0 || sh > 2 || sw > 10)
             {
                 sw = 1;
@@ -154,10 +172,10 @@ internal sealed class StageView : View
                          .Where(s => s.BeginFrame <= _frame && _frame <= s.EndFrame)
                          .OrderByDescending(s => s.LocZ))
             {
-                var x = (int)(sprite.LocH / MovieWidth * w);
-                var y = (int)(sprite.LocV / MovieHeight * h);
-                var sw = (int)(sprite.Width / MovieWidth * w);
-                var sh = (int)(sprite.Height / MovieHeight * h);
+                var x = (int)(sprite.LocH / _movieWidth * w);
+                var y = (int)(sprite.LocV / _movieHeight * h);
+                var sw = (int)(sprite.Width / _movieWidth * w);
+                var sh = (int)(sprite.Height / _movieHeight * h);
                 if (sw <= 0 || sh <= 0 || sh > 2 || sw > 10)
                 {
                     sw = 1;
@@ -166,6 +184,9 @@ internal sealed class StageView : View
                 if (me.X >= x && me.X < x + sw && me.Y >= y && me.Y < y + sh)
                 {
                     SpriteSelected?.Invoke(sprite.SpriteNum, sprite.BeginFrame);
+
+                    TerminalDataStore.Instance.SelectSprite(sprite.SpriteNum);
+
                     break;
                 }
             }
@@ -173,7 +194,4 @@ internal sealed class StageView : View
         }
         return base.MouseEvent(me);
     }
-
-    private static int MemberKey(LingoMemberDTO member)
-        => (member.CastLibNum << 16) | member.NumberInCast;
 }

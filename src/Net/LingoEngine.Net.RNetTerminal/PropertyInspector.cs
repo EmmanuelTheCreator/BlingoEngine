@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
+using System.Linq;
 using LingoEngine.IO.Data.DTO;
 using Terminal.Gui;
 
@@ -12,7 +14,22 @@ internal sealed class PropertyInspector : Window
     private readonly DataTable _memberTable = new();
     private readonly List<PropertySpec> _memberSpecs = new();
     private readonly TableView _memberTableView;
+    private readonly DataTable _spriteTable = new();
+    private readonly List<PropertySpec> _spriteSpecs = new();
+    private readonly TableView _spriteTableView;
     private readonly TabView.Tab _memberTab;
+    private readonly TabView.Tab _spriteTab;
+    private readonly TabView.Tab _bitmapTab;
+    private readonly TabView.Tab _soundTab;
+    private readonly TabView.Tab _movieTab;
+    private readonly TabView.Tab _castTab;
+    private readonly TabView.Tab _textTab;
+    private readonly TabView.Tab _shapeTab;
+    private readonly TabView.Tab _guidesTab;
+    private readonly TabView.Tab _behaviorTab;
+    private readonly TabView.Tab _filmLoopTab;
+    private LingoSpriteDTO? _sprite;
+    private string _lastTab = "Sprite";
 
     public event Action<string, string>? PropertyChanged;
 
@@ -23,8 +40,15 @@ internal sealed class PropertyInspector : Window
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
+        _tabs.SelectedTabChanged += (_, e) =>
+        {
+            if (e.NewTab != null)
+            {
+                _lastTab = e.NewTab.Text?.ToString() ?? _lastTab;
+            }
+        };
 
-        AddTab("Sprite", new[]
+        _spriteSpecs.AddRange(new[]
         {
             new PropertySpec("Lock", typeof(bool)),
             new PropertySpec("FlipH", typeof(bool)),
@@ -50,8 +74,54 @@ internal sealed class PropertyInspector : Window
             new PropertySpec("Behaviors", typeof(string))
         });
 
-        _memberTable.Columns.Add(string.Empty);
-        _memberTable.Columns.Add(string.Empty);
+        _spriteTable.Columns.Add("\u200B");
+        _spriteTable.Columns.Add("\u200B\u200B");
+        foreach (var spec in _spriteSpecs)
+        {
+            _spriteTable.Rows.Add(spec.Name, GetDefaultValue(spec.Type));
+        }
+        _spriteTableView = new TableView
+        {
+            Width = Dim.Fill(),
+            Height = Dim.Fill(),
+            Table = _spriteTable,
+            FullRowSelect = true
+        };
+        _spriteTableView.Style.AlwaysShowHeaders = false;
+        _spriteTableView.Style.ShowHorizontalHeaderUnderline = false;
+        _spriteTableView.Style.ShowHorizontalHeaderOverline = false;
+        _spriteTableView.Style.ShowVerticalHeaderLines = false;
+        _spriteTableView.Style.ShowVerticalCellLines = false;
+        _spriteTableView.SelectedColumn = 1;
+        _spriteTableView.SelectedCellChanged += _ => _spriteTableView.SelectedColumn = 1;
+        _spriteTableView.KeyPress += e =>
+        {
+            if (e.KeyEvent.Key == Key.CursorLeft || e.KeyEvent.Key == Key.CursorRight)
+            {
+                e.Handled = true;
+            }
+        };
+        _spriteTableView.Style.ColumnStyles.Add(_spriteTable.Columns[1], new TableView.ColumnStyle { Alignment = TextAlignment.Right });
+        _spriteTableView.CellActivated += args =>
+        {
+            var spec = _spriteSpecs[args.Row];
+            if (spec.ReadOnly)
+            {
+                return;
+            }
+            var value = _spriteTable.Rows[args.Row][1]?.ToString() ?? string.Empty;
+            var newValue = EditValue(spec.Type, spec.Name, value);
+            if (newValue != null)
+            {
+                _spriteTable.Rows[args.Row][1] = newValue;
+                PropertyChanged?.Invoke(spec.Name, newValue);
+            }
+            _spriteTableView.SetNeedsDisplay();
+        };
+        _spriteTab = new TabView.Tab("Sprite", _spriteTableView);
+
+        _memberTable.Columns.Add("\u200B");
+        _memberTable.Columns.Add("\u200B\u200B");
         _memberTableView = new TableView
         {
             Width = Dim.Fill(),
@@ -91,16 +161,15 @@ internal sealed class PropertyInspector : Window
             _memberTableView.SetNeedsDisplay();
         };
         _memberTab = new TabView.Tab("Member", _memberTableView);
-        _tabs.AddTab(_memberTab, false);
 
-        AddTab("Bitmap", new[]
+        _bitmapTab = CreateTab("Bitmap", new[]
         {
             new PropertySpec("Dimensions", typeof(string), true),
             new PropertySpec("Highlight", typeof(bool)),
             new PropertySpec("RegPointX", typeof(int)),
             new PropertySpec("RegPointY", typeof(int))
         });
-        AddTab("Sound", new[]
+        _soundTab = CreateTab("Sound", new[]
         {
             new PropertySpec("Loop", typeof(bool)),
             new PropertySpec("Duration", typeof(float), true),
@@ -110,7 +179,7 @@ internal sealed class PropertyInspector : Window
             new PropertySpec("Play", typeof(bool)),
             new PropertySpec("Stop", typeof(bool))
         });
-        AddTab("Movie", new[]
+        _movieTab = CreateTab("Movie", new[]
         {
             new PropertySpec("StageWidth", typeof(int)),
             new PropertySpec("StageHeight", typeof(int)),
@@ -120,18 +189,18 @@ internal sealed class PropertyInspector : Window
             new PropertySpec("About", typeof(string)),
             new PropertySpec("Copyright", typeof(string))
         });
-        AddTab("Cast", new[]
+        _castTab = CreateTab("Cast", new[]
         {
             new PropertySpec("Number", typeof(int)),
             new PropertySpec("Name", typeof(string))
         });
-        AddTab("Text", new[]
+        _textTab = CreateTab("Text", new[]
         {
             new PropertySpec("Width", typeof(int)),
             new PropertySpec("Height", typeof(int)),
             new PropertySpec("Edit", typeof(bool))
         });
-        AddTab("Shape", new[]
+        _shapeTab = CreateTab("Shape", new[]
         {
             new PropertySpec("Shape", typeof(string)),
             new PropertySpec("Filled", typeof(bool)),
@@ -139,7 +208,7 @@ internal sealed class PropertyInspector : Window
             new PropertySpec("Height", typeof(int)),
             new PropertySpec("Edit", typeof(bool))
         });
-        AddTab("Guides", new[]
+        _guidesTab = CreateTab("Guides", new[]
         {
             new PropertySpec("GuidesColor", typeof(Color)),
             new PropertySpec("GuidesVisible", typeof(bool)),
@@ -154,8 +223,8 @@ internal sealed class PropertyInspector : Window
             new PropertySpec("GridWidth", typeof(int)),
             new PropertySpec("GridHeight", typeof(int))
         });
-        AddTab("Behavior", new[] { new PropertySpec("Behaviors", typeof(string)) });
-        AddTab("FilmLoop", new[]
+        _behaviorTab = CreateTab("Behavior", new[] { new PropertySpec("Behaviors", typeof(string)) });
+        _filmLoopTab = CreateTab("FilmLoop", new[]
         {
             new PropertySpec("Framing", typeof(string)),
             new PropertySpec("Loop", typeof(bool)),
@@ -163,19 +232,73 @@ internal sealed class PropertyInspector : Window
         });
 
         Add(_tabs);
+        SetTabs(_spriteTab, _memberTab);
+        var initial = _tabs.Tabs.FirstOrDefault(t => t.Text.ToString() == _lastTab) ?? _spriteTab;
+        _tabs.SelectedTab = initial;
     }
 
-    private void AddTab(string title, PropertySpec[] props)
+    public void ShowSprite(LingoSpriteDTO? sprite)
+    {
+        _sprite = sprite;
+        for (var i = 0; i < _spriteSpecs.Count; i++)
+        {
+            var spec = _spriteSpecs[i];
+            string value;
+            if (sprite == null)
+            {
+                value = GetDefaultValue(spec.Type);
+            }
+            else
+            {
+                value = spec.Name switch
+                {
+                    "Lock" => sprite.Lock.ToString(),
+                    "FlipH" => sprite.FlipH.ToString(),
+                    "FlipV" => sprite.FlipV.ToString(),
+                    "Name" => sprite.Name,
+                    "LocH" => ((int)sprite.LocH).ToString(CultureInfo.InvariantCulture),
+                    "LocV" => ((int)sprite.LocV).ToString(CultureInfo.InvariantCulture),
+                    "Z" => sprite.LocZ.ToString(CultureInfo.InvariantCulture),
+                    "Width" => ((int)sprite.Width).ToString(CultureInfo.InvariantCulture),
+                    "Height" => ((int)sprite.Height).ToString(CultureInfo.InvariantCulture),
+                    "Ink" => sprite.Ink.ToString(CultureInfo.InvariantCulture),
+                    "Blend" => sprite.Blend.ToString(CultureInfo.InvariantCulture),
+                    "StartFrame" => sprite.BeginFrame.ToString(CultureInfo.InvariantCulture),
+                    "EndFrame" => sprite.EndFrame.ToString(CultureInfo.InvariantCulture),
+                    "Rotation" => sprite.Rotation.ToString(CultureInfo.InvariantCulture),
+                    "Skew" => sprite.Skew.ToString(CultureInfo.InvariantCulture),
+                    _ => _spriteTable.Rows[i][1]?.ToString() ?? GetDefaultValue(spec.Type)
+                };
+            }
+            _spriteTable.Rows[i][1] = value;
+        }
+        _spriteTableView.SetNeedsDisplay();
+    }
+
+    private TabView.Tab CreateTab(string title, PropertySpec[] props)
     {
         var view = BuildPropertyTableView(props);
-        _tabs.AddTab(new TabView.Tab(title, view), _tabs.Tabs.Count == 0);
+        return new TabView.Tab(title, view);
+    }
+
+    private void SetTabs(params TabView.Tab[] tabs)
+    {
+        foreach (var existing in _tabs.Tabs.ToList())
+        {
+            _tabs.RemoveTab(existing);
+        }
+
+        foreach (var tab in tabs)
+        {
+            _tabs.AddTab(tab, _tabs.Tabs.Count == 0);
+        }
     }
 
     private TableView BuildPropertyTableView(PropertySpec[] props)
     {
         var table = new DataTable();
-        table.Columns.Add(string.Empty);
-        table.Columns.Add(string.Empty);
+        table.Columns.Add("\u200B");
+        table.Columns.Add("\u200B\u200B");
         for (var i = 0; i < props.Length; i++)
         {
             table.Rows.Add(props[i].Name, GetDefaultValue(props[i].Type));
@@ -240,6 +363,16 @@ internal sealed class PropertyInspector : Window
         if (type == typeof(bool))
         {
             var check = new CheckBox(12, 1, string.Empty, bool.TryParse(value, out var b) && b);
+            check.KeyPress += e =>
+            {
+                if (e.KeyEvent.Key == Key.Space)
+                {
+                    check.Checked = !check.Checked;
+                    result = check.Checked.ToString();
+                    Application.RequestStop();
+                    e.Handled = true;
+                }
+            };
             var ok = new Button("Ok", true);
             ok.Clicked += () =>
             {
@@ -248,6 +381,7 @@ internal sealed class PropertyInspector : Window
             };
             var dialog = new Dialog($"Edit {name}", 30, 7, ok);
             dialog.Add(new Label(name + ":") { X = 1, Y = 1 }, check);
+            check.SetFocus();
             Application.Run(dialog);
         }
         else if (type == typeof(int))
@@ -326,6 +460,15 @@ internal sealed class PropertyInspector : Window
         if (member == null)
         {
             _memberTableView.SetNeedsDisplay();
+            var tabsEmpty = new List<TabView.Tab>();
+            if (_sprite != null)
+            {
+                tabsEmpty.Add(_spriteTab);
+            }
+            tabsEmpty.Add(_memberTab);
+            SetTabs(tabsEmpty.ToArray());
+            var target = _tabs.Tabs.FirstOrDefault(t => t.Text.ToString() == _lastTab);
+            _tabs.SelectedTab = target ?? (_sprite != null ? _spriteTab : _memberTab);
             return;
         }
 
@@ -344,7 +487,42 @@ internal sealed class PropertyInspector : Window
         AddMember("PurgePriority", member.PurgePriority.ToString(), typeof(int), true);
 
         _memberTableView.SetNeedsDisplay();
-        _tabs.SelectedTab = _memberTab;
+
+        var tabs = new List<TabView.Tab>();
+        if (_sprite != null)
+        {
+            tabs.Add(_spriteTab);
+        }
+        tabs.Add(_memberTab);
+        tabs.Add(_castTab);
+
+        switch (member.Type)
+        {
+            case LingoMemberTypeDTO.Bitmap:
+            case LingoMemberTypeDTO.Picture:
+                tabs.Add(_bitmapTab);
+                break;
+            case LingoMemberTypeDTO.Sound:
+                tabs.Add(_soundTab);
+                break;
+            case LingoMemberTypeDTO.Text:
+            case LingoMemberTypeDTO.Field:
+                tabs.Add(_textTab);
+                break;
+            case LingoMemberTypeDTO.Shape:
+                tabs.Add(_shapeTab);
+                break;
+            case LingoMemberTypeDTO.FilmLoop:
+                tabs.Add(_filmLoopTab);
+                break;
+            case LingoMemberTypeDTO.Movie:
+                tabs.Add(_movieTab);
+                break;
+        }
+
+        SetTabs(tabs.ToArray());
+        var desired = _tabs.Tabs.FirstOrDefault(t => t.Text.ToString() == _lastTab);
+        _tabs.SelectedTab = desired ?? (_sprite != null ? _spriteTab : _memberTab);
     }
 
     private void AddMember(string name, string value, Type type, bool readOnly = false)

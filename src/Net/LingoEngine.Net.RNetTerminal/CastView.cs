@@ -7,10 +7,10 @@ namespace LingoEngine.Net.RNetTerminal;
 
 internal sealed class CastView : View
 {
-    private readonly TabView _tabs;
+    private TabView _tabs;
     public event Action<LingoMemberDTO>? MemberSelected;
 
-    public CastView(Dictionary<string, List<LingoMemberDTO>> casts)
+    public CastView()
     {
         CanFocus = true;
         _tabs = new TabView
@@ -19,7 +19,23 @@ internal sealed class CastView : View
             Height = Dim.Fill()
         };
         Add(_tabs);
+        var store = TerminalDataStore.Instance;
+        store.CastsChanged += ReloadData;
+        store.MemberChanged += _ => ReloadData();
+        ReloadData();
+    }
 
+    public void ReloadData()
+    {
+        var casts = TerminalDataStore.Instance.GetCasts();
+        _tabs.RemoveAll();
+        Remove(_tabs);
+        _tabs = new TabView
+        {
+            Width = Dim.Fill(),
+            Height = Dim.Fill()
+        };
+        Add(_tabs);
         var first = true;
         foreach (var cast in casts)
         {
@@ -58,6 +74,7 @@ internal sealed class CastView : View
                         ok.Clicked += () =>
                         {
                             member.Comments = text.Text.ToString() ?? string.Empty;
+                            TerminalDataStore.Instance.UpdateMember(member);
                             Application.RequestStop();
                         };
                         var dialog = new Dialog($"Edit {member.Name}", 60, 20, ok);
@@ -70,6 +87,7 @@ internal sealed class CastView : View
             _tabs.AddTab(new TabView.Tab(cast.Key, tableView), first);
             first = false;
         }
+        _tabs.SetNeedsDisplay();
     }
 
     private static DataTable CreateTable(IEnumerable<LingoMemberDTO> members)

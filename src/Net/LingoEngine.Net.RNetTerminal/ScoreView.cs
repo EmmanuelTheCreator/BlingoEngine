@@ -10,8 +10,8 @@ namespace LingoEngine.Net.RNetTerminal;
 internal sealed class ScoreView : ScrollView
 {
     private const int SpriteChannelCount = 100;
-    private const int FrameCount = 600;
-    private const int StageWidth = 640;
+    private int FrameCount => TerminalDataStore.Instance.FrameCount;
+    private int _stageWidth;
     private readonly int _labelWidth;
     private static readonly string[] SpecialChannels =
     {
@@ -41,16 +41,12 @@ internal sealed class ScoreView : ScrollView
     private readonly Dictionary<int, LingoMemberDTO> _members;
     private SpriteRef? _selectedSprite;
 
+
     private int TotalChannels => SpriteChannelCount + SpecialChannels.Length;
 
     public ScoreView()
     {
-        _sprites = TestMovieBuilder.BuildSprites()
-            .Select(s => new SpriteBlock(s.SpriteNum, s.BeginFrame, s.EndFrame, s.SpriteNum, s.MemberNum, s.Name, s.Width))
-            .ToList();
-        _members = TestCastBuilder.BuildCastData()
-            .SelectMany(c => c.Value)
-            .ToDictionary(MemberKey);
+        _sprites = new List<SpriteBlock>();
         _labelWidth = Math.Max(SpecialChannels.Max(s => s.Length), SpriteChannelCount.ToString().Length) + 1;
         CanFocus = true;
         ColorScheme = new ColorScheme
@@ -60,15 +56,39 @@ internal sealed class ScoreView : ScrollView
         ContentSize = new Size(FrameCount + _labelWidth, TotalChannels + 1);
         ShowVerticalScrollIndicator = true;
         ShowHorizontalScrollIndicator = true;
+        AutoHideScrollBars = false;
+        var store = TerminalDataStore.Instance;
+        _selectedSprite = store.GetSelectedSprite();
+        store.SelectedSpriteChanged += s =>
+        {
+            _selectedSprite = s;
+            SetNeedsDisplay();
+        };
+        store.SpritesChanged += ReloadData;
+        store.CastsChanged += ReloadData;
+        store.SpriteChanged += _ => SetNeedsDisplay();
+        store.MemberChanged += _ => SetNeedsDisplay();
+        ReloadData();
     }
 
-    public event Action<int, int, int?, string?>? InfoChanged;
+    public event Action<int, int, int?, int?>? InfoChanged;
 
     public void RequestRedraw() => SetNeedsDisplay();
+
 
     public void SelectSprite(SpriteRef? sprite)
     {
         _selectedSprite = sprite;
+}
+    public void ReloadData()
+    {
+        var store = TerminalDataStore.Instance;
+        _stageWidth = store.StageWidth;
+        _sprites.Clear();
+        _sprites.AddRange(store.GetSprites()
+            .Select(s => new SpriteBlock(s.SpriteNum, s.BeginFrame, s.EndFrame, s.SpriteNum, s.MemberNum, s.Width)));
+        ContentSize = new Size(FrameCount + _labelWidth, TotalChannels + 1);
+
         SetNeedsDisplay();
     }
 
@@ -126,11 +146,12 @@ internal sealed class ScoreView : ScrollView
             var contentW = Bounds.Width - scrollBarWidth;
             var contentH = Bounds.Height - scrollBarHeight;
             var inContent = me.X < contentW && me.Y < contentH;
+            var offset = GetOffset();
 
             if (inContent && me.Flags.HasFlag(MouseFlags.Button1Clicked))
             {
-                var frame = ContentOffset.X + me.X - _labelWidth;
-                var channel = ContentOffset.Y + me.Y - 1;
+                var frame = offset.X + me.X - _labelWidth;
+                var channel = offset.Y + me.Y - 1;
                 if (frame >= 0 && frame < FrameCount && channel >= 0 && channel < TotalChannels)
                 {
                     _cursorFrame = frame;
@@ -139,14 +160,18 @@ internal sealed class ScoreView : ScrollView
                     SetNeedsDisplay();
                     NotifyInfoChanged();
                     SetFocus();
+                    var previousSprite = _selectedSprite;
+                    var newSprite = FindSprite(_cursorChannel + 1, _cursorFrame + 1)?.Number;
+                    if (newSprite != previousSprite && newSprite != null)
+                        TerminalDataStore.Instance.SelectSprite(newSprite);
                 }
                 ClampContentOffset();
                 return true;
             }
             if (inContent && me.Flags.HasFlag(MouseFlags.Button3Clicked))
             {
-                var frame = ContentOffset.X + me.X - _labelWidth;
-                var channel = ContentOffset.Y + me.Y - 1;
+                var frame = offset.X + me.X - _labelWidth;
+                var channel = offset.Y + me.Y - 1;
                 if (frame >= 0 && frame < FrameCount && channel >= 0 && channel < TotalChannels)
                 {
                     _cursorFrame = frame;
@@ -162,34 +187,43 @@ internal sealed class ScoreView : ScrollView
             }
             if (me.Flags.HasFlag(MouseFlags.WheeledUp))
             {
-                ContentOffset = new Point(ContentOffset.X, ContentOffset.Y - 1);
-                ClampContentOffset();
+                offset = GetOffset();
+                offset.Y--;
+                ClampContentOffset(ref offset);
+                SetOffset(offset);
                 SetNeedsDisplay();
                 return true;
             }
             if (me.Flags.HasFlag(MouseFlags.WheeledDown))
             {
-                ContentOffset = new Point(ContentOffset.X, ContentOffset.Y + 1);
-                ClampContentOffset();
+                offset = GetOffset();
+                offset.Y++;
+                ClampContentOffset(ref offset);
+                SetOffset(offset);
                 SetNeedsDisplay();
                 return true;
             }
             if (me.Flags.HasFlag(MouseFlags.WheeledLeft))
             {
-                ContentOffset = new Point(ContentOffset.X - 1, ContentOffset.Y);
-                ClampContentOffset();
+                offset = GetOffset();
+                offset.X--;
+                ClampContentOffset(ref offset);
+                SetOffset(offset);
                 SetNeedsDisplay();
                 return true;
             }
             if (me.Flags.HasFlag(MouseFlags.WheeledRight))
             {
-                ContentOffset = new Point(ContentOffset.X + 1, ContentOffset.Y);
-                ClampContentOffset();
+                offset = GetOffset();
+                offset.X++;
+                ClampContentOffset(ref offset);
+                SetOffset(offset);
                 SetNeedsDisplay();
                 return true;
             }
             var handled = base.MouseEvent(me);
             ClampContentOffset();
+            SetNeedsDisplay();
             return handled;
         }
         catch (Exception ex)
@@ -213,18 +247,26 @@ internal sealed class ScoreView : ScrollView
 
     private void ClampContentOffset()
     {
-        var offset = ContentOffset;
+        var offset = GetOffset();
         ClampContentOffset(ref offset);
-        ContentOffset = offset;
+        SetOffset(offset);
     }
+
+    private Point GetOffset() => new(-ContentOffset.X, -ContentOffset.Y);
+
+    private void SetOffset(Point offset) => ContentOffset = new Point(-offset.X, -offset.Y);
 
     private void MoveCursor(int dx, int dy)
     {
         _cursorFrame = Math.Clamp(_cursorFrame + dx, 0, FrameCount - 1);
         _cursorChannel = Math.Clamp(_cursorChannel + dy, 0, TotalChannels - 1);
+        var previousSprite = _selectedSprite;
+        var newSprite = FindSprite(_cursorChannel + 1, _cursorFrame + 1)?.Number;
         EnsureVisible();
         SetNeedsDisplay();
         NotifyInfoChanged();
+        if (newSprite != previousSprite && newSprite != null)
+            TerminalDataStore.Instance.SelectSprite(newSprite);
     }
 
     private void EnsureVisible()
@@ -233,7 +275,7 @@ internal sealed class ScoreView : ScrollView
         var scrollBarHeight = ShowHorizontalScrollIndicator ? 1 : 0;
         var visibleFrames = Math.Max(0, Bounds.Width - _labelWidth - scrollBarWidth);
         var visibleChannels = Math.Max(0, Bounds.Height - 1 - scrollBarHeight);
-        var offset = ContentOffset;
+        var offset = GetOffset();
         if (_cursorFrame < offset.X)
         {
             offset.X = _cursorFrame;
@@ -251,7 +293,7 @@ internal sealed class ScoreView : ScrollView
             offset.Y = _cursorChannel - visibleChannels + 1;
         }
         ClampContentOffset(ref offset);
-        ContentOffset = offset;
+        SetOffset(offset);
     }
 
     public override void Redraw(Rect bounds)
@@ -274,8 +316,9 @@ internal sealed class ScoreView : ScrollView
 
         var visibleFrames = Math.Max(0, w - _labelWidth);
         var visibleChannels = Math.Max(0, h - 1);
-        var offsetX = ContentOffset.X;
-        var offsetY = ContentOffset.Y;
+        var posOffset = GetOffset();
+        var offsetX = posOffset.X;
+        var offsetY = posOffset.Y;
 
         for (var i = 0; i < visibleChannels && offsetY + i < TotalChannels; i++)
         {
@@ -345,9 +388,10 @@ internal sealed class ScoreView : ScrollView
                 Move(_labelWidth + f - offsetX, y);
                 Driver.AddRune(' ');
             }
-            if (_members.TryGetValue(sprite.MemberNum, out var member) && member.Type == LingoMemberTypeDTO.Text)
+            var member = TerminalDataStore.Instance.FindMember(sprite.MemberNum);
+            if (member != null && member.Type == LingoMemberTypeDTO.Text)
             {
-                var maxChars = Math.Max(1, (int)(sprite.Width / StageWidth * (end - start + 1)));
+                var maxChars = Math.Max(1, (int)(sprite.Width / _stageWidth * (end - start + 1)));
                 var text = member.Name;
                 var len = Math.Min(text.Length, Math.Min(maxChars, end - start + 1));
                 Driver.SetAttribute(Application.Driver.MakeAttribute(Color.Black, bg));
@@ -375,9 +419,9 @@ internal sealed class ScoreView : ScrollView
         var cursorY = _cursorChannel - offsetY + 1;
         if (cursorX >= _labelWidth && cursorX < w && cursorY >= 1 && cursorY < h)
         {
-            Driver.SetAttribute(Application.Driver.MakeAttribute(Color.Black, Color.White));
+            Driver.SetAttribute(Application.Driver.MakeAttribute(Color.Black, Color.Green));
             Move(cursorX, cursorY);
-            Driver.AddRune('X');
+            Driver.AddRune(' ');
             Driver.SetAttribute(ColorScheme.Normal);
         }
     }
@@ -453,14 +497,11 @@ internal sealed class ScoreView : ScrollView
             case "Add Keyframe":
                 if (sprite != null)
                 {
-                    var val = PromptForInt("Add Keyframe", "Frame:");
-                    if (val.HasValue)
-                    {
-                        sprite.Keyframes[val.Value] = new Dictionary<string, double>();
-                        EditKeyframeDialog(sprite, val.Value);
-                        SetNeedsDisplay();
-                        NotifySpriteChanged();
-                    }
+                    var frame = _cursorFrame + 1;
+                    sprite.Keyframes[frame] = new Dictionary<string, double>();
+                    EditKeyframeDialog(sprite, frame);
+                    SetNeedsDisplay();
+                    NotifySpriteChanged();
                 }
                 break;
             case "Move Keyframe":
@@ -518,9 +559,11 @@ internal sealed class ScoreView : ScrollView
             case "Select Sprite":
                 if (sprite != null)
                 {
+
                     var sel = new SpriteRef(sprite.Number, sprite.Start);
                     SelectSprite(sel);
                     SpriteSelected?.Invoke(sel.SpriteNum, sel.BeginFrame);
+                    TerminalDataStore.Instance.SelectSprite(sprite.Number);
                     NotifyInfoChanged();
                 }
                 break;
@@ -533,33 +576,36 @@ internal sealed class ScoreView : ScrollView
         var end = new TextField("1") { X = 14, Y = 3, Width = 10 };
         var locH = new TextField("0") { X = 14, Y = 5, Width = 10 };
         var locV = new TextField("0") { X = 14, Y = 7, Width = 10 };
-        var member = new TextField("member") { X = 14, Y = 9, Width = 20 };
+        var castLib = new TextField("1") { X = 14, Y = 9, Width = 10 };
+        var memberNum = new TextField("1") { X = 14, Y = 11, Width = 10 };
         var ok = new Button("Ok", true);
         ok.Clicked += () =>
         {
             if (int.TryParse(begin.Text.ToString(), out var b) &&
-                int.TryParse(end.Text.ToString(), out var e))
+                int.TryParse(end.Text.ToString(), out var e) &&
+                int.TryParse(castLib.Text.ToString(), out var cast) &&
+                int.TryParse(memberNum.Text.ToString(), out var mem))
             {
                 var num = _sprites.Count + 1;
                 var ch = _cursorChannel + 1 - SpecialChannels.Length;
-                var name = member.Text?.ToString() ?? string.Empty;
-                var memberEntry = _members.Values.FirstOrDefault(m => m.Name == name);
-                var memberNum = memberEntry?.Number ?? 0;
+                var memberEntry = TerminalDataStore.Instance.FindMember(cast, mem);
+                var memberRef = memberEntry?.Number ?? 0;
                 var width = memberEntry?.Width ?? 1;
-                _sprites.Add(new SpriteBlock(ch, b, e, num, memberNum, name, width));
+                _sprites.Add(new SpriteBlock(ch, b, e, num, memberRef, width));
                 SetNeedsDisplay();
                 NotifyInfoChanged();
                 NotifySpriteChanged();
             }
             Application.RequestStop();
         };
-        var dialog = new Dialog("Create Sprite", 40, 15, ok);
+        var dialog = new Dialog("Create Sprite", 40, 17, ok);
         dialog.Add(
             new Label("Begin:") { X = 1, Y = 1 }, begin,
             new Label("End:") { X = 1, Y = 3 }, end,
             new Label("LocH:") { X = 1, Y = 5 }, locH,
             new Label("LocV:") { X = 1, Y = 7 }, locV,
-            new Label("MemberName:") { X = 1, Y = 9 }, member);
+            new Label("CastLibNum:") { X = 1, Y = 9 }, castLib,
+            new Label("MemberNum:") { X = 1, Y = 11 }, memberNum);
         begin.SetFocus();
         Application.Run(dialog);
     }
@@ -603,7 +649,14 @@ internal sealed class ScoreView : ScrollView
                 Width = 10,
                 Visible = cb.Checked
             };
-            cb.Toggled += _ => field.Visible = cb.Checked;
+            cb.Toggled += _ =>
+            {
+                field.Visible = cb.Checked;
+                if (cb.Checked)
+                {
+                    field.SetFocus();
+                }
+            };
             rows.Add((cb, field, name));
         }
         var ok = new Button("Ok", true);
@@ -625,6 +678,8 @@ internal sealed class ScoreView : ScrollView
         {
             dialog.Add(cb, field);
         }
+        dialog.Add(new Label("Use Space to toggle") { X = 1, Y = TweenProperties.Length + 1 });
+        rows[0].cb.SetFocus();
         Application.Run(dialog);
     }
 
@@ -657,21 +712,19 @@ internal sealed class ScoreView : ScrollView
         {
             ch = 0;
         }
-        InfoChanged?.Invoke(_cursorFrame + 1, ch, sprite?.Number, sprite?.MemberName);
+        InfoChanged?.Invoke(_cursorFrame + 1, ch, sprite?.Number, sprite?.MemberNum);
     }
 
     public void TriggerInfo() => NotifyInfoChanged();
 
     private void NotifySpriteChanged() => SpriteChanged?.Invoke();
 
+
     public event Action<int, int>? SpriteSelected;
 
     public event Action<int>? PlayFromHere;
 
     public event Action? SpriteChanged;
-
-    private static int MemberKey(LingoMemberDTO member)
-        => (member.CastLibNum << 16) | member.NumberInCast;
 
     private sealed class SpriteBlock
     {
@@ -680,18 +733,16 @@ internal sealed class ScoreView : ScrollView
         public int End { get; set; }
         public int Number { get; }
         public int MemberNum { get; }
-        public string MemberName { get; }
         public float Width { get; }
         public Dictionary<int, Dictionary<string, double>> Keyframes { get; } = new();
 
-        public SpriteBlock(int channel, int start, int end, int number, int memberNum, string memberName, float width)
+        public SpriteBlock(int channel, int start, int end, int number, int memberNum, float width)
         {
             Channel = channel;
             Start = start;
             End = end;
             Number = number;
             MemberNum = memberNum;
-            MemberName = memberName;
             Width = width;
             Keyframes[start] = new Dictionary<string, double>();
             Keyframes[end] = new Dictionary<string, double>();

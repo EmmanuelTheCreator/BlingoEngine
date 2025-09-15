@@ -2,8 +2,8 @@ using LingoEngine.IO.Data.DTO;
 using LingoEngine.Net.RNetClient;
 using LingoEngine.Net.RNetContracts;
 using Terminal.Gui;
-using System.Linq;
 using Timer = System.Timers.Timer;
+using LingoEngine.IO;
 
 namespace LingoEngine.Net.RNetTerminal;
 
@@ -14,7 +14,6 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     private CancellationTokenSource _cts = new();
     private Timer? _heartbeatTimer;
     private readonly RNetTerminalSettings _settings;
-    private readonly Dictionary<string, List<LingoMemberDTO>> _castData;
     private int _port;
     private bool _connected;
     private ListView? _logList;
@@ -22,6 +21,8 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     private View? _workspace;
     private PropertyInspector? _propertyInspector;
     private ScoreView? _scoreView;
+    private StageView? _stageView;
+    private CastView? _castView;
     private StatusItem? _infoItem;
     private SpriteRef? _selectedSprite;
 
@@ -29,14 +30,19 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     {
         _settings = RNetTerminalSettings.Load();
         _port = _settings.Port;
-        _castData = TestCastBuilder.BuildCastData();
     }
 
     public Task RunAsync()
     {
         Application.Init();
         SetNortonTheme();
-        ShowStartupDialog();
+        new StartupDialog(_port).Show(async p =>
+        {
+            if (_port != p)
+                SaveSettings();
+            _port = p;
+            await ToggleConnectionAsync();
+        });
         Application.Begin(new Toplevel());
         BuildUi();
         Application.Run();
@@ -93,9 +99,36 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         _propertyInspector.PropertyChanged += (n, v) =>
         {
             Log($"propertyChanged {n}={v}");
-            if (_selectedSprite.HasValue && _client != null)
+            var sel = TerminalDataStore.Instance.GetSelectedSprite();
+            if (sel.HasValue)
             {
-                _ = _client.SendCommandAsync(new SetSpritePropCmd(_selectedSprite.Value.SpriteNum, _selectedSprite.Value.BeginFrame, n, v));
+               
+
+                var sprite = TerminalDataStore.Instance.FindSprite(sel.Value);
+                if (sprite != null)
+                {
+                    switch (n)
+                    {
+                        case "LocH" when float.TryParse(v, out var locH):
+                            sprite.LocH = locH;
+                            break;
+                        case "LocV" when float.TryParse(v, out var locV):
+                            sprite.LocV = locV;
+                            break;
+                        case "Width" when float.TryParse(v, out var width):
+                            sprite.Width = width;
+                            break;
+                        case "Height" when float.TryParse(v, out var height):
+                            sprite.Height = height;
+                            break;
+                    }
+                    TerminalDataStore.Instance.UpdateSprite(sprite);
+                }
+                if (_client != null)
+                {
+                    _ = _client.SendCommandAsync(new SetSpritePropCmd(_selectedSprite.Value.SpriteNum, _selectedSprite.Value.BeginFrame, n, v));
+                }
+
             }
         };
         _propertyInspector.KeyPress += args =>
@@ -107,6 +140,13 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             }
         };
         _uiWin.Add(_workspace, _propertyInspector);
+        TerminalDataStore.Instance.SelectedSpriteChanged += n =>
+        {
+            var store = TerminalDataStore.Instance;
+            var sp = n.HasValue ? store.FindSprite(n.Value) : null;
+            _propertyInspector?.ShowSprite(sp);
+            _propertyInspector?.ShowMember(sp != null ? store.FindMember(sp.MemberNum) : null);
+        };
         top.Add(_uiWin);
 
         var logWin = new Window("Logs")
@@ -129,94 +169,7 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         top.Add(status);
 
         ShowScore();
-    }
-
-    private void ShowStartupDialog()
-    {
-        const string asciiArt = @" ____                      _         _   _      _
-|  _ \ ___ _ __ ___   ___ | |_ ___  | \ | | ___| |_
-| |_) / _ \ '_ ` _ \ / _ \| __/ _ \ |  \| |/ _ \ __|
-|  _ <  __/ | | | | | (_) | ||  __/ | |\  |  __/ |_
-|_| \_\___|_| |_| |_|\___/ \__\___| |_| \_|\___|\__|
- _____                   _             _
-|_   _|__ _ __ _ __ ___ (_)_ __   __ _| |
-  | |/ _ \ '__| '_ ` _ \| | '_ \ / _` | |
-  | |  __/ |  | | | | | | | | | | (_| | |
-  |_|\___|_|  |_| |_| |_|_|_| |_|\__,_|_|";
-
-        var standalone = new Button("Run Standalone", true);
-        var connect = new Button("Connect");
-        var dialog = new Dialog("LingoEngine Remote Net Terminal", 80, 24, standalone, connect)
-        {
-            ColorScheme = new ColorScheme
-            {
-                Normal = Application.Driver.MakeAttribute(Color.White, Color.Black),
-                Focus = Application.Driver.MakeAttribute(Color.Black, Color.Gray),
-                HotNormal = Application.Driver.MakeAttribute(Color.BrightYellow, Color.Black),
-                HotFocus = Application.Driver.MakeAttribute(Color.Black, Color.Gray),
-                Disabled = Application.Driver.MakeAttribute(Color.Gray, Color.Black)
-            }
-        };
-
-        var title = new Label("LingoEngine")
-        {
-            X = Pos.Center(),
-            Y = 1
-        };
-        dialog.Add(title);
-
-        var artLines = asciiArt.Split('\n');
-        var artWidth = artLines.Max(l => l.Length);
-        var ascii = new Label(asciiArt)
-        {
-            X = Pos.Center() - artWidth / 2,
-            Y = Pos.Bottom(title),
-            Width = artWidth,
-            Height = artLines.Length
-        };
-        dialog.Add(ascii);
-
-        var credit = new Label("By Emmanuel The Creator")
-        {
-            X = Pos.Center(),
-            Y = Pos.AnchorEnd(7)
-        };
-        dialog.Add(credit);
-
-        var portLabel = new Label("Port:")
-        {
-            X = Pos.Center() - 14,
-            Y = Pos.AnchorEnd(4)
-        };
-        var portField = new TextField(_port.ToString())
-        {
-            X = Pos.Center() - 9,
-            Y = Pos.AnchorEnd(4),
-            Width = 10
-        };
-        dialog.Add(portLabel, portField);
-
-        standalone.Clicked += () => dialog.Running = false;
-        connect.Clicked += async () =>
-        {
-            if (int.TryParse(portField.Text.ToString(), out var p))
-            {
-                _port = p;
-                SaveSettings();
-            }
-            await ToggleConnectionAsync();
-            dialog.Running = false;
-        };
-        dialog.KeyPress += e =>
-        {
-            if (e.KeyEvent.Key == Key.Esc)
-            {
-                dialog.Running = false;
-                e.Handled = true;
-            }
-        };
-        portField.SetFocus();
-        Application.Run(dialog);
+        ShowStage();
     }
 
     private void SaveSettings()
@@ -236,13 +189,19 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             Width = Dim.Fill(),
             Height = Dim.Fill(),
         };
+
         _scoreView.SpriteSelected += (n, b) =>
         {
             Log($"spriteSelected {n}@{b}");
             _selectedSprite = new SpriteRef(n, b);
         };
         _scoreView.PlayFromHere += f => Log($"Play from {f}");
-        _scoreView.InfoChanged += UpdateInfo;
+        _scoreView.InfoChanged += (f, ch, sp, mem) =>
+        {
+            UpdateInfo(f, ch, sp, mem);
+            TerminalDataStore.Instance.SetFrame(f);
+
+        };
         _workspace?.Add(_scoreView);
         _scoreView.SetFocus();
         _scoreView.TriggerInfo();
@@ -252,18 +211,18 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     {
         _uiWin!.Title = "Cast";
         _workspace?.RemoveAll();
-        var castView = new CastView(_castData)
+        _castView = new CastView
         {
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
-        castView.MemberSelected += m =>
+        _castView.MemberSelected += m =>
         {
             Log($"memberSelected {m.Name}");
             _propertyInspector?.ShowMember(m);
         };
-        _workspace?.Add(castView);
-        castView.SetFocus();
+        _workspace?.Add(_castView);
+        _castView.SetFocus();
     }
 
     private void ShowStage()
@@ -271,7 +230,7 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         _uiWin!.Title = "Stage";
         _workspace?.RemoveAll();
 
-        var stage = new StageView
+        _stageView = new StageView
         {
             X = 0,
             Y = 0,
@@ -286,6 +245,7 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
+
         stage.SpriteSelected += (n, b) =>
         {
             Log($"spriteSelected {n}@{b}");
@@ -300,45 +260,35 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             stage.SetSelectedSprite(_selectedSprite);
             _scoreView.SelectSprite(_selectedSprite);
         };
+
         _scoreView.PlayFromHere += f => Log($"Play from {f}");
         _scoreView.InfoChanged += (f, ch, sp, mem) =>
         {
             UpdateInfo(f, ch, sp, mem);
-            stage.SetFrame(f);
-            stage.RequestRedraw();
+            TerminalDataStore.Instance.SetFrame(f);
         };
 
-        _workspace?.Add(stage, _scoreView);
+        _workspace?.Add(_stageView, _scoreView);
         _scoreView.SetFocus();
         _scoreView.TriggerInfo();
     }
 
-    private void UpdateInfo(int frame, int channel, int? sprite, string? member)
+    private void UpdateInfo(int frame, int channel, int? sprite, int? member)
     {
         if (_infoItem != null)
         {
-            _infoItem.Title = $"Frame:{frame} Channel:{channel} Sprite:{(sprite?.ToString() ?? "-")} Member:{member ?? string.Empty}";
+            var store = TerminalDataStore.Instance;
+            var memName = member.HasValue ? store.FindMember(member.Value)?.Name : null;
+            _infoItem.Title = $"Frame:{frame} Channel:{channel} Sprite:{(sprite?.ToString() ?? "-")} Member:{memName ?? string.Empty}";
         }
 
         if (_propertyInspector != null)
         {
-            _propertyInspector.ShowMember(member != null ? FindMember(member) : null);
+            var store = TerminalDataStore.Instance;
+            _propertyInspector.ShowSprite(sprite.HasValue ? store.FindSprite(sprite.Value) : null);
+            _propertyInspector.ShowMember(member.HasValue ? store.FindMember(member.Value) : null);
         }
-    }
-
-    private LingoMemberDTO? FindMember(string name)
-    {
-        foreach (var cast in _castData.Values)
-        {
-            foreach (var m in cast)
-            {
-                if (m.Name == name)
-                {
-                    return m;
-                }
-            }
-        }
-        return null;
+        _scoreView?.SetFocus();
     }
 
     private static void SetNortonTheme()
@@ -375,8 +325,9 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         if (!_connected)
         {
             _client = new LingoRNetClient();
+            // config.ClientName = Assembly.GetEntryAssembly()?.GetName().Name ?? "Someone";
             var hubUrl = new Uri($"http://localhost:{_port}/director");
-            await _client.ConnectAsync(hubUrl, new HelloDto("test-project", "console", "1.0"));
+            await _client.ConnectAsync(hubUrl, new HelloDto("test-project", "console", "1.0", "RNetTerminal"));
             _connected = true;
             Log("Connected.");
             _cts = new CancellationTokenSource();
@@ -385,6 +336,7 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             _heartbeatTimer.Elapsed += async (_, _) => await _client.SendHeartbeatAsync();
             _heartbeatTimer.AutoReset = true;
             _heartbeatTimer.Start();
+            await LoadMovieDataAsync();
         }
         else
         {
@@ -399,6 +351,26 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             }
             _connected = false;
             Log("Disconnected.");
+            TerminalDataStore.Instance.LoadTestData();
+        }
+    }
+
+    private async Task LoadMovieDataAsync()
+    {
+        if (_client == null)
+        {
+            return;
+        }
+        try
+        {
+            var movieJson = await _client.GetMovieAsync();
+            var repo = new JsonStateRepository();
+            var project = repo.Deserialize(movieJson.json);
+            TerminalDataStore.Instance.LoadFromProject(project);
+        }
+        catch (Exception ex)
+        {
+            Log($"Load movie failed: {ex.Message}");
         }
     }
 

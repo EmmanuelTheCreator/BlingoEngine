@@ -6,24 +6,17 @@
 
 set -e
 
+FAILED=0
+trap 'FAILED=1' ERR
+trap 'if [ $FAILED -eq 0 ]; then
+  echo "Setup complete."
+else
+  echo "Setup encountered an error."
+fi
+read -p "Press Enter to exit..."' EXIT
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
-
-cat <<'MSG'
-This script will:
-  - Ensure the .NET 8 SDK is installed.
-  - Copy SDL2 native libraries into build output folders for the TetriGrounds SDL demo and SDL-based test projects.
-
-Press Enter to continue or Ctrl+C to abort.
-MSG
-read -r
-
-if ! command -v dotnet >/dev/null 2>&1; then
-  echo ".NET SDK not found. Installing via scripts/install-dotnet.sh..."
-  ./scripts/install-dotnet.sh
-else
-  echo ".NET SDK found: $(dotnet --version)"
-fi
 
 ARCH=$(uname -m)
 case "$ARCH" in
@@ -35,17 +28,45 @@ case "$ARCH" in
 esac
 
 LIB_DIR="Libs/$ARCH_DIR"
+PROJECTS=(
+  "Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.SDL2"
+  "Test/LingoEngine.SDL2.GfxVisualTest"
+  "WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.SDL2"
+  "src/Director/LingoEngine.Director.Runner.SDL2"
+)
+MEDIA_SRC="Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Godot/Media"
+MEDIA_DEST="Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Blazor/Media"
+
+echo "This script will:"
+echo "  - Ensure the .NET 8 SDK is installed."
+if [ -z "$ARCH_DIR" ] || [ ! -d "$LIB_DIR" ]; then
+  echo "  - SDL2 libraries will not be copied (unsupported architecture '$ARCH')."
+else
+  echo "  - Copy SDL2 native libraries for architecture '$ARCH' from '$LIB_DIR' into:"
+  for proj in "${PROJECTS[@]}"; do
+    echo "      - $proj/bin/<config>/net8.0"
+  done
+fi
+echo "  - Copy demo media from '$MEDIA_SRC' to '$MEDIA_DEST'."
+echo "  - At the end you will be prompted to locate your Godot executable."
+echo "    When the file dialog appears, select the Godot 4 binary you want to use."
+echo "    Example: /path/to/Godot_v4.5-stable_mono_linux_x86_64"
+echo "    Minimum required version is 4.5."
+echo
+echo "Press Enter to continue or Ctrl+C to abort."
+read -r
+
+if ! command -v dotnet >/dev/null 2>&1; then
+  echo ".NET SDK not found. Installing via scripts/install-dotnet.sh..."
+  ./scripts/install-dotnet.sh
+else
+  echo ".NET SDK found: $(dotnet --version)"
+fi
+
 if [ -z "$ARCH_DIR" ] || [ ! -d "$LIB_DIR" ]; then
   echo "No SDL2 libraries available for architecture '$ARCH'. Skipping copy."
 else
   echo "Copying SDL2 libraries for architecture '$ARCH'."
-  PROJECTS=(
-    "Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.SDL2"
-    "Test/LingoEngine.SDL2.GfxVisualTest"
-    "WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.SDL2"
-    "src/Director/LingoEngine.Director.Runner.SDL2"
-    "src/Director/LingoEngine.Director.Runner.Godot"
-  )
   for proj in "${PROJECTS[@]}"; do
     if [ -d "$proj" ]; then
       for config in Debug DebugWithDirector Release; do
@@ -57,12 +78,23 @@ else
   done
 fi
 
+if [ -d "$MEDIA_SRC" ]; then
+  echo "Copying demo media to '$MEDIA_DEST'."
+  rm -rf "$MEDIA_DEST"
+  cp -r "$MEDIA_SRC" "$MEDIA_DEST"
+else
+  echo "Demo media source '$MEDIA_SRC' not found. Skipping."
+fi
+
 GODOT_PATH=""
 if command -v zenity >/dev/null 2>&1; then
+  echo "Select the Godot executable (e.g., /path/to/Godot_v4.5-stable_mono_linux_x86_64)"
+  echo "Minimum version 4.5 required."
   GODOT_PATH=$(zenity --file-selection --title="Select Godot executable" 2>/dev/null || true)
 fi
 if [ -z "$GODOT_PATH" ]; then
-  read -p "Enter path to Godot executable: " GODOT_PATH
+  echo "Select the Godot executable (e.g., /path/to/Godot_v4.5-stable_mono_linux_x86_64)"
+  read -p "Minimum version 4.5 required. Enter path to Godot executable: " GODOT_PATH
 fi
 
 if [ -n "$GODOT_PATH" ]; then
@@ -78,4 +110,3 @@ PY
   ./scripts/SetGodotVersion.sh "$GODOT_VERSION"
 fi
 
-echo "Setup complete."

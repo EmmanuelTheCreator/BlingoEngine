@@ -100,6 +100,7 @@ namespace LingoEngine.Setup
             _container.AddSingleton<LingoGlobalVars>(sp => sp.GetRequiredService<TGlobalVars>());
             return this;
         }
+        public ILingoEngineRegistration WithGlobalVarsDefault() => WithGlobalVars<LingoGlobalVars>();
         public ILingoEngineRegistration WithGlobalVars<TGlobalVars>(Action<TGlobalVars>? setup = null) where TGlobalVars : LingoGlobalVars, new()
         {
             _container.RemoveAll<LingoGlobalVars>();

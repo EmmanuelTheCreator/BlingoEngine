@@ -416,3 +416,5 @@ Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Blazor/wwwroot/Media/Data/
 Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Blazor/wwwroot/Media/Sounds/
 Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Blazor/wwwroot/Media/Icons/
 Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Blazor/wwwroot/Media/InternalExt/
+Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Blazor/Media/
+src/Director/LingoEngine.Director.Runner.Godot/.godot/

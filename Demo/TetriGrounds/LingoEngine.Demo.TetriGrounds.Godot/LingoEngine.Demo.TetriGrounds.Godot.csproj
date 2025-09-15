@@ -1,19 +1,19 @@
 ﻿<Project Sdk="Godot.NET.Sdk/4.5.0-dev.5">
-        <PropertyGroup>
-                <TargetFramework>net8.0</TargetFramework>
-                <EnableDynamicLoading>true</EnableDynamicLoading>
-                <Nullable>enable</Nullable>
-                <LangVersion>12</LangVersion>
-                <Platforms>AnyCPU;x64;x86</Platforms>
-                <Configurations>Debug;Release;DebugWithDirector</Configurations>
-        </PropertyGroup>
+	<PropertyGroup>
+			<TargetFramework>net8.0</TargetFramework>
+			<EnableDynamicLoading>true</EnableDynamicLoading>
+			<Nullable>enable</Nullable>
+			<LangVersion>12</LangVersion>
+			<Platforms>AnyCPU;x64;x86</Platforms>
+			<Configurations>Debug;Release;DebugWithDirector</Configurations>
+	</PropertyGroup>
 
-        <PropertyGroup Condition="'$(Configuration)' == 'DebugWithDirector'">
-                <DebugSymbols>true</DebugSymbols>
-                <DebugType>portable</DebugType>
-                <Optimize>false</Optimize>
-                <DefineConstants>DEBUG;TRACE;DEBUG_WITH_DIRECTOR</DefineConstants>
-        </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)' == 'DebugWithDirector'">
+			<DebugSymbols>true</DebugSymbols>
+			<DebugType>portable</DebugType>
+			<Optimize>false</Optimize>
+			<DefineConstants>DEBUG;TRACE;DEBUG_WITH_DIRECTOR</DefineConstants>
+	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)'=='DebugWithDirector'">
 		<UseDirector>true</UseDirector>
@@ -23,12 +23,10 @@
 		<DefineConstants>$(DefineConstants);DEBUG_WITH_DIRECTOR</DefineConstants>
 	</PropertyGroup>
 	
-	
-	
-        <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-                <ProjectReference Include="..\..\..\src\Director\LingoEngine.Director.LGodot\LingoEngine.Director.LGodot.csproj" />
-				<ProjectReference Include="..\..\..\src\Director\LingoEngine.Director.Core\LingoEngine.Director.Core.csproj" />
-        </ItemGroup>
+    <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+            <ProjectReference Include="..\..\..\src\Director\LingoEngine.Director.LGodot\LingoEngine.Director.LGodot.csproj" />
+			<ProjectReference Include="..\..\..\src\Director\LingoEngine.Director.Core\LingoEngine.Director.Core.csproj" />
+    </ItemGroup>
 	
 	
 	<ItemGroup>

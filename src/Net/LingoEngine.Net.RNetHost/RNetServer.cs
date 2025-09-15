@@ -1,12 +1,15 @@
-using System;
-using System.Threading;
-using System.Threading.Channels;
-using System.Threading.Tasks;
+using LingoEngine.Core;
 using LingoEngine.Net.RNetContracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Net;
+using System.Threading;
+using System.Threading.Channels;
+using System.Threading.Tasks;
 
 namespace LingoEngine.Net.RNetHost;
 
@@ -48,19 +51,25 @@ public sealed class RNetServer : IRNetServer
     private IBus? _bus;
     private Task? _commandLoop;
     private readonly IRNetConfiguration _config;
+    private readonly ILogger _logger;
+    private readonly IServiceProvider _serviceProvider;
 
-    public RNetServer(IRNetConfiguration config)
+    public RNetServer(IRNetConfiguration config, ILogger<RNetServer> logger, IServiceProvider serviceProvider)
     {
         _config = config;
+        _logger = logger;
+        _serviceProvider = serviceProvider;
     }
 
-    public RNetServer() : this(new DefaultConfig()) { }
+    public RNetServer(ILogger<RNetServer> logger, IServiceProvider serviceProvider) : this(new DefaultConfig(), logger, serviceProvider) { }
 
     private sealed class DefaultConfig : IRNetConfiguration
     {
         public int Port { get; set; } = 61699;
         public bool AutoStartRNetHostOnStartup { get; set; }
+        public string ClientName { get; set; } = "TheHost";
     }
+    public bool DetailedLogging { get; set; } = true;
 
     /// <inheritdoc />
     public event Action<LingoNetConnectionState>? ConnectionStatusChanged;
@@ -81,6 +90,7 @@ public sealed class RNetServer : IRNetServer
 
             _state = value;
             ConnectionStatusChanged?.Invoke(_state);
+            _logger.LogInformation($"RNet connectionstate: {_state}");
         }
     }
 
@@ -101,16 +111,22 @@ public sealed class RNetServer : IRNetServer
         }
 
         _cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-
+        var address= $"http://localhost:{_config.Port}";
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseKestrel();
-        builder.WebHost.UseUrls($"http://localhost:{_config.Port}");
+        builder.WebHost.UseUrls(address);
         builder.Services.AddSingleton<IBus, Bus>();
         builder.Services.AddSingleton<IRNetPublisher, RNetPublisher>();
-        builder.Services.AddSignalR();
+        builder.Services.AddSingleton<ILingoPlayer>(p => _serviceProvider.GetRequiredService<ILingoPlayer>());
+        builder.Services.AddSignalR(o =>
+        {
+            o.EnableDetailedErrors = DetailedLogging;          
+            o.MaximumReceiveMessageSize = 128 * 1024;
+        });
 
         var app = builder.Build();
         app.MapHub<LingoRNetHub>("/director");
+        _logger.LogInformation($"RNet Starting at: {address}");
         await app.StartAsync(_cts.Token).ConfigureAwait(false);
 
         _app = app;
@@ -129,6 +145,7 @@ public sealed class RNetServer : IRNetServer
 
         try
         {
+            _logger.LogInformation($"RNet Stop request");
             _cts?.Cancel();
             if (_commandLoop is not null)
             {

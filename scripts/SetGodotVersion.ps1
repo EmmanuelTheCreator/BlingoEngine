@@ -15,6 +15,7 @@ foreach($file in $csprojs){
     $content = $content -replace '<GodotVersion>[^<]+</GodotVersion>', "<GodotVersion>$NugetVersion</GodotVersion>"
     $content = $content -replace '<PackageReference Include="Godot.NET.Sdk" Version="[^"\s]+" />', "<PackageReference Include="Godot.NET.Sdk" Version="$NugetVersion" />"
     Set-Content -Encoding UTF8 $file.FullName $content
+    Write-Host ("Updated Godot version in {0}" -f $file.FullName)
 }
 # Update launchSettings.json files
 $execVersion = "v$VersionTag"
@@ -24,5 +25,6 @@ foreach($file in $launchFiles){
     $content = $content -replace 'Godot_v[^_"\\]+', "Godot_$execVersion"
     $content = $content -replace 'Godot\.[0-9A-Za-z\.-]+', "Godot.$VersionTag"
     Set-Content -Encoding UTF8 $file.FullName $content
+    Write-Host ("Updated Godot version in {0}" -f $file.FullName)
 }
 Write-Host ('Godot version updated to {0} (NuGet: {1})' -f $VersionTag, $NugetVersion)
