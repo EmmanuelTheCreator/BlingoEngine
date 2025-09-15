@@ -1,4 +1,7 @@
 using System;
+using System.Threading;
+using System.Threading.Channels;
+using System.Threading.Tasks;
 using LingoEngine.Net.RNetContracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -15,11 +18,17 @@ public interface IRNetServer
     /// <summary>Provides access to the publisher used by the game loop.</summary>
     IRNetPublisher Publisher { get; }
 
+    /// <summary>Gets the current connection state.</summary>
+    LingoNetConnectionState ConnectionState { get; }
+
     /// <summary>Indicates whether the server is currently running.</summary>
     bool IsEnabled { get; }
 
-    /// <summary>Raised when <see cref="IsEnabled"/> changes.</summary>
-    event Action<bool> EnabledChanged;
+    /// <summary>Raised when the connection state changes.</summary>
+    event Action<LingoNetConnectionState> ConnectionStatusChanged;
+
+    /// <summary>Raised when a command is received from a client.</summary>
+    event Action<INetCommand> NetCommandReceived;
 
     /// <summary>Starts the server without blocking.</summary>
     Task StartAsync(CancellationToken ct = default);
@@ -35,7 +44,9 @@ public sealed class RNetServer : IRNetServer
 {
     private WebApplication? _app;
     private CancellationTokenSource? _cts;
-    private bool _isEnabled;
+    private LingoNetConnectionState _state = LingoNetConnectionState.Disconnected;
+    private IBus? _bus;
+    private Task? _commandLoop;
     private readonly IRNetConfiguration _config;
 
     public RNetServer(IRNetConfiguration config)
@@ -51,23 +62,29 @@ public sealed class RNetServer : IRNetServer
     }
 
     /// <inheritdoc />
-    public event Action<bool>? EnabledChanged;
+    public event Action<LingoNetConnectionState>? ConnectionStatusChanged;
 
     /// <inheritdoc />
-    public bool IsEnabled
+    public event Action<INetCommand>? NetCommandReceived;
+
+    /// <inheritdoc />
+    public LingoNetConnectionState ConnectionState
     {
-        get => _isEnabled;
+        get => _state;
         private set
         {
-            if (_isEnabled == value)
+            if (_state == value)
             {
                 return;
             }
 
-            _isEnabled = value;
-            EnabledChanged?.Invoke(_isEnabled);
+            _state = value;
+            ConnectionStatusChanged?.Invoke(_state);
         }
     }
+
+    /// <inheritdoc />
+    public bool IsEnabled => ConnectionState == LingoNetConnectionState.Connected;
 
     /// <inheritdoc />
     public IRNetPublisher Publisher
@@ -96,7 +113,9 @@ public sealed class RNetServer : IRNetServer
         await app.StartAsync(_cts.Token).ConfigureAwait(false);
 
         _app = app;
-        IsEnabled = true;
+        _bus = app.Services.GetRequiredService<IBus>();
+        _commandLoop = Task.Run(() => PumpCommandsAsync(_bus.Commands.Reader, _cts.Token), _cts.Token);
+        ConnectionState = LingoNetConnectionState.Connected;
     }
 
     /// <inheritdoc />
@@ -110,6 +129,17 @@ public sealed class RNetServer : IRNetServer
         try
         {
             _cts?.Cancel();
+            if (_commandLoop is not null)
+            {
+                try
+                {
+                    await _commandLoop.ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Ignore cancellation
+                }
+            }
             await _app.StopAsync().ConfigureAwait(false);
             await _app.DisposeAsync().ConfigureAwait(false);
         }
@@ -118,7 +148,20 @@ public sealed class RNetServer : IRNetServer
             _cts?.Dispose();
             _app = null;
             _cts = null;
-            IsEnabled = false;
+            _bus = null;
+            _commandLoop = null;
+            ConnectionState = LingoNetConnectionState.Disconnected;
+        }
+    }
+
+    private async Task PumpCommandsAsync(ChannelReader<INetCommand> reader, CancellationToken ct)
+    {
+        while (await reader.WaitToReadAsync(ct).ConfigureAwait(false))
+        {
+            while (reader.TryRead(out var cmd))
+            {
+                NetCommandReceived?.Invoke(cmd);
+            }
         }
     }
 

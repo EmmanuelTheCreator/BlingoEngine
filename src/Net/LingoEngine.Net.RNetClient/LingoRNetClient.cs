@@ -13,11 +13,17 @@ public interface ILingoRNetClient : IAsyncDisposable
     /// <summary>Connects to the RNet hub and sends the initial hello payload.</summary>
     Task ConnectAsync(Uri hubUrl, HelloDto hello, CancellationToken ct = default);
 
+    /// <summary>Gets the current connection state.</summary>
+    LingoNetConnectionState ConnectionState { get; }
+
     /// <summary>Indicates whether the client is currently connected.</summary>
     bool IsConnected { get; }
 
-    /// <summary>Raised when <see cref="IsConnected"/> changes.</summary>
-    event Action<bool> ConnectionChanged;
+    /// <summary>Raised when the connection state changes.</summary>
+    event Action<LingoNetConnectionState> ConnectionStatusChanged;
+
+    /// <summary>Raised when a command is received from the host.</summary>
+    event Action<INetCommand> NetCommandReceived;
 
     /// <summary>Disconnects from the hub.</summary>
     Task DisconnectAsync();
@@ -81,7 +87,7 @@ public interface ILingoRNetClient : IAsyncDisposable
 public sealed class LingoRNetClient : ILingoRNetClient
 {
     private HubConnection? _connection;
-    private bool _isConnected;
+    private LingoNetConnectionState _state = LingoNetConnectionState.Disconnected;
     private readonly IRNetConfiguration _config;
 
     public LingoRNetClient(IRNetConfiguration config)
@@ -97,23 +103,29 @@ public sealed class LingoRNetClient : ILingoRNetClient
     }
 
     /// <inheritdoc />
-    public event Action<bool>? ConnectionChanged;
+    public event Action<LingoNetConnectionState>? ConnectionStatusChanged;
 
     /// <inheritdoc />
-    public bool IsConnected
+    public event Action<INetCommand>? NetCommandReceived;
+
+    /// <inheritdoc />
+    public LingoNetConnectionState ConnectionState
     {
-        get => _isConnected;
+        get => _state;
         private set
         {
-            if (_isConnected == value)
+            if (_state == value)
             {
                 return;
             }
 
-            _isConnected = value;
-            ConnectionChanged?.Invoke(_isConnected);
+            _state = value;
+            ConnectionStatusChanged?.Invoke(_state);
         }
     }
+
+    /// <inheritdoc />
+    public bool IsConnected => ConnectionState == LingoNetConnectionState.Connected;
 
     /// <inheritdoc />
     public async Task ConnectAsync(Uri hubUrl, HelloDto hello, CancellationToken ct = default)
@@ -128,9 +140,28 @@ public sealed class LingoRNetClient : ILingoRNetClient
             .WithAutomaticReconnect()
             .Build();
 
+        _connection.Reconnecting += _ =>
+        {
+            ConnectionState = LingoNetConnectionState.Connecting;
+            return Task.CompletedTask;
+        };
+        _connection.Reconnected += _ =>
+        {
+            ConnectionState = LingoNetConnectionState.Connected;
+            return Task.CompletedTask;
+        };
+        _connection.Closed += _ =>
+        {
+            ConnectionState = LingoNetConnectionState.Disconnected;
+            return Task.CompletedTask;
+        };
+
+        _connection.On<DebugCommandDto>("Command", cmd => NetCommandReceived?.Invoke(cmd));
+
+        ConnectionState = LingoNetConnectionState.Connecting;
         await _connection.StartAsync(ct).ConfigureAwait(false);
         await _connection.InvokeAsync("SessionHello", hello, ct).ConfigureAwait(false);
-        IsConnected = true;
+        ConnectionState = LingoNetConnectionState.Connected;
     }
 
     /// <inheritdoc />
@@ -140,7 +171,7 @@ public sealed class LingoRNetClient : ILingoRNetClient
         {
             await _connection.DisposeAsync().ConfigureAwait(false);
             _connection = null;
-            IsConnected = false;
+            ConnectionState = LingoNetConnectionState.Disconnected;
         }
     }
 

@@ -22,6 +22,19 @@ public sealed class DirectorRNetClient :
         _config = config;
     }
 
+    public event Action<LingoNetConnectionState>
+        ConnectionStatusChanged
+    {
+        add => _client.ConnectionStatusChanged += value;
+        remove => _client.ConnectionStatusChanged -= value;
+    }
+
+    public event Action<INetCommand> NetCommandReceived
+    {
+        add => _client.NetCommandReceived += value;
+        remove => _client.NetCommandReceived -= value;
+    }
+
     public bool CanExecute(ConnectRNetClientCommand command) => !_client.IsConnected;
 
     public bool Handle(ConnectRNetClientCommand command)

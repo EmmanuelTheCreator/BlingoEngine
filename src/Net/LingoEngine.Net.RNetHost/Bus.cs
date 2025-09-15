@@ -51,7 +51,7 @@ public interface IBus
     Channel<SpriteCollectionEventDto> SpriteCollectionEvents { get; }
 
     /// <summary>Channel carrying commands from the client.</summary>
-    Channel<DebugCommandDto> Commands { get; }
+    Channel<INetCommand> Commands { get; }
 }
 
 /// <summary>
@@ -169,8 +169,8 @@ internal sealed class Bus : IBus
             SingleReader = false,
             FullMode = BoundedChannelFullMode.DropOldest
         });
-    public Channel<DebugCommandDto> Commands { get; } =
-        Channel.CreateUnbounded<DebugCommandDto>(new UnboundedChannelOptions
+    public Channel<INetCommand> Commands { get; } =
+        Channel.CreateUnbounded<INetCommand>(new UnboundedChannelOptions
         {
             SingleReader = true,
             SingleWriter = false

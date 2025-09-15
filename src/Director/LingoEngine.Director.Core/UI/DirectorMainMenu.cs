@@ -10,6 +10,7 @@ using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.Icons;
 using AbstUI.Commands;
 using LingoEngine.Director.Core.Compilers.Commands;
+using LingoEngine.Net.RNetContracts;
 using AbstUI.Primitives;
 using LingoEngine.Director.Core.Tools.Commands;
 using AbstUI.Windowing;
@@ -107,8 +108,8 @@ namespace LingoEngine.Director.Core.UI
             _client = client;
             _factory = factory;
 
-            _server.EnabledChanged += OnServerStateChanged;
-            _client.ConnectionChanged += OnClientStateChanged;
+            _server.ConnectionStatusChanged += OnServerStateChanged;
+            _client.ConnectionStatusChanged += OnClientStateChanged;
 
             _menuBar = factory.CreateWrapPanel(AOrientation.Horizontal, "MenuBar");
             _iconBar = factory.CreateWrapPanel(AOrientation.Horizontal, "IconBar");
@@ -351,14 +352,14 @@ namespace LingoEngine.Director.Core.UI
             _remoteMenu.AddItem(_clientItem);
         }
 
-        private void OnServerStateChanged(bool enabled)
+        private void OnServerStateChanged(LingoNetConnectionState state)
         {
-            _hostItem.Name = enabled ? "Stop Host" : "Start Host";
+            _hostItem.Name = state == LingoNetConnectionState.Connected ? "Stop Host" : "Start Host";
         }
 
-        private void OnClientStateChanged(bool connected)
+        private void OnClientStateChanged(LingoNetConnectionState state)
         {
-            _clientItem.Name = connected ? "Stop Client" : "Start Client";
+            _clientItem.Name = state == LingoNetConnectionState.Connected ? "Stop Client" : "Start Client";
         }
 
 
@@ -444,8 +445,8 @@ namespace LingoEngine.Director.Core.UI
             _shortCutManager.ShortCutAdded -= OnShortCutAdded;
             _shortCutManager.ShortCutRemoved -= OnShortCutRemoved;
             _player.Key.Unsubscribe(this);
-            _server.EnabledChanged -= OnServerStateChanged;
-            _client.ConnectionChanged -= OnClientStateChanged;
+            _server.ConnectionStatusChanged -= OnServerStateChanged;
+            _client.ConnectionStatusChanged -= OnClientStateChanged;
             base.OnDispose();
         }
 

@@ -1,6 +1,7 @@
 using AbstUI.Commands;
 using LingoEngine.Core;
 using LingoEngine.Net.RNetHost;
+using LingoEngine.Net.RNetContracts;
 using LingoEngine.Director.Core.Remote.Commands;
 
 namespace LingoEngine.Director.Core.Remote;
@@ -19,6 +20,19 @@ public sealed class DirectorRNetServer :
     {
         _server = server;
         _player = player;
+    }
+
+    public event Action<LingoNetConnectionState>
+        ConnectionStatusChanged
+    {
+        add => _server.ConnectionStatusChanged += value;
+        remove => _server.ConnectionStatusChanged -= value;
+    }
+
+    public event Action<INetCommand> NetCommandReceived
+    {
+        add => _server.NetCommandReceived += value;
+        remove => _server.NetCommandReceived -= value;
     }
 
     public bool CanExecute(ConnectRNetServerCommand command) => !_server.IsEnabled;

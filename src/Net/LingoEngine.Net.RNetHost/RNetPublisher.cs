@@ -69,10 +69,10 @@ public interface IRNetPublisher
     /// <summary>Disables publishing and unsubscribes from all events.</summary>
     void Disable();
 
-    /// <summary>Drains queued debug commands and applies them through the provided delegate.</summary>
+    /// <summary>Drains queued commands and applies them through the provided delegate.</summary>
     /// <param name="apply">Delegate invoked for each command.</param>
     /// <returns><c>true</c> if any command was processed; otherwise, <c>false</c>.</returns>
-    bool TryDrainCommands(Action<DebugCommandDto> apply);
+    bool TryDrainCommands(Action<INetCommand> apply);
 }
 
 /// <summary>
@@ -187,7 +187,7 @@ internal sealed class RNetPublisher : IRNetPublisher
     }
 
     /// <inheritdoc />
-    public bool TryDrainCommands(Action<DebugCommandDto> apply)
+    public bool TryDrainCommands(Action<INetCommand> apply)
     {
         var reader = _bus.Commands.Reader;
         var had = false;

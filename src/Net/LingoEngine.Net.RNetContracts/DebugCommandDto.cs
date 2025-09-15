@@ -1,9 +1,9 @@
 namespace LingoEngine.Net.RNetContracts;
 
 /// <summary>
-/// Base type for debug commands sent to the host.
+/// Base type for commands sent over the network.
 /// </summary>
-public abstract record DebugCommandDto;
+public abstract record DebugCommandDto : INetCommand;
 
 /// <summary>Sets a sprite property.</summary>
 /// <param name="SpriteNum">Sprite channel number.</param>
