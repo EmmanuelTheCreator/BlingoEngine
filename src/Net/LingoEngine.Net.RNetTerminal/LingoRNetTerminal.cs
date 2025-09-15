@@ -36,14 +36,14 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     {
         Application.Init();
         SetMyTheme();
-        var useConnection = true;
-        //new StartupDialog(_port).Show(async p =>
-        //{
-        //    if (_port != p)
-        //        SaveSettings();
-        //    _port = p;
-        //    useConnection = true;
-        //});
+        var useConnection = false;
+        new StartupDialog(_port).Show(async p =>
+        {
+            if (_port != p)
+                SaveSettings();
+            _port = p;
+            useConnection = true;
+        });
         if (useConnection)
         {
             _ = Task.Run(async () =>
