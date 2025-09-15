@@ -15,7 +15,7 @@ internal static class MemberRefDtoConverter
         return new LingoMemberRefDTO
         {
             MemberNum = member.NumberInCast,
-            CastNum = member.CastLibNum
+            CastLibNum = member.CastLibNum
         };
     }
 
@@ -29,7 +29,7 @@ internal static class MemberRefDtoConverter
         return new LingoMemberRefDTO
         {
             MemberNum = memberNum,
-            CastNum = castNum
+            CastLibNum = castNum
         };
     }
 }

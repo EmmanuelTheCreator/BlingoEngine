@@ -297,12 +297,12 @@ public class JsonStateRepository : IJsonStateRepository
     private static bool TryResolveMember(Dictionary<(int CastNum, int MemberNum), LingoMember> memberMap, LingoMemberRefDTO? reference, out LingoMember? member)
     {
         member = null;
-        if (reference == null || reference.CastNum <= 0 || reference.MemberNum <= 0)
+        if (reference == null || reference.CastLibNum <= 0 || reference.MemberNum <= 0)
         {
             return false;
         }
 
-        if (memberMap.TryGetValue((reference.CastNum, reference.MemberNum), out var found))
+        if (memberMap.TryGetValue((reference.CastLibNum, reference.MemberNum), out var found))
         {
             member = found;
             return true;
@@ -349,7 +349,7 @@ public class JsonStateRepository : IJsonStateRepository
             EndFrame = sDto.EndFrame,
             DisplayMember = sDto.DisplayMember,
             Channel = sDto.Channel,
-            CastNum = sDto.Member.CastNum,
+            CastNum = sDto.Member.CastLibNum,
             FlipH = sDto.FlipH,
             FlipV = sDto.FlipV,
             Hilite = sDto.Hilite,

@@ -163,7 +163,7 @@ internal static class DirectorRaysDtoExtensions
             Name = $"Sprite{f.SpriteNumber}",
             SpriteNum = f.SpriteNumber,
             Member = f.MemberNum > 0 && f.MemberCastLib > 0
-                ? new LingoMemberRefDTO { MemberNum = f.MemberNum, CastNum = f.MemberCastLib }
+                ? new LingoMemberRefDTO { MemberNum = f.MemberNum, CastLibNum = f.MemberCastLib }
                 : null,
             // todo : DisplayMember = f.DisplayMember,
             SpritePropertiesOffset = f.SpritePropertiesOffset,

@@ -262,7 +262,7 @@ internal sealed class PropertyInspector : Window
             if (sel.HasValue)
             {
                 var sprite = store.FindSprite(sel.Value);
-                if (sprite != null && sprite.CastLibNum == m.CastLibNum && sprite.MemberNum == m.NumberInCast)
+                if (sprite != null && sprite.Member!.CastLibNum == m.CastLibNum && sprite.Member.MemberNum == m.NumberInCast)
                 {
                     ShowMember(m);
                     return;
@@ -282,7 +282,7 @@ internal sealed class PropertyInspector : Window
         ShowSprite(sprite);
         if (sprite != null)
         {
-            ShowMember(store.FindMember(sprite.CastLibNum, sprite.MemberNum));
+            ShowMember(store.FindMember(sprite.Member!.CastLibNum, sprite.Member.MemberNum));
         }
         else
         {

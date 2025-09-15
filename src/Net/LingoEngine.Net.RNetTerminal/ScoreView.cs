@@ -79,7 +79,7 @@ internal sealed class ScoreView : ScrollView
         _stageWidth = store.StageWidth;
         _sprites.Clear();
         _sprites.AddRange(store.GetSprites()
-            .Select(s => new SpriteBlock(s.SpriteNum, s.BeginFrame, s.EndFrame, s.SpriteNum, s.CastLibNum, s.MemberNum, s.Width)));
+            .Select(s => new SpriteBlock(s.SpriteNum, s.BeginFrame, s.EndFrame, s.SpriteNum, s.Member!.CastLibNum, s.Member.MemberNum, s.Width)));
         ContentSize = new Size(FrameCount + _labelWidth, TotalChannels + 1);
 
         SetNeedsDisplay();

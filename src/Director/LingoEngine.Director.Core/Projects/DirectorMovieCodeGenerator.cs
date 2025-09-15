@@ -122,9 +122,9 @@ public class DirectorMovieCodeGenerator
             var memberRef = sp.Member;
             var member = memberRef != null
                 ? movie.Casts.SelectMany(c => c.Members)
-                    .FirstOrDefault(m => m.CastLibNum == memberRef.CastNum && m.NumberInCast == memberRef.MemberNum)
+                    .FirstOrDefault(m => m.CastLibNum == memberRef.CastLibNum && m.NumberInCast == memberRef.MemberNum)
                 : null;
-            var castNum = member?.CastLibNum ?? memberRef?.CastNum ?? 0;
+            var castNum = member?.CastLibNum ?? memberRef?.CastLibNum ?? 0;
             var memberNum = member?.NumberInCast ?? memberRef?.MemberNum ?? 0;
             sb.AppendLine($"        movie.AddSprite({sp.SpriteNum}, {sp.BeginFrame}, {sp.EndFrame}, {FormatFloat(sp.LocH)}, {FormatFloat(sp.LocV)}, s =>");
             sb.AppendLine("        {");
