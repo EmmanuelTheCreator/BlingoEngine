@@ -117,12 +117,15 @@ public class DirectorMovieCodeGenerator
         sb.AppendLine("{");
         sb.AppendLine("    public async Task BuildAsync(ILingoMovie movie)");
         sb.AppendLine("    {");
-        foreach (var sp in movie.Sprites)
+        foreach (var sp in movie.Sprite2Ds)
         {
-            var member = movie.Casts.SelectMany(c => c.Members)
-                .FirstOrDefault(m => m.Number == sp.MemberNum || m.NumberInCast == sp.MemberNum);
-            var castNum = member?.CastLibNum ?? 0;
-            var memberNum = member?.NumberInCast ?? sp.MemberNum;
+            var memberRef = sp.Member;
+            var member = memberRef != null
+                ? movie.Casts.SelectMany(c => c.Members)
+                    .FirstOrDefault(m => m.CastLibNum == memberRef.CastNum && m.NumberInCast == memberRef.MemberNum)
+                : null;
+            var castNum = member?.CastLibNum ?? memberRef?.CastNum ?? 0;
+            var memberNum = member?.NumberInCast ?? memberRef?.MemberNum ?? 0;
             sb.AppendLine($"        movie.AddSprite({sp.SpriteNum}, {sp.BeginFrame}, {sp.EndFrame}, {FormatFloat(sp.LocH)}, {FormatFloat(sp.LocV)}, s =>");
             sb.AppendLine("        {");
             var props = new List<string>();

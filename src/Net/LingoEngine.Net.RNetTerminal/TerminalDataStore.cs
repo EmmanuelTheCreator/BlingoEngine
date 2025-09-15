@@ -8,7 +8,7 @@ public sealed class TerminalDataStore
     private static readonly Lazy<TerminalDataStore> _instance = new(() => new TerminalDataStore());
     public static TerminalDataStore Instance => _instance.Value;
 
-    private readonly List<LingoSpriteDTO> _sprites = new();
+    private readonly List<Lingo2DSpriteDTO> _sprites = new();
     private readonly Dictionary<string, List<LingoMemberDTO>> _casts = new();
     private int _currentFrame;
     private SpriteRef? _selectedSprite;
@@ -26,17 +26,17 @@ public sealed class TerminalDataStore
     public int FrameCount { get; private set; } = 600;
 
     public event Action? SpritesChanged;
-    public event Action<LingoSpriteDTO>? SpriteChanged;
+    public event Action<Lingo2DSpriteDTO>? SpriteChanged;
     public event Action? CastsChanged;
     public event Action<LingoMemberDTO>? MemberChanged;
     public event Action<int>? FrameChanged;
     public event Action<SpriteRef?>? SelectedSpriteChanged;
 
-    public IReadOnlyList<LingoSpriteDTO> GetSprites() => _sprites;
+    public IReadOnlyList<Lingo2DSpriteDTO> GetSprites() => _sprites;
 
     public IReadOnlyDictionary<string, List<LingoMemberDTO>> GetCasts() => _casts;
 
-    public LingoSpriteDTO? FindSprite(SpriteRef sprite)
+    public Lingo2DSpriteDTO? FindSprite(SpriteRef sprite)
         => _sprites.FirstOrDefault(s => s.SpriteNum == sprite.SpriteNum && s.BeginFrame == sprite.BeginFrame);
 
     public LingoMemberDTO? FindMember(int castLibNum, int numberInCast)
@@ -71,7 +71,7 @@ public sealed class TerminalDataStore
         SelectedSpriteChanged?.Invoke(sprite);
     }
 
-    public void UpdateSprite(LingoSpriteDTO sprite)
+    public void UpdateSprite(Lingo2DSpriteDTO sprite)
     {
         var idx = _sprites.FindIndex(s => s.SpriteNum == sprite.SpriteNum && s.BeginFrame == sprite.BeginFrame);
         if (idx >= 0)
@@ -175,7 +175,7 @@ public sealed class TerminalDataStore
     public void Load(LingoMovieDTO movie)
     {
         _sprites.Clear();
-        _sprites.AddRange(movie.Sprites);
+        _sprites.AddRange(movie.Sprite2Ds);
         _casts.Clear();
         foreach (var cast in movie.Casts)
         {

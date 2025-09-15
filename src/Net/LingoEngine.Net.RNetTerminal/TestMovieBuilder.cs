@@ -17,7 +17,7 @@ public static class TestMovieBuilder
     /// <summary>
     /// Provides sample sprite channel data.
     /// </summary>
-    public static IReadOnlyList<LingoSpriteDTO> BuildSprites() => new List<LingoSpriteDTO>
+    public static IReadOnlyList<Lingo2DSpriteDTO> BuildSprites() => new List<Lingo2DSpriteDTO>
     {
         new() { Name = "Greeting", SpriteNum = 1, CastLibNum = 1, MemberNum = 1, BeginFrame = 1, EndFrame = 60, LocH = 100, LocV = 100 },
         new() { Name = "Info", SpriteNum = 2, CastLibNum = 1, MemberNum = 2, BeginFrame = 1, EndFrame = 60, LocH = 300, LocV = 200 },

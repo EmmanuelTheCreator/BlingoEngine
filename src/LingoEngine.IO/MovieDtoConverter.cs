@@ -1,0 +1,44 @@
+using LingoEngine.Casts;
+using LingoEngine.IO.Data.DTO;
+using LingoEngine.Members;
+using LingoEngine.Movies;
+using System.Linq;
+
+namespace LingoEngine.IO;
+
+internal static class MovieDtoConverter
+{
+    public static LingoMovieDTO ToDto(LingoMovie movie, JsonStateRepository.MovieStoreOptions options)
+    {
+        return new LingoMovieDTO
+        {
+            Name = movie.Name,
+            Number = movie.Number,
+            Tempo = movie.Tempo,
+            FrameCount = movie.FrameCount,
+            MaxSpriteChannelCount = movie.MaxSpriteChannelCount,
+            About = movie.About,
+            Copyright = movie.Copyright,
+            UserName = movie.UserName,
+            CompanyName = movie.CompanyName,
+            Casts = movie.CastLib.GetAll().Select(c => ToDto((LingoCast)c, options)).ToList(),
+            Sprite2Ds = movie.GetAll2DSpritesToStore().Select(SpriteDtoConverter.ToDto).ToList(),
+            TempoSprites = movie.Tempos.GetAllSprites().Select(TempoSpriteDtoConverter.ToDto).ToList(),
+            ColorPaletteSprites = movie.ColorPalettes.GetAllSprites().Select(ColorPaletteSpriteDtoConverter.ToDto).ToList(),
+            TransitionSprites = movie.Transitions.GetAllSprites().Select(TransitionSpriteDtoConverter.ToDto).ToList(),
+            SoundSprites = movie.Audio.GetAllSprites().Select(SoundSpriteDtoConverter.ToDto).ToList()
+        };
+    }
+
+    public static LingoCastDTO ToDto(LingoCast cast, JsonStateRepository.MovieStoreOptions options)
+    {
+        return new LingoCastDTO
+        {
+            Name = cast.Name,
+            FileName = cast.FileName,
+            Number = cast.Number,
+            PreLoadMode = (PreLoadModeTypeDTO)cast.PreLoadMode,
+            Members = cast.GetAll().Select(m => MemberDtoConverter.ToDto(m, options)).ToList()
+        };
+    }
+}

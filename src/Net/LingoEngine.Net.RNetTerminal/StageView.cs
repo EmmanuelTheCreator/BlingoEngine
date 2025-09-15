@@ -10,7 +10,7 @@ internal sealed class StageView : View
 {
     private int _movieWidth;
     private int _movieHeight;
-    private IReadOnlyList<LingoSpriteDTO> _sprites = Array.Empty<LingoSpriteDTO>();
+    private IReadOnlyList<Lingo2DSpriteDTO> _sprites = Array.Empty<Lingo2DSpriteDTO>();
     private int _frame;
     private SpriteRef? _selectedSprite;
     private static readonly Color[] _overlapColors =
