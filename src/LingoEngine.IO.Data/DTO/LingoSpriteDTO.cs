@@ -6,6 +6,7 @@ public class LingoSpriteDTO
     public string Name { get; set; } = string.Empty;
     public int SpriteNum { get; set; }
     public int MemberNum { get; set; }
+    public int CastLibNum { get; set; }
     public int DisplayMember { get; set; }
     public int SpritePropertiesOffset { get; set; }
     public bool Lock { get; set; }

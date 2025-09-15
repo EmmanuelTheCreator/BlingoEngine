@@ -21,9 +21,6 @@ internal sealed class StageView : View
         Color.BrightYellow
     };
 
-
-    public event Action<int, int>? SpriteSelected;
-
     public StageView()
     {
         CanFocus = true;
@@ -54,10 +51,6 @@ internal sealed class StageView : View
 
     public void RequestRedraw() => SetNeedsDisplay();
 
-    public void SetSelectedSprite(SpriteRef? sprite)
-    {
-        _selectedSprite = sprite;
-}
     private void ReloadData()
     {
         var store = TerminalDataStore.Instance;
@@ -92,7 +85,7 @@ internal sealed class StageView : View
                      .Where(s => s.BeginFrame <= _frame && _frame <= s.EndFrame)
                      .OrderBy(s => s.LocZ))
         {
-            var member = TerminalDataStore.Instance.FindMember(sprite.MemberNum);
+            var member = TerminalDataStore.Instance.FindMember(sprite.CastLibNum, sprite.MemberNum);
             if (member == null)
             {
                 continue;
@@ -183,9 +176,8 @@ internal sealed class StageView : View
                 }
                 if (me.X >= x && me.X < x + sw && me.Y >= y && me.Y < y + sh)
                 {
-                    SpriteSelected?.Invoke(sprite.SpriteNum, sprite.BeginFrame);
-
-                    TerminalDataStore.Instance.SelectSprite(sprite.SpriteNum);
+                    var sel = new SpriteRef(sprite.SpriteNum, sprite.BeginFrame);
+                    TerminalDataStore.Instance.SelectSprite(sel);
 
                     break;
                 }

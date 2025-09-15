@@ -15,7 +15,7 @@ public sealed class TerminalDataStore
     private readonly List<LingoSpriteDTO> _sprites = new();
     private readonly Dictionary<string, List<LingoMemberDTO>> _casts = new();
     private int _currentFrame;
-    private int? _selectedSprite;
+    private SpriteRef? _selectedSprite;
 
     private TerminalDataStore()
     {
@@ -35,17 +35,14 @@ public sealed class TerminalDataStore
     public event Action? CastsChanged;
     public event Action<LingoMemberDTO>? MemberChanged;
     public event Action<int>? FrameChanged;
-    public event Action<int?>? SelectedSpriteChanged;
+    public event Action<SpriteRef?>? SelectedSpriteChanged;
 
     public IReadOnlyList<LingoSpriteDTO> GetSprites() => _sprites;
 
     public IReadOnlyDictionary<string, List<LingoMemberDTO>> GetCasts() => _casts;
 
-    public LingoSpriteDTO? FindSprite(int spriteNum)
-        => _sprites.FirstOrDefault(s => s.SpriteNum == spriteNum);
-
-    public LingoMemberDTO? FindMember(int memberNum)
-        => _casts.Values.SelectMany(c => c).FirstOrDefault(m => MemberKey(m) == memberNum);
+    public LingoSpriteDTO? FindSprite(SpriteRef sprite)
+        => _sprites.FirstOrDefault(s => s.SpriteNum == sprite.SpriteNum && s.BeginFrame == sprite.BeginFrame);
 
     public LingoMemberDTO? FindMember(int castLibNum, int numberInCast)
         => _casts.Values.SelectMany(c => c)
@@ -67,21 +64,21 @@ public sealed class TerminalDataStore
         FrameChanged?.Invoke(frame);
     }
 
-    public int? GetSelectedSprite() => _selectedSprite;
+    public SpriteRef? GetSelectedSprite() => _selectedSprite;
 
-    public void SelectSprite(int? spriteNum)
+    public void SelectSprite(SpriteRef? sprite)
     {
-        if (_selectedSprite == spriteNum)
+        if (_selectedSprite == sprite)
         {
             return;
         }
-        _selectedSprite = spriteNum;
-        SelectedSpriteChanged?.Invoke(spriteNum);
+        _selectedSprite = sprite;
+        SelectedSpriteChanged?.Invoke(sprite);
     }
 
     public void UpdateSprite(LingoSpriteDTO sprite)
     {
-        var idx = _sprites.FindIndex(s => s.SpriteNum == sprite.SpriteNum);
+        var idx = _sprites.FindIndex(s => s.SpriteNum == sprite.SpriteNum && s.BeginFrame == sprite.BeginFrame);
         if (idx >= 0)
         {
             _sprites[idx] = sprite;
@@ -96,6 +93,20 @@ public sealed class TerminalDataStore
 
     public void UpdateMember(LingoMemberDTO member)
     {
+        var list = _casts.Values.FirstOrDefault(c =>
+            c.Any(m => m.CastLibNum == member.CastLibNum && m.NumberInCast == member.NumberInCast));
+        if (list != null)
+        {
+            var idx = list.FindIndex(m => m.CastLibNum == member.CastLibNum && m.NumberInCast == member.NumberInCast);
+            if (idx >= 0)
+            {
+                list[idx] = member;
+            }
+            else
+            {
+                list.Add(member);
+            }
+        }
         MemberChanged?.Invoke(member);
     }
 
@@ -114,6 +125,7 @@ public sealed class TerminalDataStore
         FrameCount = 600;
         SpritesChanged?.Invoke();
         CastsChanged?.Invoke();
+        SelectSprite(null);
     }
 
     public void LoadFromProject(LingoProjectDTO project)
@@ -132,6 +144,7 @@ public sealed class TerminalDataStore
             MovieState = new MovieStateDto(0, movie.Tempo, false);
             SpritesChanged?.Invoke();
             CastsChanged?.Invoke();
+            SelectSprite(null);
         }
         if (project.Stage != null)
         {
@@ -140,7 +153,5 @@ public sealed class TerminalDataStore
         }
     }
 
-    private static int MemberKey(LingoMemberDTO member)
-        => (member.CastLibNum << 16) | member.NumberInCast;
 }
 
