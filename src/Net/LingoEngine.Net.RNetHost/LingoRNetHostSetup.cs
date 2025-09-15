@@ -1,5 +1,6 @@
 using LingoEngine.Setup;
 using Microsoft.Extensions.DependencyInjection;
+using LingoEngine.Net.RNetContracts;
 
 namespace LingoEngine.Net.RNetHost;
 
@@ -12,12 +13,13 @@ public static class LingoRNetHostSetup
     /// Registers and starts the host server used by the RNet tooling.
     /// </summary>
     /// <param name="reg">Engine registration.</param>
-    /// <param name="url">URL on which the server will listen.</param>
+    /// <param name="port">Port on which the server will listen.</param>
     /// <returns>The same registration instance for chaining.</returns>
-    public static ILingoEngineRegistration WithRNetHostServer(this ILingoEngineRegistration reg, string url = "http://localhost:61699")
+    public static ILingoEngineRegistration WithRNetHostServer(this ILingoEngineRegistration reg, int port = 61699)
     {
         reg.ServicesMain(s =>
         {
+            s.AddSingleton<IRNetConfiguration>(new Config { Port = port });
             s.AddSingleton<IRNetServer, RNetServer>();
             s.AddSingleton<IRNetPublisher>(p => p.GetRequiredService<IRNetServer>().Publisher);
         });
@@ -25,9 +27,14 @@ public static class LingoRNetHostSetup
         reg.AddPreBuildAction(p =>
         {
             var server = p.GetRequiredService<IRNetServer>();
-            server.StartAsync(url).GetAwaiter().GetResult();
+            server.StartAsync().GetAwaiter().GetResult();
         });
 
         return reg;
+    }
+
+    private sealed class Config : IRNetConfiguration
+    {
+        public int Port { get; set; }
     }
 }

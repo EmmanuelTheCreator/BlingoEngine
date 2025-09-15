@@ -1,8 +1,5 @@
 using System.ComponentModel;
-using AbstUI.Commands;
-using LingoEngine.Core;
 using LingoEngine.Net.RNetContracts;
-using LingoEngine.Net.RNetHost.Commands;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,8 +18,8 @@ public interface IRNetServer : INotifyPropertyChanged
     /// <summary>Indicates whether the server is currently running.</summary>
     bool IsEnabled { get; }
 
-    /// <summary>Starts the server on the specified URL without blocking.</summary>
-    Task StartAsync(string url, CancellationToken ct = default);
+    /// <summary>Starts the server without blocking.</summary>
+    Task StartAsync(CancellationToken ct = default);
 
     /// <summary>Stops the server and disposes all resources.</summary>
     Task StopAsync();
@@ -31,20 +28,23 @@ public interface IRNetServer : INotifyPropertyChanged
 /// <summary>
 /// Default implementation of <see cref="IRNetServer"/>.
 /// </summary>
-public sealed class RNetServer : IRNetServer,
-    IAbstCommandHandler<ConnectRNetServerCommand>,
-    IAbstCommandHandler<DisconnectRNetServerCommand>
+public sealed class RNetServer : IRNetServer
 {
     private WebApplication? _app;
     private CancellationTokenSource? _cts;
     private bool _isEnabled;
     private readonly IRNetConfiguration _config;
-    private readonly ILingoPlayer _player;
 
-    public RNetServer(IRNetConfiguration config, ILingoPlayer player)
+    public RNetServer(IRNetConfiguration config)
     {
         _config = config;
-        _player = player;
+    }
+
+    public RNetServer() : this(new DefaultConfig()) { }
+
+    private sealed class DefaultConfig : IRNetConfiguration
+    {
+        public int Port { get; set; } = 61699;
     }
 
     /// <inheritdoc />
@@ -72,7 +72,7 @@ public sealed class RNetServer : IRNetServer,
            ?? throw new InvalidOperationException("Server not started.");
 
     /// <inheritdoc />
-    public async Task StartAsync(string url, CancellationToken ct = default)
+    public async Task StartAsync(CancellationToken ct = default)
     {
         if (_app is not null)
         {
@@ -83,7 +83,7 @@ public sealed class RNetServer : IRNetServer,
 
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseKestrel();
-        builder.WebHost.UseUrls(url);
+        builder.WebHost.UseUrls($"http://localhost:{_config.Port}");
         builder.Services.AddSingleton<IBus, Bus>();
         builder.Services.AddSingleton<IRNetPublisher, RNetPublisher>();
         builder.Services.AddSignalR();
@@ -119,23 +119,4 @@ public sealed class RNetServer : IRNetServer,
         }
     }
 
-    #region Commands
-    public bool CanExecute(ConnectRNetServerCommand command) => !IsEnabled;
-
-    public bool Handle(ConnectRNetServerCommand command)
-    {
-        StartAsync($"http://localhost:{_config.Port}").GetAwaiter().GetResult();
-        Publisher.Enable(_player);
-        return true;
-    }
-
-    public bool CanExecute(DisconnectRNetServerCommand command) => IsEnabled;
-
-    public bool Handle(DisconnectRNetServerCommand command)
-    {
-        Publisher.Disable();
-        StopAsync().GetAwaiter().GetResult();
-        return true;
-    }
-    #endregion
 }
