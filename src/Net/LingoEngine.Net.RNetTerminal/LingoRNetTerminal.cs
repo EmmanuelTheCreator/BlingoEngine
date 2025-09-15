@@ -94,9 +94,33 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         _propertyInspector.PropertyChanged += (n, v) =>
         {
             Log($"propertyChanged {n}={v}");
-            if (_selectedSprite.HasValue && _client != null)
+            if (_selectedSprite.HasValue)
             {
-                _ = _client.SendCommandAsync(new SetSpritePropCmd(_selectedSprite.Value, n, v));
+                var sprite = FindSprite(_selectedSprite.Value);
+                if (sprite != null)
+                {
+                    switch (n)
+                    {
+                        case "LocH" when float.TryParse(v, out var locH):
+                            sprite.LocH = locH;
+                            break;
+                        case "LocV" when float.TryParse(v, out var locV):
+                            sprite.LocV = locV;
+                            break;
+                        case "Width" when float.TryParse(v, out var width):
+                            sprite.Width = width;
+                            break;
+                        case "Height" when float.TryParse(v, out var height):
+                            sprite.Height = height;
+                            break;
+                    }
+                    _stageView?.ReloadData();
+                    _stageView?.RequestRedraw();
+                }
+                if (_client != null)
+                {
+                    _ = _client.SendCommandAsync(new SetSpritePropCmd(_selectedSprite.Value, n, v));
+                }
             }
         };
         _propertyInspector.KeyPress += args =>
@@ -241,6 +265,9 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         {
             Log($"spriteSelected {n}");
             _selectedSprite = n;
+            var sp = FindSprite(n);
+            _propertyInspector?.ShowSprite(sp);
+            _propertyInspector?.ShowMember(sp != null ? FindMember(sp.MemberNum) : null);
         };
         _scoreView.PlayFromHere += f => Log($"Play from {f}");
         _scoreView.InfoChanged += UpdateInfo;
@@ -293,6 +320,9 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             _selectedSprite = n;
             _stageView.SetSelectedSprite(n);
             _scoreView.SelectSprite(n);
+            var sp = FindSprite(n);
+            _propertyInspector?.ShowSprite(sp);
+            _propertyInspector?.ShowMember(sp != null ? FindMember(sp.MemberNum) : null);
         };
         _scoreView.SpriteSelected += n =>
         {
@@ -300,6 +330,9 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             _selectedSprite = n;
             _stageView.SetSelectedSprite(n);
             _scoreView.SelectSprite(n);
+            var sp = FindSprite(n);
+            _propertyInspector?.ShowSprite(sp);
+            _propertyInspector?.ShowMember(sp != null ? FindMember(sp.MemberNum) : null);
         };
         _scoreView.PlayFromHere += f => Log($"Play from {f}");
         _scoreView.InfoChanged += (f, ch, sp, mem) =>
@@ -323,8 +356,10 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
 
         if (_propertyInspector != null)
         {
+            _propertyInspector.ShowSprite(sprite.HasValue ? FindSprite(sprite.Value) : null);
             _propertyInspector.ShowMember(member != null ? FindMember(member) : null);
         }
+        _scoreView?.SetFocus();
     }
 
     private LingoMemberDTO? FindMember(string name)
@@ -334,6 +369,21 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             foreach (var m in cast)
             {
                 if (m.Name == name)
+                {
+                    return m;
+                }
+            }
+        }
+        return null;
+    }
+
+    private LingoMemberDTO? FindMember(int key)
+    {
+        foreach (var cast in TerminalDataStore.Instance.Casts.Values)
+        {
+            foreach (var m in cast)
+            {
+                if (((m.CastLibNum << 16) | m.NumberInCast) == key)
                 {
                     return m;
                 }
@@ -370,6 +420,9 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             top.ColorScheme = baseScheme;
         }
     }
+
+    private LingoSpriteDTO? FindSprite(int number)
+        => TerminalDataStore.Instance.Sprites.FirstOrDefault(s => s.SpriteNum == number);
 
     private async Task ToggleConnectionAsync()
     {
