@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using LingoEngine.IO.Data.DTO;
 using Terminal.Gui;
@@ -13,6 +14,9 @@ internal sealed class PropertyInspector : Window
     private readonly DataTable _memberTable = new();
     private readonly List<PropertySpec> _memberSpecs = new();
     private readonly TableView _memberTableView;
+    private readonly DataTable _spriteTable = new();
+    private readonly List<PropertySpec> _spriteSpecs = new();
+    private readonly TableView _spriteTableView;
     private readonly TabView.Tab _memberTab;
     private readonly TabView.Tab _spriteTab;
     private readonly TabView.Tab _bitmapTab;
@@ -24,6 +28,7 @@ internal sealed class PropertyInspector : Window
     private readonly TabView.Tab _guidesTab;
     private readonly TabView.Tab _behaviorTab;
     private readonly TabView.Tab _filmLoopTab;
+    private LingoSpriteDTO? _sprite;
 
     public event Action<string, string>? PropertyChanged;
 
@@ -35,7 +40,7 @@ internal sealed class PropertyInspector : Window
             Height = Dim.Fill()
         };
 
-        _spriteTab = CreateTab("Sprite", new[]
+        _spriteSpecs.AddRange(new[]
         {
             new PropertySpec("Lock", typeof(bool)),
             new PropertySpec("FlipH", typeof(bool)),
@@ -60,6 +65,52 @@ internal sealed class PropertyInspector : Window
             new PropertySpec("BackColor", typeof(Color)),
             new PropertySpec("Behaviors", typeof(string))
         });
+
+        _spriteTable.Columns.Add("\u200B");
+        _spriteTable.Columns.Add("\u200B\u200B");
+        foreach (var spec in _spriteSpecs)
+        {
+            _spriteTable.Rows.Add(spec.Name, GetDefaultValue(spec.Type));
+        }
+        _spriteTableView = new TableView
+        {
+            Width = Dim.Fill(),
+            Height = Dim.Fill(),
+            Table = _spriteTable,
+            FullRowSelect = true
+        };
+        _spriteTableView.Style.AlwaysShowHeaders = false;
+        _spriteTableView.Style.ShowHorizontalHeaderUnderline = false;
+        _spriteTableView.Style.ShowHorizontalHeaderOverline = false;
+        _spriteTableView.Style.ShowVerticalHeaderLines = false;
+        _spriteTableView.Style.ShowVerticalCellLines = false;
+        _spriteTableView.SelectedColumn = 1;
+        _spriteTableView.SelectedCellChanged += _ => _spriteTableView.SelectedColumn = 1;
+        _spriteTableView.KeyPress += e =>
+        {
+            if (e.KeyEvent.Key == Key.CursorLeft || e.KeyEvent.Key == Key.CursorRight)
+            {
+                e.Handled = true;
+            }
+        };
+        _spriteTableView.Style.ColumnStyles.Add(_spriteTable.Columns[1], new TableView.ColumnStyle { Alignment = TextAlignment.Right });
+        _spriteTableView.CellActivated += args =>
+        {
+            var spec = _spriteSpecs[args.Row];
+            if (spec.ReadOnly)
+            {
+                return;
+            }
+            var value = _spriteTable.Rows[args.Row][1]?.ToString() ?? string.Empty;
+            var newValue = EditValue(spec.Type, spec.Name, value);
+            if (newValue != null)
+            {
+                _spriteTable.Rows[args.Row][1] = newValue;
+                PropertyChanged?.Invoke(spec.Name, newValue);
+            }
+            _spriteTableView.SetNeedsDisplay();
+        };
+        _spriteTab = new TabView.Tab("Sprite", _spriteTableView);
 
         _memberTable.Columns.Add("\u200B");
         _memberTable.Columns.Add("\u200B\u200B");
@@ -174,6 +225,44 @@ internal sealed class PropertyInspector : Window
 
         Add(_tabs);
         SetTabs(_memberTab);
+    }
+
+    public void ShowSprite(LingoSpriteDTO? sprite)
+    {
+        _sprite = sprite;
+        for (var i = 0; i < _spriteSpecs.Count; i++)
+        {
+            var spec = _spriteSpecs[i];
+            string value;
+            if (sprite == null)
+            {
+                value = GetDefaultValue(spec.Type);
+            }
+            else
+            {
+                value = spec.Name switch
+                {
+                    "Lock" => sprite.Lock.ToString(),
+                    "FlipH" => sprite.FlipH.ToString(),
+                    "FlipV" => sprite.FlipV.ToString(),
+                    "Name" => sprite.Name,
+                    "LocH" => ((int)sprite.LocH).ToString(CultureInfo.InvariantCulture),
+                    "LocV" => ((int)sprite.LocV).ToString(CultureInfo.InvariantCulture),
+                    "Z" => sprite.LocZ.ToString(CultureInfo.InvariantCulture),
+                    "Width" => ((int)sprite.Width).ToString(CultureInfo.InvariantCulture),
+                    "Height" => ((int)sprite.Height).ToString(CultureInfo.InvariantCulture),
+                    "Ink" => sprite.Ink.ToString(CultureInfo.InvariantCulture),
+                    "Blend" => sprite.Blend.ToString(CultureInfo.InvariantCulture),
+                    "StartFrame" => sprite.BeginFrame.ToString(CultureInfo.InvariantCulture),
+                    "EndFrame" => sprite.EndFrame.ToString(CultureInfo.InvariantCulture),
+                    "Rotation" => sprite.Rotation.ToString(CultureInfo.InvariantCulture),
+                    "Skew" => sprite.Skew.ToString(CultureInfo.InvariantCulture),
+                    _ => _spriteTable.Rows[i][1]?.ToString() ?? GetDefaultValue(spec.Type)
+                };
+            }
+            _spriteTable.Rows[i][1] = value;
+        }
+        _spriteTableView.SetNeedsDisplay();
     }
 
     private TabView.Tab CreateTab(string title, PropertySpec[] props)
@@ -361,7 +450,14 @@ internal sealed class PropertyInspector : Window
         if (member == null)
         {
             _memberTableView.SetNeedsDisplay();
-            SetTabs(_memberTab);
+            var tabsEmpty = new List<TabView.Tab>();
+            if (_sprite != null)
+            {
+                tabsEmpty.Add(_spriteTab);
+            }
+            tabsEmpty.Add(_memberTab);
+            SetTabs(tabsEmpty.ToArray());
+            _tabs.SelectedTab = _sprite != null ? _spriteTab : _memberTab;
             return;
         }
 
@@ -381,7 +477,13 @@ internal sealed class PropertyInspector : Window
 
         _memberTableView.SetNeedsDisplay();
 
-        var tabs = new List<TabView.Tab> { _memberTab, _castTab };
+        var tabs = new List<TabView.Tab>();
+        if (_sprite != null)
+        {
+            tabs.Add(_spriteTab);
+        }
+        tabs.Add(_memberTab);
+        tabs.Add(_castTab);
 
         switch (member.Type)
         {
@@ -408,7 +510,7 @@ internal sealed class PropertyInspector : Window
         }
 
         SetTabs(tabs.ToArray());
-        _tabs.SelectedTab = _memberTab;
+        _tabs.SelectedTab = _sprite != null ? _spriteTab : _memberTab;
     }
 
     private void AddMember(string name, string value, Type type, bool readOnly = false)

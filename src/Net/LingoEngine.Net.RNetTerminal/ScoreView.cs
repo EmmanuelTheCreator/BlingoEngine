@@ -237,6 +237,14 @@ internal sealed class ScoreView : ScrollView
     private void ClampContentOffset()
     {
         var offset = GetOffset();
+        if (ContentOffset.X < 0)
+        {
+            offset.X = 0;
+        }
+        if (ContentOffset.Y < 0)
+        {
+            offset.Y = 0;
+        }
         ClampContentOffset(ref offset);
         SetOffset(offset);
     }
@@ -627,7 +635,14 @@ internal sealed class ScoreView : ScrollView
                 Width = 10,
                 Visible = cb.Checked
             };
-            cb.Toggled += _ => field.Visible = cb.Checked;
+            cb.Toggled += _ =>
+            {
+                field.Visible = cb.Checked;
+                if (cb.Checked)
+                {
+                    field.SetFocus();
+                }
+            };
             rows.Add((cb, field, name));
         }
         var ok = new Button("Ok", true);
@@ -649,6 +664,8 @@ internal sealed class ScoreView : ScrollView
         {
             dialog.Add(cb, field);
         }
+        dialog.Add(new Label("Use Space to toggle") { X = 1, Y = TweenProperties.Length + 1 });
+        rows[0].cb.SetFocus();
         Application.Run(dialog);
     }
 
