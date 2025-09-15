@@ -10,6 +10,7 @@ The projects in this folder implement the different pieces of the system:
 - **LingoEngine.Net.RNetContracts** – shared data contracts describing frames, sprites, and commands.
 - **LingoEngine.Net.RNetHost** – a SignalR server that exposes an engine instance over RNet.
 - **LingoEngine.Net.RNetClient** – a client library for connecting to an RNet host.
+- **LingoEngine.Net.RNetClientPlayer** – consumes a host and applies updates to a local LingoEngine player.
 - **LingoEngine.Net.RNetTerminal** – a console application used for debugging and experimenting with the protocol.
 - **cpp/LingoEngine.RNetClient** – a minimal C++ client showing how to consume the protocol from native code.
 

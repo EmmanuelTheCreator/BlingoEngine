@@ -32,8 +32,10 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(StageFrameDto, Width, Height, FrameId, Timest
 struct SpriteDeltaDto {
     int Frame;
     int SpriteNum;
+    int BeginFrame;
     int Z;
-    int MemberId;
+    int CastLibNum;
+    int MemberNum;
     int LocH;
     int LocV;
     int Width;
@@ -43,12 +45,14 @@ struct SpriteDeltaDto {
     int Blend;
     int Ink;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SpriteDeltaDto, Frame, SpriteNum, Z, MemberId, LocH, LocV, Width, Height, Rotation, Skew, Blend, Ink);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SpriteDeltaDto, Frame, SpriteNum, BeginFrame, Z, CastLibNum, MemberNum, LocH, LocV, Width, Height, Rotation, Skew, Blend, Ink);
 
 struct RNetSpriteDto {
     int SpriteNum;
+    int BeginFrame;
     int Z;
-    int MemberId;
+    int CastLibNum;
+    int MemberNum;
     int LocH;
     int LocV;
     int Width;
@@ -58,30 +62,33 @@ struct RNetSpriteDto {
     int Blend;
     int Ink;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RNetSpriteDto, SpriteNum, Z, MemberId, LocH, LocV, Width, Height, Rotation, Skew, Blend, Ink);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RNetSpriteDto, SpriteNum, BeginFrame, Z, CastLibNum, MemberNum, LocH, LocV, Width, Height, Rotation, Skew, Blend, Ink);
 
 struct KeyframeDto {
     int Frame;
     int SpriteNum;
+    int BeginFrame;
     std::string Prop;
     std::string Value;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(KeyframeDto, Frame, SpriteNum, Prop, Value);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(KeyframeDto, Frame, SpriteNum, BeginFrame, Prop, Value);
 
 struct FilmLoopDto {
-    std::string Name;
+    int CastLibNum;
+    int MemberNum;
     int StartFrame;
     int EndFrame;
     bool IsPlaying;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(FilmLoopDto, Name, StartFrame, EndFrame, IsPlaying);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(FilmLoopDto, CastLibNum, MemberNum, StartFrame, EndFrame, IsPlaying);
 
 struct SoundEventDto {
     int Frame;
-    std::string SoundName;
+    int CastLibNum;
+    int MemberNum;
     bool IsPlaying;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SoundEventDto, Frame, SoundName, IsPlaying);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SoundEventDto, Frame, CastLibNum, MemberNum, IsPlaying);
 
 struct TempoDto {
     int Frame;
@@ -110,11 +117,11 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TransitionDto, Frame, Type, Duration);
 
 struct RNetMemberPropertyDto {
     int CastLibNum;
-    int NumberInCast;
+    int MemberNum;
     std::string Prop;
     std::string Value;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RNetMemberPropertyDto, CastLibNum, NumberInCast, Prop, Value);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RNetMemberPropertyDto, CastLibNum, MemberNum, Prop, Value);
 
 struct RNetMoviePropertyDto {
     std::string Prop;
@@ -140,18 +147,20 @@ struct RNetSpriteCollectionEventDto {
     std::string Manager;
     RNetSpriteCollectionEventType Event;
     int SpriteNum;
+    int BeginFrame;
     std::optional<RNetSpriteDto> Sprite;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RNetSpriteCollectionEventDto, Manager, Event, SpriteNum, Sprite);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RNetSpriteCollectionEventDto, Manager, Event, SpriteNum, BeginFrame, Sprite);
 
 struct TextStyleDto {
-    std::string MemberName;
+    int CastLibNum;
+    int MemberNum;
     int Start;
     int End;
     std::string Style;
     std::string Value;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TextStyleDto, MemberName, Start, End, Style, Value);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TextStyleDto, CastLibNum, MemberNum, Start, End, Style, Value);
 
 struct MovieStateDto {
     int Frame;
@@ -164,17 +173,19 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MovieStateDto, Frame, Tempo, IsPlaying);
 
 struct SetSpritePropCmd {
     int SpriteNum;
+    int BeginFrame;
     std::string Prop;
     std::string Value;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SetSpritePropCmd, SpriteNum, Prop, Value);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SetSpritePropCmd, SpriteNum, BeginFrame, Prop, Value);
 
 struct SetMemberPropCmd {
-    std::string MemberName;
+    int CastLibNum;
+    int MemberNum;
     std::string Prop;
     std::string Value;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SetMemberPropCmd, MemberName, Prop, Value);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SetMemberPropCmd, CastLibNum, MemberNum, Prop, Value);
 
 struct GoToFrameCmd {
     int Frame;
