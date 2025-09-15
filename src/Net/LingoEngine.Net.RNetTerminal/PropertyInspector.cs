@@ -8,6 +8,12 @@ using Terminal.Gui;
 
 namespace LingoEngine.Net.RNetTerminal;
 
+public enum PropertyTarget
+{
+    Sprite,
+    Member
+}
+
 internal sealed class PropertyInspector : Window
 {
     private readonly TabView _tabs;
@@ -29,9 +35,12 @@ internal sealed class PropertyInspector : Window
     private readonly TabView.Tab _behaviorTab;
     private readonly TabView.Tab _filmLoopTab;
     private LingoSpriteDTO? _sprite;
+    private LingoMemberDTO? _member;
     private string _lastTab = "Sprite";
 
-    public event Action<string, string>? PropertyChanged;
+    public LingoMemberDTO? CurrentMember => _member;
+
+    public event Action<PropertyTarget, string, string>? PropertyChanged;
 
     public PropertyInspector() : base("Properties")
     {
@@ -114,7 +123,7 @@ internal sealed class PropertyInspector : Window
             if (newValue != null)
             {
                 _spriteTable.Rows[args.Row][1] = newValue;
-                PropertyChanged?.Invoke(spec.Name, newValue);
+                PropertyChanged?.Invoke(PropertyTarget.Sprite, spec.Name, newValue);
             }
             _spriteTableView.SetNeedsDisplay();
         };
@@ -156,7 +165,7 @@ internal sealed class PropertyInspector : Window
             if (newValue != null)
             {
                 _memberTable.Rows[args.Row][1] = newValue;
-                PropertyChanged?.Invoke(spec.Name, newValue);
+                PropertyChanged?.Invoke(PropertyTarget.Member, spec.Name, newValue);
             }
             _memberTableView.SetNeedsDisplay();
         };
@@ -235,6 +244,50 @@ internal sealed class PropertyInspector : Window
         SetTabs(_spriteTab, _memberTab);
         var initial = _tabs.Tabs.FirstOrDefault(t => t.Text.ToString() == _lastTab) ?? _spriteTab;
         _tabs.SelectedTab = initial;
+
+        var store = TerminalDataStore.Instance;
+        UpdateSelection(store.GetSelectedSprite());
+        store.SelectedSpriteChanged += UpdateSelection;
+        store.SpriteChanged += s =>
+        {
+            var sel = store.GetSelectedSprite();
+            if (sel.HasValue && sel.Value.SpriteNum == s.SpriteNum && sel.Value.BeginFrame == s.BeginFrame)
+            {
+                ShowSprite(s);
+            }
+        };
+        store.MemberChanged += m =>
+        {
+            var sel = store.GetSelectedSprite();
+            if (sel.HasValue)
+            {
+                var sprite = store.FindSprite(sel.Value);
+                if (sprite != null && sprite.CastLibNum == m.CastLibNum && sprite.MemberNum == m.NumberInCast)
+                {
+                    ShowMember(m);
+                    return;
+                }
+            }
+            if (_member != null && _member.CastLibNum == m.CastLibNum && _member.NumberInCast == m.NumberInCast)
+            {
+                ShowMember(m);
+            }
+        };
+    }
+
+    private void UpdateSelection(SpriteRef? sel)
+    {
+        var store = TerminalDataStore.Instance;
+        var sprite = sel.HasValue ? store.FindSprite(sel.Value) : null;
+        ShowSprite(sprite);
+        if (sprite != null)
+        {
+            ShowMember(store.FindMember(sprite.CastLibNum, sprite.MemberNum));
+        }
+        else
+        {
+            ShowMember(null);
+        }
     }
 
     public void ShowSprite(LingoSpriteDTO? sprite)
@@ -337,7 +390,7 @@ internal sealed class PropertyInspector : Window
             if (newValue != null)
             {
                 table.Rows[args.Row][1] = newValue;
-                PropertyChanged?.Invoke(spec.Name, newValue);
+                PropertyChanged?.Invoke(PropertyTarget.Member, spec.Name, newValue);
             }
             view.SetNeedsDisplay();
         };
@@ -455,6 +508,7 @@ internal sealed class PropertyInspector : Window
 
     public void ShowMember(LingoMemberDTO? member)
     {
+        _member = member;
         _memberTable.Rows.Clear();
         _memberSpecs.Clear();
         if (member == null)
