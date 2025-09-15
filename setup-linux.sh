@@ -6,6 +6,15 @@
 
 set -e
 
+FAILED=0
+trap 'FAILED=1' ERR
+trap 'if [ $FAILED -eq 0 ]; then
+  echo "Setup complete."
+else
+  echo "Setup encountered an error."
+fi
+read -p "Press Enter to exit..."' EXIT
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
@@ -101,4 +110,3 @@ PY
   ./scripts/SetGodotVersion.sh "$GODOT_VERSION"
 fi
 
-echo "Setup complete."

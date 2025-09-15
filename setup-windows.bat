@@ -4,6 +4,7 @@ REM This script is intended to remain a simple way to prepare the repository.
 REM Future updates should keep this goal in mind.
 
 setlocal enabledelayedexpansion
+set "EXIT_CODE=0"
 set "ROOT=%~dp0"
 cd /d "%ROOT%"
 
@@ -46,7 +47,8 @@ if errorlevel 1 (
     winget install --id Microsoft.DotNet.SDK.8 --source winget
     if errorlevel 1 (
         echo Failed to install .NET SDK automatically. Please install it manually and re-run this script.
-        exit /b 1
+        set "EXIT_CODE=1"
+        goto END
     )
 ) else (
     for /f %%v in ('dotnet --version') do set "DOTNET_VER=%%v"
@@ -79,6 +81,13 @@ if exist "%MEDIA_SRC%" (
 echo.
 echo Select the Godot executable (e.g., C:\path\to\Godot_v4.5-stable_mono_win64.exe). Minimum version 4.5 required.
 powershell -NoProfile -ExecutionPolicy Bypass -Command "Add-Type -AssemblyName System.Windows.Forms; $dlg=New-Object System.Windows.Forms.OpenFileDialog; $dlg.Filter='Godot executable|Godot*.exe'; if($dlg.ShowDialog() -eq 'OK'){ $path=$dlg.FileName; $settingsPath='.vscode/settings.json'; $json=Get-Content $settingsPath | ConvertFrom-Json; $json.'godotTools.editorPath.godot4'=$path; $json | ConvertTo-Json | Set-Content $settingsPath; $ver=[regex]::Match((Split-Path $path -Leaf), 'Godot_v([^_]+)_').Groups[1].Value; & 'scripts\\SetGodotVersion.ps1' $ver } else { Write-Host 'No Godot executable selected.' }"
+set "EXIT_CODE=%ERRORLEVEL%"
 
-echo Setup complete.
-endlocal
+:END
+if %EXIT_CODE% equ 0 (
+    echo Setup complete.
+) else (
+    echo Setup encountered errors.
+)
+pause
+endlocal & exit /b %EXIT_CODE%
