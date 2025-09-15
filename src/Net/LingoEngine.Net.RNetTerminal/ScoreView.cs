@@ -199,9 +199,8 @@ internal sealed class ScoreView : ScrollView
         }
     }
 
-    private void ClampContentOffset()
+    private void ClampContentOffset(ref Point offset)
     {
-        var offset = ContentOffset;
         var scrollBarWidth = ShowVerticalScrollIndicator ? 1 : 0;
         var scrollBarHeight = ShowHorizontalScrollIndicator ? 1 : 0;
         var visibleFrames = Math.Max(0, Bounds.Width - _labelWidth - scrollBarWidth);
@@ -210,6 +209,12 @@ internal sealed class ScoreView : ScrollView
         var maxY = Math.Max(0, TotalChannels - visibleChannels);
         offset.X = Math.Clamp(offset.X, 0, maxX);
         offset.Y = Math.Clamp(offset.Y, 0, maxY);
+    }
+
+    private void ClampContentOffset()
+    {
+        var offset = ContentOffset;
+        ClampContentOffset(ref offset);
         ContentOffset = offset;
     }
 
@@ -233,7 +238,7 @@ internal sealed class ScoreView : ScrollView
         {
             offset.X = _cursorFrame;
         }
-        else if (_cursorFrame >= offset.X + visibleFrames - 1)
+        else if (_cursorFrame >= offset.X + visibleFrames)
         {
             offset.X = _cursorFrame - visibleFrames + 1;
         }
@@ -241,16 +246,17 @@ internal sealed class ScoreView : ScrollView
         {
             offset.Y = _cursorChannel;
         }
-        else if (_cursorChannel >= offset.Y + visibleChannels - 1)
+        else if (_cursorChannel >= offset.Y + visibleChannels)
         {
             offset.Y = _cursorChannel - visibleChannels + 1;
         }
+        ClampContentOffset(ref offset);
         ContentOffset = offset;
-        ClampContentOffset();
     }
 
     public override void Redraw(Rect bounds)
     {
+        ClampContentOffset();
         base.Redraw(bounds);
         var scrollBarWidth = ShowVerticalScrollIndicator ? 1 : 0;
         var scrollBarHeight = ShowHorizontalScrollIndicator ? 1 : 0;
