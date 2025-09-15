@@ -8,11 +8,12 @@ RNet hooks directly into **LingoEngine**, enabling any project using the core en
 The projects in this folder implement the different pieces of the system:
 
 - **LingoEngine.Net.RNetContracts** – shared data contracts describing frames, sprites, and commands.
-- **LingoEngine.Net.RNetHost** – a SignalR server that exposes an engine instance over RNet.
-- **LingoEngine.Net.RNetClient** – a client library for connecting to an RNet host.
+- **LingoEngine.Net.RNetProjectHost** – a SignalR server that exposes an engine instance over RNet.
+- **LingoEngine.Net.RNetProjectClient** – a client library for connecting to an RNet project host.
 - **LingoEngine.Net.RNetClientPlayer** – consumes a host and applies updates to a local LingoEngine player.
 - **LingoEngine.Net.RNetTerminal** – a console application used for debugging and experimenting with the protocol.
-- **cpp/LingoEngine.RNetClient** – a minimal C++ client showing how to consume the protocol from native code.
+- **LingoEngine.Net.RNetServer** – forwards messages between project hosts and project clients.
+- **cpp/LingoEngine.RNetProjectClient** – a minimal C++ client showing how to consume the protocol from native code.
 
 Together these components allow external tools to inspect and control movies in real time.
 
@@ -22,13 +23,13 @@ To expose an engine instance over RNet, register and start the host during engin
 
 ```csharp
 var engine = LingoEngine.Setup.Engine
-    .WithRNetHostServer(7000) // custom port
+    .WithRNetProjectHostServer(7000) // custom port
     .Build();
 ```
 
-Clients can then connect using `LingoRNetClient`:
+Clients can then connect using `LingoRNetProjectClient`:
 
 ```csharp
-var client = new LingoRNetClient();
-await client.ConnectAsync(new Uri("http://localhost:7000/director"), new HelloDto("project", "client", "1.0"));
+var client = new LingoRNetProjectClient();
+await client.ConnectAsync(new Uri("http://localhost:7000/director"), new HelloDto("project", "client", "1.0", "Sample client"));
 ```

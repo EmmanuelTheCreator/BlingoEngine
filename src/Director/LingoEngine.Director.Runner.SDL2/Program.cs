@@ -1,5 +1,5 @@
 using LingoEngine.Director.SDL2;
-using LingoEngine.Net.RNetHost;
+using LingoEngine.Net.RNetProjectHost;
 using LingoEngine.SDL2;
 using LingoEngine.Setup;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +13,7 @@ var services = new ServiceCollection()
                     config.SetMinimumLevel(LogLevel.Debug);
                 });
 services.RegisterLingoEngine(c => c
-    .WithRNetHostServer()
+    .WithRNetProjectHostServer()
     .WithGlobalVarsDefault()
     .WithDirectorSdlEngine("Director c#", 1280, 720)
 );

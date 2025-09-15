@@ -1,6 +1,6 @@
 using LingoEngine.IO;
 using LingoEngine.IO.Data.DTO;
-using LingoEngine.Net.RNetClient;
+using LingoEngine.Net.RNetProjectClient;
 using LingoEngine.Net.RNetContracts;
 using System.Net.WebSockets;
 using Terminal.Gui;
@@ -10,7 +10,7 @@ namespace LingoEngine.Net.RNetTerminal;
 
 public sealed class LingoRNetTerminal : IAsyncDisposable
 {
-    private LingoRNetClient? _client;
+    private LingoRNetProjectClient? _client;
     private readonly List<string> _logs = new();
     private CancellationTokenSource _cts = new();
     private Timer? _heartbeatTimer;
@@ -307,12 +307,12 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         }
         _connected = false;
         Log("Disconnected.");
-        
+
     }
 
     private async Task ConnectToHost()
     {
-        _client = new LingoRNetClient();
+        _client = new LingoRNetProjectClient();
         // config.ClientName = Assembly.GetEntryAssembly()?.GetName().Name ?? "Someone";
         var hubUrl = new Uri($"http://localhost:{_port}/director");
         try
@@ -334,7 +334,7 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             Console.WriteLine(ex);
             throw;
         }
-       
+
     }
     private async Task DoHeartBeat()
     {

@@ -2,7 +2,7 @@ using LingoEngine.Members;
 using LingoEngine.Sprites;
 using LingoEngine.Net.RNetContracts;
 
-namespace LingoEngine.Net.RNetHost;
+namespace LingoEngine.Net.RNetProjectHost;
 
 /// <summary>Helpers for converting engine objects to RNet DTOs.</summary>
 internal static class DtoExtensions

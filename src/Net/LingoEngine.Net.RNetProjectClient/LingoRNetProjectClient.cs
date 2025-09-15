@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using LingoEngine.Net.RNetContracts;
 using Microsoft.AspNetCore.SignalR.Client;
 
-namespace LingoEngine.Net.RNetClient;
+namespace LingoEngine.Net.RNetProjectClient;
 
 /// <summary>
-/// High-level API for interacting with a running RNet host.
+/// High-level API for interacting with a running RNet project host.
 /// </summary>
-public interface ILingoRNetClient : IAsyncDisposable
+public interface ILingoRNetProjectClient : IAsyncDisposable
 {
     /// <summary>Connects to the RNet hub and sends the initial hello payload.</summary>
     Task ConnectAsync(Uri hubUrl, HelloDto hello, CancellationToken ct = default);
@@ -82,20 +82,20 @@ public interface ILingoRNetClient : IAsyncDisposable
 }
 
 /// <summary>
-/// Default implementation of <see cref="ILingoRNetClient"/>.
+/// Default implementation of <see cref="ILingoRNetProjectClient"/>.
 /// </summary>
-public sealed class LingoRNetClient : ILingoRNetClient
+public sealed class LingoRNetProjectClient : ILingoRNetProjectClient
 {
     private HubConnection? _connection;
     private LingoNetConnectionState _state = LingoNetConnectionState.Disconnected;
     private readonly IRNetConfiguration _config;
 
-    public LingoRNetClient(IRNetConfiguration config)
+    public LingoRNetProjectClient(IRNetConfiguration config)
     {
         _config = config;
     }
 
-    public LingoRNetClient() : this(new DefaultConfig()) { }
+    public LingoRNetProjectClient() : this(new DefaultConfig()) { }
 
     private sealed class DefaultConfig : IRNetConfiguration
     {

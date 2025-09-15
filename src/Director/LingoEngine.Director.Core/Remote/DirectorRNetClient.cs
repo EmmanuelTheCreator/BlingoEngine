@@ -1,6 +1,6 @@
 using System;
 using AbstUI.Commands;
-using LingoEngine.Net.RNetClient;
+using LingoEngine.Net.RNetProjectClient;
 using LingoEngine.Net.RNetContracts;
 using LingoEngine.Director.Core.Remote.Commands;
 
@@ -13,10 +13,10 @@ public sealed class DirectorRNetClient :
     IAbstCommandHandler<ConnectRNetClientCommand>,
     IAbstCommandHandler<DisconnectRNetClientCommand>
 {
-    private readonly ILingoRNetClient _client;
+    private readonly ILingoRNetProjectClient _client;
     private readonly IRNetConfiguration _config;
 
-    public DirectorRNetClient(ILingoRNetClient client, IRNetConfiguration config)
+    public DirectorRNetClient(ILingoRNetProjectClient client, IRNetConfiguration config)
     {
         _client = client;
         _config = config;
@@ -40,7 +40,7 @@ public sealed class DirectorRNetClient :
     public bool Handle(ConnectRNetClientCommand command)
     {
         var uri = new Uri($"http://localhost:{_config.Port}/director");
-        _client.ConnectAsync(uri, new HelloDto("director", "client", "1.0","")).GetAwaiter().GetResult();
+        _client.ConnectAsync(uri, new HelloDto("director", "client", "1.0", "")).GetAwaiter().GetResult();
         return true;
     }
 
