@@ -31,22 +31,32 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         _port = _settings.Port;
     }
 
-    public Task RunAsync()
+    public async Task RunAsync()
     {
         Application.Init();
-        SetNortonTheme();
+        SetMyTheme();
+        var useConnection = false;
         new StartupDialog(_port).Show(async p =>
         {
             if (_port != p)
                 SaveSettings();
             _port = p;
-            await ToggleConnectionAsync();
+            useConnection = true;
         });
+        if (useConnection)
+        {
+            Task.Run(async () =>
+            {
+                await Task.Delay(500);
+                await ConnectToHost().ConfigureAwait(false);
+            });
+        }
+        else
+            TerminalDataStore.Instance.LoadTestData();
         Application.Begin(new Toplevel());
         BuildUi();
         Application.Run();
         Application.Shutdown();
-        return Task.CompletedTask;
     }
 
     private void BuildUi()
@@ -242,7 +252,7 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         _scoreView?.SetFocus();
     }
 
-    private static void SetNortonTheme()
+    private static void SetMyTheme()
     {
         var baseScheme = new ColorScheme
         {
@@ -274,10 +284,34 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     private async Task ToggleConnectionAsync()
     {
         if (!_connected)
+            await ConnectToHost();
+        else
+            await DisconnectFromHost();
+    }
+
+    private async Task DisconnectFromHost()
+    {
+        _cts.Cancel();
+        _heartbeatTimer?.Stop();
+        _heartbeatTimer?.Dispose();
+        _heartbeatTimer = null;
+        if (_client != null)
         {
-            _client = new LingoRNetClient();
-            // config.ClientName = Assembly.GetEntryAssembly()?.GetName().Name ?? "Someone";
-            var hubUrl = new Uri($"http://localhost:{_port}/director");
+            await _client.DisposeAsync();
+            _client = null;
+        }
+        _connected = false;
+        Log("Disconnected.");
+        
+    }
+
+    private async Task ConnectToHost()
+    {
+        _client = new LingoRNetClient();
+        // config.ClientName = Assembly.GetEntryAssembly()?.GetName().Name ?? "Someone";
+        var hubUrl = new Uri($"http://localhost:{_port}/director");
+        try
+        {
             await _client.ConnectAsync(hubUrl, new HelloDto("test-project", "console", "1.0", "RNetTerminal"));
             _connected = true;
             Log("Connected.");
@@ -289,21 +323,12 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             _heartbeatTimer.Start();
             await LoadMovieDataAsync();
         }
-        else
+        catch (Exception ex)
         {
-            _cts.Cancel();
-            _heartbeatTimer?.Stop();
-            _heartbeatTimer?.Dispose();
-            _heartbeatTimer = null;
-            if (_client != null)
-            {
-                await _client.DisposeAsync();
-                _client = null;
-            }
-            _connected = false;
-            Log("Disconnected.");
-            TerminalDataStore.Instance.LoadTestData();
+            Console.WriteLine(ex);
+            throw;
         }
+       
     }
 
     private async Task LoadMovieDataAsync()
