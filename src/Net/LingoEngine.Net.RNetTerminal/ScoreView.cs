@@ -10,8 +10,8 @@ namespace LingoEngine.Net.RNetTerminal;
 internal sealed class ScoreView : ScrollView
 {
     private const int SpriteChannelCount = 100;
-    private const int FrameCount = 600;
-    private const int StageWidth = 640;
+    private int FrameCount => TerminalDataStore.Instance.FrameCount;
+    private int _stageWidth;
     private readonly int _labelWidth;
     private static readonly string[] SpecialChannels =
     {
@@ -45,12 +45,8 @@ internal sealed class ScoreView : ScrollView
 
     public ScoreView()
     {
-        _sprites = TestMovieBuilder.BuildSprites()
-            .Select(s => new SpriteBlock(s.SpriteNum, s.BeginFrame, s.EndFrame, s.SpriteNum, s.MemberNum, s.Name, s.Width))
-            .ToList();
-        _members = TestCastBuilder.BuildCastData()
-            .SelectMany(c => c.Value)
-            .ToDictionary(MemberKey);
+        _sprites = new List<SpriteBlock>();
+        _members = new Dictionary<int, LingoMemberDTO>();
         _labelWidth = Math.Max(SpecialChannels.Max(s => s.Length), SpriteChannelCount.ToString().Length) + 1;
         CanFocus = true;
         ColorScheme = new ColorScheme
@@ -60,6 +56,8 @@ internal sealed class ScoreView : ScrollView
         ContentSize = new Size(FrameCount + _labelWidth, TotalChannels + 1);
         ShowVerticalScrollIndicator = true;
         ShowHorizontalScrollIndicator = true;
+        AutoHideScrollBars = false;
+        ReloadData();
     }
 
     public event Action<int, int, int?, string?>? InfoChanged;
@@ -69,6 +67,22 @@ internal sealed class ScoreView : ScrollView
     public void SelectSprite(int? spriteNumber)
     {
         _selectedSprite = spriteNumber;
+        SetNeedsDisplay();
+    }
+
+    public void ReloadData()
+    {
+        var store = TerminalDataStore.Instance;
+        _stageWidth = store.StageWidth;
+        _sprites.Clear();
+        _sprites.AddRange(store.Sprites
+            .Select(s => new SpriteBlock(s.SpriteNum, s.BeginFrame, s.EndFrame, s.SpriteNum, s.MemberNum, s.Name, s.Width)));
+        _members.Clear();
+        foreach (var m in store.Casts.SelectMany(c => c.Value))
+        {
+            _members[MemberKey(m)] = m;
+        }
+        ContentSize = new Size(FrameCount + _labelWidth, TotalChannels + 1);
         SetNeedsDisplay();
     }
 
@@ -126,11 +140,12 @@ internal sealed class ScoreView : ScrollView
             var contentW = Bounds.Width - scrollBarWidth;
             var contentH = Bounds.Height - scrollBarHeight;
             var inContent = me.X < contentW && me.Y < contentH;
+            var offset = GetOffset();
 
             if (inContent && me.Flags.HasFlag(MouseFlags.Button1Clicked))
             {
-                var frame = ContentOffset.X + me.X - _labelWidth;
-                var channel = ContentOffset.Y + me.Y - 1;
+                var frame = offset.X + me.X - _labelWidth;
+                var channel = offset.Y + me.Y - 1;
                 if (frame >= 0 && frame < FrameCount && channel >= 0 && channel < TotalChannels)
                 {
                     _cursorFrame = frame;
@@ -145,8 +160,8 @@ internal sealed class ScoreView : ScrollView
             }
             if (inContent && me.Flags.HasFlag(MouseFlags.Button3Clicked))
             {
-                var frame = ContentOffset.X + me.X - _labelWidth;
-                var channel = ContentOffset.Y + me.Y - 1;
+                var frame = offset.X + me.X - _labelWidth;
+                var channel = offset.Y + me.Y - 1;
                 if (frame >= 0 && frame < FrameCount && channel >= 0 && channel < TotalChannels)
                 {
                     _cursorFrame = frame;
@@ -162,29 +177,37 @@ internal sealed class ScoreView : ScrollView
             }
             if (me.Flags.HasFlag(MouseFlags.WheeledUp))
             {
-                ContentOffset = new Point(ContentOffset.X, ContentOffset.Y - 1);
-                ClampContentOffset();
+                offset = GetOffset();
+                offset.Y--;
+                ClampContentOffset(ref offset);
+                SetOffset(offset);
                 SetNeedsDisplay();
                 return true;
             }
             if (me.Flags.HasFlag(MouseFlags.WheeledDown))
             {
-                ContentOffset = new Point(ContentOffset.X, ContentOffset.Y + 1);
-                ClampContentOffset();
+                offset = GetOffset();
+                offset.Y++;
+                ClampContentOffset(ref offset);
+                SetOffset(offset);
                 SetNeedsDisplay();
                 return true;
             }
             if (me.Flags.HasFlag(MouseFlags.WheeledLeft))
             {
-                ContentOffset = new Point(ContentOffset.X - 1, ContentOffset.Y);
-                ClampContentOffset();
+                offset = GetOffset();
+                offset.X--;
+                ClampContentOffset(ref offset);
+                SetOffset(offset);
                 SetNeedsDisplay();
                 return true;
             }
             if (me.Flags.HasFlag(MouseFlags.WheeledRight))
             {
-                ContentOffset = new Point(ContentOffset.X + 1, ContentOffset.Y);
-                ClampContentOffset();
+                offset = GetOffset();
+                offset.X++;
+                ClampContentOffset(ref offset);
+                SetOffset(offset);
                 SetNeedsDisplay();
                 return true;
             }
@@ -213,10 +236,14 @@ internal sealed class ScoreView : ScrollView
 
     private void ClampContentOffset()
     {
-        var offset = ContentOffset;
+        var offset = GetOffset();
         ClampContentOffset(ref offset);
-        ContentOffset = offset;
+        SetOffset(offset);
     }
+
+    private Point GetOffset() => new(-ContentOffset.X, -ContentOffset.Y);
+
+    private void SetOffset(Point offset) => ContentOffset = new Point(-offset.X, -offset.Y);
 
     private void MoveCursor(int dx, int dy)
     {
@@ -233,7 +260,7 @@ internal sealed class ScoreView : ScrollView
         var scrollBarHeight = ShowHorizontalScrollIndicator ? 1 : 0;
         var visibleFrames = Math.Max(0, Bounds.Width - _labelWidth - scrollBarWidth);
         var visibleChannels = Math.Max(0, Bounds.Height - 1 - scrollBarHeight);
-        var offset = ContentOffset;
+        var offset = GetOffset();
         if (_cursorFrame < offset.X)
         {
             offset.X = _cursorFrame;
@@ -251,7 +278,7 @@ internal sealed class ScoreView : ScrollView
             offset.Y = _cursorChannel - visibleChannels + 1;
         }
         ClampContentOffset(ref offset);
-        ContentOffset = offset;
+        SetOffset(offset);
     }
 
     public override void Redraw(Rect bounds)
@@ -274,8 +301,9 @@ internal sealed class ScoreView : ScrollView
 
         var visibleFrames = Math.Max(0, w - _labelWidth);
         var visibleChannels = Math.Max(0, h - 1);
-        var offsetX = ContentOffset.X;
-        var offsetY = ContentOffset.Y;
+        var posOffset = GetOffset();
+        var offsetX = posOffset.X;
+        var offsetY = posOffset.Y;
 
         for (var i = 0; i < visibleChannels && offsetY + i < TotalChannels; i++)
         {
@@ -347,7 +375,7 @@ internal sealed class ScoreView : ScrollView
             }
             if (_members.TryGetValue(sprite.MemberNum, out var member) && member.Type == LingoMemberTypeDTO.Text)
             {
-                var maxChars = Math.Max(1, (int)(sprite.Width / StageWidth * (end - start + 1)));
+                var maxChars = Math.Max(1, (int)(sprite.Width / _stageWidth * (end - start + 1)));
                 var text = member.Name;
                 var len = Math.Min(text.Length, Math.Min(maxChars, end - start + 1));
                 Driver.SetAttribute(Application.Driver.MakeAttribute(Color.Black, bg));
@@ -453,14 +481,11 @@ internal sealed class ScoreView : ScrollView
             case "Add Keyframe":
                 if (sprite != null)
                 {
-                    var val = PromptForInt("Add Keyframe", "Frame:");
-                    if (val.HasValue)
-                    {
-                        sprite.Keyframes[val.Value] = new Dictionary<string, double>();
-                        EditKeyframeDialog(sprite, val.Value);
-                        SetNeedsDisplay();
-                        NotifySpriteChanged();
-                    }
+                    var frame = _cursorFrame + 1;
+                    sprite.Keyframes[frame] = new Dictionary<string, double>();
+                    EditKeyframeDialog(sprite, frame);
+                    SetNeedsDisplay();
+                    NotifySpriteChanged();
                 }
                 break;
             case "Move Keyframe":
