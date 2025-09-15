@@ -2,7 +2,6 @@ using LingoEngine.IO.Data.DTO;
 using LingoEngine.Net.RNetClient;
 using LingoEngine.Net.RNetContracts;
 using Terminal.Gui;
-using System.Linq;
 using Timer = System.Timers.Timer;
 using LingoEngine.IO;
 
@@ -25,7 +24,6 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     private StageView? _stageView;
     private CastView? _castView;
     private StatusItem? _infoItem;
-    private int? _selectedSprite;
 
     public LingoRNetTerminal()
     {
@@ -100,9 +98,10 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         _propertyInspector.PropertyChanged += (n, v) =>
         {
             Log($"propertyChanged {n}={v}");
-            if (_selectedSprite.HasValue)
+            var sel = TerminalDataStore.Instance.GetSelectedSprite();
+            if (sel.HasValue)
             {
-                var sprite = FindSprite(_selectedSprite.Value);
+                var sprite = TerminalDataStore.Instance.FindSprite(sel.Value);
                 if (sprite != null)
                 {
                     switch (n)
@@ -120,12 +119,11 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
                             sprite.Height = height;
                             break;
                     }
-                    _stageView?.ReloadData();
-                    _stageView?.RequestRedraw();
+                    TerminalDataStore.Instance.UpdateSprite(sprite);
                 }
                 if (_client != null)
                 {
-                    _ = _client.SendCommandAsync(new SetSpritePropCmd(_selectedSprite.Value, n, v));
+                    _ = _client.SendCommandAsync(new SetSpritePropCmd(sel.Value, n, v));
                 }
             }
         };
@@ -138,6 +136,13 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             }
         };
         _uiWin.Add(_workspace, _propertyInspector);
+        TerminalDataStore.Instance.SelectedSpriteChanged += n =>
+        {
+            var store = TerminalDataStore.Instance;
+            var sp = n.HasValue ? store.FindSprite(n.Value) : null;
+            _propertyInspector?.ShowSprite(sp);
+            _propertyInspector?.ShowMember(sp != null ? store.FindMember(sp.MemberNum) : null);
+        };
         top.Add(_uiWin);
 
         var logWin = new Window("Logs")
@@ -180,16 +185,12 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             Width = Dim.Fill(),
             Height = Dim.Fill(),
         };
-        _scoreView.SpriteSelected += n =>
-        {
-            Log($"spriteSelected {n}");
-            _selectedSprite = n;
-            var sp = FindSprite(n);
-            _propertyInspector?.ShowSprite(sp);
-            _propertyInspector?.ShowMember(sp != null ? FindMember(sp.MemberNum) : null);
-        };
         _scoreView.PlayFromHere += f => Log($"Play from {f}");
-        _scoreView.InfoChanged += UpdateInfo;
+        _scoreView.InfoChanged += (f, ch, sp, mem) =>
+        {
+            UpdateInfo(f, ch, sp, mem);
+            TerminalDataStore.Instance.SetFrame(f);
+        };
         _workspace?.Add(_scoreView);
         _scoreView.SetFocus();
         _scoreView.TriggerInfo();
@@ -233,32 +234,11 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
-        _stageView.SpriteSelected += n =>
-        {
-            Log($"spriteSelected {n}");
-            _selectedSprite = n;
-            _stageView.SetSelectedSprite(n);
-            _scoreView.SelectSprite(n);
-            var sp = FindSprite(n);
-            _propertyInspector?.ShowSprite(sp);
-            _propertyInspector?.ShowMember(sp != null ? FindMember(sp.MemberNum) : null);
-        };
-        _scoreView.SpriteSelected += n =>
-        {
-            Log($"spriteSelected {n}");
-            _selectedSprite = n;
-            _stageView.SetSelectedSprite(n);
-            _scoreView.SelectSprite(n);
-            var sp = FindSprite(n);
-            _propertyInspector?.ShowSprite(sp);
-            _propertyInspector?.ShowMember(sp != null ? FindMember(sp.MemberNum) : null);
-        };
         _scoreView.PlayFromHere += f => Log($"Play from {f}");
         _scoreView.InfoChanged += (f, ch, sp, mem) =>
         {
             UpdateInfo(f, ch, sp, mem);
-            _stageView.SetFrame(f);
-            _stageView.RequestRedraw();
+            TerminalDataStore.Instance.SetFrame(f);
         };
 
         _workspace?.Add(_stageView, _scoreView);
@@ -266,49 +246,22 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         _scoreView.TriggerInfo();
     }
 
-    private void UpdateInfo(int frame, int channel, int? sprite, string? member)
+    private void UpdateInfo(int frame, int channel, int? sprite, int? member)
     {
         if (_infoItem != null)
         {
-            _infoItem.Title = $"Frame:{frame} Channel:{channel} Sprite:{(sprite?.ToString() ?? "-")} Member:{member ?? string.Empty}";
+            var store = TerminalDataStore.Instance;
+            var memName = member.HasValue ? store.FindMember(member.Value)?.Name : null;
+            _infoItem.Title = $"Frame:{frame} Channel:{channel} Sprite:{(sprite?.ToString() ?? "-")} Member:{memName ?? string.Empty}";
         }
 
         if (_propertyInspector != null)
         {
-            _propertyInspector.ShowSprite(sprite.HasValue ? FindSprite(sprite.Value) : null);
-            _propertyInspector.ShowMember(member != null ? FindMember(member) : null);
+            var store = TerminalDataStore.Instance;
+            _propertyInspector.ShowSprite(sprite.HasValue ? store.FindSprite(sprite.Value) : null);
+            _propertyInspector.ShowMember(member.HasValue ? store.FindMember(member.Value) : null);
         }
         _scoreView?.SetFocus();
-    }
-
-    private LingoMemberDTO? FindMember(string name)
-    {
-        foreach (var cast in TerminalDataStore.Instance.Casts.Values)
-        {
-            foreach (var m in cast)
-            {
-                if (m.Name == name)
-                {
-                    return m;
-                }
-            }
-        }
-        return null;
-    }
-
-    private LingoMemberDTO? FindMember(int key)
-    {
-        foreach (var cast in TerminalDataStore.Instance.Casts.Values)
-        {
-            foreach (var m in cast)
-            {
-                if (((m.CastLibNum << 16) | m.NumberInCast) == key)
-                {
-                    return m;
-                }
-            }
-        }
-        return null;
     }
 
     private static void SetNortonTheme()
@@ -339,9 +292,6 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             top.ColorScheme = baseScheme;
         }
     }
-
-    private LingoSpriteDTO? FindSprite(int number)
-        => TerminalDataStore.Instance.Sprites.FirstOrDefault(s => s.SpriteNum == number);
 
     private async Task ToggleConnectionAsync()
     {
@@ -375,9 +325,6 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             _connected = false;
             Log("Disconnected.");
             TerminalDataStore.Instance.LoadTestData();
-            _scoreView?.ReloadData();
-            _stageView?.ReloadData();
-            _castView?.ReloadData();
         }
     }
 
@@ -393,9 +340,6 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             var repo = new JsonStateRepository();
             var project = repo.Deserialize(movieJson.json);
             TerminalDataStore.Instance.LoadFromProject(project);
-            _scoreView?.ReloadData();
-            _stageView?.ReloadData();
-            _castView?.ReloadData();
         }
         catch (Exception ex)
         {

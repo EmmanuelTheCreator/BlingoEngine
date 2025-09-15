@@ -11,7 +11,6 @@ internal sealed class StageView : View
     private int _movieWidth;
     private int _movieHeight;
     private IReadOnlyList<LingoSpriteDTO> _sprites = Array.Empty<LingoSpriteDTO>();
-    private readonly Dictionary<int, LingoMemberDTO> _members = new();
     private int _frame;
     private int? _selectedSprite;
     private static readonly Color[] OverlapColors =
@@ -22,8 +21,6 @@ internal sealed class StageView : View
         Color.BrightYellow
     };
 
-    public event Action<int>? SpriteSelected;
-
     public StageView()
     {
         CanFocus = true;
@@ -31,33 +28,32 @@ internal sealed class StageView : View
         {
             Normal = Application.Driver.MakeAttribute(Color.White, Color.Black)
         };
+        var store = TerminalDataStore.Instance;
+        _frame = store.GetFrame();
+        _selectedSprite = store.GetSelectedSprite();
+        store.FrameChanged += f =>
+        {
+            _frame = f;
+            SetNeedsDisplay();
+        };
+        store.SelectedSpriteChanged += s =>
+        {
+            _selectedSprite = s;
+            SetNeedsDisplay();
+        };
+        store.SpritesChanged += ReloadData;
+        store.CastsChanged += ReloadData;
+        store.SpriteChanged += _ => SetNeedsDisplay();
+        store.MemberChanged += _ => SetNeedsDisplay();
         ReloadData();
     }
 
-    public void SetFrame(int frame)
-    {
-        _frame = frame;
-    }
-
-    public void RequestRedraw() => SetNeedsDisplay();
-
-    public void SetSelectedSprite(int? spriteNum)
-    {
-        _selectedSprite = spriteNum;
-        SetNeedsDisplay();
-    }
-
-    public void ReloadData()
+    private void ReloadData()
     {
         var store = TerminalDataStore.Instance;
         _movieWidth = store.StageWidth;
         _movieHeight = store.StageHeight;
-        _sprites = store.Sprites.ToList();
-        _members.Clear();
-        foreach (var m in store.Casts.SelectMany(c => c.Value))
-        {
-            _members[MemberKey(m)] = m;
-        }
+        _sprites = store.GetSprites();
         SetNeedsDisplay();
     }
 
@@ -85,7 +81,8 @@ internal sealed class StageView : View
                      .Where(s => s.BeginFrame <= _frame && _frame <= s.EndFrame)
                      .OrderBy(s => s.LocZ))
         {
-            if (!_members.TryGetValue(sprite.MemberNum, out var member))
+            var member = TerminalDataStore.Instance.FindMember(sprite.MemberNum);
+            if (member == null)
             {
                 continue;
             }
@@ -175,7 +172,7 @@ internal sealed class StageView : View
                 }
                 if (me.X >= x && me.X < x + sw && me.Y >= y && me.Y < y + sh)
                 {
-                    SpriteSelected?.Invoke(sprite.SpriteNum);
+                    TerminalDataStore.Instance.SelectSprite(sprite.SpriteNum);
                     break;
                 }
             }
@@ -183,7 +180,4 @@ internal sealed class StageView : View
         }
         return base.MouseEvent(me);
     }
-
-    private static int MemberKey(LingoMemberDTO member)
-        => (member.CastLibNum << 16) | member.NumberInCast;
 }

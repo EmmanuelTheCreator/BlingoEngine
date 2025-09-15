@@ -29,6 +29,7 @@ internal sealed class PropertyInspector : Window
     private readonly TabView.Tab _behaviorTab;
     private readonly TabView.Tab _filmLoopTab;
     private LingoSpriteDTO? _sprite;
+    private string _lastTab = "Sprite";
 
     public event Action<string, string>? PropertyChanged;
 
@@ -38,6 +39,13 @@ internal sealed class PropertyInspector : Window
         {
             Width = Dim.Fill(),
             Height = Dim.Fill()
+        };
+        _tabs.SelectedTabChanged += (_, e) =>
+        {
+            if (e.NewTab != null)
+            {
+                _lastTab = e.NewTab.Text?.ToString() ?? _lastTab;
+            }
         };
 
         _spriteSpecs.AddRange(new[]
@@ -224,7 +232,9 @@ internal sealed class PropertyInspector : Window
         });
 
         Add(_tabs);
-        SetTabs(_memberTab);
+        SetTabs(_spriteTab, _memberTab);
+        var initial = _tabs.Tabs.FirstOrDefault(t => t.Text.ToString() == _lastTab) ?? _spriteTab;
+        _tabs.SelectedTab = initial;
     }
 
     public void ShowSprite(LingoSpriteDTO? sprite)
@@ -457,7 +467,8 @@ internal sealed class PropertyInspector : Window
             }
             tabsEmpty.Add(_memberTab);
             SetTabs(tabsEmpty.ToArray());
-            _tabs.SelectedTab = _sprite != null ? _spriteTab : _memberTab;
+            var target = _tabs.Tabs.FirstOrDefault(t => t.Text.ToString() == _lastTab);
+            _tabs.SelectedTab = target ?? (_sprite != null ? _spriteTab : _memberTab);
             return;
         }
 
@@ -510,7 +521,8 @@ internal sealed class PropertyInspector : Window
         }
 
         SetTabs(tabs.ToArray());
-        _tabs.SelectedTab = _sprite != null ? _spriteTab : _memberTab;
+        var desired = _tabs.Tabs.FirstOrDefault(t => t.Text.ToString() == _lastTab);
+        _tabs.SelectedTab = desired ?? (_sprite != null ? _spriteTab : _memberTab);
     }
 
     private void AddMember(string name, string value, Type type, bool readOnly = false)
