@@ -33,6 +33,9 @@ if defined LIB_DIR (
     echo   - SDL2 libraries will not be copied ^(unsupported architecture %ARCH%^).
 )
 echo   - Copy demo media from %MEDIA_SRC% to %MEDIA_DEST%.
+echo   - At the end you will be asked to locate your Godot executable.
+echo     When the file dialog appears, select the Godot 4 executable to use (minimum version 4.5).
+echo     Example: C:\path\to\Godot_v4.5-stable_mono_win64.exe
 echo.
 echo Press any key to continue or Ctrl+C to abort.
 pause >nul
@@ -74,6 +77,7 @@ if exist "%MEDIA_SRC%" (
 )
 
 echo.
+echo Select the Godot executable (e.g., C:\path\to\Godot_v4.5-stable_mono_win64.exe). Minimum version 4.5 required.
 powershell -NoProfile -ExecutionPolicy Bypass -Command "Add-Type -AssemblyName System.Windows.Forms; $dlg=New-Object System.Windows.Forms.OpenFileDialog; $dlg.Filter='Godot executable|Godot*.exe'; if($dlg.ShowDialog() -eq 'OK'){ $path=$dlg.FileName; $settingsPath='.vscode/settings.json'; $json=Get-Content $settingsPath | ConvertFrom-Json; $json.'godotTools.editorPath.godot4'=$path; $json | ConvertTo-Json | Set-Content $settingsPath; $ver=[regex]::Match((Split-Path $path -Leaf), 'Godot_v([^_]+)_').Groups[1].Value; & 'scripts\\SetGodotVersion.ps1' $ver } else { Write-Host 'No Godot executable selected.' }"
 
 echo Setup complete.

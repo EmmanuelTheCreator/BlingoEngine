@@ -39,6 +39,10 @@ else
   done
 fi
 echo "  - Copy demo media from '$MEDIA_SRC' to '$MEDIA_DEST'."
+echo "  - At the end you will be prompted to locate your Godot executable."
+echo "    When the file dialog appears, select the Godot 4 binary you want to use."
+echo "    Example: /path/to/Godot_v4.5-stable_mono_linux_x86_64"
+echo "    Minimum required version is 4.5."
 echo
 echo "Press Enter to continue or Ctrl+C to abort."
 read -r
@@ -75,10 +79,13 @@ fi
 
 GODOT_PATH=""
 if command -v zenity >/dev/null 2>&1; then
+  echo "Select the Godot executable (e.g., /path/to/Godot_v4.5-stable_mono_linux_x86_64)"
+  echo "Minimum version 4.5 required."
   GODOT_PATH=$(zenity --file-selection --title="Select Godot executable" 2>/dev/null || true)
 fi
 if [ -z "$GODOT_PATH" ]; then
-  read -p "Enter path to Godot executable: " GODOT_PATH
+  echo "Select the Godot executable (e.g., /path/to/Godot_v4.5-stable_mono_linux_x86_64)"
+  read -p "Minimum version 4.5 required. Enter path to Godot executable: " GODOT_PATH
 fi
 
 if [ -n "$GODOT_PATH" ]; then
