@@ -41,7 +41,7 @@ namespace AbstUI.LGodot.Components
         }
         public bool Visibility { get => Visible; set => Visible = value; }
         string IAbstFrameworkNode.Name { get => Name; set => Name = value; }
-        public string SelectedTabName => GetTabTitle(CurrentTab);
+        public string? SelectedTabName => GetChildren().Count > 0 ? GetTabTitle(CurrentTab) : null;
         public object FrameworkNode => this;
 
 

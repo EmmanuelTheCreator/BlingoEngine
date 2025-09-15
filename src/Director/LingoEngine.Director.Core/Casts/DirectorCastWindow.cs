@@ -100,7 +100,9 @@ namespace LingoEngine.Director.Core.Casts
 
         private void OnMouseEvent(AbstMouseEvent e)
         {
-            if (_tabMap.TryGetValue(_tabs.SelectedTabName, out var tab))
+            var tabName = _tabs.SelectedTabName;
+            if (tabName == null) return;
+            if (_tabMap.TryGetValue(tabName, out var tab))
                 tab.HandleMouseEvent(e);
         }
 

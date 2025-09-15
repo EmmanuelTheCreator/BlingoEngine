@@ -27,7 +27,7 @@ public static class LingoRNetHostSetup
             s.AddSingleton<IRNetPublisher>(p => p.GetRequiredService<IRNetServer>().Publisher);
         });
 
-        reg.AddPreBuildAction(p =>
+        reg.AddPostBuildAction(p =>
         {
             var config = p.GetRequiredService<IRNetConfiguration>();
             

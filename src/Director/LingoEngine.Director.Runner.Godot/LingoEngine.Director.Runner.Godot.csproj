@@ -1,4 +1,4 @@
-<Project Sdk="Godot.NET.Sdk/4.5.0-dev.5">
+﻿<Project Sdk="Godot.NET.Sdk/4.5.0-dev.5">
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
 		<EnableDynamicLoading>true</EnableDynamicLoading>
@@ -19,15 +19,12 @@
     <PackageTags>LingoEngine Director Godot</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
-  <ItemGroup>
-    <Content Include="Media\Fonts\Tahoma.ttf" />
-    <Content Include="Media\Icons\DirectorSharp_Icon.png" />
-    <Content Include="Media\Icons\Director_Icons.png" />
-    <Content Include="Media\Icons\General_Icons.png" />
-    <Content Include="Media\Icons\Painter2_Icons.png" />
-    <Content Include="Media\Icons\Painter_Icons.png" />
-    <Content Include="Properties\launchSettings.json" />
-  </ItemGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	
   <ItemGroup>
     <ProjectReference Include="../LingoEngine.Director.LGodot/LingoEngine.Director.LGodot.csproj" />
     <ProjectReference Include="../../Net/LingoEngine.Net.RNetHost/LingoEngine.Net.RNetHost.csproj" />
@@ -37,4 +34,15 @@
     <None Include="project.godot" />
     <None Include="Scenes/director_runner.tscn" />
   </ItemGroup>
+
+
+	<ItemGroup>
+		<Content Include="Media\Fonts\Tahoma.ttf" />
+		<Content Include="Media\Icons\DirectorSharp_Icon.png" />
+		<Content Include="Media\Icons\Director_Icons.png" />
+		<Content Include="Media\Icons\General_Icons.png" />
+		<Content Include="Media\Icons\Painter2_Icons.png" />
+		<Content Include="Media\Icons\Painter_Icons.png" />
+		<Content Include="Properties\launchSettings.json" />
+	</ItemGroup>
 </Project>

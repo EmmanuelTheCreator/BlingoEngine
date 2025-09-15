@@ -5,6 +5,7 @@ using AbstUI.Styles;
 using AbstUI.Windowing;
 using LingoEngine.Casts;
 using LingoEngine.Core;
+using LingoEngine.Director.Core.Scripts;
 using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Movies;
@@ -24,6 +25,7 @@ namespace LingoEngine.Setup
         private readonly List<(string Name, AbstFontStyle Style, string FileName)> _fonts = new();
         private readonly List<Action<IServiceProvider>> _prebuildActions = new();
         private readonly List<Action<ILingoServiceProvider>> _buildActions = new();
+        private readonly List<Action<IServiceProvider>> _postBuildActions = new();
         private Action<ILingoFrameworkFactory>? _frameworkFactorySetup;
         private IServiceProvider? _serviceProvider;
         private readonly ILingoServiceProvider _lingoServiceProvider;
@@ -99,7 +101,7 @@ namespace LingoEngine.Setup
             _container.AddSingleton<LingoGlobalVars>(sp => sp.GetRequiredService<TGlobalVars>());
             return this;
         }
-        public ILingoEngineRegistration WithGlobalVarsDefault() => WithGlobalVars<LingoGlobalVars>();
+        public ILingoEngineRegistration WithGlobalVarsDefault() => WithGlobalVars<DefaultGlobalVars>();
         public ILingoEngineRegistration WithGlobalVars<TGlobalVars>(Action<TGlobalVars>? setup = null) where TGlobalVars : LingoGlobalVars, new()
         {
             _container.RemoveAll<LingoGlobalVars>();
@@ -140,8 +142,17 @@ namespace LingoEngine.Setup
             _lingoServiceProvider.SetServiceProvider(_serviceProvider);
             foreach (var preBuild in _prebuildActions)
                 preBuild(serviceProvider);
-
-            var player = _lingoServiceProvider.GetRequiredService<LingoPlayer>();
+            LingoPlayer player;
+            try
+            {
+                player = _lingoServiceProvider.GetRequiredService<LingoPlayer>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error building LingoPlayer: " + ex.Message+":"+ex.StackTrace);
+                throw;
+            }
+            
             player.SetActionOnNewMovie(ActionOnNewMovie);
             if (_frameworkFactorySetup != null)
                 _frameworkFactorySetup(_lingoServiceProvider.GetRequiredService<ILingoFrameworkFactory>());
@@ -150,6 +161,10 @@ namespace LingoEngine.Setup
             ApplyProjectSettings();
             if (allowInitializeProject)
                 await InitializeProjectAsync();
+            else
+                FinalyzeBuild();
+            foreach (var postAction in _postBuildActions)
+                postAction(serviceProvider);
             _hasBeenBuild = true;
             return player;
         }
@@ -211,6 +226,11 @@ namespace LingoEngine.Setup
         public ILingoEngineRegistration AddPreBuildAction(Action<IServiceProvider> buildAction)
         {
             _prebuildActions.Add(buildAction);
+            return this;
+        }
+        public ILingoEngineRegistration AddPostBuildAction(Action<IServiceProvider> buildAction)
+        {
+            _postBuildActions.Add(buildAction);
             return this;
         }
 
@@ -307,21 +327,26 @@ namespace LingoEngine.Setup
         {
             if (_projectFactory == null || _serviceProvider == null || _player == null)
                 return;
+            FinalyzeBuild();
+            //    .DiscoverAndSubscribe(_lingoServiceProvider, typeof(LingoEngineRegistration).Assembly);< -slows down startup a lot
+            await _projectFactory.LoadCastLibsAsync(_player.CastLibs, _player);
+            _startupMovie = await _projectFactory.LoadStartupMovieAsync(_lingoServiceProvider, _player);
+        }
+
+        public void FinalyzeBuild()
+        {
             LoadFonts(_lingoServiceProvider);
             _buildActions.ForEach(b => b(_lingoServiceProvider));
             _lingoServiceProvider.GetRequiredService<IAbstCommandManager>()
                  .Register<LingoPlayer, RewindMovieCommand>()
                  .Register<LingoPlayer, PlayMovieCommand>()
                  .Register<LingoPlayer, StepFrameCommand>()
-                 
-                 .Register<LingoFrameLabelManager,DeleteFrameLabelCommand>()
-                 .Register<LingoFrameLabelManager,SetFrameLabelCommand>()
-                 .Register<LingoFrameLabelManager,AddFrameLabelCommand>()
-                 .Register<LingoFrameLabelManager,UpdateFrameLabelCommand>()
+
+                 .Register<LingoFrameLabelManager, DeleteFrameLabelCommand>()
+                 .Register<LingoFrameLabelManager, SetFrameLabelCommand>()
+                 .Register<LingoFrameLabelManager, AddFrameLabelCommand>()
+                 .Register<LingoFrameLabelManager, UpdateFrameLabelCommand>()
                  ;
-            //    .DiscoverAndSubscribe(_lingoServiceProvider, typeof(LingoEngineRegistration).Assembly);< -slows down startup a lot
-            await _projectFactory.LoadCastLibsAsync(_player.CastLibs, _player);
-            _startupMovie = await _projectFactory.LoadStartupMovieAsync(_lingoServiceProvider, _player);
         }
 
         private void LoadFonts(ILingoServiceProvider serviceProvider)

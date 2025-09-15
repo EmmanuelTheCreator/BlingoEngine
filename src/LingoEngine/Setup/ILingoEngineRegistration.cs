@@ -32,6 +32,7 @@ namespace LingoEngine.Setup
         ILingoProjectFactory BuildAndRunProject(Action<IServiceProvider>? afterStart = null);
         ILingoProjectFactory RunProject(Action<IServiceProvider>? afterStart = null);
         ILingoEngineRegistration AddPreBuildAction(Action<IServiceProvider> buildAction);
+        ILingoEngineRegistration AddPostBuildAction(Action<IServiceProvider> buildAction);
         ILingoEngineRegistration AddBuildAction(Action<ILingoServiceProvider> buildAction);
         ILingoEngineRegistration SetProjectFactory<TLingoProjectFactory>() where TLingoProjectFactory : ILingoProjectFactory, new();
         ILingoEngineRegistration RegisterWindows(Action<IAbstFameworkWindowRegistrator>? registerWindows);

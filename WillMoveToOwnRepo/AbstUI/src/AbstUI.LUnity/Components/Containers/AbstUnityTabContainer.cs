@@ -29,8 +29,8 @@ internal class AbstUnityTabContainer : AbstUnityComponent, IAbstFrameworkTabCont
         return go;
     }
 
-    public string SelectedTabName =>
-        _selectedIndex >= 0 && _selectedIndex < _tabs.Count ? _tabs[_selectedIndex].Title : string.Empty;
+    public string? SelectedTabName =>
+        _selectedIndex >= 0 && _selectedIndex < _tabs.Count ? _tabs[_selectedIndex].Title : null;
 
     public void AddTab(IAbstFrameworkTabItem content)
     {

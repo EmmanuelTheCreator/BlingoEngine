@@ -39,7 +39,7 @@ public class AbstBlazorTabContainerComponent : AbstBlazorComponentModelBase, IAb
     internal int SelectedIndex => _selectedIndex;
     internal object? ActiveContentNode => _selectedIndex >= 0 && _selectedIndex < _tabs.Count ? _tabs[_selectedIndex].ContentFrameworkNode : null;
 
-    public string SelectedTabName => _selectedIndex >= 0 && _selectedIndex < _tabs.Count ? _tabs[_selectedIndex].Title : string.Empty;
+    public string? SelectedTabName => _selectedIndex >= 0 && _selectedIndex < _tabs.Count ? _tabs[_selectedIndex].Title : null;
 
     public void AddTab(IAbstFrameworkTabItem content)
     {

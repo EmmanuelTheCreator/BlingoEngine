@@ -16,6 +16,6 @@ public partial class DirectorRunner : Node
                 .WithDirectorGodotEngine(this)
         );
         var sp = services.BuildServiceProvider();
-        sp.GetRequiredService<ILingoEngineRegistration>().Build(sp);
+        sp.GetRequiredService<ILingoEngineRegistration>().Build(sp,false);
     }
 }

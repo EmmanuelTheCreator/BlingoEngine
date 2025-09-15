@@ -49,8 +49,8 @@ namespace AbstUI.SDL2.Components.Containers
         public int BorderThickness { get; set; } = 1;
 
 
-        public string SelectedTabName =>
-            _selectedIndex >= 0 && _selectedIndex < _children.Count ? _children[_selectedIndex].Title : string.Empty;
+        public string? SelectedTabName =>
+            _selectedIndex >= 0 && _selectedIndex < _children.Count ? _children[_selectedIndex].Title : null;
 
         public bool HasFocus => _focused;
 

@@ -5,7 +5,7 @@ namespace AbstUI.Components.Containers
     /// </summary>
     public interface IAbstFrameworkTabContainer : IAbstFrameworkLayoutNode
     {
-        string SelectedTabName { get; }
+        string? SelectedTabName { get; }
 
         /// <summary>Adds a new tab containing the specified node.</summary>
         void AddTab(IAbstFrameworkTabItem content);

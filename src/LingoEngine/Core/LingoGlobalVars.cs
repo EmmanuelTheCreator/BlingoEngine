@@ -5,6 +5,11 @@ namespace LingoEngine.Core
 {
     public class LingoGlobalVars
     {
+        public LingoGlobalVars()
+        {
+            
+        }
+
         public void ClearGlobals()
         {
             OnClearGlobals();

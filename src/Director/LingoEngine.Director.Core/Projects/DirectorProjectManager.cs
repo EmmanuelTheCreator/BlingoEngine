@@ -10,10 +10,6 @@ using LingoEngine.IO;
 using LingoEngine.Movies;
 using LingoEngine.Projects;
 using LingoEngine.Net.RNetContracts;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime;
 
 namespace LingoEngine.Director.Core.Projects;
 
@@ -31,6 +27,7 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
     private readonly RNetConfiguration _rnetConfig;
     private readonly DirectorProjectSettingsRepository _settingsRepo;
     private readonly LingoProjectSettingsRepository _projectSettingsRepo;
+    private bool _settingsHaveBeenLoaded = false;
 
     public DirectorProjectManager(
         LingoProjectSettings settings,
@@ -195,6 +192,7 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
 
     private void SaveProjectSettings()
     {
+        EnsureSettingsLoaded();
         var settingsPath = Path.Combine(GetSettingsPath(), _settings.ProjectName + ".lingo.json");
         _projectSettingsRepo.Save(settingsPath, _settings);
     }
@@ -206,13 +204,28 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
         _settings.CodeFolder = loaded.CodeFolder;
         _settings.MaxSpriteChannelCount = loaded.MaxSpriteChannelCount;
     }
-
+    private void EnsureSettingsLoaded()
+    {
+        if (_settingsHaveBeenLoaded)
+            return;
+        LoadProjectSettings();
+        LoadDirectorSettings();
+        _settingsHaveBeenLoaded = true;
+    }
     public bool CanExecute(SaveDirProjectSettingsCommand command) => true;
 
     public bool Handle(SaveDirProjectSettingsCommand command)
     {
-        _settings.ProjectName = command.ProjectSettings.ProjectName;
-        _settings.ProjectFolder = command.ProjectSettings.ProjectFolder;
+        if (command.ProjectSettings != null)
+        {
+            _settings.ProjectName = command.ProjectSettings.ProjectName;
+            _settings.ProjectFolder = command.ProjectSettings.ProjectFolder;
+        }
+        if (string.IsNullOrWhiteSpace(_settings.ProjectName) || string.IsNullOrWhiteSpace(_settings.ProjectFolder))
+        {
+            // project needs to be set first
+            return false;
+        }
         SaveProjectSettings();
         return true;
     }
