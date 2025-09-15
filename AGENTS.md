@@ -46,8 +46,9 @@ These instructions apply to the entire repository.
 | src/LingoEngine.VerboseLanguage/LingoEngine.VerboseLanguage.csproj | Verbose fluent API for the Lingo language |
 | src/Director/LingoEngine.Director.Core/LingoEngine.Director.Core.csproj | Editor tooling reminiscent of Macromedia Director |
 | src/Net/LingoEngine.Net.RNetContracts/LingoEngine.Net.RNetContracts.csproj | Shared contracts for RNet tooling |
-| src/Net/LingoEngine.Net.RNetClient/LingoEngine.Net.RNetClient.csproj | Client library for RNet tooling |
-| src/Net/LingoEngine.Net.RNetHost/LingoEngine.Net.RNetHost.csproj | SignalR host for RNet tooling |
+| src/Net/LingoEngine.Net.RNetProjectClient/LingoEngine.Net.RNetProjectClient.csproj | Client library for RNet tooling |
+| src/Net/LingoEngine.Net.RNetProjectHost/LingoEngine.Net.RNetProjectHost.csproj | SignalR host for RNet tooling |
+| src/Net/LingoEngine.Net.RNetServer/LingoEngine.Net.RNetServer.csproj | Server that forwards project hosts and clients |
 | src/Net/LingoEngine.Net.RNetTerminal/LingoEngine.Net.RNetTerminal.csproj | Console app for RNet client debugging |
 | src/Director/LingoEngine.Director.SDL2/LingoEngine.Director.SDL2.csproj | SDL2 integration for Director tooling |
 | src/Director/LingoEngine.Director.LGodot/LingoEngine.Director.LGodot.csproj | Godot integration for Director tooling |

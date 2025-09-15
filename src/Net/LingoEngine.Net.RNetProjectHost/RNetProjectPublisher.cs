@@ -12,7 +12,7 @@ using LingoEngine.Sprites;
 using LingoEngine.Stages;
 using LingoEngine.Net.RNetContracts;
 
-namespace LingoEngine.Net.RNetHost;
+namespace LingoEngine.Net.RNetProjectHost;
 
 /// <summary>
 /// Helpers used by the Lingo engine to publish remote debugging information.
@@ -79,7 +79,7 @@ public interface IRNetPublisher
 /// <summary>
 /// Default implementation of <see cref="IRNetPublisher"/>.
 /// </summary>
-internal sealed class RNetPublisher : IRNetPublisher
+internal sealed class RNetProjectPublisher : IRNetPublisher
 {
     private readonly IBus _bus;
     private readonly ConcurrentDictionary<(int SpriteNum, int BeginFrame), SpriteDeltaDto> _spriteQueue = new();
@@ -92,8 +92,8 @@ internal sealed class RNetPublisher : IRNetPublisher
     private ILingoPlayer? _player;
     private ILingoMovie? _movie;
 
-    /// <summary>Initializes a new instance of the <see cref="RNetPublisher"/> class.</summary>
-    public RNetPublisher(IBus bus) => _bus = bus;
+    /// <summary>Initializes a new instance of the <see cref="RNetProjectPublisher"/> class.</summary>
+    public RNetProjectPublisher(IBus bus) => _bus = bus;
 
     /// <inheritdoc />
     public void TryPublishFrame(StageFrameDto frame)

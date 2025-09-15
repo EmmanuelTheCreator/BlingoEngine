@@ -7,20 +7,20 @@ using LingoEngine.Movies;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
-namespace LingoEngine.Net.RNetHost;
+namespace LingoEngine.Net.RNetProjectHost;
 
 /// <summary>
 /// SignalR hub exposing the debugging stream.
 /// </summary>
-public sealed class LingoRNetHub : Hub
+public sealed class LingoRNetProjectHub : Hub
 {
     private readonly IBus _bus;
     private readonly ILingoPlayer _player;
-    private readonly ILogger<LingoRNetHub> _logger;
+    private readonly ILogger<LingoRNetProjectHub> _logger;
     private static readonly ConcurrentDictionary<string, DateTime> _heartbeats = new();
 
-    /// <summary>Initializes a new instance of the <see cref="LingoRNetHub"/> class.</summary>
-    public LingoRNetHub(IBus bus, ILingoPlayer player, ILogger<LingoRNetHub> logger)
+    /// <summary>Initializes a new instance of the <see cref="LingoRNetProjectHub"/> class.</summary>
+    public LingoRNetProjectHub(IBus bus, ILingoPlayer player, ILogger<LingoRNetProjectHub> logger)
     {
         _bus = bus;
         _player = player;
@@ -77,7 +77,7 @@ public sealed class LingoRNetHub : Hub
         {
             if (_player.ActiveMovie == null)
                 return new LingoProjectJsonDto("");
-            var result1 = await _player.RunOnUIThreadAsync<string>(() => 
+            var result1 = await _player.RunOnUIThreadAsync<string>(() =>
             {
                 var json = new JsonStateRepository().SerializeProject((LingoPlayer)_player, new JsonStateRepository.MovieStoreOptions { });
                 return json;
@@ -89,7 +89,7 @@ public sealed class LingoRNetHub : Hub
             _logger.LogError(ex, "Error serializing movie");
             return new LingoProjectJsonDto("");
         }
-       
+
     }
 
     #endregion

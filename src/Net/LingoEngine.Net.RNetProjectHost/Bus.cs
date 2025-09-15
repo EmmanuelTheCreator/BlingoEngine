@@ -1,7 +1,7 @@
 using System.Threading.Channels;
 using LingoEngine.Net.RNetContracts;
 
-namespace LingoEngine.Net.RNetHost;
+namespace LingoEngine.Net.RNetProjectHost;
 
 /// <summary>
 /// Channels used to communicate between the Lingo engine runtime and the SignalR hub.

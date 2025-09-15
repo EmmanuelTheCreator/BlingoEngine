@@ -27,7 +27,7 @@
 	
   <ItemGroup>
     <ProjectReference Include="../LingoEngine.Director.LGodot/LingoEngine.Director.LGodot.csproj" />
-    <ProjectReference Include="../../Net/LingoEngine.Net.RNetHost/LingoEngine.Net.RNetHost.csproj" />
+    <ProjectReference Include="../../Net/LingoEngine.Net.RNetProjectHost/LingoEngine.Net.RNetProjectHost.csproj" />
     <ProjectReference Include="../../LingoEngine.LGodot/LingoEngine.LGodot.csproj" />
   </ItemGroup>
   <ItemGroup>
