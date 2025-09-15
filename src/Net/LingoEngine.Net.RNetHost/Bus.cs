@@ -36,22 +36,22 @@ public interface IBus
     Channel<TransitionDto> Transitions { get; }
 
     /// <summary>Channel carrying member property updates.</summary>
-    Channel<MemberPropertyDto> MemberProperties { get; }
+    Channel<RNetMemberPropertyDto> MemberProperties { get; }
 
     /// <summary>Channel carrying text style updates.</summary>
     Channel<TextStyleDto> TextStyles { get; }
 
     /// <summary>Channel carrying movie property updates.</summary>
-    Channel<MoviePropertyDto> MovieProperties { get; }
+    Channel<RNetMoviePropertyDto> MovieProperties { get; }
 
     /// <summary>Channel carrying stage property updates.</summary>
-    Channel<StagePropertyDto> StageProperties { get; }
+    Channel<RNetStagePropertyDto> StageProperties { get; }
 
     /// <summary>Channel carrying sprite collection change events.</summary>
-    Channel<SpriteCollectionEventDto> SpriteCollectionEvents { get; }
+    Channel<RNetSpriteCollectionEventDto> SpriteCollectionEvents { get; }
 
     /// <summary>Channel carrying commands from the client.</summary>
-    Channel<INetCommand> Commands { get; }
+    Channel<IRNetCommand> Commands { get; }
 }
 
 /// <summary>
@@ -59,118 +59,57 @@ public interface IBus
 /// </summary>
 internal sealed class Bus : IBus
 {
+    private static BoundedChannelOptions Opts(int capacity) => new(capacity)
+    {
+        SingleWriter = true,
+        SingleReader = false,
+        FullMode = BoundedChannelFullMode.DropOldest
+    };
+
     public Channel<StageFrameDto> Frames { get; } =
-        Channel.CreateBounded<StageFrameDto>(new BoundedChannelOptions(2)
-        {
-            SingleWriter = true,
-            SingleReader = false,
-            FullMode = BoundedChannelFullMode.DropOldest
-        });
+        Channel.CreateBounded<StageFrameDto>(Opts(2));
 
     public Channel<SpriteDeltaDto> Deltas { get; } =
-        Channel.CreateBounded<SpriteDeltaDto>(new BoundedChannelOptions(256)
-        {
-            SingleWriter = true,
-            SingleReader = false,
-            FullMode = BoundedChannelFullMode.DropOldest
-        });
+        Channel.CreateBounded<SpriteDeltaDto>(Opts(256));
 
     public Channel<KeyframeDto> Keyframes { get; } =
-        Channel.CreateBounded<KeyframeDto>(new BoundedChannelOptions(256)
-        {
-            SingleWriter = true,
-            SingleReader = false,
-            FullMode = BoundedChannelFullMode.DropOldest
-        });
+        Channel.CreateBounded<KeyframeDto>(Opts(256));
 
     public Channel<FilmLoopDto> FilmLoops { get; } =
-        Channel.CreateBounded<FilmLoopDto>(new BoundedChannelOptions(64)
-        {
-            SingleWriter = true,
-            SingleReader = false,
-            FullMode = BoundedChannelFullMode.DropOldest
-        });
+        Channel.CreateBounded<FilmLoopDto>(Opts(64));
 
     public Channel<SoundEventDto> Sounds { get; } =
-        Channel.CreateBounded<SoundEventDto>(new BoundedChannelOptions(64)
-        {
-            SingleWriter = true,
-            SingleReader = false,
-            FullMode = BoundedChannelFullMode.DropOldest
-        });
+        Channel.CreateBounded<SoundEventDto>(Opts(64));
 
     public Channel<TempoDto> Tempos { get; } =
-        Channel.CreateBounded<TempoDto>(new BoundedChannelOptions(64)
-        {
-            SingleWriter = true,
-            SingleReader = false,
-            FullMode = BoundedChannelFullMode.DropOldest
-        });
+        Channel.CreateBounded<TempoDto>(Opts(64));
 
     public Channel<ColorPaletteDto> ColorPalettes { get; } =
-        Channel.CreateBounded<ColorPaletteDto>(new BoundedChannelOptions(2)
-        {
-            SingleWriter = true,
-            SingleReader = false,
-            FullMode = BoundedChannelFullMode.DropOldest
-        });
+        Channel.CreateBounded<ColorPaletteDto>(Opts(2));
 
     public Channel<FrameScriptDto> FrameScripts { get; } =
-        Channel.CreateBounded<FrameScriptDto>(new BoundedChannelOptions(256)
-        {
-            SingleWriter = true,
-            SingleReader = false,
-            FullMode = BoundedChannelFullMode.DropOldest
-        });
+        Channel.CreateBounded<FrameScriptDto>(Opts(256));
 
     public Channel<TransitionDto> Transitions { get; } =
-        Channel.CreateBounded<TransitionDto>(new BoundedChannelOptions(64)
-        {
-            SingleWriter = true,
-            SingleReader = false,
-            FullMode = BoundedChannelFullMode.DropOldest
-        });
+        Channel.CreateBounded<TransitionDto>(Opts(64));
 
-    public Channel<MemberPropertyDto> MemberProperties { get; } =
-        Channel.CreateBounded<MemberPropertyDto>(new BoundedChannelOptions(256)
-        {
-            SingleWriter = true,
-            SingleReader = false,
-            FullMode = BoundedChannelFullMode.DropOldest
-        });
+    public Channel<RNetMemberPropertyDto> MemberProperties { get; } =
+        Channel.CreateBounded<RNetMemberPropertyDto>(Opts(256));
 
     public Channel<TextStyleDto> TextStyles { get; } =
-        Channel.CreateBounded<TextStyleDto>(new BoundedChannelOptions(256)
-        {
-            SingleWriter = true,
-            SingleReader = false,
-            FullMode = BoundedChannelFullMode.DropOldest
-        });
-    public Channel<MoviePropertyDto> MovieProperties { get; } =
-        Channel.CreateBounded<MoviePropertyDto>(new BoundedChannelOptions(64)
-        {
-            SingleWriter = true,
-            SingleReader = false,
-            FullMode = BoundedChannelFullMode.DropOldest
-        });
+        Channel.CreateBounded<TextStyleDto>(Opts(256));
 
-    public Channel<StagePropertyDto> StageProperties { get; } =
-        Channel.CreateBounded<StagePropertyDto>(new BoundedChannelOptions(64)
-        {
-            SingleWriter = true,
-            SingleReader = false,
-            FullMode = BoundedChannelFullMode.DropOldest
-        });
+    public Channel<RNetMoviePropertyDto> MovieProperties { get; } =
+        Channel.CreateBounded<RNetMoviePropertyDto>(Opts(64));
 
-    public Channel<SpriteCollectionEventDto> SpriteCollectionEvents { get; } =
-        Channel.CreateBounded<SpriteCollectionEventDto>(new BoundedChannelOptions(64)
-        {
-            SingleWriter = true,
-            SingleReader = false,
-            FullMode = BoundedChannelFullMode.DropOldest
-        });
-    public Channel<INetCommand> Commands { get; } =
-        Channel.CreateUnbounded<INetCommand>(new UnboundedChannelOptions
+    public Channel<RNetStagePropertyDto> StageProperties { get; } =
+        Channel.CreateBounded<RNetStagePropertyDto>(Opts(64));
+
+    public Channel<RNetSpriteCollectionEventDto> SpriteCollectionEvents { get; } =
+        Channel.CreateBounded<RNetSpriteCollectionEventDto>(Opts(64));
+
+    public Channel<IRNetCommand> Commands { get; } =
+        Channel.CreateUnbounded<IRNetCommand>(new UnboundedChannelOptions
         {
             SingleReader = true,
             SingleWriter = false

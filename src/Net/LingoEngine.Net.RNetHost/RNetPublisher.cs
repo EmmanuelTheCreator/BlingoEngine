@@ -46,19 +46,19 @@ public interface IRNetPublisher
     void TryPublishTransition(TransitionDto transition);
 
     /// <summary>Attempts to publish a member property without blocking.</summary>
-    void TryPublishMemberProperty(MemberPropertyDto property);
+    void TryPublishMemberProperty(RNetMemberPropertyDto property);
 
     /// <summary>Attempts to publish a movie property without blocking.</summary>
-    void TryPublishMovieProperty(MoviePropertyDto property);
+    void TryPublishMovieProperty(RNetMoviePropertyDto property);
 
     /// <summary>Attempts to publish a stage property without blocking.</summary>
-    void TryPublishStageProperty(StagePropertyDto property);
+    void TryPublishStageProperty(RNetStagePropertyDto property);
 
     /// <summary>Attempts to publish a text style without blocking.</summary>
     void TryPublishTextStyle(TextStyleDto style);
 
     /// <summary>Attempts to publish a sprite collection change without blocking.</summary>
-    void TryPublishSpriteCollectionEvent(SpriteCollectionEventDto evt);
+    void TryPublishSpriteCollectionEvent(RNetSpriteCollectionEventDto evt);
 
     /// <summary>Flushes queued property changes to the bus.</summary>
     void FlushQueuedProperties();
@@ -72,7 +72,7 @@ public interface IRNetPublisher
     /// <summary>Drains queued commands and applies them through the provided delegate.</summary>
     /// <param name="apply">Delegate invoked for each command.</param>
     /// <returns><c>true</c> if any command was processed; otherwise, <c>false</c>.</returns>
-    bool TryDrainCommands(Action<INetCommand> apply);
+    bool TryDrainCommands(Action<IRNetCommand> apply);
 }
 
 /// <summary>
@@ -82,9 +82,9 @@ internal sealed class RNetPublisher : IRNetPublisher
 {
     private readonly IBus _bus;
     private readonly ConcurrentDictionary<int, SpriteDeltaDto> _spriteQueue = new();
-    private readonly ConcurrentDictionary<(int CastLibNum, int NumberInCast, string Prop), MemberPropertyDto> _memberQueue = new();
-    private readonly ConcurrentDictionary<string, MoviePropertyDto> _movieQueue = new();
-    private readonly ConcurrentDictionary<string, StagePropertyDto> _stageQueue = new();
+    private readonly ConcurrentDictionary<(int CastLibNum, int NumberInCast, string Prop), RNetMemberPropertyDto> _memberQueue = new();
+    private readonly ConcurrentDictionary<string, RNetMoviePropertyDto> _movieQueue = new();
+    private readonly ConcurrentDictionary<string, RNetStagePropertyDto> _stageQueue = new();
     private readonly Dictionary<IHasPropertyChanged, PropertyChangedEventHandler> _propSubs = new();
     private readonly List<Action> _managerUnsubs = new();
 
@@ -131,15 +131,15 @@ internal sealed class RNetPublisher : IRNetPublisher
         => _bus.Transitions.Writer.TryWrite(transition);
 
     /// <inheritdoc />
-    public void TryPublishMemberProperty(MemberPropertyDto property)
+    public void TryPublishMemberProperty(RNetMemberPropertyDto property)
         => _memberQueue[(property.CastLibNum, property.NumberInCast, property.Prop)] = property;
 
     /// <inheritdoc />
-    public void TryPublishMovieProperty(MoviePropertyDto property)
+    public void TryPublishMovieProperty(RNetMoviePropertyDto property)
         => _movieQueue[property.Prop] = property;
 
     /// <inheritdoc />
-    public void TryPublishStageProperty(StagePropertyDto property)
+    public void TryPublishStageProperty(RNetStagePropertyDto property)
         => _stageQueue[property.Prop] = property;
 
     /// <inheritdoc />
@@ -147,7 +147,7 @@ internal sealed class RNetPublisher : IRNetPublisher
         => _bus.TextStyles.Writer.TryWrite(style);
 
     /// <inheritdoc />
-    public void TryPublishSpriteCollectionEvent(SpriteCollectionEventDto evt)
+    public void TryPublishSpriteCollectionEvent(RNetSpriteCollectionEventDto evt)
         => _bus.SpriteCollectionEvents.Writer.TryWrite(evt);
 
     /// <inheritdoc />
@@ -187,7 +187,7 @@ internal sealed class RNetPublisher : IRNetPublisher
     }
 
     /// <inheritdoc />
-    public bool TryDrainCommands(Action<INetCommand> apply)
+    public bool TryDrainCommands(Action<IRNetCommand> apply)
     {
         var reader = _bus.Commands.Reader;
         var had = false;
@@ -308,18 +308,18 @@ internal sealed class RNetPublisher : IRNetPublisher
         void Added(TSprite sprite)
         {
             SubscribeSprite(sprite);
-            SpriteDto? dto = sprite is LingoSprite2D s2d ? ToSpriteDto(s2d) : null;
-            TryPublishSpriteCollectionEvent(new SpriteCollectionEventDto(name, SpriteCollectionEventType.Added, sprite.SpriteNum, dto));
+            RNetSpriteDto? dto = sprite is LingoSprite2D s2d ? s2d.ToDto() : null;
+            TryPublishSpriteCollectionEvent(new RNetSpriteCollectionEventDto(name, RNetSpriteCollectionEventType.Added, sprite.SpriteNum, dto));
         }
 
         void Removed(TSprite sprite)
         {
             Unsubscribe(sprite);
-            TryPublishSpriteCollectionEvent(new SpriteCollectionEventDto(name, SpriteCollectionEventType.Removed, sprite.SpriteNum, null));
+            TryPublishSpriteCollectionEvent(new RNetSpriteCollectionEventDto(name, RNetSpriteCollectionEventType.Removed, sprite.SpriteNum, null));
         }
 
         void Cleared()
-            => TryPublishSpriteCollectionEvent(new SpriteCollectionEventDto(name, SpriteCollectionEventType.Cleared, 0, null));
+            => TryPublishSpriteCollectionEvent(new RNetSpriteCollectionEventDto(name, RNetSpriteCollectionEventType.Cleared, 0, null));
 
         manager.SpriteAdded += Added;
         manager.SpriteRemoved += Removed;
@@ -356,7 +356,7 @@ internal sealed class RNetPublisher : IRNetPublisher
         if (sender is ILingoMember member && e.PropertyName is not null)
         {
             var value = member.GetType().GetProperty(e.PropertyName, BindingFlags.Public | BindingFlags.Instance)?.GetValue(member)?.ToString() ?? string.Empty;
-            TryPublishMemberProperty(new MemberPropertyDto(member.CastLibNum, member.NumberInCast, member.Name, e.PropertyName, value));
+            TryPublishMemberProperty(new RNetMemberPropertyDto(member.CastLibNum, member.NumberInCast, e.PropertyName, value));
         }
     }
 
@@ -365,7 +365,7 @@ internal sealed class RNetPublisher : IRNetPublisher
         if (sender is ILingoMovie movie && e.PropertyName is not null)
         {
             var value = movie.GetType().GetProperty(e.PropertyName, BindingFlags.Public | BindingFlags.Instance)?.GetValue(movie)?.ToString() ?? string.Empty;
-            TryPublishMovieProperty(new MoviePropertyDto(e.PropertyName, value));
+            TryPublishMovieProperty(new RNetMoviePropertyDto(e.PropertyName, value));
         }
     }
 
@@ -374,7 +374,7 @@ internal sealed class RNetPublisher : IRNetPublisher
         if (sender is ILingoStage stage && e.PropertyName is not null)
         {
             var value = stage.GetType().GetProperty(e.PropertyName, BindingFlags.Public | BindingFlags.Instance)?.GetValue(stage)?.ToString() ?? string.Empty;
-            TryPublishStageProperty(new StagePropertyDto(e.PropertyName, value));
+            TryPublishStageProperty(new RNetStagePropertyDto(e.PropertyName, value));
         }
     }
 
@@ -405,9 +405,9 @@ internal sealed class RNetPublisher : IRNetPublisher
         }
     }
 
-    private static SpriteDto ToSpriteDto(LingoSprite2D sprite)
+    private static RNetSpriteDto ToRNetSpriteDto(LingoSprite2D sprite)
     {
         var memberId = sprite.Member is ILingoMember m ? (m.CastLibNum * 131114) + m.NumberInCast : 0;
-        return new SpriteDto(sprite.SpriteNum, sprite.LocZ, memberId, (int)sprite.LocH, (int)sprite.LocV, (int)sprite.Width, (int)sprite.Height, (int)sprite.Rotation, (int)sprite.Skew, (int)sprite.Blend, sprite.Ink);
+        return new RNetSpriteDto(sprite.SpriteNum, sprite.LocZ, memberId, (int)sprite.LocH, (int)sprite.LocV, (int)sprite.Width, (int)sprite.Height, (int)sprite.Rotation, (int)sprite.Skew, (int)sprite.Blend, sprite.Ink);
     }
 }

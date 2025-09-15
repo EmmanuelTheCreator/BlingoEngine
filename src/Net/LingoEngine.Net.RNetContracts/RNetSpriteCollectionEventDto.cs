@@ -7,12 +7,12 @@ namespace LingoEngine.Net.RNetContracts;
 /// <param name="Event">Type of collection change.</param>
 /// <param name="SpriteNum">Sprite number affected; unused for cleared events.</param>
 /// <param name="Sprite">Full sprite state for added events; otherwise null.</param>
-public sealed record SpriteCollectionEventDto(string Manager, SpriteCollectionEventType Event, int SpriteNum, SpriteDto? Sprite);
+public sealed record RNetSpriteCollectionEventDto(string Manager, RNetSpriteCollectionEventType Event, int SpriteNum, RNetSpriteDto? Sprite);
 
 /// <summary>
 /// Types of changes that can occur in a sprite collection.
 /// </summary>
-public enum SpriteCollectionEventType
+public enum RNetSpriteCollectionEventType
 {
     /// <summary>A sprite was added to the collection.</summary>
     Added,

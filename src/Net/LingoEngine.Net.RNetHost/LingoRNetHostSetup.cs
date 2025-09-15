@@ -19,22 +19,21 @@ public static class LingoRNetHostSetup
     {
         reg.ServicesMain(s =>
         {
-            s.AddSingleton<IRNetConfiguration>(new Config { Port = port });
+            s.AddSingleton<IRNetConfiguration>(new RNetConfiguration { Port = port });
             s.AddSingleton<IRNetServer, RNetServer>();
             s.AddSingleton<IRNetPublisher>(p => p.GetRequiredService<IRNetServer>().Publisher);
         });
 
         reg.AddPreBuildAction(p =>
         {
-            var server = p.GetRequiredService<IRNetServer>();
-            server.StartAsync().GetAwaiter().GetResult();
+            var config = p.GetRequiredService<IRNetConfiguration>();
+            if (config.AutoStartRNetHostOnStartup)
+            {
+                var server = p.GetRequiredService<IRNetServer>();
+                server.StartAsync().GetAwaiter().GetResult();
+            }
         });
 
         return reg;
-    }
-
-    private sealed class Config : IRNetConfiguration
-    {
-        public int Port { get; set; }
     }
 }

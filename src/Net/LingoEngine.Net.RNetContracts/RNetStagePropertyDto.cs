@@ -5,4 +5,4 @@ namespace LingoEngine.Net.RNetContracts;
 /// </summary>
 /// <param name="Prop">Property name.</param>
 /// <param name="Value">Property value.</param>
-public sealed record StagePropertyDto(string Prop, string Value);
+public sealed record RNetStagePropertyDto(string Prop, string Value);

@@ -29,7 +29,7 @@ public sealed class DirectorRNetClient :
         remove => _client.ConnectionStatusChanged -= value;
     }
 
-    public event Action<INetCommand> NetCommandReceived
+    public event Action<IRNetCommand> NetCommandReceived
     {
         add => _client.NetCommandReceived += value;
         remove => _client.NetCommandReceived -= value;

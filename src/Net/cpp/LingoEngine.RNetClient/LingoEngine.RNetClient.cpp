@@ -116,44 +116,44 @@ void RNetClient::StreamTransitions(std::function<void(const TransitionDto&)> han
     }
 }
 
-void RNetClient::StreamMemberProperties(std::function<void(const MemberPropertyDto&)> handler)
+void RNetClient::StreamMemberProperties(std::function<void(const RNetMemberPropertyDto&)> handler)
 {
     if (_connection)
     {
-        _connection->on("StreamMemberProperties", [handler](const MemberPropertyDto& dto)
+        _connection->on("StreamMemberProperties", [handler](const RNetMemberPropertyDto& dto)
         {
             handler(dto);
         });
     }
 }
 
-void RNetClient::StreamMovieProperties(std::function<void(const MoviePropertyDto&)> handler)
+void RNetClient::StreamMovieProperties(std::function<void(const RNetMoviePropertyDto&)> handler)
 {
     if (_connection)
     {
-        _connection->on("StreamMovieProperties", [handler](const MoviePropertyDto& dto)
+        _connection->on("StreamMovieProperties", [handler](const RNetMoviePropertyDto& dto)
         {
             handler(dto);
         });
     }
 }
 
-void RNetClient::StreamStageProperties(std::function<void(const StagePropertyDto&)> handler)
+void RNetClient::StreamStageProperties(std::function<void(const RNetStagePropertyDto&)> handler)
 {
     if (_connection)
     {
-        _connection->on("StreamStageProperties", [handler](const StagePropertyDto& dto)
+        _connection->on("StreamStageProperties", [handler](const RNetStagePropertyDto& dto)
         {
             handler(dto);
         });
     }
 }
 
-void RNetClient::StreamSpriteCollectionEvents(std::function<void(const SpriteCollectionEventDto&)> handler)
+void RNetClient::StreamSpriteCollectionEvents(std::function<void(const RNetSpriteCollectionEventDto&)> handler)
 {
     if (_connection)
     {
-        _connection->on("StreamSpriteCollectionEvents", [handler](const SpriteCollectionEventDto& dto)
+        _connection->on("StreamSpriteCollectionEvents", [handler](const RNetSpriteCollectionEventDto& dto)
         {
             handler(dto);
         });
@@ -176,7 +176,7 @@ MovieStateDto RNetClient::GetMovieSnapshot()
     return _connection->invoke<MovieStateDto>("GetMovieSnapshot").get();
 }
 
-void RNetClient::SendCommand(const DebugCommandDto& cmd)
+void RNetClient::SendCommand(const RNetCommand& cmd)
 {
     if (_connection)
     {

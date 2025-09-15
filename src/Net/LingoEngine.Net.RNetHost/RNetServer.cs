@@ -28,7 +28,7 @@ public interface IRNetServer
     event Action<LingoNetConnectionState> ConnectionStatusChanged;
 
     /// <summary>Raised when a command is received from a client.</summary>
-    event Action<INetCommand> NetCommandReceived;
+    event Action<IRNetCommand> NetCommandReceived;
 
     /// <summary>Starts the server without blocking.</summary>
     Task StartAsync(CancellationToken ct = default);
@@ -59,13 +59,14 @@ public sealed class RNetServer : IRNetServer
     private sealed class DefaultConfig : IRNetConfiguration
     {
         public int Port { get; set; } = 61699;
+        public bool AutoStartRNetHostOnStartup { get; set; }
     }
 
     /// <inheritdoc />
     public event Action<LingoNetConnectionState>? ConnectionStatusChanged;
 
     /// <inheritdoc />
-    public event Action<INetCommand>? NetCommandReceived;
+    public event Action<IRNetCommand>? NetCommandReceived;
 
     /// <inheritdoc />
     public LingoNetConnectionState ConnectionState
@@ -154,7 +155,7 @@ public sealed class RNetServer : IRNetServer
         }
     }
 
-    private async Task PumpCommandsAsync(ChannelReader<INetCommand> reader, CancellationToken ct)
+    private async Task PumpCommandsAsync(ChannelReader<IRNetCommand> reader, CancellationToken ct)
     {
         while (await reader.WaitToReadAsync(ct).ConfigureAwait(false))
         {

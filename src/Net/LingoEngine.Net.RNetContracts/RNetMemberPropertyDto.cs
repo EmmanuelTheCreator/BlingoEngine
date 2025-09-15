@@ -5,7 +5,6 @@ namespace LingoEngine.Net.RNetContracts;
 /// </summary>
 /// <param name="CastLibNum">Cast library number.</param>
 /// <param name="NumberInCast">Member number within its cast library.</param>
-/// <param name="MemberName">Name of the cast member.</param>
 /// <param name="Prop">Property name.</param>
 /// <param name="Value">Property value.</param>
-public sealed record MemberPropertyDto(int CastLibNum, int NumberInCast, string MemberName, string Prop, string Value);
+public sealed record RNetMemberPropertyDto(int CastLibNum, int NumberInCast, string Prop, string Value);

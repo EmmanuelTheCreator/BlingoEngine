@@ -5,4 +5,4 @@ namespace LingoEngine.Net.RNetContracts;
 /// </summary>
 /// <param name="Prop">Property name.</param>
 /// <param name="Value">Property value.</param>
-public sealed record MoviePropertyDto(string Prop, string Value);
+public sealed record RNetMoviePropertyDto(string Prop, string Value);

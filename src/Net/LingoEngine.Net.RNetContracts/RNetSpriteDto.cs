@@ -14,4 +14,4 @@ namespace LingoEngine.Net.RNetContracts;
 /// <param name="Skew">Skew value.</param>
 /// <param name="Blend">Blend percentage.</param>
 /// <param name="Ink">Ink mode.</param>
-public sealed record SpriteDto(int SpriteNum, int Z, int MemberId, int LocH, int LocV, int Width, int Height, int Rotation, int Skew, int Blend, int Ink);
+public sealed record RNetSpriteDto(int SpriteNum, int Z, int MemberId, int LocH, int LocV, int Width, int Height, int Rotation, int Skew, int Blend, int Ink);

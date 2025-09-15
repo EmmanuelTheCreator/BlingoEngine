@@ -11,13 +11,13 @@ using LingoEngine.Net.RNetHost;
 using LingoEngine.Setup;
 
 var registration = LingoEngineSetup.Create();
-registration.WithRNetHostServer(); // listens on http://localhost:61699 by default
+registration.WithRNetHostServer(); // listens on port 61699 by default
 ```
 
-To listen on a different address, provide the desired URL:
+To listen on a different port:
 
 ```csharp
-registration.WithRNetHostServer("http://0.0.0.0:7000");
+registration.WithRNetHostServer(7000);
 ```
 
-`WithRNetHostServer` registers the server and starts it as the engine builds, making it available for remote clients to connect.
+`WithRNetHostServer` registers the server. It will start automatically during engine build only if `IRNetConfiguration.AutoStartRNetHostOnStartup` is set to `true`.

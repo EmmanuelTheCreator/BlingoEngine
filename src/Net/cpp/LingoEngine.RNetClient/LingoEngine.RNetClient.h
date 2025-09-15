@@ -45,7 +45,7 @@ struct SpriteDeltaDto {
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SpriteDeltaDto, Frame, SpriteNum, Z, MemberId, LocH, LocV, Width, Height, Rotation, Skew, Blend, Ink);
 
-struct SpriteDto {
+struct RNetSpriteDto {
     int SpriteNum;
     int Z;
     int MemberId;
@@ -58,7 +58,7 @@ struct SpriteDto {
     int Blend;
     int Ink;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SpriteDto, SpriteNum, Z, MemberId, LocH, LocV, Width, Height, Rotation, Skew, Blend, Ink);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RNetSpriteDto, SpriteNum, Z, MemberId, LocH, LocV, Width, Height, Rotation, Skew, Blend, Ink);
 
 struct KeyframeDto {
     int Frame;
@@ -108,42 +108,41 @@ struct TransitionDto {
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(TransitionDto, Frame, Type, Duration);
 
-struct MemberPropertyDto {
+struct RNetMemberPropertyDto {
     int CastLibNum;
     int NumberInCast;
-    std::string MemberName;
     std::string Prop;
     std::string Value;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MemberPropertyDto, CastLibNum, NumberInCast, MemberName, Prop, Value);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RNetMemberPropertyDto, CastLibNum, NumberInCast, Prop, Value);
 
-struct MoviePropertyDto {
+struct RNetMoviePropertyDto {
     std::string Prop;
     std::string Value;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MoviePropertyDto, Prop, Value);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RNetMoviePropertyDto, Prop, Value);
 
-struct StagePropertyDto {
+struct RNetStagePropertyDto {
     std::string Prop;
     std::string Value;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(StagePropertyDto, Prop, Value);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RNetStagePropertyDto, Prop, Value);
 
-enum class SpriteCollectionEventType { Added, Removed, Cleared };
-NLOHMANN_JSON_SERIALIZE_ENUM(SpriteCollectionEventType,
+enum class RNetSpriteCollectionEventType { Added, Removed, Cleared };
+NLOHMANN_JSON_SERIALIZE_ENUM(RNetSpriteCollectionEventType,
     {
-        {SpriteCollectionEventType::Added, "Added"},
-        {SpriteCollectionEventType::Removed, "Removed"},
-        {SpriteCollectionEventType::Cleared, "Cleared"},
+        {RNetSpriteCollectionEventType::Added, "Added"},
+        {RNetSpriteCollectionEventType::Removed, "Removed"},
+        {RNetSpriteCollectionEventType::Cleared, "Cleared"},
     });
 
-struct SpriteCollectionEventDto {
+struct RNetSpriteCollectionEventDto {
     std::string Manager;
-    SpriteCollectionEventType Event;
+    RNetSpriteCollectionEventType Event;
     int SpriteNum;
-    std::optional<SpriteDto> Sprite;
+    std::optional<RNetSpriteDto> Sprite;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(SpriteCollectionEventDto, Manager, Event, SpriteNum, Sprite);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RNetSpriteCollectionEventDto, Manager, Event, SpriteNum, Sprite);
 
 struct TextStyleDto {
     std::string MemberName;
@@ -190,10 +189,10 @@ struct ResumeCmd {};
 inline void to_json(nlohmann::json& j, const ResumeCmd&) { j = nlohmann::json::object(); }
 inline void from_json(const nlohmann::json&, ResumeCmd&) {}
 
-struct DebugCommandDto {
+struct RNetCommand {
     std::variant<SetSpritePropCmd, SetMemberPropCmd, GoToFrameCmd, PauseCmd, ResumeCmd> Command;
 };
-inline void to_json(nlohmann::json& j, const DebugCommandDto& cmd)
+inline void to_json(nlohmann::json& j, const RNetCommand& cmd)
 {
     std::visit([&j](const auto& v) { j = v; }, cmd.Command);
 }
@@ -214,14 +213,14 @@ public:
     void StreamColorPalettes(std::function<void(const ColorPaletteDto&)> handler);
     void StreamFrameScripts(std::function<void(const FrameScriptDto&)> handler);
     void StreamTransitions(std::function<void(const TransitionDto&)> handler);
-    void StreamMemberProperties(std::function<void(const MemberPropertyDto&)> handler);
-    void StreamMovieProperties(std::function<void(const MoviePropertyDto&)> handler);
-    void StreamStageProperties(std::function<void(const StagePropertyDto&)> handler);
-    void StreamSpriteCollectionEvents(std::function<void(const SpriteCollectionEventDto&)> handler);
+    void StreamMemberProperties(std::function<void(const RNetMemberPropertyDto&)> handler);
+    void StreamMovieProperties(std::function<void(const RNetMoviePropertyDto&)> handler);
+    void StreamStageProperties(std::function<void(const RNetStagePropertyDto&)> handler);
+    void StreamSpriteCollectionEvents(std::function<void(const RNetSpriteCollectionEventDto&)> handler);
     void StreamTextStyles(std::function<void(const TextStyleDto&)> handler);
 
     MovieStateDto GetMovieSnapshot();
-    void SendCommand(const DebugCommandDto& cmd);
+    void SendCommand(const RNetCommand& cmd);
     void SendHeartbeat();
 
 private:

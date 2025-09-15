@@ -30,9 +30,10 @@ public class RNetSettingsDialog : IAbstCommandHandler<OpenRNetSettingsCommand>
         root.Compose()
             .NewLine("PortRow")
             .AddLabel("PortLabel", "Port:", 11, 60)
-            .AddNumericInputInt("PortInput", _settings, s => s.Port, 60);
+            .AddNumericInputInt("PortInput", _settings, s => s.Port, 60)
+            .NewLine("AutoStartRow")
+            .AddStateButton("AutoStartHost", _settings, null, s => s.AutoStartRNetHostOnStartup, "Auto-start host on startup");
         _windowManager.ShowCustomDialog("Remote Settings", root.Framework<IAbstFrameworkPanel>());
         return true;
     }
 }
-
