@@ -5,7 +5,7 @@ namespace LingoEngine.IO;
 
 internal static class TempoSpriteDtoConverter
 {
-    public static LingoTempoSpriteDTO ToDto(LingoTempoSprite sprite)
+    public static LingoTempoSpriteDTO ToDto(this LingoTempoSprite sprite)
     {
         return new LingoTempoSpriteDTO
         {

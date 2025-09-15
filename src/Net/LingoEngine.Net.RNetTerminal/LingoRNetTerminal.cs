@@ -18,13 +18,25 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     private int _port;
     private bool _connected;
     private ListView? _logList;
-    private Window? _uiWin;
-    private View? _workspace;
+    private Window? _scoreWindow;
+    private Window? _stageWindow;
+    private Window? _castWindow;
+    private View? _mainArea;
+    private Window? _propertyWindow;
+    private Window? _logWindow;
     private PropertyInspector? _propertyInspector;
     private ScoreView? _scoreView;
     private StageView? _stageView;
     private CastView? _castView;
+    private Label? _connectionStatusLabel;
+    private Button? _logToggleButton;
+    private bool _logsCollapsed;
     private StatusItem? _infoItem;
+
+    private const int PropertyInspectorWidth = 22;
+    private const int StageWindowHeight = 12;
+    private const int CastWindowHeight = 12;
+    private int _logExpandedWidth = 40;
 
     public LingoRNetTerminal()
     {
@@ -79,33 +91,148 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             new MenuBarItem("_Edit", Array.Empty<MenuItem>()),
             new MenuBarItem("_Window", new[]
             {
-                new MenuItem("_Score", string.Empty, ShowScore),
-                new MenuItem("_Cast", string.Empty, ShowCast),
-                new MenuItem("_Stage", string.Empty, ShowStage),
-                new MenuItem("_Property Window", string.Empty, ShowPropertyInspector)
+                new MenuItem("_Stage Mode", string.Empty, () => SwitchToStageMode()),
+                new MenuItem("_Cast Mode", string.Empty, () => SwitchToCastMode())
             }),
             new MenuBarItem("_Help", Array.Empty<MenuItem>())
         });
 
         top.Add(menu);
 
-        _uiWin = new Window("Score")
+        _connectionStatusLabel = new Label(string.Empty)
+        {
+            X = Pos.AnchorEnd(15),
+            Y = 0,
+            Width = 15,
+            TextAlignment = TextAlignment.Right,
+            ColorScheme = Colors.Menu
+        };
+        top.Add(_connectionStatusLabel);
+
+        _mainArea = new View
         {
             X = 0,
             Y = 1,
-            Width = Dim.Percent(75),
+            Width = Dim.Fill(PropertyInspectorWidth + _logExpandedWidth),
             Height = Dim.Fill() - 1
         };
-        _workspace = new View
+
+        BuildScoreWindow();
+        BuildStageWindow();
+        BuildCastWindow();
+
+        _mainArea.Add(_scoreWindow!);
+        _mainArea.Add(_stageWindow!);
+        _mainArea.Add(_castWindow!);
+        top.Add(_mainArea);
+
+        BuildRightPanel(top);
+
+        _infoItem = new StatusItem(Key.Null, "Frame:0 Channel:0 Sprite:- Member:", null);
+        var status = new StatusBar(new[] { _infoItem });
+        top.Add(status);
+
+        SwitchToStageMode();
+        UpdateConnectionStatus();
+        UpdateRightPanelLayout();
+    }
+
+    private void BuildScoreWindow()
+    {
+        _scoreWindow = new Window("Score")
         {
             X = 0,
             Y = 0,
-            Width = Dim.Percent(70),
+            Width = Dim.Fill(),
             Height = Dim.Fill()
         };
+
+        _scoreView = new ScoreView
+        {
+            X = 0,
+            Y = 0,
+            Width = Dim.Fill(),
+            Height = Dim.Fill()
+        };
+        _scoreView.PlayFromHere += f => Log($"Play from {f}");
+        _scoreView.InfoChanged += (f, ch, sp, mem) =>
+        {
+            UpdateInfo(f, ch, sp, mem);
+            TerminalDataStore.Instance.SetFrame(f);
+        };
+        _scoreWindow.Add(_scoreView);
+    }
+
+    private void BuildStageWindow()
+    {
+        _stageWindow = new Window("Stage")
+        {
+            X = 0,
+            Y = 0,
+            Width = Dim.Fill(),
+            Height = Dim.Sized(StageWindowHeight)
+        };
+
+        var collapse = new Button("[-]")
+        {
+            X = Pos.AnchorEnd(4),
+            Y = 0,
+            Width = 3,
+            CanFocus = false
+        };
+        collapse.Clicked += () => SwitchToCastMode();
+
+        _stageView = new StageView
+        {
+            X = 0,
+            Y = 1,
+            Width = Dim.Fill(),
+            Height = Dim.Fill()
+        };
+
+        _stageWindow.Add(_stageView, collapse);
+    }
+
+    private void BuildCastWindow()
+    {
+        _castWindow = new Window("Cast")
+        {
+            X = 0,
+            Y = 0,
+            Width = Dim.Fill(),
+            Height = Dim.Sized(CastWindowHeight),
+            Visible = false
+        };
+
+        _castView = new CastView
+        {
+            X = 0,
+            Y = 1,
+            Width = Dim.Fill(),
+            Height = Dim.Fill()
+        };
+        _castView.MemberSelected += m =>
+        {
+            Log($"memberSelected {m.Name}");
+            _propertyInspector?.ShowMember(m);
+        };
+
+        _castWindow.Add(_castView);
+    }
+
+    private void BuildRightPanel(Toplevel top)
+    {
+        _propertyWindow = new Window("Properties")
+        {
+            X = Pos.AnchorEnd(PropertyInspectorWidth + _logExpandedWidth),
+            Y = 1,
+            Width = PropertyInspectorWidth,
+            Height = Dim.Fill() - 1
+        };
+
         _propertyInspector = new PropertyInspector
         {
-            X = Pos.Percent(70),
+            X = 0,
             Y = 0,
             Width = Dim.Fill(),
             Height = Dim.Fill()
@@ -134,36 +261,52 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         };
         _propertyInspector.KeyPress += args =>
         {
-            if (args.KeyEvent.Key == Key.Tab && _workspace?.Subviews.Count > 0)
+            if (args.KeyEvent.Key == Key.Tab)
             {
-                _workspace.Subviews[0].SetFocus();
+                if (_stageWindow?.Visible == true)
+                {
+                    _scoreView?.SetFocus();
+                }
+                else if (_castWindow?.Visible == true)
+                {
+                    _castView?.SetFocus();
+                }
+                else
+                {
+                    _scoreView?.SetFocus();
+                }
                 args.Handled = true;
             }
         };
-        _uiWin.Add(_workspace, _propertyInspector);
-        top.Add(_uiWin);
+        _propertyWindow.Add(_propertyInspector);
+        top.Add(_propertyWindow);
 
-        var logWin = new Window("Logs")
+        _logWindow = new Window("Logs")
         {
-            X = Pos.Percent(75),
+            X = Pos.AnchorEnd(_logExpandedWidth),
             Y = 1,
-            Width = Dim.Fill(),
+            Width = _logExpandedWidth,
             Height = Dim.Fill() - 1
         };
+
+        _logToggleButton = new Button("<")
+        {
+            X = Pos.AnchorEnd(3),
+            Y = 0,
+            Width = 3,
+            CanFocus = false
+        };
+        _logToggleButton.Clicked += ToggleLogs;
+
         _logList = new ListView(_logs)
         {
+            X = 0,
+            Y = 1,
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
-        logWin.Add(_logList);
-        top.Add(logWin);
-
-        _infoItem = new StatusItem(Key.Null, "Frame:0 Channel:0 Sprite:- Member:", null);
-        var status = new StatusBar(new[] { _infoItem });
-        top.Add(status);
-
-        ShowScore();
-        ShowStage();
+        _logWindow.Add(_logToggleButton, _logList);
+        top.Add(_logWindow);
     }
 
     private void SaveSettings()
@@ -172,78 +315,133 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         _settings.Save();
     }
 
-    private void ShowPropertyInspector() => _propertyInspector?.SetFocus();
-
-    private void ShowScore()
+    private void ToggleLogs()
     {
-        _uiWin!.Title = "Score";
-        _workspace?.RemoveAll();
-        _scoreView = new ScoreView
-        {
-            Width = Dim.Fill(),
-            Height = Dim.Fill(),
-        };
-
-        _scoreView.PlayFromHere += f => Log($"Play from {f}");
-        _scoreView.InfoChanged += (f, ch, sp, mem) =>
-        {
-            UpdateInfo(f, ch, sp, mem);
-            TerminalDataStore.Instance.SetFrame(f);
-        };
-        _workspace?.Add(_scoreView);
-        _scoreView.SetFocus();
-        _scoreView.TriggerInfo();
+        _logsCollapsed = !_logsCollapsed;
+        UpdateRightPanelLayout();
     }
 
-    private void ShowCast()
+    private void UpdateRightPanelLayout()
     {
-        _uiWin!.Title = "Cast";
-        _workspace?.RemoveAll();
-        _castView = new CastView
+        var logWidth = _logsCollapsed ? 3 : _logExpandedWidth;
+
+        if (_mainArea != null)
         {
-            Width = Dim.Fill(),
-            Height = Dim.Fill()
-        };
-        _castView.MemberSelected += m =>
+            _mainArea.Width = Dim.Fill(PropertyInspectorWidth + logWidth);
+        }
+
+        if (_propertyWindow != null)
         {
-            Log($"memberSelected {m.Name}");
-            _propertyInspector?.ShowMember(m);
-        };
-        _workspace?.Add(_castView);
-        _castView.SetFocus();
+            _propertyWindow.X = Pos.AnchorEnd(PropertyInspectorWidth + logWidth);
+            _propertyWindow.Width = PropertyInspectorWidth;
+        }
+
+        if (_logWindow != null)
+        {
+            _logWindow.X = Pos.AnchorEnd(logWidth);
+            _logWindow.Width = logWidth;
+        }
+
+        if (_logToggleButton != null)
+        {
+            _logToggleButton.Text = _logsCollapsed ? ">" : "<";
+        }
+
+        if (_logList != null)
+        {
+            _logList.Visible = !_logsCollapsed;
+        }
+
+        UpdateMainAreaLayout();
+        _mainArea?.SetNeedsDisplay();
+        _propertyWindow?.SetNeedsDisplay();
+        _logWindow?.SetNeedsDisplay();
+        _scoreWindow?.SetNeedsDisplay();
+        _stageWindow?.SetNeedsDisplay();
+        _castWindow?.SetNeedsDisplay();
     }
 
-    private void ShowStage()
+    private void UpdateMainAreaLayout()
     {
-        _uiWin!.Title = "Stage";
-        _workspace?.RemoveAll();
-
-        _stageView = new StageView
+        if (_scoreWindow == null)
         {
-            X = 0,
-            Y = 0,
-            Width = Dim.Fill(),
-            Height = Dim.Percent(75)
-        };
+            return;
+        }
 
-        _scoreView = new ScoreView
+        var offset = 0;
+
+        if (_stageWindow != null)
         {
-            X = 0,
-            Y = Pos.Percent(75),
-            Width = Dim.Fill(),
-            Height = Dim.Fill()
-        };
+            _stageWindow.Y = 0;
+            if (_stageWindow.Visible)
+            {
+                _stageWindow.Height = Dim.Sized(StageWindowHeight);
+                offset = StageWindowHeight;
+            }
+        }
 
-        _scoreView.PlayFromHere += f => Log($"Play from {f}");
-        _scoreView.InfoChanged += (f, ch, sp, mem) =>
+        if (_castWindow != null)
         {
-            UpdateInfo(f, ch, sp, mem);
-            TerminalDataStore.Instance.SetFrame(f);
-        };
+            _castWindow.Y = 0;
+            if (_castWindow.Visible)
+            {
+                _castWindow.Height = Dim.Sized(CastWindowHeight);
+                offset = CastWindowHeight;
+            }
+        }
 
-        _workspace?.Add(_stageView, _scoreView);
-        _scoreView.SetFocus();
-        _scoreView.TriggerInfo();
+        _scoreWindow.Y = offset;
+        _scoreWindow.Height = Dim.Fill();
+    }
+
+    private void SwitchToStageMode()
+    {
+        if (_stageWindow == null || _scoreWindow == null)
+        {
+            return;
+        }
+
+        _stageWindow.Visible = true;
+        if (_castWindow != null)
+        {
+            _castWindow.Visible = false;
+        }
+
+        UpdateMainAreaLayout();
+        _scoreView?.SetFocus();
+        _scoreView?.TriggerInfo();
+    }
+
+    private void SwitchToCastMode()
+    {
+        if (_castWindow == null || _scoreWindow == null)
+        {
+            return;
+        }
+
+        _castWindow.Visible = true;
+        if (_stageWindow != null)
+        {
+            _stageWindow.Visible = false;
+        }
+
+        UpdateMainAreaLayout();
+        if (_castView != null)
+        {
+            _castView.SetFocus();
+        }
+        _scoreView?.TriggerInfo();
+    }
+
+    private void UpdateConnectionStatus()
+    {
+        if (_connectionStatusLabel == null)
+        {
+            return;
+        }
+
+        _connectionStatusLabel.Text = _connected ? "Connected" : "Disconnected";
+        _connectionStatusLabel.SetNeedsDisplay();
     }
 
     private void UpdateInfo(int frame, int channel, SpriteRef? sprite, MemberRef? member)
@@ -307,6 +505,7 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         }
         _connected = false;
         Log("Disconnected.");
+        UpdateConnectionStatus();
 
     }
 
@@ -319,6 +518,7 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         {
             await _client.ConnectAsync(hubUrl, new HelloDto("test-project", "console", "1.0", "RNetTerminal"));
             _connected = true;
+            UpdateConnectionStatus();
             Log("Connected.");
             _cts = new CancellationTokenSource();
             _ = Task.Run(ReceiveFramesAsync);

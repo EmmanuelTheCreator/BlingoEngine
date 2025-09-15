@@ -27,4 +27,87 @@ public static class TestMovieBuilder
         new() { Name = "score", SpriteNum = 6, Member =new LingoMemberRefDTO{CastLibNum = 1, MemberNum = 4}, BeginFrame = 1, EndFrame = 60, LocH = 50, LocV = 50, Width = 100, Height = 20 },
         new() { Name = "Img30x80", SpriteNum = 7, Member =new LingoMemberRefDTO{CastLibNum = 1, MemberNum = 5 }, BeginFrame = 1, EndFrame = 60, LocH = 250, LocV = 350, Width = 30, Height = 80 },
     };
+
+    public static IReadOnlyList<LingoTempoSpriteDTO> BuildTempoSprites() => new List<LingoTempoSpriteDTO>
+    {
+        new()
+        {
+            Name = "Tempo Change",
+            BeginFrame = 1,
+            EndFrame = 1,
+            Frame = 1,
+            Action = LingoTempoSpriteActionDTO.ChangeTempo,
+            Tempo = 60
+        },
+        new()
+        {
+            Name = "Wait",
+            BeginFrame = 120,
+            EndFrame = 120,
+            Frame = 120,
+            Action = LingoTempoSpriteActionDTO.WaitSeconds,
+            WaitSeconds = 1.5f
+        }
+    };
+
+    public static IReadOnlyList<LingoColorPaletteSpriteDTO> BuildPaletteSprites() => new List<LingoColorPaletteSpriteDTO>
+    {
+        new()
+        {
+            Name = "Palette",
+            BeginFrame = 1,
+            EndFrame = 60,
+            Frame = 1,
+            Settings = new LingoColorPaletteFrameSettingsDTO
+            {
+                ColorPaletteId = 1,
+                Rate = 12,
+                Cycles = 2,
+                Action = LingoColorPaletteActionDTO.ColorCycling,
+                TransitionOption = LingoColorPaletteTransitionOptionDTO.FadeToBlack,
+                CycleOption = LingoColorPaletteCycleOptionDTO.AutoReverse
+            }
+        }
+    };
+
+    public static IReadOnlyList<LingoTransitionSpriteDTO> BuildTransitionSprites() => new List<LingoTransitionSpriteDTO>
+    {
+        new()
+        {
+            Name = "Fade",
+            BeginFrame = 1,
+            EndFrame = 20,
+            Member = new LingoMemberRefDTO { CastLibNum = 1, MemberNum = 6 },
+            Settings = new LingoTransitionFrameSettingsDTO
+            {
+                TransitionId = 1,
+                TransitionName = "Fade",
+                Duration = 0.5f,
+                Smoothness = 0.5f,
+                Affects = LingoTransitionAffectsDTO.EntireStage,
+                Rect = new LingoRectDTO { Left = 0, Top = 0, Right = 640, Bottom = 480 }
+            }
+        }
+    };
+
+    public static IReadOnlyList<LingoSpriteSoundDTO> BuildSoundSprites() => new List<LingoSpriteSoundDTO>
+    {
+        new()
+        {
+            Name = "Intro Sound",
+            Channel = 1,
+            BeginFrame = 1,
+            EndFrame = 30,
+            Member = new LingoMemberRefDTO { CastLibNum = 1, MemberNum = 7 }
+        },
+        new()
+        {
+            Name = "Effect",
+            Channel = 2,
+            BeginFrame = 10,
+            EndFrame = 40,
+            Member = new LingoMemberRefDTO { CastLibNum = 1, MemberNum = 8 }
+        }
+    };
+
 }

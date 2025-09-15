@@ -5,7 +5,7 @@ namespace LingoEngine.IO;
 
 internal static class TransitionSpriteDtoConverter
 {
-    public static LingoTransitionSpriteDTO ToDto(LingoTransitionSprite sprite)
+    public static LingoTransitionSpriteDTO ToDto(this LingoTransitionSprite sprite)
     {
         return new LingoTransitionSpriteDTO
         {
@@ -13,8 +13,8 @@ internal static class TransitionSpriteDtoConverter
             BeginFrame = sprite.BeginFrame,
             EndFrame = sprite.EndFrame,
             Lock = sprite.Lock,
-            Member = MemberRefDtoConverter.ToDto(sprite.Member),
-            Settings = sprite.GetSettings() is { } settings ? ToDto(settings) : null
+            Member = sprite.Member.ToDto(),
+            Settings = sprite.GetSettings() is { } settings ? settings.ToDto() : null
         };
     }
 
@@ -31,7 +31,7 @@ internal static class TransitionSpriteDtoConverter
         }
     }
 
-    public static LingoTransitionFrameSettingsDTO ToDto(LingoTransitionFrameSettings settings)
+    public static LingoTransitionFrameSettingsDTO ToDto(this LingoTransitionFrameSettings settings)
     {
         return new LingoTransitionFrameSettingsDTO
         {
@@ -40,7 +40,7 @@ internal static class TransitionSpriteDtoConverter
             Duration = settings.Duration,
             Smoothness = settings.Smoothness,
             Affects = (LingoTransitionAffectsDTO)settings.Affects,
-            Rect = RectDtoConverter.ToDto(settings.Rect)
+            Rect = settings.Rect.ToDto()
         };
     }
 

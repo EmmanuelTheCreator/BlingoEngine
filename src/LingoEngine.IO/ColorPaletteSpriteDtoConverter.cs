@@ -5,7 +5,7 @@ namespace LingoEngine.IO;
 
 internal static class ColorPaletteSpriteDtoConverter
 {
-    public static LingoColorPaletteSpriteDTO ToDto(LingoColorPaletteSprite sprite)
+    public static LingoColorPaletteSpriteDTO ToDto(this LingoColorPaletteSprite sprite)
     {
         return new LingoColorPaletteSpriteDTO
         {
@@ -14,8 +14,8 @@ internal static class ColorPaletteSpriteDtoConverter
             EndFrame = sprite.EndFrame,
             Lock = sprite.Lock,
             Frame = sprite.Frame,
-            Member = MemberRefDtoConverter.ToDto(sprite.Member),
-            Settings = sprite.GetSettings() is { } settings ? ToDto(settings) : null
+            Member = sprite.Member.ToDto(),
+            Settings = sprite.GetSettings() is { } settings ? settings.ToDto() : null
         };
     }
 
@@ -38,7 +38,7 @@ internal static class ColorPaletteSpriteDtoConverter
         }
     }
 
-    public static LingoColorPaletteFrameSettingsDTO ToDto(LingoColorPaletteFrameSettings settings)
+    public static LingoColorPaletteFrameSettingsDTO ToDto(this LingoColorPaletteFrameSettings settings)
     {
         return new LingoColorPaletteFrameSettingsDTO
         {

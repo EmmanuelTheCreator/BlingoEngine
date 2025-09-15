@@ -5,7 +5,7 @@ namespace LingoEngine.IO;
 
 internal static class RectDtoConverter
 {
-    public static LingoRectDTO ToDto(ARect rect)
+    public static LingoRectDTO ToDto(this ARect rect)
     {
         return new LingoRectDTO
         {

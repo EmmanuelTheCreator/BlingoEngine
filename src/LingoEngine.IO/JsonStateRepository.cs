@@ -68,16 +68,16 @@ public class JsonStateRepository : IJsonStateRepository
             {
                 Width = player.Stage.Width,
                 Height = player.Stage.Height,
-                BackgroundColor = ColorDtoConverter.ToDto(player.Stage.BackgroundColor),
+                BackgroundColor = player.Stage.BackgroundColor.ToDto(),
             },
         };
         if (player.ActiveMovie != null)
-            projectDTO.Movies = [MovieDtoConverter.ToDto((LingoMovie)player.ActiveMovie, options)];
+            projectDTO.Movies = [((LingoMovie)player.ActiveMovie).ToDto(options)];
         return projectDTO;
     }
     public (string JsonString, LingoMovieDTO MovieDto) Serialize(LingoMovie movie, MovieStoreOptions options)
     {
-        LingoMovieDTO dto = MovieDtoConverter.ToDto(movie, options);
+        LingoMovieDTO dto = movie.ToDto(options);
         var joptions = new JsonSerializerOptions { WriteIndented = true };
         var json = JsonSerializer.Serialize(dto, joptions);
         return (json, dto);
