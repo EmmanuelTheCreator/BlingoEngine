@@ -2,6 +2,7 @@
 using AbstUI.Components;
 using AbstUI.Tools;
 using AbstUI.Windowing;
+using AbstUI.Windowing.Commands;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AbstUI
@@ -10,6 +11,7 @@ namespace AbstUI
     {
         private static AbstFameworkComponentRegistrator? _registrator;
 
+        
         public static IServiceCollection WithAbstUI(this IServiceCollection services,Action<IAbstFameworkComponentWinRegistrator>? componentRegistrations = null)
         {
             services
@@ -43,6 +45,12 @@ namespace AbstUI
             if (_registerd) return services; // only register once
             _registerd = true;
             _registrator?.RegisterAll(services);
+          
+            services.GetRequiredService<IAbstCommandManager>()
+                .Register<AbstWindowManager, OpenWindowCommand>()
+                .Register<AbstWindowManager, CloseWindowCommand>()
+                ;
+               // .DiscoverAndSubscribe(_lingoServiceProvider, typeof(LingoEngineRegistration).Assembly); < -slows down startup a lot
             return services;
         }
     }

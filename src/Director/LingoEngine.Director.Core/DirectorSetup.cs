@@ -112,6 +112,7 @@ namespace LingoEngine.Director.Core
 
 
                     }
+                    serviceProvider.GetRequiredService<IAbstCommandManager>().DiscoverAndSubscribe(serviceProvider,typeof(DirectorSetup).Assembly);
 
                 });
             return engineRegistration;

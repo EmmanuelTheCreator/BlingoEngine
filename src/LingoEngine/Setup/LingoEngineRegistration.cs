@@ -1,19 +1,18 @@
-using LingoEngine.Core;
-using LingoEngine.FrameworkCommunication;
+using AbstUI;
 using AbstUI.Commands;
 using AbstUI.Primitives;
-using AbstUI.Windowing;
-using LingoEngine.Movies;
-using LingoEngine.Projects;
-using LingoEngine.Events;
-using LingoEngine.Sprites;
 using AbstUI.Styles;
-using Microsoft.Extensions.DependencyInjection;
+using AbstUI.Windowing;
 using LingoEngine.Casts;
-using AbstUI;
+using LingoEngine.Core;
+using LingoEngine.Events;
+using LingoEngine.FrameworkCommunication;
+using LingoEngine.Movies;
+using LingoEngine.Movies.Commands;
+using LingoEngine.Projects;
+using LingoEngine.Sprites;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace LingoEngine.Setup
 {
@@ -311,7 +310,16 @@ namespace LingoEngine.Setup
             LoadFonts(_lingoServiceProvider);
             _buildActions.ForEach(b => b(_lingoServiceProvider));
             _lingoServiceProvider.GetRequiredService<IAbstCommandManager>()
-                .DiscoverAndSubscribe(_lingoServiceProvider);
+                 .Register<LingoPlayer, RewindMovieCommand>()
+                 .Register<LingoPlayer, PlayMovieCommand>()
+                 .Register<LingoPlayer, StepFrameCommand>()
+                 
+                 .Register<LingoFrameLabelManager,DeleteFrameLabelCommand>()
+                 .Register<LingoFrameLabelManager,SetFrameLabelCommand>()
+                 .Register<LingoFrameLabelManager,AddFrameLabelCommand>()
+                 .Register<LingoFrameLabelManager,UpdateFrameLabelCommand>()
+                 ;
+            //    .DiscoverAndSubscribe(_lingoServiceProvider, typeof(LingoEngineRegistration).Assembly);< -slows down startup a lot
             await _projectFactory.LoadCastLibsAsync(_player.CastLibs, _player);
             _startupMovie = await _projectFactory.LoadStartupMovieAsync(_lingoServiceProvider, _player);
         }

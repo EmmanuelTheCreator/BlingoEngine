@@ -1,17 +1,17 @@
-using System;
-using System.Linq;
+using System.Reflection;
 
 namespace AbstUI.Commands;
 
 public static class AbstCommandManagerExtensions
 {
-    public static void DiscoverAndSubscribe(this IAbstCommandManager manager, IServiceProvider provider)
+    private static List<Assembly> _loadedAssemblies = new();
+    public static void DiscoverAndSubscribe(this IAbstCommandManager manager, IServiceProvider provider,params Assembly[] assemblies)
     {
-        var assemblies = AppDomain.CurrentDomain.GetAssemblies().Where(x =>
-        {
-            var name1 = x.GetName().Name;
-            return name1 != null && !name1.StartsWith("System") && !name1.StartsWith("Microsoft");
-        });
+        List<Assembly> assembliesList = assemblies.Where(x => !_loadedAssemblies.Contains(x)).ToList();
+        var thisAssembly = Assembly.GetExecutingAssembly();
+        if (_loadedAssemblies.Count == 0 && !assembliesList.Contains(thisAssembly))
+            assembliesList.Add(Assembly.GetExecutingAssembly());
+        
         foreach (var type in assemblies.SelectMany(a =>
         {
             try { return a.GetTypes(); } catch { return Array.Empty<Type>(); }
@@ -23,5 +23,6 @@ public static class AbstCommandManagerExtensions
                 manager.Register(type);
             }
         }
+        _loadedAssemblies.AddRange(assembliesList);
     }
 }
