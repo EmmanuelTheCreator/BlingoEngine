@@ -6,6 +6,9 @@ using Microsoft.Extensions.Logging;
 using LingoEngine.Director.Core.Projects;
 using LingoEngine.Director.SDL2;
 #endif
+#if DEBUG
+using LingoEngine.Net.RNetProjectHost;
+#endif
 
 namespace LingoEngine.Demo.TetriGrounds.SDL2
 {
@@ -31,6 +34,9 @@ namespace LingoEngine.Demo.TetriGrounds.SDL2
                     })
 #else
                     .WithLingoSdlEngine("TetriGrounds", 730, 547)
+#endif
+#if DEBUG
+                    .WithRNetProjectHostServer(61699,true)
 #endif
                     .SetProjectFactory<LingoEngine.Demo.TetriGrounds.Core.TetriGroundsProjectFactory>()
                     .BuildAndRunProject(sp => serviceProvider = sp)
