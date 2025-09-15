@@ -143,7 +143,7 @@ namespace LingoEngine.Director.Core
                         .Register<DirectorRNetServer, DisconnectRNetServerCommand>()
                         .Register<DirectorRNetClient, ConnectRNetClientCommand>()
                         .Register<DirectorRNetClient, DisconnectRNetClientCommand>()
-                        .Register<RNetSettingsDialog, OpenRNetSettingsCommand>();
+                        .Register<RNetSettingsDialogHandler, OpenRNetSettingsCommand>();
 
                 });
             return engineRegistration;
