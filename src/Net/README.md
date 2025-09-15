@@ -14,3 +14,20 @@ The projects in this folder implement the different pieces of the system:
 - **cpp/LingoEngine.RNetClient** – a minimal C++ client showing how to consume the protocol from native code.
 
 Together these components allow external tools to inspect and control movies in real time.
+
+## Example
+
+To expose an engine instance over RNet, register and start the host during engine setup:
+
+```csharp
+var engine = LingoEngine.Setup.Engine
+    .WithRNetHostServer("http://localhost:7000") // custom port
+    .Build();
+```
+
+Clients can then connect using `LingoRNetClient`:
+
+```csharp
+var client = new LingoRNetClient();
+await client.ConnectAsync(new Uri("http://localhost:7000/director"), new HelloDto("project", "client", "1.0"));
+```

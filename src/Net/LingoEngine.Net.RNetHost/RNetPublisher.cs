@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using AbstUI;
@@ -84,10 +86,10 @@ internal sealed class RNetPublisher : IRNetPublisher
     private readonly ConcurrentDictionary<string, MoviePropertyDto> _movieQueue = new();
     private readonly ConcurrentDictionary<string, StagePropertyDto> _stageQueue = new();
     private readonly Dictionary<IHasPropertyChanged, PropertyChangedEventHandler> _propSubs = new();
+    private readonly List<Action> _managerUnsubs = new();
 
     private ILingoPlayer? _player;
     private ILingoMovie? _movie;
-    private LingoSprite2DManager? _spriteManager;
 
     /// <summary>Initializes a new instance of the <see cref="RNetPublisher"/> class.</summary>
     public RNetPublisher(IBus bus) => _bus = bus;
@@ -256,7 +258,6 @@ internal sealed class RNetPublisher : IRNetPublisher
 
         _player = null;
         _movie = null;
-        _spriteManager = null;
     }
 
     private void OnActiveMovieChanged(ILingoMovie? movie)
@@ -275,14 +276,12 @@ internal sealed class RNetPublisher : IRNetPublisher
         if (movie is LingoMovie lm)
         {
             lm.CurrentFrameChanged += OnFrameChanged;
-            _spriteManager = lm.Sprite2DManager;
-            _spriteManager.SpriteAdded += OnSpriteAdded;
-            _spriteManager.SpriteRemoved += OnSpriteRemoved;
-            _spriteManager.SpritesCleared += OnSpritesCleared;
-            foreach (var sprite in _spriteManager.GetAllSprites())
-            {
-                SubscribeSprite(sprite);
-            }
+            HookManager(lm.Sprite2DManager, "Sprite2D");
+            HookManager(lm.Transitions, "Transition");
+            HookManager(lm.Tempos, "Tempo");
+            HookManager(lm.ColorPalettes, "ColorPalette");
+            HookManager(lm.FrameScripts, "FrameScript");
+            HookManager(lm.Audio, "Audio");
         }
     }
 
@@ -297,16 +296,50 @@ internal sealed class RNetPublisher : IRNetPublisher
             Unsubscribe(_movie);
         }
 
-        if (_spriteManager is not null)
+        foreach (var unsub in _managerUnsubs)
         {
-            _spriteManager.SpriteAdded -= OnSpriteAdded;
-            _spriteManager.SpriteRemoved -= OnSpriteRemoved;
-            _spriteManager.SpritesCleared -= OnSpritesCleared;
-            foreach (var sprite in _spriteManager.GetAllSprites())
-            {
-                Unsubscribe(sprite);
-            }
+            unsub();
         }
+        _managerUnsubs.Clear();
+    }
+
+    private void HookManager<TSprite>(ILingoSpriteManager<TSprite> manager, string name) where TSprite : LingoSprite
+    {
+        void Added(TSprite sprite)
+        {
+            SubscribeSprite(sprite);
+            SpriteDto? dto = sprite is LingoSprite2D s2d ? ToSpriteDto(s2d) : null;
+            TryPublishSpriteCollectionEvent(new SpriteCollectionEventDto(name, SpriteCollectionEventType.Added, sprite.SpriteNum, dto));
+        }
+
+        void Removed(TSprite sprite)
+        {
+            Unsubscribe(sprite);
+            TryPublishSpriteCollectionEvent(new SpriteCollectionEventDto(name, SpriteCollectionEventType.Removed, sprite.SpriteNum, null));
+        }
+
+        void Cleared()
+            => TryPublishSpriteCollectionEvent(new SpriteCollectionEventDto(name, SpriteCollectionEventType.Cleared, 0, null));
+
+        manager.SpriteAdded += Added;
+        manager.SpriteRemoved += Removed;
+        manager.SpritesCleared += Cleared;
+
+        foreach (var s in manager.GetAllSprites())
+        {
+            SubscribeSprite(s);
+        }
+
+        _managerUnsubs.Add(() =>
+        {
+            manager.SpriteAdded -= Added;
+            manager.SpriteRemoved -= Removed;
+            manager.SpritesCleared -= Cleared;
+            foreach (var s in manager.GetAllSprites())
+            {
+                Unsubscribe(s);
+            }
+        });
     }
 
     private void OnFrameChanged(int _)
@@ -345,30 +378,13 @@ internal sealed class RNetPublisher : IRNetPublisher
         }
     }
 
-    private void OnSpriteAdded(LingoSprite2D sprite)
-    {
-        SubscribeSprite(sprite);
-        TryPublishSpriteCollectionEvent(new SpriteCollectionEventDto("Sprite2D", SpriteCollectionEventType.Added, sprite.SpriteNum, ToSpriteDto(sprite)));
-    }
-
-    private void OnSpriteRemoved(LingoSprite2D sprite)
-    {
-        Unsubscribe(sprite);
-        TryPublishSpriteCollectionEvent(new SpriteCollectionEventDto("Sprite2D", SpriteCollectionEventType.Removed, sprite.SpriteNum, null));
-    }
-
-    private void OnSpritesCleared()
-    {
-        TryPublishSpriteCollectionEvent(new SpriteCollectionEventDto("Sprite2D", SpriteCollectionEventType.Cleared, 0, null));
-    }
-
     private void SubscribeMember(ILingoMember member)
     {
         PropertyChangedEventHandler handler = OnMemberPropertyChanged;
         Subscribe(member, handler);
     }
 
-    private void SubscribeSprite(LingoSprite2D sprite)
+    private void SubscribeSprite(LingoSprite sprite)
     {
         PropertyChangedEventHandler handler = (_, __) => { };
         // Currently no per-property sprite publishing.
