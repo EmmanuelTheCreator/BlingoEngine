@@ -20,6 +20,7 @@ using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.Remote;
+using LingoEngine.Director.Core.Remote.Commands;
 using LingoEngine.Net.RNetContracts;
 using LingoEngine.Net.RNetHost;
 using LingoEngine.Net.RNetClient;
@@ -77,6 +78,9 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<RNetSettingsDialog>()
                     .AddSingleton<IRNetServer, RNetServer>()
                     .AddSingleton<ILingoRNetClient, LingoRNetClient>()
+                    .AddSingleton<DirectorRNetClient>()
+                    .AddSingleton<IAbstCommandHandler<ConnectRNetClientCommand>>(p => p.GetRequiredService<DirectorRNetClient>())
+                    .AddSingleton<IAbstCommandHandler<DisconnectRNetClientCommand>>(p => p.GetRequiredService<DirectorRNetClient>())
                     .AddSingleton<DirStageManager>()
                     .AddTransient<IDirStageManager>(p => p.GetRequiredService<DirStageManager>())
                     .AddSingleton<DirScoreManager>()

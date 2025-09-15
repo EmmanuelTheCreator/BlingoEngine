@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using AbstUI.Commands;
-using LingoEngine.Net.RNetClient.Commands;
 using LingoEngine.Net.RNetContracts;
 using Microsoft.AspNetCore.SignalR.Client;
 
@@ -78,9 +76,7 @@ public interface ILingoRNetClient : IAsyncDisposable, INotifyPropertyChanged
 /// <summary>
 /// Default implementation of <see cref="ILingoRNetClient"/>.
 /// </summary>
-public sealed class LingoRNetClient : ILingoRNetClient,
-    IAbstCommandHandler<ConnectRNetClientCommand>,
-    IAbstCommandHandler<DisconnectRNetClientCommand>
+public sealed class LingoRNetClient : ILingoRNetClient
 {
     private HubConnection? _connection;
     private bool _isConnected;
@@ -286,22 +282,4 @@ public sealed class LingoRNetClient : ILingoRNetClient,
         }
     }
 
-    #region Commands
-    public bool CanExecute(ConnectRNetClientCommand command) => !IsConnected;
-
-    public bool Handle(ConnectRNetClientCommand command)
-    {
-        var uri = new Uri($"http://localhost:{_config.Port}/director");
-        ConnectAsync(uri, new HelloDto("director", "client", "1.0")).GetAwaiter().GetResult();
-        return true;
-    }
-
-    public bool CanExecute(DisconnectRNetClientCommand command) => IsConnected;
-
-    public bool Handle(DisconnectRNetClientCommand command)
-    {
-        DisconnectAsync().GetAwaiter().GetResult();
-        return true;
-    }
-    #endregion
 }

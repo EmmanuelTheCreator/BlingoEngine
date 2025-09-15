@@ -25,6 +25,5 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LingoEngine.Net.RNetContracts\LingoEngine.Net.RNetContracts.csproj" />
-    <ProjectReference Include="..\..\..\WillMoveToOwnRepo\AbstUI\src\AbstUI\AbstUI.csproj" />
   </ItemGroup>
 </Project>
