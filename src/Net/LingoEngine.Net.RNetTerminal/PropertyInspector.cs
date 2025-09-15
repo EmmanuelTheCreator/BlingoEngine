@@ -240,6 +240,16 @@ internal sealed class PropertyInspector : Window
         if (type == typeof(bool))
         {
             var check = new CheckBox(12, 1, string.Empty, bool.TryParse(value, out var b) && b);
+            check.KeyPress += e =>
+            {
+                if (e.KeyEvent.Key == Key.Space)
+                {
+                    check.Checked = !check.Checked;
+                    result = check.Checked.ToString();
+                    Application.RequestStop();
+                    e.Handled = true;
+                }
+            };
             var ok = new Button("Ok", true);
             ok.Clicked += () =>
             {
@@ -248,6 +258,7 @@ internal sealed class PropertyInspector : Window
             };
             var dialog = new Dialog($"Edit {name}", 30, 7, ok);
             dialog.Add(new Label(name + ":") { X = 1, Y = 1 }, check);
+            check.SetFocus();
             Application.Run(dialog);
         }
         else if (type == typeof(int))

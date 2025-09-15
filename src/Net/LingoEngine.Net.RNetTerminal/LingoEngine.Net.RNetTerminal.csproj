@@ -26,5 +26,6 @@
     <ProjectReference Include="..\\LingoEngine.Net.RNetClient\\LingoEngine.Net.RNetClient.csproj" />
     <ProjectReference Include="..\\LingoEngine.Net.RNetContracts\\LingoEngine.Net.RNetContracts.csproj" />
     <ProjectReference Include="..\\..\\LingoEngine.IO.Data\\LingoEngine.IO.Data.csproj" />
+    <ProjectReference Include="..\\..\\LingoEngine.IO\\LingoEngine.IO.csproj" />
   </ItemGroup>
 </Project>

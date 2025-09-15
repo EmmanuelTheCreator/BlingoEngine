@@ -4,6 +4,7 @@ using LingoEngine.Net.RNetContracts;
 using Terminal.Gui;
 using System.Linq;
 using Timer = System.Timers.Timer;
+using LingoEngine.IO;
 
 namespace LingoEngine.Net.RNetTerminal;
 
@@ -14,7 +15,6 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     private CancellationTokenSource _cts = new();
     private Timer? _heartbeatTimer;
     private readonly RNetTerminalSettings _settings;
-    private readonly Dictionary<string, List<LingoMemberDTO>> _castData;
     private int _port;
     private bool _connected;
     private ListView? _logList;
@@ -22,6 +22,8 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     private View? _workspace;
     private PropertyInspector? _propertyInspector;
     private ScoreView? _scoreView;
+    private StageView? _stageView;
+    private CastView? _castView;
     private StatusItem? _infoItem;
     private int? _selectedSprite;
 
@@ -29,7 +31,6 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     {
         _settings = RNetTerminalSettings.Load();
         _port = _settings.Port;
-        _castData = TestCastBuilder.BuildCastData();
     }
 
     public Task RunAsync()
@@ -252,18 +253,18 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     {
         _uiWin!.Title = "Cast";
         _workspace?.RemoveAll();
-        var castView = new CastView(_castData)
+        _castView = new CastView
         {
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
-        castView.MemberSelected += m =>
+        _castView.MemberSelected += m =>
         {
             Log($"memberSelected {m.Name}");
             _propertyInspector?.ShowMember(m);
         };
-        _workspace?.Add(castView);
-        castView.SetFocus();
+        _workspace?.Add(_castView);
+        _castView.SetFocus();
     }
 
     private void ShowStage()
@@ -271,7 +272,7 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         _uiWin!.Title = "Stage";
         _workspace?.RemoveAll();
 
-        var stage = new StageView
+        _stageView = new StageView
         {
             X = 0,
             Y = 0,
@@ -286,29 +287,29 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
-        stage.SpriteSelected += n =>
+        _stageView.SpriteSelected += n =>
         {
             Log($"spriteSelected {n}");
             _selectedSprite = n;
-            stage.SetSelectedSprite(n);
+            _stageView.SetSelectedSprite(n);
             _scoreView.SelectSprite(n);
         };
         _scoreView.SpriteSelected += n =>
         {
             Log($"spriteSelected {n}");
             _selectedSprite = n;
-            stage.SetSelectedSprite(n);
+            _stageView.SetSelectedSprite(n);
             _scoreView.SelectSprite(n);
         };
         _scoreView.PlayFromHere += f => Log($"Play from {f}");
         _scoreView.InfoChanged += (f, ch, sp, mem) =>
         {
             UpdateInfo(f, ch, sp, mem);
-            stage.SetFrame(f);
-            stage.RequestRedraw();
+            _stageView.SetFrame(f);
+            _stageView.RequestRedraw();
         };
 
-        _workspace?.Add(stage, _scoreView);
+        _workspace?.Add(_stageView, _scoreView);
         _scoreView.SetFocus();
         _scoreView.TriggerInfo();
     }
@@ -328,7 +329,7 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
 
     private LingoMemberDTO? FindMember(string name)
     {
-        foreach (var cast in _castData.Values)
+        foreach (var cast in TerminalDataStore.Instance.Casts.Values)
         {
             foreach (var m in cast)
             {
@@ -385,6 +386,7 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             _heartbeatTimer.Elapsed += async (_, _) => await _client.SendHeartbeatAsync();
             _heartbeatTimer.AutoReset = true;
             _heartbeatTimer.Start();
+            await LoadMovieDataAsync();
         }
         else
         {
@@ -399,6 +401,32 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             }
             _connected = false;
             Log("Disconnected.");
+            TerminalDataStore.Instance.LoadTestData();
+            _scoreView?.ReloadData();
+            _stageView?.ReloadData();
+            _castView?.ReloadData();
+        }
+    }
+
+    private async Task LoadMovieDataAsync()
+    {
+        if (_client == null)
+        {
+            return;
+        }
+        try
+        {
+            var movieJson = await _client.GetMovieAsync();
+            var repo = new JsonStateRepository();
+            var project = repo.Deserialize(movieJson.json);
+            TerminalDataStore.Instance.LoadFromProject(project);
+            _scoreView?.ReloadData();
+            _stageView?.ReloadData();
+            _castView?.ReloadData();
+        }
+        catch (Exception ex)
+        {
+            Log($"Load movie failed: {ex.Message}");
         }
     }
 
