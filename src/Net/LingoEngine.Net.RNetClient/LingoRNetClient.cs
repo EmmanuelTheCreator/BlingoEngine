@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using LingoEngine.Net.RNetContracts;
 using Microsoft.AspNetCore.SignalR.Client;
 
@@ -8,10 +9,13 @@ namespace LingoEngine.Net.RNetClient;
 /// <summary>
 /// High-level API for interacting with a running RNet host.
 /// </summary>
-public interface ILingoRNetClient : IAsyncDisposable
+public interface ILingoRNetClient : IAsyncDisposable, INotifyPropertyChanged
 {
     /// <summary>Connects to the RNet hub and sends the initial hello payload.</summary>
     Task ConnectAsync(Uri hubUrl, HelloDto hello, CancellationToken ct = default);
+
+    /// <summary>Indicates whether the client is currently connected.</summary>
+    bool IsConnected { get; }
 
     /// <summary>Disconnects from the hub.</summary>
     Task DisconnectAsync();
@@ -75,6 +79,26 @@ public interface ILingoRNetClient : IAsyncDisposable
 public sealed class LingoRNetClient : ILingoRNetClient
 {
     private HubConnection? _connection;
+    private bool _isConnected;
+
+    /// <inheritdoc />
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <inheritdoc />
+    public bool IsConnected
+    {
+        get => _isConnected;
+        private set
+        {
+            if (_isConnected == value)
+            {
+                return;
+            }
+
+            _isConnected = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsConnected)));
+        }
+    }
 
     /// <inheritdoc />
     public async Task ConnectAsync(Uri hubUrl, HelloDto hello, CancellationToken ct = default)
@@ -91,6 +115,7 @@ public sealed class LingoRNetClient : ILingoRNetClient
 
         await _connection.StartAsync(ct).ConfigureAwait(false);
         await _connection.InvokeAsync("SessionHello", hello, ct).ConfigureAwait(false);
+        IsConnected = true;
     }
 
     /// <inheritdoc />
@@ -100,6 +125,7 @@ public sealed class LingoRNetClient : ILingoRNetClient
         {
             await _connection.DisposeAsync().ConfigureAwait(false);
             _connection = null;
+            IsConnected = false;
         }
     }
 

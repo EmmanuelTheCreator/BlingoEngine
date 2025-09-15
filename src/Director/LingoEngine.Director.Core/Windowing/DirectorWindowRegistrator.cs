@@ -10,7 +10,6 @@ using LingoEngine.Director.Core.Stages;
 using LingoEngine.Director.Core.Texts;
 using LingoEngine.Director.Core.Tools.Commands;
 using LingoEngine.Director.Core.UI;
-using LingoEngine.Director.Core.Remote;
 
 namespace LingoEngine.Director.Core.Windowing
 {
@@ -31,7 +30,6 @@ namespace LingoEngine.Director.Core.Windowing
                 .AddSingletonWindow<DirectorTextEditWindowV2>(DirectorMenuCodes.TextEditWindow, s => s.CreateShortCut(DirectorMenuCodes.TextEditWindow, "Ctrl+T", sc => new ExecuteShortCutCommand(sc)))
                 .AddSingletonWindow<DirectorBitmapEditWindow>(DirectorMenuCodes.PictureEditWindow, s => s.CreateShortCut(DirectorMenuCodes.PictureEditWindow, "Ctrl+5", sc => new ExecuteShortCutCommand(sc)))
                 .AddSingletonWindow<DirectorImportExportWindow>(DirectorMenuCodes.ImportExportWindow)
-                .AddSingletonWindow<DirectorRemoteSettingsWindow>(DirectorMenuCodes.RemoteSettingsWindow)
                 // .Register<DirectorMainMenu>(DirectorMenuCodes.MainMenu)
                 ;
 

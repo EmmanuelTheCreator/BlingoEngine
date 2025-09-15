@@ -21,8 +21,6 @@ namespace LingoEngine.Director.Core.UI
         public const string ScriptEditWindow = "ScriptEditWindow";
         public const string ImportExportWindow = "ImportExportWindow";
 
-        public const string RemoteSettingsWindow = "RemoteSettingsWindow";
-
         public const string MainMenu = "MainMenu";
 
     }

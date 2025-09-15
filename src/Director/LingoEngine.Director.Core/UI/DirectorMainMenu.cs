@@ -24,6 +24,7 @@ using LingoEngine.Net.RNetClient;
 using LingoEngine.Net.RNetContracts;
 using System.Threading.Tasks;
 using System;
+using System.ComponentModel;
 
 namespace LingoEngine.Director.Core.UI
 {
@@ -56,8 +57,9 @@ namespace LingoEngine.Director.Core.UI
         private readonly IHistoryManager _historyManager;
         private readonly IAbstCommandManager _commandManager;
         private readonly DirectorRemoteSettings _remoteSettings;
-        private IRNetServer? _server;
-        private ILingoRNetClient? _client;
+        private readonly IRNetServer _server;
+        private readonly ILingoRNetClient _client;
+        private readonly ILingoFrameworkFactory _factory;
         private readonly List<ShortCutInfo> _shortCuts = new();
         private AbstMenuItem _undoItem;
         private AbstMenuItem _redoItem;
@@ -94,7 +96,8 @@ namespace LingoEngine.Director.Core.UI
         }
 
         public DirectorMainMenu(IServiceProvider serviceProvider, IAbstWindowManager windowManager, DirectorProjectManager projectManager, LingoPlayer player, IAbstShortCutManager shortCutManager,
-            IHistoryManager historyManager, IDirectorIconManager directorIconManager, IAbstCommandManager commandManager, ILingoFrameworkFactory factory, DirectorRemoteSettings remoteSettings) : base(serviceProvider, DirectorMenuCodes.MainMenu)
+            IHistoryManager historyManager, IDirectorIconManager directorIconManager, IAbstCommandManager commandManager, ILingoFrameworkFactory factory, DirectorRemoteSettings remoteSettings,
+            IRNetServer server, ILingoRNetClient client) : base(serviceProvider, DirectorMenuCodes.MainMenu)
         {
             _windowManager = windowManager;
             _projectManager = projectManager;
@@ -103,6 +106,12 @@ namespace LingoEngine.Director.Core.UI
             _historyManager = historyManager;
             _commandManager = commandManager;
             _remoteSettings = remoteSettings;
+            _server = server;
+            _client = client;
+            _factory = factory;
+
+            _server.PropertyChanged += OnRemoteStateChanged;
+            _client.PropertyChanged += OnRemoteStateChanged;
 
             _menuBar = factory.CreateWrapPanel(AOrientation.Horizontal, "MenuBar");
             _iconBar = factory.CreateWrapPanel(AOrientation.Horizontal, "IconBar");
@@ -327,62 +336,65 @@ namespace LingoEngine.Director.Core.UI
         private void CreateRemoteMenu(ILingoFrameworkFactory factory)
         {
             var settings = factory.CreateMenuItem("Settings");
-            settings.Activated += () => _windowManager.OpenWindow(DirectorMenuCodes.RemoteSettingsWindow);
+            settings.Activated += ShowRemoteSettingsDialog;
             _remoteMenu.AddItem(settings);
 
-            _hostItem = factory.CreateMenuItem("Start Host");
-            _hostItem.Activated += async () =>
-            {
-                if (_server is null)
-                    await StartHostAsync();
-                else
-                    await StopHostAsync();
-            };
+            _hostItem = factory.CreateMenuItem(_server.IsEnabled ? "Stop Host" : "Start Host");
+            _hostItem.Activated += async () => await ToggleHostAsync();
             _remoteMenu.AddItem(_hostItem);
 
-            _clientItem = factory.CreateMenuItem("Start Client");
-            _clientItem.Activated += async () =>
-            {
-                if (_client is null)
-                    await StartClientAsync();
-                else
-                    await StopClientAsync();
-            };
+            _clientItem = factory.CreateMenuItem(_client.IsConnected ? "Stop Client" : "Start Client");
+            _clientItem.Activated += async () => await ToggleClientAsync();
             _remoteMenu.AddItem(_clientItem);
         }
 
-        private async Task StartHostAsync()
+        private async Task ToggleHostAsync()
         {
-            _server = new RNetServer();
-            await _server.StartAsync($"http://localhost:{_remoteSettings.Port}");
-            _server.Publisher.Enable(_player);
-            _hostItem.Name = "Stop Host";
+            if (!_server.IsEnabled)
+            {
+                await _server.StartAsync($"http://localhost:{_remoteSettings.Port}");
+                _server.Publisher.Enable(_player);
+            }
+            else
+            {
+                _server.Publisher.Disable();
+                await _server.StopAsync();
+            }
         }
 
-        private async Task StopHostAsync()
+        private async Task ToggleClientAsync()
         {
-            if (_server is null) return;
-            _server.Publisher.Disable();
-            await _server.StopAsync();
-            _server = null;
-            _hostItem.Name = "Start Host";
+            if (!_client.IsConnected)
+            {
+                var uri = new Uri($"http://localhost:{_remoteSettings.Port}/director");
+                await _client.ConnectAsync(uri, new HelloDto("director", "client", "1.0"));
+            }
+            else
+            {
+                await _client.DisconnectAsync();
+            }
         }
 
-        private async Task StartClientAsync()
+        private void ShowRemoteSettingsDialog()
         {
-            _client = new LingoRNetClient();
-            var uri = new Uri($"http://localhost:{_remoteSettings.Port}/director");
-            await _client.ConnectAsync(uri, new HelloDto("director", "client", "1.0"));
-            _clientItem.Name = "Stop Client";
+            var root = _factory.CreateWrapPanel(AOrientation.Vertical, "RemoteSettingsRoot");
+            root.Compose()
+                .NewLine("PortRow")
+                .AddLabel("PortLabel", "Port:", 11, 60)
+                .AddNumericInputInt("PortInput", _remoteSettings, s => s.Port, 60);
+            _windowManager.ShowCustomDialog("Remote Settings", root.Framework<IAbstFrameworkPanel>());
         }
 
-        private async Task StopClientAsync()
+        private void OnRemoteStateChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (_client is null) return;
-            await _client.DisconnectAsync();
-            await _client.DisposeAsync();
-            _client = null;
-            _clientItem.Name = "Start Client";
+            if (sender == _server && e.PropertyName == nameof(IRNetServer.IsEnabled))
+            {
+                _hostItem.Name = _server.IsEnabled ? "Stop Host" : "Start Host";
+            }
+            else if (sender == _client && e.PropertyName == nameof(ILingoRNetClient.IsConnected))
+            {
+                _clientItem.Name = _client.IsConnected ? "Stop Client" : "Start Client";
+            }
         }
 
 
@@ -468,6 +480,8 @@ namespace LingoEngine.Director.Core.UI
             _shortCutManager.ShortCutAdded -= OnShortCutAdded;
             _shortCutManager.ShortCutRemoved -= OnShortCutRemoved;
             _player.Key.Unsubscribe(this);
+            _server.PropertyChanged -= OnRemoteStateChanged;
+            _client.PropertyChanged -= OnRemoteStateChanged;
             base.OnDispose();
         }
 

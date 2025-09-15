@@ -35,8 +35,6 @@ using LingoEngine.Director.LGodot.Styles;
 using LingoEngine.Director.LGodot.Tools;
 using LingoEngine.Director.LGodot.UI;
 using LingoEngine.Director.LGodot.Windowing;
-using LingoEngine.Director.LGodot.Remote;
-using LingoEngine.Director.Core.Remote;
 using LingoEngine.LGodot;
 using LingoEngine.Projects;
 using LingoEngine.Setup;
@@ -67,7 +65,6 @@ namespace LingoEngine.Director.LGodot
                     .AddSingleton<DirGodotBinaryViewerWindow>()
                     .AddSingleton<DirGodotBinaryViewerWindowV2>()
                     .AddSingleton<DirGodotImportExportWindow>()
-                    .AddSingleton<DirGodotRemoteSettingsWindow>()
                     .AddSingleton<DirGodotPropertyInspector>()
                     .AddSingleton<DirGodotTextableMemberWindowV2>()
                     .AddSingleton<DirGodotPictureMemberEditorWindow>()
@@ -102,7 +99,6 @@ namespace LingoEngine.Director.LGodot
                     s.AddTransient<IDirFrameworkTextEditWindow>(p => p.GetRequiredService<DirGodotTextableMemberWindowV2>());
                     s.AddTransient<IDirFrameworkBitmapEditWindow>(p => p.GetRequiredService<DirGodotPictureMemberEditorWindow>());
                     s.AddTransient<IDirFrameworkImportExportWindow>(p => p.GetRequiredService<DirGodotImportExportWindow>());
-                    s.AddTransient<IDirFrameworkRemoteSettingsWindow>(p => p.GetRequiredService<DirGodotRemoteSettingsWindow>());
 
 
 

@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,10 +9,13 @@ namespace LingoEngine.Net.RNetHost;
 /// <summary>
 /// Hosts the SignalR server within the RNet process.
 /// </summary>
-public interface IRNetServer
+public interface IRNetServer : INotifyPropertyChanged
 {
     /// <summary>Provides access to the publisher used by the game loop.</summary>
     IRNetPublisher Publisher { get; }
+
+    /// <summary>Indicates whether the server is currently running.</summary>
+    bool IsEnabled { get; }
 
     /// <summary>Starts the server on the specified URL without blocking.</summary>
     Task StartAsync(string url, CancellationToken ct = default);
@@ -27,6 +31,26 @@ public sealed class RNetServer : IRNetServer
 {
     private WebApplication? _app;
     private CancellationTokenSource? _cts;
+    private bool _isEnabled;
+
+    /// <inheritdoc />
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <inheritdoc />
+    public bool IsEnabled
+    {
+        get => _isEnabled;
+        private set
+        {
+            if (_isEnabled == value)
+            {
+                return;
+            }
+
+            _isEnabled = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsEnabled)));
+        }
+    }
 
     /// <inheritdoc />
     public IRNetPublisher Publisher
@@ -55,6 +79,7 @@ public sealed class RNetServer : IRNetServer
         await app.StartAsync(_cts.Token).ConfigureAwait(false);
 
         _app = app;
+        IsEnabled = true;
     }
 
     /// <inheritdoc />
@@ -76,6 +101,7 @@ public sealed class RNetServer : IRNetServer
             _cts?.Dispose();
             _app = null;
             _cts = null;
+            IsEnabled = false;
         }
     }
 }
