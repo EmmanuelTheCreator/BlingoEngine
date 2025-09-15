@@ -355,7 +355,7 @@ public class JsonStateRepository : IJsonStateRepository
                 Comments = baseDto.Comments,
                 FileName = baseDto.FileName,
                 PurgePriority = baseDto.PurgePriority,
-                MarkDownText = field.InitialMarkdown != null? field.InitialMarkdown.Markdown :  field.Text
+                MarkDownText = field.InitialMarkdown != null ? field.InitialMarkdown.Markdown : field.Text
             },
             LingoMemberSound sound => new LingoMemberSoundDTO
             {
@@ -448,6 +448,7 @@ public class JsonStateRepository : IJsonStateRepository
             Name = state.Name,
             SpriteNum = sprite.SpriteNum,
             MemberNum = state.Member?.NumberInCast ?? sprite.MemberNum,
+            CastLibNum = state.Member?.CastLibNum ?? 0,
             DisplayMember = state.DisplayMember,
             SpritePropertiesOffset = state.SpritePropertiesOffset,
             Lock = sprite.Lock,
@@ -494,6 +495,7 @@ public class JsonStateRepository : IJsonStateRepository
             Name = state.Name,
             SpriteNum = sprite.SpriteNum,
             MemberNum = state.Member?.NumberInCast ?? sprite.MemberNum,
+            CastLibNum = state.Member?.CastLibNum ?? 0,
             DisplayMember = state.DisplayMember,
             Lock = sprite.Lock,
             LocH = state.LocH,
