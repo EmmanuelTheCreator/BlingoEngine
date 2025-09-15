@@ -5,7 +5,7 @@ namespace LingoEngine.IO;
 
 internal static class SoundSpriteDtoConverter
 {
-    public static LingoSpriteSoundDTO ToDto(LingoSpriteSound sprite)
+    public static LingoSpriteSoundDTO ToDto(this LingoSpriteSound sprite)
     {
         return new LingoSpriteSoundDTO
         {
@@ -14,7 +14,7 @@ internal static class SoundSpriteDtoConverter
             BeginFrame = sprite.BeginFrame,
             EndFrame = sprite.EndFrame,
             Lock = sprite.Lock,
-            Member = MemberRefDtoConverter.ToDto(sprite.Sound)
+            Member = sprite.Sound.ToDto()
         };
     }
 

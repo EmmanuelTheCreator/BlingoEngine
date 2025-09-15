@@ -6,7 +6,7 @@ namespace LingoEngine.IO;
 
 internal static class BitmapMemberDtoConverter
 {
-    public static LingoMemberPictureDTO ToDto(LingoMemberBitmap picture, LingoMemberDTO baseDto, JsonStateRepository.MovieStoreOptions options)
+    public static LingoMemberPictureDTO ToDto(this LingoMemberBitmap picture, LingoMemberDTO baseDto, JsonStateRepository.MovieStoreOptions options)
     {
         var dto = MemberDtoConverter.PopulateBase(baseDto, new LingoMemberPictureDTO());
         dto.ImageFile = SavePicture(picture, options);

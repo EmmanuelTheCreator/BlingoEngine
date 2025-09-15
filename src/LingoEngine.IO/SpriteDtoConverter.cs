@@ -11,15 +11,15 @@ namespace LingoEngine.IO;
 
 internal static class SpriteDtoConverter
 {
-    public static Lingo2DSpriteDTO ToDto(LingoSprite2D sprite)
+    public static Lingo2DSpriteDTO ToDto(this LingoSprite2D sprite)
     {
         var state = sprite.InitialState as LingoSprite2DState ?? (LingoSprite2DState)sprite.GetState();
         var dto = new Lingo2DSpriteDTO
         {
             Name = state.Name,
             SpriteNum = sprite.SpriteNum,
-            Member = MemberRefDtoConverter.ToDto(state.Member)
-                ?? MemberRefDtoConverter.ToDto(sprite.MemberNum, sprite.Cast?.Number ?? sprite.Member?.CastLibNum ?? 0),
+            Member = state.Member.ToDto()
+                ?? sprite.MemberNum.ToDto(sprite.Cast?.Number ?? sprite.Member?.CastLibNum ?? 0),
             DisplayMember = state.DisplayMember,
             SpritePropertiesOffset = state.SpritePropertiesOffset,
             Lock = sprite.Lock,
@@ -31,8 +31,8 @@ internal static class SpriteDtoConverter
             Skew = state.Skew,
             RegPoint = new LingoPointDTO { X = state.RegPoint.X, Y = state.RegPoint.Y },
             Ink = state.Ink,
-            ForeColor = ColorDtoConverter.ToDto(state.ForeColor),
-            BackColor = ColorDtoConverter.ToDto(state.BackColor),
+            ForeColor = state.ForeColor.ToDto(),
+            BackColor = state.BackColor.ToDto(),
             Blend = state.Blend,
             Editable = state.Editable,
             FlipH = state.FlipH,
@@ -58,15 +58,15 @@ internal static class SpriteDtoConverter
         return dto;
     }
 
-    public static Lingo2DSpriteDTO ToDto(LingoSprite2DVirtual sprite)
+    public static Lingo2DSpriteDTO ToDto(this LingoSprite2DVirtual sprite)
     {
         var state = sprite.InitialState as LingoSprite2DVirtualState ?? (LingoSprite2DVirtualState)sprite.GetState();
         return new Lingo2DSpriteDTO
         {
             Name = state.Name,
             SpriteNum = sprite.SpriteNum,
-            Member = MemberRefDtoConverter.ToDto(state.Member)
-                ?? MemberRefDtoConverter.ToDto(sprite.MemberNum, sprite.Member?.CastLibNum ?? 0),
+            Member = state.Member.ToDto()
+                ?? sprite.MemberNum.ToDto(sprite.Member?.CastLibNum ?? 0),
             DisplayMember = state.DisplayMember,
             Lock = sprite.Lock,
             LocH = state.LocH,
@@ -76,8 +76,8 @@ internal static class SpriteDtoConverter
             Skew = state.Skew,
             RegPoint = new LingoPointDTO { X = state.RegPoint.X, Y = state.RegPoint.Y },
             Ink = state.Ink,
-            ForeColor = ColorDtoConverter.ToDto(state.ForeColor),
-            BackColor = ColorDtoConverter.ToDto(state.BackColor),
+            ForeColor = state.ForeColor.ToDto(),
+            BackColor = state.BackColor.ToDto(),
             Blend = state.Blend,
             Width = state.Width,
             Height = state.Height,
@@ -88,13 +88,13 @@ internal static class SpriteDtoConverter
         };
     }
 
-    public static LingoFilmLoopMemberSpriteDTO ToDto(LingoFilmLoopMemberSprite sprite)
+    public static LingoFilmLoopMemberSpriteDTO ToDto(this LingoFilmLoopMemberSprite sprite)
     {
         return new LingoFilmLoopMemberSpriteDTO
         {
             Name = sprite.Name,
             SpriteNum = sprite.SpriteNum,
-            Member = MemberRefDtoConverter.ToDto(sprite.MemberNumberInCast, sprite.CastNum) ?? new LingoMemberRefDTO(),
+            Member = sprite.MemberNumberInCast.ToDto(sprite.CastNum) ?? new LingoMemberRefDTO(),
             DisplayMember = sprite.DisplayMember,
             LocH = sprite.LocH,
             LocV = sprite.LocV,
@@ -103,8 +103,8 @@ internal static class SpriteDtoConverter
             Skew = sprite.Skew,
             RegPoint = new LingoPointDTO { X = sprite.RegPoint.X, Y = sprite.RegPoint.Y },
             Ink = sprite.Ink,
-            ForeColor = ColorDtoConverter.ToDto(sprite.ForeColor),
-            BackColor = ColorDtoConverter.ToDto(sprite.BackColor),
+            ForeColor = sprite.ForeColor.ToDto(),
+            BackColor = sprite.BackColor.ToDto(),
             Blend = sprite.Blend,
             Width = sprite.Width,
             Height = sprite.Height,
@@ -114,16 +114,16 @@ internal static class SpriteDtoConverter
             FlipH = sprite.FlipH,
             FlipV = sprite.FlipV,
             Hilite = sprite.Hilite,
-            Animator = ToDto(sprite.AnimatorProperties)
+            Animator = sprite.AnimatorProperties.ToDto()
         };
     }
 
-    public static LingoSpriteAnimatorDTO ToDto(LingoSpriteAnimator animator)
+    public static LingoSpriteAnimatorDTO ToDto(this LingoSpriteAnimator animator)
     {
-        return ToDto(animator.Properties);
+        return animator.Properties.ToDto();
     }
 
-    public static LingoSpriteAnimatorDTO ToDto(LingoSpriteAnimatorProperties animProps)
+    public static LingoSpriteAnimatorDTO ToDto(this LingoSpriteAnimatorProperties animProps)
     {
         return new LingoSpriteAnimatorDTO
         {
@@ -133,42 +133,42 @@ internal static class SpriteDtoConverter
                 Value = new LingoPointDTO { X = k.Value.X, Y = k.Value.Y },
                 Ease = (LingoEaseTypeDTO)k.Ease
             }).ToList(),
-            PositionOptions = ToDto(animProps.Position.Options),
+            PositionOptions = animProps.Position.Options.ToDto(),
             Rotation = animProps.Rotation.KeyFrames.Select(k => new LingoFloatKeyFrameDTO
             {
                 Frame = k.Frame,
                 Value = k.Value,
                 Ease = (LingoEaseTypeDTO)k.Ease
             }).ToList(),
-            RotationOptions = ToDto(animProps.Rotation.Options),
+            RotationOptions = animProps.Rotation.Options.ToDto(),
             Skew = animProps.Skew.KeyFrames.Select(k => new LingoFloatKeyFrameDTO
             {
                 Frame = k.Frame,
                 Value = k.Value,
                 Ease = (LingoEaseTypeDTO)k.Ease
             }).ToList(),
-            SkewOptions = ToDto(animProps.Skew.Options),
+            SkewOptions = animProps.Skew.Options.ToDto(),
             ForegroundColor = animProps.ForegroundColor.KeyFrames.Select(k => new LingoColorKeyFrameDTO
             {
                 Frame = k.Frame,
-                Value = ColorDtoConverter.ToDto(k.Value),
+                Value = k.Value.ToDto(),
                 Ease = (LingoEaseTypeDTO)k.Ease
             }).ToList(),
-            ForegroundColorOptions = ToDto(animProps.ForegroundColor.Options),
+            ForegroundColorOptions = animProps.ForegroundColor.Options.ToDto(),
             BackgroundColor = animProps.BackgroundColor.KeyFrames.Select(k => new LingoColorKeyFrameDTO
             {
                 Frame = k.Frame,
-                Value = ColorDtoConverter.ToDto(k.Value),
+                Value = k.Value.ToDto(),
                 Ease = (LingoEaseTypeDTO)k.Ease
             }).ToList(),
-            BackgroundColorOptions = ToDto(animProps.BackgroundColor.Options),
+            BackgroundColorOptions = animProps.BackgroundColor.Options.ToDto(),
             Blend = animProps.Blend.KeyFrames.Select(k => new LingoFloatKeyFrameDTO
             {
                 Frame = k.Frame,
                 Value = k.Value,
                 Ease = (LingoEaseTypeDTO)k.Ease
             }).ToList(),
-            BlendOptions = ToDto(animProps.Blend.Options)
+            BlendOptions = animProps.Blend.Options.ToDto()
         };
     }
 
@@ -183,7 +183,7 @@ internal static class SpriteDtoConverter
         return Enumerable.Empty<object>();
     }
 
-    private static LingoTweenOptionsDTO ToDto(LingoTweenOptions options)
+    private static LingoTweenOptionsDTO ToDto(this LingoTweenOptions options)
     {
         return new LingoTweenOptionsDTO
         {

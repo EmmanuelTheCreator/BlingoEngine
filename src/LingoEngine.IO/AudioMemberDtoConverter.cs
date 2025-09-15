@@ -6,7 +6,7 @@ namespace LingoEngine.IO;
 
 internal static class AudioMemberDtoConverter
 {
-    public static LingoMemberSoundDTO ToDto(LingoMemberSound sound, LingoMemberDTO baseDto, JsonStateRepository.MovieStoreOptions options)
+    public static LingoMemberSoundDTO ToDto(this LingoMemberSound sound, LingoMemberDTO baseDto, JsonStateRepository.MovieStoreOptions options)
     {
         var dto = MemberDtoConverter.PopulateBase(baseDto, new LingoMemberSoundDTO());
         dto.Stereo = sound.Stereo;

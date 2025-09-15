@@ -5,7 +5,7 @@ namespace LingoEngine.IO;
 
 internal static class ColorDtoConverter
 {
-    public static LingoColorDTO ToDto(AColor color)
+    public static LingoColorDTO ToDto(this AColor color)
     {
         return new LingoColorDTO
         {

@@ -5,7 +5,7 @@ namespace LingoEngine.IO;
 
 internal static class MemberRefDtoConverter
 {
-    public static LingoMemberRefDTO? ToDto(ILingoMember? member)
+    public static LingoMemberRefDTO? ToDto(this ILingoMember? member)
     {
         if (member == null)
         {
@@ -19,7 +19,7 @@ internal static class MemberRefDtoConverter
         };
     }
 
-    public static LingoMemberRefDTO? ToDto(int memberNum, int castNum)
+    public static LingoMemberRefDTO? ToDto(this int memberNum, int castNum)
     {
         if (memberNum <= 0 || castNum <= 0)
         {

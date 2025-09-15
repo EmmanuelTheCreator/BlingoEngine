@@ -9,17 +9,17 @@ namespace LingoEngine.IO;
 
 internal static class MemberDtoConverter
 {
-    public static LingoMemberDTO ToDto(ILingoMember member, JsonStateRepository.MovieStoreOptions options)
+    public static LingoMemberDTO ToDto(this ILingoMember member, JsonStateRepository.MovieStoreOptions options)
     {
         var baseDto = CreateBaseDto(member);
 
         return member switch
         {
-            LingoMemberField field => TextMemberDtoConverter.ToDto(field, baseDto),
-            LingoMemberText text => TextMemberDtoConverter.ToDto(text, baseDto),
-            LingoMemberSound sound => AudioMemberDtoConverter.ToDto(sound, baseDto, options),
-            LingoMemberBitmap bitmap => BitmapMemberDtoConverter.ToDto(bitmap, baseDto, options),
-            LingoFilmLoopMember filmLoop => FilmLoopMemberDtoConverter.ToDto(filmLoop, baseDto),
+            LingoMemberField field => field.ToDto(baseDto),
+            LingoMemberText text => text.ToDto(baseDto),
+            LingoMemberSound sound => sound.ToDto(baseDto, options),
+            LingoMemberBitmap bitmap => bitmap.ToDto(baseDto, options),
+            LingoFilmLoopMember filmLoop => filmLoop.ToDto(baseDto),
             _ => baseDto,
         };
     }

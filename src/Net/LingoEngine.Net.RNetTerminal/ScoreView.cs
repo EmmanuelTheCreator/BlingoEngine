@@ -16,6 +16,7 @@ internal sealed class ScoreView : ScrollView
     private static readonly string[] SpecialChannels =
     {
         "Tempo",
+        "Transition",
         "Palette",
         "Script",
         "Sound1",
@@ -38,7 +39,14 @@ internal sealed class ScoreView : ScrollView
     private int _cursorFrame;
     private int _playFrame;
     private readonly List<SpriteBlock> _sprites;
+    private readonly List<SpecialSpriteBlock>[] _specialChannelSprites;
     private SpriteRef? _selectedSprite;
+    private SpriteBlock? _dragSprite;
+    private SpriteBlock? _dragCandidate;
+    private bool _isDragging;
+    private int _dragOffset;
+    private int _dragOriginalStart;
+    private int _dragLength;
 
 
     private int TotalChannels => TerminalDataStore.Instance.SpriteChannelCount + SpecialChannels.Length;
@@ -46,8 +54,12 @@ internal sealed class ScoreView : ScrollView
     public ScoreView()
     {
         _sprites = new List<SpriteBlock>();
+        _specialChannelSprites = Enumerable.Range(0, SpecialChannels.Length)
+            .Select(_ => new List<SpecialSpriteBlock>())
+            .ToArray();
         _labelWidth = Math.Max(SpecialChannels.Max(s => s.Length), TerminalDataStore.Instance.SpriteChannelCount.ToString().Length) + 1;
         CanFocus = true;
+        WantMousePositionReports = true;
         ColorScheme = new ColorScheme
         {
             Normal = Application.Driver.MakeAttribute(Color.White, Color.DarkGray)
@@ -80,9 +92,89 @@ internal sealed class ScoreView : ScrollView
         _sprites.Clear();
         _sprites.AddRange(store.GetSprites()
             .Select(s => new SpriteBlock(s.SpriteNum, s.BeginFrame, s.EndFrame, s.SpriteNum, s.Member!.CastLibNum, s.Member.MemberNum, s.Width)));
+        foreach (var list in _specialChannelSprites)
+        {
+            list.Clear();
+        }
+
+        foreach (var tempo in store.GetTempoSprites())
+        {
+            AddSpecialSprite(0, tempo.BeginFrame, tempo.EndFrame, FormatTempoLabel(tempo), Color.BrightYellow);
+        }
+
+        foreach (var transition in store.GetTransitionSprites())
+        {
+            var label = string.IsNullOrWhiteSpace(transition.Name)
+                ? transition.Settings?.TransitionName ?? "Transition"
+                : transition.Name;
+            AddSpecialSprite(1, transition.BeginFrame, transition.EndFrame, label ?? string.Empty, Color.Magenta);
+        }
+
+        foreach (var palette in store.GetColorPaletteSprites())
+        {
+            var label = string.IsNullOrWhiteSpace(palette.Name)
+                ? "Palette"
+                : palette.Name;
+            AddSpecialSprite(2, palette.BeginFrame, palette.EndFrame, label, Color.BrightCyan);
+        }
+
+        foreach (var sound in store.GetSoundSprites())
+        {
+            var idx = sound.Channel switch
+            {
+                1 => 4,
+                2 => 5,
+                _ => -1
+            };
+
+            if (idx < 0 || idx >= _specialChannelSprites.Length)
+            {
+                continue;
+            }
+
+            var label = sound.Member != null
+                ? store.FindMember(sound.Member.CastLibNum, sound.Member.MemberNum)?.Name ?? sound.Name
+                : sound.Name;
+            AddSpecialSprite(idx, sound.BeginFrame, sound.EndFrame, label ?? string.Empty, Color.Green);
+        }
         ContentSize = new Size(FrameCount + _labelWidth, TotalChannels + 1);
 
         SetNeedsDisplay();
+    }
+
+    private static string FormatTempoLabel(LingoTempoSpriteDTO tempo)
+    {
+        return tempo.Action switch
+        {
+            LingoTempoSpriteActionDTO.ChangeTempo => $"Tempo:{tempo.Tempo}",
+            LingoTempoSpriteActionDTO.WaitSeconds => $"Wait:{tempo.WaitSeconds.ToString("0.##", CultureInfo.InvariantCulture)}",
+            LingoTempoSpriteActionDTO.WaitForUserInput => "WaitInput",
+            LingoTempoSpriteActionDTO.WaitForCuePoint => $"Cue:{tempo.CueChannel}:{tempo.CuePoint}",
+            _ => tempo.Name
+        };
+    }
+
+    private void AddSpecialSprite(int channelIndex, int beginFrame, int endFrame, string label, Color background)
+    {
+        if (channelIndex < 0 || channelIndex >= _specialChannelSprites.Length)
+        {
+            return;
+        }
+
+        var start = beginFrame <= 0 ? endFrame : beginFrame;
+        if (start <= 0)
+        {
+            start = 1;
+        }
+        var finish = endFrame <= 0 ? start : endFrame;
+        if (finish < start)
+        {
+            finish = start;
+        }
+        start = Math.Clamp(start, 1, FrameCount > 0 ? FrameCount : start);
+        finish = Math.Clamp(finish, start, FrameCount > 0 ? FrameCount : finish);
+
+        _specialChannelSprites[channelIndex].Add(new SpecialSpriteBlock(start, finish, label, background));
     }
 
     public override bool ProcessKey(KeyEvent keyEvent)
@@ -140,11 +232,58 @@ internal sealed class ScoreView : ScrollView
             var contentH = Bounds.Height - scrollBarHeight;
             var inContent = me.X < contentW && me.Y < contentH;
             var offset = GetOffset();
+            var frame = -1;
+            var channel = -1;
+            SpriteBlock? sprite = null;
+
+            if (inContent)
+            {
+                frame = offset.X + me.X - _labelWidth;
+                channel = offset.Y + me.Y - 1;
+                if (frame >= 0 && frame < FrameCount && channel >= 0 && channel < TotalChannels)
+                {
+                    sprite = FindSprite(channel + 1, frame + 1);
+                }
+
+                if (me.Flags.HasFlag(MouseFlags.Button1Pressed))
+                {
+                    if (sprite != null)
+                    {
+                        PrepareDrag(sprite, frame);
+                    }
+                    else
+                    {
+                        _dragCandidate = null;
+                    }
+                }
+
+                if (me.Flags.HasFlag(MouseFlags.Button1DoubleClicked) && sprite != null)
+                {
+                    var sel = new SpriteRef(sprite.Number, sprite.Start);
+                    TerminalDataStore.Instance.SelectSprite(sel);
+                }
+
+                if (_dragCandidate != null && me.Flags.HasFlag(MouseFlags.Button1Pressed) && me.Flags.HasFlag(MouseFlags.ReportMousePosition))
+                {
+                    UpdateDrag(frame);
+                    return true;
+                }
+
+                if (me.Flags.HasFlag(MouseFlags.Button1Released))
+                {
+                    if (_isDragging)
+                    {
+                        FinishDrag();
+                        ClampContentOffset();
+                        return true;
+                    }
+
+                    _dragCandidate = null;
+                }
+            }
 
             if (inContent && me.Flags.HasFlag(MouseFlags.Button1Clicked))
             {
-                var frame = offset.X + me.X - _labelWidth;
-                var channel = offset.Y + me.Y - 1;
                 if (frame >= 0 && frame < FrameCount && channel >= 0 && channel < TotalChannels)
                 {
                     _cursorFrame = frame;
@@ -153,7 +292,6 @@ internal sealed class ScoreView : ScrollView
                     SetNeedsDisplay();
                     NotifyInfoChanged();
                     SetFocus();
-                    var sprite = FindSprite(_cursorChannel + 1, _cursorFrame + 1);
                     if (sprite != null)
                     {
                         var sel = new SpriteRef(sprite.Number, sprite.Start);
@@ -165,8 +303,6 @@ internal sealed class ScoreView : ScrollView
             }
             if (inContent && me.Flags.HasFlag(MouseFlags.Button3Clicked))
             {
-                var frame = offset.X + me.X - _labelWidth;
-                var channel = offset.Y + me.Y - 1;
                 if (frame >= 0 && frame < FrameCount && channel >= 0 && channel < TotalChannels)
                 {
                     _cursorFrame = frame;
@@ -358,6 +494,8 @@ internal sealed class ScoreView : ScrollView
                 }
             }
         }
+
+        DrawSpecialSprites(offsetX, offsetY, visibleFrames, visibleChannels);
 
         if (_playFrame >= offsetX && _playFrame < offsetX + visibleFrames)
         {
@@ -678,6 +816,111 @@ internal sealed class ScoreView : ScrollView
         Application.Run(dialog);
     }
 
+    private void PrepareDrag(SpriteBlock sprite, int frame)
+    {
+        _dragCandidate = sprite;
+        _dragSprite = sprite;
+        _dragOriginalStart = sprite.Start;
+        _dragLength = Math.Max(0, sprite.End - sprite.Start);
+        _dragOffset = frame + 1 - sprite.Start;
+        if (_dragOffset < 0)
+        {
+            _dragOffset = 0;
+        }
+    }
+
+    private void UpdateDrag(int frame)
+    {
+        if (_dragSprite == null)
+        {
+            return;
+        }
+
+        if (!_isDragging)
+        {
+            _isDragging = true;
+        }
+
+        var maxStart = Math.Max(1, FrameCount - _dragLength);
+        var newStart = Math.Clamp(frame + 1 - _dragOffset, 1, maxStart);
+        var newEnd = newStart + _dragLength;
+        if (newEnd > FrameCount)
+        {
+            newEnd = FrameCount;
+            newStart = Math.Max(1, newEnd - _dragLength);
+        }
+
+        _dragSprite.Start = newStart;
+        _dragSprite.End = newEnd;
+        _cursorFrame = Math.Clamp(newStart - 1, 0, FrameCount - 1);
+        _cursorChannel = _dragSprite.Channel - 1 + SpecialChannels.Length;
+        EnsureVisible();
+        SetNeedsDisplay();
+        NotifyInfoChanged();
+    }
+
+    private void FinishDrag()
+    {
+        if (_dragSprite == null)
+        {
+            _dragCandidate = null;
+            _isDragging = false;
+            return;
+        }
+
+        var delta = _dragSprite.Start - _dragOriginalStart;
+        var store = TerminalDataStore.Instance;
+        if (delta != 0)
+        {
+            store.MoveSprite(new SpriteRef(_dragSprite.Number, _dragOriginalStart), delta);
+        }
+        store.SelectSprite(new SpriteRef(_dragSprite.Number, _dragSprite.Start));
+        _dragCandidate = null;
+        _dragSprite = null;
+        _isDragging = false;
+    }
+
+    private void DrawSpecialSprites(int offsetX, int offsetY, int visibleFrames, int visibleChannels)
+    {
+        for (var channelIndex = 0; channelIndex < _specialChannelSprites.Length; channelIndex++)
+        {
+            if (channelIndex < offsetY || channelIndex >= offsetY + visibleChannels)
+            {
+                continue;
+            }
+
+            var y = channelIndex - offsetY + 1;
+            foreach (var block in _specialChannelSprites[channelIndex])
+            {
+                var start = Math.Max(block.Start - 1, offsetX);
+                var end = Math.Min(block.End - 1, offsetX + visibleFrames - 1);
+                if (end < offsetX || start > offsetX + visibleFrames - 1)
+                {
+                    continue;
+                }
+
+                var attr = Application.Driver.MakeAttribute(Color.Black, block.Background);
+                Driver.SetAttribute(attr);
+                for (var frame = start; frame <= end; frame++)
+                {
+                    Move(_labelWidth + frame - offsetX, y);
+                    Driver.AddRune(' ');
+                }
+
+                var label = block.Label ?? string.Empty;
+                var maxLen = Math.Max(0, end - start + 1);
+                var len = Math.Min(label.Length, maxLen);
+                for (var i = 0; i < len; i++)
+                {
+                    Move(_labelWidth + start + i - offsetX, y);
+                    Driver.AddRune(label[i]);
+                }
+
+                Driver.SetAttribute(ColorScheme.Normal);
+            }
+        }
+    }
+
     private SpriteBlock? FindSprite(int channel, int frame)
     {
         if (channel <= SpecialChannels.Length)
@@ -720,6 +963,22 @@ internal sealed class ScoreView : ScrollView
     public void TriggerInfo() => NotifyInfoChanged();
 
     public event Action<int>? PlayFromHere;
+
+    private sealed class SpecialSpriteBlock
+    {
+        public int Start { get; }
+        public int End { get; }
+        public string Label { get; }
+        public Color Background { get; }
+
+        public SpecialSpriteBlock(int start, int end, string label, Color background)
+        {
+            Start = start;
+            End = end;
+            Label = label;
+            Background = background;
+        }
+    }
 
     private sealed class SpriteBlock
     {

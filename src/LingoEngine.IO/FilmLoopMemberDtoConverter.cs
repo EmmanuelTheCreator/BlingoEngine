@@ -6,18 +6,18 @@ namespace LingoEngine.IO;
 
 internal static class FilmLoopMemberDtoConverter
 {
-    public static LingoMemberFilmLoopDTO ToDto(LingoFilmLoopMember filmLoop, LingoMemberDTO baseDto)
+    public static LingoMemberFilmLoopDTO ToDto(this LingoFilmLoopMember filmLoop, LingoMemberDTO baseDto)
     {
         var dto = MemberDtoConverter.PopulateBase(baseDto, new LingoMemberFilmLoopDTO());
         dto.Framing = (LingoFilmLoopFramingDTO)filmLoop.Framing;
         dto.Loop = filmLoop.Loop;
         dto.FrameCount = filmLoop.FrameCount;
-        dto.SpriteEntries = filmLoop.SpriteEntries.Select(SpriteDtoConverter.ToDto).ToList();
+        dto.SpriteEntries = filmLoop.SpriteEntries.Select(sprite => sprite.ToDto()).ToList();
         dto.SoundEntries = filmLoop.SoundEntries.Select(e => new LingoFilmLoopSoundEntryDTO
         {
             Channel = e.Channel,
             StartFrame = e.StartFrame,
-            Member = MemberRefDtoConverter.ToDto(e.Sound) ?? new LingoMemberRefDTO()
+            Member = e.Sound.ToDto() ?? new LingoMemberRefDTO()
         }).ToList();
         return dto;
     }
