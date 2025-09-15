@@ -20,6 +20,7 @@ using LingoEngine.Director.Core.Tools;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.Remote;
+using LingoEngine.Net.RNetContracts;
 using LingoEngine.Net.RNetHost;
 using LingoEngine.Net.RNetClient;
 using LingoEngine.Setup;
@@ -72,6 +73,8 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<DirectorBitmapEditWindow>()
                     .AddSingleton<DirectorImportExportWindow>()
                     .AddSingleton<DirectorRemoteSettings>()
+                    .AddSingleton<IRNetConfiguration>(p => p.GetRequiredService<DirectorRemoteSettings>())
+                    .AddSingleton<RNetSettingsDialog>()
                     .AddSingleton<IRNetServer, RNetServer>()
                     .AddSingleton<ILingoRNetClient, LingoRNetClient>()
                     .AddSingleton<DirStageManager>()

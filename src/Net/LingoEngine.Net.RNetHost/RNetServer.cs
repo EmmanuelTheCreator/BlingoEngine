@@ -1,4 +1,8 @@
 using System.ComponentModel;
+using AbstUI.Commands;
+using LingoEngine.Core;
+using LingoEngine.Net.RNetContracts;
+using LingoEngine.Net.RNetHost.Commands;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,11 +31,21 @@ public interface IRNetServer : INotifyPropertyChanged
 /// <summary>
 /// Default implementation of <see cref="IRNetServer"/>.
 /// </summary>
-public sealed class RNetServer : IRNetServer
+public sealed class RNetServer : IRNetServer,
+    IAbstCommandHandler<ConnectRNetServerCommand>,
+    IAbstCommandHandler<DisconnectRNetServerCommand>
 {
     private WebApplication? _app;
     private CancellationTokenSource? _cts;
     private bool _isEnabled;
+    private readonly IRNetConfiguration _config;
+    private readonly ILingoPlayer _player;
+
+    public RNetServer(IRNetConfiguration config, ILingoPlayer player)
+    {
+        _config = config;
+        _player = player;
+    }
 
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -104,4 +118,24 @@ public sealed class RNetServer : IRNetServer
             IsEnabled = false;
         }
     }
+
+    #region Commands
+    public bool CanExecute(ConnectRNetServerCommand command) => !IsEnabled;
+
+    public bool Handle(ConnectRNetServerCommand command)
+    {
+        StartAsync($"http://localhost:{_config.Port}").GetAwaiter().GetResult();
+        Publisher.Enable(_player);
+        return true;
+    }
+
+    public bool CanExecute(DisconnectRNetServerCommand command) => IsEnabled;
+
+    public bool Handle(DisconnectRNetServerCommand command)
+    {
+        Publisher.Disable();
+        StopAsync().GetAwaiter().GetResult();
+        return true;
+    }
+    #endregion
 }

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using AbstUI.Commands;
+using LingoEngine.Net.RNetClient.Commands;
 using LingoEngine.Net.RNetContracts;
 using Microsoft.AspNetCore.SignalR.Client;
 
@@ -76,10 +78,25 @@ public interface ILingoRNetClient : IAsyncDisposable, INotifyPropertyChanged
 /// <summary>
 /// Default implementation of <see cref="ILingoRNetClient"/>.
 /// </summary>
-public sealed class LingoRNetClient : ILingoRNetClient
+public sealed class LingoRNetClient : ILingoRNetClient,
+    IAbstCommandHandler<ConnectRNetClientCommand>,
+    IAbstCommandHandler<DisconnectRNetClientCommand>
 {
     private HubConnection? _connection;
     private bool _isConnected;
+    private readonly IRNetConfiguration _config;
+
+    public LingoRNetClient(IRNetConfiguration config)
+    {
+        _config = config;
+    }
+
+    public LingoRNetClient() : this(new DefaultConfig()) { }
+
+    private sealed class DefaultConfig : IRNetConfiguration
+    {
+        public int Port { get; set; } = 61699;
+    }
 
     /// <inheritdoc />
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -268,4 +285,23 @@ public sealed class LingoRNetClient : ILingoRNetClient
             throw new InvalidOperationException("Not connected.");
         }
     }
+
+    #region Commands
+    public bool CanExecute(ConnectRNetClientCommand command) => !IsConnected;
+
+    public bool Handle(ConnectRNetClientCommand command)
+    {
+        var uri = new Uri($"http://localhost:{_config.Port}/director");
+        ConnectAsync(uri, new HelloDto("director", "client", "1.0")).GetAwaiter().GetResult();
+        return true;
+    }
+
+    public bool CanExecute(DisconnectRNetClientCommand command) => IsConnected;
+
+    public bool Handle(DisconnectRNetClientCommand command)
+    {
+        DisconnectAsync().GetAwaiter().GetResult();
+        return true;
+    }
+    #endregion
 }
