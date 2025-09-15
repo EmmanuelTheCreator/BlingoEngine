@@ -38,7 +38,9 @@ internal sealed class ScoreView : ScrollView
     private int _cursorFrame;
     private int _playFrame;
     private readonly List<SpriteBlock> _sprites;
-    private int? _selectedSprite;
+    private readonly Dictionary<int, LingoMemberDTO> _members;
+    private SpriteRef? _selectedSprite;
+
 
     private int TotalChannels => SpriteChannelCount + SpecialChannels.Length;
 
@@ -73,6 +75,11 @@ internal sealed class ScoreView : ScrollView
 
     public void RequestRedraw() => SetNeedsDisplay();
 
+
+    public void SelectSprite(SpriteRef? sprite)
+    {
+        _selectedSprite = sprite;
+}
     public void ReloadData()
     {
         var store = TerminalDataStore.Instance;
@@ -81,6 +88,7 @@ internal sealed class ScoreView : ScrollView
         _sprites.AddRange(store.GetSprites()
             .Select(s => new SpriteBlock(s.SpriteNum, s.BeginFrame, s.EndFrame, s.SpriteNum, s.MemberNum, s.Width)));
         ContentSize = new Size(FrameCount + _labelWidth, TotalChannels + 1);
+
         SetNeedsDisplay();
     }
 
@@ -373,7 +381,7 @@ internal sealed class ScoreView : ScrollView
                 continue;
             }
             var y = channelIdx - offsetY + 1;
-            var bg = sprite.Number == _selectedSprite ? Color.Blue : Color.BrightBlue;
+            var bg = _selectedSprite.HasValue && sprite.Number == _selectedSprite.Value.SpriteNum && sprite.Start == _selectedSprite.Value.BeginFrame ? Color.Blue : Color.BrightBlue;
             Driver.SetAttribute(Application.Driver.MakeAttribute(Color.White, bg));
             for (var f = start; f <= end; f++)
             {
@@ -551,6 +559,10 @@ internal sealed class ScoreView : ScrollView
             case "Select Sprite":
                 if (sprite != null)
                 {
+
+                    var sel = new SpriteRef(sprite.Number, sprite.Start);
+                    SelectSprite(sel);
+                    SpriteSelected?.Invoke(sel.SpriteNum, sel.BeginFrame);
                     TerminalDataStore.Instance.SelectSprite(sprite.Number);
                     NotifyInfoChanged();
                 }
@@ -706,6 +718,9 @@ internal sealed class ScoreView : ScrollView
     public void TriggerInfo() => NotifyInfoChanged();
 
     private void NotifySpriteChanged() => SpriteChanged?.Invoke();
+
+
+    public event Action<int, int>? SpriteSelected;
 
     public event Action<int>? PlayFromHere;
 

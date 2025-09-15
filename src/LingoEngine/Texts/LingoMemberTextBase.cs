@@ -391,6 +391,26 @@ namespace LingoEngine.Texts
             _frameworkMember.Text = data.PlainText;
         }
 
+        /// <summary>
+        /// Returns the markdown representation of the text member.
+        /// </summary>
+        public string GetTextMDString()
+        {
+            if (_mdData != null)
+                return _mdData.Markdown;
+            return AbstMarkdownWriter.WriteBasic(
+                _frameworkMember.Text,
+                Font,
+                FontSize,
+                Color,
+                Alignment,
+                Bold,
+                Italic,
+                Underline,
+                Margin,
+                Margin);
+        }
+
 
         private void RenderText()
         {

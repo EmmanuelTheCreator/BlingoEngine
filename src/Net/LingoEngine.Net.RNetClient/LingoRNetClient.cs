@@ -37,12 +37,6 @@ public interface ILingoRNetClient : IAsyncDisposable
     /// <summary>Streams keyframes from the host.</summary>
     IAsyncEnumerable<KeyframeDto> StreamKeyframesAsync(CancellationToken ct = default);
 
-    /// <summary>Streams film loop state changes from the host.</summary>
-    IAsyncEnumerable<FilmLoopDto> StreamFilmLoopsAsync(CancellationToken ct = default);
-
-    /// <summary>Streams sound events from the host.</summary>
-    IAsyncEnumerable<SoundEventDto> StreamSoundsAsync(CancellationToken ct = default);
-
     /// <summary>Streams tempo changes from the host.</summary>
     IAsyncEnumerable<TempoDto> StreamTemposAsync(CancellationToken ct = default);
 
@@ -69,6 +63,12 @@ public interface ILingoRNetClient : IAsyncDisposable
 
     /// <summary>Streams text style updates from the host.</summary>
     IAsyncEnumerable<TextStyleDto> StreamTextStylesAsync(CancellationToken ct = default);
+
+    /// <summary>Streams film loop state changes from the host.</summary>
+    IAsyncEnumerable<FilmLoopDto> StreamFilmLoopsAsync(CancellationToken ct = default);
+
+    /// <summary>Streams sound events from the host.</summary>
+    IAsyncEnumerable<SoundEventDto> StreamSoundsAsync(CancellationToken ct = default);
 
     /// <summary>Requests a snapshot of the current movie state.</summary>
     Task<MovieStateDto> GetMovieSnapshotAsync(CancellationToken ct = default);

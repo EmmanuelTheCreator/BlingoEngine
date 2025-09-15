@@ -6,6 +6,7 @@ using System.Reflection;
 using AbstUI;
 using LingoEngine.Core;
 using LingoEngine.Members;
+using LingoEngine.Texts;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
 using LingoEngine.Stages;
@@ -81,8 +82,8 @@ public interface IRNetPublisher
 internal sealed class RNetPublisher : IRNetPublisher
 {
     private readonly IBus _bus;
-    private readonly ConcurrentDictionary<int, SpriteDeltaDto> _spriteQueue = new();
-    private readonly ConcurrentDictionary<(int CastLibNum, int NumberInCast, string Prop), RNetMemberPropertyDto> _memberQueue = new();
+    private readonly ConcurrentDictionary<(int SpriteNum, int BeginFrame), SpriteDeltaDto> _spriteQueue = new();
+    private readonly ConcurrentDictionary<(int CastLibNum, int MemberNum, string Prop), RNetMemberPropertyDto> _memberQueue = new();
     private readonly ConcurrentDictionary<string, RNetMoviePropertyDto> _movieQueue = new();
     private readonly ConcurrentDictionary<string, RNetStagePropertyDto> _stageQueue = new();
     private readonly Dictionary<IHasPropertyChanged, PropertyChangedEventHandler> _propSubs = new();
@@ -100,7 +101,7 @@ internal sealed class RNetPublisher : IRNetPublisher
 
     /// <inheritdoc />
     public void TryPublishDelta(SpriteDeltaDto delta)
-        => _spriteQueue[delta.SpriteNum] = delta;
+        => _spriteQueue[(delta.SpriteNum, delta.BeginFrame)] = delta;
 
     /// <inheritdoc />
     public void TryPublishKeyframe(KeyframeDto keyframe)
@@ -132,7 +133,7 @@ internal sealed class RNetPublisher : IRNetPublisher
 
     /// <inheritdoc />
     public void TryPublishMemberProperty(RNetMemberPropertyDto property)
-        => _memberQueue[(property.CastLibNum, property.NumberInCast, property.Prop)] = property;
+        => _memberQueue[(property.CastLibNum, property.MemberNum, property.Prop)] = property;
 
     /// <inheritdoc />
     public void TryPublishMovieProperty(RNetMoviePropertyDto property)
@@ -309,17 +310,17 @@ internal sealed class RNetPublisher : IRNetPublisher
         {
             SubscribeSprite(sprite);
             RNetSpriteDto? dto = sprite is LingoSprite2D s2d ? s2d.ToDto() : null;
-            TryPublishSpriteCollectionEvent(new RNetSpriteCollectionEventDto(name, RNetSpriteCollectionEventType.Added, sprite.SpriteNum, dto));
+            TryPublishSpriteCollectionEvent(new RNetSpriteCollectionEventDto(name, RNetSpriteCollectionEventType.Added, sprite.SpriteNum, sprite.BeginFrame, dto));
         }
 
         void Removed(TSprite sprite)
         {
             Unsubscribe(sprite);
-            TryPublishSpriteCollectionEvent(new RNetSpriteCollectionEventDto(name, RNetSpriteCollectionEventType.Removed, sprite.SpriteNum, null));
+            TryPublishSpriteCollectionEvent(new RNetSpriteCollectionEventDto(name, RNetSpriteCollectionEventType.Removed, sprite.SpriteNum, sprite.BeginFrame, null));
         }
 
         void Cleared()
-            => TryPublishSpriteCollectionEvent(new RNetSpriteCollectionEventDto(name, RNetSpriteCollectionEventType.Cleared, 0, null));
+            => TryPublishSpriteCollectionEvent(new RNetSpriteCollectionEventDto(name, RNetSpriteCollectionEventType.Cleared, 0, 0, null));
 
         manager.SpriteAdded += Added;
         manager.SpriteRemoved += Removed;
@@ -355,6 +356,13 @@ internal sealed class RNetPublisher : IRNetPublisher
     {
         if (sender is ILingoMember member && e.PropertyName is not null)
         {
+            if (member is ILingoMemberTextBase text && e.PropertyName == nameof(ILingoMemberTextBase.Text))
+            {
+                var md = text.GetTextMDString();
+                TryPublishMemberProperty(new RNetMemberPropertyDto(member.CastLibNum, member.NumberInCast, "MarkDownText", md));
+                return;
+            }
+
             var value = member.GetType().GetProperty(e.PropertyName, BindingFlags.Public | BindingFlags.Instance)?.GetValue(member)?.ToString() ?? string.Empty;
             TryPublishMemberProperty(new RNetMemberPropertyDto(member.CastLibNum, member.NumberInCast, e.PropertyName, value));
         }
@@ -405,9 +413,4 @@ internal sealed class RNetPublisher : IRNetPublisher
         }
     }
 
-    private static RNetSpriteDto ToRNetSpriteDto(LingoSprite2D sprite)
-    {
-        var memberId = sprite.Member is ILingoMember m ? (m.CastLibNum * 131114) + m.NumberInCast : 0;
-        return new RNetSpriteDto(sprite.SpriteNum, sprite.LocZ, memberId, (int)sprite.LocH, (int)sprite.LocV, (int)sprite.Width, (int)sprite.Height, (int)sprite.Rotation, (int)sprite.Skew, (int)sprite.Blend, sprite.Ink);
-    }
 }
