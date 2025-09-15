@@ -1,9 +1,10 @@
+using LingoEngine.IO;
 using LingoEngine.IO.Data.DTO;
 using LingoEngine.Net.RNetClient;
 using LingoEngine.Net.RNetContracts;
+using System.Net.WebSockets;
 using Terminal.Gui;
 using Timer = System.Timers.Timer;
-using LingoEngine.IO;
 
 namespace LingoEngine.Net.RNetTerminal;
 
@@ -35,19 +36,23 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     {
         Application.Init();
         SetMyTheme();
-        var useConnection = false;
-        new StartupDialog(_port).Show(async p =>
-        {
-            if (_port != p)
-                SaveSettings();
-            _port = p;
-            useConnection = true;
-        });
+        var useConnection = true;
+        //new StartupDialog(_port).Show(async p =>
+        //{
+        //    if (_port != p)
+        //        SaveSettings();
+        //    _port = p;
+        //    useConnection = true;
+        //});
         if (useConnection)
         {
-            Task.Run(async () =>
+            _ = Task.Run(async () =>
             {
-                await Task.Delay(500);
+#if DEBUG
+                await Task.Delay(300);
+#else
+                await Task.Delay(100);
+#endif
                 await ConnectToHost().ConfigureAwait(false);
             });
         }
@@ -318,10 +323,11 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             _cts = new CancellationTokenSource();
             _ = Task.Run(ReceiveFramesAsync);
             _heartbeatTimer = new Timer(1000);
-            _heartbeatTimer.Elapsed += async (_, _) => await _client.SendHeartbeatAsync();
+            System.Timers.ElapsedEventHandler value = async (_, _) => await DoHeartBeat();
+            _heartbeatTimer.Elapsed += value;
             _heartbeatTimer.AutoReset = true;
             _heartbeatTimer.Start();
-            await LoadMovieDataAsync();
+            await LoadProjectDataAsync();
         }
         catch (Exception ex)
         {
@@ -330,8 +336,26 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         }
        
     }
+    private async Task DoHeartBeat()
+    {
+        try
+        {
+            if (_client == null) return;
+            await _client.SendHeartbeatAsync();
+        }
+        catch (WebSocketException ex)
+        {
+            if (ex.Message.Contains("The remote party closed the WebSocket connection"))
+                await DisconnectFromHost();
+            Log("Error sending heartbeat:" + ex.Message);
+        }
+        catch (Exception ex)
+        {
+            Log("Error sending heartbeat:" + ex.Message);
+        }
+    }
 
-    private async Task LoadMovieDataAsync()
+    private async Task LoadProjectDataAsync()
     {
         if (_client == null)
         {
@@ -339,9 +363,9 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         }
         try
         {
-            var movieJson = await _client.GetMovieAsync();
+            var projectJson = await _client.GetCurrentProjectAsync();
             var repo = new JsonStateRepository();
-            var project = repo.Deserialize(movieJson.json);
+            var project = repo.DeserializeProject(projectJson.json);
             TerminalDataStore.Instance.LoadFromProject(project);
         }
         catch (Exception ex)

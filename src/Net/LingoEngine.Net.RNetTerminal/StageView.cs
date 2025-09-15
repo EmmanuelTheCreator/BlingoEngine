@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using LingoEngine.IO.Data.DTO;
@@ -66,9 +66,12 @@ internal sealed class StageView : View
     public override void Redraw(Rect bounds)
     {
         base.Redraw(bounds);
+        BackgroundHelper.ClearWith(bounds, 'a', new Terminal.Gui.Attribute(Color.Red));
         var w = bounds.Width;
         var h = bounds.Height;
         Driver.SetAttribute(ColorScheme.Normal);
+        //Driver.SetAttribute(new Terminal.Gui.Attribute(Color.Green));
+        
 
         for (var y = 0; y < h; y++)
         {
@@ -78,7 +81,7 @@ internal sealed class StageView : View
                 Driver.AddRune(' ');
             }
         }
-
+        
         var chars = new char[w, h];
         var colors = new Color[w, h];
         var counts = new int[w, h];

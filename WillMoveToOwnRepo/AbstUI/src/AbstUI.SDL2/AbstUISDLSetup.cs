@@ -18,6 +18,7 @@ namespace AbstUI.SDL2
     {
         public static IServiceCollection WithAbstUISdl(this IServiceCollection services, Action<IAbstFameworkComponentWinRegistrator>? componentRegistrations = null)
         {
+           
             AbstEngineGlobal.RunFramework = AbstEngineRunFramework.SDL2;
             services
                 .AddSingleton<IAbstSdlWindowManager, AbstSdlWindowManager>()

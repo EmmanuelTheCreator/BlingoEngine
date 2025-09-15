@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using LingoEngine.IO;
 using LingoEngine.IO.Data.DTO;
 using LingoEngine.Net.RNetContracts;
 
@@ -16,13 +12,12 @@ public sealed class TerminalDataStore
     private readonly Dictionary<string, List<LingoMemberDTO>> _casts = new();
     private int _currentFrame;
     private SpriteRef? _selectedSprite;
-
+    public int SpriteChannelCount = 100;
     private TerminalDataStore()
     {
-        LoadTestData();
     }
 
-    public MovieStateDto MovieState { get; private set; } = TestMovieBuilder.BuildMovieState();
+    public MovieStateDto MovieState { get; private set; } = new MovieStateDto(0,0,false);
 
     public int StageWidth { get; private set; } = 640;
 
@@ -177,23 +172,27 @@ public sealed class TerminalDataStore
         SelectSprite(null);
     }
 
+    public void Load(LingoMovieDTO movie)
+    {
+        _sprites.Clear();
+        _sprites.AddRange(movie.Sprites);
+        _casts.Clear();
+        foreach (var cast in movie.Casts)
+        {
+            _casts[cast.Name] = cast.Members;
+        }
+        FrameCount = movie.FrameCount;
+        SpriteChannelCount = movie.MaxSpriteChannelCount;
+        MovieState = new MovieStateDto(0, movie.Tempo, false);
+        SpritesChanged?.Invoke();
+        CastsChanged?.Invoke();
+        SelectSprite(null);
+    }
     public void LoadFromProject(LingoProjectDTO project)
     {
         if (project.Movies.Count > 0)
         {
-            var movie = project.Movies[0];
-            _sprites.Clear();
-            _sprites.AddRange(movie.Sprites);
-            _casts.Clear();
-            foreach (var cast in movie.Casts)
-            {
-                _casts[cast.Name] = cast.Members;
-            }
-            FrameCount = movie.FrameCount;
-            MovieState = new MovieStateDto(0, movie.Tempo, false);
-            SpritesChanged?.Invoke();
-            CastsChanged?.Invoke();
-            SelectSprite(null);
+            Load(project.Movies[0]);
         }
         if (project.Stage != null)
         {

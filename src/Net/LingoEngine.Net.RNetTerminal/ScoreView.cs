@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -9,7 +9,7 @@ namespace LingoEngine.Net.RNetTerminal;
 
 internal sealed class ScoreView : ScrollView
 {
-    private const int SpriteChannelCount = 100;
+   
     private int FrameCount => TerminalDataStore.Instance.FrameCount;
     private int _stageWidth;
     private readonly int _labelWidth;
@@ -41,12 +41,12 @@ internal sealed class ScoreView : ScrollView
     private SpriteRef? _selectedSprite;
 
 
-    private int TotalChannels => SpriteChannelCount + SpecialChannels.Length;
+    private int TotalChannels => TerminalDataStore.Instance.SpriteChannelCount + SpecialChannels.Length;
 
     public ScoreView()
     {
         _sprites = new List<SpriteBlock>();
-        _labelWidth = Math.Max(SpecialChannels.Max(s => s.Length), SpriteChannelCount.ToString().Length) + 1;
+        _labelWidth = Math.Max(SpecialChannels.Max(s => s.Length), TerminalDataStore.Instance.SpriteChannelCount.ToString().Length) + 1;
         CanFocus = true;
         ColorScheme = new ColorScheme
         {
@@ -297,20 +297,29 @@ internal sealed class ScoreView : ScrollView
     {
         ClampContentOffset();
         base.Redraw(bounds);
+        //BackgroundHelper.ClearWith(bounds, 'a', new Terminal.Gui.Attribute(Color.Red));
         var scrollBarWidth = ShowVerticalScrollIndicator ? 1 : 0;
         var scrollBarHeight = ShowHorizontalScrollIndicator ? 1 : 0;
         var w = Bounds.Width - scrollBarWidth;
         var h = Bounds.Height - scrollBarHeight;
+        //Driver.SetAttribute(new Terminal.Gui.Attribute(Color.Black,Color.White));
         Driver.SetAttribute(ColorScheme.Normal);
-        for (var y = 0; y < h; y++)
+        var y = 0;
+        // Draw top bar
+        Move(0, y);
+        for (var x = 0; x < w; x++)
+            Driver.AddRune(' ');
+        // Draw background
+        Driver.SetAttribute(new Terminal.Gui.Attribute(Color.DarkGray, Color.Black));
+        for (y = 1; y < h; y++)
         {
             Move(0, y);
             for (var x = 0; x < w; x++)
-            {
-                Driver.AddRune(' ');
-            }
+                Driver.AddRune(RNetTerminalStyle.CharLight);
         }
 
+
+        Driver.SetAttribute(ColorScheme.Normal);
         var visibleFrames = Math.Max(0, w - _labelWidth);
         var visibleChannels = Math.Max(0, h - 1);
         var posOffset = GetOffset();
@@ -377,7 +386,7 @@ internal sealed class ScoreView : ScrollView
             {
                 continue;
             }
-            var y = channelIdx - offsetY + 1;
+            y = channelIdx - offsetY + 1;
             var bg = _selectedSprite.HasValue && sprite.Number == _selectedSprite.Value.SpriteNum && sprite.Start == _selectedSprite.Value.BeginFrame ? Color.Blue : Color.BrightBlue;
             Driver.SetAttribute(Application.Driver.MakeAttribute(Color.White, bg));
             for (var f = start; f <= end; f++)

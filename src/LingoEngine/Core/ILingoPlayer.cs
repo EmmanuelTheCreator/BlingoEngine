@@ -178,6 +178,10 @@ namespace LingoEngine.Core
 
         void RunDelayed(Action action, int milliseconds, CancellationTokenSource? cts = null);
 
+        Task RunOnUIThreadAsync(Action action, CancellationToken ct = default);
+        Task<T> RunOnUIThreadAsync<T>(Func<T> func, CancellationToken ct = default);
+        Task<T> RunOnUIThreadAsync<T>(Func<Task<T>> func, CancellationToken ct = default);
+        void RunOnUIThread(Action action);
 
     }
 }

@@ -72,7 +72,7 @@ public interface ILingoRNetClient : IAsyncDisposable
 
     /// <summary>Requests a snapshot of the current movie state.</summary>
     Task<MovieStateDto> GetMovieSnapshotAsync(CancellationToken ct = default);
-    Task<MovieJsonDto> GetMovieAsync(CancellationToken ct = default);
+    Task<LingoProjectJsonDto> GetCurrentProjectAsync(CancellationToken ct = default);
 
     /// <summary>Sends a debug command to the host.</summary>
     Task SendCommandAsync(RNetCommand cmd, CancellationToken ct = default);
@@ -282,10 +282,10 @@ public sealed class LingoRNetClient : ILingoRNetClient
         return _connection!.InvokeAsync<MovieStateDto>("GetMovieSnapshot", ct);
     }
     /// <inheritdoc />
-    public Task<MovieJsonDto> GetMovieAsync(CancellationToken ct = default)
+    public Task<LingoProjectJsonDto> GetCurrentProjectAsync(CancellationToken ct = default)
     {
         EnsureConnected();
-        return _connection!.InvokeAsync<MovieJsonDto>("GetMovie", ct);
+        return _connection!.InvokeAsync<LingoProjectJsonDto>("GetCurrentProject", ct);
     }
 
     /// <inheritdoc />

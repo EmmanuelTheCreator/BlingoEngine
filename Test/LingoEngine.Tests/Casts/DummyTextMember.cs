@@ -98,6 +98,11 @@ internal class DummyTextMember : ILingoMemberTextBase, ILingoMemberTextBaseInter
     public void LoadFile() { LoadFileCalled = true; }
     public void SetFileName(string name) => _fileName = name;
 
+    public string GetTextMDString()
+    {
+        return "";
+    }
+
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private class DummyFrameworkMember : ILingoFrameworkMember

@@ -1,8 +1,7 @@
-﻿using System;
+﻿using AbstUI.Commands;
 using AbstUI.Primitives;
-using LingoEngine.Casts;
-using AbstUI.Commands;
 using AbstUI.Resources;
+using LingoEngine.Casts;
 using LingoEngine.Events;
 using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
@@ -11,9 +10,11 @@ using LingoEngine.Movies.Commands;
 using LingoEngine.Sounds;
 using LingoEngine.Stages;
 using LingoEngine.Tools;
-using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Transitions;
 using LingoEngine.Transitions.TransitionLibrary;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 
@@ -107,6 +108,8 @@ namespace LingoEngine.Core
             _stage = Factory.CreateStage(this);
             _mouse = Factory.CreateMouse(_stage);
             _uiContext = SynchronizationContext.Current;
+            if (_uiContext == null)
+                throw new Exception("UI SynchronizationContext not set");
             _globals = globals;
         }
         public void Dispose()
@@ -340,6 +343,112 @@ namespace LingoEngine.Core
                 }
                 _delayedActionsCts.Remove(cts);
             }, TaskScheduler.Default);
+        }
+
+        // Call: await RunOnUIThreadAsync(() => { ... }, ct);
+        public Task RunOnUIThreadAsync(Action action, CancellationToken ct = default)
+        {
+            var ctx = _uiContext;
+            if (ctx == null || SynchronizationContext.Current == ctx)
+            {
+                ct.ThrowIfCancellationRequested();
+                action();
+                return Task.CompletedTask;
+            }
+
+            var tcs = new TaskCompletionSource<object?>(TaskCreationOptions.RunContinuationsAsynchronously);
+            ctx.Post(_ =>
+            {
+                if (ct.IsCancellationRequested) { tcs.TrySetCanceled(ct); return; }
+                try { action(); tcs.TrySetResult(null); }
+                catch (Exception ex) { tcs.TrySetException(ex); }
+            }, null);
+            return tcs.Task;
+        }
+
+        // Call: await RunOnUIThreadAsync(async () => { await ... }, ct);
+        public Task<T> RunOnUIThreadAsync<T>(Func<Task<T>> func, CancellationToken ct = default)
+        {
+            var ctx = _uiContext;
+            if (ctx == null || SynchronizationContext.Current == ctx)
+                return ct.IsCancellationRequested ? Task.FromCanceled<T>(ct) : func();
+
+            var tcs = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+            ctx.Post(async _ =>
+            {
+                if (ct.IsCancellationRequested) { tcs.TrySetCanceled(ct); return; }
+                try
+                {
+                    var result = await func().ConfigureAwait(false);
+                    tcs.TrySetResult(result);
+                }
+                catch (Exception ex)
+                {
+                    tcs.TrySetException(ex);
+                }
+            }, null);
+
+            return tcs.Task;
+        }
+        public Task<T> RunOnUIThreadAsync<T>(Func<T> func, CancellationToken ct = default)
+        {
+            var ctx = _uiContext;
+            if (ctx == null || SynchronizationContext.Current == ctx)
+            {
+                if (ct.IsCancellationRequested)
+                    return Task.FromCanceled<T>(ct);
+                return Task.FromResult(func());
+            }
+
+            var tcs = new TaskCompletionSource<T>(TaskCreationOptions.RunContinuationsAsynchronously);
+            ctx.Post(_ =>
+            {
+                if (ct.IsCancellationRequested) { tcs.TrySetCanceled(ct); return; }
+                try
+                {
+                    var result = func();
+                    tcs.TrySetResult(result);
+                }
+                catch (Exception ex)
+                {
+                    tcs.TrySetException(ex);
+                }
+            }, null);
+
+            return tcs.Task;
+        }
+
+
+        // If you want synchronous/blocking (careful: deadlocks if already on UI thread):
+        public void RunOnUIThread(Action action)
+        {
+            var ctx = _uiContext;
+            if (ctx == null || SynchronizationContext.Current == ctx) { action(); return; }
+            ctx.Send(_ => action(), null);
+        }
+
+        private class UiContext : SynchronizationContext
+        {
+            private readonly BlockingCollection<(SendOrPostCallback, object?)> _queue = new();
+
+            public UiContext()
+            {
+                // Start loop on the UI thread
+                var thread = new Thread(Run) { IsBackground = false };
+                thread.Start();
+            }
+
+            private void Run()
+            {
+                SynchronizationContext.SetSynchronizationContext(this);
+
+                foreach (var (d, state) in _queue.GetConsumingEnumerable())
+                    d(state);
+            }
+
+            public override void Post(SendOrPostCallback d, object? state)
+                => _queue.Add((d, state));
         }
     }
 }

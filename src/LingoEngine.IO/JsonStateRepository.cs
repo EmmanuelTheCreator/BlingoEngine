@@ -8,7 +8,6 @@ using LingoEngine.FilmLoops;
 using LingoEngine.IO.Data.DTO;
 using LingoEngine.Members;
 using LingoEngine.Movies;
-using LingoEngine.Primitives;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
 using LingoEngine.Texts;
@@ -23,7 +22,15 @@ public interface IJsonStateRepository
     LingoMovie Load(LingoProjectDTO dto, LingoPlayer player, string resourceDir);
     LingoMovie Load(LingoStageDTO stageDto, LingoMovieDTO movieDto, LingoPlayer player, string resourceDir);
     LingoMovie Load(string filePath, LingoPlayer player);
+
     (string JsonString, LingoMovieDTO MovieDto) Save(string filePath, LingoMovie movie, MovieStoreOptions? options = null);
+
+
+    LingoProjectDTO ToProjectDto(LingoPlayer player, MovieStoreOptions options);
+
+    (string JsonString, LingoMovieDTO MovieDto) Serialize(LingoMovie movie, MovieStoreOptions options);
+    string SerializeProject(LingoPlayer player, MovieStoreOptions options);
+    LingoMovieDTO Deserialize(string json);
 }
 
 public class JsonStateRepository : IJsonStateRepository
@@ -45,9 +52,31 @@ public class JsonStateRepository : IJsonStateRepository
         return jsonTuple;
     }
 
+    public string SerializeProject(LingoPlayer player, MovieStoreOptions options)
+    {
+        var dto = ToProjectDto(player, options);
+        var joptions = new JsonSerializerOptions { WriteIndented = true };
+        var json = JsonSerializer.Serialize(dto, joptions);
+        return json;
+    }
+    public LingoProjectDTO ToProjectDto(LingoPlayer player, MovieStoreOptions options)
+    {
+        LingoProjectDTO projectDTO = new LingoProjectDTO
+        {
+            Stage = new LingoStageDTO
+            {
+                Width = player.Stage.Width,
+                Height = player.Stage.Height,
+                BackgroundColor = ToDto(player.Stage.BackgroundColor),
+            },
+        };
+        if (player.ActiveMovie != null)
+            projectDTO.Movies = [ToDto((LingoMovie)player.ActiveMovie, options)];
+        return projectDTO;
+    }
     public (string JsonString, LingoMovieDTO MovieDto) Serialize(LingoMovie movie, MovieStoreOptions options)
     {
-        var dto = ToDto(movie, options);
+        LingoMovieDTO dto = ToDto(movie, options);
         var joptions = new JsonSerializerOptions { WriteIndented = true };
         var json = JsonSerializer.Serialize(dto, joptions);
         return (json, dto);
@@ -60,14 +89,18 @@ public class JsonStateRepository : IJsonStateRepository
             dir = Directory.GetCurrentDirectory();
 
         var json = File.ReadAllText(filePath);
-        LingoProjectDTO dto = Deserialize(json);
+        LingoProjectDTO dto = DeserializeProject(json);
 
         return Load(dto, player, dir);
     }
 
-    public LingoProjectDTO Deserialize(string json)
+    public LingoProjectDTO DeserializeProject(string json)
     {
-        return JsonSerializer.Deserialize<LingoProjectDTO>(json) ?? throw new Exception("Invalid movie file");
+        return JsonSerializer.Deserialize<LingoProjectDTO>(json) ?? throw new Exception("Invalid project file");
+    }
+    public LingoMovieDTO Deserialize(string json)
+    {
+        return JsonSerializer.Deserialize<LingoMovieDTO>(json) ?? throw new Exception("Invalid movie file");
     }
 
     public LingoMovie Load(LingoProjectDTO dto, LingoPlayer player, string resourceDir)
@@ -300,6 +333,7 @@ public class JsonStateRepository : IJsonStateRepository
             Number = movie.Number,
             Tempo = movie.Tempo,
             FrameCount = movie.FrameCount,
+            MaxSpriteChannelCount = movie.MaxSpriteChannelCount,
             About = movie.About,
             Copyright = movie.Copyright,
             UserName = movie.UserName,
@@ -311,18 +345,43 @@ public class JsonStateRepository : IJsonStateRepository
 
     private static LingoCastDTO ToDto(LingoCast cast, MovieStoreOptions options)
     {
-        return new LingoCastDTO
+        try
         {
-            Name = cast.Name,
-            FileName = cast.FileName,
-            Number = cast.Number,
-            PreLoadMode = (PreLoadModeTypeDTO)cast.PreLoadMode,
-            Members = cast.GetAll().Select(m => ToDto(m, options)).ToList()
-        };
+            return new LingoCastDTO
+            {
+                Name = cast.Name,
+                FileName = cast.FileName,
+                Number = cast.Number,
+                PreLoadMode = (PreLoadModeTypeDTO)cast.PreLoadMode,
+                Members = cast.GetAll().Select(m => ToDto(m, options)).ToList()
+            };
+        }
+        catch (Exception ex)
+        {
+
+            throw;
+        }
+        
     }
 
     private static LingoMemberDTO ToDto(ILingoMember member, MovieStoreOptions options)
     {
+        return new LingoMemberDTO
+        {
+            Name = member.Name,
+            Number = member.Number,
+            CastLibNum = member.CastLibNum,
+            NumberInCast = member.NumberInCast,
+            Type = (LingoMemberTypeDTO)member.Type,
+            RegPoint = new LingoPointDTO { X = member.RegPoint.X, Y = member.RegPoint.Y },
+            Width = member.Width,
+            Height = member.Height,
+            Size = member.Size,
+            Comments = member.Comments,
+            FileName = member.FileName,
+            PurgePriority = member.PurgePriority
+        };
+
         var baseDto = new LingoMemberDTO
         {
             Name = member.Name,
@@ -341,101 +400,101 @@ public class JsonStateRepository : IJsonStateRepository
 
         return member switch
         {
-            LingoMemberField field => new LingoMemberFieldDTO
-            {
-                Name = baseDto.Name,
-                Number = baseDto.Number,
-                CastLibNum = baseDto.CastLibNum,
-                NumberInCast = baseDto.NumberInCast,
-                Type = baseDto.Type,
-                RegPoint = baseDto.RegPoint,
-                Width = baseDto.Width,
-                Height = baseDto.Height,
-                Size = baseDto.Size,
-                Comments = baseDto.Comments,
-                FileName = baseDto.FileName,
-                PurgePriority = baseDto.PurgePriority,
-                MarkDownText = field.InitialMarkdown != null ? field.InitialMarkdown.Markdown : field.Text
-            },
-            LingoMemberSound sound => new LingoMemberSoundDTO
-            {
-                Name = baseDto.Name,
-                Number = baseDto.Number,
-                CastLibNum = baseDto.CastLibNum,
-                NumberInCast = baseDto.NumberInCast,
-                Type = baseDto.Type,
-                RegPoint = baseDto.RegPoint,
-                Width = baseDto.Width,
-                Height = baseDto.Height,
-                Size = baseDto.Size,
-                Comments = baseDto.Comments,
-                FileName = baseDto.FileName,
-                PurgePriority = baseDto.PurgePriority,
-                Stereo = sound.Stereo,
-                Length = sound.Length,
-                Loop = sound.Loop,
-                IsLinked = sound.IsLinked,
-                LinkedFilePath = sound.LinkedFilePath,
-                SoundFile = SaveSound(sound, options)
-            },
-            LingoMemberText text => new LingoMemberTextDTO
-            {
-                Name = baseDto.Name,
-                Number = baseDto.Number,
-                CastLibNum = baseDto.CastLibNum,
-                NumberInCast = baseDto.NumberInCast,
-                Type = baseDto.Type,
-                RegPoint = baseDto.RegPoint,
-                Width = baseDto.Width,
-                Height = baseDto.Height,
-                Size = baseDto.Size,
-                Comments = baseDto.Comments,
-                FileName = baseDto.FileName,
-                PurgePriority = baseDto.PurgePriority,
-                MarkDownText = text.InitialMarkdown != null ? text.InitialMarkdown.Markdown : text.Text
-            },
-            LingoMemberBitmap picture => new LingoMemberPictureDTO
-            {
-                Name = baseDto.Name,
-                Number = baseDto.Number,
-                CastLibNum = baseDto.CastLibNum,
-                NumberInCast = baseDto.NumberInCast,
-                Type = baseDto.Type,
-                RegPoint = baseDto.RegPoint,
-                Width = baseDto.Width,
-                Height = baseDto.Height,
-                Size = baseDto.Size,
-                Comments = baseDto.Comments,
-                FileName = baseDto.FileName,
-                PurgePriority = baseDto.PurgePriority,
-                ImageFile = SavePicture(picture, options)
-            },
-            LingoFilmLoopMember filmLoop => new LingoMemberFilmLoopDTO
-            {
-                Name = baseDto.Name,
-                Number = baseDto.Number,
-                CastLibNum = baseDto.CastLibNum,
-                NumberInCast = baseDto.NumberInCast,
-                Type = baseDto.Type,
-                RegPoint = baseDto.RegPoint,
-                Width = baseDto.Width,
-                Height = baseDto.Height,
-                Size = baseDto.Size,
-                Comments = baseDto.Comments,
-                FileName = baseDto.FileName,
-                PurgePriority = baseDto.PurgePriority,
-                Framing = (LingoFilmLoopFramingDTO)filmLoop.Framing,
-                Loop = filmLoop.Loop,
-                FrameCount = filmLoop.FrameCount,
-                SpriteEntries = filmLoop.SpriteEntries.Select(ToDto).ToList(),
-                SoundEntries = filmLoop.SoundEntries.Select(e => new LingoFilmLoopSoundEntryDTO
-                {
-                    Channel = e.Channel,
-                    StartFrame = e.StartFrame,
-                    SoundMemberNum = e.Sound.Number,
-                    CastlibNum = e.Sound.CastLibNum
-                }).ToList()
-            },
+            //LingoMemberField field => new LingoMemberFieldDTO
+            //{
+            //    Name = baseDto.Name,
+            //    Number = baseDto.Number,
+            //    CastLibNum = baseDto.CastLibNum,
+            //    NumberInCast = baseDto.NumberInCast,
+            //    Type = baseDto.Type,
+            //    RegPoint = baseDto.RegPoint,
+            //    Width = baseDto.Width,
+            //    Height = baseDto.Height,
+            //    Size = baseDto.Size,
+            //    Comments = baseDto.Comments,
+            //    FileName = baseDto.FileName,
+            //    PurgePriority = baseDto.PurgePriority,
+            //    MarkDownText = field.InitialMarkdown != null ? field.InitialMarkdown.Markdown : field.Text
+            //},
+            //LingoMemberSound sound => new LingoMemberSoundDTO
+            //{
+            //    Name = baseDto.Name,
+            //    Number = baseDto.Number,
+            //    CastLibNum = baseDto.CastLibNum,
+            //    NumberInCast = baseDto.NumberInCast,
+            //    Type = baseDto.Type,
+            //    RegPoint = baseDto.RegPoint,
+            //    Width = baseDto.Width,
+            //    Height = baseDto.Height,
+            //    Size = baseDto.Size,
+            //    Comments = baseDto.Comments,
+            //    FileName = baseDto.FileName,
+            //    PurgePriority = baseDto.PurgePriority,
+            //    Stereo = sound.Stereo,
+            //    Length = sound.Length,
+            //    Loop = sound.Loop,
+            //    IsLinked = sound.IsLinked,
+            //    LinkedFilePath = sound.LinkedFilePath,
+            //    SoundFile = SaveSound(sound, options)
+            //},
+            //LingoMemberText text => new LingoMemberTextDTO
+            //{
+            //    Name = baseDto.Name,
+            //    Number = baseDto.Number,
+            //    CastLibNum = baseDto.CastLibNum,
+            //    NumberInCast = baseDto.NumberInCast,
+            //    Type = baseDto.Type,
+            //    RegPoint = baseDto.RegPoint,
+            //    Width = baseDto.Width,
+            //    Height = baseDto.Height,
+            //    Size = baseDto.Size,
+            //    Comments = baseDto.Comments,
+            //    FileName = baseDto.FileName,
+            //    PurgePriority = baseDto.PurgePriority,
+            //    MarkDownText = text.InitialMarkdown != null ? text.InitialMarkdown.Markdown : text.Text
+            //},
+            //LingoMemberBitmap picture => new LingoMemberPictureDTO
+            //{
+            //    Name = baseDto.Name,
+            //    Number = baseDto.Number,
+            //    CastLibNum = baseDto.CastLibNum,
+            //    NumberInCast = baseDto.NumberInCast,
+            //    Type = baseDto.Type,
+            //    RegPoint = baseDto.RegPoint,
+            //    Width = baseDto.Width,
+            //    Height = baseDto.Height,
+            //    Size = baseDto.Size,
+            //    Comments = baseDto.Comments,
+            //    FileName = baseDto.FileName,
+            //    PurgePriority = baseDto.PurgePriority,
+            //    ImageFile = SavePicture(picture, options)
+            //},
+            //LingoFilmLoopMember filmLoop => new LingoMemberFilmLoopDTO
+            //{
+            //    Name = baseDto.Name,
+            //    Number = baseDto.Number,
+            //    CastLibNum = baseDto.CastLibNum,
+            //    NumberInCast = baseDto.NumberInCast,
+            //    Type = baseDto.Type,
+            //    RegPoint = baseDto.RegPoint,
+            //    Width = baseDto.Width,
+            //    Height = baseDto.Height,
+            //    Size = baseDto.Size,
+            //    Comments = baseDto.Comments,
+            //    FileName = baseDto.FileName,
+            //    PurgePriority = baseDto.PurgePriority,
+            //    Framing = (LingoFilmLoopFramingDTO)filmLoop.Framing,
+            //    Loop = filmLoop.Loop,
+            //    FrameCount = filmLoop.FrameCount,
+            //    SpriteEntries = filmLoop.SpriteEntries.Select(ToDto).ToList(),
+            //    SoundEntries = filmLoop.SoundEntries.Select(e => new LingoFilmLoopSoundEntryDTO
+            //    {
+            //        Channel = e.Channel,
+            //        StartFrame = e.StartFrame,
+            //        SoundMemberNum = e.Sound.Number,
+            //        CastlibNum = e.Sound.CastLibNum
+            //    }).ToList()
+           // },
             _ => baseDto
         };
     }

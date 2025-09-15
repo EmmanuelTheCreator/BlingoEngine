@@ -121,7 +121,7 @@ public sealed class RNetServer : IRNetServer
         builder.Services.AddSignalR(o =>
         {
             o.EnableDetailedErrors = DetailedLogging;          
-            o.MaximumReceiveMessageSize = 128 * 1024;
+            o.MaximumReceiveMessageSize = 1024 * 1024;
         });
 
         var app = builder.Build();

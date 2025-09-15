@@ -27,7 +27,7 @@ namespace LingoEngine.Net.RNetTerminal
 
             var standalone = new Button("Run Standalone", true);
             var connect = new Button("Connect");
-            var dialog = new Dialog("LingoEngine Remote Net Terminal", 80, 24, standalone, connect)
+            var dialog = new Dialog("", 80, 24, standalone, connect)
             {
                 ColorScheme = new ColorScheme
                 {
@@ -93,7 +93,7 @@ namespace LingoEngine.Net.RNetTerminal
                     e.Handled = true;
                 }
             };
-            portField.SetFocus();
+            connect.SetFocus();
             Application.Run(dialog);
         }
     }

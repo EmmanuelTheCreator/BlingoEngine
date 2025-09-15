@@ -11,4 +11,12 @@ public class LingoMovieDTO
     public List<LingoSpriteDTO> Sprites { get; set; } = new();
     public string UserName { get; set; } =string.Empty;
     public string CompanyName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Total number of sprite channels in the movie.
+    /// Lingo: lastChannel
+    /// </summary>
+    public int MaxSpriteChannelCount { get; set; }
+
+
 }

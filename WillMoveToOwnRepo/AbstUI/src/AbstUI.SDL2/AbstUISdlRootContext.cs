@@ -42,6 +42,8 @@ public abstract class AbstUISdlRootContext<TMouse> : IAbstSDLRootContext, ISdlRo
     public SdlFocusManager FocusManager { get; }
     public AbstSDLComponentContainer ComponentContainer { get; }
 
+    protected SdlDispatcher _dispatcher;
+
     public AbstSdlComponentFactory Factory { get; set; } = null!;
 
     public TMouse AbstMouse { get; protected set; } = default!;
@@ -54,11 +56,15 @@ public abstract class AbstUISdlRootContext<TMouse> : IAbstSDLRootContext, ISdlRo
         Renderer = renderer;
         FocusManager = focusManager;
         ComponentContainer = new AbstSDLComponentContainer(focusManager);
+        _dispatcher = new SdlDispatcher();
+        var ctx = new SdlSynchronizationContext(_dispatcher);
+        SynchronizationContext.SetSynchronizationContext(ctx);
     }
 
     public virtual void Run()
     {
         bool running = true;
+        
         uint last = SDL.SDL_GetTicks();
         while (running)
         {
@@ -72,6 +78,8 @@ public abstract class AbstUISdlRootContext<TMouse> : IAbstSDLRootContext, ISdlRo
                 {
                     ComponentContainer.QueueRedrawAll();
                 }
+                _dispatcher.Pump(e);    
+
                 _frameworkKey?.ProcessEvent(e);
                 _frameworkMouse?.ProcessEvent(e);
                 ComponentContainer.HandleEvent(e);

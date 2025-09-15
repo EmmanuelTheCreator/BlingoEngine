@@ -71,13 +71,25 @@ public sealed class LingoRNetHub : Hub
         }
         return Task.FromResult(new MovieStateDto(0, 0, false));
     }
-    public Task<MovieJsonDto> GetMovie()
+    public async Task<LingoProjectJsonDto> GetCurrentProject()
     {
-        if (_player.ActiveMovie == null)
-            return Task.FromResult(new MovieJsonDto(""));
-        var dtoTuplet = new JsonStateRepository().Serialize((LingoMovie)_player.ActiveMovie, new JsonStateRepository.MovieStoreOptions { });
-
-        return Task.FromResult(new MovieJsonDto(dtoTuplet.JsonString));
+        try
+        {
+            if (_player.ActiveMovie == null)
+                return new LingoProjectJsonDto("");
+            var result1 = await _player.RunOnUIThreadAsync<string>(() => 
+            {
+                var json = new JsonStateRepository().SerializeProject((LingoPlayer)_player, new JsonStateRepository.MovieStoreOptions { });
+                return json;
+            }, CancellationToken.None);
+            return new LingoProjectJsonDto(result1);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error serializing movie");
+            return new LingoProjectJsonDto("");
+        }
+       
     }
 
     #endregion
