@@ -72,6 +72,7 @@ namespace LingoEngine.Sounds
         LingoSoundChannel? Channel(int channelNumber);
         bool SoundBusy(int channelNumber);
         void PuppetSound(int channelNumber, string memberName, float startTime = -1, float endTime = -1, int loopCount = -1, float loopStartTime = -1, float loopEndTime = -1, float preloadTime = -1);
+        void PuppetSound(int channelNumber, LingoMemberSound member, float startTime = -1, float endTime = -1, int loopCount = -1, float loopStartTime = -1, float loopEndTime = -1, float preloadTime = -1);
         void StopAll();
     }
 
@@ -138,6 +139,11 @@ namespace LingoEngine.Sounds
         public void PuppetSound(int channelNumber, string memberName, float startTime = -1, float endTime = -1, int loopCount = -1, float loopStartTime = -1, float loopEndTime = -1, float preloadTime = -1)
         {
             var member = _castLibsContainer.GetMember<LingoMemberSound>(memberName);
+            if (member == null) return;
+            _Channels[channelNumber].Play(member, startTime,endTime, loopCount, loopStartTime, loopEndTime,preloadTime);
+        }
+        public void PuppetSound(int channelNumber, LingoMemberSound member, float startTime = -1, float endTime = -1, int loopCount = -1, float loopStartTime = -1, float loopEndTime = -1, float preloadTime = -1)
+        {
             if (member == null) return;
             _Channels[channelNumber].Play(member, startTime,endTime, loopCount, loopStartTime, loopEndTime,preloadTime);
         }

@@ -1,12 +1,12 @@
 <Project Sdk="Godot.NET.Sdk/4.5.0-dev.5">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <EnableDynamicLoading>true</EnableDynamicLoading>
-    <Nullable>enable</Nullable>
-    <LangVersion>12</LangVersion>
-    <Platforms>AnyCPU;x64;x86</Platforms>
-	  <Configurations>Debug;Release</Configurations>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<EnableDynamicLoading>true</EnableDynamicLoading>
+		<Nullable>enable</Nullable>
+		<LangVersion>12</LangVersion>
+		<Platforms>AnyCPU;x64;x86</Platforms>
+		<Configurations>Debug;Release</Configurations>
+	</PropertyGroup>
   <PropertyGroup>
     <!-- NuGet Packaging Metadata -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -26,6 +26,7 @@
     <Content Include="Media\Icons\General_Icons.png" />
     <Content Include="Media\Icons\Painter2_Icons.png" />
     <Content Include="Media\Icons\Painter_Icons.png" />
+    <Content Include="Properties\launchSettings.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../LingoEngine.Director.LGodot/LingoEngine.Director.LGodot.csproj" />
