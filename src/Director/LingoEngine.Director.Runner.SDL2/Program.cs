@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 var services = new ServiceCollection();
 services.RegisterLingoEngine(c =>
 {
-    c.WithDirectorHostServer();
+    c.WithRNetHostServer();
     c.WithDirectorSdlEngine("Director c#", 1280, 720);
 });
 var sp = services.BuildServiceProvider();

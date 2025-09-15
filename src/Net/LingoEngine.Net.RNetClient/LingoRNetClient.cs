@@ -13,6 +13,18 @@ public interface ILingoRNetClient : IAsyncDisposable
     /// <summary>Connects to the RNet hub and sends the initial hello payload.</summary>
     Task ConnectAsync(Uri hubUrl, HelloDto hello, CancellationToken ct = default);
 
+    /// <summary>Gets the current connection state.</summary>
+    LingoNetConnectionState ConnectionState { get; }
+
+    /// <summary>Indicates whether the client is currently connected.</summary>
+    bool IsConnected { get; }
+
+    /// <summary>Raised when the connection state changes.</summary>
+    event Action<LingoNetConnectionState> ConnectionStatusChanged;
+
+    /// <summary>Raised when a command is received from the host.</summary>
+    event Action<IRNetCommand> NetCommandReceived;
+
     /// <summary>Disconnects from the hub.</summary>
     Task DisconnectAsync();
 
@@ -44,7 +56,16 @@ public interface ILingoRNetClient : IAsyncDisposable
     IAsyncEnumerable<TransitionDto> StreamTransitionsAsync(CancellationToken ct = default);
 
     /// <summary>Streams member property updates from the host.</summary>
-    IAsyncEnumerable<MemberPropertyDto> StreamMemberPropertiesAsync(CancellationToken ct = default);
+    IAsyncEnumerable<RNetMemberPropertyDto> StreamMemberPropertiesAsync(CancellationToken ct = default);
+
+    /// <summary>Streams movie property updates from the host.</summary>
+    IAsyncEnumerable<RNetMoviePropertyDto> StreamMoviePropertiesAsync(CancellationToken ct = default);
+
+    /// <summary>Streams stage property updates from the host.</summary>
+    IAsyncEnumerable<RNetStagePropertyDto> StreamStagePropertiesAsync(CancellationToken ct = default);
+
+    /// <summary>Streams sprite collection change events from the host.</summary>
+    IAsyncEnumerable<RNetSpriteCollectionEventDto> StreamSpriteCollectionEventsAsync(CancellationToken ct = default);
 
     /// <summary>Streams text style updates from the host.</summary>
     IAsyncEnumerable<TextStyleDto> StreamTextStylesAsync(CancellationToken ct = default);
@@ -54,7 +75,7 @@ public interface ILingoRNetClient : IAsyncDisposable
     Task<MovieJsonDto> GetMovieAsync(CancellationToken ct = default);
 
     /// <summary>Sends a debug command to the host.</summary>
-    Task SendCommandAsync(DebugCommandDto cmd, CancellationToken ct = default);
+    Task SendCommandAsync(RNetCommand cmd, CancellationToken ct = default);
 
     /// <summary>Sends a heartbeat message to keep the session alive.</summary>
     Task SendHeartbeatAsync(TimeSpan? timeout = null, CancellationToken ct = default);
@@ -66,6 +87,46 @@ public interface ILingoRNetClient : IAsyncDisposable
 public sealed class LingoRNetClient : ILingoRNetClient
 {
     private HubConnection? _connection;
+    private LingoNetConnectionState _state = LingoNetConnectionState.Disconnected;
+    private readonly IRNetConfiguration _config;
+
+    public LingoRNetClient(IRNetConfiguration config)
+    {
+        _config = config;
+    }
+
+    public LingoRNetClient() : this(new DefaultConfig()) { }
+
+    private sealed class DefaultConfig : IRNetConfiguration
+    {
+        public int Port { get; set; } = 61699;
+        public bool AutoStartRNetHostOnStartup { get; set; }
+    }
+
+    /// <inheritdoc />
+    public event Action<LingoNetConnectionState>? ConnectionStatusChanged;
+
+    /// <inheritdoc />
+    public event Action<IRNetCommand>? NetCommandReceived;
+
+    /// <inheritdoc />
+    public LingoNetConnectionState ConnectionState
+    {
+        get => _state;
+        private set
+        {
+            if (_state == value)
+            {
+                return;
+            }
+
+            _state = value;
+            ConnectionStatusChanged?.Invoke(_state);
+        }
+    }
+
+    /// <inheritdoc />
+    public bool IsConnected => ConnectionState == LingoNetConnectionState.Connected;
 
     /// <inheritdoc />
     public async Task ConnectAsync(Uri hubUrl, HelloDto hello, CancellationToken ct = default)
@@ -80,8 +141,28 @@ public sealed class LingoRNetClient : ILingoRNetClient
             .WithAutomaticReconnect()
             .Build();
 
+        _connection.Reconnecting += _ =>
+        {
+            ConnectionState = LingoNetConnectionState.Connecting;
+            return Task.CompletedTask;
+        };
+        _connection.Reconnected += _ =>
+        {
+            ConnectionState = LingoNetConnectionState.Connected;
+            return Task.CompletedTask;
+        };
+        _connection.Closed += _ =>
+        {
+            ConnectionState = LingoNetConnectionState.Disconnected;
+            return Task.CompletedTask;
+        };
+
+        _connection.On<RNetCommand>("Command", cmd => NetCommandReceived?.Invoke(cmd));
+
+        ConnectionState = LingoNetConnectionState.Connecting;
         await _connection.StartAsync(ct).ConfigureAwait(false);
         await _connection.InvokeAsync("SessionHello", hello, ct).ConfigureAwait(false);
+        ConnectionState = LingoNetConnectionState.Connected;
     }
 
     /// <inheritdoc />
@@ -91,6 +172,7 @@ public sealed class LingoRNetClient : ILingoRNetClient
         {
             await _connection.DisposeAsync().ConfigureAwait(false);
             _connection = null;
+            ConnectionState = LingoNetConnectionState.Disconnected;
         }
     }
 
@@ -158,10 +240,31 @@ public sealed class LingoRNetClient : ILingoRNetClient
     }
 
     /// <inheritdoc />
-    public IAsyncEnumerable<MemberPropertyDto> StreamMemberPropertiesAsync(CancellationToken ct = default)
+    public IAsyncEnumerable<RNetMemberPropertyDto> StreamMemberPropertiesAsync(CancellationToken ct = default)
     {
         EnsureConnected();
-        return _connection!.StreamAsync<MemberPropertyDto>("StreamMemberProperties", ct);
+        return _connection!.StreamAsync<RNetMemberPropertyDto>("StreamMemberProperties", ct);
+    }
+
+    /// <inheritdoc />
+    public IAsyncEnumerable<RNetMoviePropertyDto> StreamMoviePropertiesAsync(CancellationToken ct = default)
+    {
+        EnsureConnected();
+        return _connection!.StreamAsync<RNetMoviePropertyDto>("StreamMovieProperties", ct);
+    }
+
+    /// <inheritdoc />
+    public IAsyncEnumerable<RNetStagePropertyDto> StreamStagePropertiesAsync(CancellationToken ct = default)
+    {
+        EnsureConnected();
+        return _connection!.StreamAsync<RNetStagePropertyDto>("StreamStageProperties", ct);
+    }
+
+    /// <inheritdoc />
+    public IAsyncEnumerable<RNetSpriteCollectionEventDto> StreamSpriteCollectionEventsAsync(CancellationToken ct = default)
+    {
+        EnsureConnected();
+        return _connection!.StreamAsync<RNetSpriteCollectionEventDto>("StreamSpriteCollectionEvents", ct);
     }
 
     /// <inheritdoc />
@@ -185,7 +288,7 @@ public sealed class LingoRNetClient : ILingoRNetClient
     }
 
     /// <inheritdoc />
-    public Task SendCommandAsync(DebugCommandDto cmd, CancellationToken ct = default)
+    public Task SendCommandAsync(RNetCommand cmd, CancellationToken ct = default)
     {
         EnsureConnected();
         return _connection!.InvokeAsync("SendCommand", cmd, ct).WaitAsync(TimeSpan.FromSeconds(5), ct);
@@ -212,4 +315,5 @@ public sealed class LingoRNetClient : ILingoRNetClient
             throw new InvalidOperationException("Not connected.");
         }
     }
+
 }

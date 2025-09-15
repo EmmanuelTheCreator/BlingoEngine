@@ -24,7 +24,7 @@ public sealed class LingoRNetHub : Hub
         _player = player;
     }
 
-    
+
     #region Client->Server
     /// <summary>
     /// Initializes a new debug session.
@@ -38,7 +38,7 @@ public sealed class LingoRNetHub : Hub
     /// <summary>
     /// Receives a debug command from a client.
     /// </summary>
-    public Task SendCommand(DebugCommandDto cmd)
+    public Task SendCommand(RNetCommand cmd)
     {
         _bus.Commands.Writer.TryWrite(cmd);
         return Task.CompletedTask;
@@ -71,8 +71,8 @@ public sealed class LingoRNetHub : Hub
     {
         if (_player.ActiveMovie == null)
             return Task.FromResult(new MovieJsonDto(""));
-        var dtoTuplet = new JsonStateRepository().Serialize((LingoMovie)_player.ActiveMovie,new JsonStateRepository.MovieStoreOptions { });
-       
+        var dtoTuplet = new JsonStateRepository().Serialize((LingoMovie)_player.ActiveMovie, new JsonStateRepository.MovieStoreOptions { });
+
         return Task.FromResult(new MovieJsonDto(dtoTuplet.JsonString));
     }
 
@@ -219,7 +219,7 @@ public sealed class LingoRNetHub : Hub
     /// <summary>
     /// Streams member property updates to the connected client.
     /// </summary>
-    public async IAsyncEnumerable<MemberPropertyDto> StreamMemberProperties([EnumeratorCancellation] CancellationToken ct)
+    public async IAsyncEnumerable<RNetMemberPropertyDto> StreamMemberProperties([EnumeratorCancellation] CancellationToken ct)
     {
         var reader = _bus.MemberProperties.Reader;
         while (await reader.WaitToReadAsync(ct).ConfigureAwait(false))
@@ -227,6 +227,51 @@ public sealed class LingoRNetHub : Hub
             while (reader.TryRead(out var prop))
             {
                 yield return prop;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Streams movie property updates to the connected client.
+    /// </summary>
+    public async IAsyncEnumerable<RNetMoviePropertyDto> StreamMovieProperties([EnumeratorCancellation] CancellationToken ct)
+    {
+        var reader = _bus.MovieProperties.Reader;
+        while (await reader.WaitToReadAsync(ct).ConfigureAwait(false))
+        {
+            while (reader.TryRead(out var prop))
+            {
+                yield return prop;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Streams stage property updates to the connected client.
+    /// </summary>
+    public async IAsyncEnumerable<RNetStagePropertyDto> StreamStageProperties([EnumeratorCancellation] CancellationToken ct)
+    {
+        var reader = _bus.StageProperties.Reader;
+        while (await reader.WaitToReadAsync(ct).ConfigureAwait(false))
+        {
+            while (reader.TryRead(out var prop))
+            {
+                yield return prop;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Streams sprite collection change events to the connected client.
+    /// </summary>
+    public async IAsyncEnumerable<RNetSpriteCollectionEventDto> StreamSpriteCollectionEvents([EnumeratorCancellation] CancellationToken ct)
+    {
+        var reader = _bus.SpriteCollectionEvents.Reader;
+        while (await reader.WaitToReadAsync(ct).ConfigureAwait(false))
+        {
+            while (reader.TryRead(out var evt))
+            {
+                yield return evt;
             }
         }
     }
@@ -244,7 +289,7 @@ public sealed class LingoRNetHub : Hub
                 yield return style;
             }
         }
-    } 
+    }
     #endregion
 
 

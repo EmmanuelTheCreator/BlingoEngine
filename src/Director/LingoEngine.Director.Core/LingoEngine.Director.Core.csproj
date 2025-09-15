@@ -39,6 +39,8 @@
     <ProjectReference Include="..\..\LingoEngine.IO\LingoEngine.IO.csproj" />
     <ProjectReference Include="..\..\LingoEngine\LingoEngine.csproj" />
     <ProjectReference Include="..\..\LingoEngine.Lingo.Core\LingoEngine.Lingo.Core.csproj" />
+    <ProjectReference Include="..\..\Net\LingoEngine.Net.RNetHost\LingoEngine.Net.RNetHost.csproj" />
+    <ProjectReference Include="..\..\Net\LingoEngine.Net.RNetClient\LingoEngine.Net.RNetClient.csproj" />
   </ItemGroup>
 
   <ItemGroup>

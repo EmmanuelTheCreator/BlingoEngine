@@ -2,6 +2,8 @@
 
 This folder contains a C++ implementation of the `RNetClient` using the Microsoft SignalR client and `nlohmann::json`.
 
+This client talks directly to the core **LingoEngine**, enabling any project built on the engine to be remotely controlled.
+
 ## Build
 
 Install dependencies using vcpkg:

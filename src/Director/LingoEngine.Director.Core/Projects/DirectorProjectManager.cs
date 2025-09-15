@@ -9,6 +9,7 @@ using LingoEngine.Director.Core.Windowing;
 using LingoEngine.IO;
 using LingoEngine.Movies;
 using LingoEngine.Projects;
+using LingoEngine.Net.RNetContracts;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,6 +28,7 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
     private readonly IAbstWindowManager _windowManager;
     private readonly DirectorProjectSettings _dirSettings;
     private readonly DirectorStageGuides _guides;
+    private readonly RNetConfiguration _rnetConfig;
     private readonly DirectorProjectSettingsRepository _settingsRepo;
     private readonly LingoProjectSettingsRepository _projectSettingsRepo;
 
@@ -36,6 +38,7 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
         IAbstWindowManager windowManager,
         DirectorProjectSettings dirSettings,
         DirectorStageGuides guides,
+        RNetConfiguration rnetConfig,
         DirectorProjectSettingsRepository settingsRepo,
         LingoProjectSettingsRepository projectSettingsRepo)
     {
@@ -44,6 +47,7 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
         _windowManager = windowManager;
         _dirSettings = dirSettings;
         _guides = guides;
+        _rnetConfig = rnetConfig;
         _settingsRepo = settingsRepo;
         _projectSettingsRepo = projectSettingsRepo;
     }
@@ -113,6 +117,9 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
         _dirSettings.VerticalGuides = _guides.VerticalGuides.ToList();
         _dirSettings.HorizontalGuides = _guides.HorizontalGuides.ToList();
 
+        _dirSettings.RNet.Port = _rnetConfig.Port;
+        _dirSettings.RNet.AutoStartRNetHostOnStartup = _rnetConfig.AutoStartRNetHostOnStartup;
+
         var states = new Dictionary<string, DirectorWindowState>();
         if (_windowManager is AbstWindowManager dm)
         {
@@ -144,6 +151,12 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
         _dirSettings.GridSnap = loaded.GridSnap;
         _dirSettings.GridWidth = loaded.GridWidth;
         _dirSettings.GridHeight = loaded.GridHeight;
+
+        _dirSettings.RNet.Port = loaded.RNet.Port;
+        _dirSettings.RNet.AutoStartRNetHostOnStartup = loaded.RNet.AutoStartRNetHostOnStartup;
+
+        _rnetConfig.Port = loaded.RNet.Port;
+        _rnetConfig.AutoStartRNetHostOnStartup = loaded.RNet.AutoStartRNetHostOnStartup;
 
         _dirSettings.WindowStates = loaded.WindowStates;
 

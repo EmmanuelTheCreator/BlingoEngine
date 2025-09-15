@@ -24,6 +24,10 @@ namespace LingoEngine.Sprites
     {
 
         event Action<int>? SpriteListChanged;
+        event Action<TSprite>? SpriteAdded;
+        event Action<TSprite>? SpriteRemoved;
+        event Action? SpritesCleared;
+
         IEnumerable<TSprite> GetAllSprites();
         IEnumerable<TSprite> GetAllSpritesByChannel(int channel);
         IEnumerable<TSprite> GetAllSpritesBySpriteNumAndChannel(int spriteNumAndChannel);
@@ -38,7 +42,7 @@ namespace LingoEngine.Sprites
         protected readonly LingoMovieEnvironment _environment;
         protected readonly LingoMovie _movie;
         protected readonly List<int> _mutedSprites = new List<int>();
-        
+
 
         protected int _maxSpriteNum = 0;
         protected int _maxSpriteChannelCount;
@@ -110,7 +114,13 @@ namespace LingoEngine.Sprites
 
 
         public event Action<int>? SpriteListChanged;
+        public event Action<TSprite>? SpriteAdded;
+        public event Action<TSprite>? SpriteRemoved;
+        public event Action? SpritesCleared;
         protected void RaiseSpriteListChanged(int spritenumChannel) => SpriteListChanged?.Invoke(spritenumChannel);
+        protected void RaiseSpriteAdded(TSprite sprite) => SpriteAdded?.Invoke(sprite);
+        protected void RaiseSpriteRemoved(TSprite sprite) => SpriteRemoved?.Invoke(sprite);
+        protected void RaiseSpritesCleared() => SpritesCleared?.Invoke();
 
 
         protected LingoSpriteManager(int spritenumChannelOffset, LingoMovie movie, LingoMovieEnvironment environment)
@@ -144,6 +154,9 @@ namespace LingoEngine.Sprites
                     _allTimeSprites.RemoveAt(index);
                     _spritesByName.Remove(name);
                     RaiseSpriteListChanged(s.SpriteNumWithChannel);
+                    RaiseSpriteRemoved(s);
+                    if (_allTimeSprites.Count == 0)
+                        RaiseSpritesCleared();
                 }
             });
             sprite.Init(num, name);
@@ -159,6 +172,7 @@ namespace LingoEngine.Sprites
             sprite.InitialState = sprite.GetState();
 
             RaiseSpriteListChanged(sprite.SpriteNumWithChannel);
+            RaiseSpriteAdded(sprite);
             return sprite;
         }
         protected abstract TSprite OnCreateSprite(LingoMovie movie, Action<TSprite> onRemove);
@@ -254,7 +268,7 @@ namespace LingoEngine.Sprites
 
             foreach (var sprite in _activeSpritesOrdered.ToArray()) // make a copy of the array
             {
-                
+
                 bool stillActive = sprite.BeginFrame <= currentFrame && sprite.EndFrame >= currentFrame;
                 if (!stillActive || sprite.IsPuppetCached)
                 {
@@ -285,7 +299,7 @@ namespace LingoEngine.Sprites
             foreach (var sprite in _exitedSprites)
                 sprite.IsActive = false;
         }
-        
+
         protected virtual void SpriteEntered(TSprite sprite)
         {
             //_spriteChannels[sprite.SpriteNum].SetSprite(sprite);
@@ -385,7 +399,7 @@ namespace LingoEngine.Sprites
             foreach (var sprite in _deletedPuppetSpritesCache.Values.ToList())
                 DeletePuppetSprite(sprite);
             _deletedPuppetSpritesCache.Clear();
-            
+
         }
         private void DeletePuppetSprite(TSprite sprite)
         {

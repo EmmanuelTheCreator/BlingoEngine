@@ -11,7 +11,7 @@ public partial class DirectorRunner : Node
         var services = new ServiceCollection();
         services.RegisterLingoEngine(c =>
         {
-            c.WithDirectorHostServer();
+            c.WithRNetHostServer();
             c.WithDirectorGodotEngine(this);
         });
         var sp = services.BuildServiceProvider();

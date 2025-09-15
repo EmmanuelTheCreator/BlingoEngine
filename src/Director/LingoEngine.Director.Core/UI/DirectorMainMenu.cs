@@ -4,11 +4,13 @@ using LingoEngine.FrameworkCommunication;
 using LingoEngine.Movies;
 using LingoEngine.Inputs;
 using LingoEngine.Events;
+using System;
 using System.Collections.Generic;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.Icons;
 using AbstUI.Commands;
 using LingoEngine.Director.Core.Compilers.Commands;
+using LingoEngine.Net.RNetContracts;
 using AbstUI.Primitives;
 using LingoEngine.Director.Core.Tools.Commands;
 using AbstUI.Windowing;
@@ -18,6 +20,11 @@ using AbstUI.Components.Menus;
 using AbstUI.Components.Buttons;
 using AbstUI.Components.Containers;
 using LingoEngine.Director.Core.Importer.Commands;
+using LingoEngine.Director.Core.Remote.Commands;
+using LingoEngine.Net.RNetHost;
+using LingoEngine.Net.RNetClient;
+using System;
+using System.ComponentModel;
 
 namespace LingoEngine.Director.Core.UI
 {
@@ -34,12 +41,14 @@ namespace LingoEngine.Director.Core.UI
         private readonly AbstMenu _modifyMenu;
         private readonly AbstMenu _controlMenu;
         private readonly AbstMenu _windowMenu;
+        private readonly AbstMenu _remoteMenu;
         private readonly AbstButton _fileButton;
         private readonly AbstButton _editButton;
         private readonly AbstButton _insertButton;
         private AbstButton _ModifyButton;
         private readonly AbstButton _ControlButton;
         private readonly AbstButton _windowButton;
+        private readonly AbstButton _remoteButton;
         private AbstStateButton _playButton;
         private readonly IAbstWindowManager _windowManager;
         private readonly DirectorProjectManager _projectManager;
@@ -47,9 +56,14 @@ namespace LingoEngine.Director.Core.UI
         private readonly IAbstShortCutManager _shortCutManager;
         private readonly IHistoryManager _historyManager;
         private readonly IAbstCommandManager _commandManager;
+        private readonly IRNetServer _server;
+        private readonly ILingoRNetClient _client;
+        private readonly ILingoFrameworkFactory _factory;
         private readonly List<ShortCutInfo> _shortCuts = new();
         private AbstMenuItem _undoItem;
         private AbstMenuItem _redoItem;
+        private AbstMenuItem _hostItem = null!;
+        private AbstMenuItem _clientItem = null!;
         private ILingoMovie? _lingoMovie;
         private List<AbstButton> _topMenuButtons = new List<AbstButton>();
         private List<AbstMenu> _topMenus = new List<AbstMenu>();
@@ -81,7 +95,8 @@ namespace LingoEngine.Director.Core.UI
         }
 
         public DirectorMainMenu(IServiceProvider serviceProvider, IAbstWindowManager windowManager, DirectorProjectManager projectManager, LingoPlayer player, IAbstShortCutManager shortCutManager,
-            IHistoryManager historyManager, IDirectorIconManager directorIconManager, IAbstCommandManager commandManager, ILingoFrameworkFactory factory) : base(serviceProvider, DirectorMenuCodes.MainMenu)
+            IHistoryManager historyManager, IDirectorIconManager directorIconManager, IAbstCommandManager commandManager, ILingoFrameworkFactory factory,
+            IRNetServer server, ILingoRNetClient client) : base(serviceProvider, DirectorMenuCodes.MainMenu)
         {
             _windowManager = windowManager;
             _projectManager = projectManager;
@@ -89,6 +104,12 @@ namespace LingoEngine.Director.Core.UI
             _shortCutManager = shortCutManager;
             _historyManager = historyManager;
             _commandManager = commandManager;
+            _server = server;
+            _client = client;
+            _factory = factory;
+
+            _server.ConnectionStatusChanged += OnServerStateChanged;
+            _client.ConnectionStatusChanged += OnClientStateChanged;
 
             _menuBar = factory.CreateWrapPanel(AOrientation.Horizontal, "MenuBar");
             _iconBar = factory.CreateWrapPanel(AOrientation.Horizontal, "IconBar");
@@ -100,6 +121,7 @@ namespace LingoEngine.Director.Core.UI
             _modifyMenu = factory.CreateMenu("ModifyMenu");
             _controlMenu = factory.CreateMenu("ControlMenu");
             _windowMenu = factory.CreateMenu("WindowMenu");
+            _remoteMenu = factory.CreateMenu("RemoteMenu");
             // menu buttons
             _fileButton = factory.CreateButton("FileButton", "File");
             _editButton = factory.CreateButton("EditButton", "Edit");
@@ -107,6 +129,7 @@ namespace LingoEngine.Director.Core.UI
             _ModifyButton = factory.CreateButton("ModifyButton", "Modify");
             _ControlButton = factory.CreateButton("ControlButton", "Control");
             _windowButton = factory.CreateButton("WindowButton", "Window");
+            _remoteButton = factory.CreateButton("RemoteButton", "Remote");
 
             // icon buttons
             _iconBar
@@ -129,7 +152,7 @@ namespace LingoEngine.Director.Core.UI
                 .AddButton("Show" + DirectorMenuCodes.PictureEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.PictureEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowPaint))
                 .AddButton("Show" + DirectorMenuCodes.ShapeEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.ShapeEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowPath))
                 .AddButton("Show" + DirectorMenuCodes.TextEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.TextEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowText))
-                
+
             //.AddVLine("VLine4", 16, 2)
             //.AddButton("Show"+ DirectorMenuCodes.TextEditWindow, "", () => _windowManager.SwapWindowOpenState(DirectorMenuCodes.TextEditWindow), c => c.IconTexture = directorIconManager.Get(DirectorIcon.WindowText))
             ;
@@ -140,6 +163,7 @@ namespace LingoEngine.Director.Core.UI
             _topMenus.Add(_modifyMenu);
             _topMenus.Add(_controlMenu);
             _topMenus.Add(_windowMenu);
+            _topMenus.Add(_remoteMenu);
 
             _topMenuButtons.Add(_fileButton);
             _topMenuButtons.Add(_editButton);
@@ -147,6 +171,7 @@ namespace LingoEngine.Director.Core.UI
             _topMenuButtons.Add(_ModifyButton);
             _topMenuButtons.Add(_ControlButton);
             _topMenuButtons.Add(_windowButton);
+            _topMenuButtons.Add(_remoteButton);
 
 
             CallOnAllTopMenuButtons(x =>
@@ -160,6 +185,7 @@ namespace LingoEngine.Director.Core.UI
             _ModifyButton.Pressed += () => ShowMenu(_modifyMenu, _ModifyButton);
             _ControlButton.Pressed += () => ShowMenu(_controlMenu, _ControlButton);
             _windowButton.Pressed += () => ShowMenu(_windowMenu, _windowButton);
+            _remoteButton.Pressed += () => ShowMenu(_remoteMenu, _remoteButton);
 
             ComposeMenu(factory);
 
@@ -194,6 +220,7 @@ namespace LingoEngine.Director.Core.UI
             CreateModifyMenu(factory);
             CreateControlMenu(factory);
             CreateWindowMenu(factory);
+            CreateRemoteMenu(factory);
         }
 
         private void CreateFileMenu(ILingoFrameworkFactory factory)
@@ -304,6 +331,36 @@ namespace LingoEngine.Director.Core.UI
             _windowMenu.AddItem(behaviorInspectorWindow);
         }
 
+        private void CreateRemoteMenu(ILingoFrameworkFactory factory)
+        {
+            var settings = factory.CreateMenuItem("Settings");
+            settings.Activated += () => _commandManager.Handle(new OpenRNetSettingsCommand());
+            _remoteMenu.AddItem(settings);
+
+            _hostItem = factory.CreateMenuItem(_server.IsEnabled ? "Stop Host" : "Start Host");
+            _hostItem.Activated += () =>
+                _commandManager.Handle(_server.IsEnabled
+                    ? new DisconnectRNetServerCommand()
+                    : new ConnectRNetServerCommand());
+            _remoteMenu.AddItem(_hostItem);
+
+            _clientItem = factory.CreateMenuItem(_client.IsConnected ? "Stop Client" : "Start Client");
+            _clientItem.Activated += () =>
+                _commandManager.Handle(_client.IsConnected
+                    ? new DisconnectRNetClientCommand()
+                    : new ConnectRNetClientCommand());
+            _remoteMenu.AddItem(_clientItem);
+        }
+
+        private void OnServerStateChanged(LingoNetConnectionState state)
+        {
+            _hostItem.Name = state == LingoNetConnectionState.Connected ? "Stop Host" : "Start Host";
+        }
+
+        private void OnClientStateChanged(LingoNetConnectionState state)
+        {
+            _clientItem.Name = state == LingoNetConnectionState.Connected ? "Stop Client" : "Start Client";
+        }
 
 
         private void OnActiveMovieChanged(ILingoMovie? movie)
@@ -388,6 +445,8 @@ namespace LingoEngine.Director.Core.UI
             _shortCutManager.ShortCutAdded -= OnShortCutAdded;
             _shortCutManager.ShortCutRemoved -= OnShortCutRemoved;
             _player.Key.Unsubscribe(this);
+            _server.ConnectionStatusChanged -= OnServerStateChanged;
+            _client.ConnectionStatusChanged -= OnClientStateChanged;
             base.OnDispose();
         }
 

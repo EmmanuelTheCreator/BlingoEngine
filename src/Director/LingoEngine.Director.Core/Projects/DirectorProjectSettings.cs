@@ -1,6 +1,7 @@
 ﻿namespace LingoEngine.Director.Core.Projects;
 
 using AbstUI.Primitives;
+using LingoEngine.Net.RNetContracts;
 
 public enum DirectorIdeType
 {
@@ -28,6 +29,9 @@ public class DirectorProjectSettings
     public bool GridSnap { get; set; }
     public float GridWidth { get; set; } = 32;
     public float GridHeight { get; set; } = 32;
+
+    // Remote settings
+    public RNetConfiguration RNet { get; set; } = new();
 
     // Window positions
     public Dictionary<string, DirectorWindowState> WindowStates { get; set; } = new();
