@@ -39,7 +39,7 @@ internal sealed class ScoreView : ScrollView
     private int _playFrame;
     private readonly List<SpriteBlock> _sprites;
     private readonly Dictionary<int, LingoMemberDTO> _members;
-    private int? _selectedSprite;
+    private SpriteRef? _selectedSprite;
 
     private int TotalChannels => SpriteChannelCount + SpecialChannels.Length;
 
@@ -66,9 +66,9 @@ internal sealed class ScoreView : ScrollView
 
     public void RequestRedraw() => SetNeedsDisplay();
 
-    public void SelectSprite(int? spriteNumber)
+    public void SelectSprite(SpriteRef? sprite)
     {
-        _selectedSprite = spriteNumber;
+        _selectedSprite = sprite;
         SetNeedsDisplay();
     }
 
@@ -338,7 +338,7 @@ internal sealed class ScoreView : ScrollView
                 continue;
             }
             var y = channelIdx - offsetY + 1;
-            var bg = sprite.Number == _selectedSprite ? Color.Blue : Color.BrightBlue;
+            var bg = _selectedSprite.HasValue && sprite.Number == _selectedSprite.Value.SpriteNum && sprite.Start == _selectedSprite.Value.BeginFrame ? Color.Blue : Color.BrightBlue;
             Driver.SetAttribute(Application.Driver.MakeAttribute(Color.White, bg));
             for (var f = start; f <= end; f++)
             {
@@ -518,8 +518,9 @@ internal sealed class ScoreView : ScrollView
             case "Select Sprite":
                 if (sprite != null)
                 {
-                    SelectSprite(sprite.Number);
-                    SpriteSelected?.Invoke(sprite.Number);
+                    var sel = new SpriteRef(sprite.Number, sprite.Start);
+                    SelectSprite(sel);
+                    SpriteSelected?.Invoke(sel.SpriteNum, sel.BeginFrame);
                     NotifyInfoChanged();
                 }
                 break;
@@ -663,7 +664,7 @@ internal sealed class ScoreView : ScrollView
 
     private void NotifySpriteChanged() => SpriteChanged?.Invoke();
 
-    public event Action<int>? SpriteSelected;
+    public event Action<int, int>? SpriteSelected;
 
     public event Action<int>? PlayFromHere;
 

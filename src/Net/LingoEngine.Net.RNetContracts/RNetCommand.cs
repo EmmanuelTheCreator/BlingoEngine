@@ -7,15 +7,17 @@ public abstract record RNetCommand : IRNetCommand;
 
 /// <summary>Sets a sprite property.</summary>
 /// <param name="SpriteNum">Sprite channel number.</param>
+/// <param name="BeginFrame">Sprite begin frame.</param>
 /// <param name="Prop">Property name.</param>
 /// <param name="Value">New value.</param>
-public sealed record SetSpritePropCmd(int SpriteNum, string Prop, string Value) : RNetCommand;
+public sealed record SetSpritePropCmd(int SpriteNum, int BeginFrame, string Prop, string Value) : RNetCommand;
 
 /// <summary>Sets a cast member property.</summary>
-/// <param name="MemberName">Member name.</param>
+/// <param name="CastLibNum">Cast library number.</param>
+/// <param name="MemberNum">Member number within the cast library.</param>
 /// <param name="Prop">Property name.</param>
 /// <param name="Value">New value.</param>
-public sealed record SetMemberPropCmd(string MemberName, string Prop, string Value) : RNetCommand;
+public sealed record SetMemberPropCmd(int CastLibNum, int MemberNum, string Prop, string Value) : RNetCommand;
 
 /// <summary>Changes playback to a specific frame.</summary>
 /// <param name="Frame">Target frame number.</param>

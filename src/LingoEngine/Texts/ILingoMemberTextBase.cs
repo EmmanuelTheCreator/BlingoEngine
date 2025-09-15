@@ -22,6 +22,11 @@ namespace LingoEngine.Texts
         void SetTextMD(AbstMarkdownData data);
 
         /// <summary>
+        /// Retrieves the current contents as a markdown string.
+        /// </summary>
+        string GetTextMDString();
+
+        /// <summary>
         /// Returns or sets individual lines of the text, 1-based indexing.
         /// </summary>
         LingoLines Line { get; }

@@ -13,7 +13,7 @@ internal sealed class StageView : View
     private readonly IReadOnlyList<LingoSpriteDTO> _sprites;
     private readonly Dictionary<int, LingoMemberDTO> _members = new();
     private int _frame;
-    private int? _selectedSprite;
+    private SpriteRef? _selectedSprite;
     private static readonly Color[] OverlapColors =
     {
         Color.DarkGray,
@@ -22,7 +22,7 @@ internal sealed class StageView : View
         Color.BrightYellow
     };
 
-    public event Action<int>? SpriteSelected;
+    public event Action<int, int>? SpriteSelected;
 
     public StageView()
     {
@@ -45,9 +45,9 @@ internal sealed class StageView : View
 
     public void RequestRedraw() => SetNeedsDisplay();
 
-    public void SetSelectedSprite(int? spriteNum)
+    public void SetSelectedSprite(SpriteRef? sprite)
     {
-        _selectedSprite = spriteNum;
+        _selectedSprite = sprite;
         SetNeedsDisplay();
     }
 
@@ -102,7 +102,7 @@ internal sealed class StageView : View
                     }
                     counts[sx, sy]++;
                     chars[sx, sy] = text[i];
-                    var bg = _selectedSprite.HasValue && sprite.SpriteNum == _selectedSprite.Value
+                    var bg = _selectedSprite.HasValue && sprite.SpriteNum == _selectedSprite.Value.SpriteNum && sprite.BeginFrame == _selectedSprite.Value.BeginFrame
                         ? Color.Blue
                         : OverlapColors[Math.Min(counts[sx, sy] - 1, OverlapColors.Length - 1)];
                     colors[sx, sy] = bg;
@@ -123,7 +123,7 @@ internal sealed class StageView : View
                         }
                         counts[sx, sy]++;
                         chars[sx, sy] = ch;
-                        var bg = _selectedSprite.HasValue && sprite.SpriteNum == _selectedSprite.Value
+                        var bg = _selectedSprite.HasValue && sprite.SpriteNum == _selectedSprite.Value.SpriteNum && sprite.BeginFrame == _selectedSprite.Value.BeginFrame
                             ? Color.Blue
                             : OverlapColors[Math.Min(counts[sx, sy] - 1, OverlapColors.Length - 1)];
                         colors[sx, sy] = bg;
@@ -165,7 +165,7 @@ internal sealed class StageView : View
                 }
                 if (me.X >= x && me.X < x + sw && me.Y >= y && me.Y < y + sh)
                 {
-                    SpriteSelected?.Invoke(sprite.SpriteNum);
+                    SpriteSelected?.Invoke(sprite.SpriteNum, sprite.BeginFrame);
                     break;
                 }
             }

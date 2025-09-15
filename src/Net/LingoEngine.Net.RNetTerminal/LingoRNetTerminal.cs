@@ -23,7 +23,7 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     private PropertyInspector? _propertyInspector;
     private ScoreView? _scoreView;
     private StatusItem? _infoItem;
-    private int? _selectedSprite;
+    private SpriteRef? _selectedSprite;
 
     public LingoRNetTerminal()
     {
@@ -95,7 +95,7 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             Log($"propertyChanged {n}={v}");
             if (_selectedSprite.HasValue && _client != null)
             {
-                _ = _client.SendCommandAsync(new SetSpritePropCmd(_selectedSprite.Value, n, v));
+                _ = _client.SendCommandAsync(new SetSpritePropCmd(_selectedSprite.Value.SpriteNum, _selectedSprite.Value.BeginFrame, n, v));
             }
         };
         _propertyInspector.KeyPress += args =>
@@ -236,10 +236,10 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             Width = Dim.Fill(),
             Height = Dim.Fill(),
         };
-        _scoreView.SpriteSelected += n =>
+        _scoreView.SpriteSelected += (n, b) =>
         {
-            Log($"spriteSelected {n}");
-            _selectedSprite = n;
+            Log($"spriteSelected {n}@{b}");
+            _selectedSprite = new SpriteRef(n, b);
         };
         _scoreView.PlayFromHere += f => Log($"Play from {f}");
         _scoreView.InfoChanged += UpdateInfo;
@@ -286,19 +286,19 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
-        stage.SpriteSelected += n =>
+        stage.SpriteSelected += (n, b) =>
         {
-            Log($"spriteSelected {n}");
-            _selectedSprite = n;
-            stage.SetSelectedSprite(n);
-            _scoreView.SelectSprite(n);
+            Log($"spriteSelected {n}@{b}");
+            _selectedSprite = new SpriteRef(n, b);
+            stage.SetSelectedSprite(_selectedSprite);
+            _scoreView.SelectSprite(_selectedSprite);
         };
-        _scoreView.SpriteSelected += n =>
+        _scoreView.SpriteSelected += (n, b) =>
         {
-            Log($"spriteSelected {n}");
-            _selectedSprite = n;
-            stage.SetSelectedSprite(n);
-            _scoreView.SelectSprite(n);
+            Log($"spriteSelected {n}@{b}");
+            _selectedSprite = new SpriteRef(n, b);
+            stage.SetSelectedSprite(_selectedSprite);
+            _scoreView.SelectSprite(_selectedSprite);
         };
         _scoreView.PlayFromHere += f => Log($"Play from {f}");
         _scoreView.InfoChanged += (f, ch, sp, mem) =>
