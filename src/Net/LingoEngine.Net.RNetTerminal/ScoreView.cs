@@ -213,6 +213,7 @@ internal sealed class ScoreView : ScrollView
             }
             var handled = base.MouseEvent(me);
             ClampContentOffset();
+            SetNeedsDisplay();
             return handled;
         }
         catch (Exception ex)
@@ -237,14 +238,6 @@ internal sealed class ScoreView : ScrollView
     private void ClampContentOffset()
     {
         var offset = GetOffset();
-        if (ContentOffset.X < 0)
-        {
-            offset.X = 0;
-        }
-        if (ContentOffset.Y < 0)
-        {
-            offset.Y = 0;
-        }
         ClampContentOffset(ref offset);
         SetOffset(offset);
     }
@@ -257,6 +250,7 @@ internal sealed class ScoreView : ScrollView
     {
         _cursorFrame = Math.Clamp(_cursorFrame + dx, 0, FrameCount - 1);
         _cursorChannel = Math.Clamp(_cursorChannel + dy, 0, TotalChannels - 1);
+        _selectedSprite = FindSprite(_cursorChannel + 1, _cursorFrame + 1)?.Number;
         EnsureVisible();
         SetNeedsDisplay();
         NotifyInfoChanged();
