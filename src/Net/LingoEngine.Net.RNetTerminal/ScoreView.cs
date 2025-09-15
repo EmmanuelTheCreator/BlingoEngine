@@ -38,7 +38,6 @@ internal sealed class ScoreView : ScrollView
     private int _cursorFrame;
     private int _playFrame;
     private readonly List<SpriteBlock> _sprites;
-    private readonly Dictionary<int, LingoMemberDTO> _members;
     private int? _selectedSprite;
 
     private int TotalChannels => SpriteChannelCount + SpecialChannels.Length;
@@ -46,7 +45,6 @@ internal sealed class ScoreView : ScrollView
     public ScoreView()
     {
         _sprites = new List<SpriteBlock>();
-        _members = new Dictionary<int, LingoMemberDTO>();
         _labelWidth = Math.Max(SpecialChannels.Max(s => s.Length), SpriteChannelCount.ToString().Length) + 1;
         CanFocus = true;
         ColorScheme = new ColorScheme
@@ -57,31 +55,31 @@ internal sealed class ScoreView : ScrollView
         ShowVerticalScrollIndicator = true;
         ShowHorizontalScrollIndicator = true;
         AutoHideScrollBars = false;
+        var store = TerminalDataStore.Instance;
+        _selectedSprite = store.GetSelectedSprite();
+        store.SelectedSpriteChanged += s =>
+        {
+            _selectedSprite = s;
+            SetNeedsDisplay();
+        };
+        store.SpritesChanged += ReloadData;
+        store.CastsChanged += ReloadData;
+        store.SpriteChanged += _ => SetNeedsDisplay();
+        store.MemberChanged += _ => SetNeedsDisplay();
         ReloadData();
     }
 
-    public event Action<int, int, int?, string?>? InfoChanged;
+    public event Action<int, int, int?, int?>? InfoChanged;
 
     public void RequestRedraw() => SetNeedsDisplay();
-
-    public void SelectSprite(int? spriteNumber)
-    {
-        _selectedSprite = spriteNumber;
-        SetNeedsDisplay();
-    }
 
     public void ReloadData()
     {
         var store = TerminalDataStore.Instance;
         _stageWidth = store.StageWidth;
         _sprites.Clear();
-        _sprites.AddRange(store.Sprites
-            .Select(s => new SpriteBlock(s.SpriteNum, s.BeginFrame, s.EndFrame, s.SpriteNum, s.MemberNum, s.Name, s.Width)));
-        _members.Clear();
-        foreach (var m in store.Casts.SelectMany(c => c.Value))
-        {
-            _members[MemberKey(m)] = m;
-        }
+        _sprites.AddRange(store.GetSprites()
+            .Select(s => new SpriteBlock(s.SpriteNum, s.BeginFrame, s.EndFrame, s.SpriteNum, s.MemberNum, s.Width)));
         ContentSize = new Size(FrameCount + _labelWidth, TotalChannels + 1);
         SetNeedsDisplay();
     }
@@ -157,7 +155,7 @@ internal sealed class ScoreView : ScrollView
                     var previousSprite = _selectedSprite;
                     var newSprite = FindSprite(_cursorChannel + 1, _cursorFrame + 1)?.Number;
                     if (newSprite != previousSprite && newSprite != null)
-                        SelectSprite(newSprite);
+                        TerminalDataStore.Instance.SelectSprite(newSprite);
                 }
                 ClampContentOffset();
                 return true;
@@ -260,7 +258,7 @@ internal sealed class ScoreView : ScrollView
         SetNeedsDisplay();
         NotifyInfoChanged();
         if (newSprite != previousSprite && newSprite != null)
-            SelectSprite(newSprite);
+            TerminalDataStore.Instance.SelectSprite(newSprite);
     }
 
     private void EnsureVisible()
@@ -382,7 +380,8 @@ internal sealed class ScoreView : ScrollView
                 Move(_labelWidth + f - offsetX, y);
                 Driver.AddRune(' ');
             }
-            if (_members.TryGetValue(sprite.MemberNum, out var member) && member.Type == LingoMemberTypeDTO.Text)
+            var member = TerminalDataStore.Instance.FindMember(sprite.MemberNum);
+            if (member != null && member.Type == LingoMemberTypeDTO.Text)
             {
                 var maxChars = Math.Max(1, (int)(sprite.Width / _stageWidth * (end - start + 1)));
                 var text = member.Name;
@@ -552,8 +551,7 @@ internal sealed class ScoreView : ScrollView
             case "Select Sprite":
                 if (sprite != null)
                 {
-                    SelectSprite(sprite.Number);
-                    SpriteSelected?.Invoke(sprite.Number);
+                    TerminalDataStore.Instance.SelectSprite(sprite.Number);
                     NotifyInfoChanged();
                 }
                 break;
@@ -566,33 +564,36 @@ internal sealed class ScoreView : ScrollView
         var end = new TextField("1") { X = 14, Y = 3, Width = 10 };
         var locH = new TextField("0") { X = 14, Y = 5, Width = 10 };
         var locV = new TextField("0") { X = 14, Y = 7, Width = 10 };
-        var member = new TextField("member") { X = 14, Y = 9, Width = 20 };
+        var castLib = new TextField("1") { X = 14, Y = 9, Width = 10 };
+        var memberNum = new TextField("1") { X = 14, Y = 11, Width = 10 };
         var ok = new Button("Ok", true);
         ok.Clicked += () =>
         {
             if (int.TryParse(begin.Text.ToString(), out var b) &&
-                int.TryParse(end.Text.ToString(), out var e))
+                int.TryParse(end.Text.ToString(), out var e) &&
+                int.TryParse(castLib.Text.ToString(), out var cast) &&
+                int.TryParse(memberNum.Text.ToString(), out var mem))
             {
                 var num = _sprites.Count + 1;
                 var ch = _cursorChannel + 1 - SpecialChannels.Length;
-                var name = member.Text?.ToString() ?? string.Empty;
-                var memberEntry = _members.Values.FirstOrDefault(m => m.Name == name);
-                var memberNum = memberEntry?.Number ?? 0;
+                var memberEntry = TerminalDataStore.Instance.FindMember(cast, mem);
+                var memberRef = memberEntry?.Number ?? 0;
                 var width = memberEntry?.Width ?? 1;
-                _sprites.Add(new SpriteBlock(ch, b, e, num, memberNum, name, width));
+                _sprites.Add(new SpriteBlock(ch, b, e, num, memberRef, width));
                 SetNeedsDisplay();
                 NotifyInfoChanged();
                 NotifySpriteChanged();
             }
             Application.RequestStop();
         };
-        var dialog = new Dialog("Create Sprite", 40, 15, ok);
+        var dialog = new Dialog("Create Sprite", 40, 17, ok);
         dialog.Add(
             new Label("Begin:") { X = 1, Y = 1 }, begin,
             new Label("End:") { X = 1, Y = 3 }, end,
             new Label("LocH:") { X = 1, Y = 5 }, locH,
             new Label("LocV:") { X = 1, Y = 7 }, locV,
-            new Label("MemberName:") { X = 1, Y = 9 }, member);
+            new Label("CastLibNum:") { X = 1, Y = 9 }, castLib,
+            new Label("MemberNum:") { X = 1, Y = 11 }, memberNum);
         begin.SetFocus();
         Application.Run(dialog);
     }
@@ -699,21 +700,16 @@ internal sealed class ScoreView : ScrollView
         {
             ch = 0;
         }
-        InfoChanged?.Invoke(_cursorFrame + 1, ch, sprite?.Number, sprite?.MemberName);
+        InfoChanged?.Invoke(_cursorFrame + 1, ch, sprite?.Number, sprite?.MemberNum);
     }
 
     public void TriggerInfo() => NotifyInfoChanged();
 
     private void NotifySpriteChanged() => SpriteChanged?.Invoke();
 
-    public event Action<int>? SpriteSelected;
-
     public event Action<int>? PlayFromHere;
 
     public event Action? SpriteChanged;
-
-    private static int MemberKey(LingoMemberDTO member)
-        => (member.CastLibNum << 16) | member.NumberInCast;
 
     private sealed class SpriteBlock
     {
@@ -722,18 +718,16 @@ internal sealed class ScoreView : ScrollView
         public int End { get; set; }
         public int Number { get; }
         public int MemberNum { get; }
-        public string MemberName { get; }
         public float Width { get; }
         public Dictionary<int, Dictionary<string, double>> Keyframes { get; } = new();
 
-        public SpriteBlock(int channel, int start, int end, int number, int memberNum, string memberName, float width)
+        public SpriteBlock(int channel, int start, int end, int number, int memberNum, float width)
         {
             Channel = channel;
             Start = start;
             End = end;
             Number = number;
             MemberNum = memberNum;
-            MemberName = memberName;
             Width = width;
             Keyframes[start] = new Dictionary<string, double>();
             Keyframes[end] = new Dictionary<string, double>();
