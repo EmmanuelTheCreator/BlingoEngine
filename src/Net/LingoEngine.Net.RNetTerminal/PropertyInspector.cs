@@ -50,8 +50,8 @@ internal sealed class PropertyInspector : Window
             new PropertySpec("Behaviors", typeof(string))
         });
 
-        _memberTable.Columns.Add("Property");
-        _memberTable.Columns.Add("Value");
+        _memberTable.Columns.Add(string.Empty);
+        _memberTable.Columns.Add(string.Empty);
         _memberTableView = new TableView
         {
             Width = Dim.Fill(),
@@ -60,6 +60,9 @@ internal sealed class PropertyInspector : Window
             FullRowSelect = true
         };
         _memberTableView.Style.AlwaysShowHeaders = false;
+        _memberTableView.Style.ShowHorizontalHeaderUnderline = false;
+        _memberTableView.Style.ShowHorizontalHeaderOverline = false;
+        _memberTableView.Style.ShowVerticalHeaderLines = false;
         _memberTableView.Style.ShowVerticalCellLines = false;
         _memberTableView.SelectedColumn = 1;
         _memberTableView.SelectedCellChanged += _ => _memberTableView.SelectedColumn = 1;
@@ -171,8 +174,8 @@ internal sealed class PropertyInspector : Window
     private TableView BuildPropertyTableView(PropertySpec[] props)
     {
         var table = new DataTable();
-        table.Columns.Add("Property");
-        table.Columns.Add("Value");
+        table.Columns.Add(string.Empty);
+        table.Columns.Add(string.Empty);
         for (var i = 0; i < props.Length; i++)
         {
             table.Rows.Add(props[i].Name, GetDefaultValue(props[i].Type));
@@ -185,6 +188,9 @@ internal sealed class PropertyInspector : Window
             FullRowSelect = true
         };
         view.Style.AlwaysShowHeaders = false;
+        view.Style.ShowHorizontalHeaderUnderline = false;
+        view.Style.ShowHorizontalHeaderOverline = false;
+        view.Style.ShowVerticalHeaderLines = false;
         view.Style.ShowVerticalCellLines = false;
         view.SelectedColumn = 1;
         view.SelectedCellChanged += _ => view.SelectedColumn = 1;
