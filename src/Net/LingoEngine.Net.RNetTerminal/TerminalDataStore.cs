@@ -110,6 +110,55 @@ public sealed class TerminalDataStore
         MemberChanged?.Invoke(member);
     }
 
+    public void PropertyHasChanged(PropertyTarget target, string name, string value, LingoMemberDTO? member = null)
+    {
+        if (target == PropertyTarget.Sprite)
+        {
+            if (!_selectedSprite.HasValue)
+            {
+                return;
+            }
+
+            var sprite = FindSprite(_selectedSprite.Value);
+            if (sprite == null)
+            {
+                return;
+            }
+
+            switch (name)
+            {
+                case "LocH" when float.TryParse(value, out var locH):
+                    sprite.LocH = locH;
+                    break;
+                case "LocV" when float.TryParse(value, out var locV):
+                    sprite.LocV = locV;
+                    break;
+                case "Width" when float.TryParse(value, out var width):
+                    sprite.Width = width;
+                    break;
+                case "Height" when float.TryParse(value, out var height):
+                    sprite.Height = height;
+                    break;
+            }
+
+            UpdateSprite(sprite);
+        }
+        else if (target == PropertyTarget.Member && member != null)
+        {
+            switch (name)
+            {
+                case "Name":
+                    member.Name = value;
+                    break;
+                case "Comment":
+                    member.Comments = value;
+                    break;
+            }
+
+            UpdateMember(member);
+        }
+    }
+
     public void LoadTestData()
     {
         MovieState = TestMovieBuilder.BuildMovieState();

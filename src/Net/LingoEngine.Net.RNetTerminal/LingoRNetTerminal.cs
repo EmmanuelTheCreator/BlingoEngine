@@ -99,57 +99,21 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         {
             Log($"propertyChanged {n}={v}");
             var store = TerminalDataStore.Instance;
-            if (target == PropertyTarget.Sprite)
+            store.PropertyHasChanged(target, n, v, _propertyInspector?.CurrentMember);
+            if (_client != null)
             {
-                var sel = store.GetSelectedSprite();
-                if (sel.HasValue)
+                if (target == PropertyTarget.Sprite)
                 {
-                    var sprite = store.FindSprite(sel.Value);
-                    if (sprite != null)
-                    {
-                        switch (n)
-                        {
-                            case "LocH" when float.TryParse(v, out var locH):
-                                sprite.LocH = locH;
-                                break;
-                            case "LocV" when float.TryParse(v, out var locV):
-                                sprite.LocV = locV;
-                                break;
-                            case "Width" when float.TryParse(v, out var width):
-                                sprite.Width = width;
-                                break;
-                            case "Height" when float.TryParse(v, out var height):
-                                sprite.Height = height;
-                                break;
-                        }
-                        store.UpdateSprite(sprite);
-                    }
-                    if (_client != null)
+                    var sel = store.GetSelectedSprite();
+                    if (sel.HasValue)
                     {
                         _ = _client.SendCommandAsync(new SetSpritePropCmd(sel.Value.SpriteNum, sel.Value.BeginFrame, n, v));
                     }
-
                 }
-            }
-            else if (target == PropertyTarget.Member)
-            {
-                var member = _propertyInspector?.CurrentMember;
-                if (member != null)
+                else if (target == PropertyTarget.Member && _propertyInspector?.CurrentMember != null)
                 {
-                    switch (n)
-                    {
-                        case "Name":
-                            member.Name = v;
-                            break;
-                        case "Comment":
-                            member.Comments = v;
-                            break;
-                    }
-                    store.UpdateMember(member);
-                    if (_client != null)
-                    {
-                        _ = _client.SendCommandAsync(new SetMemberPropCmd(member.CastLibNum, member.NumberInCast, n, v));
-                    }
+                    var member = _propertyInspector.CurrentMember;
+                    _ = _client.SendCommandAsync(new SetMemberPropCmd(member.CastLibNum, member.NumberInCast, n, v));
                 }
             }
         };
