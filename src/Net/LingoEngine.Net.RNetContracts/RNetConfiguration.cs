@@ -10,5 +10,6 @@ public class RNetConfiguration : IRNetConfiguration
 
     /// <inheritdoc />
     public bool AutoStartRNetHostOnStartup { get; set; }
+    public string ClientName { get; set; } = "Someone";
 }
 

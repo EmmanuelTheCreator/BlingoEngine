@@ -5,6 +5,7 @@ using LingoEngine.Net.RNetContracts;
 using LingoEngine.IO;
 using LingoEngine.Movies;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 
 namespace LingoEngine.Net.RNetHost;
 
@@ -15,28 +16,31 @@ public sealed class LingoRNetHub : Hub
 {
     private readonly IBus _bus;
     private readonly ILingoPlayer _player;
+    private readonly ILogger<LingoRNetHub> _logger;
     private static readonly ConcurrentDictionary<string, DateTime> _heartbeats = new();
 
     /// <summary>Initializes a new instance of the <see cref="LingoRNetHub"/> class.</summary>
-    public LingoRNetHub(IBus bus, ILingoPlayer player)
+    public LingoRNetHub(IBus bus, ILingoPlayer player, ILogger<LingoRNetHub> logger)
     {
         _bus = bus;
         _player = player;
+        _logger = logger;
     }
 
 
     #region Client->Server
     /// <summary>
-    /// Initializes a new debug session.
+    /// Initializes a new session.
     /// </summary>
     public Task SessionHello(HelloDto dto)
     {
+        _logger.LogInformation("Client connected: {Client}", dto.ClientName);
         _heartbeats[Context.ConnectionId] = DateTime.UtcNow;
         return Task.CompletedTask;
     }
 
     /// <summary>
-    /// Receives a debug command from a client.
+    /// Receives a command from a client.
     /// </summary>
     public Task SendCommand(RNetCommand cmd)
     {

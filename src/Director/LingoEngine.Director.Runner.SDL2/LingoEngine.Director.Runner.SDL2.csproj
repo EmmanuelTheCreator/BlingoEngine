@@ -20,8 +20,34 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="..\..\..\..\..\src\Ark.Godot\Media\Icons\DirectorSharp_Icon.png" Link="Media\Icons\DirectorSharp_Icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\..\..\src\Ark.Godot\Media\Icons\Director_Icons.png" Link="Media\Icons\Director_Icons.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\..\..\src\Ark.Godot\Media\Icons\General_Icons.png" Link="Media\Icons\General_Icons.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\..\..\src\Ark.Godot\Media\Icons\Painter2_Icons.png" Link="Media\Icons\Painter2_Icons.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\..\..\src\Ark.Godot\Media\Icons\Painter_Icons.png" Link="Media\Icons\Painter_Icons.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="../LingoEngine.Director.SDL2/LingoEngine.Director.SDL2.csproj" />
     <ProjectReference Include="../../Net/LingoEngine.Net.RNetHost/LingoEngine.Net.RNetHost.csproj" />
     <ProjectReference Include="../../LingoEngine.SDL2/LingoEngine.SDL2.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Media\Fonts\" />
+    <Folder Include="Media\Icons\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\src\Ark.Godot\Media\Fonts\Tahoma.ttf" Link="Media\Fonts\Tahoma.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

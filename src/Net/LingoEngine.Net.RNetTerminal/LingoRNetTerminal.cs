@@ -348,8 +348,9 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         if (!_connected)
         {
             _client = new LingoRNetClient();
+            // config.ClientName = Assembly.GetEntryAssembly()?.GetName().Name ?? "Someone";
             var hubUrl = new Uri($"http://localhost:{_port}/director");
-            await _client.ConnectAsync(hubUrl, new HelloDto("test-project", "console", "1.0"));
+            await _client.ConnectAsync(hubUrl, new HelloDto("test-project", "console", "1.0", "RNetTerminal"));
             _connected = true;
             Log("Connected.");
             _cts = new CancellationTokenSource();

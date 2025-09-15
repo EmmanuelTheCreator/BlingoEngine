@@ -21,6 +21,7 @@ namespace LingoEngine.Setup
         ILingoEngineRegistration WithProjectSettings(Action<LingoProjectSettings> setup);
         ILingoEngineRegistration WithGlobalVarsR<TGlobalVars>(Action<TGlobalVars>? setup = null) where TGlobalVars : LingoGlobalVars;
         ILingoEngineRegistration WithGlobalVars<TGlobalVars>(Action<TGlobalVars>? setup = null) where TGlobalVars : LingoGlobalVars, new();
+        ILingoEngineRegistration WithGlobalVarsDefault();
         LingoPlayer Build();
         Task<LingoPlayer> BuildAsync();
         ILingoEngineRegistration BuildDelayed();

@@ -20,6 +20,14 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="Media\Fonts\Tahoma.ttf" />
+    <Content Include="Media\Icons\DirectorSharp_Icon.png" />
+    <Content Include="Media\Icons\Director_Icons.png" />
+    <Content Include="Media\Icons\General_Icons.png" />
+    <Content Include="Media\Icons\Painter2_Icons.png" />
+    <Content Include="Media\Icons\Painter_Icons.png" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="../LingoEngine.Director.LGodot/LingoEngine.Director.LGodot.csproj" />
     <ProjectReference Include="../../Net/LingoEngine.Net.RNetHost/LingoEngine.Net.RNetHost.csproj" />
     <ProjectReference Include="../../LingoEngine.LGodot/LingoEngine.LGodot.csproj" />

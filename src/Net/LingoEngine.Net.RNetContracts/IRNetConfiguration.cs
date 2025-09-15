@@ -8,5 +8,7 @@ public interface IRNetConfiguration
 
     /// <summary>Automatically start the RNet host on engine startup.</summary>
     bool AutoStartRNetHostOnStartup { get; set; }
+    /// <summary>Name of the client application.</summary>
+    string ClientName { get; set; }
 }
 
