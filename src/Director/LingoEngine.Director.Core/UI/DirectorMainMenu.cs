@@ -4,6 +4,7 @@ using LingoEngine.FrameworkCommunication;
 using LingoEngine.Movies;
 using LingoEngine.Inputs;
 using LingoEngine.Events;
+using System;
 using System.Collections.Generic;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.Icons;
@@ -106,8 +107,8 @@ namespace LingoEngine.Director.Core.UI
             _client = client;
             _factory = factory;
 
-            _server.PropertyChanged += OnRemoteStateChanged;
-            _client.PropertyChanged += OnRemoteStateChanged;
+            _server.EnabledChanged += OnServerStateChanged;
+            _client.ConnectionChanged += OnClientStateChanged;
 
             _menuBar = factory.CreateWrapPanel(AOrientation.Horizontal, "MenuBar");
             _iconBar = factory.CreateWrapPanel(AOrientation.Horizontal, "IconBar");
@@ -350,16 +351,14 @@ namespace LingoEngine.Director.Core.UI
             _remoteMenu.AddItem(_clientItem);
         }
 
-        private void OnRemoteStateChanged(object? sender, PropertyChangedEventArgs e)
+        private void OnServerStateChanged(bool enabled)
         {
-            if (sender == _server && e.PropertyName == nameof(IRNetServer.IsEnabled))
-            {
-                _hostItem.Name = _server.IsEnabled ? "Stop Host" : "Start Host";
-            }
-            else if (sender == _client && e.PropertyName == nameof(ILingoRNetClient.IsConnected))
-            {
-                _clientItem.Name = _client.IsConnected ? "Stop Client" : "Start Client";
-            }
+            _hostItem.Name = enabled ? "Stop Host" : "Start Host";
+        }
+
+        private void OnClientStateChanged(bool connected)
+        {
+            _clientItem.Name = connected ? "Stop Client" : "Start Client";
         }
 
 
@@ -445,8 +444,8 @@ namespace LingoEngine.Director.Core.UI
             _shortCutManager.ShortCutAdded -= OnShortCutAdded;
             _shortCutManager.ShortCutRemoved -= OnShortCutRemoved;
             _player.Key.Unsubscribe(this);
-            _server.PropertyChanged -= OnRemoteStateChanged;
-            _client.PropertyChanged -= OnRemoteStateChanged;
+            _server.EnabledChanged -= OnServerStateChanged;
+            _client.ConnectionChanged -= OnClientStateChanged;
             base.OnDispose();
         }
 

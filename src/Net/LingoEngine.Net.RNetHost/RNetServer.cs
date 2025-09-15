@@ -1,4 +1,4 @@
-using System.ComponentModel;
+using System;
 using LingoEngine.Net.RNetContracts;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,13 +10,16 @@ namespace LingoEngine.Net.RNetHost;
 /// <summary>
 /// Hosts the SignalR server within the RNet process.
 /// </summary>
-public interface IRNetServer : INotifyPropertyChanged
+public interface IRNetServer
 {
     /// <summary>Provides access to the publisher used by the game loop.</summary>
     IRNetPublisher Publisher { get; }
 
     /// <summary>Indicates whether the server is currently running.</summary>
     bool IsEnabled { get; }
+
+    /// <summary>Raised when <see cref="IsEnabled"/> changes.</summary>
+    event Action<bool> EnabledChanged;
 
     /// <summary>Starts the server without blocking.</summary>
     Task StartAsync(CancellationToken ct = default);
@@ -48,7 +51,7 @@ public sealed class RNetServer : IRNetServer
     }
 
     /// <inheritdoc />
-    public event PropertyChangedEventHandler? PropertyChanged;
+    public event Action<bool>? EnabledChanged;
 
     /// <inheritdoc />
     public bool IsEnabled
@@ -62,7 +65,7 @@ public sealed class RNetServer : IRNetServer
             }
 
             _isEnabled = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsEnabled)));
+            EnabledChanged?.Invoke(_isEnabled);
         }
     }
 

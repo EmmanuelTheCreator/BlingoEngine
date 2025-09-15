@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using LingoEngine.Net.RNetContracts;
 using Microsoft.AspNetCore.SignalR.Client;
 
@@ -9,13 +8,16 @@ namespace LingoEngine.Net.RNetClient;
 /// <summary>
 /// High-level API for interacting with a running RNet host.
 /// </summary>
-public interface ILingoRNetClient : IAsyncDisposable, INotifyPropertyChanged
+public interface ILingoRNetClient : IAsyncDisposable
 {
     /// <summary>Connects to the RNet hub and sends the initial hello payload.</summary>
     Task ConnectAsync(Uri hubUrl, HelloDto hello, CancellationToken ct = default);
 
     /// <summary>Indicates whether the client is currently connected.</summary>
     bool IsConnected { get; }
+
+    /// <summary>Raised when <see cref="IsConnected"/> changes.</summary>
+    event Action<bool> ConnectionChanged;
 
     /// <summary>Disconnects from the hub.</summary>
     Task DisconnectAsync();
@@ -95,7 +97,7 @@ public sealed class LingoRNetClient : ILingoRNetClient
     }
 
     /// <inheritdoc />
-    public event PropertyChangedEventHandler? PropertyChanged;
+    public event Action<bool>? ConnectionChanged;
 
     /// <inheritdoc />
     public bool IsConnected
@@ -109,7 +111,7 @@ public sealed class LingoRNetClient : ILingoRNetClient
             }
 
             _isConnected = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsConnected)));
+            ConnectionChanged?.Invoke(_isConnected);
         }
     }
 
