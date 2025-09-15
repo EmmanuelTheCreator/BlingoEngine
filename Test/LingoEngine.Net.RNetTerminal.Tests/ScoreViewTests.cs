@@ -158,7 +158,9 @@ public class ScoreViewTests
             SetPrivateField(view, "_cursorChannel", 1);
             var before = GetOffset(view).X;
             view.ProcessKey(new KeyEvent(Key.CursorRight, new KeyModifiers()));
+
             view.Redraw(view.Bounds);
+
             var after = GetOffset(view).X;
             after.Should().BeGreaterThan(before);
         }
@@ -185,7 +187,9 @@ public class ScoreViewTests
             SetPrivateField(view, "_cursorFrame", 1);
             var before = GetOffset(view).Y;
             view.ProcessKey(new KeyEvent(Key.CursorDown, new KeyModifiers()));
+
             view.Redraw(view.Bounds);
+
             var after = GetOffset(view).Y;
             after.Should().BeGreaterThan(before);
         }
@@ -214,7 +218,9 @@ public class ScoreViewTests
                 Flags = MouseFlags.WheeledDown
             };
             view.MouseEvent(me);
+
             view.Redraw(view.Bounds);
+
             var after = GetOffset(view).Y;
             after.Should().BeGreaterThan(before);
         }

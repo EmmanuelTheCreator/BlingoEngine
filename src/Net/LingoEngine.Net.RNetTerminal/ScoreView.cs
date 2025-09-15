@@ -154,6 +154,10 @@ internal sealed class ScoreView : ScrollView
                     SetNeedsDisplay();
                     NotifyInfoChanged();
                     SetFocus();
+                    var previousSprite = _selectedSprite;
+                    var newSprite = FindSprite(_cursorChannel + 1, _cursorFrame + 1)?.Number;
+                    if (newSprite != previousSprite && newSprite != null)
+                        SelectSprite(newSprite);
                 }
                 ClampContentOffset();
                 return true;
@@ -250,10 +254,13 @@ internal sealed class ScoreView : ScrollView
     {
         _cursorFrame = Math.Clamp(_cursorFrame + dx, 0, FrameCount - 1);
         _cursorChannel = Math.Clamp(_cursorChannel + dy, 0, TotalChannels - 1);
-        _selectedSprite = FindSprite(_cursorChannel + 1, _cursorFrame + 1)?.Number;
+        var previousSprite = _selectedSprite;
+        var newSprite = FindSprite(_cursorChannel + 1, _cursorFrame + 1)?.Number;
         EnsureVisible();
         SetNeedsDisplay();
         NotifyInfoChanged();
+        if (newSprite != previousSprite && newSprite != null)
+            SelectSprite(newSprite);
     }
 
     private void EnsureVisible()
@@ -405,9 +412,9 @@ internal sealed class ScoreView : ScrollView
         var cursorY = _cursorChannel - offsetY + 1;
         if (cursorX >= _labelWidth && cursorX < w && cursorY >= 1 && cursorY < h)
         {
-            Driver.SetAttribute(Application.Driver.MakeAttribute(Color.Black, Color.White));
+            Driver.SetAttribute(Application.Driver.MakeAttribute(Color.Black, Color.Green));
             Move(cursorX, cursorY);
-            Driver.AddRune('X');
+            Driver.AddRune(' ');
             Driver.SetAttribute(ColorScheme.Normal);
         }
     }
