@@ -10,13 +10,13 @@
   <PropertyGroup>
     <!-- NuGet Packaging Metadata -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageId>LingoEngine.Net.RNetClient</PackageId>
+    <PackageId>LingoEngine.Net.RNetProjectClient</PackageId>
     <Version>1.0.0</Version>
     <Authors>Emmanuel The Creator</Authors>
     <Company>The Community</Company>
-    <Description>Client library for connecting to a LingoEngine RNet host.</Description>
+    <Description>Client library for connecting to a LingoEngine RNet project host.</Description>
     <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
-    <PackageTags>LingoEngine RNet Client</PackageTags>
+    <PackageTags>LingoEngine RNet Project Client</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
   <ItemGroup>

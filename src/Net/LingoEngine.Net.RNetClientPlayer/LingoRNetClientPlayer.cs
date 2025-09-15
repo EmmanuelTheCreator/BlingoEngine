@@ -1,6 +1,6 @@
 using System;
 using LingoEngine.Core;
-using LingoEngine.Net.RNetClient;
+using LingoEngine.Net.RNetProjectClient;
 using LingoEngine.Net.RNetContracts;
 
 namespace LingoEngine.Net.RNetClientPlayer;
@@ -10,12 +10,12 @@ namespace LingoEngine.Net.RNetClientPlayer;
 /// </summary>
 public sealed class LingoRNetClientPlayer : IAsyncDisposable
 {
-    private readonly ILingoRNetClient _client;
+    private readonly ILingoRNetProjectClient _client;
     private readonly RNetClientPlayerApplier _applier;
     private CancellationTokenSource? _cts;
     private Task? _pumpTask;
 
-    public LingoRNetClientPlayer(ILingoRNetClient client, ILingoPlayer player)
+    public LingoRNetClientPlayer(ILingoRNetProjectClient client, ILingoPlayer player)
     {
         _client = client;
         _applier = new RNetClientPlayerApplier(player);

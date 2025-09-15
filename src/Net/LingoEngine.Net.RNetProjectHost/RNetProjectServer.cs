@@ -1,25 +1,21 @@
 using LingoEngine.Core;
 using LingoEngine.Net.RNetContracts;
+using LingoEngine.Net.RNetHost.Common;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Net;
-using System.Threading;
 using System.Threading.Channels;
-using System.Threading.Tasks;
 
-namespace LingoEngine.Net.RNetHost;
+namespace LingoEngine.Net.RNetProjectHost;
 
 /// <summary>
 /// Hosts the SignalR server within the RNet process.
 /// </summary>
-public interface IRNetServer
+public interface IRNetProjectServer
 {
     /// <summary>Provides access to the publisher used by the game loop.</summary>
-    IRNetPublisher Publisher { get; }
+    IRNetPublisherEngineBridge Publisher { get; }
 
     /// <summary>Gets the current connection state.</summary>
     LingoNetConnectionState ConnectionState { get; }
@@ -41,27 +37,27 @@ public interface IRNetServer
 }
 
 /// <summary>
-/// Default implementation of <see cref="IRNetServer"/>.
+/// Default implementation of <see cref="IRNetProjectServer"/>.
 /// </summary>
-public sealed class RNetServer : IRNetServer
+public sealed class RNetProjectServer : IRNetProjectServer
 {
     private WebApplication? _app;
     private CancellationTokenSource? _cts;
     private LingoNetConnectionState _state = LingoNetConnectionState.Disconnected;
-    private IBus? _bus;
+    private IRNetProjectBus? _bus;
     private Task? _commandLoop;
     private readonly IRNetConfiguration _config;
     private readonly ILogger _logger;
     private readonly IServiceProvider _serviceProvider;
 
-    public RNetServer(IRNetConfiguration config, ILogger<RNetServer> logger, IServiceProvider serviceProvider)
+    public RNetProjectServer(IRNetConfiguration config, ILogger<RNetProjectServer> logger, IServiceProvider serviceProvider)
     {
         _config = config;
         _logger = logger;
         _serviceProvider = serviceProvider;
     }
 
-    public RNetServer(ILogger<RNetServer> logger, IServiceProvider serviceProvider) : this(new DefaultConfig(), logger, serviceProvider) { }
+    public RNetProjectServer(ILogger<RNetProjectServer> logger, IServiceProvider serviceProvider) : this(new DefaultConfig(), logger, serviceProvider) { }
 
     private sealed class DefaultConfig : IRNetConfiguration
     {
@@ -70,6 +66,10 @@ public sealed class RNetServer : IRNetServer
         public string ClientName { get; set; } = "TheHost";
     }
     public bool DetailedLogging { get; set; } = true;
+
+    public string ServerIp { get; set; } = "localhost";
+
+    public bool UseHttps { get; set; } = false;
 
     /// <inheritdoc />
     public event Action<LingoNetConnectionState>? ConnectionStatusChanged;
@@ -98,42 +98,56 @@ public sealed class RNetServer : IRNetServer
     public bool IsEnabled => ConnectionState == LingoNetConnectionState.Connected;
 
     /// <inheritdoc />
-    public IRNetPublisher Publisher
-        => _app?.Services.GetRequiredService<IRNetPublisher>()
+    public IRNetPublisherEngineBridge Publisher
+        => _app?.Services.GetRequiredService<IRNetPublisherEngineBridge>()
            ?? throw new InvalidOperationException("Server not started.");
 
-    /// <inheritdoc />
-    public async Task StartAsync(CancellationToken ct = default)
+    /// <summary>Configures the SignalR host.</summary>
+    public WebApplication Configure(WebApplicationBuilder? builder = null)
     {
         if (_app is not null)
         {
-            return;
+            return _app;
         }
 
-        _cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        var address= $"http://localhost:{_config.Port}";
-        var builder = WebApplication.CreateBuilder();
+        var address = BuildAddress();
+        builder ??= WebApplication.CreateBuilder();
         builder.WebHost.UseKestrel();
         builder.WebHost.UseUrls(address);
-        builder.Services.AddSingleton<IBus, Bus>();
-        builder.Services.AddSingleton<IRNetPublisher, RNetPublisher>();
-        builder.Services.AddSingleton<ILingoPlayer>(p => _serviceProvider.GetRequiredService<ILingoPlayer>());
+        builder.Services.AddSingleton(p => _serviceProvider.GetRequiredService<IRNetPublisherEngineBridge>());
+        builder.Services.AddSingleton(p => _serviceProvider.GetRequiredService<IRNetProjectBus>());
+        builder.Services.AddSingleton(p => _serviceProvider.GetRequiredService<ILingoPlayer>());
         builder.Services.AddSignalR(o =>
         {
-            o.EnableDetailedErrors = DetailedLogging;          
+            o.EnableDetailedErrors = DetailedLogging;
             o.MaximumReceiveMessageSize = 1024 * 1024;
         });
 
         var app = builder.Build();
-        app.MapHub<LingoRNetHub>("/director");
-        _logger.LogInformation($"RNet Starting at: {address}");
-        await app.StartAsync(_cts.Token).ConfigureAwait(false);
-
+        app.MapHub<LingoRNetProjectHub>("/director");
         _app = app;
-        _bus = app.Services.GetRequiredService<IBus>();
+        return app;
+    }
+
+    /// <inheritdoc />
+    public async Task StartAsync(CancellationToken ct = default)
+    {
+        if (_app is null)
+        {
+            Configure();
+        }
+
+        _cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        var address = BuildAddress();
+        _logger.LogInformation($"RNet Starting at: {address}");
+        await _app!.StartAsync(_cts.Token).ConfigureAwait(false);
+        _bus = _app.Services.GetRequiredService<IRNetProjectBus>();
         _commandLoop = Task.Run(() => PumpCommandsAsync(_bus.Commands.Reader, _cts.Token), _cts.Token);
         ConnectionState = LingoNetConnectionState.Connected;
     }
+
+    private string BuildAddress()
+        => $"{(UseHttps ? "https" : "http")}://{ServerIp}:{_config.Port}";
 
     /// <inheritdoc />
     public async Task StopAsync()

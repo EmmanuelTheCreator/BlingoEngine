@@ -2,17 +2,18 @@ using System;
 using LingoEngine.Net.RNetContracts;
 using LingoEngine.Net.RNetHost.Common;
 
-namespace LingoEngine.Net.RNetHost;
+namespace LingoEngine.Net.RNetProjectHost;
 
 /// <summary>
 /// Default implementation of <see cref="IRNetPublisher"/> that pushes updates through the shared bus used by the SignalR host.
 /// </summary>
-internal sealed class RNetPublisher : RNetPublisherBase
-{
-    private readonly IBus _bus;
 
-    /// <summary>Initializes a new instance of the <see cref="RNetPublisher"/> class.</summary>
-    public RNetPublisher(IBus bus) => _bus = bus;
+internal sealed class RNetProjectPublisher : RNetPublisherBase
+{
+    private readonly IRNetProjectBus _bus;
+
+    /// <summary>Initializes a new instance of the <see cref="RNetProjectPublisher"/> class.</summary>
+    public RNetProjectPublisher(IRNetProjectBus bus) => _bus = bus;
 
     /// <inheritdoc />
     protected override bool TryPublishFrameCore(StageFrameDto frame)

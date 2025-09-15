@@ -1,6 +1,6 @@
 using AbstUI.Commands;
 using LingoEngine.Core;
-using LingoEngine.Net.RNetHost;
+using LingoEngine.Net.RNetProjectHost;
 using LingoEngine.Net.RNetContracts;
 using LingoEngine.Director.Core.Remote.Commands;
 
@@ -13,10 +13,10 @@ public sealed class DirectorRNetServer :
     IAbstCommandHandler<ConnectRNetServerCommand>,
     IAbstCommandHandler<DisconnectRNetServerCommand>
 {
-    private readonly IRNetServer _server;
+    private readonly IRNetProjectServer _server;
     private readonly ILingoPlayer _player;
 
-    public DirectorRNetServer(IRNetServer server, ILingoPlayer player)
+    public DirectorRNetServer(IRNetProjectServer server, ILingoPlayer player)
     {
         _server = server;
         _player = player;

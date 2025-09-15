@@ -1,12 +1,12 @@
 using System.Threading.Channels;
 using LingoEngine.Net.RNetContracts;
 
-namespace LingoEngine.Net.RNetHost;
+namespace LingoEngine.Net.RNetProjectHost;
 
 /// <summary>
 /// Channels used to communicate between the Lingo engine runtime and the SignalR hub.
 /// </summary>
-public interface IBus
+public interface IRNetProjectBus
 {
     /// <summary>Channel carrying complete stage frames.</summary>
     Channel<StageFrameDto> Frames { get; }
@@ -55,9 +55,9 @@ public interface IBus
 }
 
 /// <summary>
-/// Default implementation of <see cref="IBus"/>.
+/// Default implementation of <see cref="IRNetProjectBus"/>.
 /// </summary>
-internal sealed class Bus : IBus
+internal sealed class RNetProjectBus : IRNetProjectBus
 {
     private static BoundedChannelOptions Opts(int capacity) => new(capacity)
     {

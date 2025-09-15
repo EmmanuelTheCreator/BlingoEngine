@@ -1,5 +1,5 @@
 using System;
-using LingoEngine.Net.RNetClient;
+using LingoEngine.Net.RNetProjectClient;
 using LingoEngine.Net.RNetContracts;
 using LingoEngine.Setup;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +18,7 @@ public static class LingoRNetClientPlayerSetup
     {
         reg.ServicesMain(s =>
         {
-            s.AddSingleton<ILingoRNetClient, LingoRNetClient>();
+            s.AddSingleton<ILingoRNetProjectClient, LingoRNetProjectClient>();
             s.AddSingleton<LingoRNetClientPlayer>();
         });
 

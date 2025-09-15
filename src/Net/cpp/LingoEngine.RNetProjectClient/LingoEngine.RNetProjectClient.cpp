@@ -1,6 +1,6 @@
-#include "LingoEngine.RNetClient.h"
+#include "LingoEngine.RNetProjectClient.h"
 
-void RNetClient::Connect(const std::string& hubUrl, const HelloDto& hello)
+void RNetProjectClient::Connect(const std::string& hubUrl, const HelloDto& hello)
 {
     auto connection = signalr::hub_connection_builder::create(hubUrl).build();
     connection.start().get();
@@ -8,7 +8,7 @@ void RNetClient::Connect(const std::string& hubUrl, const HelloDto& hello)
     _connection = std::make_shared<signalr::hub_connection>(std::move(connection));
 }
 
-void RNetClient::Disconnect()
+void RNetProjectClient::Disconnect()
 {
     if (_connection)
     {
@@ -17,7 +17,7 @@ void RNetClient::Disconnect()
     }
 }
 
-void RNetClient::StreamFrames(std::function<void(const StageFrameDto&)> handler)
+void RNetProjectClient::StreamFrames(std::function<void(const StageFrameDto&)> handler)
 {
     if (_connection)
     {
@@ -28,7 +28,7 @@ void RNetClient::StreamFrames(std::function<void(const StageFrameDto&)> handler)
     }
 }
 
-void RNetClient::StreamDeltas(std::function<void(const SpriteDeltaDto&)> handler)
+void RNetProjectClient::StreamDeltas(std::function<void(const SpriteDeltaDto&)> handler)
 {
     if (_connection)
     {
@@ -39,7 +39,7 @@ void RNetClient::StreamDeltas(std::function<void(const SpriteDeltaDto&)> handler
     }
 }
 
-void RNetClient::StreamKeyframes(std::function<void(const KeyframeDto&)> handler)
+void RNetProjectClient::StreamKeyframes(std::function<void(const KeyframeDto&)> handler)
 {
     if (_connection)
     {
@@ -50,7 +50,7 @@ void RNetClient::StreamKeyframes(std::function<void(const KeyframeDto&)> handler
     }
 }
 
-void RNetClient::StreamFilmLoops(std::function<void(const FilmLoopDto&)> handler)
+void RNetProjectClient::StreamFilmLoops(std::function<void(const FilmLoopDto&)> handler)
 {
     if (_connection)
     {
@@ -61,7 +61,7 @@ void RNetClient::StreamFilmLoops(std::function<void(const FilmLoopDto&)> handler
     }
 }
 
-void RNetClient::StreamSounds(std::function<void(const SoundEventDto&)> handler)
+void RNetProjectClient::StreamSounds(std::function<void(const SoundEventDto&)> handler)
 {
     if (_connection)
     {
@@ -72,7 +72,7 @@ void RNetClient::StreamSounds(std::function<void(const SoundEventDto&)> handler)
     }
 }
 
-void RNetClient::StreamTempos(std::function<void(const TempoDto&)> handler)
+void RNetProjectClient::StreamTempos(std::function<void(const TempoDto&)> handler)
 {
     if (_connection)
     {
@@ -83,7 +83,7 @@ void RNetClient::StreamTempos(std::function<void(const TempoDto&)> handler)
     }
 }
 
-void RNetClient::StreamColorPalettes(std::function<void(const ColorPaletteDto&)> handler)
+void RNetProjectClient::StreamColorPalettes(std::function<void(const ColorPaletteDto&)> handler)
 {
     if (_connection)
     {
@@ -94,7 +94,7 @@ void RNetClient::StreamColorPalettes(std::function<void(const ColorPaletteDto&)>
     }
 }
 
-void RNetClient::StreamFrameScripts(std::function<void(const FrameScriptDto&)> handler)
+void RNetProjectClient::StreamFrameScripts(std::function<void(const FrameScriptDto&)> handler)
 {
     if (_connection)
     {
@@ -105,7 +105,7 @@ void RNetClient::StreamFrameScripts(std::function<void(const FrameScriptDto&)> h
     }
 }
 
-void RNetClient::StreamTransitions(std::function<void(const TransitionDto&)> handler)
+void RNetProjectClient::StreamTransitions(std::function<void(const TransitionDto&)> handler)
 {
     if (_connection)
     {
@@ -116,7 +116,7 @@ void RNetClient::StreamTransitions(std::function<void(const TransitionDto&)> han
     }
 }
 
-void RNetClient::StreamMemberProperties(std::function<void(const RNetMemberPropertyDto&)> handler)
+void RNetProjectClient::StreamMemberProperties(std::function<void(const RNetMemberPropertyDto&)> handler)
 {
     if (_connection)
     {
@@ -127,7 +127,7 @@ void RNetClient::StreamMemberProperties(std::function<void(const RNetMemberPrope
     }
 }
 
-void RNetClient::StreamMovieProperties(std::function<void(const RNetMoviePropertyDto&)> handler)
+void RNetProjectClient::StreamMovieProperties(std::function<void(const RNetMoviePropertyDto&)> handler)
 {
     if (_connection)
     {
@@ -138,7 +138,7 @@ void RNetClient::StreamMovieProperties(std::function<void(const RNetMoviePropert
     }
 }
 
-void RNetClient::StreamStageProperties(std::function<void(const RNetStagePropertyDto&)> handler)
+void RNetProjectClient::StreamStageProperties(std::function<void(const RNetStagePropertyDto&)> handler)
 {
     if (_connection)
     {
@@ -149,7 +149,7 @@ void RNetClient::StreamStageProperties(std::function<void(const RNetStagePropert
     }
 }
 
-void RNetClient::StreamSpriteCollectionEvents(std::function<void(const RNetSpriteCollectionEventDto&)> handler)
+void RNetProjectClient::StreamSpriteCollectionEvents(std::function<void(const RNetSpriteCollectionEventDto&)> handler)
 {
     if (_connection)
     {
@@ -160,7 +160,7 @@ void RNetClient::StreamSpriteCollectionEvents(std::function<void(const RNetSprit
     }
 }
 
-void RNetClient::StreamTextStyles(std::function<void(const TextStyleDto&)> handler)
+void RNetProjectClient::StreamTextStyles(std::function<void(const TextStyleDto&)> handler)
 {
     if (_connection)
     {
@@ -171,12 +171,17 @@ void RNetClient::StreamTextStyles(std::function<void(const TextStyleDto&)> handl
     }
 }
 
-MovieStateDto RNetClient::GetMovieSnapshot()
+MovieStateDto RNetProjectClient::GetMovieSnapshot()
 {
     return _connection->invoke<MovieStateDto>("GetMovieSnapshot").get();
 }
 
-void RNetClient::SendCommand(const RNetCommand& cmd)
+LingoProjectJsonDto RNetProjectClient::GetCurrentProject()
+{
+    return _connection->invoke<LingoProjectJsonDto>("GetCurrentProject").get();
+}
+
+void RNetProjectClient::SendCommand(const RNetCommand& cmd)
 {
     if (_connection)
     {
@@ -184,7 +189,7 @@ void RNetClient::SendCommand(const RNetCommand& cmd)
     }
 }
 
-void RNetClient::SendHeartbeat()
+void RNetProjectClient::SendHeartbeat()
 {
     if (_connection)
     {

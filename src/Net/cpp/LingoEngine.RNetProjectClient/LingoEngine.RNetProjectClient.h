@@ -17,8 +17,9 @@ struct HelloDto {
     std::string ProjectId;
     std::string ClientId;
     std::string Version;
+    std::string ClientName;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HelloDto, ProjectId, ClientId, Version);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(HelloDto, ProjectId, ClientId, Version, ClientName);
 
 struct StageFrameDto {
     int Width;
@@ -169,6 +170,11 @@ struct MovieStateDto {
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MovieStateDto, Frame, Tempo, IsPlaying);
 
+struct LingoProjectJsonDto {
+    std::string json;
+};
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LingoProjectJsonDto, json);
+
 // Debug command hierarchy -----------------------------------------------------
 
 struct SetSpritePropCmd {
@@ -208,9 +214,9 @@ inline void to_json(nlohmann::json& j, const RNetCommand& cmd)
     std::visit([&j](const auto& v) { j = v; }, cmd.Command);
 }
 
-// RNetClient --------------------------------------------------------------
+// RNetProjectClient ---------------------------------------------------------
 
-class RNetClient {
+class RNetProjectClient {
 public:
     void Connect(const std::string& hubUrl, const HelloDto& hello);
     void Disconnect();
@@ -231,6 +237,7 @@ public:
     void StreamTextStyles(std::function<void(const TextStyleDto&)> handler);
 
     MovieStateDto GetMovieSnapshot();
+    LingoProjectJsonDto GetCurrentProject();
     void SendCommand(const RNetCommand& cmd);
     void SendHeartbeat();
 

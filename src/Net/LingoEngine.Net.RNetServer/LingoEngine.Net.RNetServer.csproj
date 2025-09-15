@@ -1,26 +1,26 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-          <Configurations>Debug;Release</Configurations>
-  </PropertyGroup>
-  <PropertyGroup>
-    <!-- NuGet Packaging Metadata -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageId>LingoEngine.Net.RNetClientPlayer</PackageId>
+    <PackageId>LingoEngine.Net.RNetServer</PackageId>
     <Version>1.0.0</Version>
     <Authors>Emmanuel The Creator</Authors>
     <Company>The Community</Company>
-    <Description>Player that consumes an RNet host and applies changes to a LingoEngine instance.</Description>
+    <Description>Server forwarding messages between RNet project hosts and clients.</Description>
     <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
-    <PackageTags>LingoEngine RNet Client Player</PackageTags>
+    <PackageTags>LingoEngine RNet Server</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LingoEngine.Net.RNetProjectHost\LingoEngine.Net.RNetProjectHost.csproj" />
     <ProjectReference Include="..\LingoEngine.Net.RNetProjectClient\LingoEngine.Net.RNetProjectClient.csproj" />
-    <ProjectReference Include="..\..\LingoEngine\LingoEngine.csproj" />
+    <ProjectReference Include="..\LingoEngine.Net.RNetContracts\LingoEngine.Net.RNetContracts.csproj" />
   </ItemGroup>
 </Project>

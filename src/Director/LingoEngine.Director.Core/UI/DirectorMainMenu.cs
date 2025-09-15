@@ -21,8 +21,8 @@ using AbstUI.Components.Buttons;
 using AbstUI.Components.Containers;
 using LingoEngine.Director.Core.Importer.Commands;
 using LingoEngine.Director.Core.Remote.Commands;
-using LingoEngine.Net.RNetHost;
-using LingoEngine.Net.RNetClient;
+using LingoEngine.Net.RNetProjectHost;
+using LingoEngine.Net.RNetProjectClient;
 using System;
 using System.ComponentModel;
 
@@ -56,8 +56,8 @@ namespace LingoEngine.Director.Core.UI
         private readonly IAbstShortCutManager _shortCutManager;
         private readonly IHistoryManager _historyManager;
         private readonly IAbstCommandManager _commandManager;
-        private readonly IRNetServer _server;
-        private readonly ILingoRNetClient _client;
+        private readonly IRNetProjectServer _server;
+        private readonly ILingoRNetProjectClient _client;
         private readonly ILingoFrameworkFactory _factory;
         private readonly List<ShortCutInfo> _shortCuts = new();
         private AbstMenuItem _undoItem;
@@ -96,7 +96,7 @@ namespace LingoEngine.Director.Core.UI
 
         public DirectorMainMenu(IServiceProvider serviceProvider, IAbstWindowManager windowManager, DirectorProjectManager projectManager, LingoPlayer player, IAbstShortCutManager shortCutManager,
             IHistoryManager historyManager, IDirectorIconManager directorIconManager, IAbstCommandManager commandManager, ILingoFrameworkFactory factory,
-            IRNetServer server, ILingoRNetClient client) : base(serviceProvider, DirectorMenuCodes.MainMenu)
+            IRNetProjectServer server, ILingoRNetProjectClient client) : base(serviceProvider, DirectorMenuCodes.MainMenu)
         {
             _windowManager = windowManager;
             _projectManager = projectManager;
