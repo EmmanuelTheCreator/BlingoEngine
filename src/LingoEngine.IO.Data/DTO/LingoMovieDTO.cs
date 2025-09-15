@@ -8,7 +8,11 @@ public class LingoMovieDTO
     public string About { get; set; } = string.Empty;
     public string Copyright { get; set; } = string.Empty;
     public List<LingoCastDTO> Casts { get; set; } = new();
-    public List<LingoSpriteDTO> Sprites { get; set; } = new();
+    public List<Lingo2DSpriteDTO> Sprite2Ds { get; set; } = new();
+    public List<LingoTempoSpriteDTO> TempoSprites { get; set; } = new();
+    public List<LingoColorPaletteSpriteDTO> ColorPaletteSprites { get; set; } = new();
+    public List<LingoTransitionSpriteDTO> TransitionSprites { get; set; } = new();
+    public List<LingoSpriteSoundDTO> SoundSprites { get; set; } = new();
     public string UserName { get; set; } =string.Empty;
     public string CompanyName { get; set; } = string.Empty;
 

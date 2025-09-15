@@ -28,7 +28,7 @@ internal static class DirectorRaysDtoExtensions
         if (dir.Score != null)
         {
             foreach (var f in dir.Score.Sprites)
-                movie.Sprites.Add(f.ToDto());
+                movie.Sprite2Ds.Add(f.ToDto());
         }
 
         return (stage, movie);
@@ -157,12 +157,14 @@ internal static class DirectorRaysDtoExtensions
         return dto;
     }
 
-    public static LingoSpriteDTO ToDto(this RaySprite f)
-        => new LingoSpriteDTO
+    public static Lingo2DSpriteDTO ToDto(this RaySprite f)
+        => new Lingo2DSpriteDTO
         {
             Name = $"Sprite{f.SpriteNumber}",
             SpriteNum = f.SpriteNumber,
-            MemberNum = f.SpriteNumber,
+            Member = f.MemberNum > 0 && f.MemberCastLib > 0
+                ? new LingoMemberRefDTO { MemberNum = f.MemberNum, CastNum = f.MemberCastLib }
+                : null,
             // todo : DisplayMember = f.DisplayMember,
             SpritePropertiesOffset = f.SpritePropertiesOffset,
             Lock = false,

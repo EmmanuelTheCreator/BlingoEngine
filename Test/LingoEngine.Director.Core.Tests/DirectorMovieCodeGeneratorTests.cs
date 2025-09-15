@@ -52,7 +52,14 @@ public class DirectorMovieCodeGeneratorTests
     public void GenerateScoreClass_Skips_Default_Properties()
     {
         var gen = new TestGenerator();
-        var sprite = new LingoSpriteDTO { SpriteNum = 1, MemberNum = 1, BeginFrame = 0, EndFrame = 0, Ink = 1 };
+        var sprite = new Lingo2DSpriteDTO
+        {
+            SpriteNum = 1,
+            Member = new LingoMemberRefDTO { MemberNum = 1, CastNum = 1 },
+            BeginFrame = 0,
+            EndFrame = 0,
+            Ink = 1
+        };
         var cast = new LingoCastDTO
         {
             Name = "Main",
@@ -69,7 +76,7 @@ public class DirectorMovieCodeGeneratorTests
         };
         var movie = new LingoMovieDTO
         {
-            Sprites = new List<LingoSpriteDTO> { sprite },
+            Sprite2Ds = new List<Lingo2DSpriteDTO> { sprite },
             Casts = new List<LingoCastDTO> { cast }
         };
         var code = gen.GenerateScoreClass(movie);
@@ -114,10 +121,10 @@ using AbstUI.Primitives;
 
 public class MainCast : ILingoCastLibBuilder
 {
-    public void Build(ILingoCastLibsContainer castLibs)
+    public async Task BuildAsync(ILingoCastLibsContainer castLibs)
     {
         var cast = castLibs.AddCast(@"Main", false);
-        var member1 = (LingoMemberBitmap)cast.Add(LingoMemberType.Bitmap, 1, @"Sprite", @"", new APoint(0, 0));
+        var member1 = (LingoMemberBitmap)cast.Add(LingoMemberType.Bitmap, 1, @"Sprite", @"", new APoint(0f, 0f));
     }
 }
 """;
@@ -128,7 +135,13 @@ public class MainCast : ILingoCastLibBuilder
     public void GenerateScoreClass_GeneratesExpectedCode()
     {
         var gen = new TestGenerator();
-        var sprite = new LingoSpriteDTO { SpriteNum = 1, MemberNum = 1, BeginFrame = 0, EndFrame = 0 };
+        var sprite = new Lingo2DSpriteDTO
+        {
+            SpriteNum = 1,
+            Member = new LingoMemberRefDTO { MemberNum = 1, CastNum = 1 },
+            BeginFrame = 0,
+            EndFrame = 0
+        };
         var cast = new LingoCastDTO
         {
             Name = "Main",
@@ -139,7 +152,7 @@ public class MainCast : ILingoCastLibBuilder
         };
         var movie = new LingoMovieDTO
         {
-            Sprites = new List<LingoSpriteDTO> { sprite },
+            Sprite2Ds = new List<Lingo2DSpriteDTO> { sprite },
             Casts = new List<LingoCastDTO> { cast }
         };
         var code = gen.GenerateScoreClass(movie);
@@ -155,11 +168,11 @@ using AbstUI.Primitives;
 
 public class ScoreBuilder : ILingoScoreBuilder
 {
-    public void Build(ILingoMovie movie)
+    public async Task BuildAsync(ILingoMovie movie)
     {
         movie.AddSprite(1, 0, 0, 0f, 0f, s =>
         {
-            s.Member = movie.CastLib.GetMember(1, 1) as LingoMember;
+            s.Member = movie.CastLib.GetMember(1, 1);
         });
     }
 }
@@ -177,7 +190,7 @@ public class ScoreBuilder : ILingoScoreBuilder
             Name = "Movie",
             Tempo = 12,
             Casts = new List<LingoCastDTO> { cast },
-            Sprites = new List<LingoSpriteDTO>()
+            Sprite2Ds = new List<Lingo2DSpriteDTO>()
         };
         var code = gen.GenerateMovieClass(movie);
         var expected = """
@@ -189,12 +202,12 @@ using LingoEngine.Movies;
 
 public class MovieBuilder : ILingoMovieBuilder
 {
-    public ILingoMovie Build(ILingoPlayer player)
+    public async Task<ILingoMovie> BuildAsync(ILingoPlayer player)
     {
-        player.CastLibs.LoadCastLibFromBuilder(new MainCast());
+        await player.LoadAsync<MainCast>();
         var movie = player.NewMovie(@"Movie");
         movie.Tempo = 12;
-        new ScoreBuilder().Build(movie);
+        await new ScoreBuilder().BuildAsync(movie);
         return movie;
     }
 }

@@ -5,8 +5,7 @@ namespace LingoEngine.IO.Data.DTO;
 public class LingoFilmLoopMemberSpriteDTO
 {
     public string Name { get; set; } = "";
-    public int MemberNumberInCast { get; set; }
-    public int CastNum { get; set; }
+    public LingoMemberRefDTO Member { get; set; } = new();
     public int DisplayMember { get; set; }
     public int SpriteNum { get; set; }
 

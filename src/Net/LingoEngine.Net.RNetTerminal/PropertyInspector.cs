@@ -34,7 +34,7 @@ internal sealed class PropertyInspector : Window
     private readonly TabView.Tab _guidesTab;
     private readonly TabView.Tab _behaviorTab;
     private readonly TabView.Tab _filmLoopTab;
-    private LingoSpriteDTO? _sprite;
+    private Lingo2DSpriteDTO? _sprite;
     private LingoMemberDTO? _member;
     private string _lastTab = "Sprite";
 
@@ -290,7 +290,7 @@ internal sealed class PropertyInspector : Window
         }
     }
 
-    public void ShowSprite(LingoSpriteDTO? sprite)
+    public void ShowSprite(Lingo2DSpriteDTO? sprite)
     {
         _sprite = sprite;
         for (var i = 0; i < _spriteSpecs.Count; i++)

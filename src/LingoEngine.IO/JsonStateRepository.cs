@@ -2,6 +2,7 @@ using AbstUI.Primitives;
 using LingoEngine.Animations;
 using LingoEngine.Bitmaps;
 using LingoEngine.Casts;
+using LingoEngine.ColorPalettes;
 using LingoEngine.Core;
 using LingoEngine.Events;
 using LingoEngine.FilmLoops;
@@ -10,10 +11,10 @@ using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
+using LingoEngine.Tempos;
 using LingoEngine.Texts;
-using System.Reflection;
+using LingoEngine.Transitions;
 using System.Text.Json;
-using static LingoEngine.IO.JsonStateRepository;
 
 namespace LingoEngine.IO;
 
@@ -23,13 +24,13 @@ public interface IJsonStateRepository
     LingoMovie Load(LingoStageDTO stageDto, LingoMovieDTO movieDto, LingoPlayer player, string resourceDir);
     LingoMovie Load(string filePath, LingoPlayer player);
 
-    (string JsonString, LingoMovieDTO MovieDto) Save(string filePath, LingoMovie movie, MovieStoreOptions? options = null);
+    (string JsonString, LingoMovieDTO MovieDto) Save(string filePath, LingoMovie movie, JsonStateRepository.MovieStoreOptions? options = null);
 
 
-    LingoProjectDTO ToProjectDto(LingoPlayer player, MovieStoreOptions options);
+    LingoProjectDTO ToProjectDto(LingoPlayer player, JsonStateRepository.MovieStoreOptions options);
 
-    (string JsonString, LingoMovieDTO MovieDto) Serialize(LingoMovie movie, MovieStoreOptions options);
-    string SerializeProject(LingoPlayer player, MovieStoreOptions options);
+    (string JsonString, LingoMovieDTO MovieDto) Serialize(LingoMovie movie, JsonStateRepository.MovieStoreOptions options);
+    string SerializeProject(LingoPlayer player, JsonStateRepository.MovieStoreOptions options);
     LingoMovieDTO Deserialize(string json);
 }
 
@@ -67,16 +68,16 @@ public class JsonStateRepository : IJsonStateRepository
             {
                 Width = player.Stage.Width,
                 Height = player.Stage.Height,
-                BackgroundColor = ToDto(player.Stage.BackgroundColor),
+                BackgroundColor = ColorDtoConverter.ToDto(player.Stage.BackgroundColor),
             },
         };
         if (player.ActiveMovie != null)
-            projectDTO.Movies = [ToDto((LingoMovie)player.ActiveMovie, options)];
+            projectDTO.Movies = [MovieDtoConverter.ToDto((LingoMovie)player.ActiveMovie, options)];
         return projectDTO;
     }
     public (string JsonString, LingoMovieDTO MovieDto) Serialize(LingoMovie movie, MovieStoreOptions options)
     {
-        LingoMovieDTO dto = ToDto(movie, options);
+        LingoMovieDTO dto = MovieDtoConverter.ToDto(movie, options);
         var joptions = new JsonSerializerOptions { WriteIndented = true };
         var json = JsonSerializer.Serialize(dto, joptions);
         return (json, dto);
@@ -134,7 +135,7 @@ public class JsonStateRepository : IJsonStateRepository
         movie.CompanyName = dto.CompanyName;
 
         var castMap = new Dictionary<int, LingoCast>();
-        var memberMap = new Dictionary<int, LingoMember>();
+        var memberMap = new Dictionary<(int CastNum, int MemberNum), LingoMember>();
 
         foreach (var castDto in dto.Casts)
         {
@@ -176,22 +177,34 @@ public class JsonStateRepository : IJsonStateRepository
                         flMem.AddSprite(BuildSprite2DVirtualFromDto(sEntry));
                     foreach (var sndEntry in flDto.SoundEntries)
                     {
-                        if (memberMap.TryGetValue(sndEntry.SoundMemberNum, out var sm) && sm is LingoMemberSound sndMem2)
+                        if (TryResolveMember<LingoMemberSound>(memberMap, sndEntry.Member, out var sndMem2) && sndMem2 != null)
                             flMem.AddSound(sndEntry.Channel, sndEntry.StartFrame, sndMem2);
                     }
                 }
 
-                memberMap[memDto.Number] = member;
+                memberMap[(member.CastLibNum, member.NumberInCast)] = member;
             }
         }
 
-        foreach (var sDto in dto.Sprites)
+        foreach (var sDto in dto.Sprite2Ds)
             BuildSpriteFromDto(sDto, movie, memberMap, mediator);
+
+        foreach (var tempoDto in dto.TempoSprites)
+            BuildTempoSpriteFromDto(tempoDto, movie);
+
+        foreach (var paletteDto in dto.ColorPaletteSprites)
+            BuildColorPaletteSpriteFromDto(paletteDto, movie, memberMap);
+
+        foreach (var transitionDto in dto.TransitionSprites)
+            BuildTransitionSpriteFromDto(transitionDto, movie, memberMap);
+
+        foreach (var soundDto in dto.SoundSprites)
+            BuildSoundSpriteFromDto(soundDto, movie, memberMap);
 
         return movie;
     }
 
-    private static LingoSprite2D BuildSpriteFromDto(LingoSpriteDTO sDto, LingoMovie movie, Dictionary<int, LingoMember> memberMap, ILingoEventMediator eventMediator)
+    private static LingoSprite2D BuildSpriteFromDto(Lingo2DSpriteDTO sDto, LingoMovie movie, Dictionary<(int CastNum, int MemberNum), LingoMember> memberMap, ILingoEventMediator eventMediator)
     {
         LingoSprite2D sprite;
 
@@ -225,7 +238,7 @@ public class JsonStateRepository : IJsonStateRepository
             FlipV = sDto.FlipV,
         };
 
-        if (memberMap.TryGetValue(sDto.MemberNum, out var mem))
+        if (TryResolveMember(memberMap, sDto.Member, out var mem) && mem != null)
         {
             state.Member = mem;
             sprite.SetMember(mem);
@@ -236,6 +249,84 @@ public class JsonStateRepository : IJsonStateRepository
 
         AddAnimator(sDto, sprite, movie, eventMediator);
         return sprite;
+    }
+
+    private static void BuildTempoSpriteFromDto(LingoTempoSpriteDTO dto, LingoMovie movie)
+    {
+        movie.Tempos.Add(dto.BeginFrame, sprite => TempoSpriteDtoConverter.Apply(dto, sprite));
+    }
+
+    private static void BuildColorPaletteSpriteFromDto(LingoColorPaletteSpriteDTO dto, LingoMovie movie, Dictionary<(int CastNum, int MemberNum), LingoMember> memberMap)
+    {
+        var sprite = movie.ColorPalettes.Add(dto.BeginFrame);
+
+        if (TryResolveMember<LingoColorPaletteMember>(memberMap, dto.Member, out var paletteMember) && paletteMember != null)
+        {
+            sprite.SetMember(paletteMember);
+        }
+
+        ColorPaletteSpriteDtoConverter.Apply(dto, sprite);
+        sprite.InitialState = sprite.GetState();
+    }
+
+    private static void BuildTransitionSpriteFromDto(LingoTransitionSpriteDTO dto, LingoMovie movie, Dictionary<(int CastNum, int MemberNum), LingoMember> memberMap)
+    {
+        var sprite = movie.Transitions.Add(dto.BeginFrame);
+
+        if (TryResolveMember<LingoTransitionMember>(memberMap, dto.Member, out var transitionMember) && transitionMember != null)
+        {
+            sprite.SetMember(transitionMember);
+        }
+
+        TransitionSpriteDtoConverter.Apply(dto, sprite);
+        sprite.InitialState = sprite.GetState();
+    }
+
+    private static void BuildSoundSpriteFromDto(LingoSpriteSoundDTO dto, LingoMovie movie, Dictionary<(int CastNum, int MemberNum), LingoMember> memberMap)
+    {
+        if (!TryResolveMember<LingoMemberSound>(memberMap, dto.Member, out var soundMember) || soundMember == null)
+        {
+            return;
+        }
+
+        var sprite = movie.Audio.Add(dto.Channel, dto.BeginFrame, soundMember);
+        SoundSpriteDtoConverter.Apply(dto, sprite);
+        sprite.InitialState = sprite.GetState();
+    }
+
+    private static bool TryResolveMember(Dictionary<(int CastNum, int MemberNum), LingoMember> memberMap, LingoMemberRefDTO? reference, out LingoMember? member)
+    {
+        member = null;
+        if (reference == null || reference.CastNum <= 0 || reference.MemberNum <= 0)
+        {
+            return false;
+        }
+
+        if (memberMap.TryGetValue((reference.CastNum, reference.MemberNum), out var found))
+        {
+            member = found;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryResolveMember<TMember>(Dictionary<(int CastNum, int MemberNum), LingoMember> memberMap, LingoMemberRefDTO? reference, out TMember? member)
+        where TMember : LingoMember
+    {
+        member = null;
+        if (!TryResolveMember(memberMap, reference, out var baseMember))
+        {
+            return false;
+        }
+
+        if (baseMember is TMember typed)
+        {
+            member = typed;
+            return true;
+        }
+
+        return false;
     }
     private static LingoFilmLoopMemberSprite BuildSprite2DVirtualFromDto(LingoFilmLoopMemberSpriteDTO sDto)
     {
@@ -258,11 +349,11 @@ public class JsonStateRepository : IJsonStateRepository
             EndFrame = sDto.EndFrame,
             DisplayMember = sDto.DisplayMember,
             Channel = sDto.Channel,
-            CastNum = sDto.CastNum,
+            CastNum = sDto.Member.CastNum,
             FlipH = sDto.FlipH,
             FlipV = sDto.FlipV,
             Hilite = sDto.Hilite,
-            MemberNumberInCast = sDto.MemberNumberInCast,
+            MemberNumberInCast = sDto.Member.MemberNum,
             SpriteNum = sDto.SpriteNum,
             Name = sDto.Name,
         };
@@ -289,7 +380,7 @@ public class JsonStateRepository : IJsonStateRepository
 
         return sprite;
     }
-    private static void AddAnimator(LingoSpriteDTO sDto, LingoSprite2D sprite, ILingoSpritesPlayer spritesPlayer, ILingoEventMediator eventMediator)
+    private static void AddAnimator(Lingo2DSpriteDTO sDto, LingoSprite2D sprite, ILingoSpritesPlayer spritesPlayer, ILingoEventMediator eventMediator)
     {
         if (sDto.Animator == null)
             return;
@@ -323,436 +414,6 @@ public class JsonStateRepository : IJsonStateRepository
             animator.Blend.AddKeyFrame(k.Frame, k.Value, (LingoEaseType)k.Ease);
 
         return animator;
-    }
-
-    public static LingoMovieDTO ToDto(LingoMovie movie, MovieStoreOptions options)
-    {
-        return new LingoMovieDTO
-        {
-            Name = movie.Name,
-            Number = movie.Number,
-            Tempo = movie.Tempo,
-            FrameCount = movie.FrameCount,
-            MaxSpriteChannelCount = movie.MaxSpriteChannelCount,
-            About = movie.About,
-            Copyright = movie.Copyright,
-            UserName = movie.UserName,
-            CompanyName = movie.CompanyName,
-            Casts = movie.CastLib.GetAll().Select(c => ToDto((LingoCast)c, options)).ToList(),
-            Sprites = movie.GetAll2DSpritesToStore().Select(ToDto).ToList()
-        };
-    }
-
-    public static LingoCastDTO ToDto(LingoCast cast, MovieStoreOptions options)
-    {
-        try
-        {
-            return new LingoCastDTO
-            {
-                Name = cast.Name,
-                FileName = cast.FileName,
-                Number = cast.Number,
-                PreLoadMode = (PreLoadModeTypeDTO)cast.PreLoadMode,
-                Members = cast.GetAll().Select(m => ToDto(m, options)).ToList()
-            };
-        }
-        catch (Exception ex)
-        {
-
-            throw;
-        }
-        
-    }
-
-    public static LingoMemberDTO ToDto(ILingoMember member, MovieStoreOptions options)
-    {
-       
-
-        var baseDto = new LingoMemberDTO
-        {
-            Name = member.Name,
-            Number = member.Number,
-            CastLibNum = member.CastLibNum,
-            NumberInCast = member.NumberInCast,
-            Type = (LingoMemberTypeDTO)member.Type,
-            RegPoint = new LingoPointDTO { X = member.RegPoint.X, Y = member.RegPoint.Y },
-            Width = member.Width,
-            Height = member.Height,
-            Size = member.Size,
-            Comments = member.Comments,
-            FileName = member.FileName,
-            PurgePriority = member.PurgePriority
-        };
-
-        return member switch
-        {
-            LingoMemberField field => new LingoMemberFieldDTO
-            {
-                Name = baseDto.Name,
-                Number = baseDto.Number,
-                CastLibNum = baseDto.CastLibNum,
-                NumberInCast = baseDto.NumberInCast,
-                Type = baseDto.Type,
-                RegPoint = baseDto.RegPoint,
-                Width = baseDto.Width,
-                Height = baseDto.Height,
-                Size = baseDto.Size,
-                Comments = baseDto.Comments,
-                FileName = baseDto.FileName,
-                PurgePriority = baseDto.PurgePriority,
-                MarkDownText = field.InitialMarkdown != null ? field.InitialMarkdown.Markdown : field.Text
-            },
-            LingoMemberSound sound => new LingoMemberSoundDTO
-            {
-                Name = baseDto.Name,
-                Number = baseDto.Number,
-                CastLibNum = baseDto.CastLibNum,
-                NumberInCast = baseDto.NumberInCast,
-                Type = baseDto.Type,
-                RegPoint = baseDto.RegPoint,
-                Width = baseDto.Width,
-                Height = baseDto.Height,
-                Size = baseDto.Size,
-                Comments = baseDto.Comments,
-                FileName = baseDto.FileName,
-                PurgePriority = baseDto.PurgePriority,
-                Stereo = sound.Stereo,
-                Length = sound.Length,
-                Loop = sound.Loop,
-                IsLinked = sound.IsLinked,
-                LinkedFilePath = sound.LinkedFilePath,
-                SoundFile = SaveSound(sound, options)
-            },
-            LingoMemberText text => new LingoMemberTextDTO
-            {
-                Name = baseDto.Name,
-                Number = baseDto.Number,
-                CastLibNum = baseDto.CastLibNum,
-                NumberInCast = baseDto.NumberInCast,
-                Type = baseDto.Type,
-                RegPoint = baseDto.RegPoint,
-                Width = baseDto.Width,
-                Height = baseDto.Height,
-                Size = baseDto.Size,
-                Comments = baseDto.Comments,
-                FileName = baseDto.FileName,
-                PurgePriority = baseDto.PurgePriority,
-                MarkDownText = text.InitialMarkdown != null ? text.InitialMarkdown.Markdown : text.Text
-            },
-            LingoMemberBitmap picture => new LingoMemberPictureDTO
-            {
-                Name = baseDto.Name,
-                Number = baseDto.Number,
-                CastLibNum = baseDto.CastLibNum,
-                NumberInCast = baseDto.NumberInCast,
-                Type = baseDto.Type,
-                RegPoint = baseDto.RegPoint,
-                Width = baseDto.Width,
-                Height = baseDto.Height,
-                Size = baseDto.Size,
-                Comments = baseDto.Comments,
-                FileName = baseDto.FileName,
-                PurgePriority = baseDto.PurgePriority,
-                ImageFile = SavePicture(picture, options)
-            },
-            LingoFilmLoopMember filmLoop => new LingoMemberFilmLoopDTO
-            {
-                Name = baseDto.Name,
-                Number = baseDto.Number,
-                CastLibNum = baseDto.CastLibNum,
-                NumberInCast = baseDto.NumberInCast,
-                Type = baseDto.Type,
-                RegPoint = baseDto.RegPoint,
-                Width = baseDto.Width,
-                Height = baseDto.Height,
-                Size = baseDto.Size,
-                Comments = baseDto.Comments,
-                FileName = baseDto.FileName,
-                PurgePriority = baseDto.PurgePriority,
-                Framing = (LingoFilmLoopFramingDTO)filmLoop.Framing,
-                Loop = filmLoop.Loop,
-                FrameCount = filmLoop.FrameCount,
-                SpriteEntries = filmLoop.SpriteEntries.Select(ToDto).ToList(),
-                SoundEntries = filmLoop.SoundEntries.Select(e => new LingoFilmLoopSoundEntryDTO
-                {
-                    Channel = e.Channel,
-                    StartFrame = e.StartFrame,
-                    SoundMemberNum = e.Sound.Number,
-                    CastlibNum = e.Sound.CastLibNum
-                }).ToList()
-            },
-            _ => baseDto
-        };
-    }
-
-    private static LingoSpriteDTO ToDto(LingoSprite2D sprite)
-    {
-        var state = sprite.InitialState as LingoSprite2DState ?? (LingoSprite2DState)sprite.GetState();
-        var dto = new LingoSpriteDTO
-        {
-            Name = state.Name,
-            SpriteNum = sprite.SpriteNum,
-            MemberNum = state.Member?.NumberInCast ?? sprite.MemberNum,
-            CastLibNum = state.Member?.CastLibNum ?? 0,
-            DisplayMember = state.DisplayMember,
-            SpritePropertiesOffset = state.SpritePropertiesOffset,
-            Lock = sprite.Lock,
-            Visibility = sprite.Visibility,
-            LocH = state.LocH,
-            LocV = state.LocV,
-            LocZ = state.LocZ,
-            Rotation = state.Rotation,
-            Skew = state.Skew,
-            RegPoint = new LingoPointDTO { X = state.RegPoint.X, Y = state.RegPoint.Y },
-            Ink = state.Ink,
-            ForeColor = ToDto(state.ForeColor),
-            BackColor = ToDto(state.BackColor),
-            Blend = state.Blend,
-            Editable = state.Editable,
-            FlipH = state.FlipH,
-            FlipV = state.FlipV,
-            Width = state.Width,
-            Height = state.Height,
-            BeginFrame = sprite.BeginFrame,
-            EndFrame = sprite.EndFrame
-        };
-
-        foreach (var actor in GetSpriteActors(sprite))
-        {
-            switch (actor)
-            {
-                case LingoSpriteAnimator anim:
-                    dto.Animator = ToDto(anim);
-                    break;
-                case LingoFilmLoopPlayer fl:
-                    // Film loop player state is transient, no need to save
-                    break;
-            }
-        }
-
-        return dto;
-    }
-    public static LingoSpriteDTO ToDto(LingoSprite2DVirtual sprite)
-    {
-        var state = sprite.InitialState as LingoSprite2DVirtualState ?? (LingoSprite2DVirtualState)sprite.GetState();
-        var dto = new LingoSpriteDTO
-        {
-            Name = state.Name,
-            SpriteNum = sprite.SpriteNum,
-            MemberNum = state.Member?.NumberInCast ?? sprite.MemberNum,
-            CastLibNum = state.Member?.CastLibNum ?? 0,
-            DisplayMember = state.DisplayMember,
-            Lock = sprite.Lock,
-            LocH = state.LocH,
-            LocV = state.LocV,
-            LocZ = state.LocZ,
-            Rotation = state.Rotation,
-            Skew = state.Skew,
-            RegPoint = new LingoPointDTO { X = state.RegPoint.X, Y = state.RegPoint.Y },
-            Ink = state.Ink,
-            ForeColor = ToDto(state.ForeColor),
-            BackColor = ToDto(state.BackColor),
-            Blend = state.Blend,
-            Width = state.Width,
-            Height = state.Height,
-            FlipH = state.FlipH,
-            FlipV = state.FlipV,
-            BeginFrame = sprite.BeginFrame,
-            EndFrame = sprite.EndFrame
-        };
-
-        //foreach (var actor in GetSpriteActors(sprite))
-        //{
-        //    switch (actor)
-        //    {
-        //        case LingoSpriteAnimator anim:
-        //            dto.Animator = ToDto(anim);
-        //            break;
-        //        case LingoFilmLoopPlayer fl:
-        //            // Film loop player state is transient, no need to save
-        //            break;
-        //    }
-        //}
-
-        return dto;
-    }
-    public static LingoFilmLoopMemberSpriteDTO ToDto(LingoFilmLoopMemberSprite sprite)
-    {
-        var dto = new LingoFilmLoopMemberSpriteDTO
-        {
-            Name = sprite.Name,
-            SpriteNum = sprite.SpriteNum,
-            MemberNumberInCast = sprite.MemberNumberInCast,
-            DisplayMember = sprite.DisplayMember,
-            LocH = sprite.LocH,
-            LocV = sprite.LocV,
-            LocZ = sprite.LocZ,
-            Rotation = sprite.Rotation,
-            Skew = sprite.Skew,
-            RegPoint = new LingoPointDTO { X = sprite.RegPoint.X, Y = sprite.RegPoint.Y },
-            Ink = sprite.Ink,
-            ForeColor = ToDto(sprite.ForeColor),
-            BackColor = ToDto(sprite.BackColor),
-            Blend = sprite.Blend,
-            Width = sprite.Width,
-            Height = sprite.Height,
-            BeginFrame = sprite.BeginFrame,
-            EndFrame = sprite.EndFrame,
-            Channel = sprite.Channel,
-            CastNum = sprite.CastNum,
-            FlipH = sprite.FlipH,
-            FlipV = sprite.FlipV,
-            Hilite = sprite.Hilite,
-            Animator = ToDto(sprite.AnimatorProperties),
-        };
-
-        return dto;
-    }
-
-
-
-    private static IEnumerable<object> GetSpriteActors(LingoSprite2D sprite)
-    {
-        var field = typeof(LingoSprite2D).GetField("_spriteActors", BindingFlags.NonPublic | BindingFlags.Instance);
-        if (field?.GetValue(sprite) is IEnumerable<object> actors)
-            return actors;
-        return Enumerable.Empty<object>();
-    }
-
-    public static LingoSpriteAnimatorDTO ToDto(LingoSpriteAnimator animatorA)
-    {
-        return ToDto(animatorA.Properties);
-    }
-
-    public static LingoSpriteAnimatorDTO ToDto(LingoSpriteAnimatorProperties animProps)
-    {
-        return new LingoSpriteAnimatorDTO
-        {
-            Position = animProps.Position.KeyFrames.Select(k => new LingoPointKeyFrameDTO
-            {
-                Frame = k.Frame,
-                Value = new LingoPointDTO { X = k.Value.X, Y = k.Value.Y },
-                Ease = (LingoEaseTypeDTO)k.Ease
-            }).ToList(),
-            PositionOptions = ToDto(animProps.Position.Options),
-
-            Rotation = animProps.Rotation.KeyFrames.Select(k => new LingoFloatKeyFrameDTO
-            {
-                Frame = k.Frame,
-                Value = k.Value,
-                Ease = (LingoEaseTypeDTO)k.Ease
-            }).ToList(),
-            RotationOptions = ToDto(animProps.Rotation.Options),
-
-            Skew = animProps.Skew.KeyFrames.Select(k => new LingoFloatKeyFrameDTO
-            {
-                Frame = k.Frame,
-                Value = k.Value,
-                Ease = (LingoEaseTypeDTO)k.Ease
-            }).ToList(),
-            SkewOptions = ToDto(animProps.Skew.Options),
-
-            ForegroundColor = animProps.ForegroundColor.KeyFrames.Select(k => new LingoColorKeyFrameDTO
-            {
-                Frame = k.Frame,
-                Value = ToDto(k.Value),
-                Ease = (LingoEaseTypeDTO)k.Ease
-            }).ToList(),
-            ForegroundColorOptions = ToDto(animProps.ForegroundColor.Options),
-
-            BackgroundColor = animProps.BackgroundColor.KeyFrames.Select(k => new LingoColorKeyFrameDTO
-            {
-                Frame = k.Frame,
-                Value = ToDto(k.Value),
-                Ease = (LingoEaseTypeDTO)k.Ease
-            }).ToList(),
-            BackgroundColorOptions = ToDto(animProps.BackgroundColor.Options),
-
-            Blend = animProps.Blend.KeyFrames.Select(k => new LingoFloatKeyFrameDTO
-            {
-                Frame = k.Frame,
-                Value = k.Value,
-                Ease = (LingoEaseTypeDTO)k.Ease
-            }).ToList(),
-            BlendOptions = ToDto(animProps.Blend.Options)
-        };
-    }
-
-    private static LingoTweenOptionsDTO ToDto(LingoTweenOptions options)
-    {
-        return new LingoTweenOptionsDTO
-        {
-            Enabled = options.Enabled,
-            Curvature = options.Curvature,
-            ContinuousAtEndpoints = options.ContinuousAtEndpoints,
-            SpeedChange = (LingoSpeedChangeTypeDTO)options.SpeedChange,
-            EaseIn = options.EaseIn,
-            EaseOut = options.EaseOut
-        };
-    }
-
-    public static LingoColorDTO ToDto(AColor color)
-    {
-        return new LingoColorDTO
-        {
-            Code = color.Code,
-            Name = color.Name,
-            R = color.R,
-            G = color.G,
-            B = color.B
-        };
-    }
-
-    private static string SavePicture(LingoMemberBitmap picture, MovieStoreOptions options)
-    {
-        if (picture.ImageData == null || string.IsNullOrWhiteSpace(options.TargetDirectory) || !options.WithMedia)
-            return string.Empty;
-
-        var ext = GetPictureExtension(picture);
-        var name = $"{picture.NumberInCast}_{SanitizeFileName(picture.Name)}.{ext}";
-        var path = Path.Combine(options.TargetDirectory, name);
-        File.WriteAllBytes(path, picture.ImageData);
-        return name;
-    }
-
-    private static string SaveSound(LingoMemberSound sound, MovieStoreOptions options)
-    {
-        if (string.IsNullOrWhiteSpace(options.TargetDirectory)) return string.Empty;
-        var source = !string.IsNullOrEmpty(sound.FileName) && File.Exists(sound.FileName)
-            ? sound.FileName
-            : sound.LinkedFilePath;
-        if (string.IsNullOrEmpty(source) || !File.Exists(source))
-            return string.Empty;
-
-        var ext = GetSoundExtension(source);
-        var name = $"{sound.NumberInCast}_{SanitizeFileName(sound.Name)}{ext}";
-        if (!options.WithMedia) return name;
-        var dest = Path.Combine(options.TargetDirectory, name);
-        File.Copy(source, dest, true);
-        return name;
-    }
-
-    private static string GetSoundExtension(string path)
-    {
-        var ext = Path.GetExtension(path);
-        if (string.IsNullOrEmpty(ext))
-            return ".wav";
-        return ext.ToLowerInvariant();
-    }
-
-    private static string GetPictureExtension(LingoMemberBitmap picture)
-    {
-        var format = picture.Format.ToLowerInvariant();
-        if (format.Contains("png") || format.Contains("gif") || format.Contains("tiff"))
-            return "png";
-        return "bmp";
-    }
-
-    private static string SanitizeFileName(string name)
-    {
-        foreach (var c in Path.GetInvalidFileNameChars())
-            name = name.Replace(c, '_');
-        return name;
     }
 
     private static void ApplyOptions(LingoTweenOptions target, LingoTweenOptionsDTO dto)
