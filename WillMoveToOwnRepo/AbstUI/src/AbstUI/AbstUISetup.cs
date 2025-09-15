@@ -11,8 +11,8 @@ namespace AbstUI
     {
         private static AbstFameworkComponentRegistrator? _registrator;
 
-        
-        public static IServiceCollection WithAbstUI(this IServiceCollection services,Action<IAbstFameworkComponentWinRegistrator>? componentRegistrations = null)
+
+        public static IServiceCollection WithAbstUI(this IServiceCollection services, Action<IAbstFameworkComponentWinRegistrator>? componentRegistrations = null)
         {
             services
                 .AddSingleton<IAbstCommandManager, AbstCommandManager>()
@@ -45,12 +45,10 @@ namespace AbstUI
             if (_registerd) return services; // only register once
             _registerd = true;
             _registrator?.RegisterAll(services);
-          
+
             services.GetRequiredService<IAbstCommandManager>()
                 .Register<AbstWindowManager, OpenWindowCommand>()
-                .Register<AbstWindowManager, CloseWindowCommand>()
-                ;
-               // .DiscoverAndSubscribe(_lingoServiceProvider, typeof(LingoEngineRegistration).Assembly); < -slows down startup a lot
+                 .Register<AbstWindowManager, CloseWindowCommand>();
             return services;
         }
     }

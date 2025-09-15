@@ -313,13 +313,11 @@ namespace LingoEngine.Setup
                  .Register<LingoPlayer, RewindMovieCommand>()
                  .Register<LingoPlayer, PlayMovieCommand>()
                  .Register<LingoPlayer, StepFrameCommand>()
-                 
-                 .Register<LingoFrameLabelManager,DeleteFrameLabelCommand>()
-                 .Register<LingoFrameLabelManager,SetFrameLabelCommand>()
-                 .Register<LingoFrameLabelManager,AddFrameLabelCommand>()
-                 .Register<LingoFrameLabelManager,UpdateFrameLabelCommand>()
-                 ;
-            //    .DiscoverAndSubscribe(_lingoServiceProvider, typeof(LingoEngineRegistration).Assembly);< -slows down startup a lot
+
+                 .Register<LingoFrameLabelManager, DeleteFrameLabelCommand>()
+                 .Register<LingoFrameLabelManager, SetFrameLabelCommand>()
+                 .Register<LingoFrameLabelManager, AddFrameLabelCommand>()
+                   .Register<LingoFrameLabelManager, UpdateFrameLabelCommand>();
             await _projectFactory.LoadCastLibsAsync(_player.CastLibs, _player);
             _startupMovie = await _projectFactory.LoadStartupMovieAsync(_lingoServiceProvider, _player);
         }
