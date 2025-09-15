@@ -247,6 +247,11 @@ namespace ProjectorRays.director
                 var v when v == FOURCC('M', 'C', 's', 'L') => new RaysCastListChunk(Dir),
                 var v when v == FOURCC('V', 'W', 'S', 'C') => new RaysScoreChunk(Dir),
                 var v when v == FOURCC('X', 'M', 'E', 'D') => new RaysXmedChunk(Dir, ChunkType.StyledText),
+                var v when v == FOURCC('M', 'i', 'd', 'e') => new RaysBinaryChunk(Dir),
+                var v when v == FOURCC('e', 'd', 'i', 'M') => new RaysBinaryChunk(Dir),
+                var v when v == FOURCC('B', 'I', 'T', 'D') => new RaysBinaryChunk(Dir),
+                var v when v == FOURCC('A', 'L', 'F', 'A') => new RaysBinaryChunk(Dir),
+                var v when v == FOURCC('T', 'h', 'u', 'm') => new RaysBinaryChunk(Dir),
                 _ => throw new IOException($"Could not deserialize '{Common.RaysUtil.FourCCToString(fourCC)}' chunk")
             };
 
@@ -294,6 +299,12 @@ namespace ProjectorRays.director
                 return ChunkInfoMap[list[0]];
             return null;
         }
+        public ChunkInfo? GetLastChunkInfo(uint fourCC)
+        {
+            if (ChunkIDsByFourCC.TryGetValue(fourCC, out var list) && list.Count > 0)
+                return ChunkInfoMap[list[^1]];
+            return null;
+        }
         internal ChunkInfo? TryGetChunkTest(uint fourCC)
         {
             if (MemoryMap == null) return null;
@@ -324,10 +335,10 @@ namespace ProjectorRays.director
         {
             var info = GetFirstChunkInfo(FOURCC('V', 'W', 'S', 'C'));
             if (info != null)
-               return (RaysScoreChunk)GetChunk(info.FourCC, info.Id);
+                return (RaysScoreChunk)GetChunk(info.FourCC, info.Id);
             return null;
         }
-        public RaysScriptChunk? GetScript(int id)=> TryGetChunk<RaysScriptChunk>(FOURCC('L', 's', 'c', 'r'),id);
+        public RaysScriptChunk? GetScript(int id) => TryGetChunk<RaysScriptChunk>(FOURCC('L', 's', 'c', 'r'), id);
         public RaysScriptNamesChunk? GetScriptNames(int id) => TryGetChunk<RaysScriptNamesChunk>(FOURCC('L', 'n', 'a', 'm'), id);
         public RaysCastChunk? GetCastStar(int id) => TryGetChunk<RaysCastChunk>(FOURCC('C', 'A', 'S', '*'), id);
         public RaysCastMemberChunk? GetCastMember(int id) => TryGetChunk<RaysCastMemberChunk>(FOURCC('C', 'A', 'S', 't'), id);
@@ -336,6 +347,7 @@ namespace ProjectorRays.director
         public ChunkInfo? GetFirstScore() => GetFirstChunkInfo(FOURCC('V', 'W', 'S', 'C'));
         public ChunkInfo? GetFirstKeyTable() => GetFirstChunkInfo(FOURCC('K', 'E', 'Y', '*'));
         public ChunkInfo? GetFirstXMED() => GetFirstChunkInfo(FOURCC('X', 'M', 'E', 'D'));
+        public ChunkInfo? GetLastXMED() => GetLastChunkInfo(FOURCC('X', 'M', 'E', 'D'));
         public RaysKeyTableChunk? GetKeyTable()
         {
             var info = GetFirstKeyTable(); // GetFirstChunkInfo(FOURCC('K','E','Y','*'));
@@ -402,6 +414,6 @@ namespace ProjectorRays.director
         private static bool CompressionImplemented(RayGuid id) =>
         id.Equals(LingoGuidConstants.ZLIB_COMPRESSION_GUID) || id.Equals(LingoGuidConstants.SND_COMPRESSION_GUID);
 
-        
+
     }
 }

@@ -110,12 +110,13 @@ public class RaysDirectorFile : ChunkResolver
                         { sectionID = keyEntry.SectionID; break; }
                     if (sectionID > 0)
                     {
-                        var cast = _raysDataBlockReader.GetCastStar(sectionID)!;  // (RaysCastChunk)GetChunk(FOURCC('C','A','S','*'), sectionID);
+                        var cast = _raysDataBlockReader.GetCastStar(sectionID)!;
                         cast.Populate(entry.Name, entry.Id, entry.MinMember);
                         Casts.Add(cast);
                     }
                 }
-                return true;
+                if (Casts.Count > 0)
+                    return true;
             }
             else
             {
@@ -166,6 +167,7 @@ public class RaysDirectorFile : ChunkResolver
     public RaysScriptChunk? GetScriptChunk(int id) => _raysDataBlockReader.GetScript(id);
     public ScriptNames? GetScriptNames(int id) => _raysDataBlockReader.GetScriptNames(id)?.Names;
     public ChunkInfo? GetFirstXMED() => _raysDataBlockReader.GetFirstXMED();
+    public ChunkInfo? GetLastXMED() => _raysDataBlockReader.GetLastXMED();
     internal ChunkInfo? TryGetChunkTest(uint fourCC) => _raysDataBlockReader.TryGetChunkTest(fourCC);
     /// <summary>
     /// Parse all scripts referenced by every cast so the bytecode is converted

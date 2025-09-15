@@ -5,6 +5,7 @@ using ProjectorRays.director.Scores;
 using ProjectorRays.Director;
 using System;
 using System.IO;
+using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -61,6 +62,28 @@ namespace ProjectorRays.DotNet.Test.Images
             Assert.NotEmpty(dir.Score!.Sprites);
             var first = dir.Score.Sprites[0];
             Assert.True(first.EndFrame >= first.StartFrame);
+        }
+
+        [Fact]
+        public void KeyFramesDirContainsTwoImages()
+        {
+            var path = GetPath("KeyFrames/KeyFramesTestMultiple.dir");
+            var data = File.ReadAllBytes(path);
+            var stream = new ReadStream(data, data.Length, Endianness.BigEndian);
+            var dir = new RaysDirectorFile(_logger, path);
+            Assert.True(dir.Read(stream));
+
+            var cast = Assert.Single(dir.Casts);
+            var pngSig = new byte[] { 0x89, (byte)'P', (byte)'N', (byte)'G' };
+            var images = cast.Members.Values
+                .Where(m => (m.Type == RaysMemberType.BitmapMember || m.Type == RaysMemberType.PictureMember) && m.ImageData.Size > 0)
+                .ToList();
+            Assert.Equal(2, images.Count);
+            foreach (var img in images)
+            {
+                var span = img.ImageData.Data.AsSpan(img.ImageData.Offset, 4);
+                Assert.True(span.SequenceEqual(pngSig));
+            }
         }
 
         private static string GetPath(string fileName)

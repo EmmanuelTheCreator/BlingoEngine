@@ -21,7 +21,8 @@ public enum ChunkType
     ScriptNamesChunk,
     ScoreChunk,
     XmedChunk,
-    StyledText
+    StyledText,
+    Binary
 }
 
 public abstract class RaysChunk
@@ -47,6 +48,6 @@ public abstract class RaysChunk
 
     public virtual void LogInfo(StringBuilder sb, int indentation)
     {
-        sb.AppendLine($"{new string(' ',indentation)}ChunkType: {ChunkType}");
+        sb.AppendLine($"{new string(' ', indentation)}ChunkType: {ChunkType}");
     }
 }
