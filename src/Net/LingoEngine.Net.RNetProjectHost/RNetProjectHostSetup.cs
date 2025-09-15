@@ -1,8 +1,8 @@
+using LingoEngine.Core;
+using LingoEngine.Net.RNetContracts;
+using LingoEngine.Net.RNetHost.Common;
 using LingoEngine.Setup;
 using Microsoft.Extensions.DependencyInjection;
-using LingoEngine.Net.RNetContracts;
-using LingoEngine.Core;
-using System.Reflection;
 
 namespace LingoEngine.Net.RNetProjectHost;
 
@@ -20,12 +20,12 @@ public static class LingoRNetProjectHostSetup
     /// <returns>The same registration instance for chaining.</returns>
     public static ILingoEngineRegistration WithRNetProjectHostServer(this ILingoEngineRegistration reg, int port = 61699, bool autoStart = false)
     {
-        reg.ServicesMain(s =>
-        {
-            s.AddSingleton<IRNetConfiguration>(new RNetConfiguration { Port = port });
-            s.AddSingleton<IRNetServer, RNetProjectServer>();
-            s.AddSingleton<IRNetPublisher>(p => p.GetRequiredService<IRNetServer>().Publisher);
-        });
+        reg.ServicesMain(s => s
+            .AddSingleton<IRNetConfiguration>(new RNetConfiguration { Port = port })
+            .AddSingleton<IRNetProjectServer, RNetProjectServer>()
+            .AddSingleton<IRNetPublisherEngineBridge, RNetProjectPublisher>()
+            .AddSingleton<IRNetProjectBus, RNetProjectBus>()
+            );
 
         reg.AddPostBuildAction(p =>
         {
@@ -33,9 +33,9 @@ public static class LingoRNetProjectHostSetup
 
             if (config.AutoStartRNetHostOnStartup || autoStart)
             {
-                var server = p.GetRequiredService<IRNetServer>();
+                var server = p.GetRequiredService<IRNetProjectServer>();
                 server.StartAsync().GetAwaiter().GetResult();
-                var publisher = p.GetRequiredService<IRNetPublisher>();
+                var publisher = p.GetRequiredService<IRNetPublisherEngineBridge>();
                 publisher.Enable(p.GetRequiredService<ILingoPlayer>());
             }
         });

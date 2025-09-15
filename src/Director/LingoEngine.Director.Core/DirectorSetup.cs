@@ -84,7 +84,7 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<IRNetConfiguration>(p => p.GetRequiredService<RNetConfiguration>())
                     .AddTransient<RNetSettingsDialog>()
                     .AddSingleton<RNetSettingsDialogHandler>()
-                    .AddSingleton<IRNetServer, RNetProjectServer>()
+                    .AddSingleton<IRNetProjectServer, RNetProjectServer>()
                     .AddSingleton<ILingoRNetProjectClient, LingoRNetProjectClient>()
                     .AddSingleton<DirectorRNetServer>()
                     .AddSingleton<DirectorRNetClient>()

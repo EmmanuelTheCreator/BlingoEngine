@@ -56,7 +56,7 @@ namespace LingoEngine.Director.Core.UI
         private readonly IAbstShortCutManager _shortCutManager;
         private readonly IHistoryManager _historyManager;
         private readonly IAbstCommandManager _commandManager;
-        private readonly IRNetServer _server;
+        private readonly IRNetProjectServer _server;
         private readonly ILingoRNetProjectClient _client;
         private readonly ILingoFrameworkFactory _factory;
         private readonly List<ShortCutInfo> _shortCuts = new();
@@ -96,7 +96,7 @@ namespace LingoEngine.Director.Core.UI
 
         public DirectorMainMenu(IServiceProvider serviceProvider, IAbstWindowManager windowManager, DirectorProjectManager projectManager, LingoPlayer player, IAbstShortCutManager shortCutManager,
             IHistoryManager historyManager, IDirectorIconManager directorIconManager, IAbstCommandManager commandManager, ILingoFrameworkFactory factory,
-            IRNetServer server, ILingoRNetProjectClient client) : base(serviceProvider, DirectorMenuCodes.MainMenu)
+            IRNetProjectServer server, ILingoRNetProjectClient client) : base(serviceProvider, DirectorMenuCodes.MainMenu)
         {
             _windowManager = windowManager;
             _projectManager = projectManager;

@@ -14,13 +14,13 @@ namespace LingoEngine.Net.RNetProjectHost;
 /// </summary>
 public sealed class LingoRNetProjectHub : Hub
 {
-    private readonly IBus _bus;
+    private readonly IRNetProjectBus _bus;
     private readonly ILingoPlayer _player;
     private readonly ILogger<LingoRNetProjectHub> _logger;
     private static readonly ConcurrentDictionary<string, DateTime> _heartbeats = new();
 
     /// <summary>Initializes a new instance of the <see cref="LingoRNetProjectHub"/> class.</summary>
-    public LingoRNetProjectHub(IBus bus, ILingoPlayer player, ILogger<LingoRNetProjectHub> logger)
+    public LingoRNetProjectHub(IRNetProjectBus bus, ILingoPlayer player, ILogger<LingoRNetProjectHub> logger)
     {
         _bus = bus;
         _player = player;

@@ -10,13 +10,16 @@
   <PropertyGroup>
     <!-- NuGet Packaging Metadata -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageId>LingoEngine.Net.RNetContracts</PackageId>
+    <PackageId>LingoEngine.Net.RNetPipeClient</PackageId>
     <Version>1.0.0</Version>
     <Authors>Emmanuel The Creator</Authors>
     <Company>The Community</Company>
-    <Description>Shared data contracts for LingoEngine RNet tooling.</Description>
+    <Description>Named pipe/Unix domain socket client for local RNet communication.</Description>
     <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
-    <PackageTags>LingoEngine RNet Contracts</PackageTags>
+    <PackageTags>LingoEngine RNet Pipe Client</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\\LingoEngine.Net.RNetContracts\\LingoEngine.Net.RNetContracts.csproj" />
+  </ItemGroup>
 </Project>

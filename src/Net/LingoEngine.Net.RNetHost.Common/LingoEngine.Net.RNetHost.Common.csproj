@@ -10,13 +10,17 @@
   <PropertyGroup>
     <!-- NuGet Packaging Metadata -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageId>LingoEngine.Net.RNetContracts</PackageId>
+    <PackageId>LingoEngine.Net.RNetHost.Common</PackageId>
     <Version>1.0.0</Version>
     <Authors>Emmanuel The Creator</Authors>
     <Company>The Community</Company>
-    <Description>Shared data contracts for LingoEngine RNet tooling.</Description>
+    <Description>Shared helpers for hosting LingoEngine instances over RNet.</Description>
     <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
-    <PackageTags>LingoEngine RNet Contracts</PackageTags>
+    <PackageTags>LingoEngine RNet Host Common</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LingoEngine.Net.RNetContracts\LingoEngine.Net.RNetContracts.csproj" />
+    <ProjectReference Include="..\..\LingoEngine\LingoEngine.csproj" />
+  </ItemGroup>
 </Project>
