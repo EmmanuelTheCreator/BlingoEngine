@@ -48,6 +48,7 @@ These instructions apply to the entire repository.
 | src/Net/LingoEngine.Net.RNetContracts/LingoEngine.Net.RNetContracts.csproj | Shared contracts for RNet tooling |
 | src/Net/LingoEngine.Net.RNetClient/LingoEngine.Net.RNetClient.csproj | Client library for RNet tooling |
 | src/Net/LingoEngine.Net.RNetHost/LingoEngine.Net.RNetHost.csproj | SignalR host for RNet tooling |
+| src/Net/LingoEngine.Net.RNetHost.Common/LingoEngine.Net.RNetHost.Common.csproj | Shared helpers for hosting RNet transports |
 | src/Net/LingoEngine.Net.RNetTerminal/LingoEngine.Net.RNetTerminal.csproj | Console app for RNet client debugging |
 | src/Director/LingoEngine.Director.SDL2/LingoEngine.Director.SDL2.csproj | SDL2 integration for Director tooling |
 | src/Director/LingoEngine.Director.LGodot/LingoEngine.Director.LGodot.csproj | Godot integration for Director tooling |

@@ -1,7 +1,8 @@
+using LingoEngine.Core;
+using LingoEngine.Net.RNetContracts;
+using LingoEngine.Net.RNetHost.Common;
 using LingoEngine.Setup;
 using Microsoft.Extensions.DependencyInjection;
-using LingoEngine.Net.RNetContracts;
-using LingoEngine.Core;
 using System.Reflection;
 
 namespace LingoEngine.Net.RNetHost;
@@ -24,7 +25,8 @@ public static class LingoRNetHostSetup
         {
             s.AddSingleton<IRNetConfiguration>(new RNetConfiguration { Port = port });
             s.AddSingleton<IRNetServer, RNetServer>();
-            s.AddSingleton<IRNetPublisher>(p => p.GetRequiredService<IRNetServer>().Publisher);
+            s.AddSingleton<IRNetPublisherEngineBridge>(p => (IRNetPublisherEngineBridge)p.GetRequiredService<IRNetServer>().Publisher);
+            s.AddSingleton<IRNetPublisher>(p => p.GetRequiredService<IRNetPublisherEngineBridge>());
         });
 
         reg.AddPostBuildAction(p =>
@@ -35,7 +37,7 @@ public static class LingoRNetHostSetup
             {
                 var server = p.GetRequiredService<IRNetServer>();
                 server.StartAsync().GetAwaiter().GetResult();
-                var publisher = p.GetRequiredService<IRNetPublisher>();
+                var publisher = p.GetRequiredService<IRNetPublisherEngineBridge>();
                 publisher.Enable(p.GetRequiredService<ILingoPlayer>());
             }
         });
