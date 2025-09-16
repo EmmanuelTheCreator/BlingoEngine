@@ -27,4 +27,5 @@ public class Lingo2DSpriteDTO : LingoSpriteBaseDTO
     public float Height { get; set; }
 
     public LingoSpriteAnimatorDTO? Animator { get; set; }
+    public List<LingoSpriteBehaviorDTO> Behaviors { get; set; } = new();
 }

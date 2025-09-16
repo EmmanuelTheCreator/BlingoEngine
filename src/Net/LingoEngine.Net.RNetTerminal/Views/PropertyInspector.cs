@@ -1,17 +1,19 @@
+using LingoEngine.IO.Data.DTO.Members;
+using LingoEngine.IO.Data.DTO.Sprites;
+using LingoEngine.Net.RNetTerminal.Datas;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
+using System.Xml.Linq;
 using Terminal.Gui;
+using Terminal.Gui.App;
 using Terminal.Gui.Drawing;
+using Terminal.Gui.Input;
 using Terminal.Gui.ViewBase;
 using Terminal.Gui.Views;
-using Terminal.Gui.Input;
-using Terminal.Gui.App;
-using LingoEngine.Net.RNetTerminal.Datas;
-using LingoEngine.IO.Data.DTO.Members;
-using LingoEngine.IO.Data.DTO.Sprites;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LingoEngine.Net.RNetTerminal.Views;
 
@@ -49,8 +51,9 @@ internal sealed class PropertyInspector : View
 
     public event Action<PropertyTarget, string, string>? PropertyChanged;
 
-    public PropertyInspector() 
+    public PropertyInspector()
     {
+        CanFocus = true;
         Text = "Properties";
         _tabs = new TabView
         {
@@ -64,6 +67,7 @@ internal sealed class PropertyInspector : View
                 _lastTab = e.NewTab.Text?.ToString() ?? _lastTab;
             }
         };
+        Add(_tabs);
 
         _spriteSpecs.AddRange(new[]
         {
@@ -90,97 +94,19 @@ internal sealed class PropertyInspector : View
             new PropertySpec("BackColor", typeof(Color)),
             new PropertySpec("Behaviors", typeof(string))
         });
-
-        _spriteTable.Columns.Add("\u200B");
-        _spriteTable.Columns.Add("\u200B\u200B");
-        foreach (var spec in _spriteSpecs)
-        {
-            _spriteTable.Rows.Add(spec.Name, GetDefaultValue(spec.Type));
-        }
-        _spriteTableView = new TableView
-        {
-            Width = Dim.Fill(),
-            Height = Dim.Fill(),
-            Table = new DataTableSource(_spriteTable),
-            FullRowSelect = true
-        };
-        _spriteTableView.Style.AlwaysShowHeaders = false;
-        _spriteTableView.Style.ShowHorizontalHeaderUnderline = false;
-        _spriteTableView.Style.ShowHorizontalHeaderOverline = false;
-        _spriteTableView.Style.ShowVerticalHeaderLines = false;
-        _spriteTableView.Style.ShowVerticalCellLines = false;
-        _spriteTableView.SelectedColumn = 1;
-        _spriteTableView.SelectedCellChanged += (_,_) => _spriteTableView.SelectedColumn = 1;
-        _spriteTableView.KeyDown += (_,e) =>
-        {
-            if (e.KeyEventKey() == Key.CursorLeft || e.KeyEventKey() == Key.CursorRight)
-            {
-                e.Handled = true;
-            }
-        };
-        //_spriteTableView.Style.ColumnStyles.Add(_spriteTable.Columns[1].ColumnName, new ColumnStyle { Alignment = Alignment.End });
-        _spriteTableView.Style.ColumnStyles.Add(1, new ColumnStyle { Alignment = Alignment.End });
-        _spriteTableView.CellActivated += (_,args) =>
-        {
-            var spec = _spriteSpecs[args.Row];
-            if (spec.ReadOnly)
-            {
-                return;
-            }
-            var value = _spriteTable.Rows[args.Row][1]?.ToString() ?? string.Empty;
-            var newValue = EditValue(spec.Type, spec.Name, value);
-            if (newValue != null)
-            {
-                _spriteTable.Rows[args.Row][1] = newValue;
-                PropertyChanged?.Invoke(PropertyTarget.Sprite, spec.Name, newValue);
-            }
-            _spriteTableView.SetNeedsDraw();
-        };
-        _spriteTab = RUI.NewTab("Sprite", _spriteTableView);
-
-        _memberTable.Columns.Add("\u200B");
-        _memberTable.Columns.Add("\u200B\u200B");
-        _memberTableView = new TableView
-        {
-            Width = Dim.Fill(),
-            Height = Dim.Fill(),
-            Table = new DataTableSource(_memberTable),
-            FullRowSelect = true
-        };
-        //_memberTableView.Style.AlwaysShowHeaders = false;
-        //_memberTableView.Style.ShowHorizontalHeaderUnderline = false;
-        //_memberTableView.Style.ShowHorizontalHeaderOverline = false;
-        //_memberTableView.Style.ShowVerticalHeaderLines = false;
-        //_memberTableView.Style.ShowVerticalCellLines = false;
-        //_memberTableView.SelectedColumn = 1;
-        _memberTableView.SelectedCellChanged += (_,_) => _memberTableView.SelectedColumn = 1;
-        _memberTableView.KeyDown += (_,e) =>
-        {
-            if (e.KeyEventKey() == Key.CursorLeft || e.KeyEventKey() == Key.CursorRight)
-            {
-                e.Handled = true;
-            }
-        };
-        //_memberTableView.Style.ColumnStyles.Add(_memberTable.Columns[1], new ColumnStyle { Alignment = Alignment.Start });
-        _memberTableView.Style.ColumnStyles.Add(1, new ColumnStyle { Alignment = Alignment.Start });
-        _memberTableView.CellActivated += (_,args) =>
-        {
-            var spec = _memberSpecs[args.Row];
-            if (spec.ReadOnly)
-            {
-                return;
-            }
-            var value = _memberTable.Rows[args.Row][1]?.ToString() ?? string.Empty;
-            var newValue = EditValue(spec.Type, spec.Name, value);
-            if (newValue != null)
-            {
-                _memberTable.Rows[args.Row][1] = newValue;
-                PropertyChanged?.Invoke(PropertyTarget.Member, spec.Name, newValue);
-            }
-            _memberTableView.SetNeedsDraw();
-        };
-        _memberTab = RUI.NewTab("Member", _memberTableView);
-
+        var tabSpriteTuple = CreateTab("Sprite", _spriteSpecs);
+        _spriteTab = tabSpriteTuple.Tab;
+        _spriteTable = tabSpriteTuple.Data;
+        _spriteTableView = tabSpriteTuple.View;
+        _tabs.AddTab(_spriteTab,true);
+      
+        var tabMemberTuple = CreateTab("Member", _memberSpecs);
+        _memberTab = tabMemberTuple.Tab;
+        _memberTableView = tabMemberTuple.View;
+        _memberTable = tabMemberTuple.Data;
+        _tabs.AddTab(_memberTab, true);
+        _memberTableView = CreateTableView(_memberTable);
+       
         _bitmapTab = CreateTab("Bitmap", new[]
         {
             new PropertySpec("Dimensions", typeof(string), true),
@@ -250,22 +176,13 @@ internal sealed class PropertyInspector : View
             new PropertySpec("FrameCount", typeof(int))
         });
 
-        Add(_tabs);
-        SetTabs(_spriteTab, _memberTab);
+        SetTabs( _movieTab);
         var initial = _tabs.Tabs.FirstOrDefault(t => t.Text.ToString() == _lastTab) ?? _spriteTab;
         _tabs.SelectedTab = initial;
 
         var store = TerminalDataStore.Instance;
         UpdateSelection(store.GetSelectedSprite());
         store.SelectedSpriteChanged += UpdateSelection;
-        store.SpriteChanged += s =>
-        {
-            var sel = store.GetSelectedSprite();
-            if (sel.HasValue && sel.Value.SpriteNum == s.SpriteNum && sel.Value.BeginFrame == s.BeginFrame)
-            {
-                ShowSprite(s);
-            }
-        };
         store.MemberChanged += m =>
         {
             var sel = store.GetSelectedSprite();
@@ -284,6 +201,7 @@ internal sealed class PropertyInspector : View
             }
         };
     }
+  
 
     private void UpdateSelection(SpriteRef? sel)
     {
@@ -335,92 +253,21 @@ internal sealed class PropertyInspector : View
             }
             _spriteTable.Rows[i][1] = value;
         }
-        _spriteTableView.SetNeedsDraw();
+        //_spriteTableView.SetNeedsDraw();
     }
 
-    private Tab CreateTab(string title, PropertySpec[] props)
-    {
-        var view = BuildPropertyTableView(props);
-        return RUI.NewTab(title, view);
-    }
+
 
     private void SetTabs(params Tab[] tabs)
     {
         foreach (var existing in _tabs.Tabs.ToList())
-        {
             _tabs.RemoveTab(existing);
-        }
 
         foreach (var tab in tabs)
-        {
-            _tabs.AddTab(tab, _tabs.Tabs.Count == 0);
-        }
+            _tabs.AddTab(tab, false);
     }
 
-    private TableView BuildPropertyTableView(PropertySpec[] props)
-    {
-        var table = new DataTable();
-        table.Columns.Add("\u200B");
-        table.Columns.Add("\u200B\u200B");
-        for (var i = 0; i < props.Length; i++)
-        {
-            table.Rows.Add(props[i].Name, GetDefaultValue(props[i].Type));
-        }
-        var view = new TableView
-        {
-            Width = Dim.Fill(),
-            Height = Dim.Fill(),
-            Table = new DataTableSource(table),
-            FullRowSelect = true
-        };
-        view.Style.AlwaysShowHeaders = false;
-        view.Style.ShowHorizontalHeaderUnderline = false;
-        view.Style.ShowHorizontalHeaderOverline = false;
-        view.Style.ShowVerticalHeaderLines = false;
-        view.Style.ShowVerticalCellLines = false;
-        view.SelectedColumn = 1;
-        view.SelectedCellChanged += (_,_) => view.SelectedColumn = 1;
-        view.KeyDown += (_,e) =>
-        {
-            if (e.KeyEventKey() == Key.CursorLeft || e.KeyEventKey() == Key.CursorRight)
-            {
-                e.Handled = true;
-            }
-        };
-        //view.Style.ColumnStyles.Add(table.Columns[1], new ColumnStyle { Alignment = Alignment.End});
-        view.Style.ColumnStyles.Add(1, new ColumnStyle { Alignment = Alignment.End});
-        view.CellActivated += (_,args) =>
-        {
-            var spec = props[args.Row];
-            if (spec.ReadOnly)
-            {
-                return;
-            }
-            var value = table.Rows[args.Row][1]?.ToString() ?? string.Empty;
-            var newValue = EditValue(spec.Type, spec.Name, value);
-            if (newValue != null)
-            {
-                table.Rows[args.Row][1] = newValue;
-                PropertyChanged?.Invoke(PropertyTarget.Member, spec.Name, newValue);
-            }
-            view.SetNeedsDraw();
-        };
-        return view;
-    }
-
-    private static string GetDefaultValue(Type type)
-    {
-        if (type == typeof(bool))
-        {
-            return bool.FalseString;
-        }
-        if (type == typeof(int) || type == typeof(float))
-        {
-            return "0";
-        }
-        return string.Empty;
-    }
-
+   
     private static string? EditValue(Type type, string name, string value)
     {
         string? result = null;
@@ -499,7 +346,7 @@ internal sealed class PropertyInspector : View
         }
         else
         {
-            var field = RUI.NewTextField(value,121, 20);
+            var field = RUI.NewTextField(value,12,1, 20);
             var ok = RUI.NewButton("Ok", true, () =>
             {
                 result = field.Text.ToString();
@@ -520,7 +367,6 @@ internal sealed class PropertyInspector : View
         _memberSpecs.Clear();
         if (member == null)
         {
-            _memberTableView.SetNeedsDraw();
             var tabsEmpty = new List<Tab>();
             if (_sprite != null)
             {
@@ -553,6 +399,8 @@ internal sealed class PropertyInspector : View
         if (_sprite != null)
         {
             tabs.Add(_spriteTab);
+            if (_sprite.Behaviors.Any())
+                tabs.Add(_behaviorTab);
         }
         tabs.Add(_memberTab);
         tabs.Add(_castTab);
@@ -584,12 +432,125 @@ internal sealed class PropertyInspector : View
         SetTabs(tabs.ToArray());
         var desired = _tabs.Tabs.FirstOrDefault(t => t.Text.ToString() == _lastTab);
         _tabs.SelectedTab = desired ?? (_sprite != null ? _spriteTab : _memberTab);
+        _tabs.SetNeedsDraw();
     }
 
     private void AddMember(string name, string value, Type type, bool readOnly = false)
     {
         _memberTable.Rows.Add(name, value);
         _memberSpecs.Add(new PropertySpec(name, type, readOnly));
+    }
+
+   
+
+
+
+
+    private Tab CreateTab(string title, PropertySpec[] props)
+    {
+        var tab = new Tab();
+        RNetTerminalStyle.SetForTableView(tab);
+        tab.DisplayText = title;
+        var tableView = BuildPropertyTableView(props);
+        AttachEditPopup(props, tableView);
+        tab.View = tableView.View;
+        return (tab);
+    }
+    private (Tab Tab, TableView View, DataTable Data) CreateTab(string name, IList<PropertySpec> data)
+    {
+        var tab = new Tab();
+        tab.CanFocus = true;
+        RNetTerminalStyle.SetForTableView(tab);
+        tab.DisplayText = name;
+        var tableView = CreateTable(data);
+        AttachEditPopup(data, tableView);
+        tab.View = tableView.View;
+        return (tab, tableView.View, tableView.Data);
+    }
+    private (TableView View, DataTable Data) BuildPropertyTableView(PropertySpec[] props)
+    {
+        var table = CreateTable(props);
+        
+        return table;
+    }
+
+    private void AttachEditPopup(IList<PropertySpec> props, (TableView View, DataTable Data) table)
+    {
+        table.View.CellActivated += (_, args) =>
+        {
+            var spec = props[args.Row];
+            if (spec.ReadOnly)
+            {
+                return;
+            }
+            var value = table.Data.Rows[args.Row][1]?.ToString() ?? string.Empty;
+            var newValue = EditValue(spec.Type, spec.Name, value);
+            if (newValue != null)
+            {
+                table.Data.Rows[args.Row][1] = newValue;
+                PropertyChanged?.Invoke(PropertyTarget.Member, spec.Name, newValue);
+            }
+            //view.SetNeedsDraw();
+        };
+    }
+
+    private (TableView View, DataTable Data) CreateTable(IEnumerable<PropertySpec> props)
+    {
+        var table = new DataTable();
+        table.Columns.Add("Name");
+        table.Columns.Add("Value");
+        var i = 0;
+        foreach (var prop in props)
+        {
+            i++;
+            table.Rows.Add(prop.Name, GetDefaultValue(prop.Type));
+        }
+
+        var view = CreateTableView(table);
+        return (view, table);
+    }
+    private static string GetDefaultValue(Type type)
+    {
+        if (type == typeof(bool))
+        {
+            return bool.FalseString;
+        }
+        if (type == typeof(int) || type == typeof(float))
+        {
+            return "0";
+        }
+        return string.Empty;
+    }
+
+    private TableView CreateTableView(DataTable datas)
+    {
+        var tableView = new TableView
+        {
+            Width = Dim.Fill(),
+            Height = Dim.Fill(),
+            Table = new DataTableSource(datas),
+            FullRowSelect = true
+        };
+        RNetTerminalStyle.SetForTableView(tableView);
+        tableView.Style.AlwaysShowHeaders = false;
+        tableView.Style.ShowHeaders = false;
+        tableView.Style.ShowHorizontalHeaderUnderline = false;
+        tableView.Style.ShowHorizontalHeaderOverline = false;
+        tableView.Style.ShowVerticalHeaderLines = false;
+        tableView.Style.ShowVerticalCellLines = false;
+        tableView.MultiSelect = false;
+        //tableView.SelectedColumn = 1;
+        //tableView.SelectedCellChanged += (_, _) => tableView.SelectedColumn = 1;
+        //tableView.KeyDown += (_, e) =>
+        //{
+        //    if (e.KeyEventKey() == Key.CursorLeft || e.KeyEventKey() == Key.CursorRight)
+        //    {
+        //        e.Handled = true;
+        //    }
+        //};
+        tableView.Style.ColumnStyles.Add(0, new ColumnStyle { Alignment = Alignment.Start });
+        tableView.Style.ColumnStyles.Add(1, new ColumnStyle { Alignment = Alignment.End });
+        return tableView;
     }
 
     private sealed class PropertySpec

@@ -243,7 +243,7 @@ namespace LingoEngine.Net.RNetTerminal.Views
         private View CreateLog()
 {
 
-            _logWindow = new View { X = Pos.AnchorEnd(_logExpandedWidth), Y = 1, Width = _logExpandedWidth, Height = Dim.Fill()! -1 };
+            _logWindow = new View { X = Pos.AnchorEnd(_logExpandedWidth), Y = 1, Width = _logExpandedWidth, Height = Dim.Fill() };
 
             //_logToggleButton = RUI.NewButton("<", false, () => ToggleLogs());
             //_logToggleButton.X = Pos.AnchorEnd(3);

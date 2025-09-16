@@ -78,7 +78,7 @@ internal sealed class CastView : View
                 {
                     var member = members[e.Row];
                     MemberSelected?.Invoke(member);
-                    if (e.Col == 4 || _keyWasDown)
+                    if (e.Col == 4)
                     {
                         if (member.Type == LingoMemberTypeDTO.Text)
                         {

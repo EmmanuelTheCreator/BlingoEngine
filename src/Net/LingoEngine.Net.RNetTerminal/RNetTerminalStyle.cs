@@ -108,9 +108,25 @@ namespace LingoEngine.Net.RNetTerminal
             {
                 Normal = new Attribute(Color.Gray, Color.Blue),
                 Focus = new Attribute(Color.White, Color.BrightBlue),
-                //HotNormal = new Attribute(Color.BrightYellow, Color.BrightBlue),
+                HotNormal = new Attribute(Color.BrightYellow, Color.BrightBlue),
                 //HotFocus = new Attribute(Color.Black, Color.White),
                 //Disabled = new Attribute(Color.Gray, Color.BrightBlue)
+            };
+            dialog.SetScheme(baseScheme);
+        }
+        internal static void SetForTextField(TextField dialog)
+        {
+            var baseScheme = new Scheme
+            {
+                //Normal = new Attribute(Color.Gray, Color.Black),
+                //Focus = new Attribute(Color.Black, Color.DarkGray),
+                //HotNormal = new Attribute(Color.BrightYellow, Color.BrightBlue),
+                //HotFocus = new Attribute(Color.Green, Color.Black),
+                //Disabled = new Attribute(Color.Gray, Color.Black),
+                //Active = new Attribute(Color.Cyan, Color.Black),
+                //Editable = new Attribute(Color.Yellow, Color.Black),
+                //Highlight = new Attribute(Color.Black, Color.Yellow)  ,
+                //HotActive = new Attribute(Color.Green, Color.Yellow),
             };
             dialog.SetScheme(baseScheme);
         }

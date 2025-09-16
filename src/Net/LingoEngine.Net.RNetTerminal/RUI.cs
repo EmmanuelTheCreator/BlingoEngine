@@ -71,6 +71,7 @@ namespace LingoEngine.Net.RNetTerminal
             element.Y = y;
             if (width != null)
                 element.Width = width;
+            RNetTerminalStyle.SetForTextField(element);
             return element;
         }
         public static ListView NewListView(TableView tableView)
@@ -100,7 +101,7 @@ namespace LingoEngine.Net.RNetTerminal
             if (height != null) element.Height = height;
             return element;
         }
-        public static Tab NewTab(string text, TableView tableView)
+        public static Tab NewTab(string text, View tableView)
         {
             var tab = new Tab();
             tab.DisplayText = text;
@@ -115,7 +116,7 @@ namespace LingoEngine.Net.RNetTerminal
             dialog.Height = height;
             foreach (var btn in buttons)
                 dialog.AddButton(btn);
-            
+            RNetTerminalStyle.SetForDialog(dialog);
             return dialog;
         }
         public static Button NewButton(string text, bool isDefault = false, System.Action? click = null)
