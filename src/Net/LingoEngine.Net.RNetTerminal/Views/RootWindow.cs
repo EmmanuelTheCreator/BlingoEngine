@@ -22,18 +22,11 @@ namespace LingoEngine.Net.RNetTerminal.Views
        
         private bool _connected => LingoRNetTerminal.IsConnected;
         private ListView? _logList = new ListView();
-        private View? _mainArea;
         private View? _logWindow;
         private PropertyInspector? _propertyInspector;
         private Label? _connectionStatusLabel;
-        private Button? _logToggleButton;
-        private bool _logsCollapsed;
         private Label? _infoItem;
 
-        private const int _propertyInspectorWidth = 28;
-        private const int _stageHeight = 12;
-        private const int _castHeight = 12;
-        private int _logExpandedWidth = 40;
         private Action<int> _setPort = p => { };
         //private View _leftZone;
         private Tile _leftTopZone;
@@ -134,6 +127,7 @@ namespace LingoEngine.Net.RNetTerminal.Views
             top.Add(_infoItem);
 
             UpdateConnectionStatus();
+            Log("Starting...");
             Application.Run(top);
             top.Dispose();
         }
@@ -220,49 +214,20 @@ namespace LingoEngine.Net.RNetTerminal.Views
                     _ = sendCommandAsync(new SetMemberPropCmd(member.CastLibNum, member.NumberInCast, n, v), null);
                 }
             };
-            //_propertyInspector.KeyDown += (_, args) =>
-            //{
-            //    if (args.KeyCode == Key.Tab)
-            //    {
-            //        if (_stage?.Visible == true)
-            //        {
-            //            _score?.SetFocus();
-            //        }
-            //        else if (_cast?.Visible == true)
-            //        {
-            //            _cast?.SetFocus();
-            //        }
-            //        else
-            //        {
-            //            _score?.SetFocus();
-            //        }
-            //        args.Handled = true;
-            //    }
-            //};
             return _propertyInspector;
         }
         private View CreateLog()
 {
 
-            _logWindow = new View { X = Pos.AnchorEnd(_logExpandedWidth), Y = 1, Width = _logExpandedWidth, Height = Dim.Fill() };
-
-            //_logToggleButton = RUI.NewButton("<", false, () => ToggleLogs());
-            //_logToggleButton.X = Pos.AnchorEnd(3);
-            //_logToggleButton.Y = 0;
-            //_logToggleButton.CanFocus = false;
-            _logList = RUI.NewListView(_logs, 0, 1, Dim.Fill(), Dim.Fill());
-            //_logWindow.Add(_logToggleButton, _logList);
+            _logWindow = new View { X =0, Y = 0, Width = Dim.Fill(), Height = Dim.Fill() };
+            _logWindow.HorizontalScrollBar.Visible = true;
+            _logWindow.VerticalScrollBar.Visible = true;
+            _logList = RUI.NewListView(_logs, 0,0, Dim.Fill(), Dim.Fill());
+            _logWindow.Add(_logList);
             return _logWindow;
         }
 
       
-
-        private void ToggleLogs()
-        {
-            _logsCollapsed = !_logsCollapsed;
-            _logWindow.Width = _logsCollapsed ? 3 : _logExpandedWidth;
-        }
-
         private void SwitchToStageMode()
         {
             if (_stage == null || _score == null)
@@ -338,9 +303,8 @@ namespace LingoEngine.Net.RNetTerminal.Views
             {
                 _logs.Add($"[{DateTime.Now:HH:mm:ss}] {message}");
                 if (_logs.Count > 100)
-                {
                     _logs.RemoveAt(0);
-                }
+                
                 if (_logList != null)
                 {
                     _logList.SetSource(new System.Collections.ObjectModel.ObservableCollection<string>(_logs));

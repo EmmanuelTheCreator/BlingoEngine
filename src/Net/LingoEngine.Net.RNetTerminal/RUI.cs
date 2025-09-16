@@ -83,8 +83,10 @@ namespace LingoEngine.Net.RNetTerminal
         public static ListView NewListView(IEnumerable<string> data)
         {
             var dt = new DataTable();
+            var column = dt.Columns.Add("Data");
+            //column.MaxLength = 1000;
             foreach (var h in data)
-                dt.Columns.Add(h);
+                dt.Rows.Add(h);
             
             var tv = new TableView ();
             tv.Table = new DataTableSource(dt);
