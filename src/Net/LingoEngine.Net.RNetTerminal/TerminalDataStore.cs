@@ -14,6 +14,7 @@ public sealed class TerminalDataStore
     private readonly List<LingoTransitionSpriteDTO> _transitionSprites = new();
     private readonly List<LingoSpriteSoundDTO> _soundSprites = new();
     private readonly Dictionary<string, List<LingoMemberDTO>> _casts = new();
+    private readonly Dictionary<int, int> _pendingSpriteOriginalBegins = new();
     private int _currentFrame;
     private SpriteRef? _selectedSprite;
     public int SpriteChannelCount = 100;
@@ -133,6 +134,7 @@ public sealed class TerminalDataStore
             return;
         }
 
+        var originalBegin = sprite.BeginFrame;
         var length = Math.Max(0, sprite.EndFrame - sprite.BeginFrame);
         var maxStart = Math.Max(1, FrameCount - length);
         var newBegin = Math.Clamp(sprite.BeginFrame + delta, 1, maxStart);
@@ -150,6 +152,7 @@ public sealed class TerminalDataStore
 
         if (!ApplyLocalChanges)
         {
+            _pendingSpriteOriginalBegins[spriteRef.SpriteNum] = originalBegin;
             SpriteMoveRequested?.Invoke(spriteRef, newBegin, newEnd);
             return;
         }
@@ -220,12 +223,40 @@ public sealed class TerminalDataStore
 
     public void ApplySpriteDelta(SpriteDeltaDto delta)
     {
-        var sprite = FindSprite(new SpriteRef(delta.SpriteNum, delta.BeginFrame));
+        var spriteRef = new SpriteRef(delta.SpriteNum, delta.BeginFrame);
+        var sprite = FindSprite(spriteRef);
+        if (sprite == null && _pendingSpriteOriginalBegins.TryGetValue(delta.SpriteNum, out var originalBegin))
+        {
+            sprite = FindSprite(new SpriteRef(delta.SpriteNum, originalBegin));
+        }
         if (sprite == null)
         {
+            sprite = _sprites.FirstOrDefault(s => s.SpriteNum == delta.SpriteNum);
+        }
+        if (sprite == null)
+        {
+            _pendingSpriteOriginalBegins.Remove(delta.SpriteNum);
             return;
         }
 
+        var previousBegin = sprite.BeginFrame;
+        var wasSelected = _selectedSprite.HasValue &&
+                          _selectedSprite.Value.SpriteNum == sprite.SpriteNum &&
+                          _selectedSprite.Value.BeginFrame == previousBegin;
+        var length = Math.Max(0, sprite.EndFrame - sprite.BeginFrame);
+        var maxStart = Math.Max(1, FrameCount - length);
+        var newBegin = Math.Clamp(delta.BeginFrame <= 0 ? 1 : delta.BeginFrame, 1, maxStart);
+        var newEnd = length > 0 ? newBegin + length : newBegin;
+        if (FrameCount > 0 && newEnd > FrameCount)
+        {
+            newEnd = FrameCount;
+            newBegin = Math.Max(1, newEnd - length);
+        }
+        if (newBegin != sprite.BeginFrame)
+        {
+            sprite.BeginFrame = newBegin;
+            sprite.EndFrame = newEnd;
+        }
         sprite.Member ??= new LingoMemberRefDTO();
         sprite.Member.CastLibNum = delta.CastLibNum;
         sprite.Member.MemberNum = delta.MemberNum;
@@ -239,6 +270,11 @@ public sealed class TerminalDataStore
         sprite.Blend = delta.Blend;
         sprite.Ink = delta.Ink;
         SpriteChanged?.Invoke(sprite);
+        if (wasSelected)
+        {
+            SelectSprite(new SpriteRef(sprite.SpriteNum, sprite.BeginFrame));
+        }
+        _pendingSpriteOriginalBegins.Remove(sprite.SpriteNum);
     }
 
     public void ApplyMemberProperty(RNetMemberPropertyDto property)
@@ -254,6 +290,7 @@ public sealed class TerminalDataStore
 
     public void LoadTestData()
     {
+        _pendingSpriteOriginalBegins.Clear();
         MovieState = TestMovieBuilder.BuildMovieState();
         _sprites.Clear();
         _sprites.AddRange(TestMovieBuilder.BuildSprites());
@@ -280,6 +317,7 @@ public sealed class TerminalDataStore
 
     public void Load(LingoMovieDTO movie)
     {
+        _pendingSpriteOriginalBegins.Clear();
         _sprites.Clear();
         _sprites.AddRange(movie.Sprite2Ds);
         _tempoSprites.Clear();
