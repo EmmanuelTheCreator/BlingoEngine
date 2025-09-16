@@ -40,6 +40,8 @@ internal sealed class PropertyInspector : Window
 
     public LingoMemberDTO? CurrentMember => _member;
 
+    public bool DelayPropertyUpdates { get; set; }
+
     public event Action<PropertyTarget, string, string>? PropertyChanged;
 
     public PropertyInspector() : base("Properties")
@@ -122,7 +124,10 @@ internal sealed class PropertyInspector : Window
             var newValue = EditValue(spec.Type, spec.Name, value);
             if (newValue != null)
             {
-                _spriteTable.Rows[args.Row][1] = newValue;
+                if (!DelayPropertyUpdates)
+                {
+                    _spriteTable.Rows[args.Row][1] = newValue;
+                }
                 PropertyChanged?.Invoke(PropertyTarget.Sprite, spec.Name, newValue);
             }
             _spriteTableView.SetNeedsDisplay();
@@ -164,7 +169,10 @@ internal sealed class PropertyInspector : Window
             var newValue = EditValue(spec.Type, spec.Name, value);
             if (newValue != null)
             {
-                _memberTable.Rows[args.Row][1] = newValue;
+                if (!DelayPropertyUpdates)
+                {
+                    _memberTable.Rows[args.Row][1] = newValue;
+                }
                 PropertyChanged?.Invoke(PropertyTarget.Member, spec.Name, newValue);
             }
             _memberTableView.SetNeedsDisplay();
@@ -389,7 +397,10 @@ internal sealed class PropertyInspector : Window
             var newValue = EditValue(spec.Type, spec.Name, value);
             if (newValue != null)
             {
-                table.Rows[args.Row][1] = newValue;
+                if (!DelayPropertyUpdates)
+                {
+                    table.Rows[args.Row][1] = newValue;
+                }
                 PropertyChanged?.Invoke(PropertyTarget.Member, spec.Name, newValue);
             }
             view.SetNeedsDisplay();

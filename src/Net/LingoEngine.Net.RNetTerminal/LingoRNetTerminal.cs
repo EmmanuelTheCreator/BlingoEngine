@@ -2,6 +2,7 @@ using LingoEngine.IO;
 using LingoEngine.IO.Data.DTO;
 using LingoEngine.Net.RNetProjectClient;
 using LingoEngine.Net.RNetContracts;
+using System.Globalization;
 using System.Net.WebSockets;
 using Terminal.Gui;
 using Timer = System.Timers.Timer;
@@ -38,10 +39,13 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     private const int CastWindowHeight = 12;
     private int _logExpandedWidth = 40;
 
+    private bool IsRemoteMode => _client != null && _connected;
+
     public LingoRNetTerminal()
     {
         _settings = RNetTerminalSettings.Load();
         _port = _settings.Port;
+        TerminalDataStore.Instance.SpriteMoveRequested += OnSpriteMoveRequested;
     }
 
     public async Task RunAsync()
@@ -137,6 +141,31 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         UpdateRightPanelLayout();
     }
 
+    private void UpdateLocalChangeMode()
+    {
+        var remote = IsRemoteMode;
+        var store = TerminalDataStore.Instance;
+        store.ApplyLocalChanges = !remote;
+        if (_propertyInspector != null)
+        {
+            _propertyInspector.DelayPropertyUpdates = remote;
+        }
+    }
+
+    private void OnSpriteMoveRequested(SpriteRef sprite, int newBegin, int newEnd)
+    {
+        if (!IsRemoteMode || _client == null)
+        {
+            return;
+        }
+
+        Log($"spriteMove {sprite.SpriteNum}:{sprite.BeginFrame}->{newBegin}-{newEnd}");
+        var beginValue = newBegin.ToString(CultureInfo.InvariantCulture);
+        var endValue = newEnd.ToString(CultureInfo.InvariantCulture);
+        _ = _client.SendCommandAsync(new SetSpritePropCmd(sprite.SpriteNum, sprite.BeginFrame, "StartFrame", beginValue));
+        _ = _client.SendCommandAsync(new SetSpritePropCmd(sprite.SpriteNum, sprite.BeginFrame, "EndFrame", endValue));
+    }
+
     private void BuildScoreWindow()
     {
         _scoreWindow = new Window("Score")
@@ -157,8 +186,14 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         _scoreView.PlayFromHere += f => Log($"Play from {f}");
         _scoreView.InfoChanged += (f, ch, sp, mem) =>
         {
+            var store = TerminalDataStore.Instance;
+            var previous = store.GetFrame();
             UpdateInfo(f, ch, sp, mem);
-            TerminalDataStore.Instance.SetFrame(f);
+            store.SetFrame(f);
+            if (IsRemoteMode && _client != null && f != previous)
+            {
+                _ = _client.SendCommandAsync(new GoToFrameCmd(f));
+            }
         };
         _scoreWindow.Add(_scoreView);
     }
@@ -241,8 +276,13 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         {
             Log($"propertyChanged {n}={v}");
             var store = TerminalDataStore.Instance;
-            store.PropertyHasChanged(target, n, v, _propertyInspector?.CurrentMember);
-            if (_client != null)
+            var remote = IsRemoteMode;
+            if (!remote)
+            {
+                store.PropertyHasChanged(target, n, v, _propertyInspector?.CurrentMember);
+            }
+
+            if (_client != null && remote)
             {
                 if (target == PropertyTarget.Sprite)
                 {
@@ -257,6 +297,10 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
                     var member = _propertyInspector.CurrentMember;
                     _ = _client.SendCommandAsync(new SetMemberPropCmd(member.CastLibNum, member.NumberInCast, n, v));
                 }
+            }
+            else if (_client == null && remote)
+            {
+                store.PropertyHasChanged(target, n, v, _propertyInspector?.CurrentMember);
             }
         };
         _propertyInspector.KeyPress += args =>
@@ -307,6 +351,8 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         };
         _logWindow.Add(_logToggleButton, _logList);
         top.Add(_logWindow);
+
+        UpdateLocalChangeMode();
     }
 
     private void SaveSettings()
@@ -506,6 +552,7 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         _connected = false;
         Log("Disconnected.");
         UpdateConnectionStatus();
+        UpdateLocalChangeMode();
 
     }
 
@@ -520,8 +567,11 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             _connected = true;
             UpdateConnectionStatus();
             Log("Connected.");
+            UpdateLocalChangeMode();
             _cts = new CancellationTokenSource();
             _ = Task.Run(ReceiveFramesAsync);
+            _ = Task.Run(ReceiveDeltasAsync);
+            _ = Task.Run(ReceiveMemberPropertiesAsync);
             _heartbeatTimer = new Timer(1000);
             System.Timers.ElapsedEventHandler value = async (_, _) => await DoHeartBeat();
             _heartbeatTimer.Elapsed += value;
@@ -619,6 +669,66 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         }
         catch (OperationCanceledException)
         {
+        }
+    }
+
+    private async Task ReceiveDeltasAsync()
+    {
+        try
+        {
+            await foreach (var delta in _client!.StreamDeltasAsync(_cts.Token))
+            {
+                void Apply()
+                {
+                    TerminalDataStore.Instance.ApplySpriteDelta(delta);
+                }
+
+                if (Application.MainLoop is { } loop)
+                {
+                    loop.Invoke(Apply);
+                }
+                else
+                {
+                    Apply();
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            Log($"Delta stream error: {ex.Message}");
+        }
+    }
+
+    private async Task ReceiveMemberPropertiesAsync()
+    {
+        try
+        {
+            await foreach (var prop in _client!.StreamMemberPropertiesAsync(_cts.Token))
+            {
+                void Apply()
+                {
+                    TerminalDataStore.Instance.ApplyMemberProperty(prop);
+                }
+
+                if (Application.MainLoop is { } loop)
+                {
+                    loop.Invoke(Apply);
+                }
+                else
+                {
+                    Apply();
+                }
+            }
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            Log($"Member property stream error: {ex.Message}");
         }
     }
 

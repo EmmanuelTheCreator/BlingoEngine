@@ -29,12 +29,15 @@ public sealed class TerminalDataStore
 
     public int FrameCount { get; private set; } = 600;
 
+    public bool ApplyLocalChanges { get; set; } = true;
+
     public event Action? SpritesChanged;
     public event Action<Lingo2DSpriteDTO>? SpriteChanged;
     public event Action? CastsChanged;
     public event Action<LingoMemberDTO>? MemberChanged;
     public event Action<int>? FrameChanged;
     public event Action<SpriteRef?>? SelectedSpriteChanged;
+    public event Action<SpriteRef, int, int>? SpriteMoveRequested;
 
     public IReadOnlyList<Lingo2DSpriteDTO> GetSprites() => _sprites;
 
@@ -145,6 +148,12 @@ public sealed class TerminalDataStore
             return;
         }
 
+        if (!ApplyLocalChanges)
+        {
+            SpriteMoveRequested?.Invoke(spriteRef, newBegin, newEnd);
+            return;
+        }
+
         sprite.BeginFrame = newBegin;
         sprite.EndFrame = newEnd;
         SpriteChanged?.Invoke(sprite);
@@ -155,8 +164,13 @@ public sealed class TerminalDataStore
         }
     }
 
-    public void PropertyHasChanged(PropertyTarget target, string name, string value, LingoMemberDTO? member = null)
+    public void PropertyHasChanged(PropertyTarget target, string name, string value, LingoMemberDTO? member = null, bool force = false)
     {
+        if (!force && !ApplyLocalChanges)
+        {
+            return;
+        }
+
         if (target == PropertyTarget.Sprite)
         {
             if (!_selectedSprite.HasValue)
@@ -202,6 +216,40 @@ public sealed class TerminalDataStore
 
             UpdateMember(member);
         }
+    }
+
+    public void ApplySpriteDelta(SpriteDeltaDto delta)
+    {
+        var sprite = FindSprite(new SpriteRef(delta.SpriteNum, delta.BeginFrame));
+        if (sprite == null)
+        {
+            return;
+        }
+
+        sprite.Member ??= new LingoMemberRefDTO();
+        sprite.Member.CastLibNum = delta.CastLibNum;
+        sprite.Member.MemberNum = delta.MemberNum;
+        sprite.LocH = delta.LocH;
+        sprite.LocV = delta.LocV;
+        sprite.LocZ = delta.Z;
+        sprite.Width = delta.Width;
+        sprite.Height = delta.Height;
+        sprite.Rotation = delta.Rotation;
+        sprite.Skew = delta.Skew;
+        sprite.Blend = delta.Blend;
+        sprite.Ink = delta.Ink;
+        SpriteChanged?.Invoke(sprite);
+    }
+
+    public void ApplyMemberProperty(RNetMemberPropertyDto property)
+    {
+        var member = FindMember(property.CastLibNum, property.MemberNum);
+        if (member == null)
+        {
+            return;
+        }
+
+        PropertyHasChanged(PropertyTarget.Member, property.Prop, property.Value, member, true);
     }
 
     public void LoadTestData()
