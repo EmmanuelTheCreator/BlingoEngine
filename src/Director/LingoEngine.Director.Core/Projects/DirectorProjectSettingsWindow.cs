@@ -185,6 +185,11 @@ public class DirectorProjectSettingsWindow : DirectorWindow<IDirFrameworkProject
         UpdateIdePathVisibility();
     }
 
+    protected override void OnInit(IAbstFrameworkWindow frameworkWindow)
+    {
+        base.OnInit(frameworkWindow);
+        Title = "Project Settings";
+    }
 
 
 

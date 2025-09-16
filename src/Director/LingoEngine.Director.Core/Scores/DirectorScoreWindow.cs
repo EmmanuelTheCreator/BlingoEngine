@@ -108,6 +108,7 @@ namespace LingoEngine.Director.Core.Scores
         {
             base.OnInit(frameworkWindow);
             InitContextMenu();
+            Title = "Score";
             var mouse = (AbstMouse<AbstMouseEvent>)Mouse;
             _mouseSub = mouse.OnMouseEvent(HandleMouseEvent);
             _globalMouseUpSub = _globalMouse.OnMouseUp(GlobalHandleMouseEvent);

@@ -74,11 +74,11 @@ public class LingoSdlRootContext : AbstUISdlRootContext<LingoMouse>
 
     protected override void Render()
     {
-        //SDL.SDL_SetRenderDrawColor(Renderer, 255, 0, 0, 255);
-        //SDL.SDL_Rect rect = new SDL.SDL_Rect { x = 100, y = 100, w = 200, h = 150 };
-        //SDL.SDL_RenderFillRect(Renderer, ref rect);
-        var stageTexture = _stage.Value.LastTexture;
         SDL.SDL_SetRenderTarget(Renderer, nint.Zero);
+        SDL.SDL_SetRenderDrawColor(Renderer, 0, 0, 0, 255);
+        //SDL.SDL_Rect rect = new SDL.SDL_Rect { x = 0, y = 0, w = (int)_stage.Value.Width, h = (int)_stage .Value.Height};
+        SDL.SDL_RenderFillRect(Renderer, IntPtr.Zero);
+        var stageTexture = _stage.Value.LastTexture;
 
         SDL.SDL_RenderCopy(Renderer, stageTexture, IntPtr.Zero, IntPtr.Zero);
         ComponentContainer.Render(Factory.CreateRenderContext(null, System.Numerics.Vector2.Zero));

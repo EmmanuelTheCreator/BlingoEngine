@@ -4,7 +4,7 @@ using LingoEngine.SDL2;
 using LingoEngine.Setup;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-Console.Title = "Lingo Director";
+Console.Title = "Director c#";
 var services = new ServiceCollection()
                 // Add logging support
                 .AddLogging(config =>

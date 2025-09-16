@@ -155,6 +155,7 @@ namespace LingoEngine.Director.Core.Texts
             base.OnInit(frameworkWindow);
             _uiContext = SynchronizationContext.Current;
             Content = _rootPanel;
+            Title = "Text Editor";
         }
 
         protected override void OnDispose()

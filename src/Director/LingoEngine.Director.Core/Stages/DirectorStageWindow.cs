@@ -1,6 +1,7 @@
 using AbstUI.Commands;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
+using AbstUI.Windowing;
 using LingoEngine.Core;
 using LingoEngine.Director.Core.Stages.Commands;
 using LingoEngine.Director.Core.Tools;
@@ -43,6 +44,12 @@ namespace LingoEngine.Director.Core.Stages
 
             _mouseMoveSub = MouseT.OnMouseMove(OnMouseMove);
             player.ActiveMovieChanged += Player_ActiveMovieChanged;
+        }
+
+        protected override void OnInit(IAbstFrameworkWindow frameworkWindow)
+        {
+            base.OnInit(frameworkWindow);
+            Title = "Stage";
         }
 
         private void Player_ActiveMovieChanged(Movies.ILingoMovie? obj)

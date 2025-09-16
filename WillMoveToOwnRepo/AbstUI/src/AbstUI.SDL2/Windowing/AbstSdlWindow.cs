@@ -113,7 +113,7 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
         BackgroundTitleColor = AColors.LightGray;
     }
 
-    public void Init(IAbstWindow instance)
+    public virtual void Init(IAbstWindow instance)
     {
         if (instance == _abstWindow) return;
         _abstWindow = (IAbstWindowInternal)instance;
@@ -137,13 +137,16 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
     }
 
 
-    internal void BringToFront()
+    internal virtual void BringToFront()
         => _componentFactory.RootContext.ComponentContainer.Activate(ComponentContext);
 
-    public void OpenWindow()
+    public virtual void OpenWindow()
     {
         BringToFront();
+       
         Visibility = true;
+        X = _abstWindow.X;
+        Y = _abstWindow.Y;
         _abstWindow.SetPositionFromFW((int)X, (int)Y);
         // updates sizes because it could be resized to minimum size
         Resize(true, (int)Width, (int)Height);
@@ -156,20 +159,20 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
         Height = ((IAbstWindow)_abstWindow).Height;
     }
 
-    public void CloseWindow()
+    public virtual void CloseWindow()
     {
         Visibility = false;
         _componentFactory.RootContext.ComponentContainer.Deactivate(ComponentContext);
         _abstWindow.RaiseWindowStateChanged(false);
     }
-    public void MoveWindow(int x, int y)
+    public virtual void MoveWindow(int x, int y)
     {
         X = x;
         Y = y;
         _abstWindow.SetPositionFromFW(x, y);
     }
 
-    public void SetPositionAndSize(int x, int y, int width, int height)
+    public virtual void SetPositionAndSize(int x, int y, int width, int height)
     {
         X = x;
         Y = y;
@@ -177,12 +180,12 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
         SetSize(width, height);
     }
 
-    public APoint GetPosition() => new APoint(X, Y);
+    public virtual APoint GetPosition() => new APoint(X, Y);
 
 
-    public APoint GetSize() => new APoint(Width, Height);
+    public virtual APoint GetSize() => new APoint(Width, Height);
 
-    public void SetSize(int width, int height)
+    public virtual void SetSize(int width, int height)
     {
         Width = width;
         Height = height;

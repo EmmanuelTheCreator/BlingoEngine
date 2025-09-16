@@ -1,0 +1,193 @@
+using AbstUI.Commands;
+using AbstUI.Components;
+using AbstUI.Components.Containers;
+using AbstUI.FrameworkCommunication;
+using AbstUI.Inputs;
+using AbstUI.Primitives;
+using AbstUI.SDL2.Components;
+using AbstUI.SDL2.Components.Containers;
+using AbstUI.SDL2.Windowing;
+using AbstUI.Tools;
+using AbstUI.Windowing;
+using LingoEngine.Casts;
+using LingoEngine.Core;
+using LingoEngine.Director.Core.Casts.Commands;
+using LingoEngine.Director.Core.Projects;
+using LingoEngine.Director.Core.Styles;
+using LingoEngine.Director.Core.Texts;
+using LingoEngine.Director.Core.UI;
+using LingoEngine.FrameworkCommunication;
+using LingoEngine.Members;
+using LingoEngine.Movies;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace LingoEngine.Director.LGodot;
+
+/// <summary>
+/// Godot wrapper for <see cref="DirectorMainMenu"/>.
+/// </summary>
+internal partial class DirGodotMainMenu : AbstSdlWindow, IDirFrameworkMainMenuWindow, IFrameworkFor<DirectorMainMenu>
+{
+    private readonly AbstSdlWrapPanel _menuBar;
+    private readonly AbstSdlWrapPanel _iconBar;
+    private readonly DirectorMainMenu _directorMainMenu;
+    private readonly IAbstWindowManager _windowManager;
+    private readonly IAbstCommandManager _commandManager;
+    private readonly LingoPlayer _player;
+    private readonly AbstPanel _root;
+
+    IAbstMouse IAbstFrameworkWindow.Mouse => _directorMainMenu.Mouse;
+
+  
+    string IAbstFrameworkNode.Name { get ; set; }
+   
+
+    public DirGodotMainMenu(
+        DirectorProjectManager projectManager, IServiceProvider services,
+        LingoPlayer player,
+        IAbstShortCutManager shortCutManager,
+        IHistoryManager historyManager,
+        IAbstWindowManager windowManager,
+        IAbstCommandManager commandManager,
+        DirectorMainMenu directorMainMenu, ILingoFrameworkFactory factory)
+        :base((AbstSdlComponentFactory)services.GetRequiredService<IAbstComponentFactory>())
+    {
+        _directorMainMenu = directorMainMenu;
+        _windowManager = windowManager;
+        _commandManager = commandManager;
+        _player = player;
+        _directorMainMenu.Init(this);
+
+        _menuBar = directorMainMenu.MenuBar.Framework<AbstSdlWrapPanel>();
+        _iconBar = directorMainMenu.IconBar.Framework<AbstSdlWrapPanel>();
+        //CreateBgColor();
+
+        //AddChild(_bgColorPanel);
+        //AddChild(_menuBar);
+        //AddChild(_iconBar);
+        _root = factory.CreatePanel("MenuBarRoot");
+        _root.BackgroundColor = DirectorColors.BG_TopMenu;
+        _root.AddItem(directorMainMenu.MenuBar, _menuBar.X, _menuBar.Y);
+        _root.AddItem(directorMainMenu.IconBar, _iconBar.X, _iconBar.Y);
+        //directorMainMenu.CallOnAllTopMenus(btn =>
+        //{
+        //    AddChild(btn.Framework<AbstGodotMenu>());
+        //});
+
+        //StyleTopMenu(directorMainMenu);
+        //foreach (var childItem in _iconBar.GetChild(0).GetChildren())
+        //{
+        //    if (childItem is Button btn)
+        //    {
+        //        StyleIconButton(btn);
+        //    }
+        //}
+
+    }
+    public override void Init(IAbstWindow instance)
+    {
+        base.Init(instance);
+        Content = _root.FrameworkObj;
+    }
+
+    //private static void StyleIconButton(Button btn)
+    //{
+    //    var topMenuBtnStyle = new StyleBoxFlat
+    //    {
+    //        BorderWidthLeft = 0,
+    //        BorderWidthRight = 0,
+    //        BorderWidthTop = 0,
+    //        BorderWidthBottom = 0,
+    //        CornerRadiusBottomLeft = 0,
+    //        CornerRadiusBottomRight = 0,
+    //        CornerRadiusTopLeft = 0,
+    //        CornerRadiusTopRight = 0,
+    //        BgColor = DirectorColors.BG_TopMenu.ToGodotColor(),
+    //        ContentMarginLeft = 2,
+    //        ContentMarginRight = 2,
+    //    };
+    //    btn.AddThemeStyleboxOverride("normal", topMenuBtnStyle);
+    //    btn.Size = new Vector2(18, 18);
+    //}
+    //private static void StyleTopMenu(DirectorMainMenu directorMainMenu)
+    //{
+    //    var topMenuBtnStyle = new StyleBoxFlat
+    //    {
+    //        BorderWidthLeft = 0,
+    //        BorderWidthRight = 0,
+    //        BorderWidthTop = 0,
+    //        BorderWidthBottom = 0,
+    //        CornerRadiusBottomLeft = 0,
+    //        CornerRadiusBottomRight = 0,
+    //        CornerRadiusTopLeft = 0,
+    //        CornerRadiusTopRight = 0,
+    //        BgColor = DirectorColors.BG_TopMenu.ToGodotColor(),
+    //        ContentMarginLeft = 5,
+    //        ContentMarginRight = 5,
+    //    };
+    //    var topMenuBtnStyle_hover = new StyleBoxFlat
+    //    {
+    //        BorderWidthLeft = 1,
+    //        BorderWidthRight = 1,
+    //        BorderWidthTop = 1,
+    //        BorderWidthBottom = 0,
+    //        CornerRadiusBottomLeft = 0,
+    //        CornerRadiusBottomRight = 0,
+    //        CornerRadiusTopLeft = 5,
+    //        CornerRadiusTopRight = 5,
+    //        BgColor = DirectorColors.BG_TopMenu.ToGodotColor(),
+    //        ContentMarginLeft = 5,
+    //        ContentMarginRight = 5,
+    //    };
+        
+    //    directorMainMenu.CallOnAllTopMenuButtons(btn =>
+    //    {
+    //        var btnG = (Button)btn.Framework<AbstGodotButton>().FrameworkNode;
+    //        btnG.AddThemeStyleboxOverride("normal", topMenuBtnStyle);
+    //        btnG.AddThemeStyleboxOverride("hover", topMenuBtnStyle_hover);
+    //        btnG.CustomMinimumSize = new Vector2(30, 18);
+    //    });
+    //}
+
+    //private void CreateBgColor()
+    //{
+    //    StyleBoxFlat panelStyle = new StyleBoxFlat();
+    //    _bgColorPanel = new Panel();
+    //    _bgColorPanel.Size = new Vector2(3000, 20);
+    //    //_bgColorPanel.CustomMinimumSize = new Vector2(3000, 20);
+    //    _bgColorPanel.SizeFlagsHorizontal = SizeFlags.ExpandFill;
+    //    _bgColorPanel.GrowHorizontal = GrowDirection.End;
+    //    _bgColorPanel.Name = "MainMenuBackgroundColorPanel";
+    //    panelStyle.BgColor = DirectorColors.BG_TopMenu.ToGodotColor(); ;
+    //    _bgColorPanel.AddThemeStyleboxOverride("panel", panelStyle);
+    //}
+
+
+    public override void OpenWindow()
+    {
+        // not allowed
+    }
+    public override void CloseWindow()
+    {
+        // not allowed
+    }
+    public override void MoveWindow(int x, int y)
+    {
+        // not allowed
+    }
+
+    public override void SetPositionAndSize(int x, int y, int width, int height)
+    {
+        // not allowed
+    }
+    public override void SetSize(int width, int height)
+    {
+        // not allowed
+    }
+
+    //public new APoint GetPosition() => Position.ToAbstPoint();
+
+    //public new APoint GetSize() => Size.ToAbstPoint();
+
+  
+}

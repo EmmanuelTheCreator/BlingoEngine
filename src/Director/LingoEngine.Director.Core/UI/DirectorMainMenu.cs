@@ -114,6 +114,10 @@ namespace LingoEngine.Director.Core.UI
             _menuBar = factory.CreateWrapPanel(AOrientation.Horizontal, "MenuBar");
             _iconBar = factory.CreateWrapPanel(AOrientation.Horizontal, "IconBar");
             _iconBar.Height = 20;
+            _iconBar.X = 400;
+            _iconBar.Y = 1;
+            _menuBar.X = 10;
+            _menuBar.Y = 1; 
 
             _fileMenu = factory.CreateMenu("FileMenu");
             _editMenu = factory.CreateMenu("EditMenu");

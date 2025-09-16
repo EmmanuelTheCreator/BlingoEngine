@@ -50,6 +50,7 @@ namespace LingoEngine.Director.Core.Casts
         protected override void OnInit(IAbstFrameworkWindow frameworkWindow)
         {
             base.OnInit(frameworkWindow);
+            Title = "Cast";
             _mouseSub = MouseT.OnMouseEvent(OnMouseEvent);
             Content = _tabs;
         }

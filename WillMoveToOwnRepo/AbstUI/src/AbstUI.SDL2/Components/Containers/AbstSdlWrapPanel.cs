@@ -9,7 +9,7 @@ using AbstUI.SDL2.SDLL;
 
 namespace AbstUI.SDL2.Components.Containers
 {
-    internal class AbstSdlWrapPanel : AbstSdlComponent, IAbstFrameworkWrapPanel, IFrameworkFor<AbstWrapPanel>, IDisposable, IHandleSdlEvent
+    public class AbstSdlWrapPanel : AbstSdlComponent, IAbstFrameworkWrapPanel, IFrameworkFor<AbstWrapPanel>, IDisposable, IHandleSdlEvent
     {
         private nint _texture;
         private int _texW;
