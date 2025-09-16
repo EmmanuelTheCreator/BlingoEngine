@@ -7,6 +7,9 @@ using LingoEngine.Core;
 using LingoEngine.Events;
 using LingoEngine.FilmLoops;
 using LingoEngine.IO.Data.DTO;
+using LingoEngine.IO.Data.DTO.FilmLoops;
+using LingoEngine.IO.Data.DTO.Members;
+using LingoEngine.IO.Data.DTO.Sprites;
 using LingoEngine.Members;
 using LingoEngine.Movies;
 using LingoEngine.Sounds;
@@ -147,7 +150,7 @@ public class JsonStateRepository : IJsonStateRepository
             {
                 var reg = new APoint(memDto.RegPoint.X, memDto.RegPoint.Y);
                 string fileName = memDto.FileName;
-                if (memDto is LingoMemberPictureDTO pic && !string.IsNullOrEmpty(pic.ImageFile))
+                if (memDto is LingoMemberBitmapDTO pic && !string.IsNullOrEmpty(pic.ImageFile))
                     fileName = Path.Combine(resourceDir, pic.ImageFile);
                 if (memDto is LingoMemberSoundDTO snd && !string.IsNullOrEmpty(snd.SoundFile))
                     fileName = Path.Combine(resourceDir, snd.SoundFile);

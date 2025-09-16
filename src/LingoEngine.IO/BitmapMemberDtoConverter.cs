@@ -1,14 +1,14 @@
 using LingoEngine.Bitmaps;
-using LingoEngine.IO.Data.DTO;
+using LingoEngine.IO.Data.DTO.Members;
 using System.IO;
 
 namespace LingoEngine.IO;
 
 internal static class BitmapMemberDtoConverter
 {
-    public static LingoMemberPictureDTO ToDto(this LingoMemberBitmap picture, LingoMemberDTO baseDto, JsonStateRepository.MovieStoreOptions options)
+    public static LingoMemberBitmapDTO ToDto(this LingoMemberBitmap picture, LingoMemberDTO baseDto, JsonStateRepository.MovieStoreOptions options)
     {
-        var dto = MemberDtoConverter.PopulateBase(baseDto, new LingoMemberPictureDTO());
+        var dto = MemberDtoConverter.PopulateBase(baseDto, new LingoMemberBitmapDTO());
         dto.ImageFile = SavePicture(picture, options);
         return dto;
     }

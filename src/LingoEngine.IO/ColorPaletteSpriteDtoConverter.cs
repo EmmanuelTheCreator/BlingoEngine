@@ -1,5 +1,5 @@
 using LingoEngine.ColorPalettes;
-using LingoEngine.IO.Data.DTO;
+using LingoEngine.IO.Data.DTO.Sprites;
 
 namespace LingoEngine.IO;
 

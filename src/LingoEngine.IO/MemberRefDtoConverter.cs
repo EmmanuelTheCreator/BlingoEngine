@@ -1,4 +1,4 @@
-using LingoEngine.IO.Data.DTO;
+using LingoEngine.IO.Data.DTO.Members;
 using LingoEngine.Members;
 
 namespace LingoEngine.IO;

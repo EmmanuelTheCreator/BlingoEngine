@@ -63,7 +63,7 @@ namespace LingoEngine.Net.RNetTerminal
         {
             var scheme = new Scheme
             {
-                Normal = new Attribute(Color.White, Color.Blue),
+                Normal = new Attribute(Color.Gray, Color.Blue),
                 Focus = new Attribute(Color.White, Color.Blue),
                 //HotNormal = new Attribute(Color.White, Color.BrightBlue),
                 //HotFocus = new Attribute(Color.White, Color.BrightBlue),
@@ -94,7 +94,7 @@ namespace LingoEngine.Net.RNetTerminal
             var scheme = new Scheme
             {
                 Normal = new Attribute(Color.DarkGray, Color.Black),
-                Focus = new Attribute(Color.DarkGray, Color.Black),
+                Focus = new Attribute(Color.Gray, Color.Black),
                 //HotNormal = new Attribute(Color.White, Color.BrightBlue),
                 //HotFocus = new Attribute(Color.White, Color.BrightBlue),
                 //Disabled = new Attribute(Color.DarkGray, Color.Gray),
@@ -106,13 +106,40 @@ namespace LingoEngine.Net.RNetTerminal
         {
             var baseScheme = new Scheme
             {
-                Normal = new Attribute(Color.White, Color.Blue),
+                Normal = new Attribute(Color.Gray, Color.Blue),
                 Focus = new Attribute(Color.White, Color.BrightBlue),
                 //HotNormal = new Attribute(Color.BrightYellow, Color.BrightBlue),
                 //HotFocus = new Attribute(Color.Black, Color.White),
                 //Disabled = new Attribute(Color.Gray, Color.BrightBlue)
             };
             dialog.SetScheme(baseScheme);
+        }
+        internal static void SetForTableView(TableView element)
+        {
+            var baseScheme = new Scheme
+            {
+                Normal = new Attribute(Color.Gray, Color.Blue),
+                Focus = new Attribute(Color.White, Color.BrightBlue),
+                Active = new Attribute(Color.White, Color.Green),
+                //HotNormal = new Attribute(Color.BrightYellow, Color.BrightBlue),
+                //HotFocus = new Attribute(Color.Black, Color.White),
+                //Disabled = new Attribute(Color.Gray, Color.BrightBlue)
+            };
+            element.SetScheme(baseScheme);
+        }
+        internal static void SetForTableView(Tab element)
+        {
+            var baseScheme = new Scheme
+            {
+                Normal = new Attribute(Color.Gray, Color.Blue),
+                Focus = new Attribute(Color.White, Color.BrightBlue),
+                Active = new Attribute(Color.White, Color.Green),
+                //HotNormal = new Attribute(Color.Red, Color.BrightBlue),
+                //HotFocus = new Attribute(Color.Yellow, Color.White),
+                //Highlight= new Attribute(Color.Magenta, Color.White),
+                //Disabled = new Attribute(Color.Gray, Color.Black)
+            };
+            element.SetScheme(baseScheme);
         }
     }
 }

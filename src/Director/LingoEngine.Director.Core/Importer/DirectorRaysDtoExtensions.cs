@@ -2,6 +2,8 @@ using ProjectorRays.Director;
 using ProjectorRays.director.Chunks;
 using LingoEngine.IO.Data.DTO;
 using ProjectorRays.director.Scores.Data;
+using LingoEngine.IO.Data.DTO.Members;
+using LingoEngine.IO.Data.DTO.Sprites;
 
 namespace LingoEngine.Director.Core.Importer;
 
@@ -67,7 +69,6 @@ internal static class DirectorRaysDtoExtensions
         => new LingoMemberDTO
         {
             Name = mem.GetName(),
-            Number = mem.Id,
             CastLibNum = cast.Number,
             NumberInCast = mem.Id,
             Type = MapMemberType(mem.Type),
@@ -84,7 +85,6 @@ internal static class DirectorRaysDtoExtensions
         => new LingoMemberTextDTO
         {
             Name = baseDto.Name,
-            Number = baseDto.Number,
             CastLibNum = baseDto.CastLibNum,
             NumberInCast = baseDto.NumberInCast,
             Type = baseDto.Type,
@@ -98,13 +98,12 @@ internal static class DirectorRaysDtoExtensions
             MarkDownText = mem.DecodedText?.Text ?? string.Empty
         };
 
-    private static LingoMemberPictureDTO ToPictureDto(this RaysCastMemberChunk mem, LingoMemberDTO baseDto, LingoCastDTO cast, DirFilesContainerDTO resources)
+    private static LingoMemberBitmapDTO ToPictureDto(this RaysCastMemberChunk mem, LingoMemberDTO baseDto, LingoCastDTO cast, DirFilesContainerDTO resources)
     {
         var file = $"{cast.Number}_{mem.Id}.img";
-        var dto = new LingoMemberPictureDTO
+        var dto = new LingoMemberBitmapDTO
         {
             Name = baseDto.Name,
-            Number = baseDto.Number,
             CastLibNum = baseDto.CastLibNum,
             NumberInCast = baseDto.NumberInCast,
             Type = baseDto.Type,
@@ -134,7 +133,6 @@ internal static class DirectorRaysDtoExtensions
         var dto = new LingoMemberSoundDTO
         {
             Name = baseDto.Name,
-            Number = baseDto.Number,
             CastLibNum = baseDto.CastLibNum,
             NumberInCast = baseDto.NumberInCast,
             Type = baseDto.Type,

@@ -103,7 +103,7 @@ namespace LingoEngine.Net.RNetTerminal
         public static Tab NewTab(string text, TableView tableView)
         {
             var tab = new Tab();
-            tab.Text = text;
+            tab.DisplayText = text;
             tab.Add(tableView);
             return tab;
         }
