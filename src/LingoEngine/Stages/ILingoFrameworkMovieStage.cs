@@ -1,3 +1,4 @@
+using AbstUI.Components;
 using AbstUI.Primitives;
 using LingoEngine.Core;
 using LingoEngine.Movies;
@@ -8,7 +9,7 @@ namespace LingoEngine.Stages;
 /// Represents the top-level window or stage. Implementations update the
 /// display when the active <see cref="LingoMovie"/> changes.
 /// </summary>
-public interface ILingoFrameworkStage
+public interface ILingoFrameworkStage : IAbstFrameworkNode
 {
     LingoStage LingoStage { get; }
     /// <summary>Sets the currently active movie.</summary>

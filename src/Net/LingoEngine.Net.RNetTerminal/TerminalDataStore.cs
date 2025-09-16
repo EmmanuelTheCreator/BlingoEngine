@@ -262,8 +262,8 @@ public sealed class TerminalDataStore
         }
         if (project.Stage != null)
         {
-            StageWidth = project.Stage.Width;
-            StageHeight = project.Stage.Height;
+            StageWidth = (int)project.Stage.Width;
+            StageHeight = (int)project.Stage.Height;
         }
     }
 

@@ -200,7 +200,7 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
     {
         var filtered = _transitions
             .Where(t => category == "All" || t.Category == category)
-            .Select(t => new KeyValuePair<string, string>(t.Id.ToString(), t.Name))
+            .Select(t => new KeyValuePair<string, string>(t.Id.ToString(), t.Id+". "+ t.Name))
             .ToList();
 
         transitionList.ClearItems();
@@ -215,7 +215,7 @@ internal partial class DirScoreTransitionGridChannel : DirScoreChannel<ILingoSpr
             var firstTr = filtered[0];
             transitionList.SelectedKey = firstTr.Key;
             settings.TransitionId = int.Parse(firstTr.Key);
-            settings.TransitionName = firstTr.Value;
+            settings.TransitionName =  firstTr.Value;
         }
     }
 

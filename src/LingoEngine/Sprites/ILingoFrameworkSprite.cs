@@ -1,5 +1,5 @@
-﻿using AbstUI.Primitives;
-using LingoEngine.Bitmaps;
+﻿using AbstUI.Components;
+using AbstUI.Primitives;
 
 namespace LingoEngine.Sprites
 {
@@ -7,20 +7,15 @@ namespace LingoEngine.Sprites
     /// Defines sprite functionality required by the engine. Implemented by
     /// rendering back-ends to represent a sprite on screen.
     /// </summary>
-    public interface ILingoFrameworkSprite
+    public interface ILingoFrameworkSprite : IAbstFrameworkNode
     {
         /// <summary>Controls the sprite's visibility.</summary>
-        bool Visibility { get; set; }
         float Blend { get; set; }
         float X { get; set; }
         float Y { get; set; }
-        float Width { get; }
-        float Height { get; }
-        string Name { get; set; }
         APoint RegPoint { get; set; }
         float DesiredHeight { get; set; }
         float DesiredWidth { get; set; }
-        int ZIndex { get; set; }
 
         /// <summary>Rotation of the sprite in degrees.</summary>
         float Rotation { get; set; }

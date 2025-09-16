@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
+using AbstUI.Components;
 
 namespace LingoEngine.Movies
 {
@@ -37,7 +38,7 @@ namespace LingoEngine.Movies
         private int _nextFrame = -1;
         private int _lastFrame = 0;
         private bool _isPlaying = false;
-
+        private readonly LingoEventMediator _eventMediator;
 
         private bool _needToRaiseStartMovie = false;
         private LingoCastLibsContainer _castLibContainer;
@@ -60,8 +61,35 @@ namespace LingoEngine.Movies
 
         #region Properties
 
-        public ILingoFrameworkMovie FrameworkObj => _frameworkMovie;
-        public T Framework<T>() where T : class, ILingoFrameworkMovie => (T)_frameworkMovie;
+        
+        public T Framework<T>() where T : IAbstFrameworkNode => (T)_frameworkMovie;
+
+        public float X { get; set; }
+        public float Y { get; set; }
+        public float Width
+        {
+            get => _stage.Width;
+            set
+            {
+                if (_stage.Width == value) return;
+                _stage.Width = value;
+                _frameworkMovie.Width = value;
+            }
+        }
+        public float Height
+        {
+            get => _stage.Height;
+            set
+            {
+                if (_stage.Height == value) return;
+                _stage.Height = value;
+                _frameworkMovie.Height = value;
+            }
+        }
+        public bool Visibility { get => _frameworkMovie.Visibility; set => _frameworkMovie.Visibility = value; }
+        public AMargin Margin { get => _frameworkMovie.Margin; set => _frameworkMovie.Margin = value; }
+        public int ZIndex { get => _frameworkMovie.ZIndex; set => _frameworkMovie.ZIndex = value; }
+        public IAbstFrameworkNode FrameworkObj { get => _frameworkMovie; set => throw new NotImplementedException(); } // not allowed to set.
 
         public ILingoSpriteAudioManager Audio => _audioManager;
         public ILingoSpriteTransitionManager Transitions => _transitionManager;
@@ -102,7 +130,7 @@ namespace LingoEngine.Movies
             set => SetProperty(ref _companyName, value);
         }
 
-        private readonly LingoEventMediator _EventMediator;
+        
 
         public int Frame => _currentFrame;
         public int CurrentFrame => _currentFrame;
@@ -153,7 +181,7 @@ namespace LingoEngine.Movies
             _onRemoveMe = onRemoveMe;
             Name = name;
             Number = number;
-            _EventMediator = mediator;
+            _eventMediator = mediator;
             _movieScripts = new(environment, mediator);
             _lingoMouse = (LingoStageMouse)environment.Mouse;
             _lingoClock = (LingoClock)environment.Clock;
@@ -351,23 +379,23 @@ namespace LingoEngine.Movies
 
                 if (_needToRaiseStartMovie)
                 {
-                    _EventMediator.RaiseStartMovie();
+                    _eventMediator.RaiseStartMovie();
                     _needToRaiseStartMovie = false;
                 }
 
                 _lingoMouse.UpdateMouseState();
                 _sprite2DManager.PreStepFrame();
                 if (!_skipStepFrame)
-                    _EventMediator.RaiseStepFrame();
-                _EventMediator.RaisePrepareFrame();
-                _EventMediator.RaiseEnterFrame();
+                    _eventMediator.RaiseStepFrame();
+                _eventMediator.RaisePrepareFrame();
+                _eventMediator.RaiseEnterFrame();
 
                 OnUpdateStage();
                 _skipStepFrame = false;
                 if (frameChanged)
                     CurrentFrameChanged?.Invoke(_currentFrame);
 
-                _EventMediator.RaiseExitFrame();
+                _eventMediator.RaiseExitFrame();
             }
             finally
             {
@@ -383,7 +411,7 @@ namespace LingoEngine.Movies
         // Play the movie
         public void Play()
         {
-            _EventMediator.RaisePrepareMovie();
+            _eventMediator.RaisePrepareMovie();
             _needToRaiseStartMovie = true;
             // prepareMovie
             // PrepareFrame
@@ -404,7 +432,7 @@ namespace LingoEngine.Movies
             PlayStateChanged?.Invoke(false);
             _environment.Sound.StopAll();
             //_spriteManager.EndSprites();
-            _EventMediator.RaiseStopMovie();
+            _eventMediator.RaiseStopMovie();
             // EndSprite
             // StopMovie
         }
@@ -578,6 +606,8 @@ namespace LingoEngine.Movies
 
         public ILingoMemberFactory New => _memberFactory;
 
+       
+
         public LingoMember? MouseMemberUnderMouse() // todo : implement
             => null;
 
@@ -605,5 +635,7 @@ namespace LingoEngine.Movies
         {
             return Sprite2DManager.AllTimeSprites.Where(x => !x.Puppet && !x.IsDeleted);
         }
+
+       
     }
 }

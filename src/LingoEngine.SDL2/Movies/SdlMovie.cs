@@ -1,14 +1,16 @@
+using AbstUI.Primitives;
+using AbstUI.SDL2.Components;
+using AbstUI.SDL2.Components.Base;
+using AbstUI.SDL2.Core;
 using LingoEngine.Movies;
+using LingoEngine.SDL2.Core;
 using LingoEngine.SDL2.Sprites;
 using LingoEngine.SDL2.Stages;
-using LingoEngine.SDL2.Core;
 using LingoEngine.Sprites;
-using AbstUI.Primitives;
-using AbstUI.SDL2.Core;
 
 namespace LingoEngine.SDL2.Movies;
 
-public class SdlMovie : ILingoFrameworkMovie, IDisposable
+public class SdlMovie : AbstSdlComponent,ILingoFrameworkMovie, IDisposable
 {
     private readonly SdlStage _stage;
     private readonly Action<SdlMovie> _removeMethod;
@@ -19,7 +21,12 @@ public class SdlMovie : ILingoFrameworkMovie, IDisposable
 
     public int CurrentFrame => _movie.CurrentFrame;
 
+    public AMargin Margin { get; set; } = AMargin.Zero;
+
+    public object FrameworkNode => this;
+
     public SdlMovie(SdlStage stage, LingoSdlFactory factory, LingoMovie movie, Action<SdlMovie> removeMethod)
+        :base((AbstSdlComponentFactory)factory.ComponentFactory)
     {
         _stage = stage;
         _factory = factory;
@@ -35,8 +42,14 @@ public class SdlMovie : ILingoFrameworkMovie, IDisposable
     {
         _stage.Render();
     }
+    public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
+    {
+        if (!Visibility) return nint.Zero;
+        RenderSprites(context);
+        return AbstSDLRenderResult.RequireRender();
+    }
 
-    internal void RenderSprites(AbstSDLRenderContext context)
+    private void RenderSprites(AbstSDLRenderContext context)
     {
         foreach (var s in _drawnSprites.OrderBy(s => s.ZIndex))
         {
@@ -52,6 +65,7 @@ public class SdlMovie : ILingoFrameworkMovie, IDisposable
             s => { _drawnSprites.Remove(s); _allSprites.Remove(s); });
         _allSprites.Add(sprite);
         sprite.ComponentContext.QueueRedraw(sprite);
+        //((AbstSdlComponent)sprite.FrameworkNode).ComponentContext.SetParents(ComponentContext);
     }
 
     public void RemoveMe()
@@ -61,9 +75,12 @@ public class SdlMovie : ILingoFrameworkMovie, IDisposable
 
     APoint ILingoFrameworkMovie.GetGlobalMousePosition() => (0, 0);
 
-    public void Dispose()
+    public override void Dispose()
     {
+        base.Dispose();
         Hide();
         RemoveMe();
     }
+
+   
 }

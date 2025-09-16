@@ -6,6 +6,7 @@ using LingoEngine.Animations;
 using AbstUI;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using AbstUI.Components;
 
 namespace LingoEngine.Stages;
 
@@ -17,32 +18,34 @@ public class LingoStage : ILingoStage, IHasPropertyChanged
     private readonly ILingoFrameworkStage _lingoFrameworkMovieStage;
     private AColor _backgroundColor;
     public bool IsDirty { get; private set; }
-    private int _width = 640;
-    public int Width
+    private float _width = 640;
+    public float Width
     {
         get => _width;
         set
         {
             if (_width == value) return;
             _width = value;
+            _lingoFrameworkMovieStage.Width = value;
             IsDirty = true;
             OnPropertyChanged();
         }
     }
-    private int _height = 480;
-    public int Height
+    private float _height = 480;
+    public float Height
     {
         get => _height;
         set
         {
             if (_height == value) return;
             _height = value;
+            _lingoFrameworkMovieStage.Height = value;
             IsDirty = true;
             OnPropertyChanged();
         }
     }
-    public int X { get; set; } = 0;
-    public int Y { get; set; } = 0;
+    public float X { get; set; } = 0;
+    public float Y { get; set; } = 0;
     public AColor BackgroundColor
     {
         get => _backgroundColor;
@@ -64,8 +67,16 @@ public class LingoStage : ILingoStage, IHasPropertyChanged
         }
     }
 
-    public ILingoFrameworkStage FrameworkObj() => _lingoFrameworkMovieStage;
-    public T Framework<T>() where T : class, ILingoFrameworkStage => (T)_lingoFrameworkMovieStage;
+    public string Name { get; set; } = "TheStage";
+    public bool Visibility { get => _lingoFrameworkMovieStage.Visibility; set => _lingoFrameworkMovieStage.Visibility = value; }
+    public AMargin Margin { get => _lingoFrameworkMovieStage.Margin; set => _lingoFrameworkMovieStage.Margin = value; }
+    public int ZIndex { get => _lingoFrameworkMovieStage.ZIndex; set => _lingoFrameworkMovieStage.ZIndex = value; }
+    IAbstFrameworkNode IAbstNode.FrameworkObj { get => _lingoFrameworkMovieStage; set => throw new NotImplementedException(); } // not allowed to set.
+
+    public T Framework<T>() where T: IAbstFrameworkNode => (T)_lingoFrameworkMovieStage;
+
+
+
     public LingoStage(ILingoFrameworkStage godotInstance)
     {
         _lingoFrameworkMovieStage = godotInstance;
@@ -146,4 +157,6 @@ public class LingoStage : ILingoStage, IHasPropertyChanged
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+   
 }

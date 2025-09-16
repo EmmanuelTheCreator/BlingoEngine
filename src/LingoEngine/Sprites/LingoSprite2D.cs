@@ -14,11 +14,12 @@ using System.Diagnostics;
 using LingoEngine.Inputs.Events;
 using AbstUI.Primitives;
 using Microsoft.Extensions.DependencyInjection;
+using AbstUI.Components;
 
 namespace LingoEngine.Sprites
 {
     [DebuggerDisplay("LSprite2D:{SpriteNum}) {Name}:Member={Member?.Name}:{BeginFrame}->{EndFrame}:Pos={LocH}x{LocV}:Size={Width}x{Height}")]
-    public class LingoSprite2D : LingoSprite, ILingoMouseEventHandler, ILingoSprite, ILingoSpriteWithMember, ILingoSprite2DLight
+    public class LingoSprite2D : LingoSprite, ILingoMouseEventHandler, ILingoSprite, ILingoSpriteWithMember, ILingoSprite2DLight, IAbstLayoutNode
     {
         public const int SpriteNumOffset = 6;
         private readonly List<LingoSpriteBehavior> _behaviors = new();
@@ -50,9 +51,13 @@ namespace LingoEngine.Sprites
         public override int SpriteNumWithChannel => SpriteNum + SpriteNumOffset;
         internal LingoSpriteChannel? SpriteChannel { get; set; }
 
-        /// <inheritdoc/>
-        public T Framework<T>() where T : class, ILingoFrameworkSprite => (T)_frameworkSprite;
-
+        // /// <inheritdoc/>
+        //public T Framework<T>() where T : class, ILingoFrameworkSprite => (T)_frameworkSprite;
+        public float X { get => LocH; set => LocH = value; }
+        public float Y { get => LocV; set => LocV = value; }
+        public AMargin Margin { get; set; } = AMargin.Zero;
+        public int ZIndex { get => LocZ; set => LocZ = value; }
+        IAbstFrameworkNode IAbstNode.FrameworkObj { get => _frameworkSprite; set => throw new NotImplementedException(); } // not allowed to set.
 
 
         public override string Name { get => _frameworkSprite.Name; set => _frameworkSprite.Name = value; }
@@ -211,7 +216,8 @@ namespace LingoEngine.Sprites
 
         public ILingoMember? GetMember() => Member;
 
-        bool ILingoSpriteBase.IsPuppetCached { get; set; }  
+        bool ILingoSpriteBase.IsPuppetCached { get; set; }
+       
         #endregion
 
 
@@ -989,6 +995,11 @@ When a movie stops, events occur in the following order:
 
             // base class
             _lock = false;
+        }
+
+        public T Framework<T>() where T : IAbstFrameworkNode
+        {
+            throw new NotImplementedException();
         }
     }
 }

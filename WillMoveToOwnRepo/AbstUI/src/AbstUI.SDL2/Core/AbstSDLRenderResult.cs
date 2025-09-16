@@ -5,7 +5,7 @@ public struct AbstSDLRenderResult
     public bool DoRender { get; set; }
     public nint Texture { get; set; }
 
-    internal static AbstSDLRenderResult RequireRender() => new AbstSDLRenderResult
+    public static AbstSDLRenderResult RequireRender() => new AbstSDLRenderResult
     {
         DoRender = true,
         Texture = nint.Zero

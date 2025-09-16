@@ -51,7 +51,7 @@ public class AbstSDLComponentContext : IDisposable
             VisualParent?.QueueRedrawFromChild(Component);
     }
 
-    internal void SetParents(AbstSDLComponentContext? logicalParent, AbstSDLComponentContext? visualParent = null)
+    public void SetParents(AbstSDLComponentContext? logicalParent, AbstSDLComponentContext? visualParent = null)
     {
         LogicalParent = logicalParent;
         VisualParent = visualParent ?? logicalParent;

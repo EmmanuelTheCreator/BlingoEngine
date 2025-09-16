@@ -524,9 +524,9 @@ namespace LingoEngine.Director.Core.Inspector
                 //})
                 //.NewLine("t")
                 .AddLabel("StageSizeLbl", "Stage size:")
-                .AddNumericInputInt("MovieStageWidth", _player.Stage, m => m.Width, 40)
+                .AddNumericInputFloat("MovieStageWidth", _player.Stage, m => m.Width, 40)
                 .AddLabel("StageSizeLblX", "x")
-                .AddNumericInputInt("MovieStageHeight", _player.Stage, m => m.Height, 40)
+                .AddNumericInputFloat("MovieStageHeight", _player.Stage, m => m.Height, 40)
                 .AddCombobox("MovieResolutions", new[]
                 {
                     new KeyValuePair<string,string>("640x480","640x480"),

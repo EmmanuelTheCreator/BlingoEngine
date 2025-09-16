@@ -19,6 +19,7 @@ using LingoEngine.Setup;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
 using LingoEngine.Texts;
+using LingoEngine.Transitions;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
@@ -174,6 +175,8 @@ public class TetriGroundsProjectFactory : ILingoProjectFactory
         var castData = _movie.CastLib["Data"];
         var MyBG = _movie.Member["Game"];
 
+
+        _movie.Transitions.Add(54, new LingoTransitionFrameSettings { Duration = 0.5f, TransitionId = 37 }); // 37.: Venetian blinds
         _movie.AddFrameBehavior<GameStopBehavior>(60);
         //_movie.AddFrameBehavior<WaiterFrameScript>(1);
         //_movie.AddFrameBehavior<StayOnFrameFrameScript>(4);

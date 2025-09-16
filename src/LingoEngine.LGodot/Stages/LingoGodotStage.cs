@@ -1,4 +1,5 @@
-﻿using AbstUI.LGodot.Bitmaps;
+﻿using AbstUI.Components;
+using AbstUI.LGodot.Bitmaps;
 using AbstUI.LGodot.Primitives;
 using AbstUI.Primitives;
 using Godot;
@@ -30,8 +31,15 @@ namespace LingoEngine.LGodot.Movies
         private Sprite2D _transitionSprite = null!;
         float ILingoFrameworkStage.Scale { get => base.Scale.X; set => base.Scale = new Vector2(value, value); }
         public LingoStage LingoStage => _lingoStage;
-        public int X { get => LingoStage.X; set => LingoStage.X = value; }
-        public int Y { get => LingoStage.Y; set => LingoStage.Y = value; }
+        public float X { get => LingoStage.X; set => LingoStage.X = value; }
+        public float Y { get => LingoStage.Y; set => LingoStage.Y = value; }
+        string IAbstFrameworkNode.Name { get => Name; set => Name = value; }
+        public bool Visibility { get => Visible; set => Visible = value; }
+        public float Width { get; set; }
+        public float Height { get; set; }
+        public AMargin Margin { get; set; } = AMargin.Zero;
+
+        public object FrameworkNode => this;
 
         public LingoGodotStage(LingoPlayer lingoPlayer)
         {
@@ -72,7 +80,6 @@ namespace LingoEngine.LGodot.Movies
 
         public override void _Ready()
         {
-
             base._Ready();
         }
         public override void _Process(double delta)
@@ -104,7 +111,7 @@ namespace LingoEngine.LGodot.Movies
 
         public void UpdateSize()
         {
-            _stageSV.Size = new Vector2I(_lingoStage.Width, _lingoStage.Height);
+            _stageSV.Size = new Vector2I((int)_lingoStage.Width, (int)_lingoStage.Height);
             _stageSVC.CustomMinimumSize = new Vector2(_lingoStage.Width, _lingoStage.Height);
             _bg.Size = new Vector2(_lingoStage.Width, _lingoStage.Height);
             _bg.CustomMinimumSize = new Vector2(_lingoStage.Width, _lingoStage.Height);

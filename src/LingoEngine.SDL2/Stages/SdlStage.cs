@@ -1,5 +1,8 @@
 ﻿using AbstUI.Primitives;
 using AbstUI.SDL2.Bitmaps;
+using AbstUI.SDL2.Components;
+using AbstUI.SDL2.Components.Base;
+using AbstUI.SDL2.Core;
 using AbstUI.SDL2.SDLL;
 using LingoEngine.Core;
 using LingoEngine.Movies;
@@ -7,9 +10,11 @@ using LingoEngine.SDL2.Core;
 using LingoEngine.SDL2.Movies;
 using LingoEngine.Stages;
 
+
 namespace LingoEngine.SDL2.Stages;
 
-public class SdlStage : ILingoFrameworkStage, IDisposable
+
+public class SdlStage : AbstSdlComponent, ILingoFrameworkStage, IDisposable
 {
     private bool _isTransitioning;
     private readonly LingoClock _clock;
@@ -27,8 +32,12 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
     private nint _spritesTexture;
 
     public float Scale { get; set; }
+    public AMargin Margin { get; set; } = AMargin.Zero;
+
+    public object FrameworkNode => this;
 
     public SdlStage(LingoSdlRootContext rootContext, LingoClock clock, LingoSdlFactory factory)
+        :base((AbstSdlComponentFactory)factory.ComponentFactory)
     {
         _rootContext = rootContext;
         _clock = clock;
@@ -64,15 +73,17 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
 
         if (_spritesTexture != nint.Zero)
             SDL.SDL_DestroyTexture(_spritesTexture);
-        _spritesTexture = SDL.SDL_CreateTexture(_factory.RootContext.Renderer, SDL.SDL_PIXELFORMAT_RGBA8888, (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, _stage.Width, _stage.Height);
+        _spritesTexture = SDL.SDL_CreateTexture(_factory.RootContext.Renderer, SDL.SDL_PIXELFORMAT_RGBA8888, (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, (int)_stage.Width, (int)_stage.Height);
+        ((AbstSdlComponent)movie.FrameworkNode).ComponentContext.SetParents(ComponentContext);
         movie.Show();
     }
 
-    public void Dispose()
+    public override void Dispose()
     {
         _movies.Clear();
         if (_spritesTexture != nint.Zero)
             SDL.SDL_DestroyTexture(_spritesTexture);
+        base.Dispose();
     }
 
     public void ApplyPropertyChanges()
@@ -85,7 +96,7 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
     }
     public IAbstTexture2D GetScreenshot()
     {
-        var texture = new SdlTexture2D(_spritesTexture, _stage.Width, _stage.Height, "StageShot_" + _activeMovie!.CurrentFrame, _factory.RootContext.Renderer);
+        var texture = new SdlTexture2D(_spritesTexture, (int)_stage.Width, (int)_stage.Height, "StageShot_" + _activeMovie!.CurrentFrame, _factory.RootContext.Renderer);
         var clone = (SdlTexture2D)texture.Clone();
 #if DEBUG
        // clone.DebugWriteToDiskInc(_factory.RootContext.Renderer);
@@ -129,6 +140,13 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
     private nint _lastTexture = nint.Zero;
     public nint LastTexture => _lastTexture;
 
+
+    public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
+    {
+        if (!Visibility) return nint.Zero;
+        var texture = Render();
+        return texture;
+    }
     internal nint Render()
     {
         if (_activeMovie == null) return nint.Zero;
@@ -136,13 +154,13 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
 
         RenderSprites(context);
 
-        nint frameTex = RenderToTexture(context.Renderer, _stage.Width, _stage.Height, () =>
+        nint frameTex = RenderToTexture(context.Renderer, (int)_stage.Width, (int)_stage.Height, () =>
         {
             if (_isTransitioning)
                 RenderTransitionFrame(context);
             else
             {
-                var full = new SDL.SDL_Rect { x = 0, y = 0, w = _stage.Width, h = _stage.Height };
+                var full = new SDL.SDL_Rect { x = 0, y = 0, w = (int)_stage.Width, h =  (int)_stage.Height };
                 SDL.SDL_RenderCopy(context.Renderer, _spritesTexture, IntPtr.Zero, ref full);
             }
         });
@@ -158,8 +176,13 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
         SDL.SDL_SetRenderTarget(context.Renderer, _spritesTexture);
         SDL.SDL_SetRenderDrawColor(context.Renderer, _stage.BackgroundColor.R, _stage.BackgroundColor.G, _stage.BackgroundColor.B, _stage.BackgroundColor.A);
         SDL.SDL_RenderClear(context.Renderer);
+        if (_activeMovie != null)
+        {
+            var childMovieContext = ((AbstSdlComponent)_activeMovie.FrameworkNode).ComponentContext;
+            childMovieContext.RenderToTexture(context);
+        }
+        //_activeMovie!.RenderSprites(context);
         _factory.ComponentContainer.Render(context);
-        _activeMovie!.RenderSprites(context);
         SDL.SDL_SetRenderTarget(context.Renderer, prev);
     }
 
@@ -167,7 +190,7 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
     {
         if (_startFrame != null)
         {
-            var full = new SDL.SDL_Rect { x = 0, y = 0, w = _stage.Width, h = _stage.Height };
+            var full = new SDL.SDL_Rect { x = 0, y = 0, w = (int)_stage.Width, h = (int)_stage.Height };
             SDL.SDL_RenderCopy(context.Renderer, _startFrame.Handle, IntPtr.Zero, ref full);
         }
         if (_transitionFrame != null)
@@ -205,5 +228,6 @@ public class SdlStage : ILingoFrameworkStage, IDisposable
         return tex;
     }
 
-
+  
+   
 }

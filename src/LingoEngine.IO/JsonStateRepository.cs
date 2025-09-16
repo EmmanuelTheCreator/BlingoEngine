@@ -122,7 +122,7 @@ public class JsonStateRepository : IJsonStateRepository
 
     private static void BuildStageFromDto(LingoStageDTO dtoStage, LingoPlayer player, string resourceDir)
     {
-        player.LoadStage(dtoStage.Width, dtoStage.Height, FromDto(dtoStage.BackgroundColor));
+        player.LoadStage((int)dtoStage.Width, (int)dtoStage.Height, FromDto(dtoStage.BackgroundColor));
     }
     private static LingoMovie BuildMovieFromDto(LingoMovieDTO dto, LingoPlayer player, string resourceDir)
     {

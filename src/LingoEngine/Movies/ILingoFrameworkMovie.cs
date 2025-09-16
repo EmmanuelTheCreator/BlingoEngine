@@ -1,4 +1,5 @@
-﻿using AbstUI.Primitives;
+﻿using AbstUI.Components;
+using AbstUI.Primitives;
 
 namespace LingoEngine.Movies
 {
@@ -6,7 +7,7 @@ namespace LingoEngine.Movies
     /// Interface implemented by platform specific movie objects. It connects a
     /// <see cref="LingoMovie"/> to the underlying rendering framework.
     /// </summary>
-    public interface ILingoFrameworkMovie
+    public interface ILingoFrameworkMovie : IAbstFrameworkNode
     {
         /// <summary>Updates the associated stage after the movie changes.</summary>
         void UpdateStage();

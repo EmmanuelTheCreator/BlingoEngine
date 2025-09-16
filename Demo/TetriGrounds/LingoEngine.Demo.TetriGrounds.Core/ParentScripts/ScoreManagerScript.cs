@@ -83,7 +83,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core.ParentScripts
                 myLevelUp = true;
                 myLevel += 1;
                 NewText($"Level {myLevel} !!");
-                myLevelUpNeededScore += 2000;
+                myLevelUpNeededScore += 1000;
                 myPlayerScore += 200 * myLevel;
             }
             UpdateGfxScore();

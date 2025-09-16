@@ -17,6 +17,15 @@ namespace LingoEngine.LGodot.Movies
 
         public int CurrentFrame => _lingoMovie.CurrentFrame;
 
+        public bool Visibility { get => _movieNode2D.Visible; set => _movieNode2D.Visible = value; }
+        public float Width { get => _lingoMovie.Width; set => _lingoMovie.Width = value; }
+        public float Height { get => _lingoMovie.Height; set => _lingoMovie.Height = value; }
+        public AMargin Margin { get; set; } = AMargin.Zero;
+        public string Name { get => _lingoMovie.Name; set => _lingoMovie.Name = value; }
+        public int ZIndex { get => _movieNode2D.ZIndex; set => _movieNode2D.ZIndex = value; }
+
+        public object FrameworkNode => _movieNode2D;
+
         public Node2D GetNode2D() => _movieNode2D;
 
 #pragma warning disable CS8618         

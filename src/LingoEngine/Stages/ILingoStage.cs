@@ -1,3 +1,4 @@
+using AbstUI.Components;
 using AbstUI.Primitives;
 using LingoEngine.Animations;
 using LingoEngine.Members;
@@ -9,21 +10,17 @@ namespace LingoEngine.Stages;
 /// <summary>
 /// Lingo Stage interface.
 /// </summary>
-public interface ILingoStage
+public interface ILingoStage : IAbstLayoutNode
 {
     LingoMovie? ActiveMovie { get; }
     AColor BackgroundColor { get; set; }
-    int Height { get; set; }
-    int Width { get; set; }
-    int X { get; set; }
-    int Y { get; set; }
     bool IsDirty { get; }
     LingoMember? MouseMemberUnderMouse { get; }
 
     void AddKeyFrame(LingoSprite2D sprite);
 
-    T Framework<T>() where T : class, ILingoFrameworkStage;
-    ILingoFrameworkStage FrameworkObj();
+    //T Framework<T>() where T : ILingoFrameworkStage, IAbstFrameworkNode;
+    //ILingoFrameworkStage FrameworkObj();
     LingoSpriteMotionPath? GetSpriteMotionPath(LingoSprite2D sprite);
     LingoSprite2D? GetSpriteUnderMouse();
     void SetActiveMovie(LingoMovie? lingoMovie);

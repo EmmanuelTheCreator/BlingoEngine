@@ -13,8 +13,8 @@ namespace LingoEngine.LGodot.Stages
         //private LingoGodotStage? _stage;
         public Node2D Container => _stageContainer;
         public LingoGodotStage Stage => _stage1!;
-        public int X => _stage1!.X;
-        public int Y => _stage1!.Y;
+        public float X => _stage1!.X;
+        public float Y => _stage1!.Y;
 
         public LingoGodotStageContainer(LingoGodotRootNode lingoGodotRootNode)
         {

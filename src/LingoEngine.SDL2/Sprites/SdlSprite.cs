@@ -94,7 +94,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbs
     public float Width
     {
         get => _width;
-        private set
+        set
         {
             _width = value;
             ComponentContext.TargetWidth = (int)value;
@@ -104,7 +104,7 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbs
     public float Height
     {
         get => _height;
-        private set
+        set
         {
             _height = value;
             ComponentContext.TargetHeight = (int)value;
@@ -229,6 +229,10 @@ public class SdlSprite : ILingoFrameworkSprite, ILingoFrameworkSpriteVideo, IAbs
             return LingoMediaStatus.Closed;
         }
     }
+
+    public AMargin Margin { get; set; } = AMargin.Zero;
+
+    public object FrameworkNode => this;
 
     #endregion
 
