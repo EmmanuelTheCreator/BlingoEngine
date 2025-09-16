@@ -1,4 +1,7 @@
-﻿using LingoEngine.IO.Data.DTO.Members;
+using System;
+using AbstUI.Primitives;
+using LingoEngine.IO.Data.DTO;
+using LingoEngine.IO.Data.DTO.Members;
 using LingoEngine.Shapes;
 
 namespace LingoEngine.IO
@@ -15,21 +18,37 @@ namespace LingoEngine.IO
             dto.Closed = field.Closed;
             dto.Filled = field.Filled;
             dto.ShapeType = field.ShapeType.ToDto();
+            dto.AntiAlias = field.AntiAlias;
+            dto.VertexList.Clear();
+            foreach (var vertex in field.VertexList)
+            {
+                dto.VertexList.Add(new LingoPointDTO { X = vertex.X, Y = vertex.Y });
+            }
+
             return dto;
         }
-        //public static LingoMemberShape ToLingo(this LingoMemberShapeDTO field, LingoMemberDTO baseDto)
-        //{
-        //    dto.FillColor = field.FillColor.ToDTO();
-        //    dto.EndColor = field.EndColor.ToDTO();
-        //    dto.StrokeColor = field.StrokeColor.ToDTO();
-        //    dto.StrokeWidth = field.StrokeWidth;
-        //    dto.Closed = field.Closed;
-        //    dto.Filled = field.Filled;
-        //    dto.ShapeType = field.ShapeType.ToDto();
-        //    return dto;
-        //}
 
-        
+        public static void Apply(LingoMemberShapeDTO dto, LingoMemberShape shape)
+        {
+            shape.FillColor = dto.FillColor.ToAColor();
+            shape.EndColor = dto.EndColor.ToAColor();
+            shape.StrokeColor = dto.StrokeColor.ToAColor();
+            shape.StrokeWidth = dto.StrokeWidth;
+            shape.Closed = dto.Closed;
+            shape.Filled = dto.Filled;
+            shape.AntiAlias = dto.AntiAlias;
+            shape.ShapeType = dto.ShapeType.ToLingo();
+
+            shape.VertexList.Clear();
+            if (dto.VertexList != null)
+            {
+                foreach (var vertex in dto.VertexList)
+                {
+                    shape.VertexList.Add(new APoint(vertex.X, vertex.Y));
+                }
+            }
+        }
+
         public static LingoShapeTypeDto ToDto(this LingoShapeType shapeType)
         {
             return shapeType switch

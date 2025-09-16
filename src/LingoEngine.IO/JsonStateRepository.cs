@@ -12,6 +12,8 @@ using LingoEngine.IO.Data.DTO.Members;
 using LingoEngine.IO.Data.DTO.Sprites;
 using LingoEngine.Members;
 using LingoEngine.Movies;
+using LingoEngine.Scripts;
+using LingoEngine.Shapes;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
 using LingoEngine.Tempos;
@@ -184,6 +186,10 @@ public class JsonStateRepository : IJsonStateRepository
                             flMem.AddSound(sndEntry.Channel, sndEntry.StartFrame, sndMem2);
                     }
                 }
+                if (member is LingoMemberShape shapeMem && memDto is LingoMemberShapeDTO shapeDto)
+                {
+                    ShapeDtoConverter.Apply(shapeDto, shapeMem);
+                }
 
                 memberMap[(member.CastLibNum, member.NumberInCast)] = member;
             }
@@ -251,6 +257,10 @@ public class JsonStateRepository : IJsonStateRepository
         sprite.LoadState(state);
 
         AddAnimator(sDto, sprite, movie, eventMediator);
+        foreach (var behaviorDto in sDto.Behaviors)
+        {
+            behaviorDto.Apply(sprite, memberMap);
+        }
         return sprite;
     }
 
