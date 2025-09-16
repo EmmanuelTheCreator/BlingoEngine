@@ -11,5 +11,8 @@ public class RNetConfiguration : IRNetConfiguration
     /// <inheritdoc />
     public bool AutoStartRNetHostOnStartup { get; set; }
     public string ClientName { get; set; } = "Someone";
+
+    /// <inheritdoc />
+    public RNetClientType ClientType { get; set; } = RNetClientType.Project;
 }
 

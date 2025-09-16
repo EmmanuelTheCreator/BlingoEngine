@@ -29,8 +29,9 @@ using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.Remote;
 using LingoEngine.Director.Core.Remote.Commands;
 using LingoEngine.Net.RNetContracts;
-using LingoEngine.Net.RNetProjectHost;
+using LingoEngine.Net.RNetHost.Common;
 using LingoEngine.Net.RNetProjectClient;
+using LingoEngine.Net.RNetPipeClient;
 using LingoEngine.Setup;
 using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Sprites.BehaviorLibrary;
@@ -84,8 +85,9 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<IRNetConfiguration>(p => p.GetRequiredService<RNetConfiguration>())
                     .AddTransient<RNetSettingsDialog>()
                     .AddSingleton<RNetSettingsDialogHandler>()
-                    .AddSingleton<IRNetProjectServer, RNetProjectServer>()
+                    .AddDirectorDummyProjectServer()
                     .AddSingleton<ILingoRNetProjectClient, LingoRNetProjectClient>()
+                    .AddSingleton<ILingoRNetPipeClient, RNetPipeClient>()
                     .AddSingleton<DirectorRNetServer>()
                     .AddSingleton<DirectorRNetClient>()
                     .AddSingleton<DirStageManager>()
@@ -102,7 +104,7 @@ namespace LingoEngine.Director.Core
                     .AddTransient<LingoCodeImporterPopup>()
                     .AddTransient<LingoCodeImporterPopupHandler>()
 
-                    );
+                );
             engineRegistration.AddBuildAction(
                 (serviceProvider) =>
                 {

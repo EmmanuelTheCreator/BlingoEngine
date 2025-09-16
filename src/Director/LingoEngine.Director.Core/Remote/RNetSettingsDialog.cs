@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using AbstUI.Commands;
 using AbstUI.Components.Containers;
 using AbstUI.Primitives;
@@ -38,12 +40,17 @@ public class RNetSettingsDialogHandler : IAbstCommandHandler<OpenRNetSettingsCom
 
 
 /// <summary>Displays and edits RNet configuration settings.</summary>
-public class RNetSettingsDialog 
+public class RNetSettingsDialog
 {
     private readonly ILingoFrameworkFactory _factory;
     private readonly IRNetConfiguration _settings;
     private readonly IAbstCommandManager _commandManager;
     private readonly IAbstWindowManager _windowManager;
+    private static readonly KeyValuePair<string, string>[] ClientTypes =
+    [
+        new KeyValuePair<string, string>(RNetClientType.Project.ToString(), "Project Client (SignalR)"),
+        new KeyValuePair<string, string>(RNetClientType.Pipe.ToString(), "Pipe Client"),
+    ];
     private Action _requestClose = new Action(() => { });
     public Action RequestClose {
         get => _requestClose;
@@ -66,17 +73,31 @@ public class RNetSettingsDialog
     {
         var root = _factory.CreatePanel("RemoteSettingsRoot");
         root.Width = 300;
-        root.Height = 100;
+        root.Height = 140;
         AbstWrapPanel wrap = _factory.CreateWrapPanel(AOrientation.Vertical, "RemoteSettingsWrap");
-        wrap.Width = root.Width-30;
-        wrap.Height = root.Height-30;
-        wrap.Margin = new AMargin(15,15,15,15);
+        wrap.Width = root.Width - 30;
+        wrap.Height = root.Height - 30;
+        wrap.Margin = new AMargin(15, 15, 15, 15);
         wrap.Compose()
+            .NewLine("ClientTypeRow")
+            .AddLabel("ClientTypeLabel", "Client:", 11, 60)
+            .AddCombobox(
+                "ClientTypeCombo",
+                ClientTypes,
+                180,
+                _settings.ClientType.ToString(),
+                selected =>
+                {
+                    if (!string.IsNullOrWhiteSpace(selected))
+                    {
+                        _settings.ClientType = Enum.Parse<RNetClientType>(selected);
+                    }
+                })
             .NewLine("PortRow")
             .AddLabel("PortLabel", "Port:", 11, 60)
             .AddNumericInputInt("PortInput", _settings, s => s.Port, 60)
             .NewLine("AutoStartRow")
-            .AddButton("BtnSave","Save", () =>
+            .AddButton("BtnSave", "Save", () =>
             {
                 var result = _commandManager.Handle(new SaveDirProjectSettingsCommand());
                 if (!result)

@@ -1,30 +1,29 @@
-using LingoEngine.Core;
-using LingoEngine.Director.Core.Projects;
-using LingoEngine.FrameworkCommunication;
-using LingoEngine.Movies;
-using LingoEngine.Inputs;
-using LingoEngine.Events;
 using System;
 using System.Collections.Generic;
-using LingoEngine.Director.Core.Windowing;
-using LingoEngine.Director.Core.Icons;
+using System.ComponentModel;
 using AbstUI.Commands;
-using LingoEngine.Director.Core.Compilers.Commands;
-using LingoEngine.Net.RNetContracts;
-using AbstUI.Primitives;
-using LingoEngine.Director.Core.Tools.Commands;
-using AbstUI.Windowing;
-using AbstUI.Inputs;
-using AbstUI.Tools;
-using AbstUI.Components.Menus;
 using AbstUI.Components.Buttons;
 using AbstUI.Components.Containers;
+using AbstUI.Components.Menus;
+using AbstUI.Inputs;
+using AbstUI.Primitives;
+using AbstUI.Tools;
+using AbstUI.Windowing;
+using LingoEngine.Core;
+using LingoEngine.Director.Core.Compilers.Commands;
+using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Importer.Commands;
+using LingoEngine.Director.Core.Projects;
+using LingoEngine.Director.Core.Remote;
 using LingoEngine.Director.Core.Remote.Commands;
-using LingoEngine.Net.RNetProjectHost;
-using LingoEngine.Net.RNetProjectClient;
-using System;
-using System.ComponentModel;
+using LingoEngine.Director.Core.Tools.Commands;
+using LingoEngine.Director.Core.Windowing;
+using LingoEngine.Events;
+using LingoEngine.FrameworkCommunication;
+using LingoEngine.Inputs;
+using LingoEngine.Movies;
+using LingoEngine.Net.RNetContracts;
+using LingoEngine.Net.RNetHost.Common;
 
 namespace LingoEngine.Director.Core.UI
 {
@@ -57,7 +56,7 @@ namespace LingoEngine.Director.Core.UI
         private readonly IHistoryManager _historyManager;
         private readonly IAbstCommandManager _commandManager;
         private readonly IRNetProjectServer _server;
-        private readonly ILingoRNetProjectClient _client;
+        private readonly DirectorRNetClient _client;
         private readonly ILingoFrameworkFactory _factory;
         private readonly List<ShortCutInfo> _shortCuts = new();
         private AbstMenuItem _undoItem;
@@ -96,7 +95,7 @@ namespace LingoEngine.Director.Core.UI
 
         public DirectorMainMenu(IServiceProvider serviceProvider, IAbstWindowManager windowManager, DirectorProjectManager projectManager, LingoPlayer player, IAbstShortCutManager shortCutManager,
             IHistoryManager historyManager, IDirectorIconManager directorIconManager, IAbstCommandManager commandManager, ILingoFrameworkFactory factory,
-            IRNetProjectServer server, ILingoRNetProjectClient client) : base(serviceProvider, DirectorMenuCodes.MainMenu)
+            IRNetProjectServer server, DirectorRNetClient client) : base(serviceProvider, DirectorMenuCodes.MainMenu)
         {
             _windowManager = windowManager;
             _projectManager = projectManager;
