@@ -1,7 +1,9 @@
-using System.Collections.Generic;
 using System.Data;
 using LingoEngine.IO.Data.DTO;
-using Terminal.Gui;
+using Terminal.Gui.App;
+using Terminal.Gui.Input;
+using Terminal.Gui.ViewBase;
+using Terminal.Gui.Views;
 
 namespace LingoEngine.Net.RNetTerminal;
 
@@ -44,19 +46,20 @@ internal sealed class CastView : View
             {
                 Width = Dim.Fill(),
                 Height = Dim.Fill(),
-                Table = CreateTable(members),
+                Table = new DataTableSource(CreateTable(members)),
                 FullRowSelect = true
             };
             tableView.SelectedColumn = 0;
-            tableView.SelectedCellChanged += _ => tableView.SelectedColumn = 0;
-            tableView.KeyPress += e =>
+            tableView.SelectedCellChanged += (_,_) => tableView.SelectedColumn = 0;
+            tableView.KeyDown += (_,e) =>
             {
-                if (e.KeyEvent.Key == Key.CursorLeft || e.KeyEvent.Key == Key.CursorRight)
+                
+                if (e.KeyCode == Key.CursorLeft || e.KeyCode == Key.CursorRight)
                 {
                     e.Handled = true;
                 }
             };
-            tableView.CellActivated += e =>
+            tableView.CellActivated += (_,e) =>
             {
                 if (e.Row >= 0 && e.Row < members.Count)
                 {
@@ -70,24 +73,30 @@ internal sealed class CastView : View
                             Height = Dim.Fill(),
                             Text = member.Comments
                         };
-                        var ok = new Button("Ok", true);
-                        ok.Clicked += () =>
+                        var ok = RUI.NewButton("OK",true,() =>
                         {
                             member.Comments = text.Text.ToString() ?? string.Empty;
                             TerminalDataStore.Instance.UpdateMember(member);
                             Application.RequestStop();
-                        };
-                        var dialog = new Dialog($"Edit {member.Name}", 60, 20, ok);
+                        });
+                        var dialog = new Dialog();
+                        dialog.Text = $"Edit {member.Name}";
+                        dialog.Width = 60;
+                        dialog.Height = 20;
+                        dialog.AddButton(ok);
                         dialog.Add(text);
                         text.SetFocus();
                         Application.Run(dialog);
                     }
                 }
             };
-            _tabs.AddTab(new TabView.Tab(cast.Key, tableView), first);
+            var tab = new Tab();
+            tab.Text = cast.Key;
+            tab.View = tableView;
+            _tabs.AddTab(tab, first);
             first = false;
         }
-        _tabs.SetNeedsDisplay();
+        _tabs.SetNeedsDraw();
     }
 
     private static DataTable CreateTable(IEnumerable<LingoMemberDTO> members)

@@ -353,12 +353,12 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         }
 
         UpdateMainAreaLayout();
-        _mainArea?.SetNeedsDisplay();
-        _propertyWindow?.SetNeedsDisplay();
-        _logWindow?.SetNeedsDisplay();
-        _scoreWindow?.SetNeedsDisplay();
-        _stageWindow?.SetNeedsDisplay();
-        _castWindow?.SetNeedsDisplay();
+        _mainArea?.SetNeedsDraw();
+        _propertyWindow?.SetNeedsDraw();
+        _logWindow?.SetNeedsDraw();
+        _scoreWindow?.SetNeedsDraw();
+        _stageWindow?.SetNeedsDraw();
+        _castWindow?.SetNeedsDraw();
     }
 
     private void UpdateMainAreaLayout()
@@ -441,7 +441,7 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         }
 
         _connectionStatusLabel.Text = _connected ? "Connected" : "Disconnected";
-        _connectionStatusLabel.SetNeedsDisplay();
+        _connectionStatusLabel.SetNeedsDraw();
     }
 
     private void UpdateInfo(int frame, int channel, SpriteRef? sprite, MemberRef? member)

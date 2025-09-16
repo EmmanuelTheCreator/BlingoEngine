@@ -36,22 +36,22 @@ internal sealed class StageView : View
         store.FrameChanged += f =>
         {
             _frame = f;
-            SetNeedsDisplay();
+            SetNeedsDraw();
         };
         store.SelectedSpriteChanged += s =>
         {
             _selectedSprite = s;
-            SetNeedsDisplay();
+            SetNeedsDraw();
         };
         store.SpritesChanged += ReloadData;
         store.CastsChanged += ReloadData;
-        store.SpriteChanged += _ => SetNeedsDisplay();
-        store.MemberChanged += _ => SetNeedsDisplay();
+        store.SpriteChanged += _ => SetNeedsDraw();
+        store.MemberChanged += _ => SetNeedsDraw();
         ReloadData();
     }
 
 
-    public void RequestRedraw() => SetNeedsDisplay();
+    public void RequestRedraw() => SetNeedsDraw();
 
     private void ReloadData()
     {
@@ -60,7 +60,7 @@ internal sealed class StageView : View
         _movieHeight = store.StageHeight;
         _sprites = store.GetSprites();
 
-        SetNeedsDisplay();
+        SetNeedsDraw();
     }
 
     public override void Redraw(Rect bounds)

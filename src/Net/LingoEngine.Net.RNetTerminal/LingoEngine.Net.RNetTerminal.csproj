@@ -19,7 +19,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Terminal.Gui" Version="1.17.*" />
+    <PackageReference Include="Terminal.Gui" Version="2.0.0-develop.4559" />
   </ItemGroup>
     <ItemGroup>
     <ProjectReference Include="..\\LingoEngine.Net.RNetProjectClient\\LingoEngine.Net.RNetProjectClient.csproj" />

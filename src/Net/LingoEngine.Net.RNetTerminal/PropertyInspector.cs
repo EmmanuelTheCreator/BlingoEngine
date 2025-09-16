@@ -5,6 +5,12 @@ using System.Globalization;
 using System.Linq;
 using LingoEngine.IO.Data.DTO;
 using Terminal.Gui;
+using Terminal.Gui.Drawing;
+using Terminal.Gui.ViewBase;
+using Terminal.Gui.Views;
+using LingoEngine.Net.RNetTerminal;
+using Terminal.Gui.Input;
+using Terminal.Gui.App;
 
 namespace LingoEngine.Net.RNetTerminal;
 
@@ -23,17 +29,17 @@ internal sealed class PropertyInspector : Window
     private readonly DataTable _spriteTable = new();
     private readonly List<PropertySpec> _spriteSpecs = new();
     private readonly TableView _spriteTableView;
-    private readonly TabView.Tab _memberTab;
-    private readonly TabView.Tab _spriteTab;
-    private readonly TabView.Tab _bitmapTab;
-    private readonly TabView.Tab _soundTab;
-    private readonly TabView.Tab _movieTab;
-    private readonly TabView.Tab _castTab;
-    private readonly TabView.Tab _textTab;
-    private readonly TabView.Tab _shapeTab;
-    private readonly TabView.Tab _guidesTab;
-    private readonly TabView.Tab _behaviorTab;
-    private readonly TabView.Tab _filmLoopTab;
+    private readonly Tab _memberTab;
+    private readonly Tab _spriteTab;
+    private readonly Tab _bitmapTab;
+    private readonly Tab _soundTab;
+    private readonly Tab _movieTab;
+    private readonly Tab _castTab;
+    private readonly Tab _textTab;
+    private readonly Tab _shapeTab;
+    private readonly Tab _guidesTab;
+    private readonly Tab _behaviorTab;
+    private readonly Tab _filmLoopTab;
     private Lingo2DSpriteDTO? _sprite;
     private LingoMemberDTO? _member;
     private string _lastTab = "Sprite";
@@ -42,8 +48,9 @@ internal sealed class PropertyInspector : Window
 
     public event Action<PropertyTarget, string, string>? PropertyChanged;
 
-    public PropertyInspector() : base("Properties")
+    public PropertyInspector() 
     {
+        Text = "Properties";
         _tabs = new TabView
         {
             Width = Dim.Fill(),
@@ -93,7 +100,7 @@ internal sealed class PropertyInspector : Window
         {
             Width = Dim.Fill(),
             Height = Dim.Fill(),
-            Table = _spriteTable,
+            Table = new DataTableSource(_spriteTable),
             FullRowSelect = true
         };
         _spriteTableView.Style.AlwaysShowHeaders = false;
@@ -102,16 +109,17 @@ internal sealed class PropertyInspector : Window
         _spriteTableView.Style.ShowVerticalHeaderLines = false;
         _spriteTableView.Style.ShowVerticalCellLines = false;
         _spriteTableView.SelectedColumn = 1;
-        _spriteTableView.SelectedCellChanged += _ => _spriteTableView.SelectedColumn = 1;
-        _spriteTableView.KeyPress += e =>
+        _spriteTableView.SelectedCellChanged += (_,_) => _spriteTableView.SelectedColumn = 1;
+        _spriteTableView.KeyDown += (_,e) =>
         {
-            if (e.KeyEvent.Key == Key.CursorLeft || e.KeyEvent.Key == Key.CursorRight)
+            if (e.KeyEventKey() == Key.CursorLeft || e.KeyEventKey() == Key.CursorRight)
             {
                 e.Handled = true;
             }
         };
-        _spriteTableView.Style.ColumnStyles.Add(_spriteTable.Columns[1], new TableView.ColumnStyle { Alignment = TextAlignment.Right });
-        _spriteTableView.CellActivated += args =>
+        //_spriteTableView.Style.ColumnStyles.Add(_spriteTable.Columns[1].ColumnName, new ColumnStyle { Alignment = Alignment.End });
+        _spriteTableView.Style.ColumnStyles.Add(1, new ColumnStyle { Alignment = Alignment.End });
+        _spriteTableView.CellActivated += (_,args) =>
         {
             var spec = _spriteSpecs[args.Row];
             if (spec.ReadOnly)
@@ -125,9 +133,9 @@ internal sealed class PropertyInspector : Window
                 _spriteTable.Rows[args.Row][1] = newValue;
                 PropertyChanged?.Invoke(PropertyTarget.Sprite, spec.Name, newValue);
             }
-            _spriteTableView.SetNeedsDisplay();
+            _spriteTableView.SetNeedsDraw();
         };
-        _spriteTab = new TabView.Tab("Sprite", _spriteTableView);
+        _spriteTab = RUI.NewTab("Sprite", _spriteTableView);
 
         _memberTable.Columns.Add("\u200B");
         _memberTable.Columns.Add("\u200B\u200B");
@@ -135,7 +143,7 @@ internal sealed class PropertyInspector : Window
         {
             Width = Dim.Fill(),
             Height = Dim.Fill(),
-            Table = _memberTable,
+            Table = new DataTableSource(_memberTable),
             FullRowSelect = true
         };
         _memberTableView.Style.AlwaysShowHeaders = false;
@@ -144,16 +152,17 @@ internal sealed class PropertyInspector : Window
         _memberTableView.Style.ShowVerticalHeaderLines = false;
         _memberTableView.Style.ShowVerticalCellLines = false;
         _memberTableView.SelectedColumn = 1;
-        _memberTableView.SelectedCellChanged += _ => _memberTableView.SelectedColumn = 1;
-        _memberTableView.KeyPress += e =>
+        _memberTableView.SelectedCellChanged += (_,_) => _memberTableView.SelectedColumn = 1;
+        _memberTableView.KeyDown += (_,e) =>
         {
-            if (e.KeyEvent.Key == Key.CursorLeft || e.KeyEvent.Key == Key.CursorRight)
+            if (e.KeyEventKey() == Key.CursorLeft || e.KeyEventKey() == Key.CursorRight)
             {
                 e.Handled = true;
             }
         };
-        _memberTableView.Style.ColumnStyles.Add(_memberTable.Columns[1], new TableView.ColumnStyle { Alignment = TextAlignment.Right });
-        _memberTableView.CellActivated += args =>
+        //_memberTableView.Style.ColumnStyles.Add(_memberTable.Columns[1], new ColumnStyle { Alignment = Alignment.Start });
+        _memberTableView.Style.ColumnStyles.Add(1, new ColumnStyle { Alignment = Alignment.Start });
+        _memberTableView.CellActivated += (_,args) =>
         {
             var spec = _memberSpecs[args.Row];
             if (spec.ReadOnly)
@@ -167,9 +176,9 @@ internal sealed class PropertyInspector : Window
                 _memberTable.Rows[args.Row][1] = newValue;
                 PropertyChanged?.Invoke(PropertyTarget.Member, spec.Name, newValue);
             }
-            _memberTableView.SetNeedsDisplay();
+            _memberTableView.SetNeedsDraw();
         };
-        _memberTab = new TabView.Tab("Member", _memberTableView);
+        _memberTab = RUI.NewTab("Member", _memberTableView);
 
         _bitmapTab = CreateTab("Bitmap", new[]
         {
@@ -325,16 +334,16 @@ internal sealed class PropertyInspector : Window
             }
             _spriteTable.Rows[i][1] = value;
         }
-        _spriteTableView.SetNeedsDisplay();
+        _spriteTableView.SetNeedsDraw();
     }
 
-    private TabView.Tab CreateTab(string title, PropertySpec[] props)
+    private Tab CreateTab(string title, PropertySpec[] props)
     {
         var view = BuildPropertyTableView(props);
-        return new TabView.Tab(title, view);
+        return RUI.NewTab(title, view);
     }
 
-    private void SetTabs(params TabView.Tab[] tabs)
+    private void SetTabs(params Tab[] tabs)
     {
         foreach (var existing in _tabs.Tabs.ToList())
         {
@@ -360,7 +369,7 @@ internal sealed class PropertyInspector : Window
         {
             Width = Dim.Fill(),
             Height = Dim.Fill(),
-            Table = table,
+            Table = new DataTableSource(table),
             FullRowSelect = true
         };
         view.Style.AlwaysShowHeaders = false;
@@ -369,16 +378,17 @@ internal sealed class PropertyInspector : Window
         view.Style.ShowVerticalHeaderLines = false;
         view.Style.ShowVerticalCellLines = false;
         view.SelectedColumn = 1;
-        view.SelectedCellChanged += _ => view.SelectedColumn = 1;
-        view.KeyPress += e =>
+        view.SelectedCellChanged += (_,_) => view.SelectedColumn = 1;
+        view.KeyDown += (_,e) =>
         {
-            if (e.KeyEvent.Key == Key.CursorLeft || e.KeyEvent.Key == Key.CursorRight)
+            if (e.KeyEventKey() == Key.CursorLeft || e.KeyEventKey() == Key.CursorRight)
             {
                 e.Handled = true;
             }
         };
-        view.Style.ColumnStyles.Add(table.Columns[1], new TableView.ColumnStyle { Alignment = TextAlignment.Right });
-        view.CellActivated += args =>
+        //view.Style.ColumnStyles.Add(table.Columns[1], new ColumnStyle { Alignment = Alignment.End});
+        view.Style.ColumnStyles.Add(1, new ColumnStyle { Alignment = Alignment.End});
+        view.CellActivated += (_,args) =>
         {
             var spec = props[args.Row];
             if (spec.ReadOnly)
@@ -392,7 +402,7 @@ internal sealed class PropertyInspector : Window
                 table.Rows[args.Row][1] = newValue;
                 PropertyChanged?.Invoke(PropertyTarget.Member, spec.Name, newValue);
             }
-            view.SetNeedsDisplay();
+            view.SetNeedsDraw();
         };
         return view;
     }
@@ -415,91 +425,87 @@ internal sealed class PropertyInspector : Window
         string? result = null;
         if (type == typeof(bool))
         {
-            var check = new CheckBox(12, 1, string.Empty, bool.TryParse(value, out var b) && b);
-            check.KeyPress += e =>
+            var check = RUI.NewCheckBox(12, 1, string.Empty, bool.TryParse(value, out var b) && b);
+            check.KeyDown += (_,e) =>
             {
-                if (e.KeyEvent.Key == Key.Space)
+                if (e.KeyEventKey() == Key.Space)
                 {
-                    check.Checked = !check.Checked;
-                    result = check.Checked.ToString();
+                    var state = check.CheckedState == CheckState.Checked;
+                    // inverse selection
+                    check.CheckedState = state ? CheckState.UnChecked : CheckState.Checked; 
+                    
+                    result = (!state).ToString();
                     Application.RequestStop();
                     e.Handled = true;
                 }
             };
-            var ok = new Button("Ok", true);
-            ok.Clicked += () =>
+            var ok = RUI.NewButton("Ok", true, () =>
             {
-                result = check.Checked.ToString();
+                result = check.Checked().ToString();
                 Application.RequestStop();
-            };
-            var dialog = new Dialog($"Edit {name}", 30, 7, ok);
-            dialog.Add(new Label(name + ":") { X = 1, Y = 1 }, check);
+            });
+            var dialog = RUI.NewDialog($"Edit {name}", 30, 7, ok);
+            dialog.Add(RUI.NewLabel(name + ":", 1, 1 ), check);
             check.SetFocus();
             Application.Run(dialog);
         }
         else if (type == typeof(int))
         {
-            var field = new TextField(value) { X = 12, Y = 1, Width = 20 };
-            var ok = new Button("Ok", true);
-            ok.Clicked += () =>
+            var field = RUI.NewTextField(value,12, 1,  20);
+            var ok = RUI.NewButton("Ok", true, () =>
             {
                 if (int.TryParse(field.Text.ToString(), out var v))
                 {
                     result = v.ToString();
                 }
                 Application.RequestStop();
-            };
-            var dialog = new Dialog($"Edit {name}", 40, 7, ok);
-            dialog.Add(new Label(name + ":") { X = 1, Y = 1 }, field);
+            });
+            var dialog = RUI.NewDialog($"Edit {name}", 40, 7, ok);
+            dialog.Add(RUI.NewLabel(name + ":",1, 1), field);
             field.SetFocus();
             Application.Run(dialog);
         }
         else if (type == typeof(float))
         {
-            var field = new TextField(value) { X = 12, Y = 1, Width = 20 };
-            var ok = new Button("Ok", true);
-            ok.Clicked += () =>
+            var field = RUI.NewTextField(value, 12, 1, 20);
+            var ok = RUI.NewButton("Ok", true, () =>
             {
                 if (float.TryParse(field.Text.ToString(), out var v))
                 {
                     result = v.ToString();
                 }
                 Application.RequestStop();
-            };
-            var dialog = new Dialog($"Edit {name}", 40, 7, ok);
-            dialog.Add(new Label(name + ":") { X = 1, Y = 1 }, field);
+            });
+            var dialog = RUI.NewDialog($"Edit {name}", 40, 7, ok);
+            dialog.Add(RUI.NewLabel(name + ":",1, 1), field);
             field.SetFocus();
             Application.Run(dialog);
         }
         else if (type == typeof(Color))
         {
-            var colors = Enum.GetNames<Color>();
-            var list = new ListView(colors)
-            {
-                Width = Dim.Fill(),
-                Height = Dim.Fill()
-            };
-            var ok = new Button("Ok", true);
-            ok.Clicked += () =>
+            var colors = Enum.GetNames< Terminal.Gui.Drawing.ColorName16>();
+            var list = RUI.NewListView(colors);
+            list.Width = Dim.Fill();
+            list.Height = Dim.Fill();
+            var ok = RUI.NewButton("Ok", true, () =>
             {
                 result = colors[list.SelectedItem];
                 Application.RequestStop();
-            };
-            var dialog = new Dialog($"Edit {name}", 30, 15, ok);
+            });
+            var dialog = RUI.NewDialog($"Edit {name}", 30, 15, ok);
             dialog.Add(list);
             Application.Run(dialog);
         }
         else
         {
-            var field = new TextField(value) { X = 12, Y = 1, Width = 20 };
-            var ok = new Button("Ok", true);
-            ok.Clicked += () =>
+            var field = RUI.NewTextField(value,121, 20);
+            var ok = RUI.NewButton("Ok", true, () =>
             {
                 result = field.Text.ToString();
                 Application.RequestStop();
-            };
-            var dialog = new Dialog($"Edit {name}", 40, 7, ok);
-            dialog.Add(new Label(name + ":") { X = 1, Y = 1 }, field);
+            });
+            var dialog = RUI.NewDialog($"Edit {name}", 40, 7, ok);
+            dialog.Add(RUI.NewLabel(name + ":",1,1), field);
             field.SetFocus();
             Application.Run(dialog);
         }
@@ -513,8 +519,8 @@ internal sealed class PropertyInspector : Window
         _memberSpecs.Clear();
         if (member == null)
         {
-            _memberTableView.SetNeedsDisplay();
-            var tabsEmpty = new List<TabView.Tab>();
+            _memberTableView.SetNeedsDraw();
+            var tabsEmpty = new List<Tab>();
             if (_sprite != null)
             {
                 tabsEmpty.Add(_spriteTab);
@@ -540,9 +546,9 @@ internal sealed class PropertyInspector : Window
         AddMember("FileName", member.FileName, typeof(string), true);
         AddMember("PurgePriority", member.PurgePriority.ToString(), typeof(int), true);
 
-        _memberTableView.SetNeedsDisplay();
+        _memberTableView.SetNeedsDraw();
 
-        var tabs = new List<TabView.Tab>();
+        var tabs = new List<Tab>();
         if (_sprite != null)
         {
             tabs.Add(_spriteTab);
