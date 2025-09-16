@@ -6,11 +6,7 @@
 
 <img src="Images/logo_godot.png" alt="Godot" width="20%" /><img src="Images/logo_SDL.png" alt="SDL" width="20%" /><img src="Images/logo_blazor.png" alt="Blazor" width="7%" /><img src="Images/logo_Unity.jpg" alt="Unity" width="7%" />
 
-Looking for a more expressive C# syntax? The `LingoEngine.VerboseLanguage` package offers a fluent API that mirrors classic Lingo statements.
 
-```bash
-dotnet add package LingoEngine.VerboseLanguage
-```
 
 ---
 
@@ -26,6 +22,12 @@ dotnet add package LingoEngine.VerboseLanguage
 File by file or in batch with the lingo importer.
 
 <img src="Images/Director_CodeConverter1.jpg" alt="Easy Lingo to C# conversion" width="100%" />
+
+
+#### Remote Terminal
+An easy way to debug your game, run the Remote Terminal trough pipes or SignalR.
+
+<img src="Images/Screenshot_RNetTerminal1.jpg" alt="RNetTerminal1" width="30%" /><img src="Images/Screenshot_RNetTerminal2.jpg" alt="RNetTerminal2" width="30%" /><img src="Images/Screenshot_RNetTerminal3.jpg" alt="RNetTerminal3" width="30%" />
 
 
 ## ✨ Key Features of the engine
@@ -88,6 +90,16 @@ Director pioneered ideas that shaped the future of digital creativity:
 
 
 ---
+## The Lingo Verbose Language
+Looking for a more expressive C# syntax? The `LingoEngine.VerboseLanguage` package offers a fluent API that mirrors classic Lingo statements.
+
+
+```csharp
+// Lingo : put the Text of member "Paul Robeson" into member "How Deep"
+
+// C# with LingoEngine.VerboseLanguage
+Put(The().Text.Of.Member("Paul Robeson")).Into.Field("How Deep");
+```
 
 ## 🚀 Running the Demo
 
@@ -98,11 +110,16 @@ Director pioneered ideas that shaped the future of digital creativity:
    cd LingoEngine
    ```
 
-2. **Install prerequisites**
+2. **Run installer with prerequisites**
    Ensure the .NET 8 SDK is available. You can install it using the helper script:
 
+Linux:
    ```bash
-   ./scripts/install-dotnet.sh
+   ./setup-linux.sh
+   ```
+Windows:
+   ```bash
+   ./setup-windows.sh
    ```
 
 3. **Open the solution**
@@ -119,7 +136,7 @@ Director pioneered ideas that shaped the future of digital creativity:
 
 ### VS Code Setup
 
-1. Install the [.NET SDK](https://learn.microsoft.com/dotnet/core/install/) and [Godot 4](https://godotengine.org/) with C# support.
+1. Install the [.NET SDK](https://learn.microsoft.com/dotnet/core/install/) and [Godot 4.5](https://godotengine.org/) with C# support.
 2. Open the repository folder in VS Code and accept the recommended extensions.
 3. Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> to build the solution.
 4. From the Run and Debug panel choose **Launch Demo SDL2** or **Launch Demo Godot**.
