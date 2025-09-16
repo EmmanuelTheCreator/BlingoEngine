@@ -1,3 +1,6 @@
+-- Copyright to EmmanuelTheCreator.com
+-- This file was written in 2005, yeah a lot has evolved since then :-)
+
 property myHsDown,myHsUp,myGetStartData,myCheckStartData,myStop,myStartLines,myStartLevel,mySendStartData
 property myOverScreenText
 on beginsprite me
