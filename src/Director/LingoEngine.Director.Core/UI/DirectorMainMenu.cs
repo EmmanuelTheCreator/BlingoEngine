@@ -357,12 +357,14 @@ namespace LingoEngine.Director.Core.UI
 
         private void OnServerStateChanged(LingoNetConnectionState state)
         {
-            _hostItem.Name = state == LingoNetConnectionState.Connected ? "Stop Host" : "Start Host";
+            _player.RunOnUIThread(() =>
+                _hostItem.Name = state == LingoNetConnectionState.Connected ? "Stop Host" : "Start Host");
         }
 
         private void OnClientStateChanged(LingoNetConnectionState state)
         {
-            _clientItem.Name = state == LingoNetConnectionState.Connected ? "Stop Client" : "Start Client";
+            _player.RunOnUIThread(() =>
+                _clientItem.Name = state == LingoNetConnectionState.Connected ? "Stop Client" : "Start Client");
         }
 
 
