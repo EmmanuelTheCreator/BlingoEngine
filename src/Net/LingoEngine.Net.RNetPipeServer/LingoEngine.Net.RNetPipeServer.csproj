@@ -22,6 +22,8 @@
   <ItemGroup>
     <ProjectReference Include="..\LingoEngine.Net.RNetContracts\LingoEngine.Net.RNetContracts.csproj" />
     <ProjectReference Include="..\LingoEngine.Net.RNetHost.Common\LingoEngine.Net.RNetHost.Common.csproj" />
+    <ProjectReference Include="..\..\LingoEngine.IO\LingoEngine.IO.csproj" />
+    <ProjectReference Include="..\..\LingoEngine\LingoEngine.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Threading.Channels" Version="8.*" />

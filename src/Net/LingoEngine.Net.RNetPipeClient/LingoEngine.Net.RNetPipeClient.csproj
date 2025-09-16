@@ -20,6 +20,10 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="System.Threading.Channels" Version="8.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\\LingoEngine.Net.RNetClient.Common\\LingoEngine.Net.RNetClient.Common.csproj" />
     <ProjectReference Include="..\\LingoEngine.Net.RNetContracts\\LingoEngine.Net.RNetContracts.csproj" />
   </ItemGroup>
 </Project>
