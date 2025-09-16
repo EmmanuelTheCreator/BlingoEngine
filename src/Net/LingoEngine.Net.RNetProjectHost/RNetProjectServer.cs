@@ -9,14 +9,6 @@ using System.Threading.Channels;
 
 namespace LingoEngine.Net.RNetProjectHost;
 
-/// <summary>
-/// Hosts the SignalR server within the RNet process.
-/// </summary>
-public interface IRNetProjectServer : ILingoRNetServer { }
-
-/// <summary>
-/// Default implementation of <see cref="IRNetProjectServer"/>.
-/// </summary>
 public sealed class RNetProjectServer : IRNetProjectServer
 {
     private WebApplication? _app;

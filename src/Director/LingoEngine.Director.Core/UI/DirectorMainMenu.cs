@@ -23,7 +23,7 @@ using LingoEngine.FrameworkCommunication;
 using LingoEngine.Inputs;
 using LingoEngine.Movies;
 using LingoEngine.Net.RNetContracts;
-using LingoEngine.Net.RNetProjectHost;
+using LingoEngine.Net.RNetHost.Common;
 
 namespace LingoEngine.Director.Core.UI
 {

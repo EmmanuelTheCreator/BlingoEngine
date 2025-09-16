@@ -29,11 +29,12 @@ using LingoEngine.Director.Core.Windowing;
 using LingoEngine.Director.Core.Remote;
 using LingoEngine.Director.Core.Remote.Commands;
 using LingoEngine.Net.RNetContracts;
-using LingoEngine.Net.RNetProjectHost;
+using LingoEngine.Net.RNetHost.Common;
 using LingoEngine.Net.RNetProjectClient;
 using LingoEngine.Net.RNetPipeClient;
 using LingoEngine.Setup;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using LingoEngine.Sprites.BehaviorLibrary;
 
 namespace LingoEngine.Director.Core
@@ -45,66 +46,67 @@ namespace LingoEngine.Director.Core
             engineRegistration
                 .RegisterWindows(r => DirectorWindowRegistrator.RegisterDirectorWindows(r))
                 .RegisterComponents(r => DirectorWindowRegistrator.RegisterDirectorComponents(r))
-                .ServicesMain(s => s
-                    .AddSingleton<IDirectorEventMediator, DirectorEventMediator>()
+                .ServicesMain(s =>
+                {
+                    s.AddSingleton<IDirectorEventMediator, DirectorEventMediator>();
 
 
-                    .AddSingleton<DirectorProjectManager>()
-                    .AddSingleton<LingoScriptCompiler>()
-                    .AddSingleton<DirectorProjectSettings>()
-                    .AddSingleton<DirectorProjectSettingsRepository>()
-                    .AddSingleton<LingoProjectSettingsRepository>()
-                    .AddTransient<IDirectorBehaviorDescriptionManager, DirectorBehaviorDescriptionManager>()
+                    s.AddSingleton<DirectorProjectManager>();
+                    s.AddSingleton<LingoScriptCompiler>();
+                    s.AddSingleton<DirectorProjectSettings>();
+                    s.AddSingleton<DirectorProjectSettingsRepository>();
+                    s.AddSingleton<LingoProjectSettingsRepository>();
+                    s.AddTransient<IDirectorBehaviorDescriptionManager, DirectorBehaviorDescriptionManager>();
 
                     // File system
-                    .AddSingleton<IIdePathResolver, IdePathResolver>()
-                    .AddSingleton<IIdeLauncher, IdeLauncher>()
-                    .AddSingleton<ProjectSettingsEditorState, ProjectSettingsEditorState>()
+                    s.AddSingleton<IIdePathResolver, IdePathResolver>();
+                    s.AddSingleton<IIdeLauncher, IdeLauncher>();
+                    s.AddSingleton<ProjectSettingsEditorState, ProjectSettingsEditorState>();
 
-                    .AddSingleton<DirectorScriptsManager>()
+                    s.AddSingleton<DirectorScriptsManager>();
 
-                    .AddTransient(p => new Lazy<IDirectorScriptsManager>(() => p.GetRequiredService<DirectorScriptsManager>()))
+                    s.AddTransient(p => new Lazy<IDirectorScriptsManager>(() => p.GetRequiredService<DirectorScriptsManager>()));
 
                     // Windows
-                    .AddSingleton<DirectorMainMenu>()
+                    s.AddSingleton<DirectorMainMenu>();
 
-                    .AddSingleton<DirectorProjectSettingsWindow>()
-                    .AddSingleton<DirectorToolsWindow>()
-                    .AddSingleton<DirectorCastWindow>()
-                    .AddSingleton<DirectorScoreWindow>()
-                    .AddSingleton<DirectorPropertyInspectorWindow>()
-                    .AddSingleton<DirBehaviorInspectorWindow>()
-                    .AddSingleton<DirectorStageGuides>()
-                    .AddSingleton<DirectorBinaryViewerWindow>()
-                    .AddSingleton<DirectorBinaryViewerWindowV2>()
-                    .AddSingleton<DirectorStageWindow>()
-                    .AddSingleton<DirectorTextEditWindowV2>()
-                    .AddSingleton<DirectorBitmapEditWindow>()
-                    .AddSingleton<DirectorImportExportWindow>()
-                    .AddSingleton<RNetConfiguration>()
-                    .AddSingleton<IRNetConfiguration>(p => p.GetRequiredService<RNetConfiguration>())
-                    .AddTransient<RNetSettingsDialog>()
-                    .AddSingleton<RNetSettingsDialogHandler>()
-                    .AddSingleton<IRNetProjectServer, RNetProjectServer>()
-                    .AddSingleton<ILingoRNetProjectClient, LingoRNetProjectClient>()
-                    .AddSingleton<ILingoRNetPipeClient, RNetPipeClient>()
-                    .AddSingleton<DirectorRNetServer>()
-                    .AddSingleton<DirectorRNetClient>()
-                    .AddSingleton<DirStageManager>()
-                    .AddTransient<IDirStageManager>(p => p.GetRequiredService<DirStageManager>())
-                    .AddSingleton<DirScoreManager>()
-                    .AddSingleton<DirSpritesManager>()
-                    .AddSingleton<DirCastManager>()
-                    .AddTransient<IDirSpritesManager>(p => p.GetRequiredService<DirSpritesManager>())
-                    .AddTransient(p => new Lazy<IDirSpritesManager>(() => p.GetRequiredService<DirSpritesManager>()))
+                    s.AddSingleton<DirectorProjectSettingsWindow>();
+                    s.AddSingleton<DirectorToolsWindow>();
+                    s.AddSingleton<DirectorCastWindow>();
+                    s.AddSingleton<DirectorScoreWindow>();
+                    s.AddSingleton<DirectorPropertyInspectorWindow>();
+                    s.AddSingleton<DirBehaviorInspectorWindow>();
+                    s.AddSingleton<DirectorStageGuides>();
+                    s.AddSingleton<DirectorBinaryViewerWindow>();
+                    s.AddSingleton<DirectorBinaryViewerWindowV2>();
+                    s.AddSingleton<DirectorStageWindow>();
+                    s.AddSingleton<DirectorTextEditWindowV2>();
+                    s.AddSingleton<DirectorBitmapEditWindow>();
+                    s.AddSingleton<DirectorImportExportWindow>();
+                    s.AddSingleton<RNetConfiguration>();
+                    s.AddSingleton<IRNetConfiguration>(p => p.GetRequiredService<RNetConfiguration>());
+                    s.AddTransient<RNetSettingsDialog>();
+                    s.AddSingleton<RNetSettingsDialogHandler>();
+                    s.TryAddSingleton<IRNetProjectServer, DummyRNetProjectServer>();
+                    s.AddSingleton<ILingoRNetProjectClient, LingoRNetProjectClient>();
+                    s.AddSingleton<ILingoRNetPipeClient, RNetPipeClient>();
+                    s.AddSingleton<DirectorRNetServer>();
+                    s.AddSingleton<DirectorRNetClient>();
+                    s.AddSingleton<DirStageManager>();
+                    s.AddTransient<IDirStageManager>(p => p.GetRequiredService<DirStageManager>());
+                    s.AddSingleton<DirScoreManager>();
+                    s.AddSingleton<DirSpritesManager>();
+                    s.AddSingleton<DirCastManager>();
+                    s.AddTransient<IDirSpritesManager>(p => p.GetRequiredService<DirSpritesManager>());
+                    s.AddTransient(p => new Lazy<IDirSpritesManager>(() => p.GetRequiredService<DirSpritesManager>()));
                     // Handlers
-                    .AddTransient<CompileProjectCommandHandler>()
-                    .AddTransient<LingoCSharpConverterPopup>()
-                    .AddTransient<LingoCSharpConverterPopupHandler>()
-                    .AddTransient<LingoCodeImporterPopup>()
-                    .AddTransient<LingoCodeImporterPopupHandler>()
+                    s.AddTransient<CompileProjectCommandHandler>();
+                    s.AddTransient<LingoCSharpConverterPopup>();
+                    s.AddTransient<LingoCSharpConverterPopupHandler>();
+                    s.AddTransient<LingoCodeImporterPopup>();
+                    s.AddTransient<LingoCodeImporterPopupHandler>();
 
-                    );
+                });
             engineRegistration.AddBuildAction(
                 (serviceProvider) =>
                 {
