@@ -1,17 +1,19 @@
 using Godot;
 using LingoEngine.Core;
 using LingoEngine.Director.LGodot;
-using LingoEngine.Net.RNetProjectHost;
+using LingoEngine.Net.RNetPipeServer;
+using LingoEngine.Net.RNetPipeClient;
 using LingoEngine.Setup;
 using Microsoft.Extensions.DependencyInjection;
 
-public partial class DirectorRunner : Node
+public partial class GodotDirectorRunner : Node
 {
     public override void _Ready()
     {
         var services = new ServiceCollection();
         services.RegisterLingoEngine(c => c
-                .WithRNetProjectHostServer()
+                .WithRNetPipeHostServer()
+                //.WithRNetPipeClient()
                 .WithGlobalVarsDefault()
                 .WithDirectorGodotEngine(this)
         );
