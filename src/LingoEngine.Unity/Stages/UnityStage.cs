@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using AbstUI.Primitives;
+using AbstUI.Components;
 using AbstUI.LUnity.Bitmaps;
 using LingoEngine.Core;
 using LingoEngine.Movies;
@@ -22,6 +23,10 @@ public class UnityStage : MonoBehaviour, ILingoFrameworkStage, IDisposable
     private LingoClock _clock = null!;
     private readonly HashSet<UnityMovie> _movies = new();
     private UnityMovie? _activeMovie;
+    private float _width;
+    private float _height;
+    private AMargin _margin = AMargin.Zero;
+    private int _zIndex;
 
     public LingoStage LingoStage => _stage;
 
@@ -36,6 +41,8 @@ public class UnityStage : MonoBehaviour, ILingoFrameworkStage, IDisposable
     internal void Init(LingoStage stage)
     {
         _stage = stage;
+        _width = stage.Width;
+        _height = stage.Height;
     }
 
     private void Update()
@@ -78,7 +85,7 @@ public class UnityStage : MonoBehaviour, ILingoFrameworkStage, IDisposable
 
     public IAbstTexture2D GetScreenshot()
     {
-        var tex = new Texture2D(_stage.Width, _stage.Height);
+        var tex = new Texture2D((int)_stage.Width, (int)_stage.Height);
         return new UnityTexture2D(tex, $"StageShot_{_activeMovie?.CurrentFrame ?? 0}");
     }
 
@@ -94,5 +101,43 @@ public class UnityStage : MonoBehaviour, ILingoFrameworkStage, IDisposable
             m.Dispose();
         _movies.Clear();
     }
+
+    string IAbstFrameworkNode.Name
+    {
+        get => gameObject.name;
+        set => gameObject.name = value;
+    }
+
+    bool IAbstFrameworkNode.Visibility
+    {
+        get => gameObject.activeSelf;
+        set => gameObject.SetActive(value);
+    }
+
+    float IAbstFrameworkNode.Width
+    {
+        get => _width;
+        set => _width = value;
+    }
+
+    float IAbstFrameworkNode.Height
+    {
+        get => _height;
+        set => _height = value;
+    }
+
+    AMargin IAbstFrameworkNode.Margin
+    {
+        get => _margin;
+        set => _margin = value;
+    }
+
+    int IAbstFrameworkNode.ZIndex
+    {
+        get => _zIndex;
+        set => _zIndex = value;
+    }
+
+    object IAbstFrameworkNode.FrameworkNode => gameObject;
 }
 

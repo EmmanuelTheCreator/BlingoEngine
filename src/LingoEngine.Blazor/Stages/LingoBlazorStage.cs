@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 using AbstUI.Bitmaps;
 using AbstUI.Primitives;
 using AbstUI.Components;
+using AbstUI.Components.Containers;
 using LingoEngine.Core;
 using LingoEngine.Movies;
 using LingoEngine.Stages;
@@ -44,6 +46,13 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
     private bool _isTransitioning;
     private AbstBlazorTexture2D? _transitionStart;
 
+    private string _name = "BlazorStage";
+    private bool _visibility = true;
+    private float _width;
+    private float _height;
+    private AMargin _margin = AMargin.Zero;
+    private int _zIndex;
+
     public LingoStage LingoStage => _stage;
 
     public float Scale { get; set; } = 1f;
@@ -56,20 +65,37 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
         _scripts = scripts;
         _root = root;
         _overlay = new LingoDebugOverlay(new LingoBlazorDebugOverlay(root, factory), player);
+        _root.Component.Changed += OnRootComponentChanged;
         _loopTask = Task.Run(RenderLoopAsync);
     }
 
     internal void Init(LingoStage stage)
     {
         _stage = stage;
+        _width = stage.Width;
+        _height = stage.Height;
+        _root.Component.Name = _name;
+        _root.Component.Visibility = _visibility;
+        _root.Component.Margin = _margin;
+        _root.Component.ZIndex = _zIndex;
+        _root.Component.Width = _width;
+        _root.Component.Height = _height;
     }
 
     internal void ShowMovie(LingoBlazorMovie movie)
     {
-        _movies.Add(movie);
+        if (_movies.Add(movie))
+        {
+            _root.Component.AddItem(movie.Panel);
+            movie.UpdateDimensions(_width, _height);
+        }
     }
 
-    internal void HideMovie(LingoBlazorMovie movie) => _movies.Remove(movie);
+    internal void HideMovie(LingoBlazorMovie movie)
+    {
+        if (_movies.Remove(movie))
+            _root.Component.RemoveItem(movie.Panel);
+    }
 
     /// <inheritdoc />
     public void SetActiveMovie(LingoMovie? lingoMovie)
@@ -97,7 +123,7 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
 
     public IAbstTexture2D GetScreenshot()
     {
-        return new NullTexture(_stage.Width, _stage.Height, $"StageShot_{_activeMovie?.CurrentFrame ?? 0}");
+        return new NullTexture((int)_stage.Width, (int)_stage.Height, $"StageShot_{_activeMovie?.CurrentFrame ?? 0}");
     }
 
     public void ShowTransition(IAbstTexture2D startTexture)
@@ -127,11 +153,14 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
     {
         _loopCts.Cancel();
         try { _loopTask.Wait(); } catch { }
-        foreach (var m in _movies)
+        foreach (var m in _movies.ToArray())
             m.Dispose();
         _movies.Clear();
         _transitionStart?.Dispose();
+        _root.Component.Changed -= OnRootComponentChanged;
     }
+
+    private void OnRootComponentChanged() => Changed?.Invoke();
 
     private async Task RenderLoopAsync()
     {
@@ -195,4 +224,88 @@ public class LingoBlazorStage : ILingoFrameworkStage, IDisposable
     }
 
     internal LingoBlazorMovie? ActiveMovie => _activeMovie;
+
+    string IAbstFrameworkNode.Name
+    {
+        get => _name;
+        set
+        {
+            if (_name == value)
+                return;
+            _name = value;
+            _root.Component.Name = value;
+            Changed?.Invoke();
+        }
+    }
+
+    bool IAbstFrameworkNode.Visibility
+    {
+        get => _visibility;
+        set
+        {
+            if (_visibility == value)
+                return;
+            _visibility = value;
+            _root.Component.Visibility = value;
+            Changed?.Invoke();
+        }
+    }
+
+    float IAbstFrameworkNode.Width
+    {
+        get => _width;
+        set
+        {
+            if (Math.Abs(_width - value) <= float.Epsilon)
+                return;
+            _width = value;
+            _root.Component.Width = value;
+            foreach (var movie in _movies)
+                movie.UpdateDimensions(_width, _height);
+            Changed?.Invoke();
+        }
+    }
+
+    float IAbstFrameworkNode.Height
+    {
+        get => _height;
+        set
+        {
+            if (Math.Abs(_height - value) <= float.Epsilon)
+                return;
+            _height = value;
+            _root.Component.Height = value;
+            foreach (var movie in _movies)
+                movie.UpdateDimensions(_width, _height);
+            Changed?.Invoke();
+        }
+    }
+
+    AMargin IAbstFrameworkNode.Margin
+    {
+        get => _margin;
+        set
+        {
+            if (_margin.Equals(value))
+                return;
+            _margin = value;
+            _root.Component.Margin = value;
+            Changed?.Invoke();
+        }
+    }
+
+    int IAbstFrameworkNode.ZIndex
+    {
+        get => _zIndex;
+        set
+        {
+            if (_zIndex == value)
+                return;
+            _zIndex = value;
+            _root.Component.ZIndex = value;
+            Changed?.Invoke();
+        }
+    }
+
+    object IAbstFrameworkNode.FrameworkNode => _root.Component;
 }

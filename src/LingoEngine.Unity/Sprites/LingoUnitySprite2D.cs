@@ -14,6 +14,7 @@ using LingoEngine.Unity.Shapes;
 using LingoEngine.Unity.FilmLoops;
 using LingoEngine.Unity.Medias;
 using UnityEngine;
+using AbstUI.Components;
 
 namespace LingoEngine.Unity.Sprites;
 
@@ -48,6 +49,7 @@ public class LingoUnitySprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteVi
     private int _ink;
     private LingoFilmLoopPlayer? _filmLoopPlayer;
     private VideoPlayer? _videoPlayer;
+    private AMargin _margin = AMargin.Zero;
 
     internal bool IsDirty { get; set; } = true;
     internal bool IsDirtyMember { get; set; } = true;
@@ -101,6 +103,16 @@ public class LingoUnitySprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteVi
     }
 
     public int Ink { get => _ink; set { _ink = value; } }
+
+    public AMargin Margin
+    {
+        get => _margin;
+        set
+        {
+            _margin = value;
+            IsDirty = true;
+        }
+    }
 
     // Constructor
     public LingoUnitySprite2D(LingoSprite2D sprite, Transform parent,
@@ -341,5 +353,41 @@ public class LingoUnitySprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteVi
         if (_videoPlayer != null)
             UnityEngine.Object.Destroy(_videoPlayer.gameObject);
         GameObject.Destroy(_go);
+    }
+
+    object IAbstFrameworkNode.FrameworkNode => _go;
+
+    float IAbstFrameworkNode.Width
+    {
+        get => Width;
+        set
+        {
+            Width = value;
+            DesiredWidth = value;
+            IsDirty = true;
+        }
+    }
+
+    float IAbstFrameworkNode.Height
+    {
+        get => Height;
+        set
+        {
+            Height = value;
+            DesiredHeight = value;
+            IsDirty = true;
+        }
+    }
+
+    AMargin IAbstFrameworkNode.Margin
+    {
+        get => Margin;
+        set => Margin = value;
+    }
+
+    int IAbstFrameworkNode.ZIndex
+    {
+        get => ZIndex;
+        set => ZIndex = value;
     }
 }
