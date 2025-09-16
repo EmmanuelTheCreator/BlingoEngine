@@ -2,6 +2,10 @@
 
 These instructions apply to the entire repository.
 
+## Pre-Start
+- **Do not work on `main`.**  
+  If the current branch is `main`, stop immediately and instruct the user to switch to another branch (e.g. `develop`).
+
 ## Environment
 - The project requires **.NET 8 (LTS)** for Godot and **.NET 9** for Blazor.
 - If the `dotnet` CLI isn’t available, run `./scripts/install-packages-linux.sh`.  
