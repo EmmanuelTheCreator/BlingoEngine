@@ -1,6 +1,9 @@
-﻿using Terminal.Gui.App;
+﻿using System.Linq;
+using System.Xml.Linq;
+using Terminal.Gui.App;
 using Terminal.Gui.Configuration;
 using Terminal.Gui.Drawing;
+using Terminal.Gui.Views;
 
 namespace LingoEngine.Net.RNetTerminal
 {
@@ -54,6 +57,62 @@ namespace LingoEngine.Net.RNetTerminal
             //theme.AddOrUpdate("Window", new ConfigProperty { PropertyValue = });
             // todo : set default colors
 
+        }
+
+        internal static void SetTileViewSchema(TileView element)
+        {
+            var scheme = new Scheme
+            {
+                Normal = new Attribute(Color.White, Color.Blue),
+                Focus = new Attribute(Color.White, Color.Blue),
+                //HotNormal = new Attribute(Color.White, Color.BrightBlue),
+                //HotFocus = new Attribute(Color.White, Color.BrightBlue),
+                //Disabled = new Attribute(Color.DarkGray, Color.Gray),
+            };
+            element.SetScheme(scheme);
+            //foreach (var item in element.SubViews)
+            //{
+            //    item.SetScheme(scheme);
+                
+            //}
+        }
+        internal static void SetMenuSchema(MenuBarv2 menu)
+        {
+            menu.SetScheme(MenuScheme);
+            //foreach (var item in menu.SubViews)
+            //{
+            //    item.SetScheme(MenuScheme);
+            //    foreach (var item2 in item.SubViews)
+            //    {
+            //        item2.SetScheme(MenuScheme);
+            //    }
+            //}
+        }
+
+        internal static void SetStatusBar(Label element)
+        {
+            var scheme = new Scheme
+            {
+                Normal = new Attribute(Color.DarkGray, Color.Black),
+                Focus = new Attribute(Color.DarkGray, Color.Black),
+                //HotNormal = new Attribute(Color.White, Color.BrightBlue),
+                //HotFocus = new Attribute(Color.White, Color.BrightBlue),
+                //Disabled = new Attribute(Color.DarkGray, Color.Gray),
+            };
+            element.SetScheme(scheme);
+        }
+
+        internal static void SetForDialog(Dialog dialog)
+        {
+            var baseScheme = new Scheme
+            {
+                Normal = new Attribute(Color.White, Color.Blue),
+                Focus = new Attribute(Color.White, Color.BrightBlue),
+                //HotNormal = new Attribute(Color.BrightYellow, Color.BrightBlue),
+                //HotFocus = new Attribute(Color.Black, Color.White),
+                //Disabled = new Attribute(Color.Gray, Color.BrightBlue)
+            };
+            dialog.SetScheme(baseScheme);
         }
     }
 }
