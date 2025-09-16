@@ -12,29 +12,7 @@ namespace LingoEngine.Net.RNetProjectHost;
 /// <summary>
 /// Hosts the SignalR server within the RNet process.
 /// </summary>
-public interface IRNetProjectServer
-{
-    /// <summary>Provides access to the publisher used by the game loop.</summary>
-    IRNetPublisherEngineBridge Publisher { get; }
-
-    /// <summary>Gets the current connection state.</summary>
-    LingoNetConnectionState ConnectionState { get; }
-
-    /// <summary>Indicates whether the server is currently running.</summary>
-    bool IsEnabled { get; }
-
-    /// <summary>Raised when the connection state changes.</summary>
-    event Action<LingoNetConnectionState> ConnectionStatusChanged;
-
-    /// <summary>Raised when a command is received from a client.</summary>
-    event Action<IRNetCommand> NetCommandReceived;
-
-    /// <summary>Starts the server without blocking.</summary>
-    Task StartAsync(CancellationToken ct = default);
-
-    /// <summary>Stops the server and disposes all resources.</summary>
-    Task StopAsync();
-}
+public interface IRNetProjectServer : ILingoRNetServer { }
 
 /// <summary>
 /// Default implementation of <see cref="IRNetProjectServer"/>.

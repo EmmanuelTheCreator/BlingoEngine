@@ -5,26 +5,21 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-	  <Configurations>Debug;Release</Configurations>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
   <PropertyGroup>
     <!-- NuGet Packaging Metadata -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageId>LingoEngine.Net.RNetProjectClient</PackageId>
+    <PackageId>LingoEngine.Net.RNetClient.Common</PackageId>
     <Version>1.0.0</Version>
     <Authors>Emmanuel The Creator</Authors>
     <Company>The Community</Company>
-    <Description>Client library for connecting to a LingoEngine RNet project host.</Description>
+    <Description>Common abstractions for LingoEngine RNet clients.</Description>
     <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
-    <PackageTags>LingoEngine RNet Project Client</PackageTags>
+    <PackageTags>LingoEngine RNet Client Common</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.*" />
-    <PackageReference Include="System.Threading.Channels" Version="8.*" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\LingoEngine.Net.RNetClient.Common\LingoEngine.Net.RNetClient.Common.csproj" />
     <ProjectReference Include="..\LingoEngine.Net.RNetContracts\LingoEngine.Net.RNetContracts.csproj" />
   </ItemGroup>
 </Project>
