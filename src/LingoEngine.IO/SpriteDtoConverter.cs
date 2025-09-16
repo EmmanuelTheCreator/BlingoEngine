@@ -57,6 +57,11 @@ internal static class SpriteDtoConverter
             }
         }
 
+        foreach (var behavior in sprite.Behaviors)
+        {
+            dto.Behaviors.Add(behavior.ToDto());
+        }
+
         return dto;
     }
 

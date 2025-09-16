@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using LingoEngine.IO.Data.DTO;
+
 namespace LingoEngine.IO.Data.DTO.Members;
 
 public enum LingoShapeTypeDto
@@ -17,4 +20,6 @@ public class LingoMemberShapeDTO : LingoMemberDTO
     public LingoColorDTO EndColor { get; set; }
     public bool Closed { get; set; }
     public bool Filled { get; set; }
+    public bool AntiAlias { get; set; }
+    public List<LingoPointDTO> VertexList { get; set; } = new();
 }
