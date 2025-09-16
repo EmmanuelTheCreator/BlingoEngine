@@ -99,13 +99,28 @@ internal sealed class PropertyInspector : View
         _spriteTable = tabSpriteTuple.Data;
         _spriteTableView = tabSpriteTuple.View;
         _tabs.AddTab(_spriteTab,true);
-      
+
+        _memberSpecs.AddRange(new[]
+        {
+            new PropertySpec("Name", typeof(string)),
+            new PropertySpec("CastLibNum", typeof(int), true),
+            new PropertySpec("NumberInCast", typeof(int), true),
+            new PropertySpec("Type", typeof(string), true),
+            new PropertySpec("RegPointX", typeof(float), true),
+            new PropertySpec("RegPointY", typeof(float), true),
+            new PropertySpec("Width", typeof(int), true),
+            new PropertySpec("Height", typeof(int), true),
+            new PropertySpec("Size", typeof(int), true),
+            new PropertySpec("Comment", typeof(string)),
+            new PropertySpec("FileName", typeof(string), true),
+            new PropertySpec("PurgePriority", typeof(int), true)
+        });
+
         var tabMemberTuple = CreateTab("Member", _memberSpecs);
         _memberTab = tabMemberTuple.Tab;
         _memberTableView = tabMemberTuple.View;
         _memberTable = tabMemberTuple.Data;
         _tabs.AddTab(_memberTab, true);
-        _memberTableView = CreateTableView(_memberTable);
        
         _bitmapTab = CreateTab("Bitmap", new[]
         {
@@ -363,8 +378,36 @@ internal sealed class PropertyInspector : View
     public void ShowMember(LingoMemberDTO? member)
     {
         _member = member;
-        _memberTable.Rows.Clear();
-        _memberSpecs.Clear();
+        for (var i = 0; i < _memberSpecs.Count; i++)
+        {
+            var spec = _memberSpecs[i];
+            string value;
+            if (member == null)
+            {
+                value = GetDefaultValue(spec.Type);
+            }
+            else
+            {
+                value = spec.Name switch
+                {
+                    "Name" => member.Name ?? string.Empty,
+                    "CastLibNum" => member.CastLibNum.ToString(CultureInfo.InvariantCulture),
+                    "NumberInCast" => member.NumberInCast.ToString(CultureInfo.InvariantCulture),
+                    "Type" => member.Type.ToString(),
+                    "RegPointX" => member.RegPoint.X.ToString(CultureInfo.InvariantCulture),
+                    "RegPointY" => member.RegPoint.Y.ToString(CultureInfo.InvariantCulture),
+                    "Width" => member.Width.ToString(CultureInfo.InvariantCulture),
+                    "Height" => member.Height.ToString(CultureInfo.InvariantCulture),
+                    "Size" => member.Size.ToString(CultureInfo.InvariantCulture),
+                    "Comment" => member.Comments ?? string.Empty,
+                    "FileName" => member.FileName ?? string.Empty,
+                    "PurgePriority" => member.PurgePriority.ToString(CultureInfo.InvariantCulture),
+                    _ => _memberTable.Rows[i][1]?.ToString() ?? GetDefaultValue(spec.Type)
+                };
+            }
+            _memberTable.Rows[i][1] = value;
+        }
+
         if (member == null)
         {
             var tabsEmpty = new List<Tab>();
@@ -376,22 +419,9 @@ internal sealed class PropertyInspector : View
             SetTabs(tabsEmpty.ToArray());
             var target = _tabs.Tabs.FirstOrDefault(t => t.Text.ToString() == _lastTab);
             _tabs.SelectedTab = target ?? (_sprite != null ? _spriteTab : _memberTab);
+            _memberTableView.SetNeedsDraw();
             return;
         }
-
-        AddMember("Name", member.Name, typeof(string));
-        //AddMember("Number", member.Number.ToString(), typeof(int), true);
-        AddMember("CastLibNum", member.CastLibNum.ToString(), typeof(int), true);
-        AddMember("NumberInCast", member.NumberInCast.ToString(), typeof(int), true);
-        AddMember("Type", member.Type.ToString(), typeof(string), true);
-        AddMember("RegPointX", member.RegPoint.X.ToString(), typeof(float), true);
-        AddMember("RegPointY", member.RegPoint.Y.ToString(), typeof(float), true);
-        AddMember("Width", member.Width.ToString(), typeof(int), true);
-        AddMember("Height", member.Height.ToString(), typeof(int), true);
-        AddMember("Size", member.Size.ToString(), typeof(int), true);
-        AddMember("Comment", member.Comments, typeof(string));
-        AddMember("FileName", member.FileName, typeof(string), true);
-        AddMember("PurgePriority", member.PurgePriority.ToString(), typeof(int), true);
 
         _memberTableView.SetNeedsDraw();
 
@@ -433,12 +463,6 @@ internal sealed class PropertyInspector : View
         var desired = _tabs.Tabs.FirstOrDefault(t => t.Text.ToString() == _lastTab);
         _tabs.SelectedTab = desired ?? (_sprite != null ? _spriteTab : _memberTab);
         _tabs.SetNeedsDraw();
-    }
-
-    private void AddMember(string name, string value, Type type, bool readOnly = false)
-    {
-        _memberTable.Rows.Add(name, value);
-        _memberSpecs.Add(new PropertySpec(name, type, readOnly));
     }
 
    
