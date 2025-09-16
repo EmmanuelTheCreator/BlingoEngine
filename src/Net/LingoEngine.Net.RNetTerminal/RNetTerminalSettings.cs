@@ -11,7 +11,7 @@ public sealed class RNetTerminalSettings
     /// <summary>Port to connect to when using a remote host.</summary>
     public int Port { get; set; } = 61699;
 
-    private static string GetPath() => Path.Combine(AppContext.BaseDirectory, "RNetTerminal.settings");
+    private static string GetPath() => Path.Combine(System.AppContext.BaseDirectory, "RNetTerminal.settings");
 
     /// <summary>Load settings from disk or return defaults.</summary>
     public static RNetTerminalSettings Load()

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Data;
 using LingoEngine.IO.Data.DTO;
 using Terminal.Gui.App;
@@ -10,7 +11,7 @@ namespace LingoEngine.Net.RNetTerminal;
 internal sealed class CastView : View
 {
     private TabView _tabs;
-    public event Action<LingoMemberDTO>? MemberSelected;
+    public event System.Action<LingoMemberDTO>? MemberSelected;
 
     public CastView()
     {

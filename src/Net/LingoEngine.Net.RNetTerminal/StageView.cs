@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using LingoEngine.IO.Data.DTO;
-using Terminal.Gui;
+using Terminal.Gui.Drawing;
+using Terminal.Gui.Input;
+using Terminal.Gui.ViewBase;
 
 namespace LingoEngine.Net.RNetTerminal;
 
@@ -10,14 +11,14 @@ internal sealed class StageView : View
 {
     private int _movieWidth;
     private int _movieHeight;
-    private IReadOnlyList<Lingo2DSpriteDTO> _sprites = Array.Empty<Lingo2DSpriteDTO>();
+    private IReadOnlyList<Lingo2DSpriteDTO> _sprites = System.Array.Empty<Lingo2DSpriteDTO>();
     private int _frame;
     private SpriteRef? _selectedSprite;
     private static readonly Color[] _overlapColors =
     {
         Color.DarkGray,
         Color.Gray,
-        Color.Brown,
+        Color.Magenta,
         Color.Magenta,
         Color.BrightCyan,
         Color.BrightYellow,
@@ -26,10 +27,10 @@ internal sealed class StageView : View
     public StageView()
     {
         CanFocus = true;
-        ColorScheme = new ColorScheme
+        SetScheme(new Scheme
         {
-            Normal = Application.Driver.MakeAttribute(Color.White, Color.Black)
-        };
+            Normal = new Attribute(Color.White, Color.Black)
+        });
         var store = TerminalDataStore.Instance;
         _frame = store.GetFrame();
         _selectedSprite = store.GetSelectedSprite();
@@ -62,15 +63,15 @@ internal sealed class StageView : View
 
         SetNeedsDraw();
     }
-
-    public override void Redraw(Rect bounds)
+    protected override bool OnDrawingContent(DrawContext? context)
     {
-        base.Redraw(bounds);
-        BackgroundHelper.ClearWith(bounds, 'a', new Terminal.Gui.Attribute(Color.Red));
+        var bounds = base.Viewport;
+        //return base.OnDrawingContent(context);
+        
         var w = bounds.Width;
         var h = bounds.Height;
-        Driver.SetAttribute(ColorScheme.Normal);
-        //Driver.SetAttribute(new Terminal.Gui.Attribute(Color.Green));
+        //Driver.SetAttribute(ColorScheme.Normal);
+        SetAttribute(new Attribute(Color.Green));
         
 
         for (var y = 0; y < h; y++)
@@ -78,7 +79,7 @@ internal sealed class StageView : View
             Move(0, y);
             for (var x = 0; x < w; x++)
             {
-                Driver.AddRune(' ');
+                AddRune(' ');
             }
         }
         
@@ -107,7 +108,7 @@ internal sealed class StageView : View
             if (member.Type == LingoMemberTypeDTO.Text)
             {
                 var text = member.Name;
-                var count = Math.Min(sw, text.Length);
+                var count = System.Math.Min(sw, text.Length);
                 for (var i = 0; i < count; i++)
                 {
                     var sx = x + i;
@@ -120,7 +121,7 @@ internal sealed class StageView : View
                     chars[sx, sy] = text[i];
                     var bg = _selectedSprite.HasValue && sprite.SpriteNum == _selectedSprite.Value.SpriteNum && sprite.BeginFrame == _selectedSprite.Value.BeginFrame
                         ? Color.Blue
-                        : _overlapColors[Math.Min(counts[sx, sy] - 1, _overlapColors.Length - 1)];
+                        : _overlapColors[System.Math.Min(counts[sx, sy] - 1, _overlapColors.Length - 1)];
                     colors[sx, sy] = bg;
                 }
             }
@@ -141,7 +142,7 @@ internal sealed class StageView : View
                         chars[sx, sy] = ch;
                         var bg = _selectedSprite.HasValue && sprite.SpriteNum == _selectedSprite.Value.SpriteNum && sprite.BeginFrame == _selectedSprite.Value.BeginFrame
                             ? Color.Blue
-                            : _overlapColors[Math.Min(counts[sx, sy] - 1, _overlapColors.Length - 1)];
+                            : _overlapColors[System.Math.Min(counts[sx, sy] - 1, _overlapColors.Length - 1)];
                         colors[sx, sy] = bg;
                     }
                 }
@@ -154,18 +155,19 @@ internal sealed class StageView : View
             for (var x = 0; x < w; x++)
             {
                 var col = colors[x, y];
-                Driver.SetAttribute(Application.Driver.MakeAttribute(Color.Black, col));
-                Driver.AddRune(chars[x, y] == '\0' ? ' ' : chars[x, y]);
+                SetAttribute(new Attribute(Color.Black, col));
+                AddRune(chars[x, y] == '\0' ? ' ' : chars[x, y]);
             }
         }
+        return true;
     }
-
-    public override bool MouseEvent(MouseEvent me)
+    protected override bool OnMouseEvent(MouseEventArgs me)
     {
+        var bounds = base.Viewport;
         if (me.Flags.HasFlag(MouseFlags.Button1Clicked))
         {
-            var w = Bounds.Width;
-            var h = Bounds.Height;
+            var w = bounds.Width;
+            var h = bounds.Height;
             foreach (var sprite in _sprites
                          .Where(s => s.BeginFrame <= _frame && _frame <= s.EndFrame)
                          .OrderByDescending(s => s.LocZ))
@@ -179,7 +181,7 @@ internal sealed class StageView : View
                     sw = 1;
                     sh = 1;
                 }
-                if (me.X >= x && me.X < x + sw && me.Y >= y && me.Y < y + sh)
+                if (me.ScreenPosition.X >= x && me.ScreenPosition.X < x + sw && me.ScreenPosition.Y >= y && me.ScreenPosition.Y < y + sh)
                 {
                     var sel = new SpriteRef(sprite.SpriteNum, sprite.BeginFrame);
                     TerminalDataStore.Instance.SelectSprite(sel);
@@ -189,6 +191,6 @@ internal sealed class StageView : View
             }
             return true;
         }
-        return base.MouseEvent(me);
+        return base.OnMouseEvent(me);
     }
 }

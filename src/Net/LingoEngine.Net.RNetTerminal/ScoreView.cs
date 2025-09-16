@@ -1,13 +1,18 @@
-﻿using System;
+﻿using LingoEngine.IO.Data.DTO;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
-using LingoEngine.IO.Data.DTO;
 using Terminal.Gui;
+using Terminal.Gui.App;
+using Terminal.Gui.Drawing;
+using Terminal.Gui.Input;
+using Terminal.Gui.ViewBase;
+using Terminal.Gui.Views;
 
 namespace LingoEngine.Net.RNetTerminal;
 
-internal sealed class ScoreView : ScrollView
+internal sealed class ScoreView : View
 {
    
     private int FrameCount => TerminalDataStore.Instance.FrameCount;
@@ -48,7 +53,11 @@ internal sealed class ScoreView : ScrollView
     private int _dragOriginalStart;
     private int _dragLength;
 
-
+    public Rectangle Bounds => Viewport;
+    public System.Drawing.Point ContentOffset {
+        get => new Point(HorizontalScrollBar.Position, VerticalScrollBar.Position);
+        set => (HorizontalScrollBar.Position, VerticalScrollBar.Position) = (value.X, value.Y);
+    }
     private int TotalChannels => TerminalDataStore.Instance.SpriteChannelCount + SpecialChannels.Length;
 
     public ScoreView()
@@ -57,17 +66,18 @@ internal sealed class ScoreView : ScrollView
         _specialChannelSprites = Enumerable.Range(0, SpecialChannels.Length)
             .Select(_ => new List<SpecialSpriteBlock>())
             .ToArray();
-        _labelWidth = Math.Max(SpecialChannels.Max(s => s.Length), TerminalDataStore.Instance.SpriteChannelCount.ToString().Length) + 1;
+        _labelWidth = System.Math.Max(SpecialChannels.Max(s => s.Length), TerminalDataStore.Instance.SpriteChannelCount.ToString().Length) + 1;
         CanFocus = true;
         WantMousePositionReports = true;
-        ColorScheme = new ColorScheme
+        SetScheme(new Scheme
         {
-            Normal = Application.Driver.MakeAttribute(Color.White, Color.DarkGray)
-        };
-        ContentSize = new Size(FrameCount + _labelWidth, TotalChannels + 1);
-        ShowVerticalScrollIndicator = true;
-        ShowHorizontalScrollIndicator = true;
-        AutoHideScrollBars = false;
+            Normal = new Attribute(ColorName16.White, ColorName16.DarkGray)
+        });
+        //ContentSize = new Size(FrameCount + _labelWidth, TotalChannels + 1);
+        Width = FrameCount + _labelWidth;
+        Height = TotalChannels + 1;
+        HorizontalScrollBar.Visible = true;
+        VerticalScrollBar.Visible = true;
         var store = TerminalDataStore.Instance;
         _selectedSprite = store.GetSelectedSprite();
         store.SelectedSpriteChanged += s =>
@@ -82,7 +92,7 @@ internal sealed class ScoreView : ScrollView
         ReloadData();
     }
 
-    public event Action<int, int, SpriteRef?, MemberRef?>? InfoChanged;
+    public event System.Action<int, int, SpriteRef?, MemberRef?>? InfoChanged;
 
     public void RequestRedraw() => SetNeedsDraw();
     public void ReloadData()
@@ -99,7 +109,7 @@ internal sealed class ScoreView : ScrollView
 
         foreach (var tempo in store.GetTempoSprites())
         {
-            AddSpecialSprite(0, tempo.BeginFrame, tempo.EndFrame, FormatTempoLabel(tempo), Color.BrightYellow);
+            AddSpecialSprite(0, tempo.BeginFrame, tempo.EndFrame, FormatTempoLabel(tempo), ColorName16.BrightYellow);
         }
 
         foreach (var transition in store.GetTransitionSprites())
@@ -107,7 +117,7 @@ internal sealed class ScoreView : ScrollView
             var label = string.IsNullOrWhiteSpace(transition.Name)
                 ? transition.Settings?.TransitionName ?? "Transition"
                 : transition.Name;
-            AddSpecialSprite(1, transition.BeginFrame, transition.EndFrame, label ?? string.Empty, Color.Magenta);
+            AddSpecialSprite(1, transition.BeginFrame, transition.EndFrame, label ?? string.Empty, ColorName16.Magenta);
         }
 
         foreach (var palette in store.GetColorPaletteSprites())
@@ -115,7 +125,7 @@ internal sealed class ScoreView : ScrollView
             var label = string.IsNullOrWhiteSpace(palette.Name)
                 ? "Palette"
                 : palette.Name;
-            AddSpecialSprite(2, palette.BeginFrame, palette.EndFrame, label, Color.BrightCyan);
+            AddSpecialSprite(2, palette.BeginFrame, palette.EndFrame, label, ColorName16.BrightCyan);
         }
 
         foreach (var sound in store.GetSoundSprites())
@@ -135,10 +145,11 @@ internal sealed class ScoreView : ScrollView
             var label = sound.Member != null
                 ? store.FindMember(sound.Member.CastLibNum, sound.Member.MemberNum)?.Name ?? sound.Name
                 : sound.Name;
-            AddSpecialSprite(idx, sound.BeginFrame, sound.EndFrame, label ?? string.Empty, Color.Green);
+            AddSpecialSprite(idx, sound.BeginFrame, sound.EndFrame, label ?? string.Empty, ColorName16.Green);
         }
-        ContentSize = new Size(FrameCount + _labelWidth, TotalChannels + 1);
-
+        //ContentSize = new Size(FrameCount + _labelWidth, TotalChannels + 1);
+        Width = FrameCount + _labelWidth;
+        Height = TotalChannels + 1;
         SetNeedsDraw();
     }
 
@@ -154,7 +165,7 @@ internal sealed class ScoreView : ScrollView
         };
     }
 
-    private void AddSpecialSprite(int channelIndex, int beginFrame, int endFrame, string label, Color background)
+    private void AddSpecialSprite(int channelIndex, int beginFrame, int endFrame, string label, ColorName16 background)
     {
         if (channelIndex < 0 || channelIndex >= _specialChannelSprites.Length)
         {
@@ -171,21 +182,19 @@ internal sealed class ScoreView : ScrollView
         {
             finish = start;
         }
-        start = Math.Clamp(start, 1, FrameCount > 0 ? FrameCount : start);
-        finish = Math.Clamp(finish, start, FrameCount > 0 ? FrameCount : finish);
+        start = System.Math.Clamp(start, 1, FrameCount > 0 ? FrameCount : start);
+        finish = System.Math.Clamp(finish, start, FrameCount > 0 ? FrameCount : finish);
 
         _specialChannelSprites[channelIndex].Add(new SpecialSpriteBlock(start, finish, label, background));
     }
-
-    public override bool ProcessKey(KeyEvent keyEvent)
+    protected override bool OnKeyDown(Key key)
     {
         try
         {
             var step = 1;
-            var key = keyEvent.Key;
-            var ctrl = (key & Key.CtrlMask) != 0;
-            var shift = (key & Key.ShiftMask) != 0;
-            var keyNoMods = key & ~Key.CtrlMask & ~Key.ShiftMask & ~Key.AltMask;
+            var ctrl = key.IsCtrl;
+            var shift = key.IsShift;
+            var keyNoMods = ctrl == false && shift == false;
             if (ctrl && shift)
             {
                 step = 20;
@@ -194,43 +203,43 @@ internal sealed class ScoreView : ScrollView
             {
                 step = 10;
             }
-
-            switch (keyNoMods)
+            switch (key.KeyCode)
             {
-                case Key.CursorUp:
+                case Terminal.Gui.Drivers.KeyCode.CursorUp:
                     MoveCursor(0, -step);
                     return true;
-                case Key.CursorDown:
+                case Terminal.Gui.Drivers.KeyCode.CursorDown:
                     MoveCursor(0, step);
                     return true;
-                case Key.CursorLeft:
+                case Terminal.Gui.Drivers.KeyCode.CursorLeft:
                     MoveCursor(-step, 0);
                     return true;
-                case Key.CursorRight:
+                case Terminal.Gui.Drivers.KeyCode.CursorRight:
                     MoveCursor(step, 0);
                     return true;
-                case Key.Enter:
+                case Terminal.Gui.Drivers.KeyCode.Enter:
                     ShowActionMenu();
                     return true;
             }
-            return base.ProcessKey(keyEvent);
+            return base.OnKeyDown(key);
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
-            Console.Error.WriteLine($"ProcessKey error: {ex}");
+            System.Console.Error.WriteLine($"ProcessKey error: {ex}");
             return false;
         }
     }
 
-    public override bool MouseEvent(MouseEvent me)
+    protected override bool OnMouseEvent(MouseEventArgs me)
     {
         try
         {
-            var scrollBarWidth = ShowVerticalScrollIndicator ? 1 : 0;
-            var scrollBarHeight = ShowHorizontalScrollIndicator ? 1 : 0;
+            var Bounds = Viewport;
+            var scrollBarWidth = VerticalScrollBar.Visible ? 1 : 0;
+            var scrollBarHeight = VerticalScrollBar.Visible ? 1 : 0;
             var contentW = Bounds.Width - scrollBarWidth;
             var contentH = Bounds.Height - scrollBarHeight;
-            var inContent = me.X < contentW && me.Y < contentH;
+            var inContent = me.Position.X < contentW && me.Position.Y < contentH;
             var offset = GetOffset();
             var frame = -1;
             var channel = -1;
@@ -238,8 +247,8 @@ internal sealed class ScoreView : ScrollView
 
             if (inContent)
             {
-                frame = offset.X + me.X - _labelWidth;
-                channel = offset.Y + me.Y - 1;
+                frame = offset.X + me.Position.X - _labelWidth;
+                channel = offset.Y + me.Position.Y - 1;
                 if (frame >= 0 && frame < FrameCount && channel >= 0 && channel < TotalChannels)
                 {
                     sprite = FindSprite(channel + 1, frame + 1);
@@ -352,28 +361,29 @@ internal sealed class ScoreView : ScrollView
                 SetNeedsDraw();
                 return true;
             }
-            var handled = base.MouseEvent(me);
+            var handled = base.OnMouseEvent(me);
             ClampContentOffset();
             SetNeedsDraw();
             return handled;
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
-            Console.Error.WriteLine($"MouseEvent error: {ex}");
+            System.Console.Error.WriteLine($"MouseEvent error: {ex}");
             return false;
         }
     }
-
-    private void ClampContentOffset(ref Point offset)
+    
+    private void ClampContentOffset(ref System.Drawing.Point offset)
     {
-        var scrollBarWidth = ShowVerticalScrollIndicator ? 1 : 0;
-        var scrollBarHeight = ShowHorizontalScrollIndicator ? 1 : 0;
-        var visibleFrames = Math.Max(0, Bounds.Width - _labelWidth - scrollBarWidth);
-        var visibleChannels = Math.Max(0, Bounds.Height - 1 - scrollBarHeight);
-        var maxX = Math.Max(0, FrameCount - visibleFrames);
-        var maxY = Math.Max(0, TotalChannels - visibleChannels);
-        offset.X = Math.Clamp(offset.X, 0, maxX);
-        offset.Y = Math.Clamp(offset.Y, 0, maxY);
+       
+        var scrollBarWidth = VerticalScrollBar.Visible ? 1 : 0;
+        var scrollBarHeight = VerticalScrollBar.Visible ? 1 : 0;
+        var visibleFrames = System.Math.Max(0, Bounds.Width - _labelWidth - scrollBarWidth);
+        var visibleChannels = System.Math.Max(0, Bounds.Height - 1 - scrollBarHeight);
+        var maxX = System.Math.Max(0, FrameCount - visibleFrames);
+        var maxY = System.Math.Max(0, TotalChannels - visibleChannels);
+        offset.X = System.Math.Clamp(offset.X, 0, maxX);
+        offset.Y = System.Math.Clamp(offset.Y, 0, maxY);
     }
 
     private void ClampContentOffset()
@@ -383,14 +393,14 @@ internal sealed class ScoreView : ScrollView
         SetOffset(offset);
     }
 
-    private Point GetOffset() => new(-ContentOffset.X, -ContentOffset.Y);
+    private System.Drawing.Point GetOffset() => new(-ContentOffset.X, -ContentOffset.Y);
 
-    private void SetOffset(Point offset) => ContentOffset = new Point(-offset.X, -offset.Y);
+    private void SetOffset(System.Drawing.Point offset) => ContentOffset = new System.Drawing.Point(-offset.X, -offset.Y);
 
     private void MoveCursor(int dx, int dy)
     {
-        _cursorFrame = Math.Clamp(_cursorFrame + dx, 0, FrameCount - 1);
-        _cursorChannel = Math.Clamp(_cursorChannel + dy, 0, TotalChannels - 1);
+        _cursorFrame = System.Math.Clamp(_cursorFrame + dx, 0, FrameCount - 1);
+        _cursorChannel = System.Math.Clamp(_cursorChannel + dy, 0, TotalChannels - 1);
         var sprite = FindSprite(_cursorChannel + 1, _cursorFrame + 1);
         EnsureVisible();
         SetNeedsDraw();
@@ -404,10 +414,10 @@ internal sealed class ScoreView : ScrollView
 
     private void EnsureVisible()
     {
-        var scrollBarWidth = ShowVerticalScrollIndicator ? 1 : 0;
-        var scrollBarHeight = ShowHorizontalScrollIndicator ? 1 : 0;
-        var visibleFrames = Math.Max(0, Bounds.Width - _labelWidth - scrollBarWidth);
-        var visibleChannels = Math.Max(0, Bounds.Height - 1 - scrollBarHeight);
+        var scrollBarWidth = VerticalScrollBar.Visible ? 1 : 0;
+        var scrollBarHeight = VerticalScrollBar.Visible ? 1 : 0;
+        var visibleFrames = System.Math.Max(0, Bounds.Width - _labelWidth - scrollBarWidth);
+        var visibleChannels = System.Math.Max(0, Bounds.Height - 1 - scrollBarHeight);
         var offset = GetOffset();
         if (_cursorFrame < offset.X)
         {
@@ -429,35 +439,38 @@ internal sealed class ScoreView : ScrollView
         SetOffset(offset);
     }
 
-    public override void Redraw(Rect bounds)
+    //public override void Redraw(Rect bounds)
+    protected override bool OnDrawingContent(DrawContext? context)
     {
+        
         ClampContentOffset();
-        base.Redraw(bounds);
+        //base.Redraw(bounds);
+        var bounds = Viewport;
         //BackgroundHelper.ClearWith(bounds, 'a', new Terminal.Gui.Attribute(Color.Red));
-        var scrollBarWidth = ShowVerticalScrollIndicator ? 1 : 0;
-        var scrollBarHeight = ShowHorizontalScrollIndicator ? 1 : 0;
+        var scrollBarWidth = VerticalScrollBar.Visible ? 1 : 0;
+        var scrollBarHeight = VerticalScrollBar.Visible ? 1 : 0;
         var w = Bounds.Width - scrollBarWidth;
         var h = Bounds.Height - scrollBarHeight;
-        //Driver.SetAttribute(new Terminal.Gui.Attribute(Color.Black,Color.White));
-        Driver.SetAttribute(ColorScheme.Normal);
+        //SetAttribute(new Terminal.Gui.Attribute(Color.Black,Color.White));
+        SetColorsSchemaNormal();
         var y = 0;
         // Draw top bar
         Move(0, y);
         for (var x = 0; x < w; x++)
-            Driver.AddRune(' ');
+            AddRune(' ');
         // Draw background
-        Driver.SetAttribute(new Terminal.Gui.Attribute(Color.DarkGray, Color.Black));
+        SetAttribute(new Attribute(ColorName16.DarkGray, ColorName16.Black));
         for (y = 1; y < h; y++)
         {
             Move(0, y);
             for (var x = 0; x < w; x++)
-                Driver.AddRune(RNetTerminalStyle.CharLight);
+                AddRune(RNetTerminalStyle.CharLight);
         }
 
 
-        Driver.SetAttribute(ColorScheme.Normal);
-        var visibleFrames = Math.Max(0, w - _labelWidth);
-        var visibleChannels = Math.Max(0, h - 1);
+        SetColorsSchemaNormal();
+        var visibleFrames = System.Math.Max(0, w - _labelWidth);
+        var visibleChannels = System.Math.Max(0, h - 1);
         var posOffset = GetOffset();
         var offsetX = posOffset.X;
         var offsetY = posOffset.Y;
@@ -477,7 +490,7 @@ internal sealed class ScoreView : ScrollView
                 label = chNum.ToString();
             }
             label = label.PadLeft(_labelWidth - 1);
-            Driver.AddStr(label + "|");
+            AddStr(label + "|");
         }
 
         for (var f = 0; f < visibleFrames && offsetX + f < FrameCount; f++)
@@ -490,7 +503,7 @@ internal sealed class ScoreView : ScrollView
                 if (pos >= _labelWidth)
                 {
                     Move(pos, 0);
-                    Driver.AddStr(label);
+                    AddStr(label);
                 }
             }
         }
@@ -504,10 +517,10 @@ internal sealed class ScoreView : ScrollView
             var pos = _labelWidth + _playFrame - offsetX - label.Length + 1;
             if (pos >= _labelWidth)
             {
-                Driver.SetAttribute(Application.Driver.MakeAttribute(Color.BrightRed, Color.BrightBlue));
+                SetAttribute(new Attribute(ColorName16.BrightRed, ColorName16.BrightBlue));
                 Move(pos, 0);
-                Driver.AddStr(label);
-                Driver.SetAttribute(ColorScheme.Normal);
+                AddStr(label);
+                SetColorsSchemaNormal();
             }
         }
 
@@ -518,34 +531,34 @@ internal sealed class ScoreView : ScrollView
             {
                 continue;
             }
-            var start = Math.Max(sprite.Start - 1, offsetX);
-            var end = Math.Min(sprite.End - 1, offsetX + visibleFrames - 1);
+            var start = System.Math.Max(sprite.Start - 1, offsetX);
+            var end = System.Math.Min(sprite.End - 1, offsetX + visibleFrames - 1);
             if (end < offsetX || start > offsetX + visibleFrames - 1)
             {
                 continue;
             }
             y = channelIdx - offsetY + 1;
-            var bg = _selectedSprite.HasValue && sprite.Number == _selectedSprite.Value.SpriteNum && sprite.Start == _selectedSprite.Value.BeginFrame ? Color.Blue : Color.BrightBlue;
-            Driver.SetAttribute(Application.Driver.MakeAttribute(Color.White, bg));
+            var bg = _selectedSprite.HasValue && sprite.Number == _selectedSprite.Value.SpriteNum && sprite.Start == _selectedSprite.Value.BeginFrame ? ColorName16.Blue : ColorName16.BrightBlue;
+            SetAttribute(new Attribute(ColorName16.White, bg));
             for (var f = start; f <= end; f++)
             {
                 Move(_labelWidth + f - offsetX, y);
-                Driver.AddRune(' ');
+                AddRune(' ');
             }
             var member = TerminalDataStore.Instance.FindMember(sprite.CastLib, sprite.MemberNum);
             if (member != null && member.Type == LingoMemberTypeDTO.Text)
             {
-                var maxChars = Math.Max(1, (int)(sprite.Width / _stageWidth * (end - start + 1)));
+                var maxChars = System.Math.Max(1, (int)(sprite.Width / _stageWidth * (end - start + 1)));
                 var text = member.Name;
-                var len = Math.Min(text.Length, Math.Min(maxChars, end - start + 1));
-                Driver.SetAttribute(Application.Driver.MakeAttribute(Color.Black, bg));
+                var len = System.Math.Min(text.Length, System.Math.Min(maxChars, end - start + 1));
+                SetAttribute(new Attribute(ColorName16.Black, bg));
                 for (var i = 0; i < len; i++)
                 {
                     Move(_labelWidth + start + i - offsetX, y);
-                    Driver.AddRune(text[i]);
+                    AddRune(text[i]);
                 }
             }
-            Driver.SetAttribute(Application.Driver.MakeAttribute(Color.Black, bg));
+            SetAttribute(new Attribute(ColorName16.Black, bg));
             foreach (var kf in sprite.Keyframes.Keys)
             {
                 var idx = kf - 1;
@@ -554,25 +567,31 @@ internal sealed class ScoreView : ScrollView
                     continue;
                 }
                 Move(_labelWidth + idx - offsetX, y);
-                Driver.AddRune('o');
+                AddRune('o');
             }
-            Driver.SetAttribute(ColorScheme.Normal);
+            SetColorsSchemaNormal();
         }
 
         var cursorX = _labelWidth + _cursorFrame - offsetX;
         var cursorY = _cursorChannel - offsetY + 1;
         if (cursorX >= _labelWidth && cursorX < w && cursorY >= 1 && cursorY < h)
         {
-            Driver.SetAttribute(Application.Driver.MakeAttribute(Color.Black, Color.Green));
+            SetAttribute(new Attribute(ColorName16.Black, ColorName16.Green));
             Move(cursorX, cursorY);
-            Driver.AddRune(' ');
-            Driver.SetAttribute(ColorScheme.Normal);
+            AddRune(' ');
+            SetColorsSchemaNormal();
         }
+        return base.OnDrawingContent(context);
+    }
+    private void SetColorsSchemaNormal()
+    {
+        //SetAttribute(ColorScheme.Normal);
+        SetScheme(RNetTerminalStyle.DefaultScheme);
     }
 
     public void SetPlayFrame(int frame)
     {
-        _playFrame = Math.Clamp(frame, 0, FrameCount - 1);
+        _playFrame = System.Math.Clamp(frame, 0, FrameCount - 1);
         SetNeedsDraw();
     }
 
@@ -603,14 +622,15 @@ internal sealed class ScoreView : ScrollView
             items = menuItems.ToArray();
         }
 
-        var list = new ListView(items)
+        var list = new ListView()
         {
             Width = Dim.Fill(),
             Height = Dim.Fill()
         };
-        var dialog = new Dialog("Score", 30, items.Length + 4);
+        list.SetSource(new System.Collections.ObjectModel.ObservableCollection<string>(items));
+        var dialog = RUI.NewDialog("Score", 30, items.Length + 4);
         dialog.Add(list);
-        list.OpenSelectedItem += args =>
+        list.OpenSelectedItem += (_,args) =>
         {
             var choice = items[args.Item];
             Application.RequestStop();
@@ -707,14 +727,13 @@ internal sealed class ScoreView : ScrollView
 
     private void CreateSpriteDialog()
     {
-        var begin = new TextField("1") { X = 14, Y = 1, Width = 10 };
-        var end = new TextField("1") { X = 14, Y = 3, Width = 10 };
-        var locH = new TextField("0") { X = 14, Y = 5, Width = 10 };
-        var locV = new TextField("0") { X = 14, Y = 7, Width = 10 };
-        var castLib = new TextField("1") { X = 14, Y = 9, Width = 10 };
-        var memberNum = new TextField("1") { X = 14, Y = 11, Width = 10 };
-        var ok = new Button("Ok", true);
-        ok.Clicked += () =>
+        var begin = new TextField{ Text = "1", X = 14, Y = 1, Width = 10 };
+        var end = new TextField{ Text = "1", X = 14, Y = 3, Width = 10 };
+        var locH = new TextField{ Text = "0", X = 14, Y = 5, Width = 10 };
+        var locV = new TextField{ Text = "0", X = 14, Y = 7, Width = 10 };
+        var castLib = new TextField{ Text = "1", X = 14, Y = 9, Width = 10 };
+        var memberNum = new TextField{ Text = "1", X = 14, Y = 11, Width = 10 };
+        var ok = RUI.NewButton("Ok", true,() =>
         {
             if (int.TryParse(begin.Text.ToString(), out var b) &&
                 int.TryParse(end.Text.ToString(), out var e) &&
@@ -730,15 +749,15 @@ internal sealed class ScoreView : ScrollView
                 NotifyInfoChanged();
             }
             Application.RequestStop();
-        };
-        var dialog = new Dialog("Create Sprite", 40, 17, ok);
+        });
+        var dialog = RUI.NewDialog("Create Sprite", 40, 17, ok);
         dialog.Add(
-            new Label("Begin:") { X = 1, Y = 1 }, begin,
-            new Label("End:") { X = 1, Y = 3 }, end,
-            new Label("LocH:") { X = 1, Y = 5 }, locH,
-            new Label("LocV:") { X = 1, Y = 7 }, locV,
-            new Label("CastLibNum:") { X = 1, Y = 9 }, castLib,
-            new Label("MemberNum:") { X = 1, Y = 11 }, memberNum);
+            new Label{ Text = "Begin:", X = 1, Y = 1 }, begin,
+            new Label{ Text = "End:", X = 1, Y = 3 }, end,
+            new Label{ Text = "LocH:", X = 1, Y = 5 }, locH,
+            new Label{ Text = "LocV:", X = 1, Y = 7 }, locV,
+            new Label{ Text = "CastLibNum:", X = 1, Y = 9 }, castLib,
+            new Label{ Text = "MemberNum:", X = 1, Y = 11 }, memberNum);
         begin.SetFocus();
         Application.Run(dialog);
     }
@@ -746,18 +765,17 @@ internal sealed class ScoreView : ScrollView
     private int? PromptForInt(string title, string prompt)
     {
         int? result = null;
-        var field = new TextField("0") { X = 12, Y = 1, Width = 10 };
-        var ok = new Button("Ok", true);
-        ok.Clicked += () =>
+        var field = new TextField(){Text = "0", X = 12, Y = 1, Width = 10 };
+        var ok = RUI.NewButton("Ok", true,() =>
         {
             if (int.TryParse(field.Text.ToString(), out var v))
             {
                 result = v;
             }
             Application.RequestStop();
-        };
-        var dialog = new Dialog(title, 30, 7, ok);
-        dialog.Add(new Label(prompt) { X = 1, Y = 1 }, field);
+        });
+        var dialog = RUI.NewDialog(title, 30, 7, ok);
+        dialog.Add(new Label{ Text = prompt, X = 1, Y = 1 }, field);
         field.SetFocus();
         Application.Run(dialog);
         return result;
@@ -774,44 +792,45 @@ internal sealed class ScoreView : ScrollView
         for (var i = 0; i < TweenProperties.Length; i++)
         {
             var name = TweenProperties[i];
-            var cb = new CheckBox(name) { X = 1, Y = i + 1, Checked = props.ContainsKey(name) };
-            var field = new TextField(props.TryGetValue(name, out var val) ? val.ToString(CultureInfo.InvariantCulture) : "0")
+            var cb = new CheckBox() { Text = name, X = 1, Y = i + 1, CheckedState = props.ContainsKey(name).ToCheckedSTate() };
+            var field = new TextField()
             {
+                Text = props.TryGetValue(name, out var val) ? val.ToString(CultureInfo.InvariantCulture) : "0",
                 X = 15,
                 Y = i + 1,
                 Width = 10,
-                Visible = cb.Checked
+                Visible = cb.CheckedState.ToBool()
             };
-            cb.Toggled += _ =>
+            
+            cb.CheckedStateChanged += (_,_) =>
             {
-                field.Visible = cb.Checked;
-                if (cb.Checked)
+                field.Visible = cb.CheckedState.ToBool();
+                if (cb.CheckedState.ToBool())
                 {
                     field.SetFocus();
                 }
             };
             rows.Add((cb, field, name));
         }
-        var ok = new Button("Ok", true);
-        ok.Clicked += () =>
+        var ok = RUI.NewButton("Ok", true,() =>
         {
             var result = new Dictionary<string, double>();
             foreach (var (cb, field, name) in rows)
             {
-                if (cb.Checked && double.TryParse(field.Text.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var val))
+                if (cb.CheckedState.ToBool() && double.TryParse(field.Text.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var val))
                 {
                     result[name] = val;
                 }
             }
             sprite.Keyframes[frame] = result;
             Application.RequestStop();
-        };
-        var dialog = new Dialog("Keyframe", 40, TweenProperties.Length + 4, ok);
+        });
+        var dialog = RUI.NewDialog("Keyframe", 40, TweenProperties.Length + 4, ok);
         foreach (var (cb, field, _) in rows)
         {
             dialog.Add(cb, field);
         }
-        dialog.Add(new Label("Use Space to toggle") { X = 1, Y = TweenProperties.Length + 1 });
+        dialog.Add(RUI.NewLabel("Use Space to toggle",1, TweenProperties.Length + 1 ));
         rows[0].cb.SetFocus();
         Application.Run(dialog);
     }
@@ -821,7 +840,7 @@ internal sealed class ScoreView : ScrollView
         _dragCandidate = sprite;
         _dragSprite = sprite;
         _dragOriginalStart = sprite.Start;
-        _dragLength = Math.Max(0, sprite.End - sprite.Start);
+        _dragLength = System.Math.Max(0, sprite.End - sprite.Start);
         _dragOffset = frame + 1 - sprite.Start;
         if (_dragOffset < 0)
         {
@@ -841,18 +860,18 @@ internal sealed class ScoreView : ScrollView
             _isDragging = true;
         }
 
-        var maxStart = Math.Max(1, FrameCount - _dragLength);
-        var newStart = Math.Clamp(frame + 1 - _dragOffset, 1, maxStart);
+        var maxStart = System.Math.Max(1, FrameCount - _dragLength);
+        var newStart = System.Math.Clamp(frame + 1 - _dragOffset, 1, maxStart);
         var newEnd = newStart + _dragLength;
         if (newEnd > FrameCount)
         {
             newEnd = FrameCount;
-            newStart = Math.Max(1, newEnd - _dragLength);
+            newStart = System.Math.Max(1, newEnd - _dragLength);
         }
 
         _dragSprite.Start = newStart;
         _dragSprite.End = newEnd;
-        _cursorFrame = Math.Clamp(newStart - 1, 0, FrameCount - 1);
+        _cursorFrame = System.Math.Clamp(newStart - 1, 0, FrameCount - 1);
         _cursorChannel = _dragSprite.Channel - 1 + SpecialChannels.Length;
         EnsureVisible();
         SetNeedsDraw();
@@ -892,31 +911,31 @@ internal sealed class ScoreView : ScrollView
             var y = channelIndex - offsetY + 1;
             foreach (var block in _specialChannelSprites[channelIndex])
             {
-                var start = Math.Max(block.Start - 1, offsetX);
-                var end = Math.Min(block.End - 1, offsetX + visibleFrames - 1);
+                var start = System.Math.Max(block.Start - 1, offsetX);
+                var end = System.Math.Min(block.End - 1, offsetX + visibleFrames - 1);
                 if (end < offsetX || start > offsetX + visibleFrames - 1)
                 {
                     continue;
                 }
 
-                var attr = Application.Driver.MakeAttribute(Color.Black, block.Background);
-                Driver.SetAttribute(attr);
+                var attr = new Attribute(ColorName16.Black, block.Background);
+                SetAttribute(attr);
                 for (var frame = start; frame <= end; frame++)
                 {
                     Move(_labelWidth + frame - offsetX, y);
-                    Driver.AddRune(' ');
+                    AddRune(' ');
                 }
 
                 var label = block.Label ?? string.Empty;
-                var maxLen = Math.Max(0, end - start + 1);
-                var len = Math.Min(label.Length, maxLen);
+                var maxLen = System.Math.Max(0, end - start + 1);
+                var len = System.Math.Min(label.Length, maxLen);
                 for (var i = 0; i < len; i++)
                 {
                     Move(_labelWidth + start + i - offsetX, y);
-                    Driver.AddRune(label[i]);
+                    AddRune(label[i]);
                 }
 
-                Driver.SetAttribute(ColorScheme.Normal);
+                SetColorsSchemaNormal();
             }
         }
     }
@@ -962,16 +981,16 @@ internal sealed class ScoreView : ScrollView
 
     public void TriggerInfo() => NotifyInfoChanged();
 
-    public event Action<int>? PlayFromHere;
+    public event System.Action<int>? PlayFromHere;
 
     private sealed class SpecialSpriteBlock
     {
         public int Start { get; }
         public int End { get; }
         public string Label { get; }
-        public Color Background { get; }
+        public ColorName16 Background { get; }
 
-        public SpecialSpriteBlock(int start, int end, string label, Color background)
+        public SpecialSpriteBlock(int start, int end, string label, ColorName16 background)
         {
             Start = start;
             End = end;

@@ -1,4 +1,9 @@
-﻿using Terminal.Gui;
+﻿using System.Linq;
+using Terminal.Gui;
+using Terminal.Gui.App;
+using Terminal.Gui.Drawing;
+using Terminal.Gui.Input;
+using Terminal.Gui.ViewBase;
 
 namespace LingoEngine.Net.RNetTerminal
 {
@@ -12,7 +17,7 @@ namespace LingoEngine.Net.RNetTerminal
             _port = port;
         }
 
-        public void Show(Action<int> doConnect)
+        public void Show(System.Action<int> doConnect)
         {
             const string asciiArt = @" ____                      _         _   _      _
 |  _ \ ___ _ __ ___   ___ | |_ ___  | \ | | ___| |_
@@ -25,74 +30,51 @@ namespace LingoEngine.Net.RNetTerminal
   | |  __/ |  | | | | | | | | | | (_| | |
   |_|\___|_|  |_| |_| |_|_|_| |_|\__,_|_|";
 
-            var standalone = new Button("Run Standalone", true);
-            var connect = new Button("Connect");
-            var dialog = new Dialog("", 80, 24, standalone, connect)
-            {
-                ColorScheme = new ColorScheme
+            
+            var dialog = RUI.NewDialog("", 80, 24);
+            dialog.SetScheme(
+                new Scheme
                 {
-                    Normal = Application.Driver.MakeAttribute(Color.White, Color.Black),
-                    Focus = Application.Driver.MakeAttribute(Color.Black, Color.Gray),
-                    HotNormal = Application.Driver.MakeAttribute(Color.BrightYellow, Color.Black),
-                    HotFocus = Application.Driver.MakeAttribute(Color.Black, Color.Gray),
-                    Disabled = Application.Driver.MakeAttribute(Color.Gray, Color.Black)
+                    Normal = new Attribute(Color.White, Color.Black),
+                    Focus = new Attribute(Color.Black, Color.Gray),
+                    HotNormal = new Attribute(Color.BrightYellow, Color.Black),
+                    HotFocus = new Attribute(Color.Black, Color.Gray),
+                    Disabled = new Attribute(Color.Gray, Color.Black),
                 }
-            };
+            );
 
-            var title = new Label("LingoEngine")
-            {
-                X = Pos.Center(),
-                Y = 1
-            };
+            var title = RUI.NewLabel("LingoEngine", Pos.Center(), 1);
             dialog.Add(title);
 
             var artLines = asciiArt.Split('\n');
             var artWidth = artLines.Max(l => l.Length);
-            var ascii = new Label(asciiArt)
-            {
-                X = Pos.Center() - artWidth / 2,
-                Y = Pos.Bottom(title),
-                Width = artWidth,
-                Height = artLines.Length
-            };
+            var ascii = RUI.NewLabel(asciiArt,12,Pos.Bottom(title),artWidth,artLines.Length);
             dialog.Add(ascii);
 
-            var credit = new Label("By Emmanuel The Creator")
-            {
-                X = Pos.Center(),
-                Y = Pos.AnchorEnd(7)
-            };
+            var credit = RUI.NewLabel("By Emmanuel The Creator", Pos.Center(), Pos.AnchorEnd(7));
             dialog.Add(credit);
 
-            var portLabel = new Label("Port:")
-            {
-                X = Pos.Center() - 14,
-                Y = Pos.AnchorEnd(4)
-            };
-            var portField = new TextField(_port.ToString())
-            {
-                X = Pos.Center() - 9,
-                Y = Pos.AnchorEnd(4),
-                Width = 10
-            };
+            var portLabel = RUI.NewLabel("Port:",Pos.Center() - 20,Pos.AnchorEnd(4));
+            var portField = RUI.NewTextField(_port.ToString(), Pos.Center() - 9, Pos.AnchorEnd(4), 10);
             dialog.Add(portLabel, portField);
-
-            standalone.Clicked += () => dialog.Running = false;
-            connect.Clicked += () =>
+            var standalone = RUI.NewButton("Run Standalone", false, () => dialog.Running = false);
+            var connect = RUI.NewButton("Connect",true,() =>
             {
                 if (int.TryParse(portField.Text.ToString(), out var p))
                     _port = p;
                 doConnect(_port);
                 dialog.Running = false;
-            };
-            dialog.KeyPress += e =>
+            });
+            dialog.KeyDown += (_,e) =>
             {
-                if (e.KeyEvent.Key == Key.Esc)
+                if (e.KeyCode == Key.Esc)
                 {
                     dialog.Running = false;
                     e.Handled = true;
                 }
             };
+            dialog.AddButton(connect);
+            dialog.AddButton(standalone);
             connect.SetFocus();
             Application.Run(dialog);
         }

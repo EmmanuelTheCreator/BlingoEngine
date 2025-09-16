@@ -1,5 +1,8 @@
 using LingoEngine.IO.Data.DTO;
 using LingoEngine.Net.RNetContracts;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace LingoEngine.Net.RNetTerminal;
 
