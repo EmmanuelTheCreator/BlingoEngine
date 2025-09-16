@@ -8,6 +8,7 @@ using LingoEngine.Blazor.Medias;
 using Microsoft.JSInterop;
 using AbstUI.Blazor;
 using LingoEngine.Blazor.Util;
+using AbstUI.Components;
 
 namespace LingoEngine.Blazor.Sprites;
 
@@ -33,6 +34,7 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
 
     internal bool IsDirty { get; set; } = true;
     internal bool IsDirtyMember { get; set; } = true;
+    private AMargin _margin = AMargin.Zero;
 
     public event Action? Changed;
 
@@ -101,6 +103,16 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
     public bool DirectToStage { get => _directToStage; set { _directToStage = value; MakeDirty(); } }
     private int _ink;
     public int Ink { get => _ink; set { _ink = value; MakeDirty(); } }
+
+    public AMargin Margin
+    {
+        get => _margin;
+        set
+        {
+            _margin = value;
+            MakeDirty();
+        }
+    }
 
     public void MemberChanged()
     {
@@ -196,6 +208,44 @@ public class LingoBlazorSprite2D : ILingoFrameworkSprite, ILingoFrameworkSpriteV
                 _scripts.MediaSeekVideo(_video, value / 1000.0).GetAwaiter().GetResult();
             _currentTime = value;
         }
+    }
+
+    object IAbstFrameworkNode.FrameworkNode => this;
+
+    float IAbstFrameworkNode.Width
+    {
+        get => Width;
+        set
+        {
+            Width = value;
+            if (_desiredWidth == 0)
+                _desiredWidth = value;
+            MakeDirty();
+        }
+    }
+
+    float IAbstFrameworkNode.Height
+    {
+        get => Height;
+        set
+        {
+            Height = value;
+            if (_desiredHeight == 0)
+                _desiredHeight = value;
+            MakeDirty();
+        }
+    }
+
+    AMargin IAbstFrameworkNode.Margin
+    {
+        get => Margin;
+        set => Margin = value;
+    }
+
+    int IAbstFrameworkNode.ZIndex
+    {
+        get => ZIndex;
+        set => ZIndex = value;
     }
 
     /// <inheritdoc/>
