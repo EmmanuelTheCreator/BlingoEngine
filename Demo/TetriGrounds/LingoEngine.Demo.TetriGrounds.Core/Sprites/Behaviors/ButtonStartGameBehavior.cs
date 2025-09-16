@@ -1,4 +1,8 @@
-﻿using LingoEngine.Inputs.Events;
+﻿// Copyright to EmmanuelTheCreator.com
+// This file was written in 2005, yeah a lot has evolved since then :-)
+// Converted from original Lingo code, tried to keep it as identical as possible.
+
+using LingoEngine.Inputs.Events;
 using LingoEngine.Sprites;
 using LingoEngine.Events;
 using LingoEngine.Movies;

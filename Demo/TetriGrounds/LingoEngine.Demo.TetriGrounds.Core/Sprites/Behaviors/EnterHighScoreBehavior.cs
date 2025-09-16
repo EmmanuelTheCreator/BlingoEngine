@@ -1,4 +1,8 @@
-﻿using AbstUI.Inputs;
+﻿// Copyright to EmmanuelTheCreator.com
+// This file was written in 2005, yeah a lot has evolved since then :-)
+// Converted from original Lingo code, tried to keep it as identical as possible.
+
+using AbstUI.Inputs;
 using AbstUI.Primitives;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;

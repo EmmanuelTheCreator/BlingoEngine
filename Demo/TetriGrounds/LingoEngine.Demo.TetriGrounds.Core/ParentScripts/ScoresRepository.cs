@@ -1,4 +1,8 @@
-﻿using AbstUI.Resources;
+﻿// Copyright to EmmanuelTheCreator.com
+// This file was written in 2005, yeah a lot has evolved since then :-)
+// Converted from original Lingo code, tried to keep it as identical as possible.
+
+using AbstUI.Resources;
 using LingoEngine.Core;
 using LingoEngine.Movies;
 using LingoEngine.Texts;
