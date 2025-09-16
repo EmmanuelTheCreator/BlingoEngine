@@ -1,14 +1,14 @@
-using LingoEngine.IO;
 using LingoEngine.IO.Data.DTO;
-using LingoEngine.Movies.Commands;
 using LingoEngine.Net.RNetContracts;
 using LingoEngine.Net.RNetProjectClient;
 using LingoEngine.Net.RNetTerminal.Datas;
 using LingoEngine.Net.RNetTerminal.Dialogs;
 using LingoEngine.Net.RNetTerminal.Views;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.WebSockets;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Terminal.Gui;
@@ -180,14 +180,17 @@ public sealed class LingoRNetTerminal : System.IAsyncDisposable
         try
         {
             var projectJson = await _client.GetCurrentProjectAsync();
-            var repo = new JsonStateRepository();
-            var project = repo.DeserializeProject(projectJson.json);
+            var project = DeserializeProject(projectJson.json);
             TerminalDataStore.Instance.LoadFromProject(project);
         }
         catch (System.Exception ex)
         {
             Log($"Load movie failed: {ex.Message}");
         }
+    }
+    public LingoProjectDTO DeserializeProject(string json)
+    {
+        return JsonSerializer.Deserialize<LingoProjectDTO>(json) ?? throw new Exception("Invalid project file");
     }
     private void Log(string message)
     {

@@ -13,7 +13,6 @@ internal static class TempoSpriteDtoConverter
             BeginFrame = sprite.BeginFrame,
             EndFrame = sprite.EndFrame,
             Lock = sprite.Lock,
-            Frame = sprite.Frame,
             Action = (LingoTempoSpriteActionDTO)sprite.Action,
             Tempo = sprite.Tempo,
             WaitSeconds = sprite.WaitSeconds,
@@ -28,7 +27,6 @@ internal static class TempoSpriteDtoConverter
         sprite.BeginFrame = dto.BeginFrame;
         sprite.EndFrame = dto.EndFrame;
         sprite.Lock = dto.Lock;
-        sprite.Frame = dto.Frame;
         sprite.Action = (LingoTempoSpriteAction)dto.Action;
         sprite.Tempo = dto.Tempo;
         sprite.WaitSeconds = dto.WaitSeconds;

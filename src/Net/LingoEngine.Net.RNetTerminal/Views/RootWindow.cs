@@ -1,4 +1,5 @@
-﻿using LingoEngine.Net.RNetContracts;
+﻿using LingoEngine.IO.Data.DTO.Members;
+using LingoEngine.Net.RNetContracts;
 using LingoEngine.Net.RNetTerminal.Datas;
 using LingoEngine.Net.RNetTerminal.Dialogs;
 using System;
@@ -306,12 +307,12 @@ namespace LingoEngine.Net.RNetTerminal.Views
             _connectionStatusLabel.SetNeedsDraw();
         }
 
-        public void UpdateInfo(int frame, int channel, SpriteRef? sprite, MemberRef? member)
+        public void UpdateInfo(int frame, int channel, SpriteRef? sprite, LingoMemberRefDTO? member)
         {
             if (_infoItem != null)
             {
                 var store = TerminalDataStore.Instance;
-                var memName = member.HasValue ? store.FindMember(member.Value.CastLibNum, member.Value.MemberNum)?.Name : null;
+                var memName = member!= null ? store.FindMember(member.CastLibNum, member.MemberNum)?.Name : null;
                 _infoItem.Title = $"Frame:{frame} Channel:{channel} Sprite:{sprite?.SpriteNum.ToString() ?? "-"} Member:{memName ?? string.Empty}";
             }
             _score?.SetFocus();

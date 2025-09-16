@@ -22,11 +22,11 @@ public static class TestMovieBuilder
     public static IReadOnlyList<Lingo2DSpriteDTO> BuildSprites() => new List<Lingo2DSpriteDTO>
     {
         new() { Name = "Greeting", SpriteNum = 1, Member =new LingoMemberRefDTO{CastLibNum = 1, MemberNum = 1}, BeginFrame = 1, EndFrame = 60, LocH = 100, LocV = 100 },
-        new() { Name = "Info", SpriteNum = 2, Member =new LingoMemberRefDTO{CastLibNum = 1, MemberNum = 2}, BeginFrame = 1, EndFrame = 60, LocH = 300, LocV = 200 },
-        new() { Name = "Box", SpriteNum = 3, Member =new LingoMemberRefDTO{CastLibNum = 1, MemberNum = 3}, BeginFrame = 1, EndFrame = 60, LocH = 400, LocV = 300 },
+        new() { Name = "Info", SpriteNum = 2, Member =new LingoMemberRefDTO{CastLibNum = 1, MemberNum = 2}, BeginFrame = 5, EndFrame = 65, LocH = 300, LocV = 200 },
+        new() { Name = "Box", SpriteNum = 3, Member =new LingoMemberRefDTO{CastLibNum = 1, MemberNum = 3}, BeginFrame = 10, EndFrame = 60, LocH = 400, LocV = 300 },
         new() { Name = "Greeting", SpriteNum = 4, Member =new LingoMemberRefDTO{CastLibNum = 1, MemberNum = 1}, BeginFrame = 1, EndFrame = 60, LocH = 150, LocV = 400 },
-        new() { Name = "Info", SpriteNum = 5, Member =new LingoMemberRefDTO{CastLibNum = 1, MemberNum = 2}, BeginFrame = 1, EndFrame = 60, LocH = 500, LocV = 120 },
-        new() { Name = "score", SpriteNum = 6, Member =new LingoMemberRefDTO{CastLibNum = 1, MemberNum = 4}, BeginFrame = 1, EndFrame = 60, LocH = 50, LocV = 50, Width = 100, Height = 20 },
+        new() { Name = "Info", SpriteNum = 5, Member =new LingoMemberRefDTO{CastLibNum = 1, MemberNum = 2}, BeginFrame = 3, EndFrame = 70, LocH = 500, LocV = 120 },
+        new() { Name = "score", SpriteNum = 6, Member =new LingoMemberRefDTO{CastLibNum = 1, MemberNum = 4}, BeginFrame = 3, EndFrame = 100, LocH = 50, LocV = 50, Width = 100, Height = 20 },
         new() { Name = "Img30x80", SpriteNum = 7, Member =new LingoMemberRefDTO{CastLibNum = 1, MemberNum = 5 }, BeginFrame = 1, EndFrame = 60, LocH = 250, LocV = 350, Width = 30, Height = 80 },
     };
 
@@ -37,16 +37,14 @@ public static class TestMovieBuilder
             Name = "Tempo Change",
             BeginFrame = 1,
             EndFrame = 1,
-            Frame = 1,
             Action = LingoTempoSpriteActionDTO.ChangeTempo,
             Tempo = 60
         },
         new()
         {
             Name = "Wait",
-            BeginFrame = 120,
-            EndFrame = 120,
-            Frame = 120,
+            BeginFrame = 10,
+            EndFrame = 10,
             Action = LingoTempoSpriteActionDTO.WaitSeconds,
             WaitSeconds = 1.5f
         }
@@ -57,8 +55,8 @@ public static class TestMovieBuilder
         new()
         {
             Name = "Palette",
-            BeginFrame = 1,
-            EndFrame = 60,
+            BeginFrame = 15,
+            EndFrame = 15,
             Frame = 1,
             Settings = new LingoColorPaletteFrameSettingsDTO
             {
@@ -77,8 +75,8 @@ public static class TestMovieBuilder
         new()
         {
             Name = "Fade",
-            BeginFrame = 1,
-            EndFrame = 20,
+            BeginFrame = 3,
+            EndFrame = 3,
             Member = new LingoMemberRefDTO { CastLibNum = 1, MemberNum = 6 },
             Settings = new LingoTransitionFrameSettingsDTO
             {

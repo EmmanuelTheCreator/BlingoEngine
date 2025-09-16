@@ -1,10 +1,14 @@
 ﻿using LingoEngine.IO.Data.DTO.Members;
 using LingoEngine.IO.Data.DTO.Sprites;
 using LingoEngine.Net.RNetTerminal.Datas;
+using LingoEngine.Net.RNetTerminal.Dialogs;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
+using System.Reflection.Emit;
+using System.Threading.Channels;
+using System.Xml.Serialization;
 using Terminal.Gui;
 using Terminal.Gui.App;
 using Terminal.Gui.Drawing;
@@ -16,11 +20,11 @@ namespace LingoEngine.Net.RNetTerminal.Views;
 
 internal sealed class ScoreView : View
 {
-   
-    private int FrameCount => TerminalDataStore.Instance.FrameCount;
+
+    
     private int _stageWidth;
     private readonly int _labelWidth;
-    private static readonly string[] SpecialChannels =
+    internal static readonly string[] SpecialChannels =
     {
         "Tempo",
         "Transition",
@@ -29,7 +33,7 @@ internal sealed class ScoreView : View
         "Sound1",
         "Sound2"
     };
-    private static readonly string[] TweenProperties =
+    internal static readonly string[] TweenProperties =
     {
         "LocH",
         "LocV",
@@ -61,9 +65,11 @@ internal sealed class ScoreView : View
         set => (HorizontalScrollBar.Position, VerticalScrollBar.Position) = (value.X, value.Y);
     }
     private int TotalChannels => TerminalDataStore.Instance.SpriteChannelCount + SpecialChannels.Length;
+    private int FrameCount => TerminalDataStore.Instance.FrameCount;
 
     public ScoreView()
     {
+        CanFocus = true;
         _sprites = new List<SpriteBlock>();
         _specialChannelSprites = Enumerable.Range(0, SpecialChannels.Length)
             .Select(_ => new List<SpecialSpriteBlock>())
@@ -94,25 +100,26 @@ internal sealed class ScoreView : View
         ReloadData();
     }
 
-    public event System.Action<int, int, SpriteRef?, MemberRef?>? InfoChanged;
+    public event System.Action<int, int, SpriteRef?, LingoMemberRefDTO?>? InfoChanged;
 
     public void RequestRedraw() => SetNeedsDraw();
     public void ReloadData()
     {
+
         var store = TerminalDataStore.Instance;
         _stageWidth = store.StageWidth;
+        Width = FrameCount + _labelWidth;
+        Height = TotalChannels + 1;
         _sprites.Clear();
         _sprites.AddRange(store.GetSprites()
-            .Select(s => new SpriteBlock(s.SpriteNum, s.BeginFrame, s.EndFrame, s.SpriteNum, s.Member!.CastLibNum, s.Member.MemberNum, s.Width)));
+            .Select(s => new SpriteBlock(s, s.SpriteNum, s.BeginFrame, s.EndFrame, s.SpriteNum, s.Member!.CastLibNum, s.Member.MemberNum, s.Width)));
         foreach (var list in _specialChannelSprites)
         {
             list.Clear();
         }
 
         foreach (var tempo in store.GetTempoSprites())
-        {
             AddSpecialSprite(0, tempo.BeginFrame, tempo.EndFrame, FormatTempoLabel(tempo), ColorName16.BrightYellow);
-        }
 
         foreach (var transition in store.GetTransitionSprites())
         {
@@ -147,7 +154,7 @@ internal sealed class ScoreView : View
             var label = sound.Member != null
                 ? store.FindMember(sound.Member.CastLibNum, sound.Member.MemberNum)?.Name ?? sound.Name
                 : sound.Name;
-            AddSpecialSprite(idx, sound.BeginFrame, sound.EndFrame, label ?? string.Empty, ColorName16.Green);
+            AddSpecialSprite(idx, sound.BeginFrame, sound.EndFrame, label ?? string.Empty, ColorName16.Yellow);
         }
         //ContentSize = new Size(FrameCount + _labelWidth, TotalChannels + 1);
         Width = FrameCount + _labelWidth;
@@ -237,7 +244,7 @@ internal sealed class ScoreView : View
     {
         try
         {
-            if (!HasFocus) return false;
+
             var Bounds = Viewport;
             var scrollBarWidth = VerticalScrollBar.Visible ? 1 : 0;
             var scrollBarHeight = VerticalScrollBar.Visible ? 1 : 0;
@@ -304,12 +311,13 @@ internal sealed class ScoreView : View
                     EnsureVisible();
                     SetNeedsDraw();
                     NotifyInfoChanged();
-                    SetFocus();
+
                     if (sprite != null)
                     {
                         var sel = new SpriteRef(sprite.Number, sprite.Start);
                         TerminalDataStore.Instance.SelectSprite(sel);
                     }
+                    SetFocus();
                 }
                 ClampContentOffset();
                 return true;
@@ -329,42 +337,43 @@ internal sealed class ScoreView : View
                 ClampContentOffset();
                 return true;
             }
-            if (me.Flags.HasFlag(MouseFlags.WheeledUp))
-            {
-                offset = GetOffset();
-                offset.Y--;
-                ClampContentOffset(ref offset);
-                SetOffset(offset);
-                SetNeedsDraw();
-                return true;
-            }
-            if (me.Flags.HasFlag(MouseFlags.WheeledDown))
-            {
-                offset = GetOffset();
-                offset.Y++;
-                ClampContentOffset(ref offset);
-                SetOffset(offset);
-                SetNeedsDraw();
-                return true;
-            }
-            if (me.Flags.HasFlag(MouseFlags.WheeledLeft))
-            {
-                offset = GetOffset();
-                offset.X--;
-                ClampContentOffset(ref offset);
-                SetOffset(offset);
-                SetNeedsDraw();
-                return true;
-            }
-            if (me.Flags.HasFlag(MouseFlags.WheeledRight))
-            {
-                offset = GetOffset();
-                offset.X++;
-                ClampContentOffset(ref offset);
-                SetOffset(offset);
-                SetNeedsDraw();
-                return true;
-            }
+                if (me.Flags.HasFlag(MouseFlags.WheeledUp))
+                {
+                    offset = GetOffset();
+                    offset.Y--;
+                    ClampContentOffset(ref offset);
+                    SetOffset(offset);
+                    SetNeedsDraw();
+                    return true;
+                }
+                if (me.Flags.HasFlag(MouseFlags.WheeledDown))
+                {
+                    offset = GetOffset();
+                    offset.Y++;
+                    ClampContentOffset(ref offset);
+                    SetOffset(offset);
+                    SetNeedsDraw();
+                    return true;
+                }
+                if (me.Flags.HasFlag(MouseFlags.WheeledLeft))
+                {
+                    offset = GetOffset();
+                    offset.X--;
+                    ClampContentOffset(ref offset);
+                    SetOffset(offset);
+                    SetNeedsDraw();
+                    return true;
+                }
+                if (me.Flags.HasFlag(MouseFlags.WheeledRight))
+                {
+                    offset = GetOffset();
+                    offset.X++;
+                    ClampContentOffset(ref offset);
+                    SetOffset(offset);
+                    SetNeedsDraw();
+                    return true;
+                }
+            
             var handled = base.OnMouseEvent(me);
             ClampContentOffset();
             SetNeedsDraw();
@@ -376,10 +385,9 @@ internal sealed class ScoreView : View
             return false;
         }
     }
-    
+
     private void ClampContentOffset(ref Point offset)
     {
-       
         var scrollBarWidth = VerticalScrollBar.Visible ? 1 : 0;
         var scrollBarHeight = VerticalScrollBar.Visible ? 1 : 0;
         var visibleFrames = System.Math.Max(0, Bounds.Width - _labelWidth - scrollBarWidth);
@@ -397,9 +405,9 @@ internal sealed class ScoreView : View
         SetOffset(offset);
     }
 
-    private Point GetOffset() => new(-ContentOffset.X, -ContentOffset.Y);
+    private Point GetOffset() => new(ContentOffset.X, ContentOffset.Y);
 
-    private void SetOffset(Point offset) => ContentOffset = new Point(-offset.X, -offset.Y);
+    private void SetOffset(Point offset)  => ContentOffset = new Point(offset.X, offset.Y);
 
     private void MoveCursor(int dx, int dy)
     {
@@ -414,6 +422,7 @@ internal sealed class ScoreView : View
             var sel = new SpriteRef(sprite.Number, sprite.Start);
             TerminalDataStore.Instance.SelectSprite(sel);
         }
+        SetFocus();
     }
 
     private void EnsureVisible()
@@ -471,10 +480,10 @@ internal sealed class ScoreView : View
                 AddRune(RNetTerminalStyle.CharLight);
         }
 
-
+        
         SetColorsSchemaNormal();
         var visibleFrames = System.Math.Max(0, w - _labelWidth);
-        var visibleChannels = System.Math.Max(0, h - 1);
+        var visibleChannels = System.Math.Max(0, h );
         var posOffset = GetOffset();
         var offsetX = posOffset.X;
         var offsetY = posOffset.Y;
@@ -482,6 +491,7 @@ internal sealed class ScoreView : View
         for (var i = 0; i < visibleChannels && offsetY + i < TotalChannels; i++)
         {
             var channelIndex = offsetY + i;
+            if (channelIndex < 0) continue;
             Move(0, i + 1);
             string label;
             if (channelIndex < SpecialChannels.Length)
@@ -494,9 +504,12 @@ internal sealed class ScoreView : View
                 label = chNum.ToString();
             }
             label = label.PadLeft(_labelWidth - 1);
-            AddStr(label + "|");
+            AddStr(label + "│");
         }
 
+        SetAttribute(new Attribute(ColorName16.Black, ColorName16.Gray));
+        Move(0, 0);
+        AddStr(new string(' ',Viewport.Width - -1));
         for (var f = 0; f < visibleFrames && offsetX + f < FrameCount; f++)
         {
             var frame = offsetX + f + 1;
@@ -511,6 +524,7 @@ internal sealed class ScoreView : View
                 }
             }
         }
+        SetColorsSchemaNormal();
 
         DrawSpecialSprites(offsetX, offsetY, visibleFrames, visibleChannels);
 
@@ -604,24 +618,20 @@ internal sealed class ScoreView : View
         var sprite = FindSprite(_cursorChannel + 1, _cursorFrame + 1);
         string[] items;
         if (sprite == null)
-        {
-            items = new[] { "Create Sprite" };
-        }
+            items = ["Create Sprite", "Play From Here"];
         else
         {
             var menuItems = new List<string>
             {
                 "Delete Sprite",
+                "Edit Sprite",
                 "Add Keyframe",
-                "Move Keyframe",
-                "Change Start",
-                "Change End",
                 "Play From Here",
-                "Select Sprite"
             };
             if (sprite.Keyframes.ContainsKey(_cursorFrame + 1))
             {
                 menuItems.Insert(1, "Edit Keyframe");
+                menuItems.Remove("Add Keyframe");
             }
             items = menuItems.ToArray();
         }
@@ -643,201 +653,79 @@ internal sealed class ScoreView : View
         Application.Run(dialog);
     }
 
-    private void HandleAction(string action, SpriteBlock? sprite)
+    private void HandleAction(string action, SpriteBlock? spriteUI)
     {
         switch (action)
         {
             case "Create Sprite":
                 if (_cursorChannel >= SpecialChannels.Length)
                 {
-                    CreateSpriteDialog();
+                    SpriteEditDialog.EditSpriteDialog("Create Sprite",null, okData=>
+                    {
+                        var num = _sprites.Count + 1;
+                        var ch = _cursorChannel + 1 - SpecialChannels.Length;
+                        var sprite2d = new Lingo2DSpriteDTO
+                        {
+                            SpriteNum = num,
+                            BeginFrame = okData.Begin,
+                            EndFrame = okData.End,
+                            LocH = okData.LocH,
+                            LocV = okData.LocV,
+                            Member = new LingoMemberRefDTO(okData.CastLibNum, okData.NumberInCast)
+                        };
+                        _sprites.Add(new SpriteBlock(sprite2d, ch, okData.Begin, okData.End, num, okData.CastLibNum, okData.NumberInCast, 1));
+                        SetNeedsDraw();
+                        NotifyInfoChanged();
+                    });
+                }
+                break;
+            case "Edit Sprite":
+                if (_cursorChannel >= SpecialChannels.Length && spriteUI != null)
+                {
+                    SpriteEditDialog.EditSpriteDialog("Edit Sprite: "+ spriteUI.Sprite.Name, spriteUI.Sprite, okData=>
+                    {
+                        var num = _sprites.Count + 1;
+                        var ch = _cursorChannel + 1 - SpecialChannels.Length;
+                        spriteUI.CastLib = okData.CastLibNum;
+                        spriteUI.UpdateValues(okData.Begin, okData.End, okData.CastLibNum, okData.NumberInCast, okData.Width, okData.Height);
+                        SetNeedsDraw();
+                        NotifyInfoChanged();
+                    });
                 }
                 break;
             case "Delete Sprite":
-                if (sprite != null)
+                if (spriteUI != null)
                 {
-                    _sprites.Remove(sprite);
+                    _sprites.Remove(spriteUI);
                     SetNeedsDraw();
                     NotifyInfoChanged();
                 }
                 break;
             case "Add Keyframe":
-                if (sprite != null)
+                if (spriteUI != null)
                 {
                     var frame = _cursorFrame + 1;
-                    sprite.Keyframes[frame] = new Dictionary<string, double>();
-                    EditKeyframeDialog(sprite, frame);
+                    spriteUI.Keyframes[frame] = new Dictionary<string, double>();
+                    KeyFrameDialog.EditKeyframeDialog(spriteUI, frame);
                     SetNeedsDraw();
-                }
-                break;
-            case "Move Keyframe":
-                if (sprite != null && sprite.Keyframes.TryGetValue(_cursorFrame + 1, out var props))
-                {
-                    var val = PromptForInt("Move Keyframe", "Frame:");
-                    if (val.HasValue)
-                    {
-                        sprite.Keyframes.Remove(_cursorFrame + 1);
-                        sprite.Keyframes[val.Value] = props;
-                        _cursorFrame = val.Value - 1;
-                        SetNeedsDraw();
-                        NotifyInfoChanged();
-                    }
                 }
                 break;
             case "Edit Keyframe":
-                if (sprite != null && sprite.Keyframes.ContainsKey(_cursorFrame + 1))
+                if (spriteUI != null && spriteUI.Keyframes.ContainsKey(_cursorFrame + 1))
                 {
-                    EditKeyframeDialog(sprite, _cursorFrame + 1);
+                    KeyFrameDialog.EditKeyframeDialog(spriteUI, _cursorFrame + 1);
                     SetNeedsDraw();
-                }
-                break;
-            case "Change Start":
-                if (sprite != null)
-                {
-                    var val = PromptForInt("Change Start", "Start:");
-                    if (val.HasValue)
-                    {
-                        sprite.Start = val.Value;
-                        SetNeedsDraw();
-                        NotifyInfoChanged();
-                    }
-                }
-                break;
-            case "Change End":
-                if (sprite != null)
-                {
-                    var val = PromptForInt("Change End", "End:");
-                    if (val.HasValue)
-                    {
-                        sprite.End = val.Value;
-                        SetNeedsDraw();
-                        NotifyInfoChanged();
-                    }
                 }
                 break;
             case "Play From Here":
                 PlayFromHere?.Invoke(_cursorFrame + 1);
                 break;
-            case "Select Sprite":
-                if (sprite != null)
-                {
-                    var sel = new SpriteRef(sprite.Number, sprite.Start);
-                    TerminalDataStore.Instance.SelectSprite(sel);
-                    NotifyInfoChanged();
-                }
-                break;
+           
         }
     }
 
-    private void CreateSpriteDialog()
-    {
-        var begin = new TextField{ Text = "1", X = 14, Y = 1, Width = 10 };
-        var end = new TextField{ Text = "1", X = 14, Y = 3, Width = 10 };
-        var locH = new TextField{ Text = "0", X = 14, Y = 5, Width = 10 };
-        var locV = new TextField{ Text = "0", X = 14, Y = 7, Width = 10 };
-        var castLib = new TextField{ Text = "1", X = 14, Y = 9, Width = 10 };
-        var memberNum = new TextField{ Text = "1", X = 14, Y = 11, Width = 10 };
-        var ok = RUI.NewButton("Ok", true,() =>
-        {
-            if (int.TryParse(begin.Text.ToString(), out var b) &&
-                int.TryParse(end.Text.ToString(), out var e) &&
-                int.TryParse(castLib.Text.ToString(), out var cast) &&
-                int.TryParse(memberNum.Text.ToString(), out var mem))
-            {
-                var num = _sprites.Count + 1;
-                var ch = _cursorChannel + 1 - SpecialChannels.Length;
-                var memberEntry = TerminalDataStore.Instance.FindMember(cast, mem);
-                var width = memberEntry?.Width ?? 1;
-                _sprites.Add(new SpriteBlock(ch, b, e, num, cast, mem, width));
-                SetNeedsDraw();
-                NotifyInfoChanged();
-            }
-            Application.RequestStop();
-        });
-        var dialog = RUI.NewDialog("Create Sprite", 40, 17, ok);
-        dialog.Add(
-            new Label{ Text = "Begin:", X = 1, Y = 1 }, begin,
-            new Label{ Text = "End:", X = 1, Y = 3 }, end,
-            new Label{ Text = "LocH:", X = 1, Y = 5 }, locH,
-            new Label{ Text = "LocV:", X = 1, Y = 7 }, locV,
-            new Label{ Text = "CastLibNum:", X = 1, Y = 9 }, castLib,
-            new Label{ Text = "MemberNum:", X = 1, Y = 11 }, memberNum);
-        begin.SetFocus();
-        Application.Run(dialog);
-    }
 
-    private int? PromptForInt(string title, string prompt)
-    {
-        int? result = null;
-        var field = new TextField(){Text = "0", X = 12, Y = 1, Width = 10 };
-        var ok = RUI.NewButton("Ok", true,() =>
-        {
-            if (int.TryParse(field.Text.ToString(), out var v))
-            {
-                result = v;
-            }
-            Application.RequestStop();
-        });
-        var dialog = RUI.NewDialog(title, 30, 7, ok);
-        dialog.Add(new Label{ Text = prompt, X = 1, Y = 1 }, field);
-        field.SetFocus();
-        Application.Run(dialog);
-        return result;
-    }
-
-    private void EditKeyframeDialog(SpriteBlock sprite, int frame)
-    {
-        if (!sprite.Keyframes.TryGetValue(frame, out var props))
-        {
-            props = new Dictionary<string, double>();
-            sprite.Keyframes[frame] = props;
-        }
-        var rows = new List<(CheckBox cb, TextField field, string name)>();
-        for (var i = 0; i < TweenProperties.Length; i++)
-        {
-            var name = TweenProperties[i];
-            var cb = new CheckBox() { Text = name, X = 1, Y = i + 1, CheckedState = props.ContainsKey(name).ToCheckedSTate() };
-            var field = new TextField()
-            {
-                Text = props.TryGetValue(name, out var val) ? val.ToString(CultureInfo.InvariantCulture) : "0",
-                X = 15,
-                Y = i + 1,
-                Width = 10,
-                Visible = cb.CheckedState.ToBool()
-            };
-            
-            cb.CheckedStateChanged += (_,_) =>
-            {
-                field.Visible = cb.CheckedState.ToBool();
-                if (cb.CheckedState.ToBool())
-                {
-                    field.SetFocus();
-                }
-            };
-            rows.Add((cb, field, name));
-        }
-        var ok = RUI.NewButton("Ok", true,() =>
-        {
-            var result = new Dictionary<string, double>();
-            foreach (var (cb, field, name) in rows)
-            {
-                if (cb.CheckedState.ToBool() && double.TryParse(field.Text.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var val))
-                {
-                    result[name] = val;
-                }
-            }
-            sprite.Keyframes[frame] = result;
-            Application.RequestStop();
-        });
-        var dialog = RUI.NewDialog("Keyframe", 40, TweenProperties.Length + 4, ok);
-        foreach (var (cb, field, _) in rows)
-        {
-            dialog.Add(cb, field);
-        }
-        dialog.Add(RUI.NewLabel("Use Space to toggle",1, TweenProperties.Length + 1 ));
-        rows[0].cb.SetFocus();
-        Application.Run(dialog);
-    }
+    #region Drag/Drop
 
     private void PrepareDrag(SpriteBlock sprite, int frame)
     {
@@ -902,6 +790,10 @@ internal sealed class ScoreView : View
         _dragSprite = null;
         _isDragging = false;
     }
+
+    #endregion
+
+
 
     private void DrawSpecialSprites(int offsetX, int offsetY, int visibleFrames, int visibleChannels)
     {
@@ -974,11 +866,11 @@ internal sealed class ScoreView : View
             ch = 0;
         }
         SpriteRef? spriteRef = null;
-        MemberRef? memberRef = null;
+        LingoMemberRefDTO? memberRef = null;
         if (sprite != null)
         {
             spriteRef = new SpriteRef(sprite.Number, sprite.Start);
-            memberRef = new MemberRef(sprite.CastLib, sprite.MemberNum);
+            memberRef = new LingoMemberRefDTO(sprite.CastLib, sprite.MemberNum);
         }
         InfoChanged?.Invoke(_cursorFrame + 1, ch, spriteRef, memberRef);
     }
@@ -1003,18 +895,21 @@ internal sealed class ScoreView : View
         }
     }
 
-    private sealed class SpriteBlock
+    internal sealed class SpriteBlock
     {
+        public Lingo2DSpriteDTO Sprite { get; }
         public int Channel { get; set; }
         public int Start { get; set; }
         public int End { get; set; }
         public int Number { get; }
-        public int CastLib { get; }
-        public int MemberNum { get; }
-        public float Width { get; }
+        public int CastLib { get; set; }
+        public int MemberNum { get; set; }
+        public float Width { get; set; }
+        public float Height { get; set; }
         public Dictionary<int, Dictionary<string, double>> Keyframes { get; } = new();
-        public SpriteBlock(int channel, int start, int end, int number, int castLib, int memberNum, float width)
+        public SpriteBlock(Lingo2DSpriteDTO sprite, int channel, int start, int end, int number, int castLib, int memberNum, float width)
         {
+            Sprite = sprite;
             Channel = channel;
             Start = start;
             End = end;
@@ -1024,6 +919,21 @@ internal sealed class ScoreView : View
             Width = width;
             Keyframes[start] = new Dictionary<string, double>();
             Keyframes[end] = new Dictionary<string, double>();
+        }
+        public void UpdateValues(int start, int end, int castLib, int memberNum, float width, float height)
+        {
+            Start = start;
+            End = end;
+            CastLib = castLib;
+            MemberNum = memberNum;
+            Width = width;
+            Height = height;
+        }
+        public void UpdateValues(Lingo2DSpriteDTO sprite)
+        {
+            Start = sprite.BeginFrame;
+            End = sprite.EndFrame;
+            Width = sprite.Width;
         }
     }
 }
