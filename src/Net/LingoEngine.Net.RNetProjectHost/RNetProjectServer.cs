@@ -42,6 +42,7 @@ public sealed class RNetProjectServer : IRNetProjectServer
         public int Port { get; set; } = 61699;
         public bool AutoStartRNetHostOnStartup { get; set; }
         public string ClientName { get; set; } = "TheHost";
+        public RNetClientType ClientType { get; set; } = RNetClientType.Project;
     }
     public bool DetailedLogging { get; set; } = true;
 

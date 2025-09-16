@@ -31,6 +31,7 @@ using LingoEngine.Director.Core.Remote.Commands;
 using LingoEngine.Net.RNetContracts;
 using LingoEngine.Net.RNetProjectHost;
 using LingoEngine.Net.RNetProjectClient;
+using LingoEngine.Net.RNetPipeClient;
 using LingoEngine.Setup;
 using Microsoft.Extensions.DependencyInjection;
 using LingoEngine.Sprites.BehaviorLibrary;
@@ -86,6 +87,7 @@ namespace LingoEngine.Director.Core
                     .AddSingleton<RNetSettingsDialogHandler>()
                     .AddSingleton<IRNetProjectServer, RNetProjectServer>()
                     .AddSingleton<ILingoRNetProjectClient, LingoRNetProjectClient>()
+                    .AddSingleton<ILingoRNetPipeClient, RNetPipeClient>()
                     .AddSingleton<DirectorRNetServer>()
                     .AddSingleton<DirectorRNetClient>()
                     .AddSingleton<DirStageManager>()

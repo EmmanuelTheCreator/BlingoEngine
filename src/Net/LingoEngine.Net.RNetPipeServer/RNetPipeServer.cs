@@ -62,6 +62,7 @@ public sealed class RNetPipeServer : IRNetPipeServer
         public int Port { get; set; } = 61699;
         public bool AutoStartRNetHostOnStartup { get; set; }
         public string ClientName { get; set; } = "PipeHost";
+        public RNetClientType ClientType { get; set; } = RNetClientType.Pipe;
     }
 
     /// <inheritdoc />
