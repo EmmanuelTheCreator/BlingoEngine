@@ -58,7 +58,7 @@ public class BlingoToCSharpConverterTests
             "{",
             "    dirI = -dirI;",
             "}");
-        Assert.Equal(expected.Trim(), result.Trim());
+        expected.LingoCodeShouldBeIdentical(result);
     }
 
     [Fact]
@@ -119,7 +119,7 @@ end";
         var expected = string.Join('\n',
             "return;",
             "x = 1;");
-        Assert.Equal(expected, result.Trim());
+        expected.LingoCodeShouldBeIdentical(result);
     }
 
     [Fact]
@@ -146,7 +146,7 @@ end";
             "{",
             "    x = 2;",
             "}");
-        Assert.Equal(expected.Trim(), result.Trim());
+        expected.LingoCodeShouldBeIdentical(result);
     }
 
     [Fact]
@@ -214,7 +214,7 @@ end";
             "        myMember = Member(\"Destroy1\");",
             "    }",
             "}");
-        Assert.Equal(expected.Trim(), result.Trim());
+        expected.LingoCodeShouldBeIdentical(result);
     }
 
     [Fact]
@@ -400,7 +400,7 @@ end";
             "}",
             "myMembers = [\"A\", \"B\"];",
             "y = myMembers[2];");
-        Assert.Equal(expected.Trim(), result.Trim());
+        expected.LingoCodeShouldBeIdentical(result);
     }
 
     [Fact]
@@ -416,7 +416,7 @@ end";
             "{",
             "    x = 1;",
             "}");
-        Assert.Equal(expected.Trim(), result.Trim());
+        expected.LingoCodeShouldBeIdentical(result);
     }
 
     [Fact]
@@ -425,7 +425,7 @@ end";
         var lingo = string.Join('\n', "-- test", "put 1 into x");
         var result = _converter.Convert(lingo);
         var expected = string.Join('\n', "// test", "x = 1;");
-        Assert.Equal(expected.Trim(), result.Trim());
+        expected.LingoCodeShouldBeIdentical(result);
     }
 
     [Fact]
@@ -447,7 +447,7 @@ end";
             "{",
             "    x = 2;",
             "}");
-        Assert.Equal(expected.Trim(), result.Trim());
+        expected.LingoCodeShouldBeIdentical(result);
     }
 
     [Fact]
@@ -468,7 +468,7 @@ end";
             "{",
             "    x = 2;",
             "}");
-        Assert.Equal(expected.Trim(), result.Trim());
+        expected.LingoCodeShouldBeIdentical(result);
     }
 
     [Fact]
@@ -492,7 +492,7 @@ end";
             "{",
             "    x = 2;",
             "}");
-        Assert.Equal(expected.Trim(), result.Trim());
+        expected.LingoCodeShouldBeIdentical(result);
     }
 
     [Fact]
@@ -517,7 +517,7 @@ end";
             "public void New()",
             "{",
             "}");
-        Assert.Equal(expected.Trim(), result.Trim());
+        expected.LingoCodeShouldBeIdentical(result);
     }
 
     [Fact]
@@ -572,7 +572,7 @@ end";
             "    myGfx = _Gfx;",
             "    myDestroyAnim = false;",
             "}");
-        Assert.Equal(expected.Trim(), result.Trim());
+        expected.LingoCodeShouldBeIdentical(result);
     }
 
     [Fact]
@@ -606,7 +606,7 @@ end";
             "    {",
             "    }",
             "}");
-        Assert.Equal(expected.Trim(), result.Trim());
+        expected.LingoCodeShouldBeIdentical(result);
     }
 
     [Fact(Skip = "Normalization mismatch")]
@@ -667,7 +667,7 @@ end";
             "        DoDefault();",
             "        break;",
             "}");
-        Assert.Equal(expected, result);
+        expected.LingoCodeShouldBeIdentical(result);
     }
 
     [Fact]
@@ -786,7 +786,7 @@ end";
             "{",
             "    Cursor = -1;",
             "}");
-        Assert.Equal(expected.Trim(), result.Trim());
+        expected.LingoCodeShouldBeIdentical(result);
     }
 
     [Fact]
@@ -809,7 +809,7 @@ end";
             "{",
             "    _Movie.GoTo(_Movie.CurrentFrame);",
             "}");
-        Assert.Equal(expected.Trim(), result.Trim());
+        expected.LingoCodeShouldBeIdentical(result);
     }
 
     [Fact]
@@ -824,7 +824,8 @@ end";
             "{",
             "    Sprite(263).Visibility = true;",
             "}");
-        Assert.Equal(expected.Trim(), result.Trim());
+
+        expected.LingoCodeShouldBeIdentical(result);
     }
 
     [Fact]
@@ -837,7 +838,7 @@ end";
             "internal void Test()",
             "{",
             "}");
-        Assert.Equal(expected.Trim(), result.Trim());
+        expected.LingoCodeShouldBeIdentical(result);
     }
 
     [Fact]
@@ -854,7 +855,7 @@ end";
             "{",
             "    Do();",
             "}");
-        Assert.Equal(expectedIn, CSharpWriter.Write(withIn).Trim());
+        expectedIn.LingoCodeShouldBeIdentical(CSharpWriter.Write(withIn));
 
         var withTo = new BlingoRepeatWithToStmtNode
         {
@@ -868,7 +869,7 @@ end";
             "{",
             "    Step();",
             "}");
-        Assert.Equal(expectedTo, CSharpWriter.Write(withTo).Trim());
+        expectedTo.LingoCodeShouldBeIdentical(CSharpWriter.Write(withTo));
 
         var until = new BlingoRepeatUntilStmtNode(
             new BlingoVarNode { VarName = "done" },
@@ -878,7 +879,8 @@ end";
             "{",
             "    Work();",
             "} while (!(done));");
-        Assert.Equal(expectedUntil, CSharpWriter.Write(until).Trim());
+        expectedUntil.LingoCodeShouldBeIdentical(CSharpWriter.Write(until));
+
 
         var forever = new BlingoRepeatForeverStmtNode(
             new BlingoBlockNode { Children = { new BlingoCallNode { Name = "Loop" } } });
@@ -887,17 +889,19 @@ end";
             "{",
             "    Loop();",
             "}");
-        Assert.Equal(expectedForever, CSharpWriter.Write(forever).Trim());
+        expectedForever.LingoCodeShouldBeIdentical(CSharpWriter.Write(forever));
 
         var times = new BlingoRepeatTimesStmtNode(
             new BlingoDatumNode(new BlingoDatum(2)),
             new BlingoBlockNode { Children = { new BlingoCallNode { Name = "T" } } });
-        var expectedTimes = string.Join('\n',
+        var expected = string.Join('\n',
             "for (int i = 1; i <= 2; i++)",
             "{",
             "    T();",
             "}");
-        Assert.Equal(expectedTimes, CSharpWriter.Write(times).Trim());
+        var result = CSharpWriter.Write(times);
+        expected.LingoCodeShouldBeIdentical(result);
+
     }
 
     [Fact]
