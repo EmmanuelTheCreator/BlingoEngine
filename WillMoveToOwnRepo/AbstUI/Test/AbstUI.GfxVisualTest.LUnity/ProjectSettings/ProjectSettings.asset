@@ -5,7 +5,7 @@ PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 26
   productName: AbstUI Gfx Visual Test
-  companyName: LingoEngine
+  companyName: BlingoEngine
   defaultScreenWidth: 800
   defaultScreenHeight: 600
   fullscreenMode: 3

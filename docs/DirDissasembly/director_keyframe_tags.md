@@ -127,7 +127,7 @@ PS.: Tweening: The tweening are not keyframe based but sprite based!
 ### unkown 0x0120
 🟡 0x0120 Might Be One of the Following:
 Possibility	Supporting Evidence
-- A structural block separator	Appears between logical tag groups, possibly segmenting “channels” or “zones”
+- A structural block separator	Appears between logical tag groups, possibly segmenting "channels" or "zones"
 - A block type ID or category	May act like a mode switch — similar to 0x1CF6 style flag blocks
 - A data corruption / null padding point	Unlikely here, but worth keeping open if file is malformed
 - A frame state reset marker	Preceded and followed by tag-like data and padding
@@ -304,7 +304,7 @@ This table lists all **tags observed to contain multiple sprite properties**, dr
 
 ## 🧪 Bit Flag H
 
-It’s possible that these tag values encode **bitfields**, with each bit corresponding to a sprite property:
+It's possible that these tag values encode **bitfields**, with each bit corresponding to a sprite property:
 
 | Bit | Value (bit) | Property          |
 |-----|-------------|-------------------|

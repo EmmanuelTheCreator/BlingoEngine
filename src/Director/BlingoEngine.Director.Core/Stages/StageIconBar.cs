@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using AbstUI.Commands;
 using BlingoEngine.Director.Core.Styles;
 using BlingoEngine.Director.Core.Tools;
@@ -122,7 +122,7 @@ public class StageIconBar : IDisposable
         };
         container.AddItem(_colorPicker);
 
-        _recordButton = factory.CreateStateButton("RecordButton", null, "â—");
+        _recordButton = factory.CreateStateButton("RecordButton", null, "●");
         _recordButton.Width = iconBarHeight;
         _recordButton.Height = iconBarHeight;
         _recordButton.IsOn = _stageManager.RecordKeyframes;

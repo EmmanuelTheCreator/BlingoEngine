@@ -1,21 +1,21 @@
-﻿# Importing Cast Libraries from CSV
+# Importing Cast Libraries from CSV
 
 BlingoEngine can populate a cast library by reading a simple **CSV** file. This allows you to organise media assets and script members in a spreadsheet and load them at runtime.
 
 ## CSV layout
 
-Each line in the CSV represents one cast member. The importer expects five commaâ€‘separated fields:
+Each line in the CSV represents one cast member. The importer expects five comma‑separated fields:
 
 ```
 Number,Type,Name,Registration Point,Filename
 1,bitmap,BallB,"(5, 5)",
 ```
 
-* **Number** â€“ numeric id of the member inside the cast.
-* **Type** â€“ member type such as `bitmap`, `text`, `field`, `filmLoop`, `sound`, or `script`.
-* **Name** â€“ optional string name.
-* **Registration Point** â€“ `(x, y)` coordinates of the memberâ€™s registration point.
-* **Filename** â€“ optional relative path to the file backing the member.
+* **Number** – numeric id of the member inside the cast.
+* **Type** – member type such as `bitmap`, `text`, `field`, `filmLoop`, `sound`, or `script`.
+* **Name** – optional string name.
+* **Registration Point** – `(x, y)` coordinates of the member's registration point.
+* **Filename** – optional relative path to the file backing the member.
 
 If the filename column is empty the importer generates a filename based on the number, name and a default extension (`.png` for bitmaps, `.txt` for text and field members, `.wav` for sounds, `.cs` for scripts). Text members additionally support sibling `.md` or `.rtf` files which are preferred when present.
 
@@ -25,11 +25,11 @@ The importer resolves filenames relative to the directory containing the CSV fil
 
 ```
 Media/
-â”œâ”€â”€ Data/
-â”‚   â”œâ”€â”€ Members.csv
-â”‚   â”œâ”€â”€ 1_Parameters.txt
-â”‚   â”œâ”€â”€ 2_BirdAnim.png
-â”‚   â””â”€â”€ ...
+├── Data/
+│   ├── Members.csv
+│   ├── 1_Parameters.txt
+│   ├── 2_BirdAnim.png
+│   └── ...
 ```
 
 When a text member has a matching Markdown file (`.md`), its content is loaded; otherwise an `.rtf` file or the plain text file is used. Binary assets such as images and sounds are loaded as referenced by the filename.

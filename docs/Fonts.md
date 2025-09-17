@@ -1,4 +1,4 @@
-﻿# Fonts in BlingoEngine
+# Fonts in BlingoEngine
 
 BlingoEngine relies on the `IAbstFontManager` abstraction from the underlying AbstUI library to provide a uniform font API across SDL2, Godot, Unity, and Blazor backends. The manager registers font files, loads platform-specific assets, and exposes helpers for measuring text. Font styles use the flag-based `AbstFontStyle` enum so bold and italic styles can be combined.
 
@@ -36,7 +36,7 @@ var defaultFont = fonts.GetDefaultFont<object>(); // backend specific type
 ## Framework implementations
 
 ### SDL2
-`SdlFontManager` loads fonts through SDL_ttf. Registering a regular font automatically queues bold, italic, and boldâ€‘italic variants, and a builtâ€‘in Tahoma family is used as a fallback.
+`SdlFontManager` loads fonts through SDL_ttf. Registering a regular font automatically queues bold, italic, and bold‑italic variants, and a built‑in Tahoma family is used as a fallback.
 
 ```csharp
 fonts.AddFont("OpenSans", "Fonts/OpenSans.ttf");
@@ -54,7 +54,7 @@ var labelFont = fonts.Get<FontFile>("ARIAL", AbstFontStyle.Italic);
 ```
 
 ### Unity
-`UnityFontManager` reads Unity `Font` assets, falling back to the builtâ€‘in Tahoma font when resources are missing. It exposes `MeasureTextWidth` for layout calculations.
+`UnityFontManager` reads Unity `Font` assets, falling back to the built‑in Tahoma font when resources are missing. It exposes `MeasureTextWidth` for layout calculations.
 
 ```csharp
 fonts.AddFont("Roboto", "Fonts/Roboto");

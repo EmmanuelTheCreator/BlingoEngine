@@ -1,4 +1,4 @@
-﻿# BlingoEngine.VerboseLanguage
+# BlingoEngine.VerboseLanguage
 Package if you want to use the Verbose Lingo Language. Know that this is much slower than the standard .NET Language.
 
 ## examples

@@ -102,7 +102,15 @@ The table below lists the first few bytes that differ when comparing `Text_Hallo
 | 0x0018 | 0x2C | 0x00 |
 | 0x0019 | 0x00 | 0x18 |
 
-| Text_Hallo_multiLine.cst | 1F, | Hallomulti lineis longerYES! | 3030303030303030 | 30303034303030303030304130303030 |
+| Text_Hallo_multiLine.cst | 1F, | Hallo
+multi line
+is longer
+YES! | 3030303030303030 | 30303034303030303030304130303030 |
+| Text_Hallo_textAlignLeft.cst | 1F, | Hallo
+multi line
+is longer
+YES! | 3030303030303030 | 30303034303030303030304130303030 |
+is longerYES! | 3030303030303030 | 30303034303030303030304130303030 |
 | Text_Hallo_tab_true.cst | 5, | Hallo | 3030303030303030 | 30303034303030303030303930303030 |
 | Text_Hallo_textAlignLeft.cst | 5, | Hallo | 3030303030303030 | 30303034303030303030303930303030 |
 | Text_Hallo_textAlignLeft.cst | 1F, | Hallomulti lineis longerYES! | 3030303030303030 | 30303034303030303030304130303030 |
@@ -418,7 +426,7 @@ eight bytes normally seen in 24‑ or 32‑bit colour formats.
 | 1 | 0x0B6A | FFFF |
 | 2 | 0x1128 | 77AA |
 | 3 | 0x1189 | FF00 |
-| 4 | 0x11D9 | 8C00 |
+defines an Arial 12 px font with centered alignment. This shows that the
 | 5 | 0x1601 | 9900 |
 | 6 | 0x1A08 | 60FF |
 

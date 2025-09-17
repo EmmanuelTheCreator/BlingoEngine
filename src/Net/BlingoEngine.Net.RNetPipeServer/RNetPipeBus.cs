@@ -4,7 +4,7 @@ using BlingoEngine.Net.RNetContracts;
 namespace BlingoEngine.Net.RNetPipeServer;
 
 /// <summary>
-/// Channels used to communicate between the Lingo engine runtime and the pipe transport.
+/// Channels used to communicate between the BlingoEngine runtime and the pipe transport.
 /// </summary>
 public interface IRNetPipeBus
 {

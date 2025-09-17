@@ -1,4 +1,4 @@
-﻿# Project Setup
+# Project Setup
 
 BlingoEngine runs on multiple frameworks by delegating platform specific work to
 an `IBlingoFrameworkFactory`.  The factory provides rendering, input, sound and
@@ -32,7 +32,7 @@ everything together and prepares the engine to run.
 
 ## Sample `IBlingoProjectFactory`
 
-This factory wires fonts, a 640Ã—480 stage, movie scripts, and custom services before the engine starts.
+This factory wires fonts, a 640×480 stage, movie scripts, and custom services before the engine starts.
 
 ```csharp
 using BlingoEngine.Projects;
@@ -83,7 +83,7 @@ public class MyGameProjectFactory : IBlingoProjectFactory
 ```
 
 This implementation defines four required methods:
-- `Setup(IBlingoEngineRegistration config)` registers fonts, project settings (including the 640Ã—480 stage), movies, and services.
+- `Setup(IBlingoEngineRegistration config)` registers fonts, project settings (including the 640×480 stage), movies, and services.
 - `LoadCastLibsAsync(IBlingoCastLibsContainer castlibs, BlingoPlayer player)` loads external cast libraries using the provided player.
 - `LoadStartupMovieAsync(IBlingoServiceProvider services, BlingoPlayer player)` chooses the movie that starts first.
 - `Run(IBlingoMovie movie, bool autoPlayMovie)` finalizes startup and optionally plays the movie automatically.
@@ -148,16 +148,16 @@ services.RegisterBlingoEngine(cfg => cfg
 
 The stage width and height configured in `Setup` define the playable stage area.
 The Director window should be larger and is configured via the runtime (for SDL2 through `WithBlingoSdlEngine` and for Godot via project settings).
-All examples here use a 640Ã—480 stage.
+All examples here use a 640×480 stage.
 
-Each framework exposes its own factory type (`SdlFactory`, `GodotFactory`, â€¦).
+Each framework exposes its own factory type (`SdlFactory`, `GodotFactory`, …).
 You can pass a callback to the `WithBlingo*Engine` method to tweak the factory
 before the engine starts.
 
 ### Conditional Director usage
 
 You can enable the Director interface only in debug builds by defining a
-compileâ€‘time constant in your project file:
+compile‑time constant in your project file:
 
 ```xml
 <PropertyGroup Condition="'$(Configuration)' == 'Debug'">

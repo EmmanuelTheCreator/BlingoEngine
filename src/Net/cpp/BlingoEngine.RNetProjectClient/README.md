@@ -1,4 +1,4 @@
-﻿# C++ BlingoEngine.RNetProjectClient
+# C++ BlingoEngine.RNetProjectClient
 
 This folder contains a C++ implementation of the `RNetProjectClient` using the Microsoft SignalR client and `nlohmann::json`.
 

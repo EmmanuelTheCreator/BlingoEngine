@@ -1,12 +1,12 @@
-﻿# ProjectorRays Director Shockwave Decompiler â€“ .NET Version
+# ProjectorRays Director Shockwave Decompiler – .NET Version
 
 **Original project:** [https://github.com/ProjectorRays/ProjectorRays](https://github.com/ProjectorRays/ProjectorRays)
 
 This version was created to be used in the [BlingoEngine Project](https://github.com/EmmanuelTheCreator/BlingoEngine). It is a recreation of the classic Director environment in C#/.NET, designed to help convert old Director projects to .NET and make them runnable in Godot, SDL, or any other future framework.
 
-**ProjectorRays** is a decompiler for [Adobe Shockwave](https://en.wikipedia.org/wiki/Adobe_Shockwave) and [Adobe Director](https://en.wikipedia.org/wiki/Adobe_Director) (formerly Macromedia Shockwave and Macromedia Directorâ€”not to be confused with [Shockwave Flash](https://en.wikipedia.org/wiki/Adobe_Flash)).
+**ProjectorRays** is a decompiler for [Adobe Shockwave](https://en.wikipedia.org/wiki/Adobe_Shockwave) and [Adobe Director](https://en.wikipedia.org/wiki/Adobe_Director) (formerly Macromedia Shockwave and Macromedia Director—not to be confused with [Shockwave Flash](https://en.wikipedia.org/wiki/Adobe_Flash)).
 
-Director was released in 1987 and quickly became the worldâ€™s leading multimedia platform. Beginning in 1995, Director movies could be published as `.dcr` files and played on the web using the Shockwave plugin. Over the years, the platform powered countless CD-ROM and web games before being fully discontinued in 2019.
+Director was released in 1987 and quickly became the world's leading multimedia platform. Beginning in 1995, Director movies could be published as `.dcr` files and played on the web using the Shockwave plugin. Over the years, the platform powered countless CD-ROM and web games before being fully discontinued in 2019.
 
 Today, Shockwave games are no longer playable on the modern web, and the original source code is often lost or unavailable. ProjectorRays can take a published game, reconstruct its [Lingo](https://en.wikipedia.org/wiki/Blingo_(programming_language)) source code, and generate editable project files to support preservation efforts.
 

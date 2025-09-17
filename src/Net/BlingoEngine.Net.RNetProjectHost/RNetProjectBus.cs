@@ -4,7 +4,7 @@ using BlingoEngine.Net.RNetContracts;
 namespace BlingoEngine.Net.RNetProjectHost;
 
 /// <summary>
-/// Channels used to communicate between the Lingo engine runtime and the SignalR hub.
+/// Channels used to communicate between the BlingoEngine runtime and the SignalR hub.
 /// </summary>
 public interface IRNetProjectBus
 {

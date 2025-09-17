@@ -91,7 +91,7 @@ internal partial class ImportDirCstFilesStep : VBoxContainer
     {
         var row = new HBoxContainer();
         row.AddChild(new Label { Text = Path.GetFileName(path), CustomMinimumSize = new Vector2(200,16) });
-        var trash = new Button { Text = "ðŸ—‘" };
+        var trash = new Button { Text = "🗑" };
         trash.Pressed += () => RemoveFile(row, path);
         row.AddChild(trash);
         _fileList.AddChild(row);

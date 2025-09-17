@@ -6,7 +6,7 @@ export DOTNET_ROOT="$HOME/.dotnet"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$SCRIPT_DIR/.."
-PROJECT="$ROOT_DIR/Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.SDL2/LingoEngine.Demo.TetriGrounds.SDL2.csproj"
+PROJECT="$ROOT_DIR/Demo/TetriGrounds/BlingoEngine.Demo.TetriGrounds.SDL2/BlingoEngine.Demo.TetriGrounds.SDL2.csproj"
 OUT_DIR="$ROOT_DIR/Publish/TetriGrounds-RasberryPi"
 ARCH=arm
 
