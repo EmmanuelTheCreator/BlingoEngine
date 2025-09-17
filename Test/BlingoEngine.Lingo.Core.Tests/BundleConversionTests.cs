@@ -22,7 +22,7 @@ public class BundleConversionTests
     [Fact]
     public void DemoScriptsAreConvertedToValidClasses()
     {
-        var baseDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "Demo", "TetriGrounds", "TetriGrounds.Lingo.Original"));
+        var baseDir = TetriGroundsTestData.GetOriginalScriptsDirectory();
         var files = Directory.GetFiles(baseDir, "*.ls");
         var scripts = files
             .Select(f =>
@@ -50,7 +50,7 @@ public class BundleConversionTests
     [Fact]
     public void DemoScriptsAreWrittenToGeneratedFolder()
     {
-        var baseDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "Demo", "TetriGrounds", "TetriGrounds.Lingo.Original"));
+        var baseDir = TetriGroundsTestData.GetOriginalScriptsDirectory();
         var generatedDir = Path.Combine(baseDir, "Generated");
         if (Directory.Exists(generatedDir))
             Directory.Delete(generatedDir, true);
@@ -82,7 +82,7 @@ public class BundleConversionTests
     [Fact]
     public void SpriteManagerScriptIsConverted()
     {
-        var baseDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "Demo", "TetriGrounds", "TetriGrounds.Lingo.Original"));
+        var baseDir = TetriGroundsTestData.GetOriginalScriptsDirectory();
         var path = Path.Combine(baseDir, "3_SpriteManager.ls");
         var script = new BlingoScriptFile("3_SpriteManager", File.ReadAllText(path)) { RelativeDirectory = null };
         _converter.Convert(new[] { script }, new ConversionOptions { Namespace = "Demo.TetriGrounds" });
@@ -117,7 +117,7 @@ public class BundleConversionTests
     [Fact]
     public void ConstructorParameterTypesAreInferred()
     {
-        var baseDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "Demo", "TetriGrounds", "TetriGrounds.Lingo.Original"));
+        var baseDir = TetriGroundsTestData.GetOriginalScriptsDirectory();
         var path = Path.Combine(baseDir, "3_SpriteManager.ls");
         var script = new BlingoScriptFile("3_SpriteManager", File.ReadAllText(path), ScriptDetectionType.Parent);
         _converter.Convert(new[] { script });
@@ -128,7 +128,7 @@ public class BundleConversionTests
     [Fact]
     public void ParameterAssignedAfterVoidCheckIsInferred()
     {
-        var baseDir = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "Demo", "TetriGrounds", "TetriGrounds.Lingo.Original"));
+        var baseDir = TetriGroundsTestData.GetOriginalScriptsDirectory();
         var path = Path.Combine(baseDir, "10_Block.ls");
         var script = new BlingoScriptFile("10_Block", File.ReadAllText(path), ScriptDetectionType.Parent);
         _converter.Convert(new[] { script });

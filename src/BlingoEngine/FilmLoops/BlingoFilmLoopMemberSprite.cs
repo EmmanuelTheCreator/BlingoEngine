@@ -80,7 +80,7 @@ namespace BlingoEngine.FilmLoops
             _animatorProperties = new BlingoSpriteAnimatorProperties();
         }
 
-        public BlingoFilmLoopMemberSprite(IBlingoMember member, int channel=0, int begin = 0, int end = 0, int locH = 0, int locV=0) : this()
+        public BlingoFilmLoopMemberSprite(IBlingoMember member, int channel = 0, int begin = 0, int end = 0, int locH = 0, int locV = 0) : this()
         {
             if (member != null)
                 SetMember(member);
@@ -89,8 +89,10 @@ namespace BlingoEngine.FilmLoops
             Channel = channel;
             LocH = locH;
             LocV = locV;
-            Width = 50;
-            Height = 50;
+            if (Width == 0)
+                Width = 50;
+            if (Height == 0)
+                Height = 50;
             InkType = BlingoInkType.Matte;
         }
 

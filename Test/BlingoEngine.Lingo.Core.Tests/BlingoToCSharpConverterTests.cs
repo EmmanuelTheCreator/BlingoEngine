@@ -614,8 +614,7 @@ end";
     {
         string root = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory,
             "..", "..", "..", "..", ".."));
-        string ls = File.ReadAllText(Path.Combine(root, "Demo", "TetriGrounds",
-            "TetriGrounds.Lingo.Original", "13_B_NewGame.ls"));
+        string ls = File.ReadAllText(Path.Combine(TetriGroundsTestData.GetOriginalScriptsDirectory(), "13_B_NewGame.ls"));
         string expected = File.ReadAllText(Path.Combine(root, "Demo",
             "TetriGrounds", "BlingoEngine.Demo.TetriGrounds.Core", "Sprites",
             "Behaviors", "NewGameBehavior.cs"));
