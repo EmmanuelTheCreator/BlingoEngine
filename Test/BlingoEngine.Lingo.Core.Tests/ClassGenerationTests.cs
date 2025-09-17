@@ -63,24 +63,24 @@ public class ClassGenerationTests
             Type = BlingoScriptType.Parent
         };
         var result = _converter.Convert(file).Trim();
-        var expected = string.Join('\n',
-            "using System;",
-            "using BlingoEngine.Lingo.Core;",
-            "",
-            "namespace Generated;",
-            "",
-            "public class MyParentParent : BlingoParentScript",
-            "{",
-            "    public object myVar;",
-            "",
-            "    private readonly GlobalVars _global;",
-            "",
-            "    public MyParentParent(IBlingoMovieEnvironment env, GlobalVars global, object x) : base(env)",
-            "    {",
-            "        _global = global;",
-            "        myVar = x;",
-            "    }",
-            "}");
+        var expected = @"using System;
+using BlingoEngine.Lingo.Core;
+
+namespace Generated;
+
+public class MyParentParent : BlingoParentScript
+{
+    public object myVar;
+
+    private readonly GlobalVars _global;
+
+    public MyParentParent(IBlingoMovieEnvironment env, GlobalVars global, object x) : base(env)
+    {
+        _global = global;
+        
+        myVar = x;
+    }
+}";
         ShouldBeEqual(expected, result);
     }
 

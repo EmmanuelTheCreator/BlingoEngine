@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using BlingoEngine.Sprites;
 using Xunit;
-
+namespace BlingoEngine.Blingo.Tests;
 public class BlingoSprite2DManagerTests
 {
     [Fact]

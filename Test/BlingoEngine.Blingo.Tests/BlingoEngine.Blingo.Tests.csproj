@@ -22,7 +22,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\BlingoEngine\BlingoEngine.csproj" />
-    <ProjectReference Include="..\..\src\BlingoEngine.SDL2\BlingoEngine.SDL2.csproj" />
   </ItemGroup>
 
   <ItemGroup>

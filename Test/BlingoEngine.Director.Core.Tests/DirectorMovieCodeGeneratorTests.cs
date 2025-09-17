@@ -130,7 +130,7 @@ public class MainCast : IBlingoCastLibBuilder
     }
 }
 """;
-        code.Trim().Should().Be(expected.Trim());
+        code.LingoCodeShouldBeIdentical(expected);
     }
 
     [Fact]
@@ -180,7 +180,7 @@ public class ScoreBuilder : IBlingoScoreBuilder
     }
 }
 """;
-        code.Trim().Should().Be(expected.Trim());
+        code.LingoCodeShouldBeIdentical(expected);
     }
 
     [Fact]
@@ -216,7 +216,7 @@ public class MovieBuilder : IBlingoMovieBuilder
     }
 }
 """;
-        code.Trim().Should().Be(expected.Trim());
+        code.LingoCodeShouldBeIdentical(expected);
     }
 }
 

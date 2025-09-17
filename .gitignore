@@ -422,3 +422,5 @@ Samples/SetupWays/BlingoEngineMinimalGodot/.godot/
 Samples/SetupWays/BlingoEngineWithDirectorInDebugGodot/.godot/.gdignore
 Samples/SetupWays/BlingoEngineWithDirectorInDebugGodot/.godot/
 
+.wiki-tmp
+

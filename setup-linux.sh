@@ -31,6 +31,7 @@ LIB_DIR="Libs/$ARCH_DIR"
 PROJECTS=(
   "Demo/TetriGrounds/BlingoEngine.Demo.TetriGrounds.SDL2"
   "Test/BlingoEngine.SDL2.GfxVisualTest"
+  "Test/BlingoEngine.Blingo.SDL2.Tests"
   "WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.SDL2"
   "WillMoveToOwnRepo/AbstUI/Test/AbstUI.SDLTest"
   "src/Director/BlingoEngine.Director.Runner.SDL2"

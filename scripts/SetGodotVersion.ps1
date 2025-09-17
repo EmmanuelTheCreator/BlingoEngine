@@ -1,5 +1,6 @@
 param([string]$VersionTag)
 
+
 function Get-VersionFromCandidate {
     param([string]$Candidate)
 
@@ -154,6 +155,7 @@ function Get-NormalizedVersionTag {
     }
 
     return Get-VersionFromCandidate $value
+
 }
 
 function Get-NuGetVersionFromTag {
