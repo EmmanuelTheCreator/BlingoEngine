@@ -26,10 +26,13 @@ Bugs, missing features, todo's and so on. A fast notes document.
 - play/stop/rewind should be possible to send too.
 
 ## Godot
+- AbstUI.Godot WrapPanel not working correctly
 
-
+### Godot Director
+- When selecting in the Remote dilog setting the protocol Pipe, its not showing the Server in the folowing dropdown.
 
 ## SDL
+- AbstUI.SDL WrapPanel not working correctly
 - AbstUIStill still doesnt render correctly Tabs inside window. Probably wrap panel or panel bug
 
 
