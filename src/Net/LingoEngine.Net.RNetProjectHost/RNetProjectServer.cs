@@ -35,6 +35,7 @@ public sealed class RNetProjectServer : IRNetProjectServer
         public bool AutoStartRNetHostOnStartup { get; set; }
         public string ClientName { get; set; } = "TheHost";
         public RNetClientType ClientType { get; set; } = RNetClientType.Project;
+        public RNetRemoteRole RemoteRole { get; set; } = RNetRemoteRole.Host;
     }
     public bool DetailedLogging { get; set; } = true;
 

@@ -4,7 +4,7 @@ This folder collects guides, references, and research notes for LingoEngine.
 
 ## Design & Architecture
 - [design/Architecture.md](design/Architecture.md) – Layered architecture and cross‑platform design of the engine.
-- [design/RNetHostServer.md](design/RNetHostServer.md) – Running the SignalR host used by the Director tooling.
+- [design/RNet.md](design/RNet.md) – End-to-end guide covering every RNet project, transport, and usage pattern.
 - [design/Lingo_vs_CSharp.md](design/Lingo_vs_CSharp.md) – Mapping of Lingo syntax to C# equivalents.
 - [design/ProjectSetup.md](design/ProjectSetup.md) – Registering the engine and configuring projects and movies.
 

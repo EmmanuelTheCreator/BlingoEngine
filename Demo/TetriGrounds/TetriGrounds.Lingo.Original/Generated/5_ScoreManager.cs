@@ -3,7 +3,7 @@ using LingoEngine.Lingo.Core;
 
 namespace Demo.TetriGrounds;
 
-public class ScoreManagerParentScript : LingoParentScript
+public class ScoreManagerParent : LingoParentScript
 {
     public int myPlayerScore;
     public string myLevel;
@@ -16,9 +16,10 @@ public class ScoreManagerParentScript : LingoParentScript
 
     private readonly GlobalVars _global;
 
-    public ScoreManagerParentScript(ILingoMovieEnvironment env, GlobalVars global) : base(env)
+    public ScoreManagerParent(ILingoMovieEnvironment env, GlobalVars global) : base(env)
     {
         _global = global;
+        
         myPlayerScore = 0;
         myNumberLinesTot = 0;
         myLevelUpPlusScore = 0;
@@ -30,41 +31,41 @@ public class ScoreManagerParentScript : LingoParentScript
         NewText("Go!");
         Refresh();
     }
+// Copyright to EmmanuelTheCreator.com
+// This file was written in 2005, yeah a lot has evolved since then :-)
 public void Refresh()
 {
-    case(myNumberLinesRemoved);
-    // error
-    // error
-    // error
-    LineRemoved1();
-    // error
-    // error
-    LineRemoved2();
-    // error
-    // error
-    LineRemoved3();
-    // error
-    // error
-    LineRemoved4();
+    switch (myNumberLinesRemoved)
+    {
+        case 1:
+            LineRemoved1();
+            break;
+        case 2:
+            LineRemoved2();
+            break;
+        case 3:
+            LineRemoved3();
+            break;
+        case 4:
+            LineRemoved4();
+            break;
+    }
+    myNumberLinesRemoved = 0;
+    // check fot level up (its the number of blocks droped)
+    if (myBlocksDroped > myLevelUpNeededScore)
+    {
+        SendSprite<StartAnimBehavior>(22, startanimbehavior => startanimbehavior.startAnim());
+        myLevelUp = true;
+        myLevel = myLevel + 1;
+        NewText(("Level " + myLevel) + " !!");
+        myLevelUpNeededScore = myLevelUpNeededScore + 20;
+        // this is the score needed to go a level up
+    }
+    UpdateGfxScore();
+    GetMember<ILingoMemberTextBase>("T_data").Text = "Level " + myLevel;
+    // member("T_data").text = "Blocks = "&string(myBlocksDroped)&return&"NeededBlocks = "&myLevelUpNeededScore&return&" Lines Removed = "&myNumberLinesTot&return&"myLevel = "&myLevel
 }
 
-case(myNumberLinesRemoved == 0);
-// check fot level up (its the number of blocks droped)
-if (myBlocksDroped > myLevelUpNeededScore)
-{
-    SendSprite<15_AnimationScript>(22, 15_animationscript => 15_animationscript.startAnim());
-    myLevelUp = true;
-    myLevel = myLevel + 1;
-    NewText(("Level " + myLevel) + " !!");
-    myLevelUpNeededScore = myLevelUpNeededScore + 20;
-    // this is the score needed to go a level up
-}
-UpdateGfxScore();
-GetMember<ILingoMemberTextBase>("T_data").Text = "Level " + myLevel;
-// member("T_data").text = "Blocks = "&string(myBlocksDroped)&return&"NeededBlocks = "&myLevelUpNeededScore&return&\
-// error
-// error
-((myNumberLinesTot + "\n") + "myLevel = ") + myLevel// error
 // ----------------------------------------
 public void LineRemoved1()
 {
@@ -141,7 +142,157 @@ public void NewText(object _text)
     {
         myOverScreenText = [];
     }
-    myOverScreenText.Add(new OverScreenTextParentScript(_env, _globalvars, 130, _text, this);
+    myOverScreenText.Add(new OverScreenTextParent(_env, _globalvars, 130, _text, this);
+    );
+}
+
+public void TextFinished(object obj)
+{
+    _pos = myOverScreenText.GetPos(obj);
+    myOverScreenText[_pos].Destroy();
+    myOverScreenText.DeleteOne(obj);
+}
+
+public void DestroyoverscreenTxt()
+{
+    for (var i = 1; i <= myOverScreenText.Count; i++)
+    {
+        myOverScreenText[i].Destroy();
+        myOverScreenText[i] = 0;
+    }
+    myOverScreenText = [];
+}
+
+// ---------------------------
+public void Destroy()
+{
+    DestroyoverscreenTxt();
+}
+
+public void New()
+{
+    myPlayerScore = 0;
+    myNumberLinesTot = 0;
+    myLevelUpPlusScore = 0;
+    // find stqrt level
+    myLevel = Convert.ToInt32(GetMember<ILingoMemberTextBase>("T_StartLevel").Text);
+    myLevelUpNeededScore = 20 * (myLevel + 1);
+    UpdateGfxScore();
+    myTexts = [];
+    NewText("Go!");
+    Refresh();
+}
+
+public void Refresh()
+{
+    switch (myNumberLinesRemoved)
+    {
+        case 1:
+            LineRemoved1();
+            break;
+        case 2:
+            LineRemoved2();
+            break;
+        case 3:
+            LineRemoved3();
+            break;
+        case 4:
+            LineRemoved4();
+            break;
+    }
+    myNumberLinesRemoved = 0;
+    // check fot level up (its the number of blocks droped)
+    if (myBlocksDroped > myLevelUpNeededScore)
+    {
+        SendSprite<StartAnimBehavior>(22, startanimbehavior => startanimbehavior.startAnim());
+        myLevelUp = true;
+        myLevel = myLevel + 1;
+        NewText(("Level " + myLevel) + " !!");
+        myLevelUpNeededScore = myLevelUpNeededScore + 20;
+        // this is the score needed to go a level up
+    }
+    UpdateGfxScore();
+    GetMember<ILingoMemberTextBase>("T_data").Text = "Level " + myLevel;
+    // member("T_data").text = "Blocks = "&string(myBlocksDroped)&return&"NeededBlocks = "&myLevelUpNeededScore&return&" Lines Removed = "&myNumberLinesTot&return&"myLevel = "&myLevel
+}
+
+// ----------------------------------------
+public void LineRemoved1()
+{
+    myPlayerScore = (myPlayerScore + 5) + myLevel;
+}
+
+public void LineRemoved2()
+{
+    NewText("2 Lines Removed!!");
+    myPlayerScore = (myPlayerScore + 12) + myLevel;
+}
+
+public void LineRemoved3()
+{
+    NewText("3 Lines Removed!!");
+    myPlayerScore = (myPlayerScore + 20) + myLevel;
+}
+
+public void LineRemoved4()
+{
+    NewText("Wooow, 4 Lines Removed!!");
+    myPlayerScore = (myPlayerScore + 30) + myLevel;
+}
+
+// ----------------------------------------
+public void AddDropedBlock()
+{
+    myBlocksDroped = myBlocksDroped + 1;
+}
+
+public void LineRemoved()
+{
+    myNumberLinesRemoved = myNumberLinesRemoved + 1;
+    myNumberLinesTot = myNumberLinesTot + 1;
+}
+
+public void BlockFrozen()
+{
+    myPlayerScore = myPlayerScore + 1;
+    Refresh();
+}
+
+public void UpdateGfxScore()
+{
+    GetMember<ILingoMemberTextBase>("T_Score").Text = string(myPlayerScore);
+}
+
+public void GetLevelup()
+{
+    temp = myLevelUp;
+    myLevelUp = false;
+    return temp;
+}
+
+public void GameFinished()
+{
+    NewText("You're Terminated....");
+}
+
+public void GetLevel()
+{
+    return myLevel;
+}
+
+public void GetScore()
+{
+    return myPlayerScore;
+}
+
+// ---------------------------
+public void NewText(object _text)
+{
+    if (myOverScreenText == null)
+    {
+        myOverScreenText = [];
+    }
+    myOverScreenText.Add(new OverScreenTextParent(_env, _globalvars, 130, _text, this);
     );
 }
 

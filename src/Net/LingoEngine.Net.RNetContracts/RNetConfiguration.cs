@@ -13,6 +13,9 @@ public class RNetConfiguration : IRNetConfiguration
     public string ClientName { get; set; } = "Someone";
 
     /// <inheritdoc />
+    public RNetRemoteRole RemoteRole { get; set; } = RNetRemoteRole.Client;
+
+    /// <inheritdoc />
     public RNetClientType ClientType { get; set; } = RNetClientType.Project;
 }
 

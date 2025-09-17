@@ -1,4 +1,5 @@
 using System.Linq;
+using FluentAssertions;
 using LingoEngine.Lingo.Core;
 using Xunit;
 
@@ -22,7 +23,7 @@ public class ClassGenerationTests
             "{",
             "    public MyBehaviorBehavior(ILingoMovieEnvironment env) : base(env) { }",
             "}");
-        Assert.Equal(expected, result);
+        ShouldBeEqual(expected, result);
     }
 
     [Fact]
@@ -45,7 +46,7 @@ public class ClassGenerationTests
             "        _global = global;",
             "    }",
             "}");
-        Assert.Equal(expected, result);
+        ShouldBeEqual(expected, result);
     }
 
     [Fact]
@@ -80,7 +81,7 @@ public class ClassGenerationTests
             "        myVar = x;",
             "    }",
             "}");
-        Assert.Equal(expected, result);
+        ShouldBeEqual(expected, result);
     }
 
     [Fact]
@@ -103,7 +104,7 @@ public class ClassGenerationTests
             "        _global = global;",
             "    }",
             "}");
-        Assert.Equal(expected, result);
+        ShouldBeEqual(expected, result);
     }
 
     [Fact]
@@ -127,7 +128,7 @@ public class ClassGenerationTests
             "        ;",
             "    }",
             "}");
-        Assert.Equal(expected, result);
+        ShouldBeEqual(expected, result);
     }
 
     [Fact]
@@ -151,7 +152,7 @@ public class ClassGenerationTests
             "        ;",
             "    }",
             "}");
-        Assert.Equal(expected, result);
+        ShouldBeEqual(expected, result);
     }
 
     [Fact]
@@ -337,5 +338,14 @@ end",
             else
                 Assert.Contains($"public void {methodName}({param})", result);
         }
+
     }
+    private static string ShouldBeEqual(string generated,string expected)
+    {
+        var normGen = NormalizeLineEndings(generated).Trim();
+        var normExp = NormalizeLineEndings(expected).Trim();
+        normExp.Should().BeEquivalentTo(normGen);
+        return normGen;
+    }
+    private static string NormalizeLineEndings(string input) => input.Replace("\r\n", "\n").Replace("\r", "\n");
 }

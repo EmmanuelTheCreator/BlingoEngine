@@ -1,6 +1,7 @@
 # Getting Started
 
 This short guide explains the layout of the repository and how to run the test suite locally.
+For minimal end-to-end bootstraps, browse the [Sample Projects overview](../Samples/ReadMe.md).
 
 ## 📁 Project Structure
 

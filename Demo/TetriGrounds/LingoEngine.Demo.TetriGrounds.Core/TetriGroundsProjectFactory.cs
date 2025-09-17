@@ -28,7 +28,7 @@ namespace LingoEngine.Demo.TetriGrounds.Core;
 
 public class TetriGroundsProjectFactory : ILingoProjectFactory
 {
-    public const string MovieName = "Aaark Noid";
+    public const string MovieName = "TetriGrounds";
     private LingoProjectSettings _settings;
     private ILingoMovie? _movie;
     private LingoPlayer? _lingoPlayer;

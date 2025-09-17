@@ -15,6 +15,7 @@ public class RaysCastChunk : RaysChunk
     public Dictionary<ushort, RaysCastMemberChunk> Members = new();
     public RaysScriptContextChunk? Lctx;
     private int _nextMideIndex;
+    private int _nextXmedIndex;
 
     public RaysCastChunk(RaysDirectorFile? dir) : base(dir, ChunkType.CastChunk) { }
 
@@ -174,10 +175,21 @@ public class RaysCastChunk : RaysChunk
             }
             else
             {
-                xmedInfo = Dir.GetLastXMED();
-
-                if (xmedInfo != null)
-                    Dir.Logger.LogInformation($"XMED fallback found: FourCC=XMED, SectionID={xmedInfo.Id}");
+                // Instead of always using the last XMED, assign XMED chunks sequentially
+                // to handle cases where multiple text members don't have KEY entries
+                var xmedChunks = Dir.ChunkInfos.Values.Where(c => c.FourCC == xmedInt).OrderBy(c => c.Id).ToList();
+                if (_nextXmedIndex < xmedChunks.Count)
+                {
+                    xmedInfo = xmedChunks[_nextXmedIndex++];
+                    Dir.Logger.LogInformation($"XMED sequential assignment: Index={_nextXmedIndex - 1}, SectionID={xmedInfo.Id}");
+                }
+                else
+                {
+                    // Fallback to last XMED if we run out of sequential ones
+                    xmedInfo = Dir.GetLastXMED();
+                    if (xmedInfo != null)
+                        Dir.Logger.LogInformation($"XMED fallback to last: SectionID={xmedInfo.Id}");
+                }
             }
 
             if (xmedInfo != null)

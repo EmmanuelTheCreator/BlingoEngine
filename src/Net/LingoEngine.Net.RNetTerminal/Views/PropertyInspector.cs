@@ -49,6 +49,8 @@ internal sealed class PropertyInspector : View
 
     public LingoMemberDTO? CurrentMember => _member;
 
+    public bool DelayPropertyUpdates { get; set; }
+
     public event Action<PropertyTarget, string, string>? PropertyChanged;
 
     public PropertyInspector()
@@ -511,9 +513,11 @@ internal sealed class PropertyInspector : View
             var newValue = EditValue(spec.Type, spec.Name, value);
             if (newValue != null)
             {
-                table.Data.Rows[args.Row][1] = newValue;
+                if (!DelayPropertyUpdates)
+                    table.Data.Rows[args.Row][1] = newValue;
                 PropertyChanged?.Invoke(PropertyTarget.Member, spec.Name, newValue);
             }
+            //view.SetNeedsDisplay();
             //view.SetNeedsDraw();
         };
     }

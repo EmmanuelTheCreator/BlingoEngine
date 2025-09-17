@@ -418,3 +418,6 @@ Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Blazor/wwwroot/Media/Icons/
 Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Blazor/wwwroot/Media/InternalExt/
 Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Blazor/Media/
 src/Director/LingoEngine.Director.Runner.Godot/.godot/
+Samples/SetupWays/LingoEngineMinimalGodot/.godot/
+Samples/SetupWays/LingoEngineWithDirectorInDebugGodot/.godot/.gdignore
+Samples/SetupWays/LingoEngineWithDirectorInDebugGodot/.godot/

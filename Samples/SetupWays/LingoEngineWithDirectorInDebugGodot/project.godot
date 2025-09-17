@@ -1,0 +1,25 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="LingoEngine Godot Director Sample"
+run/main_scene="res://Scenes/minimal_director_root.tscn"
+config/features=PackedStringArray("4.5", "C#", "GL Compatibility")
+boot_splash/show_image=false
+
+[dotnet]
+
+project/assembly_name="LingoEngineWithDirectorInDebugGodot"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"

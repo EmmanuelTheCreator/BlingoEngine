@@ -14,6 +14,7 @@ using LingoEngine.Projects;
 using LingoEngine.Sprites;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Xml.Linq;
 
 namespace LingoEngine.Setup
 {
@@ -111,7 +112,10 @@ namespace LingoEngine.Setup
                 setup?.Invoke(globals);
                 return new TGlobalVars();
             });
-            _container.AddSingleton<LingoGlobalVars>(sp => sp.GetRequiredService<TGlobalVars>());
+            if (typeof(TGlobalVars) == typeof(LingoGlobalVars))
+                _container.AddSingleton<LingoGlobalVars>();
+            else
+                _container.AddSingleton<LingoGlobalVars>(sp => sp.GetRequiredService<TGlobalVars>());
             return this;
         }
 
@@ -194,7 +198,13 @@ namespace LingoEngine.Setup
 
         private void ActionOnNewMovie(LingoMovie movie)
         {
-            var registration = _movies[movie.Name];
+            if (!_movies.TryGetValue(movie.Name, out var registration))
+            {
+                registration = new MovieRegistration(_proxy, movie.Name);
+                _movies.Add(movie.Name, registration);
+            }
+            else
+                registration = _movies[movie.Name];
             var ctor = registration.GetAllMovieScriptsCtors();
             foreach (var item in ctor)
                 item(movie);

@@ -1,0 +1,21 @@
+<Project Sdk="Godot.NET.Sdk/4.5.0-dev.5">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <Nullable>enable</Nullable>
+    <LangVersion>12</LangVersion>
+    <RootNamespace>LingoEngineMinimalGodot</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="Properties\launchSettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\LingoEngine.LGodot\LingoEngine.LGodot.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="project.godot" />
+    <None Include="Scenes\minimal_game_root.tscn" />
+  </ItemGroup>
+</Project>

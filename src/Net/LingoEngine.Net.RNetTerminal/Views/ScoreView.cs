@@ -784,8 +784,19 @@ internal sealed class ScoreView : View
         if (delta != 0)
         {
             store.MoveSprite(new SpriteRef(_dragSprite.Number, _dragOriginalStart), delta);
+            if (!store.ApplyLocalChanges)
+            {
+                ReloadData();
+            }
         }
-        store.SelectSprite(new SpriteRef(_dragSprite.Number, _dragSprite.Start));
+        if (store.ApplyLocalChanges)
+        {
+            store.SelectSprite(new SpriteRef(_dragSprite.Number, _dragSprite.Start));
+        }
+        else
+        {
+            store.SelectSprite(new SpriteRef(_dragSprite.Number, _dragOriginalStart));
+        }
         _dragCandidate = null;
         _dragSprite = null;
         _isDragging = false;

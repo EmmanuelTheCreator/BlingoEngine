@@ -78,11 +78,17 @@ namespace ProjectorRays.DotNet.Test.Images
             var images = cast.Members.Values
                 .Where(m => (m.Type == RaysMemberType.BitmapMember || m.Type == RaysMemberType.PictureMember) && m.ImageData.Size > 0)
                 .ToList();
+            var data1 = cast.Members.ToList()[0].Value.ImageData;
+            
             Assert.Equal(2, images.Count);
+            var i = 0;
             foreach (var img in images)
             {
                 var span = img.ImageData.Data.AsSpan(img.ImageData.Offset, 4);
+                //var imgg = img.ImageData.Data.AsSpan(img.ImageData.Offset, img.ImageData.Size);
+                //File.WriteAllBytes("c:\\temp\\director\\testExport"+i+".png", imgg.ToArray());
                 Assert.True(span.SequenceEqual(pngSig));
+                i++;
             }
         }
 
