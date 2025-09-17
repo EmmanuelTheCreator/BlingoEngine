@@ -22,7 +22,7 @@ if /i "%ARCH%"=="AMD64" (
     set "LIB_DIR="
 )
 
-set PROJECTS="Demo\TetriGrounds\BlingoEngine.Demo.TetriGrounds.SDL2" "Test\BlingoEngine.SDL2.GfxVisualTest" "WillMoveToOwnRepo\AbstUI\Test\AbstUI.GfxVisualTest.SDL2" "src\Director\BlingoEngine.Director.Runner.SDL2" "Samples\SetupWays\BlingoEngineMinimalSDL" "Samples\SetupWays\BlingoEngineWithDirectorInDebugSDL"
+set PROJECTS="Demo\TetriGrounds\BlingoEngine.Demo.TetriGrounds.SDL2" "Test\BlingoEngine.SDL2.GfxVisualTest" "WillMoveToOwnRepo\AbstUI\Test\AbstUI.GfxVisualTest.SDL2" "WillMoveToOwnRepo\AbstUI\Test\AbstUI.SDLTest" "src\Director\BlingoEngine.Director.Runner.SDL2" "Samples\SetupWays\BlingoEngineMinimalSDL" "Samples\SetupWays\BlingoEngineWithDirectorInDebugSDL"
 set "MEDIA_SRC=%ROOT%Demo\TetriGrounds\BlingoEngine.Demo.TetriGrounds.Godot\Media"
 set "MEDIA_DEST=%ROOT%Demo\TetriGrounds\BlingoEngine.Demo.TetriGrounds.Blazor\Media"
 set "SAMPLE_ASSET_ICONS_REL=Samples\SetupWays\BlingoEngineWithDirectorInDebugSDL\Media\Icons"
