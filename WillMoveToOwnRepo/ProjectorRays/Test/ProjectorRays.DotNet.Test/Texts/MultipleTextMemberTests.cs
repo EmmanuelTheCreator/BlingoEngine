@@ -110,12 +110,8 @@ namespace ProjectorRays.DotNet.Test.Texts
                     // Test should verify that we can at least parse the structure without errors
                     Assert.True(doc.Runs.Count > 0, $"Should have at least one run for file {testFile}");
                     
-                    // Note: Some XMED files may have empty text but valid styles/runs
-                    // This suggests an issue with text extraction in XmedReader that should be fixed separately
-                    if (string.IsNullOrEmpty(doc.Text))
-                    {
-                        _logger.LogWarning($"File {testFile} has empty text but {doc.Runs.Count} runs - possible XmedReader text extraction issue");
-                    }
+                    // Now with the fixed IsPrintable function, we should be able to extract text
+                    Assert.False(string.IsNullOrEmpty(doc.Text), $"Text should not be empty for file {testFile}, but got: '{doc.Text}'");
                 }
                 catch (Exception ex)
                 {
