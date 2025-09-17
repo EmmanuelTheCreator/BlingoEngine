@@ -3,7 +3,7 @@ if(-not $VersionTag){
     $VersionTag = Read-Host 'Enter Godot version (e.g., 4.5-dev5)'
 }
 if($VersionTag -match '^(\d+\.\d+)-(.*)$'){
-    $NugetVersion = "$($Matches[1]).0-" + ($Matches[2] -replace '-', '.')
+    $NugetVersion = '{0}.0-{1}' -f $Matches[1], $Matches[2]
 }else{
     $NugetVersion = $VersionTag
 }
