@@ -32,6 +32,7 @@ PROJECTS=(
   "Demo/TetriGrounds/BlingoEngine.Demo.TetriGrounds.SDL2"
   "Test/BlingoEngine.SDL2.GfxVisualTest"
   "WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.SDL2"
+  "WillMoveToOwnRepo/AbstUI/Test/AbstUI.SDLTest"
   "src/Director/BlingoEngine.Director.Runner.SDL2"
   "Samples/SetupWays/BlingoEngineMinimalSDL"
   "Samples/SetupWays/BlingoEngineWithDirectorInDebugSDL"
