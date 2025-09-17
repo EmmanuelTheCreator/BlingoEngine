@@ -38,6 +38,11 @@ public sealed class DirectorRNetClient :
 
     public bool CanExecute(ConnectRNetClientCommand command)
     {
+        if (_config.RemoteRole != RNetRemoteRole.Client)
+        {
+            return false;
+        }
+
         if (_activeClient is { IsConnected: true })
         {
             return false;
@@ -48,6 +53,11 @@ public sealed class DirectorRNetClient :
 
     public bool Handle(ConnectRNetClientCommand command)
     {
+        if (_config.RemoteRole != RNetRemoteRole.Client)
+        {
+            return false;
+        }
+
         var client = GetClientForConfiguration();
         SwapActiveClient(client);
 
@@ -58,6 +68,11 @@ public sealed class DirectorRNetClient :
 
     public bool CanExecute(DisconnectRNetClientCommand command)
     {
+        if (_config.RemoteRole != RNetRemoteRole.Client)
+        {
+            return false;
+        }
+
         if (_activeClient is not null)
         {
             return _activeClient.IsConnected;
@@ -68,6 +83,11 @@ public sealed class DirectorRNetClient :
 
     public bool Handle(DisconnectRNetClientCommand command)
     {
+        if (_config.RemoteRole != RNetRemoteRole.Client)
+        {
+            return false;
+        }
+
         var client = _activeClient ?? GetClientForConfiguration();
         client.DisconnectAsync().GetAwaiter().GetResult();
         return true;
