@@ -105,15 +105,6 @@ public class RNetSettingsDialog
         wrap.ItemMargin = new APoint(0, 6);
 
         wrap.Compose()
-            .NewLine("RoleRow")
-            .AddLabel("RoleLabel", "Remote Mode:", 11, 120)
-            .Configure(row =>
-            {
-                _roleCombo = _factory.CreateInputCombobox("RemoteModeCombo", OnRoleChanged);
-                _roleCombo.Width = 180;
-                PopulateRoleOptions();
-                row.AddItem(_roleCombo);
-            })
             .NewLine("TransportRow")
             .AddLabel("TransportLabel", "Transport:", 11, 120)
             .Configure(row =>
@@ -122,6 +113,15 @@ public class RNetSettingsDialog
                 _transportCombo.Width = 180;
                 PopulateTransportOptions(_settings.RemoteRole);
                 row.AddItem(_transportCombo);
+            })
+            .NewLine("RoleRow")
+            .AddLabel("RoleLabel", "Remote Mode:", 11, 120)
+            .Configure(row =>
+            {
+                _roleCombo = _factory.CreateInputCombobox("RemoteModeCombo", OnRoleChanged);
+                _roleCombo.Width = 180;
+                PopulateRoleOptions(_settings.ClientType);
+                row.AddItem(_roleCombo);
             })
             .NewLine("PortRow")
             .AddLabel("PortLabel", "Port:", 11, 120)
@@ -175,6 +175,7 @@ public class RNetSettingsDialog
         }
 
         PopulateTransportOptions(_settings.RemoteRole);
+        PopulateRoleOptions(_settings.ClientType);
         UpdateControlAvailability();
     }
 
@@ -186,22 +187,36 @@ public class RNetSettingsDialog
         }
 
         _settings.ClientType = Enum.Parse<RNetClientType>(selectedKey);
+        EnsureValidConfiguration();
+        PopulateRoleOptions(_settings.ClientType);
+        UpdateControlAvailability();
     }
 
-    private void PopulateRoleOptions()
+    private void PopulateRoleOptions(RNetClientType transport)
     {
         if (_roleCombo is null)
         {
             return;
         }
 
+        var items = BuildRoleItems(transport).ToList();
         _roleCombo.ClearItems();
-        foreach (var item in BuildRoleItems())
+        foreach (var item in items)
         {
             _roleCombo.AddItem(item.Key, item.Value);
         }
 
-        _roleCombo.SelectedKey = _settings.RemoteRole.ToString();
+        var selectedRole = _settings.RemoteRole.ToString();
+        if (!items.Any(i => i.Key == selectedRole))
+        {
+            _settings.RemoteRole = RNetRemoteRole.Client;
+            selectedRole = _settings.RemoteRole.ToString();
+        }
+
+        if (_roleCombo.SelectedKey != selectedRole)
+        {
+            _roleCombo.SelectedKey = selectedRole;
+        }
     }
 
     private void PopulateTransportOptions(RNetRemoteRole role)
@@ -233,9 +248,9 @@ public class RNetSettingsDialog
         }
     }
 
-    private IEnumerable<KeyValuePair<string, string>> BuildRoleItems()
+    private IEnumerable<KeyValuePair<string, string>> BuildRoleItems(RNetClientType transport)
     {
-        if (HostModeAvailable())
+        if (HostAvailableForTransport(transport))
         {
             yield return HostRoleItem;
         }
@@ -245,55 +260,56 @@ public class RNetSettingsDialog
 
     private IEnumerable<KeyValuePair<string, string>> BuildTransportItems(RNetRemoteRole role)
     {
-        var prefix = role == RNetRemoteRole.Host ? "Server" : "Client";
-
         if (role != RNetRemoteRole.Host || PipeServerAvailable)
         {
-            yield return new KeyValuePair<string, string>(RNetClientType.Pipe.ToString(), $"{prefix} Pipe");
+            yield return new KeyValuePair<string, string>(RNetClientType.Pipe.ToString(), "Pipe");
         }
 
         if (role != RNetRemoteRole.Host || ProjectServerAvailable)
         {
-            yield return new KeyValuePair<string, string>(RNetClientType.Project.ToString(), $"{prefix} Project (Socket)");
+            yield return new KeyValuePair<string, string>(RNetClientType.Project.ToString(), "Project (Socket)");
         }
     }
 
-    private bool HostModeAvailable() => ProjectServerAvailable || PipeServerAvailable;
+    private bool HostAvailableForTransport(RNetClientType transport) => transport switch
+    {
+        RNetClientType.Project => ProjectServerAvailable,
+        RNetClientType.Pipe => PipeServerAvailable,
+        _ => false,
+    };
+
+    private IEnumerable<RNetClientType> GetHostCapableTransports()
+    {
+        if (PipeServerAvailable)
+        {
+            yield return RNetClientType.Pipe;
+        }
+
+        if (ProjectServerAvailable)
+        {
+            yield return RNetClientType.Project;
+        }
+    }
+
+    private bool HostModeAvailable() => GetHostCapableTransports().Any();
 
     private void EnsureValidConfiguration()
     {
-        if (_settings.RemoteRole == RNetRemoteRole.Host)
+        if (_settings.RemoteRole != RNetRemoteRole.Host)
         {
-            if (!HostModeAvailable())
-            {
-                _settings.RemoteRole = RNetRemoteRole.Client;
-            }
-            else
-            {
-                if (_settings.ClientType == RNetClientType.Project && !ProjectServerAvailable)
-                {
-                    if (PipeServerAvailable)
-                    {
-                        _settings.ClientType = RNetClientType.Pipe;
-                    }
-                    else
-                    {
-                        _settings.RemoteRole = RNetRemoteRole.Client;
-                    }
-                }
+            return;
+        }
 
-                if (_settings.ClientType == RNetClientType.Pipe && !PipeServerAvailable)
-                {
-                    if (ProjectServerAvailable)
-                    {
-                        _settings.ClientType = RNetClientType.Project;
-                    }
-                    else
-                    {
-                        _settings.RemoteRole = RNetRemoteRole.Client;
-                    }
-                }
-            }
+        var hostTransports = GetHostCapableTransports().ToList();
+        if (!hostTransports.Any())
+        {
+            _settings.RemoteRole = RNetRemoteRole.Client;
+            return;
+        }
+
+        if (!hostTransports.Contains(_settings.ClientType))
+        {
+            _settings.ClientType = hostTransports.First();
         }
     }
 

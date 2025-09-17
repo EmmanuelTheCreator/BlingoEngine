@@ -8,6 +8,9 @@ public class LingoProjectSettingsRepository
 {
     public void Save(string filePath, LingoProjectSettings settings)
     {
+        var directory = Path.GetDirectoryName(filePath);
+        if (!string.IsNullOrWhiteSpace(directory) && !Directory.Exists(directory))
+            Directory.CreateDirectory(directory);
         var options = new JsonSerializerOptions { WriteIndented = true };
         var json = JsonSerializer.Serialize(settings, options);
         File.WriteAllText(filePath, json);
