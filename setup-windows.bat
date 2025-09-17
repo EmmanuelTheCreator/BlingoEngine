@@ -21,9 +21,15 @@ if /i "%ARCH%"=="AMD64" (
     set "LIB_DIR="
 )
 
-set PROJECTS="Demo\TetriGrounds\LingoEngine.Demo.TetriGrounds.SDL2" "Test\LingoEngine.SDL2.GfxVisualTest" "WillMoveToOwnRepo\AbstUI\Test\AbstUI.GfxVisualTest.SDL2" "src\Director\LingoEngine.Director.Runner.SDL2"
+set PROJECTS="Demo\TetriGrounds\LingoEngine.Demo.TetriGrounds.SDL2" "Test\LingoEngine.SDL2.GfxVisualTest" "WillMoveToOwnRepo\AbstUI\Test\AbstUI.GfxVisualTest.SDL2" "src\Director\LingoEngine.Director.Runner.SDL2" "Samples\SetupWays\LingoEngineMinimalSDL" "Samples\SetupWays\LingoEngineWithDirectorInDebugSDL"
 set "MEDIA_SRC=%ROOT%Demo\TetriGrounds\LingoEngine.Demo.TetriGrounds.Godot\Media"
 set "MEDIA_DEST=%ROOT%Demo\TetriGrounds\LingoEngine.Demo.TetriGrounds.Blazor\Media"
+set "SAMPLE_ASSET_ICONS_REL=Samples\SetupWays\LingoEngineWithDirectorInDebugSDL\Media\Icons"
+set "SAMPLE_ASSET_ICONS_SRC=%ROOT%src\Director\LingoEngine.Director.Runner.Godot\Media\Icons"
+set "SAMPLE_ASSET_ICONS_DEST=%ROOT%%SAMPLE_ASSET_ICONS_REL%"
+set "SAMPLE_ASSET_FONTS_REL=Samples\SetupWays\LingoEngineWithDirectorInDebugSDL\Media\Fonts"
+set "SAMPLE_ASSET_FONTS_SRC=%ROOT%src\Director\LingoEngine.Director.Runner.Godot\Media\Fonts"
+set "SAMPLE_ASSET_FONTS_DEST=%ROOT%%SAMPLE_ASSET_FONTS_REL%"
 
 echo This script will:
 echo   - Ensure the .NET 8 SDK is installed.
@@ -34,6 +40,9 @@ if defined LIB_DIR (
     echo   - SDL2 libraries will not be copied ^(unsupported architecture %ARCH%^).
 )
 echo   - Copy demo media from %MEDIA_SRC% to %MEDIA_DEST%.
+echo   - Copy SDL sample media assets into:
+echo       - %SAMPLE_ASSET_ICONS_REL%
+echo       - %SAMPLE_ASSET_FONTS_REL%
 echo   - At the end you will be asked to locate your Godot executable.
 echo     When the file dialog appears, select the Godot 4 executable to use (minimum version 4.5).
 echo     Example: C:\path\to\Godot_v4.5-stable_mono_win64.exe
@@ -76,6 +85,22 @@ if exist "%MEDIA_SRC%" (
     robocopy "%MEDIA_SRC%" "%MEDIA_DEST%" /MIR >nul
 ) else (
     echo Demo media source not found: %MEDIA_SRC%
+)
+
+if exist "%SAMPLE_ASSET_ICONS_SRC%" (
+    echo Copying SDL sample icon media...
+    if not exist "%SAMPLE_ASSET_ICONS_DEST%" mkdir "%SAMPLE_ASSET_ICONS_DEST%"
+    robocopy "%SAMPLE_ASSET_ICONS_SRC%" "%SAMPLE_ASSET_ICONS_DEST%" *.png /E >nul
+) else (
+    echo SDL sample icon source not found: %SAMPLE_ASSET_ICONS_SRC%
+)
+
+if exist "%SAMPLE_ASSET_FONTS_SRC%" (
+    echo Copying SDL sample font media...
+    if not exist "%SAMPLE_ASSET_FONTS_DEST%" mkdir "%SAMPLE_ASSET_FONTS_DEST%"
+    robocopy "%SAMPLE_ASSET_FONTS_SRC%" "%SAMPLE_ASSET_FONTS_DEST%" *.ttf /E >nul
+) else (
+    echo SDL sample font source not found: %SAMPLE_ASSET_FONTS_SRC%
 )
 
 echo.
