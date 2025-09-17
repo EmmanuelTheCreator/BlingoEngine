@@ -88,6 +88,10 @@ These instructions apply to the entire repository.
 | WillMoveToOwnRepo/ProjectorRays/src/ProjectorRays.DotNet/ProjectorRays.DotNet.csproj | Core ProjectorRays .NET library |
 | WillMoveToOwnRepo/ProjectorRays/src/ProjectorRays.Console/ProjectorRays.Console.csproj | Console showcase for ProjectorRays |
 | WillMoveToOwnRepo/ProjectorRays/Test/ProjectorRays.DotNet.Test/ProjectorRays.DotNet.Test.csproj | Tests for ProjectorRays library |
+| Samples/SetupWays/LingoEngineMinimalSDL/LingoEngineMinimalSDL.csproj | Minimal SDL bootstrap sample that renders a centered text sprite |
+| Samples/SetupWays/LingoEngineMinimalGodot/LingoEngineMinimalGodot.csproj | Minimal Godot sample that launches the engine from a Godot scene |
+| Samples/SetupWays/LingoEngineWithDirectorInDebugSDL/LingoEngineWithDirectorInDebugSDL.csproj | SDL sample that enables Director tooling in debug builds |
+| Samples/SetupWays/LingoEngineWithDirectorInDebugGodot/LingoEngineWithDirectorInDebugGodot.csproj | Godot sample that enables Director tooling in debug builds |
 ## Notes for Agents
 - The solution file is `LingoEngine.sln`.
 - Keep cross-platform compatibility in mind when making changes.

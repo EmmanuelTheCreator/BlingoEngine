@@ -33,9 +33,15 @@ PROJECTS=(
   "Test/LingoEngine.SDL2.GfxVisualTest"
   "WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.SDL2"
   "src/Director/LingoEngine.Director.Runner.SDL2"
+  "Samples/SetupWays/LingoEngineMinimalSDL"
+  "Samples/SetupWays/LingoEngineWithDirectorInDebugSDL"
 )
 MEDIA_SRC="Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Godot/Media"
 MEDIA_DEST="Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Blazor/Media"
+SAMPLE_ASSET_MAPPINGS=(
+  "src/Director/LingoEngine.Director.Runner.Godot/Media/Icons|Samples/SetupWays/LingoEngineWithDirectorInDebugSDL/Media/Icons|*.png"
+  "src/Director/LingoEngine.Director.Runner.Godot/Media/Fonts|Samples/SetupWays/LingoEngineWithDirectorInDebugSDL/Media/Fonts|*.ttf"
+)
 
 echo "This script will:"
 echo "  - Ensure the .NET 8 SDK is installed."
@@ -48,6 +54,13 @@ else
   done
 fi
 echo "  - Copy demo media from '$MEDIA_SRC' to '$MEDIA_DEST'."
+if ((${#SAMPLE_ASSET_MAPPINGS[@]})); then
+  echo "  - Copy SDL sample media assets into:"
+  for mapping in "${SAMPLE_ASSET_MAPPINGS[@]}"; do
+    IFS='|' read -r _ dest _ <<<"$mapping"
+    echo "      - $dest"
+  done
+fi
 echo "  - At the end you will be prompted to locate your Godot executable."
 echo "    When the file dialog appears, select the Godot 4 binary you want to use."
 echo "    Example: /path/to/Godot_v4.5-stable_mono_linux_x86_64"
@@ -84,6 +97,23 @@ if [ -d "$MEDIA_SRC" ]; then
   cp -r "$MEDIA_SRC" "$MEDIA_DEST"
 else
   echo "Demo media source '$MEDIA_SRC' not found. Skipping."
+fi
+
+if ((${#SAMPLE_ASSET_MAPPINGS[@]})); then
+  for mapping in "${SAMPLE_ASSET_MAPPINGS[@]}"; do
+    IFS='|' read -r src dest pattern <<<"$mapping"
+    if [ -d "$src" ]; then
+      echo "Copying sample assets from '$src' to '$dest'."
+      mkdir -p "$dest"
+      if find "$src" -maxdepth 1 -type f -iname "$pattern" -print -quit >/dev/null; then
+        find "$src" -maxdepth 1 -type f -iname "$pattern" -exec cp -f {} "$dest"/ \;
+      else
+        echo "No files matching pattern '$pattern' in '$src'. Skipping."
+      fi
+    else
+      echo "Sample asset source '$src' not found. Skipping."
+    fi
+  done
 fi
 
 GODOT_PATH=""
