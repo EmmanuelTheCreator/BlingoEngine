@@ -48,8 +48,9 @@ An easy way to debug your game, run the Remote Terminal trough pipes or SignalR.
 ## Help making this project!
 
 
-> ⚠️ **Can you help us make this dream project come true?**  
+> ⚠️ **Can you help us make this dream project come true?**
 > This project is still under heavy development, and we can use some help. Reach out if you want to contribute.
+> 🚧 **Warning:** The Director SDL integration is still under heavy development and is not yet functional.
 .
 .
 
@@ -133,6 +134,7 @@ Windows:
 - [Godot Setup](docs/GodotSetup.md)
 - [SDL2 Setup](docs/SDLSetup.md)
 - [Blazor Demo](docs/BlazorDemo.md)
+- [Sample Projects](Samples/ReadMe.md)
 
 ### VS Code Setup
 
@@ -145,6 +147,8 @@ Windows:
 ---
 
 ## 🎮 Getting Started with Development
+
+Need a concrete reference? Check the [Sample Projects overview](Samples/ReadMe.md) for minimal SDL2 and Godot setups.
 
 Both the SDL2 and Godot frontends share the same backend logic. Here's an example of how to bootstrap the SDL2 engine:
 
