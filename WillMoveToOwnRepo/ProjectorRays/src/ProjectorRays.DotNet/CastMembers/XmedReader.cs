@@ -335,6 +335,19 @@ public class XmedReader : IXmedReader
 
     private static bool IsDigit(byte b) => b >= (byte)'0' && b <= (byte)'9';
 
-    private static bool IsPrintable(byte b) => b >= 32 && b <= 126;
+    private static bool IsPrintable(byte b) 
+    {
+        // Allow standard ASCII printable characters (32-126)
+        if (b >= 32 && b <= 126) return true;
+        
+        // Allow common whitespace characters that should be preserved in text
+        if (b == 9 || b == 10 || b == 13) return true; // Tab, LF, CR
+        
+        // Allow extended ASCII characters (128-255) for international text
+        if (b >= 128) return true;
+        
+        // Reject control characters (0-8, 11-12, 14-31)
+        return false;
+    }
 }
 
