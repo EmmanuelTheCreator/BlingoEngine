@@ -26,7 +26,7 @@ File by file or in batch with the lingo importer. [Lingo vs C# Differences](docs
 #### Remote Terminal
 An easy way to debug your game, run the [Remote Terminal](docs/design/RNet.md) through pipes or SignalR.
 
-<img src="Images/Screenshot_RNetTerminal1.jpg" alt="RNetTerminal1" width="30%" /><img src="Images/Screenshot_RNetTerminal2.jpg" alt="RNetTerminal2" width="30%" style="display:inline-block;margin-left:5px; margin-right:5px;" /><img src="Images/Screenshot_RNetTerminal3.jpg" alt="RNetTerminal3" width="30%" />
+<img src="Images/Screenshot_RNetTerminal1.jpg" alt="RNetTerminal1" width="30%" /><img src="Images/Screenshot_RNetTerminal2.jpg" alt="RNetTerminal2" width="30%" haspace="5" /><img src="Images/Screenshot_RNetTerminal3.jpg" alt="RNetTerminal3" width="30%" />
 
 
 ## ✨ Key Features of the engine
