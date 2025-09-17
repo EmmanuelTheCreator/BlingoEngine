@@ -15,6 +15,7 @@ public class BlockParent : LingoParentScript, IHasStepFrameEvent
     public BlockParent(ILingoMovieEnvironment env, GlobalVars global, object _Gfx, int ChosenType) : base(env)
     {
         _global = global;
+        
         if (ChosenType == null)
         {
         ChosenType = 1;

@@ -19,6 +19,7 @@ public class OverScreenTextParent : LingoParentScript, IHasStepFrameEvent
     public OverScreenTextParent(ILingoMovieEnvironment env, GlobalVars global, object _Duration, object _text, object _myParent) : base(env)
     {
         _global = global;
+        
         myDuration = _Duration;
         myText = _text;
         myCounter = 0;

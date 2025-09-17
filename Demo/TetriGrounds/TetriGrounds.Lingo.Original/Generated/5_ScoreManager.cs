@@ -19,6 +19,7 @@ public class ScoreManagerParent : LingoParentScript
     public ScoreManagerParent(ILingoMovieEnvironment env, GlobalVars global) : base(env)
     {
         _global = global;
+        
         myPlayerScore = 0;
         myNumberLinesTot = 0;
         myLevelUpPlusScore = 0;

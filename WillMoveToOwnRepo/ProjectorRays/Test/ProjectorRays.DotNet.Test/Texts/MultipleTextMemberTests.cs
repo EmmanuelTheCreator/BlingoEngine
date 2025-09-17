@@ -9,6 +9,8 @@ using ProjectorRays.CastMembers;
 using ProjectorRays.DotNet.Test.TestData;
 using Xunit;
 using Xunit.Abstractions;
+using System.ComponentModel.DataAnnotations;
+using FluentAssertions;
 
 namespace ProjectorRays.DotNet.Test.Texts
 {
@@ -126,7 +128,7 @@ namespace ProjectorRays.DotNet.Test.Texts
         {
             // This test addresses the code review feedback to test with TetriGrounds.dir
             // Check if we can read from multiple casts, multiple text members
-            var path = GetTetriGroundsPath();
+            var path = GetDemoPath("TetriGrounds/TetriGrounds.dir");
             if (!File.Exists(path))
             {
                 _logger.LogWarning($"TetriGrounds.dir not found at {path}, skipping test");
@@ -139,7 +141,7 @@ namespace ProjectorRays.DotNet.Test.Texts
             var stream = new ReadStream(data, data.Length, Endianness.BigEndian);
             var dir = new RaysDirectorFile(_logger, path);
             Assert.True(dir.Read(stream));
-
+            var foundTextMembers = 0;
             _logger.LogInformation($"Found {dir.Casts.Count} casts");
 
             // Check all casts for text members
@@ -156,7 +158,7 @@ namespace ProjectorRays.DotNet.Test.Texts
                     
                     // Ensure we have the member name
                     Assert.False(string.IsNullOrEmpty(member.GetName()), $"Member {member.Id} should have a name");
-                    
+                    foundTextMembers++;
                     // If there's decoded text, verify it has content and style information
                     if (member.DecodedText != null)
                     {
@@ -169,6 +171,7 @@ namespace ProjectorRays.DotNet.Test.Texts
                     }
                 }
             }
+            foundTextMembers.Should().BeGreaterThan(10);
         }
 
         private static BufferView CreateView(byte[] data)
@@ -190,11 +193,10 @@ namespace ProjectorRays.DotNet.Test.Texts
             return Path.Combine(baseDir, "../../../../TestData", fileName);
         }
 
-        private static string GetTetriGroundsPath()
+        private static string GetDemoPath(string relative)
         {
             var baseDir = AppContext.BaseDirectory;
-            // Navigate to the Demo/TetriGrounds directory from the test project
-            return Path.Combine(baseDir, "../../../../../Demo/TetriGrounds/TetriGrounds.dir");
+            return Path.Combine(baseDir, "../../../../../../../Demo", relative);
         }
     }
 }

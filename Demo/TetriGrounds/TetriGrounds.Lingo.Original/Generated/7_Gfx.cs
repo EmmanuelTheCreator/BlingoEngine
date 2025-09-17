@@ -13,6 +13,7 @@ public class GfxParent : LingoParentScript
     public GfxParent(ILingoMovieEnvironment env, GlobalVars global) : base(env)
     {
         _global = global;
+        
         myStartX = 250;
         myStartY = 45;
     }

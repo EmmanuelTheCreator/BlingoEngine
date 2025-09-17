@@ -15,6 +15,7 @@ public class SpriteManagerParent : LingoParentScript
     public SpriteManagerParent(ILingoMovieEnvironment env, GlobalVars global, int _beginningsprite) : base(env)
     {
         _global = global;
+        
         pNum = _beginningsprite;
         // pNum = Counter
         pDestroyList = [];
