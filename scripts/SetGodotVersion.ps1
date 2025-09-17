@@ -13,7 +13,7 @@ foreach($file in $csprojs){
     $content = Get-Content $file.FullName
     $content = $content -replace 'Godot.NET.Sdk/[^"\s]+', "Godot.NET.Sdk/$NugetVersion"
     $content = $content -replace '<GodotVersion>[^<]+</GodotVersion>', "<GodotVersion>$NugetVersion</GodotVersion>"
-    $content = $content -replace '<PackageReference Include="Godot.NET.Sdk" Version="[^"\s]+" />', "<PackageReference Include="Godot.NET.Sdk" Version="$NugetVersion" />"
+    $content = $content -replace '<PackageReference Include="Godot.NET.Sdk" Version="[^"\s]+" />', ('<PackageReference Include="Godot.NET.Sdk" Version="{0}" />' -f $NugetVersion)
     Set-Content -Encoding UTF8 $file.FullName $content
     Write-Host ("Updated Godot version in {0}" -f $file.FullName)
 }
