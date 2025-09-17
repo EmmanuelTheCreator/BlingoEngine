@@ -22,6 +22,8 @@
     <PackageReference Include="Terminal.Gui" Version="2.0.0-develop.4559" />
   </ItemGroup>
     <ItemGroup>
+    <ProjectReference Include="..\\LingoEngine.Net.RNetClient.Common\\LingoEngine.Net.RNetClient.Common.csproj" />
+    <ProjectReference Include="..\\LingoEngine.Net.RNetPipeClient\\LingoEngine.Net.RNetPipeClient.csproj" />
     <ProjectReference Include="..\\LingoEngine.Net.RNetProjectClient\\LingoEngine.Net.RNetProjectClient.csproj" />
     <ProjectReference Include="..\\LingoEngine.Net.RNetContracts\\LingoEngine.Net.RNetContracts.csproj" />
     <ProjectReference Include="..\\..\\LingoEngine.IO.Data\\LingoEngine.IO.Data.csproj" />

@@ -20,7 +20,6 @@ namespace LingoEngine.Net.RNetTerminal.Views
        
         private readonly List<string> _logs = new();
        
-        private bool _connected => LingoRNetTerminal.IsConnected;
         private ListView? _logList = new ListView();
         private View? _logWindow;
         private PropertyInspector? _propertyInspector;
@@ -126,7 +125,7 @@ namespace LingoEngine.Net.RNetTerminal.Views
             RNetTerminalStyle.SetStatusBar(_infoItem);
             top.Add(_infoItem);
 
-            UpdateConnectionStatus();
+            UpdateConnectionStatus(LingoNetConnectionState.Disconnected);
             Log("Starting...");
             Application.Run(top);
             top.Dispose();
@@ -263,12 +262,12 @@ namespace LingoEngine.Net.RNetTerminal.Views
             _leftTopZone.Title = _stage.Visible ? "Stage" : "Cast";
         }
 
-        public void UpdateConnectionStatus()
+        public void UpdateConnectionStatus(LingoNetConnectionState connected)
         {
             if (_connectionStatusLabel == null)
                 return;
             
-            _connectionStatusLabel.Text = _connected ? "Connected" : "Disconnected";
+            _connectionStatusLabel.Text = connected == LingoNetConnectionState.Connected ? "Connected" : "Disconnected";
             _connectionStatusLabel.SetNeedsDraw();
         }
 
@@ -322,6 +321,12 @@ namespace LingoEngine.Net.RNetTerminal.Views
         internal void SetPlayFrame(int f)
         {
             _score?.SetPlayFrame(f);
+        }
+
+        internal void UpdateIsRemove(bool remote)
+        {
+            if (_propertyInspector != null)
+                _propertyInspector.DelayPropertyUpdates = remote;
         }
     }
 }

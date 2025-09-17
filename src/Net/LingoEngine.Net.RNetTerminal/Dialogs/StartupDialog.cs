@@ -8,18 +8,28 @@ using Terminal.Gui.Views;
 
 namespace LingoEngine.Net.RNetTerminal.Dialogs
 {
+    internal enum StartupSelectionMode
+    {
+        Standalone,
+        Http,
+        Pipe
+    }
+    internal readonly record struct StartupDialogResult(StartupSelectionMode Mode, int Port);
     internal class StartupDialog
     {
         private int _port;
+        private readonly RNetTerminalTransport _defaultTransport;
 
-        public int Port => _port;
-        public StartupDialog(int port)
+        public StartupDialog(int port, RNetTerminalTransport defaultTransport)
         {
             _port = port;
+            _defaultTransport = defaultTransport;
         }
 
-        public void Show(System.Action<int> doConnect)
+        public StartupDialogResult Show()
         {
+            var result = new StartupDialogResult(StartupSelectionMode.Standalone, _port);
+
             const string asciiArt = @" ____                      _         _   _      _
 |  _ \ ___ _ __ ___   ___ | |_ ___  | \ | | ___| |_
 | |_) / _ \ '_ ` _ \ / _ \| __/ _ \ |  \| |/ _ \ __|
@@ -59,11 +69,18 @@ namespace LingoEngine.Net.RNetTerminal.Dialogs
             var portField = RUI.NewTextField(_port.ToString(), Pos.AnchorEnd() - 18, Pos.AnchorEnd(4), 10);
             dialog.Add(portLabel, portField);
             var standalone = RUI.NewButton("Run Standalone", false, () => dialog.Running = false);
-            var connect = RUI.NewButton("Connect",true,() =>
+            var connectHttp = RUI.NewButton("Connect via HTTP", _defaultTransport == RNetTerminalTransport.Http, () =>
             {
                 if (int.TryParse(portField.Text.ToString(), out var p))
                     _port = p;
-                doConnect(_port);
+                result = new StartupDialogResult(StartupSelectionMode.Http, _port);
+                dialog.Running = false;
+            });
+            var connectPipe = RUI.NewButton("Connect via Pipe", _defaultTransport == RNetTerminalTransport.Pipe, () =>
+            {
+                if (int.TryParse(portField.Text.ToString(), out var p))
+                    _port = p;
+                result = new StartupDialogResult(StartupSelectionMode.Pipe, _port);
                 dialog.Running = false;
             });
             dialog.KeyDown += (_,e) =>
@@ -74,9 +91,13 @@ namespace LingoEngine.Net.RNetTerminal.Dialogs
                     e.Handled = true;
                 }
             };
-            dialog.AddButton(connect);
+            dialog.AddButton(connectHttp);
+            dialog.AddButton(connectPipe);
             dialog.AddButton(standalone);
-            connect.SetFocus();
+            if (_defaultTransport == RNetTerminalTransport.Pipe)
+                connectPipe.SetFocus();
+            else
+                connectHttp.SetFocus();
             var wind = new Window()
             {
                 X = 0,
@@ -87,6 +108,7 @@ namespace LingoEngine.Net.RNetTerminal.Dialogs
             };
             RNetTerminalStyle.SetForDialog(dialog);
             Application.Run(dialog);
+            return result;
         }
     }
 }
