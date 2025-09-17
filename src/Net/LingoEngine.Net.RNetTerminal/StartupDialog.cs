@@ -2,17 +2,27 @@
 
 namespace LingoEngine.Net.RNetTerminal
 {
-    internal class StartupDialog
+    internal enum StartupSelectionMode
+    {
+        Standalone,
+        Http,
+        Pipe
+    }
+
+    internal readonly record struct StartupDialogResult(StartupSelectionMode Mode, int Port);
+
+    internal sealed class StartupDialog
     {
         private int _port;
+        private readonly RNetTerminalTransport _defaultTransport;
 
-        public int Port => _port;
-        public StartupDialog(int port)
+        public StartupDialog(int port, RNetTerminalTransport defaultTransport)
         {
             _port = port;
+            _defaultTransport = defaultTransport;
         }
 
-        public void Show(Action<int> doConnect)
+        public StartupDialogResult Show()
         {
             const string asciiArt = @" ____                      _         _   _      _
 |  _ \ ___ _ __ ___   ___ | |_ ___  | \ | | ___| |_
@@ -25,9 +35,10 @@ namespace LingoEngine.Net.RNetTerminal
   | |  __/ |  | | | | | | | | | | (_| | |
   |_|\___|_|  |_| |_| |_|_|_| |_|\__,_|_|";
 
-            var standalone = new Button("Run Standalone", true);
-            var connect = new Button("Connect");
-            var dialog = new Dialog("", 80, 24, standalone, connect)
+            var standalone = new Button("Run Standalone");
+            var connectHttp = new Button("Connect via HTTP", _defaultTransport == RNetTerminalTransport.Http);
+            var connectPipe = new Button("Connect via Pipe", _defaultTransport == RNetTerminalTransport.Pipe);
+            var dialog = new Dialog("", 80, 24, standalone, connectHttp, connectPipe)
             {
                 ColorScheme = new ColorScheme
                 {
@@ -38,6 +49,8 @@ namespace LingoEngine.Net.RNetTerminal
                     Disabled = Application.Driver.MakeAttribute(Color.Gray, Color.Black)
                 }
             };
+
+            var result = new StartupDialogResult(StartupSelectionMode.Standalone, _port);
 
             var title = new Label("LingoEngine")
             {
@@ -77,14 +90,37 @@ namespace LingoEngine.Net.RNetTerminal
             };
             dialog.Add(portLabel, portField);
 
-            standalone.Clicked += () => dialog.Running = false;
-            connect.Clicked += () =>
+            standalone.Clicked += () =>
             {
                 if (int.TryParse(portField.Text.ToString(), out var p))
+                {
                     _port = p;
-                doConnect(_port);
+                }
+
+                result = new StartupDialogResult(StartupSelectionMode.Standalone, _port);
                 dialog.Running = false;
             };
+            connectHttp.Clicked += () =>
+            {
+                if (int.TryParse(portField.Text.ToString(), out var p))
+                {
+                    _port = p;
+                }
+
+                result = new StartupDialogResult(StartupSelectionMode.Http, _port);
+                dialog.Running = false;
+            };
+            connectPipe.Clicked += () =>
+            {
+                if (int.TryParse(portField.Text.ToString(), out var p))
+                {
+                    _port = p;
+                }
+
+                result = new StartupDialogResult(StartupSelectionMode.Pipe, _port);
+                dialog.Running = false;
+            };
+
             dialog.KeyPress += e =>
             {
                 if (e.KeyEvent.Key == Key.Esc)
@@ -93,8 +129,18 @@ namespace LingoEngine.Net.RNetTerminal
                     e.Handled = true;
                 }
             };
-            connect.SetFocus();
+
+            if (_defaultTransport == RNetTerminalTransport.Pipe)
+            {
+                connectPipe.SetFocus();
+            }
+            else
+            {
+                connectHttp.SetFocus();
+            }
+
             Application.Run(dialog);
+            return result;
         }
     }
 }

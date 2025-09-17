@@ -1,23 +1,15 @@
-using LingoEngine.IO;
 using LingoEngine.IO.Data.DTO;
-using LingoEngine.Net.RNetProjectClient;
 using LingoEngine.Net.RNetContracts;
-using System.Globalization;
-using System.Net.WebSockets;
 using Terminal.Gui;
-using Timer = System.Timers.Timer;
 
 namespace LingoEngine.Net.RNetTerminal;
 
 public sealed class LingoRNetTerminal : IAsyncDisposable
 {
-    private LingoRNetProjectClient? _client;
+    private readonly RNetTerminalConnection _connection;
+    private RNetTerminalConnectionOptions _connectionOptions;
     private readonly List<string> _logs = new();
-    private CancellationTokenSource _cts = new();
-    private Timer? _heartbeatTimer;
     private readonly RNetTerminalSettings _settings;
-    private int _port;
-    private bool _connected;
     private ListView? _logList;
     private Window? _scoreWindow;
     private Window? _stageWindow;
@@ -39,45 +31,61 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     private const int CastWindowHeight = 12;
     private int _logExpandedWidth = 40;
 
-    private bool IsRemoteMode => _client != null && _connected;
+    private bool IsRemoteMode => _connection.IsConnected;
 
     public LingoRNetTerminal()
     {
         _settings = RNetTerminalSettings.Load();
-        _port = _settings.Port;
-        TerminalDataStore.Instance.SpriteMoveRequested += OnSpriteMoveRequested;
+        _connectionOptions = new RNetTerminalConnectionOptions(_settings.Port, _settings.PreferredTransport);
+        _connection = new RNetTerminalConnection();
+        _connection.ConnectionStateChanged += OnConnectionStateChanged;
+        _connection.PlayFrameReceived += OnPlayFrameReceived;
+        _connection.LogMessage += Log;
     }
 
-    public async Task RunAsync()
+    public Task RunAsync()
     {
         Application.Init();
         SetMyTheme();
-        var useConnection = false;
-        new StartupDialog(_port).Show(async p =>
+        var startupSelection = new StartupDialog(_connectionOptions.Port, _connectionOptions.Transport).Show();
+        var transport = startupSelection.Mode switch
         {
-            if (_port != p)
-                SaveSettings();
-            _port = p;
-            useConnection = true;
-        });
-        if (useConnection)
+            StartupSelectionMode.Http => RNetTerminalTransport.Http,
+            StartupSelectionMode.Pipe => RNetTerminalTransport.Pipe,
+            _ => _connectionOptions.Transport
+        };
+        _connectionOptions = _connectionOptions with { Port = startupSelection.Port, Transport = transport };
+        SaveSettings();
+
+        if (startupSelection.Mode is StartupSelectionMode.Http or StartupSelectionMode.Pipe)
         {
+            var options = _connectionOptions;
             _ = Task.Run(async () =>
             {
 #if DEBUG
-                await Task.Delay(300);
+                await Task.Delay(300).ConfigureAwait(false);
 #else
-                await Task.Delay(100);
+                await Task.Delay(100).ConfigureAwait(false);
 #endif
-                await ConnectToHost().ConfigureAwait(false);
+                try
+                {
+                    await _connection.ConnectAsync(options).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    Log($"Connection failed: {ex.Message}");
+                }
             });
         }
         else
+        {
             TerminalDataStore.Instance.LoadTestData();
+        }
         Application.Begin(new Toplevel());
         BuildUi();
         Application.Run();
         Application.Shutdown();
+        return Task.CompletedTask;
     }
 
     private void BuildUi()
@@ -152,20 +160,6 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         }
     }
 
-    private void OnSpriteMoveRequested(SpriteRef sprite, int newBegin, int newEnd)
-    {
-        if (!IsRemoteMode || _client == null)
-        {
-            return;
-        }
-
-        Log($"spriteMove {sprite.SpriteNum}:{sprite.BeginFrame}->{newBegin}-{newEnd}");
-        var beginValue = newBegin.ToString(CultureInfo.InvariantCulture);
-        var endValue = newEnd.ToString(CultureInfo.InvariantCulture);
-        _ = _client.SendCommandAsync(new SetSpritePropCmd(sprite.SpriteNum, sprite.BeginFrame, "StartFrame", beginValue));
-        _ = _client.SendCommandAsync(new SetSpritePropCmd(sprite.SpriteNum, sprite.BeginFrame, "EndFrame", endValue));
-    }
-
     private void BuildScoreWindow()
     {
         _scoreWindow = new Window("Score")
@@ -190,9 +184,9 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             var previous = store.GetFrame();
             UpdateInfo(f, ch, sp, mem);
             store.SetFrame(f);
-            if (IsRemoteMode && _client != null && f != previous)
+            if (IsRemoteMode && f != previous)
             {
-                _ = _client.SendCommandAsync(new GoToFrameCmd(f));
+                _connection.QueueGoToFrameCommand(f);
             }
         };
         _scoreWindow.Add(_scoreView);
@@ -281,26 +275,21 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             {
                 store.PropertyHasChanged(target, n, v, _propertyInspector?.CurrentMember);
             }
-
-            if (_client != null && remote)
+            else
             {
                 if (target == PropertyTarget.Sprite)
                 {
                     var sel = store.GetSelectedSprite();
                     if (sel.HasValue)
                     {
-                        _ = _client.SendCommandAsync(new SetSpritePropCmd(sel.Value.SpriteNum, sel.Value.BeginFrame, n, v));
+                        _connection.QueueSpritePropertyChange(sel.Value, n, v);
                     }
                 }
                 else if (target == PropertyTarget.Member && _propertyInspector?.CurrentMember != null)
                 {
                     var member = _propertyInspector.CurrentMember;
-                    _ = _client.SendCommandAsync(new SetMemberPropCmd(member.CastLibNum, member.NumberInCast, n, v));
+                    _connection.QueueMemberPropertyChange(member.CastLibNum, member.NumberInCast, n, v);
                 }
-            }
-            else if (_client == null && remote)
-            {
-                store.PropertyHasChanged(target, n, v, _propertyInspector?.CurrentMember);
             }
         };
         _propertyInspector.KeyPress += args =>
@@ -357,7 +346,8 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
 
     private void SaveSettings()
     {
-        _settings.Port = _port;
+        _settings.Port = _connectionOptions.Port;
+        _settings.PreferredTransport = _connectionOptions.Transport;
         _settings.Save();
     }
 
@@ -486,7 +476,15 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
             return;
         }
 
-        _connectionStatusLabel.Text = _connected ? "Connected" : "Disconnected";
+        var state = _connection.ConnectionState;
+        var text = state switch
+        {
+            LingoNetConnectionState.Connected => "Connected",
+            LingoNetConnectionState.Connecting => "Connecting",
+            _ => "Disconnected"
+        };
+
+        _connectionStatusLabel.Text = text;
         _connectionStatusLabel.SetNeedsDisplay();
     }
 
@@ -532,101 +530,26 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
 
     private async Task ToggleConnectionAsync()
     {
-        if (!_connected)
-            await ConnectToHost();
-        else
-            await DisconnectFromHost();
-    }
-
-    private async Task DisconnectFromHost()
-    {
-        _cts.Cancel();
-        _heartbeatTimer?.Stop();
-        _heartbeatTimer?.Dispose();
-        _heartbeatTimer = null;
-        if (_client != null)
-        {
-            await _client.DisposeAsync();
-            _client = null;
-        }
-        _connected = false;
-        Log("Disconnected.");
-        UpdateConnectionStatus();
-        UpdateLocalChangeMode();
-
-    }
-
-    private async Task ConnectToHost()
-    {
-        _client = new LingoRNetProjectClient();
-        // config.ClientName = Assembly.GetEntryAssembly()?.GetName().Name ?? "Someone";
-        var hubUrl = new Uri($"http://localhost:{_port}/director");
         try
         {
-            await _client.ConnectAsync(hubUrl, new HelloDto("test-project", "console", "1.0", "RNetTerminal"));
-            _connected = true;
-            UpdateConnectionStatus();
-            Log("Connected.");
-            UpdateLocalChangeMode();
-            _cts = new CancellationTokenSource();
-            _ = Task.Run(ReceiveFramesAsync);
-            _ = Task.Run(ReceiveDeltasAsync);
-            _ = Task.Run(ReceiveMemberPropertiesAsync);
-            _heartbeatTimer = new Timer(1000);
-            System.Timers.ElapsedEventHandler value = async (_, _) => await DoHeartBeat();
-            _heartbeatTimer.Elapsed += value;
-            _heartbeatTimer.AutoReset = true;
-            _heartbeatTimer.Start();
-            await LoadProjectDataAsync();
+            if (!_connection.IsConnected)
+            {
+                await _connection.ConnectAsync(_connectionOptions).ConfigureAwait(false);
+            }
+            else
+            {
+                await _connection.DisconnectAsync().ConfigureAwait(false);
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex);
-            throw;
-        }
-
-    }
-    private async Task DoHeartBeat()
-    {
-        try
-        {
-            if (_client == null) return;
-            await _client.SendHeartbeatAsync();
-        }
-        catch (WebSocketException ex)
-        {
-            if (ex.Message.Contains("The remote party closed the WebSocket connection"))
-                await DisconnectFromHost();
-            Log("Error sending heartbeat:" + ex.Message);
-        }
-        catch (Exception ex)
-        {
-            Log("Error sending heartbeat:" + ex.Message);
-        }
-    }
-
-    private async Task LoadProjectDataAsync()
-    {
-        if (_client == null)
-        {
-            return;
-        }
-        try
-        {
-            var projectJson = await _client.GetCurrentProjectAsync();
-            var repo = new JsonStateRepository();
-            var project = repo.DeserializeProject(projectJson.json);
-            TerminalDataStore.Instance.LoadFromProject(project);
-        }
-        catch (Exception ex)
-        {
-            Log($"Load movie failed: {ex.Message}");
+            Log($"Connection error: {ex.Message}");
         }
     }
 
     private void SetPort()
     {
-        var portField = new TextField(_port.ToString())
+        var portField = new TextField(_connectionOptions.Port.ToString())
         {
             X = 1,
             Y = 1,
@@ -637,9 +560,9 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         {
             if (int.TryParse(portField.Text.ToString(), out var p))
             {
-                _port = p;
+                _connectionOptions = _connectionOptions with { Port = p };
                 SaveSettings();
-                Log($"Port set to {_port}.");
+                Log($"Port set to {_connectionOptions.Port}.");
             }
             Application.RequestStop();
         };
@@ -649,86 +572,35 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         Application.Run(dialog);
     }
 
-    private async Task ReceiveFramesAsync()
+    private void OnConnectionStateChanged(LingoNetConnectionState state)
     {
-        try
+        void Apply()
         {
-            await foreach (var frame in _client!.StreamFramesAsync(_cts.Token))
-            {
-                Log($"Frame {frame.FrameId}");
-                var f = (int)frame.FrameId;
-                if (Application.MainLoop is { } loop)
-                {
-                    loop.Invoke(() => _scoreView?.SetPlayFrame(f));
-                }
-                else
-                {
-                    _scoreView?.SetPlayFrame(f);
-                }
-            }
+            UpdateConnectionStatus();
+            UpdateLocalChangeMode();
         }
-        catch (OperationCanceledException)
+
+        if (Application.MainLoop is { } loop)
         {
+            loop.Invoke(Apply);
+        }
+        else
+        {
+            Apply();
         }
     }
 
-    private async Task ReceiveDeltasAsync()
+    private void OnPlayFrameReceived(int frame)
     {
-        try
-        {
-            await foreach (var delta in _client!.StreamDeltasAsync(_cts.Token))
-            {
-                void Apply()
-                {
-                    TerminalDataStore.Instance.ApplySpriteDelta(delta);
-                }
+        void Apply() => _scoreView?.SetPlayFrame(frame);
 
-                if (Application.MainLoop is { } loop)
-                {
-                    loop.Invoke(Apply);
-                }
-                else
-                {
-                    Apply();
-                }
-            }
-        }
-        catch (OperationCanceledException)
+        if (Application.MainLoop is { } loop)
         {
+            loop.Invoke(Apply);
         }
-        catch (Exception ex)
+        else
         {
-            Log($"Delta stream error: {ex.Message}");
-        }
-    }
-
-    private async Task ReceiveMemberPropertiesAsync()
-    {
-        try
-        {
-            await foreach (var prop in _client!.StreamMemberPropertiesAsync(_cts.Token))
-            {
-                void Apply()
-                {
-                    TerminalDataStore.Instance.ApplyMemberProperty(prop);
-                }
-
-                if (Application.MainLoop is { } loop)
-                {
-                    loop.Invoke(Apply);
-                }
-                else
-                {
-                    Apply();
-                }
-            }
-        }
-        catch (OperationCanceledException)
-        {
-        }
-        catch (Exception ex)
-        {
-            Log($"Member property stream error: {ex.Message}");
+            Apply();
         }
     }
 
@@ -757,12 +629,10 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        _cts.Cancel();
-        _heartbeatTimer?.Dispose();
-        if (_client != null)
-        {
-            await _client.DisposeAsync();
-        }
+        _connection.ConnectionStateChanged -= OnConnectionStateChanged;
+        _connection.PlayFrameReceived -= OnPlayFrameReceived;
+        _connection.LogMessage -= Log;
+        await _connection.DisposeAsync().ConfigureAwait(false);
     }
 }
 
