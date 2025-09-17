@@ -5,6 +5,10 @@ using FluentAssertions;
 using BlingoEngine.IO.Data.DTO;
 using BlingoEngine.Net.RNetContracts;
 using BlingoEngine.Net.RNetTerminal;
+using BlingoEngine.Net.RNetTerminal.Datas;
+using BlingoEngine.IO.Data.DTO.Members;
+using BlingoEngine.Net.RNetTerminal.Views;
+using BlingoEngine.IO.Data.DTO.Sprites;
 
 namespace BlingoEngine.Net.RNetTerminal.Tests;
 

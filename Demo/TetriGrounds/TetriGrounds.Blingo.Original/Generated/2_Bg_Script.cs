@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using BlingoEngine.Lingo.Core;
 
 namespace Demo.TetriGrounds;
@@ -222,4 +222,3 @@ public void SpaceBar()
 }
 
 }
-

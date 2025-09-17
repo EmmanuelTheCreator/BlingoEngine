@@ -15,7 +15,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="FluentAssertions" Version="8.6.0" />
-    <PackageReference Include="Terminal.Gui" Version="1.17.1" />
+	  <PackageReference Include="Terminal.Gui" Version="2.0.0-develop.4559" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Net\BlingoEngine.Net.RNetTerminal\BlingoEngine.Net.RNetTerminal.csproj" />

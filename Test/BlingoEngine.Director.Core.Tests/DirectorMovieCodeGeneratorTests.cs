@@ -2,6 +2,8 @@
 using BlingoEngine.IO.Data.DTO;
 using BlingoEngine.Director.Core.Projects;
 using System.Collections.Generic;
+using BlingoEngine.IO.Data.DTO.Members;
+using BlingoEngine.IO.Data.DTO.Sprites;
 
 namespace BlingoEngine.Director.Core.Tests;
 
@@ -55,7 +57,7 @@ public class DirectorMovieCodeGeneratorTests
         var sprite = new Blingo2DSpriteDTO
         {
             SpriteNum = 1,
-            Member = new BlingoMemberRefDTO { MemberNum = 1, CastNum = 1 },
+            Member = new BlingoMemberRefDTO { MemberNum = 1, CastLibNum = 1 },
             BeginFrame = 0,
             EndFrame = 0,
             Ink = 1
@@ -67,7 +69,6 @@ public class DirectorMovieCodeGeneratorTests
             {
                 new()
                 {
-                    Number = 1,
                     NumberInCast = 1,
                     CastLibNum = 1,
                     Type = BlingoMemberTypeDTO.Bitmap
@@ -138,7 +139,7 @@ public class MainCast : IBlingoCastLibBuilder
         var sprite = new Blingo2DSpriteDTO
         {
             SpriteNum = 1,
-            Member = new BlingoMemberRefDTO { MemberNum = 1, CastNum = 1 },
+            Member = new BlingoMemberRefDTO { MemberNum = 1, CastLibNum = 1 },
             BeginFrame = 0,
             EndFrame = 0
         };
@@ -147,7 +148,7 @@ public class MainCast : IBlingoCastLibBuilder
             Name = "Main",
             Members = new List<BlingoMemberDTO>
             {
-                new() { Number = 1, NumberInCast = 1, CastLibNum = 1, Type = BlingoMemberTypeDTO.Bitmap }
+                new() { NumberInCast = 1, CastLibNum = 1, Type = BlingoMemberTypeDTO.Bitmap }
             }
         };
         var movie = new BlingoMovieDTO
