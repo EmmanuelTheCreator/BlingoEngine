@@ -1,4 +1,4 @@
-using AbstUI.LGodot.Inputs;
+﻿using AbstUI.LGodot.Inputs;
 using Godot;
 using Xunit;
 
@@ -7,9 +7,9 @@ namespace AbstUI.LGodotTest;
 public class GodotKeyCodeMapTests
 {
     [Fact]
-    public void MapsLettersToLingoCodes()
+    public void MapsLettersToBlingoCodes()
     {
-        var code = GodotKeyCodeMap.ToLingo(Key.A);
+        var code = GodotKeyCodeMap.ToBlingo(Key.A);
         Assert.Equal(0, code);
         Assert.Equal(Key.A, GodotKeyCodeMap.ToGodot(0));
     }
@@ -17,6 +17,7 @@ public class GodotKeyCodeMapTests
     [Fact]
     public void MapsFunctionKey()
     {
-        Assert.Equal(122, GodotKeyCodeMap.ToLingo(Key.F1));
+        Assert.Equal(122, GodotKeyCodeMap.ToBlingo(Key.F1));
     }
 }
+

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -15,7 +15,7 @@
     <Authors>Emmanuel The Creator</Authors>
     <Company>The Community</Company>
     <Description>SDL2 backend using RmlUi.NET to provide advanced UI input components.</Description>
-    <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
+    <RepositoryUrl>https://github.com/EmmanuelTheCreator/BlingoEngine</RepositoryUrl>
     <PackageTags>AbstUI SDL2 RmlUi</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -34,3 +34,4 @@
     <ProjectReference Include="..\AbstUI.SDL2\AbstUI.SDL2.csproj" />
   </ItemGroup>
 </Project>
+

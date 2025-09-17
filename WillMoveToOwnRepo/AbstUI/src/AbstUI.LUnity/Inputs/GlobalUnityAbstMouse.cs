@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
 
@@ -38,9 +38,10 @@ public sealed class AbstUnityGlobalMouse : AbstUnityMouse<GlobalUnityAbstMouse, 
     }
 
     /// <inheritdoc />
-    public new void ReplaceMouseObj(IAbstMouse lingoMouse)
+    public new void ReplaceMouseObj(IAbstMouse blingoMouse)
     {
-        _mouse = (GlobalUnityAbstMouse)lingoMouse;
-        base.ReplaceMouseObj(lingoMouse);
+        _mouse = (GlobalUnityAbstMouse)blingoMouse;
+        base.ReplaceMouseObj(blingoMouse);
     }
 }
+

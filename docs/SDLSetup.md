@@ -1,38 +1,38 @@
-# Setting Up the SDL2 Runtime
+﻿# Setting Up the SDL2 Runtime
 
-Use the SDL2 front‑end when you want a lightweight desktop window without a
+Use the SDL2 frontâ€‘end when you want a lightweight desktop window without a
 full game engine. The SDL adapter is configured through the framework
-*factory* that LingoEngine uses to communicate with the host environment.
+*factory* that BlingoEngine uses to communicate with the host environment.
 
-For a walk‑through of the common registration steps, see
-[ProjectSetup](ProjectSetup.md). The snippet below shows the SDL‑specific
+For a walkâ€‘through of the common registration steps, see
+[ProjectSetup](ProjectSetup.md). The snippet below shows the SDLâ€‘specific
 part:
 
 1. Install the **SDL2** development libraries for your operating system.
-2. Open `LingoEngine.Demo.TetriGrounds.SDL2.csproj` with your favorite C# IDE.
-3. Restore the NuGet packages so the SDL2‑CS bindings are available.
+2. Open `BlingoEngine.Demo.TetriGrounds.SDL2.csproj` with your favorite C# IDE.
+3. Restore the NuGet packages so the SDL2â€‘CS bindings are available.
 4. Register the SDL factory and run the demo:
 
 ```csharp
-using LingoEngine.SDL2;
-using LingoEngine.Setup;
+using BlingoEngine.SDL2;
+using BlingoEngine.Setup;
 using Microsoft.Extensions.DependencyInjection;
 
 var services = new ServiceCollection();
-services.RegisterLingoEngine(cfg => cfg
-    .WithLingoSdlEngine("TetriGrounds", 640, 480, factory =>
+services.RegisterBlingoEngine(cfg => cfg
+    .WithBlingoSdlEngine("TetriGrounds", 640, 480, factory =>
     {
         // optional SDL factory configuration
     })
-    .SetProjectFactory<LingoEngine.Demo.TetriGrounds.Core.TetriGroundsProjectFactory>()
+    .SetProjectFactory<BlingoEngine.Demo.TetriGrounds.Core.TetriGroundsProjectFactory>()
     .BuildAndRunProject());
 
 var provider = services.BuildServiceProvider();
 provider.GetRequiredService<SdlRootContext>().Run();
 ```
-`WithLingoSdlEngine(title, width, height)` defines the Director window size. This sample uses 640×480 to match the stage, but you may choose larger dimensions as long as they are at least as large as the stage configured in your project factory.
+`WithBlingoSdlEngine(title, width, height)` defines the Director window size. This sample uses 640Ã—480 to match the stage, but you may choose larger dimensions as long as they are at least as large as the stage configured in your project factory.
 
-The factory creates framework‑specific services (rendering, input, sound…) and
+The factory creates frameworkâ€‘specific services (rendering, input, soundâ€¦) and
 is the place to configure SDL options before the engine starts.
 
 ## Director
@@ -42,3 +42,4 @@ you need the full Director authoring environment.
 
 For a complete overview of the registration process, see
 [ProjectSetup](ProjectSetup.md).
+

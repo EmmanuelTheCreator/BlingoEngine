@@ -1,0 +1,55 @@
+﻿using AbstUI.Primitives;
+using BlingoEngine.Director.Core.Tools;
+using BlingoEngine.FrameworkCommunication;
+using BlingoEngine.Movies;
+using BlingoEngine.Sprites;
+
+namespace BlingoEngine.Director.Core.Scores
+{
+    public class DirScoreLeftChannelsContainer : DirScoreLeftContainer
+    {
+        protected BlingoMovie? _movie;
+
+
+        public DirScoreLeftChannelsContainer(DirScoreGfxValues gfxValues, IBlingoFrameworkFactory factory, APoint position, IDirectorEventMediator mediator) : base(gfxValues, factory, position, 10, mediator)
+        {
+        }
+
+        public void SetMovie(BlingoMovie? movie)
+        {
+            _movie = movie;
+            if (_movie != null)
+            {
+                RegenerateChannels();
+            }
+        }
+        protected override void StagePropertiesChanged()
+        {
+            RegenerateChannels();
+            base.StagePropertiesChanged();
+
+        }
+        private void RegenerateChannels()
+        {
+            if (_movie == null) return;
+            var channels = new List<DirScoreChannelHeader>();
+            _canvas.Height = _gfxValues.ChannelHeight * _movie.MaxSpriteChannelCount;
+            for (int c = 1; c < _movie.MaxSpriteChannelCount; c++)
+            {
+                var ch = (BlingoSpriteChannel)_movie.Channel(c);
+                var header = new DirScoreChannelHeader("", c.ToString(), _gfxValues, (cHeader, state) => { if (_movie != null) ch.Visibility = !state; });
+                ch.VisibilityChanged += (_, visible) =>
+                {
+                    header.SetMutedExternal(!visible);
+                    Draw();
+                };
+                header.SetMutedExternal(!ch.Visibility);
+                channels.Add(header);
+            }
+            SetChannels(channels.ToArray());
+        }
+
+        protected override DirScoreChannelHeader GetChannel(int spriteNumWithChannel) => _channels[spriteNumWithChannel - 7];// -6 of 6 channels + -1 for 0 index array
+    }
+}
+

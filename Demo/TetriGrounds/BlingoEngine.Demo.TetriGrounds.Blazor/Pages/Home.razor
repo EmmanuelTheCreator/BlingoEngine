@@ -1,0 +1,43 @@
+﻿@using AbstUI
+@using AbstUI.Blazor
+@using AbstUI.Blazor.Components
+@using AbstUI.Blazor.Components.Containers
+@using AbstUI.Blazor.Components.Inputs
+@using AbstUI.Components
+@using AbstUI.Components.Containers
+@inject IAbstComponentFactory ComponentFactory
+@inject AbstBlazorComponentContainer ComponentContainer
+@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<CascadingValue Value="ComponentContainer">
+    <AbstInputComponent>
+        @* <AbstBlazorScrollContainer Component="_rootComponent" /> *@
+    </AbstInputComponent>
+</CascadingValue>
+
+@code {
+    private AbstBlazorScrollContainerComponent _rootComponent = default!;
+
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            Program.BlingoEngineReg!.InitializeProject();
+            Program.BlingoEngineReg!.RunProject();
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        // var root = (AbstScrollContainer)GfxTestScene.Build(ComponentFactory);
+        // _rootComponent = (AbstBlazorScrollContainerComponent)root.FrameworkObj!;
+        // if (_rootComponent is IAbstBlazorRegistryAware aware)
+        //     aware.AttachRegistry(ComponentContainer);
+        // ComponentContainer.Register(_rootComponent);
+    }
+}
+

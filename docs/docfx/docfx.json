@@ -1,4 +1,4 @@
-{
+﻿{
   "$schema": "https://raw.githubusercontent.com/dotnet/docfx/main/schemas/docfx.schema.json",
   "metadata": [
     {
@@ -37,15 +37,16 @@
       "modern"
     ],
     "globalMetadata": {
-      "_appName": "LingoEngine API",
-      "_appTitle": "LingoEngine API",
+      "_appName": "BlingoEngine API",
+      "_appTitle": "BlingoEngine API",
       "_enableSearch": true,
       "pdf": true
     }
   },
   "repository": {
-    "url": "https://github.com/EmmanuelTheCreator/LingoEngine",
+    "url": "https://github.com/EmmanuelTheCreator/BlingoEngine",
     "branch": "main"
   }
 }
+
 

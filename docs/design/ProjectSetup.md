@@ -1,22 +1,22 @@
-# Project Setup
+﻿# Project Setup
 
-LingoEngine runs on multiple frameworks by delegating platform specific work to
-an `ILingoFrameworkFactory`.  The factory provides rendering, input, sound and
-other services for the engine.  Use `RegisterLingoEngine` to configure the
+BlingoEngine runs on multiple frameworks by delegating platform specific work to
+an `IBlingoFrameworkFactory`.  The factory provides rendering, input, sound and
+other services for the engine.  Use `RegisterBlingoEngine` to configure the
 engine and select the factory for your target framework.
 
 ## Basic registration
 
 ```csharp
-using LingoEngine.SDL2; // or LingoEngine.LGodot
-using LingoEngine.Setup;
+using BlingoEngine.SDL2; // or BlingoEngine.LGodot
+using BlingoEngine.Setup;
 using Microsoft.Extensions.DependencyInjection;
 
 var services = new ServiceCollection();
-services.RegisterLingoEngine(cfg => cfg
+services.RegisterBlingoEngine(cfg => cfg
     // Choose one of the available framework factories
-    .WithLingoSdlEngine("MyGame", 1280, 960)       // SDL2 Director window
-    // .WithLingoGodotEngine(this)                // Godot scene
+    .WithBlingoSdlEngine("MyGame", 1280, 960)       // SDL2 Director window
+    // .WithBlingoGodotEngine(this)                // Godot scene
     .SetProjectFactory<MyGameProjectFactory>()     // loads casts and movies
     .BuildAndRunProject());
 
@@ -24,24 +24,24 @@ var provider = services.BuildServiceProvider();
 // For SDL2, start the loop:
 provider.GetRequiredService<SdlRootContext>().Run();
 ```
-`WithLingoSdlEngine(title, width, height)` defines the Director window size; ensure these values exceed the stage dimensions.
+`WithBlingoSdlEngine(title, width, height)` defines the Director window size; ensure these values exceed the stage dimensions.
 
-`SetProjectFactory<T>()` registers your `ILingoProjectFactory` implementation
+`SetProjectFactory<T>()` registers your `IBlingoProjectFactory` implementation
 which loads cast libraries and the startup movie.  `BuildAndRunProject()` wires
 everything together and prepares the engine to run.
 
-## Sample `ILingoProjectFactory`
+## Sample `IBlingoProjectFactory`
 
-This factory wires fonts, a 640×480 stage, movie scripts, and custom services before the engine starts.
+This factory wires fonts, a 640Ã—480 stage, movie scripts, and custom services before the engine starts.
 
 ```csharp
-using LingoEngine.Projects;
-using LingoEngine.Setup;
+using BlingoEngine.Projects;
+using BlingoEngine.Setup;
 using Microsoft.Extensions.DependencyInjection;
 
-public class MyGameProjectFactory : ILingoProjectFactory
+public class MyGameProjectFactory : IBlingoProjectFactory
 {
-    public void Setup(ILingoEngineRegistration config)
+    public void Setup(IBlingoEngineRegistration config)
     {
         config
             .AddFont("Arcade", Path.Combine("Media", "Fonts", "arcade.ttf"))
@@ -63,19 +63,19 @@ public class MyGameProjectFactory : ILingoProjectFactory
                 // .AddBehavior<MouseDownNavigateBehavior>() // Behavior
                 // .AddParentScript<BlockParent>()     // Parent script
             )
-            .ServicesLingo(s => s
+            .ServicesBlingo(s => s
                 .AddSingleton<ITetriGroundsCore, TetriGroundsCore>()
                 .AddSingleton<GlobalVars>()
             );
     }
 
-    public async Task LoadCastLibsAsync(ILingoCastLibsContainer castlibs, LingoPlayer player)
+    public async Task LoadCastLibsAsync(IBlingoCastLibsContainer castlibs, BlingoPlayer player)
         => await player.LoadCastLibFromCsvAsync("Data", Path.Combine("Media", "Data", "Members.csv"));
 
-    public Task<ILingoMovie?> LoadStartupMovieAsync(ILingoServiceProvider services, LingoPlayer player)
-        => Task.FromResult<ILingoMovie?>(player.NewMovie("Intro"));
+    public Task<IBlingoMovie?> LoadStartupMovieAsync(IBlingoServiceProvider services, BlingoPlayer player)
+        => Task.FromResult<IBlingoMovie?>(player.NewMovie("Intro"));
 
-    public void Run(ILingoMovie movie, bool autoPlayMovie)
+    public void Run(IBlingoMovie movie, bool autoPlayMovie)
     {
         if (autoPlayMovie) movie.Play();
     }
@@ -83,20 +83,20 @@ public class MyGameProjectFactory : ILingoProjectFactory
 ```
 
 This implementation defines four required methods:
-- `Setup(ILingoEngineRegistration config)` registers fonts, project settings (including the 640×480 stage), movies, and services.
-- `LoadCastLibsAsync(ILingoCastLibsContainer castlibs, LingoPlayer player)` loads external cast libraries using the provided player.
-- `LoadStartupMovieAsync(ILingoServiceProvider services, LingoPlayer player)` chooses the movie that starts first.
-- `Run(ILingoMovie movie, bool autoPlayMovie)` finalizes startup and optionally plays the movie automatically.
+- `Setup(IBlingoEngineRegistration config)` registers fonts, project settings (including the 640Ã—480 stage), movies, and services.
+- `LoadCastLibsAsync(IBlingoCastLibsContainer castlibs, BlingoPlayer player)` loads external cast libraries using the provided player.
+- `LoadStartupMovieAsync(IBlingoServiceProvider services, BlingoPlayer player)` chooses the movie that starts first.
+- `Run(IBlingoMovie movie, bool autoPlayMovie)` finalizes startup and optionally plays the movie automatically.
 
 ### Set properties of members
 
-`InitMembers` receives the running `LingoPlayer` so you can fetch cast libraries and adjust members.
+`InitMembers` receives the running `BlingoPlayer` so you can fetch cast libraries and adjust members.
 
 ```csharp
-public void InitMembers(LingoPlayer player)
+public void InitMembers(BlingoPlayer player)
 {
-    var textColor = LingoColor.FromHex("#999966");
-    var text = player.CastLib(2).GetMember<LingoMemberText>("T_data");
+    var textColor = BlingoColor.FromHex("#999966");
+    var text = player.CastLib(2).GetMember<BlingoMemberText>("T_data");
     text!.TextColor = textColor;
 }
 ```
@@ -140,24 +140,24 @@ To enable the optional Director interface, use the dedicated registration
 method (currently Godot only):
 
 ```csharp
-services.RegisterLingoEngine(cfg => cfg
+services.RegisterBlingoEngine(cfg => cfg
     .WithDirectorGodotEngine(rootNode)
     .SetProjectFactory<MyGameProjectFactory>()
     .BuildAndRunProject());
 ```
 
 The stage width and height configured in `Setup` define the playable stage area.
-The Director window should be larger and is configured via the runtime (for SDL2 through `WithLingoSdlEngine` and for Godot via project settings).
-All examples here use a 640×480 stage.
+The Director window should be larger and is configured via the runtime (for SDL2 through `WithBlingoSdlEngine` and for Godot via project settings).
+All examples here use a 640Ã—480 stage.
 
-Each framework exposes its own factory type (`SdlFactory`, `GodotFactory`, …).
-You can pass a callback to the `WithLingo*Engine` method to tweak the factory
+Each framework exposes its own factory type (`SdlFactory`, `GodotFactory`, â€¦).
+You can pass a callback to the `WithBlingo*Engine` method to tweak the factory
 before the engine starts.
 
 ### Conditional Director usage
 
 You can enable the Director interface only in debug builds by defining a
-compile‑time constant in your project file:
+compileâ€‘time constant in your project file:
 
 ```xml
 <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
@@ -169,13 +169,13 @@ Then switch registration based on that constant:
 
 ```csharp
 #if WITH_DIRECTOR
-services.RegisterLingoEngine(cfg => cfg
+services.RegisterBlingoEngine(cfg => cfg
     .WithDirectorGodotEngine(rootNode)
     .SetProjectFactory<MyGameProjectFactory>()
     .BuildAndRunProject());
 #else
-services.RegisterLingoEngine(cfg => cfg
-    .WithLingoGodotEngine(rootNode)
+services.RegisterBlingoEngine(cfg => cfg
+    .WithBlingoGodotEngine(rootNode)
     .SetProjectFactory<MyGameProjectFactory>()
     .BuildAndRunProject());
 #endif
@@ -183,4 +183,5 @@ services.RegisterLingoEngine(cfg => cfg
 
 See [SDLSetup](../SDLSetup.md) and [GodotSetup](../GodotSetup.md) for framework
 specific notes.
+
 

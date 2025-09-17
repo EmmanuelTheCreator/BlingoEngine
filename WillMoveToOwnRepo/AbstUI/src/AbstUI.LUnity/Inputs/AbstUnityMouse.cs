@@ -9,7 +9,7 @@ public class AbstUnityMouse<TAbstMouseType, TAbstUIMouseEvent> : IAbstFrameworkM
         where TAbstMouseType : AbstMouse<TAbstUIMouseEvent>
         where TAbstUIMouseEvent : AbstMouseEvent
 {
-    private Lazy<TAbstMouseType> _lingoMouse;
+    private Lazy<TAbstMouseType> _blingoMouse;
     private bool _hidden;
 
     private AMouseCursor _cursor = AMouseCursor.Arrow;
@@ -19,10 +19,10 @@ public class AbstUnityMouse<TAbstMouseType, TAbstUIMouseEvent> : IAbstFrameworkM
 
     public AbstUnityMouse(Lazy<TAbstMouseType> mouse)
     {
-        _lingoMouse = mouse;
+        _blingoMouse = mouse;
     }
 
-    public void SetMouseObj(TAbstMouseType mouse) => _lingoMouse = new Lazy<TAbstMouseType>(() => mouse);
+    public void SetMouseObj(TAbstMouseType mouse) => _blingoMouse = new Lazy<TAbstMouseType>(() => mouse);
 
     public void HideMouse(bool state)
     {
@@ -47,13 +47,13 @@ public class AbstUnityMouse<TAbstMouseType, TAbstUIMouseEvent> : IAbstFrameworkM
         Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
     }
 
-    public void ReplaceMouseObj(IAbstMouse lingoMouse) => _lingoMouse = new Lazy<TAbstMouseType>(() => (TAbstMouseType)lingoMouse);
+    public void ReplaceMouseObj(IAbstMouse blingoMouse) => _blingoMouse = new Lazy<TAbstMouseType>(() => (TAbstMouseType)blingoMouse);
 
     public void HandleMouseMove(int x, int y)
     {
-        _lingoMouse.Value.MouseH = x;
-        _lingoMouse.Value.MouseV = y;
-        _lingoMouse.Value.DoMouseMove();
+        _blingoMouse.Value.MouseH = x;
+        _blingoMouse.Value.MouseV = y;
+        _blingoMouse.Value.DoMouseMove();
     }
 
     public void HandleMouseDown(int button, bool doubleClick = false)
@@ -61,18 +61,18 @@ public class AbstUnityMouse<TAbstMouseType, TAbstUIMouseEvent> : IAbstFrameworkM
         switch (button)
         {
             case 0:
-                _lingoMouse.Value.MouseDown = true;
-                _lingoMouse.Value.LeftMouseDown = true;
-                _lingoMouse.Value.DoubleClick = doubleClick;
+                _blingoMouse.Value.MouseDown = true;
+                _blingoMouse.Value.LeftMouseDown = true;
+                _blingoMouse.Value.DoubleClick = doubleClick;
                 break;
             case 1:
-                _lingoMouse.Value.RightMouseDown = true;
+                _blingoMouse.Value.RightMouseDown = true;
                 break;
             case 2:
-                _lingoMouse.Value.MiddleMouseDown = true;
+                _blingoMouse.Value.MiddleMouseDown = true;
                 break;
         }
-        _lingoMouse.Value.DoMouseDown();
+        _blingoMouse.Value.DoMouseDown();
     }
 
     public void HandleMouseUp(int button)
@@ -80,22 +80,22 @@ public class AbstUnityMouse<TAbstMouseType, TAbstUIMouseEvent> : IAbstFrameworkM
         switch (button)
         {
             case 0:
-                _lingoMouse.Value.MouseDown = false;
-                _lingoMouse.Value.LeftMouseDown = false;
+                _blingoMouse.Value.MouseDown = false;
+                _blingoMouse.Value.LeftMouseDown = false;
                 break;
             case 1:
-                _lingoMouse.Value.RightMouseDown = false;
+                _blingoMouse.Value.RightMouseDown = false;
                 break;
             case 2:
-                _lingoMouse.Value.MiddleMouseDown = false;
+                _blingoMouse.Value.MiddleMouseDown = false;
                 break;
         }
-        _lingoMouse.Value.DoMouseUp();
+        _blingoMouse.Value.DoMouseUp();
     }
 
     public void HandleMouseWheel(float delta)
     {
-        _lingoMouse.Value.DoMouseWheel(delta);
+        _blingoMouse.Value.DoMouseWheel(delta);
     }
 
     
@@ -110,9 +110,10 @@ public class AbstUnityMouse : AbstUnityMouse<AbstMouse, AbstMouseEvent>
     {
     }
 
-    public new void ReplaceMouseObj(IAbstMouse lingoMouse)
+    public new void ReplaceMouseObj(IAbstMouse blingoMouse)
     {
-        _mouse = (AbstMouse)lingoMouse;
-        base.ReplaceMouseObj(lingoMouse);
+        _mouse = (AbstMouse)blingoMouse;
+        base.ReplaceMouseObj(blingoMouse);
     }
 }
+

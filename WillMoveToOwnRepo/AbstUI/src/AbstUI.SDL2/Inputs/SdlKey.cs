@@ -1,4 +1,4 @@
-using AbstUI.Inputs;
+﻿using AbstUI.Inputs;
 using AbstUI.SDL2.SDLL;
 using AbstUI.FrameworkCommunication;
 
@@ -8,7 +8,7 @@ namespace AbstUI.SDL2.Inputs;
 public class SdlKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
 {
     private readonly HashSet<SDL.SDL_Keycode> _keys = new();
-    private AbstKey? _lingoKey;
+    private AbstKey? _blingoKey;
     private string _lastKey = string.Empty;
     private int _lastCode;
 
@@ -17,23 +17,23 @@ public class SdlKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
         
     }
 
-    public void SetKeyObj(AbstKey key) => _lingoKey = key;
+    public void SetKeyObj(AbstKey key) => _blingoKey = key;
 
     public void ProcessEvent(SDL.SDL_Event e)
     {
         if (e.type == SDL.SDL_EventType.SDL_KEYDOWN && e.key.repeat == 0)
         {
             _keys.Add(e.key.keysym.sym);
-            _lastCode = SdlKeyCodeMap.ToLingo(e.key.keysym.sym);
+            _lastCode = SdlKeyCodeMap.ToBlingo(e.key.keysym.sym);
             _lastKey = SDL.SDL_GetKeyName(e.key.keysym.sym);
-            _lingoKey?.DoKeyDown();
+            _blingoKey?.DoKeyDown();
         }
         else if (e.type == SDL.SDL_EventType.SDL_KEYUP)
         {
             _keys.Remove(e.key.keysym.sym);
-            _lastCode = SdlKeyCodeMap.ToLingo(e.key.keysym.sym);
+            _lastCode = SdlKeyCodeMap.ToBlingo(e.key.keysym.sym);
             _lastKey = SDL.SDL_GetKeyName(e.key.keysym.sym);
-            _lingoKey?.DoKeyUp();
+            _blingoKey?.DoKeyUp();
         }
     }
 
@@ -54,8 +54,8 @@ public class SdlKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
 
     public bool KeyPressed(char key)
     {
-        int lingoCode = char.IsLetter(key) ? char.ToUpperInvariant(key) : key;
-        return _keys.Contains(SdlKeyCodeMap.ToSDL(lingoCode));
+        int blingoCode = char.IsLetter(key) ? char.ToUpperInvariant(key) : key;
+        return _keys.Contains(SdlKeyCodeMap.ToSDL(blingoCode));
     }
 
     public bool KeyPressed(int keyCode) => _keys.Contains(SdlKeyCodeMap.ToSDL(keyCode));
@@ -63,3 +63,4 @@ public class SdlKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
     public string Key => _lastKey;
     public int KeyCode => _lastCode;
 }
+

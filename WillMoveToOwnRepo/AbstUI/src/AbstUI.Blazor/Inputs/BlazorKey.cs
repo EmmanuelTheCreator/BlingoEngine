@@ -1,4 +1,4 @@
-using AbstUI.Inputs;
+﻿using AbstUI.Inputs;
 using Microsoft.AspNetCore.Components.Web;
 using AbstUI.FrameworkCommunication;
 
@@ -11,19 +11,19 @@ public class BlazorKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
 {
     private readonly HashSet<string> _keys = new();
     private readonly HashSet<string> _codes = new();
-    private AbstKey? _lingoKey;
+    private AbstKey? _blingoKey;
     private string _lastKey = string.Empty;
     private int _lastCode;
 
-    public void SetKeyObj(AbstKey key) => _lingoKey = key;
+    public void SetKeyObj(AbstKey key) => _blingoKey = key;
 
     public void KeyDown(KeyboardEventArgs e)
     {
         _keys.Add(e.Key);
         _codes.Add(e.Code);
         _lastKey = e.Key;
-        _lastCode = BlazorKeyCodeMap.ToLingo(e.Code);
-        _lingoKey?.DoKeyDown();
+        _lastCode = BlazorKeyCodeMap.ToBlingo(e.Code);
+        _blingoKey?.DoKeyDown();
     }
 
     public void KeyUp(KeyboardEventArgs e)
@@ -31,8 +31,8 @@ public class BlazorKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
         _keys.Remove(e.Key);
         _codes.Remove(e.Code);
         _lastKey = e.Key;
-        _lastCode = BlazorKeyCodeMap.ToLingo(e.Code);
-        _lingoKey?.DoKeyUp();
+        _lastCode = BlazorKeyCodeMap.ToBlingo(e.Code);
+        _blingoKey?.DoKeyUp();
     }
 
     public bool CommandDown => _keys.Contains("Meta");
@@ -58,3 +58,4 @@ public class BlazorKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
     public string Key => _lastKey;
     public int KeyCode => _lastCode;
 }
+

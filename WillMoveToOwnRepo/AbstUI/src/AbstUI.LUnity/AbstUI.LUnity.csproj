@@ -16,7 +16,7 @@
                 <Authors>Emmanuel The Creator</Authors>
                 <Company>The Community</Company>
                 <Description>Unity backend for the AbstUI framework, enabling AbstUI components to run within Unity.</Description>
-                <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
+                <RepositoryUrl>https://github.com/EmmanuelTheCreator/BlingoEngine</RepositoryUrl>
                 <PackageTags>AbstUI Unity</PackageTags>
                 <PackageLicenseExpression>MIT</PackageLicenseExpression>
                 <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -33,7 +33,8 @@
 
         <ItemGroup>
           <ProjectReference Include="..\AbstUI\AbstUI.csproj" />
-          <ProjectReference Include="..\..\..\..\src\LingoEngine\LingoEngine.csproj" />
+          <ProjectReference Include="..\..\..\..\src\BlingoEngine\BlingoEngine.csproj" />
         </ItemGroup>
 
 </Project>
+

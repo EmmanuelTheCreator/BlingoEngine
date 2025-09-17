@@ -1,0 +1,50 @@
+﻿<Project Sdk="Godot.NET.Sdk/4.5.0-dev.5">
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<EnableDynamicLoading>true</EnableDynamicLoading>
+		<Nullable>enable</Nullable>
+		<LangVersion>12</LangVersion>
+		<Platforms>AnyCPU;x64;x86</Platforms>
+		<Configurations>Debug;Release</Configurations>
+	</PropertyGroup>
+  <PropertyGroup>
+    <!-- NuGet Packaging Metadata -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>BlingoEngine.Director.Runner.Godot</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Emmanuel The Creator</Authors>
+    <Company>The Community</Company>
+    <Description>Standalone Godot runner for the BlingoEngine Director.</Description>
+    <RepositoryUrl>https://github.com/EmmanuelTheCreator/BlingoEngine</RepositoryUrl>
+    <PackageTags>BlingoEngine Director Godot</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	
+  <ItemGroup>
+    <ProjectReference Include="../BlingoEngine.Director.LGodot/BlingoEngine.Director.LGodot.csproj" />
+    <ProjectReference Include="../../BlingoEngine.LGodot/BlingoEngine.LGodot.csproj" />
+    <ProjectReference Include="..\..\Net\BlingoEngine.Net.RNetPipeClient\BlingoEngine.Net.RNetPipeClient.csproj" />
+    <ProjectReference Include="..\..\Net\BlingoEngine.Net.RNetPipeServer\BlingoEngine.Net.RNetPipeServer.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="project.godot" />
+    <None Include="Scenes/director_runner.tscn" />
+  </ItemGroup>
+
+
+	<ItemGroup>
+		<Content Include="Media\Fonts\Tahoma.ttf" />
+		<Content Include="Media\Icons\DirectorSharp_Icon.png" />
+		<Content Include="Media\Icons\Director_Icons.png" />
+		<Content Include="Media\Icons\General_Icons.png" />
+		<Content Include="Media\Icons\Painter2_Icons.png" />
+		<Content Include="Media\Icons\Painter_Icons.png" />
+		<Content Include="Properties\launchSettings.json" />
+	</ItemGroup>
+</Project>
+

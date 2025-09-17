@@ -1,0 +1,17 @@
+63f7b34db8d8cdea90c76aacccf841ec
+::res://::1758109962
+::res://Media/::1758109962
+::res://Media/Fonts/::1758109962
+ARIAL.TTF::FontFile::1981774784384089724::1758109964::1758112914::1::::<><><>0<>0<>cd4b6a9679142167904d200351e0c533<>res://.godot/imported/ARIAL.TTF-62bd749e1c2d139fca7c05a0a38119ad.fontdata::
+Tahoma.ttf::FontFile::1201621955713426401::1758109964::1758112914::1::::<><><>0<>0<>471da227fb7ec156f5d08fd204fef479<>res://.godot/imported/Tahoma.ttf-2cf13aee3dc1b4498f1e77636a99b1f4.fontdata::
+::res://Media/Icons/::1758109962
+DirectorSharp_Icon.png::CompressedTexture2D::6153906768625742316::1758109964::1758112914::1::::<><><>0<>0<>121662c9182b59c83c245839626261cf<>res://.godot/imported/DirectorSharp_Icon.png-989fd419ba0bff78401641b5bb4ad486.ctex::
+Director_Icons.png::CompressedTexture2D::1191706972964379895::1758109964::1758112914::1::::<><><>0<>0<>d6af97729f8ed297815e123b54f6e7b6<>res://.godot/imported/Director_Icons.png-fe6d2be069c8d290e6572211da07819c.ctex::
+General_Icons.png::CompressedTexture2D::9006508150832118232::1758109964::1758112914::1::::<><><>0<>0<>04206e744c3d48edc6910eaf89dd4030<>res://.godot/imported/General_Icons.png-e073e342b64a88a98e2a1dbabe45f4d3.ctex::
+Painter2_Icons.png::CompressedTexture2D::3168267906848863275::1758109964::1758112914::1::::<><><>0<>0<>e3d348edae4bd0154e229efcc789ed74<>res://.godot/imported/Painter2_Icons.png-dd8e6afe7b3f2469316a8c4990446b9b.ctex::
+Painter_Icons.png::CompressedTexture2D::3996042044746505935::1758109964::1758112914::1::::<><><>0<>0<>6d4638e73ed3257dae75e8a664cecc2e<>res://.godot/imported/Painter_Icons.png-e14900adbb919e05f1175acdf7df7228.ctex::
+::res://Properties/::1758109962
+launchSettings.json::JSON::-1::1758109964::0::1::::<><><>0<>0<><>::
+::res://Scenes/::1758109962
+director_runner.tscn::PackedScene::246729560579477505::1758112758::0::1::::<><><>0<>0<><>::uid://cbxw3mtkfvwdg::::res://Scenes/GodotDirectorRunner.cs
+GodotDirectorRunner.cs::CSharpScript::6382126642929607913::1758112568::0::1::::<>Node<><>0<>0<><>::

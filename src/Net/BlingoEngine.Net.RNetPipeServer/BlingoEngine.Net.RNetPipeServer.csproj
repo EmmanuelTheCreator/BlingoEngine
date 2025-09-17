@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+          <Configurations>Debug;Release</Configurations>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- NuGet Packaging Metadata -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>BlingoEngine.Net.RNetPipeServer</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Emmanuel The Creator</Authors>
+    <Company>The Community</Company>
+    <Description>Named pipe/Unix domain socket server for local RNet communication.</Description>
+    <RepositoryUrl>https://github.com/EmmanuelTheCreator/BlingoEngine</RepositoryUrl>
+    <PackageTags>BlingoEngine RNet Pipe Server</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BlingoEngine.Net.RNetContracts\BlingoEngine.Net.RNetContracts.csproj" />
+    <ProjectReference Include="..\BlingoEngine.Net.RNetHost.Common\BlingoEngine.Net.RNetHost.Common.csproj" />
+    <ProjectReference Include="..\..\BlingoEngine.IO\BlingoEngine.IO.csproj" />
+    <ProjectReference Include="..\..\BlingoEngine\BlingoEngine.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Threading.Channels" Version="8.*" />
+  </ItemGroup>
+</Project>
+

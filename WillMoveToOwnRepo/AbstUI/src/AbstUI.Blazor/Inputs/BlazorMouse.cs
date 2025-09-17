@@ -1,4 +1,4 @@
-using AbstUI.Inputs;
+﻿using AbstUI.Inputs;
 using AbstUI.Primitives;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
@@ -11,7 +11,7 @@ namespace AbstUI.Blazor.Inputs;
 /// </summary>
 public class BlazorMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor<AbstMouse<TAbstUIMouseEvent>> where TAbstUIMouseEvent : AbstMouseEvent
 {
-    private Lazy<AbstMouse<TAbstUIMouseEvent>> _lingoMouse;
+    private Lazy<AbstMouse<TAbstUIMouseEvent>> _blingoMouse;
     private readonly IJSRuntime _js;
     private IJSObjectReference? _module;
     private AMouseCursor _lastCursor = AMouseCursor.Arrow;
@@ -21,12 +21,12 @@ public class BlazorMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor
 
     public BlazorMouse(Lazy<AbstMouse<TAbstUIMouseEvent>> mouse, IJSRuntime js)
     {
-        _lingoMouse = mouse;
+        _blingoMouse = mouse;
         _js = js;
     }
 
     public void SetMouse(AbstMouse<TAbstUIMouseEvent> mouse)
-        => _lingoMouse = new Lazy<AbstMouse<TAbstUIMouseEvent>>(() => mouse);
+        => _blingoMouse = new Lazy<AbstMouse<TAbstUIMouseEvent>>(() => mouse);
 
     public void HideMouse(bool state)
         => _ = SetCursorCss(state ? "none" : "default");
@@ -37,64 +37,64 @@ public class BlazorMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor
         OffsetX = x;
         OffsetY = y;
     }
-    public void ReplaceMouseObj(IAbstMouse lingoMouse)
+    public void ReplaceMouseObj(IAbstMouse blingoMouse)
     {
-        _lingoMouse = new Lazy<AbstMouse<TAbstUIMouseEvent>>(() => (AbstMouse<TAbstUIMouseEvent>)lingoMouse);
+        _blingoMouse = new Lazy<AbstMouse<TAbstUIMouseEvent>>(() => (AbstMouse<TAbstUIMouseEvent>)blingoMouse);
     }
 
     public void MouseMove(MouseEventArgs e)
     {
-        _lingoMouse.Value.MouseH = (int)e.ClientX;
-        _lingoMouse.Value.MouseV = (int)e.ClientY;
-        _lingoMouse.Value.DoMouseMove();
+        _blingoMouse.Value.MouseH = (int)e.ClientX;
+        _blingoMouse.Value.MouseV = (int)e.ClientY;
+        _blingoMouse.Value.DoMouseMove();
     }
 
     public void MouseDown(MouseEventArgs e)
     {
-        _lingoMouse.Value.MouseH = (int)e.ClientX;
-        _lingoMouse.Value.MouseV = (int)e.ClientY;
+        _blingoMouse.Value.MouseH = (int)e.ClientX;
+        _blingoMouse.Value.MouseV = (int)e.ClientY;
         if (e.Button == 0)
         {
-            _lingoMouse.Value.MouseDown = true;
-            _lingoMouse.Value.LeftMouseDown = true;
-            _lingoMouse.Value.DoubleClick = e.Detail > 1;
+            _blingoMouse.Value.MouseDown = true;
+            _blingoMouse.Value.LeftMouseDown = true;
+            _blingoMouse.Value.DoubleClick = e.Detail > 1;
         }
         else if (e.Button == 2)
         {
-            _lingoMouse.Value.RightMouseDown = true;
+            _blingoMouse.Value.RightMouseDown = true;
         }
         else if (e.Button == 1)
         {
-            _lingoMouse.Value.MiddleMouseDown = true;
+            _blingoMouse.Value.MiddleMouseDown = true;
         }
-        _lingoMouse.Value.DoMouseDown();
+        _blingoMouse.Value.DoMouseDown();
     }
 
     public void MouseUp(MouseEventArgs e)
     {
-        _lingoMouse.Value.MouseH = (int)e.ClientX;
-        _lingoMouse.Value.MouseV = (int)e.ClientY;
+        _blingoMouse.Value.MouseH = (int)e.ClientX;
+        _blingoMouse.Value.MouseV = (int)e.ClientY;
         if (e.Button == 0)
         {
-            _lingoMouse.Value.MouseDown = false;
-            _lingoMouse.Value.LeftMouseDown = false;
+            _blingoMouse.Value.MouseDown = false;
+            _blingoMouse.Value.LeftMouseDown = false;
         }
         else if (e.Button == 2)
         {
-            _lingoMouse.Value.RightMouseDown = false;
+            _blingoMouse.Value.RightMouseDown = false;
         }
         else if (e.Button == 1)
         {
-            _lingoMouse.Value.MiddleMouseDown = false;
+            _blingoMouse.Value.MiddleMouseDown = false;
         }
-        _lingoMouse.Value.DoMouseUp();
+        _blingoMouse.Value.DoMouseUp();
     }
 
     public void Wheel(WheelEventArgs e)
     {
-        _lingoMouse.Value.MouseH = (int)e.ClientX;
-        _lingoMouse.Value.MouseV = (int)e.ClientY;
-        _lingoMouse.Value.DoMouseWheel((int)e.DeltaY);
+        _blingoMouse.Value.MouseH = (int)e.ClientX;
+        _blingoMouse.Value.MouseV = (int)e.ClientY;
+        _blingoMouse.Value.DoMouseWheel((int)e.DeltaY);
     }
 
     public void SetCursor(AMouseCursor value)
@@ -131,3 +131,4 @@ public class BlazorMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor
 
    
 }
+

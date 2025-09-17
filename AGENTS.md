@@ -1,4 +1,4 @@
-# AGENTS
+﻿# AGENTS
 
 These instructions apply to the entire repository.
 
@@ -8,7 +8,7 @@ These instructions apply to the entire repository.
 
 ## Environment
 - The project requires **.NET 8 (LTS)** for Godot and **.NET 9** for Blazor.
-- If the `dotnet` CLI isn’t available, run `./scripts/install-packages-linux.sh`.  
+- If the `dotnet` CLI isnâ€™t available, run `./scripts/install-packages-linux.sh`.  
   This script will:
   - Install required system packages (SDL2, X11/GL, etc.).
   - Install .NET SDKs (8 and 9) into `$HOME/.dotnet`.
@@ -18,10 +18,10 @@ These instructions apply to the entire repository.
 
 ## Testing
 - Run tests only for the projects affected by your changes; do not run the entire solution.
-- For changes in core engine code (e.g., under `src` or `Test/LingoEngine.Lingo.Core.Tests`), run `dotnet test Test/LingoEngine.Lingo.Core.Tests/LingoEngine.Lingo.Core.Tests.csproj`.
+- For changes in core engine code (e.g., under `src` or `Test/BlingoEngine.Lingo.Core.Tests`), run `dotnet test Test/BlingoEngine.Lingo.Core.Tests/BlingoEngine.Lingo.Core.Tests.csproj`.
 - For changes in the ProjectorRays area (`WillMoveToOwnRepo/ProjectorRays`), run `dotnet test WillMoveToOwnRepo/ProjectorRays/Test/ProjectorRays.DotNet.Test/ProjectorRays.DotNet.Test.csproj`.
 - Apply the same approach for other components: run `dotnet test <path-to-test-project>` for each modified project.
-- Project `LingoEngine.SDL2.GfxVisualTest.csproj` is a console application to test the UI visually, not with tests in it.
+- Project `BlingoEngine.SDL2.GfxVisualTest.csproj` is a console application to test the UI visually, not with tests in it.
  - Other visual test projects such as `WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.*` are also manual console apps; build or run them with `dotnet build`/`dotnet run` rather than `dotnet test`.
 
 ## Code Style
@@ -38,34 +38,34 @@ These instructions apply to the entire repository.
 
 | Path | Description |
 | --- | --- |
-| src/LingoEngine/LingoEngine.csproj | Core engine functionality and dependency injection setup |
-| src/LingoEngine.Lingo.Core/LingoEngine.Lingo.Core.csproj | Runtime implementation of the Lingo scripting language |
-| src/LingoEngine.IO/LingoEngine.IO.csproj | File and resource I/O built on LingoEngine |
-| src/LingoEngine.IO.Data/LingoEngine.IO.Data.csproj | Shared data structures for the I/O layer |
-| src/LingoEngine.SDL2/LingoEngine.SDL2.csproj | SDL2 bindings and rendering support |
-| src/LingoEngine.Unity/LingoEngine.Unity.csproj | Unity engine integration layer |
-| src/LingoEngine.LGodot/LingoEngine.LGodot.csproj | Godot engine integration layer |
-| src/LingoEngine.3D.Core/LingoEngine.3D.Core.csproj | Core components for 3D features |
-| src/LingoEngine.Blazor/LingoEngine.Blazor.csproj | Blazor integration layer |
-| src/LingoEngine.VerboseLanguage/LingoEngine.VerboseLanguage.csproj | Verbose fluent API for the Lingo language |
-| src/Director/LingoEngine.Director.Core/LingoEngine.Director.Core.csproj | Editor tooling reminiscent of Macromedia Director |
-| src/Net/LingoEngine.Net.RNetContracts/LingoEngine.Net.RNetContracts.csproj | Shared contracts for RNet tooling |
-| src/Net/LingoEngine.Net.RNetClient/LingoEngine.Net.RNetClient.csproj | Client library for RNet tooling |
-| src/Net/LingoEngine.Net.RNetHost/LingoEngine.Net.RNetHost.csproj | SignalR host for RNet tooling |
-| src/Net/LingoEngine.Net.RNetHost.Common/LingoEngine.Net.RNetHost.Common.csproj | Shared helpers for hosting RNet transports |
-| src/Net/LingoEngine.Net.RNetTerminal/LingoEngine.Net.RNetTerminal.csproj | Console app for RNet client debugging |
-| src/Director/LingoEngine.Director.SDL2/LingoEngine.Director.SDL2.csproj | SDL2 integration for Director tooling |
-| src/Director/LingoEngine.Director.LGodot/LingoEngine.Director.LGodot.csproj | Godot integration for Director tooling |
-| src/Director/LingoEngine.Director.Runner.SDL2/LingoEngine.Director.Runner.SDL2.csproj | Standalone SDL2 runner for Director tooling |
-| src/Director/LingoEngine.Director.Runner.Godot/LingoEngine.Director.Runner.Godot.csproj | Standalone Godot runner for Director tooling |
-| Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Core/LingoEngine.Demo.TetriGrounds.Core.csproj | Shared code for the TetriGrounds demo |
-| Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.SDL2/LingoEngine.Demo.TetriGrounds.SDL2.csproj | SDL2-based TetriGrounds demo |
-| Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Blazor/LingoEngine.Demo.TetriGrounds.Blazor.csproj | Blazor-based TetriGrounds demo |
-| Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Godot/LingoEngine.Demo.TetriGrounds.Godot.csproj | Godot-based TetriGrounds demo |
-| Test/LingoEngine.Lingo.Core.Tests/LingoEngine.Lingo.Core.Tests.csproj | Tests for the Lingo scripting runtime |
-| Test/LingoEngine.Lingo.Tests/LingoEngine.Lingo.Tests.csproj | Tests for LingoEngine core features |
-| Test/LingoEngine.Tests/LingoEngine.Tests.csproj | Tests for additional LingoEngine features |
-| Test/LingoEngine.SDL2.GfxVisualTest/LingoEngine.SDL2.GfxVisualTest.csproj | Console app for manual SDL2 graphics checks |
+| src/BlingoEngine/BlingoEngine.csproj | Core engine functionality and dependency injection setup |
+| src/BlingoEngine.Lingo.Core/BlingoEngine.Lingo.Core.csproj | Runtime implementation of the Lingo scripting language |
+| src/BlingoEngine.IO/BlingoEngine.IO.csproj | File and resource I/O built on BlingoEngine |
+| src/BlingoEngine.IO.Data/BlingoEngine.IO.Data.csproj | Shared data structures for the I/O layer |
+| src/BlingoEngine.SDL2/BlingoEngine.SDL2.csproj | SDL2 bindings and rendering support |
+| src/BlingoEngine.Unity/BlingoEngine.Unity.csproj | Unity engine integration layer |
+| src/BlingoEngine.LGodot/BlingoEngine.LGodot.csproj | Godot engine integration layer |
+| src/BlingoEngine.3D.Core/BlingoEngine.3D.Core.csproj | Core components for 3D features |
+| src/BlingoEngine.Blazor/BlingoEngine.Blazor.csproj | Blazor integration layer |
+| src/BlingoEngine.VerboseLanguage/BlingoEngine.VerboseLanguage.csproj | Verbose fluent API for the Lingo language |
+| src/Director/BlingoEngine.Director.Core/BlingoEngine.Director.Core.csproj | Editor tooling reminiscent of Macromedia Director |
+| src/Net/BlingoEngine.Net.RNetContracts/BlingoEngine.Net.RNetContracts.csproj | Shared contracts for RNet tooling |
+| src/Net/BlingoEngine.Net.RNetClient/BlingoEngine.Net.RNetClient.csproj | Client library for RNet tooling |
+| src/Net/BlingoEngine.Net.RNetHost/BlingoEngine.Net.RNetHost.csproj | SignalR host for RNet tooling |
+| src/Net/BlingoEngine.Net.RNetHost.Common/BlingoEngine.Net.RNetHost.Common.csproj | Shared helpers for hosting RNet transports |
+| src/Net/BlingoEngine.Net.RNetTerminal/BlingoEngine.Net.RNetTerminal.csproj | Console app for RNet client debugging |
+| src/Director/BlingoEngine.Director.SDL2/BlingoEngine.Director.SDL2.csproj | SDL2 integration for Director tooling |
+| src/Director/BlingoEngine.Director.LGodot/BlingoEngine.Director.LGodot.csproj | Godot integration for Director tooling |
+| src/Director/BlingoEngine.Director.Runner.SDL2/BlingoEngine.Director.Runner.SDL2.csproj | Standalone SDL2 runner for Director tooling |
+| src/Director/BlingoEngine.Director.Runner.LGodot/BlingoEngine.Director.Runner.LGodot.csproj | Standalone Godot runner for Director tooling |
+| Demo/TetriGrounds/BlingoEngine.Demo.TetriGrounds.Core/BlingoEngine.Demo.TetriGrounds.Core.csproj | Shared code for the TetriGrounds demo |
+| Demo/TetriGrounds/BlingoEngine.Demo.TetriGrounds.SDL2/BlingoEngine.Demo.TetriGrounds.SDL2.csproj | SDL2-based TetriGrounds demo |
+| Demo/TetriGrounds/BlingoEngine.Demo.TetriGrounds.Blazor/BlingoEngine.Demo.TetriGrounds.Blazor.csproj | Blazor-based TetriGrounds demo |
+| Demo/TetriGrounds/BlingoEngine.Demo.TetriGrounds.Godot/BlingoEngine.Demo.TetriGrounds.Godot.csproj | Godot-based TetriGrounds demo |
+| Test/BlingoEngine.Lingo.Core.Tests/BlingoEngine.Lingo.Core.Tests.csproj | Tests for the Lingo scripting runtime |
+| Test/BlingoEngine.Lingo.Tests/BlingoEngine.Lingo.Tests.csproj | Tests for BlingoEngine core features |
+| Test/BlingoEngine.Tests/BlingoEngine.Tests.csproj | Tests for additional BlingoEngine features |
+| Test/BlingoEngine.SDL2.GfxVisualTest/BlingoEngine.SDL2.GfxVisualTest.csproj | Console app for manual SDL2 graphics checks |
 | WillMoveToOwnRepo/AbstUI/src/AbstUI/AbstUI.csproj | Core abstractions for the AbstUI framework |
 | WillMoveToOwnRepo/AbstUI/src/AbstUI.SDL2/AbstUI.SDL2.csproj | SDL2 backend for AbstUI |
 | WillMoveToOwnRepo/AbstUI/src/AbstUI.LUnity/AbstUI.LUnity.csproj | Unity backend for AbstUI |
@@ -88,10 +88,11 @@ These instructions apply to the entire repository.
 | WillMoveToOwnRepo/ProjectorRays/src/ProjectorRays.DotNet/ProjectorRays.DotNet.csproj | Core ProjectorRays .NET library |
 | WillMoveToOwnRepo/ProjectorRays/src/ProjectorRays.Console/ProjectorRays.Console.csproj | Console showcase for ProjectorRays |
 | WillMoveToOwnRepo/ProjectorRays/Test/ProjectorRays.DotNet.Test/ProjectorRays.DotNet.Test.csproj | Tests for ProjectorRays library |
-| Samples/SetupWays/LingoEngineMinimalSDL/LingoEngineMinimalSDL.csproj | Minimal SDL bootstrap sample that renders a centered text sprite |
-| Samples/SetupWays/LingoEngineMinimalGodot/LingoEngineMinimalGodot.csproj | Minimal Godot sample that launches the engine from a Godot scene |
-| Samples/SetupWays/LingoEngineWithDirectorInDebugSDL/LingoEngineWithDirectorInDebugSDL.csproj | SDL sample that enables Director tooling in debug builds |
-| Samples/SetupWays/LingoEngineWithDirectorInDebugGodot/LingoEngineWithDirectorInDebugGodot.csproj | Godot sample that enables Director tooling in debug builds |
+| Samples/SetupWays/BlingoEngineMinimalSDL/BlingoEngineMinimalSDL.csproj | Minimal SDL bootstrap sample that renders a centered text sprite |
+| Samples/SetupWays/BlingoEngineMinimalGodot/BlingoEngineMinimalGodot.csproj | Minimal Godot sample that launches the engine from a Godot scene |
+| Samples/SetupWays/BlingoEngineWithDirectorInDebugSDL/BlingoEngineWithDirectorInDebugSDL.csproj | SDL sample that enables Director tooling in debug builds |
+| Samples/SetupWays/BlingoEngineWithDirectorInDebugGodot/BlingoEngineWithDirectorInDebugGodot.csproj | Godot sample that enables Director tooling in debug builds |
 ## Notes for Agents
-- The solution file is `LingoEngine.sln`.
+- The solution file is `BlingoEngine.sln`. But avoid using it, its big.
 - Keep cross-platform compatibility in mind when making changes.
+

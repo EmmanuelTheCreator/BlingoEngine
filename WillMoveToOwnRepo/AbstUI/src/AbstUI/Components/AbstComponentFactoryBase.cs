@@ -1,4 +1,4 @@
-using AbstUI.FrameworkCommunication;
+﻿using AbstUI.FrameworkCommunication;
 using AbstUI.Styles;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -68,8 +68,8 @@ public abstract class AbstComponentFactoryBase : IAbstComponentFactoryBase
             {
                 if (iface.IsGenericType && iface.GetGenericTypeDefinition() == typeof(IFrameworkFor<>))
                 {
-                    var lingoType = iface.GenericTypeArguments[0];
-                    _frameworkMap[lingoType] = type;
+                    var blingoType = iface.GenericTypeArguments[0];
+                    _frameworkMap[blingoType] = type;
                 }
             }
         }
@@ -136,3 +136,4 @@ public abstract class AbstComponentFactoryBase : IAbstComponentFactoryBase
     //    return window;
     //}
 }
+

@@ -1,19 +1,19 @@
-# RNet
+﻿# RNet
 
-**RNet** stands for *Remote Net* and provides a lightweight protocol for driving a LingoEngine movie from another process.
+**RNet** stands for *Remote Net* and provides a lightweight protocol for driving a BlingoEngine movie from another process.
 It is built on top of SignalR and streams movie state, frame data, and commands so tools can control a running movie like a remote control.
 
-RNet hooks directly into **LingoEngine**, enabling any project using the core engine to be remotely controlled.
+RNet hooks directly into **BlingoEngine**, enabling any project using the core engine to be remotely controlled.
 
 The projects in this folder implement the different pieces of the system:
 
-- **LingoEngine.Net.RNetContracts** – shared data contracts describing frames, sprites, and commands.
-- **LingoEngine.Net.RNetProjectHost** – a SignalR server that exposes an engine instance over RNet.
-- **LingoEngine.Net.RNetProjectClient** – a client library for connecting to an RNet project host.
-- **LingoEngine.Net.RNetClientPlayer** – consumes a host and applies updates to a local LingoEngine player.
-- **LingoEngine.Net.RNetTerminal** – a console application used for debugging and experimenting with the protocol.
-- **LingoEngine.Net.RNetServer** – forwards messages between project hosts and project clients.
-- **cpp/LingoEngine.RNetProjectClient** – a minimal C++ client showing how to consume the protocol from native code.
+- **BlingoEngine.Net.RNetContracts** â€“ shared data contracts describing frames, sprites, and commands.
+- **BlingoEngine.Net.RNetProjectHost** â€“ a SignalR server that exposes an engine instance over RNet.
+- **BlingoEngine.Net.RNetProjectClient** â€“ a client library for connecting to an RNet project host.
+- **BlingoEngine.Net.RNetClientPlayer** â€“ consumes a host and applies updates to a local BlingoEngine player.
+- **BlingoEngine.Net.RNetTerminal** â€“ a console application used for debugging and experimenting with the protocol.
+- **BlingoEngine.Net.RNetServer** â€“ forwards messages between project hosts and project clients.
+- **cpp/BlingoEngine.RNetProjectClient** â€“ a minimal C++ client showing how to consume the protocol from native code.
 
 Together these components allow external tools to inspect and control movies in real time.
 
@@ -22,14 +22,15 @@ Together these components allow external tools to inspect and control movies in 
 To expose an engine instance over RNet, register and start the host during engine setup:
 
 ```csharp
-var engine = LingoEngine.Setup.Engine
+var engine = BlingoEngine.Setup.Engine
     .WithRNetProjectHostServer(7000) // custom port
     .Build();
 ```
 
-Clients can then connect using `LingoRNetProjectClient`:
+Clients can then connect using `BlingoRNetProjectClient`:
 
 ```csharp
-var client = new LingoRNetProjectClient();
+var client = new BlingoRNetProjectClient();
 await client.ConnectAsync(new Uri("http://localhost:7000/director"), new HelloDto("project", "client", "1.0", "Sample client"));
 ```
+

@@ -1,4 +1,4 @@
-using AbstUI.Components;
+﻿using AbstUI.Components;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
 using AbstUI.Windowing;
@@ -10,7 +10,7 @@ namespace AbstUI.Blazor.Components.Containers;
 internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable, IAbstFrameworkWindow
 {
     private readonly AbstBlazorComponentFactory _factory;
-    private readonly IAbstWindowInternal _lingoWindow;
+    private readonly IAbstWindowInternal _blingoWindow;
     private string _title = string.Empty;
     private bool _isPopup;
     private bool _borderless;
@@ -61,7 +61,7 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable, IAbstFrameworkWi
     public AColor BackgroundColor { get; set; }
     public AColor BackgroundTitleColor { get; set; }
 
-    public bool IsActiveWindow => _lingoWindow.IsActivated;
+    public bool IsActiveWindow => _blingoWindow.IsActivated;
 
     public bool IsOpen => Visibility;
 
@@ -80,17 +80,17 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable, IAbstFrameworkWi
             _content = value;
             if (value is IAbstFrameworkLayoutNode layout)
                 Component.AddItem(layout);
-            _lingoWindow.SetContentFromFW(value);
+            _blingoWindow.SetContentFromFW(value);
         }
     }
 
     public AbstBlazorWindow(IAbstWindow window, AbstBlazorComponentFactory factory)
     {
-        _lingoWindow = (IAbstWindowInternal)window;
+        _blingoWindow = (IAbstWindowInternal)window;
         _factory = factory;
         //var mouse = ((IAbstMouseInternal)factory.RootContext.AbstMouse).CreateNewInstance(window);
         //var key = ((AbstKey)factory.RootContext.AbstKey).CreateNewInstance(window);
-        //_lingoWindow.Init(this, mouse, key);
+        //_blingoWindow.Init(this, mouse, key);
         Visibility = false;
     }
 
@@ -105,7 +105,7 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable, IAbstFrameworkWi
     {
         Width = width;
         Height = height;
-        _lingoWindow.ResizingContentFromFW(false, width, height);
+        _blingoWindow.ResizingContentFromFW(false, width, height);
     }
 
     public void Popup()
@@ -114,7 +114,7 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable, IAbstFrameworkWi
         _module!.InvokeVoidAsync("AbstUIWindow.showBootstrapModal", Name);
         //_factory.RootContext.ComponentContainer.Activate(ComponentContext);
         Visibility = true;
-        _lingoWindow.RaiseWindowStateChanged(true);
+        _blingoWindow.RaiseWindowStateChanged(true);
     }
 
     public void PopupCentered()
@@ -124,7 +124,7 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable, IAbstFrameworkWi
         //X = (size.X - Width) / 2f;
         //Y = (size.Y - Height) / 2f;
         Popup();
-        _lingoWindow.RaiseWindowStateChanged(true);
+        _blingoWindow.RaiseWindowStateChanged(true);
     }
 
 
@@ -141,7 +141,7 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable, IAbstFrameworkWi
         _module!.InvokeVoidAsync("AbstUIWindow.showBootstrapModal", Name);
         //_factory.RootContext.ComponentContainer.Activate(ComponentContext);
         Visibility = true;
-        _lingoWindow.RaiseWindowStateChanged(true);
+        _blingoWindow.RaiseWindowStateChanged(true);
     }
 
     public void CloseWindow()
@@ -150,7 +150,7 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable, IAbstFrameworkWi
         _module!.InvokeVoidAsync("AbstUIWindow.hideBootstrapModal", Name);
         Visibility = false;
         //_factory.RootContext.ComponentContainer.Deactivate(ComponentContext);
-        _lingoWindow.RaiseWindowStateChanged(false);
+        _blingoWindow.RaiseWindowStateChanged(false);
     }
 
     public void MoveWindow(int x, int y)
@@ -178,3 +178,4 @@ internal class AbstBlazorWindow : AbstBlazorPanel, IDisposable, IAbstFrameworkWi
 
 
 }
+

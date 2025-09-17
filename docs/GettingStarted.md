@@ -1,21 +1,21 @@
-# Getting Started
+﻿# Getting Started
 
 This short guide explains the layout of the repository and how to run the test suite locally.
 For minimal end-to-end bootstraps, browse the [Sample Projects overview](../Samples/ReadMe.md).
 
-## 📁 Project Structure
+## ðŸ“ Project Structure
 
 | Folder | Description |
 |--------|-------------|
-| `src/LingoEngine` | Core Lingo runtime and engine abstractions |
-| `src/LingoEngine.LGodot` | Adapter for [Godot](https://godotengine.org/) |
-| `src/LingoEngine.SDL2` | Adapter for SDL2 |
-| `src/Director` | Standalone Director application re‑implementation (basic movie, cast, and score features working) |
+| `src/BlingoEngine` | Core Lingo runtime and engine abstractions |
+| `src/BlingoEngine.LGodot` | Adapter for [Godot](https://godotengine.org/) |
+| `src/BlingoEngine.SDL2` | Adapter for SDL2 |
+| `src/Director` | Standalone Director application reâ€‘implementation (basic movie, cast, and score features working) |
 | `Demo/TetriGrounds` | Sample game showing usage with both backends |
 
-🔎 For a detailed technical overview, see the [Architecture guide](design/Architecture.md).
+ðŸ”Ž For a detailed technical overview, see the [Architecture guide](design/Architecture.md).
 
-## 🧪 Running Tests
+## ðŸ§ª Running Tests
 
 This project uses the .NET SDK. You can run all unit tests with:
 
@@ -33,4 +33,5 @@ Need to install the SDK?
 ```
 
 For engine-specific setup, see the [Godot Setup](GodotSetup.md) and [SDL2 Setup](SDLSetup.md) guides.
+
 

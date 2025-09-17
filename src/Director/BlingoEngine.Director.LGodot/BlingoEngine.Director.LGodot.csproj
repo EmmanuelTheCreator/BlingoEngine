@@ -1,0 +1,53 @@
+﻿<Project Sdk="Godot.NET.Sdk/4.5.0-dev.5">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8</TargetFramework>
+    <!-- Use netstandard for compatibility -->
+    <GodotVersion>4.5.0-dev.5</GodotVersion>
+    <LangVersion>12</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+	  <Configurations>Debug;Release</Configurations>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!-- NuGet Packaging Metadata -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>BlingoEngine.Director.LGodot</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Emmanuel The Creator</Authors>
+    <Company>The Community</Company>
+    <Description>Godot integration layer for BlingoEngine Director tooling.</Description>
+    <RepositoryUrl>https://github.com/EmmanuelTheCreator/BlingoEngine</RepositoryUrl>
+    <PackageTags>Lingo Director Godot BlingoEngine</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="obj\\**" />
+    <EmbeddedResource Remove="obj\\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.md" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <DefineConstants>$(DefineConstants);USE_WINDOWS_FEATURES</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Godot.NET.Sdk" Version="4.5.0-dev.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\BlingoEngine.IO.Data\BlingoEngine.IO.Data.csproj" />
+    <ProjectReference Include="..\..\BlingoEngine.IO\BlingoEngine.IO.csproj" />
+    <ProjectReference Include="..\..\BlingoEngine.LGodot\BlingoEngine.LGodot.csproj" />
+    <ProjectReference Include="..\..\BlingoEngine.Lingo.Core\BlingoEngine.Lingo.Core.csproj" />
+    <ProjectReference Include="..\..\BlingoEngine\BlingoEngine.csproj" />
+    <ProjectReference Include="..\BlingoEngine.Director.Core\BlingoEngine.Director.Core.csproj" />
+  </ItemGroup>
+
+</Project>
+
+

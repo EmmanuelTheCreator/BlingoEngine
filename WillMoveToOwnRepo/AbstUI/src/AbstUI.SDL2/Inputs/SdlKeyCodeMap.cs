@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AbstUI.SDL2.SDLL;
 
 namespace AbstUI.SDL2.Inputs;
@@ -126,7 +126,7 @@ public static class SdlKeyCodeMap
 
     private static readonly Dictionary<int, SDL.SDL_Keycode> MacReverse = BuildReverse(Mac);
 
-    public static int ToLingo(SDL.SDL_Keycode key)
+    public static int ToBlingo(SDL.SDL_Keycode key)
     {
         if (Mac.TryGetValue(key, out var code))
             return code;
@@ -138,14 +138,15 @@ public static class SdlKeyCodeMap
         return val;
     }
 
-    public static SDL.SDL_Keycode ToSDL(int lingoCode)
+    public static SDL.SDL_Keycode ToSDL(int blingoCode)
     {
-        if (MacReverse.TryGetValue(lingoCode, out var key))
+        if (MacReverse.TryGetValue(blingoCode, out var key))
             return key;
-        if (lingoCode >= 65 && lingoCode <= 90)
-            return (SDL.SDL_Keycode)(lingoCode + 32);
-        if (lingoCode >= 48 && lingoCode <= 57)
-            return (SDL.SDL_Keycode)lingoCode;
-        return (SDL.SDL_Keycode)lingoCode;
+        if (blingoCode >= 65 && blingoCode <= 90)
+            return (SDL.SDL_Keycode)(blingoCode + 32);
+        if (blingoCode >= 48 && blingoCode <= 57)
+            return (SDL.SDL_Keycode)blingoCode;
+        return (SDL.SDL_Keycode)blingoCode;
     }
 }
+

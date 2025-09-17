@@ -1,8 +1,8 @@
-# LingoEngine
+﻿# BlingoEngine
 
 
 
-**LingoEngine** is a modern, cross-platform C# runtime designed to emulate Macromedia Director's **Lingo** scripting language. It enables playback of original Lingo code and behaviors on top of modern rendering backends like **Godot**, **SDL2**, **Unity**, and **Blazor**, allowing legacy projects to be revived or reimagined with full flexibility.
+**BlingoEngine** is a modern, cross-platform C# runtime designed to emulate Macromedia Director's **Lingo** scripting language. It enables playback of original Lingo code and behaviors on top of modern rendering backends like **Godot**, **SDL2**, **Unity**, and **Blazor**, allowing legacy projects to be revived or reimagined with full flexibility.
 
 <img src="Images/logo_godot.png" alt="Godot" width="20%" /><img src="Images/logo_SDL.png" alt="SDL" width="20%" /><img src="Images/logo_blazor.png" alt="Blazor" width="7%" /><img src="Images/logo_Unity.jpg" alt="Unity" width="7%" />
 
@@ -30,85 +30,85 @@ An easy way to debug your game, run the Remote Terminal trough pipes or SignalR.
 <img src="Images/Screenshot_RNetTerminal1.jpg" alt="RNetTerminal1" width="30%" /><img src="Images/Screenshot_RNetTerminal2.jpg" alt="RNetTerminal2" width="30%" /><img src="Images/Screenshot_RNetTerminal3.jpg" alt="RNetTerminal3" width="30%" />
 
 
-## ✨ Key Features of the engine
+## âœ¨ Key Features of the engine
 
-- ✅ **Lingo Script Execution** – Runs legacy Macromedia Director scripts directly in C#.
-- 🔌 **Pluggable Rendering Backends** – Clean architecture supporting:
+- âœ… **Lingo Script Execution** â€“ Runs legacy Macromedia Director scripts directly in C#.
+- ðŸ”Œ **Pluggable Rendering Backends** â€“ Clean architecture supporting:
   - [Godot Engine](https://godotengine.org/)
   - [SDL2](https://www.libsdl.org/)
   - [Unity](https://unity.com/)
   - [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor)
-- 🧠 **Director application** – Offers basic movie, cast, and score compatibility and can run standalone or as a library in your project.
-- 🧩 **Modular Runtime Architecture** – Clear separation of concerns: input, rendering, audio, system services, and script execution.
-- ⚙️ **Service-Oriented Initialization** – Uses dependency injection and service collections for clean setup.
-- 🌍 **Cross-Platform Compatibility** – Works anywhere the .NET SDK is available.
+- ðŸ§  **Director application** â€“ Offers basic movie, cast, and score compatibility and can run standalone or as a library in your project.
+- ðŸ§© **Modular Runtime Architecture** â€“ Clear separation of concerns: input, rendering, audio, system services, and script execution.
+- âš™ï¸ **Service-Oriented Initialization** â€“ Uses dependency injection and service collections for clean setup.
+- ðŸŒ **Cross-Platform Compatibility** â€“ Works anywhere the .NET SDK is available.
 
 ---
 
 ## Help making this project!
 
 
-> ⚠️ **Can you help us make this dream project come true?**
+> âš ï¸ **Can you help us make this dream project come true?**
 > This project is still under heavy development, and we can use some help. Reach out if you want to contribute.
-> 🚧 **Warning:** The Director SDL integration is still under heavy development and is not yet functional.
+> ðŸš§ **Warning:** The Director SDL integration is still under heavy development and is not yet functional.
 .
 .
 
 ---
 
-## 🎉 Standing on the Shoulders of Giants
+## ðŸŽ‰ Standing on the Shoulders of Giants
 
-**Macromedia Director** and its **Lingo language** were revolutionary in their time.  
-They empowered an entire generation of artists, educators, and game developers to create interactive experiences long before today’s engines existed.
+**Macromedia Director** and its **Lingo language** were revolutionary in their time, like [John Henry Thompson ](https://johnhenrythompson.com/johnhenrythompson/) and [Marc Canter](https://en.wikipedia.org/wiki/Marc_Canter) who created them.
+They empowered an entire generation of artists, educators, and game developers to create interactive experiences long before todayâ€™s engines existed.
 
 Director pioneered ideas that shaped the future of digital creativity:  
 - The **stage, cast, and score** metaphor made multimedia authoring approachable  
 - The **Lingo scripting language** gave non-programmers the power to create interactivity  
 - A vibrant global community pushed the boundaries of art, education, and entertainment  
 
-**LingoEngine** is not here to replace Director, but to *honor its spirit* — carrying those ideas forward into the modern era so they can continue to inspire.  
+**BlingoEngine** is not here to replace Director, but to *honor its spirit* â€” carrying those ideas forward into the modern era so they can continue to inspire.  
 
-| Director’s Legacy ✨            | LingoEngine’s Contribution 🚀 |
+| Directorâ€™s Legacy âœ¨            | BlingoEngineâ€™s Contribution ðŸš€ |
 |--------------------------------|--------------------------------|
 | First accessible multimedia authoring tool for creatives | Keeps Lingo projects alive on modern platforms |
-| Introduced the stage, cast, score, and Lingo scripting concepts | Brings those concepts into C# and today’s engines |
+| Introduced the stage, cast, score, and Lingo scripting concepts | Brings those concepts into C# and todayâ€™s engines |
 | Enabled art, education, and indie game communities worldwide | Opens them again for exploration, study, and reuse |
 | Inspired countless developers and later tools (Flash, Unity, etc.) | Bridges history with modern ecosystems like Godot, SDL2, Unity, Blazor |
 
-> 🧡 To the Director developers and community:  
-> we applaud your achievements, and LingoEngine exists thanks to the foundation you built.
+> ðŸ§¡ To the Director developers and community:  
+> we applaud your achievements, and BlingoEngine exists thanks to the foundation you built.
 
 
 ---
 
-## ⭐ Why Use LingoEngine?
+## â­ Why Use BlingoEngine?
 
-- 🚀 Port legacy Director projects to modern engines  
-- 🔁 Reuse existing assets, scripts, and logic  
-- 🛠️ Build hybrid projects that combine old logic with new rendering  
-- 🕹️ Explore the inner workings of Director games using readable C# code  
-- 💾 Preserve interactive media history with a modern toolset  
+- ðŸš€ Port legacy Director projects to modern engines  
+- ðŸ” Reuse existing assets, scripts, and logic  
+- ðŸ› ï¸ Build hybrid projects that combine old logic with new rendering  
+- ðŸ•¹ï¸ Explore the inner workings of Director games using readable C# code  
+- ðŸ’¾ Preserve interactive media history with a modern toolset  
 
 
 ---
 ## The Lingo Verbose Language
-Looking for a more expressive C# syntax? The `LingoEngine.VerboseLanguage` package offers a fluent API that mirrors classic Lingo statements.
+Looking for a more expressive C# syntax? The `BlingoEngine.VerboseLanguage` package offers a fluent API that mirrors classic Lingo statements.
 
 
 ```csharp
 // Lingo : put the Text of member "Paul Robeson" into member "How Deep"
 
-// C# with LingoEngine.VerboseLanguage
+// C# with BlingoEngine.VerboseLanguage
 Put(The().Text.Of.Member("Paul Robeson")).Into.Field("How Deep");
 ```
 
-## 🚀 Running the Demo
+## ðŸš€ Running the Demo
 
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/EmmanuelTheCreator/LingoEngine.git
-   cd LingoEngine
+   git clone https://github.com/EmmanuelTheCreator/BlingoEngine.git
+   cd BlingoEngine
    ```
 
 2. **Run installer with prerequisites**
@@ -124,12 +124,12 @@ Windows:
    ```
 
 3. **Open the solution**
-   Open `LingoEngine.sln` in your preferred C# IDE (Visual Studio / Rider).
+   Open `BlingoEngine.sln` in your preferred C# IDE (Visual Studio / Rider).
 
 4. **Build a demo**
    Navigate to `Demo/TetriGrounds` and run one of the included platform integrations.
 
-👉 Use the dedicated guides for full setup instructions:
+ðŸ‘‰ Use the dedicated guides for full setup instructions:
 
 - [Godot Setup](docs/GodotSetup.md)
 - [SDL2 Setup](docs/SDLSetup.md)
@@ -146,7 +146,7 @@ Windows:
 
 ---
 
-## 🎮 Getting Started with Development
+## ðŸŽ® Getting Started with Development
 
 Need a concrete reference? Check the [Sample Projects overview](Samples/ReadMe.md) for minimal SDL2 and Godot setups.
 
@@ -154,28 +154,28 @@ Both the SDL2 and Godot frontends share the same backend logic. Here's an exampl
 
 ```csharp
 var services = new ServiceCollection();
-services.RegisterLingoEngine(cfg => cfg
-    .WithLingoSdlEngine("TetriGrounds", 1280, 960)
-    .SetProjectFactory<LingoEngine.Demo.TetriGrounds.Core.TetriGroundsProjectFactory>()
+services.RegisterBlingoEngine(cfg => cfg
+    .WithBlingoSdlEngine("TetriGrounds", 1280, 960)
+    .SetProjectFactory<BlingoEngine.Demo.TetriGrounds.Core.TetriGroundsProjectFactory>()
     .BuildAndRunProject());
 
 var provider = services.BuildServiceProvider();
 provider.GetRequiredService<SdlRootContext>().Run();
 ```
-The window dimensions above create a Director window larger than the 640×480 stage configured in the project factory.
+The window dimensions above create a Director window larger than the 640Ã—480 stage configured in the project factory.
 
-Swap to the Godot backend by using `.WithLingoGodotEngine(...)`.
+Swap to the Godot backend by using `.WithBlingoGodotEngine(...)`.
 
-📄 See the [Getting Started guide](docs/GettingStarted.md), [Godot Setup](docs/GodotSetup.md), [SDL2 Setup](docs/SDLSetup.md), and [Blazor Demo](docs/BlazorDemo.md) for exact details.
+ðŸ“„ See the [Getting Started guide](docs/GettingStarted.md), [Godot Setup](docs/GodotSetup.md), [SDL2 Setup](docs/SDLSetup.md), and [Blazor Demo](docs/BlazorDemo.md) for exact details.
 
 ---
 
-## 📚 Documentation
+## ðŸ“š Documentation
 
 ### Guides
 
 - [Getting Started](docs/GettingStarted.md)
-- [Lingo vs C# Differences](docs/design/Lingo_vs_CSharp.md)
+- [Lingo vs C# Differences](docs/design/Blingo_vs_CSharp.md)
 - [Architecture Overview](docs/design/Architecture.md)
 - [Godot Setup](docs/GodotSetup.md)
 - [SDL2 Setup](docs/SDLSetup.md)
@@ -183,7 +183,7 @@ Swap to the Godot backend by using `.WithLingoGodotEngine(...)`.
 - [Project Setup](docs/design/ProjectSetup.md)
 - [Progress Log](docs/Progress.md)
 - [Director Keyframe Tags](docs/DirDissasembly/director_keyframe_tags.md)
-- [Director Lingo MX2004 Scripting Guide](docs/Director_Lingo_mx2004_scripting.pdf)
+- [Director Lingo MX2004 Scripting Guide](docs/Director_Blingo_mx2004_scripting.pdf)
 - [XMED File Comparisons](docs/DirDissasembly/XMED_FileComparisons.md)
 - [XMED Offsets](docs/DirDissasembly/XMED_Offsets.md)
 - [Text Styling Example](docs/DirDissasembly/Text_Multi_Line_Multi_Style.md)
@@ -194,76 +194,76 @@ Documentation generated from the source code is available using [DocFX](https://
 
 ---
 
-## 🧭 Roadmap
+## ðŸ§­ Roadmap
 
-### 🟣 LingoEngine Runtime ▓▓▓▓▓▓▓░ 70%
+### ðŸŸ£ BlingoEngine Runtime â–“â–“â–“â–“â–“â–“â–“â–‘ 70%
 The core runtime that executes Lingo scripts and connects to backends.
 
 #### Core
 | Feature                          | Status / Progress |
 |----------------------------------|-------------------|
-| Lingo Script Execution           | ✅ Stable |
-| Lingo → C# Conversion            | ███████▌░░ 75% |
-| Lingo bytecode (dcode) interpreter | ░░░░░░░░░░ Experimental |
+| Lingo Script Execution           | âœ… Stable |
+| Lingo â†’ C# Conversion            | â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–Œâ–‘â–‘ 75% |
+| Lingo bytecode (dcode) interpreter | â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘ Experimental |
 
 #### Backends
 | Backend                          | Status / Progress |
 |----------------------------------|-------------------|
-| Godot Backend                    | ✅ Tested, working |
-| SDL2 Backend                     | ✅ Tested, working |
-| Unity Backend                    | ██████░░░░ 70% (written, not fully tested) |
-| Blazor Backend                   | ██████░░░░ 70% (written, not fully tested) |
+| Godot Backend                    | âœ… Tested, working |
+| SDL2 Backend                     | âœ… Tested, working |
+| Unity Backend                    | â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘â–‘â–‘ 70% (written, not fully tested) |
+| Blazor Backend                   | â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘â–‘â–‘ 70% (written, not fully tested) |
 
 #### Features
 | Feature                          | Status / Progress |
 |----------------------------------|-------------------|
-| FilmLoops                        | ✅ Done |
-| Transitions                      | ✅ Done |
-| Audio Playback                   | ✅ Done |
-| Sprites2D                        | ✅ Done |
-| Video Playback                   | █████████░ 90% |
-| Macromedia Flash Integration     | ░░░░░░░░░░ Far future (0%) |
-| LingoEngine 3D                   | ░░░░░░░░░░ Early idea (2%) |
+| FilmLoops                        | âœ… Done |
+| Transitions                      | âœ… Done |
+| Audio Playback                   | âœ… Done |
+| Sprites2D                        | âœ… Done |
+| Video Playback                   | â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–‘ 90% |
+| Macromedia Flash Integration     | â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘ Far future (0%) |
+| BlingoEngine 3D                   | â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘ Early idea (2%) |
 
 ---
 
-### 🟠 Director Application ▓▓▓░░░░░ 35%
-A modern reimplementation of Director’s movie, cast, and score system on top of the runtime.
+### ðŸŸ  Director Application â–“â–“â–“â–‘â–‘â–‘â–‘â–‘ 35%
+A modern reimplementation of Directorâ€™s movie, cast, and score system on top of the runtime.
 
 #### Backends
 | Backend                          | Status / Progress |
 |----------------------------------|-------------------|
-| Godot Frontend                   | ██████░░░░ 65% |
-| SDL2 Frontend                    | █░░░░░░░░░ 15% |
-| Unity Frontend                   | ░░░░░░░░░░ Planned |
-| Blazor Frontend                  | ░░░░░░░░░░ Planned |
+| Godot Frontend                   | â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘â–‘â–‘ 65% |
+| SDL2 Frontend                    | â–ˆâ–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘ 15% |
+| Unity Frontend                   | â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘ Planned |
+| Blazor Frontend                  | â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘ Planned |
 
 #### Core Systems
 | Feature                          | Status / Progress |
 |----------------------------------|-------------------|
-| Score                            | ✅ Done |
-| Cast                             | ✅ Done |
-| Tempo                            | ✅ Done |
-| Property Inspector               | ✅ Done |
-| Text Editing                     | █████░░░░░ 70% |
-| Picture Painter (Godot)          | ██░░░░░░░░ 30% (🎨 experimental / fun) |
-| Shape Painter                    | ░░░░░░░░░░ 0% (todo) |
-| Color Palettes                   | █░░░░░░░░░ 5% |
-| Orion Skin                       | ░░░░░░░░░░ 0% (planned) |
-| Behavior Code Library            | ░░░░░░░░░░ 0% (planned) |
-| .dir File Importer               | ████░░░░░░ 50% |
+| Score                            | âœ… Done |
+| Cast                             | âœ… Done |
+| Tempo                            | âœ… Done |
+| Property Inspector               | âœ… Done |
+| Text Editing                     | â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘â–‘â–‘â–‘ 70% |
+| Picture Painter (Godot)          | â–ˆâ–ˆâ–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘ 30% (ðŸŽ¨ experimental / fun) |
+| Shape Painter                    | â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘ 0% (todo) |
+| Color Palettes                   | â–ˆâ–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘ 5% |
+| Orion Skin                       | â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘ 0% (planned) |
+| Behavior Code Library            | â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘ 0% (planned) |
+| .dir File Importer               | â–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘â–‘â–‘â–‘â–‘ 50% |
 
 ---
 
-✅ = ready and tested  
-⏳ = in progress  
-🧪 = experimental  
-🎨 = playful / for fun  
+âœ… = ready and tested  
+â³ = in progress  
+ðŸ§ª = experimental  
+ðŸŽ¨ = playful / for fun  
 
 
 ---
 
-## 🤝 Contributing
+## ðŸ¤ Contributing
 
 We welcome contributions from the community!
 
@@ -286,7 +286,7 @@ Please also read our [Code of Conduct](CODE_OF_CONDUCT.md).
 graph TD
 
 %% Top-level flow
-A[Your game] --> B[LingoEngine Runtime Core]
+A[Your game] --> B[BlingoEngine Runtime Core]
 B --> C[Services]
 B --> D[Rendering Abstraction Layer]
 D --> E1[Godot]
@@ -298,7 +298,7 @@ D --> E4[Blazor]
 
 ---
 
-## 📄 License
+## ðŸ“„ License
 
 Licensed under the [MIT License](LICENSE).
 
@@ -306,7 +306,8 @@ Licensed under the [MIT License](LICENSE).
 
 ---
 
-## 🙋‍♂️ Questions or Feedback?
+## ðŸ™‹â€â™‚ï¸ Questions or Feedback?
 
-Feel free to [open an issue](https://github.com/EmmanuelTheCreator/LingoEngine/issues) or start a discussion. We're happy to help, and open to ideas!
+Feel free to [open an issue](https://github.com/EmmanuelTheCreator/BlingoEngine/issues) or start a discussion. We're happy to help, and open to ideas!
+
 

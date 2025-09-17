@@ -1,5 +1,6 @@
+﻿
 @echo off
-REM LingoEngine one-click setup script for Windows.
+REM BlingoEngine one-click setup script for Windows.
 REM This script is intended to remain a simple way to prepare the repository.
 REM Future updates should keep this goal in mind.
 
@@ -21,14 +22,14 @@ if /i "%ARCH%"=="AMD64" (
     set "LIB_DIR="
 )
 
-set PROJECTS="Demo\TetriGrounds\LingoEngine.Demo.TetriGrounds.SDL2" "Test\LingoEngine.SDL2.GfxVisualTest" "WillMoveToOwnRepo\AbstUI\Test\AbstUI.GfxVisualTest.SDL2" "src\Director\LingoEngine.Director.Runner.SDL2" "Samples\SetupWays\LingoEngineMinimalSDL" "Samples\SetupWays\LingoEngineWithDirectorInDebugSDL"
-set "MEDIA_SRC=%ROOT%Demo\TetriGrounds\LingoEngine.Demo.TetriGrounds.Godot\Media"
-set "MEDIA_DEST=%ROOT%Demo\TetriGrounds\LingoEngine.Demo.TetriGrounds.Blazor\Media"
-set "SAMPLE_ASSET_ICONS_REL=Samples\SetupWays\LingoEngineWithDirectorInDebugSDL\Media\Icons"
-set "SAMPLE_ASSET_ICONS_SRC=%ROOT%src\Director\LingoEngine.Director.Runner.Godot\Media\Icons"
+set PROJECTS="Demo\TetriGrounds\BlingoEngine.Demo.TetriGrounds.SDL2" "Test\BlingoEngine.SDL2.GfxVisualTest" "WillMoveToOwnRepo\AbstUI\Test\AbstUI.GfxVisualTest.SDL2" "src\Director\BlingoEngine.Director.Runner.SDL2" "Samples\SetupWays\BlingoEngineMinimalSDL" "Samples\SetupWays\BlingoEngineWithDirectorInDebugSDL"
+set "MEDIA_SRC=%ROOT%Demo\TetriGrounds\BlingoEngine.Demo.TetriGrounds.Godot\Media"
+set "MEDIA_DEST=%ROOT%Demo\TetriGrounds\BlingoEngine.Demo.TetriGrounds.Blazor\Media"
+set "SAMPLE_ASSET_ICONS_REL=Samples\SetupWays\BlingoEngineWithDirectorInDebugSDL\Media\Icons"
+set "SAMPLE_ASSET_ICONS_SRC=%ROOT%src\Director\BlingoEngine.Director.Runner.Godot\Media\Icons"
 set "SAMPLE_ASSET_ICONS_DEST=%ROOT%%SAMPLE_ASSET_ICONS_REL%"
-set "SAMPLE_ASSET_FONTS_REL=Samples\SetupWays\LingoEngineWithDirectorInDebugSDL\Media\Fonts"
-set "SAMPLE_ASSET_FONTS_SRC=%ROOT%src\Director\LingoEngine.Director.Runner.Godot\Media\Fonts"
+set "SAMPLE_ASSET_FONTS_REL=Samples\SetupWays\BlingoEngineWithDirectorInDebugSDL\Media\Fonts"
+set "SAMPLE_ASSET_FONTS_SRC=%ROOT%src\Director\BlingoEngine.Director.Runner.Godot\Media\Fonts"
 set "SAMPLE_ASSET_FONTS_DEST=%ROOT%%SAMPLE_ASSET_FONTS_REL%"
 
 echo This script will:
@@ -116,3 +117,4 @@ if %EXIT_CODE% equ 0 (
 )
 pause
 endlocal & exit /b %EXIT_CODE%
+

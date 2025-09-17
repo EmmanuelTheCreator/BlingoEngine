@@ -16,7 +16,7 @@
                 <Authors>Emmanuel The Creator</Authors>
                 <Company>The Community</Company>
                 <Description>Core abstractions and components for the AbstUI framework, providing reusable UI primitives across multiple backends.</Description>
-                <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
+                <RepositoryUrl>https://github.com/EmmanuelTheCreator/BlingoEngine</RepositoryUrl>
                 <PackageTags>AbstUI</PackageTags>
                 <PackageLicenseExpression>MIT</PackageLicenseExpression>
                 <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -39,3 +39,4 @@
             <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         </ItemGroup>
 </Project>
+

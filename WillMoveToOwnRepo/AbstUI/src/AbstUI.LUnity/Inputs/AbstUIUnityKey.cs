@@ -6,18 +6,18 @@ namespace AbstUI.LUnity.Inputs;
 public class AbstUIUnityKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
 {
     private readonly HashSet<int> _keys = new();
-    private AbstKey? _lingoKey;
+    private AbstKey? _blingoKey;
     private string _lastKey = string.Empty;
     private int _lastCode;
 
-    public void SetKeyObj(AbstKey key) => _lingoKey = key;
+    public void SetKeyObj(AbstKey key) => _blingoKey = key;
 
     public void KeyDown(int keyCode, string keyName)
     {
         _keys.Add(keyCode);
         _lastCode = keyCode;
         _lastKey = keyName;
-        _lingoKey?.DoKeyDown();
+        _blingoKey?.DoKeyDown();
     }
 
     public void KeyUp(int keyCode, string keyName)
@@ -25,7 +25,7 @@ public class AbstUIUnityKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
         _keys.Remove(keyCode);
         _lastCode = keyCode;
         _lastKey = keyName;
-        _lingoKey?.DoKeyUp();
+        _blingoKey?.DoKeyUp();
     }
 
     private static bool ContainsAny(HashSet<int> set, params int[] codes)
@@ -57,3 +57,4 @@ public class AbstUIUnityKey : IAbstFrameworkKey, IFrameworkFor<AbstKey>
     public string Key => _lastKey;
     public int KeyCode => _lastCode;
 }
+

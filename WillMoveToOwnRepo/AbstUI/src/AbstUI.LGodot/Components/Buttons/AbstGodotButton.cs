@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.Styles;
@@ -30,7 +30,7 @@ namespace AbstUI.LGodot.Components
 
         public object FrameworkNode => this;
 
-        public AbstGodotButton(AbstButton button, IAbstFontManager lingoFontManager)
+        public AbstGodotButton(AbstButton button, IAbstFontManager blingoFontManager)
         {
             button.Init(this);
             ResetStyle(_style);
@@ -129,3 +129,4 @@ namespace AbstUI.LGodot.Components
 
     }
 }
+

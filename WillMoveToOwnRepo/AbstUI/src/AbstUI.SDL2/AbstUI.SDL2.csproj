@@ -16,7 +16,7 @@
                 <Authors>Emmanuel The Creator</Authors>
                 <Company>The Community</Company>
                 <Description>SDL2 backend for the AbstUI framework, rendering the abstract UI components through SDL2.</Description>
-                <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
+                <RepositoryUrl>https://github.com/EmmanuelTheCreator/BlingoEngine</RepositoryUrl>
                 <PackageTags>AbstUI SDL2</PackageTags>
                 <PackageLicenseExpression>MIT</PackageLicenseExpression>
                 <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -44,3 +44,4 @@
 	  </None>
 	</ItemGroup>
 </Project>
+

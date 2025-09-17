@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+	  <Configurations>Debug;Release</Configurations>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\BlingoEngine.IO.Data\BlingoEngine.IO.Data.csproj" />
+    <ProjectReference Include="..\..\BlingoEngine.IO\BlingoEngine.IO.csproj" />
+    <ProjectReference Include="..\..\BlingoEngine.SDL2\BlingoEngine.SDL2.csproj" />
+    <ProjectReference Include="..\..\BlingoEngine.Lingo.Core\BlingoEngine.Lingo.Core.csproj" />
+    <ProjectReference Include="..\..\BlingoEngine\BlingoEngine.csproj" />
+    <ProjectReference Include="..\BlingoEngine.Director.Core\BlingoEngine.Director.Core.csproj" />
+    <ProjectReference Include="..\..\..\WillMoveToOwnRepo\AbstUI\src\AbstUI.SDL2\AbstUI.SDL2.csproj" />
+  </ItemGroup>
+</Project>
+

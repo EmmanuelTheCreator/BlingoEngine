@@ -1,0 +1,246 @@
+﻿<Project Sdk="Godot.NET.Sdk/4.5.0-dev.5">
+	<PropertyGroup>
+			<TargetFramework>net8.0</TargetFramework>
+			<EnableDynamicLoading>true</EnableDynamicLoading>
+			<Nullable>enable</Nullable>
+			<LangVersion>12</LangVersion>
+			<Platforms>AnyCPU;x64;x86</Platforms>
+			<Configurations>Debug;Release;DebugWithDirector</Configurations>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'DebugWithDirector'">
+			<DebugSymbols>true</DebugSymbols>
+			<DebugType>portable</DebugType>
+			<Optimize>false</Optimize>
+			<DefineConstants>DEBUG;TRACE;DEBUG_WITH_DIRECTOR</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)'=='DebugWithDirector'">
+		<UseDirector>true</UseDirector>
+	</PropertyGroup>
+	
+	<PropertyGroup Condition="'$(Configuration)'=='Debug' AND '$(UseDirector)'=='true'">
+		<DefineConstants>$(DefineConstants);DEBUG_WITH_DIRECTOR</DefineConstants>
+	</PropertyGroup>
+	
+    <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+            <ProjectReference Include="..\..\..\src\Director\BlingoEngine.Director.LGodot\BlingoEngine.Director.LGodot.csproj" />
+			<ProjectReference Include="..\..\..\src\Director\BlingoEngine.Director.Core\BlingoEngine.Director.Core.csproj" />
+    </ItemGroup>
+	
+	
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\src\BlingoEngine.LGodot\BlingoEngine.LGodot.csproj" />
+		<ProjectReference Include="..\BlingoEngine.Demo.TetriGrounds.Core\BlingoEngine.Demo.TetriGrounds.Core.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\README.md" Link="README.md">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="Media\Data\11_T_InputText.md" />
+		<None Include="Media\Data\12_T_PopupTitle.md" />
+		<None Include="Media\Data\53_alert.png.import" />
+		<None Include="Media\Data\54_pause.png.import" />
+		<None Include="Media\Data\Members.csv">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="Media\InternalExt\24.md">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="Media\InternalExt\25.md">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="Media\InternalExt\Members.csv">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="Media\Sounds\blockfall_1.mp3.import" />
+		<None Include="Media\Sounds\blockfall_2.mp3.import" />
+		<None Include="Media\Sounds\blockfall_3.mp3.import" />
+		<None Include="Media\Sounds\blockfall_4.mp3.import" />
+		<None Include="Media\Sounds\blockfall_5.mp3.import" />
+		<None Include="Media\Sounds\btnstart.mp3.import" />
+		<None Include="Media\Sounds\click.mp3.import" />
+		<None Include="Media\Sounds\deleterow.mp3.import" />
+		<None Include="Media\Sounds\die.mp3.import" />
+		<None Include="Media\Sounds\go.mp3.import" />
+		<None Include="Media\Sounds\gong.mp3.import" />
+		<None Include="Media\Sounds\level_up.mp3.import" />
+		<None Include="Media\Sounds\nature.mp3.import" />
+		<None Include="Media\Sounds\rows_deleted_2.mp3.import" />
+		<None Include="Media\Sounds\rows_deleted_3.mp3.import" />
+		<None Include="Media\Sounds\rows_deleted_4.mp3.import" />
+		<None Include="Media\Sounds\shhh1.mp3.import" />
+		<None Include="Media\Sounds\terminated.mp3.import" />
+		<None Include="project.godot" />
+		<None Include="Scenes\root_node_tetri_grounds.tscn" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Remove="obj\**" />
+	  <EmbeddedResource Remove="obj\**" />
+	</ItemGroup>
+	<ItemGroup>
+  <!-- <None Include="directorTheme.tres" /> Theme moved to DirectorStyle.cs -->
+	  <None Include="directorTheme.tres" />
+	  <None Include="Media\Data\10.md" />
+	  <None Include="Media\Data\27_T_Score.md" />
+	  <None Include="Media\Data\28_T_data.md" />
+	  <None Include="Media\Data\29_T_OverScreen.md" />
+	  <None Include="Media\Data\30_T_OverScreen2.md" />
+	  <None Include="Media\Data\31_T_InternetScoresNames.md" />
+	  <None Include="Media\Data\33_T_NewGame.md" />
+	  <None Include="Media\Data\34_T_Menu.md" />
+	  <None Include="Media\Data\35_T_Pause.md" />
+	  <None Include="Media\Data\36_T_Pause.md" />
+	  <None Include="Media\Data\37_T_InternetScores.md" />
+	  <None Include="Media\Data\38_PlayerName.md" />
+	  <None Include="Media\Data\39.md" />
+	  <None Include="Media\Data\40.md" />
+	  <None Include="Media\Data\41.md" />
+	  <None Include="Media\Data\42.md" />
+	  <None Include="Media\Data\44_T_StartLevel.md" />
+	  <None Include="Media\Data\46_T_StartLines.md" />
+	  <None Include="Media\Data\47.md" />
+	  <None Include="Media\Data\48.md" />
+	  <None Include="Media\Data\56.md" />
+	  <None Include="Media\Data\9.md" />
+	  <None Include="Media\Fonts\8PinMatrix.ttf.import" />
+	  <None Include="Media\Fonts\arcade.ttf.import" />
+	  <None Include="Media\Fonts\bikly.ttf.import" />
+	  <None Include="Media\Fonts\earth.ttf.import" />
+	  <None Include="Media\Fonts\Tahoma.ttf.import" />
+	  <None Include="Media\InternalExt\24.txt">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Include="Media\InternalExt\25.txt">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <Content Include="Media\Data\100_bell0039.png" />
+	  <Content Include="Media\Data\101_bell0000.png" />
+	  <Content Include="Media\Data\102_bell0001.png" />
+	  <Content Include="Media\Data\103_bell0002.png" />
+	  <Content Include="Media\Data\104_bell0003.png" />
+	  <Content Include="Media\Data\105_bell0004.png" />
+	  <Content Include="Media\Data\106_bell0005.png" />
+	  <Content Include="Media\Data\107_bell0006.png" />
+	  <Content Include="Media\Data\108_bell0007.png" />
+	  <Content Include="Media\Data\109_bell0008.png" />
+	  <Content Include="Media\Data\110_bell0009.png" />
+	  <Content Include="Media\Data\111_bell0010.png" />
+	  <Content Include="Media\Data\112_bell0011.png" />
+	  <Content Include="Media\Data\113_bell0012.png" />
+	  <Content Include="Media\Data\114_bell0013.png" />
+	  <Content Include="Media\Data\115_bell0014.png" />
+	  <Content Include="Media\Data\116_bell0015.png" />
+	  <Content Include="Media\Data\117_bell0016.png" />
+	  <Content Include="Media\Data\118_bell0017.png" />
+	  <Content Include="Media\Data\119_bell0018.png" />
+	  <Content Include="Media\Data\120_bell0019.png" />
+	  <Content Include="Media\Data\121_bell0020.png" />
+	  <Content Include="Media\Data\122_bell0021.png" />
+	  <Content Include="Media\Data\123_bell0022.png" />
+	  <Content Include="Media\Data\124_bell0023.png" />
+	  <Content Include="Media\Data\125_bell0024.png" />
+	  <Content Include="Media\Data\126_bell0025.png" />
+	  <Content Include="Media\Data\127_bell0026.png" />
+	  <Content Include="Media\Data\128_bell0027.png" />
+	  <Content Include="Media\Data\129_bell0028.png" />
+	  <Content Include="Media\Data\130_bell0029.png" />
+	  <Content Include="Media\Data\131_bell0040.png" />
+	  <Content Include="Media\Data\132_bell0030.png" />
+	  <Content Include="Media\Data\133_bell0031.png" />
+	  <Content Include="Media\Data\134_bell0032.png" />
+	  <Content Include="Media\Data\135_bell0033.png" />
+	  <Content Include="Media\Data\136_bell0034.png" />
+	  <Content Include="Media\Data\137_bell0035.png" />
+	  <Content Include="Media\Data\138_bell0036.png" />
+	  <Content Include="Media\Data\139_bell0037.png" />
+	  <Content Include="Media\Data\140_bell0038.png" />
+	  <Content Include="Media\Data\141_bell0039.png" />
+	  <Content Include="Media\Data\16_Bg.png" />
+	  <Content Include="Media\Data\17_Destroy1.png" />
+	  <Content Include="Media\Data\18_Destroy2.png" />
+	  <Content Include="Media\Data\19_Destroy3.png" />
+	  <Content Include="Media\Data\1_Parameters.txt" />
+	  <Content Include="Media\Data\20_Destroy4.png" />
+	  <Content Include="Media\Data\21_Destroy5.png" />
+	  <Content Include="Media\Data\22_Destroy6.png" />
+	  <Content Include="Media\Data\23_Destroy8.png" />
+	  <Content Include="Media\Data\24_Destroy9.png" />
+	  <Content Include="Media\Data\25_Destroy7.png" />
+	  <Content Include="Media\Data\26_Destroy7.png" />
+	  <Content Include="Media\Data\3_Bg.png" />
+	  <Content Include="Media\Data\43_B_more.png" />
+	  <Content Include="Media\Data\45_B_back.png" />
+	  <Content Include="Media\Data\51_B_Play.png" />
+	  <Content Include="Media\Data\52_B_back2.png" />
+	  <Content Include="Media\Data\53_alert.png" />
+	  <None Include="Media\Data\54_pause.png" />
+	  <Content Include="Media\Data\58_Block1.png" />
+	  <Content Include="Media\Data\59_Block2.png" />
+	  <Content Include="Media\Data\60_Block3.png" />
+	  <Content Include="Media\Data\61_Block4.png" />
+	  <Content Include="Media\Data\62_Block5.png" />
+	  <Content Include="Media\Data\63_Block6.png" />
+	  <Content Include="Media\Data\64_Block7.png" />
+	  <Content Include="Media\Data\70_Block1_2.png" />
+	  <Content Include="Media\Data\71_Block2_2.png" />
+	  <Content Include="Media\Data\72_Block3_2.png" />
+	  <Content Include="Media\Data\73_Block4_2.png" />
+	  <Content Include="Media\Data\74_Block5_2.png" />
+	  <Content Include="Media\Data\75_Block6_2.png" />
+	  <Content Include="Media\Data\76_Block7_2.png" />
+	  <Content Include="Media\Data\7_Game.png" />
+	  <Content Include="Media\Data\80_mouse0000.png" />
+	  <Content Include="Media\Data\81_mouse0001.png" />
+	  <Content Include="Media\Data\82_mouse0002.png" />
+	  <Content Include="Media\Data\83_mouse0003.png" />
+	  <Content Include="Media\Data\84_mouse0004.png" />
+	  <Content Include="Media\Data\85_mouse0005.png" />
+	  <Content Include="Media\Data\89_TetriGrounds_s.png" />
+	  <Content Include="Media\Fonts\8PinMatrix.ttf">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Media\Fonts\arcade.ttf">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Media\Fonts\bikly.ttf">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Media\Fonts\earth.ttf">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Media\Fonts\Tahoma.ttf">
+	    <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Media\Icons\DirectorSharp_Icon.png" />
+	  <Content Include="Media\Icons\Director_Icons.png" />
+	  <Content Include="Media\Icons\General_Icons.png" />
+	  <Content Include="Media\Icons\Painter2_Icons.png" />
+	  <Content Include="Media\Icons\Painter_Icons.png" />
+	  <None Include="Media\Sounds\blockfall_1.mp3" />
+	  <None Include="Media\Sounds\blockfall_2.mp3" />
+	  <None Include="Media\Sounds\blockfall_3.mp3" />
+	  <None Include="Media\Sounds\blockfall_4.mp3" />
+	  <None Include="Media\Sounds\blockfall_5.mp3" />
+	  <Content Include="Media\Sounds\btnstart.mp3" />
+	  <Content Include="Media\Sounds\click.mp3" />
+	  <Content Include="Media\Sounds\deleterow.mp3" />
+	  <None Include="Media\Sounds\die.mp3" />
+	  <None Include="Media\Sounds\go.mp3" />
+	  <Content Include="Media\Sounds\gong.mp3" />
+	  <None Include="Media\Sounds\level_up.mp3" />
+	  <None Include="Media\Sounds\nature.mp3" />
+	  <None Include="Media\Sounds\rows_deleted_2.mp3" />
+	  <None Include="Media\Sounds\rows_deleted_3.mp3" />
+	  <None Include="Media\Sounds\rows_deleted_4.mp3" />
+	  <None Include="Media\Sounds\shhh1.mp3" />
+	  <None Include="Media\Sounds\terminated.mp3" />
+	  <Content Include="Properties\launchSettings.json" />
+	</ItemGroup>
+	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+	  <Exec Command="echo CONFIG=$(Configuration)  DEFS=$(DefineConstants)" />
+	</Target>
+	
+ 
+</Project>

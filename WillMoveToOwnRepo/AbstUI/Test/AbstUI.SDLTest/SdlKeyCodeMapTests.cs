@@ -1,4 +1,4 @@
-using AbstUI.SDL2.Inputs;
+﻿using AbstUI.SDL2.Inputs;
 using AbstUI.SDL2.SDLL;
 using Xunit;
 
@@ -7,9 +7,9 @@ namespace AbstUI.SDLTest;
 public class SdlKeyCodeMapTests
 {
     [Fact]
-    public void MapsLettersToLingoCodes()
+    public void MapsLettersToBlingoCodes()
     {
-        var code = SdlKeyCodeMap.ToLingo(SDL.SDL_Keycode.SDLK_a);
+        var code = SdlKeyCodeMap.ToBlingo(SDL.SDL_Keycode.SDLK_a);
         Assert.Equal(0, code);
         Assert.Equal(SDL.SDL_Keycode.SDLK_a, SdlKeyCodeMap.ToSDL(0));
     }
@@ -17,6 +17,7 @@ public class SdlKeyCodeMapTests
     [Fact]
     public void MapsFunctionKey()
     {
-        Assert.Equal(122, SdlKeyCodeMap.ToLingo(SDL.SDL_Keycode.SDLK_F1));
+        Assert.Equal(122, SdlKeyCodeMap.ToBlingo(SDL.SDL_Keycode.SDLK_F1));
     }
 }
+

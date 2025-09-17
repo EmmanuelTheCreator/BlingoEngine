@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>BlingoEngine.Net.RNetServer</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Emmanuel The Creator</Authors>
+    <Company>The Community</Company>
+    <Description>Server forwarding messages between RNet project hosts and clients.</Description>
+    <RepositoryUrl>https://github.com/EmmanuelTheCreator/BlingoEngine</RepositoryUrl>
+    <PackageTags>BlingoEngine RNet Server</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BlingoEngine.Net.RNetProjectHost\BlingoEngine.Net.RNetProjectHost.csproj" />
+    <ProjectReference Include="..\BlingoEngine.Net.RNetProjectClient\BlingoEngine.Net.RNetProjectClient.csproj" />
+    <ProjectReference Include="..\BlingoEngine.Net.RNetContracts\BlingoEngine.Net.RNetContracts.csproj" />
+  </ItemGroup>
+</Project>
+

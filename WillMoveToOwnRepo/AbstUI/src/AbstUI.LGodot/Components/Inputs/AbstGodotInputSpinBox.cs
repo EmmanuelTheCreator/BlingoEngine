@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.Styles;
@@ -16,7 +16,7 @@ namespace AbstUI.LGodot.Components
         private AColor _backgroundColor = AbstDefaultColors.Input_Bg;
         private AColor _borderColor = AbstDefaultColors.InputBorderColor;
 
-        public AbstGodotSpinBox(AbstInputSpinBox spin, IAbstFontManager lingoFontManager, Action<float>? onChange)
+        public AbstGodotSpinBox(AbstInputSpinBox spin, IAbstFontManager blingoFontManager, Action<float>? onChange)
         {
             _onChange = onChange;
             spin.Init(this);
@@ -114,3 +114,4 @@ namespace AbstUI.LGodot.Components
         }
     }
 }
+

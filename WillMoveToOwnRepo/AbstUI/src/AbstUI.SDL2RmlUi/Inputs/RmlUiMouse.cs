@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
 using RmlUiNet;
@@ -13,14 +13,14 @@ public class RmlUiMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse
     where TAbstUIMouseEvent : AbstMouseEvent
 {
     private readonly Context _context;
-    private Lazy<AbstMouse<TAbstUIMouseEvent>> _lingoMouse;
+    private Lazy<AbstMouse<TAbstUIMouseEvent>> _blingoMouse;
     private int _mouseX;
     private int _mouseY;
 
     public RmlUiMouse(Context context, Lazy<AbstMouse<TAbstUIMouseEvent>> mouse)
     {
         _context = context;
-        _lingoMouse = mouse;
+        _blingoMouse = mouse;
     }
 
     public void HideMouse(bool state)
@@ -33,9 +33,9 @@ public class RmlUiMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse
         // nothing to release yet
     }
 
-    public void ReplaceMouseObj(IAbstMouse lingoMouse)
+    public void ReplaceMouseObj(IAbstMouse blingoMouse)
     {
-        _lingoMouse = new Lazy<AbstMouse<TAbstUIMouseEvent>>(() => (AbstMouse<TAbstUIMouseEvent>)lingoMouse);
+        _blingoMouse = new Lazy<AbstMouse<TAbstUIMouseEvent>>(() => (AbstMouse<TAbstUIMouseEvent>)blingoMouse);
     }
 
     public void ProcessMouseMove(int x, int y, KeyModifier modifiers)
@@ -43,56 +43,57 @@ public class RmlUiMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse
         _mouseX = x;
         _mouseY = y;
         _context.ProcessMouseMove(x, y, modifiers);
-        _lingoMouse.Value.MouseH = x;
-        _lingoMouse.Value.MouseV = y;
-        _lingoMouse.Value.DoMouseMove();
+        _blingoMouse.Value.MouseH = x;
+        _blingoMouse.Value.MouseV = y;
+        _blingoMouse.Value.DoMouseMove();
     }
 
     public void ProcessMouseButtonDown(int button, KeyModifier modifiers)
     {
         _context.ProcessMouseButtonDown(button, modifiers);
-        _lingoMouse.Value.MouseH = _mouseX;
-        _lingoMouse.Value.MouseV = _mouseY;
+        _blingoMouse.Value.MouseH = _mouseX;
+        _blingoMouse.Value.MouseV = _mouseY;
         if (button == 0)
         {
-            _lingoMouse.Value.MouseDown = true;
-            _lingoMouse.Value.LeftMouseDown = true;
+            _blingoMouse.Value.MouseDown = true;
+            _blingoMouse.Value.LeftMouseDown = true;
         }
         else if (button == 1)
         {
-            _lingoMouse.Value.RightMouseDown = true;
+            _blingoMouse.Value.RightMouseDown = true;
         }
         else if (button == 2)
         {
-            _lingoMouse.Value.MiddleMouseDown = true;
+            _blingoMouse.Value.MiddleMouseDown = true;
         }
-        _lingoMouse.Value.DoMouseDown();
+        _blingoMouse.Value.DoMouseDown();
     }
 
     public void ProcessMouseButtonUp(int button, KeyModifier modifiers)
     {
         _context.ProcessMouseButtonUp(button, modifiers);
-        _lingoMouse.Value.MouseH = _mouseX;
-        _lingoMouse.Value.MouseV = _mouseY;
+        _blingoMouse.Value.MouseH = _mouseX;
+        _blingoMouse.Value.MouseV = _mouseY;
         if (button == 0)
         {
-            _lingoMouse.Value.MouseDown = false;
-            _lingoMouse.Value.LeftMouseDown = false;
+            _blingoMouse.Value.MouseDown = false;
+            _blingoMouse.Value.LeftMouseDown = false;
         }
         else if (button == 1)
         {
-            _lingoMouse.Value.RightMouseDown = false;
+            _blingoMouse.Value.RightMouseDown = false;
         }
         else if (button == 2)
         {
-            _lingoMouse.Value.MiddleMouseDown = false;
+            _blingoMouse.Value.MiddleMouseDown = false;
         }
-        _lingoMouse.Value.DoMouseUp();
+        _blingoMouse.Value.DoMouseUp();
     }
 
     public void ProcessMouseWheel(Vector2f delta, KeyModifier modifiers)
     {
         _context.ProcessMouseWheel(delta, modifiers);
-        _lingoMouse.Value.DoMouseWheel((int)delta.Y);
+        _blingoMouse.Value.DoMouseWheel((int)delta.Y);
     }
 }
+

@@ -1,8 +1,8 @@
-# LingoEngine - GitHub Copilot Instructions
+﻿# BlingoEngine - GitHub Copilot Instructions
 
 **Always reference these instructions first** and fallback to search or bash commands only when you encounter unexpected information that does not match the guidance here.
 
-LingoEngine is a modern, cross-platform C# runtime that emulates Macromedia Director's Lingo scripting language. It enables playback of original Lingo code on modern rendering backends like Godot, SDL2, Unity, and Blazor.
+BlingoEngine is a modern, cross-platform C# runtime that emulates Macromedia Director's Lingo scripting language. It enables playback of original Lingo code on modern rendering backends like Godot, SDL2, Unity, and Blazor.
 
 ## Working Effectively
 
@@ -28,14 +28,14 @@ LingoEngine is a modern, cross-platform C# runtime that emulates Macromedia Dire
 ### Build Commands
 - **Build specific project** (recommended):
   ```bash
-  dotnet build Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.SDL2/LingoEngine.Demo.TetriGrounds.SDL2.csproj
+  dotnet build Demo/TetriGrounds/BlingoEngine.Demo.TetriGrounds.SDL2/BlingoEngine.Demo.TetriGrounds.SDL2.csproj
   ```
   - **Timing**: Takes ~3.5 seconds for TetriGrounds SDL2 demo
   - **Timing**: Takes ~5.5 seconds for TetriGrounds Blazor demo
 
 - **Build entire solution** (use sparingly):
   ```bash
-  dotnet build LingoEngine.sln
+  dotnet build BlingoEngine.sln
   ```
   - **NEVER CANCEL**: Full solution build takes 60+ seconds and may have expected errors in Unity integration. Set timeout to 90+ minutes.
   - **Known Issues**: Some Unity tests fail (expected), some Director file paths missing (expected)
@@ -45,14 +45,14 @@ LingoEngine is a modern, cross-platform C# runtime that emulates Macromedia Dire
 
 - **Core Lingo engine tests**:
   ```bash
-  dotnet test Test/LingoEngine.Lingo.Core.Tests/LingoEngine.Lingo.Core.Tests.csproj
+  dotnet test Test/BlingoEngine.Lingo.Core.Tests/BlingoEngine.Lingo.Core.Tests.csproj
   ```
   - **Timing**: Takes ~10 seconds with 126 tests (1 may be skipped - this is normal)
   - **NEVER CANCEL**: Set timeout to 15+ minutes
 
-- **Additional LingoEngine tests**:
+- **Additional BlingoEngine tests**:
   ```bash
-  dotnet test Test/LingoEngine.Tests/LingoEngine.Tests.csproj
+  dotnet test Test/BlingoEngine.Tests/BlingoEngine.Tests.csproj
   ```
   - **Timing**: Takes ~3.4 seconds with 29 tests
 
@@ -62,21 +62,21 @@ LingoEngine is a modern, cross-platform C# runtime that emulates Macromedia Dire
   ```
 
 - **Visual test projects** (not unit tests):
-  - `Test/LingoEngine.SDL2.GfxVisualTest/LingoEngine.SDL2.GfxVisualTest.csproj` - console app for manual SDL2 testing
+  - `Test/BlingoEngine.SDL2.GfxVisualTest/BlingoEngine.SDL2.GfxVisualTest.csproj` - console app for manual SDL2 testing
   - `WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.*` - manual console apps
   - Use `dotnet run` or `dotnet build`, NOT `dotnet test`
 
 ### Validation
 - **ALWAYS manually validate changes** by running affected demos:
   ```bash
-  dotnet run --project Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.SDL2/LingoEngine.Demo.TetriGrounds.SDL2.csproj
+  dotnet run --project Demo/TetriGrounds/BlingoEngine.Demo.TetriGrounds.SDL2/BlingoEngine.Demo.TetriGrounds.SDL2.csproj
   ```
   - **Expected behavior**: Builds and starts successfully but may fail on missing fonts/audio in headless environment
   - **Validation success**: If it builds, starts, and shows initialization messages before failing on missing resources
 
 - **Test the Blazor demo**:
   ```bash
-  dotnet run --project Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Blazor/LingoEngine.Demo.TetriGrounds.Blazor.csproj
+  dotnet run --project Demo/TetriGrounds/BlingoEngine.Demo.TetriGrounds.Blazor/BlingoEngine.Demo.TetriGrounds.Blazor.csproj
   ```
 
 - **Always run linting before committing**:
@@ -89,25 +89,25 @@ LingoEngine is a modern, cross-platform C# runtime that emulates Macromedia Dire
 ### Key Projects
 | Project Path | Purpose | Build Target |
 |--------------|---------|--------------|
-| `src/LingoEngine/` | Core engine and dependency injection | .NET 8 |
-| `src/LingoEngine.Lingo.Core/` | Lingo scripting runtime | .NET 8 |
-| `src/LingoEngine.SDL2/` | SDL2 rendering backend | .NET 8 |
-| `src/LingoEngine.LGodot/` | Godot integration layer | .NET 8 |
-| `src/LingoEngine.Blazor/` | Blazor web integration | .NET 9 |
+| `src/BlingoEngine/` | Core engine and dependency injection | .NET 8 |
+| `src/BlingoEngine.Lingo.Core/` | Lingo scripting runtime | .NET 8 |
+| `src/BlingoEngine.SDL2/` | SDL2 rendering backend | .NET 8 |
+| `src/BlingoEngine.LGodot/` | Godot integration layer | .NET 8 |
+| `src/BlingoEngine.Blazor/` | Blazor web integration | .NET 9 |
 | `Demo/TetriGrounds/` | Reference game implementation | Multiple backends |
 | `src/Director/` | Director authoring environment | .NET 8 |
 
 ### Important Files
-- `LingoEngine.sln` - Main solution file
+- `BlingoEngine.sln` - Main solution file
 - `global.json` - Specifies .NET 9 SDK requirement
 - `AGENTS.md` - Agent-specific development instructions
 - `setup-linux.sh` / `setup-windows.bat` - Platform setup scripts
 
 ### Frequently Modified Areas
-- **Core engine changes**: Always test with `Test/LingoEngine.Lingo.Core.Tests/`
+- **Core engine changes**: Always test with `Test/BlingoEngine.Lingo.Core.Tests/`
 - **SDL2 changes**: Build and run TetriGrounds SDL2 demo
 - **Blazor changes**: Build and run TetriGrounds Blazor demo
-- **Cast/Movie logic**: Found in `Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Core/`
+- **Cast/Movie logic**: Found in `Demo/TetriGrounds/BlingoEngine.Demo.TetriGrounds.Core/`
 
 ## Common Tasks
 
@@ -158,4 +158,4 @@ LingoEngine is a modern, cross-platform C# runtime that emulates Macromedia Dire
 - **Core test suite**: Comprehensive validation of Lingo engine
 - **Linting**: dotnet-format tool works correctly
 
-Remember: **LingoEngine bridges legacy Director/Lingo content with modern engines**. Always validate that changes preserve compatibility with original Lingo semantics while enabling modern deployment targets.
+Remember: **BlingoEngine bridges legacy Director/Lingo content with modern engines**. Always validate that changes preserve compatibility with original Lingo semantics while enabling modern deployment targets.

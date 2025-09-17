@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -14,8 +14,8 @@
     <Authors>Emmanuel The Creator</Authors>
     <Company>The Community</Company>
     <Description>LibVLC-based media playback for the SDL2 backend.</Description>
-    <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
-    <PackageTags>LingoEngine SDL2 VLC</PackageTags>
+    <RepositoryUrl>https://github.com/EmmanuelTheCreator/BlingoEngine</RepositoryUrl>
+    <PackageTags>BlingoEngine SDL2 VLC</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
   <ItemGroup>
@@ -24,3 +24,4 @@
     <None Include="README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 </Project>
+

@@ -16,8 +16,9 @@ namespace AbstUI.Inputs
         /// The framework object is beeing replaced , so release the old one.
         /// </summary>
         void Release();
-        void ReplaceMouseObj(IAbstMouse lingoMouse);
+        void ReplaceMouseObj(IAbstMouse blingoMouse);
         void SetCursor(AMouseCursor cursor);
         AMouseCursor GetCursor();
     }
 }
+

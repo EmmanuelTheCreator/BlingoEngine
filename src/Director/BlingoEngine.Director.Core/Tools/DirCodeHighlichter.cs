@@ -1,0 +1,158 @@
+﻿using AbstUI.Components.Inputs;
+using BlingoEngine.FrameworkCommunication;
+
+namespace BlingoEngine.Director.Core.Tools;
+
+public class DirCodeHighlichter : IDisposable
+{
+    public enum SourceCodeLanguage
+    {
+        Lingo,
+        CSharp
+    }
+
+    private readonly AbstInputText _text;
+    private readonly Action _onChanged;
+
+
+    public SourceCodeLanguage CodeLanguage { get; set; }
+    public AbstInputText TextComponent => _text;
+
+    public event Action? TextChanged;
+
+    public float Width
+    {
+        get => _text.Width;
+        set => _text.Width = value;
+    }
+
+    public float Height
+    {
+        get => _text.Height;
+        set => _text.Height = value;
+    }
+
+    public void SetText(string text)
+    {
+        _text.Text = text;
+    }
+
+    public string Text => _text.Text;
+
+
+    public DirCodeHighlichter(IBlingoFrameworkFactory factory)
+    {
+        _text = factory.CreateInputText("CodeText", 0, null);
+        _text.IsMultiLine = true;
+        _onChanged = () => TextChanged?.Invoke();
+        _text.ValueChanged += _onChanged;
+    }
+    public void Init(IDirFrameworkCodeHighlighter dirGodotCodeHighlighter)
+    {
+        _Framework = dirGodotCodeHighlighter;
+    }
+   
+    public void Dispose()
+    {
+        _text.ValueChanged -= _onChanged;
+        _text.Dispose();
+        TextChanged = null;
+    }
+
+    internal void Update()
+    {
+        _Framework.Update();
+    }
+
+
+
+    public List<string> WordsBlingoCodeKeywords = [.. _blingoKeyWordsDefault];
+    private static readonly string[] _blingoKeyWordsDefault = [
+        "Property", "On", "If", "Then", "Else", "Me", "Or", "And", "True", "False", "Repeat", "With", "End", "To", "Return", "While", "The", "New", "Global"];
+
+    public List<string> WordsBlingoCodeBuiltIn = [.. _blingoWordsDefault];
+    private static readonly string[] _blingoWordsDefault = [
+            "Point","Loc","Void","Char","Rgb","In","Line","Word",
+            "Default","Format","Color","Comment","Integer","Boolean","String","Text","String","Symbol",
+            "GetPropertyDescriptionList","GetBehaviorTooltip","IsOKToAttach","GetBehaviorDescription",
+            "_Movie","ActorList","Cursor","Alert",
+            "MemberNum","Member","Preload","Sound",
+            "Sprite","SpriteNum","LocH","LocV","LocZ","Blend","Ink","MouseH","MouseV","Puppet","Hilite","Visibility",
+            "DeleteOne","Append","GetPos","AddProp","SendSprite","VoidP","Frame","Length","Count",
+            "Go","Exit",
+            "Value",
+            "Script","Handler",
+            "StepFrame","BeginSprite","EndSprite",
+            "StartMovie","StopMovie",
+            "_Mouse","MouseUp","MouseDown","MouseEnter","MouseLeave","BlingoMouseEvent","MouseWithin",
+            "_Key","KeyPressed","ControlDown","ShiftDown","Focus","Blur","CharToNum",
+            "NetError","NetTextResult","GetNetText",
+            "_Player","Play",
+            "_Sound",
+            "_System",
+            "Channel","Number",
+            "CastLib",
+            "Put",
+        // "arrays
+            "Append","Add","AddAt","SetAt","SetProp","SetAProp","AddProp","DeleteProp","GetProp","GetAProp","GetPropAt","FindPos","FindPosNear",
+            "DeleteAt","DeleteOne","GetAt","GetPos","Count","Max","Min"
+        ];
+
+    public List<string> WordsCCharpCodeBuiltIn = [.. _csharpWordsDefault];
+    private static readonly string[] _csharpWordsDefault = [
+             "abstract","as","base","break","case","catch","checked","class","const","continue",
+            "default","delegate","do","else","enum","event","explicit","extern","finally","fixed",
+            "for","foreach","goto","if","implicit","in","interface","internal","is","lock",
+            "namespace","new","operator","out","override","params","private","protected","public",
+            "readonly","record","ref","return","sealed","sizeof","stackalloc","static","struct",
+            "switch","this","throw","try","typeof","unsafe","using","virtual","volatile","while",
+            "async","await","var","null","true","false","void",
+        ];
+
+    public List<string> WordsCCharpCodeTypes = [.. _csharpWordsCodeTypesDefault];
+    private IDirFrameworkCodeHighlighter _Framework;
+    private static readonly string[] _csharpWordsCodeTypesDefault = [
+            "bool","byte","sbyte","char","decimal","double","float","int","uint","nint","nuint",
+            "long","ulong","object","short","ushort","string","void",
+            // NET
+            "List","Add","Remove","IndexOf","AddAt","GetAt","Count","Length","DeleteAt","SetAt","GetPos","FindPos","Clear","Contains",
+            "CopyTo","IndexOf","Insert","RemoveAt","Duplicate","Append","SetProp","SetAProp","AddProp","DeleteProp","GetProp","GetAProp","GetPropAt","FindPosNear",
+            "DeleteOne",
+             "Convert","ToInt32",
+            // lingo
+             "APoint","ARect","AColor","Loc","Char","FromHex","Line","Word",
+            "format","AColor","Comment","Text","Symbol","GetOne","GetLast","GetAValue","ListP","DeleteAll","Repeat","Sort","Min","Max",
+
+            "GetPropertyDescriptionList","GetBehaviorTooltip","IsOKToAttach","GetBehaviorDescription","BehaviorPropertyDescriptionList",
+            "BlingoPropertyList","BlingoList",
+        
+            "_Movie","Actorlist","Cursor","Alert",
+            "MemberNum","Member","Preload","Sound","GetMember",
+            "Bitmap",
+            "Sound","Play",
+            "FilmLoop",
+            "Shape",
+            "Sprite","SpriteNum","LocH","LocV","LocZ","Blend","Ink","MouseH","MouseV","Puppet","IBlingoSprite","Visibility","Hilite",
+            "DeleteOne","Append","GetPos","Deleteone","Addprop","Sendsprite","Frame","Length","Count",
+            "Go","GoTo",
+            "Script","Handler",
+            "StepFrame","BeginSprite","EndSprite",
+            "StartMovie","StopMovie",
+            "_Mouse","MouseUp","MouseDown","MouseEnter","MouseLeave","BlingoMouseEvent","MouseWithin",
+            "_Key","KeyPressed","ControlDown","ShiftDown","BlingoKeyEvent","Focus","Blur",
+            "NetError","NetTextResult","GetNetText",
+            "_Player",
+            "_Sound",
+            "_System",
+            "Channel","Number",
+            "CastLib","BlingoCast","BlingoInkType","IBlingoMember","IBlingoMemberTextBase","GetMember",
+           
+            "IBlingoMemberTextBase"
+        ];
+
+    public static IEnumerable<string> CaseInsensitiveWords(IEnumerable<string> words)
+        => words.SelectMany(w => new[] { w, w.ToLowerInvariant() }).Distinct();
+
+    
+}
+

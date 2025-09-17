@@ -1,4 +1,4 @@
-using AbstUI.Inputs;
+﻿using AbstUI.Inputs;
 using AbstUI.ImGui;
 using AbstUI.ImGui.Styles;
 using AbstUI.Primitives;
@@ -8,7 +8,7 @@ using System.Numerics;
 using System.Threading;
 using AbstUI.ImGui.Inputs;
 
-namespace LingoEngine.ImGui.GfxVisualTest;
+namespace BlingoEngine.ImGui.GfxVisualTest;
 
 /// <summary>
 /// Minimal runtime environment used by the ImGui graphics visual test.
@@ -44,14 +44,14 @@ public sealed class TestImGuiRootComponentContext : IImGuiRootComponentContext, 
         FontManager.LoadAll();
 
         Mouse = new AbstImGuiMouse<AbstMouseEvent>(new Lazy<AbstMouse<AbstMouseEvent>>(() => (AbstMouse<AbstMouseEvent>)AbstMouse));
-        var lingoMouse = new AbstMouse(Mouse);
-        Mouse.ReplaceMouseObj(lingoMouse);
-        AbstMouse = lingoMouse;
+        var blingoMouse = new AbstMouse(Mouse);
+        Mouse.ReplaceMouseObj(blingoMouse);
+        AbstMouse = blingoMouse;
 
         var key = new AbstImGuiKey();
         Key = key;
-        var lingoKey = new AbstKey(key);
-        AbstKey = lingoKey;
+        var blingoKey = new AbstKey(key);
+        AbstKey = blingoKey;
     }
 
 
@@ -92,4 +92,5 @@ public sealed class TestImGuiRootComponentContext : IImGuiRootComponentContext, 
 
  
 }
+
 

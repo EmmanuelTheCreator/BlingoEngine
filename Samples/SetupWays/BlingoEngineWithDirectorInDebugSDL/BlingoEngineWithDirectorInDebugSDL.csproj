@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <StartupObject>BlingoEngineWithDirectorInDebugSDL.Startup</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="..\..\..\..\..\src\Ark.Godot\Media\Icons\DirectorSharp_Icon.png" Link="Media\Icons\DirectorSharp_Icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\..\..\src\Ark.Godot\Media\Icons\Director_Icons.png" Link="Media\Icons\Director_Icons.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\..\..\src\Ark.Godot\Media\Icons\General_Icons.png" Link="Media\Icons\General_Icons.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\..\..\src\Ark.Godot\Media\Icons\Painter2_Icons.png" Link="Media\Icons\Painter2_Icons.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\..\..\..\src\Ark.Godot\Media\Icons\Painter_Icons.png" Link="Media\Icons\Painter_Icons.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9" />
+	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\BlingoEngine.SDL2\BlingoEngine.SDL2.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <ProjectReference Include="..\..\..\src\Director\BlingoEngine.Director.SDL2\BlingoEngine.Director.SDL2.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Media\Fonts\" />
+    <Folder Include="Media\Icons\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\..\..\src\Ark.Godot\Media\Fonts\Tahoma.ttf" Link="Media\Fonts\Tahoma.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+</Project>
+

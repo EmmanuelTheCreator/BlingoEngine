@@ -14,7 +14,7 @@ namespace AbstUI.LGodot.Windowing
     public partial class AbstGodotDialogT<T> : Window, IAbstFrameworkDialog<T>, IFrameworkFor<T>
         where T: AbstDialog
     {
-        private IAbstDialog _lingoDialog = null!;
+        private IAbstDialog _blingoDialog = null!;
         private Action<AColor> _setBackgroundColorMethod = c => { };
         private AColor _backgroundColor;
 
@@ -42,9 +42,9 @@ namespace AbstUI.LGodot.Windowing
 
         string IAbstFrameworkNode.Name { get => Name; set => Name = value; }
 
-        public IAbstMouse Mouse => _lingoDialog.Mouse;
+        public IAbstMouse Mouse => _blingoDialog.Mouse;
 
-        public IAbstKey Key => _lingoDialog.Key;
+        public IAbstKey Key => _blingoDialog.Key;
 
         public event Action<bool>? OnWindowStateChanged;
 
@@ -73,10 +73,10 @@ namespace AbstUI.LGodot.Windowing
             OnWindowStateChanged?.Invoke(false);
         }
 
-        public virtual void Init(AbstDialog lingoDialog)
+        public virtual void Init(AbstDialog blingoDialog)
         {
-            _lingoDialog = lingoDialog;
-            lingoDialog.Init(this);
+            _blingoDialog = blingoDialog;
+            blingoDialog.Init(this);
         }
         protected override void Dispose(bool disposing)
         {
@@ -150,3 +150,4 @@ namespace AbstUI.LGodot.Windowing
         internal void SetBackgroundColorMethod(Action<AColor> value) => _setBackgroundColorMethod = value;
     }
 }
+

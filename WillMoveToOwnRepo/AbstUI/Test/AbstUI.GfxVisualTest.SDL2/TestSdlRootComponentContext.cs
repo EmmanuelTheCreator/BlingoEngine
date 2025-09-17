@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
 using AbstUI.SDL2;
@@ -7,7 +7,7 @@ using AbstUI.SDL2.Core;
 using AbstUI.SDL2.Inputs;
 using AbstUI.SDL2.SDLL;
 
-namespace LingoEngine.SDL2.GfxVisualTest;
+namespace BlingoEngine.SDL2.GfxVisualTest;
 
 public sealed class TestSdlRootComponentContext : AbstUISdlRootContext<AbstMouse>
 {
@@ -63,3 +63,4 @@ public sealed class TestSdlRootComponentContext : AbstUISdlRootContext<AbstMouse
         base.Dispose();
     }
 }
+

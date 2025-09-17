@@ -98,7 +98,7 @@ namespace ProjectorRays.director
                     Len = entry.Len,
                     UncompressedLen = entry.Len,
                     Offset = entry.Offset,
-                    CompressionID = LingoGuidConstants.NULL_COMPRESSION_GUID
+                    CompressionID = BlingoGuidConstants.NULL_COMPRESSION_GUID
                 };
                 AddChunkInfo(info);
                 Logger.LogInformation($"Registering chunk {Common.RaysUtil.FourCCToString(info.FourCC)} with ID {info.Id}");
@@ -381,9 +381,9 @@ namespace ProjectorRays.director
                 {
                     int actual = -1;
                     _cachedChunkBufs[id] = new byte[info.UncompressedLen];
-                    if (info.CompressionID.Equals(LingoGuidConstants.ZLIB_COMPRESSION_GUID))
+                    if (info.CompressionID.Equals(BlingoGuidConstants.ZLIB_COMPRESSION_GUID))
                         actual = s.ReadZlibBytes((int)info.Len, _cachedChunkBufs[id], _cachedChunkBufs[id].Length);
-                    else if (info.CompressionID.Equals(LingoGuidConstants.SND_COMPRESSION_GUID))
+                    else if (info.CompressionID.Equals(BlingoGuidConstants.SND_COMPRESSION_GUID))
                     {
                         // Sound decompression not implemented
                         BufferView chunkView = s.ReadByteView((int)info.Len);
@@ -393,7 +393,7 @@ namespace ProjectorRays.director
                     if (actual < 0) throw new IOException($"Chunk {id}: Could not decompress");
                     _cachedChunkViews[id] = new BufferView(_cachedChunkBufs[id], actual);
                 }
-                else if (info.CompressionID.Equals(LingoGuidConstants.FONTMAP_COMPRESSION_GUID))
+                else if (info.CompressionID.Equals(BlingoGuidConstants.FONTMAP_COMPRESSION_GUID))
                 {
                     _cachedChunkViews[id] = RaysFontMap.GetFontMap((int)Version);
                 }
@@ -412,8 +412,9 @@ namespace ProjectorRays.director
         }
 
         private static bool CompressionImplemented(RayGuid id) =>
-        id.Equals(LingoGuidConstants.ZLIB_COMPRESSION_GUID) || id.Equals(LingoGuidConstants.SND_COMPRESSION_GUID);
+        id.Equals(BlingoGuidConstants.ZLIB_COMPRESSION_GUID) || id.Equals(BlingoGuidConstants.SND_COMPRESSION_GUID);
 
 
     }
 }
+

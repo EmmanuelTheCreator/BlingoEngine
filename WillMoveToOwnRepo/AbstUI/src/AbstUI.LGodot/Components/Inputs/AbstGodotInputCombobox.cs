@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.Styles;
@@ -152,7 +152,7 @@ namespace AbstUI.LGodot.Components
         #endregion
 
 
-        public AbstGodotInputCombobox(AbstInputCombobox input, IAbstFontManager lingoFontManager, Action<string?>? onChange)
+        public AbstGodotInputCombobox(AbstInputCombobox input, IAbstFontManager blingoFontManager, Action<string?>? onChange)
         {
             input.Init(this);
             ItemSelected += idx => _onValueChanged?.Invoke();
@@ -218,3 +218,4 @@ namespace AbstUI.LGodot.Components
         }
     }
 }
+

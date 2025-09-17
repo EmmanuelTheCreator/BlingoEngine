@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.LGodot.Primitives;
@@ -154,12 +154,12 @@ namespace AbstUI.LGodot.Components
     }
     public partial class AbstGodotLayoutWrapper : MarginContainer, IAbstFrameworkLayoutWrapper, IFrameworkFor<AbstLayoutWrapper>
     {
-        private AbstLayoutWrapper _lingoLayoutWrapper;
+        private AbstLayoutWrapper _blingoLayoutWrapper;
         public object FrameworkNode => this;
 
         public AbstGodotLayoutWrapper(AbstLayoutWrapper layoutWrapper)
         {
-            _lingoLayoutWrapper = layoutWrapper;
+            _blingoLayoutWrapper = layoutWrapper;
             layoutWrapper.Init(this);
             var content = layoutWrapper.Content.FrameworkObj;
 
@@ -219,3 +219,4 @@ namespace AbstUI.LGodot.Components
     }
 
 }
+

@@ -1,4 +1,4 @@
-using AbstUI.Components;
+﻿using AbstUI.Components;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
 
@@ -7,18 +7,18 @@ namespace AbstUI.ImGui.Components;
 internal class AbstImGuiWindow : AbstImGuiPanel, IAbstFrameworkWindow, IDisposable
 {
     private readonly AbstImGuiComponentFactory _factory;
-    private readonly AbstWindow _lingoWindow;
+    private readonly AbstWindow _blingoWindow;
     private string _title = string.Empty;
     private bool _isPopup;
     private bool _borderless;
 
     public AbstImGuiWindow(AbstWindow window, AbstImGuiComponentFactory factory) : base(factory)
     {
-        _lingoWindow = window;
+        _blingoWindow = window;
         _factory = factory;
         var mouse = ((IAbstMouseInternal)factory.RootContext.AbstMouse).CreateNewInstance(window);
         var key = ((AbstKey)factory.RootContext.AbstKey).CreateNewInstance(window);
-        _lingoWindow.Init(this, mouse, key);
+        _blingoWindow.Init(this, mouse, key);
         Visibility = false;
     }
 
@@ -78,7 +78,7 @@ internal class AbstImGuiWindow : AbstImGuiPanel, IAbstFrameworkWindow, IDisposab
             _content = value;
             if (value is IAbstFrameworkLayoutNode layout)
                 AddItem(layout);
-            _lingoWindow.SetContentFromFW(value);
+            _blingoWindow.SetContentFromFW(value);
         }
     }
 
@@ -90,14 +90,14 @@ internal class AbstImGuiWindow : AbstImGuiPanel, IAbstFrameworkWindow, IDisposab
         Height = height;
 
         // notify underlying window abstraction
-        _lingoWindow.Resize(width, height);
+        _blingoWindow.Resize(width, height);
     }
 
     public void Popup()
     {
         _factory.RootContext.ComponentContainer.Activate(ComponentContext);
         Visibility = true;
-        _lingoWindow.RaiseWindowStateChanged(true);
+        _blingoWindow.RaiseWindowStateChanged(true);
     }
 
     public void PopupCentered()
@@ -107,13 +107,14 @@ internal class AbstImGuiWindow : AbstImGuiPanel, IAbstFrameworkWindow, IDisposab
         X = (size.X - Width) / 2f;
         Y = (size.Y - Height) / 2f;
         Popup();
-        _lingoWindow.RaiseWindowStateChanged(true);
+        _blingoWindow.RaiseWindowStateChanged(true);
     }
 
     public void Hide()
     {
         Visibility = false;
         _factory.RootContext.ComponentContainer.Deactivate(ComponentContext);
-        _lingoWindow.RaiseWindowStateChanged(false);
+        _blingoWindow.RaiseWindowStateChanged(false);
     }
 }
+

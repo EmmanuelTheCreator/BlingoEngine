@@ -23,7 +23,7 @@
                 <Authors>Emmanuel The Creator</Authors>
                 <Company>The Community</Company>
                 <Description>Godot backend for the AbstUI framework, enabling AbstUI components to run within Godot.</Description>
-                <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
+                <RepositoryUrl>https://github.com/EmmanuelTheCreator/BlingoEngine</RepositoryUrl>
                 <PackageTags>AbstUI Godot</PackageTags>
                 <PackageLicenseExpression>MIT</PackageLicenseExpression>
                 <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -45,3 +45,4 @@
 	  <ProjectReference Include="..\AbstUI\AbstUI.csproj" />
 	</ItemGroup>
 </Project>
+

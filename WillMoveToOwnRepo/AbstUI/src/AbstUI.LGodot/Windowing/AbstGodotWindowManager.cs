@@ -1,4 +1,4 @@
-using AbstEngine.Director.LGodot;
+﻿using AbstEngine.Director.LGodot;
 using AbstUI.Components;
 using AbstUI.Components.Containers;
 using AbstUI.LGodot.Primitives;
@@ -38,7 +38,7 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager, IDisposable, IFra
         _godotStyleManager = godotStyleManager;
         _frameworkFactory = frameworkFactory;
         RootNode = new Control();
-        RootNode.Name = "LingoGodotRootNode";
+        RootNode.Name = "BlingoGodotRootNode";
         abstGodotRootNode.RootNode.AddChild(RootNode);
         windowManager.Init(this);
     }
@@ -270,3 +270,4 @@ public class AbstGodotWindowManager : IAbstGodotWindowManager, IDisposable, IFra
 
 
 }
+

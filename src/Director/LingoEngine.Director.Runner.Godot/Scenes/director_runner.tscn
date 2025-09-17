@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://drrunnertscn"]
-
-[ext_resource type="Script" uid="uid://drrunner000001" path="res://Scenes/DirectorRunner.cs" id="1"]
-
-[node name="DirectorRunner" type="Node"]
-script = ExtResource("1")

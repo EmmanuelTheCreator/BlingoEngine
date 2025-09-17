@@ -1,0 +1,55 @@
+﻿using AbstUI.Inputs;
+using AbstUI.Primitives;
+using AbstUI.SDL2.Inputs;
+using AbstUI.SDL2.SDLL;
+using BlingoEngine.Bitmaps;
+using BlingoEngine.Events;
+using BlingoEngine.Inputs;
+using BlingoEngine.SDL2.Bitmaps;
+using System.Runtime.InteropServices;
+
+namespace BlingoEngine.SDL2.Inputs;
+
+public class BlingoSdlMouse : SdlMouse<BlingoMouseEvent> , IBlingoFrameworkMouse
+{
+    private BlingoMemberBitmap? _cursorImage;
+    private AMouseCursor _cursor = AMouseCursor.Arrow;
+    
+
+    public BlingoSdlMouse(Lazy<AbstMouse<BlingoMouseEvent>> mouse) : base(mouse)
+    {
+    }
+    public override void SetCursor(AMouseCursor value)
+    {
+        _cursor = value;
+        base.SetCursor(value);
+    }
+    public void SetCursor(BlingoMemberBitmap? image)
+    {
+        _cursorImage = image;
+        if (image == null) return;
+        image.Framework<SdlMemberBitmap>().Preload();
+        var pic = image.Framework<SdlMemberBitmap>();
+        if (pic.ImageData == null) return;
+
+        var handle = GCHandle.Alloc(pic.ImageData, GCHandleType.Pinned);
+        try
+        {
+            var rw = SDL.SDL_RWFromMem(handle.AddrOfPinnedObject(), pic.ImageData.Length);
+            var surface = SDL_image.IMG_Load_RW(rw, 1);
+            if (surface == nint.Zero) return;
+
+            _sdlCursor = SDL.SDL_CreateColorCursor(surface, 0, 0);
+            SDL.SDL_SetCursor(_sdlCursor);
+            SDL.SDL_FreeSurface(surface);
+        }
+        finally
+        {
+            handle.Free();
+        }
+    }
+
+
+   
+}
+

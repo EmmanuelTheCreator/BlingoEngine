@@ -1,8 +1,8 @@
-{
+﻿{
   "VisualStudioPath": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\devenv.exe",
   "VisualStudioCodePath": "C:\\Program Files\\Microsoft VS Code\\Code.exe",
   "PreferredIde": 0,
-  "CsProjFile": "LingoEngine.Demo.TetriGrounds.Core\\LingoEngine.Demo.TetriGrounds.Core.csproj",
+  "CsProjFile": "BlingoEngine.Demo.TetriGrounds.Core\\BlingoEngine.Demo.TetriGrounds.Core.csproj",
   "GuidesColor": {
     "Code": 3,
     "Name": "blue",

@@ -16,7 +16,7 @@
                 <Authors>Emmanuel The Creator</Authors>
                 <Company>The Community</Company>
                 <Description>ImGui backend for the AbstUI framework, rendering the abstract UI components through ImGui.</Description>
-                <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
+                <RepositoryUrl>https://github.com/EmmanuelTheCreator/BlingoEngine</RepositoryUrl>
                 <PackageTags>AbstUI ImGui</PackageTags>
                 <PackageLicenseExpression>MIT</PackageLicenseExpression>
                 <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -54,3 +54,4 @@
 	</ItemGroup>
 
 </Project>
+

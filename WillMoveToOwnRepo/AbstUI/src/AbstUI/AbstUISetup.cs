@@ -26,7 +26,7 @@ namespace AbstUI
                 .AddTransient(p => (IAbstWindowManager)p.GetRequiredService<AbstWindowManager>())
                 .AddTransient(p => new Lazy<IServiceProvider>(() => p.GetRequiredService<IServiceProvider>()))
                 .AddTransient(p => new Lazy<IAbstComponentFactory>(() => p.GetRequiredService<IAbstComponentFactory>()))
-            //       .AddSingleton<IAbstGlobalMouse, GlobalLingoMouse>()
+            //       .AddSingleton<IAbstGlobalMouse, GlobalBlingoMouse>()
             //       .AddSingleton<IGlobalAbstKey, AbstKey>()
                    ;
             _registrator = new AbstFameworkComponentRegistrator(services);
@@ -53,3 +53,4 @@ namespace AbstUI
         }
     }
 }
+

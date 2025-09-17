@@ -1,4 +1,4 @@
-using AbstUI.Texts;
+﻿using AbstUI.Texts;
 using AbstUI.Primitives;
 using AbstUI.Windowing;
 using AbstUI.Components.Graphics;
@@ -166,11 +166,11 @@ namespace AbstUI.Inputs
             _cols = _layout.Max(r => r.Length);
             var width = _cols * (CellSize + CellSpacing);
             var height = _layout.Length * (CellSize + CellSpacing);
-            //_window = _factory.CreateWindow("LingoJoystickKeyboard", _title);
-            _root = _factory.CreatePanel("LingoJoystickKeyboardPanel");
+            //_window = _factory.CreateWindow("BlingoJoystickKeyboard", _title);
+            _root = _factory.CreatePanel("BlingoJoystickKeyboardPanel");
             _root.Width = width + Margin * 2;
             _root.Height = height + Margin * 2;
-            _canvas = _factory.CreateGfxCanvas("LingoJoystickKeyboardCanvas", width, height);
+            _canvas = _factory.CreateGfxCanvas("BlingoJoystickKeyboardCanvas", width, height);
             _canvas.X = Margin;
             _canvas.Y = Margin;
             _root.AddItem(_canvas);
@@ -493,4 +493,5 @@ namespace AbstUI.Inputs
         }
     }
 }
+
 

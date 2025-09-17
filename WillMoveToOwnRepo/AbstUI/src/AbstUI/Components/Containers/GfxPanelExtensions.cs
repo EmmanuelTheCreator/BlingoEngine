@@ -29,7 +29,7 @@ namespace AbstUI.Components.Containers
             return canvas;
         }
 
-        public static AbstLabel SetLabelAt(this AbstPanel container, string name, float x, float y, string? text = null, int fontSize = 11, int? labelWidth = null, AbstTextAlignment lingoTextAlignment = AbstTextAlignment.Left)
+        public static AbstLabel SetLabelAt(this AbstPanel container, string name, float x, float y, string? text = null, int fontSize = 11, int? labelWidth = null, AbstTextAlignment blingoTextAlignment = AbstTextAlignment.Left)
         {
             AbstLabel lbl = container.Factory.CreateLabel(name,text ??"");
             if (DefaultTextColor != null)
@@ -37,7 +37,7 @@ namespace AbstUI.Components.Containers
             lbl.FontSize = fontSize;
             if(labelWidth.HasValue)
                 lbl.Width = labelWidth.Value;
-            lbl.TextAlignment = lingoTextAlignment;
+            lbl.TextAlignment = blingoTextAlignment;
             container.AddItem(lbl, x, y);
             return lbl;
         }
@@ -163,3 +163,4 @@ namespace AbstUI.Components.Containers
 
     }
 }
+

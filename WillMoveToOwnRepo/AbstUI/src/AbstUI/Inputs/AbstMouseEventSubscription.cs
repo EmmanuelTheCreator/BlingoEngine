@@ -17,9 +17,9 @@ namespace AbstUI.Inputs
         public float MouseV => Mouse.MouseV;
         public float WheelDelta => Mouse.WheelDelta;
 
-        public AbstMouseEvent(IAbstMouse lingoMouse, AbstMouseEventType type)
+        public AbstMouseEvent(IAbstMouse blingoMouse, AbstMouseEventType type)
         {
-            Mouse = lingoMouse;
+            Mouse = blingoMouse;
             Type = type;
         }
     }
@@ -60,3 +60,4 @@ namespace AbstUI.Inputs
         }
     }
 }
+

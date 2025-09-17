@@ -1,11 +1,11 @@
-using AbstUI.Components;
+﻿using AbstUI.Components;
 using AbstUI.Components.Texts;
 using AbstUI.GfxVisualTest;
 using AbstUI.Primitives;
 using AbstUI.Texts;
 using AbstUI.Windowing;
 
-namespace LingoEngine.SDL2.GfxVisualTest;
+namespace BlingoEngine.SDL2.GfxVisualTest;
 
 public static class GfxTestScene
 {
@@ -178,3 +178,4 @@ public static class GfxTestScene
 
     }
 }
+

@@ -1,6 +1,6 @@
 ﻿using ProjectorRays.Common;
 using ProjectorRays.Director;
-using ProjectorRays.LingoDec;
+using ProjectorRays.BlingoDec;
 using System.Text;
 
 namespace ProjectorRays.director.Chunks;
@@ -46,3 +46,4 @@ public class RaysScriptContextChunk : RaysChunk
     }
 
 }
+

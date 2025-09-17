@@ -1,0 +1,9 @@
+﻿{
+  "ProjectName": "TetriGrounds",
+  "ProjectFolder": "..\\",
+  "CodeFolder": "..\\BlingoEngine.Demo.TetriGrounds.Core\\",
+  "StageWidth": 730,
+  "StageHeight": 500,
+  "HasValidSettings": true,
+  "MaxSpriteChannelCount": 800
+}

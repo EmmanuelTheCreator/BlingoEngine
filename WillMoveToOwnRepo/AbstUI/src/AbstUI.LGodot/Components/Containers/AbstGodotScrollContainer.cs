@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 using AbstUI.Components;
 using AbstUI.Primitives;
 using System.Linq;
@@ -100,11 +100,11 @@ namespace AbstUI.LGodot.Components
                 base.AddChild(node);
             _nodes.Add(child);
         }
-        public void RemoveItem(IAbstFrameworkLayoutNode lingoFrameworkGfxNode)
+        public void RemoveItem(IAbstFrameworkLayoutNode blingoFrameworkGfxNode)
         {
-            if (lingoFrameworkGfxNode.FrameworkNode is Node node)
+            if (blingoFrameworkGfxNode.FrameworkNode is Node node)
                 RemoveChild(node);
-            _nodes.Remove(lingoFrameworkGfxNode);
+            _nodes.Remove(blingoFrameworkGfxNode);
         }
 
 
@@ -120,3 +120,4 @@ namespace AbstUI.LGodot.Components
 
     }
 }
+

@@ -1,5 +1,5 @@
-using ProjectorRays.Common;
-using ProjectorRays.LingoDec;
+﻿using ProjectorRays.Common;
+using ProjectorRays.BlingoDec;
 using ProjectorRays.IO;
 using Microsoft.Extensions.Logging;
 using ProjectorRays.director.Chunks;
@@ -210,3 +210,4 @@ public class RaysDirectorFile : ChunkResolver
 
 
 }
+

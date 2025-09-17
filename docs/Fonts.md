@@ -1,6 +1,6 @@
-# Fonts in LingoEngine
+﻿# Fonts in BlingoEngine
 
-LingoEngine relies on the `IAbstFontManager` abstraction from the underlying AbstUI library to provide a uniform font API across SDL2, Godot, Unity, and Blazor backends. The manager registers font files, loads platform-specific assets, and exposes helpers for measuring text. Font styles use the flag-based `AbstFontStyle` enum so bold and italic styles can be combined.
+BlingoEngine relies on the `IAbstFontManager` abstraction from the underlying AbstUI library to provide a uniform font API across SDL2, Godot, Unity, and Blazor backends. The manager registers font files, loads platform-specific assets, and exposes helpers for measuring text. Font styles use the flag-based `AbstFontStyle` enum so bold and italic styles can be combined.
 
 ## `IAbstFontManager` interface
 
@@ -36,7 +36,7 @@ var defaultFont = fonts.GetDefaultFont<object>(); // backend specific type
 ## Framework implementations
 
 ### SDL2
-`SdlFontManager` loads fonts through SDL_ttf. Registering a regular font automatically queues bold, italic, and bold‑italic variants, and a built‑in Tahoma family is used as a fallback.
+`SdlFontManager` loads fonts through SDL_ttf. Registering a regular font automatically queues bold, italic, and boldâ€‘italic variants, and a builtâ€‘in Tahoma family is used as a fallback.
 
 ```csharp
 fonts.AddFont("OpenSans", "Fonts/OpenSans.ttf");
@@ -45,7 +45,7 @@ var sdlFont = fonts.Get<AbstSdlFont>("OpenSans");
 ```
 
 ### Godot
-`AbstGodotFontManager` loads `FontFile` resources and converts `AbstFontStyle` flags to Godot's `TextServer` styles. The `LingoGodotStyle` theme uses `ARIAL.TTF` as the default font and defines default and per-control sizes.
+`AbstGodotFontManager` loads `FontFile` resources and converts `AbstFontStyle` flags to Godot's `TextServer` styles. The `BlingoGodotStyle` theme uses `ARIAL.TTF` as the default font and defines default and per-control sizes.
 
 ```csharp
 fonts.AddFont("ARIAL", "Fonts/ARIAL.TTF");
@@ -54,7 +54,7 @@ var labelFont = fonts.Get<FontFile>("ARIAL", AbstFontStyle.Italic);
 ```
 
 ### Unity
-`UnityFontManager` reads Unity `Font` assets, falling back to the built‑in Tahoma font when resources are missing. It exposes `MeasureTextWidth` for layout calculations.
+`UnityFontManager` reads Unity `Font` assets, falling back to the builtâ€‘in Tahoma font when resources are missing. It exposes `MeasureTextWidth` for layout calculations.
 
 ```csharp
 fonts.AddFont("Roboto", "Fonts/Roboto");
@@ -74,3 +74,4 @@ string cssFamily = fonts.Get<string>("Roboto")!;
 ## Font sizes and styles
 
 Font sizes are specified in pixels. For example, the Godot theme sets a default size of 11 and custom sizes for common controls. Style variants such as bold or italic are chosen via the `AbstFontStyle` flags when retrieving fonts.
+

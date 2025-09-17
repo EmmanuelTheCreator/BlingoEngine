@@ -18,7 +18,7 @@
             B = b;
         }
         /// <summary>
-        /// Constructs a LingoColor from a 24-bit packed RGB value (0xRRGGBB).
+        /// Constructs a BlingoColor from a 24-bit packed RGB value (0xRRGGBB).
         /// </summary>
         /// <param name="rgb24">Packed 24-bit value.</param>
         public RayColor(uint rgb24)
@@ -37,7 +37,7 @@
         }
 
         /// <summary>
-        /// Constructs a LingoColor from a 16-bit RGB 555 value (0RRRRRGGGGGBBBBB).
+        /// Constructs a BlingoColor from a 16-bit RGB 555 value (0RRRRRGGGGGBBBBB).
         /// </summary>
         /// <param name="rgb555">The 16-bit color value.</param>
         public RayColor(ushort rgb555)
@@ -75,9 +75,10 @@
 
 
         /// <summary>
-        /// Creates a LingoColor from an RGB tuple.
+        /// Creates a BlingoColor from an RGB tuple.
         /// </summary>
         public static RayColor FromRGB(byte r, byte g, byte b)
             => new RayColor(r, g, b);
     }
 }
+

@@ -16,7 +16,7 @@
     <Authors>Emmanuel The Creator</Authors>
     <Company>The Community</Company>
     <Description>Blazor backend for the AbstUI framework, rendering abstract UI components through Blazor.</Description>
-    <RepositoryUrl>https://github.com/EmmanuelTheCreator/LingoEngine</RepositoryUrl>
+    <RepositoryUrl>https://github.com/EmmanuelTheCreator/BlingoEngine</RepositoryUrl>
     <PackageTags>AbstUI;Blazor</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -51,3 +51,4 @@
   
 
 </Project>
+

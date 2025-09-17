@@ -1,9 +1,9 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using UnityEngine;
 using AbstUI.Components;
 using AbstUI.GfxVisualTest;
 using AbstUI.LUnity;
-using LingoEngine.SDL2.GfxVisualTest;
+using BlingoEngine.SDL2.GfxVisualTest;
 
 namespace AbstUI.GfxVisualTest.LUnity;
 
@@ -34,3 +34,4 @@ public class GfxTest : MonoBehaviour
         }
     }
 }
+

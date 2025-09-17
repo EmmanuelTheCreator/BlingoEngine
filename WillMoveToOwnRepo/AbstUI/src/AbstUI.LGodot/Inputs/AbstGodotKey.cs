@@ -7,20 +7,20 @@ namespace AbstUI.LGodot.Inputs;
 public partial class AbstGodotKey : Node, IAbstFrameworkKey, IFrameworkFor<AbstKey>
 {
     private readonly List<Key> _pressed = new();
-    private Lazy<AbstKey> _lingoKey;
+    private Lazy<AbstKey> _blingoKey;
     private string _lastKey = string.Empty;
     private int _lastCode;
 
     public AbstGodotKey(Node root, Lazy<AbstKey> key)
     {
         Name = "KeyConnector";
-        _lingoKey = key;
+        _blingoKey = key;
         root.AddChild(this);
     }
 
     public void SetKeyObj(AbstKey key)
     {
-        _lingoKey = new Lazy<AbstKey>(() => key);
+        _blingoKey = new Lazy<AbstKey>(() => key);
     }
 
     public override void _Input(InputEvent @event)
@@ -31,16 +31,16 @@ public partial class AbstGodotKey : Node, IAbstFrameworkKey, IFrameworkFor<AbstK
             {
                 if (!_pressed.Contains(k.Keycode))
                     _pressed.Add(k.Keycode);
-                _lastCode = GodotKeyCodeMap.ToLingo(k.Keycode);
+                _lastCode = GodotKeyCodeMap.ToBlingo(k.Keycode);
                 _lastKey = k.KeyLabel.ToString();
-                _lingoKey.Value.DoKeyDown();
+                _blingoKey.Value.DoKeyDown();
             }
             else
             {
                 _pressed.Remove(k.Keycode);
-                _lastCode = GodotKeyCodeMap.ToLingo(k.Keycode);
+                _lastCode = GodotKeyCodeMap.ToBlingo(k.Keycode);
                 _lastKey = k.KeyLabel.ToString();
-                _lingoKey.Value.DoKeyUp();
+                _blingoKey.Value.DoKeyUp();
             }
         }
     }
@@ -69,3 +69,4 @@ public partial class AbstGodotKey : Node, IAbstFrameworkKey, IFrameworkFor<AbstK
     public string Key => _lastKey;
     public int KeyCode => _lastCode;
 }
+

@@ -1,0 +1,71 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+	  <Configurations>Debug;Release</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- NuGet Packaging Metadata -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>BlingoEngine.IdeLauncher</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Emmanuel The Creator</Authors>
+    <Company>The Community</Company>
+    <Description>
+      Editor tooling for BlingoEngine that emulates the classic Macromedia Director authoring environment. Includes file navigation, script launching, and extensible integration points for modern IDEs like Visual Studio and VS Code.
+    </Description>
+    <RepositoryUrl>https://github.com/EmmanuelTheCreator/BlingoEngine</RepositoryUrl>
+    <PackageTags>Lingo BlingoEngine Macromedia Director Godot SDL2 Editor IDE VisualStudio Tools</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+
+    <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+      <DefineConstants>$(DefineConstants);USE_WINDOWS_FEATURES</DefineConstants>
+    </PropertyGroup>
+
+
+  <!-- Optional: if you're building for multiple platforms -->
+  <PropertyGroup>
+    <IsWindows Condition="'$(RuntimeIdentifier)' == '' or '$(RuntimeIdentifier)' == 'win' or '$(RuntimeIdentifier)' == 'win-x64' or '$(RuntimeIdentifier)' == 'win-x86'">true</IsWindows>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\WillMoveToOwnRepo\ProjectorRays\src\ProjectorRays.DotNet\ProjectorRays.DotNet.csproj" />
+    <ProjectReference Include="..\..\BlingoEngine.IO\BlingoEngine.IO.csproj" />
+    <ProjectReference Include="..\..\BlingoEngine\BlingoEngine.csproj" />
+    <ProjectReference Include="..\..\BlingoEngine.Lingo.Core\BlingoEngine.Lingo.Core.csproj" />
+    <ProjectReference Include="..\..\Net\BlingoEngine.Net.RNetHost.Common\BlingoEngine.Net.RNetHost.Common.csproj" />
+    <ProjectReference Include="..\..\Net\BlingoEngine.Net.RNetProjectClient\BlingoEngine.Net.RNetProjectClient.csproj" />
+    <ProjectReference Include="..\..\Net\BlingoEngine.Net.RNetPipeClient\BlingoEngine.Net.RNetPipeClient.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TextCopy" Version="6.2.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Media\Icons\" />
+    <Folder Include="Windowing\Commands\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Media\Icons\AssetInfoMapIcon12_Color.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <!-- Conditionally include System.Management -->
+  <ItemGroup Condition="'$(IsWindows)' == 'true' and '$(DefineConstants)' != '$(DefineConstants.Replace(`USE_WINDOWS_FEATURES`, ``))'">
+    <PackageReference Include="System.Management" Version="8.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.CodeDom" Version="9.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.9" />
+  </ItemGroup>
+
+</Project>

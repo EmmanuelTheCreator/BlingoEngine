@@ -1,0 +1,109 @@
+﻿using System;
+using System.Linq;
+using BlingoEngine.FrameworkCommunication;
+using BlingoEngine.Primitives;
+using BlingoEngine.Director.Core.Sprites;
+using BlingoEngine.Director.Core.Tools;
+using BlingoEngine.Sprites;
+using BlingoEngine.Director.Core.Icons;
+using BlingoEngine.Bitmaps;
+using AbstUI.Primitives;
+using AbstUI.Components.Graphics;
+
+namespace BlingoEngine.Director.Core.Stages;
+
+/// <summary>
+/// Simple canvas overlay that displays information about the currently
+/// selected sprite.
+/// </summary>
+public class StageSpriteSummaryOverlay : IHasSpriteSelectedEvent, IDisposable
+{
+    private readonly AbstGfxCanvas _canvas;
+    private readonly IDirectorEventMediator _mediator;
+    private readonly IDirectorIconManager _iconManager;
+    private readonly IAbstTexture2D _infoIcon;
+    private readonly IAbstTexture2D _behaviorIcon;
+    private readonly IAbstUITextureUserSubscription _infoIconSubscription;
+    private readonly IAbstUITextureUserSubscription _behaviorIconSubscription;
+
+    public AbstGfxCanvas Canvas => _canvas;
+
+    public bool Visible { get => Canvas.Visibility; set => Canvas.Visibility = value; }
+
+    public StageSpriteSummaryOverlay(IBlingoFrameworkFactory factory, IDirectorEventMediator mediator, IDirectorIconManager iconManager)
+    {
+        _mediator = mediator;
+        _canvas = factory.CreateGfxCanvas("SpriteSummaryCanvas", 0, 0);
+        _canvas.Visibility = false;
+        _mediator.Subscribe(this);
+        _iconManager = iconManager;
+        _infoIcon = _iconManager.Get(DirectorIcon.Info);
+        _infoIconSubscription = _infoIcon.AddUser(this);
+        _behaviorIcon = _iconManager.Get(DirectorIcon.BehaviorScript);
+        _behaviorIconSubscription = _behaviorIcon.AddUser(this);
+    }
+
+    /// <summary>Called when a sprite is selected.</summary>
+    public void SpriteSelected(IBlingoSpriteBase sprite)
+    {
+        if (sprite is IBlingoSprite blingoSprite)
+            DrawInfo(blingoSprite);
+    }
+
+    private void DrawInfo(IBlingoSprite sprite)
+    {
+        _canvas.Clear(AColors.White);
+        if (sprite is not BlingoSprite2D sp || sp.Member == null)
+        {
+            _canvas.Visibility = false;
+            return;
+        }
+
+        var member = sp.Member;
+        var behaviors = string.Join(", ", sp.Behaviors.Select(b => b.Name));
+
+        var line1 = $"{member.Name} ({sp.Member?.CastName}) {member.Type}";
+        var line2 = $"Sprite {sp.SpriteNum} ({(int)sp.LocH},{(int)sp.LocV},{(int)sp.Width}x{(int)sp.Height}) {(BlingoInkType)sp.Ink} {(int)(sp.Blend)}%";
+        const int margin = 2;
+        const int fontSize = 9;
+        const int iconSize = 16;
+
+        var lines = new[] { line1, line2 };
+        var icons = new[] { _infoIcon, _infoIcon };
+        if (!string.IsNullOrEmpty(behaviors))
+        {
+            lines = lines.Append(behaviors).ToArray();
+            icons = icons.Append(_behaviorIcon).ToArray();
+        }
+
+        int height = lines.Length * iconSize + (margin * 2);
+        int widthText = lines.Max(l => l.Length * 6);
+        int width = Math.Max(120, widthText + iconSize + 8);
+
+        _canvas.Width = width;
+        _canvas.Height = height;
+        _canvas.X = sp.Rect.Left;
+        _canvas.Y = sp.Rect.Bottom;
+
+        _canvas.DrawRect(ARect.New(0, 0, width, height), AColors.LightGray, true);
+        var bugFixGodotNotUnderstandY = 2;
+
+        for (int i = 0; i < lines.Length; i++)
+        {
+            int y = i * iconSize + margin;
+            _canvas.DrawPicture(icons[i], iconSize, iconSize, new APoint(2, y));
+            _canvas.DrawText(new APoint(iconSize + 4, y + bugFixGodotNotUnderstandY), lines[i], null, AColors.Black, fontSize);
+        }
+
+        _canvas.Visibility = true;
+    }
+
+    public void Dispose()
+    {
+        _mediator.Unsubscribe(this);
+        _infoIconSubscription.Release();
+        _behaviorIconSubscription.Release();
+        _canvas.Dispose();
+    }
+}
+

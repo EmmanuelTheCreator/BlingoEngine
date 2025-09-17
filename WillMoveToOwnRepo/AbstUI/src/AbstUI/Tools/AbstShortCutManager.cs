@@ -14,14 +14,14 @@ namespace AbstUI.Tools
     public class AbstShortCutManager : IAbstShortCutManager
     {
         private readonly Dictionary<string, AbstShortCutMap> _shortCuts = new();
-        private readonly IAbstCommandManager _lingoCommandManager;
+        private readonly IAbstCommandManager _blingoCommandManager;
 
         public event Action<AbstShortCutMap>? ShortCutAdded;
         public event Action<AbstShortCutMap>? ShortCutRemoved;
 
-        public AbstShortCutManager(IAbstCommandManager lingoCommandManager)
+        public AbstShortCutManager(IAbstCommandManager blingoCommandManager)
         {
-            _lingoCommandManager = lingoCommandManager;
+            _blingoCommandManager = blingoCommandManager;
         }
 
         public AbstShortCutMap CreateShortCut(string name, string keyCombination, Func<AbstShortCutMap, IAbstCommand> command, string? description = null)
@@ -50,7 +50,7 @@ namespace AbstUI.Tools
                 if (shortcut.KeyCombination == keyCombination)
                 {
                     // Execute the action associated with this shortcut
-                    return _lingoCommandManager.Handle(shortcut.GetCommand());
+                    return _blingoCommandManager.Handle(shortcut.GetCommand());
                 }
             }
             throw new KeyNotFoundException($"Shortcut with key combination '{keyCombination}' not found.");
@@ -59,3 +59,4 @@ namespace AbstUI.Tools
         public IEnumerable<AbstShortCutMap> GetShortCuts() => _shortCuts.Values;
     }
 }
+

@@ -1,0 +1,20 @@
+﻿using AbstUI.Primitives;
+
+namespace BlingoEngine.Members;
+
+public static class BlingoMemberExtensions
+{
+    /// <summary>
+    /// Calculates the offset required to shift a member's center
+    /// to its registration point.
+    /// </summary>
+    /// <param name="member">The cast member.</param>
+    /// <returns>The center-to-registration offset.</returns>
+    public static APoint CenterOffsetFromRegPoint(this IBlingoMember member)
+    {
+        var center = new APoint(member.Width / 2f, member.Height / 2f);
+        // RegPoint coordinates originate from the picture's top-left corner
+        return member.RegPoint - center;
+    }
+}
+

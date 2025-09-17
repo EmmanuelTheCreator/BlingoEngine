@@ -1,4 +1,4 @@
-using AbstUI.Inputs;
+﻿using AbstUI.Inputs;
 
 namespace AbstUI.ImGui.Inputs;
 
@@ -7,11 +7,11 @@ namespace AbstUI.ImGui.Inputs;
 /// </summary>
 public class AbstImGuiMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse where TAbstUIMouseEvent : AbstMouseEvent
 {
-    private Lazy<AbstMouse<TAbstUIMouseEvent>> _lingoMouse;
+    private Lazy<AbstMouse<TAbstUIMouseEvent>> _blingoMouse;
 
     public AbstImGuiMouse(Lazy<AbstMouse<TAbstUIMouseEvent>> mouse)
     {
-        _lingoMouse = mouse;
+        _blingoMouse = mouse;
     }
 
     public void HideMouse(bool state)
@@ -24,7 +24,8 @@ public class AbstImGuiMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse where TAbst
         // Nothing to release in the placeholder implementation.
     }
 
-    public void ReplaceMouseObj(IAbstMouse lingoMouse) =>
-        _lingoMouse = new Lazy<AbstMouse<TAbstUIMouseEvent>>(() => (AbstMouse<TAbstUIMouseEvent>)lingoMouse);
+    public void ReplaceMouseObj(IAbstMouse blingoMouse) =>
+        _blingoMouse = new Lazy<AbstMouse<TAbstUIMouseEvent>>(() => (AbstMouse<TAbstUIMouseEvent>)blingoMouse);
 }
+
 

@@ -1,0 +1,486 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <StartupObject>BlingoEngine.Demo.TetriGrounds.SDL2.Program</StartupObject>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+    <Configurations>Debug;Release;DebugWithDirector</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'DebugWithDirector'">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE;DEBUG_WITH_DIRECTOR</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'DebugWithDirector'">
+    <ProjectReference Include="..\..\..\src\Director\BlingoEngine.Director.SDL2\BlingoEngine.Director.SDL2.csproj" />
+    <ProjectReference Include="..\..\..\src\Director\BlingoEngine.Director.Core\BlingoEngine.Director.Core.csproj" />
+  </ItemGroup>
+	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+		<ProjectReference Include="..\..\..\src\Net\BlingoEngine.Net.RNetProjectHost\BlingoEngine.Net.RNetProjectHost.csproj" />
+		<ProjectReference Include="..\..\..\src\Net\BlingoEngine.Net.RNetPipeServer\BlingoEngine.Net.RNetPipeServer.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\src\BlingoEngine.SDL2\BlingoEngine.SDL2.csproj" />
+		<ProjectReference Include="..\BlingoEngine.Demo.TetriGrounds.Core\BlingoEngine.Demo.TetriGrounds.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="Media\Data\" />
+		<Folder Include="Media\InternalExt\" />
+		<Folder Include="Media\Icons\" />
+		<Folder Include="Media\Fonts\" />
+		<Folder Include="Media\Sounds\" />
+	</ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\100_bell0039.png" Link="Media\Data\100_bell0039.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\101_bell0000.png" Link="Media\Data\101_bell0000.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\102_bell0001.png" Link="Media\Data\102_bell0001.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\103_bell0002.png" Link="Media\Data\103_bell0002.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\104_bell0003.png" Link="Media\Data\104_bell0003.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\105_bell0004.png" Link="Media\Data\105_bell0004.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\106_bell0005.png" Link="Media\Data\106_bell0005.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\107_bell0006.png" Link="Media\Data\107_bell0006.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\108_bell0007.png" Link="Media\Data\108_bell0007.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\109_bell0008.png" Link="Media\Data\109_bell0008.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\110_bell0009.png" Link="Media\Data\110_bell0009.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\111_bell0010.png" Link="Media\Data\111_bell0010.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\112_bell0011.png" Link="Media\Data\112_bell0011.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\113_bell0012.png" Link="Media\Data\113_bell0012.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\114_bell0013.png" Link="Media\Data\114_bell0013.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\115_bell0014.png" Link="Media\Data\115_bell0014.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\116_bell0015.png" Link="Media\Data\116_bell0015.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\117_bell0016.png" Link="Media\Data\117_bell0016.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\118_bell0017.png" Link="Media\Data\118_bell0017.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\119_bell0018.png" Link="Media\Data\119_bell0018.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\120_bell0019.png" Link="Media\Data\120_bell0019.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\121_bell0020.png" Link="Media\Data\121_bell0020.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\122_bell0021.png" Link="Media\Data\122_bell0021.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\123_bell0022.png" Link="Media\Data\123_bell0022.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\124_bell0023.png" Link="Media\Data\124_bell0023.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\125_bell0024.png" Link="Media\Data\125_bell0024.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\126_bell0025.png" Link="Media\Data\126_bell0025.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\127_bell0026.png" Link="Media\Data\127_bell0026.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\128_bell0027.png" Link="Media\Data\128_bell0027.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\129_bell0028.png" Link="Media\Data\129_bell0028.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\130_bell0029.png" Link="Media\Data\130_bell0029.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\131_bell0040.png" Link="Media\Data\131_bell0040.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\132_bell0030.png" Link="Media\Data\132_bell0030.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\133_bell0031.png" Link="Media\Data\133_bell0031.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\134_bell0032.png" Link="Media\Data\134_bell0032.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\135_bell0033.png" Link="Media\Data\135_bell0033.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\136_bell0034.png" Link="Media\Data\136_bell0034.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\137_bell0035.png" Link="Media\Data\137_bell0035.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\138_bell0036.png" Link="Media\Data\138_bell0036.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\139_bell0037.png" Link="Media\Data\139_bell0037.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\140_bell0038.png" Link="Media\Data\140_bell0038.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\141_bell0039.png" Link="Media\Data\141_bell0039.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\16_Bg.png" Link="Media\Data\16_Bg.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\17_Destroy1.png" Link="Media\Data\17_Destroy1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\18_Destroy2.png" Link="Media\Data\18_Destroy2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\19_Destroy3.png" Link="Media\Data\19_Destroy3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\1_Parameters.txt" Link="Media\Data\1_Parameters.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\20_Destroy4.png" Link="Media\Data\20_Destroy4.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\21_Destroy5.png" Link="Media\Data\21_Destroy5.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\22_Destroy6.png" Link="Media\Data\22_Destroy6.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\23_Destroy8.png" Link="Media\Data\23_Destroy8.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\24_Destroy9.png" Link="Media\Data\24_Destroy9.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\25_Destroy7.png" Link="Media\Data\25_Destroy7.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\26_Destroy7.png" Link="Media\Data\26_Destroy7.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\3_Bg.png" Link="Media\Data\3_Bg.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\43_B_more.png" Link="Media\Data\43_B_more.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\45_B_back.png" Link="Media\Data\45_B_back.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\51_B_Play.png" Link="Media\Data\51_B_Play.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\52_B_back2.png" Link="Media\Data\52_B_back2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\53_alert.png" Link="Media\Data\53_alert.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\54_pause.png" Link="Media\Data\54_pause.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\58_Block1.png" Link="Media\Data\58_Block1.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\59_Block2.png" Link="Media\Data\59_Block2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\60_Block3.png" Link="Media\Data\60_Block3.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\61_Block4.png" Link="Media\Data\61_Block4.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\62_Block5.png" Link="Media\Data\62_Block5.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\63_Block6.png" Link="Media\Data\63_Block6.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\64_Block7.png" Link="Media\Data\64_Block7.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\70_Block1_2.png" Link="Media\Data\70_Block1_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\71_Block2_2.png" Link="Media\Data\71_Block2_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\72_Block3_2.png" Link="Media\Data\72_Block3_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\73_Block4_2.png" Link="Media\Data\73_Block4_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\74_Block5_2.png" Link="Media\Data\74_Block5_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\75_Block6_2.png" Link="Media\Data\75_Block6_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\76_Block7_2.png" Link="Media\Data\76_Block7_2.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\7_Game.png" Link="Media\Data\7_Game.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\80_mouse0000.png" Link="Media\Data\80_mouse0000.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\81_mouse0001.png" Link="Media\Data\81_mouse0001.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\82_mouse0002.png" Link="Media\Data\82_mouse0002.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\83_mouse0003.png" Link="Media\Data\83_mouse0003.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\84_mouse0004.png" Link="Media\Data\84_mouse0004.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\85_mouse0005.png" Link="Media\Data\85_mouse0005.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\89_TetriGrounds_s.png" Link="Media\Data\89_TetriGrounds_s.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Fonts\8PinMatrix.ttf" Link="Media\Fonts\8PinMatrix.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Fonts\arcade.ttf" Link="Media\Fonts\arcade.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Fonts\ARIAL.TTF" Link="Media\Fonts\ARIAL.TTF">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Fonts\bikly.ttf" Link="Media\Fonts\bikly.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Fonts\earth.ttf" Link="Media\Fonts\earth.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Fonts\Tahoma.ttf" Link="Media\Fonts\Tahoma.ttf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Icons\DirectorSharp_Icon.png" Link="Media\Icons\DirectorSharp_Icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Icons\Director_Icons.png" Link="Media\Icons\Director_Icons.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Icons\General_Icons.png" Link="Media\Icons\General_Icons.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Icons\Painter2_Icons.png" Link="Media\Icons\Painter2_Icons.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Icons\Painter_Icons.png" Link="Media\Icons\Painter_Icons.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\InternalExt\24.txt" Link="Media\InternalExt\24.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\InternalExt\25.txt" Link="Media\InternalExt\25.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\btnstart.mp3" Link="Media\Sounds\btnstart.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\click.mp3" Link="Media\Sounds\click.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\blockfall_1.mp3" Link="Media\Sounds\blockfall_1.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\deleterow.mp3" Link="Media\Sounds\deleterow.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\blockfall_2.mp3" Link="Media\Sounds\blockfall_2.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\blockfall_3.mp3" Link="Media\Sounds\blockfall_3.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\blockfall_4.mp3" Link="Media\Sounds\blockfall_4.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\blockfall_5.mp3" Link="Media\Sounds\blockfall_5.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\go.mp3" Link="Media\Sounds\go.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\level_up.mp3" Link="Media\Sounds\level_up.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\shhh1.mp3" Link="Media\Sounds\shhh1.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\rows_deleted_2.mp3" Link="Media\Sounds\rows_deleted_2.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\rows_deleted_3.mp3" Link="Media\Sounds\rows_deleted_3.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\rows_deleted_4.mp3" Link="Media\Sounds\rows_deleted_4.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\terminated.mp3" Link="Media\Sounds\terminated.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\die.mp3" Link="Media\Sounds\die.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\nature.mp3" Link="Media\Sounds\nature.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  
+
+  <ItemGroup>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\10.md" Link="Media\Data\10.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\11_T_InputText.md" Link="Media\Data\11_T_InputText.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+	  <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\12_T_PopupTitle.md" Link="Media\Data\12_T_PopupTitle.md">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\27_T_Score.md" Link="Media\Data\27_T_Score.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\28_T_data.md" Link="Media\Data\28_T_data.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\29_T_OverScreen.md" Link="Media\Data\29_T_OverScreen.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\30_T_OverScreen2.md" Link="Media\Data\30_T_OverScreen2.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\31_T_InternetScoresNames.md" Link="Media\Data\31_T_InternetScoresNames.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\33_T_NewGame.md" Link="Media\Data\33_T_NewGame.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\34_T_Menu.md" Link="Media\Data\34_T_Menu.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\35_T_Pause.md" Link="Media\Data\35_T_Pause.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\36_T_Pause.md" Link="Media\Data\36_T_Pause.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\37_T_InternetScores.md" Link="Media\Data\37_T_InternetScores.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\38_PlayerName.md" Link="Media\Data\38_PlayerName.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\39.md" Link="Media\Data\39.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\40.md" Link="Media\Data\40.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\41.md" Link="Media\Data\41.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\42.md" Link="Media\Data\42.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\44_T_StartLevel.md" Link="Media\Data\44_T_StartLevel.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\46_T_StartLines.md" Link="Media\Data\46_T_StartLines.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\47.md" Link="Media\Data\47.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\48.md" Link="Media\Data\48.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\56.md" Link="Media\Data\56.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\9.md" Link="Media\Data\9.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Data\Members.csv" Link="Media\Data\Members.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\InternalExt\24.md" Link="Media\InternalExt\24.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\InternalExt\25.md" Link="Media\InternalExt\25.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\InternalExt\Members.csv" Link="Media\InternalExt\Members.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\BlingoEngine.Demo.TetriGrounds.Godot\Media\Sounds\gong.mp3" Link="Media\Sounds\gong.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\README.md" Link="README.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.9" />
+  </ItemGroup>
+
+</Project>
+

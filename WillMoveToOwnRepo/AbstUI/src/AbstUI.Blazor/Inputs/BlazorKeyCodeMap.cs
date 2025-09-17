@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace AbstUI.Blazor.Inputs;
 
@@ -124,7 +124,7 @@ public static class BlazorKeyCodeMap
         return dict;
     }
 
-    public static int ToLingo(string code)
+    public static int ToBlingo(string code)
     {
         if (Mac.TryGetValue(code, out var val))
             return val;
@@ -149,14 +149,15 @@ public static class BlazorKeyCodeMap
         return 0;
     }
 
-    public static string ToBlazor(int lingoCode)
+    public static string ToBlazor(int blingoCode)
     {
-        if (_reverse.TryGetValue(lingoCode, out var code))
+        if (_reverse.TryGetValue(blingoCode, out var code))
             return code;
-        if (lingoCode >= 65 && lingoCode <= 90)
-            return "Key" + (char)lingoCode;
-        if (lingoCode >= 48 && lingoCode <= 57)
-            return "Digit" + (char)lingoCode;
-        return ((char)lingoCode).ToString();
+        if (blingoCode >= 65 && blingoCode <= 90)
+            return "Key" + (char)blingoCode;
+        if (blingoCode >= 48 && blingoCode <= 57)
+            return "Digit" + (char)blingoCode;
+        return ((char)blingoCode).ToString();
     }
 }
+

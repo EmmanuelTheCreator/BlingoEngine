@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+ 
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.8" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\BlingoEngine.Blazor\BlingoEngine.Blazor.csproj" />
+    <ProjectReference Include="..\..\..\src\BlingoEngine\BlingoEngine.csproj" />
+    <ProjectReference Include="..\BlingoEngine.Demo.TetriGrounds.Core\BlingoEngine.Demo.TetriGrounds.Core.csproj" />
+	  <!--<ProjectReference Include="..\..\..\src\BlingoEngine.Blazor\BlingoEngine.Blazor.csproj" />
+    <ProjectReference Include="..\BlingoEngine.Demo.TetriGrounds.Core\BlingoEngine.Demo.TetriGrounds.Core.csproj" />-->
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\Media\Data\" />
+    <Folder Include="wwwroot\Media\Fonts\" />
+	  <Folder Include="wwwroot\Media\Icons\" />
+	  <Folder Include="wwwroot\Media\InternalExt\" />
+	  <Folder Include="wwwroot\Media\Sounds\" />
+  </ItemGroup>
+
+ 
+
+</Project>
+

@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-# LingoEngine one-click setup script for Linux.
+﻿#!/usr/bin/env bash
+# BlingoEngine one-click setup script for Linux.
 #
 # This script is intended to remain a simple way to prepare the repository
 # for development. Future updates should keep this goal in mind.
@@ -29,18 +29,18 @@ esac
 
 LIB_DIR="Libs/$ARCH_DIR"
 PROJECTS=(
-  "Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.SDL2"
-  "Test/LingoEngine.SDL2.GfxVisualTest"
+  "Demo/TetriGrounds/BlingoEngine.Demo.TetriGrounds.SDL2"
+  "Test/BlingoEngine.SDL2.GfxVisualTest"
   "WillMoveToOwnRepo/AbstUI/Test/AbstUI.GfxVisualTest.SDL2"
-  "src/Director/LingoEngine.Director.Runner.SDL2"
-  "Samples/SetupWays/LingoEngineMinimalSDL"
-  "Samples/SetupWays/LingoEngineWithDirectorInDebugSDL"
+  "src/Director/BlingoEngine.Director.Runner.SDL2"
+  "Samples/SetupWays/BlingoEngineMinimalSDL"
+  "Samples/SetupWays/BlingoEngineWithDirectorInDebugSDL"
 )
-MEDIA_SRC="Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Godot/Media"
-MEDIA_DEST="Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.Blazor/Media"
+MEDIA_SRC="Demo/TetriGrounds/BlingoEngine.Demo.TetriGrounds.Godot/Media"
+MEDIA_DEST="Demo/TetriGrounds/BlingoEngine.Demo.TetriGrounds.Blazor/Media"
 SAMPLE_ASSET_MAPPINGS=(
-  "src/Director/LingoEngine.Director.Runner.Godot/Media/Icons|Samples/SetupWays/LingoEngineWithDirectorInDebugSDL/Media/Icons|*.png"
-  "src/Director/LingoEngine.Director.Runner.Godot/Media/Fonts|Samples/SetupWays/LingoEngineWithDirectorInDebugSDL/Media/Fonts|*.ttf"
+  "src/Director/BlingoEngine.Director.Runner.Godot/Media/Icons|Samples/SetupWays/BlingoEngineWithDirectorInDebugSDL/Media/Icons|*.png"
+  "src/Director/BlingoEngine.Director.Runner.Godot/Media/Fonts|Samples/SetupWays/BlingoEngineWithDirectorInDebugSDL/Media/Fonts|*.ttf"
 )
 
 echo "This script will:"
@@ -139,4 +139,5 @@ with open(settings_path,'w') as f: json.dump(data,f,indent=4)
 PY
   ./scripts/SetGodotVersion.sh "$GODOT_VERSION"
 fi
+
 

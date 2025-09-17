@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using AbstUI.Inputs;
 using RmlUiNet.Input;
 
@@ -10,12 +10,12 @@ namespace AbstUI.SDL2RmlUi.Inputs;
 public class RmlUiKey : IAbstFrameworkKey
 {
     private readonly HashSet<KeyIdentifier> _keys = new();
-    private AbstKey? _lingoKey;
+    private AbstKey? _blingoKey;
     private string _lastKey = string.Empty;
     private int _lastCode;
     private KeyModifier _modifierState;
 
-    public void SetKeyObj(AbstKey key) => _lingoKey = key;
+    public void SetKeyObj(AbstKey key) => _blingoKey = key;
 
     public void ProcessKeyDown(KeyIdentifier key, KeyModifier modifiers)
     {
@@ -23,7 +23,7 @@ public class RmlUiKey : IAbstFrameworkKey
         _modifierState = modifiers;
         _lastCode = (int)key;
         _lastKey = key.ToString();
-        _lingoKey?.DoKeyDown();
+        _blingoKey?.DoKeyDown();
     }
 
     public void ProcessKeyUp(KeyIdentifier key, KeyModifier modifiers)
@@ -32,7 +32,7 @@ public class RmlUiKey : IAbstFrameworkKey
         _modifierState = modifiers;
         _lastCode = (int)key;
         _lastKey = key.ToString();
-        _lingoKey?.DoKeyUp();
+        _blingoKey?.DoKeyUp();
     }
 
     public bool CommandDown => (_modifierState & KeyModifier.KM_META) != 0;
@@ -71,3 +71,4 @@ public class RmlUiKey : IAbstFrameworkKey
     public string Key => _lastKey;
     public int KeyCode => _lastCode;
 }
+

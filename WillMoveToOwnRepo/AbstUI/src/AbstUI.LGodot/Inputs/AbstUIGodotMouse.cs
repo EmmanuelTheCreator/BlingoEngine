@@ -15,7 +15,7 @@ namespace AbstUI.LGodot.Inputs
     }
     public class AbstGodotMouse : IAbstFrameworkMouse, IAbstGodotMouseHandler, IFrameworkFor<AbstMouse>
     {
-        private Lazy<IAbstMouseInternal> _lingoMouse;
+        private Lazy<IAbstMouseInternal> _blingoMouse;
         private DateTime _lastClickTime = DateTime.MinValue;
         private const double DOUBLE_CLICK_TIME_LIMIT = 0.25;  // 250 milliseconds for double-click detection
         private bool _wasPressed = false;
@@ -24,9 +24,9 @@ namespace AbstUI.LGodot.Inputs
         public int OffsetX { get; private set; }
         public int OffsetY { get; private set; }
 
-        public AbstGodotMouse(Lazy<IAbstMouseInternal> lingoMouse)
+        public AbstGodotMouse(Lazy<IAbstMouseInternal> blingoMouse)
         {
-            _lingoMouse = lingoMouse;
+            _blingoMouse = blingoMouse;
         }
 
         public void SetOffset(int x, int y)
@@ -34,9 +34,9 @@ namespace AbstUI.LGodot.Inputs
             OffsetX = x;
             OffsetY = y;
         }
-        public void ReplaceMouseObj(IAbstMouse lingoMouse)
+        public void ReplaceMouseObj(IAbstMouse blingoMouse)
         {
-            _lingoMouse = new Lazy<IAbstMouseInternal>(() => (IAbstMouseInternal)lingoMouse);
+            _blingoMouse = new Lazy<IAbstMouseInternal>(() => (IAbstMouseInternal)blingoMouse);
         }
         public void Release()
         {
@@ -47,21 +47,21 @@ namespace AbstUI.LGodot.Inputs
             //Console.WriteLine($"Mouse Move: {mouseMotionEvent.Position.X}, {mouseMotionEvent.Position.Y}");
             //var x = mouseMotionEvent.Position.X + _offset.X;
             //var y = mouseMotionEvent.Position.Y + _offset.Y;
-            _lingoMouse.Value.MouseH = x;
-            _lingoMouse.Value.MouseV = y;
+            _blingoMouse.Value.MouseH = x;
+            _blingoMouse.Value.MouseV = y;
             if (isInsideRect)
-                _lingoMouse.Value.DoMouseMove();
+                _blingoMouse.Value.DoMouseMove();
         }
       
 
         public void HandleMouseButtonEvent(InputEventMouseButton mouseButtonEvent, bool isInsideRect, float x, float y)
         {
-            _lingoMouse.Value.MouseH = x;
-            _lingoMouse.Value.MouseV = y;
+            _blingoMouse.Value.MouseH = x;
+            _blingoMouse.Value.MouseV = y;
             if (mouseButtonEvent.ButtonIndex == MouseButton.WheelUp || mouseButtonEvent.ButtonIndex == MouseButton.WheelDown)
             {
                 var delta = mouseButtonEvent.ButtonIndex == MouseButton.WheelUp ? 1f : -1f;
-                _lingoMouse.Value.DoMouseWheel(delta);
+                _blingoMouse.Value.DoMouseWheel(delta);
                 return;
             }
             //Console.WriteLine(Name + ":" + mouseButtonEvent.Position.X + "x" + mouseButtonEvent.Position.Y + ":" + isInsideRect);
@@ -75,22 +75,22 @@ namespace AbstUI.LGodot.Inputs
                     if (mouseButtonEvent.ButtonIndex == MouseButton.Left)
                     {
                         // Handle Left Button Down
-                        _lingoMouse.Value.MouseDown = true;
-                        _lingoMouse.Value.LeftMouseDown = true;
+                        _blingoMouse.Value.MouseDown = true;
+                        _blingoMouse.Value.LeftMouseDown = true;
                         DetectDoubleClick();
-                        _lingoMouse.Value.DoMouseDown();
+                        _blingoMouse.Value.DoMouseDown();
                     }
                     else if (mouseButtonEvent.ButtonIndex == MouseButton.Right)
                     {
                         // Handle Right Button Down
-                        _lingoMouse.Value.RightMouseDown = true;
-                        _lingoMouse.Value.DoMouseDown();
+                        _blingoMouse.Value.RightMouseDown = true;
+                        _blingoMouse.Value.DoMouseDown();
                     }
                     else if (mouseButtonEvent.ButtonIndex == MouseButton.Middle)
                     {
                         // Handle Middle Button Down
-                        _lingoMouse.Value.MiddleMouseDown = true;
-                        _lingoMouse.Value.DoMouseDown();
+                        _blingoMouse.Value.MiddleMouseDown = true;
+                        _blingoMouse.Value.DoMouseDown();
                     }
                 }
             }
@@ -100,19 +100,19 @@ namespace AbstUI.LGodot.Inputs
                 _wasPressed = false;
                 if (mouseButtonEvent.ButtonIndex == MouseButton.Left)
                 {
-                    _lingoMouse.Value.MouseDown = false;
-                    _lingoMouse.Value.LeftMouseDown = false;
-                    _lingoMouse.Value.DoMouseUp();
+                    _blingoMouse.Value.MouseDown = false;
+                    _blingoMouse.Value.LeftMouseDown = false;
+                    _blingoMouse.Value.DoMouseUp();
                 }
                 else if (mouseButtonEvent.ButtonIndex == MouseButton.Right)
                 {
-                    _lingoMouse.Value.RightMouseDown = false;
-                    _lingoMouse.Value.DoMouseUp();
+                    _blingoMouse.Value.RightMouseDown = false;
+                    _blingoMouse.Value.DoMouseUp();
                 }
                 else if (mouseButtonEvent.ButtonIndex == MouseButton.Middle)
                 {
-                    _lingoMouse.Value.MiddleMouseDown = false;
-                    _lingoMouse.Value.DoMouseUp();
+                    _blingoMouse.Value.MiddleMouseDown = false;
+                    _blingoMouse.Value.DoMouseUp();
                 }
             }
         }
@@ -124,9 +124,9 @@ namespace AbstUI.LGodot.Inputs
 
             // Check if double-click occurred within the time limit
             if (_lastClickTime != DateTime.MinValue && (currentTime - _lastClickTime).TotalSeconds <= DOUBLE_CLICK_TIME_LIMIT)
-                _lingoMouse.Value.DoubleClick = true;
+                _blingoMouse.Value.DoubleClick = true;
             else
-                _lingoMouse.Value.DoubleClick = false;
+                _blingoMouse.Value.DoubleClick = false;
 
             _lastClickTime = currentTime; // Update last click time
         }

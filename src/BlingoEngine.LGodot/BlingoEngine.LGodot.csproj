@@ -1,0 +1,49 @@
+﻿<Project Sdk="Godot.NET.Sdk/4.5.0-dev.5">
+
+  <PropertyGroup>
+                <OutputType>Library</OutputType>
+                <TargetFramework>net8</TargetFramework>
+                <!-- Use netstandard for compatibility -->
+                <GodotVersion>4.5.0-dev.5</GodotVersion>
+                <LangVersion>12</LangVersion>
+                <Nullable>enable</Nullable>
+                <ImplicitUsings>enable</ImplicitUsings>
+                <Platforms>AnyCPU;x64;x86</Platforms>
+                <AssemblyName>BlingoEngine.LGodot</AssemblyName>
+                <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+	  <Configurations>Debug;Release</Configurations>
+                <!-- Specify the Godot version -->
+        </PropertyGroup>
+  <PropertyGroup>
+    <!-- NuGet Packaging Metadata -->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>BlingoEngine.LGodot</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Emmanuel The Creator</Authors>
+    <Company>The Community</Company>
+    <Description>Godot engine integration for BlingoEngine.</Description>
+    <RepositoryUrl>https://github.com/EmmanuelTheCreator/BlingoEngine</RepositoryUrl>
+    <PackageTags>BlingoEngine Godot</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="obj\**" />
+    <EmbeddedResource Remove="obj\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.md" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Godot.NET.Sdk" Version="4.5.0-dev.5" />
+		    <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.9" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.9" />
+	</ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\WillMoveToOwnRepo\AbstUI\src\AbstUI.LGodot\AbstUI.LGodot.csproj" />
+    <ProjectReference Include="..\BlingoEngine\BlingoEngine.csproj" />
+  </ItemGroup>
+
+</Project>
+

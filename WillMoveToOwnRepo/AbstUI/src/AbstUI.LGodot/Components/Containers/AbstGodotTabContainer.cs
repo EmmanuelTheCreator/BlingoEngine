@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 using AbstUI.Components;
 using AbstUI.Primitives;
 using AbstUI.LGodot.Styles;
@@ -15,7 +15,7 @@ namespace AbstUI.LGodot.Components
         private AMargin _margin = AMargin.Zero;
         private Theme _theme;
         private readonly List<IAbstFrameworkTabItem> _nodes = new List<IAbstFrameworkTabItem>();
-        private readonly IAbstGodotStyleManager _lingoGodotStyleManager;
+        private readonly IAbstGodotStyleManager _blingoGodotStyleManager;
 
 
 
@@ -45,15 +45,15 @@ namespace AbstUI.LGodot.Components
         public object FrameworkNode => this;
 
 
-        public AbstGodotTabContainer(AbstTabContainer tab, IAbstGodotStyleManager lingoGodotStyleManager)
+        public AbstGodotTabContainer(AbstTabContainer tab, IAbstGodotStyleManager blingoGodotStyleManager)
         {
             tab.Init(this);
             SizeFlagsVertical = SizeFlags.ExpandFill;
             SizeFlagsHorizontal = SizeFlags.ExpandFill;
-            _lingoGodotStyleManager = lingoGodotStyleManager;
+            _blingoGodotStyleManager = blingoGodotStyleManager;
 
             // Apply the Director tab styling
-            _theme = _lingoGodotStyleManager.GetTheme(AbstGodotThemeElementType.Tabs) ?? new Theme();
+            _theme = _blingoGodotStyleManager.GetTheme(AbstGodotThemeElementType.Tabs) ?? new Theme();
 
             Theme = Theme;
             ClipTabs = true;
@@ -167,3 +167,4 @@ namespace AbstUI.LGodot.Components
         }
     }
 }
+

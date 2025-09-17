@@ -1,0 +1,25 @@
+﻿@using BlingoEngine.Blazor.Stages
+@using BlingoEngine.Blazor.Movies
+@implements IDisposable
+
+@if (Stage.ActiveMovie is not null)
+{
+    <BlingoBlazorMovieView Movie="Stage.ActiveMovie" />
+}
+
+@code {
+    [Parameter] public BlingoBlazorStage Stage { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        Stage.Changed += OnChanged;
+    }
+
+    private void OnChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        Stage.Changed -= OnChanged;
+    }
+}
+

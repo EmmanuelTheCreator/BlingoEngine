@@ -1,9 +1,9 @@
-namespace ProjectorRays;
+﻿namespace ProjectorRays;
 
 using ProjectorRays.Common;
 using ProjectorRays.IO;
 using ProjectorRays.Director;
-using ProjectorRays.LingoDec;
+using ProjectorRays.BlingoDec;
 
 public static class Program
 {
@@ -43,3 +43,4 @@ public static class Program
         FileIO.WriteFile("output.json", output);
     }
 }
+

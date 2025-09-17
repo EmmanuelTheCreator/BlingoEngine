@@ -1,4 +1,4 @@
-using AbstUI.Components;
+﻿using AbstUI.Components;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
 using Microsoft.Extensions.DependencyInjection;
@@ -123,21 +123,21 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
 
 
 
-    public void RaiseKeyDown(AbstKeyEvent lingoKey)
+    public void RaiseKeyDown(AbstKeyEvent blingoKey)
     {
         if (IsActiveWindow)
-            OnRaiseKeyDown(lingoKey);
+            OnRaiseKeyDown(blingoKey);
     }
 
-    public void RaiseKeyUp(AbstKeyEvent lingoKey)
+    public void RaiseKeyUp(AbstKeyEvent blingoKey)
     {
         if (IsActiveWindow)
-            OnRaiseKeyUp(lingoKey);
+            OnRaiseKeyUp(blingoKey);
     }
 
-    protected virtual void OnRaiseKeyDown(AbstKeyEvent lingoKey) { }
+    protected virtual void OnRaiseKeyDown(AbstKeyEvent blingoKey) { }
 
-    protected virtual void OnRaiseKeyUp(AbstKeyEvent lingoKey) { }
+    protected virtual void OnRaiseKeyUp(AbstKeyEvent blingoKey) { }
 
     public (float X, float Y) MouseGetAbolutePosition() => (Mouse.MouseH + Position.X, Mouse.MouseV + Position.Y);
 
@@ -182,3 +182,4 @@ public class AbstWindow<TFrameworkWindow> : IAbstWindow, IDisposable, IAbstKeyEv
 
 
 }
+

@@ -1,0 +1,27 @@
+﻿@using BlingoEngine.Blazor.Movies
+@using BlingoEngine.Blazor.Sprites
+@implements IDisposable
+
+<div style="position:relative;width:@(Movie.WidthPx)px;height:@(Movie.HeightPx)px;">
+    @foreach (var s in Movie.VisibleSprites)
+    {
+        <BlingoBlazorSprite Sprite="s" />
+    }
+</div>
+
+@code {
+    [Parameter] public BlingoBlazorMovie Movie { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        Movie.Changed += OnChanged;
+    }
+
+    private void OnChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        Movie.Changed -= OnChanged;
+    }
+}
+

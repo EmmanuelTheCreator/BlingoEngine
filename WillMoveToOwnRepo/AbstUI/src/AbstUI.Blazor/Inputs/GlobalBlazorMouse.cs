@@ -1,4 +1,4 @@
-using AbstUI.Inputs;
+﻿using AbstUI.Inputs;
 using AbstUI.Primitives;
 using AbstUI.FrameworkCommunication;
 using Microsoft.JSInterop;
@@ -34,10 +34,10 @@ namespace AbstUI.Blazor.Inputs
             _handler = new BlazorMouse<TAbstUIMouseEvent>(new Lazy<AbstMouse<TAbstUIMouseEvent>>(() => (TAbstMouseType)_mouse!), js);
         }
 
-        public void ReplaceMouseObj(IAbstMouse lingoMouse)
+        public void ReplaceMouseObj(IAbstMouse blingoMouse)
         {
-            _mouse = (AbstMouse<TAbstUIMouseEvent>)lingoMouse;
-            _handler.ReplaceMouseObj(lingoMouse);
+            _mouse = (AbstMouse<TAbstUIMouseEvent>)blingoMouse;
+            _handler.ReplaceMouseObj(blingoMouse);
         }
 
         public void Release()
@@ -64,3 +64,4 @@ namespace AbstUI.Blazor.Inputs
         }
     }
 }
+

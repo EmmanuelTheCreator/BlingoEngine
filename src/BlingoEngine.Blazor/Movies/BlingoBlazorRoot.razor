@@ -1,0 +1,12 @@
+﻿@using AbstUI.Blazor.Components.Containers
+@using BlingoEngine.Blazor.Movies
+@using BlingoEngine.Blazor.Stages
+@inject BlingoBlazorRootPanel RootPanel
+
+<AbstBlazorPanel Component="RootPanel.Component">
+    @if (RootPanel.Stage is not null)
+    {
+        <BlingoBlazorStageView Stage="RootPanel.Stage" />
+    }
+</AbstBlazorPanel>
+

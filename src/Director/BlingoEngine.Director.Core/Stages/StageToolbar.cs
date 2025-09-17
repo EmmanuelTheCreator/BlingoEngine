@@ -1,0 +1,68 @@
+﻿using AbstUI.Primitives;
+using AbstUI.Commands;
+using BlingoEngine.Director.Core.Bitmaps;
+using BlingoEngine.Director.Core.Bitmaps.Commands;
+using BlingoEngine.Director.Core.Icons;
+using BlingoEngine.Director.Core.Stages.Commands;
+using BlingoEngine.Director.Core.UI;
+using BlingoEngine.FrameworkCommunication;
+
+namespace BlingoEngine.Director.Core.Stages;
+
+public enum StageTool
+{
+    Pointer,
+    Move,
+    Rotate
+}
+public class StageToolbar : DirectorToolbar<StageTool>
+{
+
+    public AColor SelectedColor { get; private set; } = new AColor(0, 0, 0);
+    public StageToolbar(IDirectorIconManager iconManager, IAbstCommandManager commandManager, IBlingoFrameworkFactory factory) : base("StageToolbarRoot", iconManager, commandManager, factory)
+    {
+        AddToolButton(DirectorIcon.Pointer);
+        AddToolButton(DirectorIcon.PaintRotateFree);
+        AddToolButton(DirectorIcon.Hand);
+        //AddToolButton(DirectorIcon.Magnifier);
+        //AddToolButton(DirectorIcon.MemberTypeText);
+        //AddToolButton(DirectorIcon.PaintFreeLine);
+        AddColorPickerForeground(AColors.Black);
+        AddColorPickerBackground(AColors.White);
+
+        SelectTool(StageTool.Pointer);
+    }
+    protected override StageTool ConvertToTool(DirectorIcon icon)
+    {
+        return icon switch
+        {
+            DirectorIcon.Pointer => StageTool.Pointer,
+            DirectorIcon.PaintRotateFree => StageTool.Rotate,
+            DirectorIcon.Hand => StageTool.Move,
+            _ => throw new ArgumentOutOfRangeException(nameof(icon), icon.ToString())
+        };
+    }
+    protected void AddToolButton(DirectorIcon icon) => AddToolButton(icon, tool => new StageToolSelectCommand(tool));
+
+    private void AddColorPickerForeground(AColor color)
+        => AddColorPicker(c => new PainterChangeForegroundColorCommand(c), color);
+
+    private void AddColorPickerBackground(AColor color)
+        => AddColorPicker(c => new PainterChangeBackgroundColorCommand(c), color);
+
+    protected void AddColorPicker(Func<AColor, IAbstCommand> toCommand, AColor color)
+    {
+        var picker = _factory.CreateColorPicker("PaintColorPicker", color =>
+        {
+            SelectedColor = color;
+            _commandManager.Handle(toCommand(color));
+        });
+        picker.Width = 20;
+        picker.Height = 20;
+        picker.Color = color;
+        _container.AddItem(picker);
+    }
+
+
+}
+

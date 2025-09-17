@@ -1,4 +1,4 @@
-using AbstUI.Inputs;
+﻿using AbstUI.Inputs;
 using AbstUI.Primitives;
 using AbstUI.SDL2.SDLL;
 using AbstUI.FrameworkCommunication;
@@ -7,7 +7,7 @@ namespace AbstUI.SDL2.Inputs;
 public class SdlMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor<AbstMouse>
         where TAbstUIMouseEvent : AbstMouseEvent
 {
-    private Lazy<AbstMouse<TAbstUIMouseEvent>> _lingoMouse;
+    private Lazy<AbstMouse<TAbstUIMouseEvent>> _blingoMouse;
     private bool _hidden;
     protected nint _sdlCursor = nint.Zero;
     private AMouseCursor _lastCursor = AMouseCursor.Arrow;
@@ -17,7 +17,7 @@ public class SdlMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor<Ab
 
     public SdlMouse(Lazy<AbstMouse<TAbstUIMouseEvent>> mouse)
     {
-        _lingoMouse = mouse;
+        _blingoMouse = mouse;
     }
     ~SdlMouse()
     {
@@ -32,7 +32,7 @@ public class SdlMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor<Ab
             _sdlCursor = nint.Zero;
         }
     }
-    public void SetMouse(AbstMouse<TAbstUIMouseEvent> mouse) => _lingoMouse = new Lazy<AbstMouse<TAbstUIMouseEvent>>(() => mouse);
+    public void SetMouse(AbstMouse<TAbstUIMouseEvent> mouse) => _blingoMouse = new Lazy<AbstMouse<TAbstUIMouseEvent>>(() => mouse);
 
     public void HideMouse(bool state)
     {
@@ -48,9 +48,9 @@ public class SdlMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor<Ab
 
 
 
-    public void ReplaceMouseObj(IAbstMouse lingoMouse)
+    public void ReplaceMouseObj(IAbstMouse blingoMouse)
     {
-        _lingoMouse = new Lazy<AbstMouse<TAbstUIMouseEvent>>(() => (AbstMouse<TAbstUIMouseEvent>)lingoMouse);
+        _blingoMouse = new Lazy<AbstMouse<TAbstUIMouseEvent>>(() => (AbstMouse<TAbstUIMouseEvent>)blingoMouse);
     }
 
     public void ProcessEvent(SDL.SDL_Event e)
@@ -58,52 +58,52 @@ public class SdlMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor<Ab
         switch (e.type)
         {
             case SDL.SDL_EventType.SDL_MOUSEMOTION:
-                _lingoMouse.Value.MouseH = e.motion.x;
-                _lingoMouse.Value.MouseV = e.motion.y;
-                _lingoMouse.Value.DoMouseMove();
+                _blingoMouse.Value.MouseH = e.motion.x;
+                _blingoMouse.Value.MouseV = e.motion.y;
+                _blingoMouse.Value.DoMouseMove();
                 break;
             case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
-                _lingoMouse.Value.MouseH = e.button.x;
-                _lingoMouse.Value.MouseV = e.button.y;
+                _blingoMouse.Value.MouseH = e.button.x;
+                _blingoMouse.Value.MouseV = e.button.y;
                 if (e.button.button == SDL.SDL_BUTTON_LEFT)
                 {
-                    _lingoMouse.Value.MouseDown = true;
-                    _lingoMouse.Value.LeftMouseDown = true;
-                    _lingoMouse.Value.DoubleClick = e.button.clicks > 1;
+                    _blingoMouse.Value.MouseDown = true;
+                    _blingoMouse.Value.LeftMouseDown = true;
+                    _blingoMouse.Value.DoubleClick = e.button.clicks > 1;
                 }
                 else if (e.button.button == SDL.SDL_BUTTON_RIGHT)
                 {
-                    _lingoMouse.Value.RightMouseDown = true;
+                    _blingoMouse.Value.RightMouseDown = true;
                 }
                 else if (e.button.button == SDL.SDL_BUTTON_MIDDLE)
                 {
-                    _lingoMouse.Value.MiddleMouseDown = true;
+                    _blingoMouse.Value.MiddleMouseDown = true;
                 }
-                _lingoMouse.Value.DoMouseDown();
+                _blingoMouse.Value.DoMouseDown();
                 break;
             case SDL.SDL_EventType.SDL_MOUSEBUTTONUP:
-                _lingoMouse.Value.MouseH = e.button.x;
-                _lingoMouse.Value.MouseV = e.button.y;
+                _blingoMouse.Value.MouseH = e.button.x;
+                _blingoMouse.Value.MouseV = e.button.y;
                 if (e.button.button == SDL.SDL_BUTTON_LEFT)
                 {
-                    _lingoMouse.Value.MouseDown = false;
-                    _lingoMouse.Value.LeftMouseDown = false;
+                    _blingoMouse.Value.MouseDown = false;
+                    _blingoMouse.Value.LeftMouseDown = false;
                 }
                 else if (e.button.button == SDL.SDL_BUTTON_RIGHT)
                 {
-                    _lingoMouse.Value.RightMouseDown = false;
+                    _blingoMouse.Value.RightMouseDown = false;
                 }
                 else if (e.button.button == SDL.SDL_BUTTON_MIDDLE)
                 {
-                    _lingoMouse.Value.MiddleMouseDown = false;
+                    _blingoMouse.Value.MiddleMouseDown = false;
                 }
-                _lingoMouse.Value.DoMouseUp();
+                _blingoMouse.Value.DoMouseUp();
                 break;
             case SDL.SDL_EventType.SDL_MOUSEWHEEL:
                 SDL.SDL_GetMouseState(out var x, out var y);
-                _lingoMouse.Value.MouseH = x;
-                _lingoMouse.Value.MouseV = y;
-                _lingoMouse.Value.DoMouseWheel(e.wheel.y);
+                _blingoMouse.Value.MouseH = x;
+                _blingoMouse.Value.MouseV = y;
+                _blingoMouse.Value.DoMouseWheel(e.wheel.y);
                 break;
         }
     }
@@ -149,3 +149,4 @@ public class SdlMouse<TAbstUIMouseEvent> : IAbstFrameworkMouse, IFrameworkFor<Ab
 
     public AMouseCursor GetCursor() => _hidden? AMouseCursor.Hidden : _lastCursor;
 }
+

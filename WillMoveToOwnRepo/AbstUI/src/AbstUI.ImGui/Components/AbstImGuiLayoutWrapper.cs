@@ -5,13 +5,13 @@ namespace AbstUI.ImGui.Components
 {
     public partial class AbstImGuiLayoutWrapper : AbstImGuiComponent, IAbstFrameworkLayoutWrapper
     {
-        private AbstLayoutWrapper _lingoLayoutWrapper;
+        private AbstLayoutWrapper _blingoLayoutWrapper;
         public object FrameworkNode => this;
 
         public AbstImGuiLayoutWrapper(AbstImGuiComponentFactory factory, AbstLayoutWrapper layoutWrapper) : base(factory)
         {
-            _lingoLayoutWrapper = layoutWrapper;
-            _lingoLayoutWrapper.Init(this);
+            _blingoLayoutWrapper = layoutWrapper;
+            _blingoLayoutWrapper.Init(this);
             var content = layoutWrapper.Content.FrameworkObj;
         }
 
@@ -19,10 +19,11 @@ namespace AbstUI.ImGui.Components
 
         public override AbstImGuiRenderResult Render(AbstImGuiRenderContext context)
         {
-            var sdlComponent = (AbstImGuiComponent)_lingoLayoutWrapper.Content.FrameworkObj;
+            var sdlComponent = (AbstImGuiComponent)_blingoLayoutWrapper.Content.FrameworkObj;
             sdlComponent.X = X;
             sdlComponent.Y = Y;
             return sdlComponent.Render(context);
         }
     }
 }
+

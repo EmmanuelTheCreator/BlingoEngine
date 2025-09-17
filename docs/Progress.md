@@ -1,6 +1,6 @@
-# Lingo Feature Conversion Progress
+﻿# Lingo Feature Conversion Progress
 
-This document tracks the current implementation status of Lingo language elements in **LingoEngine**. The percentages are based on the comparison between the Director MX 2004 scripting manual and the interfaces implemented in the repository.
+This document tracks the current implementation status of Lingo language elements in **BlingoEngine**. The percentages are based on the comparison between the Director MX 2004 scripting manual and the interfaces implemented in the repository.
 
 Completed features are omitted from the tables to keep them concise. Only unimplemented or partial features are listed and marked "No".
 
@@ -51,7 +51,7 @@ Movie properties implemented: 20% (12 of 63)
 | displayTemplate | No |
 | dockingEnabled | No |
 | editShortCutsEnabled | No |
-| enableFlashLingo | No |
+| enableFlashBlingo | No |
 | exitLock | No |
 | fileFreeSize | No |
 | fileSize | No |
@@ -177,3 +177,4 @@ Player methods implemented: 58% (7 of 12)
 | setPref | No |
 
 Percentages are approximate and based on manual comparison of the scripting manual with the repository interfaces.
+

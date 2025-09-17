@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Godot;
 
 namespace AbstUI.LGodot.Inputs;
@@ -122,7 +122,7 @@ public static class GodotKeyCodeMap
 
     private static readonly Dictionary<int, Key> MacReverse = BuildReverse(Mac);
 
-    public static int ToLingo(Key key)
+    public static int ToBlingo(Key key)
     {
         if (Mac.TryGetValue(key, out var code))
             return code;
@@ -136,14 +136,15 @@ public static class GodotKeyCodeMap
         return val;
     }
 
-    public static Key ToGodot(int lingoCode)
+    public static Key ToGodot(int blingoCode)
     {
-        if (MacReverse.TryGetValue(lingoCode, out var key))
+        if (MacReverse.TryGetValue(blingoCode, out var key))
             return key;
-        if (lingoCode >= 65 && lingoCode <= 90)
-            return (Key)lingoCode;
-        if (lingoCode >= 48 && lingoCode <= 57)
-            return (Key)lingoCode;
-        return (Key)lingoCode;
+        if (blingoCode >= 65 && blingoCode <= 90)
+            return (Key)blingoCode;
+        if (blingoCode >= 48 && blingoCode <= 57)
+            return (Key)blingoCode;
+        return (Key)blingoCode;
     }
 }
+

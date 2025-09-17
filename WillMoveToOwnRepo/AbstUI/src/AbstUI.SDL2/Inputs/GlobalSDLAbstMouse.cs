@@ -1,4 +1,4 @@
-using AbstUI.Inputs;
+﻿using AbstUI.Inputs;
 using AbstUI.Primitives;
 using AbstUI.SDL2.SDLL;
 using AbstUI.FrameworkCommunication;
@@ -33,10 +33,10 @@ namespace AbstUI.SDL2.Inputs
             _handler = new SdlMouse<TAbstUIMouseEvent>(new Lazy<AbstMouse<TAbstUIMouseEvent>>(() => (TAbstMouseType)_mouse!));
         }
 
-        public void ReplaceMouseObj(IAbstMouse lingoMouse)
+        public void ReplaceMouseObj(IAbstMouse blingoMouse)
         {
-            _mouse = (AbstMouse<TAbstUIMouseEvent>)lingoMouse;
-            _handler.ReplaceMouseObj(lingoMouse);
+            _mouse = (AbstMouse<TAbstUIMouseEvent>)blingoMouse;
+            _handler.ReplaceMouseObj(blingoMouse);
         }
 
         public void Release()
@@ -55,3 +55,4 @@ namespace AbstUI.SDL2.Inputs
 
     }
 }
+
