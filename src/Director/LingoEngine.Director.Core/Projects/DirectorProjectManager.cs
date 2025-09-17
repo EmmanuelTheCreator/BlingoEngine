@@ -117,6 +117,7 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
         _dirSettings.RNet.Port = _rnetConfig.Port;
         _dirSettings.RNet.AutoStartRNetHostOnStartup = _rnetConfig.AutoStartRNetHostOnStartup;
         _dirSettings.RNet.ClientType = _rnetConfig.ClientType;
+        _dirSettings.RNet.RemoteRole = _rnetConfig.RemoteRole;
 
         var states = new Dictionary<string, DirectorWindowState>();
         if (_windowManager is AbstWindowManager dm)
@@ -153,10 +154,12 @@ public class DirectorProjectManager : IAbstCommandHandler<SaveDirProjectSettings
         _dirSettings.RNet.Port = loaded.RNet.Port;
         _dirSettings.RNet.AutoStartRNetHostOnStartup = loaded.RNet.AutoStartRNetHostOnStartup;
         _dirSettings.RNet.ClientType = loaded.RNet.ClientType;
+        _dirSettings.RNet.RemoteRole = loaded.RNet.RemoteRole;
 
         _rnetConfig.Port = loaded.RNet.Port;
         _rnetConfig.AutoStartRNetHostOnStartup = loaded.RNet.AutoStartRNetHostOnStartup;
         _rnetConfig.ClientType = loaded.RNet.ClientType;
+        _rnetConfig.RemoteRole = loaded.RNet.RemoteRole;
 
         _dirSettings.WindowStates = loaded.WindowStates;
 

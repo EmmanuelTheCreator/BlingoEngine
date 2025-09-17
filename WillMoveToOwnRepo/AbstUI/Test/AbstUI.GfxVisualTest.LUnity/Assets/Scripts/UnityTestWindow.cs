@@ -67,6 +67,8 @@ public sealed class UnityTestWindow : IFrameworkTestWindow
 
     public object FrameworkNode => _root;
 
+    public int ZIndex { get; set; }
+
     // Constructors
     public UnityTestWindow()
     {
