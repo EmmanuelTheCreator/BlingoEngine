@@ -46,6 +46,7 @@ public class DirectorMovieCodeGenerator
     {
         var sb = new StringBuilder();
         sb.Append(_header);
+        sb.AppendLine("using System.Threading.Tasks;");
         sb.AppendLine("using BlingoEngine.Casts;");
         sb.AppendLine("using BlingoEngine.Core;");
         sb.AppendLine("using BlingoEngine.Members;");
@@ -103,11 +104,12 @@ public class DirectorMovieCodeGenerator
         }
         return sb.ToString();
     }
-    private static string CleanFloat(float value) => value.ToString().Replace(',', '.')+"f";
+    private static string CleanFloat(float value) => value.ToString(CultureInfo.InvariantCulture) + "f";
     public virtual string GenerateScoreClass(BlingoMovieDTO movie)
     {
         var sb = new StringBuilder();
         sb.Append(_header);
+        sb.AppendLine("using System.Threading.Tasks;");
         sb.AppendLine("using BlingoEngine.Core;");
         sb.AppendLine("using BlingoEngine.Movies;");
         sb.AppendLine("using BlingoEngine.Sprites;");
@@ -156,7 +158,10 @@ public class DirectorMovieCodeGenerator
             if (sp.Height != 0) AddProp(sp.Height, $"s.Height = {FormatValue(sp.Height)};");
             props.Add($"s.Member = movie.CastLib.GetMember({memberNum}, {castNum});");
 
-            sb.AppendLine($"            {string.Join(" ", props)}");
+            foreach (var assignment in props)
+            {
+                sb.AppendLine($"            {assignment}");
+            }
             sb.AppendLine("        });");
         }
         sb.AppendLine("    }");
@@ -168,6 +173,7 @@ public class DirectorMovieCodeGenerator
     {
         var sb = new StringBuilder();
         sb.Append(_header);
+        sb.AppendLine("using System.Threading.Tasks;");
         sb.AppendLine("using BlingoEngine.Core;");
         sb.AppendLine("using BlingoEngine.Movies;");
         sb.AppendLine();
