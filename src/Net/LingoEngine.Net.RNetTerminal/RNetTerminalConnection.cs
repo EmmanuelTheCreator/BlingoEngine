@@ -1,11 +1,15 @@
-using System.Globalization;
-using System.Net.WebSockets;
-using LingoEngine.IO;
+using LingoEngine.IO.Data.DTO;
 using LingoEngine.Net.RNetClient.Common;
 using LingoEngine.Net.RNetContracts;
-using LingoEngine.Net.RNetPipeClient;
 using LingoEngine.Net.RNetProjectClient;
-using Terminal.Gui;
+using LingoEngine.Net.RNetTerminal.Datas;
+using System;
+using System.Globalization;
+using System.Net.WebSockets;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using Terminal.Gui.App;
 using Timer = System.Timers.Timer;
 
 namespace LingoEngine.Net.RNetTerminal;
@@ -149,7 +153,7 @@ public sealed class RNetTerminalConnection : IAsyncDisposable
         => transport switch
         {
             RNetTerminalTransport.Http => new LingoRNetProjectClient(),
-            RNetTerminalTransport.Pipe => new LingoEngine.Net.RNetPipeClient.RNetPipeClient(),
+            RNetTerminalTransport.Pipe => new RNetPipeClient.RNetPipeClient(),
             _ => throw new ArgumentOutOfRangeException(nameof(transport), transport, null)
         };
 
@@ -209,9 +213,7 @@ public sealed class RNetTerminalConnection : IAsyncDisposable
     {
         var client = _client;
         if (client is null)
-        {
             return;
-        }
 
         try
         {
@@ -233,14 +235,26 @@ public sealed class RNetTerminalConnection : IAsyncDisposable
         try
         {
             var projectJson = await client.GetCurrentProjectAsync().ConfigureAwait(false);
-            var repo = new JsonStateRepository();
-            var project = repo.DeserializeProject(projectJson.json);
+            var project = DeserializeProject(projectJson.json);
             Dispatch(() => _store.LoadFromProject(project));
         }
         catch (Exception ex)
         {
             LogMessage?.Invoke("Load movie failed: " + ex.Message);
         }
+    }
+    public LingoProjectDTO DeserializeProject(string json)
+    {
+        return JsonSerializer.Deserialize<LingoProjectDTO>(json) ?? throw new Exception("Invalid project file");
+    }
+
+
+
+    public Task SendCommandAsync(RNetCommand cmd, CancellationToken? ct = default)
+    {
+        if (_client == null) return Task.CompletedTask;
+        return ct != null ? _client.SendCommandAsync(cmd, ct.Value) : _client.SendCommandAsync(cmd);
+
     }
 
     private async Task ReceiveFramesAsync(ILingoRNetClient client, CancellationToken ct)
@@ -250,7 +264,7 @@ public sealed class RNetTerminalConnection : IAsyncDisposable
             await foreach (var frame in client.StreamFramesAsync(ct).ConfigureAwait(false))
             {
                 LogMessage?.Invoke($"Frame {frame.FrameId}");
-                PlayFrameReceived?.Invoke((int)frame.FrameId);
+                Dispatch(() =>PlayFrameReceived?.Invoke((int)frame.FrameId));
             }
         }
         catch (OperationCanceledException)
@@ -267,9 +281,7 @@ public sealed class RNetTerminalConnection : IAsyncDisposable
         try
         {
             await foreach (var delta in client.StreamDeltasAsync(ct).ConfigureAwait(false))
-            {
                 Dispatch(() => _store.ApplySpriteDelta(delta));
-            }
         }
         catch (OperationCanceledException)
         {
@@ -285,9 +297,7 @@ public sealed class RNetTerminalConnection : IAsyncDisposable
         try
         {
             await foreach (var prop in client.StreamMemberPropertiesAsync(ct).ConfigureAwait(false))
-            {
                 Dispatch(() => _store.ApplyMemberProperty(prop));
-            }
         }
         catch (OperationCanceledException)
         {
@@ -331,9 +341,7 @@ public sealed class RNetTerminalConnection : IAsyncDisposable
     private static async Task WaitForTaskAsync(Task? task)
     {
         if (task is null)
-        {
             return;
-        }
 
         try
         {
@@ -346,13 +354,11 @@ public sealed class RNetTerminalConnection : IAsyncDisposable
 
     private static void Dispatch(Action action)
     {
-        if (Application.MainLoop is { } loop)
-        {
-            loop.Invoke(action);
-        }
-        else
+        Application.AddTimeout(System.TimeSpan.Zero, () =>
         {
             action();
-        }
+
+            return false; // do not repeat
+        });
     }
 }

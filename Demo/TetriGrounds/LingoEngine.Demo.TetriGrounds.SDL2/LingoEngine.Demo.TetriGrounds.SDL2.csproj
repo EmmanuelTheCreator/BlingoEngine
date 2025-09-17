@@ -23,6 +23,7 @@
   </ItemGroup>
 	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
 		<ProjectReference Include="..\..\..\src\Net\LingoEngine.Net.RNetProjectHost\LingoEngine.Net.RNetProjectHost.csproj" />
+		<ProjectReference Include="..\..\..\src\Net\LingoEngine.Net.RNetPipeServer\LingoEngine.Net.RNetPipeServer.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\..\src\LingoEngine.SDL2\LingoEngine.SDL2.csproj" />

@@ -26,7 +26,7 @@ namespace LingoEngine.Net.RNetTerminal.Dialogs
             _defaultTransport = defaultTransport;
         }
 
-        public StartupDialogResult Show(System.Action<int> doConnect)
+        public StartupDialogResult Show()
         {
             var result = new StartupDialogResult(StartupSelectionMode.Standalone, _port);
 
@@ -73,7 +73,6 @@ namespace LingoEngine.Net.RNetTerminal.Dialogs
             {
                 if (int.TryParse(portField.Text.ToString(), out var p))
                     _port = p;
-                doConnect(_port);
                 result = new StartupDialogResult(StartupSelectionMode.Http, _port);
                 dialog.Running = false;
             });
@@ -81,7 +80,6 @@ namespace LingoEngine.Net.RNetTerminal.Dialogs
             {
                 if (int.TryParse(portField.Text.ToString(), out var p))
                     _port = p;
-                doConnect(_port);
                 result = new StartupDialogResult(StartupSelectionMode.Pipe, _port);
                 dialog.Running = false;
             });
