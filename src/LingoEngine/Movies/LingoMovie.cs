@@ -58,6 +58,20 @@ namespace LingoEngine.Movies
         private readonly LingoMovieScriptContainer _movieScripts;
         private readonly List<LingoSpriteManager> _spriteManagers = new();
 
+        // Director bases idle timing on a 60 Hz clock where idleHandlerPeriod skips ticks before
+        // issuing an on idle. Period 0 removes that throttle so handlers can run as fast as
+        // possible during the delay between enterFrame and exitFrame (see the Director MX 2004
+        // Scripting manual entry for idleHandlerPeriod).
+        private const float IdleBaseIntervalSeconds = 1f / 60f;
+        private const float UnthrottledIdleQuantumSeconds = 1f / 1000f;
+        private const int MaxIdleDispatchPerTick = 10_000;
+
+        private bool _frameIsActive;
+        private bool _hasPendingEndSprites;
+        private float _idleAccumulator;
+        private int _idleHandlerPeriod = 1;
+        private float _idleIntervalSeconds = IdleBaseIntervalSeconds;
+
 
         #region Properties
 
@@ -153,6 +167,25 @@ namespace LingoEngine.Movies
             get => _tempoManager.Tempo;
             set => _tempoManager.ChangeTempo(value);
         }
+
+        /// <summary>
+        /// Mirrors Director's _movie.idleHandlerPeriod: 0 runs on idle as often as possible,
+        /// positive values cap the frequency to 60/n events per second using the 60 Hz idle
+        /// timer described in the Director scripting manual.
+        /// </summary>
+        public int IdleHandlerPeriod
+        {
+            get => _idleHandlerPeriod;
+            set
+            {
+                var normalized = value < 0 ? 0 : value;
+                if (SetProperty(ref _idleHandlerPeriod, normalized, nameof(IdleHandlerPeriod)))
+                {
+                    _idleIntervalSeconds = normalized == 0 ? UnthrottledIdleQuantumSeconds : normalized * IdleBaseIntervalSeconds;
+                }
+            }
+        }
+
         public int MaxSpriteChannelCount
         {
             get => _sprite2DManager.MaxSpriteChannelCount;
@@ -335,6 +368,10 @@ namespace LingoEngine.Movies
 
             try
             {
+                // The previous frame is completed before advancing so that any
+                // deferred exitFrame/endSprite work happens in the documented
+                // order (enterFrame -> idle -> exitFrame -> endSprite).
+                FinishCurrentFrame();
 
                 var frameChanged = false;
                 if (_nextFrame < 0)
@@ -347,34 +384,39 @@ namespace LingoEngine.Movies
                     frameChanged = SetProperty(ref _currentFrame, _nextFrame, nameof(CurrentFrame));
                     _nextFrame = -1;
                 }
+
                 if (frameChanged)
                 {
                     OnPropertyChanged(nameof(Frame));
 
                     var transitionSprite = _transitionManager.GetFrameSprite(_currentFrame);
-                    if (transitionSprite != null)
-                    {
-                        if (_transitionPlayer.Start(transitionSprite))
-                            _skipStepFrame = true;
-                    }
+                    if (transitionSprite != null && _transitionPlayer.Start(transitionSprite))
+                        _skipStepFrame = true;
 
-                    // update the list with all ended, and all the new started sprites.
+                    // Refresh the active sprite lists so we know which channels
+                    // will fire beginSprite/endSprite on this frame.
                     _sprite2DManager.UpdateActiveSprites(_currentFrame, _lastFrame);
                     _spriteManagers.ForEach(x => x.UpdateActiveSprites(_currentFrame, _lastFrame));
 
-                    // End the sprites first, the frame has change, start by ending all sprites, that are not on this frame anymore.
-                    _sprite2DManager.EndSprites();
-                    _spriteManagers.ForEach(x => x.EndSprites());
+                    // Prepare end-sprite state up-front. Director unsubscribes
+                    // sprite behaviors before enterFrame so they cannot react
+                    // during the idle window.
+                    _sprite2DManager.PrepareEndSprites();
+                    _spriteManagers.ForEach(x => x.PrepareEndSprites());
 
-                    // Begin the new sprites
+                    // Manual step 1: beginSprite fires for newly entered
+                    // sprites before any frame scripts run.
                     _sprite2DManager.BeginSprites();
                     _spriteManagers.ForEach(x => x.BeginSprites());
+
+                    _hasPendingEndSprites = true;
                 }
                 else
                 {
-                    // Are there new puppet sprites set.
                     _sprite2DManager.DoPuppetSprites();
+                    _hasPendingEndSprites = false;
                 }
+
                 _lastFrame = _currentFrame;
 
                 if (_needToRaiseStartMovie)
@@ -383,27 +425,107 @@ namespace LingoEngine.Movies
                     _needToRaiseStartMovie = false;
                 }
 
-                _lingoMouse.UpdateMouseState();
+                // Manual step 2: stepFrame executes sprite behaviors that
+                // opted into per-frame updates.
                 _sprite2DManager.PreStepFrame();
                 if (!_skipStepFrame)
                     _eventMediator.RaiseStepFrame();
+                // Manual step 3: prepareFrame runs before frame data is ready.
                 _eventMediator.RaisePrepareFrame();
+                // Manual step 4: enterFrame signals that the playhead is now
+                // inside the new frame. Idle/keyboard/mouse processing occurs
+                // after this call while the frame is "open".
                 _eventMediator.RaiseEnterFrame();
 
                 OnUpdateStage();
+
                 _skipStepFrame = false;
                 if (frameChanged)
                     CurrentFrameChanged?.Invoke(_currentFrame);
 
-                _eventMediator.RaiseExitFrame();
+                // Mark the frame as active so idle handlers can run before we
+                // dispatch exitFrame/endSprite on the next FinishCurrentFrame().
+                _frameIsActive = true;
             }
             finally
             {
-                //_sprite2DManager.EndSprites();
-                //_spriteManagers.ForEach(x => x.EndSprites());
                 _isAdvancing = false;
             }
 
+        }
+
+        // exitFrame and endSprite must wait until idle handlers have consumed the tempo slack,
+        // matching the Director lifecycle (enterFrame -> idle -> exitFrame -> endSprite).
+        private void FinishCurrentFrame()
+        {
+            if (!_frameIsActive)
+                return;
+
+            _frameIsActive = false;
+
+            _lingoMouse.UpdateMouseState();
+            _eventMediator.RaiseExitFrame();
+
+            if (_hasPendingEndSprites)
+            {
+                _sprite2DManager.DispatchEndSprites();
+                _spriteManagers.ForEach(x => x.DispatchEndSprites());
+                _hasPendingEndSprites = false;
+            }
+        }
+
+        public void OnIdle(float deltaTime)
+        {
+            if (!_isPlaying || !_frameIsActive)
+                return;
+
+            if (deltaTime <= 0f)
+                return;
+
+            _idleAccumulator += deltaTime;
+
+            if (_idleHandlerPeriod == 0)
+            {
+                DispatchIdleEvents(UnthrottledIdleQuantumSeconds, flushRemainder: true);
+            }
+            else
+            {
+                DispatchIdleEvents(_idleIntervalSeconds, flushRemainder: false);
+            }
+        }
+
+        private void DispatchIdleEvents(float intervalSeconds, bool flushRemainder)
+        {
+            if (intervalSeconds <= 0f)
+                return;
+
+            var iterations = 0;
+            while (_idleAccumulator >= intervalSeconds && iterations < MaxIdleDispatchPerTick)
+            {
+                if (!TryRaiseIdleFrame())
+                    return;
+
+                _idleAccumulator -= intervalSeconds;
+                iterations++;
+            }
+
+            if (flushRemainder && _idleAccumulator > 0f && iterations < MaxIdleDispatchPerTick)
+            {
+                if (TryRaiseIdleFrame())
+                    _idleAccumulator = 0f;
+            }
+
+            if (iterations >= MaxIdleDispatchPerTick)
+                _idleAccumulator = 0f;
+        }
+
+        private bool TryRaiseIdleFrame()
+        {
+            if (!_isPlaying || !_frameIsActive)
+                return false;
+
+            _eventMediator.RaiseIdleFrame();
+            return _isPlaying && _frameIsActive;
         }
 
 
@@ -428,6 +550,7 @@ namespace LingoEngine.Movies
         {
             // on stop always restore the mouse to arrow
             _lingoMouse.SetCursor(AMouseCursor.Arrow);
+            FinishCurrentFrame();
             SetProperty(ref _isPlaying, false, nameof(IsPlaying));
             PlayStateChanged?.Invoke(false);
             _environment.Sound.StopAll();

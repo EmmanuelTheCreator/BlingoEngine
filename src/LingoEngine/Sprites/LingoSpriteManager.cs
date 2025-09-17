@@ -62,13 +62,19 @@ namespace LingoEngine.Sprites
         public abstract void MuteChannel(int channel, bool state);
 
         internal abstract void UpdateActiveSprites(int currentFrame, int lastFrame);
+        internal abstract void PrepareEndSprites();
         internal abstract void BeginSprites();
+        internal abstract void DispatchEndSprites();
         internal virtual LingoSprite? Add(int spriteNumWithChannel, int begin, int end, ILingoMember? member)
         {
             return OnAdd(spriteNumWithChannel - SpriteNumChannelOffset, begin, end, member);
         }
         protected abstract LingoSprite? OnAdd(int spriteNum, int begin, int end, ILingoMember? member);
-        internal abstract void EndSprites();
+        internal virtual void EndSprites()
+        {
+            PrepareEndSprites();
+            DispatchEndSprites();
+        }
     }
 
 
@@ -266,11 +272,15 @@ namespace LingoEngine.Sprites
             _enteredSprites.Clear();
             _exitedSprites.Clear();
 
+            // Determine which sprites will receive beginSprite/endSprite on
+            // this frame. Entries that remain active stay in the ordered list
+            // so stepFrame/enterFrame handlers execute correctly.
             foreach (var sprite in _activeSpritesOrdered.ToArray()) // make a copy of the array
             {
+                var timelineActive = sprite.BeginFrame <= currentFrame && sprite.EndFrame >= currentFrame;
+                var puppetKeepsAlive = sprite.Puppet && !sprite.IsPuppetCached;
 
-                bool stillActive = sprite.BeginFrame <= currentFrame && sprite.EndFrame >= currentFrame;
-                if (!stillActive || sprite.IsPuppetCached)
+                if ((!timelineActive && !puppetKeepsAlive) || sprite.IsPuppetCached)
                 {
                     _exitedSprites.Add(sprite);
                     _activeSprites.Remove(sprite.SpriteNum);
@@ -312,17 +322,33 @@ namespace LingoEngine.Sprites
 
         internal override void BeginSprites()
         {
+            // Manual step 1: beginSprite for newly entered channels before any
+            // frame script (stepFrame/prepareFrame/enterFrame) executes.
             foreach (var sprite in _enteredSprites)
                 OnBeginSprite(sprite);
         }
         protected virtual void OnBeginSprite(TSprite sprite) => sprite.DoBeginSprite();
 
-        internal override void EndSprites()
+        internal override void PrepareEndSprites()
         {
+            // Director unsubscribes behaviors and listeners as soon as a sprite
+            // is known to be leaving. This happens prior to enterFrame so idle
+            // processing cannot touch sprites that are about to end.
+            foreach (var sprite in _exitedSprites)
+                OnPrepareEndSprite(sprite);
+        }
+        protected virtual void OnPrepareEndSprite(TSprite sprite) => sprite.PrepareForEndSprite();
+
+        internal override void DispatchEndSprites()
+        {
+            // Manual step 6: endSprite fires only after exitFrame confirmed the
+            // playhead has left the channel.
             foreach (var sprite in _exitedSprites)
                 OnEndSprite(sprite);
+
+            _exitedSprites.Clear();
         }
-        protected virtual void OnEndSprite(TSprite sprite) => sprite.DoEndSprite();
+        protected virtual void OnEndSprite(TSprite sprite) => sprite.DispatchEndSpriteEvent();
 
 
 
