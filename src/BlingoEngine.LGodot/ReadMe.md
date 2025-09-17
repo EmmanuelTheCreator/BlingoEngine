@@ -1,4 +1,4 @@
-﻿# Macromedia Lingo in c# : With the Godot framework
+# Macromedia Lingo in c# : With the Godot framework
 
 ## Package: BlingoEngine.LGodot
 
@@ -6,5 +6,5 @@ Adapter layer that plugs the core Lingo runtime into Godot. It implements the in
 
 See [docs/ProjectSetup.md](../../docs/ProjectSetup.md) for an overview of the
 framework factory and [docs/GodotSetup.md](../../docs/GodotSetup.md) for
-Godotâ€‘specific build instructions and example code.
+Godot‑specific build instructions and example code.
 

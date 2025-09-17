@@ -1,4 +1,4 @@
-﻿# AGENTS
+# AGENTS
 
 These instructions apply to the entire repository.
 
@@ -8,7 +8,7 @@ These instructions apply to the entire repository.
 
 ## Environment
 - The project requires **.NET 8 (LTS)** for Godot and **.NET 9** for Blazor.
-- If the `dotnet` CLI isnâ€™t available, run `./scripts/install-packages-linux.sh`.  
+- If the `dotnet` CLI isn't available, run `./scripts/install-packages-linux.sh`.  
   This script will:
   - Install required system packages (SDL2, X11/GL, etc.).
   - Install .NET SDKs (8 and 9) into `$HOME/.dotnet`.

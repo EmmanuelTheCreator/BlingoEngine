@@ -3,7 +3,7 @@
 namespace BlingoEngine.Net.RNetContracts;
 
 /// <summary>
-/// Helpers used by the Lingo engine to publish remote debugging information.
+/// Helpers used by the BlingoEngine runtime to publish remote debugging information.
 /// </summary>
 public interface IRNetPublisher
 {

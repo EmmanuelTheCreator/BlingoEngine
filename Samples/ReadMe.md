@@ -1,4 +1,4 @@
-﻿# Sample Projects
+# Sample Projects
 
 This folder contains small applications that demonstrate different ways to bootstrap BlingoEngine.
 Each sample is self-contained and lives under the `Samples/SetupWays` directory.
@@ -7,9 +7,9 @@ Each sample is self-contained and lives under the `Samples/SetupWays` directory.
 
 | Project | Description |
 | --- | --- |
-| [`BlingoEngineMinimalSDL`](SetupWays/BlingoEngineMinimalSDL/) | SDL bootstrap that configures a 400Ã—300 stage and renders a centered text sprite. |
+| [`BlingoEngineMinimalSDL`](SetupWays/BlingoEngineMinimalSDL/) | SDL bootstrap that configures a 400×300 stage and renders a centered text sprite. |
 | [`BlingoEngineMinimalGodot`](SetupWays/BlingoEngineMinimalGodot/) | Godot project that uses a `Node2D` script to start the same minimal movie inside the Godot runtime. |
-| [`BlingoEngineWithDirectorInDebugSDL`](SetupWays/BlingoEngineWithDirectorInDebugSDL/) | SDL bootstrap that switches to the Director tooling (`WithDirectorSdlEngine`) when the build configuration defines `DEBUG`, using TetriGrounds' 730Ã—547 runtime window and 1600Ã—970 Director layout. |
+| [`BlingoEngineWithDirectorInDebugSDL`](SetupWays/BlingoEngineWithDirectorInDebugSDL/) | SDL bootstrap that switches to the Director tooling (`WithDirectorSdlEngine`) when the build configuration defines `DEBUG`, using TetriGrounds' 730×547 runtime window and 1600×970 Director layout. |
 | [`BlingoEngineWithDirectorInDebugGodot`](SetupWays/BlingoEngineWithDirectorInDebugGodot/) | Godot project that calls `WithDirectorGodotEngine` in debug builds, matching the same TetriGrounds window sizes so the Director UI fits comfortably. |
 
 

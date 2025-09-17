@@ -1,6 +1,6 @@
-﻿# SDL Sample with Director in Debug Builds
+# SDL Sample with Director in Debug Builds
 
-â† Back to [Samples overview](../../ReadMe.md)
+← Back to [Samples overview](../../ReadMe.md)
 
 This project adds the Director tooling only when compiled with the `DEBUG` symbol.
 In release builds it behaves like the minimal SDL sample.
@@ -9,7 +9,7 @@ In release builds it behaves like the minimal SDL sample.
 - Conditional project reference to `BlingoEngine.Director.SDL2` in the `.csproj` file.
 - Conditional use of `.WithDirectorSdlEngine(...)` versus `.WithBlingoSdlEngine(...)` inside `Startup.cs`.
 - Reuses the minimal project factory to render a centered text sprite while showing how to expose `DirectorProjectSettings`.
-- Uses the same 730Ã—500 stage dimensions as TetriGrounds so the Director UI has enough space to render.
+- Uses the same 730×500 stage dimensions as TetriGrounds so the Director UI has enough space to render.
 
 ## Engine registration
 ```csharp
@@ -61,7 +61,7 @@ Compile in release mode to run the plain SDL version:
 dotnet run --configuration Release --project Samples/SetupWays/BlingoEngineWithDirectorInDebugSDL/BlingoEngineWithDirectorInDebugSDL.csproj
 ```
 
-Compile in debug mode to launch the Director-enabled window (1600Ã—970):
+Compile in debug mode to launch the Director-enabled window (1600×970):
 
 ```bash
 dotnet run --configuration Debug --project Samples/SetupWays/BlingoEngineWithDirectorInDebugSDL/BlingoEngineWithDirectorInDebugSDL.csproj

@@ -166,7 +166,7 @@ public class RaysScoreFrameParserV2 : IRaysScoreFrameParserV2
 
     //    if (tag < 0x0120 || tag > 0x01F6)
     //    {
-    //        _logger.LogInformation($"[FrameTag] Unexpected tag {tag:X} at 0x{pos:X} � possible misalignment");
+    //        _logger.LogInformation($"[FrameTag] Unexpected tag {tag:X} at 0x{pos:X} — possible misalignment");
     //    }
     //}
 

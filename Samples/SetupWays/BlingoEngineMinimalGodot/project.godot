@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="LingoEngine Minimal Godot"
+config/name="BlingoEngine Minimal Godot"
 run/main_scene="res://Scenes/minimal_game_root.tscn"
 config/features=PackedStringArray("4.5", "C#", "GL Compatibility")
 boot_splash/show_image=false

@@ -1,21 +1,21 @@
-﻿# Getting Started
+# Getting Started
 
 This short guide explains the layout of the repository and how to run the test suite locally.
 For minimal end-to-end bootstraps, browse the [Sample Projects overview](../Samples/ReadMe.md).
 
-## ðŸ“ Project Structure
+## 📁 Project Structure
 
 | Folder | Description |
 |--------|-------------|
 | `src/BlingoEngine` | Core Lingo runtime and engine abstractions |
 | `src/BlingoEngine.LGodot` | Adapter for [Godot](https://godotengine.org/) |
 | `src/BlingoEngine.SDL2` | Adapter for SDL2 |
-| `src/Director` | Standalone Director application reâ€‘implementation (basic movie, cast, and score features working) |
+| `src/Director` | Standalone Director application re‑implementation (basic movie, cast, and score features working) |
 | `Demo/TetriGrounds` | Sample game showing usage with both backends |
 
-ðŸ”Ž For a detailed technical overview, see the [Architecture guide](design/Architecture.md).
+🔎 For a detailed technical overview, see the [Architecture guide](design/Architecture.md).
 
-## ðŸ§ª Running Tests
+## 🧪 Running Tests
 
 This project uses the .NET SDK. You can run all unit tests with:
 

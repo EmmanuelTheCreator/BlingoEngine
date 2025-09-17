@@ -21,7 +21,7 @@ A `CASt` chunk begins with a 12‑byte header:
 |-------:|-----------------|-------|
 | 0      | `Type`          | Identifies the member type (e.g., `0x0F` for a field member). |
 | 4      | `InfoLen`       | Length of the cast‑info block in bytes. |
-| 8      | `SpecificDataLen` | Length of the member’s data block in bytes. |
+| 8      | `SpecificDataLen` | Length of the member's data block in bytes. |
 
 * After the header, `InfoLen` bytes form the **cast‑info block** (`Cinf`).  This block is itself a list of offsets pointing to variable‑length fields such as the member name or script text.
 * The **specific data block** immediately follows the info block and contains the raw member data (e.g., text characters, bitmap pixels, sound samples).
@@ -33,7 +33,7 @@ A `CASt` chunk begins with a 12‑byte header:
 
 ## Extracting member data
 
-To extract a member’s raw bytes and metadata:
+To extract a member's raw bytes and metadata:
 
 1. Read the `imap` chunk to locate the `mmap`.
 2. Iterate the `mmap` to build a table of FourCC, offset and length.

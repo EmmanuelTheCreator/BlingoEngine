@@ -1,18 +1,18 @@
-﻿# BlingoEngine Core
+# BlingoEngine Core
 
-The core engine library hosts the runtime that executes Lingo scripts and exposes highâ€‘level
+The core engine library hosts the runtime that executes Lingo scripts and exposes high‑level
 abstractions that are shared by every backend. The structure mirrors classic Macromedia
 Director concepts so that movies, casts, and sprites behave the same regardless of the
 rendering platform.
 
 ## Folder Layout
 
-- `Core/` â€“ shared utilities and dependencyâ€‘injection helpers.
-- `FrameworkCommunication/` â€“ interfaces used by platform adapters to talk to the engine.
-- `Animations/`, `Sprites/`, `Bitmaps/`, `Sounds/`, `Movies/`â€¦ â€“ implementations of common
+- `Core/` – shared utilities and dependency‑injection helpers.
+- `FrameworkCommunication/` – interfaces used by platform adapters to talk to the engine.
+- `Animations/`, `Sprites/`, `Bitmaps/`, `Sounds/`, `Movies/`… – implementations of common
   Director building blocks.
-- `Projects/` â€“ project definitions and bootstrap logic.
-- `Setup/` and `BlingoEngineSetup.cs` â€“ extension methods to wire everything up in a service
+- `Projects/` – project definitions and bootstrap logic.
+- `Setup/` and `BlingoEngineSetup.cs` – extension methods to wire everything up in a service
   collection.
 - `Tools/`, `Scripts/`, and other folders provide supporting utilities, assets, or build
   helpers.

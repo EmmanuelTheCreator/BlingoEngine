@@ -1,4 +1,4 @@
-﻿using AbstUI.Inputs;
+using AbstUI.Inputs;
 using AbstUI.Primitives;
 using BlingoEngine.Bitmaps;
 using BlingoEngine.Events;
@@ -9,7 +9,7 @@ using BlingoEngine.Stages;
 namespace BlingoEngine.Inputs
 {
     /// <summary>
-    /// Provides access to a userâ€™s mouse activity, including mouse movement and mouse clicks.
+    /// Provides access to a user's mouse activity, including mouse movement and mouse clicks.
     /// </summary>
     public interface IBlingoStageMouse : IBlingoMouse
     {
@@ -41,7 +41,7 @@ namespace BlingoEngine.Inputs
     }
 
     /// <summary>
-    /// Provides access to a userâ€™s mouse activity, including mouse movement and mouse clicks.
+    /// Provides access to a user's mouse activity, including mouse movement and mouse clicks.
     /// </summary>
     public interface IBlingoMouse : IAbstMouse
     {

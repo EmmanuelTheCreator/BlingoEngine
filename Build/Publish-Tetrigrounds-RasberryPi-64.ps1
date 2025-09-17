@@ -2,7 +2,7 @@
 $ErrorActionPreference = "Stop"
 
 $rootDir = Resolve-Path (Join-Path $PSScriptRoot "..")
-$project = Join-Path $rootDir "Demo/TetriGrounds/LingoEngine.Demo.TetriGrounds.SDL2/LingoEngine.Demo.TetriGrounds.SDL2.csproj"
+$project = Join-Path $rootDir "Demo/TetriGrounds/BlingoEngine.Demo.TetriGrounds.SDL2/BlingoEngine.Demo.TetriGrounds.SDL2.csproj"
 $outDir = Join-Path $rootDir "Publish/Tetrigrounds-RasberryPi-64"
 $arch = "arm64"
 

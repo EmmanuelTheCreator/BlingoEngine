@@ -1,4 +1,4 @@
-﻿# RNet
+# RNet
 
 **RNet** stands for *Remote Net* and provides a lightweight protocol for driving a BlingoEngine movie from another process.
 It is built on top of SignalR and streams movie state, frame data, and commands so tools can control a running movie like a remote control.
@@ -7,13 +7,13 @@ RNet hooks directly into **BlingoEngine**, enabling any project using the core e
 
 The projects in this folder implement the different pieces of the system:
 
-- **BlingoEngine.Net.RNetContracts** â€“ shared data contracts describing frames, sprites, and commands.
-- **BlingoEngine.Net.RNetProjectHost** â€“ a SignalR server that exposes an engine instance over RNet.
-- **BlingoEngine.Net.RNetProjectClient** â€“ a client library for connecting to an RNet project host.
-- **BlingoEngine.Net.RNetClientPlayer** â€“ consumes a host and applies updates to a local BlingoEngine player.
-- **BlingoEngine.Net.RNetTerminal** â€“ a console application used for debugging and experimenting with the protocol.
-- **BlingoEngine.Net.RNetServer** â€“ forwards messages between project hosts and project clients.
-- **cpp/BlingoEngine.RNetProjectClient** â€“ a minimal C++ client showing how to consume the protocol from native code.
+- **BlingoEngine.Net.RNetContracts** – shared data contracts describing frames, sprites, and commands.
+- **BlingoEngine.Net.RNetProjectHost** – a SignalR server that exposes an engine instance over RNet.
+- **BlingoEngine.Net.RNetProjectClient** – a client library for connecting to an RNet project host.
+- **BlingoEngine.Net.RNetClientPlayer** – consumes a host and applies updates to a local BlingoEngine player.
+- **BlingoEngine.Net.RNetTerminal** – a console application used for debugging and experimenting with the protocol.
+- **BlingoEngine.Net.RNetServer** – forwards messages between project hosts and project clients.
+- **cpp/BlingoEngine.RNetProjectClient** – a minimal C++ client showing how to consume the protocol from native code.
 
 Together these components allow external tools to inspect and control movies in real time.
 

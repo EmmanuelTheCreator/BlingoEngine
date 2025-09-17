@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace BlingoEngine.Setup
 {
     /// <summary>
-    /// Lingo Engine Registration interface.
+    /// BlingoEngine registration interface.
     /// </summary>
     public interface IBlingoEngineRegistration
     {

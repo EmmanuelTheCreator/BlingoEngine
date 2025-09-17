@@ -1,7 +1,7 @@
-﻿namespace AbstUI.Inputs
+namespace AbstUI.Inputs
 {
     /// <summary>
-    /// Used to monitor a userâ€™s keyboard activity.
+    /// Used to monitor a user's keyboard activity.
     /// Mirrors AbstUI's _key object functionality for key state and input monitoring.
     /// Example: isCtrlDown = _key.controlDown
     /// </summary>

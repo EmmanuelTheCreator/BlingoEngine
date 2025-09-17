@@ -1,4 +1,4 @@
-﻿namespace BlingoEngine.Sprites
+namespace BlingoEngine.Sprites
 {
     using BlingoEngine.Primitives;
 
@@ -14,7 +14,7 @@
     /// <summary>
     /// Lingo Property Description List Dialog interface.
     /// </summary>
-        /// It's part of Directorâ€™s way of exposing editable fields for behaviors, similar to how Unity or Godot might expose serialized properties in the Inspector.
+        /// It's part of Director's way of exposing editable fields for behaviors, similar to how Unity or Godot might expose serialized properties in the Inspector.
         /// </summary>
         BehaviorPropertyDescriptionList? GetPropertyDescriptionList();
 

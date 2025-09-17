@@ -1,9 +1,9 @@
-﻿using AbstUI.Inputs;
+using AbstUI.Inputs;
 using BlingoEngine.Events;
 namespace BlingoEngine.Inputs
 {
     /// <summary>
-    /// Used to monitor a userâ€™s keyboard activity.
+    /// Used to monitor a user's keyboard activity.
     /// Mirrors Lingo's _key object functionality for key state and input monitoring.
     /// Example: isCtrlDown = _key.controlDown
     /// </summary>

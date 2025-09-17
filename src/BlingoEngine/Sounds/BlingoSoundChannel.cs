@@ -1,4 +1,4 @@
-﻿namespace BlingoEngine.Sounds
+namespace BlingoEngine.Sounds
 {
     /// <summary>
     /// Represents an individual sound channel found within the Sound object
@@ -23,7 +23,7 @@
         float ElapsedTime { get; }
         /// <summary>
         /// Sound Channel property; specifies the end time of the currently playing, paused, or queued sound.Read/write.
-        /// The end time is the time within the sound member when it will stop playing.Itâ€™s a floating-point value, allowing for measurement and control of sound playback to fractions of milliseconds.The default value is the normal end of the sound.
+        /// The end time is the time within the sound member when it will stop playing.It's a floating-point value, allowing for measurement and control of sound playback to fractions of milliseconds.The default value is the normal end of the sound.
         /// This property may be set to a value other than the normal end of the sound only when passed as a parameter with the queue() or setPlayList() methods.
         /// </summary>
         float EndTime { get; }
@@ -31,7 +31,7 @@
         /// Sound Channel property; specifies the total number of times the current sound in a sound channel is set to loop.Read-only.
         /// The default value of this property is 1 for sounds that are simply queued with no internal loop.
         /// You can loop a portion of a sound by passing the parameters loopStartTime, loopEndTime, and loopCount with a queue() or setPlayList() method.These are the only methods for setting this property.
-        /// If loopCount is set to 0, the loop will repeat forever.If the sound cast memberâ€™s loop property is set to TRUE, loopCount will return 0.
+        /// If loopCount is set to 0, the loop will repeat forever.If the sound cast member's loop property is set to TRUE, loopCount will return 0.
         /// </summary>
         int LoopCount { get; }
         /// <summary>
@@ -58,7 +58,7 @@
         /// <summary>
         /// Sound Channel property; indicates the left/right balance of the sound playing in a sound channel.
         /// The range of values is from -100 to 100. -100 indicates only the left channel is heard. 100 indicate only the right channel is being heard.A value of 0 indicates even left/right balance, causing the sound source to appear to be centered.For mono sounds, pan affects which speaker (left or right) the sound plays through.
-        /// You can change the pan of a sound object at any time, but if the sound channel is currently performing a fade, the new pan setting doesnâ€™t take effect until the fade is complete.
+        /// You can change the pan of a sound object at any time, but if the sound channel is currently performing a fade, the new pan setting doesn't take effect until the fade is complete.
         /// </summary>
         int Pan { get; set; }
         int SampleCount { get; }
@@ -103,7 +103,7 @@
         void Pause();
         /// <summary>
         /// Sound Channel method; begins playing any sounds queued in a sound channel, or queues and begins playing a given cast member. 
-        /// Sound cast members take some time to load into RAM before they can begin playback. Itâ€™s recommended that you queue sounds 
+        /// Sound cast members take some time to load into RAM before they can begin playback. It's recommended that you queue sounds 
         /// with queue() before you want to begin playing them and then use the first form of this method.The second two forms do not take advantage of the preloading accomplished with the queue() command.
         /// </summary>
         void Play(BlingoMemberSound? member = null, float startTime = -1, float endTime = -1, int loopCount = -1, float loopStartTime = -1, float loopEndTime = -1, float preloadTime = -1);
@@ -111,7 +111,7 @@
         /// Sound Channel method; plays the AIFF, SWA, AU, or WAV sound in a sound channel.
         /// For the sound to be played properly, the correct MIX Xtra must be available to the movie, usually in the Xtras folder of the application.
         /// When the sound file is in a different folder than the movie, stringFilePath must specify the full path to the file.
-        /// To play sounds obtained from a URL, itâ€™s usually a good idea to use downloadNetThing() or preloadNetThing() to download the file to a local disk first. This approach can minimize problems that may occur while the file is downloading.
+        /// To play sounds obtained from a URL, it's usually a good idea to use downloadNetThing() or preloadNetThing() to download the file to a local disk first. This approach can minimize problems that may occur while the file is downloading.
         /// The playFile() method streams files from disk rather than playing them from RAM. As a result, using playFile() when playing digital video or when loading cast members into memory can cause conflicts when the computer tries to read the disk in two places at once.
 
         /// </summary>

@@ -1,11 +1,11 @@
-﻿# BlingoEngine Minimal SDL Sample
+# BlingoEngine Minimal SDL Sample
 
-â† Back to [Samples overview](../../ReadMe.md)
+← Back to [Samples overview](../../ReadMe.md)
 
 This sample shows the smallest possible SDL bootstrapping code to render a centered text sprite with BlingoEngine.
 
 ## What the sample demonstrates
-- Configures a 400Ã—300 stage and window through `Startup.cs`.
+- Configures a 400×300 stage and window through `Startup.cs`.
 - Registers a project factory that creates a cast library, a single text member, and a sprite to display it.
 - Uses the SDL runner without any Director tooling so the game plays immediately.
 
@@ -34,5 +34,5 @@ Execute the project with:
 dotnet run --project Samples/SetupWays/BlingoEngineMinimalSDL/BlingoEngineMinimalSDL.csproj
 ```
 
-You should see a 400Ã—300 window with the message â€œThis is a sample project with the minimal setup.â€ centered on a black background.
+You should see a 400×300 window with the message "This is a sample project with the minimal setup." centered on a black background.
 

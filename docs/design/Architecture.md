@@ -1,15 +1,15 @@
-﻿# ðŸ—ï¸ BlingoEngine Architecture Overview
+# 🏗️ BlingoEngine Architecture Overview
 
-BlingoEngine is built as a **layered, modular system** that emulates the core behaviors of Macromedia Director using a modern C# runtime. Its architecture is designed to isolate core logic from platform-specific details â€” allowing you to reuse scripts and game logic across multiple rendering backends such as **Godot** and **SDL2**.
+BlingoEngine is built as a **layered, modular system** that emulates the core behaviors of Macromedia Director using a modern C# runtime. Its architecture is designed to isolate core logic from platform-specific details — allowing you to reuse scripts and game logic across multiple rendering backends such as **Godot** and **SDL2**.
 
 ---
 
-## ðŸ“ Architecture Layers
+## 📐 Architecture Layers
 
 BlingoEngine is organized into four main architectural layers:
 | Layer               | Description |
 |---------------------|----------------------------------------------------------------------------------------------------------------------------------|
-| **Core**            | The Lingo language runtime and virtual machine (VM) â€” fully rendering-agnostic. |
+| **Core**            | The Lingo language runtime and virtual machine (VM) — fully rendering-agnostic. |
 | **Framework Adapters** | Abstractions that allow the engine to run on multiple rendering platforms (Godot, SDL2, etc.). |
 | **Director Layer**  | Optional high-level components that mimic Macromedia Director's original movie/cast/score model. |
 | **Demo Projects**   | Sample integrations demonstrating how to use BlingoEngine with real frameworks and games. |
@@ -17,15 +17,15 @@ Each adapter implements a well-defined set of interfaces to ensure the **core en
 
 ---
 
-## ðŸ”Œ Interfaces & Implementations
+## 🔌 Interfaces & Implementations
 
 At the heart of the engine is the `src/BlingoEngine` project. It defines the key **engine interfaces** that abstract away rendering and platform specifics:
 
-- `IBlingoFrameworkStage` â€“ represents the rendering surface
-- `IBlingoFrameworkSprite` â€“ represents visual sprite elements
-- `IBlingoFrameworkMovie` â€“ encapsulates timeline logic and score interaction
-- `IBlingoFrameworkGfxNodeInput`, `IBlingoFrameworkMouse`, etc. â€“ abstract input handling
-- `IBlingoFrameworkFactory` â€“ used to construct platform-native instances of all of the above
+- `IBlingoFrameworkStage` – represents the rendering surface
+- `IBlingoFrameworkSprite` – represents visual sprite elements
+- `IBlingoFrameworkMovie` – encapsulates timeline logic and score interaction
+- `IBlingoFrameworkGfxNodeInput`, `IBlingoFrameworkMouse`, etc. – abstract input handling
+- `IBlingoFrameworkFactory` – used to construct platform-native instances of all of the above
 
 ### Example: Framework Agnostic Usage
 
@@ -41,7 +41,7 @@ This allows your game logic, Lingo scripts, and runtime behaviors to work **with
 
 ---
 
-## ðŸ­ Factory Pattern
+## 🏭 Factory Pattern
 
 BlingoEngine uses the **Factory pattern** to inject framework-specific implementations.
 
@@ -50,13 +50,13 @@ BlingoEngine uses the **Factory pattern** to inject framework-specific implement
 - When the engine starts, it queries the factory to obtain the correct platform-native objects.
 
 ### Benefits:
-- âœ… Decouples game logic from rendering details
-- âœ… Allows easy addition of new adapters
-- âœ… Encourages testability and interface-driven design
+- ✅ Decouples game logic from rendering details
+- ✅ Allows easy addition of new adapters
+- ✅ Encourages testability and interface-driven design
 
 ---
 
-## ðŸ§ª Adapter Implementations
+## 🧪 Adapter Implementations
 
 Each adapter project (e.g., `BlingoEngine.LGodot` or `BlingoEngine.SDL2`) provides concrete implementations for the core interfaces:
 
@@ -68,20 +68,20 @@ These map to native objects in the respective frameworks while still adhering to
 
 ---
 
-## ðŸŽ¬ Optional Director Layer
+## 🎬 Optional Director Layer
 
 The `src/Director` folder contains a **higher-level application layer** that mirrors Macromedia Director's built-in behaviors more closely:
 
-- `BlingoEngine.Director.Movie` â€“ manages movie playback and score state
-- `BlingoEngine.Director.Cast` â€“ emulates cast member access
-- `BlingoEngine.Director.Stage` â€“ provides legacy stage behaviors
-- `BlingoEngine.Director.Key/Sound/System/...` â€“ optional subsystems reflecting classic Director features
+- `BlingoEngine.Director.Movie` – manages movie playback and score state
+- `BlingoEngine.Director.Cast` – emulates cast member access
+- `BlingoEngine.Director.Stage` – provides legacy stage behaviors
+- `BlingoEngine.Director.Key/Sound/System/...` – optional subsystems reflecting classic Director features
 
 This layer is **optional** but useful for full-featured game recreation.
 
 ---
 
-## ðŸ§ª Demo Projects
+## 🧪 Demo Projects
 
 Demo implementations such as `Demo/TetriGrounds` showcase how to wire everything together:
 
@@ -91,19 +91,19 @@ Demo implementations such as `Demo/TetriGrounds` showcase how to wire everything
 
 ---
 
-## ðŸ“Œ Summary
+## 📌 Summary
 
 BlingoEngine's architecture enables:
 
-- ðŸ” **Script portability** between rendering platforms
-- ðŸ” **Code clarity and separation of concerns**
-- ðŸ§± **Scalable engine growth** through pluggable components
-- ðŸ•¹ï¸ **Faithful Director emulation** with optional compatibility layers
+- 🔁 **Script portability** between rendering platforms
+- 🔍 **Code clarity and separation of concerns**
+- 🧱 **Scalable engine growth** through pluggable components
+- 🕹️ **Faithful Director emulation** with optional compatibility layers
 
 ---
 
 
-## ðŸ§­ Architecture Diagram
+## 🧭 Architecture Diagram
 
 ```mermaid
 graph TD
@@ -171,7 +171,7 @@ graph TD
 
 
 
-## ðŸ“Ž See Also
+## 📎 See Also
 
 - [README.md](../../README.md)
 - [Godot Setup Guide](../GodotSetup.md)

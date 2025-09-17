@@ -1,13 +1,13 @@
-﻿# Lingo vs C# Differences
+# Lingo vs C# Differences
 
 The tables below summarize how BlingoEngine converts Lingo syntax into C#.
 
-## Blingoâ€‘specific constructs
+## Blingo‑specific constructs
 
 | Lingo example | C# equivalent |
 |---------------|---------------|
 | `-- comment` | `// comment` |
-| `on handler a, b` â€¦ `end` | `void Handler(type a, type b) { â€¦ }` |
+| `on handler a, b` … `end` | `void Handler(type a, type b) { … }` |
 | `global gVar` | `GlobalVars` singleton injected via DI |
 | `property myValue` | class field/property |
 | `me` | `this` |
@@ -28,14 +28,14 @@ The tables below summarize how BlingoEngine converts Lingo syntax into C#.
 | `repeat with i = 1 to n` | `for (int i = 1; i <= n; i++)` |
 | `repeat with item in list` | `foreach (var item in list)` |
 | `repeat while cond` | `while (cond)` |
-| `repeat until cond` | `do { â€¦ } while (!cond)` |
+| `repeat until cond` | `do { … } while (!cond)` |
 | `repeat forever` | `while (true)` |
 | `exit repeat` | `break;` |
 | `exit repeat if cond` | `if (cond) break;` |
 | `next repeat` | `continue;` |
 | `next repeat if cond` | `if (cond) continue;` |
-| `if a > b then â€¦ end if` | `if (a > b) { â€¦ }` |
-| `case v of â€¦ end case` | `switch (v) { â€¦ }` |
+| `if a > b then … end if` | `if (a > b) { … }` |
+| `case v of … end case` | `switch (v) { … }` |
 | `exit` | `return;` |
 | `[1,2,3]` | `new[] { 1, 2, 3 }` |
 | `"A" & "B"` | `"A" + "B"` |
@@ -44,8 +44,8 @@ The tables below summarize how BlingoEngine converts Lingo syntax into C#.
 
 Additional notes:
 
-- Lingo lists and collections are 1â€‘based, whereas C# arrays and lists are
-  0â€‘based.
+- Lingo lists and collections are 1‑based, whereas C# arrays and lists are
+  0‑based.
 - Lingo requires `then` and `end if` around conditionals; C# uses curly braces.
 - To access text members, use the generic `Member<T>` helper, e.g.
   `member("Name").text` becomes `Member<BlingoMemberText>("Name").Text`.
@@ -99,7 +99,7 @@ var newBitmap = _movie.New.Bitmap(name: "Background");
 The factory exposes helper methods for each member type, such as `Bitmap()`, `Sound()`, `FilmLoop()` and `Text()`. Optional arguments let you specify the cast slot or member name.
 
 
-## ðŸ” `put ... into ...` Handling in C#
+## 🔁 `put ... into ...` Handling in C#
 
 Lingo's `put` syntax is used for assignment across a wide range of targets:
 
@@ -112,7 +112,7 @@ put 42 into myList[2]
 In Lingo, **if the target does not exist (e.g., a missing field), it fails silently**.  
 To match that behavior in C#, BlingoEngine introduces *safe assignment helpers*.
 
-### âœ… C# Equivalents
+### ✅ C# Equivalents
 
 | Lingo | C# |
 |-------|----|
@@ -123,7 +123,7 @@ To match that behavior in C#, BlingoEngine introduces *safe assignment helpers*.
 
 ---
 
-## âœ³ï¸ Safe Field Assignment: `PutTextIntoField()`
+## ✳️ Safe Field Assignment: `PutTextIntoField()`
 
 ```csharp
 PutTextIntoField("Greeting", "Hello");
@@ -141,7 +141,7 @@ protected void PutTextIntoField(string name, string text)
 
 ---
 
-## âš ï¸ Avoiding Exceptions with `TryMember<T>()`
+## ⚠️ Avoiding Exceptions with `TryMember<T>()`
 
 To safely access any member (e.g., bitmap, field, text), use the `Action<T>` overload:
 
@@ -162,7 +162,7 @@ This method:
 
 ---
 
-## ðŸ§± Building Custom Safe `put` Functions
+## 🧱 Building Custom Safe `put` Functions
 
 You can create safe helpers for other member types, e.g.:
 
@@ -175,7 +175,7 @@ protected void PutSoundInto(string name, IBlingoSoundData sound)
 
 ---
 
-## ðŸ” Summary
+## 🔍 Summary
 
 | Pattern | Use |
 |--------|-----|
