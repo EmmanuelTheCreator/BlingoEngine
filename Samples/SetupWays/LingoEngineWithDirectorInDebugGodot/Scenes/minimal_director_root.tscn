@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://d5wz7k6t8gpe"]
+
+[ext_resource type="Script" path="res://Scenes/MinimalDirectorRoot.cs" id="1_1wn24"]
+
+[node name="MinimalDirectorRoot" type="Node2D"]
+script = ExtResource("1_1wn24")

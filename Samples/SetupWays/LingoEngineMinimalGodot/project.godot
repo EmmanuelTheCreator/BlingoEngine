@@ -1,0 +1,20 @@
+; Engine configuration file.
+; Minimal Godot project for the LingoEngine samples.
+
+config_version=5
+
+[application]
+
+config/name="LingoEngine Minimal Godot"
+run/main_scene="res://Scenes/minimal_game_root.tscn"
+config/features=PackedStringArray("4.5", "C#", "GL Compatibility")
+boot_splash/show_image=false
+
+[dotnet]
+
+project/assembly_name="LingoEngineMinimalGodot"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
