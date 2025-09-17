@@ -161,6 +161,10 @@ namespace LingoEngine.Sprites
             if (InitialState != null)
                 LoadState(InitialState);
 
+            // beginSprite is the first callback a channel receives on a frame
+            // where it becomes active. Director delivers it before stepFrame/
+            // prepareFrame so behaviors can initialize their state for the new
+            // frame.
             // Subscribe all actors
             foreach (var actor in _spriteActors)
             {
@@ -175,16 +179,35 @@ namespace LingoEngine.Sprites
         }
         protected virtual void BeginSprite() { }
 
-        internal virtual void DoEndSprite()
+        internal virtual void PrepareForEndSprite()
         {
-
+            // Called as soon as the engine detects a sprite will leave the
+            // frame. This happens before exitFrame so stepFrame and other
+            // listeners are unsubscribed during the idle window.
             foreach (var actor in _spriteActors)
             {
-                if (actor is IHasEndSpriteEvent end) end.EndSprite();
-                if (actor is IHasStepFrameEvent stepframe) _eventMediator.UnsubscribeStepFrame(stepframe, SpriteNum + 6);
+                if (actor is IHasStepFrameEvent stepframe)
+                    _eventMediator.UnsubscribeStepFrame(stepframe, SpriteNum + 6);
                 _eventMediator.Unsubscribe(actor);
             }
+        }
+
+        internal virtual void DispatchEndSpriteEvent()
+        {
+            // endSprite fires after exitFrame once the playhead has left the
+            // sprite. Behaviors receive their callbacks in attachment order
+            // followed by the sprite's own EndSprite hook.
+            foreach (var actor in _spriteActors)
+                if (actor is IHasEndSpriteEvent end)
+                    end.EndSprite();
+
             EndSprite();
+        }
+
+        internal virtual void DoEndSprite()
+        {
+            PrepareForEndSprite();
+            DispatchEndSpriteEvent();
         }
         protected virtual void EndSprite() { }
         public virtual string GetFullName() => $"{SpriteNum}.{Name}";

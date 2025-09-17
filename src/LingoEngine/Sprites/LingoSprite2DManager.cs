@@ -93,12 +93,13 @@ namespace LingoEngine.Sprites
                 _lingoMouse.Subscribe(sprite);
             base.OnBeginSprite(sprite);
         }
-        protected override void OnEndSprite(LingoSprite2D sprite)
+
+        protected override void OnPrepareEndSprite(LingoSprite2D sprite)
         {
-            base.OnEndSprite(sprite);
+            base.OnPrepareEndSprite(sprite);
+
             if (_lingoMouse.IsSubscribed(sprite))
                 _lingoMouse.Unsubscribe(sprite);
-
         }
 
 
