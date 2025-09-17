@@ -2,6 +2,8 @@ using System;
 using LingoEngine.SDL2;
 using LingoEngine.Setup;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+
 #if DEBUG
 using LingoEngine.Director.Core.Projects;
 using LingoEngine.Director.SDL2;
@@ -15,7 +17,11 @@ internal static class Startup
     {
         var services = new ServiceCollection();
         IServiceProvider? serviceProvider = null;
-
+        services.AddLogging(config =>
+        {
+            //config.AddConsole();   // log to console
+            config.SetMinimumLevel(LogLevel.Debug);
+        });
         services.RegisterLingoEngine(configuration =>
         {
 #if DEBUG

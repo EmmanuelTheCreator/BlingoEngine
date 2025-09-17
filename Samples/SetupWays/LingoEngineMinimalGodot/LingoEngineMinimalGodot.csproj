@@ -6,6 +6,9 @@
     <LangVersion>12</LangVersion>
     <RootNamespace>LingoEngineMinimalGodot</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Include="Properties\launchSettings.json" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\LingoEngine.LGodot\LingoEngine.LGodot.csproj" />
