@@ -48,8 +48,9 @@ An easy way to debug your game, run the Remote Terminal trough pipes or SignalR.
 ## Help making this project!
 
 
-> ⚠️ **Can you help us make this dream project come true?**  
+> ⚠️ **Can you help us make this dream project come true?**
 > This project is still under heavy development, and we can use some help. Reach out if you want to contribute.
+> 🚧 **Warning:** The Director SDL integration is still under heavy development and is not yet functional.
 .
 .
 
