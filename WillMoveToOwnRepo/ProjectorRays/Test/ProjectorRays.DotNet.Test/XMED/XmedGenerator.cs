@@ -21,7 +21,7 @@ public class XmedGenerator
     private static IEnumerable<string> GetCastFiles()
     {
         var baseDir = Path.Combine(AppContext.BaseDirectory, "../../../../TestData/Texts_Fields");
-        var files = Directory.EnumerateFiles(baseDir, "*.cst",SearchOption.AllDirectories).ToList();
+        var files = Directory.EnumerateFiles(baseDir, "*.cst", SearchOption.AllDirectories).ToList();
         return files;
     }
 }
