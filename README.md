@@ -19,15 +19,14 @@
 <img src="Images/PropertyInspector.png" alt="Property Inspector" width="49%" /><img src="Images/TempoChange.jpg" alt="Tempo Change" width="49%" />
 
 #### Easy Lingo to C# conversion
-File by file or in batch with the lingo importer.
-
+File by file or in batch with the lingo importer. [Lingo vs C# Differences](docs/design/Blingo_vs_CSharp.md)
 <img src="Images/Director_CodeConverter1.jpg" alt="Easy Lingo to C# conversion" width="100%" />
 
 
 #### Remote Terminal
-An easy way to debug your game, run the Remote Terminal trough pipes or SignalR.
+An easy way to debug your game, run the [Remote Terminal](docs/design/RNet.md) through pipes or SignalR.
 
-<img src="Images/Screenshot_RNetTerminal1.jpg" alt="RNetTerminal1" width="30%" /><img src="Images/Screenshot_RNetTerminal2.jpg" alt="RNetTerminal2" width="30%" /><img src="Images/Screenshot_RNetTerminal3.jpg" alt="RNetTerminal3" width="30%" />
+<img src="Images/Screenshot_RNetTerminal1.jpg" alt="RNetTerminal1" width="30%" /><img src="Images/Screenshot_RNetTerminal2.jpg" alt="RNetTerminal2" width="30%" style="display:inline-block;margin-left:5px; margin-right:5px;" /><img src="Images/Screenshot_RNetTerminal3.jpg" alt="RNetTerminal3" width="30%" />
 
 
 ## ✨ Key Features of the engine
@@ -49,7 +48,9 @@ An easy way to debug your game, run the Remote Terminal trough pipes or SignalR.
 
 
 > ⚠️ **Can you help us make this dream project come true?**
+
 > This project is still under heavy development, and we can use some help. Reach out if you want to contribute.
+
 > 🚧 **Warning:** The Director SDL integration is still under heavy development and is not yet functional.
 .
 .
@@ -120,7 +121,7 @@ Linux:
    ```
 Windows:
    ```bash
-   ./setup-windows.sh
+   setup-windows.bat
    ```
 
 3. **Open the solution**
@@ -155,8 +156,8 @@ Both the SDL2 and Godot frontends share the same backend logic. Here's an exampl
 ```csharp
 var services = new ServiceCollection();
 services.RegisterBlingoEngine(cfg => cfg
-    .WithBlingoSdlEngine("TetriGrounds", 1280, 960)
-    .SetProjectFactory<BlingoEngine.Demo.TetriGrounds.Core.TetriGroundsProjectFactory>()
+    .WithBlingoSdlEngine("TetriGrounds", 640, 460)
+    .SetProjectFactory<TetriGrounds.Core.TetriGroundsProjectFactory>()
     .BuildAndRunProject());
 
 var provider = services.BuildServiceProvider();
@@ -174,19 +175,14 @@ Swap to the Godot backend by using `.WithBlingoGodotEngine(...)`.
 
 ### Guides
 
+- [Documentation](docs)
 - [Getting Started](docs/GettingStarted.md)
 - [Lingo vs C# Differences](docs/design/Blingo_vs_CSharp.md)
 - [Architecture Overview](docs/design/Architecture.md)
-- [Godot Setup](docs/GodotSetup.md)
-- [SDL2 Setup](docs/SDLSetup.md)
-- [Blazor Demo](docs/BlazorDemo.md)
-- [Project Setup](docs/design/ProjectSetup.md)
 - [Progress Log](docs/Progress.md)
-- [Director Keyframe Tags](docs/DirDissasembly/director_keyframe_tags.md)
 - [Director Lingo MX2004 Scripting Guide](docs/Director_Blingo_mx2004_scripting.pdf)
-- [XMED File Comparisons](docs/DirDissasembly/XMED_FileComparisons.md)
-- [XMED Offsets](docs/DirDissasembly/XMED_Offsets.md)
-- [Text Styling Example](docs/DirDissasembly/Text_Multi_Line_Multi_Style.md)
+- [Director file analysis](docs/DirDissasembly/)
+- [Blingo Remote NET](docs/design/RNet.md)
 
 ### API Reference
 
