@@ -3,6 +3,9 @@ Bugs, missing features, todo's and so on. A fast notes document.
 
 ## Common
 
+- Test video player in all frameworks.
+
+
 ### Textures
 - Test Grid texture
 - update image painter to use grid texture
@@ -19,6 +22,8 @@ Bugs, missing features, todo's and so on. A fast notes document.
 
 ## Remote NEt (RNet)
 - Pipe not working yet.
+- not all events are forwarded and received by the client and updated in the terminal
+- play/stop/rewind should be possible to send too.
 
 ## Godot
 
@@ -36,7 +41,9 @@ Bugs, missing features, todo's and so on. A fast notes document.
 - Not working yet 
 
 
-## PRojectorRays
+## ProjectorRays
+
+### Cst or cast extract all member rtpes from a cst
 - members extraction not working
 	- Lingo scripts/behaviors cant be extracted
 	- Text and fields cant be extracted
