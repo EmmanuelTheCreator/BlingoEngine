@@ -24,19 +24,12 @@ namespace LingoEngine.Director.SDL2.UI
         {
             var windowManager= services.GetRequiredService<IAbstWindowManager>();
 
-            //_castWindow = services.GetRequiredService<DirSdlCastWindow>();
-            //_inspectorWindow = services.GetRequiredService<DirSdlPropertyInspectorWindow>();
-
             windowManager.OpenWindow(DirectorMenuCodes.PropertyInspector);
             windowManager.OpenWindow(DirectorMenuCodes.CastWindow);
-            //_stageWindow = services.GetRequiredService<DirSdlStageWindow>();
-            //_scoreWindow = services.GetRequiredService<DirSdlScoreWindow>();
-
-            //_castWindow.Popup();
-            //_stageWindow.Popup();
-            //_scoreWindow.Popup();
-            //_inspectorWindow.Popup();
-
+            windowManager.OpenWindow(DirectorMenuCodes.ScoreWindow);
+            windowManager.OpenWindow(DirectorMenuCodes.StageWindow);
+            //windowManager.OpenWindow(DirectorMenuCodes.ToolsWindow);
+            windowManager.OpenWindow(DirectorMenuCodes.MainMenu);
         }
 
         public void Dispose()

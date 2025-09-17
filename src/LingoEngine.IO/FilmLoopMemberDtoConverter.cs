@@ -1,5 +1,7 @@
 using LingoEngine.FilmLoops;
 using LingoEngine.IO.Data.DTO;
+using LingoEngine.IO.Data.DTO.FilmLoops;
+using LingoEngine.IO.Data.DTO.Members;
 using System.Linq;
 
 namespace LingoEngine.IO;

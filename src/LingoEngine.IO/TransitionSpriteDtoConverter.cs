@@ -1,4 +1,4 @@
-using LingoEngine.IO.Data.DTO;
+using LingoEngine.IO.Data.DTO.Sprites;
 using LingoEngine.Transitions;
 
 namespace LingoEngine.IO;

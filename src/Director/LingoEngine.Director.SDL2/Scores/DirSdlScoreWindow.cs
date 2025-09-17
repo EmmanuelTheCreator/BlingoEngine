@@ -270,6 +270,7 @@ internal class DirSdlScoreWindow : AbstSdlWindow, IDirFrameworkScoreWindow, IDis
     {
         private readonly DirScoreChannel _directorChannel;
         private readonly AbstSdlGfxCanvas _canvas;
+        private bool _isRequiringRedraw;
 
         public ContainerChannel(DirScoreChannel ch, AbstSdlComponentFactory factory) : base(factory)
         {
@@ -288,10 +289,13 @@ internal class DirSdlScoreWindow : AbstSdlWindow, IDirFrameworkScoreWindow, IDis
             Y = _directorChannel.Position.Y;
             Visibility = _directorChannel.Visible;
         }
-
+        
         public void RequireRedraw()
         {
+            if (_isRequiringRedraw) return;
+            _isRequiringRedraw = true;
             _directorChannel.Draw();
+            _isRequiringRedraw = false;
         }
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)

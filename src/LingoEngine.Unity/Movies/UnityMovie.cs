@@ -6,6 +6,7 @@ using UnityEngine;
 using LingoEngine.Unity.Stages;
 using LingoEngine.Unity.Sprites;
 using AbstUI.Primitives;
+using AbstUI.Components;
 
 namespace LingoEngine.Unity.Movies;
 
@@ -21,6 +22,10 @@ public class UnityMovie : ILingoFrameworkMovie, IDisposable
     private readonly HashSet<LingoUnitySprite2D> _allSprites = new();
     private readonly GameObject _root;
     private readonly LingoMovie _movie;
+    private float _width;
+    private float _height;
+    private AMargin _margin = AMargin.Zero;
+    private int _zIndex;
 
     public int CurrentFrame => _movie.CurrentFrame;
     public UnityMovie(UnityStage stage, LingoMovie movie, Action<UnityMovie> remove)
@@ -31,6 +36,8 @@ public class UnityMovie : ILingoFrameworkMovie, IDisposable
         _root.transform.parent = stage.transform;
         stage.ShowMovie(this);
         _movie = movie;
+        _width = movie.Width;
+        _height = movie.Height;
     }
 
     internal void Show()
@@ -77,5 +84,43 @@ public class UnityMovie : ILingoFrameworkMovie, IDisposable
         Hide();
         RemoveMe();
     }
+
+    string IAbstFrameworkNode.Name
+    {
+        get => _root.name;
+        set => _root.name = value;
+    }
+
+    bool IAbstFrameworkNode.Visibility
+    {
+        get => _root.activeSelf;
+        set => _root.SetActive(value);
+    }
+
+    float IAbstFrameworkNode.Width
+    {
+        get => _width;
+        set => _width = value;
+    }
+
+    float IAbstFrameworkNode.Height
+    {
+        get => _height;
+        set => _height = value;
+    }
+
+    AMargin IAbstFrameworkNode.Margin
+    {
+        get => _margin;
+        set => _margin = value;
+    }
+
+    int IAbstFrameworkNode.ZIndex
+    {
+        get => _zIndex;
+        set => _zIndex = value;
+    }
+
+    object IAbstFrameworkNode.FrameworkNode => _root;
 }
 

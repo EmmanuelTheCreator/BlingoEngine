@@ -2,6 +2,8 @@ using AbstUI.Primitives;
 using LingoEngine.Animations;
 using LingoEngine.FilmLoops;
 using LingoEngine.IO.Data.DTO;
+using LingoEngine.IO.Data.DTO.Members;
+using LingoEngine.IO.Data.DTO.Sprites;
 using LingoEngine.Sprites;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,6 +55,11 @@ internal static class SpriteDtoConverter
                 case LingoFilmLoopPlayer:
                     break;
             }
+        }
+
+        foreach (var behavior in sprite.Behaviors)
+        {
+            dto.Behaviors.Add(behavior.ToDto());
         }
 
         return dto;

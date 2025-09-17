@@ -1,4 +1,5 @@
 ﻿using AbstUI.Commands;
+using AbstUI.Windowing;
 using LingoEngine.Director.Core.Bitmaps.Commands;
 using LingoEngine.Director.Core.UI;
 
@@ -17,6 +18,12 @@ namespace LingoEngine.Director.Core.Bitmaps
             MinimumHeight = 150;
             X = 20;
             Y = 120;
+        }
+
+        protected override void OnInit(IAbstFrameworkWindow frameworkWindow)
+        {
+            base.OnInit(frameworkWindow);
+            Title = "Bitmap Editor";
         }
         public bool CanExecute(PainterToolSelectCommand command) => true;
 

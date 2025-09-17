@@ -1,10 +1,28 @@
 using LingoEngine.IO.Data.DTO;
 using LingoEngine.Net.RNetContracts;
+using LingoEngine.Net.RNetProjectClient;
+using LingoEngine.Net.RNetTerminal.Datas;
+using LingoEngine.Net.RNetTerminal.Dialogs;
+using LingoEngine.Net.RNetTerminal.Views;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.WebSockets;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using Terminal.Gui;
+using Terminal.Gui.App;
+using Terminal.Gui.Configuration;
+using Terminal.Gui.Drawing;
+using Terminal.Gui.Input;
+using Terminal.Gui.ViewBase;
+using Terminal.Gui.Views;
+using Timer = System.Timers.Timer;
 
 namespace LingoEngine.Net.RNetTerminal;
 
-public sealed class LingoRNetTerminal : IAsyncDisposable
+public sealed class LingoRNetTerminal : System.IAsyncDisposable
 {
     private readonly RNetTerminalConnection _connection;
     private RNetTerminalConnectionOptions _connectionOptions;
@@ -26,10 +44,6 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
     private bool _logsCollapsed;
     private StatusItem? _infoItem;
 
-    private const int PropertyInspectorWidth = 22;
-    private const int StageWindowHeight = 12;
-    private const int CastWindowHeight = 12;
-    private int _logExpandedWidth = 40;
 
     private bool IsRemoteMode => _connection.IsConnected;
 
@@ -87,66 +101,11 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
         Application.Shutdown();
         return Task.CompletedTask;
     }
-
-    private void BuildUi()
+    public Task SendCommandAsync(RNetCommand cmd, CancellationToken? ct = default)
     {
-        var top = Application.Top;
-
-        var menu = new MenuBar(new[]
-        {
-            new MenuBarItem("_Host", new[]
-            {
-                new MenuItem("_Connect/Disconnect", string.Empty, async () => await ToggleConnectionAsync()),
-                new MenuItem("_Host Port", string.Empty, SetPort),
-                new MenuItem("_Quit", string.Empty, () => Application.RequestStop())
-            }),
-            new MenuBarItem("_Edit", Array.Empty<MenuItem>()),
-            new MenuBarItem("_Window", new[]
-            {
-                new MenuItem("_Stage Mode", string.Empty, () => SwitchToStageMode()),
-                new MenuItem("_Cast Mode", string.Empty, () => SwitchToCastMode())
-            }),
-            new MenuBarItem("_Help", Array.Empty<MenuItem>())
-        });
-
-        top.Add(menu);
-
-        _connectionStatusLabel = new Label(string.Empty)
-        {
-            X = Pos.AnchorEnd(15),
-            Y = 0,
-            Width = 15,
-            TextAlignment = TextAlignment.Right,
-            ColorScheme = Colors.Menu
-        };
-        top.Add(_connectionStatusLabel);
-
-        _mainArea = new View
-        {
-            X = 0,
-            Y = 1,
-            Width = Dim.Fill(PropertyInspectorWidth + _logExpandedWidth),
-            Height = Dim.Fill() - 1
-        };
-
-        BuildScoreWindow();
-        BuildStageWindow();
-        BuildCastWindow();
-
-        _mainArea.Add(_scoreWindow!);
-        _mainArea.Add(_stageWindow!);
-        _mainArea.Add(_castWindow!);
-        top.Add(_mainArea);
-
-        BuildRightPanel(top);
-
-        _infoItem = new StatusItem(Key.Null, "Frame:0 Channel:0 Sprite:- Member:", null);
-        var status = new StatusBar(new[] { _infoItem });
-        top.Add(status);
-
-        SwitchToStageMode();
-        UpdateConnectionStatus();
-        UpdateRightPanelLayout();
+       if (_client == null) return Task.CompletedTask;
+        return ct != null? _client.SendCommandAsync(cmd, ct.Value) : _client.SendCommandAsync(cmd);
+                  
     }
 
     private void UpdateLocalChangeMode()
@@ -343,7 +302,6 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
 
         UpdateLocalChangeMode();
     }
-
     private void SaveSettings()
     {
         _settings.Port = _connectionOptions.Port;
@@ -541,7 +499,7 @@ public sealed class LingoRNetTerminal : IAsyncDisposable
                 await _connection.DisconnectAsync().ConfigureAwait(false);
             }
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
             Log($"Connection error: {ex.Message}");
         }

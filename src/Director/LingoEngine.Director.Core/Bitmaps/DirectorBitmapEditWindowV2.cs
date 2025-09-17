@@ -6,6 +6,7 @@ using AbstUI.Components.Containers;
 using AbstUI.Components.Graphics;
 using AbstUI.Inputs;
 using AbstUI.Primitives;
+using AbstUI.Windowing;
 
 namespace LingoEngine.Director.Core.Bitmaps;
 
@@ -77,6 +78,12 @@ public class DirectorBitmapEditWindowV2 : DirectorWindow<IDirFrameworkBitmapEdit
         _mouseDownSub = MouseT.OnMouseDown(OnMouseDown);
         _mouseMoveSub = MouseT.OnMouseMove(OnMouseMove);
         _mouseUpSub = MouseT.OnMouseUp(OnMouseUp);
+    }
+
+    protected override void OnInit(IAbstFrameworkWindow frameworkWindow)
+    {
+        base.OnInit(frameworkWindow);
+        Title = "Bitmap Editor";
     }
 
     public void SelectTool(PainterToolType tool) => _selectedTool = tool;

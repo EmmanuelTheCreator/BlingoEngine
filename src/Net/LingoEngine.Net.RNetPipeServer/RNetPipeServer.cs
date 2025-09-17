@@ -22,8 +22,6 @@ namespace LingoEngine.Net.RNetPipeServer;
 /// <summary>
 /// Pipe-based implementation of the RNet host.
 /// </summary>
-public interface IRNetPipeServer : ILingoRNetServer { }
-
 /// <inheritdoc />
 public sealed class RNetPipeServer : IRNetPipeServer
 {
@@ -62,6 +60,8 @@ public sealed class RNetPipeServer : IRNetPipeServer
         public int Port { get; set; } = 61699;
         public bool AutoStartRNetHostOnStartup { get; set; }
         public string ClientName { get; set; } = "PipeHost";
+        public RNetClientType ClientType { get; set; } = RNetClientType.Pipe;
+        public RNetRemoteRole RemoteRole { get; set; } = RNetRemoteRole.Host;
     }
 
     /// <inheritdoc />

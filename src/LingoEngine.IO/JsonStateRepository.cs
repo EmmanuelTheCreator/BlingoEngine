@@ -7,8 +7,13 @@ using LingoEngine.Core;
 using LingoEngine.Events;
 using LingoEngine.FilmLoops;
 using LingoEngine.IO.Data.DTO;
+using LingoEngine.IO.Data.DTO.FilmLoops;
+using LingoEngine.IO.Data.DTO.Members;
+using LingoEngine.IO.Data.DTO.Sprites;
 using LingoEngine.Members;
 using LingoEngine.Movies;
+using LingoEngine.Scripts;
+using LingoEngine.Shapes;
 using LingoEngine.Sounds;
 using LingoEngine.Sprites;
 using LingoEngine.Tempos;
@@ -147,7 +152,7 @@ public class JsonStateRepository : IJsonStateRepository
             {
                 var reg = new APoint(memDto.RegPoint.X, memDto.RegPoint.Y);
                 string fileName = memDto.FileName;
-                if (memDto is LingoMemberPictureDTO pic && !string.IsNullOrEmpty(pic.ImageFile))
+                if (memDto is LingoMemberBitmapDTO pic && !string.IsNullOrEmpty(pic.ImageFile))
                     fileName = Path.Combine(resourceDir, pic.ImageFile);
                 if (memDto is LingoMemberSoundDTO snd && !string.IsNullOrEmpty(snd.SoundFile))
                     fileName = Path.Combine(resourceDir, snd.SoundFile);
@@ -180,6 +185,10 @@ public class JsonStateRepository : IJsonStateRepository
                         if (TryResolveMember<LingoMemberSound>(memberMap, sndEntry.Member, out var sndMem2) && sndMem2 != null)
                             flMem.AddSound(sndEntry.Channel, sndEntry.StartFrame, sndMem2);
                     }
+                }
+                if (member is LingoMemberShape shapeMem && memDto is LingoMemberShapeDTO shapeDto)
+                {
+                    ShapeDtoConverter.Apply(shapeDto, shapeMem);
                 }
 
                 memberMap[(member.CastLibNum, member.NumberInCast)] = member;
@@ -248,6 +257,10 @@ public class JsonStateRepository : IJsonStateRepository
         sprite.LoadState(state);
 
         AddAnimator(sDto, sprite, movie, eventMediator);
+        foreach (var behaviorDto in sDto.Behaviors)
+        {
+            behaviorDto.Apply(sprite, memberMap);
+        }
         return sprite;
     }
 

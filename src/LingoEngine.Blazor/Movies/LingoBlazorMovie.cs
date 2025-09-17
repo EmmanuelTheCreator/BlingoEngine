@@ -2,11 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AbstUI.Blazor;
+using AbstUI.Blazor.Components.Containers;
 using AbstUI.Primitives;
 using LingoEngine.Blazor.Sprites;
 using LingoEngine.Blazor.Stages;
 using LingoEngine.Movies;
 using LingoEngine.Sprites;
+using AbstUI.Components;
+using AbstUI.Components.Containers;
 
 namespace LingoEngine.Blazor.Movies;
 
@@ -24,31 +27,43 @@ public class LingoBlazorMovie : ILingoFrameworkMovie, IDisposable
     private readonly HashSet<LingoBlazorSprite2D> _drawnSprites = new();
     private readonly HashSet<LingoBlazorSprite2D> _allSprites = new();
     private readonly AbstUIScriptResolver _scripts;
-    private readonly int _width;
-    private readonly int _height;
-    private readonly LingoBlazorRootPanel _rootPanel;
+    private readonly AbstBlazorPanelComponent _panel;
+    private float _layoutWidth;
+    private float _layoutHeight;
+    private AMargin _margin = AMargin.Zero;
+    private int _zIndex;
 
     public event Action? Changed;
 
-    public LingoBlazorMovie(LingoBlazorStage stage, LingoMovie movie, Action<LingoBlazorMovie> remove, AbstUIScriptResolver scripts, LingoBlazorRootPanel rootPanel)
+    public LingoBlazorMovie(LingoBlazorStage stage, LingoMovie movie, Action<LingoBlazorMovie> remove, AbstUIScriptResolver scripts, LingoBlazorRootPanel rootPanel, IAbstComponentFactory factory)
     {
         _stage = stage;
         _movie = movie;
         _remove = remove;
         _scripts = scripts;
-        _rootPanel = rootPanel;
-        _width = stage.LingoStage.Width;
-        _height = stage.LingoStage.Height;
+        _ = rootPanel;
+        float stageWidth = stage.LingoStage.Width;
+        float stageHeight = stage.LingoStage.Height;
+        _panel = factory.CreatePanel($"Movie_{movie.Name}").Framework<AbstBlazorPanelComponent>();
+        _panel.Width = stageWidth;
+        _panel.Height = stageHeight;
+        _panel.Name = movie.Name;
+        _panel.Visibility = true;
+        _panel.Changed += OnPanelChanged;
+        _layoutWidth = stageWidth;
+        _layoutHeight = stageHeight;
     }
 
     internal void Show()
     {
+        _panel.Visibility = true;
         _stage.ShowMovie(this);
         Changed?.Invoke();
     }
 
     internal void Hide()
     {
+        _panel.Visibility = false;
         _stage.HideMovie(this);
         Changed?.Invoke();
     }
@@ -82,8 +97,8 @@ public class LingoBlazorMovie : ILingoFrameworkMovie, IDisposable
 
     internal IEnumerable<LingoBlazorSprite2D> VisibleSprites => _drawnSprites.OrderBy(s => s.ZIndex);
 
-    public int WidthPx => _width;
-    public int HeightPx => _height;
+    public int WidthPx => (int)_layoutWidth;
+    public int HeightPx => (int)_layoutHeight;
 
     public APoint GetGlobalMousePosition() => (0, 0);
 
@@ -91,5 +106,86 @@ public class LingoBlazorMovie : ILingoFrameworkMovie, IDisposable
     {
         Hide();
         RemoveMe();
+        _panel.Changed -= OnPanelChanged;
+        _panel.Dispose();
     }
+
+    internal IAbstFrameworkPanel Panel => _panel;
+
+    internal void UpdateDimensions(float width, float height)
+    {
+        if (Math.Abs(_layoutWidth - width) <= float.Epsilon && Math.Abs(_layoutHeight - height) <= float.Epsilon)
+            return;
+        _layoutWidth = width;
+        _layoutHeight = height;
+        _panel.Width = width;
+        _panel.Height = height;
+        Changed?.Invoke();
+    }
+
+    private void OnPanelChanged() => Changed?.Invoke();
+
+    string IAbstFrameworkNode.Name
+    {
+        get => _panel.Name;
+        set
+        {
+            if (_panel.Name == value)
+                return;
+            _panel.Name = value;
+            Changed?.Invoke();
+        }
+    }
+
+    bool IAbstFrameworkNode.Visibility
+    {
+        get => _panel.Visibility;
+        set
+        {
+            if (_panel.Visibility == value)
+                return;
+            _panel.Visibility = value;
+            Changed?.Invoke();
+        }
+    }
+
+    float IAbstFrameworkNode.Width
+    {
+        get => _layoutWidth;
+        set => UpdateDimensions(value, _layoutHeight);
+    }
+
+    float IAbstFrameworkNode.Height
+    {
+        get => _layoutHeight;
+        set => UpdateDimensions(_layoutWidth, value);
+    }
+
+    AMargin IAbstFrameworkNode.Margin
+    {
+        get => _margin;
+        set
+        {
+            if (_margin.Equals(value))
+                return;
+            _margin = value;
+            _panel.Margin = value;
+            Changed?.Invoke();
+        }
+    }
+
+    int IAbstFrameworkNode.ZIndex
+    {
+        get => _zIndex;
+        set
+        {
+            if (_zIndex == value)
+                return;
+            _zIndex = value;
+            _panel.ZIndex = value;
+            Changed?.Invoke();
+        }
+    }
+
+    object IAbstFrameworkNode.FrameworkNode => _panel;
 }

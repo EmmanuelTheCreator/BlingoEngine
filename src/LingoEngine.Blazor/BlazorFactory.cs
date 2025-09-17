@@ -87,7 +87,7 @@ public class BlazorFactory : ILingoFrameworkFactory, IDisposable
         var blazorStage = stage.Framework<LingoBlazorStage>();
         var scripts = _services.GetRequiredService<AbstUIScriptResolver>();
         var root = _services.GetRequiredService<LingoBlazorRootPanel>();
-        var impl = new LingoBlazorMovie(blazorStage, lingoMovie, m => _disposables.Remove(m), scripts, root);
+        var impl = new LingoBlazorMovie(blazorStage, lingoMovie, m => _disposables.Remove(m), scripts, root, _gfxFactory);
         lingoMovie.Init(impl);
         _disposables.Add(impl);
         return lingoMovie;

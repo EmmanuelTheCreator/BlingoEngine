@@ -83,7 +83,7 @@ internal partial class DirGodotMainMenu : Control , IDirFrameworkMainMenuWindow,
         AddChild(_menuBar);
         AddChild(_iconBar);
         _menuBar.Position = new Vector2(10, 1);
-        _iconBar.Position = new Vector2(300, 1);
+        _iconBar.Position = new Vector2(400, 1);
 
         directorMainMenu.CallOnAllTopMenus(btn =>
         {

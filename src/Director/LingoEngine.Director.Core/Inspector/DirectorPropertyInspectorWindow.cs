@@ -59,21 +59,21 @@ namespace LingoEngine.Director.Core.Inspector
         private AbstLabel? _cast;
         private LingoPlayer _player;
         private IAbstCommandManager _commandManager;
-        private AbstTabContainer _tabs;
+        private AbstTabContainer _tabs = null!;
         private DirectorMemberThumbnail? _thumb;
         private AbstPanel? _header;
         private IDirectorIconManager _iconManager;
-        private AbstPanel _headerPanel;
-        private AbstPanel _rootPanel;
+        private AbstPanel _headerPanel = null!;
+        private AbstPanel _rootPanel = null!;
         private IDirectorEventMediator _mediator;
         private readonly IDirectorBehaviorDescriptionManager _descriptionManager;
         private readonly ILogger<DirectorPropertyInspectorWindow> _logger;
         private readonly DirectorStageGuides _guides;
-        private AbstWrapPanel _behaviorPanel;
+        private AbstWrapPanel _behaviorPanel = null!;
         private float _lastWidh;
         private float _lastHeight;
         private Dictionary<string, LingoSpriteBehavior> _behaviors = new();
-        private AbstItemList _behaviorList;
+        private AbstItemList _behaviorList = null!;
         private IAbstWindowDialogReference? _behaviorWindow;
 
         public AbstPanel HeaderPanel => _headerPanel;

@@ -12,6 +12,7 @@ using LingoEngine.Scripts;
 using LingoEngine.ColorPalettes;
 using LingoEngine.Transitions;
 using AbstUI.Primitives;
+using LingoEngine.IO.Data.DTO.Members;
 
 namespace LingoEngine.Director.Core.Projects;
 

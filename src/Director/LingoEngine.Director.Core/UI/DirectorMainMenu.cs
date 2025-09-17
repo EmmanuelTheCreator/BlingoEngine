@@ -1,30 +1,28 @@
-using LingoEngine.Core;
-using LingoEngine.Director.Core.Projects;
-using LingoEngine.FrameworkCommunication;
-using LingoEngine.Movies;
-using LingoEngine.Inputs;
-using LingoEngine.Events;
 using System;
 using System.Collections.Generic;
-using LingoEngine.Director.Core.Windowing;
-using LingoEngine.Director.Core.Icons;
+using System.ComponentModel;
 using AbstUI.Commands;
-using LingoEngine.Director.Core.Compilers.Commands;
-using LingoEngine.Net.RNetContracts;
-using AbstUI.Primitives;
-using LingoEngine.Director.Core.Tools.Commands;
-using AbstUI.Windowing;
-using AbstUI.Inputs;
-using AbstUI.Tools;
-using AbstUI.Components.Menus;
 using AbstUI.Components.Buttons;
 using AbstUI.Components.Containers;
+using AbstUI.Components.Menus;
+using AbstUI.Inputs;
+using AbstUI.Primitives;
+using AbstUI.Tools;
+using AbstUI.Windowing;
+using LingoEngine.Core;
+using LingoEngine.Director.Core.Compilers.Commands;
+using LingoEngine.Director.Core.Icons;
 using LingoEngine.Director.Core.Importer.Commands;
+using LingoEngine.Director.Core.Projects;
+using LingoEngine.Director.Core.Remote;
 using LingoEngine.Director.Core.Remote.Commands;
-using LingoEngine.Net.RNetProjectHost;
-using LingoEngine.Net.RNetProjectClient;
-using System;
-using System.ComponentModel;
+using LingoEngine.Director.Core.Tools.Commands;
+using LingoEngine.Director.Core.Windowing;
+using LingoEngine.Events;
+using LingoEngine.FrameworkCommunication;
+using LingoEngine.Inputs;
+using LingoEngine.Movies;
+using LingoEngine.Net.RNetContracts;
 
 namespace LingoEngine.Director.Core.UI
 {
@@ -56,12 +54,14 @@ namespace LingoEngine.Director.Core.UI
         private readonly IAbstShortCutManager _shortCutManager;
         private readonly IHistoryManager _historyManager;
         private readonly IAbstCommandManager _commandManager;
-        private readonly IRNetProjectServer _server;
-        private readonly ILingoRNetProjectClient _client;
+        private readonly DirectorRNetServer _rnetServer;
+        private readonly DirectorRNetClient _client;
         private readonly ILingoFrameworkFactory _factory;
+        private readonly IRNetConfiguration _rnetConfiguration;
         private readonly List<ShortCutInfo> _shortCuts = new();
         private AbstMenuItem _undoItem;
         private AbstMenuItem _redoItem;
+        private AbstMenuItem _settingsItem = null!;
         private AbstMenuItem _hostItem = null!;
         private AbstMenuItem _clientItem = null!;
         private ILingoMovie? _lingoMovie;
@@ -96,7 +96,7 @@ namespace LingoEngine.Director.Core.UI
 
         public DirectorMainMenu(IServiceProvider serviceProvider, IAbstWindowManager windowManager, DirectorProjectManager projectManager, LingoPlayer player, IAbstShortCutManager shortCutManager,
             IHistoryManager historyManager, IDirectorIconManager directorIconManager, IAbstCommandManager commandManager, ILingoFrameworkFactory factory,
-            IRNetProjectServer server, ILingoRNetProjectClient client) : base(serviceProvider, DirectorMenuCodes.MainMenu)
+            DirectorRNetServer server, DirectorRNetClient client, IRNetConfiguration configuration) : base(serviceProvider, DirectorMenuCodes.MainMenu)
         {
             _windowManager = windowManager;
             _projectManager = projectManager;
@@ -104,16 +104,21 @@ namespace LingoEngine.Director.Core.UI
             _shortCutManager = shortCutManager;
             _historyManager = historyManager;
             _commandManager = commandManager;
-            _server = server;
+            _rnetServer = server;
             _client = client;
             _factory = factory;
+            _rnetConfiguration = configuration;
 
-            _server.ConnectionStatusChanged += OnServerStateChanged;
+            _rnetServer.ConnectionStatusChanged += OnServerStateChanged;
             _client.ConnectionStatusChanged += OnClientStateChanged;
 
             _menuBar = factory.CreateWrapPanel(AOrientation.Horizontal, "MenuBar");
             _iconBar = factory.CreateWrapPanel(AOrientation.Horizontal, "IconBar");
             _iconBar.Height = 20;
+            _iconBar.X = 400;
+            _iconBar.Y = 1;
+            _menuBar.X = 10;
+            _menuBar.Y = 1; 
 
             _fileMenu = factory.CreateMenu("FileMenu");
             _editMenu = factory.CreateMenu("EditMenu");
@@ -185,7 +190,11 @@ namespace LingoEngine.Director.Core.UI
             _ModifyButton.Pressed += () => ShowMenu(_modifyMenu, _ModifyButton);
             _ControlButton.Pressed += () => ShowMenu(_controlMenu, _ControlButton);
             _windowButton.Pressed += () => ShowMenu(_windowMenu, _windowButton);
-            _remoteButton.Pressed += () => ShowMenu(_remoteMenu, _remoteButton);
+            _remoteButton.Pressed += () =>
+            {
+                UpdateRemoteMenuActions();
+                ShowMenu(_remoteMenu, _remoteButton);
+            };
 
             ComposeMenu(factory);
 
@@ -333,33 +342,67 @@ namespace LingoEngine.Director.Core.UI
 
         private void CreateRemoteMenu(ILingoFrameworkFactory factory)
         {
-            var settings = factory.CreateMenuItem("Settings");
-            settings.Activated += () => _commandManager.Handle(new OpenRNetSettingsCommand());
-            _remoteMenu.AddItem(settings);
+            _settingsItem = factory.CreateMenuItem("Settings");
+            _settingsItem.Activated += () =>
+            {
+                _commandManager.Handle(new OpenRNetSettingsCommand());
+            };
 
-            _hostItem = factory.CreateMenuItem(_server.IsEnabled ? "Stop Host" : "Start Host");
+            _hostItem = factory.CreateMenuItem(_rnetServer.IsEnabled ? "Stop Host" : "Start Host");
             _hostItem.Activated += () =>
-                _commandManager.Handle(_server.IsEnabled
+                _commandManager.Handle(_rnetServer.IsEnabled
                     ? new DisconnectRNetServerCommand()
                     : new ConnectRNetServerCommand());
-            _remoteMenu.AddItem(_hostItem);
 
-            _clientItem = factory.CreateMenuItem(_client.IsConnected ? "Stop Client" : "Start Client");
+            _clientItem = factory.CreateMenuItem(_client.IsConnected ? "Disconnect from Host" : "Connect to Host");
             _clientItem.Activated += () =>
                 _commandManager.Handle(_client.IsConnected
                     ? new DisconnectRNetClientCommand()
                     : new ConnectRNetClientCommand());
-            _remoteMenu.AddItem(_clientItem);
+
+            UpdateRemoteMenuActions();
+        }
+
+        private void UpdateRemoteMenuActions()
+        {
+            _remoteMenu.ClearItems();
+            _remoteMenu.AddItem(_settingsItem);
+
+            if (_rnetConfiguration.RemoteRole == RNetRemoteRole.Host)
+            {
+                _hostItem.Name = _rnetServer.IsEnabled ? "Stop Host" : "Start Host";
+                _hostItem.Enabled = _rnetServer.IsEnabled || _rnetServer.CanExecute(new ConnectRNetServerCommand());
+                _remoteMenu.AddItem(_hostItem);
+            }
+            else
+            {
+                _clientItem.Name = _client.IsConnected ? "Disconnect from Host" : "Connect to Host";
+                var canConnect = _client.CanExecute(new ConnectRNetClientCommand());
+                var canDisconnect = _client.CanExecute(new DisconnectRNetClientCommand());
+                _clientItem.Enabled = canConnect || canDisconnect;
+                _remoteMenu.AddItem(_clientItem);
+            }
         }
 
         private void OnServerStateChanged(LingoNetConnectionState state)
         {
-            _hostItem.Name = state == LingoNetConnectionState.Connected ? "Stop Host" : "Start Host";
+            _player.RunOnUIThread(() =>
+            {
+                _hostItem.Name = state == LingoNetConnectionState.Connected ? "Stop Host" : "Start Host";
+                if (_rnetConfiguration.RemoteRole == RNetRemoteRole.Host)
+                    UpdateRemoteMenuActions();
+            });
         }
 
         private void OnClientStateChanged(LingoNetConnectionState state)
         {
-            _clientItem.Name = state == LingoNetConnectionState.Connected ? "Stop Client" : "Start Client";
+            _player.RunOnUIThread(() =>
+            {
+                _clientItem.Name = state == LingoNetConnectionState.Connected ? "Disconnect from Host" : "Connect to Host";
+                if (_rnetConfiguration.RemoteRole == RNetRemoteRole.Client)
+
+                    UpdateRemoteMenuActions();
+            });
         }
 
 
@@ -445,7 +488,7 @@ namespace LingoEngine.Director.Core.UI
             _shortCutManager.ShortCutAdded -= OnShortCutAdded;
             _shortCutManager.ShortCutRemoved -= OnShortCutRemoved;
             _player.Key.Unsubscribe(this);
-            _server.ConnectionStatusChanged -= OnServerStateChanged;
+            _rnetServer.ConnectionStatusChanged -= OnServerStateChanged;
             _client.ConnectionStatusChanged -= OnClientStateChanged;
             base.OnDispose();
         }

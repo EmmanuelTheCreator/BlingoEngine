@@ -27,8 +27,9 @@
 	
   <ItemGroup>
     <ProjectReference Include="../LingoEngine.Director.LGodot/LingoEngine.Director.LGodot.csproj" />
-    <ProjectReference Include="../../Net/LingoEngine.Net.RNetProjectHost/LingoEngine.Net.RNetProjectHost.csproj" />
     <ProjectReference Include="../../LingoEngine.LGodot/LingoEngine.LGodot.csproj" />
+    <ProjectReference Include="..\..\Net\LingoEngine.Net.RNetPipeClient\LingoEngine.Net.RNetPipeClient.csproj" />
+    <ProjectReference Include="..\..\Net\LingoEngine.Net.RNetPipeServer\LingoEngine.Net.RNetPipeServer.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.godot" />

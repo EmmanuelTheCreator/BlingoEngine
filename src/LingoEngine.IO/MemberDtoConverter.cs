@@ -1,7 +1,9 @@
 using LingoEngine.Bitmaps;
 using LingoEngine.FilmLoops;
 using LingoEngine.IO.Data.DTO;
+using LingoEngine.IO.Data.DTO.Members;
 using LingoEngine.Members;
+using LingoEngine.Shapes;
 using LingoEngine.Sounds;
 using LingoEngine.Texts;
 
@@ -19,6 +21,7 @@ internal static class MemberDtoConverter
             LingoMemberText text => text.ToDto(baseDto),
             LingoMemberSound sound => sound.ToDto(baseDto, options),
             LingoMemberBitmap bitmap => bitmap.ToDto(baseDto, options),
+            LingoMemberShape shape => shape.ToDto(baseDto),
             LingoFilmLoopMember filmLoop => filmLoop.ToDto(baseDto),
             _ => baseDto,
         };
@@ -28,7 +31,6 @@ internal static class MemberDtoConverter
         where T : LingoMemberDTO
     {
         target.Name = source.Name;
-        target.Number = source.Number;
         target.CastLibNum = source.CastLibNum;
         target.NumberInCast = source.NumberInCast;
         target.Type = source.Type;
@@ -47,7 +49,6 @@ internal static class MemberDtoConverter
         return new LingoMemberDTO
         {
             Name = member.Name,
-            Number = member.Number,
             CastLibNum = member.CastLibNum,
             NumberInCast = member.NumberInCast,
             Type = (LingoMemberTypeDTO)member.Type,

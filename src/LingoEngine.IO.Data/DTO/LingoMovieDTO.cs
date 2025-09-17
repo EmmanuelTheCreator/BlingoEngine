@@ -1,3 +1,5 @@
+using LingoEngine.IO.Data.DTO.Sprites;
+
 namespace LingoEngine.IO.Data.DTO;
 public class LingoMovieDTO
 {

@@ -34,7 +34,7 @@ internal class DirSdlStageWindow : AbstSdlWindow, IDirFrameworkStageWindow, IDis
     private readonly LingoKey _key;
     private readonly IAbstMouseSubscription _pointerClickSub;
     private readonly ILingoPlayer _player;
-    private const int TitleBarHeight = 24;
+    private const int _titleBarHeight = 24;
 
     public DirSdlStageWindow(IDirectorEventMediator mediator,
         IServiceProvider services,
@@ -51,7 +51,7 @@ internal class DirSdlStageWindow : AbstSdlWindow, IDirFrameworkStageWindow, IDis
         var factory = (AbstSdlComponentFactory)services.GetRequiredService<IAbstComponentFactory>();
         _stagePanel = factory.CreatePanel("StagePanel").Framework<AbstSdlPanel>();
         _stagePanel.X = 0;
-        _stagePanel.Y = TitleBarHeight;
+        _stagePanel.Y = _titleBarHeight;
         _stagePanel.Width = _player.Stage.Width;
         _stagePanel.Height = _player.Stage.Height;
         _stagePanel.BackgroundColor = _player.Stage.BackgroundColor;
@@ -59,7 +59,7 @@ internal class DirSdlStageWindow : AbstSdlWindow, IDirFrameworkStageWindow, IDis
 
         _iconBarPanel = _directorStageWindow.IconBar.Panel.Framework<AbstSdlPanel>();
         _iconBarPanel.X = 0;
-        _iconBarPanel.Y = TitleBarHeight + _stagePanel.Height;
+        _iconBarPanel.Y = _titleBarHeight + _stagePanel.Height;
         _iconBarPanel.Width = _stagePanel.Width;
         AddItem(_iconBarPanel);
 
@@ -84,7 +84,7 @@ internal class DirSdlStageWindow : AbstSdlWindow, IDirFrameworkStageWindow, IDis
         _motionPathCanvas.Y = 0;
         _stagePanel.AddItem(_motionPathCanvas);
 
-        var selCanvas = lp.Factory.CreateGfxCanvas("SelectionCanvas", _player.Stage.Width, _player.Stage.Height);
+        var selCanvas = lp.Factory.CreateGfxCanvas("SelectionCanvas", (int)_player.Stage.Width,(int) _player.Stage.Height);
         _selectionCanvas = selCanvas.Framework<AbstSdlGfxCanvas>();
         _selectionCanvas.Visibility = false;
         _selectionCanvas.X = 0;
@@ -92,15 +92,15 @@ internal class DirSdlStageWindow : AbstSdlWindow, IDirFrameworkStageWindow, IDis
         _stagePanel.AddItem(_selectionCanvas);
 
         Width = _stagePanel.Width;
-        Height = TitleBarHeight + _stagePanel.Height + _iconBarPanel.Height;
-        _directorStageWindow.ResizingContentFromFW(true, (int)Width, (int)Height - TitleBarHeight - (int)_iconBarPanel.Height);
+        Height = _titleBarHeight + _stagePanel.Height + _iconBarPanel.Height;
+        _directorStageWindow.ResizingContentFromFW(true, (int)Width, (int)Height - _titleBarHeight - (int)_iconBarPanel.Height);
 
         _stageChangedSub = mediator.Subscribe(DirectorEventType.StagePropertiesChanged, () =>
         {
             _stagePanel.Width = _player.Stage.Width;
             _stagePanel.Height = _player.Stage.Height;
             _stagePanel.BackgroundColor = _player.Stage.BackgroundColor;
-            _iconBarPanel.Y = TitleBarHeight + _stagePanel.Height;
+            _iconBarPanel.Y = _titleBarHeight + _stagePanel.Height;
             _iconBarPanel.Width = _stagePanel.Width;
             _boundingBoxesCanvas.Width = _stagePanel.Width;
             _boundingBoxesCanvas.Height = _stagePanel.Height;
@@ -109,8 +109,8 @@ internal class DirSdlStageWindow : AbstSdlWindow, IDirFrameworkStageWindow, IDis
             _selectionCanvas.Width = _stagePanel.Width;
             _selectionCanvas.Height = _stagePanel.Height;
             Width = _stagePanel.Width;
-            Height = TitleBarHeight + _stagePanel.Height + _iconBarPanel.Height;
-            _directorStageWindow.ResizingContentFromFW(false, (int)Width, (int)Height - TitleBarHeight - (int)_iconBarPanel.Height);
+            Height = _titleBarHeight + _stagePanel.Height + _iconBarPanel.Height;
+            _directorStageWindow.ResizingContentFromFW(false, (int)Width, (int)Height - _titleBarHeight - (int)_iconBarPanel.Height);
             return true;
         });
 

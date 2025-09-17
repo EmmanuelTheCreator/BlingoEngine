@@ -1,3 +1,4 @@
+using AbstUI.Windowing;
 using LingoEngine.Director.Core.UI;
 using LingoEngine.Director.Core.Windowing;
 using LingoEngine.FrameworkCommunication;
@@ -17,6 +18,12 @@ namespace LingoEngine.Director.Core.Texts
             MinimumHeight = 150;
             X = 1000;
             Y = 700;
+        }
+
+        protected override void OnInit(IAbstFrameworkWindow frameworkWindow)
+        {
+            base.OnInit(frameworkWindow);
+            Title = "Text Editor";
         }
     }
 }
