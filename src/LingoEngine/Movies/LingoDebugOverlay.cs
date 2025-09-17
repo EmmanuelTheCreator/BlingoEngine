@@ -75,6 +75,10 @@ public class LingoDebugOverlay : ILingoClockListener
         _engineFrames++;
     }
 
+    public void OnIdle(float deltaTime)
+    {
+    }
+
     public void Prepare()
     {
         throw new NotImplementedException();

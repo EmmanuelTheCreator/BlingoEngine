@@ -411,6 +411,7 @@ public class LingoToCSharpConverter
             ["stepframe"] = "IHasStepFrameEvent",
             ["prepareframe"] = "IHasPrepareFrameEvent",
             ["enterframe"] = "IHasEnterFrameEvent",
+            ["idle"] = "IHasIdleFrameEvent",
             ["exitframe"] = "IHasExitFrameEvent"
         };
 

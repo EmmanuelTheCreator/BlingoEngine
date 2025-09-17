@@ -363,6 +363,10 @@ When a movie stops, events occur in the following order:
 
         internal override void DoBeginSprite()
         {
+            // When a score frame activates this sprite we bind visual state
+            // before Director sends stepFrame/prepareFrame. This mirrors the
+            // manual which specifies beginSprite occurs before other per-frame
+            // handlers.
             if (_textureSubscription == null && _member != null)
             {
                 _member.UsedBy(this);
@@ -393,21 +397,39 @@ When a movie stops, events occur in the following order:
             }
             return null;
         }
-        internal override void DoEndSprite()
+        internal override void PrepareForEndSprite()
         {
+            // Called prior to exitFrame so the sprite detaches from the stage
+            // before idle/exit handlers run. Behaviors no longer receive mouse
+            // or frame callbacks after this point.
             _behaviors.ForEach(b =>
             {
                 // Unsubscribe all behaviors
                 _eventMediator.Unsubscribe(b, true); //  we ignore mouse because it has to be within the boundingbox
-                if (_movie.IsPlaying)
-                    if (b is IHasEndSpriteEvent endSpriteEvent) endSpriteEvent.EndSprite();
             });
+
             FrameworkObj.Hide();
             _textureSubscription?.Release();
             _textureSubscription = null;
             // Release the old member link with this sprite
             _member?.ReleaseFromRefUser(this);
-            base.DoEndSprite();
+
+            base.PrepareForEndSprite();
+        }
+
+        internal override void DispatchEndSpriteEvent()
+        {
+            // Runs immediately after exitFrame. Behaviors observe the
+            // endSprite notification first, followed by the sprite itself so
+            // cleanup mirrors Director's documented order when leaving a frame.
+            if (_movie.IsPlaying)
+            {
+                foreach (var behavior in _behaviors)
+                    if (behavior is IHasEndSpriteEvent endSpriteEvent)
+                        endSpriteEvent.EndSprite();
+            }
+
+            base.DispatchEndSpriteEvent();
         }
 
 
