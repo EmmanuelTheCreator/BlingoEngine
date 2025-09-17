@@ -6,10 +6,10 @@ using Xunit;
 
 namespace LingoEngine.Lingo.Tests;
 
-public class MovieEventOrderTests
+public class TransitionEventOrderTests
 {
     [Fact]
-    public void AdvanceFrame_RaisesFrameLifecycleEventsInManualOrder()
+    public void AdvanceFrame_RaisesTransitionLifecycleAroundFrameHandlers()
     {
         var timeline = new List<string>();
         var mediator = new LingoEventMediator();
@@ -17,7 +17,13 @@ public class MovieEventOrderTests
         mediator.Subscribe(frameHandler);
         mediator.SubscribeStepFrame(frameHandler);
 
-        var harness = FakeLingoMovieBuilder.Create(mediator, timeline);
+        var harness = FakeLingoMovieBuilder.Create(mediator, timeline, options =>
+        {
+            options.RecordTransitionLifecycle = true;
+            options.TransitionActivationFrame = 1;
+        });
+
+        harness.TransitionPlayer.StartResult = false;
         PrivateFieldSetter.SetField(harness.Movie, "_isPlaying", true);
 
         harness.Movie.AdvanceFrame();
@@ -27,15 +33,18 @@ public class MovieEventOrderTests
         var expected = new[]
         {
             "beginSprite",
+            "transition.beginSprite",
             "stepFrame",
             "prepareFrame",
             "enterFrame",
             "idleFrame",
             "exitFrame",
-            "endSprite"
+            "endSprite",
+            "transition.endSprite"
         };
 
         Assert.True(timeline.Count >= expected.Length, "timeline missing expected callbacks");
         Assert.Equal(expected, timeline.Take(expected.Length));
+        Assert.Equal(1, harness.TransitionPlayer.StartCallCount);
     }
 }
