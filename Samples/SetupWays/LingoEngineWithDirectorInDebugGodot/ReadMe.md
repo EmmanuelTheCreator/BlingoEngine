@@ -1,11 +1,14 @@
 # Godot Sample with Director in Debug Builds
 
+← Back to [Samples overview](../../ReadMe.md)
+
 This Godot 4.5 project mirrors the SDL Director sample, but toggles the Director tooling while running inside the Godot editor/runtime.
 
 ## What the sample demonstrates
 - Conditional project reference to `LingoEngine.Director.LGodot` in the `.csproj` file.
 - Conditional use of `.WithDirectorGodotEngine(...)` or `.WithLingoGodotEngine(...)` inside the root node script.
 - The same minimal project factory pattern that renders a centered text member.
+- Uses TetriGrounds-sized stage (730×500) and window dimensions so the Director UI (1600×970) fits comfortably in Debug builds.
 
 ## Engine registration
 ```csharp
@@ -42,5 +45,5 @@ services.RegisterLingoEngine(configuration =>
 - `MinimalDirectorGame.cs` stores the constants shared across the sample.
 
 ## Try it out
-Open the folder in Godot 4.5 and run the scene in release mode to see the plain runtime.
-Switch the build configuration to Debug to run again with the Director UI enabled.
+Open the folder in Godot 4.5 and run the scene in release mode to see the plain runtime window (730×547).
+Switch the build configuration to Debug to rerun with the Director UI enabled at 1600×970.

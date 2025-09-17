@@ -20,7 +20,15 @@ public partial class MinimalDirectorRoot : Node2D
         {
             ProjectSettings.SetSetting("display/window/stretch/mode", "disabled");
             ProjectSettings.SetSetting("display/window/stretch/aspect", "ignore");
-            DisplayServer.WindowSetSize(new Vector2I(MinimalDirectorGame.StageWidth, MinimalDirectorGame.StageHeight));
+#if DEBUG
+            DisplayServer.WindowSetSize(new Vector2I(
+                MinimalDirectorGame.DirectorWindowWidth,
+                MinimalDirectorGame.DirectorWindowHeight));
+#else
+            DisplayServer.WindowSetSize(new Vector2I(
+                MinimalDirectorGame.RuntimeWindowWidth,
+                MinimalDirectorGame.RuntimeWindowHeight));
+#endif
 
             var services = new ServiceCollection();
 

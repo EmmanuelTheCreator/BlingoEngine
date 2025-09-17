@@ -1,5 +1,7 @@
 # LingoEngine Minimal SDL Sample
 
+← Back to [Samples overview](../../ReadMe.md)
+
 This sample shows the smallest possible SDL bootstrapping code to render a centered text sprite with LingoEngine.
 
 ## What the sample demonstrates

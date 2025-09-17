@@ -1,5 +1,7 @@
 # LingoEngine Minimal Godot Sample
 
+← Back to [Samples overview](../../ReadMe.md)
+
 This Godot 4.5 project mirrors the SDL sample but runs inside the Godot editor/runtime using a simple `Node2D` scene.
 
 ## What the sample demonstrates

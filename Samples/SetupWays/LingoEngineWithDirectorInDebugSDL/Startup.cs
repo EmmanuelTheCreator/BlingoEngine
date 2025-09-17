@@ -21,8 +21,8 @@ internal static class Startup
 #if DEBUG
             configuration = configuration.WithDirectorSdlEngine(
                 "SDL Director Sample",
-                MinimalDirectorGame.StageWidth + 320,
-                MinimalDirectorGame.StageHeight + 240,
+                MinimalDirectorGame.DirectorWindowWidth,
+                MinimalDirectorGame.DirectorWindowHeight,
                 director =>
                 {
                     director.CsProjFile = "LingoEngineWithDirectorInDebugSDL.csproj";
@@ -30,8 +30,8 @@ internal static class Startup
 #else
             configuration = configuration.WithLingoSdlEngine(
                 "SDL Director Sample",
-                MinimalDirectorGame.StageWidth,
-                MinimalDirectorGame.StageHeight);
+                MinimalDirectorGame.RuntimeWindowWidth,
+                MinimalDirectorGame.RuntimeWindowHeight);
 #endif
 
             configuration

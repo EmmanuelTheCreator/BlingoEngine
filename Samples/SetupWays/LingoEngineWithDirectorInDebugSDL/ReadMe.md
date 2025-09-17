@@ -1,5 +1,7 @@
 # SDL Sample with Director in Debug Builds
 
+← Back to [Samples overview](../../ReadMe.md)
+
 This project adds the Director tooling only when compiled with the `DEBUG` symbol.
 In release builds it behaves like the minimal SDL sample.
 
@@ -7,6 +9,7 @@ In release builds it behaves like the minimal SDL sample.
 - Conditional project reference to `LingoEngine.Director.SDL2` in the `.csproj` file.
 - Conditional use of `.WithDirectorSdlEngine(...)` versus `.WithLingoSdlEngine(...)` inside `Startup.cs`.
 - Reuses the minimal project factory to render a centered text sprite while showing how to expose `DirectorProjectSettings`.
+- Uses the same 730×500 stage dimensions as TetriGrounds so the Director UI has enough space to render.
 
 ## Engine registration
 ```csharp
@@ -18,8 +21,8 @@ services.RegisterLingoEngine(configuration =>
 #if DEBUG
     configuration = configuration.WithDirectorSdlEngine(
         "SDL Director Sample",
-        MinimalDirectorGame.StageWidth + 320,
-        MinimalDirectorGame.StageHeight + 240,
+        MinimalDirectorGame.DirectorWindowWidth,
+        MinimalDirectorGame.DirectorWindowHeight,
         director =>
         {
             director.CsProjFile = "LingoEngineWithDirectorInDebugSDL.csproj";
@@ -27,8 +30,8 @@ services.RegisterLingoEngine(configuration =>
 #else
     configuration = configuration.WithLingoSdlEngine(
         "SDL Director Sample",
-        MinimalDirectorGame.StageWidth,
-        MinimalDirectorGame.StageHeight);
+        MinimalDirectorGame.RuntimeWindowWidth,
+        MinimalDirectorGame.RuntimeWindowHeight);
 #endif
 
     configuration
@@ -58,7 +61,7 @@ Compile in release mode to run the plain SDL version:
 dotnet run --configuration Release --project Samples/SetupWays/LingoEngineWithDirectorInDebugSDL/LingoEngineWithDirectorInDebugSDL.csproj
 ```
 
-Compile in debug mode to launch the Director-enabled window:
+Compile in debug mode to launch the Director-enabled window (1600×970):
 
 ```bash
 dotnet run --configuration Debug --project Samples/SetupWays/LingoEngineWithDirectorInDebugSDL/LingoEngineWithDirectorInDebugSDL.csproj
