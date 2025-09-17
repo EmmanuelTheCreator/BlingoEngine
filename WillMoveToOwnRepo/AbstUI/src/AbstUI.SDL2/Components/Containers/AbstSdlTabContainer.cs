@@ -63,6 +63,7 @@ namespace AbstUI.SDL2.Components.Containers
         public void AddTab(IAbstFrameworkTabItem content)
         {
             _children.Add(content);
+            AttachTab(content);
             if (_selectedIndex == -1)
                 _selectedIndex = 0;
             _texture = nint.Zero;
@@ -74,6 +75,7 @@ namespace AbstUI.SDL2.Components.Containers
             var index = _children.IndexOf(content);
             if (index >= 0)
             {
+                DetachTab(content);
                 _children.RemoveAt(index);
                 if (_selectedIndex >= _children.Count)
                     _selectedIndex = _children.Count - 1;
@@ -87,6 +89,8 @@ namespace AbstUI.SDL2.Components.Containers
 
         public void ClearTabs()
         {
+            foreach (var tab in _children)
+                DetachTab(tab);
             _children.Clear();
             _selectedIndex = -1;
             _texture = nint.Zero;
@@ -101,6 +105,32 @@ namespace AbstUI.SDL2.Components.Containers
                 _selectedIndex = idx;
                 _texture = nint.Zero;
             }
+        }
+
+        private void AttachTab(IAbstFrameworkTabItem tab)
+        {
+            if (tab.FrameworkNode is not AbstSdlComponent tabComponent)
+                return;
+
+            tabComponent.ComponentContext.SetParents(ComponentContext);
+            AttachTabContent(tab, tabComponent);
+        }
+
+        private static void AttachTabContent(IAbstFrameworkTabItem tab, AbstSdlComponent tabComponent)
+        {
+            if (tab.Content?.FrameworkObj.FrameworkNode is AbstSdlComponent contentComponent)
+                contentComponent.ComponentContext.SetParents(tabComponent.ComponentContext);
+        }
+
+        private static void DetachTab(IAbstFrameworkTabItem tab)
+        {
+            if (tab.FrameworkNode is not AbstSdlComponent tabComponent)
+                return;
+
+            if (tab.Content?.FrameworkObj.FrameworkNode is AbstSdlComponent contentComponent)
+                contentComponent.ComponentContext.SetParents(null);
+
+            tabComponent.ComponentContext.SetParents(null);
         }
 
 
@@ -312,6 +342,8 @@ namespace AbstUI.SDL2.Components.Containers
 
     public class AbstSdlTabItem : AbstSdlComponent, IAbstFrameworkTabItem, IFrameworkFor<AbstTabItem>, IHandleSdlEvent
     {
+        private IAbstNode? _content;
+
         public AbstSdlTabItem(AbstSdlComponentFactory factory, AbstTabItem tab) : base(factory)
         {
             tab.Init(this);
@@ -319,11 +351,33 @@ namespace AbstUI.SDL2.Components.Containers
 
         public string Title { get; set; } = string.Empty;
         public AMargin Margin { get; set; } = AMargin.Zero;
-        public IAbstNode? Content { get; set; }
+        public IAbstNode? Content
+        {
+            get => _content;
+            set
+            {
+                if (ReferenceEquals(_content, value))
+                    return;
+
+                if (_content?.FrameworkObj.FrameworkNode is AbstSdlComponent oldComponent)
+                    oldComponent.ComponentContext.SetParents(null);
+
+                _content = value;
+
+                if (_content?.FrameworkObj.FrameworkNode is AbstSdlComponent newComponent)
+                    newComponent.ComponentContext.SetParents(ComponentContext);
+
+                ComponentContext.QueueRedraw(this);
+            }
+        }
         public float TopHeight { get; set; }
         public object FrameworkNode => this;
 
-        public override void Dispose() => base.Dispose();
+        public override void Dispose()
+        {
+            Content = null;
+            base.Dispose();
+        }
 
         public void HandleEvent(AbstSDLEvent e)
         {
