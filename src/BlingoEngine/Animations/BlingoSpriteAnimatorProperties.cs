@@ -58,8 +58,8 @@ namespace BlingoEngine.Animations
             }
         }
 
-        internal IReadOnlyCollection<BlingoKeyFrameSetting>? GetKeyFrames() => _settings.Values;
-        internal void MoveKeyFrame(int from, int to)
+        public IReadOnlyCollection<BlingoKeyFrameSetting>? GetKeyFrames() => _settings.Values;
+        public void MoveKeyFrame(int from, int to)
         {
             if (from == to)
                 return;

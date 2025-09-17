@@ -179,14 +179,14 @@ namespace BlingoEngine.Sprites
         internal void SetSpriteMember(int number, int memberNumber) => CallActiveSprite(number, s => s.SetMember(memberNumber));
 
 
-        internal bool RollOver(int spriteNumber)
+        public bool RollOver(int spriteNumber)
         {
             if (!_activeSprites.TryGetValue(spriteNumber, out var sprite))
                 return false;
             return sprite.IsMouseInsideBoundingBox(_blingoMouse);
         }
 
-        internal int RollOver()
+        public int RollOver()
         {
             var sprite = GetSpriteUnderMouse();
             return sprite?.SpriteNum ?? 0;

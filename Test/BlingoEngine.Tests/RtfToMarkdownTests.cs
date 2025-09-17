@@ -358,7 +358,7 @@ public class RtfToMarkdownTests
 
         var data = RtfToMarkdown.Convert(rtf);
 
-        data.PlainText.Should().Be("Â© 2005 by Emmanuel The Creator\n");
+        data.PlainText.Should().Be("\u00A9 2005 by Emmanuel The Creator\n");
     }
 
     [Fact]
