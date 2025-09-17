@@ -5,6 +5,7 @@ using AbstUI.SDL2.SDLL;
 using BlingoEngine.Primitives;
 using BlingoEngine.Tools;
 using Xunit;
+namespace BlingoEngine.Blingo.SDL2.Tests;
 
 public class SdlMemberBitmapTests : IDisposable
 {
