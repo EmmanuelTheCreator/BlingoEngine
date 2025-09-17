@@ -1,8 +1,8 @@
 using AbstUI.Commands;
 using LingoEngine.Core;
-using LingoEngine.Net.RNetHost.Common;
-using LingoEngine.Net.RNetContracts;
 using LingoEngine.Director.Core.Remote.Commands;
+using LingoEngine.Net.RNetContracts;
+using LingoEngine.Net.RNetHost.Common;
 
 namespace LingoEngine.Director.Core.Remote;
 
@@ -13,43 +13,109 @@ public sealed class DirectorRNetServer :
     IAbstCommandHandler<ConnectRNetServerCommand>,
     IAbstCommandHandler<DisconnectRNetServerCommand>
 {
-    private readonly IRNetProjectServer _server;
+    private readonly IRNetProjectServer _projectServer;
+    private readonly IRNetPipeServer? _pipeServer;
+    private readonly IRNetConfiguration _config;
     private readonly ILingoPlayer _player;
+    private ILingoRNetServer? _activeServer;
+    private readonly bool _projectServerIsDummy;
 
-    public DirectorRNetServer(IRNetProjectServer server, ILingoPlayer player)
+    public DirectorRNetServer(
+        IRNetProjectServer projectServer,
+        ILingoPlayer player,
+        IRNetConfiguration config,
+        IRNetPipeServer? pipeServer = null)
     {
-        _server = server;
+        _projectServer = projectServer;
+        _pipeServer = pipeServer;
+        _config = config;
         _player = player;
+        _projectServerIsDummy = projectServer is DummyRNetProjectServer;
     }
 
-    public event Action<LingoNetConnectionState>
-        ConnectionStatusChanged
+    public event Action<LingoNetConnectionState>? ConnectionStatusChanged;
+
+    public event Action<IRNetCommand>? NetCommandReceived;
+
+    public bool IsEnabled => _activeServer?.IsEnabled ?? false;
+
+    public bool CanExecute(ConnectRNetServerCommand command)
     {
-        add => _server.ConnectionStatusChanged += value;
-        remove => _server.ConnectionStatusChanged -= value;
-    }
+        if (_config.RemoteRole != RNetRemoteRole.Host)
+        {
+            return false;
+        }
 
-    public event Action<IRNetCommand> NetCommandReceived
-    {
-        add => _server.NetCommandReceived += value;
-        remove => _server.NetCommandReceived -= value;
+        var server = GetServerForConfiguration();
+        return server is { IsEnabled: false };
     }
-
-    public bool CanExecute(ConnectRNetServerCommand command) => !_server.IsEnabled;
 
     public bool Handle(ConnectRNetServerCommand command)
     {
-        _server.StartAsync().GetAwaiter().GetResult();
-        _server.Publisher.Enable(_player);
+        if (_config.RemoteRole != RNetRemoteRole.Host)
+        {
+            return false;
+        }
+
+        var server = GetServerForConfiguration();
+        if (server is null)
+        {
+            return false;
+        }
+
+        SwapActiveServer(server);
+        server.StartAsync().GetAwaiter().GetResult();
+        server.Publisher.Enable(_player);
         return true;
     }
 
-    public bool CanExecute(DisconnectRNetServerCommand command) => _server.IsEnabled;
+    public bool CanExecute(DisconnectRNetServerCommand command)
+    {
+        var server = _activeServer ?? GetServerForConfiguration();
+        return server is { IsEnabled: true };
+    }
 
     public bool Handle(DisconnectRNetServerCommand command)
     {
-        _server.Publisher.Disable();
-        _server.StopAsync().GetAwaiter().GetResult();
+        var server = _activeServer ?? GetServerForConfiguration();
+        if (server is null || !server.IsEnabled)
+        {
+            return false;
+        }
+
+        server.Publisher.Disable();
+        server.StopAsync().GetAwaiter().GetResult();
         return true;
     }
+
+    private ILingoRNetServer? GetServerForConfiguration()
+        => _config.ClientType switch
+        {
+            RNetClientType.Pipe => _pipeServer,
+            _ => _projectServerIsDummy ? null : _projectServer,
+        };
+
+    private void SwapActiveServer(ILingoRNetServer server)
+    {
+        if (ReferenceEquals(_activeServer, server))
+        {
+            return;
+        }
+
+        if (_activeServer is not null)
+        {
+            _activeServer.ConnectionStatusChanged -= OnServerConnectionStatusChanged;
+            _activeServer.NetCommandReceived -= OnServerCommandReceived;
+        }
+
+        _activeServer = server;
+        _activeServer.ConnectionStatusChanged += OnServerConnectionStatusChanged;
+        _activeServer.NetCommandReceived += OnServerCommandReceived;
+    }
+
+    private void OnServerConnectionStatusChanged(LingoNetConnectionState state)
+        => ConnectionStatusChanged?.Invoke(state);
+
+    private void OnServerCommandReceived(IRNetCommand command)
+        => NetCommandReceived?.Invoke(command);
 }

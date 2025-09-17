@@ -12,6 +12,7 @@ Each sample is self-contained and lives under the `Samples/SetupWays` directory.
 | [`LingoEngineWithDirectorInDebugSDL`](SetupWays/LingoEngineWithDirectorInDebugSDL/) | SDL bootstrap that switches to the Director tooling (`WithDirectorSdlEngine`) when the build configuration defines `DEBUG`, using TetriGrounds' 730×547 runtime window and 1600×970 Director layout. |
 | [`LingoEngineWithDirectorInDebugGodot`](SetupWays/LingoEngineWithDirectorInDebugGodot/) | Godot project that calls `WithDirectorGodotEngine` in debug builds, matching the same TetriGrounds window sizes so the Director UI fits comfortably. |
 
+
 ### Using the Director toggles
 
 The `*WithDirectorInDebug*` samples reference the Director integration only when the code is compiled with the `DEBUG` symbol.
