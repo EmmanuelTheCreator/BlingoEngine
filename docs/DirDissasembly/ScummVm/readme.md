@@ -12,6 +12,8 @@
 - [Transition Cast Members](./Transition%20Members.md)
 - [Palette Cast Members](./Palette%20Members.md)
 - [Film Loop Cast Members](./Film%20Loop%20Members.md)
+- [Score Resources](./Score.md)
+- [Sprite Channel Records](./Sprites.md)
 - [Movie Cast Members](./Movie%20Members.md)
 - [Digital Video Cast Members](./Video%20Members.md)
 - [Script Cast Members](./Script%20Members.md)
