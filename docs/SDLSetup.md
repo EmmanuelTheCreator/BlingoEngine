@@ -1,3 +1,5 @@
+[← Back to Docs Home](README.md)
+
 # Setting Up the SDL2 Runtime
 
 Use the SDL2 front‑end when you want a lightweight desktop window without a
