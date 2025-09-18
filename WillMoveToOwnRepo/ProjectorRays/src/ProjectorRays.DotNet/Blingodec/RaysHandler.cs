@@ -132,8 +132,30 @@ public class RaysHandler
                 case OpCode.kOpPushVarRef:
                     stack.Push(new LiteralNode(new Datum(DatumType.kDatumVarRef, GetName(bc.Obj))));
                     break;
+                case OpCode.kOpPushCons:
+                    {
+                        int literalIndex = bc.Obj / VariableMultiplier();
+                        if (literalIndex >= 0 && literalIndex < Script.Literals.Count)
+                        {
+                            var literal = Script.Literals[literalIndex].Value;
+                            if (literal != null)
+                                stack.Push(new LiteralNode(literal.Clone()));
+                            else
+                            {
+                                Ast.Statements.Add(new UnknownOpNode(bc));
+                                stack.Clear();
+                            }
+                        }
+                        else
+                        {
+                            Ast.Statements.Add(new UnknownOpNode(bc));
+                            stack.Clear();
+                        }
+                    }
+                    break;
                 case OpCode.kOpGetGlobal:
                 case OpCode.kOpGetGlobal2:
+                case OpCode.kOpGetProp:
                     stack.Push(new VarNode(GetName(bc.Obj)));
                     break;
                 case OpCode.kOpGetParam:
@@ -176,6 +198,50 @@ public class RaysHandler
                 case OpCode.kOpPushArgListNoRet:
                     { int n = bc.Obj; var list = new List<AstNode>(); for (int i = 0; i < n; i++) list.Insert(0, stack.Pop()); stack.Push(new ArgListNode(list, bc.Opcode == OpCode.kOpPushArgListNoRet)); }
                     break;
+                case OpCode.kOpPushList:
+                case OpCode.kOpPushPropList:
+                    {
+                        if (stack.Count > 0 && stack.Peek() is ArgListNode list)
+                        {
+                            stack.Pop();
+                            var items = new List<AstNode>(list.Args);
+                            stack.Push(new ListNode(items, bc.Opcode == OpCode.kOpPushPropList));
+                        }
+                        else
+                        {
+                            Ast.Statements.Add(new UnknownOpNode(bc));
+                            stack.Clear();
+                        }
+                    }
+                    break;
+                case OpCode.kOpPushChunkVarRef:
+                    {
+                        var varRef = ReadVar(stack, bc.Obj);
+                        if (varRef != null)
+                        {
+                            stack.Push(varRef);
+                        }
+                        else
+                        {
+                            Ast.Statements.Add(new UnknownOpNode(bc));
+                            stack.Clear();
+                        }
+                    }
+                    break;
+                case OpCode.kOpSwap:
+                    if (stack.Count >= 2)
+                    {
+                        var first = stack.Pop();
+                        var second = stack.Pop();
+                        stack.Push(first);
+                        stack.Push(second);
+                    }
+                    else
+                    {
+                        Ast.Statements.Add(new UnknownOpNode(bc));
+                        stack.Clear();
+                    }
+                    break;
                 case OpCode.kOpLocalCall:
                     { var args = stack.Pop() as ArgListNode ?? new ArgListNode(new List<AstNode>(), false); string name = bc.Obj >= 0 && bc.Obj < Script.Handlers.Count ? Script.Handlers[bc.Obj].Name : $"handler_{bc.Obj}"; var call = new CallNode(name, args.Args, args.NoReturn); if (args.NoReturn) Ast.Statements.Add(call); else stack.Push(call); }
                     break;
@@ -184,6 +250,7 @@ public class RaysHandler
                     break;
                 case OpCode.kOpSetGlobal:
                 case OpCode.kOpSetGlobal2:
+                case OpCode.kOpSetProp:
                     if (stack.Count > 0) { var val = stack.Pop(); Ast.Statements.Add(new AssignmentNode(new VarNode(GetName(bc.Obj)), val)); }
                     break;
                 case OpCode.kOpSetParam:
@@ -191,6 +258,124 @@ public class RaysHandler
                     break;
                 case OpCode.kOpSetLocal:
                     if (stack.Count > 0) { var val = stack.Pop(); Ast.Statements.Add(new AssignmentNode(new VarNode(GetLocalName(bc.Obj / VariableMultiplier())), val)); }
+                    break;
+                case OpCode.kOpGetMovieProp:
+                    stack.Push(new TheNode(GetName(bc.Obj)));
+                    break;
+                case OpCode.kOpSetMovieProp:
+                    if (stack.Count > 0) { var val = stack.Pop(); Ast.Statements.Add(new AssignmentNode(new TheNode(GetName(bc.Obj)), val)); }
+                    break;
+                case OpCode.kOpTheBuiltin:
+                    if (stack.Count > 0 && stack.Peek() is ArgListNode)
+                        stack.Pop();
+                    stack.Push(new TheNode(GetName(bc.Obj)));
+                    break;
+                case OpCode.kOpGetField:
+                    {
+                        AstNode? castId = null;
+                        if (Script.Version >= 500)
+                        {
+                            if (stack.Count == 0) { Ast.Statements.Add(new UnknownOpNode(bc)); stack.Clear(); break; }
+                            castId = stack.Pop();
+                        }
+                        if (stack.Count == 0) { Ast.Statements.Add(new UnknownOpNode(bc)); stack.Clear(); break; }
+                        var fieldId = stack.Pop();
+                        stack.Push(new MemberAccessNode("field", fieldId, castId));
+                    }
+                    break;
+                case OpCode.kOpGetObjProp:
+                case OpCode.kOpGetChainedProp:
+                    if (stack.Count > 0)
+                    {
+                        var obj = stack.Pop();
+                        stack.Push(new PropertyAccessNode(obj, GetName(bc.Obj)));
+                    }
+                    else
+                    {
+                        Ast.Statements.Add(new UnknownOpNode(bc));
+                        stack.Clear();
+                    }
+                    break;
+                case OpCode.kOpSetObjProp:
+                    if (stack.Count >= 2)
+                    {
+                        var value = stack.Pop();
+                        var obj = stack.Pop();
+                        Ast.Statements.Add(new AssignmentNode(new PropertyAccessNode(obj, GetName(bc.Obj)), value));
+                    }
+                    else
+                    {
+                        Ast.Statements.Add(new UnknownOpNode(bc));
+                        stack.Clear();
+                    }
+                    break;
+                case OpCode.kOpPut:
+                    {
+                        var target = ReadVar(stack, bc.Obj & 0xF);
+                        if (target == null || stack.Count == 0)
+                        {
+                            Ast.Statements.Add(new UnknownOpNode(bc));
+                            stack.Clear();
+                            break;
+                        }
+
+                        var value = stack.Pop();
+                        var putType = (PutType)(((uint)bc.Obj >> 4) & 0xF);
+                        Ast.Statements.Add(new PutNode(target, value, putType));
+                    }
+                    break;
+                case OpCode.kOpPutChunk:
+                    {
+                        var baseString = ReadVar(stack, bc.Obj & 0xF);
+                        if (baseString == null || stack.Count < 9)
+                        {
+                            Ast.Statements.Add(new UnknownOpNode(bc));
+                            stack.Clear();
+                            break;
+                        }
+
+                        var chunk = ReadChunkRef(stack, baseString);
+                        if (stack.Count == 0)
+                        {
+                            Ast.Statements.Add(new UnknownOpNode(bc));
+                            stack.Clear();
+                            break;
+                        }
+
+                        var value = stack.Pop();
+                        var putType = (PutType)(((uint)bc.Obj >> 4) & 0xF);
+                        Ast.Statements.Add(new PutNode(chunk, value, putType));
+                    }
+                    break;
+                case OpCode.kOpDeleteChunk:
+                    {
+                        var baseString = ReadVar(stack, bc.Obj);
+                        if (baseString == null || stack.Count < 8)
+                        {
+                            Ast.Statements.Add(new UnknownOpNode(bc));
+                            stack.Clear();
+                            break;
+                        }
+
+                        var chunk = ReadChunkRef(stack, baseString);
+                        Ast.Statements.Add(new DeleteNode(chunk));
+                    }
+                    break;
+                case OpCode.kOpGetTopLevelProp:
+                    stack.Push(new VarNode(GetName(bc.Obj)));
+                    break;
+                case OpCode.kOpNewObj:
+                    {
+                        if (stack.Count > 0 && stack.Peek() is ArgListNode argList)
+                        {
+                            stack.Pop();
+                            stack.Push(new CallNode($"new {GetName(bc.Obj)}", argList.Args, false));
+                        }
+                        else
+                        {
+                            stack.Push(new CallNode($"new {GetName(bc.Obj)}", new List<AstNode>(), false));
+                        }
+                    }
                     break;
                 case OpCode.kOpRet:
                 case OpCode.kOpRetFactory:
@@ -204,6 +389,50 @@ public class RaysHandler
                     break;
             }
         }
+    }
+
+    private AstNode? ReadVar(Stack<AstNode> stack, int varType)
+    {
+        AstNode? castId = null;
+        if (varType == 0x6 && Script.Version >= 500)
+        {
+            if (stack.Count == 0)
+                return null;
+
+            castId = stack.Pop();
+        }
+
+        if (stack.Count == 0)
+            return null;
+
+        var id = stack.Pop();
+
+        return varType switch
+        {
+            0x4 => ConvertIndexedVar(id, true),
+            0x5 => ConvertIndexedVar(id, false),
+            0x6 => new MemberAccessNode("field", id, castId),
+            _ => id
+        };
+    }
+
+    private AstNode ConvertIndexedVar(AstNode node, bool isArgument)
+    {
+        if (node is LiteralNode literal)
+        {
+            var datum = literal.Value;
+            if (datum.Type == DatumType.kDatumVarRef)
+                return node;
+
+            if (datum.Type == DatumType.kDatumInt || datum.Type == DatumType.kDatumFloat)
+            {
+                int idx = datum.ToInt() / VariableMultiplier();
+                string name = isArgument ? GetArgumentName(idx) : GetLocalName(idx);
+                return new LiteralNode(new Datum(DatumType.kDatumVarRef, name));
+            }
+        }
+
+        return node;
     }
 
     private static AstNode ReadChunkRef(Stack<AstNode> stack, AstNode str)
