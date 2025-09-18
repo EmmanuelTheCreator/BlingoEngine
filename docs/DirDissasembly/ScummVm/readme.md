@@ -7,6 +7,7 @@
 - [Bitmap Cast Members](./BitMaps.md)
 - [Shape Cast Members](./Shapes.md)
 - [Text and Field Cast Members](./Text%20and%20Field%20Members.md)
+- [Font Mapping Resources](./Font%20Members.md)
 - [Rich Text Cast Members](./Rich%20Text%20Members.md)
 - [Sound Cast Members](./Sound%20Members.md)
 - [Transition Cast Members](./Transition%20Members.md)
