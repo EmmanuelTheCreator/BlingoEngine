@@ -7,6 +7,7 @@ using AbstUI.Primitives;
 using AbstUI.Windowing;
 using BlingoEngine.Director.Core.FileSystems;
 using BlingoEngine.Director.Core.Importer.Commands;
+using BlingoEngine.Director.Core.Styles;
 using BlingoEngine.Director.Core.Tools;
 using BlingoEngine.FrameworkCommunication;
 using BlingoEngine.Lingo.Core;
@@ -14,6 +15,7 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using TextCopy;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -48,7 +50,7 @@ public class BlingoCodeImporterPopup
     private readonly IDirFolderPicker _folderPicker;
     private readonly AbstPanel _panel;
     private AbstWrapPanel _folderPanel = null!;
-    private AbstWrapPanel _mainPanel = null!;
+    private AbstPanel _mainPanel = null!;
     private AbstItemList _fileList = null!;
     private Dictionary<string, ViewModel> _sourcefileList = new();
     private DirCodeHighlichter _blingoHighlighter = null!;
@@ -89,6 +91,7 @@ public class BlingoCodeImporterPopup
     protected AbstPanel BuildPanel()
     {
         var root = _factory.CreatePanel("BlingoImporterRoot");
+        root.BackgroundColor = DirectorColors.BG_WhiteMenus;
         root.Width = 1000;
         root.Height = 560;
 
@@ -118,7 +121,9 @@ public class BlingoCodeImporterPopup
         _folderPanel.AddItem(open);
         root.AddItem(_folderPanel);
 
-        _mainPanel = _factory.CreateWrapPanel(AOrientation.Horizontal, "MainContent");
+        //_mainPanel = _factory.CreateWrapPanel(AOrientation.Horizontal, "MainContent");
+        _mainPanel = _factory.CreatePanel("MainContent");
+        _mainPanel.BackgroundColor = DirectorColors.BG_WhiteMenus;
         _mainPanel.Width = 1000;
         _mainPanel.Height = 520;
         _mainPanel.Margin = new AMargin(0, 40, 0, 0);
@@ -132,7 +137,7 @@ public class BlingoCodeImporterPopup
         });
         _fileList.Width = 200;
         _fileList.Height = 420;
-        _mainPanel.AddItem(_fileList);
+        _mainPanel.AddItem(_fileList,10,40);
         _menuBar = _factory.CreateWrapPanel(AOrientation.Horizontal, "MenuBar");
         _menuBar.Width = 600;
         _menuBar.Height = 40;
@@ -143,7 +148,7 @@ public class BlingoCodeImporterPopup
         _menuBar.ComposeForToolBar()
             .AddButton("ConvertButton", "Convert all", () => Convert());
         var converterPanel = BuildConverterArea();
-        _mainPanel.AddItem(converterPanel);
+        _mainPanel.AddItem(converterPanel,220,0);
 
         return root;
     }
@@ -154,21 +159,23 @@ public class BlingoCodeImporterPopup
         var container = _factory.CreatePanel("ConverterPanel");
         container.Width = 800;
         container.Height = 520;
+        container.BackgroundColor = DirectorColors.BG_WhiteMenus;
 
-        var content = _factory.CreateWrapPanel(AOrientation.Horizontal, "Content");
+        var content = _factory.CreatePanel( "Content");
         content.Width = 800;
         content.Height = 460;
+        content.BackgroundColor = DirectorColors.BG_WhiteMenus;
         container.AddItem(content);
 
         var left = _factory.CreateWrapPanel(AOrientation.Vertical, "BlingoColumn");
         left.Width = 400;
         left.Height = 460;
-        content.AddItem(left);
+        content.AddItem(left,0,0);
 
         var right = _factory.CreateWrapPanel(AOrientation.Vertical, "CSharpColumn");
         right.Width = 400;
         right.Height = 460;
-        content.AddItem(right);
+        content.AddItem(right,390,0);
 
         var leftHeader = _factory.CreateWrapPanel(AOrientation.Horizontal, "BlingoHeader");
         left.AddItem(leftHeader);
@@ -210,7 +217,7 @@ public class BlingoCodeImporterPopup
         right.AddItem(_csharpHighlighter.TextComponent);
 
         _errorInput = _factory.CreateInputText("ErrorsText", 0, null);
-        _errorInput.Width = 800;
+        _errorInput.Width = 700;
         _errorInput.Height = 40;
         _errorInput.IsMultiLine = true;
         _errorInput.Enabled = false;

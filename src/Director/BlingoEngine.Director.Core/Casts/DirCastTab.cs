@@ -73,13 +73,14 @@ namespace BlingoEngine.Director.Core.Casts
             _topBar.AddItem(_viewButton,5,0);
             _navBar = new MemberNavigationBar(mediator, player, iconManager, factory, (int)_topBar.Height);
             _topBar.AddItem(_navBar.Panel,30,0);
-            _wrap = factory.CreateWrapPanel(AOrientation.Vertical, tabName + "_Wrap");
+            _wrap = factory.CreateWrapPanel(AOrientation.Horizontal, tabName + "_Wrap");
             _listWrap = factory.CreateWrapPanel(AOrientation.Vertical, tabName + "_ListWrap");
             _listWrap.ItemMargin = new APoint(0, 0);
             _cast = cast;
             _wrap.ItemMargin = new APoint(_itemMargin, _itemMargin);
             _scroll = factory.CreateScrollContainer(tabName + "_Scroll");
             _scroll.ClipContents = true;
+            _scroll.ScollbarModeH = AbstScrollbarMode.Hidden;
             _scroll.AddItem(_wrap);
             _root.AddItem(_topBar, 0, 0);
             _root.AddItem(_scroll, 0, _topBar.Height);

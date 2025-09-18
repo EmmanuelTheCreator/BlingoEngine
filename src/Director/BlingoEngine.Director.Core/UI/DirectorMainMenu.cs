@@ -114,7 +114,9 @@ namespace BlingoEngine.Director.Core.UI
 
             _menuBar = factory.CreateWrapPanel(AOrientation.Horizontal, "MenuBar");
             _iconBar = factory.CreateWrapPanel(AOrientation.Horizontal, "IconBar");
-            _iconBar.Height = 20;
+            //_iconBar.Height = 20;
+            _menuBar.Width = 800;
+            _iconBar.Width = 400;
             _iconBar.X = 400;
             _iconBar.Y = 1;
             _menuBar.X = 10;

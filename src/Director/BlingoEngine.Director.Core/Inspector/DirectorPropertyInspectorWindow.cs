@@ -33,6 +33,7 @@ using BlingoEngine.Tempos;
 using BlingoEngine.Texts;
 using BlingoEngine.Transitions;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel;
 
 namespace BlingoEngine.Director.Core.Inspector
 {
@@ -296,7 +297,7 @@ namespace BlingoEngine.Director.Core.Inspector
             var wrapContainer = AddTab(PropetyTabNames.Sprite);
             var containerIcons = _factory.CreateWrapPanel(AOrientation.Horizontal, "SpriteDetailIcons");
             var container = _factory.CreatePanel("SpriteDetailPanel");
-
+            container.BackgroundColor = DirectorColors.BG_WhiteMenus;
 
             containerIcons.Margin = new AMargin(5, 5, 5, 5);
             var composer0 = containerIcons.Compose()
@@ -555,6 +556,7 @@ namespace BlingoEngine.Director.Core.Inspector
                 // We create settings to not directly remove all sprites when changing the number, but only when pressed apply to not loose sprites to fast.
                 var settings = new DirMovieUISettings(movie);
                 var rowChannels = _factory.CreatePanel("MovieChannelsRow");
+                rowChannels.BackgroundColor = DirectorColors.BG_WhiteMenus;
                 rowChannels.Compose(_factory.ComponentFactory)
                     .Columns(4)
                     .AddNumericInputInt("MovieChannels", "Channels:", settings, m => settings.MaxSpriteChannelCount)
@@ -611,6 +613,7 @@ namespace BlingoEngine.Director.Core.Inspector
         {
             var wrap = AddTab(PropetyTabNames.Cast);
             var rowChannels = _factory.CreatePanel("CastRow");
+            rowChannels.BackgroundColor = DirectorColors.BG_WhiteMenus;
             rowChannels.Margin = new AMargin(5, 5, 0, 0);
             rowChannels.Compose(_factory.ComponentFactory)
                    .Columns(8)
@@ -629,6 +632,7 @@ namespace BlingoEngine.Director.Core.Inspector
         {
             var wrap = AddTab(PropetyTabNames.Text);
             var rowChannels = _factory.CreatePanel("TextRow");
+            rowChannels.BackgroundColor = DirectorColors.BG_WhiteMenus;
             rowChannels.Margin = new AMargin(5, 5, 0, 0);
             rowChannels.Compose(_factory.ComponentFactory)
                    .NextRow()

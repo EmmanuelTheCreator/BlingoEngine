@@ -71,6 +71,7 @@ public class MemberNavigationBar
         _iconManager = iconManager;
         _panel = factory.CreateWrapPanel(AOrientation.Horizontal, "MemberNavigationBar");
         _panel.Height = barHeight;
+        _panel.Width = 400;
 
         _panel.Compose()
             .AddButton("PrevButton", string.Empty, () => Navigate(-1), b =>

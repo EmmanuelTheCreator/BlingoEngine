@@ -8,6 +8,7 @@ using AbstUI.Windowing;
 using AbstUI.Components.Containers;
 using BlingoEngine.Director.Core.Tools;
 using BlingoEngine.Director.Core.Importer.Commands;
+using BlingoEngine.Director.Core.Styles;
 
 namespace BlingoEngine.Director.Core.Importer;
 
@@ -60,12 +61,15 @@ public class BlingoCSharpConverterPopup
     protected AbstPanel BuildPanel(ViewModel vm)
     {
         var root = _factory.CreatePanel("BlingoCSharpRoot");
-        root.Width = 800;
+        root.Width = 810;
         root.Height = 560;
+        root.BackgroundColor = DirectorColors.BG_WhiteMenus;
 
-        var content = _factory.CreateWrapPanel(AOrientation.Horizontal, "Content");
-        content.Width = 800;
-        content.Height = 460;
+        //var content = _factory.CreateWrapPanel(AOrientation.Horizontal, "Content");
+        var content = _factory.CreatePanel("Content");
+        content.Width = 820;
+        content.Height = 470;
+        content.BackgroundColor = DirectorColors.BG_WhiteMenus;
         root.AddItem(content);
 
         var left = _factory.CreateWrapPanel(AOrientation.Vertical, "BlingoColumn");
@@ -76,7 +80,7 @@ public class BlingoCSharpConverterPopup
         var right = _factory.CreateWrapPanel(AOrientation.Vertical, "CSharpColumn");
         right.Width = 400;
         right.Height = 460;
-        content.AddItem(right);
+        content.AddItem(right,405,0);
 
         var leftHeader = _factory.CreateWrapPanel(AOrientation.Horizontal, "BlingoHeader");
         left.AddItem(leftHeader);
@@ -117,8 +121,7 @@ public class BlingoCSharpConverterPopup
 
         var menuBar = _factory.CreateWrapPanel(AOrientation.Horizontal, "BottomBar");
         menuBar.Width = 800;
-        menuBar.Height = 40;
-        menuBar.Margin = new AMargin(0, 520, 0, 0);
+        menuBar.Margin = new AMargin(40, 520, 0, 0);
         root.AddItem(menuBar); // _factory.CreateLayoutWrapper(menuBar, 0, 860));
 
         menuBar.ComposeForToolBar()
@@ -132,7 +135,7 @@ public class BlingoCSharpConverterPopup
                         ? $"Line {e.LineNumber}: {e.LineText} - {e.Error}"
                         : $"{e.File}:{e.LineNumber}: {e.LineText} - {e.Error}"));
                 errorInput.Text = vm.Errors;
-            });
+            }, c => { c.Width = 150; c.Height = 30; });
 
         return root;
     }

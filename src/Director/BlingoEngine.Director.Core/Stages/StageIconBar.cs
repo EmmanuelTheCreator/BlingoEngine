@@ -49,6 +49,7 @@ public class StageIconBar : IDisposable
         Panel.Height = iconBarHeight;
 
         var container = factory.CreateWrapPanel(AOrientation.Horizontal, "StageIconBarContainer");
+        container.Width = 600;
         Panel.AddItem(container);
 
         _rewindButton = factory.CreateButton("RewindButton", "|<");

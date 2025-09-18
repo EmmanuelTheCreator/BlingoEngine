@@ -35,9 +35,10 @@ public abstract class DirectorToolbar<TToolEnumType>
         _panel.Width = 52;   // fallback size similar to Godot implementation
         _panel.Height = 200;
 
-        _container = factory.CreateWrapPanel(AOrientation.Vertical, "PaintToolbarContainer");
+        _container = factory.CreateWrapPanel(AOrientation.Horizontal, "PaintToolbarContainer");
         _container.Width = _panel.Width - 2;
         _container.Height = _panel.Height - 2;
+        _container.ItemMargin = new APoint(1,1);
         // TODO: custom minimum size (48,100) when supported
         // TODO: size flags ExpandFill/ShrinkBegin when supported
 
