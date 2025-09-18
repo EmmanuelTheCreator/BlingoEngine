@@ -24,6 +24,7 @@ This folder collects guides, references, and research notes for BlingoEngine.
 - [DirDissasembly/XMED_FileComparisons.md](DirDissasembly/XMED_FileComparisons.md) – Byte differences between sample XMED cast files.
 - [DirDissasembly/XMED_Offsets.md](DirDissasembly/XMED_Offsets.md) – Known byte offsets for Director XMED text casts.
 - [DirDissasembly/director_keyframe_tags.md](DirDissasembly/director_keyframe_tags.md) – Detailed research into Director keyframe and channel tags.
+- [LegacyBitmapLoading.md](LegacyBitmapLoading.md) – Legacy bitmap resource tags, cast-member bytes, and BITD/DIB decoding notes.
 
 The [`docfx/`](docfx) subfolder contains the DocFX configuration for generating the project's website.
 
