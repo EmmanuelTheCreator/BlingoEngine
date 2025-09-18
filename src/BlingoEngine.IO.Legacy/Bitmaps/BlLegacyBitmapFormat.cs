@@ -79,6 +79,15 @@ internal static class BlLegacyBitmapFormat
     private static readonly BlTag AlphaTag = BlTag.Register("ALFA");
     private static readonly BlTag ThumbTag = BlTag.Register("Thum");
 
+    /// <summary>
+    /// Infers the bitmap container represented by a legacy resource entry. The routine combines the
+    /// four-character tag stored in the map with the first bytes of the payload, mirroring the byte
+    /// tables documented in <c>docs/LegacyBitmapLoading.md</c> so every Director generation is
+    /// classified consistently.
+    /// </summary>
+    /// <param name="tag">Resource type registered in the legacy memory map.</param>
+    /// <param name="data">Raw payload bytes streamed from the chunk (decompressed when needed).</param>
+    /// <returns>The detected <see cref="BlLegacyBitmapFormatKind"/> enumeration value.</returns>
     public static BlLegacyBitmapFormatKind Detect(BlTag tag, ReadOnlySpan<byte> data)
     {
         if (tag == BitdTag)

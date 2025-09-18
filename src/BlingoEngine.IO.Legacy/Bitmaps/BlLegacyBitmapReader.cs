@@ -11,8 +11,10 @@ namespace BlingoEngine.IO.Legacy.Bitmaps;
 /// <summary>
 /// Reads bitmap payloads from the resource table, returning the decoded bytes alongside a
 /// best-effort format classification. Director stores image data across several chunk types (BITD,
-/// DIB, PICT, etc.) and may embed authored bitmaps inside <c>ediM</c> resources, so the reader
-/// resolves those entries, inflates them when necessary, and classifies the resulting buffer.
+/// DIB, PICT, PNG, JPEG, etc.) and may embed authored bitmaps inside <c>ediM</c> resources, so the
+/// reader resolves those entries, inflates them when necessary, and classifies the resulting buffer.
+/// Byte heuristics mirror the tables captured in <c>docs/LegacyBitmapLoading.md</c>, keeping the
+/// loader compatible with classic Director 2 projectors through Director MX.
 /// </summary>
 internal sealed class BlLegacyBitmapReader
 {
@@ -20,24 +22,21 @@ internal sealed class BlLegacyBitmapReader
     private static readonly BlTag BitdTag = BlTag.Register("BITD");
     private static readonly BlTag DibTag = BlTag.Register("DIB ");
     private static readonly BlTag PictTag = BlTag.Register("PICT");
+    private static readonly BlTag AlphaTag = BlTag.Register("ALFA");
+    private static readonly BlTag ThumbTag = BlTag.Register("Thum");
 
     private static readonly BlTag[] ChildPriority =
     {
         EditorTag,
         BitdTag,
         DibTag,
-        PictTag
+        PictTag,
+        AlphaTag,
+        ThumbTag
     };
 
-    private static readonly HashSet<BlTag> StandaloneTags = new()
-    {
-        EditorTag,
-        BitdTag,
-        DibTag,
-        PictTag,
-        BlTag.Register("ALFA"),
-        BlTag.Register("Thum")
-    };
+    private static readonly HashSet<BlTag> ChildPrioritySet = new(ChildPriority);
+    private static readonly HashSet<BlTag> CanonicalBitmapTags = new(ChildPriority);
 
     private readonly ReaderContext _context;
 
@@ -71,26 +70,21 @@ internal sealed class BlLegacyBitmapReader
 
         foreach (var entry in _context.Resources.Entries)
         {
-            if (!StandaloneTags.Contains(entry.Tag))
+            if (processed.Contains(entry.Id))
                 continue;
 
-            if (!processed.Add(entry.Id))
+            if (!ShouldInspectTag(entry.Tag))
                 continue;
 
             var payload = LoadPayload(entry, classicLoader, afterburnerLoader);
             if (payload.Length == 0)
-            {
-                processed.Remove(entry.Id);
                 continue;
-            }
 
             var format = BlLegacyBitmapFormat.Detect(entry.Tag, payload);
-            if (format == BlLegacyBitmapFormatKind.Unknown && entry.Tag == EditorTag)
-            {
-                processed.Remove(entry.Id);
+            if (!ShouldRetainEntry(entry.Tag, format))
                 continue;
-            }
 
+            processed.Add(entry.Id);
             bitmaps.Add(new BlLegacyBitmap(entry.Id, format, payload));
         }
 
@@ -112,6 +106,31 @@ internal sealed class BlLegacyBitmapReader
         HashSet<int> processed,
         out BlLegacyBitmap bitmap)
     {
+        static bool TryResolve(
+            BlLegacyResourceEntry candidate,
+            BlClassicPayloadLoader classicLoader,
+            BlAfterburnerPayloadLoader? afterburnerLoader,
+            HashSet<int> processed,
+            out BlLegacyBitmap bitmap)
+        {
+            bitmap = null!;
+
+            if (processed.Contains(candidate.Id))
+                return false;
+
+            var payload = LoadPayload(candidate, classicLoader, afterburnerLoader);
+            if (payload.Length == 0)
+                return false;
+
+            var format = BlLegacyBitmapFormat.Detect(candidate.Tag, payload);
+            if (!ShouldRetainEntry(candidate.Tag, format))
+                return false;
+
+            processed.Add(candidate.Id);
+            bitmap = new BlLegacyBitmap(candidate.Id, format, payload);
+            return true;
+        }
+
         foreach (var tag in ChildPriority)
         {
             for (var i = 0; i < links.Count; i++)
@@ -123,25 +142,80 @@ internal sealed class BlLegacyBitmapReader
                 if (!entriesById.TryGetValue(link.ChildId, out var child))
                     continue;
 
-                if (processed.Contains(child.Id))
-                    continue;
-
-                var payload = LoadPayload(child, classicLoader, afterburnerLoader);
-                if (payload.Length == 0)
-                    continue;
-
-                var format = BlLegacyBitmapFormat.Detect(child.Tag, payload);
-                if (format == BlLegacyBitmapFormatKind.Unknown && child.Tag == EditorTag)
-                    continue;
-
-                processed.Add(child.Id);
-                bitmap = new BlLegacyBitmap(child.Id, format, payload);
-                return true;
+                if (TryResolve(child, classicLoader, afterburnerLoader, processed, out bitmap))
+                    return true;
             }
+        }
+
+        for (var i = 0; i < links.Count; i++)
+        {
+            var link = links[i];
+            if (ChildPrioritySet.Contains(link.Tag))
+                continue;
+
+            if (!entriesById.TryGetValue(link.ChildId, out var child))
+                continue;
+
+            if (!ShouldInspectTag(child.Tag))
+                continue;
+
+            if (TryResolve(child, classicLoader, afterburnerLoader, processed, out bitmap))
+                return true;
         }
 
         bitmap = null!;
         return false;
+    }
+
+    private static bool ShouldInspectTag(BlTag tag)
+    {
+        if (CanonicalBitmapTags.Contains(tag))
+            return true;
+
+        var value = tag.Value;
+
+        if (value.StartsWith("PNG", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (value.StartsWith("JPG", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (value.StartsWith("JPEG", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (value.StartsWith("JFIF", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (value.StartsWith("GIF", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (value.StartsWith("BMP", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        if (value.StartsWith("TIF", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
+    }
+
+    private static bool ShouldRetainEntry(BlTag tag, BlLegacyBitmapFormatKind format)
+    {
+        if (format == BlLegacyBitmapFormatKind.Unknown)
+            return tag != EditorTag && CanonicalBitmapTags.Contains(tag);
+
+        if (format == BlLegacyBitmapFormatKind.Dib && tag != DibTag && tag != EditorTag)
+            return false;
+
+        if (format == BlLegacyBitmapFormatKind.Pict && tag != PictTag && tag != EditorTag)
+            return false;
+
+        if (format == BlLegacyBitmapFormatKind.AlphaMask && tag != AlphaTag)
+            return false;
+
+        if (format == BlLegacyBitmapFormatKind.Thumbnail && tag != ThumbTag)
+            return false;
+
+        return true;
     }
 }
 
