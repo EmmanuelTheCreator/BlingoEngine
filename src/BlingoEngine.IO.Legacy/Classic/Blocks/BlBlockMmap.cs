@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 
 namespace BlingoEngine.IO.Legacy.Classic.Blocks;
 
@@ -10,6 +11,38 @@ internal sealed class BlBlockMmap
     public ushort EntrySize { get; init; }
     public uint EntryCount { get; init; }
     public List<BlBlockMmapEntry> Entries { get; } = new();
+
+    public string ToMarkDown()
+    {
+        var builder = new StringBuilder();
+        builder.AppendLine($"Entry Size: {EntrySize}");
+        builder.AppendLine($"Entry Count: {EntryCount}");
+        builder.AppendLine();
+        builder.AppendLine("| Index | Tag | Size | Offset | Flags | Attributes | Next Free |");
+        builder.AppendLine("| --- | --- | --- | --- | --- | --- | --- |");
+
+        for (var i = 0; i < Entries.Count; i++)
+        {
+            var entry = Entries[i];
+            builder.Append("| ")
+                .Append(i)
+                .Append(" | ")
+                .Append(entry.Tag.Value)
+                .Append(" | ")
+                .Append(entry.Size)
+                .Append(" | ")
+                .Append(entry.Offset)
+                .Append(" | ")
+                .Append(entry.Flags)
+                .Append(" | ")
+                .Append(entry.Attributes)
+                .Append(" | ")
+                .Append(entry.NextFree)
+                .AppendLine(" |");
+        }
+
+        return builder.ToString();
+    }
 }
 
 /// <summary>

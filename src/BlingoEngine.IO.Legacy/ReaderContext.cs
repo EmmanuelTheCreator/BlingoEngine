@@ -69,6 +69,36 @@ public sealed class ReaderContext : IDisposable
         DataBlock = block;
     }
 
+    /// <summary>
+    /// Registers a resource entry decoded from the current map.
+    /// </summary>
+    /// <param name="entry">Resource metadata parsed from the archive.</param>
+    public void AddResource(BlLegacyResourceEntry entry)
+    {
+        ArgumentNullException.ThrowIfNull(entry);
+        Resources.Add(entry);
+    }
+
+    /// <summary>
+    /// Stores the inline payload bytes for a resource resolved from the Afterburner segment table.
+    /// </summary>
+    /// <param name="resourceId">Identifier assigned to the inline resource.</param>
+    /// <param name="data">Payload bytes stored in the inline segment buffer.</param>
+    public void SetResourceInlineSegment(int resourceId, byte[] data)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        Resources.SetInlineSegment(resourceId, data);
+    }
+
+    /// <summary>
+    /// Records a relationship exposed by the <c>KEY*</c> table.
+    /// </summary>
+    /// <param name="link">Descriptor that ties the child resource to its parent.</param>
+    public void AddResourceRelationship(BlResourceKeyLink link)
+    {
+        Resources.AddRelationship(link);
+    }
+
     public void Dispose()
     {
         if (_disposed)

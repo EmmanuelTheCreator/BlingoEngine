@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 
 using BlingoEngine.IO.Legacy;
 
@@ -12,6 +13,32 @@ internal sealed class BlBlockKeyTable
     public ushort EntrySize { get; init; }
     public uint EntryCount { get; init; }
     public List<BlBlockKeyEntry> Entries { get; } = new();
+
+    public string ToMarkDown()
+    {
+        var builder = new StringBuilder();
+        builder.AppendLine($"Entry Size: {EntrySize}");
+        builder.AppendLine($"Entry Count: {EntryCount}");
+        builder.AppendLine();
+        builder.AppendLine("| Index | Child Id | Parent Id | Tag |");
+        builder.AppendLine("| --- | --- | --- | --- |");
+
+        for (var i = 0; i < Entries.Count; i++)
+        {
+            var entry = Entries[i];
+            builder.Append("| ")
+                .Append(i)
+                .Append(" | ")
+                .Append(entry.ChildId)
+                .Append(" | ")
+                .Append(entry.ParentId)
+                .Append(" | ")
+                .Append(entry.Tag.Value)
+                .AppendLine(" |");
+        }
+
+        return builder.ToString();
+    }
 }
 
 /// <summary>

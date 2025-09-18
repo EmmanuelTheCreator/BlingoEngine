@@ -11,13 +11,11 @@ using BlingoEngine.IO.Legacy.Infrastructure;
 namespace BlingoEngine.IO.Legacy;
 
 /// <summary>
-/// Base class for legacy Director file readers. The reader locates the 12-byte <c>RIFX/XFIR</c> header, interprets the map
-/// metadata (<c>imap</c>/<c>mmap</c> or <c>ABMP</c>/<c>FGEI</c>), and exposes the parsed resources as DTOs.
+/// Base class for legacy Director file readers. The derived types share the same parsing pipeline so they simply expose the
+/// reader context through this base class.
 /// </summary>
 public abstract class BlLegacyFileResourceBase : BlLegacyResourceBase
 {
-    private BlAfterburnerState? _afterburnerState;
-
     /// <summary>
     /// Initializes a new instance of the <see cref="BlLegacyFileResourceBase"/> class.
     /// </summary>
@@ -32,15 +30,35 @@ public abstract class BlLegacyFileResourceBase : BlLegacyResourceBase
     /// <returns>A DTO container populated with the exported resource bytes.</returns>
     public DirFilesContainerDTO Read()
     {
-        Context.ResetRegistries();
-        _afterburnerState = null;
+        var (_, container) = Context.ReadDirFilesContainer();
+        return container;
+    }
+}
+
+/// <summary>
+/// Consumes the Director data block and map metadata to produce DTO containers and optional Afterburner state.
+/// </summary>
+internal sealed class BlDirFilesReader
+{
+    private readonly ReaderContext _context;
+
+    public BlDirFilesReader(ReaderContext context)
+    {
+        _context = context;
+    }
+
+    public (BlAfterburnerState? State, DirFilesContainerDTO Container) Read()
+    {
+        _context.ResetRegistries();
 
         LocateRifx();
-        var dataBlock = Context.ReadBlockHeader();
+        var dataBlock = _context.ReadBlockHeader();
+
+        BlAfterburnerState? afterburnerState = null;
 
         if (dataBlock.Format.IsAfterburner)
         {
-            var afterburner = new BlAfterburnerMapReader(Context);
+            var afterburner = new BlAfterburnerMapReader(_context);
             var map = afterburner.Read(dataBlock);
             if (!string.IsNullOrEmpty(map.Version))
             {
@@ -50,11 +68,11 @@ public abstract class BlLegacyFileResourceBase : BlLegacyResourceBase
             RegisterCompressions(map.CompressionDescriptors);
             RegisterAfterburnerEntries(map.ResourceEntries);
             RegisterInlineSegments(map.InlineSegments);
-            _afterburnerState = map.State;
+            afterburnerState = map.State;
         }
         else
         {
-            var classic = new BlClassicMapReader(Context);
+            var classic = new BlClassicMapReader(_context);
             var map = classic.Read(dataBlock);
 
             if (map.Imap is not null)
@@ -74,25 +92,23 @@ public abstract class BlLegacyFileResourceBase : BlLegacyResourceBase
             }
         }
 
-        return BuildContainer();
+        var container = BuildContainer(afterburnerState);
+        return (afterburnerState, container);
     }
 
-    /// <summary>
-    /// Locates the <c>RIFX/XFIR</c> signature inside the stream and rewinds the reader to that position.
-    /// </summary>
     private void LocateRifx()
     {
-        var stream = Context.BaseStream;
+        var stream = _context.BaseStream;
         var offset = stream.LocateRifx();
-        Context.RegisterRifxOffset(offset);
-        Context.Reader.Position = offset;
+        _context.RegisterRifxOffset(offset);
+        _context.Reader.Position = offset;
     }
 
     private void RegisterCompressions(IEnumerable<BlLegacyCompressionDescriptor> descriptors)
     {
         foreach (var descriptor in descriptors)
         {
-            Context.Compressions.Add(descriptor);
+            _context.Compressions.Add(descriptor);
         }
     }
 
@@ -100,7 +116,7 @@ public abstract class BlLegacyFileResourceBase : BlLegacyResourceBase
     {
         foreach (var entry in entries)
         {
-            Context.Resources.Add(entry);
+            _context.AddResource(entry);
         }
     }
 
@@ -108,7 +124,7 @@ public abstract class BlLegacyFileResourceBase : BlLegacyResourceBase
     {
         foreach (var pair in segments)
         {
-            Context.Resources.SetInlineSegment(pair.Key, pair.Value);
+            _context.SetResourceInlineSegment(pair.Key, pair.Value);
         }
     }
 
@@ -118,7 +134,7 @@ public abstract class BlLegacyFileResourceBase : BlLegacyResourceBase
         {
             var entryData = map.Entries[i];
             var entry = new BlLegacyResourceEntry(i, entryData.Tag, entryData.Size, entryData.Offset, entryData.Flags, entryData.Attributes, entryData.NextFree);
-            Context.Resources.Add(entry);
+            _context.AddResource(entry);
         }
     }
 
@@ -127,31 +143,30 @@ public abstract class BlLegacyFileResourceBase : BlLegacyResourceBase
         foreach (var entry in keyTable.Entries)
         {
             var link = new BlResourceKeyLink(entry.ChildId, entry.ParentId, entry.Tag);
-            Context.Resources.AddRelationship(link);
+            _context.AddResourceRelationship(link);
         }
     }
 
-    /// <summary>
-    /// Converts the registered resources into a <see cref="DirFilesContainerDTO"/>, loading payload bytes as needed.
-    /// </summary>
-    private DirFilesContainerDTO BuildContainer()
+    private DirFilesContainerDTO BuildContainer(BlAfterburnerState? afterburnerState)
     {
         var container = new DirFilesContainerDTO();
-        var classicLoader = new BlClassicPayloadLoader(Context);
-        var afterburnerLoader = _afterburnerState is null
-            ? null
-            : new BlAfterburnerPayloadLoader(Context, _afterburnerState);
+        var classicLoader = new BlClassicPayloadLoader(_context);
+        BlAfterburnerPayloadLoader? afterburnerLoader = null;
+        if (afterburnerState is not null)
+        {
+            afterburnerLoader = new BlAfterburnerPayloadLoader(_context, afterburnerState);
+        }
 
-        foreach (var entry in Context.Resources.Entries)
+        foreach (var entry in _context.Resources.Entries)
         {
             if (!ShouldExport(entry))
             {
                 continue;
             }
 
-            var payload = entry.StorageKind == BlResourceStorageKind.AfterburnerSegment
-                ? afterburnerLoader?.Load(entry) ?? Array.Empty<byte>()
-                : classicLoader.Load(entry);
+            byte[] payload = entry.StorageKind == BlResourceStorageKind.AfterburnerSegment
+                ? afterburnerLoader is null ? Array.Empty<byte>() : entry.LoadAfterburner(afterburnerLoader)
+                : entry.ReadClassicPayload(classicLoader);
 
             if (payload.Length == 0)
             {
@@ -169,9 +184,6 @@ public abstract class BlLegacyFileResourceBase : BlLegacyResourceBase
         return container;
     }
 
-    /// <summary>
-    /// Determines whether a resource should be exported based on its tag and declared size.
-    /// </summary>
     private static bool ShouldExport(BlLegacyResourceEntry entry)
     {
         if (entry.IsFreeChunk)
@@ -182,11 +194,22 @@ public abstract class BlLegacyFileResourceBase : BlLegacyResourceBase
         return entry.UncompressedSize > 0;
     }
 
-    /// <summary>
-    /// Builds the default file name for a resource using its tag and identifier.
-    /// </summary>
     private static string BuildFileName(BlLegacyResourceEntry entry)
     {
         return $"{entry.Tag.Value}_{entry.Id:D4}.bin";
+    }
+}
+
+/// <summary>
+/// Exposes the <see cref="BlDirFilesReader"/> through extension methods so the reader context can build DTO containers directly.
+/// </summary>
+internal static class BlDirFilesReaderExtensions
+{
+    public static (BlAfterburnerState? State, DirFilesContainerDTO Container) ReadDirFilesContainer(this ReaderContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        var reader = new BlDirFilesReader(context);
+        return reader.Read();
     }
 }

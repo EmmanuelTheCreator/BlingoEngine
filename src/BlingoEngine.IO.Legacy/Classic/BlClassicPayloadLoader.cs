@@ -71,3 +71,35 @@ internal sealed class BlClassicPayloadLoader
         return Array.Empty<byte>();
     }
 }
+
+/// <summary>
+/// Convenience helpers that expose classic chunk loading operations on the reader context and entries.
+/// </summary>
+internal static class BlClassicPayloadLoaderExtensions
+{
+    public static byte[] ReadClassicPayload(this ReaderContext context, BlLegacyResourceEntry entry)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(entry);
+
+        var loader = new BlClassicPayloadLoader(context);
+        return loader.Load(entry);
+    }
+
+    public static byte[] ReadClassicPayload(this BlLegacyResourceEntry entry, ReaderContext context)
+    {
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(context);
+
+        var loader = new BlClassicPayloadLoader(context);
+        return loader.Load(entry);
+    }
+
+    public static byte[] ReadClassicPayload(this BlLegacyResourceEntry entry, BlClassicPayloadLoader loader)
+    {
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(loader);
+
+        return loader.Load(entry);
+    }
+}

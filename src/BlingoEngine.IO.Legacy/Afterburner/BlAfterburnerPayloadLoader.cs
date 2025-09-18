@@ -90,3 +90,35 @@ internal sealed class BlAfterburnerPayloadLoader
         };
     }
 }
+
+/// <summary>
+/// Convenience helpers that expose Afterburner payload loading on common types without having to instantiate loaders.
+/// </summary>
+internal static class BlAfterburnerPayloadLoaderExtensions
+{
+    public static byte[] LoadAfterburner(this ReaderContext context, BlAfterburnerState state, BlLegacyResourceEntry entry)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(entry);
+
+        var loader = new BlAfterburnerPayloadLoader(context, state);
+        return loader.Load(entry);
+    }
+
+    public static byte[] LoadAfterburner(this BlLegacyResourceEntry entry, ReaderContext context, BlAfterburnerState state)
+    {
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(context);
+
+        var loader = new BlAfterburnerPayloadLoader(context, state);
+        return loader.Load(entry);
+    }
+
+    public static byte[] LoadAfterburner(this BlLegacyResourceEntry entry, BlAfterburnerPayloadLoader loader)
+    {
+        ArgumentNullException.ThrowIfNull(entry);
+        ArgumentNullException.ThrowIfNull(loader);
+
+        return loader.Load(entry);
+    }
+}
