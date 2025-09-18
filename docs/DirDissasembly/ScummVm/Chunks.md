@@ -30,7 +30,9 @@ This note describes how ScummVM's Director engine interprets individual RIFX chu
 
 ## Step 2 – Afterburner metadata and compressed entries
 
+
 Afterburner movies replace the classic `mmap` table with an `ABMP` stream: `readAfterburnerMap()` first validates the `Fver` header, recording its varint length and the Afterburner build number, then consumes the `Fcdr` descriptor before dropping into the compressed `ABMP` metadata.[engines/director/archive.cpp (approx. lines 884-918)] The `ABMP` block itself contributes Shockwave-style varints for the compressed map length, compression algorithm, expected uncompressed size, two control values, and the resource count before iterating each resource's ID, relative offset, compressed length, uncompressed length, compression type, and trailing four-character tag; ScummVM also warns when the inflated byte count differs from the stored length.[engines/director/archive.cpp (approx. lines 918-968)] Positive offsets are rebased with `moreOffset`, while negative offsets (`-1`) denote Initial Load Segment (ILS) resources that are copied into memory. Once the `ABMP` metadata is decoded, the loader inflates the `FGEI` chunk into `_ilsData`, reads its control varint, and walks a sequence of varint resource IDs paired with raw byte blobs so embedded resources can be served directly from RAM.[engines/director/archive.cpp (approx. lines 968-1008)]
+
 
 | Hex Bytes | Length | Explanation |
 | --- | --- | --- |
