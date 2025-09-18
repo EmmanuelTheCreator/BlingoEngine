@@ -39,7 +39,7 @@ internal sealed class BlAfterburnerMapReader
 
         var abmp = ReadChunkHeader(reader);
         EnsureChunkTag(abmp, BlTag.Abmp);
-        var entries = ReadAbmp(abmp);
+        var entries = ReadAbmp(abmp, descriptors);
 
         var fgei = ReadChunkHeader(reader);
         EnsureChunkTag(fgei, BlTag.Fgei);
@@ -152,7 +152,7 @@ internal sealed class BlAfterburnerMapReader
     /// Reads the <c>ABMP</c> chunk that lists all resource entries. Each entry stores the resource ID, offset, compressed and
     /// uncompressed sizes, compression table index, and a four-character tag using variable-length integers.
     /// </summary>
-    private IReadOnlyList<BlLegacyResourceEntry> ReadAbmp(ChunkHeader header)
+    private IReadOnlyList<BlLegacyResourceEntry> ReadAbmp(ChunkHeader header, IReadOnlyList<BlLegacyCompressionDescriptor> descriptors)
     {
         var reader = _context.Reader;
         reader.Position = header.Start;
@@ -162,13 +162,16 @@ internal sealed class BlAfterburnerMapReader
             throw new InvalidDataException("ABMP chunk is larger than supported by the reader.");
         }
 
-        var compressionMode = reader.ReadVariableUInt32();
+        var chunkCompressionIndex = unchecked((int)reader.ReadVariableUInt32());
         var expectedSize = reader.ReadVariableUInt32();
+        if (expectedSize > int.MaxValue)
+        {
+            throw new InvalidDataException("ABMP chunk declares an uncompressed size larger than supported by the reader.");
+        }
+        var expectedLength = (int)expectedSize;
         var remaining = (int)(header.Start + header.Length - reader.Position);
         var compressed = reader.ReadBytes(remaining);
-        var payload = compressionMode == 0
-            ? compressed
-            : BlZlib.Decompress(compressed, (int)expectedSize);
+        var payload = DecompressAbmpPayload(compressed, expectedLength, chunkCompressionIndex, descriptors);
 
         reader.Position = header.Start + header.Length;
 
@@ -191,6 +194,22 @@ internal sealed class BlAfterburnerMapReader
         }
 
         return entries;
+    }
+
+    private static byte[] DecompressAbmpPayload(byte[] data, int expectedLength, int compressionIndex, IReadOnlyList<BlLegacyCompressionDescriptor> descriptors)
+    {
+        if (compressionIndex < 0 || compressionIndex >= descriptors.Count)
+        {
+            return BlZlib.Decompress(data, expectedLength);
+        }
+
+        var descriptor = descriptors[compressionIndex];
+        return descriptor.Kind switch
+        {
+            BlCompressionKind.None => data,
+            BlCompressionKind.Zlib => BlZlib.Decompress(data, expectedLength),
+            _ => BlZlib.Decompress(data, expectedLength)
+        };
     }
 
     /// <summary>

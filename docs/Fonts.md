@@ -1,3 +1,5 @@
+[← Back to Docs Home](README.md)
+
 # Fonts in BlingoEngine
 
 BlingoEngine relies on the `IAbstFontManager` abstraction from the underlying AbstUI library to provide a uniform font API across SDL2, Godot, Unity, and Blazor backends. The manager registers font files, loads platform-specific assets, and exposes helpers for measuring text. Font styles use the flag-based `AbstFontStyle` enum so bold and italic styles can be combined.
