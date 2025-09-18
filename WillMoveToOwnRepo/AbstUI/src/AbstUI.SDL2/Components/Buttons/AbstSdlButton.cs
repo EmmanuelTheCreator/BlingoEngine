@@ -32,14 +32,16 @@ namespace AbstUI.SDL2.Components.Buttons
         private AColor _backgroundHoverColor = AbstDefaultColors.Button_Bg_Hover;
         private AColor _backgroundPressedColor = AbstDefaultColors.Button_Bg_Pressed;
         private IAbstTexture2D? _iconTexture;
+        private IAbstUITextureUserSubscription? _iconTextureSub;
         private bool _isHover;
+        private IAbstTexture2D? _iconTextureOnOri;
 
         public AColor BorderColor
         {
             get => _borderColor;
             set
             {
-                _borderColor = value; _isDirty = true;
+                _borderColor = value; RequestRedraw();
             }
         }
         public AColor BackgroundColor
@@ -47,7 +49,7 @@ namespace AbstUI.SDL2.Components.Buttons
             get => _backgroundColor;
             set
             {
-                _backgroundColor = value; _isDirty = true;
+                _backgroundColor = value; RequestRedraw();
             }
         }
         public AColor BackgroundHoverColor
@@ -55,47 +57,49 @@ namespace AbstUI.SDL2.Components.Buttons
             get => _backgroundHoverColor;
             set
             {
-                _backgroundHoverColor = value; _isDirty = true;
+                _backgroundHoverColor = value; RequestRedraw();
             }
         }
         public AColor BorderHoverColor
         {
             get => _borderHoverColor;
-            set { _borderHoverColor = value; _isDirty = true; }
+            set { _borderHoverColor = value; RequestRedraw(); }
         }
         public AColor BorderPressedColor
         {
             get => _borderPressedColor;
-            set { _borderPressedColor = value; _isDirty = true; }
+            set { _borderPressedColor = value; RequestRedraw(); }
         }
         public AColor BackgroundPressedColor
         {
             get => _backgroundPressedColor;
-            set { _backgroundPressedColor = value; _isDirty = true; }
+            set { _backgroundPressedColor = value; RequestRedraw(); }
         }
-        public AColor TextColor { get => _textColor; set { _textColor = value; _isDirty = true; } }
+        public AColor TextColor { get => _textColor; set { _textColor = value; RequestRedraw(); } }
         public AMargin Margin { get; set; } = AMargin.Zero;
-        public string Text { get => _text; set { _text = value; _isDirty = true; } }
+        public string Text { get => _text; set { _text = value; RequestRedraw(); } }
         public bool Enabled { get; set; } = true;
+     
         public IAbstTexture2D? IconTexture
         {
             get => _iconTexture;
             set
             {
-                _iconTexture = value;
-                if (_iconPtr != nint.Zero)
+                if (_iconTextureOnOri == value) return;
+                _iconTextureOnOri = value;
+                _iconTextureSub?.Release();
+                if (value is SdlTexture2D img && img.Width != 0 && img.Height != 0)
                 {
-                    SDL.SDL_DestroyTexture(_iconPtr);
-                    _iconPtr = nint.Zero;
+                    _iconTexture = (SdlTexture2D)img.Clone(ComponentContext.Renderer);
+                    _iconTextureSub = img.AddUser(this);
                 }
-                if (value is SdlImageTexture img)
-                {
-                    _iconPtr = SDL.SDL_CreateTextureFromSurface(ComponentContext.Renderer, img.SurfaceId);
-                }
-                _isDirty = true;
+                else
+                    _iconTexture = null;
+                RequestRedraw();
             }
         }
 
+      
         public object FrameworkNode => this;
 
         public event Action? Pressed;
@@ -112,10 +116,17 @@ namespace AbstUI.SDL2.Components.Buttons
             if (_font == null)
                 _font = _fontManager.GetDefaultFont<IAbstSdlFont>().Get(this, 12);
         }
+        private void RequestRedraw()
+        {
+            _isDirty = true;
+            ComponentContext.QueueRedraw(this);
+        }
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
-            if (!Visibility || !_isDirty) return _texture;
+            if (!Visibility) return nint.Zero;
+            if (!_isDirty) return _texture;
+
 
             EnsureResources(context);
             int w = (int)Width;
@@ -205,7 +216,7 @@ namespace AbstUI.SDL2.Components.Buttons
                 if (_isHover)
                 {
                     _isHover = false;
-                    _isDirty = true;
+                    RequestRedraw();
                 }
                 return;
             }
@@ -217,7 +228,7 @@ namespace AbstUI.SDL2.Components.Buttons
                         Factory.FocusManager.SetFocus(this);
                         _pressed = true;
                         e.StopPropagation = true;
-                        _isDirty = true;
+                        RequestRedraw();
                     }
                     break;
                 case SDL.SDL_EventType.SDL_MOUSEBUTTONUP:
@@ -226,14 +237,14 @@ namespace AbstUI.SDL2.Components.Buttons
                         Pressed?.Invoke();
                         _pressed = false;
                         e.StopPropagation = true;
-                        _isDirty = true;
+                        RequestRedraw();
                     }
                     break;
                 case SDL.SDL_EventType.SDL_MOUSEMOTION:
                     if (!_isHover)
                     {
                         _isHover = true;
-                        _isDirty = true;
+                        RequestRedraw();
                     }
                     break;
 
@@ -248,7 +259,7 @@ namespace AbstUI.SDL2.Components.Buttons
         public void SetFocus(bool focus)
         {
             _focused = focus;
-            _isDirty = true;
+            RequestRedraw();
         }
 
         public void Invoke() => Pressed?.Invoke();
@@ -257,8 +268,7 @@ namespace AbstUI.SDL2.Components.Buttons
         {
             if (_texture != nint.Zero)
                 SDL.SDL_DestroyTexture(_texture);
-            if (_iconPtr != nint.Zero)
-                SDL.SDL_DestroyTexture(_iconPtr);
+            _iconTextureSub?.Release();
             _font?.Release();
             base.Dispose();
         }

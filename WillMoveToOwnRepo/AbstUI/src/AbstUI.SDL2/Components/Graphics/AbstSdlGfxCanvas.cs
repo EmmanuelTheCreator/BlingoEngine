@@ -74,6 +74,8 @@ namespace AbstUI.SDL2.Components.Graphics
                 return nint.Zero;
 
             ComponentContext.Renderer = context.Renderer;
+            ComponentContext.TargetWidth = (int)Width;   // add
+            ComponentContext.TargetHeight = (int)Height;  // add
             _painter.Render();
             return _painter.Texture;
         }

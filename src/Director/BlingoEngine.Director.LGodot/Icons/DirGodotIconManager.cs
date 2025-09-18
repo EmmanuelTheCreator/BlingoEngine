@@ -38,7 +38,7 @@ namespace BlingoEngine.Director.LGodot.Icons
             var blingoTexture = new AbstGodotTexture2D(texture);
             return new BlingoIconSheetGodot(blingoTexture,iconWidth,iconHeight,horizontalSpacing, itemCount);
         }
-        protected override IAbstTexture2D? OnGetTextureImage(BlingoIconSheetGodot sheet, int x)
+        protected override IAbstTexture2D? OnGetTextureImage(BlingoIconSheetGodot sheet, int x, DirectorIcon icon)
         {
             var texture = sheet.Image.Texture;
             var image = texture.GetImage();
@@ -47,7 +47,7 @@ namespace BlingoEngine.Director.LGodot.Icons
             // Copy the icon region from the sprite sheet
             sub.BlitRect(image, new Rect2I(x, 0, sheet.IconWidth, sheet.IconHeight), Vector2I.Zero);
             var tex = ImageTexture.CreateFromImage(sub);
-            var blingoTexture = new AbstGodotTexture2D(tex);
+            var blingoTexture = new AbstGodotTexture2D(tex, icon.ToString());
             return blingoTexture;
         }
     }

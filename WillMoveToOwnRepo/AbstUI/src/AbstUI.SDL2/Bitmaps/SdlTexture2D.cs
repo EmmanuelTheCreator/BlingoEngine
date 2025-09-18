@@ -74,7 +74,7 @@ public class SdlTexture2D : AbstBaseTexture2D<nint>
     public IAbstTexture2D Clone(nint renderer)
     {
         var cloned = CloneTexture(renderer, Handle);
-        var clone = new SdlTexture2D(cloned, Width, Height, Name + "_cloned", _renderer);
+        var clone = new SdlTexture2D(cloned, Width, Height, Name + "_cloned", renderer);
         return clone;
     }
     public static nint CloneTexture(nint renderer, nint src)
@@ -83,7 +83,8 @@ public class SdlTexture2D : AbstBaseTexture2D<nint>
 
         var dst = SDL.SDL_CreateTexture(renderer, fmt,
             (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, w, h);
-        if (dst == nint.Zero) throw new Exception(SDL.SDL_GetError());
+        if (dst == nint.Zero) 
+            throw new Exception(SDL.SDL_GetError());
 
         SDL.SDL_GetTextureColorMod(src, out byte r, out byte g, out byte b);
         SDL.SDL_GetTextureAlphaMod(src, out byte a);

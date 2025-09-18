@@ -94,7 +94,8 @@ namespace AbstUI.SDL2.Components.Containers
                 _texW = w;
                 _texH = h;
             }
-
+            ComponentContext.TargetWidth = w;
+            ComponentContext.TargetHeight = h;
             var prevTarget = SDL.SDL_GetRenderTarget(context.Renderer);
             SDL.SDL_SetRenderTarget(context.Renderer, _texture);
 
@@ -108,7 +109,7 @@ namespace AbstUI.SDL2.Components.Containers
                 SDL.SDL_SetRenderDrawColor(context.Renderer, 0, 0, 0, 0);
                 SDL.SDL_RenderClear(context.Renderer);
             }
-
+            
             RenderChildren(context,0,0, w, h, _xOffset, _yOffset);
 
             if (BorderWidth > 0 && BorderColor is { } bc)
@@ -132,11 +133,11 @@ namespace AbstUI.SDL2.Components.Containers
 
         protected void RenderChildren(AbstSDLRenderContext context,int x, int y, int w, int h,int xOffset, int yOffset)
         {
-            if (ClipChildren)
-            {
-                SDL.SDL_Rect clip = new SDL.SDL_Rect { x =x+ xOffset, y = y+yOffset, w = w, h = h };
-                SDL.SDL_RenderSetClipRect(context.Renderer, ref clip);
-            }
+            //if (ClipChildren)
+            //{
+            //    SDL.SDL_Rect clip = new SDL.SDL_Rect { x =x+ xOffset, y = y+yOffset, w = w, h = h };
+            //    SDL.SDL_RenderSetClipRect(context.Renderer, ref clip);
+            //}
 
             foreach (var child in _children)
             {
@@ -145,16 +146,17 @@ namespace AbstUI.SDL2.Components.Containers
                     var ctx = comp.ComponentContext;
                     var oldOffX = ctx.OffsetX;
                     var oldOffY = ctx.OffsetY;
-                    ctx.OffsetX += -X + xOffset;
-                    ctx.OffsetY += -Y + yOffset;
+                    ctx.OffsetX += -X + xOffset + child.X;
+                    ctx.OffsetY += -Y + yOffset + child.Y;
+                    //Console.WriteLine($"PANEL BLIT {comp.Name} at {comp.X},{comp.Y} into {Name} at {X},{Y}  off=({ctx.OffsetX},{ctx.OffsetY}) {child.Name}");
                     ctx.RenderToTexture(context);
                     ctx.OffsetX = oldOffX;
                     ctx.OffsetY = oldOffY;
                 }
             }
 
-            if (ClipChildren)
-                SDL.SDL_RenderSetClipRect(context.Renderer, nint.Zero);
+            //if (ClipChildren)
+            //    SDL.SDL_RenderSetClipRect(context.Renderer, nint.Zero);
         }
 
         public override void Dispose()
