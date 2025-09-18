@@ -19,14 +19,74 @@ return new RIFXArchive();
 
 ## Step 2 – Windows executables and projector headers
 
-`loadEXE()` inspects the first four bytes of the stream. Raw `.dir` exports carry `RIFX`/`XFIR`, plain RIFF bundles use `RIFF`/`FFIR`, and older projectors embed the movie after Windows resources. The loader probes for `PJ` projector signatures—`PJ93`, `PJ95`, `PJ00`/`PJ01`—to locate the RIFX offset that follows the 32-bit tag and metadata fields before jumping into the archive payload.[engines/director/resource.cpp (approx. lines 280-520)] When the opener encounters `PJ93`/`PJ95` headers, it reads the little-endian offset immediately after the tag to find the embedded RIFX movie, ensuring the correct byte position for Director 4 and 5 projectors.[engines/director/resource.cpp (approx. lines 404-470)]
+`loadEXE()` inspects the first four bytes of the stream. Raw `.dir` exports carry `RIFX`/`XFIR`, plain RIFF bundles use `RIFF`/`FFIR`, and older projectors embed the movie after Windows resources. The loader probes for `PJ` projector signatures—`PJ93`, `PJ95`, `PJ00`/`PJ01`—to locate the RIFX offset that follows the 32-bit tag and to collect projector metadata before jumping into the archive payload.[engines/director/resource.cpp (approx. lines 280-540)] When the opener encounters one of these headers it records the projector-specific fields listed below and then uses the stored offset to seek to the embedded movie.[engines/director/resource.cpp (approx. lines 386-538)]
 
 | Hex Bytes | Length | Explanation |
 | --- | --- | --- |
 | `52 49 46 58` (`RIFX`) / `58 46 49 52` (`XFIR`) | 4 bytes | Identifies raw `.dir` exports that can be passed straight to `loadEXERIFX()` without projector metadata.[engines/director/resource.cpp (approx. lines 312-330)] |
 | `52 49 46 46` (`RIFF`) / `46 46 49 52` (`FFIR`) | 4 bytes | Flags plain RIFF bundles that should be opened with `RIFFArchive` instead of the RIFX loader.[engines/director/resource.cpp (approx. lines 332-348)] |
 | `50 4A 39 33` (`PJ93`), `50 4A 39 35` (`PJ95`), `50 4A 30 30` (`PJ00`), `50 4A 30 31` (`PJ01`) | 4 bytes | Windows projector signatures that gate which loader routine runs for Director 4, 5, and 7 executables.[engines/director/resource.cpp (approx. lines 404-556)] |
-| `<offset>` | 4 bytes (little-endian) | Immediately follows each `PJ**` tag and tells the loader where the embedded RIFX movie starts within the executable.[engines/director/resource.cpp (approx. lines 414-546)] |
+| `<offset>` | 4 bytes (little-endian) | Immediately follows each `PJ**` tag and tells the loader where the embedded RIFX movie starts within the executable.[engines/director/resource.cpp (approx. lines 482-538)] |
+
+**Director 3 projectors (`loadEXEv3`)**
+
+Director 2–3 projectors begin with a directory listing that points at an external MMM file. The loader reads a 16-bit entry count, skips five unknown bytes, and then walks each Pascal-string entry to locate the primary movie size and filename before falling through to the RIFF archive embedded in the executable.[engines/director/resource.cpp (approx. lines 381-456)]
+
+| Field | Length | Explanation |
+| --- | --- | --- |
+| `<entry count>` | 2 bytes (little-endian) | Number of MMM entries that follow.[engines/director/resource.cpp (approx. lines 386-392)] |
+| `<unknown padding>` | 5 bytes | Reserved bytes skipped by the loader.[engines/director/resource.cpp (approx. lines 388-390)] |
+| `<mmm size>` | 4 bytes per entry (little-endian) | Stored size of each MMM resource listed in the table.[engines/director/resource.cpp (approx. lines 391-399)] |
+| `<mmm filename>` | Pascal string per entry | Filename (length byte + characters) recorded for the MMM payload.[engines/director/resource.cpp (approx. lines 393-398)] |
+| `<directory name>` | Pascal string per entry | Directory relative to the executable where the MMM should be found.[engines/director/resource.cpp (approx. lines 393-398)] |
+
+**Director 4 projectors (`PJ93`)**
+
+Director 4 projectors carry several resource offsets in addition to the movie pointer. ScummVM reads and logs these values, though only `rifxOffset` is required to reach the embedded archive.[engines/director/resource.cpp (approx. lines 473-493)]
+
+| Field | Length | Explanation |
+| --- | --- | --- |
+| `50 4A 39 33` (`PJ93`) | 4 bytes | Signature identifying a Director 4 projector.[engines/director/resource.cpp (approx. lines 474-482)] |
+| `<rifx offset>` | 4 bytes (little-endian) | Position of the embedded RIFX movie in the executable.[engines/director/resource.cpp (approx. lines 482-493)] |
+| `<font map offset>` | 4 bytes (little-endian) | Additional resource pointer preserved for parity with Director headers.[engines/director/resource.cpp (approx. lines 483-493)] |
+| `<resource fork offset 1>` | 4 bytes (little-endian) | First of two resource-fork offsets carried by the header.[engines/director/resource.cpp (approx. lines 484-493)] |
+| `<resource fork offset 2>` | 4 bytes (little-endian) | Second resource-fork pointer stored after the font map offset.[engines/director/resource.cpp (approx. lines 484-493)] |
+| `<graphics DLL offset>` | 4 bytes (little-endian) | Location of the graphics helper DLL referenced by the projector.[engines/director/resource.cpp (approx. lines 486-491)] |
+| `<sound DLL offset>` | 4 bytes (little-endian) | Location of the sound helper DLL referenced by the projector.[engines/director/resource.cpp (approx. lines 487-491)] |
+| `<alternate rifx offset>` | 4 bytes (little-endian) | Second copy of the movie offset, equivalent to `rifxOffset`.[engines/director/resource.cpp (approx. lines 488-493)] |
+| `<projector flags>` | 4 bytes (little-endian) | Bitfield logged for debugging before the loader seeks to `rifxOffset`.[engines/director/resource.cpp (approx. lines 488-493)] |
+
+**Director 5 projectors (`PJ95`)**
+
+Director 5 executables expose projector flags, geometry, and component counts before the movie offset.[engines/director/resource.cpp (approx. lines 496-518)]
+
+| Field | Length | Explanation |
+| --- | --- | --- |
+| `50 4A 39 35` (`PJ95`) | 4 bytes | Signature identifying a Director 5 projector.[engines/director/resource.cpp (approx. lines 497-505)] |
+| `<rifx offset>` | 4 bytes (little-endian) | Position of the embedded RIFX movie in the executable.[engines/director/resource.cpp (approx. lines 505-518)] |
+| `<projector flags>` | 4 bytes (little-endian) | Primary projector flag bitfield (`pflags`).[engines/director/resource.cpp (approx. lines 505-517)] |
+| `<window flags>` | 4 bytes (little-endian) | Secondary flag word controlling projector behaviour.[engines/director/resource.cpp (approx. lines 505-517)] |
+| `<window x>` | 2 bytes (little-endian) | Projector window X coordinate (unused by ScummVM beyond skipping).[engines/director/resource.cpp (approx. lines 508-511)] |
+| `<window y>` | 2 bytes (little-endian) | Projector window Y coordinate.[engines/director/resource.cpp (approx. lines 508-511)] |
+| `<window width>` | 2 bytes (little-endian) | Stored window width in pixels.[engines/director/resource.cpp (approx. lines 510-513)] |
+| `<window height>` | 2 bytes (little-endian) | Stored window height in pixels.[engines/director/resource.cpp (approx. lines 510-513)] |
+| `<component count>` | 4 bytes (little-endian) | Number of projector components recorded by the header.[engines/director/resource.cpp (approx. lines 512-514)] |
+| `<driver file count>` | 4 bytes (little-endian) | Number of driver filenames expected to follow the header.[engines/director/resource.cpp (approx. lines 512-514)] |
+| `<font map offset>` | 4 bytes (little-endian) | Offset to the font map structure stored after the driver counts.[engines/director/resource.cpp (approx. lines 512-514)] |
+
+**Director 7 projectors (`PJ00`/`PJ01`)**
+
+Late Windows projectors retain the movie offset followed by reserved 32-bit words and an additional DLL pointer.[engines/director/resource.cpp (approx. lines 521-537)]
+
+| Field | Length | Explanation |
+| --- | --- | --- |
+| `50 4A 30 30` (`PJ00`) / `50 4A 30 31` (`PJ01`) | 4 bytes | Signature identifying a Director 7 projector.[engines/director/resource.cpp (approx. lines 522-528)] |
+| `<rifx offset>` | 4 bytes (little-endian) | Position of the embedded RIFX movie in the executable.[engines/director/resource.cpp (approx. lines 530-537)] |
+| `<reserved dword 1>` | 4 bytes (little-endian) | Unknown header word skipped by ScummVM.[engines/director/resource.cpp (approx. lines 531-535)] |
+| `<reserved dword 2>` | 4 bytes (little-endian) | Second unknown header word skipped.[engines/director/resource.cpp (approx. lines 531-535)] |
+| `<reserved dword 3>` | 4 bytes (little-endian) | Third unknown header word skipped.[engines/director/resource.cpp (approx. lines 531-535)] |
+| `<reserved dword 4>` | 4 bytes (little-endian) | Fourth unknown header word skipped.[engines/director/resource.cpp (approx. lines 531-535)] |
+| `<dll offset>` | 4 bytes (little-endian) | Stored DLL pointer read and ignored after the reserved words.[engines/director/resource.cpp (approx. lines 531-537)] |
 
 ## Step 3 – Mac binaries and data-fork detection
 
@@ -67,7 +127,7 @@ The archive reader also marks the `RIFX` chunk itself as accessed and optionally
 
 ## Step 5 – Memory-map archives (`MV93`, `MC95`, `APPL`)
 
-`readMemoryMap()` expects the `imap` and `mmap` control blocks. After reading the `imap` length and map version, it records a 32-bit `version` field whose values correlate with Director releases—`0x0` for Director 4, `0x4c1` for Director 5, `0x4c7` for Director 6, `0x708` for Director 8.5, and `0x742` for Director 10. The loader uses the offset stored in `imap` to jump to the `mmap` table, where each entry packs the resource type tag, data size, file offset (patched when dumping embedded movies), 16-bit flags, an unknown 16-bit field, and a link for free-list housekeeping.[engines/director/archive.cpp (approx. lines 804-868)] Every entry read here becomes a `Resource` with the offset adjusted by any MacBinary data-fork prefix before later reads consume the 8-byte chunk header stored in the file.[engines/director/archive.cpp (approx. lines 809-868)]
+`readMemoryMap()` expects the `imap` and `mmap` control blocks. After reading the `imap` length and map version, it records a 32-bit `version` field whose values correlate with Director releases—`0x0` for Director 4, `0x4c1` for Director 5, `0x4c7` for Director 6, `0x708` for Director 8.5, and `0x742` for Director 10. The loader uses the offset stored in `imap` to jump to the `mmap` table, whose header preserves the chunk length, header size, entry width, total and filled counts, an all-`0xFF` spacer, and the freelist head before the per-entry payload begins.[engines/director/archive.cpp (approx. lines 804-848)] Every entry read here becomes a `Resource` with the offset adjusted by any MacBinary data-fork prefix, keeping the per-row tag, size, offset, flag fields, and freelist pointer aligned with Director's layout.[engines/director/archive.cpp (approx. lines 848-868)]
 
 | Hex Bytes | Length | Explanation |
 | --- | --- | --- |
@@ -80,8 +140,13 @@ The archive reader also marks the `RIFX` chunk itself as accessed and optionally
 | Hex Bytes | Length | Explanation |
 | --- | --- | --- |
 | `6D 6D 61 70` (`mmap`) | 4 bytes | Table tag that starts the resource entry block.[engines/director/archive.cpp (approx. lines 828-840)] |
-| `<entry size>` | 2 bytes | Size of each `mmap` row, used to iterate resources.[engines/director/archive.cpp (approx. lines 836-844)] |
-| `<resource count>` | 4 bytes | Number of filled entries to parse into `Resource` objects.[engines/director/archive.cpp (approx. lines 836-852)] |
+| `<mmap length>` | 4 bytes | Big-endian size of the `mmap` chunk; stored for debugging but not otherwise used.[engines/director/archive.cpp (approx. lines 836-842)] |
+| `<header size>` | 2 bytes | `_mmapHeaderSize`; describes how many bytes precede the first entry.[engines/director/archive.cpp (approx. lines 836-844)] |
+| `<entry size>` | 2 bytes | `_mmapEntrySize`; width of each table row before the per-entry payload begins.[engines/director/archive.cpp (approx. lines 836-844)] |
+| `<total entries>` | 4 bytes | `_totalCount`; includes both populated and free-map slots.[engines/director/archive.cpp (approx. lines 836-848)] |
+| `<filled entries>` | 4 bytes | `_resCount`; number of resource rows to decode for this archive.[engines/director/archive.cpp (approx. lines 836-848)] |
+| `FF FF FF FF FF FF FF FF` padding | 8 bytes | Unused bytes (all `0xFF`) that Director left between the header and freelist pointer.[engines/director/archive.cpp (approx. lines 842-846)] |
+| `<first free resource id>` | 4 bytes | Index of the first unused row (`-1` when no free slots remain).[engines/director/archive.cpp (approx. lines 842-848)] |
 | `<tag>` | 4 bytes per entry | Resource type, stored as a four-character code.[engines/director/archive.cpp (approx. lines 848-864)] |
 | `<size>` | 4 bytes per entry | Chunk payload size excluding the 8-byte RIFX sub-header.[engines/director/archive.cpp (approx. lines 848-864)] |
 | `<offset>` | 4 bytes per entry | File position of the chunk, adjusted by `moreOffset` for MacBinary wrappers.[engines/director/archive.cpp (approx. lines 850-864)] |
@@ -106,6 +171,12 @@ Afterburner movies use a compressed metadata stream. `readAfterburnerMap()` firs
 
 | Field | Length | Explanation |
 | --- | --- | --- |
+| `<varint unk1>` | 1–5 bytes | First field inside the decompressed `ABMP`; ScummVM logs it as `abmpUnk1`.[engines/director/archive.cpp (approx. lines 940-952)] |
+| `<varint unk2>` | 1–5 bytes | Second control value logged as `abmpUnk2`; meaning currently unknown.[engines/director/archive.cpp (approx. lines 940-952)] |
+| `<varint resource count>` | 1–5 bytes | Number of Afterburner resource records that follow in the `ABMP` stream.[engines/director/archive.cpp (approx. lines 940-952)] |
+
+| Field | Length | Explanation |
+| --- | --- | --- |
 | `<varint resource id>` | 1–5 bytes | Index used to register the resource inside `_types`.[engines/director/archive.cpp (approx. lines 944-964)] |
 | `<varint offset>` | 1–5 bytes | Relative offset rebased by `moreOffset` when non-negative; `-1` marks Initial Load Segment entries.[engines/director/archive.cpp (approx. lines 946-964)] |
 | `<varint compressed size>` | 1–5 bytes | Length of the stored payload used when fetching data later.[engines/director/archive.cpp (approx. lines 948-964)] |
@@ -115,7 +186,7 @@ Afterburner movies use a compressed metadata stream. `readAfterburnerMap()` firs
 
 ## Step 7 – Initial load segments and key tables
 
-After parsing the ABMP metadata, the loader expects an `FGEI` chunk describing the Initial Load Segment. Its header contributes a varint control value, and the body is inflated into `_ilsData` so resources flagged with an offset of `-1` can be served from memory instead of the main stream. Each sub-entry inside the ILS is again keyed by a varint resource ID before the raw bytes are copied aside.[engines/director/archive.cpp (approx. lines 968-1012)] Once the maps are ready, `readKeyTable()` insists that a `KEY*` resource exists, reads 12-byte table entries, and associates each child resource ID with its parent ID and tag—linking cast members, movies (hardcoded parent 1024), and library casts for later lookups.[engines/director/archive.cpp (approx. lines 1012-1064)]
+After parsing the ABMP metadata, the loader expects an `FGEI` chunk describing the Initial Load Segment. Its header contributes a varint control value, and the body is inflated into `_ilsData` so resources flagged with an offset of `-1` can be served from memory instead of the main stream. Each sub-entry inside the ILS is again keyed by a varint resource ID before the raw bytes are copied aside.[engines/director/archive.cpp (approx. lines 968-1012)] Once the maps are ready, `readKeyTable()` insists that a `KEY*` resource exists, reads two 16-bit size fields, captures both the total and used entry counts, and then iterates the 12-byte rows to associate each child resource ID with its parent ID and tag—linking cast members, movies (hardcoded parent 1024), and library casts for later lookups.[engines/director/archive.cpp (approx. lines 1008-1068)]
 
 | Hex Bytes | Length | Explanation |
 | --- | --- | --- |
@@ -127,7 +198,9 @@ After parsing the ABMP metadata, the loader expects an `FGEI` chunk describing t
 | Field | Length | Explanation |
 | --- | --- | --- |
 | `<entry size>` | 2 bytes | First `KEY*` field confirming the 12-byte row layout Director uses.[engines/director/archive.cpp (approx. lines 1008-1046)] |
-| `<entry count>` | 4 bytes | Number of populated rows that will be processed.[engines/director/archive.cpp (approx. lines 1010-1048)] |
+| `<entry size 2>` | 2 bytes | Secondary size field stored alongside the primary row width.[engines/director/archive.cpp (approx. lines 1008-1048)] |
+| `<total entry count>` | 4 bytes | Number of slots present in the table (may exceed the used count).[engines/director/archive.cpp (approx. lines 1008-1050)] |
+| `<used entry count>` | 4 bytes | Number of populated rows that will be processed.[engines/director/archive.cpp (approx. lines 1008-1050)] |
 | `<child resource id>` | 4 bytes | Resource index to attach to the parent.[engines/director/archive.cpp (approx. lines 1048-1060)] |
 | `<parent resource id>` | 4 bytes | Owning cast, movie, or library index recorded for lookups.[engines/director/archive.cpp (approx. lines 1050-1062)] |
 | `<child tag>` | 4 bytes | Resource type so the relationship can be grouped by tag when querying.[engines/director/archive.cpp (approx. lines 1052-1064)] |
