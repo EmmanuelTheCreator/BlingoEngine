@@ -23,6 +23,9 @@ internal sealed class BlLegacyScriptReader
     private static readonly BlTag ScriptTag = BlTag.Register("Lscr");
     private static readonly BlTag CastTag = BlTag.Cast;
     private static readonly BlTag LegacyCastTag = BlTag.Register("CASt");
+    private static readonly BlTag ScriptContextLowerTag = BlTag.Register("Lctx");
+    private static readonly BlTag ScriptContextUpperTag = BlTag.Register("LctX");
+
 
     private readonly ReaderContext _context;
 
@@ -47,7 +50,9 @@ internal sealed class BlLegacyScriptReader
             afterburnerLoader = new BlAfterburnerPayloadLoader(_context, _context.AfterburnerState);
         }
 
-        var formatByResourceId = BuildScriptFormatMap(classicLoader, afterburnerLoader);
+        var scriptResourceByNumber = BuildScriptResourceMap(classicLoader, afterburnerLoader);
+        var formatByResourceId = BuildScriptFormatMap(classicLoader, afterburnerLoader, scriptResourceByNumber);
+
 
         foreach (var entry in _context.Resources.Entries)
         {
@@ -69,9 +74,37 @@ internal sealed class BlLegacyScriptReader
         return scripts;
     }
 
-    private Dictionary<int, BlLegacyScriptFormatKind> BuildScriptFormatMap(
+
+    private Dictionary<int, int> BuildScriptResourceMap(
         BlClassicPayloadLoader classicLoader,
         BlAfterburnerPayloadLoader? afterburnerLoader)
+    {
+        var result = new Dictionary<int, int>();
+
+        foreach (var entry in _context.Resources.Entries)
+        {
+            if (entry.Tag != ScriptContextLowerTag && entry.Tag != ScriptContextUpperTag)
+            {
+                continue;
+            }
+
+            var payload = LoadPayload(entry, classicLoader, afterburnerLoader);
+            if (payload.Length == 0)
+            {
+                continue;
+            }
+
+            ParseScriptContext(payload, result);
+        }
+
+        return result;
+    }
+
+    private Dictionary<int, BlLegacyScriptFormatKind> BuildScriptFormatMap(
+        BlClassicPayloadLoader classicLoader,
+        BlAfterburnerPayloadLoader? afterburnerLoader,
+        IReadOnlyDictionary<int, int> scriptResourceByNumber)
+
     {
         var result = new Dictionary<int, BlLegacyScriptFormatKind>();
         var entriesById = _context.Resources.EntriesById;
@@ -89,7 +122,7 @@ internal sealed class BlLegacyScriptReader
                 continue;
             }
 
-            if (!TryReadScriptDescriptor(payload, entriesById, out var scriptId, out var format))
+            if (!TryReadScriptDescriptor(payload, entriesById, scriptResourceByNumber, out var scriptId, out var format))
             {
                 continue;
             }
@@ -118,9 +151,70 @@ internal sealed class BlLegacyScriptReader
             : entry.ReadClassicPayload(classicLoader);
     }
 
+
+    private static void ParseScriptContext(byte[] payload, IDictionary<int, int> scriptResourceByNumber)
+    {
+        if (payload.Length < 24)
+        {
+            return;
+        }
+
+        using var memory = new MemoryStream(payload, writable: false);
+        var reader = new BlStreamReader(memory)
+        {
+            Endianness = BlEndianness.BigEndian
+        };
+
+        reader.Skip(sizeof(int) * 2); // Unknown header words
+        var entryCount = reader.ReadUInt32();
+        var entryCount2 = reader.ReadUInt32();
+        var entriesOffset = reader.ReadUInt16();
+        reader.Skip(sizeof(short)); // Unknown2
+        reader.Skip(sizeof(int) * 3); // Unknown3..Unknown5
+        reader.Skip(sizeof(int)); // LnamSectionId
+        reader.Skip(sizeof(short) * 3); // ValidCount, Flags, FreePointer
+
+        if (entryCount == 0)
+        {
+            return;
+        }
+
+        var entriesStart = entriesOffset;
+        if (entriesStart < 0 || entriesStart >= payload.Length)
+        {
+            return;
+        }
+
+        reader.Position = entriesStart;
+
+        var rawLimit = entryCount2 > 0 ? Math.Min(entryCount, entryCount2) : entryCount;
+        var bytesRemaining = payload.Length - entriesStart;
+        if (bytesRemaining <= 0)
+        {
+            return;
+        }
+
+        var capacity = (uint)(bytesRemaining / 12);
+        var entryLimit = (int)Math.Min(rawLimit, capacity);
+        for (var index = 0; index < entryLimit; index++)
+        {
+            reader.Skip(sizeof(int)); // Unknown entry field
+            var sectionId = reader.ReadInt32();
+            reader.Skip(sizeof(ushort) * 2); // Entry padding/flags
+
+            var scriptNumber = index + 1;
+            if (sectionId > 0 && !scriptResourceByNumber.ContainsKey(scriptNumber))
+            {
+                scriptResourceByNumber.Add(scriptNumber, sectionId);
+            }
+        }
+    }
+
     private static bool TryReadScriptDescriptor(
         byte[] payload,
         IReadOnlyDictionary<int, BlLegacyResourceEntry> entriesById,
+        IReadOnlyDictionary<int, int> scriptResourceByNumber,
+
         out int scriptResourceId,
         out BlLegacyScriptFormatKind format)
     {
@@ -172,16 +266,39 @@ internal sealed class BlLegacyScriptReader
 
         var specificData = specificLength > 0 ? reader.ReadBytes((int)specificLength) : Array.Empty<byte>();
 
-        scriptResourceId = ResolveScriptResourceId(infoData, entriesById);
+
+        scriptResourceId = ResolveScriptResourceId(infoData, entriesById, scriptResourceByNumber);
+
         format = BlLegacyScriptFormat.Detect(specificData);
 
         return scriptResourceId != 0;
     }
 
+
+    private static int ResolveScriptNumber(byte[] infoData)
+    {
+        if (infoData.Length < 20)
+        {
+            return 0;
+        }
+
+        var span = infoData.AsSpan(16, 4);
+        var value = BinaryPrimitives.ReadInt32BigEndian(span);
+        return value > 0 ? value : 0;
+    }
+
     private static int ResolveScriptResourceId(
         byte[] infoData,
-        IReadOnlyDictionary<int, BlLegacyResourceEntry> entriesById)
+        IReadOnlyDictionary<int, BlLegacyResourceEntry> entriesById,
+        IReadOnlyDictionary<int, int> scriptResourceByNumber)
     {
+        var scriptNumber = ResolveScriptNumber(infoData);
+        if (scriptNumber > 0 && scriptResourceByNumber.TryGetValue(scriptNumber, out var mappedId) && entriesById.ContainsKey(mappedId))
+        {
+            return mappedId;
+        }
+
+
         if (infoData.Length < 12)
         {
             return 0;

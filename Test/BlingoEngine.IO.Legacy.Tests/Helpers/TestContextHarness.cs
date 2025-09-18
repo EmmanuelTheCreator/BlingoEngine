@@ -1,7 +1,15 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
 using BlingoEngine.IO.Legacy.Bitmaps;
 using BlingoEngine.IO.Legacy.Cast;
 using BlingoEngine.IO.Legacy.Core;
 using BlingoEngine.IO.Legacy.Files;
+
+using BlingoEngine.IO.Legacy.Scripts;
+using BlingoEngine.IO.Legacy.Shapes;
+using BlingoEngine.IO.Legacy.Sounds;
+
 using BlingoEngine.IO.Legacy.Fields;
 using BlingoEngine.IO.Legacy.Shapes;
 using BlingoEngine.IO.Legacy.Sounds;
@@ -11,11 +19,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+
 namespace BlingoEngine.IO.Legacy.Tests.Helpers;
 
 internal sealed class TestContextHarness : IDisposable
 {
-
     public static IReadOnlyList<BlLegacyCastLibrary> LoadCastLibraries(string relativePath)
     {
         using var harness = Open(relativePath);
@@ -31,7 +39,6 @@ internal sealed class TestContextHarness : IDisposable
         return harness.Context.ReadSounds();
     }
 
-
     public static IReadOnlyList<BlLegacyShape> LoadShapes(string relativePath)
     {
         using var harness = Open(relativePath);
@@ -44,7 +51,13 @@ internal sealed class TestContextHarness : IDisposable
         using var harness = Open(relativePath);
         harness.ReadResources();
         return harness.Context.ReadBitmaps();
+    }
 
+    public static IReadOnlyList<BlLegacyScript> LoadScripts(string relativePath)
+    {
+        using var harness = Open(relativePath);
+        harness.ReadResources();
+        return harness.Context.ReadScripts();
     }
 
     public static IReadOnlyList<BlLegacyText> LoadTexts(string relativePath)
@@ -93,6 +106,3 @@ internal sealed class TestContextHarness : IDisposable
         Context.Dispose();
     }
 }
-
-
-
