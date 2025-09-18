@@ -1,7 +1,5 @@
-using System;
-using System.IO;
-
 using BlingoEngine.IO.Legacy.Compression;
+using BlingoEngine.IO.Legacy.Core;
 using BlingoEngine.IO.Legacy.Data;
 
 namespace BlingoEngine.IO.Legacy.Afterburner;

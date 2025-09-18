@@ -1,6 +1,4 @@
-using System;
-using System.IO;
-
+using BlingoEngine.IO.Legacy.Core;
 using BlingoEngine.IO.Legacy.Data;
 
 namespace BlingoEngine.IO.Legacy.Classic;
@@ -31,9 +29,7 @@ internal sealed class BlClassicPayloadLoader
         foreach (var candidate in offsets)
         {
             if (candidate < 0 || candidate > reader.Length - 8)
-            {
                 continue;
-            }
 
             var restore = reader.Position;
             try
@@ -41,20 +37,14 @@ internal sealed class BlClassicPayloadLoader
                 reader.Position = candidate;
                 var chunkTag = reader.ReadTag();
                 if (chunkTag != entry.Tag)
-                {
                     continue;
-                }
 
                 var length = reader.ReadUInt32();
                 if (length == 0)
-                {
                     return Array.Empty<byte>();
-                }
 
                 if (length > int.MaxValue)
-                {
                     continue;
-                }
 
                 return reader.ReadBytes((int)length);
             }

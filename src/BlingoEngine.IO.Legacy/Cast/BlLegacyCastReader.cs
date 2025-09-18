@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-
 using BlingoEngine.IO.Legacy.Afterburner;
 using BlingoEngine.IO.Legacy.Classic;
+using BlingoEngine.IO.Legacy.Core;
 using BlingoEngine.IO.Legacy.Data;
+using BlingoEngine.IO.Legacy.Tools;
 
 namespace BlingoEngine.IO.Legacy.Cast;
 
@@ -32,9 +29,7 @@ internal sealed class BlLegacyCastReader
     {
         var libraries = new List<BlLegacyCastLibrary>();
         if (_context.Resources.Entries.Count == 0)
-        {
             return libraries;
-        }
 
         var classicLoader = new BlClassicPayloadLoader(_context);
         BlAfterburnerPayloadLoader? afterburnerLoader = null;
@@ -46,9 +41,7 @@ internal sealed class BlLegacyCastReader
         foreach (var entry in _context.Resources.Entries)
         {
             if (entry.Tag != BlTag.CasStar)
-            {
                 continue;
-            }
 
             var payload = LoadPayload(entry, classicLoader, afterburnerLoader);
             var library = ParseLibrary(entry, payload, classicLoader, afterburnerLoader);
@@ -69,9 +62,7 @@ internal sealed class BlLegacyCastReader
     {
         int? parentId = null;
         if (_context.Resources.ParentByChild.TryGetValue(entry.Id, out var link))
-        {
             parentId = link.ParentId;
-        }
 
         var entryCount = payload.Length / 4;
         var library = new BlLegacyCastLibrary(entry.Id, parentId, entryCount);
@@ -85,17 +76,15 @@ internal sealed class BlLegacyCastReader
         {
             var castResourceId = unchecked((int)reader.ReadUInt32());
             if (castResourceId == 0)
-            {
                 continue;
-            }
 
-            library.Members.Add(CreateMember(slot, castResourceId, classicLoader, afterburnerLoader));
+            library.MemberSlots.Add(CreateMember(slot, castResourceId, classicLoader, afterburnerLoader));
         }
 
         return library;
     }
 
-    private BlLegacyCastMember CreateMember(int slot, int resourceId, BlClassicPayloadLoader classicLoader, BlAfterburnerPayloadLoader? afterburnerLoader)
+    private BlLegacyCastMemberSlot CreateMember(int slot, int resourceId, BlClassicPayloadLoader classicLoader, BlAfterburnerPayloadLoader? afterburnerLoader)
     {
         var memberType = BlLegacyCastMemberType.Unknown;
         var name = string.Empty;
@@ -107,13 +96,11 @@ internal sealed class BlLegacyCastReader
             {
                 memberType = parsedType;
                 if (!string.IsNullOrEmpty(parsedName))
-                {
                     name = parsedName;
-                }
             }
         }
 
-        return new BlLegacyCastMember(slot, resourceId, memberType, name);
+        return new BlLegacyCastMemberSlot(slot, resourceId, memberType, name);
     }
 
     private static bool TryParseMemberChunk(byte[] payload, out BlLegacyCastMemberType memberType, out string name)
@@ -122,9 +109,7 @@ internal sealed class BlLegacyCastReader
         name = string.Empty;
 
         if (payload.Length < 12)
-        {
             return false;
-        }
 
         using var memory = new MemoryStream(payload, writable: false);
         var reader = new BlStreamReader(memory)
@@ -133,21 +118,17 @@ internal sealed class BlLegacyCastReader
         };
 
         var typeValue = reader.ReadUInt32();
-        memberType = MapMemberType(typeValue);
+        memberType = BlLegacyCastMemberTypeHelpers.MapMemberType(typeValue);
 
         var infoLength = reader.ReadUInt32();
         var specificLength = reader.ReadUInt32();
 
         var infoBytesAvailable = payload.Length - (int)reader.Position;
         if (infoBytesAvailable <= 0)
-        {
             return true;
-        }
 
         if (infoLength > (uint)infoBytesAvailable)
-        {
             infoLength = (uint)infoBytesAvailable;
-        }
 
         var infoData = infoLength > 0 ? reader.ReadBytes((int)infoLength) : Array.Empty<byte>();
 
@@ -155,159 +136,22 @@ internal sealed class BlLegacyCastReader
         {
             var skip = Math.Min((int)specificLength, payload.Length - (int)reader.Position);
             if (skip > 0)
-            {
                 reader.Skip(skip);
-            }
         }
 
-        if (infoData.Length > 0)
-        {
-            var extracted = ExtractMemberName(infoData);
-            if (!string.IsNullOrEmpty(extracted))
-            {
-                name = extracted;
-            }
-        }
+        name = ReadMemberName(infoData);
 
         return true;
     }
 
-    private static BlLegacyCastMemberType MapMemberType(uint value)
+    private static string ReadMemberName(byte[] infoData)
     {
-        return value switch
-        {
-            0 => BlLegacyCastMemberType.Null,
-            1 => BlLegacyCastMemberType.Bitmap,
-            2 => BlLegacyCastMemberType.FilmLoop,
-            3 => BlLegacyCastMemberType.Text,
-            4 => BlLegacyCastMemberType.Palette,
-            5 => BlLegacyCastMemberType.Picture,
-            6 => BlLegacyCastMemberType.Sound,
-            7 => BlLegacyCastMemberType.Button,
-            8 => BlLegacyCastMemberType.Shape,
-            9 => BlLegacyCastMemberType.Movie,
-            10 => BlLegacyCastMemberType.DigitalVideo,
-            11 => BlLegacyCastMemberType.Script,
-            12 => BlLegacyCastMemberType.Rte,
-            13 => BlLegacyCastMemberType.Font,
-            14 => BlLegacyCastMemberType.Xtra,
-            15 => BlLegacyCastMemberType.Field,
-            _ => BlLegacyCastMemberType.Unknown
-        };
-    }
-
-    private static string ExtractMemberName(byte[] infoData)
-    {
-        if (infoData.Length < 10)
-        {
-            return ScanForPascalString(infoData);
-        }
-
-        using var memory = new MemoryStream(infoData, writable: false);
-        var reader = new BlStreamReader(memory)
-        {
-            Endianness = BlEndianness.BigEndian
-        };
-
-        var _ = reader.ReadUInt32();
-        var entryCount = reader.ReadUInt16();
-        var itemsLength = reader.ReadUInt32();
-
-        if (entryCount == 0)
-        {
-            return ScanForPascalString(infoData);
-        }
-
-        var offsets = new uint[entryCount];
-        for (var i = 0; i < entryCount; i++)
-        {
-            if (reader.Position > infoData.Length - 4)
-            {
-                return ScanForPascalString(infoData);
-            }
-
-            offsets[i] = reader.ReadUInt32();
-        }
-
-        var tableEnd = (int)reader.Position;
-        var available = infoData.Length - tableEnd;
-        if (available <= 0)
-        {
-            return ScanForPascalString(infoData);
-        }
-
-        var itemsLimit = (int)Math.Min(itemsLength, (uint)available);
-        if (itemsLimit <= 0)
-        {
-            return ScanForPascalString(infoData);
-        }
-
-        if (entryCount >= 2)
-        {
-            var start = (int)Math.Min(offsets[1], (uint)itemsLimit);
-            var nextOffset = entryCount > 2 ? offsets[2] : itemsLength;
-            var end = (int)Math.Min(nextOffset, (uint)itemsLimit);
-            var length = end - start;
-            if (start >= 0 && length > 0 && start + length <= itemsLimit)
-            {
-                var itemsSpan = infoData.AsSpan(tableEnd, itemsLimit);
-                var itemSpan = itemsSpan.Slice(start, length);
-                var name = ReadPascalString(itemSpan);
-                if (!string.IsNullOrEmpty(name))
-                {
-                    return name;
-                }
-            }
-        }
-
-        return ScanForPascalString(infoData);
-    }
-
-    private static string ReadPascalString(ReadOnlySpan<byte> span)
-    {
-        if (span.IsEmpty)
-        {
+        if (infoData.Length == 0)
             return string.Empty;
-        }
-
-        int length = span[0];
-        if (length <= 0 || length >= span.Length)
-        {
-            return string.Empty;
-        }
-
-        return Encoding.UTF8.GetString(span.Slice(1, length));
+        var extracted = infoData.ExtractName();
+        return !string.IsNullOrEmpty(extracted) ? extracted : string.Empty;
     }
 
-    private static string ScanForPascalString(byte[] data)
-    {
-        for (var i = 0; i < data.Length; i++)
-        {
-            int length = data[i];
-            if (length <= 0 || i + 1 + length > data.Length)
-            {
-                continue;
-            }
-
-            bool ascii = true;
-            for (var j = 0; j < length; j++)
-            {
-                var value = data[i + 1 + j];
-                if (value < 0x20 || value > 0x7E)
-                {
-                    ascii = false;
-                    break;
-                }
-            }
-
-            if (ascii)
-            {
-                return Encoding.UTF8.GetString(data, i + 1, length);
-            }
-        }
-
-        return string.Empty;
-    }
 }
 
 /// <summary>

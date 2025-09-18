@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-
-using BlingoEngine.IO.Legacy;
+using BlingoEngine.IO.Legacy.Core;
+using BlingoEngine.IO.Legacy.Data;
 
 namespace BlingoEngine.IO.Legacy.Classic.Blocks;
 

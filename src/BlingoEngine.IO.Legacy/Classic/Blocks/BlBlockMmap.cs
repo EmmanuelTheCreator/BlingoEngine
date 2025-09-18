@@ -1,3 +1,5 @@
+using BlingoEngine.IO.Legacy.Core;
+using BlingoEngine.IO.Legacy.Data;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;

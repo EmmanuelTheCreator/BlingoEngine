@@ -1,4 +1,5 @@
 using BlingoEngine.IO.Legacy.Classic.Blocks;
+using BlingoEngine.IO.Legacy.Core;
 using BlingoEngine.IO.Legacy.Data;
 
 namespace BlingoEngine.IO.Legacy.Classic;
@@ -32,9 +33,7 @@ internal sealed class BlClassicMapReader
         while (reader.Position < dataBlock.PayloadEnd)
         {
             if (dataBlock.PayloadEnd - reader.Position < 8)
-            {
                 break;
-            }
 
             var chunkStart = reader.Position;
             var tag = reader.ReadTag();
@@ -42,25 +41,17 @@ internal sealed class BlClassicMapReader
             var payloadStart = reader.Position;
 
             if (tag == BlTag.Imap)
-            {
                 imap = _context.ReadImap(payloadStart);
-            }
             else if (tag == BlTag.Mmap)
-            {
                 mmap = _context.ReadMmap(payloadStart);
-            }
             else if (tag == BlTag.KeyStar)
-            {
                 keyTable = _context.ReadKeyTable(payloadStart);
-            }
 
             reader.Position = payloadStart + length;
             reader.AlignToEven();
 
             if (reader.Position <= chunkStart)
-            {
                 break;
-            }
         }
 
         return new BlClassicMapData(imap, mmap, keyTable);

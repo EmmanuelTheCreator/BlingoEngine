@@ -1,3 +1,5 @@
+using BlingoEngine.IO.Legacy.Core;
+
 namespace BlingoEngine.IO.Legacy.Classic.Blocks;
 
 /// <summary>

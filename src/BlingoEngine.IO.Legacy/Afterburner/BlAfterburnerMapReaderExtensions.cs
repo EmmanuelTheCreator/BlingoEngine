@@ -1,5 +1,5 @@
 using System;
-
+using BlingoEngine.IO.Legacy.Core;
 using BlingoEngine.IO.Legacy.Data;
 
 namespace BlingoEngine.IO.Legacy.Afterburner;

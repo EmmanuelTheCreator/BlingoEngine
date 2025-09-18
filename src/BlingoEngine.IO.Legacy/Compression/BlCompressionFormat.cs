@@ -1,7 +1,5 @@
 using System;
 
-using BlingoEngine.IO.Legacy.Data;
-
 namespace BlingoEngine.IO.Legacy.Compression;
 
 /// <summary>
@@ -36,24 +34,16 @@ public static class BlCompressionFormat
     public static BlCompressionKind Resolve(ReadOnlySpan<byte> identifier, string name)
     {
         if (identifier.SequenceEqual(NullId.Span))
-        {
             return BlCompressionKind.None;
-        }
 
         if (identifier.SequenceEqual(ZlibId.Span) || name.Contains("zlib", StringComparison.OrdinalIgnoreCase))
-        {
             return BlCompressionKind.Zlib;
-        }
 
         if (identifier.SequenceEqual(SoundId.Span) || name.Contains("sound", StringComparison.OrdinalIgnoreCase))
-        {
             return BlCompressionKind.Sound;
-        }
 
         if (identifier.SequenceEqual(FontMapId.Span) || name.Contains("font", StringComparison.OrdinalIgnoreCase))
-        {
             return BlCompressionKind.FontMap;
-        }
 
         return BlCompressionKind.Unknown;
     }

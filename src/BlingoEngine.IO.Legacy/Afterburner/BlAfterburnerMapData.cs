@@ -1,5 +1,4 @@
-using System.Collections.Generic;
-
+using BlingoEngine.IO.Legacy.Compression;
 using BlingoEngine.IO.Legacy.Data;
 
 namespace BlingoEngine.IO.Legacy.Afterburner;

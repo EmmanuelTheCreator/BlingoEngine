@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 
 namespace BlingoEngine.IO.Legacy.Cast;
 
@@ -36,40 +35,5 @@ internal sealed class BlLegacyCastLibrary
     /// Gets the list of populated cast-member slots. Empty slots are omitted but their original
     /// index is preserved so consumers can reconstruct member numbering.
     /// </summary>
-    public List<BlLegacyCastMember> Members { get; } = new();
-}
-
-/// <summary>
-/// Describes a single populated entry inside the <c>CAS*</c> table. The slot index represents the
-/// position within the table while the resource identifier points to the <c>CASt</c> chunk that
-/// contains the cast-member data.
-/// </summary>
-/// <param name="SlotIndex">Zero-based position of the entry within the table.</param>
-/// <param name="ResourceId">Identifier of the <c>CASt</c> resource referenced by the slot.</param>
-/// <param name="MemberType">Type of cast member stored inside the <c>CASt</c> payload.</param>
-/// <param name="Name">Name recorded in the member info block, when available.</param>
-internal readonly record struct BlLegacyCastMember(int SlotIndex, int ResourceId, BlLegacyCastMemberType MemberType, string Name);
-
-/// <summary>
-/// Enumerates the legacy cast-member types encoded at the start of the <c>CASt</c> payload.
-/// </summary>
-internal enum BlLegacyCastMemberType
-{
-    Unknown = -1,
-    Null = 0,
-    Bitmap = 1,
-    FilmLoop = 2,
-    Text = 3,
-    Palette = 4,
-    Picture = 5,
-    Sound = 6,
-    Button = 7,
-    Shape = 8,
-    Movie = 9,
-    DigitalVideo = 10,
-    Script = 11,
-    Rte = 12,
-    Font = 13,
-    Xtra = 14,
-    Field = 15
+    public List<BlLegacyCastMemberSlot> MemberSlots { get; } = new();
 }

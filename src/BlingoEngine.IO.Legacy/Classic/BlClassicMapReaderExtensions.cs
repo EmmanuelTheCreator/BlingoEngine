@@ -1,5 +1,4 @@
-using System;
-
+using BlingoEngine.IO.Legacy.Core;
 using BlingoEngine.IO.Legacy.Data;
 
 namespace BlingoEngine.IO.Legacy.Classic;
@@ -24,13 +23,7 @@ internal static class BlClassicMapReaderExtensions
         return context.ReadClassicMapData(dataBlock);
     }
 
-    public static BlClassicMapData ReadMapData(this ReaderContext context, BlDataBlock dataBlock)
-    {
-        return context.ReadClassicMapData(dataBlock);
-    }
+    public static BlClassicMapData ReadMapData(this ReaderContext context, BlDataBlock dataBlock) => context.ReadClassicMapData(dataBlock);
 
-    public static BlClassicMapData ReadMapData(this BlDataBlock dataBlock, ReaderContext context)
-    {
-        return context.ReadClassicMapData(dataBlock);
-    }
+    public static BlClassicMapData ReadMapData(this BlDataBlock dataBlock, ReaderContext context) => context.ReadClassicMapData(dataBlock);
 }
