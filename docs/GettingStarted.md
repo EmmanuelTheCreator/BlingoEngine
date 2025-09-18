@@ -1,3 +1,5 @@
+[← Back to Docs Home](README.md)
+
 # Getting Started
 
 This short guide explains the layout of the repository and how to run the test suite locally.

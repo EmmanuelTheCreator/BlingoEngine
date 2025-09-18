@@ -1,3 +1,5 @@
+[← Back to Docs Home](README.md)
+
 # Film Loops
 
 Film loops are reusable animations composed of sprites or sounds that play in a loop independent of the score timeline. They are roughly equivalent to movie clips in other engines and act like mini‑movies that can be dropped onto the stage or nested inside other film loops.

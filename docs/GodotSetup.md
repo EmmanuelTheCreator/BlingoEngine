@@ -1,3 +1,5 @@
+[← Back to Docs Home](README.md)
+
 # Setting Up the Godot Runtime
 
 The Godot adapter embeds BlingoEngine into a Godot scene through a framework

@@ -14,6 +14,7 @@ This folder collects guides, references, and research notes for BlingoEngine.
 - [FilmLoop.md](FilmLoop.md) – Film loop usage, internals, and nesting animations inside animations.
 - [Fonts.md](Fonts.md) – Managing fonts across SDL2, Godot, Unity, and Blazor backends.
 - [GettingStarted.md](GettingStarted.md) – Repository layout and how to run tests locally.
+- [LegacySoundLoading.md](LegacySoundLoading.md) – Notes about `ediM` payloads, format detection, and historical Director sound handling.
 - [GodotSetup.md](GodotSetup.md) – Embedding BlingoEngine into a Godot project.
 - [Progress.md](Progress.md) – Current implementation status of Lingo language features.
 - [SDLSetup.md](SDLSetup.md) – Notes for using the SDL2 front‑end runtime.
