@@ -1,5 +1,6 @@
 ﻿using BlingoEngine.IO.Legacy.Core;
 using System.Buffers.Binary;
+using System.Globalization;
 using System.Text;
 
 namespace ProjectorRays.CastMembers;
@@ -129,7 +130,11 @@ public class BlXmedReader
         byte alignByte = ReadU8(data, start + OFF_ALIGN);
         doc.LineSpacing = ReadU32LE(data, start + OFF_LINESP);
         // font size stored as int32, we clamp to ushort field
-        ushort fontSize = (ushort)ReadU32LE(data, start + OFF_FONTSIZE);
+        ushort fontSize;
+        if (!TryReadAsciiHexUInt16(data, start + OFF_FONTSIZE, out fontSize))
+        {
+            fontSize = (ushort)ReadU32LE(data, start + OFF_FONTSIZE);
+        }
         doc.TextLength = ReadU32LE(data, start + OFF_TEXTLEN);
 
         var baseStyle = new XmedStyleDeclaration
@@ -178,13 +183,13 @@ public class BlXmedReader
             }
 
             // 20 ASCII digits → either style map or descriptor header
-            if (IsDigit(b))
+            if (IsHexDigit(b))
             {
                 int j = i;
-                while (j < end && IsDigit(data[j])) j++;
+                while (j < end && IsHexDigit(data[j])) j++;
                 int digitLen = j - i;
 
-                if (digitLen == 20)
+                if (digitLen == 20 && IsAllDecimalDigits(data, i, digitLen))
                 {
                     // If followed by NUL and immediately by "40,", treat as descriptor header
                     bool hasNull = (j < end && data[j] == 0x00);
@@ -246,8 +251,7 @@ public class BlXmedReader
                 // "<len>,<ascii...>"
                 if (j < end && data[j] == 0x2C)
                 {
-                    string num = Encoding.ASCII.GetString(data, i, j - i);
-                    if (int.TryParse(num, out int len))
+                    if (TryParseDecimalOrHex(data, i, j - i, out int len))
                     {
                         int textStart = j + 1;
                         int textEnd = textStart + len;
@@ -279,28 +283,16 @@ public class BlXmedReader
                                 run.Underline = currentStyle.Underline;
                             }
 
-                            if (printable)
+                            if (!printable)
                             {
-                                string text = Encoding.Latin1.GetString(data, textStart, len);
-                                run.Text = text;
-                                textBuilder.Append(text);
-                            }
-                            else
-                            {
-                                var span = data.AsSpan(textStart, len);
-                                if (len >= 2) run.Unknown1 = BinaryPrimitives.ReadUInt16BigEndian(span);
-                                if (len >= 6) run.Unknown2 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(2));
-                                if (len >= 10) run.Unknown3 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(6));
-                                if (len >= 14) run.Unknown4 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(10));
-                                if (len >= 18) run.Unknown5 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(14));
-                                if (len >= 22) run.Unknown6 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(18));
-                                if (len >= 26) run.Unknown7 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(22));
-                                if (len >= 30) run.Unknown8 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(26));
-                                if (len >= 34) run.Unknown9 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(30));
-                                if (len >= 38) run.Unknown10 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(34));
-                                if (len >= 42) run.Unknown11 = BinaryPrimitives.ReadUInt32BigEndian(span.Slice(38));
+                                i = textEnd;
+                                if (i < end && (data[i] == 0x00 || data[i] == 0x03)) i++;
+                                continue;
                             }
 
+                            string text = Encoding.Latin1.GetString(data, textStart, len);
+                            run.Text = text;
+                            textBuilder.Append(text);
                             doc.Runs.Add(run);
 
                             i = textEnd;
@@ -348,6 +340,100 @@ public class BlXmedReader
             0x15 => BlXmedAlignment.Right,
             _ => BlXmedAlignment.Center
         };
+    }
+
+    private static bool TryReadAsciiHexUInt16(byte[] data, int offset, out ushort value)
+    {
+        value = 0;
+        if (offset < 0 || offset + 2 > data.Length)
+        {
+            return false;
+        }
+
+        byte low = data[offset];
+        byte high = data[offset + 1];
+
+        if (TryDecodeHexNibble(high, out int hi) && TryDecodeHexNibble(low, out int lo))
+        {
+            value = (ushort)((hi << 4) | lo);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryDecodeHexNibble(byte b, out int value)
+    {
+        if (b >= (byte)'0' && b <= (byte)'9')
+        {
+            value = b - '0';
+            return true;
+        }
+
+        if (b >= (byte)'A' && b <= (byte)'F')
+        {
+            value = 10 + (b - 'A');
+            return true;
+        }
+
+        if (b >= (byte)'a' && b <= (byte)'f')
+        {
+            value = 10 + (b - 'a');
+            return true;
+        }
+
+        value = 0;
+        return false;
+    }
+
+    private static bool IsHexDigit(byte b) =>
+        (b >= (byte)'0' && b <= (byte)'9') ||
+        (b >= (byte)'A' && b <= (byte)'F') ||
+        (b >= (byte)'a' && b <= (byte)'f');
+
+    private static bool IsAllDecimalDigits(byte[] data, int offset, int length)
+    {
+        if (length <= 0 || offset < 0 || offset + length > data.Length)
+        {
+            return false;
+        }
+
+        for (int k = 0; k < length; k++)
+        {
+            if (!IsDigit(data[offset + k]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static bool TryParseDecimalOrHex(byte[] data, int offset, int length, out int value)
+    {
+        value = 0;
+        if (length <= 0 || offset < 0 || offset + length > data.Length)
+        {
+            return false;
+        }
+
+        if (IsAllDecimalDigits(data, offset, length))
+        {
+            if (int.TryParse(Encoding.ASCII.GetString(data, offset, length), out value))
+            {
+                return true;
+            }
+        }
+
+        for (int k = 0; k < length; k++)
+        {
+            if (!IsHexDigit(data[offset + k]))
+            {
+                return false;
+            }
+        }
+
+        return int.TryParse(Encoding.ASCII.GetString(data, offset, length), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out value);
     }
 
     private static bool IsDigit(byte b) => b >= (byte)'0' && b <= (byte)'9';
