@@ -31,6 +31,11 @@ internal sealed class BlClassicMapReader
 
         while (reader.Position < dataBlock.PayloadEnd)
         {
+            if (dataBlock.PayloadEnd - reader.Position < 8)
+            {
+                break;
+            }
+
             var chunkStart = reader.Position;
             var tag = reader.ReadTag();
             var length = reader.ReadUInt32();

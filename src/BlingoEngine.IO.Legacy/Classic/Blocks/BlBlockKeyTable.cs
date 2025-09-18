@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 using BlingoEngine.IO.Legacy;
@@ -11,14 +12,18 @@ namespace BlingoEngine.IO.Legacy.Classic.Blocks;
 internal sealed class BlBlockKeyTable
 {
     public ushort EntrySize { get; init; }
-    public uint EntryCount { get; init; }
+    public ushort SecondaryEntrySize { get; init; }
+    public uint TotalEntryCount { get; init; }
+    public uint UsedEntryCount { get; init; }
     public List<BlBlockKeyEntry> Entries { get; } = new();
 
     public string ToMarkDown()
     {
         var builder = new StringBuilder();
         builder.AppendLine($"Entry Size: {EntrySize}");
-        builder.AppendLine($"Entry Count: {EntryCount}");
+        builder.AppendLine($"Secondary Entry Size: {SecondaryEntrySize}");
+        builder.AppendLine($"Total Entry Count: {TotalEntryCount}");
+        builder.AppendLine($"Used Entry Count: {UsedEntryCount}");
         builder.AppendLine();
         builder.AppendLine("| Index | Child Id | Parent Id | Tag |");
         builder.AppendLine("| --- | --- | --- | --- |");
@@ -57,13 +62,20 @@ internal static class BlBlockKeyTableExtensions
         var restore = reader.Position;
         reader.Position = payloadStart;
 
+        var entrySize = reader.ReadUInt16();
+        var secondaryEntrySize = reader.ReadUInt16();
+        var totalEntryCount = reader.ReadUInt32();
+        var usedEntryCount = reader.ReadUInt32();
+
         var table = new BlBlockKeyTable
         {
-            EntrySize = reader.ReadUInt16(),
-            EntryCount = reader.ReadUInt32()
+            EntrySize = entrySize,
+            SecondaryEntrySize = secondaryEntrySize,
+            TotalEntryCount = totalEntryCount,
+            UsedEntryCount = usedEntryCount
         };
 
-        for (uint i = 0; i < table.EntryCount; i++)
+        for (uint i = 0; i < table.UsedEntryCount; i++)
         {
             var entryStart = reader.Position;
             var childId = unchecked((int)reader.ReadUInt32());
@@ -74,6 +86,11 @@ internal static class BlBlockKeyTableExtensions
 
             var consumed = reader.Position - entryStart;
             var padding = (long)table.EntrySize - consumed;
+            if (padding < 0)
+            {
+                throw new InvalidDataException($"KEY* entry {i} consumed more bytes than the declared entry size.");
+            }
+
             if (padding > 0)
             {
                 reader.Skip(padding);

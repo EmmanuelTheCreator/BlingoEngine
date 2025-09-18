@@ -159,6 +159,7 @@ public readonly struct BlTag : IEquatable<BlTag>, IEquatable<string>
         Abmp = Register("ABMP");
         Fgei = Register("FGEI");
         Cast = Register("CAST");
+        CasStar = Register("CAS*");
     }
 
     public static BlTag Register(string value)
@@ -188,4 +189,5 @@ public readonly struct BlTag : IEquatable<BlTag>, IEquatable<string>
     public static BlTag Abmp { get; }
     public static BlTag Fgei { get; }
     public static BlTag Cast { get; }
+    public static BlTag CasStar { get; }
 }
