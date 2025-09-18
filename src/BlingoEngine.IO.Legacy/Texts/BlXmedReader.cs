@@ -144,6 +144,14 @@ public class BlXmedReader
         };
         ApplyStyleFlags(styleFlags, baseStyle);
         ApplyAlignmentFlags(alignByte, baseStyle);
+
+        byte detectedAlignmentCode = DetectAlignmentCode(data, start, Math.Min(end, start + 0x200));
+        if (TryDecodeAlignment(detectedAlignmentCode, out var detectedAlignment))
+        {
+            baseStyle.AlignmentRaw = detectedAlignmentCode;
+            baseStyle.Alignment = detectedAlignment;
+        }
+
         doc.Styles.Add(baseStyle);
 
         // --- sequential scan ---
@@ -334,12 +342,97 @@ public class BlXmedReader
     {
         style.WrapOff = b == 0x19;
         style.HasTabs = (b & 0x10) != 0;
-        style.Alignment = b switch
+
+        if (!TryDecodeAlignment(b, out var alignment))
         {
-            0x1A => BlXmedAlignment.Left,
-            0x15 => BlXmedAlignment.Right,
-            _ => BlXmedAlignment.Center
-        };
+            alignment = BlXmedAlignment.Center;
+        }
+
+        style.Alignment = alignment;
+    }
+
+    private static bool TryDecodeAlignment(byte b, out BlXmedAlignment alignment)
+    {
+        switch (b)
+        {
+            case 0x1A:
+            case 0x3B:
+                alignment = BlXmedAlignment.Left;
+                return true;
+            case 0x15:
+            case 0x77:
+                alignment = BlXmedAlignment.Right;
+                return true;
+            case 0x3F:
+            case 0x18:
+                alignment = BlXmedAlignment.Center;
+                return true;
+            default:
+                alignment = BlXmedAlignment.Center;
+                return false;
+        }
+    }
+
+    private static byte DetectAlignmentCode(byte[] data, int start, int end)
+    {
+        if (data.Length == 0)
+        {
+            return 0;
+        }
+
+        if (start < 0)
+        {
+            start = 0;
+        }
+
+        if (end > data.Length)
+        {
+            end = data.Length;
+        }
+
+        if (start >= end)
+        {
+            return 0;
+        }
+
+        for (int i = start; i < end; i++)
+        {
+            if (data[i] != 0x02)
+            {
+                continue;
+            }
+
+            int j = i + 1;
+            int digits = 0;
+            int value = 0;
+
+            while (j < end && TryDecodeHexNibble(data[j], out int nibble))
+            {
+                if (digits < 2)
+                {
+                    value = (value << 4) | nibble;
+                }
+
+                j++;
+                digits++;
+
+                if (digits >= 2)
+                {
+                    break;
+                }
+            }
+
+            if (digits == 2 && (j >= end || !IsHexDigit(data[j])))
+            {
+                byte candidate = (byte)value;
+                if (candidate == 0x3B || candidate == 0x3F || candidate == 0x77)
+                {
+                    return candidate;
+                }
+            }
+        }
+
+        return 0;
     }
 
     private static bool TryReadAsciiHexUInt16(byte[] data, int offset, out ushort value)

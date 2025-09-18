@@ -126,4 +126,22 @@ public class BlXmedReaderTests
             .Select(style => style.FontName)
             .Should().Contain(expectedFont);
     }
+
+    [Theory]
+    [InlineData("Texts_Fields/Text_Hallo_13.xmed.bin", BlXmedAlignment.Center)]
+    [InlineData("Texts_Fields/Text_Hallo_textAlignLeft_13.xmed.bin", BlXmedAlignment.Left)]
+    [InlineData("Texts_Fields/Text_Hallo_textAlignRight_13.xmed.bin", BlXmedAlignment.Right)]
+    public void ReadSingleStyleChunk_ParsesAlignment(string relativePath, BlXmedAlignment expectedAlignment)
+    {
+        var data = File.ReadAllBytes(TestContextHarness.GetAssetPath(relativePath));
+
+        var doc = new BlXmedReader().Read(data);
+
+        doc.Text.Should().Be("Hallo");
+        doc.Runs.Should().ContainSingle();
+
+        doc.Styles.Should().NotBeEmpty();
+        doc.Styles[0].Alignment.Should().Be(expectedAlignment);
+        doc.Styles.Select(style => style.Alignment).Should().Contain(expectedAlignment);
+    }
 }
