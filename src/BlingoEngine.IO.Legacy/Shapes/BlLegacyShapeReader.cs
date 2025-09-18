@@ -12,7 +12,7 @@ namespace BlingoEngine.IO.Legacy.Shapes;
 /// <summary>
 /// Reads shape cast-member records from the resource table. The reader resolves each <c>CASt</c>
 /// entry, inflates compressed bodies when necessary, and slices out the 17-byte QuickDraw payload
-/// described in docs/DirDissasembly/ScummVm/Shapes.md so higher layers can inspect the ink and colour
+/// described in docs/LegacyShapeRecords.md so higher layers can inspect the ink and colour
 /// flags.
 /// </summary>
 internal sealed class BlLegacyShapeReader
@@ -89,24 +89,30 @@ internal sealed class BlLegacyShapeReader
     {
         var span = payload.AsSpan();
 
-        if (TryParseModern(span, isBigEndian, out var offset, out var length))
+        if (TryParseModern(span, isBigEndian, out var offset, out var length) &&
+            TryExtractShapeRecord(span.Slice(offset, length), isBigEndian, out bytes))
         {
             format = BlLegacyShapeFormatKind.Director4To10UnsignedColors;
-            bytes = span.Slice(offset, length).ToArray();
             return true;
         }
 
-        if (TryParseTransitional(span, isBigEndian, out offset, out length))
+        if (TryParseTransitional(span, isBigEndian, out offset, out length) &&
+            TryExtractShapeRecord(span.Slice(offset, length), isBigEndian, out bytes))
         {
             format = BlLegacyShapeFormatKind.Director4To10UnsignedColors;
-            bytes = span.Slice(offset, length).ToArray();
             return true;
         }
 
-        if (TryParseVintage(span, out offset, out length))
+        if (TryParseVintage(span, out offset, out length) &&
+            TryExtractShapeRecord(span.Slice(offset, length), isBigEndian, out bytes))
         {
             format = BlLegacyShapeFormatKind.Director2To3SignedColors;
-            bytes = span.Slice(offset, length).ToArray();
+            return true;
+        }
+
+        if (TryExtractShapeRecord(span, isBigEndian, out bytes))
+        {
+            format = BlLegacyShapeFormatKind.Unknown;
             return true;
         }
 
@@ -208,14 +214,19 @@ internal sealed class BlLegacyShapeReader
         }
 
         int dataAreaOffset = TransitionalHeaderLength + (castDataAreaLength - availableAreaLength);
-        int recordOffset = dataAreaOffset + (availableAreaLength - ShapeRecordLength);
-        if (recordOffset < dataAreaOffset || recordOffset + ShapeRecordLength > payload.Length)
+        if (dataAreaOffset < TransitionalHeaderLength)
         {
             return false;
         }
 
-        offset = recordOffset;
-        length = ShapeRecordLength;
+        int endOffset = dataAreaOffset + availableAreaLength;
+        if (endOffset > payload.Length)
+        {
+            return false;
+        }
+
+        offset = dataAreaOffset;
+        length = availableAreaLength;
         return true;
     }
 
@@ -241,21 +252,117 @@ internal sealed class BlLegacyShapeReader
             return false;
         }
 
-        int available = Math.Min(entrySize - 1, payload.Length - 2);
-        if (available < ShapeRecordLength)
+        int actualAfterType = Math.Max(0, payload.Length - 2);
+        int declaredAreaLength = Math.Max(0, entrySize - 1);
+        int dataAreaLength = Math.Min(declaredAreaLength, actualAfterType);
+        if (dataAreaLength < ShapeRecordLength)
         {
             return false;
         }
 
-        int recordOffset = 2 + (available - ShapeRecordLength);
-        if (recordOffset < 2 || recordOffset + ShapeRecordLength > payload.Length)
+        int dataAreaOffset = 2 + (actualAfterType - dataAreaLength);
+        if (dataAreaOffset < 2 || dataAreaOffset + dataAreaLength > payload.Length)
         {
             return false;
         }
 
-        offset = recordOffset;
-        length = ShapeRecordLength;
+        offset = dataAreaOffset;
+        length = dataAreaLength;
         return true;
+    }
+
+    private static bool TryExtractShapeRecord(ReadOnlySpan<byte> data, bool isBigEndian, out byte[] bytes)
+    {
+        if (data.Length < ShapeRecordLength)
+        {
+            bytes = Array.Empty<byte>();
+            return false;
+        }
+
+        if (data.Length == ShapeRecordLength)
+        {
+            bytes = data.ToArray();
+            return true;
+        }
+
+        int bestOffset = -1;
+        int bestScore = int.MinValue;
+        int searchLimit = data.Length - ShapeRecordLength;
+
+        for (int offset = 0; offset <= searchLimit; offset++)
+        {
+            var window = data.Slice(offset, ShapeRecordLength);
+            int score = ScoreWindow(window, isBigEndian);
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestOffset = offset;
+            }
+        }
+
+        if (bestOffset >= 0 && bestScore >= 0)
+        {
+            bytes = data.Slice(bestOffset, ShapeRecordLength).ToArray();
+            return true;
+        }
+
+        // Fallback: preserve the trailing bytes so callers can inspect the raw payload even if
+        // heuristics could not locate a confident record boundary.
+        bytes = data.Slice(data.Length - ShapeRecordLength, ShapeRecordLength).ToArray();
+        return true;
+    }
+
+    private static int ScoreWindow(ReadOnlySpan<byte> window, bool isBigEndian)
+    {
+        if (window.Length != ShapeRecordLength)
+        {
+            return int.MinValue;
+        }
+
+        bool matchesNative = HasValidRect(window, isBigEndian);
+        bool matchesOpposite = HasValidRect(window, !isBigEndian);
+
+        if (!matchesNative && !matchesOpposite)
+        {
+            return -1;
+        }
+
+        int score = matchesNative ? 4 : 1;
+
+        byte fill = window[14];
+        if (fill <= 0x7F)
+        {
+            score++;
+        }
+
+        byte thickness = window[15];
+        if (thickness == 0 || thickness <= 0x40)
+        {
+            score++;
+        }
+
+        byte direction = window[16];
+        if (direction <= 0x0F)
+        {
+            score++;
+        }
+
+        return score;
+    }
+
+    private static bool HasValidRect(ReadOnlySpan<byte> window, bool isBigEndian)
+    {
+        if (window.Length < 10)
+        {
+            return false;
+        }
+
+        short top = ReadInt16(window.Slice(2, 2), isBigEndian);
+        short left = ReadInt16(window.Slice(4, 2), isBigEndian);
+        short bottom = ReadInt16(window.Slice(6, 2), isBigEndian);
+        short right = ReadInt16(window.Slice(8, 2), isBigEndian);
+
+        return bottom >= top && right >= left;
     }
 
     private static uint ReadUInt32(ReadOnlySpan<byte> data, bool isBigEndian)
@@ -263,6 +370,9 @@ internal sealed class BlLegacyShapeReader
 
     private static ushort ReadUInt16(ReadOnlySpan<byte> data, bool isBigEndian)
         => isBigEndian ? BinaryPrimitives.ReadUInt16BigEndian(data) : BinaryPrimitives.ReadUInt16LittleEndian(data);
+
+    private static short ReadInt16(ReadOnlySpan<byte> data, bool isBigEndian)
+        => isBigEndian ? BinaryPrimitives.ReadInt16BigEndian(data) : BinaryPrimitives.ReadInt16LittleEndian(data);
 }
 
 internal static class BlLegacyShapeReaderExtensions

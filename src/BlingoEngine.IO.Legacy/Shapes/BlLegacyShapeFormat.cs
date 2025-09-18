@@ -17,14 +17,14 @@ internal enum BlLegacyShapeFormatKind
 
     /// <summary>
     /// Director 2–3 record that encodes the QuickDraw colours as signed bytes which
-    /// must be normalised back into the 0–255 range. See docs/DirDissasembly/ScummVm/Shapes.md.
+    /// must be normalised back into the 0–255 range. See docs/LegacyShapeRecords.md.
     /// </summary>
     Director2To3SignedColors,
 
     /// <summary>
     /// Director 4–10 record that stores unsigned QuickDraw colour components.
     /// The 17-byte payload layout matches the table documented in
-    /// docs/DirDissasembly/ScummVm/Shapes.md.
+    /// docs/LegacyShapeRecords.md.
     /// </summary>
     Director4To10UnsignedColors,
 

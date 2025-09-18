@@ -20,6 +20,7 @@ This folder collects guides, references, and research notes for BlingoEngine.
 - [SDLSetup.md](SDLSetup.md) – Notes for using the SDL2 front‑end runtime.
 
 ## Byte Analysis
+- [LegacyShapeRecords.md](LegacyShapeRecords.md) – QuickDraw shape record layout across classic Director versions.
 - [DirDissasembly/Text_Multi_Line_Multi_Style.md](DirDissasembly/Text_Multi_Line_Multi_Style.md) – Offset notes for the sample multi‑style text cast.
 - [DirDissasembly/XMED_FileComparisons.md](DirDissasembly/XMED_FileComparisons.md) – Byte differences between sample XMED cast files.
 - [DirDissasembly/XMED_Offsets.md](DirDissasembly/XMED_Offsets.md) – Known byte offsets for Director XMED text casts.
