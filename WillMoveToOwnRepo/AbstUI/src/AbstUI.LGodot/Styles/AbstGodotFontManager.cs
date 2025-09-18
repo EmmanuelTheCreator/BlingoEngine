@@ -6,7 +6,7 @@ using Godot;
 
 namespace AbstUI.LGodot.Styles
 {
-    public class AbstGodotFontManager : IAbstFontManager
+    public class AbstGodotFontManager : AbstFontManagerBase
     {
         public static bool IsRunningInTest { get; set; }
         private readonly Dictionary<(string FontName, int Size), Dictionary<long, Image>> _atlasCache = new();
@@ -21,7 +21,7 @@ namespace AbstUI.LGodot.Styles
 
         }
 
-        public IAbstFontManager AddFont(string name, string pathAndName, AbstFontStyle style = AbstFontStyle.Regular)
+        public override IAbstFontManager AddFont(string name, string pathAndName, AbstFontStyle style = AbstFontStyle.Regular)
         {
             if (_fontsToLoad.Contains((name, style, pathAndName)))
                 _fontsToLoad.Remove((name, style, pathAndName));
@@ -35,7 +35,7 @@ namespace AbstUI.LGodot.Styles
             }
             return this;
         }
-        public void LoadAll()
+        public override void LoadAll()
         {
             foreach (var fontTriple in _fontsToLoad)
             {
@@ -55,7 +55,7 @@ namespace AbstUI.LGodot.Styles
             }
             _fontsToLoad.Clear();
         }
-        public T? Get<T>(string name, AbstFontStyle style = AbstFontStyle.Regular) where T : class
+        public override T? Get<T>(string name, AbstFontStyle style = AbstFontStyle.Regular) where T : class
         {
             if (string.IsNullOrEmpty(name))
                 return _defaultStyle as T;
@@ -83,12 +83,12 @@ namespace AbstUI.LGodot.Styles
             return (FontFile)_defaultStyle;
         }
 
-        public T GetDefaultFont<T>() where T : class => (_defaultStyle as T)!;
-        public void SetDefaultFont<T>(T font) where T : class => _defaultStyle = (font as Font)!;
+        public override T GetDefaultFont<T>() where T : class => (_defaultStyle as T)!;
+        public override void SetDefaultFont<T>(T font) where T : class => _defaultStyle = (font as Font)!;
 
-        public IEnumerable<string> GetAllNames() => _loadedFonts.Keys.Select(k => k.Name).Distinct();
+        public override IEnumerable<string> GetAllNames() => _loadedFonts.Keys.Select(k => k.Name).Distinct();
 
-        public float MeasureTextWidth(string text, string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
+        public override float MeasureTextWidth(string text, string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
         {
             var font = string.IsNullOrEmpty(fontName)
                 ? _defaultStyle
@@ -97,7 +97,7 @@ namespace AbstUI.LGodot.Styles
             return font.GetStringSize(text, HorizontalAlignment.Left, -1, fontSize).X;
         }
 
-        public FontInfo GetFontInfo(string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
+        public override FontInfo GetFontInfo(string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
         {
             var font = string.IsNullOrEmpty(fontName)
                 ? _defaultStyle
@@ -117,6 +117,7 @@ namespace AbstUI.LGodot.Styles
             }
             return atlasCache;
         }
+
     }
 }
 

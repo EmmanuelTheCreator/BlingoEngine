@@ -8,18 +8,18 @@ namespace AbstUI.LUnity.Styles;
 /// <summary>
 /// Basic font manager that loads Unity <see cref="Font"/> assets and exposes them to the engine.
 /// </summary>
-internal class UnityFontManager : IAbstFontManager
+internal class UnityFontManager : AbstFontManagerBase
 {
     private readonly List<(string Name, AbstFontStyle Style, string FileName)> _fontsToLoad = new();
     private readonly Dictionary<(string Name, AbstFontStyle Style), Font> _loadedFonts = new();
 
-    public IAbstFontManager AddFont(string name, string pathAndName, AbstFontStyle style = AbstFontStyle.Regular)
+    public override IAbstFontManager AddFont(string name, string pathAndName, AbstFontStyle style = AbstFontStyle.Regular)
     {
         _fontsToLoad.Add((name, style, pathAndName));
         return this;
     }
 
-    public void LoadAll()
+    public override void LoadAll()
     {
         foreach (var font in _fontsToLoad)
         {
@@ -31,7 +31,7 @@ internal class UnityFontManager : IAbstFontManager
         _fontsToLoad.Clear();
     }
 
-    public T? Get<T>(string name, AbstFontStyle style = AbstFontStyle.Regular) where T : class
+    public override T? Get<T>(string name, AbstFontStyle style = AbstFontStyle.Regular) where T : class
     {
         if (string.IsNullOrEmpty(name))
             return _defaultFont as T;
@@ -55,13 +55,13 @@ internal class UnityFontManager : IAbstFontManager
 
     private Font _defaultFont = UnityEngine.Resources.GetBuiltinResource<Font>("Tahoma.ttf");
 
-    public T GetDefaultFont<T>() where T : class => (_defaultFont as T)!;
+    public override T GetDefaultFont<T>() where T : class => (_defaultFont as T)!;
 
-    public void SetDefaultFont<T>(T font) where T : class => _defaultFont = (font as Font)!;
+    public override void SetDefaultFont<T>(T font) where T : class => _defaultFont = (font as Font)!;
 
-    public IEnumerable<string> GetAllNames() => _loadedFonts.Keys.Select(k => k.Name).Distinct();
+    public override IEnumerable<string> GetAllNames() => _loadedFonts.Keys.Select(k => k.Name).Distinct();
 
-    public float MeasureTextWidth(string text, string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
+    public override float MeasureTextWidth(string text, string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
     {
         var font = string.IsNullOrEmpty(fontName) ? _defaultFont :
             (_loadedFonts.TryGetValue((fontName, style), out var f) ? f :
@@ -79,7 +79,7 @@ internal class UnityFontManager : IAbstFontManager
         return width;
     }
 
-    public FontInfo GetFontInfo(string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
+    public override FontInfo GetFontInfo(string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
     {
         var font = string.IsNullOrEmpty(fontName) ? _defaultFont :
             (_loadedFonts.TryGetValue((fontName, style), out var f) ? f :
@@ -93,4 +93,5 @@ internal class UnityFontManager : IAbstFontManager
         int top = Mathf.CeilToInt(info.maxY);
         return new FontInfo(height, top);
     }
+
 }

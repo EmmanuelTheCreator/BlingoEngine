@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\BlingoEngine\BlingoEngine.csproj" />
     <ProjectReference Include="..\..\WillMoveToOwnRepo\AbstUI\Test\AbstUI.Tests.Common\AbstUI.Tests.Common.csproj" />
+    <ProjectReference Include="..\..\src\BlingoEngine.IO\BlingoEngine.IO.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />

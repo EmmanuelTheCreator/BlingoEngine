@@ -15,12 +15,12 @@ public interface IAbstSdlFont
 {
     ISdlFontLoadedByUser? Get(object fontUser, int fontSize);
 }
-public class SdlFontManager : IAbstFontManager
+public class SdlFontManager : AbstFontManagerBase
 {
     public const string DefaultFontName = "default";
     private readonly List<(string Name, AbstFontStyle Style, string FileName)> _fontsToLoad = new();
     private readonly Dictionary<(string Name, AbstFontStyle Style), AbstSdlFont> _loadedFonts = new();
-    public IAbstFontManager AddFont(string name, string pathAndName, AbstFontStyle style = AbstFontStyle.Regular)
+    public override IAbstFontManager AddFont(string name, string pathAndName, AbstFontStyle style = AbstFontStyle.Regular)
     {
         if (_fontsToLoad.Contains((name, style, pathAndName)))
             _fontsToLoad.Remove((name, style, pathAndName));
@@ -34,7 +34,7 @@ public class SdlFontManager : IAbstFontManager
         }
         return this;
     }
-    public void LoadAll()
+    public override void LoadAll()
     {
         if (_loadedFonts.Count == 0)
         {
@@ -63,7 +63,7 @@ public class SdlFontManager : IAbstFontManager
     }
 
    
-    public T? Get<T>(string name, AbstFontStyle style = AbstFontStyle.Regular) where T : class
+    public override T? Get<T>(string name, AbstFontStyle style = AbstFontStyle.Regular) where T : class
     {
         if (string.IsNullOrEmpty(name)) return null;
         var nameLower = name.ToLower();
@@ -85,19 +85,19 @@ public class SdlFontManager : IAbstFontManager
         return _loadedFonts[(DefaultFontName, style)].Get(fontUser, fontSize);
     }
 
-    public T GetDefaultFont<T>() where T : class
+    public override T GetDefaultFont<T>() where T : class
         => _loadedFonts.TryGetValue((DefaultFontName, AbstFontStyle.Regular), out var f) ? (f as T)! : throw new KeyNotFoundException("Default font not found");
 
-    public void SetDefaultFont<T>(T font) where T : class
+    public override void SetDefaultFont<T>(T font) where T : class
     {
         if (font is not IAbstSdlFont sdlFont)
             throw new ArgumentException("Font must be of type IAbstSdlFont", nameof(font));
         _loadedFonts[(DefaultFontName, AbstFontStyle.Regular)] = (AbstSdlFont)sdlFont;
     }
 
-    public IEnumerable<string> GetAllNames() => _loadedFonts.Keys.Select(k => k.Name).Distinct();
+    public override IEnumerable<string> GetAllNames() => _loadedFonts.Keys.Select(k => k.Name).Distinct();
 
-    public float MeasureTextWidth(string text, string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
+    public override float MeasureTextWidth(string text, string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
     {
         var user = new object();
         var font = GetTyped(user, string.IsNullOrEmpty(fontName) ? null : fontName, fontSize, style);
@@ -106,7 +106,7 @@ public class SdlFontManager : IAbstFontManager
         return w;
     }
 
-    public FontInfo GetFontInfo(string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
+    public override FontInfo GetFontInfo(string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
     {
         var user = new object();
         var font = GetTyped(user, string.IsNullOrEmpty(fontName) ? null : fontName, fontSize, style);
@@ -123,7 +123,6 @@ public class SdlFontManager : IAbstFontManager
     }
 
     public object? GetFont(int size) => null;
-
 
     private class AbstSdlFont : IAbstSdlFont
     {
