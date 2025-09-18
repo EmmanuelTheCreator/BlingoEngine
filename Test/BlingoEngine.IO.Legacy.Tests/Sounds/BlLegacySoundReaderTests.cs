@@ -1,6 +1,11 @@
 using System;
+using System.Buffers.Binary;
+using System.IO;
 using System.Linq;
+using System.Text;
 
+using BlingoEngine.IO.Legacy.Core;
+using BlingoEngine.IO.Legacy.Data;
 using BlingoEngine.IO.Legacy.Sounds;
 using BlingoEngine.IO.Legacy.Tests.Helpers;
 using FluentAssertions;
@@ -53,5 +58,68 @@ public class BlLegacySoundReaderTests
         sounds.Select(sound => sound.Bytes.Length)
             .Should()
             .OnlyContain(length => length > 0);
+    }
+
+    [Fact]
+    public void ReadStandaloneMacSoundEntry_LoadsRawBytes()
+    {
+        using var stream = new MemoryStream();
+        var payload = new byte[] { 0x01, 0x02, 0x03, 0x04 };
+        WriteChunk(stream, "SND ", payload);
+        stream.Position = 0;
+
+        using var context = new ReaderContext(stream, "synthetic", leaveOpen: true);
+        context.RegisterRifxOffset(0);
+        context.RegisterDataBlock(new BlDataBlock());
+        var entry = new BlLegacyResourceEntry(1, BlTag.Register("SND "), (uint)payload.Length, 0, 0, 0, 0);
+        context.AddResource(entry);
+
+        var sounds = context.ReadSounds();
+
+        sounds.Should().HaveCount(1);
+        var sound = sounds[0];
+        sound.ResourceId.Should().Be(1);
+        sound.Bytes.Should().Equal(payload);
+        sound.Format.Should().Be(BlLegacySoundFormatKind.Unknown);
+    }
+
+    [Fact]
+    public void ReadSoundFromKeyTable_PrefersSampleWhenEditorMissing()
+    {
+        using var stream = new MemoryStream();
+        var sample = Encoding.ASCII.GetBytes("PCM");
+        WriteChunk(stream, "sndS", sample);
+        stream.Position = 0;
+
+        using var context = new ReaderContext(stream, "synthetic", leaveOpen: true);
+        context.RegisterRifxOffset(0);
+        context.RegisterDataBlock(new BlDataBlock());
+
+        var sampleEntry = new BlLegacyResourceEntry(2, BlTag.Register("sndS"), (uint)sample.Length, 0, 0, 0, 0);
+        context.AddResource(sampleEntry);
+
+        context.AddResourceRelationship(new BlResourceKeyLink(sampleEntry.Id, 100, BlTag.Register("sndS")));
+
+        var sounds = context.ReadSounds();
+
+        sounds.Should().HaveCount(1);
+        var sound = sounds[0];
+        sound.ResourceId.Should().Be(sampleEntry.Id);
+        sound.Bytes.Should().Equal(sample);
+    }
+
+    private static void WriteChunk(Stream stream, string tag, byte[] payload)
+    {
+        var tagBytes = Encoding.ASCII.GetBytes(tag);
+        if (tagBytes.Length != 4)
+        {
+            throw new ArgumentException("Tag must contain exactly four characters.", nameof(tag));
+        }
+
+        stream.Write(tagBytes, 0, tagBytes.Length);
+        Span<byte> lengthBuffer = stackalloc byte[4];
+        BinaryPrimitives.WriteUInt32BigEndian(lengthBuffer, (uint)payload.Length);
+        stream.Write(lengthBuffer);
+        stream.Write(payload, 0, payload.Length);
     }
 }

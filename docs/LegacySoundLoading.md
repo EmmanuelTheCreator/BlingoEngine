@@ -2,12 +2,12 @@
 
 # Legacy Sound Loading Notes
 
-The legacy IO layer now exposes a `BlLegacySoundReader` that resolves `ediM` entries from a
-movie's resource table and classifies the decoded bytes into familiar audio container formats.
-This mirrors how the original Director runtime bundled edited audio data: the actual sound stream
-is saved inside the `ediM` entry while the surrounding `snd ` container only holds metadata or
-index records. Once the reader inflates the payload (handling Afterburner compression when needed),
-it inspects the file signature to label each sound with a `BlLegacySoundFormatKind`.
+The legacy IO layer now exposes a `BlLegacySoundReader` that resolves sound payloads across
+all Director releases. Classic movies expose Mac `SND ` chunks, mid-era files list `snd `
+children directly, and Director 6+ stores the edited bytes inside `ediM` resources. The reader
+mirrors those layouts: it checks the `KEY*` relationships, chooses the most complete child
+(`ediM` > `sndS` > `SND ` > `snd `), inflates Afterburner payloads when needed, and returns the
+raw bytes alongside a lightweight `BlLegacySoundFormatKind` classification.
 
 ## Format classification
 
@@ -23,19 +23,52 @@ how to replay or transcode the bytes. The classifier recognises:
 If no signature is found the loader reports the payload as `Unknown` so callers can fall back to
 external probing tools.
 
-## Historical notes from ScummVM research
+## Director-era resource layouts
 
-Older Director releases stored audio differently, and understanding that history helps align our
-reader with real-world movies:
+Reverse engineering of classic projectors shows a clear progression for how Macromedia packaged
+sound members. Keeping these byte-level layouts documented ensures we preserve the same behaviour
+when recreating the loader.
 
-- **Director 2–3:** sound members implicitly pointed at classic Macintosh `SND ` resources. The ID
-  was derived from the cast member number, and playback relied on the platform decoder.
-- **Director 4–5:** child resource entries were introduced, still targeting `snd ` or `SND ` tags but
-  now explicitly listed inside the cast library.
-- **Director 6:** Macromedia migrated to bundled MOA assets with `sndH`, `sndS`, and `ediM` pieces.
-  A helper assembled these segments and interpreted compression or looping metadata before exposing
-  audio to the mixer.
+### Director 2–3 – implicit SND lookups
 
-The ScummVM Director engine documents these transitions in detail and served as a reference when
-verifying how Afterburner archives surface their sound payloads, especially for early projector
-files that mix classic and MOA-era assets without consistent tagging.
+Sound members default to Macintosh `SND ` resources. The runtime derives the resource ID from the
+cast member index and consults the platform sound manager for playback.
+
+| Hex Bytes | Length | Purpose |
+| --- | --- | --- |
+| `<'S','N','D',' '>` | 4 bytes | Resource tag pointing to the legacy Mac sound chunk. |
+| `<castId + libraryOffset>` | 2 bytes | Resource identifier derived from the cast member number. |
+
+### Director 4–5 – explicit child resources
+
+With the introduction of the `KEY*` table, sound members list their children directly. The loader
+prefers the lowercase `snd ` entry but still honours uppercase `SND ` resources and falls back to
+the derived Director 3 ID when no child exists.
+
+| Hex Bytes | Length | Purpose |
+| --- | --- | --- |
+| `<'s','n','d',' '>` | 4 bytes | Preferred child tag that points to the stored sound bytes. |
+| `<'S','N','D',' '>` | 4 bytes | Uppercase variant seen in older exports; treated the same as `snd `. |
+| `<fallback castId>` | 2 bytes | Derived identifier used when no child resource is present. |
+
+### Director 6 – MOA sound bundles
+
+Director 6 migrated to MOA assets that split metadata, samples, and editor bytes across multiple
+children. The modern loader mirrors that order when walking the resource table.
+
+| Hex Bytes | Length | Purpose |
+| --- | --- | --- |
+| `<'s','n','d',' '>` | 4 bytes | Directory entry whose child list references the MOA pieces. |
+| `<'s','n','d','H'>` | 4 bytes | Optional header describing compression, rate, and loop flags. |
+| `<'s','n','d','S'>` | 4 bytes | Raw sample data used when no `ediM` stream is present. |
+| `<'e','d','i','M'>` | 4 bytes | Edited sound bytes embedded by Director’s mixer. |
+
+### Runtime fallback and linked files
+
+When the archive lacks embedded data, movies may reference external assets. The loader mimics that
+behaviour by returning an empty payload so higher layers can request the linked file. Loop metadata
+remains tied to the decoded stream so the caller can decide whether to respect or ignore it.
+
+| Bytes | Length | Purpose |
+| --- | --- | --- |
+| `<resource payload>` | variable | Raw bytes streamed from the archive or a linked file. |
