@@ -17,6 +17,19 @@ public class Datum
     public Datum(double val) { Type = DatumType.kDatumFloat; F = val; }
     public Datum(DatumType t, string val) { Type = t; S = val; }
 
+    public Datum Clone()
+    {
+        var copy = new Datum
+        {
+            Type = Type,
+            I = I,
+            F = F,
+            S = S,
+            L = L.Select(item => item.Clone()).ToList()
+        };
+        return copy;
+    }
+
     public int ToInt()
     {
         return Type switch
@@ -147,9 +160,9 @@ public class UnaryOpNode : AstNode
 
 public class AssignmentNode : AstNode
 {
-    public VarNode Target;
+    public AstNode Target;
     public AstNode Value;
-    public AssignmentNode(VarNode target, AstNode value)
+    public AssignmentNode(AstNode target, AstNode value)
     {
         Target = target;
         Value = value;
@@ -161,6 +174,161 @@ public class AssignmentNode : AstNode
         code.Write(" = ");
         Value.WriteScriptText(code);
     }
+    public override bool HasSpaces() => true;
+}
+
+public class ListNode : AstNode
+{
+    public List<AstNode> Items { get; }
+    public bool IsPropertyList { get; }
+
+    public ListNode(List<AstNode> items, bool isPropertyList)
+    {
+        Items = items;
+        IsPropertyList = isPropertyList;
+    }
+
+    public override void WriteScriptText(RaysCodeWriter code)
+    {
+        code.Write("[");
+        if (IsPropertyList)
+        {
+            for (int i = 0; i < Items.Count; i += 2)
+            {
+                if (i > 0)
+                    code.Write(", ");
+                var key = Items[i];
+                key.WriteScriptText(code);
+                if (i + 1 < Items.Count)
+                {
+                    code.Write(": ");
+                    Items[i + 1].WriteScriptText(code);
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < Items.Count; i++)
+            {
+                if (i > 0)
+                    code.Write(", ");
+                Items[i].WriteScriptText(code);
+            }
+        }
+        code.Write("]");
+    }
+
+    public override bool HasSpaces() => Items.Count > 1 || Items.Any(item => item.HasSpaces());
+}
+
+public class PropertyAccessNode : AstNode
+{
+    public AstNode Target;
+    public string Property;
+    public PropertyAccessNode(AstNode target, string property)
+    {
+        Target = target;
+        Property = property;
+    }
+
+    public override void WriteScriptText(RaysCodeWriter code)
+    {
+        bool paren = Target.HasSpaces();
+        if (paren)
+            code.Write("(");
+        Target.WriteScriptText(code);
+        if (paren)
+            code.Write(")");
+        code.Write(".");
+        code.Write(Property);
+    }
+
+    public override bool HasSpaces() => false;
+}
+
+public class MemberAccessNode : AstNode
+{
+    public string Prefix;
+    public AstNode MemberId;
+    public AstNode? CastId;
+
+    public MemberAccessNode(string prefix, AstNode memberId, AstNode? castId)
+    {
+        Prefix = prefix;
+        MemberId = memberId;
+        CastId = castId;
+    }
+
+    public override void WriteScriptText(RaysCodeWriter code)
+    {
+        code.Write(Prefix);
+        code.Write("(");
+        MemberId.WriteScriptText(code);
+        if (CastId != null)
+        {
+            code.Write(", ");
+            CastId.WriteScriptText(code);
+        }
+        code.Write(")");
+    }
+
+    public override bool HasSpaces() => true;
+}
+
+public class PutNode : AstNode
+{
+    public AstNode Target;
+    public AstNode Value;
+    public PutType Type;
+
+    public PutNode(AstNode target, AstNode value, PutType type)
+    {
+        Target = target;
+        Value = value;
+        Type = type;
+    }
+
+    public override void WriteScriptText(RaysCodeWriter code)
+    {
+        code.Write("put ");
+        Value.WriteScriptText(code);
+        code.Write(Type switch
+        {
+            PutType.kPutAfter => " after ",
+            PutType.kPutBefore => " before ",
+            _ => " into "
+        });
+        Target.WriteScriptText(code);
+    }
+
+    public override bool HasSpaces() => true;
+}
+
+public class DeleteNode : AstNode
+{
+    public AstNode Target;
+    public DeleteNode(AstNode target) => Target = target;
+
+    public override void WriteScriptText(RaysCodeWriter code)
+    {
+        code.Write("delete ");
+        Target.WriteScriptText(code);
+    }
+
+    public override bool HasSpaces() => true;
+}
+
+public class TheNode : AstNode
+{
+    public string Property;
+    public TheNode(string property) => Property = property;
+
+    public override void WriteScriptText(RaysCodeWriter code)
+    {
+        code.Write("the ");
+        code.Write(Property);
+    }
+
     public override bool HasSpaces() => true;
 }
 
