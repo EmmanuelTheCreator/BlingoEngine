@@ -14,7 +14,7 @@ This folder collects guides, references, and research notes for BlingoEngine.
 - [FilmLoop.md](FilmLoop.md) – Film loop usage, internals, and nesting animations inside animations.
 - [Fonts.md](Fonts.md) – Managing fonts across SDL2, Godot, Unity, and Blazor backends.
 - [GettingStarted.md](GettingStarted.md) – Repository layout and how to run tests locally.
-- [LegacySoundLoading.md](LegacySoundLoading.md) – Notes about `ediM` payloads, format detection, and historical Director sound handling.
+- [LegacySoundLoading.md](../src/BlingoEngine.IO.Legacy/docs/LegacySoundLoading.md) – Notes about `ediM` payloads, format detection, and historical Director sound handling.
 - [GodotSetup.md](GodotSetup.md) – Embedding BlingoEngine into a Godot project.
 - [Progress.md](Progress.md) – Current implementation status of Lingo language features.
 - [SDLSetup.md](SDLSetup.md) – Notes for using the SDL2 front‑end runtime.
@@ -24,7 +24,7 @@ This folder collects guides, references, and research notes for BlingoEngine.
 - [DirDissasembly/XMED_FileComparisons.md](DirDissasembly/XMED_FileComparisons.md) – Byte differences between sample XMED cast files.
 - [DirDissasembly/XMED_Offsets.md](DirDissasembly/XMED_Offsets.md) – Known byte offsets for Director XMED text casts.
 - [DirDissasembly/director_keyframe_tags.md](DirDissasembly/director_keyframe_tags.md) – Detailed research into Director keyframe and channel tags.
-- [LegacyBitmapLoading.md](LegacyBitmapLoading.md) – Legacy bitmap resource tags, cast-member bytes, and BITD/DIB decoding notes.
+- [LegacyBitmapLoading.md](../src/BlingoEngine.IO.Legacy/docs/LegacyBitmapLoading.md) – Legacy bitmap resource tags, cast-member bytes, and BITD/DIB decoding notes.
 
 The [`docfx/`](docfx) subfolder contains the DocFX configuration for generating the project's website.
 

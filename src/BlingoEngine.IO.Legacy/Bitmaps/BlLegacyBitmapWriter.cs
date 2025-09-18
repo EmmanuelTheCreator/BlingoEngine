@@ -9,7 +9,7 @@ namespace BlingoEngine.IO.Legacy.Bitmaps;
 
 /// <summary>
 /// Encodes synthetic bitmap resources for test scenarios. The writer mirrors the classic
-/// eight-byte chunk prefix described in <c>docs/LegacyBitmapLoading.md</c> — a four-character tag
+/// eight-byte chunk prefix described in <c>src/BlingoEngine.IO.Legacy/docs/LegacyBitmapLoading.md</c> — a four-character tag
 /// followed by a big-endian payload length — so <see cref="BlClassicPayloadLoader"/> can resolve the
 /// bytes using the legacy resource map across every Director generation.
 /// </summary>
