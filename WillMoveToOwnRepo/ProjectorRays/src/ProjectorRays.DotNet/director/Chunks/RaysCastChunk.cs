@@ -2,6 +2,7 @@
 using ProjectorRays.CastMembers;
 using ProjectorRays.Common;
 using ProjectorRays.Director;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Linq;
@@ -16,6 +17,7 @@ public class RaysCastChunk : RaysChunk
     public RaysScriptContextChunk? Lctx;
     private int _nextMideIndex;
     private int _nextXmedIndex;
+    private readonly HashSet<int> _usedEdiMChunkIds = new();
 
     public RaysCastChunk(RaysDirectorFile? dir) : base(dir, ChunkType.CastChunk) { }
 
@@ -199,7 +201,9 @@ public class RaysCastChunk : RaysChunk
                 member.DecodedText = xmedText;
             }
         }
-        else if (member.Type == RaysMemberType.BitmapMember || member.Type == RaysMemberType.PictureMember)
+        else if (member.Type == RaysMemberType.BitmapMember ||
+                 member.Type == RaysMemberType.PictureMember ||
+                 member.Type == RaysMemberType.SoundMember)
         {
             var mideInt = RaysDirectorFile.FOURCC('e', 'd', 'i', 'M');
             ChunkInfo? mideInfo = null;
@@ -208,19 +212,39 @@ public class RaysCastChunk : RaysChunk
             if (mideKey != null && Dir.ChunkExists(mideKey.FourCC, mideKey.SectionID))
             {
                 mideInfo = Dir.GetChunkOrDefault(mideKey.SectionID);
+                if (mideInfo != null)
+                {
+                    _usedEdiMChunkIds.Add(mideInfo.Id);
+                }
             }
             else
             {
-                var mides = Dir.ChunkInfos.Values.Where(c => c.FourCC == mideInt).OrderBy(c => c.Id).ToList();
+                var mides = Dir.ChunkInfos.Values
+                    .Where(c => c.FourCC == mideInt)
+                    .OrderBy(c => c.Id)
+                    .ToList();
+                while (_nextMideIndex < mides.Count && _usedEdiMChunkIds.Contains(mides[_nextMideIndex].Id))
+                {
+                    _nextMideIndex++;
+                }
                 if (_nextMideIndex < mides.Count)
                 {
-                    mideInfo = mides[_nextMideIndex++];
+                    mideInfo = mides[_nextMideIndex];
+                    _usedEdiMChunkIds.Add(mideInfo.Id);
+                    _nextMideIndex++;
                 }
             }
             if (mideInfo != null)
             {
                 var mideChunk = (RaysBinaryChunk)Dir.GetChunk(mideInfo.FourCC, mideInfo.Id);
-                member.ImageData = mideChunk.Data;
+                if (member.Type == RaysMemberType.SoundMember)
+                {
+                    member.SoundData = mideChunk.Data;
+                }
+                else
+                {
+                    member.ImageData = mideChunk.Data;
+                }
             }
         }
 
