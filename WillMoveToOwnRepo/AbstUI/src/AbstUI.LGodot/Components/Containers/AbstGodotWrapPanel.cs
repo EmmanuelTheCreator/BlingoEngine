@@ -16,41 +16,32 @@ namespace AbstUI.LGodot.Components
         private APoint _itemMargin;
         private AMargin _margin;
 
-        public AbstGodotWrapPanel(AbstWrapPanel panel, AOrientation orientation)
-        {
-            _orientation = orientation;
-            _itemMargin = new APoint(4, 4);
-            _margin = AMargin.Zero;
-            MouseFilter = MouseFilterEnum.Ignore;
-            _container = CreateContainer(orientation);
-            AddChild(_container);
-            panel.Init(this);
-        }
-
-        private FlowContainer CreateContainer(AOrientation orientation)
-        {
-            FlowContainer container = orientation == AOrientation.Horizontal ? new VFlowContainer() : new HFlowContainer();
-            //container.SizeFlagsVertical = SizeFlags.ExpandFill;
-            //container.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-            //container.SizeFlagsHorizontal = SizeFlags.Expand;
-            //container.SizeFlagsVertical = SizeFlags.Expand;
-            container.SizeFlagsHorizontal = SizeFlags.ExpandFill;
-            container.SizeFlagsVertical = SizeFlags.ExpandFill;
-            container.AddThemeConstantOverride("h_separation", 4);
-            container.AddThemeConstantOverride("v_separation", 4);
-            return container;
-        }
-
-        public override void _Ready()
-        {
-            base._Ready();
-            ApplyMargin();
-        }
 
         public float X { get => Position.X; set => Position = new Vector2(value, Position.Y); }
         public float Y { get => Position.Y; set => Position = new Vector2(Position.X, value); }
-        public float Width { get => CustomMinimumSize.X; set => CustomMinimumSize = new Vector2(value, CustomMinimumSize.Y); }
-        public float Height { get => CustomMinimumSize.Y; set => CustomMinimumSize = new Vector2(CustomMinimumSize.X, value); }
+        public float Width
+        {
+            get => CustomMinimumSize.X;
+            set
+            {
+                if (_orientation == AOrientation.Horizontal)
+                    CustomMinimumSize = new Vector2(value, CustomMinimumSize.Y);
+                else
+                    CustomMinimumSize = new Vector2(value, 0); // auto if vertical
+            }
+        }
+
+        public float Height
+        {
+            get => CustomMinimumSize.Y;
+            set
+            {
+                if (_orientation == AOrientation.Vertical)
+                    CustomMinimumSize = new Vector2(CustomMinimumSize.X, value);
+                else
+                    CustomMinimumSize = new Vector2(0, value); // auto if horizontal
+            }
+        }
 
         public bool Visibility { get => Visible; set => Visible = value; }
 
@@ -111,6 +102,65 @@ namespace AbstUI.LGodot.Components
                 ApplyMargin();
             }
         }
+
+
+        public AbstGodotWrapPanel(AbstWrapPanel panel, AOrientation orientation)
+        {
+            _orientation = orientation;
+            _itemMargin = new APoint(4, 4);
+            _margin = AMargin.Zero;
+            MouseFilter = MouseFilterEnum.Ignore;
+            _container = CreateContainer(orientation);
+            AddChild(_container);
+            panel.Init(this);
+        }
+
+        private FlowContainer CreateContainer(AOrientation orientation)
+        {
+            FlowContainer container;
+
+            if (orientation == AOrientation.Vertical)
+            {
+                container = new VFlowContainer();
+                container.SizeFlagsVertical = SizeFlags.ExpandFill; // main axis (needs parent height)
+                container.SizeFlagsHorizontal = 0;                  // auto width
+            }
+            else
+            {
+                container = new HFlowContainer();
+                container.SizeFlagsHorizontal = SizeFlags.ExpandFill; // main axis (needs parent width)
+                container.SizeFlagsVertical = 0;                      // auto height
+            }
+
+            container.AddThemeConstantOverride("h_separation", 4);
+            container.AddThemeConstantOverride("v_separation", 4);
+            return container;
+        }
+
+        public override void _Ready()
+        {
+            base._Ready();
+
+            // Let parent define available rect (important for wrapping)
+            this.SetAnchorsPreset(LayoutPreset.FullRect);
+
+            // Mirror orientation onto THIS MarginContainer (panel)
+            if (_orientation == AOrientation.Vertical)
+            {
+                SizeFlagsVertical = SizeFlags.ExpandFill;  // main axis
+                SizeFlagsHorizontal = 0;                   // cross axis = auto
+            }
+            else
+            {
+                SizeFlagsHorizontal = SizeFlags.ExpandFill; // main axis
+                SizeFlagsVertical = 0;                      // cross axis = auto
+            }
+
+
+            ApplyMargin();
+        }
+
+       
         public object FrameworkNode => this;
 
         private readonly List<IAbstFrameworkNode> _nodes = new List<IAbstFrameworkNode>();
