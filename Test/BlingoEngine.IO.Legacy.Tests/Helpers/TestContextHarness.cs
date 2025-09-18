@@ -2,8 +2,10 @@ using BlingoEngine.IO.Legacy.Bitmaps;
 using BlingoEngine.IO.Legacy.Cast;
 using BlingoEngine.IO.Legacy.Core;
 using BlingoEngine.IO.Legacy.Files;
+using BlingoEngine.IO.Legacy.Fields;
 using BlingoEngine.IO.Legacy.Shapes;
 using BlingoEngine.IO.Legacy.Sounds;
+using BlingoEngine.IO.Legacy.Texts;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -34,6 +36,7 @@ internal sealed class TestContextHarness : IDisposable
         using var harness = Open(relativePath);
         harness.ReadResources();
         return harness.Context.ReadShapes();
+    }
 
     public static IReadOnlyList<BlLegacyBitmap> LoadBitmaps(string relativePath)
     {
@@ -41,6 +44,20 @@ internal sealed class TestContextHarness : IDisposable
         harness.ReadResources();
         return harness.Context.ReadBitmaps();
 
+    }
+
+    public static IReadOnlyList<BlLegacyText> LoadTexts(string relativePath)
+    {
+        using var harness = Open(relativePath);
+        harness.ReadResources();
+        return harness.Context.ReadTexts();
+    }
+
+    public static IReadOnlyList<BlLegacyField> LoadFields(string relativePath)
+    {
+        using var harness = Open(relativePath);
+        harness.ReadResources();
+        return harness.Context.ReadFields();
     }
 
     private TestContextHarness(ReaderContext context)
