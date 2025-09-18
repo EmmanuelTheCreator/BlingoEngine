@@ -85,6 +85,7 @@ Each frame begins with a 16-bit size followed by channel records. Director 2–3
 | `frame+0x0002`..`+0x0003` | 1 byte each | Director 2–3: channel payload byte-width and offset, both multiplied by 2 for word alignment before dispatching `readChannelD2()`.[engines/director/score.cpp (approx. lines 2092-2099)][engines/director/frame.cpp (approx. lines 154-173)] |
 | `frame+0x0002`..`+0x0005` | 2 bytes each | Director 4+: 16-bit channel size and offset passed verbatim into `readChannelD4()`/`readChannelD5()`/`readChannelD6()`/`readChannelD7()`.[engines/director/score.cpp (approx. lines 2092-2104)][engines/director/frame.cpp (approx. lines 433-1680)] |
 
+
 ## Step 8 – Director 2 main channel layout (kMainChannelSizeD2 = 0x20)
 
 The first 32 bytes encode score-level controls, palette animation, and tempo. ScummVM matches each offset inside `Frame::readMainChannelsD2()`.[engines/director/frame.cpp (approx. lines 176-299)][engines/director/frame.h (approx. lines 49-50)]
@@ -141,6 +142,7 @@ Director 4 extends the header with colour chips for the control channels, an exp
 | `0x27`..`0x29` | 3 bytes | Logged unknown words/dword.[engines/director/frame.cpp (approx. lines 576-584)] |
 | `0x2A` | 1 byte | Palette colour code (score swatch index).[engines/director/frame.cpp (approx. lines 585-588)] |
 | `0x2B` | 1 byte | Logged unknown byte.[engines/director/frame.cpp (approx. lines 589-592)] |
+
 
 ## Step 10 – Director 5 main channel layout (kMainChannelSizeD5 = 0x30)
 
@@ -301,6 +303,7 @@ Once a frame is decoded, `loadFrameSpriteDetails()` resolves `_spriteListIdx` va
 | `0x0006`..`0x0007` | 2 bytes | First string offset relative to the base.[engines/director/score.cpp (approx. lines 2172-2174)] |
 | `0x0008`.. | `count*4` bytes | Repeated frame numbers and offsets for subsequent labels.[engines/director/score.cpp (approx. lines 2175-2209)] |
 | `strings` | variable | CR-terminated label text followed by comment text; converted from Director encoding to UTF-8.[engines/director/score.cpp (approx. lines 2180-2209)] |
+
 
 ## Step 15 – `VWAC` action stream
 
