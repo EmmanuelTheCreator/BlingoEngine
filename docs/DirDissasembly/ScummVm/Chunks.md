@@ -30,10 +30,17 @@ This note describes how ScummVM's Director engine interprets individual RIFX chu
 
 ## Step 2 – Afterburner metadata and compressed entries
 
-Afterburner movies replace the classic `mmap` table with an `ABMP` stream: `readAfterburnerMap()` pulls Shockwave-style varints for the compressed map length, compression algorithm, expected uncompressed size, two control values, and the resource count before iterating each resource's ID, relative offset, compressed length, uncompressed length, compression type, and trailing four-character tag.[engines/director/archive.cpp (approx. lines 918-968)] Positive offsets are rebased with `moreOffset`, while negative offsets (`-1`) denote Initial Load Segment (ILS) resources that are copied into memory. Once the `ABMP` metadata is decoded, the loader inflates the `FGEI` chunk into `_ilsData`, reads its control varint, and walks a sequence of varint resource IDs paired with raw byte blobs so embedded resources can be served directly from RAM.[engines/director/archive.cpp (approx. lines 968-1008)]
+
+Afterburner movies replace the classic `mmap` table with an `ABMP` stream: `readAfterburnerMap()` first validates the `Fver` header, recording its varint length and the Afterburner build number, then consumes the `Fcdr` descriptor before dropping into the compressed `ABMP` metadata.[engines/director/archive.cpp (approx. lines 884-918)] The `ABMP` block itself contributes Shockwave-style varints for the compressed map length, compression algorithm, expected uncompressed size, two control values, and the resource count before iterating each resource's ID, relative offset, compressed length, uncompressed length, compression type, and trailing four-character tag; ScummVM also warns when the inflated byte count differs from the stored length.[engines/director/archive.cpp (approx. lines 918-968)] Positive offsets are rebased with `moreOffset`, while negative offsets (`-1`) denote Initial Load Segment (ILS) resources that are copied into memory. Once the `ABMP` metadata is decoded, the loader inflates the `FGEI` chunk into `_ilsData`, reads its control varint, and walks a sequence of varint resource IDs paired with raw byte blobs so embedded resources can be served directly from RAM.[engines/director/archive.cpp (approx. lines 968-1008)]
+
 
 | Hex Bytes | Length | Explanation |
 | --- | --- | --- |
+| `46 76 65 72` (`Fver`) | 4 bytes | File-version tag read before the map; bounds the next varint block.[engines/director/archive.cpp (approx. lines 884-904)] |
+| `<varint length>` | 1–5 bytes | `_fverLength`; expected byte count for the version payload.[engines/director/archive.cpp (approx. lines 892-906)] |
+| `<varint version>` | 1–5 bytes | `_afterBurnerVersion`; logged Afterburner build number.[engines/director/archive.cpp (approx. lines 896-910)] |
+| `46 63 64 72` (`Fcdr`) | 4 bytes | Compression-descriptor tag skipped after its length varint.[engines/director/archive.cpp (approx. lines 908-918)] |
+| `<varint descriptor length>` | 1–5 bytes | `_fcdrLength`; byte count discarded before reading `ABMP`.[engines/director/archive.cpp (approx. lines 912-918)] |
 | `41 42 4D 50` (`ABMP`) | 4 bytes | Afterburner metadata header preceding the varint-encoded resource table.[engines/director/archive.cpp (approx. lines 918-934)] |
 | `<varint map length>` | 1–5 bytes | `_abmpLength`; compressed byte count passed to `readZlibData()`.[engines/director/archive.cpp (approx. lines 922-936)] |
 | `<varint compression>` | 1–5 bytes | `_abmpCompressionType`; algorithm used for the `ABMP` payload.[engines/director/archive.cpp (approx. lines 926-940)] |
