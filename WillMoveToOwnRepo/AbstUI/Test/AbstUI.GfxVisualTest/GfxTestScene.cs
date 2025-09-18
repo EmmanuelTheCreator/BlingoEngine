@@ -92,7 +92,10 @@ public static class GfxTestScene
 
         Add(testBtnLabel, 22);
 
-        var stateButton = factory.CreateButton("stateButton", "State Button");
+        var stateButton = factory.CreateStateButton("stateButton",null, "State Button",s =>
+        {
+            testBtnLabel.Text = $"Button state is {s}";
+        });
         //stateButton.IconTexture = factory.CreateTextureFromFile("Assets/Icons/heart.png");
         Add(stateButton);
 

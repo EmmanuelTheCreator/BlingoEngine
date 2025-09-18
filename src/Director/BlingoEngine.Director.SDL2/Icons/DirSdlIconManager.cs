@@ -39,7 +39,7 @@ namespace BlingoEngine.Director.SDL2.Icons
             return new BlingoIconSheetSdl(sdlTexture, iconWidth, iconHeight, horizontalSpacing, itemCount);
         }
 
-        protected override IAbstTexture2D? OnGetTextureImage(BlingoIconSheetSdl sheet, int x)
+        protected override IAbstTexture2D? OnGetTextureImage(BlingoIconSheetSdl sheet, int x, DirectorIcon icon)
         {
             var dst = SDL.SDL_CreateTexture(_renderer, SDL.SDL_PIXELFORMAT_RGBA8888,
                 (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, sheet.IconWidth, sheet.IconHeight);
@@ -51,7 +51,7 @@ namespace BlingoEngine.Director.SDL2.Icons
             var dest = new SDL.SDL_Rect { x = 0, y = 0, w = sheet.IconWidth, h = sheet.IconHeight };
             SDL.SDL_RenderCopy(_renderer, sheet.Image.Handle, ref src, ref dest);
             SDL.SDL_SetRenderTarget(_renderer, prev);
-            return new SdlTexture2D(dst, sheet.IconWidth, sheet.IconHeight);
+            return new SdlTexture2D(dst, sheet.IconWidth, sheet.IconHeight, icon.ToString(),_renderer);
         }
     }
 }

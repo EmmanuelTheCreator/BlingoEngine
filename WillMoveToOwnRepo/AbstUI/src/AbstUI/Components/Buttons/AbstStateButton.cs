@@ -1,12 +1,14 @@
 using AbstUI.Components.Inputs;
 using AbstUI.Primitives;
+using AbstUI.Styles.Components;
 
 namespace AbstUI.Components.Buttons
 {
     /// <summary>
     /// Engine level wrapper for a state (toggle) button.
     /// </summary>
-    public class AbstStateButton : AbstInputBase<IAbstFrameworkStateButton>
+    //public class AbstStateButton : AbstInputBase<IAbstFrameworkStateButton>
+    public class AbstStateButton : AbstNodeBase<IAbstFrameworkStateButton>
     {
         /// <summary>Displayed text on the button.</summary>
         public string Text { get => _framework.Text; set => _framework.Text = value; }
@@ -31,9 +33,15 @@ namespace AbstUI.Components.Buttons
             get => _framework.TextureOn;
             set
             {
+                if (_framework.TextureOn == value) return;
                 _textureOnSubscription?.Release();
-                _textureOnSubscription = value?.AddUser(this);
-                _framework.TextureOn = value;
+                if (value != null)
+                {
+                    _framework.TextureOn = value;
+                    _textureOnSubscription = _framework.TextureOn.AddUser(this);
+                }
+                else                 
+                    _framework.TextureOn = null;
             }
         }
         /// <summary>Current toggle state.</summary>
@@ -44,10 +52,65 @@ namespace AbstUI.Components.Buttons
             get => _framework.TextureOff;
             set
             {
+                if (_framework.TextureOff == value) return;
                 _textureOffSubscription?.Release();
-                _textureOffSubscription = value?.AddUser(this);
-                _framework.TextureOff = value;
+                if (value != null)
+                {
+                    _framework.TextureOff = value;
+                    _textureOffSubscription = _framework.TextureOff.AddUser(this);
+                }
+                else
+                    _framework.TextureOff = null;
             }
+        }
+        protected override void OnSetStyle(AbstComponentStyle componentStyle)
+        {
+            base.OnSetStyle(componentStyle);
+            return;
+            if (componentStyle is AbstInputStyle style)
+            {
+                if (style.FontSize.HasValue)
+                {
+                    if (_framework is IAbstFrameworkInputText text)
+                        text.FontSize = style.FontSize.Value;
+                    if (_framework is IAbstFrameworkInputNumber number)
+                        number.FontSize = style.FontSize.Value;
+                }
+
+                if (style.Font is not null && _framework is IAbstFrameworkInputText textWithFont)
+                    textWithFont.Font = style.Font;
+
+                if (style.TextColor.HasValue && _framework is IAbstFrameworkInputText textWithColor)
+                    textWithColor.TextColor = style.TextColor.Value;
+            }
+        }
+
+        protected override void OnGetStyle(AbstComponentStyle componentStyle)
+        {
+            base.OnGetStyle(componentStyle);
+            return;
+            if (componentStyle is AbstInputStyle style)
+            {
+                if (_framework is IAbstFrameworkInputText text)
+                {
+                    style.FontSize = text.FontSize;
+                    style.Font = text.Font;
+                    style.TextColor = text.TextColor;
+                }
+
+                if (_framework is IAbstFrameworkInputNumber number)
+                    style.FontSize = number.FontSize;
+            }
+        }
+
+        /// <summary>Whether the control is enabled.</summary>
+        public bool Enabled { get => _framework.Enabled; set => _framework.Enabled = value; }
+
+        /// <summary>Event raised when the input value changes.</summary>
+        public event Action? ValueChanged
+        {
+            add { _framework.ValueChanged += value; }
+            remove { _framework.ValueChanged -= value; }
         }
 
         public override void Dispose()

@@ -35,7 +35,7 @@ namespace BlingoEngine.Director.Core.Icons
                 {
                     int localIndex = index - currentIndex;
                     int x = localIndex * (sheet.IconWidth + sheet.HorizontalSpacing);
-                    var blingoTexture = OnGetTextureImage(sheet, x);
+                    var blingoTexture = OnGetTextureImage(sheet, x, icon);
                     if (blingoTexture == null)
                         continue;
 
@@ -47,7 +47,7 @@ namespace BlingoEngine.Director.Core.Icons
 
             throw new ArgumentOutOfRangeException(nameof(icon), "Icon index out of range.");
         }
-        protected abstract IAbstTexture2D? OnGetTextureImage(TBlingoIconSheet sheet, int x);
+        protected abstract IAbstTexture2D? OnGetTextureImage(TBlingoIconSheet sheet, int x, DirectorIcon icon);
 
     }
 }

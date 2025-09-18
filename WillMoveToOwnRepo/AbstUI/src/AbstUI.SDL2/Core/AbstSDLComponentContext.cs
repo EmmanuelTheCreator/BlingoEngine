@@ -1,4 +1,5 @@
 using AbstUI.SDL2.Components;
+using AbstUI.SDL2.Components.Base;
 using AbstUI.SDL2.SDLL;
 using System;
 using System.ComponentModel;
@@ -9,6 +10,7 @@ public class AbstSDLComponentContext : IDisposable
 {
     private readonly AbstSDLComponentContainer _container;
     private bool _requireRender = true;
+    private bool _requireRenderFromChild = true;
     internal IAbstSDLComponent? Component { get; private set; }
     internal AbstSDLComponentContext? LogicalParent { get; private set; }
     internal AbstSDLComponentContext? VisualParent { get; private set; }
@@ -30,6 +32,7 @@ public class AbstSDLComponentContext : IDisposable
     public bool AlwaysOnTop { get; set; }
     public int ZIndex { get; private set; }
     public SDL.SDL_BlendMode BlendMode { get; set; } = SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND;
+    public bool RequireToRedraw => _requireRender || _requireRenderFromChild;
 
     internal AbstSDLComponentContext(
         AbstSDLComponentContainer container,
@@ -71,7 +74,7 @@ public class AbstSDLComponentContext : IDisposable
         if (_modifiedChildren.Contains(component))
             return;
         _modifiedChildren.Add(component);
-        _requireRender = true;
+        _requireRenderFromChild = true;
         VisualParent?.QueueRedrawFromChild(Component ?? component);
         OnRequestRedraw?.Invoke(component);
     }
@@ -86,12 +89,13 @@ public class AbstSDLComponentContext : IDisposable
 
         Renderer = renderContext.Renderer;
 
-        if (_requireRender && Component is { })
+        if ((_requireRender || _requireRenderFromChild) && Component is { })
         {
             var renderResult = Component.Render(renderContext);
             Texture = renderResult.Texture;
             _requireRender = renderResult.DoRender;
             _modifiedChildren.Clear();
+            _requireRenderFromChild = false;
         }
 
         if (Texture == nint.Zero)
@@ -113,6 +117,10 @@ public class AbstSDLComponentContext : IDisposable
             flip |= SDL.SDL_RendererFlip.SDL_FLIP_HORIZONTAL;
         if (FlipV)
             flip |= SDL.SDL_RendererFlip.SDL_FLIP_VERTICAL;
+        var name = "";
+        if (Component is AbstSdlComponent comp) name = comp.Name;
+        //Console.WriteLine($"SDL CTX BLIT dst=({drawX},{drawY},{TargetWidth},{TargetHeight}) {name}");
+
         SDL.SDL_RenderCopyEx(Renderer, Texture, nint.Zero, ref dst, 0, nint.Zero, flip);
     }
 

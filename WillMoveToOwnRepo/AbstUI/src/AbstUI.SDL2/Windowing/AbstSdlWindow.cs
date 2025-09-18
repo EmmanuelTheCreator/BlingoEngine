@@ -209,7 +209,10 @@ public class AbstSdlWindow : AbstSdlPanel, IAbstFrameworkWindow, IHandleSdlEvent
         // Render children
         _xOffset = (int)X;
         _yOffset = (int)(TitleBarHeight + Y);
+        // render children first to a texture
+        //Console.WriteLine($"WIN off=({(int)X},{(int)Y}) content={Content?.Name}");
         var tex = (nint)base.Render(context);
+
         SDL.SDL_SetRenderTarget(context.Renderer, tex);
 
         // Title bg

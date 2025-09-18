@@ -14,9 +14,40 @@ namespace AbstUI.SDL2.Components.Containers
         private nint _texture;
         private int _texW;
         private int _texH;
-        public AOrientation Orientation { get; set; }
-        public APoint ItemMargin { get; set; }
-        public AMargin Margin { get; set; }
+        private AOrientation _orientation;
+        public AOrientation Orientation
+        {
+            get => _orientation;
+            set { if (_orientation != value) { _orientation = value; _layoutDirty = true; ComponentContext.QueueRedraw(this); } }
+        }
+
+        private APoint _itemMargin;
+        public APoint ItemMargin
+        {
+            get => _itemMargin;
+            set { if (!_itemMargin.Equals(value)) { _itemMargin = value; _layoutDirty = true; ComponentContext.QueueRedraw(this); } }
+        }
+
+        private AMargin _margin;
+        public AMargin Margin
+        {
+            get => _margin;
+            set { if (!_margin.Equals(value)) { _margin = value; _layoutDirty = true; ComponentContext.QueueRedraw(this); } }
+        }
+
+        public override float Width
+        {
+            get => base.Width;
+            set { if (Math.Abs(base.Width - value) > 0.01f) { base.Width = value; _layoutDirty = true; ComponentContext.QueueRedraw(this); } }
+        }
+
+        public override float Height
+        {
+            get => base.Height;
+            set { if (Math.Abs(base.Height - value) > 0.01f) { base.Height = value; _layoutDirty = true; ComponentContext.QueueRedraw(this); } }
+        }
+
+       
         public object FrameworkNode => this;
 
         private class ChildData
@@ -55,7 +86,11 @@ namespace AbstUI.SDL2.Components.Containers
             base.Dispose();
         }
 
-        private void RequestRedraw(IAbstSDLComponent component) => _layoutDirty = true;
+        private void RequestRedraw(IAbstSDLComponent component)
+        {
+            
+            _layoutDirty = true;
+        }
 
         public void AddItem(IAbstFrameworkNode child)
         {
@@ -112,74 +147,82 @@ namespace AbstUI.SDL2.Components.Containers
                 _layoutDirty = true;
             }
         }
-
         private void RecalculateLayout()
         {
-            if (!_layoutDirty)
-                return;
+            if (!_layoutDirty  && !ComponentContext.RequireToRedraw) return;
+            
+            float availW = Math.Max(0, Width - Margin.Left - Margin.Right);
+            float availH = Math.Max(0, Height - Margin.Top - Margin.Bottom);
 
-            float curX = 0;
-            float curY = 0;
+            float startX = Margin.Left;
+            float startY = Margin.Top;
+            float curX = startX, curY = startY;
             float lineSize = 0;
+
+            float contentW = 0f; // measured content (including margins)
+            float contentH = 0f;
+
+
+
             foreach (var child in _children)
             {
                 var node = child.Node;
-                var margin = node.Margin;
-                float childW = node.Width + margin.Left + margin.Right;
-                float childH = node.Height + margin.Top + margin.Bottom;
+                var m = node.Margin;
+                float childW = node.Width + m.Left + m.Right;
+                float childH = node.Height + m.Top + m.Bottom;
 
-                float targetX;
-                float targetY;
+                float targetX, targetY;
 
                 if (Orientation == AOrientation.Horizontal)
                 {
-                    if (curX + childW > Width)
+                    if (availW > 0 && curX - startX + childW > availW)
                     {
-                        curX = 0;
+                        curX = startX;
                         curY += lineSize + ItemMargin.Y;
                         lineSize = 0;
                     }
-                    targetX = curX + margin.Left;
-                    targetY = curY + margin.Top;
+                    targetX = curX + m.Left;
+                    targetY = curY + m.Top;
                     curX += childW + ItemMargin.X;
                     lineSize = Math.Max(lineSize, childH);
                 }
                 else
                 {
-                    if (curY + childH > Height)
+                    if (availH > 0 && curY - startY + childH > availH)
                     {
-                        curY = 0;
+                        curY = startY;
                         curX += lineSize + ItemMargin.X;
                         lineSize = 0;
                     }
-                    targetX = curX + margin.Left;
-                    targetY = curY + margin.Top;
+                    targetX = curX + m.Left;
+                    targetY = curY + m.Top;
                     curY += childH + ItemMargin.Y;
                     lineSize = Math.Max(lineSize, childW);
                 }
-
                 child.X = targetX;
                 child.Y = targetY;
+                //Console.WriteLine($"LAYOUT {child.Node.Name} -> {child.X},{child.Y}");
 
-                if (node is IAbstFrameworkLayoutNode layout)
-                {
-                    layout.X = targetX;
-                    layout.Y = targetY;
-                }
-                else if (node.FrameworkNode is AbstSdlComponent comp)
-                {
-                    comp.X = targetX;
-                    comp.Y = targetY;
-                }
+                if (node is IAbstFrameworkLayoutNode ln) { ln.X = targetX; ln.Y = targetY; }
+                else if (node.FrameworkNode is AbstSdlComponent comp) { comp.X = targetX; comp.Y = targetY; }
+
+                // Update measured content extents
+                contentW = Math.Max(contentW, (targetX - Margin.Left) + (node.Width + m.Left + m.Right));
+                contentH = Math.Max(contentH, (targetY - Margin.Top) + (node.Height + m.Top + m.Bottom));
 
                 child.IsDirty = false;
             }
 
+            // Report desired size to parent (scroll containers use this)
+            ComponentContext.TargetWidth = (int)Math.Ceiling(contentW + Margin.Left + Margin.Right);
+            ComponentContext.TargetHeight = (int)Math.Ceiling(contentH + Margin.Top + Margin.Bottom);
+
             _layoutDirty = false;
         }
 
-      
-      
+
+
+
 
         public override AbstSDLRenderResult Render(AbstSDLRenderContext context)
         {
@@ -209,10 +252,30 @@ namespace AbstUI.SDL2.Components.Containers
 
             foreach (var child in _children)
             {
-                if (child.Node.FrameworkNode is not AbstSdlComponent comp)
-                    continue;
+                if (child.Node.FrameworkNode is not AbstSdlComponent comp) continue;
+
+                var ctx = comp.ComponentContext;
+
+                // place the child *inside this panel's texture*
+                var oldX = ctx.X; var oldY = ctx.Y;
+                ctx.X = (int)(child.X + Margin.Left);
+                ctx.Y = (int)(child.Y + Margin.Top);
+
+                // (no Offset push here)
+                //Console.WriteLine($"WRAP_PANEL BLIT {comp.Name} at {comp.X},{comp.Y} into {Name} at {X},{Y}  off=({ctx.OffsetX},{ctx.OffsetY}) {child.Node.Name}");
                 comp.ComponentContext.RenderToTexture(context);
+
+                ctx.X = oldX; ctx.Y = oldY;
             }
+
+
+
+
+            // also make sure our target size is set so parent blits us correctly
+            ComponentContext.TargetWidth = (int)Width;
+            ComponentContext.TargetHeight = (int)Height;
+
+
 
             SDL.SDL_SetRenderTarget(context.Renderer, prevTarget);
             return _texture;
