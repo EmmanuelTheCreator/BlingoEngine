@@ -5,4 +5,8 @@ These notes summarize the on-disk formats handled by `BlingoEngine.IO.Legacy`. T
 - [Director Movie (`.dir`) Container](./dir-format.md)
 - [Shockwave Movie (`.dcr`) Container](./dcr-format.md)
 - [Cast Library (`.cst`) Resources](./cst-format.md)
+- [Legacy Text and Field Members](./LegacyTextFieldMembers.md)
+- [Legacy Bitmap Loading](./LegacyBitmapLoading.md)
+- [Legacy Sound Loading](./LegacySoundLoading.md)
 - [QuickDraw Shape Records](./LegacyShapeRecords.md) – Byte layouts for legacy shape cast members across Director releases.
+

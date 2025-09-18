@@ -26,6 +26,7 @@ internal sealed class BlLegacyScriptReader
     private static readonly BlTag ScriptContextLowerTag = BlTag.Register("Lctx");
     private static readonly BlTag ScriptContextUpperTag = BlTag.Register("LctX");
 
+
     private readonly ReaderContext _context;
 
     public BlLegacyScriptReader(ReaderContext context)
@@ -52,6 +53,7 @@ internal sealed class BlLegacyScriptReader
         var scriptResourceByNumber = BuildScriptResourceMap(classicLoader, afterburnerLoader);
         var formatByResourceId = BuildScriptFormatMap(classicLoader, afterburnerLoader, scriptResourceByNumber);
 
+
         foreach (var entry in _context.Resources.Entries)
         {
             if (entry.Tag != ScriptTag)
@@ -71,6 +73,7 @@ internal sealed class BlLegacyScriptReader
 
         return scripts;
     }
+
 
     private Dictionary<int, int> BuildScriptResourceMap(
         BlClassicPayloadLoader classicLoader,
@@ -101,6 +104,7 @@ internal sealed class BlLegacyScriptReader
         BlClassicPayloadLoader classicLoader,
         BlAfterburnerPayloadLoader? afterburnerLoader,
         IReadOnlyDictionary<int, int> scriptResourceByNumber)
+
     {
         var result = new Dictionary<int, BlLegacyScriptFormatKind>();
         var entriesById = _context.Resources.EntriesById;
@@ -146,6 +150,7 @@ internal sealed class BlLegacyScriptReader
             ? afterburnerLoader is null ? Array.Empty<byte>() : entry.LoadAfterburner(afterburnerLoader)
             : entry.ReadClassicPayload(classicLoader);
     }
+
 
     private static void ParseScriptContext(byte[] payload, IDictionary<int, int> scriptResourceByNumber)
     {
@@ -209,6 +214,7 @@ internal sealed class BlLegacyScriptReader
         byte[] payload,
         IReadOnlyDictionary<int, BlLegacyResourceEntry> entriesById,
         IReadOnlyDictionary<int, int> scriptResourceByNumber,
+
         out int scriptResourceId,
         out BlLegacyScriptFormatKind format)
     {
@@ -260,11 +266,14 @@ internal sealed class BlLegacyScriptReader
 
         var specificData = specificLength > 0 ? reader.ReadBytes((int)specificLength) : Array.Empty<byte>();
 
+
         scriptResourceId = ResolveScriptResourceId(infoData, entriesById, scriptResourceByNumber);
+
         format = BlLegacyScriptFormat.Detect(specificData);
 
         return scriptResourceId != 0;
     }
+
 
     private static int ResolveScriptNumber(byte[] infoData)
     {
@@ -288,6 +297,7 @@ internal sealed class BlLegacyScriptReader
         {
             return mappedId;
         }
+
 
         if (infoData.Length < 12)
         {

@@ -82,7 +82,7 @@ internal static class BlLegacyBitmapFormat
     /// <summary>
     /// Infers the bitmap container represented by a legacy resource entry. The routine combines the
     /// four-character tag stored in the map with the first bytes of the payload, mirroring the byte
-    /// tables documented in <c>docs/LegacyBitmapLoading.md</c> so every Director generation is
+    /// tables documented in <c>src/BlingoEngine.IO.Legacy/docs/LegacyBitmapLoading.md</c> so every Director generation is
     /// classified consistently.
     /// </summary>
     /// <param name="tag">Resource type registered in the legacy memory map.</param>

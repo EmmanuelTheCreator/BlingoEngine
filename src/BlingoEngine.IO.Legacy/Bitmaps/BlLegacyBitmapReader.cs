@@ -13,7 +13,7 @@ namespace BlingoEngine.IO.Legacy.Bitmaps;
 /// best-effort format classification. Director stores image data across several chunk types (BITD,
 /// DIB, PICT, PNG, JPEG, etc.) and may embed authored bitmaps inside <c>ediM</c> resources, so the
 /// reader resolves those entries, inflates them when necessary, and classifies the resulting buffer.
-/// Byte heuristics mirror the tables captured in <c>docs/LegacyBitmapLoading.md</c>, keeping the
+/// Byte heuristics mirror the tables captured in <c>src/BlingoEngine.IO.Legacy/docs/LegacyBitmapLoading.md</c>, keeping the
 /// loader compatible with classic Director 2 projectors through Director MX.
 /// </summary>
 internal sealed class BlLegacyBitmapReader
