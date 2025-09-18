@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 
+using BlingoEngine.IO.Legacy.Afterburner;
 using BlingoEngine.IO.Legacy.Data;
 
 namespace BlingoEngine.IO.Legacy;
@@ -22,6 +23,7 @@ public sealed class ReaderContext : IDisposable
     public long RifxOffset { get; private set; }
     public BlResourceContainer Resources { get; } = new();
     public BlCompressionContainer Compressions { get; } = new();
+    internal BlAfterburnerState? AfterburnerState { get; private set; }
 
     /// <summary>
     /// Initializes a new <see cref="ReaderContext"/> over the provided stream. The reader consumes the 12-byte RIFX header,
@@ -48,6 +50,7 @@ public sealed class ReaderContext : IDisposable
     {
         Resources.Reset();
         Compressions.Reset();
+        AfterburnerState = null;
     }
 
     /// <summary>
@@ -97,6 +100,16 @@ public sealed class ReaderContext : IDisposable
     public void AddResourceRelationship(BlResourceKeyLink link)
     {
         Resources.AddRelationship(link);
+    }
+
+    /// <summary>
+    /// Stores the Afterburner state created while parsing the metadata stream. Passing <c>null</c> clears any previously cached
+    /// state so the caller can fall back to classic payload loading.
+    /// </summary>
+    /// <param name="state">State describing inline segment offsets inside the Afterburner body.</param>
+    internal void SetAfterburnerState(BlAfterburnerState? state)
+    {
+        AfterburnerState = state;
     }
 
     public void Dispose()
