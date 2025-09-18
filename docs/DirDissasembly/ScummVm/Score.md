@@ -55,6 +55,7 @@ When seeking to a particular frame, `Score::seekToMemberInList()` pulls a pair o
 | `index[frame]*4`..`+3` | 4 bytes | Relative frame start (`off`) added to `_frameDataOffset`.[engines/director/score.cpp (approx. lines 2016-2022)] |
 | `index[frame]*4+4`..`+7` | 4 bytes | Next frame start; difference yields the current frame size used for logging.[engines/director/score.cpp (approx. lines 2016-2021)] |
 
+
 ## Step 6 – Frame channel dispatch
 
 `Frame::readChannel()` slices each frame payload using the version-specific main and sprite channel sizes defined in `frame.h`, then forwards the bytes to the correct per-version readers.[engines/director/frame.cpp (approx. lines 115-174)][engines/director/frame.h (approx. lines 49-62)] Offsets less than the main channel size refresh the control block, while later offsets land on individual sprite channels handled by `readSpriteD*()`.[engines/director/frame.cpp (approx. lines 154-174)]
@@ -74,6 +75,7 @@ When seeking to a particular frame, `Score::seekToMemberInList()` pulls a pair o
 
 ## Step 7 – Frame payloads and channel descriptors
 
+
 Each frame begins with a 16-bit size followed by channel records. Director 2–3 compress channel descriptors into bytes, while Director 4+ promotes both the size and offset to 16-bit values.[engines/director/score.cpp (approx. lines 2074-2111)][engines/director/frame.h (approx. lines 49-56)]
 
 | Hex Bytes | Length | Explanation |
@@ -85,7 +87,9 @@ Each frame begins with a 16-bit size followed by channel records. Director 2–3
 | `frame+0x0002`..`+0x0003` | 1 byte each | Director 2–3: channel payload byte-width and offset, both multiplied by 2 for word alignment before dispatching `readChannelD2()`.[engines/director/score.cpp (approx. lines 2092-2099)][engines/director/frame.cpp (approx. lines 154-173)] |
 | `frame+0x0002`..`+0x0005` | 2 bytes each | Director 4+: 16-bit channel size and offset passed verbatim into `readChannelD4()`/`readChannelD5()`/`readChannelD6()`/`readChannelD7()`.[engines/director/score.cpp (approx. lines 2092-2104)][engines/director/frame.cpp (approx. lines 433-1680)] |
 
+
 ## Step 8 – Director 2 main channel layout (kMainChannelSizeD2 = 0x20)
+
 
 The first 32 bytes encode score-level controls, palette animation, and tempo. ScummVM matches each offset inside `Frame::readMainChannelsD2()`.[engines/director/frame.cpp (approx. lines 176-299)][engines/director/frame.h (approx. lines 49-50)]
 
@@ -113,7 +117,9 @@ The first 32 bytes encode score-level controls, palette animation, and tempo. Sc
 | `0x18`..`0x19` | 2 bytes | Palette cycle count.[engines/director/frame.cpp (approx. lines 275-277)] |
 | `0x1A`..`0x1F` | 6 bytes | Reserved palette bytes logged if non-zero.[engines/director/frame.cpp (approx. lines 278-284)] |
 
+
 ## Step 9 – Director 4 main channel layout (kMainChannelSizeD4 = 0x28)
+
 
 Director 4 extends the header with colour chips for the control channels, an explicit script id, and palette control bytes.[engines/director/frame.cpp (approx. lines 433-608)][engines/director/frame.h (approx. lines 52-53)]
 
@@ -142,7 +148,9 @@ Director 4 extends the header with colour chips for the control channels, an exp
 | `0x2A` | 1 byte | Palette colour code (score swatch index).[engines/director/frame.cpp (approx. lines 585-588)] |
 | `0x2B` | 1 byte | Logged unknown byte.[engines/director/frame.cpp (approx. lines 589-592)] |
 
+
 ## Step 10 – Director 5 main channel layout (kMainChannelSizeD5 = 0x30)
+
 
 Director 5 writes 16-bit cast library ids for every control channel and expands the palette record to include style, colour code, and padding bytes.[engines/director/frame.cpp (approx. lines 829-980)]
 
@@ -178,6 +186,7 @@ Director 5 writes 16-bit cast library ids for every control channel and expands 
 | `0x28`..`0x2F` | 8 bytes | Logged padding; remains unimplemented.[engines/director/frame.cpp (approx. lines 956-965)] |
 
 ## Step 11 – Director 6 main channel layout (kMainChannelSizeD6 = 0x90)
+
 
 Afterburner scores break the 144-byte header into six 24-byte blocks for script, tempo, transition, sound 2, sound 1, and palette channels. Each block carries cast ids, sprite detail pointers (with 16-bit low-word shadows for delta updates), colour chips, and padding.[engines/director/frame.cpp (approx. lines 1201-1412)]
 
@@ -229,7 +238,9 @@ Afterburner scores break the 144-byte header into six 24-byte blocks for script,
 | `0x8A`..`0x8B` | 2 bytes | Low-word shadow for the palette detail pointer.[engines/director/frame.cpp (approx. lines 1387-1390)] |
 | `0x8C`..`0x8F` | 4 bytes | Alignment padding for the palette block.[engines/director/frame.cpp (approx. lines 1391-1394)] |
 
+
 ## Step 12 – Director 7 main channel layout (kMainChannelSizeD7 = 0x120)
+
 
 Director 7 doubles each 24-byte block to 48 bytes, extending the padding, keeping the low-word pointer shadows, and reserving space for additional alignment while keeping the same field order.[engines/director/frame.cpp (approx. lines 1659-1868)]
 
@@ -281,7 +292,9 @@ Director 7 doubles each 24-byte block to 48 bytes, extending the padding, keepin
 | `0x102`..`0x103` | 2 bytes | Low-word shadow for the palette detail pointer.[engines/director/frame.cpp (approx. lines 1844-1847)] |
 | `0x104`..`0x11F` | 28 bytes | Alignment padding for the palette block.[engines/director/frame.cpp (approx. lines 1848-1851)] |
 
+
 ## Step 13 – Sprite detail lookups (Director 6+)
+
 
 Once a frame is decoded, `loadFrameSpriteDetails()` resolves `_spriteListIdx` values through the detail offsets captured earlier. Each sprite fetches `SpriteInfo` (record `id`), optional behaviours, and human-readable names.[engines/director/score.cpp (approx. lines 1897-2007)]
 
@@ -289,7 +302,9 @@ Once a frame is decoded, `loadFrameSpriteDetails()` resolves `_spriteListIdx` va
 | --- | --- | --- |
 | `detailIndex*4`..`+3` | 4 bytes | Pointer into `_spriteDetailOffsets` for sprite info (`i%3==0`), behaviours (`i%3==1`), or names (`i%3==2`).[engines/director/score.cpp (approx. lines 1778-2003)] |
 
+
 ## Step 14 – `VWLB` label stream
+
 
 `Score::loadLabels()` parses frame labels from the `VWLB` chunk using a packed offset table followed by CR-delimited UTF-8 strings.[engines/director/score.cpp (approx. lines 2162-2215)]
 
@@ -302,7 +317,9 @@ Once a frame is decoded, `loadFrameSpriteDetails()` resolves `_spriteListIdx` va
 | `0x0008`.. | `count*4` bytes | Repeated frame numbers and offsets for subsequent labels.[engines/director/score.cpp (approx. lines 2175-2209)] |
 | `strings` | variable | CR-terminated label text followed by comment text; converted from Director encoding to UTF-8.[engines/director/score.cpp (approx. lines 2180-2209)] |
 
+
 ## Step 15 – `VWAC` action stream
+
 
 Frame actions are stored as packed strings with an id/sub-id table. `Score::loadActions()` walks the offset pairs, decodes each script, and hands the text to the Lingo compiler.[engines/director/score.cpp (approx. lines 2222-2265)]
 

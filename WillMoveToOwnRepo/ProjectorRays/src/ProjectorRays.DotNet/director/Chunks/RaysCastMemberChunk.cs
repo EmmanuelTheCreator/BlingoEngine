@@ -20,6 +20,7 @@ public class RaysCastMemberChunk : RaysChunk
     public ushort Id;
     public RaysScriptChunk? Script;
     public BufferView ImageData = BufferView.Empty;
+    public BufferView SoundData = BufferView.Empty;
 
     public RaysCastMemberTextRead DecodedText { get; internal set; }
     public BufferView InfoView { get; private set; }
