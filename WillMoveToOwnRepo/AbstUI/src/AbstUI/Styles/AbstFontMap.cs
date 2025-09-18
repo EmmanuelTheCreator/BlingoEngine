@@ -14,7 +14,7 @@ public sealed record class AbstFontMap
         ARuntimePlatform targetPlatform,
         string targetFontName,
         bool mapCharacters,
-        IReadOnlyDictionary<int, int>? sizeMappings = null)
+        Dictionary<int, int>? sizeMappings = null)
     {
         SourcePlatform = sourcePlatform;
         SourceFontName = sourceFontName;
@@ -55,7 +55,7 @@ public sealed record class AbstInputKeyMap
     public AbstInputKeyMap(
         ARuntimePlatform sourcePlatform,
         ARuntimePlatform targetPlatform,
-        IReadOnlyDictionary<int, int>? keys = null)
+        Dictionary<int, int>? keys = null)
     {
         SourcePlatform = sourcePlatform;
         TargetPlatform = targetPlatform;
