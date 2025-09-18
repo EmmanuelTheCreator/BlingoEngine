@@ -157,6 +157,13 @@ public class RaysCastChunk : RaysChunk
             scriptMember.Read(smStream);
             member.Member = scriptMember;
         }
+        else if (member.Type == RaysMemberType.ShapeMember)
+        {
+            var shapeStream = new ReadStream(member.SpecificData, Endianness.BigEndian);
+            var shapeMember = new RaysShapeMember(Dir);
+            shapeMember.Read(shapeStream);
+            member.Member = shapeMember;
+        }
 
         // Look for XMED chunk for styled text/field members
         if (member.Type == RaysMemberType.TextMember || member.Type == RaysMemberType.FieldMember)
