@@ -18,8 +18,8 @@ public sealed class ReaderContext : IDisposable
     public BlStreamReader Reader { get; }
     public string FileName { get; }
     public bool LeaveOpen => _leaveOpen;
-    public BlDataBlock? DataBlock { get; set; }
-    public long RifxOffset { get; set; }
+    public BlDataBlock? DataBlock { get; private set; }
+    public long RifxOffset { get; private set; }
     public BlResourceContainer Resources { get; } = new();
     public BlCompressionContainer Compressions { get; } = new();
 
@@ -48,6 +48,25 @@ public sealed class ReaderContext : IDisposable
     {
         Resources.Reset();
         Compressions.Reset();
+    }
+
+    /// <summary>
+    /// Records the stream offset where the <c>RIFX/XFIR</c> header begins.
+    /// </summary>
+    /// <param name="offset">Absolute position of the header inside the stream.</param>
+    public void RegisterRifxOffset(long offset)
+    {
+        RifxOffset = offset;
+    }
+
+    /// <summary>
+    /// Stores the data block that was read from the movie header.
+    /// </summary>
+    /// <param name="block">Header metadata describing payload boundaries.</param>
+    public void RegisterDataBlock(BlDataBlock block)
+    {
+        ArgumentNullException.ThrowIfNull(block);
+        DataBlock = block;
     }
 
     public void Dispose()

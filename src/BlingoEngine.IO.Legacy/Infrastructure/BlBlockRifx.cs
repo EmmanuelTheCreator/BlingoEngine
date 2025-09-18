@@ -8,15 +8,14 @@ using BlingoEngine.IO.Legacy;
 namespace BlingoEngine.IO.Legacy.Infrastructure;
 
 /// <summary>
-/// Locates the 12-byte <c>RIFX/XFIR</c> movie header inside executable or projector shells. Projectors prefix the movie with
-/// a four-byte marker (e.g. <c>PJ93</c>) followed by a 32-bit offset. When neither case matches, the helper scans the byte stream
-/// for the signature to accommodate self-extracting archives that embed the movie deeper within the file.
+/// Extension helpers for <see cref="Stream"/> instances that contain Director movie data. The <see cref="LocateRifx"/>
+/// routine scans the stream for the 12-byte <c>RIFX/XFIR</c> signature used by classic containers and projectors.
 /// </summary>
-internal static class BlBlockRifx
+internal static class StreamRifxExtensions
 {
     private static readonly string[] ProjectorMarkers = { "PJ93", "PJ95", "PJ00", "PJ01" };
 
-    public static long Locate(Stream stream)
+    public static long LocateRifx(this Stream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 

@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 
 using BlingoEngine.IO.Data.DTO;
 using BlingoEngine.IO.Legacy.Afterburner;
 using BlingoEngine.IO.Legacy.Classic;
+using BlingoEngine.IO.Legacy.Classic.Blocks;
 using BlingoEngine.IO.Legacy.Data;
 using BlingoEngine.IO.Legacy.Infrastructure;
 
@@ -34,17 +36,42 @@ public abstract class BlLegacyFileResourceBase : BlLegacyResourceBase
         _afterburnerState = null;
 
         LocateRifx();
-        var dataBlock = new BlFormatReader().Read(Context);
+        var dataBlock = Context.ReadBlockHeader();
 
         if (dataBlock.Format.IsAfterburner)
         {
             var afterburner = new BlAfterburnerMapReader(Context);
-            _afterburnerState = afterburner.Read(dataBlock);
+            var map = afterburner.Read(dataBlock);
+            if (!string.IsNullOrEmpty(map.Version))
+            {
+                dataBlock.Format.AfterburnerVersion = map.Version;
+            }
+
+            RegisterCompressions(map.CompressionDescriptors);
+            RegisterAfterburnerEntries(map.ResourceEntries);
+            RegisterInlineSegments(map.InlineSegments);
+            _afterburnerState = map.State;
         }
         else
         {
             var classic = new BlClassicMapReader(Context);
-            classic.Read(dataBlock);
+            var map = classic.Read(dataBlock);
+
+            if (map.Imap is not null)
+            {
+                dataBlock.Format.MapVersion = map.Imap.MapVersion;
+                dataBlock.Format.ArchiveVersion = map.Imap.ArchiveVersion;
+            }
+
+            if (map.Mmap is not null)
+            {
+                RegisterClassicEntries(map.Mmap);
+            }
+
+            if (map.KeyTable is not null)
+            {
+                RegisterKeyRelationships(map.KeyTable);
+            }
         }
 
         return BuildContainer();
@@ -56,9 +83,52 @@ public abstract class BlLegacyFileResourceBase : BlLegacyResourceBase
     private void LocateRifx()
     {
         var stream = Context.BaseStream;
-        var offset = BlBlockRifx.Locate(stream);
-        Context.RifxOffset = offset;
+        var offset = stream.LocateRifx();
+        Context.RegisterRifxOffset(offset);
         Context.Reader.Position = offset;
+    }
+
+    private void RegisterCompressions(IEnumerable<BlLegacyCompressionDescriptor> descriptors)
+    {
+        foreach (var descriptor in descriptors)
+        {
+            Context.Compressions.Add(descriptor);
+        }
+    }
+
+    private void RegisterAfterburnerEntries(IEnumerable<BlLegacyResourceEntry> entries)
+    {
+        foreach (var entry in entries)
+        {
+            Context.Resources.Add(entry);
+        }
+    }
+
+    private void RegisterInlineSegments(IReadOnlyDictionary<int, byte[]> segments)
+    {
+        foreach (var pair in segments)
+        {
+            Context.Resources.SetInlineSegment(pair.Key, pair.Value);
+        }
+    }
+
+    private void RegisterClassicEntries(BlBlockMmap map)
+    {
+        for (var i = 0; i < map.Entries.Count; i++)
+        {
+            var entryData = map.Entries[i];
+            var entry = new BlLegacyResourceEntry(i, entryData.Tag, entryData.Size, entryData.Offset, entryData.Flags, entryData.Attributes, entryData.NextFree);
+            Context.Resources.Add(entry);
+        }
+    }
+
+    private void RegisterKeyRelationships(BlBlockKeyTable keyTable)
+    {
+        foreach (var entry in keyTable.Entries)
+        {
+            var link = new BlResourceKeyLink(entry.ChildId, entry.ParentId, entry.Tag);
+            Context.Resources.AddRelationship(link);
+        }
     }
 
     /// <summary>

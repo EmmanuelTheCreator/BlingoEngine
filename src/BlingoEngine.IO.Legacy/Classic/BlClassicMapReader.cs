@@ -1,5 +1,3 @@
-using System.IO;
-
 using BlingoEngine.IO.Legacy.Classic.Blocks;
 using BlingoEngine.IO.Legacy.Data;
 
@@ -19,13 +17,17 @@ internal sealed class BlClassicMapReader
     }
 
     /// <summary>
-    /// Reads the resource map contained within the specified data block, populating the shared resource container.
+    /// Reads the resource map contained within the specified data block and returns the decoded structures.
     /// </summary>
     /// <param name="dataBlock">Chunk metadata describing the payload boundaries.</param>
-    public void Read(BlDataBlock dataBlock)
+    public BlClassicMapData Read(BlDataBlock dataBlock)
     {
         var reader = _context.Reader;
         reader.Position = dataBlock.PayloadStart;
+
+        BlBlockImap? imap = null;
+        BlBlockMmap? mmap = null;
+        BlBlockKeyTable? keyTable = null;
 
         while (reader.Position < dataBlock.PayloadEnd)
         {
@@ -36,19 +38,15 @@ internal sealed class BlClassicMapReader
 
             if (tag == BlTag.Imap)
             {
-                var imap = BlBlockImap.Read(_context, payloadStart);
-                var format = dataBlock.Format;
-                format.MapVersion = imap.MapVersion;
-                format.ArchiveVersion = imap.ArchiveVersion;
+                imap = _context.ReadImap(payloadStart);
             }
             else if (tag == BlTag.Mmap)
             {
-                var mmap = BlBlockMmap.Read(_context, payloadStart);
-                RegisterEntries(mmap);
+                mmap = _context.ReadMmap(payloadStart);
             }
             else if (tag == BlTag.KeyStar)
             {
-                ParseKey(payloadStart);
+                keyTable = _context.ReadKeyTable(payloadStart);
             }
 
             reader.Position = payloadStart + length;
@@ -59,38 +57,7 @@ internal sealed class BlClassicMapReader
                 break;
             }
         }
-    }
 
-    /// <summary>
-    /// Registers resource entries parsed from the <c>mmap</c> block with the context's resource container.
-    /// </summary>
-    private void RegisterEntries(BlMmapBlock map)
-    {
-        var resources = _context.Resources;
-        for (var i = 0; i < map.Entries.Count; i++)
-        {
-            var entryData = map.Entries[i];
-            var entry = new BlLegacyResourceEntry(i, entryData.Tag, entryData.Size, entryData.Offset, entryData.Flags, entryData.Attributes, entryData.NextFree);
-            resources.Add(entry);
-        }
-    }
-
-    /// <summary>
-    /// Skips the <c>KEY*</c> block that associates parent/child resource IDs. The current implementation records only the map rows.
-    /// </summary>
-    private void ParseKey(long payloadStart)
-    {
-        var reader = _context.Reader;
-        var restore = reader.Position;
-        reader.Position = payloadStart;
-
-        var entrySize = reader.ReadUInt16();
-        var entryCount = reader.ReadUInt32();
-        for (var i = 0; i < entryCount; i++)
-        {
-            reader.Skip(entrySize);
-        }
-
-        reader.Position = restore;
+        return new BlClassicMapData(imap, mmap, keyTable);
     }
 }

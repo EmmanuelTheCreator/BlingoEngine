@@ -48,7 +48,6 @@ public sealed class BlFormatReader
         block.Format.Codec = MapCodec(codecTag);
         block.Format.IsBigEndian = isBigEndian;
 
-        context.DataBlock = block;
         return block;
     }
 
@@ -80,5 +79,24 @@ public sealed class BlFormatReader
         }
 
         return BlRifxCodec.Unknown;
+    }
+}
+
+/// <summary>
+/// Convenience helpers that extend <see cref="ReaderContext"/> with header-reading capabilities.
+/// </summary>
+internal static class BlFormatReaderExtensions
+{
+    /// <summary>
+    /// Reads the next data block header from the underlying stream and registers it with the context.
+    /// </summary>
+    /// <param name="context">Reader context positioned at the start of a Director movie header.</param>
+    /// <returns>The decoded block describing payload boundaries and codec metadata.</returns>
+    public static BlDataBlock ReadBlockHeader(this ReaderContext context)
+    {
+        var reader = new BlFormatReader();
+        var block = reader.Read(context);
+        context.RegisterDataBlock(block);
+        return block;
     }
 }

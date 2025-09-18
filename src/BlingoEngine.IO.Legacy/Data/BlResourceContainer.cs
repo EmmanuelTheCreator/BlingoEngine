@@ -14,6 +14,8 @@ public sealed class BlResourceContainer
     private readonly List<BlLegacyResourceEntry> _entries = new();
     private readonly Dictionary<int, BlLegacyResourceEntry> _byId = new();
     private readonly Dictionary<int, byte[]> _inlineSegments = new();
+    private readonly Dictionary<int, List<BlResourceKeyLink>> _childrenByParent = new();
+    private readonly Dictionary<int, BlResourceKeyLink> _parentByChild = new();
 
     public IReadOnlyList<BlLegacyResourceEntry> Entries => _entries;
 
@@ -21,11 +23,17 @@ public sealed class BlResourceContainer
 
     public IReadOnlyDictionary<int, byte[]> InlineSegments => _inlineSegments;
 
+    public IReadOnlyDictionary<int, List<BlResourceKeyLink>> ChildrenByParent => _childrenByParent;
+
+    public IReadOnlyDictionary<int, BlResourceKeyLink> ParentByChild => _parentByChild;
+
     public void Reset()
     {
         _entries.Clear();
         _byId.Clear();
         _inlineSegments.Clear();
+        _childrenByParent.Clear();
+        _parentByChild.Clear();
     }
 
     /// <summary>
@@ -84,5 +92,21 @@ public sealed class BlResourceContainer
 
         data = null;
         return false;
+    }
+
+    /// <summary>
+    /// Records the relationship between a parent resource and a child referenced in the <c>KEY*</c> table.
+    /// </summary>
+    /// <param name="link">Relationship describing the parent and child IDs.</param>
+    public void AddRelationship(BlResourceKeyLink link)
+    {
+        if (!_childrenByParent.TryGetValue(link.ParentId, out var children))
+        {
+            children = new List<BlResourceKeyLink>();
+            _childrenByParent[link.ParentId] = children;
+        }
+
+        children.Add(link);
+        _parentByChild[link.ChildId] = link;
     }
 }

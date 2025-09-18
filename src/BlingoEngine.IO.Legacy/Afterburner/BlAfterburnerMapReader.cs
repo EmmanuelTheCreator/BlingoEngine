@@ -26,26 +26,33 @@ internal sealed class BlAfterburnerMapReader
     /// </summary>
     /// <param name="dataBlock">Top-level chunk boundaries decoded from the 12-byte header.</param>
     /// <returns>State describing the Afterburner body offsets used by payload lookups.</returns>
-    public BlAfterburnerState Read(BlDataBlock dataBlock)
+    public BlAfterburnerMapData Read(BlDataBlock dataBlock)
     {
         var reader = _context.Reader;
         reader.Position = dataBlock.PayloadStart;
 
         var fver = ReadChunkHeader(reader);
         EnsureChunkTag(fver, BlTag.Fver);
-        ReadFver(dataBlock.Format, fver);
+        var version = ReadFver(fver);
 
         var fcdr = ReadChunkHeader(reader);
         EnsureChunkTag(fcdr, BlTag.Fcdr);
-        ReadFcdr(fcdr);
+        var descriptors = ReadFcdr(fcdr);
 
         var abmp = ReadChunkHeader(reader);
         EnsureChunkTag(abmp, BlTag.Abmp);
-        ReadAbmp(abmp);
+        var entries = ReadAbmp(abmp);
 
         var fgei = ReadChunkHeader(reader);
         EnsureChunkTag(fgei, BlTag.Fgei);
-        return ReadFgei(fgei);
+        var inlineData = ReadFgei(fgei, entries);
+
+        return new BlAfterburnerMapData(
+            version,
+            descriptors,
+            entries,
+            inlineData.Segments,
+            inlineData.State);
     }
 
     /// <summary>
@@ -73,7 +80,7 @@ internal sealed class BlAfterburnerMapReader
     /// <summary>
     /// Reads the <c>Fver</c> block, capturing the variable-length Afterburner build string stored after the version numbers.
     /// </summary>
-    private void ReadFver(BlDataFormat format, ChunkHeader header)
+    private string? ReadFver(ChunkHeader header)
     {
         var reader = _context.Reader;
         reader.Position = header.Start;
@@ -85,10 +92,11 @@ internal sealed class BlAfterburnerMapReader
             reader.ReadVariableUInt32();
         }
 
+        string? version = null;
         if (fverVersion >= 0x501)
         {
             var length = reader.ReadByte();
-            format.AfterburnerVersion = reader.ReadAsciiString(length);
+            version = reader.ReadAsciiString(length);
         }
 
         var consumed = reader.Position - header.Start;
@@ -99,17 +107,17 @@ internal sealed class BlAfterburnerMapReader
         }
 
         reader.Position = header.Start + header.Length;
+        return version;
     }
 
     /// <summary>
     /// Reads the <c>Fcdr</c> chunk containing the compressed descriptor table. The chunk stores a count, followed by 16-byte
     /// identifiers and trailing ASCII names for each compression format.
     /// </summary>
-    private void ReadFcdr(ChunkHeader header)
+    private IReadOnlyList<BlLegacyCompressionDescriptor> ReadFcdr(ChunkHeader header)
     {
         var reader = _context.Reader;
         reader.Position = header.Start;
-        var compressions = _context.Compressions;
 
         if (header.Length > int.MaxValue)
         {
@@ -123,6 +131,7 @@ internal sealed class BlAfterburnerMapReader
         var descriptorReader = _context.CreateMemoryReader(data);
         var count = descriptorReader.ReadUInt16();
         var identifiers = new List<byte[]>(count);
+        var descriptors = new List<BlLegacyCompressionDescriptor>(count);
         for (var i = 0; i < count; i++)
         {
             var buffer = descriptorReader.ReadBytes(16);
@@ -135,19 +144,20 @@ internal sealed class BlAfterburnerMapReader
             var identifier = identifiers[i];
             var kind = BlCompressionFormat.Resolve(identifier, name);
             var descriptor = new BlLegacyCompressionDescriptor(i, identifier, name, kind);
-            compressions.Add(descriptor);
+            descriptors.Add(descriptor);
         }
+
+        return descriptors;
     }
 
     /// <summary>
     /// Reads the <c>ABMP</c> chunk that lists all resource entries. Each entry stores the resource ID, offset, compressed and
     /// uncompressed sizes, compression table index, and a four-character tag using variable-length integers.
     /// </summary>
-    private void ReadAbmp(ChunkHeader header)
+    private IReadOnlyList<BlLegacyResourceEntry> ReadAbmp(ChunkHeader header)
     {
         var reader = _context.Reader;
         reader.Position = header.Start;
-        var resources = _context.Resources;
 
         if (header.Length > int.MaxValue)
         {
@@ -165,6 +175,7 @@ internal sealed class BlAfterburnerMapReader
         reader.Position = header.Start + header.Length;
 
         var mapReader = _context.CreateMemoryReader(payload);
+        var entries = new List<BlLegacyResourceEntry>();
         mapReader.ReadVariableUInt32();
         mapReader.ReadVariableUInt32();
         var resourceCount = mapReader.ReadVariableUInt32();
@@ -178,25 +189,33 @@ internal sealed class BlAfterburnerMapReader
             var tag = mapReader.ReadTag();
 
             var entry = new BlLegacyResourceEntry(resourceId, tag, offset, compressedSize, uncompressedSize, compressionIndex);
-            resources.Add(entry);
+            entries.Add(entry);
         }
+
+        return entries;
     }
 
     /// <summary>
     /// Reads the <c>FGEI</c> chunk holding the initial load segment bytes for resources with an offset of <c>-1</c>.
     /// </summary>
-    private BlAfterburnerState ReadFgei(ChunkHeader header)
+    private (BlAfterburnerState State, IReadOnlyDictionary<int, byte[]> Segments) ReadFgei(ChunkHeader header, IReadOnlyList<BlLegacyResourceEntry> entries)
     {
         var reader = _context.Reader;
-        var resources = _context.Resources;
         var bodyOffset = header.Start;
 
         var state = new BlAfterburnerState(bodyOffset);
-        if (!resources.TryGetEntry(2, out var inlineEntry))
+        var entryById = new Dictionary<int, BlLegacyResourceEntry>(entries.Count);
+        foreach (var entry in entries)
+        {
+            entryById[entry.Id] = entry;
+        }
+
+        if (!entryById.TryGetValue(2, out var inlineEntry))
         {
             throw new InvalidDataException("Afterburner map is missing inline segment resource (id 2).");
         }
 
+        var segments = new Dictionary<int, byte[]>();
         if (inlineEntry.CompressedSize > 0)
         {
             reader.Position = header.Start;
@@ -207,28 +226,32 @@ internal sealed class BlAfterburnerMapReader
 
             var compressed = reader.ReadBytes((int)inlineEntry.CompressedSize);
             var inlineData = BlZlib.Decompress(compressed, (int)inlineEntry.UncompressedSize);
-            ParseInlineSegments(inlineData);
+            var parsed = ParseInlineSegments(inlineData, entryById);
+            foreach (var pair in parsed)
+            {
+                segments[pair.Key] = pair.Value;
+            }
         }
         else
         {
-            resources.SetInlineSegment(inlineEntry.Id, Array.Empty<byte>());
+            segments[inlineEntry.Id] = Array.Empty<byte>();
         }
 
         reader.Position = header.Start + header.Length;
-        return state;
+        return (state, segments);
     }
 
     /// <summary>
     /// Parses the inline segment table that stores raw bytes for resources referenced by negative offsets.
     /// </summary>
-    private void ParseInlineSegments(byte[] data)
+    private Dictionary<int, byte[]> ParseInlineSegments(byte[] data, Dictionary<int, BlLegacyResourceEntry> entries)
     {
         var reader = _context.CreateMemoryReader(data);
-        var resources = _context.Resources;
+        var segments = new Dictionary<int, byte[]>();
         while (reader.Position < reader.Length)
         {
             var resourceId = unchecked((int)reader.ReadVariableUInt32());
-            if (!resources.TryGetEntry(resourceId, out var entry))
+            if (!entries.TryGetValue(resourceId, out var entry))
             {
                 break;
             }
@@ -241,13 +264,20 @@ internal sealed class BlAfterburnerMapReader
             var length = (int)entry.CompressedSize;
             if (length == 0)
             {
-                resources.SetInlineSegment(resourceId, Array.Empty<byte>());
+                segments[resourceId] = Array.Empty<byte>();
                 continue;
             }
 
+            if (reader.Position + length > reader.Length)
+            {
+                break;
+            }
+
             var payload = reader.ReadBytes(length);
-            resources.SetInlineSegment(resourceId, payload);
+            segments[resourceId] = payload;
         }
+
+        return segments;
     }
 
     private readonly record struct ChunkHeader(BlTag Tag, uint Length, long Start);
