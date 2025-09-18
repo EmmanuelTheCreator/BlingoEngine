@@ -20,19 +20,19 @@ public interface IAbstImGuiFont
 /// <summary>
 /// Minimal font manager placeholder for the ImGui backend.
 /// </summary>
-public class ImGuiFontManager : IAbstFontManager
+public class ImGuiFontManager : AbstFontManagerBase
 {
     public const string DefaultFontName = "default";
     private readonly List<(string Name, AbstFontStyle Style, string FileName)> _fontsToLoad = new();
     private readonly Dictionary<(string Name, AbstFontStyle Style), AbstImGuiFont> _loadedFonts = new();
 
-    public IAbstFontManager AddFont(string name, string pathAndName, AbstFontStyle style = AbstFontStyle.Regular)
+    public override IAbstFontManager AddFont(string name, string pathAndName, AbstFontStyle style = AbstFontStyle.Regular)
     {
         _fontsToLoad.Add((name, style, pathAndName));
         return this;
     }
 
-    public void LoadAll()
+    public override void LoadAll()
     {
         if (_loadedFonts.Count == 0)
         {
@@ -52,7 +52,7 @@ public class ImGuiFontManager : IAbstFontManager
         InitFonts();
     }
 
-    public T? Get<T>(string name, AbstFontStyle style = AbstFontStyle.Regular) where T : class
+    public override T? Get<T>(string name, AbstFontStyle style = AbstFontStyle.Regular) where T : class
     {
         if (string.IsNullOrEmpty(name))
             return _loadedFonts[(DefaultFontName, AbstFontStyle.Regular)] as T;
@@ -76,17 +76,29 @@ public class ImGuiFontManager : IAbstFontManager
         return _loadedFonts[(DefaultFontName, style)].Get(fontUser, fontSize);
     }
 
-    public T GetDefaultFont<T>() where T : class
+    public override T GetDefaultFont<T>() where T : class
         => _loadedFonts.TryGetValue((DefaultFontName, AbstFontStyle.Regular), out var f) ? (f as T)! : throw new KeyNotFoundException("Default font not found");
 
-    public void SetDefaultFont<T>(T font) where T : class
+    public override void SetDefaultFont<T>(T font) where T : class
     {
         if (font is not IAbstImGuiFont sdlFont)
             throw new ArgumentException("Font must be of type IAbstImGuiFont", nameof(font));
         _loadedFonts[(DefaultFontName, AbstFontStyle.Regular)] = (AbstImGuiFont)sdlFont;
     }
 
-    public IEnumerable<string> GetAllNames() => _loadedFonts.Keys.Select(k => k.Name).Distinct();
+    public override IEnumerable<string> GetAllNames() => _loadedFonts.Keys.Select(k => k.Name).Distinct();
+
+    public override float MeasureTextWidth(string text, string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
+    {
+        _ = Get<IAbstImGuiFont>(fontName, style);
+        return text.Length * fontSize * 0.6f;
+    }
+
+    public override FontInfo GetFontInfo(string fontName, int fontSize, AbstFontStyle style = AbstFontStyle.Regular)
+    {
+        _ = Get<IAbstImGuiFont>(fontName, style);
+        return new FontInfo(fontSize, fontSize);
+    }
 
     // ImGui fonts
     private readonly Dictionary<int, ImFontPtr> _fonts = new();
