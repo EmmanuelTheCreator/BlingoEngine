@@ -9,6 +9,7 @@ using BlingoEngine.IO.Legacy.Texts;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace BlingoEngine.IO.Legacy.Tests.Helpers;
 
@@ -67,12 +68,19 @@ internal sealed class TestContextHarness : IDisposable
 
     public ReaderContext Context { get; }
 
+    public static string GetAssetPath(string relativePath) => TestFolder.AssetPath(relativePath);
     public static TestContextHarness Open(string relativePath)
     {
-        var fullPath = TestFolder.AssetPath(relativePath);
+        var fullPath = TestFolder.AssetPath(relativePath.TrimStart('/').TrimStart('\\'));
         var stream = File.OpenRead(fullPath);
         var context = new ReaderContext(stream, Path.GetFileName(fullPath), leaveOpen: false);
         return new TestContextHarness(context);
+    }
+    public static string[] GetAllFilesFromFolder(string relativePath, string filter = "*.*")
+    {
+        var fullPath = TestFolder.AssetPath(relativePath);
+        var fullPath2 = TestFolder.AssetPath("");
+        return Directory.GetFiles(fullPath, filter, SearchOption.TopDirectoryOnly).Select(x => x.Replace(fullPath2,"")).ToArray();
     }
 
     public void ReadResources()

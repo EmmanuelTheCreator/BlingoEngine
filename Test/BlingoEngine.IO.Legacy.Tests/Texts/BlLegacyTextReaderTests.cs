@@ -1,20 +1,46 @@
-using System.IO;
-using System.Linq;
-using System.Text;
-
 using BlingoEngine.IO.Legacy.Core;
 using BlingoEngine.IO.Legacy.Data;
 using BlingoEngine.IO.Legacy.Tests.Helpers;
 using BlingoEngine.IO.Legacy.Texts;
-
+using BlingoEngine.IO.Legacy.Tools;
 using FluentAssertions;
-
+using ProjectorRays.CastMembers;
+using System.IO;
+using System.Linq;
+using System.Text;
 using Xunit;
 
 namespace BlingoEngine.IO.Legacy.Tests.Texts;
 
 public class BlLegacyTextReaderTests
 {
+    [Fact]
+    public void GenerateXmedText()
+    {
+        var cstFiles = TestContextHarness.GetAllFilesFromFolder("Texts_Fields", "*.cst");
+        foreach (var item in cstFiles)
+        {
+            var texts = TestContextHarness.LoadTexts(item);
+            if (texts.Count > 0)
+            {
+                foreach (var textItem in texts)
+                {
+
+                    if (textItem.Format == BlLegacyTextFormatKind.Xmed)
+                    {
+                        var path = TestContextHarness.GetAssetPath("Texts_Fields/" + Path.GetFileNameWithoutExtension(item)+"_"+ textItem.ResourceId + ".xmed.txt");
+                        if (File.Exists(path))
+                            continue;
+                        
+                        File.WriteAllText(path, textItem.Bytes.ToHexString());
+                        var pathBin = TestContextHarness.GetAssetPath("Texts_Fields/" + Path.GetFileNameWithoutExtension(item)+"_"+ textItem.ResourceId + ".xmed.bin");
+                        File.WriteAllBytes(pathBin, textItem.Bytes);
+                    }
+                }
+            }
+        }
+
+    }
     [Fact]
     public void Read_ResolvesXmedPayload()
     {
@@ -24,6 +50,9 @@ public class BlLegacyTextReaderTests
         var text = texts[0];
         text.Format.Should().Be(BlLegacyTextFormatKind.Xmed);
         text.Bytes.Length.Should().Be(1431);
+        //var test = new BlXmedReader().Read(text.Bytes);
+        //var textstring = texts[0].Bytes.ToHexString();
+        //System.IO.File.WriteAllBytes(@"c:\temp\director\Text_Hallo.xmed", texts[0].Bytes);
     }
 
     [Fact]

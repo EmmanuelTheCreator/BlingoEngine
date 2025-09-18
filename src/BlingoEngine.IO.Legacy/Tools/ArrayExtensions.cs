@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 
 namespace BlingoEngine.IO.Legacy.Tools
 {
@@ -128,6 +129,57 @@ namespace BlingoEngine.IO.Legacy.Tools
             }
 
             return infoData.ScanForPascalString();
+        }
+
+        public static string ToHexString(this ReadOnlySpan<byte> data, int bytesPerLine = 16, bool includeAddresses = false)
+        {
+            if (bytesPerLine <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(bytesPerLine));
+            }
+
+            if (data.IsEmpty)
+            {
+                return string.Empty;
+            }
+
+            var builder = new StringBuilder(data.Length * 3);
+            for (int i = 0; i < data.Length; i++)
+            {
+                if (i % bytesPerLine == 0)
+                {
+                    if (i > 0)
+                    {
+                        builder.AppendLine();
+                    }
+
+                    if (includeAddresses)
+                    {
+                        builder.Append($"0x{i:X8}: ");
+                    }
+                }
+                else
+                {
+                    builder.Append(' ');
+                }
+
+                builder.Append(data[i].ToString("X2", CultureInfo.InvariantCulture));
+            }
+
+            return builder.ToString();
+        }
+
+        /// <summary>
+        /// Formats bytes as a hexadecimal string, optionally prefixing addresses on each line.
+        /// </summary>
+        /// <param name="data">Byte array to format.</param>
+        /// <param name="bytesPerLine">Number of bytes shown per output line.</param>
+        /// <param name="includeAddresses">Whether to prefix each line with the starting offset.</param>
+        /// <returns>Formatted hexadecimal text for the supplied bytes.</returns>
+        public static string ToHexString(this byte[] data, int bytesPerLine = 16, bool includeAddresses = false)
+        {
+            ArgumentNullException.ThrowIfNull(data);
+            return ToHexString(data.AsSpan(), bytesPerLine, includeAddresses);
         }
     }
 }
