@@ -1,0 +1,15 @@
+
+MyFirstBehaviorOnFrame10
+------------------------
+on exitFrame me
+  put 20
+    put "I'm in cast slot 1"
+end
+------------------------
+MeSecondBehaviorOnFrame20
+------------------------
+on exitFrame me
+  put "hallo"
+  put "I'm in cast slot 3"
+end
+------------------------
