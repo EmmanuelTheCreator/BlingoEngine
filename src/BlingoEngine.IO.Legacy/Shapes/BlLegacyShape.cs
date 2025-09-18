@@ -23,7 +23,7 @@ internal sealed class BlLegacyShape
 
     /// <summary>
     /// Gets the raw shape record extracted from the cast data. The buffer stores the fields described
-    /// in docs/LegacyShapeRecords.md using the following offsets:
+    /// in src/BlingoEngine.IO.Legacy/docs/LegacyShapeRecords.md using the following offsets:
     /// <list type="bullet">
     /// <item><description><c>0x00-0x01</c> – QuickDraw shape enumeration.</description></item>
     /// <item><description><c>0x02-0x09</c> – Initial bounding rectangle (top, left, bottom, right).</description></item>

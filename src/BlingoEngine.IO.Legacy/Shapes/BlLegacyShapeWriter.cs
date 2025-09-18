@@ -8,7 +8,7 @@ namespace BlingoEngine.IO.Legacy.Shapes;
 /// <summary>
 /// Provides helpers for emitting legacy shape cast-member payloads so tests can synthesise
 /// <c>CASt</c> bodies for every Director generation. Each method mirrors the wrappers
-/// documented in <c>docs/LegacyShapeRecords.md</c> and preserves the 17-byte QuickDraw
+/// documented in <c>src/BlingoEngine.IO.Legacy/docs/LegacyShapeRecords.md</c> and preserves the 17-byte QuickDraw
 /// record described in the table:
 /// <list type="bullet">
 /// <item><description><c>0x00-0x01</c> – Shape enumeration.</description></item>
@@ -67,7 +67,7 @@ internal static class BlLegacyShapeWriter
 
     /// <summary>
     /// Wraps a shape record using the Director 4 transitional <c>CASt</c> header. The emitted bytes align with
-    /// the table in <c>docs/LegacyShapeRecords.md</c>:
+    /// the table in <c>src/BlingoEngine.IO.Legacy/docs/LegacyShapeRecords.md</c>:
     /// <list type="bullet">
     /// <item><description><c>0x00-0x01</c> – Cast-data size including the type byte.</description></item>
     /// <item><description><c>0x02-0x05</c> – Cast-info size that trails the data section.</description></item>

@@ -1,6 +1,6 @@
 # Legacy Shape Records
 
-[← Back to documentation home](README.md)
+[← Back to documentation home](../../../docs/README.md)
 
 Legacy Director movies store shape cast members as compact QuickDraw records nested inside
 version-specific `CASt` or `VWCR` containers. This note consolidates the byte layouts recovered
@@ -46,7 +46,9 @@ record when parsing a `CASt` resource.
 
 Director MX (11+) retained the same high-level header but changed the body semantics. Contemporary
 movies frequently stub the shape payload or leave it empty. The reader therefore treats Director 11
-records as placeholders until their exact layout is confirmed.
+records as placeholders until their exact layout is confirmed. This behaviour is an informed
+assumption based on available projector dumps; it will be revised as soon as we capture a sample
+with a fully populated payload.
 
 ## Shape payload layout
 

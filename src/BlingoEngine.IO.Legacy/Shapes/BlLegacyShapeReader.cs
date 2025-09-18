@@ -12,7 +12,7 @@ namespace BlingoEngine.IO.Legacy.Shapes;
 /// <summary>
 /// Reads shape cast-member records from the resource table. The reader resolves each <c>CASt</c>
 /// entry, inflates compressed bodies when necessary, and slices out the 17-byte QuickDraw payload
-/// described in docs/LegacyShapeRecords.md so higher layers can inspect the ink and colour
+/// described in src/BlingoEngine.IO.Legacy/docs/LegacyShapeRecords.md so higher layers can inspect the ink and colour
 /// flags.
 /// </summary>
 internal sealed class BlLegacyShapeReader
