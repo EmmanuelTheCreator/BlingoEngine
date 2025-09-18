@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace BlingoEngine.IO.Legacy.Classic.Blocks;
@@ -8,15 +9,25 @@ namespace BlingoEngine.IO.Legacy.Classic.Blocks;
 /// </summary>
 internal sealed class BlBlockMmap
 {
+    public ushort HeaderSize { get; init; }
     public ushort EntrySize { get; init; }
-    public uint EntryCount { get; init; }
+    public uint TotalEntryCount { get; init; }
+    public uint UsedEntryCount { get; init; }
+    public uint FreeListHeadId { get; init; }
+    public uint FreeListTerminatorId { get; init; }
+    public uint FreeEntryCount { get; init; }
     public List<BlBlockMmapEntry> Entries { get; } = new();
 
     public string ToMarkDown()
     {
         var builder = new StringBuilder();
+        builder.AppendLine($"Header Size: {HeaderSize}");
         builder.AppendLine($"Entry Size: {EntrySize}");
-        builder.AppendLine($"Entry Count: {EntryCount}");
+        builder.AppendLine($"Total Entry Count: {TotalEntryCount}");
+        builder.AppendLine($"Used Entry Count: {UsedEntryCount}");
+        builder.AppendLine($"Free List Head Id: {FreeListHeadId}");
+        builder.AppendLine($"Free List Terminator Id: {FreeListTerminatorId}");
+        builder.AppendLine($"Free Entry Count: {FreeEntryCount}");
         builder.AppendLine();
         builder.AppendLine("| Index | Tag | Size | Offset | Flags | Attributes | Next Free |");
         builder.AppendLine("| --- | --- | --- | --- | --- | --- | --- |");
@@ -67,13 +78,56 @@ internal static class BlBlockMmapExtensions
         var restore = reader.Position;
         reader.Position = payloadStart;
 
+        ushort headerSize = reader.ReadUInt16();
+        if (headerSize < 12)
+        {
+            throw new InvalidDataException("The mmap header is shorter than the required 12 bytes.");
+        }
+
+        ushort entrySize = reader.ReadUInt16();
+        uint totalEntryCount = reader.ReadUInt32();
+        uint usedEntryCount = reader.ReadUInt32();
+
+        uint freeListHeadId = 0;
+        uint freeListTerminatorId = 0;
+        uint freeEntryCount = 0;
+
+        var remainingHeaderBytes = headerSize - 12;
+        if (remainingHeaderBytes >= 4)
+        {
+            freeListHeadId = reader.ReadUInt32();
+            remainingHeaderBytes -= 4;
+        }
+
+        if (remainingHeaderBytes >= 4)
+        {
+            freeListTerminatorId = reader.ReadUInt32();
+            remainingHeaderBytes -= 4;
+        }
+
+        if (remainingHeaderBytes >= 4)
+        {
+            freeEntryCount = reader.ReadUInt32();
+            remainingHeaderBytes -= 4;
+        }
+
+        if (remainingHeaderBytes > 0)
+        {
+            reader.Skip(remainingHeaderBytes);
+        }
+
         var block = new BlBlockMmap
         {
-            EntrySize = reader.ReadUInt16(),
-            EntryCount = reader.ReadUInt32()
+            HeaderSize = headerSize,
+            EntrySize = entrySize,
+            TotalEntryCount = totalEntryCount,
+            UsedEntryCount = usedEntryCount,
+            FreeListHeadId = freeListHeadId,
+            FreeListTerminatorId = freeListTerminatorId,
+            FreeEntryCount = freeEntryCount
         };
 
-        for (uint i = 0; i < block.EntryCount; i++)
+        for (uint i = 0; i < block.TotalEntryCount; i++)
         {
             var entryStart = reader.Position;
             var tag = reader.ReadTag();
@@ -87,6 +141,11 @@ internal static class BlBlockMmapExtensions
 
             var consumed = reader.Position - entryStart;
             var padding = (long)block.EntrySize - consumed;
+            if (padding < 0)
+            {
+                throw new InvalidDataException($"mmap entry {i} consumed more bytes than the declared entry size.");
+            }
+
             if (padding > 0)
             {
                 reader.Skip(padding);

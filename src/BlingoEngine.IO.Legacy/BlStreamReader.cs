@@ -132,6 +132,11 @@ public sealed class BlStreamReader
     {
         var span = _scratch.AsSpan(0, 4);
         _baseStream.ReadExactly(span);
+        if (Endianness == BlEndianness.LittleEndian)
+        {
+            span.Reverse();
+        }
+
         if (!BlTag.TryRead(span, out var tag))
         {
             throw new InvalidDataException("Unable to decode tag from stream.");
