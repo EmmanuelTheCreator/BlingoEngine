@@ -84,7 +84,7 @@ internal static class BlLegacyScriptFormat
                 return first;
             }
 
-            if (first == second)
+            if (first == second && first != 0)
             {
                 return first;
             }
@@ -100,6 +100,14 @@ internal static class BlLegacyScriptFormat
             }
         }
 
-        return data[0];
+        foreach (var candidate in data)
+        {
+            if (candidate != 0)
+            {
+                return candidate;
+            }
+        }
+
+        return data.Length > 0 ? data[0] : (byte)0;
     }
 }
