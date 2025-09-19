@@ -9,7 +9,8 @@ public enum BlXmedAlignment
 {
     Center,
     Left,
-    Right
+    Right,
+    Justify
 }
 public class BlTextStyleRun
 {
@@ -78,10 +79,13 @@ public sealed class XmedStyleDeclaration
     public bool Superscript { get; set; }
     public bool TabbedField { get; set; }
     public bool EditableField { get; set; }
+    public bool Locked { get; set; }
     public BlXmedAlignment Alignment { get; set; } = BlXmedAlignment.Center;
+    public BlXmedAlignment AlignmentFromFlags { get; set; } = BlXmedAlignment.Center;
     public bool WrapOff { get; set; }
     public bool HasTabs { get; set; }
     public byte AlignmentRaw { get; set; }
+    public byte? AlignmentMarker { get; set; }
     public byte[] UnknownHeader { get; set; } = Array.Empty<byte>();
 }
 
@@ -146,9 +150,9 @@ public class BlXmedReader
         ApplyAlignmentFlags(alignByte, baseStyle);
 
         byte detectedAlignmentCode = DetectAlignmentCode(data, start, Math.Min(end, start + 0x200));
-        if (TryDecodeAlignment(detectedAlignmentCode, out var detectedAlignment))
+        if (detectedAlignmentCode != 0 && TryDecodeAlignment(detectedAlignmentCode, out var detectedAlignment))
         {
-            baseStyle.AlignmentRaw = detectedAlignmentCode;
+            baseStyle.AlignmentMarker = detectedAlignmentCode;
             baseStyle.Alignment = detectedAlignment;
         }
 
@@ -336,20 +340,30 @@ public class BlXmedReader
         style.Superscript = (flags & 0x20) != 0;
         style.TabbedField = (flags & 0x40) != 0;
         style.EditableField = (flags & 0x80) != 0;
+        style.Locked = !style.EditableField;
     }
 
     private static void ApplyAlignmentFlags(byte b, XmedStyleDeclaration style)
     {
-        style.WrapOff = b == 0x19;
+        style.WrapOff = (b & 0x08) != 0;
         style.HasTabs = (b & 0x10) != 0;
-
+        style.AlignmentFromFlags = DecodeAlignmentFromFlags(b);
         if (!TryDecodeAlignment(b, out var alignment))
         {
-            alignment = BlXmedAlignment.Center;
+            alignment = style.AlignmentFromFlags;
         }
 
         style.Alignment = alignment;
     }
+
+    private static BlXmedAlignment DecodeAlignmentFromFlags(byte value) => (value & 0x03) switch
+    {
+        0x00 => BlXmedAlignment.Center,
+        0x01 => BlXmedAlignment.Right,
+        0x02 => BlXmedAlignment.Left,
+        0x03 => BlXmedAlignment.Justify,
+        _ => BlXmedAlignment.Center
+    };
 
     private static bool TryDecodeAlignment(byte b, out BlXmedAlignment alignment)
     {
@@ -368,8 +382,8 @@ public class BlXmedReader
                 alignment = BlXmedAlignment.Center;
                 return true;
             default:
-                alignment = BlXmedAlignment.Center;
-                return false;
+                alignment = DecodeAlignmentFromFlags(b);
+                return true;
         }
     }
 

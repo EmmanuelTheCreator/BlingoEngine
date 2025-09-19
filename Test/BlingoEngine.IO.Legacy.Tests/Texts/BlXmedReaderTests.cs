@@ -144,4 +144,70 @@ public class BlXmedReaderTests
         doc.Styles[0].Alignment.Should().Be(expectedAlignment);
         doc.Styles.Select(style => style.Alignment).Should().Contain(expectedAlignment);
     }
+
+    [Fact]
+    public void ReadSingleStyleChunk_DecodesStyleFlagBits()
+    {
+        var path = TestContextHarness.GetAssetPath("Texts_Fields/Text_Hallo_13.xmed.bin");
+        var original = File.ReadAllBytes(path);
+
+        var allFlags = (byte[])original.Clone();
+        allFlags[0x1C] = 0xFF;
+        var allDoc = new BlXmedReader().Read(allFlags);
+
+        var allStyle = allDoc.Styles[0];
+        allStyle.Bold.Should().BeTrue();
+        allStyle.Italic.Should().BeTrue();
+        allStyle.Underline.Should().BeTrue();
+        allStyle.Strikeout.Should().BeTrue();
+        allStyle.Subscript.Should().BeTrue();
+        allStyle.Superscript.Should().BeTrue();
+        allStyle.TabbedField.Should().BeTrue();
+        allStyle.EditableField.Should().BeTrue();
+        allStyle.Locked.Should().BeFalse();
+
+        var noFlags = (byte[])original.Clone();
+        noFlags[0x1C] = 0x00;
+        var noDoc = new BlXmedReader().Read(noFlags);
+
+        var noStyle = noDoc.Styles[0];
+        noStyle.Bold.Should().BeFalse();
+        noStyle.Italic.Should().BeFalse();
+        noStyle.Underline.Should().BeFalse();
+        noStyle.Strikeout.Should().BeFalse();
+        noStyle.Subscript.Should().BeFalse();
+        noStyle.Superscript.Should().BeFalse();
+        noStyle.TabbedField.Should().BeFalse();
+        noStyle.EditableField.Should().BeFalse();
+        noStyle.Locked.Should().BeTrue();
+    }
+
+    [Fact]
+    public void ReadSingleStyleChunk_DecodesAlignmentFlagBits()
+    {
+        var path = TestContextHarness.GetAssetPath("Texts_Fields/Text_Hallo_textAlignLeft_13.xmed.bin");
+        var original = File.ReadAllBytes(path);
+
+        var withWrapAndTabs = (byte[])original.Clone();
+        withWrapAndTabs[0x1D] = 0x1A; // Left + wrap disabled + tab bits
+        var doc = new BlXmedReader().Read(withWrapAndTabs);
+
+        var style = doc.Styles[0];
+        style.AlignmentRaw.Should().Be(0x1A);
+        style.AlignmentFromFlags.Should().Be(BlXmedAlignment.Left);
+        style.WrapOff.Should().BeTrue();
+        style.HasTabs.Should().BeTrue();
+        style.Alignment.Should().Be(BlXmedAlignment.Left);
+        style.AlignmentMarker.Should().Be((byte)0x3B);
+
+        var justifyData = (byte[])original.Clone();
+        justifyData[0x1D] = 0x03; // Justified alignment, no modifiers
+        var justifyDoc = new BlXmedReader().Read(justifyData);
+
+        var justifyStyle = justifyDoc.Styles[0];
+        justifyStyle.AlignmentRaw.Should().Be(0x03);
+        justifyStyle.AlignmentFromFlags.Should().Be(BlXmedAlignment.Justify);
+        justifyStyle.WrapOff.Should().BeFalse();
+        justifyStyle.HasTabs.Should().BeFalse();
+    }
 }
