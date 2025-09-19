@@ -1,9 +1,7 @@
 using System;
-using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using BlingoEngine.IO.Legacy.Core;
 using BlingoEngine.IO.Legacy.Data;
 using BlingoEngine.IO.Legacy.Scripts;
@@ -78,15 +76,8 @@ public class BlLegacyScriptReaderTests
         };
 
         using var stream = new MemoryStream();
-        using var context = new ReaderContext(stream, "synthetic.dir", leaveOpen: true);
-        context.RegisterRifxOffset(0);
-
-        var dataBlock = new BlDataBlock();
-        dataBlock.Format.ArchiveVersion = 0;
-        context.RegisterDataBlock(dataBlock);
-
-        var castTag = BlTag.Register("CASt");
-        var scriptTag = BlTag.Register("Lscr");
+        using var context = CreateSyntheticContext(stream, archiveVersion: 0x000004C7);
+        var writer = new BlLegacyScriptWriter(stream);
 
         var expectedScripts = new List<(int ScriptId, BlLegacyScriptFormatKind Format)>();
         var nextResourceId = 1;
@@ -96,19 +87,24 @@ public class BlLegacyScriptReaderTests
             var scriptId = nextResourceId++;
             var castId = nextResourceId++;
 
-            var castPayload = BuildCastMemberPayload(scriptId, format);
-            var castOffset = WriteChunk(stream, "CASt", castPayload);
-            context.AddResource(new BlLegacyResourceEntry(castId, castTag, (uint)castPayload.Length, castOffset, 0, 0, 0));
+            var castEntry = writer.WriteCastScript(
+                castId,
+                scriptNumber: scriptId,
+                scriptResourceId: scriptId,
+                format,
+                scriptText: null,
+                scriptName: null);
 
             var scriptPayload = new byte[] { 0x01, 0x02, 0x03, 0x04 };
-            var scriptOffset = WriteChunk(stream, "Lscr", scriptPayload);
-            context.AddResource(new BlLegacyResourceEntry(scriptId, scriptTag, (uint)scriptPayload.Length, scriptOffset, 0, 0, 0));
+            var scriptEntry = writer.WriteScriptResource(scriptId, scriptPayload);
+
+            context.AddResource(castEntry);
+            context.AddResource(scriptEntry);
 
             expectedScripts.Add((scriptId, format));
         }
 
-        stream.Position = 0;
-        context.Reader.Position = 0;
+        ResetStream(context, stream);
 
         var reader = new BlLegacyScriptReader(context);
         var scripts = reader.Read();
@@ -123,6 +119,78 @@ public class BlLegacyScriptReaderTests
             script.ResourceId.Should().Be(expected.ScriptId);
             script.Format.Should().Be(expected.Format);
         }
+    }
+
+    [Fact]
+    public void ReadSyntheticPointerScript_ExtractsTextAndName()
+    {
+        using var stream = new MemoryStream();
+        using var context = CreateSyntheticContext(stream, archiveVersion: 0x000004C7);
+        var writer = new BlLegacyScriptWriter(stream);
+
+        const int scriptId = 101;
+        const int castId = 201;
+        const string scriptText = "on beginSprite\r  put 42\rend";
+        const string scriptName = "PointerLayout";
+
+        var castEntry = writer.WriteCastScript(
+            castId,
+            scriptNumber: scriptId,
+            scriptResourceId: scriptId,
+            BlLegacyScriptFormatKind.Behavior,
+            scriptText,
+            scriptName,
+            BlLegacyScriptInfoLayout.PointerTable);
+
+        var scriptEntry = writer.WriteScriptResource(scriptId, new byte[] { 0xDE, 0xAD, 0xBE, 0xEF });
+
+        context.AddResource(castEntry);
+        context.AddResource(scriptEntry);
+
+        ResetStream(context, stream);
+
+        var scripts = new BlLegacyScriptReader(context).Read();
+
+        var script = scripts.Should().ContainSingle(s => s.ResourceId == scriptId).Subject;
+        script.Format.Should().Be(BlLegacyScriptFormatKind.Behavior);
+        script.Text.Should().Be(scriptText);
+        script.Name.Should().Be(scriptName);
+    }
+
+    [Fact]
+    public void ReadSyntheticLegacyScript_UsesLengthAdjacentLayout()
+    {
+        using var stream = new MemoryStream();
+        using var context = CreateSyntheticContext(stream, archiveVersion: 0xDEADBEEF);
+        var writer = new BlLegacyScriptWriter(stream);
+
+        const int scriptId = 305;
+        const int castId = 405;
+        const string scriptText = "on oldExport\r  put 3\rend";
+        const string scriptName = "LegacyLayout";
+
+        var castEntry = writer.WriteCastScript(
+            castId,
+            scriptNumber: scriptId,
+            scriptResourceId: scriptId,
+            BlLegacyScriptFormatKind.Movie,
+            scriptText,
+            scriptName,
+            BlLegacyScriptInfoLayout.LegacyTextAfterLength);
+
+        var scriptEntry = writer.WriteScriptResource(scriptId, new byte[] { 0xCA, 0xFE });
+
+        context.AddResource(castEntry);
+        context.AddResource(scriptEntry);
+
+        ResetStream(context, stream);
+
+        var scripts = new BlLegacyScriptReader(context).Read();
+
+        var script = scripts.Should().ContainSingle(s => s.ResourceId == scriptId).Subject;
+        script.Format.Should().Be(BlLegacyScriptFormatKind.Movie);
+        script.Text.Should().Be(scriptText);
+        script.Name.Should().Be(scriptName);
     }
 
     [Fact(Skip ="to test")]
@@ -142,51 +210,21 @@ public class BlLegacyScriptReaderTests
         //System.IO.File.WriteAllBytes(@"c:\temp\director\Text_Hallo.xmed", texts[0].Bytes);
     }
 
-    private static byte[] BuildCastMemberPayload(int scriptResourceId, BlLegacyScriptFormatKind format)
+    private static ReaderContext CreateSyntheticContext(Stream stream, uint archiveVersion)
     {
-        const int infoLength = 0x80;
-        var infoData = new byte[infoLength];
-        BinaryPrimitives.WriteInt32BigEndian(infoData.AsSpan(8, 4), scriptResourceId);
-        BinaryPrimitives.WriteInt32BigEndian(infoData.AsSpan(16, 4), scriptResourceId);
+        var context = new ReaderContext(stream, "synthetic.dir", leaveOpen: true);
+        context.RegisterRifxOffset(0);
 
-        var selector = GetSelectorByte(format);
-        var specificData = new byte[] { 0x00, selector };
+        var dataBlock = new BlDataBlock();
+        dataBlock.Format.ArchiveVersion = archiveVersion;
+        context.RegisterDataBlock(dataBlock);
 
-        var payload = new byte[12 + infoLength + specificData.Length];
-        BinaryPrimitives.WriteUInt32BigEndian(payload.AsSpan(0, 4), 11);
-        BinaryPrimitives.WriteUInt32BigEndian(payload.AsSpan(4, 4), (uint)infoLength);
-        BinaryPrimitives.WriteUInt32BigEndian(payload.AsSpan(8, 4), (uint)specificData.Length);
-
-        infoData.CopyTo(payload.AsSpan(12, infoLength));
-        specificData.CopyTo(payload.AsSpan(12 + infoLength));
-
-        return payload;
+        return context;
     }
 
-    private static uint WriteChunk(Stream stream, string tag, byte[] payload)
+    private static void ResetStream(ReaderContext context, Stream stream)
     {
-        stream.Position = stream.Length;
-        var offset = (uint)stream.Position;
-
-        var tagBytes = Encoding.ASCII.GetBytes(tag);
-        stream.Write(tagBytes, 0, tagBytes.Length);
-
-        Span<byte> lengthBytes = stackalloc byte[4];
-        BinaryPrimitives.WriteUInt32BigEndian(lengthBytes, (uint)payload.Length);
-        stream.Write(lengthBytes);
-
-        stream.Write(payload, 0, payload.Length);
-        return offset;
-    }
-
-    private static byte GetSelectorByte(BlLegacyScriptFormatKind format)
-    {
-        return format switch
-        {
-            BlLegacyScriptFormatKind.Behavior => 0x01,
-            BlLegacyScriptFormatKind.Movie => 0x03,
-            BlLegacyScriptFormatKind.Parent => 0x07,
-            _ => throw new ArgumentOutOfRangeException(nameof(format), format, "Unsupported script format for synthetic CASt payload.")
-        };
+        stream.Position = 0;
+        context.Reader.Position = 0;
     }
 }

@@ -38,19 +38,17 @@ until we document their layout.
 ## Script categories
 
 The `CASt` specific data stores a selector word whose low byte identifies the
-script category. ScummVM documents the same mapping in its Director reader, so
-we keep the codes aligned with that behaviour. For compatibility the loader
-accepts both big- and little-endian encodings as well as four-byte words that
-carry the selector in the least-significant byte.
+script category. Director 4 through 10 exports emit the selector as a
+big-endian 16-bit value, while some Director 3 archives pad the selector to a
+32-bit word with zeros in the high-order bytes. The loader accepts either byte
+ordering and trims the padding so truncated files keep resolving to the same
+code.
 
-| Code | Category |
-| --- | --- |
-| `0x01` | Behaviour (score) script |
-| `0x03` | Movie script |
-| `0x07` | Parent script |
-
-For more background see
-[docs/DirDissasembly/ScummVm/Script Members.md](../../../docs/DirDissasembly/ScummVm/Script%20Members.md).
+| Code | Category | Notes |
+| --- | --- | --- |
+| `0x01` | Behaviour (score) script | Attached to sprites on the score timeline. |
+| `0x03` | Movie script | Listens for global playback events. |
+| `0x07` | Parent script | Defines prototypes that factory instances reuse. |
 
 ## Compatibility notes
 
@@ -59,3 +57,6 @@ format information but leaves the `Text` and `Name` properties unset.
 * Director 4/5 style casts only provide the script selector in the specific
 block. When the pointer table is missing, the reader falls back to the
 length-adjacent offsets after confirming the byte count fits.
+* Director 3 exports omit the pointer table entirely. Use the
+  `LegacyTextAfterLength` layout in `BlLegacyScriptWriter` when emitting
+  synthetic fixtures for those archives.
