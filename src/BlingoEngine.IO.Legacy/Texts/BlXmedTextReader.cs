@@ -37,6 +37,31 @@ public sealed class XmedDocument
     public uint Width { get; set; }
     public uint LineSpacing { get; set; }
     public uint TextLength { get; set; }
+    public int DirectorVersion { get; set; }
+    public XmedRichTextMetadata? RichText { get; set; }
+}
+
+/// <summary>Represents the rectangle coordinates stored in legacy rich text headers.</summary>
+public sealed class XmedRect
+{
+    public short Top { get; set; }
+    public short Left { get; set; }
+    public short Bottom { get; set; }
+    public short Right { get; set; }
+}
+
+/// <summary>Metadata extracted from Director 5–10 rich text streams.</summary>
+public sealed class XmedRichTextMetadata
+{
+    public XmedRect InitialRect { get; set; } = new();
+    public XmedRect BoundingRect { get; set; } = new();
+    public byte AntialiasFlag { get; set; }
+    public byte CropFlags { get; set; }
+    public ushort ScrollPosition { get; set; }
+    public ushort AntialiasFontSize { get; set; }
+    public ushort DisplayHeight { get; set; }
+    public BlLegacyColor ForegroundColor { get; set; }
+    public BlLegacyColor BackgroundColor { get; set; }
 }
 
 /// <summary>Represents a single styled run of characters.</summary>
@@ -164,22 +189,46 @@ public sealed class XmedDirEntry
 /// </summary>
 public sealed class BlXmedTextReader
 {
+    private const int DefaultDirectorVersion = 13;
+    private const int LegacyRichTextMaxVersion = 10;
     private static readonly byte[] FontMarker = { (byte)'4', (byte)'0', (byte)',' };
 
     /// <summary>Reads a complete XMED document from a byte buffer.</summary>
     public XmedDocument Read(byte[] buffer)
     {
+        return Read(buffer, DefaultDirectorVersion);
+    }
+
+    /// <summary>Reads a complete XMED document from a byte buffer with a known Director version.</summary>
+    public XmedDocument Read(byte[] buffer, int directorVersion)
+    {
         ArgumentNullException.ThrowIfNull(buffer);
         using var stream = new MemoryStream(buffer, writable: false);
-        return Read(stream);
+        return Read(stream, directorVersion);
     }
 
     /// <summary>Reads a complete XMED document from a stream.</summary>
     public XmedDocument Read(Stream stream)
     {
+        return Read(stream, DefaultDirectorVersion);
+    }
+
+    /// <summary>Reads a complete XMED document from a stream with a known Director version.</summary>
+    public XmedDocument Read(Stream stream, int directorVersion)
+    {
         ArgumentNullException.ThrowIfNull(stream);
 
         var buffer = ReadAllBytes(stream);
+        return ShouldUseLegacyRichText(directorVersion)
+            ? ReadLegacyRichText(buffer, directorVersion)
+            : ReadModernXmed(buffer, directorVersion);
+    }
+
+    private static bool ShouldUseLegacyRichText(int directorVersion) =>
+        directorVersion > 0 && directorVersion <= LegacyRichTextMaxVersion;
+
+    private XmedDocument ReadModernXmed(byte[] buffer, int directorVersion)
+    {
         var directory = ReadHeaderDirectory(buffer);
         var (_, _, textData) = ReadTextBlock(directory);
 
@@ -195,7 +244,8 @@ public sealed class BlXmedTextReader
         {
             Width = width,
             LineSpacing = lineSpacing,
-            TextLength = headerTextLen
+            TextLength = headerTextLen,
+            DirectorVersion = directorVersion
         };
 
         var baseStyle = new XmedStyleDescriptor
@@ -298,6 +348,60 @@ public sealed class BlXmedTextReader
         }
 
         return document;
+    }
+
+    private XmedDocument ReadLegacyRichText(byte[] buffer, int directorVersion)
+    {
+        if (buffer.Length < 34)
+        {
+            throw new InvalidDataException("Rich text streams require at least 34 bytes for the header.");
+        }
+
+        using var memory = new MemoryStream(buffer, writable: false);
+        var reader = new BlStreamReader(memory)
+        {
+            Endianness = BlEndianness.BigEndian
+        };
+
+        var metadata = new XmedRichTextMetadata
+        {
+            InitialRect = ReadLegacyRect(reader),
+            BoundingRect = ReadLegacyRect(reader),
+            AntialiasFlag = reader.ReadByte(),
+            CropFlags = reader.ReadByte(),
+            ScrollPosition = reader.ReadUInt16(),
+            AntialiasFontSize = reader.ReadUInt16(),
+            DisplayHeight = reader.ReadUInt16()
+        };
+
+        _ = reader.ReadByte(); // reserved foreground pad
+
+        var foreR = reader.ReadByte();
+        var foreG = reader.ReadByte();
+        var foreB = reader.ReadByte();
+        metadata.ForegroundColor = new BlLegacyColor(foreR, foreG, foreB);
+
+        var bgR = (byte)(reader.ReadUInt16() >> 8);
+        var bgG = (byte)(reader.ReadUInt16() >> 8);
+        var bgB = (byte)(reader.ReadUInt16() >> 8);
+        metadata.BackgroundColor = new BlLegacyColor(bgR, bgG, bgB);
+
+        return new XmedDocument
+        {
+            DirectorVersion = directorVersion,
+            RichText = metadata
+        };
+    }
+
+    private static XmedRect ReadLegacyRect(BlStreamReader reader)
+    {
+        return new XmedRect
+        {
+            Top = reader.ReadInt16(),
+            Left = reader.ReadInt16(),
+            Bottom = reader.ReadInt16(),
+            Right = reader.ReadInt16()
+        };
     }
 
     /// <summary>Scans the ASCII directory tokens (20 chars) in the header.</summary>
