@@ -113,7 +113,7 @@ internal partial class ImportDirCstFilesStep : VBoxContainer
 
             try
             {
-                var (stage, movie, resources) = DirectorRaysImporter.ImportMovie(file);
+                var (stage, movie, resources) = LegacyImporter.ImportMovie(file);
                 var tempDir = Path.Combine(Path.GetTempPath(), "blingo_import_" + Guid.NewGuid().ToString("N"));
                 Directory.CreateDirectory(tempDir);
                 foreach (var res in resources.Files)

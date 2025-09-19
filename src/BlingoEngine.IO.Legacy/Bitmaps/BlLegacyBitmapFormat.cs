@@ -10,7 +10,7 @@ namespace BlingoEngine.IO.Legacy.Bitmaps;
 /// the resource tag and well-known file signatures to classify the payload so higher layers can
 /// decide how to decode the pixel data.
 /// </summary>
-internal enum BlLegacyBitmapFormatKind
+public enum BlLegacyBitmapFormatKind
 {
     /// <summary>
     /// The payload could not be classified using the known resource tags or signatures.

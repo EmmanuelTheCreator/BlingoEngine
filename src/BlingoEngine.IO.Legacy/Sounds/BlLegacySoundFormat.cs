@@ -8,7 +8,7 @@ namespace BlingoEngine.IO.Legacy.Sounds;
 /// inspects the leading bytes of the payload, so the classification is lightweight and tolerant
 /// of uncommon codecs that may appear in the wild.
 /// </summary>
-internal enum BlLegacySoundFormatKind
+public enum BlLegacySoundFormatKind
 {
     /// <summary>
     /// The payload could not be classified using the known file headers.

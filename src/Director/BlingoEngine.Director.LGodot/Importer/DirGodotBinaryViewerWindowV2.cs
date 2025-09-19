@@ -1,9 +1,11 @@
-﻿using Godot;
+using Godot;
 using BlingoEngine.Director.Core.Importer;
-using ProjectorRays.Common;
 using BlingoEngine.Director.Core.Inspector;
 using AbstEngine.Director.LGodot;
 using AbstUI.FrameworkCommunication;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BlingoEngine.Director.LGodot.Gfx;
 
@@ -21,13 +23,13 @@ internal partial class DirGodotBinaryViewerWindowV2 : BaseGodotWindow, IDirFrame
 
     private readonly Dictionary<int, Color> _blockColors = new();
     private readonly Dictionary<int, int> _blockIndexByOffset = new();
-    private readonly List<RayStreamAnnotation> _blocks = new();
+    private readonly List<BinaryAnnotation> _blocks = new();
 
     public DirGodotBinaryViewerWindowV2(DirectorBinaryViewerWindowV2 viewerWindow, IServiceProvider serviceProvider)
         : base("Binary Viewer V2", serviceProvider)
     {
         Init(viewerWindow);
-       
+
         CustomMinimumSize = Size;
 
         _viewport = new SubViewport();
@@ -52,8 +54,8 @@ internal partial class DirGodotBinaryViewerWindowV2 : BaseGodotWindow, IDirFrame
         _descScroll.CustomMinimumSize = new Vector2(200, 400);
         _descScroll.SizeFlagsVertical = SizeFlags.ExpandFill;
 
-        if (viewerWindow.Data != null && viewerWindow.InfoToShow != null)
-            LoadBytes(viewerWindow.Data, viewerWindow.InfoToShow);
+        if (viewerWindow.Data != null)
+            LoadBytes(viewerWindow.Data, viewerWindow.Annotations);
     }
 
     private void ForceRefreshViewPort()
@@ -63,15 +65,15 @@ internal partial class DirGodotBinaryViewerWindowV2 : BaseGodotWindow, IDirFrame
         _viewport.RenderTargetUpdateMode = SubViewport.UpdateMode.Once;
     }
 
-    private void LoadBytes(byte[] data, RayStreamAnnotatorDecorator annotator)
+    private void LoadBytes(byte[] data, BinaryAnnotationSet annotations)
     {
         _blockColors.Clear();
         _blockIndexByOffset.Clear();
         _blocks.Clear();
         ClearChildren(_descTable);
 
-        _blocks.AddRange(annotator.Annotations);
-        long baseOffset = annotator.StreamOffsetBase;
+        _blocks.AddRange(annotations.Annotations);
+        long baseOffset = annotations.StreamOffsetBase;
         int colorIndex = 0;
         for (int idx = 0; idx < _blocks.Count; idx++)
         {
@@ -96,7 +98,7 @@ internal partial class DirGodotBinaryViewerWindowV2 : BaseGodotWindow, IDirFrame
                 node.QueueFree();
             }
 
-        var drawControl = new HexDrawControlV2(data, annotator);
+        var drawControl = new HexDrawControlV2(data, annotations);
         drawControl.ByteClicked += OnByteClicked;
         var rowHeight = 24;
         var totalRows = (int)Math.Ceiling(data.Length / 32.0);
@@ -178,4 +180,3 @@ internal partial class DirGodotBinaryViewerWindowV2 : BaseGodotWindow, IDirFrame
         _descScroll.Size = new Vector2(200, size.Y - TitleBarHeight);
     }
 }
-

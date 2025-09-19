@@ -7,7 +7,7 @@ namespace BlingoEngine.IO.Legacy.Fields;
 /// reader by surfacing the detected format alongside the byte array extracted from the archive so
 /// higher layers can decode the content at their own pace.
 /// </summary>
-internal sealed class BlLegacyField
+public sealed class BlLegacyField
 {
     /// <summary>
     /// Gets the identifier assigned to the field resource in the map table.

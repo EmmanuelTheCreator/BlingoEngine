@@ -7,7 +7,7 @@ namespace BlingoEngine.IO.Legacy.Sounds;
 /// raw bytes into a lightweight <see cref="BlLegacySoundFormatKind"/> so higher layers can decide how
 /// to persist or transcode the data.
 /// </summary>
-internal sealed class BlLegacySound
+public sealed class BlLegacySound
 {
     /// <summary>
     /// Gets the resource identifier associated with the sound entry in the resource table.

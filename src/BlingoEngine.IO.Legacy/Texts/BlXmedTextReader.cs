@@ -7,7 +7,7 @@ using System.Text;
 using BlingoEngine.IO.Legacy.Core;
 using BlingoEngine.IO.Legacy.Tools;
 
-namespace ProjectorRays.CastMembers;
+namespace BlingoEngine.IO.Legacy.Texts;
 
 public enum XmedAlignment
 {

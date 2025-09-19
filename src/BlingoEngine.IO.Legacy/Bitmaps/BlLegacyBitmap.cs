@@ -7,7 +7,7 @@ namespace BlingoEngine.IO.Legacy.Bitmaps;
 /// lightweight <see cref="BlLegacyBitmapFormatKind"/> classification alongside the raw bytes so
 /// higher layers can decide how to persist or transcode the image data.
 /// </summary>
-internal sealed class BlLegacyBitmap
+public sealed class BlLegacyBitmap
 {
     /// <summary>
     /// Gets the resource identifier associated with the bitmap entry in the resource table.

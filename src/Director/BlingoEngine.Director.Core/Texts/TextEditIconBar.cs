@@ -6,7 +6,6 @@ using AbstUI.Texts;
 using BlingoEngine.Director.Core.Styles;
 using BlingoEngine.FrameworkCommunication;
 using BlingoEngine.Texts;
-using ProjectorRays.CastMembers;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
