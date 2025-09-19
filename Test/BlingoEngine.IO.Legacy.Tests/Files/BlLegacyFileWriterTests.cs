@@ -1,12 +1,16 @@
 using System.IO;
+using System.Text;
 
 using BlingoEngine.IO.Data.DTO;
 using BlingoEngine.IO.Legacy.Bitmaps;
 using BlingoEngine.IO.Legacy.Core;
 using BlingoEngine.IO.Legacy.Data;
 using BlingoEngine.IO.Legacy.Files;
+using BlingoEngine.IO.Legacy.Scripts;
 using BlingoEngine.IO.Legacy.Sounds;
 using BlingoEngine.IO.Legacy.Shapes;
+using BlingoEngine.IO.Legacy.Texts;
+using BlingoEngine.IO.Legacy.Fields;
 
 using FluentAssertions;
 
@@ -50,6 +54,70 @@ public class BlLegacyFileWriterTests
         roundTrip.Files.Should().HaveCount(2);
         roundTrip.Files[0].Bytes.Should().Equal(container.Files[0].Bytes);
         roundTrip.Files[1].Bytes.Should().Equal(container.Files[1].Bytes);
+    }
+
+    [Fact]
+    public void DirWriter_WritesTextCastLibrary()
+    {
+        const string textPayload = "Hello Director";
+        var container = BlLegacyTextLibraryBuilder.BuildSingleMemberTextLibrary("text member", textPayload);
+
+        var writer = new BlDirFileWriter();
+        using var stream = new MemoryStream();
+        writer.Write(stream, container);
+
+        stream.Position = 0;
+        using var context = new ReaderContext(stream, "movie.dir", leaveOpen: true);
+        context.ReadDirFilesContainer();
+
+        var texts = context.ReadTexts();
+        texts.Should().ContainSingle();
+        var text = texts[0];
+        text.Format.Should().Be(BlLegacyTextFormatKind.Stxt);
+        text.Bytes.Should().Equal(Encoding.Latin1.GetBytes(textPayload));
+    }
+
+    [Fact]
+    public void DirWriter_WritesFieldCastLibrary()
+    {
+        const string fieldPayload = "Editable Field";
+        var container = BlLegacyFieldLibraryBuilder.BuildSingleMemberFieldLibrary("field member", fieldPayload);
+
+        var writer = new BlDirFileWriter();
+        using var stream = new MemoryStream();
+        writer.Write(stream, container);
+
+        stream.Position = 0;
+        using var context = new ReaderContext(stream, "movie.dir", leaveOpen: true);
+        context.ReadDirFilesContainer();
+
+        var fields = context.ReadFields();
+        fields.Should().ContainSingle();
+        var field = fields[0];
+        field.Format.Should().Be(BlLegacyFieldFormatKind.Stxt);
+        field.Bytes.Should().Equal(Encoding.Latin1.GetBytes(fieldPayload));
+    }
+
+    [Fact]
+    public void DirWriter_WritesBehaviorCastLibrary()
+    {
+        const string scriptText = "on beginSprite me\n  put 42\nend";
+        var container = BlLegacyBehaviorLibraryBuilder.BuildSingleMemberBehaviorLibrary("behavior member", scriptText);
+
+        var writer = new BlDirFileWriter();
+        using var stream = new MemoryStream();
+        writer.Write(stream, container);
+
+        stream.Position = 0;
+        using var context = new ReaderContext(stream, "movie.dir", leaveOpen: true);
+        context.ReadDirFilesContainer();
+
+        var scripts = context.ReadScripts();
+        scripts.Should().ContainSingle();
+        var script = scripts[0];
+        script.Format.Should().Be(BlLegacyScriptFormatKind.Behavior);
+        script.Text.Should().Be(scriptText.Replace("\n", "\r"));
+        script.Name.Should().Be("behavior member");
     }
 
     [Fact]

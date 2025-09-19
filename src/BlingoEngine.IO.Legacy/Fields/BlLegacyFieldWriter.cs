@@ -1,6 +1,9 @@
 using System;
 using System.IO;
+using System.Text;
 
+using BlingoEngine.IO.Data.DTO;
+using BlingoEngine.IO.Legacy.Cast;
 using BlingoEngine.IO.Legacy.Classic;
 using BlingoEngine.IO.Legacy.Data;
 using BlingoEngine.IO.Legacy.Tools;
@@ -72,5 +75,81 @@ internal sealed class BlLegacyFieldWriter
         _writer.WriteBytes(payload);
 
         return new BlLegacyResourceEntry(resourceId, tag, declaredSize, (uint)offset, 0, 0, 0);
+    }
+}
+
+/// <summary>
+/// Provides helpers for synthesising editable field cast libraries backed by STXT resources. The builder mirrors the resource
+/// layout emitted by Director authoring movies so the generated container can be persisted with the legacy file writers.
+/// </summary>
+public static class BlLegacyFieldLibraryBuilder
+{
+    private const uint KeyResourceIndex = 0;
+    private const uint CastTableResourceIndex = 1;
+    private const uint CastMemberResourceIndex = 2;
+    private const uint TextResourceIndex = 3;
+
+    private const uint KeyResourceId = KeyResourceIndex + 1;
+    private const uint CastTableResourceId = CastTableResourceIndex + 1;
+    private const uint CastMemberResourceId = CastMemberResourceIndex + 1;
+    private const uint TextResourceId = TextResourceIndex + 1;
+
+    private static readonly BlTag StxtTag = BlTag.Get("STXT");
+
+    private static readonly Encoding TextEncoding = Encoding.Latin1;
+
+    /// <summary>
+    /// Builds a <see cref="DirFilesContainerDTO"/> containing a single editable field member. The generated container includes
+    /// the KEY*, CAS*, CASt, and STXT resources required by the legacy file writers.
+    /// </summary>
+    /// <param name="memberName">Display name stored in the cast metadata.</param>
+    /// <param name="text">Field text written to the STXT resource.</param>
+    /// <returns>A container populated with the resources required to emit a cast library.</returns>
+    public static DirFilesContainerDTO BuildSingleMemberFieldLibrary(string? memberName, string? text)
+    {
+        var container = new DirFilesContainerDTO();
+
+        container.Files.Add(new DirFileResourceDTO
+        {
+            FileName = $"{BlTag.KeyStar.Value}_{KeyResourceId:D4}.bin",
+            Bytes = BlLegacyCastLibraryBuilderHelpers.BuildKeyTable(new[]
+            {
+                new BlLegacyCastLibraryBuilderHelpers.KeyTableEntry(TextResourceIndex, CastMemberResourceIndex, StxtTag)
+            })
+        });
+
+        container.Files.Add(new DirFileResourceDTO
+        {
+            FileName = $"{BlTag.CasStar.Value}_{CastTableResourceId:D4}.bin",
+            Bytes = BlLegacyCastLibraryBuilderHelpers.BuildCastTable(CastMemberResourceIndex)
+        });
+
+        container.Files.Add(new DirFileResourceDTO
+        {
+            FileName = $"CASt_{CastMemberResourceId:D4}.bin",
+            Bytes = BlLegacyCastLibraryBuilderHelpers.BuildModernCastMetadata(
+                BlLegacyCastMemberType.Field,
+                memberName,
+                dataLength: 0)
+        });
+
+        container.Files.Add(new DirFileResourceDTO
+        {
+            FileName = $"{StxtTag.Value}_{TextResourceId:D4}.bin",
+            Bytes = BuildStxtPayload(text)
+        });
+
+        return container;
+    }
+
+    private static byte[] BuildStxtPayload(string? text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return Array.Empty<byte>();
+        }
+
+        var normalized = text.Replace("\r\n", "\n").Replace('\r', '\n').Replace('\n', '\r');
+        return TextEncoding.GetBytes(normalized);
     }
 }
