@@ -3,6 +3,8 @@ using System.Buffers.Binary;
 using System.IO;
 using System.Text;
 
+using BlingoEngine.IO.Data.DTO;
+using BlingoEngine.IO.Legacy.Cast;
 using BlingoEngine.IO.Legacy.Data;
 using BlingoEngine.IO.Legacy.Tools;
 
@@ -22,6 +24,141 @@ internal enum BlLegacyScriptInfoLayout
     /// Older exports omit the pointer table and place the script text immediately after the stored length field.
     /// </summary>
     LegacyTextAfterLength = 1
+}
+
+/// <summary>
+/// Provides helpers for synthesising behaviour script libraries. The builder emits the KEY*, CAS*, CASt, and Lscr resources
+/// required to persist a single behaviour member using the legacy file writers.
+/// </summary>
+public static class BlLegacyBehaviorLibraryBuilder
+{
+    private const uint KeyResourceIndex = 0;
+    private const uint CastTableResourceIndex = 1;
+    private const uint CastMemberResourceIndex = 2;
+    private const uint ScriptResourceIndex = 3;
+    private const uint ScriptContextResourceIndex = 4;
+
+    private const uint KeyResourceId = KeyResourceIndex + 1;
+    private const uint CastTableResourceId = CastTableResourceIndex + 1;
+    private const uint CastMemberResourceId = CastMemberResourceIndex + 1;
+    private const uint ScriptResourceId = ScriptResourceIndex + 1;
+    private const uint ScriptContextResourceId = ScriptContextResourceIndex + 1;
+
+    private static readonly BlTag ScriptTag = BlTag.Get("Lscr");
+    private static readonly BlTag ScriptContextTag = BlTag.Get("Lctx");
+
+    /// <summary>
+    /// Builds a <see cref="DirFilesContainerDTO"/> containing a single behaviour cast member backed by an Lscr resource.
+    /// </summary>
+    /// <param name="memberName">Display name stored in the behaviour metadata.</param>
+    /// <param name="scriptText">Behaviour source code written to the CASt info payload.</param>
+    /// <returns>A container populated with the resources necessary to emit the behaviour library.</returns>
+    public static DirFilesContainerDTO BuildSingleMemberBehaviorLibrary(string? memberName, string? scriptText)
+    {
+        var container = new DirFilesContainerDTO();
+
+        container.Files.Add(new DirFileResourceDTO
+        {
+            FileName = $"{BlTag.KeyStar.Value}_{KeyResourceId:D4}.bin",
+            Bytes = BlLegacyCastLibraryBuilderHelpers.BuildKeyTable(new[]
+            {
+                new BlLegacyCastLibraryBuilderHelpers.KeyTableEntry(ScriptResourceIndex, CastMemberResourceIndex, ScriptTag)
+            })
+        });
+
+        container.Files.Add(new DirFileResourceDTO
+        {
+            FileName = $"{BlTag.CasStar.Value}_{CastTableResourceId:D4}.bin",
+            Bytes = BlLegacyCastLibraryBuilderHelpers.BuildCastTable(CastMemberResourceIndex)
+        });
+
+        using var stream = new MemoryStream();
+        var writer = new BlLegacyScriptWriter(stream);
+
+        var scriptId = (int)ScriptResourceIndex;
+        var castId = (int)CastMemberResourceIndex;
+        const int scriptNumber = 1;
+
+        var normalizedText = NormalizeScriptText(scriptText);
+
+        var castEntry = writer.WriteCastScript(
+            castId,
+            scriptNumber: scriptNumber,
+            scriptResourceId: scriptId,
+            BlLegacyScriptFormatKind.Behavior,
+            normalizedText,
+            memberName);
+
+        var scriptEntry = writer.WriteScriptResource(scriptId, new byte[] { 0x00 });
+
+        container.Files.Add(new DirFileResourceDTO
+        {
+            FileName = $"CASt_{CastMemberResourceId:D4}.bin",
+            Bytes = ExtractPayload(stream, castEntry)
+        });
+
+        container.Files.Add(new DirFileResourceDTO
+        {
+            FileName = $"{ScriptTag.Value}_{ScriptResourceId:D4}.bin",
+            Bytes = ExtractPayload(stream, scriptEntry)
+        });
+
+        container.Files.Add(new DirFileResourceDTO
+        {
+            FileName = $"{ScriptContextTag.Value}_{ScriptContextResourceId:D4}.bin",
+            Bytes = BuildScriptContextPayload(scriptId)
+        });
+
+        return container;
+    }
+
+    private static string? NormalizeScriptText(string? text)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return text;
+        }
+
+        return text.Replace("\r\n", "\n").Replace('\r', '\n').Replace('\n', '\r');
+    }
+
+    private static byte[] ExtractPayload(MemoryStream stream, BlLegacyResourceEntry entry)
+    {
+        var length = (int)entry.DeclaredSize;
+        if (length == 0)
+        {
+            return Array.Empty<byte>();
+        }
+
+        var offset = (int)entry.MapOffset;
+        var buffer = stream.ToArray();
+        var payloadStart = offset + 8;
+        if (payloadStart < 0 || buffer.Length < payloadStart + length)
+        {
+            throw new InvalidOperationException("Script payload exceeds the available buffer length.");
+        }
+
+        var payload = new byte[length];
+        Array.Copy(buffer, payloadStart, payload, 0, length);
+        return payload;
+    }
+
+    private static byte[] BuildScriptContextPayload(int scriptResourceId)
+    {
+        const int headerLength = 0x2A;
+        const int entryLength = 12;
+
+        var payload = new byte[headerLength + entryLength];
+        var span = payload.AsSpan();
+
+        BinaryPrimitives.WriteUInt32BigEndian(span.Slice(8, 4), 1u);
+        BinaryPrimitives.WriteUInt32BigEndian(span.Slice(12, 4), 1u);
+        BinaryPrimitives.WriteUInt16BigEndian(span.Slice(16, 2), (ushort)headerLength);
+
+        BinaryPrimitives.WriteInt32BigEndian(span.Slice(headerLength + 4, 4), scriptResourceId);
+
+        return payload;
+    }
 }
 
 /// <summary>
