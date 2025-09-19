@@ -118,28 +118,47 @@ for delimiters.
 ## 4. Style and Flag Bytes
 
 Legacy research identified the bytes at `0x001C` and `0x001D` as global style and alignment flags.  These values still apply to the
-base descriptor that multi-style runs inherit from.
+base descriptor that multi-style runs inherit from.  The table below reflects the latest confirmations from single-style A/B test
+pairs gathered in `Texts_Fields`.
 
-| Bit | Value | Description |
-|----:|------:|-------------|
-| 0 | 0x01 | Bold |
-| 1 | 0x02 | Italic |
-| 2 | 0x04 | Underline |
-| 3 | 0x08 | Strikeout |
-| 4 | 0x10 | Subscript |
-| 5 | 0x20 | Superscript |
-| 6 | 0x40 | Tabbed field |
-| 7 | 0x80 | Editable field |
+### Byte `0x001C` — Style Flags
 
-Alignment and extra flags live in the following byte (`0x001D`):
+Each bit toggles a decoration flag.  Multiple decorations can combine by setting more than one bit.
 
-| Value | Meaning |
-|------:|---------|
-| 0x00 | Centered (default) |
-| 0x1A | Left alignment |
-| 0x15 | Right alignment |
-| 0x19 | Wrap disabled |
-| 0x10 | Tab character present |
+| Bit | Mask | Status | Meaning | Notes |
+|----:|:----:|---------|---------|-------|
+| 0 | 0x01 | **Confirmed** | **Bold** | Present whenever the font weight switches to bold. |
+| 1 | 0x02 | **Confirmed** | **Italic** | Matches italic toggles in the fixtures. |
+| 2 | 0x04 | **Confirmed** | **Underline** | Enabled for underline samples. |
+| 3 | 0x08 | **Suspected** | **Strikeout** | Appears in underline/strike variants; needs more verification. |
+| 4 | 0x10 | **Suspected** | **Subscript** | Likely subscript, pending dedicated fixture. |
+| 5 | 0x20 | **Suspected** | **Superscript** | Likely superscript, pending dedicated fixture. |
+| 6 | 0x40 | **Suspected** | **Shadow / Outline / Tabbed field** | Flips in decoration tests; exact meaning TBD. |
+| 7 | 0x80 | **Suspected** | **Editable / Protected** | Correlates with read-only vs editable samples. |
+
+> **Next steps:** use fixtures that isolate a single feature (e.g., strike-only, subscript-only) to confirm the remaining bits.
+
+### Byte `0x001D` — Alignment / Layout Flags
+
+The next byte combines alignment selection in the low bits with layout modifiers in the high bits.
+
+| Bits | Mask | Status | Meaning | Notes |
+|:---:|:---:|:-------:|---------|-------|
+| 0–1 | `0b00000011` | **Confirmed** | **Alignment core**: `00` = Center, `01` = Right, `10` = Left, `11` = Justified | Justified confirmed by multi-run sample. |
+| 3 | `0x08` | **Likely** | **Wrap disable** (`1` = No wrap) | Set on “wrap disabled” fixture. |
+| 4 | `0x10` | **Confirmed** | **Tab present** | Enabled on runs containing a tab character. |
+| 2, 5–7 | — | Unknown | **Reserved / TBD** | No consistent correlation yet. |
+
+Observed byte values decompose cleanly under this scheme:
+
+| Hex | Bits | Interpretation |
+|----:|------|----------------|
+| 00 | `0000 0000` | Center alignment |
+| 10 | `0001 0000` | Center alignment + Tab |
+| 15 | `0001 0101` | Right alignment + Tab |
+| 1A | `0001 1010` | Left alignment + Tab |
+| 19 | `0001 1001` | Center alignment + **NoWrap** + Tab |
+| 03 | `0000 0011` | Justified alignment (no modifiers) |
 
 ---
 
