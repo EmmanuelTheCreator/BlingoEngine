@@ -8,5 +8,6 @@ These notes summarize the on-disk formats handled by `BlingoEngine.IO.Legacy`. T
 - [Legacy Text and Field Members](./LegacyTextFieldMembers.md)
 - [Legacy Bitmap Loading](./LegacyBitmapLoading.md)
 - [Legacy Sound Loading](./LegacySoundLoading.md)
+- [Legacy Script Cast Members](./LegacyScriptMembers.md)
 - [QuickDraw Shape Records](./LegacyShapeRecords.md) – Byte layouts for legacy shape cast members across Director releases.
 

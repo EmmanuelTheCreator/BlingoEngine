@@ -30,14 +30,32 @@ internal sealed class BlLegacyScript
     public byte[] Bytes { get; }
 
     /// <summary>
+    /// Gets the textual Lingo source embedded alongside the compiled bytecode.
+    /// Director stores this string so editors can show the original script without
+    /// decompiling the opcode stream. The reader decodes the string using a
+    /// single-byte mapping, therefore the value is <see langword="null"/> when the
+    /// payload does not contain a recognizable text section.
+    /// </summary>
+    public string? Text { get; }
+
+    /// <summary>
+    /// Gets the script name stored next to the textual Lingo source. Director
+    /// prefixes the name with a length byte so editors can display the behaviour
+    /// title without consulting other cast metadata.
+    /// </summary>
+    public string? Name { get; }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="BlLegacyScript"/> class.
     /// </summary>
-    public BlLegacyScript(int resourceId, BlLegacyScriptFormatKind format, byte[] bytes)
+    public BlLegacyScript(int resourceId, BlLegacyScriptFormatKind format, byte[] bytes, string? text = null, string? name = null)
     {
         ArgumentNullException.ThrowIfNull(bytes);
 
         ResourceId = resourceId;
         Format = format;
         Bytes = bytes;
+        Text = text;
+        Name = name;
     }
 }
