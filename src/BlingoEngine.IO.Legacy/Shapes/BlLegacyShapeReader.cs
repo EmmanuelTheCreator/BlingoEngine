@@ -22,7 +22,7 @@ internal sealed class BlLegacyShapeReader
     private const int TransitionalHeaderLength = 7;
 
     private static readonly BlTag CastTag = BlTag.Cast;
-    private static readonly BlTag LegacyCastTag = BlTag.Register("CASt");
+    private static readonly BlTag LegacyCastTag = BlTag.Get("CASt");
 
     private readonly ReaderContext _context;
 

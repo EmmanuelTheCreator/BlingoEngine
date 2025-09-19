@@ -10,6 +10,7 @@ namespace BlingoEngine.IO.Legacy.Data;
 public readonly struct BlTag : IEquatable<BlTag>, IEquatable<string>
 {
     private static readonly Dictionary<string, BlTag> _registry = new(StringComparer.Ordinal);
+    private static readonly object _syncRoot = new();
 
     public string Value { get; }
 
@@ -26,24 +27,15 @@ public readonly struct BlTag : IEquatable<BlTag>, IEquatable<string>
         }
 
         Value = value;
-        _registry[value] = this;
     }
 
-    public static BlTag FromString(string value) => new(value);
+    public static BlTag FromString(string value) => Get(value);
 
     public static bool TryParse(string? value, out BlTag tag)
     {
         if (!string.IsNullOrEmpty(value) && value.Length == 4)
         {
-            if (_registry.TryGetValue(value, out var existing))
-            {
-                tag = existing;
-            }
-            else
-            {
-                tag = new BlTag(value);
-            }
-
+            tag = Get(value);
             return true;
         }
 
@@ -158,14 +150,49 @@ public readonly struct BlTag : IEquatable<BlTag>, IEquatable<string>
         Fgei = Register("FGEI");
         Cast = Register("CAST");
         CasStar = Register("CAS*");
+
+        Register("ediM");
+        Register("BITD");
+        Register("DIB ");
+        Register("PICT");
+        Register("ALFA");
+        Register("Thum");
+        Register("CASt");
+        Register("Lscr");
+        Register("Lctx");
+        Register("LctX");
+        Register("STXT");
+        Register("XMED");
+        Register("snd ");
+        Register("sndS");
+        Register("SND ");
     }
 
-    public static BlTag Register(string value)
+    public static BlTag Get(string value)
     {
-        if (_registry.TryGetValue(value, out var existing))
-            return existing;
+        ArgumentNullException.ThrowIfNull(value);
 
-        return new BlTag(value);
+        if (value.Length != 4)
+        {
+            throw new ArgumentException("Tags must contain exactly four characters.", nameof(value));
+        }
+
+        return Register(value);
+    }
+
+    private static BlTag Register(string value)
+    {
+        lock (_syncRoot)
+        {
+            if (_registry.TryGetValue(value, out var existing))
+            {
+                return existing;
+            }
+
+            var tag = new BlTag(value);
+            _registry[value] = tag;
+            return tag;
+        }
     }
 
     public static BlTag RIFX { get; }

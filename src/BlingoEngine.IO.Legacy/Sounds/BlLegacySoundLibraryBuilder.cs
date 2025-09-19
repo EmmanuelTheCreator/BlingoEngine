@@ -20,7 +20,7 @@ public static class BlLegacySoundLibraryBuilder
     private const uint CastMemberResourceId = 3;
     private const uint EditorResourceId = 4;
 
-    private static readonly BlTag EditorTag = BlTag.Register("ediM");
+    private static readonly BlTag EditorTag = BlTag.Get("ediM");
 
     /// <summary>
     /// Builds a <see cref="DirFilesContainerDTO"/> that contains a single sound cast member backed by

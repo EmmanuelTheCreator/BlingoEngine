@@ -73,11 +73,11 @@ internal enum BlLegacyBitmapFormatKind
 /// </summary>
 internal static class BlLegacyBitmapFormat
 {
-    private static readonly BlTag BitdTag = BlTag.Register("BITD");
-    private static readonly BlTag DibTag = BlTag.Register("DIB ");
-    private static readonly BlTag PictTag = BlTag.Register("PICT");
-    private static readonly BlTag AlphaTag = BlTag.Register("ALFA");
-    private static readonly BlTag ThumbTag = BlTag.Register("Thum");
+    private static readonly BlTag BitdTag = BlTag.Get("BITD");
+    private static readonly BlTag DibTag = BlTag.Get("DIB ");
+    private static readonly BlTag PictTag = BlTag.Get("PICT");
+    private static readonly BlTag AlphaTag = BlTag.Get("ALFA");
+    private static readonly BlTag ThumbTag = BlTag.Get("Thum");
 
     /// <summary>
     /// Infers the bitmap container represented by a legacy resource entry. The routine combines the

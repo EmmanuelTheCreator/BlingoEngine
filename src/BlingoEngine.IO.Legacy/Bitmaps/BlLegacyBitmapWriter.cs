@@ -20,12 +20,12 @@ namespace BlingoEngine.IO.Legacy.Bitmaps;
 /// </summary>
 internal sealed class BlLegacyBitmapWriter
 {
-    private static readonly BlTag BitdTag = BlTag.Register("BITD");
-    private static readonly BlTag DibTag = BlTag.Register("DIB ");
-    private static readonly BlTag PictTag = BlTag.Register("PICT");
-    private static readonly BlTag EditorTag = BlTag.Register("ediM");
-    private static readonly BlTag AlphaTag = BlTag.Register("ALFA");
-    private static readonly BlTag ThumbTag = BlTag.Register("Thum");
+    private static readonly BlTag BitdTag = BlTag.Get("BITD");
+    private static readonly BlTag DibTag = BlTag.Get("DIB ");
+    private static readonly BlTag PictTag = BlTag.Get("PICT");
+    private static readonly BlTag EditorTag = BlTag.Get("ediM");
+    private static readonly BlTag AlphaTag = BlTag.Get("ALFA");
+    private static readonly BlTag ThumbTag = BlTag.Get("Thum");
 
     private readonly BlStreamWriter _writer;
 
@@ -147,12 +147,12 @@ public static class BlLegacyBitmapLibraryBuilder
     private const uint CastMemberResourceId = 3;
     private const uint FirstBitmapResourceId = 4;
 
-    private static readonly BlTag EditorTag = BlTag.Register("ediM");
-    private static readonly BlTag BitdTag = BlTag.Register("BITD");
-    private static readonly BlTag DibTag = BlTag.Register("DIB ");
-    private static readonly BlTag PictTag = BlTag.Register("PICT");
-    private static readonly BlTag AlphaTag = BlTag.Register("ALFA");
-    private static readonly BlTag ThumbTag = BlTag.Register("Thum");
+    private static readonly BlTag EditorTag = BlTag.Get("ediM");
+    private static readonly BlTag BitdTag = BlTag.Get("BITD");
+    private static readonly BlTag DibTag = BlTag.Get("DIB ");
+    private static readonly BlTag PictTag = BlTag.Get("PICT");
+    private static readonly BlTag AlphaTag = BlTag.Get("ALFA");
+    private static readonly BlTag ThumbTag = BlTag.Get("Thum");
 
     /// <summary>
     /// Builds a <see cref="DirFilesContainerDTO"/> containing a single bitmap cast member. Callers

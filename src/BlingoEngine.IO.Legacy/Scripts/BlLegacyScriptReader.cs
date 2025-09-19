@@ -21,11 +21,11 @@ namespace BlingoEngine.IO.Legacy.Scripts;
 /// </summary>
 internal sealed class BlLegacyScriptReader
 {
-    private static readonly BlTag ScriptTag = BlTag.Register("Lscr");
+    private static readonly BlTag ScriptTag = BlTag.Get("Lscr");
     private static readonly BlTag CastTag = BlTag.Cast;
-    private static readonly BlTag LegacyCastTag = BlTag.Register("CASt");
-    private static readonly BlTag ScriptContextLowerTag = BlTag.Register("Lctx");
-    private static readonly BlTag ScriptContextUpperTag = BlTag.Register("LctX");
+    private static readonly BlTag LegacyCastTag = BlTag.Get("CASt");
+    private static readonly BlTag ScriptContextLowerTag = BlTag.Get("Lctx");
+    private static readonly BlTag ScriptContextUpperTag = BlTag.Get("LctX");
 
 
     private readonly ReaderContext _context;

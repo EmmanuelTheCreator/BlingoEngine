@@ -18,8 +18,8 @@ namespace BlingoEngine.IO.Legacy.Texts;
 /// </summary>
 internal sealed class BlLegacyTextReader
 {
-    private static readonly BlTag XmedTag = BlTag.Register("XMED");
-    private static readonly BlTag StxtTag = BlTag.Register("STXT");
+    private static readonly BlTag XmedTag = BlTag.Get("XMED");
+    private static readonly BlTag StxtTag = BlTag.Get("STXT");
 
     private static readonly BlTag[] CandidateTags =
     {

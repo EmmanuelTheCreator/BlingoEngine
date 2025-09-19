@@ -173,7 +173,7 @@ public class BlLegacyFileWriterTests
     }
 
     [Fact]
-    public void DctWriter_WritesProtectedMovie()
+    public void DxrWriter_WritesProtectedMovie()
     {
         var container = new DirFilesContainerDTO();
         container.Files.Add(new DirFileResourceDTO
@@ -182,12 +182,12 @@ public class BlLegacyFileWriterTests
             Bytes = new byte[] { 0x30, 0x31 }
         });
 
-        var writer = new BlDctFileWriter();
+        var writer = new BlDxrFileWriter();
         using var stream = new MemoryStream();
         writer.Write(stream, container);
 
         stream.Position = 0;
-        using var context = new ReaderContext(stream, "movie.dct", leaveOpen: true);
+        using var context = new ReaderContext(stream, "movie.dxr", leaveOpen: true);
         context.ReadDirFilesContainer();
 
         context.DataBlock.Should().NotBeNull();
@@ -195,7 +195,36 @@ public class BlLegacyFileWriterTests
     }
 
     [Fact]
-    public void LegacyWriter_SelectsWriterFromExtension()
+    public void CxtWriter_WritesProtectedCastLibrary()
+    {
+        var container = new DirFilesContainerDTO();
+        container.Files.Add(new DirFileResourceDTO
+        {
+            FileName = "CASt_0000.bin",
+            Bytes = new byte[] { 0x25 }
+        });
+
+        var writer = new BlCxtFileWriter();
+        using var stream = new MemoryStream();
+        writer.Write(stream, container);
+
+        stream.Position = 0;
+        using var context = new ReaderContext(stream, "library.cxt", leaveOpen: true);
+        context.ReadDirFilesContainer();
+
+        context.DataBlock.Should().NotBeNull();
+        var format = context.DataBlock!.Format;
+        format.Codec.Should().Be(BlRifxCodec.MC95);
+        format.IsBigEndian.Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData("library.cst", BlRifxCodec.MV93)]
+    [InlineData("library.cxt", BlRifxCodec.MC95)]
+    [InlineData("movie.dir", BlRifxCodec.MV93)]
+    [InlineData("movie.dxr", BlRifxCodec.MC95)]
+    [InlineData("movie.dcr", BlRifxCodec.MC95)]
+    public void LegacyWriter_SelectsWriterFromExtension(string fileName, BlRifxCodec expectedCodec)
     {
         var container = new DirFilesContainerDTO();
         container.Files.Add(new DirFileResourceDTO
@@ -206,15 +235,15 @@ public class BlLegacyFileWriterTests
 
         var writer = new BlLegacyWriter();
         using var stream = new MemoryStream();
-        writer.Write(stream, "library.cst", container, leaveOpen: true);
+        writer.Write(stream, fileName, container, leaveOpen: true);
 
         stream.CanWrite.Should().BeTrue();
 
         stream.Position = 0;
-        using var context = new ReaderContext(stream, "library.cst", leaveOpen: true);
+        using var context = new ReaderContext(stream, fileName, leaveOpen: true);
         context.ReadDirFilesContainer();
 
         context.DataBlock.Should().NotBeNull();
-        context.DataBlock!.Format.Codec.Should().Be(BlRifxCodec.MV93);
+        context.DataBlock!.Format.Codec.Should().Be(expectedCodec);
     }
 }

@@ -40,7 +40,7 @@ internal sealed class BlLegacyScriptWriter
     private const int LegacyTextStart = ScriptTextLengthOffset + sizeof(uint);
 
     private static readonly BlTag CastTag = BlTag.Cast;
-    private static readonly BlTag ScriptTag = BlTag.Register("Lscr");
+    private static readonly BlTag ScriptTag = BlTag.Get("Lscr");
 
     private readonly BlStreamWriter _writer;
 

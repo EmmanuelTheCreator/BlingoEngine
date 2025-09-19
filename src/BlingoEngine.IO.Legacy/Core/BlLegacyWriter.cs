@@ -59,7 +59,9 @@ public sealed class BlLegacyWriter
         return extension switch
         {
             ".cst" => new BlCstFileWriter(directorVersion),
-            ".dct" => new BlDctFileWriter(directorVersion),
+            ".cxt" => new BlCxtFileWriter(directorVersion),
+            ".dxr" => new BlDxrFileWriter(directorVersion),
+            ".dcr" => new BlDxrFileWriter(directorVersion),
             ".dir" => new BlDirFileWriter(directorVersion),
             _ => new BlDirFileWriter(directorVersion)
         };
