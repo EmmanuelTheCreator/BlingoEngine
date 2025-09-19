@@ -111,7 +111,7 @@ Classic Director movies expose two control blocks before the resource entries.
 | `imap` length | 4 bytes | Size of the `imap` block. |
 | Map version | 4 bytes | Observed values: `0` or `1`. |
 | `mmap` offset | 4 bytes | File position of the resource table. |
-| Archive version | 4 bytes | Director release marker (`0x00000000`, `0x000004C1`, `0x000004C7`, `0x00000708`, `0x00000742`). |
+| Archive version | 4 bytes | Director release marker (`0x00000000`, `0x000004C1`, `0x000004C7`, `0x00000708`, `0x00000742`, `0x00000744`). |
 
 The observed archive versions map to specific Director generations. Director MX 2004 (the final "Director 10" release) reuses
 the same map layout as the Director 10 entry below, so no additional parsing rules are required.
@@ -123,6 +123,7 @@ the same map layout as the Director 10 entry below, so no additional parsing rul
 | `0x000004C7` | Director 6 |
 | `0x00000708` | Director 8.5 |
 | `0x00000742` | Director 10 / Director MX 2004 |
+| `0x00000744` | Director 10.1 |
 
 ### `mmap` resource table
 

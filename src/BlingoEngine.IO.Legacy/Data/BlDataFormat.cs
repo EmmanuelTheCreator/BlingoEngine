@@ -7,7 +7,7 @@ namespace BlingoEngine.IO.Legacy.Data;
 /// The <c>RIFX/XFIR</c> signature consumes bytes 0x00-0x03 of the movie stream, the declared payload length
 /// occupies bytes 0x04-0x07, and the four-character codec marker sits at bytes 0x08-0x0B. Subsequent
 /// <c>imap</c> bytes expose a 32-bit archive version that maps to Director 4 (0x00000000), Director 5 (0x000004C1),
-/// Director 6 (0x000004C7), Director 8.5 (0x00000708), and Director 10 (0x00000742). These markers provide the
+/// Director 6 (0x000004C7), Director 8.5 (0x00000708), Director 10 (0x00000742), and Director 10.1 (0x00000744). These markers provide the
 /// version metadata necessary to choose the correct resource map interpretation without referencing external tools.
 /// </summary>
 public sealed class BlDataFormat
@@ -68,11 +68,12 @@ public sealed class BlDataFormat
 
     private static int MapDirectorVersion(uint rawVersion) => rawVersion switch
     {
-        0x00000000 => 4,
-        0x000004C1 => 5,
-        0x000004C7 => 6,
-        0x00000708 => 8,
-        0x00000742 => 10,
+        BlLegacyFormatConstants.Director4ArchiveVersion => 4,
+        BlLegacyFormatConstants.Director5ArchiveVersion => 5,
+        BlLegacyFormatConstants.Director6ArchiveVersion => 6,
+        BlLegacyFormatConstants.Director85ArchiveVersion => 8,
+        BlLegacyFormatConstants.Director10ArchiveVersion => 10,
+        BlLegacyFormatConstants.Director101ArchiveVersion => 10,
         _ => 0
     };
 }
