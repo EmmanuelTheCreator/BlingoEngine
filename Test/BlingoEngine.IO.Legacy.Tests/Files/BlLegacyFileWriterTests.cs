@@ -1,10 +1,12 @@
 using System.IO;
 
 using BlingoEngine.IO.Data.DTO;
+using BlingoEngine.IO.Legacy.Bitmaps;
 using BlingoEngine.IO.Legacy.Core;
 using BlingoEngine.IO.Legacy.Data;
 using BlingoEngine.IO.Legacy.Files;
 using BlingoEngine.IO.Legacy.Sounds;
+using BlingoEngine.IO.Legacy.Shapes;
 
 using FluentAssertions;
 
@@ -108,6 +110,66 @@ public class BlLegacyFileWriterTests
         var sound = sounds[0];
         sound.Format.Should().Be(BlLegacySoundFormatKind.Mp3);
         sound.Bytes.Should().Equal(mp3Bytes);
+    }
+
+    [Fact]
+    public void CstWriter_WritesBitmapCastLibrary()
+    {
+        var bitdPayload = new byte[] { 0x01, 0x00, 0x81, 0x7F, 0x02 };
+
+        var container = BlLegacyBitmapLibraryBuilder.BuildSingleMemberBitmapLibrary(
+            "bitmap member",
+            bitdBytes: bitdPayload);
+
+        var writer = new BlCstFileWriter();
+        using var stream = new MemoryStream();
+        writer.Write(stream, container);
+
+        stream.Position = 0;
+        using var context = new ReaderContext(stream, "library.cst", leaveOpen: true);
+        context.ReadDirFilesContainer();
+
+        var bitmaps = context.ReadBitmaps();
+        bitmaps.Should().ContainSingle();
+        var bitmap = bitmaps[0];
+        bitmap.Format.Should().Be(BlLegacyBitmapFormatKind.Bitd);
+        bitmap.Bytes.Should().Equal(bitdPayload);
+    }
+
+    [Fact]
+    public void CstWriter_WritesShapeCastLibrary()
+    {
+        var shapeRecord = new byte[]
+        {
+            0x00, 0x02,
+            0xFF, 0xF6,
+            0xFF, 0xF0,
+            0x00, 0x14,
+            0x00, 0x20,
+            0x12, 0x34,
+            0x80,
+            0x7F,
+            0x1C,
+            0x08,
+            0x02
+        };
+
+        var container = BlLegacyShapeLibraryBuilder.BuildSingleMemberShapeLibrary(
+            "shape member",
+            shapeRecord);
+
+        var writer = new BlCstFileWriter();
+        using var stream = new MemoryStream();
+        writer.Write(stream, container);
+
+        stream.Position = 0;
+        using var context = new ReaderContext(stream, "library.cst", leaveOpen: true);
+        context.ReadDirFilesContainer();
+
+        var shapes = context.ReadShapes();
+        shapes.Should().ContainSingle();
+        var shape = shapes[0];
+        shape.Bytes.Should().Equal(shapeRecord);
     }
 
     [Fact]

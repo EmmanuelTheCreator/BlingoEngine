@@ -1,9 +1,9 @@
 using System;
-using System.Buffers.Binary;
-using System.Text;
-
 using BlingoEngine.IO.Data.DTO;
+using BlingoEngine.IO.Legacy.Cast;
 using BlingoEngine.IO.Legacy.Data;
+
+using KeyTableEntry = BlingoEngine.IO.Legacy.Cast.BlLegacyCastLibraryBuilderHelpers.KeyTableEntry;
 
 namespace BlingoEngine.IO.Legacy.Sounds;
 
@@ -15,7 +15,6 @@ namespace BlingoEngine.IO.Legacy.Sounds;
 /// </summary>
 public static class BlLegacySoundLibraryBuilder
 {
-    private const uint CastMemberTypeSound = 6;
     private const uint KeyResourceId = 1;
     private const uint CastTableResourceId = 2;
     private const uint CastMemberResourceId = 3;
@@ -74,46 +73,22 @@ public static class BlLegacySoundLibraryBuilder
 
     private static byte[] BuildKeyTable()
     {
-        Span<byte> payload = stackalloc byte[24];
-        BinaryPrimitives.WriteUInt16LittleEndian(payload[0..2], 12);
-        BinaryPrimitives.WriteUInt16LittleEndian(payload[2..4], 12);
-        BinaryPrimitives.WriteUInt32LittleEndian(payload[4..8], 1);
-        BinaryPrimitives.WriteUInt32LittleEndian(payload[8..12], 1);
-        BinaryPrimitives.WriteUInt32LittleEndian(payload[12..16], EditorResourceId);
-        BinaryPrimitives.WriteUInt32LittleEndian(payload[16..20], CastMemberResourceId);
-        BinaryPrimitives.WriteUInt32LittleEndian(payload[20..24], EditorTag.ToUInt32BigEndian());
-        return payload.ToArray();
+        var entries = new[]
+        {
+            new KeyTableEntry(EditorResourceId, CastMemberResourceId, EditorTag)
+        };
+
+        return BlLegacyCastLibraryBuilderHelpers.BuildKeyTable(entries);
     }
 
     private static byte[] BuildCastTable()
-    {
-        var payload = new byte[4];
-        BinaryPrimitives.WriteUInt32BigEndian(payload, CastMemberResourceId);
-        return payload;
-    }
+        => BlLegacyCastLibraryBuilderHelpers.BuildCastTable(CastMemberResourceId);
 
     private static byte[] BuildCastMember(string? memberName)
     {
-        var name = memberName ?? string.Empty;
-        var nameBytes = Encoding.UTF8.GetBytes(name);
-        if (nameBytes.Length > byte.MaxValue)
-        {
-            throw new ArgumentOutOfRangeException(nameof(memberName), "Cast-member names must fit in a single length byte.");
-        }
-
-        int infoLength = 1 + nameBytes.Length;
-        var payload = new byte[12 + infoLength];
-
-        BinaryPrimitives.WriteUInt32BigEndian(payload.AsSpan(0, 4), CastMemberTypeSound);
-        BinaryPrimitives.WriteUInt32BigEndian(payload.AsSpan(4, 4), (uint)infoLength);
-        BinaryPrimitives.WriteUInt32BigEndian(payload.AsSpan(8, 4), 0u);
-
-        payload[12] = (byte)nameBytes.Length;
-        if (nameBytes.Length > 0)
-        {
-            nameBytes.CopyTo(payload.AsSpan(13));
-        }
-
-        return payload;
+        return BlLegacyCastLibraryBuilderHelpers.BuildModernCastMetadata(
+            BlLegacyCastMemberType.Sound,
+            memberName,
+            dataLength: 0u);
     }
 }

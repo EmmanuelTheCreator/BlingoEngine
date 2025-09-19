@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -28,14 +29,18 @@ public abstract class BlLegacyFileWriterBase
     /// </summary>
     /// <param name="codecTag">The four-character code written after the <c>RIFX/XFIR</c> header.</param>
     /// <param name="isBigEndian">Determines whether the container uses the big-endian <c>RIFX</c> tag.</param>
-    /// <param name="mapVersion">Value stored in the <c>imap</c> payload to describe the map layout.</param>
-    /// <param name="archiveVersion">Director archive version recorded in the <c>imap</c> payload.</param>
-    protected BlLegacyFileWriterBase(BlTag codecTag, bool isBigEndian, uint mapVersion, uint archiveVersion)
+    /// <param name="directorVersion">Logical Director release recorded in the <c>imap</c> payload.</param>
+    protected BlLegacyFileWriterBase(BlTag codecTag, bool isBigEndian, BlLegacyDirectorVersion directorVersion)
     {
+        if (directorVersion == BlLegacyDirectorVersion.Unknown)
+        {
+            throw new ArgumentOutOfRangeException(nameof(directorVersion), directorVersion, "Director version must be specified.");
+        }
+
         _codecTag = codecTag;
         _endianness = isBigEndian ? BlEndianness.BigEndian : BlEndianness.LittleEndian;
-        _mapVersion = mapVersion;
-        _archiveVersion = archiveVersion;
+        _mapVersion = directorVersion.ToMapVersion();
+        _archiveVersion = directorVersion.ToArchiveVersionMarker();
         _signature = isBigEndian ? BlTag.RIFX.Value : BlTag.XFIR.Value;
     }
 

@@ -1,6 +1,7 @@
 using System.IO;
 
 using BlingoEngine.IO.Data.DTO;
+using BlingoEngine.IO.Legacy.Data;
 using BlingoEngine.IO.Legacy.Files;
 
 namespace BlingoEngine.IO.Legacy.Core;
@@ -15,12 +16,13 @@ public sealed class BlLegacyWriter
     /// </summary>
     /// <param name="path">Destination path for the serialized movie.</param>
     /// <param name="container">DTO container describing the resources to embed.</param>
-    public void Write(string path, DirFilesContainerDTO container)
+    /// <param name="directorVersion">Director release used when encoding the archive metadata.</param>
+    public void Write(string path, DirFilesContainerDTO container, BlLegacyDirectorVersion directorVersion = BlLegacyDirectorVersion.Latest)
     {
         ArgumentNullException.ThrowIfNull(path);
 
         using var stream = File.Create(path);
-        Write(stream, path, container, leaveOpen: true);
+        Write(stream, path, container, leaveOpen: true, directorVersion: directorVersion);
     }
 
     /// <summary>
@@ -30,13 +32,14 @@ public sealed class BlLegacyWriter
     /// <param name="fileName">Logical file name used to select the container writer.</param>
     /// <param name="container">DTO container describing the resources to embed.</param>
     /// <param name="leaveOpen">Whether the provided stream should remain open after the method returns.</param>
-    public void Write(Stream stream, string fileName, DirFilesContainerDTO container, bool leaveOpen = false)
+    /// <param name="directorVersion">Director release used when encoding the archive metadata.</param>
+    public void Write(Stream stream, string fileName, DirFilesContainerDTO container, bool leaveOpen = false, BlLegacyDirectorVersion directorVersion = BlLegacyDirectorVersion.Latest)
     {
         ArgumentNullException.ThrowIfNull(stream);
         ArgumentNullException.ThrowIfNull(fileName);
         ArgumentNullException.ThrowIfNull(container);
 
-        var writer = CreateFileWriter(fileName);
+        var writer = CreateFileWriter(fileName, directorVersion);
         try
         {
             writer.Write(stream, container);
@@ -50,15 +53,15 @@ public sealed class BlLegacyWriter
         }
     }
 
-    private static BlLegacyFileWriterBase CreateFileWriter(string fileName)
+    private static BlLegacyFileWriterBase CreateFileWriter(string fileName, BlLegacyDirectorVersion directorVersion)
     {
         string extension = Path.GetExtension(fileName).ToLowerInvariant();
         return extension switch
         {
-            ".cst" => new BlCstFileWriter(),
-            ".dct" => new BlDctFileWriter(),
-            ".dir" => new BlDirFileWriter(),
-            _ => new BlDirFileWriter()
+            ".cst" => new BlCstFileWriter(directorVersion),
+            ".dct" => new BlDctFileWriter(directorVersion),
+            ".dir" => new BlDirFileWriter(directorVersion),
+            _ => new BlDirFileWriter(directorVersion)
         };
     }
 }

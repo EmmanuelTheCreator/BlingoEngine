@@ -11,12 +11,11 @@ public sealed class BlDctFileWriter : BlLegacyFileWriterBase
     /// <summary>
     /// Initializes a new instance of the <see cref="BlDctFileWriter"/> class.
     /// </summary>
-    public BlDctFileWriter()
+    public BlDctFileWriter(BlLegacyDirectorVersion directorVersion = BlLegacyDirectorVersion.Latest)
         : base(
             BlTag.MC95,
             isBigEndian: false,
-            BlLegacyFormatConstants.ClassicMapVersion,
-            BlLegacyFormatConstants.Director101ArchiveVersion)
+            directorVersion)
     {
     }
 }

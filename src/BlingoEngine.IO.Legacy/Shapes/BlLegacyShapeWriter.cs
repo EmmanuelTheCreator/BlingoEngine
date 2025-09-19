@@ -1,7 +1,13 @@
 using System;
+using System.Buffers.Binary;
 using System.IO;
 
+using BlingoEngine.IO.Data.DTO;
+using BlingoEngine.IO.Legacy.Cast;
+using BlingoEngine.IO.Legacy.Data;
 using BlingoEngine.IO.Legacy.Tools;
+
+using KeyTableEntry = BlingoEngine.IO.Legacy.Cast.BlLegacyCastLibraryBuilderHelpers.KeyTableEntry;
 
 namespace BlingoEngine.IO.Legacy.Shapes;
 
@@ -150,5 +156,80 @@ internal static class BlLegacyShapeWriter
         {
             throw new ArgumentException($"Shape records must contain exactly {ShapeRecordLength} bytes.", nameof(shapeRecord));
         }
+    }
+}
+
+/// <summary>
+/// Provides helpers for constructing minimal shape cast libraries. The builder wraps the supplied
+/// QuickDraw record using the modern <c>CASt</c> header and registers it in a container ready for the
+/// legacy file writers.
+/// </summary>
+public static class BlLegacyShapeLibraryBuilder
+{
+    private const uint KeyResourceId = 1;
+    private const uint CastTableResourceId = 2;
+    private const uint CastMemberResourceId = 3;
+
+    /// <summary>
+    /// Builds a <see cref="DirFilesContainerDTO"/> containing a single shape cast member. The method
+    /// emits the <c>KEY*</c>, <c>CAS*</c>, and <c>CASt</c> resources required by the Director map so the
+    /// caller can persist the container with <see cref="BlCstFileWriter"/> or
+    /// <see cref="BlDirFileWriter"/>.
+    /// </summary>
+    /// <param name="memberName">Display name stored in the <c>CASt</c> metadata.</param>
+    /// <param name="shapeRecord">The 17-byte QuickDraw record that describes the shape geometry.</param>
+    /// <param name="infoBytes">Optional metadata bytes that replace the default name info section.</param>
+    /// <returns>A container populated with the resources necessary to emit a cast library.</returns>
+    public static DirFilesContainerDTO BuildSingleMemberShapeLibrary(
+        string? memberName,
+        ReadOnlySpan<byte> shapeRecord,
+        byte[]? infoBytes = null)
+    {
+        if (shapeRecord.Length != 17)
+        {
+            throw new ArgumentException("Shape records must contain exactly 17 bytes.", nameof(shapeRecord));
+        }
+
+        var container = new DirFilesContainerDTO();
+
+        container.Files.Add(new DirFileResourceDTO
+        {
+            FileName = $"{BlTag.KeyStar.Value}_{KeyResourceId:D4}.bin",
+            Bytes = BlLegacyCastLibraryBuilderHelpers.BuildKeyTable(Array.Empty<KeyTableEntry>())
+        });
+
+        container.Files.Add(new DirFileResourceDTO
+        {
+            FileName = $"{BlTag.CasStar.Value}_{CastTableResourceId:D4}.bin",
+            Bytes = BlLegacyCastLibraryBuilderHelpers.BuildCastTable(CastMemberResourceId)
+        });
+
+        var castPayload = BuildCastPayload(shapeRecord, infoBytes);
+
+        container.Files.Add(new DirFileResourceDTO
+        {
+            FileName = $"CASt_{CastMemberResourceId:D4}.bin",
+            Bytes = castPayload
+        });
+
+        return container;
+    }
+
+    private static byte[] BuildCastPayload(ReadOnlySpan<byte> shapeRecord, byte[]? infoBytes)
+    {
+        var info = infoBytes ?? Array.Empty<byte>();
+        var payload = new byte[12 + info.Length + shapeRecord.Length];
+
+        BinaryPrimitives.WriteUInt32LittleEndian(payload.AsSpan(0, 4), (uint)BlLegacyCastMemberType.Shape);
+        BinaryPrimitives.WriteUInt32LittleEndian(payload.AsSpan(4, 4), (uint)info.Length);
+        BinaryPrimitives.WriteUInt32LittleEndian(payload.AsSpan(8, 4), (uint)shapeRecord.Length);
+
+        if (info.Length > 0)
+        {
+            info.CopyTo(payload.AsSpan(12));
+        }
+
+        shapeRecord.CopyTo(payload.AsSpan(12 + info.Length));
+        return payload;
     }
 }

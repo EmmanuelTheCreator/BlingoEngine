@@ -15,6 +15,11 @@ public sealed class BlDataFormat
     private uint _archiveVersion;
 
     /// <summary>
+    /// Gets the resolved <see cref="BlLegacyDirectorVersion"/> derived from <see cref="ArchiveVersion"/>.
+    /// </summary>
+    public BlLegacyDirectorVersion DirectorVersionKind { get; private set; } = BlLegacyDirectorVersion.Unknown;
+
+    /// <summary>
     /// Gets or sets the codec tag decoded from bytes 0x08-0x0B of the movie header (e.g. <c>MV93</c>, <c>MC95</c>, <c>FGDM</c>).
     /// </summary>
     public BlRifxCodec Codec { get; set; } = BlRifxCodec.Unknown;
@@ -39,10 +44,17 @@ public sealed class BlDataFormat
         set
         {
             _archiveVersion = value;
-            DirectorVersion = MapDirectorVersion(value);
-            DirectorVersionLabel = DirectorVersion == 0
-                ? $"Unknown (0x{_archiveVersion:X})"
-                : $"Director {DirectorVersion}";
+            DirectorVersionKind = BlLegacyDirectorVersionExtensions.FromArchiveVersion(value);
+            if (DirectorVersionKind == BlLegacyDirectorVersion.Unknown)
+            {
+                DirectorVersion = 0;
+                DirectorVersionLabel = $"Unknown (0x{_archiveVersion:X})";
+            }
+            else
+            {
+                DirectorVersion = DirectorVersionKind.ToMajorVersionNumber();
+                DirectorVersionLabel = DirectorVersionKind.ToDirectorLabel();
+            }
         }
     }
 
@@ -66,14 +78,4 @@ public sealed class BlDataFormat
     /// </summary>
     public string AfterburnerVersion { get; set; } = string.Empty;
 
-    private static int MapDirectorVersion(uint rawVersion) => rawVersion switch
-    {
-        BlLegacyFormatConstants.Director4ArchiveVersion => 4,
-        BlLegacyFormatConstants.Director5ArchiveVersion => 5,
-        BlLegacyFormatConstants.Director6ArchiveVersion => 6,
-        BlLegacyFormatConstants.Director85ArchiveVersion => 8,
-        BlLegacyFormatConstants.Director10ArchiveVersion => 10,
-        BlLegacyFormatConstants.Director101ArchiveVersion => 10,
-        _ => 0
-    };
 }
