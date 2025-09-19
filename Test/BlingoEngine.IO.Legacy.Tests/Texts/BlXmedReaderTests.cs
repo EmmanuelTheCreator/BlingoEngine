@@ -210,4 +210,128 @@ public class BlXmedReaderTests
         justifyStyle.WrapOff.Should().BeFalse();
         justifyStyle.HasTabs.Should().BeFalse();
     }
+
+    [Fact]
+    public void Read_Text12Chars_RunMatchesExpectedText()
+    {
+        var data = File.ReadAllBytes(TestContextHarness.GetAssetPath("Texts_Fields/Text_12chars_13.xmed.bin"));
+
+        var doc = new BlXmedReader().Read(data);
+
+        doc.Runs.Should().ContainSingle();
+
+        var run = doc.Runs[0];
+        run.Start.Should().Be(0);
+        run.Length.Should().Be(12);
+        run.Text.Should().Be("Hallo12Chars");
+    }
+
+    [Fact]
+    public void Read_Text3Paragraphs_PreservesAllRunSegments()
+    {
+        var data = File.ReadAllBytes(TestContextHarness.GetAssetPath("Texts_Fields/Text_3_Paragraps_13.xmed.bin"));
+
+        var doc = new BlXmedReader().Read(data);
+
+        var expectedRuns = new[]
+        {
+            "My first paragraph centered with all 0\rParagraph with align Left, Margin Left 4, Margin Right 5, First Inden",
+            " spacing ",
+            " ",
+            " F",
+            " spa"
+        };
+
+        doc.Runs.Should().HaveSameCount(expectedRuns);
+        doc.Runs.Select(run => run.Text).Should().Equal(expectedRuns);
+        string.Concat(doc.Runs.Select(run => run.Text)).Should().Be(doc.Text);
+    }
+
+    [Fact]
+    public void Read_TextHallo_RunMatchesExpectedText()
+    {
+        var data = File.ReadAllBytes(TestContextHarness.GetAssetPath("Texts_Fields/Text_Hallo_13.xmed.bin"));
+
+        var doc = new BlXmedReader().Read(data);
+
+        doc.Runs.Should().ContainSingle();
+        doc.Runs[0].Text.Should().Be("Hallo");
+    }
+
+    [Theory]
+    [InlineData("Texts_Fields/Text_Hallo_2line_linespace_16_13.xmed.bin")]
+    [InlineData("Texts_Fields/Text_Hallo_2line_linespace_30_13.xmed.bin")]
+    [InlineData("Texts_Fields/Text_Hallo_2line_linespace_Default_13.xmed.bin")]
+    public void Read_TextHalloTwoLineSamples_RunContainsCarriageReturn(string relativePath)
+    {
+        var data = File.ReadAllBytes(TestContextHarness.GetAssetPath(relativePath));
+
+        var doc = new BlXmedReader().Read(data);
+
+        doc.Runs.Should().ContainSingle();
+
+        var run = doc.Runs[0];
+        run.Text.Should().Be("Hallo\rline2");
+        run.Length.Should().Be(11);
+    }
+
+    [Fact]
+    public void Read_TextHalloChangedColor_ReportsMultipleColorIndices()
+    {
+        var data = File.ReadAllBytes(TestContextHarness.GetAssetPath("Texts_Fields/Text_Hallo_changed_color_13.xmed.bin"));
+
+        var doc = new BlXmedReader().Read(data);
+
+        doc.Runs.Should().ContainSingle();
+        doc.Runs[0].Text.Should().Be("Hallo");
+
+        doc.Styles
+            .Select(style => style.ColorIndex)
+            .Distinct()
+            .Should()
+            .HaveCountGreaterThan(1);
+    }
+
+    [Fact]
+    public void Read_TextHalloEditableTrue_ExposesLeftAlignmentStyle()
+    {
+        var data = File.ReadAllBytes(TestContextHarness.GetAssetPath("Texts_Fields/Text_Hallo_editable_true_13.xmed.bin"));
+
+        var doc = new BlXmedReader().Read(data);
+
+        doc.Runs.Should().ContainSingle();
+
+        var run = doc.Runs[0];
+        run.Text.Should().Be("Hallo");
+        run.FontName.Should().Be("Vivaldi");
+
+        doc.Styles
+            .Select(style => style.Alignment)
+            .Should()
+            .Contain(BlXmedAlignment.Left);
+    }
+
+    [Fact]
+    public void Read_TextHalloFontVivaldi_RunUsesDeclaredFont()
+    {
+        var data = File.ReadAllBytes(TestContextHarness.GetAssetPath("Texts_Fields/Text_Hallo_font_Vivaldi_13.xmed.bin"));
+
+        var doc = new BlXmedReader().Read(data);
+
+        doc.Runs.Should().ContainSingle();
+        doc.Runs[0].FontName.Should().Be("Vivaldi");
+        doc.Runs[0].Text.Should().Be("Hallo");
+    }
+
+    [Fact]
+    public void Read_TextHalloFontSize14_RunCarriesFontSize()
+    {
+        var data = File.ReadAllBytes(TestContextHarness.GetAssetPath("Texts_Fields/Text_Hallo_fontsize14_13.xmed.bin"));
+
+        var doc = new BlXmedReader().Read(data);
+
+        doc.Runs.Should().ContainSingle();
+        doc.Runs[0].FontSize.Should().Be((ushort)14);
+        doc.Runs[0].Text.Should().Be("Hallo");
+    }
 }
