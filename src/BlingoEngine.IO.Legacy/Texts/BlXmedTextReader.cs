@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using BlingoEngine.IO.Legacy.Core;
+using BlingoEngine.IO.Legacy.Tools;
 
 namespace ProjectorRays.CastMembers;
 
@@ -178,16 +179,17 @@ public sealed class BlXmedTextReader
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        var directory = ReadHeaderDirectory(stream);
+        var buffer = ReadAllBytes(stream);
+        var directory = ReadHeaderDirectory(buffer);
         var (_, _, textData) = ReadTextBlock(directory);
 
         var header = directory.Buffer;
-        var width = XmedTextParsingHelpers.ReadU32LE(header, 0x0018);
-        var styleFlags = XmedTextParsingHelpers.ReadU8(header, 0x001C);
-        var alignFlags = XmedTextParsingHelpers.ReadU8(header, 0x001D);
-        var lineSpacing = XmedTextParsingHelpers.ReadU32LE(header, 0x003C);
-        var fontSize = (ushort)Math.Clamp(XmedTextParsingHelpers.ReadU32LE(header, 0x0040), 0, 0xFFFF);
-        var headerTextLen = XmedTextParsingHelpers.ReadU32LE(header, 0x004C);
+        var width = header.ReadUInt32LittleEndian(0x0018);
+        var styleFlags = header.ReadByteOrDefault(0x001C);
+        var alignFlags = header.ReadByteOrDefault(0x001D);
+        var lineSpacing = header.ReadUInt32LittleEndian(0x003C);
+        var fontSize = (ushort)Math.Clamp(header.ReadUInt32LittleEndian(0x0040), 0, 0xFFFF);
+        var headerTextLen = header.ReadUInt32LittleEndian(0x004C);
 
         var document = new XmedDocument
         {
@@ -292,9 +294,9 @@ public sealed class BlXmedTextReader
     }
 
     /// <summary>Scans the ASCII directory tokens (20 chars) in the header.</summary>
-    public XmedDir ReadHeaderDirectory(Stream stream)
+    public XmedDir ReadHeaderDirectory(byte[] buffer)
     {
-        var buffer = XmedTextParsingHelpers.ReadAll(stream);
+        ArgumentNullException.ThrowIfNull(buffer);
         var entries = new List<XmedDirEntry>();
 
         int headerLength = Array.IndexOf(buffer, (byte)0x00);
@@ -305,21 +307,21 @@ public sealed class BlXmedTextReader
 
         for (int i = 0; i + 20 <= buffer.Length; i++)
         {
-            var span = buffer.AsSpan(i, 20);
-            if (!XmedTextParsingHelpers.IsAsciiHexOrDigits(span))
+            ReadOnlySpan<byte> span = buffer.AsSpan(i, 20);
+            if (!span.IsAsciiHexOrDigits())
             {
                 continue;
             }
 
             var token = Encoding.ASCII.GetString(span);
             var type = token[..4];
-            if (!XmedTextParsingHelpers.IsAsciiHexOrDigitString(type))
+            if (!type.IsAsciiHexOrDigitString())
             {
                 continue;
             }
 
-            long offset = XmedTextParsingHelpers.ParseU64(token.AsSpan(4, 8));
-            int count = (int)XmedTextParsingHelpers.ParseU64(token.AsSpan(12, 8));
+            long offset = token.AsSpan(4, 8).ParseHexInt64();
+            int count = (int)token.AsSpan(12, 8).ParseHexInt64();
             byte terminator = i + 20 < buffer.Length ? buffer[i + 20] : (byte)0;
             long? dataOffset = terminator == 0x00 ? i + 21 : null;
 
@@ -345,7 +347,7 @@ public sealed class BlXmedTextReader
         int lenStart = cursor;
         while (cursor < end && buffer[cursor] != (byte)',')
         {
-            if (!XmedTextParsingHelpers.IsDigitOrHex(buffer[cursor]))
+            if (!buffer[cursor].IsDigitOrHex())
             {
                 throw new InvalidDataException("Unexpected char in text length");
             }
@@ -358,12 +360,12 @@ public sealed class BlXmedTextReader
             throw new InvalidDataException("Missing comma after text length");
         }
 
-        var lenSpan = buffer.AsSpan(lenStart, cursor - lenStart);
+        ReadOnlySpan<byte> lenSpan = buffer.AsSpan(lenStart, cursor - lenStart);
         cursor++;
 
-        int length = XmedTextParsingHelpers.TryParseUInt32Decimal(lenSpan, out var decLen)
+        int length = lenSpan.TryParseUInt32Decimal(out var decLen)
             ? (int)decLen
-            : XmedTextParsingHelpers.TryParseUInt32Hex(lenSpan, out var hexLen)
+            : lenSpan.TryParseUInt32Hex(out var hexLen)
                 ? (int)hexLen
                 : throw new InvalidDataException("Cannot parse text length");
 
@@ -381,7 +383,7 @@ public sealed class BlXmedTextReader
         var list = new List<XmedRunMapEntry>();
         foreach (var entry in directory)
         {
-            if (!XmedTextParsingHelpers.IsRunType(entry.Type))
+            if (!IsRunType(entry.Type))
             {
                 continue;
             }
@@ -391,17 +393,17 @@ public sealed class BlXmedTextReader
                 continue;
             }
 
-            var span = directory.Buffer.AsSpan((int)entry.Position, 20);
-            if (!XmedTextParsingHelpers.IsDigits(span))
+            ReadOnlySpan<byte> span = directory.Buffer.AsSpan((int)entry.Position, 20);
+            if (!span.IsDigits())
             {
                 continue;
             }
 
-            int f1 = XmedTextParsingHelpers.ParseInt(span.Slice(0, 4));
-            int f2 = XmedTextParsingHelpers.ParseInt(span.Slice(4, 4));
-            int len = XmedTextParsingHelpers.ParseInt(span.Slice(8, 4));
-            int f4 = XmedTextParsingHelpers.ParseInt(span.Slice(12, 4));
-            int sid = XmedTextParsingHelpers.ParseInt(span.Slice(16, 4));
+            int f1 = span.Slice(0, 4).ParseInt32();
+            int f2 = span.Slice(4, 4).ParseInt32();
+            int len = span.Slice(8, 4).ParseInt32();
+            int f4 = span.Slice(12, 4).ParseInt32();
+            int sid = span.Slice(16, 4).ParseInt32();
 
             list.Add(new XmedRunMapEntry((ushort)f1, (ushort)f2, (ushort)len, (ushort)f4, (ushort)sid, entry.Position));
         }
@@ -421,14 +423,15 @@ public sealed class BlXmedTextReader
             byte styleByte = buffer[i + 0];
             byte flagsByte = buffer[i + 1];
 
-            if (!XmedTextParsingHelpers.IsDigits(buffer.AsSpan(i + 2, 4)))
+            ReadOnlySpan<byte> idSpan = buffer.AsSpan(i + 2, 4);
+            if (!idSpan.IsDigits())
             {
                 continue;
             }
 
-            int styleId = XmedTextParsingHelpers.ParseInt(buffer.AsSpan(i + 2, 4));
+            int styleId = idSpan.ParseInt32();
 
-            int markerIndex = XmedTextParsingHelpers.IndexOfSequence(buffer, i + 6, FontMarker);
+            int markerIndex = buffer.IndexOfSequence(i + 6, FontMarker);
             if (markerIndex < 0)
             {
                 continue;
@@ -443,7 +446,7 @@ public sealed class BlXmedTextReader
             }
 
             int nameEnd = nameStart;
-            while (nameEnd < buffer.Length && buffer[nameEnd] != 0x00 && XmedTextParsingHelpers.IsPrintable(buffer[nameEnd]))
+            while (nameEnd < buffer.Length && buffer[nameEnd] != 0x00 && buffer[nameEnd].IsPrintable())
             {
                 nameEnd++;
             }
@@ -475,6 +478,44 @@ public sealed class BlXmedTextReader
         }
 
         return styles;
+    }
+
+    private static byte[] ReadAllBytes(Stream stream)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+
+        if (!stream.CanSeek)
+        {
+            using var memory = new MemoryStream();
+            stream.CopyTo(memory);
+            memory.Position = 0;
+
+            var memoryReader = new BlStreamReader(memory);
+            if (memoryReader.Length > int.MaxValue)
+            {
+                throw new InvalidDataException("XMED streams larger than 2 GB are not supported.");
+            }
+
+            var length = (int)memoryReader.Length;
+            var buffer = new byte[length];
+            memoryReader.ReadExactly(buffer);
+            return buffer;
+        }
+
+        var reader = new BlStreamReader(stream);
+        long originalPosition = reader.Position;
+        reader.Position = 0;
+
+        if (reader.Length > int.MaxValue)
+        {
+            throw new InvalidDataException("XMED streams larger than 2 GB are not supported.");
+        }
+
+        var size = (int)reader.Length;
+        var result = new byte[size];
+        reader.ReadExactly(result);
+        reader.Position = originalPosition;
+        return result;
     }
 
     private static void ApplyStyleFlags(byte flags, XmedStyleDescriptor style)
@@ -518,4 +559,6 @@ public sealed class BlXmedTextReader
         descriptor = default!;
         return false;
     }
+
+    private static bool IsRunType(string type) => type is "0004" or "0005" or "0006" or "0007";
 }

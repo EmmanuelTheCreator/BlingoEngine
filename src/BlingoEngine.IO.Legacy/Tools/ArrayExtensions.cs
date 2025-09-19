@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Buffers.Binary;
+using System.Globalization;
 using System.Text;
 
 namespace BlingoEngine.IO.Legacy.Tools
@@ -180,6 +182,183 @@ namespace BlingoEngine.IO.Legacy.Tools
         {
             ArgumentNullException.ThrowIfNull(data);
             return ToHexString(data.AsSpan(), bytesPerLine, includeAddresses);
+        }
+
+        public static uint ReadUInt32LittleEndian(this byte[] buffer, int offset)
+        {
+            ArgumentNullException.ThrowIfNull(buffer);
+
+            if (offset < 0 || offset + 4 > buffer.Length)
+            {
+                return 0u;
+            }
+
+            return BinaryPrimitives.ReadUInt32LittleEndian(buffer.AsSpan(offset, 4));
+        }
+
+        public static byte ReadByteOrDefault(this byte[] buffer, int offset)
+        {
+            ArgumentNullException.ThrowIfNull(buffer);
+
+            if (offset < 0 || offset >= buffer.Length)
+            {
+                return 0;
+            }
+
+            return buffer[offset];
+        }
+
+        public static bool IsDigitOrHex(this byte value)
+        {
+            return (value >= (byte)'0' && value <= (byte)'9') ||
+                   (value >= (byte)'A' && value <= (byte)'F') ||
+                   (value >= (byte)'a' && value <= (byte)'f');
+        }
+
+        public static bool IsPrintable(this byte value)
+        {
+            return (value >= 32 && value <= 126) ||
+                   value == 9 ||
+                   value == 10 ||
+                   value == 13 ||
+                   value >= 128;
+        }
+
+        public static bool IsDigits(this ReadOnlySpan<byte> span)
+        {
+            if (span.IsEmpty)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < span.Length; i++)
+            {
+                if (span[i] < (byte)'0' || span[i] > (byte)'9')
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static bool IsDigits(this ReadOnlySpan<char> span)
+        {
+            if (span.IsEmpty)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < span.Length; i++)
+            {
+                if (!char.IsDigit(span[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static bool IsAsciiHexOrDigits(this ReadOnlySpan<byte> span)
+        {
+            if (span.IsEmpty)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < span.Length; i++)
+            {
+                var value = span[i];
+                if (!value.IsDigitOrHex())
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static bool IsAsciiHexOrDigitString(this string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return false;
+            }
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                if (!Uri.IsHexDigit(text[i]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static bool TryParseUInt32Decimal(this ReadOnlySpan<byte> span, out uint value)
+        {
+            value = 0;
+            if (!span.IsDigits())
+            {
+                return false;
+            }
+
+            var text = Encoding.ASCII.GetString(span);
+            return uint.TryParse(text, NumberStyles.None, CultureInfo.InvariantCulture, out value);
+        }
+
+        public static bool TryParseUInt32Hex(this ReadOnlySpan<byte> span, out uint value)
+        {
+            value = 0;
+            var text = Encoding.ASCII.GetString(span);
+            return uint.TryParse(text, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out value);
+        }
+
+        public static long ParseHexInt64(this ReadOnlySpan<char> span)
+        {
+            return long.Parse(span, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        }
+
+        public static int ParseInt32(this ReadOnlySpan<byte> span)
+        {
+            var text = Encoding.ASCII.GetString(span);
+            return int.Parse(text, NumberStyles.None, CultureInfo.InvariantCulture);
+        }
+
+        public static int IndexOfSequence(this byte[] haystack, int start, ReadOnlySpan<byte> needle)
+        {
+            ArgumentNullException.ThrowIfNull(haystack);
+
+            if (needle.Length == 0)
+            {
+                return Math.Max(start, 0);
+            }
+
+            for (int i = Math.Max(start, 0); i <= haystack.Length - needle.Length; i++)
+            {
+                if (haystack[i] != needle[0])
+                {
+                    continue;
+                }
+
+                int k = 1;
+                for (; k < needle.Length; k++)
+                {
+                    if (haystack[i + k] != needle[k])
+                    {
+                        break;
+                    }
+                }
+
+                if (k == needle.Length)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
         }
     }
 }
