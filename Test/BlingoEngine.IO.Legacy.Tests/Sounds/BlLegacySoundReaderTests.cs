@@ -71,7 +71,7 @@ public class BlLegacySoundReaderTests
         using var context = new ReaderContext(stream, "synthetic", leaveOpen: true);
         context.RegisterRifxOffset(0);
         context.RegisterDataBlock(new BlDataBlock());
-        var entry = new BlLegacyResourceEntry(1, BlTag.Register("SND "), (uint)payload.Length, 0, 0, 0, 0);
+        var entry = new BlLegacyResourceEntry(1, BlTag.Get("SND "), (uint)payload.Length, 0, 0, 0, 0);
         context.AddResource(entry);
 
         var sounds = context.ReadSounds();
@@ -95,10 +95,10 @@ public class BlLegacySoundReaderTests
         context.RegisterRifxOffset(0);
         context.RegisterDataBlock(new BlDataBlock());
 
-        var sampleEntry = new BlLegacyResourceEntry(2, BlTag.Register("sndS"), (uint)sample.Length, 0, 0, 0, 0);
+        var sampleEntry = new BlLegacyResourceEntry(2, BlTag.Get("sndS"), (uint)sample.Length, 0, 0, 0, 0);
         context.AddResource(sampleEntry);
 
-        context.AddResourceRelationship(new BlResourceKeyLink(sampleEntry.Id, 100, BlTag.Register("sndS")));
+        context.AddResourceRelationship(new BlResourceKeyLink(sampleEntry.Id, 100, BlTag.Get("sndS")));
 
         var sounds = context.ReadSounds();
 

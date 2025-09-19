@@ -16,8 +16,8 @@ namespace BlingoEngine.IO.Legacy.Fields;
 /// </summary>
 internal sealed class BlLegacyFieldWriter
 {
-    private static readonly BlTag StxtTag = BlTag.Register("STXT");
-    private static readonly BlTag XmedTag = BlTag.Register("XMED");
+    private static readonly BlTag StxtTag = BlTag.Get("STXT");
+    private static readonly BlTag XmedTag = BlTag.Get("XMED");
 
     private readonly BlStreamWriter _writer;
 

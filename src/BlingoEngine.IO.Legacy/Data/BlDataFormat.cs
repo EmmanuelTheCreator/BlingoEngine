@@ -7,12 +7,17 @@ namespace BlingoEngine.IO.Legacy.Data;
 /// The <c>RIFX/XFIR</c> signature consumes bytes 0x00-0x03 of the movie stream, the declared payload length
 /// occupies bytes 0x04-0x07, and the four-character codec marker sits at bytes 0x08-0x0B. Subsequent
 /// <c>imap</c> bytes expose a 32-bit archive version that maps to Director 4 (0x00000000), Director 5 (0x000004C1),
-/// Director 6 (0x000004C7), Director 8.5 (0x00000708), and Director 10 (0x00000742). These markers provide the
+/// Director 6 (0x000004C7), Director 8.5 (0x00000708), Director 10 (0x00000742), and Director 10.1 (0x00000744). These markers provide the
 /// version metadata necessary to choose the correct resource map interpretation without referencing external tools.
 /// </summary>
 public sealed class BlDataFormat
 {
     private uint _archiveVersion;
+
+    /// <summary>
+    /// Gets the resolved <see cref="BlLegacyDirectorVersion"/> derived from <see cref="ArchiveVersion"/>.
+    /// </summary>
+    public BlLegacyDirectorVersion DirectorVersionKind { get; private set; } = BlLegacyDirectorVersion.Unknown;
 
     /// <summary>
     /// Gets or sets the codec tag decoded from bytes 0x08-0x0B of the movie header (e.g. <c>MV93</c>, <c>MC95</c>, <c>FGDM</c>).
@@ -39,10 +44,17 @@ public sealed class BlDataFormat
         set
         {
             _archiveVersion = value;
-            DirectorVersion = MapDirectorVersion(value);
-            DirectorVersionLabel = DirectorVersion == 0
-                ? $"Unknown (0x{_archiveVersion:X})"
-                : $"Director {DirectorVersion}";
+            DirectorVersionKind = BlLegacyDirectorVersionExtensions.FromArchiveVersion(value);
+            if (DirectorVersionKind == BlLegacyDirectorVersion.Unknown)
+            {
+                DirectorVersion = 0;
+                DirectorVersionLabel = $"Unknown (0x{_archiveVersion:X})";
+            }
+            else
+            {
+                DirectorVersion = DirectorVersionKind.ToMajorVersionNumber();
+                DirectorVersionLabel = DirectorVersionKind.ToDirectorLabel();
+            }
         }
     }
 
@@ -66,13 +78,4 @@ public sealed class BlDataFormat
     /// </summary>
     public string AfterburnerVersion { get; set; } = string.Empty;
 
-    private static int MapDirectorVersion(uint rawVersion) => rawVersion switch
-    {
-        0x00000000 => 4,
-        0x000004C1 => 5,
-        0x000004C7 => 6,
-        0x00000708 => 8,
-        0x00000742 => 10,
-        _ => 0
-    };
 }

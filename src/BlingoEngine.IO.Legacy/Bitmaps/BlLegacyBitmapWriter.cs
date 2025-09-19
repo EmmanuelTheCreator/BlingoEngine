@@ -1,9 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 
+using BlingoEngine.IO.Data.DTO;
+using BlingoEngine.IO.Legacy.Cast;
 using BlingoEngine.IO.Legacy.Classic;
 using BlingoEngine.IO.Legacy.Data;
 using BlingoEngine.IO.Legacy.Tools;
+
+using KeyTableEntry = BlingoEngine.IO.Legacy.Cast.BlLegacyCastLibraryBuilderHelpers.KeyTableEntry;
 
 namespace BlingoEngine.IO.Legacy.Bitmaps;
 
@@ -15,12 +20,12 @@ namespace BlingoEngine.IO.Legacy.Bitmaps;
 /// </summary>
 internal sealed class BlLegacyBitmapWriter
 {
-    private static readonly BlTag BitdTag = BlTag.Register("BITD");
-    private static readonly BlTag DibTag = BlTag.Register("DIB ");
-    private static readonly BlTag PictTag = BlTag.Register("PICT");
-    private static readonly BlTag EditorTag = BlTag.Register("ediM");
-    private static readonly BlTag AlphaTag = BlTag.Register("ALFA");
-    private static readonly BlTag ThumbTag = BlTag.Register("Thum");
+    private static readonly BlTag BitdTag = BlTag.Get("BITD");
+    private static readonly BlTag DibTag = BlTag.Get("DIB ");
+    private static readonly BlTag PictTag = BlTag.Get("PICT");
+    private static readonly BlTag EditorTag = BlTag.Get("ediM");
+    private static readonly BlTag AlphaTag = BlTag.Get("ALFA");
+    private static readonly BlTag ThumbTag = BlTag.Get("Thum");
 
     private readonly BlStreamWriter _writer;
 
@@ -127,4 +132,127 @@ internal sealed class BlLegacyBitmapWriter
 
         return new BlLegacyResourceEntry(resourceId, tag, declaredSize, (uint)offset, 0, 0, 0);
     }
+}
+
+/// <summary>
+/// Provides helpers for synthesising bitmap cast libraries backed by classic <c>BITD</c>, <c>DIB </c>,
+/// or modern <c>ediM</c> metadata streams. The generated container mirrors the <c>KEY*</c>,
+/// <c>CAS*</c>, and <c>CASt</c> resources emitted by Director so the resulting archive can be consumed
+/// by the existing reader pipeline.
+/// </summary>
+public static class BlLegacyBitmapLibraryBuilder
+{
+    private const uint KeyResourceId = 1;
+    private const uint CastTableResourceId = 2;
+    private const uint CastMemberResourceId = 3;
+    private const uint FirstBitmapResourceId = 4;
+
+    private static readonly BlTag EditorTag = BlTag.Get("ediM");
+    private static readonly BlTag BitdTag = BlTag.Get("BITD");
+    private static readonly BlTag DibTag = BlTag.Get("DIB ");
+    private static readonly BlTag PictTag = BlTag.Get("PICT");
+    private static readonly BlTag AlphaTag = BlTag.Get("ALFA");
+    private static readonly BlTag ThumbTag = BlTag.Get("Thum");
+
+    /// <summary>
+    /// Builds a <see cref="DirFilesContainerDTO"/> containing a single bitmap cast member. Callers
+    /// can provide any combination of the legacy payloads – authoring metadata, BITD, DIB, PICT,
+    /// alpha, or thumbnail streams – and the builder will register each as a child resource under the
+    /// generated <c>CASt</c> record.
+    /// </summary>
+    /// <param name="memberName">Display name stored in the <c>CASt</c> metadata.</param>
+    /// <param name="metadataBytes">Optional <c>ediM</c> payload (PNG/JPEG/DIB) exposed to newer Director releases.</param>
+    /// <param name="bitdBytes">Optional classic <c>BITD</c> payload for Macintosh projectors.</param>
+    /// <param name="dibBytes">Optional Windows <c>DIB </c> payload paired with the classic bitmap.</param>
+    /// <param name="pictBytes">Optional QuickDraw <c>PICT</c> bytes stored alongside drawings.</param>
+    /// <param name="alphaMaskBytes">Optional <c>ALFA</c> payload that carries the standalone alpha mask.</param>
+    /// <param name="thumbnailBytes">Optional <c>Thum</c> payload exported by newer authoring tools.</param>
+    /// <returns>A container populated with the resources necessary to emit a cast library.</returns>
+    /// <exception cref="ArgumentException">Thrown when no bitmap payloads are provided.</exception>
+    public static DirFilesContainerDTO BuildSingleMemberBitmapLibrary(
+        string? memberName,
+        byte[]? metadataBytes = null,
+        byte[]? bitdBytes = null,
+        byte[]? dibBytes = null,
+        byte[]? pictBytes = null,
+        byte[]? alphaMaskBytes = null,
+        byte[]? thumbnailBytes = null)
+    {
+        if (IsEmpty(metadataBytes)
+            && IsEmpty(bitdBytes)
+            && IsEmpty(dibBytes)
+            && IsEmpty(pictBytes)
+            && IsEmpty(alphaMaskBytes)
+            && IsEmpty(thumbnailBytes))
+        {
+            throw new ArgumentException("At least one bitmap payload must be provided.", nameof(bitdBytes));
+        }
+
+        var container = new DirFilesContainerDTO();
+        var keyEntries = new List<KeyTableEntry>();
+        var childResources = new List<DirFileResourceDTO>();
+        uint nextResourceId = FirstBitmapResourceId;
+
+        AddResource(childResources, keyEntries, ref nextResourceId, metadataBytes, EditorTag);
+        AddResource(childResources, keyEntries, ref nextResourceId, bitdBytes, BitdTag);
+        AddResource(childResources, keyEntries, ref nextResourceId, dibBytes, DibTag);
+        AddResource(childResources, keyEntries, ref nextResourceId, pictBytes, PictTag);
+        AddResource(childResources, keyEntries, ref nextResourceId, alphaMaskBytes, AlphaTag);
+        AddResource(childResources, keyEntries, ref nextResourceId, thumbnailBytes, ThumbTag);
+
+        container.Files.Add(new DirFileResourceDTO
+        {
+            FileName = $"{BlTag.KeyStar.Value}_{KeyResourceId:D4}.bin",
+            Bytes = BlLegacyCastLibraryBuilderHelpers.BuildKeyTable(keyEntries)
+        });
+
+        container.Files.Add(new DirFileResourceDTO
+        {
+            FileName = $"{BlTag.CasStar.Value}_{CastTableResourceId:D4}.bin",
+            Bytes = BlLegacyCastLibraryBuilderHelpers.BuildCastTable(CastMemberResourceId)
+        });
+
+        container.Files.Add(new DirFileResourceDTO
+        {
+            FileName = $"CASt_{CastMemberResourceId:D4}.bin",
+            Bytes = BuildCastMember(memberName)
+        });
+
+        foreach (var resource in childResources)
+        {
+            container.Files.Add(resource);
+        }
+
+        return container;
+    }
+
+    private static byte[] BuildCastMember(string? memberName)
+        => BlLegacyCastLibraryBuilderHelpers.BuildModernCastMetadata(
+            BlLegacyCastMemberType.Bitmap,
+            memberName,
+            dataLength: 0u);
+
+    private static void AddResource(
+        List<DirFileResourceDTO> resources,
+        List<KeyTableEntry> keyEntries,
+        ref uint nextResourceId,
+        byte[]? payload,
+        BlTag tag)
+    {
+        if (IsEmpty(payload))
+        {
+            return;
+        }
+
+        var resourceId = nextResourceId++;
+        resources.Add(new DirFileResourceDTO
+        {
+            FileName = $"{tag.Value}_{resourceId:D4}.bin",
+            Bytes = payload!
+        });
+
+        keyEntries.Add(new KeyTableEntry(resourceId, CastMemberResourceId, tag));
+    }
+
+    private static bool IsEmpty(byte[]? payload) => payload is null || payload.Length == 0;
 }

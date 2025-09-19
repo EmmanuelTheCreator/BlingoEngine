@@ -18,12 +18,12 @@ namespace BlingoEngine.IO.Legacy.Bitmaps;
 /// </summary>
 internal sealed class BlLegacyBitmapReader
 {
-    private static readonly BlTag EditorTag = BlTag.Register("ediM");
-    private static readonly BlTag BitdTag = BlTag.Register("BITD");
-    private static readonly BlTag DibTag = BlTag.Register("DIB ");
-    private static readonly BlTag PictTag = BlTag.Register("PICT");
-    private static readonly BlTag AlphaTag = BlTag.Register("ALFA");
-    private static readonly BlTag ThumbTag = BlTag.Register("Thum");
+    private static readonly BlTag EditorTag = BlTag.Get("ediM");
+    private static readonly BlTag BitdTag = BlTag.Get("BITD");
+    private static readonly BlTag DibTag = BlTag.Get("DIB ");
+    private static readonly BlTag PictTag = BlTag.Get("PICT");
+    private static readonly BlTag AlphaTag = BlTag.Get("ALFA");
+    private static readonly BlTag ThumbTag = BlTag.Get("Thum");
 
     private static readonly BlTag[] ChildPriority =
     {

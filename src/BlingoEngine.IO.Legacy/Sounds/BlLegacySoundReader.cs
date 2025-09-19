@@ -16,10 +16,10 @@ namespace BlingoEngine.IO.Legacy.Sounds;
 /// </summary>
 internal sealed class BlLegacySoundReader
 {
-    private static readonly BlTag EditorTag = BlTag.Register("ediM");
-    private static readonly BlTag SoundDirectoryTag = BlTag.Register("snd ");
-    private static readonly BlTag SoundSampleTag = BlTag.Register("sndS");
-    private static readonly BlTag MacSoundTag = BlTag.Register("SND ");
+    private static readonly BlTag EditorTag = BlTag.Get("ediM");
+    private static readonly BlTag SoundDirectoryTag = BlTag.Get("snd ");
+    private static readonly BlTag SoundSampleTag = BlTag.Get("sndS");
+    private static readonly BlTag MacSoundTag = BlTag.Get("SND ");
 
     private static readonly BlTag[] ChildPriority =
     {

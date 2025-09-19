@@ -15,8 +15,8 @@ namespace BlingoEngine.IO.Legacy.Texts;
 /// </summary>
 internal sealed class BlLegacyTextWriter
 {
-    private static readonly BlTag StxtTag = BlTag.Register("STXT");
-    private static readonly BlTag XmedTag = BlTag.Register("XMED");
+    private static readonly BlTag StxtTag = BlTag.Get("STXT");
+    private static readonly BlTag XmedTag = BlTag.Get("XMED");
 
     private readonly BlStreamWriter _writer;
 
