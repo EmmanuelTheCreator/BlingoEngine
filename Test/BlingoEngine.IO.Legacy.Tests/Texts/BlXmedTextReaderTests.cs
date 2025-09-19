@@ -3,7 +3,7 @@ using System.IO;
 using BlingoEngine.IO.Legacy.Core;
 using BlingoEngine.IO.Legacy.Tests.Helpers;
 using FluentAssertions;
-using ProjectorRays.CastMembers;
+using BlingoEngine.IO.Legacy.Texts;
 using Xunit;
 
 namespace BlingoEngine.IO.Legacy.Tests.Texts;

@@ -1,5 +1,5 @@
-﻿using Godot;
-using ProjectorRays.Common;
+using Godot;
+using BlingoEngine.Director.Core.Importer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ namespace BlingoEngine.Director.LGodot.Gfx
     internal partial class HexDrawControlV2 : Control
     {
         private readonly byte[] _data;
-        private readonly RayStreamAnnotatorDecorator _annotator;
+        private readonly BinaryAnnotationSet _annotations;
         private readonly Dictionary<int, Color> _blockColors = new();
         private readonly Dictionary<int, int> _blockIndexByOffset = new();
 
@@ -23,16 +23,16 @@ namespace BlingoEngine.Director.LGodot.Gfx
         private const int LeftMargin = 10;
         private const int AsciiOffsetX = 900;
 
-        public HexDrawControlV2(byte[] data, RayStreamAnnotatorDecorator annotator)
+        public HexDrawControlV2(byte[] data, BinaryAnnotationSet annotations)
         {
             _data = data;
-            _annotator = annotator;
+            _annotations = annotations;
 
             int colorIndex = 0;
-            long baseOffset = annotator.StreamOffsetBase;
-            for (int idx = 0; idx < annotator.Annotations.Count; idx++)
+            long baseOffset = annotations.StreamOffsetBase;
+            for (int idx = 0; idx < annotations.Annotations.Count; idx++)
             {
-                var ann = annotator.Annotations[idx];
+                var ann = annotations.Annotations[idx];
                 var hue = (colorIndex * 0.1f) % 1f;
                 var color = Color.FromHsv(hue, 0.3f, 1f);
                 _blockColors[idx] = color;
@@ -91,10 +91,10 @@ namespace BlingoEngine.Director.LGodot.Gfx
                 int offset = GetOffsetFromPosition(motion.Position);
                 if (offset >= 0)
                 {
-                    string text = $"0x{_annotator.StreamOffsetBase + offset:X4}";
+                    string text = $"0x{_annotations.StreamOffsetBase + offset:X4}";
                     if (_blockIndexByOffset.TryGetValue(offset, out int blockId))
                     {
-                        var ann = _annotator.Annotations[blockId];
+                        var ann = _annotations.Annotations[blockId];
                         text += $" {ann.Description}";
                         if (ann.Keys.Count > 0)
                         {
@@ -128,7 +128,7 @@ namespace BlingoEngine.Director.LGodot.Gfx
                 return;
             }
 
-            long baseOffset = _annotator.StreamOffsetBase;
+            long baseOffset = _annotations.StreamOffsetBase;
             for (int i = 0; i < _data.Length; i += BytesPerRow)
             {
                 float y = (i / BytesPerRow) * RowHeight;
@@ -150,7 +150,7 @@ namespace BlingoEngine.Director.LGodot.Gfx
                         if (_blockColors.TryGetValue(blockId, out var c))
                             bg = c;
 
-                        var ann = _annotator.Annotations[blockId];
+                        var ann = _annotations.Annotations[blockId];
                         int relStart = (int)(ann.Address - baseOffset);
                         if (offset == relStart)
                             tag = ann.Description.Length > 6 ? ann.Description.Substring(0, 6) : ann.Description;
@@ -173,4 +173,3 @@ namespace BlingoEngine.Director.LGodot.Gfx
         }
     }
 }
-

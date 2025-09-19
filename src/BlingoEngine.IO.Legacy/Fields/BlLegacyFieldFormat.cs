@@ -7,7 +7,7 @@ namespace BlingoEngine.IO.Legacy.Fields;
 /// content inside <c>STXT</c> resources while newer versions may upgrade to styled containers.
 /// The value lets consumers decide how to decode the <see cref="BlLegacyField.Bytes"/> buffer.
 /// </summary>
-internal enum BlLegacyFieldFormatKind
+public enum BlLegacyFieldFormatKind
 {
     /// <summary>
     /// Format could not be determined from the resource metadata.

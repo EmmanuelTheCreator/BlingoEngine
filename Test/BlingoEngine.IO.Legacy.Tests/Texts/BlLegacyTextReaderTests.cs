@@ -4,7 +4,6 @@ using BlingoEngine.IO.Legacy.Tests.Helpers;
 using BlingoEngine.IO.Legacy.Texts;
 using BlingoEngine.IO.Legacy.Tools;
 using FluentAssertions;
-using ProjectorRays.CastMembers;
 using System.IO;
 using System.Linq;
 using System.Text;

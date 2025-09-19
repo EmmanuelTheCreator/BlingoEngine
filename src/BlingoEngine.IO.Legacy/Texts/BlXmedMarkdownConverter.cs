@@ -1,9 +1,9 @@
-﻿using System.Text;
-using ProjectorRays.CastMembers;
+using System.Text;
+using BlingoEngine.IO.Legacy.Core;
 
-namespace BlingoEngine.Director.Core.Texts;
+namespace BlingoEngine.IO.Legacy.Texts;
 
-public static class XmedMarkdownConverter
+public static class BlXmedMarkdownConverter
 {
     public static string ToCustomMarkdown(XmedDocument doc)
     {
@@ -22,7 +22,7 @@ public static class XmedMarkdownConverter
 
         string? currentFont = null;
         ushort currentSize = 0;
-        RayColor currentColor = default;
+        BlLegacyColor currentColor = default;
         bool hasColor = false;
 
         foreach (var run in doc.Runs)

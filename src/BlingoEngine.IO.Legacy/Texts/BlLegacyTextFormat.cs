@@ -8,7 +8,7 @@ namespace BlingoEngine.IO.Legacy.Texts;
 /// Consumers can inspect this value to decide how the <see cref="BlLegacyText.Bytes"/> buffer
 /// should be interpreted.
 /// </summary>
-internal enum BlLegacyTextFormatKind
+public enum BlLegacyTextFormatKind
 {
     /// <summary>
     /// Format could not be determined from the resource tag.

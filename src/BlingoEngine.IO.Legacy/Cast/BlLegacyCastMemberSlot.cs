@@ -9,4 +9,4 @@ namespace BlingoEngine.IO.Legacy.Cast;
 /// <param name="ResourceId">Identifier of the <c>CASt</c> resource referenced by the slot.</param>
 /// <param name="MemberType">Type of cast member stored inside the <c>CASt</c> payload.</param>
 /// <param name="Name">Name recorded in the member info block, when available.</param>
-internal readonly record struct BlLegacyCastMemberSlot(int SlotIndex, int ResourceId, BlLegacyCastMemberType MemberType, string Name);
+public readonly record struct BlLegacyCastMemberSlot(int SlotIndex, int ResourceId, BlLegacyCastMemberType MemberType, string Name);

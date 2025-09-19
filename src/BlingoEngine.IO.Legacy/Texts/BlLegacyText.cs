@@ -7,7 +7,7 @@ namespace BlingoEngine.IO.Legacy.Texts;
 /// detected container format and the raw payload bytes so higher layers can experiment with the
 /// embedded styling or plain text streams without re-reading the archive.
 /// </summary>
-internal sealed class BlLegacyText
+public sealed class BlLegacyText
 {
     /// <summary>
     /// Gets the resource identifier assigned to the text entry inside the resource table.

@@ -2,7 +2,7 @@ using System.IO;
 using System.Linq;
 using BlingoEngine.IO.Legacy.Tests.Helpers;
 using FluentAssertions;
-using ProjectorRays.CastMembers;
+using BlingoEngine.IO.Legacy.Texts;
 using Xunit;
 
 namespace BlingoEngine.IO.Legacy.Tests.Texts;
