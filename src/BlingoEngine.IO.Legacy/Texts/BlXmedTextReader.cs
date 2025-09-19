@@ -274,8 +274,15 @@ public sealed class BlXmedTextReader
             document.Runs.Add(run);
         }
 
-        if (document.Runs.Count == 0 && text.Length > 0)
+        var totalLength = 0;
+        for (int i = 0; i < document.Runs.Count; i++)
         {
+            totalLength += document.Runs[i].Length;
+        }
+
+        if ((document.Runs.Count == 0 || totalLength != text.Length) && text.Length > 0)
+        {
+            document.Runs.Clear();
             document.Runs.Add(new XmedTextRun
             {
                 Start = 0,
